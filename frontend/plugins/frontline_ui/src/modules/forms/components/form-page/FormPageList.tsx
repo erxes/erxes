@@ -33,14 +33,19 @@ export const FormPageList = () => {
           <Empty.Media>
             <IconForms />
           </Empty.Media>
-          <Empty.Title>{t('no-forms-found')}</Empty.Title>
-          <Empty.Description>{t('forms-empty-description')}</Empty.Description>
+          <Empty.Title>{t('no-forms-found', 'No forms found')}</Empty.Title>
+          <Empty.Description>
+            {t(
+              'forms-empty-description',
+              'Create a form to start collecting data.',
+            )}
+          </Empty.Description>
         </Empty.Header>
         <Empty.Content>
           <Button variant={'outline'} asChild>
             <Link to="/settings/frontline/channels">
               <IconSettings />
-              {t('go-to-channels')}
+              {t('go-to-channels', 'Go to channels')}
             </Link>
           </Button>
         </Empty.Content>

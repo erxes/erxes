@@ -10,6 +10,7 @@ import {
   readImage,
 } from 'erxes-ui';
 import { CustomersInline, MembersInline } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 import { HAS_ATTACHMENT } from '@/inbox/constants/messengerConstants';
 import { ConversationFormDisplay } from '@/inbox/conversation-messages/components/ConversationFormDisplay';
@@ -54,6 +55,7 @@ const getMessageBubbleClassName = ({
 
 // skipcq: JS-R1005 — many independent display branches (text / attachment /
 export const MessageItem = () => {
+  const { t } = useTranslation('frontline');
   const { previousMessage, nextMessage, ...message } =
     useConversationMessageContext();
   const {
@@ -78,12 +80,16 @@ export const MessageItem = () => {
   const poll = extraData?.poll;
   const embeds = extraData?.embeds;
 
-  const botText = isBotMessage && botData?.length
-    ? (botData as Array<{ type?: string; text?: string; content?: string }>)
-        .filter((item) => item?.type !== 'quickReplies' && item?.type !== 'ticketForm')
-        .map((item) => item?.text || item?.content || '')
-        .join('')
-    : undefined;
+  const botText =
+    isBotMessage && botData?.length
+      ? (botData as Array<{ type?: string; text?: string; content?: string }>)
+          .filter(
+            (item) =>
+              item?.type !== 'quickReplies' && item?.type !== 'ticketForm',
+          )
+          .map((item) => item?.text || item?.content || '')
+          .join('')
+      : undefined;
 
   const displayContent = botText || content;
 
@@ -121,13 +127,16 @@ export const MessageItem = () => {
     <>
       {showAuthorName && (
         <div className="pl-11 pt-4 pb-0.5 text-xs font-medium text-muted-foreground">
-          <CustomersInline customerIds={customerId ? [customerId] : []} hideAvatar />
+          <CustomersInline
+            customerIds={customerId ? [customerId] : []}
+            hideAvatar
+          />
         </div>
       )}
       {showBotName && (
         <div className="pl-11 pt-4 pb-0.5 flex items-center gap-1 text-xs font-medium text-primary">
           <IconSparkles className="size-3.5" />
-          AI Agent
+          {t('ai-agent', 'AI Agent')}
         </div>
       )}
       {/* skipcq: JS-0357 */}
@@ -162,7 +171,7 @@ export const MessageItem = () => {
                   (showAuthorName || showBotName ? 'mt-0' : 'mt-8'),
               )}
             >
-              Message deleted on Discord
+              {t('message-deleted-on-discord', 'Message deleted on Discord')}
               {separateNext && (
                 <div className="mt-1 text-xs not-italic">
                   <RelativeDateDisplay value={createdAt}>
@@ -212,17 +221,17 @@ export const MessageItem = () => {
             (Boolean(attachments?.length) ||
               Boolean(poll) ||
               Boolean(embeds?.length)) && (
-            <div
-              className={cn(
-                'text-muted-foreground mt-1 text-xs',
-                userId ? 'text-right' : 'text-left',
-              )}
-            >
-              <RelativeDateDisplay value={createdAt}>
-                <RelativeDateDisplay.Value value={createdAt} />
-              </RelativeDateDisplay>
-            </div>
-          )}
+              <div
+                className={cn(
+                  'text-muted-foreground mt-1 text-xs',
+                  userId ? 'text-right' : 'text-left',
+                )}
+              >
+                <RelativeDateDisplay value={createdAt}>
+                  <RelativeDateDisplay.Value value={createdAt} />
+                </RelativeDateDisplay>
+              </div>
+            )}
         </div>
       </MessageWrapper>
     </>
@@ -315,6 +324,7 @@ const Attachment = ({
   attachment: IAttachment;
   length?: number;
 }) => {
+  const { t } = useTranslation('frontline');
   const isImage = attachment.type.startsWith('image');
   const single = length === 1;
   if (!isImage) {
@@ -334,7 +344,7 @@ const Attachment = ({
         <IconFile className="size-8 shrink-0 text-muted-foreground" />
         <div className="flex min-w-0 flex-col">
           <span className="truncate text-sm font-medium text-primary">
-            {attachment.name || 'File'}
+            {attachment.name || t('file', 'File')}
           </span>
           {Boolean(attachment.size) && (
             <span className="text-xs text-muted-foreground">

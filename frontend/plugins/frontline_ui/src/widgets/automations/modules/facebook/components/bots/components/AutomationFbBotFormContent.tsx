@@ -15,7 +15,11 @@ import { useEffect } from 'react';
 import { FacebookBotPageSelectorSteps } from '~/widgets/automations/modules/facebook/components/bots/components/FacebookBotPageSelectorSteps';
 import { FacebookPageInfo } from '~/widgets/automations/modules/facebook/components/bots/components/FacebookPageInfo';
 import { useFacebookBotSave } from '~/widgets/automations/modules/facebook/components/bots/hooks/useFacebookBotForm';
-import { isOpenFacebookBotSecondarySheet } from '~/widgets/automations/modules/facebook/components/bots/states/facebookBotStates';
+import {
+  facebookBotFormTabState,
+  isOpenFacebookBotSecondarySheet,
+  TFacebookBotFormTab,
+} from '~/widgets/automations/modules/facebook/components/bots/states/facebookBotStates';
 import { FacebookBotAutomations } from '~/widgets/automations/modules/facebook/components/bots/components/FacebookBotAutomations';
 import { FacebookBotCommentActivity } from '~/widgets/automations/modules/facebook/components/bots/components/FacebookBotCommentActivity';
 import { FacebookBotProfileHealth } from '~/widgets/automations/modules/facebook/components/bots/components/FacebookBotProfileHealth';
@@ -31,6 +35,7 @@ export const AutomationFbBotFormContent = ({
 } = {}) => {
   const { t } = useTranslation('frontline');
   const { form, facebookMessengerBot } = useFbBotFormContext();
+  const [activeTab, setActiveTab] = useAtom(facebookBotFormTabState);
   const { onSave, onSaveloading } = useFacebookBotSave(
     facebookMessengerBot?._id,
   );
@@ -76,7 +81,12 @@ export const AutomationFbBotFormContent = ({
                 </Form.Item>
               )}
             />
-            <Tabs defaultValue="settings">
+            <Tabs
+              value={activeTab}
+              onValueChange={(value) =>
+                setActiveTab(value as TFacebookBotFormTab)
+              }
+            >
               <Tabs.List className="grid w-full grid-cols-2">
                 <Tabs.Trigger value="settings">
                   {t('bot-tab-settings', { defaultValue: 'Settings' })}

@@ -47,7 +47,9 @@ export const NotificationChannelContent = ({
         />
       </div>
 
-      <p className="font-bold text-lg font-stretch-extra-expanded">{t('channel-label')}</p>
+      <p className="font-bold text-lg font-stretch-extra-expanded">
+        {t('channel-label', 'Channel')}
+      </p>
 
       <div className="flex flex-row items-center gap-2">
         <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm text-foreground">

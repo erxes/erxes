@@ -25,7 +25,7 @@ export function FormToggleStatus({ formId, status, setOpen }: Props) {
       },
       onError: (error) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           variant: 'destructive',
           description: error.message,
         });
@@ -36,7 +36,9 @@ export function FormToggleStatus({ formId, status, setOpen }: Props) {
   return (
     <DropdownMenu.Item onSelect={onSelect}>
       <IconSquareToggle />
-      {status === 'active' ? t('archive') : t('unarchive')}
+      {status === 'active'
+        ? t('archive', 'Archive')
+        : t('unarchive', 'Unarchive')}
     </DropdownMenu.Item>
   );
 }

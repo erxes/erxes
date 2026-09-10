@@ -24,7 +24,7 @@ export const ChannelHeader = () => {
                 onClick={() => navigate(`/settings/frontline/channels/${id}`)}
               >
                 <IconArrowLeft size={16} className="stroke-foreground" />
-                {t('channel-settings')}
+                {t('channel-settings', 'Channel Settings')}
               </Button>
             </Breadcrumb.Link>
           </Breadcrumb.Item>

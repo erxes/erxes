@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Open_Sans } from 'next/font/google';
+import Script from 'next/script';
 import './globals.css';
 import { ApolloWrapper } from '@/modules/apollo/components/ApolloWrapper';
 import { readConfig } from '@/modules/config/api';
@@ -40,6 +41,19 @@ export default async function RootLayout({
 
   return (
     <html lang="en" className={`${openSans.variable} h-full`}>
+      <head>
+        {/*
+         * Written by docker-entrypoint.sh from the container's environment,
+         * so the gateway stays a runtime setting rather than a value baked
+         * into the client bundle. Absent outside Docker, where the browser
+         * falls back to what `next build` inlined from .env.local.
+         */}
+        <Script
+          strategy="beforeInteractive"
+          type="text/javascript"
+          src="/js/env.js"
+        />
+      </head>
       <body className="flex min-h-full flex-col bg-subtle text-ink">
         <noscript>
           <style>

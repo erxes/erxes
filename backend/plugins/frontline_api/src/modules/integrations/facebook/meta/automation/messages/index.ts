@@ -1,7 +1,10 @@
 import { debugError } from '@/integrations/facebook/debuggers';
 import { receiveInboxMessage } from '@/inbox/receiveMessage';
 import { TAutomationActionConfig } from '@/integrations/facebook/meta/automation/types/automationTypes';
-import { checkContentConditions } from '@/integrations/facebook/meta/automation/utils/messageUtils';
+import {
+  checkContentConditions,
+  isPostbackPayload,
+} from '@/integrations/facebook/meta/automation/utils/messageUtils';
 import {
   IAutomationAction,
   IAutomationExecution,
@@ -154,6 +157,13 @@ export const checkMessageTrigger = async (
           continue;
         }
 
+        // A tap is not a typed message. Guarding only `btnId` let Get Started,
+        // menu items, ice breakers and card buttons all match here as well,
+        // so an automation listening for either fired twice.
+        if (isPostbackPayload(payload)) {
+          continue;
+        }
+
         if (directMessageCondtions?.length > 0) {
           return !!checkContentConditions(
             target?.content || '',
@@ -161,7 +171,7 @@ export const checkMessageTrigger = async (
           );
         }
 
-        if (String(target?.content || '').trim() && !payload?.btnId) {
+        if (String(target?.content || '').trim()) {
           return true;
         }
       }

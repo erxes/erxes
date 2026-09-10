@@ -1,7 +1,10 @@
 import { unstable_cache } from 'next/cache';
 import { headers } from 'next/headers';
 import { query, setAppTokenReader } from '@/modules/apollo/apolloClient';
-import { readApiUrl } from '@/modules/apollo/utils/env';
+import {
+  apiUrlForHost,
+  setResolvedApiUrlReader,
+} from '@/modules/apollo/utils/env';
 import { errorMessage, type PortalResult } from '@/modules/apollo/utils/result';
 import { HELP_CENTER_CONFIG_BY_DOMAIN } from './graphql/queries/helpCenterConfig';
 import { normalizeConfig } from './utils/normalize';
@@ -13,6 +16,11 @@ const requestOrigin = async (): Promise<string> => {
   const list = await headers();
 
   const host = list.get('x-forwarded-host') ?? list.get('host') ?? '';
+
+  // A SaaS gateway is addressed per tenant, and this is the first thing the
+  // server reads from a request, so the address is resolved from this host for
+  // everything the request goes on to ask for.
+  apiUrl = apiUrlForHost(host);
 
   if (!host) {
     return '';
@@ -28,11 +36,12 @@ const requestOrigin = async (): Promise<string> => {
 };
 
 let appToken = '';
+let apiUrl = '';
 
 const fetchConfig = async (
   domain: string,
 ): Promise<PortalResult<PortalConfig>> => {
-  if (!readApiUrl()) {
+  if (!apiUrl) {
     return { state: 'unconfigured', missing: ['NEXT_PUBLIC_ERXES_API_URL'] };
   }
 
@@ -92,3 +101,4 @@ export const readConfig = async (): Promise<PortalConfig | null> => {
 };
 
 setAppTokenReader(() => appToken);
+setResolvedApiUrlReader(() => apiUrl);

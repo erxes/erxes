@@ -16,7 +16,7 @@ export const MemberSection = ({ channel }: { channel: IChannel }) => {
     >
       <section className="w-full p-4">
         <div className="flex items-center justify-between">
-          <p>{t('manage-channel-members')}</p>
+          <p>{t('manage-channel-members', 'Manage channel members')}</p>
 
           <div className="flex items-center gap-2">
             <p className="text-xs">

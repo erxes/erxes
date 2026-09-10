@@ -16,13 +16,13 @@ export const ConversationTag = ({
       options={(newTagIds: string[]) => ({
         onCompleted: () => {
           toast({
-            title: t('tag-updated'),
+            title: t('tag-updated', 'Tag updated'),
             variant: 'default',
           });
         },
         onError: (error: Error) => {
           toast({
-            title: t('failed-to-update-tags'),
+            title: t('failed-to-update-tags', 'Failed to update tags'),
             description: error.message,
             variant: 'destructive',
           });

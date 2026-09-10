@@ -18,11 +18,11 @@ export const ResponseDetail = () => {
     updateResponse({
       variables: { ...data, id: responseId },
       onCompleted: (res) => {
-        toast({ title: t('success') });
+        toast({ title: t('success', 'Success!') });
       },
       onError: (err) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: err.message,
           variant: 'destructive',
         });

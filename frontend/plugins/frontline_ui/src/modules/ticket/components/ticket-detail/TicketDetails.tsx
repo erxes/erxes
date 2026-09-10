@@ -18,7 +18,7 @@ export const TicketDetails = ({ ticketId }: { ticketId: string }) => {
   if (!ticket) {
     return (
       <div className="flex h-full w-full items-center justify-center text-muted-foreground">
-        {t('ticket-not-found')}
+        {t('ticket-not-found', 'Ticket not found')}
       </div>
     );
   }

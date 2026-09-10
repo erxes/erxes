@@ -1,5 +1,4 @@
 import { generateModels, IModels } from '~/connectionResolvers';
-import { consumePostPublicReplyBudget } from '@/integrations/facebook/commentGuard';
 import { debugError } from '@/integrations/facebook/debuggers';
 import { queueCommentReply } from '@/integrations/facebook/commentOutbox';
 import { checkContentConditions } from '@/integrations/facebook/meta/automation/utils/messageUtils';
@@ -50,24 +49,6 @@ export const actionCreateComment = async (
         reason: 'send-blocked',
         blockedUntil: sendBlock.until,
         blockReason: sendBlock.reason,
-      };
-    }
-
-    const budget = await consumePostPublicReplyBudget(
-      models,
-      subdomain,
-      target?.postId,
-    );
-
-    if (!budget.allowed) {
-      // Returned rather than thrown: a thrown action ends the execution, and the
-      // private reply that follows it is the one that actually converts.
-      return {
-        status: 'skipped',
-        reason: 'post-public-reply-limit',
-        postId: target?.postId,
-        limit: budget.limit,
-        used: budget.used,
       };
     }
 

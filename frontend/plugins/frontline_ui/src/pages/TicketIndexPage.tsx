@@ -50,7 +50,7 @@ const TicketsIndexPage = () => {
   const favoriteBreadcrumb = createFavoriteBreadcrumb(
     channel?.name,
     pipeline?.name,
-    t('tickets'),
+    t('tickets', 'Tickets'),
   );
 
   const getFilters = () => {
@@ -66,7 +66,7 @@ const TicketsIndexPage = () => {
             <Empty.Media variant="icon">
               <IconAlertCircle />
             </Empty.Media>
-            <Empty.Title>{t('error')}</Empty.Title>
+            <Empty.Title>{t('error', 'Error')}</Empty.Title>
             <Empty.Description>
               {favoriteBreadcrumbError.message}
             </Empty.Description>
@@ -86,7 +86,7 @@ const TicketsIndexPage = () => {
                 <Button variant="ghost" asChild>
                   <Link to="/frontline/tickets">
                     <IconTicket />
-                    {t('tickets')}
+                    {t('tickets', 'Tickets')}
                   </Link>
                 </Button>
               </Breadcrumb.Item>
