@@ -21,6 +21,8 @@
     "sendTestEmailAction": "Туршилтын имэйл илгээх",
     "sendTestEmailSending": "Илгээж байна...",
     "sendTestEmailSuccess": "Туршилтын имэйл {{email}} хаяг руу илгээгдлээ",
+    "sendTestEmailSingleRecipientOnly": "Туршилтын имэйлийг нэг удаад зөвхөн нэг хаяг руу илгээх боломжтой",
+    "sendTestEmailLoadingSenderInfo": "Илгээгчийн мэдээлэл ачааллаж байна...",
     "saveAsTemplate": "Загвар болгож хадгалах",
     "saveAsTemplatePlaceholder": "Загварын нэр",
     "saveAsTemplateAction": "Загвар хадгалах",

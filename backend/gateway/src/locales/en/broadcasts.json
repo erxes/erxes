@@ -21,6 +21,8 @@
     "sendTestEmailAction": "Send test email",
     "sendTestEmailSending": "Sending...",
     "sendTestEmailSuccess": "Test email sent to {{email}}",
+    "sendTestEmailSingleRecipientOnly": "Test emails can only be sent to one address at a time",
+    "sendTestEmailLoadingSenderInfo": "Loading sender info...",
     "saveAsTemplate": "Save as template",
     "saveAsTemplatePlaceholder": "Template name",
     "saveAsTemplateAction": "Save template",
