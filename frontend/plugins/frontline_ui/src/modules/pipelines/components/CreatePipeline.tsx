@@ -51,14 +51,14 @@ const CreatePipelineSheetForm = ({
         onCompleted: (response) => {
           form.reset();
           onClose();
-          toast({ title: t('success') });
+          toast({ title: t('success', 'Success!') });
           navigate(
             `/settings/frontline/channels/${channelId}/pipelines/${response.createPipeline._id}`,
           );
         },
         onError: (error) =>
           toast({
-            title: t('error'),
+            title: t('error', 'Error'),
             description: error.message,
             variant: 'destructive',
           }),
@@ -74,7 +74,7 @@ const CreatePipelineSheetForm = ({
         onSubmit={form.handleSubmit(submitHandler)}
       >
         <Sheet.Header>
-          <Sheet.Title>{t('add-pipeline')}</Sheet.Title>
+          <Sheet.Title>{t('add-pipeline', 'Add pipeline')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="grow size-full flex flex-col px-5 py-4">
@@ -87,10 +87,10 @@ const CreatePipelineSheetForm = ({
             type="button"
             variant="secondary"
           >
-            {t('cancel')}
+            {t('cancel', 'Cancel')}
           </Button>
           <Button disabled={loading} type="submit">
-            {loading ? <Spinner /> : t('create')}
+            {loading ? <Spinner /> : t('create', 'Create')}
           </Button>
         </Sheet.Footer>
       </form>
@@ -145,7 +145,7 @@ export const CreatePipeline = () => {
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          {t('create-pipeline')}
+          {t('create-pipeline', 'Create pipeline')}
           <Kbd>C</Kbd>
         </Button>
       </Sheet.Trigger>

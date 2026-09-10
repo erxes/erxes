@@ -147,7 +147,7 @@ export const ConversationFormDisplay = ({
                               type="button"
                               className="items-center gap-1 cursor-pointer text-sm w-full justify-center hidden"
                             >
-                              {t('view-attachments')}
+                              {t('view-attachments', 'View attachments')}
                             </Upload.Button>
                           </Upload.Root>
                         );

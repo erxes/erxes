@@ -88,7 +88,7 @@ const SelectTicketConfigValue = ({
   if (value.length === 0) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || t('search-config')}
+        {placeholder || t('search-config', 'Search config')}
       </span>
     );
   }
@@ -136,7 +136,7 @@ const SelectTicketConfigValue = ({
       <Tooltip.Provider>
         <Tooltip.Trigger>
           <Badge className={cn('font-medium text-sm', className)}>
-            {t('n-selected', { count: value.length })}
+            {t('n-selected', '{{count}} selected', { count: value.length })}
           </Badge>
         </Tooltip.Trigger>
         <Tooltip.Content>
@@ -177,14 +177,16 @@ const SelectTicketConfigContent = () => {
   const { configs, channelId, loading, error } = useSelectTicketConfigContext();
   return (
     <Command>
-      <Command.Input placeholder={t('search-config')} />
+      <Command.Input placeholder={t('search-config', 'Search config')} />
       <Command.List>
         {loading || error ? (
           <Combobox.Empty loading={loading} error={error} />
         ) : (
           <Command.Empty>
             <span className="text-muted-foreground">
-              {channelId ? t('no-config-found') : t('channel-not-selected')}
+              {channelId
+                ? t('no-config-found', 'No config found')
+                : t('channel-not-selected', 'Channel not selected')}
             </span>
           </Command.Empty>
         )}

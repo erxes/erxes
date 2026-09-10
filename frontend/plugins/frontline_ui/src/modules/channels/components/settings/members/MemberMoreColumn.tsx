@@ -21,15 +21,18 @@ export const MemberMoreColumnCell = ({ cell }: { cell: Cell<any, any> }) => {
   const handleDelete = async () => {
     if (!memberId || !channelId) {
       toast({
-        title: t('error'),
-        description: t('member-id-missing'),
+        title: t('error', 'Error'),
+        description: t('member-id-missing', 'Member ID is missing'),
         variant: 'destructive',
       });
       return;
     }
 
     confirm({
-      message: t('confirm-delete-member'),
+      message: t(
+        'confirm-delete-member',
+        'Are you sure you want to delete this member?',
+      ),
     }).then(() => {
       removeChannelMember({
         variables: { channelId, memberId },
@@ -45,7 +48,7 @@ export const MemberMoreColumnCell = ({ cell }: { cell: Cell<any, any> }) => {
         <Command shouldFilter={false}>
           <Command.List>
             <Command.Item value="delete" onSelect={handleDelete}>
-              <IconTrash /> {t('delete')}
+              <IconTrash /> {t('delete', 'Delete')}
             </Command.Item>
           </Command.List>
         </Command>

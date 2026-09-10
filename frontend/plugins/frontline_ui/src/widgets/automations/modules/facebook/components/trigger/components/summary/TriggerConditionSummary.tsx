@@ -23,7 +23,7 @@ export const TriggerConditionSummary = ({
 
           {conditionSummaries.length > 1 &&
           index + 1 !== conditionSummaries.length ? (
-            <span className="flex justify-center">{t('or')}</span>
+            <span className="flex justify-center">{t('or', 'OR')}</span>
           ) : null}
         </div>
       ))}

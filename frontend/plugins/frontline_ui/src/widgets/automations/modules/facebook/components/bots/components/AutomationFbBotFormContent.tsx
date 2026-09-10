@@ -1,27 +1,28 @@
-import { useTranslation } from 'react-i18next';
 import {
   Button,
-  cn,
   Form,
   Input,
   Separator,
   Sheet,
   Spinner,
   Tabs,
+  cn,
   toast,
 } from 'erxes-ui';
-import { useAtom } from 'jotai';
-import { useEffect } from 'react';
-import { FacebookBotPageSelectorSteps } from '~/widgets/automations/modules/facebook/components/bots/components/FacebookBotPageSelectorSteps';
-import { FacebookPageInfo } from '~/widgets/automations/modules/facebook/components/bots/components/FacebookPageInfo';
-import { useFacebookBotSave } from '~/widgets/automations/modules/facebook/components/bots/hooks/useFacebookBotForm';
-import { isOpenFacebookBotSecondarySheet } from '~/widgets/automations/modules/facebook/components/bots/states/facebookBotStates';
+
+import { AutomationBotFormEffect } from './AutomationBotFormEffect';
 import { FacebookBotAutomations } from '~/widgets/automations/modules/facebook/components/bots/components/FacebookBotAutomations';
 import { FacebookBotCommentActivity } from '~/widgets/automations/modules/facebook/components/bots/components/FacebookBotCommentActivity';
+import { FacebookBotPageSelectorSteps } from '~/widgets/automations/modules/facebook/components/bots/components/FacebookBotPageSelectorSteps';
 import { FacebookBotProfileHealth } from '~/widgets/automations/modules/facebook/components/bots/components/FacebookBotProfileHealth';
 import { FacebookBotSettingsTab } from '~/widgets/automations/modules/facebook/components/bots/components/FacebookBotSettingsTab';
+import { FacebookPageInfo } from '~/widgets/automations/modules/facebook/components/bots/components/FacebookPageInfo';
+import { isOpenFacebookBotSecondarySheet } from '~/widgets/automations/modules/facebook/components/bots/states/facebookBotStates';
+import { useAtom } from 'jotai';
+import { useEffect } from 'react';
+import { useFacebookBotSave } from '~/widgets/automations/modules/facebook/components/bots/hooks/useFacebookBotForm';
 import { useFbBotFormContext } from '../context/FbBotFormContext';
-import { AutomationBotFormEffect } from './AutomationBotFormEffect';
+import { useTranslation } from 'react-i18next';
 
 export const AutomationFbBotFormContent = ({
   isPageFixed,
@@ -69,7 +70,7 @@ export const AutomationFbBotFormContent = ({
               name="name"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>{t('name')}</Form.Label>
+                  <Form.Label>{t('name', 'Name')}</Form.Label>
 
                   <Input {...field} />
                   <Form.Message />
@@ -110,12 +111,12 @@ export const AutomationFbBotFormContent = ({
           disabled={onSaveloading}
           onClick={form.handleSubmit(onSave, (error) =>
             toast({
-              title: t('something-went-wrong'),
+              title: t('something-went-wrong', 'Uh oh! Something went wrong.'),
               description: JSON.stringify(error),
             }),
           )}
         >
-          {onSaveloading ? <Spinner /> : t('save')}
+          {onSaveloading ? <Spinner /> : t('save', 'Save')}
         </Button>
       </Sheet.Footer>
     </>
@@ -139,7 +140,7 @@ const FbBotFormSecondarySheet = ({
       <div className="flex justify-between items-center pb-2">
         <FacebookPageInfo accountId={accountId} pageId={pageId} />
         <Sheet.Trigger asChild>
-          <Button>{t('select-page')}</Button>
+          <Button>{t('select-page', 'Select Page')}</Button>
         </Sheet.Trigger>
       </div>
       <Separator />

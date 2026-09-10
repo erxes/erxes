@@ -40,7 +40,10 @@ const ConfigMenu = ({ configId }: { configId: string }) => {
 
   const onRemove = () => {
     confirm({
-      message: t('confirm-remove-configuration'),
+      message: t(
+        'confirm-remove-configuration',
+        'Are you sure you want to remove this configuration?',
+      ),
       options: { confirmationValue: 'delete' },
     }).then(() => {
       removeTicketConfig({ variables: { id: configId } });
@@ -57,7 +60,7 @@ const ConfigMenu = ({ configId }: { configId: string }) => {
       <DropdownMenu.Content align="end" className="min-w-40">
         <DropdownMenu.Item onSelect={() => setConfigId(configId)}>
           <IconEdit />
-          {t('edit')}
+          {t('edit', 'Edit')}
         </DropdownMenu.Item>
         <DropdownMenu.Separator />
         <DropdownMenu.Item
@@ -66,7 +69,7 @@ const ConfigMenu = ({ configId }: { configId: string }) => {
           onSelect={onRemove}
         >
           <IconTrash />
-          {t('delete')}
+          {t('delete', 'Delete')}
         </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu>
@@ -96,15 +99,20 @@ export const ConfigList = () => {
           <Empty.Media>
             <IconMessageCog />
           </Empty.Media>
-          <Empty.Title>{t('messenger-configuration')}</Empty.Title>
+          <Empty.Title>
+            {t('messenger-configuration', 'Messenger Configuration')}
+          </Empty.Title>
           <Empty.Description>
-            {t('configure-messenger-configuration')}
+            {t(
+              'configure-messenger-configuration',
+              'Configure the messenger configuration',
+            )}
           </Empty.Description>
         </Empty.Header>
         <Empty.Content>
           <Button onClick={() => setCreateOpen(true)}>
             <IconPlus />
-            {t('add-configuration')}
+            {t('add-configuration', 'Add Configuration')}
           </Button>
         </Empty.Content>
       </Empty>
@@ -112,7 +120,9 @@ export const ConfigList = () => {
   }
 
   return (
-    <PipelineSection title={t('messenger-configuration')}>
+    <PipelineSection
+      title={t('messenger-configuration', 'Messenger Configuration')}
+    >
       {loading || !ticketConfig ? (
         <ConfigRowSkeleton />
       ) : (
@@ -132,7 +142,7 @@ export const ConfigList = () => {
               <span className="truncate font-mono text-xs uppercase text-muted-foreground">
                 {shownFields.length
                   ? shownFields.join(' · ')
-                  : t('no-fields-to-preview')}
+                  : t('no-fields-to-preview', 'No fields to preview')}
               </span>
             </span>
           </Button>

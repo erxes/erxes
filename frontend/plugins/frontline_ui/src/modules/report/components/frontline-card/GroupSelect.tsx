@@ -21,14 +21,14 @@ export const GroupSelect = ({
 
   const getDisplayLabel = () => {
     const labels: Record<string, string> = {
-      all: t('all-sources'),
-      'facebook-messenger': t('facebook-messenger'),
-      'facebook-post': t('facebook-post'),
-      'instagram-messenger': t('instagram-messenger'),
-      'instagram-post': t('instagram-post'),
-      calls: t('calls'),
-      messenger: t('messenger'),
-      form: t('source-form'),
+      all: t('all-sources', 'All Sources'),
+      'facebook-messenger': t('facebook-messenger', 'Facebook Messenger'),
+      'facebook-post': t('facebook-post', 'Facebook Post'),
+      'instagram-messenger': t('instagram-messenger', 'Instagram Messenger'),
+      'instagram-post': t('instagram-post', 'Instagram Post'),
+      calls: t('calls', 'Calls'),
+      messenger: t('messenger', 'Messenger'),
+      form: t('source-form', 'Form'),
     };
     return labels[value] || value;
   };
@@ -36,7 +36,7 @@ export const GroupSelect = ({
   return (
     <div className="flex items-center gap-2 shrink-0 flex-none">
       <span className="text-xs text-muted-foreground whitespace-nowrap">
-        Group By
+        {t('group-by-label', 'Group By')}
       </span>
       <PopoverScoped open={open} onOpenChange={setOpen}>
         <Combobox.TriggerBase>
@@ -49,49 +49,49 @@ export const GroupSelect = ({
                 value="all"
                 onSelect={() => handleValueChange('all')}
               >
-                {t('all-sources')}
+                {t('all-sources', 'All Sources')}
               </Command.Item>
               <Command.Item
                 value="facebook-messenger"
                 onSelect={() => handleValueChange('facebook-messenger')}
               >
-                {t('facebook-messenger')}
+                {t('facebook-messenger', 'Facebook Messenger')}
               </Command.Item>
               <Command.Item
                 value="facebook-post"
                 onSelect={() => handleValueChange('facebook-post')}
               >
-                {t('facebook-post')}
+                {t('facebook-post', 'Facebook Post')}
               </Command.Item>
               <Command.Item
                 value="instagram-messenger"
                 onSelect={() => handleValueChange('instagram-messenger')}
               >
-                {t('instagram-messenger')}
+                {t('instagram-messenger', 'Instagram Messenger')}
               </Command.Item>
               <Command.Item
                 value="instagram-post"
                 onSelect={() => handleValueChange('instagram-post')}
               >
-                {t('instagram-post')}
+                {t('instagram-post', 'Instagram Post')}
               </Command.Item>
               <Command.Item
                 value="calls"
                 onSelect={() => handleValueChange('calls')}
               >
-                {t('calls')}
+                {t('calls', 'Calls')}
               </Command.Item>
               <Command.Item
                 value="messenger"
                 onSelect={() => handleValueChange('messenger')}
               >
-                {t('messenger')}
+                {t('messenger', 'Messenger')}
               </Command.Item>
               <Command.Item
                 value="form"
                 onSelect={() => handleValueChange('form')}
               >
-                {t('source-form')}
+                {t('source-form', 'Form')}
               </Command.Item>
             </Command.List>
           </Command>

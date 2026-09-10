@@ -1,7 +1,8 @@
 import { ActionResult, AutomationExecutionActionResultProps } from 'ui-modules';
-import { useTranslation } from 'react-i18next';
+
 import { FacebookSentMessageStep } from '~/widgets/automations/modules/facebook/components/history/FacebookSentMessageStep';
 import { useFacebookAutomationHistoryResult } from '~/widgets/automations/modules/facebook/components/history/useFacebookAutomationHistoryResult';
+import { useTranslation } from 'react-i18next';
 
 export const AutomationHistoryResult = ({
   action,
@@ -28,7 +29,7 @@ export const AutomationHistoryResult = ({
     return (
       <>
         <ActionResult.Status status="error">
-          {typeof error === 'string' ? error : t('error')}
+          {typeof error === 'string' ? error : t('error', 'Error')}
         </ActionResult.Status>
         {blockedUntil && (
           <ActionResult.Fields>
@@ -85,11 +86,13 @@ export const AutomationHistoryResult = ({
   if (isCommentReply) {
     return (
       <>
-        <ActionResult.Status>{t('sent-successfully')}</ActionResult.Status>
+        <ActionResult.Status>
+          {t('sent-successfully', 'Sent successfully')}
+        </ActionResult.Status>
         <ActionResult.Fields>
-          <ActionResult.Field label={t('reply')} value={commentText} />
+          <ActionResult.Field label={t('reply', 'Reply')} value={commentText} />
           <ActionResult.Field
-            label={t('attachments')}
+            label={t('attachments', 'Attachments')}
             value={commentAttachments.map(({ url }) => url).join(', ')}
           />
         </ActionResult.Fields>
@@ -98,13 +101,19 @@ export const AutomationHistoryResult = ({
   }
 
   if (!messages.length) {
-    return <ActionResult.Status>{t('sent-successfully')}</ActionResult.Status>;
+    return (
+      <ActionResult.Status>
+        {t('sent-successfully', 'Sent successfully')}
+      </ActionResult.Status>
+    );
   }
 
   return (
     <>
       <ActionResult.Status status={isWaiting ? 'waiting' : 'success'}>
-        {t('messages-sent', { count: messages.length })}
+        {t('messages-sent', '{{count}} message sent', {
+          count: messages.length,
+        })}
       </ActionResult.Status>
 
       <ol className="min-w-0 space-y-2">

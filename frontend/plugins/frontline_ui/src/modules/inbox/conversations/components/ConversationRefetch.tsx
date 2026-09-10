@@ -30,7 +30,7 @@ export const ConversationRefetch = () => {
             )}
           </Button>
         </Tooltip.Trigger>
-        <Tooltip.Content>{t('refresh')}</Tooltip.Content>
+        <Tooltip.Content>{t('refresh', 'Refresh')}</Tooltip.Content>
       </Tooltip>
     </Tooltip.Provider>
   );

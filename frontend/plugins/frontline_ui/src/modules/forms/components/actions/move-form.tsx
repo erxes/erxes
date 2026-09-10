@@ -35,14 +35,14 @@ export const MoveFormToChannel = ({
       onCompleted: () => {
         setOpen(false);
         toast({
-          title: t('success'),
+          title: t('success', 'Success!'),
           variant: 'success',
-          description: t('form-moved-successfully'),
+          description: t('form-moved-successfully', 'Form moved successfully'),
         });
       },
       onError: (error) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           variant: 'destructive',
           description: error.message,
         });
@@ -54,7 +54,7 @@ export const MoveFormToChannel = ({
     <DropdownMenu.Sub>
       <DropdownMenu.SubTrigger>
         <IconArrowBarToRight />
-        {t('move-to-channel')}
+        {t('move-to-channel', 'Move to Channel')}
       </DropdownMenu.SubTrigger>
       <DropdownMenu.Portal>
         <DropdownMenu.SubContent className="min-w-56" sideOffset={8}>

@@ -13,7 +13,7 @@ export const PersonalChannelBreadcrumb = () => {
     >
       <Button variant="ghost" className="font-semibold">
         <IconUserCircle className="w-4 h-4 text-accent-foreground" />
-        {t('personal-channel')}
+        {t('personal-channel', 'Personal channel')}
       </Button>
     </Link>
   );
