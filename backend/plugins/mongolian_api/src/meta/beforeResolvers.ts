@@ -12,7 +12,7 @@ export const beforeResolvers: BeforeResolversConfig = {
     ...productPlacesResolvers,
   },
   handler: async (subdomain, params) => {
-    console.log(params, 'ssssssss')
+    console.log(params, 'ssssssss');
     if (productPlacesResolvers.productsMain?.includes(params.resolver)) {
       return productPlacesBeforeResolverHandlers(subdomain, params);
     }

@@ -38,7 +38,9 @@ export const beforeResolverHandlers = async (
     {},
   );
   const config =
-    configValue && typeof configValue === 'object' && !Array.isArray(configValue)
+    configValue &&
+    typeof configValue === 'object' &&
+    !Array.isArray(configValue)
       ? (configValue as { segmentIds?: unknown })
       : {};
   const defaultSegmentIds = toStringArray(config.segmentIds);
