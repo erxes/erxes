@@ -47,7 +47,7 @@ const useCloudflareStreamEnabled = () => {
     fetchPolicy: 'cache-first',
   });
 
-  const enabled = !!data?.configsFileUploadInfo?.videoUploadEnabled;
+  const enabled = Boolean(data?.configsFileUploadInfo?.videoUploadEnabled);
 
   return { enabled, loading };
 };
@@ -399,7 +399,7 @@ export function ProductVideosUpload({
       />
 
       <Dialog
-        open={!!previewItem}
+        open={Boolean(previewItem)}
         onOpenChange={(open) => !open && setPreviewItem(null)}
       >
         <Dialog.Content className="max-w-3xl">
