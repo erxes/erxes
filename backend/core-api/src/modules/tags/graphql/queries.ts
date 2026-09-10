@@ -155,10 +155,7 @@ export const tagQueries: Record<string, Resolver<any, any, IContext>> = {
 
   async tagsMain(
     _parent: undefined,
-    {
-      type,
-      excludeWorkspaceTags,
-    }: { type: string; excludeWorkspaceTags?: boolean },
+    { type }: { type: string },
     { models }: IContext,
   ) {
     const filter: FilterQuery<ITagDocument> = {
@@ -166,11 +163,7 @@ export const tagQueries: Record<string, Resolver<any, any, IContext>> = {
     };
 
     if (type) {
-      filter.type = { $in: [null, '', type] };
-    }
-
-    if (type && excludeWorkspaceTags) {
-      filter.type = { $eq: type };
+      filter.type = type;
     }
 
     return await models.Tags.find(filter).sort({ name: 1 });
