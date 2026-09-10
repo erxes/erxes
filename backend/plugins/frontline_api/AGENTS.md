@@ -876,6 +876,13 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `processMessagingEvent` already answers on its path and the second `end()`
   raises `ERR_STREAM_WRITE_AFTER_END` from an event handler, which is unhandled
   and kills the process.
+- The message trigger's **Direct Message** condition means someone typed. Every
+  postback — Get Started, a persistent menu item, an ice breaker, a quick reply,
+  a card button — arrives with the button's own title as the message text, so
+  content cannot separate them; only `isPostbackPayload` can. Guarding just
+  `btnId`, as it did, let one tap match both a Direct Message automation and the
+  specific one, and `receiveTrigger` runs every active automation that matches,
+  so the person got answered twice.
 - A comment reply's attachment is stored as the upload's key, not a URL, so the
   outbox runs it through `generateAttachmentUrl` before handing it to Facebook
   as `attachment_url` — Facebook fetches the image itself and cannot resolve a
@@ -1594,6 +1601,21 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-10` — A tap stopped counting as a direct message
+
+- **Summary:** The message trigger's Direct Message condition excluded only
+  `btnId`, so Get Started, persistent menu, ice breaker, quick reply and card
+  button taps matched it too and fired a second automation alongside the one
+  that owned them; it now skips any payload carrying a bot key. The webhook
+  route also stopped ending a response twice, which crashed the process with
+  `ERR_STREAM_WRITE_AFTER_END` on every messaging event.
+- **Affected areas:**
+  `src/modules/integrations/facebook/meta/automation/messages/index.ts`,
+  `src/modules/integrations/facebook/meta/automation/utils/messageUtils.ts`,
+  `src/modules/integrations/facebook/controller/controller.ts`
+- **Contracts changed:** None. `isPostbackPayload` is newly exported from
+  `messageUtils`.
+
 ### `2026-09-09` — A comment reply can carry an image
 
 - **Summary:** The outbox passed the stored attachment straight through as
@@ -1702,162 +1724,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `src/modules/poll/graphql/resolvers/mutations/{polls.ts,clientPortal.ts}`.
 - **Contracts changed:** Added `brandId: String` to `pollAdd`, `pollEdit` and the
   `Poll` type.
-
-### `2026-09-07` — Guest voting on the client portal poll surface
-
-- **Summary:** All four `cpPoll*` operations now accept an optional client-supplied
-  `visitorId`, so an unauthenticated portal visitor can read and answer a poll;
-  `cpPollSubmit` gives a guest a `state: 'visitor'` customer and reuses it on
-  return, while a signed-in `cpUser` still wins over the argument.
-- **Affected areas:** `src/modules/poll/graphql/resolvers/{mutations,queries}/clientPortal.ts`,
-  `src/modules/poll/graphql/schema/poll.ts`, `src/modules/poll/utils.ts`.
-- **Contracts changed:** Added `visitorId: String` to `cpPollDetail`,
-  `cpPollVotes`, `cpPollSubmit` and `cpPollVote`. Both client-portal poll
-  resolver maps dropped `cpUserRequired` and keep `forClientPortal`.
-
-### `2026-09-07` — `cpPollConnect` became the `cpPollDetail` query
-
-- **Summary:** The read-only client-portal poll lookup moved from `Mutation` to
-  `Query` and lost its widget-handshake name; `getActivePoll` moved into the
-  module's shared `utils.ts` so both resolver maps use one lookup.
-- **Affected areas:** `src/modules/poll/graphql/resolvers/queries/clientPortal.ts`,
-  `.../mutations/clientPortal.ts`, `src/modules/poll/graphql/schema/poll.ts`,
-  `src/modules/poll/utils.ts`.
-- **Contracts changed:** Removed mutation `cpPollConnect(channelId, pollCode)`.
-  Added query `cpPollDetail(channelId, pollCode): CpPollResponse`. Renamed type
-  `PollConnectResponse` to `CpPollResponse`.
-- **Summary:** `escapeRegExp` built its replacement from an escaped `'\\$&'`,
-  which the quality gate flags as avoidable escaping. It now reads as
-  ``String.raw`\$&` ``; the behaviour is unchanged.
-- **Affected areas:**
-  `src/modules/helpcenter/graphql/resolvers/queries/helpCenterConfig.ts`
-- **Contracts changed:** `None`
-
-### `2026-09-09` — A help center carries its messenger app token
-
-- **Summary:** Added `erxesAppToken` to `HelpCenterConfig` and its input, so
-  `helpCenterGetConfigByDomain` hands the published site the widget token it
-  boots with — the 1.x client portal field of the same name, stored the way
-  `content_api`'s `Web` stores it.
-- **Affected areas:**
-  `src/modules/helpcenter/{@types,db/definitions,graphql/schemas,utils}/helpCenterConfig.ts`
-- **Contracts changed:** `HelpCenterConfig.erxesAppToken` and
-  `HelpCenterConfigInput.erxesAppToken` added. Nothing removed or renamed.
-
-### `2026-09-09` — A help center is readable by its own domain
-
-- **Summary:** Added `helpCenterGetConfigByDomain(domain)`, the help center's
-  own public counterpart of the client portal's domain lookup, so a published
-  site can fetch its config without a staff session and without going through
-  a client portal operation. Domain matching reuses the write path's
-  normalization through the new `normalizeHelpCenterUrl` helper.
-- **Affected areas:**
-  `src/modules/helpcenter/graphql/{schemas,resolvers/queries}/helpCenterConfig.ts`,
-  `src/modules/helpcenter/db/models/HelpCenterConfig.ts`,
-  `src/modules/helpcenter/utils/helpCenterConfig.ts`
-- **Contracts changed:** Added the `helpCenterGetConfigByDomain` query. No
-  existing operation, type or input changed.
-
-### `2026-09-09` — Help center settings left the knowledge base topic
-
-- **Summary:** General settings and appearance moved off `KnowledgeBaseTopic`
-  into a plugin-owned `frontline_help_center_configs` collection read through
-  `helpCenterConfig`/`helpCenterConfigs` and written through
-  `helpCenterConfigUpdate` — the 2.0 business portal's whole-config shape under
-  a name that says which domain owns it, not `clientPortal*`, which is
-  `core-api`'s unrelated entity;
-  `src/migrations/migrateHelpCenterConfigs.ts` moves existing topic values across
-  and unsets them on the topic.
-- **Affected areas:** `src/modules/helpcenter/**` (new),
-  `src/modules/knowledgebase/{@types/topic.ts,db/definitions/topic.ts,graphql/schemas/knowledgeBaseTypeDefs.ts}`,
-  `src/{connectionResolvers.ts,meta/permissions.ts}`, `src/apollo/**`,
-  `src/migrations/migrateHelpCenterConfigs.ts`
-- **Contracts changed:** Added `HelpCenterConfig`, `HelpCenterConfigStyles`,
-  `HelpCenterConfigInput`, `HelpCenterConfigStylesInput`, the three
-  `helpCenterConfig*` queries and `helpCenterConfigUpdate` /
-  `helpCenterConfigRemove`, plus a `helpCenter` permission module
-  (`showHelpCenter`, `helpCenterManage`). Removed `url`, `kbToggle`, `kbLabel`,
-  `kbTopicId`, `ticketToggle`, `ticketLabel`, `ticketChannelId`,
-  `ticketPipelineId`, `ticketStatusId` and `styles` from `KnowledgeBaseTopic`
-  and `KnowledgeBaseTopicDoc`, and dropped `KnowledgeBaseTopicStyles` /
-  `KnowledgeBaseTopicStylesInput`.
-
-### `2026-09-09` — Graph calls can be pointed at a stand-in
-
-- **Summary:** The comment outbox had no way to be exercised without sending to
-  Meta; `FACEBOOK_GRAPH_URL` now redirects every Graph call. The webhook route
-  also lost a dozen `console.log` traces that duplicated `debugFacebook`, and
-  two paths that returned without answering the request now end it.
-- **Affected areas:**
-  `src/modules/integrations/facebook/utils.ts`,
-  `src/modules/integrations/facebook/controller/controller.ts`,
-  `src/modules/integrations/facebook/helpers.ts`
-- **Contracts changed:** None. New optional `FACEBOOK_GRAPH_URL` env var,
-  empty by default.
-
-### `2026-09-09` — The bot reports which replies it repeats
-
-- **Summary:** `facebookMessengerBotDelivery` only ever returned counts, so the
-  bot surface could say two replies were sent but not what they were;
-  `facebookMessengerBotCommentReplyStats` groups the outbox by reply text and
-  returns each one's totals, newest failure, last use and the posts it ran
-  under — named by the post's own text from `FacebookPostConversations`, since
-  the outbox only records an id.
-- **Affected areas:**
-  `src/modules/integrations/facebook/graphql/schema/facebook.ts`,
-  `src/modules/integrations/facebook/graphql/resolvers/queries.ts`
-- **Contracts changed:** New `FacebookBotCommentReplyStat` and
-  `FacebookBotCommentReplyPost` types and
-  `facebookMessengerBotCommentReplyStats(_id: String!, limit: Int)` query,
-  capped at 50 rows.
-
-### `2026-09-09` — The comment reply mention became opt-in
-
-- **Summary:** Public comment replies prepended `@[senderId]` unconditionally;
-  the Send comment action now carries a `mentionSender` flag, stored on the
-  outbox document, and the mention goes out only when it is set.
-- **Affected areas:**
-  `src/modules/integrations/facebook/commentOutbox.ts`,
-  `src/modules/integrations/facebook/db/definitions/comment_outbox.ts`,
-  `src/modules/integrations/facebook/meta/automation/comments/index.ts`
-- **Contracts changed:** None. The action config gained an optional
-  `mentionSender` boolean; automations without it stop mentioning.
-
-### `2026-09-09` — Keyword conditions on Meta triggers actually work
-
-- **Summary:** `checkContentConditions` read only its first condition, could
-  never satisfy `every` on the Facebook side (it compared each keyword to the
-  whole message), matched every message when a rule held no keyword, and threw
-  whenever a keyword contained a regex metacharacter; conditions now OR
-  together and each operator returns a boolean.
-- **Affected areas:**
-  `src/modules/integrations/facebook/meta/automation/utils/messageUtils.ts`,
-  `src/modules/integrations/instagram/meta/automation/utils/messageUtils.ts`
-- **Contracts changed:** None. `checkContentConditions` returns `boolean`
-  instead of `boolean | undefined`; matching stays case-sensitive except
-  `isContains`, as before.### `2026-09-08` — An internal ticket note stays out of the portal
-
-- **Summary:** `Note` gained an `isInternal` flag, `ticketCreateNote` stores it,
-  and `cpTicketGetNotes` filters flagged notes out, so the agent-side "Internal
-  Note" toggle now actually hides the note from the customer instead of only
-  tinting the composer. Notes written before this change carry no flag and stay
-  visible.
-- **Affected areas:** `modules/ticket/db/definitions/note.ts`,
-  `modules/ticket/@types/note.ts`, `modules/ticket/graphql/schemas/note.ts`,
-  `modules/ticket/graphql/resolvers/mutations/note.ts`,
-  `modules/ticket/graphql/resolvers/queries/clientPortal.ts`
-- **Contracts changed:** `ticketCreateNote` and `ticketUpdateNote` gain
-  `isInternal: Boolean`; the `Note` type exposes `isInternal: Boolean`.
-  `cpTicketCreateNote` is unchanged — a portal visitor cannot write one.
-
-### `2026-09-07` — Ticket notes accept and return attachments
-
-- **Summary:** `Note` now stores an `attachments` array using the shared
-  `attachmentSchema`, so files attached in the ticket note composer persist and
-  are returned to the client instead of being silently dropped.
-- **Affected areas:** `modules/ticket/db/definitions/note.ts`,
-  `modules/ticket/@types/note.ts`, `modules/ticket/graphql/schemas/note.ts`,
-  `modules/ticket/graphql/resolvers/mutations/note.ts`
-- **Contracts changed:** `ticketCreateNote` and `ticketUpdateNote` gain
-  `attachments: [AttachmentInput]`; the `Note` type exposes
-  `attachments: [Attachment]`.

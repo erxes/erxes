@@ -1,5 +1,4 @@
 import { generateModels, IModels } from '~/connectionResolvers';
-import { consumePostPublicReplyBudget } from '@/integrations/facebook/commentGuard';
 import { debugError } from '@/integrations/facebook/debuggers';
 import { queueCommentReply } from '@/integrations/facebook/commentOutbox';
 import { checkContentConditions } from '@/integrations/facebook/meta/automation/utils/messageUtils';
