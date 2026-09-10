@@ -39,7 +39,11 @@ export const CreateBrand = () => {
         form.reset();
       },
       onError: (error) =>
-        toast({ title: t('error'), description: error.message, variant: 'destructive' }),
+        toast({
+          title: t('error'),
+          description: error.message,
+          variant: 'destructive',
+        }),
     });
   });
 

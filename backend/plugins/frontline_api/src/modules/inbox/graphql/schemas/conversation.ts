@@ -188,7 +188,7 @@ const mutationFilterParams = `
   mentioned: String
   unread: String
   awaitingResponse: String
-  withPoll: String
+  withSurvey: String
   automationStatus: String
   starred: String
   startDate: String

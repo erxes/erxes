@@ -5,6 +5,16 @@ import {
 
 export const types = `
 
+  type TicketSourceSurvey {
+    surveyId: String
+    surveyStepId: String
+    surveyOptionId: String
+    question: String
+    optionText: String
+    voteCount: Int
+    threshold: Int
+  }
+
   type Ticket {
     _id: String
     name: String
@@ -35,6 +45,7 @@ export const types = `
     attachments: [Attachment]
     companyIds: [String]
     customerFieldData: JSON
+    sourceSurvey: TicketSourceSurvey
   }
   type RemoveResponse {
     ok: Int!

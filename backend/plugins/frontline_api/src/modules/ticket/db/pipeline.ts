@@ -13,28 +13,28 @@ import { createPermissionValidator } from '@/ticket/utils/permissionValidator';
 
 const ticketPipelineSchema = new Schema(
   {
-    _id:                  mongooseStringRandomId,
-    name:                 { type: String, required: true },
-    userId:               { type: String },
-    description:          { type: String },
-    channelId:            { type: String, ref: 'channels', required: true, index: true },
-    order:                { type: Number, default: 0 },
-    state:                { type: String },
-    isCheckDate:          { type: Boolean },
-    isCheckUser:          { type: Boolean },
-    isCheckDepartment:    { type: Boolean },
-    isCheckBranch:        { type: Boolean },
-    isHideName:           { type: Boolean },
-    excludeCheckUserIds:  [{ type: String }],
-    numberConfig:         { type: String },
-    numberSize:           { type: String },
-    nameConfig:           { type: String },
-    lastNum:              { type: String },
-    departmentIds:        [{ type: String }],
-    branchIds:            [{ type: String }],
-    tagId:                { type: String },
-    visibility:           { type: String },
-    memberIds:            [{ type: String }],
+    _id: mongooseStringRandomId,
+    name: { type: String, required: true },
+    userId: { type: String },
+    description: { type: String },
+    channelId: { type: String, ref: 'channels', required: true, index: true },
+    order: { type: Number, default: 0 },
+    state: { type: String },
+    isCheckDate: { type: Boolean },
+    isCheckUser: { type: Boolean },
+    isCheckDepartment: { type: Boolean },
+    isCheckBranch: { type: Boolean },
+    isHideName: { type: Boolean },
+    excludeCheckUserIds: [{ type: String }],
+    numberConfig: { type: String },
+    numberSize: { type: String },
+    nameConfig: { type: String },
+    lastNum: { type: String },
+    departmentIds: [{ type: String }],
+    branchIds: [{ type: String }],
+    tagId: { type: String },
+    visibility: { type: String },
+    memberIds: [{ type: String }],
   },
   { timestamps: true },
 );
@@ -43,25 +43,37 @@ const ticketPipelineSchema = new Schema(
 
 export interface ITicketPipelineModel extends Model<ITicketPipelineDocument> {
   getPipeline(_id: string): Promise<ITicketPipelineDocument>;
-  getPipelines(params: TicketsPipelineFilter): Promise<FlattenMaps<ITicketPipelineDocument>[]>;
+  getPipelines(
+    params: TicketsPipelineFilter,
+  ): Promise<FlattenMaps<ITicketPipelineDocument>[]>;
   addPipeline(doc: ITicketPipeline): Promise<ITicketPipelineDocument>;
-  updatePipeline(_id: string, doc: ITicketPipeline, user?: IUserDocument): Promise<ITicketPipelineDocument | null>;
+  updatePipeline(
+    _id: string,
+    doc: ITicketPipeline,
+    user?: IUserDocument,
+  ): Promise<ITicketPipelineDocument | null>;
   removePipeline(_id: string): Promise<{ ok: number }>;
 }
 
 export const loadPipelineClass = (models: IModels) => {
   class Pipeline {
-    public static async getPipeline(_id: string): Promise<ITicketPipelineDocument> {
+    public static async getPipeline(
+      _id: string,
+    ): Promise<ITicketPipelineDocument> {
       const pipeline = await models.Pipeline.findOne({ _id }).lean();
       if (!pipeline) throw new Error('Pipeline not found');
       return pipeline;
     }
 
-    public static async getPipelines(channelId: string): Promise<ITicketPipelineDocument[]> {
+    public static async getPipelines(
+      channelId: string,
+    ): Promise<ITicketPipelineDocument[]> {
       return models.Pipeline.find({ channelId }).sort({ order: 1 }).lean();
     }
 
-    public static async addPipeline(doc: ITicketPipeline): Promise<ITicketPipelineDocument> {
+    public static async addPipeline(
+      doc: ITicketPipeline,
+    ): Promise<ITicketPipelineDocument> {
       const pipeline = await models.Pipeline.create(doc);
       await models.Status.createDefaultStatuses(pipeline._id);
       return pipeline;
@@ -76,7 +88,11 @@ export const loadPipelineClass = (models: IModels) => {
       if (doc.statusId) {
         await permissionValidator.validateMovePermission(doc.statusId, user);
       }
-      return models.Pipeline.findOneAndUpdate({ _id }, { $set: { ...doc } }, { new: true });
+      return models.Pipeline.findOneAndUpdate(
+        { _id },
+        { $set: { ...doc } },
+        { new: true },
+      );
     }
 
     public static async removePipeline(_id: string): Promise<{ ok: number }> {

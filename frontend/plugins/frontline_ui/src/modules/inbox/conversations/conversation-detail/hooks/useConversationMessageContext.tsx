@@ -12,8 +12,15 @@ export const useConversationMessageContext = () => {
     );
   }
 
-  const { previousMessage, nextMessage, userId, customerId, createdAt, botData, fromBot } =
-    context;
+  const {
+    previousMessage,
+    nextMessage,
+    userId,
+    customerId,
+    createdAt,
+    botData,
+    fromBot,
+  } = context;
 
   const isBotMessage = !!fromBot || !!botData?.length;
 

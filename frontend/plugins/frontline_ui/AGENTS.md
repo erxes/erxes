@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-09-08`
+- **Last synchronized:** `2026-09-10`
 
 ## Scope
 
@@ -39,10 +39,10 @@
 - Ticket UI: pipelines, statuses, ticket boards and detail, plus the legacy
   ticket surface.
 - Forms UI: form builder, preview, and submissions.
-- Polls UI: per-channel poll management inside channel settings (list,
-  create/edit sheet, archive, remove), the read-only results board on the main
-  `frontline/polls` route, and the composer dialog that posts a saved poll into
-  a messenger conversation.
+- Surveys UI: per-channel survey management inside channel settings (list, the
+  step-based create/edit wizard, archive, remove), the read-only results board
+  on the main `frontline/surveys` route, and the composer dialog that posts a
+  saved survey into a messenger conversation.
 - Knowledge base UI: topics, categories, and articles.
 - Help Center UI: the `/frontline/helpcenter` record table over knowledge
   base topics, its filter bar and command bar, its inline-editable name,
@@ -72,25 +72,50 @@
 
 ## Current Capabilities
 
-- Polls are split across two routes, mirroring how forms are laid out.
-  `settings/frontline/channels/:id/polls` manages the channel's polls: the
-  settings breadcrumb resolves to `Channels / <channel> / Polls` and carries the
-  `Create poll` button on the right, the sub-header holds only the status/search
+- Surveys are split across two routes, mirroring how forms are laid out.
+  `settings/frontline/channels/:id/surveys` manages the channel's surveys: the
+  settings breadcrumb resolves to `Channels / <channel> / Surveys` and carries the
+  `Create survey` button on the right, the sub-header holds only the status/search
   filters and the record count, and the page renders a `RecordTable` list, the
-  sheet that creates or edits one (title, question, 2–10 unique options,
-  duration, multi-answer switch), the per-row results dialog, and a command bar
-  that archives or removes a selection. The channel detail page reaches it
-  through the `Manage channel polls` row.
-  `frontline/polls` is read-only — a card board of aggregated `Poll.results`
-  per poll, with status/search filters and no create control.
-- In a messenger conversation the composer's poll button opens
-  `SendPollDialog`, scoped to the conversation integration's `channelId`, which
-  posts a saved poll through `pollSendToConversation`.
-  `MessagePoll` then renders the tallies read-only, refreshed by the message
+  per-row results dialog, and a command bar that archives or removes a
+  selection. The channel detail page reaches it through the
+  `Manage channel surveys` row.
+- Creating and editing a survey is a full-page step wizard on
+  `settings/frontline/channels/:id/surveys/create` and
+  `settings/frontline/channels/:id/surveys/:surveyId`, laid out exactly like the
+  form builder: a left panel carrying `IntegrationSteps` (STEP badge, progress
+  bar, description) over the current step's fields, a live preview on the right,
+  and a `Cancel` / `Previous step` / `Next step` footer whose last step reads
+  `Create survey` or `Update survey`. The three steps are **General** (title,
+  brand), **Content** (the survey's steps) and **Confirmation** (duration plus a
+  read-only review of every step).
+- The Content step is where a survey gains questions. Each survey step is an
+  `InfoCard.Content` card holding its name, question, description, 2–10 unique
+  options and its own multi-answer switch; `Add Step` appends another (up to
+  ten), the grip handle reorders them with `@dnd-kit`, and the trash button
+  removes one. The name, description, grip and trash appear only once a survey
+  has more than one step, so a single-question survey looks unchanged.
+- Every option row carries a ticket-automation popover
+  (`SurveyOptionTicketConfig`): a switch, a vote threshold, and the pipeline and
+  status a triggered ticket lands in. The ticket's name is derived by the API
+  from the survey title and the option text — there is no field for it. The trigger
+  button badges the threshold once armed and turns green once the API reports
+  the ticket was already created; that state is read-only in the UI.
+- The preview panel renders the wizard's live state through the real
+  `MessageSurvey` component, so it shows exactly what a respondent will see, with
+  Desktop/Tablet/Mobile width toggles.
+  `frontline/surveys` is read-only — a card board of aggregated `Survey.results`
+  per survey, with status/search filters and no create control.
+- In a messenger conversation the composer's survey button opens
+  `SendSurveyDialog`, scoped to the conversation integration's `channelId`, which
+  posts a saved survey through `surveySendToConversation`.
+  `MessageSurvey` then renders the tallies read-only, refreshed by the message
   subscription.
-- An expanded team channel lists a `Polls` row under its integration types when
-  the channel has open poll conversations; selecting it filters the inbox with
-  `withPoll=true` scoped to that channel.
+- An expanded team channel lists a `Surveys` row **above** its integration types
+  when the channel has open survey conversations; selecting it filters the inbox
+  with `withSurvey=true` scoped to that channel. The row and the integration-type
+  rows are disjoint — the API keeps survey conversations out of an
+  `integrationType`-scoped list.
 
 - Ticket pipeline settings include a Properties route that lists only Core
   `frontline:ticket` properties, grouped by their Core field group. Checked
@@ -239,12 +264,15 @@
 | Ticket                 | `src/modules/ticket/`, `src/modules/pipelines/`, `src/modules/status/`                                                                       | Ticket boards, pipelines, statuses                                                                                                              |
 | Forms                  | `src/modules/forms/`                                                                                                                         | Form builder, preview, submissions                                                                                                              |
 | Help Center            | `src/modules/helpcenter/`, `src/pages/HelpCenterIndexPage.tsx`                                                                               | `/frontline/helpcenter` — the help center record table (columns, more column, filter, total count, command bar) and the `editId` drawer over it |
-| Polls management       | `src/modules/poll/components/poll-page/`, `src/pages/ChannelPollsPage.tsx`                                                                   | Channel-scoped list, create/edit sheet, results dialog, command bar                                                                             |
-| Polls channel row      | `src/modules/channels/components/settings/channel-details/PollsSection.tsx`                                                                  | `Manage channel polls` row on the channel detail page                                                                                           |
-| Polls results          | `src/modules/poll/components/poll-results/`, `src/pages/PollsIndexPage.tsx`                                                                  | Read-only aggregated results board on `frontline/polls`                                                                                         |
-| Polls data             | `src/modules/poll/{graphql,hooks,types,constants}/`                                                                                          | Poll GraphQL documents, list/detail/mutation hooks, Zod schema                                                                                  |
-| Send poll              | `src/modules/inbox/conversations/conversation-detail/components/SendPollDialog.tsx`                                                          | Picks an active poll and posts it into the open messenger conversation                                                                          |
-| Poll inbox row         | `src/modules/poll/components/ChannelPollNavItem.tsx`                                                                                         | `Polls` row inside an expanded team channel, filtering the inbox by `withPoll`                                                                  |
+| Surveys management       | `src/modules/survey/components/survey-page/`, `src/pages/ChannelSurveysPage.tsx`                                                                   | Channel-scoped list, results dialog, command bar, create button, detail breadcrumb                                                              |
+| Survey wizard            | `src/modules/survey/components/{SurveyCreate,SurveyEdit}.tsx`, `src/modules/survey/components/mutate/`, `src/pages/Survey{Create,Detail}Page.tsx`      | Three-step create/edit flow, `Add Step` builder, live preview                                                                                    |
+| Survey ticket automation | `src/modules/survey/components/mutate/SurveyOptionTicketConfig.tsx`                                                                              | Per-option threshold, pipeline and status picker for automatic ticket creation                                                                   |
+| Survey wizard state      | `src/modules/survey/states/surveySetupStates.tsx`, `src/modules/survey/constants/surveySetup*.ts`, `src/modules/survey/hooks/useSurveyMutate.ts`         | Per-step Jotai atoms, wizard Zod schemas and defaults, add/edit submit                                                                           |
+| Surveys channel row      | `src/modules/channels/components/settings/channel-details/SurveysSection.tsx`                                                                  | `Manage channel surveys` row on the channel detail page                                                                                           |
+| Surveys results          | `src/modules/survey/components/survey-results/`, `src/pages/SurveysIndexPage.tsx`                                                                  | Read-only aggregated results board on `frontline/surveys`                                                                                         |
+| Surveys data             | `src/modules/survey/{graphql,hooks,types}/`                                                                                                    | Survey GraphQL documents, list/detail/mutation hooks, survey types                                                                                   |
+| Send survey              | `src/modules/inbox/conversations/conversation-detail/components/SendSurveyDialog.tsx`                                                          | Picks an active survey and posts it into the open messenger conversation                                                                          |
+| Survey inbox row         | `src/modules/survey/components/ChannelSurveyNavItem.tsx`                                                                                         | `Surveys` row inside an expanded team channel, filtering the inbox by `withSurvey`                                                                  |
 | Knowledge base         | `src/modules/knowledgebase/`                                                                                                                 | Topics, categories, articles                                                                                                                    |
 | Automation widgets     | `src/widgets/automations/modules/<module>/`                                                                                                  | Per-module trigger/action/bot/history components                                                                                                |
 | FB message action      | `src/widgets/automations/modules/facebook/components/action/`                                                                                | Message sequence form, provider, constants, states                                                                                              |
@@ -267,11 +295,13 @@
 
 ### Provides
 
-- Route `frontline/polls` (registered in `config.tsx`, `FrontlineNavigation`,
-  and `FrontlineMain`) — the read-only poll results board.
-- Settings route `settings/frontline/channels/:id/polls` (registered in the
-  channels `Settings.tsx` as `FrontlinePaths.ChannelPolls`) — the channel's
-  poll management page.
+- Route `frontline/surveys` (registered in `config.tsx`, `FrontlineNavigation`,
+  and `FrontlineMain`) — the read-only survey results board.
+- Settings route `settings/frontline/channels/:id/surveys` (registered in the
+  channels `Settings.tsx` as `FrontlinePaths.ChannelSurveys`) — the channel's
+  survey management page — plus `FrontlinePaths.SurveysCreate`
+  (`/:id/surveys/create`) and `FrontlinePaths.SurveyDetail` (`/:id/surveys/:surveyId`)
+  for the wizard.
 
 - Module Federation exposes declared in `module-federation.config.ts` /
   `src/config.tsx`: `./config`, `./frontline`, `./frontlineSettings`,
@@ -630,34 +660,61 @@ brandId)` and `knowledgeBaseTopicsTotalCount`, read together as the help
   whenever a filter is set. `HELP_CENTERS_PER_PAGE` therefore has to stay large
   enough to hold the whole list in one page — the query pages with
   `page`/`perPage`, not a cursor, and the table has no load-more affordance.
-- A poll's `brandId` is optional and selected in `PollSheet` through
+- A survey's `brandId` is optional and selected on the wizard's General step through
   `SelectBrands.FormItem` (`mode="single"`, `disableCreateOption`), which pins
-  which of the channel's messenger integrations the poll's answers are filed
+  which of the channel's messenger integrations the survey's answers are filed
   under. Inline brand creation stays disabled there: a brand invented in this
   form has no messenger integration in the channel, and `frontline_api` rejects
   it. The selector lists every brand in the org, so a wrong pick surfaces as the
   mutation's error toast rather than as a filtered-out option.
-- Creating, editing, archiving, and removing a poll lives only under a
-  channel's settings page. `frontline/polls` must stay read-only —
-  `PollSubHeader` only renders the create button when passed `canCreate`, and
-  a poll created there always carries the route's `channelId`.
-- The inbox `withPoll` filter lives in `INBOX_CONVERSATION_QUERY_KEYS` and
-  `INBOX_TARGET_KEYS`, so selecting the channel `Polls` row clears
+- Creating, editing, archiving, and removing a survey lives only under a
+  channel's settings page. `frontline/surveys` must stay read-only — its
+  `SurveySubHeader` renders filters and the record count only, and the
+  `Create survey` button lives in `ChannelSettingsBreadcrumb`, which supplies the
+  route's `channelId`.
+- The wizard keeps one step's values per Jotai `atomWithStorage` atom
+  (`surveySetupGeneralAtom`, `surveySetupContentAtom`, `surveySetupConfirmationAtom`),
+  synced by the shared `FormValueEffectComponent`, exactly as the form builder
+  does. `SurveyCreate` resets them when the previous visit left an edited survey
+  behind; `SurveyEdit` seeds them once per survey id, so a background
+  `cache-and-network` refetch cannot discard in-progress edits.
+- An option's `ticketCreated` / `ticketId` are server-owned. The wizard reads
+  them to show state but never sends them back; `surveySetupValuesAtom` submits
+  only the config fields, and it nulls every ticket field when
+  `ticketCreationEnabled` is off so a disabled option cannot carry stale config.
+- `SurveyOptionTicketConfig` reuses `SelectPipeline` (scoped to the route's
+  `channelId`) and `useGetAccessibleTicketStatuses`; changing the pipeline
+  clears the chosen status, because statuses belong to one pipeline.
+- `useSurveyMutate` sends only `title`, `brandId`, `channelId`, `durationHours`
+  and `steps`. The API mirrors step 1 onto the survey's legacy
+  `question`/`options`/`allowMultiselect`, so the UI never sends them.
+- Survey results are read per step: `SurveyStepResults` renders
+  `results.steps[].options` with each step's own percentages, and both the
+  results dialog and the results board go through it. `results.options` is the
+  flat cross-step list and is not selected by any document here.
+- The inbox `withSurvey` filter lives in `INBOX_CONVERSATION_QUERY_KEYS` and
+  `INBOX_TARGET_KEYS`, so selecting the channel `Surveys` row clears
   `integrationType`/`integrationId` the same way an integration row does.
-  `ChannelPollNavItem` counts through its own light
-  `frontlineChannelPollConversationCount` query — never `useConversations`,
+  `ChannelSurveyNavItem` counts through its own light
+  `frontlineChannelSurveyConversationCount` query — never `useConversations`,
   which owns inbox state and subscriptions.
-- `usePollList({ withResults: true })` switches to the `pollResultsList`
-  document because `Poll.results` runs two aggregations per poll; the
+- `useSurveyList({ withResults: true })` switches to the `surveyResultsList`
+  document because `Survey.results` runs two aggregations per survey; the
   management list must not select it.
-- The composer shows two different poll controls by integration kind:
+- The composer shows two different controls by integration kind:
   `PollComposer` (ad-hoc, Discord-native) for `discord-messenger`, and
-  `SendPollDialog` (saved poll) for `messenger`. Neither is a fallback for the
-  other — sending an erxes poll to Discord or a Discord poll to messenger is
-  not supported.
-- `IMessagePoll` answer ids are `string | number`: erxes polls carry the poll
-  option `_id`, Discord polls carry Discord's numeric answer id. `MessagePoll`
-  must keep handling both.
+  `SendSurveyDialog` (saved survey) for `messenger`. Neither is a fallback for
+  the other.
+- Discord polls and erxes surveys are separate all the way down. Discord writes
+  `extraData.poll` and renders through `MessagePoll`; a survey writes
+  `extraData.survey` and renders through `MessageSurvey`. `MessageItem` reads
+  both and may show either. Never merge the two renderers again — the split is
+  what lets a survey carry steps while a Discord poll keeps its numeric answer
+  ids.
+- `MessageSurvey` reads `survey.steps` when present and otherwise synthesises a
+  single step from the snapshot's top-level `question`/`answers`, which is what
+  every message sent before multi-step surveys carries. It labels steps only
+  when there is more than one.
 - The inbox navigation is a single-selection tree over three query params that
   intersect on the server: `channelId`, `integrationId`, and `integrationType`.
   Every selector writes all three through `INBOX_TARGET_KEYS`, clearing the ones
@@ -1055,6 +1112,55 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-10` — Polls became surveys
+
+- **Summary:** `src/modules/poll` became `src/modules/survey` and every
+  component, hook, state, route (`/surveys`) and GraphQL document followed the
+  API's rename. Discord's poll renderer stayed behind as `MessagePoll`; erxes
+  surveys render through the new `MessageSurvey`.
+- **Affected areas:** `src/modules/survey/**`, `src/config.tsx`,
+  `src/modules/{FrontlineMain,FrontlineNavigation}.tsx`,
+  `src/modules/channels/**`, `src/modules/inbox/**`,
+  `src/modules/types/FrontlinePaths.ts`, `src/pages/Survey*.tsx`.
+- **Contracts changed:** Consumes the renamed `survey*` / `cpSurvey*`
+  operations; the `frontline/polls` route is now `frontline/surveys`.
+
+### `2026-09-09` — Survey options can arm a ticket at a vote threshold
+
+- **Summary:** The Content step's option rows gained a ticket-automation
+  popover — enable, vote threshold, pipeline, status and an optional ticket
+  name — carried through the wizard atoms into `surveyAdd` / `surveyEdit`, with the
+  server-owned created state shown read-only.
+- **Affected areas:**
+  `src/modules/survey/components/mutate/{SurveyOptionTicketConfig.tsx,SurveyStepCard.tsx}`,
+  `src/modules/survey/constants/{surveySetupSchema.ts,surveySetupDefaultValues.ts}`,
+  `src/modules/survey/states/surveySetupStates.tsx`,
+  `src/modules/survey/graphql/{surveyQueries.ts,surveyMutations.ts}`,
+  `src/modules/survey/types/surveyTypes.ts`.
+- **Contracts changed:** Consumes the new `SurveyOption` / `SurveyOptionInput`
+  ticket-automation fields.
+
+### `2026-09-09` — The survey builder became a step wizard with `Add Step`
+
+- **Summary:** Creating or editing a survey moved out of `SurveySheet` into a
+  full-page three-step wizard on its own routes, built on the same
+  `IntegrationSteps` chrome, footer navigation and per-step Jotai atoms as the
+  form builder; its Content step adds, names, reorders and removes the survey's
+  question steps, and the right panel previews them through the real
+  `MessageSurvey`.
+- **Affected areas:** `src/modules/survey/components/{SurveyCreate,SurveyEdit}.tsx`,
+  `src/modules/survey/components/mutate/*`,
+  `src/modules/survey/components/survey-page/{surveys-create,survey-columns,SurveyDetailsBreadcrumb,SurveyResultsDialog}.tsx`,
+  `src/modules/survey/components/survey-results/*`,
+  `src/modules/survey/{states,constants,graphql,hooks,types}/*`,
+  `src/pages/Survey{Create,Detail}Page.tsx`,
+  `src/modules/channels/components/settings/{Settings.tsx,breadcrumbs/ChannelSettingsBreadcrumb.tsx}`,
+  `src/modules/types/FrontlinePaths.ts`,
+  `src/modules/inbox/{types/Conversation.ts,conversation-messages/components/MessageSurvey.tsx,conversations/conversation-detail/components/SendSurveyDialog.tsx}`.
+- **Contracts changed:** Consumes the new `Survey.steps`, `SurveyResults.steps` and
+  `surveyAdd`/`surveyEdit` `steps` argument; `SurveySheet` and `surveyFormSchema` were
+  removed.
+
 ### `2026-09-08` — The message trigger says who else already listens
 
 - **Summary:** Every condition on the Facebook message trigger form reports the
@@ -1190,147 +1296,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 - **Affected areas:** `src/modules/FrontlineSubGroups.tsx`,
   `src/modules/helpcenter/components/HelpCenterSubGroup.tsx` (deleted)
 - **Contracts changed:** `None`
-
-### `2026-09-07` — A new help center shows its knowledge base by default
-
-- **Summary:** The New Topic drawer opened with `Show knowledge base` off, so
-  the topic and label fields under it stayed hidden until the switch was found;
-  `EMPTY_TOPIC_FORM` now starts it on, matching the `?? true` the drawer reset
-  and `toTopicDrawerRecord` already used. `useEditHelpCenter` rebuilt the doc
-  with `?? false`, which switched the feature off on the next inline edit of a
-  help center that had no stored value — it now agrees with the other three.
-- **Affected areas:**
-  `src/modules/knowledgebase/topicDrawerConstants.ts`,
-  `src/modules/helpcenter/hooks/useEditHelpCenter.ts`
-- **Contracts changed:** `None`
-
-### `2026-09-07` — The help center table drops its drawer-only columns
-
-- **Summary:** Removed the description column and the two ticket columns the
-  drawer already owns — the `Show tickets` switch and the ticket menu label —
-  leaving name, website, knowledge base name and knowledge base topic followed
-  by the three ticket routing selects (channel, pipeline, status). The drawer
-  gained the piece it was missing, a required `Knowledge base topic` select in
-  its Knowledge base section, and the table cell and that field now share one
-  `SelectHelpCenterTopic` component.
-- **Affected areas:**
-  `src/modules/helpcenter/components/{HelpCenterColumns.tsx,SelectHelpCenterTopic.tsx}`,
-  `src/modules/helpcenter/utils/toTopicDrawerRecord.ts`,
-  `src/modules/knowledgebase/components/{TopicDrawer.tsx,TopicGeneralTab.tsx}`,
-  `src/modules/knowledgebase/{topicDrawerTypes.ts,topicDrawerConstants.ts}`
-- **Contracts changed:** `None`
-
-### `2026-09-07` — The help center table picks its knowledge base topic
-
-- **Summary:** Replaced the `Show articles` switch column with a
-  `Knowledge base topic` select that lists the other topics through
-  `TOPICS_SHORT`, excludes the row's own topic, and writes the choice with
-  `useEditHelpCenter`. The `kbToggle` field itself stays — the topic drawer
-  still owns that switch — and `Knowledge base name` is now a plain inline
-  text cell instead of striking itself through against a switch the table no
-  longer shows.
-- **Affected areas:**
-  `src/modules/helpcenter/components/HelpCenterColumns.tsx`,
-  `src/modules/helpcenter/{types/index.ts,hooks/useEditHelpCenter.ts}`,
-  `src/modules/helpcenter/graphql/queries/getHelpCenters.ts`
-- **Contracts changed:** `frontlineHelpCenterList` selects `kbTopicId`, and the
-  edit mutation sends it.
-
-### `2026-09-07` — Poll form picks the brand
-
-- **Summary:** `PollSheet` gained an optional single-select brand field backed by
-  `SelectBrands.FormItem`, so an admin decides which messenger integration in the
-  channel a poll's answers are filed under instead of leaving it to the API's
-  arbitrary pick.
-- **Affected areas:** `src/modules/poll/components/poll-page/PollSheet.tsx`,
-  `src/modules/poll/constants/pollFormSchema.ts`,
-  `src/modules/poll/types/pollTypes.ts`,
-  `src/modules/poll/graphql/{pollMutations.ts,pollQueries.ts}`.
-- **Contracts changed:** `pollAdd` and `pollEdit` now send `brandId: String`, and
-  the `PollFields` fragment selects `brandId`.
-
-### `2026-09-05` — `Property groups share one card shell`
-
-- **Summary:** The ticket detail property groups render through `PropertyGroupShell` / `PropertyGroupCard` from `ui-modules`, so a plain group and a repeating one look the same instead of a secondary-button header beside a card tray.
-- **Affected areas:** `src/modules/ticket/components/ticket-detail/TicketPipelineProperties.tsx`
-- **Contracts changed:** `None`
-
-### `2026-09-05` — Poll surfaces removed from the customer widget
-
-- **Summary:** The website poll popup and the in-messenger voting card are gone
-  from `frontline-widgets`, so the agent-side install-script action went with
-  them; a customer now sees a sent poll as the plain question message.
-- **Affected areas:**
-  `src/modules/poll/components/poll-page/{PollInstallScript.tsx (deleted),poll-columns.tsx}`.
-- **Contracts changed:** None in this project. The public `widgetsPoll*`
-  mutations still exist in `frontline_api` but have no in-repo caller.
-
-### `2026-09-04` — Fonts are picked from a list
-
-- **Summary:** The appearance tab's base and heading fonts were free text, so a
-  typo silently produced an unstyled site; they now pick from
-  `HELP_CENTER_FONTS`, each option previewing itself in the face it names and
-  storing the full CSS stack.
-- **Affected areas:**
-  `src/modules/channels/components/settings/breadcrumbs/ChannelSettingsBreadcrumb.tsx`,
-  `src/modules/poll/components/poll-page/polls-create.tsx` (new),
-  `src/modules/poll/components/poll-page/PollSubHeader.tsx`,
-  `src/modules/poll/components/poll-page/PollPageList.tsx`,
-  `src/pages/ChannelPollsPage.tsx`
-- **Contracts changed:** `PollSubHeader` no longer accepts `canCreate`.
-
-### `2026-09-02` — IMAP integration UI removed
-
-- **Summary:** Every IMAP surface was deleted — the connect form and sheet, the
-  integration detail and row actions, the threaded conversation reader, its
-  hooks, GraphQL documents and Jotai state — and `imap` is gone from the
-  integration type enum, catalog, chips and icon map, so the kind can no longer
-  be listed, connected or opened.
-- **Affected areas:** `src/modules/integrations/imap/` (deleted),
-  `src/modules/inbox/conversations/conversation-detail/graphql/queries/getImapConversationDetail.ts`
-  (deleted), `src/modules/types/Integration.ts`,
-  `src/modules/integrations/constants/{integrations.ts,integrationImages.ts}`,
-  `src/modules/integrations/components/{ConversationIntegrationDetail,IntegrationMoreColumn}.tsx`,
-  `src/pages/IntegrationDetailPage.tsx`,
-  `src/modules/channels/components/settings/channels-list/IntegrationChips.tsx`,
-  `src/modules/inbox/conversations/conversation-detail/components/ConversationDetail.tsx`.
-- **Contracts changed:** `IntegrationType.IMAP` removed; the UI no longer sends
-  `imapConversationDetail`, `imapGetIntegrations` or `imapSendMail`. The
-  conversation detail no longer suppresses `MessageInput` for the `imap` kind.
-
-### `2026-08-31` — Messenger polls
-
-- **Summary:** Added the poll module — per-channel management under
-  `settings/frontline/channels/:id/polls` (list, create/edit sheet, results
-  dialog, command bar), a read-only results board on `frontline/polls`, and the
-  composer dialog that posts a saved poll into a messenger conversation.
-- **Affected areas:** `src/modules/poll/**`,
-  `src/pages/{PollsIndexPage,ChannelPollsPage}.tsx`, `src/config.tsx`,
-  `src/modules/{FrontlineMain,FrontlineNavigation}.tsx`,
-  `src/modules/types/FrontlinePaths.ts`,
-  `src/modules/channels/components/settings/{Settings.tsx,channel-details/{ChannelDetails,PollsSection}.tsx}`,
-  `src/modules/inbox/conversations/conversation-detail/components/{SendPollDialog,MessageInput}.tsx`,
-  `src/modules/inbox/{types/Conversation.ts,conversation-messages/components/MessagePoll.tsx}`.
-- **Contracts changed:** New routes `frontline/polls` and
-  `settings/frontline/channels/:id/polls`, with a `polls` entry in
-  `CONFIG.modules`; `IMessagePoll` answer ids widened to `string | number`;
-  the conversation queries and inbox query state gained `withPoll`.
-
-### `2026-08-28` — The domain picker is searchable and says which domains are usable
-
-- **Summary:** The Cloudflare domain field was a plain `Select` listing every zone
-  a token reached, which on an account with hundreds of domains is unusable — and
-  a domain already carrying another provider's MX only failed after Connect. It is
-  now a `Combobox` + `Command` with search, matching how the rest of the plugin
-  picks from many. Ineligible zones stay listed but disabled, with the server's
-  short reason under the name: shown rather than hidden, so nobody wonders why
-  their domain is missing. The server returns usable domains first.
-- **Affected areas:**
-  `src/modules/integrations/mail/components/MailConfigUpdate.tsx`,
-  `src/modules/integrations/mail/graphql/queries/mailCloudflareQueries.ts`,
-  `src/modules/integrations/mail/hooks/useMailCloudflareSetup.tsx`,
-  `backend/gateway/src/locales/{en,mn}/frontline.json`.
-- **Contracts changed:** reads `eligible` and `reason` from `mailCloudflareZones`.
-  `src/modules/knowledgebase/components/Topic{StyleFields,AppearanceTab}.tsx`,
-  `src/modules/knowledgebase/topicDrawerConstants.ts`
-- **Contracts changed:** None.

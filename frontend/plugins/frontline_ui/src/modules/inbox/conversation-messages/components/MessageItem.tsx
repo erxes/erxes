@@ -16,6 +16,7 @@ import { ConversationFormDisplay } from '@/inbox/conversation-messages/component
 import { MessageContent } from '@/inbox/conversation-messages/components/MessageContent';
 import { MessageEmbeds } from '@/inbox/conversation-messages/components/MessageEmbeds';
 import { MessagePoll } from '@/inbox/conversation-messages/components/MessagePoll';
+import { MessageSurvey } from '@/inbox/conversation-messages/components/MessageSurvey';
 import { useConversationMessageContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationMessageContext';
 import { activeConversationState } from '@/inbox/conversations/states/activeConversationState';
 import { DiscordMessageActions } from '@/integrations/discord/components/DiscordMessageActions';
@@ -76,14 +77,19 @@ export const MessageItem = () => {
   } = message;
 
   const poll = extraData?.poll;
+  const survey = extraData?.survey;
   const embeds = extraData?.embeds;
 
-  const botText = isBotMessage && botData?.length
-    ? (botData as Array<{ type?: string; text?: string; content?: string }>)
-        .filter((item) => item?.type !== 'quickReplies' && item?.type !== 'ticketForm')
-        .map((item) => item?.text || item?.content || '')
-        .join('')
-    : undefined;
+  const botText =
+    isBotMessage && botData?.length
+      ? (botData as Array<{ type?: string; text?: string; content?: string }>)
+          .filter(
+            (item) =>
+              item?.type !== 'quickReplies' && item?.type !== 'ticketForm',
+          )
+          .map((item) => item?.text || item?.content || '')
+          .join('')
+      : undefined;
 
   const displayContent = botText || content;
 
@@ -111,6 +117,7 @@ export const MessageItem = () => {
     hasTextBubble ||
     Boolean(attachments?.length) ||
     Boolean(poll) ||
+    Boolean(survey) ||
     Boolean(embeds?.length);
 
   if (!hasRenderableContent) {
@@ -121,7 +128,10 @@ export const MessageItem = () => {
     <>
       {showAuthorName && (
         <div className="pl-11 pt-4 pb-0.5 text-xs font-medium text-muted-foreground">
-          <CustomersInline customerIds={customerId ? [customerId] : []} hideAvatar />
+          <CustomersInline
+            customerIds={customerId ? [customerId] : []}
+            hideAvatar
+          />
         </div>
       )}
       {showBotName && (
@@ -205,24 +215,26 @@ export const MessageItem = () => {
           {/* skipcq: JS-0357 */}
           {!isDeleted && <Attachments attachments={attachments} />}
           {!isDeleted && poll && <MessagePoll poll={poll} />}
+          {!isDeleted && survey && <MessageSurvey survey={survey} />}
           {!isDeleted && <MessageEmbeds embeds={embeds} />}
           {!isDeleted &&
             !hasTextBubble &&
             separateNext &&
             (Boolean(attachments?.length) ||
               Boolean(poll) ||
+              Boolean(survey) ||
               Boolean(embeds?.length)) && (
-            <div
-              className={cn(
-                'text-muted-foreground mt-1 text-xs',
-                userId ? 'text-right' : 'text-left',
-              )}
-            >
-              <RelativeDateDisplay value={createdAt}>
-                <RelativeDateDisplay.Value value={createdAt} />
-              </RelativeDateDisplay>
-            </div>
-          )}
+              <div
+                className={cn(
+                  'text-muted-foreground mt-1 text-xs',
+                  userId ? 'text-right' : 'text-left',
+                )}
+              >
+                <RelativeDateDisplay value={createdAt}>
+                  <RelativeDateDisplay.Value value={createdAt} />
+                </RelativeDateDisplay>
+              </div>
+            )}
         </div>
       </MessageWrapper>
     </>

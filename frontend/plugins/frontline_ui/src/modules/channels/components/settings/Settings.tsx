@@ -38,9 +38,21 @@ export const ChannelResponsePage = lazy(() =>
   })),
 );
 
-export const ChannelPollsPage = lazy(() =>
-  import('~/pages/ChannelPollsPage').then((module) => ({
-    default: module.ChannelPollsPage,
+export const ChannelSurveysPage = lazy(() =>
+  import('~/pages/ChannelSurveysPage').then((module) => ({
+    default: module.ChannelSurveysPage,
+  })),
+);
+
+export const SurveyCreatePage = lazy(() =>
+  import('~/pages/SurveyCreatePage').then((module) => ({
+    default: module.SurveyCreatePage,
+  })),
+);
+
+export const SurveyDetailPage = lazy(() =>
+  import('~/pages/SurveyDetailPage').then((module) => ({
+    default: module.SurveyDetailPage,
   })),
 );
 
@@ -198,8 +210,16 @@ const ChannelsSettings = () => {
             element={<ChannelFormsPage />}
           />
           <Route
-            path={FrontlinePaths.ChannelPolls}
-            element={<ChannelPollsPage />}
+            path={FrontlinePaths.ChannelSurveys}
+            element={<ChannelSurveysPage />}
+          />
+          <Route
+            path={FrontlinePaths.SurveysCreate}
+            element={<SurveyCreatePage />}
+          />
+          <Route
+            path={FrontlinePaths.SurveyDetail}
+            element={<SurveyDetailPage />}
           />
           <Route
             path={FrontlinePaths.FormsCreate}

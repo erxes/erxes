@@ -1,5 +1,15 @@
-import { useGetResponses, RESPONSES_PER_PAGE } from '@/responseTemplate/hooks/useGetResponses';
-import { Popover, Skeleton, Button, Command, cn, EnumCursorDirection } from 'erxes-ui';
+import {
+  useGetResponses,
+  RESPONSES_PER_PAGE,
+} from '@/responseTemplate/hooks/useGetResponses';
+import {
+  Popover,
+  Skeleton,
+  Button,
+  Command,
+  cn,
+  EnumCursorDirection,
+} from 'erxes-ui';
 import { useState, useMemo, ReactNode, useRef, useEffect } from 'react';
 import { useDebounce } from 'use-debounce';
 import { IconLayoutGrid, IconList, IconFilter } from '@tabler/icons-react';
@@ -69,7 +79,6 @@ export const ResponseTemplateSelector: React.FC<
     },
   });
 
-
   useEffect(() => {
     refetch({
       filter: {
@@ -135,7 +144,8 @@ export const ResponseTemplateSelector: React.FC<
     setViewMode((prev) => (prev === 'grid' ? 'list' : 'grid'));
   };
 
-  const isInitialLoad = (channelsLoading && !channels) || (responsesInitialLoad && !responses);
+  const isInitialLoad =
+    (channelsLoading && !channels) || (responsesInitialLoad && !responses);
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
@@ -151,7 +161,11 @@ export const ResponseTemplateSelector: React.FC<
                 variant={'ghost'}
                 size="icon"
                 className="h-8 w-8 rounded hover:bg-muted"
-                title={viewMode === 'grid' ? t('switch-to-list-view') : t('switch-to-grid-view')}
+                title={
+                  viewMode === 'grid'
+                    ? t('switch-to-list-view')
+                    : t('switch-to-grid-view')
+                }
               >
                 <ViewModeIcon />
               </Button>

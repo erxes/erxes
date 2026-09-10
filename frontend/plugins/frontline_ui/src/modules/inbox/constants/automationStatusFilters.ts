@@ -1,8 +1,4 @@
-import {
-  IconPlayerPause,
-  IconRobot,
-  IconUserCheck,
-} from '@tabler/icons-react';
+import { IconPlayerPause, IconRobot, IconUserCheck } from '@tabler/icons-react';
 
 export const AUTOMATION_STATUS_FILTERS = [
   { value: 'responded', label: 'automation-responded', icon: IconRobot },

@@ -22,9 +22,8 @@ export const ConversationMessages = ({
       fetchPolicy: 'cache-and-network',
     });
 
-  const { typingNames, clearTypist } = useConversationTypingStatus(
-    conversationId,
-  );
+  const { typingNames, clearTypist } =
+    useConversationTypingStatus(conversationId);
 
   const lastMessage = messages?.[messages.length - 1];
   useEffect(() => {

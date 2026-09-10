@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-09-07`
+- **Last synchronized:** `2026-09-10`
 
 ## Scope
 
@@ -27,7 +27,7 @@
 - Ticketing: boards, pipelines, statuses, tickets, activities, notes, ticket
   configs, plus ticket import/export handlers.
 - Forms: form definitions, fields, and form submissions (with submission export).
-- Polls: channel-scoped poll definitions, the snapshot an agent posts into a
+- Surveys: channel-scoped survey definitions, the snapshot an agent posts into a
   messenger conversation, and the per-voter vote ledger behind the tallies.
 - Knowledge base: topics, categories, articles, and the AI knowledge source
   provider that indexes articles.
@@ -53,25 +53,42 @@
 
 ## Current Capabilities
 
-- Polls are a reusable definition (`title`, `question`, ordered `options`,
-  `allowMultiselect`, optional `durationHours`, optional `brandId`,
-  `active`/`archived` status) owned by a channel through `channelId`. An agent posts one into a messenger
-  conversation with `pollSendToConversation`,
-  which writes a snapshot to the message's `extraData.poll` and bumps the
-  poll's `sentCount` and sets `hasPoll` on the conversation. Client portal
-  users vote through `cpPollVote`; each vote recomputes the tallies, marks the
+- Surveys are a reusable definition (`title`, ordered `steps`, optional
+  `durationHours`, optional `brandId`, `active`/`archived` status) owned by a
+  channel through `channelId`. Each step is one question with its own
+  `name`, `description`, ordered `options` and `allowMultiselect`, so a survey can
+  ask several questions in sequence. Step 1 stays mirrored on the survey's
+  top-level `question` / `options` / `allowMultiselect`, which is what every
+  reader written against the single-question shape still sees. An agent posts one into a messenger
+  conversation with `surveySendToConversation`,
+  which writes a snapshot to the message's `extraData.survey` and bumps the
+  survey's `sentCount` and sets `hasSurvey` on the conversation. Client portal
+  users vote through `cpSurveyVote`; each vote recomputes the tallies, marks the
   conversation as customer-responded and unread, then republishes the message
   through `pConversationClientMessageInserted`, so the conversation rises in
   the agent's list and both the inbox and the portal update without a refresh.
-- Every conversation filter query accepts `withPoll: String` — `"true"` keeps
-  only conversations carrying a poll (the denormalized `hasPoll` flag).
-- Answering a poll is a client portal surface, not a messenger widget one.
-  `cpPollDetail` serves a poll by `code` for a channel, `cpPollSubmit` resolves
-  the respondent's erxes customer and opens a conversation carrying the poll
-  snapshot, and `cpPollVote` records a vote on an existing poll message. All
-  four accept a signed-in portal user **or** a guest identified by a
-  client-supplied `visitorId`, so an unauthenticated portal visitor can answer
-  while a signed-in one is still pinned to their own account.
+- A survey option can arm a **ticket automation**: `ticketCreationEnabled`,
+  `ticketCreationThreshold`, `ticketPipelineId` and `ticketStatusId`. Every vote written through `cpSurveySubmit` or `cpSurveyVote` counts
+  that option's votes and, once the count reaches the threshold, creates one
+  ticket in the configured status and records `ticketCreated` / `ticketId` back
+  on the option. The ticket name is always derived —
+  `<survey title, capped at 80 chars> — <option text>` — and cannot be set by
+  hand; the question and the vote count live in the ticket's description. The ticket carries a `sourceSurvey` record naming the survey, step,
+  option, question, option text, vote count and threshold.
+- Every conversation filter query accepts `withSurvey: String` — `"true"` keeps
+  only conversations carrying a survey (the denormalized `hasSurvey` flag). An
+  `integrationType`-scoped list without `withSurvey` excludes them instead, so the
+  inbox's `Messenger` row and its `Surveys` row are disjoint and add up.
+- Answering a survey is a client portal surface, not a messenger widget one.
+  Every `cp*` survey operation requires a signed-in client portal user; there is
+  no guest path. `cpSurveys` lists every active survey — `channelId` and `brandId`
+  are optional filters, so an unscoped call returns them all with the caller's
+  own selections; `cpSurveyDetail` serves a survey by `code` for a channel, `cpSurveySubmit` resolves
+  the respondent's erxes customer and opens a conversation carrying the survey
+  snapshot. One client portal user may answer a given survey **once**: the vote
+  ledger carries `cpUserId` and a partial unique index on
+  `(surveyId, cpUserId)` enforces it, so a repeat submit — even one choosing
+  different options — returns `alreadyVoted` and writes nothing.
 
 - Ticket pipelines persist an ordered unique `propertyIds` selection. Create
   and update validate every id against Core `frontline:ticket` fields before
@@ -166,7 +183,8 @@
 | FB app resolution    | `src/modules/integrations/facebook/commonUtils.ts`                          | `resolveFacebookApp`, `facebookAppSelector`, `facebookAccountSelector`                                                                                                                                 |
 | Ticket               | `src/modules/ticket/`                                                       | Boards, pipelines, statuses, tickets, activities, notes                                                                                                                                                |
 | Forms                | `src/modules/form/`                                                         | Forms, fields, submissions                                                                                                                                                                             |
-| Polls                | `src/modules/poll/`                                                         | Poll definitions, vote ledger, message snapshot, tally refresh                                                                                                                                         |
+| Surveys                | `src/modules/survey/`                                                         | Survey definitions, vote ledger, message snapshot, tally refresh                                                                                                                                         |
+| Survey ticket automation | `src/modules/survey/ticketAutomation.ts`                                    | Threshold evaluation, atomic single-ticket claim, ticket creation                                                                                                                                      |
 | Knowledge base       | `src/modules/knowledgebase/`                                                | Topics, categories, articles, AI knowledge source                                                                                                                                                      |
 | Reports              | `src/modules/reports/`                                                      | Inbox/ticket report aggregations, `buildTicketMatch`, and the saved `ReportCharts` model                                                                                                               |
 | Migrations           | `src/migrations/`                                                           | Plugin-owned data migrations                                                                                                                                                                           |
@@ -175,20 +193,31 @@
 
 ### Provides
 
-- GraphQL: polls — `pollList(searchValue, status, channelId, cursor params)`,
-  `pollDetail(_id)`, `pollTotalCount(searchValue, status, channelId)`; `pollAdd`,
-  `pollEdit` (both taking `brandId`), `pollRemove(_ids)`,
-  `pollToggleStatus(_ids, status)`, and
-  `pollSendToConversation(_id, conversationId)` which returns the created
-  `ConversationMessage`. `Poll.results` is a field resolver that aggregates the
-  vote ledger across every conversation the poll was sent to.
-- GraphQL (public widget, `skipPermission`): `widgetsPollConnect(channelId,
-pollCode, cachedCustomerId)` returns the active poll plus the caller's
-  previous selection; `widgetsPollSubmit(pollCode, optionIds,
+- GraphQL: surveys — `surveyList(searchValue, status, channelId, cursor params)`,
+  `surveyDetail(_id)`, `surveyTotalCount(searchValue, status, channelId)`; `surveyAdd`,
+  `surveyEdit` (both taking `brandId` and `steps: [SurveyStepInput!]`, with the
+  legacy `question` / `options` arguments now optional), `surveyRemove(_ids)`,
+  `surveyToggleStatus(_ids, status)`, and
+  `surveySendToConversation(_id, conversationId)` which returns the created
+  `ConversationMessage`. `Survey.steps` always returns at least one step, synthesising
+  it from the top-level fields for a survey saved before steps existed.
+  `Survey.results` is a field resolver that aggregates the
+  vote ledger across every conversation the survey was sent to; it reports
+  `steps: [SurveyStepResult!]!` with a per-step `totalVotes` and per-step
+  percentages, and `options` remains the flat list across every step.
+- GraphQL (client portal): `cpSurveys(searchValue, channelId, brandId,
+  cursor params)` returns `CpSurveyListResponse` — a cursor page of
+  `{ survey, votedOptionIds }` over active surveys only. `cpSurveyDetail(channelId,
+  surveyCode)`, `cpSurveyVotes(conversationId)` and
+  `cpSurveySubmit(surveyCode, optionIds)` take no `visitorId`; the caller is read
+  from the client portal session.
+- GraphQL (public widget, `skipPermission`): `widgetsSurveyConnect(channelId,
+surveyCode, cachedCustomerId)` returns the active survey plus the caller's
+  previous selection; `widgetsSurveySubmit(surveyCode, optionIds,
 cachedCustomerId)` files a site answer as a new conversation.
-- GraphQL (public widget, `skipPermission`): `widgetsPollVotes(conversationId,
+- GraphQL (public widget, `skipPermission`): `widgetsSurveyVotes(conversationId,
 customerId, visitorId)` returns the voter's own selections for the
-  conversation; `widgetsPollVote(messageId, optionIds, customerId, visitorId)`
+  conversation; `widgetsSurveyVote(messageId, optionIds, customerId, visitorId)`
   records a vote and returns the refreshed `ConversationMessage`.
 
 - GraphQL subgraph on port `3304` (queries, mutations, subscriptions) federated
@@ -467,14 +496,24 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 ## Data and State
 
-- `frontline_polls` — poll definitions with an indexed `channelId` and embedded
-  `options` that carry their own nanoid `_id`. `frontline_poll_votes` — one document per voter per poll
+- `frontline_surveys` — survey definitions with an indexed `channelId`, embedded
+  `steps` that carry their own nanoid `_id`, and embedded
+  `options` that carry their own nanoid `_id`. Option ids are unique across the
+  whole survey, not just within a step. An option also stores its ticket
+  automation config plus the runtime state that guards it —
+  `ticketCreated`, `ticketId` and `ticketClaimedAt`.
+- A ticket created by a survey threshold stores `sourceSurvey`
+  (`surveyId`, `surveyStepId`, `surveyOptionId`, `question`, `optionText`,
+  `voteCount`, `threshold`) on the ticket document. `frontline_survey_votes` — one document per voter per survey
   message, with a unique `(messageId, voterId)` index so a repeat vote replaces
   the previous selection instead of stacking. `voterId` is the `customerId`
   when there is one, otherwise the `visitorId`.
-- A poll message stores a _snapshot_ under `extraData.poll`
-  (`pollId`, `question`, `answers[{id,text}]`, `allowMultiselect`, `expiry`,
-  `results`). Editing the poll definition afterwards never rewrites messages
+- A survey message stores a _snapshot_ under `extraData.survey`
+  (`surveyId`, `question`, `answers[{id,text}]`, `allowMultiselect`,
+  `steps[{stepId,name,description,question,answers,allowMultiselect}]`, `expiry`,
+  `results`). `results.answerCounts` stays one flat list keyed by option id across
+  every step. The top-level `question` / `answers` / `allowMultiselect` mirror
+  step 1. Editing the survey definition afterwards never rewrites messages
   already sent.
 
 - Tenant-scoped Mongo collections generated per `subdomain` through
@@ -633,14 +672,20 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - `isCheckDate` means `createdAt >= start of the server's current day`.
 - `excludeCheckUserIds` bypasses `isCheckUser` only, matching the settings UI
   where that member picker is nested under the "my tickets only" toggle.
-- Poll answer ids in a message snapshot are the poll option `_id`s, not array
+- Survey answer ids in a message snapshot are the survey option `_id`s, not array
   indexes, so option reordering cannot reassign existing votes. Discord's
-  native polls keep their own numeric ids in the same `extraData.poll` shape;
+  native surveys keep their own numeric ids in the same `extraData.survey` shape;
   any renderer must accept both.
-- `cpPollVote` and `cpPollSubmit` are the only write paths for votes. Both
-  reject a closed poll, a multi-select payload on a single-answer poll, and any
-  option id absent from the snapshot, then recompute `extraData.poll.results`
-  from the ledger — counts are never incremented in place.
+- `cpSurveyVote` and `cpSurveySubmit` are the only write paths for votes. Both
+  reject a closed survey, a multi-select payload on a single-answer step, and any
+  option id absent from the snapshot, then recompute `extraData.survey.results`
+  from the ledger — counts are never incremented in place. Steps are
+  independent: a voter may answer some and skip others, so the only overall
+  requirement is one selection somewhere.
+- Every snapshot and survey read goes through `getSnapshotSteps` / `getSurveySteps`,
+  which synthesise a single step from the legacy top-level fields. No survey code
+  path may read `survey.steps` or `snapshot.steps` directly, because documents
+  written before multi-step surveys have neither.
 - A vote's `voterId` is `cpUser.erxesCustomerId || cpUser._id || visitorId`,
   resolved only through `getCpVoterId`. A signed-in caller can never be
   impersonated through the argument, because `visitorId` is consulted last;
@@ -648,29 +693,70 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   unique `{ messageId, voterId }` index pins one vote per portal account and one
   vote per retained visitor id. Both write paths reject a request that resolves
   to no voter at all.
-- `hasPoll` is a denormalized conversation flag set by `pollSendToConversation`
-  and read by the `withPoll` filter — the same shape as `isCustomerRespondedLast`
-  behind `awaitingResponse`. The filter param is deliberately named `withPoll`
+- `cpSurveyMutations` is marked `forClientPortal: true` **and**
+  `cpUserRequired: true`. `forClientPortal` alone only asserts
+  `context.clientPortal`, which the gateway sets from the `x-app-token` header;
+  `context.cpUser` comes from a second header, `client-auth-token`, so without
+  `cpUserRequired` a request carrying only the app token reaches the resolver
+  with no voter.
+- `getCpVoterId` resolves only from `cpUser`; nothing in the survey module reads
+  a client-supplied identity any more. A request with no `cpUser` is rejected,
+  and `cpUser._id` is the `cpUserId` the uniqueness index keys on.
+- The one-vote-per-survey guard is the partial unique index on
+  `(surveyId, cpUserId)`, not the `findOne` check that precedes it — concurrent
+  submits both clear that check. `cpSurveySubmit` catches the duplicate-key error
+  (code `11000`), deletes the conversation and message it had just created, and
+  returns `alreadyVoted`, so a race leaves no orphan conversation.
+  The index is `partialFilterExpression: { cpUserId: { $exists: true } }` so
+  votes written before this existed do not collide with each other.
+- Every client-portal survey read goes through `toCpSurvey`, which strips each
+  option down to `_id` / `text` / `order`. The `Survey` GraphQL type carries the
+  ticket-automation config and `CpSurveyResponse` embeds that same type, so
+  returning a raw survey from a `cp*` resolver would hand a portal visitor the
+  pipeline and status ids, the threshold and the created ticket id.
+- A survey option creates **at most one** ticket, ever. The guard is a single
+  atomic `updateOne` on the survey document (`claimOption`) whose `arrayFilters`
+  require `ticketCreated != true` and no live `ticketClaimedAt`; only the
+  writer whose update reports `modifiedCount > 0` may create the ticket.
+  Never replace it with a read-then-write check — concurrent voters crossing the
+  threshold together would each create one. MongoDB rejects a top-level `$or`
+  inside `arrayFilters`, so the stale-claim window is expressed as
+  `{ $not: { $gte: staleBefore } }`, which also matches a missing or null field.
+- A failed ticket creation must `releaseOption` (unset `ticketClaimedAt`) and
+  leave `ticketCreated` false, so the next vote retries. A claim older than
+  `STALE_CLAIM_MS` is reclaimable, which is what recovers a crash mid-creation.
+- `updateSurvey` replaces the whole `steps` array, so it runs
+  `restoreOptionTicketState` to carry `ticketCreated` / `ticketId` /
+  `ticketClaimedAt` across by option `_id`. Without it, editing a survey would
+  reset the duplicate guard and the next vote would create a second ticket.
+- The inbox's survey row and its integration-type rows must stay disjoint:
+  `buildAllQueries` applies `withSurveyFilter` when `withSurvey` is asked for and
+  `withoutSurveyFilter` (`hasSurvey: { $ne: true }`) when the caller scoped to an
+  `integrationType` instead. Unscoped lists — the main inbox — keep showing survey
+  conversations, because they are still real customer conversations.
+- `hasSurvey` is a denormalized conversation flag set by `surveySendToConversation`
+  and read by the `withSurvey` filter — the same shape as `isCustomerRespondedLast`
+  behind `awaitingResponse`. The filter param is deliberately named `withSurvey`
   because `IConversationListParams` extends `IConversation`, so reusing
-  `hasPoll` would collide with the boolean document field.
-- `brandId` is optional on a poll, but `createPoll`/`updatePoll` reject one whose
-  brand has no active `messenger` integration in the poll's channel, so an
-  unresolvable pairing can never be saved. A poll with no `brandId` keeps the
+  `hasSurvey` would collide with the boolean document field.
+- `brandId` is optional on a survey, but `createSurvey`/`updateSurvey` reject one whose
+  brand has no active `messenger` integration in the survey's channel, so an
+  unresolvable pairing can never be saved. A survey with no `brandId` keeps the
   legacy behaviour of taking whichever active messenger integration the channel
   returns first.
-- A poll's `code` is a unique nanoid minted on create; the portal link and
-  `cpPollDetail` address the poll by it, never by `_id` alone.
-- Client portal poll reads are queries and writes are mutations. `cpPollDetail`
+- A survey's `code` is a unique nanoid minted on create; the portal link and
+  `cpSurveyDetail` address the survey by it, never by `_id` alone.
+- Client portal survey reads are queries and writes are mutations. `cpSurveyDetail`
   performs no writes, so it must never move back under `Mutation`. Both
   client-portal resolver maps keep `forClientPortal` and deliberately omit
   `cpUserRequired`, so a guest reaches the resolver; they must never fall back to
   `skipPermission`, which would also drop the `x-app-token` portal check and
-  leave the customer- and conversation-creating `cpPollSubmit` open to anyone.
+  leave the customer- and conversation-creating `cpSurveySubmit` open to anyone.
   Nothing under these resolvers may dereference `cpUser` without optional
   chaining.
-- `cpPollSubmit` files the conversation under the channel's `messenger`
+- `cpSurveySubmit` files the conversation under the channel's `messenger`
   integration; a channel without one rejects the submit rather than inventing
-  an integration, and narrows the lookup by the poll's `brandId` when it has one
+  an integration, and narrows the lookup by the survey's `brandId` when it has one
   so a channel carrying several messenger integrations resolves deterministically.
   For a signed-in caller it resolves the conversation's customer
   from `cpUser.erxesCustomerId` first, then `customers.getWidgetCustomer` by the
@@ -680,12 +766,13 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `state: 'visitor'` customer through `customers.createCustomer`. Do not pass
   `scopeBrandIds` there — it is a product field, absent from the customer schema,
   so mongoose strict mode drops it silently.
-- `pollSendToConversation` only accepts a `messenger` integration, and refuses
-  a poll whose `channelId` or `brandId` differs from the integration's.
-  Both guards are skipped when the poll leaves the field unset. Discord
-  polls keep their own native path through `conversationMessageAdd(poll:)`.
-- `pollList` / `pollTotalCount` without a `channelId` are scoped to the caller's
-  `ChannelMembers` channels (plus channel-less polls) unless the user is an
+- `surveySendToConversation` only accepts a `messenger` integration, and refuses
+  a survey whose `channelId` or `brandId` differs from the integration's.
+  Both guards are skipped when the survey leaves the field unset. Discord's own
+  polls keep their native path through `conversationMessageAdd(poll:)` and stay
+  on `extraData.poll`; only erxes surveys use `extraData.survey`.
+- `surveyList` / `surveyTotalCount` without a `channelId` are scoped to the caller's
+  `ChannelMembers` channels (plus channel-less surveys) unless the user is an
   owner — the same visibility rule the forms queries apply.
 
 - Call Pro stays invisible unless `CALLPRO_ENABLED=true`. That single env var
@@ -1467,6 +1554,96 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-10` — Polls became surveys, database included
+
+- **Summary:** The whole feature was renamed from poll to survey — module,
+  models, GraphQL contract, permissions, the `frontline_surveys` /
+  `frontline_survey_votes` collections, `conversations.hasSurvey`,
+  `extraData.survey` and `Ticket.sourceSurvey` — with
+  `src/migrations/migratePollToSurvey.ts` moving existing data. Discord's own
+  polls were deliberately left on `extraData.poll`.
+- **Affected areas:** `src/modules/survey/**` (was `src/modules/poll/**`),
+  `src/apollo/**`, `src/connectionResolvers.ts`, `src/conversationQueryBuilder.ts`,
+  `src/meta/permissions.ts`, `src/modules/inbox/**`, `src/modules/ticket/**`,
+  `src/migrations/migrate{PollToSurvey,SurveySteps}.ts`.
+- **Contracts changed:** Every `poll*` / `cpPoll*` operation and every `Poll*`
+  type was renamed to `survey*` / `cpSurvey*` / `Survey*`; `withPoll` became
+  `withSurvey`; `Ticket.sourcePoll` became `Ticket.sourceSurvey`.
+
+### `2026-09-09` — Survey conversations leave the inbox's integration-type rows
+
+- **Summary:** A conversation carrying a survey no longer appears under
+  `Messenger` (or any integration-type row) in the inbox; it shows only under
+  the channel's `Surveys` row. Unscoped inbox lists are unchanged.
+- **Affected areas:** `src/conversationQueryBuilder.ts`.
+- **Contracts changed:** `None`.
+
+### `2026-09-09` — Migration backfills `steps` on pre-multi-step surveys
+
+- **Summary:** `src/migrations/migrateSurveySteps.ts` gives every survey saved
+  before multi-step surveys a one-entry `steps` array built from its top-level
+  `question` / `options` / `allowMultiselect`, preserving each option `_id` and
+  `order` so the vote ledger keeps resolving. It is additive, idempotent, and
+  defaults to `DRY_RUN`.
+- **Affected areas:** `src/migrations/migrateSurveySteps.ts`.
+- **Contracts changed:** `None`.
+
+### `2026-09-09` — One client portal user, one vote per survey
+
+- **Summary:** `cpSurveySubmit` no longer takes a `visitorId` and no longer opens
+  a guest customer; it requires a signed-in client portal user, records
+  `cpUserId` on the vote, and a partial unique index on `(surveyId, cpUserId)`
+  makes a second submit — including one picking different options — return
+  `alreadyVoted` without writing. `visitorId` is gone from every `cp*` survey
+  operation.
+- **Affected areas:** `src/modules/survey/db/definitions/surveys.ts`,
+  `src/modules/survey/{@types/survey.ts,utils.ts,db/models/SurveyVotes.ts}`,
+  `src/modules/survey/graphql/schema/survey.ts`,
+  `src/modules/survey/graphql/resolvers/{mutations,queries}/clientPortal.ts`.
+- **Contracts changed:** `visitorId` removed from `cpSurveys`, `cpSurveyDetail`,
+  `cpSurveyVotes` and `cpSurveySubmit`.
+
+### `2026-09-09` — Client portal can list every active survey
+
+- **Summary:** Added `cpSurveys`, a cursor-paginated client-portal query over
+  active surveys whose `channelId` and `brandId` filters are optional, returning
+  each survey with the caller's own selections; every client-portal survey read now
+  strips the option-level ticket-automation config first.
+- **Affected areas:** `src/modules/survey/graphql/schema/survey.ts`,
+  `src/modules/survey/graphql/resolvers/queries/clientPortal.ts`,
+  `src/modules/survey/utils.ts`.
+- **Contracts changed:** New `cpSurveys` query and `CpSurveyListResponse` type.
+
+### `2026-09-09` — A survey option can open a ticket at a vote threshold
+
+- **Summary:** Each survey option can arm a ticket automation with a vote
+  threshold, pipeline and status; both client-portal vote paths evaluate it and
+  create exactly one ticket per option, guarded by an atomic document claim that
+  survives concurrent voters and is released again if creation fails.
+- **Affected areas:** `src/modules/survey/ticketAutomation.ts` (new),
+  `src/modules/survey/{@types/survey.ts,db/definitions/surveys.ts,db/models/Surveys.ts}`,
+  `src/modules/survey/graphql/{schema/survey.ts,resolvers/mutations/clientPortal.ts}`,
+  `src/modules/ticket/{@types/ticket.ts,db/definitions/ticket.ts,graphql/schemas/ticket.ts}`.
+- **Contracts changed:** `SurveyOption` and `SurveyOptionInput` gained
+  `ticketCreationEnabled`, `ticketCreationThreshold`, `ticketPipelineId`,
+  `ticketStatusId`; `SurveyOption` also exposes read-only
+  `ticketCreated` / `ticketId`. New `TicketSourceSurvey` type and
+  `Ticket.sourceSurvey` field.
+
+### `2026-09-09` — A survey asks several questions through ordered steps
+
+- **Summary:** A survey now owns an ordered `steps` array — each step a question
+  with its own name, description, options and multi-select rule — while step 1
+  stays mirrored on the top-level `question` / `options` / `allowMultiselect`
+  so every existing reader, snapshot and vote keeps working untouched.
+- **Affected areas:** `src/modules/survey/{@types/survey.ts,utils.ts}`,
+  `src/modules/survey/db/{definitions/surveys.ts,models/Surveys.ts}`,
+  `src/modules/survey/graphql/schema/survey.ts`,
+  `src/modules/survey/graphql/resolvers/{customResolvers/survey.ts,mutations/clientPortal.ts,queries/surveys.ts}`.
+- **Contracts changed:** Added `SurveyStep`, `SurveyStepResult` and `SurveyStepInput`;
+  `Survey.steps` and `SurveyResults.steps` are new non-null fields; `surveyAdd` and
+  `surveyEdit` accept `steps` and no longer require `question` or `options`.
+
 ### `2026-09-07` — A help center points at the knowledge base topic it serves
 
 - **Summary:** The knowledge base topic gained a `kbTopicId` field, so a help
@@ -1478,103 +1655,26 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Contracts changed:** `KnowledgeBaseTopic` exposes `kbTopicId: String` and
   `KnowledgeBaseTopicDoc` accepts it.
 
-### `2026-09-07` — Polls pin their messenger integration by brand
+### `2026-09-07` — Surveys pin their messenger integration by brand
 
-- **Summary:** A poll can now carry a `brandId`; the client-portal submit path and
-  `pollSendToConversation` honour it, and create/update refuse a brand that has no
-  active messenger integration in the poll's channel — removing the arbitrary
+- **Summary:** A survey can now carry a `brandId`; the client-portal submit path and
+  `surveySendToConversation` honour it, and create/update refuse a brand that has no
+  active messenger integration in the survey's channel — removing the arbitrary
   `findOne` pick on a channel with several messenger integrations.
-- **Affected areas:** `src/modules/poll/{@types/poll.ts,db/definitions/polls.ts,db/models/Polls.ts}`,
-  `src/modules/poll/graphql/schema/poll.ts`,
-  `src/modules/poll/graphql/resolvers/mutations/{polls.ts,clientPortal.ts}`.
-- **Contracts changed:** Added `brandId: String` to `pollAdd`, `pollEdit` and the
-  `Poll` type.
+- **Affected areas:** `src/modules/survey/{@types/survey.ts,db/definitions/surveys.ts,db/models/Surveys.ts}`,
+  `src/modules/survey/graphql/schema/survey.ts`,
+  `src/modules/survey/graphql/resolvers/mutations/{surveys.ts,clientPortal.ts}`.
+- **Contracts changed:** Added `brandId: String` to `surveyAdd`, `surveyEdit` and the
+  `Survey` type.
 
-### `2026-09-07` — Guest voting on the client portal poll surface
+### `2026-09-07` — Guest voting on the client portal survey surface
 
-- **Summary:** All four `cpPoll*` operations now accept an optional client-supplied
-  `visitorId`, so an unauthenticated portal visitor can read and answer a poll;
-  `cpPollSubmit` gives a guest a `state: 'visitor'` customer and reuses it on
+- **Summary:** All four `cpSurvey*` operations now accept an optional client-supplied
+  `visitorId`, so an unauthenticated portal visitor can read and answer a survey;
+  `cpSurveySubmit` gives a guest a `state: 'visitor'` customer and reuses it on
   return, while a signed-in `cpUser` still wins over the argument.
-- **Affected areas:** `src/modules/poll/graphql/resolvers/{mutations,queries}/clientPortal.ts`,
-  `src/modules/poll/graphql/schema/poll.ts`, `src/modules/poll/utils.ts`.
-- **Contracts changed:** Added `visitorId: String` to `cpPollDetail`,
-  `cpPollVotes`, `cpPollSubmit` and `cpPollVote`. Both client-portal poll
+- **Affected areas:** `src/modules/survey/graphql/resolvers/{mutations,queries}/clientPortal.ts`,
+  `src/modules/survey/graphql/schema/survey.ts`, `src/modules/survey/utils.ts`.
+- **Contracts changed:** Added `visitorId: String` to `cpSurveyDetail`,
+  `cpSurveyVotes`, `cpSurveySubmit` and `cpSurveyVote`. Both client-portal survey
   resolver maps dropped `cpUserRequired` and keep `forClientPortal`.
-
-### `2026-09-07` — `cpPollConnect` became the `cpPollDetail` query
-
-- **Summary:** The read-only client-portal poll lookup moved from `Mutation` to
-  `Query` and lost its widget-handshake name; `getActivePoll` moved into the
-  module's shared `utils.ts` so both resolver maps use one lookup.
-- **Affected areas:** `src/modules/poll/graphql/resolvers/queries/clientPortal.ts`,
-  `.../mutations/clientPortal.ts`, `src/modules/poll/graphql/schema/poll.ts`,
-  `src/modules/poll/utils.ts`.
-- **Contracts changed:** Removed mutation `cpPollConnect(channelId, pollCode)`.
-  Added query `cpPollDetail(channelId, pollCode): CpPollResponse`. Renamed type
-  `PollConnectResponse` to `CpPollResponse`.
-
-### `2026-09-07` — Poll answering moved from the widget to the client portal
-
-- **Summary:** The public `widgetsPoll*` surface was deleted and replaced with a
-  client-portal one — `cpPollConnect`, `cpPollSubmit`, `cpPollVote`, and
-  `cpPollVotes` — so a poll is answered by a signed-in portal user instead of an
-  anonymous widget visitor. The voter is now taken from `cpUser`
-  (`erxesCustomerId || _id`) rather than from client-supplied `customerId` /
-  `visitorId` / `cachedCustomerId` arguments.
-- **Affected areas:** `src/modules/poll/graphql/resolvers/{mutations,queries}/clientPortal.ts`
-  (new), `.../mutations/{widget,widgetPopup}.ts` and `.../queries/widget.ts`
-  (deleted), `src/modules/poll/graphql/schema/poll.ts`,
-  `src/modules/poll/{utils.ts,@types/poll.ts}`,
-  `src/apollo/resolvers/{queries,mutations}.ts`.
-- **Contracts changed:** Removed `widgetsPollVotes`, `widgetsPollVote`,
-  `widgetsPollConnect`, `widgetsPollSubmit`. Added `cpPollVotes(conversationId)`,
-  `cpPollVote(messageId, optionIds)`, `cpPollConnect(channelId, pollCode)`,
-  `cpPollSubmit(pollCode, optionIds)`.
-
-### `2026-09-05` — `Export repeating ticket properties by row`
-
-- **Summary:** Ticket import/export expands a repeating property group into one numbered column per row (`<Group> <n> / <Field>`) and reassembles those columns back into rows on import, replacing the single column that serialised the row array.
-- **Affected areas:** `src/meta/import-export/utils.ts`, `src/meta/import-export/export/buildTicketExportRow.ts`, `src/meta/import-export/export/getTicketExportHeaders.ts`, `src/meta/import-export/import/importHandlers.ts`
-- **Contracts changed:** Export and import headers for a repeating group are now numbered; the previous single `propertiesData.<groupId>` column is gone.
-
-### `2026-09-05` — `Use the shared propertiesData path helper`
-
-- **Summary:** Report property filters build their `propertiesData` path through the shared `propertyPath` helper instead of an inline template string.
-- **Affected areas:** `backend/plugins/frontline_api/src/modules/reports/utils.ts`
-- **Contracts changed:** `None`
-
-### `2026-09-05` — Poll voting has no in-repo client
-
-- **Summary:** The customer-facing poll surfaces were removed from
-  `frontline-widgets`; the public `widgetsPoll*` mutations were kept but now
-  have no caller in this repository.
-- **Affected areas:** `AGENTS.md` only — no API change.
-- **Contracts changed:** None.
-
-### `2026-09-03` — A help center carries its published site's appearance
-
-- **Summary:** Added a nested `styles` block to the knowledge base topic holding
-  the published site's logo and favicon, six surface colours, base and heading
-  fonts with their text and link colours, three form-element colours, and raw
-  header/footer HTML, exposed as `KnowledgeBaseTopicStyles` and accepted as
-  `KnowledgeBaseTopicStylesInput`.
-- **Affected areas:**
-  `src/modules/knowledgebase/@types/topic.ts`,
-  `src/modules/knowledgebase/db/definitions/topic.ts`,
-  `src/modules/knowledgebase/graphql/schemas/knowledgeBaseTypeDefs.ts`
-- **Contracts changed:** `KnowledgeBaseTopic.styles` and
-  `KnowledgeBaseTopicDoc.styles` added, with the two new
-  `KnowledgeBaseTopicStyles`/`KnowledgeBaseTopicStylesInput` shapes.
-
-### `2026-09-03` — A knowledge base topic need not have a brand
-
-- **Summary:** `KnowledgeBaseTopicDoc.brandId` was `String!`, so a topic could
-  not be created without a brand; the help center drawer no longer collects one,
-  so the input field is now nullable and the `brand` resolver returns `null` for
-  a missing or empty `brandId` instead of a Brand reference with an empty key.
-- **Affected areas:**
-  `src/modules/knowledgebase/graphql/schemas/knowledgeBaseTypeDefs.ts`,
-  `src/modules/knowledgebase/graphql/resolvers/customResolvers/topic.ts`
-- **Contracts changed:** `KnowledgeBaseTopicDoc.brandId` is now `String`
-  (was `String!`).

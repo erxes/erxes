@@ -27,21 +27,18 @@ export const ProgressSource = ({ customerId }: { customerId?: string }) => {
     skip: !customerId,
   });
 
-  const sourceStats = ALL_STATUSES.reduce(
-    (acc, status) => {
-      const items = conversationSourceProgress?.[status] ?? [];
-      items.forEach(({ source, count }) => {
-        if (!acc[source]) {
-          acc[source] = { statuses: {} as Record<ProgressStatus, number> };
-          ALL_STATUSES.forEach((s) => (acc[source].statuses[s] = 0));
-        }
-        acc[source].statuses[status] =
-          (acc[source].statuses[status] || 0) + count;
-      });
-      return acc;
-    },
-    {} as Record<string, { statuses: Record<ProgressStatus, number> }>,
-  );
+  const sourceStats = ALL_STATUSES.reduce((acc, status) => {
+    const items = conversationSourceProgress?.[status] ?? [];
+    items.forEach(({ source, count }) => {
+      if (!acc[source]) {
+        acc[source] = { statuses: {} as Record<ProgressStatus, number> };
+        ALL_STATUSES.forEach((s) => (acc[source].statuses[s] = 0));
+      }
+      acc[source].statuses[status] =
+        (acc[source].statuses[status] || 0) + count;
+    });
+    return acc;
+  }, {} as Record<string, { statuses: Record<ProgressStatus, number> }>);
 
   if (Object.keys(sourceStats).length === 0) {
     return (

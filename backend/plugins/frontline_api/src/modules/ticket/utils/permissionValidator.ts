@@ -67,9 +67,7 @@ export class PermissionValidator {
       query.pipelineId = pipelineId;
     }
 
-    const statuses = await this.models.Status.find(query)
-      .select('_id')
-      .lean();
+    const statuses = await this.models.Status.find(query).select('_id').lean();
 
     return statuses.map(({ _id }) => _id);
   }

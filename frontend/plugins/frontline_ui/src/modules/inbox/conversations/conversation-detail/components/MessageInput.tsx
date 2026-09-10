@@ -53,7 +53,7 @@ import { InboxHotkeyScope } from '@/inbox/types/InboxHotkeyScope';
 import { ResponseTemplateDropdown } from '@/inbox/conversations/conversation-detail/components/ResponseTemplateDropdown';
 import { ResponseTemplateSelector } from './ResponseTemplateSelector';
 import { PollComposer, PollDraft } from './PollComposer';
-import { SendPollDialog } from './SendPollDialog';
+import { SendSurveyDialog } from './SendSurveyDialog';
 import { getPreviewText } from '@/inbox/types/inbox';
 import { messageExtraInfoState } from '../states/messageExtraInfoState';
 import { useConversationMessageAdd } from '../hooks/useConversationMessageAdd';
@@ -627,7 +627,7 @@ export const MessageInput = ({
           )}
 
           {isMessenger && !isInternalNote && (
-            <SendPollDialog
+            <SendSurveyDialog
               conversationId={conversationId}
               channelId={integration?.channelId}
             />

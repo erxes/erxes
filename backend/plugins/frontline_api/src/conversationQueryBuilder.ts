@@ -22,7 +22,7 @@ export interface IListArgs {
   status?: string;
   unassigned?: string;
   awaitingResponse?: string;
-  withPoll?: string;
+  withSurvey?: string;
   automationStatus?: string;
   brandId?: string;
   tag?: string;
@@ -302,9 +302,15 @@ export default class Builder {
     };
   }
 
-  public withPollFilter(): { hasPoll: boolean } {
+  public withSurveyFilter(): { hasSurvey: boolean } {
     return {
-      hasPoll: true,
+      hasSurvey: true,
+    };
+  }
+
+  public withoutSurveyFilter(): { hasSurvey: { $ne: true } } {
+    return {
+      hasSurvey: { $ne: true },
     };
   }
 
@@ -497,7 +503,7 @@ export default class Builder {
       createdAt: {},
       segments: {},
       automationStatus: {},
-      withPoll: {},
+      withSurvey: {},
     };
 
     if (this.params.channelId) {
@@ -530,8 +536,10 @@ export default class Builder {
       this.queries.awaitingResponse = this.awaitingResponse();
     }
 
-    if (this.params.withPoll) {
-      this.queries.withPoll = this.withPollFilter();
+    if (this.params.withSurvey) {
+      this.queries.withSurvey = this.withSurveyFilter();
+    } else if (this.params.integrationType) {
+      this.queries.withSurvey = this.withoutSurveyFilter();
     }
 
     if (this.params.automationStatus) {
@@ -577,7 +585,7 @@ export default class Builder {
       ...this.queries.createdAt,
       ...this.queries.awaitingResponse,
       ...this.queries.automationStatus,
-      ...this.queries.withPoll,
+      ...this.queries.withSurvey,
       ...this.queries.segments,
     };
   }
