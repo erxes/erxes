@@ -201,10 +201,10 @@
 - The Facebook comment reply action holds a set of reply variants and one is
   picked at random per comment; a single variant is warned about, because Meta's
   Spam policy restricts pages "posting repetitive content" regardless of rate.
-  Public replies are also capped per post, paced through an outbox so a page
-  sends at most a set number a minute, and paused on the bot for hours after
-  Facebook refuses one. History reports the queue, the skip, the pause and which
-  variant went out. Private replies are never paced. The bot form reports its
+  Public replies are paced through an outbox so a page sends at most a set
+  number a minute, and paused on the bot for hours after Facebook refuses one;
+  a paused reply waits the window out and is only dropped once it is a day old.
+  History reports the queue, the wait, the expiry and which variant went out. Private replies are never paced. The bot form reports its
   own health: the breaker's pause, the last error, and how many replies are
   queued, sent and failed for that page.
 - Facebook bot message action supports a drag-orderable message sequence of
@@ -498,6 +498,15 @@ brandId)` and `knowledgeBaseTopicsTotalCount`, read together as the help
 
 ## Local Invariants
 
+- A deferred action's `result` is written the moment the work is queued and is
+  never updated, so history reads the action's own `status` to say how the wait
+  ended. Trusting `result.status` alone left a timed-out reply still promising
+  to send "in about 3 minutes" an hour later.
+- `useFieldArray` does not drive a flat array. React Hook Form documents it as
+  intended for arrays of objects, and on the comment reply variants — a plain
+  `string[]` — it silently stopped appending past the second entry. A list of
+  primitives is read with `watch` and written with `setValue`; that also drops
+  the `as never` cast the hook needed on such a name.
 - `RecordTable.Provider`'s container is `overflow-hidden`, so a table that is
   not wrapped in a scroll area clips every column past the viewport instead of
   scrolling. The help center and its categories tables paginate by page, not by
@@ -1073,6 +1082,41 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-09` — The comment reply takes an image
+
+- **Summary:** The attachment field had been a disabled placeholder from before
+  uploads existed; it now uses the same `FileUploadSection` the message action
+  does, capped at the single image Facebook accepts on a comment reply, and the
+  config schema stopped typing it as `any`.
+- **Affected areas:**
+  `src/widgets/automations/modules/facebook/components/action/components/replyComment/CommentActionForm.tsx`,
+  `src/widgets/automations/modules/facebook/components/action/states/replyCommentActionForm.tsx`
+- **Contracts changed:** None.
+
+### `2026-09-09` — The comment reply form got a layout, and adds past two
+
+- **Summary:** Every block in the Send comment panel sat flush against the next
+  because the form had no spacing wrapper, and `useFieldArray` — documented as
+  not supporting flat arrays — stopped appending past the second variant. The
+  list is now driven from form state, the fields are three separated groups,
+  each variant carries its counter and a destructive remove control in a header
+  row above its textarea, and section headings stopped being `Form.Label`s for
+  controls they do not label.
+- **Affected areas:**
+  `src/widgets/automations/modules/facebook/components/action/components/replyComment/CommentActionForm.tsx`
+- **Contracts changed:** None.
+
+### `2026-09-09` — A paused comment reply waits instead of being dropped
+
+- **Summary:** History rendered a `post-public-reply-limit` skip that the API no
+  longer produces; the per-post cap is gone and a blocked reply is requeued, so
+  the only skip left is `queue-expired` after a day of waiting. A deferred reply
+  that timed out also stopped claiming it was still about to send.
+- **Affected areas:**
+  `src/widgets/automations/modules/facebook/components/AutomationHistoryResult.tsx`,
+  `src/widgets/automations/modules/facebook/components/history/useFacebookAutomationHistoryResult.ts`
+- **Contracts changed:** None. The action result no longer carries `limit`.
+
 ### `2026-09-09` — The bot's Activity tab is about comments
 
 - **Summary:** One "Bot health" block mixed the Messenger profile's sync state
@@ -1097,10 +1141,12 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 - **Summary:** The Facebook bot sheet mixed what the bot *is* with what it is
   *doing*; the name stays at the top and the rest moved into Settings
   (persistent menu, ice breakers, optional configuration) and Activity (health
-  counters, connected automations) tabs.
+  counters, connected automations) tabs. The open tab is held for the session,
+  so reopening a bot lands back where the last one was left.
 - **Affected areas:**
   `src/widgets/automations/modules/facebook/components/bots/components/AutomationFbBotFormContent.tsx`,
-  `src/widgets/automations/modules/facebook/components/bots/components/FacebookBotSettingsTab.tsx`
+  `src/widgets/automations/modules/facebook/components/bots/components/FacebookBotSettingsTab.tsx`,
+  `src/widgets/automations/modules/facebook/components/bots/states/facebookBotStates.tsx`
 - **Contracts changed:** None.
 
 ### `2026-09-09` — The comment reply mention is a setting
@@ -1192,69 +1238,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   and `components/history/useFacebookAutomationHistoryResult.ts`.
 - **Contracts changed:** the comment action result gains `text` on success and a
   `{ status: 'skipped', reason, limit, used }` shape when capped.
-
-### `2026-09-08` — Comment replies rotate between variants
-
-- **Summary:** `frontline:facebook.comments.create` now stores `texts[]` instead
-  of a single `text` and picks one at random per comment. The form edits the set,
-  warns while only one variant exists, and the node shows how many there are.
-  Automations saved before this keep working: `pickReplyText` and
-  `toCommentActionFormValues` both fall back to the old `text`. Measured on the
-  2026-09-07 production dump: no rate threshold separated blocked hours from
-  clean ones (a clean hour reached 3,003 replies), but one post carried 10,284
-  replies with a single sentence used 8,517 times — which is what Meta's Spam
-  policy names.
-- **Affected areas:** `frontline_api`
-  `modules/integrations/facebook/meta/automation/comments/index.ts`;
-  `frontline_ui`
-  `src/widgets/automations/modules/facebook/components/action/states/replyCommentActionForm.tsx`
-  and `components/replyComment/{CommentActionForm,ActionCommentConfigContent}.tsx`.
-- **Contracts changed:** the action config gains `texts: [String]`; `text` is
-  still read for existing automations.
-
-### `2026-09-08` — The message trigger says who else already listens
-
-- **Summary:** Every condition on the Facebook message trigger form reports the
-  other automations on the same bot that already claim it — the Get Started card,
-  each persistent-menu row, each ice breaker, each direct-message keyword, and a
-  keyword-less direct message. A catch-all claim blocks the Direct Message
-  condition only while this trigger names no keywords of its own. A claim
-  disables the checkbox (or refuses the keyword) and names where to remove it,
-  drafts included; an already-selected
-  condition is never blocked, or it could not be undone; and the trigger being
-  edited is excluded by its own node id. Persistent menu and ice breaker
-  conditions additionally stay unselectable until at least one item is picked
-  inside them. Blocked cards still open, so their configuration remains
-  reachable.
-- **Affected areas:** `src/widgets/automations/modules/facebook/components/` —
-  new `trigger/hooks/useFacebookBotTriggerClaims.ts` and
-  `trigger/components/message/TriggerClaimNote.tsx`;
-  `trigger/components/message/{MessageTriggerForm,MessageTriggerConditionsList,MessageTriggerConditionCard,MessageTriggerConfigPanel,PersistentMenuSelector,IceBreakerSelector,DirectMessageEditor,DirectMessageConditionCard}.tsx`;
-  `bots/hooks/useFacebookBotAutomations.tsx` now keeps trigger ids, and
-  `bots/utils/resolveBotMenuOutcome.ts` follows.
-- **Contracts changed:** `None`.
-
-### `2026-09-08` — Ice breakers, and Get Started stops matching on its label
-
-- **Summary:** A bot now carries `iceBreakers` and `getStartedText`. Ice breakers
-  are written to and verified against `messenger_profile.ice_breakers` — read
-  back in either the localized or the flat shape Facebook may return — appear in
-  the welcome preview under “Tap to send”, and can be selected as a new
-  `iceBreaker` trigger condition. The Get Started button's label is editable
-  because the trigger no longer compares `target.content` to the literal string
-  “Get Started” — it matches the postback payload instead (a `botId` with no
-  `persistentMenuId` and no `iceBreakerId`), which also stops a visitor who types
-  those words from firing the trigger.
-- **Affected areas:** `frontline_api` —
-  `modules/integrations/facebook/db/definitions/bots.ts`,
-  `db/models/Bots.ts`, `graphql/schema/facebook.ts`,
-  `meta/automation/messages/index.ts`,
-  `meta/automation/utils/messageUtils.ts`. `frontline_ui` — new
-  `components/bots/components/FacebookIceBreakerGenerator.tsx` and
-  `components/trigger/components/message/IceBreakerSelector.tsx`;
-  bot form schema, context, mutations and queries; the simulator, its preview and
-  outcome utils; the message trigger schema, options, types and condition hook.
-- **Contracts changed:** `facebookMessengerAddBot` / `facebookMessengerUpdateBot`
-  accept `iceBreakers: [BotIceBreakerInput]` and `getStartedText`;
-  `FacebookMessengerBot` returns both. The `facebook:messages` trigger accepts an
-  `iceBreaker` condition with `iceBreakerIds`.

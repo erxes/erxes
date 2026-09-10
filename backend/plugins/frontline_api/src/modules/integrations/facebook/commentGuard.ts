@@ -3,14 +3,13 @@ import { debugError } from '@/integrations/facebook/debuggers';
 import { redis } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 
-const DEFAULT_PUBLIC_REPLIES_PER_POST = 100;
-/** Posts go cold; the counter only has to outlive the comment burst. */
-const WINDOW_SECONDS = 7 * 24 * 3600;
-
-const postBudgetKey = (subdomain: string, postId: string) =>
-  `facebook:comment:post:${subdomain}:${postId}`;
-
-const DEFAULT_REPLIES_PER_MINUTE = 10;
+/**
+ * The page this was built for sustained 3,003 public replies in a clean hour
+ * (~50/min) without a refusal, and its one rate-driven block came at 60-84/min
+ * held for twenty minutes. 30 sits inside the observed-safe band rather than at
+ * its ceiling.
+ */
+const DEFAULT_REPLIES_PER_MINUTE = 30;
 const PACING_WINDOW_SECONDS = 3600;
 
 const paceKey = (subdomain: string, pageId: string) =>
@@ -51,52 +50,5 @@ export const reserveSendSlot = async (
   } catch (e) {
     debugError(`Facebook comment pacing unavailable: ${e.message}`);
     return 0;
-  }
-};
-
-export type TPostPublicReplyBudget = {
-  allowed: boolean;
-  limit: number;
-  used: number;
-};
-
-/**
- * Caps how many public replies one post receives. The private reply is not
- * touched: Meta sanctions one per comment and it is the path that converts,
- * while a public reply repeated thousands of times under a single post is what
- * the Spam policy calls repetitive content.
- */
-export const consumePostPublicReplyBudget = async (
-  models: IModels,
-  subdomain: string,
-  postId?: string,
-): Promise<TPostPublicReplyBudget> => {
-  const configured = await getConfig(
-    models,
-    'FACEBOOK_COMMENT_PUBLIC_REPLY_PER_POST',
-    `${DEFAULT_PUBLIC_REPLIES_PER_POST}`,
-  );
-
-  const limit = Number.parseInt(`${configured}`, 10);
-
-  if (!postId || !Number.isFinite(limit) || limit <= 0) {
-    return { allowed: true, limit: 0, used: 0 };
-  }
-
-  try {
-    const key = postBudgetKey(subdomain, postId);
-    // Counted before the send, so concurrent replies cannot overshoot. A failed
-    // send therefore spends its slot, which errs towards fewer public replies.
-    const used = await redis.incr(key);
-
-    if (used === 1) {
-      await redis.expire(key, WINDOW_SECONDS);
-    }
-
-    return { allowed: used <= limit, limit, used };
-  } catch (e) {
-    // Availability over strictness, matching the post rate limit.
-    debugError(`Facebook comment budget check unavailable: ${e.message}`);
-    return { allowed: true, limit, used: 0 };
   }
 };

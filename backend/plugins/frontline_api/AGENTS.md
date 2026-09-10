@@ -798,8 +798,29 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   and a stress run against a real one is what gets it restricted. Unset in any
   deployment.
 - `POST /facebook/receive` answers every webhook it accepts, including one it
-  ignores or cannot classify. Falling through without a response leaves the
-  request open and makes Facebook redeliver the same event.
+  ignores or cannot classify — but **exactly once**, through the handler's own
+  `respond()` guard. Falling through without a response leaves the request open
+  and makes Facebook redeliver the event; ending twice is worse, because
+  `processMessagingEvent` already answers on its path and the second `end()`
+  raises `ERR_STREAM_WRITE_AFTER_END` from an event handler, which is unhandled
+  and kills the process.
+- A comment reply's attachment is stored as the upload's key, not a URL, so the
+  outbox runs it through `generateAttachmentUrl` before handing it to Facebook
+  as `attachment_url` — Facebook fetches the image itself and cannot resolve a
+  storage key. Graph takes exactly one attachment on a comment reply.
+- A public comment reply that meets an open breaker is **rescheduled, not
+  failed**: the window lifts on its own and the reply is still worth sending.
+  The requeue takes a fresh pacing slot on top of the wait, because a backlog
+  released at one instant repeats the burst that opened the breaker. The only
+  thing that ends a queued reply is `MAX_QUEUE_AGE_MS` — a day, chosen to clear
+  the 2-to-8.4-hour enforcement windows measured on the 2026-09-07 dump.
+- There is no per-post reply cap. One was tried and removed: measured against
+  that dump, no threshold on volume, repetition count, repetition share or post
+  concentration separated blocked hours from clean ones — the highest repetition
+  in the data (16,388 uses of one sentence in seven days) drew no refusal at
+  all. Pacing defends the documented API rate limit, and the breaker defends
+  against a refusal already received; neither is a spam-classifier model. Do not
+  reintroduce a cap without evidence that names the threshold.
 - A public comment reply carries the `@[senderId]` mention only when its action
   sets `mentionSender`. The mention was unconditional for years, which tagged
   every commenter publicly whether the automation wanted it or not; the outbox
@@ -1489,6 +1510,31 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-09` — A comment reply can carry an image
+
+- **Summary:** The outbox passed the stored attachment straight through as
+  `attachment_url`, which Facebook cannot fetch because the form stores an
+  upload key; it now resolves through `generateAttachmentUrl`, so the reply
+  form's newly enabled image upload actually reaches the page.
+- **Affected areas:**
+  `src/modules/integrations/facebook/commentOutbox.ts`
+- **Contracts changed:** None.
+
+### `2026-09-09` — Blocked comment replies wait the window out
+
+- **Summary:** The per-post budget is removed and pacing raised from 10 to 30 a
+  minute; a reply that meets an open breaker is requeued for when the block
+  lifts rather than marked failed, and is dropped only once it is 24 hours old.
+- **Affected areas:**
+  `src/modules/integrations/facebook/commentGuard.ts`,
+  `src/modules/integrations/facebook/commentOutbox.ts`,
+  `src/modules/integrations/facebook/db/models/CommentOutbox.ts`,
+  `src/modules/integrations/facebook/db/definitions/comment_outbox.ts`,
+  `src/modules/integrations/facebook/meta/automation/comments/index.ts`
+- **Contracts changed:** `FACEBOOK_COMMENT_PUBLIC_REPLY_PER_POST` is no longer
+  read. The action no longer returns `post-public-reply-limit`; the outbox
+  document gained `attempts`.
+
 ### `2026-09-09` — Graph calls can be pointed at a stand-in
 
 - **Summary:** The comment outbox had no way to be exercised without sending to
@@ -1590,27 +1636,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Contracts changed:** Removed mutation `cpPollConnect(channelId, pollCode)`.
   Added query `cpPollDetail(channelId, pollCode): CpPollResponse`. Renamed type
   `PollConnectResponse` to `CpPollResponse`.
-
-### `2026-09-07` — Poll answering moved from the widget to the client portal
-
-- **Summary:** The public `widgetsPoll*` surface was deleted and replaced with a
-  client-portal one — `cpPollConnect`, `cpPollSubmit`, `cpPollVote`, and
-  `cpPollVotes` — so a poll is answered by a signed-in portal user instead of an
-  anonymous widget visitor. The voter is now taken from `cpUser`
-  (`erxesCustomerId || _id`) rather than from client-supplied `customerId` /
-  `visitorId` / `cachedCustomerId` arguments.
-- **Affected areas:** `src/modules/poll/graphql/resolvers/{mutations,queries}/clientPortal.ts`
-  (new), `.../mutations/{widget,widgetPopup}.ts` and `.../queries/widget.ts`
-  (deleted), `src/modules/poll/graphql/schema/poll.ts`,
-  `src/modules/poll/{utils.ts,@types/poll.ts}`,
-  `src/apollo/resolvers/{queries,mutations}.ts`.
-- **Contracts changed:** Removed `widgetsPollVotes`, `widgetsPollVote`,
-  `widgetsPollConnect`, `widgetsPollSubmit`. Added `cpPollVotes(conversationId)`,
-  `cpPollVote(messageId, optionIds)`, `cpPollConnect(channelId, pollCode)`,
-  `cpPollSubmit(pollCode, optionIds)`.
-
-### `2026-09-05` — `Export repeating ticket properties by row`
-
-- **Summary:** Ticket import/export expands a repeating property group into one numbered column per row (`<Group> <n> / <Field>`) and reassembles those columns back into rows on import, replacing the single column that serialised the row array.
-- **Affected areas:** `src/meta/import-export/utils.ts`, `src/meta/import-export/export/buildTicketExportRow.ts`, `src/meta/import-export/export/getTicketExportHeaders.ts`, `src/meta/import-export/import/importHandlers.ts`
-- **Contracts changed:** Export and import headers for a repeating group are now numbered; the previous single `propertiesData.<groupId>` column is gone.

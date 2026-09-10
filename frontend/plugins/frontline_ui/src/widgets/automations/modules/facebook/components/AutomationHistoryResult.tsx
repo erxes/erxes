@@ -15,12 +15,12 @@ export const AutomationHistoryResult = ({
     error,
     hasError,
     isCommentReply,
+    isDropped,
     isQueued,
     isSkipped,
     sendAfterMs,
     isWaiting,
     messages,
-    skipLimit,
     skipReason,
   } = useFacebookAutomationHistoryResult(action, result);
 
@@ -62,22 +62,35 @@ export const AutomationHistoryResult = ({
     );
   }
 
+  if (isDropped) {
+    return (
+      <>
+        <ActionResult.Status status="dropped">
+          {t('comment-no-result', {
+            defaultValue:
+              'No result came back within the hour, so the automation stopped waiting. The bot\u2019s Activity tab says whether the reply went out.',
+          })}
+        </ActionResult.Status>
+        <ActionResult.Fields>
+          <ActionResult.Field label={t('reply')} value={commentText} />
+        </ActionResult.Fields>
+      </>
+    );
+  }
+
   if (isSkipped) {
     return (
       <ActionResult.Status status="dropped">
-        {skipReason === 'post-public-reply-limit' &&
-          t('comment-post-limit-reached', {
+        {skipReason === 'queue-expired' &&
+          t('comment-queue-expired', {
             defaultValue:
-              'Skipped: this post already received {{limit}} public replies. The private reply still went out.',
-            limit: skipLimit,
+              'Skipped: public replies stayed paused for a day, so this one was dropped. The private reply still went out.',
           })}
         {skipReason === 'send-blocked' &&
           t('comment-send-blocked', {
             defaultValue:
               'Skipped: Facebook refused a public reply on this page, so they are paused until {{until}}. The private reply still went out.',
-            until: blockedUntil
-              ? new Date(blockedUntil).toLocaleString()
-              : '—',
+            until: blockedUntil ? new Date(blockedUntil).toLocaleString() : '—',
           })}
         {!skipReason && t('skipped', { defaultValue: 'Skipped' })}
       </ActionResult.Status>

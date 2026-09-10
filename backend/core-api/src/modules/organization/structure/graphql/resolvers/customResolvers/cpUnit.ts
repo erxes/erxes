@@ -9,6 +9,7 @@ const USER_FIELDS = {
   'details.fullName': 1,
   'details.shortName': 1,
   'details.position': 1,
+  propertiesData: 1,
 };
 
 const DEPARTMENT_FIELDS = {
