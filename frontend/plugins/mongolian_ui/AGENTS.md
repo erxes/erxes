@@ -6,7 +6,7 @@
 - **Project:** `mongolian_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/mongolian_ui`
-- **Last synchronized:** `2026-09-10`
+- **Last synchronized:** `2026-09-11`
 
 ## Scope
 
@@ -33,11 +33,13 @@
   filter configuration screens under `settings/mongolian/product-places/*`.
 - Product places configuration screens render code-scoped `mnConfigs` rows in
   `RecordTable` lists and manage create/edit/delete through a right-side
-  `Sheet`.
+  `Sheet`; place, split, and print config rows display board, pipeline, and
+  stage names rather than raw ids.
 - Product places default product filters query Mongolian configs with
   `dealsProductsDefaultFilter`, store one config document per user with
   `subId` equal to the selected user id, and persist multi-segment selections
-  in that config value.
+  in that config value; the config list renders users through the shared member
+  display instead of raw ids.
 - Product places segment pickers use the shared `ui-modules` `SelectSegment`
   component with `core:products.products` for product segment selection.
 - Product places listens to the `productPlacesResponded` subscription from the
@@ -144,6 +146,18 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-11` - Product places stage display
+
+- **Summary:** Product places place, split, and print config rows now render board, pipeline, and stage names in the table instead of raw ids.
+- **Affected areas:** `src/modules/productplaces/components/ProductPlacesConfigManager.tsx`.
+- **Contracts changed:** None.
+
+### `2026-09-11` - Product filter user display
+
+- **Summary:** Product places default-filter config rows now render the selected user through the shared member display instead of showing the raw user id.
+- **Affected areas:** `src/modules/productplaces/components/ProductPlacesConfigManager.tsx`.
+- **Contracts changed:** None.
 
 ### `2026-09-10` - Product places config tables
 

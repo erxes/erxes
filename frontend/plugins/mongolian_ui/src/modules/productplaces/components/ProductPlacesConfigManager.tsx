@@ -86,6 +86,7 @@ type ProductPlacesConfigRow = ProductPlacesConfigForm & {
 };
 
 const PRODUCT_SEGMENT_CONTENT_TYPE = 'core:products.products';
+const noopValueChange = () => undefined;
 
 const defaultForm = (): ProductPlacesConfigForm => ({
   userId: '',
@@ -652,7 +653,7 @@ export const ProductPlacesConfigManager = ({
   };
 
   const columns = useMemo<ColumnDef<ProductPlacesConfigRow>[]>(() => {
-    const baseColumns: ColumnDef<ProductPlacesConfigRow>[] = [
+    const commonColumns: ColumnDef<ProductPlacesConfigRow>[] = [
       {
         id: 'more',
         header: () => <RecordTable.ColumnSelector />,
@@ -682,59 +683,106 @@ export const ProductPlacesConfigManager = ({
         ),
         size: 240,
       },
-      {
-        id: 'subId',
-        accessorKey: code === 'dealsProductsDefaultFilter' ? 'userId' : 'subId',
-        header: () => (
-          <RecordTable.InlineHead
-            label={code === 'dealsProductsDefaultFilter' ? t('user') : 'subId'}
-          />
-        ),
-        cell: ({ cell }) => (
+    ];
+
+    const summaryColumn: ColumnDef<ProductPlacesConfigRow> = {
+      id: 'summary',
+      header: () => <RecordTable.InlineHead label={t('description')} />,
+      cell: ({ row }) => {
+        const original = row.original;
+        const summary =
+          code === 'dealsProductsDefaultFilter'
+            ? `${original.segmentIds.length} ${t('segment')}`
+            : t('conditions', { count: original.conditions.length });
+
+        return (
           <RecordTableInlineCell>
-            <TextOverflowTooltip value={(cell.getValue() as string) || '-'} />
+            <TextOverflowTooltip value={summary} />
+          </RecordTableInlineCell>
+        );
+      },
+      size: 180,
+    };
+
+    if (code === 'dealsProductsDefaultFilter') {
+      return [
+        ...commonColumns,
+        {
+          id: 'userId',
+          accessorKey: 'userId',
+          header: () => <RecordTable.InlineHead label={t('user')} />,
+          cell: ({ cell }) => {
+            const value = (cell.getValue() as string) || '';
+
+            return (
+              <RecordTableInlineCell>
+                <SelectMember.Provider value={value}>
+                  <SelectMember.Value placeholder="-" />
+                </SelectMember.Provider>
+              </RecordTableInlineCell>
+            );
+          },
+          size: 240,
+        },
+        summaryColumn,
+      ];
+    }
+
+    return [
+      ...commonColumns,
+      {
+        id: 'boardId',
+        accessorKey: 'boardId',
+        header: () => <RecordTable.InlineHead label={t('board')} />,
+        cell: ({ row }) => (
+          <RecordTableInlineCell>
+            <SelectSalesBoard.Provider
+              value={row.original.boardId}
+              onValueChange={noopValueChange}
+            >
+              <SelectSalesBoard.Value placeholder="-" />
+            </SelectSalesBoard.Provider>
           </RecordTableInlineCell>
         ),
         size: 180,
       },
       {
-        id: 'summary',
-        header: () => <RecordTable.InlineHead label={t('description')} />,
+        id: 'pipelineId',
+        accessorKey: 'pipelineId',
+        header: () => <RecordTable.InlineHead label={t('pipeline')} />,
         cell: ({ row }) => {
-          const original = row.original;
-          const summary =
-            code === 'dealsProductsDefaultFilter'
-              ? `${original.segmentIds.length} ${t('segment')}`
-              : t('conditions', { count: original.conditions.length });
-
           return (
             <RecordTableInlineCell>
-              <TextOverflowTooltip value={summary} />
+              <SelectPipeline.Provider
+                boardId={row.original.boardId}
+                value={row.original.pipelineId}
+                onValueChange={noopValueChange}
+              >
+                <SelectPipeline.Value placeholder="-" />
+              </SelectPipeline.Provider>
             </RecordTableInlineCell>
           );
         },
         size: 180,
       },
-    ];
-
-    if (code === 'dealsProductsDefaultFilter') {
-      return baseColumns;
-    }
-
-    return [
-      ...baseColumns.slice(0, 4),
       {
         id: 'stageId',
         accessorKey: 'stageId',
         header: () => <RecordTable.InlineHead label={t('stage')} />,
-        cell: ({ cell }) => (
+        cell: ({ row }) => (
           <RecordTableInlineCell>
-            <TextOverflowTooltip value={(cell.getValue() as string) || '-'} />
+            <SelectStage.Provider
+              pipelineId={row.original.pipelineId}
+              value={row.original.stageId}
+              onValueChange={noopValueChange}
+            >
+              <SelectStage.Value placeholder="-" />
+            </SelectStage.Provider>
           </RecordTableInlineCell>
         ),
         size: 180,
       },
-      ...baseColumns.slice(4),
+      summaryColumn,
     ];
   }, [code, t]);
 
@@ -751,7 +799,7 @@ export const ProductPlacesConfigManager = ({
         columns={columns}
         data={rows}
         stickyColumns={['more', 'checkbox']}
-        tableId={`mongolian_product_places_${code}_record_table`}
+        tableId={`mongolian_product_places_${code}_record_table_v2`}
       >
         <RecordTable.Scroll>
           <RecordTable>
