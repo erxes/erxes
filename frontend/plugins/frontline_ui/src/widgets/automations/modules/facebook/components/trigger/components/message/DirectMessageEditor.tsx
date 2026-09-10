@@ -1,10 +1,10 @@
 import { Button } from 'erxes-ui';
-import { useTranslation } from 'react-i18next';
-import { useDirectMessageEditor } from '../../hooks/useDirectMessageEditor';
-import { useFacebookBotTriggerClaims } from '../../hooks/useFacebookBotTriggerClaims';
-import { TMessageTriggerDirectConditions } from '../../types/messageTrigger';
 import { DirectMessageConditionCard } from './DirectMessageConditionCard';
 import { DirectMessageEmptyState } from './DirectMessageEmptyState';
+import { TMessageTriggerDirectConditions } from '../../types/messageTrigger';
+import { useDirectMessageEditor } from '../../hooks/useDirectMessageEditor';
+import { useFacebookBotTriggerClaims } from '../../hooks/useFacebookBotTriggerClaims';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
   // Absent for the comment trigger, which reuses this editor without a bot;
@@ -47,7 +47,7 @@ export const DirectMessageEditor = ({
 
       <div className="flex justify-end">
         <Button variant="ghost" onClick={addCondition}>
-          {t('add-optional-condition')}
+          {t('add-optional-condition', 'Add optional condition')}
         </Button>
       </div>
 

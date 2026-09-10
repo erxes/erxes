@@ -102,7 +102,7 @@ export const TicketCommandBar = () => {
               <Popover.Trigger asChild>
                 <Button variant="secondary">
                   <IconRepeat />
-                  {t('actions')}
+                  {t('actions', 'Actions')}
                 </Button>
               </Popover.Trigger>
               <Popover.Content

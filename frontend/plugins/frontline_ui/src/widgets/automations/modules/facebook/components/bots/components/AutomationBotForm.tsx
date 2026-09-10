@@ -32,7 +32,8 @@ export const AutomationBotForm = ({
     <>
       <Sheet.Header className="justify-between">
         <Sheet.Title className="capitalize">
-          {facebookBotId ? t('edit') : t('add-new')} {t('facebook-bot')}
+          {facebookBotId ? t('edit', 'Edit') : t('add-new', 'Add new')}{' '}
+          {t('facebook-bot', 'Facebook bot')}
         </Sheet.Title>
         <div className="flex items-center gap-2">
           <FacebookBotCreateAutomationButton bot={facebookMessengerBot} />

@@ -259,6 +259,12 @@ import {
 } from '@/knowledgebase/db/models/Category';
 import { ITopicModel, loadTopicClass } from '@/knowledgebase/db/models/Topic';
 
+import { IHelpCenterConfigDocument } from '@/helpcenter/@types/helpCenterConfig';
+import {
+  IHelpCenterConfigModel,
+  loadHelpCenterConfigClass,
+} from '@/helpcenter/db/models/HelpCenterConfig';
+
 // Instagram imports
 import {
   IInstagramIntegrationModel,
@@ -409,6 +415,8 @@ export interface IModels {
   Article: IArticleModel;
   Category: ICategoryModel;
   Topic: ITopicModel;
+
+  HelpCenterConfigs: IHelpCenterConfigModel;
 
   ReportCharts: IReportChartModel;
 }
@@ -732,6 +740,11 @@ export const loadClasses = (
     'knowledgebase_topics',
     loadTopicClass(models),
   );
+
+  models.HelpCenterConfigs = db.model<
+    IHelpCenterConfigDocument,
+    IHelpCenterConfigModel
+  >('frontline_help_center_configs', loadHelpCenterConfigClass(models));
 
   models.ReportCharts = db.model<IReportChartDocument, IReportChartModel>(
     'frontline_report_charts',

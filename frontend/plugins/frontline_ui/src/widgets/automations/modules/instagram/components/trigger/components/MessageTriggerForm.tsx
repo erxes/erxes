@@ -170,7 +170,7 @@ export const MessageTriggerForm = ({
     callback: () => {
       handleSubmit(onSaveTriggerConfig, () =>
         toast({
-          title: t('form-error'),
+          title: t('form-error', 'There is some error in the form'),
           variant: 'destructive',
         }),
       )();
@@ -190,7 +190,7 @@ export const MessageTriggerForm = ({
             />
           )}
         />
-        <Label className="ml-4 mt-2">{t('triggers-label')}</Label>
+        <Label className="ml-4 mt-2">{t('triggers-label', 'Triggers')}</Label>
         <div
           className={cn('flex-1 flex flex-col relative', {
             blur: !formState.botId,

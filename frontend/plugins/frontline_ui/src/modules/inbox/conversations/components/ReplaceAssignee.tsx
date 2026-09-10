@@ -25,7 +25,7 @@ export const ReplaceAssignee = () => {
           ],
         });
       }}
-      placeholder={t('select-assignee')}
+      placeholder={t('select-assignee', 'Select assignee')}
     />
   );
 };

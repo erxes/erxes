@@ -94,14 +94,6 @@ export const facebookWebhook = async (req, res, next) => {
 
   const models = await generateModels(subdomain);
   const data = req.body;
-
-  /**
-   * Facebook redelivers anything it gets no response for, so every path here
-   * has to answer — but several of them can be reached for one payload, and
-   * `processMessagingEvent` answers on its own. Ending twice throws
-   * `ERR_STREAM_WRITE_AFTER_END` from an event handler, which takes the
-   * process down, so the reply goes out once and only once.
-   */
   const respond = () => {
     if (!res.writableEnded) {
       res.end('success');

@@ -9,14 +9,17 @@ export const useRemoveTicketConfig = () => {
     refetchQueries: ['TicketConfig'],
     onCompleted: () => {
       toast({
-        title: t('success'),
+        title: t('success', 'Success!'),
         variant: 'success',
-        description: t('ticket-config-removed-successfully'),
+        description: t(
+          'ticket-config-removed-successfully',
+          'Ticket config removed successfully',
+        ),
       });
     },
     onError: (error) => {
       toast({
-        title: t('error'),
+        title: t('error', 'Error'),
         description: error.message,
         variant: 'destructive',
       });

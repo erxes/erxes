@@ -49,9 +49,6 @@ export const CommentActionForm = ({
   });
   const { control } = form;
 
-  // `useFieldArray` is documented as not supporting flat arrays, and on this
-  // one it stopped appending past the second entry. The list is driven from
-  // form state instead, which is also what removes the `as never` cast.
   const texts = form.watch('texts') || [];
 
   const setTexts = (next: string[]) =>
@@ -63,7 +60,7 @@ export const CommentActionForm = ({
   useImperativeHandle(formRef, () => ({
     submit: form.handleSubmit(onSaveActionConfig, () =>
       toast({
-        title: t('form-error'),
+        title: t('form-error', 'There is some error in the form'),
         variant: 'destructive',
       }),
     ),

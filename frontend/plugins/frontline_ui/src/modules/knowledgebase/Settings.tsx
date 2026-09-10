@@ -4,7 +4,7 @@ const Settings = () => {
   const { t } = useTranslation('frontline');
   return (
     <div>
-      <h1>{t('settings')}</h1>
+      <h1>{t('settings', 'Settings')}</h1>
     </div>
   );
 };

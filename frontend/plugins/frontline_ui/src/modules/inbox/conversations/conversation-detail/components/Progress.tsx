@@ -26,7 +26,12 @@ export const ProgressDot = ({ status }: { status: ConversationStatus }) => (
   </Tooltip.Provider>
 );
 
-const DISPLAY_STATUSES: ConversationStatus[] = ['new', 'open', 'closed', 'resolved'];
+const DISPLAY_STATUSES: ConversationStatus[] = [
+  'new',
+  'open',
+  'closed',
+  'resolved',
+];
 
 export const Progress = ({ customerId }: ProgressProps) => {
   const { t } = useTranslation('frontline');
@@ -46,7 +51,7 @@ export const Progress = ({ customerId }: ProgressProps) => {
     { new: 0, open: 0, closed: 0, resolved: 0 },
   ) ?? { new: 0, open: 0, closed: 0, resolved: 0 };
 
-  if (loading) return <p>{t('loading')}</p>;
+  if (loading) return <p>{t('loading', 'Loading...')}</p>;
 
   return (
     <div className="flex justify-between w-full my-4 px-2">

@@ -343,6 +343,27 @@ export const permissions: IPermissionConfig = {
         },
       ],
     },
+    {
+      name: 'helpCenter',
+      description: 'Help center configuration',
+      scopeField: null,
+      ownerFields: [],
+      scopes: [{ name: 'all', description: 'All help center configs' }],
+      actions: [
+        {
+          title: 'View help centers',
+          name: 'showHelpCenter',
+          description: 'View help center general settings and appearance',
+          always: true,
+        },
+        {
+          title: 'Manage help centers',
+          name: 'helpCenterManage',
+          description:
+            'Create, update and remove help center general settings and appearance',
+        },
+      ],
+    },
   ],
 
   defaultGroups: [
@@ -449,6 +470,12 @@ export const permissions: IPermissionConfig = {
           ],
           scope: 'all',
         },
+        {
+          plugin: 'frontline',
+          module: 'helpCenter',
+          actions: ['showHelpCenter', 'helpCenterManage'],
+          scope: 'all',
+        },
       ],
     },
     {
@@ -494,6 +521,12 @@ export const permissions: IPermissionConfig = {
           actions: ['showKnowledgeBase'],
           scope: 'all',
         },
+        {
+          plugin: 'frontline',
+          module: 'helpCenter',
+          actions: ['showHelpCenter'],
+          scope: 'all',
+        },
       ],
     },
     {
@@ -524,6 +557,12 @@ export const permissions: IPermissionConfig = {
           plugin: 'frontline',
           module: 'knowledgeBase',
           actions: ['showKnowledgeBase'],
+          scope: 'all',
+        },
+        {
+          plugin: 'frontline',
+          module: 'helpCenter',
+          actions: ['showHelpCenter'],
           scope: 'all',
         },
         {

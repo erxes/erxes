@@ -20,7 +20,9 @@ export const TicketsTotalCount = () => {
       {isUndefinedOrNull(totalCountToShow) ? (
         <Skeleton className="w-20 h-4 inline-block mt-1.5" />
       ) : (
-        t('records-found', { count: totalCountToShow })
+        t('records-found', '{{count}} records found', {
+          count: totalCountToShow,
+        })
       )}
     </div>
   );

@@ -115,6 +115,12 @@ import {
 } from '@/knowledgebase/graphql/schemas/knowledgeBaseTypeDefs';
 
 import {
+  queries as HelpCenterConfigQueries,
+  mutations as HelpCenterConfigMutations,
+  types as HelpCenterConfigTypes,
+} from '@/helpcenter/graphql/schemas/helpCenterConfig';
+
+import {
   mutations as TicketMutations,
   queries as TicketQuery,
   types as TicketTypes,
@@ -148,6 +154,7 @@ export const types = `
     ${FieldTypes}
     ${PollTypes}
     ${KnowledgeBaseTypes}
+    ${HelpCenterConfigTypes}
   `;
 
 export const queries = `
@@ -172,6 +179,7 @@ export const queries = `
     ${FieldQueries}
     ${PollQueries}
     ${KnowledgeBaseQueries}
+    ${HelpCenterConfigQueries}
     ${CpInboxQueries}
   `;
 
@@ -192,6 +200,7 @@ export const mutations = `
    ${FieldMutations}
    ${PollMutations}
    ${KnowledgeBaseMutations}
+   ${HelpCenterConfigMutations}
    ${CpInboxMutations}
    ${ReportChartMutations}
    ${ReportFacebookMutations}

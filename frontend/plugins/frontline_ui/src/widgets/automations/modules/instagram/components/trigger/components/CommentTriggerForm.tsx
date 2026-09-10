@@ -84,7 +84,7 @@ export const CommentTriggerForm = ({
             name="postType"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>{t('type')}</Form.Label>
+                <Form.Label>{t('type', 'Type')}</Form.Label>
                 <Form.Control>
                   <Select value={field.value} onValueChange={field.onChange}>
                     <Select.Trigger>
@@ -122,7 +122,12 @@ export const CommentTriggerForm = ({
             name="onlyFirstLevel"
             render={({ field }) => (
               <Form.Item className="flex items-center justify-between">
-                <Form.Label>{t('track-first-level-comments')}</Form.Label>
+                <Form.Label>
+                  {t(
+                    'track-first-level-comments',
+                    'Track first level comments only',
+                  )}
+                </Form.Label>
                 <Form.Control>
                   <Switch
                     checked={field.value}
@@ -138,7 +143,10 @@ export const CommentTriggerForm = ({
             render={({ field }) => (
               <Form.Item className="flex items-center justify-between">
                 <Form.Label>
-                  {t('check-comment-text-keywords')}
+                  {t(
+                    'check-comment-text-keywords',
+                    'Check comment text contains with keywords',
+                  )}
                 </Form.Label>
                 <Form.Control>
                   <Switch
