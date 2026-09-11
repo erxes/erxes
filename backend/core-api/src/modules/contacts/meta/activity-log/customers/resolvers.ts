@@ -12,6 +12,43 @@ type CustomerActivityContext = {
   models: IModels;
 };
 
+interface DescriptionBlockContent {
+  text?: string;
+}
+
+interface DescriptionBlock {
+  content?: DescriptionBlockContent[];
+}
+
+/**
+ * Formats stored Blocknote description JSON into readable activity text.
+ */
+const formatDescriptionValue = (value: unknown) => {
+  if (typeof value !== 'string' || !value.trim()) {
+    return 'empty';
+  }
+
+  try {
+    const blocks: unknown = JSON.parse(value);
+
+    if (!Array.isArray(blocks)) {
+      return value;
+    }
+
+    const text = blocks
+      .flatMap((block: DescriptionBlock) =>
+        Array.isArray(block?.content) ? block.content : [],
+      )
+      .map((content) => content?.text)
+      .filter(Boolean)
+      .join(' ')
+      .trim();
+
+    return text || 'empty';
+  } catch {
+    return value;
+  }
+};
 export const customerActivityResolvers: Record<
   string,
   Resolver<ActivityLogInput>
@@ -46,6 +83,17 @@ export const customerActivityResolvers: Record<
         current === null || current === undefined || current === ''
           ? 'empty'
           : CUSTOMER_PRONOUN_LABELS[String(current)] || String(current),
+    }),
+  ],
+
+  description: ({ field, prev, current }, ctx: CustomerActivityContext) => [
+    buildCustomerFieldChangedActivity({
+      customer: ctx.customer,
+      field,
+      prev,
+      current,
+      previousValueLabel: formatDescriptionValue(prev),
+      currentValueLabel: formatDescriptionValue(current),
     }),
   ],
 
