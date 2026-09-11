@@ -67,6 +67,60 @@ const getManifest = async (
   return manifest;
 };
 
+const getActingUser = async (
+  subdomain: string,
+  userId: string,
+  oauth?: { clientId?: string; scopes?: string[] },
+): Promise<IUserDocument | null> => {
+  const user = (await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    module: 'users',
+    action: 'findOne',
+    method: 'query',
+    input: { query: { _id: userId } },
+    defaultValue: null,
+  })) as IUserDocument | null;
+
+  if (!user) return null;
+
+  return {
+    ...user,
+    ...(oauth?.clientId
+      ? {
+          oauthClientId: oauth.clientId,
+          oauthScopes: oauth.scopes || [],
+        }
+      : {}),
+  } as IUserDocument;
+};
+
+const filterManifestForUser = async (
+  manifest: AgentToolManifest,
+  subdomain: string,
+  user: IUserDocument,
+): Promise<AgentToolManifest> => {
+  const tools = await Promise.all(
+    manifest.tools.map(async (tool) => {
+      if (!tool.permission) return null;
+
+      try {
+        await checkPermissionGroup(subdomain, user)(tool.permission.action);
+        return tool;
+      } catch {
+        return null;
+      }
+    }),
+  );
+
+  return {
+    ...manifest,
+    tools: tools.filter((tool): tool is AgentTrpcToolDescriptor =>
+      Boolean(tool),
+    ),
+  };
+};
+
 /** Execute a tRPC tool in-process through the plugin's context factory. */
 const executeTrpcTool = async (
   options: AgentToolsOptions,
@@ -140,7 +194,27 @@ export const mountAgentTools = (
       }
 
       try {
-        const manifest = await getManifest(auth.subdomain, options);
+        const rawManifest = await getManifest(auth.subdomain, options);
+        let manifest = rawManifest;
+
+        if (auth.userId) {
+          const user = await getActingUser(auth.subdomain, auth.userId, {
+            clientId: auth.oauthClientId,
+            scopes: auth.oauthScopes,
+          });
+
+          if (!user) {
+            return res
+              .status(403)
+              .json(err(new Error('Forbidden: user not found')));
+          }
+
+          manifest = await filterManifestForUser(
+            rawManifest,
+            auth.subdomain,
+            user,
+          );
+        }
 
         return res.json(ok(manifest));
       } catch (error) {
@@ -207,15 +281,10 @@ export const mountAgentTools = (
           );
       }
 
-      const user = (await sendTRPCMessage({
-        subdomain,
-        pluginName: 'core',
-        module: 'users',
-        action: 'findOne',
-        method: 'query',
-        input: { query: { _id: userId } },
-        defaultValue: null,
-      })) as IUserDocument | null;
+      const user = await getActingUser(subdomain, userId, {
+        clientId: auth.oauthClientId,
+        scopes: auth.oauthScopes,
+      });
 
       if (!user) {
         return res
