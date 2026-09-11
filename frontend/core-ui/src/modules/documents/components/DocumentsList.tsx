@@ -1,7 +1,11 @@
 import { IconArrowLeft } from '@tabler/icons-react';
 import { Sidebar, useQueryState, useRemoveQueryStateByKey } from 'erxes-ui';
 
-export const DocumentsList = ({ documents }: { documents: any }) => {
+import { ApprovalLockedBadge } from 'ui-modules';
+import { IDocument } from '../types';
+
+/** Show document navigation with approval-lock visibility indicators. */
+export const DocumentsList = ({ documents }: { documents: IDocument[] }) => {
   const [documentId, setDocumentId] = useQueryState('documentId');
 
   const removeQuery = useRemoveQueryStateByKey();
@@ -20,13 +24,14 @@ export const DocumentsList = ({ documents }: { documents: any }) => {
         </Sidebar.GroupLabel>
         <Sidebar.GroupContent>
           <Sidebar.Menu>
-            {documents.map(({ _id, name }: any) => (
+            {documents.map(({ _id, name, approvalLockState }) => (
               <Sidebar.MenuItem key={_id}>
                 <Sidebar.MenuButton
                   isActive={_id === documentId}
                   onClick={() => setDocumentId(_id)}
                 >
                   <span className="truncate">{name || 'Untitled'}</span>
+                  <ApprovalLockedBadge state={approvalLockState} />
                 </Sidebar.MenuButton>
               </Sidebar.MenuItem>
             ))}

@@ -15,6 +15,7 @@ export const types = `
     content: String
     replacer: String
 
+    approvalLockState: ApprovalLockState
     cursor: String
   }
 

@@ -17,17 +17,22 @@ export const documentMutations = {
     return await models.Documents.saveDocument({
       _id,
       doc: { ...doc, createdUserId: user._id },
+      user,
     });
   },
 
   documentsRemove: async (
     _parent: undefined,
     { _id }: { _id: string },
-    { models, checkPermission }: IContext,
+    { models, user, checkPermission }: IContext,
   ) => {
     await checkPermission('removeDocuments');
 
-    const document = await models.Documents.getDocument({ _id });
+    const document = await models.Documents.getDocument({
+      _id,
+      user,
+      action: 'delete',
+    });
 
     return await models.Documents.findOneAndDelete({ _id: document._id });
   },
