@@ -33,14 +33,17 @@ export const useBulkRows = () => {
   const includedCount = watchedRows.filter((r) => !r.isExcluded).length;
 
   const validation = {
-    canSave: duplicateCodes.size === 0,
-    errors: duplicateCodes.size
-      ? [
-          `${duplicateCodes.size} duplicate ${
-            duplicateCodes.size === 1 ? 'code' : 'codes'
-          } across included products.`,
-        ]
-      : [],
+    canSave: includedCount > 0 && duplicateCodes.size === 0,
+    errors: [
+      ...(includedCount === 0 ? ['At least one product is required'] : []),
+      ...(duplicateCodes.size
+        ? [
+            `${duplicateCodes.size} duplicate ${
+              duplicateCodes.size === 1 ? 'code' : 'codes'
+            } across included products.`,
+          ]
+        : []),
+    ],
   };
 
   return {

@@ -40,9 +40,18 @@ export const bulkSimilaritySchema = z
     rows: z.array(bulkRowSchema),
   })
   .superRefine(({ rows }, ctx) => {
+    const includedRows = rows.filter((row) => !row.isExcluded);
+
+    if (includedRows.length === 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'At least one product is required',
+        path: ['rows'],
+      });
+    }
+
     const codeCounts = new Map<string, number>();
-    for (const row of rows) {
-      if (row.isExcluded) continue;
+    for (const row of includedRows) {
       codeCounts.set(row.code, (codeCounts.get(row.code) || 0) + 1);
     }
 
