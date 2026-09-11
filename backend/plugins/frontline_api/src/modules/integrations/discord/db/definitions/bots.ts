@@ -29,7 +29,7 @@ export const discordBotSchema = new Schema(
     guildName: { type: String },
     channelId: { type: String },
     description: { type: String },
-    erxesApiId: { type: String, label: 'Inbox integration id' },
+    erxesApiId: { type: String, index: true, label: 'Inbox integration id' },
     createdBy: { type: String, index: true },
     updatedBy: { type: String },
     health: { type: healthSchema, default: () => ({}) },
