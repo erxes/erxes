@@ -27,7 +27,7 @@ router.get(
           typeof replacerIds === 'string' ? [replacerIds] : replacerIds,
       });
 
-      return res.send(content);
+      res.send(content);
     } catch (error) {
       next(error);
     }

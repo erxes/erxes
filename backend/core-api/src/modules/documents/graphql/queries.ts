@@ -117,16 +117,26 @@ export const documentQueries = {
     const statesById = new Map(states.map((state) => [state.contentId, state]));
 
     return {
-      list: list.map((document) => {
-        const approvalLockState = statesById.get(document._id);
-        return {
-          ...document,
-          // Keep locked records discoverable without exposing their templates.
-          content: approvalLockState?.hasAccess ? document.content : null,
-          replacer: approvalLockState?.hasAccess ? document.replacer : null,
-          approvalLockState,
-        };
-      }),
+      list: await Promise.all(
+        list.map(async (document) => {
+          const approvalLockState =
+            statesById.get(document._id) ||
+            (await models.ApprovalLocks.getState({
+              user,
+              contentType: DOCUMENT_APPROVAL_CONTENT_TYPE,
+              contentId: document._id,
+              ownerId: document.createdUserId,
+              action: 'view',
+            }));
+          return {
+            ...document,
+            // Keep locked records discoverable without exposing their templates.
+            content: approvalLockState?.hasAccess ? document.content : null,
+            replacer: approvalLockState?.hasAccess ? document.replacer : null,
+            approvalLockState,
+          };
+        }),
+      ),
       pageInfo,
       totalCount,
     };

@@ -54,8 +54,8 @@ export const DocumentsHeader = () => {
               contentType={DOCUMENT_APPROVAL_CONTENT_TYPE}
               contentId={cleanDocumentId}
               action="edit"
-              fallback={<></>}
-              loadingFallback={<></>}
+              fallback={<span hidden />}
+              loadingFallback={<span hidden />}
             >
               <DocumentSheet />
             </ApprovalLockGuard>

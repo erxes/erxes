@@ -8,6 +8,7 @@ const t = initTRPC.context<CoreTRPCContext>().create();
 
 const documentQuerySchema = z.record(z.unknown());
 
+/** Resolve the tenant-scoped acting user for document approval checks. */
 const getDocumentUser = async (
   ctx: Awaited<ReturnType<CoreTRPCContext>>,
 ): Promise<DocumentAccessUser | undefined> => {

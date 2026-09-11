@@ -45,7 +45,10 @@ type DocumentsActionsMenuProps = {
   variant: 'grid' | 'table';
 };
 
-function DocumentLockMenuItem({ documentItem }: { documentItem: IDocument }) {
+/** Offer approval lock controls in grid and record-table document menus. */
+function DocumentLockMenuItem({
+  documentItem,
+}: Readonly<{ documentItem: IDocument }>) {
   const client = useApolloClient();
   const {
     open,
@@ -62,7 +65,7 @@ function DocumentLockMenuItem({ documentItem }: { documentItem: IDocument }) {
     ownerId: documentItem.createdUser?._id,
     action: 'edit',
     onChanged: () => {
-      void client
+      client
         .refetchQueries({
           include: [GET_DOCUMENTS, GET_DOCUMENT_DETAIL, 'ApprovalLockState'],
         })

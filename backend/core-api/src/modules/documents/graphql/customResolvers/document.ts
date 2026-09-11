@@ -14,11 +14,11 @@ export default {
     return models.Documents.getDocument({ _id, user });
   },
 
-  async approvalLockState(
+  approvalLockState(
     document: IDocumentDocument & { approvalLockState?: ApprovalLockState },
     _args: undefined,
     { models, user }: IContext,
-  ): Promise<ApprovalLockState> {
+  ): ApprovalLockState | Promise<ApprovalLockState> {
     return (
       document.approvalLockState ||
       models.ApprovalLocks.getState({

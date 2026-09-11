@@ -57,7 +57,7 @@ export const DocumentSheet = () => {
           ownerId={document.createdUser?._id}
           action="edit"
           onChanged={() => {
-            void client
+            client
               .refetchQueries({
                 include: [
                   GET_DOCUMENTS,

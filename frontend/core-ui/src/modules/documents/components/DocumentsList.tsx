@@ -4,6 +4,7 @@ import { Sidebar, useQueryState, useRemoveQueryStateByKey } from 'erxes-ui';
 import { ApprovalLockedBadge } from 'ui-modules';
 import { IDocument } from '../types';
 
+/** Show document navigation with approval-lock visibility indicators. */
 export const DocumentsList = ({ documents }: { documents: IDocument[] }) => {
   const [documentId, setDocumentId] = useQueryState('documentId');
 

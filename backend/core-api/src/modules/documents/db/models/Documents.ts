@@ -22,10 +22,13 @@ export interface IDocumentModel extends Model<IDocumentDocument> {
   processDocument(input: DocumentProcessInput): Promise<string>;
 }
 
+const ANONYMOUS_DOCUMENT_USER: DocumentAccessUser = { _id: '' };
+
 export const loadDocumentClass = (models: IModels, subdomain: string) => {
   class Document {
+    /** Exclude documents the acting user cannot access under active approval locks. */
     public static async getAccessFilter(
-      user: DocumentAccessUser = { _id: '' },
+      user: DocumentAccessUser = ANONYMOUS_DOCUMENT_USER,
     ): Promise<FilterQuery<IDocumentDocument>> {
       const locks = await models.ApprovalLocks.find({
         contentType: DOCUMENT_APPROVAL_CONTENT_TYPE,
@@ -60,9 +63,10 @@ export const loadDocumentClass = (models: IModels, subdomain: string) => {
       };
     }
 
+    /** Load a document and enforce approval access for the requested action. */
     public static async getDocument({
       _id,
-      user = { _id: '' },
+      user = ANONYMOUS_DOCUMENT_USER,
       action = 'view',
     }: DocumentReadInput): Promise<IDocumentDocument> {
       const document = await models.Documents.findOne({ _id });
@@ -82,6 +86,7 @@ export const loadDocumentClass = (models: IModels, subdomain: string) => {
       return document;
     }
 
+    /** Create or edit a document while preserving its owner and enforcing edit access. */
     public static async saveDocument({ _id, doc, user }: DocumentSaveInput) {
       if (_id) {
         const document = await models.Documents.getDocument({
@@ -100,6 +105,7 @@ export const loadDocumentClass = (models: IModels, subdomain: string) => {
       return await models.Documents.create(doc);
     }
 
+    /** Render a document only after verifying the acting user can view it. */
     public static async processDocument({
       user,
       ...doc
