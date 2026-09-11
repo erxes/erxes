@@ -1,7 +1,10 @@
+import { useApolloClient } from '@apollo/client';
 import { useDocumentRemove } from '@/documents/hooks/useDocumentRemove';
 import {
   IconDotsVertical,
   IconEdit,
+  IconLock,
+  IconLockOpen,
   IconPrinter,
   IconTrash,
 } from '@tabler/icons-react';
@@ -11,11 +14,19 @@ import {
   Command,
   Popover,
   RecordTable,
+  toast,
   useConfirm,
   useSetQueryStateByKey,
 } from 'erxes-ui';
 import { useState } from 'react';
-import { Can, PrintDocument } from 'ui-modules';
+import {
+  ApprovalLockDialog,
+  Can,
+  PrintDocument,
+  useApprovalLock,
+} from 'ui-modules';
+import { DOCUMENT_APPROVAL_CONTENT_TYPE } from '../constants';
+import { GET_DOCUMENTS, GET_DOCUMENT_DETAIL } from '../graphql/queries';
 
 import { IDocument } from '../types';
 import {
@@ -24,6 +35,7 @@ import {
 } from './DocumentPrintDialog';
 
 type DocumentsActionsMenuProps = {
+  documentItem: IDocument;
   loading: boolean;
   open: boolean;
   onDelete: () => void;
@@ -33,14 +45,77 @@ type DocumentsActionsMenuProps = {
   variant: 'grid' | 'table';
 };
 
+function DocumentLockMenuItem({ documentItem }: { documentItem: IDocument }) {
+  const client = useApolloClient();
+  const {
+    open,
+    setOpen,
+    isLocked,
+    canRelease,
+    loading,
+    form,
+    onCreate,
+    onRelease,
+  } = useApprovalLock({
+    contentType: DOCUMENT_APPROVAL_CONTENT_TYPE,
+    contentId: documentItem._id,
+    ownerId: documentItem.createdUser?._id,
+    action: 'edit',
+    onChanged: () => {
+      void client
+        .refetchQueries({
+          include: [GET_DOCUMENTS, GET_DOCUMENT_DETAIL, 'ApprovalLockState'],
+        })
+        .catch(() => {
+          toast({
+            title: 'Could not refresh document access',
+            variant: 'destructive',
+          });
+        });
+    },
+  });
+
+  if (isLocked) {
+    return (
+      <Command.Item
+        value="unlock"
+        disabled={!canRelease || loading}
+        onSelect={onRelease}
+      >
+        <IconLockOpen /> Unlock
+      </Command.Item>
+    );
+  }
+
+  return (
+    <ApprovalLockDialog
+      form={form}
+      loading={loading}
+      onCreate={onCreate}
+      open={open}
+      onOpenChange={setOpen}
+      trigger={
+        <Command.Item
+          value="lock"
+          disabled={loading}
+          onSelect={() => setOpen(true)}
+        >
+          <IconLock /> Lock
+        </Command.Item>
+      }
+    />
+  );
+}
+
 function DocumentsActionsList({
+  documentItem,
   loading,
   onDelete,
   onEdit,
   onPrint,
 }: Pick<
   DocumentsActionsMenuProps,
-  'loading' | 'onDelete' | 'onEdit' | 'onPrint'
+  'documentItem' | 'loading' | 'onDelete' | 'onEdit' | 'onPrint'
 >) {
   return (
     <Command.List>
@@ -52,6 +127,9 @@ function DocumentsActionsList({
       <Command.Item value="print" onSelect={onPrint}>
         <IconPrinter /> Print
       </Command.Item>
+      <Can action="manageDocuments">
+        <DocumentLockMenuItem documentItem={documentItem} />
+      </Can>
       <Can action="removeDocuments">
         <Command.Item
           value="delete"
@@ -67,6 +145,7 @@ function DocumentsActionsList({
 }
 
 function DocumentsActionsMenu({
+  documentItem,
   loading,
   open,
   onDelete,
@@ -94,6 +173,7 @@ function DocumentsActionsMenu({
       <Combobox.Content onClick={(event) => event.stopPropagation()}>
         <Command shouldFilter={false}>
           <DocumentsActionsList
+            documentItem={documentItem}
             loading={loading}
             onDelete={onDelete}
             onEdit={onEdit}
@@ -146,9 +226,14 @@ export function DocumentsActions({
     );
   }
 
+  if (documentItem.approvalLockState?.hasAccess === false) {
+    return null;
+  }
+
   return (
     <>
       <DocumentsActionsMenu
+        documentItem={documentItem}
         loading={loading}
         open={open}
         onDelete={handleDelete}

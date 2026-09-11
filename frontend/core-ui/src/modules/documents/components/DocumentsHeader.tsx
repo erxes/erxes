@@ -4,9 +4,17 @@ import { IconCube } from '@tabler/icons-react';
 
 import { Breadcrumb, Button, Separator, useQueryState } from 'erxes-ui';
 import { Link } from 'react-router-dom';
-import { Can, PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
+import {
+  ApprovalLockGuard,
+  Can,
+  PageHeader,
+  createFavoriteBreadcrumb,
+} from 'ui-modules';
+import { DOCUMENT_APPROVAL_CONTENT_TYPE } from '../constants';
 
 export const DocumentsHeader = () => {
+  const [documentId] = useQueryState<string>('documentId');
+  const cleanDocumentId = documentId?.trim();
   const [contentType] = useQueryState<string>('contentType');
   const { documentsTypes } = useDocumentsTypes();
   const selectedDocumentType = documentsTypes.find(
@@ -41,7 +49,19 @@ export const DocumentsHeader = () => {
 
       <PageHeader.End>
         <Can action="manageDocuments">
-          <DocumentSheet />
+          {cleanDocumentId ? (
+            <ApprovalLockGuard
+              contentType={DOCUMENT_APPROVAL_CONTENT_TYPE}
+              contentId={cleanDocumentId}
+              action="edit"
+              fallback={<></>}
+              loadingFallback={<></>}
+            >
+              <DocumentSheet />
+            </ApprovalLockGuard>
+          ) : (
+            <DocumentSheet />
+          )}
         </Can>
       </PageHeader.End>
     </PageHeader>

@@ -15,7 +15,12 @@ import {
   useSetQueryStateByKey,
 } from 'erxes-ui';
 import { ComponentProps } from 'react';
-import { Can, MembersInline, TagsSelect } from 'ui-modules';
+import {
+  ApprovalLockedBadge,
+  Can,
+  MembersInline,
+  TagsSelect,
+} from 'ui-modules';
 
 import { DOCUMENTS_TYPES_SET } from '../../constants';
 import { IDocument } from '../../types';
@@ -55,6 +60,7 @@ function DocumentNameCell({ document }: { document: IDocument }) {
     <RecordTableInlineCell onClick={handleClick}>
       <div className="flex items-center justify-between w-full gap-2">
         <span className="truncate">{document.name || 'Untitled'}</span>
+        <ApprovalLockedBadge state={document.approvalLockState} />
       </div>
     </RecordTableInlineCell>
   );
@@ -126,17 +132,20 @@ export function DocumentsColumn(): ColumnDef<IDocument>[] {
       id: 'tagIds',
       accessorKey: 'tagIds',
       header: () => <RecordTable.InlineHead label="Tags" icon={IconTags} />,
-      cell: ({ row }) => (
-        <Can action="tagsTag">
-          <TagsSelect.InlineCell
-            type="core:documents"
-            mode="multiple"
-            targetIds={[row.original._id]}
-            value={row.original.tagIds || []}
-            options={getDocumentsTagOptions([row.original._id])}
-          />
-        </Can>
-      ),
+      cell: ({ row }) =>
+        row.original.approvalLockState?.hasAccess === false ? (
+          <RecordTableInlineCell>Locked</RecordTableInlineCell>
+        ) : (
+          <Can action="tagsTag">
+            <TagsSelect.InlineCell
+              type="core:documents"
+              mode="multiple"
+              targetIds={[row.original._id]}
+              value={row.original.tagIds || []}
+              options={getDocumentsTagOptions([row.original._id])}
+            />
+          </Can>
+        ),
       size: 240,
     },
     {

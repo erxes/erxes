@@ -14,6 +14,7 @@ import {
 import { ExpectedError } from 'erxes-api-shared/utils';
 import { PipelineStage } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
+import { DOCUMENT_APPROVAL_CONTENT_TYPE } from '~/modules/documents/types';
 
 const unique = (ids: string[]) => [...new Set(ids.filter(Boolean))];
 
@@ -104,10 +105,21 @@ export const approvalMutations = {
   ) {
     await checkPermission('approvalLocksManage');
 
+    let ownerId = input.ownerId;
+    if (input.contentType === DOCUMENT_APPROVAL_CONTENT_TYPE) {
+      await checkPermission('manageDocuments');
+      const document = await models.Documents.getDocument({
+        _id: input.contentTypeId,
+        user,
+        action: 'edit',
+      });
+      ownerId = document.createdUserId;
+    }
+
     return models.ApprovalLocks.createLock({
       contentType: input.contentType,
       contentId: input.contentTypeId,
-      ownerIdSnapshot: input.ownerId,
+      ownerIdSnapshot: ownerId,
       lockedBy: user._id,
       allowedUserIds: unique(input.allowedUserIds || []),
       approverScope: input.scope || APPROVAL_APPROVER_SCOPES.LOCKER_ONLY,

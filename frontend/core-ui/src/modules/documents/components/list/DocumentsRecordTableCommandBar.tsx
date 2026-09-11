@@ -23,20 +23,24 @@ export function DocumentsRecordTableCommandBar(): ReactElement {
     <CommandBar open={selectedRows.length > 0}>
       <CommandBar.Bar>
         <CommandBar.Value>{selectedRows.length} selected</CommandBar.Value>
-        <Can action="tagsTag">
-          <>
-            <Separator.Inline />
-            <TagsSelect
-              type="core:documents"
-              mode="multiple"
-              targetIds={documentIds}
-              value={tagIds}
-              options={getDocumentsTagOptions(documentIds)}
-              variant="secondary"
-              className="shadow-none"
-            />
-          </>
-        </Can>
+        {selectedRows.every(
+          (row) => row.original.approvalLockState?.hasAccess !== false,
+        ) && (
+          <Can action="tagsTag">
+            <>
+              <Separator.Inline />
+              <TagsSelect
+                type="core:documents"
+                mode="multiple"
+                targetIds={documentIds}
+                value={tagIds}
+                options={getDocumentsTagOptions(documentIds)}
+                variant="secondary"
+                className="shadow-none"
+              />
+            </>
+          </Can>
+        )}
       </CommandBar.Bar>
     </CommandBar>
   );

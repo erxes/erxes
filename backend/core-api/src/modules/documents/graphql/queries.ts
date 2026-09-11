@@ -7,7 +7,12 @@ import {
 import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 import { documents } from '~/meta/documents';
-import { IDocumentDocument, IDocumentFilterQueryParams } from '../types';
+import {
+  DOCUMENT_APPROVAL_CONTENT_TYPE,
+  DocumentProcessInput,
+  IDocumentDocument,
+  IDocumentFilterQueryParams,
+} from '../types';
 
 const generateFilter = (params: IDocumentFilterQueryParams) => {
   const { searchValue, contentType, subType, userIds, dateFilters, tagIds } =
@@ -44,6 +49,9 @@ const generateFilter = (params: IDocumentFilterQueryParams) => {
       const dateFilter = JSON.parse(dateFilters || '{}');
 
       for (const [key, value] of Object.entries(dateFilter)) {
+        if (key !== 'createdAt') {
+          throw new Error('Only createdAt can be used in dateFilters');
+        }
         const { gte, lte } = (value || {}) as { gte?: string; lte?: string };
 
         if (gte || lte) {
@@ -70,9 +78,25 @@ export const documentQueries = {
   documents: async (
     _parent: undefined,
     params: IDocumentFilterQueryParams,
-    { models }: IContext,
+    { models, user, checkPermission }: IContext,
   ) => {
+    await checkPermission('documentsRead');
     const filter = generateFilter(params);
+    // Cursor values are returned to the client, so never sort by template data.
+    const sortFields = new Set([
+      '_id',
+      'name',
+      'createdAt',
+      'createdUserId',
+      'contentType',
+      'subType',
+      'code',
+    ]);
+    if (
+      Object.keys(params.orderBy || {}).some((field) => !sortFields.has(field))
+    ) {
+      throw new Error('Unsupported document sort field');
+    }
 
     const { list, pageInfo, totalCount } =
       await cursorPaginate<IDocumentDocument>({
@@ -81,15 +105,40 @@ export const documentQueries = {
         query: filter,
       });
 
-    return { list, pageInfo, totalCount };
+    const states = await models.ApprovalLocks.getStates({
+      user,
+      contentType: DOCUMENT_APPROVAL_CONTENT_TYPE,
+      contentIds: list.map((document) => document._id),
+      ownerIdsByContentId: Object.fromEntries(
+        list.map((document) => [document._id, document.createdUserId]),
+      ),
+      action: 'view',
+    });
+    const statesById = new Map(states.map((state) => [state.contentId, state]));
+
+    return {
+      list: list.map((document) => {
+        const approvalLockState = statesById.get(document._id);
+        return {
+          ...document,
+          // Keep locked records discoverable without exposing their templates.
+          content: approvalLockState?.hasAccess ? document.content : null,
+          replacer: approvalLockState?.hasAccess ? document.replacer : null,
+          approvalLockState,
+        };
+      }),
+      pageInfo,
+      totalCount,
+    };
   },
 
   documentsDetail: async (
     _parent: undefined,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, user, checkPermission }: IContext,
   ) => {
-    return await models.Documents.getDocument({ _id });
+    await checkPermission('documentsRead');
+    return await models.Documents.getDocument({ _id, user });
   },
 
   documentsTypes: async () => {
@@ -155,8 +204,9 @@ export const documentQueries = {
   documentsTotalCount: async (
     _parent: undefined,
     params: IDocumentFilterQueryParams,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
+    await checkPermission('documentsRead');
     const filter = generateFilter(params);
 
     return models.Documents.find(filter).countDocuments();
@@ -164,17 +214,15 @@ export const documentQueries = {
 
   documentsProcess: async (
     _parent: undefined,
-    {
-      _id,
-      replacerIds,
-      config,
-    }: { _id: string; replacerIds: string[]; config },
-    { models }: IContext,
+    { _id, replacerIds, config }: Omit<DocumentProcessInput, 'user'>,
+    { models, user, checkPermission }: IContext,
   ) => {
+    await checkPermission('documentsRead');
     return models.Documents.processDocument({
       _id,
       replacerIds,
       config,
+      user,
     });
   },
 };

@@ -28,3 +28,29 @@ export interface IDocumentFilterQueryParams
   dateFilters?: string;
   tagIds?: string[];
 }
+
+export type DocumentAccessUser = {
+  _id: string;
+  isOwner?: boolean;
+};
+
+export type DocumentReadInput = {
+  _id: string;
+  user?: DocumentAccessUser;
+  action?: 'view' | 'edit' | 'delete';
+};
+
+export type DocumentSaveInput = {
+  _id?: string;
+  doc: IDocument & { createdUserId: string };
+  user?: DocumentAccessUser;
+};
+
+export type DocumentProcessInput = {
+  _id: string;
+  replacerIds?: string[];
+  config?: Record<string, unknown>;
+  user?: DocumentAccessUser;
+};
+
+export const DOCUMENT_APPROVAL_CONTENT_TYPE = 'core:documents';

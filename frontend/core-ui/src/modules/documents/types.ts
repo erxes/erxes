@@ -1,10 +1,11 @@
-import type { IUser } from 'ui-modules';
+import type { ApprovalLockState, IUser } from 'ui-modules';
 
 export type IDocument = {
   _id: string;
   contentType: string;
   name?: string;
-  content?: string;
+  content?: string | null;
+  approvalLockState?: ApprovalLockState;
   createdAt?: string;
   createdUser?: IUser;
   tagIds?: string[];
