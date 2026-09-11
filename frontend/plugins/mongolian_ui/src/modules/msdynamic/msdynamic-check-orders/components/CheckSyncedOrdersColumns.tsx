@@ -67,7 +67,9 @@ export const getCheckSyncedOrdersColumns = ({
   {
     id: 'number',
     accessorKey: 'number',
-    header: () => <RecordTable.InlineHead icon={IconHash} label={t('number')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconHash} label={t('number')} />
+    ),
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={cell.getValue() as string} />
@@ -128,7 +130,7 @@ export const getCheckSyncedOrdersColumns = ({
           <TextOverflowTooltip
             value={
               syncedInfo?.syncedDate
-                ? dayjs(syncedInfo.syncedDate).format('LL')
+                ? dayjs(syncedInfo.syncedDate).format('YYYY-MM-DD')
                 : ''
             }
           />
@@ -139,7 +141,10 @@ export const getCheckSyncedOrdersColumns = ({
   {
     id: 'syncedBillNumber',
     header: () => (
-      <RecordTable.InlineHead icon={IconLabel} label={t('synced-bill-number')} />
+      <RecordTable.InlineHead
+        icon={IconLabel}
+        label={t('synced-bill-number')}
+      />
     ),
     cell: ({ row }) => {
       const syncedInfo = syncedOrderInfos[row.original._id];

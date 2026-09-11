@@ -89,7 +89,6 @@ const comparePrices = async ({
       const foundProduct = productsByCode[itemNo];
 
       if (!foundProduct) {
-        console.log('[MSD] Product not found in erxes:', itemNo);
         result.create.items.push({
           Item_No: itemNo,
           Unit_Price: resPrice,
@@ -111,9 +110,6 @@ const comparePrices = async ({
       };
 
       if (foundProduct.unitPrice === resPrice) {
-        console.log(
-          `[MSD] Match: ${itemNo} | erxes=${foundProduct.unitPrice} | BC=${resPrice}`,
-        );
         result.match.items.push(item);
       } else {
         result.update.items.push(item);
@@ -302,7 +298,6 @@ export const msdynamicCheckMutations = {
         },
       },
     ).then((res) => res.json());
-    console.log('[MSD] BC price records:', response?.value?.length);
     const groupedItems = groupItemsByCode(response?.value);
     const productsByCode = mapProductsByCode(products);
     const dynamicCodes = new Set(Object.keys(groupedItems));
