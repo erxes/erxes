@@ -1,4 +1,8 @@
 import { IModels } from '~/connectionResolvers';
+import {
+  buildImportUpdateDoc,
+  readImportBulkOutcome,
+} from '~/meta/import-export/utils';
 import { prepareCompanyDoc } from './utils';
 
 export async function processCompanyRows(
@@ -31,7 +35,7 @@ export async function processCompanyRows(
     const operations: any[] = [];
     const rowToMetaMap = new Map<
       any,
-      { index: number; _id?: any; operationIndex?: number }
+      { index: number; _id?: any; operationIndex: number }
     >();
 
     for (let i = 0; i < rows.length; i++) {
@@ -45,16 +49,21 @@ export async function processCompanyRows(
           (doc.primaryEmail && existingByEmail.get(doc.primaryEmail)) ||
           (doc.primaryName && existingByName.get(doc.primaryName));
 
+        const operationIndex = operations.length;
+
         if (existingDoc) {
           operations.push({
             updateOne: {
               filter: { _id: existingDoc._id },
-              update: { $set: { ...doc, updatedAt: new Date() } },
+              update: { $set: buildImportUpdateDoc(existingDoc, doc) },
             },
           });
-          rowToMetaMap.set(row, { index: i, _id: existingDoc._id });
+          rowToMetaMap.set(row, {
+            index: i,
+            _id: existingDoc._id,
+            operationIndex,
+          });
         } else {
-          const operationIndex = operations.length;
           operations.push({
             insertOne: { document: doc },
           });
@@ -69,15 +78,25 @@ export async function processCompanyRows(
     }
 
     if (operations.length > 0) {
-      const result = await models.Companies.bulkWrite(operations);
+      // unordered so one refused row does not abandon the rest of the batch
+      const result = await models.Companies.bulkWrite(operations, {
+        ordered: false,
+      });
 
       for (const [row, meta] of rowToMetaMap.entries()) {
-        if (meta.operationIndex !== undefined) {
-          const insertedId = result.insertedIds[meta.operationIndex];
-          successRows.push({ ...row, _id: insertedId });
-        } else {
-          successRows.push({ ...row, _id: meta._id });
+        const isInsert = !meta._id;
+        const { error, insertedId } = readImportBulkOutcome({
+          bulkResult: result,
+          operationIndex: meta.operationIndex,
+          isInsert,
+        });
+
+        if (error) {
+          errorRows.push({ ...row, error });
+          continue;
         }
+
+        successRows.push({ ...row, _id: isInsert ? insertedId : meta._id });
       }
     }
 

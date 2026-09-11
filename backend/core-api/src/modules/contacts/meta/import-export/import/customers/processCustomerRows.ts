@@ -1,4 +1,8 @@
 import { IModels } from '~/connectionResolvers';
+import {
+  buildImportUpdateDoc,
+  readImportBulkOutcome,
+} from '~/meta/import-export/utils';
 import { prepareCustomerDoc } from './utils';
 
 type OpMeta =
@@ -39,7 +43,6 @@ export async function processCustomerRows(
     const operations: any[] = [];
     const opMeta: OpMeta[] = [];
 
-
     const batchOpIndexByEmail = new Map<string, number>();
     const batchOpIndexByPhone = new Map<string, number>();
 
@@ -77,10 +80,15 @@ export async function processCustomerRows(
         const opIndex = operations.length;
 
         if (existingDoc) {
+          const updateDoc = buildImportUpdateDoc(existingDoc, doc);
+
+          // an import must never downgrade an existing customer back to a lead
+          delete updateDoc.state;
+
           operations.push({
             updateOne: {
               filter: { _id: existingDoc._id },
-              update: { $set: { ...doc, updatedAt: new Date() } },
+              update: { $set: updateDoc },
             },
           });
           opMeta.push({ row, type: 'update', _id: existingDoc._id });
@@ -108,12 +116,10 @@ export async function processCustomerRows(
       const failedIndexes = new Set<number>();
 
       try {
-
         bulkResult = await models.Customers.bulkWrite(operations, {
           ordered: false,
         });
       } catch (error: any) {
-
         bulkResult = error.result || {};
         for (const writeError of error.writeErrors || []) {
           if (typeof writeError.index === 'number') {
@@ -128,28 +134,27 @@ export async function processCustomerRows(
         }
       }
 
-      const insertedIds = bulkResult?.insertedIds || {};
-
       for (let opIndex = 0; opIndex < opMeta.length; opIndex++) {
         if (failedIndexes.has(opIndex)) {
           continue;
         }
 
         const meta = opMeta[opIndex];
-        if (meta.type === 'update') {
-          successRows.push({ ...meta.row, _id: meta._id });
-        } else {
-          const insertedId = insertedIds[opIndex] ?? insertedIds[String(opIndex)];
-          if (insertedId) {
-            successRows.push({ ...meta.row, _id: insertedId });
-          } else {
+        const { error, insertedId } = readImportBulkOutcome({
+          bulkResult,
+          operationIndex: opIndex,
+          isInsert: meta.type === 'insert',
+        });
 
-            errorRows.push({
-              ...meta.row,
-              error: 'Insert not acknowledged by bulkWrite',
-            });
-          }
+        if (error) {
+          errorRows.push({ ...meta.row, error });
+          continue;
         }
+
+        successRows.push({
+          ...meta.row,
+          _id: meta.type === 'update' ? meta._id : insertedId,
+        });
       }
     }
 

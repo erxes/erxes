@@ -24,7 +24,6 @@ export interface IExportDocument {
     stage?: string;
     retryable?: boolean;
   };
-  fileFormat: 'csv' | 'xlsx';
   fileKey?: string;
   filters?: Record<string, any>;
   ids: string[];
@@ -91,7 +90,6 @@ const buildNotificationMetadata = (exportDoc: IExportDocument) => ({
   totalRows: exportDoc.totalRows,
   errorMessage: exportDoc.errorMessage,
   fileKey: exportDoc.fileKey,
-  fileFormat: exportDoc.fileFormat,
   terminalError: exportDoc.terminalError,
 });
 

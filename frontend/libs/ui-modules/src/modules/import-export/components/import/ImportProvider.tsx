@@ -1,13 +1,18 @@
-import { IconHelpCircle } from '@tabler/icons-react';
-import { Button, Dialog, ScrollArea } from 'erxes-ui';
 import type { ChangeEvent, DragEvent, ReactNode } from 'react';
 import { createContext, useContext, useId } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useImportCompletionEffect } from '../../hooks/import/useImportCompletionEffect';
 import { useImportUploadHandler } from '../../hooks/import/useImportUploadHandler';
-import type { TImportProgress } from '../../types/import/importTypes';
-import { formatEntityLabel } from '../../utils/entityLabel';
+import type {
+  TImportProgress,
+  TPendingImportUpload,
+} from '../../types/import/importTypes';
+import { useEntityLabel } from '../../hooks/useEntityLabel';
 
 interface ImportContextType {
   activeImports: TImportProgress[];
+  pendingUpload: TPendingImportUpload | null;
+  clearPendingUpload: () => void;
   isDragOver: boolean;
   handleDragOver: (e: DragEvent) => void;
   handleDragLeave: (e: DragEvent) => void;
@@ -40,19 +45,24 @@ export const ImportProvider = ({
   title: string;
   onFileUploaded?: (file: File) => void;
 }) => {
+  const { t } = useTranslation('importExport');
   const inputId = useId();
   const contentType = `${pluginName}:${moduleName}.${collectionName}`;
-  const entityLabel = formatEntityLabel(collectionName);
-  const entityPluralLabel = formatEntityLabel(collectionName, { plural: true });
+  const entityLabel = useEntityLabel(collectionName);
+  const entityPluralLabel = useEntityLabel(collectionName, { plural: true });
+  const entityTitleLabel = useEntityLabel(collectionName, {
+    plural: true,
+    capitalize: true,
+  });
+
   const resolvedTitle =
     title === 'Upload CSV'
-      ? `Import ${formatEntityLabel(collectionName, {
-          plural: true,
-          capitalize: true,
-        })}`
+      ? t('import-entity', { entity: entityTitleLabel })
       : title;
   const {
     activeImports,
+    pendingUpload,
+    clearPendingUpload,
     isDragOver,
     handleDragOver,
     handleDragLeave,
@@ -63,10 +73,14 @@ export const ImportProvider = ({
     isLoading,
   } = useImportUploadHandler(contentType, onFileUploaded);
 
+  useImportCompletionEffect(activeImports);
+
   return (
     <ImportContext.Provider
       value={{
         activeImports,
+        pendingUpload,
+        clearPendingUpload,
         isDragOver,
         handleDragOver,
         handleDragLeave,

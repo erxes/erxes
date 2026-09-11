@@ -11,6 +11,7 @@ export interface IImportDocument {
   collectionName: string;
   fileKey: string;
   fileName: string;
+  columnMapping?: Array<{ index: number; header: string; key: string }>;
   status:
     | 'pending'
     | 'validating'

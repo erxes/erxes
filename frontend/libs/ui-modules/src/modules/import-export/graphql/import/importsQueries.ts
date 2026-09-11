@@ -50,3 +50,50 @@ export const GET_IMPORT_HISTORIES = gql`
     }
   }
 `;
+
+export const IMPORT_COLUMN_PREVIEW = gql`
+  query ImportColumnPreview(
+    $entityType: String!
+    $fileKey: String!
+    $fileName: String!
+  ) {
+    importColumnPreview(
+      entityType: $entityType
+      fileKey: $fileKey
+      fileName: $fileName
+    ) {
+      totalRows
+      columns {
+        index
+        header
+        key
+        confidence
+        status
+        sampleValues
+      }
+      fields {
+        key
+        label
+        type
+        dataType
+        options
+        example
+        required
+      }
+    }
+  }
+`;
+
+export const IMPORT_FIELDS = gql`
+  query ImportFields($entityType: String!) {
+    importFields(entityType: $entityType) {
+      key
+      label
+      type
+      dataType
+      options
+      example
+      required
+    }
+  }
+`;

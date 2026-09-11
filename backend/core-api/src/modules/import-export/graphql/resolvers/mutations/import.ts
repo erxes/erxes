@@ -4,6 +4,7 @@ import { IContext } from '~/connectionResolvers';
 import {
   splitType,
   getImportExportJobOptions,
+  ImportColumnMapping,
 } from 'erxes-api-shared/core-modules';
 import { validateImportConfig } from '~/modules/import-export/utils/validateConfig';
 import { getRequiredImportExportPermissions } from '~/modules/import-export/utils/getRequiredPermissions';
@@ -28,7 +29,13 @@ export const importMutations = {
       entityType,
       fileKey,
       fileName,
-    }: { entityType: string; fileKey: string; fileName: string },
+      columnMapping,
+    }: {
+      entityType: string;
+      fileKey: string;
+      fileName: string;
+      columnMapping?: ImportColumnMapping[];
+    },
     { models, subdomain, user, checkPermission }: IContext,
   ) {
     const [pluginName, moduleName, collectionName] = splitType(entityType);
@@ -50,6 +57,12 @@ export const importMutations = {
       await checkPermission(permission);
     }
 
+    // Keep only the columns the user actually pointed at a field; an ignored
+    // column carries no key and must not reach the worker.
+    const resolvedMapping = (columnMapping || []).filter(
+      (column) => column?.key,
+    );
+
     const importDoc = await models.Imports.create({
       _id: nanoid(),
       entityType,
@@ -58,6 +71,7 @@ export const importMutations = {
       collectionName,
       fileKey,
       fileName,
+      columnMapping: resolvedMapping,
       status: 'pending',
       userId: user._id,
       subdomain,
@@ -268,16 +282,13 @@ export const importMutations = {
       }),
     );
 
+    // a resume continues the earlier tallies; only a retry restarts them
     await models.Imports.updateOne(
       { _id: importId },
       {
         $set: {
           jobId: String(job.id),
           status: 'pending',
-          processedRows: 0,
-          successRows: 0,
-          errorRows: 0,
-          totalRows: 0,
           errorMessage: undefined,
           terminalError: undefined,
         },

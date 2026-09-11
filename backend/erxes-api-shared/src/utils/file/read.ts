@@ -341,7 +341,7 @@ export const readFileFromStorage = async ({
 // ---------------------------------------------------------------------------
 // Streaming readers — used by import pipeline to avoid loading whole files
 // into memory. Unlike readFileFromStorage (Buffer), these return a native
-// Readable stream that downstream parsers (csv-parse, ExcelJS) can consume
+// Readable stream that downstream parsers (csv-parse) can consume
 // directly with backpressure support.
 // ---------------------------------------------------------------------------
 

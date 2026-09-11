@@ -1,14 +1,19 @@
 import { REACT_APP_API_URL, toast, useUpload } from 'erxes-ui';
 import { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { TPendingImportUpload } from '../../types/import/importTypes';
 import { useImport } from './useImport';
 
 export const useImportUploadHandler = (
   entityType?: string,
   onFileUploaded?: (file: File) => void,
 ) => {
+  const { t } = useTranslation('importExport');
   const [isDragOver, setIsDragOver] = useState(false);
+  const [pendingUpload, setPendingUpload] =
+    useState<TPendingImportUpload | null>(null);
   const { isLoading, upload } = useUpload();
-  const { activeImports, startImport } = useImport(entityType);
+  const { activeImports } = useImport(entityType);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -27,8 +32,8 @@ export const useImportUploadHandler = (
       const file = files[0];
       if (!file.name.endsWith('.csv')) {
         toast({
-          title: 'Invalid file type',
-          description: 'Only .csv files are supported',
+          title: t('invalid-file-type'),
+          description: t('invalid-file-type-description'),
           variant: 'destructive',
         });
         return;
@@ -36,8 +41,8 @@ export const useImportUploadHandler = (
 
       if (!entityType) {
         toast({
-          title: 'Missing entity type',
-          description: 'Entity type is required to start import',
+          title: t('missing-entity-type'),
+          description: t('missing-entity-type-import'),
           variant: 'destructive',
         });
         return;
@@ -51,8 +56,8 @@ export const useImportUploadHandler = (
 
           if (!response) {
             toast({
-              title: 'Upload failed',
-              description: 'File upload completed but no file key was returned',
+              title: t('upload-failed'),
+              description: t('upload-failed-description'),
               variant: 'destructive',
             });
             return;
@@ -64,31 +69,20 @@ export const useImportUploadHandler = (
 
           if (!fileKey || fileKey.trim() === '') {
             toast({
-              title: 'Invalid file key',
-              description: 'File upload completed but file key is invalid',
+              title: t('invalid-file-key'),
+              description: t('invalid-file-key-description'),
               variant: 'destructive',
             });
             return;
           }
 
-          try {
-            await startImport(entityType, fileKey, file.name);
-            toast({
-              title: 'Import started',
-              description: `Import process has been started for ${file.name}`,
-            });
-          } catch (error: any) {
-            toast({
-              title: 'Failed to start import',
-              description:
-                error?.message || 'An error occurred while starting the import',
-              variant: 'destructive',
-            });
-          }
+          // The upload only parks the file; nothing is written until the
+          // column mapping is confirmed.
+          setPendingUpload({ fileKey, fileName: file.name });
         },
       });
     },
-    [upload, onFileUploaded, entityType, startImport, toast],
+    [upload, onFileUploaded, entityType, t],
   );
 
   const handleDrop = useCallback(
@@ -122,8 +116,8 @@ export const useImportUploadHandler = (
   const handleDownloadTemplate = useCallback(async () => {
     if (!entityType) {
       toast({
-        title: 'Missing entity type',
-        description: 'Entity type is required to download template',
+        title: t('missing-entity-type'),
+        description: t('missing-entity-type-template'),
         variant: 'destructive',
       });
       return;
@@ -141,7 +135,7 @@ export const useImportUploadHandler = (
       );
 
       if (!response.ok) {
-        throw new Error('Failed to download template');
+        throw new Error(t('template-download-failed'));
       }
 
       const disposition = response.headers.get('content-disposition') || '';
@@ -161,15 +155,18 @@ export const useImportUploadHandler = (
       document.body.removeChild(a);
     } catch (e: any) {
       toast({
-        title: 'Failed to download template',
-        description:
-          e?.message || 'An error occurred while downloading the template',
+        title: t('template-download-failed'),
+        description: e?.message || t('template-download-failed'),
         variant: 'destructive',
       });
     }
-  }, [entityType, toast]);
+  }, [entityType, t]);
+
+  const clearPendingUpload = useCallback(() => setPendingUpload(null), []);
 
   return {
+    pendingUpload,
+    clearPendingUpload,
     isDragOver,
     handleDragOver,
     handleDragLeave,

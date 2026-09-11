@@ -86,6 +86,7 @@ export const exportQueries = {
     args: {
       entityType?: string;
       entityTypes?: string[];
+      status?: string;
       limit?: number;
       cursor?: string;
       direction?: 'forward' | 'backward';
@@ -93,7 +94,7 @@ export const exportQueries = {
     },
     { models, subdomain, user }: IContext,
   ) {
-    const { entityType, entityTypes, ...cursorArgs } = args;
+    const { entityType, entityTypes, status, ...cursorArgs } = args;
     const normalizedEntityTypes = Array.from(
       new Set([entityType, ...(entityTypes || [])].filter(Boolean) as string[]),
     );
@@ -109,6 +110,10 @@ export const exportQueries = {
 
     if (normalizedEntityTypes.length > 1) {
       query.entityType = { $in: normalizedEntityTypes };
+    }
+
+    if (status) {
+      query.status = status;
     }
 
     const { list, totalCount, pageInfo } = await cursorPaginate<any>({

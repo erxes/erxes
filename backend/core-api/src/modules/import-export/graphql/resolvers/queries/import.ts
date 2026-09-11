@@ -1,5 +1,19 @@
+import {
+  matchImportHeaders,
+  processCSVStream,
+  splitType,
+  TImportExportProducers,
+} from 'erxes-api-shared/core-modules';
+import {
+  cursorPaginate,
+  readFileStreamFromStorage,
+  sendCoreModuleProducer,
+} from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
-import { cursorPaginate } from 'erxes-api-shared/utils';
+import { getRequiredImportExportPermissions } from '~/modules/import-export/utils/getRequiredPermissions';
+import { validateImportConfig } from '~/modules/import-export/utils/validateConfig';
+
+const PREVIEW_SAMPLE_ROWS = 5;
 
 const mapImportWithMetrics = (importDoc: any) => {
   const progress =
@@ -29,16 +43,156 @@ const mapImportWithMetrics = (importDoc: any) => {
   };
 };
 
+const toPreviewField = (header: any) => ({
+  key: header.key,
+  label: header.label,
+  type: header.type || 'system',
+  dataType: header.dataType || 'text',
+  options: header.options || [],
+  example: header.example || '',
+  required: !!header.required,
+});
+
+/**
+ * Fetch a module's import fields, after checking the caller may import them.
+ *
+ * Shared by the mapping preview and the field reference, which shows the same
+ * fields before a file exists.
+ */
+const loadImportFields = async ({
+  entityType,
+  subdomain,
+  checkPermission,
+}: {
+  entityType: string;
+  subdomain: string;
+  checkPermission: IContext['checkPermission'];
+}) => {
+  const [pluginName, moduleName, collectionName] = splitType(entityType);
+
+  await validateImportConfig({
+    pluginName,
+    collectionName,
+    requireGetImportHeaders: true,
+    requireInsertImportRows: true,
+  });
+
+  const requiredPermissions = await getRequiredImportExportPermissions({
+    pluginName,
+    operation: 'import',
+    entityType,
+  });
+
+  for (const permission of requiredPermissions) {
+    await checkPermission(permission);
+  }
+
+  return await sendCoreModuleProducer({
+    subdomain,
+    pluginName,
+    moduleName: 'importExport',
+    method: 'query',
+    producerName: TImportExportProducers.GET_IMPORT_HEADERS,
+    input: { moduleName, collectionName },
+    defaultValue: [],
+  });
+};
+
 export const importQueries = {
+  /**
+   * Read the uploaded file's header row and a few sample rows, then line them
+   * up against the module's import fields. Nothing is written: this is what
+   * the mapping step shows before the user commits to the import.
+   */
+  async importColumnPreview(
+    _root: undefined,
+    {
+      entityType,
+      fileKey,
+      fileName,
+    }: { entityType: string; fileKey: string; fileName: string },
+    { subdomain, checkPermission }: IContext,
+  ) {
+    if (!fileName.toLowerCase().endsWith('.csv')) {
+      throw new Error(
+        `Only .csv files can be imported. Received "${fileName}".`,
+      );
+    }
+
+    const importHeaders = await loadImportFields({
+      entityType,
+      subdomain,
+      checkPermission,
+    });
+
+    const fileStream = await readFileStreamFromStorage({
+      subdomain,
+      key: fileKey,
+    });
+
+    const rowIterator = processCSVStream(fileStream);
+    let headerRow: string[] = [];
+    const sampleRows: string[][] = [];
+    let totalRows = 0;
+
+    for await (const row of rowIterator) {
+      if (!headerRow.length) {
+        headerRow = row;
+        continue;
+      }
+
+      totalRows++;
+
+      if (sampleRows.length < PREVIEW_SAMPLE_ROWS) {
+        sampleRows.push(row);
+      }
+    }
+
+    const matches = matchImportHeaders(headerRow, importHeaders);
+
+    return {
+      totalRows,
+      columns: matches.map((match) => ({
+        ...match,
+        sampleValues: sampleRows
+          .map((row) => row[match.index] ?? '')
+          .filter((value) => String(value).trim() !== ''),
+      })),
+      fields: importHeaders.map(toPreviewField),
+    };
+  },
+
+  /**
+   * The same field list the mapping step uses, without needing a file — this
+   * is what someone reads while filling the spreadsheet in.
+   */
+  async importFields(
+    _root: undefined,
+    { entityType }: { entityType: string },
+    { subdomain, checkPermission }: IContext,
+  ) {
+    const importHeaders = await loadImportFields({
+      entityType,
+      subdomain,
+      checkPermission,
+    });
+
+    return importHeaders.map(toPreviewField);
+  },
+
   async importProgress(
     _root: undefined,
     { importId }: { importId: string },
-    { models }: IContext,
+    { models, user }: IContext,
   ) {
     const importDoc = await models.Imports.getImport(importId);
 
     if (!importDoc) {
       throw new Error('Import not found');
+    }
+
+    if (importDoc.userId !== user._id) {
+      throw new Error('Unauthorized');
     }
 
     return mapImportWithMetrics(importDoc);
@@ -47,9 +201,10 @@ export const importQueries = {
   async activeImports(
     _root: undefined,
     { entityType }: { entityType?: string },
-    { models }: IContext,
+    { models, user }: IContext,
   ) {
-    const query: any = {};
+    // the popover is the caller's own workspace, not a workspace-wide feed
+    const query: any = { userId: user._id };
 
     if (entityType) {
       query.entityType = entityType;
@@ -68,6 +223,7 @@ export const importQueries = {
     args: {
       entityType?: string;
       entityTypes?: string[];
+      status?: string;
       limit?: number;
       cursor?: string;
       direction?: 'forward' | 'backward';
@@ -75,7 +231,7 @@ export const importQueries = {
     },
     { models, subdomain, user }: IContext,
   ) {
-    const { entityType, entityTypes, ...cursorArgs } = args;
+    const { entityType, entityTypes, status, ...cursorArgs } = args;
     const normalizedEntityTypes = Array.from(
       new Set([entityType, ...(entityTypes || [])].filter(Boolean) as string[]),
     );
@@ -91,6 +247,10 @@ export const importQueries = {
 
     if (normalizedEntityTypes.length > 1) {
       query.entityType = { $in: normalizedEntityTypes };
+    }
+
+    if (status) {
+      query.status = status;
     }
 
     const { list, totalCount, pageInfo } = await cursorPaginate<any>({

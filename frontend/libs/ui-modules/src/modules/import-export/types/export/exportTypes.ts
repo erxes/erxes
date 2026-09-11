@@ -13,7 +13,6 @@ export type TExportProgress = {
   status: TExportProgressStatus;
   totalRows: number;
   processedRows: number;
-  fileFormat: 'csv' | 'xlsx';
   fileKey?: string;
   filters?: Record<string, any>;
   ids?: string[];

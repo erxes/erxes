@@ -9,8 +9,7 @@ export const types = `
     status: String
     totalRows: Int
     processedRows: Int
-    fileFormat: String
-  fileKey: String
+    fileKey: String
     filters: JSON
     ids: [String]
     startedAt: Date
@@ -49,6 +48,7 @@ export const queries = `
   exportHistories(
     entityType: String
     entityTypes: [String]
+    status: String
     limit: Int
     cursor: String
     direction: CURSOR_DIRECTION
@@ -60,7 +60,6 @@ export const queries = `
 export const mutations = `
   exportStart(
     entityType: String!
-    fileFormat: String
     filters: JSON
     ids: [String]
     selectedFields: [String]

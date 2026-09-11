@@ -1,9 +1,14 @@
 import { ExportHistories } from '@/import-export/export/components/ExportHistories';
+import { ExportHistoriesFilter } from '@/import-export/export/components/ExportHistoriesFilter';
+import { PageSubHeader } from 'erxes-ui';
 
 export const ExportHistoriesSettingsPage = () => {
   return (
-    <div className="flex flex-col flex-1 overflow-hidden gap-4 min-w-0 w-full px-6 py-5">
+    <>
+      <PageSubHeader>
+        <ExportHistoriesFilter />
+      </PageSubHeader>
       <ExportHistories />
-    </div>
+    </>
   );
 };

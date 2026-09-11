@@ -1,4 +1,41 @@
 export const types = `
+  type ImportColumnMapping {
+    index: Int
+    header: String
+    key: String
+  }
+
+  input ImportColumnMappingInput {
+    index: Int!
+    header: String
+    key: String!
+  }
+
+  type ImportPreviewColumn {
+    index: Int
+    header: String
+    key: String
+    confidence: Float
+    status: String
+    sampleValues: [String]
+  }
+
+  type ImportPreviewField {
+    key: String
+    label: String
+    type: String
+    dataType: String
+    options: [String]
+    example: String
+    required: Boolean
+  }
+
+  type ImportColumnPreview {
+    columns: [ImportPreviewColumn]
+    fields: [ImportPreviewField]
+    totalRows: Int
+  }
+
   type Import {
     _id: String
     entityType: String
@@ -7,6 +44,7 @@ export const types = `
     collectionName: String
     fileKey: String
     fileName: String
+    columnMapping: [ImportColumnMapping]
     status: String
     totalRows: Int
     processedRows: Int
@@ -36,10 +74,17 @@ export const types = `
 
 export const queries = `
   importProgress(importId: String!): Import
+  importColumnPreview(
+    entityType: String!
+    fileKey: String!
+    fileName: String!
+  ): ImportColumnPreview
+  importFields(entityType: String!): [ImportPreviewField]
   activeImports(entityType: String): [Import]
   importHistories(
     entityType: String
     entityTypes: [String]
+    status: String
     limit: Int
     cursor: String
     direction: CURSOR_DIRECTION
@@ -48,7 +93,12 @@ export const queries = `
 `;
 
 export const mutations = `
-  importStart(entityType: String!, fileKey: String!, fileName: String!): Import
+  importStart(
+    entityType: String!
+    fileKey: String!
+    fileName: String!
+    columnMapping: [ImportColumnMappingInput]
+  ): Import
   importCancel(importId: String!): Import
   importRetry(importId: String!): Import
   importResume(importId: String!): Import

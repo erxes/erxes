@@ -1,5 +1,5 @@
 import { useQuery } from '@apollo/client';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { GET_EXPORT_HEADERS } from '../../graphql/export/exportQueries';
 import { TExportHeader } from '../../types/export/exportTypes';
 
@@ -23,16 +23,17 @@ export const useExportFieldSelection = ({
 
   const headers: TExportHeader[] = data?.exportHeaders || [];
   const [selectedFields, setSelectedFields] = useState<string[]>([]);
+  const initializedRef = useRef(false);
 
-  // Initialize with default fields
+  // Seed the defaults once; an empty selection afterwards is the user's choice
   useEffect(() => {
-    if (headers.length > 0 && selectedFields.length === 0) {
-      const defaultFields = headers
-        .filter((h) => h.isDefault)
-        .map((h) => h.key);
-      setSelectedFields(defaultFields);
+    if (!headers.length || initializedRef.current) {
+      return;
     }
-  }, [headers, selectedFields.length]);
+
+    initializedRef.current = true;
+    setSelectedFields(headers.filter((h) => h.isDefault).map((h) => h.key));
+  }, [headers]);
 
   const handleToggleField = (key: string) => {
     setSelectedFields((prev) =>
@@ -55,15 +56,11 @@ export const useExportFieldSelection = ({
   };
 
   const handleConfirm = () => {
-    if (selectedFields.length === 0) {
-      // If nothing selected, use defaults
-      const defaultFields = headers
-        .filter((h) => h.isDefault)
-        .map((h) => h.key);
-      onConfirm(defaultFields);
-    } else {
-      onConfirm(selectedFields);
+    if (!selectedFields.length) {
+      return;
     }
+
+    onConfirm(selectedFields);
     onOpenChange(false);
   };
 

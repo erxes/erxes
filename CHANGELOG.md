@@ -1,5 +1,28 @@
 
 
+## [3.1.5](https://github.com/erxes/erxes/compare/3.1.4...3.1.5) (2026-09-11)
+
+
+### Bug Fixes
+
+* **ci:** run the help-center workflow on ubuntu-latest  ([0a41531](https://github.com/erxes/erxes/commit/0a41531b815880fa4c0e968bdd19afbc6b2f4571))
+* **ci:** tag the help-center image on release ([d01ac1b](https://github.com/erxes/erxes/commit/d01ac1b487abec8d819cef883cd39a7b72ed5bfd))
+* **help-center:** keep the portal app token reachable after a failed config load ([39113a9](https://github.com/erxes/erxes/commit/39113a92301afb026430703d5de86c5b9e9cd395))
+* **msdynamics:** show synced order details  ([8be8e7f](https://github.com/erxes/erxes/commit/8be8e7f7073effb36947f24f1230dd8ebdfb0a1b))
+* productPlaces some improve and products filter by segments ([#9287](https://github.com/erxes/erxes/issues/9287)) ([6311340](https://github.com/erxes/erxes/commit/6311340324ae0c120127229bed54ea4726d7c35b))
+* relations ordery by createdAt ([2a38092](https://github.com/erxes/erxes/commit/2a38092449f09c820529791fad32fc4aa4d8fb7e))
+* update task queries to support pagination by status and refactor… ([#9293](https://github.com/erxes/erxes/issues/9293)) ([6dbc647](https://github.com/erxes/erxes/commit/6dbc64727ec538a0a656680294874fae7c0277f5))
+
+
+### Features
+
+* **import-export:** enhance import/export functionality with column mapping and preview features ([32fe617](https://github.com/erxes/erxes/commit/32fe61776bf8d9b1336aac906cfff1bd850674d2))
+
+
+### Performance Improvements
+
+* **core:** Products detail (embed video, short/arrival fields) + editor fix ([#9270](https://github.com/erxes/erxes/issues/9270)) ([fb8b4e2](https://github.com/erxes/erxes/commit/fb8b4e233e8ed45f1b904cf2cc2a9ea164faf4f1))
+
 ## [3.1.4](https://github.com/erxes/erxes/compare/3.1.3...3.1.4) (2026-09-10)
 
 

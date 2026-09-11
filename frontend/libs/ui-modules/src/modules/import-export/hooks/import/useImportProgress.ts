@@ -9,6 +9,7 @@ import {
 } from '@tabler/icons-react';
 import { useImport } from './useImport';
 import { useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { TImportProgress } from '../../types/import/importTypes';
 
 function formatTime(seconds: number): string {
@@ -26,15 +27,17 @@ function formatTime(seconds: number): string {
 }
 
 const statusMap = {
-  pending: { key: 'pending', label: 'Pending', icon: IconClockQuestion },
-  validating: { key: 'validating', label: 'Validating', icon: IconFileCheck },
-  processing: { key: 'processing', label: 'Processing', icon: IconLoader },
-  completed: { key: 'completed', label: 'Completed', icon: IconCheck },
-  failed: { key: 'failed', label: 'Failed', icon: IconAlertCircle },
-  cancelled: { key: 'cancelled', label: 'Cancelled', icon: IconX },
+  pending: { key: 'pending', icon: IconClockQuestion },
+  validating: { key: 'validating', icon: IconFileCheck },
+  processing: { key: 'processing', icon: IconLoader },
+  completed: { key: 'completed', icon: IconCheck },
+  failed: { key: 'failed', icon: IconAlertCircle },
+  cancelled: { key: 'cancelled', icon: IconX },
 };
 
 export function useImportProgress(importProgress: TImportProgress) {
+  const { t } = useTranslation('importExport');
+
   const timeRemaining = useMemo(
     () => formatTime(importProgress.estimatedSecondsRemaining || 0),
     [importProgress.estimatedSecondsRemaining],
@@ -43,11 +46,11 @@ export function useImportProgress(importProgress: TImportProgress) {
   const statusObject = useMemo(() => {
     const status = statusMap[importProgress.status as keyof typeof statusMap];
     return {
-      label: status?.label || 'Unknown',
+      label: t(status ? `status-${status.key}` : 'status-unknown'),
       Icon: status?.icon,
       status: status?.key,
     };
-  }, [importProgress.status]);
+  }, [importProgress.status, t]);
 
   const { cancelImport, retryImport, resumeImport } = useImport();
   const { toast } = useToast();
@@ -56,52 +59,49 @@ export function useImportProgress(importProgress: TImportProgress) {
     try {
       await cancelImport(importProgress._id);
       toast({
-        title: 'Import cancelled',
-        description: 'The import process has been cancelled',
+        title: t('import-cancelled'),
+        description: t('import-cancelled-description'),
       });
     } catch (error: any) {
       toast({
-        title: 'Failed to cancel import',
-        description:
-          error?.message || 'An error occurred while cancelling the import',
+        title: t('import-cancel-failed'),
+        description: error?.message || t('import-cancel-failed'),
         variant: 'destructive',
       });
     }
-  }, [importProgress._id, cancelImport, toast]);
+  }, [importProgress._id, cancelImport, toast, t]);
 
   const handleRetry = useCallback(async () => {
     try {
       await retryImport(importProgress._id);
       toast({
-        title: 'Import retried',
-        description: 'The import process has been restarted',
+        title: t('import-restarted'),
+        description: t('import-restarted-description'),
       });
     } catch (error: any) {
       toast({
-        title: 'Failed to retry import',
-        description:
-          error?.message || 'An error occurred while retrying the import',
+        title: t('import-restart-failed'),
+        description: error?.message || t('import-restart-failed'),
         variant: 'destructive',
       });
     }
-  }, [importProgress._id, retryImport, toast]);
+  }, [importProgress._id, retryImport, toast, t]);
 
   const handleResume = useCallback(async () => {
     try {
       await resumeImport(importProgress._id);
       toast({
-        title: 'Import resumed',
-        description: 'The import process has been resumed',
+        title: t('import-resumed'),
+        description: t('import-resumed-description'),
       });
     } catch (error: any) {
       toast({
-        title: 'Failed to resume import',
-        description:
-          error?.message || 'An error occurred while resuming the import',
+        title: t('import-resume-failed'),
+        description: error?.message || t('import-resume-failed'),
         variant: 'destructive',
       });
     }
-  }, [importProgress._id, resumeImport, toast]);
+  }, [importProgress._id, resumeImport, toast, t]);
 
   const canCancel = useMemo(
     () =>
@@ -114,8 +114,11 @@ export function useImportProgress(importProgress: TImportProgress) {
     [importProgress.status],
   );
 
+  // the worker resumes from lastProcessedRow, so a failed job need not restart
   const canResume = useMemo(
-    () => importProgress.status === 'cancelled',
+    () =>
+      importProgress.status === 'cancelled' ||
+      importProgress.status === 'failed',
     [importProgress.status],
   );
 
