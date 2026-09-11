@@ -206,8 +206,17 @@ export const getMsdCustomerInfo = async (
     filterStr = `Phone_No eq '${customer.primaryPhone}'`;
     msdCustomer = await checkSend(customer, config, filterStr);
   } else if (customer?.primaryEmail) {
-    filterStr = `E_Mail eq '${customer.primaryEmail}'`;
+    const email = customer.primaryEmail.replace(/'/g, "''");
+
+    filterStr = `E_Mail eq '${email}'`;
     msdCustomer = await checkSend(customer, config, filterStr);
+  }
+
+  if (!msdCustomer?.No) {
+    return {
+      relation: null,
+      customer,
+    };
   }
   const brandIds = customer?.scopeBrandIds || [];
 

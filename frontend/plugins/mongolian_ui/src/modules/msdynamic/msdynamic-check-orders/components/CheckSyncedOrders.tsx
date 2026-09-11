@@ -97,28 +97,51 @@ const CheckSyncedOrders = () => {
   useEffect(() => {
     if (!orders?.length) return;
 
+    let active = true;
     const orderIds = orders.map((order) => order._id);
 
-    void toCheckMsdSynced({
-      variables: { ids: orderIds },
-    }).then((response) => {
-      const statuses = response.data?.toCheckMsdSynced || [];
-
-      const syncedInfos: Record<string, ISyncedOrderInfo> = {};
-
-      statuses
-        .filter((s) => s.isSynced)
-        .forEach((item) => {
-          syncedInfos[item._id] = {
-            syncedBillNumber: item.syncedBillNumber || '',
-            syncedDate: item.syncedDate || '',
-            syncedCustomer: item.syncedCustomer || '',
-          };
+    const checkSyncedOrders = async () => {
+      try {
+        const response = await toCheckMsdSynced({
+          variables: { ids: orderIds },
         });
 
-      setSyncedOrderInfos(syncedInfos);
-    });
-  }, [orders, toCheckMsdSynced]);
+        if (!active) return;
+
+        const statuses = response.data?.toCheckMsdSynced || [];
+        const syncedInfos: Record<string, ISyncedOrderInfo> = {};
+
+        statuses
+          .filter((s) => s.isSynced)
+          .forEach((item) => {
+            syncedInfos[item._id] = {
+              syncedBillNumber: item.syncedBillNumber || '',
+              syncedDate: item.syncedDate || '',
+              syncedCustomer: item.syncedCustomer || '',
+            };
+          });
+
+        setSyncedOrderInfos(syncedInfos);
+      } catch (error) {
+        if (!active) return;
+
+        toast({
+          title: t('failed-to-check-orders'),
+          description:
+            error instanceof Error
+              ? error.message
+              : t('please-try-again-later'),
+          variant: 'destructive',
+        });
+      }
+    };
+
+    checkSyncedOrders();
+
+    return () => {
+      active = false;
+    };
+  }, [orders, toCheckMsdSynced, toast, t]);
 
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
@@ -132,7 +155,14 @@ const CheckSyncedOrders = () => {
         });
 
         const item = response.data?.toSendMsdOrders?.[0];
-
+        if (!item) {
+          toast({
+            title: t('failed-to-resend-order'),
+            description: t('please-try-again-later'),
+            variant: 'destructive',
+          });
+          return;
+        }
         if (!item) return;
 
         if (!item.isSynced) {
