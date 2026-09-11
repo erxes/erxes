@@ -38,7 +38,7 @@ export const BlockEditor = ({
   style,
   disabled,
   variant = 'default',
-  sideMenu = false,
+  sideMenu = true,
   linkToolbar = true,
   additionalSlashMenuItems,
 }: BlockEditorProps) => {

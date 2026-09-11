@@ -1,12 +1,14 @@
 import { Button, Input, Label, Select } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { IconTrash } from '@tabler/icons-react';
-import SelectDepartments from '../selects/SelectDepartments';
-import SelectBranches from '../selects/SelectBranches';
-import SelectProducts from '../selects/SelectProducts';
-import SelectProductTags from '../selects/SelectProductTags';
-import SelectSegments from '../selects/SelectSegments';
-import { SelectCategory } from 'ui-modules';
+import {
+  SelectBranches,
+  SelectCategory,
+  SelectDepartments,
+  SelectProduct,
+  SelectSegment,
+  SelectTags,
+} from 'ui-modules';
 
 type Props = {
   condition: any;
@@ -60,9 +62,16 @@ const PerConditions = ({
             <Label className="text-xs font-semibold uppercase text-muted-foreground">
               {t('product-tags')}
             </Label>
-            <SelectProductTags
+            <SelectTags
+              mode="multiple"
+              tagType="core:product"
               value={condition.productTagIds ?? []}
-              onValueChange={(ids) => onChangeConfig('productTagIds', ids)}
+              onValueChange={(ids) =>
+                onChangeConfig(
+                  'productTagIds',
+                  Array.isArray(ids) ? ids : [ids],
+                )
+              }
             />
           </div>
 
@@ -70,9 +79,16 @@ const PerConditions = ({
             <Label className="text-xs font-semibold uppercase text-muted-foreground">
               {t('exclude-tags')}
             </Label>
-            <SelectProductTags
+            <SelectTags
+              mode="multiple"
+              tagType="core:product"
               value={condition.excludeTagIds ?? []}
-              onValueChange={(ids) => onChangeConfig('excludeTagIds', ids)}
+              onValueChange={(ids) =>
+                onChangeConfig(
+                  'excludeTagIds',
+                  Array.isArray(ids) ? ids : [ids],
+                )
+              }
             />
           </div>
 
@@ -80,9 +96,15 @@ const PerConditions = ({
             <Label className="text-xs font-semibold uppercase text-muted-foreground">
               {t('exclude-products')}
             </Label>
-            <SelectProducts
+            <SelectProduct
+              mode="multiple"
               value={condition.excludeProductIds ?? []}
-              onValueChange={(ids) => onChangeConfig('excludeProductIds', ids)}
+              onValueChange={(ids) =>
+                onChangeConfig(
+                  'excludeProductIds',
+                  Array.isArray(ids) ? ids : [ids],
+                )
+              }
             />
           </div>
 
@@ -90,11 +112,21 @@ const PerConditions = ({
             <Label className="text-xs font-semibold uppercase text-muted-foreground">
               {t('segment')}
             </Label>
-            <SelectSegments
-              contentTypes={['core:product']}
-              value={condition.segmentId || ''}
-              onValueChange={(segmentId) =>
-                onChangeConfig('segmentId', segmentId)
+            <SelectSegment
+              contentType="core:products.products"
+              mode="multiple"
+              selected={
+                Array.isArray(condition.segmentIds)
+                  ? condition.segmentIds
+                  : condition.segmentId
+                    ? [condition.segmentId]
+                    : []
+              }
+              onSelect={(segmentIds) =>
+                onChangeConfig(
+                  'segmentIds',
+                  Array.isArray(segmentIds) ? segmentIds : [],
+                )
               }
             />
           </div>
@@ -162,7 +194,9 @@ const PerConditions = ({
               <Select.Content>
                 <Select.Item value={CLEAR_VALUE}>{t('not-use')}</Select.Item>
                 <Select.Item value="lt">{t('low-than-count')}</Select.Item>
-                <Select.Item value="gte">{t('greater-equal-than-count')}</Select.Item>
+                <Select.Item value="gte">
+                  {t('greater-equal-than-count')}
+                </Select.Item>
               </Select.Content>
             </Select>
           </div>
@@ -175,10 +209,14 @@ const PerConditions = ({
             <Label className="text-xs font-semibold uppercase text-muted-foreground">
               {t('set-branch')}
             </Label>
-            <SelectBranches
+            <SelectBranches.Root
               value={condition.branchId || ''}
-              onChange={(branchId) => onChangeConfig('branchId', branchId)}
-              ids={[]}
+              onValueChange={(branchId) =>
+                onChangeConfig(
+                  'branchId',
+                  typeof branchId === 'string' ? branchId : '',
+                )
+              }
             />
           </div>
 
@@ -186,12 +224,14 @@ const PerConditions = ({
             <Label className="text-xs font-semibold uppercase text-muted-foreground">
               {t('set-department')}
             </Label>
-            <SelectDepartments
+            <SelectDepartments.Root
               value={condition.departmentId || ''}
-              onChange={(departmentId) =>
-                onChangeConfig('departmentId', departmentId)
+              onValueChange={(departmentId) =>
+                onChangeConfig(
+                  'departmentId',
+                  typeof departmentId === 'string' ? departmentId : '',
+                )
               }
-              ids={[]}
             />
           </div>
         </div>

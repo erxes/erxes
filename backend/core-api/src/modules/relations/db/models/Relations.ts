@@ -247,7 +247,7 @@ export const loadRelationClass = (
             },
           },
         ],
-      });
+      }).sort({ createdAt: -1 });
 
       return relation;
     }

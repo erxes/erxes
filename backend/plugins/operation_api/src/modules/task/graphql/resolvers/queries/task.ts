@@ -3,6 +3,7 @@ import { cursorPaginate, escapeRegExp } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 import { STATUS_TYPES } from '@/status/constants/types';
+import { taskCursorPaginateByStatus } from '@/task/graphql/resolvers/utils';
 
 const handleDateFilter = (
   filterQuery: FilterQuery<ITaskDocument>,
@@ -213,9 +214,8 @@ export const taskQueries = {
           projectFilter._id = { $in: projectIds };
         }
 
-        const matchingProjects = await models.Project.find(
-          projectFilter,
-        ).distinct('_id');
+        const matchingProjects =
+          await models.Project.find(projectFilter).distinct('_id');
 
         if (matchingProjects.length === 0) {
           return { list: [], totalCount: 0, pageInfo: null };
@@ -264,18 +264,18 @@ export const taskQueries = {
       filterQuery.assigneeId = filter.userId;
     }
 
-    const { list, totalCount, pageInfo } = await cursorPaginate<ITaskDocument>({
-      model: models.Task,
-      params: {
-        ...filter,
-        orderBy: filter.orderBy ?? {
-          statusType: 'asc',
-          createdAt: 'desc',
-        },
-      },
-      query: filterQuery,
-    });
+    const pagination = filter.orderBy
+      ? await cursorPaginate<ITaskDocument>({
+          model: models.Task,
+          params: filter,
+          query: filterQuery,
+        })
+      : await taskCursorPaginateByStatus({
+          models,
+          params: filter,
+          query: filterQuery,
+        });
 
-    return { list, totalCount, pageInfo };
+    return pagination;
   },
 };
