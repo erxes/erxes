@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client';
 
 export const HELP_CENTER_CONFIG_BY_DOMAIN = gql`
-  query portalHelpCenterConfigByDomain($domain: String!) {
-    helpCenterGetConfigByDomain(domain: $domain) {
+  query portalHelpCenterConfigByDomain {
+    helpCenterGetConfigByDomain {
       _id
       title
       description
