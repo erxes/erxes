@@ -8,3 +8,4 @@ export * from './SelectUOM';
 export * from './SelectUOMWithName';
 export * from './SubUomRow';
 export * from './ProductImageUploads';
+export * from './ProductVideoUploads';
