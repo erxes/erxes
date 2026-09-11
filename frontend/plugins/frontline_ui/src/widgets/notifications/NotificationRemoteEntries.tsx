@@ -1,14 +1,13 @@
-import { Button } from 'erxes-ui';
+import { Button, Spinner } from 'erxes-ui';
 import { lazy, Suspense } from 'react';
 import { FallbackProps } from 'react-error-boundary';
 import { useTranslation } from 'react-i18next';
 import { NotificationContent } from './system/NotficationContent';
 import { TicketDetailSheet } from '@/ticket/components/ticket-detail/TicketDetailSheet';
 import { TicketDetails } from '../../modules/ticket/components/ticket-detail/TicketDetails';
-import { NotificationConversationDetail } from './my-inbox/components/NotificationConversationDetail';
 import { IconInfoCircle } from '@tabler/icons-react';
 import { TNotification } from 'ui-modules';
-const ConversationDetailRemoteEntry = lazy(() =>
+const NotificationConversationDetail = lazy(() =>
   import('./my-inbox/components/NotificationConversationDetail').then(
     (module) => ({
       default: module.NotificationConversationDetail,
@@ -49,9 +48,7 @@ export const GenericErrorFallback = ({
 const NotificationRemoteEntries = (props: TNotification) => {
   const { t } = useTranslation('frontline');
   const { contentTypeId, contentType } = props;
-  const [_, moduleName, type] = (contentType || '')
-    .replace(':', '.')
-    .split('.');
+  const [, moduleName, type] = (contentType || '').replace(':', '.').split('.');
 
   const isFacebookBotHealthNotification =
     moduleName === 'facebook' && type === 'bot_health';
@@ -84,24 +81,37 @@ const NotificationRemoteEntries = (props: TNotification) => {
 
     return <NotificationComponent {...props} />;
   }
-  if (moduleName === 'inbox') {
-    return (
-      <div className="h-screen flex flex-col">
-        <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
-          <NotificationConversationDetail contentTypeId={contentTypeId} />
-        </div>
-      </div>
-    );
-  }
 
   if (!contentTypeId) {
     return <NotificationContentUnavailable />;
   }
 
+  if (moduleName === 'inbox') {
+    if (type === 'channel') {
+      return (
+        <Suspense fallback={<Spinner containerClassName="h-full" />}>
+          <NotificationChannelContent {...props} />
+        </Suspense>
+      );
+    }
+
+    return (
+      <div className="h-screen flex flex-col">
+        <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
+          <Suspense fallback={<Spinner containerClassName="h-full" />}>
+            <NotificationConversationDetail contentTypeId={contentTypeId} />
+          </Suspense>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div>
+    <div className="h-full w-full overflow-auto">
       <TicketDetailSheet />
-      <TicketDetails ticketId={contentTypeId} />
+      <div className="mx-auto w-full max-w-3xl p-6">
+        <TicketDetails ticketId={contentTypeId} />
+      </div>
     </div>
   );
 };

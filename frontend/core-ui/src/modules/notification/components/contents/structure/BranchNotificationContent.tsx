@@ -1,6 +1,7 @@
 import { useBranchDetailsById } from '@/settings/structure/hooks/useBranchDetailsById';
-import { IconBuildings } from '@tabler/icons-react';
-import { AssigneeNotificationContent, IUser, TNotification } from 'ui-modules';
+import { TNotification } from 'ui-modules';
+import { StructureNotificationDetail } from './StructureNotificationDetail';
+import { StructureUserName } from './StructureReferenceName';
 
 export const BranchNotificationContent = ({
   action,
@@ -8,18 +9,41 @@ export const BranchNotificationContent = ({
   fromUser,
   contentTypeId,
 }: TNotification) => {
-  const { branchDetail, loading } = useBranchDetailsById({
+  const { branchDetail, loading, error } = useBranchDetailsById({
     variables: { id: contentTypeId },
   });
+  const coordinate = branchDetail?.coordinate;
+
   return (
-    <AssigneeNotificationContent
-      action={action || '-'}
+    <StructureNotificationDetail
+      action={action}
+      error={error}
       loading={loading}
-      name={branchDetail?.title || '-'}
+      name={branchDetail?.title}
       contentType="branch"
       createdAt={createdAt}
-      fromUser={fromUser || ({} as IUser)}
-      Icon={IconBuildings}
+      fromUser={fromUser}
+      details={[
+        { label: 'Code', value: branchDetail?.code },
+        { label: 'Status', value: branchDetail?.status },
+        { label: 'Address', value: branchDetail?.address },
+        { label: 'Email', value: branchDetail?.email },
+        { label: 'Phone number', value: branchDetail?.phoneNumber },
+        { label: 'Members', value: branchDetail?.userCount },
+        {
+          label: 'Supervisor',
+          value: branchDetail?.supervisorId ? (
+            <StructureUserName userId={branchDetail.supervisorId} />
+          ) : undefined,
+        },
+        {
+          label: 'Coordinates',
+          value:
+            coordinate?.latitude != null && coordinate?.longitude != null
+              ? `${coordinate.latitude}, ${coordinate.longitude}`
+              : undefined,
+        },
+      ]}
     />
   );
 };

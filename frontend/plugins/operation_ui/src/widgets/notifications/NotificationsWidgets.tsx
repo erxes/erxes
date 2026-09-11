@@ -4,6 +4,7 @@ import { lazy, Suspense } from 'react';
 import { Spinner } from 'erxes-ui';
 import { NotificationContent } from './contents/NotificationContent';
 import { useTranslation } from 'react-i18next';
+import { TNotification } from 'ui-modules';
 
 const NotificationTaskAssignment = lazy(() =>
   import('./my-inbox/components/NotificationTaskAssignment').then((m) => ({
@@ -23,17 +24,23 @@ const ProjectDetails = lazy(() =>
   })),
 );
 
+const NotificationTeamContent = lazy(() =>
+  import('./my-inbox/components/NotificationTeamContent').then((m) => ({
+    default: m.NotificationTeamContent,
+  })),
+);
+
 const TASK_INBOX_TITLES = new Set(['Task Assigned', 'Task Status changed']);
 const PROJECT_INBOX_TITLES = new Set([
   'Project Assigned',
   'Project Status changed',
 ]);
 
-const NotificationsWidgets = (props: any) => {
+const NotificationsWidgets = (props: TNotification) => {
   const { t } = useTranslation('operation');
   const { contentTypeId, contentType, title } = props;
 
-  const [_, moduleName, collectionType] = (contentType || '')
+  const [, moduleName, collectionType] = (contentType || '')
     .replace(':', '.')
     .split('.');
 
@@ -45,7 +52,18 @@ const NotificationsWidgets = (props: any) => {
       return <div>{t('no-notification-component-found')}</div>;
     }
 
-    return <NotificationComponent {...props} />;
+    return <NotificationComponent />;
+  }
+
+  if (!contentTypeId) {
+    return (
+      <div className="flex min-h-dvh items-center justify-center p-6">
+        {t(
+          'notification-content-unavailable',
+          'Notification content unavailable',
+        )}
+      </div>
+    );
   }
 
   if (moduleName === 'task' && TASK_INBOX_TITLES.has(title)) {
@@ -72,11 +90,19 @@ const NotificationsWidgets = (props: any) => {
     );
   }
 
+  if (moduleName === 'team') {
+    return (
+      <Suspense fallback={<Spinner containerClassName="h-full" />}>
+        <NotificationTeamContent {...props} />
+      </Suspense>
+    );
+  }
+
   return (
-    <>
+    <div className="h-full w-full overflow-auto">
       <TaskDetailSheet />
       <TaskDetails taskId={contentTypeId} checkTriage={true} />
-    </>
+    </div>
   );
 };
 

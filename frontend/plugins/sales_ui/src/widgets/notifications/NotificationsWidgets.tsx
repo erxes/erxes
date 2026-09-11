@@ -1,14 +1,15 @@
 import { useQuery } from '@apollo/client';
 import {
-  IconBriefcase,
   IconExternalLink,
   IconInfoCircle,
+  IconNote,
 } from '@tabler/icons-react';
 import {
   Avatar,
   Button,
+  Empty,
   RelativeDateDisplay,
-  Skeleton,
+  Spinner,
   readImage,
 } from 'erxes-ui';
 import { Link } from 'react-router-dom';
@@ -17,6 +18,8 @@ import { useTranslation } from 'react-i18next';
 
 import { GET_DEAL_DETAIL } from '@/deals/graphql/queries/DealsQueries';
 import { IDeal } from '@/deals/types/deals';
+import { DealsProvider } from '@/deals/context/DealContext';
+import { Overview } from '@/deals/cards/components/detail/overview/Overview';
 
 const getUserDisplayName = (user?: IUser) =>
   user?.details?.fullName || user?.email || 'Unknown user';
@@ -26,6 +29,77 @@ const buildDealPath = (deal: IDeal) => {
   if (deal.boardId) searchParams.set('boardId', deal.boardId);
   if (deal.pipeline?._id) searchParams.set('pipelineId', deal.pipeline._id);
   return `/sales/deals?${searchParams.toString()}`;
+};
+
+const NotificationContentUnavailable = ({
+  title,
+  description,
+}: {
+  title: string;
+  description: string;
+}) => (
+  <div className="flex min-h-dvh items-center justify-center p-6">
+    <Empty>
+      <Empty.Header>
+        <Empty.Media variant="icon">
+          <IconInfoCircle />
+        </Empty.Media>
+        <Empty.Title>{title}</Empty.Title>
+        <Empty.Description>{description}</Empty.Description>
+      </Empty.Header>
+    </Empty>
+  </div>
+);
+
+const DealNotificationHeader = ({
+  action,
+  createdAt,
+  deal,
+  fromUser,
+}: Pick<TNotification, 'action' | 'createdAt' | 'fromUser'> & {
+  deal: IDeal;
+}) => {
+  const { t } = useTranslation('sales');
+  const actorName = getUserDisplayName(fromUser);
+
+  return (
+    <header className="border-b py-5">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="min-w-0">
+          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            {deal.number ? `Deal #${deal.number}` : t('deal', 'Deal')}
+          </p>
+          <h2 className="mt-1 break-words text-2xl font-semibold text-foreground">
+            {deal.name || t('untitled-deal', 'Untitled deal')}
+          </h2>
+        </div>
+        <Button variant="secondary" asChild>
+          <Link to={buildDealPath(deal)}>
+            <IconExternalLink className="size-4" />
+            {t('open-deal', 'Open deal')}
+          </Link>
+        </Button>
+      </div>
+      <div className="mt-4 flex flex-wrap gap-x-3 gap-y-2 text-sm text-muted-foreground">
+        {fromUser && (
+          <span className="inline-flex items-center gap-2">
+            <Avatar className="size-5">
+              <Avatar.Image
+                src={readImage(fromUser.details?.avatar || '')}
+                alt={actorName}
+              />
+              <Avatar.Fallback className="text-[10px]">
+                {actorName[0].toUpperCase()}
+              </Avatar.Fallback>
+            </Avatar>
+            {actorName}
+          </span>
+        )}
+        {action && <span>{action}</span>}
+        {createdAt && <RelativeDateDisplay.Value value={createdAt} />}
+      </div>
+    </header>
+  );
 };
 
 const SalesDealNotificationContent = ({
@@ -69,81 +143,78 @@ const SalesDealNotificationContent = ({
 
   const deal = data?.dealDetail;
 
+  if (loading) {
+    return (
+      <div className="flex min-h-dvh items-center justify-center">
+        <Spinner />
+      </div>
+    );
+  }
+
+  if (!deal) {
+    return (
+      <NotificationContentUnavailable
+        title={t('deal-not-found', 'Deal not found')}
+        description={t(
+          'deal-no-longer-available',
+          'This deal may have been removed or is no longer available.',
+        )}
+      />
+    );
+  }
+
   return (
-    <div className="flex flex-col gap-4 w-full max-w-md mx-auto justify-center items-center min-h-screen text-muted-foreground">
-      <div className="size-36 bg-sidebar rounded-2xl border-2 border-dashed flex flex-col items-center justify-center">
-        <IconBriefcase
-          size={64}
-          className="text-accent-foreground"
-          stroke={1}
+    <DealsProvider>
+      <div className="mx-auto flex min-h-dvh w-full max-w-3xl flex-col px-6">
+        <DealNotificationHeader
+          action={action}
+          createdAt={createdAt}
+          deal={deal}
+          fromUser={fromUser}
         />
-      </div>
-
-      <p className="font-bold text-lg text-foreground">{t('deal', 'Deal')}</p>
-
-      <div className="flex flex-col items-center gap-2 text-center">
-        <div className="flex items-center gap-2">
-          <Avatar className="size-6">
-            <Avatar.Image
-              src={readImage(fromUser?.details?.avatar || '')}
-              alt={getUserDisplayName(fromUser)}
-            />
-            <Avatar.Fallback className="rounded-lg text-xs">
-              {getUserDisplayName(fromUser)[0].toUpperCase()}
-            </Avatar.Fallback>
-          </Avatar>
-          <span className="font-semibold text-foreground">
-            {getUserDisplayName(fromUser)}
-          </span>
+        <div className="flex-1 py-4">
+          <Overview deal={deal} />
         </div>
-
-        <p className="flex flex-wrap items-baseline justify-center gap-1 text-foreground">
-          <span>{action || t('has-updated-deal', 'has updated deal')}</span>
-          {loading ? (
-            <Skeleton className="inline-block w-24 h-4 align-middle" />
-          ) : (
-            <span className="font-bold text-foreground">
-              {deal?.name || ''}
-            </span>
-          )}
-        </p>
       </div>
-
-      {createdAt && (
-        <p className="text-sm text-accent-foreground">
-          <RelativeDateDisplay.Value value={createdAt} />
-        </p>
-      )}
-
-      {!loading && deal && (
-        <Button variant="secondary" asChild>
-          <Link to={buildDealPath(deal)}>
-            <IconExternalLink className="size-4" />
-            {t('open-deal', 'Open deal')}
-          </Link>
-        </Button>
-      )}
-    </div>
+    </DealsProvider>
   );
 };
 
-const NotificationContentUnavailable = ({
+const SalesNoteNotificationContent = ({
+  createdAt,
+  fromUser,
+  message,
   title,
-  description,
-}: {
-  title: string;
-  description: string;
-}) => {
+}: TNotification) => {
+  const { t } = useTranslation('sales');
+  const actorName = getUserDisplayName(fromUser);
+
   return (
-    <div className="flex min-h-screen items-center justify-center p-6">
-      <div className="flex max-w-sm flex-col items-center text-center">
-        <div className="mb-4 flex size-12 items-center justify-center rounded-2xl bg-accent text-muted-foreground">
-          <IconInfoCircle className="size-5" />
+    <article className="mx-auto min-h-dvh w-full max-w-3xl px-6 py-8">
+      <div className="flex items-start gap-4 border-b pb-6">
+        <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-accent text-muted-foreground">
+          <IconNote className="size-6" />
         </div>
-        <h3 className="text-base font-medium text-foreground">{title}</h3>
-        <p className="mt-2 text-sm text-muted-foreground">{description}</p>
+        <div>
+          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            {t('note', 'Note')}
+          </p>
+          <h2 className="mt-1 text-2xl font-semibold text-foreground">
+            {title}
+          </h2>
+          <p className="mt-3 text-sm text-muted-foreground">
+            {fromUser ? actorName : t('system', 'System')}
+            {createdAt && (
+              <>
+                {' · '}
+                <RelativeDateDisplay.Value value={createdAt} />
+              </>
+            )}
+          </p>
+        </div>
       </div>
-    </div>
+      <p className="py-6 text-sm leading-6 text-foreground">{message}</p>
+    </article>
   );
 };
 
@@ -151,8 +222,12 @@ const NotificationsWidgets = (props: TNotification) => {
   const { t } = useTranslation('sales');
   const [, moduleName] = (props.contentType || '').replace(':', '.').split('.');
 
-  if (moduleName === 'deal') {
+  if (moduleName === 'deal' || moduleName === 'deals') {
     return <SalesDealNotificationContent {...props} />;
+  }
+
+  if (moduleName === 'note') {
+    return <SalesNoteNotificationContent {...props} />;
   }
 
   return (

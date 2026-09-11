@@ -1,32 +1,46 @@
-import { IconChalkboard, IconInfoCircle } from '@tabler/icons-react';
+import { IconBuildings, IconInfoCircle } from '@tabler/icons-react';
 import {
   Avatar,
-  Button,
   Empty,
   RelativeDateDisplay,
   Spinner,
   readImage,
 } from 'erxes-ui';
-import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router';
+import { ReactNode } from 'react';
 import { TNotification } from 'ui-modules';
-import { useChannel } from '~/widgets/notifications/my-inbox/hooks/useChannel';
 
-const getUserDisplayName = (fromUser: TNotification['fromUser']) =>
-  fromUser?.details?.fullName || fromUser?.email || 'Unknown user';
+type StructureDetailItem = {
+  label: string;
+  value?: ReactNode;
+};
 
-export const NotificationChannelContent = ({
+type StructureNotificationDetailProps = Pick<
+  TNotification,
+  'action' | 'createdAt' | 'fromUser'
+> & {
+  contentType: string;
+  details: StructureDetailItem[];
+  error?: { message: string };
+  loading: boolean;
+  name?: string;
+};
+
+/** Returns the best available human-readable name for a notification actor. */
+const getUserDisplayName = (
+  fromUser: StructureNotificationDetailProps['fromUser'],
+) => fromUser?.details?.fullName || fromUser?.email || 'Unknown user';
+
+/** Renders a structure entity with consistent loading, error, and detail states. */
+export const StructureNotificationDetail = ({
   action,
+  contentType,
   createdAt,
+  details,
+  error,
   fromUser,
-  fromUserId,
-  contentTypeId,
-  message,
-  title,
-}: TNotification) => {
-  const { t } = useTranslation('frontline');
-  const { channelDetail, loading, error } = useChannel(contentTypeId || '');
-
+  loading,
+  name,
+}: StructureNotificationDetailProps) => {
   if (loading) {
     return (
       <div className="flex min-h-dvh items-center justify-center">
@@ -35,7 +49,7 @@ export const NotificationChannelContent = ({
     );
   }
 
-  if (error || !channelDetail) {
+  if (error || !name) {
     return (
       <div className="flex min-h-dvh items-center justify-center p-6">
         <Empty>
@@ -43,17 +57,14 @@ export const NotificationChannelContent = ({
             <Empty.Media variant="icon">
               <IconInfoCircle />
             </Empty.Media>
-            <Empty.Title>
+            <Empty.Title className="capitalize">
               {error
-                ? t('failed-to-load-channel', 'Failed to load channel')
-                : t('channel-not-found', 'Channel not found')}
+                ? `Failed to load ${contentType}`
+                : `${contentType} not found`}
             </Empty.Title>
             <Empty.Description>
               {error?.message ||
-                t(
-                  'channel-no-longer-available',
-                  'This channel may have been removed or is no longer available.',
-                )}
+                `This ${contentType} may have been removed or is no longer available.`}
             </Empty.Description>
           </Empty.Header>
         </Empty>
@@ -61,18 +72,22 @@ export const NotificationChannelContent = ({
     );
   }
 
+  const visibleDetails = details.filter(
+    ({ value }) => value !== undefined && value !== null && value !== '',
+  );
+
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-3xl flex-col px-6 py-8">
-      <header className="flex items-start gap-4 border-b pb-6">
+      <div className="flex items-start gap-4 border-b pb-6">
         <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-accent text-muted-foreground">
-          <IconChalkboard className="size-6" />
+          <IconBuildings className="size-6" />
         </div>
         <div className="min-w-0 flex-1">
           <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            {t('channel-label', 'Channel')}
+            {contentType}
           </p>
           <h2 className="mt-1 break-words text-2xl font-semibold text-foreground">
-            {channelDetail.name}
+            {name}
           </h2>
           <div className="mt-3 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
             {fromUser && (
@@ -93,25 +108,20 @@ export const NotificationChannelContent = ({
             {createdAt && <RelativeDateDisplay.Value value={createdAt} />}
           </div>
         </div>
-      </header>
+      </div>
 
-      <section className="space-y-3 py-6">
-        <h3 className="text-lg font-medium text-foreground">{title}</h3>
-        <p className="text-sm leading-6 text-muted-foreground">{message}</p>
-      </section>
-
-      {fromUserId && (
-        <div>
-          <Button variant="secondary" asChild>
-            <Link to={`/settings/team-member?user_id=${fromUserId}`}>
-              {t('view-user', {
-                defaultValue: 'View {{name}}',
-                name: getUserDisplayName(fromUser),
-              })}
-            </Link>
-          </Button>
-        </div>
-      )}
+      <dl className="grid gap-x-8 gap-y-6 py-6 sm:grid-cols-2">
+        {visibleDetails.map(({ label, value }) => (
+          <div key={label} className="min-w-0 border-b pb-4">
+            <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              {label}
+            </dt>
+            <dd className="mt-1 break-words text-sm text-foreground">
+              {value}
+            </dd>
+          </div>
+        ))}
+      </dl>
     </div>
   );
 };

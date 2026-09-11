@@ -3,6 +3,9 @@ import { TaskSideWidgets } from '~/widgets/relation/TaskSideWidgets';
 import { TriageFields } from '@/triage/components/TriageFields';
 import { useGetTask } from '@/task/hooks/useGetTask';
 import { useGetTriage } from '@/triage/hooks/useGetTriage';
+import { Empty, Spinner } from 'erxes-ui';
+import { IconInfoCircle } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
 export const TaskDetails = ({
   taskId,
@@ -11,17 +14,60 @@ export const TaskDetails = ({
   taskId: string;
   checkTriage?: boolean;
 }) => {
-  const { task, loading: loadingTask } = useGetTask({
+  const { t } = useTranslation('operation');
+  const {
+    task,
+    loading: loadingTask,
+    error: taskError,
+  } = useGetTask({
     variables: { _id: taskId },
   });
 
-  const { triage } = useGetTriage({
+  const {
+    triage,
+    loading: loadingTriage,
+    error: triageError,
+  } = useGetTriage({
     variables: { _id: taskId },
     skip: !checkTriage || loadingTask,
   });
 
+  if (loadingTask || (checkTriage && loadingTriage)) {
+    return (
+      <div className="flex min-h-dvh items-center justify-center">
+        <Spinner />
+      </div>
+    );
+  }
+
   if (!task && !triage) {
-    return null;
+    const error = taskError || triageError;
+
+    return (
+      <div className="flex min-h-dvh items-center justify-center p-6">
+        <Empty>
+          <Empty.Header>
+            <Empty.Media variant="icon">
+              <IconInfoCircle />
+            </Empty.Media>
+            <Empty.Title>
+              {error
+                ? t('failed-to-load-task', {
+                    defaultValue: 'Failed to load task',
+                  })
+                : t('task-not-found', { defaultValue: 'Task not found' })}
+            </Empty.Title>
+            <Empty.Description>
+              {error?.message ||
+                t('task-no-longer-available', {
+                  defaultValue:
+                    'This task may have been removed or is no longer available.',
+                })}
+            </Empty.Description>
+          </Empty.Header>
+        </Empty>
+      </div>
+    );
   }
 
   return (
