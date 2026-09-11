@@ -14,8 +14,12 @@ import { useLocation, useNavigate } from 'react-router-dom';
 export const MainNavigationBar = () => {
   const activities = useNavigationActivities();
   const navigationGroups = usePluginsNavigationGroups();
-  const { isActivityPinned, setActivityPinned, visibleActivities } =
-    usePinnedNavigationActivities(activities);
+  const {
+    isActivityPinned,
+    setActivityPinned,
+    visibleActivities,
+    hiddenActivities,
+  } = usePinnedNavigationActivities(activities);
   const [activeActivityId, setActiveActivityId] = useAtom(activePluginState);
   const setSearchOpen = useSetAtom(globalSearchOpenState);
   const { pathname } = useLocation();
@@ -79,6 +83,7 @@ export const MainNavigationBar = () => {
         activities={activities}
         activeActivityId={isInboxActive ? null : activeActivity?.id || null}
         isInboxActive={isInboxActive}
+        hiddenActivities={hiddenActivities}
         isActivityPinned={isActivityPinned}
         isSettings={isSettings}
         mobileExpanded={!hasNavigationPanel}

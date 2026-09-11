@@ -43,6 +43,9 @@ export const usePinnedNavigationActivities = (
   const visibleActivities = activities.filter((activity) =>
     visibleActivityIdSet.has(activity.id),
   );
+  const hiddenActivities = activities.filter(
+    (activity) => !visibleActivityIdSet.has(activity.id),
+  );
 
   const setActivityPinned = useCallback(
     (activityId: string, pinned: boolean) => {
@@ -67,5 +70,6 @@ export const usePinnedNavigationActivities = (
     isActivityPinned,
     setActivityPinned,
     visibleActivities,
+    hiddenActivities,
   };
 };
