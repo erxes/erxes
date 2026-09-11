@@ -12,7 +12,10 @@ import type { HelpCenterConfig, PortalConfig } from './types';
 
 type ConfigResponse = { helpCenterGetConfigByDomain: HelpCenterConfig | null };
 
-const requestOrigin = async (): Promise<string> => {
+const isLocalHost = (host: string): boolean =>
+  host.startsWith('localhost') || host.startsWith('127.0.0.1');
+
+const requestOrigins = async (): Promise<string[]> => {
   const list = await headers();
 
   const host = list.get('x-forwarded-host') ?? list.get('host') ?? '';
@@ -23,16 +26,14 @@ const requestOrigin = async (): Promise<string> => {
   apiUrl = apiUrlForHost(host);
 
   if (!host) {
-    return '';
+    return [];
   }
 
-  const proto =
-    list.get('x-forwarded-proto') ??
-    (host.startsWith('localhost') || host.startsWith('127.0.0.1')
-      ? 'http'
-      : 'https');
+  if (isLocalHost(host)) {
+    return [`http://${host}`, `https://${host}`];
+  }
 
-  return `${proto}://${host}`;
+  return [`https://${host}`, `http://${host}`];
 };
 
 let appToken = '';
@@ -78,14 +79,36 @@ const cachedByDomain = unstable_cache(fetchConfig, ['portal-help-center'], {
   revalidate: CONFIG_TTL_SECONDS,
 });
 
+const configFor = async (
+  domain: string,
+): Promise<PortalResult<PortalConfig>> => {
+  const cached = await cachedByDomain(domain);
+
+  return cached.state === 'error' ? await fetchConfig(domain) : cached;
+};
+
 export const getPortalConfig = async (): Promise<
   PortalResult<PortalConfig>
 > => {
-  const domain = await requestOrigin();
+  const domains = await requestOrigins();
 
-  const cached = await cachedByDomain(domain);
+  if (!domains.length) {
+    return { state: 'error', message: 'This request carried no host header.' };
+  }
 
-  const result = cached.state === 'error' ? await fetchConfig(domain) : cached;
+  let result = await configFor(domains[0]);
+
+  for (const domain of domains.slice(1)) {
+    if (result.state === 'ready') {
+      break;
+    }
+
+    const next = await configFor(domain);
+
+    if (next.state === 'ready' || result.state !== 'error') {
+      result = next;
+    }
+  }
 
   if (result.state === 'ready') {
     appToken = result.data.appToken;
