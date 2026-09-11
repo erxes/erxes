@@ -8,7 +8,44 @@ const allowTypes: Record<string, string[]> = {
   'pos:order': ['synced'],
   'sales:deal': ['update'],
 };
+const handlePosOrder = async (
+  subdomain: string,
+  models: any,
+  updatedDocument: any,
+  object: any,
+  syncLogDoc: any,
+  configsMap: Record<string, any>,
+) => {
+  const updatedDoc = updatedDocument || object;
+  let brandId = updatedDoc?.scopeBrandIds?.[0];
 
+  if (!brandId && updatedDoc?.posId) {
+    const pos = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'sales',
+      module: 'pos',
+      action: 'findOne',
+      input: {
+        query: { _id: updatedDoc.posId },
+      },
+      defaultValue: null,
+    });
+
+    brandId = pos?.scopeBrandIds?.[0];
+  }
+
+  const config = configsMap[brandId || 'noBrand'];
+
+  if (!config || config.useBoard) {
+    return;
+  }
+
+  const syncLog = await models.SyncLogsMSD.syncLogsAdd(syncLogDoc);
+
+  await orderToDynamic(subdomain, models, syncLog, updatedDoc, config, brandId);
+
+  return syncLog;
+};
 export const afterMutationHandlers = async (subdomain: string, params: any) => {
   const { type, action, user, object, updatedDocument } = params;
 
@@ -24,17 +61,14 @@ export const afterMutationHandlers = async (subdomain: string, params: any) => {
     return;
   }
 
-  const configsMap = dynamicConfigs.reduce(
-    (acc, conf) => {
-      const sub = conf.subId || 'noBrand';
-      acc[sub] = conf.value;
-      if (sub === 'noBrand' && typeof conf.value === 'object') {
-        Object.assign(acc, conf.value);
-      }
-      return acc;
-    },
-    {} as Record<string, any>,
-  );
+  const configsMap = dynamicConfigs.reduce((acc, conf) => {
+    const sub = conf.subId || 'noBrand';
+    acc[sub] = conf.value;
+    if (sub === 'noBrand' && typeof conf.value === 'object') {
+      Object.assign(acc, conf.value);
+    }
+    return acc;
+  }, {} as Record<string, any>);
 
   const contentId = updatedDocument?._id || object?._id;
 
@@ -92,38 +126,14 @@ export const afterMutationHandlers = async (subdomain: string, params: any) => {
       }
 
       case 'pos:order': {
-        syncLog = await models.SyncLogsMSD.syncLogsAdd(syncLogDoc);
-
-        const updatedDoc = updatedDocument || object;
-        let brandId = updatedDoc?.scopeBrandIds?.[0];
-
-        if (!brandId && updatedDoc?.posId) {
-          const pos = await sendTRPCMessage({
-            subdomain,
-            pluginName: 'sales',
-            module: 'pos',
-            action: 'findOne',
-            input: {
-              query: { _id: updatedDoc.posId },
-            },
-            defaultValue: null,
-          });
-
-          brandId = pos?.scopeBrandIds?.[0];
-        }
-
-        const config = configsMap[brandId || 'noBrand'];
-
-        if (config && !config.useBoard) {
-          await orderToDynamic(
-            subdomain,
-            models,
-            syncLog,
-            updatedDoc,
-            config,
-            brandId,
-          );
-        }
+        syncLog = await handlePosOrder(
+          subdomain,
+          models,
+          updatedDocument,
+          object,
+          syncLogDoc,
+          configsMap,
+        );
 
         break;
       }
