@@ -1,5 +1,6 @@
 import { CoreNotificationContent } from '@/notification/components/contents/CoreNotificationContent';
 import { NoNotificationSelected } from '@/notification/components/NoNotificationSelected';
+import { UnknownSystemNotificationContent } from '@/notification/components/contents/system/UnknownSystemNotificationContent';
 import { useNotification } from '@/notification/hooks/useNotification';
 import { ScrollArea, Spinner } from 'erxes-ui';
 import {
@@ -52,7 +53,15 @@ const NotificationContentWrapper = ({
     const CoreNotificationComponent =
       CoreNotificationContent[
         contentName as keyof typeof CoreNotificationContent
-      ] ?? (() => <></>);
+      ];
+
+    if (!CoreNotificationComponent) {
+      return (
+        <UnknownSystemNotificationContent
+          contentType={notification.contentType}
+        />
+      );
+    }
 
     return <CoreNotificationComponent {...notification} />;
   }

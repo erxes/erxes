@@ -24,6 +24,14 @@ const DepartmentNotificationContent = lazy(() =>
   })),
 );
 
+const PositionNotificationContent = lazy(() =>
+  import(
+    '@/notification/components/contents/structure/PositionNotificationContent'
+  ).then((module) => ({
+    default: module.PositionNotificationContent,
+  })),
+);
+
 const ExportNotificationContent = lazy(() =>
   import(
     '@/notification/components/contents/import-export/export/components/ExportNotificationContent'
@@ -53,6 +61,7 @@ export const CoreNotificationContent = {
   approval: ApprovalNotificationContent,
   branch: BranchNotificationContent,
   department: DepartmentNotificationContent,
+  position: PositionNotificationContent,
   exports: ExportNotificationContent,
   imports: ImportNotificationContent,
 };

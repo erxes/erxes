@@ -1,6 +1,7 @@
 import { useBranchDetailsById } from '@/settings/structure/hooks/useBranchDetailsById';
 import { TNotification } from 'ui-modules';
 import { StructureNotificationDetail } from './StructureNotificationDetail';
+import { StructureUserName } from './StructureReferenceName';
 
 export const BranchNotificationContent = ({
   action,
@@ -8,7 +9,7 @@ export const BranchNotificationContent = ({
   fromUser,
   contentTypeId,
 }: TNotification) => {
-  const { branchDetail, loading } = useBranchDetailsById({
+  const { branchDetail, loading, error } = useBranchDetailsById({
     variables: { id: contentTypeId },
   });
   const coordinate = branchDetail?.coordinate;
@@ -16,6 +17,7 @@ export const BranchNotificationContent = ({
   return (
     <StructureNotificationDetail
       action={action}
+      error={error}
       loading={loading}
       name={branchDetail?.title}
       contentType="branch"
@@ -28,11 +30,16 @@ export const BranchNotificationContent = ({
         { label: 'Email', value: branchDetail?.email },
         { label: 'Phone number', value: branchDetail?.phoneNumber },
         { label: 'Members', value: branchDetail?.userCount },
-        { label: 'Supervisor', value: branchDetail?.supervisorId },
+        {
+          label: 'Supervisor',
+          value: branchDetail?.supervisorId ? (
+            <StructureUserName userId={branchDetail.supervisorId} />
+          ) : undefined,
+        },
         {
           label: 'Coordinates',
           value:
-            coordinate?.latitude && coordinate?.longitude
+            coordinate?.latitude != null && coordinate?.longitude != null
               ? `${coordinate.latitude}, ${coordinate.longitude}`
               : undefined,
         },

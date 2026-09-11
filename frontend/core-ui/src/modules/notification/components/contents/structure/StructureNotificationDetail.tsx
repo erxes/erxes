@@ -1,5 +1,11 @@
 import { IconBuildings, IconInfoCircle } from '@tabler/icons-react';
-import { Avatar, RelativeDateDisplay, Spinner, readImage } from 'erxes-ui';
+import {
+  Avatar,
+  Empty,
+  RelativeDateDisplay,
+  Spinner,
+  readImage,
+} from 'erxes-ui';
 import { ReactNode } from 'react';
 import { TNotification } from 'ui-modules';
 
@@ -14,19 +20,23 @@ type StructureNotificationDetailProps = Pick<
 > & {
   contentType: string;
   details: StructureDetailItem[];
+  error?: { message: string };
   loading: boolean;
   name?: string;
 };
 
+/** Returns the best available human-readable name for a notification actor. */
 const getUserDisplayName = (
   fromUser: StructureNotificationDetailProps['fromUser'],
 ) => fromUser?.details?.fullName || fromUser?.email || 'Unknown user';
 
+/** Renders a structure entity with consistent loading, error, and detail states. */
 export const StructureNotificationDetail = ({
   action,
   contentType,
   createdAt,
   details,
+  error,
   fromUser,
   loading,
   name,
@@ -39,20 +49,25 @@ export const StructureNotificationDetail = ({
     );
   }
 
-  if (!name) {
+  if (error || !name) {
     return (
-      <div className="flex min-h-dvh items-center justify-center p-6 text-center">
-        <div className="max-w-sm">
-          <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-2xl bg-accent text-muted-foreground">
-            <IconInfoCircle className="size-5" />
-          </div>
-          <h3 className="text-base font-medium capitalize text-foreground">
-            {contentType} not found
-          </h3>
-          <p className="mt-2 text-sm text-muted-foreground">
-            This {contentType} may have been removed or is no longer available.
-          </p>
-        </div>
+      <div className="flex min-h-dvh items-center justify-center p-6">
+        <Empty>
+          <Empty.Header>
+            <Empty.Media variant="icon">
+              <IconInfoCircle />
+            </Empty.Media>
+            <Empty.Title className="capitalize">
+              {error
+                ? `Failed to load ${contentType}`
+                : `${contentType} not found`}
+            </Empty.Title>
+            <Empty.Description>
+              {error?.message ||
+                `This ${contentType} may have been removed or is no longer available.`}
+            </Empty.Description>
+          </Empty.Header>
+        </Empty>
       </div>
     );
   }
@@ -62,7 +77,7 @@ export const StructureNotificationDetail = ({
   );
 
   return (
-    <div className="mx-auto flex min-h-dvh w-full max-w-4xl flex-col px-6 py-8">
+    <div className="mx-auto flex min-h-dvh w-full max-w-3xl flex-col px-6 py-8">
       <div className="flex items-start gap-4 border-b pb-6">
         <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-accent text-muted-foreground">
           <IconBuildings className="size-6" />

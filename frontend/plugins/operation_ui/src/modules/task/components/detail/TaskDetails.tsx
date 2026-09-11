@@ -51,7 +51,11 @@ export const TaskDetails = ({
               <IconInfoCircle />
             </Empty.Media>
             <Empty.Title>
-              {t('task-not-found', { defaultValue: 'Task not found' })}
+              {error
+                ? t('failed-to-load-task', {
+                    defaultValue: 'Failed to load task',
+                  })
+                : t('task-not-found', { defaultValue: 'Task not found' })}
             </Empty.Title>
             <Empty.Description>
               {error?.message ||

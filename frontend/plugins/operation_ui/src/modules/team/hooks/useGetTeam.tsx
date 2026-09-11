@@ -4,17 +4,15 @@ import { ITeam } from '@/team/types';
 
 interface IUseGetTeamResponse {
   getTeam: ITeam;
-  loading: boolean;
-  refetch: any;
 }
 
 export const useGetTeam = (options?: QueryHookOptions<IUseGetTeamResponse>) => {
-  const { data, loading, refetch } = useQuery<IUseGetTeamResponse>(
+  const { data, loading, refetch, error } = useQuery<IUseGetTeamResponse>(
     GET_TEAM,
     options,
   );
 
   const team = data?.getTeam;
 
-  return { team, loading, refetch };
+  return { team, loading, refetch, error };
 };

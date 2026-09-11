@@ -25,7 +25,9 @@ export const TicketDetails = ({ ticketId }: { ticketId: string }) => {
               <IconInfoCircle />
             </Empty.Media>
             <Empty.Title>
-              {t('ticket-not-found', 'Ticket not found')}
+              {error
+                ? t('failed-to-load-ticket', 'Failed to load ticket')
+                : t('ticket-not-found', 'Ticket not found')}
             </Empty.Title>
             <Empty.Description>
               {error?.message ||
