@@ -13,6 +13,7 @@ import { cn, Sidebar } from 'erxes-ui';
 export const NavigationActivityRail = ({
   activities,
   activeActivityId,
+  hiddenActivities,
   isInboxActive,
   isActivityPinned,
   isSettings,
@@ -25,6 +26,7 @@ export const NavigationActivityRail = ({
 }: Readonly<{
   activities: INavigationActivity[];
   activeActivityId: string | null;
+  hiddenActivities: INavigationActivity[];
   isInboxActive: boolean;
   isActivityPinned: (activityId: string) => boolean;
   isSettings: boolean;
@@ -38,8 +40,9 @@ export const NavigationActivityRail = ({
   const { isMobile, state } = Sidebar.useSidebar();
   const expanded = isMobile ? mobileExpanded : state === 'expanded';
   const hoverEnabled = !expanded && !isMobile;
-  const { promoted, rest } = splitPromotedNavigationActivities(activities);
+  const { promoted } = splitPromotedNavigationActivities(activities);
   const visibleRest = splitPromotedNavigationActivities(visibleActivities).rest;
+  const hiddenRest = splitPromotedNavigationActivities(hiddenActivities).rest;
   const usePromotedRail = promoted.length > 0;
 
   return (
@@ -101,7 +104,7 @@ export const NavigationActivityRail = ({
           onSelectActivity={onSelectActivity}
         />
         <NavigationActivityMore
-          activities={usePromotedRail ? rest : activities}
+          activities={usePromotedRail ? hiddenRest : hiddenActivities}
           expanded={expanded}
           isActivityPinned={isActivityPinned}
           onPinnedChange={onActivityPinnedChange}
