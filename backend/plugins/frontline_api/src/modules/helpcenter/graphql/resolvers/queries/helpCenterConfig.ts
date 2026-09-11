@@ -1,6 +1,7 @@
 import { Resolver } from 'erxes-api-shared/core-types';
 import { defaultPaginate } from 'erxes-api-shared/utils';
-import { IContext } from '~/connectionResolvers';
+import { normalizeHelpCenterUrl } from '@/helpcenter/utils/helpCenterConfig';
+import { IContext, IModels } from '~/connectionResolvers';
 
 export interface IListArgs {
   page?: number;
@@ -32,6 +33,24 @@ const buildQuery = ({ searchValue, brandId }: IListArgs) => {
   }
 
   return query;
+};
+
+const getByHost = async (models: IModels, req: IContext['req']) => {
+  const origin = normalizeHelpCenterUrl(req.headers.origin);
+
+  if (!origin) {
+    throw new Error('Not found');
+  }
+
+  const config = await models.HelpCenterConfigs.findOne({
+    url: { $regex: `^${escapeRegExp(origin)}(?:/|$)`, $options: 'i' },
+  });
+
+  if (!config) {
+    throw new Error('Not found');
+  }
+
+  return config;
 };
 
 export const helpCenterConfigQueries: Record<
@@ -73,12 +92,8 @@ export const helpCenterConfigQueries: Record<
     return models.HelpCenterConfigs.countDocuments(buildQuery(args));
   },
 
-  async helpCenterGetConfigByDomain(
-    _root,
-    { domain }: { domain: string },
-    { models }: IContext,
-  ) {
-    return models.HelpCenterConfigs.getConfigByDomain(domain);
+  async helpCenterGetConfigByDomain(_root, _args, { models, req }: IContext) {
+    return getByHost(models, req);
   },
 };
 

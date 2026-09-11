@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-09-10`
+- **Last synchronized:** `2026-09-11`
 
 ## Scope
 
@@ -186,15 +186,21 @@
   `helpCenterConfigUpdate(config: HelpCenterConfigInput!)` (create-or-update,
   keyed on `config._id`) and `helpCenterConfigRemove(_id)`. Reads check
   `showHelpCenter`, writes check `helpCenterManage`.
-- GraphQL: `helpCenterGetConfigByDomain(domain: String!): HelpCenterConfig` —
-  the published site's own bootstrap read, the help center counterpart of
-  core's client portal lookup. It is the **one public operation in this
-  module** (`wrapperConfig.skipPermission`): the site calling it has no staff
-  user, no `cpUser` and no client portal header yet, because the domain is how
-  it discovers which help center it is. It matches `url` — the client portal
-  domain the config stores — after the same normalization the write path
-  applies, and returns `null` for a domain no help center claims. Never add a
-  permission check to it and never widen it into a list.
+- GraphQL: `helpCenterGetConfigByDomain(clientPortalName: String): HelpCenterConfig` —
+  the published site's own bootstrap read, the help center counterpart of the
+  1.x `clientPortalGetConfigByDomain` lookup. It is the **one public operation
+  in this module** (`wrapperConfig.skipPermission`): the site calling it has no
+  staff user, no `cpUser` and no client portal header yet, because the domain
+  is how it discovers which help center it is. Like the 1.x signature it
+  mirrors, `clientPortalName` is accepted but not read: the query resolver's
+  `getByHost` takes the domain from the request's `Origin` header alone, so a
+  server-side caller must set that header itself. After the same
+  normalization the write path applies, it returns the config whose `url`
+  starts with that origin (escaped, case-insensitive, ending at a `/` or the
+  end of the string), and throws `Not found` when no origin was supplied or no
+  help center claims it. Never add a permission check to it, never drop the
+  regex escape or the empty-origin guard (an empty pattern matches every
+  config), and never widen it into a list.
 - GraphQL: `HelpCenterConfig.brand` resolves the federated `Brand`; its
   `kbTopic` resolves the `KnowledgeBaseTopic` named by `kbTopicId`.
 - Nothing in this module is named `clientPortal*`, and it must stay that way.
@@ -660,7 +666,8 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   Never resolve it through a cross-service call to make it live.
 - A domain is matched against a config's `url` through one helper,
   `normalizeHelpCenterUrl` in `helpcenter/utils/helpCenterConfig.ts`, used by
-  both `normalizeHelpCenterConfig` on write and `getConfigByDomain` on read. The
+  both `normalizeHelpCenterConfig` on write and the query resolver's
+  `getByHost` on read. The
   two sides must normalize identically or a site's own domain stops finding its
   config — never re-derive the trim/trailing-slash rule at a call site.
 - `normalizeHelpCenterConfig` is the only validation gate for a config: it
@@ -1547,10 +1554,10 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   pipeline's rows are narrowed to the current user, other pipelines are intact.
 - No `test` target is defined in `project.json`; do not invent one.
 - Smoke (help center by domain): query
-  `helpCenterGetConfigByDomain(domain: "<a config's website>")` with no
-  authorization header — it must return that config, return `null` for an
-  unknown domain, and behave the same whether or not the domain carries a
-  trailing slash.
+  `helpCenterGetConfigByDomain` with no authorization header and an
+  `Origin: <a config's website origin>` header — it must return that config
+  whether or not the stored website carries a path or trailing slash, and an
+  unknown or missing `Origin` must fail with `Not found`.
 - Smoke (help center): open `/frontline/helpcenter`, save a name/website change
   from the drawer's General tab and a colour from its Appearance tab, reload —
   the values persist and the network tab shows `helpCenterConfig` and
@@ -1600,6 +1607,22 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-11` — The help center finds its config from the request origin
+
+- **Summary:** `helpCenterGetConfigByDomain` now follows the 1.x
+  `clientPortalGetConfigByDomain` lookup through a `getByHost` helper: it reads
+  only the request's `Origin` header, matches a config whose `url` starts with
+  that origin, and throws `Not found` instead of returning `null`.
+- **Affected areas:**
+  `src/modules/helpcenter/db/models/HelpCenterConfig.ts`,
+  `src/modules/helpcenter/graphql/resolvers/queries/helpCenterConfig.ts`,
+  `src/modules/helpcenter/graphql/schemas/helpCenterConfig.ts`
+- **Contracts changed:** `helpCenterGetConfigByDomain(domain: String!)` became
+  `helpCenterGetConfigByDomain(clientPortalName: String)`, so a caller still
+  sending `domain` fails validation; an unknown or missing `Origin` is now a
+  `Not found` error rather than `null`. The
+  `HelpCenterConfigs.getConfigByDomain` model method is removed.
 
 ### `2026-09-10` — A tap stopped counting as a direct message
 
@@ -1712,15 +1735,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `widgetTicketComments` and `widgetTicketCommentAdd` return `TicketNote`
   instead of `Note`. Field names and arguments are unchanged, so a document that
   selects fields without naming the type needs no edit.
-
-### `2026-09-10` — The help center search escape uses a raw string
-
-- **Summary:** A poll can now carry a `brandId`; the client-portal submit path and
-  `pollSendToConversation` honour it, and create/update refuse a brand that has no
-  active messenger integration in the poll's channel — removing the arbitrary
-  `findOne` pick on a channel with several messenger integrations.
-- **Affected areas:** `src/modules/poll/{@types/poll.ts,db/definitions/polls.ts,db/models/Polls.ts}`,
-  `src/modules/poll/graphql/schema/poll.ts`,
-  `src/modules/poll/graphql/resolvers/mutations/{polls.ts,clientPortal.ts}`.
-- **Contracts changed:** Added `brandId: String` to `pollAdd`, `pollEdit` and the
-  `Poll` type.

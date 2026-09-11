@@ -111,7 +111,7 @@ export const queries = `
   helpCenterConfig(_id: String!): HelpCenterConfig
   helpCenterConfigs(page: Int, perPage: Int, searchValue: String, brandId: String): [HelpCenterConfig]
   helpCenterConfigsTotalCount(searchValue: String, brandId: String): Int
-  helpCenterGetConfigByDomain(domain: String!): HelpCenterConfig
+  helpCenterGetConfigByDomain(clientPortalName: String): HelpCenterConfig
 `;
 
 export const mutations = `
