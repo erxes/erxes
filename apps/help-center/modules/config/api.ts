@@ -7,6 +7,12 @@ import {
 } from '@/modules/apollo/utils/env';
 import { errorMessage, type PortalResult } from '@/modules/apollo/utils/result';
 import { HELP_CENTER_CONFIG_BY_DOMAIN } from './graphql/queries/helpCenterConfig';
+import {
+  readScopedApiUrl,
+  readScopedAppToken,
+  writeScopedApiUrl,
+  writeScopedAppToken,
+} from './requestScope';
 import { normalizeConfig } from './utils/normalize';
 import type { HelpCenterConfig, PortalConfig } from './types';
 
@@ -20,7 +26,7 @@ const requestOrigin = async (): Promise<string> => {
   // A SaaS gateway is addressed per tenant, and this is the first thing the
   // server reads from a request, so the address is resolved from this host for
   // everything the request goes on to ask for.
-  apiUrl = apiUrlForHost(host);
+  writeScopedApiUrl(apiUrlForHost(host));
 
   if (!host) {
     return '';
@@ -35,10 +41,8 @@ const requestOrigin = async (): Promise<string> => {
   return `${proto}://${host}`;
 };
 
-let appToken = '';
-let apiUrl = '';
-
 const fetchConfig = async (
+  apiUrl: string,
   domain: string,
 ): Promise<PortalResult<PortalConfig>> => {
   if (!apiUrl) {
@@ -54,6 +58,7 @@ const fetchConfig = async (
       query: HELP_CENTER_CONFIG_BY_DOMAIN,
       variables: { domain },
       errorPolicy: 'all',
+      context: { apiUrl },
     });
 
     if (error) {
@@ -74,21 +79,24 @@ const fetchConfig = async (
 
 const CONFIG_TTL_SECONDS = 60;
 
-const cachedByDomain = unstable_cache(fetchConfig, ['portal-help-center'], {
-  revalidate: CONFIG_TTL_SECONDS,
-});
+const cachedByDomain = (apiUrl: string, domain: string) =>
+  unstable_cache(fetchConfig, ['portal-help-center'], {
+    revalidate: CONFIG_TTL_SECONDS,
+  })(apiUrl, domain);
 
 export const getPortalConfig = async (): Promise<
   PortalResult<PortalConfig>
 > => {
   const domain = await requestOrigin();
+  const apiUrl = readScopedApiUrl();
 
-  const cached = await cachedByDomain(domain);
+  const cached = await cachedByDomain(apiUrl, domain);
 
-  const result = cached.state === 'error' ? await fetchConfig(domain) : cached;
+  const result =
+    cached.state === 'ready' ? cached : await fetchConfig(apiUrl, domain);
 
   if (result.state === 'ready') {
-    appToken = result.data.appToken;
+    writeScopedAppToken(result.data.appToken);
   }
 
   return result;
@@ -100,5 +108,5 @@ export const readConfig = async (): Promise<PortalConfig | null> => {
   return result.state === 'ready' ? result.data : null;
 };
 
-setAppTokenReader(() => appToken);
-setResolvedApiUrlReader(() => apiUrl);
+setAppTokenReader(() => readScopedAppToken());
+setResolvedApiUrlReader(() => readScopedApiUrl());
