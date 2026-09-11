@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   IconArrowRight,
   IconChevronDown,
@@ -22,6 +23,8 @@ export const ActiveExports = ({
   selectionCount?: number;
   onStartExport: () => void;
 }) => {
+  const { t } = useTranslation('importExport');
+
   const { activeExports, handleRetry, loading } = useActiveExports({
     entityType,
   });
@@ -34,22 +37,23 @@ export const ActiveExports = ({
   return (
     <div className="space-y-5">
       <div className="flex items-start gap-3">
-        <div className="rounded-xl bg-primary/10 p-2.5 text-primary">
+        <div className="shrink-0 rounded-xl bg-primary/10 p-2.5 text-primary">
           <IconDownload className="size-5" />
         </div>
-        <div className="space-y-2">
+        <div className="min-w-0 space-y-2">
           <div className="flex flex-wrap items-center gap-2">
             <h3 className="text-base font-semibold">
-              Export {entityDisplayName}
+              {t('export-entity', { entity: entityDisplayName })}
             </h3>
-            <Badge variant="info">CSV file</Badge>
+            <Badge variant="info">{t('csv-file')}</Badge>
             {activeCount > 0 && (
-              <Badge variant="secondary">{activeCount} active</Badge>
+              <Badge variant="secondary">
+                {t('active-count', { total: activeCount })}
+              </Badge>
             )}
           </div>
           <p className="text-sm text-muted-foreground">
-            Create a CSV with the fields you choose, then download it once the
-            file is ready.
+            {t('export-popover-description')}
           </p>
         </div>
       </div>
@@ -59,25 +63,30 @@ export const ActiveExports = ({
           <div>
             <p className="text-sm font-medium">
               {hasSelection
-                ? `Export ${selectionCount} selected ${entityDisplayName.toLowerCase()}`
-                : `Export the ${entityDisplayName.toLowerCase()} in this view`}
+                ? t('export-selected', {
+                    total: selectionCount,
+                    entity: entityDisplayName.toLowerCase(),
+                  })
+                : t('export-in-view', {
+                    entity: entityDisplayName.toLowerCase(),
+                  })}
             </p>
             <p className="text-xs text-muted-foreground">
               {hasSelection
-                ? 'Only the currently selected records will be included.'
-                : 'We will use the records currently visible with your applied filters.'}
+                ? t('export-selected-hint')
+                : t('export-in-view-hint')}
             </p>
           </div>
-          <Button onClick={onStartExport}>Choose fields</Button>
+          <Button onClick={onStartExport}>{t('choose-fields')}</Button>
         </div>
       </div>
 
       <div className="space-y-2">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <p className="text-sm font-medium">Recent exports</p>
+            <p className="text-sm font-medium">{t('recent-exports')}</p>
             <p className="text-xs text-muted-foreground">
-              Download completed files or retry failed exports.
+              {t('recent-exports-description')}
             </p>
           </div>
           {activeExports.length > 0 && (
@@ -96,10 +105,9 @@ export const ActiveExports = ({
                 <IconHistory className="size-4 text-muted-foreground" />
               </div>
               <div>
-                <p className="text-sm font-medium">No recent exports yet</p>
+                <p className="text-sm font-medium">{t('no-recent-exports')}</p>
                 <p className="text-xs text-muted-foreground">
-                  Your generated CSV files will show up here so you can download
-                  them again or keep track of export progress.
+                  {t('no-recent-exports-description')}
                 </p>
               </div>
             </div>
@@ -117,7 +125,7 @@ export const ActiveExports = ({
 
       <Button asChild variant="outline" className="w-full justify-between">
         <Link to="/settings/import-export/export">
-          Open export history
+          {t('open-export-history')}
           <IconArrowRight className="size-4" />
         </Link>
       </Button>
@@ -138,6 +146,8 @@ export const ActiveExportsPopover = ({
   selectionCount?: number;
   onStartExport: () => void;
 }) => {
+  const { t } = useTranslation('importExport');
+
   return (
     <Popover>
       <Popover.Trigger asChild>

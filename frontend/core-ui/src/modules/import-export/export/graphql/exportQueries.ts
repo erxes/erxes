@@ -6,8 +6,8 @@ import {
 } from 'erxes-ui';
 
 export const GET_EXPORT_HISTORIES = gql`
-  query ExportHistories($entityTypes: [String], ${GQL_CURSOR_PARAM_DEFS}) {
-    exportHistories(entityTypes: $entityTypes, ${GQL_CURSOR_PARAMS}) {
+  query ExportHistories($entityTypes: [String], $status: String, ${GQL_CURSOR_PARAM_DEFS}) {
+    exportHistories(entityTypes: $entityTypes, status: $status, ${GQL_CURSOR_PARAMS}) {
       list {
         _id
         entityType
@@ -15,7 +15,6 @@ export const GET_EXPORT_HISTORIES = gql`
         status
         totalRows
         processedRows
-        fileFormat
         fileKey
         filters
         ids

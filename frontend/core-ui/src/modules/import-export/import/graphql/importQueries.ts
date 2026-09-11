@@ -6,8 +6,8 @@ import {
 } from 'erxes-ui';
 
 export const GET_IMPORT_HISTORIES = gql`
-  query ImportHistories($entityTypes: [String], ${GQL_CURSOR_PARAM_DEFS}) {
-    importHistories(entityTypes: $entityTypes, ${GQL_CURSOR_PARAMS}) {
+  query ImportHistories($entityTypes: [String], $status: String, ${GQL_CURSOR_PARAM_DEFS}) {
+    importHistories(entityTypes: $entityTypes, status: $status, ${GQL_CURSOR_PARAMS}) {
       list {
         _id
         entityType

@@ -20,6 +20,20 @@ export const importSchema = schemaWrapper(
       },
       fileKey: { type: String, required: true, label: 'File Key' },
       fileName: { type: String, required: true, label: 'File Name' },
+      columnMapping: {
+        type: [
+          new Schema(
+            {
+              index: { type: Number, required: true },
+              header: { type: String, default: '' },
+              key: { type: String, required: true },
+            },
+            { _id: false },
+          ),
+        ],
+        default: [],
+        label: 'Column Mapping',
+      },
       status: {
         type: String,
         enum: [

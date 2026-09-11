@@ -5,11 +5,17 @@ const capitalize = (value: string) =>
   value.charAt(0).toUpperCase() + value.slice(1);
 
 const pluralize = (value: string) => {
+  // Collection names are already plural more often than not (`customers`,
+  // `companies`), and pluralizing those again produced `customerses`.
+  if (value.endsWith('s')) {
+    return value;
+  }
+
   if (value.endsWith('y') && !/[aeiou]y$/i.test(value)) {
     return `${value.slice(0, -1)}ies`;
   }
 
-  if (/(s|x|z|ch|sh)$/i.test(value)) {
+  if (/(x|z|ch|sh)$/i.test(value)) {
     return `${value}es`;
   }
 

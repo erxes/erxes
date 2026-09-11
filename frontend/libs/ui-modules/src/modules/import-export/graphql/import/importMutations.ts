@@ -5,11 +5,13 @@ export const START_IMPORT = gql`
     $entityType: String!
     $fileKey: String!
     $fileName: String!
+    $columnMapping: [ImportColumnMappingInput]
   ) {
     importStart(
       entityType: $entityType
       fileKey: $fileKey
       fileName: $fileName
+      columnMapping: $columnMapping
     ) {
       _id
       entityType

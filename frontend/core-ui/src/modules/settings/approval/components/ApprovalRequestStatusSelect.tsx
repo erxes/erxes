@@ -1,6 +1,8 @@
 import { ApprovalRequestStatusFilter } from '@/settings/approval/hooks/useApprovalRequests';
+import { IconClock, IconListDetails } from '@tabler/icons-react';
 import { Select, useMultiQueryState } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { APPROVAL_REQUEST_STATUS_META } from './approvalRequestUtils';
 
 const STATUS_FILTERS: ApprovalRequestStatusFilter[] = [
   'all',
@@ -11,6 +13,13 @@ const STATUS_FILTERS: ApprovalRequestStatusFilter[] = [
 ];
 
 const DEFAULT_STATUS: ApprovalRequestStatusFilter = 'pending';
+
+// 'all' is a filter rather than a status, so it is the one icon the shared
+// status meta cannot supply.
+const getStatusIcon = (filter: ApprovalRequestStatusFilter): typeof IconClock =>
+  filter === 'all'
+    ? IconListDetails
+    : APPROVAL_REQUEST_STATUS_META[filter].icon;
 
 export const useApprovalRequestStatus = () => {
   const [queryParams, setQueryParams] = useMultiQueryState<{ status: string }>([
@@ -38,15 +47,22 @@ export const ApprovalRequestStatusSelect = () => {
       value={status}
       onValueChange={(next) => setStatus(next as ApprovalRequestStatusFilter)}
     >
-      <Select.Trigger className="h-8 w-40">
+      <Select.Trigger className="h-8 w-auto gap-1 shadow-none hover:bg-accent-foreground/10">
         <Select.Value />
       </Select.Trigger>
       <Select.Content>
-        {STATUS_FILTERS.map((filter) => (
-          <Select.Item key={filter} value={filter}>
-            {t(`status-filter-${filter}`)}
-          </Select.Item>
-        ))}
+        {STATUS_FILTERS.map((filter) => {
+          const Icon = getStatusIcon(filter);
+
+          return (
+            <Select.Item key={filter} value={filter}>
+              <span className="flex items-center gap-2">
+                <Icon className="size-4 text-muted-foreground" />
+                {t(`status-filter-${filter}`)}
+              </span>
+            </Select.Item>
+          );
+        })}
       </Select.Content>
     </Select>
   );

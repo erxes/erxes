@@ -1,29 +1,8 @@
 import { IModels } from '~/connectionResolvers';
-import { extractPropertiesData } from '~/meta/import-export/utils';
-
-const generateTagIds = async (models: IModels, tags: string = '') => {
-  const tagNames = tags.split(',');
-
-  const tagIds = await Promise.all(
-    tagNames.map(async (tagName: string) => {
-      const existingTag = await models.Tags.findOne({
-        name: tagName,
-        type: `core:customer`,
-      }).lean();
-
-      if (!existingTag) {
-        const createdTag = await models.Tags.createTag({
-          name: tagName,
-          type: `core:customer`,
-        });
-        return createdTag._id;
-      }
-
-      return existingTag?._id;
-    }),
-  );
-  return tagIds;
-};
+import {
+  extractPropertiesData,
+  resolveImportTagIds,
+} from '~/meta/import-export/utils';
 
 export async function prepareCustomerDoc(
   models: IModels,
@@ -46,7 +25,8 @@ export async function prepareCustomerDoc(
     doc.sex = Number.parseInt(doc.sex);
   }
   if (doc?.tags) {
-    doc.tagIds = await generateTagIds(models, doc?.tags);
+    doc.tagIds = await resolveImportTagIds(models, 'core:customer', doc?.tags);
+    delete doc.tags;
   }
   const pssDoc = models.Customers.calcPSS(doc);
 

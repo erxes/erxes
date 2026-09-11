@@ -7,12 +7,35 @@ export interface IImportExportContext<TModels = any> {
   [key: string]: any;
 }
 
+export type ImportHeaderDataType =
+  | 'text'
+  | 'number'
+  | 'date'
+  | 'boolean'
+  | 'select'
+  | 'multiSelect';
+
 export interface ImportHeaderDefinition {
   label: string;
   key: string;
   aliases?: string[];
   isDefault?: boolean;
   type?: 'system' | 'customProperty';
+  /** Custom property code, unqualified by row. */
+  code?: string;
+  /** 1-based row of a repeating property group. */
+  rowIndex?: number;
+  dataType?: ImportHeaderDataType;
+  options?: string[];
+  /** Human-readable shape of an accepted value, e.g. `YYYY-MM-DD`. */
+  example?: string;
+  required?: boolean;
+}
+
+export interface ImportColumnMapping {
+  index: number;
+  header: string;
+  key: string;
 }
 
 export interface ImportExportTypeDefinition {
@@ -156,7 +179,6 @@ export interface ExportJobData {
   data: {
     exportId: string;
     entityType: string;
-    fileFormat: 'csv' | 'xlsx';
   };
 }
 

@@ -1,46 +1,24 @@
+import { useTranslation } from 'react-i18next';
 import { useImportExportTypes } from '@/import-export/hooks/useImportExportTypes';
-import { useQueryState } from 'erxes-ui/hooks/use-query-state';
+import { IMPORT_HISTORIES_CURSOR_SESSION_KEY } from '@/import-export/settings/constants/importExportStatusOptions';
+import { useImportExportHistoryVariables } from '@/import-export/settings/hooks/useImportExportHistoryVariables';
 import { importHistoryColumns } from '../components/ImportHistoryColumns';
 import { useImportHistories } from './useImportHistories';
 
 export const useImportHistoriesRecordTable = () => {
-  const [selectedEntityType] = useQueryState<string>('type', {
-    defaultValue: 'all',
-  });
+  const { t } = useTranslation('importExport');
+  const variables = useImportExportHistoryVariables();
 
-  const RECORD_TABLE_SESSION_KEY = `import_histories_cursor_${selectedEntityType}`;
+  const { importExportTypes } = useImportExportTypes({ operation: 'IMPORT' });
 
-  const {
-    importExportTypes,
-    loading: typesLoading,
-    error: typesError,
-  } = useImportExportTypes({
-    operation: 'IMPORT',
-  });
   const {
     list,
-    totalCount,
     loading,
     error,
     hasNextPage,
     hasPreviousPage,
     handleFetchMore,
-  } = useImportHistories({
-    entityTypes:
-      selectedEntityType === 'all' || !selectedEntityType
-        ? undefined
-        : [selectedEntityType],
-  });
-  const columns = importHistoryColumns(importExportTypes);
-
-  const providerValue = {
-    contentTypes: importExportTypes,
-    loading,
-    totalCount,
-    typesLoading,
-    typesError,
-    columnsLength: columns.length,
-  };
+  } = useImportHistories(variables);
 
   return {
     error,
@@ -49,9 +27,9 @@ export const useImportHistoriesRecordTable = () => {
     hasNextPage,
     hasPreviousPage,
     handleFetchMore,
-    columns,
-    providerValue,
-    RECORD_TABLE_SESSION_KEY,
+    contentTypes: importExportTypes,
+    columns: importHistoryColumns({ t, contentTypes: importExportTypes }),
+    RECORD_TABLE_SESSION_KEY: IMPORT_HISTORIES_CURSOR_SESSION_KEY,
     isEmpty: !loading && !list.length,
   };
 };

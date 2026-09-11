@@ -1,9 +1,14 @@
 import { ImportHistories } from '@/import-export/import/components/ImportHistories';
+import { ImportHistoriesFilter } from '@/import-export/import/components/ImportHistoriesFilter';
+import { PageSubHeader } from 'erxes-ui';
 
 export const ImportHistoriesSettingsPage = () => {
   return (
-    <div className="flex flex-col flex-1 overflow-hidden gap-4 min-w-0 w-full px-6 py-5">
+    <>
+      <PageSubHeader>
+        <ImportHistoriesFilter />
+      </PageSubHeader>
       <ImportHistories />
-    </div>
+    </>
   );
 };
