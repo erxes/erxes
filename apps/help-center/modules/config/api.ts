@@ -5,7 +5,11 @@ import {
   apiUrlForHost,
   setResolvedApiUrlReader,
 } from '@/modules/apollo/utils/env';
-import { errorMessage, type PortalResult } from '@/modules/apollo/utils/result';
+import {
+  errorMessage,
+  graphqlErrorMessage,
+  type PortalResult,
+} from '@/modules/apollo/utils/result';
 import { HELP_CENTER_CONFIG_BY_DOMAIN } from './graphql/queries/helpCenterConfig';
 import {
   readScopedApiUrl,
@@ -21,26 +25,11 @@ type ConfigResponse = { helpCenterGetConfigByDomain: HelpCenterConfig | null };
 const isLocalHost = (host: string): boolean =>
   host.startsWith('localhost') || host.startsWith('127.0.0.1');
 
-/*
- * A help center is registered under one exact origin, protocol included, and
- * the lookup matches that string. The protocol a request arrives with is not a
- * reliable way to rebuild it: behind Cloudflare's Flexible SSL, or any proxy
- * that terminates TLS and forwards plain HTTP, the request reaches this server
- * as `http` even though the site is served over `https`. Guessing wrong finds
- * no config, which leaves the portal looking unpublished and strips the app
- * token every authenticated call needs.
- *
- * So the origins worth trying are returned in order, and the caller keeps the
- * first that resolves.
- */
 const requestOrigins = async (): Promise<string[]> => {
   const list = await headers();
 
   const host = list.get('x-forwarded-host') ?? list.get('host') ?? '';
 
-  // A SaaS gateway is addressed per tenant, and this is the first thing the
-  // server reads from a request, so the address is resolved from this host for
-  // everything the request goes on to ask for.
   writeScopedApiUrl(apiUrlForHost(host));
 
   if (!host) {
@@ -51,10 +40,11 @@ const requestOrigins = async (): Promise<string[]> => {
     return [`http://${host}`, `https://${host}`];
   }
 
-  // A public host is almost always registered over https, so that is tried
-  // first regardless of the protocol the request reached this server with.
   return [`https://${host}`, `http://${host}`];
 };
+
+const isNotFound = (error: unknown): boolean =>
+  graphqlErrorMessage(error).toLowerCase().includes('not found');
 
 const fetchConfig = async (
   apiUrl: string,
@@ -71,13 +61,14 @@ const fetchConfig = async (
   try {
     const { data, error } = await query<ConfigResponse>({
       query: HELP_CENTER_CONFIG_BY_DOMAIN,
-      variables: { domain },
       errorPolicy: 'all',
-      context: { apiUrl },
+      context: { apiUrl, headers: { origin: domain } },
     });
 
     if (error) {
-      return { state: 'error', message: error.message };
+      return isNotFound(error)
+        ? { state: 'unpublished', domain }
+        : { state: 'error', message: error.message };
     }
 
     const config = data?.helpCenterGetConfigByDomain;
@@ -88,7 +79,9 @@ const fetchConfig = async (
 
     return { state: 'ready', data: normalizeConfig(config) };
   } catch (caught) {
-    return { state: 'error', message: errorMessage(caught) };
+    return isNotFound(caught)
+      ? { state: 'unpublished', domain }
+      : { state: 'error', message: errorMessage(caught) };
   }
 };
 
@@ -120,9 +113,6 @@ export const getPortalConfig = async (): Promise<
 
   let result = await configFor(apiUrl, domains[0]);
 
-  // The registered origin may spell the protocol differently than the one this
-  // request arrived with, so the alternative is tried before reporting that
-  // nothing is published here.
   for (const domain of domains.slice(1)) {
     if (result.state === 'ready') {
       break;
@@ -130,8 +120,6 @@ export const getPortalConfig = async (): Promise<
 
     const next = await configFor(apiUrl, domain);
 
-    // Keep a real failure from the first attempt rather than replacing it with
-    // an "unpublished" that only says the fallback spelling missed too.
     if (next.state === 'ready' || result.state !== 'error') {
       result = next;
     }
