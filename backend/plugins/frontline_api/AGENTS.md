@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-09-10`
+- **Last synchronized:** `2026-09-11`
 
 ## Scope
 
@@ -169,6 +169,9 @@ on the supplied tenant connection.
 `src/modules/inbox/graphql/resolvers/mutations/integrations.ts`
 dispatches Viber creation and removal through `sendCreateIntegration` and
 `sendRemoveIntegration`.
+The [Viber integration learning guide](docs/viber-integration-guide.md) maps
+current call chains, identity/model responsibilities, validation boundaries,
+and the explicitly planned backend/frontend lifecycle.
 
 | Area                 | Path                                                                        | Responsibility                                                                                                                                                                                         |
 | -------------------- | --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -1580,6 +1583,13 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-11` — Viber integration learning guide
+
+- **Summary:** Documented current Viber behavior, source-linked call chains,
+  identity mapping, and a clearly separated end-to-end implementation roadmap.
+- **Affected areas:** `docs/viber-integration-guide.md`.
+- **Contracts changed:** None; documentation only.
+
 ### `2026-09-10` — Viber customer mapping model
 
 - **Summary:** Registered a tenant-scoped Viber-to-Core customer mapping model
@@ -1665,15 +1675,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `src/modules/knowledgebase/graphql/schemas/knowledgeBaseTypeDefs.ts`
 - **Contracts changed:** `KnowledgeBaseTopic` exposes `kbTopicId: String` and
   `KnowledgeBaseTopicDoc` accepts it.
-
-### `2026-09-07` — Polls pin their messenger integration by brand
-
-- **Summary:** A poll can now carry a `brandId`; the client-portal submit path and
-  `pollSendToConversation` honour it, and create/update refuse a brand that has no
-  active messenger integration in the poll's channel — removing the arbitrary
-  `findOne` pick on a channel with several messenger integrations.
-- **Affected areas:** `src/modules/poll/{@types/poll.ts,db/definitions/polls.ts,db/models/Polls.ts}`,
-  `src/modules/poll/graphql/schema/poll.ts`,
-  `src/modules/poll/graphql/resolvers/mutations/{polls.ts,clientPortal.ts}`.
-- **Contracts changed:** Added `brandId: String` to `pollAdd`, `pollEdit` and the
-  `Poll` type.
