@@ -1,5 +1,9 @@
 import crypto from 'crypto';
-import { canGroup } from 'erxes-api-shared/core-modules';
+import {
+  canGroup,
+  hasDeclaredOAuthScopes,
+  resolveActionOAuthScopes,
+} from 'erxes-api-shared/core-modules';
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import {
   extractUserFromHeader,
@@ -44,15 +48,14 @@ export const getAvailableOAuthScopesForUser = async ({
 
     for (const module of modules) {
       for (const action of module.actions || []) {
-        const actionScopes = action.oauthScopes?.length
-          ? action.oauthScopes
-          : action.oauthScope
-          ? [action.oauthScope]
-          : [];
-
-        if (actionScopes.length === 0) {
-          continue;
-        }
+        const actionScopes = resolveActionOAuthScopes(
+          pluginName,
+          module,
+          action,
+        );
+        const description = hasDeclaredOAuthScopes(action)
+          ? action.description || action.title
+          : module.description || `${pluginName} ${module.name}`;
 
         const allowed =
           user.isOwner || (await canGroup(subdomain, action.name, user));
@@ -65,7 +68,7 @@ export const getAvailableOAuthScopesForUser = async ({
           if (!scopeMap.has(actionScope)) {
             scopeMap.set(actionScope, {
               scope: actionScope,
-              description: action.description || action.title || actionScope,
+              description: description || actionScope,
             });
           }
         }
