@@ -87,6 +87,14 @@ describe('oauth scopes for plugin actions', () => {
     await expect(check('dealsAdd')).rejects.toThrow('OAuth scope required');
   });
 
+  it('refuses an oauth token that was granted no scopes at all', async () => {
+    const check = checkPermissionGroup(
+      'sub',
+      user({ isOwner: true, oauthScopes: [] }),
+    );
+    await expect(check('dealsAdd')).rejects.toThrow('OAuth scope required');
+  });
+
   it('does not scope-check non-oauth sessions', async () => {
     const check = checkPermissionGroup('sub', user({ isOwner: true }));
     await expect(check('dealsAdd')).resolves.toBeUndefined();

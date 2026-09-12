@@ -178,10 +178,17 @@ export const canGroup = async (
   return actionsMap[action] === true;
 };
 
+/** Whether a plugin action names its own OAuth scopes in its permission config. */
 export const hasDeclaredOAuthScopes = (
   action: Pick<IPermissionAction, 'oauthScope' | 'oauthScopes'>,
 ): boolean => Boolean(action.oauthScopes?.length || action.oauthScope);
 
+/**
+ * OAuth scopes that grant an action. Declared scopes win; an action without
+ * any (every non-core plugin today) maps to one scope for its whole module,
+ * `<plugin>-<module>:manage`, so OAuth clients can be granted it on the
+ * approval page and enforcement has something to compare against.
+ */
 export const resolveActionOAuthScopes = (
   pluginName: string,
   module: Pick<IPermissionModule, 'name'>,
@@ -227,8 +234,16 @@ const checkOAuthScope = async (action: string, user?: IUserDocument) => {
     }
   ).oauthScopes;
 
-  if (!oauthScopes?.length) {
+  // Only OAuth-token sessions carry `oauthScopes` (the gateway sets it from
+  // the token's scope claim); a normal login has none and is not scope-checked.
+  if (oauthScopes === undefined) {
     return;
+  }
+
+  // An OAuth token that was granted no scopes must not fall through to the
+  // user's full permissions.
+  if (oauthScopes.length === 0) {
+    throw new ExpectedError('OAuth scope required', 'FORBIDDEN');
   }
 
   const scopeMap = await getOAuthActionScopeMap();
