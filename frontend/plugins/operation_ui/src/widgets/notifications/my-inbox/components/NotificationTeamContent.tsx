@@ -15,6 +15,41 @@ import { TNotification } from 'ui-modules';
 const getUserDisplayName = (fromUser: TNotification['fromUser']) =>
   fromUser?.details?.fullName || fromUser?.email || 'Unknown user';
 
+const TeamActor = ({ user }: { user: TNotification['fromUser'] }) => {
+  if (!user) {
+    return null;
+  }
+
+  const displayName = getUserDisplayName(user);
+
+  return (
+    <span className="inline-flex items-center gap-1.5">
+      <Avatar className="size-5">
+        <Avatar.Fallback className="text-[10px]">
+          {displayName.charAt(0).toUpperCase()}
+        </Avatar.Fallback>
+        <Avatar.Image
+          alt={displayName}
+          src={readImage(user.details?.avatar || '')}
+        />
+      </Avatar>
+      <span>{displayName}</span>
+    </span>
+  );
+};
+
+const TeamEventMetadata = ({
+  action,
+  createdAt,
+  fromUser,
+}: Pick<TNotification, 'action' | 'createdAt' | 'fromUser'>) => (
+  <div className="mt-3 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+    <TeamActor user={fromUser} />
+    {action ? <span>{action}</span> : null}
+    {createdAt ? <RelativeDateDisplay.Value value={createdAt} /> : null}
+  </div>
+);
+
 export const NotificationTeamContent = ({
   action,
   contentTypeId,
@@ -33,6 +68,17 @@ export const NotificationTeamContent = ({
   }
 
   if (error || !team) {
+    const missingTeam = !error;
+    const title = missingTeam
+      ? t('team-not-found', 'Team not found')
+      : t('failed-to-load-team', 'Failed to load team');
+    const description = missingTeam
+      ? t(
+          'team-no-longer-available',
+          'This team may have been removed or is no longer available.',
+        )
+      : error.message;
+
     return (
       <div className="flex min-h-dvh items-center justify-center p-6">
         <Empty>
@@ -40,18 +86,8 @@ export const NotificationTeamContent = ({
             <Empty.Media variant="icon">
               <IconInfoCircle />
             </Empty.Media>
-            <Empty.Title>
-              {error
-                ? t('failed-to-load-team', 'Failed to load team')
-                : t('team-not-found', 'Team not found')}
-            </Empty.Title>
-            <Empty.Description>
-              {error?.message ||
-                t(
-                  'team-no-longer-available',
-                  'This team may have been removed or is no longer available.',
-                )}
-            </Empty.Description>
+            <Empty.Title>{title}</Empty.Title>
+            <Empty.Description>{description}</Empty.Description>
           </Empty.Header>
         </Empty>
       </div>
@@ -71,24 +107,11 @@ export const NotificationTeamContent = ({
           <h2 className="mt-1 break-words text-2xl font-semibold text-foreground">
             {team.name}
           </h2>
-          <div className="mt-3 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-            {fromUser && (
-              <span className="flex items-center gap-1.5">
-                <Avatar className="size-5">
-                  <Avatar.Image
-                    src={readImage(fromUser.details?.avatar || '')}
-                    alt={getUserDisplayName(fromUser)}
-                  />
-                  <Avatar.Fallback className="text-[10px]">
-                    {getUserDisplayName(fromUser)[0].toUpperCase()}
-                  </Avatar.Fallback>
-                </Avatar>
-                {getUserDisplayName(fromUser)}
-              </span>
-            )}
-            {action && <span>{action}</span>}
-            {createdAt && <RelativeDateDisplay.Value value={createdAt} />}
-          </div>
+          <TeamEventMetadata
+            action={action}
+            createdAt={createdAt}
+            fromUser={fromUser}
+          />
         </div>
       </header>
 

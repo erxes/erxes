@@ -15,6 +15,53 @@ import { useChannel } from '~/widgets/notifications/my-inbox/hooks/useChannel';
 const getUserDisplayName = (fromUser: TNotification['fromUser']) =>
   fromUser?.details?.fullName || fromUser?.email || 'Unknown user';
 
+const ChannelEventMetadata = ({
+  action,
+  createdAt,
+  fromUser,
+}: Pick<TNotification, 'action' | 'createdAt' | 'fromUser'>) => {
+  const actorName = getUserDisplayName(fromUser);
+
+  return (
+    <div className="mt-3 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+      {fromUser ? (
+        <span className="flex items-center gap-1.5">
+          <Avatar className="size-5">
+            <Avatar.Image
+              src={readImage(fromUser.details?.avatar || '')}
+              alt={actorName}
+            />
+            <Avatar.Fallback className="text-[10px]">
+              {actorName.slice(0, 1).toUpperCase()}
+            </Avatar.Fallback>
+          </Avatar>
+          {actorName}
+        </span>
+      ) : null}
+      {action ? <span>{action}</span> : null}
+      {createdAt ? <RelativeDateDisplay.Value value={createdAt} /> : null}
+    </div>
+  );
+};
+
+const ChannelUnavailable = ({
+  description,
+  title,
+}: {
+  description: string;
+  title: string;
+}) => (
+  <Empty className="min-h-dvh rounded-none border-0">
+    <Empty.Header>
+      <Empty.Media variant="icon">
+        <IconInfoCircle />
+      </Empty.Media>
+      <Empty.Title>{title}</Empty.Title>
+      <Empty.Description>{description}</Empty.Description>
+    </Empty.Header>
+  </Empty>
+);
+
 export const NotificationChannelContent = ({
   action,
   createdAt,
@@ -36,28 +83,21 @@ export const NotificationChannelContent = ({
   }
 
   if (error || !channelDetail) {
+    const unavailableTitle = error
+      ? t('failed-to-load-channel', 'Failed to load channel')
+      : t('channel-not-found', 'Channel not found');
+    const unavailableDescription =
+      error?.message ||
+      t(
+        'channel-no-longer-available',
+        'This channel may have been removed or is no longer available.',
+      );
+
     return (
-      <div className="flex min-h-dvh items-center justify-center p-6">
-        <Empty>
-          <Empty.Header>
-            <Empty.Media variant="icon">
-              <IconInfoCircle />
-            </Empty.Media>
-            <Empty.Title>
-              {error
-                ? t('failed-to-load-channel', 'Failed to load channel')
-                : t('channel-not-found', 'Channel not found')}
-            </Empty.Title>
-            <Empty.Description>
-              {error?.message ||
-                t(
-                  'channel-no-longer-available',
-                  'This channel may have been removed or is no longer available.',
-                )}
-            </Empty.Description>
-          </Empty.Header>
-        </Empty>
-      </div>
+      <ChannelUnavailable
+        description={unavailableDescription}
+        title={unavailableTitle}
+      />
     );
   }
 
@@ -74,24 +114,11 @@ export const NotificationChannelContent = ({
           <h2 className="mt-1 break-words text-2xl font-semibold text-foreground">
             {channelDetail.name}
           </h2>
-          <div className="mt-3 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-            {fromUser && (
-              <span className="flex items-center gap-1.5">
-                <Avatar className="size-5">
-                  <Avatar.Image
-                    src={readImage(fromUser.details?.avatar || '')}
-                    alt={getUserDisplayName(fromUser)}
-                  />
-                  <Avatar.Fallback className="text-[10px]">
-                    {getUserDisplayName(fromUser)[0].toUpperCase()}
-                  </Avatar.Fallback>
-                </Avatar>
-                {getUserDisplayName(fromUser)}
-              </span>
-            )}
-            {action && <span>{action}</span>}
-            {createdAt && <RelativeDateDisplay.Value value={createdAt} />}
-          </div>
+          <ChannelEventMetadata
+            action={action}
+            createdAt={createdAt}
+            fromUser={fromUser}
+          />
         </div>
       </header>
 

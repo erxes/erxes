@@ -102,6 +102,12 @@ const DealNotificationHeader = ({
   );
 };
 
+const DealNotificationBody = ({ deal }: { deal: IDeal }) => (
+  <div className="flex-1 py-4">
+    <Overview deal={deal} />
+  </div>
+);
+
 const SalesDealNotificationContent = ({
   action,
   createdAt,
@@ -172,9 +178,7 @@ const SalesDealNotificationContent = ({
           deal={deal}
           fromUser={fromUser}
         />
-        <div className="flex-1 py-4">
-          <Overview deal={deal} />
-        </div>
+        <DealNotificationBody deal={deal} />
       </div>
     </DealsProvider>
   );
