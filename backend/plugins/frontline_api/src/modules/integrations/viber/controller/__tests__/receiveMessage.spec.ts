@@ -256,6 +256,41 @@ test('continues to sender validation for numeric and string decimal message toke
   }
 });
 
+test('allows absent or string sender names to reach message validation', async (t) => {
+  const { receive } = createReceiverHarness(t);
+
+  for (const name of [undefined, '', '   ', '  Чингүн 👋  ']) {
+    const body = JSON.stringify({
+      event: 'message',
+      message_token: '4912661846655238145',
+      sender: { id: 'sender-test', name },
+    });
+
+    // Deliberately omit the message to stop before the unfinished write path.
+    deepStrictEqual(await receive(body), [
+      { statusCode: 400, body: { error: 'Invalid Viber message payload' } },
+    ]);
+  }
+});
+
+test('rejects a present non-string sender name before message validation', async (t) => {
+  const { receive } = createReceiverHarness(t);
+
+  for (const name of [null, 42, false, [], {}]) {
+    const body = JSON.stringify({
+      event: 'message',
+      message_token: '4912661846655238145',
+      sender: { id: 'sender-test', name },
+    });
+
+    deepStrictEqual(
+      await receive(body),
+      [{ statusCode: 400, body: { error: 'Invalid Viber sender name' } }],
+      `Expected sender name ${JSON.stringify(name)} to be rejected`,
+    );
+  }
+});
+
 test('uses the signed raw body instead of an already parsed request body', async (t) => {
   const { receive } = createReceiverHarness(t);
 

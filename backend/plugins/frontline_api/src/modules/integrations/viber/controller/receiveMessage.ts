@@ -104,6 +104,11 @@ export const receiveViberMessage = async (
       return;
     }
 
+    if ('name' in payload.sender && typeof payload.sender.name !== 'string') {
+      res.status(400).json({ error: 'Invalid Viber sender name' });
+      return;
+    }
+
     if (
       !('message' in payload) ||
       typeof payload.message !== 'object' ||

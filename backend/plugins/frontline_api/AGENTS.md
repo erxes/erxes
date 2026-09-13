@@ -694,7 +694,9 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   401 before parsing; malformed JSON or payloads return 400. Only `message`
   events require a non-empty decimal-digit `message_token` string, checked
   before sender validation. The `webhook` check is acknowledged with 200 without
-  requiring message fields. These guards do not implement message persistence.
+  requiring message fields. A supplied sender name must be a string; absent or
+  blank names are allowed. Rejection returns immediately, before message
+  validation. These guards do not implement message persistence.
 - Viber account responses stay `unknown` until validated: numeric `status === 0`
   and non-blank string `id` and `name`, returning only those two fields. The
   HTTP helper rejects blank tokens and tokens with leading or trailing
@@ -1620,6 +1622,9 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   server, or bot token is required; successful message persistence is not covered.
   Token-validation coverage uses the real shared guard and verifies that a
   bad signature still takes precedence over a malformed token.
+  Sender-name cases isolate optional profile validation with a deliberately
+  omitted message. They cover absent/blank/string names and non-string rejection
+  without a second response.
 - Viber customer, conversation, and message schema tests use real Mongoose with no
   database connection.
   They replace the shared utilities import with a deterministic string-id
@@ -1695,6 +1700,14 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-14` — Viber sender-name validation
+
+- **Summary:** Validated optional sender names and stopped rejected requests
+  before message validation, with focused receiver tests.
+- **Affected areas:** `src/modules/integrations/viber/controller/`.
+- **Contracts changed:** The internal receiver returns 400 for a supplied
+  non-string sender name; no HTTP route is mounted.
 
 ### `2026-09-14` — Viber plain-text formatting
 
@@ -1777,13 +1790,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `src/modules/integrations/viber/@types/webhook.ts`.
 - **Contracts changed:** Internal `receiveViberMessage(req, res)` validates
   callbacks; no HTTP route or message-persistence contract is exposed.
-
-### `2026-09-10` — Exact Viber webhook token parsing
-
-- **Summary:** Added a raw-body parser and regression tests that preserve large
-  numeric Viber message tokens without rounding or changing the original bytes.
-- **Affected areas:** `src/modules/integrations/viber/utils/webhook.ts`,
-  `src/modules/integrations/viber/utils/__tests__/webhook.spec.ts`.
-- **Contracts changed:** Added internal
-  `parseViberWebhookBody(rawBody: Buffer): unknown`; HTTP routes and receiver
-  wiring are unchanged.
