@@ -128,6 +128,8 @@ export const receiveViberMessage = async (
       return;
     }
 
+    let text: string | undefined;
+
     if (payload.message.type === 'text') {
       if (
         !('text' in payload.message) ||
@@ -138,26 +140,7 @@ export const receiveViberMessage = async (
         return;
       }
 
-      const name =
-        'name' in payload.sender && typeof payload.sender.name === 'string'
-          ? payload.sender.name
-          : undefined;
-
-      try {
-        await processViberMessage(subdomain, {
-          inboxId: req.params.integrationId,
-          userId: payload.sender.id,
-          messageToken: payload.message_token,
-          text: payload.message.text,
-          name,
-        });
-      } catch {
-        res.status(500).json({ error: 'Failed to process Viber message' });
-        return;
-      }
-
-      res.sendStatus(200);
-      return;
+      text = payload.message.text;
     }
 
     if (
@@ -188,6 +171,33 @@ export const receiveViberMessage = async (
         res.status(400).json({ error: 'Unsupported media URL protocol' });
         return;
       }
+
+      if (payload.message.type === 'url') {
+        text = payload.message.media;
+      }
+    }
+
+    if (text !== undefined) {
+      const name =
+        'name' in payload.sender && typeof payload.sender.name === 'string'
+          ? payload.sender.name
+          : undefined;
+
+      try {
+        await processViberMessage(subdomain, {
+          inboxId: req.params.integrationId,
+          userId: payload.sender.id,
+          messageToken: payload.message_token,
+          text,
+          name,
+        });
+      } catch {
+        res.status(500).json({ error: 'Failed to process Viber message' });
+        return;
+      }
+
+      res.sendStatus(200);
+      return;
     }
 
     if (payload.message.type === 'file') {

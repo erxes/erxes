@@ -12,6 +12,10 @@ const TEXT_MESSAGE = {
   sender: { id: 'viber-user-test', name: 'Chingun' },
   message: { type: 'text', text: 'Hello <team>\nСайн уу 👋' },
 };
+const URL_MESSAGE = {
+  ...TEXT_MESSAGE,
+  message: { type: 'url', media: 'https://example.com/shared-page' },
+};
 
 // The installed Node types do not export the callback context by name.
 type TestContext = Parameters<NonNullable<Parameters<typeof test>[0]>>[0];
@@ -32,11 +36,16 @@ const createReceiverHarness = (
     strictEqual(subdomain, 'test');
     return { ViberIntegrations: { findOne } };
   });
-  const processText = t.mock.fn(async (subdomain: string, input: unknown) => {
-    strictEqual(subdomain, 'test');
-    strictEqual(typeof input, 'object');
-    return 'frontline-message-test';
-  });
+  const processMessage = t.mock.fn(
+    async (subdomain: string, input: unknown) => {
+      strictEqual(subdomain, 'test');
+      strictEqual(typeof input, 'object');
+      return 'frontline-message-test';
+    },
+  );
+  const respond = t.mock.fn(
+    (reply: { statusCode: number; body?: unknown }) => reply,
+  );
 
   // Replace infrastructure and processing imports before loading the controller.
   // Keep the real signature verifier and JSON parser, and restore every entry.
@@ -64,7 +73,7 @@ const createReceiverHarness = (
   mockModule('erxes-api-shared/utils', { getSubdomain: () => 'test' });
   mockModule('~/connectionResolvers', { generateModels });
   mockModule('@/integrations/viber/helpers', {
-    processViberMessage: processText,
+    processViberMessage: processMessage,
   });
 
   const receiverPath = require.resolve('../receiveMessage');
@@ -100,11 +109,11 @@ const createReceiverHarness = (
         return this;
       },
       json(payload: unknown) {
-        replies.push({ statusCode, body: payload });
+        replies.push(respond({ statusCode, body: payload }));
         return this;
       },
       sendStatus(code: number) {
-        replies.push({ statusCode: code });
+        replies.push(respond({ statusCode: code }));
         return this;
       },
     };
@@ -117,7 +126,7 @@ const createReceiverHarness = (
     return replies;
   };
 
-  return { receive, generateModels, findOne, select, processText };
+  return { receive, generateModels, findOne, select, processMessage, respond };
 };
 
 test('rejects a missing raw body before looking up tenant models', async (t) => {
@@ -317,13 +326,13 @@ test('uses the signed raw body instead of an already parsed request body', async
 });
 
 test('passes validated text and exact identity fields to processing before acknowledging', async (t) => {
-  const { receive, processText } = createReceiverHarness(t);
+  const { receive, processMessage } = createReceiverHarness(t);
 
   deepStrictEqual(await receive(JSON.stringify(TEXT_MESSAGE)), [
     { statusCode: 200 },
   ]);
-  strictEqual(processText.mock.callCount(), 1);
-  deepStrictEqual(processText.mock.calls[0].arguments, [
+  strictEqual(processMessage.mock.callCount(), 1);
+  deepStrictEqual(processMessage.mock.calls[0].arguments, [
     'test',
     {
       inboxId: 'inbox-test',
@@ -336,7 +345,7 @@ test('passes validated text and exact identity fields to processing before ackno
 });
 
 test('invalid text is rejected without invoking message processing', async (t) => {
-  const { receive, processText } = createReceiverHarness(t);
+  const { receive, processMessage } = createReceiverHarness(t);
 
   for (const text of ['', '   ', 42]) {
     const body = JSON.stringify({
@@ -347,23 +356,160 @@ test('invalid text is rejected without invoking message processing', async (t) =
       { statusCode: 400, body: { error: 'Invalid Viber text message' } },
     ]);
   }
-  strictEqual(processText.mock.callCount(), 0);
+  strictEqual(processMessage.mock.callCount(), 0);
 });
 
 test('a text-processing failure returns a safe 500 response instead of acknowledging', async (t) => {
-  const { receive, processText } = createReceiverHarness(t);
-  processText.mock.mockImplementation(async () => {
+  const { receive, processMessage } = createReceiverHarness(t);
+  processMessage.mock.mockImplementation(async () => {
     throw new Error('Sensitive internal failure');
   });
 
   deepStrictEqual(await receive(JSON.stringify(TEXT_MESSAGE)), [
     { statusCode: 500, body: { error: 'Failed to process Viber message' } },
   ]);
-  strictEqual(processText.mock.callCount(), 1);
+  strictEqual(processMessage.mock.callCount(), 1);
 });
 
+test('passes HTTP and HTTPS links as exact text without fetching or requesting an attachment', async (t) => {
+  const { receive, processMessage } = createReceiverHarness(t);
+  const fetchMedia = t.mock.method(globalThis, 'fetch', async () => {
+    throw new Error('URL messages must not fetch the linked site');
+  });
+
+  for (const media of [
+    'http://example.com/shared-page',
+    'https://example.com/a%2Fb?first=1&next=%22%3Ctag%3E#part',
+  ]) {
+    const body = JSON.stringify({
+      ...URL_MESSAGE,
+      message: { type: 'url', media, text: 'Do not replace the shared URL' },
+    });
+
+    deepStrictEqual(await receive(body), [{ statusCode: 200 }]);
+    deepStrictEqual(processMessage.mock.calls.at(-1)?.arguments, [
+      'test',
+      {
+        inboxId: 'inbox-test',
+        userId: URL_MESSAGE.sender.id,
+        messageToken: URL_MESSAGE.message_token,
+        text: media,
+        name: URL_MESSAGE.sender.name,
+      },
+    ]);
+  }
+
+  strictEqual(processMessage.mock.callCount(), 2);
+  strictEqual(fetchMedia.mock.callCount(), 0);
+});
+
+test('rejects missing, blank, and non-string URL media without processing', async (t) => {
+  const { receive, processMessage } = createReceiverHarness(t);
+
+  for (const media of [undefined, '', '   ', null, 42, false, {}, []]) {
+    const body = JSON.stringify({
+      ...URL_MESSAGE,
+      message: { type: 'url', media },
+    });
+
+    deepStrictEqual(await receive(body), [
+      { statusCode: 400, body: { error: 'Invalid Viber media message' } },
+    ]);
+  }
+
+  strictEqual(processMessage.mock.callCount(), 0);
+});
+
+test('rejects malformed URL messages without processing', async (t) => {
+  const { receive, processMessage } = createReceiverHarness(t);
+
+  for (const media of ['not a URL', '/relative-path', 'https://']) {
+    const body = JSON.stringify({
+      ...URL_MESSAGE,
+      message: { type: 'url', media },
+    });
+
+    deepStrictEqual(await receive(body), [
+      { statusCode: 400, body: { error: 'Invalid Viber media URL' } },
+    ]);
+  }
+
+  strictEqual(processMessage.mock.callCount(), 0);
+});
+
+test('rejects URL messages using protocols other than HTTP or HTTPS', async (t) => {
+  const { receive, processMessage } = createReceiverHarness(t);
+
+  for (const media of [
+    'javascript:alert(1)',
+    'data:text/plain,hello',
+    'file:///private/example.txt',
+    'ftp://example.com/file.txt',
+  ]) {
+    const body = JSON.stringify({
+      ...URL_MESSAGE,
+      message: { type: 'url', media },
+    });
+
+    deepStrictEqual(await receive(body), [
+      { statusCode: 400, body: { error: 'Unsupported media URL protocol' } },
+    ]);
+  }
+
+  strictEqual(processMessage.mock.callCount(), 0);
+});
+
+test('a URL-processing failure returns a safe 500 response instead of acknowledging', async (t) => {
+  const { receive, processMessage } = createReceiverHarness(t);
+  processMessage.mock.mockImplementation(async () => {
+    throw new Error('Sensitive internal failure');
+  });
+
+  deepStrictEqual(await receive(JSON.stringify(URL_MESSAGE)), [
+    { statusCode: 500, body: { error: 'Failed to process Viber message' } },
+  ]);
+  strictEqual(processMessage.mock.callCount(), 1);
+});
+
+test(
+  'does not respond while URL-message processing is still pending',
+  { timeout: 5000 },
+  async (t) => {
+    const { receive, processMessage, respond } = createReceiverHarness(t);
+    let finishProcessing: (messageId: string) => void = () => {
+      throw new Error('Processing promise was not initialized');
+    };
+    let markProcessingStarted: () => void = () => {
+      throw new Error('Processing-start promise was not initialized');
+    };
+    const processingResult = new Promise<string>((resolve) => {
+      finishProcessing = resolve;
+    });
+    const processingStarted = new Promise<void>((resolve) => {
+      markProcessingStarted = resolve;
+    });
+    processMessage.mock.mockImplementation(async () => {
+      markProcessingStarted();
+      return processingResult;
+    });
+
+    const pendingResponse = receive(JSON.stringify(URL_MESSAGE));
+
+    try {
+      await processingStarted;
+      strictEqual(respond.mock.callCount(), 0);
+    } finally {
+      finishProcessing('frontline-message-test');
+    }
+
+    deepStrictEqual(await pendingResponse, [{ statusCode: 200 }]);
+    strictEqual(processMessage.mock.callCount(), 1);
+    strictEqual(respond.mock.callCount(), 1);
+  },
+);
+
 test('allows file sizes through 50 MiB to reach the next validation guard', async (t) => {
-  const { receive, processText } = createReceiverHarness(t);
+  const { receive, processMessage } = createReceiverHarness(t);
 
   for (const fileSize of [
     0,
@@ -385,11 +531,11 @@ test('allows file sizes through 50 MiB to reach the next validation guard', asyn
       { statusCode: 400, body: { error: 'Invalid Viber file name' } },
     ]);
   }
-  strictEqual(processText.mock.callCount(), 0);
+  strictEqual(processMessage.mock.callCount(), 0);
 });
 
 test('rejects invalid file sizes and one byte over 50 MiB before processing', async (t) => {
-  const { receive, processText } = createReceiverHarness(t);
+  const { receive, processMessage } = createReceiverHarness(t);
 
   for (const fileSize of [
     undefined,
@@ -413,5 +559,5 @@ test('rejects invalid file sizes and one byte over 50 MiB before processing', as
       { statusCode: 400, body: { error: 'Invalid Viber file size' } },
     ]);
   }
-  strictEqual(processText.mock.callCount(), 0);
+  strictEqual(processMessage.mock.callCount(), 0);
 });
