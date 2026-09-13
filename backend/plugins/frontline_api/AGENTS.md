@@ -78,6 +78,8 @@
   and recovers the winning mapping after a duplicate-key save. It preserves
   completion state and does not create inbox messages or acquire a processing
   lock. Message processing and receiver wiring remain unimplemented.
+  A pure text formatter escapes incoming plain text for HTML display, preserves
+  line breaks, and rejects blank messages; it is not yet called by the receiver.
 - Polls are a reusable definition (`title`, `question`, ordered `options`,
   `allowMultiselect`, optional `durationHours`, optional `brandId`,
   `active`/`archived` status) owned by a channel through `channelId`. An agent posts one into a messenger
@@ -176,7 +178,8 @@ and message-id reservation.
 `__tests__/helperHarness.ts` replaces tenant models, Core calls, and the common
 inbox receiver without starting infrastructure. `messageBroker.ts` adapts connection inputs
 and error handling, and `utils/` holds signature/account helpers, raw-body webhook
-parsing, shared message-token validation, and their colocated tests.
+parsing, shared message-token validation, plain-text HTML formatting, and their
+colocated tests.
 `controller/receiveMessage.ts` contains the unmounted callback validation path;
 its colocated tests mock tenant lookup while using the real signature and parser
 utilities.
@@ -681,6 +684,11 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   for the receiver and message-reservation helper. It accepts only non-empty
   ASCII digit strings, without trimming or coercion; leading zeroes and large
   ids remain unchanged. Callers keep their own HTTP or thrown-error handling.
+- `formatViberText(text)` in `utils/content.ts` rejects blank strings without
+  trimming accepted text. It uses the existing `validator.escape` before adding
+  `<br>` for CRLF, CR, or LF line breaks and wrapping the result in `<p>`.
+  This is plain-text-to-HTML formatting, not sanitization of supplied HTML;
+  it performs no message persistence or receiver wiring.
 - The internal Viber receiver resolves the integration by inbox id on the
   request tenant and explicitly selects `+token`. Signature failures return
   401 before parsing; malformed JSON or payloads return 400. Only `message`
@@ -1600,6 +1608,8 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   malformed JSON, and a mocked runtime without reviver source support.
   Shared token-validator tests cover string narrowing, exact decimal strings,
   rejected whitespace/non-digit/non-string values, and no object coercion.
+  Text-formatter tests use no mocks and cover literal markup/entities, line
+  endings, unchanged Unicode and outer whitespace, and blank-message rejection.
 - All saved Viber utility, receiver, mapping schema, and helper tests, from the
   repository root:
   `pnpm exec tsx --tsconfig=backend/plugins/frontline_api/tsconfig.json --test backend/plugins/frontline_api/src/modules/integrations/viber/{__tests__,utils/__tests__,controller/__tests__,db/definitions/__tests__}/*.spec.ts`.
@@ -1686,6 +1696,14 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-14` — Viber plain-text formatting
+
+- **Summary:** Added an internal plain-text HTML formatter with escaping,
+  preserved line breaks, blank-message rejection, and focused offline tests.
+- **Affected areas:** `src/modules/integrations/viber/utils/`.
+- **Contracts changed:** Added internal `formatViberText(text: string): string`;
+  receiver wiring and public APIs are unchanged.
+
 ### `2026-09-14` — Shared Viber message-token validation
 
 - **Summary:** Centralized decimal message-token validation for the receiver
@@ -1769,12 +1787,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Contracts changed:** Added internal
   `parseViberWebhookBody(rawBody: Buffer): unknown`; HTTP routes and receiver
   wiring are unchanged.
-
-### `2026-09-09` — Viber token whitespace validation
-
-- **Summary:** Reject bot tokens with leading or trailing whitespace before
-  account validation reaches Viber, preserving accepted tokens unchanged.
-- **Affected areas:** `src/modules/integrations/viber/utils/account.ts`,
-  `src/modules/integrations/viber/utils/__tests__/account.spec.ts`.
-- **Contracts changed:** `getViberAccountInfo` rejects padded tokens with a
-  specific validation error before `fetch`; API/schema shapes are unchanged.
