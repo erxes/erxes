@@ -3,6 +3,7 @@ import { getViberAccountInfo } from '@/integrations/viber/utils/account';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { randomUUID } from 'node:crypto';
 import { receiveInboxMessage } from '@/inbox/receiveMessage';
+import type { IViberMessageDocument } from '@/integrations/viber/@types/message';
 
 export const createViberIntegration = async (
   subdomain: string,
@@ -233,4 +234,48 @@ export const getOrCreateViberConversation = async (
   }
 
   return conversationId;
+};
+
+export const getOrCreateViberMessageMapping = async (
+  subdomain: string,
+  inboxId: string,
+  messageToken: string,
+): Promise<IViberMessageDocument> => {
+  if (!inboxId.trim()) {
+    throw new Error('Inbox integration id is required');
+  }
+
+  if (
+    typeof messageToken !== 'string' ||
+    messageToken.length === 0 ||
+    /\D/.test(messageToken)
+  ) {
+    throw new Error('Invalid Viber message token');
+  }
+
+  const models = await generateModels(subdomain);
+  const selector = { inboxId, messageToken };
+
+  const existingMapping = await models.ViberMessages.findOne(selector);
+
+  if (existingMapping) {
+    return existingMapping;
+  }
+
+  try {
+    return await models.ViberMessages.create({
+      ...selector,
+      messageId: randomUUID(),
+    });
+  } catch (error: unknown) {
+    if (isViberDuplicateKeyError(error)) {
+      const storedMapping = await models.ViberMessages.findOne(selector);
+
+      if (storedMapping) {
+        return storedMapping;
+      }
+    }
+
+    throw error;
+  }
 };

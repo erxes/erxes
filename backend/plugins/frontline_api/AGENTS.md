@@ -74,8 +74,10 @@
   the receiver and does not persist individual messages.
   A tenant-scoped message-mapping model links inbox/message-token pairs to
   Frontline message ids and supports an optional processing-completion timestamp.
-  It defines storage only; reservation, message writes, and retry handling are
-  not yet implemented.
+  An internal helper validates that identity, reserves or reuses a message id,
+  and recovers the winning mapping after a duplicate-key save. It preserves
+  completion state and does not create inbox messages or acquire a processing
+  lock. Message processing and receiver wiring remain unimplemented.
 - Polls are a reusable definition (`title`, `question`, ordered `options`,
   `allowMultiselect`, optional `durationHours`, optional `brandId`,
   `active`/`archived` status) owned by a channel through `channelId`. An agent posts one into a messenger
@@ -166,9 +168,11 @@
 ## Architecture
 
 Viber lives under `src/modules/integrations/viber/`: `helpers.ts` owns connection
-creation, local removal, customer resolution, and conversation synchronization.
+creation, local removal, customer resolution, conversation synchronization,
+and message-id reservation.
 `__tests__/helpers.spec.ts` covers customer resolution;
-`__tests__/conversations.spec.ts` covers the conversation helper. Their shared
+`__tests__/conversations.spec.ts` covers conversation resolution, and
+`__tests__/messageMappings.spec.ts` covers message-id reservation. Their shared
 `__tests__/helperHarness.ts` replaces tenant models, Core calls, and the common
 inbox receiver without starting infrastructure. `messageBroker.ts` adapts connection inputs
 and error handling, and `utils/` holds signature/account helpers, raw-body webhook
@@ -721,14 +725,24 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   before that message exists; its presence alone must not mean processing
   succeeded. Set `processedAt` only after successful processing, never as a
   schema default. The schema alone does not implement runtime deduplication.
+- `getOrCreateViberMessageMapping` rejects blank inbox ids and tokens that are
+  not non-empty ASCII digit strings before loading tenant models. It returns
+  an existing mapping unchanged or awaits a new mapping with a UUID message id
+  and no `processedAt`. Numeric duplicate-key errors recover only the exact
+  inbox/token mapping; a missing winner or another failure rejects. This
+  helper does not contact Core, write common messages, or mark completion.
+  Concurrent callers can both receive the same pending mapping; reservation
+  is not a processing lock or an exactly-once processing guarantee.
 - `getOrCreateViberConversation` rejects blank inbox/sender/customer ids, saves
   a UUID conversation id in the mapping before requesting thread creation, and
   reuses that id on later attempts. Existing thread ownership must match the
   inbox and Core customer before calling `receiveInboxMessage` with
   `create-or-update-conversation`. A success response must contain that exact id.
-- Numeric `11000` mapping errors recover the winning inbox/sender mapping.
-  Customer and conversation helpers share the local `isViberDuplicateKeyError`
-  predicate; their recovery actions remain specific to the failing operation.
+- Customer and conversation mapping errors with numeric code `11000` recover
+  the winning inbox/sender mapping.
+  Customer, conversation, and message-mapping helpers share the local
+  `isViberDuplicateKeyError` predicate; recovery remains specific to the
+  failing operation and its identity key.
   A duplicate thread error is retried once only after finding its exact id,
   integration, and customer; the retry checks ownership again. Other failures
   reject. Mapping persistence is not rolled back after a failed thread write.
@@ -1611,6 +1625,12 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   response validation, both duplicate-recovery paths, bounded retry, and reuse
   after partial failure. Concurrent-call tests simulate uniqueness; they do not
   verify live MongoDB enforcement, real inbox events, or UI reopening.
+- Viber message-mapping helper tests use the shared helper harness and mock
+  only tenant mapping reads/writes, with guards against Core and inbox calls.
+  They cover strict token validation, tenant/inbox identity, unchanged
+  completion state, awaited reservation, error propagation, duplicate recovery,
+  retry after a lost write acknowledgement, and simulated concurrent inserts.
+  They do not verify live unique indexes or actual message processing.
 - Focused Viber removal checks use mocked tenant models: verify provider cleanup
   precedes common integration deletion, an absent provider record is tolerated,
   and a provider cleanup failure prevents common deletion. No bot token or live
@@ -1657,6 +1677,16 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-14` — Viber message-id reservation helper
+
+- **Summary:** Added tenant-scoped message-id reservation with exact token
+  validation, duplicate-key recovery, unchanged completion state, and offline
+  tests.
+- **Affected areas:** `src/modules/integrations/viber/{helpers.ts,__tests__/}`.
+- **Contracts changed:** Added internal
+  `getOrCreateViberMessageMapping(subdomain, inboxId, messageToken): Promise<IViberMessageDocument>`;
+  receiver behavior and public APIs are unchanged.
 
 ### `2026-09-14` — Viber message mapping model
 
@@ -1742,12 +1772,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Contracts changed:** Added `removeViberIntegration(subdomain, integrationId)`
   and `viberRemoveIntegration({ subdomain, data })`; `sendRemoveIntegration`
   now handles the `viber` service prefix. The GraphQL schema is unchanged.
-
-### `2026-09-09` — Viber creation dispatcher wiring
-
-- **Summary:** Connected Viber creation to the existing external-integration
-  dispatcher, preserving its success/error handling and failure cleanup.
-- **Affected areas:** `src/modules/inbox/graphql/resolvers/mutations/integrations.ts`.
-- **Contracts changed:** `sendCreateIntegration` now accepts the `viber` service
-  prefix and calls `viberCreateIntegration({ subdomain, data })`; the GraphQL
-  schema is unchanged.
