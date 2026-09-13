@@ -1,10 +1,9 @@
 import { fixNum } from 'erxes-api-shared/utils';
 import { IProductData } from '@/sales/@types';
 
-export type DiscountInfoType = 'pricing' | 'voucher' | 'score' | 'hand';
-
 export interface IDiscountInfo {
-  type: DiscountInfoType | string;
+  // Known values: "pricing", "voucher", "score", "hand".
+  type: string;
   title?: string;
   amount?: number;
   percent?: number;

@@ -82,6 +82,12 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-13` — `Discount info type cleanup`
+
+- **Summary:** POS discount info types now use a plain string with documented known values to avoid redundant literal-union Sonar warnings.
+- **Affected areas:** `src/modules/posclient/utils/discountInfos.ts`
+- **Contracts changed:** `None`
+
 ### `2026-09-13` — `Use POS discount base for hand discounts`
 
 - **Summary:** POS discount calculations now treat stored `unitPrice` as post-discount, reconstruct the base from `unitPrice * count + discountAmount`, and remove zero-valued automatic discount infos.

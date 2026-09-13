@@ -1,9 +1,8 @@
 import { IOrderItemInput } from '~/modules/posclient/@types/types';
 
-export type DiscountInfoType = 'pricing' | 'voucher' | 'score' | 'hand';
-
 export interface IDiscountInfo {
-  type: DiscountInfoType | string;
+  // Known values: "pricing", "voucher", "score", "hand".
+  type: string;
   title?: string;
   amount?: number;
   percent?: number;

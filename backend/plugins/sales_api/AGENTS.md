@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-09-12`
+- **Last synchronized:** `2026-09-13`
 
 ## Scope
 
@@ -325,6 +325,13 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-13` — Discount info type cleanup
+
+- **Summary:** Deal product discount info types now use a plain string with
+  documented known values to avoid redundant literal-union Sonar warnings.
+- **Affected areas:** `src/modules/sales/utils/discountInfos.ts`.
+- **Contracts changed:** None.
 
 ### `2026-09-12` — Deal product discount breakdowns
 
