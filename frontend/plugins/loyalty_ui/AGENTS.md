@@ -1,94 +1,109 @@
-# loyalty_ui — Plugin Rules & Notes
+# `loyalty_ui` Plugin Guide
 
-Frontend remote for loyalty. **Pricing UI lives here** under
-`src/modules/pricing` + `src/pages/pricing`. Inherits the repo-wide frontend
-rules in `frontend/plugins/AGENTS.md`.
+## Identity
 
-Development Rspack serving ignores generated dependency/cache/output folders to
-keep local file watchers bounded.
+- **Plugin:** `loyalty`
+- **Project:** `loyalty_ui`
+- **Layer:** `Frontend UI`
+- **Path:** `frontend/plugins/loyalty_ui`
+- **Last synchronized:** `2026-09-13`
 
-## Pricing form map
+## Scope
 
-| Concern                      | Path                                                                            |
-| ---------------------------- | ------------------------------------------------------------------------------- |
-| Create form                  | `src/modules/pricing/create-pricing/**`                                         |
-| Edit form (general)          | `src/modules/pricing/edit-pricing/components/general/GeneralInfo.tsx`           |
-| Edit form (options/location) | `src/modules/pricing/edit-pricing/components/options/OptionsInfo.tsx`           |
-| Edit form (participants)     | `src/modules/pricing/edit-pricing/components/participants/ParticipantsInfo.tsx` |
-| Hooks / GraphQL / types      | `src/modules/pricing/{hooks,graphql,types}`                                     |
+### Owns
 
-The general form is driven by React Hook Form. An `appliesTo` switch
-(`category` / `product` / `segment` / `vendor` / `tag` / `bundle`) reveals the
-matching **product**-targeting inputs. `handleSubmit` maps form values to the
-`pricingPlanEdit` doc; `form.reset` maps a loaded plan back to form values.
+- Loyalty and pricing frontend routes, forms, list views, settings, GraphQL
+  documents, and Module Federation UI surfaces.
 
----
+### Does not own
 
-## Feature: Customer & broker targeting ("dynamic conditions")
+- Backend loyalty calculation contracts, pricing engine behavior, sales pipeline
+  data ownership, shared UI libraries, or other plugin UIs.
 
-Adds two **who**-dimensions to a pricing plan alongside the existing product
-targeting (see `backend/plugins/loyalty_api/AGENTS.md` for the engine + data
-model). The **Participants** tab owns buyer conditions (customer, company, and
-user) plus broker conditions (customer, company, and user), **independent of**
-the `appliesTo` product switch. These sections can be used at the same time.
+## Current Capabilities
 
-Both forms render one shared component,
-`edit-pricing/components/options/CustomerBrokerConditions.tsx`, which also owns
-the `CUSTOMER_BROKER_DEFAULTS`, `customerBrokerFromDetail`, and
-`customerBrokerToDoc` helpers (load / save mapping). Host forms
-(`ParticipantsInfo`, `PricingCreateSheet`) extend `CustomerBrokerFormValues` and
-delegate the section + the save slice.
+- Renders pricing list/detail/create/edit UI under `src/modules/pricing` and
+  `src/pages/pricing`.
+- Pricing detail forms edit general targeting, options, participants, price,
+  quantity, repeat, expiry, and rules sections.
+- Options detail supports branch, department, board, and pipeline selection.
+- Board and pipeline selectors can clear an existing selection; clearing a board
+  also clears the dependent pipeline in the options and stage forms.
+- Customer and broker targeting render through
+  `edit-pricing/components/options/CustomerBrokerConditions.tsx` and round-trip
+  through pricing form values.
 
-### Form values → doc fields
+## Architecture
 
-| Form value                                         | Component (`ui-modules`)                 | Plan field                                         |
-| -------------------------------------------------- | ---------------------------------------- | -------------------------------------------------- |
-| `customerIds`                                      | `SelectCustomer` (multiple)              | `customerIds`                                      |
-| `customerTags` / `customerExcludeTags`             | `SelectTags` (`tagType="core:customer"`) | `customerTags` / `customerExcludeTags`             |
-| `customerSegmentId`                                | `SelectSegment` (single → `[id]`)        | `customerSegmentIds`                               |
-| `companyIds`                                       | `SelectCompany` (multiple)               | `companyIds`                                       |
-| `companyTags` / `companyExcludeTags`               | `SelectTags` (`tagType="core:company"`)  | `companyTags` / `companyExcludeTags`               |
-| `companySegmentId`                                 | `SelectSegment` (single → `[id]`)        | `companySegmentIds`                                |
-| `userIds`                                          | `SelectMember` (multiple)                | `userIds`                                          |
-| `userPositions`                                    | `SelectPositions` (multiple)             | `userPositions`                                    |
-| `userSegmentId`                                    | `SelectSegment` (single → `[id]`)        | `userSegmentIds`                                   |
-| `brokerCustomerIds`                                | `SelectCustomer` (multiple)              | `brokerCustomerIds`                                |
-| `brokerCustomerTags` / `brokerCustomerExcludeTags` | `SelectTags` (`tagType="core:customer"`) | `brokerCustomerTags` / `brokerCustomerExcludeTags` |
-| `brokerCustomerSegmentId`                          | `SelectSegment` (single → `[id]`)        | `brokerCustomerSegmentIds`                         |
-| `brokerCompanyIds`                                 | `SelectCompany` (multiple)               | `brokerCompanyIds`                                 |
-| `brokerCompanyTags` / `brokerCompanyExcludeTags`   | `SelectTags` (`tagType="core:company"`)  | `brokerCompanyTags` / `brokerCompanyExcludeTags`   |
-| `brokerCompanySegmentId`                           | `SelectSegment` (single → `[id]`)        | `brokerCompanySegmentIds`                          |
-| `brokerUserIds`                                    | `SelectMember` (multiple)                | `brokerUserIds`                                    |
-| `brokerUserPositions`                              | `SelectPositions` (multiple)             | `brokerUserPositions`                              |
-| `brokerUserSegmentId`                              | `SelectSegment` (single → `[id]`)        | `brokerUserSegmentIds`                             |
+| Area                 | Path                                                                                          | Responsibility                                      |
+| -------------------- | --------------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| Pricing entry points | `src/modules/pricing/Main.tsx`, `src/pages/pricing`                                           | Pricing route and list/detail composition.          |
+| Pricing create form  | `src/modules/pricing/create-pricing/**`                                                       | New pricing plan form and submission mapping.       |
+| Pricing edit forms   | `src/modules/pricing/edit-pricing/**`                                                         | Sectioned pricing detail editing UI.                |
+| Pricing selectors    | `src/modules/pricing/hooks/useSelectBoard.tsx`, `useSelectPipeline.tsx`, `useSelectStage.tsx` | Sales board, pipeline, and stage comboboxes.        |
+| Pricing data hooks   | `src/modules/pricing/hooks/**`                                                                | Apollo query/mutation wrappers for pricing screens. |
+| Pricing contracts    | `src/modules/pricing/graphql/**`, `src/modules/pricing/types.ts`                              | GraphQL documents and TypeScript form/API types.    |
 
-Reuse the existing selectors — no new pickers. `SelectSegment` is single-select
-(stored as a one-element array, mirroring the product segment), and `SelectTags`
-needs the entity's `tagType`. `customerBrokerToDoc` persists every section, so a
-plan can carry customer and company constraints simultaneously. Empty fields = no
-constraint.
+## Contracts
 
-### Implementation status
+### Provides
 
-✅ **Done.** The shared `CustomerBrokerConditions` renders in the
-**Participants** tab (`ParticipantsInfo.tsx`) and the create sheet
-(`PricingCreateSheet.tsx`); `types.ts`,
-`graphql/queries.ts` (`PricingPlanDetail`), and `hooks/useCreatePricing.ts`
-round-trip the typed fields. The legacy flat block was removed from `GeneralInfo`.
-Verified with `npx tsc --noEmit` (0 errors). The loyalty_api contract + engine
-landed earlier (see backend AGENTS.md).
+- Module Federation frontend routes and components configured by this plugin's
+  exposed pricing and loyalty UI modules.
+- Pricing GraphQL operations including `PricingPlanDetail` and pricing
+  create/edit mutations.
+
+### Consumes
+
+- Public components and hooks from `erxes-ui` and `ui-modules`.
+- Sales board, pipeline, and stage GraphQL queries exposed through platform
+  contracts.
+- Loyalty pricing API contracts provided by `backend/plugins/loyalty_api`.
+
+## Data and State
+
+- Uses Apollo Client for pricing plan and sales board/pipeline/stage server
+  data.
+- Uses React Hook Form local form state in pricing create/edit forms.
+- Keeps board, pipeline, and stage selector state local to the owning pricing
+  form or detail section.
+
+## Local Invariants
+
+- Pricing UI changes stay inside `frontend/plugins/loyalty_ui`.
+- Pricing form save mappings must preserve empty optional selectors as no
+  constraint (`null`, `undefined`, or an empty form value as expected by the
+  existing mutation path).
+- Board changes must clear dependent pipeline and stage selections where those
+  fields are present.
+- Pipeline changes must clear dependent stage selections where those fields are
+  present.
+- Reuse `erxes-ui` and `ui-modules`; do not import Radix primitives directly.
 
 ## Validation
 
-`pnpm nx lint loyalty_ui` · `pnpm nx build loyalty_ui` ·
-`pnpm nx test loyalty_ui` (when tested behavior changes).
+- `pnpm nx build loyalty_ui`
+- Pricing detail smoke scenario: open a pricing plan, go to Options, choose a
+  board and pipeline, reopen each selector, choose `none`, save, and confirm the
+  saved plan no longer has those board/pipeline constraints.
 
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-13` — Clearable pricing board and pipeline selectors
+
+- **Summary:** Pricing detail board and pipeline comboboxes now include an empty
+  `none` selection so users can remove an existing board or pipeline constraint.
+- **Affected areas:** `src/modules/pricing/hooks/useSelectBoard.tsx`,
+  `src/modules/pricing/hooks/useSelectPipeline.tsx`, pricing Options/Stage
+  selector behavior.
+- **Contracts changed:** None.
+
 ### `2026-09-09` — Bound dev watchers
 
-- **Summary:** Loyalty UI Rspack development serving now ignores generated dependency, cache, coverage, temp, and output folders to reduce local watcher pressure.
+- **Summary:** Loyalty UI Rspack development serving ignores generated
+  dependency, cache, coverage, temp, and output folders to reduce local watcher
+  pressure.
 - **Affected areas:** `rspack.config.ts`.
 - **Contracts changed:** None.

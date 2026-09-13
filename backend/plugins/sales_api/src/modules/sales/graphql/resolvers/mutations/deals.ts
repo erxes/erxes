@@ -8,6 +8,7 @@ import {
   getNewOrder,
   getTotalAmounts,
 } from '~/modules/sales/utils';
+import { normalizeProductDiscountInfos } from '~/modules/sales/utils/discountInfos';
 import {
   checkAssignedUserFromPData,
   copyChecklists,
@@ -316,8 +317,10 @@ export const dealMutations: Record<string, Resolver> = {
       throw new Error('Deals productData not found');
     }
 
-    const productsData: IProductData[] = (deal.productsData || []).map(
-      (data) => (data._id === dataId ? { ...doc } : data),
+    const productsData: IProductData[] = normalizeProductDiscountInfos(
+      (deal.productsData || []).map((data) =>
+        data._id === dataId ? { ...doc } : data,
+      ),
     );
 
     const possibleAssignedUsersIds: string[] = (deal.productsData || [])
@@ -414,8 +417,10 @@ export const dealMutations: Record<string, Resolver> = {
       throw new Error('Deals productData not found');
     }
 
-    const productsData: IProductData[] = (deal.productsData || []).map(
-      (data) => (data._id === dataId ? { ...doc } : data),
+    const productsData: IProductData[] = normalizeProductDiscountInfos(
+      (deal.productsData || []).map((data) =>
+        data._id === dataId ? { ...doc } : data,
+      ),
     );
 
     const possibleAssignedUsersIds: string[] = (deal.productsData || [])

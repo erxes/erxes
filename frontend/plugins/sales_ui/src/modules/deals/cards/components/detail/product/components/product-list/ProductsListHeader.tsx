@@ -15,6 +15,8 @@ interface ProductsListHeaderProps {
   onApplyVat: () => void;
   showAdvancedView: boolean;
   onShowAdvancedViewChange: (value: boolean) => void;
+  showTaxView: boolean;
+  onShowTaxViewChange: (value: boolean) => void;
 }
 
 export const ProductsListHeader = ({
@@ -27,6 +29,8 @@ export const ProductsListHeader = ({
   onApplyVat,
   showAdvancedView,
   onShowAdvancedViewChange,
+  showTaxView,
+  onShowTaxViewChange,
 }: ProductsListHeaderProps) => {
   const { t } = useTranslation('sales');
 
@@ -98,6 +102,19 @@ export const ProductsListHeader = ({
               className="whitespace-nowrap text-xs font-medium"
             >
               {t('advanced-view')}
+            </Label>
+          </div>
+          <div className="flex h-9 items-center gap-2">
+            <Switch
+              id="product-tax-view"
+              checked={showTaxView}
+              onCheckedChange={onShowTaxViewChange}
+            />
+            <Label
+              htmlFor="product-tax-view"
+              className="whitespace-nowrap text-xs font-medium"
+            >
+              {t('tax-view', 'Tax view')}
             </Label>
           </div>
         </div>

@@ -2,6 +2,7 @@ import { onLocalChangeAtom } from '../productTableAtom';
 import { useAtomValue } from 'jotai';
 import { useDealsEditProductData } from './mutations/useDealsEditProductData';
 import { IProductData } from 'ui-modules';
+import { ProductDataWithDiscountInfos } from '../utils/discountInfos';
 
 export const useUpdateProductRecord = () => {
   const { editDealsProductData } = useDealsEditProductData();
@@ -10,7 +11,7 @@ export const useUpdateProductRecord = () => {
 
   const updateRecord = (
     product: IProductData,
-    patch: Partial<IProductData>,
+    patch: Partial<ProductDataWithDiscountInfos>,
   ) => {
     const doc = { ...product, ...patch };
     const processId = crypto.randomUUID();
@@ -37,7 +38,7 @@ export const useUpdateProductRecord = () => {
             key,
             product[key as keyof IProductData],
           ]),
-        ) as Partial<IProductData>;
+        ) as Partial<ProductDataWithDiscountInfos>;
 
         onLocalChange(product._id, revertPatch);
       }
