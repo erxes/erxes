@@ -84,8 +84,11 @@
   retries can republish events, so this is not exactly-once notification delivery.
   `processViberMessage` also accepts native `IAttachment[]` metadata and uses an
   attachment preview when a caption is blank; empty text without attachments is
-  still rejected. Only text is wired from the receiver. Media download, upload,
-  and incoming-media processing are not implemented.
+  still rejected. `storeViberAttachment` stores already-downloaded bytes through
+  tenant-configured storage with bounded size, filename checks, and temporary-file
+  cleanup. It does not validate file content against the claimed MIME type or
+  enforce a file-type allowlist. Only text is wired from the receiver; media
+  download and incoming-media processing are not implemented.
   A pure text formatter escapes incoming plain text for HTML display, preserves
   line breaks, and rejects blank messages. Live database, provider, and UI
   delivery remain unverified.
@@ -180,7 +183,8 @@
 
 Viber lives under `src/modules/integrations/viber/`: `helpers.ts` owns connection
 creation, local removal, customer resolution, conversation synchronization,
-message-id reservation, and message processing with optional native attachments.
+message-id reservation, message processing with optional native attachments,
+and storage of already-downloaded attachment bytes.
 `__tests__/helpers.spec.ts` covers customer resolution;
 `__tests__/conversations.spec.ts` covers conversation resolution, and
 `__tests__/messageMappings.spec.ts` covers message-id reservation. Their shared
@@ -191,6 +195,8 @@ recovery after partial failures. `messageBroker.ts` adapts connection inputs
 and error handling, and `utils/` holds signature/account helpers, raw-body webhook
 parsing, shared message-token validation, plain-text HTML formatting, and their
 colocated tests.
+`__tests__/attachments.spec.ts` covers the tenant-configured byte-storage adapter.
+`constants.ts` shares the 25 MiB file-size cap between storage and callback validation.
 `controller/receiveMessage.ts` contains unmounted callback validation and text processing;
 its colocated tests mock tenant lookup and message processing while using the
 real signature and parser utilities.
@@ -777,6 +783,16 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   require one matched completion mapping. Failures before completion remain
   retryable. Concurrent pending callbacks and retries after partial publication
   can republish events; no lock, total ordering, or exactly-once delivery is promised.
+- `storeViberAttachment` accepts an existing `Buffer`, strips directory components
+  from filenames, rejects blank tenants/MIME types and unsafe names, and checks
+  the actual byte length against the shared 25 MiB cap. Empty buffers are currently
+  accepted. It writes a fixed leaf filename in a unique temporary directory with
+  mode `0o600`, passes the tenant and `forcePrivate: true` to the public shared
+  `uploadFileToStorage`, and attempts cleanup in `finally`. A blank storage key
+  rejects; successful metadata uses the stored key, supplied MIME type, and actual
+  byte count. This adapter does not download files, detect their type, enforce an
+  extension/MIME allowlist, or scan for malware. The private-upload request flag
+  is not proof of provider ACLs or safe content delivery.
 - `getOrCreateViberConversation` rejects blank inbox/sender/customer ids, saves
   a UUID conversation id in the mapping before requesting thread creation, and
   reuses that id on later attempts. Existing thread ownership must match the
@@ -1695,6 +1711,14 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   replay short-circuiting, and rejection of empty text without attachments.
   Attachment fixtures represent stored files; no download, upload,
   URL-lifetime handling, or incoming-media receiver wiring is exercised.
+- Attachment-storage tests mock filesystem operations and the public
+  `uploadFileToStorage` dependency through the existing helper harness. They
+  specify native metadata from stored bytes, tenant forwarding, a private-upload
+  request flag, separate temporary directories, filename boundaries, the local
+  25 MiB byte cap, failure propagation, and cleanup attempts. Modules load before
+  filesystem mocks so compiler-cache writes are not counted as attachment I/O.
+  No real attachment files, uploads, provider ACLs, content-type validation,
+  malware scanning, remote downloads, or live storage configurations are exercised.
 - Focused Viber removal checks use mocked tenant models: verify provider cleanup
   precedes common integration deletion, an absent provider record is tolerated,
   and a provider cleanup failure prevents common deletion. No bot token or live
@@ -1741,6 +1765,14 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-14` — Viber attachment byte storage
+
+- **Summary:** Added bounded byte storage through the existing tenant storage
+  helper, temporary-file cleanup, a shared size cap, and offline tests.
+- **Affected areas:** `src/modules/integrations/viber/{helpers.ts,constants.ts,controller/receiveMessage.ts,__tests__/attachments.spec.ts}`.
+- **Contracts changed:** Added internal `storeViberAttachment`; file-content
+  validation and receiver media wiring are not implemented. Public APIs are unchanged.
 
 ### `2026-09-14` — Viber attachment-aware message processing
 
@@ -1820,12 +1852,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `src/connectionResolvers.ts`.
 - **Contracts changed:** Added internal `IModels.ViberConversations` backed by
   `viber_conversations`; receiver behavior and public APIs are unchanged.
-
-### `2026-09-14` — Viber customer resolution helper
-
-- **Summary:** Added tenant-scoped customer resolution with validated Core
-  creation, mapping persistence, duplicate-key recovery, and offline tests.
-- **Affected areas:** `src/modules/integrations/viber/{helpers.ts,__tests__/}`.
-- **Contracts changed:** Added internal
-  `getOrCreateViberCustomer(subdomain, inboxId, userId, name?): Promise<string>`;
-  receiver wiring and HTTP/GraphQL contracts are unchanged.

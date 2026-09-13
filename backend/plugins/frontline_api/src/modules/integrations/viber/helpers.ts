@@ -1,6 +1,10 @@
 import { generateModels } from '~/connectionResolvers';
 import { getViberAccountInfo } from '@/integrations/viber/utils/account';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { sendTRPCMessage, uploadFileToStorage } from 'erxes-api-shared/utils';
+import { promises as fsPromises } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { basename, join } from 'node:path';
+import { MAX_VIBER_FILE_BYTES } from '@/integrations/viber/constants';
 import { randomUUID } from 'node:crypto';
 import { receiveInboxMessage } from '@/inbox/receiveMessage';
 import type { IViberMessageDocument } from '@/integrations/viber/@types/message';
@@ -389,4 +393,70 @@ export const processViberMessage = async (
   }
 
   return messageId;
+};
+
+export const storeViberAttachment = async (
+  subdomain: string,
+  input: {
+    buffer: Buffer;
+    fileName: string;
+    mimetype: string;
+  },
+): Promise<IAttachment> => {
+  const { buffer, mimetype } = input;
+  const fileName = basename(input.fileName.replace(/\\/g, '/'));
+
+  if (!subdomain.trim()) {
+    throw new Error('Subdomain is required');
+  }
+
+  if (
+    !fileName.trim() ||
+    fileName === '.' ||
+    fileName === '..' ||
+    [...fileName].some(
+      (character) =>
+        character.charCodeAt(0) < 32 || character.charCodeAt(0) === 127,
+    )
+  ) {
+    throw new Error('Invalid Viber attachment name');
+  }
+
+  if (!mimetype.trim()) {
+    throw new Error('Invalid Viber attachment type');
+  }
+
+  if (!Buffer.isBuffer(buffer) || buffer.byteLength > MAX_VIBER_FILE_BYTES) {
+    throw new Error('Invalid Viber attachment size');
+  }
+
+  const directory = await fsPromises.mkdtemp(join(tmpdir(), 'viber-'));
+  const filePath = join(directory, 'attachment');
+
+  try {
+    await fsPromises.writeFile(filePath, new Uint8Array(buffer), {
+      mode: 0o600,
+    });
+
+    const url = await uploadFileToStorage({
+      subdomain,
+      filePath,
+      fileName,
+      mimetype,
+      forcePrivate: true,
+    });
+
+    if (!url.trim()) {
+      throw new Error('Viber attachment storage returned an empty location');
+    }
+
+    return {
+      name: fileName,
+      url,
+      size: buffer.byteLength,
+      type: mimetype,
+    };
+  } finally {
+    await fsPromises.rm(directory, { recursive: true, force: true });
+  }
 };

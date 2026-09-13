@@ -8,8 +8,8 @@ import {
   parseViberWebhookBody,
 } from '@/integrations/viber/utils/webhook';
 import { processViberMessage } from '@/integrations/viber/helpers';
+import { MAX_VIBER_FILE_BYTES } from '@/integrations/viber/constants';
 
-const MAX_VIBER_FILE_BYTES = 25 * 1024 * 1024;
 const SUPPORTED_VIBER_MESSAGE_TYPES = [
   'text',
   'picture',
