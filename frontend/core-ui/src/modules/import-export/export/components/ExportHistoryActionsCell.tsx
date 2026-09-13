@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { IconDots, IconDownload } from '@tabler/icons-react';
 import {
   DropdownMenu,
@@ -11,6 +12,7 @@ export function ExportHistoryActionsCell({
 }: {
   exportItem: TExportProgress;
 }) {
+  const { t } = useTranslation('importExport');
   const canDownload = !!exportItem.fileKey;
 
   if (!canDownload) {
@@ -40,7 +42,7 @@ export function ExportHistoryActionsCell({
       </DropdownMenu.Trigger>
       <DropdownMenu.Content>
         <DropdownMenu.Item onClick={handleDownload}>
-          <IconDownload /> Download file
+          <IconDownload /> {t('download-file')}
         </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu>

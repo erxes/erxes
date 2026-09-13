@@ -1,4 +1,8 @@
 import { IModels } from '~/connectionResolvers';
+import {
+  buildImportUpdateDoc,
+  readImportBulkOutcome,
+} from '~/meta/import-export/utils';
 import { prepareProductDoc } from './utils';
 
 export async function processProductRows(
@@ -21,40 +25,55 @@ export async function processProductRows(
     }
 
     const operations: any[] = [];
-    const rowToMetaMap = new Map<any, { _id?: any; operationIndex?: number }>();
+    const rowToMetaMap = new Map<any, { _id?: any; operationIndex: number }>();
 
     for (const row of rows) {
       try {
         const doc = await prepareProductDoc(models, row);
         const existing = existingByCode.get(doc.code);
 
+        const operationIndex = operations.length;
+
         if (existing) {
           operations.push({
             updateOne: {
               filter: { _id: existing._id },
-              update: { $set: { ...doc, updatedAt: new Date() } },
+              update: { $set: buildImportUpdateDoc(existing, doc) },
             },
           });
-          rowToMetaMap.set(row, { _id: existing._id });
+          rowToMetaMap.set(row, { _id: existing._id, operationIndex });
         } else {
-          const opIndex = operations.length;
           operations.push({ insertOne: { document: doc } });
-          rowToMetaMap.set(row, { operationIndex: opIndex });
+          rowToMetaMap.set(row, { operationIndex });
         }
       } catch (e: any) {
-        errorRows.push({ ...row, error: e?.message || 'Failed to prepare row' });
+        errorRows.push({
+          ...row,
+          error: e?.message || 'Failed to prepare row',
+        });
       }
     }
 
     if (operations.length) {
-      const result = await models.Products.bulkWrite(operations);
+      // unordered so one refused row does not abandon the rest of the batch
+      const result = await models.Products.bulkWrite(operations, {
+        ordered: false,
+      });
 
       for (const [row, meta] of rowToMetaMap.entries()) {
-        if (meta.operationIndex !== undefined) {
-          successRows.push({ ...row, _id: result.insertedIds[meta.operationIndex] });
-        } else {
-          successRows.push({ ...row, _id: meta._id });
+        const isInsert = !meta._id;
+        const { error, insertedId } = readImportBulkOutcome({
+          bulkResult: result,
+          operationIndex: meta.operationIndex,
+          isInsert,
+        });
+
+        if (error) {
+          errorRows.push({ ...row, error });
+          continue;
         }
+
+        successRows.push({ ...row, _id: isInsert ? insertedId : meta._id });
       }
     }
 
@@ -62,7 +81,10 @@ export async function processProductRows(
   } catch (e: any) {
     return {
       successRows: [],
-      errorRows: rows.map((r) => ({ ...r, error: e?.message || 'Failed to process rows' })),
+      errorRows: rows.map((r) => ({
+        ...r,
+        error: e?.message || 'Failed to process rows',
+      })),
     };
   }
 }

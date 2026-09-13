@@ -1,9 +1,14 @@
 import { IconAlertCircle } from '@tabler/icons-react';
 import { Empty } from 'erxes-ui';
-import { useImportHistoriesRecordTable } from './ImportHistoriesContext';
+import { useTranslation } from 'react-i18next';
 
-export const ImportHistoriesErrorState = () => {
-  const { columnsLength } = useImportHistoriesRecordTable();
+export const ImportHistoriesErrorState = ({
+  columnsLength,
+}: {
+  columnsLength: number;
+}) => {
+  const { t } = useTranslation('importExport');
+
   return (
     <tr>
       <td colSpan={columnsLength} className="p-0">
@@ -12,10 +17,8 @@ export const ImportHistoriesErrorState = () => {
             <Empty.Media variant="icon">
               <IconAlertCircle className="text-destructive" />
             </Empty.Media>
-            <Empty.Title>Import history couldn&apos;t be loaded</Empty.Title>
-            <Empty.Description>
-              Try refreshing this page again in a moment.
-            </Empty.Description>
+            <Empty.Title>{t('import-history-load-failed')}</Empty.Title>
+            <Empty.Description>{t('try-again-later')}</Empty.Description>
           </Empty.Header>
         </Empty>
       </td>
