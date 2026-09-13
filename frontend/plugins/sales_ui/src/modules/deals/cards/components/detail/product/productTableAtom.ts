@@ -1,5 +1,6 @@
 import { atom } from 'jotai';
 import { IProductData } from 'ui-modules';
+import { ProductDataWithDiscountInfos } from './utils/discountInfos';
 
 interface LocalChangeOptions {
   syncProductId?: string;
@@ -7,7 +8,7 @@ interface LocalChangeOptions {
 
 type OnLocalChangeType = (
   id: string,
-  patch: Partial<IProductData>,
+  patch: Partial<ProductDataWithDiscountInfos>,
   options?: LocalChangeOptions,
 ) => void;
 

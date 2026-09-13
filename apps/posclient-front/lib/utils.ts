@@ -191,31 +191,89 @@ export const getCartTotal = (items: OrderItem[]) =>
     0
   )
 
-export const getItemInputs = (items: OrderItem[]) =>
+type DiscountInfo = NonNullable<OrderItem["discountInfos"]>[number]
+
+const HAND_DISCOUNT_TYPE = "hand"
+
+const numberValue = (value?: number) =>
+  Number.isFinite(Number(value)) ? Number(value) : 0
+
+const getDiscountInfoAmount = (discountInfo: DiscountInfo) =>
+  numberValue(discountInfo.amount)
+
+const getManualDiscountInfos = (
+  discountInfos: DiscountInfo[] = [],
+  includeHandDiscounts = true
+) =>
+  includeHandDiscounts
+    ? discountInfos.filter(
+        (discountInfo) => discountInfo.type === HAND_DISCOUNT_TYPE
+      )
+    : []
+
+const getAutoDiscountAmount = (discountInfos: DiscountInfo[] = []) =>
+  discountInfos
+    .filter((discountInfo) => discountInfo.type !== HAND_DISCOUNT_TYPE)
+    .reduce((sum, discountInfo) => sum + getDiscountInfoAmount(discountInfo), 0)
+
+const getManualDiscountAmount = (discountInfos: DiscountInfo[] = []) =>
+  getManualDiscountInfos(discountInfos).reduce(
+    (sum, discountInfo) => sum + getDiscountInfoAmount(discountInfo),
+    0
+  )
+
+export const getItemInputs = (
+  items: OrderItem[],
+  options: { includeHandDiscounts?: boolean } = {}
+) =>
   items.map(
     ({
       _id,
       productId,
       count,
       unitPrice,
+      discountAmount,
+      discountInfos,
       isPackage,
       isTake,
       status,
       manufacturedDate,
       description,
       attachment,
-    }) => ({
-      _id,
-      productId,
-      count,
-      unitPrice,
-      isPackage,
-      isTake,
-      status,
-      manufacturedDate,
-      description,
-      attachment,
-    })
+    }) => {
+      const includeHandDiscounts = options.includeHandDiscounts ?? true
+      const hasDiscountInfos = !!discountInfos?.length
+      const manualDiscountInfos = getManualDiscountInfos(
+        discountInfos,
+        includeHandDiscounts
+      )
+      const totalDiscountAmount = hasDiscountInfos
+        ? getAutoDiscountAmount(discountInfos) +
+          getManualDiscountAmount(getManualDiscountInfos(discountInfos))
+        : numberValue(discountAmount)
+      const unitPriceBeforeDiscount =
+        totalDiscountAmount && count
+          ? fixNum(unitPrice + totalDiscountAmount / count)
+          : unitPrice
+
+      return {
+        _id,
+        productId,
+        count,
+        unitPrice: unitPriceBeforeDiscount,
+        discountAmount: undefined,
+        discountPercent: undefined,
+        discountInfos: manualDiscountInfos.length
+          ? manualDiscountInfos
+          : undefined,
+        isPackage,
+        isTake,
+        status,
+        manufacturedDate,
+        description,
+        attachment,
+      }
+    }
   )
 
 export const getSumsOfAmount = (

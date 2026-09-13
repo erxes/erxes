@@ -1,13 +1,18 @@
 import { IConfigDocument } from '~/modules/posclient/@types/configs';
 import { IPosUserDocument } from '~/modules/posclient/@types/posUsers';
 import { IOrderInput } from '~/modules/posclient/@types/types';
+import {
+  applyDiscountInfo,
+  getDiscountBaseAmount,
+  getDiscountBaseUnitPrice,
+} from './discountInfos';
 
 export const checkDirectDiscount = (
   orderInput: IOrderInput,
   config: IConfigDocument,
   posUser: IPosUserDocument,
 ): IOrderInput => {
-  const { directDiscount, directIsAmount, items, totalAmount } = orderInput;
+  const { directDiscount, directIsAmount, items } = orderInput;
   const { adminIds, cashierIds, permissionConfig } = config;
   const output = { ...orderInput, directDiscount: 0 };
   if (
@@ -26,6 +31,11 @@ export const checkDirectDiscount = (
   const limitPercent = Number.parseFloat(staffConfig?.directDiscountLimit);
 
   if (Number.isNaN(limitPercent)) return output;
+
+  const totalAmount = (items || []).reduce(
+    (sum, item) => sum + getDiscountBaseAmount(item),
+    0,
+  );
 
   if (
     (!directIsAmount && directDiscount > limitPercent) ||
@@ -59,10 +69,16 @@ const applyDiscount = (
   for (const item of items || []) {
     item.unitPrice = item.unitPrice || 0;
 
+    const baseUnitPrice = getDiscountBaseUnitPrice(item);
     const discountValue = Number.parseFloat(
-      ((item.unitPrice * directDiscount) / 100).toFixed(2),
+      ((baseUnitPrice * directDiscount) / 100).toFixed(2),
     );
+    applyDiscountInfo(item, {
+      type: 'hand',
+      title: 'Direct discount',
+      amount: discountValue * item.count,
+      percent: directDiscount,
+    });
     item.unitPrice -= discountValue;
-    item.discountAmount = discountValue * item.count;
   }
 };

@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-09-01`
+- **Last synchronized:** `2026-09-12`
 
 ## Scope
 
@@ -114,9 +114,9 @@
   child deals through the compound count index.
 - The unscoped deal list defaults to `order` then `_id` ordering and must avoid
   a blocking sort across the full collection.
-- Deal monetary state is stored in `productsData`, `totalAmount`,
-  `unUsedTotalAmount`, `bothTotalAmount`, `mobileAmount`, `mobileAmounts`, and
-  `paymentsData`.
+- Deal monetary state is stored in `productsData`, product-level
+  `discountInfos`, `totalAmount`, `unUsedTotalAmount`, `bothTotalAmount`,
+  `mobileAmount`, `mobileAmounts`, and `paymentsData`.
 - Pipeline documents store validated Core deal field ids in `propertyIds`.
 
 ## Local Invariants
@@ -244,6 +244,9 @@
   the full total amount.
 - Deal amount fallbacks should preserve the existing `tickUsed` semantics used
   by sales totals.
+- Product-level `discountInfos` records auto discounts by source
+  (`pricing`, `voucher`, `score` when applicable) and keeps direct/manual
+  discounts under `hand`; auto recalculation must not erase `hand`.
 - Agent-facing deal reads are always bounded and strictly shaped: `deal.find`
   clamps `limit` to 1–100 (default 20) on every path and rejects unknown input
   keys by name, `deal.count` takes `{ filter? }` — an agent's unbounded
@@ -322,6 +325,12 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-12` — Deal product discount breakdowns
+
+- **Summary:** Deal products now persist `discountInfos` and merge automatic pricing/voucher discounts with preserved manual `hand` discounts before recalculating totals.
+- **Affected areas:** `src/modules/sales/db/definitions/deals.ts`, `src/modules/sales/@types/deal.ts`, `src/modules/sales/utils/discountInfos.ts`, `src/modules/sales/db/models/Deals.ts`, `src/modules/sales/graphql/resolvers/mutations/{deals,loyaltyUtils,utils}.ts`.
+- **Contracts changed:** Deal `productsData` JSON may now include product-level `discountInfos`.
 
 ### `2026-09-01` — `checkTargetMatch` producer removed
 

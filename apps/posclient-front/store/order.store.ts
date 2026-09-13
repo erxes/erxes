@@ -27,12 +27,11 @@ import { customerSearchAtom, selectedTabAtom } from "."
 import {
   cartAtom,
   cartChangedAtom,
-  orderItemInput,
   totalAmountAtom,
 } from "./cart.store"
 import { allowTypesAtom, permissionConfigAtom } from "./config.store"
 import { paymentSheetAtom } from "./ui.store"
-import { fixNum } from "@/lib/utils"
+import { fixNum, getItemInputs } from "@/lib/utils"
 
 // order
 export const activeOrderIdAtom = atomWithStorage<string | null>(
@@ -311,7 +310,9 @@ export const setOpenCancelDialogAtom = atom(
 )
 
 export const orderValuesAtom = atom((get) => ({
-  items: get(orderItemInput),
+  items: getItemInputs(get(cartAtom), {
+    includeHandDiscounts: !!get(directDiscountAtom),
+  }),
   totalAmount: get(totalAmountAtom),
   directDiscount: get(directDiscountAtom),
   directIsAmount: get(directDiscountAtom) ? get(directIsAmountAtom) : undefined,
