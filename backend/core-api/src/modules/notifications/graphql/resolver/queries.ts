@@ -36,6 +36,11 @@ const generateOrderByNotifications = (orderBy?: any) => {
   return sort;
 };
 
+const generateActiveNotificationsFilter =
+  (): FilterQuery<INotificationDocument> => ({
+    $or: [{ expiresAt: null }, { expiresAt: { $gt: new Date() } }],
+  });
+
 export const notificationQueries = {
   async emailDeliveries(
     _root: undefined,
@@ -159,7 +164,11 @@ export const notificationQueries = {
           ...params,
           orderBy: generateOrderByNotifications(params?.orderBy),
         },
-        query: { ...filter, userId: user._id },
+        query: {
+          ...filter,
+          ...generateActiveNotificationsFilter(),
+          userId: user._id,
+        },
       });
 
     return {
@@ -187,6 +196,7 @@ export const notificationQueries = {
     { models, user }: IContext,
   ) {
     return await models.Notifications.countDocuments({
+      ...generateActiveNotificationsFilter(),
       userId: user._id,
       isRead: false,
     });

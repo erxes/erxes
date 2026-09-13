@@ -1,4 +1,8 @@
-import { IconChalkboard, IconInfoCircle } from '@tabler/icons-react';
+import {
+  IconChalkboard,
+  IconExternalLink,
+  IconInfoCircle,
+} from '@tabler/icons-react';
 import {
   Avatar,
   Button,
@@ -127,18 +131,24 @@ export const NotificationChannelContent = ({
         <p className="text-sm leading-6 text-muted-foreground">{message}</p>
       </section>
 
-      {fromUserId && (
-        <div>
+      <div className="flex flex-wrap gap-2">
+        <Button variant="secondary" asChild>
+          <Link to={`/settings/frontline/channels/${channelDetail._id}`}>
+            <IconExternalLink className="size-4" />
+            {t('open-channel', 'Open channel')}
+          </Link>
+        </Button>
+        {fromUserId && (
           <Button variant="secondary" asChild>
-            <Link to={`/settings/team-member?user_id=${fromUserId}`}>
+            <Link to={`/settings/team/members?user_id=${fromUserId}`}>
               {t('view-user', {
                 defaultValue: 'View {{name}}',
                 name: getUserDisplayName(fromUser),
               })}
             </Link>
           </Button>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };

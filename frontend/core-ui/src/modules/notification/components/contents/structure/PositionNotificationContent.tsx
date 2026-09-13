@@ -20,6 +20,8 @@ export const PositionNotificationContent = ({
       loading={loading}
       name={positionDetail?.title}
       contentType="position"
+      openLabel="Open position"
+      openPath={`/settings/structures/positions?position_id=${contentTypeId}`}
       createdAt={createdAt}
       fromUser={fromUser}
       details={[

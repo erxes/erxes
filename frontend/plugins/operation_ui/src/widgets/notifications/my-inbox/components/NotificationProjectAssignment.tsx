@@ -1,9 +1,10 @@
 import { useGetProject } from '@/project/hooks/useGetProject';
-import { IconClipboard } from '@tabler/icons-react';
+import { IconClipboard, IconExternalLink } from '@tabler/icons-react';
 import { format, isToday, isYesterday, parseISO } from 'date-fns';
 import { Avatar, Button, readImage, Skeleton } from 'erxes-ui';
 import { Link } from 'react-router';
 import { useTranslation } from 'react-i18next';
+import { TNotification } from 'ui-modules';
 
 const formatDate = (isoDate: string) => {
   const date = parseISO(isoDate);
@@ -18,7 +19,7 @@ export const NotificationProjectAssignment = ({
   fromUser,
   fromUserId,
   createdAt,
-}: any) => {
+}: TNotification) => {
   const { t } = useTranslation('operation');
   const { project, loading } = useGetProject({
     variables: { _id: contentTypeId },
@@ -31,7 +32,11 @@ export const NotificationProjectAssignment = ({
   return (
     <div className="flex flex-col gap-4 w-full max-w-md mx-auto justify-center items-center h-full text-muted-foreground">
       <div className="size-36 bg-sidebar rounded-2xl border-2 border-dashed flex flex-col items-center justify-center">
-        <IconClipboard size={64} className="text-accent-foreground" stroke={1} />
+        <IconClipboard
+          size={64}
+          className="text-accent-foreground"
+          stroke={1}
+        />
       </div>
 
       <p className="font-bold text-lg">{t('project')}</p>
@@ -65,14 +70,26 @@ export const NotificationProjectAssignment = ({
       </div>
 
       {createdAt && (
-        <p className="text-accent-foreground text-sm">{formatDate(createdAt)}</p>
+        <p className="text-accent-foreground text-sm">
+          {formatDate(createdAt)}
+        </p>
       )}
 
-      <Button variant="secondary" asChild>
-        <Link to={`/settings/team-member?user_id=${fromUserId}`}>
-          {t('view')} {fromUser?.details?.fullName || fromUser?.email}
-        </Link>
-      </Button>
+      <div className="flex flex-wrap justify-center gap-2">
+        <Button variant="secondary" asChild>
+          <Link to={`/operation/projects/${contentTypeId}/overview`}>
+            <IconExternalLink className="size-4" />
+            {t('open-project', 'Open project')}
+          </Link>
+        </Button>
+        {fromUserId && (
+          <Button variant="secondary" asChild>
+            <Link to={`/settings/team/members?user_id=${fromUserId}`}>
+              {t('view')} {fromUser?.details?.fullName || fromUser?.email}
+            </Link>
+          </Button>
+        )}
+      </div>
     </div>
   );
 };

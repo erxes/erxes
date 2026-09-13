@@ -1,12 +1,18 @@
-import { IconBuildings, IconInfoCircle } from '@tabler/icons-react';
+import {
+  IconBuildings,
+  IconExternalLink,
+  IconInfoCircle,
+} from '@tabler/icons-react';
 import {
   Avatar,
+  Button,
   Empty,
   RelativeDateDisplay,
   Spinner,
   readImage,
 } from 'erxes-ui';
 import { ReactNode } from 'react';
+import { Link } from 'react-router-dom';
 import { TNotification } from 'ui-modules';
 
 type StructureDetailItem = {
@@ -23,6 +29,8 @@ type StructureNotificationDetailProps = Pick<
   error?: { message: string };
   loading: boolean;
   name?: string;
+  openLabel: string;
+  openPath: string;
 };
 
 /** Returns the best available human-readable name for a notification actor. */
@@ -40,6 +48,8 @@ export const StructureNotificationDetail = ({
   fromUser,
   loading,
   name,
+  openLabel,
+  openPath,
 }: StructureNotificationDetailProps) => {
   if (loading) {
     return (
@@ -78,7 +88,7 @@ export const StructureNotificationDetail = ({
 
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-3xl flex-col px-6 py-8">
-      <div className="flex items-start gap-4 border-b pb-6">
+      <div className="flex flex-wrap items-start gap-4 border-b pb-6">
         <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-accent text-muted-foreground">
           <IconBuildings className="size-6" />
         </div>
@@ -108,6 +118,12 @@ export const StructureNotificationDetail = ({
             {createdAt && <RelativeDateDisplay.Value value={createdAt} />}
           </div>
         </div>
+        <Button variant="secondary" asChild>
+          <Link to={openPath}>
+            <IconExternalLink className="size-4" />
+            {openLabel}
+          </Link>
+        </Button>
       </div>
 
       <dl className="grid gap-x-8 gap-y-6 py-6 sm:grid-cols-2">

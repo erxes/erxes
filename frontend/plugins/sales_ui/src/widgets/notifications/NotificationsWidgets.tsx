@@ -185,6 +185,7 @@ const SalesDealNotificationContent = ({
 };
 
 const SalesNoteNotificationContent = ({
+  contentTypeId,
   createdAt,
   fromUser,
   message,
@@ -199,7 +200,7 @@ const SalesNoteNotificationContent = ({
         <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-accent text-muted-foreground">
           <IconNote className="size-6" />
         </div>
-        <div>
+        <div className="min-w-0 flex-1">
           <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
             {t('note', 'Note')}
           </p>
@@ -216,6 +217,18 @@ const SalesNoteNotificationContent = ({
             )}
           </p>
         </div>
+        {contentTypeId && (
+          <Button variant="secondary" asChild>
+            <Link
+              to={`/sales/deals?${new URLSearchParams({
+                salesItemId: contentTypeId,
+              }).toString()}`}
+            >
+              <IconExternalLink className="size-4" />
+              {t('open-deal', 'Open deal')}
+            </Link>
+          </Button>
+        )}
       </div>
       <p className="py-6 text-sm leading-6 text-foreground">{message}</p>
     </article>

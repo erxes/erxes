@@ -21,6 +21,8 @@ export const BranchNotificationContent = ({
       loading={loading}
       name={branchDetail?.title}
       contentType="branch"
+      openLabel="Open branch"
+      openPath={`/settings/structures/branches?branch_id=${contentTypeId}`}
       createdAt={createdAt}
       fromUser={fromUser}
       details={[

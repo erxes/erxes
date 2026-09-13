@@ -23,6 +23,8 @@ export const DepartmentNotificationContent = ({
       loading={loading}
       name={departmentDetail?.title}
       contentType="department"
+      openLabel="Open department"
+      openPath={`/settings/structures/departments?department_id=${contentTypeId}`}
       createdAt={createdAt}
       fromUser={fromUser}
       details={[

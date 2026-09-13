@@ -1,11 +1,12 @@
-import { Spinner } from 'erxes-ui';
+import { Button, Spinner } from 'erxes-ui';
 import { lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import { NotificationContent } from './system/NotficationContent';
 import { TicketDetailSheet } from '@/ticket/components/ticket-detail/TicketDetailSheet';
 import { TicketDetails } from '../../modules/ticket/components/ticket-detail/TicketDetails';
-import { IconInfoCircle } from '@tabler/icons-react';
+import { IconExternalLink, IconInfoCircle } from '@tabler/icons-react';
 import { TNotification } from 'ui-modules';
+import { Link } from 'react-router-dom';
 
 export { GenericErrorFallback } from '../automations/components/AutomationRemoteEntry';
 
@@ -90,15 +91,18 @@ const NotificationRemoteEntries = (props: TNotification) => {
     return <NotificationContentUnavailable />;
   }
 
-  if (moduleName === 'inbox') {
-    if (type === 'channel') {
-      return (
-        <Suspense fallback={<Spinner containerClassName="h-full" />}>
-          <NotificationChannelContent {...props} />
-        </Suspense>
-      );
-    }
+  if (
+    moduleName === 'channel' ||
+    (moduleName === 'inbox' && type === 'channel')
+  ) {
+    return (
+      <Suspense fallback={<Spinner containerClassName="h-full" />}>
+        <NotificationChannelContent {...props} />
+      </Suspense>
+    );
+  }
 
+  if (moduleName === 'inbox') {
     return (
       <div className="h-screen flex flex-col">
         <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
@@ -114,6 +118,14 @@ const NotificationRemoteEntries = (props: TNotification) => {
     <div className="h-full w-full overflow-auto">
       <TicketDetailSheet />
       <div className="mx-auto w-full max-w-3xl p-6">
+        <div className="mb-4 flex justify-end">
+          <Button variant="secondary" asChild>
+            <Link to={`/frontline/tickets?ticketId=${contentTypeId}`}>
+              <IconExternalLink className="size-4" />
+              {t('open-ticket', 'Open ticket')}
+            </Link>
+          </Button>
+        </div>
         <TicketDetails ticketId={contentTypeId} />
       </div>
     </div>
