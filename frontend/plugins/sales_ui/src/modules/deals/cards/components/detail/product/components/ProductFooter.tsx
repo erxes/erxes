@@ -111,24 +111,23 @@ export const ProductFooter = ({
 
   const handleDiscountByCurrency = useMemo(
     () =>
-      productsData.reduce<Record<string, { amount: number; baseAmount: number }>>(
-        (totals, product) => {
-          if (!product.tickUsed || !product.currency) {
-            return totals;
-          }
-
-          const currency = product.currency;
-          const current = totals[currency] || { amount: 0, baseAmount: 0 };
-          const baseAmount = productBaseAmount(product);
-
-          current.amount += getHandDiscountAmount(product);
-          current.baseAmount += baseAmount;
-          totals[currency] = current;
-
+      productsData.reduce<
+        Record<string, { amount: number; baseAmount: number }>
+      >((totals, product) => {
+        if (!product.tickUsed || !product.currency) {
           return totals;
-        },
-        {},
-      ),
+        }
+
+        const currency = product.currency;
+        const current = totals[currency] || { amount: 0, baseAmount: 0 };
+        const baseAmount = productBaseAmount(product);
+
+        current.amount += getHandDiscountAmount(product);
+        current.baseAmount += baseAmount;
+        totals[currency] = current;
+
+        return totals;
+      }, {}),
     [productsData],
   );
 

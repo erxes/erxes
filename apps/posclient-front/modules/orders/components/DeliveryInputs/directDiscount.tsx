@@ -26,7 +26,8 @@ const DirectDiscount: React.FC = () => {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     })
-  const formatDiscountInputValue = (value: number) => (value ? String(value) : "")
+  const formatDiscountInputValue = (value: number) =>
+    value ? String(value) : ""
   const toPercent = (amount: number, baseAmount: number) =>
     baseAmount > 0 ? (amount * 100) / baseAmount : 0
 
@@ -70,7 +71,9 @@ const DirectDiscount: React.FC = () => {
 
   useEffect(() => {
     if (!isEditingDiscount) {
-      setDiscountDraft(formatDiscountInputValue(currentHandleDiscountInputValue))
+      setDiscountDraft(
+        formatDiscountInputValue(currentHandleDiscountInputValue)
+      )
     }
   }, [currentHandleDiscountInputValue, isAmount, isEditingDiscount])
 

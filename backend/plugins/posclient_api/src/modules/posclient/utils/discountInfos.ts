@@ -72,8 +72,8 @@ export const ensureHandDiscountInfo = (
         manualPercent > 0
           ? manualPercent
           : baseAmount > 0
-          ? fixAmount((amount * 100) / baseAmount)
-          : 0,
+            ? fixAmount((amount * 100) / baseAmount)
+            : 0,
     });
   }
 

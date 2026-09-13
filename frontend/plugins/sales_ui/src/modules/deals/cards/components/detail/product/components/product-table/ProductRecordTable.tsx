@@ -68,11 +68,7 @@ export const ProductsRecordTable = ({
       columns={columns}
       data={products}
       className="flex h-full min-h-0 flex-col overflow-hidden rounded-lg border"
-      stickyColumns={[
-        'more',
-        'checkbox',
-        'name',
-      ]}
+      stickyColumns={['more', 'checkbox', 'name']}
       tableId={
         showAdvancedView || showTaxView
           ? `products_record_table_${showAdvancedView ? 'advanced' : 'basic'}_${

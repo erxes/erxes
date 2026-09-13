@@ -84,7 +84,9 @@ const SelectPipelineValue = ({ placeholder }: { placeholder?: string }) => {
 
   if (loading) {
     return (
-      <span className="text-accent-foreground/80">{t('loading-pipelines')}</span>
+      <span className="text-accent-foreground/80">
+        {t('loading-pipelines')}
+      </span>
     );
   }
 
@@ -162,8 +164,8 @@ const SelectPipelineContent = () => {
   const emptyMessage = loading
     ? t('loading-pipelines')
     : boardId
-    ? t('no-pipelines-found')
-    : t('board-not-selected');
+      ? t('no-pipelines-found')
+      : t('board-not-selected');
   return (
     <Command>
       <Command.List>

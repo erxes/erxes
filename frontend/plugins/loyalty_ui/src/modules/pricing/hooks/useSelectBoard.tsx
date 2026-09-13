@@ -77,7 +77,9 @@ const SelectBoardValue = ({ placeholder }: { placeholder?: string }) => {
   const { value, boards, loading } = useSelectBoardContext();
 
   if (loading) {
-    return <span className="text-accent-foreground/80">{t('loading-boards')}</span>;
+    return (
+      <span className="text-accent-foreground/80">{t('loading-boards')}</span>
+    );
   }
 
   if (!boards || boards.length === 0 || !value) {

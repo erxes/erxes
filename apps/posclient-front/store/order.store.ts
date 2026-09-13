@@ -24,11 +24,7 @@ import {
 } from "@/types/order.types"
 
 import { customerSearchAtom, selectedTabAtom } from "."
-import {
-  cartAtom,
-  cartChangedAtom,
-  totalAmountAtom,
-} from "./cart.store"
+import { cartAtom, cartChangedAtom, totalAmountAtom } from "./cart.store"
 import { allowTypesAtom, permissionConfigAtom } from "./config.store"
 import { paymentSheetAtom } from "./ui.store"
 import { fixNum, getItemInputs } from "@/lib/utils"

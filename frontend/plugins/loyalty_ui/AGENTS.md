@@ -35,14 +35,14 @@
 
 ## Architecture
 
-| Area                 | Path                                                                 | Responsibility                                      |
-| -------------------- | -------------------------------------------------------------------- | --------------------------------------------------- |
-| Pricing entry points | `src/modules/pricing/Main.tsx`, `src/pages/pricing`                  | Pricing route and list/detail composition.          |
-| Pricing create form  | `src/modules/pricing/create-pricing/**`                              | New pricing plan form and submission mapping.       |
-| Pricing edit forms   | `src/modules/pricing/edit-pricing/**`                                | Sectioned pricing detail editing UI.                |
+| Area                 | Path                                                                                          | Responsibility                                      |
+| -------------------- | --------------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| Pricing entry points | `src/modules/pricing/Main.tsx`, `src/pages/pricing`                                           | Pricing route and list/detail composition.          |
+| Pricing create form  | `src/modules/pricing/create-pricing/**`                                                       | New pricing plan form and submission mapping.       |
+| Pricing edit forms   | `src/modules/pricing/edit-pricing/**`                                                         | Sectioned pricing detail editing UI.                |
 | Pricing selectors    | `src/modules/pricing/hooks/useSelectBoard.tsx`, `useSelectPipeline.tsx`, `useSelectStage.tsx` | Sales board, pipeline, and stage comboboxes.        |
-| Pricing data hooks   | `src/modules/pricing/hooks/**`                                       | Apollo query/mutation wrappers for pricing screens. |
-| Pricing contracts    | `src/modules/pricing/graphql/**`, `src/modules/pricing/types.ts`     | GraphQL documents and TypeScript form/API types.    |
+| Pricing data hooks   | `src/modules/pricing/hooks/**`                                                                | Apollo query/mutation wrappers for pricing screens. |
+| Pricing contracts    | `src/modules/pricing/graphql/**`, `src/modules/pricing/types.ts`                              | GraphQL documents and TypeScript form/API types.    |
 
 ## Contracts
 
