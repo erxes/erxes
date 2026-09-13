@@ -64,7 +64,7 @@ const createReceiverHarness = (
   mockModule('erxes-api-shared/utils', { getSubdomain: () => 'test' });
   mockModule('~/connectionResolvers', { generateModels });
   mockModule('@/integrations/viber/helpers', {
-    processViberTextMessage: processText,
+    processViberMessage: processText,
   });
 
   const receiverPath = require.resolve('../receiveMessage');
@@ -359,4 +359,5 @@ test('a text-processing failure returns a safe 500 response instead of acknowled
   deepStrictEqual(await receive(JSON.stringify(TEXT_MESSAGE)), [
     { statusCode: 500, body: { error: 'Failed to process Viber message' } },
   ]);
+  strictEqual(processText.mock.callCount(), 1);
 });

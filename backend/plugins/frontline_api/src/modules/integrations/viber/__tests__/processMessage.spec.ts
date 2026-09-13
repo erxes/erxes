@@ -1,5 +1,6 @@
 import { test } from 'node:test';
 import { deepStrictEqual, ok, rejects, strictEqual } from 'node:assert';
+import type { IAttachment } from 'erxes-api-shared/core-types';
 import type { IViberMessage } from '../@types/message';
 import { loadViberHelpers, type TestContext } from './helperHarness';
 
@@ -21,11 +22,16 @@ interface StoredMessage {
   conversationId: string;
   customerId: string;
   content: string;
+  attachments?: IAttachment[];
   internal: boolean;
   createdAt: Date;
 }
 
-const createHarness = (t: TestContext) => {
+const createHarness = (
+  t: TestContext,
+  input: typeof INPUT & { attachments?: IAttachment[] } = INPUT,
+  content = CONTENT,
+) => {
   const mapping: IViberMessage & { _id: string } = {
     _id: 'mapping-test',
     inboxId: INPUT.inboxId,
@@ -54,7 +60,7 @@ const createHarness = (t: TestContext) => {
     events.push('update');
     strictEqual(id, CONVERSATION_ID);
     deepStrictEqual(doc, {
-      content: CONTENT,
+      content,
       messageCount: 1,
       isCustomerRespondedLast: true,
       status: 'open',
@@ -158,7 +164,7 @@ const createHarness = (t: TestContext) => {
           conversationId: CONVERSATION_ID,
           integrationId: INPUT.inboxId,
           customerId: CUSTOMER_ID,
-          content: CONTENT,
+          content,
         });
         return { status: 'success', data: { _id: CONVERSATION_ID } };
       },
@@ -167,7 +173,7 @@ const createHarness = (t: TestContext) => {
   });
 
   return {
-    process: () => helpers.processViberTextMessage(SUBDOMAIN, INPUT),
+    process: () => helpers.processViberMessage(SUBDOMAIN, input),
     state,
     mapping,
     getProcessedAt: () => mapping.processedAt,
@@ -189,6 +195,7 @@ test('stores formatted text with the reserved id and completes only after publis
     conversationId: CONVERSATION_ID,
     customerId: CUSTOMER_ID,
     content: CONTENT,
+    attachments: [],
     internal: false,
   });
   deepStrictEqual(h.events, [
@@ -279,4 +286,77 @@ test('a missing completion mapping does not report processing success', async (t
 
   await rejects(h.process, /Failed to mark Viber message as processed/);
   strictEqual(h.getProcessedAt(), undefined);
+});
+
+test('stores native attachment metadata alongside the escaped caption and publishes it', async (t) => {
+  const attachments: IAttachment[] = [
+    {
+      name: 'diagram <draft>.png',
+      url: 'https://files.example.test/diagram.png?version=1&download=1',
+      size: 1234,
+      type: 'image/png',
+    },
+    {
+      name: 'clip.mp4',
+      url: 'https://files.example.test/clip.mp4',
+      size: 4096,
+      type: 'video/mp4',
+    },
+    {
+      name: 'notes.pdf',
+      url: 'https://files.example.test/notes.pdf',
+      size: 256,
+      type: 'application/pdf',
+    },
+  ];
+  const h = createHarness(t, { ...INPUT, attachments });
+
+  strictEqual(await h.process(), MESSAGE_ID);
+  deepStrictEqual(h.createMessage.mock.calls[0].arguments[0], {
+    _id: MESSAGE_ID,
+    conversationId: CONVERSATION_ID,
+    customerId: CUSTOMER_ID,
+    content: CONTENT,
+    attachments,
+    internal: false,
+  });
+  deepStrictEqual(
+    h.publish.mock.calls[0].arguments[1].attachments,
+    attachments,
+  );
+  ok(h.getProcessedAt() instanceof Date);
+});
+
+test('an attachment without a caption has a readable preview and a completed replay stays deduplicated', async (t) => {
+  const attachments: IAttachment[] = [
+    {
+      name: 'photo.png',
+      url: 'https://files.example.test/photo.png',
+      size: 1024,
+      type: 'image/png',
+    },
+  ];
+  const h = createHarness(
+    t,
+    { ...INPUT, text: ' \n\t', attachments },
+    '<p>Attachment</p>',
+  );
+
+  strictEqual(await h.process(), MESSAGE_ID);
+  strictEqual(h.state.message?.content, '<p>Attachment</p>');
+  deepStrictEqual(h.state.message?.attachments, attachments);
+
+  strictEqual(await h.process(), MESSAGE_ID);
+  strictEqual(h.createMessage.mock.callCount(), 1);
+  strictEqual(h.updateConversation.mock.callCount(), 1);
+  strictEqual(h.publish.mock.callCount(), 1);
+  strictEqual(h.markProcessed.mock.callCount(), 1);
+});
+
+test('an empty message without attachments is still rejected before processing', async (t) => {
+  const h = createHarness(t, { ...INPUT, text: ' \n\t', attachments: [] });
+
+  await rejects(h.process, /Invalid Viber text message/);
+  strictEqual(h.findCustomer.mock.callCount(), 0);
+  deepStrictEqual(h.events, []);
 });

@@ -9,6 +9,7 @@ import type { IMessageDocument } from '@/inbox/@types/conversationMessages';
 import { CONVERSATION_STATUSES } from '@/inbox/db/definitions/constants';
 import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
 import { formatViberText } from '@/integrations/viber/utils/content';
+import type { IAttachment } from 'erxes-api-shared/core-types';
 
 export const createViberIntegration = async (
   subdomain: string,
@@ -281,7 +282,7 @@ export const getOrCreateViberMessageMapping = async (
   }
 };
 
-export const processViberTextMessage = async (
+export const processViberMessage = async (
   subdomain: string,
   input: {
     inboxId: string;
@@ -289,10 +290,13 @@ export const processViberTextMessage = async (
     messageToken: string;
     text: string;
     name?: string;
+    attachments?: IAttachment[];
   },
 ): Promise<string> => {
-  const { inboxId, userId, messageToken, text, name } = input;
-  const content = formatViberText(text);
+  const { inboxId, userId, messageToken, text, name, attachments = [] } = input;
+  const messageText =
+    attachments.length > 0 && !text.trim() ? 'Attachment' : text;
+  const content = formatViberText(messageText);
 
   const mapping = await getOrCreateViberMessageMapping(
     subdomain,
@@ -331,6 +335,7 @@ export const processViberTextMessage = async (
       conversationId,
       customerId,
       content,
+      attachments,
       internal: false,
     };
 

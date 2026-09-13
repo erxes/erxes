@@ -73,15 +73,19 @@
   A tenant-scoped conversation-mapping model is registered with required inbox,
   sender, and Frontline conversation ids. An internal helper reserves or reuses
   the mapped thread id, checks existing ownership, and calls the common inbox
-  create/update action with bounded duplicate-key recovery. The text processor
+  create/update action with bounded duplicate-key recovery. The message processor
   uses it after checking for an already completed message.
   A tenant-scoped message-mapping model links inbox/message-token pairs to
   Frontline message ids and supports an optional processing-completion timestamp.
   An internal helper validates that identity, reserves or reuses a message id,
   and recovers the winning mapping after a duplicate-key save. It preserves
   completion state and does not create inbox messages or acquire a processing
-  lock. The text processor recovers stored messages after partial failures;
+  lock. The message processor recovers stored messages after partial failures;
   retries can republish events, so this is not exactly-once notification delivery.
+  `processViberMessage` also accepts native `IAttachment[]` metadata and uses an
+  attachment preview when a caption is blank; empty text without attachments is
+  still rejected. Only text is wired from the receiver. Media download, upload,
+  and incoming-media processing are not implemented.
   A pure text formatter escapes incoming plain text for HTML display, preserves
   line breaks, and rejects blank messages. Live database, provider, and UI
   delivery remain unverified.
@@ -176,14 +180,14 @@
 
 Viber lives under `src/modules/integrations/viber/`: `helpers.ts` owns connection
 creation, local removal, customer resolution, conversation synchronization,
-message-id reservation, and incoming-text processing.
+message-id reservation, and message processing with optional native attachments.
 `__tests__/helpers.spec.ts` covers customer resolution;
 `__tests__/conversations.spec.ts` covers conversation resolution, and
 `__tests__/messageMappings.spec.ts` covers message-id reservation. Their shared
 `__tests__/helperHarness.ts` replaces tenant models, Core calls, and the common
 inbox receiver and message publisher without starting infrastructure.
-`__tests__/processMessage.spec.ts` covers incoming-text processing and recovery
-after partial failures. `messageBroker.ts` adapts connection inputs
+`__tests__/processMessage.spec.ts` covers text and attachment processing and
+recovery after partial failures. `messageBroker.ts` adapts connection inputs
 and error handling, and `utils/` holds signature/account helpers, raw-body webhook
 parsing, shared message-token validation, plain-text HTML formatting, and their
 colocated tests.
@@ -704,7 +708,7 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   before sender validation. The `webhook` check is acknowledged with 200 without
   requiring message fields. A supplied sender name must be a string; absent or
   blank names are allowed. Rejection returns immediately, before message
-  validation. Valid text is passed to `processViberTextMessage` with the exact
+  validation. Valid text is passed to `processViberMessage` with the exact
   inbox, sender, and message-token identities; await it before returning 200.
   A processing failure returns only a fixed 500 error, not exception details.
 - Viber account responses stay `unknown` until validated: numeric `status === 0`
@@ -757,7 +761,12 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   helper does not contact Core, write common messages, or mark completion.
   Concurrent callers can both receive the same pending mapping; reservation
   is not a processing lock or an exactly-once processing guarantee.
-- `processViberTextMessage` short-circuits completed mappings before resolving
+- `processViberMessage` defaults omitted attachments to an empty array. Native
+  attachment metadata is passed unchanged to `createMessage` and publication;
+  the helper neither downloads media nor checks its content or storage lifetime.
+  Blank captions with attachments use the escaped preview `Attachment`; otherwise
+  accepted text remains unchanged and blank text without attachments rejects.
+  The processor short-circuits completed mappings before resolving
   customers or reopening threads. For a pending mapping, reuse its stable
   message id and the native `ConversationMessages.createMessage` method;
   numeric duplicate-key recovery must find that exact message. Stored messages
@@ -775,13 +784,13 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `create-or-update-conversation`. A success response must contain that exact id.
 - Customer and conversation mapping errors with numeric code `11000` recover
   the winning inbox/sender mapping.
-  Customer, conversation, message-mapping, and text-processing helpers share the local
+  Customer, conversation, message-mapping, and processing helpers share the local
   `isViberDuplicateKeyError` predicate; recovery remains specific to the
   failing operation and its identity key.
   A duplicate thread error is retried once only after finding its exact id,
   integration, and customer; the retry checks ownership again. Other failures
   reject. Mapping persistence is not rolled back after a failed thread write.
-  This helper does not deduplicate messages; the text processor checks completed
+  This helper does not deduplicate messages; the message processor checks completed
   mappings before invoking it so completed replays do not reopen conversations.
 - `getOrCreateViberCustomer` rejects blank inbox/sender ids, uses tenant models,
   returns an existing mapping's `contactsId`, or creates a Core customer and
@@ -1677,11 +1686,15 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   completion state, awaited reservation, error propagation, duplicate recovery,
   retry after a lost write acknowledgement, and simulated concurrent inserts.
   They do not verify live unique indexes or actual message processing.
-- Incoming-text processor tests cover stable-id message storage, completed
+- Message processor tests cover stable-id message storage, completed
   replay short-circuiting, recovery after partial writes/publication failures,
   duplicate-key recovery, ownership checks, and completion only after publishing.
   Models and publishing are mocked; these tests do not prove real MongoDB
   uniqueness or UI delivery.
+  Attachment cases cover native metadata, a readable preview for attachment-only messages, completed
+  replay short-circuiting, and rejection of empty text without attachments.
+  Attachment fixtures represent stored files; no download, upload,
+  URL-lifetime handling, or incoming-media receiver wiring is exercised.
 - Focused Viber removal checks use mocked tenant models: verify provider cleanup
   precedes common integration deletion, an absent provider record is tolerated,
   and a provider cleanup failure prevents common deletion. No bot token or live
@@ -1728,6 +1741,14 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-14` — Viber attachment-aware message processing
+
+- **Summary:** Extended message processing with native attachments, captionless
+  previews, and the existing retry and publication behavior, with offline tests.
+- **Affected areas:** `src/modules/integrations/viber/{helpers.ts,__tests__/,controller/}`.
+- **Contracts changed:** Internal `processViberTextMessage` is now
+  `processViberMessage` with optional `IAttachment[]`; the receiver remains text-only.
 
 ### `2026-09-14` — Viber incoming-text processing
 
@@ -1808,12 +1829,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Contracts changed:** Added internal
   `getOrCreateViberCustomer(subdomain, inboxId, userId, name?): Promise<string>`;
   receiver wiring and HTTP/GraphQL contracts are unchanged.
-
-### `2026-09-10` — Viber customer mapping model
-
-- **Summary:** Registered a tenant-scoped Viber-to-Core customer mapping model
-  with required fields, a compound unique-index declaration, and schema tests.
-- **Affected areas:** `src/modules/integrations/viber/{@types/customer.ts,db/}`,
-  `src/connectionResolvers.ts`.
-- **Contracts changed:** Added internal `IModels.ViberCustomers` backed by
-  `viber_customers`; no HTTP or GraphQL contract changed.

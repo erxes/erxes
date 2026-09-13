@@ -7,7 +7,7 @@ import {
   isViberMessageToken,
   parseViberWebhookBody,
 } from '@/integrations/viber/utils/webhook';
-import { processViberTextMessage } from '@/integrations/viber/helpers';
+import { processViberMessage } from '@/integrations/viber/helpers';
 
 const MAX_VIBER_FILE_BYTES = 25 * 1024 * 1024;
 const SUPPORTED_VIBER_MESSAGE_TYPES = [
@@ -144,7 +144,7 @@ export const receiveViberMessage = async (
           : undefined;
 
       try {
-        await processViberTextMessage(subdomain, {
+        await processViberMessage(subdomain, {
           inboxId: req.params.integrationId,
           userId: payload.sender.id,
           messageToken: payload.message_token,
