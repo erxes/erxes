@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-09-11`
+- **Last synchronized:** `2026-09-14`
 
 ## Scope
 
@@ -64,8 +64,9 @@
   parses numeric message tokens as exact strings, acknowledges webhook checks,
   and rejects malformed message payloads. No Viber HTTP route is mounted, and
   valid messages are not yet persisted or acknowledged by this receiver.
-  A tenant-scoped customer-mapping model is registered, but the receiver does
-  not yet use it to resolve or create Core customers.
+  A tenant-scoped customer helper reuses a mapping or creates a Core customer
+  and saves the mapping, with duplicate-key recovery. It is not yet called by
+  the receiver; Core creation and mapping persistence are not atomic.
 - Polls are a reusable definition (`title`, `question`, ordered `options`,
   `allowMultiselect`, optional `durationHours`, optional `brandId`,
   `active`/`archived` status) owned by a channel through `channelId`. An agent posts one into a messenger
@@ -156,9 +157,11 @@
 ## Architecture
 
 Viber lives under `src/modules/integrations/viber/`: `helpers.ts` owns connection
-creation and local removal, `messageBroker.ts` adapts their inputs and error
-handling, and `utils/` holds signature/account helpers, raw-body webhook parsing,
-and their colocated tests.
+creation, local removal, and customer resolution through the Core service and
+provider mapping. `__tests__/helpers.spec.ts` tests customer resolution with
+mocked tenant models and Core calls. `messageBroker.ts` adapts connection inputs
+and error handling, and `utils/` holds signature/account helpers, raw-body webhook
+parsing, and their colocated tests.
 `controller/receiveMessage.ts` contains the unmounted callback validation path;
 its colocated tests mock tenant lookup while using the real signature and parser
 utilities.
@@ -472,6 +475,10 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - Viber Bot REST API: `POST https://chatapi.viber.com/pa/get_account_info`
   through Node's `fetch`, with the token in `X-Viber-Auth-Token` and an empty
   JSON object body.
+- Viber customer resolution calls Core's `customers.createCustomer` mutation
+  through `sendTRPCMessage`, carrying the supplied subdomain and
+  `throwOnError: true`. Its response remains `unknown` until the Core `_id` is
+  validated as a non-blank string.
 - `erxes-api-shared/utils`: `startPlugin`, `sendTRPCMessage`, `fetchEs`,
   `getEnv`, `sendWorkerQueue`, `getUniqueValue`, `randomAlphanumeric`,
   `schemaWrapper`, `mongooseStringRandomId`.
@@ -686,6 +693,17 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   identified by the inbox/user pair. `contactsId` references a Core-owned
   customer; it is neither the Viber sender id nor the mapping's string `_id`.
   Schema index declarations do not prove an index has been built in MongoDB.
+- `getOrCreateViberCustomer` rejects blank inbox/sender ids, uses tenant models,
+  returns an existing mapping's `contactsId`, or creates a Core customer and
+  awaits its mapping save. Optional display names are trimmed, never used as
+  identity; opaque ids are preserved. The future receiver must validate optional
+  profile fields before passing them to this typed helper.
+- A customer-mapping write error with numeric code `11000` triggers a lookup of
+  the same inbox/user pair; a winner returns its Core id, otherwise the original
+  write error rejects. Other failures propagate. This does not guarantee
+  exactly-once Core creation: concurrent first messages or a failed mapping save
+  can leave an unmapped Core customer. Resolve the cross-service failure policy
+  before exposing the still-unmounted receiver.
 - The plugin answers segment requests only about its own collections. No
   segment producer here may call another plugin: that shape is what produced
   the plugin-to-plugin RPC loop the Elasticsearch-era producers carried.
@@ -1521,9 +1539,9 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   credentials, network, or project-wide test configuration are required.
   Parser tests cover exact numeric tokens, unchanged fields and raw bytes,
   malformed JSON, and a mocked runtime without reviver source support.
-- All saved Viber utility, receiver, and customer schema tests, from the
+- All saved Viber utility, receiver, customer schema, and helper tests, from the
   repository root:
-  `pnpm exec tsx --tsconfig=backend/plugins/frontline_api/tsconfig.json --test backend/plugins/frontline_api/src/modules/integrations/viber/{utils,controller,db/definitions}/__tests__/*.spec.ts`.
+  `pnpm exec tsx --tsconfig=backend/plugins/frontline_api/tsconfig.json --test backend/plugins/frontline_api/src/modules/integrations/viber/{__tests__,utils/__tests__,controller/__tests__,db/definitions/__tests__}/*.spec.ts`.
   Receiver tests use the existing plugin aliases and replace only the shared
   tenant lookup and model-loader imports in the CommonJS cache. They restore
   those entries and the receiver entry after each test, remain non-concurrent,
@@ -1536,6 +1554,12 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   id-definition wiring, document id typing, and the compound unique-index
   declaration. Actual id randomness, tenant database loading, and database
   duplicate-key enforcement are not covered by these offline tests.
+- Viber customer helper tests mock `generateModels` and `sendTRPCMessage`,
+  restoring CommonJS cache entries after each non-concurrent test. They cover
+  tenant/inbox lookup inputs, Core request/response boundaries, awaited writes,
+  failures, and duplicate-key recovery. A deterministic concurrent-call test
+  characterizes the remaining two-Core-creations/one-mapping race; it does not
+  prove live database uniqueness or exactly-once behavior.
 - Focused Viber removal checks use mocked tenant models: verify provider cleanup
   precedes common integration deletion, an absent provider record is tolerated,
   and a provider cleanup failure prevents common deletion. No bot token or live
@@ -1582,6 +1606,16 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-14` — Viber customer resolution helper
+
+- **Summary:** Added tenant-scoped customer resolution with validated Core
+  creation, mapping persistence, duplicate-key recovery, and offline tests.
+- **Affected areas:** `src/modules/integrations/viber/{helpers.ts,__tests__/}`,
+  `docs/viber-integration-guide.md`.
+- **Contracts changed:** Added internal
+  `getOrCreateViberCustomer(subdomain, inboxId, userId, name?): Promise<string>`;
+  receiver wiring and HTTP/GraphQL contracts are unchanged.
 
 ### `2026-09-11` — Viber integration learning guide
 
@@ -1664,14 +1698,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Contracts changed:** Implemented internal
   `viberCreateIntegration(subdomain, integrationId, token): Promise<void>`;
   no public API, route, or creation-dispatcher branch is added.
-
-### `2026-09-07` — A help center points at the knowledge base topic it serves
-
-- **Summary:** The knowledge base topic gained a `kbTopicId` field, so a help
-  center can name which other topic supplies its articles instead of only
-  toggling the feature on with a menu label.
-- **Affected areas:** `src/modules/knowledgebase/db/definitions/topic.ts`,
-  `src/modules/knowledgebase/@types/topic.ts`,
-  `src/modules/knowledgebase/graphql/schemas/knowledgeBaseTypeDefs.ts`
-- **Contracts changed:** `KnowledgeBaseTopic` exposes `kbTopicId: String` and
-  `KnowledgeBaseTopicDoc` accepts it.

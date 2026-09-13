@@ -1,7 +1,8 @@
 # Frontline + Viber: learning guide and integration roadmap
 
-Verified against the working tree on **2026-09-11**, branch
-`feat/frontline-viber-integration`, application-code checkpoint `0bc1e28750`.
+Verified against the working tree on **2026-09-14**, branch
+`feat/frontline-viber-integration`, including the customer-resolution helper and
+its saved tests. The commit IDs below are historical reading landmarks.
 
 This is our reference for understanding the work, not a claim that the integration
 is finished. It separates existing code from proposed behavior. Read one section
@@ -42,22 +43,23 @@ prose explanation, so the guide still works in a plain text editor.
 
 **We have backend groundwork, not a working end-to-end Viber channel yet.**
 
-| Area                       | Current implementation                                                       | What that does not prove                                                         |
-| -------------------------- | ---------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
-| Callback authentication    | Exact-body HMAC verification with saved tests                                | A real Viber callback has reached this application                               |
-| Bot account lookup         | Validated, timeout-bounded `get_account_info` request with mocked HTTP tests | We have a usable bot or have tested its credentials live                         |
-| Connection records         | Viber model, creation helper, adapter, and common creation dispatcher        | A webhook is registered or the inbox is ready to receive                         |
-| Removal                    | Common removal flow calls Viber record cleanup first                         | Remote webhook removal, history cleanup, or reconnect behavior exists            |
-| JSON precision             | Raw-body parser preserves `message_token` as an exact string                 | Message deduplication or delivery tracking exists                                |
-| Receiver                   | Signature, envelope, sender, and type-specific validation                    | The receiver is mounted, saves messages, or responds on every path               |
-| Customer mapping           | Types, schema, model registration, and seven schema tests                    | A Viber sender is already being resolved into a Core customer                    |
-| Conversations and messages | Existing Frontline infrastructure is available                               | Viber currently creates or retrieves its conversations/messages                  |
-| Replies                    | Existing Frontline reply dispatcher is available                             | It has a Viber branch; it does not yet                                           |
-| Frontend                   | Existing integration and inbox UI patterns are available                     | There is a Viber catalog entry, connection form, thread view, or reply UI wiring |
+| Area                       | Current implementation                                                        | What that does not prove                                                         |
+| -------------------------- | ----------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| Callback authentication    | Exact-body HMAC verification with saved tests                                 | A real Viber callback has reached this application                               |
+| Bot account lookup         | Validated, timeout-bounded `get_account_info` request with mocked HTTP tests  | We have a usable bot or have tested its credentials live                         |
+| Connection records         | Viber model, creation helper, adapter, and common creation dispatcher         | A webhook is registered or the inbox is ready to receive                         |
+| Removal                    | Common removal flow calls Viber record cleanup first                          | Remote webhook removal, history cleanup, or reconnect behavior exists            |
+| JSON precision             | Raw-body parser preserves `message_token` as an exact string                  | Message deduplication or delivery tracking exists                                |
+| Receiver                   | Signature, envelope, sender, and type-specific validation                     | The receiver is mounted, saves messages, or responds on every path               |
+| Customer mapping           | Registered model and tested helper to reuse mappings or create Core customers | The receiver calls it, or Core creation and mapping persistence are atomic       |
+| Conversations and messages | Existing Frontline infrastructure is available                                | Viber currently creates or retrieves its conversations/messages                  |
+| Replies                    | Existing Frontline reply dispatcher is available                              | It has a Viber branch; it does not yet                                           |
+| Frontend                   | Existing integration and inbox UI patterns are available                      | There is a Viber catalog entry, connection form, thread view, or reply UI wiring |
 
-There are **49 saved Viber tests** at this checkpoint. Most cover utilities and
-early validation, not the whole integration. See [testing](#testing-and-validation)
-for the exact boundary.
+There are **67 saved Viber tests** at this checkpoint. They cover utilities,
+early receiver validation, the mapping schema, and isolated customer resolution,
+not the whole integration. See [testing](#testing-and-validation) for the exact
+boundary.
 
 No usable bot/token has been supplied for live verification. That blocks the real
 provider smoke test, but not the next local development slices.
@@ -187,7 +189,7 @@ These links point to current files, not proposed names:
 | [utils/signature.ts](../src/modules/integrations/viber/utils/signature.ts)                         | Authenticate the exact callback bytes                                                  |
 | [utils/account.ts](../src/modules/integrations/viber/utils/account.ts)                             | Validate a token and fetch a small, validated bot identity                             |
 | [utils/webhook.ts](../src/modules/integrations/viber/utils/webhook.ts)                             | Parse raw JSON without rounding numeric message tokens                                 |
-| [helpers.ts](../src/modules/integrations/viber/helpers.ts)                                         | Create/delete provider connection records using tenant models                          |
+| [helpers.ts](../src/modules/integrations/viber/helpers.ts)                                         | Create/delete connections and resolve Core customers through tenant-scoped mappings    |
 | [messageBroker.ts](../src/modules/integrations/viber/messageBroker.ts)                             | Translate common integration input/error conventions into helper calls                 |
 | [controller/receiveMessage.ts](../src/modules/integrations/viber/controller/receiveMessage.ts)     | Unmounted receiver; currently validates callbacks                                      |
 | [@types/account.ts](../src/modules/integrations/viber/@types/account.ts)                           | The small account-info return shape                                                    |
@@ -197,7 +199,7 @@ These links point to current files, not proposed names:
 | [db/definitions/integrations.ts](../src/modules/integrations/viber/db/definitions/integrations.ts) | Connection fields, generated string ID, unique inbox/bot keys, hidden-by-default token |
 | [db/definitions/customers.ts](../src/modules/integrations/viber/db/definitions/customers.ts)       | Mapping fields and compound index                                                      |
 | [db/models/Integrations.ts](../src/modules/integrations/viber/db/models/Integrations.ts)           | Typed Mongoose model and schema loader                                                 |
-| [db/models/Customers.ts](../src/modules/integrations/viber/db/models/Customers.ts)                 | Typed mapping model and schema loader; no customer resolution method yet               |
+| [db/models/Customers.ts](../src/modules/integrations/viber/db/models/Customers.ts)                 | Typed mapping model and schema loader; resolution logic lives in `helpers.ts`          |
 | [connectionResolvers.ts](../src/connectionResolvers.ts)                                            | Registers both Viber models in Frontline's model container                             |
 
 `@types` describes what TypeScript expects. A Mongoose schema defines stored fields
@@ -451,50 +453,52 @@ content validation, and safe destinations need separate handling.
 
 ## Customer resolution: the next bridge
 
-At this checkpoint, `models.ViberCustomers` exists, but nothing in the receiver
-uses it. The next missing responsibility is:
+At this checkpoint, `getOrCreateViberCustomer` implements the following contract
+as an internal helper, but the receiver does not call it yet:
 
 > Given a validated sender and an inbox in this tenant, return the correct Core
 > customer ID, or fail clearly.
 
-For a returning sender, the lookup would be:
+For a returning sender, the helper looks up both identity fields:
 
 ```typescript
-// Illustration of the lookup, not a complete customer-resolution function.
-const mapping = await models.ViberCustomers.findOne({
-  inboxId: integration.inboxId,
-  userId: payload.sender.id,
-});
+const selector = { inboxId, userId };
+const existingMapping = await models.ViberCustomers.findOne(selector);
 ```
 
-The property names on the left are schema fields. The expressions on the right
-are values from the current integration and validated callback. Both conditions
-must match. `findOne` resolves to a document or `null`; a database failure rejects
-the promise instead of resolving to `null`.
+`{ inboxId, userId }` is shorthand for `{ inboxId: inboxId, userId: userId }`.
+These values are helper parameters; the future receiver will supply them from
+the selected integration and validated sender. Both conditions must match.
+`findOne` resolves to a document or `null`; a database failure rejects the promise
+instead of resolving to `null`.
 
 If we find the fictional `map-7`, the caller needs its `contactsId`, which is
 `customer-99`. Returning `map-7` would give the conversation a reference to the
 wrong collection. TypeScript cannot distinguish these IDs automatically because
 both are strings. Tests should deliberately use different strings for every ID.
 
-A `return` inside a future customer helper ends that helper. It does not end the
-whole receiver: the receiver awaits the returned ID and continues to conversation
-processing.
+A `return` inside the customer helper ends that helper. Once wired, it will not
+end the whole receiver: the receiver will await the returned ID and continue to
+conversation processing.
 
 ### What happens when no mapping exists?
 
-Proposed flow, not implemented:
+The helper now implements this flow:
 
-1. Use an agreed policy to reuse or create a Core customer through the public
-   service interface.
-2. Validate that the service returned a usable Core ID.
-3. Save the mapping with `inboxId`, external `userId`, and Core `contactsId`.
+1. Call Core's public `customers.createCustomer` mutation with
+   `doc.integrationId: inboxId` and an optional, trimmed display `firstName`.
+2. Treat the response as `unknown`; require a non-array object with a non-blank
+   string `_id` before any mapping write.
+3. Await saving the mapping with `inboxId`, external `userId`, and Core
+   `contactsId`.
 4. Return the stored Core ID.
 
-Do not match by display name or invent an email address to make an existing
-email-specific helper fit. A missing optional name/avatar must not become a
-different identity. Cross-channel merging and recovery from stale mappings are
-separate decisions.
+There is no automatic matching to an existing Core person by name or email in
+this helper. Do not invent an email address to make an email-specific helper fit.
+A missing optional name/avatar must not become a different identity. The future
+receiver must check optional profile values before passing them to a typed
+helper; a TypeScript parameter does not validate arbitrary webhook JSON.
+Cross-channel merging and recovery from stale mappings are separate decisions.
 
 The useful reference is
 [MailCustomers.findOrCreate](../src/modules/integrations/mail/db/models/Customers.ts):
@@ -503,8 +507,10 @@ upserts its provider mapping, and returns `contactsId`. Its identity key is emai
 we should reuse the responsibility split, **not copy that key**.
 
 `sendTRPCMessage` is the existing service-to-service interface. It lets Frontline
-ask Core to perform customer work without importing Core's private models. Carry
-the same subdomain through the call. Do not turn a Core failure into a fabricated
+ask Core to perform customer work without importing Core's private models. This
+helper carries the same subdomain and sets `throwOnError: true` so service
+failures reject. Response validation is still necessary: a resolved value is not
+automatically a valid customer. Do not turn a Core failure into a fabricated
 customer ID or a successful webhook response.
 
 ### Why the unique index is not the entire concurrency solution
@@ -513,15 +519,27 @@ Two first messages can arrive together and both see no mapping. The compound
 index can stop two mapping rows, once installed. It cannot undo two Core customer
 creations that happened before either mapping was saved.
 
-We need focused race/retry tests and a deliberate duplicate-key recovery path.
-Whether stronger coordination is needed depends on the existing Core contract.
-Do not claim a pre-check provides exactly-once creation, and do not introduce a
-new queue or locking service before understanding the actual requirement.
+The helper catches a mapping-save error with numeric `code === 11000` and queries
+the same inbox/user pair again. If another request saved the mapping first, both
+callers can use that winner's `contactsId`. Without a matching row, the original
+write error rejects; other failures are not treated as duplicates.
+
+The saved tests cover this recovery, including a deterministic concurrent-call
+case: both callers return the winning mapping's Core ID, but **two mocked Core
+creations still happen**. This test records a limitation, not an exactly-once
+guarantee. A mapping failure after successful Core creation can also leave an
+unmapped customer, and a retry can create another.
+
+Before exposing live callbacks, resolve this cross-service failure policy with
+the lead and the available Core contract. Do not silently delete Core customers
+as compensation or introduce a queue/locking service as an incidental Viber
+refactor. The helper remains unwired while these boundaries are being completed.
 
 ## The complete inbound path we are aiming for
 
-Everything after validation below is **planned Viber behavior**, using existing
-Frontline capabilities where appropriate.
+The end-to-end wiring after validation below is **planned Viber behavior**, using
+existing Frontline capabilities where appropriate. Customer resolution now
+exists as an isolated helper, not as a completed step in a running callback.
 
 ```mermaid
 flowchart TD
@@ -862,11 +880,14 @@ Slices can overlap for learning and UI prototyping, but dependency order matters
 the thread UI cannot be finalized before storage/read contracts are chosen, and
 live setup cannot succeed with an unfinished route.
 
-**Our next tiny task is slice 1:** explain and implement the returning-sender
-mapping lookup in its chosen helper/model location, with a clearly defined
-return type. It is not “finish the whole receiver.” Before calling that helper
-from the receiver, complete the missing-mapping path and its tests; do not ship a
-half-defined successful path.
+**Slices 1 and 2 now have an internal helper and saved tests**, but are not wired
+into the receiver. Their cross-service race and partial-failure limitation still
+needs a deliberate resolution before live callbacks are exposed.
+
+**Next is slice 3:** agree what happens when a customer messages after their
+conversation was closed, then implement one conversation helper. Reopening the
+same chat follows the Facebook chat flow; creating a new conversation after
+closure is a different product choice. Do not silently select either policy.
 
 The first end-to-end milestone is **connect -> receive one text message -> see
 the right customer/conversation -> send one reply**. That is a testable vertical
@@ -878,13 +899,14 @@ reprioritized.
 
 ### What is saved today
 
-| Suite                                                                                           | Tests | Boundary covered                                                                                  |
-| ----------------------------------------------------------------------------------------------- | ----- | ------------------------------------------------------------------------------------------------- |
-| [signature](../src/modules/integrations/viber/utils/__tests__/signature.spec.ts)                | 2     | Known valid body and tampered body                                                                |
-| [account](../src/modules/integrations/viber/utils/__tests__/account.spec.ts)                    | 17    | Response validation, token rules, HTTP/network/timeout failures with mocked `fetch`               |
-| [raw parser](../src/modules/integrations/viber/utils/__tests__/webhook.spec.ts)                 | 11    | Large/exact tokens, neighboring IDs, unchanged fields/bytes, invalid JSON, missing source support |
-| [receiver](../src/modules/integrations/viber/controller/__tests__/receiveMessage.spec.ts)       | 12    | Tenant lookup, token selection, signature/parsing order, check acknowledgement, token validation  |
-| [customer schema](../src/modules/integrations/viber/db/definitions/__tests__/customers.spec.ts) | 7     | Real Mongoose schema/loader, required fields, string-ID wiring, compound index declaration        |
+| Suite                                                                                           | Tests | Boundary covered                                                                                                                            |
+| ----------------------------------------------------------------------------------------------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| [signature](../src/modules/integrations/viber/utils/__tests__/signature.spec.ts)                | 2     | Known valid body and tampered body                                                                                                          |
+| [account](../src/modules/integrations/viber/utils/__tests__/account.spec.ts)                    | 17    | Response validation, token rules, HTTP/network/timeout failures with mocked `fetch`                                                         |
+| [raw parser](../src/modules/integrations/viber/utils/__tests__/webhook.spec.ts)                 | 11    | Large/exact tokens, neighboring IDs, unchanged fields/bytes, invalid JSON, missing source support                                           |
+| [receiver](../src/modules/integrations/viber/controller/__tests__/receiveMessage.spec.ts)       | 12    | Tenant lookup, token selection, signature/parsing order, check acknowledgement, token validation                                            |
+| [customer schema](../src/modules/integrations/viber/db/definitions/__tests__/customers.spec.ts) | 7     | Real Mongoose schema/loader, required fields, string-ID wiring, compound index declaration                                                  |
+| [customer helper](../src/modules/integrations/viber/__tests__/helpers.spec.ts)                  | 18    | Mapping identity, tenant inputs, Core contract, response validation, awaited writes, failures, duplicate recovery and race characterization |
 
 The receiver tests use real HMAC verification/parsing but replace tenant lookup
 and model loading. They do not run an Express server or test a completed valid
@@ -895,17 +917,23 @@ Customer schema tests use real Mongoose without a database connection. A small
 shared import is replaced to avoid starting infrastructure clients. ID randomness,
 tenant database loading, and MongoDB duplicate-key enforcement are not covered.
 
-The create/remove helpers and dispatch flows do not have saved dedicated suites
-in this Viber tree at this checkpoint. Temporary/manual checks from development
-are not a substitute for committed regression coverage. Add those tests as we
-extend the lifecycle; do not count them in the 49.
+Customer helper tests replace tenant model loading and Core calls. They verify
+request boundaries and behavior, not a live Core/MongoDB transaction. The
+concurrent-call characterization deliberately demonstrates that one winning
+mapping can coexist with two Core creations; idempotent Core creation is still
+not implemented.
+
+The connection create/remove helpers and dispatch flows do not have saved
+dedicated suites in this Viber tree at this checkpoint. Temporary/manual checks
+from development are not a substitute for committed regression coverage. Add
+those tests as we extend the lifecycle; do not count them in the saved total.
 
 ### How to run the saved suite
 
 Run these commands from the repository root, not the Viber folder:
 
 ```bash
-pnpm exec tsx --tsconfig=backend/plugins/frontline_api/tsconfig.json --test backend/plugins/frontline_api/src/modules/integrations/viber/{utils,controller,db/definitions}/__tests__/*.spec.ts
+pnpm exec tsx --tsconfig=backend/plugins/frontline_api/tsconfig.json --test backend/plugins/frontline_api/src/modules/integrations/viber/{__tests__,utils/__tests__,controller/__tests__,db/definitions/__tests__}/*.spec.ts
 ```
 
 This uses the existing `tsx` dependency and Node's test runner. `t.mock.method`
@@ -913,11 +941,12 @@ comes from the test callback's built-in context; it is not an npm package to
 install. Mocked dependencies are restored after each test, and these shared-state
 tests remain non-concurrent.
 
-The customer/receiver harnesses use CommonJS module-cache replacement to prevent
-unwanted infrastructure startup. Keep that replacement narrow. In the schema
-harness, cache paths are resolved indirectly on purpose: changing them to literal
-shared-library `require.resolve(...)` calls can affect Nx's lazy-import graph.
-Do not expand this into root-wide test infrastructure.
+The customer schema/helper and receiver harnesses use CommonJS module-cache
+replacement to prevent unwanted infrastructure startup. Keep that replacement
+narrow. In the schema and helper harnesses, cache paths are resolved indirectly
+on purpose: changing them to literal shared-library `require.resolve(...)` calls
+can affect Nx's lazy-import graph. Do not expand this into root-wide test
+infrastructure.
 
 There is no `test` target in
 [frontline_api/project.json](../project.json), so `pnpm nx test frontline_api` is
@@ -947,15 +976,15 @@ checked for this guide is Node `24.18.0`. Use the workspace TypeScript version i
 the editor and verify runtime-sensitive parsing on the deployment version. An
 editor with no red squiggles is not a replacement for tests or compilation.
 
-### Verification when this guide was written
+### Verification at this checkpoint
 
-The documentation-only change was checked on 2026-09-11:
+The customer helper and saved tests were checked on 2026-09-14:
 
-- All 49 saved Viber tests passed.
+- All 67 saved Viber tests passed, including 18 new customer helper tests.
 - The Frontline API build and the full plugin TypeScript check passed.
-- Scoped ESLint for the Viber directory and model registration passed.
+- Scoped ESLint for the Viber directory passed.
 - Full Frontline API lint failed with 13 errors and 93 warnings in untouched
-  files. Those failures were not changed as part of this documentation task.
+  files. Those failures were not changed as part of this Viber checkpoint.
 - Local Markdown source links, contents anchors, formatting, and whitespace were
   checked. The diagrams are Mermaid source; visual rendering depends on the
   reader's Markdown preview.
