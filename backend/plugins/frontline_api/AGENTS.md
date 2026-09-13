@@ -62,11 +62,14 @@
   cleanup before the common integration is removed; cleanup failures propagate.
   Removal is local only. Internal receiver validation authenticates raw bytes,
   parses numeric message tokens as exact strings, acknowledges webhook checks,
-  and rejects malformed message payloads. Valid text and URL messages resolve the
-  customer and thread, persist escaped content under a reserved message id,
+  and rejects malformed message payloads. Valid text, URL, contact, and location
+  messages resolve the customer and thread, persist escaped content under a
+  reserved message id,
   update inbox metadata, publish native inbox events, and mark completion before
   returning 200; processing failures return a safe 500 response. URL messages
   pass their HTTP(S) link as plain text without fetching the linked site.
+  Shared contacts become readable name/phone text without replacing sender
+  identity or fetching an avatar; locations become latitude/longitude text.
   No Viber HTTP route is mounted; other message types are not processed or
   acknowledged.
   A tenant-scoped customer helper reuses a mapping or creates a Core customer
@@ -101,8 +104,9 @@
   reader. The list must come from trusted server policy; no production Viber
   media hostnames have been configured or verified. `downloadAndStoreViberAttachment`
   composes downloading and tenant storage into native attachment metadata,
-  without creating messages or handling replays. Only text and URL messages are
-  wired from the receiver; incoming-media download wiring is not implemented.
+  without creating messages or handling replays. Text, URL, contact, and location
+  messages are wired from the receiver; incoming-media download wiring is not
+  implemented.
   A pure text formatter escapes incoming plain text for HTML display, preserves
   line breaks, and rejects blank messages. Live database, provider, and UI
   delivery remain unverified.
@@ -220,7 +224,7 @@ reading with supplied MIME metadata and stream cleanup, and the shared
 `getViberMediaMaxBytes` lookup;
 `utils/__tests__/media.spec.ts` covers those internal helpers.
 `controller/receiveMessage.ts` contains unmounted callback validation and
-text/URL processing;
+text/URL/contact/location processing;
 its colocated tests mock tenant lookup and message processing while using the
 real signature and parser utilities.
 `@types/` and `db/` hold document types, schema definitions, and model loaders;
@@ -737,10 +741,15 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   before sender validation. The `webhook` check is acknowledged with 200 without
   requiring message fields. A supplied sender name must be a string; absent or
   blank names are allowed. Rejection returns immediately, before message
-  validation. Valid text and HTTP(S) URL messages share one `processViberMessage`
-  call path with the exact inbox, sender, and message-token identities; URL
-  messages pass the original `message.media` string as text, with no media
-  download input. Await processing before returning 200.
+  validation. Valid text, HTTP(S) URL, contact, and location messages share one
+  `processViberMessage` call path after type-specific validation, with the exact
+  inbox, sender, and message-token identities. URL messages pass the original
+  `message.media` string as text, with no media download input. Shared contact
+  names and phone numbers are message content only, never replacements for the
+  sender id or profile name. Missing or blank contact names use the `Contact`
+  label; accepted nonblank names and phone strings remain unchanged. Location
+  text uses validated finite latitude/longitude, including zero and the range
+  boundaries. Await processing before returning 200.
   A processing failure returns only a fixed 500 error, not exception details.
 - Viber account responses stay `unknown` until validated: numeric `status === 0`
   and non-blank string `id` and `name`, returning only those two fields. The
@@ -1746,11 +1755,17 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   Sender-name cases isolate optional profile validation with a deliberately
   omitted message. They cover absent/blank/string names and non-string rejection
   without a second response.
-  Incoming-text and URL tests cover processor inputs, a 200 after successful
-  processing, no processing for invalid content, and a safe 500 on failure.
+  Text, URL, contact, and location tests cover processor inputs, a 200 after
+  successful processing, no processing for invalid content, and a safe 500 on
+  failure.
   URL cases check exact HTTP(S) links passed as text without an attachment input
-  or controller fetch, malformed or unsupported URLs, and no response while the
-  mocked processor is pending.
+  or controller fetch, and malformed or unsupported URLs. Contact cases cover
+  optional/blank names, the name-length boundary, unchanged phone text, invalid
+  fields, no avatar fetch, and preserving sender identity. Location cases cover
+  zero, fractional values, coordinate boundaries, invalid shapes/types, and
+  numeric overflow. URL/contact/location cases verify no response while the
+  mocked processor is pending; persistence and rendering remain outside this
+  harness.
   File-size cases allow sizes through 50 MiB to reach the next validation guard
   and reject malformed sizes or one byte over the cap. They deliberately stop
   before the still-unwired incoming-media path.
@@ -1868,6 +1883,14 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-14` — Viber contact and location messages
+
+- **Summary:** Converted validated shared contacts and coordinates into readable
+  text through the shared message processor, with offline receiver tests.
+- **Affected areas:** `src/modules/integrations/viber/controller/`.
+- **Contracts changed:** The unmounted receiver now processes contact/location
+  messages before returning 200; public routes and APIs remain unchanged.
+
 ### `2026-09-14` — Viber URL-message processing
 
 - **Summary:** Routed validated HTTP(S) links through shared text processing
@@ -1940,11 +1963,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Affected areas:** `src/modules/integrations/viber/{helpers.ts,__tests__/,controller/}`.
 - **Contracts changed:** Added internal `processViberTextMessage`; the unmounted
   receiver returns 200 after text processing or a safe 500 on processing failure.
-
-### `2026-09-14` — Viber sender-name validation
-
-- **Summary:** Validated optional sender names and stopped rejected requests
-  before message validation, with focused receiver tests.
-- **Affected areas:** `src/modules/integrations/viber/controller/`.
-- **Contracts changed:** The internal receiver returns 400 for a supplied
-  non-string sender name; no HTTP route is mounted.

@@ -177,29 +177,6 @@ export const receiveViberMessage = async (
       }
     }
 
-    if (text !== undefined) {
-      const name =
-        'name' in payload.sender && typeof payload.sender.name === 'string'
-          ? payload.sender.name
-          : undefined;
-
-      try {
-        await processViberMessage(subdomain, {
-          inboxId: req.params.integrationId,
-          userId: payload.sender.id,
-          messageToken: payload.message_token,
-          text,
-          name,
-        });
-      } catch {
-        res.status(500).json({ error: 'Failed to process Viber message' });
-        return;
-      }
-
-      res.sendStatus(200);
-      return;
-    }
-
     if (payload.message.type === 'file') {
       if (
         !('file_size' in payload.message) ||
@@ -255,6 +232,7 @@ export const receiveViberMessage = async (
         res.status(400).json({ error: 'Invalid Viber location coordinates' });
         return;
       }
+      text = `Location\nLatitude: ${location.lat}\nLongitude: ${location.lon}`;
     }
 
     if (payload.message.type === 'contact') {
@@ -284,6 +262,16 @@ export const receiveViberMessage = async (
           return;
         }
       }
+      const contactName =
+        'name' in contact && typeof contact.name === 'string'
+          ? contact.name
+          : '';
+
+      const contactLabel = contactName.trim()
+        ? `Contact: ${contactName}`
+        : 'Contact';
+
+      text = `${contactLabel}\nPhone: ${contact.phone_number}`;
     }
 
     if (payload.message.type === 'sticker') {
@@ -295,6 +283,28 @@ export const receiveViberMessage = async (
         res.status(400).json({ error: 'Invalid Viber sticker message' });
         return;
       }
+    }
+    if (text !== undefined) {
+      const name =
+        'name' in payload.sender && typeof payload.sender.name === 'string'
+          ? payload.sender.name
+          : undefined;
+
+      try {
+        await processViberMessage(subdomain, {
+          inboxId: req.params.integrationId,
+          userId: payload.sender.id,
+          messageToken: payload.message_token,
+          text,
+          name,
+        });
+      } catch {
+        res.status(500).json({ error: 'Failed to process Viber message' });
+        return;
+      }
+
+      res.sendStatus(200);
+      return;
     }
   }
 };

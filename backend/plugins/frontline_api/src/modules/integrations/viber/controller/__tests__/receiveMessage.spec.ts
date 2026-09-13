@@ -16,6 +16,21 @@ const URL_MESSAGE = {
   ...TEXT_MESSAGE,
   message: { type: 'url', media: 'https://example.com/shared-page' },
 };
+const LOCATION_MESSAGE = {
+  ...TEXT_MESSAGE,
+  message: { type: 'location', location: { lat: 47.9, lon: 106.9 } },
+};
+const CONTACT_MESSAGE = {
+  ...TEXT_MESSAGE,
+  message: {
+    type: 'contact',
+    contact: {
+      name: 'Shared <friend> & family',
+      phone_number: '+1 202-555-0100',
+      avatar: 'https://example.com/contact-avatar.jpg',
+    },
+  },
+};
 
 // The installed Node types do not export the callback context by name.
 type TestContext = Parameters<NonNullable<Parameters<typeof test>[0]>>[0];
@@ -471,42 +486,259 @@ test('a URL-processing failure returns a safe 500 response instead of acknowledg
   strictEqual(processMessage.mock.callCount(), 1);
 });
 
-test(
-  'does not respond while URL-message processing is still pending',
-  { timeout: 5000 },
-  async (t) => {
-    const { receive, processMessage, respond } = createReceiverHarness(t);
-    let finishProcessing: (messageId: string) => void = () => {
-      throw new Error('Processing promise was not initialized');
-    };
-    let markProcessingStarted: () => void = () => {
-      throw new Error('Processing-start promise was not initialized');
-    };
-    const processingResult = new Promise<string>((resolve) => {
-      finishProcessing = resolve;
-    });
-    const processingStarted = new Promise<void>((resolve) => {
-      markProcessingStarted = resolve;
-    });
-    processMessage.mock.mockImplementation(async () => {
-      markProcessingStarted();
-      return processingResult;
+test('processes valid locations including zero and coordinate boundaries as readable text', async (t) => {
+  const { receive, processMessage } = createReceiverHarness(t);
+  const locations = [
+    LOCATION_MESSAGE.message.location,
+    { lat: 0, lon: 0 },
+    { lat: -90, lon: -180 },
+    { lat: 90, lon: 180 },
+  ];
+
+  for (const location of locations) {
+    const body = JSON.stringify({
+      ...LOCATION_MESSAGE,
+      message: { type: 'location', location },
     });
 
-    const pendingResponse = receive(JSON.stringify(URL_MESSAGE));
+    deepStrictEqual(await receive(body), [{ statusCode: 200 }]);
+    deepStrictEqual(processMessage.mock.calls.at(-1)?.arguments, [
+      'test',
+      {
+        inboxId: 'inbox-test',
+        userId: LOCATION_MESSAGE.sender.id,
+        messageToken: LOCATION_MESSAGE.message_token,
+        text: `Location\nLatitude: ${location.lat}\nLongitude: ${location.lon}`,
+        name: LOCATION_MESSAGE.sender.name,
+      },
+    ]);
+  }
 
-    try {
-      await processingStarted;
-      strictEqual(respond.mock.callCount(), 0);
-    } finally {
-      finishProcessing('frontline-message-test');
-    }
+  strictEqual(processMessage.mock.callCount(), locations.length);
+});
 
-    deepStrictEqual(await pendingResponse, [{ statusCode: 200 }]);
-    strictEqual(processMessage.mock.callCount(), 1);
-    strictEqual(respond.mock.callCount(), 1);
-  },
-);
+test('rejects missing and non-object locations before processing', async (t) => {
+  const { receive, processMessage } = createReceiverHarness(t);
+
+  for (const location of [undefined, null, [], '47.9,106.9', 42, false]) {
+    const body = JSON.stringify({
+      ...LOCATION_MESSAGE,
+      message: { type: 'location', location },
+    });
+
+    deepStrictEqual(await receive(body), [
+      { statusCode: 400, body: { error: 'Invalid Viber location message' } },
+    ]);
+  }
+
+  strictEqual(processMessage.mock.callCount(), 0);
+});
+
+test('rejects invalid or out-of-range location coordinates before processing', async (t) => {
+  const { receive, processMessage } = createReceiverHarness(t);
+  const invalidCoordinates = [undefined, null, '0', false, {}, []];
+  const locations = [
+    ...invalidCoordinates.map((lat) => ({ lat, lon: 0 })),
+    ...invalidCoordinates.map((lon) => ({ lat: 0, lon })),
+    { lat: -90.001, lon: 0 },
+    { lat: 90.001, lon: 0 },
+    { lat: 0, lon: -180.001 },
+    { lat: 0, lon: 180.001 },
+  ];
+
+  for (const location of locations) {
+    const body = JSON.stringify({
+      ...LOCATION_MESSAGE,
+      message: { type: 'location', location },
+    });
+
+    deepStrictEqual(await receive(body), [
+      {
+        statusCode: 400,
+        body: { error: 'Invalid Viber location coordinates' },
+      },
+    ]);
+  }
+
+  // Exponent overflow is valid JSON but produces a non-finite JS number.
+  for (const location of ['{"lat":1e400,"lon":0}', '{"lat":0,"lon":-1e400}']) {
+    const body = `{"event":"message","message_token":"42","sender":{"id":"sender-test"},"message":{"type":"location","location":${location}}}`;
+
+    deepStrictEqual(await receive(body), [
+      {
+        statusCode: 400,
+        body: { error: 'Invalid Viber location coordinates' },
+      },
+    ]);
+  }
+
+  strictEqual(processMessage.mock.callCount(), 0);
+});
+
+test('renders shared-contact details without replacing sender identity or fetching an avatar', async (t) => {
+  const { receive, processMessage } = createReceiverHarness(t);
+  const fetchAvatar = t.mock.method(globalThis, 'fetch', async () => {
+    throw new Error('Shared contacts must not fetch an avatar');
+  });
+  const cases = [
+    {
+      name: CONTACT_MESSAGE.message.contact.name,
+      label: 'Contact: Shared <friend> & family',
+    },
+    { name: undefined, label: 'Contact' },
+    { name: '', label: 'Contact' },
+    { name: ' \t ', label: 'Contact' },
+    { name: '  Найз 👋  ', label: 'Contact:   Найз 👋  ' },
+    { name: 'x'.repeat(128), label: `Contact: ${'x'.repeat(128)}` },
+  ];
+  const phoneNumber = ' +1 202-555-0100 ';
+
+  for (const { name, label } of cases) {
+    const body = JSON.stringify({
+      ...CONTACT_MESSAGE,
+      message: {
+        type: 'contact',
+        contact: {
+          ...CONTACT_MESSAGE.message.contact,
+          name,
+          phone_number: phoneNumber,
+        },
+      },
+    });
+
+    deepStrictEqual(await receive(body), [{ statusCode: 200 }]);
+    deepStrictEqual(processMessage.mock.calls.at(-1)?.arguments, [
+      'test',
+      {
+        inboxId: 'inbox-test',
+        userId: CONTACT_MESSAGE.sender.id,
+        messageToken: CONTACT_MESSAGE.message_token,
+        text: `${label}\nPhone: ${phoneNumber}`,
+        name: CONTACT_MESSAGE.sender.name,
+      },
+    ]);
+  }
+
+  strictEqual(processMessage.mock.callCount(), cases.length);
+  strictEqual(fetchAvatar.mock.callCount(), 0);
+});
+
+test('rejects missing and non-object shared contacts before processing', async (t) => {
+  const { receive, processMessage } = createReceiverHarness(t);
+
+  for (const contact of [undefined, null, [], 'friend', 42, false]) {
+    const body = JSON.stringify({
+      ...CONTACT_MESSAGE,
+      message: { type: 'contact', contact },
+    });
+
+    deepStrictEqual(await receive(body), [
+      { statusCode: 400, body: { error: 'Invalid Viber contact message' } },
+    ]);
+  }
+
+  strictEqual(processMessage.mock.callCount(), 0);
+});
+
+test('rejects shared contacts with missing, blank, or non-string phone numbers', async (t) => {
+  const { receive, processMessage } = createReceiverHarness(t);
+
+  for (const phoneNumber of [undefined, null, '', ' \t ', 42, false, {}, []]) {
+    const body = JSON.stringify({
+      ...CONTACT_MESSAGE,
+      message: {
+        type: 'contact',
+        contact: {
+          ...CONTACT_MESSAGE.message.contact,
+          phone_number: phoneNumber,
+        },
+      },
+    });
+
+    deepStrictEqual(await receive(body), [
+      {
+        statusCode: 400,
+        body: { error: 'Invalid Viber contact phone number' },
+      },
+    ]);
+  }
+
+  strictEqual(processMessage.mock.callCount(), 0);
+});
+
+test('rejects non-string or overlong shared-contact names before processing', async (t) => {
+  const { receive, processMessage } = createReceiverHarness(t);
+
+  for (const name of [null, 42, false, {}, [], 'x'.repeat(129)]) {
+    const body = JSON.stringify({
+      ...CONTACT_MESSAGE,
+      message: {
+        type: 'contact',
+        contact: { ...CONTACT_MESSAGE.message.contact, name },
+      },
+    });
+
+    deepStrictEqual(await receive(body), [
+      { statusCode: 400, body: { error: 'Invalid Viber contact name' } },
+    ]);
+  }
+
+  strictEqual(processMessage.mock.callCount(), 0);
+});
+
+test('contact and location processing failures return a safe 500 without acknowledging', async (t) => {
+  const { receive, processMessage } = createReceiverHarness(t);
+  processMessage.mock.mockImplementation(async () => {
+    throw new Error('Sensitive internal failure');
+  });
+
+  for (const message of [CONTACT_MESSAGE, LOCATION_MESSAGE]) {
+    deepStrictEqual(await receive(JSON.stringify(message)), [
+      { statusCode: 500, body: { error: 'Failed to process Viber message' } },
+    ]);
+  }
+
+  strictEqual(processMessage.mock.callCount(), 2);
+});
+
+for (const message of [URL_MESSAGE, LOCATION_MESSAGE, CONTACT_MESSAGE]) {
+  test(
+    `does not respond while ${message.message.type}-message processing is still pending`,
+    { timeout: 5000 },
+    async (t) => {
+      const { receive, processMessage, respond } = createReceiverHarness(t);
+      let finishProcessing: (messageId: string) => void = () => {
+        throw new Error('Processing promise was not initialized');
+      };
+      let markProcessingStarted: () => void = () => {
+        throw new Error('Processing-start promise was not initialized');
+      };
+      const processingResult = new Promise<string>((resolve) => {
+        finishProcessing = resolve;
+      });
+      const processingStarted = new Promise<void>((resolve) => {
+        markProcessingStarted = resolve;
+      });
+      processMessage.mock.mockImplementation(async () => {
+        markProcessingStarted();
+        return processingResult;
+      });
+
+      const pendingResponse = receive(JSON.stringify(message));
+
+      try {
+        await processingStarted;
+        strictEqual(respond.mock.callCount(), 0);
+      } finally {
+        finishProcessing('frontline-message-test');
+      }
+
+      deepStrictEqual(await pendingResponse, [{ statusCode: 200 }]);
+      strictEqual(processMessage.mock.callCount(), 1);
+      strictEqual(respond.mock.callCount(), 1);
+    },
+  );
+}
 
 test('allows file sizes through 50 MiB to reach the next validation guard', async (t) => {
   const { receive, processMessage } = createReceiverHarness(t);
