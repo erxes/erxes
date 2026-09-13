@@ -38,6 +38,13 @@ const MEDIA_LIMITS = [
   { messageType: 'file', maxBytes: 50 * 1024 * 1024 },
 ] as const;
 const STORAGE_KEY = 'stored/viber-attachment-test';
+// Reserved test host, not a configured production Viber hostname.
+const DOWNLOAD_INPUT = {
+  source: 'https://media.example.test/attachment?signature=test',
+  fileName: INPUT.fileName,
+  messageType: INPUT.messageType,
+  allowedHostnames: ['media.example.test'],
+};
 
 const createAttachmentHarness = (t: TestContext) => {
   const events: string[] = [];
@@ -97,6 +104,8 @@ const createAttachmentHarness = (t: TestContext) => {
   return {
     store: (subdomain = 'tenant-test', input = INPUT) =>
       helpers.storeViberAttachment(subdomain, input),
+    downloadAndStore: (subdomain = 'tenant-test', input = DOWNLOAD_INPUT) =>
+      helpers.downloadAndStoreViberAttachment(subdomain, input),
     events,
     uploads,
     writes,
@@ -283,4 +292,124 @@ test('cleanup failures reject instead of reporting that all local work completed
 
   await rejects(h.store(), (caught: unknown) => caught === error);
   strictEqual(h.upload.mock.callCount(), 1);
+});
+
+test('downloads then stores exact bytes and reported MIME metadata on the supplied tenant', async (t) => {
+  const h = createAttachmentHarness(t);
+  const response = new Response(new Uint8Array(INPUT.buffer), {
+    headers: { 'content-type': 'IMAGE/PNG; charset=binary' },
+  });
+  const fetchMock = t.mock.method(globalThis, 'fetch', async () => {
+    h.events.push('download');
+    return response;
+  });
+
+  deepStrictEqual(
+    await h.downloadAndStore('tenant-two', {
+      ...DOWNLOAD_INPUT,
+      fileName: '../folder/diagram.png',
+    }),
+    {
+      name: 'diagram.png',
+      url: STORAGE_KEY,
+      size: INPUT.buffer.byteLength,
+      type: 'image/png',
+    },
+  );
+  strictEqual(fetchMock.mock.callCount(), 1);
+  strictEqual(
+    String(fetchMock.mock.calls[0].arguments[0]),
+    DOWNLOAD_INPUT.source,
+  );
+  deepStrictEqual(h.events, ['download', 'mkdir', 'write', 'upload', 'remove']);
+  deepStrictEqual(h.writes[0].bytes, new Uint8Array(INPUT.buffer));
+  deepStrictEqual(h.uploads[0], {
+    subdomain: 'tenant-two',
+    filePath: join(tmpdir(), 'viber-unit-1', 'attachment'),
+    fileName: 'diagram.png',
+    mimetype: 'image/png',
+    forcePrivate: true,
+  });
+  deepStrictEqual(h.removed, [join(tmpdir(), 'viber-unit-1')]);
+  strictEqual(response.body?.locked, false);
+});
+
+test('a blank tenant or an empty approved-host list prevents both downloading and storage', async (t) => {
+  const h = createAttachmentHarness(t);
+  const fetchMock = t.mock.method(globalThis, 'fetch', async () => {
+    throw new Error('Unexpected attachment download');
+  });
+
+  await rejects(h.downloadAndStore(' \t'), /Subdomain is required/);
+  await rejects(
+    h.downloadAndStore('tenant-test', {
+      ...DOWNLOAD_INPUT,
+      allowedHostnames: [],
+    }),
+    /Unapproved Viber media host/,
+  );
+  strictEqual(fetchMock.mock.callCount(), 0);
+  deepStrictEqual(h.events, []);
+});
+
+test('a failed download does not create temporary files or upload anything', async (t) => {
+  const h = createAttachmentHarness(t);
+  const failure = new Error('Download unavailable');
+  const fetchMock = t.mock.method(globalThis, 'fetch', async () => {
+    throw failure;
+  });
+
+  await rejects(h.downloadAndStore(), (caught: unknown) => caught === failure);
+  strictEqual(fetchMock.mock.callCount(), 1);
+  deepStrictEqual(h.events, []);
+});
+
+test('an oversized picture fails while downloading before storage starts', async (t) => {
+  const h = createAttachmentHarness(t);
+  const response = new Response(new Uint8Array(3 * 1024 * 1024 + 1));
+  t.mock.method(globalThis, 'fetch', async () => response);
+
+  await rejects(h.downloadAndStore(), /Viber picture exceeds the 3 MiB limit/);
+  deepStrictEqual(h.events, []);
+  strictEqual(response.body?.locked, false);
+});
+
+test('a file keeps its larger size policy through both downloading and storage', async (t) => {
+  const h = createAttachmentHarness(t);
+  const size = 4 * 1024 * 1024;
+  t.mock.method(
+    globalThis,
+    'fetch',
+    async () =>
+      new Response(new Uint8Array(size), {
+        headers: { 'content-type': 'image/png' },
+      }),
+  );
+
+  const attachment = await h.downloadAndStore('tenant-test', {
+    ...DOWNLOAD_INPUT,
+    messageType: 'file',
+  });
+  strictEqual(attachment.size, size);
+  strictEqual(h.writes[0].bytes.byteLength, size);
+  strictEqual(h.upload.mock.callCount(), 1);
+  strictEqual(h.remove.mock.callCount(), 1);
+});
+
+test('a storage failure after downloading propagates and cleans up without returning the source URL', async (t) => {
+  const h = createAttachmentHarness(t);
+  const failure = new Error('Storage unavailable');
+  t.mock.method(
+    globalThis,
+    'fetch',
+    async () => new Response(new Uint8Array(INPUT.buffer)),
+  );
+  h.upload.mock.mockImplementation(async () => {
+    throw failure;
+  });
+
+  await rejects(h.downloadAndStore(), (caught: unknown) => caught === failure);
+  strictEqual(h.writeFile.mock.callCount(), 1);
+  strictEqual(h.upload.mock.callCount(), 1);
+  deepStrictEqual(h.removed, [join(tmpdir(), 'viber-unit-1')]);
 });

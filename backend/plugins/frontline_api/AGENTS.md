@@ -93,7 +93,9 @@
   `downloadViberMedia` fetches HTTPS media from an explicit approved-host list,
   rejects redirects, applies a 30-second abort signal, and delegates to that
   reader. The list must come from trusted server policy; no production Viber
-  media hostnames have been configured or verified. Only text is wired from the
+  media hostnames have been configured or verified. `downloadAndStoreViberAttachment`
+  composes downloading and tenant storage into native attachment metadata,
+  without creating messages or handling replays. Only text is wired from the
   receiver; incoming-media processing is not implemented.
   A pure text formatter escapes incoming plain text for HTML display, preserves
   line breaks, and rejects blank messages. Live database, provider, and UI
@@ -190,7 +192,8 @@
 Viber lives under `src/modules/integrations/viber/`: `helpers.ts` owns connection
 creation, local removal, customer resolution, conversation synchronization,
 message-id reservation, message processing with optional native attachments,
-and storage of already-downloaded attachment bytes.
+storage of already-downloaded attachment bytes, and the download-to-storage
+composition helper.
 `__tests__/helpers.spec.ts` covers customer resolution;
 `__tests__/conversations.spec.ts` covers conversation resolution, and
 `__tests__/messageMappings.spec.ts` covers message-id reservation. Their shared
@@ -201,7 +204,8 @@ recovery after partial failures. `messageBroker.ts` adapts connection inputs
 and error handling, and `utils/` holds signature/account helpers, raw-body webhook
 parsing, shared message-token validation, plain-text HTML formatting, and their
 colocated tests.
-`__tests__/attachments.spec.ts` covers the tenant-configured byte-storage adapter.
+`__tests__/attachments.spec.ts` covers the tenant-configured byte-storage adapter
+and its composition with the real downloader using mocked external I/O.
 `constants.ts` defines `ViberMediaType` and the incoming-media size policy shared
 by response reading, storage, and the file callback guard.
 `utils/media.ts` owns approved-host HTTPS downloads, bounded HTTP-response
@@ -839,6 +843,13 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   delegates response reading to `readViberMediaResponse`. Errors propagate with
   no retry. It does not perform DNS address validation, store attachments, or
   establish production media-host compatibility; receiver wiring remains absent.
+- `downloadAndStoreViberAttachment` rejects a blank subdomain before any network
+  request, then passes the source, message type, and trusted host list to the
+  downloader. Only a successful download reaches `storeViberAttachment` with
+  the same tenant/type, supplied filename, exact bytes, and reported MIME type.
+  It returns stored `IAttachment` metadata, never a fallback provider URL, and
+  propagates download/storage failures. It neither creates messages nor checks
+  replay state; callers must decide whether downloading is needed first.
 - `getOrCreateViberConversation` rejects blank inbox/sender/customer ids, saves
   a UUID conversation id in the mapping before requesting thread creation, and
   reuses that id on later attempts. Existing thread ownership must match the
@@ -1768,6 +1779,9 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   filesystem mocks so compiler-cache writes are not counted as attachment I/O.
   No real attachment files, uploads, provider ACLs, content-type validation,
   malware scanning, remote downloads, or live storage configurations are exercised.
+  Composition tests also use the real download/reader helpers with mocked
+  `fetch`: they cover tenant/metadata forwarding, downloaded bytes, pre-I/O
+  rejection, download failure, size-policy propagation, and upload-failure cleanup.
 - Media-response tests use local `Response` and `ReadableStream` objects, without
   remote requests. They specify exact bytes, supplied MIME metadata with a
   generic fallback, HTTP/body errors, declared-size rejection, each actual streamed
@@ -1827,6 +1841,14 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-14` — Viber download-to-storage composition
+
+- **Summary:** Connected approved-host media downloading to tenant storage with
+  native attachment metadata, propagated failures, and offline composition tests.
+- **Affected areas:** `src/modules/integrations/viber/{helpers.ts,__tests__/attachments.spec.ts}`.
+- **Contracts changed:** Added internal `downloadAndStoreViberAttachment`;
+  message replay handling, receiver media wiring, and public APIs are unchanged.
 
 ### `2026-09-14` — Approved-host Viber media downloading
 
@@ -1900,13 +1922,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Affected areas:** `src/modules/integrations/viber/{utils/,helpers.ts,controller/}`.
 - **Contracts changed:** Added internal `isViberMessageToken(value: unknown): value is string`;
   accepted token values and HTTP responses are unchanged.
-
-### `2026-09-14` — Viber message-id reservation helper
-
-- **Summary:** Added tenant-scoped message-id reservation with exact token
-  validation, duplicate-key recovery, unchanged completion state, and offline
-  tests.
-- **Affected areas:** `src/modules/integrations/viber/{helpers.ts,__tests__/}`.
-- **Contracts changed:** Added internal
-  `getOrCreateViberMessageMapping(subdomain, inboxId, messageToken): Promise<IViberMessageDocument>`;
-  receiver behavior and public APIs are unchanged.

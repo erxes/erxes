@@ -5,7 +5,10 @@ import { promises as fsPromises } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, join } from 'node:path';
 import type { ViberMediaType } from '@/integrations/viber/constants';
-import { getViberMediaMaxBytes } from '@/integrations/viber/utils/media';
+import {
+  getViberMediaMaxBytes,
+  downloadViberMedia,
+} from '@/integrations/viber/utils/media';
 import { randomUUID } from 'node:crypto';
 import { receiveInboxMessage } from '@/inbox/receiveMessage';
 import type { IViberMessageDocument } from '@/integrations/viber/@types/message';
@@ -463,4 +466,31 @@ export const storeViberAttachment = async (
   } finally {
     await fsPromises.rm(directory, { recursive: true, force: true });
   }
+};
+
+export const downloadAndStoreViberAttachment = async (
+  subdomain: string,
+  input: {
+    source: string;
+    fileName: string;
+    messageType: ViberMediaType;
+    allowedHostnames: readonly string[];
+  },
+): Promise<IAttachment> => {
+  if (!subdomain.trim()) {
+    throw new Error('Subdomain is required');
+  }
+
+  const { buffer, mimetype } = await downloadViberMedia(
+    input.source,
+    input.messageType,
+    input.allowedHostnames,
+  );
+
+  return storeViberAttachment(subdomain, {
+    buffer,
+    mimetype,
+    fileName: input.fileName,
+    messageType: input.messageType,
+  });
 };
