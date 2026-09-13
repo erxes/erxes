@@ -172,9 +172,6 @@ on the supplied tenant connection.
 `src/modules/inbox/graphql/resolvers/mutations/integrations.ts`
 dispatches Viber creation and removal through `sendCreateIntegration` and
 `sendRemoveIntegration`.
-The [Viber integration learning guide](docs/viber-integration-guide.md) maps
-current call chains, identity/model responsibilities, validation boundaries,
-and the explicitly planned backend/frontend lifecycle.
 
 | Area                 | Path                                                                        | Responsibility                                                                                                                                                                                         |
 | -------------------- | --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -1611,18 +1608,10 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 - **Summary:** Added tenant-scoped customer resolution with validated Core
   creation, mapping persistence, duplicate-key recovery, and offline tests.
-- **Affected areas:** `src/modules/integrations/viber/{helpers.ts,__tests__/}`,
-  `docs/viber-integration-guide.md`.
+- **Affected areas:** `src/modules/integrations/viber/{helpers.ts,__tests__/}`.
 - **Contracts changed:** Added internal
   `getOrCreateViberCustomer(subdomain, inboxId, userId, name?): Promise<string>`;
   receiver wiring and HTTP/GraphQL contracts are unchanged.
-
-### `2026-09-11` — Viber integration learning guide
-
-- **Summary:** Documented current Viber behavior, source-linked call chains,
-  identity mapping, and a clearly separated end-to-end implementation roadmap.
-- **Affected areas:** `docs/viber-integration-guide.md`.
-- **Contracts changed:** None; documentation only.
 
 ### `2026-09-10` — Viber customer mapping model
 
