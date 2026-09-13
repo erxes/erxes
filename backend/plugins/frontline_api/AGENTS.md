@@ -67,6 +67,9 @@
   A tenant-scoped customer helper reuses a mapping or creates a Core customer
   and saves the mapping, with duplicate-key recovery. It is not yet called by
   the receiver; Core creation and mapping persistence are not atomic.
+  A tenant-scoped conversation-mapping model is registered with required inbox,
+  sender, and Frontline conversation ids. No Viber helper creates or reopens
+  conversations yet.
 - Polls are a reusable definition (`title`, `question`, ordered `options`,
   `allowMultiselect`, optional `durationHours`, optional `brandId`,
   `active`/`archived` status) owned by a channel through `channelId`. An agent posts one into a messenger
@@ -166,9 +169,9 @@ parsing, and their colocated tests.
 its colocated tests mock tenant lookup while using the real signature and parser
 utilities.
 `@types/` and `db/` hold document types, schema definitions, and model loaders;
-customer schema tests live in `db/definitions/__tests__/`.
-`src/connectionResolvers.ts` registers `ViberIntegrations` and `ViberCustomers`
-on the supplied tenant connection.
+customer and conversation schema tests live in `db/definitions/__tests__/`.
+`src/connectionResolvers.ts` registers `ViberIntegrations`, `ViberCustomers`,
+and `ViberConversations` on the supplied tenant connection.
 `src/modules/inbox/graphql/resolvers/mutations/integrations.ts`
 dispatches Viber creation and removal through `sendCreateIntegration` and
 `sendRemoveIntegration`.
@@ -517,6 +520,10 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `userId` to a required Core customer `contactsId`, with a generated string
   `_id` for the mapping itself. The schema declares a compound unique index on
   `{ inboxId: 1, userId: 1 }`, not uniqueness on either field alone.
+- `viber_conversations` (`models.ViberConversations`) maps required `inboxId`
+  and Viber `userId` to a required Frontline `conversationId`. It has its own
+  generated string `_id`, a compound unique index on `{ inboxId: 1, userId: 1 }`,
+  and a non-unique lookup index on `conversationId`.
 - `frontline_polls` — poll definitions with an indexed `channelId` and embedded
   `options` that carry their own nanoid `_id`. `frontline_poll_votes` — one document per voter per poll
   message, with a unique `(messageId, voterId)` index so a repeat vote replaces
@@ -690,6 +697,11 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   identified by the inbox/user pair. `contactsId` references a Core-owned
   customer; it is neither the Viber sender id nor the mapping's string `_id`.
   Schema index declarations do not prove an index has been built in MongoDB.
+- Viber conversation mappings use the inbox/user pair on the supplied tenant
+  connection. Their `conversationId` names the Frontline conversation, not the
+  mapping itself or a customer. Conversation status belongs to the common
+  conversation record; the mapping schema neither stores status nor creates or
+  reopens the referenced conversation.
 - `getOrCreateViberCustomer` rejects blank inbox/sender ids, uses tenant models,
   returns an existing mapping's `contactsId`, or creates a Core customer and
   awaits its mapping save. Optional display names are trimmed, never used as
@@ -1536,7 +1548,7 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   credentials, network, or project-wide test configuration are required.
   Parser tests cover exact numeric tokens, unchanged fields and raw bytes,
   malformed JSON, and a mocked runtime without reviver source support.
-- All saved Viber utility, receiver, customer schema, and helper tests, from the
+- All saved Viber utility, receiver, mapping schema, and helper tests, from the
   repository root:
   `pnpm exec tsx --tsconfig=backend/plugins/frontline_api/tsconfig.json --test backend/plugins/frontline_api/src/modules/integrations/viber/{__tests__,utils/__tests__,controller/__tests__,db/definitions/__tests__}/*.spec.ts`.
   Receiver tests use the existing plugin aliases and replace only the shared
@@ -1544,13 +1556,15 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   those entries and the receiver entry after each test, remain non-concurrent,
   and use real signature verification and raw-body parsing. No live database,
   server, or bot token is required; successful message persistence is not covered.
-- Viber customer schema tests use real Mongoose with no database connection.
+- Viber customer and conversation schema tests use real Mongoose with no
+  database connection.
   They replace the shared utilities import with a deterministic string-id
   definition to avoid starting infrastructure clients, restoring cache entries
   after each test. Coverage includes the schema loader, required fields, shared
-  id-definition wiring, document id typing, and the compound unique-index
-  declaration. Actual id randomness, tenant database loading, and database
-  duplicate-key enforcement are not covered by these offline tests.
+  id-definition wiring, document id typing, compound unique-index declarations,
+  and the conversation-id lookup index. Actual id randomness, tenant database
+  loading, and database duplicate-key enforcement are not covered by these
+  offline tests.
 - Viber customer helper tests mock `generateModels` and `sendTRPCMessage`,
   restoring CommonJS cache entries after each non-concurrent test. They cover
   tenant/inbox lookup inputs, Core request/response boundaries, awaited writes,
@@ -1603,6 +1617,16 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-14` — Viber conversation mapping model
+
+- **Summary:** Registered a tenant-scoped sender-to-conversation mapping with
+  required fields, inbox/sender uniqueness, a conversation lookup index, and
+  offline schema tests.
+- **Affected areas:** `src/modules/integrations/viber/{@types/conversation.ts,db/}`,
+  `src/connectionResolvers.ts`.
+- **Contracts changed:** Added internal `IModels.ViberConversations` backed by
+  `viber_conversations`; receiver behavior and public APIs are unchanged.
 
 ### `2026-09-14` — Viber customer resolution helper
 

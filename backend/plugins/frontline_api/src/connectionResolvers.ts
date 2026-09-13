@@ -331,6 +331,12 @@ import {
   loadViberCustomerClass,
 } from '@/integrations/viber/db/models/Customers';
 
+import type { IViberConversationDocument } from '@/integrations/viber/@types/conversation';
+import {
+  type IViberConversationModel,
+  loadViberConversationClass,
+} from '@/integrations/viber/db/models/Conversations';
+
 export interface IModels {
   //channel
   Channels: IChannelModel;
@@ -396,6 +402,7 @@ export interface IModels {
 
   ViberIntegrations: IViberIntegrationModel;
   ViberCustomers: IViberCustomerModel;
+  ViberConversations: IViberConversationModel;
   // ticket
   Pipeline: ITicketPipelineModel;
   Status: IStatusModel;
@@ -689,6 +696,12 @@ export const loadClasses = (
     'viber_customers',
     loadViberCustomerClass(),
   );
+
+  models.ViberConversations = db.model<
+    IViberConversationDocument,
+    IViberConversationModel
+  >('viber_conversations', loadViberConversationClass());
+
   models.MailIntegrations = db.model<
     IMailIntegrationDocument,
     IMailIntegrationModel
