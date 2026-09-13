@@ -19,6 +19,13 @@ import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mu
 import { formatViberText } from '@/integrations/viber/utils/content';
 import type { IAttachment } from 'erxes-api-shared/core-types';
 
+interface IViberMediaInput {
+  source: string;
+  fileName: string;
+  messageType: ViberMediaType;
+  allowedHostnames: readonly string[];
+}
+
 export const createViberIntegration = async (
   subdomain: string,
   integrationId: string,
@@ -299,11 +306,20 @@ export const processViberMessage = async (
     text: string;
     name?: string;
     attachments?: IAttachment[];
+    media?: IViberMediaInput;
   },
 ): Promise<string> => {
-  const { inboxId, userId, messageToken, text, name, attachments = [] } = input;
-  const messageText =
-    attachments.length > 0 && !text.trim() ? 'Attachment' : text;
+  const {
+    inboxId,
+    userId,
+    messageToken,
+    text,
+    name,
+    attachments = [],
+    media,
+  } = input;
+  const hasAttachments = attachments.length > 0 || Boolean(media);
+  const messageText = hasAttachments && !text.trim() ? 'Attachment' : text;
   const content = formatViberText(messageText);
 
   const mapping = await getOrCreateViberMessageMapping(
@@ -338,12 +354,23 @@ export const processViberMessage = async (
     await models.ConversationMessages.findOne({ _id: messageId });
 
   if (!message) {
+    const messageAttachments = [...attachments];
+
+    if (media) {
+      const attachment = await downloadAndStoreViberAttachment(
+        subdomain,
+        media,
+      );
+
+      messageAttachments.push(attachment);
+    }
+
     const doc = {
       _id: messageId,
       conversationId,
       customerId,
       content,
-      attachments,
+      attachments: messageAttachments,
       internal: false,
     };
 
@@ -470,12 +497,7 @@ export const storeViberAttachment = async (
 
 export const downloadAndStoreViberAttachment = async (
   subdomain: string,
-  input: {
-    source: string;
-    fileName: string;
-    messageType: ViberMediaType;
-    allowedHostnames: readonly string[];
-  },
+  input: IViberMediaInput,
 ): Promise<IAttachment> => {
   if (!subdomain.trim()) {
     throw new Error('Subdomain is required');

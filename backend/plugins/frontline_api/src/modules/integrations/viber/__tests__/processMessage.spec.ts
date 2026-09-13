@@ -1,5 +1,8 @@
 import { test } from 'node:test';
 import { deepStrictEqual, ok, rejects, strictEqual } from 'node:assert';
+import { promises as fsPromises } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import type { IAttachment } from 'erxes-api-shared/core-types';
 import type { IViberMessage } from '../@types/message';
 import { loadViberHelpers, type TestContext } from './helperHarness';
@@ -16,6 +19,24 @@ const MESSAGE_ID = 'frontline-message-test';
 const CUSTOMER_ID = 'core-customer-test';
 const CONVERSATION_ID = 'frontline-conversation-test';
 const CONTENT = '<p>Hello &lt;team&gt;<br>Сайн уу 👋</p>';
+const MEDIA_BYTES = new Uint8Array([0, 255, 128, 10]);
+const MEDIA = {
+  source: 'https://media.example.test/diagram.png',
+  fileName: 'diagram.png',
+  messageType: 'picture',
+  // Reserved test hostname, not a production Viber host policy.
+  allowedHostnames: ['media.example.test'],
+} as const;
+const STORED_ATTACHMENT: IAttachment = {
+  name: 'diagram.png',
+  url: 'stored/viber-diagram-test',
+  size: MEDIA_BYTES.byteLength,
+  type: 'image/png',
+};
+
+type ProcessInput = Parameters<
+  typeof import('../helpers').processViberMessage
+>[1];
 
 interface StoredMessage {
   _id: string;
@@ -29,7 +50,7 @@ interface StoredMessage {
 
 const createHarness = (
   t: TestContext,
-  input: typeof INPUT & { attachments?: IAttachment[] } = INPUT,
+  input: ProcessInput = INPUT,
   content = CONTENT,
 ) => {
   const mapping: IViberMessage & { _id: string } = {
@@ -45,6 +66,11 @@ const createHarness = (
     completeMatches: number;
   } = { message: null, completeMatches: 1 };
   const events: string[] = [];
+  const upload = t.mock.fn(async (request: { subdomain: string }) => {
+    events.push('upload');
+    strictEqual(request.subdomain, SUBDOMAIN);
+    return STORED_ATTACHMENT.url;
+  });
 
   const createMessage = t.mock.fn(
     async (doc: Omit<StoredMessage, 'createdAt'>) => {
@@ -142,6 +168,7 @@ const createHarness = (
   };
   const helpers = loadViberHelpers(t, {
     sharedUtils: {
+      uploadFileToStorage: upload,
       sendTRPCMessage: () => {
         throw new Error('Existing customer mapping must not call Core');
       },
@@ -183,7 +210,30 @@ const createHarness = (
     publish,
     markProcessed,
     findCustomer,
+    upload,
   };
+};
+
+const createMediaHarness = (
+  t: TestContext,
+  input: ProcessInput = { ...INPUT, media: MEDIA },
+  content = CONTENT,
+) => {
+  // Load the real helpers before mocking filesystem calls used by compiler caches.
+  const h = createHarness(t, input, content);
+  const fetch = t.mock.method(globalThis, 'fetch', async () => {
+    h.events.push('download');
+    return new Response(MEDIA_BYTES, {
+      headers: { 'content-type': 'image/png' },
+    });
+  });
+  const mkdir = t.mock.method(fsPromises, 'mkdtemp', async () =>
+    join(tmpdir(), 'viber-message-unit'),
+  );
+  const write = t.mock.method(fsPromises, 'writeFile', async () => undefined);
+  const remove = t.mock.method(fsPromises, 'rm', async () => undefined);
+
+  return { ...h, fetch, mkdir, write, remove };
 };
 
 test('stores formatted text with the reserved id and completes only after publishing', async (t) => {
@@ -359,4 +409,130 @@ test('an empty message without attachments is still rejected before processing',
   await rejects(h.process, /Invalid Viber text message/);
   strictEqual(h.findCustomer.mock.callCount(), 0);
   deepStrictEqual(h.events, []);
+});
+
+test('downloads media before inserting and publishes stored attachments without modifying the input array', async (t) => {
+  const existing: IAttachment = {
+    name: 'notes.txt',
+    url: 'stored/existing-notes-test',
+    size: 5,
+    type: 'text/plain',
+  };
+  const attachments = [existing];
+  const h = createMediaHarness(t, { ...INPUT, attachments, media: MEDIA });
+
+  strictEqual(await h.process(), MESSAGE_ID);
+  deepStrictEqual(attachments, [existing]);
+  deepStrictEqual(h.state.message?.attachments, [existing, STORED_ATTACHMENT]);
+  deepStrictEqual(h.publish.mock.calls[0].arguments[1].attachments, [
+    existing,
+    STORED_ATTACHMENT,
+  ]);
+  deepStrictEqual(h.events, [
+    'conversation',
+    'download',
+    'upload',
+    'insert',
+    'update',
+    'publish',
+    'complete',
+  ]);
+  strictEqual(h.fetch.mock.callCount(), 1);
+  strictEqual(h.remove.mock.callCount(), 1);
+  ok(h.getProcessedAt() instanceof Date);
+});
+
+test('captionless incoming media uses the attachment preview and stores its metadata', async (t) => {
+  const h = createMediaHarness(
+    t,
+    { ...INPUT, text: ' \n\t', media: MEDIA },
+    '<p>Attachment</p>',
+  );
+
+  strictEqual(await h.process(), MESSAGE_ID);
+  strictEqual(h.state.message?.content, '<p>Attachment</p>');
+  deepStrictEqual(h.state.message?.attachments, [STORED_ATTACHMENT]);
+  strictEqual(h.publish.mock.callCount(), 1);
+  ok(h.getProcessedAt() instanceof Date);
+});
+
+test('a completed media replay skips downloading, storage, and message processing', async (t) => {
+  const h = createMediaHarness(t);
+  const completedAt = new Date('2026-09-14T08:00:00Z');
+  h.mapping.processedAt = completedAt;
+
+  strictEqual(await h.process(), MESSAGE_ID);
+  strictEqual(h.fetch.mock.callCount(), 0);
+  strictEqual(h.mkdir.mock.callCount(), 0);
+  strictEqual(h.upload.mock.callCount(), 0);
+  strictEqual(h.findCustomer.mock.callCount(), 0);
+  deepStrictEqual(h.events, []);
+  strictEqual(h.getProcessedAt(), completedAt);
+});
+
+for (const phase of ['insert', 'publish'] as const) {
+  test(`a media retry after a lost ${phase} acknowledgement reuses the saved attachment even when its source expires`, async (t) => {
+    const h = createMediaHarness(t);
+    const failure = new Error(`${phase} acknowledgement lost`);
+    if (phase === 'insert') h.state.insertError = failure;
+    else h.state.publishError = failure;
+
+    await rejects(h.process, (caught: unknown) => caught === failure);
+    strictEqual(h.getProcessedAt(), undefined);
+    deepStrictEqual(h.state.message?.attachments, [STORED_ATTACHMENT]);
+    h.fetch.mock.mockImplementation(async () => {
+      throw new Error('Media source expired');
+    });
+
+    strictEqual(await h.process(), MESSAGE_ID);
+    strictEqual(h.fetch.mock.callCount(), 1);
+    strictEqual(h.upload.mock.callCount(), 1);
+    strictEqual(h.createMessage.mock.callCount(), 1);
+    deepStrictEqual(h.state.message?.attachments, [STORED_ATTACHMENT]);
+    deepStrictEqual(h.publish.mock.calls.at(-1)?.arguments[1].attachments, [
+      STORED_ATTACHMENT,
+    ]);
+    ok(h.getProcessedAt() instanceof Date);
+  });
+}
+
+for (const phase of ['download', 'upload'] as const) {
+  test(`a media ${phase} failure leaves the mapping pending without inserting or publishing a message`, async (t) => {
+    const h = createMediaHarness(t);
+    const failure = new Error(`${phase} unavailable`);
+    const failedMock = phase === 'download' ? h.fetch : h.upload;
+    failedMock.mock.mockImplementation(async () => {
+      throw failure;
+    });
+
+    await rejects(h.process, (caught: unknown) => caught === failure);
+    strictEqual(h.state.message, null);
+    strictEqual(h.getProcessedAt(), undefined);
+    strictEqual(h.createMessage.mock.callCount(), 0);
+    strictEqual(h.updateConversation.mock.callCount(), 0);
+    strictEqual(h.publish.mock.callCount(), 0);
+    strictEqual(h.markProcessed.mock.callCount(), 0);
+    strictEqual(h.upload.mock.callCount(), phase === 'download' ? 0 : 1);
+    strictEqual(h.remove.mock.callCount(), phase === 'download' ? 0 : 1);
+  });
+}
+
+test('an existing media message with the wrong owner is rejected without another download', async (t) => {
+  const h = createMediaHarness(t);
+  h.state.message = {
+    _id: MESSAGE_ID,
+    conversationId: CONVERSATION_ID,
+    customerId: 'another-customer',
+    content: CONTENT,
+    attachments: [STORED_ATTACHMENT],
+    internal: false,
+    createdAt: new Date('2026-09-14T08:00:00Z'),
+  };
+
+  await rejects(h.process, /Viber message mapping does not match its owner/);
+  strictEqual(h.fetch.mock.callCount(), 0);
+  strictEqual(h.upload.mock.callCount(), 0);
+  strictEqual(h.createMessage.mock.callCount(), 0);
+  strictEqual(h.publish.mock.callCount(), 0);
+  strictEqual(h.markProcessed.mock.callCount(), 0);
 });

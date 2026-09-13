@@ -84,7 +84,11 @@
   retries can republish events, so this is not exactly-once notification delivery.
   `processViberMessage` also accepts native `IAttachment[]` metadata and uses an
   attachment preview when a caption is blank; empty text without attachments is
-  still rejected. `storeViberAttachment` stores already-downloaded bytes through
+  still rejected. Optional media input is downloaded and stored only when the
+  mapped message does not already exist; completed replays skip processing and
+  pending retries reuse saved attachment metadata. Failures before message
+  insertion leave processing pending. `storeViberAttachment` stores
+  already-downloaded bytes through
   tenant-configured storage with bounded size, filename checks, and temporary-file
   cleanup. It does not validate file content against the claimed MIME type or
   enforce a file-type allowlist. `readViberMediaResponse` reads an existing HTTP
@@ -96,7 +100,7 @@
   media hostnames have been configured or verified. `downloadAndStoreViberAttachment`
   composes downloading and tenant storage into native attachment metadata,
   without creating messages or handling replays. Only text is wired from the
-  receiver; incoming-media processing is not implemented.
+  receiver; incoming-media webhook wiring is not implemented.
   A pure text formatter escapes incoming plain text for HTML display, preserves
   line breaks, and rejects blank messages. Live database, provider, and UI
   delivery remain unverified.
@@ -191,7 +195,8 @@
 
 Viber lives under `src/modules/integrations/viber/`: `helpers.ts` owns connection
 creation, local removal, customer resolution, conversation synchronization,
-message-id reservation, message processing with optional native attachments,
+message-id reservation, message processing with native attachments or optional
+`IViberMediaInput` shared with the download-to-storage helper,
 storage of already-downloaded attachment bytes, and the download-to-storage
 composition helper.
 `__tests__/helpers.spec.ts` covers customer resolution;
@@ -782,10 +787,18 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   helper does not contact Core, write common messages, or mark completion.
   Concurrent callers can both receive the same pending mapping; reservation
   is not a processing lock or an exactly-once processing guarantee.
-- `processViberMessage` defaults omitted attachments to an empty array. Native
-  attachment metadata is passed unchanged to `createMessage` and publication;
-  the helper neither downloads media nor checks its content or storage lifetime.
-  Blank captions with attachments use the escaped preview `Attachment`; otherwise
+- `processViberMessage` defaults omitted attachments to an empty array and accepts
+  optional `IViberMediaInput`. Only when the mapped common message is absent does
+  it copy that array and append media from `downloadAndStoreViberAttachment`
+  before insertion. Never mutate the caller's attachment array or move downloading
+  before the completed-mapping and existing-message checks. A retry with a saved
+  message republishes its stored attachments without depending on the source URL.
+  Download/upload failures prevent message insertion, publication, and completion;
+  customer and conversation work may already have occurred. An upload followed
+  by an unsuccessful message save, or concurrent pending callbacks, can leave
+  unreferenced uploads; no exactly-once upload or orphan cleanup is implemented.
+  The processor does not inspect attachment content or storage lifetime.
+  Blank captions with attachments or media use the escaped preview `Attachment`; otherwise
   accepted text remains unchanged and blank text without attachments rejects.
   The processor short-circuits completed mappings before resolving
   customers or reopening threads. For a pending mapping, reuse its stable
@@ -1769,8 +1782,13 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   uniqueness or UI delivery.
   Attachment cases cover native metadata, a readable preview for attachment-only messages, completed
   replay short-circuiting, and rejection of empty text without attachments.
-  Attachment fixtures represent stored files; no download, upload,
-  URL-lifetime handling, or incoming-media receiver wiring is exercised.
+  Native attachment fixtures represent stored files. Media cases run the real
+  download/storage helpers with mocked `fetch`, filesystem, and upload calls.
+  They cover append-without-mutation, captionless previews, completed replay
+  short-circuiting, stored-attachment reuse after lost insert/publication
+  acknowledgements with an expired-source mock, I/O failure without completion,
+  and ownership rejection. No real media requests, uploads, MongoDB, provider
+  URL lifetimes, or incoming-media receiver wiring are exercised.
 - Attachment-storage tests mock filesystem operations and the public
   `uploadFileToStorage` dependency through the existing helper harness. They
   specify native metadata from stored bytes, tenant forwarding, a private-upload
@@ -1841,6 +1859,14 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-14` — Viber media processing with stored-attachment reuse
+
+- **Summary:** Added optional media downloading inside new-message creation,
+  preserving stored attachments on retries, with offline processing tests.
+- **Affected areas:** `src/modules/integrations/viber/{helpers.ts,__tests__/processMessage.spec.ts}`.
+- **Contracts changed:** Internal `processViberMessage` accepts optional shared
+  `IViberMediaInput`; receiver wiring and public APIs remain unchanged.
 
 ### `2026-09-14` — Viber download-to-storage composition
 
@@ -1914,11 +1940,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Affected areas:** `src/modules/integrations/viber/utils/`.
 - **Contracts changed:** Added internal `formatViberText(text: string): string`;
   receiver wiring and public APIs are unchanged.
-
-### `2026-09-14` — Shared Viber message-token validation
-
-- **Summary:** Centralized decimal message-token validation for the receiver
-  and reservation helper with direct and caller regression tests.
-- **Affected areas:** `src/modules/integrations/viber/{utils/,helpers.ts,controller/}`.
-- **Contracts changed:** Added internal `isViberMessageToken(value: unknown): value is string`;
-  accepted token values and HTTP responses are unchanged.
