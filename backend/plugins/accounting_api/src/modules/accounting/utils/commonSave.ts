@@ -11,7 +11,11 @@ import { TR_SIDES } from '../@types/constants';
 import { commonRemove } from './commonRemove';
 import { syncFxaIncomeDetails } from './fxaIncome';
 import { createFxaDisposalFollowTrs, syncFxaDisposalInstances } from './fxaOut';
-import { createFxaMoveInFollowTr, syncFxaMoveInstances } from './fxaMove';
+import {
+  createFxaMoveDepreciationFollowTrs,
+  createFxaMoveInFollowTr,
+  syncFxaMoveInstances,
+} from './fxaMove';
 import {
   prepareFxaDisposalTransaction,
   prepareFxaOwnerRecordTransaction,
@@ -370,6 +374,11 @@ async function handleFxaMove(
   );
 
   await syncFxaMoveInstances(models, userId, transaction);
+  const depreciationTrs = await createFxaMoveDepreciationFollowTrs(
+    models,
+    userId,
+    transaction,
+  );
   const moveInTr = await createFxaMoveInFollowTr(models, userId, transaction);
   await rebuildFixedAssetCurrentCounts(
     models,
@@ -378,7 +387,7 @@ async function handleFxaMove(
       .filter((fixedAssetId): fixedAssetId is string => Boolean(fixedAssetId)),
   );
 
-  return { mainTr: transaction, otherTrs: [moveInTr] };
+  return { mainTr: transaction, otherTrs: [...depreciationTrs, moveInTr] };
 }
 
 async function handleFxaSale(

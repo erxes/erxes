@@ -12,7 +12,6 @@ import {
   sendTRPCMessage,
 } from 'erxes-api-shared/utils';
 import { IModels, IContext } from '~/connectionResolvers';
-import { TR_STATUSES } from '@/accounting/@types/constants';
 import {
   IHiddenTransaction,
   ITransactionDocument,
@@ -453,20 +452,6 @@ export const generateFilter = async (
         $in: [mentionUserId],
       };
     }
-  } else {
-    andFilter.push({
-      $or: [
-        { status: { $in: TR_STATUSES.ACTIVE } },
-        {
-          status: { $in: TR_STATUSES.CONVERSATION },
-          $or: [
-            { createdBy: user._id },
-            { mentionOwnerId: user._id },
-            { mentionUserIds: { $in: [user._id] } },
-          ],
-        },
-      ],
-    });
   }
 
   if (ptrStatus) {
