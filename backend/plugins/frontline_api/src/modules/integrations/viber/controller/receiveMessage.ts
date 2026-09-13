@@ -8,7 +8,7 @@ import {
   parseViberWebhookBody,
 } from '@/integrations/viber/utils/webhook';
 import { processViberMessage } from '@/integrations/viber/helpers';
-import { MAX_VIBER_FILE_BYTES } from '@/integrations/viber/constants';
+import { VIBER_INCOMING_MEDIA_MAX_BYTES } from '@/integrations/viber/constants';
 
 const SUPPORTED_VIBER_MESSAGE_TYPES = [
   'text',
@@ -196,7 +196,7 @@ export const receiveViberMessage = async (
         typeof payload.message.file_size !== 'number' ||
         !Number.isSafeInteger(payload.message.file_size) ||
         payload.message.file_size < 0 ||
-        payload.message.file_size > MAX_VIBER_FILE_BYTES
+        payload.message.file_size > VIBER_INCOMING_MEDIA_MAX_BYTES.file
       ) {
         res.status(400).json({ error: 'Invalid Viber file size' });
         return;

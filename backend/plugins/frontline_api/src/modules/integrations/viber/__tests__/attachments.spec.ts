@@ -9,11 +9,13 @@ import { promises as fsPromises } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { loadViberHelpers, type TestContext } from './helperHarness';
+import type { ViberMediaType } from '../constants';
 
 interface AttachmentInput {
   buffer: Buffer;
   fileName: string;
   mimetype: string;
+  messageType: ViberMediaType;
 }
 
 interface UploadRequest {
@@ -28,8 +30,13 @@ const INPUT: AttachmentInput = {
   buffer: Buffer.from('test attachment bytes'),
   fileName: 'diagram.png',
   mimetype: 'image/png',
+  messageType: 'picture',
 };
-const MAX_BYTES = 25 * 1024 * 1024;
+const MEDIA_LIMITS = [
+  { messageType: 'picture', maxBytes: 3 * 1024 * 1024 },
+  { messageType: 'video', maxBytes: 26 * 1024 * 1024 },
+  { messageType: 'file', maxBytes: 50 * 1024 * 1024 },
+] as const;
 const STORAGE_KEY = 'stored/viber-attachment-test';
 
 const createAttachmentHarness = (t: TestContext) => {
@@ -175,22 +182,49 @@ test('rejects blank tenants, unsafe names, and blank MIME types before filesyste
   deepStrictEqual(h.events, []);
 });
 
-test('allows empty and maximum-sized files but rejects bytes above the local 25 MiB cap', async (t) => {
+for (const { messageType, maxBytes } of MEDIA_LIMITS) {
+  test(`${messageType}: stores empty and boundary-sized bytes but rejects one byte over its limit before I/O`, async (t) => {
+    const h = createAttachmentHarness(t);
+
+    // Keep the same image filename/MIME for every case: the Viber message type
+    // selects the size policy, not the extension or reported content type.
+    for (const size of [0, maxBytes - 1, maxBytes]) {
+      const result = await h.store('tenant-test', {
+        ...INPUT,
+        messageType,
+        buffer: Buffer.alloc(size),
+      });
+      strictEqual(result.size, size);
+    }
+    const previousEvents = [...h.events];
+    await rejects(
+      h.store('tenant-test', {
+        ...INPUT,
+        messageType,
+        buffer: Buffer.alloc(maxBytes + 1),
+      }),
+      /Invalid Viber attachment size/,
+    );
+    deepStrictEqual(h.events, previousEvents);
+  });
+}
+
+test('rejects missing or unsupported media types before filesystem or storage work', async (t) => {
   const h = createAttachmentHarness(t);
 
-  for (const size of [0, MAX_BYTES]) {
-    const result = await h.store('tenant-test', {
-      ...INPUT,
-      buffer: Buffer.alloc(size),
-    });
-    strictEqual(result.size, size);
+  for (const messageType of [
+    undefined,
+    'url',
+    'audio',
+    'toString',
+    'constructor',
+  ]) {
+    const input = { ...INPUT, messageType };
+    // @ts-expect-error Exercise an invalid caller without weakening the production input type.
+    const result = h.store('tenant-test', input);
+    await rejects(result, /Unsupported Viber media type/);
   }
-  const previousEvents = [...h.events];
-  await rejects(
-    h.store('tenant-test', { ...INPUT, buffer: Buffer.alloc(MAX_BYTES + 1) }),
-    /Invalid Viber attachment size/,
-  );
-  deepStrictEqual(h.events, previousEvents);
+  deepStrictEqual(h.events, []);
 });
 
 test('a temporary-directory failure does not upload or attempt to remove an uncreated directory', async (t) => {

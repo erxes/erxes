@@ -2,7 +2,11 @@ import { test } from 'node:test';
 import { deepStrictEqual, rejects, strictEqual } from 'node:assert';
 import { readViberMediaResponse } from '../media';
 
-const MAX_BYTES = 25 * 1024 * 1024;
+const MEDIA_LIMITS = [
+  { messageType: 'picture', maxBytes: 3 * 1024 * 1024 },
+  { messageType: 'video', maxBytes: 26 * 1024 * 1024 },
+  { messageType: 'file', maxBytes: 50 * 1024 * 1024 },
+] as const;
 
 const createResponse = (chunks: Uint8Array[], init: ResponseInit = {}) => {
   const state = { reads: 0, cancelled: false };
@@ -32,7 +36,7 @@ test('joins exact binary chunks and normalizes the supplied MIME metadata', asyn
     { headers: { 'content-type': 'IMAGE/PNG; charset=binary' } },
   );
 
-  deepStrictEqual(await readViberMediaResponse(response), {
+  deepStrictEqual(await readViberMediaResponse(response, 'picture'), {
     buffer: Buffer.from([0, 255, 128, 10]),
     mimetype: 'image/png',
   });
@@ -46,22 +50,61 @@ test('uses a generic MIME type when the header is absent or blank', async () => 
     const { response } = createResponse([new Uint8Array([1])], { headers });
 
     strictEqual(
-      (await readViberMediaResponse(response)).mimetype,
+      (await readViberMediaResponse(response, 'file')).mimetype,
       'application/octet-stream',
     );
   }
 });
 
-test('allows an empty stream and exactly 25 MiB of bytes', async () => {
-  for (const size of [0, MAX_BYTES]) {
-    const { response } = createResponse([new Uint8Array(size)]);
-    strictEqual(
-      (await readViberMediaResponse(response)).buffer.byteLength,
-      size,
-    );
+for (const { messageType, maxBytes } of MEDIA_LIMITS) {
+  test(`${messageType}: allows an empty stream and bytes just below or exactly at its limit`, async () => {
+    for (const size of [0, maxBytes - 1, maxBytes]) {
+      const { response } = createResponse([new Uint8Array(size)]);
+      strictEqual(
+        (await readViberMediaResponse(response, messageType)).buffer.byteLength,
+        size,
+      );
+      strictEqual(response.body?.locked, false);
+    }
+  });
+
+  test(`${messageType}: rejects an oversized declared length before reading and cancels the body`, async () => {
+    const { response, state } = createResponse([new Uint8Array([1])], {
+      headers: { 'content-length': String(maxBytes + 1) },
+    });
+
+    await rejects(readViberMediaResponse(response, messageType), {
+      message: `Viber ${messageType} exceeds the ${
+        maxBytes / (1024 * 1024)
+      } MiB limit`,
+    });
+    deepStrictEqual(state, { reads: 0, cancelled: true });
     strictEqual(response.body?.locked, false);
-  }
-});
+  });
+
+  test(`${messageType}: enforces actual bytes despite absent, understated, or invalid length headers`, async () => {
+    const chunks = [
+      new Uint8Array(maxBytes),
+      new Uint8Array([1]),
+      new Uint8Array([2]),
+    ];
+
+    for (const declaredSize of [undefined, '1', 'invalid']) {
+      const headers = new Headers();
+      if (declaredSize !== undefined)
+        headers.set('content-length', declaredSize);
+      const { response, state } = createResponse(chunks, { headers });
+
+      await rejects(readViberMediaResponse(response, messageType), {
+        message: `Viber ${messageType} exceeds the ${
+          maxBytes / (1024 * 1024)
+        } MiB limit`,
+      });
+      deepStrictEqual(state, { reads: 2, cancelled: true });
+      strictEqual(response.body?.locked, false);
+    }
+  });
+}
 
 test('rejects unsuccessful HTTP responses without reading their bodies', async () => {
   for (const status of [302, 403, 503]) {
@@ -69,48 +112,54 @@ test('rejects unsuccessful HTTP responses without reading their bodies', async (
       status,
     });
 
-    await rejects(readViberMediaResponse(response), {
+    await rejects(readViberMediaResponse(response, 'file'), {
       message: `Viber attachment download failed (HTTP ${status})`,
     });
     deepStrictEqual(state, { reads: 0, cancelled: true });
     strictEqual(response.body?.locked, false);
   }
 
-  await rejects(readViberMediaResponse(new Response(null, { status: 404 })), {
-    message: 'Viber attachment download failed (HTTP 404)',
-  });
+  await rejects(
+    readViberMediaResponse(new Response(null, { status: 404 }), 'file'),
+    {
+      message: 'Viber attachment download failed (HTTP 404)',
+    },
+  );
 });
 
 test('rejects a successful response without a readable body', async () => {
-  await rejects(readViberMediaResponse(new Response(null)), {
+  await rejects(readViberMediaResponse(new Response(null), 'file'), {
     message: 'Viber attachment response has no body',
   });
 });
 
-test('rejects an oversized declared length before reading and cancels the body', async () => {
+test('does not let MIME metadata choose a larger size limit', async () => {
   const { response, state } = createResponse([new Uint8Array([1])], {
-    headers: { 'content-length': String(MAX_BYTES + 1) },
+    headers: {
+      'content-type': 'application/octet-stream',
+      'content-length': String(4 * 1024 * 1024),
+    },
   });
 
-  await rejects(readViberMediaResponse(response), /exceeds the 25 MiB limit/);
+  await rejects(readViberMediaResponse(response, 'picture'), /3 MiB limit/);
   deepStrictEqual(state, { reads: 0, cancelled: true });
   strictEqual(response.body?.locked, false);
 });
 
-test('enforces the actual byte limit despite absent, understated, or invalid length headers', async () => {
-  const chunks = [
-    new Uint8Array(MAX_BYTES),
-    new Uint8Array([1]),
-    new Uint8Array([2]),
-  ];
+test('does not give unsupported or missing message types a fallback limit', async () => {
+  for (const messageType of [
+    undefined,
+    'url',
+    'audio',
+    'toString',
+    'constructor',
+  ]) {
+    const { response, state } = createResponse([new Uint8Array([1])]);
 
-  for (const declaredSize of [undefined, '1', 'invalid']) {
-    const headers = new Headers();
-    if (declaredSize !== undefined) headers.set('content-length', declaredSize);
-    const { response, state } = createResponse(chunks, { headers });
-
-    await rejects(readViberMediaResponse(response), /exceeds the 25 MiB limit/);
-    deepStrictEqual(state, { reads: 2, cancelled: true });
+    // @ts-expect-error Exercise an invalid caller without weakening the production input type.
+    const result = readViberMediaResponse(response, messageType);
+    await rejects(result, /Unsupported Viber media type/);
+    deepStrictEqual(state, { reads: 0, cancelled: true });
     strictEqual(response.body?.locked, false);
   }
 });
@@ -128,7 +177,7 @@ test('propagates a stream failure instead of returning partial bytes and release
   );
 
   await rejects(
-    readViberMediaResponse(response),
+    readViberMediaResponse(response, 'file'),
     (caught: unknown) => caught === error,
   );
   strictEqual(response.body?.locked, false);
@@ -144,7 +193,7 @@ test('a cancellation failure does not replace the HTTP error or leave the reader
     { status: 503 },
   );
 
-  await rejects(readViberMediaResponse(response), {
+  await rejects(readViberMediaResponse(response, 'file'), {
     message: 'Viber attachment download failed (HTTP 503)',
   });
   strictEqual(response.body?.locked, false);

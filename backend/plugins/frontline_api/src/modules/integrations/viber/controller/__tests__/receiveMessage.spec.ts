@@ -361,3 +361,57 @@ test('a text-processing failure returns a safe 500 response instead of acknowled
   ]);
   strictEqual(processText.mock.callCount(), 1);
 });
+
+test('allows file sizes through 50 MiB to reach the next validation guard', async (t) => {
+  const { receive, processText } = createReceiverHarness(t);
+
+  for (const fileSize of [
+    0,
+    25 * 1024 * 1024 + 1,
+    50 * 1024 * 1024 - 1,
+    50 * 1024 * 1024,
+  ]) {
+    const body = JSON.stringify({
+      ...TEXT_MESSAGE,
+      message: {
+        type: 'file',
+        media: 'https://example.com/attachment.pdf',
+        file_size: fileSize,
+      },
+    });
+
+    // An absent filename isolates size validation; incoming media is not wired yet.
+    deepStrictEqual(await receive(body), [
+      { statusCode: 400, body: { error: 'Invalid Viber file name' } },
+    ]);
+  }
+  strictEqual(processText.mock.callCount(), 0);
+});
+
+test('rejects invalid file sizes and one byte over 50 MiB before processing', async (t) => {
+  const { receive, processText } = createReceiverHarness(t);
+
+  for (const fileSize of [
+    undefined,
+    null,
+    '1',
+    -1,
+    1.5,
+    50 * 1024 * 1024 + 1,
+  ]) {
+    const body = JSON.stringify({
+      ...TEXT_MESSAGE,
+      message: {
+        type: 'file',
+        media: 'https://example.com/attachment.pdf',
+        file_name: 'attachment.pdf',
+        file_size: fileSize,
+      },
+    });
+
+    deepStrictEqual(await receive(body), [
+      { statusCode: 400, body: { error: 'Invalid Viber file size' } },
+    ]);
+  }
+  strictEqual(processText.mock.callCount(), 0);
+});

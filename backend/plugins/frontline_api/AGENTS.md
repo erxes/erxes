@@ -88,7 +88,7 @@
   tenant-configured storage with bounded size, filename checks, and temporary-file
   cleanup. It does not validate file content against the claimed MIME type or
   enforce a file-type allowlist. `readViberMediaResponse` reads an existing HTTP
-  response in chunks with the shared size cap and stream cleanup. It returns
+  response in chunks with type-specific intake caps and stream cleanup. It returns
   bytes and reported MIME metadata; it makes no network request. Only text is
   wired from the receiver; media fetching and incoming-media processing are not
   implemented.
@@ -199,9 +199,11 @@ and error handling, and `utils/` holds signature/account helpers, raw-body webho
 parsing, shared message-token validation, plain-text HTML formatting, and their
 colocated tests.
 `__tests__/attachments.spec.ts` covers the tenant-configured byte-storage adapter.
-`constants.ts` shares the 25 MiB file-size cap between storage and callback validation.
+`constants.ts` defines `ViberMediaType` and the incoming-media size policy shared
+by response reading, storage, and the file callback guard.
 `utils/media.ts` owns bounded HTTP-response reading with supplied MIME metadata
-and stream cleanup; `utils/__tests__/media.spec.ts` covers that internal helper.
+and stream cleanup plus the shared `getViberMediaMaxBytes` lookup;
+`utils/__tests__/media.spec.ts` covers those internal helpers.
 `controller/receiveMessage.ts` contains unmounted callback validation and text processing;
 its colocated tests mock tenant lookup and message processing while using the
 real signature and parser utilities.
@@ -788,20 +790,36 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   require one matched completion mapping. Failures before completion remain
   retryable. Concurrent pending callbacks and retries after partial publication
   can republish events; no lock, total ordering, or exactly-once delivery is promised.
-- `storeViberAttachment` accepts an existing `Buffer`, strips directory components
-  from filenames, rejects blank tenants/MIME types and unsafe names, and checks
-  the actual byte length against the shared 25 MiB cap. Empty buffers are currently
-  accepted. It writes a fixed leaf filename in a unique temporary directory with
-  mode `0o600`, passes the tenant and `forcePrivate: true` to the public shared
+- `VIBER_INCOMING_MEDIA_MAX_BYTES` sets local intake caps of 3 MiB for `picture`,
+  26 MiB for `video`, and 50 MiB for `file`. `ViberMediaType` is derived from
+  those keys. Select the cap by the validated Viber message type, not a filename
+  or MIME header; an image sent as a `file` follows the file cap. The shared
+  `getViberMediaMaxBytes` lookup rejects unsupported or missing types without a
+  fallback. The file callback guard checks `file_size` against the same file cap;
+  other media must be bounded by actual downloaded bytes, not invented callback
+  size fields. These are local intake policies informed by Viber's
+  [outbound media model](https://creators.viber.com/docs/bots-api/data-models/message),
+  not verified inbound-provider limits. In particular, do not reuse the picture
+  cap for outbound iOS delivery, whose documented ceiling is smaller. Live bot
+  reception and storage capacity remain unverified.
+- `storeViberAttachment` requires a `messageType` alongside an existing `Buffer`,
+  strips directory components from filenames, rejects blank tenants/MIME types
+  and unsafe names, and checks the actual byte length against that type's shared
+  intake cap. Empty buffers are currently accepted. It writes a fixed leaf
+  filename in a unique temporary directory with mode `0o600`, passes the tenant
+  and `forcePrivate: true` to the public shared
   `uploadFileToStorage`, and attempts cleanup in `finally`. A blank storage key
   rejects; successful metadata uses the stored key, supplied MIME type, and actual
   byte count. This adapter does not download files, detect their type, enforce an
   extension/MIME allowlist, or scan for malware. The private-upload request flag
   is not proof of provider ACLs or safe content delivery.
-- `readViberMediaResponse` consumes an unread, unlocked Fetch `Response`, not an
-  Express response. It rejects unsuccessful HTTP status or a missing body,
-  checks an oversized declared length before reading, and counts actual chunks
-  before retaining them. It accepts at most 25 MiB, including an empty stream.
+- `readViberMediaResponse(response, messageType)` consumes an unread, unlocked
+  Fetch `Response`, not an Express response. It rejects unsuccessful HTTP status
+  or a missing body, checks an oversized declared length before reading, and
+  counts actual chunks before retaining them, using the selected type's cap and
+  a matching size error.
+  Empty streams remain accepted. The accepted file is still buffered in memory;
+  the size cap does not bound total process memory or concurrent downloads.
   It removes parameters and normalizes case/whitespace in the reported MIME type,
   defaulting to `application/octet-stream`; this is not content-type detection.
   It attempts cancellation and releases its reader lock in `finally`, preserving
@@ -1687,6 +1705,9 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   without a second response.
   Incoming-text tests cover processor inputs, a 200 after successful processing,
   no processing for invalid text, and a safe 500 on failure.
+  File-size cases allow sizes through 50 MiB to reach the next validation guard
+  and reject malformed sizes or one byte over the cap. They deliberately stop
+  before the still-unwired incoming-media path.
 - Viber customer, conversation, and message schema tests use real Mongoose with no
   database connection.
   They replace the shared utilities import with a deterministic string-id
@@ -1728,15 +1749,17 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - Attachment-storage tests mock filesystem operations and the public
   `uploadFileToStorage` dependency through the existing helper harness. They
   specify native metadata from stored bytes, tenant forwarding, a private-upload
-  request flag, separate temporary directories, filename boundaries, the local
-  25 MiB byte cap, failure propagation, and cleanup attempts. Modules load before
+  request flag, separate temporary directories, filename boundaries, each local
+  media-type cap, failure propagation, and cleanup attempts. Modules load before
   filesystem mocks so compiler-cache writes are not counted as attachment I/O.
   No real attachment files, uploads, provider ACLs, content-type validation,
   malware scanning, remote downloads, or live storage configurations are exercised.
 - Media-response tests use local `Response` and `ReadableStream` objects, without
   remote requests. They specify exact bytes, supplied MIME metadata with a
-  generic fallback, HTTP/body errors, declared-size rejection, an actual streamed
-  25 MiB limit, cancellation, and reader cleanup. They do not exercise URL
+  generic fallback, HTTP/body errors, declared-size rejection, each actual streamed
+  media-type limit, cancellation, and reader cleanup. Reader and storage tests
+  cover empty bytes, cap-minus-one, exact-cap, cap-plus-one, unsupported types,
+  and policy selection independent of MIME metadata. They do not exercise URL
   fetching, destination/redirect checks, timeouts, storage, or content validation.
 - Focused Viber removal checks use mocked tenant models: verify provider cleanup
   precedes common integration deletion, an absent provider record is tolerated,
@@ -1784,6 +1807,15 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-14` — Type-specific Viber media size limits
+
+- **Summary:** Replaced the blanket 25 MiB cap with shared local intake limits
+  of 3/26/50 MiB for pictures/videos/files, with boundary and cleanup tests.
+- **Affected areas:** `src/modules/integrations/viber/{constants.ts,utils/media.ts,helpers.ts,controller/,__tests__/,utils/__tests__/}`.
+- **Contracts changed:** Internal reading and storage require `messageType`;
+  file callback validation accepts up to 50 MiB. Media wiring and public APIs
+  remain unchanged; provider and live storage verification are still pending.
 
 ### `2026-09-14` — Bounded Viber media-response reading
 
@@ -1860,12 +1892,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `src/connectionResolvers.ts`.
 - **Contracts changed:** Added internal `IModels.ViberMessages` backed by
   `viber_messages`; receiver behavior and public APIs are unchanged.
-
-### `2026-09-14` — Viber conversation resolution helper
-
-- **Summary:** Added stable conversation-id reservation, ownership checks,
-  common inbox synchronization, bounded race recovery, and offline tests.
-- **Affected areas:** `src/modules/integrations/viber/{helpers.ts,__tests__/}`.
-- **Contracts changed:** Added internal
-  `getOrCreateViberConversation(subdomain, inboxId, userId, customerId, content): Promise<string>`;
-  receiver wiring and public APIs are unchanged.

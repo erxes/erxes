@@ -4,7 +4,8 @@ import { sendTRPCMessage, uploadFileToStorage } from 'erxes-api-shared/utils';
 import { promises as fsPromises } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, join } from 'node:path';
-import { MAX_VIBER_FILE_BYTES } from '@/integrations/viber/constants';
+import type { ViberMediaType } from '@/integrations/viber/constants';
+import { getViberMediaMaxBytes } from '@/integrations/viber/utils/media';
 import { randomUUID } from 'node:crypto';
 import { receiveInboxMessage } from '@/inbox/receiveMessage';
 import type { IViberMessageDocument } from '@/integrations/viber/@types/message';
@@ -401,9 +402,10 @@ export const storeViberAttachment = async (
     buffer: Buffer;
     fileName: string;
     mimetype: string;
+    messageType: ViberMediaType;
   },
 ): Promise<IAttachment> => {
-  const { buffer, mimetype } = input;
+  const { buffer, mimetype, messageType } = input;
   const fileName = basename(input.fileName.replace(/\\/g, '/'));
 
   if (!subdomain.trim()) {
@@ -426,7 +428,9 @@ export const storeViberAttachment = async (
     throw new Error('Invalid Viber attachment type');
   }
 
-  if (!Buffer.isBuffer(buffer) || buffer.byteLength > MAX_VIBER_FILE_BYTES) {
+  const maxBytes = getViberMediaMaxBytes(messageType);
+
+  if (!Buffer.isBuffer(buffer) || buffer.byteLength > maxBytes) {
     throw new Error('Invalid Viber attachment size');
   }
 
