@@ -72,6 +72,10 @@
   the mapped thread id, checks existing ownership, and calls the common inbox
   create/update action with bounded duplicate-key recovery. It is not wired to
   the receiver and does not persist individual messages.
+  A tenant-scoped message-mapping model links inbox/message-token pairs to
+  Frontline message ids and supports an optional processing-completion timestamp.
+  It defines storage only; reservation, message writes, and retry handling are
+  not yet implemented.
 - Polls are a reusable definition (`title`, `question`, ordered `options`,
   `allowMultiselect`, optional `durationHours`, optional `brandId`,
   `active`/`archived` status) owned by a channel through `channelId`. An agent posts one into a messenger
@@ -173,9 +177,9 @@ parsing, and their colocated tests.
 its colocated tests mock tenant lookup while using the real signature and parser
 utilities.
 `@types/` and `db/` hold document types, schema definitions, and model loaders;
-customer and conversation schema tests live in `db/definitions/__tests__/`.
+customer, conversation, and message schema tests live in `db/definitions/__tests__/`.
 `src/connectionResolvers.ts` registers `ViberIntegrations`, `ViberCustomers`,
-and `ViberConversations` on the supplied tenant connection.
+`ViberConversations`, and `ViberMessages` on the supplied tenant connection.
 `src/modules/inbox/graphql/resolvers/mutations/integrations.ts`
 dispatches Viber creation and removal through `sendCreateIntegration` and
 `sendRemoveIntegration`.
@@ -528,6 +532,10 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   and Viber `userId` to a required Frontline `conversationId`. It has its own
   generated string `_id`, a compound unique index on `{ inboxId: 1, userId: 1 }`,
   and a non-unique lookup index on `conversationId`.
+- `viber_messages` (`models.ViberMessages`) maps required `inboxId` and exact
+  string `messageToken` to a required Frontline `messageId`, with a separate
+  generated string `_id`. It declares unique indexes on the inbox/token pair
+  and on `messageId`. Optional `processedAt` is a date with no default.
 - `frontline_polls` — poll definitions with an indexed `channelId` and embedded
   `options` that carry their own nanoid `_id`. `frontline_poll_votes` — one document per voter per poll
   message, with a unique `(messageId, voterId)` index so a repeat vote replaces
@@ -706,6 +714,13 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   mapping itself or a customer. Conversation status belongs to the common
   conversation record; the mapping schema neither stores status nor creates or
   reopens the referenced conversation.
+- Viber message mappings identify a provider message by inbox/token on the
+  supplied tenant connection. `messageToken` must retain its exact digits as
+  a string; never convert it through `Number`. `messageId` refers to the common
+  Frontline message, not the mapping's own `_id`. A mapping may reserve an id
+  before that message exists; its presence alone must not mean processing
+  succeeded. Set `processedAt` only after successful processing, never as a
+  schema default. The schema alone does not implement runtime deduplication.
 - `getOrCreateViberConversation` rejects blank inbox/sender/customer ids, saves
   a UUID conversation id in the mapping before requesting thread creation, and
   reuses that id on later attempts. Existing thread ownership must match the
@@ -1573,13 +1588,15 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   those entries and the receiver entry after each test, remain non-concurrent,
   and use real signature verification and raw-body parsing. No live database,
   server, or bot token is required; successful message persistence is not covered.
-- Viber customer and conversation schema tests use real Mongoose with no
+- Viber customer, conversation, and message schema tests use real Mongoose with no
   database connection.
   They replace the shared utilities import with a deterministic string-id
   definition to avoid starting infrastructure clients, restoring cache entries
   after each test. Coverage includes the schema loader, required fields, shared
   id-definition wiring, document id typing, compound unique-index declarations,
-  and the conversation-id lookup index. Actual id randomness, tenant database
+  the conversation-id lookup index, message-id uniqueness, exact token-string
+  preservation, and the optional completion timestamp without a default.
+  Actual id randomness, tenant database
   loading, and database duplicate-key enforcement are not covered by these
   offline tests.
 - Viber customer helper tests mock `generateModels` and `sendTRPCMessage`,
@@ -1640,6 +1657,16 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-14` — Viber message mapping model
+
+- **Summary:** Registered tenant-scoped message mappings with exact token
+  strings, unique identity indexes, an optional completion timestamp, and
+  offline schema tests.
+- **Affected areas:** `src/modules/integrations/viber/{@types/message.ts,db/}`,
+  `src/connectionResolvers.ts`.
+- **Contracts changed:** Added internal `IModels.ViberMessages` backed by
+  `viber_messages`; receiver behavior and public APIs are unchanged.
 
 ### `2026-09-14` — Viber conversation resolution helper
 
@@ -1724,13 +1751,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Contracts changed:** `sendCreateIntegration` now accepts the `viber` service
   prefix and calls `viberCreateIntegration({ subdomain, data })`; the GraphQL
   schema is unchanged.
-
-### `2026-09-09` — Viber integration creation adapter
-
-- **Summary:** Added validated settings parsing and the standard success/error
-  response wrapper, with distinct helper and adapter names.
-- **Affected areas:** `src/modules/integrations/viber/{helpers,messageBroker}.ts`.
-- **Contracts changed:** Renamed the internal helper to
-  `createViberIntegration(subdomain, integrationId, token): Promise<void>`;
-  `viberCreateIntegration` accepts `IViberIntegrationInput` and returns
-  `Promise<ApiResponse<void>>`. No public API or dispatcher branch is added.
