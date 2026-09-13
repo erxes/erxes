@@ -89,9 +89,12 @@
   cleanup. It does not validate file content against the claimed MIME type or
   enforce a file-type allowlist. `readViberMediaResponse` reads an existing HTTP
   response in chunks with type-specific intake caps and stream cleanup. It returns
-  bytes and reported MIME metadata; it makes no network request. Only text is
-  wired from the receiver; media fetching and incoming-media processing are not
-  implemented.
+  bytes and reported MIME metadata; it makes no network request.
+  `downloadViberMedia` fetches HTTPS media from an explicit approved-host list,
+  rejects redirects, applies a 30-second abort signal, and delegates to that
+  reader. The list must come from trusted server policy; no production Viber
+  media hostnames have been configured or verified. Only text is wired from the
+  receiver; incoming-media processing is not implemented.
   A pure text formatter escapes incoming plain text for HTML display, preserves
   line breaks, and rejects blank messages. Live database, provider, and UI
   delivery remain unverified.
@@ -201,8 +204,9 @@ colocated tests.
 `__tests__/attachments.spec.ts` covers the tenant-configured byte-storage adapter.
 `constants.ts` defines `ViberMediaType` and the incoming-media size policy shared
 by response reading, storage, and the file callback guard.
-`utils/media.ts` owns bounded HTTP-response reading with supplied MIME metadata
-and stream cleanup plus the shared `getViberMediaMaxBytes` lookup;
+`utils/media.ts` owns approved-host HTTPS downloads, bounded HTTP-response
+reading with supplied MIME metadata and stream cleanup, and the shared
+`getViberMediaMaxBytes` lookup;
 `utils/__tests__/media.spec.ts` covers those internal helpers.
 `controller/receiveMessage.ts` contains unmounted callback validation and text processing;
 its colocated tests mock tenant lookup and message processing while using the
@@ -825,6 +829,16 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   It attempts cancellation and releases its reader lock in `finally`, preserving
   the original error if cancellation fails. It neither fetches URLs nor supplies
   destination/redirect controls, deadlines, storage, or file-content validation.
+- `downloadViberMedia(source, messageType, allowedHostnames)` validates the URL
+  and media type before fetching. It permits HTTPS on the default port only,
+  with no URL credentials or fragment, and requires an exact hostname match
+  against the server-controlled list. An empty list blocks all downloads; never
+  derive approval from the webhook URL itself. Approved entries must be reviewed
+  provider hostnames, not arbitrary user-controlled destinations. It disables
+  redirects, passes a 30-second abort signal, sends no bot credentials, and
+  delegates response reading to `readViberMediaResponse`. Errors propagate with
+  no retry. It does not perform DNS address validation, store attachments, or
+  establish production media-host compatibility; receiver wiring remains absent.
 - `getOrCreateViberConversation` rejects blank inbox/sender/customer ids, saves
   a UUID conversation id in the mapping before requesting thread creation, and
   reuses that id on later attempts. Existing thread ownership must match the
@@ -1761,6 +1775,12 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   cover empty bytes, cap-minus-one, exact-cap, cap-plus-one, unsupported types,
   and policy selection independent of MIME metadata. They do not exercise URL
   fetching, destination/redirect checks, timeouts, storage, or content validation.
+- Download-wrapper tests in `utils/__tests__/media.spec.ts` mock `fetch` and use
+  reserved test hostnames. They cover pre-request URL/type rejection, exact-host
+  matching and empty-list rejection, query preservation, redirect/timeout request
+  options, delegated size limits, HTTP/network failures, and a simulated body
+  abort with reader cleanup. They do not verify real redirects, elapsed network
+  deadlines, DNS behavior, live Viber media hosts, or uploads.
 - Focused Viber removal checks use mocked tenant models: verify provider cleanup
   precedes common integration deletion, an absent provider record is tolerated,
   and a provider cleanup failure prevents common deletion. No bot token or live
@@ -1807,6 +1827,14 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-14` — Approved-host Viber media downloading
+
+- **Summary:** Added an HTTPS download wrapper with exact host approval,
+  disabled redirects, a deadline, bounded response reading, and offline tests.
+- **Affected areas:** `src/modules/integrations/viber/utils/{media.ts,__tests__/media.spec.ts}`.
+- **Contracts changed:** Added internal `downloadViberMedia`; trusted host
+  configuration, receiver media wiring, and public APIs remain unchanged.
 
 ### `2026-09-14` — Type-specific Viber media size limits
 
@@ -1882,13 +1910,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Contracts changed:** Added internal
   `getOrCreateViberMessageMapping(subdomain, inboxId, messageToken): Promise<IViberMessageDocument>`;
   receiver behavior and public APIs are unchanged.
-
-### `2026-09-14` — Viber message mapping model
-
-- **Summary:** Registered tenant-scoped message mappings with exact token
-  strings, unique identity indexes, an optional completion timestamp, and
-  offline schema tests.
-- **Affected areas:** `src/modules/integrations/viber/{@types/message.ts,db/}`,
-  `src/connectionResolvers.ts`.
-- **Contracts changed:** Added internal `IModels.ViberMessages` backed by
-  `viber_messages`; receiver behavior and public APIs are unchanged.

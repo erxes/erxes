@@ -67,3 +67,44 @@ export const readViberMediaResponse = async (
     reader?.releaseLock();
   }
 };
+
+export const downloadViberMedia = async (
+  source: string,
+  messageType: ViberMediaType,
+  allowedHostnames: readonly string[],
+): Promise<{ buffer: Buffer; mimetype: string }> => {
+  if (typeof source !== 'string' || !source || source !== source.trim()) {
+    throw new Error('Invalid Viber media URL');
+  }
+
+  getViberMediaMaxBytes(messageType);
+
+  let url: URL;
+
+  try {
+    url = new URL(source);
+  } catch {
+    throw new Error('Invalid Viber media URL');
+  }
+
+  if (
+    url.protocol !== 'https:' ||
+    url.username ||
+    url.password ||
+    url.port ||
+    url.hash
+  ) {
+    throw new Error('Unsupported Viber media URL');
+  }
+
+  if (!allowedHostnames.includes(url.hostname)) {
+    throw new Error('Unapproved Viber media host');
+  }
+
+  const response = await fetch(url, {
+    redirect: 'error',
+    signal: AbortSignal.timeout(30_000),
+  });
+
+  return readViberMediaResponse(response, messageType);
+};
