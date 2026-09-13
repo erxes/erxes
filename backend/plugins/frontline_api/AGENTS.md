@@ -87,8 +87,11 @@
   still rejected. `storeViberAttachment` stores already-downloaded bytes through
   tenant-configured storage with bounded size, filename checks, and temporary-file
   cleanup. It does not validate file content against the claimed MIME type or
-  enforce a file-type allowlist. Only text is wired from the receiver; media
-  download and incoming-media processing are not implemented.
+  enforce a file-type allowlist. `readViberMediaResponse` reads an existing HTTP
+  response in chunks with the shared size cap and stream cleanup. It returns
+  bytes and reported MIME metadata; it makes no network request. Only text is
+  wired from the receiver; media fetching and incoming-media processing are not
+  implemented.
   A pure text formatter escapes incoming plain text for HTML display, preserves
   line breaks, and rejects blank messages. Live database, provider, and UI
   delivery remain unverified.
@@ -197,6 +200,8 @@ parsing, shared message-token validation, plain-text HTML formatting, and their
 colocated tests.
 `__tests__/attachments.spec.ts` covers the tenant-configured byte-storage adapter.
 `constants.ts` shares the 25 MiB file-size cap between storage and callback validation.
+`utils/media.ts` owns bounded HTTP-response reading with supplied MIME metadata
+and stream cleanup; `utils/__tests__/media.spec.ts` covers that internal helper.
 `controller/receiveMessage.ts` contains unmounted callback validation and text processing;
 its colocated tests mock tenant lookup and message processing while using the
 real signature and parser utilities.
@@ -793,6 +798,15 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   byte count. This adapter does not download files, detect their type, enforce an
   extension/MIME allowlist, or scan for malware. The private-upload request flag
   is not proof of provider ACLs or safe content delivery.
+- `readViberMediaResponse` consumes an unread, unlocked Fetch `Response`, not an
+  Express response. It rejects unsuccessful HTTP status or a missing body,
+  checks an oversized declared length before reading, and counts actual chunks
+  before retaining them. It accepts at most 25 MiB, including an empty stream.
+  It removes parameters and normalizes case/whitespace in the reported MIME type,
+  defaulting to `application/octet-stream`; this is not content-type detection.
+  It attempts cancellation and releases its reader lock in `finally`, preserving
+  the original error if cancellation fails. It neither fetches URLs nor supplies
+  destination/redirect controls, deadlines, storage, or file-content validation.
 - `getOrCreateViberConversation` rejects blank inbox/sender/customer ids, saves
   a UUID conversation id in the mapping before requesting thread creation, and
   reuses that id on later attempts. Existing thread ownership must match the
@@ -1719,6 +1733,11 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   filesystem mocks so compiler-cache writes are not counted as attachment I/O.
   No real attachment files, uploads, provider ACLs, content-type validation,
   malware scanning, remote downloads, or live storage configurations are exercised.
+- Media-response tests use local `Response` and `ReadableStream` objects, without
+  remote requests. They specify exact bytes, supplied MIME metadata with a
+  generic fallback, HTTP/body errors, declared-size rejection, an actual streamed
+  25 MiB limit, cancellation, and reader cleanup. They do not exercise URL
+  fetching, destination/redirect checks, timeouts, storage, or content validation.
 - Focused Viber removal checks use mocked tenant models: verify provider cleanup
   precedes common integration deletion, an absent provider record is tolerated,
   and a provider cleanup failure prevents common deletion. No bot token or live
@@ -1765,6 +1784,14 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-14` — Bounded Viber media-response reading
+
+- **Summary:** Added chunked attachment-response reading with the shared byte
+  cap, reported MIME metadata, failure cleanup, and offline tests.
+- **Affected areas:** `src/modules/integrations/viber/utils/{media.ts,__tests__/media.spec.ts}`.
+- **Contracts changed:** Added internal `readViberMediaResponse`; network fetching,
+  receiver media wiring, and public APIs are unchanged.
 
 ### `2026-09-14` — Viber attachment byte storage
 
@@ -1842,13 +1869,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Contracts changed:** Added internal
   `getOrCreateViberConversation(subdomain, inboxId, userId, customerId, content): Promise<string>`;
   receiver wiring and public APIs are unchanged.
-
-### `2026-09-14` — Viber conversation mapping model
-
-- **Summary:** Registered a tenant-scoped sender-to-conversation mapping with
-  required fields, inbox/sender uniqueness, a conversation lookup index, and
-  offline schema tests.
-- **Affected areas:** `src/modules/integrations/viber/{@types/conversation.ts,db/}`,
-  `src/connectionResolvers.ts`.
-- **Contracts changed:** Added internal `IModels.ViberConversations` backed by
-  `viber_conversations`; receiver behavior and public APIs are unchanged.
