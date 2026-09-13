@@ -68,8 +68,10 @@
   and saves the mapping, with duplicate-key recovery. It is not yet called by
   the receiver; Core creation and mapping persistence are not atomic.
   A tenant-scoped conversation-mapping model is registered with required inbox,
-  sender, and Frontline conversation ids. No Viber helper creates or reopens
-  conversations yet.
+  sender, and Frontline conversation ids. An internal helper reserves or reuses
+  the mapped thread id, checks existing ownership, and calls the common inbox
+  create/update action with bounded duplicate-key recovery. It is not wired to
+  the receiver and does not persist individual messages.
 - Polls are a reusable definition (`title`, `question`, ordered `options`,
   `allowMultiselect`, optional `durationHours`, optional `brandId`,
   `active`/`archived` status) owned by a channel through `channelId`. An agent posts one into a messenger
@@ -160,9 +162,11 @@
 ## Architecture
 
 Viber lives under `src/modules/integrations/viber/`: `helpers.ts` owns connection
-creation, local removal, and customer resolution through the Core service and
-provider mapping. `__tests__/helpers.spec.ts` tests customer resolution with
-mocked tenant models and Core calls. `messageBroker.ts` adapts connection inputs
+creation, local removal, customer resolution, and conversation synchronization.
+`__tests__/helpers.spec.ts` covers customer resolution;
+`__tests__/conversations.spec.ts` covers the conversation helper. Their shared
+`__tests__/helperHarness.ts` replaces tenant models, Core calls, and the common
+inbox receiver without starting infrastructure. `messageBroker.ts` adapts connection inputs
 and error handling, and `utils/` holds signature/account helpers, raw-body webhook
 parsing, and their colocated tests.
 `controller/receiveMessage.ts` contains the unmounted callback validation path;
@@ -702,6 +706,19 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   mapping itself or a customer. Conversation status belongs to the common
   conversation record; the mapping schema neither stores status nor creates or
   reopens the referenced conversation.
+- `getOrCreateViberConversation` rejects blank inbox/sender/customer ids, saves
+  a UUID conversation id in the mapping before requesting thread creation, and
+  reuses that id on later attempts. Existing thread ownership must match the
+  inbox and Core customer before calling `receiveInboxMessage` with
+  `create-or-update-conversation`. A success response must contain that exact id.
+- Numeric `11000` mapping errors recover the winning inbox/sender mapping.
+  Customer and conversation helpers share the local `isViberDuplicateKeyError`
+  predicate; their recovery actions remain specific to the failing operation.
+  A duplicate thread error is retried once only after finding its exact id,
+  integration, and customer; the retry checks ownership again. Other failures
+  reject. Mapping persistence is not rolled back after a failed thread write.
+  This helper does not deduplicate messages; the unmounted receiver must do so
+  before invoking it, or replayed callbacks could reopen conversations.
 - `getOrCreateViberCustomer` rejects blank inbox/sender ids, uses tenant models,
   returns an existing mapping's `contactsId`, or creates a Core customer and
   awaits its mapping save. Optional display names are trimmed, never used as
@@ -1566,11 +1583,17 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   loading, and database duplicate-key enforcement are not covered by these
   offline tests.
 - Viber customer helper tests mock `generateModels` and `sendTRPCMessage`,
-  restoring CommonJS cache entries after each non-concurrent test. They cover
+  and stub the unused common inbox receiver. `__tests__/helperHarness.ts`
+  restores CommonJS cache entries after each non-concurrent helper test. They cover
   tenant/inbox lookup inputs, Core request/response boundaries, awaited writes,
   failures, and duplicate-key recovery. A deterministic concurrent-call test
   characterizes the remaining two-Core-creations/one-mapping race; it does not
   prove live database uniqueness or exactly-once behavior.
+- Viber conversation helper tests mock tenant models and `receiveInboxMessage`.
+  They cover stable-id reservation, tenant/inbox inputs, ownership checks,
+  response validation, both duplicate-recovery paths, bounded retry, and reuse
+  after partial failure. Concurrent-call tests simulate uniqueness; they do not
+  verify live MongoDB enforcement, real inbox events, or UI reopening.
 - Focused Viber removal checks use mocked tenant models: verify provider cleanup
   precedes common integration deletion, an absent provider record is tolerated,
   and a provider cleanup failure prevents common deletion. No bot token or live
@@ -1617,6 +1640,15 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-14` — Viber conversation resolution helper
+
+- **Summary:** Added stable conversation-id reservation, ownership checks,
+  common inbox synchronization, bounded race recovery, and offline tests.
+- **Affected areas:** `src/modules/integrations/viber/{helpers.ts,__tests__/}`.
+- **Contracts changed:** Added internal
+  `getOrCreateViberConversation(subdomain, inboxId, userId, customerId, content): Promise<string>`;
+  receiver wiring and public APIs are unchanged.
 
 ### `2026-09-14` — Viber conversation mapping model
 
@@ -1702,12 +1734,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `createViberIntegration(subdomain, integrationId, token): Promise<void>`;
   `viberCreateIntegration` accepts `IViberIntegrationInput` and returns
   `Promise<ApiResponse<void>>`. No public API or dispatcher branch is added.
-
-### `2026-09-09` — Viber connection creation helper
-
-- **Summary:** Added inbox validation, verified bot identity lookup, duplicate
-  checks, and tenant-scoped Viber connection persistence.
-- **Affected areas:** `src/modules/integrations/viber/helpers.ts`.
-- **Contracts changed:** Implemented internal
-  `viberCreateIntegration(subdomain, integrationId, token): Promise<void>`;
-  no public API, route, or creation-dispatcher branch is added.

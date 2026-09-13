@@ -1,10 +1,8 @@
 import { test } from 'node:test';
 import { deepStrictEqual, rejects, strictEqual } from 'node:assert';
-import { Module } from 'node:module';
 import type { IViberCustomer } from '../@types/customer';
+import { loadViberHelpers, type TestContext } from './helperHarness';
 
-// The installed Node types do not export the callback context by name.
-type TestContext = Parameters<NonNullable<Parameters<typeof test>[0]>>[0];
 type MappingSelector = Pick<IViberCustomer, 'inboxId' | 'userId'>;
 type Mapping = IViberCustomer & { _id: string };
 
@@ -65,47 +63,15 @@ const createCustomerHarness = (
     return { ViberCustomers: { findOne, create } };
   });
 
-  // Resolve mock keys indirectly so Nx does not classify the shared barrel as
-  // a lazy import. Use the real helper without starting database/network clients.
-  const [utilsPath, modelsPath, helperPath] = [
-    'erxes-api-shared/utils',
-    '~/connectionResolvers',
-    '../helpers',
-  ].map((specifier) => require.resolve(specifier));
-  const originalModules = new Map(
-    [utilsPath, modelsPath, helperPath].map((filename) => [
-      filename,
-      require.cache[filename],
-    ]),
-  );
-
-  t.after(() => {
-    for (const [filename, original] of originalModules) {
-      if (original) {
-        require.cache[filename] = original;
-      } else {
-        delete require.cache[filename];
-      }
-    }
+  const { getOrCreateViberCustomer } = loadViberHelpers(t, {
+    sharedUtils: { sendTRPCMessage },
+    connectionResolvers: { generateModels },
+    inboxReceiver: {
+      receiveInboxMessage: async () => {
+        throw new Error('Customer resolution must not modify conversations');
+      },
+    },
   });
-
-  const replaceModule = (
-    filename: string,
-    exports: Record<string, unknown>,
-  ) => {
-    const replacement = new Module(filename);
-    replacement.filename = filename;
-    replacement.loaded = true;
-    replacement.exports = exports;
-    require.cache[filename] = replacement;
-  };
-
-  replaceModule(utilsPath, { sendTRPCMessage });
-  replaceModule(modelsPath, { generateModels });
-  delete require.cache[helperPath];
-  const {
-    getOrCreateViberCustomer,
-  }: typeof import('../helpers') = require('../helpers');
 
   return {
     getOrCreateViberCustomer,
