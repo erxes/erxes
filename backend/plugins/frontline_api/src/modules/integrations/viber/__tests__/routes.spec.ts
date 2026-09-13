@@ -8,7 +8,10 @@ import type { IViberWebhookRequest } from '../@types/webhook';
 
 type TestContext = Parameters<NonNullable<Parameters<typeof test>[0]>>[0];
 
-const createRouteHarness = async (t: TestContext) => {
+const createRouteHarness = async (
+  t: TestContext,
+  options: { mountFrontline?: boolean; callProEnabled?: boolean } = {},
+) => {
   const app = express();
   const server = createServer(app);
   const logError = t.mock.method(console, 'error', () => undefined);
@@ -49,12 +52,25 @@ const createRouteHarness = async (t: TestContext) => {
     }
   });
 
+  const mockModule = (
+    specifier: string,
+    exports: Record<string, unknown>,
+  ): void => {
+    const filename = require.resolve(specifier);
+
+    if (!originalModules.has(filename)) {
+      originalModules.set(filename, require.cache[filename]);
+    }
+
+    const mockedModule = new Module(filename);
+    mockedModule.filename = filename;
+    mockedModule.loaded = true;
+    mockedModule.exports = exports;
+    require.cache[filename] = mockedModule;
+  };
+
   // Isolate the controller before loading the real router and logger.
-  const receiverModule = new Module(receiverPath);
-  receiverModule.filename = receiverPath;
-  receiverModule.loaded = true;
-  receiverModule.exports = { receiveViberMessage: receive };
-  require.cache[receiverPath] = receiverModule;
+  mockModule('../controller/receiveMessage', { receiveViberMessage: receive });
   delete require.cache[routerPath];
   delete require.cache[debuggerPath];
   const { router }: typeof import('../routes') = require('../routes');
@@ -67,7 +83,32 @@ const createRouteHarness = async (t: TestContext) => {
       },
     }),
   );
-  app.use('/viber', router);
+  if (options.mountFrontline) {
+    // Exercise the real parent registry without loading sibling services.
+    for (const integration of ['facebook', 'instagram', 'mail', 'callpro']) {
+      mockModule(`@/integrations/${integration}/routes`, {
+        router: express.Router(),
+      });
+    }
+
+    mockModule('@/integrations/callpro/config', {
+      isCallProEnabled: () => options.callProEnabled ?? false,
+    });
+
+    const frontlineRouterPath = require.resolve('~/routes');
+    originalModules.set(
+      frontlineRouterPath,
+      require.cache[frontlineRouterPath],
+    );
+    delete require.cache[frontlineRouterPath];
+    const {
+      router: frontlineRouter,
+    }: typeof import('~/routes') = require('~/routes');
+
+    app.use(frontlineRouter);
+  } else {
+    app.use('/viber', router);
+  }
 
   server.listen(0, '127.0.0.1');
   await once(server, 'listening');
@@ -207,3 +248,37 @@ test('GET requests and POST requests missing the inbox id do not reach the recei
   strictEqual(receive.mock.callCount(), 0);
   strictEqual(logError.mock.callCount(), 0);
 });
+
+for (const callProEnabled of [false, true]) {
+  test(`Frontline mounts the Viber route with Call Pro ${
+    callProEnabled ? 'enabled' : 'disabled'
+  }`, async (t) => {
+    const { request, receive, logError } = await createRouteHarness(t, {
+      mountFrontline: true,
+      callProEnabled,
+    });
+    const rawBody = '{ "event": "webhook" }';
+    receive.mock.mockImplementation(async (req, res) => {
+      strictEqual(req.params.integrationId, 'inbox-route-test');
+      strictEqual(
+        req.header('X-Viber-Content-Signature'),
+        'signature-route-test',
+      );
+      deepStrictEqual(req.rawBody, Buffer.from(rawBody));
+      res.sendStatus(200);
+    });
+
+    const response = await request(undefined, { body: rawBody });
+
+    strictEqual(response.status, 200);
+    strictEqual(await response.text(), 'OK');
+    strictEqual(receive.mock.callCount(), 1);
+
+    const unprefixedResponse = await request('/receive/inbox-route-test');
+
+    strictEqual(unprefixedResponse.status, 404);
+    await unprefixedResponse.text();
+    strictEqual(receive.mock.callCount(), 1);
+    strictEqual(logError.mock.callCount(), 0);
+  });
+}

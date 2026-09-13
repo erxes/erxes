@@ -70,9 +70,12 @@
   pass their HTTP(S) link as plain text without fetching the linked site.
   Shared contacts become readable name/phone text without replacing sender
   identity or fetching an avatar; locations become latitude/longitude text.
-  An internal router defines `POST /receive/:integrationId`, awaits the receiver,
+  The Viber router defines `POST /receive/:integrationId`, awaits the receiver,
   and turns escaped failures into a fixed log entry and a safe 500 when headers
-  have not been sent. No Viber HTTP route is mounted in the application.
+  have not been sent. `src/routes.ts` mounts it under `/viber`, independently
+  of the Call Pro toggle. Provider webhook registration is not implemented;
+  route mounting does not resolve the customer-creation failure-policy gate
+  below or establish a working live channel.
   Validated picture/video/file/sticker messages
   return a fixed 501 without processing. Events other than `webhook` and
   `message` also return a fixed 501 instead of falling through without a response.
@@ -227,14 +230,16 @@ by response reading, storage, and the file callback guard.
 reading with supplied MIME metadata and stream cleanup, and the shared
 `getViberMediaMaxBytes` lookup;
 `utils/__tests__/media.spec.ts` covers those internal helpers.
-`controller/receiveMessage.ts` contains unmounted callback validation and
+`controller/receiveMessage.ts` contains callback validation and
 text/URL/contact/location processing;
 its colocated tests mock tenant lookup and message processing while using the
 real signature and parser utilities.
-`routes.ts` defines the unmounted POST adapter and its outer error boundary;
+`routes.ts` defines the POST adapter and its outer error boundary, mounted by
+the parent `src/routes.ts` at `/viber`;
 `debuggers.ts` provides the Viber-prefixed error logger. `__tests__/routes.spec.ts`
 uses the real router and logger with a mocked receiver on an isolated loopback
-HTTP server, without starting plugin infrastructure.
+HTTP server. Parent-registry cases load the real `src/routes.ts` with sibling
+routers and the Call Pro toggle stubbed, without starting plugin infrastructure.
 `@types/` and `db/` hold document types, schema definitions, and model loaders;
 customer, conversation, and message schema tests live in `db/definitions/__tests__/`.
 `src/connectionResolvers.ts` registers `ViberIntegrations`, `ViberCustomers`,
@@ -250,7 +255,7 @@ dispatches Viber creation and removal through `sendCreateIntegration` and
 | GraphQL              | `src/apollo/`                                                               | Aggregated `typeDefs` and `resolvers` across modules                                                                                                                                                   |
 | tRPC                 | `src/init-trpc.ts`                                                          | `appRouter` for service-to-service calls                                                                                                                                                               |
 | Agent tool metadata  | `src/trpc/agentMeta.ts`                                                     | Local `agentMeta` helper for agent-callable tRPC annotations                                                                                                                                           |
-| HTTP                 | `src/routes.ts`                                                             | Mounts the `/facebook`, `/instagram`, `/mail`, and (when enabled) `/callpro` webhook routers                                                                                                           |
+| HTTP                 | `src/routes.ts`                                                             | Mounts the `/facebook`, `/instagram`, `/mail`, `/viber`, and (when enabled) `/callpro` webhook routers                                                                                                 |
 | Platform extensions  | `src/meta/`                                                                 | automations, permissions, notifications, segments, references, import/export                                                                                                                           |
 | Channels             | `src/modules/channel/`                                                      | Channel + ChannelMember models, schema, resolvers, role checks                                                                                                                                         |
 | Inbox                | `src/modules/inbox/`                                                        | Conversations, messages, integrations, widget/clientportal schemas, `receiveInboxMessage`                                                                                                              |
@@ -370,6 +375,12 @@ accountId, brandId, data)` — `channelId` is **nullable** for every kind;
   `src/modules/integrations/*`: Express webhook routes `/facebook/*` and
   `/instagram/*`, including the OAuth entry points `/facebook/fblogin`,
   `/facebook/kind/:kind/fblogin`, and `/instagram/iglogin`.
+- HTTP: `POST /viber/receive/:integrationId` — `integrationId` is the Frontline
+  inbox integration id. The receiver resolves tenant models and verifies
+  `X-Viber-Content-Signature` against the upstream-captured raw body using the
+  stored bot token. Webhook verification and supported messages have explicit
+  responses; validated unwired media and events return 501. Mounting this route
+  does not register a callback with Viber or prove a live integration.
 - HTTP: `POST /mail/receive` — the mail worker's inbound webhook. The body is
   capped at `15mb` by the `express.json` parser `startPlugin` installs, and is
   kept as a `Buffer` there for the HMAC check. That cap belongs to
@@ -764,14 +775,16 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   process messages, download files, or acknowledge receipt. Existing signature
   and payload validation must run first, retaining their 401/400 responses.
   Model-loading and integration-lookup failures still propagate to the caller.
-- The internal Viber router awaits `receiveViberMessage` on
+- The Viber router awaits `receiveViberMessage` on
   `POST /receive/:integrationId`, keeping the inbox identity in route params.
   It relies on the existing upstream raw-body capture; do not add a second body
   parser to this router. Escaped errors produce the fixed log message
   `Failed to handle Viber webhook` with the `[viber:error]` prefix, never raw
   exceptions, tokens, headers, or payloads. Send the fixed 500 JSON response only
   when `res.headersSent` is false; preserve responses already sent by the receiver.
-  The router is not yet mounted by `src/routes.ts`.
+  `src/routes.ts` mounts it at `/viber` outside the Call Pro condition. Keep the
+  existing customer-creation failure-policy gate before exposing the receiver;
+  mounting the route alone does not satisfy that gate.
 - Viber account responses stay `unknown` until validated: numeric `status === 0`
   and non-blank string `id` and `name`, returning only those two fields. The
   HTTP helper rejects blank tokens and tokens with leading or trailing
@@ -923,7 +936,7 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   write error rejects. Other failures propagate. This does not guarantee
   exactly-once Core creation: concurrent first messages or a failed mapping save
   can leave an unmapped Core customer. Resolve the cross-service failure policy
-  before exposing the still-unmounted receiver.
+  before exposing the receiver.
 - The plugin answers segment requests only about its own collections. No
   segment producer here may call another plugin: that shape is what produced
   the plugin-to-plugin RPC loop the Elasticsearch-era producers carried.
@@ -1795,15 +1808,18 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   failures retaining their earlier responses. Success cases assert a single 200
   with no trailing fallback response.
 - Viber router tests in `src/modules/integrations/viber/__tests__/routes.spec.ts`
-  replace only the receiver module and capture the real logger's `console.error`
-  calls. They mount the real router under `/viber` in a small Express test app,
-  mirror raw-byte capture, bind an ephemeral port on `127.0.0.1`, and close all
+  replace the receiver module and capture the real logger's `console.error`
+  calls. Isolated cases mount the real router under `/viber` in a small Express
+  test app, mirror raw-byte capture, bind an ephemeral port on `127.0.0.1`, and close all
   test-server connections and restore module-cache entries after each test.
   Coverage includes the POST path parameter and signature/raw-byte forwarding,
   preserved receiver responses, synchronous/asynchronous failures with fixed
   logs and safe 500 responses, no second response after a completed one, and
-  unmatched method/path rejection. They do not run the real receiver, shared
-  bootstrap, database, or provider; the application route remains unmounted.
+  unmatched method/path rejection. Parent-registry cases load the real
+  `src/routes.ts`, stub sibling routers and the Call Pro configuration, and
+  verify the `/viber` prefix with Call Pro enabled and disabled. They do not
+  exercise sibling behavior, the real receiver, shared bootstrap, database,
+  or provider; full-startup and live webhook behavior remain unverified.
 - Viber customer, conversation, and message schema tests use real Mongoose with no
   database connection.
   They replace the shared utilities import with a deterministic string-id
@@ -1918,6 +1934,14 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-14` — Viber webhook route registration
+
+- **Summary:** Mounted the Viber router in Frontline and added isolated HTTP
+  checks against the real parent registry with either Call Pro toggle value.
+- **Affected areas:** `src/routes.ts`, `src/modules/integrations/viber/__tests__/routes.spec.ts`.
+- **Contracts changed:** Added `POST /viber/receive/:integrationId` to the plugin
+  router; provider registration and live-channel validation remain outstanding.
+
 ### `2026-09-14` — Viber router error boundary
 
 - **Summary:** Added a typed POST router with fixed error logging and an outer
@@ -1990,11 +2014,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Affected areas:** `src/modules/integrations/viber/utils/{media.ts,__tests__/media.spec.ts}`.
 - **Contracts changed:** Added internal `readViberMediaResponse`; network fetching,
   receiver media wiring, and public APIs are unchanged.
-
-### `2026-09-14` — Viber attachment byte storage
-
-- **Summary:** Added bounded byte storage through the existing tenant storage
-  helper, temporary-file cleanup, a shared size cap, and offline tests.
-- **Affected areas:** `src/modules/integrations/viber/{helpers.ts,constants.ts,controller/receiveMessage.ts,__tests__/attachments.spec.ts}`.
-- **Contracts changed:** Added internal `storeViberAttachment`; file-content
-  validation and receiver media wiring are not implemented. Public APIs are unchanged.
