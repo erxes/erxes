@@ -793,3 +793,102 @@ test('rejects invalid file sizes and one byte over 50 MiB before processing', as
   }
   strictEqual(processMessage.mock.callCount(), 0);
 });
+
+test('returns one 501 for validated but unwired message types without processing or fetching', async (t) => {
+  const { receive, processMessage } = createReceiverHarness(t);
+  const fetchMedia = t.mock.method(globalThis, 'fetch', async () => {
+    throw new Error('Unwired message types must not download media');
+  });
+  const messages = [
+    { type: 'picture', media: 'https://example.com/picture.jpg' },
+    { type: 'video', media: 'https://example.com/video.mp4' },
+    {
+      type: 'file',
+      media: 'https://example.com/file.pdf',
+      file_name: 'file.pdf',
+      file_size: 100,
+    },
+    { type: 'sticker', sticker_id: 46105 },
+  ];
+
+  for (const message of messages) {
+    deepStrictEqual(
+      await receive(JSON.stringify({ ...TEXT_MESSAGE, message })),
+      [
+        {
+          statusCode: 501,
+          body: { error: 'Viber message type is not implemented' },
+        },
+      ],
+    );
+  }
+
+  strictEqual(processMessage.mock.callCount(), 0);
+  strictEqual(fetchMedia.mock.callCount(), 0);
+});
+
+test('validation errors still return 400 before the unimplemented-message fallback', async (t) => {
+  const { receive, processMessage } = createReceiverHarness(t);
+  const cases = [
+    {
+      message: { type: 'picture' },
+      error: 'Invalid Viber media message',
+    },
+    {
+      message: { type: 'sticker', sticker_id: '46105' },
+      error: 'Invalid Viber sticker message',
+    },
+    {
+      message: { type: 'unknown-message-type' },
+      error: 'Unsupported Viber message type',
+    },
+  ];
+
+  for (const { message, error } of cases) {
+    deepStrictEqual(
+      await receive(JSON.stringify({ ...TEXT_MESSAGE, message })),
+      [{ statusCode: 400, body: { error } }],
+    );
+  }
+
+  strictEqual(processMessage.mock.callCount(), 0);
+});
+
+test('returns one 501 for unimplemented events without message processing', async (t) => {
+  const { receive, processMessage } = createReceiverHarness(t);
+
+  for (const event of [
+    'subscribed',
+    'unsubscribed',
+    'conversation_started',
+    'delivered',
+    'seen',
+    'failed',
+    'unknown-event',
+  ]) {
+    deepStrictEqual(await receive(JSON.stringify({ event })), [
+      { statusCode: 501, body: { error: 'Viber event is not implemented' } },
+    ]);
+  }
+
+  strictEqual(processMessage.mock.callCount(), 0);
+});
+
+test('unimplemented messages and events still require a valid signature before the fallback', async (t) => {
+  const { receive, processMessage } = createReceiverHarness(t);
+  const bodies = [
+    JSON.stringify({
+      ...TEXT_MESSAGE,
+      message: { type: 'sticker', sticker_id: 46105 },
+    }),
+    JSON.stringify({ event: 'delivered' }),
+  ];
+
+  for (const body of bodies) {
+    deepStrictEqual(await receive(body, { signature: '0'.repeat(64) }), [
+      { statusCode: 401, body: { error: 'Invalid Viber signature' } },
+    ]);
+  }
+
+  strictEqual(processMessage.mock.callCount(), 0);
+});

@@ -306,5 +306,12 @@ export const receiveViberMessage = async (
       res.sendStatus(200);
       return;
     }
+    res.status(501).json({
+      error: 'Viber message type is not implemented',
+    });
+    return;
   }
+  res.status(501).json({
+    error: 'Viber event is not implemented',
+  });
 };

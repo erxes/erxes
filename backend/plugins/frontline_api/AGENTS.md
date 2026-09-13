@@ -70,8 +70,9 @@
   pass their HTTP(S) link as plain text without fetching the linked site.
   Shared contacts become readable name/phone text without replacing sender
   identity or fetching an avatar; locations become latitude/longitude text.
-  No Viber HTTP route is mounted; other message types are not processed or
-  acknowledged.
+  No Viber HTTP route is mounted. Validated picture/video/file/sticker messages
+  return a fixed 501 without processing. Events other than `webhook` and
+  `message` also return a fixed 501 instead of falling through without a response.
   A tenant-scoped customer helper reuses a mapping or creates a Core customer
   and saves the mapping, with duplicate-key recovery. Core creation and mapping
   persistence are not atomic.
@@ -751,6 +752,11 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   text uses validated finite latitude/longitude, including zero and the range
   boundaries. Await processing before returning 200.
   A processing failure returns only a fixed 500 error, not exception details.
+  Validated but unwired message types return one fixed 501; events other than
+  `webhook` and `message` return a separate fixed 501. These fallbacks do not
+  process messages, download files, or acknowledge receipt. Existing signature
+  and payload validation must run first, retaining their 401/400 responses.
+  Model-loading and integration-lookup failures still propagate to the caller.
 - Viber account responses stay `unknown` until validated: numeric `status === 0`
   and non-blank string `id` and `name`, returning only those two fields. The
   HTTP helper rejects blank tokens and tokens with leading or trailing
@@ -1769,6 +1775,10 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   File-size cases allow sizes through 50 MiB to reach the next validation guard
   and reject malformed sizes or one byte over the cap. They deliberately stop
   before the still-unwired incoming-media path.
+  Fallback cases cover one fixed 501 for validated unwired message types and
+  unimplemented events, no processing or media fetch, and validation/signature
+  failures retaining their earlier responses. Success cases assert a single 200
+  with no trailing fallback response.
 - Viber customer, conversation, and message schema tests use real Mongoose with no
   database connection.
   They replace the shared utilities import with a deterministic string-id
@@ -1883,6 +1893,14 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-14` — Viber callback fallback responses
+
+- **Summary:** Closed normal receiver fall-through paths with fixed rejection
+  responses and offline regression tests.
+- **Affected areas:** `src/modules/integrations/viber/controller/`.
+- **Contracts changed:** The unmounted receiver returns 501 for validated unwired
+  message types and unimplemented events; public routes remain unchanged.
+
 ### `2026-09-14` — Viber contact and location messages
 
 - **Summary:** Converted validated shared contacts and coordinates into readable
@@ -1955,11 +1973,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Affected areas:** `src/modules/integrations/viber/{helpers.ts,__tests__/,controller/}`.
 - **Contracts changed:** Internal `processViberTextMessage` is now
   `processViberMessage` with optional `IAttachment[]`; the receiver remains text-only.
-
-### `2026-09-14` — Viber incoming-text processing
-
-- **Summary:** Wired validated text to tenant-scoped message storage, retry
-  recovery, native inbox publishing, completion tracking, and offline tests.
-- **Affected areas:** `src/modules/integrations/viber/{helpers.ts,__tests__/,controller/}`.
-- **Contracts changed:** Added internal `processViberTextMessage`; the unmounted
-  receiver returns 200 after text processing or a safe 500 on processing failure.
