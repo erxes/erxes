@@ -5,6 +5,10 @@ import { randomUUID } from 'node:crypto';
 import { receiveInboxMessage } from '@/inbox/receiveMessage';
 import type { IViberMessageDocument } from '@/integrations/viber/@types/message';
 import { isViberMessageToken } from '@/integrations/viber/utils/webhook';
+import type { IMessageDocument } from '@/inbox/@types/conversationMessages';
+import { CONVERSATION_STATUSES } from '@/inbox/db/definitions/constants';
+import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
+import { formatViberText } from '@/integrations/viber/utils/content';
 
 export const createViberIntegration = async (
   subdomain: string,
@@ -275,4 +279,109 @@ export const getOrCreateViberMessageMapping = async (
 
     throw error;
   }
+};
+
+export const processViberTextMessage = async (
+  subdomain: string,
+  input: {
+    inboxId: string;
+    userId: string;
+    messageToken: string;
+    text: string;
+    name?: string;
+  },
+): Promise<string> => {
+  const { inboxId, userId, messageToken, text, name } = input;
+  const content = formatViberText(text);
+
+  const mapping = await getOrCreateViberMessageMapping(
+    subdomain,
+    inboxId,
+    messageToken,
+  );
+  const { messageId } = mapping;
+
+  if (mapping.processedAt) {
+    return messageId;
+  }
+
+  const customerId = await getOrCreateViberCustomer(
+    subdomain,
+    inboxId,
+    userId,
+    name,
+  );
+
+  const conversationId = await getOrCreateViberConversation(
+    subdomain,
+    inboxId,
+    userId,
+    customerId,
+    content,
+  );
+
+  const models = await generateModels(subdomain);
+
+  let message: IMessageDocument | null =
+    await models.ConversationMessages.findOne({ _id: messageId });
+
+  if (!message) {
+    const doc = {
+      _id: messageId,
+      conversationId,
+      customerId,
+      content,
+      internal: false,
+    };
+
+    try {
+      message = await models.ConversationMessages.createMessage(doc);
+    } catch (error: unknown) {
+      if (!isViberDuplicateKeyError(error)) {
+        throw error;
+      }
+
+      message = await models.ConversationMessages.findOne({ _id: messageId });
+
+      if (!message) {
+        throw error;
+      }
+    }
+  }
+
+  if (
+    message._id !== messageId ||
+    message.conversationId !== conversationId ||
+    message.customerId !== customerId ||
+    message.internal ||
+    message.userId
+  ) {
+    throw new Error('Viber message mapping does not match its owner');
+  }
+
+  const messageCount = await models.ConversationMessages.countDocuments({
+    conversationId,
+  });
+
+  // Also repair metadata when an earlier attempt saved the message but failed later.
+  await models.Conversations.updateConversation(conversationId, {
+    content: message.content,
+    messageCount,
+    isCustomerRespondedLast: true,
+    status: CONVERSATION_STATUSES.OPEN,
+    readUserIds: [],
+  });
+
+  await pConversationClientMessageInserted(subdomain, message);
+
+  const completion = await models.ViberMessages.updateOne(
+    { _id: mapping._id, inboxId, messageToken, messageId },
+    { $set: { processedAt: new Date() } },
+  );
+
+  if (completion.matchedCount !== 1) {
+    throw new Error('Failed to mark Viber message as processed');
+  }
+
+  return messageId;
 };

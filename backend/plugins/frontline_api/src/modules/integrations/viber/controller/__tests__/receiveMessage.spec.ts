@@ -6,6 +6,12 @@ import type { Response } from 'express';
 import type { IViberWebhookRequest } from '../../@types/webhook';
 
 const TEST_TOKEN = 'test-viber-token';
+const TEXT_MESSAGE = {
+  event: 'message',
+  message_token: '4912661846655238145',
+  sender: { id: 'viber-user-test', name: 'Chingun' },
+  message: { type: 'text', text: 'Hello <team>\nСайн уу 👋' },
+};
 
 // The installed Node types do not export the callback context by name.
 type TestContext = Parameters<NonNullable<Parameters<typeof test>[0]>>[0];
@@ -26,8 +32,13 @@ const createReceiverHarness = (
     strictEqual(subdomain, 'test');
     return { ViberIntegrations: { findOne } };
   });
+  const processText = t.mock.fn(async (subdomain: string, input: unknown) => {
+    strictEqual(subdomain, 'test');
+    strictEqual(typeof input, 'object');
+    return 'frontline-message-test';
+  });
 
-  // Replace only the two infrastructure imports before loading the controller.
+  // Replace infrastructure and processing imports before loading the controller.
   // Keep the real signature verifier and JSON parser, and restore every entry.
   const originalModules = new Map<string, NodeModule | undefined>();
   t.after(() => {
@@ -52,6 +63,9 @@ const createReceiverHarness = (
 
   mockModule('erxes-api-shared/utils', { getSubdomain: () => 'test' });
   mockModule('~/connectionResolvers', { generateModels });
+  mockModule('@/integrations/viber/helpers', {
+    processViberTextMessage: processText,
+  });
 
   const receiverPath = require.resolve('../receiveMessage');
   originalModules.set(receiverPath, require.cache[receiverPath]);
@@ -103,7 +117,7 @@ const createReceiverHarness = (
     return replies;
   };
 
-  return { receive, generateModels, findOne, select };
+  return { receive, generateModels, findOne, select, processText };
 };
 
 test('rejects a missing raw body before looking up tenant models', async (t) => {
@@ -300,4 +314,49 @@ test('uses the signed raw body instead of an already parsed request body', async
     }),
     [{ statusCode: 400, body: { error: 'Invalid Viber message token' } }],
   );
+});
+
+test('passes validated text and exact identity fields to processing before acknowledging', async (t) => {
+  const { receive, processText } = createReceiverHarness(t);
+
+  deepStrictEqual(await receive(JSON.stringify(TEXT_MESSAGE)), [
+    { statusCode: 200 },
+  ]);
+  strictEqual(processText.mock.callCount(), 1);
+  deepStrictEqual(processText.mock.calls[0].arguments, [
+    'test',
+    {
+      inboxId: 'inbox-test',
+      userId: TEXT_MESSAGE.sender.id,
+      messageToken: TEXT_MESSAGE.message_token,
+      text: TEXT_MESSAGE.message.text,
+      name: TEXT_MESSAGE.sender.name,
+    },
+  ]);
+});
+
+test('invalid text is rejected without invoking message processing', async (t) => {
+  const { receive, processText } = createReceiverHarness(t);
+
+  for (const text of ['', '   ', 42]) {
+    const body = JSON.stringify({
+      ...TEXT_MESSAGE,
+      message: { type: 'text', text },
+    });
+    deepStrictEqual(await receive(body), [
+      { statusCode: 400, body: { error: 'Invalid Viber text message' } },
+    ]);
+  }
+  strictEqual(processText.mock.callCount(), 0);
+});
+
+test('a text-processing failure returns a safe 500 response instead of acknowledging', async (t) => {
+  const { receive, processText } = createReceiverHarness(t);
+  processText.mock.mockImplementation(async () => {
+    throw new Error('Sensitive internal failure');
+  });
+
+  deepStrictEqual(await receive(JSON.stringify(TEXT_MESSAGE)), [
+    { statusCode: 500, body: { error: 'Failed to process Viber message' } },
+  ]);
 });

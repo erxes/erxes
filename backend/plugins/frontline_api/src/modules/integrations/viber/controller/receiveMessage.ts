@@ -7,6 +7,7 @@ import {
   isViberMessageToken,
   parseViberWebhookBody,
 } from '@/integrations/viber/utils/webhook';
+import { processViberTextMessage } from '@/integrations/viber/helpers';
 
 const MAX_VIBER_FILE_BYTES = 25 * 1024 * 1024;
 const SUPPORTED_VIBER_MESSAGE_TYPES = [
@@ -136,7 +137,29 @@ export const receiveViberMessage = async (
         res.status(400).json({ error: 'Invalid Viber text message' });
         return;
       }
+
+      const name =
+        'name' in payload.sender && typeof payload.sender.name === 'string'
+          ? payload.sender.name
+          : undefined;
+
+      try {
+        await processViberTextMessage(subdomain, {
+          inboxId: req.params.integrationId,
+          userId: payload.sender.id,
+          messageToken: payload.message_token,
+          text: payload.message.text,
+          name,
+        });
+      } catch {
+        res.status(500).json({ error: 'Failed to process Viber message' });
+        return;
+      }
+
+      res.sendStatus(200);
+      return;
     }
+
     if (
       payload.message.type === 'picture' ||
       payload.message.type === 'video' ||
