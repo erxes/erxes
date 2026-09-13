@@ -150,6 +150,17 @@ test('checks the signature before attempting to parse malformed JSON', async (t)
   ]);
 });
 
+test('checks the signature before rejecting a malformed message token', async (t) => {
+  const { receive } = createReceiverHarness(t);
+
+  deepStrictEqual(
+    await receive('{"event":"message","message_token":"invalid"}', {
+      signature: '0'.repeat(64),
+    }),
+    [{ statusCode: 401, body: { error: 'Invalid Viber signature' } }],
+  );
+});
+
 test('returns a safe 400 response for signed malformed JSON', async (t) => {
   const { receive } = createReceiverHarness(t);
 
@@ -203,12 +214,16 @@ test('rejects non-string and non-decimal message tokens', async (t) => {
     '" 123"',
     '"123 "',
     '"123\\n"',
+    '"123\\r\\n"',
+    '"123\\u0000"',
+    '"\\u0661\\u0662\\u0663"',
     '"-1"',
     '"1.5"',
     '"1e3"',
     '-1',
     '1.5',
     '1e3',
+    '123.0',
   ];
 
   for (const token of tokenLiterals) {

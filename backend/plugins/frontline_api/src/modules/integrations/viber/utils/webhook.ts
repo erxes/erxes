@@ -13,3 +13,6 @@ export const parseViberWebhookBody = (rawBody: Buffer): unknown => {
     },
   );
 };
+
+export const isViberMessageToken = (value: unknown): value is string =>
+  typeof value === 'string' && value.length > 0 && !/\D/.test(value);

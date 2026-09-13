@@ -1,6 +1,6 @@
 import { test } from 'node:test';
-import { deepStrictEqual, throws } from 'node:assert';
-import { parseViberWebhookBody } from '../webhook';
+import { deepStrictEqual, ok, strictEqual, throws } from 'node:assert';
+import { isViberMessageToken, parseViberWebhookBody } from '../webhook';
 
 test('preserves large Viber message tokens as strings', () => {
   // Keep the number in raw JSON so JavaScript cannot round the test input first.
@@ -149,4 +149,76 @@ test('rejects numeric tokens when the parser cannot expose their source', (t) =>
       ),
     { message: 'Unable to preserve Viber message token' },
   );
+});
+
+test('accepts exact decimal token strings and narrows unknown values to strings', () => {
+  for (const original of [
+    '0',
+    '42',
+    '000123',
+    '4912661846655238145',
+    '18446744073709551615',
+  ]) {
+    const value: unknown = original;
+
+    ok(isViberMessageToken(value));
+    const token: string = value;
+    strictEqual(token, original);
+  }
+});
+
+test('rejects empty, padded, and non-decimal token strings', () => {
+  for (const value of [
+    '',
+    ' ',
+    ' 123',
+    '123 ',
+    '123\n',
+    '123\r\n',
+    '12\t34',
+    '123\0',
+    '+123',
+    '-123',
+    '1.23',
+    '1e3',
+    '0x123',
+    '12a3',
+    '\u0661\u0662\u0663',
+    '123\u200b',
+  ]) {
+    strictEqual(isViberMessageToken(value), false);
+  }
+});
+
+test('rejects every non-string token rather than converting its type', () => {
+  for (const value of [
+    undefined,
+    null,
+    true,
+    false,
+    0,
+    123,
+    NaN,
+    Infinity,
+    {},
+    [],
+    ['123'],
+    () => '123',
+    Symbol('123'),
+  ]) {
+    strictEqual(isViberMessageToken(value), false);
+  }
+});
+
+test('does not call an object token coercion method', () => {
+  let calls = 0;
+  const value = {
+    toString: () => {
+      calls++;
+      return '123';
+    },
+  };
+
+  strictEqual(isViberMessageToken(value), false);
+  strictEqual(calls, 0);
 });

@@ -176,7 +176,7 @@ and message-id reservation.
 `__tests__/helperHarness.ts` replaces tenant models, Core calls, and the common
 inbox receiver without starting infrastructure. `messageBroker.ts` adapts connection inputs
 and error handling, and `utils/` holds signature/account helpers, raw-body webhook
-parsing, and their colocated tests.
+parsing, shared message-token validation, and their colocated tests.
 `controller/receiveMessage.ts` contains the unmounted callback validation path;
 its colocated tests mock tenant lookup while using the real signature and parser
 utilities.
@@ -677,6 +677,10 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   a rounded JavaScript number. Malformed JSON or unavailable numeric source
   throws. Payload validation remains the receiver's responsibility; authenticate
   the original bytes before using this parser in the receive path.
+- `isViberMessageToken(value)` in `utils/webhook.ts` is the shared type guard
+  for the receiver and message-reservation helper. It accepts only non-empty
+  ASCII digit strings, without trimming or coercion; leading zeroes and large
+  ids remain unchanged. Callers keep their own HTTP or thrown-error handling.
 - The internal Viber receiver resolves the integration by inbox id on the
   request tenant and explicitly selects `+token`. Signature failures return
   401 before parsing; malformed JSON or payloads return 400. Only `message`
@@ -1594,6 +1598,8 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   credentials, network, or project-wide test configuration are required.
   Parser tests cover exact numeric tokens, unchanged fields and raw bytes,
   malformed JSON, and a mocked runtime without reviver source support.
+  Shared token-validator tests cover string narrowing, exact decimal strings,
+  rejected whitespace/non-digit/non-string values, and no object coercion.
 - All saved Viber utility, receiver, mapping schema, and helper tests, from the
   repository root:
   `pnpm exec tsx --tsconfig=backend/plugins/frontline_api/tsconfig.json --test backend/plugins/frontline_api/src/modules/integrations/viber/{__tests__,utils/__tests__,controller/__tests__,db/definitions/__tests__}/*.spec.ts`.
@@ -1602,6 +1608,8 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   those entries and the receiver entry after each test, remain non-concurrent,
   and use real signature verification and raw-body parsing. No live database,
   server, or bot token is required; successful message persistence is not covered.
+  Token-validation coverage uses the real shared guard and verifies that a
+  bad signature still takes precedence over a malformed token.
 - Viber customer, conversation, and message schema tests use real Mongoose with no
   database connection.
   They replace the shared utilities import with a deterministic string-id
@@ -1677,6 +1685,14 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-14` — Shared Viber message-token validation
+
+- **Summary:** Centralized decimal message-token validation for the receiver
+  and reservation helper with direct and caller regression tests.
+- **Affected areas:** `src/modules/integrations/viber/{utils/,helpers.ts,controller/}`.
+- **Contracts changed:** Added internal `isViberMessageToken(value: unknown): value is string`;
+  accepted token values and HTTP responses are unchanged.
 
 ### `2026-09-14` — Viber message-id reservation helper
 
@@ -1762,13 +1778,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `src/modules/integrations/viber/utils/__tests__/account.spec.ts`.
 - **Contracts changed:** `getViberAccountInfo` rejects padded tokens with a
   specific validation error before `fetch`; API/schema shapes are unchanged.
-
-### `2026-09-09` — Viber integration removal
-
-- **Summary:** Connected tenant-scoped Viber record cleanup to the existing
-  integration removal flow, preserving cleanup failures as rejected operations.
-- **Affected areas:** `src/modules/integrations/viber/{helpers,messageBroker}.ts`,
-  `src/modules/inbox/graphql/resolvers/mutations/integrations.ts`.
-- **Contracts changed:** Added `removeViberIntegration(subdomain, integrationId)`
-  and `viberRemoveIntegration({ subdomain, data })`; `sendRemoveIntegration`
-  now handles the `viber` service prefix. The GraphQL schema is unchanged.

@@ -3,7 +3,10 @@ import type { IViberWebhookRequest } from '@/integrations/viber/@types/webhook';
 import { getSubdomain } from 'erxes-api-shared/utils';
 import { generateModels } from '~/connectionResolvers';
 import { verifyViberSignature } from '@/integrations/viber/utils/signature';
-import { parseViberWebhookBody } from '@/integrations/viber/utils/webhook';
+import {
+  isViberMessageToken,
+  parseViberWebhookBody,
+} from '@/integrations/viber/utils/webhook';
 
 const MAX_VIBER_FILE_BYTES = 25 * 1024 * 1024;
 const SUPPORTED_VIBER_MESSAGE_TYPES = [
@@ -82,8 +85,7 @@ export const receiveViberMessage = async (
   if (payload.event === 'message') {
     if (
       !('message_token' in payload) ||
-      typeof payload.message_token !== 'string' ||
-      !/^[0-9]+$/.test(payload.message_token)
+      !isViberMessageToken(payload.message_token)
     ) {
       res.status(400).json({ error: 'Invalid Viber message token' });
       return;

@@ -4,6 +4,7 @@ import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { randomUUID } from 'node:crypto';
 import { receiveInboxMessage } from '@/inbox/receiveMessage';
 import type { IViberMessageDocument } from '@/integrations/viber/@types/message';
+import { isViberMessageToken } from '@/integrations/viber/utils/webhook';
 
 export const createViberIntegration = async (
   subdomain: string,
@@ -245,11 +246,7 @@ export const getOrCreateViberMessageMapping = async (
     throw new Error('Inbox integration id is required');
   }
 
-  if (
-    typeof messageToken !== 'string' ||
-    messageToken.length === 0 ||
-    /\D/.test(messageToken)
-  ) {
+  if (!isViberMessageToken(messageToken)) {
     throw new Error('Invalid Viber message token');
   }
 
