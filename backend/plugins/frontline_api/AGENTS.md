@@ -70,7 +70,10 @@
   pass their HTTP(S) link as plain text without fetching the linked site.
   Shared contacts become readable name/phone text without replacing sender
   identity or fetching an avatar; locations become latitude/longitude text.
-  No Viber HTTP route is mounted. Validated picture/video/file/sticker messages
+  An internal router defines `POST /receive/:integrationId`, awaits the receiver,
+  and turns escaped failures into a fixed log entry and a safe 500 when headers
+  have not been sent. No Viber HTTP route is mounted in the application.
+  Validated picture/video/file/sticker messages
   return a fixed 501 without processing. Events other than `webhook` and
   `message` also return a fixed 501 instead of falling through without a response.
   A tenant-scoped customer helper reuses a mapping or creates a Core customer
@@ -228,6 +231,10 @@ reading with supplied MIME metadata and stream cleanup, and the shared
 text/URL/contact/location processing;
 its colocated tests mock tenant lookup and message processing while using the
 real signature and parser utilities.
+`routes.ts` defines the unmounted POST adapter and its outer error boundary;
+`debuggers.ts` provides the Viber-prefixed error logger. `__tests__/routes.spec.ts`
+uses the real router and logger with a mocked receiver on an isolated loopback
+HTTP server, without starting plugin infrastructure.
 `@types/` and `db/` hold document types, schema definitions, and model loaders;
 customer, conversation, and message schema tests live in `db/definitions/__tests__/`.
 `src/connectionResolvers.ts` registers `ViberIntegrations`, `ViberCustomers`,
@@ -757,6 +764,14 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   process messages, download files, or acknowledge receipt. Existing signature
   and payload validation must run first, retaining their 401/400 responses.
   Model-loading and integration-lookup failures still propagate to the caller.
+- The internal Viber router awaits `receiveViberMessage` on
+  `POST /receive/:integrationId`, keeping the inbox identity in route params.
+  It relies on the existing upstream raw-body capture; do not add a second body
+  parser to this router. Escaped errors produce the fixed log message
+  `Failed to handle Viber webhook` with the `[viber:error]` prefix, never raw
+  exceptions, tokens, headers, or payloads. Send the fixed 500 JSON response only
+  when `res.headersSent` is false; preserve responses already sent by the receiver.
+  The router is not yet mounted by `src/routes.ts`.
 - Viber account responses stay `unknown` until validated: numeric `status === 0`
   and non-blank string `id` and `name`, returning only those two fields. The
   HTTP helper rejects blank tokens and tokens with leading or trailing
@@ -1779,6 +1794,16 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   unimplemented events, no processing or media fetch, and validation/signature
   failures retaining their earlier responses. Success cases assert a single 200
   with no trailing fallback response.
+- Viber router tests in `src/modules/integrations/viber/__tests__/routes.spec.ts`
+  replace only the receiver module and capture the real logger's `console.error`
+  calls. They mount the real router under `/viber` in a small Express test app,
+  mirror raw-byte capture, bind an ephemeral port on `127.0.0.1`, and close all
+  test-server connections and restore module-cache entries after each test.
+  Coverage includes the POST path parameter and signature/raw-byte forwarding,
+  preserved receiver responses, synchronous/asynchronous failures with fixed
+  logs and safe 500 responses, no second response after a completed one, and
+  unmatched method/path rejection. They do not run the real receiver, shared
+  bootstrap, database, or provider; the application route remains unmounted.
 - Viber customer, conversation, and message schema tests use real Mongoose with no
   database connection.
   They replace the shared utilities import with a deterministic string-id
@@ -1893,6 +1918,14 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-14` — Viber router error boundary
+
+- **Summary:** Added a typed POST router with fixed error logging and an outer
+  error boundary, verified through isolated loopback HTTP tests.
+- **Affected areas:** `src/modules/integrations/viber/{routes.ts,debuggers.ts,__tests__/routes.spec.ts}`.
+- **Contracts changed:** Added internal `POST /receive/:integrationId` routing;
+  it remains unmounted, so public application routes are unchanged.
+
 ### `2026-09-14` — Viber callback fallback responses
 
 - **Summary:** Closed normal receiver fall-through paths with fixed rejection
@@ -1965,11 +1998,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Affected areas:** `src/modules/integrations/viber/{helpers.ts,constants.ts,controller/receiveMessage.ts,__tests__/attachments.spec.ts}`.
 - **Contracts changed:** Added internal `storeViberAttachment`; file-content
   validation and receiver media wiring are not implemented. Public APIs are unchanged.
-
-### `2026-09-14` — Viber attachment-aware message processing
-
-- **Summary:** Extended message processing with native attachments, captionless
-  previews, and the existing retry and publication behavior, with offline tests.
-- **Affected areas:** `src/modules/integrations/viber/{helpers.ts,__tests__/,controller/}`.
-- **Contracts changed:** Internal `processViberTextMessage` is now
-  `processViberMessage` with optional `IAttachment[]`; the receiver remains text-only.
