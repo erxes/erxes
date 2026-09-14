@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-09-10`
+- **Last synchronized:** `2026-09-15`
 
 ## Scope
 
@@ -73,6 +73,11 @@
 
 ## Current Capabilities
 
+- The inbox conversation timeline loads 50 recent messages initially and loads
+  older pages near the top without losing the reader's scroll position. Its
+  historical offset is independent from subscription-inserted messages, so a
+  live arrival cannot make pagination skip history; duplicate and concurrent
+  page requests are suppressed.
 - Polls are split across two routes, mirroring how forms are laid out.
   `settings/frontline/channels/:id/polls` manages the channel's polls: the
   settings breadcrumb resolves to `Channels / <channel> / Polls` and carries the
@@ -257,6 +262,7 @@
 | Channel settings       | `src/modules/channels`                                                                                                                       | Channel CRUD, members, GraphQL documents, form schemas                                                                                                         |
 | Personal channel       | `src/modules/channels/components/settings/personal-channel`, `src/pages/PersonalChannelPage.tsx`                                             | Profile page for the user's private inbox                                                                                                                      |
 | Inbox                  | `src/modules/inbox/`                                                                                                                         | Conversations, messages, filters, channels, brands, integrations                                                                                               |
+| Timeline pagination    | `src/modules/inbox/{components/InboxMessagesContainer.tsx,conversation-messages/}`                                                          | Historical page offsets, deduplication, top-scroll loading, and scroll-position restoration                                                                    |
 | Integrations           | `src/modules/integrations/`                                                                                                                  | Per-provider connect forms and detail views                                                                                                                    |
 | Call Pro               | `src/modules/integrations/callpro/`                                                                                                          | Add/edit sheets over one shared `CallProIntegrationForm`, webhook URL hint, recording player, and the caller-to-customer picker                                |
 | Ticket                 | `src/modules/ticket/`, `src/modules/pipelines/`, `src/modules/status/`                                                                       | Ticket boards, pipelines, statuses                                                                                                                             |
@@ -445,6 +451,10 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
 
 ## Data and State
 
+- The conversation timeline keeps its historical GraphQL `skip` offset in a
+  ref rather than deriving it from Apollo's rendered message array, because
+  subscription insertions increase the array length without consuming an older
+  server page.
 - Apollo Client for all server state; GraphQL documents live next to the feature
   they serve and use `frontline`/module-prefixed operation names.
 - `GET_MY_CHANNELS` backs the inbox navigation and is refetched after
@@ -509,6 +519,9 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
 
 ## Local Invariants
 
+- Conversation pagination prepends only unseen message ids and advances its
+  historical offset by the requested page size. New subscription messages are
+  appended independently and must never affect that offset.
 - A deferred action's `result` is written the moment the work is queued and is
   never updated, so history reads the action's own `status` to say how the wait
   ended. Trusting `result.status` alone left a timed-out reply still promising
@@ -1073,6 +1086,11 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 - `npx eslint src/...` on touched files — the project carries pre-existing lint
   errors and TypeScript errors elsewhere, so lint and typecheck the files you
   changed rather than the whole project.
+- Smoke (conversation pagination): open a conversation with more than 50
+  messages, scroll to the top, and confirm older messages prepend without a
+  visible jump or duplicates. While scrolled up, receive a new message and then
+  load another page; no historical messages should be skipped, and switching
+  conversations should start at the newest message.
 - `project.json` defines only `build`, `serve`, and `serve-static` — there is no
   `test` target for this project; do not invent one.
 - Smoke (help center): open `/frontline/helpcenter`, change a name inline, then
@@ -1130,6 +1148,16 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-15` — Conversation history pagination stays stable
+
+- **Summary:** The inbox now keeps live subscription inserts separate from its
+  historical offset, deduplicates and serializes older-page requests, and
+  preserves the reader's position when messages are prepended.
+- **Affected areas:** `src/modules/inbox/components/InboxMessagesContainer.tsx`,
+  `src/modules/inbox/conversation-messages/{components/ConversationMessages.tsx,hooks/useConversationMessages.tsx}`,
+  `src/pages/InboxIndexPage.tsx`
+- **Contracts changed:** None.
 
 ### `2026-09-09` — The comment reply takes an image
 
