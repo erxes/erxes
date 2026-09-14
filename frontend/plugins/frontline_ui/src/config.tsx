@@ -132,9 +132,9 @@ export const CONFIG: IUIConfig = {
       path: 'frontline/forms',
     },
     {
-      name: 'polls',
+      name: 'surveys',
       icon: IconChartBar,
-      path: 'frontline/polls',
+      path: 'frontline/surveys',
     },
     {
       name: 'knowledge-base',

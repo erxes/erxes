@@ -50,9 +50,9 @@ export const FrontlineDestinationLinks = () => {
         path="frontline/forms"
       />
       <NavigationMenuLinkItem
-        name={t('polls', 'Polls')}
+        name={t('surveys', 'Surveys')}
         icon={IconChartBar}
-        path="frontline/polls"
+        path="frontline/surveys"
       />
       <NavigationMenuLinkItem
         name={t('knowledge-base', 'Knowledge Base')}

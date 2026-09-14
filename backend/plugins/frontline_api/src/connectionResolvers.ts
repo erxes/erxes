@@ -241,9 +241,12 @@ import {
   loadFormSubmissionClass,
 } from './modules/form/db/models/Forms';
 
-import { IPollDocument, IPollVoteDocument } from '@/poll/@types/poll';
-import { IPollModel, loadPollClass } from '@/poll/db/models/Polls';
-import { IPollVoteModel, loadPollVoteClass } from '@/poll/db/models/PollVotes';
+import { ISurveyDocument, ISurveyVoteDocument } from '@/survey/@types/survey';
+import { ISurveyModel, loadSurveyClass } from '@/survey/db/models/Surveys';
+import {
+  ISurveyVoteModel,
+  loadSurveyVoteClass,
+} from '@/survey/db/models/SurveyVotes';
 
 import { IArticleDocument } from '@/knowledgebase/@types/article';
 import { ICategoryDocument } from '@/knowledgebase/@types/category';
@@ -408,8 +411,8 @@ export interface IModels {
   Fields: IFieldModel;
   Forms: IFormModel;
   FormSubmissions: IFormSubmissionModel;
-  Polls: IPollModel;
-  PollVotes: IPollVoteModel;
+  Surveys: ISurveyModel;
+  SurveyVotes: ISurveyVoteModel;
 
   //knowledgebase
   Article: IArticleModel;
@@ -717,13 +720,13 @@ export const loadClasses = (
     IFormSubmissionModel
   >('frontline_form_submissions', loadFormSubmissionClass(models));
 
-  models.Polls = db.model<IPollDocument, IPollModel>(
-    'frontline_polls',
-    loadPollClass(models),
+  models.Surveys = db.model<ISurveyDocument, ISurveyModel>(
+    'frontline_surveys',
+    loadSurveyClass(models),
   );
-  models.PollVotes = db.model<IPollVoteDocument, IPollVoteModel>(
-    'frontline_poll_votes',
-    loadPollVoteClass(models),
+  models.SurveyVotes = db.model<ISurveyVoteDocument, ISurveyVoteModel>(
+    'frontline_survey_votes',
+    loadSurveyVoteClass(models),
   );
 
   models.Article = db.model<IArticleDocument, IArticleModel>(

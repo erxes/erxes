@@ -77,7 +77,7 @@ export const conversationSchemaOptions = {
     type: 'Boolean',
     label: 'Last responder is customer',
   },
-  hasPoll: {
+  hasSurvey: {
     type: 'Boolean',
     index: true,
     label: 'Carries a poll message',
