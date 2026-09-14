@@ -1,5 +1,11 @@
 import { test } from 'node:test';
-import { deepStrictEqual, rejects, strictEqual } from 'node:assert';
+import {
+  deepStrictEqual,
+  notStrictEqual,
+  ok,
+  rejects,
+  strictEqual,
+} from 'node:assert';
 import type { IViberCustomer } from '../@types/customer';
 import { loadViberHelpers, type TestContext } from './helperHarness';
 
@@ -11,17 +17,33 @@ interface CustomerModel {
   create(doc: IViberCustomer): Promise<Mapping>;
 }
 
-interface CoreCustomerRequest {
-  subdomain: string;
-  pluginName: 'core';
-  method: 'mutation';
-  module: 'customers';
-  action: 'createCustomer';
-  input: { doc: { integrationId: string; firstName?: string } };
-  throwOnError: true;
+interface CoreCustomer {
+  _id: string;
+  integrationId: string;
+  firstName?: string;
 }
 
+type CoreCustomerRequest = {
+  subdomain: string;
+  pluginName: 'core';
+  module: 'customers';
+  throwOnError: true;
+} & (
+  | {
+      method: 'query';
+      action: 'findOne';
+      input: { _id: string };
+      defaultValue: null;
+    }
+  | {
+      method: 'mutation';
+      action: 'createCustomer';
+      input: { doc: CoreCustomer };
+    }
+);
+
 interface HarnessOptions {
+  coreCustomers?: readonly CoreCustomer[];
   findOne?: CustomerModel['findOne'];
   create?: CustomerModel['create'];
   sendTRPCMessage?: (request: CoreCustomerRequest) => Promise<unknown>;
@@ -44,13 +66,36 @@ const createCustomerHarness = (
   t: TestContext,
   options: HarnessOptions = {},
 ) => {
+  const mappings = new Map<string, Mapping>();
+  const coreCustomers = new Map(
+    (options.coreCustomers ?? []).map((customer) => [customer._id, customer]),
+  );
+  const mappingKey = ({ inboxId, userId }: MappingSelector): string =>
+    JSON.stringify([inboxId, userId]);
   const findOneImpl: CustomerModel['findOne'] =
-    options.findOne ?? (async () => null);
+    options.findOne ??
+    (async (selector) => mappings.get(mappingKey(selector)) ?? null);
   const createImpl: CustomerModel['create'] =
-    options.create ?? (async (doc) => ({ ...doc, _id: 'new-mapping-test' }));
+    options.create ??
+    (async (doc) => {
+      const key = mappingKey(doc);
+      if (mappings.has(key)) throw { code: 11000 };
+      const mapping = { ...doc, _id: `mapping-${mappings.size + 1}` };
+      mappings.set(key, mapping);
+      return mapping;
+    });
   const coreImpl: NonNullable<HarnessOptions['sendTRPCMessage']> =
     options.sendTRPCMessage ??
-    (async () => ({ _id: 'new-core-customer-test' }));
+    (async (request) => {
+      if (request.method === 'query') {
+        return coreCustomers.get(request.input._id) ?? null;
+      }
+
+      const { doc } = request.input;
+      if (coreCustomers.has(doc._id)) throw { code: 11000 };
+      coreCustomers.set(doc._id, doc);
+      return doc;
+    });
 
   const findOne = t.mock.fn(findOneImpl);
   const create = t.mock.fn(createImpl);
@@ -74,6 +119,8 @@ const createCustomerHarness = (
   });
 
   return {
+    mappings,
+    coreCustomers,
     getOrCreateViberCustomer,
     generateModels,
     findOne,
@@ -115,6 +162,9 @@ test('rejects blank Viber user ids before accessing models or Core', async (t) =
 test('returns the mapped Core id using the request tenant and both identity fields', async (t) => {
   const harness = createCustomerHarness(t, {
     findOne: async () => EXISTING_MAPPING,
+    coreCustomers: [
+      { _id: EXISTING_MAPPING.contactsId, integrationId: SELECTOR.inboxId },
+    ],
   });
 
   strictEqual(
@@ -129,7 +179,19 @@ test('returns the mapped Core id using the request tenant and both identity fiel
     'tenant-one',
   ]);
   deepStrictEqual(harness.findOne.mock.calls[0].arguments, [SELECTOR]);
-  strictEqual(harness.sendTRPCMessage.mock.callCount(), 0);
+  deepStrictEqual(harness.sendTRPCMessage.mock.calls[0].arguments, [
+    {
+      subdomain: 'tenant-one',
+      pluginName: 'core',
+      module: 'customers',
+      method: 'query',
+      action: 'findOne',
+      input: { _id: EXISTING_MAPPING.contactsId },
+      defaultValue: null,
+      throwOnError: true,
+    },
+  ]);
+  strictEqual(harness.sendTRPCMessage.mock.callCount(), 1);
   strictEqual(harness.create.mock.callCount(), 0);
 });
 
@@ -153,7 +215,11 @@ test('does not reuse a sender mapping from another inbox', async (t) => {
     SELECTOR.userId,
   );
 
-  strictEqual(contactsId, 'new-core-customer-test');
+  notStrictEqual(contactsId, EXISTING_MAPPING.contactsId);
+  strictEqual(
+    harness.coreCustomers.get(contactsId)?.integrationId,
+    'another-inbox',
+  );
   deepStrictEqual(harness.create.mock.calls[0].arguments, [
     {
       inboxId: 'another-inbox',
@@ -165,6 +231,14 @@ test('does not reuse a sender mapping from another inbox', async (t) => {
 
 test('uses each tenant model container even for identical inbox and sender ids', async (t) => {
   const harness = createCustomerHarness(t, {
+    sendTRPCMessage: async (request) => {
+      strictEqual(request.method, 'query');
+      deepStrictEqual(request.input, { _id: `core-${request.subdomain}` });
+      return {
+        _id: `core-${request.subdomain}`,
+        integrationId: SELECTOR.inboxId,
+      };
+    },
     generateModels: async (subdomain) => ({
       ViberCustomers: {
         findOne: async (selector) => ({
@@ -191,10 +265,10 @@ test('uses each tenant model container even for identical inbox and sender ids',
   }
 
   strictEqual(harness.generateModels.mock.callCount(), 2);
-  strictEqual(harness.sendTRPCMessage.mock.callCount(), 0);
+  strictEqual(harness.sendTRPCMessage.mock.callCount(), 2);
 });
 
-test('creates a Core customer through the public contract and saves the separate mapping', async (t) => {
+test('reserves the Core id before creating its customer through the public contract', async (t) => {
   const harness = createCustomerHarness(t);
 
   const contactsId = await harness.getOrCreateViberCustomer(
@@ -204,15 +278,34 @@ test('creates a Core customer through the public contract and saves the separate
     '  Mina  ',
   );
 
-  strictEqual(contactsId, 'new-core-customer-test');
+  ok(contactsId.trim());
+  notStrictEqual(contactsId, [...harness.mappings.values()][0]._id);
   deepStrictEqual(harness.sendTRPCMessage.mock.calls[0].arguments, [
+    {
+      subdomain: 'tenant-one',
+      pluginName: 'core',
+      module: 'customers',
+      method: 'query',
+      action: 'findOne',
+      input: { _id: contactsId },
+      defaultValue: null,
+      throwOnError: true,
+    },
+  ]);
+  deepStrictEqual(harness.sendTRPCMessage.mock.calls[1].arguments, [
     {
       subdomain: 'tenant-one',
       pluginName: 'core',
       method: 'mutation',
       module: 'customers',
       action: 'createCustomer',
-      input: { doc: { integrationId: SELECTOR.inboxId, firstName: 'Mina' } },
+      input: {
+        doc: {
+          _id: contactsId,
+          integrationId: SELECTOR.inboxId,
+          firstName: 'Mina',
+        },
+      },
       throwOnError: true,
     },
   ]);
@@ -220,39 +313,46 @@ test('creates a Core customer through the public contract and saves the separate
     { ...SELECTOR, contactsId },
   ]);
   strictEqual(harness.findOne.mock.callCount(), 1);
-  strictEqual(harness.sendTRPCMessage.mock.callCount(), 1);
+  strictEqual(harness.sendTRPCMessage.mock.callCount(), 2);
   strictEqual(harness.create.mock.callCount(), 1);
+  strictEqual(harness.coreCustomers.size, 1);
 });
 
 test('allows an absent or blank optional display name', async (t) => {
   const harness = createCustomerHarness(t);
 
-  for (const name of [undefined, '', ' \t\n']) {
+  for (const [index, name] of [undefined, '', ' \t\n'].entries()) {
     await harness.getOrCreateViberCustomer(
       'test',
       SELECTOR.inboxId,
-      SELECTOR.userId,
+      `${SELECTOR.userId}-${index}`,
       name,
     );
   }
 
   for (const call of harness.sendTRPCMessage.mock.calls) {
-    strictEqual(call.arguments[0].input.doc.firstName, undefined);
+    const request = call.arguments[0];
+    if (request.method === 'mutation') {
+      strictEqual(request.input.doc.firstName, undefined);
+    }
   }
+  strictEqual(harness.coreCustomers.size, 3);
 });
 
 test('preserves nonblank opaque identity strings instead of normalizing them', async (t) => {
   const harness = createCustomerHarness(t, {
-    sendTRPCMessage: async () => ({ _id: '000core+/=' }),
+    findOne: async () => ({ ...EXISTING_MAPPING, contactsId: '000core+/=' }),
+    coreCustomers: [{ _id: '000core+/=', integrationId: '000inbox' }],
   });
 
   strictEqual(
     await harness.getOrCreateViberCustomer('test', '000inbox', '000user+/='),
     '000core+/=',
   );
-  deepStrictEqual(harness.create.mock.calls[0].arguments, [
-    { inboxId: '000inbox', userId: '000user+/=', contactsId: '000core+/=' },
+  deepStrictEqual(harness.findOne.mock.calls[0].arguments, [
+    { inboxId: '000inbox', userId: '000user+/=' },
   ]);
+  strictEqual(harness.create.mock.callCount(), 0);
 });
 
 test('propagates model-loader failures without contacting Core', async (t) => {
@@ -287,7 +387,7 @@ test('does not treat a failed mapping lookup as a new sender', async (t) => {
   strictEqual(harness.create.mock.callCount(), 0);
 });
 
-test('propagates Core failures without saving a mapping', async (t) => {
+test('retains the reserved id when the Core lookup fails instead of attempting creation', async (t) => {
   const failure = new Error('Core unavailable');
   const harness = createCustomerHarness(t, {
     sendTRPCMessage: async () => {
@@ -299,13 +399,21 @@ test('propagates Core failures without saving a mapping', async (t) => {
     harness.getOrCreateViberCustomer('test', SELECTOR.inboxId, SELECTOR.userId),
     (error: unknown) => error === failure,
   );
-  strictEqual(harness.create.mock.callCount(), 0);
+  strictEqual(harness.create.mock.callCount(), 1);
+  strictEqual(harness.mappings.size, 1);
+  strictEqual(harness.sendTRPCMessage.mock.callCount(), 1);
+  strictEqual(
+    harness.sendTRPCMessage.mock.calls[0].arguments[0].method,
+    'query',
+  );
 });
 
-test('rejects malformed Core responses before saving a mapping', async (t) => {
+test('rejects malformed create responses when a reread cannot prove that the customer exists', async (t) => {
   let coreResponse: unknown;
   const harness = createCustomerHarness(t, {
-    sendTRPCMessage: async () => coreResponse,
+    findOne: async () => EXISTING_MAPPING,
+    sendTRPCMessage: async (request) =>
+      request.method === 'query' ? null : coreResponse,
   });
 
   for (coreResponse of [
@@ -320,6 +428,8 @@ test('rejects malformed Core responses before saving a mapping', async (t) => {
     { _id: 42 },
     { _id: '' },
     { _id: ' \t\n' },
+    { _id: EXISTING_MAPPING.contactsId, integrationId: 'another-inbox' },
+    { _id: 'another-customer', integrationId: SELECTOR.inboxId },
     { status: 'error', errorMessage: 'Core failed' },
   ]) {
     await rejects(
@@ -335,7 +445,7 @@ test('rejects malformed Core responses before saving a mapping', async (t) => {
   strictEqual(harness.create.mock.callCount(), 0);
 });
 
-test('does not resolve before the mapping write finishes', async (t) => {
+test('does not contact Core or resolve before the mapping reservation finishes', async (t) => {
   let completeSave: (mapping: Mapping) => void = () => {
     throw new Error('Save promise was not initialized');
   };
@@ -364,6 +474,7 @@ test('does not resolve before the mapping write finishes', async (t) => {
 
   await saveStarted;
   strictEqual(resolved, false);
+  strictEqual(harness.sendTRPCMessage.mock.callCount(), 0);
   completeSave({ ...EXISTING_MAPPING, contactsId: 'new-core-customer-test' });
   strictEqual(await result, 'new-core-customer-test');
 });
@@ -395,12 +506,16 @@ test('propagates non-duplicate mapping failures without querying a fallback', as
     );
     strictEqual(harness.findOne.mock.callCount(), lookupsBefore + 1);
   }
+  strictEqual(harness.sendTRPCMessage.mock.callCount(), 0);
 });
 
 test('returns the saved winner after a duplicate mapping write', async (t) => {
   let lookupCount = 0;
   const harness = createCustomerHarness(t, {
     findOne: async () => (++lookupCount === 1 ? null : EXISTING_MAPPING),
+    coreCustomers: [
+      { _id: EXISTING_MAPPING.contactsId, integrationId: SELECTOR.inboxId },
+    ],
     create: async () => {
       throw { code: 11000 };
     },
@@ -417,6 +532,9 @@ test('returns the saved winner after a duplicate mapping write', async (t) => {
   deepStrictEqual(harness.findOne.mock.calls[1].arguments, [SELECTOR]);
   strictEqual(harness.create.mock.callCount(), 1);
   strictEqual(harness.sendTRPCMessage.mock.callCount(), 1);
+  deepStrictEqual(harness.sendTRPCMessage.mock.calls[0].arguments[0].input, {
+    _id: EXISTING_MAPPING.contactsId,
+  });
 });
 
 test('rethrows a duplicate error when there is no matching saved mapping', async (t) => {
@@ -432,6 +550,7 @@ test('rethrows a duplicate error when there is no matching saved mapping', async
     (error: unknown) => error === failure,
   );
   strictEqual(harness.findOne.mock.callCount(), 2);
+  strictEqual(harness.sendTRPCMessage.mock.callCount(), 0);
 });
 
 test('propagates a failed duplicate-recovery lookup instead of claiming success', async (t) => {
@@ -454,17 +573,211 @@ test('propagates a failed duplicate-recovery lookup instead of claiming success'
     harness.getOrCreateViberCustomer('test', SELECTOR.inboxId, SELECTOR.userId),
     (error: unknown) => error === failure,
   );
+  strictEqual(harness.sendTRPCMessage.mock.callCount(), 0);
 });
 
-test('concurrent first contacts converge on the winning mapping but can create extra Core customers', async (t) => {
+test('rejects malformed or differently owned lookup results without creating a customer', async (t) => {
+  let result: unknown;
+  const harness = createCustomerHarness(t, {
+    findOne: async () => EXISTING_MAPPING,
+    sendTRPCMessage: async (request) => {
+      strictEqual(request.method, 'query');
+      return result;
+    },
+  });
+
+  for (result of [
+    undefined,
+    [],
+    '',
+    false,
+    0,
+    {},
+    { _id: EXISTING_MAPPING.contactsId },
+    { _id: EXISTING_MAPPING.contactsId, integrationId: 'another-inbox' },
+    { _id: 'another-customer', integrationId: SELECTOR.inboxId },
+  ]) {
+    await rejects(
+      harness.getOrCreateViberCustomer(
+        'test',
+        SELECTOR.inboxId,
+        SELECTOR.userId,
+      ),
+      { message: 'Viber customer mapping does not match its owner' },
+    );
+  }
+  strictEqual(harness.create.mock.callCount(), 0);
+});
+
+test('a retry reuses a saved reservation after its write acknowledgement was lost', async (t) => {
+  const failure = new Error('Mapping write acknowledgement lost');
+  let storedMapping: Mapping | null = null;
+  const harness = createCustomerHarness(t, {
+    findOne: async () => storedMapping,
+    create: async (doc) => {
+      storedMapping = { ...doc, _id: 'reserved-mapping' };
+      throw failure;
+    },
+  });
+
+  await rejects(
+    harness.getOrCreateViberCustomer('test', SELECTOR.inboxId, SELECTOR.userId),
+    (error: unknown) => error === failure,
+  );
+  strictEqual(harness.sendTRPCMessage.mock.callCount(), 0);
+  const reservedId = harness.create.mock.calls[0].arguments[0].contactsId;
+
+  strictEqual(
+    await harness.getOrCreateViberCustomer(
+      'test',
+      SELECTOR.inboxId,
+      SELECTOR.userId,
+    ),
+    reservedId,
+  );
+  strictEqual(harness.create.mock.callCount(), 1);
+  strictEqual(harness.coreCustomers.size, 1);
+  strictEqual(harness.coreCustomers.get(reservedId)?._id, reservedId);
+});
+
+test('a failed Core creation keeps its reservation and a retry uses the same customer id', async (t) => {
+  const failure = new Error('Core create unavailable');
+  let failCreation = true;
+  let savedCustomer: CoreCustomer | null = null;
+  const harness = createCustomerHarness(t, {
+    sendTRPCMessage: async (request) => {
+      if (request.method === 'query') return savedCustomer;
+      if (failCreation) throw failure;
+      savedCustomer = request.input.doc;
+      return savedCustomer;
+    },
+  });
+
+  await rejects(
+    harness.getOrCreateViberCustomer('test', SELECTOR.inboxId, SELECTOR.userId),
+    (error: unknown) => error === failure,
+  );
+  strictEqual(harness.mappings.size, 1);
+  strictEqual(harness.sendTRPCMessage.mock.callCount(), 3);
+  const reservedId = harness.create.mock.calls[0].arguments[0].contactsId;
+
+  failCreation = false;
+  strictEqual(
+    await harness.getOrCreateViberCustomer(
+      'test',
+      SELECTOR.inboxId,
+      SELECTOR.userId,
+    ),
+    reservedId,
+  );
+  strictEqual(harness.create.mock.callCount(), 1);
+  const attempts = harness.sendTRPCMessage.mock.calls
+    .map((call) => call.arguments[0])
+    .filter((request) => request.method === 'mutation');
+  strictEqual(attempts.length, 2);
+  for (const request of attempts)
+    strictEqual(request.input.doc._id, reservedId);
+});
+
+for (const acknowledgement of ['lost', 'malformed'] as const) {
+  test(`recovers a saved Core customer after a ${acknowledgement} create acknowledgement`, async (t) => {
+    let savedCustomer: CoreCustomer | null = null;
+    const harness = createCustomerHarness(t, {
+      sendTRPCMessage: async (request) => {
+        if (request.method === 'query') return savedCustomer;
+        savedCustomer = request.input.doc;
+        if (acknowledgement === 'lost') throw new Error('Gateway timeout');
+        return undefined;
+      },
+    });
+
+    const contactsId = await harness.getOrCreateViberCustomer(
+      'test',
+      SELECTOR.inboxId,
+      SELECTOR.userId,
+    );
+    strictEqual(
+      contactsId,
+      harness.create.mock.calls[0].arguments[0].contactsId,
+    );
+    deepStrictEqual(
+      harness.sendTRPCMessage.mock.calls.map(
+        (call) => call.arguments[0].method,
+      ),
+      ['query', 'mutation', 'query'],
+    );
+
+    strictEqual(
+      await harness.getOrCreateViberCustomer(
+        'test',
+        SELECTOR.inboxId,
+        SELECTOR.userId,
+      ),
+      contactsId,
+    );
+    strictEqual(harness.create.mock.callCount(), 1);
+    strictEqual(harness.sendTRPCMessage.mock.callCount(), 4);
+    strictEqual(
+      harness.sendTRPCMessage.mock.calls[3].arguments[0].method,
+      'query',
+    );
+  });
+}
+
+test('a failed Core recovery lookup rejects without discarding the reserved id', async (t) => {
+  const failure = new Error('Core recovery lookup unavailable');
+  let lookupCount = 0;
+  const harness = createCustomerHarness(t, {
+    sendTRPCMessage: async (request) => {
+      if (request.method === 'mutation') throw new Error('Create timed out');
+      if (++lookupCount === 1) return null;
+      throw failure;
+    },
+  });
+
+  await rejects(
+    harness.getOrCreateViberCustomer('test', SELECTOR.inboxId, SELECTOR.userId),
+    (error: unknown) => error === failure,
+  );
+  strictEqual(harness.mappings.size, 1);
+  strictEqual(harness.create.mock.callCount(), 1);
+  strictEqual(lookupCount, 2);
+});
+
+test('a differently owned customer cannot turn a failed create into a success', async (t) => {
+  let savedCustomer: CoreCustomer | null = null;
+  const harness = createCustomerHarness(t, {
+    sendTRPCMessage: async (request) => {
+      if (request.method === 'query') return savedCustomer;
+      savedCustomer = { ...request.input.doc, integrationId: 'another-inbox' };
+      throw new Error('Core creation failed');
+    },
+  });
+
+  await rejects(
+    harness.getOrCreateViberCustomer('test', SELECTOR.inboxId, SELECTOR.userId),
+    { message: 'Viber customer mapping does not match its owner' },
+  );
+  strictEqual(harness.mappings.size, 1);
+  strictEqual(harness.create.mock.callCount(), 1);
+});
+
+test('concurrent first contacts reserve one id and recover a duplicate Core create using that id', async (t) => {
   let releaseLookups: () => void = () => {
     throw new Error('Lookup barrier was not initialized');
   };
   const bothLookupsStarted = new Promise<void>((resolve) => {
     releaseLookups = resolve;
   });
+  let releaseCoreLookups: () => void = () => {
+    throw new Error('Core lookup barrier was not initialized');
+  };
+  const bothCoreLookupsStarted = new Promise<void>((resolve) => {
+    releaseCoreLookups = resolve;
+  });
   let lookupCount = 0;
-  let coreCount = 0;
+  let coreLookupCount = 0;
+  const savedCustomers = new Map<string, CoreCustomer>();
   let storedMapping: Mapping | null = null;
   const harness = createCustomerHarness(t, {
     findOne: async () => {
@@ -479,7 +792,21 @@ test('concurrent first contacts converge on the winning mapping but can create e
 
       return storedMapping;
     },
-    sendTRPCMessage: async () => ({ _id: `created-core-${++coreCount}` }),
+    sendTRPCMessage: async (request) => {
+      if (request.method === 'query') {
+        if (++coreLookupCount <= 2) {
+          if (coreLookupCount === 2) releaseCoreLookups();
+          await bothCoreLookupsStarted;
+          return null;
+        }
+        return savedCustomers.get(request.input._id) ?? null;
+      }
+
+      const { doc } = request.input;
+      if (savedCustomers.has(doc._id)) throw { code: 11000 };
+      savedCustomers.set(doc._id, doc);
+      return doc;
+    },
     create: async (doc) => {
       if (storedMapping) {
         throw { code: 11000 };
@@ -495,9 +822,19 @@ test('concurrent first contacts converge on the winning mapping but can create e
     harness.getOrCreateViberCustomer('test', SELECTOR.inboxId, SELECTOR.userId),
   ]);
 
-  deepStrictEqual(results, ['created-core-1', 'created-core-1']);
+  const reservedId = harness.create.mock.calls[0].arguments[0].contactsId;
+  deepStrictEqual(results, [reservedId, reservedId]);
   strictEqual(harness.create.mock.callCount(), 2);
-  // Characterizes the remaining cross-service race, not an exactly-once claim.
-  // Change this expectation when customer creation itself becomes idempotent.
-  strictEqual(harness.sendTRPCMessage.mock.callCount(), 2);
+  strictEqual(savedCustomers.size, 1);
+  const attempts = harness.sendTRPCMessage.mock.calls
+    .map((call) => call.arguments[0])
+    .filter((request) => request.method === 'mutation');
+  strictEqual(attempts.length, 2);
+  for (const request of attempts) {
+    deepStrictEqual(request.input.doc, {
+      _id: reservedId,
+      integrationId: SELECTOR.inboxId,
+      firstName: undefined,
+    });
+  }
 });

@@ -74,14 +74,16 @@
   and turns escaped failures into a fixed log entry and a safe 500 when headers
   have not been sent. `src/routes.ts` mounts it under `/viber`, independently
   of the Call Pro toggle. Provider webhook registration is not implemented;
-  route mounting does not resolve the customer-creation failure-policy gate
-  below or establish a working live channel.
+  route mounting does not establish a working live channel.
   Validated picture/video/file/sticker messages
   return a fixed 501 without processing. Events other than `webhook` and
   `message` also return a fixed 501 instead of falling through without a response.
-  A tenant-scoped customer helper reuses a mapping or creates a Core customer
-  and saves the mapping, with duplicate-key recovery. Core creation and mapping
-  persistence are not atomic.
+  A tenant-scoped customer helper reserves a Core customer id in the mapping
+  before calling Core, reuses the winning reservation after duplicate writes,
+  and verifies the customer's id and integration ownership. Failed or ambiguous
+  Core creates are recovered only when a reread proves the expected customer
+  exists; later retries retain the same reservation. Core creation and mapping
+  persistence are not atomic, and exactly-once Core side effects are not promised.
   A tenant-scoped conversation-mapping model is registered with required inbox,
   sender, and Frontline conversation ids. An internal helper reserves or reuses
   the mapped thread id, checks existing ownership, and calls the common inbox
@@ -553,10 +555,11 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - Viber Bot REST API: `POST https://chatapi.viber.com/pa/get_account_info`
   through Node's `fetch`, with the token in `X-Viber-Auth-Token` and an empty
   JSON object body.
-- Viber customer resolution calls Core's `customers.createCustomer` mutation
-  through `sendTRPCMessage`, carrying the supplied subdomain and
-  `throwOnError: true`. Its response remains `unknown` until the Core `_id` is
-  validated as a non-blank string.
+- Viber customer resolution calls Core's `customers.findOne` query and
+  `customers.createCustomer` mutation through `sendTRPCMessage`, carrying the
+  supplied subdomain and `throwOnError: true`. Lookups use the reserved `_id`
+  and `defaultValue: null`; creates send that same `_id` and the inbox's
+  `integrationId`. Responses remain `unknown` until both identities match.
 - `erxes-api-shared/utils`: `startPlugin`, `sendTRPCMessage`, `fetchEs`,
   `getEnv`, `sendWorkerQueue`, `getUniqueValue`, `randomAlphanumeric`,
   `schemaWrapper`, `mongooseStringRandomId`.
@@ -597,7 +600,9 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - `viber_customers` (`models.ViberCustomers`) maps required `inboxId` and Viber
   `userId` to a required Core customer `contactsId`, with a generated string
   `_id` for the mapping itself. The schema declares a compound unique index on
-  `{ inboxId: 1, userId: 1 }`, not uniqueness on either field alone.
+  `{ inboxId: 1, userId: 1 }`, not uniqueness on either field alone. A saved
+  mapping can be a pending reservation; it is not proof that Core creation
+  completed. Keep its `contactsId` stable across failures and retries.
 - `viber_conversations` (`models.ViberConversations`) maps required `inboxId`
   and Viber `userId` to a required Frontline `conversationId`. It has its own
   generated string `_id`, a compound unique index on `{ inboxId: 1, userId: 1 }`,
@@ -783,8 +788,8 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   exceptions, tokens, headers, or payloads. Send the fixed 500 JSON response only
   when `res.headersSent` is false; preserve responses already sent by the receiver.
   `src/routes.ts` mounts it at `/viber` outside the Call Pro condition. Keep the
-  existing customer-creation failure-policy gate before exposing the receiver;
-  mounting the route alone does not satisfy that gate.
+  customer reservation/recovery policy when processing callbacks; route mounting
+  and mocked coverage alone do not prove live cross-service behavior.
 - Viber account responses stay `unknown` until validated: numeric `status === 0`
   and non-blank string `id` and `name`, returning only those two fields. The
   HTTP helper rejects blank tokens and tokens with leading or trailing
@@ -927,16 +932,22 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   This helper does not deduplicate messages; the message processor checks completed
   mappings before invoking it so completed replays do not reopen conversations.
 - `getOrCreateViberCustomer` rejects blank inbox/sender ids, uses tenant models,
-  returns an existing mapping's `contactsId`, or creates a Core customer and
-  awaits its mapping save. Optional display names are trimmed, never used as
-  identity; opaque ids are preserved. The receiver must validate optional
-  profile fields before passing them to this typed helper.
+  and reserves a `randomUUID()` as `contactsId` before contacting Core for a
+  new sender. Existing mappings reuse their saved id. Optional display names
+  are trimmed, never used as identity; opaque ids are preserved. The receiver
+  must validate optional profile fields before passing them to this typed helper.
 - A customer-mapping write error with numeric code `11000` triggers a lookup of
-  the same inbox/user pair; a winner returns its Core id, otherwise the original
-  write error rejects. Other failures propagate. This does not guarantee
-  exactly-once Core creation: concurrent first messages or a failed mapping save
-  can leave an unmapped Core customer. Resolve the cross-service failure policy
-  before exposing the receiver.
+  the same inbox/user pair; use the winner's reserved id or reject the original
+  error when no winner exists. Other mapping failures reject before contacting
+  Core. Do not remove a reservation after a failure or generate a replacement
+  id on retry.
+- Query Core by the reserved id before creating a customer. Only `null` means
+  missing; malformed results or a different `_id`/`integrationId` must reject.
+  Create a missing customer with that same id. On any create error or invalid
+  response, reread Core and recover only if the expected customer now exists.
+  Failed verification must reject, not acknowledge successful processing.
+  Concurrent calls can attempt creation more than once using the same id;
+  this relies on database uniqueness, not exactly-once RPCs or side effects.
 - The plugin answers segment requests only about its own collections. No
   segment producer here may call another plugin: that shape is what produced
   the plugin-to-plugin RPC loop the Elasticsearch-era producers carried.
@@ -1834,10 +1845,13 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - Viber customer helper tests mock `generateModels` and `sendTRPCMessage`,
   and stub the unused common inbox receiver. `__tests__/helperHarness.ts`
   restores CommonJS cache entries after each non-concurrent helper test. They cover
-  tenant/inbox lookup inputs, Core request/response boundaries, awaited writes,
-  failures, and duplicate-key recovery. A deterministic concurrent-call test
-  characterizes the remaining two-Core-creations/one-mapping race; it does not
-  prove live database uniqueness or exactly-once behavior.
+  tenant/inbox lookup inputs, reservation before Core access, strict ownership,
+  retained ids on retries, lost mapping/create acknowledgements, malformed
+  responses, and failed recovery reads. A deterministic concurrent-call test
+  forces two creates to use one reserved id and recovers the duplicate through
+  a Core reread. This simulates database uniqueness; it does not prove live
+  enforcement or exactly-once side effects. Message-processor fixtures verify
+  the same tenant-scoped Core ownership lookup before proceeding.
 - Viber conversation helper tests mock tenant models and `receiveInboxMessage`.
   They cover stable-id reservation, tenant/inbox inputs, ownership checks,
   response validation, both duplicate-recovery paths, bounded retry, and reuse
@@ -1934,6 +1948,14 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-14` — Viber customer id reservation and recovery
+
+- **Summary:** Reserve the Core customer id before creation and retain it across
+  retries, with ownership-checked recovery and offline concurrency coverage.
+- **Affected areas:** `src/modules/integrations/viber/{helpers.ts,__tests__/helpers.spec.ts,__tests__/processMessage.spec.ts}`.
+- **Contracts changed:** Customer resolution consumes Core's `customers.findOne`
+  and sends its reserved `_id` to `customers.createCustomer`; no public API changes.
+
 ### `2026-09-14` — Viber webhook route registration
 
 - **Summary:** Mounted the Viber router in Frontline and added isolated HTTP
@@ -2006,11 +2028,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Contracts changed:** Internal reading and storage require `messageType`;
   file callback validation accepts up to 50 MiB. Media wiring and public APIs
   remain unchanged; provider and live storage verification are still pending.
-
-### `2026-09-14` — Bounded Viber media-response reading
-
-- **Summary:** Added chunked attachment-response reading with the shared byte
-  cap, reported MIME metadata, failure cleanup, and offline tests.
-- **Affected areas:** `src/modules/integrations/viber/utils/{media.ts,__tests__/media.spec.ts}`.
-- **Contracts changed:** Added internal `readViberMediaResponse`; network fetching,
-  receiver media wiring, and public APIs are unchanged.

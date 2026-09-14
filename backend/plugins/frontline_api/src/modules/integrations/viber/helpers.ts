@@ -90,59 +90,93 @@ export const getOrCreateViberCustomer = async (
   }
 
   const models = await generateModels(subdomain);
-
   const selector = { inboxId, userId };
+  let mapping = await models.ViberCustomers.findOne(selector);
 
-  const existingMapping = await models.ViberCustomers.findOne(selector);
+  if (!mapping) {
+    try {
+      mapping = await models.ViberCustomers.create({
+        ...selector,
+        contactsId: randomUUID(),
+      });
+    } catch (error: unknown) {
+      if (!isViberDuplicateKeyError(error)) {
+        throw error;
+      }
 
-  if (existingMapping) {
-    return existingMapping.contactsId;
+      mapping = await models.ViberCustomers.findOne(selector);
+
+      if (!mapping) {
+        throw error;
+      }
+    }
   }
 
-  const customer: unknown = await sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    method: 'mutation',
-    module: 'customers',
-    action: 'createCustomer',
-    input: {
-      doc: {
-        integrationId: inboxId,
-        firstName: name?.trim() || undefined,
-      },
-    },
-    throwOnError: true,
-  });
+  const { contactsId } = mapping;
 
-  if (
-    typeof customer !== 'object' ||
-    customer === null ||
-    Array.isArray(customer) ||
-    !('_id' in customer) ||
-    typeof customer._id !== 'string' ||
-    customer._id.trim() === ''
-  ) {
-    throw new Error('Failed to resolve a Core customer for Viber');
+  const isExpectedCustomer = (customer: unknown): boolean =>
+    typeof customer === 'object' &&
+    customer !== null &&
+    !Array.isArray(customer) &&
+    '_id' in customer &&
+    customer._id === contactsId &&
+    'integrationId' in customer &&
+    customer.integrationId === inboxId;
+
+  const customerExists = async (): Promise<boolean> => {
+    const customer: unknown = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'customers',
+      action: 'findOne',
+      input: { _id: contactsId },
+      defaultValue: null,
+      throwOnError: true,
+    });
+
+    if (customer === null) {
+      return false;
+    }
+
+    if (!isExpectedCustomer(customer)) {
+      throw new Error('Viber customer mapping does not match its owner');
+    }
+
+    return true;
+  };
+
+  if (await customerExists()) {
+    return contactsId;
   }
 
   try {
-    const mapping = await models.ViberCustomers.create({
-      ...selector,
-      contactsId: customer._id,
+    const customer: unknown = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'mutation',
+      module: 'customers',
+      action: 'createCustomer',
+      input: {
+        doc: {
+          _id: contactsId,
+          integrationId: inboxId,
+          firstName: name?.trim() || undefined,
+        },
+      },
+      throwOnError: true,
     });
 
-    return mapping.contactsId;
-  } catch (error: unknown) {
-    if (isViberDuplicateKeyError(error)) {
-      const storedMapping = await models.ViberCustomers.findOne(selector);
-
-      if (storedMapping) {
-        return storedMapping.contactsId;
-      }
+    if (!isExpectedCustomer(customer)) {
+      throw new Error('Failed to resolve a Core customer for Viber');
     }
-
-    throw error;
+  } catch (error: unknown) {
+    if (!(await customerExists())) {
+      throw error;
+    }
   }
+
+  return contactsId;
 };
 
 const isViberDuplicateKeyError = (error: unknown): boolean =>

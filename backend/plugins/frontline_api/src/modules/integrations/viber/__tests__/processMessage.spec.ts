@@ -169,8 +169,18 @@ const createHarness = (
   const helpers = loadViberHelpers(t, {
     sharedUtils: {
       uploadFileToStorage: upload,
-      sendTRPCMessage: () => {
-        throw new Error('Existing customer mapping must not call Core');
+      sendTRPCMessage: async (request: unknown) => {
+        deepStrictEqual(request, {
+          subdomain: SUBDOMAIN,
+          pluginName: 'core',
+          method: 'query',
+          module: 'customers',
+          action: 'findOne',
+          input: { _id: CUSTOMER_ID },
+          defaultValue: null,
+          throwOnError: true,
+        });
+        return { _id: CUSTOMER_ID, integrationId: INPUT.inboxId };
       },
     },
     connectionResolvers: {
