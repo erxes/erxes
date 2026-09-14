@@ -69,7 +69,7 @@ const HelpCenterIndexPage = () => {
         <PageHeader.End>
           <Button onClick={() => setIsCreateOpen(true)} className="h-7 py-1">
             <IconPlus />
-            {t('kb-create-topic')}
+            {t('helpcenter-create', 'Create Help Center')}
             <Kbd>C</Kbd>
           </Button>
         </PageHeader.End>

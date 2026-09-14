@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-09-10`
+- **Last synchronized:** `2026-09-14`
 
 ## Scope
 
@@ -1130,6 +1130,35 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-14` — Help Center stops calling its records topics
+
+- **Summary:** The Help Center surface reused the knowledge base's `kb-*`
+  strings, so its create button, drawer title and empty state all said "topic"
+  while acting on help centers. Those five labels now use `helpcenter-*` keys
+  with inline English fallbacks, matching the `t(key, 'Default')` form already
+  used elsewhere in the plugin.
+- **Affected areas:** `src/pages/HelpCenterIndexPage.tsx`,
+  `src/modules/helpcenter/components/HelpCenterRecordTable.tsx`,
+  `src/modules/helpcenter/components/help-center-drawer/HelpCenterDrawer.tsx`
+- **Contracts changed:** None. The new `helpcenter-*` keys have no entry in
+  `backend/gateway/src/locales/{en,mn}/frontline.json`, which is outside the
+  plugin boundary, so they render from their inline fallbacks until those
+  translations are added as separate repository-level work.
+
+### `2026-09-14` — Knowledge Base opens on its topics, not the first article list
+
+- **Summary:** Opening Knowledge Base drilled straight into the first topic's
+  first category because the sidebar auto-selected `topicId` on mount and the
+  page then auto-selected that topic's first `categoryId`. Both auto-selections
+  are gone, so the landing view is the topic grid; picking a topic now shows
+  that topic's categories as cards, and a `categoryId` left over from another
+  topic is cleared instead of being replaced by that topic's first category.
+- **Affected areas:**
+  `src/modules/knowledgebase/components/KnowledgeBase.tsx`,
+  `src/modules/knowledgebase/components/KnowledgeBaseTopicsNav.tsx`
+- **Contracts changed:** None. The `topicId` and `categoryId` query parameters
+  keep their meaning; neither is now set without a user action.
 
 ### `2026-09-09` — The comment reply takes an image
 
