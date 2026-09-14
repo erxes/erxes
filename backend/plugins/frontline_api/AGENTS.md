@@ -67,7 +67,11 @@
   provider registration/removal with shared token validation, URL checks,
   redirect rejection, a timeout signal, and HTTP/provider response validation.
   It is called by removal but not yet by connection creation; live provider
-  behavior remains unverified. Internal receiver validation authenticates raw bytes,
+  behavior remains unverified. The internal callback URL builder follows the
+  existing production/development gateway paths and accepts a tenant-resolved
+  `VIBER_RECEIVE_URL` server override for direct plugin tunnels. It validates
+  HTTPS and appends the encoded inbox id; it is not yet called by creation.
+  Internal receiver validation authenticates raw bytes,
   parses numeric message tokens as exact strings, acknowledges webhook checks,
   and rejects malformed message payloads. Valid text, URL, contact, and location
   messages resolve the customer and thread, persist escaped content under a
@@ -237,6 +241,9 @@ colocated tests.
 lookup and `utils/webhookApi.ts`; the latter owns the internal `setViberWebhook`
 request helper. `utils/__tests__/webhookApi.spec.ts` covers its request and error
 boundaries with mocked fetch calls, without changing the connection workflow.
+`config.ts` builds the internal callback URL through the public `getEnv` helper;
+`__tests__/config.spec.ts` covers URL construction and validation with isolated
+environment/config mocks, without testing a live tunnel or tenant routing.
 `__tests__/attachments.spec.ts` covers the tenant-configured byte-storage adapter
 and its composition with the real downloader using mocked external I/O.
 `constants.ts` defines `ViberMediaType` and the incoming-media size policy shared
@@ -573,6 +580,10 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   callback with `send_name: true` and `send_photo: false`, omitting `event_types`
   to request all events. An exactly empty URL sends only `{ url: '' }` to remove
   the webhook. Removal is wired; registration during connection creation is not.
+- Viber callback URL configuration consumes `getEnv` from `erxes-api-shared/utils`
+  with the request subdomain: optional `VIBER_RECEIVE_URL` overrides `DOMAIN`.
+  The override includes the receiver path but excludes the integration id;
+  it is deployment configuration, not per-integration bot-token storage.
 - Viber customer resolution calls Core's `customers.findOne` query and
   `customers.createCustomer` mutation through `sendTRPCMessage`, carrying the
   supplied subdomain and `throwOnError: true`. Lookups use the reserved `_id`
@@ -824,6 +835,15 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   Never expose the response body or provider `status_message`. Fetch failures
   propagate without automatic retries or local record changes. This helper
   does not establish URL reachability, tenant routing, or a completed connection.
+- `getViberWebhookUrl(subdomain, integrationId)` rejects a blank tenant, blank
+  id, and `.`/`..` ids before reading configuration. Prefer `VIBER_RECEIVE_URL`;
+  otherwise append `/gateway/pl:frontline/viber/receive` to `DOMAIN` in production
+  or `/pl:frontline/viber/receive` in other environments. Remove trailing slashes,
+  require HTTPS without credentials/query/fragment, and append the encoded id
+  as one path segment. An invalid override is an error, not a fallback. A direct
+  Frontline tunnel override ends in `/viber/receive`; routing the correct tenant
+  still requires deployment verification. The builder makes no network calls
+  and does not register a webhook.
 - `createViberIntegration` obtains models through `generateModels(subdomain)`,
   takes `botId` only from the validated account response, and awaits the save.
   Its duplicate precheck provides a friendly error but does not replace database
@@ -1945,6 +1965,12 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   retries after provider failure, database failure, or lost delete acknowledgements.
   These tests do not execute the common GraphQL deletion resolver or prove live
   Viber/MongoDB behavior; its existing dispatcher still awaits provider cleanup.
+- Viber URL configuration tests in `__tests__/config.spec.ts` isolate the shared
+  utility module and restore the module cache and `NODE_ENV` after each test.
+  They cover gateway/tunnel paths, tenant-bearing configuration calls, encoding,
+  and rejected inputs. Placeholder substitution is modeled by the `getEnv` mock;
+  these tests do not prove real environment setup, HTTPS reachability, or tenant
+  resolution through ngrok.
 - Smoke: connect a mail inbox without a `channelId` → a `Personal inbox`
   channel is created with one admin member and the integration attaches to it;
   a second connect reuses the same channel; the same holds for a non-mailbox
@@ -1987,6 +2013,14 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-14` — Viber callback URL configuration
+
+- **Summary:** Added a validated tenant-aware callback URL builder with gateway
+  defaults, an explicit tunnel override, and offline configuration tests.
+- **Affected areas:** `src/modules/integrations/viber/{config.ts,__tests__/config.spec.ts}`.
+- **Contracts changed:** Added internal `getViberWebhookUrl` and optional server
+  configuration `VIBER_RECEIVE_URL`; creation and public APIs remain unchanged.
 
 ### `2026-09-14` — Viber provider-aware removal
 
@@ -2059,11 +2093,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Affected areas:** `src/modules/integrations/viber/{helpers.ts,__tests__/processMessage.spec.ts}`.
 - **Contracts changed:** Internal `processViberMessage` accepts optional shared
   `IViberMediaInput`; receiver wiring and public APIs remain unchanged.
-
-### `2026-09-14` — Viber download-to-storage composition
-
-- **Summary:** Connected approved-host media downloading to tenant storage with
-  native attachment metadata, propagated failures, and offline composition tests.
-- **Affected areas:** `src/modules/integrations/viber/{helpers.ts,__tests__/attachments.spec.ts}`.
-- **Contracts changed:** Added internal `downloadAndStoreViberAttachment`;
-  message replay handling, receiver media wiring, and public APIs are unchanged.
