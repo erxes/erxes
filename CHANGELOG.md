@@ -1,5 +1,22 @@
 
 
+## [3.1.7](https://github.com/erxes/erxes/compare/3.1.6...3.1.7) (2026-09-14)
+
+
+### Bug Fixes
+
+* **auth:** derive an OAuth scope per plugin module ([#9251](https://github.com/erxes/erxes/issues/9251)) ([9a8262e](https://github.com/erxes/erxes/commit/9a8262ebe5528a09286b13461c73a78c138f2744))
+* compact user header + 64 KB header budget (follow-up to [#9251](https://github.com/erxes/erxes/issues/9251)) ([#9306](https://github.com/erxes/erxes/issues/9306)) ([c78ccbd](https://github.com/erxes/erxes/commit/c78ccbd0c1c02601b4088cdcfd088c71d2361ae5))
+* exclude already-visible activities from navigation More popover ([#9295](https://github.com/erxes/erxes/issues/9295)) ([763bd76](https://github.com/erxes/erxes/commit/763bd76edb8e627aedbdce36fa3f1067080d8724))
+* Improve notification detail views ([#9294](https://github.com/erxes/erxes/issues/9294)) ([9e16de9](https://github.com/erxes/erxes/commit/9e16de9940b0277968e4f76d6e54cc34cff3dbb8))
+
+
+### Features
+
+* add milestone mapping functionality and update GitHub issue milestone synchronization ([#9303](https://github.com/erxes/erxes/issues/9303)) ([a279ad8](https://github.com/erxes/erxes/commit/a279ad80a72a8c12c064c1246a8d754627aefe92))
+* **documents:** Lock documents added ([#9298](https://github.com/erxes/erxes/issues/9298)) ([e0ecd13](https://github.com/erxes/erxes/commit/e0ecd136dc8b0d8df9aa66348b928868ea59b1f1))
+* **frontline:** add clear cache button to call widget ([ae6f58e](https://github.com/erxes/erxes/commit/ae6f58ea6814a8a61f23031b42ffa1d6e4395c08))
+
 ## [3.1.6](https://github.com/erxes/erxes/compare/3.1.5...3.1.6) (2026-09-13)
 
 
