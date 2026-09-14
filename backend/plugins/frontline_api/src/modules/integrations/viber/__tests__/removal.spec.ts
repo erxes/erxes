@@ -15,6 +15,7 @@ interface RemovalOptions {
   modelError?: Error;
   lookupError?: Error;
   request?: () => Promise<Response>;
+  cleanupError?: Error;
 }
 
 const createRemovalHarness = (t: TestContext, options: RemovalOptions = {}) => {
@@ -55,7 +56,24 @@ const createRemovalHarness = (t: TestContext, options: RemovalOptions = {}) => {
     events.push('models');
     strictEqual(subdomain, SUBDOMAIN);
     if (options.modelError) throw options.modelError;
-    return { ViberIntegrations: { findOne, deleteOne } };
+    const mappings = {
+      deleteMany: async (selector: unknown) => {
+        deepStrictEqual(selector, { inboxId: INBOX_ID });
+        strictEqual(events.includes('provider'), true);
+        strictEqual(state.integration !== null, true);
+        if (options.cleanupError) throw options.cleanupError;
+        return { deletedCount: 0 };
+      },
+    };
+    return {
+      ViberIntegrations: { findOne, deleteOne },
+      ViberOutbox: mappings,
+      ViberReceipts: mappings,
+      ViberSubscriptions: mappings,
+      ViberMessages: mappings,
+      ViberConversations: mappings,
+      ViberCustomers: mappings,
+    };
   });
   const fetchMock = t.mock.method(globalThis, 'fetch', async () => {
     events.push('provider');
@@ -110,6 +128,19 @@ test('an absent provider record is a no-op without network or deletion calls', a
   strictEqual(harness.select.mock.callCount(), 1);
   strictEqual(harness.fetchMock.mock.callCount(), 0);
   strictEqual(harness.deleteOne.mock.callCount(), 0);
+});
+
+test('failed mapping cleanup retains credentials and stops common removal', async (t) => {
+  const harness = createRemovalHarness(t, {
+    cleanupError: new Error('cleanup failed'),
+  });
+  await rejects(
+    harness.removeViberIntegration(SUBDOMAIN, INBOX_ID),
+    /cleanup failed/,
+  );
+  strictEqual(harness.fetchMock.mock.callCount(), 1);
+  strictEqual(harness.deleteOne.mock.callCount(), 0);
+  strictEqual(harness.state.integration, PROVIDER_RECORD);
 });
 
 test('rejects blank inbox ids before accessing models or Viber', async (t) => {

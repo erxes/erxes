@@ -54,6 +54,8 @@ import {
   markResolvers,
 } from 'erxes-api-shared/utils';
 import { IContext, IModels } from '~/connectionResolvers';
+import { assertViberIntegrationAccess } from '@/integrations/viber/access';
+import { visibleChannelsFilter } from '@/channel/utils';
 
 interface IntegrationParams {
   integrationId: string;
@@ -598,9 +600,42 @@ export const integrationMutations = {
   async integrationsEditCommonFields(
     _root,
     { _id, name, details, channelId, brandId },
-    { models, subdomain }: IContext,
+    context: IContext,
   ) {
+    const { models, subdomain } = context;
     const integration = await models.Integrations.getIntegration({ _id });
+
+    if (integration.kind.split('-')[0] === 'viber') {
+      await assertViberIntegrationAccess(context, _id, 'integrationsEdit');
+      if (details && Object.keys(details).length) {
+        throw new Error(
+          'Use viberUpdateToken to change Viber credentials; do not save them in integration details.',
+        );
+      }
+      if (name !== undefined && (typeof name !== 'string' || !name.trim()))
+        throw new Error('Integration name is required');
+      if (channelId) {
+        const visible = await visibleChannelsFilter(context);
+        if (
+          !(await models.Channels.exists({
+            $and: [{ _id: channelId }, visible],
+          }))
+        )
+          throw new Error('Destination channel access denied');
+      }
+      await models.Integrations.updateOne(
+        { _id },
+        {
+          $set: {
+            ...(name !== undefined ? { name } : {}),
+            ...(channelId ? { channelId } : {}),
+            ...(brandId ? { brandId } : {}),
+          },
+        },
+        { runValidators: true },
+      );
+      return models.Integrations.getIntegration({ _id });
+    }
 
     const doc: any = { name, details };
     let { kind } = integration;

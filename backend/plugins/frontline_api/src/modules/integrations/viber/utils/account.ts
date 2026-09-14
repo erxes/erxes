@@ -46,6 +46,7 @@ export const getViberAccountInfo = async (
     'https://chatapi.viber.com/pa/get_account_info',
     {
       method: 'POST',
+      redirect: 'error',
       headers: {
         'Content-Type': 'application/json',
         'X-Viber-Auth-Token': token,

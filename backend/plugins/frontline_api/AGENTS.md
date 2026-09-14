@@ -105,9 +105,11 @@
   have not been sent. `src/routes.ts` mounts it under `/viber`, independently
   of the Call Pro toggle. Creation now requests registration, but live callback
   reachability, tenant routing, and provider behavior remain unverified.
-  Validated picture/video/file/sticker messages
-  return a fixed 501 without processing. Events other than `webhook` and
-  `message` also return a fixed 501 instead of falling through without a response.
+  Picture/video/file callbacks use the same processor with tenant-configured
+  approved media hosts. Stickers are readable provider-id messages; the API does
+  not provide an image URL for this handler. Subscribed, unsubscribed, chat-open,
+  delivered, seen, and failed callbacks have validated, persisted handlers.
+  Unknown signed event types are acknowledged without side effects.
   A tenant-scoped customer helper reserves a Core customer id in the mapping
   before calling Core, reuses the winning reservation after duplicate writes,
   and verifies the customer's id and integration ownership. Failed or ambiguous
@@ -142,16 +144,29 @@
   rejects redirects, applies a 30-second abort signal, and delegates to that
   reader. `getViberMediaAllowedHostnames` reads and validates a comma-separated
   server policy through tenant-aware configuration, normalizes and deduplicates
-  entries, and returns an empty list when unset. It is not wired to the receiver;
+  entries, and returns an empty list when unset. It is wired to the receiver;
   no production Viber media hostnames have been configured or verified.
   `downloadAndStoreViberAttachment`
   composes downloading and tenant storage into native attachment metadata,
-  without creating messages or handling replays. Text, URL, contact, and location
-  messages are wired from the receiver; incoming-media download wiring is not
-  implemented.
+  without creating messages or handling replays. Incoming media fails closed
+  until approved hosts and a supported tenant storage provider are configured.
   A pure text formatter escapes incoming plain text for HTML display, preserves
   line breaks, and rejects blank messages. Live database, provider, and UI
   delivery remain unverified.
+- Viber agent replies use native Frontline messages and a tenant-owned outbox.
+  The normal `conversationMessageAdd` branch handles text and attachments;
+  `viberSendMessage` additionally accepts validated URL/location/contact/sticker
+  payloads. Multipart replies retain order and accepted provider tokens across
+  explicit retries. Transport uncertainty is never automatically resent.
+  Delivery facts remain distinct from provider acceptance and are exposed by
+  `ConversationMessage.viberDelivery` and `viberMessageStatus`.
+  `viberConnection` exposes non-secret connection data; `viberUpdateToken`
+  permits same-bot replacement and re-registers the webhook. Common metadata
+  edits reject credential details and check destination-channel access.
+  These paths require authentication, existing Frontline actions, and channel
+  visibility. Frontend wiring and live Viber/storage/ngrok verification remain
+  separate; no automated welcome, broadcast, polls, or quoted-reply support is
+  implemented. Stickers are represented by id, not a downloaded sticker image.
 - Polls are a reusable definition (`title`, `question`, ordered `options`,
   `allowMultiselect`, optional `durationHours`, optional `brandId`,
   `active`/`archived` status) owned by a channel through `channelId`. An agent posts one into a messenger
@@ -248,6 +263,16 @@ message-id reservation, message processing with native attachments or optional
 `IViberMediaInput` shared with the download-to-storage helper,
 storage of already-downloaded attachment bytes, and the download-to-storage
 composition helper.
+`outbound.ts` owns native reply persistence, atomic send claims, multipart
+progress, retry policy, and status reads. `events.ts` owns timestamp-ordered
+subscriptions and durable delivery receipts, including early callbacks.
+`access.ts` reuses channel visibility and existing permission actions.
+`graphql/` provides prefixed operations and the native message delivery field;
+Apollo's existing aggregators mount them. `utils/send.ts` validates outgoing
+messages and calls the fixed Viber send endpoint with lossless token parsing.
+`utils/outboundMedia.ts` and `controller/outboundMedia.ts` expose only scoped,
+one-hour signed links to stored outgoing attachments through the public storage
+stream interface. Bot tokens and storage keys are not embedded in these links.
 `__tests__/removal.spec.ts` covers the real removal helper and webhook HTTP
 utility with mocked tenant models and fetch, including ordering and retries.
 `__tests__/registration.spec.ts` covers the real registration helper, Repair
@@ -290,10 +315,11 @@ reading with supplied MIME metadata and stream cleanup, and the shared
 `getViberMediaMaxBytes` lookup;
 `utils/__tests__/media.spec.ts` covers those internal helpers.
 `controller/receiveMessage.ts` contains callback validation and
-text/URL/contact/location processing;
+text/URL/contact/location/media/sticker processing and lifecycle dispatch;
 its colocated tests mock tenant lookup and message processing while using the
 real signature and parser utilities.
-`routes.ts` defines the POST adapter and its outer error boundary, mounted by
+`routes.ts` defines the POST adapter and signed media GET route with safe outer
+error boundaries, mounted by
 the parent `src/routes.ts` at `/viber`;
 `debuggers.ts` provides the Viber-prefixed error logger. `__tests__/routes.spec.ts`
 uses the real router and logger with a mocked receiver on an isolated loopback
@@ -303,7 +329,8 @@ routers and the Call Pro toggle stubbed, without starting plugin infrastructure.
 integration, customer, conversation, and message schema tests live in
 `db/definitions/__tests__/`.
 `src/connectionResolvers.ts` registers `ViberIntegrations`, `ViberCustomers`,
-`ViberConversations`, and `ViberMessages` on the supplied tenant connection.
+`ViberConversations`, `ViberMessages`, `ViberOutbox`, `ViberReceipts`, and
+`ViberSubscriptions` on the supplied tenant connection.
 `src/modules/inbox/graphql/resolvers/mutations/integrations.ts`
 dispatches Viber creation, removal, and Repair through `sendCreateIntegration`,
 `sendRemoveIntegration`, and `sendRepairIntegration`.
@@ -455,8 +482,21 @@ accountId, brandId, data)` — `channelId` is **nullable** for every kind;
   inbox integration id. The receiver resolves tenant models and verifies
   `X-Viber-Content-Signature` against the upstream-captured raw body using the
   stored bot token. Webhook verification and supported messages have explicit
-  responses; validated unwired media and events return 501. Mounting this route
+  responses; malformed lifecycle events return 400, processing failures return
+  500, and supported or unknown signed events return 200. Mounting this route
   does not register a callback with Viber or prove a live integration.
+- HTTP: `GET /viber/receive/:integrationId/media/:messageId/:index/:name`
+  requires an unexpired HMAC-bound `expires`/`signature` pair. It resolves only
+  that tenant/inbox/outbox part, serves bounded stored bytes as a download with
+  `nosniff` and `no-store`, and never proxies a client-provided remote URL.
+- GraphQL: `viberConnection(integrationId)` requires `showIntegrations`;
+  `viberUpdateToken(integrationId, token)` requires `integrationsEdit` and the
+  same provider bot id. `viberSendMessage` and `viberRetryMessage` require
+  `conversationMessageAdd`; `viberMessageStatus` and the message delivery field
+  require `showConversations`. All also enforce tenant/channel visibility.
+  Common `conversationMessageAdd` handles ordinary Viber replies and keeps
+  internal notes local. Native polls and quoted replies are explicitly rejected
+  for external Viber sends.
 - HTTP: `POST /mail/receive` — the mail worker's inbound webhook. The body is
   capped at `15mb` by the `express.json` parser `startPlugin` installs, and is
   kept as a `Buffer` there for the HMAC check. That cap belongs to
@@ -641,7 +681,7 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - Internal Viber media policy consumes `VIBER_MEDIA_ALLOWED_HOSTNAMES` through
   that same tenant-aware `getEnv` interface. It is an optional comma-separated
   list of approved bare hostnames, not URLs or wildcard patterns. Missing
-  configuration approves no hosts; receiver consumption remains unwired.
+  configuration approves no hosts; the receiver consumes this policy for media.
 - Viber customer resolution calls Core's `customers.findOne` query and
   `customers.createCustomer` mutation through `sendTRPCMessage`, carrying the
   supplied subdomain and `throwOnError: true`. Lookups use the reserved `_id`
@@ -695,6 +735,19 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `{ inboxId: 1, userId: 1 }`, not uniqueness on either field alone. A saved
   mapping can be a pending reservation; it is not proof that Core creation
   completed. Keep its `contactsId` stable across failures and retries.
+- `viber_integrations.name` stores the validated provider display name on new
+  connections and token replacement; older records use `Viber` as sender name.
+- `viber_outbox` uses the native message id as `_id`, with inbox, conversation,
+  recipient, agent, timestamps, and ordered typed send parts. State is `pending`,
+  `sending`, `sent`, `rejected`, or `unknown`; each accepted part retains its exact
+  provider token. Its lookup index includes inbox/user/token.
+- `viber_subscriptions` is unique by inbox/user and stores subscription state
+  plus provider timestamp; unsubscribe wins a timestamp tie.
+- `viber_receipts` is unique by inbox/user/exact token and stores independent
+  delivered/seen/failed timestamps. Receipts can precede the send response and
+  are not confused with inbound message mappings. Provider removal deletes only
+  that inbox's Viber mappings, outbox, subscriptions, and receipts before deleting
+  credentials; native message/customer retention is not changed by this helper.
 - `viber_conversations` (`models.ViberConversations`) maps required `inboxId`
   and Viber `userId` to a required Frontline `conversationId`. It has its own
   generated string `_id`, a compound unique index on `{ inboxId: 1, userId: 1 }`,
@@ -852,7 +905,7 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   before resolving message mappings.
 - The internal Viber receiver resolves the integration by inbox id on the
   request tenant and explicitly selects `+token`. Signature failures return
-  401 before parsing; malformed JSON or payloads return 400. Only `message`
+  401 before parsing; malformed JSON or payloads return 400. `message`
   events require a non-empty decimal-digit `message_token` string, checked
   before sender validation. The `webhook` check is acknowledged with 200 without
   requiring message fields. A supplied sender name must be a string; absent or
@@ -867,11 +920,36 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   text uses validated finite latitude/longitude, including zero and the range
   boundaries. Await processing before returning 200.
   A processing failure returns only a fixed 500 error, not exception details.
-  Validated but unwired message types return one fixed 501; events other than
-  `webhook` and `message` return a separate fixed 501. These fallbacks do not
-  process messages, download files, or acknowledge receipt. Existing signature
-  and payload validation must run first, retaining their 401/400 responses.
+  Media captions are optional strings, file names come from validated callbacks,
+  and downloads use the configured exact-host policy. Sticker ids accept safe
+  nonnegative integers or decimal strings. Delivery events require exact tokens,
+  recipient ids, and valid timestamps; subscription events validate their own
+  user shape. Unknown signed event types are acknowledged without processing.
+  Existing signature and payload validation run first, retaining 401/400 responses.
   Model-loading and integration-lookup failures still propagate to the caller.
+- Outbound sends persist a native message and outbox before provider I/O. Only
+  `pending` or `rejected` replies may acquire an atomic `sending` claim. Accepted
+  parts are never replayed; ambiguous network/response outcomes become `unknown`.
+  A crash or failed acknowledgement can leave `sending`, reported as `unknown`
+  after 60 seconds; no background job reclaims it. Manual provider verification
+  is required before composing another reply. Native and outbox writes are not
+  transactional, and a failed reservation must not be reported as delivered.
+  HTTP 200/status 0 means accepted, not delivered. Seen and failed callbacks may
+  coexist, and older callbacks must not erase newer facts. Read delivery fields
+  from receipt records rather than a stale message snapshot. Native read state
+  is conservative for multipart replies: every part needs a confirmed seen
+  receipt; no conversation-wide read watermark is inferred from one callback.
+- Outgoing media accepts validated storage keys, filenames, claimed MIME, and
+  declared sizes, not arbitrary fetch URLs. Verify actual stored byte length.
+  Pictures use a 1 MiB cross-client cap; larger images fall back to files. MP4
+  video uses 26 MiB and files use 50 MiB. File fallback does not promise Viber
+  accepts every extension/codec. No magic-byte matching or malware scanning is
+  provided. Signed attachment links bind tenant, inbox, native message, part,
+  filename, and a one-hour expiry; rotating/removing the token invalidates them.
+  Use only the public tenant storage API; private storage authorization and
+  deployment credentials remain platform responsibilities. Shared storage
+  supports remote providers; incoming LOCAL upload is not supported by its
+  public upload helper. Do not work around that by editing Core/shared code.
 - The Viber router awaits `receiveViberMessage` on
   `POST /receive/:integrationId`, keeping the inbox identity in route params.
   It relies on the existing upstream raw-body capture; do not add a second body
@@ -1985,11 +2063,18 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   harness.
   File-size cases allow sizes through 50 MiB to reach the next validation guard
   and reject malformed sizes or one byte over the cap. They deliberately stop
-  before the still-unwired incoming-media path.
-  Fallback cases cover one fixed 501 for validated unwired message types and
-  unimplemented events, no processing or media fetch, and validation/signature
-  failures retaining their earlier responses. Success cases assert a single 200
+  before the file-name guard. Media/sticker cases assert delegated processing;
+  incomplete lifecycle callbacks return 400 and unknown signed events return 200.
+  Validation/signature failures retain their earlier responses. Success cases assert a single 200
   with no trailing fallback response.
+- Viber transport tests cover payload construction, fixed-endpoint sends,
+  lossless tokens, partial replies, concurrent retries, uncertain sends, early
+  receipts, subscription ordering, permissions, token replacement, typed schemas,
+  and signed-media reads. They use mocked persistence/provider/storage boundaries
+  plus real Mongoose schemas, GraphQL schema validation, and controller utilities.
+  Passing them is not evidence of live MongoDB indexes, remote storage, Viber
+  callback routing, video codec support, or frontend behavior. Validate those
+  with the real bot and ngrok before a production rollout.
 - Viber router tests in `src/modules/integrations/viber/__tests__/routes.spec.ts`
   replace the receiver module and capture the real logger's `console.error`
   calls. Isolated cases mount the real router under `/viber` in a small Express
@@ -2173,6 +2258,16 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-15` — Viber backend messaging lifecycle
+
+- **Summary:** Wire incoming media and lifecycle callbacks, native agent replies,
+  durable send/receipt state, scoped attachment links, and connection APIs.
+- **Affected areas:** Viber transport, schemas, controllers, helpers, tests, and
+  the existing Frontline Apollo/reply/integration/catalog registries.
+- **Contracts changed:** Added prefixed connection/send/retry/token/status APIs,
+  `ConversationMessage.viberDelivery`, and signed outgoing-media GET route;
+  ordinary Viber replies and metadata edits use the common inbox mutations.
+
 ### `2026-09-15` — Viber approved-media-host configuration
 
 - **Summary:** Read and validate a server-controlled media-host list with an
@@ -2244,11 +2339,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Affected areas:** `src/modules/integrations/viber/{helpers.ts,__tests__/removal.spec.ts}`.
 - **Contracts changed:** Viber removal now calls `set_webhook` before local
   deletion; the common GraphQL schema and dispatcher remain unchanged.
-
-### `2026-09-14` — Viber webhook API helper
-
-- **Summary:** Added an internal registration/removal HTTP helper with shared
-  token validation, response checks, and offline request/error coverage.
-- **Affected areas:** `src/modules/integrations/viber/utils/{account.ts,webhookApi.ts,__tests__/webhookApi.spec.ts}`.
-- **Contracts changed:** Consumes Viber's `set_webhook` API; connection/removal
-  flow wiring and public Frontline APIs remain unchanged.

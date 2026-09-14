@@ -100,7 +100,12 @@ const createCreationHarness = (
     },
   );
   const createConnection = t.mock.fn(async (doc: unknown) => {
-    deepStrictEqual(doc, { inboxId: INBOX_ID, botId: BOT_ID, token: TOKEN });
+    deepStrictEqual(doc, {
+      inboxId: INBOX_ID,
+      botId: BOT_ID,
+      name: 'Test bot',
+      token: TOKEN,
+    });
     if (options.saveFailure === 'before')
       throw new Error('Connection write failed');
     events.push('save-viber');

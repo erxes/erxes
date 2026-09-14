@@ -71,6 +71,11 @@ const createRouteHarness = async (
 
   // Isolate the controller before loading the real router and logger.
   mockModule('../controller/receiveMessage', { receiveViberMessage: receive });
+  mockModule('../controller/outboundMedia', {
+    serveViberOutboundMedia: async (_req: unknown, res: Response) => {
+      res.sendStatus(403);
+    },
+  });
   delete require.cache[routerPath];
   delete require.cache[debuggerPath];
   const { router }: typeof import('../routes') = require('../routes');

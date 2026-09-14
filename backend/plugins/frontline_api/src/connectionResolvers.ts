@@ -319,6 +319,19 @@ import {
 } from '@/reports/db/models/Charts';
 
 // Viber imports
+import type {
+  IViberOutboxDocument,
+  IViberReceiptDocument,
+  IViberSubscriptionDocument,
+} from '@/integrations/viber/@types/transport';
+import {
+  type IViberOutboxModel,
+  type IViberReceiptModel,
+  type IViberSubscriptionModel,
+  loadViberOutboxClass,
+  loadViberReceiptClass,
+  loadViberSubscriptionClass,
+} from '@/integrations/viber/db/models/Transport';
 import {
   IViberIntegrationModel,
   loadViberIntegrationClass,
@@ -410,6 +423,9 @@ export interface IModels {
   ViberCustomers: IViberCustomerModel;
   ViberConversations: IViberConversationModel;
   ViberMessages: IViberMessageModel;
+  ViberOutbox: IViberOutboxModel;
+  ViberReceipts: IViberReceiptModel;
+  ViberSubscriptions: IViberSubscriptionModel;
   // ticket
   Pipeline: ITicketPipelineModel;
   Status: IStatusModel;
@@ -698,6 +714,19 @@ export const loadClasses = (
     IViberIntegrationDocument,
     IViberIntegrationModel
   >('viber_integrations', loadViberIntegrationClass());
+
+  models.ViberOutbox = db.model<IViberOutboxDocument, IViberOutboxModel>(
+    'viber_outbox',
+    loadViberOutboxClass(),
+  );
+  models.ViberReceipts = db.model<IViberReceiptDocument, IViberReceiptModel>(
+    'viber_receipts',
+    loadViberReceiptClass(),
+  );
+  models.ViberSubscriptions = db.model<
+    IViberSubscriptionDocument,
+    IViberSubscriptionModel
+  >('viber_subscriptions', loadViberSubscriptionClass());
 
   models.ViberCustomers = db.model<IViberCustomerDocument, IViberCustomerModel>(
     'viber_customers',

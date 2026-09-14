@@ -110,6 +110,8 @@ const createPermissionHarness = (
     viberCreateIntegration: providerCreate,
     viberRemoveIntegration: providerRemove,
   });
+  replaceModule('@/channel/utils', {});
+  replaceModule('@/integrations/viber/access', {});
   for (const provider of ['facebook', 'instagram', 'discord']) {
     replaceModule(`@/integrations/${provider}/messageBroker`, {
       [`${provider}CreateIntegrations`]: siblingCreate,

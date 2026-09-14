@@ -14,6 +14,8 @@ import { handleFacebookIntegration } from '@/integrations/facebook/messageBroker
 import { sendReply } from '@/integrations/facebook/utils';
 import { handleInstagramIntegration } from '@/integrations/instagram/messageBroker';
 import { handleDiscordIntegration } from '@/integrations/discord/messageBroker';
+import { sendViberReply } from '@/integrations/viber/outbound';
+import { assertViberConversationAccess } from '@/integrations/viber/access';
 import { pConversationClientMessageInserted } from './widget';
 import { publishConversationUnreadCounts } from '@/inbox/services/conversationUnreadCounts';
 import { IUserDocument } from 'erxes-api-shared/core-types';
@@ -542,8 +544,9 @@ export const conversationMutations = {
   async conversationMessageAdd(
     _root,
     doc: IConversationMessageAdd,
-    { user, models, subdomain }: IContext,
+    context: IContext,
   ) {
+    const { user, models, subdomain } = context;
     try {
       const conversation = await models.Conversations.getConversation(
         doc.conversationId,
@@ -554,6 +557,42 @@ export const conversationMutations = {
 
       const { _id: integrationId } = integration;
       const { _id: conversationId } = conversation;
+      if (integration.kind.split('-')[0] === 'viber') {
+        if (!doc.internal) {
+          const message = await sendViberReply(context, doc);
+          try {
+            await publishUnreadCountsSafely({
+              conversationId,
+              integrationId,
+              userIds: [],
+              models,
+              subdomain,
+            });
+            await sendNotifications(subdomain, {
+              user,
+              conversations: [conversation],
+              type: 'conversationAddMessage',
+              mobile: true,
+              messageContent: message.content,
+            });
+            await markAutomatedReplyHumanActive({
+              models,
+              conversation,
+              userId: user._id,
+            });
+          } catch {
+            debugError(
+              'Viber reply was sent, but additional conversation notifications could not be completed',
+            );
+          }
+          return message;
+        }
+        await assertViberConversationAccess(
+          context,
+          conversationId,
+          'conversationMessageAdd',
+        );
+      }
       const {
         content = '',
         internal,

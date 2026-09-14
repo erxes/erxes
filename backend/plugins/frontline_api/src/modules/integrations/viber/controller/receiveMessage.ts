@@ -7,8 +7,17 @@ import {
   isViberMessageToken,
   parseViberWebhookBody,
 } from '@/integrations/viber/utils/webhook';
-import { processViberMessage } from '@/integrations/viber/helpers';
+import {
+  processViberMessage,
+  type IViberMediaInput,
+} from '@/integrations/viber/helpers';
+import { getViberMediaAllowedHostnames } from '@/integrations/viber/config';
 import { VIBER_INCOMING_MEDIA_MAX_BYTES } from '@/integrations/viber/constants';
+import {
+  parseViberLifecycleEvent,
+  processViberLifecycleEvent,
+  updateViberSubscription,
+} from '@/integrations/viber/events';
 
 const SUPPORTED_VIBER_MESSAGE_TYPES = [
   'text',
@@ -129,6 +138,7 @@ export const receiveViberMessage = async (
     }
 
     let text: string | undefined;
+    let media: Omit<IViberMediaInput, 'allowedHostnames'> | undefined;
 
     if (payload.message.type === 'text') {
       if (
@@ -174,6 +184,25 @@ export const receiveViberMessage = async (
 
       if (payload.message.type === 'url') {
         text = payload.message.media;
+      } else {
+        if (
+          'text' in payload.message &&
+          typeof payload.message.text !== 'string'
+        ) {
+          res.status(400).json({ error: 'Invalid Viber media caption' });
+          return;
+        }
+
+        text =
+          'text' in payload.message && typeof payload.message.text === 'string'
+            ? payload.message.text
+            : '';
+
+        media = {
+          source: payload.message.media,
+          messageType: payload.message.type,
+          fileName: `viber-${payload.message.type}`,
+        };
       }
     }
 
@@ -196,6 +225,9 @@ export const receiveViberMessage = async (
       ) {
         res.status(400).json({ error: 'Invalid Viber file name' });
         return;
+      }
+      if (media) {
+        media.fileName = payload.message.file_name;
       }
     }
 
@@ -277,12 +309,18 @@ export const receiveViberMessage = async (
     if (payload.message.type === 'sticker') {
       if (
         !('sticker_id' in payload.message) ||
-        typeof payload.message.sticker_id !== 'number' ||
-        !Number.isSafeInteger(payload.message.sticker_id)
+        !(
+          (typeof payload.message.sticker_id === 'number' &&
+            Number.isSafeInteger(payload.message.sticker_id) &&
+            payload.message.sticker_id >= 0) ||
+          (typeof payload.message.sticker_id === 'string' &&
+            /^\d{1,20}$/.test(payload.message.sticker_id))
+        )
       ) {
         res.status(400).json({ error: 'Invalid Viber sticker message' });
         return;
       }
+      text = `Viber sticker: ${payload.message.sticker_id}`;
     }
     if (text !== undefined) {
       const name =
@@ -291,12 +329,36 @@ export const receiveViberMessage = async (
           : undefined;
 
       try {
+        if ('timestamp' in payload) {
+          if (
+            typeof payload.timestamp !== 'number' ||
+            !Number.isSafeInteger(payload.timestamp) ||
+            payload.timestamp < 0
+          ) {
+            res.status(400).json({ error: 'Invalid Viber message timestamp' });
+            return;
+          }
+          await updateViberSubscription(models, {
+            inboxId: req.params.integrationId,
+            userId: payload.sender.id,
+            subscribed: true,
+            timestamp: payload.timestamp,
+          });
+        }
         await processViberMessage(subdomain, {
           inboxId: req.params.integrationId,
           userId: payload.sender.id,
           messageToken: payload.message_token,
           text,
           name,
+          ...(media
+            ? {
+                media: {
+                  ...media,
+                  allowedHostnames: getViberMediaAllowedHostnames(subdomain),
+                },
+              }
+            : {}),
         });
       } catch {
         res.status(500).json({ error: 'Failed to process Viber message' });
@@ -306,12 +368,28 @@ export const receiveViberMessage = async (
       res.sendStatus(200);
       return;
     }
-    res.status(501).json({
-      error: 'Viber message type is not implemented',
-    });
+    res.status(400).json({ error: 'Unsupported Viber message type' });
     return;
   }
-  res.status(501).json({
-    error: 'Viber event is not implemented',
-  });
+  let event: ReturnType<typeof parseViberLifecycleEvent>;
+  try {
+    event = parseViberLifecycleEvent(payload);
+  } catch {
+    res.status(400).json({ error: 'Invalid Viber lifecycle event' });
+    return;
+  }
+  try {
+    if (event)
+      await processViberLifecycleEvent(
+        models,
+        subdomain,
+        req.params.integrationId,
+        event,
+      );
+  } catch {
+    res.status(500).json({ error: 'Failed to process Viber event' });
+    return;
+  }
+  // Acknowledge future signed event types without inventing side effects.
+  res.sendStatus(200);
 };

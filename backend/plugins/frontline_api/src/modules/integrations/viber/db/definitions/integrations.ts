@@ -6,6 +6,7 @@ export const viberIntegrationSchema = new Schema({
   _id: mongooseStringRandomId,
   inboxId: { type: String, required: true, unique: true },
   botId: { type: String, required: true, unique: true },
+  name: { type: String },
   token: { type: String, required: true, select: false },
   healthStatus: {
     type: String,

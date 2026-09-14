@@ -4,6 +4,7 @@ import type { ViberHealthStatus } from '@/integrations/viber/constants';
 export interface IViberIntegration {
   inboxId: string;
   botId: string;
+  name?: string;
   token: string;
   healthStatus?: ViberHealthStatus;
   error?: string;

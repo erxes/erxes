@@ -1,4 +1,5 @@
 import { channelMutations } from '@/channel/graphql/resolvers/mutations/channel';
+import { viberMutations } from '@/integrations/viber/graphql/resolvers';
 import { conversationMutations } from '@/inbox/graphql/resolvers/mutations/conversations';
 import { integrationMutations } from '@/inbox/graphql/resolvers/mutations/integrations';
 import { cpInboxMutations } from '@/inbox/graphql/resolvers/mutations/clientPortal';
@@ -23,6 +24,7 @@ import { responseTemplateMutations } from '~/modules/response/graphql/responseTe
 import ticketMutations from '~/modules/ticket/graphql/resolvers/mutations';
 
 export const mutations = {
+  ...viberMutations,
   ...channelMutations,
   ...conversationMutations,
   ...integrationMutations,

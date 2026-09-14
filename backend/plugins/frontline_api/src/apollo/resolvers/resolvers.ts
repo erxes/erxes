@@ -1,4 +1,5 @@
 import inboxResolvers from '@/inbox/graphql/resolvers/customResolvers';
+import { viberMessageFields } from '@/integrations/viber/graphql/resolvers';
 import integrationFacebookResolvers from '@/integrations/facebook/graphql/resolvers/customResolvers';
 import integrationInstagramResolvers from '@/integrations/instagram/graphql/resolvers/customResolvers';
 import { Channel } from '@/channel/graphql/resolvers/customResolvers/channel';
@@ -20,6 +21,10 @@ export const customResolvers = {
   ...inboxResolvers,
   ...integrationFacebookResolvers,
   ...integrationInstagramResolvers,
+  ConversationMessage: {
+    ...inboxResolvers.ConversationMessage,
+    ...viberMessageFields,
+  },
   Channel,
   ChannelMember,
   Pipeline,

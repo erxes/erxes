@@ -24,8 +24,9 @@ import { formatViberText } from '@/integrations/viber/utils/content';
 import type { IAttachment } from 'erxes-api-shared/core-types';
 import { setViberWebhook } from '@/integrations/viber/utils/webhookApi';
 import { getViberWebhookUrl } from '@/integrations/viber/config';
+import { isViberDuplicateKeyError } from '@/integrations/viber/utils/errors';
 
-interface IViberMediaInput {
+export interface IViberMediaInput {
   source: string;
   fileName: string;
   messageType: ViberMediaType;
@@ -62,6 +63,7 @@ export const createViberIntegration = async (
   await models.ViberIntegrations.create({
     inboxId: integrationId,
     botId: account.id,
+    name: account.name,
     token,
   });
 };
@@ -139,6 +141,16 @@ export const removeViberIntegration = async (
   }
 
   await setViberWebhook(integration.token, '');
+
+  // Delete only this provider's mappings; native conversation retention belongs
+  // to Frontline's common removal flow. Keep credentials until cleanup succeeds.
+  const selector = { inboxId: integrationId };
+  await models.ViberOutbox.deleteMany(selector);
+  await models.ViberReceipts.deleteMany(selector);
+  await models.ViberSubscriptions.deleteMany(selector);
+  await models.ViberMessages.deleteMany(selector);
+  await models.ViberConversations.deleteMany(selector);
+  await models.ViberCustomers.deleteMany(selector);
 
   await models.ViberIntegrations.deleteOne({
     _id: integration._id,
@@ -249,12 +261,6 @@ export const getOrCreateViberCustomer = async (
 
   return contactsId;
 };
-
-const isViberDuplicateKeyError = (error: unknown): boolean =>
-  typeof error === 'object' &&
-  error !== null &&
-  'code' in error &&
-  error.code === 11000;
 
 export const getOrCreateViberConversation = async (
   subdomain: string,

@@ -49,7 +49,12 @@ const createReceiverHarness = (
   });
   const generateModels = t.mock.fn(async (subdomain: string) => {
     strictEqual(subdomain, 'test');
-    return { ViberIntegrations: { findOne } };
+    return {
+      ViberIntegrations: { findOne },
+      ViberSubscriptions: { updateOne: async () => ({ matchedCount: 1 }) },
+      ViberReceipts: { updateOne: async () => ({ matchedCount: 1 }) },
+      ViberOutbox: { findOne: async () => null },
+    };
   });
   const processMessage = t.mock.fn(
     async (subdomain: string, input: unknown) => {
@@ -85,11 +90,26 @@ const createReceiverHarness = (
     require.cache[filename] = replacement;
   };
 
-  mockModule('erxes-api-shared/utils', { getSubdomain: () => 'test' });
+  mockModule('erxes-api-shared/utils', {
+    getSubdomain: () => 'test',
+    getEnv: () => 'media.example.com',
+  });
+  mockModule('@/inbox/graphql/resolvers/mutations/widget', {
+    pConversationClientMessageInserted: async () => undefined,
+  });
   mockModule('~/connectionResolvers', { generateModels });
   mockModule('@/integrations/viber/helpers', {
     processViberMessage: processMessage,
   });
+
+  for (const specifier of [
+    '@/integrations/viber/events',
+    '@/integrations/viber/config',
+  ]) {
+    const filename = require.resolve(specifier);
+    originalModules.set(filename, require.cache[filename]);
+    delete require.cache[filename];
+  }
 
   const receiverPath = require.resolve('../receiveMessage');
   originalModules.set(receiverPath, require.cache[receiverPath]);
@@ -794,10 +814,10 @@ test('rejects invalid file sizes and one byte over 50 MiB before processing', as
   strictEqual(processMessage.mock.callCount(), 0);
 });
 
-test('returns one 501 for validated but unwired message types without processing or fetching', async (t) => {
+test('processes validated media and stickers without fetching inside the controller', async (t) => {
   const { receive, processMessage } = createReceiverHarness(t);
   const fetchMedia = t.mock.method(globalThis, 'fetch', async () => {
-    throw new Error('Unwired message types must not download media');
+    throw new Error('The controller delegates downloads to the processor');
   });
   const messages = [
     { type: 'picture', media: 'https://example.com/picture.jpg' },
@@ -816,14 +836,26 @@ test('returns one 501 for validated but unwired message types without processing
       await receive(JSON.stringify({ ...TEXT_MESSAGE, message })),
       [
         {
-          statusCode: 501,
-          body: { error: 'Viber message type is not implemented' },
+          statusCode: 200,
         },
       ],
     );
   }
 
-  strictEqual(processMessage.mock.callCount(), 0);
+  strictEqual(processMessage.mock.callCount(), 4);
+  deepStrictEqual(processMessage.mock.calls[0].arguments[1], {
+    inboxId: 'inbox-test',
+    userId: TEXT_MESSAGE.sender.id,
+    messageToken: TEXT_MESSAGE.message_token,
+    text: '',
+    name: 'Chingun',
+    media: {
+      source: 'https://example.com/picture.jpg',
+      messageType: 'picture',
+      fileName: 'viber-picture',
+      allowedHostnames: ['media.example.com'],
+    },
+  });
   strictEqual(fetchMedia.mock.callCount(), 0);
 });
 
@@ -835,7 +867,7 @@ test('validation errors still return 400 before the unimplemented-message fallba
       error: 'Invalid Viber media message',
     },
     {
-      message: { type: 'sticker', sticker_id: '46105' },
+      message: { type: 'sticker', sticker_id: 'not-an-id' },
       error: 'Invalid Viber sticker message',
     },
     {
@@ -854,7 +886,7 @@ test('validation errors still return 400 before the unimplemented-message fallba
   strictEqual(processMessage.mock.callCount(), 0);
 });
 
-test('returns one 501 for unimplemented events without message processing', async (t) => {
+test('rejects incomplete lifecycle events without message processing', async (t) => {
   const { receive, processMessage } = createReceiverHarness(t);
 
   for (const event of [
@@ -864,14 +896,16 @@ test('returns one 501 for unimplemented events without message processing', asyn
     'delivered',
     'seen',
     'failed',
-    'unknown-event',
   ]) {
     deepStrictEqual(await receive(JSON.stringify({ event })), [
-      { statusCode: 501, body: { error: 'Viber event is not implemented' } },
+      { statusCode: 400, body: { error: 'Invalid Viber lifecycle event' } },
     ]);
   }
 
   strictEqual(processMessage.mock.callCount(), 0);
+  deepStrictEqual(await receive(JSON.stringify({ event: 'unknown-event' })), [
+    { statusCode: 200 },
+  ]);
 });
 
 test('unimplemented messages and events still require a valid signature before the fallback', async (t) => {

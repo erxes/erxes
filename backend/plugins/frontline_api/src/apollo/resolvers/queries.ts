@@ -1,4 +1,5 @@
 import { channelQueries } from '@/channel/graphql/resolvers/queries/channel';
+import { viberQueries } from '@/integrations/viber/graphql/resolvers';
 import { conversationQueries } from '@/inbox/graphql/resolvers/queries/conversations';
 import { integrationQueries } from '@/inbox/graphql/resolvers/queries/integrations';
 import { cpInboxQueries } from '@/inbox/graphql/resolvers/queries/clientPortal';
@@ -23,6 +24,7 @@ import { cpPollQueries } from '~/modules/poll/graphql/resolvers/queries/clientPo
 import { responseTemplateQueries } from '~/modules/response/graphql/responseTemplateQueries';
 
 export const queries = {
+  ...viberQueries,
   ...channelQueries,
   ...conversationQueries,
   ...integrationQueries,

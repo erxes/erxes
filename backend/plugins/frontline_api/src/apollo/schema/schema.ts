@@ -1,4 +1,8 @@
-// import { TypeExtensions } from '../../modules/inbox/graphql/schemas/extensions';
+import {
+  types as ViberTypes,
+  queries as ViberQueries,
+  mutations as ViberMutations,
+} from '@/integrations/viber/graphql/schema';
 import {
   mutations as ChannelsMutations,
   queries as ChannelsQueries,
@@ -127,6 +131,7 @@ import {
 } from '~/modules/inbox/graphql/schemas/clientPortal';
 
 export const types = `
+    ${ViberTypes}
     ${ChannelsTypes}
     ${ConversationsTypes}
     ${IntegrationsTypes}
@@ -151,6 +156,7 @@ export const types = `
   `;
 
 export const queries = `
+    ${ViberQueries}
     ${ChannelsQueries}
     ${ConversationsQueries}
     ${IntegrationsQueries}
@@ -176,6 +182,7 @@ export const queries = `
   `;
 
 export const mutations = `
+   ${ViberMutations}
    ${ChannelsMutations}
    ${ConversationsMutations}
    ${IntegrationsMutations}

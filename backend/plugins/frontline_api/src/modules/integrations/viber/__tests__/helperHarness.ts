@@ -25,6 +25,8 @@ export const loadViberHelpers = (
     publisherPath,
     configPath,
     helperPath,
+    channelPath,
+    accessPath,
   ] = [
     'erxes-api-shared/utils',
     '~/connectionResolvers',
@@ -32,6 +34,8 @@ export const loadViberHelpers = (
     '@/inbox/graphql/resolvers/mutations/widget',
     '../config',
     '../helpers',
+    '@/channel/utils',
+    '../access',
   ].map((specifier) => require.resolve(specifier));
   const originalModules = new Map(
     [
@@ -41,6 +45,8 @@ export const loadViberHelpers = (
       publisherPath,
       configPath,
       helperPath,
+      channelPath,
+      accessPath,
     ].map((filename) => [filename, require.cache[filename]]),
   );
 
@@ -69,6 +75,8 @@ export const loadViberHelpers = (
   replaceModule(modelsPath, mocks.connectionResolvers);
   replaceModule(inboxPath, mocks.inboxReceiver);
   replaceModule(publisherPath, mocks.messagePublisher ?? {});
+  replaceModule(channelPath, {});
+  replaceModule(accessPath, {});
   delete require.cache[configPath];
   delete require.cache[helperPath];
 
