@@ -18,9 +18,9 @@ export const UnknownSystemNotificationContent = ({
         Unknown notification template
       </div>
       <div className=" text-accent-foreground mt-2 max-w-sm text-center">
-        {`The notification type "${
-          contentType || 'unknown'
-        }" is not recognized. This may be due to a missing template or an outdated notification format.`}
+        The notification type &quot;{contentType || 'unknown'}&quot; is not
+        recognized. This may be due to a missing template or an outdated
+        notification format.
       </div>
     </div>
   );

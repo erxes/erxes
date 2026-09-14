@@ -50,6 +50,35 @@ const NotificationContentUnavailable = () => {
   );
 };
 
+const TicketOpenButton = ({ contentTypeId }: { contentTypeId: string }) => {
+  const { t } = useTranslation('frontline');
+
+  return (
+    <Button variant="secondary" asChild>
+      <Link to={`/frontline/tickets?ticketId=${contentTypeId}`}>
+        <IconExternalLink className="size-4" />
+        {t('open-ticket', 'Open ticket')}
+      </Link>
+    </Button>
+  );
+};
+
+const TicketNotificationView = ({
+  contentTypeId,
+}: {
+  contentTypeId: string;
+}) => (
+  <div className="h-full w-full overflow-auto">
+    <TicketDetailSheet />
+    <div className="mx-auto w-full max-w-3xl p-6">
+      <div className="mb-4 flex justify-end">
+        <TicketOpenButton contentTypeId={contentTypeId} />
+      </div>
+      <TicketDetails ticketId={contentTypeId} />
+    </div>
+  </div>
+);
+
 const NotificationRemoteEntries = (props: TNotification) => {
   const { t } = useTranslation('frontline');
   const { contentTypeId, contentType } = props;
@@ -114,22 +143,7 @@ const NotificationRemoteEntries = (props: TNotification) => {
     );
   }
 
-  return (
-    <div className="h-full w-full overflow-auto">
-      <TicketDetailSheet />
-      <div className="mx-auto w-full max-w-3xl p-6">
-        <div className="mb-4 flex justify-end">
-          <Button variant="secondary" asChild>
-            <Link to={`/frontline/tickets?ticketId=${contentTypeId}`}>
-              <IconExternalLink className="size-4" />
-              {t('open-ticket', 'Open ticket')}
-            </Link>
-          </Button>
-        </div>
-        <TicketDetails ticketId={contentTypeId} />
-      </div>
-    </div>
-  );
+  return <TicketNotificationView contentTypeId={contentTypeId} />;
 };
 
 export default NotificationRemoteEntries;

@@ -1,7 +1,11 @@
 import { useGetTask } from '@/task/hooks/useGetTask';
-import { IconChecklist, IconExternalLink } from '@tabler/icons-react';
+import {
+  IconChecklist,
+  IconExternalLink,
+  IconInfoCircle,
+} from '@tabler/icons-react';
 import { format, isToday, isYesterday, parseISO } from 'date-fns';
-import { Avatar, Button, readImage, Skeleton } from 'erxes-ui';
+import { Avatar, Button, Empty, readImage, Skeleton } from 'erxes-ui';
 import { Link } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { TNotification } from 'ui-modules';
@@ -21,13 +25,39 @@ export const NotificationTaskAssignment = ({
   createdAt,
 }: TNotification) => {
   const { t } = useTranslation('operation');
-  const { task, loading } = useGetTask({
+  const { task, loading, error } = useGetTask({
     variables: { _id: contentTypeId },
     skip: !contentTypeId,
   });
 
   const isAssigned = title === 'Task Assigned';
   const action = isAssigned ? 'assigned you to' : 'changed status on';
+
+  if (!loading && !task) {
+    return (
+      <div className="flex min-h-dvh items-center justify-center p-6">
+        <Empty>
+          <Empty.Header>
+            <Empty.Media variant="icon">
+              <IconInfoCircle />
+            </Empty.Media>
+            <Empty.Title>
+              {error
+                ? t('failed-to-load-task', 'Failed to load task')
+                : t('task-not-found', 'Task not found')}
+            </Empty.Title>
+            <Empty.Description>
+              {error?.message ||
+                t(
+                  'task-no-longer-available',
+                  'This task may have been removed or is no longer available.',
+                )}
+            </Empty.Description>
+          </Empty.Header>
+        </Empty>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-4 w-full max-w-md mx-auto justify-center items-center h-full text-muted-foreground">
@@ -63,7 +93,10 @@ export const NotificationTaskAssignment = ({
             <Skeleton className="inline-block w-24 h-4 align-middle" />
           ) : (
             <span className="font-bold text-foreground">
-              {task?.name || `Task #${task?.number}`}
+              {task?.name ||
+                (task?.number != null
+                  ? `Task #${task.number}`
+                  : t('task', 'Task'))}
             </span>
           )}
         </p>
@@ -76,12 +109,14 @@ export const NotificationTaskAssignment = ({
       )}
 
       <div className="flex flex-wrap justify-center gap-2">
-        <Button variant="secondary" asChild>
-          <Link to={`/operation/tasks/${contentTypeId}`}>
-            <IconExternalLink className="size-4" />
-            {t('open-task', 'Open task')}
-          </Link>
-        </Button>
+        {task && (
+          <Button variant="secondary" asChild>
+            <Link to={`/operation/tasks/${contentTypeId}`}>
+              <IconExternalLink className="size-4" />
+              {t('open-task', 'Open task')}
+            </Link>
+          </Button>
+        )}
         {fromUserId && (
           <Button variant="secondary" asChild>
             <Link to={`/settings/team/members?user_id=${fromUserId}`}>

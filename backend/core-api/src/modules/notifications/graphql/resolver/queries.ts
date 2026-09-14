@@ -149,12 +149,12 @@ export const notificationQueries = {
     let prioritized: INotificationDocument[] = [];
 
     if (params?.ids?.length) {
-      const idsCount = params.ids.length;
-      params.limit -= idsCount;
       prioritized = await models.Notifications.find({
         _id: { $in: params.ids },
+        ...generateActiveNotificationsFilter(),
         userId: user._id,
       });
+      params.limit = Math.max(1, (params.limit ?? 20) - prioritized.length);
     }
 
     const { list, totalCount, pageInfo } =
@@ -173,7 +173,7 @@ export const notificationQueries = {
 
     return {
       list: [...prioritized, ...list],
-      totalCount: totalCount + (params?.ids?.length || 0),
+      totalCount: totalCount + prioritized.length,
       pageInfo,
     };
   },

@@ -1,7 +1,11 @@
 import { useGetProject } from '@/project/hooks/useGetProject';
-import { IconClipboard, IconExternalLink } from '@tabler/icons-react';
+import {
+  IconClipboard,
+  IconExternalLink,
+  IconInfoCircle,
+} from '@tabler/icons-react';
 import { format, isToday, isYesterday, parseISO } from 'date-fns';
-import { Avatar, Button, readImage, Skeleton } from 'erxes-ui';
+import { Avatar, Button, Empty, readImage, Skeleton } from 'erxes-ui';
 import { Link } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { TNotification } from 'ui-modules';
@@ -21,13 +25,39 @@ export const NotificationProjectAssignment = ({
   createdAt,
 }: TNotification) => {
   const { t } = useTranslation('operation');
-  const { project, loading } = useGetProject({
+  const { project, loading, error } = useGetProject({
     variables: { _id: contentTypeId },
     skip: !contentTypeId,
   });
 
   const isAssigned = title === 'Project Assigned';
   const action = isAssigned ? t('assigned-you-to') : t('changed-status-on');
+
+  if (!loading && !project) {
+    return (
+      <div className="flex min-h-dvh items-center justify-center p-6">
+        <Empty>
+          <Empty.Header>
+            <Empty.Media variant="icon">
+              <IconInfoCircle />
+            </Empty.Media>
+            <Empty.Title>
+              {error
+                ? t('failed-to-load-project', 'Failed to load project')
+                : t('project-not-found', 'Project not found')}
+            </Empty.Title>
+            <Empty.Description>
+              {error?.message ||
+                t(
+                  'project-no-longer-available',
+                  'This project may have been removed or is no longer available.',
+                )}
+            </Empty.Description>
+          </Empty.Header>
+        </Empty>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-4 w-full max-w-md mx-auto justify-center items-center h-full text-muted-foreground">
@@ -76,12 +106,14 @@ export const NotificationProjectAssignment = ({
       )}
 
       <div className="flex flex-wrap justify-center gap-2">
-        <Button variant="secondary" asChild>
-          <Link to={`/operation/projects/${contentTypeId}/overview`}>
-            <IconExternalLink className="size-4" />
-            {t('open-project', 'Open project')}
-          </Link>
-        </Button>
+        {project && (
+          <Button variant="secondary" asChild>
+            <Link to={`/operation/projects/${contentTypeId}/overview`}>
+              <IconExternalLink className="size-4" />
+              {t('open-project', 'Open project')}
+            </Link>
+          </Button>
+        )}
         {fromUserId && (
           <Button variant="secondary" asChild>
             <Link to={`/settings/team/members?user_id=${fromUserId}`}>
