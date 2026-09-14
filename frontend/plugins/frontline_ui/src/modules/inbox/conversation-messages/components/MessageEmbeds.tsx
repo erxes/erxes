@@ -1,19 +1,7 @@
 import { cn } from 'erxes-ui';
 import { IconPlayerPlayFilled } from '@tabler/icons-react';
 import { IMessageEmbed } from '@/inbox/types/Conversation';
-
-// erxes runs on Vite, not Next.js, so next/image (JS-W1015) doesn't apply here.
-// This thin wrapper localizes the single suppression instead of repeating it at
-// every embed image. `alt` is required (unlike the base img attributes, where
-// it's optional) and destructured onto its own literal attribute so both the
-// type and every caller are held to actually providing one.
-const Img = ({
-  alt,
-  ...props
-}: JSX.IntrinsicElements['img'] & { alt: string }) => (
-  // skipcq: JS-W1015
-  <img alt={alt} {...props} />
-);
+import { InboxImage as Img } from '@/inbox/conversation-messages/components/InboxImage';
 
 // Discord embed media (image/thumbnail/video) carry absolute Discord/Tenor CDN
 // URLs, so they're used as-is (not run through `readImage`, which is for erxes
