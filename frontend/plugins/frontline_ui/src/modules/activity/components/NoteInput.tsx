@@ -1,13 +1,3 @@
-import { useCreateTicketNote } from '@/activity/hooks/useCreateTicketNote';
-import { useNoteAttachments } from '@/activity/hooks/useNoteAttachments';
-import { useNoteTemplateSuggestions } from '@/activity/hooks/useNoteTemplateSuggestions';
-import { trimEmptyBlocks } from '@/activity/utils/noteBlocks';
-import type { Block } from '@blocknote/core';
-import { NoteAttachments } from '@/activity/components/NoteAttachments';
-import { NoteInputToolbar } from '@/activity/components/NoteInputToolbar';
-import { useGetChannels } from '@/channels/hooks/useGetChannels';
-import { ResponseTemplateDropdown } from '@/inbox/conversations/conversation-detail/components/ResponseTemplateDropdown';
-import { TicketHotKeyScope } from '@/ticket/types/ticketHotkeyScope';
 import {
   BlockEditor,
   cn,
@@ -18,12 +8,25 @@ import {
   useScopedHotkeys,
 } from 'erxes-ui';
 import { useEffect, useRef, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+
 import { AssignMemberInEditor } from 'ui-modules';
+import type { Block } from '@blocknote/core';
+import { NoteAttachments } from '@/activity/components/NoteAttachments';
+import { NoteInputToolbar } from '@/activity/components/NoteInputToolbar';
+import { ResponseTemplateDropdown } from '@/inbox/conversations/conversation-detail/components/ResponseTemplateDropdown';
+import { TicketHotKeyScope } from '@/ticket/types/ticketHotkeyScope';
+import { trimEmptyBlocks } from '@/activity/utils/noteBlocks';
+import { useCreateTicketNote } from '@/activity/hooks/useCreateTicketNote';
+import { useGetChannels } from '@/channels/hooks/useGetChannels';
+import { useNoteAttachments } from '@/activity/hooks/useNoteAttachments';
+import { useNoteTemplateSuggestions } from '@/activity/hooks/useNoteTemplateSuggestions';
+import { useTranslation } from 'react-i18next';
 
 export const NoteInput = ({ contentId }: { contentId: string }) => {
   const { t } = useTranslation('frontline');
-  const editor = useBlockEditor({ placeholder: t('leave-a-note') });
+  const editor = useBlockEditor({
+    placeholder: t('leave-a-note', 'Leave a note...'),
+  });
   const { createTicketNote, loading } = useCreateTicketNote();
   const [isInternalNote, setIsInternalNote] = useState(true);
   const {

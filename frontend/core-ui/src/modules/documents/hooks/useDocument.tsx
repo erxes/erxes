@@ -17,6 +17,7 @@ export const useDocument = () => {
     GET_DOCUMENT_DETAIL,
     {
       notifyOnNetworkStatusChange: true,
+      fetchPolicy: 'network-only',
       variables: {
         _id: cleanDocumentId,
       },

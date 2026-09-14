@@ -164,14 +164,16 @@ export const FormFieldDetail = ({
         <ScrollArea className="h-full">
           <div className="grid grid-cols-2 gap-4 p-6">
             <div className="space-y-2 col-span-2">
-              <Label>{t('field-label')}</Label>
+              <Label>{t('field-label', 'Label')}</Label>
               <Input
                 value={fieldData?.label}
                 onChange={(e) => handleValueChange('label', e.target.value)}
               />
             </div>
             <div className="space-y-2 col-span-2 flex gap-2 items-center">
-              <Label className="flex items-center m-0!">{t('required')}</Label>
+              <Label className="flex items-center m-0!">
+                {t('required', 'Required')}
+              </Label>
               <Checkbox
                 checked={fieldData?.required}
                 onCheckedChange={(checked) =>
@@ -180,7 +182,7 @@ export const FormFieldDetail = ({
               />
             </div>
             <div className="space-y-2 col-span-2">
-              <Label>{t('description')}</Label>
+              <Label>{t('description', 'Description')}</Label>
               <BlockEditor
                 editor={editor}
                 variant="outline"
@@ -195,7 +197,7 @@ export const FormFieldDetail = ({
               />
             </div>
             <div className="space-y-2 col-span-2">
-              <Label>{t('field-width')}</Label>
+              <Label>{t('field-width', 'Field Width')}</Label>
               <ToggleGroup
                 type="single"
                 variant="outline"
@@ -205,15 +207,17 @@ export const FormFieldDetail = ({
                 }
               >
                 <ToggleGroup.Item value="1" className="flex-1">
-                  {t('half-width')}
+                  {t('half-width', 'Half width')}
                 </ToggleGroup.Item>
                 <ToggleGroup.Item value="2" className="flex-1">
-                  {t('full-width')}
+                  {t('full-width', 'Full width')}
                 </ToggleGroup.Item>
               </ToggleGroup>
             </div>
             <div className="space-y-2 col-span-2">
-              <Label>{t('placeholder-attribute')}</Label>
+              <Label>
+                {t('placeholder-attribute', 'Placeholder Attribute')}
+              </Label>
               <Input
                 value={fieldData?.placeholder}
                 onChange={(e) =>
@@ -224,7 +228,7 @@ export const FormFieldDetail = ({
             {/* Validator Configuration */}
             {fieldData.type?.startsWith('core:customer') ? null : (
               <div className="space-y-3 col-span-2">
-                <Label>{t('validation')}</Label>
+                <Label>{t('validation', 'Validation')}</Label>
                 <ToggleGroup
                   type="single"
                   variant="outline"
@@ -237,13 +241,13 @@ export const FormFieldDetail = ({
                   }}
                 >
                   <ToggleGroup.Item value="NONE" className="flex-1">
-                    {t('none')}
+                    {t('none', 'None')}
                   </ToggleGroup.Item>
                   <ToggleGroup.Item value="PRESET" className="flex-1">
-                    {t('preset')}
+                    {t('preset', 'Preset')}
                   </ToggleGroup.Item>
                   <ToggleGroup.Item value="CUSTOM" className="flex-1">
-                    {t('custom')}
+                    {t('custom', 'Custom')}
                   </ToggleGroup.Item>
                 </ToggleGroup>
 
@@ -257,7 +261,12 @@ export const FormFieldDetail = ({
                     }
                   >
                     <Select.Trigger>
-                      <Select.Value placeholder={t('select-preset-rule')} />
+                      <Select.Value
+                        placeholder={t(
+                          'select-preset-rule',
+                          'Select a preset rule',
+                        )}
+                      />
                     </Select.Trigger>
                     <Select.Content>
                       {VALIDATOR_PRESET_OPTIONS.map((opt) => (
@@ -275,7 +284,10 @@ export const FormFieldDetail = ({
                     onChange={(e) =>
                       handleChangeValidator({ customRegex: e.target.value })
                     }
-                    placeholder={t('regex-pattern-placeholder')}
+                    placeholder={t(
+                      'regex-pattern-placeholder',
+                      'Regex pattern (e.g. ^[A-Z]{3}\\d{4}$)',
+                    )}
                     spellCheck={false}
                   />
                 )}
@@ -287,7 +299,10 @@ export const FormFieldDetail = ({
                       onChange={(e) =>
                         handleChangeValidator({ errorMessage: e.target.value })
                       }
-                      placeholder={t('error-message-placeholder')}
+                      placeholder={t(
+                        'error-message-placeholder',
+                        'Error message shown to the user',
+                      )}
                     />
                   )}
               </div>
@@ -297,7 +312,7 @@ export const FormFieldDetail = ({
               fieldData?.type === 'select:countries') && (
               <div className="space-y-2 col-span-2 flex gap-2 items-center">
                 <Label htmlFor="allowSearch" className="flex items-center m-0!">
-                  {t('allow-search')}
+                  {t('allow-search', 'Allow search')}
                 </Label>
                 <Checkbox
                   id="allowSearch"
@@ -316,7 +331,10 @@ export const FormFieldDetail = ({
                       />
                     </Tooltip.Trigger>
                     <Tooltip.Content>
-                      {t('enables-search-in-options')}
+                      {t(
+                        'enables-search-in-options',
+                        'Enables searching within options',
+                      )}
                     </Tooltip.Content>
                   </Tooltip>
                 </Tooltip.Provider>
@@ -328,7 +346,7 @@ export const FormFieldDetail = ({
               fieldData?.type === 'check' ||
               fieldData?.type === 'core:customer:sex') && (
               <div className="space-y-2 col-span-2">
-                <Label>{t('options')}</Label>
+                <Label>{t('options', 'Options')}</Label>
                 <StringArrayInput
                   styleClasses={{
                     inlineTagsContainer: 'shadow-xs',
@@ -340,7 +358,7 @@ export const FormFieldDetail = ({
               </div>
             )}
             <div className="space-y-2 col-span-2">
-              <Label>{t('field-logic-action')}</Label>
+              <Label>{t('field-logic-action', 'Field Logic action')}</Label>
               <Select
                 value={fieldData?.logicAction}
                 onValueChange={(value) =>
@@ -348,21 +366,30 @@ export const FormFieldDetail = ({
                 }
               >
                 <Select.Trigger>
-                  <Select.Value placeholder={t('select-logic-action')} />
+                  <Select.Value
+                    placeholder={t(
+                      'select-logic-action',
+                      'Select logic action',
+                    )}
+                  />
                 </Select.Trigger>
                 <Select.Content>
-                  <Select.Item value="show">{t('show-this-field')}</Select.Item>
-                  <Select.Item value="hide">{t('hide-this-field')}</Select.Item>
+                  <Select.Item value="show">
+                    {t('show-this-field', 'Show this field')}
+                  </Select.Item>
+                  <Select.Item value="hide">
+                    {t('hide-this-field', 'Hide this field')}
+                  </Select.Item>
                 </Select.Content>
               </Select>
             </div>
             {/* Logics */}
             <div className="space-y-2 col-span-2">
               <div className="flex items-center justify-between">
-                <Label>{t('field-logics')}</Label>
+                <Label>{t('field-logics', 'Field Logics')}</Label>
                 <Button variant="outline" size="sm" onClick={handleAddLogic}>
                   <IconPlus size={14} />
-                  {t('add-logic')}
+                  {t('add-logic', 'Add Logic')}
                 </Button>
               </div>
               <div className="space-y-2">
@@ -383,7 +410,9 @@ export const FormFieldDetail = ({
                         }
                       >
                         <Select.Trigger className="col-span-1">
-                          <Select.Value placeholder={t('select-field')} />
+                          <Select.Value
+                            placeholder={t('select-field', 'Select field')}
+                          />
                         </Select.Trigger>
                         <Select.Content>
                           {availableFields.map((f) => (
@@ -400,7 +429,9 @@ export const FormFieldDetail = ({
                         }
                       >
                         <Select.Trigger className="col-span-1">
-                          <Select.Value placeholder={t('operator')} />
+                          <Select.Value
+                            placeholder={t('operator', 'Operator')}
+                          />
                         </Select.Trigger>
                         <Select.Content>
                           {operators.map((op) => (
@@ -416,7 +447,7 @@ export const FormFieldDetail = ({
                         onChange={(e) =>
                           handleChangeLogic(index, 'logicValue', e.target.value)
                         }
-                        placeholder={t('value')}
+                        placeholder={t('value', 'Value')}
                       />
                       <Button
                         variant="ghost"
@@ -441,10 +472,10 @@ export const FormFieldDetail = ({
           onClick={handleDelete}
         >
           <IconTrash />
-          {t('delete')}
+          {t('delete', 'Delete')}
         </Button>
         <Button variant="outline" onClick={handleClose}>
-          {t('close')}
+          {t('close', 'Close')}
         </Button>
       </Sheet.Footer>
     </div>

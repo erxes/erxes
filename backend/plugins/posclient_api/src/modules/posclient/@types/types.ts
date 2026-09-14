@@ -43,6 +43,12 @@ export interface IOrderItemInput {
   status?: string;
   discountPercent?: number;
   discountAmount?: number;
+  discountInfos?: Array<{
+    type: string;
+    title?: string;
+    amount?: number;
+    percent?: number;
+  }>;
   bonusCount?: number;
   bonusVoucherId?: string;
   manufacturedDate?: string; // Unix epoch number

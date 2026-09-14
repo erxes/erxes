@@ -22,9 +22,9 @@ export const ProgressChart = ({ customerId }: IProgressChartProps) => {
   const statusColors = CONVERSATION_STATUS_COLORS;
 
   const chartConfig = {
-    new: { label: t('new-label'), color: statusColors.new },
-    open: { label: t('open-label'), color: statusColors.open },
-    closed: { label: t('closed-label'), color: statusColors.closed },
+    new: { label: t('new-label', 'New'), color: statusColors.new },
+    open: { label: t('open-label', 'Open'), color: statusColors.open },
+    closed: { label: t('closed-label', 'Closed'), color: statusColors.closed },
   };
 
   const todayEnd = endOfDay(new Date());

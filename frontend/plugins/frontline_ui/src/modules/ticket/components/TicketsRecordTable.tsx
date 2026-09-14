@@ -73,7 +73,9 @@ export const TicketsRecordTable = () => {
             <Empty.Media variant="icon">
               <IconTicket />
             </Empty.Media>
-            <Empty.Title>{t('no-tickets-found')}</Empty.Title>
+            <Empty.Title>
+              {t('no-tickets-found', 'No tickets found')}
+            </Empty.Title>
           </Empty.Header>
         </Empty>
       )}

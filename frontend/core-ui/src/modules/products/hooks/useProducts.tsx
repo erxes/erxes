@@ -30,6 +30,7 @@ type ProductsQueryVariables = {
   brandIds?: string[];
   tagIds?: string[];
   segment?: string;
+  segmentIds?: string[];
   propertiesData?: string;
 
   sortField?: string;
@@ -48,7 +49,7 @@ export const useProductsVariables = (
       vendorId,
       brandIds,
       tags,
-      segment,
+      segments,
       propertiesData,
       sortField,
       sortDirection,
@@ -61,7 +62,7 @@ export const useProductsVariables = (
     vendorId: string;
     brandIds: string[];
     tags: string[]; // stored in URL as "tags"
-    segment: string;
+    segments: string[];
     propertiesData: string;
     sortField: string;
     sortDirection: string; // stored in URL as string (ex: "-1")
@@ -73,7 +74,7 @@ export const useProductsVariables = (
     'vendorId',
     'brandIds',
     'tags',
-    'segment',
+    'segments',
     'propertiesData',
     'sortField',
     'sortDirection',
@@ -103,7 +104,7 @@ export const useProductsVariables = (
     // URL key is "tags", GraphQL expects "tagIds"
     tagIds: tags?.length ? tags : undefined,
 
-    segment: segment || undefined,
+    segmentIds: segments?.length ? segments : undefined,
     propertiesData: propertiesData || undefined,
 
     // sorting defaults

@@ -1,30 +1,31 @@
 import {
-  useGetResponses,
-  RESPONSES_PER_PAGE,
-} from '@/responseTemplate/hooks/useGetResponses';
-import {
-  Popover,
-  Skeleton,
   Button,
   Command,
-  cn,
   EnumCursorDirection,
+  Popover,
+  Skeleton,
+  cn,
 } from 'erxes-ui';
-import { useState, ReactNode, useRef, useEffect } from 'react';
-import { useDebounce } from 'use-debounce';
 import {
+  IconFilter,
   IconLayoutGrid,
   IconList,
-  IconFilter,
   IconX,
 } from '@tabler/icons-react';
-import { useGetChannels } from '@/channels/hooks/useGetChannels';
-import { getPreviewText } from '@/inbox/types/inbox';
-import type { TViewMode as ViewMode } from '../types';
+import {
+  RESPONSES_PER_PAGE,
+  useGetResponses,
+} from '@/responseTemplate/hooks/useGetResponses';
+import { ReactNode, useEffect, useRef, useState } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
-import { responseListViewAtom } from '../states/responseTemplate';
-import { SelectChannel } from '@/inbox/channel/components/SelectChannel';
+
 import { ChannelsInline } from '@/inbox/channel/components/ChannelsInline';
+import { SelectChannel } from '@/inbox/channel/components/SelectChannel';
+import type { TViewMode as ViewMode } from '../types';
+import { getPreviewText } from '@/inbox/types/inbox';
+import { responseListViewAtom } from '../states/responseTemplate';
+import { useDebounce } from 'use-debounce';
+import { useGetChannels } from '@/channels/hooks/useGetChannels';
 import { useTranslation } from 'react-i18next';
 
 interface ResponseTemplate {
@@ -49,10 +50,6 @@ const ViewModeIcon = (): JSX.Element => {
     default:
       return <IconList size={16} />;
   }
-};
-
-const getViewModeTitle = (viewMode: ViewMode): string => {
-  return `Switch to ${viewMode === 'grid' ? 'list' : 'grid'} view`;
 };
 
 const TemplateListSkeleton = (): JSX.Element => (
@@ -160,7 +157,9 @@ export const ResponseTemplateSelector: React.FC<
       <Popover.Content className="w-full max-w-md min-w-sm p-4 shadow-xl border">
         <div className="space-y-4">
           <div className="flex items-center justify-between border-b pb-2">
-            <h3 className="font-semibold text-sm">{t('response-templates')}</h3>
+            <h3 className="font-semibold text-sm">
+              {t('response-templates', 'Response templates')}
+            </h3>
             <div className="flex items-center space-x-2">
               <Button
                 onClick={toggleViewMode}
@@ -169,8 +168,8 @@ export const ResponseTemplateSelector: React.FC<
                 className="h-8 w-8 rounded hover:bg-muted"
                 title={
                   viewMode === 'grid'
-                    ? t('switch-to-list-view')
-                    : t('switch-to-grid-view')
+                    ? t('switch-to-list-view', 'Switch to list view')
+                    : t('switch-to-grid-view', 'Switch to grid view')
                 }
               >
                 <ViewModeIcon />
@@ -206,7 +205,7 @@ export const ResponseTemplateSelector: React.FC<
             <Command.Input
               variant="secondary"
               focusOnMount
-              placeholder={t('search-templates')}
+              placeholder={t('search-templates', 'Search templates...')}
               value={search}
               onValueChange={setSearch}
             />
@@ -280,7 +279,7 @@ export const ResponseTemplateSelector: React.FC<
                           })
                         }
                       >
-                        {t('load-more')}
+                        {t('load-more', 'Load more')}
                       </Button>
                     </div>
                   )}

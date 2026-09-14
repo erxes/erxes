@@ -193,64 +193,47 @@ export const transactionSchema = schemaWrapper(
 transactionSchema.index({ originId: 1, originType: 1, originSubId: 1 });
 transactionSchema.index({ contentType: 1, contentId: 1 });
 transactionSchema.index({ date: 1, number: 1 });
+transactionSchema.index({ date: 1, ptrNumber: -1, ptrId: -1, _id: -1 });
+transactionSchema.index({ ptrNumber: -1, ptrId: -1, _id: -1 });
 transactionSchema.index(
-  { date: 1, status: 1, ptrNumber: -1, ptrId: -1, _id: -1 },
-  { name: 'date_status_ptr_number_cursor' },
+  { journal: 1, ptrNumber: -1, ptrId: -1, _id: -1, date: 1 },
+);
+transactionSchema.index(
+  { 'details.accountId': 1, ptrNumber: -1, ptrId: -1, _id: -1, date: 1 },
 );
 transactionSchema.index(
   {
+    journal: 1,
+    'details.accountId': 1,
+    ptrNumber: -1,
+    ptrId: -1,
+    _id: -1,
     date: 1,
-    'details.accountId': 1,
-    status: 1,
-    ptrNumber: -1,
-    ptrId: -1,
-    _id: -1,
   },
-  { name: 'date_detail_account_status_ptr_number_cursor' },
-);
-transactionSchema.index(
-  { status: 1, ptrNumber: -1, ptrId: -1, _id: -1 },
-  { name: 'status_ptr_number_cursor' },
-);
-transactionSchema.index(
-  { status: 1, createdBy: 1, ptrNumber: -1, ptrId: -1, _id: -1 },
-  { name: 'status_created_ptr_number_cursor' },
-);
-transactionSchema.index(
-  { status: 1, mentionOwnerId: 1, ptrNumber: -1, ptrId: -1, _id: -1 },
-  { name: 'status_mention_owner_ptr_number_cursor' },
-);
-transactionSchema.index(
-  { status: 1, mentionUserIds: 1, ptrNumber: -1, ptrId: -1, _id: -1 },
-  { name: 'status_mention_user_ptr_number_cursor' },
-);
-transactionSchema.index(
-  { 'details.accountId': 1, status: 1, ptrNumber: -1, ptrId: -1, _id: -1 },
-  { name: 'detail_account_status_ptr_number_cursor' },
 );
 transactionSchema.index(
   {
+    journal: 1,
     'details.accountId': 1,
-    status: 1,
-    createdBy: 1,
+    date: 1,
     ptrNumber: -1,
     ptrId: -1,
-    _id: -1,
   },
-  { name: 'detail_account_status_created_ptr_number_cursor' },
 );
 transactionSchema.index(
-  {
-    'details.accountId': 1,
-    status: 1,
-    mentionOwnerId: 1,
-    ptrNumber: -1,
-    ptrId: -1,
-    _id: -1,
-  },
-  { name: 'detail_account_status_mention_owner_ptr_number_cursor' },
+  { journal: 1, status: 1, date: 1, number: 1, ptrId: 1 },
+);
+transactionSchema.index(
+  { 'details.accountId': 1, date: 1, journal: 1 },
+);
+transactionSchema.index(
+  { 'details.productId': 1, date: 1, journal: 1 },
+);
+transactionSchema.index(
+  { 'details.branchId': 1, 'details.departmentId': 1, date: 1 },
 );
 transactionSchema.index({ 'details.fixedAssetId': 1 });
+transactionSchema.index({ 'details.fixedAssetId': 1, date: 1, journal: 1 });
 transactionSchema.index({ 'details.fixedAssetCategoryId': 1 });
 
 export const transactionCounterSchema = schemaWrapper(

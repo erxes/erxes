@@ -1,6 +1,7 @@
 import { IconChevronDown, IconMessageCircle } from '@tabler/icons-react';
 import { cn } from 'erxes-ui';
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { IConversation } from '@/inbox/types/Conversation';
 import { DiscordConversationChannel } from '@/integrations/discord/hooks/useDiscordSetup';
 
@@ -58,6 +59,7 @@ const ThreadsSubsection = ({
   threadMap: ThreadMap;
   renderItem: RenderItem;
 }) => {
+  const { t } = useTranslation('frontline');
   const [open, setOpen] = useState(true);
 
   const byThread = useMemo(() => {
@@ -81,7 +83,7 @@ const ThreadsSubsection = ({
         <IconChevronDown
           className={cn('size-3 transition-transform', !open && '-rotate-90')}
         />
-        Threads
+        {t('threads', 'Threads')}
         <span className="ml-auto tabular-nums">{conversations.length}</span>
       </button>
       {open &&
@@ -89,7 +91,10 @@ const ThreadsSubsection = ({
           <div key={name}>
             <div className="flex items-center gap-1 px-3 pl-4 py-0.5 text-xs text-muted-foreground">
               <IconMessageCircle className="size-3 shrink-0" />
-              <span className="truncate" title={`Thread: ${name}`}>
+              <span
+                className="truncate"
+                title={`${t('thread', 'Thread')}: ${name}`}
+              >
                 {name}
               </span>
             </div>

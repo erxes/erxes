@@ -1,4 +1,5 @@
 import { reserveSendSlot } from '@/integrations/facebook/commentGuard';
+import { generateAttachmentUrl } from '@/integrations/facebook/commonUtils';
 import { debugError } from '@/integrations/facebook/debuggers';
 import { isSendThrottledError } from '@/integrations/facebook/errors';
 import { sendReply } from '@/integrations/facebook/utils';
@@ -8,6 +9,14 @@ import { randomUUID } from 'node:crypto';
 import { IModels } from '~/connectionResolvers';
 
 export const FACEBOOK_COMMENT_OUTBOX_QUEUE = 'facebookCommentOutbox';
+
+/**
+ * A reply that has waited this long has outlived the comment it answers, and
+ * keeping it queued would let a permanently blocked page grow an unbounded
+ * backlog. Measured enforcement windows ran 2 to 8.4 hours, so a day of
+ * patience clears every one of them with room to spare.
+ */
+const MAX_QUEUE_AGE_MS = 24 * 3600e3;
 
 type TQueueReplyInput = {
   executionId: string;
@@ -45,14 +54,17 @@ export const queueCommentReply = async (
     sendAfter: new Date(Date.now() + delay),
   });
 
-  await sendWorkerQueue('frontline', FACEBOOK_COMMENT_OUTBOX_QUEUE).add(
-    'sendCommentReply',
-    { subdomain, outboxId: outbox._id },
-    { delay, removeOnComplete: true, removeOnFail: 50 },
-  );
+  await scheduleSend(subdomain, outbox._id, delay);
 
   return { jobId, delay };
 };
+
+const scheduleSend = (subdomain: string, outboxId: string, delay: number) =>
+  sendWorkerQueue('frontline', FACEBOOK_COMMENT_OUTBOX_QUEUE).add(
+    'sendCommentReply',
+    { subdomain, outboxId },
+    { delay, removeOnComplete: true, removeOnFail: 50 },
+  );
 
 /**
  * Sends one queued reply and reports the deferred action back. A refusal opens
@@ -73,20 +85,37 @@ export const drainCommentReply = async (
     return;
   }
 
-  const blocked = await models.FacebookBots.getSendBlock(outbox.pageId);
+  const age = Date.now() - new Date(outbox.createdAt).getTime();
 
-  if (blocked) {
+  if (age > MAX_QUEUE_AGE_MS) {
     await models.FacebookCommentOutbox.markFailed(
       outbox._id,
-      `Public replies paused until ${blocked.until.toISOString()}`,
+      'Gave up after a day of waiting for public replies to reopen',
     );
 
     return completion(subdomain, outbox, 'error', {
       status: 'skipped',
-      reason: 'send-blocked',
-      blockedUntil: blocked.until,
-      blockReason: blocked.reason,
+      reason: 'queue-expired',
     });
+  }
+
+  const blocked = await models.FacebookBots.getSendBlock(outbox.pageId);
+
+  if (blocked) {
+    // The window lifts on its own and the reply is still worth sending, so it
+    // waits rather than being buried. A fresh pacing slot is taken on top of
+    // the wait: without one the whole backlog would wake at the same instant
+    // and repeat the burst that got the page blocked.
+    const wait = Math.max(blocked.until.getTime() - Date.now(), 0);
+    const slot = await reserveSendSlot(models, subdomain, outbox.pageId);
+    const delay = wait + slot;
+
+    await models.FacebookCommentOutbox.markRequeued(
+      outbox._id,
+      new Date(Date.now() + delay),
+    );
+
+    return scheduleSend(subdomain, outbox._id, delay);
   }
 
   // The mention tags the commenter publicly under the post, so it goes out
@@ -99,7 +128,9 @@ export const drainCommentReply = async (
   const [attachment] = outbox.attachments || [];
 
   if (attachment?.url) {
-    data.attachment_url = attachment.url;
+    // The form stores the upload's key, and Facebook fetches the image itself,
+    // so it has to be handed a reachable address.
+    data.attachment_url = generateAttachmentUrl(subdomain, attachment.url);
   }
 
   try {
@@ -130,8 +161,23 @@ export const drainCommentReply = async (
   } catch (error) {
     debugError(error.message);
 
-    if (isSendThrottledError(error)) {
-      await models.FacebookBots.openSendBreaker(outbox.pageId, error.message);
+    const opened = isSendThrottledError(error)
+      ? await models.FacebookBots.openSendBreaker(outbox.pageId, error.message)
+      : null;
+
+    if (opened) {
+      // This reply is the one Facebook refused, so it waits out the window it
+      // just opened rather than being the single send thrown away.
+      const wait = Math.max(opened.until.getTime() - Date.now(), 0);
+      const slot = await reserveSendSlot(models, subdomain, outbox.pageId);
+      const delay = wait + slot;
+
+      await models.FacebookCommentOutbox.markRequeued(
+        outbox._id,
+        new Date(Date.now() + delay),
+      );
+
+      return scheduleSend(subdomain, outbox._id, delay);
     }
 
     await models.FacebookCommentOutbox.markFailed(outbox._id, error.message);

@@ -17,8 +17,11 @@ export const Attribution = ({ config, value, onChange }: Props) => {
   const handleSelect = (val: string) => {
     if (val.startsWith(' ')) {
       toast({
-        title: t('error'),
-        description: t('attribution-no-leading-space'),
+        title: t('error', 'Error'),
+        description: t(
+          'attribution-no-leading-space',
+          "Please make sure the attribution doesn't start with a space",
+        ),
         variant: 'destructive',
       });
       return;
@@ -35,7 +38,7 @@ export const Attribution = ({ config, value, onChange }: Props) => {
     <Popover open={open} onOpenChange={setOpen}>
       <Popover.Trigger asChild>
         <Button
-          aria-label={t('insert-attribute')}
+          aria-label={t('insert-attribute', 'Insert attribute')}
           className="size-8 flex-none"
           size="icon"
           type="button"

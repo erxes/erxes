@@ -29,7 +29,9 @@ const CreateConfigSheetForm = ({
         className="flex flex-col gap-0 size-full box-border overflow-hidden"
       >
         <Sheet.Header>
-          <Sheet.Title>{t('new-configuration')}</Sheet.Title>
+          <Sheet.Title>
+            {t('new-configuration', 'New Configuration')}
+          </Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="flex-1 w-full flex flex-col px-5 py-4 space-y-4 overflow-y-auto hide-scroll styled-scroll">
@@ -37,10 +39,10 @@ const CreateConfigSheetForm = ({
         </Sheet.Content>
         <Sheet.Footer className="shrink-0">
           <Button variant="ghost" onClick={onCancel}>
-            {t('cancel')}
+            {t('cancel', 'Cancel')}
           </Button>
           <Button type="submit" disabled={loading}>
-            {loading ? <Spinner /> : t('add')}
+            {loading ? <Spinner /> : t('add', 'Add')}
           </Button>
         </Sheet.Footer>
       </form>
@@ -64,8 +66,11 @@ export const CreateConfig = () => {
         },
         onCompleted: () => {
           toast({
-            title: t('success'),
-            description: t('tickets-config-saved-successfully'),
+            title: t('success', 'Success!'),
+            description: t(
+              'tickets-config-saved-successfully',
+              'Tickets config saved successfully',
+            ),
             variant: 'success',
           });
           reset();
@@ -73,7 +78,7 @@ export const CreateConfig = () => {
         },
         onError: (error) => {
           toast({
-            title: t('error'),
+            title: t('error', 'Error'),
             description: error.message,
             variant: 'destructive',
           });

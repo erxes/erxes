@@ -9,7 +9,10 @@ import { useTranslation } from 'react-i18next';
 
 const InboxIndexPage = () => {
   const { t } = useTranslation('frontline');
-  const favoriteBreadcrumb = createFavoriteBreadcrumb('Frontline', t('inbox'));
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(
+    'Frontline',
+    t('inbox', 'Inbox'),
+  );
 
   return (
     <div className="flex flex-col h-dvh">
@@ -21,7 +24,7 @@ const InboxIndexPage = () => {
                 <Button variant="ghost" asChild>
                   <Link to="/frontline/inbox">
                     <IconMail />
-                    {t('inbox')}
+                    {t('inbox', 'Inbox')}
                   </Link>
                 </Button>
               </Breadcrumb.Item>

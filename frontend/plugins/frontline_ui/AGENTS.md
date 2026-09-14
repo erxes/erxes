@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-09-10`
+- **Last synchronized:** `2026-09-15`
 
 ## Scope
 
@@ -73,6 +73,11 @@
 
 ## Current Capabilities
 
+- The call widget's dialpad header carries a clear-cache icon button next to
+  Pause and Turn off. After a confirm it closes the widget, resets the call
+  atoms persisted in `localStorage` (`config:call_integrations`, `callInfo`,
+  `callHistoryId`, `callWidgetPosition`) and reopens the call config picker,
+  which unmounts `SipProvider` and stops the SIP user agent.
 - Surveys are split across two routes, mirroring how forms are laid out.
   `settings/frontline/channels/:id/surveys` manages the channel's surveys: the
   settings breadcrumb resolves to `Channels / <channel> / Surveys` and carries the
@@ -227,6 +232,10 @@
 - The Facebook comment reply action holds a set of reply variants and one is
   picked at random per comment; a single variant is warned about, because Meta's
   Spam policy restricts pages "posting repetitive content" regardless of rate.
+  Public replies are paced through an outbox so a page sends at most a set
+  number a minute, and paused on the bot for hours after Facebook refuses one;
+  a paused reply waits the window out and is only dropped once it is a day old.
+  History reports the queue, the wait, the expiry and which variant went out. Private replies are never paced. The bot form reports its
   Public replies are also capped per post, paced through an outbox so a page
   sends at most a set number a minute, and paused on the bot for hours after
   Facebook refuses one. History reports the queue, the skip, the pause and which
@@ -282,7 +291,7 @@
 | Call Pro               | `src/modules/integrations/callpro/`                                                                                                          | Add/edit sheets over one shared `CallProIntegrationForm`, webhook URL hint, recording player, and the caller-to-customer picker                 |
 | Ticket                 | `src/modules/ticket/`, `src/modules/pipelines/`, `src/modules/status/`                                                                       | Ticket boards, pipelines, statuses                                                                                                              |
 | Forms                  | `src/modules/forms/`                                                                                                                         | Form builder, preview, submissions                                                                                                              |
-| Help Center            | `src/modules/helpcenter/`, `src/pages/HelpCenterIndexPage.tsx`                                                                               | `/frontline/helpcenter` — the help center record table (columns, more column, filter, total count, command bar) and the `editId` drawer over it |
+| Help Center            | `src/modules/helpcenter/`, `src/pages/HelpCenterIndexPage.tsx`                                                                               | `/frontline/helpcenter` — the help center record table (columns, more column, filter, total count, command bar) and the `editId` two-tab config drawer over it       |
 | Surveys management       | `src/modules/survey/components/survey-page/`, `src/pages/ChannelSurveysPage.tsx`                                                                   | Channel-scoped list, results dialog, command bar, create button, detail breadcrumb                                                              |
 | Survey wizard            | `src/modules/survey/components/{SurveyCreate,SurveyEdit}.tsx`, `src/modules/survey/components/mutate/`, `src/pages/Survey{Create,Detail}Page.tsx`      | Three-step create/edit flow, `Add Step` builder, live preview                                                                                    |
 | Survey ticket automation | `src/modules/survey/components/mutate/SurveyOptionTicketConfig.tsx`                                                                              | Per-option threshold, pipeline and status picker for automatic ticket creation                                                                   |
@@ -309,6 +318,8 @@
 | Mail sending readiness | `src/modules/integrations/mail/components/MailSendingRequired.tsx`, `src/modules/integrations/mail/hooks/useMailSendingReadiness.tsx`        | Names the Cloudflare domain replies leave from, or blocks the wizard's sending step with the reason and a link to Integrations config           |
 | Mail delivery check    | `src/modules/integrations/mail/components/MailConnectionCheck.tsx`, `src/modules/integrations/mail/hooks/useMailConnectionCheck.tsx`         | Runs `mailCheckConnection` from the integration dialog and renders its verdict                                                                  |
 | Notifications          | `src/widgets/notifications/`                                                                                                                 | Notification remote entries                                                                                                                     |
+| Mail thread            | `src/modules/integrations/mail/components/MailThread.tsx`                                                                                    | The thread reader and compose box the inbox renders; extracted so a second surface can reuse it rather than restate it                                               |
+| Pipeline mail settings | `src/modules/integrations/mail/components/{PipelineMailSettings,PipelineForwardVerification}.tsx`, `src/pages/PipelineMailPage.tsx`          | The pipeline's `Mail settings` tab: the address to forward to, the forwarding mailbox, the held forwarding confirmation, the sender name, connect, update and remove |
 
 ## Contracts
 
@@ -391,7 +402,8 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
 - `erxes-ui`: all UI primitives — `NavigationMenuGroup`, `Sheet`, `Form`,
   `Dialog`, `Button`, `Badge`, `Label`, `Card`, `toast`, `useQueryState`,
   `useToast`, hotkey hooks.
-- `ui-modules`: `SelectBrand`, `MembersInline`, contacts and structure selects,
+- `ui-modules`: `SelectBrand`, `MembersInline`, `CustomersInline`, contacts and
+  structure selects,
   `AutomationRemoteEntryWrapper`, `AutomationRemoteEntryTypes`,
   `AutomationActionFormProps` (which carries `trigger` and `targetType`),
   `splitAutomationNodeType`, `generateAutomationElementId`,
@@ -535,6 +547,10 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
 
 ## Local Invariants
 
+- Any new call atom created with `atomWithStorage` must also be reset in
+  `ClearCallCacheButton` (`call/components/CallSipActions.tsx`), otherwise the
+  clear-cache action leaves stale call state behind. `callConfigAtom` is reset
+  last, after `callSelectConfigDialogAtom` is set to `true`, so the picker opens.
 - `RecordTable.Provider`'s container is `overflow-hidden`, so a table that is
   not wrapped in a scroll area clips every column past the viewport instead of
   scrolling. The help center and its categories tables paginate by page, not by
@@ -1175,6 +1191,16 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-15` — The call widget can clear its cached state
+
+- **Summary:** An eraser button in the dialpad header, behind a confirm, resets
+  every persisted call atom and sends the agent back to the call config picker,
+  so a stale config or SIP registration no longer needs manual `localStorage`
+  cleanup.
+- **Affected areas:**
+  `src/modules/integrations/call/components/CallSipActions.tsx`
+- **Contracts changed:** None.
+
 ### `2026-09-10` — Polls became surveys
 
 - **Summary:** `src/modules/poll` became `src/modules/survey` and every
@@ -1187,6 +1213,38 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `src/modules/types/FrontlinePaths.ts`, `src/pages/Survey*.tsx`.
 - **Contracts changed:** Consumes the renamed `survey*` / `cpSurvey*`
   operations; the `frontline/polls` route is now `frontline/surveys`.
+
+### `2026-09-10` — The activity timeline names a customer author
+
+- **Summary:** A note that arrived by mail is written by the requester, not by
+  a team member, and its `cp:` author id resolved to a blank member row.
+  `ActivityAuthor` now decodes that prefix and renders the customer through
+  `CustomersInline`, a team member through `MembersInline`, and an empty author
+  as `unknown`; the timeline row and the ticket's creator line both use it.
+- **Affected areas:** `src/modules/activity/components/ActivityAuthor.tsx`
+  (new), `src/modules/activity/components/ActivityItemWrapper.tsx`,
+  `src/modules/activity/components/CreatorInfo.tsx`
+- **Contracts changed:** `None`
+
+### `2026-09-10` — A ticket pipeline gets a mail settings tab
+
+- **Summary:** A pipeline now has a `Mail settings` tab that shows the address
+  mail is sent or forwarded to, takes the forwarding mailbox and the sender name
+  recipients see, and connects, updates or removes the address. While the
+  forwarding address is waiting to be confirmed the tab says so and polls; when
+  the provider's confirmation arrives it is shown there with a copyable code, a
+  link, and a button that ends the waiting state.
+- **Affected areas:** `src/modules/integrations/mail/components/{PipelineMailSettings,PipelineForwardVerification,MailThread,MailConversationDetail,MailIntegrationForm}.tsx`,
+  `src/modules/integrations/mail/{hooks,graphql}/`,
+  `src/pages/PipelineMailPage.tsx`,
+  `src/modules/pipelines/constants/pipelineTabs.ts`,
+  `src/modules/channels/components/settings/Settings.tsx`.
+- **Contracts changed:** Added the `mailPipelineIntegration` query and the
+  `mailPipelineConnect`, `mailPipelineUpdate`, `mailPipelineForwardVerified` and
+  `mailPipelineDisconnect` mutation documents. `MailFormField` gained an
+  optional `descriptionFallback` and `MailAddressCallout` an optional
+  `description`/`descriptionFallback`, so the pipeline tab can say `ticket`
+  where the inbox says `conversation`.
 
 ### `2026-09-10` — Quality gate fixes across the note input and help center drawer
 
@@ -1235,22 +1293,6 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 - **Contracts changed:** Consumes the new `Survey.steps`, `SurveyResults.steps` and
   `surveyAdd`/`surveyEdit` `steps` argument; `SurveySheet` and `surveyFormSchema` were
   removed.
-
-### `2026-09-09` — The bot's Activity tab is about comments
-
-<<<<<<< HEAD
-### `2026-09-09` — Topic colour and image fields serve both drawers
-
-- **Summary:** The topic accent colour and background image were written out
-  twice — once in `TopicDrawer` and again in the help center appearance tab —
-  and the appearance tab repeated a near-identical `StyleColorField` call for
-  each of its twelve colours, which pushed duplication on new code past the
-  Sonar gate. The two fields are now one shared pair in `knowledgebase`, and
-  the colour grids render from field lists in `helpcenter/constants`.
-- **Affected areas:** `src/modules/knowledgebase/components/{TopicAppearanceFields,TopicDrawer}.tsx`,
-  `src/modules/helpcenter/components/help-center-drawer/HelpCenterAppearanceTab.tsx`,
-  `src/modules/helpcenter/{constants,types}/index.ts`
-- **Contracts changed:** `None`
 
 ### `2026-09-09` — A new help center starts on the portal's palette
 
@@ -1303,7 +1345,55 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   deleted `src/modules/helpcenter/utils/helpCenterUrl.ts`.
 - **Contracts changed:** added the `frontlineHelpCenterWebsiteOptions` query
   over `core-api`'s `getClientPortals`. `HelpCenterConfig` is unchanged.
-=======
+
+### `2026-09-09` — The comment reply mention is a setting
+
+- **Summary:** The Send comment action gained a "Mention the commenter" switch;
+  it is off unless turned on, so a reply no longer tags the commenter by
+  default.
+- **Affected areas:**
+  `src/widgets/automations/modules/facebook/components/action/states/replyCommentActionForm.tsx`,
+  `src/widgets/automations/modules/facebook/components/action/components/replyComment/CommentActionForm.tsx`
+- **Contracts changed:** None. The action config gained an optional
+  `mentionSender` boolean.
+
+### `2026-09-09` — The comment reply takes an image
+
+- **Summary:** The attachment field had been a disabled placeholder from before
+  uploads existed; it now uses the same `FileUploadSection` the message action
+  does, capped at the single image Facebook accepts on a comment reply, and the
+  config schema stopped typing it as `any`.
+- **Affected areas:**
+  `src/widgets/automations/modules/facebook/components/action/components/replyComment/CommentActionForm.tsx`,
+  `src/widgets/automations/modules/facebook/components/action/states/replyCommentActionForm.tsx`
+- **Contracts changed:** None.
+
+### `2026-09-09` — The comment reply form got a layout, and adds past two
+
+- **Summary:** Every block in the Send comment panel sat flush against the next
+  because the form had no spacing wrapper, and `useFieldArray` — documented as
+  not supporting flat arrays — stopped appending past the second variant. The
+  list is now driven from form state, the fields are three separated groups,
+  each variant carries its counter and a destructive remove control in a header
+  row above its textarea, and section headings stopped being `Form.Label`s for
+  controls they do not label.
+- **Affected areas:**
+  `src/widgets/automations/modules/facebook/components/action/components/replyComment/CommentActionForm.tsx`
+- **Contracts changed:** None.
+
+### `2026-09-09` — A paused comment reply waits instead of being dropped
+
+- **Summary:** History rendered a `post-public-reply-limit` skip that the API no
+  longer produces; the per-post cap is gone and a blocked reply is requeued, so
+  the only skip left is `queue-expired` after a day of waiting. A deferred reply
+  that timed out also stopped claiming it was still about to send.
+- **Affected areas:**
+  `src/widgets/automations/modules/facebook/components/AutomationHistoryResult.tsx`,
+  `src/widgets/automations/modules/facebook/components/history/useFacebookAutomationHistoryResult.ts`
+- **Contracts changed:** None. The action result no longer carries `limit`.
+
+### `2026-09-09` — The bot's Activity tab is about comments
+
 - **Summary:** One "Bot health" block mixed the Messenger profile's sync state
   with the comment outbox counters and named neither; it is now a Messenger
   profile block and a Comment replies block that lists each distinct reply with
@@ -1326,29 +1416,33 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 - **Summary:** The Facebook bot sheet mixed what the bot _is_ with what it is
   _doing_; the name stays at the top and the rest moved into Settings
   (persistent menu, ice breakers, optional configuration) and Activity (health
-  counters, connected automations) tabs.
+  counters, connected automations) tabs. The open tab is held for the session,
+  so reopening a bot lands back where the last one was left.
 - **Affected areas:**
   `src/widgets/automations/modules/facebook/components/bots/components/AutomationFbBotFormContent.tsx`,
-  `src/widgets/automations/modules/facebook/components/bots/components/FacebookBotSettingsTab.tsx`
+  `src/widgets/automations/modules/facebook/components/bots/components/FacebookBotSettingsTab.tsx`,
+  `src/widgets/automations/modules/facebook/components/bots/states/facebookBotStates.tsx`
 - **Contracts changed:** None.
 
-### `2026-09-09` — The comment reply mention is a setting
+### `2026-09-09` — Topic colour and image fields serve both drawers
 
-- **Summary:** The Send comment action gained a "Mention the commenter" switch;
-  it is off unless turned on, so a reply no longer tags the commenter by
-  default.
-- **Affected areas:**
-  `src/widgets/automations/modules/facebook/components/action/states/replyCommentActionForm.tsx`,
-  `src/widgets/automations/modules/facebook/components/action/components/replyComment/CommentActionForm.tsx`
-- **Contracts changed:** None. The action config gained an optional
-  `mentionSender` boolean.
+- **Summary:** The topic accent colour and background image were written out
+  twice — once in `TopicDrawer` and again in the help center appearance tab —
+  and the appearance tab repeated a near-identical `StyleColorField` call for
+  each of its twelve colours, which pushed duplication on new code past the
+  Sonar gate. The two fields are now one shared pair in `knowledgebase`, and
+  the colour grids render from field lists in `helpcenter/constants`.
+- **Affected areas:** `src/modules/knowledgebase/components/{TopicAppearanceFields,TopicDrawer}.tsx`,
+  `src/modules/helpcenter/components/help-center-drawer/HelpCenterAppearanceTab.tsx`,
+  `src/modules/helpcenter/{constants,types}/index.ts`
+- **Contracts changed:** `None`
 
 ### `2026-09-08` — The bot form reports its delivery health
 
 - **Summary:** `FacebookBotHealth` exposes `lastError` and the breaker fields,
   and a new `facebookMessengerBotDelivery` query counts what the comment outbox
   holds for the bot's page plus when it next sends. The bot form shows the health
-  badge, the pause with its reason, and queued/sent/failed counts, surveying while
+  badge, the pause with its reason, and queued/sent/failed counts, polling while
   the sheet is open.
 - **Affected areas:** `frontline_api`
   `modules/integrations/facebook/graphql/{schema/facebook.ts,resolvers/queries.ts}`.
@@ -1369,7 +1463,7 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   private reply after it runs immediately instead of waiting behind the pacing.
   A per-page Redis counter hands out send slots
   (`FACEBOOK_COMMENT_REPLIES_PER_MINUTE`, default 10) and each reply is scheduled
-  as a delayed BullMQ job, so nothing surveys. The worker sends, closes or opens
+  as a delayed BullMQ job, so nothing polls. The worker sends, closes or opens
   the page breaker, and reports back through the new
   `sendAutomationDeferredCompletion`.
 - **Affected areas:** `erxes-api-shared`
@@ -1421,4 +1515,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   and `components/history/useFacebookAutomationHistoryResult.ts`.
 - **Contracts changed:** the comment action result gains `text` on success and a
   `{ status: 'skipped', reason, limit, used }` shape when capped.
->>>>>>> 4529c61e24c1a78e8f962cc5cfd7be89f9787eea

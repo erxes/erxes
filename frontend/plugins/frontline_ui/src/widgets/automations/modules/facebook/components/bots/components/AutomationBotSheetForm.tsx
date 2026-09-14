@@ -33,7 +33,7 @@ export const AutomationBotSheetForm = () => {
         <Sheet.Trigger asChild>
           <Button>
             <IconPlus />
-            {t('add-bot')}
+            {t('add-bot', 'Add Bot')}
           </Button>
         </Sheet.Trigger>
         <Sheet.View

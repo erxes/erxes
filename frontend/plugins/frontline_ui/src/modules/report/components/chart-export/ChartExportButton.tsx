@@ -76,7 +76,7 @@ export function ChartExportButton<T>({
       className="size-7"
       onClick={handleExport}
       disabled={!data.length || exporting}
-      title={t('export-excel')}
+      title={t('export-excel', 'Export Excel')}
     >
       <IconDownload className="size-3.5" />
     </Button>

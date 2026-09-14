@@ -43,7 +43,7 @@ export const useChangeConversationStatus = () => {
       onError: (error) => {
         options.onError?.(error);
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: error.message,
           variant: 'destructive',
         });

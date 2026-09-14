@@ -66,11 +66,13 @@ export const FacebookReportFilter = ({
                 {showSearch && (
                   <Filter.Item value="search" inDialog>
                     <IconSearch />
-                    {t('search')}
+                    {t('search', 'Search')}
                   </Filter.Item>
                 )}
-                <Filter.Item value="page">{t('facebook-page')}</Filter.Item>
-                <Filter.Item value="date">{t('date')}</Filter.Item>
+                <Filter.Item value="page">
+                  {t('facebook-page', 'Facebook page')}
+                </Filter.Item>
+                <Filter.Item value="date">{t('date', 'Date')}</Filter.Item>
                 {hasFilters && (
                   <>
                     <Command.Separator />
@@ -79,7 +81,7 @@ export const FacebookReportFilter = ({
                       onSelect={handleClear}
                       className="text-destructive"
                     >
-                      {t('clear-all')}
+                      {t('clear-all', 'Clear all')}
                     </Command.Item>
                   </>
                 )}
@@ -145,11 +147,11 @@ const PostSearchDialog = ({
       >
         <Dialog.Header>
           <Dialog.Title className="font-medium text-lg">
-            {t('search-posts-title')}
+            {t('search-posts-title', 'Filter by post text...')}
           </Dialog.Title>
         </Dialog.Header>
         <Input
-          placeholder={t('search-posts-placeholder')}
+          placeholder={t('search-posts-placeholder', 'Search post text or id')}
           className="my-4"
           value={draft}
           onChange={(event) => setDraft(event.target.value)}
@@ -157,11 +159,11 @@ const PostSearchDialog = ({
         <Dialog.Footer className="sm:space-x-3">
           <Dialog.Close asChild>
             <Button variant="outline" size="lg">
-              {t('cancel')}
+              {t('cancel', 'Cancel')}
             </Button>
           </Dialog.Close>
           <Button size="lg" type="submit">
-            {t('apply')}
+            {t('apply', 'Apply')}
           </Button>
         </Dialog.Footer>
       </form>
@@ -198,7 +200,7 @@ const PageFilterView = ({
       <Command.Item value="all" onSelect={() => handleSelect('all')}>
         <div className="flex items-center gap-2">
           {value.length === 0 && <IconCheck className="size-4" />}
-          <span>{t('all-facebook-pages')}</span>
+          <span>{t('all-facebook-pages', 'All Facebook pages')}</span>
         </div>
       </Command.Item>
       {pages.map((page) => (

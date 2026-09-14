@@ -95,7 +95,7 @@ export const TicketsBoard = () => {
 
     if (!canMoveTicketToStatus(source, currentUser?._id)) {
       toast({
-        title: t('error'),
+        title: t('error', 'Error'),
         description: t(
           'no-move-out-permission',
           'You do not have permission to move tickets out of this status',
@@ -109,7 +109,7 @@ export const TicketsBoard = () => {
 
     if (!canMoveTicketToStatus(destination, currentUser?._id)) {
       toast({
-        title: t('error'),
+        title: t('error', 'Error'),
         description: t(
           'no-move-permission',
           'You do not have permission to move tickets to this status',
@@ -140,7 +140,7 @@ export const TicketsBoard = () => {
           [previousStatusId]: (prev[previousStatusId] || 0) + 1,
         }));
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: error.message,
           variant: 'destructive',
         });

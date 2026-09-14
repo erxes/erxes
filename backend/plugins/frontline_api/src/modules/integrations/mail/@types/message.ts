@@ -24,7 +24,8 @@ export interface IMailAttachment {
 
 export interface IMailMessage {
   inboxIntegrationId: string;
-  inboxConversationId: string;
+  inboxConversationId?: string;
+  ticketId?: string;
   messageId: string;
   subject?: string;
   body: string;
@@ -52,25 +53,34 @@ export interface IMailMessageDocument extends IMailMessage, Document {
   _id: string;
 }
 
-export interface IMailSendArgs {
-  integrationId?: string;
-  conversationId?: string;
+export interface IMailAttachmentInput {
+  name?: string;
+  url?: string;
+  type?: string;
+  size?: number;
+  contentId?: string;
+  disposition?: TMailAttachmentDisposition;
+}
+
+export interface IMailComposeArgs {
   customerId?: string;
   subject: string;
   body?: string;
   to: string[];
   cc?: string[];
   bcc?: string[];
-  attachments?: {
-    name?: string;
-    url?: string;
-    type?: string;
-    size?: number;
-    contentId?: string;
-    disposition?: TMailAttachmentDisposition;
-  }[];
+  attachments?: IMailAttachmentInput[];
   replyToMessageId?: string;
   references?: string[];
+}
+
+export interface IMailSendArgs extends IMailComposeArgs {
+  integrationId?: string;
+  conversationId?: string;
   shouldResolve?: boolean;
   shouldOpen?: boolean;
+}
+
+export interface IMailTicketMailArgs extends IMailComposeArgs {
+  ticketId: string;
 }

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { IconCheck, IconMinus } from '@tabler/icons-react';
 import { Badge, Button, Checkbox, Command, Combobox, Sheet } from 'erxes-ui';
 import { useExportFieldSelection } from '../../hooks/export/useExportFieldSelection';
@@ -5,7 +6,7 @@ import {
   TExportFieldSelectionProps,
   TSearchAndActionsProps,
 } from '../../types/export/exportTypes';
-import { getEntityLabelFromType } from '../../utils/entityLabel';
+import { useEntityLabel } from '../../hooks/useEntityLabel';
 
 export function SearchAndActions({
   onSelectAll,
@@ -14,21 +15,23 @@ export function SearchAndActions({
   selectedCount,
   totalCount,
 }: TSearchAndActionsProps) {
+  const { t } = useTranslation('importExport');
+
   return (
     <div className="flex items-center gap-1 border-b p-2">
       <Button variant="ghost" size="sm" onClick={onSelectDefaults}>
-        Suggested
+        {t('suggested')}
       </Button>
       <Button variant="ghost" size="sm" onClick={onSelectAll}>
         <IconCheck />
-        Select all
+        {t('select-all')}
       </Button>
       <Button variant="ghost" size="sm" onClick={onDeselectAll}>
         <IconMinus />
-        Clear
+        {t('clear')}
       </Button>
       <span className="ml-auto px-2 text-xs text-muted-foreground">
-        {selectedCount} of {totalCount} fields selected
+        {t('fields-selected', { selected: selectedCount, total: totalCount })}
       </span>
     </div>
   );
@@ -43,6 +46,7 @@ export function ExportFieldSelection({
   entityDisplayName,
   filters,
 }: TExportFieldSelectionProps) {
+  const { t } = useTranslation('importExport');
   const {
     selectedFields,
     headers,
@@ -60,14 +64,11 @@ export function ExportFieldSelection({
     onOpenChange,
   });
 
-  // If entityDisplayName is provided, use it; otherwise, derive the name from entityType
-  const getEntityName = () => {
-    if (entityDisplayName) return entityDisplayName;
-    return getEntityLabelFromType(entityType, {
-      plural: true,
-      capitalize: true,
-    });
-  };
+  const derivedEntityLabel = useEntityLabel(
+    entityType.split('.').pop() || 'record',
+    { plural: true, capitalize: true },
+  );
+  const entityName = entityDisplayName || derivedEntityLabel;
 
   const systemHeaders = headers.filter((h) => h.type !== 'customProperty');
   const customHeaders = headers.filter((h) => h.type === 'customProperty');
@@ -88,7 +89,9 @@ export function ExportFieldSelection({
           aria-label={header.label}
         />
         <span className="min-w-0 flex-1 truncate">{header.label}</span>
-        {header.isDefault && <Badge variant="secondary">Suggested</Badge>}
+        {header.isDefault && (
+          <Badge variant="secondary">{t('suggested')}</Badge>
+        )}
       </Command.Item>
     );
   };
@@ -98,13 +101,13 @@ export function ExportFieldSelection({
       <Sheet.View>
         <Sheet.Header>
           <Sheet.Title className="flex items-center gap-2">
-            Export {getEntityName()}
+            {t('export-entity', { entity: entityName })}
             <Badge variant="secondary">CSV</Badge>
           </Sheet.Title>
           <Sheet.Description className="sr-only">
-            Choose the fields to include in your export file.
+            {t('export-fields-description')}
             {recordCount !== undefined &&
-              ` ${recordCount} selected records will be exported.`}
+              ` ${t('export-selected-records-note', { total: recordCount })}`}
           </Sheet.Description>
           <Sheet.Close />
         </Sheet.Header>
@@ -112,7 +115,7 @@ export function ExportFieldSelection({
           <Command className="flex min-h-0 flex-1 flex-col">
             <Command.Input
               variant="primary"
-              placeholder="Search fields by name..."
+              placeholder={t('search-fields-by-name')}
             />
             <SearchAndActions
               onSelectAll={handleSelectAll}
@@ -123,11 +126,11 @@ export function ExportFieldSelection({
             />
             <Command.List className="max-h-none min-h-0 flex-1 overflow-y-auto p-1">
               <Combobox.Empty loading={loading} />
-              <Command.Group heading="System Fields">
+              <Command.Group heading={t('system-fields')}>
                 {systemHeaders.map(renderItem)}
               </Command.Group>
               {customHeaders.length > 0 && (
-                <Command.Group heading="Custom Properties">
+                <Command.Group heading={t('custom-properties')}>
                   {customHeaders.map(renderItem)}
                 </Command.Group>
               )}
@@ -137,13 +140,13 @@ export function ExportFieldSelection({
 
         <Sheet.Footer>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
+            {t('cancel')}
           </Button>
           <Button
             onClick={handleConfirm}
             disabled={loading || selectedFields.length === 0}
           >
-            Create CSV export ({selectedFields.length} fields)
+            {t('create-csv-export', { total: selectedFields.length })}
           </Button>
         </Sheet.Footer>
       </Sheet.View>

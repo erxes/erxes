@@ -1,17 +1,18 @@
+import { ADD_TOPIC, EDIT_TOPIC } from '../graphql/mutations';
 import { ApolloError, useMutation } from '@apollo/client';
-import { IconCode } from '@tabler/icons-react';
 import { Button, Form, Input, Sheet, Textarea, toast } from 'erxes-ui';
-import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { useTranslation } from 'react-i18next';
+import { ITopic, ITopicFormData } from '@/knowledgebase/types';
 import {
   TopicBackgroundImageField,
   TopicColorField,
 } from '@/knowledgebase/components/TopicAppearanceFields';
-import { TopicEmbedScriptDialog } from '@/knowledgebase/components/TopicEmbedScriptDialog';
-import { ITopic, ITopicFormData } from '@/knowledgebase/types';
-import { ADD_TOPIC, EDIT_TOPIC } from '../graphql/mutations';
+import { useEffect, useState } from 'react';
+
+import { IconCode } from '@tabler/icons-react';
 import { TOPICS } from '../graphql/queries';
+import { TopicEmbedScriptDialog } from '@/knowledgebase/components/TopicEmbedScriptDialog';
+import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 const EMPTY_TOPIC_FORM: ITopicFormData = {
   title: '',
@@ -57,13 +58,13 @@ export function TopicDrawer({
 
   const notifyError = (error: ApolloError) =>
     toast({
-      title: t('error'),
+      title: t('error', 'Error'),
       description: error.message,
       variant: 'destructive',
     });
 
   const notifySaved = (description: string) => {
-    toast({ title: t('success'), description, variant: 'success' });
+    toast({ title: t('success', 'Success!'), description, variant: 'success' });
     onSaved?.();
     onClose();
     form.reset(EMPTY_TOPIC_FORM);
@@ -181,16 +182,16 @@ export function TopicDrawer({
             variant="outline"
             disabled={busy}
           >
-            {t('cancel')}
+            {t('cancel', 'Cancel')}
           </Button>
           <Button type="submit" disabled={busy} onClick={submit}>
             {busy
               ? isEditing
-                ? t('saving')
-                : t('kb-creating')
+                ? t('saving', 'Saving…')
+                : t('kb-creating', 'Creating...')
               : isEditing
-                ? t('kb-save-changes')
-                : t('kb-create-topic')}
+              ? t('kb-save-changes', 'Save Changes')
+              : t('kb-create-topic', 'Create Topic')}
           </Button>
         </Sheet.Footer>
       </Sheet.View>

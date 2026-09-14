@@ -28,7 +28,7 @@ export const AutomationBotsRecordTable = () => {
                   <td colSpan={4} className="py-10 text-center">
                     <div className="flex flex-col items-center justify-center text-muted-foreground">
                       <IconArchive className="w-8 h-8 mb-2" />
-                      <Label>{t('no-results')}</Label>
+                      <Label>{t('no-results', 'No results')}</Label>
                     </div>
                   </td>
                 </tr>

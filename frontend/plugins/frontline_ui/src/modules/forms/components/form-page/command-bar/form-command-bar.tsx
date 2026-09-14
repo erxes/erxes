@@ -14,7 +14,11 @@ export const FormCommandBar = () => {
   return (
     <CommandBar open={selectedRows.length > 0}>
       <CommandBar.Bar>
-        <CommandBar.Value>{t('n-selected', { count: selectedRows.length })}</CommandBar.Value>
+        <CommandBar.Value>
+          {t('n-selected', '{{count}} selected', {
+            count: selectedRows.length,
+          })}
+        </CommandBar.Value>
         <Separator.Inline />
         <FormDelete formIds={formIds} rows={selectedRows} />
         <FormStatusToggle formIds={formIds} rows={selectedRows} />

@@ -285,7 +285,7 @@ const Pipelines = () => {
                 <Empty.Media>
                   <IconGitBranch />
                 </Empty.Media>
-                <Empty.Title>{t('no-pipelines')}</Empty.Title>
+                <Empty.Title>{t('no-pipelines', 'No pipelines')}</Empty.Title>
               </Empty.Header>
             </Empty>
           )}

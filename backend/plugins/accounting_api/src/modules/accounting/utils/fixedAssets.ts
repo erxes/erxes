@@ -42,6 +42,7 @@ export type TFxaTransactionExtraData = {
 export type TFxaMoveFollowInfos = {
   moveInBranchId?: string;
   moveInDepartmentId?: string;
+  accumulatedDepreciationAccountId?: string;
 };
 
 export type TFxaIncomeFollowInfos = {

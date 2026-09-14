@@ -92,7 +92,7 @@ export const TicketPipelineProperties = (props: Props) => {
           <Spinner containerClassName="py-8" />
         ) : selectedIds.size === 0 ? (
           <p className="text-sm text-muted-foreground">
-            {t('no-ticket-property-fields')}
+            {t('no-ticket-property-fields', 'No ticket property fields found')}
           </p>
         ) : (
           fieldGroups.map((group) => (

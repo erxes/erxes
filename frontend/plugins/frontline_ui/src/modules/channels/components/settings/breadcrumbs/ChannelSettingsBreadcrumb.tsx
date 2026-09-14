@@ -61,7 +61,7 @@ export const ChannelSettingsBreadcrumb = () => {
       <Link to="/settings/frontline/channels">
         <Button variant="ghost" className="font-semibold">
           <IconCircles className="w-4 h-4 text-accent-foreground" />
-          {t('channels')}
+          {t('channels', 'Channels')}
         </Button>
       </Link>
 
@@ -91,7 +91,7 @@ export const ChannelSettingsBreadcrumb = () => {
           <Separator.Inline />
           <Link to={`/settings/frontline/channels/${channelId}/response`}>
             <Button variant="ghost" className="font-semibold">
-              {t('response-templates')}
+              {t('response-templates', 'Response templates')}
             </Button>
           </Link>
           {!isMatchingLocation(FrontlinePaths.ResponseDetail) && (
@@ -113,7 +113,7 @@ export const ChannelSettingsBreadcrumb = () => {
           <Separator.Inline />
           <Link to={`/settings/frontline/channels/${channelId}/pipelines`}>
             <Button variant="ghost" className="font-semibold">
-              {t('pipelines')}
+              {t('pipelines', 'Pipelines')}
             </Button>
           </Link>
           {!isSpecificPipelineDetailRoute && (
@@ -139,7 +139,7 @@ export const ChannelSettingsBreadcrumb = () => {
           <Separator.Inline />
           <Link to={`/settings/frontline/channels/${channelId}/forms`}>
             <Button variant="ghost" className="font-semibold">
-              {t('forms')}
+              {t('forms', 'Forms')}
             </Button>
           </Link>
           {!isMatchingLocation(FrontlinePaths.FormDetail) && (
@@ -197,7 +197,7 @@ export const ChannelSettingsBreadcrumb = () => {
         <>
           <Separator.Inline />
           <Button variant="ghost" className="font-semibold">
-            {t('create-form')}
+            {t('create-form', 'Create form')}
           </Button>
         </>
       )}

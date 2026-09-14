@@ -14,9 +14,89 @@ import validator from 'validator';
 import { IModels } from '~/connectionResolvers';
 import { fieldSchema } from '~/modules/properties/db/definitions/field';
 import { IField, IFieldDocument } from '../../@types';
+
+export interface IFieldValueValidationOptions {
+  /** Also check the value against the shape its field type implies. */
+  strict?: boolean;
+}
 import { ORDER_GAP } from '../../constants';
 
 const RESERVED_ROW_KEYS = new Set(['_id']);
+
+const MULTI_VALUE_TYPES = new Set(['multiSelect', 'check']);
+const SINGLE_CHOICE_TYPES = new Set(['select', 'radio']);
+
+const normalizeChoice = (value: unknown) =>
+  String(value ?? '')
+    .trim()
+    .toLowerCase();
+
+/**
+ * Check a value against the shape its field type implies.
+ *
+ * The `validations` map is opt-in and most fields leave it empty, so without
+ * this a `date` field happily stores `тодорхойгүй` and a `select` field stores
+ * an option that does not exist. Callers ask for it explicitly because
+ * tightening every existing write path is a separate decision — today the
+ * import path is the one that needs it.
+ */
+const validateValueShape = (field: IFieldDocument, value: any): void => {
+  const { type, name } = field;
+
+  if (type === 'number' && !validator.isFloat(String(value))) {
+    throw new Error(`${name}: "${value}" is not a number`);
+  }
+
+  if (type === 'date' && isNaN(new Date(value).getTime())) {
+    throw new Error(`${name}: "${value}" is not a date (expected YYYY-MM-DD)`);
+  }
+
+  if (type === 'boolean') {
+    const accepted = ['true', 'false', 'yes', 'no', '1', '0'];
+
+    if (!accepted.includes(normalizeChoice(value))) {
+      throw new Error(`${name}: "${value}" is not true or false`);
+    }
+  }
+
+  if (
+    !SINGLE_CHOICE_TYPES.has(type || '') &&
+    !MULTI_VALUE_TYPES.has(type || '')
+  ) {
+    return;
+  }
+
+  const options = (field.options || []).flatMap((option: any) =>
+    typeof option === 'string'
+      ? [normalizeChoice(option)]
+      : [normalizeChoice(option?.value), normalizeChoice(option?.label)],
+  );
+
+  // A field with no options configured accepts anything.
+  if (!options.filter(Boolean).length) {
+    return;
+  }
+
+  const given = MULTI_VALUE_TYPES.has(type || '')
+    ? (Array.isArray(value) ? value : String(value).split(',')).map(
+        normalizeChoice,
+      )
+    : [normalizeChoice(value)];
+
+  const unknownValue = given.find(
+    (candidate) => candidate && !options.includes(candidate),
+  );
+
+  if (unknownValue) {
+    throw new Error(
+      `${name}: "${unknownValue}" is not one of ${(field.options || [])
+        .map((option: any) =>
+          typeof option === 'string' ? option : option?.label || option?.value,
+        )
+        .join(', ')}`,
+    );
+  }
+};
 
 export interface IFieldModel extends Model<IFieldDocument> {
   getField({ _id }: { _id: string }): Promise<IFieldDocument>;
@@ -28,8 +108,15 @@ export interface IFieldModel extends Model<IFieldDocument> {
   ): Promise<IFieldDocument>;
   removeField(_id: string): Promise<IFieldDocument>;
 
-  validateFieldValue(_id: string, value: any): Promise<any>;
-  validateFieldValues(data: any): Promise<any>;
+  validateFieldValue(
+    _id: string,
+    value: any,
+    options?: IFieldValueValidationOptions,
+  ): Promise<any>;
+  validateFieldValues(
+    data: any,
+    options?: IFieldValueValidationOptions,
+  ): Promise<any>;
 
   generatePropertiesData(
     data: { [key: string]: any },
@@ -147,7 +234,11 @@ export const loadFieldClass = (models: IModels) => {
       }
     }
 
-    public static async validateFieldValue(_id: string, value: any) {
+    public static async validateFieldValue(
+      _id: string,
+      value: any,
+      options: IFieldValueValidationOptions = {},
+    ) {
       const field = await models.Fields.findOne({ _id });
       const group = await models.FieldsGroups.exists({ _id });
 
@@ -161,7 +252,7 @@ export const loadFieldClass = (models: IModels) => {
               continue;
             }
 
-            await this.validateFieldValue(key, entryValue);
+            await this.validateFieldValue(key, entryValue, options);
           }
 
           // rows migrated from v2 arrive without an id
@@ -235,10 +326,17 @@ export const loadFieldClass = (models: IModels) => {
         }
       }
 
+      if (options.strict && !isEmptyValue) {
+        validateValueShape(field, value);
+      }
+
       return value;
     }
 
-    public static async validateFieldValues(data: IPropertyField) {
+    public static async validateFieldValues(
+      data: IPropertyField,
+      options: IFieldValueValidationOptions = {},
+    ) {
       const result: Record<string, any> = {};
 
       for (const fieldName in data) {
@@ -282,6 +380,7 @@ export const loadFieldClass = (models: IModels) => {
           result[fieldName] = await this.validateFieldValue(
             fieldId,
             fieldValue,
+            options,
           );
         } catch (e) {
           throw new Error(e.message);

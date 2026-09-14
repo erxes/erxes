@@ -10,6 +10,14 @@ export interface OrderItemInput {
   isPackage?: boolean
   isTake?: boolean
   status?: IOrderItemStatus
+  discountAmount?: number
+  discountPercent?: number
+  discountInfos?: {
+    type: string
+    title?: string
+    amount?: number
+    percent?: number
+  }[]
   manufacturedDate?: string
 }
 
@@ -21,7 +29,6 @@ export interface OrderItem extends OrderItemInput {
   createdAt?: string
   categoryId?: string
   orderId?: string
-  discountAmount?: number
   productName?: string
   productImgUrl?: string
   attachment?: { url?: string } | null

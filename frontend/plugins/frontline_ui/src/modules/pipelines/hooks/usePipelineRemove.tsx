@@ -7,7 +7,12 @@ export const usePipelineRemove = () => {
   const { t } = useTranslation('frontline');
   const [removePipeline, { loading, error }] = useMutation(REMOVE_PIPELINE, {
     onCompleted: (data) => {
-      toast({ title: t('pipeline-removed-successfully') });
+      toast({
+        title: t(
+          'pipeline-removed-successfully',
+          'Pipeline removed successfully',
+        ),
+      });
     },
     refetchQueries: ['GetTicketPipelines'],
   });

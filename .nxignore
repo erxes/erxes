@@ -1,8 +1,8 @@
-# The knowledge base portal installs its own dependencies with npm and builds
+# The help center portal installs its own dependencies with npm and builds
 # through its own scripts, never an Nx target — apps/ is outside the pnpm
 # workspace. Nx still walks it, and its eslint plugin tries to load the app's
 # flat config, which imports eslint-config-next from a node_modules the
 # workspace install never creates. That one failure takes down the whole
 # project graph, so every Nx target fails with "Failed to process project
 # graph". frontline-widgets stays in: its image builds through `nx build`.
-apps/knowledge-base
+apps/help-center

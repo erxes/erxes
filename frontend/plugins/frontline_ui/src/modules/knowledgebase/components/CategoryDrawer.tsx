@@ -112,7 +112,9 @@ export function CategoryDrawer({
       <Sheet.View className="sm:max-w-lg p-0 flex flex-col h-full">
         <Sheet.Header className="border-b gap-3 shrink-0">
           <Sheet.Title>
-            {isEditing ? t('kb-edit-category') : t('kb-new-category')}
+            {isEditing
+              ? t('kb-edit-category', 'Edit Category')
+              : t('kb-new-category', 'New Category')}
           </Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
@@ -129,9 +131,15 @@ export function CategoryDrawer({
               name="code"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>{t('kb-code')}</Form.Label>
+                  <Form.Label>{t('kb-code', 'Code')}</Form.Label>
                   <Form.Control>
-                    <Input {...field} placeholder={t('kb-enter-category-code')} />
+                    <Input
+                      {...field}
+                      placeholder={t(
+                        'kb-enter-category-code',
+                        'Enter category code',
+                      )}
+                    />
                   </Form.Control>
                   <Form.Message className="text-destructive" />
                 </Form.Item>
@@ -143,11 +151,14 @@ export function CategoryDrawer({
               name="title"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>{t('title-label')}</Form.Label>
+                  <Form.Label>{t('title-label', 'Title')}</Form.Label>
                   <Form.Control>
                     <Input
                       {...field}
-                      placeholder={t('kb-enter-category-title')}
+                      placeholder={t(
+                        'kb-enter-category-title',
+                        'Enter category title',
+                      )}
                       required
                     />
                   </Form.Control>
@@ -161,11 +172,14 @@ export function CategoryDrawer({
               name="description"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>{t('description')}</Form.Label>
+                  <Form.Label>{t('description', 'Description')}</Form.Label>
                   <Form.Control>
                     <Textarea
                       {...field}
-                      placeholder={t('kb-enter-category-description')}
+                      placeholder={t(
+                        'kb-enter-category-description',
+                        'Enter category description',
+                      )}
                     />
                   </Form.Control>
                   <Form.Message className="text-destructive" />
@@ -179,7 +193,7 @@ export function CategoryDrawer({
               name="icon"
               render={({ field }) => (
                 <Form.Item className="flex flex-col gap-2">
-                  <Form.Label>{t('icon')}</Form.Label>
+                  <Form.Label>{t('icon', 'Icon')}</Form.Label>
                   <Form.Control>
                     <IconPicker value={field.value} onChange={field.onChange} />
                   </Form.Control>
@@ -203,7 +217,7 @@ export function CategoryDrawer({
 
         <div className="border-t gap-3 p-4 bg-background shrink-0 flex justify-end">
           <Button onClick={onClose} variant="outline">
-            {t('cancel')}
+            {t('cancel', 'Cancel')}
           </Button>
           <Button
             type="submit"
@@ -212,11 +226,11 @@ export function CategoryDrawer({
           >
             {adding || editing
               ? isEditing
-                ? t('saving')
-                : t('kb-creating')
+                ? t('saving', 'Saving…')
+                : t('kb-creating', 'Creating...')
               : isEditing
-              ? t('kb-save-changes')
-              : t('kb-create-category')}
+                ? t('kb-save-changes', 'Save Changes')
+                : t('kb-create-category', 'Create Category')}
           </Button>
         </div>
       </Sheet.View>

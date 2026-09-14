@@ -1,13 +1,14 @@
-import { cn, Form, Select, Switch } from 'erxes-ui';
+import { Form, Select, Switch, cn } from 'erxes-ui';
+
 import { AutomationTriggerFormProps } from 'ui-modules';
-import { FacebookPostSelector } from '~/widgets/automations/modules/facebook/components/FacebookPostSelector';
-import { FacebookBotSelector } from '~/widgets/automations/modules/facebook/components/MessengerBotSelector';
 import { COMMENT_POST_TYPES } from '../../constants/commentTriggerOptions';
 import { useCommentTriggerForm } from '../../hooks/useCommentTriggerForm';
 import { useFacebookCommentTriggerClaims } from '../../hooks/useFacebookCommentTriggerClaims';
 import { TriggerClaimNote } from '../message/TriggerClaimNote';
 import { TCommentTriggerForm } from '../../types/commentTrigger';
 import { DirectMessageEditor } from '../message/DirectMessageEditor';
+import { FacebookBotSelector } from '~/widgets/automations/modules/facebook/components/MessengerBotSelector';
+import { FacebookPostSelector } from '~/widgets/automations/modules/facebook/components/FacebookPostSelector';
 import { useTranslation } from 'react-i18next';
 export const CommentTriggerForm = ({
   formRef,
@@ -99,7 +100,12 @@ export const CommentTriggerForm = ({
             name="onlyFirstLevel"
             render={({ field }) => (
               <Form.Item className="flex items-center justify-between">
-                <Form.Label>{t('track-first-level-comments')}</Form.Label>
+                <Form.Label>
+                  {t(
+                    'track-first-level-comments',
+                    'Track first level comments only',
+                  )}
+                </Form.Label>
                 <Form.Control>
                   <Switch
                     checked={field.value}
@@ -115,7 +121,12 @@ export const CommentTriggerForm = ({
             name="checkContent"
             render={({ field }) => (
               <Form.Item className="flex items-center justify-between">
-                <Form.Label>{t('check-comment-text-keywords')}</Form.Label>
+                <Form.Label>
+                  {t(
+                    'check-comment-text-keywords',
+                    'Check comment text contains with keywords',
+                  )}
+                </Form.Label>
                 <Form.Control>
                   <Switch
                     checked={field.value}

@@ -113,3 +113,47 @@ export const collectPropertyDataFromColumns = (
 
   return propertiesData;
 };
+
+/**
+ * Fold imported properties onto the ones a record already carries.
+ *
+ * An import row only holds the columns that particular file happened to
+ * include, so writing `propertiesData` wholesale would erase every property
+ * the file left out. Repeating groups merge position by position for the same
+ * reason: a file that fills row 2 must not blank out row 2's other fields, and
+ * rows the file never reached are kept as they were.
+ */
+export const mergePropertyData = (
+  existing: TPropertyData | undefined,
+  incoming: TPropertyData,
+): TPropertyData => {
+  const merged: TPropertyData = { ...(existing || {}) };
+
+  for (const [key, value] of Object.entries(incoming)) {
+    if (!isPropertyGroupKey(key) || !Array.isArray(value)) {
+      merged[key] = value;
+      continue;
+    }
+
+    const existingRows = Array.isArray(merged[key])
+      ? (merged[key] as TPropertyData[])
+      : [];
+
+    merged[key] = [
+      ...value.map((row, offset) => {
+        const existingRow = existingRows[offset];
+
+        return {
+          ...(existingRow || {}),
+          ...((row || {}) as TPropertyData),
+          // A row keeps the identity it was created with; an imported row
+          // carries no id of its own and must not mint a new one.
+          ...(existingRow?._id ? { _id: existingRow._id } : {}),
+        };
+      }),
+      ...existingRows.slice(value.length),
+    ];
+  }
+
+  return merged;
+};
