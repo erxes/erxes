@@ -4,6 +4,11 @@ import {
   removeViberIntegration,
   registerViberWebhook,
 } from '@/integrations/viber/helpers';
+import { generateModels } from '~/connectionResolvers';
+import {
+  VIBER_HEALTH_STATUSES,
+  type ViberHealthStatus,
+} from '@/integrations/viber/constants';
 
 export interface IViberIntegrationInput {
   subdomain: string;
@@ -73,4 +78,53 @@ export const viberRepairIntegration = async ({
   await registerViberWebhook(subdomain, data.integrationId);
 
   return true;
+};
+
+export const viberStatus = async ({
+  subdomain,
+  data: { integrationId },
+}: IViberIntegrationRefInput): Promise<{
+  status: 'success' | 'error';
+  data: {
+    status: ViberHealthStatus;
+    error: string;
+  };
+}> => {
+  try {
+    if (!subdomain.trim() || !integrationId.trim()) {
+      throw new Error('Viber tenant and integration id are required');
+    }
+
+    const models = await generateModels(subdomain);
+
+    const integration = await models.ViberIntegrations.findOne({
+      inboxId: integrationId,
+    }).select('healthStatus error');
+
+    if (!integration) {
+      return {
+        status: 'success',
+        data: {
+          status: VIBER_HEALTH_STATUSES.UNHEALTHY,
+          error: 'Viber connection not found. Reconnect the integration.',
+        },
+      };
+    }
+
+    return {
+      status: 'success',
+      data: {
+        status: integration.healthStatus ?? VIBER_HEALTH_STATUSES.PENDING,
+        error: integration.error ?? '',
+      },
+    };
+  } catch {
+    return {
+      status: 'error',
+      data: {
+        status: VIBER_HEALTH_STATUSES.UNHEALTHY,
+        error: 'Unable to read Viber connection status. Try again.',
+      },
+    };
+  }
 };
