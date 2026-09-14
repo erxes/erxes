@@ -17,6 +17,7 @@ import {
 } from '@/knowledgebase/graphql/resolvers/customResolvers/category';
 import KnowledgeBaseTopic from '@/knowledgebase/graphql/resolvers/customResolvers/topic';
 import { HelpCenterConfig } from '@/helpcenter/graphql/resolvers/customResolvers/helpCenterConfig';
+import { MailPipelineIntegration } from '@/integrations/mail/graphql/resolvers/customResolvers/pipelineIntegration';
 export const customResolvers = {
   ...inboxResolvers,
   ...integrationFacebookResolvers,
@@ -33,4 +34,5 @@ export const customResolvers = {
   KnowledgeBaseParentCategory,
   KnowledgeBaseTopic,
   HelpCenterConfig,
+  MailPipelineIntegration,
 };

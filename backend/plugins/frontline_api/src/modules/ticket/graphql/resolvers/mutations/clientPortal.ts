@@ -81,6 +81,7 @@ export const cpTicketMutations: Record<string, Resolver> = {
       doc: {
         content,
         contentId,
+        isInternal: false,
         createdBy: `cp:${userId}`,
       },
       subdomain,

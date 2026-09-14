@@ -8,7 +8,10 @@ import {
   IInboundAddress,
   IInboundMailPayload,
 } from '@/integrations/mail/@types/webhook';
-import { IMailAddress } from '@/integrations/mail/@types/message';
+import {
+  IMailAddress,
+  IMailAttachment,
+} from '@/integrations/mail/@types/message';
 import {
   MAIL_MESSAGE_TYPES,
   MAIL_SIGNATURE_HEADER,
@@ -27,7 +30,14 @@ import {
 } from '@/integrations/mail/utils/attachments';
 import { isAutomatedMessage } from '@/integrations/mail/utils/autoReply';
 import { isDuplicateKeyError } from '@/integrations/mail/utils/mongoErrors';
+import {
+  createTicketFromMail,
+  isTicketOpen,
+} from '@/integrations/mail/utils/tickets';
+import { noteFromMail } from '@/integrations/mail/utils/notes';
+import { captureForwardVerification } from '@/integrations/mail/utils/forwardVerification';
 import { describeError } from '@/integrations/mail/utils/errors';
+import { mailScopeId } from '@/integrations/mail/utils/scope';
 import { verifySignature } from '@/integrations/mail/utils/signature';
 import { resolveInboundKeys } from '@/integrations/mail/utils/inboundKeys';
 
@@ -108,84 +118,83 @@ const normalizeSubject = (subject?: string) => {
   return value.toLowerCase();
 };
 
-const continuesSubject = async (
-  models: IModels,
-  inboxIntegrationId: string,
-  conversationId: string,
-  subject?: string,
-) => {
-  const [latest] = await models.MailMessages.find({
-    inboxIntegrationId,
-    inboxConversationId: conversationId,
-  })
-    .sort({ createdAt: -1 })
-    .limit(1);
-
-  return latest
-    ? normalizeSubject(latest.subject) === normalizeSubject(subject)
-    : false;
-};
+const continuesSubject = (previous?: string, subject?: string) =>
+  normalizeSubject(previous) === normalizeSubject(subject);
 
 const toStoredAddresses = (addresses: IInboundAddress[] = []): IMailAddress[] =>
   addresses
     .filter((entry) => Boolean(entry?.address))
-    .map((entry) => ({ name: entry.name, address: entry.address as string }));
+    .map((entry) => ({
+      name: entry.name,
+      address: normalizeAddress(entry.address),
+    }));
 
-const resolveConversationId = async (
-  models: IModels,
-  subdomain: string,
-  integration: IMailIntegrationDocument,
-  payload: IInboundMailPayload,
-  customerId: string,
-  createdAt: Date,
-  replyTag?: string,
-) => {
-  const tagged = replyTag
-    ? await models.MailMessages.findConversationByReplyTag(
-        integration.inboxId,
-        replyTag,
-      )
+interface IInboundContext {
+  models: IModels;
+  subdomain: string;
+  payload: IInboundMailPayload;
+  sender: IInboundSender;
+  scopeId: string;
+  customerId: string;
+  createdAt: Date;
+  isAuto: boolean;
+  body: string;
+  attachments: IMailAttachment[];
+}
+
+const resolveConversationId = async ({
+  models,
+  subdomain,
+  payload,
+  sender,
+  scopeId,
+  customerId,
+  createdAt,
+}: IInboundContext) => {
+  const tagged = sender.replyTag
+    ? await models.MailMessages.findByReplyTag(scopeId, sender.replyTag)
     : null;
 
-  if (tagged) {
-    return { conversationId: tagged, isNew: false };
+  if (tagged?.inboxConversationId) {
+    return { conversationId: tagged.inboxConversationId, isNew: false };
   }
 
-  const threaded = await models.MailMessages.findRelatedConversation(
-    integration.inboxId,
+  const threaded = await models.MailMessages.findRelatedThread(
+    scopeId,
     payload.messageId,
     payload.inReplyTo,
     payload.references,
   );
 
-  if (threaded) {
-    return { conversationId: threaded, isNew: false };
+  if (threaded?.inboxConversationId) {
+    return { conversationId: threaded.inboxConversationId, isNew: false };
   }
 
   const open = await models.Conversations.findOne({
-    integrationId: integration.inboxId,
+    integrationId: scopeId,
     customerId,
     status: { $in: ['new', 'open'] },
   })
     .sort({ updatedAt: -1 })
     .lean();
 
-  if (
-    open &&
-    (await continuesSubject(
-      models,
-      integration.inboxId,
-      String(open._id),
-      payload.subject,
-    ))
-  ) {
-    return { conversationId: String(open._id), isNew: false };
+  if (open) {
+    const [latest] = await models.MailMessages.find({
+      inboxIntegrationId: scopeId,
+      inboxConversationId: String(open._id),
+    })
+      .sort({ createdAt: -1 })
+      .limit(1);
+
+    if (latest && continuesSubject(latest.subject, payload.subject)) {
+      return { conversationId: String(open._id), isNew: false };
+    }
   }
 
   const response = await receiveInboxMessage(subdomain, {
     action: 'create-or-update-conversation',
     payload: JSON.stringify({
-      integrationId: integration.inboxId,
+      integrationId: scopeId,
       customerId,
       createdAt,
       content: payload.subject,
@@ -201,51 +210,94 @@ const resolveConversationId = async (
   return { conversationId: response.data._id as string, isNew: true };
 };
 
-const storeInboundMessage = async (
-  models: IModels,
-  subdomain: string,
-  integration: IMailIntegrationDocument,
-  payload: IInboundMailPayload,
-  sender: IInboundSender,
-) => {
-  const createdAt = resolveReceivedAt(payload.receivedAt);
-
-  const isAuto = isAutomatedMessage(payload.headers);
-
-  const customerId = await models.MailCustomers.findOrCreate(
-    subdomain,
-    sender.address,
-    integration.inboxId,
-    payload.from?.name,
-  );
-
-  const { conversationId, isNew } = await resolveConversationId(
+const resolveTicketId = async (
+  {
     models,
     subdomain,
-    integration,
     payload,
+    sender,
+    scopeId,
     customerId,
-    createdAt,
-    sender.replyTag,
-  );
+    isAuto,
+    body,
+  }: IInboundContext,
+  pipelineId: string,
+) => {
+  const openThread = async (message: { ticketId?: string } | null) =>
+    message?.ticketId && (await isTicketOpen(models, message.ticketId))
+      ? message.ticketId
+      : null;
 
-  if (!isNew) {
-    if (!isAuto) {
-      await models.Conversations.reopen(conversationId);
-    }
+  const tagged = sender.replyTag
+    ? await models.MailMessages.findByReplyTag(scopeId, sender.replyTag)
+    : null;
 
-    await models.Conversations.updateConversation(conversationId, {
-      content: payload.subject,
-      updatedAt: createdAt,
-    });
+  const byTag = await openThread(tagged);
+
+  if (byTag) {
+    return byTag;
   }
 
-  const attachments = await storeAttachments(subdomain, payload.attachments);
-  const body = resolveInlineImages(payload.html ?? '', attachments);
+  const threaded = await models.MailMessages.findRelatedThread(
+    scopeId,
+    payload.messageId,
+    payload.inReplyTo,
+    payload.references,
+  );
 
-  const message = await models.MailMessages.create({
-    inboxIntegrationId: integration.inboxId,
-    inboxConversationId: conversationId,
+  const byReference = await openThread(threaded);
+
+  if (byReference) {
+    return byReference;
+  }
+
+  const latest = await models.MailMessages.findLatestFromSender(
+    scopeId,
+    sender.address,
+  );
+
+  if (latest && continuesSubject(latest.subject, payload.subject)) {
+    const bySubject = await openThread(latest);
+
+    if (bySubject) {
+      return bySubject;
+    }
+  }
+
+  if (isAuto) {
+    return null;
+  }
+
+  const ticket = await createTicketFromMail({
+    models,
+    subdomain,
+    pipelineId,
+    customerId,
+    subject: payload.subject,
+    body,
+  });
+
+  return ticket._id;
+};
+
+const storeMessage = (
+  context: IInboundContext,
+  thread: { inboxConversationId?: string; ticketId?: string },
+) => {
+  const {
+    models,
+    payload,
+    sender,
+    scopeId,
+    createdAt,
+    isAuto,
+    body,
+    attachments,
+  } = context;
+
+  return models.MailMessages.create({
+    ...thread,
+    inboxIntegrationId: scopeId,
     messageId: payload.messageId,
     inReplyTo: payload.inReplyTo,
     references: payload.references ?? [],
@@ -262,6 +314,28 @@ const storeInboundMessage = async (
     type: MAIL_MESSAGE_TYPES.INBOX,
     createdAt,
   });
+};
+
+const storeConversationMail = async (context: IInboundContext) => {
+  const { models, subdomain, createdAt, isAuto, body, attachments, payload } =
+    context;
+
+  const { conversationId, isNew } = await resolveConversationId(context);
+
+  if (!isNew) {
+    if (!isAuto) {
+      await models.Conversations.reopen(conversationId);
+    }
+
+    await models.Conversations.updateConversation(conversationId, {
+      content: payload.subject,
+      updatedAt: createdAt,
+    });
+  }
+
+  const message = await storeMessage(context, {
+    inboxConversationId: conversationId,
+  });
 
   await pConversationClientMessageInserted(subdomain, {
     _id: String(message._id),
@@ -270,8 +344,6 @@ const storeInboundMessage = async (
     createdAt,
   });
 
-  await models.MailIntegrations.markHealthy(integration._id);
-
   return {
     status: 'ok',
     conversationId,
@@ -279,6 +351,96 @@ const storeInboundMessage = async (
     isAuto,
     keepStored: hasUnstoredAttachment(attachments),
   };
+};
+
+const storeTicketMail = async (
+  context: IInboundContext,
+  pipelineId: string,
+) => {
+  const { isAuto, attachments } = context;
+
+  const ticketId = await resolveTicketId(context, pipelineId);
+
+  if (!ticketId) {
+    return { status: 'ignored', reason: 'auto-reply' };
+  }
+
+  const message = await storeMessage(context, { ticketId });
+
+  if (!isAuto) {
+    await noteFromMail({
+      models: context.models,
+      subdomain: context.subdomain,
+      ticketId,
+      customerId: context.customerId,
+      message,
+    });
+  }
+
+  return {
+    status: 'ok',
+    ticketId,
+    messageId: message._id,
+    isAuto,
+    keepStored: hasUnstoredAttachment(attachments),
+  };
+};
+
+const storeInboundMessage = async (
+  models: IModels,
+  subdomain: string,
+  integration: IMailIntegrationDocument,
+  payload: IInboundMailPayload,
+  sender: IInboundSender,
+) => {
+  const verification = captureForwardVerification(
+    integration,
+    payload,
+    payload.html ?? '',
+  );
+
+  if (verification) {
+    await models.MailIntegrations.storeForwardVerification(
+      integration._id,
+      verification,
+    );
+
+    await models.MailIntegrations.markHealthy(integration._id);
+
+    return { status: 'ignored', reason: 'forward-verification' };
+  }
+
+  const scopeId = mailScopeId(integration);
+
+  const attachments = await storeAttachments(subdomain, payload.attachments);
+
+  const context: IInboundContext = {
+    models,
+    subdomain,
+    payload,
+    sender,
+    scopeId,
+    createdAt: resolveReceivedAt(payload.receivedAt),
+    isAuto: isAutomatedMessage(payload.headers),
+    attachments,
+    body: resolveInlineImages(payload.html ?? '', attachments),
+    customerId: await models.MailCustomers.findOrCreate(
+      subdomain,
+      sender.address,
+      scopeId,
+      payload.from?.name,
+    ),
+  };
+
+  const { pipelineId } = integration;
+
+  const result = pipelineId
+    ? await storeTicketMail(context, pipelineId)
+    : await storeConversationMail(context);
+
+  await models.MailIntegrations.markHealthy(integration._id);
+
+  return result;
 };
 
 export const receiveMailMessage = async (req: Request, res: Response) => {
@@ -315,13 +477,18 @@ export const receiveMailMessage = async (req: Request, res: Response) => {
 
   const { address, tag } = parseTaggedAddress(payload.to);
 
-  const integration = await models.MailIntegrations.findOne({ address });
+  const integration = await models.MailIntegrations.findOne({
+    address,
+    disabledAt: null,
+  });
 
   if (!integration) {
     return res.status(404).json({ error: `Unknown address ${payload.to}` });
   }
 
-  const rate = await checkInboundRate(subdomain, integration.inboxId);
+  const scopeId = mailScopeId(integration);
+
+  const rate = await checkInboundRate(subdomain, scopeId);
 
   if (!rate.allowed) {
     return res
@@ -331,7 +498,7 @@ export const receiveMailMessage = async (req: Request, res: Response) => {
   }
 
   const duplicate = await models.MailMessages.findOne({
-    inboxIntegrationId: integration.inboxId,
+    inboxIntegrationId: scopeId,
     messageId: payload.messageId,
   });
 
