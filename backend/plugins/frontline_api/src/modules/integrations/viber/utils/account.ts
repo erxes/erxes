@@ -1,5 +1,17 @@
 import { IViberAccountInfo } from '@/integrations/viber/@types/account';
 
+export const validateViberToken = (token: string): void => {
+  if (typeof token !== 'string' || !token.trim()) {
+    throw new Error('Viber bot token is required');
+  }
+
+  if (token !== token.trim()) {
+    throw new Error(
+      'Viber bot token must not contain leading or trailing whitespace',
+    );
+  }
+};
+
 export const parseViberAccountInfo = (value: unknown): IViberAccountInfo => {
   if (typeof value !== 'object' || value === null || Array.isArray(value)) {
     throw new Error('Invalid Viber account info response');
@@ -29,15 +41,7 @@ export const parseViberAccountInfo = (value: unknown): IViberAccountInfo => {
 export const getViberAccountInfo = async (
   token: string,
 ): Promise<IViberAccountInfo> => {
-  if (typeof token !== 'string' || !token.trim()) {
-    throw new Error('Viber bot token is required');
-  }
-
-  if (token !== token.trim()) {
-    throw new Error(
-      'Viber bot token must not contain leading or trailing whitespace',
-    );
-  }
+  validateViberToken(token);
   const response = await fetch(
     'https://chatapi.viber.com/pa/get_account_info',
     {

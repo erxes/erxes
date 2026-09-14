@@ -60,7 +60,11 @@
   The external-integration creation dispatcher routes the `viber` service prefix
   to this adapter. The removal dispatcher awaits tenant-scoped Viber record
   cleanup before the common integration is removed; cleanup failures propagate.
-  Removal is local only. Internal receiver validation authenticates raw bytes,
+  Removal is local only. The internal `setViberWebhook` HTTP helper implements
+  provider registration/removal with shared token validation, URL checks,
+  redirect rejection, a timeout signal, and HTTP/provider response validation.
+  It is not yet called by the connection or removal flow; live registration
+  remains unverified. Internal receiver validation authenticates raw bytes,
   parses numeric message tokens as exact strings, acknowledges webhook checks,
   and rejects malformed message payloads. Valid text, URL, contact, and location
   messages resolve the customer and thread, persist escaped content under a
@@ -73,7 +77,7 @@
   The Viber router defines `POST /receive/:integrationId`, awaits the receiver,
   and turns escaped failures into a fixed log entry and a safe 500 when headers
   have not been sent. `src/routes.ts` mounts it under `/viber`, independently
-  of the Call Pro toggle. Provider webhook registration is not implemented;
+  of the Call Pro toggle. Provider webhook registration is not wired;
   route mounting does not establish a working live channel.
   Validated picture/video/file/sticker messages
   return a fixed 501 without processing. Events other than `webhook` and
@@ -224,6 +228,10 @@ recovery after partial failures. `messageBroker.ts` adapts connection inputs
 and error handling, and `utils/` holds signature/account helpers, raw-body webhook
 parsing, shared message-token validation, plain-text HTML formatting, and their
 colocated tests.
+`utils/account.ts` exports the shared `validateViberToken` guard used by account
+lookup and `utils/webhookApi.ts`; the latter owns the internal `setViberWebhook`
+request helper. `utils/__tests__/webhookApi.spec.ts` covers its request and error
+boundaries with mocked fetch calls, without changing the connection workflow.
 `__tests__/attachments.spec.ts` covers the tenant-configured byte-storage adapter
 and its composition with the real downloader using mocked external I/O.
 `constants.ts` defines `ViberMediaType` and the incoming-media size policy shared
@@ -555,6 +563,11 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - Viber Bot REST API: `POST https://chatapi.viber.com/pa/get_account_info`
   through Node's `fetch`, with the token in `X-Viber-Auth-Token` and an empty
   JSON object body.
+- Viber Bot REST API: internal `POST https://chatapi.viber.com/pa/set_webhook`
+  uses that same authentication header. A nonempty HTTPS URL registers a
+  callback with `send_name: true` and `send_photo: false`, omitting `event_types`
+  to request all events. An exactly empty URL sends only `{ url: '' }` to remove
+  the webhook. Connection lifecycle callers are not yet wired.
 - Viber customer resolution calls Core's `customers.findOne` query and
   `customers.createCustomer` mutation through `sendTRPCMessage`, carrying the
   supplied subdomain and `throwOnError: true`. Lookups use the reserved `_id`
@@ -792,10 +805,20 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   and mocked coverage alone do not prove live cross-service behavior.
 - Viber account responses stay `unknown` until validated: numeric `status === 0`
   and non-blank string `id` and `name`, returning only those two fields. The
-  HTTP helper rejects blank tokens and tokens with leading or trailing
-  whitespace before `fetch`, preserving accepted tokens unchanged. It uses a
-  ten-second abort signal and reports HTTP/JSON failures without exposing the
-  provider response body.
+  shared `validateViberToken` guard rejects blank tokens and tokens with leading
+  or trailing whitespace before `fetch`, preserving accepted tokens unchanged.
+  Account lookup uses a ten-second abort signal and reports HTTP/JSON failures
+  without exposing the provider response body.
+- `setViberWebhook(token, callbackUrl)` uses the shared token guard and preserves
+  accepted token/URL strings. Only `''` means removal: reject padded URLs and
+  nonempty URLs that are malformed, non-HTTPS, or contain credentials/fragments.
+  Send requests only to the fixed Viber endpoint, reject redirects, and attach
+  a ten-second abort signal. Validate both HTTP success and a non-array object
+  containing an integer `status`; only zero succeeds. HTTP/provider failures
+  report numeric status codes, while malformed JSON/shapes use fixed errors.
+  Never expose the response body or provider `status_message`. Fetch failures
+  propagate without automatic retries or local record changes. This helper
+  does not establish URL reachability, tenant routing, or a completed connection.
 - `createViberIntegration` obtains models through `generateModels(subdomain)`,
   takes `botId` only from the validated account response, and awaits the save.
   Its duplicate precheck provides a friendly error but does not replace database
@@ -1781,6 +1804,11 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   They use the existing `tsx` dependency and Node's test runner. HTTP tests fake
   `globalThis.fetch` with `t.mock.method` and remain non-concurrent. No real
   credentials, network, or project-wide test configuration are required.
+  Webhook API tests cover unchanged registration inputs and headers, removal,
+  token/URL rejection before I/O, redirect/deadline options, HTTP/provider errors,
+  malformed responses, and propagated network/timeout failures without retries.
+  They verify the timeout configuration, not elapsed-time enforcement, and do
+  not prove a live Viber callback, certificate validity, or tenant routing.
   Parser tests cover exact numeric tokens, unchanged fields and raw bytes,
   malformed JSON, and a mocked runtime without reviver source support.
   Shared token-validator tests cover string narrowing, exact decimal strings,
@@ -1948,6 +1976,14 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-14` — Viber webhook API helper
+
+- **Summary:** Added an internal registration/removal HTTP helper with shared
+  token validation, response checks, and offline request/error coverage.
+- **Affected areas:** `src/modules/integrations/viber/utils/{account.ts,webhookApi.ts,__tests__/webhookApi.spec.ts}`.
+- **Contracts changed:** Consumes Viber's `set_webhook` API; connection/removal
+  flow wiring and public Frontline APIs remain unchanged.
+
 ### `2026-09-14` — Viber customer id reservation and recovery
 
 - **Summary:** Reserve the Core customer id before creation and retain it across
@@ -2019,12 +2055,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Affected areas:** `src/modules/integrations/viber/utils/{media.ts,__tests__/media.spec.ts}`.
 - **Contracts changed:** Added internal `downloadViberMedia`; trusted host
   configuration, receiver media wiring, and public APIs remain unchanged.
-
-### `2026-09-14` — Type-specific Viber media size limits
-
-- **Summary:** Replaced the blanket 25 MiB cap with shared local intake limits
-  of 3/26/50 MiB for pictures/videos/files, with boundary and cleanup tests.
-- **Affected areas:** `src/modules/integrations/viber/{constants.ts,utils/media.ts,helpers.ts,controller/,__tests__/,utils/__tests__/}`.
-- **Contracts changed:** Internal reading and storage require `messageType`;
-  file callback validation accepts up to 50 MiB. Media wiring and public APIs
-  remain unchanged; provider and live storage verification are still pending.
