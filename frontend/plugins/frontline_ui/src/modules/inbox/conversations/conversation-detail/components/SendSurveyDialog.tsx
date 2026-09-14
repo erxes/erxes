@@ -70,7 +70,10 @@ export const SendSurveyDialog = ({
         <Dialog.Header>
           <Dialog.Title>{t('send-survey', 'Send survey')}</Dialog.Title>
           <Dialog.Description>
-            {t('send-survey-description', 'Pick an active survey to post into this conversation.')}
+            {t(
+              'send-survey-description',
+              'Pick an active survey to post into this conversation.',
+            )}
           </Dialog.Description>
         </Dialog.Header>
 

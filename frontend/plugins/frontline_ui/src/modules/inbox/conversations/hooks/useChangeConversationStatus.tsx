@@ -20,7 +20,7 @@ export const useChangeConversationStatus = () => {
     const callerRefetchQueries = options.refetchQueries;
     const refetchQueries = Array.isArray(callerRefetchQueries)
       ? [...new Set([...callerRefetchQueries, ...REQUIRED_REFETCH_QUERIES])]
-      : callerRefetchQueries ?? REQUIRED_REFETCH_QUERIES;
+      : (callerRefetchQueries ?? REQUIRED_REFETCH_QUERIES);
 
     changeConversationStatus({
       ...options,
