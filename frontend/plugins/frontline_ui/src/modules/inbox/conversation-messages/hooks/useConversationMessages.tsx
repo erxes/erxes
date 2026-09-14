@@ -25,9 +25,7 @@ export const useConversationMessages = (
   const fetchMoreInFlightRef = useRef<Promise<unknown> | null>(null);
   const previousConversationIdRef = useRef(options.variables?.conversationId);
 
-  if (
-    previousConversationIdRef.current !== options.variables?.conversationId
-  ) {
+  if (previousConversationIdRef.current !== options.variables?.conversationId) {
     previousConversationIdRef.current = options.variables?.conversationId;
     historicalOffsetRef.current = pageSize;
     fetchMoreInFlightRef.current = null;
