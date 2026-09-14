@@ -2,11 +2,14 @@ import { test } from 'node:test';
 import { deepStrictEqual, rejects, strictEqual } from 'node:assert';
 import { Module } from 'node:module';
 import { loadViberHelpers, type TestContext } from './helperHarness';
+import type { ViberHealthStatus } from '../constants';
 
 const SUBDOMAIN = 'tenant-test';
 const INBOX_ID = 'inbox-test';
 const TOKEN = 'test-viber-token';
 const RECEIVE_URL = 'https://tunnel.example/viber/receive';
+const REGISTRATION_ERROR =
+  'Webhook registration could not be confirmed. Check the callback URL and try Repair.';
 
 interface RegistrationOptions {
   receiveUrl?: string;
@@ -17,6 +20,9 @@ interface RegistrationOptions {
   lookupError?: Error;
   permissionError?: Error;
   request?: () => Promise<Response>;
+  healthStatus?: ViberHealthStatus;
+  error?: string;
+  update?: (healthStatus: ViberHealthStatus) => Promise<number>;
 }
 
 const createRegistrationHarness = (
@@ -25,7 +31,14 @@ const createRegistrationHarness = (
 ) => {
   const events: string[] = [];
   const originalRecord = { _id: 'viber-test', inboxId: INBOX_ID, token: TOKEN };
-  const record = { ...originalRecord };
+  const record: typeof originalRecord & {
+    healthStatus?: ViberHealthStatus;
+    error?: string;
+  } = {
+    ...originalRecord,
+    healthStatus: options.healthStatus,
+    error: options.error,
+  };
   const getEnv = t.mock.fn(
     ({ name, subdomain }: { name: string; subdomain: string }): string => {
       strictEqual(subdomain, SUBDOMAIN);
@@ -51,16 +64,44 @@ const createRegistrationHarness = (
     return { select };
   });
   const write = t.mock.fn(() => {
-    throw new Error('Registration must not write or delete local records');
+    throw new Error(
+      'Registration must not create/delete records or change the common inbox',
+    );
   });
   const writes = { create: write, updateOne: write, deleteOne: write };
+  const updateOne = t.mock.fn(
+    async (
+      selector: unknown,
+      update: { $set: { healthStatus: ViberHealthStatus; error: string } },
+      config: unknown,
+    ) => {
+      deepStrictEqual(selector, { _id: originalRecord._id, inboxId: INBOX_ID });
+      deepStrictEqual(config, { runValidators: true });
+      deepStrictEqual(Object.keys(update), ['$set']);
+      deepStrictEqual(Object.keys(update.$set).sort(), [
+        'error',
+        'healthStatus',
+      ]);
+      const { healthStatus, error } = update.$set;
+      events.push(`health:${healthStatus}`);
+      const matchedCount = options.update
+        ? await options.update(healthStatus)
+        : 1;
+      if (matchedCount !== 1) return { matchedCount, modifiedCount: 0 };
+      const modifiedCount = Number(
+        record.healthStatus !== healthStatus || record.error !== error,
+      );
+      Object.assign(record, { healthStatus, error });
+      return { matchedCount, modifiedCount };
+    },
+  );
   const generateModels = t.mock.fn(async (subdomain: string) => {
     events.push('models');
     strictEqual(subdomain, SUBDOMAIN);
     if (options.modelError) throw options.modelError;
     return {
       Integrations: { exists, ...writes },
-      ViberIntegrations: { findOne, ...writes },
+      ViberIntegrations: { findOne, ...writes, updateOne },
     };
   });
   const checkPermission = t.mock.fn(async (action: string) => {
@@ -93,7 +134,8 @@ const createRegistrationHarness = (
       }
     }
     strictEqual(write.mock.callCount(), 0);
-    deepStrictEqual(record, originalRecord);
+    const { _id, inboxId, token } = record;
+    deepStrictEqual({ _id, inboxId, token }, originalRecord);
   });
 
   // Load the real Viber adapter and common dispatcher without sibling services.
@@ -150,6 +192,8 @@ const createRegistrationHarness = (
     fetchMock,
     checkPermission,
     siblingRepair,
+    record,
+    updateOne,
   };
 };
 
@@ -161,7 +205,16 @@ test('registers the saved tenant connection with its hidden token and callback U
     undefined,
   );
 
-  deepStrictEqual(harness.events, ['models', 'inbox', 'token', 'provider']);
+  deepStrictEqual(harness.events, [
+    'models',
+    'inbox',
+    'token',
+    'health:pending',
+    'provider',
+    'health:healthy',
+  ]);
+  strictEqual(harness.record.healthStatus, 'healthy');
+  strictEqual(harness.record.error, '');
   strictEqual(harness.fetchMock.mock.callCount(), 1);
   const [url, options] = harness.fetchMock.mock.calls[0].arguments;
   if (!options) throw new Error('Expected fetch options');
@@ -186,6 +239,7 @@ test('rejects invalid callback configuration before model loading or network cal
   });
   strictEqual(harness.generateModels.mock.callCount(), 0);
   strictEqual(harness.fetchMock.mock.callCount(), 0);
+  strictEqual(harness.updateOne.mock.callCount(), 0);
 });
 
 test('rejects blank tenant and integration ids before configuration or I/O', async (t) => {
@@ -200,6 +254,7 @@ test('rejects blank tenant and integration ids before configuration or I/O', asy
   strictEqual(harness.getEnv.mock.callCount(), 0);
   strictEqual(harness.generateModels.mock.callCount(), 0);
   strictEqual(harness.fetchMock.mock.callCount(), 0);
+  strictEqual(harness.updateOne.mock.callCount(), 0);
 });
 
 test('rejects a missing common integration without looking up credentials', async (t) => {
@@ -210,6 +265,7 @@ test('rejects a missing common integration without looking up credentials', asyn
   });
   strictEqual(harness.findOne.mock.callCount(), 0);
   strictEqual(harness.fetchMock.mock.callCount(), 0);
+  strictEqual(harness.updateOne.mock.callCount(), 0);
 });
 
 test('rejects a missing provider record without calling Viber', async (t) => {
@@ -219,6 +275,7 @@ test('rejects a missing provider record without calling Viber', async (t) => {
     message: 'Viber integration not found',
   });
   strictEqual(harness.fetchMock.mock.callCount(), 0);
+  strictEqual(harness.updateOne.mock.callCount(), 0);
 });
 
 test('propagates model and lookup failures without contacting Viber', async (t) => {
@@ -232,6 +289,7 @@ test('propagates model and lookup failures without contacting Viber', async (t) 
         (error: unknown) => error === failure,
       );
       strictEqual(harness.fetchMock.mock.callCount(), 0);
+      strictEqual(harness.updateOne.mock.callCount(), 0);
     });
   }
 });
@@ -250,6 +308,8 @@ test('the Repair adapter returns true only after provider acknowledgement', asyn
     requestStarted = resolve;
   });
   const harness = createRegistrationHarness(t, {
+    healthStatus: 'healthy',
+    error: 'Previous error',
     request: () => {
       requestStarted();
       return response;
@@ -268,6 +328,8 @@ test('the Repair adapter returns true only after provider acknowledgement', asyn
 
   await started;
   strictEqual(finished, false);
+  strictEqual(harness.record.healthStatus, 'pending');
+  strictEqual(harness.record.error, '');
   finishRequest(new Response('{"status":0}'));
   strictEqual(await result, true);
 });
@@ -285,11 +347,13 @@ test('the Repair adapter throws provider failures instead of returning error obj
     { message: 'Viber webhook update failed (status 1)' },
   );
   strictEqual(harness.fetchMock.mock.callCount(), 1);
+  strictEqual(harness.record.healthStatus, 'unHealthy');
+  strictEqual(harness.record.error, REGISTRATION_ERROR);
 });
 
 test('an ambiguous network failure can be retried using the same saved connection', async (t) => {
   let loseResponse = true;
-  const failure = new Error('Provider response lost');
+  const failure = new Error(`Provider response lost: ${TOKEN} ${RECEIVE_URL}`);
   const harness = createRegistrationHarness(t, {
     request: async () => {
       if (loseResponse) throw failure;
@@ -302,6 +366,8 @@ test('an ambiguous network failure can be retried using the same saved connectio
     (error: unknown) => error === failure,
   );
   strictEqual(harness.fetchMock.mock.callCount(), 1);
+  strictEqual(harness.record.healthStatus, 'unHealthy');
+  strictEqual(harness.record.error, REGISTRATION_ERROR);
   loseResponse = false;
   await harness.registerViberWebhook(SUBDOMAIN, INBOX_ID);
 
@@ -310,6 +376,14 @@ test('an ambiguous network failure can be retried using the same saved connectio
   strictEqual(first.arguments[1]?.body, second.arguments[1]?.body);
   deepStrictEqual(first.arguments[1]?.headers, second.arguments[1]?.headers);
   strictEqual(harness.generateModels.mock.callCount(), 2);
+  strictEqual(harness.record.healthStatus, 'healthy');
+  strictEqual(harness.record.error, '');
+  deepStrictEqual(
+    harness.updateOne.mock.calls.map(
+      ({ arguments: args }) => args[1].$set.healthStatus,
+    ),
+    ['pending', 'unHealthy', 'pending', 'healthy'],
+  );
 });
 
 test('the common Repair dispatcher reaches the real Viber adapter', async (t) => {
@@ -348,6 +422,7 @@ test('the Viber Repair resolver checks permission before configuration, models, 
   strictEqual(harness.getEnv.mock.callCount(), 0);
   strictEqual(harness.generateModels.mock.callCount(), 0);
   strictEqual(harness.fetchMock.mock.callCount(), 0);
+  strictEqual(harness.updateOne.mock.callCount(), 0);
 });
 
 test('authorized Viber-prefixed Repair reaches registration after the permission check', async (t) => {
@@ -359,7 +434,9 @@ test('authorized Viber-prefixed Repair reaches registration after the permission
     'models',
     'inbox',
     'token',
+    'health:pending',
     'provider',
+    'health:healthy',
   ]);
   strictEqual(harness.checkPermission.mock.callCount(), 1);
 });
@@ -372,4 +449,177 @@ test('Viber registration does not change the sibling Repair branch', async (t) =
   strictEqual(harness.checkPermission.mock.callCount(), 0);
   strictEqual(harness.generateModels.mock.callCount(), 0);
   strictEqual(harness.fetchMock.mock.callCount(), 0);
+  strictEqual(harness.updateOne.mock.callCount(), 0);
+});
+
+test('a failed pending-state write prevents the provider request', async (t) => {
+  const failure = new Error('Pending write failed');
+  const harness = createRegistrationHarness(t, {
+    healthStatus: 'healthy',
+    update: async () => {
+      throw failure;
+    },
+  });
+
+  await rejects(
+    harness.registerViberWebhook(SUBDOMAIN, INBOX_ID),
+    (error: unknown) => error === failure,
+  );
+  strictEqual(harness.updateOne.mock.callCount(), 1);
+  strictEqual(harness.fetchMock.mock.callCount(), 0);
+  strictEqual(harness.record.healthStatus, 'healthy');
+});
+
+test('every status write must match the existing provider record', async (t) => {
+  for (const phase of ['pending', 'healthy', 'unHealthy'] as const) {
+    await t.test(phase, async (subtest) => {
+      const harness = createRegistrationHarness(subtest, {
+        update: async (status) => (status === phase ? 0 : 1),
+        request: async () =>
+          new Response(
+            JSON.stringify({
+              status: phase === 'unHealthy' ? 1 : 0,
+            }),
+          ),
+      });
+
+      await rejects(harness.registerViberWebhook(SUBDOMAIN, INBOX_ID), {
+        message: 'Viber integration no longer exists',
+      });
+      strictEqual(
+        harness.fetchMock.mock.callCount(),
+        phase === 'pending' ? 0 : 1,
+      );
+      strictEqual(
+        harness.updateOne.mock.callCount(),
+        phase === 'pending' ? 1 : 2,
+      );
+    });
+  }
+});
+
+test('a matched but unchanged pending write is valid', async (t) => {
+  const harness = createRegistrationHarness(t, {
+    healthStatus: 'pending',
+    error: '',
+  });
+
+  await harness.registerViberWebhook(SUBDOMAIN, INBOX_ID);
+
+  const firstWrite = await harness.updateOne.mock.calls[0].result;
+  deepStrictEqual(firstWrite, { matchedCount: 1, modifiedCount: 0 });
+  strictEqual(harness.record.healthStatus, 'healthy');
+});
+
+test('the provider request waits for the pending-state write to finish', async (t) => {
+  let finishWrite: (matchedCount: number) => void = () => {
+    throw new Error('Pending-write promise not initialized');
+  };
+  let markStarted: () => void = () => {
+    throw new Error('Start promise not initialized');
+  };
+  const pendingWrite = new Promise<number>((resolve) => {
+    finishWrite = resolve;
+  });
+  const started = new Promise<void>((resolve) => {
+    markStarted = resolve;
+  });
+  const harness = createRegistrationHarness(t, {
+    update: async (status) => {
+      if (status !== 'pending') return 1;
+      markStarted();
+      return pendingWrite;
+    },
+  });
+  const result = harness.registerViberWebhook(SUBDOMAIN, INBOX_ID);
+
+  await started;
+  strictEqual(harness.fetchMock.mock.callCount(), 0);
+  finishWrite(1);
+  await result;
+  strictEqual(harness.record.healthStatus, 'healthy');
+});
+
+test('Repair waits for the final healthy-state write before returning true', async (t) => {
+  let finishWrite: (matchedCount: number) => void = () => {
+    throw new Error('Final-write promise not initialized');
+  };
+  let markStarted: () => void = () => {
+    throw new Error('Start promise not initialized');
+  };
+  const finalWrite = new Promise<number>((resolve) => {
+    finishWrite = resolve;
+  });
+  const started = new Promise<void>((resolve) => {
+    markStarted = resolve;
+  });
+  const harness = createRegistrationHarness(t, {
+    update: async (status) => {
+      if (status !== 'healthy') return 1;
+      markStarted();
+      return finalWrite;
+    },
+  });
+  let finished = false;
+  const result = harness.repair().then((value) => {
+    finished = true;
+    return value;
+  });
+
+  await started;
+  strictEqual(harness.fetchMock.mock.callCount(), 1);
+  strictEqual(harness.record.healthStatus, 'pending');
+  strictEqual(finished, false);
+  finishWrite(1);
+  strictEqual(await result, true);
+});
+
+test('a failed healthy write rejects without misclassifying provider success and can be retried', async (t) => {
+  const failure = new Error('Healthy write failed');
+  let failWrite = true;
+  const harness = createRegistrationHarness(t, {
+    update: async (status) => {
+      if (status === 'healthy' && failWrite) throw failure;
+      return 1;
+    },
+  });
+
+  await rejects(
+    harness.registerViberWebhook(SUBDOMAIN, INBOX_ID),
+    (error: unknown) => error === failure,
+  );
+  strictEqual(harness.record.healthStatus, 'pending');
+  strictEqual(harness.record.error, '');
+  deepStrictEqual(harness.events, [
+    'models',
+    'inbox',
+    'token',
+    'health:pending',
+    'provider',
+    'health:healthy',
+  ]);
+  failWrite = false;
+  await harness.registerViberWebhook(SUBDOMAIN, INBOX_ID);
+  strictEqual(harness.record.healthStatus, 'healthy');
+  strictEqual(harness.fetchMock.mock.callCount(), 2);
+});
+
+test('if saving provider failure also fails, the database error propagates and state stays pending', async (t) => {
+  const failure = new Error('Failure-state write failed');
+  const harness = createRegistrationHarness(t, {
+    request: async () => new Response('{"status":1}'),
+    update: async (status) => {
+      if (status === 'unHealthy') throw failure;
+      return 1;
+    },
+  });
+
+  await rejects(
+    harness.registerViberWebhook(SUBDOMAIN, INBOX_ID),
+    (error: unknown) => error === failure,
+  );
+  strictEqual(harness.record.healthStatus, 'pending');
+  strictEqual(harness.record.error, '');
+  strictEqual(harness.fetchMock.mock.callCount(), 1);
+  strictEqual(harness.updateOne.mock.callCount(), 2);
 });

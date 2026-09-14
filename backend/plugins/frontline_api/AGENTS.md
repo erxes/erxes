@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-09-14`
+- **Last synchronized:** `2026-09-15`
 
 ## Scope
 
@@ -59,8 +59,9 @@
   settings and wraps the helper result with Frontline's success/error response.
   Connection records support `pending`, `healthy`, and `unHealthy` health states
   plus an error string; new records default to `pending` with no error.
-  Registration does not yet update these fields or expose Viber health through
-  the common GraphQL status resolver.
+  Registration saves `pending` before contacting Viber, then `healthy` after
+  acknowledgement or `unHealthy` with a fixed error if registration fails.
+  Viber health is not yet exposed through the common GraphQL status resolver.
   The external-integration creation dispatcher routes the `viber` service prefix
   to this adapter. The removal dispatcher awaits tenant-scoped Viber record
   cleanup before the common integration is removed; cleanup failures propagate.
@@ -229,7 +230,8 @@
 ## Architecture
 
 Viber lives under `src/modules/integrations/viber/`: `helpers.ts` owns connection
-creation, provider/local removal, customer resolution, conversation synchronization,
+creation, webhook registration and its stored health state, provider/local removal,
+customer resolution, conversation synchronization,
 message-id reservation, message processing with native attachments or optional
 `IViberMediaInput` shared with the download-to-storage helper,
 storage of already-downloaded attachment bytes, and the download-to-storage
@@ -238,7 +240,8 @@ composition helper.
 utility with mocked tenant models and fetch, including ordering and retries.
 `__tests__/registration.spec.ts` covers the real registration helper, Repair
 adapter, and common dispatcher with isolated models, configuration, and fetch;
-its resolver cases cover permission rejection and authorized dispatch.
+it covers status-write ordering and failures, retries, permission rejection,
+and authorized dispatch.
 `__tests__/helpers.spec.ts` covers customer resolution;
 `__tests__/conversations.spec.ts` covers conversation resolution, and
 `__tests__/messageMappings.spec.ts` covers message-id reservation. Their shared
@@ -384,7 +387,8 @@ accountId, brandId, data)` — `channelId` is **nullable** for every kind;
   mutation. The GraphQL schema is unchanged.
 - GraphQL: `integrationsRepair(_id, kind)` routes Viber-prefixed kinds to
   `viberRepairIntegration`, returning `true` only after provider registration
-  succeeds. The Viber branch requires `integrationsEdit` before dispatch.
+  succeeds and the final `healthy` state is saved. The Viber branch requires
+  `integrationsEdit` before dispatch.
   Errors reject without deleting local records. Live registration remains
   unverified; the GraphQL schema is unchanged.
 - GraphQL: `integrationsGetUsedTypes` and
@@ -650,7 +654,8 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   Required `healthStatus` uses the three-value enum and defaults to `pending`;
   `error` defaults to `''`. Both are optional in the TypeScript interface for
   older raw/lean records. Mongoose hydration applies missing defaults in memory,
-  but this change does not backfill stored documents or update registration state.
+  but there is no persisted backfill. Registration updates only `healthStatus`
+  and `error` on the existing provider record, preserving its ids and token.
 - `viber_customers` (`models.ViberCustomers`) maps required `inboxId` and Viber
   `userId` to a required Core customer `contactsId`, with a generated string
   `_id` for the mapping itself. The schema declares a compound unique index on
@@ -875,8 +880,15 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   unique indexes. Dependency failures propagate to the caller.
 - `registerViberWebhook` builds the callback URL before loading tenant models,
   requires the common inbox integration and saved Viber record, selects `+token`,
-  and awaits `setViberWebhook`. It never creates, deletes, or updates local
-  records. `viberRepairIntegration` returns `true` only after this helper succeeds;
+  and saves `pending` with a cleared error before awaiting `setViberWebhook`.
+  Provider failure saves `unHealthy` with a fixed, credential-free error and
+  rethrows; success saves `healthy` with a cleared error. Each update targets
+  the exact `_id` and `inboxId`, uses `runValidators: true`, and requires one
+  matched record, even when no values changed. A failed pending write prevents
+  provider I/O; a failed final write rejects, without misclassifying provider
+  success. If failure-state persistence also fails, that database error propagates.
+  Never create/delete records, change credentials, or write the common inbox.
+  `viberRepairIntegration` returns `true` only after the final save succeeds;
   keep failures thrown rather than wrapped in a returned error object.
 - Viber Repair must await `context.checkPermission('integrationsEdit')` before
   dispatch, configuration, model access, or provider I/O. The common mutation
@@ -903,8 +915,9 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   returns `Promise<void>`, never the token-containing document.
 - Viber health defaults must not imply successful webhook registration. Keep
   the schema enum and TypeScript type derived from `VIBER_HEALTH_STATUSES`,
-  including the repository's `unHealthy` spelling. Stored state is not a live
-  provider-health check; no registration transitions are implemented yet.
+  including the repository's `unHealthy` spelling. `healthy` records an
+  acknowledged registration, not a live provider-health check. Registration
+  attempts are not serialized, and provider/database updates are not atomic.
 - Viber customer mappings belong to the supplied tenant connection and are
   identified by the inbox/user pair. `contactsId` references a Core-owned
   customer; it is neither the Viber sender id nor the mapping's string `_id`.
@@ -2016,12 +2029,16 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   resolution through ngrok.
 - Viber registration tests in `__tests__/registration.spec.ts` exercise saved
   token selection, callback construction, missing records, propagated failures,
-  awaited acknowledgement, and retries without local writes. Common-dispatcher
+  awaited acknowledgement, and status transitions with no other local writes.
+  They cover awaited pending/final writes, unmatched and unchanged updates,
+  safe stored errors, database failures, and retrying the saved connection.
+  Common-dispatcher
   cases use the real Viber adapter with sibling modules stubbed. Permission
   assertions invoke the real Repair resolver with a mocked authorization
   dependency and require authorization before registration. The
   shared helper harness also restores the configuration module between cases.
-  No live provider, database, GraphQL server, or permission backend is exercised.
+  No live provider, database, GraphQL server, or permission backend is exercised;
+  mocked writes do not prove MongoDB update validation or concurrent behavior.
 - Smoke: connect a mail inbox without a `channelId` → a `Personal inbox`
   channel is created with one admin member and the integration attaches to it;
   a second connect reuses the same channel; the same holds for a non-mailbox
@@ -2064,6 +2081,14 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-15` — Viber registration health transitions
+
+- **Summary:** Persist registration progress and outcomes with safe errors,
+  awaited writes, and offline failure/retry coverage.
+- **Affected areas:** Viber registration helper and registration tests.
+- **Contracts changed:** Repair updates the existing connection's health fields
+  and succeeds only after saving `healthy`; the GraphQL schema is unchanged.
 
 ### `2026-09-14` — Viber connection health fields
 
@@ -2136,11 +2161,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Affected areas:** `src/modules/integrations/viber/controller/`.
 - **Contracts changed:** The unmounted receiver returns 501 for validated unwired
   message types and unimplemented events; public routes remain unchanged.
-
-### `2026-09-14` — Viber contact and location messages
-
-- **Summary:** Converted validated shared contacts and coordinates into readable
-  text through the shared message processor, with offline receiver tests.
-- **Affected areas:** `src/modules/integrations/viber/controller/`.
-- **Contracts changed:** The unmounted receiver now processes contact/location
-  messages before returning 200; public routes and APIs remain unchanged.

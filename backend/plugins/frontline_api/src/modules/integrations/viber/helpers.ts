@@ -4,7 +4,11 @@ import { sendTRPCMessage, uploadFileToStorage } from 'erxes-api-shared/utils';
 import { promises as fsPromises } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, join } from 'node:path';
-import type { ViberMediaType } from '@/integrations/viber/constants';
+import {
+  VIBER_HEALTH_STATUSES,
+  type ViberHealthStatus,
+  type ViberMediaType,
+} from '@/integrations/viber/constants';
 import {
   getViberMediaMaxBytes,
   downloadViberMedia,
@@ -85,7 +89,35 @@ export const registerViberWebhook = async (
     throw new Error('Viber integration not found');
   }
 
-  await setViberWebhook(integration.token, callbackUrl);
+  const updateHealth = async (
+    healthStatus: ViberHealthStatus,
+    error = '',
+  ): Promise<void> => {
+    const result = await models.ViberIntegrations.updateOne(
+      { _id: integration._id, inboxId: integrationId },
+      { $set: { healthStatus, error } },
+      { runValidators: true },
+    );
+
+    if (result.matchedCount !== 1) {
+      throw new Error('Viber integration no longer exists');
+    }
+  };
+
+  await updateHealth(VIBER_HEALTH_STATUSES.PENDING);
+
+  try {
+    await setViberWebhook(integration.token, callbackUrl);
+  } catch (error) {
+    await updateHealth(
+      VIBER_HEALTH_STATUSES.UNHEALTHY,
+      'Webhook registration could not be confirmed. Check the callback URL and try Repair.',
+    );
+
+    throw error;
+  }
+
+  await updateHealth(VIBER_HEALTH_STATUSES.HEALTHY);
 };
 
 export const removeViberIntegration = async (
