@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import type { IContext } from '~/connectionResolvers';
 import type {
   IViberOutbox,
@@ -22,6 +23,7 @@ export interface IViberReplyInput {
   structured?: unknown;
   replyToMessageId?: string;
   poll?: unknown;
+  requestId?: string;
 }
 
 const loadViberRecipient = async (
@@ -33,6 +35,11 @@ const loadViberRecipient = async (
     conversationId,
     'conversationMessageAdd',
   );
+  if (integration.isActive === false) {
+    throw new Error(
+      'This Viber integration is archived. Restore it before replying.',
+    );
+  }
   const mapping = await context.models.ViberConversations.findOne({
     inboxId: integration._id,
     conversationId,
@@ -215,16 +222,69 @@ export const sendViberReply = async (
   const attachments = plan.parts.flatMap((part) =>
     part.attachment ? [part.attachment] : [],
   );
-  // Follow Frontline's native message lifecycle; provider I/O starts only after persistence.
-  const message = await context.models.ConversationMessages.addMessage(
-    {
+  if (input.requestId && !/^[a-zA-Z0-9_-]{16,128}$/.test(input.requestId)) {
+    throw new Error('Invalid Viber send request ID');
+  }
+  const requestHash = createHash('sha256')
+    .update(JSON.stringify(plan))
+    .digest('hex');
+  const messageId = input.requestId
+    ? `viber-${createHash('sha256')
+        .update(
+          JSON.stringify([
+            context.user._id,
+            input.conversationId,
+            input.requestId,
+          ]),
+        )
+        .digest('hex')}`
+    : undefined;
+  const findPrevious = async () => {
+    if (!messageId) return null;
+    const previous = await context.models.ConversationMessages.findOne({
+      _id: messageId,
       conversationId: input.conversationId,
-      content: formatViberText(plan.content),
-      attachments,
-      extraData: { viber: { state: 'pending' } },
-    },
+      userId: context.user._id,
+    });
+    const marker = previous?.extraData?.viber;
+    if (
+      previous &&
+      (!marker ||
+        typeof marker !== 'object' ||
+        !('requestHash' in marker) ||
+        marker.requestHash !== requestHash)
+    ) {
+      throw new Error(
+        'This Viber request ID was already used for a different reply. Check the saved message before sending again.',
+      );
+    }
+    return previous;
+  };
+  const previous = await findPrevious();
+  if (previous) return previous;
+  // Follow Frontline's native message lifecycle; provider I/O starts only after persistence.
+  const document = {
+    ...(messageId ? { _id: messageId } : {}),
+    conversationId: input.conversationId,
+    content: formatViberText(plan.content),
+    attachments,
+    extraData: { viber: { state: 'pending', requestHash } },
+  };
+  const message = await context.models.ConversationMessages.addMessage(
+    document,
     context.user._id,
-  );
+  ).catch(async (error: unknown) => {
+    // A concurrent request or a lost database acknowledgement must not send twice.
+    const existing = await findPrevious();
+    if (existing) return existing;
+    throw error;
+  });
+  if (
+    messageId &&
+    (await context.models.ViberOutbox.findOne({ _id: messageId }))
+  ) {
+    return context.models.ConversationMessages.getMessage(messageId);
+  }
   try {
     await context.models.ViberOutbox.create({
       _id: message._id,
@@ -236,11 +296,19 @@ export const sendViberReply = async (
       parts: plan.parts,
     });
   } catch {
+    if (input.requestId)
+      return context.models.ConversationMessages.getMessage(message._id);
     throw new Error(
       `Viber reply was not dispatched because its send record could not be confirmed. Check saved inbox message ${message._id} before retrying.`,
     );
   }
-  await dispatchViberOutbox(context, message._id);
+  try {
+    await dispatchViberOutbox(context, message._id);
+  } catch (error) {
+    // The UI receives the saved message and its delivery state, not a misleading
+    // "unsaved draft" error that encourages sending a second copy.
+    if (!input.requestId) throw error;
+  }
   return context.models.ConversationMessages.getMessage(message._id);
 };
 
@@ -251,7 +319,24 @@ export const getViberMessageStatus = async (
   if (!context.user?._id) throw new Error('Authentication required');
   await context.checkPermission('showConversations');
   const outbox = await context.models.ViberOutbox.findOne({ _id: messageId });
-  if (!outbox) return null;
+  if (!outbox) {
+    const native = await context.models.ConversationMessages.findOne({
+      _id: messageId,
+    });
+    if (!native?.extraData?.viber || native.internal) return null;
+    await assertViberConversationAccess(
+      context,
+      native.conversationId,
+      'showConversations',
+    );
+    return {
+      _id: messageId,
+      state: 'unknown',
+      error:
+        'The send record is unavailable. Do not resend until an administrator checks this saved message.',
+      parts: [],
+    };
+  }
   await assertViberConversationAccess(
     context,
     outbox.conversationId,

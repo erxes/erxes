@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-09-08`
+- **Last synchronized:** `2026-09-15`
 
 ## Scope
 
@@ -18,7 +18,7 @@
   inbox navigation sub-groups, response templates, and integration
   configuration screens.
 - Channel settings (list, detail, members, integrations) and channel forms.
-- Integration connect/detail UIs for Mail, Facebook, Instagram, Discord,
+- Integration connect/detail UIs for Mail, Facebook, Instagram, Discord, Viber,
   calls, Call Pro, and the erxes messenger.
 - The mail conversation surface: the threaded reader, its compose box, the
   quoted-content toggle, the sandboxed email body renderer, and delivery state
@@ -72,6 +72,16 @@
 
 ## Current Capabilities
 
+- Viber has a channel integration catalog entry and native connect/manage
+  sheet, required name/brand/token validation, masked token replacement,
+  webhook registration status, Repair, archive/restore, and confirmed removal.
+  The setup panel reports callback, approved media hosts, and storage readiness;
+  a missing media policy does not prevent connecting a text-only test bot.
+- Viber conversations use the native message thread and composer for text,
+  attachments, and internal notes, plus a dialog for link/location/contact/
+  sticker messages. Reply eligibility respects archives, permissions, and
+  unsubscribe state. Delivery status and safe explicit retries update the
+  saved message through Apollo refetch/subscription, without manual reloads.
 - Polls are split across two routes, mirroring how forms are laid out.
   `settings/frontline/channels/:id/polls` manages the channel's polls: the
   settings breadcrumb resolves to `Channels / <channel> / Polls` and carries the
@@ -218,6 +228,10 @@
 
 ## Architecture
 
+Viber setup, management, delivery controls, validation, and upload/send hooks
+live in `src/modules/integrations/viber/`; the native inbox composer and message
+components select this behavior only for `viber-messenger` conversations.
+
 | Area                   | Path                                                                                                                                         | Responsibility                                                                                                                                  |
 | ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
 | Host registration      | `src/config.tsx`                                                                                                                             | `CONFIG` — navigation, settings, widgets, property inputs, routes, and Module Federation exposes                                                |
@@ -267,6 +281,9 @@
 
 ### Provides
 
+- The existing `settings/frontline/channels/details/:id/:type` route renders
+  `ViberIntegrationDetail` for `viber-messenger`; no new federation expose or
+  platform route is required. Catalog and channel chips include Viber.
 - Route `frontline/polls` (registered in `config.tsx`, `FrontlineNavigation`,
   and `FrontlineMain`) — the read-only poll results board.
 - Settings route `settings/frontline/channels/:id/polls` (registered in the
@@ -324,6 +341,15 @@
 
 ### Consumes
 
+- Viber GraphQL documents in `src/modules/integrations/viber/graphql.ts` use
+  unique `FrontlineViber*` operation names for setup, connection, token update,
+  repair, reply eligibility, send, status, and retry. Common integration
+  create/edit/archive/remove operations remain the lifecycle entry points.
+  Native message queries/subscriptions include `ConversationMessage.viberDelivery`.
+- Viber file upload uses Core's public authenticated
+  `/upload-file?forcePrivate=true` endpoint through the configured API URL.
+  It requires an opaque storage key for the backend's signed media relay;
+  storage provider configuration and server file policy remain Core-owned.
 - `frontline_api` GraphQL: `GetMyChannels`, `GetChannels`, `GetChannel`,
   `GetPersonalChannel` (get-or-create — reading it provisions the channel),
   `GetChannelMembers`, `ChannelAdd` (accepts an optional `scope` variable this
@@ -416,6 +442,11 @@ brandId)` and `knowledgeBaseTopicsTotalCount`, read together as the help
 
 ## Data and State
 
+- Viber connection and delivery state lives in Apollo. Unsaved form tokens and
+  composer request IDs stay in local component state only; tokens are never
+  loaded from queries. A failed send retains the request ID for confirmation of
+  that draft; a confirmed saved message clears it. Viber composers remount when
+  switching conversations to avoid leaking draft or attachment state.
 - Apollo Client for all server state; GraphQL documents live next to the feature
   they serve and use `frontline`/module-prefixed operation names.
 - `GET_MY_CHANNELS` backs the inbox navigation and is refetched after
@@ -480,6 +511,20 @@ brandId)` and `knowledgeBaseTopicsTotalCount`, read together as the help
 
 ## Local Invariants
 
+- Viber uses existing `showIntegrations`, `integrationsAdd/Edit/Remove`, and
+  `conversationMessageAdd` actions, not new role names. Backend channel checks
+  are authoritative. Do not enable arbitrary media hosts from the setup form.
+- Do not trim a Viber bot token: reject surrounding whitespace. Registration
+  health means the webhook was registered, not that real delivery was tested.
+- For Viber external replies, uploads retain private keys plus actual file
+  size/type/name metadata, including editor uploads. Reject empty files, unsafe
+  keys, external embedded URLs without metadata, more than ten attachments,
+  and files above 50 MiB. The backend applies type-specific provider limits and
+  file fallback; shared upload components and other integrations are unchanged.
+- A stored Viber reply is not necessarily sent. Distinguish accepted, delivered,
+  seen, rejected, pending, and unknown states. Retry only pending/rejected parts;
+  never automatically resend unknown or accepted parts. Internal notes continue
+  through the common local-only message mutation.
 - `RecordTable.Provider`'s container is `overflow-hidden`, so a table that is
   not wrapped in a scroll area clips every column past the viewport instead of
   scrolling. The help center and its categories tables paginate by page, not by
@@ -1001,10 +1046,21 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 ## Validation
 
+- `pnpm nx lint frontline_ui` (Nx-inferred ESLint target; report existing
+  failures separately from newly changed files).
 - `pnpm nx build frontline_ui`
-- `npx eslint src/...` on touched files — the project carries pre-existing lint
-  errors and TypeScript errors elsewhere, so lint and typecheck the files you
-  changed rather than the whole project.
+- `pnpm exec tsx --test frontend/plugins/frontline_ui/src/modules/integrations/viber/__tests__/*.spec.ts`
+- `pnpm exec tsc -p frontend/plugins/frontline_ui/tsconfig.app.json --noEmit`
+  checks the application and its referenced source; pre-existing shared/plugin
+  errors must be reported, not mistaken for a clean compile.
+- Viber smoke: open the channel's Viber card; check setup errors, empty state,
+  create validation, masked token, management and permission-disabled actions.
+  With a test bot, verify inbound/outbound text and files, receipt updates,
+  unsubscribe, archive/restore, Repair, same-bot token rotation, and removal.
+  Browser network fixtures test UI behavior only, not provider or storage I/O.
+- From the project directory, `pnpm exec eslint src/...` focuses the local
+  React/TypeScript rules on touched files. Still run the full checks above and
+  report pre-existing failures separately.
 - `project.json` defines only `build`, `serve`, and `serve-static` — there is no
   `test` target for this project; do not invent one.
 - Smoke: open `/frontline/inbox` and confirm the sidebar shows `Me` then
@@ -1054,6 +1110,15 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-15` — Viber connection and conversation UI
+
+- **Summary:** Add repository-native Viber setup, connection management,
+  native replies, private attachments, special messages, and delivery controls.
+- **Affected areas:** Viber feature directory/assets, integration catalog and
+  detail route, channel chips, native conversation composer/messages/documents.
+- **Contracts changed:** Consumes the Frontline Viber APIs and delivery fields;
+  no new shared UI, Core contract, or federation expose.
 
 ### `2026-09-08` — The message trigger says who else already listens
 
@@ -1219,118 +1284,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `src/modules/knowledgebase/components/{TopicDrawer.tsx,TopicGeneralTab.tsx}`,
   `src/modules/knowledgebase/{topicDrawerTypes.ts,topicDrawerConstants.ts}`
 - **Contracts changed:** `None`
-
-### `2026-09-07` — The help center table picks its knowledge base topic
-
-- **Summary:** Replaced the `Show articles` switch column with a
-  `Knowledge base topic` select that lists the other topics through
-  `TOPICS_SHORT`, excludes the row's own topic, and writes the choice with
-  `useEditHelpCenter`. The `kbToggle` field itself stays — the topic drawer
-  still owns that switch — and `Knowledge base name` is now a plain inline
-  text cell instead of striking itself through against a switch the table no
-  longer shows.
-- **Affected areas:**
-  `src/modules/helpcenter/components/HelpCenterColumns.tsx`,
-  `src/modules/helpcenter/{types/index.ts,hooks/useEditHelpCenter.ts}`,
-  `src/modules/helpcenter/graphql/queries/getHelpCenters.ts`
-- **Contracts changed:** `frontlineHelpCenterList` selects `kbTopicId`, and the
-  edit mutation sends it.
-
-### `2026-09-07` — Poll form picks the brand
-
-- **Summary:** `PollSheet` gained an optional single-select brand field backed by
-  `SelectBrands.FormItem`, so an admin decides which messenger integration in the
-  channel a poll's answers are filed under instead of leaving it to the API's
-  arbitrary pick.
-- **Affected areas:** `src/modules/poll/components/poll-page/PollSheet.tsx`,
-  `src/modules/poll/constants/pollFormSchema.ts`,
-  `src/modules/poll/types/pollTypes.ts`,
-  `src/modules/poll/graphql/{pollMutations.ts,pollQueries.ts}`.
-- **Contracts changed:** `pollAdd` and `pollEdit` now send `brandId: String`, and
-  the `PollFields` fragment selects `brandId`.
-
-### `2026-09-05` — `Property groups share one card shell`
-
-- **Summary:** The ticket detail property groups render through `PropertyGroupShell` / `PropertyGroupCard` from `ui-modules`, so a plain group and a repeating one look the same instead of a secondary-button header beside a card tray.
-- **Affected areas:** `src/modules/ticket/components/ticket-detail/TicketPipelineProperties.tsx`
-- **Contracts changed:** `None`
-
-### `2026-09-05` — Poll surfaces removed from the customer widget
-
-- **Summary:** The website poll popup and the in-messenger voting card are gone
-  from `frontline-widgets`, so the agent-side install-script action went with
-  them; a customer now sees a sent poll as the plain question message.
-- **Affected areas:**
-  `src/modules/poll/components/poll-page/{PollInstallScript.tsx (deleted),poll-columns.tsx}`.
-- **Contracts changed:** None in this project. The public `widgetsPoll*`
-  mutations still exist in `frontline_api` but have no in-repo caller.
-
-### `2026-09-04` — Fonts are picked from a list
-
-- **Summary:** The appearance tab's base and heading fonts were free text, so a
-  typo silently produced an unstyled site; they now pick from
-  `HELP_CENTER_FONTS`, each option previewing itself in the face it names and
-  storing the full CSS stack.
-- **Affected areas:**
-  `src/modules/channels/components/settings/breadcrumbs/ChannelSettingsBreadcrumb.tsx`,
-  `src/modules/poll/components/poll-page/polls-create.tsx` (new),
-  `src/modules/poll/components/poll-page/PollSubHeader.tsx`,
-  `src/modules/poll/components/poll-page/PollPageList.tsx`,
-  `src/pages/ChannelPollsPage.tsx`
-- **Contracts changed:** `PollSubHeader` no longer accepts `canCreate`.
-
-### `2026-09-02` — IMAP integration UI removed
-
-- **Summary:** Every IMAP surface was deleted — the connect form and sheet, the
-  integration detail and row actions, the threaded conversation reader, its
-  hooks, GraphQL documents and Jotai state — and `imap` is gone from the
-  integration type enum, catalog, chips and icon map, so the kind can no longer
-  be listed, connected or opened.
-- **Affected areas:** `src/modules/integrations/imap/` (deleted),
-  `src/modules/inbox/conversations/conversation-detail/graphql/queries/getImapConversationDetail.ts`
-  (deleted), `src/modules/types/Integration.ts`,
-  `src/modules/integrations/constants/{integrations.ts,integrationImages.ts}`,
-  `src/modules/integrations/components/{ConversationIntegrationDetail,IntegrationMoreColumn}.tsx`,
-  `src/pages/IntegrationDetailPage.tsx`,
-  `src/modules/channels/components/settings/channels-list/IntegrationChips.tsx`,
-  `src/modules/inbox/conversations/conversation-detail/components/ConversationDetail.tsx`.
-- **Contracts changed:** `IntegrationType.IMAP` removed; the UI no longer sends
-  `imapConversationDetail`, `imapGetIntegrations` or `imapSendMail`. The
-  conversation detail no longer suppresses `MessageInput` for the `imap` kind.
-
-### `2026-08-31` — Messenger polls
-
-- **Summary:** Added the poll module — per-channel management under
-  `settings/frontline/channels/:id/polls` (list, create/edit sheet, results
-  dialog, command bar), a read-only results board on `frontline/polls`, and the
-  composer dialog that posts a saved poll into a messenger conversation.
-- **Affected areas:** `src/modules/poll/**`,
-  `src/pages/{PollsIndexPage,ChannelPollsPage}.tsx`, `src/config.tsx`,
-  `src/modules/{FrontlineMain,FrontlineNavigation}.tsx`,
-  `src/modules/types/FrontlinePaths.ts`,
-  `src/modules/channels/components/settings/{Settings.tsx,channel-details/{ChannelDetails,PollsSection}.tsx}`,
-  `src/modules/inbox/conversations/conversation-detail/components/{SendPollDialog,MessageInput}.tsx`,
-  `src/modules/inbox/{types/Conversation.ts,conversation-messages/components/MessagePoll.tsx}`.
-- **Contracts changed:** New routes `frontline/polls` and
-  `settings/frontline/channels/:id/polls`, with a `polls` entry in
-  `CONFIG.modules`; `IMessagePoll` answer ids widened to `string | number`;
-  the conversation queries and inbox query state gained `withPoll`.
-
-### `2026-08-28` — The domain picker is searchable and says which domains are usable
-
-- **Summary:** The Cloudflare domain field was a plain `Select` listing every zone
-  a token reached, which on an account with hundreds of domains is unusable — and
-  a domain already carrying another provider's MX only failed after Connect. It is
-  now a `Combobox` + `Command` with search, matching how the rest of the plugin
-  picks from many. Ineligible zones stay listed but disabled, with the server's
-  short reason under the name: shown rather than hidden, so nobody wonders why
-  their domain is missing. The server returns usable domains first.
-- **Affected areas:**
-  `src/modules/integrations/mail/components/MailConfigUpdate.tsx`,
-  `src/modules/integrations/mail/graphql/queries/mailCloudflareQueries.ts`,
-  `src/modules/integrations/mail/hooks/useMailCloudflareSetup.tsx`,
-  `backend/gateway/src/locales/{en,mn}/frontline.json`.
-- **Contracts changed:** reads `eligible` and `reason` from `mailCloudflareZones`.
-  `src/modules/knowledgebase/components/Topic{StyleFields,AppearanceTab}.tsx`,
-  `src/modules/knowledgebase/topicDrawerConstants.ts`
-- **Contracts changed:** None.

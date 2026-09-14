@@ -1,5 +1,8 @@
 import inboxResolvers from '@/inbox/graphql/resolvers/customResolvers';
-import { viberMessageFields } from '@/integrations/viber/graphql/resolvers';
+import {
+  viberConnectionFields,
+  viberMessageFields,
+} from '@/integrations/viber/graphql/resolvers';
 import integrationFacebookResolvers from '@/integrations/facebook/graphql/resolvers/customResolvers';
 import integrationInstagramResolvers from '@/integrations/instagram/graphql/resolvers/customResolvers';
 import { Channel } from '@/channel/graphql/resolvers/customResolvers/channel';
@@ -18,6 +21,7 @@ import {
 } from '@/knowledgebase/graphql/resolvers/customResolvers/category';
 import KnowledgeBaseTopic from '@/knowledgebase/graphql/resolvers/customResolvers/topic';
 export const customResolvers = {
+  ViberConnection: viberConnectionFields,
   ...inboxResolvers,
   ...integrationFacebookResolvers,
   ...integrationInstagramResolvers,

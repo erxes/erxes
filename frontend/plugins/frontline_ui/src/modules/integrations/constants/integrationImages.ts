@@ -5,6 +5,7 @@ import {
   IconPhone,
 } from '@tabler/icons-react';
 import type { FC } from 'react';
+import { ViberIcon } from '@/integrations/viber/components/ViberIcon';
 import {
   InstagramIcon,
   MessengerIcon,
@@ -21,4 +22,5 @@ export const INTEGRATION_ICONS: Record<string, FC<any>> = {
   calls: IconPhone,
   callpro: IconPhone,
   'discord-messenger': IconBrandDiscord,
+  'viber-messenger': ViberIcon,
 };

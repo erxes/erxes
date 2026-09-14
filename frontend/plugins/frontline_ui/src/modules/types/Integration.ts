@@ -1,4 +1,5 @@
 export enum IntegrationType {
+  VIBER_MESSENGER = 'viber-messenger',
   MAIL = 'mail',
   FACEBOOK_POST = 'facebook-post',
   FACEBOOK_MESSENGER = 'facebook-messenger',

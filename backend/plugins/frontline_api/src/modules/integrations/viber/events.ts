@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import type { IModels } from '~/connectionResolvers';
 import { isViberDuplicateKeyError } from '@/integrations/viber/utils/errors';
-import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
+import { graphqlPubsub } from 'erxes-api-shared/utils';
 
 const timestamp = z.number().int().nonnegative().max(8_640_000_000_000_000);
 const userId = z
@@ -64,7 +64,7 @@ export const updateViberSubscription = async (
 
 export const publishViberDelivery = async (
   models: IModels,
-  subdomain: string,
+  _subdomain: string,
   messageId: string,
 ): Promise<void> => {
   const outbox = await models.ViberOutbox.findOne({ _id: messageId });
@@ -81,11 +81,10 @@ export const publishViberDelivery = async (
     },
     {
       $set: {
-        'extraData.viber': {
-          state: outbox.state,
-          error: outbox.parts.find((part) => part.error)?.error ?? null,
-          updatedAt: outbox.updatedAt,
-        },
+        'extraData.viber.state': outbox.state,
+        'extraData.viber.error':
+          outbox.parts.find((part) => part.error)?.error ?? null,
+        'extraData.viber.updatedAt': outbox.updatedAt,
       },
     },
   );
@@ -122,7 +121,15 @@ export const publishViberDelivery = async (
     _id: messageId,
     conversationId: outbox.conversationId,
   });
-  if (message) await pConversationClientMessageInserted(subdomain, message);
+  if (message) {
+    // Agent replies and receipts update the thread without incoming-message alerts.
+    await graphqlPubsub.publish(
+      `conversationMessageInserted:${outbox.conversationId}`,
+      {
+        conversationMessageInserted: message,
+      },
+    );
+  }
 };
 
 export const parseViberLifecycleEvent = (payload: unknown) => {

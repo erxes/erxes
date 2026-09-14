@@ -9,8 +9,20 @@ import {
 import type { IViberReplyInput } from '@/integrations/viber/outbound';
 import { getViberAccountInfo } from '@/integrations/viber/utils/account';
 import { registerViberWebhook } from '@/integrations/viber/helpers';
+import { getViberSetup, getViberConversationState } from '../readiness';
+import { getViberWebhookUrl } from '../config';
 
 export const viberQueries = {
+  viberSetup(_root: unknown, _args: unknown, context: IContext) {
+    return getViberSetup(context);
+  },
+  viberConversationState(
+    _root: unknown,
+    { conversationId }: { conversationId: string },
+    context: IContext,
+  ) {
+    return getViberConversationState(context, conversationId);
+  },
   async viberConnection(
     _root: unknown,
     { integrationId }: { integrationId: string },
@@ -94,6 +106,21 @@ export const viberMutations = {
 
 export const viberMessageFields = {
   viberDelivery(message: IMessageDocument, _args: unknown, context: IContext) {
+    if (!message.extraData?.viber || message.internal) return null;
     return getViberMessageStatus(context, message._id);
+  },
+};
+
+export const viberConnectionFields = {
+  webhookUrl(
+    connection: { integrationId: string },
+    _args: unknown,
+    context: IContext,
+  ) {
+    try {
+      return getViberWebhookUrl(context.subdomain, connection.integrationId);
+    } catch {
+      return null;
+    }
   },
 };

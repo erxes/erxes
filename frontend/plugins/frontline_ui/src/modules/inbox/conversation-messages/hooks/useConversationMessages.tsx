@@ -58,6 +58,7 @@ export const useConversationMessages = (
         if (!prev || !subscriptionData.data) return prev;
 
         const newMessage = subscriptionData.data.conversationMessageInserted;
+        if (!newMessage?._id) return prev;
 
         // The same message id can be re-emitted to push an update (e.g. a Discord
         // poll's vote tallies refreshing on `extraData`). Replace the existing

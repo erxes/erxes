@@ -29,7 +29,7 @@ import {
   onlyInternalState,
 } from '@/inbox/conversations/conversation-detail/states/isInternalState';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useDebounce, useThrottledCallback } from 'use-debounce';
 import { useMutation } from '@apollo/client';
 import { CONVERSATION_AGENT_TYPING } from '../graphql/mutations/conversationAgentTyping';
@@ -59,6 +59,12 @@ import { messageExtraInfoState } from '../states/messageExtraInfoState';
 import { useConversationMessageAdd } from '../hooks/useConversationMessageAdd';
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
 import { useGetResponses } from '@/responseTemplate/hooks/useGetResponses';
+import { useViberSend } from '@/integrations/viber/hooks/useViberSend';
+import { useViberUpload } from '@/integrations/viber/hooks/useViberUpload';
+import type { ViberAttachment } from '@/integrations/viber/types';
+import { useViberConversationState } from '@/integrations/viber/hooks/useViberConversationState';
+import { ViberSpecialMessage } from '@/integrations/viber/components/ViberSpecialMessage';
+import { usePermissionCheck } from 'ui-modules';
 
 const encodeDiscordMentions = (blocks?: Block[]): Block[] | undefined =>
   blocks?.map((block) =>
@@ -91,6 +97,17 @@ export const MessageInput = ({
   const hideInput = useAtomValue(hideMessageInputState);
   const { integration } = useConversationContext();
   const isDiscord = integration?.kind === IntegrationType.DISCORD_MESSENGER;
+  const isViber = integration?.kind === IntegrationType.VIBER_MESSENGER;
+  const viberState = useViberConversationState(conversationId, isViber);
+  const viberSend = useViberSend();
+  const viberUpload = useViberUpload();
+  const { isLoaded: permissionsLoaded, hasActionPermission } =
+    usePermissionCheck();
+  const viberCannotSend =
+    isViber &&
+    (!permissionsLoaded ||
+      !hasActionPermission('conversationMessageAdd') ||
+      (!isInternalNote && !viberState.canSend));
   const isMessenger = integration?.kind === IntegrationType.ERXES_MESSENGER;
   const messageExtraInfo = useAtomValue(messageExtraInfoState);
   const [discordReplyTo, setDiscordReplyTo] = useAtom(discordReplyToState);
@@ -170,7 +187,24 @@ export const MessageInput = ({
   const [attachments, setAttachments] = useState<any[]>([]);
   const [attachmentPreview, setAttachmentPreview] = useState<any>(null);
 
-  const editor = useBlockEditor();
+  const inlineViberFiles = useRef(new Map<string, ViberAttachment>());
+  const viberAttachmentCount = useRef(0);
+  viberAttachmentCount.current =
+    attachments.length + getBlockAttachments(content || []).length;
+  const editor = useBlockEditor({
+    uploadFile: isViber
+      ? async (file: File) => {
+          const [attachment] = await viberUpload.upload(
+            [file],
+            viberAttachmentCount.current,
+          );
+          if (!attachment)
+            throw new Error('Viber attachment upload did not complete');
+          inlineViberFiles.current.set(attachment.url, attachment);
+          return attachment.url;
+        }
+      : undefined,
+  });
   const { addConversationMessage, loading } = useConversationMessageAdd();
 
   const [notifyAgentTyping] = useMutation(CONVERSATION_AGENT_TYPING);
@@ -219,6 +253,15 @@ export const MessageInput = ({
     (files: FileList) => {
       if (!files?.length) return;
 
+      if (isViber && !isInternalNote) {
+        void viberUpload
+          .upload(files, viberAttachmentCount.current)
+          .then((uploaded) => {
+            setAttachments((previous) => [...previous, ...uploaded]);
+          });
+        return;
+      }
+
       upload({
         files,
         beforeUpload: () =>
@@ -232,7 +275,7 @@ export const MessageInput = ({
         },
       });
     },
-    [upload],
+    [upload, isViber, isInternalNote, viberUpload, t],
   );
 
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -377,6 +420,15 @@ export const MessageInput = ({
 
   const handleSubmit = useCallback(async () => {
     if (!conversationId) return;
+    if (
+      isViber &&
+      (viberCannotSend ||
+        viberSend.loading ||
+        viberUpload.loading ||
+        loading ||
+        isLoading)
+    )
+      return;
 
     const outgoingBlocks =
       isDiscord && !isInternalNote ? encodeDiscordMentions(content) : content;
@@ -385,12 +437,54 @@ export const MessageInput = ({
       ? JSON.stringify(content)
       : await editor?.blocksToHTMLLossy(outgoingBlocks);
 
-    const blockAttachments = getBlockAttachments(content || []);
+    const blockAttachments = getBlockAttachments(content || []).map(
+      (attachment) =>
+        isViber
+          ? inlineViberFiles.current.get(attachment.url) || attachment
+          : attachment,
+    );
     const paperclipUrls = new Set(attachments.map((a) => a.url));
     const allAttachments = [
       ...attachments,
       ...blockAttachments.filter((a) => !paperclipUrls.has(a.url)),
     ];
+
+    const clearDraft = () => {
+      if (content?.length) editor?.removeBlocks(content);
+      setContent(undefined);
+      setMentionedUserIds([]);
+      setIsInternalNote(false);
+      setAttachments([]);
+      setAttachmentPreview(null);
+      setShowSuggestions(false);
+      setResponseTemplateId(null);
+      setDiscordReplyTo(null);
+      inlineViberFiles.current.clear();
+    };
+    if (isViber && !isInternalNote) {
+      if (allAttachments.some((attachment) => !attachment.size)) {
+        toast({
+          title:
+            'Upload Viber attachments using the file button or editor upload',
+          description:
+            'Embedded external URLs do not include the private file metadata required for Viber.',
+          variant: 'destructive',
+        });
+        return;
+      }
+      const stored = await viberSend.send({
+        conversationId,
+        content: sendContent || '',
+        attachments: allAttachments.map(({ name, url, type, size }) => ({
+          name,
+          url,
+          type,
+          size,
+        })),
+      });
+      if (stored) clearDraft();
+      return;
+    }
 
     addConversationMessage({
       variables: {
@@ -407,16 +501,7 @@ export const MessageInput = ({
       },
       onCompleted: () => {
         toast({ title: t('message-sent'), variant: 'default' });
-        if (content?.length) editor?.removeBlocks(content);
-
-        setContent(undefined);
-        setMentionedUserIds([]);
-        setIsInternalNote(false);
-        setAttachments([]);
-        setAttachmentPreview(null);
-        setShowSuggestions(false);
-        setResponseTemplateId(null);
-        setDiscordReplyTo(null);
+        clearDraft();
       },
       refetchQueries: [
         'Conversations',
@@ -436,6 +521,13 @@ export const MessageInput = ({
     mentionedUserIds,
     isInternalNote,
     isDiscord,
+    isViber,
+    viberCannotSend,
+    viberSend,
+    viberUpload.loading,
+    t,
+    loading,
+    isLoading,
     discordReplyTo,
     setDiscordReplyTo,
     messageExtraInfo,
@@ -478,6 +570,24 @@ export const MessageInput = ({
 
   return (
     <div className="p-2 h-full">
+      {isViber && (
+        <div
+          className="mx-auto max-w-2xl text-xs text-muted-foreground px-3 pb-2"
+          aria-live="polite"
+        >
+          {viberState.reason ||
+            'Viber replies are plain text. Attach up to 10 files (50 MiB each); pictures above 1 MiB and videos above 26 MiB are sent as files.'}
+          {viberState.reason && (
+            <Button
+              variant="link"
+              size="sm"
+              onClick={() => void viberState.refetch().catch(() => undefined)}
+            >
+              Check again
+            </Button>
+          )}
+        </div>
+      )}
       <div
         onDrop={handleDrop}
         onKeyDown={handleKeyDown}
@@ -521,7 +631,9 @@ export const MessageInput = ({
         <BlockEditor
           editor={editor}
           onChange={handleChange}
-          disabled={loading}
+          disabled={
+            loading || (isViber && (viberSend.loading || viberUpload.loading))
+          }
           className={cn(
             'h-full w-full overflow-y-auto',
             isInternalNote && 'internal-note',
@@ -633,17 +745,39 @@ export const MessageInput = ({
             />
           )}
 
+          {isViber && !isInternalNote && (
+            <ViberSpecialMessage
+              conversationId={conversationId}
+              disabled={
+                viberCannotSend ||
+                viberSend.loading ||
+                viberUpload.loading ||
+                isLoading
+              }
+            />
+          )}
+
           <Button
             size="lg"
             className="ml-auto flex-none"
             disabled={
+              viberCannotSend ||
+              viberSend.loading ||
+              viberUpload.loading ||
               loading ||
               isLoading ||
               (!content?.length && attachments.length === 0)
             }
             onClick={handleSubmit}
           >
-            {loading || isLoading ? <Spinner size="sm" /> : <IconArrowUp />}
+            {loading ||
+            isLoading ||
+            viberSend.loading ||
+            viberUpload.loading ? (
+              <Spinner size="sm" />
+            ) : (
+              <IconArrowUp />
+            )}
             {t('send')}
             <Kbd className="ml-1 hidden sm:flex">
               <IconCommand size={12} />

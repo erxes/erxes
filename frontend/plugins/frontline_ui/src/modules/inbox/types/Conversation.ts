@@ -2,6 +2,7 @@ import { IAttachment } from 'erxes-ui';
 import { ICustomerInline, IUser } from 'ui-modules';
 import { IIntegration } from '@/integrations/types/Integration';
 import { IFormWidgetItem } from './FormWidget';
+import type { ViberDelivery } from '@/integrations/viber/types';
 
 export interface IConversation {
   _id: string;
@@ -60,6 +61,7 @@ export interface IMessageEmbed {
 }
 
 export interface IMessage {
+  viberDelivery?: ViberDelivery | null;
   _id: string;
   conversationId?: string;
   userId?: string;
@@ -70,6 +72,7 @@ export interface IMessage {
   attachments?: IAttachment[];
   formWidgetData?: IFormWidgetItem[];
   extraData?: {
+    viber?: { state?: string; error?: string | null };
     poll?: IMessagePoll;
     embeds?: IMessageEmbed[];
     discordMessageId?: string;

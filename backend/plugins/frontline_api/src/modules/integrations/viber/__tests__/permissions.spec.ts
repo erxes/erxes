@@ -111,7 +111,14 @@ const createPermissionHarness = (
     viberRemoveIntegration: providerRemove,
   });
   replaceModule('@/channel/utils', {});
-  replaceModule('@/integrations/viber/access', {});
+  replaceModule('@/integrations/viber/access', {
+    assertViberChannelAccess: async () => undefined,
+    assertViberIntegrationAccess: async (
+      _context: unknown,
+      _id: string,
+      action: string,
+    ) => checkPermission(action),
+  });
   for (const provider of ['facebook', 'instagram', 'discord']) {
     replaceModule(`@/integrations/${provider}/messageBroker`, {
       [`${provider}CreateIntegrations`]: siblingCreate,
@@ -196,7 +203,7 @@ test('denied Viber creation stops before channel lookup, personal-channel alloca
   }
 });
 
-test('a rejected login check propagates before the creation resolver dereferences the user', async (t) => {
+test('a missing login is rejected before permissions, channel reads, or writes', async (t) => {
   const failure = new Error('Login required');
   const harness = createPermissionHarness(t, {
     loggedOut: true,
@@ -205,8 +212,8 @@ test('a rejected login check propagates before the creation resolver dereference
     },
   });
 
-  await rejects(harness.create(), (error: unknown) => error === failure);
-  deepStrictEqual(harness.events, ['permission:integrationsAdd']);
+  await rejects(harness.create(), /Authentication required/);
+  deepStrictEqual(harness.events, []);
 });
 
 test('denied Viber removal reads the stored kind but never calls cleanup', async (t) => {

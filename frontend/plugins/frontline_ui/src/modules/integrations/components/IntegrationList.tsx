@@ -105,7 +105,12 @@ export const IntegrationIntro = ({
         </div>
       </div>
       <div className="text-sm text-muted-foreground font-medium">
-        {t(integration.descriptionKey)}
+        {t(integration.descriptionKey, {
+          defaultValue:
+            integrationType === IntegrationType.VIBER_MESSENGER
+              ? 'Receive Viber messages and reply from your team inbox.'
+              : integration.descriptionKey,
+        })}
       </div>
     </>
   );

@@ -3,7 +3,7 @@ import { IntegrationsRecordTable } from '@/integrations/components/IntegrationsR
 import { INTEGRATIONS } from '@/integrations/constants/integrations';
 import { IntegrationType } from '@/types/Integration';
 import { IconChevronLeft } from '@tabler/icons-react';
-import { Button, getPluginAssetsUrl } from 'erxes-ui';
+import { Button, getPluginAssetsUrl, Spinner } from 'erxes-ui';
 import { lazy, Suspense } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { useTranslation } from 'react-i18next';
@@ -13,6 +13,12 @@ const ErxesMessengerDetail = lazy(() =>
     (module) => ({
       default: module.ErxesMessengerDetail,
     }),
+  ),
+);
+
+const ViberIntegrationDetail = lazy(() =>
+  import('@/integrations/viber/components/ViberIntegrationDetail').then(
+    (module) => ({ default: module.ViberIntegrationDetail }),
   ),
 );
 
@@ -101,11 +107,20 @@ export const IntegrationDetailPage = () => {
         <div className="flex flex-col gap-1">
           <h6 className="font-semibold text-sm">{integration?.name}</h6>
           <span className="text-sm text-muted-foreground font-medium">
-            {integration?.description}
+            {integration &&
+              t(integration.descriptionKey, {
+                defaultValue:
+                  integrationType === IntegrationType.VIBER_MESSENGER
+                    ? 'Receive Viber messages and reply from your team inbox.'
+                    : integration.descriptionKey,
+              })}
           </span>
         </div>
       </div>
-      <Suspense fallback={<div />}>
+      <Suspense fallback={<Spinner />}>
+        {integrationType === IntegrationType.VIBER_MESSENGER && id && (
+          <ViberIntegrationDetail channelId={id} />
+        )}
         {integrationType === IntegrationType.ERXES_MESSENGER && (
           <ErxesMessengerDetail />
         )}
@@ -130,9 +145,11 @@ export const IntegrationDetailPage = () => {
           <DiscordIntegrationDetail />
         )}
       </Suspense>
-      <div className="flex-1 min-h-0 flex flex-col">
-        <IntegrationsRecordTable />
-      </div>
+      {integrationType !== IntegrationType.VIBER_MESSENGER && (
+        <div className="flex-1 min-h-0 flex flex-col">
+          <IntegrationsRecordTable />
+        </div>
+      )}
     </div>
   );
 };

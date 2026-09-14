@@ -1,6 +1,11 @@
 import { IntegrationType } from '@/types/Integration';
 
 export const INTEGRATIONS = {
+  [IntegrationType.VIBER_MESSENGER]: {
+    name: 'Viber',
+    descriptionKey: 'integration-desc-viber',
+    img: 'viber.svg',
+  },
   [IntegrationType.ERXES_MESSENGER]: {
     name: 'erxes Messenger',
     descriptionKey: 'integration-desc-erxes-messenger',

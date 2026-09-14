@@ -1,5 +1,6 @@
 import { gql } from '@apollo/client';
 import { ATTACHMENT_GQL } from 'erxes-ui';
+import { VIBER_DELIVERY_FIELDS } from '@/integrations/viber/graphql';
 
 export const GET_CONVERSATION_MESSAGES = gql`
   query ConversationMessages(
@@ -19,6 +20,7 @@ export const GET_CONVERSATION_MESSAGES = gql`
       content
       formWidgetData
       extraData
+      ...FrontlineViberDeliveryFields
       ${ATTACHMENT_GQL}
       internal
       fromBot
@@ -31,4 +33,5 @@ export const GET_CONVERSATION_MESSAGES = gql`
     }
     conversationMessagesTotalCount(conversationId: $conversationId)
   }
+  ${VIBER_DELIVERY_FIELDS}
 `;

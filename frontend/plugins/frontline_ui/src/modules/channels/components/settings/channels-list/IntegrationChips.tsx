@@ -5,6 +5,7 @@ import {
   MessengerIcon,
 } from '@/integrations/components/Icons';
 import { IconMail, IconMessageFilled, IconPhone } from '@tabler/icons-react';
+import { ViberIcon } from '@/integrations/viber/components/ViberIcon';
 import type { ComponentType, CSSProperties } from 'react';
 
 type ProviderIcon = ComponentType<{
@@ -19,6 +20,10 @@ const PROVIDER_META: Record<
   string,
   { Icon: ProviderIcon; iconClass?: string }
 > = {
+  [IntegrationType.VIBER_MESSENGER]: {
+    Icon: ViberIcon,
+    iconClass: 'text-violet-500',
+  },
   [IntegrationType.ERXES_MESSENGER]: {
     Icon: IconMessageFilled,
     iconClass: 'text-indigo-500',

@@ -33,7 +33,7 @@ export const createTransportHarness = (t: TestContext) => {
       userId: string;
       internal: boolean;
       content: string;
-      extraData: unknown;
+      extraData: { viber: Record<string, unknown> };
       isCustomerRead?: boolean;
     }
   >();
@@ -43,6 +43,7 @@ export const createTransportHarness = (t: TestContext) => {
     { inboxId: string; userId: string; timestamp: number; subscribed: boolean }
   >();
   const state = {
+    isActive: true,
     allowed: true,
     customerMatches: true,
     denyPermission: false,
@@ -57,8 +58,8 @@ export const createTransportHarness = (t: TestContext) => {
     },
   );
   const publish: TestSpy<[string, unknown], Promise<void>> = t.mock.fn(
-    async (subdomain: string, message: unknown) => {
-      strictEqual(subdomain, 'test');
+    async (topic: string, message: unknown) => {
+      strictEqual(topic, 'conversationMessageInserted:conversation');
       strictEqual(typeof message, 'object');
     },
   );
@@ -87,6 +88,7 @@ export const createTransportHarness = (t: TestContext) => {
         _id: 'inbox',
         kind: 'viber-messenger',
         channelId: 'channel',
+        isActive: state.isActive,
       }),
     },
     Channels: {
@@ -162,6 +164,8 @@ export const createTransportHarness = (t: TestContext) => {
     ViberOutbox: {
       create: async (doc: Omit<IViberOutbox, 'createdAt' | 'updatedAt'>) => {
         if (state.failReservation) throw new Error('reservation failed');
+        if (outboxes.has(doc._id))
+          throw Object.assign(new Error('duplicate outbox'), { code: 11000 });
         strictEqual(messages.has(doc._id), true);
         outboxes.set(
           doc._id,
@@ -238,27 +242,36 @@ export const createTransportHarness = (t: TestContext) => {
     },
     ConversationMessages: {
       addMessage: async (
-        doc: { conversationId: string; content: string; extraData: unknown },
+        doc: {
+          _id?: string;
+          conversationId: string;
+          content: string;
+          extraData: { viber: Record<string, unknown> };
+        },
         agentId: string,
       ) => {
         if (state.failNative) throw new Error('native write failed');
         const message = {
           ...doc,
-          _id: `message-${messages.size + 1}`,
+          _id: doc._id || `message-${messages.size + 1}`,
           userId: agentId,
           internal: false,
         };
+        if (messages.has(message._id))
+          throw Object.assign(new Error('duplicate message'), { code: 11000 });
         messages.set(message._id, message);
         return message;
       },
       getMessage: async (id: string) => messages.get(id),
       findOne: async (filter: {
         _id: string;
-        conversationId: string;
+        conversationId?: string;
         userId?: string;
       }) => {
         const message = messages.get(filter._id);
-        return message?.conversationId === filter.conversationId &&
+        return message &&
+          (!filter.conversationId ||
+            message.conversationId === filter.conversationId) &&
           (!filter.userId || filter.userId === message.userId)
           ? message
           : null;
@@ -270,8 +283,12 @@ export const createTransportHarness = (t: TestContext) => {
         const message = messages.get(filter._id);
         if (message && update.$set.isCustomerRead === true)
           message.isCustomerRead = true;
-        if (message && update.$set['extraData.viber'])
-          message.extraData = { viber: update.$set['extraData.viber'] };
+        if (message)
+          for (const [key, value] of Object.entries(update.$set)) {
+            if (key.startsWith('extraData.viber.'))
+              message.extraData.viber[key.slice('extraData.viber.'.length)] =
+                value;
+          }
         return { matchedCount: message ? 1 : 0 };
       },
     },
@@ -282,6 +299,7 @@ export const createTransportHarness = (t: TestContext) => {
       'erxes-api-shared/utils': {
         getEnv: () => 'https://callback.example.test/viber/receive',
         readFileStreamFromStorage: storage,
+        graphqlPubsub: { publish },
       },
       'erxes-api-shared/core-modules': { canGroup: async () => false },
       '@/inbox/graphql/resolvers/mutations/widget': {

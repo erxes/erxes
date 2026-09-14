@@ -94,7 +94,14 @@ export const ConversationDetail = () => {
           <ConversationDetailLayout
             input={
               <MessageInputIntegrationWrapper>
-                <MessageInput conversationId={conversationId || ''} />
+                <MessageInput
+                  key={
+                    integration?.kind === 'viber-messenger'
+                      ? `viber-${conversationId}`
+                      : 'default'
+                  }
+                  conversationId={conversationId || ''}
+                />
               </MessageInputIntegrationWrapper>
             }
           >
@@ -103,9 +110,12 @@ export const ConversationDetail = () => {
             ) : (
               <>
                 {integration?.kind &&
-                  ['messenger', 'lead', 'discord-messenger'].includes(
-                    integration.kind,
-                  ) && (
+                  [
+                    'messenger',
+                    'lead',
+                    'discord-messenger',
+                    'viber-messenger',
+                  ].includes(integration.kind) && (
                     <ConversationMessages
                       conversationId={conversationId || ''}
                     />

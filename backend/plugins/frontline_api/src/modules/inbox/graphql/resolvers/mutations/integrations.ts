@@ -54,7 +54,10 @@ import {
   markResolvers,
 } from 'erxes-api-shared/utils';
 import { IContext, IModels } from '~/connectionResolvers';
-import { assertViberIntegrationAccess } from '@/integrations/viber/access';
+import {
+  assertViberChannelAccess,
+  assertViberIntegrationAccess,
+} from '@/integrations/viber/access';
 import { visibleChannelsFilter } from '@/channel/utils';
 
 interface IntegrationParams {
@@ -524,13 +527,15 @@ export const integrationMutations = {
   async integrationsCreateExternalIntegration(
     _root,
     { data, ...doc }: IExternalIntegrationParams & { data: object },
-    { user, models, subdomain, checkPermission }: IContext,
+    context: IContext,
   ) {
+    const { user, models, subdomain, checkPermission } = context;
     const modifiedDoc: IExternalIntegrationParams & {
       webhookData?: Record<string, unknown>;
     } = { ...doc };
     const serviceKind = doc.kind.split('-')[0];
     if (serviceKind === 'viber') {
+      if (!user?._id) throw new Error('Authentication required');
       await checkPermission('integrationsAdd');
     }
 
@@ -562,6 +567,10 @@ export const integrationMutations = {
       );
 
       modifiedDoc.channelId = personalChannel._id;
+    }
+
+    if (serviceKind === 'viber' && modifiedDoc.channelId) {
+      await assertViberChannelAccess(context, modifiedDoc.channelId);
     }
 
     if (modifiedDoc.kind === 'webhook') {
@@ -678,16 +687,13 @@ export const integrationMutations = {
     return updated;
   },
 
-  async integrationsRemove(
-    _root,
-    { _id }: { _id: string },
-    { models, subdomain, checkPermission }: IContext,
-  ) {
+  async integrationsRemove(_root, { _id }: { _id: string }, context: IContext) {
+    const { models, subdomain } = context;
     const integration = await models.Integrations.getIntegration({ _id });
     const kind = integration.kind.split('-')[0];
 
     if (kind === 'viber') {
-      await checkPermission('integrationsRemove');
+      await assertViberIntegrationAccess(context, _id, 'integrationsRemove');
     }
 
     if (!['lead', 'messenger'].includes(kind)) {
@@ -718,12 +724,13 @@ export const integrationMutations = {
   async integrationsRepair(
     _root: unknown,
     { _id, kind }: { _id: string; kind: string },
-    { subdomain, checkPermission }: IContext,
+    context: IContext,
   ) {
+    const { subdomain } = context;
     const serviceName = kind.split('-')[0];
 
     if (serviceName === 'viber') {
-      await checkPermission('integrationsEdit');
+      await assertViberIntegrationAccess(context, _id, 'integrationsEdit');
     }
 
     return sendRepairIntegration(subdomain, serviceName, {
@@ -733,8 +740,13 @@ export const integrationMutations = {
   async integrationsArchive(
     _root,
     { _id, status }: IArchiveParams,
-    { models }: IContext,
+    context: IContext,
   ) {
+    const { models } = context;
+    const integration = await models.Integrations.findOne({ _id });
+    if (integration?.kind.split('-')[0] === 'viber') {
+      await assertViberIntegrationAccess(context, _id, 'integrationsEdit');
+    }
     await models.Integrations.updateOne(
       { _id },
       { $set: { isActive: !status } },

@@ -21,7 +21,7 @@
   and external kinds.
 - Channel integration runtimes hosted in this service and their webhook
   ingestion, message delivery, and bot automation: Facebook (Messenger + Page
-  comments), Instagram, Mail (Cloudflare Email Routing), Discord,
+  comments), Instagram, Mail (Cloudflare Email Routing), Discord, Viber,
   Call (SIP/CDR), and Call Pro (webhook PBX).
 - Response templates.
 - Ticketing: boards, pipelines, statuses, tickets, activities, notes, ticket
@@ -53,6 +53,12 @@
 
 ## Current Capabilities
 
+- Viber exposes nonsecret setup readiness and conversation reply eligibility
+  for its Frontline UI. Existing Frontline action permissions and channel
+  visibility govern creation, management, removal, and replies. Archives pause
+  inbound message persistence and outbound replies without deleting mappings.
+  Optional send request IDs deduplicate repeated submissions of the same saved
+  reply; uncertain delivery is reported, never silently retried.
 - Internal Viber helpers verify webhook signatures, fetch and validate bot
   account information, and create tenant-scoped connections after checking the
   inbox and duplicate bot/inbox. The creation adapter validates serialized
@@ -497,6 +503,13 @@ accountId, brandId, data)` — `channelId` is **nullable** for every kind;
   Common `conversationMessageAdd` handles ordinary Viber replies and keeps
   internal notes local. Native polls and quoted replies are explicitly rejected
   for external Viber sends.
+- GraphQL: `viberSetup` requires `showIntegrations` and returns callback,
+  approved media hosts, and nonsecret storage configuration readiness (not a
+  live connectivity test). `viberConversationState(conversationId)` requires
+  `showConversations` plus channel access and returns reply eligibility.
+  `ViberConnection.webhookUrl` exposes the configured callback, never a token.
+  `viberSendMessage` accepts optional `requestId`; `ViberMessageStatus.error`
+  reports a missing send record without treating the saved message as unsent.
 - HTTP: `POST /mail/receive` — the mail worker's inbound webhook. The body is
   capped at `15mb` by the `express.json` parser `startPlugin` installs, and is
   kept as a `Buffer` there for the HMAC check. That cap belongs to
@@ -666,6 +679,10 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 ### Consumes
 
+- Viber setup reads only `UPLOAD_SERVICE_TYPE` and `CLOUDFLARE_USE_CDN`
+  through Core's public `configs.getConfigs` tRPC query, with environment
+  fallbacks. Remote object storage is required for attachment relay; LOCAL and
+  Cloudflare Images/Stream CDN uploads are not supported by that stream path.
 - Viber Bot REST API: `POST https://chatapi.viber.com/pa/get_account_info`
   through Node's `fetch`, with the token in `X-Viber-Auth-Token` and an empty
   JSON object body.
@@ -885,6 +902,17 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 ## Local Invariants
 
+- Viber UI send request IDs are optional 16–128 character URL-safe strings,
+  scoped by tenant models, acting user, and conversation. The native message ID
+  is deterministic for that tuple; its `extraData.viber.requestHash` binds the
+  normalized send plan. Reusing an ID with changed content fails. Persisted
+  messages survive dispatch errors; missing send records report `unknown`.
+  Delivery updates preserve that hash and publish on the conversation-message
+  subscription without generating incoming-message alerts for agent replies.
+- Viber management checks both existing action permissions and channel
+  visibility. Signed messages for archived integrations return 200 without
+  persistence; webhook/lifecycle events still run. An absent common integration
+  returns 404 for a signed message. Archived integrations cannot send replies.
 - Viber signatures authenticate the exact `rawBody` with the bot token; reject
   missing tokens and non-64-hex signatures. Never parse and reserialize the body
   for signing or log tokens, signatures, or payloads.
@@ -2012,6 +2040,10 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 ## Validation
 
+- Viber UI-readiness, management-access, and send-idempotency regressions are
+  included in the focused Viber command below. They isolate provider, Core,
+  model, and pubsub boundaries; passing does not prove live provider delivery,
+  storage credentials, network reachability, or production database behavior.
 - `pnpm nx lint frontline_api` (repository-wide pre-existing errors exist in
   `src/public/widget/messengerWidget.bundle.js` and some ticket/report files;
   lint the files you touched)
@@ -2258,6 +2290,15 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-15` — Viber UI readiness and safe reply submission
+
+- **Summary:** Support Viber setup/reply screens with nonsecret readiness,
+  channel-scoped management, archive behavior, and deduplicated send requests.
+- **Affected areas:** Viber access, readiness, outbound/receipt lifecycle,
+  GraphQL registration, common integration mutations, and focused tests.
+- **Contracts changed:** Added `viberSetup`, `viberConversationState`,
+  `ViberConnection.webhookUrl`, optional send `requestId`, and status `error`.
+
 ### `2026-09-15` — Viber backend messaging lifecycle
 
 - **Summary:** Wire incoming media and lifecycle callbacks, native agent replies,
@@ -2331,11 +2372,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Affected areas:** `src/modules/integrations/viber/{config.ts,__tests__/config.spec.ts}`.
 - **Contracts changed:** Added internal `getViberWebhookUrl` and optional server
   configuration `VIBER_RECEIVE_URL`; creation and public APIs remain unchanged.
-
-### `2026-09-14` — Viber provider-aware removal
-
-- **Summary:** Remove the provider webhook before deleting the local token
-  record, preserving retryability on failures with offline composition tests.
-- **Affected areas:** `src/modules/integrations/viber/{helpers.ts,__tests__/removal.spec.ts}`.
-- **Contracts changed:** Viber removal now calls `set_webhook` before local
-  deletion; the common GraphQL schema and dispatcher remain unchanged.

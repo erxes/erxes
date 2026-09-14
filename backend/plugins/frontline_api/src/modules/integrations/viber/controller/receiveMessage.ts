@@ -93,6 +93,18 @@ export const receiveViberMessage = async (
   }
 
   if (payload.event === 'message') {
+    const inboxIntegration = await models.Integrations.findOne({
+      _id: integration.inboxId,
+    });
+    if (!inboxIntegration) {
+      res.status(404).json({ error: 'Viber inbox integration not found' });
+      return;
+    }
+    // Archive pauses incoming messages, but still acknowledges lifecycle callbacks.
+    if (inboxIntegration.isActive === false) {
+      res.sendStatus(200);
+      return;
+    }
     if (
       !('message_token' in payload) ||
       !isViberMessageToken(payload.message_token)

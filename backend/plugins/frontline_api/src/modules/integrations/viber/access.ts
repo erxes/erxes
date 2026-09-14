@@ -8,6 +8,7 @@ export const assertViberIntegrationAccess = async (
     | 'showConversations'
     | 'conversationMessageAdd'
     | 'integrationsEdit'
+    | 'integrationsRemove'
     | 'showIntegrations',
 ) => {
   if (!context.user?._id) throw new Error('Authentication required');
@@ -26,6 +27,21 @@ export const assertViberIntegrationAccess = async (
     throw new Error('Viber channel access denied');
   }
   return integration;
+};
+
+export const assertViberChannelAccess = async (
+  context: IContext,
+  channelId: string,
+): Promise<void> => {
+  if (!context.user?._id) throw new Error('Authentication required');
+  const visible = await visibleChannelsFilter(context);
+  if (
+    !(await context.models.Channels.exists({
+      $and: [{ _id: channelId }, visible],
+    }))
+  ) {
+    throw new Error('Viber channel access denied');
+  }
 };
 
 export const assertViberConversationAccess = async (

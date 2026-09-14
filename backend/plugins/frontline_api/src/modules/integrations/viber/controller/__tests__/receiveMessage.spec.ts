@@ -39,6 +39,7 @@ const createReceiverHarness = (
   t: TestContext,
   integration: { token: string } | null = { token: TEST_TOKEN },
 ) => {
+  const inboxState = { exists: true, isActive: true };
   const select = t.mock.fn(async (projection: string) => {
     strictEqual(projection, '+token');
     return integration;
@@ -50,6 +51,12 @@ const createReceiverHarness = (
   const generateModels = t.mock.fn(async (subdomain: string) => {
     strictEqual(subdomain, 'test');
     return {
+      Integrations: {
+        findOne: async () =>
+          inboxState.exists
+            ? { _id: 'inbox-test', isActive: inboxState.isActive }
+            : null,
+      },
       ViberIntegrations: { findOne },
       ViberSubscriptions: { updateOne: async () => ({ matchedCount: 1 }) },
       ViberReceipts: { updateOne: async () => ({ matchedCount: 1 }) },
@@ -161,8 +168,37 @@ const createReceiverHarness = (
     return replies;
   };
 
-  return { receive, generateModels, findOne, select, processMessage, respond };
+  return {
+    receive,
+    generateModels,
+    findOne,
+    select,
+    processMessage,
+    respond,
+    inboxState,
+  };
 };
+
+test('archived integrations acknowledge messages without processing, but still accept webhook checks', async (t) => {
+  const h = createReceiverHarness(t);
+  h.inboxState.isActive = false;
+  deepStrictEqual(await h.receive(JSON.stringify(TEXT_MESSAGE)), [
+    { statusCode: 200 },
+  ]);
+  deepStrictEqual(await h.receive('{"event":"webhook"}'), [
+    { statusCode: 200 },
+  ]);
+  strictEqual(h.processMessage.mock.callCount(), 0);
+});
+
+test('a removed common integration cannot ingest new messages', async (t) => {
+  const h = createReceiverHarness(t);
+  h.inboxState.exists = false;
+  deepStrictEqual(await h.receive(JSON.stringify(TEXT_MESSAGE)), [
+    { statusCode: 404, body: { error: 'Viber inbox integration not found' } },
+  ]);
+  strictEqual(h.processMessage.mock.callCount(), 0);
+});
 
 test('rejects a missing raw body before looking up tenant models', async (t) => {
   const { receive, generateModels } = createReceiverHarness(t);

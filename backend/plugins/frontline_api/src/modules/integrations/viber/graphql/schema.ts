@@ -5,6 +5,20 @@ export const types = `
     name: String
     healthStatus: String!
     error: String
+    webhookUrl: String
+  }
+  type ViberSetup {
+    webhookUrl: String
+    webhookError: String
+    mediaHostnames: [String!]!
+    mediaError: String
+    storageProvider: String
+    storageError: String
+  }
+  type ViberConversationState {
+    canSend: Boolean!
+    reason: String
+    subscribed: Boolean
   }
   type ViberMessagePartStatus {
     index: Int!
@@ -19,6 +33,7 @@ export const types = `
   type ViberMessageStatus {
     _id: String!
     state: String!
+    error: String
     parts: [ViberMessagePartStatus!]!
   }
   extend type ConversationMessage {
@@ -27,12 +42,14 @@ export const types = `
 `;
 
 export const queries = `
+  viberSetup: ViberSetup!
+  viberConversationState(conversationId: String!): ViberConversationState!
   viberConnection(integrationId: String!): ViberConnection
   viberMessageStatus(messageId: String!): ViberMessageStatus
 `;
 
 export const mutations = `
-  viberSendMessage(conversationId: String!, content: String, attachments: [AttachmentInput], message: JSON): ConversationMessage
+  viberSendMessage(conversationId: String!, content: String, attachments: [AttachmentInput], message: JSON, requestId: String): ConversationMessage
   viberRetryMessage(messageId: String!): ConversationMessage
   viberUpdateToken(integrationId: String!, token: String!): Boolean!
 `;

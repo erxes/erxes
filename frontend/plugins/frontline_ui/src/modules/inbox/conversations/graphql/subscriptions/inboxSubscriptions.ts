@@ -1,5 +1,6 @@
 import { gql } from '@apollo/client';
 import { ATTACHMENT_GQL } from 'erxes-ui';
+import { VIBER_DELIVERY_FIELDS } from '@/integrations/viber/graphql';
 import messageFields from '@/inbox/conversations/graphql/subscriptions/messageFields';
 
 export const conversationChanged = gql`
@@ -33,6 +34,7 @@ export const CONVERSATION_MESSAGE_INSERTED = gql`
       content
       formWidgetData
       extraData
+      ...FrontlineViberDeliveryFields
       ${ATTACHMENT_GQL}
       internal
       fromBot
@@ -47,6 +49,7 @@ export const CONVERSATION_MESSAGE_INSERTED = gql`
       fromBot
     }
   }
+  ${VIBER_DELIVERY_FIELDS}
 `;
 
 export const CONVERSATION_MESSAGE_UPDATED = gql`

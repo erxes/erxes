@@ -76,7 +76,16 @@ export const loadViberHelpers = (
   replaceModule(inboxPath, mocks.inboxReceiver);
   replaceModule(publisherPath, mocks.messagePublisher ?? {});
   replaceModule(channelPath, {});
-  replaceModule(accessPath, {});
+  // These tests exercise provider lifecycle; access rules are tested with the
+  // real implementation in transport/access tests.
+  replaceModule(accessPath, {
+    assertViberChannelAccess: async () => undefined,
+    assertViberIntegrationAccess: async (
+      context: { checkPermission: (action: string) => Promise<void> },
+      _id: string,
+      action: string,
+    ) => context.checkPermission(action),
+  });
   delete require.cache[configPath];
   delete require.cache[helperPath];
 
