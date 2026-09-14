@@ -57,6 +57,10 @@
   account information, and create tenant-scoped connections after checking the
   inbox and duplicate bot/inbox. The creation adapter validates serialized
   settings and wraps the helper result with Frontline's success/error response.
+  Connection records support `pending`, `healthy`, and `unHealthy` health states
+  plus an error string; new records default to `pending` with no error.
+  Registration does not yet update these fields or expose Viber health through
+  the common GraphQL status resolver.
   The external-integration creation dispatcher routes the `viber` service prefix
   to this adapter. The removal dispatcher awaits tenant-scoped Viber record
   cleanup before the common integration is removed; cleanup failures propagate.
@@ -255,7 +259,9 @@ environment/config mocks, without testing a live tunnel or tenant routing.
 `__tests__/attachments.spec.ts` covers the tenant-configured byte-storage adapter
 and its composition with the real downloader using mocked external I/O.
 `constants.ts` defines `ViberMediaType` and the incoming-media size policy shared
-by response reading, storage, and the file callback guard.
+by response reading, storage, and the file callback guard. It also owns
+`VIBER_HEALTH_STATUSES` and the derived `ViberHealthStatus` type used by the
+connection schema and document interface.
 `utils/media.ts` owns approved-host HTTPS downloads, bounded HTTP-response
 reading with supplied MIME metadata and stream cleanup, and the shared
 `getViberMediaMaxBytes` lookup;
@@ -271,7 +277,8 @@ uses the real router and logger with a mocked receiver on an isolated loopback
 HTTP server. Parent-registry cases load the real `src/routes.ts` with sibling
 routers and the Call Pro toggle stubbed, without starting plugin infrastructure.
 `@types/` and `db/` hold document types, schema definitions, and model loaders;
-customer, conversation, and message schema tests live in `db/definitions/__tests__/`.
+integration, customer, conversation, and message schema tests live in
+`db/definitions/__tests__/`.
 `src/connectionResolvers.ts` registers `ViberIntegrations`, `ViberCustomers`,
 `ViberConversations`, and `ViberMessages` on the supplied tenant connection.
 `src/modules/inbox/graphql/resolvers/mutations/integrations.ts`
@@ -640,6 +647,10 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   and required `inboxId`, `botId`, and `token` fields. The schema declares
   separate unique indexes on `inboxId` and `botId`; `inboxId` references the
   generic Frontline integration, not a channel or conversation.
+  Required `healthStatus` uses the three-value enum and defaults to `pending`;
+  `error` defaults to `''`. Both are optional in the TypeScript interface for
+  older raw/lean records. Mongoose hydration applies missing defaults in memory,
+  but this change does not backfill stored documents or update registration state.
 - `viber_customers` (`models.ViberCustomers`) maps required `inboxId` and Viber
   `userId` to a required Core customer `contactsId`, with a generated string
   `_id` for the mapping itself. The schema declares a compound unique index on
@@ -890,6 +901,10 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - Viber tokens use `select: false`, which is a default query projection, not
   encryption or protection for a newly created document. The creation helper
   returns `Promise<void>`, never the token-containing document.
+- Viber health defaults must not imply successful webhook registration. Keep
+  the schema enum and TypeScript type derived from `VIBER_HEALTH_STATUSES`,
+  including the repository's `unHealthy` spelling. Stored state is not a live
+  provider-health check; no registration transitions are implemented yet.
 - Viber customer mappings belong to the supplied tenant connection and are
   identified by the inbox/user pair. `contactsId` references a Core-owned
   customer; it is neither the Viber sender id nor the mapping's string `_id`.
@@ -1921,6 +1936,12 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   Actual id randomness, tenant database
   loading, and database duplicate-key enforcement are not covered by these
   offline tests.
+- Viber integration schema tests in `db/definitions/__tests__/integrations.spec.ts`
+  use the same isolated Mongoose pattern. They cover pending/error defaults,
+  allowed/rejected health states, legacy hydration, preservation of explicit
+  errors, token projection metadata, required identity fields, and unchanged
+  unique-index declarations. They do not exercise database queries, update
+  validators, persisted migrations, token encryption, or webhook state changes.
 - Viber customer helper tests mock `generateModels` and `sendTRPCMessage`,
   and stub the unused common inbox receiver. `__tests__/helperHarness.ts`
   restores CommonJS cache entries after each non-concurrent helper test. They cover
@@ -2044,6 +2065,14 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-14` — Viber connection health fields
+
+- **Summary:** Added validated connection health states with pending defaults
+  and offline schema coverage, including legacy document hydration.
+- **Affected areas:** Viber constants, integration types/schema, and schema tests.
+- **Contracts changed:** Connection documents add `healthStatus` and `error`;
+  registration transitions and public GraphQL contracts remain unchanged.
+
 ### `2026-09-14` — Permission-gated Viber Repair registration
 
 - **Summary:** Added saved-connection webhook registration through Repair with
@@ -2115,11 +2144,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Affected areas:** `src/modules/integrations/viber/controller/`.
 - **Contracts changed:** The unmounted receiver now processes contact/location
   messages before returning 200; public routes and APIs remain unchanged.
-
-### `2026-09-14` — Viber URL-message processing
-
-- **Summary:** Routed validated HTTP(S) links through shared text processing
-  without downloading them, with offline receiver tests.
-- **Affected areas:** `src/modules/integrations/viber/controller/`.
-- **Contracts changed:** The unmounted receiver returns 200 after URL-message
-  processing or a safe 500 on failure; public routes and APIs are unchanged.

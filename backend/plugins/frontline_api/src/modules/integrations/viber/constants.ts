@@ -8,3 +8,12 @@ export const VIBER_INCOMING_MEDIA_MAX_BYTES = {
 } as const;
 
 export type ViberMediaType = keyof typeof VIBER_INCOMING_MEDIA_MAX_BYTES;
+
+export const VIBER_HEALTH_STATUSES = {
+  PENDING: 'pending',
+  HEALTHY: 'healthy',
+  UNHEALTHY: 'unHealthy',
+} as const;
+
+export type ViberHealthStatus =
+  (typeof VIBER_HEALTH_STATUSES)[keyof typeof VIBER_HEALTH_STATUSES];
