@@ -14,6 +14,7 @@ import {
   joinErxesGateway,
   leaveErxesGateway,
   mountAgentTools,
+  MAX_HEADER_BYTES,
 } from 'erxes-api-shared/utils';
 import { logs as coreLogsConfig } from './meta/logs';
 import express from 'express';
@@ -183,8 +184,8 @@ app.get('/debug-sentry', () => {
   throw new Error('Sentry test error (core-api): ' + new Date().toISOString());
 });
 
-// Wrap the Express server
-const httpServer = http.createServer(app);
+// Wrap the Express server; same header budget as startPlugin services
+const httpServer = http.createServer({ maxHeaderSize: MAX_HEADER_BYTES }, app);
 
 httpServer.listen(port, async () => {
   await initApolloServer(app, httpServer);
