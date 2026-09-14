@@ -1,12 +1,13 @@
 import { useQuery } from '@apollo/client';
-import { GET_CONVERSATION_MESSAGES } from '../graphql/queries/igConversationQueries';
+import { GET_CONVERSATION_MESSAGES } from '@/integrations/instagram/graphql/queries/igConversationQueries';
 import { useQueryState } from 'erxes-ui';
-import { IInstagramConversationMessage } from '../types/InstagramTypes';
-import { useEffect } from 'react';
+import type { IInstagramConversationMessage } from '@/integrations/instagram/types/InstagramTypes';
+import { useCallback, useEffect } from 'react';
 import { CONVERSATION_MESSAGE_INSERTED } from '@/inbox/conversations/graphql/subscriptions/inboxSubscriptions';
 
 export interface IInstagramConversationMessagesQuery {
   instagramConversationMessages: IInstagramConversationMessage[];
+  instagramConversationMessagesCount: number;
 }
 export interface IInstagramConversationMessagesQueryVariables {
   _id?: string;
@@ -35,29 +36,46 @@ export const useInstagramConversationMessages = () => {
 
   const { instagramConversationMessages } = data || {};
 
-  const handleFetchMore = () => {
-    if (
-      instagramConversationMessages?.length &&
-      instagramConversationMessages?.length %
-        INSTAGRAM_CONVERSATION_MESSAGES_LIMIT ===
-        0
-    ) {
-      fetchMore({
-        variables: {
-          skip: data?.instagramConversationMessages?.length || 0,
-        },
-        updateQuery: (prev, { fetchMoreResult }) => {
-          if (!fetchMoreResult) return prev;
-          return {
-            instagramConversationMessages: [
-              ...fetchMoreResult.instagramConversationMessages,
-              ...prev.instagramConversationMessages,
-            ],
-          };
-        },
-      });
+  const totalCount = Math.max(
+    data?.instagramConversationMessagesCount || 0,
+    instagramConversationMessages?.length || 0,
+  );
+
+  const handleFetchMore = useCallback((): Promise<unknown> => {
+    const loadedCount = instagramConversationMessages?.length || 0;
+    if (loading || totalCount <= loadedCount) {
+      return Promise.resolve();
     }
-  };
+    if (loadedCount % INSTAGRAM_CONVERSATION_MESSAGES_LIMIT !== 0) {
+      return Promise.resolve();
+    }
+    return fetchMore({
+      variables: {
+        skip: loadedCount,
+      },
+      updateQuery: (prev, { fetchMoreResult }) => {
+        if (!fetchMoreResult) return prev;
+        const existingIds = new Set(
+          (prev.instagramConversationMessages || []).map((m) => m._id),
+        );
+        const uniqueNewMessages =
+          fetchMoreResult.instagramConversationMessages.filter(
+            (m) => !existingIds.has(m._id),
+          );
+        if (!uniqueNewMessages.length) {
+          return prev;
+        }
+        return {
+          instagramConversationMessages: [
+            ...uniqueNewMessages,
+            ...prev.instagramConversationMessages,
+          ],
+          instagramConversationMessagesCount:
+            fetchMoreResult.instagramConversationMessagesCount,
+        };
+      },
+    });
+  }, [fetchMore, instagramConversationMessages, loading, totalCount]);
 
   useEffect(() => {
     if (!conversationId) return;
@@ -106,6 +124,8 @@ export const useInstagramConversationMessages = () => {
               __typename: 'InstagramConversationMessage',
             },
           ],
+          instagramConversationMessagesCount:
+            prev.instagramConversationMessagesCount + 1,
         };
       },
     });
@@ -114,6 +134,7 @@ export const useInstagramConversationMessages = () => {
 
   return {
     instagramConversationMessages,
+    totalCount,
     handleFetchMore,
     loading,
     error,

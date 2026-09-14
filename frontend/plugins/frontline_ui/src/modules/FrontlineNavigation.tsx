@@ -27,7 +27,7 @@ export const FrontlineDestinationLinks = () => {
   return (
     <>
       <NavigationMenuLinkItem
-        name={t('inbox', 'Inbox')}
+        name={t('team-inbox', 'Team Inbox')}
         icon={IconMail}
         path="frontline/inbox"
       >

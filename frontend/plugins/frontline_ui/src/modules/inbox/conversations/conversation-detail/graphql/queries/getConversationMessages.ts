@@ -15,6 +15,7 @@ export const GET_CONVERSATION_MESSAGES = gql`
       getFirst: $getFirst
     ) {
       _id
+      mid
       conversationId
       content
       formWidgetData
@@ -28,6 +29,12 @@ export const GET_CONVERSATION_MESSAGES = gql`
       customerId
       fromBot
       botData
+      messageKind
+      providerData
+      replyTo
+      reactions
+      deliveryStatus
+      expiresAt
     }
     conversationMessagesTotalCount(conversationId: $conversationId)
   }

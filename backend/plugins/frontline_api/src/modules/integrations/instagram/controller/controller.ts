@@ -4,6 +4,24 @@ import { receiveMessage } from '@/integrations/instagram/controller/receiveMessa
 import { debugError, debugInstagram } from '@/integrations/instagram/debuggers';
 import { getSubdomain, isDev } from 'erxes-api-shared/utils';
 import { generateModels } from '~/connectionResolvers';
+import { createHmac, timingSafeEqual } from 'node:crypto';
+
+const hasValidWebhookSignature = (
+  rawBody: Buffer | string | undefined,
+  signature: string | undefined,
+  appSecret: string | undefined,
+) => {
+  if (!rawBody || !signature || !appSecret) return false;
+  const expected = `sha256=${createHmac('sha256', appSecret)
+    .update(rawBody)
+    .digest('hex')}`;
+  const actualBuffer = Buffer.from(signature);
+  const expectedBuffer = Buffer.from(expected);
+  return (
+    actualBuffer.length === expectedBuffer.length &&
+    timingSafeEqual(actualBuffer, expectedBuffer)
+  );
+};
 
 export const instagramGetPost = async (req, res, next) => {
   try {
@@ -79,6 +97,11 @@ export const instagramWebhook = async (req, res) => {
 
   debugInstagram(`Received webhook request for subdomain: ${subdomain}`);
   const models = await generateModels(subdomain);
+  const appSecret = await getConfig(models, 'INSTAGRAM_APP_SECRET');
+  const signature = req.get('x-hub-signature-256');
+  if (!hasValidWebhookSignature(req.rawBody, signature, appSecret)) {
+    return res.status(401).send('Invalid webhook signature');
+  }
   const data = req.body;
   debugInstagram('Received webhook data:' + JSON.stringify(data));
 

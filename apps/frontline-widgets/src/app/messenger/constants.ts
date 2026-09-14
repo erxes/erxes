@@ -1,13 +1,12 @@
-import { IHeaderItem } from './types';
 import {
   IconBubbleText,
   IconSend,
   IconPhone,
   IconBug,
   IconMessage,
-  IconBell,
   IconWorldWww,
 } from '@tabler/icons-react';
+import type { IHeaderItem } from './types';
 
 export enum WelcomeMessage {
   TITLE = 'Need help?',
@@ -68,3 +67,7 @@ export const EXCLUDED_TICKET_FORM_FIELDS = [
   'contactType',
   '_id',
 ];
+
+export const MESSAGE_GROUP_TIME_WINDOW = 5 * 60 * 1000;
+
+export const DEFAULT_MAX_UPLOAD_SIZE = 20 * 1024 * 1024;

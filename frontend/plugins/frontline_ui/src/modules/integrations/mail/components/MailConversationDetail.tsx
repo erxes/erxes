@@ -1,8 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useQuery, useSubscription } from '@apollo/client';
 import {
+  BlockEditorReadOnly,
+  Button,
+  ContextMenu,
+  RelativeDateDisplay,
   ScrollArea,
   Spinner,
+  Tooltip,
   cn,
   formatDateISOStringToRelativeDate,
   readImage,
@@ -14,6 +19,9 @@ import {
   IconArrowBackUp,
   IconChevronDown,
   IconChevronUp,
+  IconCopy,
+  IconLock,
+  IconMailPlus,
   IconMailForward,
   IconPaperclip,
   IconRefresh,
@@ -27,14 +35,14 @@ import {
   MAIL_MESSAGE_INSERTED_SUBSCRIPTION,
 } from '../graphql/queries/mailQueries';
 import { useConversationContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationContext';
-import { useSetAtom } from 'jotai';
-import { hideMessageInputState } from '@/inbox/conversations/conversation-detail/states/isInternalState';
 import {
   MailDeliveryStatus,
   useMailMessageRetry,
   useMailSendMail,
 } from '../hooks/useMailConversationDetail';
 import { EmailBody } from './EmailBody';
+import { Attachments } from '@/inbox/conversation-messages/components/MessageAttachments';
+import type { IMessage } from '@/inbox/types/Conversation';
 
 interface EmailAddress {
   name?: string;
@@ -82,9 +90,42 @@ interface MailConversationDetailResponse {
     messages: MailMessage[];
     hasMore: boolean;
   } | null;
+  conversationMessages: IMessage[];
 }
 
 const PAGE_SIZE = 20;
+
+const InternalNotes = ({ notes }: { notes: IMessage[] }) => {
+  if (!notes.length) return null;
+
+  return (
+    <section className="overflow-hidden rounded-xl border border-warning/25 bg-warning/[0.04]">
+      <div className="flex items-center gap-2 border-b border-warning/20 px-4 py-2.5 text-xs font-medium text-warning">
+        <IconLock className="size-3.5" />
+        Internal notes
+        <span className="rounded-full bg-warning/10 px-1.5 py-0.5 text-[10px]">
+          {notes.length}
+        </span>
+      </div>
+      <div className="divide-y divide-warning/15">
+        {notes.map((note) => (
+          <article key={note._id} className="px-4 py-3">
+            <BlockEditorReadOnly
+              content={note.content}
+              className="read-only internal-note text-sm leading-6"
+            />
+            <Attachments attachments={note.attachments} />
+            <div className="mt-2 text-[11px] text-muted-foreground">
+              <RelativeDateDisplay value={note.createdAt}>
+                <RelativeDateDisplay.Value value={note.createdAt} />
+              </RelativeDateDisplay>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+};
 
 type ComposeMode = 'reply' | 'replyAll' | 'forward';
 
@@ -146,6 +187,19 @@ const deriveFrom = (msgs: MailMessage[]) => {
     if (m.mailData.type === 'SENT' && m.mailData.from?.[0]?.email)
       return m.mailData.from[0].email;
   }
+  return '';
+};
+
+const deriveContactEmail = (msgs: MailMessage[]) => {
+  for (let index = msgs.length - 1; index >= 0; index -= 1) {
+    const message = msgs[index];
+
+    if (message.mailData.type === 'INBOX') {
+      const email = message.mailData.from?.[0]?.email;
+      if (email) return email;
+    }
+  }
+
   return '';
 };
 
@@ -306,22 +360,306 @@ const AttachmentChip: React.FC<{ attachment: Attachment }> = ({
   );
 };
 
-const EmailRow: React.FC<{
-  message: MailMessage;
-  defaultExpanded?: boolean;
-  isLast?: boolean;
-  onReply: () => void;
-  onReplyAll: () => void;
-  onForward: () => void;
-}> = ({
-  message,
-  defaultExpanded = false,
-  isLast,
+const SenderContextMenu = ({
+  sender,
+  children,
   onReply,
   onReplyAll,
   onForward,
+  onNewEmail,
+}: {
+  sender?: EmailAddress;
+  children: React.ReactNode;
+  onReply: () => void;
+  onReplyAll: () => void;
+  onForward: () => void;
+  onNewEmail?: (email: string) => void;
 }) => {
   const { t } = useTranslation('frontline');
+  const email = sender?.email;
+
+  const copyAddress = async () => {
+    if (!email) return;
+
+    try {
+      await navigator.clipboard.writeText(email);
+      toast({ title: 'Email address copied' });
+    } catch {
+      toast({
+        title: 'Could not copy email address',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  return (
+    <ContextMenu>
+      <ContextMenu.Trigger asChild>{children}</ContextMenu.Trigger>
+      <ContextMenu.Content className="w-56">
+        <ContextMenu.Label className="truncate text-xs text-muted-foreground">
+          {email || sender?.name || 'Unknown sender'}
+        </ContextMenu.Label>
+        <ContextMenu.Separator />
+        <ContextMenu.Item disabled={!email} onSelect={copyAddress}>
+          <IconCopy className="size-4" />
+          Copy address
+        </ContextMenu.Item>
+        <ContextMenu.Item
+          disabled={!email || !onNewEmail}
+          onSelect={() => {
+            if (email) {
+              onNewEmail?.(email);
+            }
+          }}
+        >
+          <IconMailPlus className="size-4" />
+          New email
+        </ContextMenu.Item>
+        <ContextMenu.Separator />
+        <ContextMenu.Item onSelect={onReply}>
+          <IconArrowBackUp className="size-4" />
+          {t('reply')}
+        </ContextMenu.Item>
+        <ContextMenu.Item onSelect={onReplyAll}>
+          <IconUsers className="size-4" />
+          {t('reply-all')}
+        </ContextMenu.Item>
+        <ContextMenu.Item onSelect={onForward}>
+          <IconMailForward className="size-4" />
+          {t('forward')}
+        </ContextMenu.Item>
+      </ContextMenu.Content>
+    </ContextMenu>
+  );
+};
+
+const EmailExpandedMeta = ({ mailData }: { mailData: MailData }) => {
+  const { t } = useTranslation('frontline');
+  const isSent = mailData.type === 'SENT';
+
+  return (
+    <div className="text-[11px] text-[#5f6368] dark:text-[#9aa0a6] space-y-px">
+      {mailData.from?.length ? (
+        <p className="break-words">
+          {t('from')}: {fmt(mailData.from)}
+        </p>
+      ) : null}
+      {mailData.to?.length ? (
+        <p className="break-words">
+          {t('to')}: {fmt(mailData.to)}
+        </p>
+      ) : null}
+      {mailData.cc?.length ? (
+        <p className="break-words">
+          {t('cc')}: {fmt(mailData.cc)}
+        </p>
+      ) : null}
+      {isSent && mailData.bcc?.length ? (
+        <p className="break-words">
+          {t('bcc')}: {fmt(mailData.bcc)}
+        </p>
+      ) : null}
+    </div>
+  );
+};
+
+const EmailRowHeader = ({
+  sender,
+  expanded,
+  mailData,
+  createdAt,
+  delivery,
+}: {
+  sender?: EmailAddress;
+  expanded: boolean;
+  mailData: MailData;
+  createdAt: string;
+  delivery?: MailDeliveryStatus;
+}) => {
+  const bg = avatarBg(sender?.name, sender?.email);
+
+  return (
+    <div className="flex items-center gap-3">
+      <span
+        className="flex size-9 flex-none select-none items-center justify-center rounded-full text-sm font-bold text-foreground ring-2 ring-background"
+        style={{ background: bg }}
+      >
+        {initial(sender?.name, sender?.email)}
+      </span>
+
+      <div className="flex-1 min-w-0">
+        {expanded ? (
+          <div className="space-y-0.5">
+            <span className="block truncate text-[13px] font-semibold text-foreground">
+              {sender?.name || sender?.email || '—'}
+            </span>
+            <EmailExpandedMeta mailData={mailData} />
+          </div>
+        ) : (
+          <>
+            <span className="block truncate text-[13px] font-semibold text-foreground">
+              {sender?.name || sender?.email || '—'}
+            </span>
+            <p className="mt-1 truncate text-[12px] leading-4 text-muted-foreground">
+              {mailData.body
+                ? mailData.body.replace(/<[^<>]*>/g, '').slice(0, 120)
+                : mailData.subject}
+            </p>
+          </>
+        )}
+      </div>
+
+      <span className="flex min-w-20 flex-none flex-col items-end gap-1.5 self-stretch text-[#5f6368] dark:text-[#9aa0a6]">
+        <span className="flex items-center gap-1.5">
+          {delivery && delivery !== 'sent' && (
+            <DeliveryBadge status={delivery} />
+          )}
+          <span className="whitespace-nowrap text-[11px]">
+            {formatDateISOStringToRelativeDate(createdAt)}
+          </span>
+        </span>
+        <span className="mt-auto rounded-full p-0.5">
+          {expanded ? (
+            <IconChevronUp size={14} />
+          ) : (
+            <IconChevronDown size={14} />
+          )}
+        </span>
+      </span>
+    </div>
+  );
+};
+
+const QuotedToggle = ({
+  replies,
+  attachments,
+  showQuoted,
+  onToggle,
+}: {
+  replies: string;
+  attachments?: Attachment[];
+  showQuoted: boolean;
+  onToggle: () => void;
+}) => {
+  const { t } = useTranslation('frontline');
+
+  return (
+    <div className="space-y-1">
+      <button
+        type="button"
+        className="rounded border border-[rgba(0,0,0,0.15)] px-2 py-0.5 text-[11px] leading-none text-[#5f6368] transition-colors hover:bg-background/[0.04] dark:border-[rgba(255,255,255,0.15)] dark:text-[#9aa0a6]"
+        onClick={onToggle}
+        title={t('toggle-quoted-text')}
+        aria-label={t('toggle-quoted-text')}
+        aria-expanded={showQuoted}
+      >
+        •••
+      </button>
+      {showQuoted && <EmailBody body={replies} attachments={attachments} />}
+    </div>
+  );
+};
+
+const AttachmentList = ({ attachments }: { attachments: Attachment[] }) => (
+  <div className="flex flex-wrap gap-2 py-3 border-t border-[rgba(0,0,0,0.08)] dark:border-[rgba(255,255,255,0.06)] mt-1">
+    {attachments.map((a) => (
+      <AttachmentChip
+        key={
+          a.contentId ??
+          a.url ??
+          `${a.filename ?? 'attachment'}-${a.size ?? 0}-${a.mimeType ?? ''}`
+        }
+        attachment={a}
+      />
+    ))}
+  </div>
+);
+
+const EmailExpandedContent = ({
+  messageId,
+  mailData,
+  visibleAttachments,
+  multiRecipient,
+  showQuoted,
+  onToggleQuoted,
+  onReply,
+  onReplyAll,
+  onForward,
+  actionClassName,
+}: {
+  messageId: string;
+  mailData: MailData;
+  visibleAttachments: Attachment[];
+  multiRecipient: boolean;
+  showQuoted: boolean;
+  onToggleQuoted: () => void;
+  onReply: () => void;
+  onReplyAll: () => void;
+  onForward: () => void;
+  actionClassName: string;
+}) => {
+  const { t } = useTranslation('frontline');
+
+  return (
+    <div className="min-w-0 px-3 pb-2 sm:ml-12 sm:px-4">
+      <SenderNotice mailData={mailData} />
+
+      <EmailBody
+        body={mailData.newContent ?? mailData.body}
+        attachments={mailData.attachments}
+      />
+
+      {mailData.replies && (
+        <QuotedToggle
+          replies={mailData.replies}
+          attachments={mailData.attachments}
+          showQuoted={showQuoted}
+          onToggle={onToggleQuoted}
+        />
+      )}
+
+      <DeliveryNotice messageId={messageId} mailData={mailData} />
+
+      {Boolean(visibleAttachments.length) && (
+        <AttachmentList attachments={visibleAttachments} />
+      )}
+
+      <div className="flex gap-2 pt-3 mt-2 border-t border-[rgba(0,0,0,0.08)] dark:border-[rgba(255,255,255,0.06)]">
+        <button type="button" className={actionClassName} onClick={onReply}>
+          <IconArrowBackUp size={13} /> {t('reply')}
+        </button>
+        {multiRecipient && (
+          <button
+            type="button"
+            className={actionClassName}
+            onClick={onReplyAll}
+          >
+            <IconUsers size={13} /> {t('reply-all')}
+          </button>
+        )}
+        <button type="button" className={actionClassName} onClick={onForward}>
+          <IconMailForward size={13} /> {t('forward')}
+        </button>
+      </div>
+    </div>
+  );
+};
+
+const EmailRow: React.FC<{
+  message: MailMessage;
+  defaultExpanded?: boolean;
+  onReply: () => void;
+  onReplyAll: () => void;
+  onForward: () => void;
+  onNewEmail: (email: string) => void;
+}> = ({
+  message,
+  defaultExpanded = false,
+  onReply,
+  onReplyAll,
+  onForward,
+  onNewEmail,
+}) => {
   const [expanded, setExpanded] = useState(defaultExpanded);
   const [showQuoted, setShowQuoted] = useState(false);
   const { mailData, createdAt } = message;
@@ -329,7 +667,6 @@ const EmailRow: React.FC<{
   const sender = mailData.from?.[0];
   const multiRecipient =
     (mailData.to?.length ?? 0) + (mailData.cc?.length ?? 0) > 1;
-  const bg = avatarBg(sender?.name, sender?.email);
   const delivery = isSent ? mailData.deliveryStatus : undefined;
   const visibleAttachments = (mailData.attachments ?? []).filter(
     (attachment) => attachment.disposition !== 'inline',
@@ -343,142 +680,52 @@ const EmailRow: React.FC<{
     'hover:bg-background/[0.04] transition-colors';
 
   return (
-    <div
+    <article
       className={cn(
-        !isLast &&
-          'border-b border-[rgba(0,0,0,0.08)] dark:border-[rgba(255,255,255,0.06)]',
+        'overflow-hidden transition-colors',
+        expanded
+          ? 'my-2 rounded-xl border bg-background shadow-sm'
+          : 'border-b border-border/60 bg-transparent hover:bg-muted/20',
       )}
     >
-      <button
-        type="button"
-        className="w-full text-left px-4 py-3 hover:bg-background/2 transition-colors"
-        onClick={() => setExpanded((v) => !v)}
+      <SenderContextMenu
+        sender={sender}
+        onReply={onReply}
+        onReplyAll={onReplyAll}
+        onForward={onForward}
+        onNewEmail={isSent ? undefined : onNewEmail}
       >
-        <div className="flex items-center gap-3">
-          <div
-            className="w-9 h-9 rounded-full flex-none flex items-center justify-center text-[14px] font-bold text-foreground select-none"
-            style={{ background: bg }}
-          >
-            {initial(sender?.name, sender?.email)}
-          </div>
-
-          <div className="flex-1 min-w-0">
-            {expanded ? (
-              <div className="space-y-0.5">
-                <div className="flex items-baseline justify-between gap-2">
-                  <span className="text-[13px] font-semibold text-foreground truncate">
-                    {sender?.name || sender?.email || '—'}
-                  </span>
-                  <span className="flex flex-none items-center gap-1.5">
-                    {delivery && delivery !== 'sent' && (
-                      <DeliveryBadge status={delivery} />
-                    )}
-                    <span className="text-[11px] text-[#5f6368] dark:text-[#9aa0a6] whitespace-nowrap">
-                      {formatDateISOStringToRelativeDate(createdAt)}
-                    </span>
-                  </span>
-                </div>
-                <div className="text-[11px] text-[#5f6368] dark:text-[#9aa0a6] space-y-px">
-                  {!isSent && mailData.from?.length ? (
-                    <p>from: {fmt(mailData.from)}</p>
-                  ) : null}
-                  {mailData.to?.length ? <p>to: {fmt(mailData.to)}</p> : null}
-                  {mailData.cc?.length ? <p>cc: {fmt(mailData.cc)}</p> : null}
-                </div>
-              </div>
-            ) : (
-              <div className="flex items-baseline gap-2 justify-between">
-                <div className="flex items-baseline gap-2 min-w-0">
-                  <span className="text-[13px] font-semibold text-foreground whitespace-nowrap">
-                    {sender?.name || sender?.email || '—'}
-                  </span>
-                  <span className="text-[12px] text-[#5f6368] dark:text-[#9aa0a6] truncate">
-                    {mailData.body
-                      ? mailData.body.replace(/<[^<>]*>/g, '').slice(0, 80)
-                      : mailData.subject}
-                  </span>
-                </div>
-                <span className="flex flex-none items-center gap-1.5">
-                  {delivery && delivery !== 'sent' && (
-                    <DeliveryBadge status={delivery} />
-                  )}
-                  <span className="text-[11px] text-[#5f6368] dark:text-[#9aa0a6] whitespace-nowrap">
-                    {formatDateISOStringToRelativeDate(createdAt)}
-                  </span>
-                </span>
-              </div>
-            )}
-          </div>
-
-          <span className="flex-none text-[#5f6368] dark:text-[#9aa0a6]">
-            {expanded ? (
-              <IconChevronUp size={14} />
-            ) : (
-              <IconChevronDown size={14} />
-            )}
-          </span>
-        </div>
-      </button>
+        <button
+          type="button"
+          className="w-full px-4 py-3.5 text-left"
+          onClick={() => setExpanded((v) => !v)}
+          title="Right-click for sender actions"
+        >
+          <EmailRowHeader
+            sender={sender}
+            expanded={expanded}
+            mailData={mailData}
+            createdAt={createdAt}
+            delivery={delivery}
+          />
+        </button>
+      </SenderContextMenu>
 
       {expanded && (
-        <div className="px-4 pb-2 ml-12">
-          <SenderNotice mailData={mailData} />
-
-          <EmailBody
-            body={mailData.newContent ?? mailData.body}
-            attachments={mailData.attachments}
-          />
-
-          {mailData.replies && (
-            <div className="space-y-1">
-              <button
-                type="button"
-                className="rounded border border-[rgba(0,0,0,0.15)] px-2 py-0.5 text-[11px] leading-none text-[#5f6368] transition-colors hover:bg-background/[0.04] dark:border-[rgba(255,255,255,0.15)] dark:text-[#9aa0a6]"
-                onClick={() => setShowQuoted((v) => !v)}
-                title={t('toggle-quoted-text')}
-                aria-label={t('toggle-quoted-text')}
-                aria-expanded={showQuoted}
-              >
-                •••
-              </button>
-              {showQuoted && (
-                <EmailBody
-                  body={mailData.replies}
-                  attachments={mailData.attachments}
-                />
-              )}
-            </div>
-          )}
-
-          <DeliveryNotice messageId={message._id} mailData={mailData} />
-
-          {!!visibleAttachments.length && (
-            <div className="flex flex-wrap gap-2 py-3 border-t border-[rgba(0,0,0,0.08)] dark:border-[rgba(255,255,255,0.06)] mt-1">
-              {visibleAttachments.map((a, i) => (
-                <AttachmentChip
-                  key={`${a.url ?? a.filename}-${i}`}
-                  attachment={a}
-                />
-              ))}
-            </div>
-          )}
-
-          <div className="flex gap-2 pt-3 mt-2 border-t border-[rgba(0,0,0,0.08)] dark:border-[rgba(255,255,255,0.06)]">
-            <button type="button" className={actionBtn} onClick={onReply}>
-              <IconArrowBackUp size={13} /> {t('reply')}
-            </button>
-            {multiRecipient && (
-              <button type="button" className={actionBtn} onClick={onReplyAll}>
-                <IconUsers size={13} /> {t('reply-all')}
-              </button>
-            )}
-            <button type="button" className={actionBtn} onClick={onForward}>
-              <IconMailForward size={13} /> {t('forward')}
-            </button>
-          </div>
-        </div>
+        <EmailExpandedContent
+          messageId={message._id}
+          mailData={mailData}
+          visibleAttachments={visibleAttachments}
+          multiRecipient={multiRecipient}
+          showQuoted={showQuoted}
+          onToggleQuoted={() => setShowQuoted((v) => !v)}
+          onReply={onReply}
+          onReplyAll={onReplyAll}
+          onForward={onForward}
+          actionClassName={actionBtn}
+        />
       )}
-    </div>
+    </article>
   );
 };
 
@@ -580,7 +827,7 @@ const ComposeSection: React.FC<ComposeProps> = ({
     'flex-1 bg-transparent outline-none text-[13px] text-foreground placeholder:text-[#9aa0a6]';
 
   return (
-    <div className="mx-4 mb-3 border border-[rgba(0,0,0,0.12)] dark:border-[rgba(255,255,255,0.1)] rounded-2xl overflow-hidden bg-background shadow-[0_1px_3px_rgba(0,0,0,0.18),0_4px_8px_rgba(0,0,0,0.08)]">
+    <div className="w-full overflow-hidden rounded-2xl border border-[rgba(0,0,0,0.12)] bg-background shadow-[0_1px_3px_rgba(0,0,0,0.18),0_4px_8px_rgba(0,0,0,0.08)] dark:border-[rgba(255,255,255,0.1)]">
       <div className="flex items-center justify-between px-4 h-10 border-b border-[rgba(0,0,0,0.08)] dark:border-[rgba(255,255,255,0.06)] bg-[rgba(0,0,0,0.02)] dark:bg-[rgba(255,255,255,0.02)]">
         <span className="text-[13px] font-medium text-foreground/70">
           {t(COMPOSE_TITLE_KEYS[mode])}
@@ -735,19 +982,46 @@ const ComposeSection: React.FC<ComposeProps> = ({
   );
 };
 
+const MailToolbarButton = ({
+  label,
+  Icon,
+  onClick,
+  disabled,
+}: {
+  label: string;
+  Icon: React.ComponentType<{ className?: string }>;
+  onClick: () => void;
+  disabled?: boolean;
+}) => (
+  <Tooltip>
+    <Tooltip.Trigger asChild>
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        className="size-7 rounded-full sm:size-8"
+        aria-label={label}
+        onClick={onClick}
+        disabled={disabled}
+      >
+        <Icon className="size-4" />
+      </Button>
+    </Tooltip.Trigger>
+    <Tooltip.Content>{label}</Tooltip.Content>
+  </Tooltip>
+);
+
 export const MailConversationDetail: React.FC = () => {
   const { t } = useTranslation('frontline');
-  const { _id: conversationId, integration } = useConversationContext();
-  const setHideInput = useSetAtom(hideMessageInputState);
+  const {
+    _id: conversationId,
+    integration,
+    customerId,
+  } = useConversationContext();
 
   const [composeMode, setComposeMode] = useState<ComposeMode | null>(null);
   const [composeTarget, setComposeTarget] = useState<MailMessage | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    setHideInput(true);
-    return () => setHideInput(false);
-  }, [setHideInput]);
 
   const [limit, setLimit] = useState(PAGE_SIZE);
 
@@ -768,7 +1042,13 @@ export const MailConversationDetail: React.FC = () => {
   const detail =
     data?.mailConversationDetail ?? previousData?.mailConversationDetail;
   const messages = detail?.messages ?? [];
+  const internalNotes = (
+    data?.conversationMessages ??
+    previousData?.conversationMessages ??
+    []
+  ).filter((message) => message.internal);
   const newestId = messages[messages.length - 1]?._id;
+  const newestMessage = messages[messages.length - 1];
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -797,6 +1077,7 @@ export const MailConversationDetail: React.FC = () => {
     );
 
   const fromEmail = deriveFrom(messages);
+  const contactEmail = deriveContactEmail(messages);
   const subject = messages[0]?.mailData.subject ?? '';
   const baseSubject = stripPrefix(subject);
 
@@ -811,6 +1092,16 @@ export const MailConversationDetail: React.FC = () => {
   const close = () => {
     setComposeMode(null);
     setComposeTarget(null);
+  };
+
+  const startNewEmail = (email: string) => {
+    if (!customerId) return;
+
+    window.dispatchEvent(
+      new CustomEvent('frontline:compose-email', {
+        detail: { customerId, email, emails: [email] },
+      }),
+    );
   };
 
   const getTo = (msg: MailMessage, mode: ComposeMode): string[] => {
@@ -830,61 +1121,98 @@ export const MailConversationDetail: React.FC = () => {
   };
 
   return (
-    <ScrollArea className="h-full">
-      <div className="p-4 max-w-3xl mx-auto pb-8 space-y-3">
-        <h2 className="text-[20px] font-normal text-foreground px-1 truncate">
-          {baseSubject || '(No subject)'}
+    <div className="flex h-full min-h-0 min-w-0 flex-col">
+      <div className="flex min-h-11 flex-none items-center gap-1 border-b bg-background px-2 py-1.5 sm:min-h-12 sm:gap-2 sm:px-4">
+        <h2
+          className="min-w-0 flex-1 truncate whitespace-nowrap text-sm font-medium sm:text-base"
+          title={baseSubject}
+        >
+          {baseSubject || t('no-subject')}
         </h2>
-
-        {detail?.hasMore && (
-          <div className="flex justify-center">
-            <button
-              type="button"
-              className="flex items-center gap-1.5 rounded-full border border-[rgba(0,0,0,0.15)] px-3 py-1 text-[12px] font-medium text-[#3c4043] transition-colors hover:bg-background/[0.04] disabled:opacity-60 dark:border-[rgba(255,255,255,0.15)] dark:text-[#e8eaed]"
-              onClick={() => setLimit((value) => value + PAGE_SIZE)}
-              disabled={loading}
-            >
-              {loading && <Spinner size="sm" />}
-              {t('show-earlier-messages')}
-            </button>
-          </div>
-        )}
-
-        <div className="rounded-2xl border border-[rgba(0,0,0,0.12)] dark:border-[rgba(255,255,255,0.1)] bg-background overflow-hidden shadow-[0_1px_2px_rgba(0,0,0,0.08),0_2px_6px_rgba(0,0,0,0.05)]">
-          {messages.map((msg, idx) => (
-            <EmailRow
-              key={msg._id}
-              message={msg}
-              defaultExpanded={idx === messages.length - 1}
-              isLast={idx === messages.length - 1}
-              onReply={() => open(msg, 'reply')}
-              onReplyAll={() => open(msg, 'replyAll')}
-              onForward={() => open(msg, 'forward')}
+        <Tooltip.Provider delayDuration={0}>
+          <div className="flex flex-none items-center rounded-full border bg-muted/30 p-0.5 shadow-sm">
+            <MailToolbarButton
+              label={t('reply')}
+              Icon={IconArrowBackUp}
+              onClick={() => open(newestMessage, 'reply')}
             />
-          ))}
-        </div>
-
-        {composeMode && composeTarget && (
-          <ComposeSection
-            key={`${composeMode}-${composeTarget._id}`}
-            mode={composeMode}
-            defaultTo={getTo(composeTarget, composeMode)}
-            defaultCc={getCc(composeTarget, composeMode)}
-            defaultFrom={fromEmail}
-            defaultSubject={composeTarget.mailData.subject ?? ''}
-            defaultBody={
-              composeMode === 'forward' ? buildQuote(composeTarget) : ''
-            }
-            conversationId={conversationId ?? ''}
-            integrationId={integration?._id ?? ''}
-            replyToMessageId={composeTarget.mailData.messageId}
-            references={composeTarget.mailData.references ?? []}
-            onClose={close}
-          />
-        )}
-
-        <div ref={bottomRef} />
+            <MailToolbarButton
+              label={t('reply-all')}
+              Icon={IconUsers}
+              onClick={() => open(newestMessage, 'replyAll')}
+            />
+            <MailToolbarButton
+              label={t('forward')}
+              Icon={IconMailForward}
+              onClick={() => open(newestMessage, 'forward')}
+            />
+            <span className="mx-0.5 h-4 w-px bg-border sm:mx-1 sm:h-5" />
+            <MailToolbarButton
+              label="New email"
+              Icon={IconMailPlus}
+              onClick={() => startNewEmail(contactEmail)}
+              disabled={!customerId || !contactEmail}
+            />
+          </div>
+        </Tooltip.Provider>
       </div>
-    </ScrollArea>
+      <ScrollArea
+        className="min-h-0 min-w-0 flex-1"
+        viewportClassName="min-w-0 overflow-x-hidden [&>div]:!block"
+      >
+        <div className="w-full min-w-0 max-w-full space-y-3 overflow-x-hidden px-2 py-3 pb-6 sm:px-3 sm:py-4 sm:pb-8">
+          {detail?.hasMore && (
+            <div className="flex justify-center">
+              <button
+                type="button"
+                className="flex items-center gap-1.5 rounded-full border border-[rgba(0,0,0,0.15)] px-3 py-1 text-[12px] font-medium text-[#3c4043] transition-colors hover:bg-background/[0.04] disabled:opacity-60 dark:border-[rgba(255,255,255,0.15)] dark:text-[#e8eaed]"
+                onClick={() => setLimit((value) => value + PAGE_SIZE)}
+                disabled={loading}
+              >
+                {loading && <Spinner size="sm" />}
+                {t('show-earlier-messages')}
+              </button>
+            </div>
+          )}
+
+          <div>
+            {messages.map((msg, idx) => (
+              <EmailRow
+                key={msg._id}
+                message={msg}
+                defaultExpanded={idx === messages.length - 1}
+                onReply={() => open(msg, 'reply')}
+                onReplyAll={() => open(msg, 'replyAll')}
+                onForward={() => open(msg, 'forward')}
+                onNewEmail={startNewEmail}
+              />
+            ))}
+          </div>
+
+          <InternalNotes notes={internalNotes} />
+
+          {composeMode && composeTarget && (
+            <ComposeSection
+              key={`${composeMode}-${composeTarget._id}`}
+              mode={composeMode}
+              defaultTo={getTo(composeTarget, composeMode)}
+              defaultCc={getCc(composeTarget, composeMode)}
+              defaultFrom={fromEmail}
+              defaultSubject={composeTarget.mailData.subject ?? ''}
+              defaultBody={
+                composeMode === 'forward' ? buildQuote(composeTarget) : ''
+              }
+              conversationId={conversationId ?? ''}
+              integrationId={integration?._id ?? ''}
+              replyToMessageId={composeTarget.mailData.messageId}
+              references={composeTarget.mailData.references ?? []}
+              onClose={close}
+            />
+          )}
+
+          <div ref={bottomRef} />
+        </div>
+      </ScrollArea>
+    </div>
   );
 };
