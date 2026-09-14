@@ -95,6 +95,75 @@ export const defaultPaginate = (
   return collection.limit(_limit).skip((_page - 1) * _limit);
 };
 
+/** @internal Shape of a mongoose document or plain lean object accepted by attachCursors. */
+type DocLike = Record<string, unknown> & { toObject?: () => Record<string, unknown> };
+
+/**
+ * Maps a list of mongoose documents or lean objects to plain objects,
+ * each augmented with an opaque base64-encoded `cursor` string.
+ */
+const attachCursors = <T>(
+  items: T[],
+  sortFields: string[],
+): (Record<string, unknown> & { cursor: string })[] =>
+  items.map((item) => {
+    const doc = item as unknown as DocLike;
+    const plain = typeof doc.toObject === 'function' ? doc.toObject() : doc;
+    return { ...plain, cursor: encodeCursor(doc, sortFields) };
+  });
+
+interface BuildCursorResultParams<T> {
+  rawItems: T[];
+  limit: number;
+  totalCount: number;
+  sortFields: string[];
+  direction: 'forward' | 'backward';
+  cursor?: string;
+}
+
+/**
+ * Constructs a standardized CursorResult<T> with boundary cursors,
+ * per-item cursors, and forward/backward pagination indicators.
+ * Shared by cursorPaginate and cursorPaginateAggregation to eliminate duplication.
+ */
+const buildCursorResult = <T>({
+  rawItems,
+  limit,
+  totalCount,
+  sortFields,
+  direction,
+  cursor,
+}: BuildCursorResultParams<T>): CursorResult<T> => {
+  const hasMore = rawItems.length > limit;
+  let list = hasMore ? rawItems.slice(0, limit) : rawItems;
+
+  if (direction === 'backward') {
+    list = list.reverse();
+  }
+
+  const listWithCursor = attachCursors(list, sortFields);
+
+  const startCursor =
+    listWithCursor.length > 0 ? listWithCursor[0].cursor : null;
+  const endCursor =
+    listWithCursor.length > 0
+      ? listWithCursor[listWithCursor.length - 1].cursor
+      : null;
+
+  const pageInfo: PageInfo = {
+    hasNextPage: direction === 'forward' ? hasMore : Boolean(cursor),
+    hasPreviousPage: direction === 'backward' ? hasMore : Boolean(cursor),
+    startCursor,
+    endCursor,
+  };
+
+  return {
+    list: listWithCursor as unknown as (T & { cursor?: string })[],
+    totalCount,
+    pageInfo,
+  };
+};
+
 export const cursorPaginate = async <T extends Document>({
   model,
   params,
@@ -140,30 +209,14 @@ export const cursorPaginate = async <T extends Document>({
     model.countDocuments(query as FilterQuery<T>),
   ]);
 
-  const hasMore = items.length > limit;
-  let list = hasMore ? items.slice(0, limit) : items;
-
-  if (direction === 'backward') {
-    list = list.reverse();
-  }
-
-  const startCursor =
-    list.length > 0 ? encodeCursor(list[0], sortFields) : null;
-  const endCursor =
-    list.length > 0 ? encodeCursor(list[list.length - 1], sortFields) : null;
-
-  const pageInfo: PageInfo = {
-    hasNextPage: direction === 'forward' ? hasMore : Boolean(cursor),
-    hasPreviousPage: direction === 'backward' ? hasMore : Boolean(cursor),
-    startCursor,
-    endCursor,
-  };
-
-  return {
-    list: list as T[],
+  return buildCursorResult<T>({
+    rawItems: items as unknown as T[],
+    limit,
     totalCount,
-    pageInfo,
-  };
+    sortFields,
+    direction,
+    cursor,
+  });
 };
 
 export async function cursorPaginateAggregation<T>({
@@ -224,31 +277,14 @@ export async function cursorPaginateAggregation<T>({
   const totalCount = countResult[0]?.totalCount ?? 0;
 
   // --- slice list for hasNextPage ---
-  const hasMore = listRaw.length > limit;
-  let list = hasMore ? listRaw.slice(0, limit) : listRaw;
-
-  if (direction === 'backward') {
-    list = list.reverse();
-  }
-
-  // --- cursors ---
-  const startCursor =
-    list.length > 0 ? encodeCursor(list[0], sortFields) : null;
-  const endCursor =
-    list.length > 0 ? encodeCursor(list[list.length - 1], sortFields) : null;
-
-  const pageInfo: PageInfo = {
-    hasNextPage: direction === 'forward' ? hasMore : Boolean(cursor),
-    hasPreviousPage: direction === 'backward' ? hasMore : Boolean(cursor),
-    startCursor,
-    endCursor,
-  };
-
-  return {
-    list,
+  return buildCursorResult<T>({
+    rawItems: listRaw,
+    limit,
     totalCount,
-    pageInfo,
-  };
+    sortFields,
+    direction,
+    cursor,
+  });
 }
 
 export const checkCollectionCodeDuplication = async (
