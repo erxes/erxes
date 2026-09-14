@@ -6,14 +6,8 @@ const commonFields = `
   triggers: [TriggerInput],
   actions: [ActionInput],
   workflows: [WorkflowInput]
+  notes: [NoteInput]
 
-`;
-
-const commonNoteFields = `
-  automationId: String
-  triggerId: String
-  actionId: String
-  description: String
 `;
 
 const aiAgentParams = `
@@ -40,9 +34,6 @@ const mutations = `
   automationsSaveAsTemplate(_id: String!, name: String, duplicate: Boolean): Automation
   automationsCreateFromTemplate(_id: String): Automation
 
-  automationsAddNote(${commonNoteFields}): AutomationNote
-  automationsEditNote(_id: String!, ${commonNoteFields}): AutomationNote
-  automationsRemoveNote(_id: String!): AutomationNote
   automationsAiAgentAdd(${aiAgentParams}):JSON
   automationsAiAgentEdit(_id:String!,${aiAgentParams}):JSON
   automationsAiAgentRemove(_id:String!):JSON

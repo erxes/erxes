@@ -1,3 +1,4 @@
+import { BroadcastEditSheet } from '@/broadcast/components/BroadcastEditSheet';
 import { BroadcastDetailSheet } from '@/broadcast/components/BroadcastDetailSheet';
 import { BroadcastFilter } from '@/broadcast/components/BroadcastFilter';
 import { BroadcastHeader } from '@/broadcast/components/BroadcastHeader';
@@ -19,6 +20,7 @@ const BroadcastIndexPage = () => {
       </div>
 
       <BroadcastDetailSheet />
+      <BroadcastEditSheet />
     </PageContainer>
   );
 };

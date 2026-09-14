@@ -141,6 +141,16 @@ export type IAutomationsActionConfig = {
   targetSourceType?: string;
   allowTargetFromActions?: boolean;
   allowedMultiTriggerTypes?: string[];
+  /**
+   * Target record types this action can operate on, named with the same
+   * identifiers as trigger types. Declaring nothing means the action is
+   * target-agnostic and any caller may use it.
+   *
+   * Callers that supply their own target (a broadcast enrolling customers, an
+   * AI agent, a manual run) check what they supply against this, so an action
+   * never needs a per-caller flag.
+   */
+  requiresTargetTypes?: string[];
   folks?: IAutomationsActionConfigFolkConfig[];
   output?: TAutomationRuntimeOutputDefinition;
   setPropertyTargets?: TAutomationSetPropertyTarget[];
@@ -229,6 +239,76 @@ export type AutomationConstants = IAutomationTriggersActionsConfig & {
   findObjectTargets?: TAutomationFindObjectTargetDefinition[];
   setPropertyTargets?: TAutomationSetPropertyTarget[];
   ai?: TAutomationAiConfig;
+  /**
+   * Flows shipped with the code, not created by a tenant. They exist from the
+   * moment the plugin is deployed and are never written to a tenant database:
+   * a copy is only materialized when someone installs one.
+   */
+  workflowTemplates?: TAutomationBuiltInTemplate[];
+};
+
+/**
+ * A step of a built-in template.
+ *
+ * Addressed by `order` rather than by id: ids are generated per automation, so
+ * a template that hardcoded them could never be installed twice. Installing
+ * maps every order to a fresh id and rewrites the connections with it.
+ */
+export type TAutomationBuiltInTemplateStep = {
+  order: number;
+  type: string;
+  label?: string;
+  description?: string;
+  icon?: string;
+  config?: Record<string, any>;
+  /**
+   * What runs after this step: a plain chain (`2`), or the branch handles of a
+   * step that has more than one output (`{ yes: 2, no: 3 }` for `if`,
+   * `{ isExists: 2, notExists: 3 }` for `findObject`).
+   */
+  next?: number | Record<string, number>;
+};
+
+/**
+ * Something the tenant must already have before a template can work — a bot, a
+ * pipeline stage, an integration. The value is chosen once, while installing,
+ * by a component the owning plugin provides: only that plugin knows what
+ * counts as a valid candidate and how to list them.
+ */
+export type TAutomationBuiltInTemplateRequirement = {
+  /** Unique within the template; how `dependsOn` refers to another one. */
+  key: string;
+  /** Resolved by the owning plugin's `templateRequirement` component. */
+  kind: string;
+  label: string;
+  description?: string;
+  /**
+   * Where the chosen value lands in the flow. Omitted for a requirement that
+   * only gates — something that must exist but fills nothing in.
+   *
+   * `from` names a field of the answer when the component reports an object
+   * rather than a scalar, so one choice can settle everything it implies — an
+   * address and the name that goes with it, a pipeline and its label.
+   */
+  fills?: { order: number; path: string; from?: string }[];
+  /** Stays unanswerable until that requirement has a value (stage needs its pipeline). */
+  dependsOn?: string;
+};
+
+export type TAutomationBuiltInTemplate = {
+  /** Stable across deploys; how an installed copy still names its origin. */
+  id: string;
+  name: string;
+  description?: string;
+  flow: TAutomationBuiltInTemplateStep[];
+  requirements?: TAutomationBuiltInTemplateRequirement[];
+  /**
+   * Fields the template deliberately leaves empty because only the
+   * organization can write them — its own name in a signature, the wording of
+   * an offer. Unlike a requirement these never block installing; they are
+   * listed so the flow is not installed and then quietly left unfinished.
+   */
+  mustConfigure?: { order: number; label: string }[];
 };
 
 export type TAutomationFindObjectResult = {

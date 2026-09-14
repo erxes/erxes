@@ -6,7 +6,7 @@
 - **Project:** `sales_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/sales_ui`
-- **Last synchronized:** `2026-09-09`
+- **Last synchronized:** `2026-09-14`
 
 ## Scope
 
@@ -118,6 +118,16 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-14` — A deal's created row says what produced it
+
+- **Summary:** `DealCreatedRow` now ends with `ActivityLogs.CreatedVia`, so a
+  deal an automation opened reads "created deal X from campaign Y" with a link
+  to the campaign. The suffix renders nothing for a deal someone made by hand.
+- **Affected areas:**
+  `src/modules/deals/cards/components/detail/DealActivityRows.tsx`
+- **Contracts changed:** Consumes the new `ActivityLogs.CreatedVia` from
+  `ui-modules`.
 
 ### `2026-09-09` — `Bound Dev Watchers`
 

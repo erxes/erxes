@@ -24,7 +24,7 @@ const TitleHeader = () => {
 
 const DescriptionHeader = () => {
   const { t } = useTranslation('automations');
-  return <RecordTable.InlineHead label={t('trigger')} />;
+  return <RecordTable.InlineHead label={t('description')} />;
 };
 
 const TriggerHeader = () => {

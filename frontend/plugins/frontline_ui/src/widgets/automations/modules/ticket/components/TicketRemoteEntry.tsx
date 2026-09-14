@@ -21,6 +21,12 @@ const TicketActionNodeContent = lazy(() =>
     default: module.TicketActionNodeContent,
   })),
 );
+const TicketTemplateRequirement = lazy(() =>
+  import('./template/TicketTemplateRequirement').then((module) => ({
+    default: module.TicketTemplateRequirement,
+  })),
+);
+
 const CreateTicketActionResult = lazy(() =>
   import('./action/CreateTicketActionResult').then((module) => ({
     default: module.CreateTicketActionResult,
@@ -35,6 +41,7 @@ export const TicketRemoteEntry = (props: AutomationRemoteEntryProps) => {
         actionForm: TicketActionConfigForm,
         actionNodeConfiguration: TicketActionNodeContent,
         historyActionResult: CreateTicketActionResult,
+        templateRequirement: TicketTemplateRequirement,
         historyName: ({
           target,
         }: AutomationExecutionHistoryNameProps<TTicketHistoryTarget>) =>

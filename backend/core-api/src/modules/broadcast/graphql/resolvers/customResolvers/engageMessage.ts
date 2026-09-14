@@ -1,5 +1,9 @@
 import { IEngageMessageDocument } from '@/broadcast/@types';
-import { prepareNotificationStats } from '@/broadcast/utils';
+import {
+  findCampaignAutomation,
+  isWorkflowCampaign,
+  prepareNotificationStats,
+} from '@/broadcast/utils';
 import { IContext } from '~/connectionResolvers';
 import { CAMPAIGN_METHODS } from '~/modules/broadcast/constants';
 
@@ -10,6 +14,24 @@ export default {
     { models }: IContext,
   ) {
     return models.EngageMessages.findOne({ _id });
+  },
+
+  /**
+   * Resolved rather than stored: the automation carries `ownerContentId`, so
+   * the link has one source of truth and nothing to keep in sync.
+   */
+  async workflowAutomationId(
+    { _id, method }: IEngageMessageDocument,
+    _args: undefined,
+    { models }: IContext,
+  ) {
+    if (!isWorkflowCampaign(method)) {
+      return null;
+    }
+
+    const automation = await findCampaignAutomation(models, _id);
+
+    return automation?._id || null;
   },
 
   segments({ targetType, targetIds = [] }: IEngageMessageDocument) {
@@ -80,6 +102,8 @@ export default {
       return prepareNotificationStats(models, _id);
     }
 
-    return 'Invalid method';
+    // Methods that keep no stats document report none. A sentinel string here
+    // passes the JSON scalar untouched and reaches the client as `stats`.
+    return null;
   },
 };

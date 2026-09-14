@@ -22,6 +22,15 @@ const commonActionTypes = `
   targetActionId: String
 `;
 
+const noteTypes = `
+  id: String
+  content: String
+  position: JSON
+  width: Float
+  height: Float
+  color: String
+`;
+
 const workflowTypes = `
   id:String
   automationId:String
@@ -64,6 +73,9 @@ const types = `
     triggers: [Trigger]
     actions: [Action]
     workflows: [Workflow]
+    notes: [AutomationNote]
+    ownedBy: String
+    ownerContentId: String
 
     duplicatedFrom: String
     duplicatedFromName: String
@@ -75,12 +87,7 @@ const types = `
   }
 
   type AutomationNote {
-    _id: String
-    description: String
-    triggerId: String
-    actionId: String
-    createdUser: User
-    createdAt: Date
+    ${noteTypes}
   }
 
   type AutomationsListResponse {
@@ -177,6 +184,10 @@ const types = `
 
   input WorkflowInput {
     ${workflowTypes}
+  }
+
+  input NoteInput {
+    ${noteTypes}
   }
 
   type AiAgentHealth {

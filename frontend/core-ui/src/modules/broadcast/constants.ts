@@ -2,6 +2,7 @@ import { BadgeProps } from 'erxes-ui';
 import {
   IconBellRinging,
   IconDeviceMobile,
+  IconRouteSquare,
   IconUserCheck,
   IconUsers,
 } from '@tabler/icons-react';
@@ -16,6 +17,7 @@ export const BROADCAST_MESSAGE_METHOD_KINDS: Record<string, string> = {
   email: 'manual',
   messenger: 'visitorAuto',
   notification: 'manual',
+  workflow: 'manual',
 };
 
 export const BROADCAST_METHODS: Record<string, string> = {
@@ -23,6 +25,7 @@ export const BROADCAST_METHODS: Record<string, string> = {
   EMAIL: 'email',
   SMS: 'sms',
   NOTIFICATION: 'notification',
+  WORKFLOW: 'workflow',
 };
 
 export const BROADCAST_KIND_FILTERS: Record<string, string> = {
@@ -135,6 +138,7 @@ export const BROADCAST_MESSAGE_METHODS = [
   { value: 'email', label: 'Email' },
   { value: 'messenger', label: 'Messenger' },
   { value: 'notification', label: 'Notification' },
+  { value: 'workflow', label: 'Workflow' },
 ];
 
 export const BROADCAST_NOTIFICATION_STATISTIC = {
@@ -161,6 +165,21 @@ export const BROADCAST_NOTIFICATION_STATISTIC = {
     description:
       'Campaign was configured to deliver mobile and web push notifications.',
     icon: IconDeviceMobile,
+  },
+};
+
+export const BROADCAST_WORKFLOW_STATISTIC = {
+  total: {
+    title: 'Targeted',
+    description:
+      'Customers matched by this campaign’s audience when it was last run.',
+    icon: IconUsers,
+  },
+  started: {
+    title: 'Workflow started',
+    description:
+      'Customers the flow was started for. A step that waits or delays can run for days afterwards, so what happened next lives in the flow’s own history.',
+    icon: IconRouteSquare,
   },
 };
 

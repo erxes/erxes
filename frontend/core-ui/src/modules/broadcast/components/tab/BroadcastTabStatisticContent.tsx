@@ -9,10 +9,19 @@ import {
   IconMoodSad,
   IconXboxXFilled,
 } from '@tabler/icons-react';
+import type { TablerIcon } from '@tabler/icons-react';
 import { Badge } from 'erxes-ui';
-import { BROADCAST_NOTIFICATION_STATISTIC } from '../../constants';
+import {
+  BROADCAST_NOTIFICATION_STATISTIC,
+  BROADCAST_WORKFLOW_STATISTIC,
+} from '../../constants';
 
-const EMAIL_DETAIL_STATISTIC = {
+type TBroadcastStatisticConfig = Record<
+  string,
+  { title: string; description: string; icon: TablerIcon }
+>;
+
+const EMAIL_DETAIL_STATISTIC: TBroadcastStatisticConfig = {
   total: {
     title: 'Total',
     description:
@@ -69,6 +78,12 @@ const EMAIL_DETAIL_STATISTIC = {
   },
 };
 
+const buildWorkflowStats = (message: any) => {
+  const { totalCustomersCount = 0, validCustomersCount = 0 } = message || {};
+
+  return { total: totalCustomersCount, started: validCustomersCount };
+};
+
 const buildNotificationStats = (message: any) => {
   const {
     totalCustomersCount = 0,
@@ -85,17 +100,36 @@ const buildNotificationStats = (message: any) => {
   };
 };
 
+const STATISTIC_BUILDERS: Record<
+  string,
+  {
+    config: TBroadcastStatisticConfig;
+    build: (message: any) => Record<string, number>;
+  }
+> = {
+  notification: {
+    config: BROADCAST_NOTIFICATION_STATISTIC,
+    build: buildNotificationStats,
+  },
+  workflow: {
+    config: BROADCAST_WORKFLOW_STATISTIC,
+    build: buildWorkflowStats,
+  },
+};
+
 export const BroadcastTabStatisticContent = ({ message }: { message: any }) => {
   const { stats, runCount, lastRunAt, method } = message || {};
-  const isNotification = method === 'notification';
+  const builder = STATISTIC_BUILDERS[method];
 
-  const displayStats = isNotification
-    ? buildNotificationStats(message)
-    : stats || {};
+  // A method with no stats document of its own reports none, so anything but
+  // an object is read as empty rather than indexed into.
+  const displayStats = builder
+    ? builder.build(message)
+    : stats && typeof stats === 'object'
+    ? stats
+    : {};
 
-  const statisticConfig = isNotification
-    ? BROADCAST_NOTIFICATION_STATISTIC
-    : EMAIL_DETAIL_STATISTIC;
+  const statisticConfig = builder?.config || EMAIL_DETAIL_STATISTIC;
 
   return (
     <div className="w-full px-8 py-5 space-y-5">
@@ -129,7 +163,7 @@ export const BroadcastTabStatistics = ({
   statisticConfig = EMAIL_DETAIL_STATISTIC,
 }: {
   stats: Record<string, number>;
-  statisticConfig?: typeof EMAIL_DETAIL_STATISTIC;
+  statisticConfig?: TBroadcastStatisticConfig;
 }) => {
   return (
     <div className="grid grid-cols-3 gap-4">
@@ -147,8 +181,8 @@ export const BroadcastTabStatistics = ({
                 ? 100
                 : 0
               : total > 0
-                ? Math.min((value * 100) / total, 100)
-                : 0;
+              ? Math.min((value * 100) / total, 100)
+              : 0;
 
           return (
             <div key={key} className="flex flex-col border rounded-md p-5">
@@ -168,10 +202,10 @@ export const BroadcastTabStatistics = ({
                         ? 'Yes'
                         : 'No'
                       : total
-                        ? ((v) => (Number.isInteger(v) ? v : v.toFixed(2)))(
-                            percentage,
-                          )
-                        : '-'}
+                      ? ((v) => (Number.isInteger(v) ? v : v.toFixed(2)))(
+                          percentage,
+                        )
+                      : '-'}
                     {key !== 'push' && total ? '%' : ''}
                   </Badge>
                 </div>

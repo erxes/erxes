@@ -51,6 +51,14 @@ export const BroadcastMethod = ({ onSelect }: { onSelect: () => void }) => {
               </div>
             </div>
           </DropdownMenu.RadioItem>
+          <DropdownMenu.RadioItem value="workflow" className="cursor-pointer">
+            <div className="flex flex-col gap-1 p-2">
+              <Label variant="peer">Workflow</Label>
+              <div className="text-xs text-accent-foreground">
+                Run an automation once for every customer you target
+              </div>
+            </div>
+          </DropdownMenu.RadioItem>
         </DropdownMenu.RadioGroup>
       </DropdownMenu.Content>
     </DropdownMenu>

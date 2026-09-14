@@ -1,6 +1,10 @@
 import { IBroadcastMethodEnum } from '@/broadcast/types';
 import { useBroadcastAdd } from '@/broadcast/hooks/useBroadcastAdd';
-import { useBroadcastForm } from '@/broadcast/hooks/useBroadcastForm';
+import { useBroadcastEdit } from '@/broadcast/hooks/useBroadcastEdit';
+import {
+  IBroadcastFormData,
+  useBroadcastForm,
+} from '@/broadcast/hooks/useBroadcastForm';
 import {
   Badge,
   Button,
@@ -9,7 +13,6 @@ import {
   Separator,
   Sheet,
   useQueryState,
-  useRemoveQueryStateByKey,
   useToast,
 } from 'erxes-ui';
 import { useState } from 'react';
@@ -40,6 +43,12 @@ const BROADCAST_STEPS = [
 ];
 
 const getConfigValidateFields = (method?: string | null) => {
+  // A workflow campaign carries no content of its own: the flow is drawn in
+  // the automation builder after the campaign exists.
+  if (method === 'workflow') {
+    return [];
+  }
+
   if (method === 'notification') {
     return ['cpId', 'notification.title', 'notification.content'];
   }
@@ -57,44 +66,69 @@ const getConfigValidateFields = (method?: string | null) => {
   return ['fromEmail', 'email.subject', 'email.replyTo', 'email.content'];
 };
 
+/**
+ * @param messageId set when an existing campaign is being edited: the same
+ * steps, saved through the edit mutation instead of creating a second
+ * campaign.
+ */
 export const BroadcastSteps = ({
-  setOpen,
+  messageId,
+  initialValues,
+  onClose,
 }: {
-  setOpen: (open: boolean) => void;
+  messageId?: string;
+  initialValues?: Partial<IBroadcastFormData>;
+  onClose: () => void;
 }) => {
   const [method] = useQueryState<IBroadcastMethodEnum>('method');
-  const removeQueryStateByKey = useRemoveQueryStateByKey();
   const { toast } = useToast();
 
-  const { form } = useBroadcastForm();
+  const { form } = useBroadcastForm(initialValues);
+  // The canvas is the campaign's content, so it takes most of the split.
+  const isWorkflow = method === IBroadcastMethodEnum.WORKFLOW;
 
   const { addBroadcast } = useBroadcastAdd();
+  const { editBroadcast } = useBroadcastEdit();
 
   const [step, setStep] = useState(0);
 
-  const handleClose = () => {
-    setOpen(false);
-
-    removeQueryStateByKey('method');
-  };
+  const handleClose = () => onClose();
 
   const onSubmit = (data: any, action?: 'draft' | 'live') => {
     if (!method) {
       return;
     }
 
-    addBroadcast({
-      variables: prepareBroadcastVariables(data, method, action),
+    const variables = prepareBroadcastVariables(data, method, action);
+    const feedback = {
       onCompleted: () => {
         toast({
           variant: 'default',
-          title:
-            action === 'draft'
-              ? 'Broadcast saved as draft'
-              : 'Broadcast created',
+          title: messageId
+            ? 'Broadcast saved'
+            : action === 'draft'
+            ? 'Broadcast saved as draft'
+            : 'Broadcast created',
         });
       },
-    });
+      onError: (error: Error) => {
+        toast({
+          variant: 'destructive',
+          title: 'Could not save this broadcast',
+          description: error.message,
+        });
+      },
+    };
+
+    if (messageId) {
+      editBroadcast({
+        variables: { _id: messageId, ...variables },
+        ...feedback,
+      });
+      return;
+    }
+
+    addBroadcast({ variables, ...feedback });
   };
 
   const handleAction = async (step: number, action?: 'draft' | 'live') => {
@@ -142,15 +176,23 @@ export const BroadcastSteps = ({
   return (
     <FormProvider {...form}>
       <Sheet.Header>
-        <Sheet.Title>New Broadcast</Sheet.Title>
+        <Sheet.Title>
+          {messageId ? 'Edit Broadcast' : 'New Broadcast'}
+        </Sheet.Title>
         <Sheet.Close />
       </Sheet.Header>
 
-      <Resizable.PanelGroup direction="horizontal" className="bg-blue">
+      {/* Keyed by method: panel sizes are read once on mount, and the sheet
+          can open in the same tick the method lands in the query string. */}
+      <Resizable.PanelGroup
+        key={method || 'default'}
+        direction="horizontal"
+        className="bg-blue"
+      >
         <Resizable.Panel
           className="flex flex-col"
-          defaultSize={40}
-          minSize={35}
+          defaultSize={isWorkflow ? 26 : 40}
+          minSize={isWorkflow ? 20 : 35}
         >
           <Sheet.Content className="grow overflow-hidden flex flex-col">
             {BROADCAST_STEPS.map(
@@ -164,7 +206,7 @@ export const BroadcastSteps = ({
         <Resizable.Handle />
         <Resizable.Panel
           className="flex flex-col h-full"
-          defaultSize={60}
+          defaultSize={isWorkflow ? 74 : 60}
           minSize={60}
         >
           <BroadcastPreview />
@@ -216,18 +258,23 @@ export const BroadcastStepActions = ({
   step: number;
   handleAction: (step: number, action?: 'draft' | 'live') => void;
 }) => {
+  const isLastStep = step + 1 === BROADCAST_STEPS.length;
+
   return (
     <Sheet.Footer>
       <Button onClick={() => handleAction(step - 1)} variant="secondary">
         {step === 0 ? 'Cancel' : 'Previous step'}
       </Button>
-      {step + 1 === BROADCAST_STEPS.length && (
-        <Button onClick={() => handleAction(step + 1, 'draft')}>
+      {isLastStep && (
+        <Button
+          onClick={() => handleAction(step + 1, 'draft')}
+          variant="secondary"
+        >
           Save & Draft
         </Button>
       )}
       <Button onClick={() => handleAction(step + 1, 'live')}>
-        {step + 1 === BROADCAST_STEPS.length ? 'Save & Live' : 'Next step'}
+        {isLastStep ? 'Save & Live' : 'Next step'}
       </Button>
     </Sheet.Footer>
   );

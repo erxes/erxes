@@ -1,3 +1,4 @@
+import { TCreatedVia } from '../../../core-types/common';
 import { Document, Schema } from 'mongoose';
 
 export interface IAutomationExecAction {
@@ -32,6 +33,13 @@ export interface IAutomationExecution {
   triggerId: string;
   triggerType: string;
   triggerConfig: any;
+  /**
+   * What set this run going. A caller that addressed the automation on
+   * someone's behalf declares its own — a campaign names itself and whoever
+   * put it live — and the runner stamps the run's own id onto it. Records the
+   * run creates carry it onward.
+   */
+  createdVia?: TCreatedVia;
   nextActionId?: string;
   targetId: string;
   target: any;
@@ -100,6 +108,7 @@ export const automationExecutionSchema = new Schema({
   triggerId: { type: String, required: true },
   triggerType: { type: String },
   triggerConfig: { type: Object },
+  createdVia: { type: Object },
   nextActionId: { type: String },
   targetId: { type: String, required: true, index: true },
   target: { type: Object },

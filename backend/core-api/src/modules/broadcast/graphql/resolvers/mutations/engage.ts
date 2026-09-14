@@ -1,15 +1,22 @@
 import { IEngageMessage } from '@/broadcast/@types';
 import {
   checkCampaignDoc,
+  createCampaignAutomation,
+  findCampaignAutomation,
   getEditorAttributeUtil,
+  isWorkflowCampaign,
+  removeCampaignAutomations,
   sendBroadcast,
+  setCampaignAutomationFlow,
   sendEngageEmail,
+  setCampaignAutomationStatus,
   updateConfigs,
 } from '@/broadcast/utils';
 import {
   getBroadcastCacheKey,
   getBroadcastEmailConfig,
 } from '@/broadcast/utils/outboundEmail';
+import { AUTOMATION_STATUSES } from 'erxes-api-shared/core-modules';
 import { deliverEmail, ISingleSenderInput } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { TEmailScope } from '~/utils/email/scope';
@@ -31,12 +38,35 @@ export const engageMutations = {
 
     await checkCampaignDoc(models, doc);
 
+    const { workflow, ...campaignDoc } = doc;
+
     const engageMessage = await models.EngageMessages.createEngageMessage({
-      ...doc,
+      ...campaignDoc,
       createdBy: user._id,
     });
 
+    if (isWorkflowCampaign(doc.method)) {
+      await createCampaignAutomation(models, {
+        campaignId: engageMessage._id,
+        title: engageMessage.title,
+        userId: user._id,
+        actions: workflow?.actions,
+        entryActionId: workflow?.entryActionId,
+      });
+    }
+
     if (isLive && !isDraft) {
+      // Mirrors `engageMessageSetLive`: a campaign created live must not leave
+      // the automation it owns sitting in draft.
+      if (isWorkflowCampaign(doc.method)) {
+        await setCampaignAutomationStatus(
+          models,
+          engageMessage._id,
+          AUTOMATION_STATUSES.ACTIVE,
+          user._id,
+        );
+      }
+
       sendBroadcast({ models, subdomain, engageMessage });
     }
 
@@ -49,17 +79,35 @@ export const engageMutations = {
   async engageMessageEdit(
     _root,
     { _id, ...doc }: { _id: string } & IEngageMessage,
-    { models, subdomain, checkPermission }: IContext,
+    { user, models, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('broadcastUpdate');
 
-    await checkCampaignDoc(models, doc);
+    await checkCampaignDoc(models, { ...doc, _id });
+
+    const { workflow, ...campaignDoc } = doc;
 
     const engageMessage = await models.EngageMessages.getEngageMessage(_id);
-    const updated = await models.EngageMessages.updateEngageMessage(_id, doc);
+    const updated = await models.EngageMessages.updateEngageMessage(
+      _id,
+      campaignDoc,
+    );
+
+    if (isWorkflowCampaign(updated.method) && workflow) {
+      await setCampaignAutomationFlow(models, _id, workflow);
+    }
 
     // run manually when it was draft & live afterwards
     if (!engageMessage.isLive && doc.isLive) {
+      if (isWorkflowCampaign(updated.method)) {
+        await setCampaignAutomationStatus(
+          models,
+          _id,
+          AUTOMATION_STATUSES.ACTIVE,
+          user._id,
+        );
+      }
+
       sendBroadcast({ models, subdomain, engageMessage: updated });
     }
 
@@ -76,6 +124,8 @@ export const engageMutations = {
   ) {
     await checkPermission('broadcastDelete');
 
+    await removeCampaignAutomations(models, _ids);
+
     return models.EngageMessages.removeEngageMessage(_ids);
   },
 
@@ -85,7 +135,7 @@ export const engageMutations = {
   async engageMessageSetLive(
     _root: undefined,
     { _id }: { _id: string },
-    { models, subdomain, checkPermission }: IContext,
+    { user, models, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('broadcastUpdate');
 
@@ -98,6 +148,15 @@ export const engageMutations = {
     await checkCampaignDoc(models, campaign);
 
     const live = await models.EngageMessages.engageMessageSetLive(_id);
+
+    if (isWorkflowCampaign(live.method)) {
+      await setCampaignAutomationStatus(
+        models,
+        _id,
+        AUTOMATION_STATUSES.ACTIVE,
+        user._id,
+      );
+    }
 
     sendBroadcast({ models, subdomain, engageMessage: live });
 
@@ -114,7 +173,13 @@ export const engageMutations = {
   ) {
     await checkPermission('broadcastUpdate');
 
-    return await models.EngageMessages.engageMessageSetPause(_id);
+    const paused = await models.EngageMessages.engageMessageSetPause(_id);
+
+    if (isWorkflowCampaign(paused.method)) {
+      await setCampaignAutomationStatus(models, _id, AUTOMATION_STATUSES.DRAFT);
+    }
+
+    return paused;
   },
 
   /**
@@ -123,7 +188,7 @@ export const engageMutations = {
   async engageMessageSetLiveManual(
     _root: undefined,
     { _id }: { _id: string },
-    { models, subdomain, checkPermission }: IContext,
+    { user, models, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('broadcastUpdate');
 
@@ -133,6 +198,14 @@ export const engageMutations = {
 
     const live = await models.EngageMessages.engageMessageSetLive(_id);
 
+    if (isWorkflowCampaign(live.method)) {
+      await setCampaignAutomationStatus(
+        models,
+        _id,
+        AUTOMATION_STATUSES.ACTIVE,
+      );
+    }
+
     sendBroadcast({ models, subdomain, engageMessage: live });
 
     return live;
@@ -141,7 +214,7 @@ export const engageMutations = {
   async broadcastUpdateConfigs(
     _root,
     { configsMap },
-    { models, subdomain, checkPermission }: IContext,
+    { user, models, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('broadcastConfigsManage');
 
@@ -267,7 +340,22 @@ export const engageMutations = {
       doc.scheduleDate.dateTime = null;
     }
 
-    return await models.EngageMessages.createEngageMessage(doc);
+    const copy = await models.EngageMessages.createEngageMessage(doc);
+
+    if (isWorkflowCampaign(copy.method)) {
+      const source = await findCampaignAutomation(models, _id);
+
+      await createCampaignAutomation(models, {
+        campaignId: copy._id,
+        title: copy.title,
+        userId: user._id,
+        // The copy gets its own snapshot of the flow, so editing either
+        // campaign afterwards never changes the other.
+        actions: source?.actions,
+      });
+    }
+
+    return copy;
   },
 
   /**

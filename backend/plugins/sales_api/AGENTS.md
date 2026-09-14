@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-09-01`
+- **Last synchronized:** `2026-09-14`
 
 ## Scope
 
@@ -31,6 +31,10 @@
   published GraphQL, tRPC, HTTP, event, or federation contracts.
 
 ## Current Capabilities
+
+- A deal an automation creates records `createdVia` — what produced it, which
+  run, and for whom — and falls back to that actor as the deal's `userId` when
+  the target does not name one.
 
 - Runs as the sales federated GraphQL and tRPC plugin service.
 - Exposes deals, pipelines, boards, stages, labels, product/payment data, sales
@@ -323,6 +327,19 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-14` — A deal an automation opened records what produced it
+
+- **Summary:** Deals created by an automation now carry `createdVia` — the
+  configuration that produced them, the run that did it, and whose
+  configuration it was — and take that actor as `userId` when the execution
+  target carries none, instead of being left ownerless.
+- **Affected areas:**
+  `src/modules/sales/meta/automations/action/createDealAction.ts`,
+  `src/modules/sales/@types/deal.ts`
+- **Contracts changed:** Consumes the new `TCreatedVia` and
+  `IExecution.createdVia` from `erxes-api-shared`; `createdVia` itself is added
+  to every schema by `schemaWrapper`.
+
 ### `2026-09-01` — `checkTargetMatch` producer removed
 
 - **Summary:** The `checkTargetMatch` producer was deleted from the plugin-level
@@ -429,68 +446,3 @@
   `evaluate/index.ts`, `evaluate/stageDerived.ts` (new); `evaluate/deal.ts`,
   `evaluate/relations.ts`, `evaluate/readPath.ts` removed.
 - **Contracts changed:** None.
-
-### `2026-09-01` — Deal queries honour the organization's day
-
-- **Summary:** `listDealSegmentMembers`, `countDealSegmentMembers` and the
-  relation predicate now pass the caller-resolved `timeZone` into
-  `compileSegmentMongoFilter`, so a relative-day or anniversary condition on a
-  deal date means the organization's day rather than the UTC one.
-- **Affected areas:** `src/modules/sales/meta/segments/members.ts`,
-  `src/modules/sales/meta/segments/evaluate/{deal,relations}.ts`.
-- **Contracts changed:** None locally - `timeZone` is an optional field the
-  platform added to the member-query and evaluate-fields inputs.
-
-### `2026-08-31` — Stage-derived deal fields declare their source
-
-- **Summary:** `pipelineId`, `boardId` and `stageProbability` now name
-  `sales:sales.stages` as a dependency with the path back (`via: 'stageId'`),
-  so editing a stage re-checks the deals sitting in it instead of leaving their
-  membership stale until the nightly reconcile.
-- **Affected areas:** `src/modules/sales/meta/segments/fields/deal.ts`.
-- **Contracts changed:** None - the platform reads `dependsOn` it already
-  defined; only the declaration was filled in.
-
-### `2026-08-26` — Segment content types match the event form
-
-- **Summary:** `sales:deal` became `sales:sales.deals`, matching what the event
-  dispatcher emits, so segment types and event types are one string instead of
-  two that had to be mapped; relations now state their record types separately
-  from their segment types, leaving core's relation records untouched.
-- **Affected areas:** `src/modules/sales/meta/segments/` (content type,
-  fields, members, membership, relations, evaluate).
-- **Contracts changed:** `sales:deal` -> `sales:sales.deals`;
-  `SegmentRelationMeta.join` for `via: 'relation'` now carries
-  `subjectRecordType` and `relatedRecordType`.
-
-### `2026-08-25` — Membership writes and content-type routing
-
-- **Summary:** Deals now accept settled segment membership through an
-  `applyMembership` producer that writes `segmentIds` on the deal, declare
-  `sales:sales.deals` as the event that moves deal segments, and the
-  content-type producers route by the module that declared the type instead of
-  by a substring of it - which had left deal member listing unreachable since
-  the segment content types were renamed to `plugin:entity`.
-- **Affected areas:** `src/meta/segments.ts`,
-  `src/modules/sales/meta/segments/membership.ts`,
-  `src/modules/sales/meta/segments/segments.ts`,
-  `src/modules/sales/meta/segments/segmentConfigs.ts`.
-- **Contracts changed:** new `applyMembership` segment producer; `sales:deal`
-  declares `eventTypes`.
-
-### `2026-08-24` — Relation joins through core relation records
-
-- **Summary:** `customer.deals` and `company.deals` now join through the core
-  relation record that actually links them instead of a `customerIds` path the
-  deal schema never had, so a customer segment measuring its deals no longer
-  counts zero for everyone; a relation predicate that cannot compile in full
-  now makes the measure unavailable, and stage-derived conditions inside one
-  are resolved to stage ids rather than dropped.
-- **Affected areas:** `src/modules/sales/meta/segments/relations.ts`,
-  `src/modules/sales/meta/segments/evaluate/relations.ts`,
-  `src/modules/sales/meta/segments/evaluate/stageFilter.ts`,
-  `src/modules/sales/meta/segments/evaluate/deal.ts`.
-- **Contracts changed:** `segmentRelations` declares `join: { via: 'relation' }`
-  for both relations; relation requests may now carry a core-resolved `edges`
-  table; `evaluateFields` is routed by request through
-  `createSegmentEvaluateFieldsHandler` instead of by `subjectType`.

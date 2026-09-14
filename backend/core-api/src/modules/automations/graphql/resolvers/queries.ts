@@ -297,7 +297,7 @@ export const automationQueries = {
     { status }: { status: string },
     { models }: IContext,
   ) {
-    const filter: any = {};
+    const filter: any = { ownedBy: { $exists: false } };
 
     if (status) {
       filter.status = status;

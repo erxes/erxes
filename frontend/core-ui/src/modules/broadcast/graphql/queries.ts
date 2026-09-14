@@ -99,12 +99,16 @@ export const BROADCAST_MESSAGE = gql`
       notification
       email
       brandId
+      targetType
+      targetIds
+      targetCount
       totalCustomersCount
       validCustomersCount
       runCount
       lastRunAt
       fromUserId
       fromEmail
+      workflowAutomationId
       stats
       shortMessage {
         from

@@ -14,6 +14,9 @@ export const types = `
     fromEmail: String
     fromUserId: String
     method: String
+    targetType: String
+    targetIds: [String]
+    targetCount: Int
     isDraft: Boolean
     isLive: Boolean
     stopDate: Date
@@ -27,6 +30,7 @@ export const types = `
 
     status: String
     progress: JSON
+    workflowAutomationId: String
 
     brandId: String
 
@@ -260,6 +264,7 @@ const mutationParams = `
   email: EngageMessageEmail
   messenger: EngageMessageMessenger
   notification: EngageMessageNotification
+  workflow: JSON
 `;
 
 export const mutations = `

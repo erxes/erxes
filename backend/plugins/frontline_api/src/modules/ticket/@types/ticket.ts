@@ -1,3 +1,4 @@
+import { TCreatedVia } from 'erxes-api-shared/core-types';
 import {
   IListParams,
   IPropertyField,
@@ -6,6 +7,12 @@ import {
 import { Document } from 'mongoose';
 
 export interface ITicket {
+  /**
+   * What produced this, when nobody typed it in — a campaign, an
+   * automation. Written by whatever created it; `schemaWrapper` carries the
+   * field on every schema.
+   */
+  createdVia?: TCreatedVia;
   name: string;
   channelId: string;
   stageId: string;

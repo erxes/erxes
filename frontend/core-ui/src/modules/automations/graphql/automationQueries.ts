@@ -2,6 +2,7 @@ import { gql } from '@apollo/client';
 import { GQL_PAGE_INFO } from 'erxes-ui';
 import {
   AUTOMATION_ACTION_FIELDS,
+  AUTOMATION_NOTE_FIELDS,
   AUTOMATION_HISTORIES_PARAMS,
   AUTOMATION_HISTORIES_PARAMS_DEFS,
   AUTOMATION_MAIN_LIST_PARAMS,
@@ -60,6 +61,9 @@ query AutomationDetail($id: String!) {
       icon
       position
     }
+    notes {
+      ${AUTOMATION_NOTE_FIELDS}
+    }
     createdUser {
       ${COMMON_USER_FIELDS}
     }
@@ -84,8 +88,10 @@ export const AUTOMATIONS_MAIN_LIST = gql`
         createdBy
         updatedBy
         tagIds
-        triggers { id }
-        actions { id }
+        # Slim node shape for the card view's flow preview. Never select
+        # config, which is the heavy part of a trigger or action.
+        triggers { id type icon label actionId }
+        actions { id type icon label nextActionId }
         approvalLockState(action: "edit") {
           contentType
           contentId

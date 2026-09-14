@@ -3,8 +3,9 @@ import { generateModels } from '~/connectionResolvers';
 import { handleEmailProcessor } from './email';
 import { handleMessengerProcessor } from './messenger';
 import { handleNotificationProcessor } from './notification';
+import { handleWorkflowProcessor } from './workflow';
 
-type BroadcastMethod = 'email' | 'messenger' | 'notification';
+type BroadcastMethod = 'email' | 'messenger' | 'notification' | 'workflow';
 
 interface BroadcastJobData {
   method: BroadcastMethod;
@@ -21,6 +22,7 @@ const PROCESS_HANDLERS: Record<
   email: handleEmailProcessor,
   messenger: handleMessengerProcessor,
   notification: handleNotificationProcessor,
+  workflow: handleWorkflowProcessor,
 };
 
 export const broadcastProcessor = async (job: Job<BroadcastJobData>) => {

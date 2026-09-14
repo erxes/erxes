@@ -1,5 +1,6 @@
 import {
   Icon,
+  IconArrowsSplit2,
   IconBellRinging,
   IconBrandMessenger,
   IconInfoSquareRounded,
@@ -18,6 +19,7 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import { BrandsInline, MembersInline } from 'ui-modules';
+import { broadcastMoreColumn } from './BroadcastMoreColumn';
 import {
   BROADCAST_KIND_FILTERS,
   BROADCAST_MESSAGE_KINDS,
@@ -26,6 +28,7 @@ import {
 } from '../constants';
 
 export const broadcastColumns: ColumnDef<any>[] = [
+  broadcastMoreColumn,
   RecordTable.checkboxColumn,
   {
     id: 'title',
@@ -174,6 +177,11 @@ export const broadcastColumns: ColumnDef<any>[] = [
         case BROADCAST_METHODS.NOTIFICATION:
           MethodIcon = IconBellRinging;
           label = 'Notification';
+
+          break;
+        case BROADCAST_METHODS.WORKFLOW:
+          MethodIcon = IconArrowsSplit2;
+          label = 'Workflow';
 
           break;
         default:

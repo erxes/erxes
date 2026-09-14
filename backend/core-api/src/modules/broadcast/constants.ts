@@ -133,8 +133,15 @@ export const CAMPAIGN_METHODS = {
   MESSENGER: 'messenger',
   EMAIL: 'email',
   NOTIFICATION: 'notification',
-  ALL: ['messenger', 'email', 'notification'],
+  // Runs an automation per targeted customer instead of sending one message.
+  WORKFLOW: 'workflow',
+  ALL: ['messenger', 'email', 'notification', 'workflow'],
 };
+
+/** The trigger a broadcast-owned automation carries. Deliberately not
+ * registered as a plugin trigger type, so no event can ever emit it and
+ * `receiveTrigger` can never start these automations. */
+export const BROADCAST_AUTOMATION_TRIGGER_TYPE = 'core:broadcast';
 
 export const MESSENGER_KINDS = {
   CHAT: 'chat',

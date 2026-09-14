@@ -60,6 +60,15 @@ export interface IAutomationWorkflow {
   position?: any;
 }
 
+export interface IAutomationNote {
+  id: string;
+  content: string;
+  position?: any;
+  width?: number;
+  height?: number;
+  color?: string;
+}
+
 export interface IAutomation {
   name: string;
   status: TAutomationStatus;
@@ -68,6 +77,16 @@ export interface IAutomation {
   triggers: IAutomationTrigger[];
   actions: IAutomationAction[];
   workflows?: IAutomationWorkflow[];
+  // Canvas annotations. Deliberately outside actions so the executor and the
+  // builder's flow validation never see them.
+  notes?: IAutomationNote[];
+  /**
+   * Set when another module owns this automation and drives its lifecycle, so
+   * it stays out of the automations list the way an automation-owned segment
+   * stays out of the segments list. Never set through `automationsEdit`.
+   */
+  ownedBy?: 'broadcast';
+  ownerContentId?: string;
   duplicatedFrom?: string;
   createdAt: Date;
   createdBy: string;
@@ -137,6 +156,18 @@ const workflowSchema = new Schema(
   { _id: false },
 );
 
+const noteSchema = new Schema(
+  {
+    id: { type: String, required: true },
+    content: { type: String, default: '' },
+    position: { type: Object },
+    width: { type: Number, optional: true },
+    height: { type: Number, optional: true },
+    color: { type: String, optional: true },
+  },
+  { _id: false },
+);
+
 export const automationSchema = new Schema({
   name: { type: String, required: true },
   status: { type: String, default: AUTOMATION_STATUSES.DRAFT },
@@ -145,6 +176,9 @@ export const automationSchema = new Schema({
   triggers: { type: [triggerSchema] },
   actions: { type: [actionSchema] },
   workflows: { type: [workflowSchema] },
+  notes: { type: [noteSchema], optional: true },
+  ownedBy: { type: String, optional: true, label: 'Owned by' },
+  ownerContentId: { type: String, optional: true, label: 'Owner content id' },
   duplicatedFrom: { type: String, optional: true },
   createdAt: {
     type: Date,
@@ -156,3 +190,5 @@ export const automationSchema = new Schema({
   updatedBy: { type: String },
   tagIds: { type: [String], label: 'Tag Ids', optional: true },
 });
+
+automationSchema.index({ ownedBy: 1, ownerContentId: 1 });

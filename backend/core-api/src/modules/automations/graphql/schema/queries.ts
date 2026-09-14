@@ -57,7 +57,6 @@ const queries = `
   automations(${queryParams}): [Automation]
   automationDetail(_id: String!): Automation
   cpAutomationDetail(_id: String!): Automation
-  automationNotes(automationId: String!, triggerId: String, actionId: String): [AutomationNote]
   automationHistories(${GQL_CURSOR_PARAM_DEFS},${historiesParams}): AutomationHistories
   automationHistoriesTotalCount(${historiesParams}):Int
   automationStats(automationId: String!, beginDate: Date, endDate: Date): AutomationStats

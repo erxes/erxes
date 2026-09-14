@@ -77,7 +77,7 @@ const checkValidTrigger = async (
 const capitalize = (value: string) =>
   value ? value.charAt(0).toUpperCase() + value.slice(1) : value;
 
-const buildExecutionTarget = (
+export const buildExecutionTarget = (
   target: any,
   eventUpdateDescription?: Record<string, any>,
 ) => {

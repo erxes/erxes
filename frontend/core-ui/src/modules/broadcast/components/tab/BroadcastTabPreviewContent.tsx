@@ -18,6 +18,12 @@ const BroadcastTabPreviewNotificationContent = lazy(() =>
   })),
 );
 
+const BroadcastTabPreviewWorkflowContent = lazy(() =>
+  import('../methods/BroadcastWorkflowTabContent').then((module) => ({
+    default: module.BroadcastTabPreviewWorkflowContent,
+  })),
+);
+
 const BROADCAST_TAB_PREVIEW_METHODS: Record<
   string,
   ComponentType<{ message: any }>
@@ -25,6 +31,7 @@ const BROADCAST_TAB_PREVIEW_METHODS: Record<
   email: BroadcastTabPreviewEmailContent,
   messenger: BroadcastTabPreviewMessengerContent,
   notification: BroadcastTabPreviewNotificationContent,
+  workflow: BroadcastTabPreviewWorkflowContent,
 };
 
 export const BroadcastTabPreviewContent = ({ message }: { message: any }) => {

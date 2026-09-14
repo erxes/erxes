@@ -1,3 +1,4 @@
+import { CORE_AUTOMATION_WORKFLOW_TEMPLATES } from '~/meta/automations/workflowTemplates';
 import {
   AutomationConstants,
   AUTOMATION_CORE_ACTIONS,
@@ -31,6 +32,7 @@ const CORE_ACTION_GROUPS = {
 };
 
 export const CORE_AUTOMATION_CONSTANTS: AutomationConstants = {
+  workflowTemplates: CORE_AUTOMATION_WORKFLOW_TEMPLATES,
   findObjectTargets: CORE_FIND_OBJECT_TARGETS_CONST,
   ai: {
     knowledgeSources: [

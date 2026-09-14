@@ -65,4 +65,17 @@ export const broadcastSchema = z.discriminatedUnion('method', [
     }),
     ...baseSchema,
   }),
+
+  // A workflow campaign has no content of its own: the flow lives in the
+  // automation the campaign owns, so only the recipients are filled in here.
+  z.object({
+    method: z.literal('workflow'),
+    workflow: z
+      .object({
+        actions: z.array(z.any()).default([]),
+        entryActionId: z.string().optional(),
+      })
+      .optional(),
+    ...baseSchema,
+  }),
 ]);

@@ -35,6 +35,12 @@ export const prepareBroadcastVariables = (
     isLive: action === 'live',
   };
 
+  if (method === 'workflow') {
+    variables.workflow = data.workflow;
+
+    return variables;
+  }
+
   if (method === 'notification') {
     variables.cpId = data.cpId;
     variables.notification = data.notification;

@@ -66,6 +66,9 @@ export interface IEngageMessage {
   isLive?: boolean;
 
   messengerReceivedCustomerIds?: string[];
+  // Draft flow sent with a workflow campaign; stored on the automation it
+  // owns, never on the campaign document.
+  workflow?: { actions?: any[]; entryActionId?: string };
   email?: IEmail;
   messenger?: IMessenger;
   notification?: INotification;

@@ -6,6 +6,7 @@ import { FilterQuery } from 'mongoose';
 import { ICustomer } from 'erxes-api-shared/core-types';
 import { IModels } from '~/connectionResolvers';
 import { customerTargetFilter } from './targeting';
+import { findCampaignAutomation } from './workflowAutomation';
 
 interface ICustomerSelector {
   targetType?: string;
@@ -64,9 +65,9 @@ const isEmailAddress = (value: string) =>
 
 export const checkCampaignDoc = async (
   models: IModels,
-  doc: IEngageMessage,
+  doc: IEngageMessage & { _id?: string },
 ) => {
-  const { method, targetIds = [] } = doc;
+  const { _id: campaignId, method, targetIds = [] } = doc;
 
   if (!CAMPAIGN_METHODS.ALL.includes(method)) {
     throw new Error(`Unsupported broadcast method: ${method}`);
@@ -74,6 +75,19 @@ export const checkCampaignDoc = async (
 
   if (!targetIds.length) {
     throw new Error('Target ids must be specified');
+  }
+
+  // A workflow campaign with nothing wired would dispatch executions that
+  // finish immediately, so it is stopped here rather than at run time. On
+  // create there is no campaign id yet, and therefore no flow either.
+  if (method === CAMPAIGN_METHODS.WORKFLOW && doc.isLive) {
+    const automation = campaignId
+      ? await findCampaignAutomation(models, campaignId)
+      : null;
+
+    if (!automation?.actions?.length) {
+      throw new Error('Build the workflow before making this campaign live');
+    }
   }
 
   if (method === CAMPAIGN_METHODS.EMAIL) {

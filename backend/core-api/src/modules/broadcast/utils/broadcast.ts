@@ -4,10 +4,12 @@ import validator from 'validator';
 import { ICPUserDocument } from '@/clientportal/types/cpUser';
 import { IModels } from '~/connectionResolvers';
 import { getValueAsString } from '~/modules/organization/settings/db/models/Configs';
+import { CAMPAIGN_METHODS } from '../constants';
 import { IEngageMessageDocument } from '../@types';
 import { generateCustomerSelector, resolveCampaignFromEmail } from './engage';
 import { customerTargetFilter } from './targeting';
 import { addBroadcastWorkerQueue } from './worker';
+import { findCampaignAutomation } from './workflowAutomation';
 
 const CUSTOMER_BATCH_SIZE = 1000;
 
@@ -263,8 +265,9 @@ const sendBroadcastNotification = async ({
     targetIds,
   });
 
-  const totalCustomersCount =
-    await models.Customers.countDocuments(customersSelector);
+  const totalCustomersCount = await models.Customers.countDocuments(
+    customersSelector,
+  );
 
   const erxesCustomerIds = await models.Customers.find(customersSelector)
     .distinct('_id')
@@ -363,6 +366,135 @@ const sendBroadcastNotification = async ({
   }
 };
 
+/**
+ * Workflow campaigns take the audience as-is: the email path's exclusions
+ * (a missing address, an unsubscribe) are about sending mail, and a flow that
+ * assigns a task or issues a voucher has nothing to do with them.
+ */
+const prepareWorkflowCustomers = ({
+  models,
+  targetType,
+  targetIds,
+}: {
+  models: IModels;
+  targetType: string;
+  targetIds: string[];
+}) =>
+  models.Customers.find(customerTargetFilter(targetType, targetIds), { _id: 1 })
+    .batchSize(CUSTOMER_BATCH_SIZE)
+    .lean();
+
+const sendBroadcastWorkflow = async ({
+  models,
+  subdomain,
+  engageMessage,
+}: {
+  models: IModels;
+  subdomain: string;
+  engageMessage: IEngageMessageDocument;
+}) => {
+  const { _id, targetType, targetIds, method } = engageMessage;
+
+  const automation = await findCampaignAutomation(models, _id);
+
+  if (!automation) {
+    throw new Error('This campaign has no workflow');
+  }
+
+  await models.EngageMessages.updateOne(
+    { _id },
+    {
+      $set: {
+        status: 'sending',
+        'progress.processedBatches': 0,
+        'progress.totalBatches': 0,
+        'progress.successCount': 0,
+        'progress.failureCount': 0,
+        'progress.lastUpdated': new Date(),
+      },
+    },
+  );
+
+  const totalCustomersCount = await countAllCustomers({
+    models,
+    targetType,
+    targetIds,
+  });
+
+  // Someone the flow already ran for is skipped on a re-run, which is both
+  // what the email path does with its delivery reports and what an automation
+  // does by default when re-enrollment is not configured. One query, and empty
+  // on a first run.
+  const alreadyRunIds = new Set<string>(
+    await models.AutomationExecutions.distinct('targetId', {
+      automationId: automation._id,
+    }),
+  );
+
+  const batches: string[][] = [];
+  let currentBatch: string[] = [];
+
+  for await (const customer of prepareWorkflowCustomers({
+    models,
+    targetType,
+    targetIds,
+  })) {
+    if (alreadyRunIds.has(customer._id)) {
+      await models.BroadcastTraces.createTrace(
+        _id,
+        'regular',
+        `Skipped customer ${customer._id}: the workflow already ran for them`,
+      );
+      continue;
+    }
+
+    currentBatch.push(customer._id);
+
+    if (currentBatch.length >= CUSTOMER_BATCH_SIZE) {
+      batches.push(currentBatch);
+      currentBatch = [];
+    }
+  }
+
+  if (currentBatch.length > 0) {
+    batches.push(currentBatch);
+  }
+
+  // Written before queuing so a worker never sees a stale totalBatches
+  const started = await models.EngageMessages.findOneAndUpdate(
+    { _id },
+    {
+      $set: {
+        lastRunAt: new Date(),
+        totalCustomersCount,
+        'progress.totalBatches': batches.length,
+      },
+      $inc: { runCount: 1 },
+    },
+    { new: true },
+  );
+
+  const queuedRun = started?.runCount;
+
+  for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
+    await addBroadcastWorkerQueue({
+      queueName: 'broadcast_processor',
+      data: {
+        method,
+        payload: {
+          customerIds: batches[batchIndex],
+          automationId: automation._id,
+          engageMessage,
+          subdomain,
+          queuedRun,
+          batchIndex,
+        },
+      },
+      jobId: `${_id}_run${queuedRun}_batch${batchIndex}`,
+    });
+  }
+};
+
 export const sendBroadcast = async ({
   models,
   subdomain,
@@ -380,5 +512,9 @@ export const sendBroadcast = async ({
 
   if (method === 'notification') {
     return sendBroadcastNotification({ models, subdomain, engageMessage });
+  }
+
+  if (method === CAMPAIGN_METHODS.WORKFLOW) {
+    return sendBroadcastWorkflow({ models, subdomain, engageMessage });
   }
 };

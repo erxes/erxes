@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-09-10`
+- **Last synchronized:** `2026-09-14`
 
 ## Scope
 
@@ -56,6 +56,20 @@
 - Other plugins' collections or service implementations.
 
 ## Current Capabilities
+
+- A ticket an automation creates records `createdVia` — what produced it, which
+  run, and for whom — and is created as that actor when no conversation agent
+  applies.
+- Two Facebook workflow templates ship with the plugin through
+  `automations.constants.workflowTemplates`: `frontline.facebook.comment-then-dm`
+  (public comment reply, then a Messenger message) and
+  `frontline.facebook.reply-and-ticket` (reply, then create a ticket). They are
+  code, never tenant documents, so they exist on a fresh deployment and cannot
+  go stale; a copy is materialized only when someone installs one. Both begin
+  from an existing message/comment target, so neither is offered on a broadcast
+  campaign, whose steps run against a customer. The ticket one declares
+  `frontline:tickets.channel|pipeline|status` requirements that are answered
+  before it can be installed.
 
 - Polls are a reusable definition (`title`, `question`, ordered `options`,
   `allowMultiselect`, optional `durationHours`, optional `brandId`,
@@ -1601,6 +1615,51 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-14` — A ticket an automation opened records what produced it
+
+- **Summary:** Tickets created by an automation now carry `createdVia` — the
+  configuration that produced them, the run that did it, and whose
+  configuration it was. The same actor is used as the creating user, ranked
+  below a conversation's own agent (the more specific answer when there is a
+  thread) and above the first-owner fallback, which is nobody in particular.
+- **Affected areas:**
+  `src/modules/ticket/meta/automations/actions/createTicketAction.ts`,
+  `src/modules/ticket/@types/ticket.ts`
+- **Contracts changed:** Consumes the new `TCreatedVia` and
+  `IExecution.createdVia` from `erxes-api-shared`; `createdVia` itself is added
+  to every schema by `schemaWrapper`.
+
+### `2026-09-14` — Facebook ships two flows of its own
+
+- **Summary:** The plugin now provides built-in workflow templates —
+  "Answer publicly, continue in private" and "Reply, then open a ticket" —
+  through `automations.constants.workflowTemplates`, so they exist from the
+  moment the plugin is deployed and are never written to a tenant database.
+  Both start from an existing thread rather than a contact, because Facebook
+  only permits a reply inside a conversation the person opened; the ticket one
+  declares the channel, pipeline and status it needs as requirements, answered
+  while installing, and names the ticket after what the person wrote. Both
+  carry their reply text, so an installed template sends something sensible
+  before anyone edits it.
+- **Affected areas:**
+  `src/modules/integrations/facebook/meta/automation/workflowTemplates.ts`,
+  `src/meta/automations.ts`
+- **Contracts changed:** Consumes the new optional
+  `AutomationConstants.workflowTemplates` from `erxes-api-shared`.
+
+### `2026-09-13` — Facebook actions declare the target they need
+
+- **Summary:** Send Facebook Message and Send Facebook Comment read the
+  execution target as a facebook message/comment document, so they cannot run
+  behind a trigger that supplies anything else; both now declare
+  `requiresTargetTypes` and the builder hides and refuses them where the target
+  type does not match, instead of letting them fail at runtime.
+- **Affected areas:**
+  `src/modules/integrations/facebook/meta/automation/constants.ts`
+- **Contracts changed:** Consumes the new optional
+  `IAutomationsActionConfigConstants.requiresTargetTypes` from
+  `erxes-api-shared`. No plugin-provided contract changed.
+
 ### `2026-09-10` — A tap stopped counting as a direct message
 
 - **Summary:** The message trigger's Direct Message condition excluded only
@@ -1695,32 +1754,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Contracts changed:** None. `checkContentConditions` returns `boolean`
   instead of `boolean | undefined`; matching stays case-sensitive except
   `isContains`, as before.
-
-### `2026-09-07` — A help center points at the knowledge base topic it serves
-
-### `2026-09-10` — The ticket note type stopped colliding with `operation`'s
-
-- **Summary:** Renamed this plugin's GraphQL `Note` type to `TicketNote`. It was
-  merged by federation with the `Note` value type `operation_api` declares, so
-  the `attachments` and `isInternal` fields only this subgraph has left
-  `operation`'s `updateNote` unsatisfiable and the gateway refused to compose
-  the supergraph.
-- **Affected areas:** `src/modules/ticket/graphql/schemas/note.ts`,
-  `src/modules/inbox/graphql/schemas/widget.ts`
-- **Contracts changed:** `ticketGetNote`, `cpTicketGetNotes`,
-  `ticketCreateNote`, `ticketUpdateNote`, `cpTicketCreateNote`,
-  `widgetTicketComments` and `widgetTicketCommentAdd` return `TicketNote`
-  instead of `Note`. Field names and arguments are unchanged, so a document that
-  selects fields without naming the type needs no edit.
-
-### `2026-09-10` — The help center search escape uses a raw string
-
-- **Summary:** A poll can now carry a `brandId`; the client-portal submit path and
-  `pollSendToConversation` honour it, and create/update refuse a brand that has no
-  active messenger integration in the poll's channel — removing the arbitrary
-  `findOne` pick on a channel with several messenger integrations.
-- **Affected areas:** `src/modules/poll/{@types/poll.ts,db/definitions/polls.ts,db/models/Polls.ts}`,
-  `src/modules/poll/graphql/schema/poll.ts`,
-  `src/modules/poll/graphql/resolvers/mutations/{polls.ts,clientPortal.ts}`.
-- **Contracts changed:** Added `brandId: String` to `pollAdd`, `pollEdit` and the
-  `Poll` type.

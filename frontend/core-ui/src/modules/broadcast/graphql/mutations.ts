@@ -16,6 +16,7 @@ export const BROADCAST_MESSAGE_ADD = gql`
     $email: EngageMessageEmail
     $messenger: EngageMessageMessenger
     $notification: EngageMessageNotification
+    $workflow: JSON
   ) {
     engageMessageAdd(
       title: $title
@@ -35,8 +36,56 @@ export const BROADCAST_MESSAGE_ADD = gql`
       email: $email
       messenger: $messenger
       notification: $notification
+      workflow: $workflow
     ) {
       _id
+      workflowAutomationId
+    }
+  }
+`;
+
+export const BROADCAST_MESSAGE_EDIT = gql`
+  mutation BROADCAST_EDIT(
+    $_id: String!
+    $title: String
+    $kind: String
+    $method: String
+    $fromUserId: String
+    $fromEmail: String
+    $cpId: String
+    $targetType: String
+    $targetIds: [String]
+    $targetCount: Int
+    $isDraft: Boolean
+    $isLive: Boolean
+    $email: EngageMessageEmail
+    $messenger: EngageMessageMessenger
+    $notification: EngageMessageNotification
+    $workflow: JSON
+  ) {
+    engageMessageEdit(
+      _id: $_id
+      title: $title
+      kind: $kind
+      method: $method
+      fromUserId: $fromUserId
+      fromEmail: $fromEmail
+      cpId: $cpId
+
+      targetType: $targetType
+      targetIds: $targetIds
+      targetCount: $targetCount
+
+      isDraft: $isDraft
+      isLive: $isLive
+
+      email: $email
+      messenger: $messenger
+      notification: $notification
+      workflow: $workflow
+    ) {
+      _id
+      workflowAutomationId
     }
   }
 `;
