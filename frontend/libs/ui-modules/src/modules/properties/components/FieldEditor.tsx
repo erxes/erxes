@@ -8,8 +8,6 @@ type EditorBlock = {
   children?: unknown[];
 };
 
-// A "blank" editor still serializes to one empty default paragraph block,
-// so a non-empty JSON string alone doesn't mean the user actually typed anything.
 const hasContent = (value: unknown): boolean => {
   if (typeof value !== 'string' || !value) {
     return false;
@@ -41,9 +39,6 @@ const hasContent = (value: unknown): boolean => {
 export const FieldEditor = (props: SpecificFieldProps) => {
   const { value, handleChange, inCell } = props;
   const editor = useBlockEditor();
-  // Intentionally NOT seeded from `value`: the editor always mounts empty
-  // (useBlockEditor() has no initialContent), so the first effect run below
-  // must always be allowed to load the saved value into it.
   const lastLoaded = useRef<string>('');
 
   useEffect(() => {
@@ -53,13 +48,17 @@ export const FieldEditor = (props: SpecificFieldProps) => {
       return;
     }
 
-    lastLoaded.current = json;
-
     try {
       const blocks = json ? JSON.parse(json) : [];
+
+      if (!Array.isArray(blocks)) {
+        throw new Error('Editor value is not a block array');
+      }
+
       editor.replaceBlocks(editor.document, blocks);
+      lastLoaded.current = json;
     } catch {
-      // ignore unparsable content
+      lastLoaded.current = JSON.stringify(editor.document);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
