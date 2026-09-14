@@ -59,3 +59,37 @@ export const getViberWebhookUrl = (
 
   return url.toString();
 };
+
+export const getViberMediaAllowedHostnames = (
+  subdomain: string,
+): readonly string[] => {
+  if (!subdomain.trim()) {
+    throw new Error('Subdomain is required');
+  }
+
+  const configuredHosts = getEnv({
+    name: 'VIBER_MEDIA_ALLOWED_HOSTNAMES',
+    subdomain,
+  });
+
+  const hostnames = configuredHosts
+    .split(',')
+    .map((hostname) => hostname.trim().toLowerCase())
+    .filter(Boolean);
+
+  for (const hostname of hostnames) {
+    let url: URL;
+
+    try {
+      url = new URL(`https://${hostname}`);
+    } catch {
+      throw new Error('Invalid Viber media hostname configuration');
+    }
+
+    if (url.hostname !== hostname || hostname.includes('*')) {
+      throw new Error('Invalid Viber media hostname configuration');
+    }
+  }
+
+  return [...new Set(hostnames)];
+};

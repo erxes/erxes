@@ -140,8 +140,11 @@
   bytes and reported MIME metadata; it makes no network request.
   `downloadViberMedia` fetches HTTPS media from an explicit approved-host list,
   rejects redirects, applies a 30-second abort signal, and delegates to that
-  reader. The list must come from trusted server policy; no production Viber
-  media hostnames have been configured or verified. `downloadAndStoreViberAttachment`
+  reader. `getViberMediaAllowedHostnames` reads and validates a comma-separated
+  server policy through tenant-aware configuration, normalizes and deduplicates
+  entries, and returns an empty list when unset. It is not wired to the receiver;
+  no production Viber media hostnames have been configured or verified.
+  `downloadAndStoreViberAttachment`
   composes downloading and tenant storage into native attachment metadata,
   without creating messages or handling replays. Text, URL, contact, and location
   messages are wired from the receiver; incoming-media download wiring is not
@@ -272,9 +275,10 @@ formatting, and their colocated tests.
 lookup and `utils/webhookApi.ts`; the latter owns the internal `setViberWebhook`
 request helper. `utils/__tests__/webhookApi.spec.ts` covers its request and error
 boundaries with mocked fetch calls, without changing the connection workflow.
-`config.ts` builds the internal callback URL through the public `getEnv` helper;
-`__tests__/config.spec.ts` covers URL construction and validation with isolated
-environment/config mocks, without testing a live tunnel or tenant routing.
+`config.ts` builds the internal callback URL and reads the approved-media-host
+policy through the public `getEnv` helper; `__tests__/config.spec.ts` covers
+URL construction and host-policy validation with isolated configuration mocks,
+without testing a live tunnel, DNS, or tenant routing.
 `__tests__/attachments.spec.ts` covers the tenant-configured byte-storage adapter
 and its composition with the real downloader using mocked external I/O.
 `constants.ts` defines `ViberMediaType` and the incoming-media size policy shared
@@ -634,6 +638,10 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   with the request subdomain: optional `VIBER_RECEIVE_URL` overrides `DOMAIN`.
   The override includes the receiver path but excludes the integration id;
   it is deployment configuration, not per-integration bot-token storage.
+- Internal Viber media policy consumes `VIBER_MEDIA_ALLOWED_HOSTNAMES` through
+  that same tenant-aware `getEnv` interface. It is an optional comma-separated
+  list of approved bare hostnames, not URLs or wildcard patterns. Missing
+  configuration approves no hosts; receiver consumption remains unwired.
 - Viber customer resolution calls Core's `customers.findOne` query and
   `customers.createCustomer` mutation through `sendTRPCMessage`, carrying the
   supplied subdomain and `throwOnError: true`. Lookups use the reserved `_id`
@@ -1060,6 +1068,14 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   delegates response reading to `readViberMediaResponse`. Errors propagate with
   no retry. It does not perform DNS address validation, store attachments, or
   establish production media-host compatibility; receiver wiring remains absent.
+- `getViberMediaAllowedHostnames` rejects a blank tenant before configuration
+  access, trims/lowercases entries, drops blank entries, and deduplicates in
+  first-seen order. Each nonempty entry must match the hostname produced by
+  parsing it with an HTTPS prefix and contain no wildcard; one invalid entry
+  rejects the whole list with a fixed error. Read configuration on each call,
+  never fall back to the callback host, and never infer approval from a payload.
+  This is trusted server policy, not a check of provider ownership or resolved
+  IP addresses. The parser makes no network calls or configuration writes.
 - `downloadAndStoreViberAttachment` rejects a blank subdomain before any network
   request, then passes the source, message type, and trusted host list to the
   downloader. Only a successful download reaches `storeViberAttachment` with
@@ -2076,6 +2092,10 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   and rejected inputs. Placeholder substitution is modeled by the `getEnv` mock;
   these tests do not prove real environment setup, HTTPS reachability, or tenant
   resolution through ngrok.
+- Media-policy cases in that same configuration suite cover normalization,
+  deduplication, empty-list defaults, tenant forwarding, invalid-entry rejection,
+  and rereading changed configuration. They do not verify actual environment
+  substitution, provider host ownership, DNS, downloads, or receiver wiring.
 - Viber registration tests in `__tests__/registration.spec.ts` exercise saved
   token selection, callback construction, missing records, propagated failures,
   awaited acknowledgement, and status transitions with no other local writes.
@@ -2153,6 +2173,14 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-15` — Viber approved-media-host configuration
+
+- **Summary:** Read and validate a server-controlled media-host list with an
+  empty-list default and offline configuration coverage.
+- **Affected areas:** Viber configuration helper and configuration tests.
+- **Contracts changed:** Added internal `getViberMediaAllowedHostnames` and
+  `VIBER_MEDIA_ALLOWED_HOSTNAMES`; receiver and public APIs remain unchanged.
+
 ### `2026-09-15` — Viber registration during creation
 
 - **Summary:** Register saved Viber connections during creation and retain
@@ -2224,11 +2252,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Affected areas:** `src/modules/integrations/viber/utils/{account.ts,webhookApi.ts,__tests__/webhookApi.spec.ts}`.
 - **Contracts changed:** Consumes Viber's `set_webhook` API; connection/removal
   flow wiring and public Frontline APIs remain unchanged.
-
-### `2026-09-14` — Viber customer id reservation and recovery
-
-- **Summary:** Reserve the Core customer id before creation and retain it across
-  retries, with ownership-checked recovery and offline concurrency coverage.
-- **Affected areas:** `src/modules/integrations/viber/{helpers.ts,__tests__/helpers.spec.ts,__tests__/processMessage.spec.ts}`.
-- **Contracts changed:** Customer resolution consumes Core's `customers.findOne`
-  and sends its reserved `_id` to `customers.createCustomer`; no public API changes.

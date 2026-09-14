@@ -234,3 +234,125 @@ test('rejects invalid configured URLs without silently falling back to DOMAIN', 
     message: 'Invalid Viber receive URL',
   });
 });
+
+test('normalizes and deduplicates configured media hostnames in first-seen order', (t) => {
+  const environment = {
+    VIBER_MEDIA_ALLOWED_HOSTNAMES:
+      ' CDN-A.EXAMPLE, ,cdn-b.example,cdn-a.example, CDN-B.EXAMPLE,',
+  };
+  const { getViberMediaAllowedHostnames, getEnv } = loadConfig(t, environment);
+
+  deepStrictEqual(getViberMediaAllowedHostnames(SUBDOMAIN), [
+    'cdn-a.example',
+    'cdn-b.example',
+  ]);
+  deepStrictEqual(getEnv.mock.calls[0].arguments, [
+    { name: 'VIBER_MEDIA_ALLOWED_HOSTNAMES', subdomain: SUBDOMAIN },
+  ]);
+  strictEqual(getEnv.mock.callCount(), 1);
+  strictEqual(
+    environment.VIBER_MEDIA_ALLOWED_HOSTNAMES,
+    ' CDN-A.EXAMPLE, ,cdn-b.example,cdn-a.example, CDN-B.EXAMPLE,',
+  );
+});
+
+test('missing or blank media policy approves no hosts and never uses callback configuration', (t) => {
+  const environment: Record<string, string> = {
+    DOMAIN: 'https://tenant.example',
+    VIBER_RECEIVE_URL: 'https://tunnel.example/viber/receive',
+  };
+  const { getViberMediaAllowedHostnames, getEnv } = loadConfig(t, environment);
+
+  deepStrictEqual(getViberMediaAllowedHostnames(SUBDOMAIN), []);
+
+  for (const value of ['', ' \t\n', ', , ,']) {
+    environment.VIBER_MEDIA_ALLOWED_HOSTNAMES = value;
+    deepStrictEqual(getViberMediaAllowedHostnames(SUBDOMAIN), []);
+  }
+
+  for (const { arguments: args } of getEnv.mock.calls) {
+    deepStrictEqual(args, [
+      { name: 'VIBER_MEDIA_ALLOWED_HOSTNAMES', subdomain: SUBDOMAIN },
+    ]);
+  }
+});
+
+test('passes each request tenant through the media configuration lookup', (t) => {
+  const { getViberMediaAllowedHostnames, getEnv } = loadConfig(t, {
+    VIBER_MEDIA_ALLOWED_HOSTNAMES: '<subdomain>.cdn.example,shared.cdn.example',
+  });
+
+  for (const subdomain of ['tenant-a', 'tenant-b']) {
+    deepStrictEqual(getViberMediaAllowedHostnames(subdomain), [
+      `${subdomain}.cdn.example`,
+      'shared.cdn.example',
+    ]);
+  }
+  deepStrictEqual(
+    getEnv.mock.calls.map(({ arguments: args }) => args),
+    ['tenant-a', 'tenant-b'].map((subdomain) => [
+      { name: 'VIBER_MEDIA_ALLOWED_HOSTNAMES', subdomain },
+    ]),
+  );
+});
+
+test('rejects blank media-policy tenants before reading configuration', (t) => {
+  const { getViberMediaAllowedHostnames, getEnv } = loadConfig(t);
+
+  for (const subdomain of ['', ' \t\n']) {
+    throws(() => getViberMediaAllowedHostnames(subdomain), {
+      message: 'Subdomain is required',
+    });
+  }
+  strictEqual(getEnv.mock.callCount(), 0);
+});
+
+test('rejects the whole media policy when any entry is not a bare non-wildcard hostname', (t) => {
+  const environment = { VIBER_MEDIA_ALLOWED_HOSTNAMES: '' };
+  const { getViberMediaAllowedHostnames } = loadConfig(t, environment);
+
+  for (const invalidEntry of [
+    'https://cdn.example',
+    'http://cdn.example',
+    '//cdn.example',
+    'cdn.example/',
+    'cdn.example/path',
+    'cdn.example:443',
+    'cdn.example:8443',
+    'user:secret@cdn.example',
+    'cdn.example?token=secret',
+    'cdn.example#fragment',
+    '*',
+    '*.cdn.example',
+    'cdn*.example',
+    'cdn .example',
+    'cdn\n.example',
+    '%63dn.example',
+    '[invalid',
+  ]) {
+    environment.VIBER_MEDIA_ALLOWED_HOSTNAMES = `good.example,${invalidEntry},another.example`;
+
+    throws(() => getViberMediaAllowedHostnames(SUBDOMAIN), {
+      message: 'Invalid Viber media hostname configuration',
+    });
+  }
+
+  environment.VIBER_MEDIA_ALLOWED_HOSTNAMES = 'good.example';
+  deepStrictEqual(getViberMediaAllowedHostnames(SUBDOMAIN), ['good.example']);
+});
+
+test('rereads media policy instead of caching a previous host list', (t) => {
+  const environment = { VIBER_MEDIA_ALLOWED_HOSTNAMES: 'old.cdn.example' };
+  const { getViberMediaAllowedHostnames } = loadConfig(t, environment);
+
+  const previousHosts = getViberMediaAllowedHostnames(SUBDOMAIN);
+  environment.VIBER_MEDIA_ALLOWED_HOSTNAMES = 'new.cdn.example';
+
+  deepStrictEqual(getViberMediaAllowedHostnames(SUBDOMAIN), [
+    'new.cdn.example',
+  ]);
+  deepStrictEqual(previousHosts, ['old.cdn.example']);
+
+  environment.VIBER_MEDIA_ALLOWED_HOSTNAMES = '';
+  deepStrictEqual(getViberMediaAllowedHostnames(SUBDOMAIN), []);
+});
