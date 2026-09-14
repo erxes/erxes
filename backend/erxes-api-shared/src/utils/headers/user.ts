@@ -53,7 +53,22 @@ export const USER_HEADER_OMITTED_FIELDS = [
   'customFieldsData',
   'propertiesData',
   'links',
+  'loginToken',
 ] as const;
+
+export const HEADER_SIZE_WARN_BYTES = 32 * 1024;
+
+function encodeHeader(name: string, id: string, value: unknown): string {
+  const encoded = Buffer.from(JSON.stringify(value), 'utf8').toString('base64');
+
+  if (encoded.length > HEADER_SIZE_WARN_BYTES) {
+    console.warn(
+      `${name} header is ${encoded.length} bytes for ${id}; requests fail once it passes the service header budget`,
+    );
+  }
+
+  return encoded;
+}
 
 export function compactUserForHeader<T extends Record<string, any>>(
   user: T,
@@ -69,17 +84,21 @@ export function compactUserForHeader<T extends Record<string, any>>(
 
 export function setUserHeader(headers: IncomingHttpHeaders, user: any) {
   if (!user) return;
-  const userJson = JSON.stringify(compactUserForHeader(user));
-  const userJsonBase64 = Buffer.from(userJson, 'utf8').toString('base64');
-  headers[userHeaderName] = userJsonBase64;
+  headers[userHeaderName] = encodeHeader(
+    userHeaderName,
+    user._id,
+    compactUserForHeader(user),
+  );
   headers['userid'] = user._id || '';
 }
 
 export function setCPUserHeader(headers: IncomingHttpHeaders, cpUser: any) {
   if (!cpUser) return;
-  const cpUserJson = JSON.stringify(cpUser);
-  const cpUserJsonBase64 = Buffer.from(cpUserJson, 'utf8').toString('base64');
-  headers[cpUserHeaderName] = cpUserJsonBase64;
+  headers[cpUserHeaderName] = encodeHeader(
+    cpUserHeaderName,
+    cpUser._id,
+    cpUser,
+  );
 }
 
 export function setClientPortalHeader(

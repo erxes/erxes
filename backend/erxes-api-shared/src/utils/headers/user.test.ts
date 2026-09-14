@@ -16,6 +16,7 @@ describe('user header', () => {
     customFieldsData: [{ field: 'f1', value: 'y'.repeat(3000) }],
     propertiesData: [{ field: 'f2', value: 'z' }],
     links: { website: 'https://example.com' },
+    loginToken: 'jwt.'.repeat(200),
   };
 
   it('forwards identity, permissions and oauth scopes but not profile bulk', () => {
@@ -48,6 +49,22 @@ describe('user header', () => {
     });
 
     expect(String(headers.user).length).toBeLessThan(8 * 1024);
+  });
+
+  it('warns before a header outgrows the service budget', () => {
+    const warn = jest
+      .spyOn(console, 'warn')
+      .mockImplementation(() => undefined);
+    const headers: Record<string, any> = {};
+
+    setUserHeader(headers, {
+      ...user,
+      departmentIds: Array(4000).fill('d'.repeat(10)),
+    });
+
+    expect(warn).toHaveBeenCalledTimes(1);
+    expect(warn.mock.calls[0][0]).toContain('u1');
+    warn.mockRestore();
   });
 
   it("does not mutate the caller's user object", () => {
