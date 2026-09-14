@@ -20,7 +20,7 @@ export const useViberUpload = (): {
       if (active.current) return [];
       if (existingCount + files.length > 10) {
         toast({
-          title: 'A Viber reply can contain at most 10 attachments',
+          title: 'Attach up to 10 files per message',
           variant: 'destructive',
         });
         return [];

@@ -53,7 +53,7 @@ test('setup reads only nonsecret storage settings and exposes no credentials or 
     'https://example.test/viber/receive/INTEGRATION_ID',
   );
   deepStrictEqual(setup.mediaHostnames, []);
-  ok(setup.mediaError?.includes('blocked'));
+  ok(setup.mediaError?.includes('unavailable'));
   strictEqual(h.core.mock.callCount(), 1);
   ok(!JSON.stringify(setup).includes('test-token'));
 });
@@ -82,7 +82,7 @@ test('setup reports independent callback, media-policy and storage configuration
   const result = await h.getViberSetup(h.context);
   ok(result.webhookError);
   ok(result.mediaError);
-  ok(result.storageError?.includes('LOCAL'));
+  ok(result.storageError?.includes('Local storage'));
   strictEqual(result.webhookUrl, null);
 });
 

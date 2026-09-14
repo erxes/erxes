@@ -86,25 +86,22 @@ export const ViberIntegrationForm = ({
       toast({
         title: integration
           ? 'Viber integration updated'
-          : 'Viber webhook registered',
+          : 'Viber integration added',
       });
       onClose();
     } catch (error) {
       // Do not print tokens or provider responses. Server Viber errors are sanitized.
       const message =
         error instanceof Error ? error.message : 'Viber setup failed';
-      setFailure(
-        `${message} If a connection appears in the list, use Repair instead of adding it again.`,
-      );
+      setFailure(message);
     } finally {
       // Registration can fail after persistence. Keep that repairable record visible.
       try {
         await client.refetchQueries({ include: VIBER_INTEGRATION_REFETCH });
       } catch {
         toast({
-          title: 'Could not refresh Viber connections',
-          description:
-            'Use Refresh to check the saved result before repeating this action.',
+          title: 'Unable to refresh integrations',
+          description: 'Refresh the list before trying again.',
           variant: 'destructive',
         });
       }
@@ -120,18 +117,12 @@ export const ViberIntegrationForm = ({
       >
         <Sheet.Header>
           <Sheet.Title>
-            {t(integration ? 'viber-manage' : 'viber-connect', {
-              defaultValue: integration ? 'Manage Viber' : 'Connect Viber',
-            })}
+            {integration?.name ||
+              t('viber-add', { defaultValue: 'Add Viber integration' })}
           </Sheet.Title>
           <Sheet.Close disabled={saving} />
         </Sheet.Header>
         <Sheet.Content className="overflow-auto p-4 space-y-5">
-          <p className="text-sm text-muted-foreground">
-            Use a Viber bot token, not a personal Viber account or an ngrok
-            authtoken. This connects one bot to this channel. Do not connect a
-            bot already used by another platform: Viber has one webhook per bot.
-          </p>
           {integration && (
             <div className="rounded-lg bg-muted p-3 text-sm space-y-1">
               {connection.loading ? (
@@ -145,10 +136,13 @@ export const ViberIntegrationForm = ({
                     {connection.data.viberConnection.botId}
                   </p>
                   <p>
-                    Registration:{' '}
+                    Webhook:{' '}
                     {connection.data.viberConnection.healthStatus === 'healthy'
-                      ? 'Webhook registered (not a live delivery test)'
-                      : connection.data.viberConnection.healthStatus}
+                      ? 'Registered'
+                      : connection.data.viberConnection.healthStatus ===
+                        'pending'
+                      ? 'Pending'
+                      : 'Registration failed'}
                   </p>
                   {connection.data.viberConnection.error && (
                     <p role="alert" className="text-destructive">
@@ -156,15 +150,14 @@ export const ViberIntegrationForm = ({
                     </p>
                   )}
                   <p className="break-all">
-                    Webhook:{' '}
+                    Webhook URL:{' '}
                     {connection.data.viberConnection.webhookUrl ||
                       'Not configured'}
                   </p>
                 </>
               ) : (
                 <p role="alert">
-                  The saved bot connection is missing. Ask an administrator to
-                  inspect this integration before reconnecting.
+                  Bot connection not found. Contact your administrator.
                 </p>
               )}
             </div>
@@ -216,9 +209,7 @@ export const ViberIntegrationForm = ({
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label>
-                    {integration
-                      ? 'Replacement bot token (optional)'
-                      : 'Bot token'}
+                    {integration ? 'New bot token (optional)' : 'Bot token'}
                   </Form.Label>
                   <Form.Control>
                     <Input
@@ -231,8 +222,8 @@ export const ViberIntegrationForm = ({
                   </Form.Control>
                   <Form.Description>
                     {integration
-                      ? 'Leave blank to keep the saved token. A replacement must belong to the same bot; it re-registers the webhook.'
-                      : 'The token is sent to the backend and never returned by the settings API. Whitespace is rejected, not removed.'}
+                      ? 'Leave blank to keep the current token. A new token must belong to the same bot.'
+                      : 'Paste the token from your Viber bot settings. Connecting replaces the bot’s current webhook.'}
                   </Form.Description>
                   <Form.Message />
                 </Form.Item>
@@ -247,12 +238,12 @@ export const ViberIntegrationForm = ({
             disabled={saving}
             onClick={onClose}
           >
-            {t('cancel', { defaultValue: 'Close' })}
+            {t('close', { defaultValue: 'Close' })}
           </Button>
           {canEdit && (
             <Button type="submit" disabled={saving}>
               {saving && <Spinner size="sm" />}
-              {integration ? 'Save changes' : 'Connect Viber'}
+              {integration ? t('save', { defaultValue: 'Save' }) : 'Connect'}
             </Button>
           )}
         </Sheet.Footer>

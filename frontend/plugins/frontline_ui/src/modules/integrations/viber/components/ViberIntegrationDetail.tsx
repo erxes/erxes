@@ -25,6 +25,8 @@ import {
 import type { ViberIntegration, ViberSetup } from '../types';
 import { ViberIntegrationForm } from './ViberIntegrationForm';
 import { ViberSetupCheck } from './ViberSetupCheck';
+import { ViberIntegrationActions } from './ViberIntegrationActions';
+import { IconPlus } from '@tabler/icons-react';
 
 export const ViberIntegrationDetail = ({
   channelId,
@@ -61,7 +63,7 @@ export const ViberIntegrationDetail = ({
       });
     } catch {
       toast({
-        title: 'Could not refresh Viber settings',
+        title: 'Unable to refresh integrations',
         variant: 'destructive',
       });
     }
@@ -79,8 +81,8 @@ export const ViberIntegrationDetail = ({
         await confirm({
           message:
             action === 'remove'
-              ? `Remove “${row.name}”? This disconnects the webhook and removes the Viber connection and delivery mappings. Existing conversations will lose their Viber connection. Archive instead if you need to restore it later.`
-              : `Archive “${row.name}”? New Viber messages will be acknowledged but not saved, and replies will be paused until it is restored.`,
+              ? `Remove “${row.name}”? This disconnects the bot. Existing conversations will remain, but you won’t be able to reply. Archive instead to keep the connection for later.`
+              : `Archive “${row.name}”? New messages won’t be saved and replies will be paused until you restore it.`,
         });
       } catch {
         return;
@@ -98,14 +100,14 @@ export const ViberIntegrationDetail = ({
       toast({
         title:
           action === 'repair'
-            ? 'Viber webhook re-registered'
+            ? 'Viber integration repaired'
             : action === 'remove'
             ? 'Viber integration removed'
             : 'Viber integration updated',
       });
     } catch (error) {
       toast({
-        title: 'Viber action failed',
+        title: 'Unable to update integration',
         description:
           error instanceof Error ? error.message : 'Please try again',
         variant: 'destructive',
@@ -137,58 +139,24 @@ export const ViberIntegrationDetail = ({
       ),
     },
     {
-      id: 'actions',
-      size: 340,
-      header: t('actions', { defaultValue: 'Actions' }),
+      id: 'more',
+      size: 33,
       cell: ({ row }) => (
-        <div className="flex gap-1">
-          <Button
-            variant="ghost"
-            size="sm"
-            disabled={busy}
-            onClick={() => setOpened(row.original)}
-          >
-            {canEdit ? 'Manage' : 'Details'}
-          </Button>
-          {canEdit && (
-            <>
-              <Button
-                variant="ghost"
-                size="sm"
-                disabled={busy}
-                onClick={() => void run('repair', row.original)}
-              >
-                Repair
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                disabled={busy}
-                onClick={() => void run('archive', row.original)}
-              >
-                {row.original.isActive === false ? 'Restore' : 'Archive'}
-              </Button>
-            </>
-          )}
-          {canRemove && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-destructive"
-              disabled={busy}
-              onClick={() => void run('remove', row.original)}
-            >
-              Remove
-            </Button>
-          )}
-        </div>
+        <ViberIntegrationActions
+          archived={row.original.isActive === false}
+          disabled={busy}
+          canEdit={canEdit}
+          canRemove={canRemove}
+          onEdit={() => setOpened(row.original)}
+          onAction={(action) => void run(action, row.original)}
+        />
       ),
     },
   ];
 
   if (!isLoaded) return <Spinner />;
   if (!canRead)
-    return <p role="alert">You do not have permission to view integrations.</p>;
+    return <p role="alert">You don’t have permission to view integrations.</p>;
   return (
     <div className="flex flex-col gap-4 flex-1 min-h-0 overflow-auto">
       <ViberSetupCheck
@@ -199,7 +167,7 @@ export const ViberIntegrationDetail = ({
       />
       <div className="flex items-center justify-between gap-3">
         <h3 className="text-sm font-semibold">
-          {t('viber-connections', { defaultValue: 'Bot connections' })}
+          {t('integrations', { defaultValue: 'Integrations' })}
         </h3>
         {canAdd && (
           <Button
@@ -211,7 +179,8 @@ export const ViberIntegrationDetail = ({
             }
             onClick={() => setOpened('new')}
           >
-            {t('viber-connect', { defaultValue: 'Connect Viber' })}
+            <IconPlus />
+            {t('viber-add', { defaultValue: 'Add Viber integration' })}
           </Button>
         )}
       </div>
@@ -227,11 +196,11 @@ export const ViberIntegrationDetail = ({
       ) : !list.integrations?.length ? (
         <Empty className="min-h-44 bg-muted/30 rounded-lg border border-dashed">
           <Empty.Header>
-            <Empty.Title>No Viber bots connected</Empty.Title>
+            <Empty.Title>No Viber integrations</Empty.Title>
             <Empty.Description>
               {canAdd
-                ? 'Connect a bot to receive messages in this channel. A real bot token is required.'
-                : 'Ask a user with integration-create permission to connect a bot.'}
+                ? 'Connect a Viber bot to start receiving messages.'
+                : 'Ask your administrator to connect a Viber bot.'}
             </Empty.Description>
           </Empty.Header>
         </Empty>

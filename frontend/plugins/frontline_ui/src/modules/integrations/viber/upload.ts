@@ -19,9 +19,7 @@ export const uploadViberFile = async (
     file.name.length > 256 ||
     hasControlCharacters(file.name)
   ) {
-    throw new Error(
-      'Use a filename with an extension and no path or control characters.',
-    );
+    throw new Error('Use a valid filename with a file extension.');
   }
   const body = new FormData();
   const type = file.type || 'application/octet-stream';
@@ -37,7 +35,7 @@ export const uploadViberFile = async (
   );
   if (!response.ok)
     throw new Error(
-      'File upload failed. Check the configured storage service and file policy.',
+      'Unable to upload this file. Check your storage settings and allowed file types.',
     );
   const key = await response.text();
   // Only opaque storage keys may be handed to the backend's private media relay.
@@ -50,7 +48,7 @@ export const uploadViberFile = async (
     key.split('/').some((part) => !part || part === '.' || part === '..')
   ) {
     throw new Error(
-      'Storage did not return a private file key. Check the storage/CDN configuration before attaching this file.',
+      'This storage configuration does not support Viber attachments. Contact your administrator.',
     );
   }
   return { name: file.name, type, size: file.size, url: key };

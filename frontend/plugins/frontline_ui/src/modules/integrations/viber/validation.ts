@@ -5,7 +5,7 @@ export const viberTokenSchema = z
   .min(1, 'Enter the bot token')
   .refine(
     (value) => value === value.trim(),
-    'Remove leading or trailing whitespace. The token is never trimmed automatically.',
+    'Remove spaces or line breaks before and after the token.',
   );
 
 export const viberIntegrationSchema = (editing: boolean) =>
@@ -47,7 +47,7 @@ export const viberSpecialSchema = z
       } catch {
         error(
           'url',
-          'Enter an HTTPS URL without credentials (maximum 2000 characters)',
+          'Use an HTTPS link without login details (up to 2,000 characters).',
         );
       }
     }
@@ -100,8 +100,7 @@ export const viberDeliveryLabel = (
   delivery?: import('./types').ViberDelivery | null,
 ): string => {
   if (!delivery) return 'Delivery status unavailable';
-  if (delivery.parts.some((part) => part.failedAt))
-    return 'Delivery failed on the recipient’s device';
+  if (delivery.parts.some((part) => part.failedAt)) return 'Delivery failed';
   if (delivery.parts.length && delivery.parts.every((part) => part.seenAt))
     return 'Seen';
   if (
@@ -110,11 +109,11 @@ export const viberDeliveryLabel = (
   )
     return 'Delivered';
   const labels: Record<string, string> = {
-    pending: 'Saved — not sent',
+    pending: 'Not sent',
     sending: 'Sending',
-    sent: 'Accepted by Viber',
-    rejected: 'Not fully sent — retry available',
-    unknown: 'Delivery unconfirmed — do not resend',
+    sent: 'Sent to Viber',
+    rejected: 'Send failed',
+    unknown: 'Delivery unconfirmed',
   };
   return labels[delivery.state] || 'Delivery status unavailable';
 };

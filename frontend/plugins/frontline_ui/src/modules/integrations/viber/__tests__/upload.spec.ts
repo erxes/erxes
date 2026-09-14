@@ -82,7 +82,7 @@ test('does not accept public URLs or unsafe paths as private attachment keys', a
         new File(['x'], 'file.pdf'),
         'https://erxes.example.test',
       ),
-      /private file key/,
+      /does not support Viber attachments/,
     );
   }
   fetch.mock.mockImplementation(
@@ -91,7 +91,7 @@ test('does not accept public URLs or unsafe paths as private attachment keys', a
   await rejects(
     uploadViberFile(new File(['x'], 'file.pdf'), 'https://erxes.example.test'),
     (error: Error) =>
-      error.message.includes('upload failed') &&
+      error.message.includes('Unable to upload') &&
       !error.message.includes('sensitive'),
   );
 });

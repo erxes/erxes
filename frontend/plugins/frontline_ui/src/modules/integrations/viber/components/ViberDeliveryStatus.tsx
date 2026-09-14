@@ -31,7 +31,7 @@ export const ViberDeliveryStatus = ({
       await retry({ variables: { messageId } });
     } catch (caught) {
       toast({
-        title: 'Viber retry did not complete',
+        title: 'Unable to retry message',
         description:
           caught instanceof Error ? caught.message : 'Check delivery status',
         variant: 'destructive',
@@ -44,7 +44,7 @@ export const ViberDeliveryStatus = ({
         ]);
       } catch {
         toast({
-          title: 'Could not refresh delivery status',
+          title: 'Unable to refresh delivery status',
           variant: 'destructive',
         });
       }
@@ -74,20 +74,23 @@ export const ViberDeliveryStatus = ({
             disabled={loading || retrying}
             onClick={() => void onRetry()}
           >
-            {retrying ? <Spinner size="sm" /> : 'Retry unsent parts'}
+            {retrying ? <Spinner size="sm" /> : 'Retry'}
           </Button>
         )}
       </div>
-      {current?.parts.length ? (
+      {current && current.parts.length > 1 ? (
         <span>
           {current.parts.filter((part) => part.state === 'sent').length}/
-          {current.parts.length} parts accepted
+          {current.parts.length} parts sent to Viber
         </span>
       ) : null}
+      {current?.state === 'unknown' && (
+        <p>Check delivery before resending to avoid duplicate messages.</p>
+      )}
       {failure && <p className="text-destructive">{failure}</p>}
       {error && (
         <p role="alert" className="text-destructive">
-          Could not check delivery: {error.message}
+          Unable to check delivery: {error.message}
         </p>
       )}
     </div>

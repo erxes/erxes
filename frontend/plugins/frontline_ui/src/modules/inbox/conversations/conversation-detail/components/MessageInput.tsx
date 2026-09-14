@@ -464,10 +464,9 @@ export const MessageInput = ({
     if (isViber && !isInternalNote) {
       if (allAttachments.some((attachment) => !attachment.size)) {
         toast({
-          title:
-            'Upload Viber attachments using the file button or editor upload',
+          title: 'Upload this file to attach it',
           description:
-            'Embedded external URLs do not include the private file metadata required for Viber.',
+            'Viber attachments must be uploaded, not linked from another website.',
           variant: 'destructive',
         });
         return;
@@ -570,13 +569,12 @@ export const MessageInput = ({
 
   return (
     <div className="p-2 h-full">
-      {isViber && (
+      {isViber && !isInternalNote && viberState.reason && (
         <div
           className="mx-auto max-w-2xl text-xs text-muted-foreground px-3 pb-2"
           aria-live="polite"
         >
-          {viberState.reason ||
-            'Viber replies are plain text. Attach up to 10 files (50 MiB each); pictures above 1 MiB and videos above 26 MiB are sent as files.'}
+          {viberState.reason}
           {viberState.reason && (
             <Button
               variant="link"
@@ -722,6 +720,12 @@ export const MessageInput = ({
             variant="ghost"
             size="icon"
             className="h-8 w-8 flex-none rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
+            title={
+              isViber
+                ? 'Attach up to 10 files, 50 MiB each. Large photos and videos are sent as files.'
+                : undefined
+            }
+            aria-label={isViber ? 'Attach files' : undefined}
             onClick={() => document.getElementById('file-upload')?.click()}
           >
             <IconPaperclip className="h-4 w-4" />

@@ -17,16 +17,16 @@ export const getViberSetup = async (context: IContext) => {
     webhookUrl = getViberWebhookUrl(context.subdomain, 'INTEGRATION_ID');
   } catch {
     webhookError =
-      'Configure an HTTPS VIBER_RECEIVE_URL or DOMAIN on the Frontline server.';
+      'Ask your administrator to configure a public HTTPS webhook URL.';
   }
   try {
     mediaHostnames = getViberMediaAllowedHostnames(context.subdomain);
     if (!mediaHostnames.length) {
       mediaError =
-        'Incoming media is blocked until the deployment administrator approves Viber media hosts in VIBER_MEDIA_ALLOWED_HOSTNAMES.';
+        'Incoming media is unavailable. Ask your administrator to approve Viber media hosts.';
     }
   } catch {
-    mediaError = 'VIBER_MEDIA_ALLOWED_HOSTNAMES contains an invalid hostname.';
+    mediaError = 'The media host list is invalid. Contact your administrator.';
   }
   try {
     const configs: unknown = await sendTRPCMessage({
@@ -49,7 +49,7 @@ export const getViberSetup = async (context: IContext) => {
     ).toUpperCase();
     if (!['AWS', 'GCS', 'CLOUDFLARE', 'AZURE'].includes(storageProvider)) {
       storageError =
-        'Viber attachments require supported remote file storage in Settings → File Upload. LOCAL uploads are not supported.';
+        'Choose cloud storage in File Upload settings. Local storage is not supported for Viber attachments.';
     }
     const useCdn =
       configs && typeof configs === 'object' && 'CLOUDFLARE_USE_CDN' in configs
@@ -60,11 +60,10 @@ export const getViberSetup = async (context: IContext) => {
       String(useCdn).toLowerCase() === 'true'
     ) {
       storageError =
-        'Viber requires readable object-storage keys. Cloudflare Images/Stream CDN uploads are not supported by the shared file-stream API; use R2 object storage with CDN uploads disabled.';
+        'Viber attachments require R2 object storage with Cloudflare CDN disabled.';
     }
   } catch {
-    storageError =
-      'File storage configuration could not be read. Check the Core service.';
+    storageError = 'Unable to load storage settings. Try again.';
   }
   return {
     webhookUrl,
@@ -102,9 +101,9 @@ export const getViberConversationState = async (
     integration.isActive === false
       ? 'This Viber integration is archived. Restore it before replying.'
       : !mapping || !connection
-      ? 'This conversation has no usable Viber connection or recipient mapping.'
+      ? 'This conversation is no longer linked to a Viber bot.'
       : subscription?.subscribed === false
-      ? 'This customer has unsubscribed. Wait for them to subscribe or message the bot again.'
+      ? 'This customer has unsubscribed. Replies are paused until they subscribe again.'
       : null;
   return {
     canSend: !reason,

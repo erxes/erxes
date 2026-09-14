@@ -2290,6 +2290,13 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-15` — Concise Viber setup feedback
+
+- **Summary:** Use user-facing language for Viber configuration and reply
+  readiness errors without exposing implementation details.
+- **Affected areas:** Viber readiness helper and its focused tests.
+- **Contracts changed:** None; setup checks and reply eligibility are unchanged.
+
 ### `2026-09-15` — Viber UI readiness and safe reply submission
 
 - **Summary:** Support Viber setup/reply screens with nonsecret readiness,
@@ -2364,11 +2371,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Affected areas:** Viber helpers, adapter, and tests; common Repair dispatcher.
 - **Contracts changed:** Existing `integrationsRepair` dispatches Viber after
   checking `integrationsEdit`; initial creation remains unchanged.
-
-### `2026-09-14` — Viber callback URL configuration
-
-- **Summary:** Added a validated tenant-aware callback URL builder with gateway
-  defaults, an explicit tunnel override, and offline configuration tests.
-- **Affected areas:** `src/modules/integrations/viber/{config.ts,__tests__/config.spec.ts}`.
-- **Contracts changed:** Added internal `getViberWebhookUrl` and optional server
-  configuration `VIBER_RECEIVE_URL`; creation and public APIs remain unchanged.

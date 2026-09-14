@@ -35,7 +35,7 @@ export const useViberSend = (): {
         if (!message?._id)
           throw new Error(
             result.errors?.[0]?.message ||
-              'The send result could not be confirmed. Retry this draft to check the same request; do not create a second copy.',
+              'Delivery could not be confirmed. Try again to check this message before sending a new one.',
           );
         requests.current.delete(input.conversationId);
         const accepted = message.viberDelivery?.state === 'sent';
@@ -43,13 +43,13 @@ export const useViberSend = (): {
           title: viberDeliveryLabel(message.viberDelivery),
           description: accepted
             ? undefined
-            : 'The reply is saved in the conversation. Check its delivery status there.',
+            : 'Message saved. Check its delivery status in the conversation.',
           variant: accepted ? 'default' : 'destructive',
         });
         return true;
       } catch (error) {
         toast({
-          title: 'Viber reply not confirmed',
+          title: 'Unable to confirm delivery',
           description:
             error instanceof Error
               ? error.message
@@ -62,9 +62,8 @@ export const useViberSend = (): {
           await client.refetchQueries({ include: VIBER_MESSAGE_REFETCH });
         } catch {
           toast({
-            title: 'Could not refresh conversation',
-            description:
-              'The reply may already be saved. Check its delivery status before sending another copy.',
+            title: 'Unable to refresh conversation',
+            description: 'Check delivery before sending this message again.',
             variant: 'destructive',
           });
         }

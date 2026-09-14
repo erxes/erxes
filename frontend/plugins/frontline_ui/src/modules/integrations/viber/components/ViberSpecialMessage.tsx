@@ -11,12 +11,10 @@ const fields: Record<
   Values['type'],
   { name: Exclude<keyof Values, 'type'>; label: string; placeholder?: string }[]
 > = {
-  url: [
-    { name: 'url', label: 'HTTPS link', placeholder: 'https://example.com' },
-  ],
+  url: [{ name: 'url', label: 'Link', placeholder: 'https://example.com' }],
   location: [
-    { name: 'lat', label: 'Latitude (-90 to 90)' },
-    { name: 'lon', label: 'Longitude (-180 to 180)' },
+    { name: 'lat', label: 'Latitude', placeholder: '-90 to 90' },
+    { name: 'lon', label: 'Longitude', placeholder: '-180 to 180' },
   ],
   contact: [
     { name: 'name', label: 'Contact name' },
@@ -59,15 +57,14 @@ export const ViberSpecialMessage = ({
     <Dialog open={open} onOpenChange={(next) => !loading && setOpen(next)}>
       <Dialog.Trigger asChild>
         <Button variant="ghost" size="sm" disabled={disabled}>
-          Viber options
+          More message types
         </Button>
       </Dialog.Trigger>
       <Dialog.Content className="max-w-md">
         <Dialog.Header>
-          <Dialog.Title>Send a Viber message</Dialog.Title>
+          <Dialog.Title>Send message</Dialog.Title>
           <Dialog.Description>
-            Send a link, location, contact, or an existing Viber sticker. This
-            sends a separate message.
+            Send a link, location, contact, or sticker as a separate message.
           </Dialog.Description>
         </Dialog.Header>
         <Form {...form}>

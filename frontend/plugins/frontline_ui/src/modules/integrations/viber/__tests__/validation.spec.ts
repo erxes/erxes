@@ -85,7 +85,7 @@ test('delivery labels never confuse provider acceptance with delivery or seen re
     state: 'sent',
     parts: [{ index: 0, type: 'text', state: 'sent' }],
   };
-  strictEqual(viberDeliveryLabel(status), 'Accepted by Viber');
+  strictEqual(viberDeliveryLabel(status), 'Sent to Viber');
   strictEqual(
     viberDeliveryLabel({
       ...status,
@@ -102,7 +102,7 @@ test('delivery labels never confuse provider acceptance with delivery or seen re
   );
   strictEqual(
     viberDeliveryLabel({ ...status, state: 'unknown' }),
-    'Delivery unconfirmed — do not resend',
+    'Delivery unconfirmed',
   );
   strictEqual(viberDeliveryLabel(null), 'Delivery status unavailable');
 });

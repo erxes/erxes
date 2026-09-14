@@ -1,4 +1,4 @@
-import { Button, Spinner } from 'erxes-ui';
+import { Button, Collapsible, Spinner } from 'erxes-ui';
 import type { ViberSetup } from '../types';
 import { useTranslation } from 'react-i18next';
 
@@ -17,11 +17,11 @@ export const ViberSetupCheck = ({
   return (
     <section
       className="rounded-lg border p-4 space-y-3 text-sm"
-      aria-label="Viber server setup"
+      aria-label="Viber connection setup"
     >
       <div className="flex items-center justify-between gap-2">
         <h3 className="font-semibold">
-          {t('viber-server-setup', { defaultValue: 'Server setup' })}
+          {t('viber-connection-setup', { defaultValue: 'Connection setup' })}
         </h3>
         <Button variant="ghost" size="sm" onClick={refresh} disabled={loading}>
           {loading && <Spinner size="sm" />}
@@ -34,26 +34,36 @@ export const ViberSetupCheck = ({
         </p>
       )}
       {setup && (
-        <dl className="grid gap-3 sm:grid-cols-[8rem_1fr]">
-          <dt className="text-muted-foreground">Webhook</dt>
-          <dd className="break-all">
-            {setup.webhookError || setup.webhookUrl}
-          </dd>
-          <dt className="text-muted-foreground">Incoming media</dt>
-          <dd>{setup.mediaError || setup.mediaHostnames.join(', ')}</dd>
-          <dt className="text-muted-foreground">File storage</dt>
-          <dd>
-            {setup.storageError ||
-              `${setup.storageProvider} configured — upload/download test still required.`}
-          </dd>
-        </dl>
+        <>
+          {[setup.webhookError, setup.mediaError, setup.storageError]
+            .filter(Boolean)
+            .map((issue) => (
+              <p key={issue} role="status" className="text-muted-foreground">
+                {issue}
+              </p>
+            ))}
+          <Collapsible>
+            <Collapsible.Trigger asChild>
+              <Button variant="ghost" size="sm" className="px-0">
+                <Collapsible.TriggerIcon />
+                Technical details
+              </Button>
+            </Collapsible.Trigger>
+            <Collapsible.Content>
+              <dl className="grid gap-3 pt-3 sm:grid-cols-[8rem_1fr]">
+                <dt className="text-muted-foreground">Webhook URL</dt>
+                <dd className="break-all">
+                  {setup.webhookUrl || 'Not configured'}
+                </dd>
+                <dt className="text-muted-foreground">Media hosts</dt>
+                <dd>{setup.mediaHostnames.join(', ') || 'Not configured'}</dd>
+                <dt className="text-muted-foreground">Storage provider</dt>
+                <dd>{setup.storageProvider || 'Not configured'}</dd>
+              </dl>
+            </Collapsible.Content>
+          </Collapsible>
+        </>
       )}
-      <p className="text-muted-foreground">
-        {t('viber-setup-note', {
-          defaultValue:
-            'The bot token belongs to each integration. Media hosts are a server-admin security policy, not a bot credential. These checks read configuration; they do not prove a live Viber connection or working storage.',
-        })}
-      </p>
     </section>
   );
 };

@@ -77,6 +77,9 @@
   webhook registration status, Repair, archive/restore, and confirmed removal.
   The setup panel reports callback, approved media hosts, and storage readiness;
   a missing media policy does not prevent connecting a text-only test bot.
+  Row actions use the standard three-dot `RecordTable` menu; setup issues stay
+  visible while webhook, media-host, and storage values are in an expandable
+  technical-details section. Keep copy concise and user-facing.
 - Viber conversations use the native message thread and composer for text,
   attachments, and internal notes, plus a dialog for link/location/contact/
   sticker messages. Reply eligibility respects archives, permissions, and
@@ -1111,6 +1114,14 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-15` — Viber wording and integration-flow consistency
+
+- **Summary:** Shorten Viber copy, use the standard row-action menu, and move
+  technical setup details out of the primary connection and reply flow.
+- **Affected areas:** Viber forms, setup, actions, delivery/upload feedback,
+  validation tests, and the native Viber composer branch.
+- **Contracts changed:** None; permissions, validation, and retry rules remain.
+
 ### `2026-09-15` — Viber connection and conversation UI
 
 - **Summary:** Add repository-native Viber setup, connection management,
@@ -1267,20 +1278,4 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 - **Affected areas:**
   `src/modules/knowledgebase/topicDrawerConstants.ts`,
   `src/modules/helpcenter/hooks/useEditHelpCenter.ts`
-- **Contracts changed:** `None`
-
-### `2026-09-07` — The help center table drops its drawer-only columns
-
-- **Summary:** Removed the description column and the two ticket columns the
-  drawer already owns — the `Show tickets` switch and the ticket menu label —
-  leaving name, website, knowledge base name and knowledge base topic followed
-  by the three ticket routing selects (channel, pipeline, status). The drawer
-  gained the piece it was missing, a required `Knowledge base topic` select in
-  its Knowledge base section, and the table cell and that field now share one
-  `SelectHelpCenterTopic` component.
-- **Affected areas:**
-  `src/modules/helpcenter/components/{HelpCenterColumns.tsx,SelectHelpCenterTopic.tsx}`,
-  `src/modules/helpcenter/utils/toTopicDrawerRecord.ts`,
-  `src/modules/knowledgebase/components/{TopicDrawer.tsx,TopicGeneralTab.tsx}`,
-  `src/modules/knowledgebase/{topicDrawerTypes.ts,topicDrawerConstants.ts}`
 - **Contracts changed:** `None`
