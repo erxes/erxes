@@ -5,7 +5,7 @@ const text = (value: string | null | undefined): string => value?.trim() ?? '';
 export const normalizeConfig = (config: HelpCenterConfig): PortalConfig => {
   const kbToggle = config.kbToggle ?? true;
   const ticketToggle = config.ticketToggle ?? false;
-
+//test
   return {
     _id: config._id,
     title: text(config.title),

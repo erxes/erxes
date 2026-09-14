@@ -4,6 +4,7 @@ import {
   CheckInputField,
   ProductAssigneeField,
   ProductCalculatedNumberField,
+  ProductDiscountNumberField,
   ProductNumberField,
 } from './getProductColumns';
 import {
@@ -71,10 +72,13 @@ export const productColumns = (t: TFunction): ColumnDef<IProductData>[] => [
       );
 
       return (
-        <ProductNameCell cell={cell} hasDuplicateProduct={hasDuplicateProduct} />
+        <ProductNameCell
+          cell={cell}
+          hasDuplicateProduct={hasDuplicateProduct}
+        />
       );
     },
-    size: 260,
+    size: 240,
   },
   {
     id: 'unitPrice',
@@ -139,7 +143,7 @@ export const productColumns = (t: TFunction): ColumnDef<IProductData>[] => [
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
-          <ProductCalculatedNumberField
+          <ProductDiscountNumberField
             value={Number(cell.getValue()) || 0}
             field="discountPercent"
             _id={cell.row.original._id}
@@ -157,7 +161,7 @@ export const productColumns = (t: TFunction): ColumnDef<IProductData>[] => [
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
-          <ProductCalculatedNumberField
+          <ProductDiscountNumberField
             value={Number(cell.getValue()) || 0}
             field="discount"
             _id={cell.row.original._id}

@@ -6,7 +6,7 @@
 - **Project:** `mongolian_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/mongolian_api`
-- **Last synchronized:** `2026-08-31`
+- **Last synchronized:** `2026-09-11`
 
 ## Scope
 
@@ -27,27 +27,32 @@
 - Stores exchange-rate rows in the tenant-scoped `exchange_rates` Mongo collection, one document per `date + mainCurrency + rateCurrency`.
 - Resolves active exchange rates by selecting the latest row whose `date` is less than or equal to the requested date.
 - Provides ebarimt, product-place, config, Erkhet sync-log, and MS Dynamic backend capabilities through plugin-owned modules.
+- Product places applies default product filters through the plugin `beforeResolvers` hook by reading the current user's `dealsProductsDefaultFilter` config from `subId`, supports multi-segment default filters, and runs split/place/pricing/print behavior only after a sales deal moves to a configured destination stage.
+- Product places publishes full printable receipt payloads through the `productPlacesResponded` GraphQL subscription.
 
 ## Architecture
 
-| Area             | Path                         | Responsibility                                              |
-| ---------------- | ---------------------------- | ----------------------------------------------------------- |
-| Runtime          | `src/main.ts`                | Starts the Mongolian API plugin and registers GraphQL/tRPC. |
-| Models           | `src/connectionResolvers.ts` | Generates tenant-scoped Mongoose models.                    |
-| Exchange rates   | `src/modules/exchangeRates`  | Owns exchange-rate schema, models, GraphQL, and tRPC.       |
-| Ebarimt          | `src/modules/ebarimt`        | Owns ebarimt API behavior and related product rules/groups. |
-| Configs          | `src/modules/configs`        | Owns Mongolian plugin configuration storage.                |
-| Erkhet sync logs | `src/modules/erkhet`         | Owns Mongolian plugin Erkhet sync-log records.              |
-| MS Dynamic       | `src/modules/msdynamic`      | Owns MS Dynamic integration helpers and logs.               |
-| Product places   | `src/modules/productPlaces`  | Owns product-place tRPC behavior.                           |
+| Area             | Path                         | Responsibility                                                                          |
+| ---------------- | ---------------------------- | --------------------------------------------------------------------------------------- |
+| Runtime          | `src/main.ts`                | Starts the Mongolian API plugin and registers GraphQL/tRPC.                             |
+| Models           | `src/connectionResolvers.ts` | Generates tenant-scoped Mongoose models.                                                |
+| Exchange rates   | `src/modules/exchangeRates`  | Owns exchange-rate schema, models, GraphQL, and tRPC.                                   |
+| Ebarimt          | `src/modules/ebarimt`        | Owns ebarimt API behavior and related product rules/groups.                             |
+| Configs          | `src/modules/configs`        | Owns Mongolian plugin configuration storage.                                            |
+| Erkhet sync logs | `src/modules/erkhet`         | Owns Mongolian plugin Erkhet sync-log records.                                          |
+| MS Dynamic       | `src/modules/msdynamic`      | Owns MS Dynamic integration helpers and logs.                                           |
+| Product places   | `src/modules/productPlaces`  | Owns product-place stage-change, default-filter, tRPC, and print subscription behavior. |
 
 ## Contracts
 
 ### Provides
 
 - GraphQL exchange-rate queries and mutations: `exchangeRatesMain`, `exchangeGetRate`, `exchangeRateAdd`, `exchangeRateEdit`, and `exchangeRatesRemove`.
+- GraphQL product-place subscription: `productPlacesResponded`.
 - tRPC exchange-rate procedures under `exchangeRates`: `findOne`, `create`, `update`, and `getActiveRate`.
 - `exchangeRates.getActiveRate` accepts a Date-coercible `date` value, plus `rateCurrency` and optional `mainCurrency`.
+- tRPC product-place procedures: `afterMutation`, `beforeResolver`, and `afterDealStageChanged`.
+- Plugin meta hooks for product product-list default filtering and sales deal stage-change product place processing.
 
 ### Consumes
 
@@ -67,17 +72,53 @@
 - Active-rate lookup must return the latest rate on or before the requested day.
 - One exchange-rate document represents exactly one main/rate currency pair for one day.
 - Do not add debug `console.log` calls to exchange-rate tRPC handlers; service-to-service failures should surface through caller validation or returned errors.
+- Product-place after-mutation behavior must stay guarded by real deal stage changes; ordinary deal edits must not run split/place/print side effects.
+- Product-place default filters are stored one config per user with `subId`
+  equal to the user id, read only the config value's `segmentIds` array, and
+  apply to `productsMain`, `products`, and `productsTotalCount`.
+- Product-place place and split product matching must honor excluded products,
+  categories, and tags even when the include side is empty or segment-only.
+- Product-place place assignment evaluates every matching condition in order so
+  later matching conditions may overwrite earlier branch/department values,
+  matching the legacy productplaces plugin behavior.
+- Product-place print subscriptions keep receipt `content` as JSON so branch, department, product, and text payloads survive without narrowing the schema.
 - Plugin data access must remain tenant-scoped through generated models.
 
 ## Validation
 
 - `pnpm nx build mongolian_api`
 - `pnpm build`
+- `pnpm exec tsc -p backend/plugins/mongolian_api/tsconfig.json --noEmit`
 - Smoke scenario: create or upsert exchange-rate rows for multiple foreign currencies on the same date, then call `exchangeRates.getActiveRate` with a `Date` and verify the latest matching row is returned.
+- Product places smoke scenario: move a deal with products into a configured product-place stage and verify split/place/print runs once, while a non-stage deal edit does not trigger product-place side effects.
 
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-11` — `Simplify Product Default Filter Lookup`
+
+- **Summary:** Product-place product list before-resolver now reads only the current user's code/subId config, applies its `segmentIds` directly to all product list/count queries, product-place matching honors explicit exclude filters consistently, and unused product-place helpers were removed.
+- **Affected areas:** `src/modules/productPlaces/beforeResolvers.ts`, `src/meta/beforeResolvers.ts`, `src/modules/productPlaces/afterMutations.ts`, `src/modules/productPlaces/handlers/handlePlace.ts`, `src/modules/productPlaces/utils/setPlace.ts`, `src/modules/productPlaces/utils/splitData.ts`, `src/modules/productPlaces/utils/utils.ts`.
+- **Contracts changed:** Removed legacy blank-subId default-filter fallback from the resolver path.
+
+### `2026-09-10` — `Product Places Multi-Segment Defaults`
+
+- **Summary:** Product-place product list before-resolver now applies multiple default product segments from the current user's `dealsProductsDefaultFilter` config stored under `subId=userId`, while preserving legacy configs.
+- **Affected areas:** `src/modules/productPlaces/beforeResolvers.ts`.
+- **Contracts changed:** `dealsProductsDefaultFilter` now stores one config document per user with `subId` set to the user id and `value.segmentIds` as the default product segments.
+
+### `2026-09-10` — `Product Places Place Parity`
+
+- **Summary:** Product-place place assignment now preserves the legacy behavior where later matching conditions can overwrite earlier branch and department assignments.
+- **Affected areas:** `src/modules/productPlaces/utils/setPlace.ts`.
+- **Contracts changed:** None.
+
+### `2026-09-09` — `Product Places Integration Guards`
+
+- **Summary:** Product places now registers its default product before-resolver, guards deal side effects to real stage changes, and publishes full receipt JSON for printing.
+- **Affected areas:** `src/meta/beforeResolvers.ts`, `src/meta/afterProcess.ts`, `src/modules/productPlaces`.
+- **Contracts changed:** `productPlacesResponded.content` is exposed as JSON and `productPlacesResponded.sessionCode` is optional.
 
 ### `2026-08-31` — `Exchange Rate TRPC Cleanliness`
 

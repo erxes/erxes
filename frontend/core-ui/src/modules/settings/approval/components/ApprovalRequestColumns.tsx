@@ -1,8 +1,5 @@
 import {
   IconCalendarTime,
-  IconCircleCheck,
-  IconCircleX,
-  IconClock,
   IconEye,
   IconLock,
   IconMessage,
@@ -18,34 +15,12 @@ import {
   RelativeDateDisplay,
   TextOverflowTooltip,
 } from 'erxes-ui';
-import { ApprovalRequest, ApprovalRequestStatus } from 'ui-modules';
+import { ApprovalRequest } from 'ui-modules';
 import { ApprovalRequestDetailSheet } from './ApprovalRequestDetailSheet';
-import { getApprovalRequestUserName } from './approvalRequestUtils';
-
-const statusMeta: Record<
-  ApprovalRequestStatus,
-  {
-    variant: 'success' | 'destructive' | 'secondary' | 'warning';
-    icon: typeof IconClock;
-  }
-> = {
-  pending: {
-    variant: 'warning',
-    icon: IconClock,
-  },
-  approved: {
-    variant: 'success',
-    icon: IconCircleCheck,
-  },
-  rejected: {
-    variant: 'destructive',
-    icon: IconCircleX,
-  },
-  cancelled: {
-    variant: 'secondary',
-    icon: IconCircleX,
-  },
-};
+import {
+  APPROVAL_REQUEST_STATUS_META,
+  getApprovalRequestUserName,
+} from './approvalRequestUtils';
 
 export const approvalRequestColumns = ({
   t,
@@ -83,7 +58,7 @@ export const approvalRequestColumns = ({
     header: () => <RecordTable.InlineHead label={t('status')} />,
     cell: ({ row }) => {
       const status = row.original.status;
-      const { icon: Icon, variant } = statusMeta[status];
+      const { icon: Icon, variant } = APPROVAL_REQUEST_STATUS_META[status];
 
       return (
         <RecordTableInlineCell>

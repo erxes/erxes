@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-09-10`
+- **Last synchronized:** `2026-09-11`
 
 ## Scope
 
@@ -188,15 +188,21 @@
   `helpCenterConfigUpdate(config: HelpCenterConfigInput!)` (create-or-update,
   keyed on `config._id`) and `helpCenterConfigRemove(_id)`. Reads check
   `showHelpCenter`, writes check `helpCenterManage`.
-- GraphQL: `helpCenterGetConfigByDomain(domain: String!): HelpCenterConfig` —
-  the published site's own bootstrap read, the help center counterpart of
-  core's client portal lookup. It is the **one public operation in this
-  module** (`wrapperConfig.skipPermission`): the site calling it has no staff
-  user, no `cpUser` and no client portal header yet, because the domain is how
-  it discovers which help center it is. It matches `url` — the client portal
-  domain the config stores — after the same normalization the write path
-  applies, and returns `null` for a domain no help center claims. Never add a
-  permission check to it and never widen it into a list.
+- GraphQL: `helpCenterGetConfigByDomain(clientPortalName: String): HelpCenterConfig` —
+  the published site's own bootstrap read, the help center counterpart of the
+  1.x `clientPortalGetConfigByDomain` lookup. It is the **one public operation
+  in this module** (`wrapperConfig.skipPermission`): the site calling it has no
+  staff user, no `cpUser` and no client portal header yet, because the domain
+  is how it discovers which help center it is. Like the 1.x signature it
+  mirrors, `clientPortalName` is accepted but not read: the query resolver's
+  `getByHost` takes the domain from the request's `Origin` header alone, so a
+  server-side caller must set that header itself. After the same
+  normalization the write path applies, it returns the config whose `url`
+  starts with that origin (escaped, case-insensitive, ending at a `/` or the
+  end of the string), and throws `Not found` when no origin was supplied or no
+  help center claims it. Never add a permission check to it, never drop the
+  regex escape or the empty-origin guard (an empty pattern matches every
+  config), and never widen it into a list.
 - GraphQL: `HelpCenterConfig.brand` resolves the federated `Brand`; its
   `kbTopic` resolves the `KnowledgeBaseTopic` named by `kbTopicId`.
 - Nothing in this module is named `clientPortal*`, and it must stay that way.
@@ -694,7 +700,8 @@ isInternal)` is the agent-side list and requires `showTickets`.
   Never resolve it through a cross-service call to make it live.
 - A domain is matched against a config's `url` through one helper,
   `normalizeHelpCenterUrl` in `helpcenter/utils/helpCenterConfig.ts`, used by
-  both `normalizeHelpCenterConfig` on write and `getConfigByDomain` on read. The
+  both `normalizeHelpCenterConfig` on write and the query resolver's
+  `getByHost` on read. The
   two sides must normalize identically or a site's own domain stops finding its
   config — never re-derive the trim/trailing-slash rule at a call site.
 - `normalizeHelpCenterConfig` is the only validation gate for a config: it
@@ -945,8 +952,36 @@ isInternal)` is the agent-side list and requires `showTickets`.
   and a stress run against a real one is what gets it restricted. Unset in any
   deployment.
 - `POST /facebook/receive` answers every webhook it accepts, including one it
-  ignores or cannot classify. Falling through without a response leaves the
-  request open and makes Facebook redeliver the same event.
+  ignores or cannot classify — but **exactly once**, through the handler's own
+  `respond()` guard. Falling through without a response leaves the request open
+  and makes Facebook redeliver the event; ending twice is worse, because
+  `processMessagingEvent` already answers on its path and the second `end()`
+  raises `ERR_STREAM_WRITE_AFTER_END` from an event handler, which is unhandled
+  and kills the process.
+- The message trigger's **Direct Message** condition means someone typed. Every
+  postback — Get Started, a persistent menu item, an ice breaker, a quick reply,
+  a card button — arrives with the button's own title as the message text, so
+  content cannot separate them; only `isPostbackPayload` can. Guarding just
+  `btnId`, as it did, let one tap match both a Direct Message automation and the
+  specific one, and `receiveTrigger` runs every active automation that matches,
+  so the person got answered twice.
+- A comment reply's attachment is stored as the upload's key, not a URL, so the
+  outbox runs it through `generateAttachmentUrl` before handing it to Facebook
+  as `attachment_url` — Facebook fetches the image itself and cannot resolve a
+  storage key. Graph takes exactly one attachment on a comment reply.
+- A public comment reply that meets an open breaker is **rescheduled, not
+  failed**: the window lifts on its own and the reply is still worth sending.
+  The requeue takes a fresh pacing slot on top of the wait, because a backlog
+  released at one instant repeats the burst that opened the breaker. The only
+  thing that ends a queued reply is `MAX_QUEUE_AGE_MS` — a day, chosen to clear
+  the 2-to-8.4-hour enforcement windows measured on the 2026-09-07 dump.
+- There is no per-post reply cap. One was tried and removed: measured against
+  that dump, no threshold on volume, repetition count, repetition share or post
+  concentration separated blocked hours from clean ones — the highest repetition
+  in the data (16,388 uses of one sentence in seven days) drew no refusal at
+  all. Pacing defends the documented API rate limit, and the breaker defends
+  against a refusal already received; neither is a spam-classifier model. Do not
+  reintroduce a cap without evidence that names the threshold.
 - A public comment reply carries the `@[senderId]` mention only when its action
   sets `mentionSender`. The mention was unconditional for years, which tagged
   every commenter publicly whether the automation wanted it or not; the outbox
@@ -1614,10 +1649,10 @@ isInternal)` is the agent-side list and requires `showTickets`.
   pipeline's rows are narrowed to the current user, other pipelines are intact.
 - No `test` target is defined in `project.json`; do not invent one.
 - Smoke (help center by domain): query
-  `helpCenterGetConfigByDomain(domain: "<a config's website>")` with no
-  authorization header — it must return that config, return `null` for an
-  unknown domain, and behave the same whether or not the domain carries a
-  trailing slash.
+  `helpCenterGetConfigByDomain` with no authorization header and an
+  `Origin: <a config's website origin>` header — it must return that config
+  whether or not the stored website carries a path or trailing slash, and an
+  unknown or missing `Origin` must fail with `Not found`.
 - Smoke (help center): open `/frontline/helpcenter`, save a name/website change
   from the drawer's General tab and a colour from its Appearance tab, reload —
   the values persist and the network tab shows `helpCenterConfig` and
@@ -1731,76 +1766,59 @@ isInternal)` is the agent-side list and requires `showTickets`.
 
 ### `2026-09-10` — The ticket note type stopped colliding with `operation`'s
 
-- **Summary:** Renamed this plugin's GraphQL `Note` type to `TicketNote`. It was
-  merged by federation with the `Note` value type `operation_api` declares, so
-  the `attachments` and `isInternal` fields only this subgraph has left
-  `operation`'s `updateNote` unsatisfiable and the gateway refused to compose
-  the supergraph.
-- **Affected areas:** `src/modules/ticket/graphql/schemas/note.ts`,
-  `src/modules/inbox/graphql/schemas/widget.ts`
-- **Contracts changed:** `ticketGetNote`, `cpTicketGetNotes`,
-  `ticketCreateNote`, `ticketUpdateNote`, `cpTicketCreateNote`,
-  `widgetTicketComments` and `widgetTicketCommentAdd` return `TicketNote`
-  instead of `Note`. Field names and arguments are unchanged, so a document that
-  selects fields without naming the type needs no edit.
-
-### `2026-09-10` — The help center search escape uses a raw string
-
-- **Summary:** `escapeRegExp` built its replacement from an escaped `'\\$&'`,
-  which the quality gate flags as avoidable escaping. It now reads as
-  ``String.raw`\$&` ``; the behaviour is unchanged.
+- **Summary:** `helpCenterGetConfigByDomain` now follows the 1.x
+  `clientPortalGetConfigByDomain` lookup through a `getByHost` helper: it reads
+  only the request's `Origin` header, matches a config whose `url` starts with
+  that origin, and throws `Not found` instead of returning `null`.
 - **Affected areas:**
-  `src/modules/helpcenter/graphql/resolvers/queries/helpCenterConfig.ts`
-- **Contracts changed:** `None`
-
-### `2026-09-09` — A help center carries its messenger app token
-
-- **Summary:** Added `erxesAppToken` to `HelpCenterConfig` and its input, so
-  `helpCenterGetConfigByDomain` hands the published site the widget token it
-  boots with — the 1.x client portal field of the same name, stored the way
-  `content_api`'s `Web` stores it.
-- **Affected areas:**
-  `src/modules/helpcenter/{@types,db/definitions,graphql/schemas,utils}/helpCenterConfig.ts`
-- **Contracts changed:** `HelpCenterConfig.erxesAppToken` and
-  `HelpCenterConfigInput.erxesAppToken` added. Nothing removed or renamed.
-
-### `2026-09-09` — A help center is readable by its own domain
-
-- **Summary:** Added `helpCenterGetConfigByDomain(domain)`, the help center's
-  own public counterpart of the client portal's domain lookup, so a published
-  site can fetch its config without a staff session and without going through
-  a client portal operation. Domain matching reuses the write path's
-  normalization through the new `normalizeHelpCenterUrl` helper.
-- **Affected areas:**
-  `src/modules/helpcenter/graphql/{schemas,resolvers/queries}/helpCenterConfig.ts`,
   `src/modules/helpcenter/db/models/HelpCenterConfig.ts`,
-  `src/modules/helpcenter/utils/helpCenterConfig.ts`
-- **Contracts changed:** Added the `helpCenterGetConfigByDomain` query. No
-  existing operation, type or input changed.
+  `src/modules/helpcenter/graphql/resolvers/queries/helpCenterConfig.ts`,
+  `src/modules/helpcenter/graphql/schemas/helpCenterConfig.ts`
+- **Contracts changed:** `helpCenterGetConfigByDomain(domain: String!)` became
+  `helpCenterGetConfigByDomain(clientPortalName: String)`, so a caller still
+  sending `domain` fails validation; an unknown or missing `Origin` is now a
+  `Not found` error rather than `null`. The
+  `HelpCenterConfigs.getConfigByDomain` model method is removed.
 
-### `2026-09-09` — Help center settings left the knowledge base topic
+### `2026-09-10` — A tap stopped counting as a direct message
 
-- **Summary:** General settings and appearance moved off `KnowledgeBaseTopic`
-  into a plugin-owned `frontline_help_center_configs` collection read through
-  `helpCenterConfig`/`helpCenterConfigs` and written through
-  `helpCenterConfigUpdate` — the 2.0 business portal's whole-config shape under
-  a name that says which domain owns it, not `clientPortal*`, which is
-  `core-api`'s unrelated entity;
-  `src/migrations/migrateHelpCenterConfigs.ts` moves existing topic values across
-  and unsets them on the topic.
-- **Affected areas:** `src/modules/helpcenter/**` (new),
-  `src/modules/knowledgebase/{@types/topic.ts,db/definitions/topic.ts,graphql/schemas/knowledgeBaseTypeDefs.ts}`,
-  `src/{connectionResolvers.ts,meta/permissions.ts}`, `src/apollo/**`,
-  `src/migrations/migrateHelpCenterConfigs.ts`
-- **Contracts changed:** Added `HelpCenterConfig`, `HelpCenterConfigStyles`,
-  `HelpCenterConfigInput`, `HelpCenterConfigStylesInput`, the three
-  `helpCenterConfig*` queries and `helpCenterConfigUpdate` /
-  `helpCenterConfigRemove`, plus a `helpCenter` permission module
-  (`showHelpCenter`, `helpCenterManage`). Removed `url`, `kbToggle`, `kbLabel`,
-  `kbTopicId`, `ticketToggle`, `ticketLabel`, `ticketChannelId`,
-  `ticketPipelineId`, `ticketStatusId` and `styles` from `KnowledgeBaseTopic`
-  and `KnowledgeBaseTopicDoc`, and dropped `KnowledgeBaseTopicStyles` /
-  `KnowledgeBaseTopicStylesInput`.
+- **Summary:** The message trigger's Direct Message condition excluded only
+  `btnId`, so Get Started, persistent menu, ice breaker, quick reply and card
+  button taps matched it too and fired a second automation alongside the one
+  that owned them; it now skips any payload carrying a bot key. The webhook
+  route also stopped ending a response twice, which crashed the process with
+  `ERR_STREAM_WRITE_AFTER_END` on every messaging event.
+- **Affected areas:**
+  `src/modules/integrations/facebook/meta/automation/messages/index.ts`,
+  `src/modules/integrations/facebook/meta/automation/utils/messageUtils.ts`,
+  `src/modules/integrations/facebook/controller/controller.ts`
+- **Contracts changed:** None. `isPostbackPayload` is newly exported from
+  `messageUtils`.
+
+### `2026-09-09` — A comment reply can carry an image
+
+- **Summary:** The outbox passed the stored attachment straight through as
+  `attachment_url`, which Facebook cannot fetch because the form stores an
+  upload key; it now resolves through `generateAttachmentUrl`, so the reply
+  form's newly enabled image upload actually reaches the page.
+- **Affected areas:**
+  `src/modules/integrations/facebook/commentOutbox.ts`
+- **Contracts changed:** None.
+
+### `2026-09-09` — Blocked comment replies wait the window out
+
+- **Summary:** The per-post budget is removed and pacing raised from 10 to 30 a
+  minute; a reply that meets an open breaker is requeued for when the block
+  lifts rather than marked failed, and is dropped only once it is 24 hours old.
+- **Affected areas:**
+  `src/modules/integrations/facebook/commentGuard.ts`,
+  `src/modules/integrations/facebook/commentOutbox.ts`,
+  `src/modules/integrations/facebook/db/models/CommentOutbox.ts`,
+  `src/modules/integrations/facebook/db/definitions/comment_outbox.ts`,
+  `src/modules/integrations/facebook/meta/automation/comments/index.ts`
+- **Contracts changed:** `FACEBOOK_COMMENT_PUBLIC_REPLY_PER_POST` is no longer
+  read. The action no longer returns `post-public-reply-limit`; the outbox
+  document gained `attempts`.
 
 ### `2026-09-09` — Graph calls can be pointed at a stand-in
 
@@ -1814,3 +1832,62 @@ isInternal)` is the agent-side list and requires `showTickets`.
   `src/modules/integrations/facebook/helpers.ts`
 - **Contracts changed:** None. New optional `FACEBOOK_GRAPH_URL` env var,
   empty by default.
+
+### `2026-09-09` — The bot reports which replies it repeats
+
+- **Summary:** `facebookMessengerBotDelivery` only ever returned counts, so the
+  bot surface could say two replies were sent but not what they were;
+  `facebookMessengerBotCommentReplyStats` groups the outbox by reply text and
+  returns each one's totals, newest failure, last use and the posts it ran
+  under — named by the post's own text from `FacebookPostConversations`, since
+  the outbox only records an id.
+- **Affected areas:**
+  `src/modules/integrations/facebook/graphql/schema/facebook.ts`,
+  `src/modules/integrations/facebook/graphql/resolvers/queries.ts`
+- **Contracts changed:** New `FacebookBotCommentReplyStat` and
+  `FacebookBotCommentReplyPost` types and
+  `facebookMessengerBotCommentReplyStats(_id: String!, limit: Int)` query,
+  capped at 50 rows.
+
+### `2026-09-09` — The comment reply mention became opt-in
+
+- **Summary:** Public comment replies prepended `@[senderId]` unconditionally;
+  the Send comment action now carries a `mentionSender` flag, stored on the
+  outbox document, and the mention goes out only when it is set.
+- **Affected areas:**
+  `src/modules/integrations/facebook/commentOutbox.ts`,
+  `src/modules/integrations/facebook/db/definitions/comment_outbox.ts`,
+  `src/modules/integrations/facebook/meta/automation/comments/index.ts`
+- **Contracts changed:** None. The action config gained an optional
+  `mentionSender` boolean; automations without it stop mentioning.
+
+### `2026-09-09` — Keyword conditions on Meta triggers actually work
+
+- **Summary:** `checkContentConditions` read only its first condition, could
+  never satisfy `every` on the Facebook side (it compared each keyword to the
+  whole message), matched every message when a rule held no keyword, and threw
+  whenever a keyword contained a regex metacharacter; conditions now OR
+  together and each operator returns a boolean.
+- **Affected areas:**
+  `src/modules/integrations/facebook/meta/automation/utils/messageUtils.ts`,
+  `src/modules/integrations/instagram/meta/automation/utils/messageUtils.ts`
+- **Contracts changed:** None. `checkContentConditions` returns `boolean`
+  instead of `boolean | undefined`; matching stays case-sensitive except
+  `isContains`, as before.
+
+### `2026-09-07` — A help center points at the knowledge base topic it serves
+
+### `2026-09-10` — The ticket note type stopped colliding with `operation`'s
+
+- **Summary:** Renamed this plugin's GraphQL `Note` type to `TicketNote`. It was
+  merged by federation with the `Note` value type `operation_api` declares, so
+  the `attachments` and `isInternal` fields only this subgraph has left
+  `operation`'s `updateNote` unsatisfiable and the gateway refused to compose
+  the supergraph.
+- **Affected areas:** `src/modules/ticket/graphql/schemas/note.ts`,
+  `src/modules/inbox/graphql/schemas/widget.ts`
+- **Contracts changed:** `ticketGetNote`, `cpTicketGetNotes`,
+  `ticketCreateNote`, `ticketUpdateNote`, `cpTicketCreateNote`,
+  `widgetTicketComments` and `widgetTicketCommentAdd` return `TicketNote`
+  instead of `Note`. Field names and arguments are unchanged, so a document that
+  selects fields without naming the type needs no edit.

@@ -1,4 +1,3 @@
-import ExcelJS from 'exceljs';
 import { Readable } from 'stream';
 import { parse as csvParse } from 'csv-parse';
 
@@ -41,51 +40,20 @@ export async function* processCSVStream(
 }
 
 /**
- * Stream an XLSX file row by row.
+ * Count the data rows of a CSV file (header excluded).
  *
- * Uses ExcelJS's streaming WorkbookReader so worksheet data is emitted
- * incrementally rather than buffering the whole workbook. The shared
- * strings table is cached in memory — for the 20MB upload cap this is
- * normally only a few hundred KB and keeps ordering safe regardless of
- * how the .xlsx archive lays out its parts.
- *
- * Note: ExcelJS's `row.values` is a 1-based array (index 0 is always
- * undefined), so we `slice(1)` to get a clean 0-based row.
+ * The worker needs a real denominator before it starts: without it,
+ * progress is computed against "rows read so far", which makes the bar
+ * jump backwards on every batch and pins the ETA near zero. Counting is a
+ * separate streaming pass — it never holds more than one row in memory.
  */
-export async function* processXLSXStream(
-  input: Readable,
-): AsyncGenerator<string[], void, unknown> {
-  // We capture source errors and re-throw them from the generator so the
-  // worker's try/catch can mark the import as failed. ExcelJS does not
-  // always forward source errors through its async iterator reliably.
-  let sourceError: Error | null = null;
-  input.on('error', (err) => {
-    sourceError = err;
-  });
+export async function countCsvDataRows(input: Readable): Promise<number> {
+  const rowIterator = processCSVStream(input);
+  let rows = 0;
 
-  const workbook = new ExcelJS.stream.xlsx.WorkbookReader(input, {
-    entries: 'emit',
-    sharedStrings: 'cache',
-    worksheets: 'emit',
-  });
-
-  try {
-    for await (const worksheet of workbook) {
-      for await (const row of worksheet) {
-        if (sourceError) throw sourceError;
-
-        const raw = row.values as unknown[];
-        // 1-based → 0-based; null/undefined become empty strings so
-        // downstream column mapping stays aligned.
-        const values = raw.slice(1).map((v) => (v == null ? '' : String(v)));
-
-        yield values;
-      }
-    }
-
-    // Final check in case the error arrived after the last row was read.
-    if (sourceError) throw sourceError;
-  } finally {
-    if (!input.destroyed) input.destroy();
+  while (!(await rowIterator.next()).done) {
+    rows++;
   }
+
+  return Math.max(rows - 1, 0);
 }

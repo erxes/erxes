@@ -1,13 +1,7 @@
-import SettingsContainer from '../../modules/productplaces/containers/Settings';
-import DefaultFilterConfig from '../../modules/productplaces/components/DefaultFilterConfig';
+import { ProductPlacesConfigManager } from '../../modules/productplaces/components/ProductPlacesConfigManager';
 
 const ProductFilterPage = () => {
-  return (
-    <SettingsContainer
-      component={DefaultFilterConfig}
-      configCode="dealsProductsDefaultFilter"
-    />
-  );
+  return <ProductPlacesConfigManager code="dealsProductsDefaultFilter" />;
 };
 
 export default ProductFilterPage;

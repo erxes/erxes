@@ -36,3 +36,4 @@ export const relationSchema = new Schema(
 );
 
 relationSchema.index({ 'entities.contentType': 1, 'entities.contentId': 1 });
+relationSchema.index({ 'createdAt': 1 });

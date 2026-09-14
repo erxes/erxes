@@ -11,7 +11,8 @@ import {
   safeCleanup,
   toTerminalImportExportError,
 } from './importExportRuntime';
-import { processCSVStream, processXLSXStream } from './importUtils';
+import { matchImportHeaders } from './headerMatcher';
+import { countCsvDataRows, processCSVStream } from './importUtils';
 import { safeProgressUpdate } from './progressUpdate';
 import {
   ImportExportTempWorkspace,
@@ -47,8 +48,8 @@ const escapeCsvField = (
     field === null || field === undefined
       ? ''
       : typeof field === 'string'
-        ? field
-        : String(field);
+      ? field
+      : String(field);
 
   if (value.includes('"') || value.includes(',') || value.includes('\n')) {
     return `"${value.replace(/"/g, '""')}"`;
@@ -158,7 +159,9 @@ const createImportErrorRowWriter = async ({
             const normalizedRow: ImportErrorRow = { error: errorMessage };
 
             const values = csvHeaders.map((header) => {
-              const lookupKey = keyToHeaderMap[header] || header;
+              // rows are keyed by field key, so the file's header has to be
+              // translated back into one before the value can be read
+              const lookupKey = headerToKeyMap[header] || header;
               const value = row?.[lookupKey];
               normalizedRow[lookupKey] = value;
               return escapeCsvField(value);
@@ -287,13 +290,51 @@ export const createImportBatchProcessor = (
       }
 
       const fileName = importDoc.fileName || fileKey;
-      const isCSV = fileName.toLowerCase().endsWith('.csv');
+
+      if (!fileName.toLowerCase().endsWith('.csv')) {
+        throw new ImportExportError({
+          stage: 'LOAD_DOCUMENT',
+          message: `Only .csv files can be imported. Received "${fileName}".`,
+          code: 'UNSUPPORTED_FILE_TYPE',
+          retryable: false,
+        });
+      }
+
       const resumeFromRow = importDoc.lastProcessedRow || 0;
+      const confirmedMapping = importDoc.columnMapping || [];
+
+      // A resumed job continues the earlier tallies instead of restarting them
+      if (resumeFromRow > 0) {
+        processedRows = importDoc.processedRows || 0;
+        successRows = importDoc.successRows || 0;
+        errorRows = importDoc.errorRows || 0;
+      }
+
+      totalRows = await withImportExportStage({
+        stage: 'FETCH_FILE',
+        fallbackMessage: 'Failed to read import file',
+        run: async () =>
+          await countCsvDataRows(
+            await readFileStreamFromStorage({ subdomain, key: fileKey }),
+          ),
+      });
+
+      await safeProgressUpdate({
+        entity: 'import',
+        id: importId,
+        subdomain,
+        stage: 'row-count',
+        update: async () => {
+          await coreClient.updateImportProgress(subdomain, importId, {
+            totalRows,
+          });
+        },
+      });
 
       // Native Readable stream from storage — the file is never fully
       // buffered in memory. Storage errors (NoSuchKey, connection drop,
       // etc.) surface via the stream's 'error' event, which is forwarded
-      // into the parser by processCSVStream/processXLSXStream and then
+      // into the parser by processCSVStream and then
       // thrown out of the for-await loop below, landing in the outer catch.
       const fileStream = await withImportExportStage({
         stage: 'FETCH_FILE',
@@ -337,9 +378,7 @@ export const createImportBatchProcessor = (
           ),
       });
 
-      const rowIterator = isCSV
-        ? processCSVStream(fileStream)
-        : processXLSXStream(fileStream);
+      const rowIterator = processCSVStream(fileStream);
 
       let rowIndex = 0;
       let headerRow: string[] = [];
@@ -372,38 +411,55 @@ export const createImportBatchProcessor = (
         for await (const row of rowIterator) {
           if (rowIndex === 0) {
             headerRow = row;
-            headerRow.forEach((headerText, index) => {
-              const normalizedHeaderText = String(headerText || '').trim();
 
-              if (normalizedHeaderText) {
-                const matchedHeader = importHeaders.find(
-                  (h) => {
-                    const candidates = [
-                      h.label,
-                      h.key,
-                      ...(h.aliases || []),
-                    ].map((candidate) => String(candidate || '').trim());
+            const knownKeys = new Set(importHeaders.map((h) => h.key));
 
-                    if (candidates.includes(normalizedHeaderText)) {
-                      return true;
-                    }
-
-                    return (
-                      h.type === 'customProperty' &&
-                      candidates.some(
-                        (candidate) =>
-                          candidate &&
-                          normalizedHeaderText.includes(`[${candidate}]`),
-                      )
-                    );
-                  },
-                );
-                if (matchedHeader) {
-                  columnToKeyMap[index] = matchedHeader.key;
-                  keyToHeaderMap[matchedHeader.key] = normalizedHeaderText;
+            // A mapping confirmed by the user wins over anything the matcher
+            // would guess; the matcher only runs for imports started without
+            // one (a resumed job, or an API caller that sent no mapping).
+            if (confirmedMapping.length) {
+              for (const column of confirmedMapping) {
+                if (!knownKeys.has(column.key)) {
+                  continue;
                 }
+
+                columnToKeyMap[column.index] = column.key;
+                keyToHeaderMap[column.key] = String(
+                  headerRow[column.index] || column.header || '',
+                ).trim();
               }
-            });
+            } else {
+              for (const match of matchImportHeaders(
+                headerRow,
+                importHeaders,
+              )) {
+                if (match.status !== 'matched' || !match.key) {
+                  continue;
+                }
+
+                columnToKeyMap[match.index] = match.key;
+                keyToHeaderMap[match.key] = match.header;
+              }
+            }
+
+            if (!Object.keys(columnToKeyMap).length) {
+              const expected = importHeaders
+                .slice(0, 10)
+                .map((h) => h.label)
+                .join(', ');
+
+              throw new ImportExportError({
+                stage: 'FETCH_HEADERS',
+                message:
+                  `None of the columns in the file matched a known field. ` +
+                  `File columns: ${headerRow.join(', ')}. ` +
+                  `Expected columns such as: ${expected}` +
+                  (importHeaders.length > 10 ? ', …' : ''),
+                code: 'NO_MATCHING_COLUMNS',
+                retryable: false,
+              });
+            }
+
             rowIndex++;
             continue;
           }
@@ -414,8 +470,6 @@ export const createImportBatchProcessor = (
           if (dataRowIndex <= resumeFromRow) {
             continue;
           }
-
-          totalRows++;
 
           const rowData: Record<string, any> = {};
           row.forEach((value: any, index: number) => {
@@ -524,6 +578,30 @@ export const createImportBatchProcessor = (
 
           if (Object.keys(rowData).length > 0) {
             batch.push(rowData);
+          } else if (row.some((value) => String(value ?? '').trim() !== '')) {
+            // the row carried values, but none of them sat under a known
+            // column — report it instead of dropping it silently
+            const skippedRow: Record<string, any> = {
+              error:
+                'No value in this row landed in a recognized column. Check the header row.',
+            };
+
+            row.forEach((value: any, index: number) => {
+              const columnName =
+                columnToKeyMap[index] ||
+                headerRow[index] ||
+                `column${index + 1}`;
+              skippedRow[columnName] = value;
+            });
+
+            errorRows++;
+            processedRows++;
+
+            await withImportExportStage({
+              stage: 'WRITE_TEMP_FILE',
+              fallbackMessage: 'Failed to write skipped import row',
+              run: async () => await errorRowWriter.writeRows([skippedRow]),
+            });
           }
         }
 
@@ -539,7 +617,7 @@ export const createImportBatchProcessor = (
                     moduleName,
                     collectionName,
                     rows: batch,
-                    userId
+                    userId,
                   },
                 },
                 context,
@@ -684,8 +762,9 @@ export const createImportBatchProcessor = (
       await coreClient.updateImportProgress(subdomain, importId, {
         status: 'failed',
         lastProcessedRow: dataRowIndex,
-        errorMessage: `${errorCode}: ${error?.message || 'Import worker failed'
-          }`,
+        errorMessage: `${errorCode}: ${
+          error?.message || 'Import worker failed'
+        }`,
         terminalError: {
           code: terminalError.code,
           stage: terminalError.stage,

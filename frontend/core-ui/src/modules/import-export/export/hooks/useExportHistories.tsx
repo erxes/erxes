@@ -19,13 +19,16 @@ interface ExportHistoriesQueryResponse {
 
 export function useExportHistories({
   entityTypes,
+  status,
 }: {
   entityTypes?: string[];
+  status?: string;
 }) {
   const { data, loading, error, fetchMore } =
     useQuery<ExportHistoriesQueryResponse>(GET_EXPORT_HISTORIES, {
       variables: {
         entityTypes,
+        status,
         limit: EXPORT_HISTORIES_PER_PAGE,
       },
       fetchPolicy: 'cache-and-network',
@@ -46,6 +49,7 @@ export function useExportHistories({
     fetchMore({
       variables: {
         entityTypes,
+        status,
         limit: EXPORT_HISTORIES_PER_PAGE,
         direction,
         cursor:

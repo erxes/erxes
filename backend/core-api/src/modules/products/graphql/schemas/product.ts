@@ -93,6 +93,7 @@ const queryParams = `
   pipelineId: String,
   boardId: String,
   segment: String,
+  segmentIds: [String],
   propertiesData: String,
   groupedSimilarity: String,
   similarity: Boolean,

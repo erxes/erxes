@@ -14,13 +14,13 @@ import {
   IconRobotFace,
   IconSettings,
 } from '@tabler/icons-react';
-
-import { IFacebookBot } from '@/integrations/facebook/types/FacebookBot';
-import { Link } from 'react-router';
-import { useFacebookBotHealthCell } from '~/widgets/automations/modules/facebook/components/bots/hooks/useFacebookBotHealthCell';
-import { useFacebookBots } from '@/integrations/facebook/hooks/useFacebookBots';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router';
+import { useFacebookBotHealthCell } from '~/widgets/automations/modules/facebook/components/bots/hooks/useFacebookBotHealthCell';
+
+import { IFacebookBot } from '@/integrations/facebook/types/FacebookBot';
+import { useFacebookBots } from '@/integrations/facebook/hooks/useFacebookBots';
 
 type Props = {
   onSelect: (id: string) => void;

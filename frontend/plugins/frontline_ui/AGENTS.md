@@ -202,6 +202,10 @@
 - The Facebook comment reply action holds a set of reply variants and one is
   picked at random per comment; a single variant is warned about, because Meta's
   Spam policy restricts pages "posting repetitive content" regardless of rate.
+  Public replies are paced through an outbox so a page sends at most a set
+  number a minute, and paused on the bot for hours after Facebook refuses one;
+  a paused reply waits the window out and is only dropped once it is a day old.
+  History reports the queue, the wait, the expiry and which variant went out. Private replies are never paced. The bot form reports its
   Public replies are also capped per post, paced through an outbox so a page
   sends at most a set number a minute, and paused on the bot for hours after
   Facebook refuses one. History reports the queue, the skip, the pause and which
@@ -508,15 +512,6 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
 
 ## Local Invariants
 
-- An activity or ticket author id is not always a team member. A `cp:` prefix
-  marks a client portal or mail requester, and `ActivityAuthor` is the only
-  place that decodes it — the suffix is a customer id, resolved through
-  `CustomersInline`, and a bare id stays on `MembersInline`. Rendering
-  `activity.createdBy` or `ticket.createdBy` straight into `MembersInline`
-  silently shows a blank member for every customer-authored row, so the
-  timeline, the creator line and any future author surface must go through
-  `ActivityAuthorName` / `ActivityAuthorAvatar`. An empty id renders as
-  `unknown`, which is what pre-`cp:` mail tickets still show.
 - `RecordTable.Provider`'s container is `overflow-hidden`, so a table that is
   not wrapped in a scroll area clips every column past the viewport instead of
   scrolling. The help center and its categories tables paginate by page, not by
@@ -1130,6 +1125,73 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-09` — The comment reply takes an image
+
+- **Summary:** The attachment field had been a disabled placeholder from before
+  uploads existed; it now uses the same `FileUploadSection` the message action
+  does, capped at the single image Facebook accepts on a comment reply, and the
+  config schema stopped typing it as `any`.
+- **Affected areas:**
+  `src/widgets/automations/modules/facebook/components/action/components/replyComment/CommentActionForm.tsx`,
+  `src/widgets/automations/modules/facebook/components/action/states/replyCommentActionForm.tsx`
+- **Contracts changed:** None.
+
+### `2026-09-09` — The comment reply form got a layout, and adds past two
+
+- **Summary:** Every block in the Send comment panel sat flush against the next
+  because the form had no spacing wrapper, and `useFieldArray` — documented as
+  not supporting flat arrays — stopped appending past the second variant. The
+  list is now driven from form state, the fields are three separated groups,
+  each variant carries its counter and a destructive remove control in a header
+  row above its textarea, and section headings stopped being `Form.Label`s for
+  controls they do not label.
+- **Affected areas:**
+  `src/widgets/automations/modules/facebook/components/action/components/replyComment/CommentActionForm.tsx`
+- **Contracts changed:** None.
+
+### `2026-09-09` — A paused comment reply waits instead of being dropped
+
+- **Summary:** History rendered a `post-public-reply-limit` skip that the API no
+  longer produces; the per-post cap is gone and a blocked reply is requeued, so
+  the only skip left is `queue-expired` after a day of waiting. A deferred reply
+  that timed out also stopped claiming it was still about to send.
+- **Affected areas:**
+  `src/widgets/automations/modules/facebook/components/AutomationHistoryResult.tsx`,
+  `src/widgets/automations/modules/facebook/components/history/useFacebookAutomationHistoryResult.ts`
+- **Contracts changed:** None. The action result no longer carries `limit`.
+
+### `2026-09-09` — The bot's Activity tab is about comments
+
+- **Summary:** One "Bot health" block mixed the Messenger profile's sync state
+  with the comment outbox counters and named neither; it is now a Messenger
+  profile block and a Comment replies block that lists each distinct reply with
+  the share it takes of everything the page has said and the posts it ran
+  under, linked by permalink. Connected automations covers
+  comment triggers as well as message ones, badged per row, and Create
+  automation offers both trigger types.
+- **Affected areas:**
+  `src/widgets/automations/modules/facebook/components/bots/components/FacebookBotProfileHealth.tsx`,
+  `src/widgets/automations/modules/facebook/components/bots/components/FacebookBotCommentActivity.tsx`,
+  `src/widgets/automations/modules/facebook/components/bots/hooks/useFacebookBotCommentReplyStats.tsx`,
+  `src/widgets/automations/modules/facebook/components/bots/components/FacebookBotAutomations.tsx`,
+  `src/widgets/automations/modules/facebook/components/bots/components/FacebookBotCreateAutomationButton.tsx`,
+  `src/widgets/automations/modules/facebook/components/bots/hooks/useFacebookBotAutomations.tsx`
+- **Contracts changed:** None. `useFacebookBotAutomations` takes one trigger
+  type or many, and each returned trigger carries its `type`.
+
+### `2026-09-09` — The bot form splits settings from activity
+
+- **Summary:** The Facebook bot sheet mixed what the bot _is_ with what it is
+  _doing_; the name stays at the top and the rest moved into Settings
+  (persistent menu, ice breakers, optional configuration) and Activity (health
+  counters, connected automations) tabs. The open tab is held for the session,
+  so reopening a bot lands back where the last one was left.
+- **Affected areas:**
+  `src/widgets/automations/modules/facebook/components/bots/components/AutomationFbBotFormContent.tsx`,
+  `src/widgets/automations/modules/facebook/components/bots/components/FacebookBotSettingsTab.tsx`,
+  `src/widgets/automations/modules/facebook/components/bots/states/facebookBotStates.tsx`
+- **Contracts changed:** None.
+
 ### `2026-09-10` — The activity timeline names a customer author
 
 - **Summary:** A note that arrived by mail is written by the requester, not by
@@ -1286,3 +1348,32 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `src/widgets/automations/modules/facebook/components/bots/components/AutomationFbBotFormContent.tsx`,
   `src/widgets/automations/modules/facebook/components/bots/components/FacebookBotSettingsTab.tsx`
 - **Contracts changed:** None.
+
+### `2026-09-09` — The comment reply mention is a setting
+
+- **Summary:** The Send comment action gained a "Mention the commenter" switch;
+  it is off unless turned on, so a reply no longer tags the commenter by
+  default.
+- **Affected areas:**
+  `src/widgets/automations/modules/facebook/components/action/states/replyCommentActionForm.tsx`,
+  `src/widgets/automations/modules/facebook/components/action/components/replyComment/CommentActionForm.tsx`
+- **Contracts changed:** None. The action config gained an optional
+  `mentionSender` boolean.
+
+### `2026-09-08` — The bot form reports its delivery health
+
+- **Summary:** `FacebookBotHealth` exposes `lastError` and the breaker fields,
+  and a new `facebookMessengerBotDelivery` query counts what the comment outbox
+  holds for the bot's page plus when it next sends. The bot form shows the health
+  badge, the pause with its reason, and queued/sent/failed counts, polling while
+  the sheet is open.
+- **Affected areas:** `frontline_api`
+  `modules/integrations/facebook/graphql/{schema/facebook.ts,resolvers/queries.ts}`.
+  `frontline_ui` new
+  `components/bots/components/FacebookBotHealthPanel.tsx` and
+  `components/bots/hooks/useFacebookBotDelivery.tsx`;
+  `modules/integrations/facebook/graphql/queries/facebookBots.ts`,
+  `types/FacebookBot.ts`, `components/bots/components/AutomationFbBotFormContent.tsx`.
+- **Contracts changed:** `FacebookBotHealth` gains `lastError`,
+  `sendBlockedUntil`, `sendBlockReason` and `sendBlockCount`;
+  `facebookMessengerBotDelivery(_id: String!)` is new.
