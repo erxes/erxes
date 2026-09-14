@@ -59,6 +59,7 @@ export const viberCreateIntegration = withErrorHandling(
     const token = parseViberToken(data.data);
 
     await createViberIntegration(subdomain, data.integrationId, token);
+    await registerViberWebhook(subdomain, data.integrationId);
   },
 );
 

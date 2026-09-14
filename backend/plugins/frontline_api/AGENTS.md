@@ -56,7 +56,11 @@
 - Internal Viber helpers verify webhook signatures, fetch and validate bot
   account information, and create tenant-scoped connections after checking the
   inbox and duplicate bot/inbox. The creation adapter validates serialized
-  settings and wraps the helper result with Frontline's success/error response.
+  settings, saves the connection, and awaits webhook registration before
+  returning Frontline's success/error response. Setup failures preserve both
+  local records when the Viber record exists, with a fixed message directing
+  the caller to Repair. The common record is rolled back only when a lookup
+  confirms that no Viber connection was saved; recovery lookup failures propagate.
   Connection records support `pending`, `healthy`, and `unHealthy` health states
   plus an error string; new records default to `pending` with no error.
   Registration saves `pending` before contacting Viber, then `healthy` after
@@ -76,8 +80,8 @@
   The internal `setViberWebhook` HTTP helper implements
   provider registration/removal with shared token validation, URL checks,
   redirect rejection, a timeout signal, and HTTP/provider response validation.
-  It is called by removal and the Repair registration path, but not yet by
-  connection creation; live provider behavior remains unverified. The internal
+  It is called by removal and registration during creation or Repair;
+  live provider behavior remains unverified. The internal
   callback URL builder follows the
   existing production/development gateway paths and accepts a tenant-resolved
   `VIBER_RECEIVE_URL` server override for direct plugin tunnels. It validates
@@ -99,8 +103,8 @@
   The Viber router defines `POST /receive/:integrationId`, awaits the receiver,
   and turns escaped failures into a fixed log entry and a safe 500 when headers
   have not been sent. `src/routes.ts` mounts it under `/viber`, independently
-  of the Call Pro toggle. Automatic registration during creation is not wired;
-  route mounting does not establish a working live channel.
+  of the Call Pro toggle. Creation now requests registration, but live callback
+  reachability, tenant routing, and provider behavior remain unverified.
   Validated picture/video/file/sticker messages
   return a fixed 501 without processing. Events other than `webhook` and
   `message` also return a fixed 501 instead of falling through without a response.
@@ -251,6 +255,9 @@ and authorized dispatch.
 resolver with isolated models and sibling modules, including safe read failures.
 `__tests__/permissions.spec.ts` covers create/remove resolver permission checks
 with mocked authorization, models, and provider adapters.
+`__tests__/creation.spec.ts` composes the real creation resolver, Viber adapter,
+helpers, callback builder, and HTTP utilities with mocked database and HTTP I/O;
+it covers setup ordering, partial failures, rollback, and recovery through Repair.
 `__tests__/helpers.spec.ts` covers customer resolution;
 `__tests__/conversations.spec.ts` covers conversation resolution, and
 `__tests__/messageMappings.spec.ts` covers message-id reservation. Their shared
@@ -392,7 +399,10 @@ customerId, visitorId)` returns the voter's own selections for the
 accountId, brandId, data)` — `channelId` is **nullable** for every kind;
   omitting it attaches the integration to the caller's personal channel and
   provisions that channel if it does not exist yet. Viber-prefixed kinds require
-  `integrationsAdd` before channel access or creation.
+  `integrationsAdd` before channel access or creation. Viber creation awaits
+  webhook registration and the healthy-state save. A setup error may leave both
+  records available for Repair: callers must reread connection state instead of
+  assuming that every failed mutation rolled back. The GraphQL schema is unchanged.
 - GraphQL: `integrationsRemove(_id)` routes `viber`-prefixed kinds to provider
   webhook removal and local cleanup before common integration deletion, after
   checking `integrationsRemove` when the stored kind has a Viber prefix. An
@@ -619,8 +629,7 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   uses that same authentication header. A nonempty HTTPS URL registers a
   callback with `send_name: true` and `send_photo: false`, omitting `event_types`
   to request all events. An exactly empty URL sends only `{ url: '' }` to remove
-  the webhook. Removal and Repair registration are wired; automatic registration
-  during connection creation is not.
+  the webhook. Removal and registration during creation or Repair are wired.
 - Viber callback URL configuration consumes `getEnv` from `erxes-api-shared/utils`
   with the request subdomain: optional `VIBER_RECEIVE_URL` overrides `DOMAIN`.
   The override includes the receiver path but excludes the integration id;
@@ -919,8 +928,17 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - `viberCreateIntegration` is the creation adapter in `messageBroker.ts`, not
   the persistence helper. It validates serialized settings as `unknown`, rejects
   missing or blank tokens, preserves the original token string, and awaits
-  `createViberIntegration` inside `withErrorHandling`. JSON parse failures use
-  a fixed error message without reflecting the supplied settings.
+  `createViberIntegration` followed by `registerViberWebhook` inside
+  `withErrorHandling`. Persist the credential record before requesting registration.
+  JSON parse failures use a fixed error message without reflecting the settings.
+- The common `createOnService` recovery branch is Viber-specific. On setup
+  failure, check the tenant's `ViberIntegrations` by the new `inboxId`. If a
+  record exists, preserve both records and throw the fixed saved-but-unconfirmed
+  message. Only a confirmed absence permits common-inbox rollback. A duplicate
+  bot on another inbox must not preserve the new common record. If recovery
+  lookup or rollback fails, propagate that error; never speculatively delete
+  credentials or another connection. A lost provider-record write acknowledgement
+  or webhook response can therefore be retried through Repair without recreation.
 - `removeViberIntegration` rejects blank integration ids, resolves models through
   `generateModels(subdomain)`, and looks up `ViberIntegrations` by `inboxId` with
   `select('+token')`. An absent record is a no-op. Await `setViberWebhook(token, '')`
@@ -2084,6 +2102,14 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   kinds, and unchanged sibling dispatch. Module caches are restored and network
   calls are forbidden. They do not exercise the permission backend, GraphQL
   middleware, real database writes, or provider behavior.
+- Viber creation tests in `__tests__/creation.spec.ts` compose the real resolver,
+  adapter, helpers, configuration builder, and HTTP utilities. Mocked persistence
+  and fetch verify that both records exist before registration, creation awaits
+  completion, pre-save failures roll back only the new common record, and saved
+  connections survive ambiguous writes/provider failures for Repair. They also
+  cover duplicate-bot isolation, configuration/health-save failures, failed
+  recovery lookups or rollback, and unchanged sibling cleanup. These are not
+  live MongoDB, GraphQL server, callback delivery, or provider-acceptance tests.
 - Smoke: connect a mail inbox without a `channelId` → a `Personal inbox`
   channel is created with one admin member and the integration attaches to it;
   a second connect reuses the same channel; the same holds for a non-mailbox
@@ -2126,6 +2152,14 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-15` — Viber registration during creation
+
+- **Summary:** Register saved Viber connections during creation and retain
+  recoverable records on setup failure, with offline lifecycle coverage.
+- **Affected areas:** Viber creation adapter/tests and common creation recovery.
+- **Contracts changed:** Viber creation awaits registration; a setup error can
+  retain both records for Repair. Sibling rollback and GraphQL schema are unchanged.
 
 ### `2026-09-15` — Viber create and remove permissions
 
@@ -2198,11 +2232,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Affected areas:** `src/modules/integrations/viber/{helpers.ts,__tests__/helpers.spec.ts,__tests__/processMessage.spec.ts}`.
 - **Contracts changed:** Customer resolution consumes Core's `customers.findOne`
   and sends its reserved `_id` to `customers.createCustomer`; no public API changes.
-
-### `2026-09-14` — Viber webhook route registration
-
-- **Summary:** Mounted the Viber router in Frontline and added isolated HTTP
-  checks against the real parent registry with either Call Pro toggle value.
-- **Affected areas:** `src/routes.ts`, `src/modules/integrations/viber/__tests__/routes.spec.ts`.
-- **Contracts changed:** Added `POST /viber/receive/:integrationId` to the plugin
-  router; provider registration and live-channel validation remain outstanding.

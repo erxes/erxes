@@ -257,7 +257,7 @@ const createOnService = async (
   subdomain: string,
   serviceKind: string,
   payload: CreateIntegrationParams,
-) => {
+): Promise<void> => {
   if (serviceKind === 'webhook') {
     return;
   }
@@ -268,9 +268,21 @@ const createOnService = async (
     if (result?.status === 'error') {
       throw new Error(result.errorMessage || 'Failed to create integration');
     }
-  } catch (e) {
+  } catch (error) {
+    if (serviceKind === 'viber') {
+      const savedConnection = await models.ViberIntegrations.exists({
+        inboxId: payload.integrationId,
+      });
+
+      if (savedConnection) {
+        throw new Error(
+          'Viber connection was saved, but setup could not be confirmed. Open integrations and try Repair.',
+        );
+      }
+    }
+
     await models.Integrations.deleteOne({ _id: payload.integrationId });
-    throw e instanceof Error ? e : new Error(String(e));
+    throw error instanceof Error ? error : new Error(String(error));
   }
 };
 
