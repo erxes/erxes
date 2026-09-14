@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-09-10`
+- **Last synchronized:** `2026-09-15`
 
 ## Scope
 
@@ -73,6 +73,11 @@
 
 ## Current Capabilities
 
+- The call widget's dialpad header carries a clear-cache icon button next to
+  Pause and Turn off. After a confirm it closes the widget, resets the call
+  atoms persisted in `localStorage` (`config:call_integrations`, `callInfo`,
+  `callHistoryId`, `callWidgetPosition`) and reopens the call config picker,
+  which unmounts `SipProvider` and stops the SIP user agent.
 - Polls are split across two routes, mirroring how forms are laid out.
   `settings/frontline/channels/:id/polls` manages the channel's polls: the
   settings breadcrumb resolves to `Channels / <channel> / Polls` and carries the
@@ -512,6 +517,10 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
 
 ## Local Invariants
 
+- Any new call atom created with `atomWithStorage` must also be reset in
+  `ClearCallCacheButton` (`call/components/CallSipActions.tsx`), otherwise the
+  clear-cache action leaves stale call state behind. `callConfigAtom` is reset
+  last, after `callSelectConfigDialogAtom` is set to `true`, so the picker opens.
 - `RecordTable.Provider`'s container is `overflow-hidden`, so a table that is
   not wrapped in a scroll area clips every column past the viewport instead of
   scrolling. The help center and its categories tables paginate by page, not by
@@ -1125,6 +1134,16 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-15` — The call widget can clear its cached state
+
+- **Summary:** An eraser button in the dialpad header, behind a confirm, resets
+  every persisted call atom and sends the agent back to the call config picker,
+  so a stale config or SIP registration no longer needs manual `localStorage`
+  cleanup.
+- **Affected areas:**
+  `src/modules/integrations/call/components/CallSipActions.tsx`
+- **Contracts changed:** None.
+
 ### `2026-09-09` — The comment reply takes an image
 
 - **Summary:** The attachment field had been a disabled placeholder from before
@@ -1248,132 +1267,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `src/modules/helpcenter/components/help-center-drawer/HelpCenterAppearanceTab.tsx`,
   `src/modules/helpcenter/{constants,types}/index.ts`
 - **Contracts changed:** `None`
-
-### `2026-09-09` — A new help center starts on the portal's palette
-
-- **Summary:** `DEFAULT_HELP_CENTER_STYLES` seeded most colours as white and the
-  topic accent as black, so a help center created here published a colourless
-  site — the portal cannot tell a stored white from an unset colour. Each field
-  is now the portal token it feeds, and `EMPTY_HELP_CENTER_FORM.color` is the
-  brand rather than `#000000`.
-- **Affected areas:** `src/modules/helpcenter/constants/index.ts`
-- **Contracts changed:** `None`
-
-### `2026-09-09` — The website picker says when no portal has a domain
-
-- **Summary:** A client portal's `domain` is optional, so the picker could come
-  back with portals and still list nothing, reporting "No results found" as if
-  none existed. It now separates the two: an empty result with portals present
-  says no portal has a domain yet and where to set one, and the query's error is
-  passed to `Combobox.Empty` instead of being dropped.
-- **Affected areas:**
-  `src/modules/helpcenter/components/SelectHelpCenterWebsite.tsx`
-- **Contracts changed:** `None`
-
-### `2026-09-09` — Choosing a website also captures its app token
-
-- **Summary:** The website picker now carries the chosen client portal's `token`
-  alongside its domain, and the drawer and table cell store it as the config's
-  `erxesAppToken`, so the published site gets the messenger widget token from
-  `helpCenterGetConfigByDomain` without anyone typing it.
-- **Affected areas:**
-  `src/modules/helpcenter/components/SelectHelpCenterWebsite.tsx`,
-  `src/modules/helpcenter/components/HelpCenterColumns.tsx`,
-  `src/modules/helpcenter/components/help-center-drawer/HelpCenterGeneralTab.tsx`,
-  `src/modules/helpcenter/graphql/queries/{getHelpCenters,getHelpCenterWebsiteOptions}.ts`,
-  `src/modules/helpcenter/{types,constants}/index.ts`,
-  `src/modules/helpcenter/utils/toHelpCenterConfigInput.ts`
-- **Contracts changed:** `HelpCenterConfigFields` now selects `erxesAppToken`;
-  `frontlineHelpCenterWebsiteOptions` now selects the portal's `token`.
-
-### `2026-09-09` — The help center's website is picked from a client portal
-
-- **Summary:** The `Website` field in the drawer's General settings and in the
-  record table is now a client portal picker instead of a free-text URL box; it
-  lists client portal domains, one row per domain, and stores the chosen domain
-  in `url`, so the ad-hoc URL validator is gone.
-- **Affected areas:**
-  `src/modules/helpcenter/components/SelectHelpCenterWebsite.tsx` (new),
-  `src/modules/helpcenter/graphql/queries/getHelpCenterWebsiteOptions.ts` (new),
-  `src/modules/helpcenter/components/HelpCenterColumns.tsx`,
-  `src/modules/helpcenter/components/help-center-drawer/HelpCenterGeneralTab.tsx`;
-  deleted `src/modules/helpcenter/utils/helpCenterUrl.ts`.
-- **Contracts changed:** added the `frontlineHelpCenterWebsiteOptions` query
-  over `core-api`'s `getClientPortals`. `HelpCenterConfig` is unchanged.
-
-### `2026-09-09` — Help center settings stopped riding on the knowledge base
-
-- **Summary:** General Settings and Appearance now read `helpCenterConfig` and
-  write `helpCenterConfigUpdate` instead of the knowledge base topic
-  query/mutation; the two-tab drawer moved into
-  `helpcenter/components/help-center-drawer/` as `HelpCenterDrawer`, and the
-  knowledge base's own `TopicDrawer` shrank back to title, description, colour,
-  cover image and the embed script.
-- **Affected areas:** `src/modules/helpcenter/**`,
-  `src/modules/knowledgebase/{components/TopicDrawer.tsx,graphql/queries.ts,types.ts}`,
-  `src/pages/HelpCenterIndexPage.tsx`; deleted
-  `src/modules/knowledgebase/{topicDrawerTypes.ts,topicDrawerConstants.ts,components/TopicGeneralTab.tsx,components/TopicAppearanceTab.tsx,components/TopicStyleFields.tsx}`
-  and `src/modules/helpcenter/utils/toTopicDrawerRecord.ts`.
-- **Contracts changed:** `frontlineHelpCenterList` now reads
-  `helpCenterConfigs` / `helpCenterConfigsTotalCount`; added
-  `frontlineHelpCenterDetail`, the `helpCenterConfigUpdate` and
-  `helpCenterConfigRemove` mutations and the `HelpCenterConfigFields`
-  fragment. `TOPICS` no longer selects `url`, the `kb*`/`ticket*` groups or
-  `styles`.### `2026-09-09` — The bot's Activity tab is about comments
-
-- **Summary:** One "Bot health" block mixed the Messenger profile's sync state
-  with the comment outbox counters and named neither; it is now a Messenger
-  profile block and a Comment replies block that lists each distinct reply with
-  the share it takes of everything the page has said and the posts it ran
-  under, linked by permalink. Connected automations covers
-  comment triggers as well as message ones, badged per row, and Create
-  automation offers both trigger types.
-- **Affected areas:**
-  `src/widgets/automations/modules/facebook/components/bots/components/FacebookBotProfileHealth.tsx`,
-  `src/widgets/automations/modules/facebook/components/bots/components/FacebookBotCommentActivity.tsx`,
-  `src/widgets/automations/modules/facebook/components/bots/hooks/useFacebookBotCommentReplyStats.tsx`,
-  `src/widgets/automations/modules/facebook/components/bots/components/FacebookBotAutomations.tsx`,
-  `src/widgets/automations/modules/facebook/components/bots/components/FacebookBotCreateAutomationButton.tsx`,
-  `src/widgets/automations/modules/facebook/components/bots/hooks/useFacebookBotAutomations.tsx`
-- **Contracts changed:** None. `useFacebookBotAutomations` takes one trigger
-  type or many, and each returned trigger carries its `type`.
-
-### `2026-09-09` — The bot form splits settings from activity
-
-- **Summary:** The Facebook bot sheet mixed what the bot _is_ with what it is
-  _doing_; the name stays at the top and the rest moved into Settings
-  (persistent menu, ice breakers, optional configuration) and Activity (health
-  counters, connected automations) tabs.
-- **Affected areas:**
-  `src/widgets/automations/modules/facebook/components/bots/components/AutomationFbBotFormContent.tsx`,
-  `src/widgets/automations/modules/facebook/components/bots/components/FacebookBotSettingsTab.tsx`
-- **Contracts changed:** None.
-
-### `2026-09-09` — The comment reply mention is a setting
-
-- **Summary:** The Send comment action gained a "Mention the commenter" switch;
-  it is off unless turned on, so a reply no longer tags the commenter by
-  default.
-- **Affected areas:**
-  `src/widgets/automations/modules/facebook/components/action/states/replyCommentActionForm.tsx`,
-  `src/widgets/automations/modules/facebook/components/action/components/replyComment/CommentActionForm.tsx`
-- **Contracts changed:** None. The action config gained an optional
-  `mentionSender` boolean.
-
-### `2026-09-08` — The bot form reports its delivery health
-
-- **Summary:** `FacebookBotHealth` exposes `lastError` and the breaker fields,
-  and a new `facebookMessengerBotDelivery` query counts what the comment outbox
-  holds for the bot's page plus when it next sends. The bot form shows the health
-  badge, the pause with its reason, and queued/sent/failed counts, polling while
-  the sheet is open.
-- **Affected areas:** `frontline_api`
-  `modules/integrations/facebook/graphql/{schema/facebook.ts,resolvers/queries.ts}`.
-  `frontline_ui` new
-  `components/bots/components/FacebookBotHealthPanel.tsx` and
-  `components/bots/hooks/useFacebookBotDelivery.tsx`;
-  `modules/integrations/facebook/graphql/queries/facebookBots.ts`,
-  `types/FacebookBot.ts`, `components/bots/components/AutomationFbBotFormContent.tsx`.
-- **Contracts changed:** `FacebookBotHealth` gains `lastError`,
-  `sendBlockedUntil`, `sendBlockReason` and `sendBlockCount`;
-  `facebookMessengerBotDelivery(_id: String!)` is new.
