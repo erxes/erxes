@@ -1,6 +1,6 @@
 import { SelectVerifiedSender } from '@/settings/mail-config/components/SelectVerifiedSender';
 import { useSenderOptions } from '@/settings/mail-config/hooks/useVerifiedSenders';
-import { Form, Input } from 'erxes-ui';
+import { Form, Input, Skeleton } from 'erxes-ui';
 import { useEffect, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -11,7 +11,7 @@ const isEmail = (value?: string) =>
 
 export const BroadcastFromField = () => {
   const { control, setValue, getValues } = useFormContext();
-  const { alignedFrom } = useSenderOptions();
+  const { alignedFrom, loading: senderOptionsLoading } = useSenderOptions();
   const { t } = useTranslation('broadcasts', { keyPrefix: 'composer' });
 
   const [showReplyTo, setShowReplyTo] = useState(false);
@@ -21,6 +21,17 @@ export const BroadcastFromField = () => {
       setValue('fromEmail', alignedFrom, { shouldValidate: true });
     }
   }, [alignedFrom, getValues, setValue]);
+
+  if (senderOptionsLoading) {
+    return (
+      <div className="flex items-center gap-4">
+        <span className="w-24 shrink-0 text-sm text-muted-foreground">
+          {t('from')}
+        </span>
+        <Skeleton className="h-6 flex-1" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-2">
@@ -49,9 +60,15 @@ export const BroadcastFromField = () => {
           />
 
           {alignedFrom ? (
-            <span className="shrink-0 text-sm text-muted-foreground">
+            <button
+              type="button"
+              onClick={() =>
+                setValue('fromEmail', alignedFrom, { shouldValidate: true })
+              }
+              className="shrink-0 text-sm text-muted-foreground hover:text-foreground"
+            >
               &lt;{alignedFrom}&gt;
-            </span>
+            </button>
           ) : (
             <Form.Field
               name="fromEmail"
