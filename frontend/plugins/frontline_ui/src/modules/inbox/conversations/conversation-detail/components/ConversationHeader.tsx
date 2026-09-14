@@ -304,7 +304,7 @@ export const ConversationTags = ({
             onKeyDown={withinDropdown ? stopEventPropagation : undefined}
           />
         </div>
-        <Combobox.Content>
+        <Combobox.Content align="end" className="w-64 min-w-0 p-0">
           <TagsSelect.Content />
         </Combobox.Content>
       </TagsSelect.Provider>
