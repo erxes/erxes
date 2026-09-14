@@ -60,11 +60,14 @@
   The external-integration creation dispatcher routes the `viber` service prefix
   to this adapter. The removal dispatcher awaits tenant-scoped Viber record
   cleanup before the common integration is removed; cleanup failures propagate.
-  Removal is local only. The internal `setViberWebhook` HTTP helper implements
+  Removal loads the hidden token and awaits provider webhook removal before
+  deleting the exact local Viber record. An absent record is a no-op; provider
+  failures retain the record and stop common integration deletion.
+  The internal `setViberWebhook` HTTP helper implements
   provider registration/removal with shared token validation, URL checks,
   redirect rejection, a timeout signal, and HTTP/provider response validation.
-  It is not yet called by the connection or removal flow; live registration
-  remains unverified. Internal receiver validation authenticates raw bytes,
+  It is called by removal but not yet by connection creation; live provider
+  behavior remains unverified. Internal receiver validation authenticates raw bytes,
   parses numeric message tokens as exact strings, acknowledges webhook checks,
   and rejects malformed message payloads. Valid text, URL, contact, and location
   messages resolve the customer and thread, persist escaped content under a
@@ -213,11 +216,13 @@
 ## Architecture
 
 Viber lives under `src/modules/integrations/viber/`: `helpers.ts` owns connection
-creation, local removal, customer resolution, conversation synchronization,
+creation, provider/local removal, customer resolution, conversation synchronization,
 message-id reservation, message processing with native attachments or optional
 `IViberMediaInput` shared with the download-to-storage helper,
 storage of already-downloaded attachment bytes, and the download-to-storage
 composition helper.
+`__tests__/removal.spec.ts` covers the real removal helper and webhook HTTP
+utility with mocked tenant models and fetch, including ordering and retries.
 `__tests__/helpers.spec.ts` covers customer resolution;
 `__tests__/conversations.spec.ts` covers conversation resolution, and
 `__tests__/messageMappings.spec.ts` covers message-id reservation. Their shared
@@ -351,8 +356,8 @@ customerId, visitorId)` returns the voter's own selections for the
 accountId, brandId, data)` — `channelId` is **nullable** for every kind;
   omitting it attaches the integration to the caller's personal channel and
   provisions that channel if it does not exist yet.
-- GraphQL: `integrationsRemove(_id)` routes `viber`-prefixed kinds to local
-  provider cleanup before common integration deletion. An already absent Viber
+- GraphQL: `integrationsRemove(_id)` routes `viber`-prefixed kinds to provider
+  webhook removal and local cleanup before common integration deletion. An already absent Viber
   record permits cleanup to continue; a provider cleanup failure rejects the
   mutation. The GraphQL schema is unchanged.
 - GraphQL: `integrationsGetUsedTypes` and
@@ -567,7 +572,7 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   uses that same authentication header. A nonempty HTTPS URL registers a
   callback with `send_name: true` and `send_photo: false`, omitting `event_types`
   to request all events. An exactly empty URL sends only `{ url: '' }` to remove
-  the webhook. Connection lifecycle callers are not yet wired.
+  the webhook. Removal is wired; registration during connection creation is not.
 - Viber customer resolution calls Core's `customers.findOne` query and
   `customers.createCustomer` mutation through `sendTRPCMessage`, carrying the
   supplied subdomain and `throwOnError: true`. Lookups use the reserved `_id`
@@ -829,9 +834,13 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `createViberIntegration` inside `withErrorHandling`. JSON parse failures use
   a fixed error message without reflecting the supplied settings.
 - `removeViberIntegration` rejects blank integration ids, resolves models through
-  `generateModels(subdomain)`, and deletes only `ViberIntegrations` by `inboxId`.
-  An already absent provider record is a successful no-op. This helper neither
-  deletes the common integration nor calls the Viber API.
+  `generateModels(subdomain)`, and looks up `ViberIntegrations` by `inboxId` with
+  `select('+token')`. An absent record is a no-op. Await `setViberWebhook(token, '')`
+  before deleting the exact provider record by `_id` and `inboxId`; propagate
+  lookup, API, and delete failures. Never delete the token record on provider
+  failure. A failed local deletion can be retried; an already deleted record
+  needs no further provider call. This helper does not delete the common
+  integration or customer/conversation/message mappings.
 - `viberRemoveIntegration` awaits the removal helper and returns the integration
   id. Keep it a plain async adapter: the removal resolver does not inspect
   returned status objects, so cleanup failures must reject to prevent common
@@ -1929,10 +1938,13 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   options, delegated size limits, HTTP/network failures, and a simulated body
   abort with reader cleanup. They do not verify real redirects, elapsed network
   deadlines, DNS behavior, live Viber media hosts, or uploads.
-- Focused Viber removal checks use mocked tenant models: verify provider cleanup
-  precedes common integration deletion, an absent provider record is tolerated,
-  and a provider cleanup failure prevents common deletion. No bot token or live
-  database is required for these checks.
+- Viber removal tests in `__tests__/removal.spec.ts` run the real helper and
+  webhook API utility with mocked tenant models and fetch. They verify hidden
+  token selection, exact-record deletion after provider acknowledgement,
+  absent-record no-ops, input/lookup/provider errors, retained records, and
+  retries after provider failure, database failure, or lost delete acknowledgements.
+  These tests do not execute the common GraphQL deletion resolver or prove live
+  Viber/MongoDB behavior; its existing dispatcher still awaits provider cleanup.
 - Smoke: connect a mail inbox without a `channelId` → a `Personal inbox`
   channel is created with one admin member and the integration attaches to it;
   a second connect reuses the same channel; the same holds for a non-mailbox
@@ -1975,6 +1987,14 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-14` — Viber provider-aware removal
+
+- **Summary:** Remove the provider webhook before deleting the local token
+  record, preserving retryability on failures with offline composition tests.
+- **Affected areas:** `src/modules/integrations/viber/{helpers.ts,__tests__/removal.spec.ts}`.
+- **Contracts changed:** Viber removal now calls `set_webhook` before local
+  deletion; the common GraphQL schema and dispatcher remain unchanged.
 
 ### `2026-09-14` — Viber webhook API helper
 
@@ -2047,11 +2067,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Affected areas:** `src/modules/integrations/viber/{helpers.ts,__tests__/attachments.spec.ts}`.
 - **Contracts changed:** Added internal `downloadAndStoreViberAttachment`;
   message replay handling, receiver media wiring, and public APIs are unchanged.
-
-### `2026-09-14` — Approved-host Viber media downloading
-
-- **Summary:** Added an HTTPS download wrapper with exact host approval,
-  disabled redirects, a deadline, bounded response reading, and offline tests.
-- **Affected areas:** `src/modules/integrations/viber/utils/{media.ts,__tests__/media.spec.ts}`.
-- **Contracts changed:** Added internal `downloadViberMedia`; trusted host
-  configuration, receiver media wiring, and public APIs remain unchanged.

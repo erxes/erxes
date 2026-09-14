@@ -18,6 +18,7 @@ import { CONVERSATION_STATUSES } from '@/inbox/db/definitions/constants';
 import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
 import { formatViberText } from '@/integrations/viber/utils/content';
 import type { IAttachment } from 'erxes-api-shared/core-types';
+import { setViberWebhook } from '@/integrations/viber/utils/webhookApi';
 
 interface IViberMediaInput {
   source: string;
@@ -70,7 +71,18 @@ export const removeViberIntegration = async (
 
   const models = await generateModels(subdomain);
 
+  const integration = await models.ViberIntegrations.findOne({
+    inboxId: integrationId,
+  }).select('+token');
+
+  if (!integration) {
+    return;
+  }
+
+  await setViberWebhook(integration.token, '');
+
   await models.ViberIntegrations.deleteOne({
+    _id: integration._id,
     inboxId: integrationId,
   });
 };
