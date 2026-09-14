@@ -52,7 +52,7 @@ export const FieldEditor = (props: SpecificFieldProps) => {
       const blocks = json ? JSON.parse(json) : [];
 
       if (!Array.isArray(blocks)) {
-        throw new Error('Editor value is not a block array');
+        throw new TypeError('Editor value is not a block array');
       }
 
       editor.replaceBlocks(editor.document, blocks);
@@ -65,10 +65,11 @@ export const FieldEditor = (props: SpecificFieldProps) => {
 
   const commit = () => {
     const json = JSON.stringify(editor.document);
+    const normalized = hasContent(json) ? json : '';
 
-    if (json !== lastLoaded.current) {
-      lastLoaded.current = json;
-      handleChange(json);
+    if (normalized !== lastLoaded.current) {
+      lastLoaded.current = normalized;
+      handleChange(normalized);
     }
   };
 
