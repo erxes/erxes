@@ -251,28 +251,6 @@ const restoreOptionTicketState = (
   }));
 };
 
-const assertBrandMessenger = async (
-  models: IModels,
-  channelId?: string,
-  brandId?: string,
-) => {
-  if (!channelId || !brandId) {
-    return;
-  }
-
-  const integration = await models.Integrations.findOne({
-    channelId,
-    brandId,
-    kind: 'messenger',
-    isActive: { $ne: false },
-  }).lean();
-
-  if (!integration) {
-    throw new Error(
-      'The selected brand has no active messenger integration in this channel',
-    );
-  }
-};
 
 export const loadSurveyClass = (models: IModels) => {
   class Survey {
@@ -299,7 +277,6 @@ export const loadSurveyClass = (models: IModels) => {
     }
 
     public static async createSurvey(doc: ISurveyInput, createdUserId: string) {
-      await assertBrandMessenger(models, doc.channelId, doc.brandId);
 
       return models.Surveys.create({
         ...validateDoc(doc),
@@ -312,9 +289,6 @@ export const loadSurveyClass = (models: IModels) => {
 
     public static async updateSurvey(_id: string, doc: ISurveyInput) {
       const existing = await models.Surveys.getSurvey(_id);
-
-      await assertBrandMessenger(models, doc.channelId, doc.brandId);
-
       const validated = validateDoc(doc);
       const steps = restoreOptionTicketState(existing, validated.steps);
       const [firstStep] = steps;
