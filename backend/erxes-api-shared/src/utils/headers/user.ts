@@ -70,16 +70,14 @@ function encodeHeader(name: string, id: string, value: unknown): string {
   return encoded;
 }
 
-export function compactUserForHeader<T extends Record<string, any>>(
+export function compactUserForHeader<T extends Record<string, unknown>>(
   user: T,
 ): Omit<T, (typeof USER_HEADER_OMITTED_FIELDS)[number]> {
-  const compact = { ...user };
+  const omitted: readonly string[] = USER_HEADER_OMITTED_FIELDS;
 
-  for (const field of USER_HEADER_OMITTED_FIELDS) {
-    delete compact[field];
-  }
-
-  return compact;
+  return Object.fromEntries(
+    Object.entries(user).filter(([field]) => !omitted.includes(field)),
+  ) as Omit<T, (typeof USER_HEADER_OMITTED_FIELDS)[number]>;
 }
 
 export function setUserHeader(headers: IncomingHttpHeaders, user: any) {

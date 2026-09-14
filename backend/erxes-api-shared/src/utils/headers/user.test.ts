@@ -1,3 +1,4 @@
+import { IncomingHttpHeaders } from 'http';
 import {
   compactUserForHeader,
   extractUserFromHeader,
@@ -20,7 +21,7 @@ describe('user header', () => {
   };
 
   it('forwards identity, permissions and oauth scopes but not profile bulk', () => {
-    const headers: Record<string, any> = {};
+    const headers: IncomingHttpHeaders = {};
     setUserHeader(headers, user);
     const forwarded = extractUserFromHeader(headers);
 
@@ -39,7 +40,7 @@ describe('user header', () => {
   });
 
   it('keeps the header well under the default 16 KB request-header limit', () => {
-    const headers: Record<string, any> = {};
+    const headers: IncomingHttpHeaders = {};
     setUserHeader(headers, {
       ...user,
       oauthScopes: Array.from(
@@ -55,7 +56,7 @@ describe('user header', () => {
     const warn = jest
       .spyOn(console, 'warn')
       .mockImplementation(() => undefined);
-    const headers: Record<string, any> = {};
+    const headers: IncomingHttpHeaders = {};
 
     setUserHeader(headers, {
       ...user,
