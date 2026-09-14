@@ -184,7 +184,7 @@ app.get('/debug-sentry', () => {
   throw new Error('Sentry test error (core-api): ' + new Date().toISOString());
 });
 
-// Wrap the Express server; same header budget as startPlugin services
+// Wrap the Express server
 const httpServer = http.createServer({ maxHeaderSize: MAX_HEADER_BYTES }, app);
 
 httpServer.listen(port, async () => {

@@ -48,13 +48,6 @@ export function extractClientPortalFromHeader(
   return JSON.parse(clientPortalJson);
 }
 
-/**
- * Profile fields that are never read from the forwarded user by any plugin:
- * resolvers that need them (currentUser, user details) reload the user from
- * the database. They are the bulk of a user document (email signatures and
- * custom fields alone can be several kilobytes), and the header has to stay
- * under Node's 16 KB request-header limit together with the OAuth scope list.
- */
 export const USER_HEADER_OMITTED_FIELDS = [
   'emailSignatures',
   'customFieldsData',

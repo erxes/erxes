@@ -53,11 +53,6 @@ import { mountAgentTools } from './agent-tools';
 import { applyTrustProxy, getSubdomain } from './utils';
 import * as Sentry from '@sentry/node';
 
-/**
- * Request-header budget for every backend service. The gateway forwards the
- * acting user (permissions, OAuth scopes) base64-encoded in a header, which
- * can exceed Node's 16 KB default for users with long scope lists.
- */
 export const MAX_HEADER_BYTES = 64 * 1024;
 
 dotenv.config();
@@ -316,8 +311,6 @@ export async function startPlugin(
   //   res.status(500).send(msg);
   // });
 
-  // The gateway forwards the acting user (permissions, OAuth scopes) in a
-  // request header; give it room beyond Node's 16 KB default.
   const httpServer = http.createServer(
     { maxHeaderSize: MAX_HEADER_BYTES },
     app,
