@@ -19,6 +19,7 @@ import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mu
 import { formatViberText } from '@/integrations/viber/utils/content';
 import type { IAttachment } from 'erxes-api-shared/core-types';
 import { setViberWebhook } from '@/integrations/viber/utils/webhookApi';
+import { getViberWebhookUrl } from '@/integrations/viber/config';
 
 interface IViberMediaInput {
   source: string;
@@ -59,6 +60,32 @@ export const createViberIntegration = async (
     botId: account.id,
     token,
   });
+};
+
+export const registerViberWebhook = async (
+  subdomain: string,
+  integrationId: string,
+): Promise<void> => {
+  const callbackUrl = getViberWebhookUrl(subdomain, integrationId);
+  const models = await generateModels(subdomain);
+
+  const inbox = await models.Integrations.exists({
+    _id: integrationId,
+  });
+
+  if (!inbox) {
+    throw new Error('Inbox integration not found');
+  }
+
+  const integration = await models.ViberIntegrations.findOne({
+    inboxId: integrationId,
+  }).select('+token');
+
+  if (!integration) {
+    throw new Error('Viber integration not found');
+  }
+
+  await setViberWebhook(integration.token, callbackUrl);
 };
 
 export const removeViberIntegration = async (

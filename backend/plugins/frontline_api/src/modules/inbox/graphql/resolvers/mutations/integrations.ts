@@ -42,9 +42,11 @@ import {
   callProUpdateIntegration,
 } from '@/integrations/callpro/messageBroker';
 
+//viber
 import {
   viberCreateIntegration,
   viberRemoveIntegration,
+  viberRepairIntegration,
 } from '@/integrations/viber/messageBroker';
 import {
   getUniqueValue,
@@ -233,6 +235,9 @@ export const sendRepairIntegration = async (
 
       case 'discord':
         return await discordRepairIntegrations({ subdomain, data });
+
+      case 'viber':
+        return await viberRepairIntegration({ subdomain, data });
 
       case 'mobinetSms':
         break;
@@ -657,11 +662,16 @@ export const integrationMutations = {
   },
 
   async integrationsRepair(
-    _root,
+    _root: unknown,
     { _id, kind }: { _id: string; kind: string },
-    { subdomain }: IContext,
+    { subdomain, checkPermission }: IContext,
   ) {
     const serviceName = kind.split('-')[0];
+
+    if (serviceName === 'viber') {
+      await checkPermission('integrationsEdit');
+    }
+
     return sendRepairIntegration(subdomain, serviceName, {
       integrationId: _id,
     });

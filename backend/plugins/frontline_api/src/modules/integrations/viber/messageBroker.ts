@@ -2,6 +2,7 @@ import { withErrorHandling } from '~/shared/utils';
 import {
   createViberIntegration,
   removeViberIntegration,
+  registerViberWebhook,
 } from '@/integrations/viber/helpers';
 
 export interface IViberIntegrationInput {
@@ -63,4 +64,13 @@ export const viberRemoveIntegration = async ({
   await removeViberIntegration(subdomain, data.integrationId);
 
   return data.integrationId;
+};
+
+export const viberRepairIntegration = async ({
+  subdomain,
+  data,
+}: IViberIntegrationRefInput): Promise<boolean> => {
+  await registerViberWebhook(subdomain, data.integrationId);
+
+  return true;
 };

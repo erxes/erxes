@@ -18,17 +18,30 @@ export const loadViberHelpers = (
   mocks: HelperModuleMocks,
 ): typeof import('../helpers') => {
   // Resolve indirectly so Nx does not classify the shared barrel as a lazy import.
-  const [utilsPath, modelsPath, inboxPath, publisherPath, helperPath] = [
+  const [
+    utilsPath,
+    modelsPath,
+    inboxPath,
+    publisherPath,
+    configPath,
+    helperPath,
+  ] = [
     'erxes-api-shared/utils',
     '~/connectionResolvers',
     '@/inbox/receiveMessage',
     '@/inbox/graphql/resolvers/mutations/widget',
+    '../config',
     '../helpers',
   ].map((specifier) => require.resolve(specifier));
   const originalModules = new Map(
-    [utilsPath, modelsPath, inboxPath, publisherPath, helperPath].map(
-      (filename) => [filename, require.cache[filename]],
-    ),
+    [
+      utilsPath,
+      modelsPath,
+      inboxPath,
+      publisherPath,
+      configPath,
+      helperPath,
+    ].map((filename) => [filename, require.cache[filename]]),
   );
 
   t.after(() => {
@@ -56,6 +69,7 @@ export const loadViberHelpers = (
   replaceModule(modelsPath, mocks.connectionResolvers);
   replaceModule(inboxPath, mocks.inboxReceiver);
   replaceModule(publisherPath, mocks.messagePublisher ?? {});
+  delete require.cache[configPath];
   delete require.cache[helperPath];
 
   const helpers: typeof import('../helpers') = require('../helpers');
