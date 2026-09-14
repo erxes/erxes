@@ -16,13 +16,14 @@ export const githubConfigMutations = {
       throw new Error('Invalid GitHub synchronization mode');
     }
 
-    const [team, connection] = await Promise.all([
+    const [team, connection, previousConfig] = await Promise.all([
       models.Team.findOne({ _id: teamId }).lean(),
       models.GithubConnection.findOne({
         installationId,
         subdomain,
         isActive: true,
       }).lean(),
+      models.GithubConfig.findByTeam(teamId, subdomain),
     ]);
 
     if (!team) {
@@ -73,6 +74,20 @@ export const githubConfigMutations = {
       ...params,
       subdomain,
     });
+
+    if (
+      config &&
+      previousConfig &&
+      (previousConfig.installationId !== installationId ||
+        previousConfig.repoName !== repoName)
+    ) {
+      await models.GithubMilestoneMapping.deleteMany({
+        subdomain,
+        installationId: previousConfig.installationId,
+        repoName: previousConfig.repoName,
+      });
+    }
+
     return config;
   },
 
@@ -89,7 +104,17 @@ export const githubConfigMutations = {
       throw new Error('Team not found');
     }
 
+    const config = await models.GithubConfig.findByTeam(teamId, subdomain);
+
     await models.GithubConfig.deleteOne({ teamId, subdomain });
+
+    if (config) {
+      await models.GithubMilestoneMapping.deleteMany({
+        subdomain,
+        installationId: config.installationId,
+        repoName: config.repoName,
+      });
+    }
 
     return { success: true };
   },
