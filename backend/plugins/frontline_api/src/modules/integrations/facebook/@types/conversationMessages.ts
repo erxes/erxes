@@ -1,4 +1,9 @@
 import { Document } from 'mongoose';
+import type {
+  IMessageProviderData,
+  IMessageReplyTo,
+  MessageKind,
+} from '@/inbox/@types/conversationMessages';
 
 export interface IFacebookConversationMessage {
   mid: string;
@@ -18,6 +23,10 @@ export interface IFacebookConversationMessage {
   botData?: any;
   source?: Record<string, unknown>;
   relatedMessage?: Record<string, unknown>;
+  messageKind?: MessageKind;
+  providerData?: IMessageProviderData;
+  replyTo?: IMessageReplyTo;
+  expiresAt?: Date;
 }
 
 export interface IFacebookConversationMessageDocument
