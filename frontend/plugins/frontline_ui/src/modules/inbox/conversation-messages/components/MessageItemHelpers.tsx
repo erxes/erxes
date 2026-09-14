@@ -26,6 +26,5 @@ export const getMessageBubbleClassName = ({
     isBotMessage && 'border-border/60 bg-muted hover:bg-muted',
     internal && 'bg-warning/20 hover:bg-warning/5',
     fromBot && 'bg-primary/5 hover:bg-primary/5 border-l-2 border-primary',
-    separatePrevious &&
-      (showAuthorName || showBotName ? 'mt-0' : 'mt-6'),
+    separatePrevious && (showAuthorName || showBotName ? 'mt-0' : 'mt-6'),
   );
