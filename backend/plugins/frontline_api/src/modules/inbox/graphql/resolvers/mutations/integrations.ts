@@ -510,12 +510,15 @@ export const integrationMutations = {
   async integrationsCreateExternalIntegration(
     _root,
     { data, ...doc }: IExternalIntegrationParams & { data: object },
-    { user, models, subdomain }: IContext,
+    { user, models, subdomain, checkPermission }: IContext,
   ) {
     const modifiedDoc: IExternalIntegrationParams & {
       webhookData?: Record<string, unknown>;
     } = { ...doc };
     const serviceKind = doc.kind.split('-')[0];
+    if (serviceKind === 'viber') {
+      await checkPermission('integrationsAdd');
+    }
 
     if (modifiedDoc.channelId) {
       const channel = await models.Channels.findOne({
@@ -631,10 +634,14 @@ export const integrationMutations = {
   async integrationsRemove(
     _root,
     { _id }: { _id: string },
-    { models, subdomain }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) {
     const integration = await models.Integrations.getIntegration({ _id });
     const kind = integration.kind.split('-')[0];
+
+    if (kind === 'viber') {
+      await checkPermission('integrationsRemove');
+    }
 
     if (!['lead', 'messenger'].includes(kind)) {
       try {

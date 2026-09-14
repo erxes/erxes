@@ -65,7 +65,10 @@
   without loading the token or contacting Viber. Missing records and read
   failures report `unHealthy`; legacy records without health remain `pending`.
   The external-integration creation dispatcher routes the `viber` service prefix
-  to this adapter. The removal dispatcher awaits tenant-scoped Viber record
+  to this adapter after an explicit `integrationsAdd` permission check, before
+  channel access or record creation. Removal checks `integrationsRemove` after
+  reading the saved kind and before provider cleanup or local deletion.
+  The removal dispatcher awaits tenant-scoped Viber record
   cleanup before the common integration is removed; cleanup failures propagate.
   Removal loads the hidden token and awaits provider webhook removal before
   deleting the exact local Viber record. An absent record is a no-op; provider
@@ -246,6 +249,8 @@ it covers status-write ordering and failures, retries, permission rejection,
 and authorized dispatch.
 `__tests__/status.spec.ts` covers the real status adapter and common health
 resolver with isolated models and sibling modules, including safe read failures.
+`__tests__/permissions.spec.ts` covers create/remove resolver permission checks
+with mocked authorization, models, and provider adapters.
 `__tests__/helpers.spec.ts` covers customer resolution;
 `__tests__/conversations.spec.ts` covers conversation resolution, and
 `__tests__/messageMappings.spec.ts` covers message-id reservation. Their shared
@@ -386,11 +391,13 @@ customerId, visitorId)` returns the voter's own selections for the
 - GraphQL: `integrationsCreateExternalIntegration(kind, channelId, name,
 accountId, brandId, data)` — `channelId` is **nullable** for every kind;
   omitting it attaches the integration to the caller's personal channel and
-  provisions that channel if it does not exist yet.
+  provisions that channel if it does not exist yet. Viber-prefixed kinds require
+  `integrationsAdd` before channel access or creation.
 - GraphQL: `integrationsRemove(_id)` routes `viber`-prefixed kinds to provider
-  webhook removal and local cleanup before common integration deletion. An already absent Viber
-  record permits cleanup to continue; a provider cleanup failure rejects the
-  mutation. The GraphQL schema is unchanged.
+  webhook removal and local cleanup before common integration deletion, after
+  checking `integrationsRemove` when the stored kind has a Viber prefix. An
+  already absent Viber record permits cleanup to continue; a provider cleanup
+  failure rejects the mutation. The GraphQL schema is unchanged.
 - GraphQL: `integrationsRepair(_id, kind)` routes Viber-prefixed kinds to
   `viberRepairIntegration`, returning `true` only after provider registration
   succeeds and the final `healthy` state is saved. The Viber branch requires
@@ -902,6 +909,13 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - Viber Repair must await `context.checkPermission('integrationsEdit')` before
   dispatch, configuration, model access, or provider I/O. The common mutation
   group uses `skipPermission: true`, which does not supply login or action checks.
+- Viber creation must await `checkPermission('integrationsAdd')` before channel
+  lookup, personal-channel allocation, or common/provider creation. Removal
+  obtains the kind from the saved integration and awaits
+  `checkPermission('integrationsRemove')` before provider cleanup or deletion.
+  Keep both checks outside downstream error/rollback handlers so denial
+  propagates without cleanup. These guards are Viber-specific; do not silently
+  change sibling integrations' authorization behavior.
 - `viberCreateIntegration` is the creation adapter in `messageBroker.ts`, not
   the persistence helper. It validates serialized settings as `unknown`, rejects
   missing or blank tokens, preserves the original token string, and awaits
@@ -2063,6 +2077,13 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   Writes, configuration reads, and network calls are forbidden by the harness;
   module caches are restored. These tests do not exercise a GraphQL server,
   MongoDB projection, authorization backend, UI, or live provider health.
+- Viber permission tests in `__tests__/permissions.spec.ts` invoke real common
+  create/remove resolvers with mocked authorization, models, and provider
+  adapters. They cover denial before side effects, rejected login checks,
+  awaited authorization, exact permission names, authorized Viber-prefixed
+  kinds, and unchanged sibling dispatch. Module caches are restored and network
+  calls are forbidden. They do not exercise the permission backend, GraphQL
+  middleware, real database writes, or provider behavior.
 - Smoke: connect a mail inbox without a `channelId` → a `Personal inbox`
   channel is created with one admin member and the integration attaches to it;
   a second connect reuses the same channel; the same holds for a non-mailbox
@@ -2105,6 +2126,14 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-15` — Viber create and remove permissions
+
+- **Summary:** Require existing Frontline permissions before Viber creation
+  or removal side effects, with offline resolver-boundary coverage.
+- **Affected areas:** Common integration mutations and Viber permission tests.
+- **Contracts changed:** Viber creation requires `integrationsAdd`; removal
+  requires `integrationsRemove`. Sibling behavior and GraphQL schema are unchanged.
 
 ### `2026-09-15` — Viber connection status reads
 
@@ -2177,11 +2206,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Affected areas:** `src/routes.ts`, `src/modules/integrations/viber/__tests__/routes.spec.ts`.
 - **Contracts changed:** Added `POST /viber/receive/:integrationId` to the plugin
   router; provider registration and live-channel validation remain outstanding.
-
-### `2026-09-14` — Viber router error boundary
-
-- **Summary:** Added a typed POST router with fixed error logging and an outer
-  error boundary, verified through isolated loopback HTTP tests.
-- **Affected areas:** `src/modules/integrations/viber/{routes.ts,debuggers.ts,__tests__/routes.spec.ts}`.
-- **Contracts changed:** Added internal `POST /receive/:integrationId` routing;
-  it remains unmounted, so public application routes are unchanged.
