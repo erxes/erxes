@@ -2,7 +2,7 @@ import { IChannel } from '@/inbox/types/Channel';
 import { gql, useQuery } from '@apollo/client';
 
 const query = gql`
-  query ChannelDetail($id: String!) {
+  query FrontlineNotificationChannelDetail($id: String!) {
     getChannel(_id: $id) {
       _id
       name
@@ -11,14 +11,16 @@ const query = gql`
 `;
 
 export const useChannel = (id: string) => {
-  const { data, loading } = useQuery<{ channelDetail: IChannel }>(query, {
+  const { data, loading, error } = useQuery<{ getChannel: IChannel }>(query, {
     variables: { id },
+    skip: !id,
   });
 
-  const { channelDetail } = data || {};
+  const channelDetail = data?.getChannel;
 
   return {
     channelDetail,
     loading,
+    error,
   };
 };

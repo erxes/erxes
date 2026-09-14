@@ -7,6 +7,10 @@ import { ITag, ITagDocument } from 'erxes-api-shared/core-types';
 import { escapeRegExp, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { FilterQuery, Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
+import {
+  DocumentAccessUser,
+  DOCUMENT_APPROVAL_CONTENT_TYPE,
+} from '~/modules/documents/types';
 import { taggableTarget } from '../../taggable';
 export interface ITagModel extends Model<ITagDocument> {
   getTag(_id: string): Promise<ITagDocument>;
@@ -17,6 +21,7 @@ export interface ITagModel extends Model<ITagDocument> {
     type: string,
     targetIds: string[],
     tagIds: string[],
+    user?: DocumentAccessUser,
   ): Promise<ITagDocument>;
   fixRelatedRecords(args: {
     type: string;
@@ -223,7 +228,15 @@ export const loadTagClass = (
       type: string,
       targetIds: string[],
       tagIds: string[],
+      user?: DocumentAccessUser,
     ) {
+      if (type === DOCUMENT_APPROVAL_CONTENT_TYPE) {
+        await Promise.all(
+          targetIds.map((_id) =>
+            models.Documents.getDocument({ _id, user, action: 'edit' }),
+          ),
+        );
+      }
       const [pluginName, moduleName] = type.split(':');
 
       if (!pluginName || !moduleName) {
