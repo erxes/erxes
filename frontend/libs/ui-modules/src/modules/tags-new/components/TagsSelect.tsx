@@ -282,17 +282,17 @@ const TagsSelectContent = () => {
             {showCreate && (
               <Command.Group heading="Create tag">
                 <Command.Item
-                    value={`Add workspace tag ${trimmedSearch}`}
-                    keywords={[trimmedSearch]}
-                    onSelect={() => handleAddTag(null)}
-                    className="justify-start gap-2"
-                  >
-                    <IconPlus className="size-4 shrink-0" />
-                    <span className="shrink-0">Add workspace tag:</span>
-                    <span className="min-w-0 flex-1 truncate text-muted-foreground">
-                      &quot;{trimmedSearch}&quot;
-                    </span>
-                  </Command.Item>
+                  value={`Add workspace tag ${trimmedSearch}`}
+                  keywords={[trimmedSearch]}
+                  onSelect={() => handleAddTag(null)}
+                  className="justify-start gap-2"
+                >
+                  <IconPlus className="size-4 shrink-0" />
+                  <span className="shrink-0">Add workspace tag:</span>
+                  <span className="min-w-0 flex-1 truncate text-muted-foreground">
+                    &quot;{trimmedSearch}&quot;
+                  </span>
+                </Command.Item>
                 {type && (
                   <Command.Item
                     value={`Add ${typeDescription} tag ${trimmedSearch}`}
