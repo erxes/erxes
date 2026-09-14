@@ -84,6 +84,12 @@ export const types = `
     mailData: MailData
     contentType: String
     mid: String
+    messageKind: String
+    providerData: JSON
+    replyTo: JSON
+    reactions: JSON
+    deliveryStatus: String
+    expiresAt: Date
   }
 
   type Email {

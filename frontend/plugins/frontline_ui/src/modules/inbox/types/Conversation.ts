@@ -81,8 +81,48 @@ export interface IMessageEmbed {
   timestamp?: string;
 }
 
+export type MessageKind =
+  | 'text'
+  | 'image'
+  | 'video'
+  | 'audio'
+  | 'file'
+  | 'share'
+  | 'story_mention'
+  | 'story_reply'
+  | 'sticker'
+  | 'voice'
+  | 'forwarded'
+  | 'deleted'
+  | 'unsupported';
+
+export interface IMessageProviderData {
+  attachmentType?: string;
+  fallbackReason?: string;
+  previewText?: string;
+  previewUrl?: string;
+  shareType?: 'post' | 'reel';
+  storyUrl?: string;
+  messageId?: string;
+}
+
+export interface IMessageReplyTo {
+  messageId: string;
+  content?: string;
+  authorName?: string;
+}
+
+export interface IMessageReaction {
+  senderId: string;
+  emoji?: string;
+  reaction?: string;
+}
+
+export type MessageDeliveryStatus = 'sent' | 'delivered' | 'read' | 'deleted';
+
 export interface IMessage {
   _id: string;
+  mid?: string;
   conversationId?: string;
   userId?: string;
   customerId?: string;
@@ -101,6 +141,12 @@ export interface IMessage {
   internal?: boolean;
   botData?: unknown[];
   fromBot?: boolean;
+  messageKind?: MessageKind;
+  providerData?: IMessageProviderData;
+  replyTo?: IMessageReplyTo;
+  reactions?: IMessageReaction[];
+  deliveryStatus?: MessageDeliveryStatus;
+  expiresAt?: string;
 }
 
 export enum ConversationStatus {

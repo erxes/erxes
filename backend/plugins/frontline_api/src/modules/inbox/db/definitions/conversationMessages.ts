@@ -26,6 +26,37 @@ export const engageDataSchema = new Schema(
   { _id: false },
 );
 
+const providerDataSchema = new Schema(
+  {
+    messageId: { type: String, optional: true },
+    attachmentType: { type: String, optional: true },
+    fallbackReason: { type: String, optional: true },
+    previewText: { type: String, optional: true },
+    previewUrl: { type: String, optional: true },
+    shareType: { type: String, optional: true },
+    storyUrl: { type: String, optional: true },
+  },
+  { _id: false },
+);
+
+const replyToSchema = new Schema(
+  {
+    messageId: { type: String, required: true },
+    content: { type: String, optional: true },
+    authorName: { type: String, optional: true },
+  },
+  { _id: false },
+);
+
+const reactionSchema = new Schema(
+  {
+    senderId: { type: String, required: true },
+    emoji: { type: String, optional: true },
+    reaction: { type: String, optional: true },
+  },
+  { _id: false },
+);
+
 export const messageSchema = new Schema({
   _id: mongooseStringRandomId,
   content: { type: String, optional: true },
@@ -50,6 +81,12 @@ export const messageSchema = new Schema({
   // Channel-specific structured payload that has no generic column — currently
   // Discord rich content (e.g. `{ poll }`), extensible to embeds/stickers.
   extraData: { type: Object },
+  messageKind: { type: String, optional: true },
+  providerData: { type: providerDataSchema, optional: true },
+  replyTo: { type: replyToSchema, optional: true },
+  reactions: { type: [reactionSchema], optional: true },
+  deliveryStatus: { type: String, optional: true },
+  expiresAt: { type: Date, optional: true },
   engageData: { type: engageDataSchema },
   contentType: {
     type: String,
