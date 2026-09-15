@@ -1,13 +1,20 @@
-import { IconExternalLink, IconFile } from '@tabler/icons-react';
+import {
+  IconArrowBackUp,
+  IconCheck,
+  IconCopy,
+  IconDownload,
+  IconZoomIn,
+  IconX,
+  type IconProps,
+} from '@tabler/icons-react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { differenceInHours, differenceInMinutes, format } from 'date-fns';
 import DOMPurify from 'dompurify';
-import { Avatar, Button, cn, readImage, Tooltip } from 'erxes-ui';
+import { Avatar, Button, cn, Dialog, readImage, Tooltip } from 'erxes-ui';
 import { Slot } from 'radix-ui';
 import * as React from 'react';
 import { IAttachment } from '../types';
 import { formatFileSize, getAttachmentType } from '@libs/format-file';
-import { Attachment } from './attachment';
 import { getAttachmentIcon } from './attachment-type';
 
 /**
@@ -45,9 +52,6 @@ export type MessagePosition = {
 };
 
 export type MessageVariant = 'incoming' | 'outgoing' | 'bot';
-
-const isImageAttachment = (url: string) =>
-  /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(url);
 
 const formatRelativeTime = (date: Date): string => {
   const now = new Date();
@@ -300,6 +304,35 @@ export type MessageContentProps = Omit<
   children?: React.ReactNode;
 };
 
+type ParsedMessageContent = {
+  reply?: {
+    author: string;
+    preview: string;
+  };
+  cleanHtml: string;
+};
+
+export function parseQuotedMessage(html?: string): ParsedMessageContent {
+  if (!html) return { cleanHtml: '' };
+
+  const replyMatch = html.match(
+    /^<blockquote><strong>Replying to(?:\s+([^<]+))?<\/strong><br\s*\/?>([\s\S]*?)<\/blockquote>/i,
+  );
+
+  if (!replyMatch) return { cleanHtml: html };
+
+  return {
+    reply: {
+      author: replyMatch[1]?.trim() || 'a message',
+      preview: replyMatch[2]
+        .replace(/<[^<>]+>/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim(),
+    },
+    cleanHtml: html.slice(replyMatch[0].length).trim(),
+  };
+}
+
 function MessageContent({
   className,
   variant = 'incoming',
@@ -316,13 +349,44 @@ function MessageContent({
   );
 
   if (html !== undefined) {
+    const { reply, cleanHtml } = parseQuotedMessage(html);
+    const sanitizedHtml = DOMPurify.sanitize(cleanHtml);
+
     return (
       <div
         data-slot="message-content"
-        className={classNames}
-        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(html) }}
+        className={cn(classNames, reply && 'overflow-hidden p-0')}
         {...props}
-      />
+      >
+        {reply && (
+          <div
+            className={cn(
+              'flex w-full items-center gap-2 border-b px-3 py-2 text-left text-xs',
+              variant === 'outgoing'
+                ? 'border-primary-foreground/20 bg-primary-foreground/15 text-primary-foreground'
+                : 'border-border/60 bg-muted/60 text-muted-foreground',
+            )}
+          >
+            <IconArrowBackUp className="size-3.5 shrink-0" />
+            <div className="min-w-0 flex-1">
+              <div className="truncate font-medium">
+                Replying to {reply.author}
+              </div>
+              {reply.preview && (
+                <div className="truncate text-[11px] opacity-80">
+                  {reply.preview}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+        {sanitizedHtml && (
+          <div
+            className={cn('w-full', reply && 'px-3 py-2')}
+            dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
+          />
+        )}
+      </div>
     );
   }
 
@@ -335,127 +399,212 @@ function MessageContent({
 
 /** `true` when the API sent an empty rich-text document. */
 export const hasMessageContent = (content?: string | null): content is string =>
-  !!content && content !== '<p></p>';
+  !!content &&
+  (/<blockquote[\s\S]*?<\/blockquote>/i.test(content) ||
+    Boolean(content.replace(/<[^>]*>/g, '').replace(/\s|&nbsp;/g, '')));
 
 /* ----------------------------------------------------------- attachments -- */
 
-const attachmentVariants = cva('overflow-hidden aspect-square', {
-  variants: {
-    variant: {
-      incoming: 'bg-background',
-      bot: 'bg-background',
-      outgoing: 'bg-accent',
-    },
-  },
-  defaultVariants: { variant: 'incoming' },
-});
-
-const attachmentLinkVariants = cva(
-  'flex flex-col items-center gap-0.5 px-3 py-2 transition-colors truncate',
-  {
-    variants: {
-      variant: {
-        incoming: 'hover:bg-accent/50',
-        bot: 'hover:bg-accent/50',
-        outgoing: 'hover:bg-accent/70',
-      },
-    },
-    defaultVariants: { variant: 'incoming' },
-  },
-);
-
 export type MessageAttachmentsProps = {
   attachments?: IAttachment[];
+  align?: 'start' | 'end';
 };
 
-function MessageAttachments({ attachments }: MessageAttachmentsProps) {
+function PreviewDialogClose() {
+  return (
+    <Dialog.Close asChild>
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        className="absolute right-3 top-3 z-10 bg-background/80"
+        aria-label="Close attachment preview"
+      >
+        <IconX />
+      </Button>
+    </Dialog.Close>
+  );
+}
+
+function AttachmentImage({ attachment }: { attachment: IAttachment }) {
+  const name = attachment.name || 'Image';
+
+  return (
+    <Dialog>
+      <Dialog.Trigger asChild>
+        <button
+          type="button"
+          className="group relative block max-w-72 overflow-hidden rounded-2xl border border-border/60 bg-muted/30 shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+          aria-label={`Preview ${name}`}
+        >
+          <img
+            src={readImage(attachment.url)}
+            alt={name}
+            loading="lazy"
+            className="max-h-64 w-full rounded-2xl object-cover"
+          />
+          <span className="absolute inset-0 hidden items-center justify-center bg-black/25 transition-opacity group-hover:flex group-focus-visible:flex sm:flex sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-visible:opacity-100">
+            <span className="flex items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-1 text-xs font-medium text-white">
+              <IconZoomIn className="size-3.5" />
+              Preview
+            </span>
+          </span>
+        </button>
+      </Dialog.Trigger>
+      <Dialog.Content className="!flex !h-auto !max-h-[90vh] !w-auto !max-w-[90vw] items-center justify-center !overflow-hidden !border-0 !bg-black/90 !p-2">
+        <Dialog.Title className="sr-only">{name}</Dialog.Title>
+        <Dialog.Description className="sr-only">
+          Full-size image preview
+        </Dialog.Description>
+        <img
+          src={readImage(attachment.url)}
+          alt={name}
+          className="block max-h-[85vh] max-w-[88vw] rounded-lg object-contain"
+        />
+        <PreviewDialogClose />
+      </Dialog.Content>
+    </Dialog>
+  );
+}
+
+function AttachmentVideo({ attachment }: { attachment: IAttachment }) {
+  const name = attachment.name || 'Video';
+
+  return (
+    <Dialog>
+      <Dialog.Trigger asChild>
+        <button
+          type="button"
+          className="group relative flex max-w-72 items-center overflow-hidden rounded-2xl border border-border/60 bg-black/80 p-2 text-white shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+          aria-label={`Play ${name}`}
+        >
+          <video
+            src={readImage(attachment.url)}
+            muted
+            playsInline
+            preload="metadata"
+            className="max-h-40 w-full rounded-xl object-contain"
+          />
+          <span className="absolute inset-0 flex items-center justify-center bg-black/30">
+            <span className="flex items-center gap-1.5 rounded-full bg-black/70 px-2.5 py-1 text-xs font-medium text-white">
+              <IconZoomIn className="size-3.5" />
+              Play video
+            </span>
+          </span>
+        </button>
+      </Dialog.Trigger>
+      <Dialog.Content className="!flex !h-auto !max-h-[90vh] !w-auto !max-w-[90vw] items-center justify-center !overflow-hidden !border-0 !bg-black/90 !p-2">
+        <Dialog.Title className="sr-only">{name}</Dialog.Title>
+        <Dialog.Description className="sr-only">
+          Video attachment preview
+        </Dialog.Description>
+        <video
+          src={readImage(attachment.url)}
+          controls
+          autoPlay
+          playsInline
+          className="block max-h-[85vh] max-w-[88vw] rounded-lg object-contain"
+        />
+        <PreviewDialogClose />
+      </Dialog.Content>
+    </Dialog>
+  );
+}
+
+function AttachmentFile({ attachment }: { attachment: IAttachment }) {
+  const name = attachment.name || 'File';
+  const IconComponent: React.FC<IconProps> = getAttachmentIcon(
+    getAttachmentType(attachment.type, attachment.name),
+  );
+
+  return (
+    <Dialog>
+      <Dialog.Trigger asChild>
+        <button
+          type="button"
+          className="flex w-fit max-w-full min-w-44 items-center gap-2.5 rounded-xl border border-border/70 bg-card p-2 text-left text-card-foreground shadow-2xs transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+          aria-label={`Preview ${name}`}
+        >
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted text-primary">
+            <IconComponent className="size-5" />
+          </span>
+          <span className="min-w-0 flex-1 leading-tight">
+            <span className="block truncate text-xs font-semibold">{name}</span>
+            <span className="mt-0.5 block truncate text-[11px] text-muted-foreground">
+              {formatFileSize(attachment.size || 0)} · Preview
+            </span>
+          </span>
+        </button>
+      </Dialog.Trigger>
+      <Dialog.Content className="max-w-sm rounded-2xl p-5">
+        <Dialog.Header>
+          <Dialog.Title className="truncate text-base">{name}</Dialog.Title>
+          <Dialog.Description className="sr-only">
+            File attachment preview
+          </Dialog.Description>
+        </Dialog.Header>
+        <div className="flex flex-col items-center gap-3 py-4 text-center">
+          <span className="flex size-14 items-center justify-center rounded-2xl bg-muted text-primary">
+            <IconComponent className="size-7" />
+          </span>
+          <p className="text-xs text-muted-foreground">
+            {formatFileSize(attachment.size || 0)}
+          </p>
+          <Button asChild size="sm">
+            <a
+              href={readImage(attachment.url)}
+              target="_blank"
+              rel="noopener noreferrer"
+              download
+            >
+              <IconDownload />
+              Download file
+            </a>
+          </Button>
+        </div>
+        <PreviewDialogClose />
+      </Dialog.Content>
+    </Dialog>
+  );
+}
+
+function MessageAttachments({
+  attachments,
+  align = 'start',
+}: MessageAttachmentsProps) {
   if (!attachments?.length) return null;
 
-  if (attachments?.length > 2) {
-    return (
-      <div data-slot="message-attachments" className="max-w-72">
-        <Attachment.Group className="border pt-2 px-3 pb-0 rounded-2xl hide-scroll styled-scroll">
-          {attachments.map((attachment, index) => {
-            const fileType = getAttachmentType(
-              attachment.type,
-              attachment.name,
-            );
-            const IconComponent = getAttachmentIcon(fileType);
-            return (
-              <Attachment
-                key={`${attachment.url}-${index}`}
-                orientation={'vertical'}
-              >
-                {attachment.type?.startsWith('image') ? (
-                  <Attachment.Media variant={'image'}>
-                    <img
-                      src={readImage(attachment.url)}
-                      alt={attachment.name}
-                    />
-                  </Attachment.Media>
-                ) : (
-                  <Attachment.Media>
-                    <IconComponent />
-                  </Attachment.Media>
-                )}
-                <Attachment.Content>
-                  <Attachment.Title>{attachment.name}</Attachment.Title>
-                  <Attachment.Description>
-                    {getAttachmentType(attachment.type, attachment.name)} ·{' '}
-                    {formatFileSize(attachment?.size || 0)}
-                  </Attachment.Description>
-                </Attachment.Content>
-                <Attachment.Trigger asChild>
-                  <a
-                    href={readImage(attachment.url)}
-                    target="_blank"
-                    rel="noreferrer"
-                    aria-label={`Open ${attachment.name}`}
-                  />
-                </Attachment.Trigger>
-              </Attachment>
-            );
-          })}
-        </Attachment.Group>
-      </div>
-    );
-  }
   return (
-    <div data-slot="message-attachments" className="space-y-1">
+    <div
+      data-slot="message-attachments"
+      className={cn(
+        'mt-1 flex w-full flex-col gap-1.5',
+        align === 'end' ? 'items-end' : 'items-start',
+      )}
+    >
       {attachments.map((attachment, index) => {
+        const key = `${attachment.url}-${index}`;
         const fileType = getAttachmentType(attachment.type, attachment.name);
-        const IconComponent = getAttachmentIcon(fileType);
-        return (
-          <Attachment
-            key={`${attachment.url}-${index}`}
-            className="place-self-end"
-          >
-            {attachment.type?.startsWith('image') ? (
-              <Attachment.Media variant={'image'}>
-                <img src={readImage(attachment.url)} alt={attachment.name} />
-              </Attachment.Media>
-            ) : (
-              <Attachment.Media>
-                <IconComponent />
-              </Attachment.Media>
-            )}
-            <Attachment.Content>
-              <Attachment.Title>{attachment.name}</Attachment.Title>
-              <Attachment.Description>
-                {getAttachmentType(attachment.type)} ·{' '}
-                {formatFileSize(attachment?.size || 0)}
-              </Attachment.Description>
-            </Attachment.Content>
-            <Attachment.Trigger asChild>
-              <a
-                href={readImage(attachment.url)}
-                target="_blank"
-                rel="noreferrer"
-                aria-label={`Open ${attachment.name}`}
-              />
-            </Attachment.Trigger>
-          </Attachment>
-        );
+
+        if (fileType === 'image') {
+          return <AttachmentImage key={key} attachment={attachment} />;
+        }
+        if (fileType === 'video') {
+          return <AttachmentVideo key={key} attachment={attachment} />;
+        }
+        if (fileType === 'audio') {
+          return (
+            <audio
+              key={key}
+              src={readImage(attachment.url)}
+              controls
+              preload="metadata"
+              className="w-full min-w-56 max-w-72"
+              aria-label={attachment.name || 'Audio attachment'}
+            />
+          );
+        }
+        return <AttachmentFile key={key} attachment={attachment} />;
       })}
     </div>
   );
@@ -565,6 +714,76 @@ function MessageActions({ className, ...props }: React.ComponentProps<'div'>) {
 /** prompt-kit's `MessageAction`: an interactive control plus its tooltip. */
 const MessageAction = MessageTooltip;
 
+export type MessageItemActionsProps = {
+  onReply?: () => void;
+  onCopy?: () => void | Promise<void>;
+  align?: 'start' | 'end';
+};
+
+function MessageItemActions({
+  onReply,
+  onCopy,
+  align = 'start',
+}: MessageItemActionsProps) {
+  const [copied, setCopied] = React.useState(false);
+
+  const handleCopy = async () => {
+    if (!onCopy) return;
+
+    try {
+      await onCopy();
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1800);
+    } catch {
+      setCopied(false);
+    }
+  };
+
+  if (!onReply && !onCopy) return null;
+
+  return (
+    <div
+      className={cn(
+        'flex shrink-0 items-center gap-0.5 self-center rounded-lg border border-border/60 bg-background/95 p-0.5 opacity-100 shadow-2xs transition-opacity focus-within:opacity-100 sm:opacity-0 sm:group-hover/message:opacity-100',
+        align === 'end' ? 'mr-1' : 'ml-1',
+      )}
+    >
+      {onReply && (
+        <MessageTooltip label="Reply">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={onReply}
+            className="size-6 rounded-md text-muted-foreground"
+            aria-label="Reply to message"
+          >
+            <IconArrowBackUp className="size-3.5" />
+          </Button>
+        </MessageTooltip>
+      )}
+      {onCopy && (
+        <MessageTooltip label={copied ? 'Copied' : 'Copy'}>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={() => void handleCopy()}
+            className="size-6 rounded-md text-muted-foreground"
+            aria-label="Copy message"
+          >
+            {copied ? (
+              <IconCheck className="size-3.5 text-primary" />
+            ) : (
+              <IconCopy className="size-3.5" />
+            )}
+          </Button>
+        </MessageTooltip>
+      )}
+    </div>
+  );
+}
+
 /* ---------------------------------------------------------------- export -- */
 
 export const Message = Object.assign(MessageRoot, {
@@ -579,4 +798,5 @@ export const Message = Object.assign(MessageRoot, {
   TimestampTooltip: MessageTimestampTooltip,
   Actions: MessageActions,
   Action: MessageAction,
+  ItemActions: MessageItemActions,
 });
