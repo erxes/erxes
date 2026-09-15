@@ -59,101 +59,51 @@ const isFacebookStoryUrl = (url?: string) => {
 
 type FacebookStoryKind = 'story_reply' | 'story_mention';
 
-const STORY_ATTACHMENT_TYPES: ReadonlySet<string> = new Set([
-  'story_reply',
-  'story_mention',
-]);
-
-const SHARE_ATTACHMENT_TYPES: ReadonlySet<string> = new Set([
-  'share',
-  'fallback',
-  'post',
-  'reel',
-]);
-
-const MEDIA_ATTACHMENT_KINDS: Readonly<Record<string, MessageKind>> = {
-  image: 'image',
-  video: 'video',
-  file: 'file',
+type TAttachmentClassification = {
+  kind: MessageKind;
+  previewText?: string;
+  shareType?: 'post' | 'reel';
+  expiresStory?: boolean;
 };
 
-const storyMessageResult = (
+const ATTACHMENT_CLASSIFICATIONS: Readonly<
+  Record<string, TAttachmentClassification>
+> = {
+  image: { kind: 'image' },
+  video: { kind: 'video' },
+  file: { kind: 'file' },
+  audio: { kind: 'voice', previewText: 'Voice message' },
+  reel: { kind: 'share', previewText: 'Facebook reel', shareType: 'reel' },
+  share: { kind: 'share', previewText: 'Facebook post', shareType: 'post' },
+  fallback: { kind: 'share', previewText: 'Facebook post', shareType: 'post' },
+  post: { kind: 'share', previewText: 'Facebook post', shareType: 'post' },
+  story_reply: {
+    kind: 'story_reply',
+    previewText: 'Story reply',
+    expiresStory: true,
+  },
+  story_mention: {
+    kind: 'story_mention',
+    previewText: 'Story mention',
+    expiresStory: true,
+  },
+};
+
+const storyFieldsResult = (
   messageKind: FacebookStoryKind,
+  url: string | undefined,
   providerData: IMessageProviderData,
   timestamp: Date,
-) => ({
-  messageKind,
-  providerData,
-  expiresAt: new Date(timestamp.getTime() + STORY_LIFETIME_MS),
-});
-
-const shareMessageResult = (
-  attachmentType: string,
-  providerData: IMessageProviderData,
-  attachmentUrl?: string,
 ) => {
-  const isReel = attachmentType === 'reel';
-  providerData.previewUrl = attachmentUrl;
-  providerData.previewText = isReel ? 'Facebook reel' : 'Facebook post';
-  providerData.shareType = isReel ? 'reel' : 'post';
-  return { messageKind: 'share' as const, providerData };
-};
-
-const stickerMessageResult = (
-  attachment: FacebookAttachment | undefined,
-  providerData: IMessageProviderData,
-  attachmentUrl?: string,
-) => {
-  if (!attachment?.payload?.sticker_id) return undefined;
-  providerData.previewUrl = attachmentUrl;
-  providerData.previewText = 'Sent a sticker';
-  return { messageKind: 'sticker' as const, providerData };
-};
-
-const storyAttachmentResult = (
-  attachmentType: string | undefined,
-  providerData: IMessageProviderData,
-  attachmentUrl: string | undefined,
-  timestamp: Date,
-) => {
-  if (attachmentType === 'share' && isFacebookStoryUrl(attachmentUrl)) {
-    providerData.storyUrl = attachmentUrl;
-    providerData.previewText = 'Story reply';
-    return storyMessageResult('story_reply', providerData, timestamp);
-  }
-
-  if (!attachmentType || !STORY_ATTACHMENT_TYPES.has(attachmentType)) {
-    return undefined;
-  }
-
-  const storyKind = attachmentType as FacebookStoryKind;
-  providerData.storyUrl = attachmentUrl;
+  providerData.storyUrl = url;
   providerData.previewText =
-    storyKind === 'story_reply' ? 'Story reply' : 'Story mention';
-  providerData.fallbackReason = attachmentUrl
-    ? undefined
-    : 'Story unavailable';
-  return storyMessageResult(storyKind, providerData, timestamp);
-};
-
-const mediaMessageResult = (
-  attachmentType: string | undefined,
-  providerData: IMessageProviderData,
-  attachmentUrl?: string,
-) => {
-  if (attachmentType === 'audio') {
-    providerData.previewUrl = attachmentUrl;
-    providerData.previewText = 'Voice message';
-    return { messageKind: 'voice' as const, providerData };
-  }
-
-  const mediaKind = attachmentType
-    ? MEDIA_ATTACHMENT_KINDS[attachmentType]
-    : undefined;
-  if (!mediaKind) return undefined;
-
-  providerData.previewUrl = attachmentUrl;
-  return { messageKind: mediaKind, providerData };
+    messageKind === 'story_reply' ? 'Story reply' : 'Story mention';
+  providerData.fallbackReason = url ? undefined : 'Story unavailable';
+  return {
+    messageKind,
+    providerData,
+    expiresAt: new Date(timestamp.getTime() + STORY_LIFETIME_MS),
+  };
 };
 
 const normalizeFacebookMessage = ({
@@ -181,29 +131,47 @@ const normalizeFacebookMessage = ({
   };
 
   if (story) {
-    providerData.storyUrl = story.url;
-    providerData.previewText = 'Story reply';
-    providerData.fallbackReason = story.url ? undefined : 'Story unavailable';
-    return storyMessageResult('story_reply', providerData, timestamp);
+    return storyFieldsResult('story_reply', story.url, providerData, timestamp);
   }
 
-  const sticker = stickerMessageResult(attachment, providerData, attachmentUrl);
-  if (sticker) return sticker;
-
-  const storyAttachment = storyAttachmentResult(
-    attachmentType,
-    providerData,
-    attachmentUrl,
-    timestamp,
-  );
-  if (storyAttachment) return storyAttachment;
-
-  if (attachmentType && SHARE_ATTACHMENT_TYPES.has(attachmentType)) {
-    return shareMessageResult(attachmentType, providerData, attachmentUrl);
+  if (attachment?.payload?.sticker_id) {
+    providerData.previewUrl = attachmentUrl;
+    providerData.previewText = 'Sent a sticker';
+    return { messageKind: 'sticker', providerData };
   }
 
-  const media = mediaMessageResult(attachmentType, providerData, attachmentUrl);
-  if (media) return media;
+  if (attachmentType === 'share' && isFacebookStoryUrl(attachmentUrl)) {
+    return storyFieldsResult(
+      'story_reply',
+      attachmentUrl,
+      providerData,
+      timestamp,
+    );
+  }
+
+  const classification = attachmentType
+    ? ATTACHMENT_CLASSIFICATIONS[attachmentType]
+    : undefined;
+
+  if (classification?.expiresStory) {
+    return storyFieldsResult(
+      classification.kind as FacebookStoryKind,
+      attachmentUrl,
+      providerData,
+      timestamp,
+    );
+  }
+
+  if (classification) {
+    providerData.previewUrl = attachmentUrl;
+    if (classification.previewText !== undefined) {
+      providerData.previewText = classification.previewText;
+    }
+    if (classification.shareType !== undefined) {
+      providerData.shareType = classification.shareType;
+    }
+    return { messageKind: classification.kind, providerData };
+  }
 
   if (text) {
     return { messageKind: 'text', providerData };
