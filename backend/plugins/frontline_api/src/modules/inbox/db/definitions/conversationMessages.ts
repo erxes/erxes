@@ -26,7 +26,7 @@ export const engageDataSchema = new Schema(
   { _id: false },
 );
 
-const providerDataSchema = new Schema(
+export const providerDataSchema = new Schema(
   {
     messageId: { type: String, optional: true },
     attachmentType: { type: String, optional: true },
@@ -39,7 +39,7 @@ const providerDataSchema = new Schema(
   { _id: false },
 );
 
-const replyToSchema = new Schema(
+export const replyToSchema = new Schema(
   {
     messageId: { type: String, required: true },
     content: { type: String, optional: true },
