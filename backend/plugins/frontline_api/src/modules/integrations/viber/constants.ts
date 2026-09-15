@@ -17,3 +17,5 @@ export const VIBER_HEALTH_STATUSES = {
 
 export type ViberHealthStatus =
   (typeof VIBER_HEALTH_STATUSES)[keyof typeof VIBER_HEALTH_STATUSES];
+
+export const VIBER_MEDIA_SETTINGS_ID = 'media';

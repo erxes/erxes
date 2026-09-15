@@ -37,7 +37,7 @@ const setupHarness = (t: TestContext) => {
         sendTRPCMessage: core,
       },
     },
-    ['../config', '../readiness'],
+    ['../config', '../settings', '../readiness'],
   );
   const readiness: typeof import('../readiness') = require('../readiness');
   return { ...h, ...readiness, env, core };
@@ -66,7 +66,7 @@ test('setup reports tenant storage overrides and unsupported Cloudflare CDN stre
   }));
   const cdn = await h.getViberSetup(h.context);
   strictEqual(cdn.storageProvider, 'CLOUDFLARE');
-  ok(cdn.storageError?.includes('R2 object storage'));
+  ok(cdn.storageError?.includes('Cloudflare Images and Stream'));
   h.core.mock.mockImplementation(async () => ({
     UPLOAD_SERVICE_TYPE: 'CLOUDFLARE',
     CLOUDFLARE_USE_CDN: false,
@@ -93,6 +93,22 @@ test('setup authorization runs before reading Core configuration', async (t) => 
   strictEqual(h.core.mock.callCount(), 0);
   Object.assign(h.context, { user: null });
   await rejects(h.getViberSetup(h.context), /Authentication required/);
+});
+
+test('setup and the receiver policy use the same saved tenant hostnames, including explicit disablement', async (t) => {
+  const h = setupHarness(t);
+  h.env.VIBER_MEDIA_ALLOWED_HOSTNAMES = 'environment.example.com';
+  let hostnames = ['saved.example.com'];
+  Object.assign(h.context.models, {
+    ViberSettings: { findOne: async () => ({ mediaHostnames: hostnames }) },
+  });
+  const saved = await h.getViberSetup(h.context);
+  deepStrictEqual(saved.mediaHostnames, hostnames);
+  strictEqual(saved.mediaError, null);
+  hostnames = [];
+  const disabled = await h.getViberSetup(h.context);
+  deepStrictEqual(disabled.mediaHostnames, []);
+  ok(disabled.mediaError);
 });
 
 test('conversation readiness respects channel access, archives and unsubscribe events', async (t) => {

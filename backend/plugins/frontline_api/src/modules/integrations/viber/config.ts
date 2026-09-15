@@ -1,4 +1,5 @@
 import { getEnv } from 'erxes-api-shared/utils';
+import { normalizeViberMediaHostnames } from './utils/mediaHostnames';
 
 export const getViberWebhookUrl = (
   subdomain: string,
@@ -77,19 +78,9 @@ export const getViberMediaAllowedHostnames = (
     .map((hostname) => hostname.trim().toLowerCase())
     .filter(Boolean);
 
-  for (const hostname of hostnames) {
-    let url: URL;
-
-    try {
-      url = new URL(`https://${hostname}`);
-    } catch {
-      throw new Error('Invalid Viber media hostname configuration');
-    }
-
-    if (url.hostname !== hostname || hostname.includes('*')) {
-      throw new Error('Invalid Viber media hostname configuration');
-    }
+  try {
+    return normalizeViberMediaHostnames(hostnames);
+  } catch {
+    throw new Error('Invalid Viber media hostname configuration');
   }
-
-  return [...new Set(hostnames)];
 };

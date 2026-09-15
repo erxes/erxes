@@ -1,5 +1,23 @@
 import { gql } from '@apollo/client';
 
+export const VIBER_MEDIA_SETTINGS = gql`
+  query FrontlineViberMediaSettings {
+    viberMediaSettings {
+      hostnames
+      source
+    }
+  }
+`;
+
+export const VIBER_UPDATE_MEDIA_SETTINGS = gql`
+  mutation FrontlineViberUpdateMediaSettings($hostnames: [String!]) {
+    viberUpdateMediaSettings(hostnames: $hostnames) {
+      hostnames
+      source
+    }
+  }
+`;
+
 export const VIBER_DELIVERY_FIELDS = gql`
   fragment FrontlineViberDeliveryFields on ConversationMessage {
     viberDelivery {

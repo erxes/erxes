@@ -319,6 +319,11 @@ import {
 } from '@/reports/db/models/Charts';
 
 // Viber imports
+import type { IViberSettingsDocument } from '@/integrations/viber/@types/settings';
+import {
+  type IViberSettingsModel,
+  loadViberSettingsClass,
+} from '@/integrations/viber/db/models/Settings';
 import type {
   IViberOutboxDocument,
   IViberReceiptDocument,
@@ -426,6 +431,7 @@ export interface IModels {
   ViberOutbox: IViberOutboxModel;
   ViberReceipts: IViberReceiptModel;
   ViberSubscriptions: IViberSubscriptionModel;
+  ViberSettings: IViberSettingsModel;
   // ticket
   Pipeline: ITicketPipelineModel;
   Status: IStatusModel;
@@ -709,6 +715,11 @@ export const loadClasses = (
     loadCallProLogClass(),
   );
   //viber
+
+  models.ViberSettings = db.model<IViberSettingsDocument, IViberSettingsModel>(
+    'viber_settings',
+    loadViberSettingsClass(),
+  );
 
   models.ViberIntegrations = db.model<
     IViberIntegrationDocument,

@@ -40,6 +40,16 @@ const createReceiverHarness = (
   integration: { token: string } | null = { token: TEST_TOKEN },
 ) => {
   const inboxState = { exists: true, isActive: true };
+  const mediaSettings: { hostnames: string[] | null; failRead: boolean } = {
+    hostnames: null,
+    failRead: false,
+  };
+  const readSettings = t.mock.fn(async () => {
+    if (mediaSettings.failRead) throw new Error('Database unavailable');
+    return mediaSettings.hostnames === null
+      ? null
+      : { mediaHostnames: mediaSettings.hostnames };
+  });
   const select = t.mock.fn(async (projection: string) => {
     strictEqual(projection, '+token');
     return integration;
@@ -61,6 +71,7 @@ const createReceiverHarness = (
       ViberSubscriptions: { updateOne: async () => ({ matchedCount: 1 }) },
       ViberReceipts: { updateOne: async () => ({ matchedCount: 1 }) },
       ViberOutbox: { findOne: async () => null },
+      ViberSettings: { findOne: readSettings },
     };
   });
   const processMessage = t.mock.fn(
@@ -112,6 +123,7 @@ const createReceiverHarness = (
   for (const specifier of [
     '@/integrations/viber/events',
     '@/integrations/viber/config',
+    '@/integrations/viber/settings',
   ]) {
     const filename = require.resolve(specifier);
     originalModules.set(filename, require.cache[filename]);
@@ -176,8 +188,47 @@ const createReceiverHarness = (
     processMessage,
     respond,
     inboxState,
+    mediaSettings,
+    readSettings,
   };
 };
+
+test('the receiver rereads saved Viber media settings without affecting text or accepting unsigned changes', async (t) => {
+  const h = createReceiverHarness(t);
+  const body = JSON.stringify({
+    ...TEXT_MESSAGE,
+    message: { type: 'picture', media: 'https://media.example.com/image.jpg' },
+  });
+  h.mediaSettings.hostnames = ['saved.example.com'];
+  await h.receive(body, { signature: '0'.repeat(64) });
+  strictEqual(h.readSettings.mock.callCount(), 0);
+  for (const hostnames of [['saved.example.com'], []]) {
+    h.mediaSettings.hostnames = hostnames;
+    deepStrictEqual(await h.receive(body), [{ statusCode: 200 }]);
+    const input = h.processMessage.mock.calls.at(-1)?.arguments[1];
+    deepStrictEqual(input, {
+      inboxId: 'inbox-test',
+      userId: TEXT_MESSAGE.sender.id,
+      messageToken: TEXT_MESSAGE.message_token,
+      text: '',
+      name: TEXT_MESSAGE.sender.name,
+      media: {
+        source: 'https://media.example.com/image.jpg',
+        messageType: 'picture',
+        fileName: 'viber-picture',
+        allowedHostnames: hostnames,
+      },
+    });
+  }
+  h.mediaSettings.failRead = true;
+  deepStrictEqual(await h.receive(body), [
+    { statusCode: 500, body: { error: 'Failed to process Viber message' } },
+  ]);
+  strictEqual(h.processMessage.mock.callCount(), 2);
+  deepStrictEqual(await h.receive(JSON.stringify(TEXT_MESSAGE)), [
+    { statusCode: 200 },
+  ]);
+});
 
 test('archived integrations acknowledge messages without processing, but still accept webhook checks', async (t) => {
   const h = createReceiverHarness(t);

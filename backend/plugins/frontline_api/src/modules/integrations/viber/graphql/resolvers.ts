@@ -11,8 +11,12 @@ import { getViberAccountInfo } from '@/integrations/viber/utils/account';
 import { registerViberWebhook } from '@/integrations/viber/helpers';
 import { getViberSetup, getViberConversationState } from '../readiness';
 import { getViberWebhookUrl } from '../config';
+import { getViberMediaSettings, updateViberMediaSettings } from '../settings';
 
 export const viberQueries = {
+  viberMediaSettings(_root: unknown, _args: unknown, context: IContext) {
+    return getViberMediaSettings(context);
+  },
   viberSetup(_root: unknown, _args: unknown, context: IContext) {
     return getViberSetup(context);
   },
@@ -56,6 +60,13 @@ export const viberQueries = {
 };
 
 export const viberMutations = {
+  viberUpdateMediaSettings(
+    _root: unknown,
+    { hostnames }: { hostnames?: string[] | null },
+    context: IContext,
+  ) {
+    return updateViberMediaSettings(context, hostnames ?? null);
+  },
   viberSendMessage(
     _root: unknown,
     input: Omit<IViberReplyInput, 'structured'> & { message?: unknown },

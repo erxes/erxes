@@ -2,6 +2,7 @@ import { FacebookConfigUpdateCollapse } from '@/integrations/facebook/components
 import { CallConfigUpdateCollapse } from '@/integrations/call/components/CallConfigUpdate';
 import { InstagramConfigUpdateCollapse } from '@/integrations/instagram/components/InstagramConfigUpdate';
 import { MailConfigUpdateCollapse } from '@/integrations/mail/components/MailConfigUpdate';
+import { ViberConfigUpdateCollapse } from '@/integrations/viber/components/ViberConfigUpdate';
 import { useAtomValue } from 'jotai';
 import { currentOrganizationState } from 'ui-modules';
 
@@ -14,6 +15,7 @@ export const IntegrationConfigPage = () => {
       {!isSaas && <InstagramConfigUpdateCollapse />}
       <CallConfigUpdateCollapse />
       <MailConfigUpdateCollapse />
+      <ViberConfigUpdateCollapse />
     </div>
   );
 };

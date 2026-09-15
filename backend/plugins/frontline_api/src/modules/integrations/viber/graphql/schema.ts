@@ -1,4 +1,8 @@
 export const types = `
+  type ViberMediaSettings {
+    hostnames: [String!]!
+    source: String!
+  }
   type ViberConnection {
     integrationId: String!
     botId: String!
@@ -42,6 +46,7 @@ export const types = `
 `;
 
 export const queries = `
+  viberMediaSettings: ViberMediaSettings!
   viberSetup: ViberSetup!
   viberConversationState(conversationId: String!): ViberConversationState!
   viberConnection(integrationId: String!): ViberConnection
@@ -49,6 +54,7 @@ export const queries = `
 `;
 
 export const mutations = `
+  viberUpdateMediaSettings(hostnames: [String!]): ViberMediaSettings!
   viberSendMessage(conversationId: String!, content: String, attachments: [AttachmentInput], message: JSON, requestId: String): ConversationMessage
   viberRetryMessage(messageId: String!): ConversationMessage
   viberUpdateToken(integrationId: String!, token: String!): Boolean!

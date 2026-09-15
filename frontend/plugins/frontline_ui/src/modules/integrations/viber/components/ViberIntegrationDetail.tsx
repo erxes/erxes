@@ -206,6 +206,7 @@ export const ViberIntegrationDetail = ({
         loading={setup.loading}
         error={setup.error?.message}
         refresh={() => void refresh()}
+        canEdit={canEdit}
       />
       {list.error ? (
         <p role="alert" className="text-sm text-destructive">

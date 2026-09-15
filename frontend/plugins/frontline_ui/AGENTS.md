@@ -82,6 +82,11 @@
   technical-details section. The list shows registration badges separately
   from active/archive state; forms reuse `SecretInput` for token visibility and
   `CopyText` for callback URLs. Keep copy concise and user-facing.
+- Integrations config includes a Viber media-host editor alongside the existing
+  providers, linked from the Viber setup panel. `integrationsEdit` gates changes.
+  It accepts exact hostnames, saves an explicit empty list to disable incoming
+  media, and offers Use defaults to restore the environment fallback. No hosts
+  are built in, and no bot token is needed to configure this setting.
 - Viber conversations use the native message thread and composer for text,
   attachments, and internal notes, plus a dialog for link/location/contact/
   sticker messages. Reply eligibility respects archives, permissions, and
@@ -236,6 +241,8 @@
 Viber setup, management, delivery controls, validation, and upload/send hooks
 live in `src/modules/integrations/viber/`; the native inbox composer and message
 components select this behavior only for `viber-messenger` conversations.
+`viber/components/ViberConfigUpdate.tsx` provides the Integrations config
+collapse and form; `viber/mediaSettings.ts` provides immediate form validation.
 
 | Area                   | Path                                                                                                                                         | Responsibility                                                                                                                                  |
 | ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -351,6 +358,10 @@ components select this behavior only for `viber-messenger` conversations.
   repair, reply eligibility, send, status, and retry. Common integration
   create/edit/archive/remove operations remain the lifecycle entry points.
   Native message queries/subscriptions include `ConversationMessage.viberDelivery`.
+- `FrontlineViberMediaSettings` reads `{ hostnames, source }` from
+  `viberMediaSettings`; `FrontlineViberUpdateMediaSettings` sends an array to
+  save or null to restore defaults. Saving updates the settings query cache
+  and refetches `FrontlineViberSetup` before reporting success.
 - Viber file upload uses Core's public authenticated
   `/upload-file?forcePrivate=true` endpoint through the configured API URL.
   It requires an opaque storage key for the backend's signed media relay;
@@ -518,7 +529,12 @@ brandId)` and `knowledgeBaseTopicsTotalCount`, read together as the help
 
 - Viber uses existing `showIntegrations`, `integrationsAdd/Edit/Remove`, and
   `conversationMessageAdd` actions, not new role names. Backend channel checks
-  are authoritative. Do not enable arbitrary media hosts from the setup form.
+  are authoritative. Only users with `integrationsEdit` may change the
+  workspace's Viber media hosts. Configuration is not per-bot, never inferred
+  from a callback, and never an automatic approval of arbitrary media URLs.
+  Require explicit confirmation before save/reset and keep the collapse open
+  during pending changes. Backend validation is authoritative; only vetted
+  provider hostnames should be entered, and no unverified list is prefilled.
 - Do not trim a Viber bot token: reject surrounding whitespace. Registration
   health means the webhook was registered, not that real delivery was tested.
 - Viber forms focus Name when editable and prevent drawer dismissal during
@@ -1121,6 +1137,15 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-15` — Viber media-host settings
+
+- **Summary:** Add the permission-gated Viber config form with validation,
+  save/reset confirmation, immediate feedback, and a setup-panel link.
+- **Affected areas:** Viber settings components, GraphQL/types, validation
+  tests, and `IntegrationConfigPage`.
+- **Contracts changed:** Consumes `viberMediaSettings` and
+  `viberUpdateMediaSettings`; no shared or workspace storage changes.
+
 ### `2026-09-15` — Viber settings polish
 
 - **Summary:** Refine setup hierarchy, loading and empty states, registration
@@ -1267,16 +1292,4 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   untouched — the drawer still edits it and `useEditHelpCenter` still sends it.
 - **Affected areas:**
   `src/modules/helpcenter/components/HelpCenterColumns.tsx`
-- **Contracts changed:** `None`
-
-### `2026-09-07` — The help center page drops its sidebar sub-group
-
-- **Summary:** `/frontline/helpcenter` listed every help center a second time in
-  the left navigation, duplicating the record table it sat next to; the
-  `HelpCenterSubGroup` component and the `isHelpCenter` branch in
-  `FrontlineSubGroups` are gone, so the page now renders no frontline
-  sub-group. `useAllHelpCenters` stays — `HelpCenterIndexPage` still needs the
-  unfiltered list to resolve `editId`.
-- **Affected areas:** `src/modules/FrontlineSubGroups.tsx`,
-  `src/modules/helpcenter/components/HelpCenterSubGroup.tsx` (deleted)
 - **Contracts changed:** `None`

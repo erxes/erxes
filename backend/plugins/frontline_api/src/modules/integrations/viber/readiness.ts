@@ -1,6 +1,7 @@
 import { getEnv, sendTRPCMessage } from 'erxes-api-shared/utils';
 import type { IContext } from '~/connectionResolvers';
-import { getViberMediaAllowedHostnames, getViberWebhookUrl } from './config';
+import { getViberWebhookUrl } from './config';
+import { resolveViberMediaSettings } from './settings';
 import { assertViberConversationAccess } from './access';
 
 // Configuration readiness is not a provider or storage round-trip test.
@@ -20,7 +21,9 @@ export const getViberSetup = async (context: IContext) => {
       'Ask your administrator to configure a public HTTPS webhook URL.';
   }
   try {
-    mediaHostnames = getViberMediaAllowedHostnames(context.subdomain);
+    mediaHostnames = (
+      await resolveViberMediaSettings(context.models, context.subdomain)
+    ).hostnames;
     if (!mediaHostnames.length) {
       mediaError =
         'Incoming media is unavailable. Ask your administrator to approve Viber media hosts.';
@@ -60,7 +63,7 @@ export const getViberSetup = async (context: IContext) => {
       String(useCdn).toLowerCase() === 'true'
     ) {
       storageError =
-        'Viber attachments require R2 object storage with Cloudflare CDN disabled.';
+        'Viber attachment storage is not yet compatible with Cloudflare Images and Stream.';
     }
   } catch {
     storageError = 'Unable to load storage settings. Try again.';

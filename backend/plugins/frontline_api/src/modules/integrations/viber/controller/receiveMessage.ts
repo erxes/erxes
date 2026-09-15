@@ -11,7 +11,7 @@ import {
   processViberMessage,
   type IViberMediaInput,
 } from '@/integrations/viber/helpers';
-import { getViberMediaAllowedHostnames } from '@/integrations/viber/config';
+import { resolveViberMediaSettings } from '@/integrations/viber/settings';
 import { VIBER_INCOMING_MEDIA_MAX_BYTES } from '@/integrations/viber/constants';
 import {
   parseViberLifecycleEvent,
@@ -367,7 +367,9 @@ export const receiveViberMessage = async (
             ? {
                 media: {
                   ...media,
-                  allowedHostnames: getViberMediaAllowedHostnames(subdomain),
+                  allowedHostnames: (
+                    await resolveViberMediaSettings(models, subdomain)
+                  ).hostnames,
                 },
               }
             : {}),

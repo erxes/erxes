@@ -16,6 +16,11 @@ export interface ViberSetup {
   storageError: string | null;
 }
 
+export interface ViberMediaSettings {
+  hostnames: string[];
+  source: 'settings' | 'environment' | 'default';
+}
+
 export interface ViberConnection {
   integrationId: string;
   botId: string;

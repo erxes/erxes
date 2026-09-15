@@ -2,17 +2,20 @@ import { Button, Collapsible, CopyText, Skeleton, Spinner } from 'erxes-ui';
 import type { ViberSetup } from '../types';
 import { useTranslation } from 'react-i18next';
 import { IconAlertTriangle, IconCopy, IconRefresh } from '@tabler/icons-react';
+import { Link } from 'react-router-dom';
 
 export const ViberSetupCheck = ({
   setup,
   loading,
   error,
   refresh,
+  canEdit = false,
 }: {
   setup?: ViberSetup;
   loading: boolean;
   error?: string;
   refresh: () => void;
+  canEdit?: boolean;
 }) => {
   const { t } = useTranslation('frontline');
   const issues = [
@@ -89,6 +92,15 @@ export const ViberSetupCheck = ({
                 </li>
               ))}
             </ul>
+          )}
+          {canEdit && (
+            <Button asChild variant="link" size="sm" className="h-auto p-0">
+              <Link to="/settings/frontline/config">
+                {t('viber-manage-media-hosts', {
+                  defaultValue: 'Manage media hosts',
+                })}
+              </Link>
+            </Button>
           )}
           <Collapsible>
             <Collapsible.Trigger asChild>

@@ -83,6 +83,7 @@ export const createTransportHarness = (t: TestContext) => {
         (part) => part.messageToken === filter['parts.messageToken'],
       ));
   const models = {
+    ViberSettings: { findOne: async () => null },
     Integrations: {
       findOne: async () => ({
         _id: 'inbox',
