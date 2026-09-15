@@ -401,6 +401,13 @@
 - `CONFIG` with `name: 'frontline'`, `path: 'frontline'`, default navigation
   path `frontline/inbox`, relation widgets (`conversation`, `ticket`), the
   `ticketStatus` property input, and the `formSubmission` activity row.
+- `ConversationSideWidget` (`src/modules/inbox/conversations/conversation-detail/components/`)
+  — the inbox's per-conversation side panel. Alongside the dynamic
+  `relationWidgetsModules` tabs (core-owned registry, `contentType:
+"frontline:conversation"`), it renders one plugin-local, non-registry
+  "Properties" tab (`ConversationProperties`, backed by `ui-modules`'
+  `FieldsInDetail` against the same `frontline:conversation` content type) for
+  editing the conversation's own custom fields.
 - Automation remote-entry components keyed by `componentType`: `actionForm`,
   `triggerForm`, `triggerConfigContent`, `actionNodeConfiguration`,
   `automationBotsContent`, `historyName`, `historyActionResult`.
@@ -1284,6 +1291,34 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 - **Contracts changed:** `CallAddCustomer` also selects
   `integration { _id name }`.
 
+### `2026-09-15` — Conversation properties tab on the inbox side widget
+
+- **Summary:** A conversation's custom properties (Core `frontline:conversation`
+  fields) are now viewable and editable from the inbox, mirroring how ticket
+  properties already work in this plugin. `ConversationSideWidget` gained a
+  static "Properties" tab, the same width as its dynamic relation-widget tabs,
+  rendering the new `ConversationProperties` component (a thin wrapper around
+  `ui-modules`' `FieldsInDetail`). The new `useConversationCustomFieldEdit`
+  hook is a plain passthrough to the `conversationEditCustomFields` mutation —
+  no variable remapping, because the mutation's argument and the
+  `Conversation` field are both named `propertiesData`, matching
+  `FieldsInDetail`'s hardcoded `{ _id, propertiesData }` mutate call and every
+  other `use*CustomFieldEdit` hook in the platform
+  (`useCustomerCustomFieldEdit`, `useTicketCustomFieldEdit`, etc.) — an
+  earlier draft named it `customFieldsData` and had to remap in the hook;
+  that was corrected once the platform-wide `propertiesData` convention was
+  found. Requires the matching `frontline_api` fix (see its own `AGENTS.md`)
+  — the field did not persist before that.
+- **Affected areas:**
+  `src/modules/inbox/conversations/conversation-detail/components/{ConversationSideWidget,ConversationDetail,ConversationProperties}.tsx`,
+  `src/modules/inbox/conversations/hooks/useConversationCustomFieldEdit.tsx`,
+  `src/modules/inbox/conversations/graphql/mutations/conversationEditCustomFields.ts`,
+  `src/modules/inbox/conversations/conversation-detail/graphql/queries/getConversationDetail.ts`,
+  `src/modules/inbox/types/Conversation.ts`
+- **Contracts changed:** None — consumes the existing
+  `conversationEditCustomFields` mutation and `Conversation.propertiesData`
+  field.
+
 ### `2026-09-15` — The call widget can clear its cached state
 
 - **Summary:** An eraser button in the dialpad header, behind a confirm, resets
@@ -1379,18 +1414,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `src/modules/activity/hooks/useNoteTemplateSuggestions.tsx`,
   `src/modules/helpcenter/components/help-center-drawer/HelpCenterDrawer.tsx`
 - **Contracts changed:** `None`
-
-### `2026-09-09` — Survey options can arm a ticket at a vote threshold
-
-- **Summary:** The Content step's option rows gained a ticket-automation
-  popover — enable, vote threshold, pipeline, status and an optional ticket
-  name — carried through the wizard atoms into `surveyAdd` / `surveyEdit`, with the
-  server-owned created state shown read-only.
-- **Affected areas:**
-  `src/modules/survey/components/mutate/{SurveyOptionTicketConfig.tsx,SurveyStepCard.tsx}`,
-  `src/modules/survey/constants/{surveySetupSchema.ts,surveySetupDefaultValues.ts}`,
-  `src/modules/survey/states/surveySetupStates.tsx`,
-  `src/modules/survey/graphql/{surveyQueries.ts,surveyMutations.ts}`,
-  `src/modules/survey/types/surveyTypes.ts`.
-- **Contracts changed:** Consumes the new `SurveyOption` / `SurveyOptionInput`
-  ticket-automation fields.
