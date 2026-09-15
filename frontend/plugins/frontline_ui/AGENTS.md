@@ -87,8 +87,10 @@
 - Integrations config includes a Viber media-host editor alongside the existing
   providers, linked from the Viber setup panel. `integrationsEdit` gates changes.
   It accepts exact hostnames, saves an explicit empty list to disable incoming
-  media, and offers Use defaults to restore the environment fallback. No hosts
-  are built in, and no bot token is needed to configure this setting.
+  media, and offers Use defaults to remove the workspace override. The backend
+  supplies server-configured hosts or the built-in `dl-media.viber.com` and
+  `content.cdn.viber.com` list; the form does not duplicate that policy. No bot
+  token is needed to configure this setting.
 - Viber conversations use the native message thread and composer for text,
   attachments, and internal notes, plus a dialog for link/location/contact/
   sticker messages. Reply eligibility respects channel permissions and
@@ -557,7 +559,8 @@ brandId)` and `knowledgeBaseTopicsTotalCount`, read together as the help
   from a callback, and never an automatic approval of arbitrary media URLs.
   Require explicit confirmation before save/reset and keep the collapse open
   during pending changes. Backend validation is authoritative; only vetted
-  provider hostnames should be entered, and no unverified list is prefilled.
+  provider hostnames should be entered. Display the backend's resolved defaults
+  with their source; never silently replace an explicitly saved empty list.
 - Do not trim a Viber bot token: reject surrounding whitespace. Registration
   health means the webhook was registered, not that real delivery was tested.
 - Viber forms focus Name when editable and prevent drawer dismissal during
@@ -1172,6 +1175,12 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-15` — Display built-in Viber media defaults
+
+- **Summary:** Show backend-supplied default hosts and concise reset wording while preserving editable custom and disabled policies.
+- **Affected areas:** Viber config form and validation tests; English/Mongolian Frontline locale labels.
+- **Contracts changed:** Consume populated `source: default` settings; no new routes, GraphQL documents or storage settings.
+
 ### `2026-09-15` — Viber native UI review fixes
 
 - **Summary:** Reuse overflow tooltips, recover original sends without changing their payloads, accept stored template files and translate Viber controls.
@@ -1272,30 +1281,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   accept `iceBreakers: [BotIceBreakerInput]` and `getStartedText`;
   `FacebookMessengerBot` returns both. The `facebook:messages` trigger accepts an
   `iceBreaker` condition with `iceBreakerIds`.
-
-### `2026-09-08` — The bot form previews what Messenger will show
-
-- **Summary:** The bot sheet is now two columns: the form on the left and a
-  Messenger simulation on the right, toggling between phone and desktop chrome
-  and between the welcome screen and an open persistent menu. Menu actions are
-  tappable and resolve to the automations that would start, following the same
-  order as `receiveFacebookMessageTrigger`. The form lists the bot's connected
-  automations. The preview is derived by
-  `buildMessengerProfilePreview`, which mirrors
-  `FacebookBots.connectBotPageMessenger`, so it shows the Get Started action the
-  backend prepends and warns when a menu item has no text (dropped), a link item
-  has no URL (sent as a plain button), the greeting exceeds 160 characters, or
-  the menu exceeds Facebook's five actions per level. The persistent-menu form
-  limit dropped from five to four, derived from that cap minus the prepended
-  Get Started.
-- **Affected areas:**
-  `src/widgets/automations/modules/facebook/components/bots/` — new
-  `utils/buildMessengerProfilePreview.ts` and
-  `utils/resolveBotMenuOutcome.ts`,
-  `components/simulator/{MessengerFrame,FacebookBotSimulator}.tsx`,
-  `components/FacebookBotAutomations.tsx`,
-  `graphql/botAutomationsQueries.ts`, `hooks/useFacebookBotAutomations.tsx`,
-  `constants.ts`; `components/FacebookBotFormBody.tsx`,
-  `components/FacebookBotSheet.tsx`,
-  `components/AutomationFbBotFormContent.tsx`.
-- **Contracts changed:** `None` — reads existing `automations(triggerTypes:)`.

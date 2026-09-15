@@ -153,14 +153,16 @@
   `downloadViberMedia` fetches HTTPS media from an explicit approved-host list,
   rejects redirects, applies a 30-second abort signal, and delegates to that
   reader. `resolveViberMediaSettings` reads tenant-owned saved hostnames first,
-  then the `VIBER_MEDIA_ALLOWED_HOSTNAMES` environment fallback. The built-in
-  default approves no hosts; saving an empty array explicitly disables media.
+  then the `VIBER_MEDIA_ALLOWED_HOSTNAMES` environment override, then the built-in
+  `dl-media.viber.com` and `content.cdn.viber.com` defaults. Saving an empty array
+  explicitly disables media and never falls through to either fallback.
   Both the receiver and setup readiness use this lookup on each request.
-  No production Viber media hostnames have been verified.
+  The defaults are documented incoming-media hosts, not an exhaustive CDN list
+  or proof of live bot compatibility.
   `downloadAndStoreViberAttachment`
   composes downloading and tenant storage into native attachment metadata,
-  without creating messages or handling replays. Incoming media fails closed
-  until approved hosts and a supported tenant storage provider are configured.
+  without creating messages or handling replays. Incoming media requires an
+  approved source host and a supported tenant storage provider.
   A pure text formatter escapes incoming plain text for HTML display, preserves
   line breaks, and rejects blank messages. Live database, provider, and UI
   delivery remain unverified.
@@ -324,7 +326,9 @@ and the environment fallback. `__tests__/mediaSettings.spec.ts` covers
 permissions, precedence, explicit disablement, reset, and persistence failures.
 `__tests__/attachments.spec.ts` covers the tenant-configured byte-storage adapter
 and its composition with the real downloader using mocked external I/O.
-`constants.ts` defines `ViberMediaType` and the incoming-media size policy shared
+`constants.ts` owns the documented `VIBER_DEFAULT_MEDIA_HOSTNAMES` fallback;
+the settings resolver returns a fresh copy without seeding tenant documents.
+It defines `ViberMediaType` and the incoming-media size policy shared
 by response reading, storage, and the file callback guard. It also owns
 `VIBER_HEALTH_STATUSES` and the derived `ViberHealthStatus` type used by the
 connection schema and document interface.
@@ -718,8 +722,9 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   it is deployment configuration, not per-integration bot-token storage.
 - Internal Viber media policy consumes `VIBER_MEDIA_ALLOWED_HOSTNAMES` through
   that same tenant-aware `getEnv` interface. It is an optional comma-separated
-  list of approved bare hostnames, not URLs or wildcard patterns. Missing
-  configuration approves no hosts; the receiver consumes this policy for media.
+  list of approved bare hostnames, not URLs or wildcard patterns. Missing or
+  blank environment configuration falls back to the built-in hosts through
+  `resolveViberMediaSettings`; the receiver consumes that effective policy.
 - Viber customer resolution calls Core's `customers.findOne` query and
   `customers.createCustomer` mutation through `sendTRPCMessage`, carrying the
   supplied subdomain and `throwOnError: true`. Lookups use the reserved `_id`
@@ -1236,7 +1241,10 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   delegates response reading to `readViberMediaResponse`. Errors propagate with
   no retry. It does not perform DNS address validation, store attachments, or
   establish production media-host compatibility. The receiver uses the saved
-  tenant settings or environment fallback only after signature verification.
+  tenant settings, environment override, or built-in defaults only after
+  signature verification. The initial defaults are documented in
+  [Gupshup's incoming Viber examples](https://docs.gupshup.io/docs/viber-message-types-inbound);
+  additional hosts require review, never automatic approval from a callback.
 - `getViberMediaAllowedHostnames` rejects a blank tenant before configuration
   access, trims/lowercases entries, drops blank entries, and deduplicates in
   first-seen order. Both environment and saved lists use the same validation:
@@ -2281,9 +2289,13 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   these tests do not prove real environment setup, HTTPS reachability, or tenant
   resolution through ngrok.
 - Media-policy cases in that same configuration suite cover normalization,
-  deduplication, empty-list defaults, tenant forwarding, invalid-entry rejection,
-  and rereading changed configuration. They do not verify actual environment
-  substitution, provider host ownership, DNS, downloads, or receiver wiring.
+  deduplication, absent environment overrides, tenant forwarding, invalid-entry
+  rejection, and rereading changed configuration. They do not verify actual
+  environment substitution, provider host ownership, DNS, downloads, or receiver wiring.
+- Media-settings tests cover built-in defaults, environment replacement,
+  saved overrides and explicit disablement, reset, independent returned arrays,
+  and exact-host download matching with mocked fetch. Readiness uses that same
+  resolver; these checks do not prove live provider delivery.
 - Viber registration tests in `__tests__/registration.spec.ts` exercise saved
   token selection, callback construction, missing records, propagated failures,
   awaited acknowledgement, and status transitions with no other local writes.
@@ -2361,6 +2373,12 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-15` — Built-in Viber media hosts
+
+- **Summary:** Supply documented Viber media-host defaults while preserving server and workspace overrides, including explicit disablement.
+- **Affected areas:** Viber constants, settings resolver, configuration/readiness tests and approved-host download coverage.
+- **Contracts changed:** `source: default` now returns `dl-media.viber.com` and `content.cdn.viber.com`; GraphQL signatures and storage behavior are unchanged.
+
 ### `2026-09-15` — Viber recovery, templates and webhook diagnostics
 
 - **Summary:** Preserve original inbound timestamps, resolve stored template sizes, safely log failed callbacks, and distinguish unsaved attempts from uncertain sends.
@@ -2432,11 +2450,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Affected areas:** Viber creation adapter/tests and common creation recovery.
 - **Contracts changed:** Viber creation awaits registration; a setup error can
   retain both records for Repair. Sibling rollback and GraphQL schema are unchanged.
-
-### `2026-09-15` — Viber create and remove permissions
-
-- **Summary:** Require existing Frontline permissions before Viber creation
-  or removal side effects, with offline resolver-boundary coverage.
-- **Affected areas:** Common integration mutations and Viber permission tests.
-- **Contracts changed:** Viber creation requires `integrationsAdd`; removal
-  requires `integrationsRemove`. Sibling behavior and GraphQL schema are unchanged.

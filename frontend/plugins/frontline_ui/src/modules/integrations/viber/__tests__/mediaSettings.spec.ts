@@ -5,6 +5,15 @@ import {
   viberMediaSettingsSchema,
 } from '../mediaSettings';
 
+test('the form accepts the backend built-in host list unchanged', () => {
+  const hostnames = 'dl-media.viber.com\ncontent.cdn.viber.com';
+  strictEqual(viberMediaSettingsSchema.safeParse({ hostnames }).success, true);
+  deepStrictEqual(parseViberMediaHostnames(hostnames), [
+    'dl-media.viber.com',
+    'content.cdn.viber.com',
+  ]);
+});
+
 test('the settings form accepts empty policy and normalizes line/comma-separated exact hosts', () => {
   strictEqual(
     viberMediaSettingsSchema.safeParse({ hostnames: '' }).success,

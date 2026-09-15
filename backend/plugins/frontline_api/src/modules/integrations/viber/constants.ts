@@ -19,3 +19,10 @@ export type ViberHealthStatus =
   (typeof VIBER_HEALTH_STATUSES)[keyof typeof VIBER_HEALTH_STATUSES];
 
 export const VIBER_MEDIA_SETTINGS_ID = 'media';
+
+// Documented incoming media hosts, not an exhaustive provider CDN inventory.
+// https://docs.gupshup.io/docs/viber-message-types-inbound
+export const VIBER_DEFAULT_MEDIA_HOSTNAMES = [
+  'dl-media.viber.com',
+  'content.cdn.viber.com',
+] as const;

@@ -1,7 +1,10 @@
 import type { IContext, IModels } from '~/connectionResolvers';
 import type { IViberMediaSettings } from './@types/settings';
 import { getViberMediaAllowedHostnames } from './config';
-import { VIBER_MEDIA_SETTINGS_ID } from './constants';
+import {
+  VIBER_DEFAULT_MEDIA_HOSTNAMES,
+  VIBER_MEDIA_SETTINGS_ID,
+} from './constants';
 import { normalizeViberMediaHostnames } from './utils/mediaHostnames';
 
 // Models belong to the request tenant. Never cache policy across requests.
@@ -20,7 +23,9 @@ export const resolveViberMediaSettings = async (
     };
   }
   const hostnames = [...getViberMediaAllowedHostnames(subdomain)];
-  return { hostnames, source: hostnames.length ? 'environment' : 'default' };
+  return hostnames.length
+    ? { hostnames, source: 'environment' }
+    : { hostnames: [...VIBER_DEFAULT_MEDIA_HOSTNAMES], source: 'default' };
 };
 
 export const getViberMediaSettings = async (

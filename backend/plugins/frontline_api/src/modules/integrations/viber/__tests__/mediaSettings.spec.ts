@@ -3,6 +3,9 @@ import { deepStrictEqual, rejects, strictEqual } from 'node:assert';
 import type { TestContext } from './helperHarness';
 import { createTransportHarness } from './transportHarness';
 import { isolateViberModules } from './moduleHarness';
+import { downloadViberMedia } from '../utils/media';
+
+const DEFAULT_HOSTNAMES = ['dl-media.viber.com', 'content.cdn.viber.com'];
 
 const createSettingsHarness = (t: TestContext) => {
   const h = createTransportHarness(t);
@@ -58,10 +61,10 @@ const createSettingsHarness = (t: TestContext) => {
   return { ...h, ...settings, settingsState: state, read, save, remove, env };
 };
 
-test('settings default to no approved hosts, then inherit the server list without requiring a bot', async (t) => {
+test('settings use built-in Viber hosts, then inherit the server override without requiring a bot or writing defaults', async (t) => {
   const h = createSettingsHarness(t);
   deepStrictEqual(await h.getViberMediaSettings(h.context), {
-    hostnames: [],
+    hostnames: DEFAULT_HOSTNAMES,
     source: 'default',
   });
   h.settingsState.environment = 'MEDIA.EXAMPLE.COM, media.example.com';
@@ -69,6 +72,90 @@ test('settings default to no approved hosts, then inherit the server list withou
     hostnames: ['media.example.com'],
     source: 'environment',
   });
+  h.settingsState.environment = ' , \n';
+  deepStrictEqual(await h.getViberMediaSettings(h.context), {
+    hostnames: DEFAULT_HOSTNAMES,
+    source: 'default',
+  });
+  strictEqual(h.save.mock.callCount(), 0);
+  strictEqual(h.remove.mock.callCount(), 0);
+});
+
+test('saved custom or empty lists override built-in defaults until explicitly reset', async (t) => {
+  const h = createSettingsHarness(t);
+  deepStrictEqual(
+    await h.updateViberMediaSettings(h.context, ['custom.example.com']),
+    { hostnames: ['custom.example.com'], source: 'settings' },
+  );
+  deepStrictEqual(await h.updateViberMediaSettings(h.context, []), {
+    hostnames: [],
+    source: 'settings',
+  });
+  deepStrictEqual(await h.getViberMediaSettings(h.context), {
+    hostnames: [],
+    source: 'settings',
+  });
+  strictEqual(h.env.mock.callCount(), 0);
+  deepStrictEqual(await h.updateViberMediaSettings(h.context, null), {
+    hostnames: DEFAULT_HOSTNAMES,
+    source: 'default',
+  });
+  strictEqual(h.settingsState.hostnames, null);
+});
+
+test('callers cannot mutate the built-in defaults returned to another request', async (t) => {
+  const h = createSettingsHarness(t);
+  const settings = await h.getViberMediaSettings(h.context);
+  settings.hostnames.push('unapproved.example.com');
+  deepStrictEqual(await h.getViberMediaSettings(h.context), {
+    hostnames: DEFAULT_HOSTNAMES,
+    source: 'default',
+  });
+});
+
+test('resolved defaults permit only the two exact HTTPS hosts through the real downloader', async (t) => {
+  const h = createSettingsHarness(t);
+  const { hostnames } = await h.getViberMediaSettings(h.context);
+  // All downloads are mocked; these checks never contact the documented hosts.
+  const fetchMock = t.mock.method(
+    globalThis,
+    'fetch',
+    async () =>
+      new Response('media', { headers: { 'content-type': 'image/png' } }),
+  );
+  for (const hostname of DEFAULT_HOSTNAMES) {
+    const result = await downloadViberMedia(
+      `https://${hostname}/attachment.png`,
+      'picture',
+      hostnames,
+    );
+    strictEqual(result.buffer.toString(), 'media');
+  }
+  strictEqual(fetchMock.mock.callCount(), 2);
+  for (const hostname of [
+    'dl-media.viber.com.unapproved.test',
+    'child.dl-media.viber.com',
+    'viber.com',
+    'unapproved.cloudfront.net',
+  ]) {
+    await rejects(
+      downloadViberMedia(
+        `https://${hostname}/attachment.png`,
+        'picture',
+        hostnames,
+      ),
+      /Unapproved Viber media host/,
+    );
+  }
+  await rejects(
+    downloadViberMedia(
+      'http://dl-media.viber.com/attachment.png',
+      'picture',
+      hostnames,
+    ),
+    /Unsupported Viber media URL/,
+  );
+  strictEqual(fetchMock.mock.callCount(), 2);
 });
 
 test('saved hostnames override the environment; an explicit empty list disables media; reset restores defaults', async (t) => {

@@ -118,7 +118,7 @@ const ViberConfigUpdate = ({
           hostnames === null
             ? t('viber-reset-media-hosts-confirm', {
                 defaultValue:
-                  'Use the server defaults for all Viber integrations in this workspace? Incoming media will be unavailable if no defaults are configured.',
+                  'Restore the default media hosts for all Viber integrations in this workspace?',
               })
             : hostnames.length
             ? t('viber-save-media-hosts-confirm', {
@@ -235,8 +235,8 @@ const ViberConfigUpdate = ({
             ? t('viber-media-hosts-environment', {
                 defaultValue: 'Using server-configured defaults.',
               })
-            : t('viber-media-hosts-default-empty', {
-                defaultValue: 'No hosts are approved by default.',
+            : t('viber-media-hosts-default', {
+                defaultValue: 'Using Viber defaults.',
               })}
         </p>
         {canEdit ? (

@@ -43,7 +43,7 @@ const setupHarness = (t: TestContext) => {
   return { ...h, ...readiness, env, core };
 };
 
-test('setup reads only nonsecret storage settings and exposes no credentials or invented media defaults', async (t) => {
+test('setup reads only nonsecret storage settings and reports the built-in media hosts without credentials', async (t) => {
   const h = setupHarness(t);
   const setup = await h.getViberSetup(h.context);
   strictEqual(setup.storageProvider, 'AWS');
@@ -52,8 +52,11 @@ test('setup reads only nonsecret storage settings and exposes no credentials or 
     setup.webhookUrl,
     'https://example.test/viber/receive/INTEGRATION_ID',
   );
-  deepStrictEqual(setup.mediaHostnames, []);
-  ok(setup.mediaError?.includes('unavailable'));
+  deepStrictEqual(setup.mediaHostnames, [
+    'dl-media.viber.com',
+    'content.cdn.viber.com',
+  ]);
+  strictEqual(setup.mediaError, null);
   strictEqual(h.core.mock.callCount(), 1);
   ok(!JSON.stringify(setup).includes('test-token'));
 });

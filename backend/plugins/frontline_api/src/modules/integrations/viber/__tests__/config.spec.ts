@@ -256,7 +256,7 @@ test('normalizes and deduplicates configured media hostnames in first-seen order
   );
 });
 
-test('missing or blank media policy approves no hosts and never uses callback configuration', (t) => {
+test('missing or blank environment override returns no hosts and never uses callback configuration', (t) => {
   const environment: Record<string, string> = {
     DOMAIN: 'https://tenant.example',
     VIBER_RECEIVE_URL: 'https://tunnel.example/viber/receive',
