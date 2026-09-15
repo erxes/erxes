@@ -1,7 +1,9 @@
 import { canGroup, getGroupActionsMap } from 'erxes-api-shared/core-modules';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { CMS_POST_ACTIONS, permissions } from '~/meta/permissions';
-import { IContext } from '~/connectionResolvers';
+import type { IContext } from '~/connectionResolvers';
+
+type CmsContext = Pick<IContext, 'user' | 'models' | 'subdomain'>;
 
 type TranslationInput = {
   language?: string;
@@ -37,7 +39,7 @@ const toLanguageActionSuffix = (language: string) =>
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
     .join('');
 
-const canCms = (context: IContext, action: string) =>
+const canCms = (context: CmsContext, action: string) =>
   canGroup(context.subdomain, action, context.user);
 
 const scopePriority: Record<CmsPermissionScope, number> = {
@@ -63,7 +65,7 @@ const pickStrongerScope = (
 };
 
 const getUserCmsPermissions = async (
-  context: IContext,
+  context: CmsContext,
 ): Promise<CmsPermission[]> => {
   const cached = (context as any).__cmsPermissions as
     | CmsPermission[]
@@ -123,7 +125,7 @@ const getUserCmsPermissions = async (
 };
 
 export const getCmsPermissionScope = async (
-  context: IContext,
+  context: CmsContext,
   actions: string | string[],
 ): Promise<CmsPermissionScope | null> => {
   const { user } = context;
@@ -152,14 +154,14 @@ export const getCmsPermissionScope = async (
 };
 
 export const hasCmsPermission = async (
-  context: IContext,
+  context: CmsContext,
   actions: string | string[],
 ) => {
   return Boolean(await getCmsPermissionScope(context, actions));
 };
 
 export const requireCmsPermission = async (
-  context: IContext,
+  context: CmsContext,
   actions: string | string[],
 ) => {
   const scope = await getCmsPermissionScope(context, actions);
@@ -172,7 +174,7 @@ export const requireCmsPermission = async (
 };
 
 export const getCmsScopeQuery = async (
-  context: IContext,
+  context: CmsContext,
   actions: string | string[],
 ) => {
   const scope = await requireCmsPermission(context, actions);
@@ -193,7 +195,7 @@ export const assertCmsDocumentAccess = async ({
   actions,
   document,
 }: {
-  context: IContext;
+  context: CmsContext;
   actions: string | string[];
   document?: { authorId?: string | null };
 }) => {
@@ -208,7 +210,7 @@ export const assertCmsDocumentAccess = async ({
   }
 };
 
-export const getAllowedCmsLanguages = async (context: IContext) => {
+export const getAllowedCmsLanguages = async (context: CmsContext) => {
   const { user, subdomain } = context;
 
   if (!user?._id) {
@@ -238,7 +240,7 @@ export const getAllowedCmsLanguages = async (context: IContext) => {
 };
 
 export const isCmsLanguageAllowed = async (
-  context: IContext,
+  context: CmsContext,
   language?: string | null,
 ) => {
   const normalized = normalizeLanguage(language);
@@ -261,7 +263,7 @@ export const isCmsLanguageAllowed = async (
 };
 
 const getDefaultLanguage = async (
-  context: IContext,
+  context: CmsContext,
   clientPortalId?: string,
 ) => {
   if (!clientPortalId) {
@@ -281,7 +283,7 @@ export const assertCmsLanguageAccess = async ({
   language,
   translations,
 }: {
-  context: IContext;
+  context: CmsContext;
   clientPortalId?: string;
   language?: string;
   translations?: TranslationInput[];
@@ -313,7 +315,7 @@ export const assertCmsLanguageAccess = async ({
 };
 
 export const applyCmsReadLanguageFilter = async (
-  context: IContext,
+  context: CmsContext,
   clientPortalId?: string,
   requestedLanguage?: string,
 ) => {
@@ -321,7 +323,7 @@ export const applyCmsReadLanguageFilter = async (
 };
 
 export const getCmsReadAccess = async (
-  context: IContext,
+  context: CmsContext,
   clientPortalId?: string,
   requestedLanguage?: string,
 ): Promise<CmsReadAccess> => {

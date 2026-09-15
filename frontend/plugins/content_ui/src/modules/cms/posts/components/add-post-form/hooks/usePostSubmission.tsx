@@ -7,8 +7,9 @@ import {
 } from '../../../formHelpers';
 import { createSlug } from '../../../../utils/createSlug';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useRef, useEffect, useCallback } from 'react';
+import { useRef, useEffect, useCallback, useState } from 'react';
 import { getAutoArchiveDate } from './getAutoArchiveDate';
+import { PostizPublishSheet } from '../../../postiz/PostizPublishSheet';
 
 interface InlineContent {
   text?: string;
@@ -103,6 +104,7 @@ interface UsePostSubmissionProps {
 interface SubmitOptions {
   /** Save without toast or navigation — used by autosave. */
   silent?: boolean;
+  deferNavigation?: boolean;
 }
 
 interface MainFields {
@@ -367,6 +369,12 @@ export const usePostSubmission = ({
   const { t } = useTranslation('content');
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const [pendingPublish, setPendingPublish] = useState<{
+    input: Record<string, unknown>;
+    data: PostFormData;
+    language: string;
+  } | null>(null);
+  const pendingPublishRef = useRef(false);
 
   const { createPost, editPost, creating, saving } = usePostMutations({
     websiteId,
@@ -400,16 +408,17 @@ export const usePostSubmission = ({
   const savePost = async (
     input: Record<string, unknown>,
     formData: PostFormData,
-    { silent }: SubmitOptions = {},
+    { silent, deferNavigation }: SubmitOptions = {},
   ) => {
     try {
-      if (editingPost?._id) {
-        await editPost(editingPost._id, input);
-      } else {
-        await createPost(input);
-      }
+      const result = editingPost?._id
+        ? (await editPost(editingPost._id, input)).data?.cmsPostsEdit
+        : (await createPost(input)).data?.cmsPostsAdd;
+      if (!result?._id) throw new Error(t('failed-to-save-post'));
 
-      onSaved?.(formData, { navigating: !silent });
+      onSaved?.(formData, { navigating: !silent && !deferNavigation });
+
+      if (deferNavigation) return result._id;
 
       if (silent) {
         return;
@@ -429,6 +438,7 @@ export const usePostSubmission = ({
 
       redirectToPosts(websiteId, searchParams, navigate);
     } catch (error: unknown) {
+      if (deferNavigation) throw error;
       const message =
         error instanceof Error ? error.message : t('failed-to-save-post');
 
@@ -452,6 +462,7 @@ export const usePostSubmission = ({
   );
 
   onSubmitRef.current = async (data: PostFormData, options?: SubmitOptions) => {
+    if (pendingPublishRef.current) return;
     if (!data.type) {
       if (options?.silent) {
         return;
@@ -507,6 +518,19 @@ export const usePostSubmission = ({
       }
     }
 
+    if (
+      !options?.silent &&
+      data.type === 'post' &&
+      data.status === 'published'
+    ) {
+      pendingPublishRef.current = true;
+      setPendingPublish({
+        input,
+        data,
+        language: currentLanguage || curDefaultLanguage || 'en',
+      });
+      return;
+    }
     await savePost(input, data, options);
   };
 
@@ -521,5 +545,41 @@ export const usePostSubmission = ({
     onSubmit,
     creating,
     saving,
+    postizSheet: pendingPublish && (
+      <PostizPublishSheet
+        websiteId={websiteId}
+        language={pendingPublish.language}
+        initialCaption={
+          pendingPublish.data.description || pendingPublish.data.title
+        }
+        images={[
+          ...new Set(
+            [
+              pendingPublish.data.thumbnail,
+              ...(pendingPublish.data.gallery || []),
+            ].filter(
+              (url): url is string =>
+                typeof url === 'string' &&
+                /^https:\/\/[^?#]+\.(jpe?g|png|webp)(\?|$)/i.test(url),
+            ),
+          ),
+        ]}
+        save={async () => {
+          const id = await savePost(pendingPublish.input, pendingPublish.data, {
+            deferNavigation: true,
+          });
+          if (!id) throw new Error(t('failed-to-save-post'));
+          return id;
+        }}
+        onClose={(saved) => {
+          pendingPublishRef.current = false;
+          setPendingPublish(null);
+          if (!saved) return;
+          onSaved?.(pendingPublish.data, { navigating: true });
+          if (onClose) onClose();
+          else redirectToPosts(websiteId, searchParams, navigate);
+        }}
+      />
+    ),
   };
 };
