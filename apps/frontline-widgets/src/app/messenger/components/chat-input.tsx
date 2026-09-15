@@ -46,7 +46,7 @@ const escapeHtml = (value: string) =>
         '>': '&gt;',
         "'": '&#39;',
         '"': '&quot;',
-      }[character] || character),
+      })[character] || character,
   );
 
 function UploadedAttachment({
