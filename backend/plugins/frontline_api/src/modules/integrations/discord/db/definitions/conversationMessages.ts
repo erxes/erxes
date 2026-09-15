@@ -2,11 +2,21 @@ import { Schema } from 'mongoose';
 import { attachmentSchema } from 'erxes-api-shared/core-modules';
 import { mongooseStringRandomId } from 'erxes-api-shared/utils';
 
+const replyToSchema = new Schema(
+  {
+    messageId: { type: String, required: true },
+    content: { type: String, optional: true },
+    authorName: { type: String, optional: true },
+  },
+  { _id: false },
+);
+
 export const conversationMessageSchema = new Schema({
   _id: mongooseStringRandomId,
   messageId: { type: String, unique: true, sparse: true, label: 'Discord message id' },
   content: { type: String },
   attachments: [attachmentSchema],
+  replyTo: { type: replyToSchema, optional: true },
   conversationId: { type: String, index: true },
   customerId: { type: String, index: true },
   userId: { type: String, index: true },

@@ -11,14 +11,58 @@ import {
 } from 'discord-api-types/v10';
 import {
   DiscordActivity,
+  DiscordAttachment,
   DiscordEmbed,
   DiscordMention,
   DiscordMessageDeleteEvent,
   DiscordPoll,
   DiscordPollVoteEvent,
+  DiscordSticker,
   DiscordTypingEvent,
   TDiscordMessagePayload,
 } from '@/integrations/discord/@types/activity';
+import type {
+  IMessageProviderData,
+  IMessageReplyTo,
+  MessageDeliveryStatus,
+  MessageKind,
+} from '@/inbox/@types/conversationMessages';
+
+const DISCORD_VOICE_MESSAGE_FLAG = 1 << 13;
+
+const stickerUrl = (id: string, formatType: number) => {
+  if (formatType === 3) {
+    return undefined;
+  }
+
+  return `https://media.discordapp.net/stickers/${id}.${
+    formatType === 4 ? 'gif' : 'png'
+  }`;
+};
+
+export const normalizeDiscordStickers = (
+  stickers?: TDiscordMessagePayload['sticker_items'],
+): DiscordSticker[] | undefined =>
+  stickers?.map((sticker) => ({
+    id: sticker.id,
+    name: sticker.name,
+    formatType: sticker.format_type,
+    url: stickerUrl(sticker.id, sticker.format_type),
+  }));
+
+export const normalizeDiscordAttachments = (
+  attachments?: TDiscordMessagePayload['attachments'],
+): DiscordAttachment[] =>
+  (attachments || []).map((attachment) => ({
+    type: attachment.content_type || 'application/octet-stream',
+    url: attachment.url || '',
+    name: attachment.filename || '',
+    size: typeof attachment.size === 'number' ? attachment.size : undefined,
+    duration:
+      typeof attachment.duration_secs === 'number'
+        ? attachment.duration_secs
+        : undefined,
+  }));
 
 export const normalizeDiscordPoll = (poll?: APIPoll): DiscordPoll | undefined => {
   if (!poll) {
@@ -106,6 +150,127 @@ export const normalizeDiscordEmbeds = (
   }));
 };
 
+const discordMention = (
+  user: NonNullable<TDiscordMessagePayload['mentions']>[number],
+) => ({
+  id: user.id,
+  name: user.member?.nick || user.global_name || user.username || user.id,
+});
+
+const resolveDiscordReply = (
+  payload: TDiscordMessagePayload,
+): IMessageReplyTo | undefined => {
+  if (payload.message_reference?.type === 1) {
+    return undefined;
+  }
+
+  const messageId =
+    payload.referenced_message?.id || payload.message_reference?.message_id;
+  if (!messageId) {
+    return undefined;
+  }
+
+  const referenced = payload.referenced_message;
+  const content = resolveDiscordMentions(
+    referenced?.content || '',
+    (referenced?.mentions || []).map(discordMention),
+  );
+  const attachmentName = referenced?.attachments?.[0]?.filename;
+  const author = referenced?.author;
+
+  return {
+    messageId,
+    content:
+      content ||
+      (attachmentName ? `Attachment: ${attachmentName}` : undefined) ||
+      referenced?.embeds?.[0]?.title ||
+      undefined,
+    authorName: author?.global_name || author?.username || undefined,
+  };
+};
+
+type TDiscordMessageNormalizationInput = {
+  messageId?: string;
+  type?: number;
+  content?: string;
+  attachments?: DiscordAttachment[];
+  embeds?: DiscordEmbed[];
+  stickers?: DiscordSticker[];
+  voiceMessage?: boolean;
+  poll?: DiscordPoll;
+  replyTo?: IMessageReplyTo;
+};
+
+export type TDiscordMessageMetadata = {
+  messageKind: MessageKind;
+  providerData: IMessageProviderData;
+  replyTo?: IMessageReplyTo;
+  deliveryStatus: MessageDeliveryStatus;
+};
+
+export const normalizeDiscordMessageMetadata = (
+  message: TDiscordMessageNormalizationInput,
+  deliveryStatus: MessageDeliveryStatus,
+): TDiscordMessageMetadata => {
+  const attachment = message.attachments?.[0];
+  const attachmentType = attachment?.type.toLowerCase();
+  const sticker = message.stickers?.[0];
+  const embed = message.embeds?.[0];
+  let messageKind: MessageKind;
+
+  if (message.voiceMessage) {
+    messageKind = 'voice';
+  } else if (sticker) {
+    messageKind = 'sticker';
+  } else if (attachmentType?.startsWith('image/')) {
+    messageKind = 'image';
+  } else if (attachmentType?.startsWith('video/')) {
+    messageKind = 'video';
+  } else if (attachmentType?.startsWith('audio/')) {
+    messageKind = 'audio';
+  } else if (attachment) {
+    messageKind = 'file';
+  } else if (embed) {
+    messageKind = 'share';
+  } else if (message.content?.trim()) {
+    messageKind = 'text';
+  } else {
+    messageKind = 'unsupported';
+  }
+
+  const providerData: IMessageProviderData = {
+    messageId: message.messageId,
+    attachmentType:
+      attachmentType ||
+      (sticker ? 'sticker' : undefined) ||
+      (embed ? embed.type || 'embed' : undefined),
+    previewText:
+      sticker?.name || embed?.title || embed?.description || attachment?.name,
+    previewUrl:
+      sticker?.url ||
+      embed?.url ||
+      embed?.image?.url ||
+      embed?.video?.url ||
+      embed?.thumbnail?.url ||
+      attachment?.url,
+    fallbackReason:
+      messageKind === 'unsupported'
+        ? message.poll
+          ? 'Discord poll'
+          : typeof message.type === 'number'
+            ? `Unsupported Discord message type ${message.type}`
+            : 'Unsupported Discord message'
+        : undefined,
+  };
+
+  return {
+    messageKind,
+    providerData,
+    replyTo: message.replyTo,
+    deliveryStatus,
+  };
+};
+
 
 export const mapMessageCreateToActivity = (
   payload: TDiscordMessagePayload,
@@ -127,20 +292,11 @@ export const mapMessageCreateToActivity = (
     type: typeof payload?.type === 'number' ? payload.type : undefined,
     poll: normalizeDiscordPoll(payload?.poll),
     embeds: normalizeDiscordEmbeds(payload?.embeds),
-    mentions: (payload?.mentions || []).map((user) => ({
-      id: user?.id,
-      name:
-        user?.member?.nick ||
-        user?.global_name ||
-        user?.username ||
-        user?.id,
-    })),
-    attachments: (payload?.attachments || []).map((att) => ({
-      type: att?.content_type || 'application/octet-stream',
-      url: att?.url || '',
-      name: att?.filename || '',
-      size: typeof att?.size === 'number' ? att.size : undefined,
-    })),
+    mentions: (payload?.mentions || []).map(discordMention),
+    attachments: normalizeDiscordAttachments(payload?.attachments),
+    stickers: normalizeDiscordStickers(payload?.sticker_items),
+    voiceMessage: Boolean((payload?.flags || 0) & DISCORD_VOICE_MESSAGE_FLAG),
+    replyTo: resolveDiscordReply(payload),
     raw: payload,
   };
 };

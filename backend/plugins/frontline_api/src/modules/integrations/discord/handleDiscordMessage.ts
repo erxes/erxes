@@ -12,8 +12,11 @@ import {
   stopTypingIndicator,
 } from '@/integrations/discord/utils';
 import {
+  normalizeDiscordAttachments,
   normalizeDiscordEmbeds,
+  normalizeDiscordMessageMetadata,
   normalizeDiscordPoll,
+  normalizeDiscordStickers,
 } from '@/integrations/discord/activity';
 import { debugError } from '@/integrations/discord/debuggers';
 
@@ -142,6 +145,26 @@ const resolveMentionsForReply = async (
   };
 };
 
+const resolveReplyTarget = async (
+  models: IModels,
+  conversationId: string,
+  messageId?: string,
+) => {
+  if (!messageId) {
+    return undefined;
+  }
+
+  const message = await models.DiscordConversationMessages.findOne({
+    conversationId,
+    messageId,
+  });
+
+  return {
+    messageId,
+    content: message?.content || message?.attachments?.[0]?.name || undefined,
+  };
+};
+
 const handleDiscordReplyMessenger = async (
   models: IModels,
   subdomain: string,
@@ -213,6 +236,26 @@ const handleDiscordReplyMessenger = async (
 
   const createdPoll = normalizeDiscordPoll(sent?.poll);
   const createdEmbeds = normalizeDiscordEmbeds(sent?.embeds);
+  const createdAttachments = normalizeDiscordAttachments(sent?.attachments);
+  const createdStickers = normalizeDiscordStickers(sent?.sticker_items);
+  const replyTo = await resolveReplyTarget(
+    models,
+    conversation._id,
+    replyToMessageId,
+  );
+  const metadata = normalizeDiscordMessageMetadata(
+    {
+      messageId: sent?.id,
+      type: sent?.type,
+      content: sent?.content,
+      attachments: createdAttachments,
+      embeds: createdEmbeds,
+      stickers: createdStickers,
+      poll: createdPoll,
+      replyTo,
+    },
+    'sent',
+  );
   const extraData = {
     ...(createdPoll && { poll: createdPoll }),
     ...(createdEmbeds?.length && { embeds: createdEmbeds }),
@@ -225,6 +268,7 @@ const handleDiscordReplyMessenger = async (
     createdAt: new Date(),
     content: mirrorText,
     attachments,
+    replyTo,
     userId,
   });
 
@@ -238,6 +282,7 @@ const handleDiscordReplyMessenger = async (
       content: previewContent,
       displayContent,
       extraData,
+      ...metadata,
     },
   };
 };

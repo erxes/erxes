@@ -12,6 +12,7 @@ import {
 } from '@/integrations/discord/@types/activity';
 import {
   isIgnorableActivity,
+  normalizeDiscordMessageMetadata,
   resolveDiscordMentions,
 } from '@/integrations/discord/activity';
 import {
@@ -533,12 +534,18 @@ const persistAndDispatchMessage = async ({
       content: displayContent,
       customerId: customer.erxesApiId,
       attachments: storedAttachments,
+      replyTo: activity.replyTo,
     });
 
     // Persist the message into the inbox message store (so the conversation
     // detail renders it) AND publish the real-time event. The
     // `create-conversation-message` action does both; the publish-only
     // `pConversationClientMessageInserted` left the detail thread empty.
+    const metadata = normalizeDiscordMessageMetadata(
+      { ...activity, attachments: storedAttachments },
+      'delivered',
+    );
+
     await receiveInboxMessage(subdomain, {
       action: 'create-conversation-message',
       metaInfo: 'replaceContent',
@@ -549,6 +556,7 @@ const persistAndDispatchMessage = async ({
         createdAt: timestamp,
         attachments: storedAttachments,
         extraData,
+        ...metadata,
       }),
     });
 
