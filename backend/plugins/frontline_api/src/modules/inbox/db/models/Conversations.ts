@@ -145,15 +145,21 @@ export const loadClass = (models: IModels, subdomain: string) => {
       doc.updatedAt = new Date();
 
       if (doc.propertiesData) {
-        doc.propertiesData = await sendTRPCMessage({
+        const validatedPropertiesData = await sendTRPCMessage({
           subdomain,
           pluginName: 'core',
           method: 'mutation',
           module: 'fields',
           action: 'validateFieldValues',
           input: { data: doc.propertiesData },
-          defaultValue: doc.propertiesData,
+          throwOnError: true,
         });
+
+        if (!validatedPropertiesData) {
+          throw new Error('Failed to validate conversation properties');
+        }
+
+        doc.propertiesData = validatedPropertiesData;
       }
 
       const updated = await models.Conversations.updateOne(
