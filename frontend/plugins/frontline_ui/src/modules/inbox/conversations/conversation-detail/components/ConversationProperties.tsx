@@ -16,6 +16,7 @@ export const ConversationProperties = ({
       propertiesData={propertiesData || {}}
       mutateHook={useConversationCustomFieldEdit}
       id={id}
+      className="[&_.grid-cols-2]:grid-cols-1"
     />
   );
 };
