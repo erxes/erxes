@@ -6,7 +6,9 @@ const MAX_ATTACHMENTS = 10;
 const DEFAULT_MAXIMUM_BYTES = 20 * 1024 * 1024;
 const DISCORD_MAXIMUM_BYTES = 10 * 1024 * 1024;
 
-export type PendingAttachment = Pick<IAttachment, 'name' | 'size' | 'type'>;
+export type PendingAttachment = Pick<IAttachment, 'name' | 'size' | 'type'> & {
+  id: string;
+};
 
 export const useMessageAttachments = (isDiscord: boolean) => {
   const { t } = useTranslation('frontline');
@@ -75,7 +77,12 @@ export const useMessageAttachments = (isDiscord: boolean) => {
 
       setPendingAttachments((current) => [
         ...current,
-        ...selectedFiles.map(({ name, size, type }) => ({ name, size, type })),
+        ...selectedFiles.map(({ name, size, type }) => ({
+          id: crypto.randomUUID(),
+          name,
+          size,
+          type,
+        })),
       ]);
       pendingCountRef.current += selectedFiles.length;
 

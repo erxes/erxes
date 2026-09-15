@@ -198,7 +198,7 @@ export const MessageInput = ({
     } catch {
       window.localStorage.removeItem(draftKey(conversationId));
       editor.replaceBlocks(editor.document, []);
-      setContent(undefined);
+      setContent();
     } finally {
       window.setTimeout(() => {
         restoringDraftRef.current = false;

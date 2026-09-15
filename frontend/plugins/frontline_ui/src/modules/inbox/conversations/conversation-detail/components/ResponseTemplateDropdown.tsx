@@ -20,6 +20,68 @@ interface ResponseTemplateDropdownProps {
   loading?: boolean;
 }
 
+const TemplateSuggestionItem = ({
+  suggestion,
+  index,
+  isSelected,
+  channelName,
+  onSelect,
+}: {
+  suggestion: TemplateSuggestion;
+  index: number;
+  isSelected: boolean;
+  channelName?: string;
+  onSelect: (content: string, templateId?: string) => void;
+}) => {
+  const { t } = useTranslation('frontline');
+
+  return (
+    <div
+      onMouseDown={(event) => {
+        event.preventDefault();
+        onSelect(suggestion.content, suggestion._id);
+      }}
+      className={`group cursor-pointer px-4 py-3 hover:bg-accent ${
+        isSelected ? 'bg-info/70 ring-1 ring-inset ring-info/20' : ''
+      }`}
+    >
+      <div className="flex w-full items-start justify-between gap-2">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2">
+            <span
+              className={`truncate font-medium group-hover:text-info ${
+                isSelected ? 'text-info' : 'text-foreground'
+              }`}
+            >
+              {suggestion.name}
+            </span>
+            {suggestion.channelId && (
+              <span className="inline-flex items-center rounded-full bg-accent px-2 py-0.5 text-xs font-medium text-accent-foreground">
+                {channelName || t('channel-label', 'Channel')}
+              </span>
+            )}
+          </div>
+          <div className="mt-1 line-clamp-2 text-sm text-muted-foreground">
+            {suggestion.preview}
+          </div>
+          {suggestion.updatedAt &&
+            !isNaN(new Date(suggestion.updatedAt).getTime()) && (
+              <div className="mt-1.5 text-xs text-muted-foreground">
+                {t('updated', 'Updated')}{' '}
+                {formatDistanceToNow(new Date(suggestion.updatedAt), {
+                  addSuffix: true,
+                })}
+              </div>
+            )}
+        </div>
+        <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-muted text-xs text-muted-foreground transition-colors group-hover:bg-accent">
+          {index + 1}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export const ResponseTemplateDropdown = ({
   suggestions,
   selectedIndex,
@@ -65,51 +127,14 @@ export const ResponseTemplateDropdown = ({
             )?.name;
 
             return (
-              <div
+              <TemplateSuggestionItem
                 key={suggestion._id}
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  onSelect(suggestion.content, suggestion._id);
-                }}
-                className={`
-              px-4 py-3 cursor-pointer group hover:bg-accent
-              ${isSelected ? 'bg-info/70 ring-inset ring-1 ring-info/20' : ''}
-            `}
-              >
-                <div className="flex items-start justify-between gap-2 w-full">
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span
-                        className={`font-medium truncate group-hover:text-info ${
-                          isSelected ? 'text-info' : 'text-foreground'
-                        }`}
-                      >
-                        {suggestion.name}
-                      </span>
-                      {suggestion.channelId && (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-accent text-accent-foreground">
-                          {channelName || t('channel-label', 'Channel')}
-                        </span>
-                      )}
-                    </div>
-                    <div className="text-sm text-muted-foreground mt-1 line-clamp-2">
-                      {suggestion.preview}
-                    </div>
-                    {suggestion.updatedAt &&
-                      !isNaN(new Date(suggestion.updatedAt).getTime()) && (
-                        <div className="mt-1.5 text-xs text-muted-foreground">
-                          {t('updated', 'Updated')}{' '}
-                          {formatDistanceToNow(new Date(suggestion.updatedAt), {
-                            addSuffix: true,
-                          })}
-                        </div>
-                      )}
-                  </div>
-                  <div className="shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-muted text-xs text-muted-foreground group-hover:bg-accent transition-colors">
-                    {index + 1}
-                  </div>
-                </div>
-              </div>
+                suggestion={suggestion}
+                index={index}
+                isSelected={isSelected}
+                channelName={channelName}
+                onSelect={onSelect}
+              />
             );
           })}
 
