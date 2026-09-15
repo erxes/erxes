@@ -51,6 +51,9 @@ export const useCheckCustomerActions = (brandId: string) => {
   };
 
   const checkCustomers = async () => {
+     if (checking) {
+    return;
+  }
     try {
       setChecking(true);
 

@@ -243,6 +243,173 @@ export const msdynamicCheckMutations = {
       syncedCustomer: syncMap[_id]?.syncedCustomer || null,
     }));
   },
+  async toCheckMsdCustomers(
+    _root,
+    { brandId }: { brandId: string },
+    { subdomain, checkPermission }: IContext,
+  ) {
+    await checkPermission('msdCheck');
+
+    const models = await generateModels(subdomain);
+    const config = await getDynamicConfig(models, brandId);
+
+    if (!config.customerApi || !config.username || !config.password) {
+      throw new Error('MS Dynamic config not valid.');
+    }
+
+    const { customerApi, username, password } = config;
+
+    const [customers, companies] = await Promise.all([
+      sendTRPCMessage({
+        subdomain,
+        method: 'query',
+        pluginName: 'core',
+        module: 'customers',
+        action: 'find',
+        input: { query: { state: { $ne: 'deleted' } } },
+        defaultValue: [],
+      }),
+      sendTRPCMessage({
+        subdomain,
+        method: 'query',
+        pluginName: 'core',
+        module: 'companies',
+        action: 'find',
+        input: { query: { status: { $ne: 'deleted' } } },
+        defaultValue: [],
+      }),
+    ]);
+
+    const relations = await models.CustomerRelations.find({
+      brandId,
+    }).lean();
+
+    const erxesByMsdNo: Record<string, any> = {};
+
+    for (const relation of relations) {
+      const customer =
+        customers.find((item: any) => item._id === relation.customerId) ||
+        companies.find((item: any) => item._id === relation.customerId);
+
+      if (customer && relation.no) {
+        erxesByMsdNo[relation.no] = {
+          ...customer,
+          _customerType: customers.some(
+            (item: any) => item._id === customer._id,
+          )
+            ? 'customer'
+            : 'company',
+        };
+      }
+    }
+    const pageSize = 500;
+    const concurrency = 10;
+    const msdCustomers: any[] = [];
+
+    let skip = 0;
+    let hasMore = true;
+
+
+    const fetchPage = async (pageSkip: number) => {
+      const pageStartedAt = Date.now();
+
+      const response = await fetch(
+        `${customerApi}?$top=${pageSize}&$skip=${pageSkip}&$select=No,Name,Phone_No,E_Mail,Partner_Type`,
+        {
+          timeout: 180000,
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Basic ${Buffer.from(
+              `${username}:${password}`,
+            ).toString('base64')}`,
+          },
+        },
+      ).then((res) => res.json());
+
+      const page = response?.value || [];
+
+      return page;
+    };
+
+    while (hasMore) {
+
+      const skips = Array.from(
+        { length: concurrency },
+        (_, index) => skip + index * pageSize,
+      );
+      const pages = await Promise.all(skips.map(fetchPage));
+
+      for (const page of pages) {
+        msdCustomers.push(...page);
+
+        if (page.length < pageSize) {
+          hasMore = false;
+          break;
+        }
+      }
+
+      skip += concurrency * pageSize;
+    }
+    const msdCodes = new Set(msdCustomers.map((customer: any) => customer.No));
+
+    const result = {
+      update: { items: [] as any[] },
+      create: { items: [] as any[] },
+      delete: { items: [] as any[] },
+      error: { items: [] as any[] },
+    };
+
+    for (const msd of msdCustomers) {
+      try {
+        const existing = erxesByMsdNo[msd.No];
+        if (!existing) {
+          result.create.items.push({
+            No: msd.No,
+            Name: msd.Name,
+            Phone_No: msd.Phone_No,
+            E_Mail: msd.E_Mail,
+            Partner_Type: msd.Partner_Type,
+            code: undefined,
+          });
+        } else if (
+          existing.primaryPhone !== msd.Phone_No ||
+          existing.primaryEmail !== msd.E_Mail
+        ) {
+          result.update.items.push({
+            No: msd.No,
+            Name: msd.Name,
+            Phone_No: msd.Phone_No,
+            E_Mail: msd.E_Mail,
+            Partner_Type: msd.Partner_Type,
+            code: existing.code,
+            primaryPhone: existing.primaryPhone,
+            primaryEmail: existing.primaryEmail,
+          });
+        } else {
+          //
+        }
+      } catch (e: any) {
+        result.error.items.push({
+          No: msd.No || '',
+          message: e.message,
+        });
+      }
+    }
+
+    for (const no of Object.keys(erxesByMsdNo)) {
+      if (!msdCodes.has(no)) {
+        const erxes = erxesByMsdNo[no];
+
+        result.delete.items.push({
+          _id: erxes._id,
+          code: no,
+          primaryPhone: erxes.primaryPhone,
+          primaryEmail: erxes.primaryEmail,
+        });
+      }
+    }
+    return result;
+  },
   async toCheckMsdPrices(
     _root,
     { brandId }: { brandId: string },
@@ -276,7 +443,7 @@ export const msdynamicCheckMutations = {
     });
 
     const exchangeRates = config.exchangeRateApi
-      ? ((await getExchangeRates(config)) ?? {})
+      ? (await getExchangeRates(config)) ?? {}
       : {};
 
     const salesCodeFilter = pricePriority.replace(/, /g, ',').split(',');
