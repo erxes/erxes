@@ -119,7 +119,10 @@ export const SelectReportDateValue = ({ selected }: { selected: string }) => {
         onClick={(e) => e.stopPropagation()}
       >
         <IconChevronDown />
-        {t(REPORT_DATE_OPTIONS.find((option) => option.value === selected)?.label ?? '')}
+        {t(
+          REPORT_DATE_OPTIONS.find((option) => option.value === selected)
+            ?.label ?? '',
+        )}
       </Button>
     </Combobox.TriggerBase>
   );

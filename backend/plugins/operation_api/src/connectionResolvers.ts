@@ -50,6 +50,11 @@ import {
   loadGithubConnectionClass,
 } from './modules/githubIntegration/db/models/GithubConnection';
 import { IGithubConnectionDocument } from './modules/githubIntegration/@types/githubConnection';
+import { IGithubMilestoneMappingDocument } from './modules/githubIntegration/@types/githubMilestoneMapping';
+import {
+  IGithubMilestoneMappingModel,
+  loadGithubMilestoneMappingClass,
+} from './modules/githubIntegration/db/models/GithubMilestoneMapping';
 
 export interface IModels {
   Task: ITaskModel;
@@ -65,6 +70,7 @@ export interface IModels {
   OperationTemplate: IOperationTemplateModel;
   GithubConfig: IGithubConfigModel;
   GithubConnection: IGithubConnectionModel;
+  GithubMilestoneMapping: IGithubMilestoneMappingModel;
 }
 
 export interface IContext extends IMainContext {
@@ -149,6 +155,14 @@ export const loadClasses = (
     IGithubConnectionDocument,
     IGithubConnectionModel
   >('operation_github_connections', loadGithubConnectionClass(models));
+
+  models.GithubMilestoneMapping = db.model<
+    IGithubMilestoneMappingDocument,
+    IGithubMilestoneMappingModel
+  >(
+    'operation_github_milestone_mappings',
+    loadGithubMilestoneMappingClass(models),
+  );
 
   return models;
 };

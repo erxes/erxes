@@ -8,8 +8,14 @@ export const noteSchema = new Schema(
     createdBy: { type: String, required: true },
     mentions: { type: [String], default: [] },
     attachments: { type: [attachmentSchema], label: 'Attachments' },
-    isInternal: { type: Boolean, default: false, label: 'Internal note' },
+    isInternal: {
+      type: Boolean,
+      default: false,
+      index: true,
+      label: 'Internal note',
+    },
     statusId: { type: String },
+    mailMessageId: { type: String },
   },
   {
     timestamps: true,

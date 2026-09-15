@@ -9,7 +9,7 @@ import {
   Form,
   Submission,
 } from '@/form/graphql/resolvers/customResolvers/forms';
-import { Poll } from '@/poll/graphql/resolvers/customResolvers/poll';
+import { Survey } from '@/survey/graphql/resolvers/customResolvers/survey';
 import KnowledgeBaseArticle from '@/knowledgebase/graphql/resolvers/customResolvers/article';
 import {
   KnowledgeBaseCategory,
@@ -17,6 +17,7 @@ import {
 } from '@/knowledgebase/graphql/resolvers/customResolvers/category';
 import KnowledgeBaseTopic from '@/knowledgebase/graphql/resolvers/customResolvers/topic';
 import { HelpCenterConfig } from '@/helpcenter/graphql/resolvers/customResolvers/helpCenterConfig';
+import { MailPipelineIntegration } from '@/integrations/mail/graphql/resolvers/customResolvers/pipelineIntegration';
 export const customResolvers = {
   ...inboxResolvers,
   ...integrationFacebookResolvers,
@@ -27,10 +28,11 @@ export const customResolvers = {
   Ticket,
   Form,
   Submission,
-  Poll,
+  Survey,
   KnowledgeBaseArticle,
   KnowledgeBaseCategory,
   KnowledgeBaseParentCategory,
   KnowledgeBaseTopic,
   HelpCenterConfig,
+  MailPipelineIntegration,
 };

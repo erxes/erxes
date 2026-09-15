@@ -8,7 +8,7 @@ import {
 } from '@tabler/icons-react';
 import { Alert, Button, Form, Input, Sheet, Spinner, toast } from 'erxes-ui';
 import { useAtom } from 'jotai';
-import { Control, useForm } from 'react-hook-form';
+import { Control, FieldPath, FieldValues, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useState } from 'react';
@@ -40,6 +40,7 @@ export type FormFieldConfig = {
   placeholder: string;
   required?: boolean;
   description?: string;
+  descriptionFallback?: string;
 };
 
 export const MAIL_FORM_FIELDS: FormFieldConfig[] = [
@@ -63,14 +64,18 @@ export const MAIL_FORM_FIELDS: FormFieldConfig[] = [
   },
 ];
 
-export const MailFormField = ({
+export const MailFormField = <TValues extends FieldValues>({
   name,
   label,
   placeholder,
   required,
   description,
+  descriptionFallback,
   control,
-}: FormFieldConfig & { control: Control<MailFormValues> }) => {
+}: Omit<FormFieldConfig, 'name'> & {
+  name: FieldPath<TValues>;
+  control: Control<TValues>;
+}) => {
   const { t } = useTranslation('frontline');
 
   return (
@@ -91,7 +96,11 @@ export const MailFormField = ({
               className="h-9"
             />
           </Form.Control>
-          {description && <Form.Description>{t(description)}</Form.Description>}
+          {description && (
+            <Form.Description>
+              {t(description, descriptionFallback ?? description)}
+            </Form.Description>
+          )}
           <Form.Message />
         </Form.Item>
       )}
@@ -99,7 +108,15 @@ export const MailFormField = ({
   );
 };
 
-export const MailAddressCallout = ({ address }: { address: string }) => {
+export const MailAddressCallout = ({
+  address,
+  description = 'forward-your-mail-here-description',
+  descriptionFallback,
+}: {
+  address: string;
+  description?: string;
+  descriptionFallback?: string;
+}) => {
   const { t } = useTranslation('frontline');
   const [copied, setCopied] = useState(false);
 
@@ -126,7 +143,7 @@ export const MailAddressCallout = ({ address }: { address: string }) => {
           </Button>
         </div>
         <p className="text-muted-foreground">
-          {t('forward-your-mail-here-description')}
+          {t(description, descriptionFallback ?? description)}
         </p>
       </Alert.Description>
     </Alert>

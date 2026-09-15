@@ -54,6 +54,12 @@ export const GET_DOCUMENTS = gql(`
         name
         content
         replacer
+        approvalLockState {
+          contentType
+          contentId
+          locked
+          hasAccess
+        }
       }
       ${GQL_PAGE_INFO}
     }
@@ -72,6 +78,7 @@ export const GET_DOCUMENT_DETAIL = gql(`
       code
       createdAt
       createdUser {
+        _id
         details {
           avatar
           lastName

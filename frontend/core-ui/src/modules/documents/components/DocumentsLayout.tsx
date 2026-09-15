@@ -1,4 +1,7 @@
 import { useSearchParams } from 'react-router-dom';
+import { ApprovalLockGuard } from 'ui-modules';
+import { DOCUMENT_APPROVAL_CONTENT_TYPE } from '../constants';
+import { DocumentEditorSkeleton } from './DocumentEditorSkeleton';
 
 export const DocumentsLayout = ({
   Documents,
@@ -14,6 +17,20 @@ export const DocumentsLayout = ({
   const documentId = searchParams.get('documentId');
   const contentType = searchParams.get('contentType');
 
+  const editor = documentId?.trim() ? (
+    <ApprovalLockGuard
+      key={documentId}
+      contentType={DOCUMENT_APPROVAL_CONTENT_TYPE}
+      contentId={documentId.trim()}
+      action="view"
+      loadingFallback={<DocumentEditorSkeleton />}
+    >
+      <Editor key={documentId} />
+    </ApprovalLockGuard>
+  ) : (
+    <Editor key={documentId} />
+  );
+
   return (
     <div className="flex min-h-0 flex-1 overflow-hidden">
       <div className="w-(--sidebar-width) flex-none overflow-hidden">
@@ -24,11 +41,7 @@ export const DocumentsLayout = ({
         )}
       </div>
       <div className="min-w-0 flex-1 overflow-hidden">
-        {documentId !== null ? (
-          <Editor key={documentId} />
-        ) : (
-          <Documents viewType="grid" />
-        )}
+        {documentId !== null ? editor : <Documents viewType="grid" />}
       </div>
     </div>
   );
