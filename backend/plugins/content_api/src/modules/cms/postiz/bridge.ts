@@ -1,4 +1,4 @@
-import { createHmac, randomBytes } from 'node:crypto';
+import { createHmac, hkdfSync, randomBytes } from 'node:crypto';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { z } from 'zod';
 
@@ -29,11 +29,15 @@ export async function postizBridge(
   action: string,
   payload: Record<string, unknown>,
 ) {
-  const key = process.env.CMS_POSTIZ_SHARED_SECRET;
-  if (!key || key.length < 32)
+  const secret = process.env.JWT_TOKEN_SECRET;
+  if (!secret?.trim())
     throw new Error(
       'CMS sharing is not configured. Contact your administrator.',
     );
+  // Must match agent_api's CMS verifier; never reuse the JWT key directly.
+  const key = Buffer.from(
+    hkdfSync('sha256', secret, 'erxes-cms-postiz-v1', 'signing', 32),
+  );
   const body = JSON.stringify({ tenant: subdomain, userId, action, payload });
   const timestamp = String(Math.floor(Date.now() / 1000));
   const nonce = randomBytes(16).toString('hex');

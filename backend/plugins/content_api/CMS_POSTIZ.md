@@ -61,9 +61,29 @@ Required configuration:
 
 | Component                 | Setting                                                | Purpose                                                                                                      |
 | ------------------------- | ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
-| content_api and agent_api | `CMS_POSTIZ_SHARED_SECRET`                             | Same random secret of at least 32 characters; distinct per deployment. Never expose it in frontend settings. |
+| content_api and agent_api | Existing `JWT_TOKEN_SECRET` | Must match across both APIs. CMS derives its own purpose-specific signing key automatically; no additional secret is configured. Never expose it in frontend settings. |
 | Postiz backend            | `ERX_CMS_MEDIA_ORIGINS`                                | Comma-separated exact HTTPS origins for trusted public CMS image storage. Empty permits text-only sharing.   |
 | Gateway and Postiz        | Existing instance signing key / `ERX_PROVISIONING_KEY` | Reused managed-instance authentication.                                                                      |
+
+The CMS envelope uses HKDF-SHA256 with salt `erxes-cms-postiz-v1`, info
+`signing` and a 32-byte output. HMAC still covers `cms-postiz-v1`, timestamp,
+nonce and the exact tenant/user/action/payload body. Missing or whitespace-only
+JWT configuration fails closed; the existing secret's bytes are otherwise used
+unchanged, matching erxes internal-auth compatibility. Derivation separates the
+CMS protocol from JWT signing but does not strengthen a weak or exposed root
+secret, or isolate services that share that root. Use a securely generated root
+secret and coordinate any rotation separately, including enterprise Postiz
+credential re-encryption. Do not rotate JWT as part of this feature rollout.
+
+`CMS_POSTIZ_SHARED_SECRET` is retired and ignored, including when JWT is absent.
+Upgrade agent_api and content_api together in a coordinated deployment window;
+old and new signers/verifiers are not compatible. Pause content_api processing
+through approved deployment tooling during the switch if deliveries are active.
+Preserve jobs and ledgers; never clear them to resolve an authentication failure.
+After both APIs are updated, the obsolete variable can be removed. Rollback must
+restore both API versions and their previous matching CMS secret configuration.
+SaaS tenants may share the JWT root; signed tenant context and current membership
+and workspace checks remain mandatory on every request.
 
 Only allow operator-controlled image origins without open redirects or private
 network destinations. Images must remain publicly readable by Postiz and the
@@ -115,10 +135,12 @@ publication by the external social network is not guaranteed.
 - Never delete delivery records/ledgers to retry a post. That removes duplicate
   protection. Restoring an older database backup can also lose acknowledgments;
   reconcile pending/unknown records with Postiz before resuming workers.
-- To stop new CMS work, disable the content worker by removing its new secret
-  through the normal approved deployment workflow. Already accepted Postiz
-  workflows may still publish. Roll back the UI first, then CMS/agent changes;
-  retain the additive Mongo and SQLite data.
+- Do not remove or change `JWT_TOKEN_SECRET` to stop CMS work; other erxes
+  authentication and enterprise Postiz credentials depend on it. Disable sharing
+  through the Admin control below, or pause content_api processing through the
+  approved deployment workflow. Already accepted Postiz workflows may still
+  publish. Roll back the UI first, then both CMS/agent versions together; retain
+  the additive Mongo and SQLite data.
 - Admins can disable sharing using `cmsPostizEnable(..., enabled: false)`.
   This denies new bridge requests, including polling. It does not cancel
   workflows already accepted by Postiz.
