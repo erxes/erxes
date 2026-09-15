@@ -110,6 +110,9 @@
 ### Data and GraphQL
 
 - Use Apollo Client hooks already used in this plugin.
+- Post edits refetch only the CMS post detail, cursor list, and translations.
+  Never use `refetchQueries: 'all'` for CMS saves: it can execute another
+  plugin's dormant query without required variables and reject a successful save.
 - GraphQL operations should live in the feature's `graphql` folder when one
   exists.
 - Name GraphQL queries and mutations with the plugin or module prefix plus the
@@ -196,6 +199,12 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-15` - Isolate CMS post-save refreshes
+
+- **Summary:** Limit post-edit refetches to CMS documents so unrelated assistant queries cannot block the Postiz sharing flow.
+- **Affected areas:** `src/modules/cms/hooks/usePostMutations.ts` and hook regression tests.
+- **Contracts changed:** None.
 
 ### `2026-09-15` - CMS Postiz publish sheet
 
