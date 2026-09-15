@@ -20,7 +20,6 @@ import {
 } from '@/integrations/discord/activity';
 import { debugError } from '@/integrations/discord/debuggers';
 
-
 type TComposerPoll = {
   question?: string;
   options?: unknown[];
@@ -28,9 +27,7 @@ type TComposerPoll = {
   allowMultiselect?: boolean;
 };
 
-
 type TInboxAttachment = { url?: string; name?: string; type?: string };
-
 
 type TInboxRelayDoc = {
   integrationId?: string;
@@ -136,7 +133,8 @@ const resolveMentionsForReply = async (
     nameByUserId.set(id, name || 'user');
   }
 
-  const toName = (_m: string, id: string) => `@${nameByUserId.get(id) || 'user'}`;
+  const toName = (_m: string, id: string) =>
+    `@${nameByUserId.get(id) || 'user'}`;
 
   return {
     discordText: text.replace(MENTION_TOKEN, (_m, id) => `<@${id}>`),
@@ -181,7 +179,6 @@ const handleDiscordReplyMessenger = async (
   } = doc;
 
   const pollRequest = buildPollRequest(poll);
-
 
   const bot = await models.DiscordBots.findOne({
     erxesApiId: integrationId,

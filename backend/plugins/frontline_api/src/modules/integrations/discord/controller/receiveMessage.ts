@@ -144,7 +144,12 @@ const attemptGetOrCreateCustomer = async (
   // row back on failure so no permanently-unlinked row is left behind — a
   // racer waiting on it sees it vanish and takes creation over itself.
   try {
-    customer.erxesApiId = await syncCustomerToCore(subdomain, bot, firstName, avatar);
+    customer.erxesApiId = await syncCustomerToCore(
+      subdomain,
+      bot,
+      firstName,
+      avatar,
+    );
     await customer.save();
   } catch (e) {
     await models.DiscordCustomers.deleteOne({ _id: customer._id });
@@ -463,9 +468,7 @@ const syncConversationToCore = async (
       return claimed;
     }
 
-    const winner = await models.DiscordConversations.findById(
-      conversation._id,
-    );
+    const winner = await models.DiscordConversations.findById(conversation._id);
     if (winner?.erxesApiId) {
       return winner;
     }
@@ -639,7 +642,10 @@ export const receiveDiscordMessage = async ({
 
   // Re-host inbound images to erxes storage so they survive Discord's ~24h CDN
   // URL expiry; videos/files keep their CDN URL. Best-effort, never throws.
-  const storedAttachments = await rehostImageAttachments(subdomain, attachments);
+  const storedAttachments = await rehostImageAttachments(
+    subdomain,
+    attachments,
+  );
 
   // Structured payloads (poll, embed preview cards) travel on the message's
   // `extraData` and render as cards. The Discord message id is *always* stamped
@@ -657,7 +663,12 @@ export const receiveDiscordMessage = async ({
   const previewContent = buildMessagePreview(displayContent, poll, embeds);
 
   try {
-    const customer = await getOrCreateCustomer(models, subdomain, bot, activity);
+    const customer = await getOrCreateCustomer(
+      models,
+      subdomain,
+      bot,
+      activity,
+    );
 
     const created = await findOrCreateDiscordConversation(
       models,

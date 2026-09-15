@@ -508,9 +508,8 @@ export const conversationMutations = {
     { models, subdomain }: IContext,
   ) {
     try {
-      const conversation = await models.Conversations.getConversation(
-        conversationId,
-      );
+      const conversation =
+        await models.Conversations.getConversation(conversationId);
       if (!conversation?.integrationId) {
         return false;
       }
