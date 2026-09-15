@@ -10,6 +10,7 @@ import {
 import { cva, type VariantProps } from 'class-variance-authority';
 import { differenceInHours, differenceInMinutes, format } from 'date-fns';
 import DOMPurify from 'dompurify';
+import { PreviewImage } from './preview-image';
 import { Avatar, Button, cn, Dialog, readImage, Tooltip } from 'erxes-ui';
 import { Slot } from 'radix-ui';
 import * as React from 'react';
@@ -312,6 +313,28 @@ type ParsedMessageContent = {
   cleanHtml: string;
 };
 
+function SanitizedHtml({
+  html,
+  className,
+}: {
+  html: string;
+  className?: string;
+}) {
+  const ref = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    if (!ref.current) return;
+
+    const parsed = new DOMParser().parseFromString(
+      DOMPurify.sanitize(html),
+      'text/html',
+    );
+    ref.current.replaceChildren(...Array.from(parsed.body.childNodes));
+  }, [html]);
+
+  return <div ref={ref} className={className} />;
+}
+
 export function parseQuotedMessage(html?: string): ParsedMessageContent {
   if (!html) return { cleanHtml: '' };
 
@@ -350,8 +373,6 @@ function MessageContent({
 
   if (html !== undefined) {
     const { reply, cleanHtml } = parseQuotedMessage(html);
-    const sanitizedHtml = DOMPurify.sanitize(cleanHtml);
-
     return (
       <div
         data-slot="message-content"
@@ -380,10 +401,10 @@ function MessageContent({
             </div>
           </div>
         )}
-        {sanitizedHtml && (
-          <div
+        {cleanHtml && (
+          <SanitizedHtml
+            html={cleanHtml}
             className={cn('w-full', reply && 'px-3 py-2')}
-            dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
           />
         )}
       </div>
@@ -426,44 +447,123 @@ function PreviewDialogClose() {
   );
 }
 
+function ImagePreviewTrigger({
+  attachment,
+  name,
+}: {
+  attachment: IAttachment;
+  name: string;
+}) {
+  return (
+    <button
+      type="button"
+      className="group relative block max-w-72 overflow-hidden rounded-2xl border border-border/60 bg-muted/30 shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+      aria-label={`Preview ${name}`}
+    >
+      <PreviewImage
+        src={readImage(attachment.url)}
+        alt={name}
+        className="max-h-64 w-full rounded-2xl object-cover"
+      />
+      <span className="absolute inset-0 hidden items-center justify-center bg-black/25 transition-opacity group-hover:flex group-focus-visible:flex sm:flex sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-visible:opacity-100">
+        <span className="flex items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-1 text-xs font-medium text-white">
+          <IconZoomIn className="size-3.5" />
+          Preview
+        </span>
+      </span>
+    </button>
+  );
+}
+
+function ImagePreviewContent({
+  attachment,
+  name,
+}: {
+  attachment: IAttachment;
+  name: string;
+}) {
+  return (
+    <Dialog.Content className="!flex !h-auto !max-h-[90vh] !w-auto !max-w-[90vw] items-center justify-center !overflow-hidden !border-0 !bg-black/90 !p-2">
+      <Dialog.Title className="sr-only">{name}</Dialog.Title>
+      <Dialog.Description className="sr-only">
+        Full-size image preview
+      </Dialog.Description>
+      <PreviewImage
+        src={readImage(attachment.url)}
+        alt={name}
+        fit="contain"
+        className="block max-h-[85vh] max-w-[88vw] rounded-lg object-contain"
+      />
+      <PreviewDialogClose />
+    </Dialog.Content>
+  );
+}
+
 function AttachmentImage({ attachment }: { attachment: IAttachment }) {
   const name = attachment.name || 'Image';
 
   return (
     <Dialog>
       <Dialog.Trigger asChild>
-        <button
-          type="button"
-          className="group relative block max-w-72 overflow-hidden rounded-2xl border border-border/60 bg-muted/30 shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
-          aria-label={`Preview ${name}`}
-        >
-          <img
-            src={readImage(attachment.url)}
-            alt={name}
-            loading="lazy"
-            className="max-h-64 w-full rounded-2xl object-cover"
-          />
-          <span className="absolute inset-0 hidden items-center justify-center bg-black/25 transition-opacity group-hover:flex group-focus-visible:flex sm:flex sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-visible:opacity-100">
-            <span className="flex items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-1 text-xs font-medium text-white">
-              <IconZoomIn className="size-3.5" />
-              Preview
-            </span>
-          </span>
-        </button>
+        <ImagePreviewTrigger attachment={attachment} name={name} />
       </Dialog.Trigger>
-      <Dialog.Content className="!flex !h-auto !max-h-[90vh] !w-auto !max-w-[90vw] items-center justify-center !overflow-hidden !border-0 !bg-black/90 !p-2">
-        <Dialog.Title className="sr-only">{name}</Dialog.Title>
-        <Dialog.Description className="sr-only">
-          Full-size image preview
-        </Dialog.Description>
-        <img
-          src={readImage(attachment.url)}
-          alt={name}
-          className="block max-h-[85vh] max-w-[88vw] rounded-lg object-contain"
-        />
-        <PreviewDialogClose />
-      </Dialog.Content>
+      <ImagePreviewContent attachment={attachment} name={name} />
     </Dialog>
+  );
+}
+
+function VideoPreviewTrigger({
+  attachment,
+  name,
+}: {
+  attachment: IAttachment;
+  name: string;
+}) {
+  return (
+    <button
+      type="button"
+      className="group relative flex max-w-72 items-center overflow-hidden rounded-2xl border border-border/60 bg-black/80 p-2 text-white shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+      aria-label={`Play ${name}`}
+    >
+      <video
+        src={readImage(attachment.url)}
+        muted
+        playsInline
+        preload="metadata"
+        className="max-h-40 w-full rounded-xl object-contain"
+      />
+      <span className="absolute inset-0 flex items-center justify-center bg-black/30">
+        <span className="flex items-center gap-1.5 rounded-full bg-black/70 px-2.5 py-1 text-xs font-medium text-white">
+          <IconZoomIn className="size-3.5" />
+          Play video
+        </span>
+      </span>
+    </button>
+  );
+}
+
+function VideoPreviewContent({
+  attachment,
+  name,
+}: {
+  attachment: IAttachment;
+  name: string;
+}) {
+  return (
+    <Dialog.Content className="!flex !h-auto !max-h-[90vh] !w-auto !max-w-[90vw] items-center justify-center !overflow-hidden !border-0 !bg-black/90 !p-2">
+      <Dialog.Title className="sr-only">{name}</Dialog.Title>
+      <Dialog.Description className="sr-only">
+        Video attachment preview
+      </Dialog.Description>
+      <video
+        src={readImage(attachment.url)}
+        controls
+        autoPlay
+        playsInline
+        className="block max-h-[85vh] max-w-[88vw] rounded-lg object-contain"
+      />
+      <PreviewDialogClose />
+    </Dialog.Content>
   );
 }
 
@@ -473,41 +573,79 @@ function AttachmentVideo({ attachment }: { attachment: IAttachment }) {
   return (
     <Dialog>
       <Dialog.Trigger asChild>
-        <button
-          type="button"
-          className="group relative flex max-w-72 items-center overflow-hidden rounded-2xl border border-border/60 bg-black/80 p-2 text-white shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
-          aria-label={`Play ${name}`}
-        >
-          <video
-            src={readImage(attachment.url)}
-            muted
-            playsInline
-            preload="metadata"
-            className="max-h-40 w-full rounded-xl object-contain"
-          />
-          <span className="absolute inset-0 flex items-center justify-center bg-black/30">
-            <span className="flex items-center gap-1.5 rounded-full bg-black/70 px-2.5 py-1 text-xs font-medium text-white">
-              <IconZoomIn className="size-3.5" />
-              Play video
-            </span>
-          </span>
-        </button>
+        <VideoPreviewTrigger attachment={attachment} name={name} />
       </Dialog.Trigger>
-      <Dialog.Content className="!flex !h-auto !max-h-[90vh] !w-auto !max-w-[90vw] items-center justify-center !overflow-hidden !border-0 !bg-black/90 !p-2">
-        <Dialog.Title className="sr-only">{name}</Dialog.Title>
-        <Dialog.Description className="sr-only">
-          Video attachment preview
-        </Dialog.Description>
-        <video
-          src={readImage(attachment.url)}
-          controls
-          autoPlay
-          playsInline
-          className="block max-h-[85vh] max-w-[88vw] rounded-lg object-contain"
-        />
-        <PreviewDialogClose />
-      </Dialog.Content>
+      <VideoPreviewContent attachment={attachment} name={name} />
     </Dialog>
+  );
+}
+
+function FilePreviewTrigger({
+  attachment,
+  name,
+  IconComponent,
+}: {
+  attachment: IAttachment;
+  name: string;
+  IconComponent: React.FC<IconProps>;
+}) {
+  return (
+    <button
+      type="button"
+      className="flex w-fit max-w-full min-w-44 items-center gap-2.5 rounded-xl border border-border/70 bg-card p-2 text-left text-card-foreground shadow-2xs transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+      aria-label={`Preview ${name}`}
+    >
+      <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted text-primary">
+        <IconComponent className="size-5" />
+      </span>
+      <span className="min-w-0 flex-1 leading-tight">
+        <span className="block truncate text-xs font-semibold">{name}</span>
+        <span className="mt-0.5 block truncate text-[11px] text-muted-foreground">
+          {formatFileSize(attachment.size || 0)} · Preview
+        </span>
+      </span>
+    </button>
+  );
+}
+
+function FilePreviewContent({
+  attachment,
+  name,
+  IconComponent,
+}: {
+  attachment: IAttachment;
+  name: string;
+  IconComponent: React.FC<IconProps>;
+}) {
+  return (
+    <Dialog.Content className="max-w-sm rounded-2xl p-5">
+      <Dialog.Header>
+        <Dialog.Title className="truncate text-base">{name}</Dialog.Title>
+        <Dialog.Description className="sr-only">
+          File attachment preview
+        </Dialog.Description>
+      </Dialog.Header>
+      <div className="flex flex-col items-center gap-3 py-4 text-center">
+        <span className="flex size-14 items-center justify-center rounded-2xl bg-muted text-primary">
+          <IconComponent className="size-7" />
+        </span>
+        <p className="text-xs text-muted-foreground">
+          {formatFileSize(attachment.size || 0)}
+        </p>
+        <Button asChild size="sm">
+          <a
+            href={readImage(attachment.url)}
+            target="_blank"
+            rel="noopener noreferrer"
+            download
+          >
+            <IconDownload />
+            Download file
+          </a>
+        </Button>
+      </div>
+      <PreviewDialogClose />
+    </Dialog.Content>
   );
 }
 
@@ -520,50 +658,17 @@ function AttachmentFile({ attachment }: { attachment: IAttachment }) {
   return (
     <Dialog>
       <Dialog.Trigger asChild>
-        <button
-          type="button"
-          className="flex w-fit max-w-full min-w-44 items-center gap-2.5 rounded-xl border border-border/70 bg-card p-2 text-left text-card-foreground shadow-2xs transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
-          aria-label={`Preview ${name}`}
-        >
-          <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted text-primary">
-            <IconComponent className="size-5" />
-          </span>
-          <span className="min-w-0 flex-1 leading-tight">
-            <span className="block truncate text-xs font-semibold">{name}</span>
-            <span className="mt-0.5 block truncate text-[11px] text-muted-foreground">
-              {formatFileSize(attachment.size || 0)} · Preview
-            </span>
-          </span>
-        </button>
+        <FilePreviewTrigger
+          attachment={attachment}
+          name={name}
+          IconComponent={IconComponent}
+        />
       </Dialog.Trigger>
-      <Dialog.Content className="max-w-sm rounded-2xl p-5">
-        <Dialog.Header>
-          <Dialog.Title className="truncate text-base">{name}</Dialog.Title>
-          <Dialog.Description className="sr-only">
-            File attachment preview
-          </Dialog.Description>
-        </Dialog.Header>
-        <div className="flex flex-col items-center gap-3 py-4 text-center">
-          <span className="flex size-14 items-center justify-center rounded-2xl bg-muted text-primary">
-            <IconComponent className="size-7" />
-          </span>
-          <p className="text-xs text-muted-foreground">
-            {formatFileSize(attachment.size || 0)}
-          </p>
-          <Button asChild size="sm">
-            <a
-              href={readImage(attachment.url)}
-              target="_blank"
-              rel="noopener noreferrer"
-              download
-            >
-              <IconDownload />
-              Download file
-            </a>
-          </Button>
-        </div>
-        <PreviewDialogClose />
-      </Dialog.Content>
+      <FilePreviewContent
+        attachment={attachment}
+        name={name}
+        IconComponent={IconComponent}
+      />
     </Dialog>
   );
 }
@@ -768,7 +873,7 @@ function MessageItemActions({
             type="button"
             variant="ghost"
             size="icon"
-            onClick={() => void handleCopy()}
+            onClick={handleCopy}
             className="size-6 rounded-md text-muted-foreground"
             aria-label="Copy message"
           >

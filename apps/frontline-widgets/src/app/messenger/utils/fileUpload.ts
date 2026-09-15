@@ -1,6 +1,7 @@
 import { DEFAULT_MAX_UPLOAD_SIZE } from '../constants';
 
 export type PendingFile = {
+  id: string;
   file: File;
   name: string;
   type: string;
@@ -20,6 +21,7 @@ export const toPendingFile = (
   file: File,
   state: PendingFile['state'],
 ): PendingFile => ({
+  id: crypto.randomUUID(),
   file,
   name: file.name,
   type: file.type,
