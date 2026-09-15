@@ -60,6 +60,49 @@ const fallbackReasonFor = (kind: InstagramMessageKind) =>
     ? 'Story unavailable'
     : 'Unsupported Instagram message';
 
+type TNormalizedCore = Pick<
+  IInstagramConversationMessage,
+  'messageKind' | 'providerData' | 'expiresAt'
+>;
+
+const buildCoreFields = ({
+  messageId,
+  attachmentType,
+  previewUrl,
+  hasContent,
+  timestampMs,
+}: {
+  messageId?: string;
+  attachmentType?: string;
+  previewUrl?: string;
+  hasContent: boolean;
+  timestampMs?: number;
+}): TNormalizedCore => {
+  const messageKind = resolveMessageKind(attachmentType, hasContent);
+  const isStory =
+    messageKind === 'story_mention' || messageKind === 'story_reply';
+
+  return {
+    messageKind,
+    providerData: {
+      messageId,
+      attachmentType,
+      previewText: previewTextForKind(messageKind),
+      previewUrl,
+      shareType: shareTypeFor(attachmentType),
+      storyUrl: isStory ? previewUrl : undefined,
+      fallbackReason:
+        !hasContent && !previewUrl
+          ? fallbackReasonFor(messageKind)
+          : undefined,
+    },
+    expiresAt:
+      isStory && timestampMs !== undefined
+        ? new Date(timestampMs + STORY_LIFETIME_MS)
+        : undefined,
+  };
+};
+
 export const normalizeInstagramMessage = (
   activity: IMessageData,
 ): Pick<
@@ -72,29 +115,17 @@ export const normalizeInstagramMessage = (
   const primaryAttachment = storyReply
     ? { type: 'story_reply', payload: { url: storyReply.url } }
     : message?.attachments?.[0];
-  const attachmentType = primaryAttachment?.type;
-  const previewUrl = primaryAttachment?.payload?.url;
-  const messageKind = resolveMessageKind(attachmentType, Boolean(text));
-  const isStory =
-    messageKind === 'story_mention' || messageKind === 'story_reply';
 
   return {
-    messageKind,
-    providerData: {
+    ...buildCoreFields({
       messageId: message?.mid,
-      attachmentType,
-      previewText: previewTextForKind(messageKind),
-      previewUrl,
-      shareType: shareTypeFor(attachmentType),
-      storyUrl: isStory ? previewUrl : undefined,
-      fallbackReason:
-        !text && !previewUrl ? fallbackReasonFor(messageKind) : undefined,
-    },
+      attachmentType: primaryAttachment?.type,
+      previewUrl: primaryAttachment?.payload?.url,
+      hasContent: Boolean(text),
+      timestampMs: activity.timestamp,
+    }),
     replyTo: message?.reply_to?.mid
       ? { messageId: message.reply_to.mid }
-      : undefined,
-    expiresAt: isStory
-      ? new Date(activity.timestamp + STORY_LIFETIME_MS)
       : undefined,
   };
 };
@@ -107,33 +138,18 @@ export const normalizeStoredInstagramMessage = (
   const primaryAttachment = message.attachments?.[0] as
     | { type?: string; url?: string }
     | undefined;
-  const attachmentType = primaryAttachment?.type;
-  const messageKind = resolveMessageKind(
-    attachmentType,
-    Boolean(message.content),
-  );
-  const isStory =
-    messageKind === 'story_mention' || messageKind === 'story_reply';
 
   return {
     ...message,
-    messageKind,
-    providerData: {
+    ...buildCoreFields({
       messageId: message.mid,
-      attachmentType,
-      previewText: previewTextForKind(messageKind),
+      attachmentType: primaryAttachment?.type,
       previewUrl: primaryAttachment?.url,
-      shareType: shareTypeFor(attachmentType),
-      storyUrl: isStory ? primaryAttachment?.url : undefined,
-      fallbackReason:
-        !message.content && !primaryAttachment?.url
-          ? fallbackReasonFor(messageKind)
-          : undefined,
-    },
-    deliveryStatus: 'sent',
-    expiresAt:
-      isStory && message.createdAt
-        ? new Date(new Date(message.createdAt).getTime() + STORY_LIFETIME_MS)
+      hasContent: Boolean(message.content),
+      timestampMs: message.createdAt
+        ? new Date(message.createdAt).getTime()
         : undefined,
+    }),
+    deliveryStatus: 'sent',
   };
 };
