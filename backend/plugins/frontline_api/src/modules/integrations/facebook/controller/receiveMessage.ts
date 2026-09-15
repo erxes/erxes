@@ -99,6 +99,63 @@ const shareMessageResult = (
   return { messageKind: 'share' as const, providerData };
 };
 
+const stickerMessageResult = (
+  attachment: FacebookAttachment | undefined,
+  providerData: IMessageProviderData,
+  attachmentUrl?: string,
+) => {
+  if (!attachment?.payload?.sticker_id) return undefined;
+  providerData.previewUrl = attachmentUrl;
+  providerData.previewText = 'Sent a sticker';
+  return { messageKind: 'sticker' as const, providerData };
+};
+
+const storyAttachmentResult = (
+  attachmentType: string | undefined,
+  providerData: IMessageProviderData,
+  attachmentUrl: string | undefined,
+  timestamp: Date,
+) => {
+  if (attachmentType === 'share' && isFacebookStoryUrl(attachmentUrl)) {
+    providerData.storyUrl = attachmentUrl;
+    providerData.previewText = 'Story reply';
+    return storyMessageResult('story_reply', providerData, timestamp);
+  }
+
+  if (!attachmentType || !STORY_ATTACHMENT_TYPES.has(attachmentType)) {
+    return undefined;
+  }
+
+  const storyKind = attachmentType as FacebookStoryKind;
+  providerData.storyUrl = attachmentUrl;
+  providerData.previewText =
+    storyKind === 'story_reply' ? 'Story reply' : 'Story mention';
+  providerData.fallbackReason = attachmentUrl
+    ? undefined
+    : 'Story unavailable';
+  return storyMessageResult(storyKind, providerData, timestamp);
+};
+
+const mediaMessageResult = (
+  attachmentType: string | undefined,
+  providerData: IMessageProviderData,
+  attachmentUrl?: string,
+) => {
+  if (attachmentType === 'audio') {
+    providerData.previewUrl = attachmentUrl;
+    providerData.previewText = 'Voice message';
+    return { messageKind: 'voice' as const, providerData };
+  }
+
+  const mediaKind = attachmentType
+    ? MEDIA_ATTACHMENT_KINDS[attachmentType]
+    : undefined;
+  if (!mediaKind) return undefined;
+
+  providerData.previewUrl = attachmentUrl;
+  return { messageKind: mediaKind, providerData };
+};
+
 const normalizeFacebookMessage = ({
   mid,
   text,
@@ -130,45 +187,23 @@ const normalizeFacebookMessage = ({
     return storyMessageResult('story_reply', providerData, timestamp);
   }
 
-  if (attachment?.payload?.sticker_id) {
-    providerData.previewUrl = attachmentUrl;
-    providerData.previewText = 'Sent a sticker';
-    return { messageKind: 'sticker', providerData };
-  }
+  const sticker = stickerMessageResult(attachment, providerData, attachmentUrl);
+  if (sticker) return sticker;
 
-  if (attachmentType === 'share' && isFacebookStoryUrl(attachmentUrl)) {
-    providerData.storyUrl = attachmentUrl;
-    providerData.previewText = 'Story reply';
-    return storyMessageResult('story_reply', providerData, timestamp);
-  }
-
-  if (attachmentType && STORY_ATTACHMENT_TYPES.has(attachmentType)) {
-    const storyKind = attachmentType as FacebookStoryKind;
-    providerData.storyUrl = attachmentUrl;
-    providerData.previewText =
-      storyKind === 'story_reply' ? 'Story reply' : 'Story mention';
-    providerData.fallbackReason = attachmentUrl
-      ? undefined
-      : 'Story unavailable';
-    return storyMessageResult(storyKind, providerData, timestamp);
-  }
+  const storyAttachment = storyAttachmentResult(
+    attachmentType,
+    providerData,
+    attachmentUrl,
+    timestamp,
+  );
+  if (storyAttachment) return storyAttachment;
 
   if (attachmentType && SHARE_ATTACHMENT_TYPES.has(attachmentType)) {
     return shareMessageResult(attachmentType, providerData, attachmentUrl);
   }
 
-  if (attachmentType === 'audio') {
-    providerData.previewUrl = attachmentUrl;
-    providerData.previewText = 'Voice message';
-    return { messageKind: 'voice', providerData };
-  }
-
-  const mediaKind =
-    (attachmentType && MEDIA_ATTACHMENT_KINDS[attachmentType]) || undefined;
-  if (mediaKind) {
-    providerData.previewUrl = attachmentUrl;
-    return { messageKind: mediaKind, providerData };
-  }
+  const media = mediaMessageResult(attachmentType, providerData, attachmentUrl);
+  if (media) return media;
 
   if (text) {
     return { messageKind: 'text', providerData };
