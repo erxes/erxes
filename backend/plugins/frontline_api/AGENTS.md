@@ -354,6 +354,16 @@ customerId, visitorId)` returns the voter's own selections for the
   `conversationCounts` always returns a `responded` / `standby` / `handoff`
   count alongside `unassigned` / `participating` / `starred` / `resolved` /
   `awaitingResponse`.
+- GraphQL: `Conversation.propertiesData: JSON` and
+  `conversationEditCustomFields(_id!, propertiesData: JSON): Conversation` —
+  Core `frontline:conversation` custom properties. `Conversations.propertiesData`
+  is a `Schema.Types.Mixed` `{ [fieldId]: value }` map, matching the
+  `propertiesData` convention every other entity with this UI treatment uses
+  (`Ticket`, `Customer`, `Company`, `Product`, `User`) — never
+  `customFieldsData`, which is the legacy array-shaped name those same
+  entities keep only for old data. Validated through core
+  `fields.validateFieldValues` inside `models.Conversations.updateConversation`
+  whenever `propertiesData` is present in the update doc.
 - GraphQL: `getChannels` returns **team channels only** on every branch
   (`channelIds`, `integrationId`, see-everything, and membership), including the
   caller's own personal channel. Personal inboxes are reached only through
@@ -1917,6 +1927,36 @@ CallConversationDetail` resolves the call integration by `queueName` first,
   `Duplicate dstTrunk detected.` are no longer returned by
   `integrationsCreateExternalIntegration` or integration edit.
 
+### `2026-09-15` — Conversation custom properties actually persist
+
+- **Summary:** Restored the 2.0-era link between conversations and core's
+  custom-properties system, which the 3.0 rewrite had left broken: the
+  Mongoose field had been silently renamed to `customsData` (never read or
+  written anywhere else, and mismatched with the `customFieldsData` the
+  GraphQL type/mutation already declared, so Mongoose's strict mode silently
+  dropped every write), and no validation call into core `fields` existed for
+  conversations. The field is now `propertiesData` (`Schema.Types.Mixed`) —
+  named to match the platform-wide convention every other entity with this UI
+  treatment uses (`Ticket.propertiesData`, `Customer.propertiesData`,
+  `Company.propertiesData`, `Product.propertiesData`, `User.propertiesData`),
+  not the `customFieldsData` name 2.0 used. `customFieldsData` is what those
+  same entities keep as a *legacy* array-shaped field for old data; it is not
+  the live one. `Conversations.updateConversation` validates the new field
+  through core `fields.validateFieldValues` before persisting, mirroring
+  `modules/ticket/db/ticket.ts`. `conversationEditCustomFields`'s GraphQL
+  argument was renamed from `customFieldsData` to `propertiesData` to match —
+  safe because the mutation never worked before this change, so nothing
+  depended on the old argument name.
+- **Affected areas:** `modules/inbox/db/definitions/conversations.ts`,
+  `modules/inbox/db/models/Conversations.ts`,
+  `modules/inbox/@types/conversations.ts`,
+  `modules/inbox/graphql/schemas/conversation.ts`,
+  `modules/inbox/graphql/resolvers/mutations/conversations.ts`.
+- **Contracts changed:** `Conversation.customFieldsData` field renamed to
+  `Conversation.propertiesData`; `conversationEditCustomFields`'s
+  `customFieldsData` argument renamed to `propertiesData`. Both existed in the
+  schema already but never worked, so no real caller is affected.
+
 ### `2026-09-10` — Polls became surveys, database included
 
 - **Summary:** The whole feature was renamed from poll to survey — module,
@@ -2009,18 +2049,3 @@ CallConversationDetail` resolves the call integration by `queueName` first,
   sending `domain` fails validation; an unknown or missing `Origin` is now a
   `Not found` error rather than `null`. The
   `HelpCenterConfigs.getConfigByDomain` model method is removed.
-
-### `2026-09-10` — A tap stopped counting as a direct message
-
-- **Summary:** The message trigger's Direct Message condition excluded only
-  `btnId`, so Get Started, persistent menu, ice breaker, quick reply and card
-  button taps matched it too and fired a second automation alongside the one
-  that owned them; it now skips any payload carrying a bot key. The webhook
-  route also stopped ending a response twice, which crashed the process with
-  `ERR_STREAM_WRITE_AFTER_END` on every messaging event.
-- **Affected areas:**
-  `src/modules/integrations/facebook/meta/automation/messages/index.ts`,
-  `src/modules/integrations/facebook/meta/automation/utils/messageUtils.ts`,
-  `src/modules/integrations/facebook/controller/controller.ts`
-- **Contracts changed:** None. `isPostbackPayload` is newly exported from
-  `messageUtils`.

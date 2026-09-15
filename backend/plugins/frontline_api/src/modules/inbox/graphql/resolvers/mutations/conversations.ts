@@ -987,10 +987,10 @@ export const conversationMutations = {
 
   async conversationEditCustomFields(
     _root,
-    { _id, customFieldsData }: { _id: string; customFieldsData: any },
+    { _id, propertiesData }: { _id: string; propertiesData: any },
     { models }: IContext,
   ) {
-    await models.Conversations.updateConversation(_id, { customFieldsData });
+    await models.Conversations.updateConversation(_id, { propertiesData });
     return models.Conversations.getConversation(_id);
   },
 };
