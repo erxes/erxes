@@ -9,66 +9,6 @@ import { UnsupportedMessage } from '@/inbox/conversation-messages/components/Mes
 const attachmentKey = (attachment: IAttachment, index: number) =>
   `${attachment.url || 'missing'}-${index}`;
 
-export const MessageAttachments = ({
-  attachments,
-}: {
-  attachments?: IAttachment[];
-}) => {
-  const { t } = useTranslation('frontline');
-  const [failedKeys, setFailedKeys] = useState<Set<string>>(() => new Set());
-
-  if (!attachments?.length) return null;
-
-  const single = attachments.length === 1;
-  const unavailableCount = attachments.filter(
-    (attachment, index) =>
-      !attachment.url || failedKeys.has(attachmentKey(attachment, index)),
-  ).length;
-
-  return (
-    <div
-      className={cn(
-        single ? 'flex' : 'grid grid-cols-6 gap-1.5 overflow-hidden rounded-lg',
-      )}
-    >
-      {attachments.map((attachment, index) => {
-        const key = attachmentKey(attachment, index);
-        return (
-          <div
-            key={key}
-            className={cn(
-              (!attachment.url || failedKeys.has(key)) && 'hidden',
-              !single && 'min-w-0',
-              attachments.length === 2 && 'col-span-3',
-              attachments.length === 3 &&
-                (index < 2 ? 'col-span-3' : 'col-span-6 max-h-52'),
-              attachments.length === 4 && 'col-span-3',
-              attachments.length === 5 &&
-                (index < 2 ? 'col-span-3' : 'col-span-2'),
-              attachments.length > 5 && 'col-span-2',
-            )}
-          >
-            <MessageAttachment
-              attachment={attachment}
-              single={single}
-              onUnavailable={() =>
-                setFailedKeys((current) => new Set(current).add(key))
-              }
-            />
-          </div>
-        );
-      })}
-      {unavailableCount > 0 && (
-        <div className="col-span-6">
-          <UnsupportedMessage
-            text={t('attachment-unavailable', 'Attachment unavailable')}
-          />
-        </div>
-      )}
-    </div>
-  );
-};
-
 const MessageAttachment = ({
   attachment,
   single,
@@ -167,5 +107,65 @@ const MessageAttachment = ({
         />
       </Dialog.Content>
     </Dialog>
+  );
+};
+
+export const MessageAttachments = ({
+  attachments,
+}: {
+  attachments?: IAttachment[];
+}) => {
+  const { t } = useTranslation('frontline');
+  const [failedKeys, setFailedKeys] = useState<Set<string>>(() => new Set());
+
+  if (!attachments?.length) return null;
+
+  const single = attachments.length === 1;
+  const unavailableCount = attachments.filter(
+    (attachment, index) =>
+      !attachment.url || failedKeys.has(attachmentKey(attachment, index)),
+  ).length;
+
+  return (
+    <div
+      className={cn(
+        single ? 'flex' : 'grid grid-cols-6 gap-1.5 overflow-hidden rounded-lg',
+      )}
+    >
+      {attachments.map((attachment, index) => {
+        const key = attachmentKey(attachment, index);
+        return (
+          <div
+            key={key}
+            className={cn(
+              (!attachment.url || failedKeys.has(key)) && 'hidden',
+              !single && 'min-w-0',
+              attachments.length === 2 && 'col-span-3',
+              attachments.length === 3 &&
+                (index < 2 ? 'col-span-3' : 'col-span-6 max-h-52'),
+              attachments.length === 4 && 'col-span-3',
+              attachments.length === 5 &&
+                (index < 2 ? 'col-span-3' : 'col-span-2'),
+              attachments.length > 5 && 'col-span-2',
+            )}
+          >
+            <MessageAttachment
+              attachment={attachment}
+              single={single}
+              onUnavailable={() =>
+                setFailedKeys((current) => new Set(current).add(key))
+              }
+            />
+          </div>
+        );
+      })}
+      {unavailableCount > 0 && (
+        <div className="col-span-6">
+          <UnsupportedMessage
+            text={t('attachment-unavailable', 'Attachment unavailable')}
+          />
+        </div>
+      )}
+    </div>
   );
 };
