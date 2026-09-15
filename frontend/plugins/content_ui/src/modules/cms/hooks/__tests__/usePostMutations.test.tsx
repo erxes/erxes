@@ -117,8 +117,8 @@ function setup(
               name === 'Post'
                 ? { cmsPost: post }
                 : name === 'CmsPostList'
-                ? { cmsPostList: { posts: [post] } }
-                : { cmsTranslations: [{ title: post.title }] };
+                  ? { cmsPostList: { posts: [post] } }
+                  : { cmsTranslations: [{ title: post.title }] };
             observer.next({ data });
           }
           observer.complete();
