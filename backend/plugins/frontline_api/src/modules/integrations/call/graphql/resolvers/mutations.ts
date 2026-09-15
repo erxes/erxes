@@ -72,6 +72,9 @@ const callsMutations = {
           }
         : null,
       channels: channel ? [channel] : [],
+      integration: integration
+        ? { _id: integration._id, name: integration.name }
+        : null,
     };
   },
 

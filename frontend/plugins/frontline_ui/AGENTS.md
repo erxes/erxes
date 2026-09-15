@@ -75,9 +75,19 @@
 
 - The call widget's dialpad header carries a clear-cache icon button next to
   Pause and Turn off. After a confirm it closes the widget, resets the call
-  atoms persisted in `localStorage` (`config:call_integrations`, `callInfo`,
+  atoms persisted in `localStorage` (`config:call_integrations`,
+  `config:call_enabled_integrations`, `callInfo`,
   `callHistoryId`, `callWidgetPosition`) and reopens the call config picker,
   which unmounts `SipProvider` and stops the SIP user agent.
+- The incoming-call popup reads `Incoming call to <integration name>`, naming
+  the inbox integration `callAddCustomer` matched for the call's queue, not the
+  integration's channel.
+- Each call integration row's switch is independent: any number can be on at
+  once and turning one on never turns another off. `Call from` in the dialpad
+  lists exactly the integrations switched on, labelled by integration name
+  (the formatted phone only when the name is empty), and
+  picking one makes it `callConfigAtom`. Turning off the selected integration
+  moves `Call from` to another switched-on one, or disconnects when none is left.
 - Surveys are split across two routes, mirroring how forms are laid out.
   `settings/frontline/channels/:id/surveys` manages the channel's surveys: the
   settings breadcrumb resolves to `Channels / <channel> / Surveys` and carries the
@@ -602,6 +612,20 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
   `ClearCallCacheButton` (`call/components/CallSipActions.tsx`), otherwise the
   clear-cache action leaves stale call state behind. `callConfigAtom` is reset
   last, after `callSelectConfigDialogAtom` is set to `true`, so the picker opens.
+- Which call integrations are switched on is `callEnabledIntegrationIdsAtom`
+  unioned with `callConfigAtom.inboxId` while it `isAvailable`; read and change
+  it only through `useCallEnabledIntegrations`, so the switches and `Call from`
+  never disagree. The union keeps a config chosen before multi-toggle existed
+  switched on.
+- The call widget popover sits at `z-100` and `Select.Content` portals to
+  `body` at `z-50`, so any select inside the widget must raise its content
+  above the widget (`SelectPhoneCallFrom` uses `z-110`), or its list opens
+  hidden behind it.
+- `SipProvider` restarts its JsSIP user agent in place when `host`, `port` or
+  `user` change, so a `Call from` change to different SIP credentials
+  re-registers and one on the same credentials keeps the live connection. Never
+  force a `key` on `SipProvider`: `CallWidget` renders inside it, and a remount
+  runs the widget's `IDLE` effect and closes the widget.
 - `RecordTable.Provider`'s container is `overflow-hidden`, so a table that is
   not wrapped in a scroll area clips every column past the viewport instead of
   scrolling. The help center and its categories tables paginate by page, not by
@@ -1242,6 +1266,24 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-15` — Several call integrations can be switched on
+
+- **Summary:** Call integration switches no longer turn each other off, and
+  `Call from` lists every switched-on integration by name.
+- **Affected areas:**
+  `src/modules/integrations/call/{hooks/useCallEnabledIntegrations.ts,components/{CallIntegrationDetail,SelectPhoneCallFrom,SipContainer,CallSipActions}.tsx,states/sipStates.ts,types/callTypes.ts,graphql/queries/callConfigQueries.ts}`
+- **Contracts changed:** `callUserIntegrations` also selects `name`; new
+  `localStorage` key `config:call_enabled_integrations`.
+
+### `2026-09-15` — The incoming call names its integration
+
+- **Summary:** The incoming-call popup shows the name of the integration the
+  call rang instead of the channel name.
+- **Affected areas:**
+  `src/modules/integrations/call/{components/IncomingCall,components/CallWidget,hooks/useAddCustomer,graphql/mutations/callMutations}.ts(x)`
+- **Contracts changed:** `CallAddCustomer` also selects
+  `integration { _id name }`.
+
 ### `2026-09-15` — The call widget can clear its cached state
 
 - **Summary:** An eraser button in the dialpad header, behind a confirm, resets
@@ -1352,276 +1394,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `src/modules/survey/types/surveyTypes.ts`.
 - **Contracts changed:** Consumes the new `SurveyOption` / `SurveyOptionInput`
   ticket-automation fields.
-
-### `2026-09-09` — The survey builder became a step wizard with `Add Step`
-
-- **Summary:** Creating or editing a survey moved out of `SurveySheet` into a
-  full-page three-step wizard on its own routes, built on the same
-  `IntegrationSteps` chrome, footer navigation and per-step Jotai atoms as the
-  form builder; its Content step adds, names, reorders and removes the survey's
-  question steps, and the right panel previews them through the real
-  `MessageSurvey`.
-- **Affected areas:** `src/modules/survey/components/{SurveyCreate,SurveyEdit}.tsx`,
-  `src/modules/survey/components/mutate/*`,
-  `src/modules/survey/components/survey-page/{surveys-create,survey-columns,SurveyDetailsBreadcrumb,SurveyResultsDialog}.tsx`,
-  `src/modules/survey/components/survey-results/*`,
-  `src/modules/survey/{states,constants,graphql,hooks,types}/*`,
-  `src/pages/Survey{Create,Detail}Page.tsx`,
-  `src/modules/channels/components/settings/{Settings.tsx,breadcrumbs/ChannelSettingsBreadcrumb.tsx}`,
-  `src/modules/types/FrontlinePaths.ts`,
-  `src/modules/inbox/{types/Conversation.ts,conversation-messages/components/MessageSurvey.tsx,conversations/conversation-detail/components/SendSurveyDialog.tsx}`.
-- **Contracts changed:** Consumes the new `Survey.steps`, `SurveyResults.steps` and
-  `surveyAdd`/`surveyEdit` `steps` argument; `SurveySheet` and `surveyFormSchema` were
-  removed.
-
-# <<<<<<< HEAD
-
-### `2026-09-09` — The bot's Activity tab is about comments
-
-<<<<<<< HEAD
-
-### `2026-09-09` — Topic colour and image fields serve both drawers
-
-- **Summary:** The topic accent colour and background image were written out
-  twice — once in `TopicDrawer` and again in the help center appearance tab —
-  and the appearance tab repeated a near-identical `StyleColorField` call for
-  each of its twelve colours, which pushed duplication on new code past the
-  Sonar gate. The two fields are now one shared pair in `knowledgebase`, and
-  the colour grids render from field lists in `helpcenter/constants`.
-- **Affected areas:** `src/modules/knowledgebase/components/{TopicAppearanceFields,TopicDrawer}.tsx`,
-  `src/modules/helpcenter/components/help-center-drawer/HelpCenterAppearanceTab.tsx`,
-  `src/modules/helpcenter/{constants,types}/index.ts`
-- **Contracts changed:** `None`
-
-> > > > > > > f367b4a36cb66a9d80ba39450bef5cd15fd95d21
-
-### `2026-09-09` — A new help center starts on the portal's palette
-
-- **Summary:** `DEFAULT_HELP_CENTER_STYLES` seeded most colours as white and the
-  topic accent as black, so a help center created here published a colourless
-  site — the portal cannot tell a stored white from an unset colour. Each field
-  is now the portal token it feeds, and `EMPTY_HELP_CENTER_FORM.color` is the
-  brand rather than `#000000`.
-- **Affected areas:** `src/modules/helpcenter/constants/index.ts`
-- **Contracts changed:** `None`
-
-### `2026-09-09` — The website picker says when no portal has a domain
-
-- **Summary:** A client portal's `domain` is optional, so the picker could come
-  back with portals and still list nothing, reporting "No results found" as if
-  none existed. It now separates the two: an empty result with portals present
-  says no portal has a domain yet and where to set one, and the query's error is
-  passed to `Combobox.Empty` instead of being dropped.
-- **Affected areas:**
-  `src/modules/helpcenter/components/SelectHelpCenterWebsite.tsx`
-- **Contracts changed:** `None`
-
-### `2026-09-09` — Choosing a website also captures its app token
-
-- **Summary:** The website picker now carries the chosen client portal's `token`
-  alongside its domain, and the drawer and table cell store it as the config's
-  `erxesAppToken`, so the published site gets the messenger widget token from
-  `helpCenterGetConfigByDomain` without anyone typing it.
-- **Affected areas:**
-  `src/modules/helpcenter/components/SelectHelpCenterWebsite.tsx`,
-  `src/modules/helpcenter/components/HelpCenterColumns.tsx`,
-  `src/modules/helpcenter/components/help-center-drawer/HelpCenterGeneralTab.tsx`,
-  `src/modules/helpcenter/graphql/queries/{getHelpCenters,getHelpCenterWebsiteOptions}.ts`,
-  `src/modules/helpcenter/{types,constants}/index.ts`,
-  `src/modules/helpcenter/utils/toHelpCenterConfigInput.ts`
-- **Contracts changed:** `HelpCenterConfigFields` now selects `erxesAppToken`;
-  `frontlineHelpCenterWebsiteOptions` now selects the portal's `token`.
-
-### `2026-09-09` — The help center's website is picked from a client portal
-
-- **Summary:** The `Website` field in the drawer's General settings and in the
-  record table is now a client portal picker instead of a free-text URL box; it
-  lists client portal domains, one row per domain, and stores the chosen domain
-  in `url`, so the ad-hoc URL validator is gone.
-- **Affected areas:**
-  `src/modules/helpcenter/components/SelectHelpCenterWebsite.tsx` (new),
-  `src/modules/helpcenter/graphql/queries/getHelpCenterWebsiteOptions.ts` (new),
-  `src/modules/helpcenter/components/HelpCenterColumns.tsx`,
-  `src/modules/helpcenter/components/help-center-drawer/HelpCenterGeneralTab.tsx`;
-  deleted `src/modules/helpcenter/utils/helpCenterUrl.ts`.
-- **Contracts changed:** added the `frontlineHelpCenterWebsiteOptions` query
-  over `core-api`'s `getClientPortals`. `HelpCenterConfig` is unchanged.
-  <<<<<<< HEAD
-
-### `2026-09-09` — The comment reply mention is a setting
-
-- **Summary:** The Send comment action gained a "Mention the commenter" switch;
-  it is off unless turned on, so a reply no longer tags the commenter by
-  default.
-- **Affected areas:**
-  `src/widgets/automations/modules/facebook/components/action/states/replyCommentActionForm.tsx`,
-  `src/widgets/automations/modules/facebook/components/action/components/replyComment/CommentActionForm.tsx`
-- **Contracts changed:** None. The action config gained an optional
-  `mentionSender` boolean.
-
-### `2026-09-09` — The comment reply takes an image
-
-- **Summary:** The attachment field had been a disabled placeholder from before
-  uploads existed; it now uses the same `FileUploadSection` the message action
-  does, capped at the single image Facebook accepts on a comment reply, and the
-  config schema stopped typing it as `any`.
-- **Affected areas:**
-  `src/widgets/automations/modules/facebook/components/action/components/replyComment/CommentActionForm.tsx`,
-  `src/widgets/automations/modules/facebook/components/action/states/replyCommentActionForm.tsx`
-- **Contracts changed:** None.
-
-### `2026-09-09` — The comment reply form got a layout, and adds past two
-
-- **Summary:** Every block in the Send comment panel sat flush against the next
-  because the form had no spacing wrapper, and `useFieldArray` — documented as
-  not supporting flat arrays — stopped appending past the second variant. The
-  list is now driven from form state, the fields are three separated groups,
-  each variant carries its counter and a destructive remove control in a header
-  row above its textarea, and section headings stopped being `Form.Label`s for
-  controls they do not label.
-- **Affected areas:**
-  `src/widgets/automations/modules/facebook/components/action/components/replyComment/CommentActionForm.tsx`
-- **Contracts changed:** None.
-
-### `2026-09-09` — A paused comment reply waits instead of being dropped
-
-- **Summary:** History rendered a `post-public-reply-limit` skip that the API no
-  longer produces; the per-post cap is gone and a blocked reply is requeued, so
-  the only skip left is `queue-expired` after a day of waiting. A deferred reply
-  that timed out also stopped claiming it was still about to send.
-- **Affected areas:**
-  `src/widgets/automations/modules/facebook/components/AutomationHistoryResult.tsx`,
-  `src/widgets/automations/modules/facebook/components/history/useFacebookAutomationHistoryResult.ts`
-- **Contracts changed:** None. The action result no longer carries `limit`.
-
-### `2026-09-09` — The bot's Activity tab is about comments
-
-# =======
-
-> > > > > > > f367b4a36cb66a9d80ba39450bef5cd15fd95d21
-
-- **Summary:** One "Bot health" block mixed the Messenger profile's sync state
-  with the comment outbox counters and named neither; it is now a Messenger
-  profile block and a Comment replies block that lists each distinct reply with
-  the share it takes of everything the page has said and the posts it ran
-  under, linked by permalink. Connected automations covers
-  comment triggers as well as message ones, badged per row, and Create
-  automation offers both trigger types.
-- **Affected areas:**
-  `src/widgets/automations/modules/facebook/components/bots/components/FacebookBotProfileHealth.tsx`,
-  `src/widgets/automations/modules/facebook/components/bots/components/FacebookBotCommentActivity.tsx`,
-  `src/widgets/automations/modules/facebook/components/bots/hooks/useFacebookBotCommentReplyStats.tsx`,
-  `src/widgets/automations/modules/facebook/components/bots/components/FacebookBotAutomations.tsx`,
-  `src/widgets/automations/modules/facebook/components/bots/components/FacebookBotCreateAutomationButton.tsx`,
-  `src/widgets/automations/modules/facebook/components/bots/hooks/useFacebookBotAutomations.tsx`
-- **Contracts changed:** None. `useFacebookBotAutomations` takes one trigger
-  type or many, and each returned trigger carries its `type`.
-
-### `2026-09-09` — The bot form splits settings from activity
-
-- **Summary:** The Facebook bot sheet mixed what the bot _is_ with what it is
-  _doing_; the name stays at the top and the rest moved into Settings
-  (persistent menu, ice breakers, optional configuration) and Activity (health
-  counters, connected automations) tabs. The open tab is held for the session,
-  so reopening a bot lands back where the last one was left.
-- **Affected areas:**
-  `src/widgets/automations/modules/facebook/components/bots/components/AutomationFbBotFormContent.tsx`,
-  `src/widgets/automations/modules/facebook/components/bots/components/FacebookBotSettingsTab.tsx`,
-  `src/widgets/automations/modules/facebook/components/bots/states/facebookBotStates.tsx`
-- **Contracts changed:** None.
-
-### `2026-09-09` — Topic colour and image fields serve both drawers
-
-- **Summary:** The topic accent colour and background image were written out
-  twice — once in `TopicDrawer` and again in the help center appearance tab —
-  and the appearance tab repeated a near-identical `StyleColorField` call for
-  each of its twelve colours, which pushed duplication on new code past the
-  Sonar gate. The two fields are now one shared pair in `knowledgebase`, and
-  the colour grids render from field lists in `helpcenter/constants`.
-- **Affected areas:** `src/modules/knowledgebase/components/{TopicAppearanceFields,TopicDrawer}.tsx`,
-  `src/modules/helpcenter/components/help-center-drawer/HelpCenterAppearanceTab.tsx`,
-  `src/modules/helpcenter/{constants,types}/index.ts`
-- **Contracts changed:** `None`
-
-### `2026-09-08` — The bot form reports its delivery health
-
-- **Summary:** `FacebookBotHealth` exposes `lastError` and the breaker fields,
-  and a new `facebookMessengerBotDelivery` query counts what the comment outbox
-  holds for the bot's page plus when it next sends. The bot form shows the health
-  badge, the pause with its reason, and queued/sent/failed counts, polling while
-  the sheet is open.
-- **Affected areas:** `frontline_api`
-  `modules/integrations/facebook/graphql/{schema/facebook.ts,resolvers/queries.ts}`.
-  `frontline_ui` new
-  `components/bots/components/FacebookBotHealthPanel.tsx` and
-  `components/bots/hooks/useFacebookBotDelivery.tsx`;
-  `modules/integrations/facebook/graphql/queries/facebookBots.ts`,
-  `types/FacebookBot.ts`, `components/bots/components/AutomationFbBotFormContent.tsx`.
-- **Contracts changed:** `FacebookBotHealth` gains `lastError`,
-  `sendBlockedUntil`, `sendBlockReason` and `sendBlockCount`;
-  `facebookMessengerBotDelivery(_id: String!)` is new.
-
-### `2026-09-08` — Public comment replies go through a paced outbox
-
-- **Summary:** `frontline:facebook.comments.create` declares
-  `deferred: { enable: true, mode: 'ignore' }`, records the reply in a new
-  `comment_outbox_facebook` collection and returns a queued marker, so the
-  private reply after it runs immediately instead of waiting behind the pacing.
-  A per-page Redis counter hands out send slots
-  (`FACEBOOK_COMMENT_REPLIES_PER_MINUTE`, default 10) and each reply is scheduled
-  as a delayed BullMQ job, so nothing polls. The worker sends, closes or opens
-  the page breaker, and reports back through the new
-  `sendAutomationDeferredCompletion`.
-- **Affected areas:** `erxes-api-shared`
-  `core-modules/automations/sendAutomationMessage.ts`. `frontline_api` new
-  `modules/integrations/facebook/{commentOutbox,commentOutboxWorker}.ts`,
-  `db/definitions/comment_outbox.ts`, `db/models/CommentOutbox.ts`;
-  `commentGuard.ts`, `meta/automation/{constants.ts,comments/index.ts}`,
-  `connectionResolvers.ts`, `main.ts`. `frontline_ui`
-  `src/widgets/automations/modules/facebook/components/AutomationHistoryResult.tsx`
-  and `components/history/useFacebookAutomationHistoryResult.ts`.
-- **Contracts changed:** the comment action now returns a deferred marker rather
-  than a send result; `sendAutomationDeferredCompletion` is new in
-  `erxes-api-shared`.
-
-### `2026-09-08` — Facebook's refusal now stops public comment replies
-
-- **Summary:** `sendReply` throws a `FacebookSendError` carrying Meta's `code`
-  and `error_subcode`, which it previously logged and discarded. A spam refusal
-  or `#613` opens a breaker on the bot's `health` — `sendBlockedUntil`,
-  `sendBlockReason`, `sendBlockCount` — pausing public comment replies for 1h,
-  doubling per consecutive refusal up to 24h, and a reply that gets through
-  closes it. On the 2026-09-07 dump the same page was hit for five days across
-  three enforcement windows; this turns that into an hour. Both the pause and a
-  refusal are reported instead of thrown, so the private reply that follows still
-  runs. Private replies are untouched: 141,158 of them went out with no refusal.
-- **Affected areas:** `frontline_api` new
-  `modules/integrations/facebook/errors.ts`; `utils.ts`,
-  `db/definitions/bots.ts` (health fields and a `pageId` index),
-  `db/models/Bots.ts`, `meta/automation/comments/index.ts`. `frontline_ui`
-  `src/widgets/automations/modules/facebook/components/AutomationHistoryResult.tsx`
-  and `components/history/useFacebookAutomationHistoryResult.ts`.
-- **Contracts changed:** the comment action result gains
-  `{ status: 'skipped', reason: 'send-blocked', blockedUntil }` and
-  `{ status: 'failed', error, blockedUntil }`.
-
-### `2026-09-08` — Public comment replies are capped per post
-
-- **Summary:** `frontline:facebook.comments.create` now spends a per-post budget
-  before replying publicly (`FACEBOOK_COMMENT_PUBLIC_REPLY_PER_POST`, default
-  100, counted in Redis for seven days). Over the cap it returns
-  `{ status: 'skipped' }` instead of throwing, so the private reply that follows
-  it in the automation still runs — a thrown action ends the execution. The run
-  also records the variant it posted, so history shows the reply that actually
-  went out, and renders the skip with its reason.
-- **Affected areas:** `frontline_api` new
-  `modules/integrations/facebook/commentGuard.ts`;
-  `meta/automation/comments/index.ts`. `frontline_ui`
-  `src/widgets/automations/modules/facebook/components/AutomationHistoryResult.tsx`
-  and `components/history/useFacebookAutomationHistoryResult.ts`.
-- **Contracts changed:** the comment action result gains `text` on success and a
-  `{ status: 'skipped', reason, limit, used }` shape when capped.
-  <<<<<<< HEAD
-  =======
-  > > > > > > > 4529c61e24c1a78e8f962cc5cfd7be89f9787eea
-  > > > > > > > f367b4a36cb66a9d80ba39450bef5cd15fd95d21

@@ -14,6 +14,13 @@ export const callConfigAtom = atomWithStorage<ICallConfigDoc | null>(
   { getOnInit: true },
 );
 
+export const callEnabledIntegrationIdsAtom = atomWithStorage<string[]>(
+  'config:call_enabled_integrations',
+  [],
+  undefined,
+  { getOnInit: true },
+);
+
 export const callInfoAtom = atomWithStorage<{
   isUnregistered?: boolean;
 } | null>('callInfo', null, undefined, { getOnInit: true });

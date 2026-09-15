@@ -600,6 +600,15 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `mailMessageId` of the message it produced. An `isInternal` note stays inside
   the team's ticket detail and is never mailed. `ticketGetNotes(contentId!,
 isInternal)` is the agent-side list and requires `showTickets`.
+- GraphQL: `callAddCustomer(inboxIntegrationId, primaryPhone, queueName):
+CallConversationDetail` resolves the call integration by `queueName` first,
+  then `inboxIntegrationId`, and returns the customer, that integration's
+  channel in `channels`, and `integration { _id name }` — the inbox integration
+  the call rang, which the incoming-call popup names.
+- GraphQL: `callUserIntegrations` returns the caller's call integrations with
+  `name` filled from the matching inbox integration (`''` when it is missing).
+  Which integrations an agent has switched on is browser state, not stored
+  here.
 
 ### Consumes
 
@@ -1880,6 +1889,23 @@ isInternal)` is the agent-side list and requires `showTickets`.
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-15` — Call user integrations carry their name
+
+- **Summary:** `callUserIntegrations` returns each integration's inbox name so
+  the dialpad's `Call from` can tell integrations on one phone apart.
+- **Affected areas:** `src/modules/integrations/call/graphql/{schema/call,resolvers/queries}.ts`
+- **Contracts changed:** `CallsIntegrationDetailResponse` gains `name: String`.
+
+### `2026-09-15` — An incoming call names the integration it rang
+
+- **Summary:** `callAddCustomer` also returns the matched inbox integration's
+  `_id` and `name`, so agents on a shared trunk see which integration a call
+  came in on rather than its channel.
+- **Affected areas:** `src/modules/integrations/call/graphql/{schema/call,resolvers/mutations}.ts`
+- **Contracts changed:** `CallConversationDetail` gains
+  `integration: CallConversationIntegration` (`_id`, `name`); new type
+  `CallConversationIntegration`.
+
 ### `2026-09-15` — Call integrations may share a trunk
 
 - **Summary:** `srcTrunk`, `dstTrunk` and `phone` are no longer unique, so
@@ -1998,26 +2024,3 @@ isInternal)` is the agent-side list and requires `showTickets`.
   `src/modules/integrations/facebook/controller/controller.ts`
 - **Contracts changed:** None. `isPostbackPayload` is newly exported from
   `messageUtils`.
-
-### `2026-09-10` — The ticket note type stopped colliding with `operation`'s
-
-- **Summary:** Renamed this plugin's GraphQL `Note` type to `TicketNote`. It was
-  merged by federation with the `Note` value type `operation_api` declares, so
-  the `attachments` and `isInternal` fields only this subgraph has left
-  `operation`'s `updateNote` unsatisfiable and the gateway refused to compose
-  the supergraph.
-- **Affected areas:** `src/modules/ticket/graphql/schemas/note.ts`,
-  `src/modules/inbox/graphql/schemas/widget.ts`
-- **Contracts changed:** `ticketGetNote`, `cpTicketGetNotes`,
-  `ticketCreateNote`, `ticketUpdateNote`, `cpTicketCreateNote`,
-  `widgetTicketComments` and `widgetTicketCommentAdd` return `TicketNote`
-  instead of `Note`. Field names and arguments are unchanged, so a document that
-  selects fields without naming the type needs no edit.
-
-### `2026-09-09` — Survey conversations leave the inbox's integration-type rows
-
-- **Summary:** A conversation carrying a survey no longer appears under
-  `Messenger` (or any integration-type row) in the inbox; it shows only under
-  the channel's `Surveys` row. Unscoped inbox lists are unchanged.
-- **Affected areas:** `src/conversationQueryBuilder.ts`.
-- **Contracts changed:** `None`.

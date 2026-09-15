@@ -19,6 +19,7 @@ export const types = `
 
   type CallsIntegrationDetailResponse {
     ${integrationCommonFields}
+    name: String
   }
 
   input CallIntegrationConfigs {
@@ -49,9 +50,15 @@ export const types = `
     channels: [CallChannel]
   }
 
+  type CallConversationIntegration {
+    _id: String!
+    name: String
+  }
+
   type CallConversationDetail {
     customer: Customer
     channels: [CallChannel]
+    integration: CallConversationIntegration
   }
   type CallActiveSession {
     _id: String
