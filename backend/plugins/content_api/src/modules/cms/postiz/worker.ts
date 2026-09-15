@@ -2,9 +2,15 @@ import { getSaasOrganizations, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { generateModels, type IContext } from '~/connectionResolvers';
 import { deliverySchema, postizBridge } from './bridge';
 import { requireSharePost } from './service';
+import { requireDeliveryTenant, resolveDeliveryTenant } from './tenant';
 
-export async function runCmsDeliveries(subdomain: string) {
-  const models = await generateModels(subdomain);
+export async function runCmsDeliveries(subdomain?: string) {
+  const databaseTenant =
+    process.env.VERSION === 'saas'
+      ? requireDeliveryTenant(subdomain)
+      : undefined;
+  // Enterprise has one database. Its routing identity comes from each job, not VERSION.
+  const models = await generateModels(databaseTenant ?? '');
   for (let index = 0; index < 20; index++) {
     const now = new Date();
     const job = await models.CmsShares.findOneAndUpdate(
@@ -20,10 +26,34 @@ export async function runCmsDeliveries(subdomain: string) {
       { new: true, sort: { nextCheck: 1 } },
     ).lean();
     if (!job) return;
+    let deliveryTenant: string;
     try {
+      deliveryTenant = resolveDeliveryTenant(job.subdomain, databaseTenant);
+    } catch {
+      await models.CmsShares.updateOne(
+        { _id: job._id, leaseUntil: job.leaseUntil },
+        {
+          $set: {
+            state: 'UNKNOWN',
+            message:
+              'Delivery tenant needs recovery. An administrator must verify the originating tenant and check Postiz before retrying.',
+            leaseUntil: new Date(0),
+          },
+        },
+      );
+      continue;
+    }
+    try {
+      if (job.subdomain === undefined) {
+        const bound = await models.CmsShares.updateOne(
+          { _id: job._id, leaseUntil: job.leaseUntil },
+          { $set: { subdomain: deliveryTenant } },
+        );
+        if (bound.matchedCount !== 1) continue;
+      }
       if (!job.remotePostId) {
         const users: unknown = await sendTRPCMessage({
-          subdomain,
+          subdomain: deliveryTenant,
           pluginName: 'core',
           module: 'users',
           action: 'find',
@@ -51,7 +81,14 @@ export async function runCmsDeliveries(subdomain: string) {
         const user = users[0] as IContext['user'];
         try {
           await requireSharePost(
-            { models, subdomain, user },
+            {
+              models:
+                databaseTenant === undefined
+                  ? await generateModels(deliveryTenant)
+                  : models,
+              subdomain: deliveryTenant,
+              user,
+            },
             job.postId,
             job.language,
           );
@@ -74,7 +111,7 @@ export async function runCmsDeliveries(subdomain: string) {
       }
       const result = deliverySchema.parse(
         await postizBridge(
-          subdomain,
+          deliveryTenant,
           job.userId,
           job.remotePostId ? 'status' : 'publish',
           job.remotePostId
@@ -129,10 +166,11 @@ export function startCmsDeliveryWorker() {
     if (running) return;
     running = true;
     try {
-      const tenants: { subdomain: string }[] =
-        process.env.VERSION === 'saas'
-          ? await getSaasOrganizations()
-          : [{ subdomain: 'os' }];
+      if (process.env.VERSION !== 'saas') {
+        await runCmsDeliveries();
+        return;
+      }
+      const tenants: { subdomain: string }[] = await getSaasOrganizations();
       for (const tenant of tenants) {
         if (!tenant.subdomain) continue;
         try {

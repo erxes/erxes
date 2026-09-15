@@ -6,7 +6,7 @@
 - **Project:** `content_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/content_api`
-- **Last synchronized:** `2026-09-15`
+- **Last synchronized:** `2026-09-16`
 
 ## Scope
 
@@ -56,6 +56,7 @@
 - Tenant models come from `generateModels(subdomain)`.
 - CMS records use `clientPortalId` to identify a website.
 - `cms_postiz_deliveries` stores immutable snapshots and deterministic request IDs through retries.
+- New snapshots include the authenticated request `subdomain`; older records may lack it.
 
 ## Local Invariants
 
@@ -64,6 +65,9 @@
 - Signer and worker startup use existing `JWT_TOKEN_SECRET`. Derive the CMS-purpose key exactly as specified in `CMS_POSTIZ.md`; reject missing/blank JWT. `CMS_POSTIZ_SHARED_SECRET` is ignored.
 - Tenant context remains signed and verified even when SaaS tenants share a JWT root.
 - Preserve leases, snapshots and request IDs. UNKNOWN means manual review, not permission to publish again.
+- Enterprise workers scan the installation database without using a synthetic routing tenant. Dispatch, user lookup and status polling use each saved `subdomain`; no DOMAIN-derived fallback or installation-specific setting is used.
+- SaaS workers enumerate tenant databases and reject snapshots naming another tenant. Legacy SaaS rows can be bound to their database tenant under the claimed lease. Legacy enterprise rows without a tenant become UNKNOWN and require verified operator recovery; never infer ownership from an article URL, user ID or another job.
+- Enqueue/retry accepts tenant context only from the server; conflicting saved tenants are rejected. Delivery history excludes records explicitly bound to another tenant while retaining legacy records for recovery visibility.
 - Never remove JWT or delivery ledgers to stop/retry CMS work. Coordinate both API versions on rollout/rollback.
 - Docker's installer stage uses `NODE_OPTIONS=--jitless`, matching agent_api's QEMU workaround. The runtime stage must not inherit it; dependency-install failures must not be swallowed by optional file pruning.
 
@@ -78,6 +82,12 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-16` - Persist CMS delivery tenant routing
+
+- **Summary:** Route enterprise and SaaS delivery jobs through their originating tenant, including retries and remote status polling.
+- **Affected areas:** CMS delivery model, service, worker, history query, tenant guards and regression tests.
+- **Contracts changed:** Add optional persisted `subdomain` for backward compatibility. No GraphQL input, signing protocol, secret or startup configuration changes. Legacy enterprise deliveries require verified recovery as documented in `CMS_POSTIZ.md`.
 
 ### `2026-09-15` - Match agent installer QEMU compatibility
 

@@ -1,5 +1,6 @@
 import type { IContext } from '~/connectionResolvers';
 import { channelsSchema, postizBridge } from './bridge';
+import { deliveryTenantFilter } from './tenant';
 import {
   queueCmsShare,
   requireShareAccess,
@@ -38,6 +39,7 @@ export const cmsPostizQueries = {
     await requireSharePost(context, args.postId, args.language);
     await postizBridge(context.subdomain, context.user._id, 'channels', {});
     return context.models.CmsShares.find({
+      ...deliveryTenantFilter(context.subdomain),
       postId: args.postId,
       language: args.language,
     })

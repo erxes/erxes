@@ -22,6 +22,7 @@ import {
   postizQueries,
   postizMutations,
 } from '../graphql';
+import { cmsShareSchema } from '../model';
 
 jest.mock('../bridge', () => ({
   ...jest.requireActual('../bridge'),
@@ -99,6 +100,7 @@ function setup() {
 
 beforeEach(() => {
   jest.clearAllMocks();
+  jest.replaceProperty(process, 'env', { ...process.env, VERSION: 'saas' });
   for (const guard of [
     assertCmsAccessByClientPortal,
     assertCmsDocumentAccess,
@@ -122,6 +124,13 @@ beforeEach(() => {
         }
       : { valid: true },
   );
+});
+afterEach(() => jest.restoreAllMocks());
+
+test('tenant routing is persisted by the schema and has no guessed default', () => {
+  const path = cmsShareSchema.path('subdomain');
+  expect(path.instance).toBe('String');
+  expect(path.options.default).toBeUndefined();
 });
 
 test('the CMS social GraphQL contract composes and validates share and validation operations', () => {
@@ -148,6 +157,25 @@ test('delivery history requires current Postiz access before reading saved deliv
     ),
   ).rejects.toThrow('revoked');
   expect(models.CmsShares.find).not.toHaveBeenCalled();
+});
+
+test('delivery history filters explicitly foreign tenants while retaining legacy recovery records', async () => {
+  const { context, models } = setup();
+  const query = { ...lean([]), sort: jest.fn(), limit: jest.fn() };
+  query.sort.mockReturnValue(query);
+  query.limit.mockReturnValue(query);
+  models.CmsShares.find.mockReturnValueOnce(query);
+  await cmsPostizQueries.cmsPostizDeliveries(
+    null,
+    { postId: 'postA', language: 'en' },
+    context as IContext,
+  );
+  expect(models.CmsShares.find).toHaveBeenCalledWith({
+    postId: 'postA',
+    language: 'en',
+    $or: [{ subdomain: 'tenantA' }, { subdomain: { $exists: false } }],
+  });
+  expect(query.limit).toHaveBeenCalledWith(50);
 });
 
 test('only ordinary published CMS posts can share; custom types and pages never dispatch', async () => {
@@ -185,6 +213,118 @@ test('queue enforces CMS assignment, sharing, publish, document and language per
   for (const call of jest.mocked(postizBridge).mock.calls)
     expect(call.slice(0, 2)).toEqual(['tenantA', 'userA']);
 });
+
+test.each(['officenext', 'another-enterprise', 'tenantB'])(
+  'queue persists the authenticated request tenant %s without client-supplied routing',
+  async (subdomain) => {
+    const { context, input, jobs } = setup();
+    context.subdomain = subdomain;
+    await queueCmsShare(context, input);
+    expect([...jobs.values()][0].subdomain).toBe(subdomain);
+    await expect(
+      queueCmsShare(context, { ...input, subdomain: 'other' }),
+    ).rejects.toThrow();
+  },
+);
+
+test('an existing request cannot be reused through a different tenant context', async () => {
+  const { context, input } = setup();
+  await queueCmsShare(context, input);
+  context.subdomain = 'tenantB';
+  await expect(queueCmsShare(context, input)).rejects.toThrow('tenant');
+});
+
+test.each(['', 'https://tenant.example', 'tenant.example', undefined])(
+  'missing or malformed request tenant %s is rejected before reaching Postiz',
+  async (subdomain) => {
+    const { context, input } = setup();
+    await expect(
+      queueCmsShare({ ...context, subdomain: subdomain as string }, input),
+    ).rejects.toThrow('tenant');
+    expect(postizBridge).not.toHaveBeenCalled();
+  },
+);
+
+test('enterprise duplicate enqueue cannot infer the owner of a legacy snapshot', async () => {
+  process.env.VERSION = 'enterprise';
+  const { context, input, jobs } = setup();
+  await queueCmsShare(context, input);
+  const job = [...jobs.values()][0];
+  delete job.subdomain;
+  await expect(queueCmsShare(context, input)).rejects.toThrow('tenant');
+  expect(job.subdomain).toBeUndefined();
+});
+
+test.each(['saas', 'enterprise'])(
+  'separate %s tenant databases retain their own routing with identical post, user and request IDs',
+  async (version) => {
+    process.env.VERSION = version;
+    const a = setup();
+    const b = setup();
+    b.context.subdomain = 'tenantB';
+    await queueCmsShare(a.context, a.input);
+    await queueCmsShare(b.context, a.input);
+    expect([...a.jobs.values()][0].subdomain).toBe('tenantA');
+    expect([...b.jobs.values()][0].subdomain).toBe('tenantB');
+  },
+);
+
+test.each(['saas', 'enterprise'])(
+  'confirmed failed %s retries and their idempotent successors retain tenant routing',
+  async (version) => {
+    process.env.VERSION = version;
+    const { context, input, jobs } = setup();
+    await queueCmsShare(context, input);
+    const previous = [...jobs.values()][0];
+    previous.state = 'FAILED';
+    previous.remotePostId = 'remoteA';
+    jest
+      .mocked(postizBridge)
+      .mockImplementation(async (_tenant, _user, action) =>
+        action === 'status'
+          ? { state: 'FAILED', postId: 'remoteA' }
+          : { valid: true },
+      );
+    const retry = await retryCmsShare(context, previous._id as string, true);
+    expect(retry?.subdomain).toBe('tenantA');
+    expect(retry?._id).not.toBe(previous._id);
+    const repeat = await retryCmsShare(context, previous._id as string, true);
+    expect(repeat?._id).toBe(retry?._id);
+    expect(jobs.size).toBe(2);
+  },
+);
+
+test('legacy failed SaaS retry takes its authoritative database tenant', async () => {
+  const { context, input, jobs } = setup();
+  await queueCmsShare(context, input);
+  const previous = [...jobs.values()][0];
+  delete previous.subdomain;
+  previous.state = 'FAILED';
+  previous.remotePostId = 'remoteA';
+  jest
+    .mocked(postizBridge)
+    .mockResolvedValue({ state: 'FAILED', postId: 'remoteA' });
+  const retry = await retryCmsShare(context, previous._id as string, true);
+  expect(retry?.subdomain).toBe('tenantA');
+});
+
+test.each([undefined, 'tenantB'])(
+  'enterprise retry refuses a missing or foreign tenant (%s) before remote status lookup',
+  async (subdomain) => {
+    process.env.VERSION = 'os';
+    const { context, input, jobs } = setup();
+    await queueCmsShare(context, input);
+    const previous = [...jobs.values()][0];
+    previous.subdomain = subdomain;
+    previous.state = 'FAILED';
+    previous.remotePostId = 'remoteA';
+    jest.mocked(postizBridge).mockClear();
+    await expect(
+      retryCmsShare(context, previous._id as string, true),
+    ).rejects.toThrow('tenant');
+    expect(postizBridge).not.toHaveBeenCalled();
+  },
+);
 
 test.each(['cms', 'permission', 'language', 'document'])(
   'denied %s access cannot reach Postiz',
