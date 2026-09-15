@@ -1,5 +1,32 @@
 import { Document } from 'mongoose';
 
+export type InstagramMessageKind =
+  | 'text'
+  | 'image'
+  | 'video'
+  | 'audio'
+  | 'file'
+  | 'share'
+  | 'story_mention'
+  | 'story_reply'
+  | 'sticker'
+  | 'voice'
+  | 'unsupported';
+
+export interface IInstagramMessageProviderData {
+  messageId?: string;
+  attachmentType?: string;
+  fallbackReason?: string;
+  previewText?: string;
+  previewUrl?: string;
+  shareType?: 'post' | 'reel';
+  storyUrl?: string;
+}
+
+export interface IInstagramMessageReplyTo {
+  messageId: string;
+}
+
 export interface IInstagramConversationMessage {
   mid: string;
   conversationId: string;
@@ -16,6 +43,11 @@ export interface IInstagramConversationMessage {
   internal?: boolean;
   botId?: string;
   botData?: any;
+  messageKind?: InstagramMessageKind;
+  providerData?: IInstagramMessageProviderData;
+  replyTo?: IInstagramMessageReplyTo;
+  deliveryStatus?: 'sent' | 'delivered' | 'read';
+  expiresAt?: Date;
 }
 
 export interface IInstagramConversationMessageDocument

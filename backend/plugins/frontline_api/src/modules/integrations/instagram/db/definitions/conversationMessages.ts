@@ -3,6 +3,26 @@ import { attachmentSchema } from 'erxes-api-shared/core-modules';
 import { mongooseStringRandomId } from 'erxes-api-shared/utils';
 import { schemaWrapper } from 'erxes-api-shared/utils';
 
+const providerDataSchema = new Schema(
+  {
+    messageId: { type: String, optional: true },
+    attachmentType: { type: String, optional: true },
+    fallbackReason: { type: String, optional: true },
+    previewText: { type: String, optional: true },
+    previewUrl: { type: String, optional: true },
+    shareType: { type: String, optional: true },
+    storyUrl: { type: String, optional: true },
+  },
+  { _id: false },
+);
+
+const replyToSchema = new Schema(
+  {
+    messageId: { type: String, required: true },
+  },
+  { _id: false },
+);
+
 export const conversationMessageSchema = schemaWrapper(
   new Schema({
     _id: mongooseStringRandomId,
@@ -24,6 +44,11 @@ export const conversationMessageSchema = schemaWrapper(
     internal: { type: Boolean, label: 'Internal' },
     botId: { type: String, label: 'Bot', optional: true },
     botData: { type: Object, optional: true },
+    messageKind: { type: String, optional: true },
+    providerData: { type: providerDataSchema, optional: true },
+    replyTo: { type: replyToSchema, optional: true },
+    deliveryStatus: { type: String, optional: true },
+    expiresAt: { type: Date, optional: true },
   }),
 );
 
