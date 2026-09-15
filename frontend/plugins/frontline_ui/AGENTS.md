@@ -93,7 +93,9 @@
   token is needed to configure this setting.
 - Viber conversations use the native message thread and composer for text,
   attachments, and internal notes, plus a dialog for link/location/contact/
-  sticker messages. Reply eligibility respects channel permissions and
+  sticker messages. The contact form validates the outgoing provider limits
+  (28-character name, 18-character phone number) before submitting; it does not
+  truncate either field. Reply eligibility respects channel permissions and
   unsubscribe state. Delivery status and safe explicit retries update the
   saved message through Apollo refetch/subscription, without manual reloads.
   Archive follows native integration visibility, not a Viber transport pause.
@@ -1175,6 +1177,12 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-15` — Match outgoing Viber contact limits
+
+- **Summary:** Validate contact names and phone numbers against Viber's outgoing limits before submission.
+- **Affected areas:** Viber special-message validation/tests and the approved English/Mongolian Frontline locale labels.
+- **Contracts changed:** Form limits now match the backend's 28-character name and 18-character phone limits; payload shape is unchanged.
+
 ### `2026-09-15` — Display built-in Viber media defaults
 
 - **Summary:** Show backend-supplied default hosts and concise reset wording while preserving editable custom and disabled policies.
@@ -1256,28 +1264,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `bots/hooks/useFacebookBotAutomations.tsx` now keeps trigger ids, and
   `bots/utils/resolveBotMenuOutcome.ts` follows.
 - **Contracts changed:** `None`.
-
-### `2026-09-08` — Ice breakers, and Get Started stops matching on its label
-
-- **Summary:** A bot now carries `iceBreakers` and `getStartedText`. Ice breakers
-  are written to and verified against `messenger_profile.ice_breakers` — read
-  back in either the localized or the flat shape Facebook may return — appear in
-  the welcome preview under “Tap to send”, and can be selected as a new
-  `iceBreaker` trigger condition. The Get Started button's label is editable
-  because the trigger no longer compares `target.content` to the literal string
-  “Get Started” — it matches the postback payload instead (a `botId` with no
-  `persistentMenuId` and no `iceBreakerId`), which also stops a visitor who types
-  those words from firing the trigger.
-- **Affected areas:** `frontline_api` —
-  `modules/integrations/facebook/db/definitions/bots.ts`,
-  `db/models/Bots.ts`, `graphql/schema/facebook.ts`,
-  `meta/automation/messages/index.ts`,
-  `meta/automation/utils/messageUtils.ts`. `frontline_ui` — new
-  `components/bots/components/FacebookIceBreakerGenerator.tsx` and
-  `components/trigger/components/message/IceBreakerSelector.tsx`;
-  bot form schema, context, mutations and queries; the simulator, its preview and
-  outcome utils; the message trigger schema, options, types and condition hook.
-- **Contracts changed:** `facebookMessengerAddBot` / `facebookMessengerUpdateBot`
-  accept `iceBreakers: [BotIceBreakerInput]` and `getStartedText`;
-  `FacebookMessengerBot` returns both. The `facebook:messages` trigger accepts an
-  `iceBreaker` condition with `iceBreakerIds`.

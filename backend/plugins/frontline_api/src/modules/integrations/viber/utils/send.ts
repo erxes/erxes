@@ -38,8 +38,8 @@ export const viberStructuredMessageSchema = z.discriminatedUnion('type', [
       type: z.literal('contact'),
       contact: z
         .object({
-          name: z.string().trim().min(1).max(128),
-          phone_number: z.string().trim().min(1).max(128),
+          name: z.string().trim().min(1).max(28),
+          phone_number: z.string().trim().min(1).max(18),
         })
         .strict(),
     })

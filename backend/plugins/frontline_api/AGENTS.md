@@ -169,7 +169,9 @@
 - Viber agent replies use native Frontline messages and a tenant-owned outbox.
   The normal `conversationMessageAdd` branch handles text and attachments;
   `viberSendMessage` additionally accepts validated URL/location/contact/sticker
-  payloads. Multipart replies retain order and accepted provider tokens across
+  payloads. Outgoing contacts limit names to 28 characters and phone numbers
+  to 18, independently of the incoming contact-name limit of 128.
+  Multipart replies retain order and accepted provider tokens across
   explicit retries. Transport uncertainty is never automatically resent.
   Delivery facts remain distinct from provider acceptance and are exposed by
   `ConversationMessage.viberDelivery` and `viberMessageStatus`.
@@ -2199,6 +2201,17 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   verify the `/viber` prefix with Call Pro enabled and disabled. They do not
   exercise sibling behavior, the real receiver, shared bootstrap, database,
   or provider; full-startup and live webhook behavior remain unverified.
+- Optional local Mongo persistence checks:
+  `VIBER_TEST_MONGO=1 pnpm exec tsx --tsconfig=backend/plugins/frontline_api/tsconfig.json --test backend/plugins/frontline_api/src/modules/integrations/viber/__tests__/persistence.spec.ts`.
+  They connect only to `127.0.0.1:27017`, create a random `viber_test_*` database,
+  build the real Viber schema indexes, and remove only that database afterward.
+  They never use `MONGO_URL` or the self-hosted model generator, which would
+  reuse the application database. Coverage includes credential projection,
+  unique connection/message reservations, concurrent subscription/receipt
+  updates, one-winner outbox retry claims, early receipts, and persisted unknown
+  sends. Core/native inbox effects and provider responses remain simulated;
+  these checks do not prove live tenant routing or Viber delivery. Without the
+  opt-in variable this suite is explicitly skipped, not silently passed.
 - Viber customer, conversation, and message schema tests use real Mongoose with no
   database connection.
   They replace the shared utilities import with a deterministic string-id
@@ -2373,6 +2386,12 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-15` — Viber contact limits and Mongo persistence checks
+
+- **Summary:** Reject oversized outgoing contacts and verify Viber uniqueness, ordering and send claims against an isolated local Mongo database.
+- **Affected areas:** Viber send validation and focused unit/persistence tests.
+- **Contracts changed:** Outgoing contact names and phone numbers now enforce the documented 28/18-character limits; GraphQL signatures are unchanged.
+
 ### `2026-09-15` — Built-in Viber media hosts
 
 - **Summary:** Supply documented Viber media-host defaults while preserving server and workspace overrides, including explicit disablement.
@@ -2442,11 +2461,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Affected areas:** Viber configuration helper and configuration tests.
 - **Contracts changed:** Added internal `getViberMediaAllowedHostnames` and
   `VIBER_MEDIA_ALLOWED_HOSTNAMES`; receiver and public APIs remain unchanged.
-
-### `2026-09-15` — Viber registration during creation
-
-- **Summary:** Register saved Viber connections during creation and retain
-  recoverable records on setup failure, with offline lifecycle coverage.
-- **Affected areas:** Viber creation adapter/tests and common creation recovery.
-- **Contracts changed:** Viber creation awaits registration; a setup error can
-  retain both records for Repair. Sibling rollback and GraphQL schema are unchanged.

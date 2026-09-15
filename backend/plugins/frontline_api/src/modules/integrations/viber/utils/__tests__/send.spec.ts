@@ -138,6 +138,28 @@ test('accepts supported structured replies and rejects raw provider payload over
     throws(() => buildViberSendParts('', [], message));
 });
 
+test('outgoing contacts enforce Viber name and phone limits without truncating input', () => {
+  const contact = { name: 'Н'.repeat(28), phone_number: '+'.padEnd(18, '1') };
+  deepStrictEqual(
+    buildViberSendParts('', [], {
+      type: 'contact',
+      contact: {
+        name: ` ${contact.name} `,
+        phone_number: ` ${contact.phone_number} `,
+      },
+    }).parts[0].body,
+    { type: 'contact', contact },
+  );
+  for (const invalid of [
+    { ...contact, name: 'Н'.repeat(29) },
+    { ...contact, phone_number: '+'.padEnd(19, '1') },
+  ]) {
+    throws(() =>
+      buildViberSendParts('', [], { type: 'contact', contact: invalid }),
+    );
+  }
+});
+
 test('sends only to the fixed endpoint with exact credentials and lossless provider tokens', async (t) => {
   const fetchMock = t.mock.method(globalThis, 'fetch', async (url, init) => {
     strictEqual(url, 'https://chatapi.viber.com/pa/send_message');

@@ -98,18 +98,18 @@ export const createViberSpecialSchema = (
         }
       }
       if (value.type === 'contact') {
-        if (!value.name.trim() || value.name.trim().length > 128)
+        if (!value.name.trim() || value.name.trim().length > 28)
           error(
             'name',
             t('viber-contact-invalid', {
-              defaultValue: 'Enter a contact name (maximum 128 characters)',
+              defaultValue: 'Enter a contact name (maximum 28 characters)',
             }),
           );
-        if (!value.phone.trim() || value.phone.trim().length > 128)
+        if (!value.phone.trim() || value.phone.trim().length > 18)
           error(
             'phone',
             t('viber-phone-invalid', {
-              defaultValue: 'Enter a phone number (maximum 128 characters)',
+              defaultValue: 'Enter a phone number (maximum 18 characters)',
             }),
           );
       }

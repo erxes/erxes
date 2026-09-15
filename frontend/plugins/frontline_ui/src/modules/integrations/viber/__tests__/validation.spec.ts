@@ -107,6 +107,31 @@ test('structured messages use the exact backend payload shape and validate coord
   );
 });
 
+test('outgoing contact form matches the provider limits and identifies the invalid field', () => {
+  const input = {
+    ...base,
+    type: 'contact' as const,
+    name: 'Н'.repeat(28),
+    phone: '+'.padEnd(18, '1'),
+  };
+  strictEqual(createViberSpecialSchema().safeParse(input).success, true);
+  for (const [field, limit] of [
+    ['name', 28],
+    ['phone', 18],
+  ] as const) {
+    const result = createViberSpecialSchema().safeParse({
+      ...input,
+      [field]: '1'.repeat(limit + 1),
+    });
+    strictEqual(result.success, false);
+    deepStrictEqual(result.error?.issues[0].path, [field]);
+    strictEqual(result.error?.issues[0].message.includes(String(limit)), true);
+    throws(() =>
+      buildViberSpecialMessage({ ...input, [field]: '1'.repeat(limit + 1) }),
+    );
+  }
+});
+
 test('delivery labels never confuse provider acceptance with delivery or seen receipts', () => {
   const status = {
     _id: 'message',
