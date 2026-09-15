@@ -1,14 +1,25 @@
 import {
   APIBaseMessage,
+  APIMessage,
   APIUserWithMember,
   GatewayMessagePollVoteDispatchData,
   Snowflake,
 } from 'discord-api-types/v10';
+import type { IMessageReplyTo } from '@/inbox/@types/conversationMessages';
 
+type TDiscordReferencedMessage = Partial<
+  Pick<
+    APIMessage,
+    'id' | 'author' | 'content' | 'mentions' | 'attachments' | 'embeds'
+  >
+>;
 
-export type TDiscordMessagePayload = Partial<APIBaseMessage> & {
+export type TDiscordMessagePayload = Partial<
+  Omit<APIBaseMessage, 'mentions' | 'referenced_message'>
+> & {
   guild_id?: Snowflake;
   mentions?: APIUserWithMember[];
+  referenced_message?: TDiscordReferencedMessage | null;
 };
 
 export type DiscordMention = {
@@ -48,6 +59,14 @@ export type DiscordAttachment = {
   url: string;
   name?: string;
   size?: number;
+  duration?: number;
+};
+
+export type DiscordSticker = {
+  id: string;
+  name: string;
+  formatType: number;
+  url?: string;
 };
 
 export type DiscordActivity = {
@@ -67,6 +86,9 @@ export type DiscordActivity = {
   poll?: DiscordPoll;
   embeds?: DiscordEmbed[];
   attachments: DiscordAttachment[];
+  stickers?: DiscordSticker[];
+  voiceMessage?: boolean;
+  replyTo?: IMessageReplyTo;
   raw: TDiscordMessagePayload;
 };
 

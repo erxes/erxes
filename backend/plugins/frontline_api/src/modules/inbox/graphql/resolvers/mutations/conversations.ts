@@ -679,6 +679,10 @@ export const conversationMutations = {
           content: responseContent,
           displayContent,
           extraData,
+          messageKind,
+          providerData,
+          replyTo,
+          deliveryStatus,
         } = response.data.data;
         if (responseConversationId && responseContent) {
           await models.Conversations.updateConversation(
@@ -695,6 +699,10 @@ export const conversationMutations = {
             ...doc,
             ...(displayContent ? { content: displayContent } : {}),
             ...(extraData ? { extraData } : {}),
+            ...(messageKind ? { messageKind } : {}),
+            ...(providerData ? { providerData } : {}),
+            ...(replyTo ? { replyTo } : {}),
+            ...(deliveryStatus ? { deliveryStatus } : {}),
           };
 
         const message = await models.ConversationMessages.addMessage(
