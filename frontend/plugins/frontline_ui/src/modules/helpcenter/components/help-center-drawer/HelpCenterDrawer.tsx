@@ -94,7 +94,9 @@ export function HelpCenterDrawer({
 
   const kbTopicId = form.watch('kbTopicId');
 
-  const idleLabel = isEditing ? t('kb-save-changes') : t('kb-create-topic');
+  const idleLabel = isEditing
+    ? t('kb-save-changes')
+    : t('helpcenter-create', 'Create Help Center');
   const busyLabel = isEditing ? t('saving') : t('kb-creating');
   const submitLabel = loading ? busyLabel : idleLabel;
 
@@ -106,7 +108,11 @@ export function HelpCenterDrawer({
     >
       <FocusSheet.View className="lg:w-3/4">
         <FocusSheet.Header
-          title={isEditing ? t('kb-edit-topic') : t('kb-new-topic')}
+          title={
+            isEditing
+              ? t('helpcenter-edit', 'Edit Help Center')
+              : t('helpcenter-new', 'New Help Center')
+          }
         />
         <FocusSheet.Content className="flex-1 min-h-0">
           <FocusSheet.SideBar>

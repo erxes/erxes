@@ -64,34 +64,23 @@ export function KnowledgeBase() {
     }
   }, [selectedCategoryId, topics]);
 
-  // Auto-select first category when topic is selected
   useEffect(() => {
-    if (selectedTopicId && topics.length > 0) {
-      const selectedTopic = topics.find(
-        (topic) => topic._id === selectedTopicId,
-      );
+    if (!selectedTopicId || !selectedCategoryId || topics.length === 0) {
+      return;
+    }
 
-      // Check if selected category belongs to the current topic
-      const isCategoryBelongsToTopic =
-        selectedCategoryId &&
-        selectedTopic?.categories?.some(
-          (cat) => cat._id === selectedCategoryId,
-        );
+    const selectedTopic = topics.find((topic) => topic._id === selectedTopicId);
 
-      // Auto-select only if no category selected OR selected category doesn't belong to this topic
-      if (
-        (!selectedCategoryId || !isCategoryBelongsToTopic) &&
-        selectedTopic?.categories &&
-        selectedTopic.categories.length > 0
-      ) {
-        const firstCategory = selectedTopic.categories[0];
+    const isCategoryBelongsToTopic = selectedTopic?.categories?.some(
+      (cat) => cat._id === selectedCategoryId,
+    );
 
-        memoizedSetSearchParams((prev) => {
-          const next = new URLSearchParams(prev.toString());
-          next.set('categoryId', firstCategory._id);
-          return next;
-        });
-      }
+    if (!isCategoryBelongsToTopic) {
+      memoizedSetSearchParams((prev) => {
+        const next = new URLSearchParams(prev.toString());
+        next.delete('categoryId');
+        return next;
+      });
     }
   }, [selectedTopicId, selectedCategoryId, topics, memoizedSetSearchParams]);
 
@@ -154,6 +143,38 @@ export function KnowledgeBase() {
             </div>
           </div>
         )}
+
+      {selectedTopicId && !selectedCategoryId && hasCategories && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {(selectedTopic?.categories || []).map((category: ICategory) => (
+            <div
+              key={category._id}
+              className="bg-background rounded-lg border p-6 hover:shadow-md transition-shadow"
+            >
+              <h3 className="text-lg font-semibold mb-2">{category.title}</h3>
+              <p className="text-muted-foreground mb-4">
+                {category.description ||
+                  t('no-description-available', 'No description available')}
+              </p>
+              <div className="flex items-center justify-end">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setSearchParams((prev) => {
+                      const next = new URLSearchParams(prev.toString());
+                      next.set('categoryId', category._id);
+                      return next;
+                    });
+                  }}
+                >
+                  {t('kb-view-details', 'View Details')}
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       {selectedCategoryId && !isArticleDrawerOpen && (
         <ArticleList

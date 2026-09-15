@@ -13,7 +13,7 @@ import {
   Collapsible,
   useConfirm,
 } from 'erxes-ui';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useTopics } from '../hooks/useTopics';
 import { TopicDrawer } from './TopicDrawer';
 import { CategoryDrawer } from './CategoryDrawer';
@@ -108,7 +108,7 @@ function TopicItem({
 export function KnowledgeBaseSubGroup() {
   const { t } = useTranslation('frontline');
   const { topics, loading, refetch } = useTopics();
-  const [topicId, setTopicId] = useQueryState<string | null>('topicId');
+  const [topicId] = useQueryState<string | null>('topicId');
   const [categoryId, setCategoryId] = useQueryState<string | null>(
     'categoryId',
   );
@@ -255,10 +255,6 @@ export function KnowledgeBaseSubGroup() {
       </DropdownMenu.Content>
     </DropdownMenu>
   );
-
-  useEffect(() => {
-    !topicId && topics?.[0]?._id && setTopicId(topics[0]._id);
-  }, [topics, setTopicId, topicId]);
 
   return (
     <>
