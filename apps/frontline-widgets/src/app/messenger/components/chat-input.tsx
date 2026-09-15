@@ -28,6 +28,7 @@ import { PersistentMenu } from './persistent-menu';
 import { useMessenger } from '../hooks/useMessenger';
 import { Attachment } from './attachment';
 import { getAttachmentIcon } from './attachment-type';
+import { PreviewImage } from './preview-image';
 import {
   getMaxUploadSize,
   toPendingFile,
@@ -46,7 +47,7 @@ const escapeHtml = (value: string) =>
         '>': '&gt;',
         "'": '&#39;',
         '"': '&quot;',
-      })[character] || character,
+      }[character] || character),
   );
 
 function UploadedAttachment({
@@ -69,7 +70,11 @@ function UploadedAttachment({
       >
         {isImage ? (
           <Attachment.Media variant="image">
-            <img src={readImage(attachment.url)} alt={attachment.name} />
+            <PreviewImage
+              src={readImage(attachment.url)}
+              alt={attachment.name}
+              className="size-full"
+            />
           </Attachment.Media>
         ) : (
           <Attachment.Media>
@@ -104,9 +109,10 @@ function UploadedAttachment({
         </Dialog.Header>
         {isImage ? (
           <div className="flex items-center justify-center p-2">
-            <img
+            <PreviewImage
               src={readImage(attachment.url)}
               alt={attachment.name}
+              fit="contain"
               className="max-h-[70vh] w-auto max-w-full rounded-lg object-contain"
             />
           </div>
@@ -333,7 +339,7 @@ export const ChatInput: FC<ChatInputProps> = ({ className, ...inputProps }) => {
           <Attachment.Group className="hide-scroll">
             {attachments.map((attachment, index) => (
               <UploadedAttachment
-                key={`${attachment.url}-${index}`}
+                key={attachment.url}
                 attachment={attachment}
                 onRemove={() => removeAttachment(index)}
               />
@@ -344,16 +350,16 @@ export const ChatInput: FC<ChatInputProps> = ({ className, ...inputProps }) => {
               const hasFailed = pf.state === 'error';
 
               return (
-                <Attachment
-                  key={`pending-${pf.name}-${i}`}
-                  size="sm"
-                  state={pf.state}
-                >
+                <Attachment key={pf.id} size="sm" state={pf.state}>
                   <Attachment.Media variant={pf.preview ? 'image' : 'icon'}>
                     {hasFailed ? (
                       <IconFileAlert />
                     ) : pf.preview ? (
-                      <img src={pf.preview} alt={pf.name} />
+                      <PreviewImage
+                        src={pf.preview}
+                        alt={pf.name}
+                        className="size-full"
+                      />
                     ) : (
                       <FileTypeIcon />
                     )}
