@@ -65,10 +65,12 @@
 - Tenant context remains signed and verified even when SaaS tenants share a JWT root.
 - Preserve leases, snapshots and request IDs. UNKNOWN means manual review, not permission to publish again.
 - Never remove JWT or delivery ledgers to stop/retry CMS work. Coordinate both API versions on rollout/rollback.
+- Docker's installer stage uses `NODE_OPTIONS=--jitless`, matching agent_api's QEMU workaround. The runtime stage must not inherit it; dependency-install failures must not be swallowed by optional file pruning.
 
 ## Validation
 
 - `pnpm nx build content_api`
+- `node --test backend/plugins/content_api/test/dockerfile.test.cjs`
 - `pnpm exec tsc --noEmit -p backend/plugins/content_api/tsconfig.json`
 - `pnpm exec jest --config backend/plugins/content_api/jest.postiz.cjs --runInBand`
 - No Nx `lint` or `test` target is defined.
@@ -76,6 +78,12 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-15` - Match agent installer QEMU compatibility
+
+- **Summary:** Use agent_api's installer-only JIT workaround and preserve dependency installation failures.
+- **Affected areas:** Dockerfile, Docker contract tests and this guide.
+- **Contracts changed:** None. CI workflow, architectures, image tags, runtime settings and plugin startup remain unchanged.
 
 ### `2026-09-15` - Reuse internal JWT authentication for CMS
 
