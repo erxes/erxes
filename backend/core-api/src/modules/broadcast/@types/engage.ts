@@ -1,12 +1,15 @@
 import { ICursorPaginateParams, IRule } from 'erxes-api-shared/core-types';
 import { Document } from 'mongoose';
+import type { JSONContent } from '@tiptap/core';
 
 interface IEmail {
   attachments?: any;
   subject?: string;
   content?: string;
+  contentJson?: JSONContent;
   replyTo?: string;
   sender?: string;
+  previewText?: string;
 }
 
 interface IEmailDocument extends IEmail, Document {}

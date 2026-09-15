@@ -1,12 +1,11 @@
 import { IconPlus } from '@tabler/icons-react';
 import { Button, DropdownMenu, Label, useSetQueryStateByKey } from 'erxes-ui';
 
-export const BroadcastMethod = ({ onSelect }: { onSelect: () => void }) => {
+export const BroadcastMethod = () => {
   const setQueryStateByKey = useSetQueryStateByKey();
 
   const handleSelect = (method: string) => {
     setQueryStateByKey('method', method);
-    onSelect();
   };
 
   return (

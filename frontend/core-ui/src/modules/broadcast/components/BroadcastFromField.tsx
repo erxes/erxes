@@ -1,0 +1,134 @@
+import { SelectVerifiedSender } from '@/settings/mail-config/components/SelectVerifiedSender';
+import { useSenderOptions } from '@/settings/mail-config/hooks/useVerifiedSenders';
+import { Form, Input, Skeleton } from 'erxes-ui';
+import { useEffect, useState } from 'react';
+import { useFormContext } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
+import { z } from 'zod';
+
+const isEmail = (value?: string) =>
+  !value || z.string().email().safeParse(value).success;
+
+export const BroadcastFromField = () => {
+  const { control, setValue, getValues } = useFormContext();
+  const { alignedFrom, loading: senderOptionsLoading } = useSenderOptions();
+  const { t } = useTranslation('broadcasts', { keyPrefix: 'composer' });
+
+  const [showReplyTo, setShowReplyTo] = useState(false);
+
+  useEffect(() => {
+    if (alignedFrom && getValues('fromEmail') !== alignedFrom) {
+      setValue('fromEmail', alignedFrom, { shouldValidate: true });
+    }
+  }, [alignedFrom, getValues, setValue]);
+
+  if (senderOptionsLoading) {
+    return (
+      <div className="flex items-center gap-4">
+        <span className="w-24 shrink-0 text-sm text-muted-foreground">
+          {t('from')}
+        </span>
+        <Skeleton className="h-6 flex-1" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="flex items-center gap-4">
+        <span className="w-24 shrink-0 text-sm text-muted-foreground">
+          {t('from')}
+        </span>
+
+        <div className="flex-1 flex items-center gap-1">
+          <Form.Field
+            name="email.sender"
+            control={control}
+            rules={{ required: 'Sender name is required' }}
+            render={({ field }) => (
+              <Form.Item className="flex-1">
+                <Form.Control>
+                  <Input
+                    {...field}
+                    placeholder="Sales team"
+                    className="border-none shadow-none px-2 focus-visible:ring-0"
+                  />
+                </Form.Control>
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
+
+          {alignedFrom ? (
+            <button
+              type="button"
+              onClick={() =>
+                setValue('fromEmail', alignedFrom, { shouldValidate: true })
+              }
+              className="shrink-0 text-sm text-muted-foreground hover:text-foreground"
+            >
+              &lt;{alignedFrom}&gt;
+            </button>
+          ) : (
+            <Form.Field
+              name="fromEmail"
+              control={control}
+              rules={{
+                required: 'From address is required',
+                validate: (value?: string) =>
+                  isEmail(value) || 'Enter a valid email address',
+              }}
+              render={({ field }) => (
+                <Form.Item className="flex-1">
+                  <Form.Control>
+                    <Input
+                      {...field}
+                      placeholder="sales@yourdomain.com"
+                      className="border-none shadow-none px-2 focus-visible:ring-0"
+                    />
+                  </Form.Control>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+          )}
+        </div>
+
+        {!alignedFrom && (
+          <button
+            type="button"
+            onClick={() => setShowReplyTo((v) => !v)}
+            className="shrink-0 text-sm text-muted-foreground hover:text-foreground"
+          >
+            {t('replyTo')}
+          </button>
+        )}
+      </div>
+
+      {!alignedFrom && showReplyTo && (
+        <div className="pl-28">
+          <Form.Field
+            name="email.replyTo"
+            control={control}
+            rules={{
+              validate: (value?: string) =>
+                isEmail(value) || 'Enter a valid email address',
+            }}
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Control>
+                  <SelectVerifiedSender
+                    value={field.value}
+                    onChange={field.onChange}
+                    placeholder="Select a confirmed address"
+                  />
+                </Form.Control>
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
+        </div>
+      )}
+    </div>
+  );
+};
