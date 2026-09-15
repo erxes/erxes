@@ -1,11 +1,4 @@
-import {
-  Button,
-  DropdownMenu,
-  Input,
-  Kbd,
-  Spinner,
-  cn,
-} from 'erxes-ui';
+import { Button, DropdownMenu, Input, Kbd, Spinner, cn } from 'erxes-ui';
 import {
   IconArrowUp,
   IconChevronDown,
