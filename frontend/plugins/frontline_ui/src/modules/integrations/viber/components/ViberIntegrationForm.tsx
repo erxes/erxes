@@ -1,6 +1,15 @@
 import { useApolloClient, useMutation, useQuery } from '@apollo/client';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Form, Input, Sheet, Spinner, toast } from 'erxes-ui';
+import {
+  Badge,
+  Button,
+  CopyText,
+  Form,
+  Input,
+  Sheet,
+  Spinner,
+  toast,
+} from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { SelectBrand } from 'ui-modules';
@@ -14,24 +23,30 @@ import {
 import type { ViberConnection, ViberIntegration } from '../types';
 import {
   viberIntegrationSchema,
+  getViberConnectionStatus,
   type ViberIntegrationValues,
 } from '../validation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { IconCopy } from '@tabler/icons-react';
+import { SecretInput } from '@/integrations/components/SecretInput';
 
 export const ViberIntegrationForm = ({
   channelId,
   integration,
   onClose,
   canEdit,
+  saving,
+  onSavingChange,
 }: {
   channelId: string;
   integration?: ViberIntegration;
   onClose: () => void;
   canEdit: boolean;
+  saving: boolean;
+  onSavingChange: (saving: boolean) => void;
 }) => {
   const { t } = useTranslation('frontline');
   const client = useApolloClient();
-  const [saving, setSaving] = useState(false);
   const [failure, setFailure] = useState<string>();
   const [create] = useMutation(ADD_INTEGRATION);
   const [edit] = useMutation(EDIT_INTEGRATION);
@@ -52,10 +67,15 @@ export const ViberIntegrationForm = ({
       token: '',
     },
   });
+  useEffect(() => {
+    if (canEdit) form.setFocus('name');
+  }, [canEdit, form]);
+  const bot = connection.data?.viberConnection;
+  const webhookStatus = getViberConnectionStatus({ status: bot?.healthStatus });
 
   const onSubmit = async (values: ViberIntegrationValues): Promise<void> => {
     if (saving || !canEdit) return;
-    setSaving(true);
+    onSavingChange(true);
     setFailure(undefined);
     try {
       if (integration) {
@@ -105,7 +125,7 @@ export const ViberIntegrationForm = ({
           variant: 'destructive',
         });
       }
-      setSaving(false);
+      onSavingChange(false);
     }
   };
 
@@ -114,47 +134,63 @@ export const ViberIntegrationForm = ({
       <form
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-col flex-auto overflow-hidden"
+        aria-busy={saving}
       >
         <Sheet.Header>
-          <Sheet.Title>
+          <Sheet.Title className="min-w-0 truncate pr-3">
             {integration?.name ||
               t('viber-add', { defaultValue: 'Add Viber integration' })}
           </Sheet.Title>
+          <Sheet.Description className="sr-only">
+            Viber integration settings
+          </Sheet.Description>
           <Sheet.Close disabled={saving} />
         </Sheet.Header>
-        <Sheet.Content className="overflow-auto p-4 space-y-5">
+        <Sheet.Content className="overflow-auto p-5 space-y-5">
           {integration && (
-            <div className="rounded-lg bg-muted p-3 text-sm space-y-1">
+            <div className="border-b pb-5 text-sm">
               {connection.loading ? (
                 <Spinner size="sm" />
               ) : connection.error ? (
                 <p role="alert">{connection.error.message}</p>
-              ) : connection.data?.viberConnection ? (
-                <>
-                  <p>
-                    {connection.data.viberConnection.name} · Bot ID:{' '}
-                    {connection.data.viberConnection.botId}
-                  </p>
-                  <p>
-                    Webhook:{' '}
-                    {connection.data.viberConnection.healthStatus === 'healthy'
-                      ? 'Registered'
-                      : connection.data.viberConnection.healthStatus ===
-                        'pending'
-                      ? 'Pending'
-                      : 'Registration failed'}
-                  </p>
-                  {connection.data.viberConnection.error && (
+              ) : bot ? (
+                <div className="space-y-3">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <span className="font-medium break-words">
+                      {bot.name || 'Viber bot'}
+                    </span>
+                    <Badge variant={webhookStatus.variant}>
+                      Webhook: {webhookStatus.label.toLowerCase()}
+                    </Badge>
+                  </div>
+                  <dl className="grid grid-cols-[6rem_minmax(0,1fr)] gap-2 text-xs">
+                    <dt className="text-muted-foreground">Bot ID</dt>
+                    <dd className="break-all font-mono">{bot.botId}</dd>
+                    <dt className="text-muted-foreground">Webhook URL</dt>
+                    <dd className="min-w-0">
+                      {bot.webhookUrl ? (
+                        <CopyText
+                          value={bot.webhookUrl}
+                          className="w-full min-w-0 justify-between gap-2 rounded-sm font-mono hover:text-primary"
+                        >
+                          <span className="truncate">{bot.webhookUrl}</span>
+                          <IconCopy
+                            className="size-3.5 shrink-0"
+                            aria-hidden="true"
+                          />
+                          <span className="sr-only">Copy webhook URL</span>
+                        </CopyText>
+                      ) : (
+                        'Not configured'
+                      )}
+                    </dd>
+                  </dl>
+                  {bot.error && (
                     <p role="alert" className="text-destructive">
-                      {connection.data.viberConnection.error}
+                      {bot.error}
                     </p>
                   )}
-                  <p className="break-all">
-                    Webhook URL:{' '}
-                    {connection.data.viberConnection.webhookUrl ||
-                      'Not configured'}
-                  </p>
-                </>
+                </div>
               ) : (
                 <p role="alert">
                   Bot connection not found. Contact your administrator.
@@ -178,6 +214,8 @@ export const ViberIntegrationForm = ({
                     {...field}
                     disabled={!canEdit || saving}
                     autoComplete="off"
+                    placeholder="e.g. Customer support"
+                    maxLength={100}
                   />
                 </Form.Control>
                 <Form.Message />
@@ -212,12 +250,16 @@ export const ViberIntegrationForm = ({
                     {integration ? 'New bot token (optional)' : 'Bot token'}
                   </Form.Label>
                   <Form.Control>
-                    <Input
+                    <SecretInput
                       {...field}
-                      type="password"
                       autoComplete="new-password"
                       spellCheck={false}
                       disabled={saving}
+                      placeholder={
+                        integration
+                          ? 'Leave blank to keep current token'
+                          : 'Enter bot token'
+                      }
                     />
                   </Form.Control>
                   <Form.Description>
@@ -243,7 +285,13 @@ export const ViberIntegrationForm = ({
           {canEdit && (
             <Button type="submit" disabled={saving}>
               {saving && <Spinner size="sm" />}
-              {integration ? t('save', { defaultValue: 'Save' }) : 'Connect'}
+              {saving
+                ? integration
+                  ? 'Saving…'
+                  : 'Connecting…'
+                : integration
+                ? t('save', { defaultValue: 'Save' })
+                : 'Connect'}
             </Button>
           )}
         </Sheet.Footer>

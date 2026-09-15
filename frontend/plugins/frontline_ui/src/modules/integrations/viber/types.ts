@@ -4,6 +4,7 @@ export interface ViberIntegration {
   brandId?: string;
   channelId: string;
   isActive: boolean;
+  healthStatus?: unknown;
 }
 
 export interface ViberSetup {

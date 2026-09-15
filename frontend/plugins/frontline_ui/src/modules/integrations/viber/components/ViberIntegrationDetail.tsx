@@ -7,6 +7,7 @@ import {
   RecordTable,
   Sheet,
   Spinner,
+  Skeleton,
   toast,
   useConfirm,
   EnumCursorDirection,
@@ -26,7 +27,8 @@ import type { ViberIntegration, ViberSetup } from '../types';
 import { ViberIntegrationForm } from './ViberIntegrationForm';
 import { ViberSetupCheck } from './ViberSetupCheck';
 import { ViberIntegrationActions } from './ViberIntegrationActions';
-import { IconPlus } from '@tabler/icons-react';
+import { IconMessagesOff, IconPlus } from '@tabler/icons-react';
+import { getViberConnectionStatus } from '../validation';
 
 export const ViberIntegrationDetail = ({
   channelId,
@@ -39,6 +41,7 @@ export const ViberIntegrationDetail = ({
   const { confirm } = useConfirm();
   const [opened, setOpened] = useState<ViberIntegration | 'new' | null>(null);
   const [busy, setBusy] = useState(false);
+  const [saving, setSaving] = useState(false);
   const canRead = isLoaded && hasActionPermission('showIntegrations');
   const canAdd = isLoaded && hasActionPermission('integrationsAdd');
   const canEdit = isLoaded && hasActionPermission('integrationsEdit');
@@ -46,6 +49,7 @@ export const ViberIntegrationDetail = ({
   const setup = useQuery<{ viberSetup: ViberSetup }>(VIBER_SETUP, {
     skip: !canRead,
     fetchPolicy: 'network-only',
+    notifyOnNetworkStatusChange: true,
   });
   const list = useIntegrations({
     variables: { kind: 'viber-messenger', channelId, limit: 30 },
@@ -119,12 +123,33 @@ export const ViberIntegrationDetail = ({
   };
   const columns: ColumnDef<ViberIntegration>[] = [
     {
+      id: 'more',
+      size: 33,
+      cell: ({ row }) => (
+        <ViberIntegrationActions
+          archived={row.original.isActive === false}
+          disabled={busy || saving}
+          canEdit={canEdit}
+          canRemove={canRemove}
+          onEdit={() => setOpened(row.original)}
+          onAction={(action) => void run(action, row.original)}
+        />
+      ),
+    },
+    {
+      id: 'name',
       accessorKey: 'name',
-      size: 260,
+      size: 300,
       header: t('name', { defaultValue: 'Name' }),
       cell: ({ row }) => (
-        <Button variant="link" onClick={() => setOpened(row.original)}>
-          {row.original.name}
+        <Button
+          variant="link"
+          className="w-full min-w-0 justify-start px-0 text-left"
+          disabled={busy || saving}
+          onClick={() => setOpened(row.original)}
+          title={row.original.name}
+        >
+          <span className="truncate">{row.original.name}</span>
         </Button>
       ),
     },
@@ -133,24 +158,21 @@ export const ViberIntegrationDetail = ({
       size: 110,
       header: t('status', { defaultValue: 'Status' }),
       cell: ({ row }) => (
-        <Badge variant="secondary">
+        <Badge
+          variant={row.original.isActive === false ? 'secondary' : 'success'}
+        >
           {row.original.isActive === false ? 'Archived' : 'Active'}
         </Badge>
       ),
     },
     {
-      id: 'more',
-      size: 33,
-      cell: ({ row }) => (
-        <ViberIntegrationActions
-          archived={row.original.isActive === false}
-          disabled={busy}
-          canEdit={canEdit}
-          canRemove={canRemove}
-          onEdit={() => setOpened(row.original)}
-          onAction={(action) => void run(action, row.original)}
-        />
-      ),
+      id: 'healthStatus',
+      size: 140,
+      header: 'Webhook',
+      cell: ({ row }) => {
+        const status = getViberConnectionStatus(row.original.healthStatus);
+        return <Badge variant={status.variant}>{status.label}</Badge>;
+      },
     },
   ];
 
@@ -158,14 +180,8 @@ export const ViberIntegrationDetail = ({
   if (!canRead)
     return <p role="alert">You don’t have permission to view integrations.</p>;
   return (
-    <div className="flex flex-col gap-4 flex-1 min-h-0 overflow-auto">
-      <ViberSetupCheck
-        setup={setup.data?.viberSetup}
-        loading={setup.loading}
-        error={setup.error?.message}
-        refresh={() => void refresh()}
-      />
-      <div className="flex items-center justify-between gap-3">
+    <div className="flex flex-col gap-5 flex-1 min-h-0 overflow-auto">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <h3 className="text-sm font-semibold">
           {t('integrations', { defaultValue: 'Integrations' })}
         </h3>
@@ -173,6 +189,7 @@ export const ViberIntegrationDetail = ({
           <Button
             disabled={
               busy ||
+              saving ||
               setup.loading ||
               !setup.data ||
               Boolean(setup.data.viberSetup.webhookError)
@@ -184,6 +201,12 @@ export const ViberIntegrationDetail = ({
           </Button>
         )}
       </div>
+      <ViberSetupCheck
+        setup={setup.data?.viberSetup}
+        loading={setup.loading}
+        error={setup.error?.message}
+        refresh={() => void refresh()}
+      />
       {list.error ? (
         <p role="alert" className="text-sm text-destructive">
           {list.error.message}{' '}
@@ -192,10 +215,25 @@ export const ViberIntegrationDetail = ({
           </Button>
         </p>
       ) : list.loading && !list.integrations?.length ? (
-        <Spinner />
+        <div
+          role="status"
+          aria-label="Loading Viber integrations"
+          className="space-y-3 py-4"
+        >
+          <Skeleton className="h-9 w-full" />
+          <Skeleton className="h-9 w-full" />
+          <Skeleton className="h-9 w-full" />
+          <span className="sr-only">Loading integrations</span>
+        </div>
       ) : !list.integrations?.length ? (
-        <Empty className="min-h-44 bg-muted/30 rounded-lg border border-dashed">
+        <Empty className="min-h-64 rounded-lg bg-accent/40">
           <Empty.Header>
+            <Empty.Media>
+              <IconMessagesOff
+                className="size-8 text-muted-foreground"
+                aria-hidden="true"
+              />
+            </Empty.Media>
             <Empty.Title>No Viber integrations</Empty.Title>
             <Empty.Description>
               {canAdd
@@ -213,9 +251,10 @@ export const ViberIntegrationDetail = ({
             channelId: row.channelId,
             brandId: row.brandId,
             isActive: row.isActive !== false,
+            healthStatus: 'healthStatus' in row ? row.healthStatus : undefined,
           }))}
           tableId={`frontline_viber_${channelId}`}
-          stickyColumns={['name']}
+          stickyColumns={['more', 'name']}
         >
           <RecordTable.Scroll>
             <RecordTable>
@@ -240,15 +279,22 @@ export const ViberIntegrationDetail = ({
       )}
       <Sheet
         open={Boolean(opened)}
-        onOpenChange={(open) => !open && setOpened(null)}
+        onOpenChange={(open) => !open && !saving && setOpened(null)}
       >
-        <Sheet.View className="sm:max-w-xl">
+        <Sheet.View
+          className="sm:max-w-lg"
+          onOpenAutoFocus={(event) => {
+            if (canEdit || opened === 'new') event.preventDefault();
+          }}
+        >
           {opened && (
             <ViberIntegrationForm
               key={opened === 'new' ? 'new' : opened._id}
               channelId={channelId}
               integration={opened === 'new' ? undefined : opened}
               canEdit={opened === 'new' ? canAdd : canEdit}
+              saving={saving}
+              onSavingChange={setSaving}
               onClose={() => setOpened(null)}
             />
           )}

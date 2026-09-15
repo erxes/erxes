@@ -79,7 +79,9 @@
   a missing media policy does not prevent connecting a text-only test bot.
   Row actions use the standard three-dot `RecordTable` menu; setup issues stay
   visible while webhook, media-host, and storage values are in an expandable
-  technical-details section. Keep copy concise and user-facing.
+  technical-details section. The list shows registration badges separately
+  from active/archive state; forms reuse `SecretInput` for token visibility and
+  `CopyText` for callback URLs. Keep copy concise and user-facing.
 - Viber conversations use the native message thread and composer for text,
   attachments, and internal notes, plus a dialog for link/location/contact/
   sticker messages. Reply eligibility respects archives, permissions, and
@@ -519,6 +521,9 @@ brandId)` and `knowledgeBaseTopicsTotalCount`, read together as the help
   are authoritative. Do not enable arbitrary media hosts from the setup form.
 - Do not trim a Viber bot token: reject surrounding whitespace. Registration
   health means the webhook was registered, not that real delivery was tested.
+- Viber forms focus Name when editable and prevent drawer dismissal during
+  saves. Keep pending state in the sheet owner so Escape and outside clicks
+  cannot discard an in-flight form; never populate the stored token in the UI.
 - For Viber external replies, uploads retain private keys plus actual file
   size/type/name metadata, including editor uploads. Reject empty files, unsafe
   keys, external embedded URLs without metadata, more than ten attachments,
@@ -1057,7 +1062,9 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   checks the application and its referenced source; pre-existing shared/plugin
   errors must be reported, not mistaken for a clean compile.
 - Viber smoke: open the channel's Viber card; check setup errors, empty state,
-  create validation, masked token, management and permission-disabled actions.
+  create validation, initial focus, token visibility, callback-copy feedback,
+  registration badges, pending-save dismissal guards, and permission-disabled
+  management actions.
   With a test bot, verify inbound/outbound text and files, receipt updates,
   unsubscribe, archive/restore, Repair, same-bot token rotation, and removal.
   Browser network fixtures test UI behavior only, not provider or storage I/O.
@@ -1113,6 +1120,13 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-15` — Viber settings polish
+
+- **Summary:** Refine setup hierarchy, loading and empty states, registration
+  badges, and form focus, token visibility, callback copying, and save feedback.
+- **Affected areas:** Viber settings components, status presentation and tests.
+- **Contracts changed:** `None`
 
 ### `2026-09-15` — Viber wording and integration-flow consistency
 
@@ -1265,17 +1279,4 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   unfiltered list to resolve `editId`.
 - **Affected areas:** `src/modules/FrontlineSubGroups.tsx`,
   `src/modules/helpcenter/components/HelpCenterSubGroup.tsx` (deleted)
-- **Contracts changed:** `None`
-
-### `2026-09-07` — A new help center shows its knowledge base by default
-
-- **Summary:** The New Topic drawer opened with `Show knowledge base` off, so
-  the topic and label fields under it stayed hidden until the switch was found;
-  `EMPTY_TOPIC_FORM` now starts it on, matching the `?? true` the drawer reset
-  and `toTopicDrawerRecord` already used. `useEditHelpCenter` rebuilt the doc
-  with `?? false`, which switched the feature off on the next inline edit of a
-  help center that had no stored value — it now agrees with the other three.
-- **Affected areas:**
-  `src/modules/knowledgebase/topicDrawerConstants.ts`,
-  `src/modules/helpcenter/hooks/useEditHelpCenter.ts`
 - **Contracts changed:** `None`
