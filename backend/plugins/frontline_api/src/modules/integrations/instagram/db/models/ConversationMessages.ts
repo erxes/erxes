@@ -7,6 +7,7 @@ import {
   IInstagramConversationMessageDocument,
   IInstagramConversationMessage,
 } from '@/integrations/instagram/@types/conversationMessages';
+import { normalizeStoredInstagramMessage } from '@/integrations/instagram/normalizeMessage';
 
 export interface IInstagramConversationMessageModel extends Model<IInstagramConversationMessageDocument> {
   getMessage(_id: string): Promise<IInstagramConversationMessageDocument>;
@@ -76,7 +77,9 @@ export const loadInstagramConversationMessageClass = (models: IModels) => {
         throw new Error('Content is required');
       }
 
-      return this.createMessage({ ...doc, userId });
+      return this.createMessage(
+        normalizeStoredInstagramMessage({ ...doc, userId }),
+      );
     }
   }
 
