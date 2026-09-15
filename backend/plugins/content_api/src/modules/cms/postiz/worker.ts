@@ -123,7 +123,7 @@ export async function runCmsDeliveries(subdomain: string) {
 }
 
 export function startCmsDeliveryWorker() {
-  if (!process.env.CMS_POSTIZ_SHARED_SECRET) return;
+  if (!process.env.JWT_TOKEN_SECRET?.trim()) return;
   let running = false;
   const tick = async () => {
     if (running) return;

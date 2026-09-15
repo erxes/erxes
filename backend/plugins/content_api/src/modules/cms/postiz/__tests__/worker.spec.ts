@@ -1,8 +1,8 @@
 import { generateModels } from '~/connectionResolvers';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { getSaasOrganizations, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { postizBridge } from '../bridge';
 import { requireSharePost } from '../service';
-import { runCmsDeliveries } from '../worker';
+import { runCmsDeliveries, startCmsDeliveryWorker } from '../worker';
 
 jest.mock('~/connectionResolvers', () => ({ generateModels: jest.fn() }));
 jest.mock('erxes-api-shared/utils', () => ({
@@ -129,5 +129,56 @@ test('an exhausted ambiguous request becomes UNKNOWN without a new request ID', 
   expect(jest.mocked(postizBridge).mock.calls[0][3]).toHaveProperty(
     'requestId',
     'requestA',
+  );
+});
+
+describe('worker startup authentication configuration', () => {
+  beforeEach(() => {
+    jest.useFakeTimers();
+    jest.replaceProperty(process, 'env', {
+      ...process.env,
+      JWT_TOKEN_SECRET: 'cms-test-jwt',
+      VERSION: 'saas',
+    });
+    delete process.env.CMS_POSTIZ_SHARED_SECRET;
+  });
+
+  afterEach(() => {
+    jest.clearAllTimers();
+    jest.useRealTimers();
+    jest.restoreAllMocks();
+  });
+
+  test('JWT alone starts the worker and preserves separate tenant sweeps', async () => {
+    setup();
+    jest
+      .mocked(getSaasOrganizations)
+      .mockResolvedValue([
+        { subdomain: 'tenantA' },
+        { subdomain: 'tenantB' },
+      ] as Awaited<ReturnType<typeof getSaasOrganizations>>);
+    startCmsDeliveryWorker();
+    expect(jest.getTimerCount()).toBe(2);
+    await jest.advanceTimersByTimeAsync(1000);
+    expect(generateModels).toHaveBeenCalledWith('tenantA');
+    expect(generateModels).toHaveBeenCalledWith('tenantB');
+    expect(postizBridge).toHaveBeenCalledWith(
+      'tenantA',
+      'userA',
+      'publish',
+      expect.anything(),
+    );
+  });
+
+  test.each([undefined, '', ' \t\n'])(
+    'no timers start without JWT (%s)',
+    (secret) => {
+      if (secret === undefined) delete process.env.JWT_TOKEN_SECRET;
+      else process.env.JWT_TOKEN_SECRET = secret;
+      process.env.CMS_POSTIZ_SHARED_SECRET = 'retired-key'.repeat(8);
+      startCmsDeliveryWorker();
+      expect(jest.getTimerCount()).toBe(0);
+      expect(generateModels).not.toHaveBeenCalled();
+    },
   );
 });
