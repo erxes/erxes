@@ -39,6 +39,7 @@ import {
 import { forwardRef, useState } from 'react';
 import { useFieldGroups } from '../hooks/useFieldGroups';
 import { useFields } from '../hooks/useFields';
+import { useNarrowWidth } from '../hooks/useNarrowWidth';
 import {
   IField,
   IFieldGroup,
@@ -220,8 +221,13 @@ export const FieldsInGroup = ({
   };
   fields: IField[];
 }) => {
+  const { ref, isNarrow } = useNarrowWidth<HTMLDivElement>();
+
   return (
-    <div className="grid grid-cols-2 gap-4">
+    <div
+      ref={ref}
+      className={cn('grid gap-4', isNarrow ? 'grid-cols-1' : 'grid-cols-2')}
+    >
       {fields.map((field) => (
         <Field
           key={field._id}
@@ -289,6 +295,7 @@ const PropertyGroupRow = forwardRef<
     ref,
   ) => {
     const label = rowLabel(row, fields) || `Entry ${index + 1}`;
+    const { ref: gridRef, isNarrow } = useNarrowWidth<HTMLDivElement>();
 
     return (
       <Collapsible
@@ -350,7 +357,13 @@ const PropertyGroupRow = forwardRef<
           </AlertDialog>
         </div>
 
-        <Collapsible.Content className="grid grid-cols-2 gap-4 p-3 pt-1">
+        <Collapsible.Content
+          ref={gridRef}
+          className={cn(
+            'grid gap-4 p-3 pt-1',
+            isNarrow ? 'grid-cols-1' : 'grid-cols-2',
+          )}
+        >
           {fields.map((field) => (
             <FieldMultiple
               key={field._id}
