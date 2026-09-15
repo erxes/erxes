@@ -6,6 +6,16 @@ import {
 } from 'erxes-api-shared/core-types';
 import { Document } from 'mongoose';
 
+export interface ITicketSourceSurvey {
+  surveyId: string;
+  surveyStepId: string;
+  surveyOptionId: string;
+  question: string;
+  optionText: string;
+  voteCount: number;
+  threshold: number;
+}
+
 export interface ITicket {
   /**
    * What produced this, when nobody typed it in — a campaign, an
@@ -42,6 +52,7 @@ export interface ITicket {
   attachments?: IAttachment[];
   companyIds?: string[];
   customerFieldData?: any;
+  sourceSurvey?: ITicketSourceSurvey;
 }
 
 export interface ITicketUpdate extends ITicket {

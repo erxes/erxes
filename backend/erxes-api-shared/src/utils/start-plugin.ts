@@ -53,6 +53,8 @@ import { mountAgentTools } from './agent-tools';
 import { applyTrustProxy, getSubdomain } from './utils';
 import * as Sentry from '@sentry/node';
 
+export const MAX_HEADER_BYTES = 64 * 1024;
+
 dotenv.config();
 
 enum API_METHODS {
@@ -309,7 +311,10 @@ export async function startPlugin(
   //   res.status(500).send(msg);
   // });
 
-  const httpServer = http.createServer(app);
+  const httpServer = http.createServer(
+    { maxHeaderSize: MAX_HEADER_BYTES },
+    app,
+  );
   httpServer.keepAliveTimeout = 120000;
   httpServer.headersTimeout = 121000;
 

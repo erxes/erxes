@@ -22,6 +22,12 @@ export interface IProductData {
   vatPercent?: number;
   discountPercent?: number;
   discount?: number;
+  discountInfos?: Array<{
+    type: string;
+    title?: string;
+    amount?: number;
+    percent?: number;
+  }>;
   bonusCount?: number;
   amount?: number;
   tickUsed?: boolean;

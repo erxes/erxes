@@ -28,16 +28,26 @@
 - Deal detail renders only the properties selected on the deal's pipeline.
   Legacy pipelines continue showing all deal properties until their selection
   is saved for the first time.
+- Deal product advanced view manages only product-level manual `hand`
+  discounts while preserving automatic discount sources in `discountInfos`.
+- Deal product footer discount inputs default to the current per-currency
+  manual `hand` discount amount and percent while the adjacent totals show all
+  discount sources.
+- Clearing a row discount input without entering a value does not create or
+  update a manual `hand` discount.
+- Deal product tax controls live behind a separate Tax view toggle; Advanced
+  view no longer owns tax columns or footer total tax controls.
 
 ## Architecture
 
-| Area            | Path                                                                  | Responsibility                                                |
-| --------------- | --------------------------------------------------------------------- | ------------------------------------------------------------- |
-| Registration    | `frontend/plugins/sales_ui/src/config.tsx`                            | Sales routes, navigation, and remote registration             |
-| Dev server      | `frontend/plugins/sales_ui/rspack.config.ts`                          | Module Federation development serving and watch ignore rules  |
-| Pipeline editor | `frontend/plugins/sales_ui/src/modules/deals/pipelines`               | Pipeline form, stages, product config, and property selection |
-| Deal detail     | `frontend/plugins/sales_ui/src/modules/deals/cards/components/detail` | Deal overview, properties, activity, and products             |
-| GraphQL         | `frontend/plugins/sales_ui/src/modules/deals/graphql`                 | Sales client operations                                       |
+| Area              | Path                                                                                                 | Responsibility                                                                    |
+| ----------------- | ---------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| Registration      | `frontend/plugins/sales_ui/src/config.tsx`                                                           | Sales routes, navigation, and remote registration                                 |
+| Dev server        | `frontend/plugins/sales_ui/rspack.config.ts`                                                         | Module Federation development serving and watch ignore rules                      |
+| Pipeline editor   | `frontend/plugins/sales_ui/src/modules/deals/pipelines`                                              | Pipeline form, stages, product config, and property selection                     |
+| Deal detail       | `frontend/plugins/sales_ui/src/modules/deals/cards/components/detail`                                | Deal overview, properties, activity, and products                                 |
+| GraphQL           | `frontend/plugins/sales_ui/src/modules/deals/graphql`                                                | Sales client operations                                                           |
+| Product discounts | `frontend/plugins/sales_ui/src/modules/deals/cards/components/detail/product/utils/discountInfos.ts` | Reconciles advanced-view row/footer discount edits into `hand` discount metadata. |
 
 - POS, deal, order, cover, item, product, payment, appearance, delivery, and permission management screens for the sales frontend.
 
@@ -78,12 +88,27 @@
   editor state.
 - `propertyIds` is submitted with pipeline create/edit and reloaded from
   `salesPipelineDetail`.
+- Product advanced-view discount edits are stored as `discountInfos` entries
+  with `type: 'hand'`; pricing/voucher/score entries remain automatic data.
 
 ## Local Invariants
 
 - Property choices must come only from Core `sales:deal` fields.
 - Deal property detail must filter by the deal's `pipelineId` selection.
 - Pipeline mutations must refresh or update Apollo state immediately.
+- Editing a row discount sets `hand` to the difference between requested total
+  discount and existing automatic discount. Editing the footer total discount
+  clears current `hand` for each matching currency row and adds the footer
+  amount/percent on top of automatic discounts.
+- Empty row discount inputs are treated as canceled edits; entering explicit
+  `0` is still a real manual edit.
+- Footer discount inputs display only the editable `hand` portion; total
+  discount labels beside them aggregate automatic and manual discounts.
+- Footer handle percent and amount drafts are mutually exclusive per currency;
+  editing one clears the other so both inputs derive from the same `hand`
+  discount state.
+- Advanced view controls discount metadata and extended product fields; Tax
+  view controls only product tax percent/amount columns and footer total tax.
 
 ## Validation
 
@@ -128,6 +153,41 @@
   `src/modules/deals/cards/components/detail/DealActivityRows.tsx`
 - **Contracts changed:** Consumes the new `ActivityLogs.CreatedVia` from
   `ui-modules`.
+
+### `2026-09-13` — Sync footer handle discount inputs
+
+- **Summary:** Deal product footer handle percent and amount inputs now clear
+  the alternate draft per currency so both controls reflect the same manual
+  `hand` discount state.
+- **Affected areas:** `src/modules/deals/cards/components/detail/product/components/ProductFooter.tsx`.
+- **Contracts changed:** None.
+
+### `2026-09-13` — Fill handle discount footer inputs
+
+- **Summary:** Deal product footer discount inputs now fill from the current
+  per-currency manual `hand` discount amount and percent while aggregate labels
+  still show all discounts.
+- **Affected areas:** `src/modules/deals/cards/components/detail/product/components/ProductFooter.tsx`.
+- **Contracts changed:** None.
+
+### `2026-09-13` — Ignore empty row discount edits
+
+- **Summary:** Deal product row discount percent/amount fields now ignore empty
+  edits so blank inputs do not create manual `hand` discount entries.
+- **Affected areas:** `src/modules/deals/cards/components/detail/product/components/product-table/getProductColumns.tsx`.
+- **Contracts changed:** None.
+
+### `2026-09-13` — Product Tax view toggle
+
+- **Summary:** Added a separate Tax view toggle and moved product tax percent/amount columns plus footer total tax controls out of Advanced view.
+- **Affected areas:** `src/modules/deals/cards/components/detail/product/components/{ProductFooter.tsx,product-list,product-table}`.
+- **Contracts changed:** None.
+
+### `2026-09-12` — Advanced product manual discounts
+
+- **Summary:** Advanced-view product row and footer discount edits now update only `hand` discount metadata while preserving automatic discount sources.
+- **Affected areas:** `src/modules/deals/cards/components/detail/product/{components,hooks,utils,productTableAtom.ts}`.
+- **Contracts changed:** Deal product JSON may include `discountInfos` with manual `hand` entries.
 
 ### `2026-09-09` — `Bound Dev Watchers`
 

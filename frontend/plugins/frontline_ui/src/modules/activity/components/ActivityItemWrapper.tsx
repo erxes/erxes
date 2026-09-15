@@ -1,18 +1,19 @@
-import { MembersInline } from 'ui-modules';
 import { IActivity } from '@/activity/types';
 import {
   ActivityIcon,
   ActivityItem as ActivityItemContent,
 } from '@/activity/components/ActivityItem';
+import { ActivityAuthorName } from '@/activity/components/ActivityAuthor';
 import { ActivityTimelineItem } from '@/activity/components/ActivityTimelineItem';
 import { useTranslation } from 'react-i18next';
+
 interface ActivityItemWrapperProps {
   activity: IActivity;
 }
 
 export const ActivityItemWrapper = ({ activity }: ActivityItemWrapperProps) => {
   const { t } = useTranslation('frontline');
-  const memberIds = activity.createdBy ? [activity.createdBy] : [];
+
   return (
     <ActivityTimelineItem
       avatar={<ActivityIcon activity={activity} />}
@@ -22,9 +23,10 @@ export const ActivityItemWrapper = ({ activity }: ActivityItemWrapperProps) => {
       {activity.createdBy === 'system' ? (
         <div className="text-accent-foreground">{t('system', 'System')}</div>
       ) : (
-        <MembersInline.Provider memberIds={memberIds}>
-          <MembersInline.Title className="font-semibold" />
-        </MembersInline.Provider>
+        <ActivityAuthorName
+          createdBy={activity.createdBy}
+          className="font-semibold"
+        />
       )}
       <ActivityItemContent activity={activity} />
     </ActivityTimelineItem>

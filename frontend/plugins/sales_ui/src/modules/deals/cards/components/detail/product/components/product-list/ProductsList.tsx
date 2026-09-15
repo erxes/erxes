@@ -21,6 +21,7 @@ import {
 } from '../../hooks/useProductsListState';
 import { DEAL_TOAST_OPTIONS } from '@/deals/constants/toast';
 import { filterProducts } from '../../utils/filterProducts';
+import { ProductDataWithDiscountInfos } from '../../utils/discountInfos';
 
 export const ProductsList = ({
   products,
@@ -67,6 +68,7 @@ export const ProductsList = ({
     toastOptions: DEAL_TOAST_OPTIONS,
   });
   const [showAdvancedView, setShowAdvancedView] = useState(false);
+  const [showTaxView, setShowTaxView] = useState(false);
   const [editingProduct, setEditingProduct] = useState<IProductData | null>(
     null,
   );
@@ -161,7 +163,7 @@ export const ProductsList = ({
   const updateLocalProduct = useCallback(
     (
       id: string,
-      patch: Partial<IProductData>,
+      patch: Partial<ProductDataWithDiscountInfos>,
       options?: { syncProductId?: string },
     ) => {
       setLocalProductsData((prev) => {
@@ -240,6 +242,8 @@ export const ProductsList = ({
         onApplyVat={applyVat}
         showAdvancedView={showAdvancedView}
         onShowAdvancedViewChange={setShowAdvancedView}
+        showTaxView={showTaxView}
+        onShowTaxViewChange={setShowTaxView}
       />
 
       <div className="min-h-0 flex-1 py-4">
@@ -247,6 +251,7 @@ export const ProductsList = ({
           products={productRecords}
           refetch={refetch}
           showAdvancedView={showAdvancedView}
+          showTaxView={showTaxView}
           hasProductFilters={hasProductFilters}
         />
       </div>
@@ -269,6 +274,7 @@ export const ProductsList = ({
         discount={discount}
         tax={tax}
         showAdvancedView={showAdvancedView}
+        showTaxView={showTaxView}
         productsData={localProductsData}
         onChangeProductsData={setLocalProductsData}
         updateTotal={updateTotal}

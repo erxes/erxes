@@ -5,6 +5,10 @@ import { AdjustmentByCurrency } from './useProductCalculations';
 import { useAtomValue } from 'jotai';
 import { useDealsCreateProductsData } from './mutations/useDealsCreateProductsData';
 import { useRemoveProducts } from './mutations/useRemoveProduct';
+import {
+  ProductDataWithDiscountInfos,
+  applyFooterDiscountPercent,
+} from '../utils/discountInfos';
 
 interface UseDealProductActionsParams {
   tickUsed: boolean;
@@ -112,9 +116,10 @@ export const useDealProductActions = ({
           _id: crypto.randomUUID(),
         };
 
-        calculatePerProductAmount('discount', row);
-
-        return row;
+        return applyFooterDiscountPercent(
+          row,
+          discount[currency]?.percent || 0,
+        );
       });
 
       // The server schema has no `product` field: send the stripped rows as
@@ -141,7 +146,8 @@ export const useDealProductActions = ({
     (productData: IProductData) => {
       // The server persists docs verbatim, so send only persisted fields —
       // not the embedded product object or bundle conditions.
-      const doc: IProductData = {
+      const sourceProductData = productData as ProductDataWithDiscountInfos;
+      const doc: ProductDataWithDiscountInfos = {
         _id: crypto.randomUUID(),
         productId: productData.productId || productData.product?._id,
         uom: productData.uom,
@@ -155,6 +161,7 @@ export const useDealProductActions = ({
         vatPercent: productData.vatPercent,
         discountPercent: productData.discountPercent,
         discount: productData.discount,
+        discountInfos: sourceProductData.discountInfos,
         amount: productData.amount,
         tickUsed: productData.tickUsed,
         isVatApplied: productData.isVatApplied,

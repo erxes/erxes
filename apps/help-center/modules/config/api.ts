@@ -5,40 +5,49 @@ import {
   apiUrlForHost,
   setResolvedApiUrlReader,
 } from '@/modules/apollo/utils/env';
-import { errorMessage, type PortalResult } from '@/modules/apollo/utils/result';
+import {
+  errorMessage,
+  graphqlErrorMessage,
+  type PortalResult,
+} from '@/modules/apollo/utils/result';
 import { HELP_CENTER_CONFIG_BY_DOMAIN } from './graphql/queries/helpCenterConfig';
+import {
+  readScopedApiUrl,
+  readScopedAppToken,
+  writeScopedApiUrl,
+  writeScopedAppToken,
+} from './requestScope';
 import { normalizeConfig } from './utils/normalize';
 import type { HelpCenterConfig, PortalConfig } from './types';
 
 type ConfigResponse = { helpCenterGetConfigByDomain: HelpCenterConfig | null };
 
-const requestOrigin = async (): Promise<string> => {
+const isLocalHost = (host: string): boolean =>
+  host.startsWith('localhost') || host.startsWith('127.0.0.1');
+
+const requestOrigins = async (): Promise<string[]> => {
   const list = await headers();
 
   const host = list.get('x-forwarded-host') ?? list.get('host') ?? '';
 
-  // A SaaS gateway is addressed per tenant, and this is the first thing the
-  // server reads from a request, so the address is resolved from this host for
-  // everything the request goes on to ask for.
-  apiUrl = apiUrlForHost(host);
+  writeScopedApiUrl(apiUrlForHost(host));
 
   if (!host) {
-    return '';
+    return [];
   }
 
-  const proto =
-    list.get('x-forwarded-proto') ??
-    (host.startsWith('localhost') || host.startsWith('127.0.0.1')
-      ? 'http'
-      : 'https');
+  if (isLocalHost(host)) {
+    return [`http://${host}`, `https://${host}`];
+  }
 
-  return `${proto}://${host}`;
+  return [`https://${host}`, `http://${host}`];
 };
 
-let appToken = '';
-let apiUrl = '';
+const isNotFound = (error: unknown): boolean =>
+  graphqlErrorMessage(error).toLowerCase().includes('not found');
 
 const fetchConfig = async (
+  apiUrl: string,
   domain: string,
 ): Promise<PortalResult<PortalConfig>> => {
   if (!apiUrl) {
@@ -52,12 +61,14 @@ const fetchConfig = async (
   try {
     const { data, error } = await query<ConfigResponse>({
       query: HELP_CENTER_CONFIG_BY_DOMAIN,
-      variables: { domain },
       errorPolicy: 'all',
+      context: { apiUrl, headers: { origin: domain } },
     });
 
     if (error) {
-      return { state: 'error', message: error.message };
+      return isNotFound(error)
+        ? { state: 'unpublished', domain }
+        : { state: 'error', message: error.message };
     }
 
     const config = data?.helpCenterGetConfigByDomain;
@@ -68,27 +79,54 @@ const fetchConfig = async (
 
     return { state: 'ready', data: normalizeConfig(config) };
   } catch (caught) {
-    return { state: 'error', message: errorMessage(caught) };
+    return isNotFound(caught)
+      ? { state: 'unpublished', domain }
+      : { state: 'error', message: errorMessage(caught) };
   }
 };
 
 const CONFIG_TTL_SECONDS = 60;
 
-const cachedByDomain = unstable_cache(fetchConfig, ['portal-help-center'], {
-  revalidate: CONFIG_TTL_SECONDS,
-});
+const cachedByDomain = (apiUrl: string, domain: string) =>
+  unstable_cache(fetchConfig, ['portal-help-center'], {
+    revalidate: CONFIG_TTL_SECONDS,
+  })(apiUrl, domain);
+
+const configFor = async (
+  apiUrl: string,
+  domain: string,
+): Promise<PortalResult<PortalConfig>> => {
+  const cached = await cachedByDomain(apiUrl, domain);
+
+  return cached.state === 'ready' ? cached : await fetchConfig(apiUrl, domain);
+};
 
 export const getPortalConfig = async (): Promise<
   PortalResult<PortalConfig>
 > => {
-  const domain = await requestOrigin();
+  const domains = await requestOrigins();
+  const apiUrl = readScopedApiUrl();
 
-  const cached = await cachedByDomain(domain);
+  if (!domains.length) {
+    return { state: 'error', message: 'This request carried no host header.' };
+  }
 
-  const result = cached.state === 'error' ? await fetchConfig(domain) : cached;
+  let result = await configFor(apiUrl, domains[0]);
+
+  for (const domain of domains.slice(1)) {
+    if (result.state === 'ready') {
+      break;
+    }
+
+    const next = await configFor(apiUrl, domain);
+
+    if (next.state === 'ready' || result.state !== 'error') {
+      result = next;
+    }
+  }
 
   if (result.state === 'ready') {
-    appToken = result.data.appToken;
+    writeScopedAppToken(result.data.appToken);
   }
 
   return result;
@@ -100,5 +138,5 @@ export const readConfig = async (): Promise<PortalConfig | null> => {
   return result.state === 'ready' ? result.data : null;
 };
 
-setAppTokenReader(() => appToken);
-setResolvedApiUrlReader(() => apiUrl);
+setAppTokenReader(() => readScopedAppToken());
+setResolvedApiUrlReader(() => readScopedApiUrl());

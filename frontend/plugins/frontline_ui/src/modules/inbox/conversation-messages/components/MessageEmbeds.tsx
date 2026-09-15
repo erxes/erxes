@@ -70,7 +70,11 @@ const EmbedHeading = ({ embed }: { embed: IMessageEmbed }) => {
       {embed.author?.name && (
         <div className="mb-1 flex items-center gap-1.5 text-xs font-medium">
           {embed.author.iconUrl && (
-            <Img src={embed.author.iconUrl} alt="" className="size-4 rounded-full" />
+            <Img
+              src={embed.author.iconUrl}
+              alt=""
+              className="size-4 rounded-full"
+            />
           )}
           {authorHref ? (
             <a
@@ -126,7 +130,9 @@ const InlineGif = ({ embed }: { embed: IMessageEmbed }) => (
     muted
     playsInline
     className="max-w-full rounded-lg"
-    style={{ aspectRatio: mediaAspect(embed.video) || mediaAspect(embed.thumbnail) }}
+    style={{
+      aspectRatio: mediaAspect(embed.video) || mediaAspect(embed.thumbnail),
+    }}
   />
 );
 
@@ -221,7 +227,11 @@ const RichEmbed = ({ embed }: { embed: IMessageEmbed }) => (
     {embed.footer?.text && (
       <div className="mt-2 flex items-center gap-1.5 text-[11px] text-muted-foreground">
         {embed.footer.iconUrl && (
-          <Img src={embed.footer.iconUrl} alt="" className="size-4 rounded-full" />
+          <Img
+            src={embed.footer.iconUrl}
+            alt=""
+            className="size-4 rounded-full"
+          />
         )}
         <span>{embed.footer.text}</span>
       </div>

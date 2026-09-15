@@ -17,6 +17,29 @@ export const types = `
     error: String
   }
 
+  type MailForwardVerification {
+    from: String
+    subject: String
+    code: String
+    link: String
+    excerpt: String
+    receivedAt: Date
+  }
+
+  type MailPipelineIntegration {
+    _id: String
+    pipelineId: String
+    name: String
+    address: String
+    senderName: String
+    forwardFrom: String
+    forwardPendingAt: Date
+    forwardVerification: MailForwardVerification
+    awaitingForwardVerification: Boolean
+    healthStatus: String
+    error: String
+  }
+
   type MailCloudflareZone {
     id: String
     name: String
@@ -78,6 +101,8 @@ export const queries = `
 
   mailSendingReadiness: MailSendingReadiness
 
+  mailPipelineIntegration(pipelineId: String!): MailPipelineIntegration
+
   mailCloudflareConnection: MailCloudflareConnection
   mailCloudflareSendingQuota: MailCloudflareSendingQuota
   mailCloudflareZones(token: String!): [MailCloudflareZone]
@@ -99,6 +124,22 @@ export const mutations = `
     attachments: [JSON]
     customerId: String
   ): JSON
+
+  mailPipelineConnect(
+    pipelineId: String!
+    senderName: String
+    forwardFrom: String
+  ): MailPipelineIntegration
+
+  mailPipelineUpdate(
+    pipelineId: String!
+    senderName: String
+    forwardFrom: String
+  ): MailPipelineIntegration
+
+  mailPipelineForwardVerified(pipelineId: String!): MailPipelineIntegration
+
+  mailPipelineDisconnect(pipelineId: String!): Boolean
 
   mailMessageRetry(_id: String!): JSON
 

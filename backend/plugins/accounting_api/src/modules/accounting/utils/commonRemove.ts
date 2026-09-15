@@ -195,6 +195,8 @@ async function handleFxaMove(
   await removeFxaMoveInstances(models, transaction);
   await removeFollowTransactions(models, transaction._id, [
     TR_FOLLOW_TYPES.FXA_MOVE_IN,
+    TR_FOLLOW_TYPES.FXA_MOVE_DEP_OUT,
+    TR_FOLLOW_TYPES.FXA_MOVE_DEP_IN,
   ]);
   await rebuildFixedAssetCurrentCounts(
     models,

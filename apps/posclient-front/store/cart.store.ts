@@ -5,10 +5,9 @@ import {
   IAddToCartInput,
   IOrderItemStatus,
   OrderItem,
-  OrderItemInput,
 } from "@/types/order.types"
 import { ORDER_ITEM_STATUSES, ORDER_STATUSES } from "@/lib/constants"
-import { getCartTotal, getItemInputs } from "@/lib/utils"
+import { getCartTotal } from "@/lib/utils"
 
 import { banFractionsAtom, orderPasswordAtom } from "./config.store"
 import { activeOrderIdAtom, setOpenCancelDialogAtom } from "./order.store"
@@ -119,9 +118,6 @@ export const cartAtom = atomWithStorage<OrderItem[]>("cart", [])
 export const cartChangedAtom = atomWithStorage<boolean | string>(
   "cartChanged",
   false
-)
-export const orderItemInput = atom<OrderItemInput[]>((get) =>
-  getItemInputs(get(cartAtom))
 )
 export const requirePasswordAtom = atom<IUpdateItem | null>(null)
 

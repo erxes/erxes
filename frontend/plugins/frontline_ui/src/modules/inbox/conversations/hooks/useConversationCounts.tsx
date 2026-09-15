@@ -1,8 +1,4 @@
-import {
-  ApolloError,
-  useQuery,
-  useSubscription,
-} from '@apollo/client';
+import { ApolloError, useQuery, useSubscription } from '@apollo/client';
 import { useAtomValue } from 'jotai';
 import { currentUserState } from 'ui-modules';
 

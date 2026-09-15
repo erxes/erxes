@@ -225,6 +225,7 @@ export const ordersAdd = async (
         unitPrice: item.unitPrice,
         discountPercent: item.discountPercent,
         discountAmount: item.discountAmount,
+        discountInfos: item.discountInfos,
         bonusCount: item.bonusCount,
         bonusVoucherId: item.bonusVoucherId,
         orderId: order._id,
@@ -384,6 +385,7 @@ const getItemInput = (item) => {
     status: item.status,
     discountPercent: item.discountPercent,
     discountAmount: item.discountAmount,
+    discountInfos: item.discountInfos,
     bonusCount: item.bonusCount,
     bonusVoucherId: item.bonusVoucherId,
     manufacturedDate: item.manufacturedDate,
@@ -1069,12 +1071,11 @@ const orderMutations: Record<string, Resolver> = {
     );
   }, // end ordersSettlePayment()
 
-    async cpOrdersSettlePayment(
+  async cpOrdersSettlePayment(
     _root,
     { _id, billType, registerNumber }: ISettlePaymentParams,
     { config, models, subdomain, posUser }: IContext,
   ) {
-
     const order = await models.Orders.getOrder(_id);
 
     if (!ORDER_TYPES.SALES.includes(order.type || '')) {
@@ -1151,15 +1152,26 @@ const orderMutations: Record<string, Resolver> = {
       stageId: cardConfig.stageId,
       assignedUserIds: posUser ? [posUser._id] : undefined,
       watchedUserIds: posUser ? [posUser._id] : undefined,
-      productsData: items.map((i) => ({
-        productId: i.productId,
-        uom: 'PC',
-        currency: 'MNT',
-        quantity: i.count,
-        unitPrice: i.unitPrice,
-        amount: i.count * (i.unitPrice || 0),
-        tickUsed: true,
-      })),
+      productsData: items.map((i) => {
+        const discountAmount = i.discountAmount || 0;
+        const unitPrice =
+          i.discountInfos?.length && i.count
+            ? (i.unitPrice || 0) + discountAmount / i.count
+            : i.unitPrice;
+
+        return {
+          productId: i.productId,
+          uom: 'PC',
+          currency: 'MNT',
+          quantity: i.count,
+          unitPrice,
+          discount: discountAmount,
+          discountPercent: i.discountPercent,
+          discountInfos: i.discountInfos,
+          amount: i.count * (unitPrice || 0) - discountAmount,
+          tickUsed: true,
+        };
+      }),
     };
 
     if (order.deliveryInfo && cardConfig.deliveryMapField) {
