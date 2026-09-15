@@ -1,0 +1,8 @@
+// Mirror the API's Stream-link recognition; other remote URLs are not uploads.
+export const getViberVideoLink = (source: string): string | null => {
+  if (source.length > 1024) return null;
+  const match = source.match(
+    /^https:\/\/(customer-[a-z0-9-]+\.cloudflarestream\.com)\/([a-f0-9]{32})\/manifest\/video\.(?:m3u8|mpd)$/,
+  );
+  return match ? `https://${match[1]}/${match[2]}/watch` : null;
+};

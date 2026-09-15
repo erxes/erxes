@@ -1,6 +1,35 @@
 import { test } from 'node:test';
 import { deepStrictEqual, ok, rejects, strictEqual, throws } from 'node:assert';
 import { buildViberSendParts, sendViberMessage } from '../send';
+import { getViberVideoLink } from '../attachment';
+
+test('Stream uploads become labeled playable links, not MP4 payloads or remote downloads', () => {
+  const base =
+    'https://customer-test.cloudflarestream.com/0123456789abcdef0123456789abcdef';
+  const file = {
+    name: 'demo.mp4',
+    type: 'video/mp4',
+    size: 123,
+    url: `${base}/manifest/video.m3u8`,
+  };
+  deepStrictEqual(buildViberSendParts('', [file]).parts[0], {
+    state: 'pending',
+    attachment: file,
+    body: { type: 'text', text: `Video: demo.mp4\n${base}/watch` },
+  });
+  strictEqual(getViberVideoLink(`${base}/manifest/video.mpd`), `${base}/watch`);
+  for (const url of [
+    `${base}/manifest/video.m3u8?x=1`,
+    `${base}/manifest/video.m3u8#x`,
+    base.replace('https:', 'http:') + '/manifest/video.m3u8',
+    base.replace('.com', '.com.evil.test') + '/manifest/video.m3u8',
+    'https://example.test/video.m3u8',
+  ]) {
+    strictEqual(getViberVideoLink(url), null);
+    throws(() => buildViberSendParts('', [{ ...file, url }]));
+  }
+  throws(() => buildViberSendParts('', [{ ...file, type: 'application/pdf' }]));
+});
 
 test('turns Frontline HTML into plain text and preserves line breaks', () => {
   deepStrictEqual(buildViberSendParts('<p>Hello &amp; hi<br>there</p>'), {

@@ -1,8 +1,8 @@
 import { createHmac } from 'node:crypto';
 import type { IAttachment } from 'erxes-api-shared/core-types';
-import { readFileStreamFromStorage } from 'erxes-api-shared/utils';
 import { getViberWebhookUrl } from '@/integrations/viber/config';
 import { verifyViberSignature } from '@/integrations/viber/utils/signature';
+import { readViberStoredFile } from './storage';
 
 export const VIBER_MEDIA_LINK_LIFETIME_SECONDS = 3600;
 
@@ -91,30 +91,5 @@ export const readViberStoredAttachment = async (
   subdomain: string,
   attachment: IAttachment,
 ): Promise<Buffer> => {
-  const stream = await readFileStreamFromStorage({
-    subdomain,
-    key: attachment.url,
-  });
-  const timer = setTimeout(
-    () => stream.destroy(new Error('Viber attachment read timed out')),
-    30_000,
-  );
-  const chunks: Buffer[] = [];
-  let size = 0;
-  try {
-    for await (const chunk of stream) {
-      if (!Buffer.isBuffer(chunk))
-        throw new Error('Invalid Viber attachment stream');
-      size += chunk.length;
-      if (size > attachment.size || size > 50 * 1024 * 1024)
-        throw new Error('Viber attachment exceeds its declared size');
-      chunks.push(chunk);
-    }
-    if (size !== attachment.size || size === 0)
-      throw new Error('Viber attachment size does not match the stored file');
-    return Buffer.concat(chunks, size);
-  } finally {
-    clearTimeout(timer);
-    stream.destroy();
-  }
+  return readViberStoredFile(subdomain, attachment.url);
 };

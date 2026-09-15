@@ -92,6 +92,8 @@
   sticker messages. Reply eligibility respects archives, permissions, and
   unsubscribe state. Delivery status and safe explicit retries update the
   saved message through Apollo refetch/subscription, without manual reloads.
+  Core Stream uploads have a pre-send notice because recipients receive playable
+  video links; other attachments retain the signed-media delivery path.
 - Polls are split across two routes, mirroring how forms are laid out.
   `settings/frontline/channels/:id/polls` manages the channel's polls: the
   settings breadcrumb resolves to `Channels / <channel> / Polls` and carries the
@@ -364,8 +366,9 @@ collapse and form; `viber/mediaSettings.ts` provides immediate form validation.
   and refetches `FrontlineViberSetup` before reporting success.
 - Viber file upload uses Core's public authenticated
   `/upload-file?forcePrivate=true` endpoint through the configured API URL.
-  It requires an opaque storage key for the backend's signed media relay;
-  storage provider configuration and server file policy remain Core-owned.
+  It accepts opaque storage keys for the backend's signed media relay or Core's
+  supported Cloudflare Stream manifest URLs for link-only video delivery.
+  Storage provider configuration and server file policy remain Core-owned.
 - `frontline_api` GraphQL: `GetMyChannels`, `GetChannels`, `GetChannel`,
   `GetPersonalChannel` (get-or-create — reading it provisions the channel),
   `GetChannelMembers`, `ChannelAdd` (accepts an optional `scope` variable this
@@ -545,6 +548,12 @@ brandId)` and `knowledgeBaseTopicsTotalCount`, read together as the help
   keys, external embedded URLs without metadata, more than ten attachments,
   and files above 50 MiB. The backend applies type-specific provider limits and
   file fallback; shared upload components and other integrations are unchanged.
+- Viber accepts Core-returned HTTPS `customer-*.cloudflarestream.com/<32-hex-id>`
+  HLS/DASH manifest URLs only with video MIME metadata. These remain native video
+  attachments in the inbox but are sent to Viber as labeled `/watch` links, not
+  downloadable video files. Show the playable-link/processing notice before
+  sending, including for editor uploads; hide it for internal notes. Never make
+  callers disable workspace CDN settings or accept arbitrary video URL uploads.
 - A stored Viber reply is not necessarily sent. Distinguish accepted, delivered,
   seen, rejected, pending, and unknown states. Retry only pending/rejected parts;
   never automatically resend unknown or accepted parts. Internal notes continue
@@ -1084,6 +1093,9 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   With a test bot, verify inbound/outbound text and files, receipt updates,
   unsubscribe, archive/restore, Repair, same-bot token rotation, and removal.
   Browser network fixtures test UI behavior only, not provider or storage I/O.
+- Attachment smoke: leave workspace CDN settings unchanged; upload/read an
+  ordinary file through Core, then verify that a Stream upload shows the
+  playable-link notice before sending and that internal notes hide the notice.
 - From the project directory, `pnpm exec eslint src/...` focuses the local
   React/TypeScript rules on touched files. Still run the full checks above and
   report pre-existing failures separately.
@@ -1136,6 +1148,15 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-15` — Viber attachments with existing storage settings
+
+- **Summary:** Accept Core Stream uploads as playable-link attachments and show
+  the delivery distinction in the composer before sending.
+- **Affected areas:** Viber upload validation, video-link helper, focused tests,
+  and the Viber branch of the native message composer.
+- **Contracts changed:** Consumes the backend's supported Stream URL attachment
+  shape; shared upload components and storage settings are unchanged.
 
 ### `2026-09-15` — Viber media-host settings
 
@@ -1280,16 +1301,4 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `src/modules/helpcenter/utils/helpCenterUrl.ts` (new),
   `src/modules/helpcenter/components/HelpCenterColumns.tsx`,
   `src/modules/knowledgebase/components/TopicGeneralTab.tsx`
-- **Contracts changed:** `None`
-
-### `2026-09-07` — The ticket columns say they are ticket columns
-
-- **Summary:** The table's `Channel`, `Pipeline` and `Status` headers gave no
-  hint they were one ticket target, and the `Knowledge base name` column
-  duplicated a drawer-only field; the three ticket headers now read
-  `Ticket channel` / `Ticket pipeline` / `Ticket status` under their own
-  `ticket-*-label` keys, and the `kbLabel` column is gone. `kbLabel` itself is
-  untouched — the drawer still edits it and `useEditHelpCenter` still sends it.
-- **Affected areas:**
-  `src/modules/helpcenter/components/HelpCenterColumns.tsx`
 - **Contracts changed:** `None`

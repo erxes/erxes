@@ -1,4 +1,5 @@
 import type { ViberAttachment } from './types';
+import { getViberVideoLink } from './attachment';
 
 export const VIBER_FILE_MAX_BYTES = 50 * 1024 * 1024;
 
@@ -38,6 +39,9 @@ export const uploadViberFile = async (
       'Unable to upload this file. Check your storage settings and allowed file types.',
     );
   const key = await response.text();
+  if (type.startsWith('video/') && getViberVideoLink(key)) {
+    return { name: file.name, type, size: file.size, url: key };
+  }
   // Only opaque storage keys may be handed to the backend's private media relay.
   if (
     !key ||

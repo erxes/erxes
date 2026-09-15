@@ -15,6 +15,7 @@ import {
   readViberStoredAttachment,
 } from '@/integrations/viber/utils/outboundMedia';
 import { publishViberDelivery } from '@/integrations/viber/events';
+import { getViberVideoLink } from '@/integrations/viber/utils/attachment';
 
 export interface IViberReplyInput {
   conversationId: string;
@@ -139,8 +140,14 @@ export const dispatchViberOutbox = async (
       );
     // Preflight errors are safe to retry: no provider call has happened yet.
     try {
-      if (part.attachment) {
-        await readViberStoredAttachment(subdomain, part.attachment);
+      if (part.attachment && !getViberVideoLink(part.attachment.url)) {
+        const content = await readViberStoredAttachment(
+          subdomain,
+          part.attachment,
+        );
+        // Storage can transform images. Apply provider limits to the bytes it serves.
+        part.attachment = { ...part.attachment, size: content.length };
+        part.body = buildViberSendParts('', [part.attachment]).parts[0].body;
         if ('media' in part.body) {
           part.body.media = getViberOutboundMediaUrl(
             subdomain,

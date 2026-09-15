@@ -61,6 +61,9 @@ export const serveViberOutboundMedia = async (
     return;
   }
   const content = await readViberStoredAttachment(subdomain, part.attachment);
+  if (content.length !== part.attachment.size) {
+    throw new Error('Viber attachment changed after send preparation');
+  }
   const contentType =
     part.body.type === 'picture'
       ? {

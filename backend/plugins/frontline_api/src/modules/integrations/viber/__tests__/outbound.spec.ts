@@ -97,6 +97,128 @@ test('retries only a rejected part and subsequent pending parts, not the already
   ok(!JSON.stringify(payloads).includes('test-token'));
 });
 
+test('prepares attachments using stored byte sizes and keeps regular MP4 files native', async (t) => {
+  for (const example of [
+    { name: 'photo.png', type: 'image/png', bytes: 1024, expected: 'picture' },
+    {
+      name: 'photo.png',
+      type: 'image/png',
+      bytes: 1024 * 1024 + 1,
+      expected: 'file',
+    },
+    { name: 'clip.mp4', type: 'video/mp4', bytes: 1024, expected: 'video' },
+  ]) {
+    await t.test(`${example.expected}: ${example.bytes} bytes`, async (t) => {
+      const h = createTransportHarness(t);
+      h.storage.mock.mockImplementation(async () =>
+        Buffer.alloc(example.bytes),
+      );
+      t.mock.method(globalThis, 'fetch', async (_url, init) => {
+        const payload: unknown = JSON.parse(String(init?.body));
+        ok(payload && typeof payload === 'object' && 'type' in payload);
+        strictEqual(payload.type, example.expected);
+        if (example.expected !== 'picture') {
+          ok('size' in payload);
+          strictEqual(payload.size, example.bytes);
+        }
+        ok('media' in payload && typeof payload.media === 'string');
+        ok(payload.media.includes('/viber/receive/inbox/media/'));
+        strictEqual(
+          h.outboxes.get('message-1')?.parts[0].attachment?.size,
+          example.bytes,
+        );
+        return new Response('{"status":0,"message_token":123}');
+      });
+      await h.sendViberReply(h.context, {
+        conversationId: 'conversation',
+        attachments: [
+          {
+            name: example.name,
+            type: example.type,
+            url: 'private-key',
+            size: 3,
+          },
+        ],
+      });
+      strictEqual(h.outboxes.get('message-1')?.state, 'sent');
+      deepStrictEqual(h.storage.mock.calls[0].arguments, [
+        'test',
+        'private-key',
+      ]);
+    });
+  }
+});
+
+test('sends Stream uploads as labeled video links without reading or signing the playlist', async (t) => {
+  const h = createTransportHarness(t);
+  const base =
+    'https://customer-example.cloudflarestream.com/0123456789abcdef0123456789abcdef';
+  t.mock.method(globalThis, 'fetch', async (url, init) => {
+    strictEqual(url, 'https://chatapi.viber.com/pa/send_message');
+    const payload: unknown = JSON.parse(String(init?.body));
+    ok(
+      payload &&
+        typeof payload === 'object' &&
+        'type' in payload &&
+        'text' in payload,
+    );
+    strictEqual(payload.type, 'text');
+    strictEqual(payload.text, `Video: clip.mp4\n${base}/watch`);
+    strictEqual('media' in payload, false);
+    return new Response('{"status":0,"message_token":123}');
+  });
+  await h.sendViberReply(h.context, {
+    conversationId: 'conversation',
+    attachments: [
+      {
+        name: 'clip.mp4',
+        type: 'video/mp4',
+        size: 3,
+        url: `${base}/manifest/video.m3u8`,
+      },
+    ],
+  });
+  strictEqual(h.storage.mock.callCount(), 0);
+  strictEqual(h.outboxes.get('message-1')?.state, 'sent');
+  strictEqual(
+    h.outboxes.get('message-1')?.parts[0].attachment?.url,
+    `${base}/manifest/video.m3u8`,
+  );
+});
+
+test('a failed file read is retryable and never contacts Viber before preparation succeeds', async (t) => {
+  const h = createTransportHarness(t);
+  h.storage.mock.mockImplementation(async () => {
+    throw new Error('File unavailable');
+  });
+  const fetch = t.mock.method(
+    globalThis,
+    'fetch',
+    async () => new Response('{"status":0,"message_token":123}'),
+  );
+  await rejects(
+    h.sendViberReply(h.context, {
+      conversationId: 'conversation',
+      attachments: [
+        {
+          name: 'report.pdf',
+          type: 'application/pdf',
+          size: 3,
+          url: 'private-key',
+        },
+      ],
+    }),
+    /prepared/,
+  );
+  strictEqual(fetch.mock.callCount(), 0);
+  strictEqual(h.outboxes.get('message-1')?.state, 'rejected');
+  h.storage.mock.mockImplementation(async () => Buffer.from('changed size'));
+  await h.dispatchViberOutbox(h.context, 'message-1');
+  strictEqual(fetch.mock.callCount(), 1);
+  strictEqual(h.messages.size, 1);
+  strictEqual(h.outboxes.get('message-1')?.parts[0].attachment?.size, 12);
+});
+
 test('a timeout is unconfirmed and cannot be retried even when another request asks', async (t) => {
   const h = createTransportHarness(t);
   const fetchMock = t.mock.method(globalThis, 'fetch', async () => {

@@ -18,7 +18,7 @@ const setupHarness = (t: TestContext) => {
       module: 'configs',
       action: 'getConfigs',
       method: 'query',
-      input: { codes: ['UPLOAD_SERVICE_TYPE', 'CLOUDFLARE_USE_CDN'] },
+      input: { codes: ['UPLOAD_SERVICE_TYPE'] },
       throwOnError: true,
     });
     return {};
@@ -58,7 +58,7 @@ test('setup reads only nonsecret storage settings and exposes no credentials or 
   ok(!JSON.stringify(setup).includes('test-token'));
 });
 
-test('setup reports tenant storage overrides and unsupported Cloudflare CDN streams', async (t) => {
+test('setup accepts Cloudflare storage without requiring a workspace CDN change', async (t) => {
   const h = setupHarness(t);
   h.core.mock.mockImplementation(async () => ({
     UPLOAD_SERVICE_TYPE: 'CLOUDFLARE',
@@ -66,7 +66,7 @@ test('setup reports tenant storage overrides and unsupported Cloudflare CDN stre
   }));
   const cdn = await h.getViberSetup(h.context);
   strictEqual(cdn.storageProvider, 'CLOUDFLARE');
-  ok(cdn.storageError?.includes('Cloudflare Images and Stream'));
+  strictEqual(cdn.storageError, null);
   h.core.mock.mockImplementation(async () => ({
     UPLOAD_SERVICE_TYPE: 'CLOUDFLARE',
     CLOUDFLARE_USE_CDN: false,

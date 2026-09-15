@@ -1,6 +1,5 @@
 import { test } from 'node:test';
 import { deepStrictEqual, ok, rejects, strictEqual } from 'node:assert';
-import { Readable } from 'node:stream';
 import { createTransportHarness } from '../../__tests__/transportHarness';
 
 test('media signatures bind tenant, integration, message, part, filename and expiry without exposing credentials', (t) => {
@@ -117,7 +116,7 @@ test('media signatures bind tenant, integration, message, part, filename and exp
     strictEqual(media.verifyViberMediaLink(...args), false);
 });
 
-test('storage reads enforce actual byte counts and close the stream on success and failure', async (t) => {
+test('media reads delegate to the Core file adapter and allow storage-transformed sizes', async (t) => {
   const h = createTransportHarness(t);
   const {
     readViberStoredAttachment,
@@ -132,12 +131,14 @@ test('storage reads enforce actual byte counts and close the stream on success a
     await readViberStoredAttachment('test', file),
     Buffer.from('abc'),
   );
-  const stream = Readable.from([Buffer.from('too large')]);
-  h.storage.mock.mockImplementation(async () => stream);
-  await rejects(readViberStoredAttachment('test', file), /exceeds/);
-  strictEqual(stream.destroyed, true);
-  const short = Readable.from([Buffer.from('a')]);
-  h.storage.mock.mockImplementation(async () => short);
-  await rejects(readViberStoredAttachment('test', file), /does not match/);
-  strictEqual(short.destroyed, true);
+  deepStrictEqual(h.storage.mock.calls[0].arguments, ['test', 'report.pdf']);
+  h.storage.mock.mockImplementation(async () => Buffer.from('resized'));
+  deepStrictEqual(
+    await readViberStoredAttachment('test', file),
+    Buffer.from('resized'),
+  );
+  h.storage.mock.mockImplementation(async () => {
+    throw new Error('read failed');
+  });
+  await rejects(readViberStoredAttachment('test', file), /read failed/);
 });

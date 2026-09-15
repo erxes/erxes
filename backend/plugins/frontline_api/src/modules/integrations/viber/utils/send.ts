@@ -5,6 +5,7 @@ import type {
   ViberMessageBody,
 } from '@/integrations/viber/@types/transport';
 import { validateViberToken } from '@/integrations/viber/utils/account';
+import { getViberVideoLink, isViberStorageKey } from './attachment';
 import {
   isViberMessageToken,
   parseViberWebhookBody,
@@ -51,38 +52,34 @@ export const viberStructuredMessageSchema = z.discriminatedUnion('type', [
     .strict(),
 ]);
 
-const attachmentSchema = z.object({
-  name: z
-    .string()
-    .min(1)
-    .max(256)
-    .regex(/^[^/\\]+\.[a-zA-Z0-9]+$/)
-    .refine((value) =>
-      Array.from(value).every(
-        (char) => char.charCodeAt(0) > 31 && char.charCodeAt(0) !== 127,
-      ),
-    ),
-  // Storage keys, never a URL supplied by the client.
-  url: z
-    .string()
-    .min(1)
-    .max(1024)
-    .refine(
-      (key) =>
-        !key.startsWith('/') &&
-        !/[\\:?#%]/.test(key) &&
-        Array.from(key).every(
+const attachmentSchema = z
+  .object({
+    name: z
+      .string()
+      .min(1)
+      .max(256)
+      .regex(/^[^/\\]+\.[a-zA-Z0-9]+$/)
+      .refine((value) =>
+        Array.from(value).every(
           (char) => char.charCodeAt(0) > 31 && char.charCodeAt(0) !== 127,
-        ) &&
-        !key.split('/').some((part) => part === '..' || part === '.' || !part),
-    ),
-  size: z
-    .number()
-    .int()
-    .positive()
-    .max(50 * 1024 * 1024),
-  type: z.string().min(1).max(128),
-});
+        ),
+      ),
+    // Stream URLs are shared as links, never fetched by the media relay.
+    url: z
+      .string()
+      .refine(
+        (value) => isViberStorageKey(value) || !!getViberVideoLink(value),
+      ),
+    size: z
+      .number()
+      .int()
+      .positive()
+      .max(50 * 1024 * 1024),
+    type: z.string().min(1).max(128),
+  })
+  .refine(
+    ({ url, type }) => isViberStorageKey(url) || type.startsWith('video/'),
+  );
 
 export const buildViberSendParts = (
   content: string,
@@ -98,6 +95,15 @@ export const buildViberSendParts = (
   const parts: IViberSendPart[] = [];
   if (text) parts.push({ body: { type: 'text', text }, state: 'pending' });
   for (const attachment of files) {
+    const videoLink = getViberVideoLink(attachment.url);
+    if (videoLink) {
+      parts.push({
+        body: { type: 'text', text: `Video: ${attachment.name}\n${videoLink}` },
+        attachment,
+        state: 'pending',
+      });
+      continue;
+    }
     const extension = attachment.name.split('.').pop()?.toLowerCase();
     let body: ViberMessageBody = {
       type: 'file',

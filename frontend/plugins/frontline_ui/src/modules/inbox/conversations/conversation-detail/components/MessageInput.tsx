@@ -62,6 +62,7 @@ import { useGetResponses } from '@/responseTemplate/hooks/useGetResponses';
 import { useViberSend } from '@/integrations/viber/hooks/useViberSend';
 import { useViberUpload } from '@/integrations/viber/hooks/useViberUpload';
 import type { ViberAttachment } from '@/integrations/viber/types';
+import { getViberVideoLink } from '@/integrations/viber/attachment';
 import { useViberConversationState } from '@/integrations/viber/hooks/useViberConversationState';
 import { ViberSpecialMessage } from '@/integrations/viber/components/ViberSpecialMessage';
 import { usePermissionCheck } from 'ui-modules';
@@ -188,6 +189,12 @@ export const MessageInput = ({
   const [attachmentPreview, setAttachmentPreview] = useState<any>(null);
 
   const inlineViberFiles = useRef(new Map<string, ViberAttachment>());
+  const hasViberVideoLink =
+    isViber &&
+    [...attachments, ...getBlockAttachments(content || [])].some(
+      (attachment: { url?: string }) =>
+        attachment.url && getViberVideoLink(attachment.url),
+    );
   const viberAttachmentCount = useRef(0);
   viberAttachmentCount.current =
     attachments.length + getBlockAttachments(content || []).length;
@@ -569,6 +576,17 @@ export const MessageInput = ({
 
   return (
     <div className="p-2 h-full">
+      {hasViberVideoLink && !isInternalNote && (
+        <p
+          className="mx-auto max-w-2xl text-xs text-muted-foreground px-3 pb-2"
+          role="status"
+        >
+          {t('viber-video-link-hint', {
+            defaultValue:
+              'Cloudflare Stream videos will be sent as playable links. Playback is available once processing finishes.',
+          })}
+        </p>
+      )}
       {isViber && !isInternalNote && viberState.reason && (
         <div
           className="mx-auto max-w-2xl text-xs text-muted-foreground px-3 pb-2"
@@ -722,7 +740,9 @@ export const MessageInput = ({
             className="h-8 w-8 flex-none rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
             title={
               isViber
-                ? 'Attach up to 10 files, 50 MiB each. Large photos and videos are sent as files.'
+                ? t('viber-attachment-limit', {
+                    defaultValue: 'Attach up to 10 files, 50 MiB each.',
+                  })
                 : undefined
             }
             aria-label={isViber ? 'Attach files' : undefined}

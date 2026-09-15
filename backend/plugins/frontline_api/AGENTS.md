@@ -59,6 +59,10 @@
   inbound message persistence and outbound replies without deleting mappings.
   Optional send request IDs deduplicate repeated submissions of the same saved
   reply; uncertain delivery is reported, never silently retried.
+- Viber attachments use Core's existing file reader for object storage and
+  Cloudflare Images without changing workspace upload settings. Cloudflare
+  Stream uploads are sent as labeled playable links; regular MP4 storage keys
+  still use native Viber video when within its size limit.
 - Internal Viber helpers verify webhook signatures, fetch and validate bot
   account information, and create tenant-scoped connections after checking the
   inbox and duplicate bot/inbox. The creation adapter validates serialized
@@ -171,9 +175,10 @@
   permits same-bot replacement and re-registers the webhook. Common metadata
   edits reject credential details and check destination-channel access.
   These paths require authentication, existing Frontline actions, and channel
-  visibility. Frontend wiring and live Viber/storage/ngrok verification remain
-  separate; no automated welcome, broadcast, polls, or quoted-reply support is
-  implemented. Stickers are represented by id, not a downloaded sticker image.
+  visibility. Frontline UI consumes these contracts; live Viber delivery and
+  provider-specific storage verification remain separate. No automated welcome,
+  broadcast, polls, or quoted-reply support is implemented. Stickers are
+  represented by id, not a downloaded sticker image.
 - Polls are a reusable definition (`title`, `question`, ordered `options`,
   `allowMultiselect`, optional `durationHours`, optional `brandId`,
   `active`/`archived` status) owned by a channel through `channelId`. An agent posts one into a messenger
@@ -278,8 +283,10 @@ subscriptions and durable delivery receipts, including early callbacks.
 Apollo's existing aggregators mount them. `utils/send.ts` validates outgoing
 messages and calls the fixed Viber send endpoint with lossless token parsing.
 `utils/outboundMedia.ts` and `controller/outboundMedia.ts` expose only scoped,
-one-hour signed links to stored outgoing attachments through the public storage
-stream interface. Bot tokens and storage keys are not embedded in these links.
+one-hour signed links to stored outgoing attachments. `utils/storage.ts` reads
+Core's public `/read-file` endpoint via service discovery and the tenant header;
+`utils/attachment.ts` recognizes storage keys and supported Stream playback URLs.
+Bot tokens and storage keys are not embedded in signed media links.
 `__tests__/removal.spec.ts` covers the real removal helper and webhook HTTP
 utility with mocked tenant models and fetch, including ordering and retries.
 `__tests__/registration.spec.ts` covers the real registration helper, Repair
@@ -689,10 +696,14 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 ### Consumes
 
-- Viber setup reads only `UPLOAD_SERVICE_TYPE` and `CLOUDFLARE_USE_CDN`
-  through Core's public `configs.getConfigs` tRPC query, with environment
-  fallbacks. Remote object storage is required for attachment relay; LOCAL and
-  Cloudflare Images/Stream CDN uploads are not supported by that stream path.
+- Viber setup reads `UPLOAD_SERVICE_TYPE` through Core's public
+  `configs.getConfigs` tRPC query, with an environment fallback. Incoming uploads
+  still require a remote provider supported by `uploadFileToStorage`; LOCAL is
+  unsupported by that helper. Cloudflare CDN settings remain unchanged.
+- Outgoing Viber file reads use public `getPlugin('core')` service discovery and
+  Core's `/read-file?key=...` HTTP endpoint, with `nginx-hostname` set from the
+  request tenant. Core owns object-storage and Cloudflare Images resolution;
+  Viber does not require a public `DOMAIN` or an ngrok URL for this internal read.
 - Viber Bot REST API: `POST https://chatapi.viber.com/pa/get_account_info`
   through Node's `fetch`, with the token in `X-Viber-Auth-Token` and an empty
   JSON object body.
@@ -983,7 +994,11 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   is conservative for multipart replies: every part needs a confirmed seen
   receipt; no conversation-wide read watermark is inferred from one callback.
 - Outgoing media accepts validated storage keys, filenames, claimed MIME, and
-  declared sizes, not arbitrary fetch URLs. Verify actual stored byte length.
+  declared sizes, not arbitrary fetch URLs. Preflight measures stored bytes and
+  rebuilds the provider payload with that size because storage may resize images.
+  Signed media serving rejects a size change after that preparation. Core reads
+  reject redirects, time out after 30 seconds, and enforce a 50 MiB response cap
+  in Frontline; Core's own upstream buffering remains platform-owned.
   Pictures use a 1 MiB cross-client cap; larger images fall back to files. MP4
   video uses 26 MiB and files use 50 MiB. File fallback does not promise Viber
   accepts every extension/codec. No magic-byte matching or malware scanning is
@@ -993,6 +1008,13 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   deployment credentials remain platform responsibilities. Shared storage
   supports remote providers; incoming LOCAL upload is not supported by its
   public upload helper. Do not work around that by editing Core/shared code.
+- Core-returned HTTPS `customer-*.cloudflarestream.com/<32-hex-id>/manifest/`
+  `video.m3u8` or `video.mpd` locations with video MIME metadata are a link-only
+  exception to storage keys. Send `Video: <filename>` plus the matching `/watch`
+  URL as a text part, retaining native attachment metadata. Never fetch or sign
+  playlists in the file relay. Query strings, credentials, arbitrary hosts and
+  paths are not accepted by this exception. Playback requires Stream processing
+  to finish and the video's existing viewing policy to permit the recipient.
 - The Viber router awaits `receiveViberMessage` on
   `POST /receive/:integrationId`, keeping the inbox identity in route params.
   It relies on the existing upstream raw-body capture; do not add a second body
@@ -2060,6 +2082,10 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 ## Validation
 
+- Viber storage tests exercise Core service discovery, tenant headers, encoded
+  keys, redirect rejection, deadlines, empty/oversized responses, and loopback
+  HTTP reads. Outbound tests cover transformed sizes, native MP4 payloads,
+  link-only Stream delivery, and retryable preparation failures.
 - Viber UI-readiness, management-access, and send-idempotency regressions are
   included in the focused Viber command below. They isolate provider, Core,
   model, and pubsub boundaries; passing does not prove live provider delivery,
@@ -2310,6 +2336,15 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-15` — Native storage compatibility for Viber attachments
+
+- **Summary:** Reuse Core file reads for attachments and send Stream uploads as
+  labeled playable links without changing workspace storage settings.
+- **Affected areas:** Viber attachment preparation, media relay, readiness, and
+  focused storage/send/controller tests.
+- **Contracts changed:** Viber reply attachments accept supported Core Stream
+  URLs as link-only video parts; GraphQL signatures and shared APIs are unchanged.
+
 ### `2026-09-15` — Editable Viber media hosts
 
 - **Summary:** Add permission-gated, tenant-owned media-host settings with
@@ -2384,11 +2419,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Affected areas:** Viber registration helper and registration tests.
 - **Contracts changed:** Repair updates the existing connection's health fields
   and succeeds only after saving `healthy`; the GraphQL schema is unchanged.
-
-### `2026-09-14` — Viber connection health fields
-
-- **Summary:** Added validated connection health states with pending defaults
-  and offline schema coverage, including legacy document hydration.
-- **Affected areas:** Viber constants, integration types/schema, and schema tests.
-- **Contracts changed:** Connection documents add `healthStatus` and `error`;
-  registration transitions and public GraphQL contracts remain unchanged.

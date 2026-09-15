@@ -1,5 +1,5 @@
 import { test } from 'node:test';
-import { deepStrictEqual, ok, strictEqual } from 'node:assert';
+import { deepStrictEqual, ok, rejects, strictEqual } from 'node:assert';
 import type { Response } from 'express';
 import { createTransportHarness } from '../../__tests__/transportHarness';
 import { isolateViberModules } from '../../__tests__/moduleHarness';
@@ -97,4 +97,7 @@ test('the media route reads only a signed, sent attachment from the matching ten
   strictEqual(result.headers['X-Content-Type-Options'], 'nosniff');
   strictEqual(result.headers['Cache-Control'], 'private, no-store');
   ok(result.headers['Content-Disposition'].startsWith('attachment;'));
+  strictEqual(result.headers['Content-Length'], '3');
+  h.storage.mock.mockImplementation(async () => Buffer.from('changed'));
+  await rejects(run(signature), /changed after send preparation/);
 });

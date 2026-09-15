@@ -38,7 +38,7 @@ export const getViberSetup = async (context: IContext) => {
       module: 'configs',
       action: 'getConfigs',
       method: 'query',
-      input: { codes: ['UPLOAD_SERVICE_TYPE', 'CLOUDFLARE_USE_CDN'] },
+      input: { codes: ['UPLOAD_SERVICE_TYPE'] },
       throwOnError: true,
     });
     const configured =
@@ -53,17 +53,6 @@ export const getViberSetup = async (context: IContext) => {
     if (!['AWS', 'GCS', 'CLOUDFLARE', 'AZURE'].includes(storageProvider)) {
       storageError =
         'Choose cloud storage in File Upload settings. Local storage is not supported for Viber attachments.';
-    }
-    const useCdn =
-      configs && typeof configs === 'object' && 'CLOUDFLARE_USE_CDN' in configs
-        ? configs.CLOUDFLARE_USE_CDN
-        : getEnv({ name: 'CLOUDFLARE_USE_CDN', defaultValue: '' });
-    if (
-      storageProvider === 'CLOUDFLARE' &&
-      String(useCdn).toLowerCase() === 'true'
-    ) {
-      storageError =
-        'Viber attachment storage is not yet compatible with Cloudflare Images and Stream.';
     }
   } catch {
     storageError = 'Unable to load storage settings. Try again.';

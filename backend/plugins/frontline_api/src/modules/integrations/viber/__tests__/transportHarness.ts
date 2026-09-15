@@ -1,4 +1,3 @@
-import { Readable } from 'node:stream';
 import { strictEqual } from 'node:assert';
 import type { IContext } from '~/connectionResolvers';
 import type { IViberOutbox } from '../@types/transport';
@@ -63,8 +62,12 @@ export const createTransportHarness = (t: TestContext) => {
       strictEqual(typeof message, 'object');
     },
   );
-  const storage: TestSpy<[], Promise<Readable>> = t.mock.fn(async () =>
-    Readable.from([Buffer.from('abc')]),
+  const storage: TestSpy<[string, string], Promise<Buffer>> = t.mock.fn(
+    async (subdomain: string, key: string) => {
+      strictEqual(subdomain, 'test');
+      strictEqual(typeof key, 'string');
+      return Buffer.from('abc');
+    },
   );
   const matchesOutbox = (
     box: IViberOutbox,
@@ -299,9 +302,9 @@ export const createTransportHarness = (t: TestContext) => {
     {
       'erxes-api-shared/utils': {
         getEnv: () => 'https://callback.example.test/viber/receive',
-        readFileStreamFromStorage: storage,
         graphqlPubsub: { publish },
       },
+      '@/integrations/viber/utils/storage': { readViberStoredFile: storage },
       'erxes-api-shared/core-modules': { canGroup: async () => false },
       '@/inbox/graphql/resolvers/mutations/widget': {
         pConversationClientMessageInserted: publish,
