@@ -309,7 +309,6 @@ export const msdynamicCheckMutations = {
     let skip = 0;
     let hasMore = true;
 
-
     const fetchPage = async (pageSkip: number) => {
       const pageStartedAt = Date.now();
 
@@ -332,7 +331,6 @@ export const msdynamicCheckMutations = {
     };
 
     while (hasMore) {
-
       const skips = Array.from(
         { length: concurrency },
         (_, index) => skip + index * pageSize,
@@ -443,7 +441,7 @@ export const msdynamicCheckMutations = {
     });
 
     const exchangeRates = config.exchangeRateApi
-      ? (await getExchangeRates(config)) ?? {}
+      ? ((await getExchangeRates(config)) ?? {})
       : {};
 
     const salesCodeFilter = pricePriority.replace(/, /g, ',').split(',');
