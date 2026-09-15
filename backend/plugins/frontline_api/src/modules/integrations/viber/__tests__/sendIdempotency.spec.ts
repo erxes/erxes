@@ -26,6 +26,7 @@ test('replayed and concurrent UI requests share one native message, outbox and p
   strictEqual(h.outboxes.size, 1);
   strictEqual(fetch.mock.callCount(), 1);
   // The subscription refresh must preserve the request hash used for replays.
+  strictEqual(h.replyEffects.mock.callCount(), 1);
   await rejects(
     h.sendViberReply(h.context, { ...reply, content: 'Changed' }),
     /different reply/,
@@ -41,6 +42,7 @@ test('provider rejection returns the saved UI message, and only explicit retry d
     async () => new Response('{"status":12}'),
   );
   const message = await h.sendViberReply(h.context, reply);
+  strictEqual(h.replyEffects.mock.callCount(), 0);
   strictEqual(
     (await h.getViberMessageStatus(h.context, message._id))?.state,
     'rejected',
@@ -51,6 +53,7 @@ test('provider rejection returns the saved UI message, and only explicit retry d
     async () => new Response('{"status":0,"message_token":123}'),
   );
   await h.dispatchViberOutbox(h.context, message._id);
+  strictEqual(h.replyEffects.mock.callCount(), 1);
   strictEqual(fetch.mock.callCount(), 2);
   strictEqual(h.messages.size, 1);
 });
@@ -91,11 +94,8 @@ test('failed outbox reservation stays visible and cannot be silently reconstruct
   strictEqual(fetch.mock.callCount(), 0);
 });
 
-test('archived integration and malformed request IDs fail before any message is persisted', async (t) => {
+test('malformed request IDs fail before any message is persisted', async (t) => {
   const h = createTransportHarness(t);
-  h.state.isActive = false;
-  await rejects(h.sendViberReply(h.context, reply), /archived/);
-  h.state.isActive = true;
   await rejects(
     h.sendViberReply(h.context, { ...reply, requestId: 'bad' }),
     /request ID/,

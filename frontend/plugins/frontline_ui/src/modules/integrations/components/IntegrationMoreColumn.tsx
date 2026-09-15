@@ -10,6 +10,23 @@ import { InstagramIntegrationRepair } from '../instagram/components/InstagramInt
 import { DiscordIntegrationRepair } from '../discord/components/DiscordIntegrationActions';
 import { EMInstallScript } from '../erxes-messenger/components/EMInstallScript';
 import { lazy, Suspense } from 'react';
+import { usePermissionCheck } from 'ui-modules';
+
+const ViberIntegrationActions = lazy(() =>
+  import('../viber/components/ViberIntegrationActions').then((module) => ({
+    default: module.ViberIntegrationActions,
+  })),
+);
+const ViberIntegrationRepair = lazy(() =>
+  import('../viber/components/ViberIntegrationActions').then((module) => ({
+    default: module.ViberIntegrationRepair,
+  })),
+);
+const ViberIntegrationToken = lazy(() =>
+  import('../viber/components/ViberIntegrationActions').then((module) => ({
+    default: module.ViberIntegrationToken,
+  })),
+);
 
 const ErxesMessengerActions = lazy(() =>
   import('../erxes-messenger/components/ErxesMessengerDetail').then(
@@ -64,6 +81,14 @@ export const IntegrationMoreColumnCell = ({
 }) => {
   const { _id, name, isActive } = cell.row.original;
   const { integrationType } = useParams();
+  const { isLoaded, hasActionPermission } = usePermissionCheck();
+  const isViber = integrationType === IntegrationType.VIBER_MESSENGER;
+  const canEdit =
+    !isViber || (isLoaded && hasActionPermission('integrationsEdit'));
+  const canRemove =
+    !isViber || (isLoaded && hasActionPermission('integrationsRemove'));
+
+  if (!canEdit && !canRemove) return null;
 
   return (
     <Popover>
@@ -73,33 +98,50 @@ export const IntegrationMoreColumnCell = ({
       <Combobox.Content>
         <Command shouldFilter={false}>
           <Command.List>
-            <Command.Item value="edit">
-              <Suspense fallback={<div />}>
-                {integrationType === IntegrationType.ERXES_MESSENGER && (
-                  <ErxesMessengerActions cell={cell} />
-                )}
-                {(integrationType === IntegrationType.FACEBOOK_MESSENGER ||
-                  integrationType === IntegrationType.FACEBOOK_POST) && (
-                  <FacebookIntegrationActions cell={cell} />
-                )}
-                {integrationType === IntegrationType.CALL && (
-                  <CallIntegrationActions cell={cell} />
-                )}
-                {integrationType === IntegrationType.CALLPRO && (
-                  <CallProIntegrationActions cell={cell} />
-                )}
-                {integrationType === IntegrationType.MAIL && (
-                  <MailIntegrationActions cell={cell} />
-                )}
-                {(integrationType === IntegrationType.INSTAGRAM_MESSENGER ||
-                  integrationType === IntegrationType.INSTAGRAM_POST) && (
-                  <InstagramIntegrationActions cell={cell} />
-                )}
-                {integrationType === IntegrationType.DISCORD_MESSENGER && (
-                  <DiscordIntegrationActions cell={cell} />
-                )}
-              </Suspense>
-            </Command.Item>
+            {canEdit && (
+              <Command.Item value="edit">
+                <Suspense fallback={<div />}>
+                  {integrationType === IntegrationType.ERXES_MESSENGER && (
+                    <ErxesMessengerActions cell={cell} />
+                  )}
+                  {(integrationType === IntegrationType.FACEBOOK_MESSENGER ||
+                    integrationType === IntegrationType.FACEBOOK_POST) && (
+                    <FacebookIntegrationActions cell={cell} />
+                  )}
+                  {integrationType === IntegrationType.CALL && (
+                    <CallIntegrationActions cell={cell} />
+                  )}
+                  {integrationType === IntegrationType.CALLPRO && (
+                    <CallProIntegrationActions cell={cell} />
+                  )}
+                  {integrationType === IntegrationType.MAIL && (
+                    <MailIntegrationActions cell={cell} />
+                  )}
+                  {(integrationType === IntegrationType.INSTAGRAM_MESSENGER ||
+                    integrationType === IntegrationType.INSTAGRAM_POST) && (
+                    <InstagramIntegrationActions cell={cell} />
+                  )}
+                  {integrationType === IntegrationType.DISCORD_MESSENGER && (
+                    <DiscordIntegrationActions cell={cell} />
+                  )}
+                  {isViber && <ViberIntegrationActions cell={cell} />}
+                </Suspense>
+              </Command.Item>
+            )}
+            {isViber && canEdit && (
+              <>
+                <Command.Item value="token">
+                  <Suspense fallback={<div />}>
+                    <ViberIntegrationToken cell={cell} />
+                  </Suspense>
+                </Command.Item>
+                <Command.Item value="repair">
+                  <Suspense fallback={<div />}>
+                    <ViberIntegrationRepair cell={cell} />
+                  </Suspense>
+                </Command.Item>
+              </>
+            )}
             {integrationType === IntegrationType.ERXES_MESSENGER && (
               <Command.Item value="install">
                 <EMInstallScript integrationId={cell.row.original._id} />
@@ -122,12 +164,16 @@ export const IntegrationMoreColumnCell = ({
                 <DiscordIntegrationRepair cell={cell} />
               </Command.Item>
             ) : null}
-            <Command.Item value="archive">
-              <ArchiveIntegration _id={_id} name={name} isActive={isActive} />
-            </Command.Item>
-            <Command.Item value="remove">
-              <RemoveIntegration _id={_id} name={name} />
-            </Command.Item>
+            {canEdit && (
+              <Command.Item value="archive">
+                <ArchiveIntegration _id={_id} name={name} isActive={isActive} />
+              </Command.Item>
+            )}
+            {canRemove && (
+              <Command.Item value="remove">
+                <RemoveIntegration _id={_id} name={name} />
+              </Command.Item>
+            )}
           </Command.List>
         </Command>
       </Combobox.Content>

@@ -230,7 +230,7 @@ test('the receiver rereads saved Viber media settings without affecting text or 
   ]);
 });
 
-test('archived integrations acknowledge messages without processing, but still accept webhook checks', async (t) => {
+test('archived integrations keep receiving messages, as other Frontline messaging integrations do', async (t) => {
   const h = createReceiverHarness(t);
   h.inboxState.isActive = false;
   deepStrictEqual(await h.receive(JSON.stringify(TEXT_MESSAGE)), [
@@ -239,7 +239,7 @@ test('archived integrations acknowledge messages without processing, but still a
   deepStrictEqual(await h.receive('{"event":"webhook"}'), [
     { statusCode: 200 },
   ]);
-  strictEqual(h.processMessage.mock.callCount(), 0);
+  strictEqual(h.processMessage.mock.callCount(), 1);
 });
 
 test('a removed common integration cannot ingest new messages', async (t) => {

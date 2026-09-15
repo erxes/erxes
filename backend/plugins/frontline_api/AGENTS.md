@@ -935,10 +935,20 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   messages survive dispatch errors; missing send records report `unknown`.
   Delivery updates preserve that hash and publish on the conversation-message
   subscription without generating incoming-message alerts for agent replies.
+- Both Viber send mutations and explicit retries run the shared
+  `inbox/services/conversationReply.ts` effects after an outbox reaches `sent`:
+  unread counts, mobile notifications, and automated-reply human handoff.
+  Replayed requests do not repeat these effects. Replies retain the native
+  `responseTemplateId`; notification failures never make a sent reply retryable.
+- Viber creation or token replacement that persists a connection but cannot
+  confirm webhook registration returns `VIBER_SETUP_INCOMPLETE` with the saved
+  `integrationId` in GraphQL error extensions. The UI should use Repair, not
+  create another connection or assume the saved token was rolled back.
 - Viber management checks both existing action permissions and channel
-  visibility. Signed messages for archived integrations return 200 without
-  persistence; webhook/lifecycle events still run. An absent common integration
-  returns 404 for a signed message. Archived integrations cannot send replies.
+  visibility. Archive uses the common integration active flag, not a Viber-only
+  transport pause: archived integrations still receive messages and can reply
+  when channel access and subscription checks permit. An absent common
+  integration returns 404 for a signed message.
 - Viber signatures authenticate the exact `rawBody` with the bot token; reject
   missing tokens and non-64-hex signatures. Never parse and reserialize the body
   for signing or log tokens, signatures, or payloads.
@@ -2336,6 +2346,12 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-15` — Native Viber integration lifecycle
+
+- **Summary:** Reuse native reply effects and archive behavior, preserve response-template metadata, and expose recoverable setup failures.
+- **Affected areas:** Shared inbox reply service, Viber outbound/receiver/readiness, creation/token resolvers, and focused tests.
+- **Contracts changed:** Optional `viberSendMessage.responseTemplateId`; `VIBER_SETUP_INCOMPLETE` error extensions identify the saved integration.
+
 ### `2026-09-15` — Native storage compatibility for Viber attachments
 
 - **Summary:** Reuse Core file reads for attachments and send Stream uploads as
@@ -2411,11 +2427,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Affected areas:** Viber status adapter/tests and common health dispatcher.
 - **Contracts changed:** Existing `Integration.healthStatus` returns Viber's
   stored status/error pair; the GraphQL schema is unchanged.
-
-### `2026-09-15` — Viber registration health transitions
-
-- **Summary:** Persist registration progress and outcomes with safe errors,
-  awaited writes, and offline failure/retry coverage.
-- **Affected areas:** Viber registration helper and registration tests.
-- **Contracts changed:** Repair updates the existing connection's health fields
-  and succeeds only after saving `healthy`; the GraphQL schema is unchanged.

@@ -145,11 +145,9 @@ export const IntegrationDetailPage = () => {
           <DiscordIntegrationDetail />
         )}
       </Suspense>
-      {integrationType !== IntegrationType.VIBER_MESSENGER && (
-        <div className="flex-1 min-h-0 flex flex-col">
-          <IntegrationsRecordTable />
-        </div>
-      )}
+      <div className="flex-1 min-h-0 flex flex-col">
+        <IntegrationsRecordTable />
+      </div>
     </div>
   );
 };

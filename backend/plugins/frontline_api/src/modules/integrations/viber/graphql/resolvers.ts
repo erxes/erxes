@@ -12,6 +12,7 @@ import { registerViberWebhook } from '@/integrations/viber/helpers';
 import { getViberSetup, getViberConversationState } from '../readiness';
 import { getViberWebhookUrl } from '../config';
 import { getViberMediaSettings, updateViberMediaSettings } from '../settings';
+import { viberSetupIncomplete } from '../setupError';
 
 export const viberQueries = {
   viberMediaSettings(_root: unknown, _args: unknown, context: IContext) {
@@ -110,7 +111,11 @@ export const viberMutations = {
     );
     if (result.matchedCount !== 1)
       throw new Error('Viber connection no longer exists');
-    await registerViberWebhook(context.subdomain, integrationId);
+    try {
+      await registerViberWebhook(context.subdomain, integrationId);
+    } catch {
+      throw viberSetupIncomplete(integrationId);
+    }
     return true;
   },
 };

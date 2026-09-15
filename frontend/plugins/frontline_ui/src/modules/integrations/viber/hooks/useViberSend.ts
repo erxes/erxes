@@ -4,12 +4,14 @@ import { toast } from 'erxes-ui';
 import { VIBER_MESSAGE_REFETCH, VIBER_SEND } from '../graphql';
 import type { ViberDelivery, ViberReply } from '../types';
 import { viberDeliveryLabel } from '../validation';
+import { useTranslation } from 'react-i18next';
 
 export const useViberSend = (): {
   send: (input: ViberReply) => Promise<boolean>;
   loading: boolean;
 } => {
   const client = useApolloClient();
+  const { t } = useTranslation('frontline');
   const requests = useRef(new Map<string, string>());
   const inFlight = useRef(false);
   const [mutate, { loading }] = useMutation<
@@ -40,7 +42,9 @@ export const useViberSend = (): {
         requests.current.delete(input.conversationId);
         const accepted = message.viberDelivery?.state === 'sent';
         toast({
-          title: viberDeliveryLabel(message.viberDelivery),
+          title: accepted
+            ? t('message-sent')
+            : viberDeliveryLabel(message.viberDelivery),
           description: accepted
             ? undefined
             : 'Message saved. Check its delivery status in the conversation.',
@@ -70,7 +74,7 @@ export const useViberSend = (): {
         inFlight.current = false;
       }
     },
-    [client, mutate],
+    [client, mutate, t],
   );
   return { send, loading };
 };

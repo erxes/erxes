@@ -72,15 +72,17 @@
 
 ## Current Capabilities
 
-- Viber has a channel integration catalog entry and native connect/manage
-  sheet, required name/brand/token validation, masked token replacement,
-  webhook registration status, Repair, archive/restore, and confirmed removal.
+- Viber uses the shared `IntegrationsRecordTable` columns, inline name editor,
+  cursor pagination (30 per request), and archive/unarchive/remove actions.
+  Creation uses a sheet; metadata edits use the native integration edit dialog
+  and hook. Masked token replacement has a separate dialog so failed token
+  validation cannot obscure a successful metadata edit.
   The setup panel reports callback, approved media hosts, and storage readiness;
   a missing media policy does not prevent connecting a text-only test bot.
   Row actions use the standard three-dot `RecordTable` menu; setup issues stay
   visible while webhook, media-host, and storage values are in an expandable
-  technical-details section. The list shows registration badges separately
-  from active/archive state; forms reuse `SecretInput` for token visibility and
+  technical-details section. The list uses the common Status and Health status
+  columns; forms reuse `SecretInput` for token visibility and
   `CopyText` for callback URLs. Keep copy concise and user-facing.
 - Integrations config includes a Viber media-host editor alongside the existing
   providers, linked from the Viber setup panel. `integrationsEdit` gates changes.
@@ -89,9 +91,12 @@
   are built in, and no bot token is needed to configure this setting.
 - Viber conversations use the native message thread and composer for text,
   attachments, and internal notes, plus a dialog for link/location/contact/
-  sticker messages. Reply eligibility respects archives, permissions, and
+  sticker messages. Reply eligibility respects channel permissions and
   unsubscribe state. Delivery status and safe explicit retries update the
   saved message through Apollo refetch/subscription, without manual reloads.
+  Archive follows native integration visibility, not a Viber transport pause.
+  Delivery details and Refresh live in a compact status popover; failures and
+  safe Retry remain visible. Response templates retain `responseTemplateId`.
   Core Stream uploads have a pre-send notice because recipients receive playable
   video links; other attachments retain the signed-media delivery path.
 - Polls are split across two routes, mirroring how forms are laid out.
@@ -359,6 +364,8 @@ collapse and form; `viber/mediaSettings.ts` provides immediate form validation.
   unique `FrontlineViber*` operation names for setup, connection, token update,
   repair, reply eligibility, send, status, and retry. Common integration
   create/edit/archive/remove operations remain the lifecycle entry points.
+  A `VIBER_SETUP_INCOMPLETE` GraphQL error identifies a saved connection; close
+  the create/token form and direct the user to Repair rather than duplicate creation.
   Native message queries/subscriptions include `ConversationMessage.viberDelivery`.
 - `FrontlineViberMediaSettings` reads `{ hostnames, source }` from
   `viberMediaSettings`; `FrontlineViberUpdateMediaSettings` sends an array to
@@ -1082,7 +1089,7 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 - `pnpm nx lint frontline_ui` (Nx-inferred ESLint target; report existing
   failures separately from newly changed files).
 - `pnpm nx build frontline_ui`
-- `pnpm exec tsx --test frontend/plugins/frontline_ui/src/modules/integrations/viber/__tests__/*.spec.ts`
+- `pnpm exec tsx --tsconfig=frontend/plugins/frontline_ui/tsconfig.json --test frontend/plugins/frontline_ui/src/modules/integrations/viber/__tests__/*.spec.ts`
 - `pnpm exec tsc -p frontend/plugins/frontline_ui/tsconfig.app.json --noEmit`
   checks the application and its referenced source; pre-existing shared/plugin
   errors must be reported, not mistaken for a clean compile.
@@ -1091,7 +1098,10 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   registration badges, pending-save dismissal guards, and permission-disabled
   management actions.
   With a test bot, verify inbound/outbound text and files, receipt updates,
-  unsubscribe, archive/restore, Repair, same-bot token rotation, and removal.
+  unsubscribe, archive/unarchive, Repair, same-bot token rotation, and removal.
+  Check forward/backward cursor requests, metadata edits without token updates,
+  and saved-but-incomplete setup recovery. Hook tests use mocked Apollo/platform
+  boundaries with the existing Node runner; browser fixtures verify rendering.
   Browser network fixtures test UI behavior only, not provider or storage I/O.
 - Attachment smoke: leave workspace CDN settings unchanged; upload/read an
   ordinary file through Core, then verify that a Stream upload shows the
@@ -1148,6 +1158,12 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-15` — Reuse native integration management
+
+- **Summary:** Replace the Viber-only list with shared table/pagination/actions, separate metadata and token dialogs, and simplify delivery feedback.
+- **Affected areas:** Integration table/hooks, Viber forms/recovery/status, composer template metadata, and focused tests.
+- **Contracts changed:** Consume optional reply `responseTemplateId` and recoverable `VIBER_SETUP_INCOMPLETE` errors; routes and shared APIs are unchanged.
 
 ### `2026-09-15` — Viber attachments with existing storage settings
 
@@ -1288,17 +1304,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `src/modules/integrations/facebook/components/FacebookIntegrationDetail.tsx`.
 - **Contracts changed:** `None` — reuses `facebookGetIntegrations`, the existing
   bot queries and mutations, and `buildAutomationSeedLink` from `ui-modules`.
-
-### `2026-09-07` — The website field insists on a real URL
-
-- **Summary:** `url` took any text from either the drawer or the table cell and
-  stored it, so a help center could ship a website that no browser would follow;
-  a non-empty value must now parse as an `http://` or `https://` URL. The rule
-  lives once in `helpcenter/utils/helpCenterUrl.ts`, and `InlineTextCell` grew
-  an optional `validate` prop plus controlled open state so a rejected value
-  keeps the cell open with its message instead of saving.
-- **Affected areas:**
-  `src/modules/helpcenter/utils/helpCenterUrl.ts` (new),
-  `src/modules/helpcenter/components/HelpCenterColumns.tsx`,
-  `src/modules/knowledgebase/components/TopicGeneralTab.tsx`
-- **Contracts changed:** `None`

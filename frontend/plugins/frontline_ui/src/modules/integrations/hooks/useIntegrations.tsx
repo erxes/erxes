@@ -31,7 +31,10 @@ export const useIntegrations = (
 
     fetchMore({
       variables: {
-        cursor: pageInfo?.endCursor,
+        cursor:
+          direction === EnumCursorDirection.BACKWARD
+            ? pageInfo?.startCursor
+            : pageInfo?.endCursor,
         limit: INTEGRATIONS_PER_PAGE,
         direction,
       },

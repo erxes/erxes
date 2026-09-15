@@ -55,7 +55,7 @@ export const queries = `
 
 export const mutations = `
   viberUpdateMediaSettings(hostnames: [String!]): ViberMediaSettings!
-  viberSendMessage(conversationId: String!, content: String, attachments: [AttachmentInput], message: JSON, requestId: String): ConversationMessage
+  viberSendMessage(conversationId: String!, content: String, attachments: [AttachmentInput], message: JSON, requestId: String, responseTemplateId: String): ConversationMessage
   viberRetryMessage(messageId: String!): ConversationMessage
   viberUpdateToken(integrationId: String!, token: String!): Boolean!
 `;

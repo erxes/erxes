@@ -1,12 +1,3 @@
-export interface ViberIntegration {
-  _id: string;
-  name: string;
-  brandId?: string;
-  channelId: string;
-  isActive: boolean;
-  healthStatus?: unknown;
-}
-
 export interface ViberSetup {
   webhookUrl: string | null;
   webhookError: string | null;
@@ -54,6 +45,7 @@ export interface ViberAttachment {
 
 export interface ViberReply {
   conversationId: string;
+  responseTemplateId?: string;
   content?: string;
   attachments?: ViberAttachment[];
   message?: Record<string, unknown>;

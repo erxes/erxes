@@ -480,6 +480,7 @@ export const MessageInput = ({
       }
       const stored = await viberSend.send({
         conversationId,
+        responseTemplateId: responseTemplateId ?? undefined,
         content: sendContent || '',
         attachments: allAttachments.map(({ name, url, type, size }) => ({
           name,

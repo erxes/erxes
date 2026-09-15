@@ -1,5 +1,6 @@
 import { useApolloClient, useLazyQuery, useMutation } from '@apollo/client';
-import { Button, Spinner, toast } from 'erxes-ui';
+import { Button, Popover, Spinner, toast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { usePermissionCheck } from 'ui-modules';
 import { VIBER_MESSAGE_REFETCH, VIBER_RETRY, VIBER_STATUS } from '../graphql';
 import { viberDeliveryLabel } from '../validation';
@@ -12,6 +13,7 @@ export const ViberDeliveryStatus = ({
   messageId: string;
   delivery?: ViberDelivery | null;
 }) => {
+  const { t } = useTranslation('frontline');
   const client = useApolloClient();
   const { isLoaded, hasActionPermission } = usePermissionCheck();
   const [check, { data, loading, error }] = useLazyQuery<{
@@ -29,6 +31,7 @@ export const ViberDeliveryStatus = ({
   const onRetry = async (): Promise<void> => {
     try {
       await retry({ variables: { messageId } });
+      toast({ title: t('message-sent') });
     } catch (caught) {
       toast({
         title: 'Unable to retry message',
@@ -56,16 +59,56 @@ export const ViberDeliveryStatus = ({
       aria-live="polite"
     >
       <div className="flex flex-wrap items-center gap-2">
-        <span>{viberDeliveryLabel(current)}</span>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-6 text-xs"
-          disabled={loading || retrying}
-          onClick={() => void check().catch(() => undefined)}
+        <Popover
+          onOpenChange={(open) => open && void check().catch(() => undefined)}
         >
-          {loading ? <Spinner size="sm" /> : 'Check status'}
-        </Button>
+          <Popover.Trigger asChild>
+            <Button
+              variant="link"
+              className="h-auto p-0 text-xs font-normal text-muted-foreground"
+              aria-label={t('delivery-status', {
+                defaultValue: 'Delivery status',
+              })}
+            >
+              {viberDeliveryLabel(current)}
+            </Button>
+          </Popover.Trigger>
+          <Popover.Content className="w-72 space-y-2 text-xs">
+            <p className="font-medium">{viberDeliveryLabel(current)}</p>
+            {current && current.parts.length > 1 && (
+              <p>
+                {t('viber-parts-sent', {
+                  defaultValue: '{{sent}} of {{total}} parts sent',
+                  sent: current.parts.filter((part) => part.state === 'sent')
+                    .length,
+                  total: current.parts.length,
+                })}
+              </p>
+            )}
+            {current?.state === 'unknown' && (
+              <p>
+                {t('viber-check-before-resending', {
+                  defaultValue:
+                    'Check delivery before resending to avoid duplicate messages.',
+                })}
+              </p>
+            )}
+            {error && (
+              <p role="alert" className="text-destructive">
+                {error.message}
+              </p>
+            )}
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={loading || retrying}
+              onClick={() => void check().catch(() => undefined)}
+            >
+              {loading && <Spinner size="sm" />}
+              {t('refresh')}
+            </Button>
+          </Popover.Content>
+        </Popover>
         {canRetry && (
           <Button
             variant="outline"
@@ -74,25 +117,15 @@ export const ViberDeliveryStatus = ({
             disabled={loading || retrying}
             onClick={() => void onRetry()}
           >
-            {retrying ? <Spinner size="sm" /> : 'Retry'}
+            {retrying ? (
+              <Spinner size="sm" />
+            ) : (
+              t('retry', { defaultValue: 'Retry' })
+            )}
           </Button>
         )}
       </div>
-      {current && current.parts.length > 1 ? (
-        <span>
-          {current.parts.filter((part) => part.state === 'sent').length}/
-          {current.parts.length} parts sent to Viber
-        </span>
-      ) : null}
-      {current?.state === 'unknown' && (
-        <p>Check delivery before resending to avoid duplicate messages.</p>
-      )}
       {failure && <p className="text-destructive">{failure}</p>}
-      {error && (
-        <p role="alert" className="text-destructive">
-          Unable to check delivery: {error.message}
-        </p>
-      )}
     </div>
   );
 };

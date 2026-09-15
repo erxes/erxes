@@ -32,6 +32,7 @@ export const createTransportHarness = (t: TestContext) => {
       userId: string;
       internal: boolean;
       content: string;
+      responseTemplateId?: string;
       extraData: { viber: Record<string, unknown> };
       isCustomerRead?: boolean;
     }
@@ -50,6 +51,9 @@ export const createTransportHarness = (t: TestContext) => {
     failNative: false,
     failReservation: false,
   };
+  const replyEffects: TestSpy<[], Promise<void>> = t.mock.fn(
+    async () => undefined,
+  );
   const permission: TestSpy<[string], Promise<void>> = t.mock.fn(
     async (action: string) => {
       strictEqual(typeof action, 'string');
@@ -300,6 +304,9 @@ export const createTransportHarness = (t: TestContext) => {
   isolateViberModules(
     t,
     {
+      '@/inbox/services/conversationReply': {
+        completeConversationReply: replyEffects,
+      },
       'erxes-api-shared/utils': {
         getEnv: () => 'https://callback.example.test/viber/receive',
         graphqlPubsub: { publish },
@@ -339,6 +346,7 @@ export const createTransportHarness = (t: TestContext) => {
     permission,
     publish,
     storage,
+    replyEffects,
     ...outbound,
     ...events,
   };

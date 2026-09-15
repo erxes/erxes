@@ -16,6 +16,7 @@ import {
 } from '@/integrations/viber/utils/outboundMedia';
 import { publishViberDelivery } from '@/integrations/viber/events';
 import { getViberVideoLink } from '@/integrations/viber/utils/attachment';
+import { completeConversationReply } from '@/inbox/services/conversationReply';
 
 export interface IViberReplyInput {
   conversationId: string;
@@ -25,6 +26,7 @@ export interface IViberReplyInput {
   replyToMessageId?: string;
   poll?: unknown;
   requestId?: string;
+  responseTemplateId?: string;
 }
 
 const loadViberRecipient = async (
@@ -36,11 +38,6 @@ const loadViberRecipient = async (
     conversationId,
     'conversationMessageAdd',
   );
-  if (integration.isActive === false) {
-    throw new Error(
-      'This Viber integration is archived. Restore it before replying.',
-    );
-  }
   const mapping = await context.models.ViberConversations.findOne({
     inboxId: integration._id,
     conversationId,
@@ -65,7 +62,7 @@ const loadViberRecipient = async (
     inboxId: integration._id,
   }).select('+token');
   if (!connection) throw new Error('Viber connection not found');
-  return { connection, mapping };
+  return { connection, mapping, conversation };
 };
 
 const saveOutboxProgress = async (
@@ -101,7 +98,7 @@ export const dispatchViberOutbox = async (
   const { models, subdomain } = context;
   const existing = await models.ViberOutbox.findOne({ _id: messageId });
   if (!existing) throw new Error('Viber outgoing message not found');
-  const { connection, mapping } = await loadViberRecipient(
+  const { connection, mapping, conversation } = await loadViberRecipient(
     context,
     existing.conversationId,
   );
@@ -199,6 +196,9 @@ export const dispatchViberOutbox = async (
   }
   outbox.state = 'sent';
   await saveOutboxProgress(context, outbox);
+  // Both send endpoints and explicit retries share these native inbox effects.
+  // Only the successful outbox claim runs them; request replays do not.
+  await completeConversationReply(context, conversation, native);
   // Also reconciles callbacks that arrived before the send response was saved.
   try {
     await publishViberDelivery(models, subdomain, messageId);
@@ -233,7 +233,9 @@ export const sendViberReply = async (
     throw new Error('Invalid Viber send request ID');
   }
   const requestHash = createHash('sha256')
-    .update(JSON.stringify(plan))
+    .update(
+      JSON.stringify({ ...plan, responseTemplateId: input.responseTemplateId }),
+    )
     .digest('hex');
   const messageId = input.requestId
     ? `viber-${createHash('sha256')
@@ -275,6 +277,7 @@ export const sendViberReply = async (
     conversationId: input.conversationId,
     content: formatViberText(plan.content),
     attachments,
+    responseTemplateId: input.responseTemplateId,
     extraData: { viber: { state: 'pending', requestHash } },
   };
   const message = await context.models.ConversationMessages.addMessage(

@@ -149,3 +149,22 @@ test('a lost token-update acknowledgement never reports success or registers unc
   );
   strictEqual(h.register.mock.callCount(), 0);
 });
+
+test('a saved token with failed registration returns the recoverable setup code without losing the connection', async (t) => {
+  const h = createResolverHarness(t);
+  h.register.mock.mockImplementation(async () => {
+    throw new Error('Provider unavailable');
+  });
+  await rejects(
+    h.viberMutations.viberUpdateToken(
+      null,
+      { integrationId: 'inbox', token: 'new-token' },
+      h.context,
+    ),
+    {
+      extensions: { code: 'VIBER_SETUP_INCOMPLETE', integrationId: 'inbox' },
+    },
+  );
+  strictEqual(h.save.mock.callCount(), 1);
+  strictEqual(h.register.mock.callCount(), 1);
+});

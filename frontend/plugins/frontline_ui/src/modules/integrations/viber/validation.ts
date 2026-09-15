@@ -21,23 +21,6 @@ export type ViberIntegrationValues = z.infer<
   ReturnType<typeof viberIntegrationSchema>
 >;
 
-export const getViberConnectionStatus = (
-  health: unknown,
-): {
-  label: string;
-  variant: 'success' | 'warning' | 'destructive' | 'secondary';
-} => {
-  const status =
-    health && typeof health === 'object' && 'status' in health
-      ? health.status
-      : undefined;
-  if (status === 'healthy') return { label: 'Registered', variant: 'success' };
-  if (status === 'unHealthy')
-    return { label: 'Needs repair', variant: 'destructive' };
-  if (status === 'pending') return { label: 'Pending', variant: 'warning' };
-  return { label: 'Not checked', variant: 'secondary' };
-};
-
 export const viberSpecialSchema = z
   .object({
     type: z.enum(['url', 'location', 'contact', 'sticker']),
@@ -128,7 +111,7 @@ export const viberDeliveryLabel = (
   const labels: Record<string, string> = {
     pending: 'Not sent',
     sending: 'Sending',
-    sent: 'Sent to Viber',
+    sent: 'Sent',
     rejected: 'Send failed',
     unknown: 'Delivery unconfirmed',
   };

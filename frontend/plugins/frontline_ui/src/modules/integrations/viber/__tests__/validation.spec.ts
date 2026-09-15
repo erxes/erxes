@@ -2,38 +2,10 @@ import { test } from 'node:test';
 import { deepStrictEqual, strictEqual, throws } from 'node:assert';
 import {
   buildViberSpecialMessage,
-  getViberConnectionStatus,
   viberDeliveryLabel,
   viberIntegrationSchema,
   viberTokenSchema,
 } from '../validation';
-
-test('webhook badges reflect registration state and do not assume unknown connections are healthy', () => {
-  deepStrictEqual(getViberConnectionStatus({ status: 'healthy' }), {
-    label: 'Registered',
-    variant: 'success',
-  });
-  deepStrictEqual(getViberConnectionStatus({ status: 'unHealthy' }), {
-    label: 'Needs repair',
-    variant: 'destructive',
-  });
-  deepStrictEqual(getViberConnectionStatus({ status: 'pending' }), {
-    label: 'Pending',
-    variant: 'warning',
-  });
-  for (const health of [
-    undefined,
-    null,
-    {},
-    'healthy',
-    { status: 'unknown' },
-  ]) {
-    deepStrictEqual(getViberConnectionStatus(health), {
-      label: 'Not checked',
-      variant: 'secondary',
-    });
-  }
-});
 
 test('create requires name, brand and exact token; edit may leave the token unchanged', () => {
   const input = { name: ' Support ', brandId: 'brand', token: 'exact-token' };
@@ -113,7 +85,7 @@ test('delivery labels never confuse provider acceptance with delivery or seen re
     state: 'sent',
     parts: [{ index: 0, type: 'text', state: 'sent' }],
   };
-  strictEqual(viberDeliveryLabel(status), 'Sent to Viber');
+  strictEqual(viberDeliveryLabel(status), 'Sent');
   strictEqual(
     viberDeliveryLabel({
       ...status,

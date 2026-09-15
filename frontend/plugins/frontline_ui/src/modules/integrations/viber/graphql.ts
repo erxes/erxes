@@ -92,6 +92,7 @@ export const VIBER_SEND = gql`
     $attachments: [AttachmentInput]
     $message: JSON
     $requestId: String!
+    $responseTemplateId: String
   ) {
     viberSendMessage(
       conversationId: $conversationId
@@ -99,6 +100,7 @@ export const VIBER_SEND = gql`
       attachments: $attachments
       message: $message
       requestId: $requestId
+      responseTemplateId: $responseTemplateId
     ) {
       _id
       conversationId

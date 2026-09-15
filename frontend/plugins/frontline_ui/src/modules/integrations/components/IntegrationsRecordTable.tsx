@@ -22,7 +22,8 @@ import {
 } from '../hooks/useIntegrations';
 import { useParams } from 'react-router-dom';
 import { useIntegrationEditField } from '@/integrations/hooks/useIntegrationEdit';
-import { lazy, Suspense, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
+import { usePermissionCheck } from 'ui-modules';
 import { InboxHotkeyScope } from '@/inbox/types/InboxHotkeyScope';
 import clsx from 'clsx';
 import { IntegrationType } from '@/types/Integration';
@@ -43,19 +44,41 @@ export const IntegrationsRecordTable = () => {
   const params = useParams();
   const isDiscord =
     params?.integrationType === IntegrationType.DISCORD_MESSENGER;
+  const isViber = params?.integrationType === IntegrationType.VIBER_MESSENGER;
+  const { isLoaded, hasActionPermission } = usePermissionCheck();
+  const canRead =
+    !isViber || (isLoaded && hasActionPermission('showIntegrations'));
+  const cursorPaginated = isDiscord || isViber;
   const columns = useIntegrationTypeColumns(isDiscord);
   const integrationName =
     INTEGRATIONS[params?.integrationType as keyof typeof INTEGRATIONS]?.name;
 
-  const { integrations, loading, pageInfo, handleFetchMore } = useIntegrations({
-    variables: {
-      kind: params?.integrationType,
-      channelId: params?.id,
-      ...(isDiscord ? { limit: INTEGRATIONS_PER_PAGE } : {}),
-    },
-    skip: !params?.integrationType,
-    errorPolicy: 'all',
-  });
+  const { integrations, loading, error, pageInfo, handleFetchMore } =
+    useIntegrations({
+      variables: {
+        kind: params?.integrationType,
+        channelId: params?.id,
+        ...(cursorPaginated ? { limit: INTEGRATIONS_PER_PAGE } : {}),
+      },
+      skip: !params?.integrationType || !canRead,
+      errorPolicy: 'all',
+    });
+
+  if (isViber && !isLoaded) return <Spinner />;
+  if (!canRead)
+    return (
+      <p role="alert">
+        {t('no-permission', {
+          defaultValue: 'You don’t have permission to view integrations.',
+        })}
+      </p>
+    );
+  if (error && !integrations?.length)
+    return (
+      <p role="alert" className="text-sm text-destructive">
+        {error.message}
+      </p>
+    );
 
   if (!integrations?.length && !loading) {
     return (
@@ -104,7 +127,7 @@ export const IntegrationsRecordTable = () => {
         isDiscord ? ['more', 'checkbox', 'name'] : ['more', 'name']
       }
     >
-      {isDiscord ? (
+      {cursorPaginated ? (
         <RecordTable.CursorProvider
           hasPreviousPage={pageInfo?.hasPreviousPage}
           hasNextPage={pageInfo?.hasNextPage}
@@ -217,19 +240,41 @@ const NameField = ({
 }: {
   cell: CellContext<IIntegrationDetail, unknown>;
 }) => {
+  const { t } = useTranslation('frontline');
+  const { isLoaded, hasActionPermission } = usePermissionCheck();
   const [name, setName] = useState(cell.row.original.name);
+  const isViber = cell.row.original.kind === IntegrationType.VIBER_MESSENGER;
+  const canEdit =
+    !isViber || (isLoaded && hasActionPermission('integrationsEdit'));
+  useEffect(() => setName(cell.row.original.name), [cell.row.original.name]);
   const { editIntegrationField } = useIntegrationEditField(cell.row.original);
   const handleSave = () => {
+    if (!canEdit) return;
+    const value = isViber ? name.trim() : name;
+    if (isViber && (!value || value.length > 100)) {
+      setName(cell.row.original.name);
+      toast({
+        title: t('invalid-integration-name', {
+          defaultValue: 'Enter a name between 1 and 100 characters.',
+        }),
+        variant: 'destructive',
+      });
+      return;
+    }
     editIntegrationField(
       {
         variables: {
-          name,
+          name: value,
+        },
+        onError: (error) => {
+          setName(cell.row.original.name);
+          toast({ title: error.message, variant: 'destructive' });
         },
       },
-      cell.row.original.name === name,
+      cell.row.original.name === value,
     );
   };
-  if (cell.row.original.kind === IntegrationType.CALL) {
+  if (cell.row.original.kind === IntegrationType.CALL || !canEdit) {
     return <RecordTableInlineCell>{name}</RecordTableInlineCell>;
   }
 

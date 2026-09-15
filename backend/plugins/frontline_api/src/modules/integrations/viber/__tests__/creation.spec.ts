@@ -11,7 +11,7 @@ const TOKEN = 'test-viber-token';
 const BOT_ID = 'bot-test';
 const RECEIVE_URL = 'https://tunnel.example/viber/receive';
 const RECOVERY_MESSAGE =
-  'Viber connection was saved, but setup could not be confirmed. Open integrations and try Repair.';
+  'Integration saved. Use Repair to finish connecting the Viber bot.';
 const REGISTRATION_ERROR =
   'Webhook registration could not be confirmed. Check the callback URL and try Repair.';
 
@@ -405,7 +405,10 @@ test('a failed connection write before persistence permits common-inbox rollback
 test('a lost connection-write acknowledgement retains both records and Repair completes setup', async (t) => {
   const harness = createCreationHarness(t, { saveFailure: 'after' });
 
-  await rejects(harness.create(), { message: RECOVERY_MESSAGE });
+  await rejects(harness.create(), {
+    message: RECOVERY_MESSAGE,
+    extensions: { code: 'VIBER_SETUP_INCOMPLETE', integrationId: INBOX_ID },
+  });
   const saved = harness.connections.get(INBOX_ID);
   ok(saved);
   strictEqual(saved.healthStatus, 'pending');

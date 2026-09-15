@@ -59,6 +59,7 @@ import {
   assertViberIntegrationAccess,
 } from '@/integrations/viber/access';
 import { visibleChannelsFilter } from '@/channel/utils';
+import { viberSetupIncomplete } from '@/integrations/viber/setupError';
 
 interface IntegrationParams {
   integrationId: string;
@@ -280,9 +281,7 @@ const createOnService = async (
       });
 
       if (savedConnection) {
-        throw new Error(
-          'Viber connection was saved, but setup could not be confirmed. Open integrations and try Repair.',
-        );
+        throw viberSetupIncomplete(payload.integrationId);
       }
     }
 

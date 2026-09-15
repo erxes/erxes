@@ -5,18 +5,17 @@ export const useIntegrationEdit = () => {
   const [editIntegration, { loading }] = useMutation(EDIT_INTEGRATION);
 
   const mutate = (options: MutationFunctionOptions) => {
-    editIntegration({
+    return editIntegration({
       ...options,
       update: (cache, { data }) => {
         cache.modify({
           id: cache.identify(data.integrationsEditCommonFields),
-          fields: Object.keys(options.variables || {}).reduce(
-            (fields: any, field) => {
-              fields[field] = () => options.variables?.[field];
-              return fields;
-            },
-            {},
-          ),
+          fields: Object.keys(options.variables || {}).reduce<
+            Record<string, () => unknown>
+          >((fields, field) => {
+            fields[field] = () => options.variables?.[field];
+            return fields;
+          }, {}),
         });
       },
       refetchQueries: ['Integrations', 'IntegrationDetail'],

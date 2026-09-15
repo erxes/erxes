@@ -90,9 +90,7 @@ export const getViberConversationState = async (
     inboxId: integration._id,
   });
   const reason =
-    integration.isActive === false
-      ? 'This Viber integration is archived. Restore it before replying.'
-      : !mapping || !connection
+    !mapping || !connection
       ? 'This conversation is no longer linked to a Viber bot.'
       : subscription?.subscribed === false
       ? 'This customer has unsubscribed. Replies are paused until they subscribe again.'

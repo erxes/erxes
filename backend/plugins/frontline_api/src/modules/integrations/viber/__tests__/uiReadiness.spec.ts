@@ -111,17 +111,16 @@ test('setup and the receiver policy use the same saved tenant hostnames, includi
   ok(disabled.mediaError);
 });
 
-test('conversation readiness respects channel access, archives and unsubscribe events', async (t) => {
+test('conversation readiness keeps archived integrations usable while respecting channel access and unsubscribe events', async (t) => {
   const h = setupHarness(t);
   strictEqual(
     (await h.getViberConversationState(h.context, 'conversation')).canSend,
     true,
   );
   h.state.isActive = false;
-  ok(
-    (
-      await h.getViberConversationState(h.context, 'conversation')
-    ).reason?.includes('archived'),
+  strictEqual(
+    (await h.getViberConversationState(h.context, 'conversation')).canSend,
+    true,
   );
   h.state.isActive = true;
   h.subscriptions.set('recipient', {
