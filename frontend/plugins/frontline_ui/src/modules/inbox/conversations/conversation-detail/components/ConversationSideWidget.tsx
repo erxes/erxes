@@ -1,7 +1,7 @@
 import { SideMenu, cn, useSideMenuContext } from 'erxes-ui';
 import { RefObject, useEffect, useRef } from 'react';
 import { getRelationWidgetLabel, useRelationWidget } from 'ui-modules';
-import { IconListDetails } from '@tabler/icons-react';
+import { IconHierarchy2 } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { ConversationProperties } from './ConversationProperties';
 
@@ -121,7 +121,7 @@ export const ConversationSideWidget = ({
         <SideMenu.Trigger
           value="properties"
           label={t('common:properties', 'Properties')}
-          Icon={IconListDetails}
+          Icon={IconHierarchy2}
         />
       </SideMenu.Sidebar>
     </SideMenu>
