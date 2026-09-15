@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import { ok, rejects, strictEqual } from 'node:assert';
 import { createTransportHarness } from './transportHarness';
+import { GraphQLError } from 'graphql';
 
 const reply = {
   conversationId: 'conversation',
@@ -98,7 +99,79 @@ test('malformed request IDs fail before any message is persisted', async (t) => 
   const h = createTransportHarness(t);
   await rejects(
     h.sendViberReply(h.context, { ...reply, requestId: 'bad' }),
-    /request ID/,
+    (error: unknown) =>
+      error instanceof GraphQLError &&
+      error.extensions.code === 'VIBER_SEND_NOT_SAVED',
   );
   strictEqual(h.messages.size, 0);
+});
+
+test('validation rejects before persistence, but database write failures are not declared unsaved', async (t) => {
+  const h = createTransportHarness(t);
+  await rejects(
+    h.sendViberReply(h.context, { ...reply, content: 'x'.repeat(7001) }),
+    (error: unknown) =>
+      error instanceof GraphQLError &&
+      error.extensions.code === 'VIBER_SEND_NOT_SAVED',
+  );
+  strictEqual(h.messages.size, 0);
+  h.state.failNative = true;
+  await rejects(
+    h.sendViberReply(h.context, reply),
+    (error: unknown) =>
+      error instanceof Error &&
+      !(error instanceof GraphQLError) &&
+      error.message === 'native write failed',
+  );
+});
+
+test('a saved request can be recovered after unsubscribe without another provider send', async (t) => {
+  const h = createTransportHarness(t);
+  const fetch = t.mock.method(
+    globalThis,
+    'fetch',
+    async () => new Response('{"status":0,"message_token":123}'),
+  );
+  const message = await h.sendViberReply(h.context, reply);
+  h.subscriptions.set('recipient', {
+    inboxId: 'inbox',
+    userId: 'recipient',
+    timestamp: Date.now(),
+    subscribed: false,
+  });
+  strictEqual((await h.sendViberReply(h.context, reply))._id, message._id);
+  strictEqual(fetch.mock.callCount(), 1);
+  h.state.denyPermission = true;
+  await rejects(h.sendViberReply(h.context, reply), /Permission denied/);
+});
+
+test('stored template attachments with unknown size use Core bytes and keep idempotency on replay', async (t) => {
+  const h = createTransportHarness(t);
+  const fetch = t.mock.method(
+    globalThis,
+    'fetch',
+    async () => new Response('{"status":0,"message_token":123}'),
+  );
+  const input = {
+    ...reply,
+    content: '',
+    responseTemplateId: 'template',
+    attachments: [
+      {
+        name: 'guide.pdf',
+        url: 'stored/template.pdf',
+        type: 'application/pdf',
+        size: 0,
+      },
+    ],
+  };
+  const message = await h.sendViberReply(h.context, input);
+  strictEqual(h.storage.mock.callCount(), 1);
+  const body = h.outboxes.get(message._id)?.parts[0].body;
+  ok(body?.type === 'file');
+  strictEqual(body.size, 3);
+  strictEqual(h.messages.get(message._id)?.attachments?.[0].size, 3);
+  strictEqual(message.responseTemplateId, 'template');
+  await h.sendViberReply(h.context, input);
+  strictEqual(fetch.mock.callCount(), 1);
 });

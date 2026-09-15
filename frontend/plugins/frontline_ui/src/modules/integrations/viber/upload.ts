@@ -1,5 +1,6 @@
+import { defaultViberTranslate, type ViberTranslate } from './translation';
 import type { ViberAttachment } from './types';
-import { getViberVideoLink } from './attachment';
+import { getViberVideoLink, isViberStorageKey } from './attachment';
 
 export const VIBER_FILE_MAX_BYTES = 50 * 1024 * 1024;
 
@@ -12,15 +13,25 @@ const hasControlCharacters = (value: string): boolean =>
 export const uploadViberFile = async (
   file: File,
   apiUrl: string,
+  t: ViberTranslate = defaultViberTranslate,
 ): Promise<ViberAttachment> => {
   if (!file.size || file.size > VIBER_FILE_MAX_BYTES)
-    throw new Error('Viber files must be non-empty and no larger than 50 MiB.');
+    throw new Error(
+      t('viber-file-size-invalid', {
+        defaultValue:
+          'Viber files must be non-empty and no larger than 50 MiB.',
+      }),
+    );
   if (
     !/^[^/\\]+\.[a-zA-Z0-9]+$/.test(file.name) ||
     file.name.length > 256 ||
     hasControlCharacters(file.name)
   ) {
-    throw new Error('Use a valid filename with a file extension.');
+    throw new Error(
+      t('viber-filename-invalid', {
+        defaultValue: 'Use a valid filename with a file extension.',
+      }),
+    );
   }
   const body = new FormData();
   const type = file.type || 'application/octet-stream';
@@ -36,23 +47,22 @@ export const uploadViberFile = async (
   );
   if (!response.ok)
     throw new Error(
-      'Unable to upload this file. Check your storage settings and allowed file types.',
+      t('viber-upload-failed-help', {
+        defaultValue:
+          'Unable to upload this file. Check your storage settings and allowed file types.',
+      }),
     );
   const key = await response.text();
   if (type.startsWith('video/') && getViberVideoLink(key)) {
     return { name: file.name, type, size: file.size, url: key };
   }
   // Only opaque storage keys may be handed to the backend's private media relay.
-  if (
-    !key ||
-    key.length > 1024 ||
-    key.startsWith('/') ||
-    /[\\:?#%]/.test(key) ||
-    hasControlCharacters(key) ||
-    key.split('/').some((part) => !part || part === '.' || part === '..')
-  ) {
+  if (!isViberStorageKey(key)) {
     throw new Error(
-      'This storage configuration does not support Viber attachments. Contact your administrator.',
+      t('viber-storage-unsupported', {
+        defaultValue:
+          'This storage configuration does not support Viber attachments. Contact your administrator.',
+      }),
     );
   }
   return { name: file.name, type, size: file.size, url: key };

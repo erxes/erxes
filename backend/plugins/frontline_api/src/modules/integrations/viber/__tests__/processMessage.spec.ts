@@ -73,9 +73,12 @@ const createHarness = (
   });
 
   const createMessage = t.mock.fn(
-    async (doc: Omit<StoredMessage, 'createdAt'>) => {
+    async (doc: Omit<StoredMessage, 'createdAt'> & { createdAt?: Date }) => {
       events.push('insert');
-      state.message = { ...doc, createdAt: new Date('2026-09-14T08:00:00Z') };
+      state.message = {
+        ...doc,
+        createdAt: doc.createdAt ?? new Date('2026-09-14T08:00:00Z'),
+      };
       const error = state.insertError;
       state.insertError = undefined;
       if (error) throw error;
@@ -245,6 +248,17 @@ const createMediaHarness = (
 
   return { ...h, fetch, mkdir, write, remove };
 };
+
+test('keeps the provider message timestamp through persistence, publication, and replay', async (t) => {
+  const createdAt = new Date('2026-08-01T10:00:00Z');
+  const h = createHarness(t, { ...INPUT, createdAt });
+  await h.process();
+  strictEqual(h.createMessage.mock.calls[0].arguments[0].createdAt, createdAt);
+  strictEqual(h.publish.mock.calls[0].arguments[1].createdAt, createdAt);
+  await h.process();
+  strictEqual(h.createMessage.mock.callCount(), 1);
+  strictEqual(h.state.message?.createdAt, createdAt);
+});
 
 test('stores formatted text with the reserved id and completes only after publishing', async (t) => {
   const h = createHarness(t);

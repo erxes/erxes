@@ -1,5 +1,6 @@
 import { strictEqual } from 'node:assert';
 import type { IContext } from '~/connectionResolvers';
+import type { IAttachment } from 'erxes-api-shared/core-types';
 import type { IViberOutbox } from '../@types/transport';
 import type { TestContext } from './helperHarness';
 import { isolateViberModules } from './moduleHarness';
@@ -35,6 +36,7 @@ export const createTransportHarness = (t: TestContext) => {
       responseTemplateId?: string;
       extraData: { viber: Record<string, unknown> };
       isCustomerRead?: boolean;
+      attachments?: IAttachment[];
     }
   >();
   const receipts = new Map<string, Receipt>();
@@ -289,6 +291,8 @@ export const createTransportHarness = (t: TestContext) => {
         update: { $set: Record<string, unknown> },
       ) => {
         const message = messages.get(filter._id);
+        if (message && Array.isArray(update.$set.attachments))
+          message.attachments = update.$set.attachments;
         if (message && update.$set.isCustomerRead === true)
           message.isCustomerRead = true;
         if (message)

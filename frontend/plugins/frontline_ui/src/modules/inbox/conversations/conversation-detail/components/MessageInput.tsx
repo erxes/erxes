@@ -62,7 +62,11 @@ import { useGetResponses } from '@/responseTemplate/hooks/useGetResponses';
 import { useViberSend } from '@/integrations/viber/hooks/useViberSend';
 import { useViberUpload } from '@/integrations/viber/hooks/useViberUpload';
 import type { ViberAttachment } from '@/integrations/viber/types';
-import { getViberVideoLink } from '@/integrations/viber/attachment';
+import {
+  getViberVideoLink,
+  isViberStorageKey,
+} from '@/integrations/viber/attachment';
+import { ViberSendRecovery } from '@/integrations/viber/components/ViberSendRecovery';
 import { useViberConversationState } from '@/integrations/viber/hooks/useViberConversationState';
 import { ViberSpecialMessage } from '@/integrations/viber/components/ViberSpecialMessage';
 import { usePermissionCheck } from 'ui-modules';
@@ -101,6 +105,8 @@ export const MessageInput = ({
   const isViber = integration?.kind === IntegrationType.VIBER_MESSENGER;
   const viberState = useViberConversationState(conversationId, isViber);
   const viberSend = useViberSend();
+  const viberDraftLocked =
+    isViber && (viberSend.loading || viberSend.unconfirmed);
   const viberUpload = useViberUpload();
   const { isLoaded: permissionsLoaded, hasActionPermission } =
     usePermissionCheck();
@@ -258,7 +264,7 @@ export const MessageInput = ({
 
   const handleFileUpload = useCallback(
     (files: FileList) => {
-      if (!files?.length) return;
+      if (!files?.length || viberDraftLocked) return;
 
       if (isViber && !isInternalNote) {
         void viberUpload
@@ -282,7 +288,7 @@ export const MessageInput = ({
         },
       });
     },
-    [upload, isViber, isInternalNote, viberUpload, t],
+    [upload, isViber, isInternalNote, viberUpload, viberDraftLocked, t],
   );
 
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -291,13 +297,14 @@ export const MessageInput = ({
     e.target.value = '';
   };
 
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+  const handleDrop = (e: React.DragEvent<HTMLFieldSetElement>) => {
     e.preventDefault();
     e.stopPropagation();
     handleFileUpload(e.dataTransfer.files);
   };
 
   const handleDeleteAttachment = (name: string) => {
+    if (viberDraftLocked) return;
     setAttachments((prev) => prev.filter((f) => f.name !== name));
     toast({ title: t('attachment-removed'), variant: 'default' });
   };
@@ -312,6 +319,7 @@ export const MessageInput = ({
     templateContent: string,
     templateId?: string,
   ) => {
+    if (viberDraftLocked) return;
     if (!editor) {
       return toast({ title: t('editor-not-ready'), variant: 'destructive' });
     }
@@ -425,12 +433,26 @@ export const MessageInput = ({
     setMentionedUserIds(getMentionedUserIds(blocks));
   }, [editor, pingAgentTyping]);
 
+  const clearDraft = useCallback(() => {
+    if (content?.length) editor?.removeBlocks(content);
+    setContent(undefined);
+    setMentionedUserIds([]);
+    setIsInternalNote(false);
+    setAttachments([]);
+    setAttachmentPreview(null);
+    setShowSuggestions(false);
+    setResponseTemplateId(null);
+    setDiscordReplyTo(null);
+    inlineViberFiles.current.clear();
+  }, [content, editor, setIsInternalNote, setDiscordReplyTo]);
+
   const handleSubmit = useCallback(async () => {
     if (!conversationId) return;
     if (
       isViber &&
       (viberCannotSend ||
         viberSend.loading ||
+        viberSend.unconfirmed ||
         viberUpload.loading ||
         loading ||
         isLoading)
@@ -456,24 +478,25 @@ export const MessageInput = ({
       ...blockAttachments.filter((a) => !paperclipUrls.has(a.url)),
     ];
 
-    const clearDraft = () => {
-      if (content?.length) editor?.removeBlocks(content);
-      setContent(undefined);
-      setMentionedUserIds([]);
-      setIsInternalNote(false);
-      setAttachments([]);
-      setAttachmentPreview(null);
-      setShowSuggestions(false);
-      setResponseTemplateId(null);
-      setDiscordReplyTo(null);
-      inlineViberFiles.current.clear();
-    };
     if (isViber && !isInternalNote) {
-      if (allAttachments.some((attachment) => !attachment.size)) {
+      if (
+        allAttachments.some(
+          (attachment: ViberAttachment) =>
+            !isViberStorageKey(attachment.url) &&
+            !(
+              attachment.type.startsWith('video/') &&
+              getViberVideoLink(attachment.url)
+            ),
+        )
+      ) {
         toast({
-          title: 'Upload this file to attach it',
-          description:
-            'Viber attachments must be uploaded, not linked from another website.',
+          title: t('viber-upload-required', {
+            defaultValue: 'Upload this file to attach it',
+          }),
+          description: t('viber-external-file', {
+            defaultValue:
+              'Viber attachments must be uploaded, not linked from another website.',
+          }),
           variant: 'destructive',
         });
         return;
@@ -536,13 +559,12 @@ export const MessageInput = ({
     loading,
     isLoading,
     discordReplyTo,
-    setDiscordReplyTo,
     messageExtraInfo,
     attachments,
     editor,
     addConversationMessage,
-    setIsInternalNote,
     responseTemplateId,
+    clearDraft,
   ]);
 
   const handleSendPoll = useCallback(
@@ -577,6 +599,16 @@ export const MessageInput = ({
 
   return (
     <div className="p-2 h-full">
+      {isViber && viberSend.unconfirmed && (
+        <div className="mx-auto max-w-2xl px-3 pb-2">
+          <ViberSendRecovery
+            loading={viberSend.loading}
+            onRecover={async () => {
+              if (await viberSend.recover()) clearDraft();
+            }}
+          />
+        </div>
+      )}
       {hasViberVideoLink && !isInternalNote && (
         <p
           className="mx-auto max-w-2xl text-xs text-muted-foreground px-3 pb-2"
@@ -600,17 +632,18 @@ export const MessageInput = ({
               size="sm"
               onClick={() => void viberState.refetch().catch(() => undefined)}
             >
-              Check again
+              {t('check-again', { defaultValue: 'Check again' })}
             </Button>
           )}
         </div>
       )}
-      <div
+      <fieldset
+        disabled={viberDraftLocked}
         onDrop={handleDrop}
         onKeyDown={handleKeyDown}
         onDragOver={(e) => e.preventDefault()}
         className={cn(
-          'flex flex-col h-full py-4 gap-1 max-w-2xl mx-auto bg-sidebar shadow-xs rounded-lg transition-colors duration-150',
+          'flex min-w-0 flex-col h-full py-4 gap-1 max-w-2xl mx-auto bg-sidebar shadow-xs rounded-lg transition-colors duration-150',
           isInternalNote && 'bg-warning/20',
         )}
       >
@@ -649,7 +682,7 @@ export const MessageInput = ({
           editor={editor}
           onChange={handleChange}
           disabled={
-            loading || (isViber && (viberSend.loading || viberUpload.loading))
+            loading || viberDraftLocked || (isViber && viberUpload.loading)
           }
           className={cn(
             'h-full w-full overflow-y-auto',
@@ -746,7 +779,11 @@ export const MessageInput = ({
                   })
                 : undefined
             }
-            aria-label={isViber ? 'Attach files' : undefined}
+            aria-label={
+              isViber
+                ? t('attach-files', { defaultValue: 'Attach files' })
+                : undefined
+            }
             onClick={() => document.getElementById('file-upload')?.click()}
           >
             <IconPaperclip className="h-4 w-4" />
@@ -810,7 +847,7 @@ export const MessageInput = ({
             </Kbd>
           </Button>
         </div>
-      </div>
+      </fieldset>
     </div>
   );
 };

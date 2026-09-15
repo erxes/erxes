@@ -63,7 +63,11 @@ test('validates content, attachment count, file names, sizes, and storage keys b
   }
   for (const name of ['noextension', '../x.pdf', 'x\n.pdf', 'x\\y.pdf'])
     throws(() => buildViberSendParts('', [{ ...file, name }]));
-  for (const size of [0, -1, 1.5, NaN, Infinity, 50 * 1024 * 1024 + 1])
+  strictEqual(
+    buildViberSendParts('', [{ ...file, size: 0 }]).parts[0].attachment?.size,
+    0,
+  );
+  for (const size of [-1, 1.5, NaN, Infinity, 50 * 1024 * 1024 + 1])
     throws(() => buildViberSendParts('', [{ ...file, size }]));
   throws(() =>
     buildViberSendParts(

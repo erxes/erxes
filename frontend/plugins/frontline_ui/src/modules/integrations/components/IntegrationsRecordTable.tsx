@@ -12,6 +12,7 @@ import {
   Spinner,
   toast,
   Tooltip,
+  TextOverflowTooltip,
   useConfirm,
 } from 'erxes-ui';
 import { useApolloClient, useMutation } from '@apollo/client';
@@ -275,7 +276,11 @@ const NameField = ({
     );
   };
   if (cell.row.original.kind === IntegrationType.CALL || !canEdit) {
-    return <RecordTableInlineCell>{name}</RecordTableInlineCell>;
+    return (
+      <RecordTableInlineCell>
+        <TextOverflowTooltip value={name} />
+      </RecordTableInlineCell>
+    );
   }
 
   return (
@@ -292,7 +297,9 @@ const NameField = ({
       )}
       closeOnEnter
     >
-      <RecordTableInlineCell.Trigger>{name}</RecordTableInlineCell.Trigger>
+      <RecordTableInlineCell.Trigger>
+        <TextOverflowTooltip value={name} />
+      </RecordTableInlineCell.Trigger>
       <RecordTableInlineCell.Content>
         <Input value={name} onChange={(e) => setName(e.target.value)} />
       </RecordTableInlineCell.Content>

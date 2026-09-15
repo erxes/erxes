@@ -34,9 +34,15 @@ export const ViberDeliveryStatus = ({
       toast({ title: t('message-sent') });
     } catch (caught) {
       toast({
-        title: 'Unable to retry message',
+        title: t('viber-retry-failed', {
+          defaultValue: 'Unable to retry message',
+        }),
         description:
-          caught instanceof Error ? caught.message : 'Check delivery status',
+          caught instanceof Error
+            ? caught.message
+            : t('viber-check-delivery-status', {
+                defaultValue: 'Check delivery status',
+              }),
         variant: 'destructive',
       });
     } finally {
@@ -47,7 +53,9 @@ export const ViberDeliveryStatus = ({
         ]);
       } catch {
         toast({
-          title: 'Unable to refresh delivery status',
+          title: t('viber-delivery-refresh-failed', {
+            defaultValue: 'Unable to refresh delivery status',
+          }),
           variant: 'destructive',
         });
       }
@@ -70,11 +78,11 @@ export const ViberDeliveryStatus = ({
                 defaultValue: 'Delivery status',
               })}
             >
-              {viberDeliveryLabel(current)}
+              {viberDeliveryLabel(current, t)}
             </Button>
           </Popover.Trigger>
           <Popover.Content className="w-72 space-y-2 text-xs">
-            <p className="font-medium">{viberDeliveryLabel(current)}</p>
+            <p className="font-medium">{viberDeliveryLabel(current, t)}</p>
             {current && current.parts.length > 1 && (
               <p>
                 {t('viber-parts-sent', {

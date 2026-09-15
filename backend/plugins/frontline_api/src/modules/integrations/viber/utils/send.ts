@@ -73,7 +73,9 @@ const attachmentSchema = z
     size: z
       .number()
       .int()
-      .positive()
+      // Templates retain a storage key but not size. The outbox measures the
+      // stored bytes before sending; zero here means metadata is not loaded yet.
+      .nonnegative()
       .max(50 * 1024 * 1024),
     type: z.string().min(1).max(128),
   })

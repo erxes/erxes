@@ -469,10 +469,13 @@ brandId)` and `knowledgeBaseTopicsTotalCount`, read together as the help
 ## Data and State
 
 - Viber connection and delivery state lives in Apollo. Unsaved form tokens and
-  composer request IDs stay in local component state only; tokens are never
-  loaded from queries. A failed send retains the request ID for confirmation of
-  that draft; a confirmed saved message clears it. Viber composers remount when
-  switching conversations to avoid leaking draft or attachment state.
+  composer requests stay in local component state only; tokens are never loaded
+  from queries. An uncertain send locks the draft and retains the original
+  payload and request ID for the explicit Check original message action. A
+  first-attempt `VIBER_SEND_NOT_SAVED` permits editing; that code during recovery
+  cannot release an earlier ambiguous request. Confirmed saved messages clear
+  the draft even if delivery or refetch fails. Viber composers remount when
+  switching conversations; request recovery does not persist across remounts.
 - Apollo Client for all server state; GraphQL documents live next to the feature
   they serve and use `frontline`/module-prefixed operation names.
 - `GET_MY_CHANNELS` backs the inbox navigation and is refetched after
@@ -537,6 +540,16 @@ brandId)` and `knowledgeBaseTopicsTotalCount`, read together as the help
 
 ## Local Invariants
 
+- Integration name cells and Viber callback URLs use the public
+  `TextOverflowTooltip` for truncation and full-value hover, retaining native
+  inline editing and `CopyText` behavior.
+- Viber template attachments may lack byte-size metadata; validate their storage
+  keys rather than rejecting `size: 0`. Core-backed outbound preflight resolves
+  actual bytes. This does not admit arbitrary linked files or change uploads.
+- Viber controls, delivery labels, upload feedback and validation use the
+  existing `frontline` translation namespace, including English/Mongolian
+  catalogues served by Gateway; pure helpers accept a translator with an English
+  fallback instead of reading React state or introducing another i18n system.
 - Viber uses existing `showIntegrations`, `integrationsAdd/Edit/Remove`, and
   `conversationMessageAdd` actions, not new role names. Backend channel checks
   are authoritative. Only users with `integrationsEdit` may change the
@@ -1159,6 +1172,12 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-15` — Viber native UI review fixes
+
+- **Summary:** Reuse overflow tooltips, recover original sends without changing their payloads, accept stored template files and translate Viber controls.
+- **Affected areas:** Integration table, Viber components/hooks/validators/tests and conversation composer; English/Mongolian Frontline locale entries updated with explicit scope.
+- **Contracts changed:** Consume `VIBER_SEND_NOT_SAVED` for first-attempt validation recovery; no new routes, shared UI primitives or storage settings.
+
 ### `2026-09-15` — Reuse native integration management
 
 - **Summary:** Replace the Viber-only list with shared table/pagination/actions, separate metadata and token dialogs, and simplify delivery feedback.
@@ -1280,27 +1299,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `components/FacebookBotSheet.tsx`,
   `components/AutomationFbBotFormContent.tsx`.
 - **Contracts changed:** `None` — reads existing `automations(triggerTypes:)`.
-
-### `2026-09-08` — A Facebook bot is created from its integration
-
-- **Summary:** The facebook-messenger integration table gained a `Bot` column and
-  the integration edit dialog a bot section; both show the connected bot's name
-  and health, and both open the bot form with the integration's `accountId` and
-  page already bound, so the two-step account/page wizard is skipped. Both
-  surfaces open the same sheet — the table row mounts it and the dialog opens it
-  through a `botId` query parameter, so it survives a reload or the back button
-  and never stacks twice. Saving leaves the sheet open. A
-  saved bot's sheet also links to a seeded new automation. The save
-  hook now takes the bot id from the form's own record instead of reading only
-  the `facebookBotId` query param, which previously made an edit opened outside
-  the bots settings page run the add mutation.
-- **Affected areas:**
-  `src/widgets/automations/modules/facebook/components/bots/` — new
-  `hooks/useFacebookIntegrationBot.tsx` and
-  `components/{FacebookBotSummary,FacebookBotFormBody,FacebookBotSheet,FacebookIntegrationBotCell,FacebookIntegrationBotSection}.tsx`;
-  `context/FbBotFormContext.tsx`, `components/AutomationFbBotFormContent.tsx`,
-  `components/AutomationBotFormEffect.tsx`, `hooks/useFacebookBotForm.tsx`;
-  `src/modules/integrations/components/IntegrationsRecordTable.tsx` and
-  `src/modules/integrations/facebook/components/FacebookIntegrationDetail.tsx`.
-- **Contracts changed:** `None` — reuses `facebookGetIntegrations`, the existing
-  bot queries and mutations, and `buildAutomationSeedLink` from `ui-modules`.

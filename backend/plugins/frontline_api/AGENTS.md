@@ -55,8 +55,8 @@
 
 - Viber exposes nonsecret setup readiness and conversation reply eligibility
   for its Frontline UI. Existing Frontline action permissions and channel
-  visibility govern creation, management, removal, and replies. Archives pause
-  inbound message persistence and outbound replies without deleting mappings.
+  visibility govern creation, management, removal, and replies. Archives use
+  the native visibility flag; they do not pause inbound or outbound transport.
   Optional send request IDs deduplicate repeated submissions of the same saved
   reply; uncertain delivery is reported, never silently retried.
 - Viber attachments use Core's existing file reader for object storage and
@@ -928,6 +928,21 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 ## Local Invariants
 
+- Viber send failures before native persistence return `VIBER_SEND_NOT_SAVED`.
+  This describes only that attempt, not an earlier request with a lost response.
+  Recovery of an existing request still checks permission and channel ownership,
+  but does not require the recipient to remain subscribed or dispatch it again.
+- Stored response-template attachments may initially have `size: 0` (unknown).
+  The outbox reads through Core and validates actual bytes before sending;
+  delivery publication synchronizes the native attachment sizes. Arbitrary
+  remote URLs remain rejected; recognized Stream manifests remain link-only.
+- Incoming Viber message timestamps must be nonnegative safe integers within
+  the JavaScript Date range. Pass them as native message `createdAt`; missing
+  timestamps retain native creation-time behavior. Conversation `updatedAt`
+  still follows the common Frontline model's activity-time behavior.
+- Swallowed webhook-processing failures log only tenant, integration, processing
+  stage and an optional numeric error code through the Viber logger. Never log
+  exception messages/stacks, tokens, signatures, callback bodies or signed URLs.
 - Viber UI send request IDs are optional 16–128 character URL-safe strings,
   scoped by tenant models, acting user, and conversation. The native message ID
   is deterministic for that tuple; its `extraData.viber.requestHash` binds the
@@ -2346,6 +2361,12 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-15` — Viber recovery, templates and webhook diagnostics
+
+- **Summary:** Preserve original inbound timestamps, resolve stored template sizes, safely log failed callbacks, and distinguish unsaved attempts from uncertain sends.
+- **Affected areas:** Viber receiver, helpers, outbound transport, delivery publication and focused tests.
+- **Contracts changed:** Pre-persistence send errors expose `VIBER_SEND_NOT_SAVED`; stored attachment inputs accept zero as unknown size before Core preflight.
+
 ### `2026-09-15` — Native Viber integration lifecycle
 
 - **Summary:** Reuse native reply effects and archive behavior, preserve response-template metadata, and expose recoverable setup failures.
@@ -2419,11 +2440,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Affected areas:** Common integration mutations and Viber permission tests.
 - **Contracts changed:** Viber creation requires `integrationsAdd`; removal
   requires `integrationsRemove`. Sibling behavior and GraphQL schema are unchanged.
-
-### `2026-09-15` — Viber connection status reads
-
-- **Summary:** Expose saved Viber health through the common status resolver,
-  reporting missing records and read failures as unhealthy with safe errors.
-- **Affected areas:** Viber status adapter/tests and common health dispatcher.
-- **Contracts changed:** Existing `Integration.healthStatus` returns Viber's
-  stored status/error pair; the GraphQL schema is unchanged.

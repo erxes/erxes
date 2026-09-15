@@ -1,7 +1,31 @@
 import { test } from 'node:test';
 import { deepStrictEqual, rejects, strictEqual } from 'node:assert';
 import { uploadViberFile, VIBER_FILE_MAX_BYTES } from '../upload';
-import { getViberVideoLink } from '../attachment';
+import { getViberVideoLink, isViberStorageKey } from '../attachment';
+
+test('template storage keys do not require current-session upload metadata', () => {
+  strictEqual(isViberStorageKey('stored/template.pdf'), true);
+  for (const url of [
+    'https://external.test/file.pdf',
+    '//external.test/file.pdf',
+    'x/../private',
+    'x%2fprivate',
+    'x?token=secret',
+    'x\n',
+  ])
+    strictEqual(isViberStorageKey(url), false);
+});
+
+test('upload validation uses the supplied UI translator', async () => {
+  await rejects(
+    uploadViberFile(
+      new File([], 'empty.txt'),
+      'https://erxes.example.test',
+      (key) => `translated:${key}`,
+    ),
+    /translated:viber-file-size-invalid/,
+  );
+});
 
 test('uploads through the existing authenticated endpoint with private storage requested', async (t) => {
   t.mock.method(globalThis, 'fetch', async (url, init) => {

@@ -1,4 +1,11 @@
-import { Button, Collapsible, CopyText, Skeleton, Spinner } from 'erxes-ui';
+import {
+  Button,
+  Collapsible,
+  CopyText,
+  Skeleton,
+  Spinner,
+  TextOverflowTooltip,
+} from 'erxes-ui';
 import type { ViberSetup } from '../types';
 import { useTranslation } from 'react-i18next';
 import { IconAlertTriangle, IconCopy, IconRefresh } from '@tabler/icons-react';
@@ -19,21 +26,32 @@ export const ViberSetupCheck = ({
 }) => {
   const { t } = useTranslation('frontline');
   const issues = [
-    { label: 'Webhook', message: setup?.webhookError },
-    { label: 'Incoming media', message: setup?.mediaError },
-    { label: 'File storage', message: setup?.storageError },
+    {
+      label: t('webhook', { defaultValue: 'Webhook' }),
+      message: setup?.webhookError,
+    },
+    {
+      label: t('viber-incoming-media', { defaultValue: 'Incoming media' }),
+      message: setup?.mediaError,
+    },
+    {
+      label: t('file-storage', { defaultValue: 'File storage' }),
+      message: setup?.storageError,
+    },
   ].filter((issue) => issue.message);
   const providers: Record<string, string> = {
-    AWS: 'S3-compatible storage',
+    AWS: t('viber-s3-storage', { defaultValue: 'S3-compatible storage' }),
     GCS: 'Google Cloud Storage',
     CLOUDFLARE: 'Cloudflare',
     AZURE: 'Azure',
-    LOCAL: 'Local',
+    LOCAL: t('local', { defaultValue: 'Local' }),
   };
   return (
     <section
       className="border-y py-4 space-y-3 text-sm"
-      aria-label="Viber connection setup"
+      aria-label={t('viber-connection-setup', {
+        defaultValue: 'Connection setup',
+      })}
       aria-busy={loading}
     >
       <div className="flex items-center justify-between gap-2">
@@ -69,7 +87,9 @@ export const ViberSetupCheck = ({
       {loading && !setup && !error && (
         <div
           role="status"
-          aria-label="Loading connection setup"
+          aria-label={t('viber-loading-setup', {
+            defaultValue: 'Loading connection setup',
+          })}
           className="space-y-2"
         >
           <Skeleton className="h-4 w-3/4" />
@@ -79,7 +99,12 @@ export const ViberSetupCheck = ({
       {setup && (
         <>
           {issues.length > 0 && (
-            <ul className="space-y-2" aria-label="Setup issues">
+            <ul
+              className="space-y-2"
+              aria-label={t('viber-setup-issues', {
+                defaultValue: 'Setup issues',
+              })}
+            >
               {issues.map((issue) => (
                 <li
                   key={issue.label}
@@ -110,38 +135,52 @@ export const ViberSetupCheck = ({
                 className="h-7 px-0 text-muted-foreground"
               >
                 <Collapsible.TriggerIcon className="size-3.5" />
-                Technical details
+                {t('technical-details', { defaultValue: 'Technical details' })}
               </Button>
             </Collapsible.Trigger>
             <Collapsible.Content>
               <dl className="grid gap-x-3 gap-y-2 pt-3 sm:grid-cols-[7rem_minmax(0,1fr)]">
-                <dt className="text-muted-foreground">Webhook URL</dt>
+                <dt className="text-muted-foreground">
+                  {t('webhook-url', { defaultValue: 'Webhook URL' })}
+                </dt>
                 <dd className="min-w-0">
                   {setup.webhookUrl ? (
                     <CopyText
                       value={setup.webhookUrl}
                       className="w-full min-w-0 justify-between gap-3 rounded-sm text-xs font-mono hover:text-primary"
                     >
-                      <span className="truncate">{setup.webhookUrl}</span>
+                      <TextOverflowTooltip
+                        value={setup.webhookUrl}
+                        className="min-w-0 text-left"
+                      />
                       <IconCopy
                         className="size-3.5 shrink-0"
                         aria-hidden="true"
                       />
-                      <span className="sr-only">Copy webhook URL</span>
+                      <span className="sr-only">
+                        {t('copy-webhook-url', {
+                          defaultValue: 'Copy webhook URL',
+                        })}
+                      </span>
                     </CopyText>
                   ) : (
-                    'Not configured'
+                    t('not-configured', { defaultValue: 'Not configured' })
                   )}
                 </dd>
-                <dt className="text-muted-foreground">Media hosts</dt>
+                <dt className="text-muted-foreground">
+                  {t('viber-media-hosts', { defaultValue: 'Media hosts' })}
+                </dt>
                 <dd className="break-words text-xs font-mono">
-                  {setup.mediaHostnames.join(', ') || 'Not configured'}
+                  {setup.mediaHostnames.join(', ') ||
+                    t('not-configured', { defaultValue: 'Not configured' })}
                 </dd>
-                <dt className="text-muted-foreground">Storage provider</dt>
+                <dt className="text-muted-foreground">
+                  {t('storage-provider', { defaultValue: 'Storage provider' })}
+                </dt>
                 <dd>
                   {setup.storageProvider
                     ? providers[setup.storageProvider] || setup.storageProvider
-                    : 'Not configured'}
+                    : t('not-configured', { defaultValue: 'Not configured' })}
                 </dd>
               </dl>
             </Collapsible.Content>

@@ -13,6 +13,7 @@ import {
 } from '@/integrations/viber/helpers';
 import { resolveViberMediaSettings } from '@/integrations/viber/settings';
 import { VIBER_INCOMING_MEDIA_MAX_BYTES } from '@/integrations/viber/constants';
+import { logViberWebhookFailure } from '@/integrations/viber/debuggers';
 import {
   parseViberLifecycleEvent,
   processViberLifecycleEvent,
@@ -335,16 +336,20 @@ export const receiveViberMessage = async (
           ? payload.sender.name
           : undefined;
 
+      let stage: 'subscription' | 'media-settings' | 'message' = 'subscription';
+      let createdAt: Date | undefined;
       try {
         if ('timestamp' in payload) {
           if (
             typeof payload.timestamp !== 'number' ||
             !Number.isSafeInteger(payload.timestamp) ||
-            payload.timestamp < 0
+            payload.timestamp < 0 ||
+            payload.timestamp > 8_640_000_000_000_000
           ) {
             res.status(400).json({ error: 'Invalid Viber message timestamp' });
             return;
           }
+          createdAt = new Date(payload.timestamp);
           await updateViberSubscription(models, {
             inboxId: req.params.integrationId,
             userId: payload.sender.id,
@@ -352,24 +357,32 @@ export const receiveViberMessage = async (
             timestamp: payload.timestamp,
           });
         }
+        stage = 'media-settings';
+        const allowedHostnames = media
+          ? (await resolveViberMediaSettings(models, subdomain)).hostnames
+          : [];
+        stage = 'message';
         await processViberMessage(subdomain, {
           inboxId: req.params.integrationId,
           userId: payload.sender.id,
           messageToken: payload.message_token,
           text,
           name,
+          ...(createdAt ? { createdAt } : {}),
           ...(media
             ? {
                 media: {
                   ...media,
-                  allowedHostnames: (
-                    await resolveViberMediaSettings(models, subdomain)
-                  ).hostnames,
+                  allowedHostnames,
                 },
               }
             : {}),
         });
-      } catch {
+      } catch (error) {
+        logViberWebhookFailure(
+          { subdomain, integrationId: integration.inboxId, stage },
+          error,
+        );
         res.status(500).json({ error: 'Failed to process Viber message' });
         return;
       }
@@ -395,7 +408,11 @@ export const receiveViberMessage = async (
         req.params.integrationId,
         event,
       );
-  } catch {
+  } catch (error) {
+    logViberWebhookFailure(
+      { subdomain, integrationId: integration.inboxId, stage: 'lifecycle' },
+      error,
+    );
     res.status(500).json({ error: 'Failed to process Viber event' });
     return;
   }

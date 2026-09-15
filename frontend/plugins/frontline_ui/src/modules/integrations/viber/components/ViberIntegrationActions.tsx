@@ -9,6 +9,7 @@ import {
   Form,
   Separator,
   Spinner,
+  TextOverflowTooltip,
   toast,
 } from 'erxes-ui';
 import { useEffect, useState } from 'react';
@@ -27,7 +28,7 @@ import {
 } from '../graphql';
 import {
   viberIntegrationSchema,
-  viberTokenSchema,
+  createViberTokenSchema,
   type ViberIntegrationValues,
 } from '../validation';
 import { getSavedViberIntegrationId } from '../setupError';
@@ -68,13 +69,19 @@ const ViberConnectionDetails = ({ id }: { id: string }) => {
     );
   return (
     <div className="space-y-2 text-sm">
-      <p className="font-medium">{bot.name || 'Viber'}</p>
+      <TextOverflowTooltip
+        value={bot.name || 'Viber'}
+        className="block font-medium"
+      />
       {bot.webhookUrl && (
         <CopyText
           value={bot.webhookUrl}
           className="w-full min-w-0 justify-between gap-2 rounded-sm text-muted-foreground hover:text-primary"
         >
-          <span className="truncate">{bot.webhookUrl}</span>
+          <TextOverflowTooltip
+            value={bot.webhookUrl}
+            className="min-w-0 text-left"
+          />
           <IconCopy className="size-3.5 shrink-0" aria-hidden="true" />
           <span className="sr-only">
             {t('copy-webhook-url', { defaultValue: 'Copy webhook URL' })}
@@ -101,7 +108,7 @@ const ViberIntegrationEditForm = ({
   });
   const { editIntegration, loading: saving } = useIntegrationEdit();
   const form = useForm<ViberIntegrationValues>({
-    resolver: zodResolver(viberIntegrationSchema(true)),
+    resolver: zodResolver(viberIntegrationSchema(true, t)),
     defaultValues: { name: '', brandId: '', token: '' },
   });
   useEffect(() => {
@@ -174,19 +181,16 @@ const ViberIntegrationEditForm = ({
   );
 };
 
-const tokenSchema = z.object({ token: viberTokenSchema });
 const ViberTokenForm = ({ id, onClose, onSavingChange }: FormProps) => {
   const { t } = useTranslation('frontline');
   const client = useApolloClient();
   const [updateToken, { loading }] = useMutation(VIBER_UPDATE_TOKEN);
   const [failure, setFailure] = useState<string>();
-  const form = useForm<z.infer<typeof tokenSchema>>({
-    resolver: zodResolver(tokenSchema),
+  const form = useForm<{ token: string }>({
+    resolver: zodResolver(z.object({ token: createViberTokenSchema(t) })),
     defaultValues: { token: '' },
   });
-  const onSubmit = async ({
-    token,
-  }: z.infer<typeof tokenSchema>): Promise<void> => {
+  const onSubmit = async ({ token }: { token: string }): Promise<void> => {
     if (loading) return;
     onSavingChange(true);
     setFailure(undefined);
@@ -312,7 +316,12 @@ const ViberIntegrationDialog = ({
         onInteractOutside={(event) => saving && event.preventDefault()}
       >
         <Dialog.Header className="px-4 py-3">
-          <Dialog.Title>{token ? label : cell.row.original.name}</Dialog.Title>
+          <Dialog.Title className="min-w-0 pr-6">
+            <TextOverflowTooltip
+              value={token ? label : cell.row.original.name}
+              className="block"
+            />
+          </Dialog.Title>
           <Dialog.Description className="sr-only">{label}</Dialog.Description>
         </Dialog.Header>
         <Separator />

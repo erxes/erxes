@@ -2,10 +2,38 @@ import { test } from 'node:test';
 import { deepStrictEqual, strictEqual, throws } from 'node:assert';
 import {
   buildViberSpecialMessage,
+  createViberSpecialSchema,
+  createViberTokenSchema,
   viberDeliveryLabel,
   viberIntegrationSchema,
   viberTokenSchema,
 } from '../validation';
+
+test('UI validators and delivery labels use the supplied translator', () => {
+  const t = (key: string) => `translated:${key}`;
+  const token = createViberTokenSchema(t).safeParse('');
+  strictEqual(
+    token.error?.issues[0].message,
+    'translated:viber-token-required',
+  );
+  const special = createViberSpecialSchema(t).safeParse({
+    ...base,
+    type: 'sticker',
+    stickerId: 'invalid',
+  });
+  strictEqual(
+    special.error?.issues[0].message,
+    'translated:viber-sticker-invalid',
+  );
+  strictEqual(
+    viberDeliveryLabel(null, t),
+    'translated:viber-delivery-unavailable',
+  );
+  strictEqual(
+    viberDeliveryLabel({ _id: 'message', state: 'sent', parts: [] }, t),
+    'translated:sent',
+  );
+});
 
 test('create requires name, brand and exact token; edit may leave the token unchanged', () => {
   const input = { name: ' Support ', brandId: 'brand', token: 'exact-token' };

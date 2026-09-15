@@ -81,6 +81,9 @@ export const publishViberDelivery = async (
     },
     {
       $set: {
+        attachments: outbox.parts.flatMap((part) =>
+          part.attachment ? [part.attachment] : [],
+        ),
         'extraData.viber.state': outbox.state,
         'extraData.viber.error':
           outbox.parts.find((part) => part.error)?.error ?? null,

@@ -3,8 +3,15 @@ import { deepStrictEqual, strictEqual } from 'node:assert';
 import { Module } from 'node:module';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
+import type * as ErxesUI from 'erxes-ui';
 
 test('the shared integration hook uses the correct cursor in each direction and delegates merging to the platform', (t) => {
+  // The runtime package is mocked. Avoid require('erxes-ui') here: Nx treats
+  // that as a lazy application dependency even in this isolated Node test.
+  const EnumCursorDirection = {
+    FORWARD: 'forward',
+    BACKWARD: 'backward',
+  } as typeof ErxesUI.EnumCursorDirection;
   const pageInfo = {
     startCursor: 'first',
     endCursor: 'last',
@@ -27,7 +34,7 @@ test('the shared integration hook uses the correct cursor in each direction and 
       INTEGRATION_INLINE: {},
     },
     'erxes-ui': {
-      EnumCursorDirection: { FORWARD: 'forward', BACKWARD: 'backward' },
+      EnumCursorDirection,
       validateFetchMore: ({ direction }: { direction: string }) =>
         direction === 'forward'
           ? pageInfo.hasNextPage
@@ -59,9 +66,6 @@ test('the shared integration hook uses the correct cursor in each direction and 
   const {
     useIntegrations,
   }: typeof import('@/integrations/hooks/useIntegrations') = require('@/integrations/hooks/useIntegrations');
-  const {
-    EnumCursorDirection,
-  }: typeof import('erxes-ui') = require('erxes-ui');
   let hook: ReturnType<typeof useIntegrations> | undefined;
   const Probe = () => {
     hook = useIntegrations();

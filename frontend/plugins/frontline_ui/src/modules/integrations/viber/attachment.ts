@@ -1,3 +1,14 @@
+export const isViberStorageKey = (key: string): boolean =>
+  Boolean(key) &&
+  key.length <= 1024 &&
+  !key.startsWith('/') &&
+  !/[\\:?#%]/.test(key) &&
+  Array.from(key).every(
+    (character) =>
+      character.charCodeAt(0) > 31 && character.charCodeAt(0) !== 127,
+  ) &&
+  !key.split('/').some((part) => !part || part === '.' || part === '..');
+
 // Mirror the API's Stream-link recognition; other remote URLs are not uploads.
 export const getViberVideoLink = (source: string): string | null => {
   if (source.length > 1024) return null;

@@ -80,7 +80,7 @@ export const ViberIntegrationForm = ({
   const [failure, setFailure] = useState<string>();
   const { addIntegration } = useIntegrationAdd();
   const form = useForm<ViberIntegrationValues>({
-    resolver: zodResolver(viberIntegrationSchema(false)),
+    resolver: zodResolver(viberIntegrationSchema(false, t)),
     defaultValues: { name: '', brandId: '', token: '' },
   });
   const onSubmit = async (values: ViberIntegrationValues): Promise<void> => {

@@ -416,6 +416,7 @@ export const processViberMessage = async (
     messageToken: string;
     text: string;
     name?: string;
+    createdAt?: Date;
     attachments?: IAttachment[];
     media?: IViberMediaInput;
   },
@@ -483,6 +484,7 @@ export const processViberMessage = async (
       content,
       attachments: messageAttachments,
       internal: false,
+      ...(input.createdAt ? { createdAt: input.createdAt } : {}),
     };
 
     try {

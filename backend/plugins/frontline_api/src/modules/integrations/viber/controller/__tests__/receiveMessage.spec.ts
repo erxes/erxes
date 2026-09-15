@@ -39,7 +39,13 @@ const createReceiverHarness = (
   t: TestContext,
   integration: { token: string } | null = { token: TEST_TOKEN },
 ) => {
-  const inboxState = { exists: true, isActive: true };
+  const inboxState = {
+    exists: true,
+    isActive: true,
+    failSubscription: false,
+    failReceipt: false,
+  };
+  const errorLog = t.mock.method(console, 'error', () => undefined);
   const mediaSettings: { hostnames: string[] | null; failRead: boolean } = {
     hostnames: null,
     failRead: false,
@@ -52,7 +58,7 @@ const createReceiverHarness = (
   });
   const select = t.mock.fn(async (projection: string) => {
     strictEqual(projection, '+token');
-    return integration;
+    return integration ? { ...integration, inboxId: 'inbox-test' } : null;
   });
   const findOne = t.mock.fn((query: { inboxId: string }) => {
     deepStrictEqual(query, { inboxId: 'inbox-test' });
@@ -68,8 +74,19 @@ const createReceiverHarness = (
             : null,
       },
       ViberIntegrations: { findOne },
-      ViberSubscriptions: { updateOne: async () => ({ matchedCount: 1 }) },
-      ViberReceipts: { updateOne: async () => ({ matchedCount: 1 }) },
+      ViberSubscriptions: {
+        updateOne: async () => {
+          if (inboxState.failSubscription)
+            throw new Error('private subscription error');
+          return { matchedCount: 1 };
+        },
+      },
+      ViberReceipts: {
+        updateOne: async () => {
+          if (inboxState.failReceipt) throw new Error('private receipt error');
+          return { matchedCount: 1 };
+        },
+      },
       ViberOutbox: { findOne: async () => null },
       ViberSettings: { findOne: readSettings },
     };
@@ -182,6 +199,7 @@ const createReceiverHarness = (
 
   return {
     receive,
+    errorLog,
     generateModels,
     findOne,
     select,
@@ -192,6 +210,90 @@ const createReceiverHarness = (
     readSettings,
   };
 };
+
+test('passes validated provider time to native message processing and rejects invalid dates', async (t) => {
+  const h = createReceiverHarness(t);
+  const timestamp = 1_720_000_000_123;
+  deepStrictEqual(
+    await h.receive(JSON.stringify({ ...TEXT_MESSAGE, timestamp })),
+    [{ statusCode: 200 }],
+  );
+  const input = h.processMessage.mock.calls[0].arguments[1];
+  deepStrictEqual(input, {
+    inboxId: 'inbox-test',
+    userId: TEXT_MESSAGE.sender.id,
+    messageToken: TEXT_MESSAGE.message_token,
+    text: TEXT_MESSAGE.message.text,
+    name: TEXT_MESSAGE.sender.name,
+    createdAt: new Date(timestamp),
+  });
+  for (const invalid of [-1, 1.5, '123', 8_640_000_000_000_001]) {
+    strictEqual(
+      (
+        await h.receive(JSON.stringify({ ...TEXT_MESSAGE, timestamp: invalid }))
+      )[0].statusCode,
+      400,
+    );
+  }
+  strictEqual(h.processMessage.mock.callCount(), 1);
+  strictEqual(h.errorLog.mock.callCount(), 0);
+});
+
+test('logs one safe processing failure with tenant, integration, stage and numeric code', async (t) => {
+  const h = createReceiverHarness(t);
+  h.processMessage.mock.mockImplementation(async () => {
+    throw Object.assign(
+      new Error(
+        'token=secret https://storage.test/signed?credential=private customer text',
+      ),
+      { code: 11000 },
+    );
+  });
+  strictEqual(
+    (await h.receive(JSON.stringify(TEXT_MESSAGE)))[0].statusCode,
+    500,
+  );
+  deepStrictEqual(h.errorLog.mock.calls[0].arguments, [
+    '[viber:error]',
+    JSON.stringify({
+      message: 'Webhook processing failed',
+      subdomain: 'test',
+      integrationId: 'inbox-test',
+      stage: 'message',
+      code: 11000,
+    }),
+  ]);
+  strictEqual(h.errorLog.mock.callCount(), 1);
+});
+
+test('distinguishes subscription, media settings and lifecycle failures without exposing errors', async (t) => {
+  const h = createReceiverHarness(t);
+  h.inboxState.failSubscription = true;
+  await h.receive(JSON.stringify({ ...TEXT_MESSAGE, timestamp: 123 }));
+  h.mediaSettings.failRead = true;
+  await h.receive(
+    JSON.stringify({
+      ...TEXT_MESSAGE,
+      message: { type: 'picture', media: 'https://media.example.com/a.jpg' },
+    }),
+  );
+  h.inboxState.failReceipt = true;
+  await h.receive(
+    JSON.stringify({
+      event: 'delivered',
+      timestamp: 123,
+      message_token: '123',
+      user_id: 'user',
+    }),
+  );
+  deepStrictEqual(
+    h.errorLog.mock.calls.map(
+      (call) => JSON.parse(String(call.arguments[1])).stage,
+    ),
+    ['subscription', 'media-settings', 'lifecycle'],
+  );
+  strictEqual(h.processMessage.mock.callCount(), 0);
+});
 
 test('the receiver rereads saved Viber media settings without affecting text or accepting unsigned changes', async (t) => {
   const h = createReceiverHarness(t);

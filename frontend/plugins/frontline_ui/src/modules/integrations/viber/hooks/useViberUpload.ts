@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { REACT_APP_API_URL, toast } from 'erxes-ui';
 import { useCallback, useRef, useState } from 'react';
 import { uploadViberFile } from '../upload';
@@ -10,6 +11,7 @@ export const useViberUpload = (): {
   ) => Promise<ViberAttachment[]>;
   loading: boolean;
 } => {
+  const { t } = useTranslation('frontline');
   const [loading, setLoading] = useState(false);
   const active = useRef(false);
   const upload = useCallback(
@@ -20,7 +22,9 @@ export const useViberUpload = (): {
       if (active.current) return [];
       if (existingCount + files.length > 10) {
         toast({
-          title: 'Attach up to 10 files per message',
+          title: t('viber-file-count-limit', {
+            defaultValue: 'Attach up to 10 files per message',
+          }),
           variant: 'destructive',
         });
         return [];
@@ -31,12 +35,17 @@ export const useViberUpload = (): {
       try {
         for (const file of Array.from(files)) {
           try {
-            attachments.push(await uploadViberFile(file, REACT_APP_API_URL));
+            attachments.push(await uploadViberFile(file, REACT_APP_API_URL, t));
           } catch (error) {
             toast({
-              title: `Could not upload ${file.name}`,
+              title: t('viber-upload-failed', {
+                defaultValue: `Could not upload ${file.name}`,
+                fileName: file.name,
+              }),
               description:
-                error instanceof Error ? error.message : 'Upload failed',
+                error instanceof Error
+                  ? error.message
+                  : t('upload-failed', { defaultValue: 'Upload failed' }),
               variant: 'destructive',
             });
           }
@@ -47,7 +56,7 @@ export const useViberUpload = (): {
       }
       return attachments;
     },
-    [],
+    [t],
   );
   return { upload, loading };
 };
