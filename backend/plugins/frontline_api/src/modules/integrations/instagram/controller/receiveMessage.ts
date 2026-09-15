@@ -176,7 +176,9 @@ export const receiveMessage = async (
           },
         );
       } catch (err) {
-        debugError(`Error publishing conversationMessageInserted: ${err.message}`);
+        debugError(
+          `Error publishing conversationMessageInserted: ${err.message}`,
+        );
       }
 
       await triggerInstagramAutomation(subdomain, {

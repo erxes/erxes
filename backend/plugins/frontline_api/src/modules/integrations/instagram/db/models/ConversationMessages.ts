@@ -55,7 +55,6 @@ export const loadInstagramConversationMessageClass = (models: IModels) => {
       doc: IInstagramConversationMessage,
       userId?: string,
     ) {
-
       const conversation = await models.InstagramConversations.findOne({
         _id: doc.conversationId,
       });
