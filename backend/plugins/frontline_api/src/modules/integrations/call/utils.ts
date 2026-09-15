@@ -682,12 +682,13 @@ export const checkForExistingIntegrations = async (
   details,
   integrationId,
 ) => {
-  const queues =
+  const queues = (
     typeof details?.queues === 'string'
       ? details.queues.split(',').flatMap((q) => q.trim().split(/\s+/))
       : (details?.queues || []).flatMap((q) =>
           typeof q === 'string' ? q.trim().split(/\s+/) : q,
-        );
+        )
+  ).filter(Boolean);
 
   const models = await generateModels(subdomain);
   // Check for existing integrations with the same wsServer and overlapping queues

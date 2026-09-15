@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-09-11`
+- **Last synchronized:** `2026-09-15`
 
 ## Scope
 
@@ -698,6 +698,14 @@ isInternal)` is the agent-side list and requires `showTickets`.
   `conversations_callpro` (unique `callId`), and `logs_callpro` (the raw
   webhook payload, kept for support). Removing the integration clears the
   first three; the log is deliberately retained.
+- `calls_integrations` is keyed by queue, not by trunk or phone: the only
+  unique index is `wsServer_1_queues_1`, partial on
+  `{ queues: { $gt: '' } }`, so a queue belongs to one integration per
+  `wsServer` while several integrations may share `srcTrunk`, `dstTrunk` and
+  `phone`, and integrations without queues never collide. `srcTrunk_1` and
+  `dstTrunk_1` are plain lookup indexes. `ensureCallIndexes` rebuilds the
+  legacy unique indexes (and drops the schema-less `phone_1`) once per
+  subdomain.
 - `conversations.callProPotentialCustomerIds` / `callProPhone` — set only when
   one caller number matched several core customers. Both stay unset for the
   ordinary single-customer call, and the id list is emptied once an agent
@@ -787,6 +795,12 @@ isInternal)` is the agent-side list and requires `showTickets`.
   subdomain — treat it as a known cross-tenant hazard when touching that file.
 
 ## Local Invariants
+
+- Every call integration create or update path must run `ensureCallIndexes`
+  before `checkForExistingIntegrations`, and parsed queues must never contain
+  an empty string. Webhook routing still falls back to a trunk-only `findOne`
+  when `x-integration-id` is absent, so integrations sharing a trunk rely on
+  the call relay sending that header.
 
 - Every client-portal read of ticket notes must exclude `isInternal` notes.
   `cpTicketGetNotes` is the customer's view of a ticket, so a resolver added
@@ -1866,6 +1880,17 @@ isInternal)` is the agent-side list and requires `showTickets`.
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-15` — Call integrations may share a trunk
+
+- **Summary:** `srcTrunk`, `dstTrunk` and `phone` are no longer unique, so
+  integrations on one trunk can be split by queue; blank queue input is
+  stored as `[]` and the queue index ignores empty queue lists.
+- **Affected areas:** `src/modules/integrations/call/{indexes,helpers,utils}.ts`,
+  `src/modules/integrations/call/db/definitions/integrations.ts`
+- **Contracts changed:** `Duplicate srcTrunk detected.` and
+  `Duplicate dstTrunk detected.` are no longer returned by
+  `integrationsCreateExternalIntegration` or integration edit.
+
 ### `2026-09-10` — Polls became surveys, database included
 
 - **Summary:** The whole feature was renamed from poll to survey — module,
@@ -1996,192 +2021,3 @@ isInternal)` is the agent-side list and requires `showTickets`.
   the channel's `Surveys` row. Unscoped inbox lists are unchanged.
 - **Affected areas:** `src/conversationQueryBuilder.ts`.
 - **Contracts changed:** `None`.
-
-### `2026-09-09` — Migration backfills `steps` on pre-multi-step surveys
-
-- **Summary:** `src/migrations/migrateSurveySteps.ts` gives every survey saved
-  before multi-step surveys a one-entry `steps` array built from its top-level
-  `question` / `options` / `allowMultiselect`, preserving each option `_id` and
-  `order` so the vote ledger keeps resolving. It is additive, idempotent, and
-  defaults to `DRY_RUN`.
-- **Affected areas:** `src/migrations/migrateSurveySteps.ts`.
-- **Contracts changed:** `None`.
-
-### `2026-09-09` — One client portal user, one vote per survey
-
-- **Summary:** `cpSurveySubmit` no longer takes a `visitorId` and no longer opens
-  a guest customer; it requires a signed-in client portal user, records
-  `cpUserId` on the vote, and a partial unique index on `(surveyId, cpUserId)`
-  makes a second submit — including one picking different options — return
-  `alreadyVoted` without writing. `visitorId` is gone from every `cp*` survey
-  operation.
-- **Affected areas:** `src/modules/survey/db/definitions/surveys.ts`,
-  `src/modules/survey/{@types/survey.ts,utils.ts,db/models/SurveyVotes.ts}`,
-  `src/modules/survey/graphql/schema/survey.ts`,
-  `src/modules/survey/graphql/resolvers/{mutations,queries}/clientPortal.ts`.
-- **Contracts changed:** `visitorId` removed from `cpSurveys`, `cpSurveyDetail`,
-  `cpSurveyVotes` and `cpSurveySubmit`.
-
-### `2026-09-09` — Client portal can list every active survey
-
-- **Summary:** Added `cpSurveys`, a cursor-paginated client-portal query over
-  active surveys whose `channelId` and `brandId` filters are optional, returning
-  each survey with the caller's own selections; every client-portal survey read now
-  strips the option-level ticket-automation config first.
-- **Affected areas:** `src/modules/survey/graphql/schema/survey.ts`,
-  `src/modules/survey/graphql/resolvers/queries/clientPortal.ts`,
-  `src/modules/survey/utils.ts`.
-- **Contracts changed:** New `cpSurveys` query and `CpSurveyListResponse` type.
-
-### `2026-09-09` — A survey option can open a ticket at a vote threshold
-
-- **Summary:** Each survey option can arm a ticket automation with a vote
-  threshold, pipeline and status; both client-portal vote paths evaluate it and
-  create exactly one ticket per option, guarded by an atomic document claim that
-  survives concurrent voters and is released again if creation fails.
-- **Affected areas:** `src/modules/survey/ticketAutomation.ts` (new),
-  `src/modules/survey/{@types/survey.ts,db/definitions/surveys.ts,db/models/Surveys.ts}`,
-  `src/modules/survey/graphql/{schema/survey.ts,resolvers/mutations/clientPortal.ts}`,
-  `src/modules/ticket/{@types/ticket.ts,db/definitions/ticket.ts,graphql/schemas/ticket.ts}`.
-- **Contracts changed:** `SurveyOption` and `SurveyOptionInput` gained
-  `ticketCreationEnabled`, `ticketCreationThreshold`, `ticketPipelineId`,
-  `ticketStatusId`; `SurveyOption` also exposes read-only
-  `ticketCreated` / `ticketId`. New `TicketSourceSurvey` type and
-  `Ticket.sourceSurvey` field.
-
-### `2026-09-09` — A survey asks several questions through ordered steps
-
-- **Summary:** A survey now owns an ordered `steps` array — each step a question
-  with its own name, description, options and multi-select rule — while step 1
-  stays mirrored on the top-level `question` / `options` / `allowMultiselect`
-  so every existing reader, snapshot and vote keeps working untouched.
-- **Affected areas:** `src/modules/survey/{@types/survey.ts,utils.ts}`,
-  `src/modules/survey/db/{definitions/surveys.ts,models/Surveys.ts}`,
-  `src/modules/survey/graphql/schema/survey.ts`,
-  `src/modules/survey/graphql/resolvers/{customResolvers/survey.ts,mutations/clientPortal.ts,queries/surveys.ts}`.
-- **Contracts changed:** Added `SurveyStep`, `SurveyStepResult` and `SurveyStepInput`;
-  `Survey.steps` and `SurveyResults.steps` are new non-null fields; `surveyAdd` and
-  `surveyEdit` accept `steps` and no longer require `question` or `options`.
-
-### `2026-09-09` — A comment reply can carry an image
-
-- **Summary:** The outbox passed the stored attachment straight through as
-  `attachment_url`, which Facebook cannot fetch because the form stores an
-  upload key; it now resolves through `generateAttachmentUrl`, so the reply
-  form's newly enabled image upload actually reaches the page.
-- **Affected areas:**
-  `src/modules/integrations/facebook/commentOutbox.ts`
-- **Contracts changed:** None.
-
-### `2026-09-09` — Blocked comment replies wait the window out
-
-- **Summary:** The per-post budget is removed and pacing raised from 10 to 30 a
-  minute; a reply that meets an open breaker is requeued for when the block
-  lifts rather than marked failed, and is dropped only once it is 24 hours old.
-- **Affected areas:**
-  `src/modules/integrations/facebook/commentGuard.ts`,
-  `src/modules/integrations/facebook/commentOutbox.ts`,
-  `src/modules/integrations/facebook/db/models/CommentOutbox.ts`,
-  `src/modules/integrations/facebook/db/definitions/comment_outbox.ts`,
-  `src/modules/integrations/facebook/meta/automation/comments/index.ts`
-- **Contracts changed:** `FACEBOOK_COMMENT_PUBLIC_REPLY_PER_POST` is no longer
-  read. The action no longer returns `post-public-reply-limit`; the outbox
-  document gained `attempts`.
-
-### `2026-09-09` — Graph calls can be pointed at a stand-in
-
-- **Summary:** The comment outbox had no way to be exercised without sending to
-  Meta; `FACEBOOK_GRAPH_URL` now redirects every Graph call. The webhook route
-  also lost a dozen `console.log` traces that duplicated `debugFacebook`, and
-  two paths that returned without answering the request now end it.
-- **Affected areas:**
-  `src/modules/integrations/facebook/utils.ts`,
-  `src/modules/integrations/facebook/controller/controller.ts`,
-  `src/modules/integrations/facebook/helpers.ts`
-- **Contracts changed:** None. New optional `FACEBOOK_GRAPH_URL` env var,
-  empty by default.
-
-### `2026-09-09` — The bot reports which replies it repeats
-
-- **Summary:** `facebookMessengerBotDelivery` only ever returned counts, so the
-  bot surface could say two replies were sent but not what they were;
-  `facebookMessengerBotCommentReplyStats` groups the outbox by reply text and
-  returns each one's totals, newest failure, last use and the posts it ran
-  under — named by the post's own text from `FacebookPostConversations`, since
-  the outbox only records an id.
-- **Affected areas:**
-  `src/modules/integrations/facebook/graphql/schema/facebook.ts`,
-  `src/modules/integrations/facebook/graphql/resolvers/queries.ts`
-- **Contracts changed:** New `FacebookBotCommentReplyStat` and
-  `FacebookBotCommentReplyPost` types and
-  `facebookMessengerBotCommentReplyStats(_id: String!, limit: Int)` query,
-  capped at 50 rows.
-
-### `2026-09-09` — The comment reply mention became opt-in
-
-- **Summary:** Public comment replies prepended `@[senderId]` unconditionally;
-  the Send comment action now carries a `mentionSender` flag, stored on the
-  outbox document, and the mention goes out only when it is set.
-- **Affected areas:**
-  `src/modules/integrations/facebook/commentOutbox.ts`,
-  `src/modules/integrations/facebook/db/definitions/comment_outbox.ts`,
-  `src/modules/integrations/facebook/meta/automation/comments/index.ts`
-- **Contracts changed:** None. The action config gained an optional
-  `mentionSender` boolean; automations without it stop mentioning.
-  <<<<<<< HEAD
-  =======
-  <<<<<<< HEAD
-  =======
-  > > > > > > > f367b4a36cb66a9d80ba39450bef5cd15fd95d21
-
-### `2026-09-09` — Keyword conditions on Meta triggers actually work
-
-- **Summary:** `checkContentConditions` read only its first condition, could
-  never satisfy `every` on the Facebook side (it compared each keyword to the
-  whole message), matched every message when a rule held no keyword, and threw
-  whenever a keyword contained a regex metacharacter; conditions now OR
-  together and each operator returns a boolean.
-- **Affected areas:**
-  `src/modules/integrations/facebook/meta/automation/utils/messageUtils.ts`,
-  `src/modules/integrations/instagram/meta/automation/utils/messageUtils.ts`
-- **Contracts changed:** None. `checkContentConditions` returns `boolean`
-  instead of `boolean | undefined`; matching stays case-sensitive except
-  `isContains`, as before.
-
-### `2026-09-07` — Ticket notes accept and return attachments
-
-- **Summary:** `Note` now stores an `attachments` array using the shared
-  `attachmentSchema`, so files attached in the ticket note composer persist and
-  are returned to the client instead of being silently dropped.
-- **Affected areas:** `modules/ticket/db/definitions/note.ts`,
-  `modules/ticket/@types/note.ts`, `modules/ticket/graphql/schemas/note.ts`,
-  `modules/ticket/graphql/resolvers/mutations/note.ts`
-- **Contracts changed:** `ticketCreateNote` and `ticketUpdateNote` gain
-  `attachments: [AttachmentInput]`; the `Note` type exposes
-  `attachments: [Attachment]`.
-
-### `2026-09-07` — Surveys pin their messenger integration by brand
-
-- **Summary:** A survey can now carry a `brandId`; the client-portal submit path and
-  `surveySendToConversation` honour it, and create/update refuse a brand that has no
-  active messenger integration in the survey's channel — removing the arbitrary
-  `findOne` pick on a channel with several messenger integrations.
-- **Affected areas:** `src/modules/survey/{@types/survey.ts,db/definitions/surveys.ts,db/models/Surveys.ts}`,
-  `src/modules/survey/graphql/schema/survey.ts`,
-  `src/modules/survey/graphql/resolvers/mutations/{surveys.ts,clientPortal.ts}`.
-- **Contracts changed:** Added `brandId: String` to `surveyAdd`, `surveyEdit` and the
-  `Survey` type.
-
-### `2026-09-07` — Guest voting on the client portal survey surface
-
-- **Summary:** All four `cpSurvey*` operations now accept an optional client-supplied
-  `visitorId`, so an unauthenticated portal visitor can read and answer a survey;
-  `cpSurveySubmit` gives a guest a `state: 'visitor'` customer and reuses it on
-  return, while a signed-in `cpUser` still wins over the argument.
-- **Affected areas:** `src/modules/survey/graphql/resolvers/{mutations,queries}/clientPortal.ts`,
-  `src/modules/survey/graphql/schema/survey.ts`, `src/modules/survey/utils.ts`.
-- **Contracts changed:** Added `visitorId: String` to `cpSurveyDetail`,
-  `cpSurveyVotes`, `cpSurveySubmit` and `cpSurveyVote`. Both client-portal survey
-  resolver maps dropped `cpUserRequired` and keep `forClientPortal`.
-
-### `2026-09-07` — A help center points at the knowledge base topic it serves
