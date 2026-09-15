@@ -73,15 +73,6 @@
 
 ## Current Capabilities
 
-- The conversation composer separates its editor, attachment previews, toolbar,
-  and response-template suggestions while keeping the existing inbox layout on
-  mobile and desktop. It enforces the configured upload size and ten-file cap,
-  shows pending uploads, accepts file drops, previews/removes uploaded files,
-  restores a per-conversation draft, and clears the draft and attachments only
-  after a successful send. Internal-note mode has distinct labels, visibility
-  treatment, and success/error feedback; the existing Discord reply target is
-  preserved unchanged. Typed template suggestions support keyboard and mouse
-  selection plus loading and empty states.
 - The call widget's dialpad header carries a clear-cache icon button next to
   Pause and Turn off. After a confirm it closes the widget, resets the call
   atoms persisted in `localStorage` (`config:call_integrations`, `callInfo`,
@@ -297,7 +288,6 @@
 | Channel settings | `src/modules/channels` | Channel CRUD, members, GraphQL documents, form schemas |
 | Personal channel | `src/modules/channels/components/settings/personal-channel`, `src/pages/PersonalChannelPage.tsx` | Profile page for the user's private inbox |
 | Inbox | `src/modules/inbox/` | Conversations, messages, filters, channels, brands, integrations |
-| Conversation composer | `src/modules/inbox/conversations/conversation-detail/{components,hooks}/` | Provider-independent editor, toolbar, attachment lifecycle, drafts, internal notes, and response-template suggestions |
 | Integrations | `src/modules/integrations/` | Per-provider connect forms and detail views |
 | Call Pro | `src/modules/integrations/callpro/` | Add/edit sheets over one shared `CallProIntegrationForm`, webhook URL hint, recording player, and the caller-to-customer picker |
 | Ticket | `src/modules/ticket/`, `src/modules/pipelines/`, `src/modules/status/` | Ticket boards, pipelines, statuses |
@@ -348,7 +338,6 @@
 | Channel settings | `src/modules/channels` | Channel CRUD, members, GraphQL documents, form schemas |
 | Personal channel | `src/modules/channels/components/settings/personal-channel`, `src/pages/PersonalChannelPage.tsx` | Profile page for the user's private inbox |
 | Inbox | `src/modules/inbox/` | Conversations, messages, filters, channels, brands, integrations |
-| Conversation composer | `src/modules/inbox/conversations/conversation-detail/{components,hooks}/` | Provider-independent editor, toolbar, attachment lifecycle, drafts, internal notes, and response-template suggestions |
 | Integrations | `src/modules/integrations/` | Per-provider connect forms and detail views |
 | Call Pro | `src/modules/integrations/callpro/` | Add/edit sheets over one shared `CallProIntegrationForm`, webhook URL hint, recording player, and the caller-to-customer picker |
 | Ticket | `src/modules/ticket/`, `src/modules/pipelines/`, `src/modules/status/` | Ticket boards, pipelines, statuses |
@@ -545,12 +534,6 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
 
 ## Data and State
 
-- `MessageInput` keeps in-progress text blocks and note mode in
-  `localStorage` under `frontline:conversation-draft:<conversationId>`; changing
-  conversations restores only that conversation's draft and resets transient
-  paperclip uploads. A successful `conversationMessageAdd` clears both, while a
-  failed mutation leaves them available for retry. Attachment and suggestion
-  state remains local to the mounted composer.
 - Apollo Client for all server state; GraphQL documents live next to the feature
   they serve and use `frontline`/module-prefixed operation names.
 - `GET_MY_CHANNELS` backs the inbox navigation and is refetched after
@@ -1102,17 +1085,8 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   composition with `useErxesUpload`; uploaded files render through
   `Attachments.Root` and its `Preview`/`Files` parts. Do not hand-roll a drop
   area or an attachment tile.
-- The conversation message composer is the focused exception: it uses
-  `useUpload` with local `ComposerAttachment` rows because files are staged for
-  `conversationMessageAdd`, not saved by an attachment form. Its drop handler
-  runs in capture phase so BlockEditor does not also insert the dropped file.
-- The composer adds no generic reply state. The existing Discord reply target
-  continues to pass `replyToMessageId` unchanged. Discord mention token
-  encoding and typing notifications remain the existing provider-specific
-  editor behavior; do not mix new reply behavior into this slice.
-- Keep Discord's `PollComposer` and messenger's `SendSurveyDialog` distinct in
-  `ComposerToolbar`; survey naming and behavior must not regress to the stale
-  messenger poll implementation.
+- The message input ignores drops while a dialog is open, so a composer dialog
+  keeps its own dropzone (`isDialogOpen` in `MessageInput.tsx`).
 - The ticket KPI row derives its total by summing **every** row
   `reportTicketPriority` returns, including the `priority: 0` one, so it shows
   the real ticket count. Only rows with `priority > 0` become cards — the
@@ -1212,18 +1186,6 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   changed rather than the whole project.
 - `project.json` defines only `build`, `serve`, and `serve-static` — there is no
   `test` target for this project; do not invent one.
-- `pnpm nx lint frontline_ui` is still required by the repository gate, but
-  currently reports that `frontline_ui` has no lint target; run touched-file
-  ESLint from the repository root as the available lint validation.
-- Smoke (conversation composer): open two inbox conversations and confirm each
-  restores its own text and internal-note mode after switching; attach by picker
-  and drop, verify oversize and eleventh files are rejected, pending uploads
-  block Send, previews open and remove, and a failed send preserves the draft.
-  Confirm arrow keys/Enter/Escape and mouse selection work for template
-  suggestions, including loading/no-match states, and a successful reply/note
-  clears the editor and attachments with the matching feedback. On narrow and
-  desktop widths the toolbar must remain usable; Discord still shows its poll
-  and mention behavior, while messenger shows `SendSurveyDialog`.
 - Smoke (help center): open `/frontline/helpcenter`, change a name inline, then
   open the drawer and pick a website on **General** and save a colour on
   **Appearance**; reload and confirm both persisted. The website picker must
@@ -1279,16 +1241,6 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
-
-### `2026-09-15` — Conversation composer owns a focused send workflow
-
-- **Summary:** The inbox composer now has focused editor, toolbar, preview, and
-  suggestion components with bounded uploads, pending/removal UX,
-  per-conversation drafts, internal-note feedback, and complete keyboard/mouse
-  response-template handling while retaining current survey behavior.
-- **Affected areas:**
-  `src/modules/inbox/conversations/conversation-detail/{components,hooks}/`
-- **Contracts changed:** None.
 
 ### `2026-09-15` — The call widget can clear its cached state
 
@@ -1421,8 +1373,6 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 - **Contracts changed:** Consumes the new `Survey.steps`, `SurveyResults.steps` and
   `surveyAdd`/`surveyEdit` `steps` argument; `SurveySheet` and `surveyFormSchema` were
   removed.
-
-## Pre-existing Conflicted Guide Content
 
 # <<<<<<< HEAD
 
