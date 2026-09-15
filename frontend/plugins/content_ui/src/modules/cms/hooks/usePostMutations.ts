@@ -3,7 +3,10 @@ import {
   POSTS_ADD,
   CMS_POSTS_EDIT,
   CMS_POSTS_REMOVE,
+  CMS_POST,
+  CMS_TRANSLATIONS,
 } from '../graphql/queries';
+import { POSTS_LIST } from '../posts/graphql/queries/postsListQueries';
 
 type PostInput = Record<string, unknown>;
 
@@ -25,7 +28,7 @@ export function usePostMutations({ websiteId }: UsePostMutationsOptions = {}) {
   const [editPostMutation, editState] = useMutation<{
     cmsPostsEdit: { _id: string };
   }>(CMS_POSTS_EDIT, {
-    refetchQueries: 'all',
+    refetchQueries: [CMS_POST, POSTS_LIST, CMS_TRANSLATIONS],
     awaitRefetchQueries: true,
     update(cache, { data }) {
       if (data?.cmsPostsEdit?._id) {
