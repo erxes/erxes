@@ -64,7 +64,9 @@ export const normalizeDiscordAttachments = (
         : undefined,
   }));
 
-export const normalizeDiscordPoll = (poll?: APIPoll): DiscordPoll | undefined => {
+export const normalizeDiscordPoll = (
+  poll?: APIPoll,
+): DiscordPoll | undefined => {
   if (!poll) {
     return undefined;
   }
@@ -124,11 +126,15 @@ export const normalizeDiscordEmbeds = (
       ? {
           name: embed.author.name || undefined,
           url: embed.author.url || undefined,
-          iconUrl: embed.author.proxy_icon_url || embed.author.icon_url || undefined,
+          iconUrl:
+            embed.author.proxy_icon_url || embed.author.icon_url || undefined,
         }
       : undefined,
     provider: embed?.provider
-      ? { name: embed.provider.name || undefined, url: embed.provider.url || undefined }
+      ? {
+          name: embed.provider.name || undefined,
+          url: embed.provider.url || undefined,
+        }
       : undefined,
     thumbnail: normalizeEmbedMedia(embed?.thumbnail),
     image: normalizeEmbedMedia(embed?.image),
@@ -143,7 +149,8 @@ export const normalizeDiscordEmbeds = (
     footer: embed?.footer
       ? {
           text: embed.footer.text || undefined,
-          iconUrl: embed.footer.proxy_icon_url || embed.footer.icon_url || undefined,
+          iconUrl:
+            embed.footer.proxy_icon_url || embed.footer.icon_url || undefined,
         }
       : undefined,
     timestamp: embed?.timestamp || undefined,
@@ -271,7 +278,6 @@ export const normalizeDiscordMessageMetadata = (
   };
 };
 
-
 export const mapMessageCreateToActivity = (
   payload: TDiscordMessagePayload,
 ): DiscordActivity => {
@@ -303,7 +309,6 @@ export const mapMessageCreateToActivity = (
 
 const USER_MENTION_RE = /<@!?(\d+)>/g;
 
-
 export const resolveDiscordMentions = (
   content: string,
   mentions: DiscordMention[] = [],
@@ -312,7 +317,9 @@ export const resolveDiscordMentions = (
     return content;
   }
 
-  const nameById = new Map(mentions.map((mention) => [mention.id, mention.name]));
+  const nameById = new Map(
+    mentions.map((mention) => [mention.id, mention.name]),
+  );
 
   return content.replace(USER_MENTION_RE, (full, id) => {
     const name = nameById.get(id);
@@ -334,7 +341,6 @@ export const isIgnorableActivity = (
   );
 };
 
-
 export const mapPollVoteToEvent = (
   payload: GatewayMessagePollVoteDispatchData,
   added: boolean,
@@ -348,7 +354,6 @@ export const mapPollVoteToEvent = (
   added,
   raw: payload,
 });
-
 
 export const mapTypingStartToEvent = (
   payload: GatewayTypingStartDispatchData,

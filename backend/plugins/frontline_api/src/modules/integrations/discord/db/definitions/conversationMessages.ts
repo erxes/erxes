@@ -13,7 +13,12 @@ const replyToSchema = new Schema(
 
 export const conversationMessageSchema = new Schema({
   _id: mongooseStringRandomId,
-  messageId: { type: String, unique: true, sparse: true, label: 'Discord message id' },
+  messageId: {
+    type: String,
+    unique: true,
+    sparse: true,
+    label: 'Discord message id',
+  },
   content: { type: String },
   attachments: [attachmentSchema],
   replyTo: { type: replyToSchema, optional: true },
