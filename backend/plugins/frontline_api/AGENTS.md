@@ -1940,7 +1940,7 @@ CallConversationDetail` resolves the call integration by `queueName` first,
   treatment uses (`Ticket.propertiesData`, `Customer.propertiesData`,
   `Company.propertiesData`, `Product.propertiesData`, `User.propertiesData`),
   not the `customFieldsData` name 2.0 used. `customFieldsData` is what those
-  same entities keep as a *legacy* array-shaped field for old data; it is not
+  same entities keep as a _legacy_ array-shaped field for old data; it is not
   the live one. `Conversations.updateConversation` validates the new field
   through core `fields.validateFieldValues` before persisting, mirroring
   `modules/ticket/db/ticket.ts`. `conversationEditCustomFields`'s GraphQL

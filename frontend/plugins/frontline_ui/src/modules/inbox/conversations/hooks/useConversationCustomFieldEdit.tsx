@@ -4,8 +4,10 @@ import { IConversation } from '@/inbox/types/Conversation';
 import { toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
-type IConversationEditCustomFieldsVariables = { _id: string } &
-  Record<string, unknown>;
+type IConversationEditCustomFieldsVariables = { _id: string } & Record<
+  string,
+  unknown
+>;
 
 interface IConversationEditCustomFieldsResponse {
   conversationEditCustomFields: IConversation;
