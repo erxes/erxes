@@ -57,6 +57,48 @@ const isFacebookStoryUrl = (url?: string) => {
   }
 };
 
+type FacebookStoryKind = 'story_reply' | 'story_mention';
+
+const STORY_ATTACHMENT_TYPES: ReadonlySet<string> = new Set([
+  'story_reply',
+  'story_mention',
+]);
+
+const SHARE_ATTACHMENT_TYPES: ReadonlySet<string> = new Set([
+  'share',
+  'fallback',
+  'post',
+  'reel',
+]);
+
+const MEDIA_ATTACHMENT_KINDS: Readonly<Record<string, MessageKind>> = {
+  image: 'image',
+  video: 'video',
+  file: 'file',
+};
+
+const storyMessageResult = (
+  messageKind: FacebookStoryKind,
+  providerData: IMessageProviderData,
+  timestamp: Date,
+) => ({
+  messageKind,
+  providerData,
+  expiresAt: new Date(timestamp.getTime() + STORY_LIFETIME_MS),
+});
+
+const shareMessageResult = (
+  attachmentType: string,
+  providerData: IMessageProviderData,
+  attachmentUrl?: string,
+) => {
+  const isReel = attachmentType === 'reel';
+  providerData.previewUrl = attachmentUrl;
+  providerData.previewText = isReel ? 'Facebook reel' : 'Facebook post';
+  providerData.shareType = isReel ? 'reel' : 'post';
+  return { messageKind: 'share' as const, providerData };
+};
+
 const normalizeFacebookMessage = ({
   mid,
   text,
@@ -85,11 +127,7 @@ const normalizeFacebookMessage = ({
     providerData.storyUrl = story.url;
     providerData.previewText = 'Story reply';
     providerData.fallbackReason = story.url ? undefined : 'Story unavailable';
-    return {
-      messageKind: 'story_reply',
-      providerData,
-      expiresAt: new Date(timestamp.getTime() + STORY_LIFETIME_MS),
-    };
+    return storyMessageResult('story_reply', providerData, timestamp);
   }
 
   if (attachment?.payload?.sticker_id) {
@@ -101,38 +139,22 @@ const normalizeFacebookMessage = ({
   if (attachmentType === 'share' && isFacebookStoryUrl(attachmentUrl)) {
     providerData.storyUrl = attachmentUrl;
     providerData.previewText = 'Story reply';
-    return {
-      messageKind: 'story_reply',
-      providerData,
-      expiresAt: new Date(timestamp.getTime() + STORY_LIFETIME_MS),
-    };
+    return storyMessageResult('story_reply', providerData, timestamp);
   }
 
-  if (attachmentType === 'story_reply' || attachmentType === 'story_mention') {
+  if (attachmentType && STORY_ATTACHMENT_TYPES.has(attachmentType)) {
+    const storyKind = attachmentType as FacebookStoryKind;
     providerData.storyUrl = attachmentUrl;
     providerData.previewText =
-      attachmentType === 'story_reply' ? 'Story reply' : 'Story mention';
+      storyKind === 'story_reply' ? 'Story reply' : 'Story mention';
     providerData.fallbackReason = attachmentUrl
       ? undefined
       : 'Story unavailable';
-    return {
-      messageKind: attachmentType,
-      providerData,
-      expiresAt: new Date(timestamp.getTime() + STORY_LIFETIME_MS),
-    };
+    return storyMessageResult(storyKind, providerData, timestamp);
   }
 
-  if (
-    attachmentType === 'share' ||
-    attachmentType === 'fallback' ||
-    attachmentType === 'post' ||
-    attachmentType === 'reel'
-  ) {
-    providerData.previewUrl = attachmentUrl;
-    providerData.previewText =
-      attachmentType === 'reel' ? 'Facebook reel' : 'Facebook post';
-    providerData.shareType = attachmentType === 'reel' ? 'reel' : 'post';
-    return { messageKind: 'share', providerData };
+  if (attachmentType && SHARE_ATTACHMENT_TYPES.has(attachmentType)) {
+    return shareMessageResult(attachmentType, providerData, attachmentUrl);
   }
 
   if (attachmentType === 'audio') {
@@ -141,19 +163,11 @@ const normalizeFacebookMessage = ({
     return { messageKind: 'voice', providerData };
   }
 
-  if (attachmentType === 'image') {
+  const mediaKind =
+    (attachmentType && MEDIA_ATTACHMENT_KINDS[attachmentType]) || undefined;
+  if (mediaKind) {
     providerData.previewUrl = attachmentUrl;
-    return { messageKind: 'image', providerData };
-  }
-
-  if (attachmentType === 'video') {
-    providerData.previewUrl = attachmentUrl;
-    return { messageKind: 'video', providerData };
-  }
-
-  if (attachmentType === 'file') {
-    providerData.previewUrl = attachmentUrl;
-    return { messageKind: 'file', providerData };
+    return { messageKind: mediaKind, providerData };
   }
 
   if (text) {
