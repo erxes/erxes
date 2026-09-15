@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-09-15`
+- **Last synchronized:** `2026-09-10`
 
 ## Scope
 
@@ -73,10 +73,6 @@
 
 ## Current Capabilities
 
-- Inbox conversation messages group entries by day, distinguish incoming,
-  outgoing, bot, and internal-note bubbles, and render the existing message
-  contract's text, images, video, audio, files, polls, and embeds. Media opens
-  in constrained previews and failed media renders an unavailable state.
 - Polls are split across two routes, mirroring how forms are laid out.
   `settings/frontline/channels/:id/polls` manages the channel's polls: the
   settings breadcrumb resolves to `Channels / <channel> / Polls` and carries the
@@ -261,7 +257,6 @@
 | Channel settings       | `src/modules/channels`                                                                                                                       | Channel CRUD, members, GraphQL documents, form schemas                                                                                                         |
 | Personal channel       | `src/modules/channels/components/settings/personal-channel`, `src/pages/PersonalChannelPage.tsx`                                             | Profile page for the user's private inbox                                                                                                                      |
 | Inbox                  | `src/modules/inbox/`                                                                                                                         | Conversations, messages, filters, channels, brands, integrations                                                                                               |
-| Message presentation   | `src/modules/inbox/conversation-messages/components/`                                                                                        | Generic message grouping, author/avatar layout, content image viewer, attachments, polls, and existing-contract embeds                                         |
 | Integrations           | `src/modules/integrations/`                                                                                                                  | Per-provider connect forms and detail views                                                                                                                    |
 | Call Pro               | `src/modules/integrations/callpro/`                                                                                                          | Add/edit sheets over one shared `CallProIntegrationForm`, webhook URL hint, recording player, and the caller-to-customer picker                                |
 | Ticket                 | `src/modules/ticket/`, `src/modules/pipelines/`, `src/modules/status/`                                                                       | Ticket boards, pipelines, statuses                                                                                                                             |
@@ -514,11 +509,6 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
 
 ## Local Invariants
 
-- Generic conversation message rendering reads only the existing `IMessage`
-  fields. Provider metadata, reply/forward/pin/reaction actions, pagination,
-  composer behavior, mail, widgets, and shared-library concerns stay in their
-  owning paths and must not be introduced into the generic presentation
-  components.
 - A deferred action's `result` is written the moment the work is queued and is
   never updated, so history reads the action's own `status` to say how the wait
   ended. Trusting `result.status` alone left a timed-out reply still promising
@@ -1085,11 +1075,6 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   changed rather than the whole project.
 - `project.json` defines only `build`, `serve`, and `serve-static` — there is no
   `test` target for this project; do not invent one.
-- Smoke (conversation messages): open an inbox conversation spanning two days
-  and confirm day separators, grouped avatars/authors, incoming/outgoing/bot
-  bubble styles, image expansion, inline video/audio, downloadable files, poll
-  and embed cards, and unavailable-media fallbacks render without changing the
-  existing Discord actions or provider-specific message paths.
 - Smoke (help center): open `/frontline/helpcenter`, change a name inline, then
   open the drawer and pick a website on **General** and save a colour on
   **Appearance**; reload and confirm both persisted. The website picker must
@@ -1145,15 +1130,6 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
-
-### `2026-09-15` — Generic conversation message presentation extraction
-
-- **Summary:** Extracted dependency-free day grouping, author/avatar layout,
-  bubble styling, media attachments, existing-contract embeds, and image-viewer
-  fallbacks while retaining the current provider-specific and action paths.
-- **Affected areas:**
-  `src/modules/inbox/conversation-messages/components/{InboxImage,MessageAttachments,MessageAuthorHeader,MessageContent,MessageEmbeds,MessageItem,MessageItemHelpers,MessagePresentation,MessageWrapper}.tsx`
-- **Contracts changed:** None.
 
 ### `2026-09-09` — The comment reply takes an image
 
