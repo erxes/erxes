@@ -103,6 +103,60 @@ upserts and content fingerprints prevent conflicting retries. The worker claims
 Postiz status. Only the saved snapshot is sent; later CMS edits do not silently
 change it.
 
+### Tenant routing
+
+New jobs persist `subdomain` from the authenticated CMS request, including
+explicit failed-delivery retries. The browser cannot provide or override it.
+Dispatch, current-user permission checks and remote-status polling all use that
+saved value. Deterministic request IDs and content fingerprints are unchanged.
+
+Enterprise runs one sweep against the configured installation database, then
+routes each job through its saved tenant. It does not use `os` as a tenant or
+derive a tenant from `DOMAIN`, the public article URL or a user ID. This works
+for any enterprise hostname without a new environment variable. A tenant rename
+or workspace reassignment still requires deliberate delivery reconciliation.
+
+SaaS continues discovering tenants through `getSaasOrganizations`. Each sweep
+opens only that tenant's database; a saved tenant that differs from the database
+tenant becomes UNKNOWN without any call to core or Postiz. A legacy SaaS job
+without `subdomain` is bound to its authoritative database tenant under its
+existing lease before any dispatch. If the lease is lost, it is not sent.
+
+Legacy enterprise jobs have no authoritative routing tenant in their snapshot.
+Pending/queued jobs missing that field become UNKNOWN with a tenant-recovery
+message, without publishing or polling a potentially different workspace.
+They are not silently retried through whichever hostname next views the post.
+Terminal jobs remain terminal. History retains legacy records for inspection,
+but excludes snapshots explicitly bound to another request tenant.
+
+### Upgrading existing queues
+
+This routing fix requires only a rebuilt `content_api`; it does not change
+`agent_api`, the gateway, Postiz, JWT configuration or plugin startup.
+
+For existing enterprise deliveries, an operator must:
+
+1. Back up the relevant CMS delivery records and pause content_api processing
+   through approved deployment tooling before recovery.
+2. Identify each exact delivery `_id`, installation and originating tenant from
+   the original request/deployment and gateway assignment. Never mass-assign all
+   rows to `os`, a sample tenant, or the tenant of an unrelated record.
+3. Reconcile the original `requestId` against the gateway ledger, the intended
+   Postiz workspace and the actual provider. If a remote post exists, retain or
+   recover its exact `remotePostId` and use status polling, not a new publish.
+4. Backfill only verified records with the originating `subdomain`. Preserve
+   `_id`, `requestId`, snapshot, channel, actor and any remote post ID. If a
+   previously UNKNOWN record is explicitly approved for recovery, restore
+   QUEUED for a known remote post, or PENDING only after confirming no dispatch
+   occurred; reset attempts and scheduling/lease fields only for that approved
+   recovery. Ambiguous records must remain UNKNOWN.
+5. Resume the new worker and verify its status in the intended workspace.
+
+The code change does not execute a production backfill or replay any post.
+Rollback must preserve `subdomain` and all ledgers. Pause delivery processing
+before rolling back to an older worker, which cannot route enterprise jobs
+correctly; do not drop the new field or generate replacement request IDs.
+
 The gateway commits an UNKNOWN ledger entry before dispatch. A matching
 request is never dispatched twice, including after a timeout or process crash.
 This intentionally favors avoiding duplicates over automatic recovery: a crash

@@ -25,6 +25,7 @@ function setup(overrides: Record<string, unknown> = {}) {
     channelId: 'channelA',
     caption: 'Saved caption',
     media: [],
+    subdomain: 'tenantA',
     attempts: 1,
     leaseUntil: new Date(),
     ...overrides,
@@ -33,7 +34,7 @@ function setup(overrides: Record<string, unknown> = {}) {
   const models = {
     CmsShares: {
       findOneAndUpdate: jest.fn(() => ({ lean: claim })),
-      updateOne: jest.fn(),
+      updateOne: jest.fn().mockResolvedValue({ matchedCount: 1 }),
     },
   };
   jest
@@ -45,6 +46,7 @@ function setup(overrides: Record<string, unknown> = {}) {
 }
 beforeEach(() => {
   jest.clearAllMocks();
+  jest.replaceProperty(process, 'env', { ...process.env, VERSION: 'saas' });
   jest
     .mocked(sendTRPCMessage)
     .mockResolvedValue([{ _id: 'userA', isActive: true }]);
@@ -54,6 +56,123 @@ beforeEach(() => {
   jest
     .mocked(postizBridge)
     .mockResolvedValue({ state: 'QUEUED', postId: 'remoteA' });
+});
+afterEach(() => jest.restoreAllMocks());
+
+test.each(['officenext', 'another-enterprise', 'custom-installation'])(
+  'enterprise sweep dispatches the saved tenant %s, never a deployment-mode alias',
+  async (subdomain) => {
+    process.env.VERSION = 'os';
+    const { models } = setup({ subdomain });
+    await runCmsDeliveries();
+    expect(generateModels).toHaveBeenCalledWith('');
+    expect(requireSharePost).toHaveBeenCalledWith(
+      expect.objectContaining({ subdomain, models }),
+      'postA',
+      'en',
+    );
+    expect(sendTRPCMessage).toHaveBeenCalledWith(
+      expect.objectContaining({ subdomain }),
+    );
+    expect(postizBridge).toHaveBeenCalledWith(
+      subdomain,
+      'userA',
+      'publish',
+      expect.objectContaining({ requestId: 'requestA' }),
+    );
+  },
+);
+
+test('enterprise remote status polling uses the saved tenant too', async () => {
+  process.env.VERSION = 'enterprise';
+  setup({ subdomain: 'another-enterprise', remotePostId: 'remoteA' });
+  await runCmsDeliveries();
+  expect(postizBridge).toHaveBeenCalledWith(
+    'another-enterprise',
+    'userA',
+    'status',
+    { postId: 'remoteA' },
+  );
+});
+
+test('a single enterprise database sweep routes every snapshot independently', async () => {
+  delete process.env.VERSION;
+  const { models, job } = setup();
+  const claim = jest
+    .fn()
+    .mockResolvedValueOnce({ ...job, subdomain: 'enterpriseA' })
+    .mockResolvedValueOnce({ ...job, _id: 'jobB', subdomain: 'enterpriseB' })
+    .mockResolvedValue(null);
+  models.CmsShares.findOneAndUpdate.mockReturnValue({ lean: claim });
+  await runCmsDeliveries();
+  expect(jest.mocked(postizBridge).mock.calls.map((call) => call[0])).toEqual([
+    'enterpriseA',
+    'enterpriseB',
+  ]);
+  expect(
+    jest.mocked(sendTRPCMessage).mock.calls.map((call) => call[0].subdomain),
+  ).toEqual(['enterpriseA', 'enterpriseB']);
+});
+
+test('SaaS rejects a snapshot naming another tenant, even with the same user ID', async () => {
+  const { models } = setup({ subdomain: 'tenantB', remotePostId: 'remoteA' });
+  await runCmsDeliveries('tenantA');
+  expect(postizBridge).not.toHaveBeenCalled();
+  expect(sendTRPCMessage).not.toHaveBeenCalled();
+  expect(models.CmsShares.updateOne).toHaveBeenCalledWith(expect.anything(), {
+    $set: expect.objectContaining({
+      state: 'UNKNOWN',
+      message: expect.stringContaining('tenant'),
+    }),
+  });
+});
+
+test('legacy SaaS snapshot is bound to its database tenant before dispatch', async () => {
+  const { models, job } = setup({ subdomain: undefined });
+  await runCmsDeliveries('tenantA');
+  expect(models.CmsShares.updateOne).toHaveBeenCalledWith(
+    { _id: job._id, leaseUntil: job.leaseUntil },
+    { $set: { subdomain: 'tenantA' } },
+  );
+  expect(postizBridge).toHaveBeenCalledWith(
+    'tenantA',
+    'userA',
+    'publish',
+    expect.anything(),
+  );
+  expect(models.CmsShares.updateOne.mock.invocationCallOrder[0]).toBeLessThan(
+    jest.mocked(postizBridge).mock.invocationCallOrder[0],
+  );
+});
+
+test('losing the lease while binding a legacy job prevents dispatch', async () => {
+  const { models } = setup({ subdomain: undefined });
+  models.CmsShares.updateOne.mockResolvedValue({ matchedCount: 0 });
+  await runCmsDeliveries('tenantA');
+  expect(postizBridge).not.toHaveBeenCalled();
+});
+
+test.each([undefined, '', 'tenant.with.host', 'https://tenant.example'])(
+  'enterprise missing or invalid tenant %s requires recovery without network calls',
+  async (subdomain) => {
+    process.env.VERSION = 'os';
+    const { models } = setup({ subdomain });
+    await runCmsDeliveries();
+    expect(sendTRPCMessage).not.toHaveBeenCalled();
+    expect(postizBridge).not.toHaveBeenCalled();
+    expect(models.CmsShares.updateOne).toHaveBeenCalledWith(expect.anything(), {
+      $set: expect.objectContaining({
+        state: 'UNKNOWN',
+        message: expect.stringContaining('tenant'),
+      }),
+    });
+  },
+);
+
+test('SaaS cannot sweep without an authoritative database tenant', async () => {
+  setup();
+  await expect(runCmsDeliveries()).rejects.toThrow('tenant');
+  expect(generateModels).not.toHaveBeenCalled();
 });
 
 test('worker claims a bounded lease, rechecks access and sends only its saved tenant snapshot', async () => {
@@ -169,6 +288,26 @@ describe('worker startup authentication configuration', () => {
       expect.anything(),
     );
   });
+
+  test.each(['os', 'enterprise', undefined])(
+    'enterprise startup (%s) reads persisted jobs without SaaS discovery or a domain setting',
+    async (version) => {
+      if (version === undefined) delete process.env.VERSION;
+      else process.env.VERSION = version;
+      delete process.env.DOMAIN;
+      setup({ subdomain: 'another-enterprise' });
+      startCmsDeliveryWorker();
+      await jest.advanceTimersByTimeAsync(1000);
+      expect(getSaasOrganizations).not.toHaveBeenCalled();
+      expect(postizBridge).toHaveBeenCalledWith(
+        'another-enterprise',
+        'userA',
+        'publish',
+        expect.anything(),
+      );
+      expect(generateModels).not.toHaveBeenCalledWith('os');
+    },
+  );
 
   test.each([undefined, '', ' \t\n'])(
     'no timers start without JWT (%s)',

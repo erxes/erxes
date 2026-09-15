@@ -10,6 +10,11 @@ import {
 } from '../utils/permissions';
 import { channelsSchema, deliverySchema, postizBridge } from './bridge';
 import { assertShareablePost, publicArticleUrl } from './content';
+import {
+  assertShareTenant,
+  deliveryTenantFilter,
+  requireDeliveryTenant,
+} from './tenant';
 
 export type ShareContext = Pick<IContext, 'models' | 'user' | 'subdomain'>;
 const identifier = z.string().min(1).max(128);
@@ -80,6 +85,7 @@ export async function queueCmsShare(
   validateOnly = false,
 ) {
   const input = shareInput.parse(raw);
+  const subdomain = requireDeliveryTenant(context.subdomain);
   const { post, cms } = await requireSharePost(
     context,
     input.postId,
@@ -120,6 +126,7 @@ export async function queueCmsShare(
       .digest('hex');
     return {
       _id,
+      subdomain,
       requestId: _id,
       postId: post._id,
       clientPortalId: post.clientPortalId,
@@ -134,6 +141,7 @@ export async function queueCmsShare(
   });
   for (const job of jobs) {
     const existing = await context.models.CmsShares.findById(job._id).lean();
+    if (existing) assertShareTenant(existing, subdomain);
     if (
       existing &&
       (existing.fingerprint !== job.fingerprint ||
@@ -152,7 +160,12 @@ export async function queueCmsShare(
   if (validateOnly) return [];
   for (const job of jobs)
     await context.models.CmsShares.updateOne(
-      { _id: job._id, fingerprint: job.fingerprint, userId: job.userId },
+      {
+        _id: job._id,
+        fingerprint: job.fingerprint,
+        userId: job.userId,
+        ...deliveryTenantFilter(subdomain),
+      },
       {
         $setOnInsert: {
           ...job,
@@ -165,6 +178,7 @@ export async function queueCmsShare(
       { upsert: true },
     );
   return context.models.CmsShares.find({
+    ...deliveryTenantFilter(subdomain),
     _id: { $in: jobs.map((job) => job._id) },
   }).lean();
 }
@@ -174,6 +188,7 @@ export async function retryCmsShare(
   id: string,
   reviewed: boolean,
 ) {
+  const subdomain = requireDeliveryTenant(context.subdomain);
   if (reviewed !== true)
     throw new Error('Review this delivery in Postiz before retrying');
   const previous = await context.models.CmsShares.findById(
@@ -181,6 +196,7 @@ export async function retryCmsShare(
   ).lean();
   if (!previous || previous.state !== 'FAILED' || !previous.remotePostId)
     throw new Error('Only confirmed failed deliveries can be retried');
+  assertShareTenant(previous, subdomain);
   const { post } = await requireSharePost(
     context,
     previous.postId,
@@ -207,7 +223,10 @@ export async function retryCmsShare(
     .update('retry:' + previous._id)
     .digest('hex');
   const existing = await context.models.CmsShares.findById(_id).lean();
-  if (existing) return existing;
+  if (existing) {
+    assertShareTenant(existing, subdomain);
+    return existing;
+  }
   await postizBridge(context.subdomain, context.user._id, 'validate', {
     source: 'cms_post',
     requestId: _id,
@@ -216,10 +235,11 @@ export async function retryCmsShare(
     media: previous.media,
   });
   await context.models.CmsShares.updateOne(
-    { _id },
+    { _id, ...deliveryTenantFilter(subdomain) },
     {
       $setOnInsert: {
         _id,
+        subdomain,
         requestId: _id,
         postId: previous.postId,
         clientPortalId: previous.clientPortalId,

@@ -1,6 +1,7 @@
 import { Schema } from 'mongoose';
 export interface CmsShare {
   _id: string;
+  subdomain?: string;
   postId: string;
   clientPortalId: string;
   userId: string;
@@ -24,6 +25,8 @@ export interface CmsShare {
 export const cmsShareSchema = new Schema<CmsShare>(
   {
     _id: { type: String, required: true },
+    // Optional only for snapshots created before tenant routing was persisted.
+    subdomain: String,
     postId: { type: String, required: true },
     clientPortalId: { type: String, required: true },
     userId: { type: String, required: true },
