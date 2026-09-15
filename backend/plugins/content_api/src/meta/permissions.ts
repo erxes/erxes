@@ -62,7 +62,8 @@ export const permissions: IPermissionConfig = {
         {
           title: 'Share CMS posts to Postiz',
           name: CMS_POST_ACTIONS.sharePostiz,
-          description: 'Publish selected CMS posts to social channels using the organization workspace',
+          description:
+            'Publish selected CMS posts to social channels using the organization workspace',
         },
         {
           title: 'View CMS posts',

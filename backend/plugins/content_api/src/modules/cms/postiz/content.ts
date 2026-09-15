@@ -21,10 +21,10 @@ export function publicArticleUrl(
     field === 'slug'
       ? post.slug
       : field === 'count'
-      ? post.count
-      : field === '_id'
-      ? post._id
-      : undefined;
+        ? post.count
+        : field === '_id'
+          ? post._id
+          : undefined;
   if (value === undefined || value === null || value === '')
     throw new Error('Set the CMS public post identifier before sharing');
   const prefix = cms.postUrlPrefix?.trim() || '/posts';

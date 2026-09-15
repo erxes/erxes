@@ -87,7 +87,9 @@ const getUserCmsPermissions = async (
   const result: CmsPermission[] = [];
 
   for (const groupId of defaultGroupIds) {
-    const group = permissions.defaultGroups?.find((item) => item.id === groupId);
+    const group = permissions.defaultGroups?.find(
+      (item) => item.id === groupId,
+    );
 
     if (group) {
       result.push(...(group.permissions as CmsPermission[]));
@@ -143,9 +145,7 @@ export const getCmsPermissionScope = async (
   let bestScope: CmsPermissionScope | null = null;
 
   for (const permission of permissionList) {
-    if (
-      permission.actions?.some((action) => actionList.includes(action))
-    ) {
+    if (permission.actions?.some((action) => actionList.includes(action))) {
       bestScope = pickStrongerScope(bestScope, permission.scope);
     }
   }

@@ -382,10 +382,10 @@ export function PostizPublishSheet({
                 {busy
                   ? t('cms-social-publishing', { defaultValue: 'Saving…' })
                   : postId
-                  ? t('cms-social-send', { defaultValue: 'Send to Postiz' })
-                  : t('cms-social-publish-share', {
-                      defaultValue: 'Publish and share',
-                    })}
+                    ? t('cms-social-send', { defaultValue: 'Send to Postiz' })
+                    : t('cms-social-publish-share', {
+                        defaultValue: 'Publish and share',
+                      })}
               </Button>
             </>
           )}

@@ -76,7 +76,10 @@ export interface IContext extends IMainContext {
 
 export const loadClasses = (db: mongoose.Connection): IModels => {
   const models = {} as IModels;
-  models.CmsShares = db.model<CmsShare>('cms_postiz_deliveries', cmsShareSchema);
+  models.CmsShares = db.model<CmsShare>(
+    'cms_postiz_deliveries',
+    cmsShareSchema,
+  );
 
   models.CMS = db.model<IContentCMSDocument, ICMSModel>(
     'content_cms',

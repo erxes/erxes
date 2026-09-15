@@ -1,4 +1,8 @@
-import { postizTypes, postizQueries, postizMutations } from '@/cms/postiz/graphql';
+import {
+  postizTypes,
+  postizQueries,
+  postizMutations,
+} from '@/cms/postiz/graphql';
 import {
   inputs as cmsInputs,
   mutations as cmsMutations,

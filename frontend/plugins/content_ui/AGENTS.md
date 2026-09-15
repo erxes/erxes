@@ -32,14 +32,14 @@
 
 ## Architecture
 
-| Area          | Path                                                  | Responsibility                            |
-| ------------- | ----------------------------------------------------- | ----------------------------------------- |
-| Configuration | `frontend/plugins/content_ui/src/config.tsx`          | Registers content navigation and modules. |
-| Dev server     | `frontend/plugins/content_ui/rspack.config.ts`        | Configures image assets, Module Federation development serving, and watch ignore rules. |
-| CMS           | `frontend/plugins/content_ui/src/modules/cms`         | Owns CMS routes and feature UI.           |
-| Web Builder   | `frontend/plugins/content_ui/src/modules/web-builder` | Owns Web Builder UI.                      |
-| Pages         | `frontend/plugins/content_ui/src/pages`               | Provides route-level pages.               |
-| Widgets       | `frontend/plugins/content_ui/src/widgets`             | Provides plugin widget exports.           |
+| Area          | Path                                                  | Responsibility                                                                          |
+| ------------- | ----------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| Configuration | `frontend/plugins/content_ui/src/config.tsx`          | Registers content navigation and modules.                                               |
+| Dev server    | `frontend/plugins/content_ui/rspack.config.ts`        | Configures image assets, Module Federation development serving, and watch ignore rules. |
+| CMS           | `frontend/plugins/content_ui/src/modules/cms`         | Owns CMS routes and feature UI.                                                         |
+| Web Builder   | `frontend/plugins/content_ui/src/modules/web-builder` | Owns Web Builder UI.                                                                    |
+| Pages         | `frontend/plugins/content_ui/src/pages`               | Provides route-level pages.                                                             |
+| Widgets       | `frontend/plugins/content_ui/src/widgets`             | Provides plugin widget exports.                                                         |
 
 ## Contracts
 

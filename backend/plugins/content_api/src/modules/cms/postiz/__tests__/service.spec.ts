@@ -106,22 +106,24 @@ beforeEach(() => {
     requireCmsPermission,
   ])
     jest.mocked(guard).mockResolvedValue(undefined);
-  jest.mocked(postizBridge).mockImplementation(async (_tenant, _user, action) =>
-    action === 'channels'
-      ? {
-          enabled: true,
-          canManage: false,
-          channels: [
-            {
-              id: 'channelA',
-              name: 'Page A',
-              provider: 'facebook',
-              usable: true,
-            },
-          ],
-        }
-      : { valid: true },
-  );
+  jest
+    .mocked(postizBridge)
+    .mockImplementation(async (_tenant, _user, action) =>
+      action === 'channels'
+        ? {
+            enabled: true,
+            canManage: false,
+            channels: [
+              {
+                id: 'channelA',
+                name: 'Page A',
+                provider: 'facebook',
+                usable: true,
+              },
+            ],
+          }
+        : { valid: true },
+    );
 });
 
 test('the CMS social GraphQL contract composes and validates share and validation operations', () => {

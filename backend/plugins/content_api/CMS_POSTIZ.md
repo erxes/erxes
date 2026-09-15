@@ -59,11 +59,11 @@ No production deployment is performed by this change. Deploy in this order:
 
 Required configuration:
 
-| Component | Setting | Purpose |
-| --- | --- | --- |
-| content_api and agent_api | `CMS_POSTIZ_SHARED_SECRET` | Same random secret of at least 32 characters; distinct per deployment. Never expose it in frontend settings. |
-| Postiz backend | `ERX_CMS_MEDIA_ORIGINS` | Comma-separated exact HTTPS origins for trusted public CMS image storage. Empty permits text-only sharing. |
-| Gateway and Postiz | Existing instance signing key / `ERX_PROVISIONING_KEY` | Reused managed-instance authentication. |
+| Component                 | Setting                                                | Purpose                                                                                                      |
+| ------------------------- | ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
+| content_api and agent_api | `CMS_POSTIZ_SHARED_SECRET`                             | Same random secret of at least 32 characters; distinct per deployment. Never expose it in frontend settings. |
+| Postiz backend            | `ERX_CMS_MEDIA_ORIGINS`                                | Comma-separated exact HTTPS origins for trusted public CMS image storage. Empty permits text-only sharing.   |
+| Gateway and Postiz        | Existing instance signing key / `ERX_PROVISIONING_KEY` | Reused managed-instance authentication.                                                                      |
 
 Only allow operator-controlled image origins without open redirects or private
 network destinations. Images must remain publicly readable by Postiz and the
@@ -88,14 +88,14 @@ request is never dispatched twice, including after a timeout or process crash.
 This intentionally favors avoiding duplicates over automatic recovery: a crash
 between ledger insertion and dispatch may require manual review.
 
-| State | Meaning / next action |
-| --- | --- |
-| PENDING | Saved in CMS delivery queue, not yet acknowledged by Postiz. |
-| QUEUED | Postiz accepted the post; publication is not yet confirmed. |
-| PUBLISHED | Postiz reports publication; a provider URL is shown when available. |
-| FAILED | Postiz reports failure or the remote record is unavailable. Review Postiz and the actual channel before using Retry this channel. |
-| UNKNOWN | Delivery cannot be confirmed. No automatic retry or retry button. Review Postiz and the actual channel before creating a new share. |
-| CANCELLED | CMS publication or permissions changed before the first dispatch. |
+| State     | Meaning / next action                                                                                                               |
+| --------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| PENDING   | Saved in CMS delivery queue, not yet acknowledged by Postiz.                                                                        |
+| QUEUED    | Postiz accepted the post; publication is not yet confirmed.                                                                         |
+| PUBLISHED | Postiz reports publication; a provider URL is shown when available.                                                                 |
+| FAILED    | Postiz reports failure or the remote record is unavailable. Review Postiz and the actual channel before using Retry this channel.   |
+| UNKNOWN   | Delivery cannot be confirmed. No automatic retry or retry button. Review Postiz and the actual channel before creating a new share. |
+| CANCELLED | CMS publication or permissions changed before the first dispatch.                                                                   |
 
 Explicit failed-channel retry creates one deterministic successor. Retrying the
 same failed job again returns that successor. A provider error can still follow
