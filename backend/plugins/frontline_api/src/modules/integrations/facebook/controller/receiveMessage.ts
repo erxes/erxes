@@ -108,10 +108,7 @@ const normalizeFacebookMessage = ({
     };
   }
 
-  if (
-    attachmentType === 'story_reply' ||
-    attachmentType === 'story_mention'
-  ) {
+  if (attachmentType === 'story_reply' || attachmentType === 'story_mention') {
     providerData.storyUrl = attachmentUrl;
     providerData.previewText =
       attachmentType === 'story_reply' ? 'Story reply' : 'Story mention';
