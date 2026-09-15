@@ -139,6 +139,70 @@ const collectDeletedProducts = (
     }
   }
 };
+const buildCustomerCheckResult = (
+  msdCustomers: any[],
+  erxesByMsdNo: Record<string, any>,
+) => {
+  const msdCodes = new Set(msdCustomers.map((customer: any) => customer.No));
+
+  const result = {
+    update: { items: [] as any[] },
+    create: { items: [] as any[] },
+    delete: { items: [] as any[] },
+    error: { items: [] as any[] },
+  };
+
+  for (const msd of msdCustomers) {
+    try {
+      const existing = erxesByMsdNo[msd.No];
+
+      if (!existing) {
+        result.create.items.push({
+          No: msd.No,
+          Name: msd.Name,
+          Phone_No: msd.Phone_No,
+          E_Mail: msd.E_Mail,
+          Partner_Type: msd.Partner_Type,
+          code: undefined,
+        });
+      } else if (
+        existing.primaryPhone !== msd.Phone_No ||
+        existing.primaryEmail !== msd.E_Mail
+      ) {
+        result.update.items.push({
+          No: msd.No,
+          Name: msd.Name,
+          Phone_No: msd.Phone_No,
+          E_Mail: msd.E_Mail,
+          Partner_Type: msd.Partner_Type,
+          code: existing.code,
+          primaryPhone: existing.primaryPhone,
+          primaryEmail: existing.primaryEmail,
+        });
+      }
+    } catch (e: any) {
+      result.error.items.push({
+        No: msd.No || '',
+        message: e.message,
+      });
+    }
+  }
+
+  for (const no of Object.keys(erxesByMsdNo)) {
+    if (!msdCodes.has(no)) {
+      const erxes = erxesByMsdNo[no];
+
+      result.delete.items.push({
+        _id: erxes._id,
+        code: no,
+        primaryPhone: erxes.primaryPhone,
+        primaryEmail: erxes.primaryEmail,
+      });
+    }
+  }
+
+  return result;
+};
 /**
  * ============================
  * MS Dynamic Check Mutations
@@ -309,6 +373,7 @@ export const msdynamicCheckMutations = {
     let skip = 0;
     let hasMore = true;
 
+
     const fetchPage = async (pageSkip: number) => {
       const pageStartedAt = Date.now();
 
@@ -331,6 +396,7 @@ export const msdynamicCheckMutations = {
     };
 
     while (hasMore) {
+
       const skips = Array.from(
         { length: concurrency },
         (_, index) => skip + index * pageSize,
@@ -348,65 +414,7 @@ export const msdynamicCheckMutations = {
 
       skip += concurrency * pageSize;
     }
-    const msdCodes = new Set(msdCustomers.map((customer: any) => customer.No));
-
-    const result = {
-      update: { items: [] as any[] },
-      create: { items: [] as any[] },
-      delete: { items: [] as any[] },
-      error: { items: [] as any[] },
-    };
-
-    for (const msd of msdCustomers) {
-      try {
-        const existing = erxesByMsdNo[msd.No];
-        if (!existing) {
-          result.create.items.push({
-            No: msd.No,
-            Name: msd.Name,
-            Phone_No: msd.Phone_No,
-            E_Mail: msd.E_Mail,
-            Partner_Type: msd.Partner_Type,
-            code: undefined,
-          });
-        } else if (
-          existing.primaryPhone !== msd.Phone_No ||
-          existing.primaryEmail !== msd.E_Mail
-        ) {
-          result.update.items.push({
-            No: msd.No,
-            Name: msd.Name,
-            Phone_No: msd.Phone_No,
-            E_Mail: msd.E_Mail,
-            Partner_Type: msd.Partner_Type,
-            code: existing.code,
-            primaryPhone: existing.primaryPhone,
-            primaryEmail: existing.primaryEmail,
-          });
-        } else {
-          //
-        }
-      } catch (e: any) {
-        result.error.items.push({
-          No: msd.No || '',
-          message: e.message,
-        });
-      }
-    }
-
-    for (const no of Object.keys(erxesByMsdNo)) {
-      if (!msdCodes.has(no)) {
-        const erxes = erxesByMsdNo[no];
-
-        result.delete.items.push({
-          _id: erxes._id,
-          code: no,
-          primaryPhone: erxes.primaryPhone,
-          primaryEmail: erxes.primaryEmail,
-        });
-      }
-    }
-    return result;
+    return buildCustomerCheckResult(msdCustomers, erxesByMsdNo);
   },
   async toCheckMsdPrices(
     _root,
@@ -441,7 +449,7 @@ export const msdynamicCheckMutations = {
     });
 
     const exchangeRates = config.exchangeRateApi
-      ? ((await getExchangeRates(config)) ?? {})
+      ? (await getExchangeRates(config)) ?? {}
       : {};
 
     const salesCodeFilter = pricePriority.replace(/, /g, ',').split(',');
