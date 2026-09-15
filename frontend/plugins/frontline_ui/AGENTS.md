@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-09-15`
+- **Last synchronized:** `2026-09-10`
 
 ## Scope
 
@@ -116,8 +116,6 @@
   a multi-select over the selected channel's `ticketConfigs`.
 - Registers navigation, settings navigation, relation widgets, property inputs,
   and activity rows with the host via `CONFIG` in `src/config.tsx`.
-- Inbox message queries and subscriptions select the optional structured
-  conversation-message contract through one shared field selection.
 - Inbox navigation splits into **Me** — the integration types in use by the
   caller's personal channel, listed flat — and **Team inbox**, where every team
   channel is a collapsible row over the integration types in use inside it.
@@ -359,9 +357,6 @@ scope?)` — the latter is already restricted server-side to channels the caller
 - `frontline_api` GraphQL subscription `conversationClientMessageInserted(userId)`
   — published to every member of the channel a customer message landed in, for
   every integration kind, so one subscription covers all of a user's channels.
-- `frontline_api` GraphQL `ConversationMessage` optional structured fields:
-  `mid`, `messageKind`, `providerData`, `replyTo`, `reactions`,
-  `deliveryStatus`, and `expiresAt`.
 - `frontline_api` GraphQL `conversationCounts(only, channelId?, brandId?,
 awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   `only: "byIntegrationTypes"` keys by integration kind, `only: "byIntegrations"`
@@ -452,9 +447,6 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
 
 - Apollo Client for all server state; GraphQL documents live next to the feature
   they serve and use `frontline`/module-prefixed operation names.
-- `STRUCTURED_MESSAGE_FIELDS` is the shared selection used by the conversation
-  message query and insertion subscriptions, keeping their Apollo payload shape
-  aligned without duplicate field lists.
 - `GET_MY_CHANNELS` backs the inbox navigation and is refetched after
   `ChannelAdd`. `useGetMyChannels` pins `sortField: 'name', sortDirection: 1`
   for every caller, so the list arrives ordered and all consumers share one
@@ -517,9 +509,6 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
 
 ## Local Invariants
 
-- Structured conversation-message properties remain optional in `IMessage` so
-  cached legacy messages and providers that do not populate them stay valid;
-  add new generic selections through `STRUCTURED_MESSAGE_FIELDS`.
 - A deferred action's `result` is written the moment the work is queued and is
   never updated, so history reads the action's own `status` to say how the wait
   ended. Trusting `result.status` alone left a timed-out reply still promising
@@ -1141,17 +1130,6 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
-
-### `2026-09-15` — Inbox reads share the structured message contract
-
-- **Summary:** Conversation message types, history queries, and insertion
-  subscriptions now carry the optional generic message metadata without adding
-  rendering or provider behavior.
-- **Affected areas:** `src/modules/inbox/types/Conversation.ts`,
-  `src/modules/inbox/conversations/conversation-detail/graphql/queries/getConversationMessages.ts`,
-  `src/modules/inbox/conversations/graphql/subscriptions/{inboxSubscriptions,messageFields}.ts`
-- **Contracts changed:** `IMessage` gained optional `mid`, `messageKind`,
-  `providerData`, `replyTo`, `reactions`, `deliveryStatus`, and `expiresAt`.
 
 ### `2026-09-09` — The comment reply takes an image
 

@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-09-15`
+- **Last synchronized:** `2026-09-11`
 
 ## Scope
 
@@ -84,9 +84,6 @@
 - Runs as a federated subgraph plus tRPC service on port `3304`, with GraphQL
   subscriptions enabled.
 - Multi-channel inbox with membership-scoped conversation visibility.
-- Conversation messages expose optional structured metadata for message kind,
-  provider details, replies, reactions, delivery state, and expiry without
-  changing legacy records or write paths.
 - **Team channels** — many members, invitable through `channelAddMembers`.
 - **Personal channels** — a single user's private inbox with exactly one member
   (the owner, as `admin`) and no invite path. Provisioned lazily: it comes into
@@ -231,10 +228,6 @@ customerId, visitorId)` returns the voter's own selections for the
 
 - GraphQL subgraph on port `3304` (queries, mutations, subscriptions) federated
   by the gateway.
-- GraphQL `ConversationMessage` optionally exposes `messageKind: String`,
-  `providerData: JSON`, `replyTo: JSON`, `reactions: JSON`,
-  `deliveryStatus: String`, and `expiresAt: Date`; `mid` remains the existing
-  optional provider message identifier.
 - GraphQL (federated subgraph): `getChannel`, `getChannels`, `getMyChannels`,
   `getChannelMembers`; `channelAdd`, `channelUpdate`, `channelRemove`,
   `channelAddMembers`, `channelRemoveMember(s)`, `channelUpdateMember`.
@@ -521,9 +514,6 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 - Tenant-scoped Mongo collections generated per `subdomain` through
   `generateModels`; all reads and writes are tenant-scoped.
-- Inbox `ConversationMessages` optionally persist structured `providerData`,
-  `replyTo`, and `reactions` subdocuments plus scalar `messageKind`,
-  `deliveryStatus`, and `expiresAt`; existing rows require no migration.
 - Collections are namespaced per module: `Facebook*`, `Instagram*`, `Call*`,
   `CallPro*`, `Discord*`, plus inbox (`Conversations`,
   `ConversationMessages`), channel, ticket, form, and knowledge base
@@ -649,9 +639,6 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 ## Local Invariants
 
-- Structured conversation-message fields remain optional and additive. Generic
-  inbox storage and GraphQL expose them, while provider-specific population and
-  behavior stay in provider-owned code.
 - Every client-portal read of ticket notes must exclude `isInternal` notes.
   `cpTicketGetNotes` is the customer's view of a ticket, so a resolver added
   beside it that returns notes has to carry the same filter; the agent-side
@@ -1620,17 +1607,6 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
-
-### `2026-09-15` — Conversation messages gained an optional structured contract
-
-- **Summary:** Generic inbox messages can persist and expose optional message
-  kind, provider metadata, reply context, reactions, delivery status, and
-  expiry without changing provider behavior or legacy records.
-- **Affected areas:** `src/modules/inbox/@types/conversationMessages.ts`,
-  `src/modules/inbox/db/definitions/conversationMessages.ts`,
-  `src/modules/inbox/graphql/schemas/conversation.ts`
-- **Contracts changed:** `ConversationMessage` gained optional `messageKind`,
-  `providerData`, `replyTo`, `reactions`, `deliveryStatus`, and `expiresAt`.
 
 ### `2026-09-11` — The help center finds its config from the request origin
 
