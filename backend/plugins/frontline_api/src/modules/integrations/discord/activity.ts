@@ -164,6 +164,26 @@ const discordMention = (
   name: user.member?.nick || user.global_name || user.username || user.id,
 });
 
+const USER_MENTION_RE = /<@!?(\d+)>/g;
+
+export const resolveDiscordMentions = (
+  content: string,
+  mentions: DiscordMention[] = [],
+): string => {
+  if (!content) {
+    return content;
+  }
+
+  const nameById = new Map(
+    mentions.map((mention) => [mention.id, mention.name]),
+  );
+
+  return content.replace(USER_MENTION_RE, (full, id) => {
+    const name = nameById.get(id);
+    return name ? `@${name}` : full;
+  });
+};
+
 const resolveDiscordReply = (
   payload: TDiscordMessagePayload,
 ): IMessageReplyTo | undefined => {
@@ -307,25 +327,6 @@ export const mapMessageCreateToActivity = (
   };
 };
 
-const USER_MENTION_RE = /<@!?(\d+)>/g;
-
-export const resolveDiscordMentions = (
-  content: string,
-  mentions: DiscordMention[] = [],
-): string => {
-  if (!content) {
-    return content;
-  }
-
-  const nameById = new Map(
-    mentions.map((mention) => [mention.id, mention.name]),
-  );
-
-  return content.replace(USER_MENTION_RE, (full, id) => {
-    const name = nameById.get(id);
-    return name ? `@${name}` : full;
-  });
-};
 const CONTENT_MESSAGE_TYPES = new Set([0, 19]);
 
 export const isIgnorableActivity = (
