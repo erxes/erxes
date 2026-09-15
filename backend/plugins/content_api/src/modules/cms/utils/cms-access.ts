@@ -1,4 +1,6 @@
-import { IContext } from '~/connectionResolvers';
+import type { IContext } from '~/connectionResolvers';
+
+type CmsContext = Pick<IContext, 'user' | 'models'>;
 import { IContentCMSDocument } from '@/cms/@types/cms';
 
 /**
@@ -19,7 +21,7 @@ type CmsAccessDoc = Pick<
 >;
 
 export const canAccessCmsDoc = (
-  context: IContext,
+  context: CmsContext,
   cms?: CmsAccessDoc | null,
 ): boolean => {
   const { user } = context;
@@ -41,7 +43,7 @@ export const canAccessCmsDoc = (
 };
 
 export const assertCmsDocAccess = (
-  context: IContext,
+  context: CmsContext,
   cms?: CmsAccessDoc | null,
 ): void => {
   if (!context.user?._id) {
@@ -58,7 +60,7 @@ export const assertCmsDocAccess = (
  * the request context so repeated checks within one request stay cheap.
  */
 export const assertCmsAccessByClientPortal = async (
-  context: IContext,
+  context: CmsContext,
   clientPortalId?: string,
 ): Promise<void> => {
   if (!context.user?._id) {

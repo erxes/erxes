@@ -5,16 +5,16 @@ import {
   CMS_POSTS_REMOVE,
 } from '../graphql/queries';
 
-interface PostInput {
-  [key: string]: any;
-}
+type PostInput = Record<string, unknown>;
 
 interface UsePostMutationsOptions {
   websiteId?: string;
 }
 
 export function usePostMutations({ websiteId }: UsePostMutationsOptions = {}) {
-  const [createPostMutation, createState] = useMutation(POSTS_ADD, {
+  const [createPostMutation, createState] = useMutation<{
+    cmsPostsAdd: { _id: string };
+  }>(POSTS_ADD, {
     update(cache) {
       cache.evict({ fieldName: 'cmsPostList' });
       cache.gc();
@@ -22,7 +22,9 @@ export function usePostMutations({ websiteId }: UsePostMutationsOptions = {}) {
     awaitRefetchQueries: true,
   });
 
-  const [editPostMutation, editState] = useMutation(CMS_POSTS_EDIT, {
+  const [editPostMutation, editState] = useMutation<{
+    cmsPostsEdit: { _id: string };
+  }>(CMS_POSTS_EDIT, {
     refetchQueries: 'all',
     awaitRefetchQueries: true,
     update(cache, { data }) {

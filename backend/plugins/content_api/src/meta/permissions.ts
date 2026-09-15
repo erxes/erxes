@@ -7,6 +7,7 @@ export const CMS_POST_ACTIONS = {
   update: 'cmsPostsUpdate',
   approve: 'cmsPostsApprove',
   remove: 'cmsPostsRemove',
+  sharePostiz: 'cmsPostsSharePostiz',
   managePermissions: 'cmsPermissionsManage',
   languageAll: 'cmsLanguageAll',
   languageMn: 'cmsLanguageMn',
@@ -58,6 +59,12 @@ export const permissions: IPermissionConfig = {
         },
       ],
       actions: [
+        {
+          title: 'Share CMS posts to Postiz',
+          name: CMS_POST_ACTIONS.sharePostiz,
+          description:
+            'Publish selected CMS posts to social channels using the organization workspace',
+        },
         {
           title: 'View CMS posts',
           name: CMS_POST_ACTIONS.read,
