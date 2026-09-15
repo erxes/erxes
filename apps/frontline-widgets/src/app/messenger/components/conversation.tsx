@@ -331,6 +331,8 @@ export function OperatorMessage({
   isSingleMessage,
   attachments,
   userName,
+  onReply,
+  onCopy,
 }: {
   content: string;
   src?: string;
@@ -342,6 +344,8 @@ export function OperatorMessage({
   isSingleMessage?: boolean;
   attachments?: IAttachment[];
   userName?: string;
+  onReply?: () => void;
+  onCopy?: () => void | Promise<void>;
 }) {
   // Group position travels as one object instead of four loose booleans.
   const position: MessagePosition = {
@@ -355,35 +359,32 @@ export function OperatorMessage({
 
   return (
     <Message align="start">
-      {/* Tooltip scoped to the bubble row. Nothing interactive lives inside. */}
-      <Message.TimestampTooltip date={createdAt}>
-        <Message.Row>
-          <Message.Avatar
-            show={showAvatar}
-            src={src || 'assets/user.webp'}
-            alt={userName || 'Erxes'}
-            // Only the rendered avatar carried the bottom offset before.
-            className={showAvatar ? 'mb-5' : undefined}
-          />
-          <Message.Body align="start">
-            {(isFirstMessage || isSingleMessage) && userName && (
-              <Message.Author>{userName}</Message.Author>
-            )}
-            {hasContent && (
-              <Message.Content
-                variant="incoming"
-                position={position}
-                hasAttachments={hasAttachments}
-                html={content}
-              />
-            )}
-            <Message.Attachments attachments={attachments} />
-            {(isLastMessage || isSingleMessage) && (
-              <Message.Time align="start" date={createdAt} />
-            )}
-          </Message.Body>
-        </Message.Row>
-      </Message.TimestampTooltip>
+      <Message.Row className="group/message relative">
+        <Message.Avatar
+          show={showAvatar}
+          src={src || 'assets/user.webp'}
+          alt={userName || 'Erxes'}
+          className={showAvatar ? 'mb-5' : undefined}
+        />
+        <Message.Body align="start">
+          {(isFirstMessage || isSingleMessage) && userName && (
+            <Message.Author>{userName}</Message.Author>
+          )}
+          {hasContent && (
+            <Message.Content
+              variant="incoming"
+              position={position}
+              hasAttachments={hasAttachments}
+              html={content}
+            />
+          )}
+          <Message.Attachments attachments={attachments} align="start" />
+          {(isLastMessage || isSingleMessage) && (
+            <Message.Time align="start" date={createdAt} />
+          )}
+        </Message.Body>
+        <Message.ItemActions onReply={onReply} onCopy={onCopy} />
+      </Message.Row>
     </Message>
   );
 }
@@ -396,6 +397,8 @@ export const CustomerMessage = ({
   isLastMessage,
   isMiddleMessage,
   isSingleMessage,
+  onReply,
+  onCopy,
 }: {
   content?: string;
   createdAt: Date;
@@ -404,6 +407,8 @@ export const CustomerMessage = ({
   isLastMessage?: boolean;
   isMiddleMessage?: boolean;
   isSingleMessage?: boolean;
+  onReply?: () => void;
+  onCopy?: () => void | Promise<void>;
 }) => {
   const position: MessagePosition = {
     isFirstMessage,
@@ -415,9 +420,8 @@ export const CustomerMessage = ({
   const hasAttachments = !!attachments?.length;
 
   return (
-    // `align="end"` is where the old `isOwnMessage` branch now lives.
-    <Message.TimestampTooltip date={createdAt} delayDuration={100}>
-      <Message align="end">
+    <Message align="end" className="group/message relative">
+      <div className="flex items-center gap-1 flex-row-reverse">
         <Message.Body align="end">
           {hasContent && (
             <Message.Content
@@ -427,13 +431,14 @@ export const CustomerMessage = ({
               html={content}
             />
           )}
-          <Message.Attachments attachments={attachments} />
+          <Message.Attachments attachments={attachments} align="end" />
         </Message.Body>
-        {(isLastMessage || isSingleMessage) && (
-          <Message.Time align="end" date={createdAt} />
-        )}
-      </Message>
-    </Message.TimestampTooltip>
+        <Message.ItemActions align="end" onReply={onReply} onCopy={onCopy} />
+      </div>
+      {(isLastMessage || isSingleMessage) && (
+        <Message.Time align="end" date={createdAt} />
+      )}
+    </Message>
   );
 };
 
@@ -508,6 +513,8 @@ export const BotMessage = ({
   onQuickReply,
   onGetStarted,
   onTicketFormSubmit,
+  onReply,
+  onCopy,
 }: {
   content?: string;
   botData?: any[];
@@ -523,9 +530,9 @@ export const BotMessage = ({
   onQuickReply?: (title: string) => void;
   onGetStarted?: () => void;
   onTicketFormSubmit?: (payload: Record<string, string>) => void;
+  onReply?: () => void;
+  onCopy?: () => void | Promise<void>;
 }) => {
-  const uiOptions = useAtomValue(uiOptionsAtom);
-
   const connection = useAtomValue(connectionAtom);
 
   const { widgetsMessengerConnect } = connection || {};
@@ -558,43 +565,37 @@ export const BotMessage = ({
 
     return (
       <Message align="start">
-        {/*
-          A11y fix: the tooltip trigger now wraps ONLY the bubble row. It used
-          to wrap the whole component, nesting the quick-reply buttons and the
-          ticket form's inputs inside a tooltip trigger.
-        */}
-        <Message.TimestampTooltip date={createdAt}>
-          <Message.Row>
-            <Message.Avatar show={showAvatar} className="mb-4">
-              <div className="size-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
-                <IconBrain size={20} aria-hidden="true" />
-              </div>
-            </Message.Avatar>
-            <Message.Body align="start">
-              {(isFirstMessage || isSingleMessage) && (
-                <Message.Author>
-                  {aiAgentLabel}{' '}
-                  <Badge
-                    variant={'ghost'}
-                    className="text-[10px] leading-none rounded-xl bg-primary/15 text-primary h-auto py-0.5"
-                  >
-                    Auto
-                  </Badge>
-                </Message.Author>
-              )}
-              {hasMessageContent(htmlContent) && (
-                <Message.Content
-                  variant="bot"
-                  position={position}
-                  html={htmlContent}
-                />
-              )}
-              {showTrailingSlots && (
-                <Message.Time align="start" date={createdAt} />
-              )}
-            </Message.Body>
-          </Message.Row>
-        </Message.TimestampTooltip>
+        <Message.Row className="group/message relative">
+          <Message.Avatar show={showAvatar} className="mb-4">
+            <div className="size-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
+              <IconBrain size={20} aria-hidden="true" />
+            </div>
+          </Message.Avatar>
+          <Message.Body align="start">
+            {(isFirstMessage || isSingleMessage) && (
+              <Message.Author>
+                {aiAgentLabel}{' '}
+                <Badge
+                  variant={'ghost'}
+                  className="text-[10px] leading-none rounded-xl bg-primary/15 text-primary h-auto py-0.5"
+                >
+                  Auto
+                </Badge>
+              </Message.Author>
+            )}
+            {hasMessageContent(htmlContent) && (
+              <Message.Content
+                variant="bot"
+                position={position}
+                html={htmlContent}
+              />
+            )}
+            {showTrailingSlots && (
+              <Message.Time align="start" date={createdAt} />
+            )}
+          </Message.Body>
+          <Message.ItemActions onReply={onReply} onCopy={onCopy} />
+        </Message.Row>
 
         {showTrailingSlots &&
           (quickReplies.length > 0 || showOperatorToggle) && (

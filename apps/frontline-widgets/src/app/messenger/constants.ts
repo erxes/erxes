@@ -5,7 +5,6 @@ import {
   IconPhone,
   IconBug,
   IconMessage,
-  IconBell,
   IconWorldWww,
 } from '@tabler/icons-react';
 
@@ -68,3 +67,5 @@ export const EXCLUDED_TICKET_FORM_FIELDS = [
   'contactType',
   '_id',
 ];
+
+export const DEFAULT_MAX_UPLOAD_SIZE = 20 * 1024 * 1024;
