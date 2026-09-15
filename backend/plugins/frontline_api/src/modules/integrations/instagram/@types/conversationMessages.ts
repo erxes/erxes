@@ -1,31 +1,15 @@
 import { Document } from 'mongoose';
+import type {
+  IMessageProviderData,
+  IMessageReplyTo,
+  MessageKind,
+} from '@/inbox/@types/conversationMessages';
 
-export type InstagramMessageKind =
-  | 'text'
-  | 'image'
-  | 'video'
-  | 'audio'
-  | 'file'
-  | 'share'
-  | 'story_mention'
-  | 'story_reply'
-  | 'sticker'
-  | 'voice'
-  | 'unsupported';
+export type InstagramMessageKind = Exclude<MessageKind, 'forwarded' | 'deleted'>;
 
-export interface IInstagramMessageProviderData {
-  messageId?: string;
-  attachmentType?: string;
-  fallbackReason?: string;
-  previewText?: string;
-  previewUrl?: string;
-  shareType?: 'post' | 'reel';
-  storyUrl?: string;
-}
+export type IInstagramMessageProviderData = IMessageProviderData;
 
-export interface IInstagramMessageReplyTo {
-  messageId: string;
-}
+export type IInstagramMessageReplyTo = Pick<IMessageReplyTo, 'messageId'>;
 
 export interface IInstagramConversationMessage {
   mid: string;
