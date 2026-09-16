@@ -1,5 +1,6 @@
 import { IconFile, IconPhoto } from '@tabler/icons-react';
 import { Spinner, type IAttachment } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 import { ComposerAttachment } from './ComposerAttachment';
 import type { PendingAttachment } from '../hooks/useMessageAttachments';
@@ -15,6 +16,7 @@ export const ComposerPreviews = ({
   pendingAttachments,
   onRemove,
 }: ComposerPreviewsProps) => {
+  const { t } = useTranslation('frontline');
   if (!attachments.length && !pendingAttachments.length) return null;
 
   return (
@@ -37,7 +39,7 @@ export const ComposerPreviews = ({
                 {file.name}
               </span>
               <span className="block text-[11px] text-muted-foreground">
-                Uploading...
+              {t('uploading', 'Uploading...')}
               </span>
             </span>
             <Spinner size="sm" />
