@@ -4,22 +4,22 @@ import {
   useEffect,
   forwardRef,
   type RefObject,
-  type ForwardedRef,
   type InputHTMLAttributes,
 } from 'react';
+import { mergeRefs } from 'react-merge-refs';
 import { Tooltip } from './tooltip';
 import { inputVariants } from './input';
 import { cn } from 'erxes-ui/lib';
 
 function useIsOverflowing<T extends HTMLElement>(
-  ref: RefObject<T> | ForwardedRef<T>,
+  ref: RefObject<T>,
   value?: string,
 ) {
   const [isOverflowing, setIsOverflowing] = useState(false);
 
   useEffect(() => {
     const checkOverflow = () => {
-      const element = ref && 'current' in ref ? ref.current : null;
+      const element = ref.current;
       if (element) {
         setIsOverflowing(element.scrollWidth > element.clientWidth);
       }
@@ -53,14 +53,16 @@ const TextOverflowTooltipRoot = forwardRef<
   TextOverflowTooltipProps
 >(({ value, className, delayDuration = 100 }, forwardedRef) => {
   const innerRef = useRef<HTMLSpanElement>(null);
-  const textRef = forwardedRef || innerRef;
-  const isOverflowing = useIsOverflowing(textRef, value);
+  const isOverflowing = useIsOverflowing(innerRef, value);
 
   return (
     <Tooltip.Provider delayDuration={delayDuration}>
       <Tooltip>
         <Tooltip.Trigger asChild>
-          <span ref={textRef} className={cn('truncate w-full', className)}>
+          <span
+            ref={mergeRefs([innerRef, forwardedRef])}
+            className={cn('truncate w-full', className)}
+          >
             {value}
           </span>
         </Tooltip.Trigger>
@@ -76,10 +78,8 @@ const TextOverflowTooltipRoot = forwardRef<
 
 TextOverflowTooltipRoot.displayName = 'TextOverflowTooltip';
 
-interface TextOverflowTooltipInputProps extends Omit<
-  InputHTMLAttributes<HTMLInputElement>,
-  'value' | 'onChange'
-> {
+interface TextOverflowTooltipInputProps
+  extends Omit<InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'> {
   value?: string;
   onChange?: (value: string) => void;
   delayDuration?: number;
@@ -94,15 +94,14 @@ const TextOverflowTooltipInput = forwardRef<
     forwardedRef,
   ) => {
     const innerRef = useRef<HTMLInputElement>(null);
-    const inputRef = forwardedRef || innerRef;
-    const isOverflowing = useIsOverflowing(inputRef, value);
+    const isOverflowing = useIsOverflowing(innerRef, value);
 
     return (
       <Tooltip.Provider delayDuration={delayDuration}>
         <Tooltip>
           <Tooltip.Trigger asChild>
             <input
-              ref={inputRef}
+              ref={mergeRefs([innerRef, forwardedRef])}
               value={value}
               onChange={(e) => onChange?.(e.target.value)}
               className={cn(inputVariants(), className)}
