@@ -6,14 +6,14 @@ export const CONVERSATION_COUNTS = gql`
     $channelId: String
     $brandId: String
     $awaitingResponse: String
-    $withPoll: String
+    $withSurvey: String
   ) {
     conversationCounts(
       only: $only
       channelId: $channelId
       brandId: $brandId
       awaitingResponse: $awaitingResponse
-      withPoll: $withPoll
+      withSurvey: $withSurvey
     )
   }
 `;

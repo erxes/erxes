@@ -54,12 +54,12 @@ export const IncomingCallAudio = () => {
 export const IncomingCall = ({
   addCustomer,
   customer,
-  channels,
+  integrationName,
   loading,
 }: {
   addCustomer: any;
   customer: any;
-  channels: any;
+  integrationName: string;
   loading: boolean;
 }) => {
   const { t } = useTranslation('frontline');
@@ -97,11 +97,9 @@ export const IncomingCall = ({
         <div className="text-center text-accent-foreground">
           {t('incoming-call-to')}{' '}
           <span className="font-semibold text-foreground">
-            {channels && channels.length > 0 && (
+            {integrationName && (
               <div className="text-xs text-accent-foreground">
-                {channels.map((channel: any, index: number) => (
-                  <div key={index}>{channel.name}</div>
-                ))}
+                {integrationName}
               </div>
             )}
           </span>

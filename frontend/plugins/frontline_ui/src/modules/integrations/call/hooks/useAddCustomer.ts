@@ -12,6 +12,7 @@ export const useAddCallCustomer = () => {
   const [customer, setCustomer] = useState<any>({} as ICustomer);
 
   const [channels, setChannels] = useState<any>();
+  const [integrationName, setIntegrationName] = useState<string>('');
   const addCustomer = (
     inboxId: string,
     phoneNumber: string,
@@ -29,6 +30,7 @@ export const useAddCallCustomer = () => {
           setCustomer(data.callAddCustomer.customer);
           setChannels(data.callAddCustomer.channels);
         }
+        setIntegrationName(data?.callAddCustomer?.integration?.name || '');
       })
       .catch((e) => {
         toast({
@@ -43,6 +45,7 @@ export const useAddCallCustomer = () => {
     addCustomer,
     customer,
     channels,
+    integrationName,
     loading,
   };
 };

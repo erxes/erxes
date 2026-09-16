@@ -42,11 +42,7 @@ export const DirectMessageEditor = ({
   return (
     <div className="space-y-3">
       <p className="text-xs text-muted-foreground">
-        {emptyDescription ||
-          t(
-            'no-conditions-description',
-            'When no conditions are added, this trigger will run for any incoming direct text message.',
-          )}
+        {emptyDescription || t('no-conditions-description')}
       </p>
 
       <div className="flex justify-end">

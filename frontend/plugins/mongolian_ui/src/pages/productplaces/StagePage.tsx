@@ -1,13 +1,7 @@
-import SettingsContainer from '../../modules/productplaces/containers/Settings';
-import PlaceConfig from '../../modules/productplaces/components/PlaceConfig';
+import { ProductPlacesConfigManager } from '../../modules/productplaces/components/ProductPlacesConfigManager';
 
 const StagePage = () => {
-  return (
-    <SettingsContainer
-      component={PlaceConfig}
-      configCode="dealsProductsDataPlaces"
-    />
-  );
+  return <ProductPlacesConfigManager code="dealsProductsDataPlaces" />;
 };
 
 export default StagePage;

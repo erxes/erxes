@@ -6,7 +6,7 @@
 - **Project:** `accounting_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/accounting_api`
-- **Last synchronized:** `2026-09-09`
+- **Last synchronized:** `2026-09-14`
 
 ## Scope
 
@@ -32,7 +32,7 @@
 - Fixed asset income detail follow-info inputs store residual value and opening accumulated depreciation; opening depreciation values seed a transaction-linked published fixed asset adjustment independent of owner assignment rows.
 - Fixed asset owner records in `fxa_owner_records` are optional responsible-user/serial allocation ledger rows for income, disposal, sale, move details, and direct owner-record operations; `action: "received"` increases an owner balance and `action: "handedOver"` decreases it, transaction-level `followInfos.ownerId` is used as a fallback when no explicit owner rows are sent, while financial quantity, cost, branch/department movement, and depreciation remain driven by transaction details.
 - Provides `fxaOwnerRecords` and `fxaOwnerRecordsCount`, which list owner records with fixed asset, category-derived filtering, owner, action, status, created-date, and optional `balanceOnly` aggregate rows for selection sheets.
-- Fixed asset out, sale, move, and move-in journals derive quantity and branch/department movement from transaction details; internal moves keep the same fixed asset id and use the generated `fxaMoveIn` transaction for the destination branch and/or department.
+- Fixed asset out, sale, move, and move-in journals derive quantity and branch/department movement from transaction details; internal moves keep the same fixed asset id, use the generated `fxaMoveIn` transaction for the destination branch and/or department, and generate accumulated-depreciation transfer follows when the move has prior depreciation.
 - Provides `fixedAssetLocationRemainder`, which returns fixed asset quantity at a branch/department/date location from business-active fixed asset transaction detail movements, excluding the edited transaction when requested.
 - Provides `fixedAssetLocationRemainders`, which lists positive fixed asset quantities grouped by fixed asset, branch, and department with fixed asset, category, location, date, and search filters using the same transaction movement aggregation helper as `fixedAssetLocationRemainder`.
 - Fixed asset adjustment depreciation calculates straight-line, sum-of-years-digits, double-declining-balance, and declining-balance methods by day from transaction detail movements, caches period-end rows in `adjust_fxa_details`, and allocates depreciation by active branch/department quantity while ignoring responsible-user allocation.
@@ -104,7 +104,7 @@
 - Rate adjustment transaction execution creates linked `exchangeDiff` parent/child transactions, stores transaction ids on the adjustment/details, and marks status `complete`.
 - Closing calculation stores `status: "process"`, `beginDate`, `successDate`, `checkedAt`, grouped details, `error`, and `warning`; transaction execution creates linked `main` journal parent/child transactions and marks status `complete`.
 - Accounting transaction documents store journal, side, date, status, details, branch/department/customer context, parent transaction linkage, and plugin-specific `extraData`.
-- Accounting transaction list indexes support default `ptrNumber` cursor sorting and date-range filters both with and without detail-account permission filtering.
+- Accounting transaction indexes focus on journal, detail account, date-range, and cursor sort paths for transaction lists; journal reports prefilter indexed detail fields before unwind and keep exact detail matching after unwind.
 - Journal reports do not persist state; they aggregate tenant-scoped transaction documents and enrich rows from accounting accounts, fixed assets, and core branch, department, customer, product, user, and synced-content public contracts.
 - Fixed asset category, fixed asset, fixed asset owner record, fixed asset adjustment, inventory remainder, reserve remainder, tax, and accounting setting collections remain owned by this plugin.
 - Fixed asset income transactions may create system opening fixed asset adjustments with `_id` shaped as `fxa-opening:<transactionId>`; those adjustments are maintained from transaction detail follow-info values.
@@ -143,12 +143,12 @@
 - Erkhet inventory and fixed-asset location filters map to erxes branch/department filters; report matching must accept either transaction root branch/department or detail-level branch/department while keeping selected dimensions combined with AND semantics.
 - Erkhet transaction kind filters are adapter inputs only; report aggregation must translate them to current erxes transaction `journal` values instead of adding a separate persisted transaction-kind field.
 - System opening fixed asset adjustments must stay published, dated one day before their acquisition transaction, and regenerated or removed from fixed asset income synchronization.
-- Fixed asset follow transactions (`fxaMoveIn`, `fxaOutCost`, `fxaOutDepreciation`, `fxaOutLoss`) must be created, updated, and removed from the fixed asset journal handlers; `commonRemove` owns cleanup so generated rows do not depend only on outer transaction deletion.
+- Fixed asset follow transactions (`fxaMoveIn`, `fxaMoveDepOut`, `fxaMoveDepIn`, `fxaOutCost`, `fxaOutDepreciation`, `fxaOutLoss`) must be created, updated, and removed from the fixed asset journal handlers; `commonRemove` owns cleanup so generated rows do not depend only on outer transaction deletion.
 - Fixed asset income explicit owner-record counts must not exceed the parent detail count for that detail; partially owner-assigned income quantities are valid and details without owner rows create no owner record unless transaction-level `followInfos.ownerId` is present.
 - Fixed asset income code is the acquisition identity; Erkhet opening balances may split one acquisition across several branch/department details, but those details must resolve to one fixed asset master row and separate owner-record rows.
 - Fixed asset disposal, sale, and move owner-record selections are optional, and selected counts are capped by the detail count instead of being required to exhaust it; saving removes prior owner-record rows for that transaction and writes fresh `handedOver` rows, while move writes a matching `received` row for the owner so owner balance remains net neutral.
 - Fixed asset disposal, sale, and move quantities must come from transaction details; branch and department belong to each detail and mixed locations require multiple details.
-- Fixed asset move source details must be paired with generated `fxaMoveIn` destination details so period/location reporting is derived from transaction history, not owner records; move destinations may be branch-only, department-only, or branch plus department.
+- Fixed asset move source details must be paired with generated `fxaMoveIn` destination details, and any accumulated depreciation must be paired as source debit plus destination credit follow transactions so period/location reporting is derived from transaction history, not owner records; move destinations may be branch-only, department-only, or branch plus department.
 - Fixed asset depreciation must be calculated once per fixed asset acquisition cost base and allocated across branch/department locations by active quantity for each day.
 - Straight-line fixed asset depreciation must use annual depreciation percentage as the source of truth: annual rate / 12 gives monthly depreciation, and each day receives that month's daily prorated amount.
 - Fixed asset disposal and sale summaries must use the latest completed or published fixed asset adjustment on or before the disposal transaction date; future, draft, running, or process adjustment details must not affect book value.
@@ -171,6 +171,18 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-14` — `Transaction Index Cleanup`
+
+- **Summary:** Consolidated transaction indexes around journal/account/date filters and `ptrNumber` cursor sorting, and added journal-report prefiltering for indexed detail fields before unwind.
+- **Affected areas:** `src/modules/accounting/db/definitions/transaction.ts`, `src/modules/accounting/graphql/resolvers/queries/transactionsCommon.ts`, `src/modules/accounting/utils/journalReports/maps.ts`.
+- **Contracts changed:** None.
+
+### `2026-09-14` — `Fixed Asset Move Depreciation Follows`
+
+- **Summary:** Fixed asset internal moves now generate paired accumulated-depreciation follow transactions for source debit and destination credit alongside the destination move-in transaction.
+- **Affected areas:** `src/modules/accounting/@types/constants.ts`, `src/modules/accounting/utils/fxaMove.ts`, `src/modules/accounting/utils/commonSave.ts`, `src/modules/accounting/utils/commonRemove.ts`, `src/modules/accounting/utils/fixedAssets.ts`, `src/modules/accounting/utils/transactionPermissions.ts`, `src/modules/accounting/utils/__tests__/fixedAssets.test.ts`.
+- **Contracts changed:** Adds accounting-internal follow origin/detail types `fxaMoveDepOut` and `fxaMoveDepIn`.
 
 ### `2026-09-09` — `Safe Remainder Permissions`
 
@@ -218,16 +230,4 @@
 
 - **Summary:** Added focused compound transaction indexes for high-volume list filters and cursor sorting.
 - **Affected areas:** `src/modules/accounting/db/definitions/transaction.ts`.
-- **Contracts changed:** None.
-
-### `2026-08-31` — `Erkhet Exchange Rate References`
-
-- **Summary:** Erkhet reference migration now accepts exchange-rate payloads for Mongolian plugin upserts, verifies create responses return a saved id, and currency transactions fail with explicit missing-rate errors instead of NaN when rates are absent.
-- **Affected areas:** `src/modules/accounting/routes/erkhetReferenceMigration.ts`, `src/modules/accounting/utils/currencyTr.ts`.
-- **Contracts changed:** `/pl:accounting/migration/erkhet/references` accepts `exchangeRates` rows with `date`, `mainCurrency`, `rateCurrency`, and `rate`.
-
-### `2026-08-31` — `Fixed Asset Move Department Destinations`
-
-- **Summary:** Fixed asset move follow transactions now allow destination department-only mappings while still rejecting completely empty destinations.
-- **Affected areas:** `src/modules/accounting/utils/fxaMove.ts`, `src/modules/accounting/utils/__tests__/fixedAssets.test.ts`.
 - **Contracts changed:** None.

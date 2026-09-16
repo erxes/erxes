@@ -8,7 +8,11 @@ export const commentActionFormSchema = z.object({
   texts: z
     .array(z.string().min(1, { message: 'Enter the reply text' }))
     .min(1, { message: 'Add at least one reply' }),
-  attachments: z.any().optional(),
+  // Facebook takes one `attachment_url` on a comment reply, never a list.
+  attachments: z
+    .array(z.object({ url: z.string().min(1), type: z.string().optional() }))
+    .max(1)
+    .optional(),
   mentionSender: z.boolean().optional(),
 });
 
@@ -18,14 +22,14 @@ export type TCommentActionForm = z.infer<typeof commentActionFormSchema>;
 export const toCommentActionFormValues = (config?: {
   text?: string;
   texts?: string[];
-  attachments?: unknown;
+  attachments?: TCommentActionForm['attachments'];
   mentionSender?: boolean;
 }): TCommentActionForm => {
   const texts = (config?.texts || []).filter((text) => Boolean(text?.trim()));
 
   return {
     texts: texts.length ? texts : [config?.text || ''],
-    attachments: config?.attachments,
+    attachments: (config?.attachments || []).filter(({ url }) => Boolean(url)),
     // Tagging the commenter is opt-in: replies used to carry the mention
     // whether or not the automation wanted it.
     mentionSender: !!config?.mentionSender,

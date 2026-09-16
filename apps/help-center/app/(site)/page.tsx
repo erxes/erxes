@@ -12,13 +12,13 @@ import {
   NEW_TICKET_REASON,
   NEW_TICKET_ROUTE,
 } from '@/modules/tickets/constants/guard';
-import { Breadcrumbs } from '@/modules/ui/components/Breadcrumbs';
 import { buttonClass, ButtonLink } from '@/modules/ui/components/Button';
 import { Card, CardLink, cardLinkClass } from '@/modules/ui/components/Card';
 import { Container } from '@/modules/ui/components/Container';
 import { EmptyState } from '@/modules/ui/components/EmptyState';
 import { Reveal } from '@/modules/ui/components/Reveal';
 import { Section } from '@/modules/ui/components/Section';
+import { cn } from '@/modules/ui/lib/cn';
 import { Icon } from '@/modules/ui/components/Icon';
 import {
   LoadError,
@@ -40,21 +40,23 @@ const ActionCard = ({
   reason?: string;
 }) => {
   const className = cardLinkClass(
-    'group flex items-center gap-3.5 px-4 py-3.5',
+    'group flex items-center gap-4 px-5 py-4 shadow-card-hover sm:px-6 sm:py-5',
   );
   const body = (
     <>
-      <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-brand-soft text-brand transition-colors group-hover:bg-brand group-hover:text-white">
-        <Icon name={icon} size={19} />
+      <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-brand-soft text-brand transition-colors group-hover:bg-brand group-hover:text-white">
+        <Icon name={icon} size={20} />
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block text-sm font-semibold text-ink">{title}</span>
-        <span className="mt-0.5 block text-[13px] leading-relaxed text-muted-foreground">
+        <span className="block text-[15px] font-semibold text-ink">
+          {title}
+        </span>
+        <span className="mt-1 block text-[13px] leading-relaxed text-muted-foreground">
           {description}
         </span>
       </span>
       <span className="shrink-0 text-muted-foreground transition-transform duration-200 group-hover:translate-x-0.5 group-hover:text-brand">
-        <Icon name="chevronRight" size={17} />
+        <Icon name="chevronRight" size={18} />
       </span>
     </>
   );
@@ -71,7 +73,7 @@ const ActionCard = ({
 };
 
 export default async function HomePage() {
-  const [{ headline, title }, topic, announcements, forms] = await Promise.all([
+  const [{ headline }, topic, announcements, forms] = await Promise.all([
     getPortalIdentity(),
     getTopicOverview(),
     getAnnouncements(5),
@@ -84,19 +86,16 @@ export default async function HomePage() {
 
   const portalForms = forms.state === 'ready' ? forms.data : [];
 
+  const showAnnouncements =
+    announcements.state !== 'ready' || announcements.data.length > 0;
+
   return (
     <>
       <Hero headline={headline} />
 
-      <Container className="py-9 lg:py-12">
-        <Breadcrumbs items={[{ label: title, href: '/' }, { label: 'Home' }]} />
-
-        <h1 className="mt-5 text-[30px] font-semibold tracking-[-0.02em] text-ink sm:text-[34px]">
-          Support portal
-        </h1>
-
-        {ticketsEnabled ? (
-          <Reveal className="mt-6 grid gap-3 sm:grid-cols-2">
+      {ticketsEnabled ? (
+        <Container className="-mt-8 sm:-mt-10">
+          <Reveal className="grid gap-3 sm:grid-cols-2">
             <ActionCard
               href={NEW_TICKET_ROUTE}
               reason={NEW_TICKET_REASON}
@@ -111,9 +110,16 @@ export default async function HomePage() {
               description="No account? Use your ticket number to check its status."
             />
           </Reveal>
-        ) : null}
+        </Container>
+      ) : null}
 
-        <div className="mt-10 space-y-10 lg:mt-12 lg:space-y-12">
+      <Container
+        className={cn(
+          'pb-12 lg:pb-16',
+          ticketsEnabled ? 'pt-12 lg:pt-16' : 'pt-10 lg:pt-12',
+        )}
+      >
+        <div className="space-y-10 lg:space-y-14">
           {knowledgeBaseEnabled ? (
             <Section
               icon="book"
@@ -177,42 +183,44 @@ export default async function HomePage() {
             </Section>
           ) : null}
 
-          <div className="grid items-start gap-10 lg:grid-cols-2 lg:gap-8">
-            <Section
-              icon="megaphone"
-              title="Announcements"
-              description="See the latest notices and updates."
-              action={
-                announcements.state === 'ready' && announcements.data.length ? (
-                  <ButtonLink
-                    href="/announcements"
-                    size="sm"
-                    variant="secondary"
-                  >
-                    All
-                    <Icon name="chevronRight" size={15} />
-                  </ButtonLink>
-                ) : null
-              }
-            >
-              {announcements.state === 'unconfigured' ? (
-                <SetupNotice missing={announcements.missing} />
-              ) : announcements.state === 'unpublished' ? (
-                <Unpublished domain={announcements.domain} />
-              ) : announcements.state === 'error' ? (
-                <LoadError message={announcements.message} />
-              ) : announcements.data.length ? (
-                <Card className="px-3 py-1">
-                  <AnnouncementList posts={announcements.data} />
-                </Card>
-              ) : (
-                <EmptyState
-                  icon="megaphone"
-                  title="No announcements yet"
-                  description="Nothing has been published in the CMS yet. New notices appear here."
-                />
-              )}
-            </Section>
+          <div
+            className={cn(
+              'grid items-start gap-10',
+              showAnnouncements && 'lg:grid-cols-2 lg:gap-8',
+            )}
+          >
+            {showAnnouncements ? (
+              <Section
+                icon="megaphone"
+                title="Announcements"
+                description="See the latest notices and updates."
+                action={
+                  announcements.state === 'ready' &&
+                  announcements.data.length ? (
+                    <ButtonLink
+                      href="/announcements"
+                      size="sm"
+                      variant="secondary"
+                    >
+                      All
+                      <Icon name="chevronRight" size={15} />
+                    </ButtonLink>
+                  ) : null
+                }
+              >
+                {announcements.state === 'unconfigured' ? (
+                  <SetupNotice missing={announcements.missing} />
+                ) : announcements.state === 'unpublished' ? (
+                  <Unpublished domain={announcements.domain} />
+                ) : announcements.state === 'error' ? (
+                  <LoadError message={announcements.message} />
+                ) : (
+                  <Card className="px-3 py-1">
+                    <AnnouncementList posts={announcements.data} />
+                  </Card>
+                )}
+              </Section>
+            ) : null}
 
             <Section
               icon="ticket"

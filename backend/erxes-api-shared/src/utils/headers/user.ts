@@ -48,19 +48,55 @@ export function extractClientPortalFromHeader(
   return JSON.parse(clientPortalJson);
 }
 
+export const USER_HEADER_OMITTED_FIELDS = [
+  'emailSignatures',
+  'customFieldsData',
+  'propertiesData',
+  'links',
+  'loginToken',
+] as const;
+
+export const HEADER_SIZE_WARN_BYTES = 32 * 1024;
+
+function encodeHeader(name: string, id: string, value: unknown): string {
+  const encoded = Buffer.from(JSON.stringify(value), 'utf8').toString('base64');
+
+  if (encoded.length > HEADER_SIZE_WARN_BYTES) {
+    console.warn(
+      `${name} header is ${encoded.length} bytes for ${id}; requests fail once it passes the service header budget`,
+    );
+  }
+
+  return encoded;
+}
+
+export function compactUserForHeader<T extends Record<string, unknown>>(
+  user: T,
+): Omit<T, (typeof USER_HEADER_OMITTED_FIELDS)[number]> {
+  const omitted: readonly string[] = USER_HEADER_OMITTED_FIELDS;
+
+  return Object.fromEntries(
+    Object.entries(user).filter(([field]) => !omitted.includes(field)),
+  ) as Omit<T, (typeof USER_HEADER_OMITTED_FIELDS)[number]>;
+}
+
 export function setUserHeader(headers: IncomingHttpHeaders, user: any) {
   if (!user) return;
-  const userJson = JSON.stringify(user);
-  const userJsonBase64 = Buffer.from(userJson, 'utf8').toString('base64');
-  headers[userHeaderName] = userJsonBase64;
+  headers[userHeaderName] = encodeHeader(
+    userHeaderName,
+    user._id,
+    compactUserForHeader(user),
+  );
   headers['userid'] = user._id || '';
 }
 
 export function setCPUserHeader(headers: IncomingHttpHeaders, cpUser: any) {
   if (!cpUser) return;
-  const cpUserJson = JSON.stringify(cpUser);
-  const cpUserJsonBase64 = Buffer.from(cpUserJson, 'utf8').toString('base64');
-  headers[cpUserHeaderName] = cpUserJsonBase64;
+  headers[cpUserHeaderName] = encodeHeader(
+    cpUserHeaderName,
+    cpUser._id,
+    cpUser,
+  );
 }
 
 export function setClientPortalHeader(

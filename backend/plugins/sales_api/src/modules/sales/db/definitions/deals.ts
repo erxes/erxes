@@ -6,6 +6,16 @@ import { mongooseStringRandomId, schemaWrapper } from 'erxes-api-shared/utils';
 import { Schema } from 'mongoose';
 import { SALES_STATUSES, TIME_TRACK_TYPES } from '../../constants';
 
+const discountInfoSchema = new Schema(
+  {
+    type: { type: String, label: 'Discount type' },
+    title: { type: String, optional: true, label: 'Discount title' },
+    amount: { type: Number, optional: true, label: 'Discount amount' },
+    percent: { type: Number, optional: true, label: 'Discount percent' },
+  },
+  { _id: false },
+);
+
 export const productDataSchema = new Schema(
   {
     _id: { type: String },
@@ -23,6 +33,11 @@ export const productDataSchema = new Schema(
     tax: { type: Number, label: 'Tax' }, // Tax
     discountPercent: { type: Number, label: 'Discount percent' }, // Discount percent
     discount: { type: Number, label: 'Discount' }, // Discount
+    discountInfos: {
+      type: [discountInfoSchema],
+      optional: true,
+      label: 'Discount infos',
+    },
     bonusCount: { type: Number, label: 'Bonus Count' }, // Bonus Count
     amount: { type: Number, label: 'Amount' }, // Amount
     tickUsed: { type: Boolean, label: 'Tick used' }, // TickUsed

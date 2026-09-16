@@ -6,6 +6,7 @@ import {
   IconPlayerPlay,
   IconDownload,
 } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { useImportProgress } from '../../hooks/import/useImportProgress';
 import { TImportProgress } from '../../types/import/importTypes';
 
@@ -14,6 +15,7 @@ export function ImportProgress({
 }: {
   importProgress: TImportProgress;
 }) {
+  const { t } = useTranslation('importExport');
   const {
     timeRemaining,
     statusObject,
@@ -52,11 +54,12 @@ export function ImportProgress({
 
   return (
     <div className="space-y-2 p-3 border rounded-lg bg-background">
-      <div className="flex items-center justify-between text-sm">
-        <span className="font-medium truncate flex-1 mr-2">
+      <div className="flex items-center justify-between gap-2 text-sm">
+        {/* min-w-0 lets the flex child shrink so `truncate` can actually bite */}
+        <span className="min-w-0 flex-1 truncate font-medium">
           {importProgress.fileName}
         </span>
-        <span className="text-muted-foreground text-xs">
+        <span className="shrink-0 text-muted-foreground text-xs">
           {IconComponent && statusObject && (
             <div className="flex flex-row items-center gap-1">
               <IconComponent className="size-3" />
@@ -68,11 +71,13 @@ export function ImportProgress({
       <div className="space-y-1">
         <div className="flex items-center justify-between text-xs text-muted-foreground">
           <span>
-            {importProgress.processedRows.toLocaleString()} /{' '}
-            {importProgress.totalRows.toLocaleString()} rows
+            {t('rows-progress', {
+              processed: importProgress.processedRows.toLocaleString(),
+              total: importProgress.totalRows.toLocaleString(),
+            })}
           </span>
           {importProgress.status === 'processing' && (
-            <span>{timeRemaining} remaining</span>
+            <span>{t('time-remaining', { time: timeRemaining })}</span>
           )}
         </div>
         <Progress.Root value={importProgress.progress} className="h-2">
@@ -82,10 +87,12 @@ export function ImportProgress({
       {totalProcessed > 0 && (
         <div className="space-y-1">
           <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span>Success Rate</span>
+            <span>{t('success-rate')}</span>
             <span className="font-medium">
-              {successRows.toLocaleString()} success /{' '}
-              {errorRows.toLocaleString()} errors
+              {t('success-errors', {
+                success: successRows.toLocaleString(),
+                errors: errorRows.toLocaleString(),
+              })}
             </span>
           </div>
           <div className="flex h-1.5 rounded-full overflow-hidden bg-muted">
@@ -109,7 +116,7 @@ export function ImportProgress({
             className="flex-1"
           >
             <IconDownload className="size-3" />
-            Download Errors
+            {t('download-errors')}
           </Button>
         )}
         {(canCancel || canRetry || canResume) && (
@@ -122,18 +129,7 @@ export function ImportProgress({
                 className="flex-1"
               >
                 <IconX className="size-3" />
-                Cancel
-              </Button>
-            )}
-            {!canResume && canRetry && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleRetry}
-                className="flex-1"
-              >
-                <IconRefresh className="size-3" />
-                Retry
+                {t('cancel')}
               </Button>
             )}
             {canResume && (
@@ -144,7 +140,18 @@ export function ImportProgress({
                 className="flex-1"
               >
                 <IconPlayerPlay className="size-3" />
-                Resume
+                {t('resume')}
+              </Button>
+            )}
+            {canRetry && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleRetry}
+                className="flex-1"
+              >
+                <IconRefresh className="size-3" />
+                {t('restart')}
               </Button>
             )}
           </>

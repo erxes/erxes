@@ -8,20 +8,20 @@ import { generateDefaultStatuses } from '@/ticket/utils/ticket';
 
 const statusSchema = new Schema(
   {
-    _id:              mongooseStringRandomId,
-    name:             { type: String, required: true },
-    description:      { type: String },
-    pipelineId:       { type: String, required: true, index: true },
-    color:            { type: String, default: '#4F46E5' },
-    type:             { type: Number, required: true },
-    order:            { type: Number, required: true },
-    visibilityType:   { type: String },
-    memberIds:        [{ type: String }],
+    _id: mongooseStringRandomId,
+    name: { type: String, required: true },
+    description: { type: String },
+    pipelineId: { type: String, required: true, index: true },
+    color: { type: String, default: '#4F46E5' },
+    type: { type: Number, required: true },
+    order: { type: Number, required: true },
+    visibilityType: { type: String },
+    memberIds: [{ type: String }],
     canMoveMemberIds: [{ type: String }],
     canEditMemberIds: [{ type: String }],
-    departmentIds:    [{ type: String }],
-    state:            { type: String },
-    probability:      { type: Number },
+    departmentIds: [{ type: String }],
+    state: { type: String },
+    probability: { type: Number },
   },
   { timestamps: true },
 );
@@ -75,7 +75,11 @@ export const loadStatusClass = (models: IModels) => {
       _id: string,
       doc: IStatus,
     ): Promise<IStatusDocument | null> {
-      return models.Status.findOneAndUpdate({ _id }, { $set: { ...doc } }, { new: true });
+      return models.Status.findOneAndUpdate(
+        { _id },
+        { $set: { ...doc } },
+        { new: true },
+      );
     }
 
     public static async removeStatus(_id: string): Promise<{ ok: number }> {

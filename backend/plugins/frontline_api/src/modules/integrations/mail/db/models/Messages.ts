@@ -3,8 +3,10 @@ import { graphqlPubsub } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { mailMessageSchema } from '@/integrations/mail/db/definitions/messages';
 import {
+  IMailComposeArgs,
   IMailMessageDocument,
   IMailSendArgs,
+  IMailTicketMailArgs,
 } from '@/integrations/mail/@types/message';
 import { IMailIntegrationDocument } from '@/integrations/mail/@types/integration';
 import {
@@ -12,6 +14,7 @@ import {
   MAIL_MESSAGE_TYPES,
 } from '@/integrations/mail/constants';
 import { createReplyTag } from '@/integrations/mail/utils/address';
+import { mailScopeId } from '@/integrations/mail/utils/scope';
 import { describeError } from '@/integrations/mail/utils/errors';
 import {
   buildMessageId,
@@ -21,18 +24,27 @@ import {
 } from '@/integrations/mail/utils/transports';
 
 export interface IMailMessageModel extends Model<IMailMessageDocument> {
-  findRelatedConversation(
-    inboxIntegrationId: string,
+  findRelatedThread(
+    scopeId: string,
     messageId: string,
     inReplyTo?: string,
     references?: string[],
-  ): Promise<string | null>;
-  findConversationByReplyTag(
-    inboxIntegrationId: string,
+  ): Promise<IMailMessageDocument | null>;
+  findByReplyTag(
+    scopeId: string,
     tag: string,
-  ): Promise<string | null>;
+  ): Promise<IMailMessageDocument | null>;
+  findLatestFromSender(
+    scopeId: string,
+    address: string,
+  ): Promise<IMailMessageDocument | null>;
   createSendMail(
     args: IMailSendArgs,
+    subdomain: string,
+  ): Promise<IMailMessageDocument>;
+  createTicketMail(
+    integration: IMailIntegrationDocument,
+    args: IMailTicketMailArgs,
     subdomain: string,
   ): Promise<IMailMessageDocument>;
   retrySend(_id: string, subdomain: string): Promise<IMailMessageDocument>;
@@ -44,8 +56,8 @@ const toAddresses = (emails: string[] = []) =>
 export const loadMailMessageClass = (models: IModels) => {
   // skipcq: JS-0327
   class Message {
-    public static async findRelatedConversation(
-      inboxIntegrationId: string,
+    public static async findRelatedThread(
+      scopeId: string,
       messageId: string,
       inReplyTo?: string,
       references?: string[],
@@ -64,41 +76,34 @@ export const loadMailMessageClass = (models: IModels) => {
         );
       }
 
-      const related = await models.MailMessages.findOne({
-        inboxIntegrationId,
+      return models.MailMessages.findOne({
+        inboxIntegrationId: scopeId,
         $or,
       });
-
-      return related?.inboxConversationId ?? null;
     }
 
-    public static async findConversationByReplyTag(
-      inboxIntegrationId: string,
-      tag: string,
-    ) {
-      const tagged = await models.MailMessages.findOne({
-        inboxIntegrationId,
+    public static async findByReplyTag(scopeId: string, tag: string) {
+      return models.MailMessages.findOne({
+        inboxIntegrationId: scopeId,
         replyTag: tag,
       });
+    }
 
-      return tagged?.inboxConversationId ?? null;
+    public static async findLatestFromSender(scopeId: string, address: string) {
+      return models.MailMessages.findOne({
+        inboxIntegrationId: scopeId,
+        ticketId: { $exists: true, $ne: null },
+        'from.address': address,
+      }).sort({ createdAt: -1, _id: -1 });
     }
 
     public static async createSendMail(args: IMailSendArgs, subdomain: string) {
       const {
         integrationId,
         conversationId,
-        customerId,
-        subject,
-        body,
-        to,
-        cc,
-        bcc,
-        attachments,
-        replyToMessageId,
-        references,
         shouldOpen,
         shouldResolve,
+        ...compose
       } = args;
 
       if (!conversationId) {
@@ -110,13 +115,6 @@ export const loadMailMessageClass = (models: IModels) => {
       const integration = await Message.resolveIntegration(
         integrationId,
         conversationId,
-      );
-
-      await Message.ensureCustomer(
-        subdomain,
-        customerId,
-        to,
-        integration.inboxId,
       );
 
       if (shouldResolve) {
@@ -131,15 +129,76 @@ export const loadMailMessageClass = (models: IModels) => {
         );
       }
 
-      const fromAddress = integration.address;
-
-      const inbox = await models.Integrations.findOne({
-        _id: integration.inboxId,
+      const message = await Message.compose(subdomain, integration, compose, {
+        inboxConversationId: conversationId,
+        replyTag: await Message.resolveReplyTag({
+          inboxConversationId: conversationId,
+        }),
       });
 
-      const senderName = integration.senderName || inbox?.name || '';
+      await models.Conversations.updateConversation(conversationId, {
+        content: compose.subject,
+        updatedAt: message.createdAt,
+      });
 
-      const replyTag = await Message.resolveReplyTag(conversationId);
+      await graphqlPubsub.publish(
+        `conversationMessageInserted:${conversationId}`,
+        {
+          conversationMessageInserted: {
+            _id: String(message._id),
+            content: message.body ?? '',
+            conversationId,
+          },
+        },
+      );
+
+      return Message.deliver(subdomain, message, integration);
+    }
+
+    public static async createTicketMail(
+      integration: IMailIntegrationDocument,
+      args: IMailTicketMailArgs,
+      subdomain: string,
+    ) {
+      const { ticketId, ...compose } = args;
+
+      const message = await Message.compose(subdomain, integration, compose, {
+        ticketId,
+        replyTag: await Message.resolveReplyTag({ ticketId }),
+      });
+
+      return Message.deliver(subdomain, message, integration);
+    }
+
+    private static async compose(
+      subdomain: string,
+      integration: IMailIntegrationDocument,
+      args: IMailComposeArgs,
+      thread: {
+        inboxConversationId?: string;
+        ticketId?: string;
+        replyTag: string;
+      },
+    ) {
+      const {
+        customerId,
+        subject,
+        body,
+        to,
+        cc,
+        bcc,
+        attachments,
+        replyToMessageId,
+        references,
+      } = args;
+
+      const scopeId = mailScopeId(integration);
+
+      await Message.ensureCustomer(subdomain, customerId, to, scopeId);
+
+      const fromAddress = integration.address;
+
+      const senderName = await Message.resolveSenderName(integration);
 
       const referenceChain = [
         ...new Set(
@@ -150,13 +209,12 @@ export const loadMailMessageClass = (models: IModels) => {
         ),
       ];
 
-      const message = await models.MailMessages.create({
-        inboxIntegrationId: integration.inboxId,
-        inboxConversationId: conversationId,
+      return models.MailMessages.create({
+        ...thread,
+        inboxIntegrationId: scopeId,
         messageId: buildMessageId(fromAddress),
         inReplyTo: replyToMessageId,
         references: referenceChain,
-        replyTag,
         subject,
         body: body ?? '',
         from: [{ name: senderName || fromAddress, address: fromAddress }],
@@ -178,24 +236,6 @@ export const loadMailMessageClass = (models: IModels) => {
         deliveryStatus: MAIL_DELIVERY_STATUSES.PENDING,
         createdAt: new Date(),
       });
-
-      await models.Conversations.updateConversation(conversationId, {
-        content: subject,
-        updatedAt: message.createdAt,
-      });
-
-      await graphqlPubsub.publish(
-        `conversationMessageInserted:${conversationId}`,
-        {
-          conversationMessageInserted: {
-            _id: String(message._id),
-            content: message.body ?? '',
-            conversationId,
-          },
-        },
-      );
-
-      return Message.deliver(subdomain, message, integration);
     }
 
     public static async retrySend(_id: string, subdomain: string) {
@@ -209,9 +249,9 @@ export const loadMailMessageClass = (models: IModels) => {
         throw new Error('Only outbound messages can be resent');
       }
 
-      const integration = await models.MailIntegrations.findOne({
-        inboxId: message.inboxIntegrationId,
-      });
+      const integration = await models.MailIntegrations.findByScope(
+        message.inboxIntegrationId,
+      );
 
       if (!integration) {
         throw new Error('Mail integration not found');
@@ -242,9 +282,7 @@ export const loadMailMessageClass = (models: IModels) => {
         message.replyTag,
       );
 
-      const inbox = await models.Integrations.findOne({
-        _id: message.inboxIntegrationId,
-      });
+      const senderName = await Message.resolveSenderName(integration);
 
       const [inReplyTo] = await Message.toWireReferences(
         message.inboxIntegrationId,
@@ -260,7 +298,7 @@ export const loadMailMessageClass = (models: IModels) => {
         const result = await sendMail(subdomain, {
           messageId: message.messageId,
           from: integration.address,
-          fromName: integration.senderName || inbox?.name || undefined,
+          fromName: senderName || undefined,
           replyTo: replyToAddress,
           to: message.to.map((entry) => entry.address),
           cc: message.cc.map((entry) => entry.address),
@@ -331,13 +369,34 @@ export const loadMailMessageClass = (models: IModels) => {
       }) as Promise<IMailMessageDocument>;
     }
 
-    private static async resolveReplyTag(conversationId: string) {
+    private static async resolveReplyTag(thread: {
+      inboxConversationId?: string;
+      ticketId?: string;
+    }) {
       const tagged = await models.MailMessages.findOne({
-        inboxConversationId: conversationId,
+        ...thread,
         replyTag: { $exists: true, $ne: null },
       });
 
       return tagged?.replyTag ?? createReplyTag();
+    }
+
+    private static async resolveSenderName(
+      integration: IMailIntegrationDocument,
+    ) {
+      if (integration.senderName) {
+        return integration.senderName;
+      }
+
+      if (!integration.inboxId) {
+        return integration.name ?? '';
+      }
+
+      const inbox = await models.Integrations.findOne({
+        _id: integration.inboxId,
+      });
+
+      return inbox?.name ?? '';
     }
 
     private static async toWireReferences(

@@ -2,10 +2,24 @@ import { fixNum, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { IDeal, IProductData } from '~/modules/sales/@types';
 import { getCompanyIds, getCustomerIds } from '~/modules/sales/utils';
+import {
+  applyDiscountInfo,
+  ensureHandDiscountInfo,
+  recalculateProductDiscount,
+} from '~/modules/sales/utils/discountInfos';
 
 const createBonusProductDataId = (productId: string) => {
   return `${productId}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 };
+
+function toPlainDeal(deal: IDeal): IDeal;
+function toPlainDeal(deal?: IDeal): IDeal | undefined;
+function toPlainDeal(deal?: IDeal) {
+  const maybeDocument = deal as
+    | (IDeal & { toObject?: () => IDeal })
+    | undefined;
+  return maybeDocument?.toObject?.() || maybeDocument;
+}
 
 export const checkLoyalties = async (
   subdomain: string,
@@ -50,25 +64,24 @@ export const checkLoyalties = async (
   });
 
   for (const item of activeProductsData) {
-    if (item.discountPercent) {
-      continue;
-    }
+    item.discountInfos = ensureHandDiscountInfo(item);
 
     const loyalty = loyalties[item.productId];
 
     if (!loyalty?.discount) {
+      recalculateProductDiscount(item);
       continue;
     }
 
     item.unitPrice = item.unitPrice || 0;
-    item.discountPercent = loyalty.discount;
-    item.discount = fixNum(
-      ((item.quantity * item.unitPrice) / 100) * loyalty.discount,
-    );
-    item.amount = fixNum(
-      (item.unitPrice - (item.unitPrice / 100) * loyalty.discount) *
-        item.quantity,
-    );
+    applyDiscountInfo(item, {
+      type: 'voucher',
+      title: 'Loyalty discount',
+      amount: fixNum(
+        ((item.quantity * item.unitPrice) / 100) * loyalty.discount,
+      ),
+      percent: loyalty.discount,
+    });
   }
 
   return (deal.productsData || [])
@@ -137,9 +150,12 @@ export const checkPricing = async (
   const bonusProductsToAdd: Record<string, { count: number }> = {};
 
   for (const item of activeProductsData) {
+    item.discountInfos = ensureHandDiscountInfo(item);
+
     const discount = pricing[item._id || ''];
 
     if (!discount) {
+      recalculateProductDiscount(item);
       continue;
     }
 
@@ -152,12 +168,12 @@ export const checkPricing = async (
     }
 
     if (discount.value) {
-      item.discountPercent = fixNum(
-        (discount.value * 100) / (item.unitPrice || 1),
-        8,
-      );
-      item.discount = fixNum(discount.value * item.quantity);
-      item.amount = fixNum((item.unitPrice - discount.value) * item.quantity);
+      applyDiscountInfo(item, {
+        type: 'pricing',
+        title: 'Pricing discount',
+        amount: fixNum(discount.value * item.quantity),
+        percent: fixNum((discount.value * 100) / (item.unitPrice || 1), 8),
+      });
     }
   }
 
@@ -226,8 +242,8 @@ export const doScoreCampaign = async (
     return;
   }
 
-  const target = (deal as any)?.toObject?.() || deal;
-  const oldTarget = (oldDeal as any)?.toObject?.() || oldDeal;
+  const target = toPlainDeal(deal);
+  const oldTarget = toPlainDeal(oldDeal);
 
   const [oldStage, currentStage, [customerId], [companyId]] = await Promise.all(
     [

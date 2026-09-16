@@ -4,9 +4,12 @@ import {
   CurrencyCode,
   CurrencyField,
   INumberFieldContainerProps,
+  Input,
   NumberField,
+  PopoverScoped,
   RecordTable,
   RecordTableInlineCell,
+  TextOverflowTooltip,
 } from 'erxes-ui';
 import {
   IProductData,
@@ -22,6 +25,7 @@ import { SelectAssigneeDeal } from '@/deals/components/deal-selects/SelectAssign
 import clsx from 'clsx';
 import { useUpdateProductRecord } from '../../hooks/useProductRecord';
 import { calculateProductValues } from '../../hooks/useProductCalculations';
+import { applyRowDiscount, productBaseAmount } from '../../utils/discountInfos';
 
 export const ProductNumberField = ({
   value,
@@ -80,6 +84,111 @@ export const ProductCalculatedNumberField = ({
         updateRecord(product, fullUpdate);
       }}
     />
+  );
+};
+
+export const ProductDiscountNumberField = ({
+  value,
+  field,
+  _id,
+  product,
+}: INumberFieldContainerProps & { product: IProductData }) => {
+  const { updateRecord } = useUpdateProductRecord();
+  const [isOpen, setIsOpen] = useState(false);
+  const [editingValue, setEditingValue] = useState(String(value));
+  const [isEdited, setIsEdited] = useState(false);
+
+  const resetEditing = () => {
+    setEditingValue(String(value));
+    setIsEdited(false);
+  };
+
+  const handleSave = (nextValue: number) => {
+    const baseAmount = productBaseAmount(product);
+    const targetDiscountAmount =
+      field === 'discountPercent' ? (baseAmount * nextValue) / 100 : nextValue;
+    const updatedProduct = applyRowDiscount(product, targetDiscountAmount);
+
+    updateRecord(product, {
+      discountInfos: updatedProduct.discountInfos,
+      discount: updatedProduct.discount,
+      discountPercent: updatedProduct.discountPercent,
+      tax: updatedProduct.tax,
+      amount: updatedProduct.amount,
+    });
+  };
+
+  const handleAction = (e?: React.FormEvent) => {
+    e?.preventDefault();
+
+    const trimmedValue = editingValue.trim();
+
+    if (trimmedValue === '' || trimmedValue === '-') {
+      resetEditing();
+      setIsOpen(false);
+      return;
+    }
+
+    const numValue = Number(trimmedValue);
+
+    if (Number.isFinite(numValue) && numValue !== value) {
+      handleSave(numValue);
+    }
+
+    setIsEdited(false);
+    setIsOpen(false);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      e.stopPropagation();
+      resetEditing();
+      setIsOpen(false);
+    }
+  };
+
+  return (
+    <PopoverScoped
+      scope={`product-${_id}-${field}`}
+      open={isOpen}
+      onOpenChange={(open: boolean) => {
+        setIsOpen(open);
+        if (open) {
+          resetEditing();
+        } else if (isEdited) {
+          handleAction();
+        }
+      }}
+    >
+      <RecordTableInlineCell.Trigger>
+        <TextOverflowTooltip value={value.toLocaleString()} />
+      </RecordTableInlineCell.Trigger>
+      <RecordTableInlineCell.Content asChild>
+        <form onSubmit={handleAction}>
+          <Input
+            type="text"
+            value={editingValue}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+              const rawValue = e.target.value.replace(/,/g, '');
+
+              if (
+                rawValue === '' ||
+                rawValue === '-' ||
+                rawValue.match(/^-?\d*\.?\d*$/)
+              ) {
+                setEditingValue(rawValue);
+                setIsEdited(true);
+              }
+              setIsOpen(true);
+            }}
+            onKeyDown={handleKeyDown}
+          />
+          <button type="submit" className="sr-only">
+            Save
+          </button>
+        </form>
+      </RecordTableInlineCell.Content>
+    </PopoverScoped>
   );
 };
 

@@ -1,6 +1,9 @@
 # Stage 1: install production deps as flat real directories (no pnpm virtual store)
 FROM node:22-alpine3.22 AS installer
 WORKDIR /app
+# Match agent_api: avoid V8 JIT SIGILL during ARM64 installs under QEMU.
+# This installer-only setting does not affect the runtime stage.
+ENV NODE_OPTIONS=--jitless
 RUN apk add --no-cache git ca-certificates curl \
     && npm install -g pnpm@9
 
@@ -25,8 +28,10 @@ fs.writeFileSync( \
   ), \
 ); \
 " \
-    && pnpm install --prod --shamefully-hoist --no-frozen-lockfile \
-    && find node_modules -type f \( \
+    && pnpm install --prod --shamefully-hoist --no-frozen-lockfile
+
+# Optional file pruning must not hide a failed dependency installation.
+RUN find node_modules -type f \( \
          -name "*.d.ts" -o -name "*.map" -o -name "*.md" \
          -o -name "LICENSE*" -o -name "LICENCE*" \
          -o -name "CHANGELOG*" -o -name "README*" \

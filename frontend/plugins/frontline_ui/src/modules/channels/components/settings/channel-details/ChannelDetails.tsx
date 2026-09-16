@@ -6,7 +6,7 @@ import { useParams } from 'react-router-dom';
 import { PipelinesSection } from '@/channels/components/settings/channel-details/PipelinesSection';
 import { ResponseSection } from '@/channels/components/settings/channel-details/ResponseSection';
 import { FormsSection } from './FormsSection';
-import { PollsSection } from './PollsSection';
+import { SurveysSection } from './SurveysSection';
 import { useTranslation } from 'react-i18next';
 
 export const ChannelDetails = () => {
@@ -32,7 +32,7 @@ export const ChannelDetails = () => {
       <MemberSection channel={channel} />
       <PipelinesSection channel={channel} />
       <FormsSection channel={channel} />
-      <PollsSection channel={channel} />
+      <SurveysSection channel={channel} />
       <ResponseSection channel={channel} />
 
       <IntegrationList />

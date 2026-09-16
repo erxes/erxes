@@ -392,6 +392,24 @@ const mergeMatch = (...matches: ReportQuery[]) =>
     return merged;
   }, {});
 
+const getDetailPreMatch = (detailMatch: ReportQuery) => {
+  const preMatch: ReportQuery = {};
+  const indexedDetailFields = [
+    'details.accountId',
+    'details.productId',
+    'details.fixedAssetId',
+    'details.currency',
+  ];
+
+  for (const field of indexedDetailFields) {
+    if (detailMatch[field]) {
+      preMatch[field] = detailMatch[field];
+    }
+  }
+
+  return preMatch;
+};
+
 const getGroupNames = (baseGroups: string[], groupRules: IGroupCommon[]) => {
   const names = new Set(baseGroups);
 
@@ -737,6 +755,7 @@ export const recordListWithValues = async (
   const baseMatch = mergeMatch(
     reportFilters.transactionMatch,
     reportBase.extraTransactionMatch || {},
+    getDetailPreMatch(reportFilters.detailMatch),
   );
 
   const openingRecords =
@@ -780,6 +799,7 @@ export const getLineRecords = async (
     reportFilters.transactionMatch,
     reportBase.extraTransactionMatch || {},
     getDateMatch(fromDate, toDate),
+    getDetailPreMatch(reportFilters.detailMatch),
   );
 
   const records = await models.Transactions.aggregate([

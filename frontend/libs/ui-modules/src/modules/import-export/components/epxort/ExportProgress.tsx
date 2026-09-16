@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Progress } from 'radix-ui';
 import {
   IconX,
@@ -27,14 +28,18 @@ function ExportFailedNotice({
   canRetry,
   onRetry,
 }: ExportFailedNoticeProps) {
+  const { t } = useTranslation('importExport');
+
   return (
     <div className="mt-2">
       <div className="flex items-start gap-2">
         <IconX className="size-4 text-destructive mt-0.5 flex-shrink-0" />
         <div className="flex-1">
-          <p className="text-sm font-medium text-destructive">Export Failed</p>
+          <p className="text-sm font-medium text-destructive">
+            {t('export-failed')}
+          </p>
           <p className="text-xs text-muted-foreground mt-0.5">
-            {exportItem.errorMessage || 'An error occurred during export'}
+            {exportItem.errorMessage || t('export-failed')}
           </p>
           {canRetry && onRetry && (
             <Button
@@ -43,7 +48,7 @@ function ExportFailedNotice({
               onClick={() => onRetry(exportItem._id)}
             >
               <IconRefresh className="size-4 text-primary" />
-              Retry from last position
+              {t('retry-from-last-position')}
             </Button>
           )}
         </div>
@@ -59,6 +64,7 @@ export function ExportProgress({
   exportItem: TExportProgress;
   onRetry?: (exportId: string) => void;
 }) {
+  const { t } = useTranslation('importExport');
   const progress = useExportProgress(exportItem);
   const {
     isProcessing,
@@ -87,7 +93,11 @@ export function ExportProgress({
               {exportItem.totalRows > 0 && (
                 <>
                   <span>•</span>
-                  <span>{exportItem.totalRows.toLocaleString()} records</span>
+                  <span>
+                    {t('export-record-count', {
+                      total: exportItem.totalRows.toLocaleString(),
+                    })}
+                  </span>
                 </>
               )}
             </div>
@@ -102,14 +112,16 @@ export function ExportProgress({
         {isProcessing && (
           <div className="mt-2 space-y-1">
             <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
-              <span>Processing</span>
+              <span>{t('status-processing')}</span>
               <span>{progress.percentage}%</span>
             </div>
             <Progress.Root value={progress.percentage} className="h-1.5">
               <Progress.Indicator className="bg-info" />
             </Progress.Root>
             <div className="text-xs text-muted-foreground mt-1">
-              {formatTime(progress.estimatedMinutesRemaining)} remaining
+              {t('time-remaining', {
+                time: formatTime(progress.estimatedMinutesRemaining),
+              })}
             </div>
           </div>
         )}
@@ -125,7 +137,7 @@ export function ExportProgress({
         {isCompleted && (
           <div className="mt-2">
             <p className="text-xs text-success">
-              Export completed successfully
+              {t('export-completed-successfully')}
             </p>
           </div>
         )}
@@ -171,12 +183,14 @@ const StatusBadge = ({
 }: {
   status: 'processing' | 'completed' | 'failed';
 }) => {
+  const { t } = useTranslation('importExport');
+
   switch (status) {
     case 'processing':
-      return <Badge variant="info">PROCESSING</Badge>;
+      return <Badge variant="info">{t('status-processing')}</Badge>;
     case 'completed':
-      return <Badge variant="success">COMPLETED</Badge>;
+      return <Badge variant="success">{t('status-completed')}</Badge>;
     case 'failed':
-      return <Badge variant="destructive">FAILED</Badge>;
+      return <Badge variant="destructive">{t('status-failed')}</Badge>;
   }
 };

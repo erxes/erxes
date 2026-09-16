@@ -43,8 +43,26 @@ const callQueries = {
     // const isAdmin =
     //   user.isOwner || user.permissionGroupIds?.includes('frontline:admin');
     // return models.CallIntegrations.getIntegrations(user._id, isAdmin);
-    const res = models.CallIntegrations.getIntegrations(user._id);
-    return res;
+    const integrations = await models.CallIntegrations.getIntegrations(
+      user._id,
+    );
+
+    const inboxIntegrations = await models.Integrations.find(
+      { _id: { $in: integrations.map((integration) => integration.inboxId) } },
+      { name: 1 },
+    ).lean();
+
+    const nameById = new Map(
+      inboxIntegrations.map((integration) => [
+        String(integration._id),
+        integration.name,
+      ]),
+    );
+
+    return integrations.map((integration) => ({
+      ...integration,
+      name: nameById.get(integration.inboxId) || '',
+    }));
   },
 
   async callsCustomerDetail(_root, { customerPhone }, { subdomain }: IContext) {

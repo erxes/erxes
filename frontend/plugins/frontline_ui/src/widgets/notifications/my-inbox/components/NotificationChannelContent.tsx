@@ -1,89 +1,154 @@
-import { IconChalkboard } from '@tabler/icons-react';
+import {
+  IconChalkboard,
+  IconExternalLink,
+  IconInfoCircle,
+} from '@tabler/icons-react';
+import {
+  Avatar,
+  Button,
+  Empty,
+  RelativeDateDisplay,
+  Spinner,
+  readImage,
+} from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { format, isToday, isYesterday, parseISO } from 'date-fns';
-import { Avatar, Button, readImage, Skeleton, Spinner } from 'erxes-ui';
 import { Link } from 'react-router';
+import { TNotification } from 'ui-modules';
 import { useChannel } from '~/widgets/notifications/my-inbox/hooks/useChannel';
 
-const getDate = (isoDate: string) => {
-  const date = parseISO(isoDate);
+const getUserDisplayName = (fromUser: TNotification['fromUser']) =>
+  fromUser?.details?.fullName || fromUser?.email || 'Unknown user';
 
-  let display = '';
-
-  if (isToday(date)) {
-    display = `Today, ${format(date, 'HH:mm')}`;
-  } else if (isYesterday(date)) {
-    display = `Yesterday, ${format(date, 'HH:mm')}`;
-  } else {
-    display = format(date, 'yyyy-MM-dd HH:mm');
-  }
-  return display;
-};
-
-const type: any = {
-  'Removed from Channel': 'removed',
-  'Added on Channel': 'assigned',
-};
-
-export const NotificationChannelContent = ({
-  title,
-  fromUser,
+const ChannelEventMetadata = ({
+  action,
   createdAt,
-  contentTypeId,
-  fromUserId,
-}: any) => {
-  const { t } = useTranslation('frontline');
-  const { channelDetail, loading } = useChannel(contentTypeId);
-  const date = getDate(createdAt);
+  fromUser,
+}: Pick<TNotification, 'action' | 'createdAt' | 'fromUser'>) => {
+  const actorName = getUserDisplayName(fromUser);
 
-  const action = type[title as string];
   return (
-    <div className="flex flex-col gap-2 w-full max-w-md mx-auto justify-center items-center h-full text-muted-foreground">
-      <div className="size-36 bg-sidebar rounded-2xl border-2 border-dashed flex flex-col items-center justify-center">
-        <IconChalkboard
-          size={64}
-          className="text-accent-foreground"
-          stroke={1}
-        />
-      </div>
-
-      <p className="font-bold text-lg font-stretch-extra-expanded">
-        {t('channel-label', 'Channel')}
-      </p>
-
-      <div className="flex flex-row items-center gap-2">
-        <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm text-foreground">
-          <Avatar className="size-6">
+    <div className="mt-3 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+      {fromUser ? (
+        <span className="flex items-center gap-1.5">
+          <Avatar className="size-5">
             <Avatar.Image
-              src={readImage(fromUser?.details?.avatar || '')}
-              alt={fromUser?.details?.fullName || ''}
+              src={readImage(fromUser.details?.avatar || '')}
+              alt={actorName}
             />
-            <Avatar.Fallback className="rounded-lg">
-              {fromUser?.details?.fullName?.split('')[0]}
+            <Avatar.Fallback className="text-[10px]">
+              {actorName.slice(0, 1).toUpperCase()}
             </Avatar.Fallback>
           </Avatar>
-          <div className="grid flex-1 text-left text-sm leading-tight">
-            <span className="truncate font-semibold">
-              {fromUser?.details?.fullName || fromUser?.email}
-            </span>
-          </div>
-        </div>
-        <p className="text-foreground">
-          {`${action} you on `}
-          {loading ? (
-            <Skeleton className="w-8 h-2" />
-          ) : (
-            <span className="font-bold">{channelDetail?.name}</span>
-          )}
-        </p>
-        <p>channel</p>
+          {actorName}
+        </span>
+      ) : null}
+      {action ? <span>{action}</span> : null}
+      {createdAt ? <RelativeDateDisplay.Value value={createdAt} /> : null}
+    </div>
+  );
+};
+
+const ChannelUnavailable = ({
+  description,
+  title,
+}: {
+  description: string;
+  title: string;
+}) => (
+  <Empty className="min-h-dvh rounded-none border-0">
+    <Empty.Header>
+      <Empty.Media variant="icon">
+        <IconInfoCircle />
+      </Empty.Media>
+      <Empty.Title>{title}</Empty.Title>
+      <Empty.Description>{description}</Empty.Description>
+    </Empty.Header>
+  </Empty>
+);
+
+export const NotificationChannelContent = ({
+  action,
+  createdAt,
+  fromUser,
+  fromUserId,
+  contentTypeId,
+  message,
+  title,
+}: TNotification) => {
+  const { t } = useTranslation('frontline');
+  const { channelDetail, loading, error } = useChannel(contentTypeId || '');
+
+  if (loading) {
+    return (
+      <div className="flex min-h-dvh items-center justify-center">
+        <Spinner />
       </div>
-      <p className="text-accent-foreground">{date}</p>
-      <Button variant={'secondary'}>
-        <Link to={`/settings/team-member?user_id=${fromUserId}`}>
-          {`View ${fromUser?.details?.fullName || fromUser?.email}`}
-        </Link>
-      </Button>
+    );
+  }
+
+  if (error || !channelDetail) {
+    const unavailableTitle = error
+      ? t('failed-to-load-channel', 'Failed to load channel')
+      : t('channel-not-found', 'Channel not found');
+    const unavailableDescription =
+      error?.message ||
+      t(
+        'channel-no-longer-available',
+        'This channel may have been removed or is no longer available.',
+      );
+
+    return (
+      <ChannelUnavailable
+        description={unavailableDescription}
+        title={unavailableTitle}
+      />
+    );
+  }
+
+  return (
+    <div className="mx-auto flex min-h-dvh w-full max-w-3xl flex-col px-6 py-8">
+      <header className="flex items-start gap-4 border-b pb-6">
+        <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-accent text-muted-foreground">
+          <IconChalkboard className="size-6" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            {t('channel-label', 'Channel')}
+          </p>
+          <h2 className="mt-1 break-words text-2xl font-semibold text-foreground">
+            {channelDetail.name}
+          </h2>
+          <ChannelEventMetadata
+            action={action}
+            createdAt={createdAt}
+            fromUser={fromUser}
+          />
+        </div>
+      </header>
+
+      <section className="space-y-3 py-6">
+        <h3 className="text-lg font-medium text-foreground">{title}</h3>
+        <p className="text-sm leading-6 text-muted-foreground">{message}</p>
+      </section>
+
+      <div className="flex flex-wrap gap-2">
+        <Button variant="secondary" asChild>
+          <Link to={`/settings/frontline/channels/${channelDetail._id}`}>
+            <IconExternalLink className="size-4" />
+            {t('open-channel', 'Open channel')}
+          </Link>
+        </Button>
+        {fromUserId && (
+          <Button variant="secondary" asChild>
+            <Link to={`/settings/team/members?user_id=${fromUserId}`}>
+              {t('view-user', {
+                defaultValue: 'View {{name}}',
+                name: getUserDisplayName(fromUser),
+              })}
+            </Link>
+          </Button>
+        )}
+      </div>
     </div>
   );
 };

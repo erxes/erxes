@@ -582,9 +582,8 @@ export const orderToDynamic = async (
   syncLog: ISyncLogDocument,
   order: any,
   config: any,
+  brandId: string,
 ) => {
-  const brandId = order.scopeBrandIds[0];
-
   let msdCustomer: any = {};
 
   let orderMsdNo: string;
@@ -682,7 +681,6 @@ export const orderToDynamic = async (
     if (!order.items.length) {
       throw new Error('Has not items order');
     }
-
     const responseSale = await fetch(`${salesApi}${urlParam}`, {
       method: postMethod,
       headers: postHeaders,

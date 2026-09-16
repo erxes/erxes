@@ -85,6 +85,15 @@ export const parseAutomationPayload = (
   }
 };
 
+/**
+ * Every key a bot payload can carry names a tap: Get Started, a menu item, an
+ * ice breaker, or a button inside a running automation. Facebook delivers all
+ * of them with the button's own title as the message text, so the payload is
+ * the only thing separating a tap from someone typing.
+ */
+export const isPostbackPayload = (payload?: TFacebookAutomationPayload) =>
+  Object.values(payload || {}).some((value) => value !== undefined);
+
 export const triggerFacebookMessageAutomation = (
   subdomain: string,
   {
