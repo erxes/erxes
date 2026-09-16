@@ -67,11 +67,7 @@ export const InstagramGetAccounts = () => {
         </>
       }
     >
-      <InstagramIntegrationFormSteps
-        title={t('connect-accounts')}
-        step={1}
-        description={t('ig-select-accounts-description')}
-      />
+      <InstagramIntegrationFormSteps title={t('connect-accounts')} step={1} />
 
       <div className="flex-1 overflow-hidden p-4 pt-0 flex flex-col">
         <Command className="flex-1">
