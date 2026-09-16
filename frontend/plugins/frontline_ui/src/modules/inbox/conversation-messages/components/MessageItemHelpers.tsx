@@ -64,5 +64,3 @@ export const getMessageBubbleClassName = ({
       (showAuthorName || showBotName ? 'mt-0' : 'mt-6'),
     hasReply && 'mt-0 rounded-t-md',
   );
-
-
