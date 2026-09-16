@@ -9,12 +9,14 @@ import {
   mapMessageCreateToActivity,
   mapMessageDeleteToEvent,
   mapPollVoteToEvent,
+  mapReactionToEvent,
   mapTypingStartToEvent,
 } from '@/integrations/discord/activity';
 import {
   DiscordActivity,
   DiscordMessageDeleteEvent,
   DiscordPollVoteEvent,
+  DiscordReactionEvent,
   DiscordTypingEvent,
 } from '@/integrations/discord/@types/activity';
 import { debugDiscord, debugError } from '@/integrations/discord/debuggers';
@@ -23,6 +25,7 @@ const DISCORD_INTENTS = (GatewayIntentBits.Guilds |
   GatewayIntentBits.GuildMessages |
   GatewayIntentBits.MessageContent |
   GatewayIntentBits.GuildMessagePolls |
+  GatewayIntentBits.GuildMessageReactions |
   GatewayIntentBits.GuildMessageTyping) as GatewayIntentBits;
 
 const FATAL_CLOSE_CODES = new Map<
@@ -51,7 +54,10 @@ const FATAL_CLOSE_CODES = new Map<
   ],
   [
     GatewayCloseCodes.ShardingRequired,
-    { reason: 'This bot has grown large enough to require sharding', tokenValid: true },
+    {
+      reason: 'This bot has grown large enough to require sharding',
+      tokenValid: true,
+    },
   ],
   [
     GatewayCloseCodes.InvalidAPIVersion,
@@ -74,10 +80,9 @@ export type DiscordGatewayConnection = {
 export type DiscordGatewayHandlers = {
   onMessage: (activity: DiscordActivity) => void | Promise<void>;
   onMessageEdit?: (activity: DiscordActivity) => void | Promise<void>;
-  onMessageDelete?: (
-    event: DiscordMessageDeleteEvent,
-  ) => void | Promise<void>;
+  onMessageDelete?: (event: DiscordMessageDeleteEvent) => void | Promise<void>;
   onPollVote?: (event: DiscordPollVoteEvent) => void | Promise<void>;
+  onReaction?: (event: DiscordReactionEvent) => void | Promise<void>;
   onTyping?: (event: DiscordTypingEvent) => void | Promise<void>;
   onFatalClose?: (info: DiscordGatewayFatalClose) => void | Promise<void>;
 };
@@ -89,9 +94,13 @@ export const connectGateway = async ({
   onMessageEdit,
   onMessageDelete,
   onPollVote,
+  onReaction,
   onTyping,
   onFatalClose,
-}: { botId: string; token: string } & DiscordGatewayHandlers): Promise<DiscordGatewayConnection> => {
+}: {
+  botId: string;
+  token: string;
+} & DiscordGatewayHandlers): Promise<DiscordGatewayConnection> => {
   const rest = new REST({ version: '10' }).setToken(token);
 
   const manager = new WebSocketManager({
@@ -99,7 +108,7 @@ export const connectGateway = async ({
     intents: DISCORD_INTENTS,
     rest,
   });
-  
+
   const safely = <T>(
     label: string,
     handler: ((arg: T) => void | Promise<void>) | undefined,
@@ -148,6 +157,12 @@ export const connectGateway = async ({
         break;
       case GatewayDispatchEvents.MessagePollVoteRemove:
         safely('onPollVote', onPollVote, mapPollVoteToEvent(payload.d, false));
+        break;
+      case GatewayDispatchEvents.MessageReactionAdd:
+        safely('onReaction', onReaction, mapReactionToEvent(payload.d, true));
+        break;
+      case GatewayDispatchEvents.MessageReactionRemove:
+        safely('onReaction', onReaction, mapReactionToEvent(payload.d, false));
         break;
       case GatewayDispatchEvents.TypingStart:
         safely('onTyping', onTyping, mapTypingStartToEvent(payload.d));

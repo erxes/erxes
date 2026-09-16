@@ -45,19 +45,9 @@ import {
 type FormValues = z.infer<typeof DISCORD_INTEGRATION_SCHEMA>;
 
 const STEP_DETAILS = [
-  {
-    title: 'Connect token',
-    description:
-      'Paste your bot token from the Discord Developer Portal to get started.',
-  },
-  {
-    title: 'Pick server',
-    description: 'Select the server where you want to integrate this bot.',
-  },
-  {
-    title: 'Pick channels',
-    description: 'Choose the channels and name this integration before saving.',
-  },
+  { title: 'Connect token' },
+  { title: 'Pick server' },
+  { title: 'Pick channels' },
 ];
 
 const NAME_PLACEHOLDER = 'e.g. Enterprise Support';
@@ -364,7 +354,7 @@ export const DiscordIntegrationDetail = () => {
                 <Sheet.Title>
                   {t('discord-add-bot', 'Add Discord bot')}
                 </Sheet.Title>
-                <Sheet.Description>
+                <Sheet.Description className="sr-only">
                   {t(
                     'discord-add-bot-description',
                     'Connect a Discord bot to manage your Discord channel messages right from your Team Inbox.',
@@ -378,7 +368,6 @@ export const DiscordIntegrationDetail = () => {
                   step={step}
                   title={STEP_DETAILS[step - 1].title}
                   stepsLength={3}
-                  description={STEP_DETAILS[step - 1].description}
                 />
                 <div className="flex-1 overflow-auto p-4 pt-0 flex flex-col gap-4">
                   {step === 1 && (

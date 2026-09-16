@@ -9,6 +9,7 @@ import {
   DiscordAttachment,
   DiscordEmbed,
   DiscordPoll,
+  DiscordSticker,
 } from '@/integrations/discord/@types/activity';
 import {
   isIgnorableActivity,
@@ -17,14 +18,15 @@ import {
 import {
   getChannel,
   getDiscordUser,
-  getErrorMessage,
   isThreadChannel,
   rehostImageAttachments,
 } from '@/integrations/discord/utils';
+import { getErrorMessage } from '@/integrations/utils';
 import { DISCORD_MESSAGE_TRIGGER_TYPE } from '@/integrations/discord/constants';
 import { TDiscordTriggerTarget } from '@/integrations/discord/meta/automation/types';
 import { debugDiscord, debugError } from '@/integrations/discord/debuggers';
 import { receiveInboxMessage } from '@/inbox/receiveMessage';
+import { graphqlPubsub } from 'erxes-api-shared/utils';
 
 /** Build a Discord CDN avatar URL, or undefined when the user has no avatar hash. */
 const avatarUrl = (userId: string, hash?: string | null) =>
@@ -143,7 +145,12 @@ const attemptGetOrCreateCustomer = async (
   // row back on failure so no permanently-unlinked row is left behind — a
   // racer waiting on it sees it vanish and takes creation over itself.
   try {
-    customer.erxesApiId = await syncCustomerToCore(subdomain, bot, firstName, avatar);
+    customer.erxesApiId = await syncCustomerToCore(
+      subdomain,
+      bot,
+      firstName,
+      avatar,
+    );
     await customer.save();
   } catch (e) {
     await models.DiscordCustomers.deleteOne({ _id: customer._id });
@@ -240,15 +247,39 @@ const getOrCreateCustomer = async (
 // title, else a generic "Link" label — in that priority order. A
 // poll/embed-only message has no text `content`, so this is what the
 // conversation-list preview falls back to.
+const buildAttachmentPreview = (attachments?: DiscordAttachment[]): string => {
+  if (attachments?.some((item) => item.type.startsWith('image/'))) {
+    return 'Sent an image';
+  }
+  if (attachments?.some((item) => item.type.startsWith('video/'))) {
+    return 'Sent a video';
+  }
+  if (attachments?.some((item) => item.type.startsWith('audio/'))) {
+    return 'Sent an audio file';
+  }
+  if (attachments?.length) {
+    return 'Sent a file';
+  }
+  return 'Unsupported message';
+};
+
 const buildMessagePreview = (
   displayContent: string,
   poll?: DiscordPoll,
   embeds?: DiscordEmbed[],
+  attachments?: DiscordAttachment[],
+  stickers?: DiscordSticker[],
+  voiceMessage?: boolean,
+  forwarded?: boolean,
 ) =>
   displayContent ||
   (poll ? poll.question || 'Poll' : '') ||
   embeds?.find((embed) => embed.title || embed.url)?.title ||
-  (embeds?.length ? 'Link' : '');
+  (embeds?.length ? 'Shared a link' : '') ||
+  (voiceMessage ? 'Voice message' : '') ||
+  (stickers?.length ? `Sticker · ${stickers[0].name}` : '') ||
+  (forwarded ? 'Forwarded a message' : '') ||
+  buildAttachmentPreview(attachments);
 
 /**
  * Resolves a Discord channel id to its display name and, if it's a thread,
@@ -274,7 +305,9 @@ const resolveDiscordChannelInfo = async (token: string, channelId: string) => {
           (await getChannel(token, channelInfo.parent_id))?.name ?? undefined;
       } catch (e) {
         debugError(
-          `Failed to resolve Discord parent channel ${channelInfo.parent_id}: ${getErrorMessage(e)}`,
+          `Failed to resolve Discord parent channel ${
+            channelInfo.parent_id
+          }: ${getErrorMessage(e)}`,
         );
       }
     }
@@ -462,9 +495,7 @@ const syncConversationToCore = async (
       return claimed;
     }
 
-    const winner = await models.DiscordConversations.findById(
-      conversation._id,
-    );
+    const winner = await models.DiscordConversations.findById(conversation._id);
     if (winner?.erxesApiId) {
       return winner;
     }
@@ -533,12 +564,17 @@ const persistAndDispatchMessage = async ({
       content: displayContent,
       customerId: customer.erxesApiId,
       attachments: storedAttachments,
+      replyTo: activity.replyTo,
     });
 
     // Persist the message into the inbox message store (so the conversation
     // detail renders it) AND publish the real-time event. The
     // `create-conversation-message` action does both; the publish-only
     // `pConversationClientMessageInserted` left the detail thread empty.
+    let messageKind: string | undefined;
+    if (activity.voiceMessage) messageKind = 'voice';
+    else if (activity.stickers?.length) messageKind = 'sticker';
+    else if (activity.forwardedSnapshot) messageKind = 'forwarded';
     await receiveInboxMessage(subdomain, {
       action: 'create-conversation-message',
       metaInfo: 'replaceContent',
@@ -549,6 +585,10 @@ const persistAndDispatchMessage = async ({
         createdAt: timestamp,
         attachments: storedAttachments,
         extraData,
+        providerData: { messageId },
+        messageKind,
+        replyTo: activity.replyTo,
+        deliveryStatus: 'delivered',
       }),
     });
 
@@ -595,6 +635,73 @@ const persistAndDispatchMessage = async ({
  * publishes the real-time `conversationMessageInserted` event so it appears
  * live in the agent inbox. The Discord analogue of Facebook's `receiveMessage`.
  */
+const buildInboxMessageExtraData = (
+  activity: DiscordActivity,
+  stored: {
+    poll?: Exclude<DiscordActivity['poll'], undefined>;
+    embeds?: Exclude<DiscordActivity['embeds'], undefined>;
+    stickers?: Exclude<DiscordActivity['stickers'], undefined>;
+    voiceMessage?: Exclude<DiscordActivity['voiceMessage'], undefined>;
+    forwardedSnapshot?: Exclude<
+      DiscordActivity['forwardedSnapshot'],
+      undefined
+    >;
+  },
+) => ({
+  ...(stored.poll && { poll: stored.poll }),
+  ...(stored.embeds?.length && { embeds: stored.embeds }),
+  ...(stored.stickers?.length && { stickers: stored.stickers }),
+  ...(stored.voiceMessage && { voiceMessage: true }),
+  ...(stored.forwardedSnapshot && {
+    forwardedSnapshot: stored.forwardedSnapshot,
+  }),
+  discordMessageId: activity.messageId,
+  discordPinned: Boolean(activity.raw?.pinned),
+});
+
+const skipExistingDiscordMessage = async ({
+  models,
+  activity,
+  conversationId,
+}: {
+  models: IModels;
+  activity: DiscordActivity;
+  conversationId?: string;
+}) => {
+  const existingMessage = await models.DiscordConversationMessages.findOne({
+    messageId: { $eq: activity.messageId },
+  });
+  if (!existingMessage) return false;
+  if (activity.replyTo && !existingMessage.replyTo) {
+    await models.DiscordConversationMessages.updateOne(
+      { _id: existingMessage._id },
+      { $set: { replyTo: activity.replyTo } },
+    );
+    await models.ConversationMessages.updateOne(
+      {
+        'extraData.discordMessageId': activity.messageId,
+        replyTo: { $exists: false },
+      },
+      { $set: { replyTo: activity.replyTo } },
+    );
+    const updated = await models.ConversationMessages.findOne({
+      'extraData.discordMessageId': activity.messageId,
+    }).lean();
+    if (updated && conversationId) {
+      await graphqlPubsub.publish(
+        `conversationMessageInserted:${conversationId}`,
+        {
+          conversationMessageInserted: {
+            ...updated,
+            conversationId,
+          },
+        },
+      );
+    }
+  }
+  return true;
+};
+
 export const receiveDiscordMessage = async ({
   models,
   subdomain,
@@ -622,7 +729,15 @@ export const receiveDiscordMessage = async ({
     return;
   }
 
-  const { messageId, content, attachments, poll, embeds } = activity;
+  const {
+    content,
+    attachments,
+    poll,
+    embeds,
+    stickers,
+    voiceMessage,
+    forwardedSnapshot,
+  } = activity;
 
   // What we store + show in the inbox: `<@ID>` mentions rewritten to `@Name`.
   // The raw `content` is still used for automation triggers so trigger matching
@@ -631,7 +746,10 @@ export const receiveDiscordMessage = async ({
 
   // Re-host inbound images to erxes storage so they survive Discord's ~24h CDN
   // URL expiry; videos/files keep their CDN URL. Best-effort, never throws.
-  const storedAttachments = await rehostImageAttachments(subdomain, attachments);
+  const storedAttachments = await rehostImageAttachments(
+    subdomain,
+    attachments,
+  );
 
   // Structured payloads (poll, embed preview cards) travel on the message's
   // `extraData` and render as cards. The Discord message id is *always* stamped
@@ -641,15 +759,30 @@ export const receiveDiscordMessage = async ({
   // handler attaches `embeds` then. Stamping unconditionally is essential for that
   // last case: a plain link has no poll/embeds at create time, so a conditional
   // stamp would leave the unfurl with no message to attach to.
-  const extraData = {
-    ...(poll && { poll }),
-    ...(embeds?.length && { embeds }),
-    discordMessageId: messageId,
-  };
-  const previewContent = buildMessagePreview(displayContent, poll, embeds);
+  const extraData = buildInboxMessageExtraData(activity, {
+    poll,
+    embeds,
+    stickers,
+    voiceMessage,
+    forwardedSnapshot,
+  });
+  const previewContent = buildMessagePreview(
+    displayContent,
+    poll,
+    embeds,
+    storedAttachments,
+    stickers,
+    voiceMessage,
+    Boolean(forwardedSnapshot),
+  );
 
   try {
-    const customer = await getOrCreateCustomer(models, subdomain, bot, activity);
+    const customer = await getOrCreateCustomer(
+      models,
+      subdomain,
+      bot,
+      activity,
+    );
 
     const created = await findOrCreateDiscordConversation(
       models,
@@ -672,11 +805,13 @@ export const receiveDiscordMessage = async ({
     // instead — the Discord message id is globally unique, so an existing mirror
     // row means this exact message was already stored (the create below is still
     // the hard idempotency guard for the live-dispatch race).
-    const existingMessage = await models.DiscordConversationMessages.findOne({
-      messageId: { $eq: messageId },
-    });
-
-    if (existingMessage) {
+    if (
+      await skipExistingDiscordMessage({
+        models,
+        activity,
+        conversationId: conversation.erxesApiId,
+      })
+    ) {
       return;
     }
 
