@@ -5,7 +5,10 @@ import type {
   MessageKind,
 } from '@/inbox/@types/conversationMessages';
 
-export type InstagramMessageKind = Exclude<MessageKind, 'forwarded' | 'deleted'>;
+export type InstagramMessageKind = Exclude<
+  MessageKind,
+  'forwarded' | 'deleted'
+>;
 
 export type IInstagramMessageProviderData = IMessageProviderData;
 
