@@ -60,8 +60,8 @@ const EmbedHeading = ({ embed }: { embed: IMessageEmbed }) => {
       {embed.author?.name && (
         <div className="mb-1 flex items-center gap-1.5 text-xs font-medium">
           {embed.author.iconUrl && (
-        <InboxImage
-          src={embed.author.iconUrl}
+            <InboxImage
+              src={embed.author.iconUrl}
               alt=""
               className="size-4 rounded-full"
             />
