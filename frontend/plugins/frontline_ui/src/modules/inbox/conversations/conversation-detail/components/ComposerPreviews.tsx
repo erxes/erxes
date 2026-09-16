@@ -39,7 +39,7 @@ export const ComposerPreviews = ({
                 {file.name}
               </span>
               <span className="block text-[11px] text-muted-foreground">
-              {t('uploading', 'Uploading...')}
+                {t('uploading', 'Uploading...')}
               </span>
             </span>
             <Spinner size="sm" />
