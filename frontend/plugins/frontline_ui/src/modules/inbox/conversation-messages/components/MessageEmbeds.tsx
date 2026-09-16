@@ -3,18 +3,7 @@ import { IconPlayerPlayFilled } from '@tabler/icons-react';
 import type { IMessageEmbed } from '@/inbox/types/Conversation';
 import { useState } from 'react';
 
-// erxes runs on Vite, not Next.js, so next/image (JS-W1015) doesn't apply here.
-// This thin wrapper localizes the single suppression instead of repeating it at
-// every embed image. `alt` is required (unlike the base img attributes, where
-// it's optional) and destructured onto its own literal attribute so both the
-// type and every caller are held to actually providing one.
-const Img = ({
-  alt,
-  ...props
-}: JSX.IntrinsicElements['img'] & { alt: string }) => (
-  // skipcq: JS-W1015
-  <img alt={alt} {...props} />
-);
+import { InboxImage } from '@/inbox/conversation-messages/components/InboxImage';
 
 // Discord embed media (image/thumbnail/video) carry absolute Discord/Tenor CDN
 // URLs, so they're used as-is (not run through `readImage`, which is for erxes
@@ -71,8 +60,8 @@ const EmbedHeading = ({ embed }: { embed: IMessageEmbed }) => {
       {embed.author?.name && (
         <div className="mb-1 flex items-center gap-1.5 text-xs font-medium">
           {embed.author.iconUrl && (
-            <Img
-              src={embed.author.iconUrl}
+        <InboxImage
+          src={embed.author.iconUrl}
               alt=""
               className="size-4 rounded-full"
             />
@@ -144,7 +133,7 @@ const EmbedImage = ({
   const [failed, setFailed] = useState(false);
   if (!src || failed) return <MediaUnavailable label={label} />;
   return (
-    <Img
+    <InboxImage
       src={src}
       alt={alt}
       loading="lazy"
@@ -183,7 +172,7 @@ const ImageEmbed = ({ embed }: { embed: IMessageEmbed }) => {
   if (failed) return <MediaUnavailable label="Image" />;
 
   const image = (
-    <Img
+    <InboxImage
       src={embed.image?.url}
       alt={embed.title || 'Embedded image'}
       loading="lazy"
