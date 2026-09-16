@@ -4,7 +4,10 @@ import {
   IConversationListParams,
   IConversationRes,
 } from '@/inbox/@types/conversations';
-import { countByConversations } from '@/inbox/conversationUtils';
+import {
+  authorizeConversationAccess,
+  countByConversations,
+} from '@/inbox/conversationUtils';
 import {
   CONVERSATION_AUTOMATION_STATUS,
   CONVERSATION_STATUSES,
@@ -12,8 +15,12 @@ import {
 import { cursorPaginate, markResolvers } from 'erxes-api-shared/utils';
 import { IContext, IModels } from '~/connectionResolvers';
 import QueryBuilder, { IListArgs } from '~/conversationQueryBuilder';
+import { FilterQuery } from 'mongoose';
 
-const count = async (models: IModels, query: any): Promise<number> => {
+const count = async (
+  models: IModels,
+  query: FilterQuery<IConversationDocument>,
+): Promise<number> => {
   const result = await models.Conversations.countDocuments(query);
   return Number(result);
 };
@@ -81,12 +88,19 @@ export const conversationQueries = {
     return { list, totalCount, pageInfo };
   },
 
-  async conversationMessage(
-    _root,
-    { _id }: { _id: string },
-    { models }: IContext,
-  ) {
+  conversationMessage(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.ConversationMessages.findOne({ _id });
+  },
+  async conversationPinnedMessages(
+    _root,
+    { conversationId }: { conversationId: string },
+    { user, models }: IContext,
+  ) {
+    await authorizeConversationAccess(models, user, conversationId);
+    return models.ConversationMessages.find({
+      conversationId,
+      'extraData.discordPinned': true,
+    }).sort({ createdAt: -1 });
   },
   /**
    * Get conversation messages
@@ -111,7 +125,9 @@ export const conversationQueries = {
     let messages: IMessageDocument[] = [];
 
     if (limit) {
-      const sort: any = getFirst ? { createdAt: 1 } : { createdAt: -1 };
+      const sort: { createdAt: 1 | -1 } = getFirst
+        ? { createdAt: 1 }
+        : { createdAt: -1 };
 
       messages = await models.ConversationMessages.find(query)
         .sort(sort)
@@ -131,7 +147,7 @@ export const conversationQueries = {
   /**
    *  Get all conversation messages count. We will use it in pager
    */
-  async conversationMessagesTotalCount(
+  conversationMessagesTotalCount(
     _root,
     { conversationId }: { conversationId: string },
     { models }: IContext,
@@ -228,11 +244,7 @@ export const conversationQueries = {
   /**
    * Get one conversation
    */
-  async conversationDetail(
-    _root,
-    { _id }: { _id: string },
-    { models }: IContext,
-  ) {
+  conversationDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.Conversations.findOne({ _id });
   },
 
@@ -299,16 +311,13 @@ export const conversationQueries = {
     return response;
   },
 
-  async inboxFields() {
-    const response: {
-      customer?: any[];
-      conversation?: any[];
-      device?: any[];
-    } = {
-      customer: [],
-      conversation: [],
-      device: [],
-    };
+  inboxFields() {
+    const response: Record<'customer' | 'conversation' | 'device', unknown[]> =
+      {
+        customer: [],
+        conversation: [],
+        device: [],
+      };
 
     return response;
   },
@@ -330,7 +339,7 @@ export const conversationQueries = {
           ...args,
           limit: perPage,
         },
-        query: query,
+        query,
       });
 
     return { list, totalCount, pageInfo };
