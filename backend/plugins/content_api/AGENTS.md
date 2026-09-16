@@ -43,7 +43,7 @@
 ### Provides
 
 - CMS and Web Builder GraphQL through `src/apollo`, including `cmsPostiz*` sharing, validation and delivery operations.
-- `cmsPostsSharePostiz` permission; sharing is not granted by default groups.
+- `cmsPostsSharePostiz` permission, included in CMS Journalist 1, Journalist 2, Editor and Admin default groups; excluded from CMS Viewer.
 
 ### Consumes
 
@@ -61,6 +61,7 @@
 ## Local Invariants
 
 - Sharing is only for ordinary published posts. Recheck CMS assignment, publishing/sharing permissions, author scope and language access before enqueue and dispatch.
+- Journalist 2's sharing grant does not grant approval or immediate publication. That role alone still cannot dispatch a share; the existing publish/approve and Postiz membership requirements remain mandatory.
 - Never accept browser workspace IDs or Postiz credentials; agent_api owns workspace routing and Postiz membership.
 - Signer and worker startup use existing `JWT_TOKEN_SECRET`. Derive the CMS-purpose key exactly as specified in `CMS_POSTIZ.md`; reject missing/blank JWT. `CMS_POSTIZ_SHARED_SECRET` is ignored.
 - Tenant context remains signed and verified even when SaaS tenants share a JWT root.
@@ -82,6 +83,12 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-16` - Include Postiz sharing in CMS authoring roles
+
+- **Summary:** Grant Postiz sharing to the four existing CMS authoring/editor/admin groups without creating a custom group or changing approval rules.
+- **Affected areas:** Default permission metadata and role-resolution regression tests.
+- **Contracts changed:** Existing default role IDs resolve `cmsPostsSharePostiz` after updated metadata is loaded; Viewer and publication/approval grants are unchanged. No database backfill is required.
 
 ### `2026-09-16` - Persist CMS delivery tenant routing
 

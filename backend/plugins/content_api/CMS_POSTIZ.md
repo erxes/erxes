@@ -41,10 +41,16 @@ Sharing requires all of:
 - An available placement, including SaaS approval and expiry checks.
 - `cmsPublishingEnabled` enabled by a Postiz Admin.
 
-The new CMS action is not added to default permission groups. Grant it
-explicitly to the appropriate custom group. The existing CMS owner bypass
-remains; it does not bypass Postiz membership. A Postiz Admin who enables
-sharing must also have the CMS permissions. Sharing grants access to usable
+The sharing action is included in the existing CMS Journalist 1, Journalist 2,
+Editor and Admin default permission groups; CMS Viewer remains read-only.
+Existing assignments use the updated role definitions without a database
+backfill or a new custom group. Journalist 2 still has only create-for-review
+publication access: its sharing grant alone cannot dispatch posts without an
+additional approve/create-published grant. CMS assignment, language access,
+published-post status and Postiz membership checks remain mandatory.
+The existing CMS owner bypass remains; it does not bypass Postiz membership.
+A Postiz Admin who enables sharing must also have the CMS permissions.
+Sharing grants access to usable
 channels throughout the assigned Postiz workspace, not individual channels.
 
 ## Deployment sequence
