@@ -26,6 +26,12 @@ export const GET_CONVERSATION_MESSAGES = gql`
       isCustomerRead
       internal
       mid
+      messageKind
+      providerData
+      replyTo
+      reactions
+      deliveryStatus
+      expiresAt
       attachments {
         url
         name
@@ -33,6 +39,7 @@ export const GET_CONVERSATION_MESSAGES = gql`
         size
       }
     }
+    instagramConversationMessagesCount(conversationId: $conversationId)
   }
 `;
 
@@ -67,6 +74,12 @@ export const GET_POST_MESSAGES = gql`
       userId
       createdAt
       commentId
+      messageKind
+      providerData
+      replyTo
+      reactions
+      deliveryStatus
+      expiresAt
       attachments {
         url
         name

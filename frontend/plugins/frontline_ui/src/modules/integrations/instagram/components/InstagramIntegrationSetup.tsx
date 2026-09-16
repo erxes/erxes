@@ -84,7 +84,6 @@ export const InstagramIntegrationSetup = () => {
           <InstagramIntegrationFormSteps
             title={t('integration-setup')}
             step={3}
-            description=""
           />
           <div className="flex-1 overflow-hidden p-4 pt-0 flex flex-col gap-4">
             <Form.Field
