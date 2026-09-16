@@ -154,7 +154,9 @@ export const ResponseTemplateSelector: React.FC<
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
-      <Popover.Trigger asChild disabled={disabled}>{children}</Popover.Trigger>
+      <Popover.Trigger asChild disabled={disabled}>
+        {children}
+      </Popover.Trigger>
 
       <Popover.Content className="w-full max-w-md min-w-sm p-4 shadow-xl border">
         <div className="space-y-4">
