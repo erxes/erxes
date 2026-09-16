@@ -1,4 +1,4 @@
-import { Button, cn, IAttachment, RelativeDateDisplay } from 'erxes-ui';
+import { Button, RelativeDateDisplay, cn, type IAttachment } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import { CustomersInline, MembersInline } from 'ui-modules';
 import { HAS_ATTACHMENT } from '../../constants/messengerConstants';
@@ -6,6 +6,7 @@ import { useConversationMessageContext } from '../../conversations/conversation-
 import { activeConversationState } from '../../conversations/states/activeConversationState';
 import { ConversationFormDisplay } from './ConversationFormDisplay';
 import { MessageContent } from './MessageContent';
+import { InboxImage } from '@/inbox/conversation-messages/components/InboxImage';
 
 export const ConversationMessage = () => {
   const message = useConversationMessageContext();
@@ -115,7 +116,7 @@ const Attachments = ({ attachments }: { attachments?: IAttachment[] }) => {
 
 const Attachment = ({ attachment }: { attachment: IAttachment }) => {
   return (
-    <img
+    <InboxImage
       src={attachment.url}
       alt={attachment.name}
       className="w-full aspect-square object-cover rounded"
