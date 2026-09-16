@@ -1,24 +1,25 @@
-import { useRef, useState, useEffect, forwardRef } from 'react';
+import {
+  useRef,
+  useState,
+  useEffect,
+  forwardRef,
+  type RefObject,
+  type ForwardedRef,
+  type InputHTMLAttributes,
+} from 'react';
 import { Tooltip } from './tooltip';
+import { inputVariants } from './input';
 import { cn } from 'erxes-ui/lib';
 
-interface TextOverflowTooltipProps {
-  value?: string;
-  className?: string;
-  delayDuration?: number;
-}
-
-export const TextOverflowTooltip = forwardRef<
-  HTMLSpanElement,
-  TextOverflowTooltipProps
->(({ value, className, delayDuration = 100 }, forwardedRef) => {
-  const innerRef = useRef<HTMLSpanElement>(null);
-  const textRef = forwardedRef || innerRef;
+function useIsOverflowing<T extends HTMLElement>(
+  ref: RefObject<T> | ForwardedRef<T>,
+  value?: string,
+) {
   const [isOverflowing, setIsOverflowing] = useState(false);
 
   useEffect(() => {
     const checkOverflow = () => {
-      const element = 'current' in textRef ? textRef.current : null;
+      const element = ref && 'current' in ref ? ref.current : null;
       if (element) {
         setIsOverflowing(element.scrollWidth > element.clientWidth);
       }
@@ -36,7 +37,24 @@ export const TextOverflowTooltip = forwardRef<
       clearTimeout(timeoutId);
       window.removeEventListener('resize', handleResize);
     };
-  }, [value, textRef]);
+  }, [value, ref]);
+
+  return isOverflowing;
+}
+
+interface TextOverflowTooltipProps {
+  value?: string;
+  className?: string;
+  delayDuration?: number;
+}
+
+const TextOverflowTooltipRoot = forwardRef<
+  HTMLSpanElement,
+  TextOverflowTooltipProps
+>(({ value, className, delayDuration = 100 }, forwardedRef) => {
+  const innerRef = useRef<HTMLSpanElement>(null);
+  const textRef = forwardedRef || innerRef;
+  const isOverflowing = useIsOverflowing(textRef, value);
 
   return (
     <Tooltip.Provider delayDuration={delayDuration}>
@@ -56,4 +74,52 @@ export const TextOverflowTooltip = forwardRef<
   );
 });
 
-TextOverflowTooltip.displayName = 'TextOverflowTooltip';
+TextOverflowTooltipRoot.displayName = 'TextOverflowTooltip';
+
+interface TextOverflowTooltipInputProps
+  extends Omit<InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'> {
+  value?: string;
+  onChange?: (value: string) => void;
+  delayDuration?: number;
+}
+
+const TextOverflowTooltipInput = forwardRef<
+  HTMLInputElement,
+  TextOverflowTooltipInputProps
+>(
+  (
+    { value, onChange, className, delayDuration = 100, ...props },
+    forwardedRef,
+  ) => {
+    const innerRef = useRef<HTMLInputElement>(null);
+    const inputRef = forwardedRef || innerRef;
+    const isOverflowing = useIsOverflowing(inputRef, value);
+
+    return (
+      <Tooltip.Provider delayDuration={delayDuration}>
+        <Tooltip>
+          <Tooltip.Trigger asChild>
+            <input
+              ref={inputRef}
+              value={value}
+              onChange={(e) => onChange?.(e.target.value)}
+              className={cn(inputVariants(), className)}
+              {...props}
+            />
+          </Tooltip.Trigger>
+          {isOverflowing && value && (
+            <Tooltip.Content>
+              <span>{value}</span>
+            </Tooltip.Content>
+          )}
+        </Tooltip>
+      </Tooltip.Provider>
+    );
+  },
+);
+
+TextOverflowTooltipInput.displayName = 'TextOverflowTooltip.Input';
+
+export const TextOverflowTooltip = Object.assign(TextOverflowTooltipRoot, {
+  Input: TextOverflowTooltipInput,
+});

@@ -461,13 +461,13 @@ function BarcodeManager({ form }: { form: UseFormReturn<IProductFormValues> }) {
                           </div>
                           <div className="flex flex-col flex-1 gap-2">
                             <Label>NAME</Label>
-                            <Input
+                            <TextOverflowTooltip.Input
                               value={barcode.name || ''}
-                              onChange={(e) =>
+                              onChange={(value) =>
                                 handleUpdateBarcode(
                                   index,
                                   'name',
-                                  e.target.value || undefined,
+                                  value || undefined,
                                 )
                               }
                               placeholder="Enter name"
