@@ -38,7 +38,7 @@ interface ResponseTemplate {
 }
 
 interface ResponseTemplateSelectorProps {
-  onSelect: (content: string) => void;
+  onSelect: (content: string, templateId?: string) => void;
   children: ReactNode;
 }
 
@@ -138,8 +138,8 @@ export const ResponseTemplateSelector: React.FC<
     return () => observer.disconnect();
   }, [pageInfo?.hasNextPage, handleFetchMore, templates.length]);
 
-  const handleSelectTemplate = (content: string): void => {
-    onSelect(content);
+  const handleSelectTemplate = (template: ResponseTemplate): void => {
+    onSelect(template.content, template._id);
     setIsOpen(false);
   };
 
@@ -227,7 +227,7 @@ export const ResponseTemplateSelector: React.FC<
                     <Command.Item
                       key={template._id}
                       value={template._id}
-                      onSelect={() => handleSelectTemplate(template.content)}
+                      onSelect={() => handleSelectTemplate(template)}
                       className={cn(
                         'flex rounded border border-transparent transition-all cursor-pointer gap-2',
                         'hover:border-primary/20 hover:bg-accent/50',
