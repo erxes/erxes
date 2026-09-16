@@ -26,13 +26,22 @@ export const EmailDisplay = ({
             <span key={email.email} className="inline-flex">
               {onEmailClick ? (
                 <Badge
+                  role="button"
+                  tabIndex={0}
                   variant="secondary"
-                  className="cursor-pointer hover:bg-primary/10 hover:text-primary"
+                  className="cursor-pointer hover:bg-primary/10 hover:text-primary focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring"
                   onClick={(event) => {
                     event.stopPropagation();
                     onEmailClick(email.email || '');
                   }}
                   onDoubleClick={(event) => event.stopPropagation()}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      onEmailClick(email.email || '');
+                    }
+                  }}
                 >
                   {email.isPrimary &&
                     (email.status === ValidationStatus.Valid ? (

@@ -192,27 +192,28 @@ const applyTagFilter = async (
     return;
   }
 
-  const baseTagIds = await resolveTagIds(
-    params,
-    models,
-    tagIds || excludeTagIds || [],
-  );
+  const resolvedTagIds = tagIds?.length
+    ? await resolveTagIds(params, models, tagIds)
+    : [];
+  const resolvedExcludeTagIds = excludeTagIds?.length
+    ? await resolveTagIds(params, models, excludeTagIds)
+    : [];
 
   if (tagIds?.length && excludeTagIds?.length) {
     filter['tagIds'] = {
-      $in: baseTagIds.filter((id) => tagIds.includes(id)),
-      $nin: baseTagIds.filter((id) => excludeTagIds.includes(id)),
+      $in: resolvedTagIds,
+      $nin: resolvedExcludeTagIds,
     };
     return;
   }
 
   if (tagIds?.length) {
-    filter['tagIds'] = { $in: baseTagIds };
+    filter['tagIds'] = { $in: resolvedTagIds };
     return;
   }
 
   if (excludeTagIds?.length) {
-    filter['tagIds'] = { $nin: baseTagIds };
+    filter['tagIds'] = { $nin: resolvedExcludeTagIds };
   }
 };
 
