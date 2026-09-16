@@ -207,6 +207,7 @@ export const MessageInput = ({
   }, [
     conversationId,
     editor,
+    integration?.kind,
     onlyInternal,
     resetAttachments,
     resetSuggestions,
@@ -286,6 +287,7 @@ export const MessageInput = ({
 
   const handleSubmit = useCallback(async () => {
     if (!conversationId || loading || isUploading) return;
+    if (!content?.length && attachments.length === 0) return;
 
     const outgoingBlocks =
       isDiscord && !isInternalNote ? encodeDiscordMentions(content) : content;

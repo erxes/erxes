@@ -65,6 +65,7 @@ export const ComposerToolbar = ({
             size="icon"
             aria-label={t('response-templates', 'Response templates')}
             className="size-8 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
+            disabled={isBusy}
           >
             <IconMessage2 className="size-4" />
           </Button>

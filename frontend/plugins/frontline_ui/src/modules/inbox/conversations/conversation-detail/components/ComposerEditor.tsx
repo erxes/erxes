@@ -1,4 +1,4 @@
-import { BlockEditor, cn, type useBlockEditor } from 'erxes-ui';
+import { BlockEditor, cn, useBlockEditor } from 'erxes-ui';
 import { AssignMemberInEditor, MentionInEditor } from 'ui-modules';
 import type { EditorMentionItem } from 'ui-modules';
 

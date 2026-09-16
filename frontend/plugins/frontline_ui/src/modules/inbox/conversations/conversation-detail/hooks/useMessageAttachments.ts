@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { toast, useUpload, type IAttachment } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
@@ -17,14 +17,7 @@ export const useMessageAttachments = (isDiscord: boolean) => {
     PendingAttachment[]
   >([]);
   const pendingCountRef = useRef(0);
-  const { upload, isLoading } = useUpload();
-
-  useEffect(() => {
-    if (!isLoading) {
-      pendingCountRef.current = 0;
-      setPendingAttachments([]);
-    }
-  }, [isLoading]);
+  const { upload } = useUpload();
 
   const uploadFiles = useCallback(
     (files: FileList) => {
@@ -169,6 +162,6 @@ export const useMessageAttachments = (isDiscord: boolean) => {
     handleFileInput,
     removeAttachment,
     resetAttachments,
-    isUploading: isLoading,
+    isUploading: pendingAttachments.length > 0,
   };
 };
