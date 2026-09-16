@@ -9,15 +9,25 @@ export type IBroadcastFormData = z.infer<typeof broadcastSchema>;
 
 const getDefaultValues = (
   method?: IBroadcastMethodEnum,
+  broadcastContactId?: string | null,
 ): Partial<IBroadcastFormData> => {
-  const base = {
-    targetType: 'segment' as const,
-    targetIds: [],
-    targetCount: 0,
-    isLive: false,
-    isDraft: false,
-    title: '',
-  };
+  const base = broadcastContactId
+    ? {
+        targetType: 'customer' as const,
+        targetIds: [broadcastContactId],
+        targetCount: 1,
+        isLive: false,
+        isDraft: false,
+        title: '',
+      }
+    : {
+        targetType: 'segment' as const,
+        targetIds: [],
+        targetCount: 0,
+        isLive: false,
+        isDraft: false,
+        title: '',
+      };
 
   if (method === 'notification') {
     return {
@@ -63,14 +73,15 @@ const getDefaultValues = (
 
 const useBroadcastForm = () => {
   const [method] = useQueryState<IBroadcastMethodEnum>('method');
+  const [broadcastContactId] = useQueryState<string>('broadcastContactId');
 
   const form = useForm<IBroadcastFormData>({
-    defaultValues: getDefaultValues(method ?? undefined),
+    defaultValues: getDefaultValues(method ?? undefined, broadcastContactId),
   });
 
   useEffect(() => {
-    form.reset(getDefaultValues(method ?? undefined));
-  }, [form, method]);
+    form.reset(getDefaultValues(method ?? undefined, broadcastContactId));
+  }, [form, method, broadcastContactId]);
 
   return { form };
 };

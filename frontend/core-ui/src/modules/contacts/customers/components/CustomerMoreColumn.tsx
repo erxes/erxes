@@ -1,4 +1,4 @@
-import { IconEdit } from '@tabler/icons-react';
+import { IconEdit, IconSend } from '@tabler/icons-react';
 import { Cell } from '@tanstack/react-table';
 import { Combobox, Command, Popover, RecordTable } from 'erxes-ui';
 import { useSearchParams } from 'react-router-dom';
@@ -18,6 +18,13 @@ export const CustomerMoreColumnCell = ({
     setSearchParams(newSearchParams);
   };
 
+  const sendBroadcast = (customerId: string) => {
+    const newSearchParams = new URLSearchParams(searchParams);
+    newSearchParams.set('method', 'email');
+    newSearchParams.set('broadcastContactId', customerId);
+    setSearchParams(newSearchParams);
+  };
+
   return (
     <Popover>
       <Can action="contactsUpdate">
@@ -31,6 +38,14 @@ export const CustomerMoreColumnCell = ({
             <Command.Item value="edit" onSelect={() => setOpen(_id)}>
               <IconEdit /> Edit
             </Command.Item>
+            <Can action="broadcastCreate">
+              <Command.Item
+                value="send-broadcast"
+                onSelect={() => sendBroadcast(_id)}
+              >
+                <IconSend /> Contact
+              </Command.Item>
+            </Can>
           </Command.List>
         </Command>
       </Combobox.Content>

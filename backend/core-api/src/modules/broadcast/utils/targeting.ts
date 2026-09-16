@@ -17,5 +17,9 @@ export const customerTargetFilter = (
     return { segmentIds: { $in: targetIds } };
   }
 
+  if (targetType === 'customer') {
+    return { _id: { $in: targetIds } };
+  }
+
   return { _id: { $in: [] } };
 };

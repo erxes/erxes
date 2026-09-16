@@ -1,6 +1,7 @@
-import { cn, Form, Popover } from 'erxes-ui';
+import { cn, Form, Popover, Skeleton } from 'erxes-ui';
 import { useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { useCustomerDetail } from 'ui-modules';
 import { BroadcastSelectTargetType } from './select/BroadcastSelectTargetType';
 import { BroadcastSegmentStep } from './steps/BroadcastSegmentStep';
 import { BroadcastTagStep } from './steps/BroadcastTagStep';
@@ -8,6 +9,31 @@ import { BroadcastTagStep } from './steps/BroadcastTagStep';
 const BROADCAST_TARGET_CONTENT = {
   segment: BroadcastSegmentStep,
   tag: BroadcastTagStep,
+};
+
+const BroadcastLockedCustomerTarget = ({
+  customerId,
+}: {
+  customerId: string;
+}) => {
+  const { customerDetail, loading } = useCustomerDetail({
+    variables: { _id: customerId },
+    skip: !customerId,
+  });
+
+  if (loading) {
+    return <Skeleton className="h-6 flex-1" />;
+  }
+
+  const { firstName, lastName, primaryEmail } = customerDetail || {};
+  const name = [firstName, lastName].filter(Boolean).join(' ');
+
+  return (
+    <span className="flex-1 text-sm text-muted-foreground py-1">
+      {name || primaryEmail || customerId}
+      {name && primaryEmail ? ` <${primaryEmail}>` : ''}
+    </span>
+  );
 };
 
 export const BroadcastTargetPopover = () => {
@@ -18,9 +44,20 @@ export const BroadcastTargetPopover = () => {
   } = useFormContext();
   const { t } = useTranslation('broadcasts', { keyPrefix: 'composer' });
 
-  const targetType: 'tag' | 'segment' = watch('targetType');
+  const targetType: 'tag' | 'segment' | 'customer' = watch('targetType');
   const targetIds: string[] = watch('targetIds');
   const targetCount = watch('targetCount');
+
+  if (targetType === 'customer') {
+    return (
+      <div className="flex items-center gap-4">
+        <span className="w-24 shrink-0 text-sm text-muted-foreground">
+          {t('to')}
+        </span>
+        <BroadcastLockedCustomerTarget customerId={targetIds?.[0]} />
+      </div>
+    );
+  }
 
   const TargetContent = BROADCAST_TARGET_CONTENT[targetType];
 
