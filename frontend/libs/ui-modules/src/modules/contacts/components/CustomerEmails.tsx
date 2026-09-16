@@ -5,8 +5,10 @@ import {
   RecordTableInlineCell,
   TEmailsOnValueChange,
   ValidationStatus,
+  toast,
 } from 'erxes-ui';
 import { useCustomerEdit } from 'ui-modules/modules/contacts/hooks';
+import { useEmailDoubleClick } from './useEmailDoubleClick';
 
 interface CustomerEmailsProps {
   primaryEmail: string;
@@ -15,6 +17,7 @@ interface CustomerEmailsProps {
   emails: string[];
   scope?: string;
   Trigger: React.ComponentType<{ children: React.ReactNode }>;
+  onEmailClick?: (email: string) => void;
 }
 
 export function CustomerEmails({
@@ -24,8 +27,14 @@ export function CustomerEmails({
   emails,
   scope,
   Trigger,
+  onEmailClick,
 }: CustomerEmailsProps) {
   const { customerEdit } = useCustomerEdit();
+  const {
+    open,
+    setOpen,
+    handleEmailClick: handleVerifiedEmailClick,
+  } = useEmailDoubleClick(onEmailClick);
 
   const emailProps = {
     primaryEmail,
@@ -42,17 +51,34 @@ export function CustomerEmails({
     });
   };
 
+  const handleValidationStatusChange = (status: ValidationStatus) => {
+    customerEdit({
+      variables: {
+        _id,
+        emailValidationStatus: status,
+      },
+      onCompleted: () =>
+        toast({
+          title:
+            status === ValidationStatus.Valid
+              ? 'Email verified'
+              : 'Email unverified',
+          variant: 'success',
+        }),
+    });
+  };
+
   return (
-    <PopoverScoped scope={scope || ''} modal>
+    <PopoverScoped scope={scope || ''} modal open={open} onOpenChange={setOpen}>
       <Trigger>
-        <EmailDisplay {...emailProps} />
+        <EmailDisplay {...emailProps} onEmailClick={handleVerifiedEmailClick} />
       </Trigger>
       <RecordTableInlineCell.Content className="w-72">
         <EmailListField
           recordId={_id}
           {...emailProps}
           onValueChange={handleValueChange}
-          noValidation
+          onValidationStatusChange={handleValidationStatusChange}
         />
       </RecordTableInlineCell.Content>
     </PopoverScoped>
