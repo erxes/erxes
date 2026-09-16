@@ -42,7 +42,9 @@ export const useFacebookConversationMessages = () => {
   );
 
   const paginationOffsetRef = useRef(0);
-  const previousConversationIdRef = useRef<string | null | undefined>(conversationId);
+  const previousConversationIdRef = useRef<string | null | undefined>(
+    conversationId,
+  );
   const fetchMoreInFlightRef = useRef(false);
 
   const handleFetchMore = useCallback((): Promise<unknown> => {
@@ -86,7 +88,9 @@ export const useFacebookConversationMessages = () => {
         const existingIds = new Set(
           (prev.facebookConversationMessages || []).map((m) => m._id),
         );
-        const uniqueNewMessages = incoming.filter((m) => !existingIds.has(m._id));
+        const uniqueNewMessages = incoming.filter(
+          (m) => !existingIds.has(m._id),
+        );
         if (!uniqueNewMessages.length) {
           return prev;
         }
@@ -103,7 +107,13 @@ export const useFacebookConversationMessages = () => {
       fetchMoreInFlightRef.current = false;
       throw err;
     });
-  }, [conversationId, facebookConversationMessages, fetchMore, loading, totalCount]);
+  }, [
+    conversationId,
+    facebookConversationMessages,
+    fetchMore,
+    loading,
+    totalCount,
+  ]);
 
   useEffect(() => {
     if (!conversationId) return;
