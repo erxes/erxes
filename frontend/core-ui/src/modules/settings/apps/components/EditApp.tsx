@@ -57,7 +57,7 @@ export const EditApp = () => {
 
   return (
     <Sheet open={!!editingApp} onOpenChange={(open) => !open && onClose()}>
-      <Sheet.View className="p-0">
+      <Sheet.View className="p-0 h-auto" style={{ bottom: 'auto' }}>
         <Form {...methods}>
           <form
             className="flex flex-col gap-0 size-full"

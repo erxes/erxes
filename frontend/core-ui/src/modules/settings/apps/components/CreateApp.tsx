@@ -1,11 +1,5 @@
 import { IconPlus, IconShieldCog } from '@tabler/icons-react';
-import {
-  Button,
-  Form,
-  Sheet,
-  Spinner,
-  useToast,
-} from 'erxes-ui';
+import { Button, Form, Sheet, Spinner, useToast } from 'erxes-ui';
 import React, { useState } from 'react';
 import { useAppsForm } from '../hooks/useAppsForm';
 import { useAppsAdd } from '../hooks/useAppsAdd';
@@ -54,7 +48,7 @@ export const CreateApp = () => {
           Create App
         </Button>
       </Sheet.Trigger>
-      <Sheet.View className="p-0">
+      <Sheet.View className="p-0 h-auto" style={{ bottom: 'auto' }}>
         <Form {...methods}>
           <form
             className="flex flex-col gap-0 size-full"
