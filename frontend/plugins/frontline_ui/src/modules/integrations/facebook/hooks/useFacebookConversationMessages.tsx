@@ -2,7 +2,7 @@ import { useQuery } from '@apollo/client';
 import { GET_CONVERSATION_MESSAGES } from '@/integrations/facebook/graphql/queries/fbConversationQueries';
 import { useQueryState } from 'erxes-ui';
 import type { IFacebookConversationMessage } from '@/integrations/facebook/types/FacebookTypes';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { CONVERSATION_MESSAGE_INSERTED } from '@/inbox/conversations/graphql/subscriptions/inboxSubscriptions';
 
 export interface IFacebookConversationMessagesQuery {
@@ -41,29 +41,52 @@ export const useFacebookConversationMessages = () => {
     facebookConversationMessages?.length || 0,
   );
 
+  const paginationOffsetRef = useRef(0);
+  const previousConversationIdRef = useRef<string | null | undefined>(conversationId);
+  const fetchMoreInFlightRef = useRef(false);
+
   const handleFetchMore = useCallback((): Promise<unknown> => {
-    const loadedCount = facebookConversationMessages?.length || 0;
-    if (loading || totalCount <= loadedCount) {
+    if (previousConversationIdRef.current !== conversationId) {
+      previousConversationIdRef.current = conversationId;
+      paginationOffsetRef.current = 0;
+      fetchMoreInFlightRef.current = false;
+    }
+
+    if (fetchMoreInFlightRef.current) {
       return Promise.resolve();
     }
-    if (loadedCount % FACEBOOK_CONVERSATION_MESSAGES_LIMIT !== 0) {
+
+    const currentOffset =
+      paginationOffsetRef.current > 0
+        ? paginationOffsetRef.current
+        : Math.min(
+            facebookConversationMessages?.length || 0,
+            FACEBOOK_CONVERSATION_MESSAGES_LIMIT,
+          );
+
+    if (loading || totalCount <= currentOffset) {
       return Promise.resolve();
     }
+
+    fetchMoreInFlightRef.current = true;
+
     return fetchMore({
       variables: {
-        skip: loadedCount,
+        skip: currentOffset,
+        limit: FACEBOOK_CONVERSATION_MESSAGES_LIMIT,
       },
       updateQuery: (prev, { fetchMoreResult }) => {
+        fetchMoreInFlightRef.current = false;
         if (!fetchMoreResult) {
           return prev;
         }
+        const incoming = fetchMoreResult.facebookConversationMessages || [];
+        paginationOffsetRef.current = currentOffset + incoming.length;
+
         const existingIds = new Set(
           (prev.facebookConversationMessages || []).map((m) => m._id),
         );
-        const uniqueNewMessages =
-          fetchMoreResult.facebookConversationMessages.filter(
-            (m) => !existingIds.has(m._id),
-          );
+        const uniqueNewMessages = incoming.filter((m) => !existingIds.has(m._id));
         if (!uniqueNewMessages.length) {
           return prev;
         }
@@ -76,8 +99,11 @@ export const useFacebookConversationMessages = () => {
             fetchMoreResult.facebookConversationMessagesCount,
         };
       },
+    }).catch((err) => {
+      fetchMoreInFlightRef.current = false;
+      throw err;
     });
-  }, [facebookConversationMessages, fetchMore, loading, totalCount]);
+  }, [conversationId, facebookConversationMessages, fetchMore, loading, totalCount]);
 
   useEffect(() => {
     if (!conversationId) return;

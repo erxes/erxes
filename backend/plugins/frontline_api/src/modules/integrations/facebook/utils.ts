@@ -685,8 +685,12 @@ export const sendReaction = async (
     throw new Error(`Page access token not found for page: ${pageId}`);
   }
 
+  const graphUrl =
+    getEnv({ name: 'FACEBOOK_GRAPH_URL', defaultValue: '' }) ||
+    'https://graph.facebook.com';
+
   const response = await fetch(
-    `https://graph.facebook.com/v25.0/${pageId}/messages`,
+    `${graphUrl.replace(/\/+$/, '')}/v25.0/${pageId}/messages`,
     {
       method: 'POST',
       headers: {
@@ -840,7 +844,7 @@ export const getFacebookUserProfilePic = async (
         false,
       );
 
-      return String(awsResponse);
+      return awsResponse;
     }
 
     return response.location;

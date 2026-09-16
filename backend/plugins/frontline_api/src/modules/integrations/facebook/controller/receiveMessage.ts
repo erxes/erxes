@@ -429,7 +429,13 @@ export const receiveMessage = async (
       ? {
           messageId: replyToMessageId,
           content: repliedMessage?.content || 'Original message unavailable',
-          authorName: repliedMessage?.userId ? 'Staff' : 'Customer',
+          authorName: repliedMessage
+            ? repliedMessage.fromBot
+              ? 'AI Agent'
+              : repliedMessage.userId
+                ? 'Staff'
+                : 'Customer'
+            : undefined,
         }
       : undefined;
 
