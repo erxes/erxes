@@ -28,9 +28,12 @@ export const SOCIAL_LINKS = z.object({
   youtube: z
     .string()
     .url()
-    .regex(/^https:\/\/(www\.)?youtube\.com\/[A-Za-z0-9._-]+$/, {
-      message: 'Invalid Youtube URL',
-    })
+    .regex(
+      /^https:\/\/(www\.)?youtube\.com\/(?:@[A-Za-z0-9._-]+|(?:channel|c|user)\/[A-Za-z0-9._-]+|[A-Za-z0-9._-]+)\/?$/,
+      {
+        message: 'Invalid Youtube URL',
+      },
+    )
     .optional()
     .nullable()
     .or(z.literal('')),
@@ -62,14 +65,6 @@ export const BRANCH_CREATE_SCHEMA = z.object({
     .optional()
     .nullable(),
   links: SOCIAL_LINKS.optional().nullable(),
-  image: z
-    .object({
-      name: z.string(),
-      type: z.string(),
-      url: z.string(),
-    })
-    .optional()
-    .nullable(),
   radius: z.number().optional().nullable(),
   status: z.string().optional().nullable(),
 });

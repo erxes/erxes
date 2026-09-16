@@ -4,6 +4,7 @@ import {
   Input,
   PhoneInput,
   ScrollArea,
+  Spinner,
   Textarea,
 } from 'erxes-ui';
 import {
@@ -12,53 +13,50 @@ import {
   useStructureDetails,
 } from '../hooks/useStructureDetails';
 import { useStructureDetailsForm } from '../hooks/useStructureDetailsForm';
-import { useEffect } from 'react';
+import { IStructureDetails, StructureDetailsFormT } from '../types/structure';
 import { Can, SelectMember } from 'ui-modules';
 
 export const Structure = () => {
-  const { structureDetail } = useStructureDetails();
+  const {
+    structureDetail,
+    loading: detailsLoading,
+    error,
+  } = useStructureDetails();
+  if (detailsLoading) return <Spinner />;
+  if (error)
+    return (
+      <div role="alert" className="text-destructive">
+        Error loading structure: {error.message}
+      </div>
+    );
+
+  return (
+    <StructureForm
+      key={`${structureDetail?._id ?? ''}:${
+        structureDetail?.phoneNumber ?? ''
+      }`}
+      structureDetail={structureDetail}
+    />
+  );
+};
+
+const StructureForm = ({
+  structureDetail,
+}: {
+  structureDetail?: IStructureDetails | null;
+}) => {
   const {
     methods,
     methods: { control, handleSubmit },
-  } = useStructureDetailsForm();
+  } = useStructureDetailsForm(structureDetail);
   const { handleEdit, loading } = useEditStructureDetail();
   const { handleAdd, loading: isLoading } = useAddStructureDetail();
 
-  useEffect(() => {
-    if (!structureDetail?._id) return;
-
-    const isEmpty = Object.keys(structureDetail).length === 0;
-
-    if (isEmpty) {
-      methods.reset();
-    } else {
-      methods.reset(structureDetail);
-    }
-  }, [structureDetail?._id]);
-
-  const onSubmit = (data: any) => {
-    const variables = {
-      title: data.title,
-      description: data.description,
-      supervisorId: data.supervisorId,
-      code: data.code,
-      phoneNumber: data?.phoneNumber || '',
-      email: data?.email || '',
-    };
-
+  const onSubmit = (data: StructureDetailsFormT) => {
     if (!structureDetail?._id) {
-      handleAdd({ variables });
-      return;
+      return handleAdd({ variables: data });
     }
-
-    handleEdit({ variables: { ...variables, id: structureDetail._id } }, [
-      'title',
-      'description',
-      'supervisorId',
-      'code',
-      'phoneNumber',
-      'email',
-    ]);
+    return handleEdit({ variables: { ...data, id: structureDetail._id } });
   };
 
   return (
@@ -151,32 +149,6 @@ export const Structure = () => {
                   </Form.Item>
                 )}
               />
-              {/* <Form.Field
-                control={control}
-                name={'coordinate.longitude'}
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>{'longitude'}</Form.Label>
-                    <Form.Control>
-                      <Input {...field} />
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-              <Form.Field
-                control={control}
-                name={'coordinate.latitude'}
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>{'latitude'}</Form.Label>
-                    <Form.Control>
-                      <Input {...field} />
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              /> */}
               <Can action="structuresManage">
                 <Button
                   disabled={loading || isLoading}
