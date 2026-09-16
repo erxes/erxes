@@ -104,6 +104,14 @@ export interface IMessageData {
       };
     };
   };
+  reaction?: {
+    mid: string;
+    action: 'react' | 'unreact';
+    reaction?: string;
+    emoji?: string;
+  };
+  read?: { mid?: string; watermark?: number };
+  delivery?: { mids?: string[]; watermark?: number };
   postback?: {
     title: string;
     mid?: string;
