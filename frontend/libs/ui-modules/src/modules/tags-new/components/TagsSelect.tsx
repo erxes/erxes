@@ -505,9 +505,11 @@ const TagsSelectedList = ({
           variant="secondary"
           onCompleted={(tag) => {
             if (!tag) return;
-            if (!selectedTags.some((t) => t._id === tag._id)) {
-              setSelectedTags([...selectedTags, tag]);
-            }
+            setSelectedTags((currentTags: ITag[]) =>
+              currentTags.some((currentTag: ITag) => currentTag._id === tag._id)
+                ? currentTags
+                : [...currentTags, tag],
+            );
           }}
           onClose={() => removeId(id)}
           {...props}
