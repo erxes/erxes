@@ -2,6 +2,7 @@ import { renderingTeamMemberResetPasswordAtom } from '@/settings/team-member/sta
 import { IUser } from '@/settings/team-member/types';
 import {
   IconEdit,
+  IconHistory,
   IconLock,
   IconRefresh,
   IconSettings,
@@ -19,8 +20,10 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
+import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Can } from 'ui-modules';
+import { TeamMemberActivityLogSheet } from '../TeamMemberActivityLogSheet';
 import { useResendInvite } from '../../hooks/useResendInvite';
 import { useUsersStatusEdit } from '../../hooks/useUserEdit';
 
@@ -28,7 +31,9 @@ export const TeamMemberMoreColumnCell = ({
   cell,
 }: {
   cell: Cell<IUser, unknown>;
-}) => {
+}): JSX.Element => {
+  const [activityLogOpen, setActivityLogOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const [, setResetPasswordOpen] = useQueryState('reset_password_id');
 
@@ -54,7 +59,7 @@ export const TeamMemberMoreColumnCell = ({
   };
 
   return (
-    <Popover>
+    <Popover open={menuOpen} onOpenChange={setMenuOpen}>
       <Can
         actions={[
           'permissionsManage',
@@ -62,6 +67,7 @@ export const TeamMemberMoreColumnCell = ({
           'teamMembersResetPassword',
           'teamMembersUpdate',
           'teamMembersRemove',
+          'broadcastUpdate',
         ]}
       >
         <Popover.Trigger asChild>
@@ -149,9 +155,27 @@ export const TeamMemberMoreColumnCell = ({
                 </div>
               </Command.Item>
             </Can>
+            <Can action="broadcastUpdate">
+              <Command.Item
+                value="activity-log"
+                onSelect={() => {
+                  setMenuOpen(false);
+                  setActivityLogOpen(true);
+                }}
+              >
+                <IconHistory /> Activity log
+              </Command.Item>
+            </Can>
           </Command.List>
         </Command>
       </Combobox.Content>
+      <Can action="broadcastUpdate">
+        <TeamMemberActivityLogSheet
+          email={email}
+          open={activityLogOpen}
+          onOpenChange={setActivityLogOpen}
+        />
+      </Can>
     </Popover>
   );
 };

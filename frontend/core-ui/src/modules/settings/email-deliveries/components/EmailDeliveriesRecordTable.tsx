@@ -3,22 +3,67 @@ import { emailDeliveryColumns } from '@/settings/email-deliveries/components/ema
 import { EMAIL_DELIVERIES_CURSOR_SESSION_KEY } from '@/settings/email-deliveries/constants';
 import { useEmailDeliveries } from '@/settings/email-deliveries/hooks/useEmailDeliveries';
 import { IconMailOff } from '@tabler/icons-react';
-import { RecordTable } from 'erxes-ui';
+import { Button, RecordTable, toast } from 'erxes-ui';
 
-export const EmailDeliveriesRecordTable = () => {
+const memberColumns = emailDeliveryColumns.filter(
+  ({ id }) => id !== 'source' && id !== 'provider',
+);
+
+export const EmailDeliveriesRecordTable = ({
+  email,
+}: { email?: string } = {}): JSX.Element => {
   const {
     list,
     loading,
     totalCount,
+    error,
+    refetch,
     handleFetchMore,
     hasNextPage,
     hasPreviousPage,
-  } = useEmailDeliveries();
+  } = useEmailDeliveries(
+    email
+      ? {
+          variables: { searchValue: email, limit: 30 },
+          fetchPolicy: 'network-only',
+          notifyOnNetworkStatusChange: true,
+        }
+      : undefined,
+  );
+
+  const deliveries = email
+    ? list.filter(({ toEmails }) =>
+        toEmails.some(
+          (address) =>
+            address.trim().toLowerCase() === email.trim().toLowerCase(),
+        ),
+      )
+    : list;
+  const isEmpty = email ? !deliveries.length && !hasNextPage : !totalCount;
+
+  if (error) {
+    return (
+      <div role="alert" className="p-4 text-sm text-destructive">
+        <p>{error.message}</p>
+        <Button
+          variant="outline"
+          disabled={loading}
+          onClick={() =>
+            refetch().catch((error: Error) =>
+              toast({ title: error.message, variant: 'destructive' }),
+            )
+          }
+        >
+          Retry
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <RecordTable.Provider
-      columns={emailDeliveryColumns}
-      data={list}
+      columns={email ? memberColumns : emailDeliveryColumns}
+      data={deliveries}
       stickyColumns={['status']}
       className="m-2"
     >
@@ -26,7 +71,12 @@ export const EmailDeliveriesRecordTable = () => {
         hasPreviousPage={hasPreviousPage}
         hasNextPage={hasNextPage}
         dataLength={list?.length}
-        sessionKey={EMAIL_DELIVERIES_CURSOR_SESSION_KEY}
+        sessionKey={
+          email
+            ? `${EMAIL_DELIVERIES_CURSOR_SESSION_KEY}:${email}`
+            : EMAIL_DELIVERIES_CURSOR_SESSION_KEY
+        }
+        loading={loading}
       >
         <RecordTable>
           <RecordTable.Header />
@@ -42,7 +92,7 @@ export const EmailDeliveriesRecordTable = () => {
           </RecordTable.Body>
         </RecordTable>
 
-        {!totalCount && !loading && (
+        {isEmpty && !loading && (
           <div className="absolute inset-0">
             <div className="flex h-full w-full justify-center px-8">
               <div className="flex h-full min-h-[360px] flex-col items-center justify-center text-center">
