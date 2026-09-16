@@ -12,8 +12,11 @@ const attachmentKind = (type?: string): InstagramMessageKind => {
   if (type === 'story_reply') return 'story_reply';
   if (type === 'sticker') return 'sticker';
   if (type === 'voice') return 'voice';
-  if (['share', 'fallback', 'ig_post', 'ig_reel'].includes(type)) {
+  if (['share', 'ig_post', 'ig_reel'].includes(type)) {
     return 'share';
+  }
+  if (type === 'fallback') {
+    return 'unsupported';
   }
   if (type.startsWith('image')) return 'image';
   if (type.startsWith('video')) return 'video';

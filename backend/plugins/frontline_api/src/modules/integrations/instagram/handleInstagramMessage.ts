@@ -250,6 +250,7 @@ const handleInstagramMessengerReply = async (
         {
           recipient: { id: conversation.senderId },
           message,
+          ...(replyToMessageId && { reply_to: { mid: replyToMessageId } }),
           messaging_type: tag ? 'MESSAGE_TAG' : 'RESPONSE',
           ...(tag && { tag }),
         },
@@ -262,6 +263,9 @@ const handleInstagramMessengerReply = async (
           conversationId: conversation._id,
           integrationId: conversation.integrationId,
           mid: response.message_id,
+          ...(replyToMessageId && {
+            replyTo: { messageId: replyToMessageId },
+          }),
         };
         localMessage = await models.InstagramConversationMessages.addMessage(
           messageDoc,
