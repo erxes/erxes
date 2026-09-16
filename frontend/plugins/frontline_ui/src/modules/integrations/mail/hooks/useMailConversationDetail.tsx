@@ -44,6 +44,9 @@ const useDeliveryToast = () => {
   const { t } = useTranslation('frontline');
 
   return (outcome?: MailDeliveryOutcome | null) => {
+    if (!outcome) {
+      return toast({ title: t('error'), variant: 'destructive' });
+    }
     if (outcome?.deliveryStatus === 'bounced') {
       return toast({
         title: t('email-bounced-for', {
@@ -81,7 +84,12 @@ export const useMailSendMail = () => {
       variables,
       onCompleted: (data) => {
         showDeliveryOutcome(data?.mailSendMail);
-        onCompleted?.();
+        if (
+          data.mailSendMail?.deliveryStatus === 'sent' ||
+          data.mailSendMail?.deliveryStatus === 'pending'
+        ) {
+          onCompleted?.();
+        }
       },
       onError: (err) => {
         toast({
@@ -89,7 +97,9 @@ export const useMailSendMail = () => {
           variant: 'destructive',
         });
       },
-      refetchQueries: ['mailConversationDetail', 'Conversations'],
+      refetchQueries: variables.conversationId
+        ? ['mailConversationDetail', 'Conversations']
+        : ['Conversations'],
     });
   };
 
