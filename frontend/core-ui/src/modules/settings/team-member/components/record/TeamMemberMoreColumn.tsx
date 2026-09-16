@@ -58,6 +58,93 @@ export const TeamMemberMoreColumnCell = ({
     setSearchParams(next);
   };
 
+  const menuItems = (
+    <Command.List>
+      <Can action="teamMembersUpdate">
+        <Command.Item value="edit" onSelect={handleEdit}>
+          <IconEdit /> Edit
+        </Command.Item>
+      </Can>
+      <Can action="permissionsManage">
+        <Command.Item value="permissions" onSelect={handleEditPermissions}>
+          <IconSettings size={18} /> Edit Permission Groups
+        </Command.Item>
+      </Can>
+      <Can action="teamMembersResetPassword">
+        <Command.Item
+          value="reset-password"
+          onSelect={() => {
+            setResetPasswordOpen(_id);
+            setRenderingTeamMemberResetPasswordAtom(true);
+          }}
+        >
+          <IconLock /> Reset Password
+        </Command.Item>
+      </Can>
+      <Can action="teamMembersRemove">
+        <Command.Item
+          value="toggle-status"
+          onSelect={() => {
+            editStatus({
+              variables: {
+                _id,
+              },
+              onCompleted: () =>
+                toast({
+                  title: `User ${
+                    isActive ? 'deactivated' : 'activated'
+                  } successfully`,
+                  variant: 'success',
+                }),
+              onError: (error) =>
+                toast({ title: error.message, variant: 'destructive' }),
+            });
+          }}
+        >
+          {isActive ? (
+            <IconToggleLeft size={18} />
+          ) : (
+            <IconToggleRight size={18} />
+          )}
+          {isActive ? 'Deactivate' : 'Activate'}
+        </Command.Item>
+      </Can>
+      <Can action="teamMembersInvite">
+        <Command.Item
+          value="status"
+          onSelect={() =>
+            resend({
+              variables: {
+                email,
+              },
+              onError: (error) =>
+                toast({ title: error.message, variant: 'destructive' }),
+              onCompleted: () =>
+                toast({
+                  title: 'Invitation has been resent',
+                  variant: 'success',
+                }),
+            })
+          }
+        >
+          {loading ? <Spinner size="sm" /> : <IconRefresh size={18} />}
+          Resend Invite
+        </Command.Item>
+      </Can>
+      <Can action="broadcastUpdate">
+        <Command.Item
+          value="activity-log"
+          onSelect={() => {
+            setMenuOpen(false);
+            setActivityLogOpen(true);
+          }}
+        >
+          <IconHistory /> Activity log
+        </Command.Item>
+      </Can>
+    </Command.List>
+  );
+
   return (
     <Popover open={menuOpen} onOpenChange={setMenuOpen}>
       <Can
@@ -75,99 +162,7 @@ export const TeamMemberMoreColumnCell = ({
         </Popover.Trigger>
       </Can>
       <Combobox.Content>
-        <Command shouldFilter={false}>
-          <Command.List>
-            <Can action="teamMembersUpdate">
-              <Command.Item value="edit" onSelect={handleEdit}>
-                <IconEdit /> Edit
-              </Command.Item>
-            </Can>
-            <Can action="permissionsManage">
-              <Command.Item
-                value="permissions"
-                onSelect={handleEditPermissions}
-              >
-                <IconSettings size={18} /> Edit Permission Groups
-              </Command.Item>
-            </Can>
-            <Can action="teamMembersResetPassword">
-              <Command.Item
-                value="reset-password"
-                onSelect={() => {
-                  setResetPasswordOpen(_id);
-                  setRenderingTeamMemberResetPasswordAtom(true);
-                }}
-              >
-                <IconLock /> Reset Password
-              </Command.Item>
-            </Can>
-            <Can action="teamMembersRemove">
-              <Command.Item
-                value="toggle-status"
-                onSelect={() => {
-                  editStatus({
-                    variables: {
-                      _id,
-                    },
-                    onCompleted: () =>
-                      toast({
-                        title: `User ${
-                          isActive ? 'deactivated' : 'activated'
-                        } successfully`,
-                        variant: 'success',
-                      }),
-                    onError: (error) =>
-                      toast({ title: error.message, variant: 'destructive' }),
-                  });
-                }}
-              >
-                <div className="flex items-center gap-2">
-                  {isActive ? (
-                    <IconToggleLeft size={18} />
-                  ) : (
-                    <IconToggleRight size={18} />
-                  )}
-                  {isActive ? 'Deactivate' : 'Activate'}
-                </div>
-              </Command.Item>
-            </Can>
-            <Can action="teamMembersInvite">
-              <Command.Item
-                value="status"
-                onSelect={() =>
-                  resend({
-                    variables: {
-                      email,
-                    },
-                    onError: (error) =>
-                      toast({ title: error.message, variant: 'destructive' }),
-                    onCompleted: () =>
-                      toast({
-                        title: 'Invitation has been resent',
-                        variant: 'success',
-                      }),
-                  })
-                }
-              >
-                <div className="flex items-center gap-2">
-                  {loading ? <Spinner size="sm" /> : <IconRefresh size={18} />}
-                  Resend Invite
-                </div>
-              </Command.Item>
-            </Can>
-            <Can action="broadcastUpdate">
-              <Command.Item
-                value="activity-log"
-                onSelect={() => {
-                  setMenuOpen(false);
-                  setActivityLogOpen(true);
-                }}
-              >
-                <IconHistory /> Activity log
-              </Command.Item>
-            </Can>
-          </Command.List>
-        </Command>
+        <Command shouldFilter={false}>{menuItems}</Command>
       </Combobox.Content>
       <Can action="broadcastUpdate">
         <TeamMemberActivityLogSheet
