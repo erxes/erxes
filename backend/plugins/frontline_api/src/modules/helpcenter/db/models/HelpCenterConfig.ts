@@ -7,8 +7,7 @@ import { helpCenterConfigSchema } from '@/helpcenter/db/definitions/helpCenterCo
 import { normalizeHelpCenterConfig } from '@/helpcenter/utils/helpCenterConfig';
 import { IModels } from '~/connectionResolvers';
 
-export interface IHelpCenterConfigModel
-  extends Model<IHelpCenterConfigDocument> {
+export interface IHelpCenterConfigModel extends Model<IHelpCenterConfigDocument> {
   getConfig(_id: string): Promise<IHelpCenterConfigDocument>;
   createOrUpdateConfig(
     config: IHelpCenterConfigInput,
