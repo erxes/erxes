@@ -76,8 +76,11 @@ const deriveContactEmail = (msgs: MailMessage[]) => {
 };
 
 export const MailConversationDetail = () => {
-  const { _id: conversationId, integration, customerId } =
-    useConversationContext();
+  const {
+    _id: conversationId,
+    integration,
+    customerId,
+  } = useConversationContext();
   const setHideInput = useSetAtom(hideMessageInputState);
   const [limit, setLimit] = useState(PAGE_SIZE);
   const { mailSendMail, loading: sending } = useMailSendMail();
