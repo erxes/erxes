@@ -13,7 +13,7 @@ import {
   useStructureDetails,
 } from '../hooks/useStructureDetails';
 import { useStructureDetailsForm } from '../hooks/useStructureDetailsForm';
-import { IStructureDetails, StructureDetailsFormT } from '../types/structure';
+import { StructureDetailsFormT } from '../types/structure';
 import { Can, SelectMember } from 'ui-modules';
 
 export const Structure = () => {
@@ -22,29 +22,6 @@ export const Structure = () => {
     loading: detailsLoading,
     error,
   } = useStructureDetails();
-  if (detailsLoading) return <Spinner />;
-  if (error)
-    return (
-      <div role="alert" className="text-destructive">
-        Error loading structure: {error.message}
-      </div>
-    );
-
-  return (
-    <StructureForm
-      key={`${structureDetail?._id ?? ''}:${
-        structureDetail?.phoneNumber ?? ''
-      }`}
-      structureDetail={structureDetail}
-    />
-  );
-};
-
-const StructureForm = ({
-  structureDetail,
-}: {
-  structureDetail?: IStructureDetails | null;
-}) => {
   const {
     methods,
     methods: { control, handleSubmit },
@@ -58,6 +35,14 @@ const StructureForm = ({
     }
     return handleEdit({ variables: { ...data, id: structureDetail._id } });
   };
+
+  if (detailsLoading) return <Spinner />;
+  if (error)
+    return (
+      <div role="alert" className="text-destructive">
+        Error loading structure: {error.message}
+      </div>
+    );
 
   return (
     <ScrollArea className="w-full min-h-svh">
@@ -130,7 +115,13 @@ const StructureForm = ({
                   <Form.Item>
                     <Form.Label>{'Phone number'}</Form.Label>
                     <Form.Control>
-                      <PhoneInput {...field} />
+                      <PhoneInput
+                        {...field}
+                        key={`${structureDetail?._id ?? ''}:${
+                          structureDetail?.phoneNumber ?? ''
+                        }`}
+                        value={structureDetail?.phoneNumber ?? ''}
+                      />
                     </Form.Control>
                     <Form.Message />
                   </Form.Item>
