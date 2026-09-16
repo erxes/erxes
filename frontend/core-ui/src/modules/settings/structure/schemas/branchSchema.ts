@@ -29,7 +29,7 @@ export const SOCIAL_LINKS = z.object({
     .string()
     .url()
     .regex(
-      /^https:\/\/(www\.)?youtube\.com\/(?:@[A-Za-z0-9._-]+|(?:channel|c|user)\/[A-Za-z0-9._-]+|[A-Za-z0-9._-]+)\/?$/,
+      /^https:\/\/(www\.)?youtube\.com\/(?:@[A-Za-z0-9._-]+|(?:channel|c|user)\/[A-Za-z0-9._-]+|[A-Za-z0-9._-]+)\/?(?:\?[^#]*)?(?:#.*)?$/,
       {
         message: 'Invalid Youtube URL',
       },
