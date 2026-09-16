@@ -12,7 +12,7 @@ export const graphRequest = {
   base(method: string, path?: any, accessToken?: any, ...otherParams) {
     // set access token
     graph.setAccessToken(accessToken);
-    graph.setVersion('21.0');
+    graph.setVersion('25.0');
 
     return new Promise((resolve, reject) => {
       graph[method](path, ...otherParams, (error, response) => {
@@ -373,9 +373,47 @@ export const sendReply = async (
     );
     return response;
   } catch (e) {
-    console.error(`[instagram] sendReply FAILED — error="${e?.message || JSON.stringify(e)}" data=${JSON.stringify(data)}`);
+    debugError(
+      `Instagram send reply failed: ${e?.message || JSON.stringify(e)}`,
+    );
     throw new Error(e.message);
   }
+};
+
+interface IInstagramReactionPayload {
+  recipient: { id: string };
+  sender_action: 'react' | 'unreact';
+  payload: {
+    message_id: string;
+    reaction?: 'love';
+  };
+}
+
+export const sendReaction = async (
+  models: IModels,
+  data: IInstagramReactionPayload,
+  integrationId: string | undefined,
+) => {
+  const pageAccessToken = await getIntegrationPageToken(models, integrationId);
+  const response = await fetch('https://graph.facebook.com/v25.0/me/messages', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${pageAccessToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+  const result = (await response.json()) as {
+    error?: { message?: string };
+  };
+
+  if (!response.ok) {
+    const message = result.error?.message || 'Failed to react on Instagram';
+    debugError(`Instagram reaction failed: ${message}`);
+    throw new Error(`Instagram reaction failed: ${message}`);
+  }
+
+  return result;
 };
 
 export const sendReplyComment = async (
@@ -413,7 +451,9 @@ export const sendReplyComment = async (
     return response;
   } catch (e) {
     debugError(
-      `Error occurred while trying to send post request to instagram ${e.message} data: ${JSON.stringify(data)}`,
+      `Error occurred while trying to send post request to instagram ${
+        e.message
+      } data: ${JSON.stringify(data)}`,
     );
     throw new Error(e.message);
   }
