@@ -1,15 +1,68 @@
 import { IApp } from '@/settings/apps/types';
+import { useAppsEdit } from '@/settings/apps/hooks/useAppsEdit';
 import { ColumnDef } from '@tanstack/table-core';
+import { Cell } from '@tanstack/react-table';
 import { format } from 'date-fns';
 import {
   Badge,
   Button,
+  Input,
+  Popover,
   RecordTable,
   RecordTableInlineCell,
   useToast,
 } from 'erxes-ui';
 import { IconCopy, IconCheck } from '@tabler/icons-react';
 import { useState } from 'react';
+
+const AppNameCell = ({ cell }: { cell: Cell<IApp, unknown> }) => {
+  const { _id, name } = cell.row.original;
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState(name);
+  const { appsEdit, loading } = useAppsEdit();
+  const { toast } = useToast();
+
+  const onSave = () => {
+    const trimmed = value.trim();
+    if (!trimmed) {
+      setValue(name);
+      return;
+    }
+    if (trimmed !== name) {
+      appsEdit({
+        variables: { _id, name: trimmed },
+        onError: (error) => {
+          setValue(name);
+          toast({
+            title: 'Error',
+            description: error.message,
+            variant: 'destructive',
+          });
+        },
+      });
+    }
+  };
+
+  return (
+    <Popover
+      open={open}
+      onOpenChange={(open) => {
+        setOpen(open);
+        if (!open) onSave();
+      }}
+    >
+      <RecordTableInlineCell.Trigger>{name}</RecordTableInlineCell.Trigger>
+      <RecordTableInlineCell.Content className="min-w-72">
+        <Input
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          disabled={loading}
+          autoFocus
+        />
+      </RecordTableInlineCell.Content>
+    </Popover>
+  );
+};
 
 const TokenCell = ({ token }: { token: string }) => {
   const [copied, setCopied] = useState(false);
@@ -46,9 +99,7 @@ export const appsSettingsColumns: ColumnDef<IApp>[] = [
     id: 'name',
     accessorKey: 'name',
     header: 'App Name',
-    cell: ({ cell }) => (
-      <RecordTableInlineCell>{cell.getValue() as string}</RecordTableInlineCell>
-    ),
+    cell: ({ cell }) => <AppNameCell cell={cell} />,
   },
   {
     id: 'token',
