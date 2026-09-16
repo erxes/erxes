@@ -7,6 +7,7 @@ import {
   Spinner,
   stripHtml,
   toast,
+  type IAttachment,
 } from 'erxes-ui';
 import { useMemo } from 'react';
 import { useForm, type UseFormReturn } from 'react-hook-form';
@@ -211,7 +212,7 @@ export const ForwardMessageDialog = ({
     const existingSnapshot = message.extraData?.forwardedSnapshot;
     const messageText = stripHtml(message.content);
     const hasSocialShare = message.attachments?.some(
-      (attachment) =>
+      (attachment: IAttachment) =>
         attachment.type === 'share' ||
         attachment.type === 'ig_post' ||
         attachment.type === 'ig_reel',
@@ -237,7 +238,7 @@ export const ForwardMessageDialog = ({
       ),
     };
     const forwardAttachments = (snapshot.attachments || []).map(
-      (attachment) => ({
+      (attachment: IAttachment) => ({
         url: attachment.url,
         name: attachment.name || attachmentFallbackName(attachment.type),
         type: attachment.type,

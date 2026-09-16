@@ -6,7 +6,13 @@ import { CustomersInline, MembersInline } from 'ui-modules';
 import { useConversationMessageContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationMessageContext';
 import { activeConversationState } from '@/inbox/conversations/states/activeConversationState';
 
-export const MessageWrapper = ({ children }: { children: React.ReactNode }) => {
+export const MessageWrapper = ({
+  children,
+  actions,
+}: {
+  children: React.ReactNode;
+  actions?: React.ReactNode;
+}) => {
   const {
     separateNext,
     customerId,
@@ -23,6 +29,17 @@ export const MessageWrapper = ({ children }: { children: React.ReactNode }) => {
     !isGroupConversation && customer && customer._id === customerId
       ? [customer]
       : undefined;
+
+  const actionBar = actions ? (
+    <div
+      className={cn(
+        'z-30 shrink-0 self-end pb-1',
+        isOutgoing ? '-mr-1' : '-ml-1',
+      )}
+    >
+      {actions}
+    </div>
+  ) : null;
 
   return (
     <div
@@ -49,7 +66,9 @@ export const MessageWrapper = ({ children }: { children: React.ReactNode }) => {
           </Avatar.Fallback>
         </Avatar>
       )}
+      {isOutgoing && actionBar}
       <div className="relative w-fit min-w-0 max-w-full">{children}</div>
+      {!isOutgoing && actionBar}
       {userId && separateNext && (
         <MembersInline.Provider memberIds={[userId]}>
           <MembersInline.Avatar size="xl" />

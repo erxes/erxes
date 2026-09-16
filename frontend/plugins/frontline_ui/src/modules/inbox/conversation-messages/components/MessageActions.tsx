@@ -27,7 +27,7 @@ import {
   CONVERSATION_MESSAGE_PIN,
   CONVERSATION_MESSAGE_REACT,
 } from '@/inbox/conversations/conversation-detail/graphql/mutations/conversationMessageReact';
-import type { IMessage } from '@/inbox/types/Conversation';
+import type { IMessage, IMessageReaction } from '@/inbox/types/Conversation';
 import { IntegrationType } from '@/types/Integration';
 import { currentUserState } from 'ui-modules';
 import { ForwardMessageDialog } from '@/inbox/conversation-messages/components/ForwardMessageDialog';
@@ -122,7 +122,9 @@ export const MessageActions = ({
       : REACTIONS;
   const ownReaction = (
     message.reactions?.length ? message.reactions : message.extraData?.reactions
-  )?.find((reaction) => reaction.senderId === currentUser?._id)?.reaction;
+  )?.find(
+    (reaction: IMessageReaction) => reaction.senderId === currentUser?._id,
+  )?.reaction;
   const isDiscord = kind === IntegrationType.DISCORD_MESSENGER;
   const canReplyOrForward = kind !== 'lead';
   const showActionsInline = INLINE_ACTION_KINDS.has(kind);

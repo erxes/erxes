@@ -118,6 +118,22 @@ export interface IMessageReaction {
   reaction?: string;
 }
 
+export interface IMessageSticker {
+  id: string;
+  name: string;
+  formatType?: number;
+  url?: string;
+}
+
+export interface IMessageForwardedSnapshot {
+  content?: string;
+  attachments?: IAttachment[];
+  embeds?: IMessageEmbed[];
+  stickers?: IMessageSticker[];
+  poll?: IMessagePoll;
+  createdAt?: string;
+}
+
 export type MessageDeliveryStatus = 'sent' | 'delivered' | 'read' | 'deleted';
 
 export interface IMessage {
@@ -135,8 +151,22 @@ export interface IMessage {
     poll?: IMessagePoll;
     survey?: IMessageSurvey;
     embeds?: IMessageEmbed[];
+    stickers?: IMessageSticker[];
+    voiceMessage?: boolean;
+    forwardedSnapshot?: IMessageForwardedSnapshot;
     discordMessageId?: string;
     discordDeletedAt?: string;
+    discordEditedAt?: string;
+    discordPinned?: boolean;
+    reactions?: Array<{
+      senderId: string;
+      emoji?: string;
+      reaction?: string;
+    }>;
+    forwardedFrom?: {
+      conversationId: string;
+      messageId: string;
+    };
   };
   internal?: boolean;
   botData?: unknown[];

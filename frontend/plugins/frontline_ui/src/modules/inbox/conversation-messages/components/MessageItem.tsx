@@ -38,6 +38,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MessageActions } from '@/inbox/conversation-messages/components/MessageActions';
 import { DiscordMessageActions } from '@/integrations/discord/components/DiscordMessageActions';
+import type { IMessageSticker } from '@/inbox/types/Conversation';
 export { MessageDaySeparator };
 
 const getPostAttachmentType = (type?: string): string =>
@@ -486,7 +487,7 @@ export const MessageItem = () => {
             ))}
           {!isDeleted && Boolean(stickers?.length) && (
             <div className="mt-2 flex flex-wrap gap-2">
-              {stickers?.map((sticker) => (
+              {stickers?.map((sticker: IMessageSticker) => (
                 <StickerCard key={sticker.id} sticker={sticker} />
               ))}
             </div>

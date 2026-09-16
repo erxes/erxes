@@ -169,3 +169,6 @@ export const MessageAttachments = ({
     </div>
   );
 };
+
+export { MessageAttachments as Attachments };
+

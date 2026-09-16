@@ -138,7 +138,7 @@ export const ConversationFormDisplay = ({
                             key={i}
                             value={url}
                             className="w-full"
-                            onChange={() => {}}
+                            onChange={() => undefined}
                           >
                             <Upload.Preview />
                             <Upload.Button
