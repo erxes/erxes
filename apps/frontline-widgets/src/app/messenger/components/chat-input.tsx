@@ -316,6 +316,9 @@ export const ChatInput: FC<ChatInputProps> = ({ className, ...inputProps }) => {
       if (!dismissed) return prev;
       if (dismissed.state === 'uploading') {
         cancelledUploadsRef.current.add(dismissed.file);
+        uploadQueueRef.current = uploadQueueRef.current.filter(
+          (file) => file !== dismissed.file,
+        );
       }
       if (dismissed.preview) {
         URL.revokeObjectURL(dismissed.preview);
