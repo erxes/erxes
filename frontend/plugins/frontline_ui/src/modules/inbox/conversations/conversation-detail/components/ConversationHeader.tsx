@@ -408,7 +408,7 @@ export const ConversationHeader = () => {
   } else if (isNew) {
     statusLabel = t('new', { defaultValue: 'New' });
   } else {
-    statusLabel = t('open-label');
+    statusLabel = t('open-label', { defaultValue: 'Open' });
   }
 
   return (
