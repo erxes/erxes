@@ -106,48 +106,76 @@ export const loadMailMessageClass = (models: IModels) => {
         ...compose
       } = args;
 
-      if (!conversationId) {
-        throw new Error(
-          'A mail reply needs the conversation it belongs to — send it from the inbox thread',
-        );
-      }
-
       const integration = await Message.resolveIntegration(
         integrationId,
         conversationId,
       );
 
+      const scopeId = mailScopeId(integration);
+
+      let targetConversationId = conversationId;
+      let effectiveCustomerId = compose.customerId;
+      if (!targetConversationId) {
+        const [firstRecipient] = compose.to ?? [];
+
+        if (!effectiveCustomerId && firstRecipient) {
+          effectiveCustomerId = await models.MailCustomers.findOrCreate(
+            subdomain,
+            firstRecipient.trim().toLowerCase(),
+            scopeId,
+          );
+        }
+
+        if (!effectiveCustomerId) {
+          throw new Error('Starting an email conversation requires a customer');
+        }
+
+        const conversation = await models.Conversations.createConversation({
+          integrationId: integration.inboxId,
+          customerId: effectiveCustomerId,
+          content: compose.subject,
+        });
+        targetConversationId = conversation._id;
+      }
+
+      await Message.ensureCustomer(
+        subdomain,
+        effectiveCustomerId,
+        compose.to,
+        scopeId,
+      );
+
       if (shouldResolve) {
         await models.Conversations.updateOne(
-          { _id: conversationId },
+          { _id: targetConversationId },
           { $set: { status: 'closed' } },
         );
       } else if (shouldOpen) {
         await models.Conversations.updateOne(
-          { _id: conversationId },
+          { _id: targetConversationId },
           { $set: { status: 'new' } },
         );
       }
 
       const message = await Message.compose(subdomain, integration, compose, {
-        inboxConversationId: conversationId,
+        inboxConversationId: targetConversationId,
         replyTag: await Message.resolveReplyTag({
-          inboxConversationId: conversationId,
+          inboxConversationId: targetConversationId,
         }),
       });
 
-      await models.Conversations.updateConversation(conversationId, {
+      await models.Conversations.updateConversation(targetConversationId, {
         content: compose.subject,
         updatedAt: message.createdAt,
       });
 
       await graphqlPubsub.publish(
-        `conversationMessageInserted:${conversationId}`,
+        `conversationMessageInserted:${targetConversationId}`,
         {
           conversationMessageInserted: {
             _id: String(message._id),
             content: message.body ?? '',
-            conversationId,
+            conversationId: targetConversationId,
           },
         },
       );
