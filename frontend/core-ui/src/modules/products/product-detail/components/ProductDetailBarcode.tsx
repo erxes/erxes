@@ -6,6 +6,7 @@ import {
   Input,
   Label,
   Select,
+  TextOverflowTooltip,
   useToast,
 } from 'erxes-ui';
 import { useEffect, useMemo, useState } from 'react';
@@ -187,9 +188,14 @@ export const ProductDetailBarcode = ({
                     key={barcode.code || index}
                     className="flex gap-2 items-end p-2 rounded-md border"
                   >
-                    <div className="flex flex-col flex-1 gap-2">
+                    <div className="flex flex-col flex-1 gap-2 min-w-0">
                       <Label>{t('code')}</Label>
-                      <Input value={barcode.code || ''} disabled />
+                      <div className="flex overflow-hidden items-center px-3 w-full h-8 text-sm rounded-sm border cursor-not-allowed bg-background opacity-50 shadow-xs">
+                        <TextOverflowTooltip
+                          value={barcode.code}
+                          className="min-w-0"
+                        />
+                      </div>
                     </div>
                     <div className="flex flex-col flex-1 gap-2">
                       <Label>{t('name')}</Label>
