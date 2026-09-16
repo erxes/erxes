@@ -30,7 +30,6 @@ import {
 import { MessageWrapper } from '@/inbox/conversation-messages/components/MessageWrapper';
 import { FormWidgetMessage } from '@/inbox/conversation-messages/components/FormWidgetMessage';
 import { MessageAuthorHeader } from '@/inbox/conversation-messages/components/MessageAuthorHeader';
->>>>>>> db06cf5785 (feat(frontline): fold generic rendering and message actions into contract)
 import { useConversationMessageContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationMessageContext';
 import { useConversationContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationContext';
 import { IntegrationType } from '@/types/Integration';
