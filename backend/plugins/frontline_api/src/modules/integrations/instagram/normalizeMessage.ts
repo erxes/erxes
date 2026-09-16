@@ -92,9 +92,7 @@ const buildCoreFields = ({
       shareType: shareTypeFor(attachmentType),
       storyUrl: isStory ? previewUrl : undefined,
       fallbackReason:
-        !hasContent && !previewUrl
-          ? fallbackReasonFor(messageKind)
-          : undefined,
+        !hasContent && !previewUrl ? fallbackReasonFor(messageKind) : undefined,
     },
     expiresAt:
       isStory && timestampMs !== undefined
