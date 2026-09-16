@@ -18,6 +18,7 @@ type Project {
     createdAt: Date
     updatedAt: Date
     convertedFromId: String
+    propertiesData: JSON
 }
 
 
@@ -66,6 +67,7 @@ const createProjectParams = `
   startDate: Date
   targetDate: Date
   convertedFromId: String
+  propertiesData: JSON
 `;
 
 const updateProjectParams = `
@@ -81,6 +83,7 @@ const updateProjectParams = `
   tagIds: [String]
   startDate: Date
   targetDate: Date
+  propertiesData: JSON
 `;
 
 export const queries = `
