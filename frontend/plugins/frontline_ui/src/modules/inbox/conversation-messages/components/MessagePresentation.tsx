@@ -8,6 +8,7 @@ import { Skeleton, cn, readImage, type IAttachment } from 'erxes-ui';
 import { useEffect, useState } from 'react';
 
 import { Attachments } from '@/inbox/conversation-messages/components/MessageAttachments';
+import { InboxImage } from '@/inbox/conversation-messages/components/InboxImage';
 import { MessageContent } from '@/inbox/conversation-messages/components/MessageContent';
 import { MessageEmbeds } from '@/inbox/conversation-messages/components/MessageEmbeds';
 import { MessagePoll } from '@/inbox/conversation-messages/components/MessagePoll';
@@ -79,17 +80,21 @@ export const StoryCard = ({
   );
 
   useEffect(() => {
-    if (!expiresAt) return;
+    if (!expiresAt) {
+      return undefined;
+    }
     const remaining = new Date(expiresAt).getTime() - Date.now();
     if (remaining <= 0) {
       setExpired(true);
-      return;
+      return undefined;
     }
     const timeout = window.setTimeout(
       () => setExpired(true),
       Math.min(remaining, 2_147_483_647),
     );
-    return () => window.clearTimeout(timeout);
+    return () => {
+      window.clearTimeout(timeout);
+    };
   }, [expiresAt]);
 
   const displayUrl = url || sourceUrl;
@@ -123,7 +128,7 @@ export const StoryCard = ({
           <track kind="captions" />
         </video>
       ) : (
-        <img
+        <InboxImage
           src={displayUrl}
           alt={label}
           loading="lazy"
@@ -166,7 +171,7 @@ export const ShareCard = ({
     const preview = (
       <>
         {previewUrl ? (
-          <img
+          <InboxImage
             src={previewUrl}
             alt={`Instagram ${label}`}
             className="size-16 shrink-0 rounded-lg object-cover"
@@ -259,7 +264,7 @@ export const PostMediaCard = ({
   const card = (
     <>
       {thumbnail ? (
-        <img
+        <InboxImage
           src={readImage(thumbnail)}
           alt={`${label} preview`}
           loading="lazy"
@@ -313,7 +318,7 @@ export const StickerCard = ({ sticker }: { sticker: IMessageSticker }) => {
 
   return (
     <div className="mt-1 max-w-48">
-      <img
+      <InboxImage
         src={sticker.url}
         alt={sticker.name}
         loading="lazy"
