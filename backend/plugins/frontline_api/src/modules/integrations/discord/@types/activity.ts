@@ -3,9 +3,10 @@ import {
   APIMessage,
   APIUserWithMember,
   GatewayMessagePollVoteDispatchData,
+  GatewayMessageReactionAddDispatchData,
+  GatewayMessageReactionRemoveDispatchData,
   Snowflake,
 } from 'discord-api-types/v10';
-import type { IMessageReplyTo } from '@/inbox/@types/conversationMessages';
 
 type TDiscordReferencedMessage = Partial<
   Pick<
@@ -14,12 +15,30 @@ type TDiscordReferencedMessage = Partial<
   >
 >;
 
+type TDiscordMessageSnapshot = {
+  message?: Partial<
+    Pick<
+      APIMessage,
+      | 'type'
+      | 'content'
+      | 'attachments'
+      | 'embeds'
+      | 'mentions'
+      | 'sticker_items'
+      | 'timestamp'
+      | 'edited_timestamp'
+      | 'flags'
+    >
+  >;
+};
+
 export type TDiscordMessagePayload = Partial<
   Omit<APIBaseMessage, 'mentions' | 'referenced_message'>
 > & {
   guild_id?: Snowflake;
   mentions?: APIUserWithMember[];
   referenced_message?: TDiscordReferencedMessage | null;
+  message_snapshots?: TDiscordMessageSnapshot[];
 };
 
 export type DiscordMention = {
@@ -59,7 +78,12 @@ export type DiscordAttachment = {
   url: string;
   name?: string;
   size?: number;
+  width?: number;
+  height?: number;
   duration?: number;
+  waveform?: string;
+  ephemeral?: boolean;
+  spoiler?: boolean;
 };
 
 export type DiscordSticker = {
@@ -88,7 +112,18 @@ export type DiscordActivity = {
   attachments: DiscordAttachment[];
   stickers?: DiscordSticker[];
   voiceMessage?: boolean;
-  replyTo?: IMessageReplyTo;
+  forwardedSnapshot?: {
+    content?: string;
+    attachments?: DiscordAttachment[];
+    embeds?: DiscordEmbed[];
+    stickers?: DiscordSticker[];
+    createdAt?: string;
+  };
+  replyTo?: {
+    messageId: string;
+    content?: string;
+    authorName?: string;
+  };
   raw: TDiscordMessagePayload;
 };
 
@@ -101,6 +136,18 @@ export type DiscordPollVoteEvent = {
   answerId: number;
   added: boolean;
   raw: GatewayMessagePollVoteDispatchData;
+};
+
+export type DiscordReactionEvent = {
+  source: 'discord';
+  messageId: string;
+  channelId: string;
+  userId: string;
+  emoji: string;
+  added: boolean;
+  raw:
+    | GatewayMessageReactionAddDispatchData
+    | GatewayMessageReactionRemoveDispatchData;
 };
 
 export type DiscordMessageDeleteEvent = {
