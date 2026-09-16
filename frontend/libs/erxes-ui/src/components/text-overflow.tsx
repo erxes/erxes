@@ -78,8 +78,10 @@ const TextOverflowTooltipRoot = forwardRef<
 
 TextOverflowTooltipRoot.displayName = 'TextOverflowTooltip';
 
-interface TextOverflowTooltipInputProps
-  extends Omit<InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'> {
+interface TextOverflowTooltipInputProps extends Omit<
+  InputHTMLAttributes<HTMLInputElement>,
+  'value' | 'onChange'
+> {
   value?: string;
   onChange?: (value: string) => void;
   delayDuration?: number;
