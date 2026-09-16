@@ -447,76 +447,81 @@ function BarcodeManager({ form }: { form: UseFormReturn<IProductFormValues> }) {
                     {barcodeItems.map((barcode, index) => (
                       <div
                         key={barcode.code || index}
-                        className="flex gap-2 items-end p-2 rounded-md border"
+                        className="flex flex-col gap-2 p-2 rounded-md border"
                       >
-                        <div className="flex flex-col flex-1 gap-2 min-w-0">
-                          <Label>CODE</Label>
-                          <div className="flex overflow-hidden items-center px-3 w-full h-8 text-sm rounded-sm border cursor-not-allowed bg-background opacity-50 shadow-xs">
-                            <TextOverflowTooltip
-                              value={barcode.code}
-                              className="min-w-0"
+                        <div className="flex gap-2 items-end">
+                          <div className="flex flex-col flex-1 gap-2 min-w-0">
+                            <Label>CODE</Label>
+                            <div className="flex overflow-hidden items-center px-3 w-full h-8 text-sm rounded-sm border cursor-not-allowed bg-background opacity-50 shadow-xs">
+                              <TextOverflowTooltip
+                                value={barcode.code}
+                                className="min-w-0"
+                              />
+                            </div>
+                          </div>
+                          <div className="flex flex-col flex-1 gap-2">
+                            <Label>NAME</Label>
+                            <Input
+                              value={barcode.name || ''}
+                              onChange={(e) =>
+                                handleUpdateBarcode(
+                                  index,
+                                  'name',
+                                  e.target.value || undefined,
+                                )
+                              }
+                              placeholder="Enter name"
                             />
                           </div>
-                        </div>
-                        <div className="flex flex-col flex-1 gap-2">
-                          <Label>NAME</Label>
-                          <Input
-                            value={barcode.name || ''}
-                            onChange={(e) =>
-                              handleUpdateBarcode(
-                                index,
-                                'name',
-                                e.target.value || undefined,
-                              )
-                            }
-                            placeholder="Enter name"
-                          />
-                        </div>
-                        <div className="flex flex-col flex-1 gap-2">
-                          <Label>IMAGE</Label>
-                          <Select
-                            value={barcode.image?.url || ''}
-                            onValueChange={(imageUrl) => {
-                              const selectedImage = availableImages.find(
-                                (img) => img.url === imageUrl,
-                              );
-                              handleUpdateBarcode(
-                                index,
-                                'image',
-                                selectedImage || undefined,
-                              );
-                            }}
-                            disabled={availableImages.length === 0}
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="mb-0 w-8 h-8 text-destructive hover:text-destructive shrink-0"
+                            onClick={() => handleRemoveBarcode(index)}
                           >
-                            <Select.Trigger className="w-full max-w-[120px]">
-                              <Select.Value
-                                placeholder={
-                                  availableImages.length > 0
-                                    ? 'Select image'
-                                    : 'No image'
-                                }
-                              >
-                                {barcode.image?.name}
-                              </Select.Value>
-                            </Select.Trigger>
-                            <Select.Content>
-                              {availableImages.map((img) => (
-                                <Select.Item key={img.url} value={img.url}>
-                                  {img.name}
-                                </Select.Item>
-                              ))}
-                            </Select.Content>
-                          </Select>
+                            <IconTrash size={16} />
+                          </Button>
                         </div>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          className="mb-0 w-8 h-8 text-destructive hover:text-destructive shrink-0"
-                          onClick={() => handleRemoveBarcode(index)}
-                        >
-                          <IconTrash size={16} />
-                        </Button>
+                        <div className="flex gap-2 items-end">
+                          <div className="flex flex-col flex-1 gap-2">
+                            <Label>IMAGE</Label>
+                            <Select
+                              value={barcode.image?.url || ''}
+                              onValueChange={(imageUrl) => {
+                                const selectedImage = availableImages.find(
+                                  (img) => img.url === imageUrl,
+                                );
+                                handleUpdateBarcode(
+                                  index,
+                                  'image',
+                                  selectedImage || undefined,
+                                );
+                              }}
+                              disabled={availableImages.length === 0}
+                            >
+                              <Select.Trigger className="w-full">
+                                <Select.Value
+                                  placeholder={
+                                    availableImages.length > 0
+                                      ? 'Select image'
+                                      : 'No image'
+                                  }
+                                >
+                                  {barcode.image?.name}
+                                </Select.Value>
+                              </Select.Trigger>
+                              <Select.Content>
+                                {availableImages.map((img) => (
+                                  <Select.Item key={img.url} value={img.url}>
+                                    {img.name}
+                                  </Select.Item>
+                                ))}
+                              </Select.Content>
+                            </Select>
+                          </div>
+                          <div className="w-8 shrink-0" />
+                        </div>
                       </div>
                     ))}
                   </div>
