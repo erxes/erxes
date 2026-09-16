@@ -65,11 +65,11 @@ No production deployment is performed by this change. Deploy in this order:
 
 Required configuration:
 
-| Component                 | Setting                                                | Purpose                                                                                                      |
-| ------------------------- | ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
-| content_api and agent_api | Existing `JWT_TOKEN_SECRET` | Must match across both APIs. CMS derives its own purpose-specific signing key automatically; no additional secret is configured. Never expose it in frontend settings. |
-| Postiz backend            | `ERX_CMS_MEDIA_ORIGINS`                                | Comma-separated exact HTTPS origins for trusted public CMS image storage. Empty permits text-only sharing.   |
-| Gateway and Postiz        | Existing instance signing key / `ERX_PROVISIONING_KEY` | Reused managed-instance authentication.                                                                      |
+| Component                 | Setting                                                | Purpose                                                                                                                                                                |
+| ------------------------- | ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| content_api and agent_api | Existing `JWT_TOKEN_SECRET`                            | Must match across both APIs. CMS derives its own purpose-specific signing key automatically; no additional secret is configured. Never expose it in frontend settings. |
+| Postiz backend            | `ERX_CMS_MEDIA_ORIGINS`                                | Comma-separated exact HTTPS origins for trusted public CMS image storage. Empty permits text-only sharing.                                                             |
+| Gateway and Postiz        | Existing instance signing key / `ERX_PROVISIONING_KEY` | Reused managed-instance authentication.                                                                                                                                |
 
 The CMS envelope uses HKDF-SHA256 with salt `erxes-cms-postiz-v1`, info
 `signing` and a 32-byte output. HMAC still covers `cms-postiz-v1`, timestamp,
