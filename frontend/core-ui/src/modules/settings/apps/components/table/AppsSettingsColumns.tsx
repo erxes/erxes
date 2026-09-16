@@ -57,7 +57,6 @@ const AppNameCell = ({ cell }: { cell: Cell<IApp, unknown> }) => {
           value={value}
           onChange={(e) => setValue(e.target.value)}
           disabled={loading}
-          autoFocus
         />
       </RecordTableInlineCell.Content>
     </Popover>

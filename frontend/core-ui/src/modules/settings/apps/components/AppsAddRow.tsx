@@ -1,5 +1,5 @@
 import { Table, useToast } from 'erxes-ui';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useSetAtom } from 'jotai';
 import { isAddingAppAtom } from '../state';
 import { useAppsAdd } from '../hooks/useAppsAdd';
@@ -10,6 +10,11 @@ export const AppsAddRow = () => {
   const { toast } = useToast();
   const [value, setValue] = useState('');
   const handledRef = useRef(false);
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
 
   const cancel = () => {
     if (handledRef.current) return;
@@ -44,7 +49,7 @@ export const AppsAddRow = () => {
       <Table.Cell colSpan={6} className="h-cell">
         <div className="h-full flex items-center px-3">
           <input
-            autoFocus
+            ref={inputRef}
             disabled={loading}
             value={value}
             onChange={(e) => setValue(e.target.value)}
