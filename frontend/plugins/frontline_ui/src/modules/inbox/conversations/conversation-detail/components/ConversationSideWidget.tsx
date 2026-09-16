@@ -1,6 +1,20 @@
 import { SideMenu, cn, useSideMenuContext } from 'erxes-ui';
 import { RefObject, useEffect, useRef } from 'react';
 import { getRelationWidgetLabel, useRelationWidget } from 'ui-modules';
+import { IconHierarchy2 } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
+import { ConversationProperties } from './ConversationProperties';
+
+const SIDE_MENU_CONTENT_CLASS =
+  'data-[state=active]:animate-in data-[state=active]:fade-in-0 data-[state=active]:slide-in-from-right-4 duration-150 motion-reduce:animate-none';
+
+const sideMenuContentClass = (asSheet?: boolean) =>
+  cn(
+    SIDE_MENU_CONTENT_CLASS,
+    asSheet
+      ? 'absolute top-11 bottom-0 right-16 z-20 shadow-xl data-[state=active]:w-[min(20rem,calc(100%_-_4rem))]'
+      : 'flex-none data-[state=active]:w-72 lg:data-[state=active]:w-80',
+  );
 
 // Bounded to the conversation area so the widget's own portals do not count.
 const SideWidgetOutsideClose = ({
@@ -44,14 +58,17 @@ const SideWidgetOutsideClose = ({
 export const ConversationSideWidget = ({
   customerId,
   _id,
+  propertiesData,
   asSheet,
   boundaryRef,
 }: {
   customerId: string;
   _id: string;
+  propertiesData?: Record<string, unknown>;
   asSheet?: boolean;
   boundaryRef: RefObject<HTMLElement>;
 }) => {
+  const { t } = useTranslation(['frontline', 'common']);
   const { relationWidgetsModules, RelationWidget } = useRelationWidget();
   const sideMenuRef = useRef<HTMLDivElement>(null);
 
@@ -68,13 +85,7 @@ export const ConversationSideWidget = ({
           <SideMenu.Content
             value={module.name}
             key={module.name}
-            className={cn(
-              'data-[state=active]:animate-in data-[state=active]:fade-in-0 data-[state=active]:slide-in-from-right-4 duration-150 motion-reduce:animate-none',
-              asSheet
-                ? // Docked under the conversation header instead of taking a column.
-                  'absolute top-11 bottom-0 right-16 z-20 shadow-xl data-[state=active]:w-[min(20rem,calc(100%_-_4rem))]'
-                : 'flex-none data-[state=active]:w-72 lg:data-[state=active]:w-80',
-            )}
+            className={sideMenuContentClass(asSheet)}
           >
             <RelationWidget
               key={module.name}
@@ -88,6 +99,13 @@ export const ConversationSideWidget = ({
         );
       })}
 
+      <SideMenu.Content
+        value="properties"
+        className={cn(sideMenuContentClass(asSheet), 'overflow-y-auto p-4')}
+      >
+        <ConversationProperties id={_id} propertiesData={propertiesData} />
+      </SideMenu.Content>
+
       <SideMenu.Sidebar>
         {relationWidgetsModules.map((module) => {
           return (
@@ -99,6 +117,11 @@ export const ConversationSideWidget = ({
             />
           );
         })}
+        <SideMenu.Trigger
+          value="properties"
+          label={t('common:properties', 'Properties')}
+          Icon={IconHierarchy2}
+        />
       </SideMenu.Sidebar>
     </SideMenu>
   );
