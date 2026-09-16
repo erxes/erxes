@@ -340,10 +340,7 @@ export const MessageItem = () => {
               )}
             >
               {integration?.kind === IntegrationType.DISCORD_MESSENGER
-                ? t(
-                    'message-deleted-on-discord',
-                    'Message deleted on Discord',
-                  )
+                ? t('message-deleted-on-discord', 'Message deleted on Discord')
                 : t('message-deleted', 'Message deleted')}
               {separateNext && (
                 <div className="mt-1 text-xs not-italic">
