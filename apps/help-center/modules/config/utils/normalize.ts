@@ -1,11 +1,40 @@
-import type { HelpCenterConfig, PortalConfig } from '../types';
+import type {
+  HelpCenterConfig,
+  HelpCenterFooter,
+  HelpCenterHeader,
+  PortalConfig,
+  PortalFooter,
+  PortalHeader,
+} from '../types';
 
 const text = (value: string | null | undefined): string => value?.trim() ?? '';
+
+const normalizeFooter = (footer: HelpCenterFooter | null): PortalFooter => ({
+  logo: text(footer?.logo),
+  description: text(footer?.description),
+  copyright: text(footer?.copyright),
+  columns: (footer?.columns ?? [])
+    .map((column) => ({
+      heading: text(column.heading),
+      links: (column.links ?? [])
+        .map((link) => ({ label: text(link.label), url: text(link.url) }))
+        .filter((link) => link.label && link.url),
+    }))
+    .filter((column) => column.heading || column.links.length),
+});
+
+const normalizeHeader = (header: HelpCenterHeader | null): PortalHeader => ({
+  wordmark: text(header?.wordmark),
+  homeLabel: text(header?.homeLabel),
+  formsLabel: text(header?.formsLabel),
+  announcementsLabel: text(header?.announcementsLabel),
+  searchPlaceholder: text(header?.searchPlaceholder),
+});
 
 export const normalizeConfig = (config: HelpCenterConfig): PortalConfig => {
   const kbToggle = config.kbToggle ?? true;
   const ticketToggle = config.ticketToggle ?? false;
-//test
+
   return {
     _id: config._id,
     title: text(config.title),
@@ -30,5 +59,7 @@ export const normalizeConfig = (config: HelpCenterConfig): PortalConfig => {
     color: text(config.color),
     backgroundImage: text(config.backgroundImage),
     styles: config.styles,
+    header: normalizeHeader(config.header),
+    footer: normalizeFooter(config.footer),
   };
 };

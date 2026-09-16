@@ -2,17 +2,21 @@ import Link from 'next/link';
 import type { ButtonHTMLAttributes, ComponentProps, ReactNode } from 'react';
 import { cn } from '@/modules/ui/lib/cn';
 
-type Variant = 'primary' | 'secondary' | 'ghost' | 'onHero';
+type Variant = 'primary' | 'secondary' | 'ghost' | 'onHero' | 'onHeroSoft';
 type Size = 'sm' | 'md' | 'lg';
 
 const base =
-  'inline-flex items-center justify-center gap-2 rounded-lg font-semibold transition-[background-color,color,border-color,transform] duration-200 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2';
+  'inline-flex items-center justify-center gap-2 rounded-lg font-semibold transition-[background-color,color,border-color,transform] duration-200 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2';
 
 const variants: Record<Variant, string> = {
-  primary: 'bg-brand text-white hover:bg-brand-strong',
-  secondary: 'border border-line bg-white text-ink hover:bg-subtle',
-  ghost: 'text-brand hover:bg-brand-soft',
-  onHero: 'bg-white text-hero hover:bg-white/90',
+  primary:
+    'bg-brand text-white hover:bg-brand-strong focus-visible:ring-brand/40',
+  secondary:
+    'border border-line bg-white text-ink hover:bg-subtle focus-visible:ring-brand/40',
+  ghost: 'text-brand hover:bg-brand-soft focus-visible:ring-brand/40',
+  onHero: 'bg-white text-hero hover:bg-white/90 focus-visible:ring-white/70',
+  onHeroSoft:
+    'border border-white/25 bg-white/10 text-white hover:border-white/40 hover:bg-white/20 focus-visible:ring-white/70',
 };
 
 const sizes: Record<Size, string> = {

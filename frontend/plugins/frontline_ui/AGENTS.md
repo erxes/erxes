@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-09-15`
+- **Last synchronized:** `2026-09-16`
 
 ## Scope
 
@@ -672,12 +672,41 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
   the knowledge base and ticket feature cards; appearance owns the published
   site's whole look — logo and favicon, the six main colours, fonts with their
   text and link colours, the three form-element colours, this help center's own
-  accent colour and cover image, and the raw header/footer HTML. The sidebar
+  accent colour and cover image, the header's wording, the footer's content, and
+  the raw header/footer HTML. The sidebar
   keeps the active tab in the `tab` URL query param, so the drawer clears it on
   close or the next one opens wherever the last was left. Both tabs stay mounted
   (hidden, not unmounted) so values and validation survive switching, and an
   invalid submit switches to the tab holding the first failing field via
   `HELP_CENTER_FIELD_TAB` — add every new form field to that map.
+- The appearance tab's Header card edits `header` through
+  `HelpCenterHeaderFields`, which renders `HELP_CENTER_HEADER_FIELDS` as plain
+  inputs whose `placeholder` is the published site's own built-in wording — a
+  blank field means "keep that label", so the card never pre-fills a value. The
+  knowledge base and ticket tab labels are deliberately absent: they are
+  `kbLabel` / `ticketLabel` on the General tab, beside the toggles that gate
+  them.
+- Footer columns render as an `Accordion` (`type="multiple"`, controlled) so a
+  long footer stays scannable. The trigger shows a live heading and link count
+  through `useWatch`, and the remove button sits beside the trigger rather than
+  inside it — a button nested in a trigger is invalid markup. The trigger is
+  wrapped in its own `flex-1 min-w-0` div because a `flex-1` passed to
+  `Accordion.Trigger` lands on the inner button, not on the header Radix wraps
+  it in; without the wrapper the row shrinks to its text and the remove button
+  stops sitting at the right edge. Collapsed content
+  unmounts, which is safe only because the drawer's `useForm` leaves
+  `shouldUnregister` at its default `false`; turning that on would drop a
+  collapsed column's values on save.
+- The appearance tab's Footer card edits `footer`, a nested object with `logo`,
+  `description`, `copyright` and a `columns` array, through
+  `HelpCenterFooterFields`. The two `useFieldArray` levels — columns, and links
+  inside a column — are why the tab takes the whole `form` rather than just
+  `control`, and why `toFooterInput` rebuilds every level field by field: the
+  cached record carries `__typename` at each one and `HelpCenterFooterInput`
+  rejects it. Leaving `columns` empty is meaningful — it is what tells the
+  published site to keep its built-in Support / Knowledge base / Account
+  columns — so the card never seeds defaults on its own; the author asks for
+  them with the "Start from the built-in columns" action.
 - A help center has **no page of its own**: `/frontline/helpcenter/:id` was
   removed, and editing is addressed by the `editId` URL query on the list page,
   which opens `HelpCenterDrawer` over the table. The page mounts **one** drawer
@@ -1218,6 +1247,11 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `helpCenterConfigUpdate` for all three writes, `getClientPortals` only as the
   website picker's option list, and no `knowledgeBase*` operation other than the
   topic picker's option list.
+- Smoke (help center footer): on **Appearance** open the Footer card, press
+  "Start from the built-in columns", rename a heading, add a link and remove
+  another, then save and reload — the drawer shows what was saved and
+  `localhost:3900` renders those columns. Emptying every column and saving
+  brings the site's built-in Support / Knowledge base / Account columns back.
 - Smoke: open `/frontline/inbox` and confirm the sidebar shows `Me` then
   `Team inbox`; that `Me` lists the personal channel's integration types with
   their counts and a header total (empty state when there is no personal inbox);
@@ -1265,6 +1299,43 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-16` — Header wording, and footer columns fold away
+
+- **Summary:** The appearance tab gained a Header card for the wordmark, the
+  home/forms/announcements tab labels and the search placeholder, and the
+  footer's link columns became a multi-open accordion summarising each column's
+  heading and link count.
+- **Affected areas:**
+  `src/modules/helpcenter/components/help-center-drawer/HelpCenterHeaderFields.tsx`,
+  `src/modules/helpcenter/components/help-center-drawer/HelpCenterFooterFields.tsx`,
+  `src/modules/helpcenter/components/help-center-drawer/HelpCenterAppearanceTab.tsx`,
+  `src/modules/helpcenter/constants/index.ts`,
+  `src/modules/helpcenter/types/index.ts`,
+  `src/modules/helpcenter/graphql/queries/getHelpCenters.ts`,
+  `src/modules/helpcenter/utils/toHelpCenterConfigInput.ts`
+- **Contracts changed:** None consumed differently —
+  `HELP_CENTER_CONFIG_FIELDS` now selects the `header` block that
+  `frontline_api` added.
+
+### `2026-09-16` — The help center footer is authored, not hard-coded
+
+- **Summary:** The appearance tab gained a Footer card that edits the published
+  footer's logo, description, copyright line and link columns, with add/remove
+  for columns and their links and an action that starts from the built-in
+  columns.
+- **Affected areas:**
+  `src/modules/helpcenter/components/help-center-drawer/HelpCenterFooterFields.tsx`,
+  `src/modules/helpcenter/components/help-center-drawer/HelpCenterAppearanceTab.tsx`,
+  `src/modules/helpcenter/components/help-center-drawer/HelpCenterStyleFields.tsx`,
+  `src/modules/helpcenter/constants/index.ts`,
+  `src/modules/helpcenter/types/index.ts`,
+  `src/modules/helpcenter/graphql/queries/getHelpCenters.ts`,
+  `src/modules/helpcenter/utils/toHelpCenterConfigInput.ts`
+- **Contracts changed:** None consumed differently —
+  `HELP_CENTER_CONFIG_FIELDS` now selects the `footer` block that
+  `frontline_api` added, and `HelpCenterAppearanceTab` takes `form` in place of
+  `control`.
 
 ### `2026-09-15` — Several call integrations can be switched on
 
@@ -1367,30 +1438,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   optional `descriptionFallback` and `MailAddressCallout` an optional
   `description`/`descriptionFallback`, so the pipeline tab can say `ticket`
   where the inbox says `conversation`.
-
-### `2026-09-10` — Quality gate fixes across the note input and help center drawer
-
-- **Summary:** The submit button's label came from a doubly nested ternary and
-  the note wrapper carried a keydown handler on a plain `div`, both flagged on
-  new code. The label is now three named values, and the suggestion keys are
-  listened for on the editor node itself — the wrapper stays a drop target with
-  no keyboard role, and `handleKeyDown` takes the native event.
-- **Affected areas:** `src/modules/activity/components/NoteInput.tsx`,
-  `src/modules/activity/hooks/useNoteTemplateSuggestions.tsx`,
-  `src/modules/helpcenter/components/help-center-drawer/HelpCenterDrawer.tsx`
-- **Contracts changed:** `None`
-
-### `2026-09-09` — Survey options can arm a ticket at a vote threshold
-
-- **Summary:** The Content step's option rows gained a ticket-automation
-  popover — enable, vote threshold, pipeline, status and an optional ticket
-  name — carried through the wizard atoms into `surveyAdd` / `surveyEdit`, with the
-  server-owned created state shown read-only.
-- **Affected areas:**
-  `src/modules/survey/components/mutate/{SurveyOptionTicketConfig.tsx,SurveyStepCard.tsx}`,
-  `src/modules/survey/constants/{surveySetupSchema.ts,surveySetupDefaultValues.ts}`,
-  `src/modules/survey/states/surveySetupStates.tsx`,
-  `src/modules/survey/graphql/{surveyQueries.ts,surveyMutations.ts}`,
-  `src/modules/survey/types/surveyTypes.ts`.
-- **Contracts changed:** Consumes the new `SurveyOption` / `SurveyOptionInput`
-  ticket-automation fields.

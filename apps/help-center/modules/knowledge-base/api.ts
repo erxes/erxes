@@ -1,4 +1,4 @@
-import { unstable_cache } from 'next/cache';
+import { cache } from 'react';
 import { query } from '@/modules/apollo/apolloClient';
 import { getPortalConfig } from '@/modules/config/api';
 import { errorMessage, type PortalResult } from '@/modules/apollo/utils/result';
@@ -113,13 +113,8 @@ const fetchTopic = async (
   }
 };
 
-const TOPIC_TTL_SECONDS = 60;
-
-const cachedTopic = unstable_cache(
-  async (key: TopicDocumentKey, config: PortalConfig) =>
-    fetchTopic(DOCUMENTS[key], config),
-  ['portal-kb-topic'],
-  { revalidate: TOPIC_TTL_SECONDS },
+const cachedTopic = cache(async (key: TopicDocumentKey, config: PortalConfig) =>
+  fetchTopic(DOCUMENTS[key], config),
 );
 
 const readTopicFor = async (
@@ -131,11 +126,7 @@ const readTopicFor = async (
     return config;
   }
 
-  const result = await cachedTopic(key, config.data);
-
-  return result.state === 'error'
-    ? fetchTopic(DOCUMENTS[key], config.data)
-    : result;
+  return cachedTopic(key, config.data);
 };
 
 export const getTopicOverview = () => readTopicFor('overview');

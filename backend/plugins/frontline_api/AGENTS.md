@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-09-15`
+- **Last synchronized:** `2026-09-16`
 
 ## Scope
 
@@ -33,8 +33,11 @@
   provider that indexes articles.
 - Help centers: the client portal config record behind a published help center
   site — its general settings (name, description, website, knowledge base and
-  ticket feature groups) and its appearance (logo pair, surface colours, fonts,
-  form-element colours, accent colour, cover image, raw header/footer markup).
+  ticket feature groups), its appearance (logo pair, surface colours, fonts,
+  form-element colours, accent colour, cover image, raw header/footer markup),
+  its header wording (wordmark, home/forms/announcements tab labels, search
+  placeholder) and its footer content (logo, description, copyright line, link
+  columns).
 - Frontline reports, including the saved report charts that persist a named
   filter configuration for a report card.
 - Plugin-owned automation triggers/actions/bots contributed to the platform
@@ -292,8 +295,8 @@ cachedCustomerId)` files a site answer as a new conversation.
   =======
   =======
 - GraphQL: help center configs — `helpCenterConfig(_id)`,
-  `helpCenterConfigs(page, perPage, searchValue, brandId)`,
-  `helpCenterConfigsTotalCount(searchValue, brandId)`;
+  `helpCenterConfigs(page, perPage, searchValue, brandId, kbToggle, ticketToggle)`,
+  `helpCenterConfigsTotalCount(searchValue, brandId, kbToggle, ticketToggle)`;
   `helpCenterConfigUpdate(config: HelpCenterConfigInput!)` (create-or-update,
   keyed on `config._id`) and `helpCenterConfigRemove(_id)`. Reads check
   `showHelpCenter`, writes check `helpCenterManage`.
@@ -676,8 +679,10 @@ CallConversationDetail` resolves the call integration by `queueName` first,
   `description`, `url`, `erxesAppToken`, `brandId`, `languageCode`, the
   `kbToggle` / `kbLabel` /
   `kbTopicId` group and the `ticketToggle` / `ticketLabel` / `ticketChannelId` /
-  `ticketPipelineId` / `ticketStatusId` group) and appearance (`color`,
-  `backgroundImage`, and the nested `styles` block). A knowledge base topic
+  `ticketPipelineId` / `ticketStatusId` group), appearance (`color`,
+  `backgroundImage`, and the nested `styles` block), header wording (the nested
+  `header` block) and footer content (the nested `footer` block). A knowledge
+  base topic
   carries none of them — it names articles, and a config points at one through
   `kbTopicId`.
 - A config's appearance lives in one nested `styles` block (`stylesSchema`,
@@ -688,6 +693,20 @@ CallConversationDetail` resolves the call integration by `queueName` first,
   the type exposes `HelpCenterConfigStyles` — keep the two mirrored when
   adding a style. `color` and `backgroundImage` stay top-level: they are the
   help center's own accent and cover, not the site chrome.
+- A config's header wording lives in one nested `header` block (`headerSchema`,
+  `_id: false`): `wordmark`, `homeLabel`, `formsLabel`, `announcementsLabel`
+  and `searchPlaceholder`. Every field is a plain override stored as `''` when
+  blank, and blank means the published site keeps its own built-in wording — so
+  a label is never required here. The knowledge base and ticket tab labels are
+  **not** in this block: they stay `kbLabel` and `ticketLabel` at the top level,
+  because those two also gate their feature groups.
+- A config's footer content lives in one nested `footer` block (`footerSchema`,
+  `_id: false`): `logo`, `description`, `copyright`, and `columns`, each column
+  a `heading` plus a `links` array of `{ label, url }`. Like `styles` it is read
+  and written whole, and `HelpCenterFooterInput` mirrors `HelpCenterFooter`
+  field for field — keep the two in step when adding a footer field. It holds
+  the published site's copy, not its colours; the footer's background stays
+  `styles.footerColor`.
 - `models.HelpCenterConfigs.createOrUpdateConfig` writes with `$set` over the whole
   normalized document, so every caller must send the complete config, not a
   patch — a partial input clears the fields it omits. That is the whole-config
@@ -842,6 +861,14 @@ CallConversationDetail` resolves the call integration by `queueName` first,
   `getByHost` on read. The
   two sides must normalize identically or a site's own domain stops finding its
   config — never re-derive the trim/trailing-slash rule at a call site.
+- `normalizeHelpCenterHeader` only trims: an empty header label is stored, not
+  rejected, because clearing a field is how an author returns that tab to its
+  built-in wording.
+- `normalizeHelpCenterFooter` drops a footer link missing either a label or an
+  address, and drops a column left with neither a heading nor a surviving link,
+  so a half-filled editor row is never stored. An empty `footer.columns` is the
+  signal the published site uses to fall back to its own built-in columns —
+  never store placeholder columns to represent that default.
 - `normalizeHelpCenterConfig` is the only validation gate for a config: it
   requires a title, rejects a non-http(s) website, requires `kbTopicId` when
   `kbToggle` is on and a channel plus pipeline when `ticketToggle` is on, and
@@ -1843,6 +1870,11 @@ CallConversationDetail` resolves the call integration by `queueName` first,
   from the drawer's General tab and a colour from its Appearance tab, reload —
   the values persist and the network tab shows `helpCenterConfig` and
   `helpCenterConfigUpdate`, never a `knowledgeBase*` operation.
+- Smoke (help center footer): save a config with one footer column holding a
+  link that has a label and an address plus a second link with only a label,
+  then read the config back — the incomplete link is gone and the column
+  survived. Clear every column and the stored `footer.columns` is `[]`, which is
+  what tells the published site to use its built-in columns.
 - Migration: run `src/migrations/migrateHelpCenterConfigs.ts` once per
   deployment before serving the new help center screens; it is idempotent
   (an existing config is left alone, the topic is cleaned either way).
@@ -1888,6 +1920,35 @@ CallConversationDetail` resolves the call integration by `queueName` first,
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-16` — A help center names its own header tabs
+
+- **Summary:** A help center config gained a `header` block — wordmark, home,
+  forms and announcements tab labels, and the search placeholder — so the
+  published site header is worded by its owner instead of by the app's
+  constants.
+- **Affected areas:** `src/modules/helpcenter/@types/helpCenterConfig.ts`,
+  `src/modules/helpcenter/db/definitions/helpCenterConfig.ts`,
+  `src/modules/helpcenter/graphql/schemas/helpCenterConfig.ts`,
+  `src/modules/helpcenter/utils/helpCenterConfig.ts`
+- **Contracts changed:** `HelpCenterConfig` gained `header: HelpCenterHeader`
+  and `HelpCenterConfigInput` gained `header: HelpCenterHeaderInput`. Both are
+  optional, so existing callers and stored configs keep working.
+
+### `2026-09-16` — A help center owns its footer copy and links
+
+- **Summary:** A help center config now carries a `footer` block — logo,
+  description, copyright line and link columns — so the published site's footer
+  is authored rather than hard-coded.
+- **Affected areas:** `src/modules/helpcenter/@types/helpCenterConfig.ts`,
+  `src/modules/helpcenter/db/definitions/helpCenterConfig.ts`,
+  `src/modules/helpcenter/graphql/schemas/helpCenterConfig.ts`,
+  `src/modules/helpcenter/utils/helpCenterConfig.ts`
+- **Contracts changed:** `HelpCenterConfig` gained `footer: HelpCenterFooter`
+  and `HelpCenterConfigInput` gained `footer: HelpCenterFooterInput`, with the
+  new `HelpCenterFooter` / `HelpCenterFooterColumn` / `HelpCenterFooterLink`
+  types and their matching inputs. Both are optional, so existing callers and
+  stored configs keep working.
 
 ### `2026-09-15` — Call user integrations carry their name
 
@@ -1993,34 +2054,3 @@ CallConversationDetail` resolves the call integration by `queueName` first,
   `mailMessageId`; `mail_integrations` carries `pipelineId`, `disabledAt`,
   `forwardPendingAt` and `forwardVerification`; `mail_messages` carries
   `ticketId`.
-
-### `2026-09-10` — The ticket note type stopped colliding with `operation`'s
-
-- **Summary:** `helpCenterGetConfigByDomain` now follows the 1.x
-  `clientPortalGetConfigByDomain` lookup through a `getByHost` helper: it reads
-  only the request's `Origin` header, matches a config whose `url` starts with
-  that origin, and throws `Not found` instead of returning `null`.
-- **Affected areas:**
-  `src/modules/helpcenter/db/models/HelpCenterConfig.ts`,
-  `src/modules/helpcenter/graphql/resolvers/queries/helpCenterConfig.ts`,
-  `src/modules/helpcenter/graphql/schemas/helpCenterConfig.ts`
-- **Contracts changed:** `helpCenterGetConfigByDomain(domain: String!)` became
-  `helpCenterGetConfigByDomain(clientPortalName: String)`, so a caller still
-  sending `domain` fails validation; an unknown or missing `Origin` is now a
-  `Not found` error rather than `null`. The
-  `HelpCenterConfigs.getConfigByDomain` model method is removed.
-
-### `2026-09-10` — A tap stopped counting as a direct message
-
-- **Summary:** The message trigger's Direct Message condition excluded only
-  `btnId`, so Get Started, persistent menu, ice breaker, quick reply and card
-  button taps matched it too and fired a second automation alongside the one
-  that owned them; it now skips any payload carrying a bot key. The webhook
-  route also stopped ending a response twice, which crashed the process with
-  `ERR_STREAM_WRITE_AFTER_END` on every messaging event.
-- **Affected areas:**
-  `src/modules/integrations/facebook/meta/automation/messages/index.ts`,
-  `src/modules/integrations/facebook/meta/automation/utils/messageUtils.ts`,
-  `src/modules/integrations/facebook/controller/controller.ts`
-- **Contracts changed:** None. `isPostbackPayload` is newly exported from
-  `messageUtils`.

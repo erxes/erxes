@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { SessionLink } from '@/modules/auth/components/SessionLink';
 import { getAnnouncements } from '@/modules/cms/api';
 import { AnnouncementList } from '@/modules/cms/components/AnnouncementList';
@@ -13,10 +14,9 @@ import {
   NEW_TICKET_ROUTE,
 } from '@/modules/tickets/constants/guard';
 import { buttonClass, ButtonLink } from '@/modules/ui/components/Button';
-import { Card, CardLink, cardLinkClass } from '@/modules/ui/components/Card';
+import { Card } from '@/modules/ui/components/Card';
 import { Container } from '@/modules/ui/components/Container';
 import { EmptyState } from '@/modules/ui/components/EmptyState';
-import { Reveal } from '@/modules/ui/components/Reveal';
 import { Section } from '@/modules/ui/components/Section';
 import { cn } from '@/modules/ui/lib/cn';
 import { Icon } from '@/modules/ui/components/Icon';
@@ -25,52 +25,6 @@ import {
   SetupNotice,
   Unpublished,
 } from '@/modules/ui/components/PortalState';
-
-const ActionCard = ({
-  href,
-  icon,
-  title,
-  description,
-  reason,
-}: {
-  href: string;
-  icon: 'inbox' | 'binoculars';
-  title: string;
-  description: string;
-  reason?: string;
-}) => {
-  const className = cardLinkClass(
-    'group flex items-center gap-4 px-5 py-4 shadow-card-hover sm:px-6 sm:py-5',
-  );
-  const body = (
-    <>
-      <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-brand-soft text-brand transition-colors group-hover:bg-brand group-hover:text-white">
-        <Icon name={icon} size={20} />
-      </span>
-      <span className="min-w-0 flex-1">
-        <span className="block text-[15px] font-semibold text-ink">
-          {title}
-        </span>
-        <span className="mt-1 block text-[13px] leading-relaxed text-muted-foreground">
-          {description}
-        </span>
-      </span>
-      <span className="shrink-0 text-muted-foreground transition-transform duration-200 group-hover:translate-x-0.5 group-hover:text-brand">
-        <Icon name="chevronRight" size={18} />
-      </span>
-    </>
-  );
-
-  return reason ? (
-    <SessionLink href={href} reason={reason} className={className}>
-      {body}
-    </SessionLink>
-  ) : (
-    <CardLink href={href} className={className}>
-      {body}
-    </CardLink>
-  );
-};
 
 export default async function HomePage() {
   const [{ headline }, topic, announcements, forms] = await Promise.all([
@@ -91,34 +45,20 @@ export default async function HomePage() {
 
   return (
     <>
-      <Hero headline={headline} />
+      <Hero headline={headline}>
+        {ticketsEnabled ? (
+          <Link
+            href="/tickets/track"
+            className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-[13px] font-medium text-white outline-none ring-1 ring-inset ring-white/20 transition-colors duration-200 hover:bg-white/20 hover:ring-white/35 focus-visible:ring-2 focus-visible:ring-white/70"
+          >
+            <Icon name="binoculars" size={15} />
+            Track a ticket with your number
+            <Icon name="chevronRight" size={14} />
+          </Link>
+        ) : null}
+      </Hero>
 
-      {ticketsEnabled ? (
-        <Container className="-mt-8 sm:-mt-10">
-          <Reveal className="grid gap-3 sm:grid-cols-2">
-            <ActionCard
-              href={NEW_TICKET_ROUTE}
-              reason={NEW_TICKET_REASON}
-              icon="inbox"
-              title="Submit a ticket"
-              description="Fill in the form to raise a new ticket with the support team."
-            />
-            <ActionCard
-              href="/tickets/track"
-              icon="binoculars"
-              title="Track a ticket"
-              description="No account? Use your ticket number to check its status."
-            />
-          </Reveal>
-        </Container>
-      ) : null}
-
-      <Container
-        className={cn(
-          'pb-12 lg:pb-16',
-          ticketsEnabled ? 'pt-12 lg:pt-16' : 'pt-10 lg:pt-12',
-        )}
-      >
+      <Container className="pb-12 pt-12 lg:pb-16 lg:pt-16">
         <div className="space-y-10 lg:space-y-14">
           {knowledgeBaseEnabled ? (
             <Section

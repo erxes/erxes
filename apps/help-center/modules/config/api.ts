@@ -1,5 +1,5 @@
-import { unstable_cache } from 'next/cache';
 import { headers } from 'next/headers';
+import { cache } from 'react';
 import { query, setAppTokenReader } from '@/modules/apollo/apolloClient';
 import {
   apiUrlForHost,
@@ -85,21 +85,7 @@ const fetchConfig = async (
   }
 };
 
-const CONFIG_TTL_SECONDS = 60;
-
-const cachedByDomain = (apiUrl: string, domain: string) =>
-  unstable_cache(fetchConfig, ['portal-help-center'], {
-    revalidate: CONFIG_TTL_SECONDS,
-  })(apiUrl, domain);
-
-const configFor = async (
-  apiUrl: string,
-  domain: string,
-): Promise<PortalResult<PortalConfig>> => {
-  const cached = await cachedByDomain(apiUrl, domain);
-
-  return cached.state === 'ready' ? cached : await fetchConfig(apiUrl, domain);
-};
+const configFor = cache(fetchConfig);
 
 export const getPortalConfig = async (): Promise<
   PortalResult<PortalConfig>
