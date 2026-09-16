@@ -49,6 +49,7 @@ const resolveMessageKind = (
   const kind = attachmentKind(attachmentType);
 
   if (kind === 'story_mention' || kind === 'story_reply') return kind;
+  if (kind !== 'unsupported') return kind;
   return hasText ? 'text' : kind;
 };
 

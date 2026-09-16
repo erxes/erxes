@@ -46,9 +46,6 @@ export const useInstagramConversationMessages = () => {
     if (loading || totalCount <= loadedCount) {
       return Promise.resolve();
     }
-    if (loadedCount % INSTAGRAM_CONVERSATION_MESSAGES_LIMIT !== 0) {
-      return Promise.resolve();
-    }
     return fetchMore({
       variables: {
         skip: loadedCount,

@@ -402,6 +402,7 @@ export const sendReaction = async (
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(data),
+    signal: AbortSignal.timeout(10000),
   });
   const result = (await response.json()) as {
     error?: { message?: string };
