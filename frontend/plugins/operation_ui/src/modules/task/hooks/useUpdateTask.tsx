@@ -7,6 +7,7 @@ interface IUpdateTaskMutationResponse {
   updateTask: {
     _id: string;
     status: string;
+    propertiesData?: Record<string, unknown>;
   };
 }
 

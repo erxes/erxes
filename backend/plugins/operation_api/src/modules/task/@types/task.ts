@@ -37,6 +37,7 @@ export interface ITask {
   githubRepoName?: string;
   githubPrNumber?: number;
   githubPrUrl?: string;
+  propertiesData?: Record<string, unknown>;
 }
 
 export interface ITaskUpdate extends Partial<ITask> {

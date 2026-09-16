@@ -6,7 +6,7 @@
 - **Project:** `operation_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/operation_api`
-- **Last synchronized:** `2026-09-05`
+- **Last synchronized:** `2026-09-15`
 
 ## Scope
 
@@ -38,6 +38,7 @@
   team member (`user.assignedTasks`, `user.createdTasks`).
 - Task import/export through the platform's import-export producers.
 - GraphQL subscriptions for live task and project updates.
+- Settings-configured custom property values on tasks and projects, validated through Core fields and exposed as GraphQL `propertiesData`.
 - GitHub issue synchronisation for tasks.
 
 ## Architecture
@@ -72,12 +73,14 @@
   `applySegmentMembership`, `segmentPage*`) and the event dispatcher.
 - Core's `users` and `tags` list queries, named by the lookup fields a segment
   renders.
+- Core's `fields.validateFieldValues` tRPC mutation for task and project custom property values.
 
 ## Data and State
 
 - Every model is generated from the request `subdomain`.
 - `operation_tasks` carries `segmentIds`, written only by the segmentation
   worker through `applyMembership`.
+- Tasks and projects store optional custom field values in the schema-owned `propertiesData` mixed object.
 - A task's `_id` is a Mongo `ObjectId`, not the generated string id most erxes
   collections use.
 
@@ -99,18 +102,18 @@
   collection.
 - Preserve tenant isolation by using the request `subdomain` for every model,
   resolver, worker and route access.
+- Validate `propertiesData` whenever it is present on a GraphQL create or update; an empty object is a valid explicit clear and must not be treated as omitted.
 - The plugin answers segment requests only about its own collections. No
   segment producer here may call another plugin: that shape is what produced
   the plugin-to-plugin RPC loop the Elasticsearch-era producers carried.
 
 ## Validation
 
-- `npx tsc --noEmit -p backend/plugins/operation_api/tsconfig.json` - expect
-  exactly two errors, both `TS2307: Cannot find module '@octokit/app'` from
-  `src/utils/githubClient.ts`. The dependency is declared in `package.json` but
-  is not installed, and it blocks `pnpm nx build operation_api` as well. Any
-  third error is new.
-- `pnpm nx build operation_api` (currently blocked by the above)
+- `npx tsc --noEmit -p backend/plugins/operation_api/tsconfig.json`
+- `pnpm nx build operation_api` (the repository task graph currently has an
+  unrelated `content_ui`/`frontline_ui` circular build dependency; run
+  `pnpm --dir backend/plugins/operation_api build` to validate this plugin
+  directly until that graph is repaired)
 - Build a task segment on an assignee, confirm the preview count matches the
   task list filtered the same way, then confirm `segmentIds` lands on those
   tasks after the rebuild.
@@ -118,6 +121,12 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-15` — Task and project custom property persistence
+
+- **Summary:** Task and project GraphQL records now expose, validate, and persist settings-configured custom property values so detail queries and right-rail editing use a matching API contract.
+- **Affected areas:** `src/modules/fields/validatePropertiesData.ts`, task/project types, Mongoose schemas, GraphQL schemas, and mutation resolvers.
+- **Contracts changed:** `Task` and `Project` expose `propertiesData: JSON`; their create and update mutations accept `propertiesData: JSON`.
 
 ### `2026-09-05` — `Export repeating task properties by row`
 
