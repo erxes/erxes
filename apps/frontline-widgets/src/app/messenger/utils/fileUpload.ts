@@ -11,11 +11,13 @@ export type PendingFile = {
   error?: string;
 };
 
-export const getMaxUploadSize = (): number =>
-  Number.parseInt(
+export const getMaxUploadSize = (): number => {
+  const configuredSize = Number.parseInt(
     localStorage.getItem('erxes_env_REACT_APP_FILE_UPLOAD_MAX_SIZE') || '',
     10,
-  ) || DEFAULT_MAX_UPLOAD_SIZE;
+  );
+  return configuredSize > 0 ? configuredSize : DEFAULT_MAX_UPLOAD_SIZE;
+};
 
 export const toPendingFile = (
   file: File,
