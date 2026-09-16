@@ -1,6 +1,7 @@
 import { Document } from 'mongoose';
 import type {
   IMessageProviderData,
+  IMessageReaction,
   IMessageReplyTo,
   MessageKind,
 } from '@/inbox/@types/conversationMessages';
@@ -33,6 +34,7 @@ export interface IInstagramConversationMessage {
   messageKind?: InstagramMessageKind;
   providerData?: IInstagramMessageProviderData;
   replyTo?: IInstagramMessageReplyTo;
+  reactions?: IMessageReaction[];
   deliveryStatus?: 'sent' | 'delivered' | 'read';
   expiresAt?: Date;
 }

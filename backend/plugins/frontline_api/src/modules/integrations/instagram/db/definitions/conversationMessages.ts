@@ -31,6 +31,7 @@ export const conversationMessageSchema = schemaWrapper(
     messageKind: { type: String, optional: true },
     providerData: { type: providerDataSchema, optional: true },
     replyTo: { type: replyToSchema, optional: true },
+    reactions: { type: [Schema.Types.Mixed], optional: true },
     deliveryStatus: { type: String, optional: true },
     expiresAt: { type: Date, optional: true },
   }),
