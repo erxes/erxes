@@ -16,6 +16,7 @@ export const UPDATE_TASK_MUTATION = gql`
     $cycleId: String
     $milestoneId: String
     $tagIds: [String]
+    $propertiesData: JSON
   ) {
     updateTask(
       _id: $_id
@@ -32,10 +33,12 @@ export const UPDATE_TASK_MUTATION = gql`
       cycleId: $cycleId
       milestoneId: $milestoneId
       tagIds: $tagIds
+      propertiesData: $propertiesData
     ) {
       _id
       tagIds
       status
+      propertiesData
     }
   }
 `;
