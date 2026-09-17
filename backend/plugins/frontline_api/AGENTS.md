@@ -833,6 +833,9 @@ CallConversationDetail` resolves the call integration by `queueName` first,
   that kind exists, which also counts migrated tickets carrying
   `customerFieldData.sourceConversationIds` and deals carrying
   `sourceConversationIds`. Conversion never changes the conversation record.
+- Convert-time `customFieldsData` is cleaned through core
+  `fields.validateFieldValues` before a ticket or task stores it as
+  `propertiesData`; a deal hands it to `sales`, which validates it itself.
 - Cross-plugin convert calls pass `throwOnError: true`; `sendTRPCMessage`
   otherwise swallows the target plugin's error, and a disabled plugin returns
   the default value, which the service reports as the plugin being unavailable.

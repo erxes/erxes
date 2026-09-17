@@ -12,7 +12,7 @@ import {
   Spinner,
 } from 'erxes-ui';
 import { useMemo, useState } from 'react';
-import { useForm, useWatch } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { SelectBranches, SelectDepartments, SelectMember } from 'ui-modules';
 import { useConversationContext } from '@/inbox/conversations/hooks/useConversationContext';
@@ -75,8 +75,6 @@ const ConvertForm = ({
     },
   });
 
-  const pipelineId = useWatch({ control: form.control, name: 'pipelineId' });
-
   const handleFieldChange = (fieldId: string, value: unknown) =>
     setPropertiesData((current) => ({ ...current, [fieldId]: value }));
 
@@ -86,7 +84,6 @@ const ConvertForm = ({
           branchIds: data.branchIds,
           departmentIds: data.departmentIds,
           attachments: data.attachments,
-          customFieldsData: cleanConvertPropertiesData(propertiesData),
         }
       : {};
 
@@ -97,6 +94,7 @@ const ConvertForm = ({
       stageId: data.stageId,
       assignedUserIds: data.assignedUserIds,
       description: data.description || undefined,
+      customFieldsData: cleanConvertPropertiesData(propertiesData),
       ...details,
     });
 
@@ -234,18 +232,13 @@ const ConvertForm = ({
                 </ConvertField>
               )}
             />
-            {supportsDetails && (
-              <>
-                <Separator />
-                <ConvertProperties
-                  type={type}
-                  pipelineId={pipelineId}
-                  propertiesData={propertiesData}
-                  onFieldChange={handleFieldChange}
-                  onNavigate={onClose}
-                />
-              </>
-            )}
+            <Separator />
+            <ConvertProperties
+              type={type}
+              propertiesData={propertiesData}
+              onFieldChange={handleFieldChange}
+              onNavigate={onClose}
+            />
           </div>
         </div>
         <Dialog.Footer className="gap-2 border-t bg-muted/30 px-6 py-3">
