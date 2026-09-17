@@ -679,8 +679,8 @@ const transactionCommon = {
     const groupFilter = getExpandedGroupFilter(contentTransactions);
     const relatedTrs: ITransactionDocument[] = groupFilter
       ? await models.Transactions.find(groupFilter)
-        .sort({ ...sort, parentId: 1, ptrId: 1 })
-        .lean()
+          .sort({ ...sort, parentId: 1, ptrId: 1 })
+          .lean()
       : [];
     const checkedTransactions = await getVisibleCheckedTransactions(
       models,

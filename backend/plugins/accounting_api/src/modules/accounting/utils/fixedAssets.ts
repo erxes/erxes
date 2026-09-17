@@ -94,7 +94,8 @@ export const getFxaDisposalFollowInfos = (
     ...followInfos,
     saleOutAccountId:
       followInfos.saleOutAccountId || followInfos.fixedAssetAccountId,
-    saleCostAccountId: followInfos.saleCostAccountId || followInfos.lossAccountId,
+    saleCostAccountId:
+      followInfos.saleCostAccountId || followInfos.lossAccountId,
   };
 };
 
@@ -471,7 +472,7 @@ const getLatestAdjustmentDetailsByFixedAssetId = async (
   );
   const getAdjustRank = (adjustId?: string) =>
     adjustId
-      ? adjustRankById.get(adjustId) ?? Number.POSITIVE_INFINITY
+      ? (adjustRankById.get(adjustId) ?? Number.POSITIVE_INFINITY)
       : Number.POSITIVE_INFINITY;
 
   if (!latestAdjustIds.length) {
@@ -575,10 +576,10 @@ export const getFxaDisposalSummaries = async (
         typeof summaryOverride?.accumulatedDepreciation === 'number'
           ? summaryOverride.accumulatedDepreciation
           : countBeforeThisDisposal
-          ? ((latestAdjustment?.closingAccumulatedDepreciation || 0) /
-              countBeforeThisDisposal) *
-            count
-          : 0,
+            ? ((latestAdjustment?.closingAccumulatedDepreciation || 0) /
+                countBeforeThisDisposal) *
+              count
+            : 0,
       );
 
       return {

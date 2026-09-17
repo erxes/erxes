@@ -40,10 +40,7 @@ export const FxaOutForm = ({
         <DepartmentField form={form} index={index} />
         <AssignToField form={form} index={index} />
         <DescriptionField form={form} index={index} />
-        <FxaSaleAccountFields
-          form={form}
-          index={index}
-        />
+        <FxaSaleAccountFields form={form} index={index} />
       </div>
 
       <div className="pt-3">

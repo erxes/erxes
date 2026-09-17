@@ -296,7 +296,8 @@ const INV_SALE_RETURN_JOURNAL_DEFAULT_VALUES = (
 const FXA_FOLLOW_INFOS_DEFAULT_VALUES = (doc?: Partial<ITransaction>) => {
   return {
     saleOutAccountId:
-      doc?.followInfos?.saleOutAccountId || doc?.followInfos?.fixedAssetAccountId,
+      doc?.followInfos?.saleOutAccountId ||
+      doc?.followInfos?.fixedAssetAccountId,
     accumulatedDepreciationAccountId:
       doc?.followInfos?.accumulatedDepreciationAccountId,
     depreciationExpenseAccountId:

@@ -1032,7 +1032,8 @@ export const normalizeOpeningFixedAssetBalances = (
       }
 
       const accountCode = normalizeSourceCode(
-        detail.followInfos?.sourceAccountCode || detail.followInfos?.accountCode,
+        detail.followInfos?.sourceAccountCode ||
+          detail.followInfos?.accountCode,
       );
       const key = getOpeningBalanceKey(
         doc.contentId,

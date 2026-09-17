@@ -125,8 +125,7 @@ const getFollowInfos = async (models: IModels, row: any, relatedData) => {
       accumulatedDepreciationAccountId: accounts?.find(
         (acc) => acc.code === row.follow2,
       )?._id,
-      saleCostAccountId: accounts?.find((acc) => acc.code === row.follow3)
-        ?._id,
+      saleCostAccountId: accounts?.find((acc) => acc.code === row.follow3)?._id,
     };
   }
   if (JOURNALS.INV_SALE_RETURN === row.journal) {
