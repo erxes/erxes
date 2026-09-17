@@ -332,6 +332,7 @@ export const msdynamicCheckMutations = {
         action: 'find',
         input: { query: { state: { $ne: 'deleted' } } },
         defaultValue: [],
+        throwOnError: true,
       }),
       sendTRPCMessage({
         subdomain,
@@ -341,6 +342,7 @@ export const msdynamicCheckMutations = {
         action: 'find',
         input: { query: { status: { $ne: 'deleted' } } },
         defaultValue: [],
+        throwOnError: true,
       }),
     ]);
 
@@ -374,9 +376,7 @@ export const msdynamicCheckMutations = {
     let hasMore = true;
 
     const fetchPage = async (pageSkip: number) => {
-      const pageStartedAt = Date.now();
-
-      const response = await fetch(
+      const httpResponse = await fetch(
         `${customerApi}?$top=${pageSize}&$skip=${pageSkip}&$select=No,Name,Phone_No,E_Mail,Partner_Type`,
         {
           timeout: 180000,
@@ -387,11 +387,21 @@ export const msdynamicCheckMutations = {
             ).toString('base64')}`,
           },
         },
-      ).then((res) => res.json());
+      );
 
-      const page = response?.value || [];
+      if (!httpResponse.ok) {
+        throw new Error(
+          `MS Dynamic customer request failed: ${httpResponse.status}`,
+        );
+      }
 
-      return page;
+      const response = await httpResponse.json();
+
+      if (!Array.isArray(response?.value)) {
+        throw new Error('MS Dynamic customer response is not valid.');
+      }
+
+      return response.value;
     };
 
     while (hasMore) {
@@ -447,7 +457,7 @@ export const msdynamicCheckMutations = {
     });
 
     const exchangeRates = config.exchangeRateApi
-      ? ((await getExchangeRates(config)) ?? {})
+      ? (await getExchangeRates(config)) ?? {}
       : {};
 
     const salesCodeFilter = pricePriority.replace(/, /g, ',').split(',');
