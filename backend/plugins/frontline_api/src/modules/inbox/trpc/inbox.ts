@@ -509,12 +509,6 @@ export const conversationsRouter = t.router({
     }),
 
   changeStatus: t.procedure
-    .meta(
-      agentMeta(
-        'Open, close, or resolve an inbox conversation: { id, status } where status is one of "new", "open", "closed", "resolved". Both fields are required.',
-        { module: 'inbox', action: 'conversationsChangeStatus' },
-      ),
-    )
     .input(z.any())
     .query(async ({ ctx, input }) => {
       try {

@@ -71,12 +71,6 @@ export const productCategoryTrpcRouter = t.router({
     }),
 
     createProductCategory: t.procedure
-      .meta(
-        agentMeta(
-          'Create a product category. Input: { doc: { name, code, parentId?, description?, status?, ... } } — code must be unique; pass parentId to nest under an existing category (find it with productCategories.find).',
-          { module: 'products', action: 'productCategoriesManage' },
-        ),
-      )
       .input(z.any())
       .mutation(async ({ ctx, input }) => {
         const { doc } = input;
@@ -86,12 +80,6 @@ export const productCategoryTrpcRouter = t.router({
       }),
 
     updateProductCategory: t.procedure
-      .meta(
-        agentMeta(
-          'Update a product category by ID. Input: { _id, doc: { ...fields to change } }. Call productCategories.findOne first to get the _id and current values.',
-          { module: 'products', action: 'productCategoriesManage' },
-        ),
-      )
       .input(z.any())
       .mutation(async ({ ctx, input }) => {
         const { _id, doc } = input;

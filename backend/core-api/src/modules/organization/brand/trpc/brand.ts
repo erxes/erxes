@@ -40,12 +40,6 @@ export const brandTrpcRouter = t.router({
       return await models.Brands.findOne(query);
     }),
     create: t.procedure
-      .meta(
-        agentMeta(
-          'Create a brand. Input: { data: { name, code, description? } } — code must be unique. Check for an existing brand with brands.find first.',
-          { module: 'brands', action: 'brandsCreate' },
-        ),
-      )
       .input(z.any())
       .mutation(async ({ ctx, input }) => {
       const { data } = input;
@@ -54,12 +48,6 @@ export const brandTrpcRouter = t.router({
       return await models.Brands.createBrand(data);
     }),
     updateOne: t.procedure
-      .meta(
-        agentMeta(
-          'Update a brand by ID. Input: { _id, fields: { name?, code?, description?, ... } }. Call brands.findOne first to get the _id.',
-          { module: 'brands', action: 'brandsUpdate' },
-        ),
-      )
       .input(z.any())
       .mutation(async ({ ctx, input }) => {
       const { _id, fields } = input;

@@ -117,12 +117,6 @@ export const companyTrpcRouter = t.router({
     }),
 
     createCompany: t.procedure
-      .meta(
-        agentMeta(
-          'Create a company. Input: { doc: { primaryName?, names?, primaryEmail?, emails?, primaryPhone?, phones?, website?, industry?, size?, code?, tagIds?, customFieldsData?, ... } }. Check for duplicates first with companies.findOne by name or email. For custom fields, discover field IDs via fields.fieldsCombinedByContentType (contentType "core:contacts.companies") and format values with fields.prepareCustomFieldsData.',
-          { module: 'contacts', action: 'contactsCreate' },
-        ),
-      )
       .input(z.any())
       .mutation(async ({ ctx, input }) => {
         const { doc } = input;
@@ -134,12 +128,6 @@ export const companyTrpcRouter = t.router({
       }),
 
     updateCompany: t.procedure
-      .meta(
-        agentMeta(
-          'Update a company by ID. Input: { _id, doc: { ...fields to change } } — only provided fields are modified. Call companies.findOne first to get the _id and current values.',
-          { module: 'contacts', action: 'contactsUpdate' },
-        ),
-      )
       .input(z.any())
       .mutation(async ({ ctx, input }) => {
         const { _id, doc } = input;

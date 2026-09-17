@@ -98,12 +98,6 @@ export const productsTrpcRouter = t.router({
     }),
 
     createProduct: t.procedure
-      .meta(
-        agentMeta(
-          'Create a product. Input: { doc: { name, code?, unitPrice?, categoryId?, uom?, type?, status?, sku?, barcodes?, tagIds?, customFieldsData?, ... } } — name is required; code should be unique. Resolve categoryId via productCategories.find and uom via productUoms.find first. For custom fields use fields.fieldsCombinedByContentType (contentType "core:products.product") + fields.prepareCustomFieldsData.',
-          { module: 'products', action: 'productsCreate' },
-        ),
-      )
       .input(z.any())
       .mutation(async ({ ctx, input }) => {
         const { doc } = input;
@@ -113,12 +107,6 @@ export const productsTrpcRouter = t.router({
       }),
 
     updateProduct: t.procedure
-      .meta(
-        agentMeta(
-          'Update a product by ID. Input: { _id, doc: { ...fields to change } } — only provided fields are modified. Call products.findOne first to get the _id and current values.',
-          { module: 'products', action: 'productsUpdate' },
-        ),
-      )
       .input(z.any())
       .mutation(async ({ ctx, input }) => {
         const { _id, doc } = input;
@@ -197,12 +185,6 @@ export const productsTrpcRouter = t.router({
     }),
 
     setInventories: t.procedure
-      .meta(
-        agentMeta(
-          'Set ABSOLUTE inventory numbers per branch/department. Input: { branchId?, departmentId?, productsInfo: [{ productId, remainder?, cost?, soonIn?, soonOut? }] }. WARNING: fields you omit are cleared to 0 — for relative stock in/out adjustments use products.increaseInventories instead. Resolve branchId/departmentId via branches.find / departments.find and productId via products.findOne.',
-          { module: 'products', action: 'productsUpdate' },
-        ),
-      )
       .input(
         z.object({
           branchId: z.string().optional(),
@@ -270,12 +252,6 @@ export const productsTrpcRouter = t.router({
       }),
 
     increaseInventories: t.procedure
-      .meta(
-        agentMeta(
-          'Adjust inventory by DELTA amounts per branch/department (stock in/out). Input: { branchId?, departmentId?, productsInfo: [{ productId, diffCount?, diffCost?, diffSoonIn?, diffSoonOut? }] } — use negative numbers to decrease stock. Prefer this over products.setInventories for everyday stock movements. Resolve branchId/departmentId via branches.find / departments.find.',
-          { module: 'products', action: 'productsUpdate' },
-        ),
-      )
       .input(
         z.object({
           branchId: z.string().optional(),

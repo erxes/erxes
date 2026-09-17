@@ -77,12 +77,6 @@ export const tagTrpcRouter = t.router({
         .lean();
     }),
     create: t.procedure
-      .meta(
-        agentMeta(
-          'Create a tag. Input: { data: { name, type, colorCode?, parentId? } } — type scopes the tag, e.g. "core:customer", "core:company", "core:product". Check for an existing tag with tags.find (by name + type) before creating a duplicate. Then attach it with customers.tag or doc.tagIds.',
-          { module: 'tags', action: 'tagsCreate' },
-        ),
-      )
       .input(z.any())
       .mutation(async ({ ctx, input }) => {
       const { data } = input;
