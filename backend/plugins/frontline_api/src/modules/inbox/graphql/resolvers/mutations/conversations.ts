@@ -506,9 +506,8 @@ export const conversationMutations = {
     { models, subdomain }: IContext,
   ) {
     try {
-      const conversation = await models.Conversations.getConversation(
-        conversationId,
-      );
+      const conversation =
+        await models.Conversations.getConversation(conversationId);
       if (!conversation?.integrationId) {
         return false;
       }
@@ -679,6 +678,10 @@ export const conversationMutations = {
           content: responseContent,
           displayContent,
           extraData,
+          messageKind,
+          providerData,
+          replyTo,
+          deliveryStatus,
         } = response.data.data;
         if (responseConversationId && responseContent) {
           await models.Conversations.updateConversation(
@@ -695,6 +698,10 @@ export const conversationMutations = {
             ...doc,
             ...(displayContent ? { content: displayContent } : {}),
             ...(extraData ? { extraData } : {}),
+            ...(messageKind ? { messageKind } : {}),
+            ...(providerData ? { providerData } : {}),
+            ...(replyTo ? { replyTo } : {}),
+            ...(deliveryStatus ? { deliveryStatus } : {}),
           };
 
         const message = await models.ConversationMessages.addMessage(

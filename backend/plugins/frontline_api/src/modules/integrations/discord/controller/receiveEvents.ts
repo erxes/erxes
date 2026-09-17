@@ -5,6 +5,7 @@ import {
   DiscordActivity,
   DiscordMessageDeleteEvent,
   DiscordPollVoteEvent,
+  DiscordReactionEvent,
   DiscordTypingEvent,
 } from '@/integrations/discord/@types/activity';
 import {
@@ -99,8 +100,18 @@ export const receiveDiscordMessageEdit = async ({
     });
   }
 
+  if (typeof activity.raw?.pinned === 'boolean') {
+    await updateInboxMessageExtra(models, activity.messageId, {
+      discordPinned: activity.raw.pinned,
+      ...(!activity.raw.edited_timestamp && { discordEditedAt: null }),
+    });
+  }
+
+  const editedAt = activity.raw?.edited_timestamp;
   const editedContent =
-    typeof activity.raw?.content === 'string' ? activity.content : undefined;
+    typeof editedAt === 'string' && typeof activity.raw?.content === 'string'
+      ? activity.content
+      : undefined;
 
   if (editedContent === undefined) {
     return;
@@ -111,6 +122,10 @@ export const receiveDiscordMessageEdit = async ({
     activity.mentions,
   );
 
+  if (displayContent === message.content) {
+    return;
+  }
+
   await models.DiscordConversationMessages.updateOne(
     { _id: message._id },
     { $set: { content: displayContent, updatedAt: new Date() } },
@@ -119,7 +134,7 @@ export const receiveDiscordMessageEdit = async ({
   await updateInboxMessageExtra(
     models,
     activity.messageId,
-    { discordEditedAt: new Date().toISOString() },
+    { discordEditedAt: editedAt },
     { content: displayContent },
   );
 
@@ -186,7 +201,9 @@ export const receiveDiscordPollVote = async ({
     poll = normalizeDiscordPoll(fetched?.poll);
   } catch (e) {
     debugError(
-      `Failed to fetch Discord poll ${event.messageId}: ${(e as Error).message}`,
+      `Failed to fetch Discord poll ${event.messageId}: ${
+        (e as Error).message
+      }`,
     );
     return;
   }
@@ -202,6 +219,55 @@ export const receiveDiscordPollVote = async ({
   if (updated) {
     debugDiscord(`Updated Discord poll ${event.messageId} tallies`);
   }
+};
+
+export const receiveDiscordReaction = async ({
+  models,
+  bot,
+  event,
+}: {
+  models: IModels;
+  bot: IDiscordBotDocument;
+  event: DiscordReactionEvent;
+}) => {
+  const inboxMessage = await models.ConversationMessages.findOne({
+    'extraData.discordMessageId': event.messageId,
+  });
+  if (!inboxMessage) return;
+
+  const extraData = inboxMessage.extraData || {};
+  const current = Array.isArray(extraData.reactions)
+    ? (extraData.reactions as Array<{
+        senderId: string;
+        emoji: string;
+        reaction?: string;
+      }>)
+    : [];
+  const isBotReaction = event.userId === bot.applicationId;
+  const hasLocalBotReaction = current.some(
+    (reaction) => reaction.reaction && reaction.emoji === event.emoji,
+  );
+  const reactions = current.filter((reaction) => {
+    const isProviderReaction =
+      reaction.senderId === event.userId && reaction.emoji === event.emoji;
+    const isRemovedLocalReaction = Boolean(
+      !event.added &&
+      isBotReaction &&
+      reaction.reaction &&
+      reaction.emoji === event.emoji,
+    );
+    return !isProviderReaction && !isRemovedLocalReaction;
+  });
+  if (event.added && !(isBotReaction && hasLocalBotReaction)) {
+    reactions.push({ senderId: event.userId, emoji: event.emoji });
+  }
+
+  await updateInboxMessageExtra(
+    models,
+    event.messageId,
+    { reactions },
+    { reactions },
+  );
 };
 
 export const receiveDiscordTyping = async ({
