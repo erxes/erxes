@@ -52,7 +52,7 @@ export const productColumns: (
     ),
     cell: ({ cell }) => (
       <RecordTableInlineCell>
-        {cell.getValue() && (
+        {cell.row.original.type && (
           <Badge
             variant={
               cell.row.original.type === 'service' ? 'destructive' : 'info'
