@@ -50,10 +50,12 @@ export const productColumns: (
     header: () => (
       <RecordTable.InlineHead icon={IconShoppingCart} label={t('type')} />
     ),
-    cell: ({ cell }: { cell: any }) => (
+    cell: ({ cell }) => (
       <RecordTableInlineCell>
         {cell.getValue() && (
-          <Badge variant="info">
+          <Badge
+            variant={cell.row.original.type === 'service' ? 'destructive' : 'info'}
+          >
             <TextOverflowTooltip value={cell.getValue() as string} />
           </Badge>
         )}
