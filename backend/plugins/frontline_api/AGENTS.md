@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-09-15`
+- **Last synchronized:** `2026-09-17`
 
 ## Scope
 
@@ -573,8 +573,8 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   to the `propertyFields` of the pipeline's ticket config, checked for the
   required ones, validated through core `fields.validateFieldValues`, and stored
   on `Ticket.propertiesData`.
-- GraphQL: `mailPipelineConnect(pipelineId!, senderName, forwardFrom)`,
-  `mailPipelineUpdate(pipelineId!, senderName, forwardFrom)`,
+- GraphQL: `mailPipelineConnect(pipelineId!, senderName, forwardFrom, statusId)`,
+  `mailPipelineUpdate(pipelineId!, senderName, forwardFrom, statusId)`,
   `mailPipelineForwardVerified(pipelineId!)` (all `MailPipelineIntegration`)
   and `mailPipelineDisconnect(pipelineId!): Boolean` — all require
   `integrationsEdit` **and** pipeline access. Connect derives the address from
@@ -583,6 +583,12 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   later connect revives the same row, the same address and the same thread
   scope. A pipeline address can be written to directly or reached by forwarding
   from an existing mailbox named in `forwardFrom`.
+- `statusId` on `mailPipelineConnect` / `mailPipelineUpdate` names the status a
+  new mail ticket opens in and is exposed as `MailPipelineIntegration.statusId`,
+  which answers an empty string once that status no longer belongs to the
+  pipeline so a form never resubmits a deleted status. It must be a status of
+  that pipeline or the mutation fails; an empty string clears it, and an
+  omitted argument on update leaves it unchanged.
 - Setting or changing `forwardFrom` opens a verification window on the row
   (`forwardPendingAt`, `MAIL_FORWARD_VERIFICATION_WINDOW_MS`, 24h). While that
   window is open, an inbound message that looks like a forwarding confirmation
@@ -740,7 +746,7 @@ CallConversationDetail` resolves the call integration by `queueName` first,
 - Mail collections: `mail_integrations` (one row per address, carrying either
   `inboxId` for a channel inbox or `pipelineId` for a ticket pipeline — both
   unique and sparse, so a row is one lane or the other — plus the generated
-  `address`, `forwardFrom`, `forwardPendingAt`, the embedded
+  `address`, `statusId`, `forwardFrom`, `forwardPendingAt`, the embedded
   `forwardVerification` (`from`, `subject`, `code`, `link`, `excerpt`,
   `receivedAt`), `senderName`, `healthStatus`, `error` and
   `disabledAt`), `mail_customers` (an
@@ -853,6 +859,11 @@ CallConversationDetail` resolves the call integration by `queueName` first,
   never a bare address. It is also why disconnecting a pipeline address marks
   `disabledAt` instead of deleting the row: a new row would mint a new id, and
   the requester's thread would land on a ticket of its own.
+- A new mail ticket opens in the row's `statusId` only while that status still
+  belongs to the pipeline; an empty or deleted one falls back to the pipeline's
+  first status, sorted by `type` then `order` because `order` restarts inside
+  each status type. A reply threaded onto an existing ticket never changes its
+  status.
 - A disabled row keeps its address so nothing else can take it, and the inbound
   path filters on `disabledAt: null`, so a disconnected address stops accepting
   mail while still holding its name. `disabledAt: null` matches rows written
@@ -1826,7 +1837,10 @@ CallConversationDetail` resolves the call integration by `queueName` first,
 - `npx tsc -p backend/plugins/frontline_api/tsconfig.json --noEmit`
 - Smoke (pipeline mail): connect an address to a ticket pipeline, mail that
   address → a ticket opens on the pipeline's first status and the message
-  becomes a note with the quoted history stripped. Write a note with the
+  becomes a note with the quoted history stripped. Pick another status in the
+  pipeline's Mail settings, mail again with a new subject → the new ticket opens
+  in that status; delete that status and mail again → it falls back to the
+  first status; `mailPipelineUpdate` with a status of another pipeline fails. Write a note with the
   internal toggle off → it reaches the requester from the pipeline address and
   the note carries `mailMessageId`; with the toggle on nothing is sent. Disconnect and reconnect → the same address and
   the same `_id` come back, and a reply still lands on the same ticket.
@@ -1888,6 +1902,20 @@ CallConversationDetail` resolves the call integration by `queueName` first,
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-17` — A pipeline address chooses the status its tickets open in
+
+- **Summary:** A pipeline's mail row can name the status a new mail ticket opens
+  in; it is validated against the pipeline on connect and update, and an empty
+  or since-deleted status falls back to the pipeline's first status, now picked
+  by `type` then `order` instead of `order` alone.
+- **Affected areas:** `src/modules/integrations/mail/utils/{pipeline,tickets}.ts`,
+  `src/modules/integrations/mail/controller/receiveMessage.ts`,
+  `src/modules/integrations/mail/graphql/resolvers/customResolvers/pipelineIntegration.ts`,
+  `src/modules/integrations/mail/{@types/integration,db/definitions/integrations,graphql/schema/mail}.ts`
+- **Contracts changed:** `mailPipelineConnect` and `mailPipelineUpdate` accept
+  `statusId: String`; `MailPipelineIntegration` exposes `statusId`;
+  `mail_integrations` carries `statusId`.
 
 ### `2026-09-15` — Call user integrations carry their name
 
@@ -2009,18 +2037,3 @@ CallConversationDetail` resolves the call integration by `queueName` first,
   sending `domain` fails validation; an unknown or missing `Origin` is now a
   `Not found` error rather than `null`. The
   `HelpCenterConfigs.getConfigByDomain` model method is removed.
-
-### `2026-09-10` — A tap stopped counting as a direct message
-
-- **Summary:** The message trigger's Direct Message condition excluded only
-  `btnId`, so Get Started, persistent menu, ice breaker, quick reply and card
-  button taps matched it too and fired a second automation alongside the one
-  that owned them; it now skips any payload carrying a bot key. The webhook
-  route also stopped ending a response twice, which crashed the process with
-  `ERR_STREAM_WRITE_AFTER_END` on every messaging event.
-- **Affected areas:**
-  `src/modules/integrations/facebook/meta/automation/messages/index.ts`,
-  `src/modules/integrations/facebook/meta/automation/utils/messageUtils.ts`,
-  `src/modules/integrations/facebook/controller/controller.ts`
-- **Contracts changed:** None. `isPostbackPayload` is newly exported from
-  `messageUtils`.

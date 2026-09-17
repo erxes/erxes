@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-09-15`
+- **Last synchronized:** `2026-09-17`
 
 ## Scope
 
@@ -330,7 +330,7 @@
 | Mail delivery check | `src/modules/integrations/mail/components/MailConnectionCheck.tsx`, `src/modules/integrations/mail/hooks/useMailConnectionCheck.tsx` | Runs `mailCheckConnection` from the integration dialog and renders its verdict |
 | Notifications | `src/widgets/notifications/` | Notification remote entries |
 | Mail thread | `src/modules/integrations/mail/components/MailThread.tsx` | The thread reader and compose box the inbox renders; extracted so a second surface can reuse it rather than restate it |
-| Pipeline mail settings | `src/modules/integrations/mail/components/{PipelineMailSettings,PipelineForwardVerification}.tsx`, `src/pages/PipelineMailPage.tsx` | The pipeline's `Mail settings` tab: the address to forward to, the forwarding mailbox, the held forwarding confirmation, the sender name, connect, update and remove |
+| Pipeline mail settings | `src/modules/integrations/mail/components/{PipelineMailSettings,PipelineForwardVerification}.tsx`, `src/pages/PipelineMailPage.tsx` | The pipeline's `Mail settings` tab: the address to forward to, the status new mail tickets open in, the forwarding mailbox, the held forwarding confirmation, the sender name, connect, update and remove |
 =======
 | Area | Path | Responsibility |
 | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -1210,6 +1210,10 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   changed rather than the whole project.
 - `project.json` defines only `build`, `serve`, and `serve-static` — there is no
   `test` target for this project; do not invent one.
+- Smoke (pipeline mail status): open a pipeline's `Mail settings` tab — with no
+  status saved the picker reads "First status of this pipeline"; pick a status,
+  press Update, reload and confirm the picker still shows it, and that a mail
+  with a new subject opens its ticket in that status.
 - Smoke (help center): open `/frontline/helpcenter`, change a name inline, then
   open the drawer and pick a website on **General** and save a colour on
   **Appearance**; reload and confirm both persisted. The website picker must
@@ -1265,6 +1269,20 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-17` — Pipeline mail settings pick the ticket status
+
+- **Summary:** The pipeline `Mail settings` tab gained a ticket status picker,
+  built from `SelectStatusTicket`'s provider, value and content, that saves
+  `statusId` on connect and update; an unset or deleted status reads as the
+  pipeline's first status. The pipeline sidebar's `properties` tab now falls
+  back to the label `Properties` instead of its raw lowercase key.
+- **Affected areas:** `src/modules/integrations/mail/components/PipelineMailSettings.tsx`,
+  `src/modules/pipelines/constants/pipelineTabs.ts`,
+  `src/modules/integrations/mail/hooks/useMailPipelineIntegration.tsx`,
+  `src/modules/integrations/mail/graphql/{queries/mailPipelineQueries,mutations/mailPipelineMutations}.ts`
+- **Contracts changed:** `mailPipelineConnect` and `mailPipelineUpdate`
+  documents send `$statusId`; `PIPELINE_INTEGRATION_FIELDS` reads `statusId`.
 
 ### `2026-09-15` — Several call integrations can be switched on
 
@@ -1379,18 +1397,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `src/modules/activity/hooks/useNoteTemplateSuggestions.tsx`,
   `src/modules/helpcenter/components/help-center-drawer/HelpCenterDrawer.tsx`
 - **Contracts changed:** `None`
-
-### `2026-09-09` — Survey options can arm a ticket at a vote threshold
-
-- **Summary:** The Content step's option rows gained a ticket-automation
-  popover — enable, vote threshold, pipeline, status and an optional ticket
-  name — carried through the wizard atoms into `surveyAdd` / `surveyEdit`, with the
-  server-owned created state shown read-only.
-- **Affected areas:**
-  `src/modules/survey/components/mutate/{SurveyOptionTicketConfig.tsx,SurveyStepCard.tsx}`,
-  `src/modules/survey/constants/{surveySetupSchema.ts,surveySetupDefaultValues.ts}`,
-  `src/modules/survey/states/surveySetupStates.tsx`,
-  `src/modules/survey/graphql/{surveyQueries.ts,surveyMutations.ts}`,
-  `src/modules/survey/types/surveyTypes.ts`.
-- **Contracts changed:** Consumes the new `SurveyOption` / `SurveyOptionInput`
-  ticket-automation fields.
