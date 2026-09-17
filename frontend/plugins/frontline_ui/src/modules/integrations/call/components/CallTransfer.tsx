@@ -86,7 +86,7 @@ export const Transfer = () => {
           <Select.Trigger>
             <Select.Value placeholder={t('select-an-extension')} />
           </Select.Trigger>
-          <Select.Content>
+          <Select.Content className="z-110">
             {callExtensionList?.map((extension) => (
               <Select.Primitive.Item
                 key={extension.extension}

@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-09-15`
+- **Last synchronized:** `2026-09-17`
 
 ## Scope
 
@@ -154,6 +154,10 @@
   SES or SendGrid path: mail enters and leaves through Cloudflare only.
 - Ticket boards/pipelines, response templates, forms, knowledgebase articles,
   and report aggregations.
+- Converts an inbox conversation into a ticket (created here), a deal (created
+  by `sales` over tRPC) or a task (created by `operation` over tRPC), relates the
+  new item to the conversation and its customer, and refuses a second item of
+  the same kind for one conversation.
 - Read-only inbox, integration, and form-submission tRPC procedures are
   exposed to AI agents through `/agent-tools/manifest` and `/agent-tools/call`
   via `.meta(agentMeta(...))` annotations; every other procedure remains
@@ -189,6 +193,7 @@
 | FB page posting | `src/modules/integrations/facebook/postService.ts`, `postGuard.ts` | Post publishing pipeline (validation, photo staging, cleanup, permalink) and its rate limit + audit log |
 | FB app resolution | `src/modules/integrations/facebook/commonUtils.ts` | `resolveFacebookApp`, `facebookAppSelector`, `facebookAccountSelector` |
 | Ticket | `src/modules/ticket/` | Boards, pipelines, statuses, tickets, activities, notes |
+| Conversation convert | `src/modules/inbox/services/conversationConvert{,Targets}.ts` | Conversion orchestration and relations; one handler per target (permission, existing-item lookup, URL, create) |
 | Forms | `src/modules/form/` | Forms, fields, submissions |
 | Surveys | `src/modules/survey/` | Survey definitions, vote ledger, message snapshot, tally refresh |
 =======
@@ -215,6 +220,7 @@
 | FB page posting | `src/modules/integrations/facebook/postService.ts`, `postGuard.ts` | Post publishing pipeline (validation, photo staging, cleanup, permalink) and its rate limit + audit log |
 | FB app resolution | `src/modules/integrations/facebook/commonUtils.ts` | `resolveFacebookApp`, `facebookAppSelector`, `facebookAccountSelector` |
 | Ticket | `src/modules/ticket/` | Boards, pipelines, statuses, tickets, activities, notes |
+| Conversation convert | `src/modules/inbox/services/conversationConvert{,Targets}.ts` | Conversion orchestration and relations; one handler per target (permission, existing-item lookup, URL, create) |
 | Forms | `src/modules/form/` | Forms, fields, submissions |
 | Surveys | `src/modules/survey/` | Survey definitions, vote ledger, message snapshot, tally refresh |
 
@@ -605,6 +611,16 @@ CallConversationDetail` resolves the call integration by `queueName` first,
   then `inboxIntegrationId`, and returns the customer, that integration's
   channel in `channels`, and `integration { _id name }` — the inbox integration
   the call rang, which the incoming-call popup names.
+- GraphQL: `conversationConvertToCard(_id!, type!, itemName, stageId,
+  customFieldsData, priority, assignedUserIds, labelIds, tagIds, branchIds,
+  departmentIds, startDate, closeDate, attachments, description): String`
+  returns the new item id. `type` is `ticket`, `deal` or `task`; `stageId` is
+  the ticket status, the sales stage or the operation status respectively;
+  `priority` is `"0"`–`"4"`. Requires `conversationConvertToCard` plus the
+  target's create action (`createTicket` with pipeline access, `dealsAdd`,
+  `taskCreate`). `conversationConvertedItems(_id!): [ConversationConvertedItem
+  { type _id url }]` lists the item already converted per kind and requires
+  `showConversations`.
 - GraphQL: `callUserIntegrations` returns the caller's call integrations with
   `name` filled from the matching inbox integration (`''` when it is missing).
   Which integrations an agent has switched on is browser state, not stored
@@ -642,6 +658,10 @@ CallConversationDetail` resolves the call integration by `queueName` first,
   Delivery under the `custom` provider. Sender verification is **not** consulted —
   Cloudflare signs for the onboarded domain the inbox address already lives on, so
   `emailSenders.alignedFrom` / `emailSenders.isAllowed` play no part in mail.
+- Conversation convert: `core` tRPC `relation.getRelationIds` /
+  `relation.createMultipleRelations`; `sales` tRPC `deal.createItem`,
+  `deal.findOne` and `pipeline.findOne`; `operation` tRPC
+  `task.createFromSource` and `task.findOne`.
 
 ## Data and State
 
@@ -805,6 +825,16 @@ CallConversationDetail` resolves the call integration by `queueName` first,
 
 ## Local Invariants
 
+- A converted item is linked by a `frontline:conversation` ↔ item relation, and
+  a ticket or task also by a `core:customer` ↔ item relation; a deal gets its
+  customer relation from `sales` through `customerIds` and also stores
+  `sourceConversationIds`. "Already converted" means a live related item of
+  that kind exists, which also counts migrated tickets carrying
+  `customerFieldData.sourceConversationIds` and deals carrying
+  `sourceConversationIds`. Conversion never changes the conversation record.
+- Cross-plugin convert calls pass `throwOnError: true`; `sendTRPCMessage`
+  otherwise swallows the target plugin's error, and a disabled plugin returns
+  the default value, which the service reports as the plugin being unavailable.
 - Every call integration create or update path must run `ensureCallIndexes`
   before `checkForExistingIntegrations`, and parsed queues must never contain
   an empty string. Webhook routing still falls back to a trunk-only `findOne`
@@ -1824,6 +1854,10 @@ CallConversationDetail` resolves the call integration by `queueName` first,
   lint the files you touched)
 - `pnpm nx build frontline_api`
 - `npx tsc -p backend/plugins/frontline_api/tsconfig.json --noEmit`
+- Smoke (convert): open a conversation with a customer, Convert → ticket, deal
+  and task each create one item, relate it to the conversation and customer,
+  and the menu entry turns into `Go to a …`; a second convert of the same kind
+  fails with `Already converted a <type>`.
 - Smoke (pipeline mail): connect an address to a ticket pipeline, mail that
   address → a ticket opens on the pipeline's first status and the message
   becomes a note with the quoted history stripped. Write a note with the
@@ -1888,6 +1922,21 @@ CallConversationDetail` resolves the call integration by `queueName` first,
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-17` — Conversations convert into tickets, deals and tasks
+
+- **Summary:** `conversationConvertToCard` stopped echoing its arguments and now
+  creates the ticket, deal or task, relates it to the conversation and
+  customer, and blocks a duplicate; `conversationConvertedItems` reports what a
+  conversation was already converted into.
+- **Affected areas:** `src/modules/inbox/services/conversationConvert{,Targets}.ts`,
+  `src/modules/inbox/@types/conversationConvert.ts`,
+  `src/modules/inbox/graphql/{schemas/conversation,resolvers/mutations/conversations,resolvers/queries/conversations}.ts`,
+  `src/meta/permissions.ts`
+- **Contracts changed:** `conversationConvertToCard` dropped `itemId`, gained
+  `tagIds`, `branchIds`, `departmentIds`, and now enforces permissions; added
+  `conversationConvertedItems` and `ConversationConvertedItem`; the
+  `frontline:user` group gained `conversationConvertToCard`.
 
 ### `2026-09-15` — Call user integrations carry their name
 
@@ -2009,18 +2058,3 @@ CallConversationDetail` resolves the call integration by `queueName` first,
   sending `domain` fails validation; an unknown or missing `Origin` is now a
   `Not found` error rather than `null`. The
   `HelpCenterConfigs.getConfigByDomain` model method is removed.
-
-### `2026-09-10` — A tap stopped counting as a direct message
-
-- **Summary:** The message trigger's Direct Message condition excluded only
-  `btnId`, so Get Started, persistent menu, ice breaker, quick reply and card
-  button taps matched it too and fired a second automation alongside the one
-  that owned them; it now skips any payload carrying a bot key. The webhook
-  route also stopped ending a response twice, which crashed the process with
-  `ERR_STREAM_WRITE_AFTER_END` on every messaging event.
-- **Affected areas:**
-  `src/modules/integrations/facebook/meta/automation/messages/index.ts`,
-  `src/modules/integrations/facebook/meta/automation/utils/messageUtils.ts`,
-  `src/modules/integrations/facebook/controller/controller.ts`
-- **Contracts changed:** None. `isPostbackPayload` is newly exported from
-  `messageUtils`.
