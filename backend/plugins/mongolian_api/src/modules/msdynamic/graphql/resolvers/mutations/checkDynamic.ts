@@ -457,7 +457,7 @@ export const msdynamicCheckMutations = {
     });
 
     const exchangeRates = config.exchangeRateApi
-      ? (await getExchangeRates(config)) ?? {}
+      ? ((await getExchangeRates(config)) ?? {})
       : {};
 
     const salesCodeFilter = pricePriority.replace(/, /g, ',').split(',');
