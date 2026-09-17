@@ -11,6 +11,16 @@ export const commonTrDetailFields = `
   transactionId
   branchId
   departmentId
+  branch {
+    _id
+    code
+    title
+  }
+  department {
+    _id
+    code
+    title
+  }
   originId
   originType
   originSubId

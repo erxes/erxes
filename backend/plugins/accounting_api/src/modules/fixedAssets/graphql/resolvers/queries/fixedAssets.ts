@@ -69,6 +69,21 @@ type TFixedAssetMovementTransaction = {
   }[];
 };
 
+export const getFixedAssetRemainderExclusionFilter = (
+  transaction?: { _id?: string; parentId?: string } | null,
+  excludeTransactionId?: string,
+) => {
+  if (transaction?.parentId) {
+    return { parentId: { $ne: transaction.parentId } };
+  }
+
+  if (excludeTransactionId) {
+    return { _id: { $ne: excludeTransactionId } };
+  }
+
+  return {};
+};
+
 const getFxaLocationRemainderKey = ({
   branchId,
   departmentId,
@@ -415,9 +430,20 @@ const fixedAssets = {
       filter.date = { $lte: getEndOfDay(date) };
     }
 
-    if (excludeTransactionId) {
-      filter._id = { $ne: excludeTransactionId };
-    }
+    const excludedTransaction = excludeTransactionId
+      ? await models.Transactions.findOne(
+          { _id: excludeTransactionId },
+          { _id: 1, parentId: 1 },
+        ).lean()
+      : null;
+
+    Object.assign(
+      filter,
+      getFixedAssetRemainderExclusionFilter(
+        excludedTransaction,
+        excludeTransactionId,
+      ),
+    );
 
     const transactions = await models.Transactions.find(filter).lean();
     const normalizedBranchId = normalizeLocationId(branchId);

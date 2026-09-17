@@ -43,7 +43,6 @@ export const FxaOutForm = ({
         <FxaSaleAccountFields
           form={form}
           index={index}
-          showGainAccount={false}
         />
       </div>
 
