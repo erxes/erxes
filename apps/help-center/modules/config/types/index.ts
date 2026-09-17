@@ -46,8 +46,8 @@ export type HelpCenterConfig = {
   color: string | null;
   backgroundImage: string | null;
   styles: KbTopicStyles;
-  header: HelpCenterHeader | null;
-  footer: HelpCenterFooter | null;
+  header?: HelpCenterHeader | null;
+  footer?: HelpCenterFooter | null;
 };
 
 export type PortalHeader = {

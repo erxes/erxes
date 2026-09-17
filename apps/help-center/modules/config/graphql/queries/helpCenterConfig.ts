@@ -74,6 +74,14 @@ export const HELP_CENTER_CONFIG_BY_DOMAIN = gql`
   }
 `;
 
+export const HELP_CENTER_CONFIG_BY_DOMAIN_PLAIN = gql`
+  query portalHelpCenterConfigByDomainPlain {
+    helpCenterGetConfigByDomain {
+      ${CONFIG_FIELDS}
+    }
+  }
+`;
+
 export const HELP_CENTER_CONFIG_BY_DOMAIN_LEGACY = gql`
   query portalHelpCenterConfigByDomainLegacy($domain: String!) {
     helpCenterGetConfigByDomain(domain: $domain) {

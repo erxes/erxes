@@ -59,7 +59,7 @@ export const normalizeConfig = (config: HelpCenterConfig): PortalConfig => {
     color: text(config.color),
     backgroundImage: text(config.backgroundImage),
     styles: config.styles,
-    header: normalizeHeader(config.header),
-    footer: normalizeFooter(config.footer),
+    header: normalizeHeader(config.header ?? null),
+    footer: normalizeFooter(config.footer ?? null),
   };
 };
