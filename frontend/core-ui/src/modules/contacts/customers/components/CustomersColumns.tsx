@@ -61,7 +61,7 @@ const CustomerEmailsCell = ({ customer }: { customer: ICustomer }) => {
     );
 
     window.dispatchEvent(
-      new CustomEvent('frontline:compose-email', {
+      new CustomEvent('erxes:compose-email', {
         detail: { customerId: customer._id, email, emails },
       }),
     );
