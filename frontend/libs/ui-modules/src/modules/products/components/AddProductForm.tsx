@@ -327,7 +327,7 @@ function BarcodeRow({
   availableImages,
   onUpdate,
   onRemove,
-}: {
+}: Readonly<{
   barcode: BarcodeItem;
   index: number;
   availableImages: AttachmentItem[];
@@ -337,7 +337,7 @@ function BarcodeRow({
     value: string | AttachmentItem | undefined,
   ) => void;
   onRemove: (index: number) => void;
-}) {
+}>) {
   return (
     <div className="flex flex-col gap-2 p-2 rounded-md border">
       <div className="flex gap-2 items-end">
@@ -366,7 +366,7 @@ function BarcodeRow({
         </Button>
       </div>
       <div className="flex gap-2 items-end">
-        <div className="flex flex-col flex-1 gap-2">
+        <div className="flex flex-col flex-1 gap-2 min-w-0">
           <Label>IMAGE</Label>
           <Select
             value={barcode.image?.url || ''}

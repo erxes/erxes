@@ -87,7 +87,7 @@ const BarcodeRow = ({
         </Button>
       </div>
       <div className="flex gap-2 items-end">
-        <div className="flex flex-col flex-1 gap-2">
+        <div className="flex flex-col flex-1 gap-2 min-w-0">
           <Label>{t('barcode-image')}</Label>
           <Select
             value={barcode.image?.url || ''}
