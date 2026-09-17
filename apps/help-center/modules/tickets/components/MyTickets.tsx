@@ -13,14 +13,16 @@ import { TicketListItem } from './TicketListItem';
 type ListResponse = { cpGetTickets: Ticket[] | null };
 
 const Skeleton = () => (
-  <Card className="space-y-4 p-6">
+  <ul className="flex flex-col gap-2.5">
     {[0, 1, 2].map((row) => (
-      <span key={row} className="block space-y-2">
-        <span className="block h-4 w-40 animate-pulse rounded bg-subtle" />
-        <span className="block h-4 w-3/4 animate-pulse rounded bg-subtle" />
-      </span>
+      <li key={row}>
+        <Card className="py-4 pl-6 pr-4 sm:pl-7 sm:pr-5">
+          <span className="block h-4 w-2/5 animate-pulse rounded bg-subtle" />
+          <span className="mt-3 block h-3 w-3/5 animate-pulse rounded bg-subtle" />
+        </Card>
+      </li>
     ))}
-  </Card>
+  </ul>
 );
 
 export const MyTickets = ({ limit = 20 }: { limit?: number }) => {
@@ -80,12 +82,10 @@ export const MyTickets = ({ limit = 20 }: { limit?: number }) => {
   }
 
   return (
-    <Card className="p-2">
-      <ul className="divide-y divide-line">
-        {tickets.map((ticket) => (
-          <TicketListItem key={ticket._id} ticket={ticket} />
-        ))}
-      </ul>
-    </Card>
+    <ul className="flex flex-col gap-2.5">
+      {tickets.map((ticket) => (
+        <TicketListItem key={ticket._id} ticket={ticket} />
+      ))}
+    </ul>
   );
 };

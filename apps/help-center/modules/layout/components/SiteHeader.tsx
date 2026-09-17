@@ -13,7 +13,13 @@ import { useSession } from '@/modules/auth/components/SessionProvider';
 import { Avatar } from '@/modules/ui/components/Avatar';
 import { Container } from '@/modules/ui/components/Container';
 import { Icon } from '@/modules/ui/components/Icon';
+import type { PortalHeader } from '@/modules/config/types';
 import type { SessionUser } from '@/modules/auth/utils/session';
+import {
+  NEW_TICKET_REASON,
+  NEW_TICKET_ROUTE,
+} from '@/modules/tickets/constants/guard';
+import { SessionLink } from '@/modules/auth/components/SessionLink';
 import { cn } from '@/modules/ui/lib/cn';
 import type { NavItem } from '../constants/site';
 import { visibleNavItems } from '../utils/nav';
@@ -21,11 +27,17 @@ import { visibleNavItems } from '../utils/nav';
 const isActive = (href: string, pathname: string) =>
   href === '/' ? pathname === '/' : pathname.startsWith(href);
 
+const SHRINK_AT = 32;
+const GROW_AT = 12;
+
 const useScrolled = () => {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8);
+    const onScroll = () =>
+      setScrolled((current) =>
+        current ? window.scrollY > GROW_AT : window.scrollY > SHRINK_AT,
+      );
 
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
@@ -68,7 +80,15 @@ const useDismissable = (open: boolean, close: () => void) => {
   return ref;
 };
 
-const Wordmark = ({ title, logo }: { title: string; logo: string | null }) => (
+const Wordmark = ({
+  title,
+  logo,
+  wordmark,
+}: {
+  title: string;
+  logo: string | null;
+  wordmark: string;
+}) => (
   <Link
     href="/"
     className="group flex items-center gap-3.5 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-white/70"
@@ -82,7 +102,11 @@ const Wordmark = ({ title, logo }: { title: string; logo: string | null }) => (
     ) : (
       <>
         <span className="text-2xl font-semibold lowercase tracking-tight">
-          er<span className="text-white/70">x</span>es
+          {wordmark || (
+            <>
+              er<span className="text-white/70">x</span>es
+            </>
+          )}
         </span>
         <span
           aria-hidden="true"
@@ -237,11 +261,13 @@ const MobileMenu = ({
   pathname,
   user,
   signOut,
+  ticketsEnabled,
 }: {
   items: NavItem[];
   pathname: string;
   user: SessionUser | null;
   signOut: () => void;
+  ticketsEnabled: boolean;
 }) => {
   const [menu, setMenu] = useState({ open: false, path: pathname });
 
@@ -319,6 +345,20 @@ const MobileMenu = ({
             })}
           </nav>
 
+          {ticketsEnabled ? (
+            <div className="border-t border-line p-2">
+              <SessionLink
+                href={NEW_TICKET_ROUTE}
+                reason={NEW_TICKET_REASON}
+                role="menuitem"
+                className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-brand outline-none transition-colors hover:bg-brand-soft focus-visible:bg-brand-soft"
+              >
+                <Icon name="plus" size={17} />
+                Submit a ticket
+              </SessionLink>
+            </div>
+          ) : null}
+
           {user ? (
             <>
               <UserCard name={user.name} email={user.email} />
@@ -364,6 +404,7 @@ const MobileMenu = ({
 export const SiteHeader = ({
   title,
   logo,
+  header,
   knowledgeBaseEnabled,
   knowledgeBaseLabel,
   ticketsEnabled,
@@ -371,6 +412,7 @@ export const SiteHeader = ({
 }: {
   title: string;
   logo: string | null;
+  header: PortalHeader;
   knowledgeBaseEnabled: boolean;
   knowledgeBaseLabel: string;
   ticketsEnabled: boolean;
@@ -382,6 +424,9 @@ export const SiteHeader = ({
     knowledgeBaseLabel,
     ticketsEnabled,
     ticketLabel,
+    homeLabel: header.homeLabel,
+    formsLabel: header.formsLabel,
+    announcementsLabel: header.announcementsLabel,
   });
   const { user, ready, signOut } = useSession();
   const scrolled = useScrolled();
@@ -402,11 +447,22 @@ export const SiteHeader = ({
         )}
       >
         <div className="flex min-w-0 items-center gap-6 xl:gap-9">
-          <Wordmark title={title} logo={logo} />
+          <Wordmark title={title} logo={logo} wordmark={header.wordmark} />
           <DesktopNav items={items} pathname={pathname} />
         </div>
 
         <div className="flex items-center gap-1.5 sm:gap-2.5">
+          {ticketsEnabled ? (
+            <SessionLink
+              href={NEW_TICKET_ROUTE}
+              reason={NEW_TICKET_REASON}
+              className="mr-1 hidden h-10 items-center gap-2 whitespace-nowrap rounded-full bg-white/10 px-4 text-sm font-semibold text-white outline-none ring-1 ring-inset ring-white/20 transition-colors duration-200 hover:bg-white/20 hover:ring-white/35 focus-visible:ring-2 focus-visible:ring-white/70 md:inline-flex"
+            >
+              <Icon name="plus" size={16} />
+              Submit a ticket
+            </SessionLink>
+          ) : null}
+
           {!ready ? (
             <span
               aria-hidden="true"
@@ -453,6 +509,7 @@ export const SiteHeader = ({
           )}
 
           <MobileMenu
+            ticketsEnabled={ticketsEnabled}
             items={items}
             pathname={pathname}
             user={user}

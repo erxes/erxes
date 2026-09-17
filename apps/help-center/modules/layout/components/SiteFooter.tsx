@@ -6,8 +6,12 @@ import {
 } from '@/modules/tickets/constants/guard';
 import { Container } from '@/modules/ui/components/Container';
 import { Icon } from '@/modules/ui/components/Icon';
+import type { PortalFooterView } from '../api';
+import { site } from '../constants/site';
 
 type FooterLink = { href: string; label: string; reason?: string };
+
+type FooterColumn = { heading: string; links: FooterLink[] };
 
 const supportLinks: FooterLink[] = [
   {
@@ -36,38 +40,59 @@ const accountLinks: FooterLink[] = [
   { href: '/sign-up', label: 'Sign up' },
 ];
 
+const builtInColumns = (
+  knowledgeBaseEnabled: boolean,
+  ticketsEnabled: boolean,
+): FooterColumn[] => [
+  {
+    heading: 'Support',
+    links: ticketsEnabled ? supportLinks : formOnlyLinks,
+  },
+  ...(knowledgeBaseEnabled
+    ? [{ heading: 'Knowledge base', links: knowledgeLinks }]
+    : []),
+  { heading: 'Account', links: accountLinks },
+];
+
+const isExternal = (href: string): boolean =>
+  /^[a-z][\w+.-]*:|^\/\//i.test(href);
+
 const linkClass = 'text-sm text-ink-soft transition-colors hover:text-brand';
 
-const FooterColumn = ({
-  heading,
-  links,
-}: {
-  heading: string;
-  links: FooterLink[];
-}) => (
+const FooterColumnBlock = ({ heading, links }: FooterColumn) => (
   <div>
     <h2 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
       {heading}
     </h2>
-    <ul className="mt-4 space-y-3">
-      {links.map((link) => (
-        <li key={link.href}>
-          {link.reason ? (
-            <SessionLink
-              href={link.href}
-              reason={link.reason}
-              className={linkClass}
-            >
-              {link.label}
-            </SessionLink>
-          ) : (
-            <Link href={link.href} className={linkClass}>
-              {link.label}
-            </Link>
-          )}
-        </li>
-      ))}
-    </ul>
+    {links.length ? (
+      <ul className="mt-4 space-y-3">
+        {links.map((link) => (
+          <li key={`${link.href}-${link.label}`}>
+            {link.reason ? (
+              <SessionLink
+                href={link.href}
+                reason={link.reason}
+                className={linkClass}
+              >
+                {link.label}
+              </SessionLink>
+            ) : isExternal(link.href) ? (
+              <a
+                href={link.href}
+                className={linkClass}
+                rel="noreferrer noopener"
+              >
+                {link.label}
+              </a>
+            ) : (
+              <Link href={link.href} className={linkClass}>
+                {link.label}
+              </Link>
+            )}
+          </li>
+        ))}
+      </ul>
+    ) : null}
   </div>
 );
 
@@ -75,47 +100,75 @@ export const SiteFooter = ({
   title,
   knowledgeBaseEnabled,
   ticketsEnabled,
+  footer,
 }: {
   title: string;
   knowledgeBaseEnabled: boolean;
   ticketsEnabled: boolean;
-}) => (
-  <footer className="mt-auto border-t border-line bg-(--color-footer)">
-    <Container className="py-12">
-      <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[minmax(0,2fr)_repeat(3,minmax(0,1fr))] lg:gap-12">
-        <div className="max-w-sm">
-          <p className="text-xl font-semibold lowercase tracking-tight text-ink">
-            er<span className="text-brand">x</span>es
-          </p>
-          <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-            {title} — the erxes support portal. Search the knowledge base for
-            your answer, and reach out to the support team if you cannot find
-            it.
-          </p>
+  footer: PortalFooterView;
+}) => {
+  const year = new Date().getFullYear();
+
+  const columns: FooterColumn[] = footer.columns.length
+    ? footer.columns.map((column) => ({
+        heading: column.heading,
+        links: column.links.map((link) => ({
+          href: link.url,
+          label: link.label,
+        })),
+      }))
+    : builtInColumns(knowledgeBaseEnabled, ticketsEnabled);
+
+  const description =
+    footer.description ||
+    `${title} — the ${site.brand} support portal. Search the knowledge base for your answer, and reach out to the support team if you cannot find it.`;
+
+  const copyright = footer.copyright
+    ? footer.copyright.replaceAll('{year}', String(year))
+    : `© ${year} ${site.brand}. All rights reserved.`;
+
+  return (
+    <footer className="mt-auto border-t border-line bg-(--color-footer)">
+      <Container className="py-12">
+        <div className="grid gap-10 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] lg:gap-12">
+          <div className="max-w-sm">
+            {footer.logo ? (
+              <img
+                src={footer.logo}
+                alt={title}
+                className="h-8 w-auto max-w-44 object-contain"
+              />
+            ) : (
+              <p className="text-xl font-semibold lowercase tracking-tight text-ink">
+                er<span className="text-brand">x</span>es
+              </p>
+            )}
+            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+              {description}
+            </p>
+          </div>
+
+          <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
+            {columns.map((column, index) => (
+              <FooterColumnBlock
+                key={`${column.heading}-${index}`}
+                heading={column.heading}
+                links={column.links}
+              />
+            ))}
+          </div>
         </div>
-
-        {ticketsEnabled ? (
-          <FooterColumn heading="Support" links={supportLinks} />
-        ) : (
-          <FooterColumn heading="Support" links={formOnlyLinks} />
-        )}
-        {knowledgeBaseEnabled ? (
-          <FooterColumn heading="Knowledge base" links={knowledgeLinks} />
-        ) : null}
-        <FooterColumn heading="Account" links={accountLinks} />
-      </div>
-    </Container>
-
-    <div className="border-t border-line">
-      <Container className="flex flex-col gap-3 py-6 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-[13px] text-muted-foreground">
-          © {new Date().getFullYear()} erxes. All rights reserved.
-        </p>
-        <span className="inline-flex items-center gap-2 text-[13px] text-muted-foreground">
-          <Icon name="language" size={15} />
-          English
-        </span>
       </Container>
-    </div>
-  </footer>
-);
+
+      <div className="border-t border-line">
+        <Container className="flex flex-col gap-3 py-6 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-[13px] text-muted-foreground">{copyright}</p>
+          <span className="inline-flex items-center gap-2 text-[13px] text-muted-foreground">
+            <Icon name="language" size={15} />
+            {footer.languageLabel}
+          </span>
+        </Container>
+      </div>
+    </footer>
+  );
+};
