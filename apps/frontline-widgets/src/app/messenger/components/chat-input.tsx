@@ -30,6 +30,7 @@ import { Attachment } from './attachment';
 import { getAttachmentIcon } from './attachment-type';
 import { PreviewImage } from './preview-image';
 import {
+  downloadAttachmentFile,
   getMaxUploadSize,
   toPendingFile,
   type PendingFile,
@@ -57,9 +58,56 @@ function UploadedAttachment({
   attachment: IAttachment;
   onRemove: () => void;
 }) {
+  const [isDownloading, setIsDownloading] = useState(false);
   const fileType = getAttachmentType(attachment.type, attachment.name);
   const FileTypeIcon = getAttachmentIcon(fileType);
   const isImage = fileType === 'image';
+
+  const handleDownload = async () => {
+    if (isDownloading) return;
+    setIsDownloading(true);
+    try {
+      await downloadAttachmentFile(
+        readImage(attachment.url),
+        attachment.name || 'File',
+      );
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  if (!isImage) {
+    return (
+      <Attachment size="sm" state="done">
+        <Attachment.Media>
+          <FileTypeIcon />
+        </Attachment.Media>
+        <Attachment.Content>
+          <Attachment.Title>{attachment.name}</Attachment.Title>
+          <Attachment.Description>
+            {formatFileSize(attachment.size || 0)}
+          </Attachment.Description>
+        </Attachment.Content>
+        <Attachment.Actions>
+          <Attachment.Action
+            type="button"
+            aria-label={`Download ${attachment.name}`}
+            onClick={handleDownload}
+            disabled={isDownloading}
+          >
+            {isDownloading ? <Spinner /> : <IconDownload />}
+          </Attachment.Action>
+          <Attachment.Action
+            type="button"
+            aria-label={`Remove ${attachment.name}`}
+            onClick={onRemove}
+          >
+            <IconX />
+          </Attachment.Action>
+        </Attachment.Actions>
+      </Attachment>
+    );
+  }
 
   return (
     <Dialog>
@@ -68,19 +116,13 @@ function UploadedAttachment({
         state="done"
         className="cursor-pointer hover:bg-muted/60"
       >
-        {isImage ? (
-          <Attachment.Media variant="image">
-            <PreviewImage
-              src={readImage(attachment.url)}
-              alt={attachment.name}
-              className="size-full"
-            />
-          </Attachment.Media>
-        ) : (
-          <Attachment.Media>
-            <FileTypeIcon />
-          </Attachment.Media>
-        )}
+        <Attachment.Media variant="image">
+          <PreviewImage
+            src={readImage(attachment.url)}
+            alt={attachment.name}
+            className="size-full"
+          />
+        </Attachment.Media>
         <Attachment.Content>
           <Attachment.Title>{attachment.name}</Attachment.Title>
           <Attachment.Description>
@@ -107,36 +149,25 @@ function UploadedAttachment({
             Attachment preview for {attachment.name}
           </Dialog.Description>
         </Dialog.Header>
-        {isImage ? (
-          <div className="flex items-center justify-center p-2">
-            <PreviewImage
-              src={readImage(attachment.url)}
-              alt={attachment.name}
-              fit="contain"
-              className="max-h-[70vh] w-auto max-w-full rounded-lg object-contain"
-            />
-          </div>
-        ) : (
-          <div className="flex flex-col items-center gap-3 py-4 text-center">
-            <div className="flex size-14 items-center justify-center rounded-2xl bg-muted text-primary">
-              <FileTypeIcon className="size-7" />
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {formatFileSize(attachment.size || 0)}
-            </p>
-            <Button asChild size="sm">
-              <a
-                href={readImage(attachment.url)}
-                target="_blank"
-                rel="noopener noreferrer"
-                download
-              >
-                <IconDownload />
-                Download file
-              </a>
-            </Button>
-          </div>
-        )}
+        <div className="flex items-center justify-center p-2">
+          <PreviewImage
+            src={readImage(attachment.url)}
+            alt={attachment.name}
+            fit="contain"
+            className="max-h-[70vh] w-auto max-w-full rounded-lg object-contain"
+          />
+        </div>
+        <div className="flex justify-center pb-2">
+          <Button
+            type="button"
+            size="sm"
+            onClick={handleDownload}
+            disabled={isDownloading}
+          >
+            {isDownloading ? <Spinner /> : <IconDownload />}
+            {isDownloading ? 'Downloading…' : 'Download file'}
+          </Button>
+        </div>
         <Dialog.Close asChild>
           <Button
             type="button"

@@ -2,7 +2,6 @@ import {
   IconArrowBackUp,
   IconCheck,
   IconCopy,
-  IconDownload,
   IconZoomIn,
   IconX,
   type IconProps,
@@ -17,6 +16,7 @@ import * as React from 'react';
 import { IAttachment } from '../types';
 import { formatFileSize, getAttachmentType } from '@libs/format-file';
 import { getAttachmentIcon } from './attachment-type';
+import { downloadAttachmentFile } from '../utils/fileUpload';
 
 /**
  * Compound message primitives, modelled on prompt-kit's `Message` /
@@ -580,20 +580,30 @@ function AttachmentVideo({ attachment }: { attachment: IAttachment }) {
   );
 }
 
-function FilePreviewTrigger({
-  attachment,
-  name,
-  IconComponent,
-}: {
-  attachment: IAttachment;
-  name: string;
-  IconComponent: React.FC<IconProps>;
-}) {
+function AttachmentFile({ attachment }: { attachment: IAttachment }) {
+  const [isDownloading, setIsDownloading] = React.useState(false);
+  const name = attachment.name || 'File';
+  const IconComponent: React.FC<IconProps> = getAttachmentIcon(
+    getAttachmentType(attachment.type, attachment.name),
+  );
+
+  const handleDownload = async () => {
+    if (isDownloading) return;
+    setIsDownloading(true);
+    try {
+      await downloadAttachmentFile(readImage(attachment.url), name);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
   return (
     <button
       type="button"
-      className="flex w-fit max-w-full min-w-44 items-center gap-2.5 rounded-xl border border-border/70 bg-card p-2 text-left text-card-foreground shadow-2xs transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
-      aria-label={`Preview ${name}`}
+      onClick={handleDownload}
+      disabled={isDownloading}
+      className="flex w-fit max-w-full min-w-44 items-center gap-2.5 rounded-xl border border-border/70 bg-card p-2 text-left text-card-foreground shadow-2xs transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 disabled:cursor-wait disabled:opacity-70"
+      aria-label={`Download ${name}`}
     >
       <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted text-primary">
         <IconComponent className="size-5" />
@@ -601,75 +611,11 @@ function FilePreviewTrigger({
       <span className="min-w-0 flex-1 leading-tight">
         <span className="block truncate text-xs font-semibold">{name}</span>
         <span className="mt-0.5 block truncate text-[11px] text-muted-foreground">
-          {formatFileSize(attachment.size || 0)} · Preview
+          {formatFileSize(attachment.size || 0)} ·{' '}
+          {isDownloading ? 'Downloading…' : 'Download'}
         </span>
       </span>
     </button>
-  );
-}
-
-function FilePreviewContent({
-  attachment,
-  name,
-  IconComponent,
-}: {
-  attachment: IAttachment;
-  name: string;
-  IconComponent: React.FC<IconProps>;
-}) {
-  return (
-    <Dialog.Content className="max-w-sm rounded-2xl p-5">
-      <Dialog.Header>
-        <Dialog.Title className="truncate text-base">{name}</Dialog.Title>
-        <Dialog.Description className="sr-only">
-          File attachment preview
-        </Dialog.Description>
-      </Dialog.Header>
-      <div className="flex flex-col items-center gap-3 py-4 text-center">
-        <span className="flex size-14 items-center justify-center rounded-2xl bg-muted text-primary">
-          <IconComponent className="size-7" />
-        </span>
-        <p className="text-xs text-muted-foreground">
-          {formatFileSize(attachment.size || 0)}
-        </p>
-        <Button asChild size="sm">
-          <a
-            href={readImage(attachment.url)}
-            target="_blank"
-            rel="noopener noreferrer"
-            download
-          >
-            <IconDownload />
-            Download file
-          </a>
-        </Button>
-      </div>
-      <PreviewDialogClose />
-    </Dialog.Content>
-  );
-}
-
-function AttachmentFile({ attachment }: { attachment: IAttachment }) {
-  const name = attachment.name || 'File';
-  const IconComponent: React.FC<IconProps> = getAttachmentIcon(
-    getAttachmentType(attachment.type, attachment.name),
-  );
-
-  return (
-    <Dialog>
-      <Dialog.Trigger asChild>
-        <FilePreviewTrigger
-          attachment={attachment}
-          name={name}
-          IconComponent={IconComponent}
-        />
-      </Dialog.Trigger>
-      <FilePreviewContent
-        attachment={attachment}
-        name={name}
-        IconComponent={IconComponent}
-      />
-    </Dialog>
   );
 }
 
