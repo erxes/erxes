@@ -41,10 +41,16 @@ Sharing requires all of:
 - An available placement, including SaaS approval and expiry checks.
 - `cmsPublishingEnabled` enabled by a Postiz Admin.
 
-The new CMS action is not added to default permission groups. Grant it
-explicitly to the appropriate custom group. The existing CMS owner bypass
-remains; it does not bypass Postiz membership. A Postiz Admin who enables
-sharing must also have the CMS permissions. Sharing grants access to usable
+The sharing action is included in the existing CMS Journalist 1, Journalist 2,
+Editor and Admin default permission groups; CMS Viewer remains read-only.
+Existing assignments use the updated role definitions without a database
+backfill or a new custom group. Journalist 2 still has only create-for-review
+publication access: its sharing grant alone cannot dispatch posts without an
+additional approve/create-published grant. CMS assignment, language access,
+published-post status and Postiz membership checks remain mandatory.
+The existing CMS owner bypass remains; it does not bypass Postiz membership.
+A Postiz Admin who enables sharing must also have the CMS permissions.
+Sharing grants access to usable
 channels throughout the assigned Postiz workspace, not individual channels.
 
 ## Deployment sequence
@@ -59,11 +65,11 @@ No production deployment is performed by this change. Deploy in this order:
 
 Required configuration:
 
-| Component                 | Setting                                                | Purpose                                                                                                      |
-| ------------------------- | ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
-| content_api and agent_api | Existing `JWT_TOKEN_SECRET` | Must match across both APIs. CMS derives its own purpose-specific signing key automatically; no additional secret is configured. Never expose it in frontend settings. |
-| Postiz backend            | `ERX_CMS_MEDIA_ORIGINS`                                | Comma-separated exact HTTPS origins for trusted public CMS image storage. Empty permits text-only sharing.   |
-| Gateway and Postiz        | Existing instance signing key / `ERX_PROVISIONING_KEY` | Reused managed-instance authentication.                                                                      |
+| Component                 | Setting                                                | Purpose                                                                                                                                                                |
+| ------------------------- | ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| content_api and agent_api | Existing `JWT_TOKEN_SECRET`                            | Must match across both APIs. CMS derives its own purpose-specific signing key automatically; no additional secret is configured. Never expose it in frontend settings. |
+| Postiz backend            | `ERX_CMS_MEDIA_ORIGINS`                                | Comma-separated exact HTTPS origins for trusted public CMS image storage. Empty permits text-only sharing.                                                             |
+| Gateway and Postiz        | Existing instance signing key / `ERX_PROVISIONING_KEY` | Reused managed-instance authentication.                                                                                                                                |
 
 The CMS envelope uses HKDF-SHA256 with salt `erxes-cms-postiz-v1`, info
 `signing` and a 32-byte output. HMAC still covers `cms-postiz-v1`, timestamp,

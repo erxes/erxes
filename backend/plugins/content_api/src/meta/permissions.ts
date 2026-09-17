@@ -17,12 +17,14 @@ export const CMS_POST_ACTIONS = {
 const journalist1Actions = [
   CMS_POST_ACTIONS.read,
   CMS_POST_ACTIONS.createPublished,
+  CMS_POST_ACTIONS.sharePostiz,
   CMS_POST_ACTIONS.languageAll,
 ];
 
 const journalist2Actions = [
   CMS_POST_ACTIONS.read,
   CMS_POST_ACTIONS.createReview,
+  CMS_POST_ACTIONS.sharePostiz,
   CMS_POST_ACTIONS.languageAll,
 ];
 
@@ -30,6 +32,7 @@ const editorActions = [
   CMS_POST_ACTIONS.read,
   CMS_POST_ACTIONS.update,
   CMS_POST_ACTIONS.approve,
+  CMS_POST_ACTIONS.sharePostiz,
   CMS_POST_ACTIONS.languageAll,
 ];
 
