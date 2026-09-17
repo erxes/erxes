@@ -594,6 +594,15 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
   of the dialog. Ticket pipeline property selection does not filter them.
   Multi-row groups are not offered at convert time. The values are sent as
   `customFieldsData` without empty entries.
+- Convert-time system fields come from core `propertySystemFields` (the Settings
+  → Properties "Basic information" group) through `FrontlineConvertSystemFields`.
+  Priority, tags, start date and due date render only when their system field
+  has `Visible to create` on and its display logic passes; `Required` blocks
+  submit while empty. `useConvertSystemFields` resolves which keys show;
+  `getConvertSystemFieldCode` maps a form key to the kind's code, and only
+  `closeDate` differs (`CONVERT_TYPE_OPTIONS[type].closeDateCode`, which is
+  `targetDate` on tickets and tasks). Name, stage,
+  assignee, branch, department, attachments and description stay always shown.
 - A successful convert refetches `ConversationConvertedItems` and
   `getRelationsByEntity`, so the menu and the relation widgets update without
   a reload.
@@ -1292,6 +1301,18 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-17` — Convert dialog honours Basic information settings
+
+- **Summary:** Priority, tags, start date and due date appear in the convert
+  dialog when their system field is `Visible to create`, respecting `Required`
+  and display logic.
+- **Affected areas:**
+  `src/modules/inbox/conversations/conversation-detail/components/convert/{ConvertDialog.tsx,ConvertSystemFields.tsx,convertForm.ts}`,
+  `src/modules/inbox/conversations/{graphql/queries/getConvertSystemFields.ts,graphql/mutations/conversationConvertToCard.ts,hooks/useConvertSystemFields.tsx,types/conversationConvert.ts}`
+- **Contracts changed:** New query document `FrontlineConvertSystemFields`;
+  `ConversationConvertToCard` now sends `priority`, `tagIds`, `startDate` and
+  `closeDate`.
+
 ### `2026-09-17` — The conversation header converts into a ticket, deal or task
 
 - **Summary:** Added the Convert menu and a 1.x-style convert dialog for
@@ -1408,15 +1429,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   optional `descriptionFallback` and `MailAddressCallout` an optional
   `description`/`descriptionFallback`, so the pipeline tab can say `ticket`
   where the inbox says `conversation`.
-
-### `2026-09-10` — Quality gate fixes across the note input and help center drawer
-
-- **Summary:** The submit button's label came from a doubly nested ternary and
-  the note wrapper carried a keydown handler on a plain `div`, both flagged on
-  new code. The label is now three named values, and the suggestion keys are
-  listened for on the editor node itself — the wrapper stays a drop target with
-  no keyboard role, and `handleKeyDown` takes the native event.
-- **Affected areas:** `src/modules/activity/components/NoteInput.tsx`,
-  `src/modules/activity/hooks/useNoteTemplateSuggestions.tsx`,
-  `src/modules/helpcenter/components/help-center-drawer/HelpCenterDrawer.tsx`
-- **Contracts changed:** `None`

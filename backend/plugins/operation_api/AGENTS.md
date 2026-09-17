@@ -59,6 +59,11 @@
 
 ### Provides
 
+- Plugin meta `properties` (`src/meta/properties.ts`) — the `task` and `project` property
+  types, each with the `systemFields` (`code`, `name`, `type`) core lists as
+  the read-only "Basic information" group in Settings → Properties. A
+  `code` must name a real field on the record; core-api reads this meta
+  once per process, so a changed list shows after core-api restarts.
 - GraphQL queries, mutations and subscriptions for tasks, teams, statuses,
   cycles, milestones, projects, notes and templates.
 - Segment content type `operation:task.tasks`, with `segmentFields`,
@@ -137,6 +142,13 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-17` — Property types declare system fields
+
+- **Summary:** The `task` and `project` property types now declare `systemFields`, shown
+  as the "Basic information" group in Settings → Properties.
+- **Affected areas:** `src/meta/properties.ts` (`task`, `project`), `src/main.ts`
+- **Contracts changed:** Plugin meta `properties.types[].systemFields` added.
 
 ### `2026-09-17` — Tasks can be created from another service
 

@@ -208,6 +208,20 @@
 
 ### Provides
 
+- Plugin meta `properties` (`src/meta/properties.ts`) — the `conversation` and
+  `ticket` property types, each with the `systemFields` (`code`, `name`, `type`)
+  core lists as the read-only "Basic information" group in Settings →
+  Properties. A `code` must name a real field on the record; core-api reads
+  this meta once per process, so a changed list shows after core-api restarts.
+
+### `2026-09-17` — Property types declare system fields
+
+- **Summary:** The `conversation` and `ticket` property types now declare
+  `systemFields`, shown as the "Basic information" group in Settings →
+  Properties.
+- **Affected areas:** `src/meta/properties.ts`, `src/main.ts`
+- **Contracts changed:** Plugin meta `properties.types[].systemFields` added.
+
 ### `2026-09-17` — Call Pro can be limited to chosen tenants
 
 - **Summary:** `CALLPRO_SUBDOMAINS` restricts Call Pro to the listed subdomains on
@@ -317,25 +331,3 @@
   `src/modules/integrations/mail/utils/cloudflare/client.ts`,
   `src/modules/integrations/mail/controller/receiveMessage.ts`
 - **Contracts changed:** `None`
-
-### `2026-09-10` — A ticket pipeline owns its mail address
-
-- **Summary:** A pipeline can be given an address of its own. Mail sent there
-  opens a ticket, a reply threads onto it, and an agent's note that is not
-  internal goes back out as mail so the requester answers from their inbox. The
-  note it produced carries `mailMessageId`, and the note body is rendered from
-  its editor document to html before it is sent. Disconnecting an address now
-  disables its row instead of deleting it, so reconnecting keeps the address and
-  the thread scope the requester's mail client already knows. A pipeline address
-  can also be reached by forwarding, and the provider's forwarding confirmation
-  is held on the integration row instead of opening a ticket.
-- **Affected areas:** `src/modules/integrations/mail/utils/{pipeline,allocate,settings,scope,thread,tickets,comments,noteContent,forwardVerification}.ts`,
-  `src/modules/integrations/mail/{@types,db,controller,graphql}`,
-  `src/modules/ticket/{@types,db,graphql}` (mail link on notes),
-  `src/apollo/resolvers/resolvers.ts`.
-- **Contracts changed:** Added `mailPipelineConnect`, `mailPipelineUpdate`,
-  `mailPipelineForwardVerified`, `mailPipelineDisconnect`,
-  `mailPipelineIntegration` and `ticketGetNotes`; `TicketNote` exposes
-  `mailMessageId`; `mail_integrations` carries `pipelineId`, `disabledAt`,
-  `forwardPendingAt` and `forwardVerification`; `mail_messages` carries
-  `ticketId`.

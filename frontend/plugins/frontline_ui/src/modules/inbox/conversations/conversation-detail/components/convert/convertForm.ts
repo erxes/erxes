@@ -8,6 +8,7 @@ export const CONVERT_TYPE_OPTIONS: Record<
     pluginName: string;
     createAction: string;
     propertyContentType: string;
+    closeDateCode: string;
     stageMessage: string;
     multipleSelect: boolean;
     supportsDetails: boolean;
@@ -17,6 +18,7 @@ export const CONVERT_TYPE_OPTIONS: Record<
     pluginName: 'frontline',
     createAction: 'createTicket',
     propertyContentType: 'frontline:ticket',
+    closeDateCode: 'targetDate',
     stageMessage: 'Status is required',
     multipleSelect: false,
     supportsDetails: true,
@@ -25,6 +27,7 @@ export const CONVERT_TYPE_OPTIONS: Record<
     pluginName: 'sales',
     createAction: 'dealsAdd',
     propertyContentType: 'sales:deal',
+    closeDateCode: 'closeDate',
     stageMessage: 'Stage is required',
     multipleSelect: true,
     supportsDetails: true,
@@ -33,6 +36,7 @@ export const CONVERT_TYPE_OPTIONS: Record<
     pluginName: 'operation',
     createAction: 'taskCreate',
     propertyContentType: 'operation:task',
+    closeDateCode: 'targetDate',
     stageMessage: 'Status is required',
     multipleSelect: false,
     supportsDetails: false,
@@ -63,11 +67,34 @@ export const buildConvertSchema = (type: ConversationConvertType) =>
       }),
     ),
     description: z.string().optional(),
+    priority: z.number().optional(),
+    tagIds: z.array(z.string()),
+    startDate: z.date().optional(),
+    closeDate: z.date().optional(),
   });
 
 export type TConvertForm = z.infer<ReturnType<typeof buildConvertSchema>>;
 
 export type TConvertFormReturn = UseFormReturn<TConvertForm>;
+
+export const CONVERT_SYSTEM_FIELD_KEYS = [
+  'priority',
+  'tagIds',
+  'startDate',
+  'closeDate',
+] as const;
+
+export type TConvertSystemFieldKey = (typeof CONVERT_SYSTEM_FIELD_KEYS)[number];
+
+export const getConvertSystemFieldCode = (
+  type: ConversationConvertType,
+  key: TConvertSystemFieldKey,
+) => (key === 'closeDate' ? CONVERT_TYPE_OPTIONS[type].closeDateCode : key);
+
+export const hasConvertSystemFieldValue = (value: unknown) =>
+  Array.isArray(value)
+    ? value.length > 0
+    : value !== undefined && value !== null && value !== '';
 
 export type TConvertIdsFieldName =
   | 'assignedUserIds'
