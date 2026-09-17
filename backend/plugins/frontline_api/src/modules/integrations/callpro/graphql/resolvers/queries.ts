@@ -7,7 +7,7 @@ import {
 
 const callProQueries = {
   callProConfig(_root, _args, { subdomain }: IContext) {
-    const enabled = isCallProEnabled();
+    const enabled = isCallProEnabled(subdomain);
 
     return {
       enabled,

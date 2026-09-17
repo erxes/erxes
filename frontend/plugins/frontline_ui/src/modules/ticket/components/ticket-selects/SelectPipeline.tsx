@@ -20,7 +20,7 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import React, { useEffect, useState } from 'react';
-import { UseFormReturn, useWatch } from 'react-hook-form';
+import { Control, FieldValues, UseFormReturn, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { addTicketSchema } from '@/ticket/types';
 import { z } from 'zod';
@@ -264,16 +264,22 @@ const SelectPipelineFilterView = () => {
   );
 };
 
-const SelectPipelineFormItem = ({
+const SelectPipelineFormItem = <
+  TFieldValues extends FieldValues = z.infer<typeof addTicketSchema>,
+>({
   value,
   onValueChange,
   form,
 }: {
   value: string;
   onValueChange: (value: string) => void;
-  form?: UseFormReturn<z.infer<typeof addTicketSchema>>;
+  form?: UseFormReturn<TFieldValues>;
 }) => {
-  const channelId = useWatch({ name: 'channelId', control: form?.control });
+  const control = form?.control as Control<FieldValues> | undefined;
+  const channelId: string | undefined = useWatch({
+    name: 'channelId',
+    control,
+  });
   const [open, setOpen] = useState(false);
   const { pipelines } = useGetPipelines({
     variables: {

@@ -23,7 +23,9 @@ export const FxaSaleForm = ({
   form: ITransactionGroupForm;
   index: number;
 }) => {
-  const onFixedAssetAccountChange = useFxaAccountConfig(form, index);
+  const onFixedAssetAccountChange = useFxaAccountConfig(form, index, {
+    setSaleOutAccount: true,
+  });
   useFxaDisposalFollowTrs({
     form,
     journalIndex: index,
@@ -51,8 +53,7 @@ export const FxaSaleForm = ({
           form={form}
           index={index}
           onFixedAssetAccountChange={onFixedAssetAccountChange}
-          showFixedAssetAccount
-          showGainAccount={false}
+          showSaleAccounts
         />
         <VatForm
           form={form}
