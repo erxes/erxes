@@ -362,11 +362,10 @@ export const fxaIncomeDetailSchema = z
   });
 
 export const fxaFollowInfosSchema = z.object({
-  fixedAssetAccountId: undefed(z.string()),
   accumulatedDepreciationAccountId: undefed(z.string()),
   depreciationExpenseAccountId: undefed(z.string()),
-  gainAccountId: undefed(z.string()),
-  lossAccountId: undefed(z.string()),
+  saleOutAccountId: undefed(z.string()),
+  saleCostAccountId: undefed(z.string()),
   revaluationReserveAccountId: undefed(z.string()),
   deferredTaxAssetAccountId: undefed(z.string()),
   deferredTaxLiabilityAccountId: undefed(z.string()),
@@ -376,13 +375,6 @@ export const fxaFollowInfosSchema = z.object({
   ownerId: undefed(z.string()),
 });
 
-export const fxaRequiredAssetAccountFollowInfosSchema =
-  fxaFollowInfosSchema.extend({
-    fixedAssetAccountId: z.string().refine((val) => val?.length, {
-      message: 'Must fill fixed asset account',
-    }),
-  });
-
 export const fxaIncomeDetailFollowInfoSchema = z.object({
   _id: undefed(z.string()),
   tempId: undefed(z.string()),
@@ -391,38 +383,40 @@ export const fxaIncomeDetailFollowInfoSchema = z.object({
   code: undefed(z.string()),
   sequence: undefed(z.number()),
   salvageValue: undefed(z.number()),
-  openingAccumulatedDepreciation: undefed(z.number()),
+  preDeprecation: undefed(z.number()),
 });
 
-export const fxaIncomeFollowInfosSchema =
-  fxaRequiredAssetAccountFollowInfosSchema.extend({
-    fxaIncomeDetails: undefed(z.array(fxaIncomeDetailFollowInfoSchema)),
-  });
+export const fxaIncomeFollowInfosSchema = fxaFollowInfosSchema.extend({
+  fxaIncomeDetails: undefed(z.array(fxaIncomeDetailFollowInfoSchema)),
+});
 
-export const fxaDisposalFollowInfosSchema =
-  fxaRequiredAssetAccountFollowInfosSchema.extend({
-    accumulatedDepreciationAccountId: z.string().refine((val) => val?.length, {
-      message: 'Must fill accumulated depreciation account',
-    }),
-    lossAccountId: z.string().refine((val) => val?.length, {
-      message: 'Must fill loss account',
-    }),
-  });
+export const fxaOutFollowInfosSchema = fxaFollowInfosSchema.extend({
+  accumulatedDepreciationAccountId: z.string().refine((val) => val?.length, {
+    message: 'Must fill accumulated depreciation account',
+  }),
+});
 
-export const fxaMoveFollowInfosSchema =
-  fxaRequiredAssetAccountFollowInfosSchema.extend({
-    moveInBranchId: z.string().refine((val) => val?.length, {
-      message: 'Must fill destination branch',
-    }),
-    moveInDepartmentId: undefed(z.string()),
-  });
+export const fxaSaleFollowInfosSchema = fxaOutFollowInfosSchema.extend({
+  saleOutAccountId: z.string().refine((val) => val?.length, {
+    message: 'Must fill fixed asset sale out account',
+  }),
+  saleCostAccountId: z.string().refine((val) => val?.length, {
+    message: 'Must fill fixed asset sale cost account',
+  }),
+});
+
+export const fxaMoveFollowInfosSchema = fxaOutFollowInfosSchema.extend({
+  moveInBranchId: z.string().refine((val) => val?.length, {
+    message: 'Must fill destination branch',
+  }),
+  moveInDepartmentId: undefed(z.string()),
+});
 
 export const fxaFollowExtrasSchema = z.object({
-  fixedAssetAccount: undefed(z.object({ ...accountSchema.shape })),
+  saleOutAccount: undefed(z.object({ ...accountSchema.shape })),
   accumulatedDepreciationAccount: undefed(z.object({ ...accountSchema.shape })),
   depreciationExpenseAccount: undefed(z.object({ ...accountSchema.shape })),
-  gainAccount: undefed(z.object({ ...accountSchema.shape })),
-  lossAccount: undefed(z.object({ ...accountSchema.shape })),
+  saleCostAccount: undefed(z.object({ ...accountSchema.shape })),
   revaluationReserveAccount: undefed(z.object({ ...accountSchema.shape })),
   deferredTaxAssetAccount: undefed(z.object({ ...accountSchema.shape })),
   deferredTaxLiabilityAccount: undefed(z.object({ ...accountSchema.shape })),
@@ -475,7 +469,7 @@ export const transactionFxaOutSchema = z
     customerId: undefed(z.string()),
     branchId: undefed(z.string()),
     departmentId: undefed(z.string()),
-    followInfos: fxaDisposalFollowInfosSchema,
+    followInfos: fxaOutFollowInfosSchema,
     followExtras: undefed(fxaFollowExtrasSchema),
     extraData: undefed(fxaExtraDataSchema),
     details: z.array(
@@ -515,7 +509,7 @@ export const transactionFxaSaleSchema = z
     departmentId: undefed(z.string()),
     hasVat: z.boolean(),
     hasCtax: z.boolean(),
-    followInfos: fxaDisposalFollowInfosSchema,
+    followInfos: fxaSaleFollowInfosSchema,
     followExtras: undefed(fxaFollowExtrasSchema),
     extraData: undefed(fxaExtraDataSchema),
     details: z.array(

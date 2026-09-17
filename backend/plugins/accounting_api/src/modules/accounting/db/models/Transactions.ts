@@ -138,6 +138,22 @@ const normalizeTransactionRelAccounts = (
   return { cleanDoc, shouldClearRelAccountOverrides };
 };
 
+const splitUndefinedUnsetFields = <T extends Record<string, unknown>>(
+  doc: T,
+) => {
+  const cleanDoc = { ...doc };
+  const unsetDoc: Record<string, ''> = {};
+
+  for (const key of Object.keys(cleanDoc)) {
+    if (cleanDoc[key] === undefined) {
+      delete cleanDoc[key];
+      unsetDoc[key] = '';
+    }
+  }
+
+  return { cleanDoc: cleanDoc as T, unsetDoc };
+};
+
 const cleanCreatePTransactionDoc = (doc: ITransaction & { _id?: string }) => {
   const { cleanDoc } = normalizeTransactionRelAccounts(doc);
 
@@ -394,27 +410,30 @@ export const loadTransactionClass = (
       const oldTr = await models.Transactions.getTransaction({ _id });
       const { cleanDoc, shouldClearRelAccountOverrides } =
         normalizeTransactionRelAccounts(doc);
+      const { cleanDoc: normalizedDoc, unsetDoc } =
+        splitUndefinedUnsetFields(cleanDoc);
 
-      cleanDoc.fullDate = getFullDate(doc.date);
+      normalizedDoc.fullDate = getFullDate(doc.date);
       const update: any = {
         $set: {
-          ...cleanDoc,
-          parentId: cleanDoc.parentId || _id,
+          ...normalizedDoc,
+          parentId: normalizedDoc.parentId || _id,
           sumDt:
-            cleanDoc.side === TR_SIDES.DEBIT
-              ? cleanDoc.details.reduce((sum, cur) => sum + cur.amount, 0)
+            normalizedDoc.side === TR_SIDES.DEBIT
+              ? normalizedDoc.details.reduce((sum, cur) => sum + cur.amount, 0)
               : 0,
           sumCt:
-            cleanDoc.side === TR_SIDES.CREDIT
-              ? cleanDoc.details.reduce((sum, cur) => sum + cur.amount, 0)
+            normalizedDoc.side === TR_SIDES.CREDIT
+              ? normalizedDoc.details.reduce((sum, cur) => sum + cur.amount, 0)
               : 0,
           modifiedBy: userId,
           updatedAt: new Date(),
         },
       };
 
-      if (shouldClearRelAccountOverrides) {
+      if (shouldClearRelAccountOverrides || Object.keys(unsetDoc).length) {
         update.$unset = {
+          ...unsetDoc,
           'relAccounts.customDt': '',
           'relAccounts.customCt': '',
         };

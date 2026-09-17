@@ -6,7 +6,7 @@
 - **Project:** `accounting_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/accounting_ui`
-- **Last synchronized:** `2026-09-09`
+- **Last synchronized:** `2026-09-17`
 
 ## Scope
 
@@ -37,11 +37,14 @@
 - Closing adjustment list renders account fields inline, and detail can calculate temporary-account balances grouped by branch/department, show validation state, render read-only branch/department code-title labels plus account inline names, edit tax percentage per row in collapsible `RecordTable` groups, show generated transactions in a `TBalance`-style transactions tab, run closing transactions, publish, cancel, and show tax impact.
 - Inventory transaction rows fill prices from product master, current inventory cost, or last completed inventory income price depending on journal behavior.
 - Fixed asset income, out, move, and sale transaction rows can toggle detailed view to edit branch and department per detail.
+- Transaction balance rows display branch and department from each transaction detail when present, so generated follow rows with source/destination locations are shown at their row location instead of the root transaction location.
 - Fixed asset income rows capture acquisition category, code, name, count, unit cost, tax settings, and optional detail-level branch/department values; code and name are editable inline table cells that participate in transaction-form keyboard navigation, and the backend creates the fixed asset from the saved detail.
 - Fixed asset category forms show both derived useful years and annual depreciation percentage; changing either field updates the other rounded to two decimals, while the backend stores the annual percentage as the canonical value.
 - Fixed asset settings list income-created asset records without a direct add button; asset creation belongs to fixed asset income transactions.
-- Fixed asset income detail sheets start with no owner-allocation rows by default; the owner-record add button shows the remaining quantity, lets users split the detail count into responsible-user/serial rows, and keeps residual value plus opening accumulated depreciation as detail-level follow-info.
-- Fixed asset out, move, and sale rows select existing fixed assets directly, while the "Олон хөрөнгө нэмэх" sheet can filter by category and append multiple selected assets as separate details; selected rows refetch fixed asset location remainder whenever fixed asset, branch, department, or date changes, can optionally select active owner records up to the detail count, out/move cost is based on asset data, sale keeps user-entered sale price, and branch/department values stay on each detail.
+- Fixed asset income detail sheets start with no owner-allocation rows by default; the owner-record add button shows the remaining quantity, lets users split the detail count into responsible-user/serial rows, and keeps residual value plus `preDeprecation` as detail-level follow-info.
+- Fixed asset out, move, and sale rows select existing fixed assets directly, while the "Олон хөрөнгө нэмэх" sheet can filter by category and append multiple selected assets as separate details; selected rows refetch fixed asset location remainder whenever fixed asset, branch, department, or date changes, can optionally select active owner records up to the detail count, out/move cost is based on asset data, sale keeps user-entered sale price, branch/department values stay on each detail, `fxaOut` only asks for accumulated depreciation account, and generated sale/depreciation follow previews use `fxaSaleOut`, `fxaDepOut`, and `fxaSaleCost`.
+- Fixed asset out, move, and sale edit forms preserve persisted detail counts while location remainder loads; the remainder limits subsequent user edits but must not rewrite saved values during form initialization.
+- Fixed asset disposal follow previews run only for unsaved transactions; persisted edit forms keep Mongo-backed main details and generated follow transactions until the backend recalculates them on save.
 - Fixed asset navigation includes an "Үндсэн хөрөнгө" section with an owner-record list and a branch/department fixed asset remainder page; the redundant fixed asset settings and direct internal-move shortcuts are not shown there.
 - The in-form add-transaction dropdown can create cash, bank, receivable, payable, or main transaction tabs directly from a selected account by resolving the account journal and pre-filling the first detail account; journal-only additions start with an empty account.
 - Related account override inputs keep focus while users type and persist custom debit and credit code lists independently.
@@ -55,7 +58,7 @@
 | Area                | Path                                                          | Responsibility                                                                                                  |
 | ------------------- | ------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
 | Runtime             | `src/main.ts`                                                 | Starts the accounting UI remote.                                                                                |
-| Dev server config   | `rspack.config.ts`                                            | Configures Module Federation development serving and ignores generated folders during watch mode.                |
+| Dev server config   | `rspack.config.ts`                                            | Configures Module Federation development serving and ignores generated folders during watch mode.               |
 | Plugin config       | `src/config.tsx`                                              | Registers accounting routes and navigation with the host.                                                       |
 | Route composition   | `src/modules/AccountingMain.tsx`                              | Wires accounting pages into the plugin router.                                                                  |
 | Transactions        | `src/modules/transactions`                                    | Owns transaction tables, forms, GraphQL documents, hooks, and print documents.                                  |
@@ -84,6 +87,8 @@
 - Fixed asset location remainder list contract `fixedAssetLocationRemainders(searchValue, fixedAssetId, categoryId, branchId, departmentId, date, limit)` for the fixed asset remainder page.
 - Fixed asset owner-record query contract `fxaOwnerRecords(fixedAssetIds, status, balanceOnly)` for disposal/move/sale owner balance selection sheets.
 - Fixed asset owner-record list contracts `fxaOwnerRecords(searchValue, fixedAssetId, categoryId, action, ownerId, status, createdFrom, createdTo, page, perPage)` and `fxaOwnerRecordsCount(...)`, plus direct `fixedAssetOwnerRecordsAdd`, `fixedAssetOwnerRecordsTransfer`, and `fixedAssetOwnerRecordsRemove` mutations for the fixed asset owner-record page.
+- Transaction journal labels and generated fixed-asset follow previews consume the fixed-asset journal names `fxaDep`, `fxaDepIn`, `fxaDepOut`, `fxaSaleOut`, and `fxaSaleCost`.
+- Fixed asset sale follow account fields use `saleOutAccountId` and `saleCostAccountId`; fixed asset income/out/move forms do not store a root `fixedAssetAccountId` because the asset account comes from transaction details.
 - Fixed asset category settings consume `defaultAnnualDepreciationRate` and `defaultTaxAnnualDepreciationRate`; useful years are UI-derived as `100 / annualRate` and are not sent to or read from the backend.
 - Fund rate adjustment contracts: `adjustFundRates`, `adjustFundRateDetail`, `adjustFundRateAdd`, `adjustFundRateChange`, `adjustFundRateCalculate`, `adjustFundRateDoTransaction`, `adjustFundRateRemove`, and `accountingAdjustFundRateChanged`.
 - Debt rate adjustment contracts: `adjustDebtRates`, `adjustDebtRateDetail`, `adjustDebtRatesAdd`, `adjustDebtRatesEdit`, `adjustDebtRateCalculate`, `adjustDebtRateDoTransaction`, `adjustDebtRatesRemove`, and `accountingAdjustDebtRateChanged`.
@@ -118,9 +123,11 @@
 - Fixed asset income detail state must preserve `fixedAssetCategoryId`, `fixedAssetCode`, and `fixedAssetName` through save/refetch so generated fixed assets remain editable from their source transaction detail.
 - Fixed asset income code and name cells must use the same `PopoverScoped` plus `RecordTableInlineCell` pattern as numeric inline cells so shortcut navigation can focus and edit them.
 - Fixed asset detail tables must tolerate an uninitialized `details` watch value during create-route bootstrap and render with an empty array until form defaults arrive.
-- Fixed asset income owner sheet state must preserve `followInfos.fxaIncomeDetails` residual value and opening accumulated depreciation per detail; owner rows in `extraData.fxaOwnerRecords` are optional and represent responsible-user/serial allocation only.
+- Fixed asset income owner sheet state must preserve `followInfos.fxaIncomeDetails` residual value and `preDeprecation` per detail; owner rows in `extraData.fxaOwnerRecords` are optional and represent responsible-user/serial allocation only.
 - Fixed asset disposal, move, and sale forms must not require owner-record selection or a row-level category selector; category filtering belongs in the multi-add sheet, while quantity, branch, and department are owned by transaction details.
 - Fixed asset disposal, move, and sale row count limits must be driven by `fixedAssetLocationRemainder` using the row fixed asset, row branch/department, form date, and current transaction id exclusion.
+- Loading or refetching a fixed asset location remainder must not mutate an existing transaction detail count; apply the limit only when the user changes the count.
+- Fixed asset disposal preview hooks must never rebuild saved main or follow rows from master-data queries; tab and T-balance remounts must leave Mongo-backed amounts, counts, sides, and generated `fxaDepOut` rows unchanged.
 - Fixed asset disposal, move, and sale owner-record selection is optional per detail; when users select owner balance rows, the selected owner counts must not exceed the detail count and are saved through `extraData.fxaOwnerRecords` with `ownerId`.
 - Fixed asset navigation should show the operational owner-record list and fixed asset remainder page; fixed asset master data remains under settings and internal movement remains an add-transaction action.
 - Fixed asset category annual depreciation percentage is canonical in saved data; useful years are displayed and editable only as a derived helper rounded to two decimals.
@@ -139,7 +146,7 @@
 - Smoke scenario: in cash, bank, payable, and receivable transaction forms, manually edit main and foreign currency amounts and verify paired amount syncing does not loop or lose precision after refetch.
 - Smoke scenario: in inventory sale, income, out, and move rows, change products and verify `unitPrice` plus amount/follow cost values refresh without a manual page reload.
 - Smoke scenario: in fixed asset income, out, move, and sale forms, enable "Дэлгэрэнгүй харагдац" and verify each detail row can store independent branch and department values.
-- Smoke scenario: in fixed asset income, enter category/code/name/count/unit cost, verify keyboard shortcuts can reach and edit code/name cells, open the detail owner sheet, verify it starts empty, confirm the owner-record add button shows the remaining quantity in red while positive and disables at zero, optionally add owner rows whose counts total the detail count, set residual/opening depreciation values, save, refetch, and verify the generated fixed asset plus optional owner records remain.
+- Smoke scenario: in fixed asset income, enter category/code/name/count/unit cost, verify keyboard shortcuts can reach and edit code/name cells, open the detail owner sheet, verify it starts empty, confirm the owner-record add button shows the remaining quantity in red while positive and disables at zero, optionally add owner rows whose counts total the detail count, set residual value and `preDeprecation`, save, refetch, and verify the generated fixed asset plus optional owner records remain.
 - Smoke scenario: in fixed asset out, move, and sale forms, select a fixed asset in a single row, verify branch/department default from the transaction header, change row branch/department and confirm the count limit refreshes from that location, open the owner-record sheet and select active owner balance rows below or equal to the detail count, open "Олон хөрөнгө нэмэх", filter by category, append multiple assets as separate details, verify out/move cost fields fill from the asset cost base, sale keeps user-entered sale price, and detail branch/department values persist from the detailed view.
 - Smoke scenario: open `/accounting/fixed-assets/owner-records`, verify the "Үндсэн хөрөнгө" navigation group appears, filter owner records by search, fixed asset, category, owner, action, status, and created date, then use Үүсгэх/Шилжүүлэх/Цуцлах actions to create direct owner-record ledger rows without leaving the page.
 - Smoke scenario: open `/accounting/fixed-assets/remainders`, verify the "Үлдэгдэл" navigation item appears without the fixed asset settings or direct internal-move shortcuts, filter by search, fixed asset, category, branch, department, and date, and confirm rows show positive fixed asset quantities grouped by branch and department.
@@ -148,6 +155,12 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-17` — `Fixed Asset Transaction Forms`
+
+- **Summary:** Normalized fixed asset income, disposal, sale, and move forms around detail-owned accounts and locations, optional owner allocation, prior depreciation, generated follow journals, and persisted edit-state preservation.
+- **Affected areas:** `src/modules/transactions/transaction-form`, transaction queries, balance-table rendering, and journal labels.
+- **Contracts changed:** Consumes detail branch/department data, `preDeprecation`, sale follow accounts `saleOutAccountId`/`saleCostAccountId`, and journals `fxaDep`, `fxaDepIn`, `fxaDepOut`, `fxaSaleOut`, and `fxaSaleCost`.
 
 ### `2026-09-09` — `Safe Remainder Empty Location Cells`
 
@@ -178,39 +191,3 @@
 - **Summary:** Updated accounting settings import visibility to use the unified tax-row import permission.
 - **Affected areas:** `src/modules/settings/components/AccountingTopbar.tsx`.
 - **Contracts changed:** Consumes `taxRowsImportManage` instead of the old VAT-specific import action.
-
-### `2026-09-02` — `Fixed Asset Annual Depreciation Rate`
-
-- **Summary:** Fixed asset category forms now synchronize useful years with annual depreciation percentage and send the annual percentage as the canonical saved value, while fixed asset settings no longer expose direct asset creation and fixed asset income rows expose opening accumulated depreciation in advanced view.
-- **Affected areas:** `src/modules/settings/components/AccountingTopbar.tsx`, `src/modules/settings/fixed-assets`, `src/modules/inventories/safeRemainders`, `src/modules/transactions/types`, `src/modules/transactions/transaction-form/graphql/queries/fixedAssets.ts`, `src/modules/transactions/transaction-form/components/documents`, `src/modules/transactions/transaction-form/components/forms/FxaIncomeForm`, `src/modules/transactions/transaction-form/components/forms/FxaOutForm`, `src/modules/transactions/transaction-form/components/forms/FxaMoveForm`, `src/modules/transactions/transaction-form/components/forms/FxaSaleForm`.
-- **Contracts changed:** Consumes `defaultAnnualDepreciationRate`, `defaultTaxAnnualDepreciationRate`, `annualDepreciationRate`, and `taxAnnualDepreciationRate`.
-
-### `2026-08-29` — `Fixed Asset Remainder Navigation`
-
-- **Summary:** Replaced the fixed asset settings and direct internal-move shortcuts in the accounting sidebar with a fixed asset remainder page filtered by asset, category, branch, department, search, and date.
-- **Affected areas:** `src/config.tsx`, `src/modules/AccountingMain.tsx`, `src/modules/fixedAssets`, `src/pages/fixed-assets/FxaRemaindersPage.tsx`, `src/modules/settings/fixed-assets/graphql/queries/fixedAssets.ts`.
-- **Contracts changed:** Consumes `fixedAssetLocationRemainders`.
-
-### `2026-08-29` — `Fixed Asset Owner Partial Disposal`
-
-- **Summary:** Fixed asset out, move, and sale owner-record sheets now treat the detail quantity as a maximum and allow partially owner-assigned disposal quantities.
-- **Affected areas:** `src/modules/transactions/transaction-form/components/forms/FxaOwnerRecordsSheet.tsx`.
-- **Contracts changed:** None.
-
-### `2026-08-29` — `Fixed Asset Owner Ledger`
-
-- **Summary:** Updated owner-record list, filters, income allocation rows, disposal/move/sale selection sheets, and direct owner-record action sheets for owner ledger rows with `received`/`handedOver` actions and balance-only selection.
-- **Affected areas:** `src/modules/fixedAssets`, `src/modules/settings/fixed-assets`, `src/modules/transactions/transaction-form/components/forms/FxaIncomeForm/FxaIncomeOwnerRecordsSheet.tsx`, `src/modules/transactions/transaction-form/components/forms/FxaOwnerRecordsSheet.tsx`.
-- **Contracts changed:** Owner record UI now consumes ledger fields only: `action`, `ownerId`, `balanceOnly`, `fixedAssetOwnerRecordsAdd`, `fixedAssetOwnerRecordsTransfer`, and `fixedAssetOwnerRecordsRemove`.
-
-### `2026-08-28` — `Fixed Asset Owner Record List`
-
-- **Summary:** Added a fixed asset owner-record navigation group, 20-row paged list, filters, and direct receive, transfer, and cancel sheets that do not create accounting transactions.
-- **Affected areas:** `src/config.tsx`, `src/modules/AccountingMain.tsx`, `src/modules/fixedAssets`, `src/pages/fixed-assets`, `src/modules/settings/fixed-assets/graphql/queries/fixedAssets.ts`, `src/modules/settings/fixed-assets/hooks/useFxaOwnerRecords.tsx`.
-- **Contracts changed:** Consumes `fxaOwnerRecords` and `fxaOwnerRecordsCount` with owner/action/status list filters and 20-row page variables.
-
-### `2026-08-28` — `Fixed Asset Location Remainder Refresh`
-
-- **Summary:** Fixed asset out, move, and sale rows now refetch location-specific remainder when fixed asset, branch, department, or date changes and clamp count from that result.
-- **Affected areas:** `src/modules/settings/fixed-assets/graphql/queries/fixedAssets.ts`, `src/modules/settings/fixed-assets/hooks/useFixedAssetLocationRemainder.tsx`, `src/modules/transactions/transaction-form/components/forms/FxaOutForm`, `src/modules/transactions/transaction-form/components/forms/FxaMoveForm`, `src/modules/transactions/transaction-form/components/forms/FxaSaleForm`.
-- **Contracts changed:** Consumes `fixedAssetLocationRemainder`.
