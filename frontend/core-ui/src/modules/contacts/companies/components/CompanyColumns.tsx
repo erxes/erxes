@@ -49,7 +49,7 @@ const CompanyEmailsCell = ({ company }: { company: TCompany }) => {
     );
 
     window.dispatchEvent(
-      new CustomEvent('frontline:compose-email', {
+      new CustomEvent('erxes:compose-email', {
         detail: { companyId: company._id, email, emails },
       }),
     );
