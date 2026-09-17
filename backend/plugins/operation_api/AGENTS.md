@@ -6,7 +6,7 @@
 - **Project:** `operation_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/operation_api`
-- **Last synchronized:** `2026-09-05`
+- **Last synchronized:** `2026-09-17`
 
 ## Scope
 
@@ -39,6 +39,9 @@
 - Task import/export through the platform's import-export producers.
 - GraphQL subscriptions for live task and project updates.
 - GitHub issue synchronisation for tasks.
+- Another service can create a task on a user's behalf from a status id
+  (`task.createFromSource`) and check which of a list of ids are tasks
+  (`task.findOne`); `frontline` uses both to convert a conversation into a task.
 
 ## Architecture
 
@@ -63,7 +66,13 @@
   `applyMembership`.
 - Segment relations `user.assignedTasks` and `user.createdTasks`.
 - Import/export producers for the `task` module.
-- tRPC procedures under `src/trpc/`.
+- tRPC procedures under `src/trpc/` and `src/modules/task/trpc/task.ts`:
+  `task.tag`; `task.findOne({ _ids })` returns the first task among the ids
+  (`{ _id, name, teamId }`) or `null`, skipping ids that are not ObjectIds;
+  `task.createFromSource({ userId, doc: { name, status, description?,
+  priority?, assigneeId?, labelIds?, tagIds?, startDate?, targetDate? } })`
+  resolves `teamId` from the status, creates the task as `userId`, publishes
+  `operationTaskChanged` / `operationTaskListChanged`, and returns `{ _id }`.
 
 ### Consumes
 
@@ -103,14 +112,20 @@
   segment producer here may call another plugin: that shape is what produced
   the plugin-to-plugin RPC loop the Elasticsearch-era producers carried.
 
+- `task.createFromSource` is service-to-service only and checks no permission;
+  the caller must enforce `taskCreate` for the acting user before calling it.
+  It does not open a GitHub issue — that sync stays in the `createTask`
+  resolver.
+
 ## Validation
 
 - `npx tsc --noEmit -p backend/plugins/operation_api/tsconfig.json` - expect
-  exactly two errors, both `TS2307: Cannot find module '@octokit/app'` from
-  `src/utils/githubClient.ts`. The dependency is declared in `package.json` but
-  is not installed, and it blocks `pnpm nx build operation_api` as well. Any
-  third error is new.
-- `pnpm nx build operation_api` (currently blocked by the above)
+  no errors.
+- `pnpm nx build operation_api` - its type-declaration step can exhaust the
+  default Node heap; run with `NODE_OPTIONS=--max-old-space-size=8192`.
+- Smoke (conversation convert): from a frontline conversation convert into a
+  task on a team status; the task appears in that team with the chosen status
+  and `Go to a task` opens `/operation/tasks/<id>`.
 - Build a task segment on an assignee, confirm the preview count matches the
   task list filtered the same way, then confirm `segmentIds` lands on those
   tasks after the rebuild.
@@ -118,6 +133,15 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-17` — Tasks can be created from another service
+
+- **Summary:** Added the `task.createFromSource` and `task.findOne` tRPC
+  procedures so `frontline` can convert a conversation into a task and detect
+  an existing one.
+- **Affected areas:** `src/modules/task/trpc/task.ts`
+- **Contracts changed:** New tRPC procedures `task.createFromSource` and
+  `task.findOne`.
 
 ### `2026-09-05` — `Export repeating task properties by row`
 

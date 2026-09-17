@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-09-15`
+- **Last synchronized:** `2026-09-17`
 
 ## Scope
 
@@ -156,6 +156,14 @@
   a multi-select over the selected channel's `ticketConfigs`.
 - Registers navigation, settings navigation, relation widgets, property inputs,
   and activity rows with the host via `CONFIG` in `src/config.tsx`.
+- The conversation header carries a **Convert** menu. Each entry opens
+  `ConvertDialog`, a centred dialog laid out like the 1.x convert modal: the
+  target fields (ticket: channel → pipeline → status; deal: board → pipeline →
+  stage; task: team → status), then name, assigned to, branch and department
+  (not for a task; single for a ticket, multiple for a deal), attachments (not
+  for a task), description and the Settings → Properties fields. Saving calls
+  `conversationConvertToCard`; once a kind exists the entry becomes
+  `Go to a …` and navigates to the item's URL.
 - Inbox navigation splits into **Me** — the integration types in use by the
   caller's personal channel, listed flat — and **Team inbox**, where every team
   channel is a collapsible row over the integration types in use inside it.
@@ -298,6 +306,7 @@
 | Channel settings | `src/modules/channels` | Channel CRUD, members, GraphQL documents, form schemas |
 | Personal channel | `src/modules/channels/components/settings/personal-channel`, `src/pages/PersonalChannelPage.tsx` | Profile page for the user's private inbox |
 | Inbox | `src/modules/inbox/` | Conversations, messages, filters, channels, brands, integrations |
+| Conversation convert | `src/modules/inbox/conversations/conversation-detail/components/convert/` | Convert menu, convert dialog, convert-time properties |
 | Integrations | `src/modules/integrations/` | Per-provider connect forms and detail views |
 | Call Pro | `src/modules/integrations/callpro/` | Add/edit sheets over one shared `CallProIntegrationForm`, webhook URL hint, recording player, and the caller-to-customer picker |
 | Ticket | `src/modules/ticket/`, `src/modules/pipelines/`, `src/modules/status/` | Ticket boards, pipelines, statuses |
@@ -348,6 +357,7 @@
 | Channel settings | `src/modules/channels` | Channel CRUD, members, GraphQL documents, form schemas |
 | Personal channel | `src/modules/channels/components/settings/personal-channel`, `src/pages/PersonalChannelPage.tsx` | Profile page for the user's private inbox |
 | Inbox | `src/modules/inbox/` | Conversations, messages, filters, channels, brands, integrations |
+| Conversation convert | `src/modules/inbox/conversations/conversation-detail/components/convert/` | Convert menu, convert dialog, convert-time properties |
 | Integrations | `src/modules/integrations/` | Per-provider connect forms and detail views |
 | Call Pro | `src/modules/integrations/callpro/` | Add/edit sheets over one shared `CallProIntegrationForm`, webhook URL hint, recording player, and the caller-to-customer picker |
 | Ticket | `src/modules/ticket/`, `src/modules/pipelines/`, `src/modules/status/` | Ticket boards, pipelines, statuses |
@@ -540,6 +550,16 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
   the Facebook board's data. `reportFacebookPosts` pages on the server
   (`limit` + `page` in the filter), every other card pages client-side through
   `useChartPagination`.
+- `frontline_api` GraphQL `conversationConvertToCard` and
+  `conversationConvertedItems` — the conversation Convert menu.
+- `operation_api` GraphQL `getTeams(userId)` and
+  `getStatusesChoicesByTeam(teamId)` under the operation names
+  `FrontlineConvertTaskTeams` / `FrontlineConvertTaskStatuses` — the task
+  convert dialog's team and status pickers.
+- `ui-modules` `SelectBoard`, `SelectPipeline`, `SelectStage`, `SelectMember`,
+  `pluginsConfigState` and `usePermissionCheck` — the deal convert fields and
+  the Convert menu's visibility; `useFields`, `PropertyFormField` and
+  `isFieldVisibleByLogic` — convert-time properties.
 - `react-i18next` with the `frontline` namespace.
 
 ## Data and State
@@ -608,6 +628,30 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
 
 ## Local Invariants
 
+- The Convert menu shows the deal entry only when the `sales` plugin config is
+  loaded and the task entry only when `operation` is, and each entry only with
+  its create action (`createTicket`, `dealsAdd`, `taskCreate`) on top of
+  `conversationConvertToCard`. The task fields query operation's GraphQL, so
+  they must never render without that plugin.
+- The convert dialog keeps its own open state and never touches
+  `ticketCreateSheetState` / `ticketCreateDefaultValuesState`, which the ticket
+  relation widget in the same sidebar drives. Its ticket pickers reuse
+  `SelectChannel`, `SelectPipeline` and `SelectStatusTicket`; the pipeline and
+  status pickers watch `channelId` / `pipelineId` on whatever form they are
+  given, so a form using them must name those fields exactly that.
+- Convert-time properties come from Settings → Properties, rendered per field
+  group under a `Properties` heading at the bottom of the dialog, after
+  `Description`. A deal shows fields
+  with `isVisibleToCreate` (as sales' own add form does); a ticket shows the
+  fields its ticket detail shows — `isVisible !== false`, limited to the
+  selected pipeline's `propertyIds` once `isPropertySelectionConfigured` is
+  true. Display logic applies to both. Multi-row groups are not offered at
+  convert time. The
+  values are sent as `customFieldsData` without empty entries. The task dialog
+  has no properties because `operation` tasks store none.
+- A successful convert refetches `ConversationConvertedItems` and
+  `getRelationsByEntity`, so the menu and the relation widgets update without
+  a reload.
 - Any new call atom created with `atomWithStorage` must also be reset in
   `ClearCallCacheButton` (`call/components/CallSipActions.tsx`), otherwise the
   clear-cache action leaves stale call state behind. `callConfigAtom` is reset
@@ -1210,6 +1254,9 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   changed rather than the whole project.
 - `project.json` defines only `build`, `serve`, and `serve-static` — there is no
   `test` target for this project; do not invent one.
+- Smoke (convert): in a conversation open Convert → `Convert to a ticket`,
+  `…a deal` and `…a task`; each save shows a success toast, the entry turns
+  into `Go to a …`, and the Tickets/Deals/Tasks side widgets list the new item.
 - Smoke (help center): open `/frontline/helpcenter`, change a name inline, then
   open the drawer and pick a website on **General** and save a colour on
   **Appearance**; reload and confirm both persisted. The website picker must
@@ -1265,6 +1312,21 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-17` — The conversation header converts into a ticket, deal or task
+
+- **Summary:** Added the Convert menu and a 1.x-style convert dialog for
+  tickets, deals and tasks with Settings → Properties fields and attachments,
+  plus `Go to a …` links for items a conversation was already converted into.
+- **Affected areas:**
+  `src/modules/inbox/conversations/conversation-detail/components/{ConversationHeader.tsx,convert/}`,
+  `src/modules/inbox/conversations/{graphql,hooks,types}/*onvert*`,
+  `src/modules/ticket/components/ticket-selects/SelectPipeline.tsx`,
+  `src/modules/pipelines/types/index.ts`
+- **Contracts changed:** `SelectPipeline.FormItem` accepts any form carrying a
+  `channelId` field; `IPipeline` declares `propertyIds` and
+  `isPropertySelectionConfigured`; consumes `conversationConvertToCard` (with
+  `customFieldsData` and `attachments`) and `conversationConvertedItems`.
 
 ### `2026-09-15` — Several call integrations can be switched on
 
@@ -1379,18 +1441,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `src/modules/activity/hooks/useNoteTemplateSuggestions.tsx`,
   `src/modules/helpcenter/components/help-center-drawer/HelpCenterDrawer.tsx`
 - **Contracts changed:** `None`
-
-### `2026-09-09` — Survey options can arm a ticket at a vote threshold
-
-- **Summary:** The Content step's option rows gained a ticket-automation
-  popover — enable, vote threshold, pipeline, status and an optional ticket
-  name — carried through the wizard atoms into `surveyAdd` / `surveyEdit`, with the
-  server-owned created state shown read-only.
-- **Affected areas:**
-  `src/modules/survey/components/mutate/{SurveyOptionTicketConfig.tsx,SurveyStepCard.tsx}`,
-  `src/modules/survey/constants/{surveySetupSchema.ts,surveySetupDefaultValues.ts}`,
-  `src/modules/survey/states/surveySetupStates.tsx`,
-  `src/modules/survey/graphql/{surveyQueries.ts,surveyMutations.ts}`,
-  `src/modules/survey/types/surveyTypes.ts`.
-- **Contracts changed:** Consumes the new `SurveyOption` / `SurveyOptionInput`
-  ticket-automation fields.

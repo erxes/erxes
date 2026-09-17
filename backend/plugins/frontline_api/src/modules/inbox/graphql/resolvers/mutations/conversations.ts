@@ -16,6 +16,8 @@ import { handleInstagramIntegration } from '@/integrations/instagram/messageBrok
 import { handleDiscordIntegration } from '@/integrations/discord/messageBroker';
 import { pConversationClientMessageInserted } from './widget';
 import { publishConversationUnreadCounts } from '@/inbox/services/conversationUnreadCounts';
+import { convertConversation } from '@/inbox/services/conversationConvert';
+import { IConversationConvert } from '@/inbox/@types/conversationConvert';
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import {
   graphqlPubsub,
@@ -970,19 +972,15 @@ export const conversationMutations = {
 
   async conversationConvertToCard(
     _root,
-    params: any,
-    { user, models }: IContext,
+    params: IConversationConvert,
+    { user, models, subdomain, checkPermission }: IContext,
   ) {
-    const { _id } = params;
+    await checkPermission('conversationConvertToCard');
 
-    const conversation = await models.Conversations.getConversation(_id);
-
-    const args = {
-      ...params,
-      conversation,
-      user,
-    };
-    return args;
+    return convertConversation(
+      { models, subdomain, user, checkPermission },
+      params,
+    );
   },
 
   async conversationEditCustomFields(
