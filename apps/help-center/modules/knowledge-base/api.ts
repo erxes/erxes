@@ -1,7 +1,11 @@
 import { cache } from 'react';
 import { query } from '@/modules/apollo/apolloClient';
 import { getPortalConfig } from '@/modules/config/api';
-import { errorMessage, type PortalResult } from '@/modules/apollo/utils/result';
+import {
+  errorBodyMatches,
+  errorMessage,
+  type PortalResult,
+} from '@/modules/apollo/utils/result';
 import {
   KB_PORTAL_TOPIC_ARTICLES,
   KB_PORTAL_TOPIC_ARTICLES_PLAIN,
@@ -43,15 +47,8 @@ type TopicDocumentKey = keyof typeof DOCUMENTS;
 
 const UNKNOWN_FIELD = /Cannot query field/i;
 
-const isUnknownFieldError = (error: unknown): boolean => {
-  if (UNKNOWN_FIELD.test(errorMessage(error))) {
-    return true;
-  }
-
-  const { bodyText } = (error ?? {}) as { bodyText?: unknown };
-
-  return typeof bodyText === 'string' && UNKNOWN_FIELD.test(bodyText);
-};
+const isUnknownFieldError = (error: unknown): boolean =>
+  errorBodyMatches(error, UNKNOWN_FIELD);
 
 const runTopic = async (
   document: TopicDocument,

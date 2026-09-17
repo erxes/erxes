@@ -148,6 +148,13 @@ the components consume — trimming titles, resolving the erxes icon name to a
 local glyph (`modules/knowledge-base/icons.ts`) and deduplicating the category
 authors that the API returns once per article.
 
+The portal image ships from `main`, so it can be newer than the gateway it is
+pointed at. When a gateway rejects the config query as not matching its
+schema, `modules/config/api.ts` retries it with the `domain` argument that
+releases up to 3.1.5 took before the lookup moved to the request origin. The
+knowledge base queries fall back the same way when a backend lacks the topic
+settings.
+
 Pages revalidate every 60 seconds (`export const revalidate` in
 `app/layout.tsx`). Apollo is not `fetch`-based, so without it the App Router
 would prerender the content once at build time.
