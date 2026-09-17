@@ -6,6 +6,14 @@ import {
   generateAttachmentMessages,
 } from '@/integrations/facebook/utils';
 import { sendNotifications } from '@/inbox/graphql/resolvers/mutations/conversations';
+import type { MessageKind } from '@/inbox/@types/conversationMessages';
+
+const getOutboundMessageKind = (type?: string): MessageKind => {
+  if (type?.startsWith('image')) return 'image';
+  if (type?.startsWith('video')) return 'video';
+  if (type?.startsWith('audio')) return 'audio';
+  return type ? 'file' : 'text';
+};
 
 /**
  * Handle requests from erxes api
@@ -84,7 +92,7 @@ export const handleFacebookMessage = async (
 
     // Prepare data for sending reply to Facebook
     const id = commentConversationResult.comment_id || post.postId;
-    let data = {
+    const data = {
       message: strippedContent,
       attachment_url: attachment.payload ? attachment.payload.url : undefined,
     };
@@ -209,6 +217,8 @@ export const handleFacebookMessage = async (
               ...doc,
               conversationId: conversation._id,
               mid: resp.message_id,
+              messageKind: 'text',
+              providerData: { messageId: resp.message_id },
             },
             doc.userId,
           );
@@ -216,10 +226,10 @@ export const handleFacebookMessage = async (
       }
 
       // Send attachments
-      for (const message of generateAttachmentMessages(
+      for (const [index, message] of generateAttachmentMessages(
         subdomain,
         attachments,
-      )) {
+      ).entries()) {
         const resp = await sendReply(
           models,
           'me/messages',
@@ -238,6 +248,12 @@ export const handleFacebookMessage = async (
               ...doc,
               conversationId: conversation._id,
               mid: resp.message_id,
+              messageKind: getOutboundMessageKind(attachments[index]?.type),
+              providerData: {
+                messageId: resp.message_id,
+                attachmentType: attachments[index]?.type,
+                previewUrl: attachments[index]?.url,
+              },
             },
             doc.userId,
           );

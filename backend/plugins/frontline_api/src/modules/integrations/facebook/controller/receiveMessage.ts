@@ -11,6 +11,10 @@ import { graphqlPubsub } from 'erxes-api-shared/utils';
 import { sendReply } from '@/integrations/facebook/utils';
 import { IFacebookConversationDocument } from '@/integrations/facebook/@types/conversations';
 import { IFacebookConversationMessageDocument } from '@/integrations/facebook/@types/conversationMessages';
+import type {
+  IMessageProviderData,
+  MessageKind,
+} from '@/inbox/@types/conversationMessages';
 import {
   checkIsBot,
   parseAutomationPayload,
@@ -31,6 +35,152 @@ const sanitizeString = (value: unknown): string => {
 
 const DEFAULT_HANDOFF_MESSAGE =
   'A teammate will take over shortly. Automated replies are paused.';
+
+const STORY_LIFETIME_MS = 24 * 60 * 60 * 1000;
+
+type FacebookAttachment = NonNullable<
+  NonNullable<Activity['channelData']['message']>['attachments']
+>[number];
+
+const isFacebookStoryUrl = (url?: string) => {
+  if (!url) return false;
+
+  try {
+    const parsed = new URL(url);
+    return (
+      (parsed.hostname === 'facebook.com' ||
+        parsed.hostname.endsWith('.facebook.com')) &&
+      parsed.pathname.startsWith('/stories/')
+    );
+  } catch {
+    return false;
+  }
+};
+
+type FacebookStoryKind = 'story_reply' | 'story_mention';
+
+type TAttachmentClassification = {
+  kind: MessageKind;
+  previewText?: string;
+  shareType?: 'post' | 'reel';
+  expiresStory?: boolean;
+};
+
+const ATTACHMENT_CLASSIFICATIONS: Readonly<
+  Record<string, TAttachmentClassification>
+> = {
+  image: { kind: 'image' },
+  video: { kind: 'video' },
+  file: { kind: 'file' },
+  audio: { kind: 'voice', previewText: 'Voice message' },
+  reel: { kind: 'share', previewText: 'Facebook reel', shareType: 'reel' },
+  share: { kind: 'share', previewText: 'Facebook post', shareType: 'post' },
+  fallback: { kind: 'share', previewText: 'Facebook post', shareType: 'post' },
+  post: { kind: 'share', previewText: 'Facebook post', shareType: 'post' },
+  story_reply: {
+    kind: 'story_reply',
+    previewText: 'Story reply',
+    expiresStory: true,
+  },
+  story_mention: {
+    kind: 'story_mention',
+    previewText: 'Story mention',
+    expiresStory: true,
+  },
+};
+
+const storyFieldsResult = (
+  messageKind: FacebookStoryKind,
+  url: string | undefined,
+  providerData: IMessageProviderData,
+  timestamp: Date,
+) => {
+  providerData.storyUrl = url;
+  providerData.previewText =
+    messageKind === 'story_reply' ? 'Story reply' : 'Story mention';
+  providerData.fallbackReason = url ? undefined : 'Story unavailable';
+  return {
+    messageKind,
+    providerData,
+    expiresAt: new Date(timestamp.getTime() + STORY_LIFETIME_MS),
+  };
+};
+
+const normalizeFacebookMessage = ({
+  mid,
+  text,
+  attachment,
+  story,
+  timestamp,
+}: {
+  mid?: string;
+  text?: string;
+  attachment?: FacebookAttachment;
+  story?: { id?: string; url?: string };
+  timestamp: Date;
+}): {
+  messageKind: MessageKind;
+  providerData: IMessageProviderData;
+  expiresAt?: Date;
+} => {
+  const attachmentType = attachment?.type;
+  const attachmentUrl = attachment?.payload?.url;
+  const providerData: IMessageProviderData = {
+    messageId: mid,
+    attachmentType,
+  };
+
+  if (story) {
+    return storyFieldsResult('story_reply', story.url, providerData, timestamp);
+  }
+
+  if (attachment?.payload?.sticker_id) {
+    providerData.previewUrl = attachmentUrl;
+    providerData.previewText = 'Sent a sticker';
+    return { messageKind: 'sticker', providerData };
+  }
+
+  if (attachmentType === 'share' && isFacebookStoryUrl(attachmentUrl)) {
+    return storyFieldsResult(
+      'story_reply',
+      attachmentUrl,
+      providerData,
+      timestamp,
+    );
+  }
+
+  const classification = attachmentType
+    ? ATTACHMENT_CLASSIFICATIONS[attachmentType]
+    : undefined;
+
+  if (classification?.expiresStory) {
+    return storyFieldsResult(
+      classification.kind as FacebookStoryKind,
+      attachmentUrl,
+      providerData,
+      timestamp,
+    );
+  }
+
+  if (classification) {
+    providerData.previewUrl = attachmentUrl;
+    if (classification.previewText !== undefined) {
+      providerData.previewText = classification.previewText;
+    }
+    if (classification.shareType !== undefined) {
+      providerData.shareType = classification.shareType;
+    }
+    return { messageKind: classification.kind, providerData };
+  }
+
+  if (text) {
+    return { messageKind: 'text', providerData };
+  }
+
+  providerData.fallbackReason = 'Unsupported Messenger message';
+  providerData.previewText = 'Unsupported Messenger message';
+  return { messageKind: 'unsupported', providerData };
+};
 
 const getErrorMessage = (error: unknown) =>
   error instanceof Error ? error.message : String(error);
@@ -159,7 +309,8 @@ export const receiveMessage = async (
       `Received message: ${activity.text} from ${activity.from.id}`,
     );
     const { recipient, from, timestamp, channelData } = activity;
-    let { message, postback } = channelData;
+    let { message } = channelData;
+    const { postback } = channelData;
     const pageId = sanitizeString(recipient.id);
     const userId = sanitizeString(from.id);
     const kind = INTEGRATION_KINDS.MESSENGER;
@@ -260,6 +411,33 @@ export const receiveMessage = async (
         type: att.type,
         url: att.payload ? att.payload.url : '',
       }));
+    const normalizedMessage = normalizeFacebookMessage({
+      mid,
+      text,
+      attachment: attachments?.[0],
+      story: message?.reply_to?.story,
+      timestamp,
+    });
+    const replyToMessageId = message?.reply_to?.mid;
+    const repliedMessage = replyToMessageId
+      ? await models.FacebookConversationMessages.findOne({
+          conversationId: conversation._id,
+          mid: replyToMessageId,
+        }).lean()
+      : undefined;
+    const replyTo = replyToMessageId
+      ? {
+          messageId: replyToMessageId,
+          content: repliedMessage?.content || 'Original message unavailable',
+          authorName: repliedMessage
+            ? repliedMessage.fromBot
+              ? 'AI Agent'
+              : repliedMessage.userId
+                ? 'Staff'
+                : 'Customer'
+            : undefined,
+        }
+      : undefined;
 
     // save on api
     try {
@@ -312,6 +490,8 @@ export const receiveMessage = async (
           customerId: customer.erxesApiId,
           attachments: formattedAttachments,
           botId,
+          ...normalizedMessage,
+          replyTo,
         });
 
         const doc = {
@@ -330,7 +510,7 @@ export const receiveMessage = async (
               },
             },
           );
-        } catch (err) {
+        } catch {
           throw new Error(
             'conversationMessageInserted Error publishing subscription:',
           );
