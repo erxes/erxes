@@ -6,7 +6,7 @@
 - **Project:** `accounting_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/accounting_ui`
-- **Last synchronized:** `2026-09-17`
+- **Last synchronized:** `2026-09-18`
 
 ## Scope
 
@@ -50,7 +50,7 @@
 - Related account override inputs keep focus while users type and persist custom debit and credit code lists independently.
 - Empty related account overrides are omitted on submit so backend-calculated default debit/credit related accounts remain active, and the related-account editor falls back to default `dt/ct` codes when `customDt/customCt` are empty.
 - Accounting settings pages manage accounts, account categories, permissions, VAT, CTAX, and sync configuration; VAT/CTAX row access is guarded by the unified tax-row permission actions.
-- Journal report rendering groups backend rows recursively, filters by Erkhet-compatible transaction type plus erxes-native account/product/fixed-asset/customer/branch/department fields, renders account statement, trial balance, general ledger, main journal, main journal summary, fund, debt, inventory cost, inventory sale, inventory sale-cost, inventory sale-period, inventory price, inventory profit, inventory shipper, inventory document, inventory seller subsystem, and fixed asset report variants, derives table headers and footers from report column metadata, keeps date filter controls visually consistent, drills account rows into account statements with filter context, calculates parent/footer totals after render, hides all-zero rows unless users choose to show them, loads account-statement detail rows without mutating report state, and opens transaction edit screens from detail rows.
+- Journal report rendering groups backend rows recursively, uses a declarative report-to-filter map to show and submit only applicable account, contact, inventory, fixed-asset, organization, user, and report controls, filters by Erkhet-compatible transaction type plus erxes-native category/search/tag/ownership fields, renders account statement, trial balance, general ledger, main journal, main journal summary, fund, debt, inventory cost, inventory sale, inventory sale-cost, inventory sale-period, inventory price, inventory profit, inventory shipper, inventory document, inventory seller subsystem, and fixed asset report variants, shows foreign-currency balance rows separately beneath non-MNT account leaves without adding them to base-currency totals, derives table headers and footers from report column metadata, keeps date filter controls visually consistent, shows table-body loading skeletons while report or drill-down data loads, drills account rows into account statements with filter context, calculates parent/footer totals after render, hides all-zero rows unless users choose to show them, loads account-statement detail rows without mutating report state, and opens transaction edit screens from detail rows.
 - Development Rspack serving ignores generated dependency/cache/output folders to keep local file watchers bounded.
 
 ## Architecture
@@ -136,6 +136,7 @@
 - Journal report total calculation must stay scoped to the rendered report table body and zero-row hiding must preserve rows explicitly marked with `data-draw-zero="1"`.
 - Journal report headers and footers must stay aligned with each report config's two recursive grouping columns plus `colCount` value columns.
 - Journal report inventory and fixed-asset location filtering is represented by branch/department selectors because erxes transaction details carry branch/department instead of Erkhet `inv_location`/`fxa_location` ids.
+- Journal report filter visibility and submitted query parameters must be declared in `src/modules/journal-reports/types/reportFilters.ts`; adding a field to a form without mapping it to applicable reports and its backend query parameter is not allowed.
 
 ## Validation
 
@@ -155,6 +156,30 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-18` — `Mapped Journal Report Filters`
+
+- **Summary:** The journal report form now separates related filters with unobtrusive dividers and uses one report map to expose only applicable customer/company tags, product/fixed-asset categories and searches, and created/modified/assigned user filters.
+- **Affected areas:** `src/modules/journal-reports/components/ReportForm.tsx`, `src/modules/journal-reports/types/reportFilters.ts`, report query variables.
+- **Contracts changed:** Consumes journal report `customerTagIds`, `companyTagIds`, `productCategoryId`, `productSearchValue`, `fixedAssetCategoryId`, `fixedAssetSearchValue`, and `assignedUserId` arguments.
+
+### `2026-09-17` — `Journal Report Foreign Currency Rows`
+
+- **Summary:** Main balance, fund, and debt reports now show an Erkhet-style italic currency row beneath each non-MNT leaf using currency opening, debit, credit, and closing amounts kept separate from base-currency totals.
+- **Affected areas:** `src/modules/journal-reports/components/ReportTableBody.tsx`, `src/modules/journal-reports/components/includes/main`, and report handler mappings.
+- **Contracts changed:** Balance report calculator results may provide an `afterNode` row.
+
+### `2026-09-17` — `Fund And Debt Report Details`
+
+- **Summary:** Fund and debt balance reports now render their loaded transaction drill-down rows using the shared account-statement detail table.
+- **Affected areas:** `src/modules/journal-reports/components/includes`.
+- **Contracts changed:** None.
+
+### `2026-09-17` — `Journal Report Loading Skeleton`
+
+- **Summary:** Journal report tables now render skeleton body rows while initial report data or drill-down rows are loading instead of showing an empty table.
+- **Affected areas:** `src/modules/journal-reports/components/ReportTableBody.tsx`.
+- **Contracts changed:** None.
 
 ### `2026-09-17` — `Fixed Asset Transaction Forms`
 

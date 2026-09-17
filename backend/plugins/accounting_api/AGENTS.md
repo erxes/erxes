@@ -40,7 +40,7 @@
 - Stores related debit/credit account codes without nested subdocument ids, normalizes empty related-account overrides before transaction persistence, and recalculates related codes from all transactions sharing the same `ptrId`.
 - Provides account, account category, permission, tax row, inventory, fixed asset, and journal report GraphQL contracts.
 - Provides safe remainder GraphQL list, detail, item list/count, create, edit, remove, recalculate, submit, cancel, transaction-run, transaction-undo, item edit, item bulk edit, and item remove contracts guarded by safe remainder permissions.
-- Generates journal report transaction/detail filters, Erkhet transaction-kind to erxes journal filters, grouping keys, date buckets, line records, and account/customer/product/fixed-asset/user/content enrichment from shared `ReportBase` definitions whose main entrypoints mirror Erkhet names such as `getFilter`, `getRecords`, `recordListWithValues`, and `getGroupRule`.
+- Generates journal report transaction/detail filters, Erkhet transaction-kind to erxes journal filters, grouping keys, date buckets, line records, shared drill-down rows for report bases marked `supportsMore`, and account/customer/product/fixed-asset/user/content enrichment from shared `ReportBase` definitions whose main entrypoints mirror Erkhet names such as `getFilter`, `getRecords`, `recordListWithValues`, and `getGroupRule`; filters support customer/company tags, product category/code/name, fixed-asset category/code/name, and created/modified/assigned users, account enrichment includes currency metadata, and product metadata enrichment is fetched from core in batches of at most 1000 ids.
 - Calculates fund rate adjustments for cash/bank foreign-currency balances by day, validates that daily foreign-currency balances do not go negative, groups final balances by account/branch/department, stores calculated details, and runs linked `exchangeDiff` transactions after calculation.
 - Calculates debt rate adjustments for receivable/payable balances by day, validates active accounts on debit-side balances and passive accounts on credit-side balances, groups final balances by account/customer/branch/department, stores calculated details, and runs linked `exchangeDiff` transactions after calculation.
 - Calculates temporary account closings from the previous completed/published closing or first temporary-account transaction through the selected date, groups final balances by account/branch/department, validates active accounts on debit balances and passive accounts on credit balances, stores editable row tax percentages, and runs linked closing transactions after calculation.
@@ -180,6 +180,30 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-17` — `Journal Report Context Filters`
+
+- **Summary:** Journal reports now resolve customer/company tags, product category and search, fixed-asset category and search, and assigned-user filters while intersecting them with explicit selected ids.
+- **Affected areas:** `src/modules/accounting/graphql`, `src/modules/accounting/utils/journalReports/maps.ts`.
+- **Contracts changed:** Journal report queries accept `customerTagIds`, `companyTagIds`, `productCategoryId`, `productSearchValue`, `fixedAssetCategoryId`, `fixedAssetSearchValue`, and `assignedUserId`.
+
+### `2026-09-17` — `Journal Report Foreign Currency Rows`
+
+- **Summary:** Journal report account enrichment now includes account currency so main, fund, and debt balance reports can present transaction currency totals separately from base-currency totals.
+- **Affected areas:** `src/modules/accounting/utils/journalReports/maps.ts`.
+- **Contracts changed:** `journalReportData.records` JSON rows now include the `accountCurrency` enrichment field.
+
+### `2026-09-17` — `Fund And Debt Report Details`
+
+- **Summary:** Fund and debt reports now use their registered report-base journal rules with the shared summary filters and drill-down detail pipeline instead of failing as unsupported when `isMore` is enabled.
+- **Affected areas:** `src/modules/accounting/utils/journalReports/index.ts`, `src/modules/accounting/utils/journalReports/maps.ts`.
+- **Contracts changed:** None.
+
+### `2026-09-17` — `Journal Report Product Lookup Batching`
+
+- **Summary:** Journal report enrichment now fetches core product metadata in batches of 1000 ids so large inventory reports retain product codes and names.
+- **Affected areas:** `src/modules/accounting/utils/journalReports/maps.ts`.
+- **Contracts changed:** None.
 
 ### `2026-09-17` — `Fixed Asset Transaction Normalization`
 
