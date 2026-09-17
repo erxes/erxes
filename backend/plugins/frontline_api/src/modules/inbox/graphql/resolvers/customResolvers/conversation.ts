@@ -85,7 +85,7 @@ export default {
     _args,
     { models, subdomain, user }: IContext,
   ) {
-    if (!isCallProEnabled()) {
+    if (!isCallProEnabled(subdomain)) {
       return null;
     }
 

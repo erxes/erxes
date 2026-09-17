@@ -2,17 +2,15 @@ import { generateModels } from '~/connectionResolvers';
 import { withErrorHandling } from '~/shared/utils';
 import { isCallProEnabled } from '@/integrations/callpro/config';
 
-const assertEnabled = () => {
-  if (!isCallProEnabled()) {
-    throw new Error(
-      'Call Pro is turned off. Set CALLPRO_ENABLED=true to use it.',
-    );
+const assertEnabled = (subdomain: string) => {
+  if (!isCallProEnabled(subdomain)) {
+    throw new Error('Call Pro is not enabled for this organization.');
   }
 };
 
 export const callProCreateIntegration = withErrorHandling(
   async ({ subdomain, data }) => {
-    assertEnabled();
+    assertEnabled(subdomain);
 
     const { integrationId, data: jsonData } = data;
     const { phoneNumber, recordUrl } = JSON.parse(jsonData || '{}');
@@ -44,7 +42,7 @@ export const callProCreateIntegration = withErrorHandling(
 
 export const callProUpdateIntegration = withErrorHandling(
   async ({ subdomain, data }) => {
-    assertEnabled();
+    assertEnabled(subdomain);
 
     const { phoneNumber, recordUrl } = JSON.parse(data.doc.data || '{}');
     const models = await generateModels(subdomain);
