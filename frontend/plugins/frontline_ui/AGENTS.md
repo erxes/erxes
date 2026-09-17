@@ -1328,6 +1328,18 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `isPropertySelectionConfigured`; consumes `conversationConvertToCard` (with
   `customFieldsData` and `attachments`) and `conversationConvertedItems`.
 
+### `2026-09-17` — Pipeline delete reports why it failed
+
+- **Summary:** Deleting a pipeline that still has a ticket threw an
+  `ApolloError` with no `onError` handler, surfacing as an unhandled runtime
+  error in dev and silently doing nothing in production. `usePipelineRemove`
+  now shows a destructive toast with the server's message, and the delete
+  command's call site swallows the resulting promise rejection so it can't
+  reach the console as unhandled.
+- **Affected areas:** `src/modules/pipelines/hooks/usePipelineRemove.tsx`,
+  `src/modules/pipelines/components/PipelinesList.tsx`
+- **Contracts changed:** None.
+
 ### `2026-09-15` — Several call integrations can be switched on
 
 - **Summary:** Call integration switches no longer turn each other off, and
@@ -1429,15 +1441,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   optional `descriptionFallback` and `MailAddressCallout` an optional
   `description`/`descriptionFallback`, so the pipeline tab can say `ticket`
   where the inbox says `conversation`.
-
-### `2026-09-10` — Quality gate fixes across the note input and help center drawer
-
-- **Summary:** The submit button's label came from a doubly nested ternary and
-  the note wrapper carried a keydown handler on a plain `div`, both flagged on
-  new code. The label is now three named values, and the suggestion keys are
-  listened for on the editor node itself — the wrapper stays a drop target with
-  no keyboard role, and `handleKeyDown` takes the native event.
-- **Affected areas:** `src/modules/activity/components/NoteInput.tsx`,
-  `src/modules/activity/hooks/useNoteTemplateSuggestions.tsx`,
-  `src/modules/helpcenter/components/help-center-drawer/HelpCenterDrawer.tsx`
-- **Contracts changed:** `None`
