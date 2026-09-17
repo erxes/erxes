@@ -1,5 +1,30 @@
 
 
+## [3.1.8](https://github.com/erxes/erxes/compare/3.1.7...3.1.8) (2026-09-17)
+
+
+### Bug Fixes
+
+* **calls:** fix call transfer in dialog ([d9d7ec8](https://github.com/erxes/erxes/commit/d9d7ec8ff053bc3c330702b4f0ab695ea0c524b3))
+* **calls:** fix transfer call ([091da20](https://github.com/erxes/erxes/commit/091da203cc474db4d5239aee64282da236036425))
+* **content:** isolate post-save query refreshes ([#9335](https://github.com/erxes/erxes/issues/9335)) ([a2b88d4](https://github.com/erxes/erxes/commit/a2b88d4275a3ffadb0d32e33ac77560d3acfc638))
+* **content:** match agent QEMU-safe dependency installation ([#9333](https://github.com/erxes/erxes/issues/9333)) ([4a65934](https://github.com/erxes/erxes/commit/4a6593447d27a16f6838ffd96d198258775f78a0))
+* **content:** preserve tenant routing for CMS Postiz deliveries ([#9337](https://github.com/erxes/erxes/issues/9337)) ([c02d03e](https://github.com/erxes/erxes/commit/c02d03eb2af7fc39d6730eaab3882c4317ce25b5))
+* **content:** reuse JWT secret for CMS Postiz signing ([#9331](https://github.com/erxes/erxes/issues/9331)) ([5d7c61a](https://github.com/erxes/erxes/commit/5d7c61ad295096dc2a4f40b522f51721f48873c3))
+* **frontline:** drop save-time brand messenger check on surveys ([edf30b7](https://github.com/erxes/erxes/commit/edf30b7d60318894115626f840679640bd6bf755))
+* **frontline:** let call integrations share a trunk, keyed by queue ([c3a5ee8](https://github.com/erxes/erxes/commit/c3a5ee8db8f7cd7edbcd817e78803d20b144580b))
+* **frontline:** name the ringing integration and allow several call integrations at once ([cfe6c2c](https://github.com/erxes/erxes/commit/cfe6c2c8e2f7f5e70fe074f0e8fed6b5cdb71ddf))
+* **msdynamics:** add MS Dynamics customer check mutation that was deleted previously ([cd0b9ad](https://github.com/erxes/erxes/commit/cd0b9ad017db7af241e4dd21c58b516a4f7b42ce))
+* productsMain with mn remainder ([03acdf7](https://github.com/erxes/erxes/commit/03acdf712c90fde516d72d2ebf37b36060be0ee9))
+
+
+### Features
+
+* **content:** grant Postiz sharing to default CMS roles ([#9338](https://github.com/erxes/erxes/issues/9338)) ([65385bd](https://github.com/erxes/erxes/commit/65385bdc72656398d1dbeaa256b6b382dad648b4))
+* **content:** share CMS posts through managed Postiz ([#9329](https://github.com/erxes/erxes/issues/9329)) ([8db6591](https://github.com/erxes/erxes/commit/8db659151bceb3ceb08ff188ac5053c5ab9491a9))
+* **frontline:** convert inbox conversations to tickets, deals and tasks ([2653544](https://github.com/erxes/erxes/commit/2653544c1f07de1068e7d4afe7800c8a9424456e))
+* **frontline:** limit Call Pro to specific subdomains via CALLPRO_SUBDOMAINS ([acf0bee](https://github.com/erxes/erxes/commit/acf0bee72938f7480238f461cb2693699c9b6b3e))
+
 ## [3.1.7](https://github.com/erxes/erxes/compare/3.1.6...3.1.7) (2026-09-14)
 
 
