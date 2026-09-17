@@ -132,7 +132,9 @@ const renderBlock = (block: IBlock): string => {
 
       const caption = escapeHtml(String(block.props?.caption ?? ''));
 
-      return `<p><img src="${escapeHtml(url)}" alt="${caption}" /></p>${children}`;
+      return `<p><img src="${escapeHtml(
+        url,
+      )}" alt="${caption}" /></p>${children}`;
     }
 
     default:
