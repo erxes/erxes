@@ -6,11 +6,15 @@ import {
   setResolvedApiUrlReader,
 } from '@/modules/apollo/utils/env';
 import {
+  errorBodyMatches,
   errorMessage,
   graphqlErrorMessage,
   type PortalResult,
 } from '@/modules/apollo/utils/result';
-import { HELP_CENTER_CONFIG_BY_DOMAIN } from './graphql/queries/helpCenterConfig';
+import {
+  HELP_CENTER_CONFIG_BY_DOMAIN,
+  HELP_CENTER_CONFIG_BY_DOMAIN_LEGACY,
+} from './graphql/queries/helpCenterConfig';
 import {
   readScopedApiUrl,
   readScopedAppToken,
@@ -46,6 +50,62 @@ const requestOrigins = async (): Promise<string[]> => {
 const isNotFound = (error: unknown): boolean =>
   graphqlErrorMessage(error).toLowerCase().includes('not found');
 
+type ConfigLookup = {
+  document: typeof HELP_CENTER_CONFIG_BY_DOMAIN;
+  withDomain: boolean;
+};
+
+const LOOKUPS: ConfigLookup[] = [
+  { document: HELP_CENTER_CONFIG_BY_DOMAIN, withDomain: false },
+  { document: HELP_CENTER_CONFIG_BY_DOMAIN_LEGACY, withDomain: true },
+];
+
+const SCHEMA_MISMATCH =
+  /GRAPHQL_VALIDATION_FAILED|Cannot query field|Unknown argument|was not provided/i;
+
+type LookupOutcome =
+  | PortalResult<PortalConfig>
+  | { state: 'mismatch'; message: string };
+
+const failureOf = (error: unknown, domain: string): LookupOutcome => {
+  if (errorBodyMatches(error, SCHEMA_MISMATCH)) {
+    return { state: 'mismatch', message: errorMessage(error) };
+  }
+
+  return isNotFound(error)
+    ? { state: 'unpublished', domain }
+    : { state: 'error', message: errorMessage(error) };
+};
+
+const runLookup = async (
+  lookup: ConfigLookup,
+  apiUrl: string,
+  domain: string,
+): Promise<LookupOutcome> => {
+  try {
+    const { data, error } = await query<ConfigResponse>({
+      query: lookup.document,
+      variables: lookup.withDomain ? { domain } : {},
+      errorPolicy: 'all',
+      context: { apiUrl, headers: { origin: domain } },
+    });
+
+    if (error) {
+      return failureOf(error, domain);
+    }
+
+    const config = data?.helpCenterGetConfigByDomain;
+
+    if (!config) {
+      return { state: 'unpublished', domain };
+    }
+
+    return { state: 'ready', data: normalizeConfig(config) };
+  } catch (caught) {
+    return failureOf(caught, domain);
+  }
+};
+
 const fetchConfig = async (
   apiUrl: string,
   domain: string,
@@ -58,31 +118,19 @@ const fetchConfig = async (
     return { state: 'error', message: 'This request carried no host header.' };
   }
 
-  try {
-    const { data, error } = await query<ConfigResponse>({
-      query: HELP_CENTER_CONFIG_BY_DOMAIN,
-      errorPolicy: 'all',
-      context: { apiUrl, headers: { origin: domain } },
-    });
+  let mismatch = '';
 
-    if (error) {
-      return isNotFound(error)
-        ? { state: 'unpublished', domain }
-        : { state: 'error', message: error.message };
+  for (const lookup of LOOKUPS) {
+    const outcome = await runLookup(lookup, apiUrl, domain);
+
+    if (outcome.state !== 'mismatch') {
+      return outcome;
     }
 
-    const config = data?.helpCenterGetConfigByDomain;
-
-    if (!config) {
-      return { state: 'unpublished', domain };
-    }
-
-    return { state: 'ready', data: normalizeConfig(config) };
-  } catch (caught) {
-    return isNotFound(caught)
-      ? { state: 'unpublished', domain }
-      : { state: 'error', message: errorMessage(caught) };
+    mismatch = outcome.message;
   }
+
+  return { state: 'error', message: mismatch };
 };
 
 const CONFIG_TTL_SECONDS = 60;
