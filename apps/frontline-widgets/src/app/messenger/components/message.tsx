@@ -447,33 +447,40 @@ function PreviewDialogClose() {
   );
 }
 
-function ImagePreviewTrigger({
-  attachment,
-  name,
-}: {
+type PreviewTriggerProps = {
   attachment: IAttachment;
   name: string;
-}) {
-  return (
-    <button
-      type="button"
-      className="group relative block max-w-72 overflow-hidden rounded-2xl border border-border/60 bg-muted/30 shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
-      aria-label={`Preview ${name}`}
-    >
-      <PreviewImage
-        src={readImage(attachment.url)}
-        alt={name}
-        className="max-h-64 w-full rounded-2xl object-cover"
-      />
-      <span className="absolute inset-0 hidden items-center justify-center bg-black/25 transition-opacity group-hover:flex group-focus-visible:flex sm:flex sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-visible:opacity-100">
-        <span className="flex items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-1 text-xs font-medium text-white">
-          <IconZoomIn className="size-3.5" />
-          Preview
-        </span>
+} & React.ComponentProps<'button'>;
+
+/** forwardRef + prop spreading are required: Radix `Dialog.Trigger asChild`
+ *  injects its open-toggle `onClick` (and ref) into this component, and any
+ *  prop that is not forwarded never reaches the underlying button — which is
+ *  exactly why the preview previously never opened. */
+const ImagePreviewTrigger = React.forwardRef<
+  HTMLButtonElement,
+  PreviewTriggerProps
+>(({ attachment, name, ...props }, ref) => (
+  <button
+    ref={ref}
+    type="button"
+    {...props}
+    className="group relative block max-w-72 overflow-hidden rounded-2xl border border-border/60 bg-muted/30 shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+    aria-label={`Preview ${name}`}
+  >
+    <PreviewImage
+      src={readImage(attachment.url)}
+      alt={name}
+      className="max-h-64 w-full rounded-2xl object-cover"
+    />
+    <span className="absolute inset-0 hidden items-center justify-center bg-black/25 transition-opacity group-hover:flex group-focus-visible:flex [@media(hover:hover)]:flex [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100 [@media(hover:hover)]:group-focus-visible:opacity-100">
+      <span className="flex items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-1 text-xs font-medium text-white">
+        <IconZoomIn className="size-3.5" />
+        Preview
       </span>
-    </button>
-  );
-}
+    </span>
+  </button>
+));
+ImagePreviewTrigger.displayName = 'ImagePreviewTrigger';
 
 function ImagePreviewContent({
   attachment,
@@ -483,7 +490,7 @@ function ImagePreviewContent({
   name: string;
 }) {
   return (
-    <Dialog.Content className="!flex !h-auto !max-h-[90vh] !w-auto !max-w-[90vw] items-center justify-center !overflow-hidden !border-0 !bg-black/90 !p-2">
+    <Dialog.Content className="flex! h-auto! max-h-[90vh]! w-auto! max-w-[90vw]! items-center justify-center overflow-hidden! border-0! bg-black/90! p-2!">
       <Dialog.Title className="sr-only">{name}</Dialog.Title>
       <Dialog.Description className="sr-only">
         Full-size image preview
@@ -512,35 +519,33 @@ function AttachmentImage({ attachment }: { attachment: IAttachment }) {
   );
 }
 
-function VideoPreviewTrigger({
-  attachment,
-  name,
-}: {
-  attachment: IAttachment;
-  name: string;
-}) {
-  return (
-    <button
-      type="button"
-      className="group relative flex max-w-72 items-center overflow-hidden rounded-2xl border border-border/60 bg-black/80 p-2 text-white shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
-      aria-label={`Play ${name}`}
-    >
-      <video
-        src={readImage(attachment.url)}
-        muted
-        playsInline
-        preload="metadata"
-        className="max-h-40 w-full rounded-xl object-contain"
-      />
-      <span className="absolute inset-0 flex items-center justify-center bg-black/30">
-        <span className="flex items-center gap-1.5 rounded-full bg-black/70 px-2.5 py-1 text-xs font-medium text-white">
-          <IconZoomIn className="size-3.5" />
-          Play video
-        </span>
+const VideoPreviewTrigger = React.forwardRef<
+  HTMLButtonElement,
+  PreviewTriggerProps
+>(({ attachment, name, ...props }, ref) => (
+  <button
+    ref={ref}
+    type="button"
+    {...props}
+    className="group relative flex max-w-72 items-center overflow-hidden rounded-2xl border border-border/60 bg-black/80 p-2 text-white shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+    aria-label={`Play ${name}`}
+  >
+    <video
+      src={readImage(attachment.url)}
+      muted
+      playsInline
+      preload="metadata"
+      className="max-h-40 w-full rounded-xl object-contain"
+    />
+    <span className="absolute inset-0 flex items-center justify-center bg-black/30">
+      <span className="flex items-center gap-1.5 rounded-full bg-black/70 px-2.5 py-1 text-xs font-medium text-white">
+        <IconZoomIn className="size-3.5" />
+        Play video
       </span>
-    </button>
-  );
-}
+    </span>
+  </button>
+));
+VideoPreviewTrigger.displayName = 'VideoPreviewTrigger';
 
 function VideoPreviewContent({
   attachment,
@@ -550,7 +555,7 @@ function VideoPreviewContent({
   name: string;
 }) {
   return (
-    <Dialog.Content className="!flex !h-auto !max-h-[90vh] !w-auto !max-w-[90vw] items-center justify-center !overflow-hidden !border-0 !bg-black/90 !p-2">
+    <Dialog.Content className="flex! h-auto! max-h-[90vh]! w-auto! max-w-[90vw]! items-center justify-center overflow-hidden! border-0! bg-black/90! p-2!">
       <Dialog.Title className="sr-only">{name}</Dialog.Title>
       <Dialog.Description className="sr-only">
         Video attachment preview
@@ -795,7 +800,7 @@ function MessageItemActions({
   return (
     <div
       className={cn(
-        'flex shrink-0 items-center gap-0.5 self-center rounded-lg border border-border/60 bg-background/95 p-0.5 opacity-100 shadow-2xs transition-opacity focus-within:opacity-100 sm:opacity-0 sm:group-hover/message:opacity-100',
+        'flex shrink-0 items-center gap-0.5 self-center rounded-lg border border-border/60 bg-background/95 p-0.5 shadow-2xs transition-opacity focus-within:opacity-100 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover/message:opacity-100',
         align === 'end' ? 'mr-1' : 'ml-1',
       )}
     >
