@@ -508,46 +508,44 @@ export const conversationsRouter = t.router({
       }
     }),
 
-  changeStatus: t.procedure
-    .input(z.any())
-    .query(async ({ ctx, input }) => {
-      try {
-        const { id, status } = input;
-        const { models } = ctx;
+  changeStatus: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+    try {
+      const { id, status } = input;
+      const { models } = ctx;
 
-        if (!id || !status) {
-          return {
-            status: 'error',
-            message: `Both id and status are required. Received id: ${id}, status: ${status}`,
-          };
-        }
-
-        const result = await models.Conversations.updateOne(
-          { _id: id },
-          { status: status },
-        );
-
-        if (result.matchedCount === 0) {
-          return {
-            status: 'not_found',
-            message: 'No conversation found with the provided ID',
-          };
-        }
-
-        return {
-          status: 'success',
-          data: result,
-        };
-      } catch (error) {
-        console.error('Update error:', error);
+      if (!id || !status) {
         return {
           status: 'error',
-          message: 'Update failed',
-          error:
-            process.env.NODE_ENV === 'development' ? error.message : undefined,
+          message: `Both id and status are required. Received id: ${id}, status: ${status}`,
         };
       }
-    }),
+
+      const result = await models.Conversations.updateOne(
+        { _id: id },
+        { status: status },
+      );
+
+      if (result.matchedCount === 0) {
+        return {
+          status: 'not_found',
+          message: 'No conversation found with the provided ID',
+        };
+      }
+
+      return {
+        status: 'success',
+        data: result,
+      };
+    } catch (error) {
+      console.error('Update error:', error);
+      return {
+        status: 'error',
+        message: 'Update failed',
+        error:
+          process.env.NODE_ENV === 'development' ? error.message : undefined,
+      };
+    }
+  }),
 });
 
 export const visitorRouter = t.router({});

@@ -17,11 +17,11 @@ export const companyTrpcRouter = t.router({
       )
       .input(z.any())
       .query(async ({ ctx, input }) => {
-      const { query } = input;
-      const { models } = ctx;
+        const { query } = input;
+        const { models } = ctx;
 
-      return models.Companies.find(query).lean();
-    }),
+        return models.Companies.find(query).lean();
+      }),
 
     findOne: t.procedure
       .meta(
@@ -32,67 +32,67 @@ export const companyTrpcRouter = t.router({
       )
       .input(z.any())
       .query(async ({ ctx, input }) => {
-      const query = input?.query || input?.selector || input;
-      const { models } = ctx;
+        const query = input?.query || input?.selector || input;
+        const { models } = ctx;
 
-      if (!query || !Object.keys(query).length) {
-        return {};
-      }
+        if (!query || !Object.keys(query).length) {
+          return {};
+        }
 
-      const defaultFilter = { status: { $ne: 'deleted' } };
+        const defaultFilter = { status: { $ne: 'deleted' } };
 
-      if (query.companyPrimaryName) {
-        defaultFilter['$or'] = [
-          { names: { $in: [query.companyPrimaryName] } },
-          { primaryName: query.companyPrimaryName },
-        ];
-      }
+        if (query.companyPrimaryName) {
+          defaultFilter['$or'] = [
+            { names: { $in: [query.companyPrimaryName] } },
+            { primaryName: query.companyPrimaryName },
+          ];
+        }
 
-      if (query.name) {
-        defaultFilter['$or'] = [
-          { names: { $in: [query.name] } },
-          { primaryName: query.name },
-        ];
-      }
+        if (query.name) {
+          defaultFilter['$or'] = [
+            { names: { $in: [query.name] } },
+            { primaryName: query.name },
+          ];
+        }
 
-      if (query.email) {
-        defaultFilter['$or'] = [
-          { emails: { $in: [query.email] } },
-          { primaryEmail: query.email },
-        ];
-      }
+        if (query.email) {
+          defaultFilter['$or'] = [
+            { emails: { $in: [query.email] } },
+            { primaryEmail: query.email },
+          ];
+        }
 
-      if (query.phone) {
-        defaultFilter['$or'] = [
-          { phones: { $in: [query.phone] } },
-          { primaryPhone: query.phone },
-        ];
-      }
+        if (query.phone) {
+          defaultFilter['$or'] = [
+            { phones: { $in: [query.phone] } },
+            { primaryPhone: query.phone },
+          ];
+        }
 
-      if (query.companyPrimaryEmail) {
-        defaultFilter['$or'] = [
-          { emails: { $in: [query.companyPrimaryEmail] } },
-          { primaryEmail: query.companyPrimaryEmail },
-        ];
-      }
+        if (query.companyPrimaryEmail) {
+          defaultFilter['$or'] = [
+            { emails: { $in: [query.companyPrimaryEmail] } },
+            { primaryEmail: query.companyPrimaryEmail },
+          ];
+        }
 
-      if (query.companyPrimaryPhone) {
-        defaultFilter['$or'] = [
-          { phones: { $in: [query.companyPrimaryPhone] } },
-          { primaryPhone: query.companyPrimaryPhone },
-        ];
-      }
+        if (query.companyPrimaryPhone) {
+          defaultFilter['$or'] = [
+            { phones: { $in: [query.companyPrimaryPhone] } },
+            { primaryPhone: query.companyPrimaryPhone },
+          ];
+        }
 
-      if (query.companyCode) {
-        defaultFilter['code'] = query.companyCode;
-      }
+        if (query.companyCode) {
+          defaultFilter['code'] = query.companyCode;
+        }
 
-      if (query._id) {
-        defaultFilter['_id'] = query._id;
-      }
+        if (query._id) {
+          defaultFilter['_id'] = query._id;
+        }
 
-      return models.Companies.findOne(defaultFilter).lean();
-    }),
+        return models.Companies.findOne(defaultFilter).lean();
+      }),
 
     findActiveCompanies: t.procedure
       .meta(

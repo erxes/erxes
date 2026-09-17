@@ -32,38 +32,38 @@ export const customerRouter = t.router({
       )
       .input(z.any())
       .query(async ({ ctx, input }) => {
-      const query = input?.query || input?.selector || input;
-      const { models } = ctx;
+        const query = input?.query || input?.selector || input;
+        const { models } = ctx;
 
-      if (!query || !Object.keys(query).length) {
-        return {};
-      }
+        if (!query || !Object.keys(query).length) {
+          return {};
+        }
 
-      const defaultFilter = { status: { $ne: 'deleted' } };
+        const defaultFilter = { status: { $ne: 'deleted' } };
 
-      if (query?.customerPrimaryEmail) {
-        defaultFilter['$or'] = [
-          { emails: { $in: [query.customerPrimaryEmail] } },
-          { primaryEmail: query.customerPrimaryEmail },
-        ];
-      }
+        if (query?.customerPrimaryEmail) {
+          defaultFilter['$or'] = [
+            { emails: { $in: [query.customerPrimaryEmail] } },
+            { primaryEmail: query.customerPrimaryEmail },
+          ];
+        }
 
-      if (query?.customerPrimaryPhone) {
-        defaultFilter['$or'] = [
-          { phones: { $in: [query.customerPrimaryPhone] } },
-          { primaryPhone: query.customerPrimaryPhone },
-        ];
-      }
+        if (query?.customerPrimaryPhone) {
+          defaultFilter['$or'] = [
+            { phones: { $in: [query.customerPrimaryPhone] } },
+            { primaryPhone: query.customerPrimaryPhone },
+          ];
+        }
 
-      if (query?.customerCode) {
-        defaultFilter['code'] = query.customerCode;
-      }
+        if (query?.customerCode) {
+          defaultFilter['code'] = query.customerCode;
+        }
 
-      if (query?._id) {
-        defaultFilter['_id'] = query._id;
-      }
-      return models.Customers.findOne(defaultFilter).lean();
-    }),
+        if (query?._id) {
+          defaultFilter['_id'] = query._id;
+        }
+        return models.Customers.findOne(defaultFilter).lean();
+      }),
 
     findActiveCustomers: t.procedure
       .meta(
@@ -257,9 +257,7 @@ export const customerRouter = t.router({
         });
       }),
 
-    tag: t.procedure
-      .input(z.any())
-      .mutation(async ({ ctx, input }) => {
+    tag: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
       const { action, _ids, tagIds, targetIds } = input;
       const { models } = ctx;
 
