@@ -54,7 +54,9 @@ export const productColumns: (
       <RecordTableInlineCell>
         {cell.getValue() && (
           <Badge
-            variant={cell.row.original.type === 'service' ? 'destructive' : 'info'}
+            variant={
+              cell.row.original.type === 'service' ? 'destructive' : 'info'
+            }
           >
             <TextOverflowTooltip value={cell.getValue() as string} />
           </Badge>
