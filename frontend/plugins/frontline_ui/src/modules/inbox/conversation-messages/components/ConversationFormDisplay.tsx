@@ -7,8 +7,8 @@ import {
   IconFileZip,
   IconPdf,
 } from '@tabler/icons-react';
-import type { IMessage } from '@/inbox/types/Conversation';
-import type { IFormWidgetItem } from '@/inbox/types/FormWidget';
+import { IMessage } from '../../types/Conversation';
+import { IFormWidgetItem } from '../../types/FormWidget';
 import { useTranslation } from 'react-i18next';
 import {
   Avatar,
@@ -138,7 +138,7 @@ export const ConversationFormDisplay = ({
                             key={i}
                             value={url}
                             className="w-full"
-                            onChange={() => undefined}
+                            onChange={() => {}}
                           >
                             <Upload.Preview />
                             <Upload.Button

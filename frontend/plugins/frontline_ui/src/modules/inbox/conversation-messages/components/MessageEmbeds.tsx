@@ -1,9 +1,19 @@
 import { cn } from 'erxes-ui';
 import { IconPlayerPlayFilled } from '@tabler/icons-react';
-import type { IMessageEmbed } from '@/inbox/types/Conversation';
-import { useState } from 'react';
+import { IMessageEmbed } from '@/inbox/types/Conversation';
 
-import { InboxImage } from '@/inbox/conversation-messages/components/InboxImage';
+// erxes runs on Vite, not Next.js, so next/image (JS-W1015) doesn't apply here.
+// This thin wrapper localizes the single suppression instead of repeating it at
+// every embed image. `alt` is required (unlike the base img attributes, where
+// it's optional) and destructured onto its own literal attribute so both the
+// type and every caller are held to actually providing one.
+const Img = ({
+  alt,
+  ...props
+}: JSX.IntrinsicElements['img'] & { alt: string }) => (
+  // skipcq: JS-W1015
+  <img alt={alt} {...props} />
+);
 
 // Discord embed media (image/thumbnail/video) carry absolute Discord/Tenor CDN
 // URLs, so they're used as-is (not run through `readImage`, which is for erxes
@@ -60,7 +70,7 @@ const EmbedHeading = ({ embed }: { embed: IMessageEmbed }) => {
       {embed.author?.name && (
         <div className="mb-1 flex items-center gap-1.5 text-xs font-medium">
           {embed.author.iconUrl && (
-            <InboxImage
+            <Img
               src={embed.author.iconUrl}
               alt=""
               className="size-4 rounded-full"
@@ -111,84 +121,35 @@ const EmbedHeading = ({ embed }: { embed: IMessageEmbed }) => {
 };
 
 // Inline autoplay (muted + looped) so a shared Tenor/Giphy GIF behaves like one.
-const MediaUnavailable = ({ label }: { label: string }) => (
-  <div className="rounded-lg border border-dashed bg-muted/40 px-3 py-4 text-xs text-muted-foreground">
-    {label} unavailable
-  </div>
+const InlineGif = ({ embed }: { embed: IMessageEmbed }) => (
+  <video
+    src={embed.video?.url}
+    poster={embed.thumbnail?.url}
+    autoPlay
+    loop
+    muted
+    playsInline
+    className="max-w-full rounded-lg"
+    style={{
+      aspectRatio: mediaAspect(embed.video) || mediaAspect(embed.thumbnail),
+    }}
+  />
 );
 
-const EmbedImage = ({
-  src,
-  alt,
-  className,
-  style,
-  label,
-}: {
-  src?: string;
-  alt: string;
-  className?: string;
-  style?: React.CSSProperties;
-  label: string;
-}) => {
-  const [failed, setFailed] = useState(false);
-  if (!src || failed) return <MediaUnavailable label={label} />;
-  return (
-    <InboxImage
-      src={src}
-      alt={alt}
-      loading="lazy"
-      onError={() => setFailed(true)}
-      className={className}
-      style={style}
-    />
-  );
-};
-
-const InlineGif = ({ embed }: { embed: IMessageEmbed }) => {
-  const [failed, setFailed] = useState(false);
-  if (failed) return <MediaUnavailable label="GIF" />;
-
-  return (
-    <video
-      src={embed.video?.url}
-      poster={embed.thumbnail?.url}
-      autoPlay
-      loop
-      muted
-      playsInline
-      aria-label={embed.title || 'Animated GIF'}
-      onError={() => setFailed(true)}
-      className="max-w-full rounded-lg motion-reduce:[animation-play-state:paused]"
-      style={{
-        aspectRatio: mediaAspect(embed.video) || mediaAspect(embed.thumbnail),
-      }}
-    />
-  );
-};
-
 /** Renders a standalone image embed linking to its source. */
-const ImageEmbed = ({ embed }: { embed: IMessageEmbed }) => {
-  const [failed, setFailed] = useState(false);
-  if (failed) return <MediaUnavailable label="Image" />;
-
-  const image = (
-    <InboxImage
+const ImageEmbed = ({ embed }: { embed: IMessageEmbed }) => (
+  <a
+    href={safeHref(embed.url) || safeHref(embed.image?.url)}
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    <Img
       src={embed.image?.url}
-      alt={embed.title || 'Embedded image'}
-      loading="lazy"
-      onError={() => setFailed(true)}
+      alt={embed.title || ''}
       className="max-w-full rounded-lg object-cover"
     />
-  );
-  const href = safeHref(embed.url) || safeHref(embed.image?.url);
-  return href ? (
-    <a href={href} target="_blank" rel="noopener noreferrer">
-      {image}
-    </a>
-  ) : (
-    image
-  );
-};
+  </a>
+);
 
 // A poster thumbnail with a play overlay; clicking opens the video at its source
 // (we don't embed third-party iframes in the inbox).
@@ -206,12 +167,11 @@ const VideoEmbed = ({ embed }: { embed: IMessageEmbed }) => {
         rel="noopener noreferrer"
         className="relative mt-2 block overflow-hidden rounded"
       >
-        <EmbedImage
+        <Img
           src={poster}
-          alt={embed.title || 'Video preview'}
+          alt={embed.title || ''}
           className="w-full object-cover"
           style={{ aspectRatio: mediaAspect(embed.thumbnail) }}
-          label="Video preview"
         />
         <span className="absolute inset-0 flex items-center justify-center">
           <span className="flex size-12 items-center justify-center rounded-full bg-black/60">
@@ -249,31 +209,28 @@ const RichEmbed = ({ embed }: { embed: IMessageEmbed }) => (
     )}
 
     {embed.image?.url && (
-      <EmbedImage
+      <Img
         src={embed.image.url}
-        alt={embed.title || 'Embedded image'}
+        alt={embed.title || ''}
         className="mt-2 max-w-full rounded object-cover"
-        label="Image"
       />
     )}
 
     {embed.thumbnail?.url && !embed.image?.url && (
-      <EmbedImage
+      <Img
         src={embed.thumbnail.url}
-        alt={embed.title || 'Embed thumbnail'}
+        alt={embed.title || ''}
         className="mt-2 max-h-20 rounded object-cover"
-        label="Thumbnail"
       />
     )}
 
     {embed.footer?.text && (
       <div className="mt-2 flex items-center gap-1.5 text-[11px] text-muted-foreground">
         {embed.footer.iconUrl && (
-          <EmbedImage
+          <Img
             src={embed.footer.iconUrl}
             alt=""
             className="size-4 rounded-full"
-            label="Footer icon"
           />
         )}
         <span>{embed.footer.text}</span>

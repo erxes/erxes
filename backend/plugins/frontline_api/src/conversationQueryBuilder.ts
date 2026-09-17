@@ -23,7 +23,6 @@ export interface IListArgs {
   unassigned?: string;
   awaitingResponse?: string;
   withSurvey?: string;
-  withPoll?: string;
   automationStatus?: string;
   brandId?: string;
   tag?: string;
@@ -537,7 +536,7 @@ export default class Builder {
       this.queries.awaitingResponse = this.awaitingResponse();
     }
 
-    if (this.params.withSurvey || this.params.withPoll) {
+    if (this.params.withSurvey) {
       this.queries.withSurvey = this.withSurveyFilter();
     } else if (this.params.integrationType) {
       this.queries.withSurvey = this.withoutSurveyFilter();

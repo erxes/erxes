@@ -77,7 +77,6 @@ export interface IConversationListParams
   unassigned?: string;
   awaitingResponse?: string;
   withSurvey?: string;
-  withPoll?: string;
   automationStatus?: string;
   tag?: string;
   integrationType?: string;
