@@ -11,6 +11,7 @@ import {
   checkIsBot,
   triggerInstagramAutomation,
 } from '@/integrations/instagram/meta/automation/utils/messageUtils';
+import { normalizeInstagramMessage } from '@/integrations/instagram/normalizeMessage';
 
 const HAS_ATTACHMENT = 'This message has an attachment';
 
@@ -46,6 +47,12 @@ export const receiveMessage = async (
   if (message?.quick_reply) {
     message.payload = message.quick_reply.payload;
   }
+
+  const normalizedMessage = normalizeInstagramMessage({
+    ...activity,
+    message,
+    text,
+  });
 
   const customer = await getOrCreateCustomer(
     models,
@@ -148,6 +155,7 @@ export const receiveMessage = async (
         customerId: customer.erxesApiId,
         attachments: formattedAttachments,
         botId,
+        ...normalizedMessage,
       });
 
       const doc = {
@@ -168,7 +176,9 @@ export const receiveMessage = async (
           },
         );
       } catch (err) {
-        debugError(`Error publishing conversationMessageInserted: ${err.message}`);
+        debugError(
+          `Error publishing conversationMessageInserted: ${err.message}`,
+        );
       }
 
       await triggerInstagramAutomation(subdomain, {

@@ -35,7 +35,7 @@ const processInstagramEntry = async (
 
   if (messaging && Array.isArray(messaging)) {
     for (const messagingEvent of messaging) {
-      await processMessagingEvent(models, subdomain, messagingEvent, pageId);
+      await processMessagingEvent(models, subdomain, messagingEvent);
     }
   }
 
@@ -56,27 +56,32 @@ const processMessagingEvent = async (
   models: IModels,
   subdomain: string,
   messagingEvent: any,
-  pageId: string,
 ) => {
-  const { sender, recipient, timestamp, message, postback } = messagingEvent;
+  const {
+    sender,
+    recipient,
+    timestamp,
+    message,
+    postback,
+    reaction,
+    read,
+    delivery,
+  } = messagingEvent;
 
   if (!sender || !recipient) {
     debugError('Invalid messaging event: missing sender or recipient');
     return;
   }
 
-  if (!message && !postback) {
-    debugInstagram(`Skipping delivery/read event for page ${pageId}`);
-    return;
-  }
-
   try {
     const integration = await models.InstagramIntegrations.findOne({
-      instagramPageId: recipient.id,
+      instagramPageId: { $in: [recipient.id, sender.id] },
     });
 
     if (!integration) {
-      debugError(`No integration found for page ${recipient.id}`);
+      debugError(
+        `No integration found for Instagram messaging event ${recipient.id}`,
+      );
       return;
     }
 
@@ -87,6 +92,9 @@ const processMessagingEvent = async (
       text: message?.text || postback?.title || '',
       message,
       postback,
+      reaction,
+      read,
+      delivery,
     };
 
     await receiveMessage(models, subdomain, integration, messageData);

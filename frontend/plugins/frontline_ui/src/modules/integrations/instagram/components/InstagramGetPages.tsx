@@ -41,11 +41,7 @@ export const InstagramGetPages = () => {
         </>
       }
     >
-      <InstagramIntegrationFormSteps
-        title={t('connect-pages')}
-        step={2}
-        description={t('ig-select-pages-description')}
-      />
+      <InstagramIntegrationFormSteps title={t('connect-pages')} step={2} />
       <div className="flex-1 overflow-hidden p-4 pt-0">
         <Command>
           <div className="p-1">
