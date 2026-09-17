@@ -128,7 +128,7 @@ export const MailConversationDetail = () => {
     if (!customerId) return;
 
     window.dispatchEvent(
-      new CustomEvent('frontline:compose-email', {
+      new CustomEvent('erxes:compose-email', {
         detail: { customerId, email, emails: [email] },
       }),
     );

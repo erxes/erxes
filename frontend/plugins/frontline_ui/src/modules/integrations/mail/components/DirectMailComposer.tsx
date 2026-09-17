@@ -32,7 +32,7 @@ import { useCustomers } from 'ui-modules';
 import { MAIL_SENDERS_QUERY } from '@/integrations/mail/graphql/queries/mailSenders';
 import { useMailSendMail } from '@/integrations/mail/hooks/useMailConversationDetail';
 
-const COMPOSE_EMAIL_EVENT = 'frontline:compose-email';
+const COMPOSE_EMAIL_EVENT = 'erxes:compose-email';
 
 interface MailSender {
   integrationId: string;
