@@ -7,6 +7,7 @@ export const CONVERT_TYPE_OPTIONS: Record<
   {
     pluginName: string;
     createAction: string;
+    propertyContentType: string;
     stageMessage: string;
     multipleSelect: boolean;
     supportsDetails: boolean;
@@ -15,6 +16,7 @@ export const CONVERT_TYPE_OPTIONS: Record<
   ticket: {
     pluginName: 'frontline',
     createAction: 'createTicket',
+    propertyContentType: 'frontline:ticket',
     stageMessage: 'Status is required',
     multipleSelect: false,
     supportsDetails: true,
@@ -22,6 +24,7 @@ export const CONVERT_TYPE_OPTIONS: Record<
   deal: {
     pluginName: 'sales',
     createAction: 'dealsAdd',
+    propertyContentType: 'sales:deal',
     stageMessage: 'Stage is required',
     multipleSelect: true,
     supportsDetails: true,
@@ -29,6 +32,7 @@ export const CONVERT_TYPE_OPTIONS: Record<
   task: {
     pluginName: 'operation',
     createAction: 'taskCreate',
+    propertyContentType: 'operation:task',
     stageMessage: 'Status is required',
     multipleSelect: false,
     supportsDetails: false,

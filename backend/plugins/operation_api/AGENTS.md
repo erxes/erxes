@@ -70,7 +70,8 @@
   `task.tag`; `task.findOne({ _ids })` returns the first task among the ids
   (`{ _id, name, teamId }`) or `null`, skipping ids that are not ObjectIds;
   `task.createFromSource({ userId, doc: { name, status, description?,
-  priority?, assigneeId?, labelIds?, tagIds?, startDate?, targetDate? } })`
+  priority?, assigneeId?, labelIds?, tagIds?, startDate?, targetDate?,
+  propertiesData? } })`
   resolves `teamId` from the status, creates the task as `userId`, publishes
   `operationTaskChanged` / `operationTaskListChanged`, and returns `{ _id }`.
 
@@ -89,6 +90,9 @@
   worker through `applyMembership`.
 - A task's `_id` is a Mongo `ObjectId`, not the generated string id most erxes
   collections use.
+- `operation_tasks.propertiesData` holds `operation:task` property values keyed
+  by field id. Only `task.createFromSource` writes it today, and the task
+  GraphQL type does not expose it; import/export read it.
 
 ## Local Invariants
 
@@ -138,10 +142,11 @@
 
 - **Summary:** Added the `task.createFromSource` and `task.findOne` tRPC
   procedures so `frontline` can convert a conversation into a task and detect
-  an existing one.
-- **Affected areas:** `src/modules/task/trpc/task.ts`
+  an existing one; tasks can store `propertiesData`.
+- **Affected areas:** `src/modules/task/trpc/task.ts`,
+  `src/modules/task/db/definitions/task.ts`, `src/modules/task/@types/task.ts`
 - **Contracts changed:** New tRPC procedures `task.createFromSource` and
-  `task.findOne`.
+  `task.findOne`; `operation_tasks` gains the optional `propertiesData` field.
 
 ### `2026-09-05` — `Export repeating task properties by row`
 

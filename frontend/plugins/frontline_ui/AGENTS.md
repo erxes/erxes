@@ -587,16 +587,13 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
   `SelectChannel`, `SelectPipeline` and `SelectStatusTicket`; the pipeline and
   status pickers watch `channelId` / `pipelineId` on whatever form they are
   given, so a form using them must name those fields exactly that.
-- Convert-time properties come from Settings → Properties, rendered per field
-  group under a `Properties` heading at the bottom of the dialog, after
-  `Description`. A deal shows fields
-  with `isVisibleToCreate` (as sales' own add form does); a ticket shows the
-  fields its ticket detail shows — `isVisible !== false`, limited to the
-  selected pipeline's `propertyIds` once `isPropertySelectionConfigured` is
-  true. Display logic applies to both. Multi-row groups are not offered at
-  convert time. The
-  values are sent as `customFieldsData` without empty entries. The task dialog
-  has no properties because `operation` tasks store none.
+- Convert-time properties come only from Settings → Properties, the same way
+  for every kind: `frontline:ticket`, `sales:deal` or `operation:task` fields
+  whose `Visible to create` (`isVisibleToCreate`) is on and whose display logic
+  passes, rendered per field group under a `Properties` heading at the bottom
+  of the dialog. Ticket pipeline property selection does not filter them.
+  Multi-row groups are not offered at convert time. The values are sent as
+  `customFieldsData` without empty entries.
 - A successful convert refetches `ConversationConvertedItems` and
   `getRelationsByEntity`, so the menu and the relation widgets update without
   a reload.

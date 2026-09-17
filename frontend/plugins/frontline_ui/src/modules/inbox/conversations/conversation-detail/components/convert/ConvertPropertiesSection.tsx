@@ -2,8 +2,6 @@ import { IconInfoCircle } from '@tabler/icons-react';
 import { Spinner } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { useGetPipeline } from '@/pipelines/hooks/useGetPipeline';
-import { ConversationConvertType } from '@/inbox/conversations/types/conversationConvert';
 import {
   IField,
   IFieldGroup,
@@ -12,6 +10,8 @@ import {
   useFieldGroups,
   useFields,
 } from 'ui-modules';
+import { ConversationConvertType } from '@/inbox/conversations/types/conversationConvert';
+import { CONVERT_TYPE_OPTIONS } from './convertForm';
 
 export type TConvertPropertiesData = Record<string, unknown>;
 
@@ -27,35 +27,23 @@ export const cleanConvertPropertiesData = (
 
 type TConvertPropertiesProps = {
   contentType: string;
-  visibility: 'create' | 'detail';
-  fieldIds?: string[];
   propertiesData: TConvertPropertiesData;
   onFieldChange: (fieldId: string, value: unknown) => void;
 };
 
-const isFieldShown = (
-  field: IField,
-  { fieldIds, visibility, propertiesData }: TConvertPropertiesProps,
-) => {
-  if (fieldIds && !fieldIds.includes(field._id)) {
-    return false;
-  }
-
-  const visible =
-    visibility === 'create'
-      ? field.isVisibleToCreate
-      : field.isVisible !== false;
-
-  return Boolean(visible) && isFieldVisibleByLogic(field, propertiesData);
-};
+const isFieldShown = (field: IField, propertiesData: TConvertPropertiesData) =>
+  Boolean(field.isVisibleToCreate) &&
+  isFieldVisibleByLogic(field, propertiesData);
 
 const ConvertPropertyGroup = ({
   group,
-  ...props
+  contentType,
+  propertiesData,
+  onFieldChange,
 }: TConvertPropertiesProps & { group: IFieldGroup }) => {
   const { fields, loading } = useFields({
     groupId: group._id,
-    contentType: props.contentType,
+    contentType,
     limit: 100,
   });
 
@@ -63,7 +51,9 @@ const ConvertPropertyGroup = ({
     return <Spinner containerClassName="py-4" />;
   }
 
-  const shownFields = fields.filter((field) => isFieldShown(field, props));
+  const shownFields = fields.filter((field) =>
+    isFieldShown(field, propertiesData),
+  );
 
   if (!shownFields.length) {
     return null;
@@ -77,9 +67,9 @@ const ConvertPropertyGroup = ({
           <PropertyFormField
             key={field._id}
             field={field}
-            value={props.propertiesData[field._id]}
-            idPrefix={`convert_${props.contentType.replace(':', '_')}`}
-            onFieldChange={props.onFieldChange}
+            value={propertiesData[field._id]}
+            idPrefix={`convert_${contentType.replace(':', '_')}`}
+            onFieldChange={onFieldChange}
           />
         ))}
       </div>
@@ -87,26 +77,24 @@ const ConvertPropertyGroup = ({
   );
 };
 
-export const ConvertPropertiesSection = ({
+export const ConvertProperties = ({
+  type,
   onNavigate,
-  visibility = 'create',
   ...props
-}: Omit<TConvertPropertiesProps, 'visibility'> & {
-  visibility?: TConvertPropertiesProps['visibility'];
-  onNavigate?: () => void;
+}: Omit<TConvertPropertiesProps, 'contentType'> & {
+  type: ConversationConvertType;
+  onNavigate: () => void;
 }) => {
   const { t } = useTranslation('frontline');
   const navigate = useNavigate();
-  const { fieldGroups, loading } = useFieldGroups({
-    contentType: props.contentType,
-    limit: 100,
-  });
+  const contentType = CONVERT_TYPE_OPTIONS[type].propertyContentType;
+  const { fieldGroups, loading } = useFieldGroups({ contentType, limit: 100 });
 
   const groups = fieldGroups.filter((group) => !group.configs?.isMultiple);
 
   const handleConfigure = () => {
-    onNavigate?.();
-    navigate(`/settings/properties/${props.contentType}`);
+    onNavigate();
+    navigate(`/settings/properties/${contentType}`);
   };
 
   return (
@@ -121,7 +109,7 @@ export const ConvertPropertiesSection = ({
           <ConvertPropertyGroup
             key={group._id}
             group={group}
-            visibility={visibility}
+            contentType={contentType}
             {...props}
           />
         ))
@@ -140,48 +128,5 @@ export const ConvertPropertiesSection = ({
         </span>
       </button>
     </div>
-  );
-};
-
-export const ConvertProperties = ({
-  type,
-  pipelineId,
-  ...props
-}: Pick<TConvertPropertiesProps, 'propertiesData' | 'onFieldChange'> & {
-  type: ConversationConvertType;
-  pipelineId?: string;
-  onNavigate: () => void;
-}) => {
-  const { pipeline, loading } = useGetPipeline(
-    type === 'ticket' ? pipelineId || undefined : undefined,
-  );
-
-  if (type === 'task') {
-    return null;
-  }
-
-  if (type === 'deal') {
-    return <ConvertPropertiesSection contentType="sales:deal" {...props} />;
-  }
-
-  if (!pipelineId) {
-    return null;
-  }
-
-  if (loading) {
-    return <Spinner containerClassName="py-6" />;
-  }
-
-  return (
-    <ConvertPropertiesSection
-      contentType="frontline:ticket"
-      visibility="detail"
-      fieldIds={
-        pipeline?.isPropertySelectionConfigured
-          ? pipeline.propertyIds || []
-          : undefined
-      }
-      {...props}
-    />
   );
 };

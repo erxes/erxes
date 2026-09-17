@@ -58,6 +58,22 @@ const withoutNullish = <T extends Record<string, unknown>>(doc: T) =>
     ),
   ) as Partial<T>;
 
+const validatePropertiesData = async (
+  subdomain: string,
+  propertiesData?: IConversationConvert['customFieldsData'],
+) =>
+  propertiesData
+    ? sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        method: 'mutation',
+        module: 'fields',
+        action: 'validateFieldValues',
+        input: { data: propertiesData },
+        defaultValue: {},
+      })
+    : undefined;
+
 const ticketHandler: IConvertTargetHandler = {
   contentType: 'frontline:ticket',
   relateCustomer: true,
@@ -105,17 +121,10 @@ const ticketHandler: IConvertTargetHandler = {
       user,
     );
 
-    const propertiesData = doc.customFieldsData
-      ? await sendTRPCMessage({
-          subdomain,
-          pluginName: 'core',
-          method: 'mutation',
-          module: 'fields',
-          action: 'validateFieldValues',
-          input: { data: doc.customFieldsData },
-          defaultValue: {},
-        })
-      : undefined;
+    const propertiesData = await validatePropertiesData(
+      subdomain,
+      doc.customFieldsData,
+    );
 
     const ticket = await models.Ticket.addTicket(
       {
@@ -284,6 +293,10 @@ const taskHandler: IConvertTargetHandler = {
           tagIds: doc.tagIds,
           startDate: doc.startDate,
           targetDate: doc.closeDate,
+          propertiesData: await validatePropertiesData(
+            subdomain,
+            doc.customFieldsData,
+          ),
         }),
       },
       context: { userId: user._id },

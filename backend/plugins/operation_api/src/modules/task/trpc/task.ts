@@ -61,6 +61,7 @@ export const taskTrpcRouter = t.router({
             tagIds: z.array(z.string()).optional(),
             startDate: z.coerce.date().optional(),
             targetDate: z.coerce.date().optional(),
+            propertiesData: z.record(z.unknown()).optional(),
           }),
         }),
       )
