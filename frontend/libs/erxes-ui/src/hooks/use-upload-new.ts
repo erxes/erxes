@@ -11,19 +11,8 @@ export interface FileWithPreview extends File {
 }
 
 type UseErxesUploadOptions = {
-  /**
-   * Allowed MIME types for each file upload (e.g `image/png`, `text/html`, etc). Wildcards are also supported (e.g `image/*`).
-   *
-   * Defaults to allowing uploading of all MIME types.
-   */
   allowedMimeTypes?: string[];
-  /**
-   * Maximum upload size of each file allowed in bytes. (e.g 1000 bytes = 1 KB)
-   */
   maxFileSize?: number;
-  /**
-   * Maximum number of files allowed per upload.
-   */
   maxFiles?: number;
   onFilesAdded?: (
     addedFiles: { name: string; url: string; type: string; size: number }[],
@@ -31,6 +20,29 @@ type UseErxesUploadOptions = {
 };
 
 type UseErxesUploadReturn = ReturnType<typeof useErxesUpload>;
+
+type FileUploadResponse = {
+  name: string;
+  message: string | undefined;
+  url?: string;
+};
+
+const uploadFile = async (file: File): Promise<FileUploadResponse> => {
+  const formData = new FormData();
+  formData.append('file', file);
+  const response = await fetch(`${REACT_APP_API_URL}/upload-file?kind=main`, {
+    method: 'post',
+    body: formData,
+    credentials: 'include',
+  });
+
+  const data = await response.text();
+
+  if (!response.ok) {
+    return { name: file.name, message: data };
+  }
+  return { name: file.name, message: undefined, url: data };
+};
 
 const useErxesUpload = (options: UseErxesUploadOptions) => {
   const {
@@ -94,8 +106,7 @@ const useErxesUpload = (options: UseErxesUploadOptions) => {
 
   const onUpload = useCallback(async () => {
     setLoading(true);
-    // [Joshen] This is to support handling partial successes
-    // If any files didn't upload for any reason, hitting "Upload" again will only upload the files that had errors
+
     const filesWithErrors = errors.map((x) => x.name);
     const filesToUpload =
       filesWithErrors.length > 0
@@ -105,33 +116,16 @@ const useErxesUpload = (options: UseErxesUploadOptions) => {
           ]
         : files;
 
-    const responses = await Promise.all(
-      filesToUpload.map(async (file) => {
-        const formData = new FormData();
-        formData.append('file', file);
-        const response = await fetch(
-          `${REACT_APP_API_URL}/upload-file?kind=main`,
-          {
-            method: 'post',
-            body: formData,
-            credentials: 'include',
-          },
-        );
-
-        const data = await response.text();
-
-        if (!response.ok) {
-          return { name: file.name, message: data };
-        }
-        return { name: file.name, message: undefined, url: data };
-      }),
-    );
+    const responses = await Promise.all(filesToUpload.map(uploadFile));
 
     const responseErrors = responses.filter((x) => x.message !== undefined);
-    // if there were errors previously, this function tried to upload the files again so we should clear/overwrite the existing errors.
+
     setErrors(responseErrors);
 
-    const responseSuccesses = responses.filter((x) => x.message === undefined);
+    const responseSuccesses = responses.filter(
+      (x): x is FileUploadResponse & { url: string } =>
+        x.message === undefined && typeof x.url === 'string',
+    );
     const newSuccesses = Array.from(
       new Set([...successes, ...responseSuccesses.map((x) => x.name)]),
     );
@@ -159,7 +153,6 @@ const useErxesUpload = (options: UseErxesUploadOptions) => {
       setErrors([]);
     }
 
-    // If the number of files doesn't exceed the maxFiles parameter, remove the error 'Too many files' from each file
     if (files.length <= maxFiles) {
       let changed = false;
       const newFiles = files.map((file) => {
@@ -173,8 +166,7 @@ const useErxesUpload = (options: UseErxesUploadOptions) => {
         setFiles(newFiles);
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [files.length, setFiles, maxFiles]);
+  }, [files, setFiles, maxFiles]);
 
   return {
     files,
@@ -185,6 +177,7 @@ const useErxesUpload = (options: UseErxesUploadOptions) => {
     errors,
     setErrors,
     onUpload,
+    uploadFile,
     maxFileSize: maxFileSize,
     maxFiles: maxFiles,
     allowedMimeTypes,
