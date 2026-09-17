@@ -22,11 +22,11 @@ const getRowClassName = (
   formWidgetData: unknown,
 ) =>
   cn(
-    'flex w-full items-end gap-2 py-0.5',
+    'group flex w-full items-end gap-2 py-0.5',
     isOutgoing ? 'justify-end' : 'justify-start',
     !separateNext && isOutgoing && 'pr-10',
     !separateNext && !isOutgoing && 'pl-10',
-    formWidgetData && 'pb-4',
+    Boolean(formWidgetData) && 'pb-4',
   );
 
 const MessageActionBar = ({
