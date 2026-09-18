@@ -157,6 +157,12 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-18` — `Transaction Delete Filter Return`
+
+- **Summary:** Transaction edit links now preserve the current list URL so deleting a transaction returns to the previously filtered list.
+- **Affected areas:** `src/modules/transactions/components`, `src/modules/transactions/transaction-form`, and transaction navigation utilities.
+- **Contracts changed:** None.
+
 ### `2026-09-18` — `Inventory Sale Edit Preservation`
 
 - **Summary:** Inventory sale and return edit forms preserve persisted unit prices, amounts, and VAT/CTAX state until the user selects a different product.
@@ -210,15 +216,3 @@
 - **Summary:** Safe remainder deletion now reads list filter variables at hook initialization instead of calling a query-state hook from the delete click handler.
 - **Affected areas:** `src/modules/inventories/safeRemainders/hooks/useSafeRemainderRemove.tsx`.
 - **Contracts changed:** None.
-
-### `2026-09-09` — `Bound Dev Watchers`
-
-- **Summary:** Accounting UI Rspack development serving now ignores generated dependency, cache, coverage, temp, and output folders to reduce local watcher pressure.
-- **Affected areas:** `rspack.config.ts`.
-- **Contracts changed:** None.
-
-### `2026-09-02` — `Tax Row Permission Guard`
-
-- **Summary:** Updated accounting settings import visibility to use the unified tax-row import permission.
-- **Affected areas:** `src/modules/settings/components/AccountingTopbar.tsx`.
-- **Contracts changed:** Consumes `taxRowsImportManage` instead of the old VAT-specific import action.
