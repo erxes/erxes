@@ -26,6 +26,8 @@ type TCodeMap = Record<string, string>;
 
 type TReferenceMaps = {
   accountsByCode: TCodeMap;
+  vatRowsByNumber: TCodeMap;
+  ctaxRowsByNumber: TCodeMap;
   branchesByCode: TCodeMap;
   departmentsByCode: TCodeMap;
   customersByCode: TCodeMap;
@@ -48,6 +50,12 @@ type TFxaOwnerRecordMigrationInput = {
   sourceOwnerId?: string;
   responsibleUserId?: string;
   sourceResponsibleUserId?: string;
+};
+
+type TErkhetCtaxRow = {
+  number: string;
+  name: string;
+  percent: number;
 };
 
 type TMigrationUser = {
@@ -128,10 +136,18 @@ const getCodeMap = (docs: ITransaction[]) => {
   const fixedAssetCategoryCodes: string[] = [];
   const fixedAssetCodes: string[] = [];
   const userRefs: string[] = [];
+  const vatRowNumbers: string[] = [];
+  const ctaxRowNumbers: string[] = [];
 
   // Payload дотор ирсэн бүх source code-г эхэлж цуглуулна. Дараагийн шатанд
   // эдгээрийг нэг дор query хийж erxes _id болгон resolve хийх нь N+1 query-гээс хамгаална.
   for (const doc of docs) {
+    if (doc.hasVat && doc.vatRowId) {
+      vatRowNumbers.push(normalizeSourceCode(doc.vatRowId));
+    }
+    if (doc.hasCtax && doc.ctaxRowId) {
+      ctaxRowNumbers.push(normalizeSourceCode(doc.ctaxRowId));
+    }
     if (doc.branchId) {
       branchCodes.push(normalizeSourceCode(doc.branchId));
     }
@@ -154,6 +170,11 @@ const getCodeMap = (docs: ITransaction[]) => {
     const isFxaOut = doc.journal === JOURNALS.FXA_OUT;
     const isFxaMove = doc.journal === JOURNALS.FXA_MOVE;
     const isFxaSale = doc.journal === JOURNALS.FXA_SALE;
+    const isSale = [
+      JOURNALS.FXA_SALE,
+      JOURNALS.INV_SALE,
+      JOURNALS.INV_SALE_RETURN,
+    ].includes(doc.journal);
 
     if (moveInBranchId) {
       branchCodes.push(normalizeSourceCode(moveInBranchId));
@@ -176,10 +197,10 @@ const getCodeMap = (docs: ITransaction[]) => {
     if (lossAccountId && isFxaSale) {
       accountCodes.push(normalizeSourceCode(lossAccountId));
     }
-    if (saleOutAccountId && isFxaSale) {
+    if (saleOutAccountId && isSale) {
       accountCodes.push(normalizeSourceCode(saleOutAccountId));
     }
-    if (saleCostAccountId && isFxaSale) {
+    if (saleCostAccountId && isSale) {
       accountCodes.push(normalizeSourceCode(saleCostAccountId));
     }
 
@@ -241,8 +262,12 @@ const getCodeMap = (docs: ITransaction[]) => {
     fixedAssetCategoryCodes: uniq(fixedAssetCategoryCodes),
     fixedAssetCodes: uniq(fixedAssetCodes),
     userRefs: uniq(userRefs),
+    vatRowNumbers: uniq(vatRowNumbers),
+    ctaxRowNumbers: uniq(ctaxRowNumbers),
   };
 };
+
+export const getErkhetTransactionCodeMapForTest = getCodeMap;
 
 const indexByCode = <T extends { _id: string; code?: string }>(
   items: T[] = [],
@@ -285,7 +310,67 @@ const fetchReferenceMaps = async (
     fixedAssetCategoryCodes,
     fixedAssetCodes,
     userRefs,
+    vatRowNumbers,
+    ctaxRowNumbers,
   } = getCodeMap(docs);
+
+  const sourceCtaxRows = docs.reduce<TErkhetCtaxRow[]>((rows, doc) => {
+    const metadata = doc.extraData?.erkhetCtaxRows;
+    if (!Array.isArray(metadata)) {
+      return rows;
+    }
+
+    for (const row of metadata) {
+      const number = normalizeSourceCode(row?.number);
+      const name = normalizeSourceCode(row?.name);
+      const percent = Number(row?.percent);
+      if (
+        number &&
+        name &&
+        Number.isFinite(percent) &&
+        !rows.some((item) => item.number === number)
+      ) {
+        rows.push({ number, name, percent });
+      }
+    }
+    return rows;
+  }, []);
+
+  if (sourceCtaxRows.length) {
+    const existingRows = await models.CtaxRows.find({
+      number: { $in: sourceCtaxRows.map((row) => row.number) },
+    }).lean();
+    const existingByNumber = existingRows.reduce<
+      Record<string, { _id: string; name?: string; percent?: number }>
+    >((byNumber, row) => {
+      byNumber[normalizeSourceCode(row.number)] = row;
+      return byNumber;
+    }, {});
+
+    await Promise.all(
+      sourceCtaxRows.map(async (row) => {
+        const existing = existingByNumber[row.number];
+        if (!existing) {
+          await models.CtaxRows.create({
+            number: row.number,
+            name: row.name,
+            percent: row.percent,
+          });
+          return;
+        }
+
+        if (
+          existing.name !== row.name ||
+          Number(existing.percent) !== row.percent
+        ) {
+          await models.CtaxRows.updateOne(
+            { _id: existing._id },
+            { $set: { name: row.name, percent: row.percent } },
+          );
+        }
+      }),
+    );
+  }
 
   // Transaction route лавлах үүсгэхгүй. Reference migration өмнө нь
   // bootstrap хийсэн байх ёстой бөгөөд энд зөвхөн code -> _id lookup хийнэ.
@@ -295,6 +380,31 @@ const fetchReferenceMaps = async (
         { _id: 1, code: 1 },
       ).lean()
     : [];
+
+  const vatRows = vatRowNumbers.length
+    ? await models.VatRows.find(
+        { number: { $in: vatRowNumbers } },
+        { _id: 1, number: 1 },
+      ).lean()
+    : [];
+  const vatRowsByNumber = vatRows.reduce<TCodeMap>((byNumber, row) => {
+    if (row.number !== undefined && row.number !== null) {
+      byNumber[normalizeSourceCode(String(row.number))] = row._id;
+    }
+    return byNumber;
+  }, {});
+  const ctaxRows = ctaxRowNumbers.length
+    ? await models.CtaxRows.find(
+        { number: { $in: ctaxRowNumbers } },
+        { _id: 1, number: 1 },
+      ).lean()
+    : [];
+  const ctaxRowsByNumber = ctaxRows.reduce<TCodeMap>((byNumber, row) => {
+    if (row.number !== undefined && row.number !== null) {
+      byNumber[normalizeSourceCode(String(row.number))] = row._id;
+    }
+    return byNumber;
+  }, {});
 
   const departments = departmentCodes.length
     ? await sendTRPCMessage({
@@ -402,6 +512,8 @@ const fetchReferenceMaps = async (
 
   return {
     accountsByCode: indexByCode(accounts),
+    vatRowsByNumber,
+    ctaxRowsByNumber,
     branchesByCode: indexByCode(branches),
     departmentsByCode: indexByCode(departments),
     customersByCode: indexByCode(customers),
@@ -801,6 +913,11 @@ const resolveTransactionFollowInfos = (
     doc.followInfos?.saleCostAccountId,
   );
   const isFxaSale = doc.journal === JOURNALS.FXA_SALE;
+  const isSale = [
+    JOURNALS.FXA_SALE,
+    JOURNALS.INV_SALE,
+    JOURNALS.INV_SALE_RETURN,
+  ].includes(doc.journal);
 
   // fxa болон inventory sale-ийн дагалдах данс, шилжих салбар/хэлтэс нь
   // transaction root биш followInfos дотор ирдэг. Тэдгээрийг мөн _id-р сольж
@@ -831,14 +948,14 @@ const resolveTransactionFollowInfos = (
     throw new Error(`Account not found: ${fixedAssetAccountCode}`);
   }
   if (
-    isFxaSale &&
+    isSale &&
     saleOutAccountCode &&
     !maps.accountsByCode[saleOutAccountCode]
   ) {
     throw new Error(`Account not found: ${saleOutAccountCode}`);
   }
   if (
-    isFxaSale &&
+    isSale &&
     saleCostAccountCode &&
     !maps.accountsByCode[saleCostAccountCode]
   ) {
@@ -908,6 +1025,22 @@ const resolveTransactionFollowInfos = (
     };
   }
 
+  if (isSale) {
+    return {
+      ...resolvedFollowInfos,
+      saleOutAccountId: resolveAccountId(
+        saleOutAccountCode,
+        doc.followInfos?.saleOutAccountId,
+      ),
+      saleCostAccountId: resolveAccountId(
+        saleCostAccountCode,
+        doc.followInfos?.saleCostAccountId,
+      ),
+      saleOutAccountCode,
+      saleCostAccountCode,
+    };
+  }
+
   if (doc.journal === JOURNALS.FXA_INCOME) {
     const fxaIncomeDetails = Array.isArray(doc.followInfos?.fxaIncomeDetails)
       ? [...doc.followInfos.fxaIncomeDetails]
@@ -950,6 +1083,48 @@ const resolveTransactionFollowInfos = (
   }
 
   return resolvedFollowInfos;
+};
+
+export const resolveErkhetTransactionFollowInfosForTest =
+  resolveTransactionFollowInfos;
+
+const resolveTransactionVatRowId = (
+  doc: ITransaction,
+  maps: TReferenceMaps,
+) => {
+  const vatRowNumber = normalizeSourceCode(doc.vatRowId);
+
+  if (!doc.hasVat || !vatRowNumber) {
+    return doc.vatRowId;
+  }
+
+  const vatRowId = maps.vatRowsByNumber[vatRowNumber];
+  if (!vatRowId) {
+    throw new Error(`VAT row not found: ${vatRowNumber}`);
+  }
+
+  return vatRowId;
+};
+
+export const resolveErkhetTransactionVatRowIdForTest =
+  resolveTransactionVatRowId;
+
+const resolveTransactionCtaxRowId = (
+  doc: ITransaction,
+  maps: TReferenceMaps,
+) => {
+  const ctaxRowNumber = normalizeSourceCode(doc.ctaxRowId);
+
+  if (!doc.hasCtax || !ctaxRowNumber) {
+    return doc.ctaxRowId;
+  }
+
+  const ctaxRowId = maps.ctaxRowsByNumber[ctaxRowNumber];
+  if (!ctaxRowId) {
+    throw new Error(`CTAX row not found: ${ctaxRowNumber}`);
+  }
+
+  return ctaxRowId;
 };
 
 const getNumericFollowInfo = (
@@ -1104,7 +1279,6 @@ const normalizeBatchDocs = async (
       if (departmentCode && !maps.departmentsByCode[departmentCode]) {
         throw new Error(`Department not found: ${departmentCode}`);
       }
-
       const resolvedDoc = {
         ...doc,
         date: new Date(doc.date),
@@ -1120,6 +1294,8 @@ const normalizeBatchDocs = async (
         departmentId: departmentCode
           ? maps.departmentsByCode[departmentCode] || doc.departmentId
           : doc.departmentId,
+        vatRowId: resolveTransactionVatRowId(doc, maps),
+        ctaxRowId: resolveTransactionCtaxRowId(doc, maps),
         details: (doc.details || []).map((detail) =>
           resolveDetail(detail, maps),
         ),

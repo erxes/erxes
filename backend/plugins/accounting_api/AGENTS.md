@@ -181,6 +181,12 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-18` — `Erkhet Transaction Tax Metadata`
+
+- **Summary:** Erkhet migration now resolves transaction-owned VAT rows, creates or updates required CTAX constant rows by number, name, and percent, preserves automatic versus manual tax amounts, and keeps generated tax follows attached to their source transaction.
+- **Affected areas:** `src/modules/accounting/routes/erkhetMigration.ts`, `src/modules/accounting/utils/taxTrs.ts`, `src/modules/accounting/utils/commonSave.ts`, and migration tests.
+- **Contracts changed:** Migration transaction payloads may carry VAT/CTAX flags, row numbers, manual amount flags, amounts, and per-detail exclusion flags.
+
 ### `2026-09-17` — `Journal Report Context Filters`
 
 - **Summary:** Journal reports now resolve customer/company tags, product category and search, fixed-asset category and search, and assigned-user filters while intersecting them with explicit selected ids.
