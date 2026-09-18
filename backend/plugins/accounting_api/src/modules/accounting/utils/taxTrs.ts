@@ -66,9 +66,8 @@ class TaxTrs {
     }
 
     if (hasCtax && this.doc.hasCtax) {
-      this.ctaxAccountId = await this.models.Configs.getConfigValue(
-        'CtaxPayableAccount',
-      );
+      this.ctaxAccountId =
+        await this.models.Configs.getConfigValue('CtaxPayableAccount');
 
       if (!this.ctaxAccountId) {
         throw new Error('must init ctax account id');
