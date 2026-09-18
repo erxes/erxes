@@ -2,9 +2,12 @@
 
 import { JOURNALS } from '../../@types/constants';
 import {
+  getErkhetTransactionCodeMapForTest,
   normalizeOpeningFixedAssetBalances,
   resolveErkhetFxaOwnerRecordSourcesForTest,
   resolveErkhetFxaOwnerRecordsForTest,
+  resolveErkhetTransactionFollowInfosForTest,
+  resolveErkhetTransactionVatRowIdForTest,
 } from '../erkhetMigration';
 import { IModels } from '~/connectionResolvers';
 
@@ -57,9 +60,81 @@ describe('Erkhet migration fixed asset openings', () => {
   });
 });
 
+describe('Erkhet migration inventory sale follow accounts', () => {
+  const transaction = {
+    date: new Date('2026-01-01T00:00:00.000Z'),
+    journal: JOURNALS.INV_SALE,
+    followInfos: {
+      saleOutAccountId: '201001',
+      saleCostAccountId: '701001',
+    },
+    hasVat: true,
+    vatRowId: '36',
+    details: [
+      {
+        accountId: '501001',
+        productId: 'product-1',
+        count: 1,
+        amount: 100,
+      },
+    ],
+  };
+
+  it('collects and resolves inventory sale follow account codes', () => {
+    expect(getErkhetTransactionCodeMapForTest([transaction])).toEqual(
+      expect.objectContaining({
+        accountCodes: expect.arrayContaining(['201001', '701001']),
+        vatRowNumbers: ['36'],
+      }),
+    );
+
+    expect(
+      resolveErkhetTransactionFollowInfosForTest(transaction, {
+        accountsByCode: {
+          '201001': 'sale-out-account-id',
+          '701001': 'sale-cost-account-id',
+        },
+        vatRowsByNumber: {},
+        ctaxRowsByNumber: {},
+        branchesByCode: {},
+        departmentsByCode: {},
+        customersByCode: {},
+        productsByCode: {},
+        fixedAssetCategoriesByCode: {},
+        fixedAssetsByCode: {},
+        usersByRef: {},
+      }),
+    ).toEqual(
+      expect.objectContaining({
+        saleOutAccountId: 'sale-out-account-id',
+        saleCostAccountId: 'sale-cost-account-id',
+        saleOutAccountCode: '201001',
+        saleCostAccountCode: '701001',
+      }),
+    );
+
+    expect(
+      resolveErkhetTransactionVatRowIdForTest(transaction, {
+        accountsByCode: {},
+        vatRowsByNumber: { '36': 'vat-row-id' },
+        ctaxRowsByNumber: {},
+        branchesByCode: {},
+        departmentsByCode: {},
+        customersByCode: {},
+        productsByCode: {},
+        fixedAssetCategoriesByCode: {},
+        fixedAssetsByCode: {},
+        usersByRef: {},
+      }),
+    ).toBe('vat-row-id');
+  });
+});
+
 describe('Erkhet migration fixed asset owner records', () => {
   const maps = {
     accountsByCode: {},
+    vatRowsByNumber: {},
+    ctaxRowsByNumber: {},
     branchesByCode: {},
     departmentsByCode: {},
     customersByCode: {},

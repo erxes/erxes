@@ -157,6 +157,12 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-18` — `Inventory Sale Edit Preservation`
+
+- **Summary:** Inventory sale and return edit forms preserve persisted unit prices, amounts, and VAT/CTAX state until the user selects a different product.
+- **Affected areas:** Inventory sale row effects and transaction default values.
+- **Contracts changed:** None.
+
 ### `2026-09-18` — `Mapped Journal Report Filters`
 
 - **Summary:** The journal report form now separates related filters with unobtrusive dividers and uses one report map to expose only applicable customer/company tags, product/fixed-asset categories and searches, and created/modified/assigned user filters.

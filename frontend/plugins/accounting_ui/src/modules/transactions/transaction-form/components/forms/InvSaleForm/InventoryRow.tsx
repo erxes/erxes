@@ -313,7 +313,11 @@ export const InventoryRow = ({
   };
 
   useEffect(() => {
-    if (loadingSelectedProductUnitPrice || !detail.productId) {
+    if (
+      loadingSelectedProductUnitPrice ||
+      !detail.productId ||
+      (initProductId.current && detail.productId === initProductId.current)
+    ) {
       return;
     }
 
