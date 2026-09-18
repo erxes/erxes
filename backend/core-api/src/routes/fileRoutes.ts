@@ -141,10 +141,17 @@ router.get(
         const contentType = mimeTypes[extension] || `application/${extension}`;
 
         const sanitizedFileName = sanitizeFilename(name || sanitizedKey);
+        // HTTP headers need ASCII; filename* preserves the Unicode name.
+        const asciiFileName = sanitizedFileName.replace(/[^\x20-\x7e]/g, '_');
+        const encodedFileName = encodeURIComponent(sanitizedFileName).replace(
+          /['()*]/g,
+          (character) =>
+            `%${character.charCodeAt(0).toString(16).toUpperCase()}`,
+        );
 
         res.setHeader(
           'Content-Disposition',
-          `inline; filename="${sanitizedFileName}"`,
+          `inline; filename="${asciiFileName}"; filename*=UTF-8''${encodedFileName}`,
         );
         res.setHeader('Content-Type', contentType);
 
