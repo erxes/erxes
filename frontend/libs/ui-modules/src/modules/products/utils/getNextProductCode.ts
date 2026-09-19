@@ -8,7 +8,7 @@ export const getNextProductCode = (code?: string | null): string => {
   const numericSuffix = code.match(NUMERIC_SUFFIX_PATTERN)?.[0];
 
   if (numericSuffix) {
-    const nextSuffix = (BigInt(numericSuffix) + 1n)
+    const nextSuffix = (BigInt(numericSuffix) + BigInt(1))
       .toString()
       .padStart(numericSuffix.length, '0');
 

@@ -119,6 +119,7 @@ export const TR_SIDES = {
 export const INV_INCOME_EXPENSE_TYPES = [
   { value: 'amount', label: 'Дүн' },
   { value: 'count', label: 'Тоо' },
+  { value: 'weight', label: 'Жин' },
 ];
 
 export const TR_STATUSES = {

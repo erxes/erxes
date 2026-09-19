@@ -6,7 +6,7 @@
 - **Project:** `accounting_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/accounting_ui`
-- **Last synchronized:** `2026-09-18`
+- **Last synchronized:** `2026-09-19`
 
 ## Scope
 
@@ -36,6 +36,7 @@
 - Fund and debt rate adjustment detail account balance grids, plus fund linked transaction rows, render with `RecordTable` instead of raw HTML tables.
 - Closing adjustment list renders account fields inline, and detail can calculate temporary-account balances grouped by branch/department, show validation state, render read-only branch/department code-title labels plus account inline names, edit tax percentage per row in collapsible `RecordTable` groups, show generated transactions in a `TBalance`-style transactions tab, run closing transactions, publish, cancel, and show tax impact.
 - Inventory transaction rows fill prices from product master, current inventory cost, or last completed inventory income price depending on journal behavior.
+- Inventory income can allocate additional expenses by amount, count, or editable total line weight; line weight initializes from core product weight multiplied by count.
 - Fixed asset income, out, move, and sale transaction rows can toggle detailed view to edit branch and department per detail.
 - Transaction balance rows display branch and department from each transaction detail when present, so generated follow rows with source/destination locations are shown at their row location instead of the root transaction location.
 - Fixed asset income rows capture acquisition category, code, name, count, unit cost, tax settings, and optional detail-level branch/department values; code and name are editable inline table cells that participate in transaction-form keyboard navigation, and the backend creates the fixed asset from the saved detail.
@@ -101,6 +102,7 @@
 
 - Apollo Client owns server state, mutation refreshes, subscriptions, and detail/list cache updates.
 - React Hook Form owns editable accounting transaction and adjustment form state.
+- Inventory income detail form state stores total line weight; product or count changes recalculate it from core product weight, while direct weight edits persist until either source changes.
 - Jotai atoms under `src/modules/transactions/transaction-form/states` hold transaction form UI state, tax percentages, follow transactions, and rendering selections.
 - URL query state owns selected detail ids and account table filters where existing accounting patterns use query params.
 - Rate adjustment detail subscriptions replace the loaded detail with the published calculated detail payload.
@@ -120,6 +122,7 @@
 - Account currency create/edit, inline edit, and filter selectors must use the same system `dealCurrency` options.
 - Currency amount inputs display rounded values by default but expose configured edit precision while focused.
 - Transaction currency amount synchronization must react to manual amount-field changes and avoid hook cycles.
+- Inventory income weight allocation must use persisted detail total weight; missing core product weight defaults to one per item, and manual detail weight remains unchanged until product or count changes.
 - Fixed asset income detail state must preserve `fixedAssetCategoryId`, `fixedAssetCode`, and `fixedAssetName` through save/refetch so generated fixed assets remain editable from their source transaction detail.
 - Fixed asset income code and name cells must use the same `PopoverScoped` plus `RecordTableInlineCell` pattern as numeric inline cells so shortcut navigation can focus and edit them.
 - Fixed asset detail tables must tolerate an uninitialized `details` watch value during create-route bootstrap and render with an empty array until form defaults arrive.
@@ -156,6 +159,12 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-19` — `Inventory Income Weight Allocation`
+
+- **Summary:** Inventory income can allocate additional expenses by editable total line weight calculated from product weight and count.
+- **Affected areas:** Inventory income expense rules, detail state, advanced table columns, product lookup, and allocation calculation.
+- **Contracts changed:** Consumes optional core product `weight` and accounting transaction detail `weight`.
 
 ### `2026-09-18` — `Transaction Delete Filter Return`
 
@@ -209,10 +218,4 @@
 
 - **Summary:** Safe remainder list page now runs the list query once and shares loading, count, and rows with the filter count badge and table.
 - **Affected areas:** `src/pages/inventories/SafeRemaindersPage.tsx`, `src/modules/inventories/safeRemainders/components/SafeRemainderTable.tsx`, `src/modules/inventories/safeRemainders/components/SafeRemaindersTotalCount.tsx`.
-- **Contracts changed:** None.
-
-### `2026-09-09` — `Safe Remainder Delete Hook Fix`
-
-- **Summary:** Safe remainder deletion now reads list filter variables at hook initialization instead of calling a query-state hook from the delete click handler.
-- **Affected areas:** `src/modules/inventories/safeRemainders/hooks/useSafeRemainderRemove.tsx`.
 - **Contracts changed:** None.

@@ -46,6 +46,7 @@ export const transactionDetailSchema = new Schema({
   productId: { type: String, optional: true, label: 'Product' },
   count: { type: Number, optional: true, label: 'Count' },
   unitPrice: { type: Number, optional: true, label: 'unitPrice' },
+  weight: { type: Number, optional: true, label: 'Weight' },
 
   fixedAssetId: { type: String, optional: true, label: 'Fixed asset' },
   fixedAssetCategoryId: {
