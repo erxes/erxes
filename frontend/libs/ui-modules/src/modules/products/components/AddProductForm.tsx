@@ -1,5 +1,4 @@
 import { MutationHookOptions } from '@apollo/client';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { IconChevronDown, IconPlus, IconTrash } from '@tabler/icons-react';
 import {
   Button,
@@ -30,6 +29,7 @@ import { PropertyFormField } from 'ui-modules/modules/properties/components/Prop
 import { IFieldGroup } from 'ui-modules/modules/properties/types/fieldsTypes';
 import { SelectCategory } from '../categories';
 import { PRODUCT_DURATION_TYPES } from '../constants/productTypes';
+import { useProductLastCodeByCategory } from '../hooks/useProducts';
 import { useAddProduct } from '../hooks/useProductsAdd';
 import { IProductFormValues } from '../types';
 import {
@@ -45,6 +45,7 @@ import {
   ProductVideosUpload,
 } from './ProductVideoUploads';
 import { SelectProductType } from './SelectProductType';
+import { SuggestedProductCodeInput } from './SuggestedProductCodeInput';
 import { SelectUOMWithName } from './SelectUOMWithName';
 import { SubUomRow, type SubUomItem } from './SubUomRow';
 
@@ -96,7 +97,10 @@ export function AddProductForm({
         value !== null
       ) {
         const customFieldsObj = Object.entries(value)
-          .filter(([_, val]) => val !== undefined && val !== null && val !== '')
+          .filter((entry) => {
+            const val = entry[1];
+            return val !== undefined && val !== null && val !== '';
+          })
           .reduce(
             (acc, [fieldId, val]) => {
               acc[fieldId] = val;
@@ -117,8 +121,9 @@ export function AddProductForm({
 
       if (key === 'subUoms' && Array.isArray(value)) {
         cleanData[key] = value.map((subUom: SubUomItem) => {
-          const { _id, ...rest } = subUom;
-          return { ...rest };
+          const rest = { ...subUom };
+          delete rest._id;
+          return rest;
         });
         return;
       }
@@ -240,9 +245,8 @@ export function AddProductForm({
                     <IconChevronDown
                       size={12}
                       strokeWidth={2}
-                      className={`transition-transform ${
-                        showMoreInfo ? 'rotate-180' : ''
-                      }`}
+                      className={`transition-transform ${showMoreInfo ? 'rotate-180' : ''
+                        }`}
                     />
                   </Button>
                 </Collapsible.Trigger>
@@ -296,9 +300,8 @@ export function AddProductForm({
                     <IconChevronDown
                       size={12}
                       strokeWidth={2}
-                      className={`transition-transform ${
-                        showMoreInfo ? 'rotate-180' : ''
-                      }`}
+                      className={`transition-transform ${showMoreInfo ? 'rotate-180' : ''
+                        }`}
                     />
                   </Button>
                 </Collapsible.Trigger>
@@ -329,9 +332,9 @@ function BarcodeManager({ form }: { form: UseFormReturn<IProductFormValues> }) {
   const availableImages = useMemo(() => {
     return Array.isArray(attachmentMore)
       ? attachmentMore.filter(
-          (x): x is AttachmentItem =>
-            x != null && typeof x === 'object' && 'url' in x,
-        )
+        (x): x is AttachmentItem =>
+          x != null && typeof x === 'object' && 'url' in x,
+      )
       : [];
   }, [attachmentMore]);
 
@@ -613,6 +616,11 @@ function AddProductFormFieldsDetail({
 }) {
   const { t } = useTranslation('product', { keyPrefix: 'add' });
   const productType = form.watch('type');
+  const categoryId = form.watch('categoryId');
+  const code = form.watch('code');
+  const { suggestedCode } = useProductLastCodeByCategory(
+    code?.trim() ? undefined : categoryId,
+  );
 
   return (
     <div className={showExtended ? 'grid gap-4 lg:grid-cols-5' : ''}>
@@ -622,14 +630,19 @@ function AddProductFormFieldsDetail({
             <div className="grid grid-cols-2 gap-4">
               <Form.Field
                 control={form.control}
-                name="name"
+                name="categoryId"
                 render={({ field }) => (
                   <Form.Item>
                     <Form.Label>
-                      {t('name')} <span className="text-destructive">*</span>
+                      {t('category')}{' '}
+                      <span className="text-destructive">*</span>
                     </Form.Label>
                     <Form.Control>
-                      <Input {...field} />
+                      <SelectCategory
+                        value={field.value}
+                        onSelect={field.onChange}
+                        mode="single"
+                      />
                     </Form.Control>
                     <Form.Message />
                   </Form.Item>
@@ -642,6 +655,30 @@ function AddProductFormFieldsDetail({
                   <Form.Item>
                     <Form.Label>
                       {t('code')} <span className="text-destructive">*</span>
+                    </Form.Label>
+                    <Form.Control>
+                      <SuggestedProductCodeInput
+                        {...field}
+                        suggestedCode={suggestedCode}
+                        onUseSuggestion={() =>
+                          form.setValue('code', suggestedCode, {
+                            shouldDirty: true,
+                            shouldValidate: true,
+                          })
+                        }
+                      />
+                    </Form.Control>
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
+              <Form.Field
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>
+                      {t('name')} <span className="text-destructive">*</span>
                     </Form.Label>
                     <Form.Control>
                       <Input {...field} />
@@ -674,26 +711,6 @@ function AddProductFormFieldsDetail({
                       onValueChange={field.onChange}
                       inForm
                     />
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-              <Form.Field
-                control={form.control}
-                name="categoryId"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>
-                      {t('category')}{' '}
-                      <span className="text-destructive">*</span>
-                    </Form.Label>
-                    <Form.Control>
-                      <SelectCategory
-                        value={field.value}
-                        onSelect={field.onChange}
-                        mode="single"
-                      />
-                    </Form.Control>
                     <Form.Message />
                   </Form.Item>
                 )}

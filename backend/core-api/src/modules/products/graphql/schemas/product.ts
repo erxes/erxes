@@ -129,6 +129,7 @@ export const queries = `
   ): [Product]
   productsTotalCount(${queryParams}): Int
   productDetail(_id: String): Product
+  productLastCodeByCategory(categoryId: String): String
   productSimilarities(_id: String!, groupedSimilarity: String): ProductSimilarity
   productCountByTags: JSON
 
