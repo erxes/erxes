@@ -49,8 +49,8 @@
 - Exposes inventory cost and last completed inventory income price helpers used by accounting transaction forms.
 - Inventory income transaction details persist total line weight so additional expenses can be allocated by amount, count, or weight.
 - Recalculates inventory adjustment outgoing costs by product, account, and effective branch/department location using detail-level branch/department before falling back to transaction root location, caches daily cost state, and keeps related main, receivable, and payable debit journal amounts aligned while preserving explicit cash/bank debit amounts.
-- Accepts migration-only Erkhet reference batches at `/pl:accounting/migration/erkhet/references`; the route upserts core product categories/products, creates missing active worker users by unique email, skips existing user emails, upserts Mongolian exchange rates by date/currency and fails if create does not return a saved id, and upserts accounting fixed asset categories by source code before transactions are imported, while actual fixed asset rows are generated from `fxaIncome` transaction details.
-- Accepts migration-only Erkhet transaction batches at `/pl:accounting/migration/erkhet/transactions`; the route trims and resolves source codes, syncs missing contacts, resolves inventory sale, movement, currency-difference, and fixed-asset follow-account/location codes by journal, resolves fixed asset category/acquisition inputs and owner-record payloads, skips only owner-record allocation rows whose responsible user was not synced, nets fixed-asset opening balance `main` rows by accumulated depreciation, resolves owner movements by fixed asset plus owner balance when Erkhet omits explicit owner rows, rejects missing non-owner references, and delegates the supplied transaction documents to `createPTransaction` or `updatePTransaction`.
+- Accepts migration-only Erkhet reference batches at `/pl:accounting/migration/erkhet/references`; the route upserts core product categories/products including short name, weight, and sub-unit ratios, creates missing active worker users by unique email, skips existing user emails, upserts Mongolian exchange rates by date/currency and fails if create does not return a saved id, and upserts accounting fixed asset categories by source code before transactions are imported, while actual fixed asset rows are generated from `fxaIncome` transaction details.
+- Accepts migration-only Erkhet transaction batches at `/pl:accounting/migration/erkhet/transactions`; the route trims and resolves source codes, syncs missing contacts, resolves inventory income expense account codes and preserves amount/count/weight allocation rules, resolves inventory sale, movement, currency-difference, and fixed-asset follow-account/location codes by journal, resolves fixed asset category/acquisition inputs and owner-record payloads, skips only owner-record allocation rows whose responsible user was not synced, nets fixed-asset opening balance `main` rows by accumulated depreciation, resolves owner movements by fixed asset plus owner balance when Erkhet omits explicit owner rows, rejects missing non-owner references, and delegates the supplied transaction documents to `createPTransaction` or `updatePTransaction`.
 - Erkhet fixed asset move migration may send `followInfos.fxaDisposalSummaries` with detail-level accumulated depreciation amounts; fixed asset move follow creation uses those summaries before falling back to adjustment-cache depreciation.
 
 ## Architecture
@@ -141,6 +141,7 @@
 - Erkhet currency transaction migration must resolve detail-level `followInfos.currencyDiffAccountId` from an account code before invoking currency adjustment handlers.
 - Currency transaction handlers must fail with an explicit missing-rate error instead of calculating NaN; required rates are bootstrapped through reference migration before transaction import.
 - Erkhet reference migration is the only product, worker-user, exchange-rate, and fixed-asset category bootstrap path; transaction migration must not create products, users, exchange rates, or fixed asset categories and must strip obsolete detail follow-info keys before persistence.
+- Erkhet product reference sync must preserve optional short name and weight plus map the source sub-measure and ratio into `subUoms`; inventory income transaction sync must resolve every attached expense account code while preserving detail total weight and `amount`, `count`, or `weight` allocation rules.
 - Erkhet fixed asset category `dep_year` means annual depreciation percentage and must be sent to `/pl:accounting/migration/erkhet/references` as `defaultAnnualDepreciationRate`, never as useful life.
 - Inventory price lookup must use completed business-active inventory income transactions and default missing product prices to `0`.
 - Safe remainder item `preCount` must return `0` and `diffType` filters must be ignored for users without `viewSafeRemainderItemCounts` so they cannot compare the system inventory balance with counted inventory.
@@ -182,6 +183,12 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-19` — `Erkhet Inventory Weight Sync`
+
+- **Summary:** Erkhet reference sync now imports product short name, weight, and sub-unit ratios, while inventory income sync preserves detail weight and resolves attached-expense account codes for amount, count, or weight allocation.
+- **Affected areas:** `src/modules/accounting/routes/erkhetReferenceMigration.ts`, `src/modules/accounting/routes/erkhetMigration.ts`, and migration tests.
+- **Contracts changed:** Erkhet product reference payloads accept optional `shortName`, `weight`, and `subUoms`; inventory income transaction payloads accept detail `weight` and `extraData.invIncomeExpenses` allocation metadata.
 
 ### `2026-09-19` — `Inventory Income Weight Allocation`
 

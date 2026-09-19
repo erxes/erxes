@@ -72,6 +72,14 @@ type TErkhetContact = {
   email?: string;
 };
 
+type TInvIncomeExpense = {
+  _id?: string;
+  title?: string;
+  rule?: 'amount' | 'count' | 'weight';
+  amount?: number;
+  accountId?: string;
+};
+
 type TContactResolution = {
   type?: string;
   _id?: string;
@@ -156,6 +164,14 @@ const getCodeMap = (docs: ITransaction[]) => {
     }
     if (doc.customerId) {
       customerCodes.push(normalizeSourceCode(doc.customerId));
+    }
+
+    const invIncomeExpenses =
+      (doc.extraData?.invIncomeExpenses as TInvIncomeExpense[]) || [];
+    for (const expense of invIncomeExpenses) {
+      if (expense.accountId) {
+        accountCodes.push(normalizeSourceCode(expense.accountId));
+      }
     }
 
     const moveInBranchId = doc.followInfos?.moveInBranchId;
@@ -268,6 +284,27 @@ const getCodeMap = (docs: ITransaction[]) => {
 };
 
 export const getErkhetTransactionCodeMapForTest = getCodeMap;
+
+const resolveInvIncomeExpenses = (
+  expenses: TInvIncomeExpense[] = [],
+  maps: TReferenceMaps,
+) =>
+  expenses.map((expense) => {
+    const accountCode = normalizeSourceCode(expense.accountId);
+
+    if (accountCode && !maps.accountsByCode[accountCode]) {
+      throw new Error(`Account not found: ${accountCode}`);
+    }
+
+    return {
+      ...expense,
+      accountId: accountCode
+        ? maps.accountsByCode[accountCode]
+        : expense.accountId,
+    };
+  });
+
+export const resolveErkhetInvIncomeExpensesForTest = resolveInvIncomeExpenses;
 
 const indexByCode = <T extends { _id: string; code?: string }>(
   items: T[] = [],
@@ -759,13 +796,13 @@ const resolveFxaOwnerRecords = (
         ownerId: ownerRef
           ? maps.usersByRef[ownerRef]
           : responsibleUserRef
-            ? maps.usersByRef[responsibleUserRef]
-            : ownerRecord.ownerId || ownerRecord.responsibleUserId,
+          ? maps.usersByRef[responsibleUserRef]
+          : ownerRecord.ownerId || ownerRecord.responsibleUserId,
         sourceOwnerId: sourceOwnerRef
           ? maps.usersByRef[sourceOwnerRef]
           : sourceResponsibleUserRef
-            ? maps.usersByRef[sourceResponsibleUserRef]
-            : ownerRecord.sourceOwnerId || ownerRecord.sourceResponsibleUserId,
+          ? maps.usersByRef[sourceResponsibleUserRef]
+          : ownerRecord.sourceOwnerId || ownerRecord.sourceResponsibleUserId,
         sourceResponsibleUserId: sourceResponsibleUserRef
           ? maps.usersByRef[sourceResponsibleUserRef]
           : undefined,
@@ -840,8 +877,8 @@ const resolveOwnerRecordSources = async (
             candidate.action === FXA_OWNER_RECORD_ACTIONS.RECEIVED
               ? 1
               : candidate.action === FXA_OWNER_RECORD_ACTIONS.HANDED_OVER
-                ? -1
-                : 0;
+              ? -1
+              : 0;
 
           result[candidateOwnerId] =
             (result[candidateOwnerId] || 0) +
@@ -1136,8 +1173,8 @@ const getNumericFollowInfo = (
     typeof value === 'number'
       ? value
       : typeof value === 'string'
-        ? Number(value)
-        : NaN;
+      ? Number(value)
+      : NaN;
 
   return Number.isFinite(numberValue) ? numberValue : undefined;
 };
@@ -1265,6 +1302,8 @@ const normalizeBatchDocs = async (
         (doc.extraData?.fxaOwnerRecords as TFxaOwnerRecordMigrationInput[]) ||
         [];
       const extraData = { ...doc.extraData };
+      const invIncomeExpenses =
+        (doc.extraData?.invIncomeExpenses as TInvIncomeExpense[]) || [];
 
       if (
         customerCode &&
@@ -1304,6 +1343,7 @@ const normalizeBatchDocs = async (
         contentId: doc.contentId || batch.externalPtrId,
         extraData: {
           ...extraData,
+          invIncomeExpenses: resolveInvIncomeExpenses(invIncomeExpenses, maps),
           fxaOwnerRecords: resolveFxaOwnerRecords(fxaOwnerRecords, maps),
           migrationSource: 'erkhet',
           externalPtrId: batch.externalPtrId,
