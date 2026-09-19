@@ -1,7 +1,6 @@
 import {
   DefaultInlineContentSchema,
   DefaultStyleSchema,
-  BlockNoteEditor,
 } from '@blocknote/core';
 import {
   createReactBlockSpec,
@@ -19,6 +18,7 @@ import { FC, useRef, useState } from 'react';
 import { cn } from 'erxes-ui/lib';
 import { readImage } from 'erxes-ui/utils';
 import { Button, Dialog, Spinner } from 'erxes-ui/components';
+import { useToast } from 'erxes-ui/hooks';
 
 export interface GalleryImage {
   url: string;
@@ -38,7 +38,6 @@ const galleryBlockConfig = {
     },
   },
   content: 'none' as const,
-  isFileBlock: false,
 };
 
 type GalleryRenderProps = ReactCustomBlockRenderProps<
@@ -77,13 +76,7 @@ const GalleryItem: FC<{
           variant="ghost"
           aria-label="Preview image"
           className="h-full w-full p-0 rounded-none"
-          onDoubleClick={() => setPreviewOpen(true)}
-          onKeyDown={(event) => {
-            if (event.key === 'Enter' || event.key === ' ') {
-              event.preventDefault();
-              setPreviewOpen(true);
-            }
-          }}
+          onClick={() => setPreviewOpen(true)}
         >
           <img
             src={src}
@@ -133,27 +126,44 @@ const GalleryItem: FC<{
 
 const GalleryBlockContent: FC<GalleryRenderProps> = ({ block, editor }) => {
   const [uploading, setUploading] = useState(false);
+  const { toast } = useToast();
   const inputRef = useRef<HTMLInputElement>(null);
 
   const images = parseImages(block.props.images);
   const columns = Math.max(2, Math.min(4, parseInt(block.props.columns) || 3));
-  const readonly = !(editor as BlockNoteEditor).isEditable;
-  const canUpload = !!(editor as BlockNoteEditor).uploadFile;
+  const readonly = !editor.isEditable;
+  const uploadFile = editor.uploadFile;
+  const canUpload = !!uploadFile;
 
   const updateBlock = (patch: Partial<typeof block.props>) => {
-    (editor as BlockNoteEditor).updateBlock(block, { props: patch });
+    editor.updateBlock(block, { props: patch });
   };
 
   const handleFiles = async (files: FileList | null) => {
-    if (!files?.length || !canUpload) return;
+    if (!files?.length || !uploadFile) return;
     setUploading(true);
     try {
       const uploaded = await Promise.all(
-        Array.from(files).map((f) =>
-          (editor as BlockNoteEditor).uploadFile!(f).then((url) => ({ url })),
-        ),
+        Array.from(files).map(async (file) => {
+          const uploadedFile = await uploadFile(file);
+          const url =
+            typeof uploadedFile === 'string'
+              ? uploadedFile
+              : uploadedFile.props?.url;
+          if (typeof url !== 'string' || !url) {
+            throw new Error(`Failed to upload ${file.name}`);
+          }
+          return { url };
+        }),
       );
       updateBlock({ images: JSON.stringify([...images, ...uploaded]) });
+    } catch (error) {
+      toast({
+        title: 'Failed to upload gallery images',
+        description:
+          error instanceof Error ? error.message : 'Please try again.',
+        variant: 'destructive',
+      });
     } finally {
       setUploading(false);
       if (inputRef.current) inputRef.current.value = '';
