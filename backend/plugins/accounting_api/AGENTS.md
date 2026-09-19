@@ -6,7 +6,7 @@
 - **Project:** `accounting_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/accounting_api`
-- **Last synchronized:** `2026-09-17`
+- **Last synchronized:** `2026-09-19`
 
 ## Scope
 
@@ -47,9 +47,10 @@
 - Publishes fund and debt adjustment subscription updates after calculation so detail screens can refresh without manual reloads.
 - Currency transactions compare custom rates with the active exchange rate, create exchange-difference follow transactions only when rates differ, and fail clearly when the active rate is missing.
 - Exposes inventory cost and last completed inventory income price helpers used by accounting transaction forms.
+- Inventory income transaction details persist total line weight so additional expenses can be allocated by amount, count, or weight.
 - Recalculates inventory adjustment outgoing costs by product, account, and effective branch/department location using detail-level branch/department before falling back to transaction root location, caches daily cost state, and keeps related main, receivable, and payable debit journal amounts aligned while preserving explicit cash/bank debit amounts.
-- Accepts migration-only Erkhet reference batches at `/pl:accounting/migration/erkhet/references`; the route upserts core product categories/products, creates missing active worker users by unique email, skips existing user emails, upserts Mongolian exchange rates by date/currency and fails if create does not return a saved id, and upserts accounting fixed asset categories by source code before transactions are imported, while actual fixed asset rows are generated from `fxaIncome` transaction details.
-- Accepts migration-only Erkhet transaction batches at `/pl:accounting/migration/erkhet/transactions`; the route trims and resolves source codes, syncs missing contacts, resolves inventory sale, movement, currency-difference, and fixed-asset follow-account/location codes by journal, resolves fixed asset category/acquisition inputs and owner-record payloads, skips only owner-record allocation rows whose responsible user was not synced, nets fixed-asset opening balance `main` rows by accumulated depreciation, resolves owner movements by fixed asset plus owner balance when Erkhet omits explicit owner rows, rejects missing non-owner references, and delegates the supplied transaction documents to `createPTransaction` or `updatePTransaction`.
+- Accepts migration-only Erkhet reference batches at `/pl:accounting/migration/erkhet/references`; the route upserts core product categories/products including short name, weight, and sub-unit ratios, creates missing active worker users by unique email, skips existing user emails, upserts Mongolian exchange rates by date/currency and fails if create does not return a saved id, and upserts accounting fixed asset categories by source code before transactions are imported, while actual fixed asset rows are generated from `fxaIncome` transaction details.
+- Accepts migration-only Erkhet transaction batches at `/pl:accounting/migration/erkhet/transactions`; the route trims and resolves source codes, syncs missing contacts, resolves inventory income expense account codes and preserves amount/count/weight allocation rules, resolves inventory sale, movement, currency-difference, and fixed-asset follow-account/location codes by journal, resolves fixed asset category/acquisition inputs and owner-record payloads, skips only owner-record allocation rows whose responsible user was not synced, nets fixed-asset opening balance `main` rows by accumulated depreciation, resolves owner movements by fixed asset plus owner balance when Erkhet omits explicit owner rows, rejects missing non-owner references, and delegates the supplied transaction documents to `createPTransaction` or `updatePTransaction`.
 - Erkhet fixed asset move migration may send `followInfos.fxaDisposalSummaries` with detail-level accumulated depreciation amounts; fixed asset move follow creation uses those summaries before falling back to adjustment-cache depreciation.
 
 ## Architecture
@@ -106,6 +107,7 @@
 - Rate adjustment transaction execution creates linked `exchangeDiff` parent/child transactions, stores transaction ids on the adjustment/details, and marks status `complete`.
 - Closing calculation stores `status: "process"`, `beginDate`, `successDate`, `checkedAt`, grouped details, `error`, and `warning`; transaction execution creates linked `main` journal parent/child transactions and marks status `complete`.
 - Accounting transaction documents store journal, side, date, status, details, branch/department/customer context, parent transaction linkage, and plugin-specific `extraData`.
+- Inventory transaction details may store an editable `weight` total used as the allocation basis for inventory income expenses.
 - Accounting transaction indexes focus on journal, detail account, date-range, and cursor sort paths for transaction lists; journal reports prefilter indexed detail fields before unwind and keep exact detail matching after unwind.
 - Journal reports do not persist state; they aggregate tenant-scoped transaction documents and enrich rows from accounting accounts, fixed assets, and core branch, department, customer, product, user, and synced-content public contracts.
 - Fixed asset category, fixed asset, fixed asset owner record, fixed asset adjustment, inventory remainder, reserve remainder, tax, and accounting setting collections remain owned by this plugin.
@@ -139,6 +141,7 @@
 - Erkhet currency transaction migration must resolve detail-level `followInfos.currencyDiffAccountId` from an account code before invoking currency adjustment handlers.
 - Currency transaction handlers must fail with an explicit missing-rate error instead of calculating NaN; required rates are bootstrapped through reference migration before transaction import.
 - Erkhet reference migration is the only product, worker-user, exchange-rate, and fixed-asset category bootstrap path; transaction migration must not create products, users, exchange rates, or fixed asset categories and must strip obsolete detail follow-info keys before persistence.
+- Erkhet product reference sync must preserve optional short name and weight plus map the source sub-measure and ratio into `subUoms`; inventory income transaction sync must resolve every attached expense account code while preserving detail total weight and `amount`, `count`, or `weight` allocation rules.
 - Erkhet fixed asset category `dep_year` means annual depreciation percentage and must be sent to `/pl:accounting/migration/erkhet/references` as `defaultAnnualDepreciationRate`, never as useful life.
 - Inventory price lookup must use completed business-active inventory income transactions and default missing product prices to `0`.
 - Safe remainder item `preCount` must return `0` and `diffType` filters must be ignored for users without `viewSafeRemainderItemCounts` so they cannot compare the system inventory balance with counted inventory.
@@ -180,6 +183,18 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-19` — `Erkhet Inventory Weight Sync`
+
+- **Summary:** Erkhet reference sync now imports product short name, weight, and sub-unit ratios, while inventory income sync preserves detail weight and resolves attached-expense account codes for amount, count, or weight allocation.
+- **Affected areas:** `src/modules/accounting/routes/erkhetReferenceMigration.ts`, `src/modules/accounting/routes/erkhetMigration.ts`, and migration tests.
+- **Contracts changed:** Erkhet product reference payloads accept optional `shortName`, `weight`, and `subUoms`; inventory income transaction payloads accept detail `weight` and `extraData.invIncomeExpenses` allocation metadata.
+
+### `2026-09-19` — `Inventory Income Weight Allocation`
+
+- **Summary:** Inventory transaction details now persist total weight for weight-proportional inventory income expense allocation.
+- **Affected areas:** Transaction detail schema, types, and GraphQL contracts.
+- **Contracts changed:** `AccTrDetail` and `CommonTrDetailInput` expose optional `weight: Float`.
 
 ### `2026-09-18` — `Erkhet Transaction Tax Metadata`
 

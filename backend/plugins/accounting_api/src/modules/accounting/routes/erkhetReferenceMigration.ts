@@ -19,9 +19,15 @@ type TErkhetProduct = {
   code?: string;
   sourceCode?: string;
   name?: string;
+  shortName?: string;
   categoryCode?: string;
   uom?: string;
+  subUoms?: Array<{
+    uom: string;
+    ratio: number;
+  }>;
   unitPrice?: number;
+  weight?: number;
   barcodes?: string[];
 };
 
@@ -322,9 +328,12 @@ const syncProducts = async ({
       const doc = cleanDoc({
         code,
         name: product.name,
+        shortName: product.shortName,
         categoryId,
         uom: product.uom,
+        subUoms: product.subUoms || [],
         unitPrice: product.unitPrice,
+        weight: product.weight,
         barcodes: product.barcodes || [],
         type: 'product',
         status: 'active',

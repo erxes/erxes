@@ -38,6 +38,7 @@ export const commonTrDetailFields = `
   fixedAssetName
   count
   unitPrice
+  weight
 
   excludeVat
   excludeCtax

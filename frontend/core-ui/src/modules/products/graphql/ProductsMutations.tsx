@@ -11,6 +11,7 @@ const productsAdd = gql`
     $variants: JSON
     $barcodeDescription: String
     $unitPrice: Float
+    $weight: Float
     $code: String
     $propertiesData: JSON
     $attachment: AttachmentInput
@@ -34,6 +35,7 @@ const productsAdd = gql`
       variants: $variants
       barcodeDescription: $barcodeDescription
       unitPrice: $unitPrice
+      weight: $weight
       code: $code
       propertiesData: $propertiesData
       attachment: $attachment
@@ -61,6 +63,7 @@ const productsAdd = gql`
       shortName
       uom
       unitPrice
+      weight
       type
       duration
       durationType
@@ -122,6 +125,7 @@ const productsEdit = gql`
     $type: String
     $description: String
     $unitPrice: Float
+    $weight: Float
     $code: String
     $propertiesData: JSON
     $vendorId: String
@@ -146,6 +150,7 @@ const productsEdit = gql`
       type: $type
       description: $description
       unitPrice: $unitPrice
+      weight: $weight
       code: $code
       propertiesData: $propertiesData
       vendorId: $vendorId
@@ -173,6 +178,7 @@ const productsEdit = gql`
       status
       description
       unitPrice
+      weight
       duration
       durationType
       barcodes

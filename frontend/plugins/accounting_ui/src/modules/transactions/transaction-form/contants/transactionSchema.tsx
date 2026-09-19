@@ -58,6 +58,7 @@ export const baseTrDetailSchema = z.object({
   fixedAssetName: undefed(z.string()),
   count: undefed(z.number()),
   unitPrice: undefed(z.number()),
+  weight: undefed(z.number().min(0)),
 
   checked: undefed(z.boolean()),
   account: undefed(z.object({ ...accountSchema.shape })),
