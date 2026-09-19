@@ -45,6 +45,7 @@ export const productSchema = schemaWrapper(
       },
       description: { type: String, optional: true, label: 'Description' },
       unitPrice: { type: Number, optional: true, label: 'Unit price' },
+      weight: { type: Number, optional: true, label: 'Weight' },
       customFieldsData: {
         type: [customFieldSchema],
         optional: true,

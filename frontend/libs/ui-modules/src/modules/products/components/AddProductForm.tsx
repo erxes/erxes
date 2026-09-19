@@ -734,6 +734,21 @@ function AddProductFormFieldsDetail({
                   </Form.Item>
                 )}
               />
+              {showExtended && (
+                <Form.Field
+                  control={form.control}
+                  name="weight"
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>{t('weight', 'Weight')}</Form.Label>
+                      <Form.Control>
+                        <NumberInput {...field} />
+                      </Form.Control>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+              )}
               {productType === 'unique' && (
                 <>
                   <Form.Field

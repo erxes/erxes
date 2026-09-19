@@ -121,6 +121,17 @@ export const ProductDetailGeneral = () => {
               </div>
             )}
           />
+          <Form.Field
+            control={form.control}
+            name="weight"
+            render={({ field }) => (
+              <div className="space-y-2">
+                <Label>{t('weight', 'Weight')}</Label>
+                <NumberInput {...field} />
+                <Form.Message />
+              </div>
+            )}
+          />
           {productType === 'unique' && (
             <>
               <Form.Field

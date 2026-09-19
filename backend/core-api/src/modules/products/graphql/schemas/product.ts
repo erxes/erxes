@@ -23,6 +23,7 @@ export const types = `
     variants: JSON
     barcodeDescription: String
     unitPrice: Float
+    weight: Float
     categoryId: String
     propertiesData: JSON
     createdAt: Date
@@ -153,6 +154,7 @@ export const mutationParams = `
   variants: JSON,
   barcodeDescription: String,
   unitPrice: Float,
+  weight: Float,
   code: String,
   propertiesData: JSON
   attachment: AttachmentInput,
