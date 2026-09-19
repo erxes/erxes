@@ -14,9 +14,10 @@ import {
   messengerDataAtom,
   operatorStatusAtom,
   setConversationIdAtom,
+  widgetReplyToAtom,
 } from '../states';
 import { useChangeOperatorStatus } from '../hooks/useChangeOperatorStatus';
-import { Avatar, Button, readImage, Skeleton, cn } from 'erxes-ui';
+import { Avatar, Button, readImage, Skeleton, cn, toast } from 'erxes-ui';
 import { formatMessageDate, getDateKey } from '@libs/formatDate';
 import { DateSeparator } from './date-separator';
 import { TypingStatus } from './typing-status';
@@ -30,8 +31,13 @@ import {
 import { useMessenger } from '../hooks/useMessenger';
 import { CloseButton } from './CloseButton';
 import { useInsertMessage } from '../hooks/useInsertMessage';
-
-const MESSAGE_GROUP_TIME_WINDOW = 5 * 60 * 1000;
+import type { IAttachment } from '../types';
+import {
+  isBotMessage,
+  isCustomerJoined,
+  isOperatorMessage,
+  shouldGroupMessages,
+} from '../utils/messageGrouping';
 
 type Message = NonNullable<
   ReturnType<typeof useConversationDetail>['conversationDetail']
@@ -43,39 +49,6 @@ type MessageGroup = {
   messages: MessageWithAvatar[];
   firstMessage: Message;
 };
-
-function isOperatorMessage(message: Message): boolean {
-  return !message.customerId && !message.fromBot;
-}
-
-function isBotMessage(message: Message): boolean {
-  return Boolean(message.fromBot);
-}
-
-function isCustomerJoined(message: Message): boolean {
-  return (message.fromBot && message.botData === null) || false;
-}
-
-function shouldGroupMessages(
-  message: Message,
-  groupFirstMessage: Message,
-  timeDifference: number,
-): boolean {
-  if (timeDifference > MESSAGE_GROUP_TIME_WINDOW) return false;
-
-  const messageIsOperator = isOperatorMessage(message);
-  const groupIsOperator = isOperatorMessage(groupFirstMessage);
-
-  if (messageIsOperator && groupIsOperator) {
-    return message.userId === groupFirstMessage.userId;
-  }
-
-  if (!messageIsOperator && !groupIsOperator) {
-    return message.customerId === groupFirstMessage.customerId;
-  }
-
-  return false;
-}
 
 export const ConversationDetails = () => {
   const conversationId = useAtomValue(conversationIdAtom);
@@ -97,6 +70,92 @@ export const ConversationDetails = () => {
 
   const { insertMessage } = useInsertMessage();
   const setConversationId = useSetAtom(setConversationIdAtom);
+  const setReplyTo = useSetAtom(widgetReplyToAtom);
+
+  const extractMessageText = (
+    content?: string,
+    attachments?: IAttachment[],
+  ): string => {
+    if (content && content !== '<p></p>') {
+      const parsed = new DOMParser().parseFromString(content, 'text/html');
+      const text = (parsed.body.textContent || '').replace(/\s+/g, ' ').trim();
+      if (text) return text;
+    }
+
+    return (
+      attachments?.map(({ name }) => name || 'Attachment').join(', ') || ''
+    );
+  };
+
+  const extractBotText = (botData: unknown): string => {
+    if (!Array.isArray(botData)) return '';
+
+    return botData
+      .filter(
+        (item): item is Record<string, unknown> =>
+          typeof item === 'object' && item !== null,
+      )
+      .filter(({ type }) => type !== 'quickReplies' && type !== 'ticketForm')
+      .map(({ text, content }) =>
+        typeof text === 'string'
+          ? text
+          : typeof content === 'string'
+            ? content
+            : '',
+      )
+      .join('');
+  };
+
+  const handleReplyMessage = (
+    authorName: string,
+    content?: string,
+    attachments?: IAttachment[],
+  ) => {
+    setReplyTo({
+      authorName,
+      content: extractMessageText(content, attachments) || 'Attachment',
+    });
+  };
+
+  const handleCopyMessage = async (
+    content?: string,
+    attachments?: IAttachment[],
+  ) => {
+    const text = extractMessageText(content, attachments);
+
+    try {
+      if (!text) throw new Error('This message has no text to copy.');
+
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        const copied = document.execCommand('copy');
+        textarea.remove();
+        if (!copied) throw new Error('Clipboard access is unavailable.');
+      }
+
+      toast({ description: 'Message copied', variant: 'success' });
+    } catch (error) {
+      toast({
+        title: 'Could not copy message',
+        description:
+          error instanceof Error
+            ? error.message
+            : 'Select the message text and copy it manually.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  useEffect(() => {
+    setReplyTo(null);
+  }, [conversationId, setReplyTo]);
 
   const handleGetStarted = useCallback(() => {
     insertMessage({
@@ -298,6 +357,7 @@ export const ConversationDetails = () => {
           size="icon"
           onClick={goBack}
           className="text-primary-foreground rounded-2xl hover:bg-primary-foreground/10 size-8 shrink-0"
+          aria-label="Back to conversations"
         >
           <IconArrowLeft className="size-4" />
         </Button>
@@ -393,6 +453,8 @@ export const ConversationDetails = () => {
 
                     if (isBotMessage(message)) {
                       const isLastBot = message._id === lastBotMessageId;
+                      const botContent =
+                        extractBotText(message.botData) || message.content;
                       return (
                         <BotMessage
                           key={message._id}
@@ -410,12 +472,26 @@ export const ConversationDetails = () => {
                               ? handleTicketFormSubmit
                               : undefined
                           }
+                          onReply={() =>
+                            handleReplyMessage(
+                              aiAgentLabel || 'AI Agent',
+                              botContent,
+                              message.attachments,
+                            )
+                          }
+                          onCopy={() =>
+                            handleCopyMessage(botContent, message.attachments)
+                          }
                           {...messagePositionProps}
                         />
                       );
                     }
 
                     if (isOperatorMessage(message)) {
+                      const operatorName =
+                        message.user?.details?.fullName ||
+                        message.user?.details?.firstName ||
+                        'Operator';
                       return (
                         <OperatorMessage
                           key={message._id}
@@ -426,9 +502,19 @@ export const ConversationDetails = () => {
                           createdAt={new Date(message.createdAt)}
                           showAvatar={message.showAvatar}
                           attachments={message.attachments}
-                          userName={
-                            message.user?.details?.fullName ||
-                            message.user?.details?.firstName
+                          userName={operatorName}
+                          onReply={() =>
+                            handleReplyMessage(
+                              operatorName,
+                              message.content,
+                              message.attachments,
+                            )
+                          }
+                          onCopy={() =>
+                            handleCopyMessage(
+                              message.content,
+                              message.attachments,
+                            )
                           }
                           {...messagePositionProps}
                         />
@@ -441,6 +527,19 @@ export const ConversationDetails = () => {
                         content={message.content}
                         createdAt={new Date(message.createdAt)}
                         attachments={message.attachments}
+                        onReply={() =>
+                          handleReplyMessage(
+                            'You',
+                            message.content,
+                            message.attachments,
+                          )
+                        }
+                        onCopy={() =>
+                          handleCopyMessage(
+                            message.content,
+                            message.attachments,
+                          )
+                        }
                         {...messagePositionProps}
                       />
                     );
@@ -485,6 +584,7 @@ export const ConversationDetailsDropdown = () => {
     <button
       onClick={handleExpanded}
       className="text-primary-foreground hover:bg-primary-foreground/10 size-8 rounded-xl shrink-0 flex items-center justify-center cursor-pointer"
+      aria-label={expanded ? 'Collapse messenger' : 'Expand messenger'}
     >
       {expanded ? (
         <IconArrowsDiagonalMinimize className="size-4" />
