@@ -70,7 +70,7 @@ const PipelineDeleteItem = ({ pipelineId }: { pipelineId: string }) => {
       ),
       options: { confirmationValue: 'delete' },
     }).then(() => {
-      removePipeline({ variables: { id: pipelineId } });
+      removePipeline({ variables: { id: pipelineId } }).catch(() => undefined);
     });
   };
 
