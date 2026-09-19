@@ -13,6 +13,7 @@ import {
 import { FieldBoolean } from './FieldBoolean';
 import { FieldCheck } from './FieldCheck';
 import { FieldDate } from './FieldDate';
+import { FieldEditor } from './FieldEditor';
 import { FieldFile } from './FieldFile';
 import { FieldLabel } from './FieldLabel';
 import { FieldNumber } from './FieldNumber';
@@ -61,6 +62,7 @@ export const FIELD_COMPONENT_BY_TYPE: Record<
   radio: FieldRadio,
   relation: FieldRelation,
   file: FieldFile,
+  editor: FieldEditor,
 };
 
 export const Field = (props: FieldProps) => {
