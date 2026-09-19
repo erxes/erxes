@@ -796,13 +796,13 @@ const resolveFxaOwnerRecords = (
         ownerId: ownerRef
           ? maps.usersByRef[ownerRef]
           : responsibleUserRef
-          ? maps.usersByRef[responsibleUserRef]
-          : ownerRecord.ownerId || ownerRecord.responsibleUserId,
+            ? maps.usersByRef[responsibleUserRef]
+            : ownerRecord.ownerId || ownerRecord.responsibleUserId,
         sourceOwnerId: sourceOwnerRef
           ? maps.usersByRef[sourceOwnerRef]
           : sourceResponsibleUserRef
-          ? maps.usersByRef[sourceResponsibleUserRef]
-          : ownerRecord.sourceOwnerId || ownerRecord.sourceResponsibleUserId,
+            ? maps.usersByRef[sourceResponsibleUserRef]
+            : ownerRecord.sourceOwnerId || ownerRecord.sourceResponsibleUserId,
         sourceResponsibleUserId: sourceResponsibleUserRef
           ? maps.usersByRef[sourceResponsibleUserRef]
           : undefined,
@@ -877,8 +877,8 @@ const resolveOwnerRecordSources = async (
             candidate.action === FXA_OWNER_RECORD_ACTIONS.RECEIVED
               ? 1
               : candidate.action === FXA_OWNER_RECORD_ACTIONS.HANDED_OVER
-              ? -1
-              : 0;
+                ? -1
+                : 0;
 
           result[candidateOwnerId] =
             (result[candidateOwnerId] || 0) +
@@ -1173,8 +1173,8 @@ const getNumericFollowInfo = (
     typeof value === 'number'
       ? value
       : typeof value === 'string'
-      ? Number(value)
-      : NaN;
+        ? Number(value)
+        : NaN;
 
   return Number.isFinite(numberValue) ? numberValue : undefined;
 };

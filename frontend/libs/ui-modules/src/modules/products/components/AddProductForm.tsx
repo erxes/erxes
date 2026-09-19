@@ -245,8 +245,9 @@ export function AddProductForm({
                     <IconChevronDown
                       size={12}
                       strokeWidth={2}
-                      className={`transition-transform ${showMoreInfo ? 'rotate-180' : ''
-                        }`}
+                      className={`transition-transform ${
+                        showMoreInfo ? 'rotate-180' : ''
+                      }`}
                     />
                   </Button>
                 </Collapsible.Trigger>
@@ -300,8 +301,9 @@ export function AddProductForm({
                     <IconChevronDown
                       size={12}
                       strokeWidth={2}
-                      className={`transition-transform ${showMoreInfo ? 'rotate-180' : ''
-                        }`}
+                      className={`transition-transform ${
+                        showMoreInfo ? 'rotate-180' : ''
+                      }`}
                     />
                   </Button>
                 </Collapsible.Trigger>
@@ -332,9 +334,9 @@ function BarcodeManager({ form }: { form: UseFormReturn<IProductFormValues> }) {
   const availableImages = useMemo(() => {
     return Array.isArray(attachmentMore)
       ? attachmentMore.filter(
-        (x): x is AttachmentItem =>
-          x != null && typeof x === 'object' && 'url' in x,
-      )
+          (x): x is AttachmentItem =>
+            x != null && typeof x === 'object' && 'url' in x,
+        )
       : [];
   }, [attachmentMore]);
 

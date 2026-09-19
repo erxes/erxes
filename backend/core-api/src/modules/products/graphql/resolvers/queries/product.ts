@@ -746,8 +746,9 @@ export const productQueries: Record<string, Resolver<any, any, IContext>> = {
     }
 
     const { models } = context;
-    const categories =
-      await models.ProductCategories.getChildCategories([categoryId]);
+    const categories = await models.ProductCategories.getChildCategories([
+      categoryId,
+    ]);
     const categoryIds = categories.map((category) => category._id);
 
     const [product] = await models.Products.aggregate<{ code: string }>([
