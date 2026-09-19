@@ -1,0 +1,335 @@
+name: Scheduled - Code Quality Review
+
+on:
+  schedule:
+    # Run every Sunday at 23:00 UTC
+    - cron: '0 23 * * 0'
+  workflow_dispatch:
+    inputs:
+      num_dirs:
+        description: 'Number of random directories to review'
+        required: false
+        default: '3'
+      focus_area:
+        description: 'Focus area (all, backend, frontend, plugins)'
+        required: false
+        default: 'all'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.run_id }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  select-directories:
+    runs-on: ubuntu-latest
+    outputs:
+      directories: ${{ steps.select.outputs.directories }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Select random directories
+        id: select
+        run: |
+          NUM_DIRS="${{ github.event.inputs.num_dirs || '3' }}"
+          FOCUS_AREA="${{ github.event.inputs.focus_area || 'all' }}"
+
+          echo "Selecting $NUM_DIRS random directories from focus area: $FOCUS_AREA"
+
+          # Define search paths based on focus area
+          case $FOCUS_AREA in
+            backend)
+              SEARCH_PATHS="backend/core-api/src backend/plugins/*/src backend/services/*/src"
+              ;;
+            frontend)
+              SEARCH_PATHS="frontend/core-ui/src frontend/plugins/*/src frontend/libs/*/src"
+              ;;
+            plugins)
+              SEARCH_PATHS="backend/plugins/*/src frontend/plugins/*/src"
+              ;;
+            *)
+              SEARCH_PATHS="backend/core-api/src backend/plugins/*/src backend/services/*/src frontend/core-ui/src frontend/plugins/*/src frontend/libs/*/src"
+              ;;
+          esac
+
+          # Find directories with TypeScript files (excluding tests, specs, stories)
+          # Focus on modules, components, and feature directories
+          DIRS=$(find $SEARCH_PATHS -type d 2>/dev/null | while read dir; do
+            # Check if directory has TypeScript files (not test files)
+            if ls "$dir"/*.ts "$dir"/*.tsx 2>/dev/null | grep -v -E '\.(test|spec|stories)\.' | head -1 >/dev/null 2>&1; then
+              # Exclude certain directories
+              if ! echo "$dir" | grep -qE '(node_modules|dist|build|__tests__|coverage|\.next)'; then
+                echo "$dir"
+              fi
+            fi
+          done | sort -u | shuf -n "$NUM_DIRS")
+
+          if [ -z "$DIRS" ]; then
+            echo "No suitable directories found"
+            echo "directories=[]" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Convert to JSON array
+          JSON_DIRS=$(echo "$DIRS" | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          echo "directories=$JSON_DIRS" >> $GITHUB_OUTPUT
+
+          echo "Selected directories for review:"
+          echo "$DIRS"
+          echo ""
+          echo "Total: $(echo "$DIRS" | wc -l) directories"
+
+  review-directory:
+    needs: select-directories
+    if: needs.select-directories.outputs.directories != '[]'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        directory: ${{ fromJson(needs.select-directories.outputs.directories) }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9.12.3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Determine area context
+        id: context
+        run: |
+          DIR="${{ matrix.directory }}"
+
+          if echo "$DIR" | grep -q "backend/"; then
+            echo "area=backend" >> $GITHUB_OUTPUT
+            if echo "$DIR" | grep -q "backend/plugins/"; then
+              PLUGIN=$(echo "$DIR" | sed 's|backend/plugins/\([^/]*\).*|\1|')
+              echo "plugin=$PLUGIN" >> $GITHUB_OUTPUT
+              echo "type=backend-plugin" >> $GITHUB_OUTPUT
+            elif echo "$DIR" | grep -q "backend/core-api"; then
+              echo "type=core-api" >> $GITHUB_OUTPUT
+            else
+              echo "type=backend-service" >> $GITHUB_OUTPUT
+            fi
+          elif echo "$DIR" | grep -q "frontend/"; then
+            echo "area=frontend" >> $GITHUB_OUTPUT
+            if echo "$DIR" | grep -q "frontend/plugins/"; then
+              PLUGIN=$(echo "$DIR" | sed 's|frontend/plugins/\([^/]*\).*|\1|')
+              echo "plugin=$PLUGIN" >> $GITHUB_OUTPUT
+              echo "type=frontend-plugin" >> $GITHUB_OUTPUT
+            elif echo "$DIR" | grep -q "frontend/core-ui"; then
+              echo "type=core-ui" >> $GITHUB_OUTPUT
+            else
+              echo "type=frontend-lib" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "area=other" >> $GITHUB_OUTPUT
+            echo "type=other" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Claude Code Quality Review
+        uses: anthropics/claude-code-action@beta
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          model: claude-opus-4-5-20251101
+          timeout_minutes: 45
+          base_branch: main
+          branch_prefix: claude/code-quality-
+          track_progress: true
+          prompt: |
+            # Weekly Code Quality Review - erxes
+
+            You are performing a scheduled code quality review for the erxes XOS monorepo.
+
+            ## Context
+            - **Repository**: erxes (Experience Operating System)
+            - **Architecture**: Nx monorepo with microservices + Module Federation
+            - **Package Manager**: pnpm (REQUIRED)
+            - **Review Directory**: `${{ matrix.directory }}`
+            - **Area**: ${{ steps.context.outputs.area }}
+            - **Type**: ${{ steps.context.outputs.type }}
+            ${{ steps.context.outputs.plugin && format('- **Plugin**: {0}', steps.context.outputs.plugin) || '' }}
+
+            ## Your Mission
+
+            **Goal**: Find and FIX code quality issues in the target directory.
+
+            ### Step 1: Read Project Standards
+            1. Read `CLAUDE.md` to understand:
+               - erxes architecture and conventions
+               - Backend patterns (GraphQL, tRPC, Mongoose)
+               - Frontend patterns (Module Federation, React)
+               - Plugin system structure
+               - Multi-tenancy (subdomain) patterns
+
+            ### Step 2: Analyze Directory
+            1. List all `.ts` and `.tsx` files in `${{ matrix.directory }}`
+               - Exclude: `*.test.*`, `*.spec.*`, `*.stories.*`
+               - Exclude: `dist/`, `node_modules/`, `coverage/`
+            2. Read each file thoroughly
+            3. Understand the purpose and context
+
+            ### Step 3: Code Quality Review Checklist
+
+            **TypeScript Quality:**
+            - [ ] Avoid `any` types - use proper types or `unknown`
+            - [ ] Avoid implicit `any` in function parameters
+            - [ ] Use proper interface definitions for props/models
+            - [ ] Use proper return types for functions
+            - [ ] Fix type assertions that bypass safety
+            - [ ] Ensure enums or const objects for string unions
+
+            **Backend-Specific (if backend):**
+            - [ ] GraphQL resolvers properly typed with context
+            - [ ] Mongoose models use proper schema definitions
+            - [ ] Service functions handle subdomain context correctly
+            - [ ] Error handling in resolvers and services
+            - [ ] Async/await used properly (no dangling promises)
+            - [ ] Redis keys properly namespaced
+            - [ ] BullMQ jobs properly typed
+            - [ ] tRPC procedures properly typed with input validation
+
+            **Frontend-Specific (if frontend):**
+            - [ ] React hooks dependencies are correct
+            - [ ] No unnecessary `useEffect` (prefer derived state)
+            - [ ] Proper error boundaries for Module Federation
+            - [ ] GraphQL queries properly typed
+            - [ ] Form validation uses proper schema (Zod)
+            - [ ] Suspense boundaries for lazy-loaded modules
+            - [ ] Accessibility: proper ARIA labels, keyboard nav
+            - [ ] No prop drilling (use context/jotai appropriately)
+
+            **Security:**
+            - [ ] No hardcoded secrets or credentials
+            - [ ] SQL/NoSQL injection prevention (parameterized queries)
+            - [ ] XSS prevention (proper escaping)
+            - [ ] CSRF protection where needed
+            - [ ] Proper authentication checks in resolvers
+            - [ ] Input validation and sanitization
+
+            **Code Style & Maintainability:**
+            - [ ] No deep nesting (max 3 levels)
+            - [ ] Functions are focused and single-purpose
+            - [ ] Descriptive variable and function names
+            - [ ] No commented-out code blocks
+            - [ ] No console.log in production code
+            - [ ] Consistent error handling patterns
+            - [ ] Proper async error handling (try/catch)
+
+            **Performance:**
+            - [ ] No unnecessary re-renders (React)
+            - [ ] Database queries optimized (select only needed fields)
+            - [ ] Avoid N+1 queries
+            - [ ] Proper memoization where beneficial
+            - [ ] Large lists use virtualization
+
+            ### Step 4: Fix Issues
+            - **Don't just report** - USE THE EDIT TOOL TO FIX ISSUES
+            - Make targeted improvements
+            - Ensure fixes don't break functionality
+            - Follow erxes conventions from CLAUDE.md
+            - Preserve existing patterns unless clearly wrong
+
+            ### Step 5: Verification
+            Run these checks AFTER making fixes:
+            ```bash
+            # Type check (if backend)
+            pnpm nx type-check <project-name>
+
+            # Lint check
+            pnpm nx lint <project-name>
+
+            # Build check (ensures no breaking changes)
+            pnpm nx build <project-name>
+            ```
+
+            If any check fails:
+            - Fix the issues
+            - Or revert changes that caused the failure
+
+            ### Step 6: Create PR
+            If you made fixes:
+            1. Commit with message: `fix(${{ matrix.directory }}): code quality improvements`
+            2. Create PR with:
+               - **Title**: `fix: code quality improvements in ${{ matrix.directory }}`
+               - **Body**:
+                 ```markdown
+                 ## Code Quality Improvements
+
+                 **Directory**: `${{ matrix.directory }}`
+                 **Area**: ${{ steps.context.outputs.area }}
+
+                 ### Fixes Applied
+                 - [List specific fixes made]
+
+                 ### Verification
+                 - [ ] TypeScript types improved
+                 - [ ] Lint checks pass
+                 - [ ] Build succeeds
+                 - [ ] No breaking changes
+                 ```
+
+            If NO issues found:
+            - Report: "✅ Code quality review complete. No issues found in `${{ matrix.directory }}`"
+            - Do NOT create a PR
+
+            ## Important Notes
+            - Focus ONLY on `${{ matrix.directory }}`
+            - Make real improvements, not cosmetic changes
+            - Respect erxes patterns and conventions
+            - Test your changes with Nx commands
+            - Consider multi-tenancy implications
+            - Don't break Module Federation (if frontend)
+          claude_args: |
+            --max-turns 40
+            --allowedTools "Read,Write,Edit,Glob,Grep,Task,Bash(git:*),Bash(gh:*),Bash(pnpm nx *)"
+
+  report-completion:
+    needs: [select-directories, review-directory]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate Summary
+        run: |
+          echo "## 🔍 Weekly Code Quality Review Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Date**: $(date -u '+%Y-%m-%d %H:%M UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          DIRS='${{ needs.select-directories.outputs.directories }}'
+
+          if [ "$DIRS" = "[]" ] || [ -z "$DIRS" ]; then
+            echo "❌ No directories were selected for review." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### Reviewed Directories" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "$DIRS" | jq -r '.[]' | while read dir; do
+              echo "- \`$dir\`" >> $GITHUB_STEP_SUMMARY
+            done
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### Next Steps" >> $GITHUB_STEP_SUMMARY
+            echo "- Check the Actions logs for detailed review results" >> $GITHUB_STEP_SUMMARY
+            echo "- Look for PRs created with prefix \`claude/code-quality-\`" >> $GITHUB_STEP_SUMMARY
+            echo "- Review and merge approved improvements" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "*This is an automated weekly code quality review using Claude Opus 4.5*" >> $GITHUB_STEP_SUMMARY
