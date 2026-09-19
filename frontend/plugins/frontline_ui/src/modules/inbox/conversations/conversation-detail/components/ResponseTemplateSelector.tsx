@@ -38,7 +38,8 @@ interface ResponseTemplate {
 }
 
 interface ResponseTemplateSelectorProps {
-  onSelect: (content: string) => void;
+  onSelect: (content: string, templateId?: string) => void;
+  disabled?: boolean;
   children: ReactNode;
 }
 
@@ -72,7 +73,7 @@ const TemplateListEmpty = ({ search }: { search: string }): JSX.Element => {
 
 export const ResponseTemplateSelector: React.FC<
   ResponseTemplateSelectorProps
-> = ({ onSelect, children }) => {
+> = ({ onSelect, disabled, children }) => {
   const { t } = useTranslation('frontline');
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [search, setSearch] = useState<string>('');
@@ -138,8 +139,9 @@ export const ResponseTemplateSelector: React.FC<
     return () => observer.disconnect();
   }, [pageInfo?.hasNextPage, handleFetchMore, templates.length]);
 
-  const handleSelectTemplate = (content: string): void => {
-    onSelect(content);
+  const handleSelectTemplate = (template: ResponseTemplate): void => {
+    if (disabled) return;
+    onSelect(template.content, template._id);
     setIsOpen(false);
   };
 
@@ -152,7 +154,9 @@ export const ResponseTemplateSelector: React.FC<
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
-      <Popover.Trigger asChild>{children}</Popover.Trigger>
+      <Popover.Trigger asChild disabled={disabled}>
+        {children}
+      </Popover.Trigger>
 
       <Popover.Content className="w-full max-w-md min-w-sm p-4 shadow-xl border">
         <div className="space-y-4">
@@ -227,7 +231,7 @@ export const ResponseTemplateSelector: React.FC<
                     <Command.Item
                       key={template._id}
                       value={template._id}
-                      onSelect={() => handleSelectTemplate(template.content)}
+                      onSelect={() => handleSelectTemplate(template)}
                       className={cn(
                         'flex rounded border border-transparent transition-all cursor-pointer gap-2',
                         'hover:border-primary/20 hover:bg-accent/50',
