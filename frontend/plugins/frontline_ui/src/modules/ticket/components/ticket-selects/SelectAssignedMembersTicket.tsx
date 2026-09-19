@@ -36,6 +36,9 @@ const SelectAssignedMembersContent = () => {
   const membersList = users.filter(
     (user) => !members.find((member) => member._id === user._id),
   );
+  const selectableMembers = members.filter(
+    (member) => member.isActive !== false && !member.isDeleted,
+  );
 
   return (
     <Command shouldFilter={false}>
@@ -48,9 +51,9 @@ const SelectAssignedMembersContent = () => {
       />
       <Command.List className="max-h-[300px] overflow-y-auto">
         <Combobox.Empty loading={loading} error={error} />
-        {members.length > 0 && (
+        {selectableMembers.length > 0 && (
           <>
-            {members.map((member) => (
+            {selectableMembers.map((member) => (
               <SelectMember.CommandItem key={member._id} user={member} />
             ))}
             {!loading && membersList.length > 0 && (

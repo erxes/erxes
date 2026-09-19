@@ -73,7 +73,7 @@ export const teamMemberColumns: (t: TFunction) => ColumnDef<IUser>[] = (t) => {
         const setRenderingTeamMemberDetail = useSetAtom(
           renderingTeamMemberDetailAtom,
         );
-        const { details, _id } = cell.row.original;
+        const { details, _id, isActive } = cell.row.original;
         const { firstName, lastName, ...rest } = details || {};
 
         const { usersEdit } = useUserEdit();
@@ -117,6 +117,12 @@ export const teamMemberColumns: (t: TFunction) => ColumnDef<IUser>[] = (t) => {
                 }}
               >
                 <FullNameValue />
+                {isActive === false && (
+                  <span className="text-muted-foreground">
+                    {' '}
+                    ({t('deactivated', { defaultValue: 'deactivated' })})
+                  </span>
+                )}
               </Badge>
             </RecordTableInlineCell.Trigger>
           </FullNameField>
