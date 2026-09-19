@@ -55,22 +55,28 @@ export const useTagAdd = () => {
       update: (cache, { data }) => {
         const tagsAdd = data?.tagsAdd;
         if (!tagsAdd) return;
-        try {
-          cache.updateQuery(
-            {
-              query: TAGS_QUERY,
-              variables: {
-                excludeWorkspaceTags: true,
-                type: variables?.type,
+        // Readers use different variable shapes (`useGetTags` reads `{ type }`
+        // while settings views read `{ excludeWorkspaceTags: true, type }`),
+        // so append to both cache entries. Missing entries throw and are ignored.
+        const variableSets = [
+          { type: variables?.type },
+          { excludeWorkspaceTags: true, type: variables?.type },
+        ];
+        variableSets.forEach((queryVariables) => {
+          try {
+            cache.updateQuery(
+              {
+                query: TAGS_QUERY,
+                variables: queryVariables,
               },
-            },
-            (data) => ({
-              tagsMain: [tagsAdd, ...(data?.tagsMain || [])],
-            }),
-          );
-        } catch (error) {
-          console.error(error);
-        }
+              (data) => ({
+                tagsMain: [tagsAdd, ...(data?.tagsMain || [])],
+              }),
+            );
+          } catch (error) {
+            console.error(error);
+          }
+        });
       },
     });
   };
