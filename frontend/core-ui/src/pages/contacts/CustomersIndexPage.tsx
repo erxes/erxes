@@ -6,6 +6,7 @@ import { Can, Import } from 'ui-modules';
 import { Export } from 'ui-modules/modules/import-export/components/epxort/Export';
 import { useCustomersVariables } from '@/contacts/customers/hooks/useCustomers';
 import { CustomerDetail } from '@/contacts/customers/customer-detail/components/CustomerDetail';
+import { BroadcastSheet } from '@/broadcast/components/BroadcastSheet';
 
 export const CustomersIndexPage = () => {
   const variables = useCustomersVariables();
@@ -38,6 +39,7 @@ export const CustomersIndexPage = () => {
       </PageSubHeader>
       <CustomersRecordTable />
       <CustomerDetail />
+      <BroadcastSheet showTrigger={false} />
     </PageContainer>
   );
 };
