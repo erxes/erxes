@@ -1,5 +1,4 @@
 import {
-  cn,
   getBlockAttachments,
   getMentionedUserIds,
   stripHtml,
@@ -8,20 +7,17 @@ import {
   usePreviousHotkeyScope,
   useScopedHotkeys,
 } from 'erxes-ui';
-import { IconLock, IconMessage2, IconX } from '@tabler/icons-react';
+import { IconX } from '@tabler/icons-react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useThrottledCallback } from 'use-debounce';
-import { useMutation } from '@apollo/client';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Block } from '@blocknote/core';
-import type { EditorMentionItem } from 'ui-modules';
 
 import {
   hideMessageInputState,
   isInternalState,
   onlyInternalState,
 } from '../states/isInternalState';
-import { CONVERSATION_AGENT_TYPING } from '../graphql/mutations/conversationAgentTyping';
+import { ComposerShell } from './ComposerShell';
 import { ComposerEditor } from './ComposerEditor';
 import { ComposerPreviews } from './ComposerPreviews';
 import { ComposerToolbar } from './ComposerToolbar';
@@ -30,57 +26,18 @@ import { ResponseTemplateDropdown } from './ResponseTemplateDropdown';
 import { useConversationContext } from '../hooks/useConversationContext';
 import { useConversationMessageAdd } from '../hooks/useConversationMessageAdd';
 import { useMessageAttachments } from '../hooks/useMessageAttachments';
+import { useDiscordComposer } from '../hooks/useDiscordComposer';
 import { useResponseTemplateSuggestions } from '../hooks/useResponseTemplateSuggestions';
 import { messageExtraInfoState } from '../states/messageExtraInfoState';
 import { InboxHotkeyScope } from '@/inbox/types/InboxHotkeyScope';
-import {
-  useDiscordChannelMemberSearch,
-  useDiscordConversationParticipants,
-} from '@/integrations/discord/hooks/useDiscordSetup';
 import { discordReplyToState } from '@/integrations/discord/states/discordReplyToState';
 import { IntegrationType } from '@/types/Integration';
 import { useTranslation } from 'react-i18next';
-
-const draftKey = (conversationId: string) =>
-  `frontline:conversation-draft:${conversationId}`;
-
-const encodeDiscordMentions = (blocks?: Block[]): Block[] | undefined =>
-  blocks?.map((block) =>
-    Array.isArray(block.content)
-      ? ({
-          ...block,
-          content: block.content.map(
-            (inline: { type?: string; props?: { _id?: string } }) =>
-              inline.type === 'mention'
-                ? {
-                    type: 'text',
-                    text: `{@discord:${inline.props?._id}}`,
-                    styles: {},
-                  }
-                : inline,
-          ),
-        } as Block)
-      : block,
-  );
-
-type ConversationDraft = {
-  blocks: Block[];
-  internal?: boolean;
-};
-
-const parseConversationDraft = (stored: string | null): ConversationDraft => {
-  if (!stored) return { blocks: [] };
-
-  const parsed: unknown = JSON.parse(stored);
-  if (Array.isArray(parsed)) return { blocks: parsed as Block[] };
-  if (!parsed || typeof parsed !== 'object') return { blocks: [] };
-
-  const draft = parsed as Record<string, unknown>;
-  return {
-    blocks: Array.isArray(draft.blocks) ? (draft.blocks as Block[]) : [],
-    internal: typeof draft.internal === 'boolean' ? draft.internal : undefined,
-  };
-};
+import {
+  encodeDiscordMentions,
+  getConversationDraftKey,
+  parseConversationDraft,
+} from '../utils/messageInput';
 
 export const MessageInput = ({
   conversationId,
@@ -99,6 +56,7 @@ export const MessageInput = ({
   const isMessenger = integration?.kind === IntegrationType.ERXES_MESSENGER;
   const [content, setContent] = useState<Block[]>();
   const [mentionedUserIds, setMentionedUserIds] = useState<string[]>([]);
+  const [isInternalNoteCollapsed, setIsInternalNoteCollapsed] = useState(false);
   const editor = useBlockEditor();
   const restoringDraftRef = useRef(false);
   const { addConversationMessage, loading } = useConversationMessageAdd();
@@ -124,58 +82,17 @@ export const MessageInput = ({
     showSuggestions,
     suggestions,
   } = useResponseTemplateSuggestions({ editor, enabled: !isInternalNote });
-
-  const discordParticipants = useDiscordConversationParticipants(
-    conversationId,
-    !isDiscord || !conversationId,
-  );
-  const { search: searchDiscordMembers, status: discordMemberStatus } =
-    useDiscordChannelMemberSearch(
-      conversationId,
-      !isDiscord || !conversationId,
-    );
-  const discordMentionItems = useMemo<EditorMentionItem[]>(() => {
-    const byUserId = new Map<string, EditorMentionItem>();
-    for (const person of discordParticipants) {
-      if (person.userId && !byUserId.has(person.userId)) {
-        byUserId.set(person.userId, {
-          id: person.userId,
-          fullName: person.name || 'Discord user',
-          avatar: person.avatar,
-        });
-      }
-    }
-    return [...byUserId.values()];
-  }, [discordParticipants]);
-  const searchDiscordMentionItems = useCallback(
-    async (query: string): Promise<EditorMentionItem[]> => {
-      const found = await searchDiscordMembers(query);
-
-      return found
-        .filter((person) => person.userId)
-        .map((person) => ({
-          id: person.userId,
-          fullName: person.name || 'Discord user',
-          avatar: person.avatar,
-        }));
-    },
-    [searchDiscordMembers],
-  );
-  const discordMentionNote = useMemo(() => {
-    switch (discordMemberStatus) {
-      case 'TRUNCATED':
-        return 'Too many matches — keep typing to narrow down';
-      case 'FORBIDDEN':
-        return 'Bot cannot read this channel — showing people who have chatted';
-      case 'ERROR':
-        return 'Member search unavailable — showing people who have chatted';
-      default:
-        return undefined;
-    }
-  }, [discordMemberStatus]);
+  const {
+    mentionItems: discordMentionItems,
+    mentionNote: discordMentionNote,
+    pingAgentTyping,
+    searchMentionItems: searchDiscordMentionItems,
+    stopAgentTyping,
+  } = useDiscordComposer({ conversationId, isDiscord, isInternalNote });
 
   useEffect(() => {
     const isLead = integration?.kind === 'lead';
+    setIsInternalNoteCollapsed(false);
     setOnlyInternal(isLead);
     setIsInternalNote(isLead);
   }, [conversationId, integration?.kind, setIsInternalNote, setOnlyInternal]);
@@ -188,7 +105,7 @@ export const MessageInput = ({
 
     try {
       const draft = parseConversationDraft(
-        window.localStorage.getItem(draftKey(conversationId)),
+        window.localStorage.getItem(getConversationDraftKey(conversationId)),
       );
       editor.replaceBlocks(editor.document, draft.blocks);
       setContent(draft.blocks.length ? draft.blocks : undefined);
@@ -196,7 +113,7 @@ export const MessageInput = ({
         setIsInternalNote(draft.internal);
       }
     } catch {
-      window.localStorage.removeItem(draftKey(conversationId));
+      window.localStorage.removeItem(getConversationDraftKey(conversationId));
       editor.replaceBlocks(editor.document, []);
       setContent();
     } finally {
@@ -215,26 +132,6 @@ export const MessageInput = ({
     setIsInternalNote,
   ]);
 
-  const [notifyAgentTyping] = useMutation(CONVERSATION_AGENT_TYPING);
-  const pingAgentTyping = useThrottledCallback(
-    () => {
-      if (isDiscord && !isInternalNote && conversationId) {
-        notifyAgentTyping({
-          variables: { conversationId, typing: true },
-        }).catch(() => undefined);
-      }
-    },
-    10000,
-    { leading: true, trailing: false },
-  );
-  const stopAgentTyping = useCallback(() => {
-    pingAgentTyping.cancel();
-    if (isDiscord && conversationId) {
-      notifyAgentTyping({
-        variables: { conversationId, typing: false },
-      }).catch(() => undefined);
-    }
-  }, [conversationId, isDiscord, notifyAgentTyping, pingAgentTyping]);
   const {
     setHotkeyScopeAndMemorizePreviousScope,
     goBackToPreviousHotkeyScope,
@@ -242,12 +139,13 @@ export const MessageInput = ({
 
   const handleInternalNoteChange = useCallback(
     (internal: boolean) => {
+      setIsInternalNoteCollapsed(false);
       setIsInternalNote(internal);
       resetSuggestions();
       setResponseTemplateId(null);
       if (content?.length) {
         window.localStorage.setItem(
-          draftKey(conversationId),
+          getConversationDraftKey(conversationId),
           JSON.stringify({ blocks: content, internal }),
         );
       }
@@ -277,11 +175,11 @@ export const MessageInput = ({
 
     if (nextContent) {
       window.localStorage.setItem(
-        draftKey(conversationId),
+        getConversationDraftKey(conversationId),
         JSON.stringify({ blocks, internal: isInternalNote }),
       );
     } else {
-      window.localStorage.removeItem(draftKey(conversationId));
+      window.localStorage.removeItem(getConversationDraftKey(conversationId));
     }
   }, [conversationId, editor, isInternalNote, pingAgentTyping, setSearchValue]);
 
@@ -328,7 +226,7 @@ export const MessageInput = ({
         resetSuggestions();
         setResponseTemplateId(null);
         setDiscordReplyTo(null);
-        window.localStorage.removeItem(draftKey(conversationId));
+        window.localStorage.removeItem(getConversationDraftKey(conversationId));
       },
       refetchQueries: [
         'Conversations',
@@ -404,92 +302,77 @@ export const MessageInput = ({
     (!content?.length && attachments.length === 0);
 
   return (
-    <div className="h-full p-2">
-      <div
-        onDropCapture={handleDrop}
-        onKeyDown={handleKeyDown}
-        onDragOverCapture={(event) => event.preventDefault()}
-        className={cn(
-          'mx-auto flex h-full max-w-2xl flex-col gap-1 overflow-hidden rounded-xl border border-border/70 bg-sidebar py-2 shadow-xs transition-colors duration-150',
-          isInternalNote && 'border-warning/50 bg-warning/20',
-        )}
-      >
-        <output className="flex flex-none items-center gap-2 px-3 py-1 text-xs font-medium text-muted-foreground">
-          {isInternalNote ? (
-            <IconLock className="size-3.5" />
-          ) : (
-            <IconMessage2 className="size-3.5" />
-          )}
-          {isInternalNote
-            ? t('note-visibility', 'Internal note - only visible to your team')
-            : t('reply-visibility', 'Reply - sent to the customer')}
-        </output>
+    <ComposerShell
+      collapsed={isInternalNoteCollapsed}
+      isInternalNote={isInternalNote}
+      onCollapsedChange={setIsInternalNoteCollapsed}
+      onDrop={handleDrop}
+      onKeyDown={handleKeyDown}
+    >
+      <ComposerPreviews
+        attachments={attachments}
+        pendingAttachments={pendingAttachments}
+        onRemove={removeAttachment}
+      />
 
-        <ComposerPreviews
-          attachments={attachments}
-          pendingAttachments={pendingAttachments}
-          onRemove={removeAttachment}
+      {showSuggestions && !isInternalNote && (
+        <ResponseTemplateDropdown
+          suggestions={suggestions}
+          selectedIndex={selectedIndex}
+          availableChannels={availableChannels}
+          loading={suggestionsLoading}
+          onSelect={selectTemplate}
         />
+      )}
 
-        {showSuggestions && !isInternalNote && (
-          <ResponseTemplateDropdown
-            suggestions={suggestions}
-            selectedIndex={selectedIndex}
-            availableChannels={availableChannels}
-            loading={suggestionsLoading}
-            onSelect={selectTemplate}
-          />
-        )}
+      {isDiscord && !isInternalNote && discordReplyTo && (
+        <div className="mx-3 flex items-center justify-between gap-2 rounded-md bg-muted px-3 py-1.5 text-xs text-muted-foreground">
+          <span className="truncate">
+            {t('replying-to', 'Replying to:')} {discordReplyTo.preview}
+          </span>
+          <button
+            type="button"
+            aria-label="Cancel reply"
+            onClick={() => setDiscordReplyTo(null)}
+            className="flex-none hover:text-foreground"
+          >
+            <IconX className="size-3.5" aria-hidden="true" />
+          </button>
+        </div>
+      )}
 
-        {isDiscord && !isInternalNote && discordReplyTo && (
-          <div className="mx-3 flex items-center justify-between gap-2 rounded-md bg-muted px-3 py-1.5 text-xs text-muted-foreground">
-            <span className="truncate">
-              {t('replying-to', 'Replying to:')} {discordReplyTo.preview}
-            </span>
-            <button
-              type="button"
-              aria-label="Cancel reply"
-              onClick={() => setDiscordReplyTo(null)}
-              className="flex-none hover:text-foreground"
-            >
-              <IconX className="size-3.5" aria-hidden="true" />
-            </button>
-          </div>
-        )}
+      <ComposerEditor
+        editor={editor}
+        isDiscord={isDiscord}
+        isInternalNote={isInternalNote}
+        loading={loading}
+        discordMentionItems={discordMentionItems}
+        discordMentionNote={discordMentionNote}
+        searchDiscordMentionItems={searchDiscordMentionItems}
+        onChange={handleChange}
+        onFocus={setHotkeyScopeAndMemorizePreviousScope}
+        onBlur={() => {
+          goBackToPreviousHotkeyScope();
+          stopAgentTyping();
+        }}
+      />
 
-        <ComposerEditor
-          editor={editor}
-          isDiscord={isDiscord}
-          isInternalNote={isInternalNote}
-          loading={loading}
-          discordMentionItems={discordMentionItems}
-          discordMentionNote={discordMentionNote}
-          searchDiscordMentionItems={searchDiscordMentionItems}
-          onChange={handleChange}
-          onFocus={setHotkeyScopeAndMemorizePreviousScope}
-          onBlur={() => {
-            goBackToPreviousHotkeyScope();
-            stopAgentTyping();
-          }}
-        />
-
-        <ComposerToolbar
-          conversationId={conversationId}
-          integrationChannelId={integration?.channelId}
-          isDiscord={isDiscord}
-          isMessenger={isMessenger}
-          isInternalNote={isInternalNote}
-          onlyInternal={onlyInternal}
-          isUploading={isUploading}
-          loading={loading}
-          sendDisabled={sendDisabled}
-          onInternalNoteChange={handleInternalNoteChange}
-          onFilesSelected={handleFileInput}
-          onTemplateSelect={selectTemplate}
-          onSendPoll={handleSendPoll}
-          onSubmit={handleSubmit}
-        />
-      </div>
-    </div>
+      <ComposerToolbar
+        conversationId={conversationId}
+        integrationChannelId={integration?.channelId}
+        isDiscord={isDiscord}
+        isMessenger={isMessenger}
+        isInternalNote={isInternalNote}
+        onlyInternal={onlyInternal}
+        isUploading={isUploading}
+        loading={loading}
+        sendDisabled={sendDisabled}
+        onInternalNoteChange={handleInternalNoteChange}
+        onFilesSelected={handleFileInput}
+        onTemplateSelect={selectTemplate}
+        onSendPoll={handleSendPoll}
+        onSubmit={handleSubmit}
+      />
+    </ComposerShell>
   );
 };
