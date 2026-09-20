@@ -19,10 +19,12 @@ const pickEmailVariables = (email?: Record<string, unknown>) => {
   };
 };
 
+export type TBroadcastAction = 'draft' | 'live' | 'schedule';
+
 export const prepareBroadcastVariables = (
   data: BroadcastFormData,
   method: IBroadcastMethodEnum,
-  action?: 'draft' | 'live',
+  action?: TBroadcastAction,
 ) => {
   const variables: Record<string, unknown> = {
     title: data.title,
@@ -31,7 +33,9 @@ export const prepareBroadcastVariables = (
     targetType: data.targetType,
     targetIds: data.targetIds,
     targetCount: data.targetCount,
-    isDraft: action === 'draft',
+    // Scheduling saves a draft first: a campaign has to exist before a moment
+    // can be set on it, and a failed schedule then leaves the work intact.
+    isDraft: action === 'draft' || action === 'schedule',
     isLive: action === 'live',
   };
 

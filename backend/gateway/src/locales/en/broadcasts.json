@@ -1,4 +1,170 @@
 {
   "broadcasts": "Broadcasts",
-  "broadcast": "Broadcast"
+  "broadcast": "Broadcast",
+  "display": "Display",
+  "loading": "Loading…",
+  "go-to-settings": "Go to settings",
+  "records-found_one": "{{count}} record found",
+  "records-found_other": "{{count}} records found",
+  "status": {
+    "draft": "Draft",
+    "sending": "Sending",
+    "sent": "Sent",
+    "not-sent": "Not sent",
+    "paused": "Paused",
+    "overdue": "Overdue",
+    "failed": "Failed",
+    "cancelled": "Cancelled",
+    "unknown": "Unknown"
+  },
+  "trigger": {
+    "label": "Trigger",
+    "manual": "Manual",
+    "scheduled": "Scheduled",
+    "recurring": "Recurring"
+  },
+  "method": {
+    "email": "Email",
+    "sms": "Sms",
+    "messenger": "Messenger",
+    "notification": "Notification",
+    "workflow": "Workflow",
+    "unknown": "Unknown",
+    "email-description": "Master email marketing with fully customized templates",
+    "messenger-description": "Interact personally with direct in-app-messaging",
+    "notification-description": "Send automated notifications to your customers",
+    "workflow-description": "Run an automation once for every customer you target"
+  },
+  "columns": {
+    "name": "Name",
+    "status": "Status",
+    "audience": "Audience",
+    "reached": "Reached",
+    "type": "Type",
+    "brand": "Brand",
+    "from": "From",
+    "no-brand": "No brand",
+    "no-member": "No member"
+  },
+  "layout": {
+    "list": "List",
+    "grid": "Grid",
+    "calendar": "Calendar"
+  },
+  "actions": {
+    "new": "New broadcast",
+    "preview": "Preview",
+    "edit": "Edit",
+    "duplicate": "Duplicate",
+    "pause": "Pause",
+    "schedule": "Schedule…",
+    "schedule-short": "Schedule",
+    "cancel-schedule": "Cancel schedule"
+  },
+  "card": {
+    "actions": "Campaign actions",
+    "no-audience": "No audience selected",
+    "reached": "{{count}} reached",
+    "targeted": "targeted",
+    "goes-out": "goes out"
+  },
+  "command-bar": {
+    "selected_one": "{{count}} selected",
+    "selected_other": "{{count}} selected"
+  },
+  "confirm": {
+    "delete_one": "Are you sure you want to delete the selected broadcast?",
+    "delete_other": "Are you sure you want to delete the {{count}} selected broadcasts?"
+  },
+  "toast": {
+    "error": "Error",
+    "success": "Success",
+    "deleted": "Broadcast deleted successfully",
+    "duplicated": "Duplicated",
+    "duplicated-body": "A draft copy is ready to edit"
+  },
+  "empty": {
+    "title": "No campaigns yet",
+    "filtered-title": "No campaign matches",
+    "body": "A broadcast sends a message, or runs a flow, once for every customer you target.",
+    "filtered-body": "Nothing here fits the filters above. Loosen one to see more."
+  },
+  "error": {
+    "title": "Couldn't load campaigns",
+    "unknown": "Unknown error",
+    "retry": "Try again"
+  },
+  "tab": {
+    "statistic": "Statistic",
+    "preview": "Preview",
+    "recipients": "Recipients",
+    "traces": "Traces"
+  },
+  "stat": {
+    "average": "Average email statistics",
+    "sent": "Sent",
+    "delivered": "Delivered",
+    "opened": "Opened",
+    "clicked": "Clicked",
+    "complaints": "Complaints",
+    "bounce": "Bounce",
+    "rejected": "Rejected",
+    "rendering-failure": "Rendering failure",
+    "has-run": "This campaign has run:",
+    "last-run": "Last run at:",
+    "never": "Never"
+  },
+  "recipients": {
+    "empty-title": "No recipients yet",
+    "select-run": "Select a run",
+    "close": "Close recipient detail",
+    "reason": "Reason",
+    "customer": "Customer",
+    "updated": "Updated",
+    "open-customer": "Open customer"
+  },
+  "traces": {
+    "empty": "No traces yet"
+  },
+  "schedule": {
+    "dialog-title": "Schedule this broadcast",
+    "goes-out": "Goes out:",
+    "repeats": "Repeats:",
+    "next-run": "Next run:",
+    "runs": "Runs:",
+    "runs-of": "{{ran}} of {{total}}",
+    "status": "Status:",
+    "finished": "Finished repeating",
+    "until": "Until",
+    "pick-end": "Pick an end date"
+  },
+  "calendar": {
+    "previous-month": "Previous month",
+    "next-month": "Next month",
+    "back-to-today": "Back to today",
+    "nothing": "Nothing scheduled or sent",
+    "sends_one": "{{count}} send",
+    "sends_other": "{{count}} sends",
+    "days_one": "{{count}} day",
+    "days_other": "{{count}} days",
+    "days-passed": "These days have passed",
+    "more": "+{{count}} more",
+    "recipients_one": "{{count}} recipient",
+    "recipients_other": "{{count}} recipients"
+  },
+  "workflow": {
+    "add-step": "Add a step",
+    "after-selected": "Pick what runs after the selected step.",
+    "each-step": "Each step runs once for every customer this campaign reaches.",
+    "templates": "Templates",
+    "single-step": "Single step",
+    "search-steps": "Search steps…",
+    "no-step": "No step matches that search",
+    "variables": "Variables"
+  },
+  "approval": {
+    "lock": "Lock"
+  },
+  "broadcast-config": "Broadcast config",
+  "untitled": "Untitled"
 }

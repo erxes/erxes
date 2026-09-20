@@ -19,6 +19,7 @@ import {
   generateMessages,
   getOrCreateFacebookMessageActionContext,
   resolveMessageActionConfigTemplates,
+  resolveMessagingWindow,
   sendMessage,
 } from './utils';
 
@@ -104,7 +105,7 @@ export const checkMessageTrigger = async (
   const payload = target?.payload || {};
   const { persistentMenuId, isBackBtn, iceBreakerId } = payload;
   if (persistentMenuId && isBackBtn) {
-    sendWorkerQueue('automations', 'playWait').add('playWait', {
+    sendWorkerQueue('automations', 'action').add('executePrevAction', {
       subdomain,
       data: {
         query: {
@@ -244,6 +245,22 @@ export const actionCreateMessage = async ({
     target,
     triggerConfig,
   );
+
+  // A comment-triggered send goes out as a private reply, which Meta permits
+  // under its own rule, so only direct threads are checked here.
+  if (collectionType === 'messages') {
+    const { isOpen, lastInboundAt } = await resolveMessagingWindow(
+      models,
+      conversation._id,
+      target,
+    );
+
+    if (!isOpen) {
+      // Outside the window there is no free-form route. Record the skip and let
+      // the flow continue rather than spend a refusal against the page.
+      return { status: 'skipped', reason: 'window-closed', lastInboundAt };
+    }
+  }
 
   try {
     const result: IFacebookConversationMessageDocument[] = [];

@@ -80,13 +80,16 @@ export const checkCampaignDoc = async (
   // A workflow campaign with nothing wired would dispatch executions that
   // finish immediately, so it is stopped here rather than at run time. On
   // create there is no campaign id yet, and therefore no flow either.
+  //
+  // Worded for going out rather than for going live, because scheduling asks
+  // this same question and a schedule is not the same as a send.
   if (method === CAMPAIGN_METHODS.WORKFLOW && doc.isLive) {
     const automation = campaignId
       ? await findCampaignAutomation(models, campaignId)
       : null;
 
     if (!automation?.actions?.length) {
-      throw new Error('Build the workflow before making this campaign live');
+      throw new Error('Build the workflow before this campaign can go out');
     }
   }
 

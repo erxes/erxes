@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { BROADCAST_EVERY_VALUES } from './utils/scheduleForm';
 
 const baseSchema = {
   title: z.string().min(1),
@@ -8,6 +9,15 @@ const baseSchema = {
   targetCount: z.number().default(0),
   isLive: z.boolean(),
   isDraft: z.boolean(),
+  // Held on the form only so the header can carry it; it is applied after the
+  // campaign is saved, never as part of saving it.
+  schedule: z
+    .object({
+      every: z.enum(BROADCAST_EVERY_VALUES),
+      at: z.date().optional(),
+      endDate: z.date().optional(),
+    })
+    .optional(),
 };
 
 export const broadcastSchema = z.discriminatedUnion('method', [

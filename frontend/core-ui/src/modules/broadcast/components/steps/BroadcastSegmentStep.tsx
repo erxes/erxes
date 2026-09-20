@@ -5,6 +5,12 @@ import { ISegment, SEGMENTS } from 'ui-modules';
 
 const CUSTOMER_TYPE = 'core:contacts.customers';
 
+// A segment's name is optional in the segments module, so a row can arrive
+// with nothing to show. Naming it by its id at least leaves something to
+// recognise and click rather than a blank line.
+const segmentLabel = (segment: ISegment) =>
+  segment.name?.trim() || `Untitled segment · ${segment._id.slice(0, 6)}`;
+
 export const BroadcastSegmentStep = ({
   value,
   onChange,
@@ -60,7 +66,11 @@ export const BroadcastSegmentStep = ({
                 : ''
             }`}
           >
-            <span>{segment.name}</span>
+            <span
+              className={segment.name?.trim() ? '' : 'text-muted-foreground'}
+            >
+              {segmentLabel(segment)}
+            </span>
             <span className="ml-2 text-xs text-muted-foreground">
               {segment.membersCount ?? '—'}
             </span>

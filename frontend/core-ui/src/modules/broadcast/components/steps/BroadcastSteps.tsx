@@ -16,8 +16,17 @@ import {
   useToast,
 } from 'erxes-ui';
 import { useState } from 'react';
-import { FormProvider } from 'react-hook-form';
-import { prepareBroadcastVariables } from '../../utils/prepareBroadcastVariables';
+import { FormProvider, useFormContext } from 'react-hook-form';
+import {
+  prepareBroadcastVariables,
+  TBroadcastAction,
+} from '../../utils/prepareBroadcastVariables';
+import { useBroadcastSchedule } from '../../hooks/useBroadcastSchedule';
+import {
+  isScheduleReady,
+  TBroadcastScheduleForm,
+} from '../../utils/scheduleForm';
+import { BroadcastScheduleField } from './BroadcastScheduleField';
 import { BroadcastPreview } from '../BroadcastPreview';
 import { BroadcastConfigStep } from './BroadcastConfigStep';
 import { BroadcastTargetStep } from './BroadcastTargetStep';
@@ -89,49 +98,82 @@ export const BroadcastSteps = ({
 
   const { addBroadcast } = useBroadcastAdd();
   const { editBroadcast } = useBroadcastEdit();
+  const { setSchedule } = useBroadcastSchedule();
 
   const [step, setStep] = useState(0);
 
   const handleClose = () => onClose();
 
-  const onSubmit = (data: any, action?: 'draft' | 'live') => {
+  const fail = (title: string) => (error: Error) =>
+    toast({
+      variant: 'destructive',
+      title,
+      description: error.message,
+    });
+
+  // A moment can only be set on a campaign that exists, so scheduling happens
+  // after the save rather than as part of it. A campaign saved but not
+  // scheduled stays a draft, which is the recoverable half of the pair.
+  const scheduleSaved = (_id: string, schedule: TBroadcastScheduleForm) =>
+    setSchedule(_id, schedule, {
+      onError: fail('Saved as a draft, but could not be scheduled'),
+      onCompleted: () =>
+        toast({
+          variant: 'default',
+          title: 'Broadcast scheduled',
+        }),
+    });
+
+  const onSubmit = (data: any, action?: TBroadcastAction) => {
     if (!method) {
       return;
     }
 
+    const schedule =
+      action === 'schedule'
+        ? (data.schedule as TBroadcastScheduleForm | undefined)
+        : undefined;
     const variables = prepareBroadcastVariables(data, method, action);
-    const feedback = {
-      onCompleted: () => {
-        toast({
-          variant: 'default',
-          title: messageId
-            ? 'Broadcast saved'
-            : action === 'draft'
-            ? 'Broadcast saved as draft'
-            : 'Broadcast created',
-        });
-      },
-      onError: (error: Error) => {
-        toast({
-          variant: 'destructive',
-          title: 'Could not save this broadcast',
-          description: error.message,
-        });
-      },
-    };
+
+    const announce = () =>
+      toast({
+        variant: 'default',
+        title: messageId
+          ? 'Broadcast saved'
+          : action === 'draft'
+          ? 'Broadcast saved as draft'
+          : 'Broadcast created',
+      });
+
+    const onError = fail('Could not save this broadcast');
 
     if (messageId) {
       editBroadcast({
         variables: { _id: messageId, ...variables },
-        ...feedback,
+        onError,
+        onCompleted: () =>
+          schedule ? scheduleSaved(messageId, schedule) : announce(),
       });
       return;
     }
 
-    addBroadcast({ variables, ...feedback });
+    addBroadcast({
+      variables,
+      onError,
+      onCompleted: (created: { engageMessageAdd?: { _id: string } }) => {
+        const _id = created?.engageMessageAdd?._id;
+
+        if (schedule && _id) {
+          scheduleSaved(_id, schedule);
+          return;
+        }
+
+        announce();
+      },
+    });
   };
 
-  const handleAction = async (step: number, action?: 'draft' | 'live') => {
+  const handleAction = async (step: number, action?: TBroadcastAction) => {
     if (step < 0) {
       handleClose();
     }
@@ -179,6 +221,9 @@ export const BroadcastSteps = ({
         <Sheet.Title>
           {messageId ? 'Edit Broadcast' : 'New Broadcast'}
         </Sheet.Title>
+        <div className="ml-auto mr-2 flex items-center gap-2">
+          <BroadcastScheduleField />
+        </div>
         <Sheet.Close />
       </Sheet.Header>
 
@@ -256,9 +301,16 @@ export const BroadcastStepActions = ({
   handleAction,
 }: {
   step: number;
-  handleAction: (step: number, action?: 'draft' | 'live') => void;
+  handleAction: (step: number, action?: TBroadcastAction) => void;
 }) => {
+  const form = useFormContext<IBroadcastFormData>();
+
   const isLastStep = step + 1 === BROADCAST_STEPS.length;
+  // The header decides what this button does: a moment picked there turns the
+  // send into a schedule, so there is never a choice to make down here.
+  const isScheduled = isScheduleReady(
+    form.watch('schedule') as TBroadcastScheduleForm | undefined,
+  );
 
   return (
     <Sheet.Footer>
@@ -273,8 +325,16 @@ export const BroadcastStepActions = ({
           Save & Draft
         </Button>
       )}
-      <Button onClick={() => handleAction(step + 1, 'live')}>
-        {isLastStep ? 'Save & Live' : 'Next step'}
+      <Button
+        onClick={() =>
+          handleAction(step + 1, isScheduled ? 'schedule' : 'live')
+        }
+      >
+        {!isLastStep
+          ? 'Next step'
+          : isScheduled
+          ? 'Save & Schedule'
+          : 'Save & Live'}
       </Button>
     </Sheet.Footer>
   );

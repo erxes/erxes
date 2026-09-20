@@ -1,3 +1,13 @@
+/**
+ * What the approval module locks when it locks a campaign.
+ *
+ * Mirrors `core:automation`: the plugin and the thing, so one organisation's
+ * locks cannot collide with another module's ids.
+ */
+export const BROADCAST_APPROVAL_CONTENT_TYPES = {
+  CAMPAIGN: 'core:broadcast_campaign',
+} as const;
+
 export const CONTENT_TYPES = {
   CUSTOMER: 'customer',
   LEAD: 'lead',

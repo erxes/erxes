@@ -1,3 +1,6 @@
+/** What the approval module locks when a campaign is locked. */
+export const BROADCAST_APPROVAL_CONTENT_TYPE = 'core:broadcast_campaign';
+
 import { BadgeProps } from 'erxes-ui';
 import {
   IconBellRinging,
@@ -118,28 +121,57 @@ export const BROADCAST_TARGET_TYPE: Record<string, string> = {
 };
 
 export const BROADCAST_MESSAGE_STATUS = [
-  { value: 'sent', label: 'Sent' },
-  { value: 'draft', label: 'Draft' },
-  { value: 'paused', label: 'Paused' },
-  { value: 'sending', label: 'Sending' },
-  { value: 'notSent', label: 'Not Sent' },
+  { value: 'sent', labelKey: 'status.sent' },
+  { value: 'draft', labelKey: 'status.draft' },
+  { value: 'paused', labelKey: 'status.paused' },
+  { value: 'sending', labelKey: 'status.sending' },
+  { value: 'notSent', labelKey: 'status.not-sent' },
 ];
 
 export const BROADCAST_MESSAGE_STATUS_MAP: Record<
   string,
-  { text: string; style: BadgeProps['variant'] }
+  { labelKey: string; style: BadgeProps['variant'] }
 > = {
-  sending: { text: 'Sending', style: 'info' },
-  completed: { text: 'Sent', style: 'success' },
-  failed: { text: 'Not Sent', style: 'warning' },
+  sending: { labelKey: 'status.sending', style: 'info' },
+  completed: { labelKey: 'status.sent', style: 'success' },
+  failed: { labelKey: 'status.not-sent', style: 'warning' },
 };
 
+/** Every method a campaign can carry, including ones no longer offered. */
 export const BROADCAST_MESSAGE_METHODS = [
-  { value: 'email', label: 'Email' },
-  { value: 'messenger', label: 'Messenger' },
-  { value: 'notification', label: 'Notification' },
-  { value: 'workflow', label: 'Workflow' },
+  {
+    value: 'email',
+    labelKey: 'method.email',
+    descriptionKey: 'method.email-description',
+  },
+  {
+    value: 'messenger',
+    labelKey: 'method.messenger',
+    descriptionKey: 'method.messenger-description',
+  },
+  {
+    value: 'notification',
+    labelKey: 'method.notification',
+    descriptionKey: 'method.notification-description',
+  },
+  {
+    value: 'workflow',
+    labelKey: 'method.workflow',
+    descriptionKey: 'method.workflow-description',
+  },
 ];
+
+/**
+ * What a campaign may be created as.
+ *
+ * Messenger is absent: nothing sends it — `sendBroadcast` has no branch for it
+ * and its worker is empty — so offering it would build a campaign that goes
+ * live and quietly does nothing. It stays above so a campaign already carrying
+ * it still reads as Messenger rather than as a blank.
+ */
+export const BROADCAST_SELECTABLE_METHODS = BROADCAST_MESSAGE_METHODS.filter(
+  ({ value }) => value !== 'messenger',
+);
 
 export const BROADCAST_NOTIFICATION_STATISTIC = {
   total: {
@@ -246,3 +278,26 @@ export const BROADCAST_SETTINGS_CONFIG_FIELDS = [
       'The maximum number of customers that can receive auto SMS campaign per each runtime.',
   },
 ];
+
+export const BROADCAST_RECIPIENTS_CURSOR_SESSION_KEY =
+  'broadcast-recipients-cursor';
+
+/**
+ * What each action promises before it is carried out.
+ *
+ * Kept together because the same campaign is acted on from the table, the
+ * grid, the detail sheet and the command bar, and a promise that differs
+ * between them is a promise one of them is breaking.
+ */
+export const BROADCAST_CONFIRM_MESSAGES = {
+  // What it promises is exactly what it does: recipients already handed over
+  // keep going, and nobody new is taken up.
+  pause:
+    'Pause this broadcast? Nobody new will be sent to. Anyone already sent to is unaffected, and going live again continues where it stopped.',
+  resume: 'Continue this broadcast? It picks up where it stopped.',
+  sendNow:
+    'Send this broadcast now? It will not wait for the moment it was scheduled for.',
+  goLive: 'Set this broadcast live?',
+  cancelSchedule:
+    'Cancel this schedule? The broadcast goes back to being a draft and will not go out on its own.',
+} as const;

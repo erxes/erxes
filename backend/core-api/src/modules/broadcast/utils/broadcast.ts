@@ -1,17 +1,15 @@
-import { ICustomer, ICustomerDocument } from 'erxes-api-shared/core-types';
-import { FilterQuery } from 'mongoose';
-import validator from 'validator';
-import { ICPUserDocument } from '@/clientportal/types/cpUser';
 import { IModels } from '~/connectionResolvers';
 import { getValueAsString } from '~/modules/organization/settings/db/models/Configs';
 import { CAMPAIGN_METHODS } from '../constants';
 import { IEngageMessageDocument } from '../@types';
-import { generateCustomerSelector, resolveCampaignFromEmail } from './engage';
+import { resolveCampaignFromEmail } from './engage';
 import { customerTargetFilter } from './targeting';
-import { addBroadcastWorkerQueue } from './worker';
+import { addBroadcastWorkerQueue, BROADCAST_QUEUES } from './worker';
+import { scheduleHeartbeat } from '../worker/drain';
 import { findCampaignAutomation } from './workflowAutomation';
 
 const CUSTOMER_BATCH_SIZE = 1000;
+const MAX_DRAIN_WORKERS = 4;
 
 const countAllCustomers = ({
   models,
@@ -27,76 +25,136 @@ const countAllCustomers = ({
   );
 };
 
-const traceExcludedCustomers = async ({
+/**
+ * Everyone the campaign's audience matches, as a cursor.
+ *
+ * No filtering here beyond the audience itself. Someone with no address or an
+ * unsubscribe is still part of who was targeted, and the manifest says so with
+ * a reason rather than leaving them out of the record entirely.
+ */
+const prepareAudience = ({
   models,
   targetType,
   targetIds,
-  engageMessageId,
 }: {
   models: IModels;
   targetType: string;
   targetIds: string[];
-  engageMessageId: string;
-}) => {
-  const query: FilterQuery<ICustomer> = {
-    ...customerTargetFilter(targetType, targetIds),
-    $or: [
-      { primaryEmail: { $in: [null, '', undefined] } },
-      { primaryEmail: { $exists: false } },
-      { isSubscribed: 'No' },
-    ],
-  };
-
-  const cursor = models.Customers.find(query, {
-    _id: 1,
-    primaryEmail: 1,
-    isSubscribed: 1,
-  })
+}) =>
+  models.Customers.find(customerTargetFilter(targetType, targetIds), { _id: 1 })
     .batchSize(CUSTOMER_BATCH_SIZE)
     .lean();
 
-  for await (const customer of cursor) {
-    const reason = customer.primaryEmail ? 'unsubscribed' : 'no email address';
-
-    await models.BroadcastTraces.createTrace(
-      engageMessageId,
-      'regular',
-      `Skipped customer ${customer._id}: ${reason} (${
-        customer.primaryEmail || 'none'
-      })`,
-    );
-  }
-};
-
-const prepareCustomers = ({
+/**
+ * Opens a run: freezes what it sends, writes down who it is for, and sets the
+ * drains going. Every method reaches its recipients the same way, so only what
+ * a delivery needs beyond the campaign differs.
+ */
+const startManifestRun = async ({
   models,
-  targetType,
-  targetIds,
+  subdomain,
+  engageMessage,
+  extras,
 }: {
   models: IModels;
-  targetType: string;
-  targetIds: string[];
+  subdomain: string;
+  engageMessage: IEngageMessageDocument;
+  extras?: { automationId?: string; configSet?: string; scheduledFor?: Date };
 }) => {
-  const query: FilterQuery<ICustomer> = {
-    ...customerTargetFilter(targetType, targetIds),
-    primaryEmail: { $exists: true, $nin: [null, '', undefined] },
-    $or: [{ isSubscribed: 'Yes' }, { isSubscribed: { $exists: false } }],
-  };
+  const { _id, targetType, targetIds } = engageMessage;
 
-  return models.Customers.find(query).batchSize(CUSTOMER_BATCH_SIZE).lean();
+  const totalCustomersCount = await countAllCustomers({
+    models,
+    targetType,
+    targetIds,
+  });
+
+  const started = await models.EngageMessages.findOneAndUpdate(
+    { _id },
+    {
+      $set: {
+        status: 'sending',
+        lastRunAt: new Date(),
+        totalCustomersCount,
+        'progress.processedBatches': 0,
+        'progress.totalBatches': 0,
+        'progress.successCount': 0,
+        'progress.failureCount': 0,
+        'progress.lastUpdated': new Date(),
+      },
+      $inc: { runCount: 1 },
+    },
+    { new: true },
+  );
+
+  const runCount = started?.runCount || 1;
+
+  const run = await models.BroadcastRuns.startRun(
+    engageMessage,
+    runCount,
+    extras,
+  );
+
+  let enrolled = 0;
+  let block: string[] = [];
+
+  for await (const customer of prepareAudience({
+    models,
+    targetType,
+    targetIds,
+  })) {
+    block.push(customer._id);
+
+    if (block.length >= CUSTOMER_BATCH_SIZE) {
+      enrolled += await models.BroadcastRecipients.enrol(
+        run._id,
+        _id,
+        block,
+        extras?.automationId,
+      );
+      block = [];
+    }
+  }
+
+  if (block.length) {
+    enrolled += await models.BroadcastRecipients.enrol(
+      run._id,
+      _id,
+      block,
+      extras?.automationId,
+    );
+  }
+
+  await models.BroadcastRuns.updateOne(
+    { _id: run._id },
+    { $set: { totalCount: enrolled } },
+  );
+
+  await models.EngageMessages.updateOne(
+    { _id },
+    { $set: { 'progress.totalBatches': enrolled } },
+  );
+
+  await queueDrains({
+    subdomain,
+    engageMessage,
+    runId: run._id,
+    runCount,
+    remaining: enrolled,
+  });
 };
 
 const sendBroadcastEmail = async ({
   models,
   subdomain,
   engageMessage,
+  scheduledFor,
 }: {
   models: IModels;
   subdomain: string;
   engageMessage: IEngageMessageDocument;
+  scheduledFor?: Date;
 }) => {
-  const { _id, targetType, targetIds, method } = engageMessage;
-
   const fromEmail = await resolveCampaignFromEmail(models, engageMessage);
 
   if (!fromEmail) {
@@ -110,129 +168,26 @@ const sendBroadcastEmail = async ({
     'erxes',
   );
 
-  await models.EngageMessages.updateOne(
-    { _id },
-    {
-      $set: {
-        status: 'sending',
-        'progress.processedBatches': 0,
-        'progress.totalBatches': 0,
-        'progress.successCount': 0,
-        'progress.failureCount': 0,
-        'progress.lastUpdated': new Date(),
-      },
-    },
-  );
-
-  // Collect all batches before queuing so totalBatches is known upfront.
-  // Workers check processedBatches >= totalBatches to set final status,
-  // so totalBatches must be written before any worker can finish.
-  const totalCustomersCount = await countAllCustomers({
+  await startManifestRun({
     models,
-    targetType,
-    targetIds,
+    subdomain,
+    engageMessage: { ...engageMessage, fromEmail } as IEngageMessageDocument,
+    extras: { configSet, scheduledFor },
   });
-
-  await traceExcludedCustomers({
-    models,
-    targetType,
-    targetIds,
-    engageMessageId: _id,
-  });
-
-  const batches: ICustomerDocument[][] = [];
-  let currentBatch: ICustomerDocument[] = [];
-
-  for await (const customer of prepareCustomers({
-    models,
-    targetType,
-    targetIds,
-  })) {
-    if (!customer || !validator.isEmail(customer?.primaryEmail || '')) {
-      await models.BroadcastTraces.createTrace(
-        _id,
-        'regular',
-        `Skipped customer ${customer?._id}: missing or invalid email (${
-          customer?.primaryEmail || 'none'
-        })`,
-      );
-      continue;
-    }
-
-    const delivery = await models.DeliveryReports.findOne({
-      engageMessageId: _id,
-      email: customer.primaryEmail,
-    });
-
-    if (delivery) {
-      await models.BroadcastTraces.createTrace(
-        _id,
-        'regular',
-        `Skipped customer ${customer._id}: email ${customer.primaryEmail} already sent in a previous run`,
-      );
-      continue;
-    }
-
-    currentBatch.push(customer);
-
-    if (currentBatch.length >= CUSTOMER_BATCH_SIZE) {
-      batches.push(currentBatch);
-      currentBatch = [];
-    }
-  }
-
-  if (currentBatch.length > 0) {
-    batches.push(currentBatch);
-  }
-
-  // Write totalBatches BEFORE queuing so workers always see the correct value
-  const started = await models.EngageMessages.findOneAndUpdate(
-    { _id },
-    {
-      $set: {
-        lastRunAt: new Date(),
-        totalCustomersCount,
-        'progress.totalBatches': batches.length,
-      },
-      $inc: {
-        runCount: 1,
-      },
-    },
-    { new: true },
-  );
-
-  const queuedRun = started?.runCount;
-
-  for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
-    await addBroadcastWorkerQueue({
-      queueName: 'broadcast_processor',
-      data: {
-        method,
-        payload: {
-          customers: batches[batchIndex],
-          engageMessage,
-          fromEmail,
-          configSet,
-          subdomain,
-          queuedRun,
-          batchIndex,
-        },
-      },
-      jobId: `${_id}_run${queuedRun}_batch${batchIndex}`,
-    });
-  }
 };
 
 const sendBroadcastNotification = async ({
   models,
   subdomain,
   engageMessage,
+  scheduledFor,
 }: {
   models: IModels;
   subdomain: string;
   engageMessage: IEngageMessageDocument;
+  scheduledFor?: Date;
 }) => {
-  const { _id, targetType, targetIds, method, cpId } = engageMessage;
+  const { cpId } = engageMessage;
 
   if (!cpId) {
     throw new Error(
@@ -246,145 +201,57 @@ const sendBroadcastNotification = async ({
     throw new Error('Client portal not found');
   }
 
-  await models.EngageMessages.updateOne(
-    { _id },
-    {
-      $set: {
-        status: 'sending',
-        'progress.processedBatches': 0,
-        'progress.totalBatches': 0,
-        'progress.successCount': 0,
-        'progress.failureCount': 0,
-        'progress.lastUpdated': new Date(),
-      },
-    },
-  );
+  await startManifestRun({
+    models,
+    subdomain,
+    engageMessage,
+    extras: { scheduledFor },
+  });
+};
 
-  const customersSelector = generateCustomerSelector({
-    targetType,
-    targetIds,
+const queueDrains = async ({
+  subdomain,
+  engageMessage,
+  runId,
+  runCount,
+  remaining,
+}: {
+  subdomain: string;
+  engageMessage: IEngageMessageDocument;
+  runId: string;
+  runCount: number;
+  remaining: number;
+}) => {
+  const workers = Math.min(
+    Math.max(Math.ceil(remaining / CUSTOMER_BATCH_SIZE), 1),
+    MAX_DRAIN_WORKERS,
+  );
+  const attempt = Date.now();
+
+  await scheduleHeartbeat({
+    subdomain,
+    runId,
+    campaignTitle: engageMessage.title,
   });
 
-  const totalCustomersCount = await models.Customers.countDocuments(
-    customersSelector,
-  );
-
-  const erxesCustomerIds = await models.Customers.find(customersSelector)
-    .distinct('_id')
-    .lean();
-
-  const cpUsers = await models.CPUser.find({
-    clientPortalId: cpId,
-    erxesCustomerId: { $in: erxesCustomerIds },
-  }).lean();
-
-  const linkedCustomerIds = new Set(
-    cpUsers.map((cpUser) => cpUser.erxesCustomerId).filter(Boolean),
-  );
-
-  for (const customerId of erxesCustomerIds) {
-    if (!linkedCustomerIds.has(customerId)) {
-      await models.BroadcastTraces.createTrace(
-        _id,
-        'regular',
-        `Skipped customer ${customerId}: no linked client portal user`,
-      );
-    }
-  }
-
-  const batches: ICPUserDocument[][] = [];
-  let currentBatch: ICPUserDocument[] = [];
-
-  for (const cpUser of cpUsers) {
-    currentBatch.push(cpUser as ICPUserDocument);
-
-    if (currentBatch.length >= CUSTOMER_BATCH_SIZE) {
-      batches.push(currentBatch);
-      currentBatch = [];
-    }
-  }
-
-  if (currentBatch.length > 0) {
-    batches.push(currentBatch);
-  }
-
-  if (batches.length === 0) {
-    await models.EngageMessages.updateOne(
-      { _id },
-      {
-        $set: {
-          lastRunAt: new Date(),
-          totalCustomersCount,
-          status: 'completed',
-          'progress.totalBatches': 0,
-          'progress.processedBatches': 0,
-          'progress.lastUpdated': new Date(),
-        },
-        $inc: {
-          runCount: 1,
-        },
-      },
-    );
-
-    await models.BroadcastTraces.createTrace(
-      _id,
-      'regular',
-      'No linked client portal users found for the selected targets',
-    );
-
-    return;
-  }
-
-  await models.EngageMessages.updateOne(
-    { _id },
-    {
-      $set: {
-        lastRunAt: new Date(),
-        totalCustomersCount,
-        'progress.totalBatches': batches.length,
-      },
-      $inc: {
-        runCount: 1,
-      },
-    },
-  );
-
-  for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
+  for (let index = 0; index < workers; index++) {
     await addBroadcastWorkerQueue({
-      queueName: 'broadcast_processor',
+      queueName: BROADCAST_QUEUES.SENDING,
       data: {
-        method,
-        payload: {
-          cpUsers: batches[batchIndex],
-          engageMessage,
-          clientPortal,
-          subdomain,
-        },
+        method: engageMessage.method,
+        payload: { runId, subdomain, campaignTitle: engageMessage.title },
       },
-      jobId: `${_id}_batch_${batchIndex}`,
+      jobId: `${engageMessage._id}_run${runCount}_drain${index}_${attempt}`,
     });
   }
 };
 
 /**
- * Workflow campaigns take the audience as-is: the email path's exclusions
- * (a missing address, an unsubscribe) are about sending mail, and a flow that
- * assigns a task or issues a voucher has nothing to do with them.
+ * Going live again after a pause continues the run that stopped rather than
+ * enrolling the audience a second time. Re-targeting is a new run, which is
+ * what going live on a finished campaign gives.
  */
-const prepareWorkflowCustomers = ({
-  models,
-  targetType,
-  targetIds,
-}: {
-  models: IModels;
-  targetType: string;
-  targetIds: string[];
-}) =>
-  models.Customers.find(customerTargetFilter(targetType, targetIds), { _id: 1 })
-    .batchSize(CUSTOMER_BATCH_SIZE)
-    .lean();
-
-const sendBroadcastWorkflow = async ({
+const resumeRun = async ({
   models,
   subdomain,
   engageMessage,
@@ -393,128 +260,118 @@ const sendBroadcastWorkflow = async ({
   subdomain: string;
   engageMessage: IEngageMessageDocument;
 }) => {
-  const { _id, targetType, targetIds, method } = engageMessage;
+  const run = await models.BroadcastRuns.findOne({
+    engageMessageId: engageMessage._id,
+    status: 'running',
+  })
+    .sort({ runCount: -1 })
+    .lean();
 
-  const automation = await findCampaignAutomation(models, _id);
+  if (!run) {
+    return false;
+  }
+
+  const remaining = await models.BroadcastRecipients.countDocuments({
+    runId: run._id,
+    status: { $in: ['pending', 'claimed'] },
+  });
+
+  if (!remaining) {
+    return false;
+  }
+
+  await models.EngageMessages.updateOne(
+    { _id: engageMessage._id },
+    { $set: { status: 'sending' } },
+  );
+
+  await models.BroadcastTraces.createTrace(
+    engageMessage._id,
+    'regular',
+    `Resumed run ${run.runCount} with ${remaining} recipients left.`,
+  );
+
+  await queueDrains({
+    subdomain,
+    engageMessage,
+    runId: run._id,
+    runCount: run.runCount,
+    remaining,
+  });
+
+  return true;
+};
+
+const sendBroadcastWorkflow = async ({
+  models,
+  subdomain,
+  engageMessage,
+  scheduledFor,
+}: {
+  models: IModels;
+  subdomain: string;
+  engageMessage: IEngageMessageDocument;
+  scheduledFor?: Date;
+}) => {
+  const automation = await findCampaignAutomation(models, engageMessage._id);
 
   if (!automation) {
     throw new Error('This campaign has no workflow');
   }
 
-  await models.EngageMessages.updateOne(
-    { _id },
-    {
-      $set: {
-        status: 'sending',
-        'progress.processedBatches': 0,
-        'progress.totalBatches': 0,
-        'progress.successCount': 0,
-        'progress.failureCount': 0,
-        'progress.lastUpdated': new Date(),
-      },
-    },
-  );
-
-  const totalCustomersCount = await countAllCustomers({
+  await startManifestRun({
     models,
-    targetType,
-    targetIds,
+    subdomain,
+    engageMessage,
+    extras: { automationId: automation._id, scheduledFor },
   });
-
-  // Someone the flow already ran for is skipped on a re-run, which is both
-  // what the email path does with its delivery reports and what an automation
-  // does by default when re-enrollment is not configured. One query, and empty
-  // on a first run.
-  const alreadyRunIds = new Set<string>(
-    await models.AutomationExecutions.distinct('targetId', {
-      automationId: automation._id,
-    }),
-  );
-
-  const batches: string[][] = [];
-  let currentBatch: string[] = [];
-
-  for await (const customer of prepareWorkflowCustomers({
-    models,
-    targetType,
-    targetIds,
-  })) {
-    if (alreadyRunIds.has(customer._id)) {
-      await models.BroadcastTraces.createTrace(
-        _id,
-        'regular',
-        `Skipped customer ${customer._id}: the workflow already ran for them`,
-      );
-      continue;
-    }
-
-    currentBatch.push(customer._id);
-
-    if (currentBatch.length >= CUSTOMER_BATCH_SIZE) {
-      batches.push(currentBatch);
-      currentBatch = [];
-    }
-  }
-
-  if (currentBatch.length > 0) {
-    batches.push(currentBatch);
-  }
-
-  // Written before queuing so a worker never sees a stale totalBatches
-  const started = await models.EngageMessages.findOneAndUpdate(
-    { _id },
-    {
-      $set: {
-        lastRunAt: new Date(),
-        totalCustomersCount,
-        'progress.totalBatches': batches.length,
-      },
-      $inc: { runCount: 1 },
-    },
-    { new: true },
-  );
-
-  const queuedRun = started?.runCount;
-
-  for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
-    await addBroadcastWorkerQueue({
-      queueName: 'broadcast_processor',
-      data: {
-        method,
-        payload: {
-          customerIds: batches[batchIndex],
-          automationId: automation._id,
-          engageMessage,
-          subdomain,
-          queuedRun,
-          batchIndex,
-        },
-      },
-      jobId: `${_id}_run${queuedRun}_batch${batchIndex}`,
-    });
-  }
 };
 
 export const sendBroadcast = async ({
   models,
   subdomain,
   engageMessage,
+  scheduledFor,
 }: {
   models: IModels;
   subdomain: string;
   engageMessage: IEngageMessageDocument;
+  /** The occurrence this send belongs to, when a schedule opened it. */
+  scheduledFor?: Date;
 }) => {
   const { method } = engageMessage;
 
+  // Going live again continues the run that stopped rather than enrolling the
+  // audience a second time. Re-targeting is a new run, which is what going
+  // live on a finished campaign gives.
+  if (await resumeRun({ models, subdomain, engageMessage })) {
+    return;
+  }
+
   if (method === 'email') {
-    return sendBroadcastEmail({ models, subdomain, engageMessage });
+    return sendBroadcastEmail({
+      models,
+      subdomain,
+      engageMessage,
+      scheduledFor,
+    });
   }
 
   if (method === 'notification') {
-    return sendBroadcastNotification({ models, subdomain, engageMessage });
+    return sendBroadcastNotification({
+      models,
+      subdomain,
+      engageMessage,
+      scheduledFor,
+    });
   }
 
   if (method === CAMPAIGN_METHODS.WORKFLOW) {
-    return sendBroadcastWorkflow({ models, subdomain, engageMessage });
+    return sendBroadcastWorkflow({
+      models,
+      subdomain,
+      engageMessage,
+      scheduledFor,
+    });
   }
 };

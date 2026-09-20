@@ -51,6 +51,14 @@ export const statsSchema = new Schema({
     default: 0,
     label: `The email wasn't sent because of a template rendering issue`,
   },
+  deferred: {
+    type: Number,
+    default: 0,
+    // The only sign a provider gives when it is holding us back rather than
+    // refusing us outright: nothing failed, so no error is ever raised.
+    label:
+      'The receiving server asked for the message later and the provider is still trying',
+  },
   total: { type: Number, default: 0, label: 'Total of all cases above' },
 });
 

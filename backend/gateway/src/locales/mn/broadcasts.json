@@ -1,4 +1,170 @@
 {
   "broadcasts": "Броадкастууд",
-  "broadcast": "Броадкаст"
+  "broadcast": "Броадкаст",
+  "display": "Харагдац",
+  "loading": "Уншиж байна…",
+  "go-to-settings": "Тохиргоо руу очих",
+  "records-found_one": "{{count}} бичлэг олдлоо",
+  "records-found_other": "{{count}} бичлэг олдлоо",
+  "status": {
+    "draft": "Ноорог",
+    "sending": "Илгээж байна",
+    "sent": "Илгээсэн",
+    "not-sent": "Илгээгээгүй",
+    "paused": "Түр зогссон",
+    "overdue": "Хугацаа хэтэрсэн",
+    "failed": "Амжилтгүй",
+    "cancelled": "Цуцлагдсан",
+    "unknown": "Тодорхойгүй"
+  },
+  "trigger": {
+    "label": "Эхлүүлэгч",
+    "manual": "Гараар",
+    "scheduled": "Товлосон",
+    "recurring": "Давтагдах"
+  },
+  "method": {
+    "email": "Имэйл",
+    "sms": "Sms",
+    "messenger": "Мессенжер",
+    "notification": "Мэдэгдэл",
+    "workflow": "Ажлын урсгал",
+    "unknown": "Тодорхойгүй",
+    "email-description": "Бүрэн тохируулж болох загвартай имэйл маркетинг",
+    "messenger-description": "Апп доторх шууд мессежээр биечлэн харилцах",
+    "notification-description": "Харилцагчдад автомат мэдэгдэл илгээх",
+    "workflow-description": "Сонгосон харилцагч бүрт автоматжуулалтыг нэг удаа ажиллуулах"
+  },
+  "columns": {
+    "name": "Нэр",
+    "status": "Төлөв",
+    "audience": "Хүрээ",
+    "reached": "Хүрсэн",
+    "type": "Төрөл",
+    "brand": "Брэнд",
+    "from": "Илгээгч",
+    "no-brand": "Брэнд алга",
+    "no-member": "Гишүүн алга"
+  },
+  "layout": {
+    "list": "Жагсаалт",
+    "grid": "Хүснэгт",
+    "calendar": "Календарь"
+  },
+  "actions": {
+    "new": "Шинэ броадкаст",
+    "preview": "Урьдчилж харах",
+    "edit": "Засах",
+    "duplicate": "Хувилах",
+    "pause": "Түр зогсоох",
+    "schedule": "Товлох…",
+    "schedule-short": "Товлох",
+    "cancel-schedule": "Товлолт цуцлах"
+  },
+  "card": {
+    "actions": "Кампанит ажлын үйлдлүүд",
+    "no-audience": "Хүрээ сонгоогүй",
+    "reached": "{{count}}-д хүрсэн",
+    "targeted": "сонгосон",
+    "goes-out": "явах хүртэл"
+  },
+  "command-bar": {
+    "selected_one": "{{count}} сонгогдсон",
+    "selected_other": "{{count}} сонгогдсон"
+  },
+  "confirm": {
+    "delete_one": "Сонгосон броадкастыг устгахдаа итгэлтэй байна уу?",
+    "delete_other": "Сонгосон {{count}} броадкастыг устгахдаа итгэлтэй байна уу?"
+  },
+  "toast": {
+    "error": "Алдаа",
+    "success": "Амжилттай",
+    "deleted": "Броадкаст устгагдлаа",
+    "duplicated": "Хувилагдлаа",
+    "duplicated-body": "Ноорог хувь засахад бэлэн боллоо"
+  },
+  "empty": {
+    "title": "Кампанит ажил алга",
+    "filtered-title": "Тохирох кампанит ажил алга",
+    "body": "Броадкаст нь сонгосон харилцагч бүрт мессеж илгээх, эсвэл урсгал ажиллуулна.",
+    "filtered-body": "Дээрх шүүлтүүрт тохирох зүйл алга. Нэгийг нь сулруулж үзнэ үү."
+  },
+  "error": {
+    "title": "Кампанит ажлуудыг уншиж чадсангүй",
+    "unknown": "Тодорхойгүй алдаа",
+    "retry": "Дахин оролдох"
+  },
+  "tab": {
+    "statistic": "Статистик",
+    "preview": "Урьдчилж харах",
+    "recipients": "Хүлээн авагчид",
+    "traces": "Мөрдлөг"
+  },
+  "stat": {
+    "average": "Имэйлийн дундаж статистик",
+    "sent": "Илгээсэн",
+    "delivered": "Хүргэгдсэн",
+    "opened": "Нээсэн",
+    "clicked": "Дарсан",
+    "complaints": "Гомдол",
+    "bounce": "Буцсан",
+    "rejected": "Татгалзсан",
+    "rendering-failure": "Дүрслэх алдаа",
+    "has-run": "Энэ кампанит ажил ажилласан:",
+    "last-run": "Сүүлд ажилласан:",
+    "never": "Хэзээ ч үгүй"
+  },
+  "recipients": {
+    "empty-title": "Хүлээн авагч алга",
+    "select-run": "Ажиллалт сонгох",
+    "close": "Хүлээн авагчийн дэлгэрэнгүйг хаах",
+    "reason": "Шалтгаан",
+    "customer": "Харилцагч",
+    "updated": "Шинэчлэгдсэн",
+    "open-customer": "Харилцагчийг нээх"
+  },
+  "traces": {
+    "empty": "Мөрдлөг алга"
+  },
+  "schedule": {
+    "dialog-title": "Энэ броадкастыг товлох",
+    "goes-out": "Явах:",
+    "repeats": "Давтамж:",
+    "next-run": "Дараагийн ажиллалт:",
+    "runs": "Ажиллалт:",
+    "runs-of": "{{total}}-аас {{ran}}",
+    "status": "Төлөв:",
+    "finished": "Давталт дууссан",
+    "until": "Хүртэл",
+    "pick-end": "Дуусах огноо сонгох"
+  },
+  "calendar": {
+    "previous-month": "Өмнөх сар",
+    "next-month": "Дараагийн сар",
+    "back-to-today": "Өнөөдөр рүү буцах",
+    "nothing": "Товлосон ч, илгээсэн ч зүйл алга",
+    "sends_one": "{{count}} илгээлт",
+    "sends_other": "{{count}} илгээлт",
+    "days_one": "{{count}} хоног",
+    "days_other": "{{count}} хоног",
+    "days-passed": "Эдгээр өдрүүд өнгөрсөн",
+    "more": "+{{count}} бусад",
+    "recipients_one": "{{count}} хүлээн авагч",
+    "recipients_other": "{{count}} хүлээн авагч"
+  },
+  "workflow": {
+    "add-step": "Алхам нэмэх",
+    "after-selected": "Сонгосон алхмын дараа юу ажиллахыг сонгоно уу.",
+    "each-step": "Алхам бүр энэ кампанит ажлын хүрэх харилцагч бүрт нэг удаа ажиллана.",
+    "templates": "Загварууд",
+    "single-step": "Нэг алхам",
+    "search-steps": "Алхам хайх…",
+    "no-step": "Тохирох алхам алга",
+    "variables": "Хувьсагчид"
+  },
+  "approval": {
+    "lock": "Түгжих"
+  },
+  "broadcast-config": "Броадкастын тохиргоо",
+  "untitled": "Нэргүй"
 }

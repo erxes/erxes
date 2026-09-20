@@ -27,6 +27,8 @@ export const types = `
     validCustomersCount: Int
     runCount: Int
     lastRunAt: Date
+    "When the schedule next comes due, absent when nothing is scheduled"
+    nextRunAt: Date
 
     status: String
     progress: JSON
@@ -49,6 +51,9 @@ export const types = `
     fromIntegration: JSON
 
     stats: JSON
+
+    "Whether somebody has locked this campaign for approval, and who may act"
+    approvalLockState(action: String): ApprovalLockState
   }
 
   type EngageScheduleDate {
@@ -56,6 +61,16 @@ export const types = `
     month: String,
     day: String,
     dateTime: Date,
+
+    every: String,
+    hour: Int,
+    minute: Int,
+    weekDay: Int,
+    monthDay: Int,
+    monthOfYear: Int,
+    startDate: Date,
+    endDate: Date,
+    timeZone: String,
   }
 
   type DeliveryReport {
@@ -121,6 +136,18 @@ export const types = `
     totalCount: Int
   }
 
+  input EngageRecurrenceInput {
+    every: String!
+    hour: Int!
+    minute: Int
+    weekDay: Int
+    monthDay: Int
+    monthOfYear: Int
+    startDate: Date
+    endDate: Date!
+    timeZone: String
+  }
+
   input EngageScheduleDateInput {
     type: String,
     month: String,
@@ -183,6 +210,57 @@ export const types = `
     totalCount: Int
   }
 
+  type BroadcastRun {
+    _id: String!
+    runCount: Int
+    method: String
+    status: String
+    totalCount: Int
+    startedAt: Date
+    finishedAt: Date
+    "How many recipients ended in each status"
+    counts: JSON
+  }
+
+  type BroadcastRecipient {
+    _id: String!
+    runId: String!
+    customerId: String!
+    customer: Customer
+    "The flow this dispatch started, absent until the service creates it"
+    execution: AutomationHistory
+    status: String!
+    "Why it was not sent, on anything but a plain send"
+    reason: String
+    attempts: Int
+    finishedAt: Date
+    createdAt: Date
+    updatedAt: Date
+  }
+
+  type BroadcastRecipientListResponse {
+    list: [BroadcastRecipient]
+    pageInfo: PageInfo
+    totalCount: Int
+  }
+
+  """
+  One moment on the calendar: a run that already happened, or an occurrence
+  that is still due.
+  """
+  type EngageCalendarEntry {
+    engageMessageId: String!
+    title: String
+    method: String
+    at: Date!
+    "planned | overdue | running | completed | failed | cancelled"
+    state: String!
+    "Set only once the occurrence has a run behind it"
+    runId: String
+    runCount: Int
+    totalCount: Int
+  }
+
   type BroadcastTrace {
     _id: String!
     engageMessageId: String!
@@ -220,13 +298,18 @@ export const types = `
   }
 `;
 
-const queryParams = `
+const filterParams = `
   kind: String
+  trigger: String
   status: String
   method: String
   brandId: String
   fromUserId: String
   searchValue: String
+`;
+
+const queryParams = `
+  ${filterParams}
 
   ${GQL_CURSOR_PARAM_DEFS}
 `;
@@ -242,8 +325,14 @@ export const queries = `
   engageEmailPercentages: AvgEmailStats
   engageSmsDeliveries(type: String!, to: String, page: Int, perPage: Int): DeliveryList
   engageBroadcastTraces(engageMessageId: String!): [BroadcastTrace]
+  engageBroadcastRuns(engageMessageId: String!): [BroadcastRun]
+  engageBroadcastRecipients(runId: String!, status: String, searchValue: String, beginDate: Date, endDate: Date, ${GQL_CURSOR_PARAM_DEFS}): BroadcastRecipientListResponse
   engageVerifiedEmails: [String]
   emailSenderOptions(scope: String): EmailSenderOptions
+  "How often a proposed recurrence would fire, and when it next would"
+  engageSchedulePreview(recurrence: EngageRecurrenceInput!): JSON
+  "What went out, and what is due to, between two moments"
+  engageScheduleCalendar(from: Date!, to: Date!, ${filterParams}): [EngageCalendarEntry]
 `;
 
 const mutationParams = `
@@ -284,6 +373,12 @@ export const mutations = `
   engageMessageRemoveVerifiedEmail(email: String!, scope: String): String
   engageMessageSendTestEmail(from: String!, to: String!, content: String!, title: String!): String
   engageMessageCopy(_id: String!): EngageMessage
+  engageMessageSetSchedule(
+    _id: String!
+    dateTime: Date
+    recurrence: EngageRecurrenceInput
+  ): EngageMessage
+  engageMessageCancelSchedule(_id: String!): EngageMessage
   broadcastUpdateConfigs(configsMap: JSON!): JSON
 
   engageSendMail(

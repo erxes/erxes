@@ -1,26 +1,38 @@
 import { IBroadcastMethodEnum } from '@/broadcast/types';
-import { cn, Sheet, useQueryState, useRemoveQueryStateByKey } from 'erxes-ui';
-import { useState } from 'react';
-import { BroadcastMethod } from './BroadcastMethod';
+import { cn, Sheet, useMultiQueryState } from 'erxes-ui';
+import { useBroadcastScheduleRange } from '../hooks/useBroadcastScheduleRange';
+import { BroadcastMethod } from './list/BroadcastMethod';
 import { BroadcastSteps } from './steps/BroadcastSteps';
 
+/**
+ * Creating a campaign, opened by choosing a method.
+ *
+ * The chosen method is what holds the sheet open, rather than a flag beside
+ * it: the calendar starts a campaign from a selection of days, and it has the
+ * query string to hand, not this component's state. An edit carries a method
+ * too, and belongs to the other sheet, so it is left alone here.
+ */
 export const BroadcastSheet = () => {
-  const [open, setOpen] = useState<boolean>(false);
-  const [method] = useQueryState<IBroadcastMethodEnum>('method');
+  const [{ method, editMessageId }, setQueryParams] = useMultiQueryState<{
+    method: IBroadcastMethodEnum;
+    editMessageId: string;
+  }>(['method', 'editMessageId']);
 
-  const removeQueryStateByKey = useRemoveQueryStateByKey();
+  const { clearRange } = useBroadcastScheduleRange();
 
-  const handleOpenChange = (open: boolean) => {
-    if (!open) {
-      removeQueryStateByKey('method');
-    }
-
-    setOpen(open);
+  const handleClose = () => {
+    // The days picked on the calendar were for this campaign; leaving them
+    // behind would quietly schedule the next one into them.
+    clearRange();
+    setQueryParams({ method: null });
   };
 
   return (
-    <Sheet open={open} onOpenChange={handleOpenChange}>
-      <BroadcastMethod onSelect={() => setOpen(true)} />
+    <Sheet
+      open={!!method && !editMessageId}
+      onOpenChange={(open) => !open && handleClose()}
+    >
+      <BroadcastMethod onSelect={() => undefined} />
 
       <Sheet.View
         className={cn(
@@ -36,7 +48,7 @@ export const BroadcastSheet = () => {
           e.preventDefault();
         }}
       >
-        <BroadcastSteps onClose={() => handleOpenChange(false)} />
+        <BroadcastSteps onClose={handleClose} />
       </Sheet.View>
     </Sheet>
   );

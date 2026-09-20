@@ -1,5 +1,6 @@
 import { IBroadcastFormData } from '@/broadcast/hooks/useBroadcastForm';
-import { TBroadcastWorkflow } from '@/broadcast/components/workflow/BroadcastWorkflowEditor';
+import { scheduleToForm } from './scheduleForm';
+import { TBroadcastWorkflow } from '@/broadcast/components/workflow/components/BroadcastWorkflowEditor';
 
 /**
  * A saved campaign read back into the form the creation sheet uses.
@@ -26,6 +27,7 @@ export const messageToFormValues = (
     email,
     messenger,
     notification,
+    scheduleDate,
   } = message || {};
 
   const base = {
@@ -35,6 +37,7 @@ export const messageToFormValues = (
     targetCount: targetCount || 0,
     isLive: !!isLive,
     isDraft: !!isDraft,
+    schedule: scheduleToForm(scheduleDate),
   };
 
   if (method === 'workflow') {

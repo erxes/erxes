@@ -8,21 +8,31 @@ import {
 import { BROADCAST_MESSAGES } from '../graphql/queries';
 
 export const useBroadcastMessageVariables = () => {
-  const [{ searchValue, brand, fromUser, kind, status, methods }] =
+  const [{ searchValue, brand, fromUser, trigger, status, methods }] =
     useMultiQueryState<{
       searchValue: string;
       brand: string;
-      fromUser: String;
-      kind: string;
+      fromUser: string;
+      trigger: string;
       status: string;
       methods: string;
-    }>(['searchValue', 'brand', 'fromUser', 'kind', 'status', 'methods']);
+    }>([
+      'searchValue',
+      'brand',
+      'fromUser',
+      'trigger',
+      'status',
+      'methods',
+    ]);
 
+  // `kind` is deliberately absent. What starts a campaign is read from its
+  // schedule and filtered as `trigger`; a leftover `kind` in a link used to go
+  // on narrowing the list with nothing on screen to say so or undo it.
   return {
     searchValue: searchValue || undefined,
     brandId: brand || undefined,
     fromUserId: fromUser || undefined,
-    kind: kind || undefined,
+    trigger: trigger || undefined,
     status: status || undefined,
     method: methods || undefined,
   };
@@ -31,11 +41,18 @@ export const useBroadcastMessageVariables = () => {
 export const useMessages = () => {
   const variables = useBroadcastMessageVariables();
 
-  const { data, loading, fetchMore } = useQuery(BROADCAST_MESSAGES, {
-    variables,
-  });
+  const { data, loading, error, refetch, fetchMore } = useQuery(
+    BROADCAST_MESSAGES,
+    {
+      variables,
+    },
+  );
 
-  const { list: messages, pageInfo } = data?.engageMessages || {};
+  const {
+    list: messages,
+    pageInfo,
+    totalCount = 0,
+  } = data?.engageMessages || {};
 
   const handleFetchMore = ({
     direction,
@@ -72,7 +89,10 @@ export const useMessages = () => {
   return {
     messages,
     pageInfo,
+    totalCount,
     loading,
+    error,
+    refetch,
     handleFetchMore,
   };
 };

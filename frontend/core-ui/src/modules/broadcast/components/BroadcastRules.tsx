@@ -4,8 +4,8 @@ import { useFieldArray, useFormContext } from 'react-hook-form';
 import { z } from 'zod';
 import { BROADCAST_RULES } from '../constants';
 import { broadcastSchema } from '../schema';
-import { BroadcastSelectRule } from './select/BroadcastSelectRule';
-import { BroadcastSelectRuleCondition } from './select/BroadcastSelectRuleCondition';
+import { BroadcastSelectRule } from './common/select/BroadcastSelectRule';
+import { BroadcastSelectRuleCondition } from './common/select/BroadcastSelectRuleCondition';
 
 export const BroadcastRules = () => {
   const { control } = useFormContext<z.infer<typeof broadcastSchema>>();

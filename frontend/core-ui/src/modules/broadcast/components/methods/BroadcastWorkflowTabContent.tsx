@@ -1,5 +1,5 @@
 import { useAutomationDetail } from '@/automations/hooks/useAutomationDetail';
-import { BroadcastWorkflowEditor } from '@/broadcast/components/workflow/BroadcastWorkflowEditor';
+import { BroadcastWorkflowEditor } from '@/broadcast/components/workflow/components/BroadcastWorkflowEditor';
 import { IconArrowsSplit2 } from '@tabler/icons-react';
 import { Empty, Skeleton } from 'erxes-ui';
 

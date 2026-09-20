@@ -6,6 +6,7 @@ import {
   AUTOMATION_STATUSES,
   IAutomationAction,
 } from 'erxes-api-shared/core-modules';
+import { resumeHeldExecutions } from '@/automations/utils/service';
 import { nanoid } from 'nanoid';
 import { IModels } from '~/connectionResolvers';
 
@@ -95,6 +96,7 @@ export const setCampaignAutomationFlow = async (
 /** Mirrors the campaign's live state onto the automation it owns. */
 export const setCampaignAutomationStatus = async (
   models: IModels,
+  subdomain: string,
   campaignId: string,
   status: (typeof AUTOMATION_STATUSES)[keyof typeof AUTOMATION_STATUSES],
   /**
@@ -113,6 +115,21 @@ export const setCampaignAutomationStatus = async (
       },
     },
   );
+
+  if (status !== AUTOMATION_STATUSES.ACTIVE) {
+    return;
+  }
+
+  // Going live again leaves the recipients still in a delay held by the
+  // automations service; they resume only when it is asked to arm them.
+  const automation = await models.Automations.findOne(
+    { ownedBy: 'broadcast', ownerContentId: campaignId },
+    { _id: 1 },
+  ).lean();
+
+  if (automation) {
+    await resumeHeldExecutions(subdomain, automation._id);
+  }
 };
 
 export const removeCampaignAutomations = async (

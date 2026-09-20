@@ -31,7 +31,7 @@ const EmailPreview = ({ message }: { message?: TEmailPreviewMessage }) => {
 
       try {
         blocks = JSON.parse(content);
-      } catch (_error) {
+      } catch {
         blocks = await editor.tryParseHTMLToBlocks(content);
       }
 

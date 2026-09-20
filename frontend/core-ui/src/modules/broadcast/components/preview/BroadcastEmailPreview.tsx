@@ -14,7 +14,7 @@ export const BroadcastEmailPreview = () => {
     <div className="h-full p-10">
       <div
         className={`
-          bg-white overflow-y-auto rounded-xl h-full py-8 border border-gray-200 transition-all duration-300
+          bg-white overflow-y-auto rounded-xl h-full py-8 border transition-all duration-300
           ${
             hasError
               ? 'shadow-[0_0_15px_rgba(239,68,68,0.5)]'

@@ -1,143 +1,85 @@
 import { IEngageMessage } from '@/broadcast/@types';
+import { BROADCAST_APPROVAL_CONTENT_TYPES } from '@/broadcast/constants';
 import {
-  checkCampaignDoc,
-  createCampaignAutomation,
-  findCampaignAutomation,
   getEditorAttributeUtil,
-  isWorkflowCampaign,
-  removeCampaignAutomations,
-  sendBroadcast,
-  setCampaignAutomationFlow,
   sendEngageEmail,
-  setCampaignAutomationStatus,
   updateConfigs,
 } from '@/broadcast/utils';
 import {
   getBroadcastCacheKey,
   getBroadcastEmailConfig,
 } from '@/broadcast/utils/outboundEmail';
-import { AUTOMATION_STATUSES } from 'erxes-api-shared/core-modules';
+import { TBroadcastRecurrence } from '@/broadcast/utils/recurrence';
+import { scheduledAt } from '@/broadcast/utils/schedule';
 import { deliverEmail, ISingleSenderInput } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { TEmailScope } from '~/utils/email/scope';
 import { createDeliveryLogPort } from '~/utils/email/ports';
 import { removeVerifiedSender, verifySender } from '~/utils/email/senders';
 
+// Whoever locks a campaign says who keeps access; no owner is named here, so
+// its author cannot let themselves through a lock meant to hold them.
+const assertCampaignAccess = async (
+  { models, user }: Pick<IContext, 'models' | 'user'>,
+  campaign: { _id: string },
+  action: 'edit' | 'live',
+) =>
+  models.ApprovalLocks.assertAccess({
+    user,
+    contentType: BROADCAST_APPROVAL_CONTENT_TYPES.CAMPAIGN,
+    contentId: campaign._id,
+    action,
+  });
+
 export const engageMutations = {
-  /**
-   * Create new message
-   */
   async engageMessageAdd(
     _root,
     doc: IEngageMessage,
-    { user, models, subdomain, checkPermission }: IContext,
+    { user, models, checkPermission }: IContext,
   ) {
     await checkPermission('broadcastCreate');
 
-    const { isLive, isDraft } = doc || {};
-
-    await checkCampaignDoc(models, doc);
-
-    const { workflow, ...campaignDoc } = doc;
-
-    const engageMessage = await models.EngageMessages.createEngageMessage({
-      ...campaignDoc,
-      createdBy: user._id,
-    });
-
-    if (isWorkflowCampaign(doc.method)) {
-      await createCampaignAutomation(models, {
-        campaignId: engageMessage._id,
-        title: engageMessage.title,
-        userId: user._id,
-        actions: workflow?.actions,
-        entryActionId: workflow?.entryActionId,
-      });
-    }
-
-    if (isLive && !isDraft) {
-      // Mirrors `engageMessageSetLive`: a campaign created live must not leave
-      // the automation it owns sitting in draft.
-      if (isWorkflowCampaign(doc.method)) {
-        await setCampaignAutomationStatus(
-          models,
-          engageMessage._id,
-          AUTOMATION_STATUSES.ACTIVE,
-          user._id,
-        );
-      }
-
-      sendBroadcast({ models, subdomain, engageMessage });
-    }
-
-    return engageMessage;
+    return models.EngageMessages.createCampaign(doc, user._id);
   },
 
-  /**
-   * Edit message
-   */
   async engageMessageEdit(
     _root,
     { _id, ...doc }: { _id: string } & IEngageMessage,
-    { user, models, subdomain, checkPermission }: IContext,
+    { user, models, checkPermission }: IContext,
   ) {
     await checkPermission('broadcastUpdate');
 
-    await checkCampaignDoc(models, { ...doc, _id });
+    // Asked before the campaign is validated: somebody who may not touch it
+    // should be told that, not handed a list of fields to fix first.
+    await assertCampaignAccess({ models, user }, { _id }, 'edit');
 
-    const { workflow, ...campaignDoc } = doc;
-
-    const engageMessage = await models.EngageMessages.getEngageMessage(_id);
-    const updated = await models.EngageMessages.updateEngageMessage(
-      _id,
-      campaignDoc,
-    );
-
-    if (isWorkflowCampaign(updated.method) && workflow) {
-      await setCampaignAutomationFlow(models, _id, workflow);
-    }
-
-    // run manually when it was draft & live afterwards
-    if (!engageMessage.isLive && doc.isLive) {
-      if (isWorkflowCampaign(updated.method)) {
-        await setCampaignAutomationStatus(
-          models,
-          _id,
-          AUTOMATION_STATUSES.ACTIVE,
-          user._id,
-        );
-      }
-
-      sendBroadcast({ models, subdomain, engageMessage: updated });
-    }
-
-    return models.EngageMessages.findOne({ _id });
+    return models.EngageMessages.editCampaign(_id, doc, user._id);
   },
 
-  /**
-   * Remove message
-   */
   async engageMessageRemove(
     _root: undefined,
     { _ids }: { _ids: string[] },
-    { models, checkPermission }: IContext,
+    { models, user, checkPermission }: IContext,
   ) {
     await checkPermission('broadcastDelete');
 
-    await removeCampaignAutomations(models, _ids);
+    // Every one of them, before any of them: a selection holding a locked
+    // campaign must not leave the rest half-deleted.
+    for (const _id of _ids) {
+      await assertCampaignAccess({ models, user }, { _id }, 'edit');
+    }
 
-    return models.EngageMessages.removeEngageMessage(_ids);
+    return models.EngageMessages.removeCampaigns(_ids);
   },
 
-  /**
-   * Engage message set live
-   */
   async engageMessageSetLive(
     _root: undefined,
     { _id }: { _id: string },
-    { user, models, subdomain, checkPermission }: IContext,
+    { user, models, checkPermission }: IContext,
   ) {
     await checkPermission('broadcastUpdate');
+
+    await assertCampaignAccess({ models, user }, { _id }, 'live');
 
     const campaign = await models.EngageMessages.getEngageMessage(_id);
 
@@ -145,70 +87,78 @@ export const engageMutations = {
       throw new Error('Campaign is already live');
     }
 
-    await checkCampaignDoc(models, campaign);
-
-    const live = await models.EngageMessages.engageMessageSetLive(_id);
-
-    if (isWorkflowCampaign(live.method)) {
-      await setCampaignAutomationStatus(
-        models,
-        _id,
-        AUTOMATION_STATUSES.ACTIVE,
-        user._id,
-      );
-    }
-
-    sendBroadcast({ models, subdomain, engageMessage: live });
-
-    return live;
+    return models.EngageMessages.goLive(_id, {
+      actorId: user._id,
+      // Sending now uses up the moment it was waiting for.
+      consumeSchedule: !!scheduledAt(campaign),
+    });
   },
 
   /**
-   * Engage message set pause
+   * Sets the moment a campaign goes out, and starts it waiting.
+   *
+   * Scheduling is done to a finished campaign rather than chosen while writing
+   * one, so it reaches every method the same way and does not depend on which
+   * form the campaign was built in.
    */
+  async engageMessageSetSchedule(
+    _root: undefined,
+    {
+      _id,
+      dateTime,
+      recurrence,
+    }: { _id: string; dateTime?: Date; recurrence?: TBroadcastRecurrence },
+    { models, user, checkPermission }: IContext,
+  ) {
+    await checkPermission('broadcastUpdate');
+
+    // Scheduling commits the send as surely as starting it does; nobody is
+    // watching when the alarm goes off.
+    await assertCampaignAccess({ models, user }, { _id }, 'live');
+
+    return models.EngageMessages.schedule(_id, { dateTime, recurrence });
+  },
+
+  /**
+   * Puts a scheduled campaign back to a draft.
+   *
+   * The alarm already waiting is left alone: it carries the moment it was set
+   * for, and a campaign with no schedule no longer matches it.
+   */
+  async engageMessageCancelSchedule(
+    _root: undefined,
+    { _id }: { _id: string },
+    { models, user, checkPermission }: IContext,
+  ) {
+    await checkPermission('broadcastUpdate');
+
+    await assertCampaignAccess({ models, user }, { _id }, 'edit');
+
+    return models.EngageMessages.cancelSchedule(_id);
+  },
+
   async engageMessageSetPause(
     _root: undefined,
     { _id }: { _id: string },
-    { models, checkPermission }: IContext,
+    { models, user, checkPermission }: IContext,
   ) {
     await checkPermission('broadcastUpdate');
 
-    const paused = await models.EngageMessages.engageMessageSetPause(_id);
+    await assertCampaignAccess({ models, user }, { _id }, 'edit');
 
-    if (isWorkflowCampaign(paused.method)) {
-      await setCampaignAutomationStatus(models, _id, AUTOMATION_STATUSES.DRAFT);
-    }
-
-    return paused;
+    return models.EngageMessages.pause(_id);
   },
 
-  /**
-   * Engage message set live manual
-   */
   async engageMessageSetLiveManual(
     _root: undefined,
     { _id }: { _id: string },
-    { user, models, subdomain, checkPermission }: IContext,
+    { user, models, checkPermission }: IContext,
   ) {
     await checkPermission('broadcastUpdate');
 
-    const draftCampaign = await models.EngageMessages.getEngageMessage(_id);
+    await assertCampaignAccess({ models, user }, { _id }, 'live');
 
-    await checkCampaignDoc(models, draftCampaign);
-
-    const live = await models.EngageMessages.engageMessageSetLive(_id);
-
-    if (isWorkflowCampaign(live.method)) {
-      await setCampaignAutomationStatus(
-        models,
-        _id,
-        AUTOMATION_STATUSES.ACTIVE,
-      );
-    }
-
-    sendBroadcast({ models, subdomain, engageMessage: live });
-
-    return live;
+    return models.EngageMessages.goLive(_id);
   },
 
   async broadcastUpdateConfigs(
@@ -311,7 +261,6 @@ export const engageMutations = {
     }
   },
 
-  // Helps users fill less form fields to create a campaign
   async engageMessageCopy(
     _root: undefined,
     { _id }: { _id },
@@ -319,43 +268,10 @@ export const engageMutations = {
   ) {
     await checkPermission('broadcastCreate');
 
-    const sourceCampaign = await models.EngageMessages.getEngageMessage(_id);
+    // Otherwise a lock is a formality: duplicate the campaign, send the copy.
+    await assertCampaignAccess({ models, user }, { _id }, 'edit');
 
-    const doc = {
-      ...sourceCampaign.toObject(),
-      createdAt: new Date(),
-      createdBy: user._id,
-      title: `${sourceCampaign.title} - duplicated`,
-      isDraft: true,
-      isLive: false,
-      runCount: 0,
-      totalCustomersCount: 0,
-      validCustomersCount: 0,
-    };
-
-    delete doc._id;
-
-    if (doc.scheduleDate?.dateTime) {
-      // schedule date should be manually set
-      doc.scheduleDate.dateTime = null;
-    }
-
-    const copy = await models.EngageMessages.createEngageMessage(doc);
-
-    if (isWorkflowCampaign(copy.method)) {
-      const source = await findCampaignAutomation(models, _id);
-
-      await createCampaignAutomation(models, {
-        campaignId: copy._id,
-        title: copy.title,
-        userId: user._id,
-        // The copy gets its own snapshot of the flow, so editing either
-        // campaign afterwards never changes the other.
-        actions: source?.actions,
-      });
-    }
-
-    return copy;
+    return models.EngageMessages.copyCampaign(_id, user._id);
   },
 
   /**

@@ -1,7 +1,7 @@
 import {
   BroadcastWorkflowEditor,
   TBroadcastWorkflow,
-} from '@/broadcast/components/workflow/BroadcastWorkflowEditor';
+} from '@/broadcast/components/workflow/components/BroadcastWorkflowEditor';
 import { useCallback } from 'react';
 import { useFormContext } from 'react-hook-form';
 

@@ -18,7 +18,7 @@ import {
 import { SortOrder } from 'mongoose';
 import { IContext, IModels } from '~/connectionResolvers';
 import { AUTOMATION_APPROVAL_CONTENT_TYPES } from '../../constants';
-import { sanitizeAiAgent, sanitizeAiAgents } from './utils/aiAgent';
+import { sanitizeAiAgent, sanitizeAiAgents } from '../../utils/aiAgent';
 import {
   generateAutomationHistoriesFilter,
   generateAutomationStatsFilter,

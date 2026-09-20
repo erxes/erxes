@@ -104,7 +104,9 @@ export const BroadcastTagChooser = ({
                     value?.includes(c._id),
                   ) && (
                     <span
-                      className={`ml-2 text-xs text-muted-foreground ${loading ? 'animate-pulse' : ''}`}
+                      className={`ml-2 text-xs text-muted-foreground ${
+                        loading ? 'animate-pulse' : ''
+                      }`}
                     >
                       {(tag.children || []).reduce(
                         (sum: number, c: any) => sum + (tagCounts[c._id] || 0),

@@ -1,3 +1,4 @@
+import { TBroadcastRecurrence } from '@/broadcast/utils/recurrence';
 import { ICursorPaginateParams, IRule } from 'erxes-api-shared/core-types';
 import { Document } from 'mongoose';
 
@@ -9,9 +10,14 @@ interface IEmail {
   sender?: string;
 }
 
-interface IEmailDocument extends IEmail, Document {}
+export interface IEmailDocument extends IEmail, Document {}
 
-interface IScheduleDate {
+/**
+ * One moment, or the pattern that keeps producing them. The recurrence half is
+ * what the scheduler reads; both halves live in the same subdocument because a
+ * campaign only ever has one schedule.
+ */
+interface IScheduleDate extends TBroadcastRecurrence {
   type?: string;
   month?: string | number;
   day?: string | number;
@@ -29,7 +35,7 @@ interface IMessenger {
   brandId?: string;
 }
 
-interface IMessengerDocument extends IMessenger, Document {}
+export interface IMessengerDocument extends IMessenger, Document {}
 
 export interface IShortMessage {
   content: string;
@@ -44,7 +50,7 @@ interface INotification {
   inApp?: boolean;
 }
 
-interface INotificationDocument extends INotification, Document {}
+export interface INotificationDocument extends INotification, Document {}
 export interface IShortMessage {
   content: string;
   from?: string;
@@ -64,6 +70,7 @@ export interface IEngageMessage {
   method: string;
   isDraft?: boolean;
   isLive?: boolean;
+  scheduleDate?: IScheduleDate;
 
   messengerReceivedCustomerIds?: string[];
   // Draft flow sent with a workflow campaign; stored on the automation it
@@ -75,7 +82,7 @@ export interface IEngageMessage {
 
   lastRunAt?: Date;
 
-  status: 'processing' | 'completed' | 'failed';
+  status: 'sending' | 'completed' | 'failed';
   progress: {
     totalBatches: number;
     processedBatches: number;
@@ -99,10 +106,13 @@ export interface IEngageMessageDocument extends IEngageMessage, Document {
   email?: IEmailDocument;
   messenger?: IMessengerDocument;
   notification?: INotificationDocument;
+  scheduleDate?: IScheduleDateDocument;
 }
 
 export interface IEngageQueryParams extends ICursorPaginateParams {
   kind?: string;
+  /** manual | scheduled | recurring — what starts the campaign. */
+  trigger?: string;
   status?: string;
   tag?: string;
   method?: string;

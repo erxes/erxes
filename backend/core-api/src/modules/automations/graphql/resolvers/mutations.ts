@@ -1,67 +1,36 @@
 import {
   AUTOMATION_STATUSES,
   IAutomation,
-  validateWorkflowBindings,
 } from 'erxes-api-shared/core-modules';
-import { sendWorkerQueue } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { AUTOMATION_APPROVAL_CONTENT_TYPES } from '../../constants';
-import { hasFlowChanged } from '../../db/models/utils/duplicateAutomation';
-import {
-  mergeAiAgentConnectionSecrets,
-  sanitizeAiAgent,
-  scheduleAiAgentKnowledgeIndex,
-} from './utils/aiAgent';
+import { sanitizeAiAgent } from '../../utils/aiAgent';
 
 export interface IAutomationsEdit extends IAutomation {
   _id: string;
   acknowledgeDuplicate?: boolean;
 }
-const requestScheduleReconcile = async (subdomain: string) => {
-  try {
-    await sendWorkerQueue('automations', 'schedule').add(
-      'reconcile-recurring-automations',
-      { kind: 'reconcile', subdomain },
-      { removeOnComplete: 10, removeOnFail: 10 },
-    );
-  } catch {
-    // The recurring scheduler retries reconciliation every 60 seconds.
-  }
-};
 
 export const automationMutations = {
-  /**
-   * Creates a new automation
-   */
   async automationsAdd(
     _root,
     doc: IAutomation,
-    { user, models, subdomain, checkPermission }: IContext,
+    { user, models, checkPermission }: IContext,
   ) {
     await checkPermission('automationsCreate');
 
-    const automation = await models.Automations.create({
-      ...doc,
-      createdAt: new Date(),
-      createdBy: user._id,
-      updatedBy: user._id,
-    });
-    await requestScheduleReconcile(subdomain);
-
-    return models.Automations.getAutomation(automation._id);
+    return models.Automations.createAutomation(doc, user._id);
   },
 
-  /**
-   * Updates a automation
-   */
   async automationsEdit(
     _root,
-    { _id, acknowledgeDuplicate, ...doc }: IAutomationsEdit,
-    { user, models, subdomain, checkPermission }: IContext,
+    { _id, ...doc }: IAutomationsEdit,
+    { user, models, checkPermission }: IContext,
   ) {
     await checkPermission('automationsUpdate');
 
     const automation = await models.Automations.getAutomation(_id);
+
     if (!automation) {
       throw new Error('Automation not found');
     }
@@ -74,68 +43,17 @@ export const automationMutations = {
       action: 'edit',
     });
 
-    // An active automation must not carry workflow bindings that cannot
-    // resolve — fail here instead of at runtime.
-    const nextStatus = doc.status ?? automation.status;
-
-    if (nextStatus === AUTOMATION_STATUSES.ACTIVE) {
-      const bindingErrors = validateWorkflowBindings(
-        doc.workflows ?? automation.workflows,
-        doc.actions ?? automation.actions,
-      );
-
-      if (bindingErrors.length) {
-        throw new Error(
-          `Cannot activate automation: ${bindingErrors.join('; ')}`,
-        );
-      }
-    }
-
-    const isUntouchedDuplicate =
-      !!automation.duplicatedFrom && !hasFlowChanged(automation, doc);
-
-    if (
-      nextStatus === AUTOMATION_STATUSES.ACTIVE &&
-      isUntouchedDuplicate &&
-      !acknowledgeDuplicate
-    ) {
-      throw new Error(
-        'This automation is an unchanged duplicate and would run the same flow twice on the same triggers. Change it first, or confirm the activation.',
-      );
-    }
-
-    const shouldClearDuplicatedFrom =
-      !!automation.duplicatedFrom &&
-      (!isUntouchedDuplicate || !!acknowledgeDuplicate);
-
-    await models.Automations.updateOne(
-      { _id },
-      {
-        $set: { ...doc, updatedAt: new Date(), updatedBy: user._id },
-        ...(shouldClearDuplicatedFrom && { $unset: { duplicatedFrom: '' } }),
-      },
-    );
-    await requestScheduleReconcile(subdomain);
-
-    return models.Automations.getAutomation(_id);
+    return models.Automations.editAutomation(_id, doc, user._id);
   },
 
   async automationsDuplicate(
     _root,
     { _id, name }: { _id: string; name?: string },
-    { user, models, subdomain, checkPermission }: IContext,
+    { user, models, checkPermission }: IContext,
   ) {
     await checkPermission('automationsCreate');
 
-    const duplicated = await models.Automations.duplicateAutomation(
-      _id,
-      user._id,
-      name,
-    );
-
-    await requestScheduleReconcile(subdomain);
-
-    return models.Automations.getAutomation(duplicated._id);
+    return models.Automations.duplicateAutomation(_id, user._id, name);
   },
 
   /**
@@ -145,13 +63,14 @@ export const automationMutations = {
   async archiveAutomations(
     _root,
     { automationIds, isRestore },
-    { models, user, subdomain, checkPermission }: IContext,
+    { models, user, checkPermission }: IContext,
   ) {
     await checkPermission('automationsUpdate');
 
-    const automations = await models.Automations.find({
-      _id: { $in: automationIds },
-    }).lean();
+    const automations = await models.Automations.find(
+      { _id: { $in: automationIds } },
+      { createdBy: 1 },
+    ).lean();
 
     for (const automation of automations) {
       await models.ApprovalLocks.assertAccess({
@@ -163,32 +82,19 @@ export const automationMutations = {
       });
     }
 
-    await models.Automations.updateMany(
-      { _id: { $in: automationIds } },
-      {
-        $set: {
-          status: isRestore
-            ? AUTOMATION_STATUSES.DRAFT
-            : AUTOMATION_STATUSES.ARCHIVED,
-        },
-      },
-    );
-    await requestScheduleReconcile(subdomain);
-    return automationIds;
+    return models.Automations.archiveAutomations(automationIds, isRestore);
   },
-  /**
-   * Removes automations
-   */
   async automationsRemove(
     _root,
     { automationIds }: { automationIds: string[] },
-    { models, user, subdomain, checkPermission }: IContext,
+    { models, user, checkPermission }: IContext,
   ) {
     await checkPermission('automationsDelete');
 
-    const automations = await models.Automations.find({
-      _id: { $in: automationIds },
-    });
+    const automations = await models.Automations.find(
+      { _id: { $in: automationIds } },
+      { createdBy: 1 },
+    ).lean();
 
     for (const automation of automations) {
       await models.ApprovalLocks.assertAccess({
@@ -200,54 +106,24 @@ export const automationMutations = {
       });
     }
 
-    const segmentIds: string[] = [];
-
-    for (const automation of automations) {
-      const { triggers, actions } = automation;
-
-      segmentIds.push(
-        ...triggers.map((trigger) => trigger.config?.contentId),
-        ...actions.map((action) => action.config?.contentId),
-      );
-    }
-
-    await models.Automations.deleteMany({ _id: { $in: automationIds } });
-    await models.AutomationExecutions.removeExecutions(automationIds);
-
-    await models.Segments.deleteMany({
-      _id: { $in: segmentIds.filter(Boolean) },
-      ownedBy: 'automation',
-    });
-    await requestScheduleReconcile(subdomain);
-
-    return automationIds;
+    return models.Automations.removeAutomations(automationIds);
   },
 
   async automationsAiAgentAdd(
     _root,
     doc,
-    { models, subdomain, checkPermission }: IContext,
+    { models, checkPermission }: IContext,
   ) {
     await checkPermission('automationsAiAgentAdd');
 
-    const agent = await models.AiAgents.create(doc);
-
-    await scheduleAiAgentKnowledgeIndex({ subdomain, agentId: agent._id });
-
-    return sanitizeAiAgent(agent);
+    return sanitizeAiAgent(await models.AiAgents.createAgent(doc));
   },
   async automationsAiAgentEdit(
     _root,
     { _id, ...doc },
-    { models, subdomain, user, checkPermission }: IContext,
+    { models, user, checkPermission }: IContext,
   ) {
     await checkPermission('automationsAiAgentEdit');
-
-    const currentAgent = await models.AiAgents.findOne({ _id });
-
-    if (!currentAgent) {
-      throw new Error('AI agent not found');
-    }
 
     await models.ApprovalLocks.assertAccess({
       user,
@@ -256,36 +132,15 @@ export const automationMutations = {
       action: 'edit',
     });
 
-    const mergedDoc = mergeAiAgentConnectionSecrets(currentAgent, doc);
-
-    const updatedAgent = await models.AiAgents.findOneAndUpdate(
-      { _id },
-      { $set: { ...mergedDoc } },
-      { runValidators: true, new: true },
-    );
-
-    if (updatedAgent?._id) {
-      await scheduleAiAgentKnowledgeIndex({
-        subdomain,
-        agentId: updatedAgent._id,
-      });
-    }
-
-    return sanitizeAiAgent(updatedAgent);
+    return sanitizeAiAgent(await models.AiAgents.editAgent(_id, doc));
   },
 
   async automationsAiAgentRemove(
     _root,
     { _id }: { _id: string },
-    { models, subdomain, user, checkPermission }: IContext,
+    { models, user, checkPermission }: IContext,
   ) {
     await checkPermission('automationsAiAgentRemove');
-
-    const agent = await models.AiAgents.findOne({ _id });
-
-    if (!agent) {
-      throw new Error('AI agent not found');
-    }
 
     await models.ApprovalLocks.assertAccess({
       user,
@@ -294,44 +149,14 @@ export const automationMutations = {
       action: 'delete',
     });
 
-    const dependents = await models.Automations.find(
-      {
-        $or: [
-          { 'actions.config.aiAgentId': _id },
-          { 'workflows.actions.config.aiAgentId': _id },
-        ],
-      },
-      { name: 1, status: 1 },
-    ).lean();
-
-    if (dependents.length) {
-      const names = dependents
-        .map(({ name, status }) => `${name || 'Untitled'} (${status})`)
-        .join(', ');
-
-      throw new Error(
-        `This AI agent is used by ${dependents.length} automation(s): ${names}. ` +
-          'Remove it from them before deleting the agent.',
-      );
-    }
-
-    await models.AiAgents.deleteOne({ _id });
-    await scheduleAiAgentKnowledgeIndex({ subdomain, agentId: _id });
-
-    return { success: true };
+    return models.AiAgents.removeAgent(_id);
   },
 
   async automationsAiAgentReindex(
     _root,
     { _id, fileId }: { _id: string; fileId?: string },
-    { models, subdomain, user }: IContext,
+    { models, user }: IContext,
   ) {
-    const agent = await models.AiAgents.findOne({ _id }).lean();
-
-    if (!agent) {
-      throw new Error('AI agent not found');
-    }
-
     await models.ApprovalLocks.assertAccess({
       user,
       contentType: AUTOMATION_APPROVAL_CONTENT_TYPES.AUTOMATION_AI_AGENT,
@@ -339,20 +164,7 @@ export const automationMutations = {
       action: 'edit',
     });
 
-    if (
-      fileId &&
-      !agent.context?.files?.some((file: { id: string }) => file.id === fileId)
-    ) {
-      throw new Error('AI agent context file not found');
-    }
-
-    await scheduleAiAgentKnowledgeIndex({
-      subdomain,
-      agentId: _id,
-      fileId,
-    });
-
-    return { status: 'queued', agentId: _id, fileId };
+    return models.AiAgents.reindexAgent(_id, fileId);
   },
 
   /**

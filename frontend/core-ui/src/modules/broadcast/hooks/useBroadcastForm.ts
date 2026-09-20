@@ -4,6 +4,8 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { broadcastSchema } from '../schema';
 import { IBroadcastMethodEnum } from '../types';
+import { scheduleFromRange } from '../utils/scheduleForm';
+import { useBroadcastScheduleRange } from './useBroadcastScheduleRange';
 
 export type IBroadcastFormData = z.infer<typeof broadcastSchema>;
 
@@ -80,9 +82,20 @@ const useBroadcastForm = (initialValues?: Partial<IBroadcastFormData>) => {
     | IBroadcastMethodEnum
     | undefined;
 
+  // Days picked on the calendar arrive as a schedule already filled in, so
+  // the campaign is created into them rather than scheduled afterwards. Only
+  // on a new campaign: an existing one brought its own.
+  const { range } = useBroadcastScheduleRange();
+  const planned =
+    range && !initialValues
+      ? { schedule: scheduleFromRange(range.start, range.end) }
+      : undefined;
+
   const defaultValues = useMemo<Partial<IBroadcastFormData>>(
-    () => ({ ...getDefaultValues(method), ...initialValues }),
-    [method, initialValues],
+    () => ({ ...getDefaultValues(method), ...planned, ...initialValues }),
+    // `planned` is rebuilt every render, so the days behind it are what the
+    // defaults actually depend on.
+    [method, initialValues, range?.start.getTime(), range?.end.getTime()],
   );
 
   const form = useForm<IBroadcastFormData>({ defaultValues });

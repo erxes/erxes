@@ -1,7 +1,7 @@
 import { IconUser } from '@tabler/icons-react';
 import { Form, Input } from 'erxes-ui';
 import { useFormContext } from 'react-hook-form';
-import { BroadcastSelectTargetType } from '../select/BroadcastSelectTargetType';
+import { BroadcastSelectTargetType } from '../common/select/BroadcastSelectTargetType';
 import { BroadcastSegmentStep } from './BroadcastSegmentStep';
 import { BroadcastTagStep } from './BroadcastTagStep';
 
