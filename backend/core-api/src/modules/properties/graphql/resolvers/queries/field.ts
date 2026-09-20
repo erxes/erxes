@@ -47,6 +47,7 @@ const CORE_CONTENT_TYPE_MODELS: Record<string, keyof IModels> = {
 // CORE_CONTENT_TYPE_MODELS still returns null ("unknown").
 const PLUGIN_CONTENT_TYPE_OWNERS: Record<string, string> = {
   'frontline:ticket': 'frontline',
+  'sales:deal': 'sales',
 };
 
 export const fieldQueries: Record<string, Resolver<any, any, IContext>> = {
