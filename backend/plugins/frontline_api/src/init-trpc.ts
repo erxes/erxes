@@ -12,6 +12,8 @@ import { inboxTrpcRouter } from './modules/inbox/trpc/inbox';
 import { integrationTrpcRouter } from './modules/integrations/trpc/integration';
 import { ticketTrpcRouter } from './modules/ticket/trpc/ticket';
 import { generateTicketFields } from './modules/ticket/meta/fields/fieldUtils';
+import { getTicketFieldOptionUsedValues } from './modules/ticket/utils/fieldOptionUsedValues';
+import { TICKET_PROPERTY_CONTENT_TYPE } from './modules/ticket/utils/ticketConfig';
 
 export type FrontlineTRPCContext = ITRPCContext<{ models: IModels }>;
 
@@ -47,6 +49,29 @@ export const appRouter = t.mergeRouters(
           }
 
           return [];
+        }),
+
+      // Which of a select/multiSelect/check/radio field's option values are
+      // currently stored on at least one record. Called by core-api when the
+      // field's contentType is owned by this plugin. Only ticket properties
+      // are supported so far; anything else returns null ("unknown").
+      fieldOptionUsedValues: t.procedure
+        .input(
+          z.object({
+            contentType: z.string(),
+            fieldId: z.string(),
+            values: z.array(z.string()),
+          }),
+        )
+        .query(async ({ ctx, input }) => {
+          const { models } = ctx;
+          const { contentType, fieldId, values } = input;
+
+          if (contentType !== TICKET_PROPERTY_CONTENT_TYPE) {
+            return null;
+          }
+
+          return getTicketFieldOptionUsedValues(models, fieldId, values);
         }),
     }),
   }),

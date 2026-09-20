@@ -6,7 +6,11 @@ import {
   IFieldParams,
 } from '@/properties/@types';
 import { Resolver } from 'erxes-api-shared/core-types';
-import { cursorPaginate, defaultPaginate } from 'erxes-api-shared/utils';
+import {
+  cursorPaginate,
+  defaultPaginate,
+  sendTRPCMessage,
+} from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
 import { IContext, IModels } from '~/connectionResolvers';
 
@@ -34,6 +38,15 @@ const CORE_CONTENT_TYPE_MODELS: Record<string, keyof IModels> = {
   'core:company': 'Companies',
   'core:product': 'Products',
   'core:user': 'Users',
+};
+
+// Content types owned by a plugin rather than core: their records live in
+// that plugin's own database, so usage is checked via a tRPC call to the
+// `fields.fieldOptionUsedValues` procedure the owning plugin exposes, rather
+// than a local aggregate. A content type absent from both this map and
+// CORE_CONTENT_TYPE_MODELS still returns null ("unknown").
+const PLUGIN_CONTENT_TYPE_OWNERS: Record<string, string> = {
+  'frontline:ticket': 'frontline',
 };
 
 export const fieldQueries: Record<string, Resolver<any, any, IContext>> = {
@@ -94,17 +107,11 @@ export const fieldQueries: Record<string, Resolver<any, any, IContext>> = {
   fieldOptionUsedValues: async (
     _: undefined,
     { fieldId }: { fieldId: string },
-    { models }: IContext,
+    { models, subdomain }: IContext,
   ): Promise<string[] | null> => {
     const field = await models.Fields.findOne({ _id: fieldId }).lean();
 
     if (!field) {
-      return null;
-    }
-
-    const modelName = CORE_CONTENT_TYPE_MODELS[field.contentType];
-
-    if (!modelName) {
       return null;
     }
 
@@ -116,6 +123,26 @@ export const fieldQueries: Record<string, Resolver<any, any, IContext>> = {
 
     if (!values.length) {
       return [];
+    }
+
+    const modelName = CORE_CONTENT_TYPE_MODELS[field.contentType];
+
+    if (!modelName) {
+      const pluginName = PLUGIN_CONTENT_TYPE_OWNERS[field.contentType];
+
+      if (!pluginName) {
+        return null;
+      }
+
+      return sendTRPCMessage({
+        subdomain,
+        pluginName,
+        method: 'query',
+        module: 'fields',
+        action: 'fieldOptionUsedValues',
+        input: { contentType: field.contentType, fieldId, values },
+        defaultValue: null,
+      });
     }
 
     const model = models[modelName] as unknown as {
