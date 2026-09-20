@@ -20,6 +20,49 @@ interface ResponseTemplateDropdownProps {
   loading?: boolean;
 }
 
+const TemplateSuggestionDetails = ({
+  suggestion,
+  isSelected,
+  channelName,
+}: {
+  suggestion: TemplateSuggestion;
+  isSelected: boolean;
+  channelName?: string;
+}) => {
+  const { t } = useTranslation('frontline');
+
+  return (
+    <div className="min-w-0">
+      <div className="flex items-center gap-2">
+        <span
+          className={`truncate font-medium group-hover:text-info ${
+            isSelected ? 'text-info' : 'text-foreground'
+          }`}
+        >
+          {suggestion.name}
+        </span>
+        {suggestion.channelId && (
+          <span className="inline-flex items-center rounded-full bg-accent px-2 py-0.5 text-xs font-medium text-accent-foreground">
+            {channelName || t('channel-label', 'Channel')}
+          </span>
+        )}
+      </div>
+      <div className="mt-1 line-clamp-2 text-sm text-muted-foreground">
+        {suggestion.preview}
+      </div>
+      {suggestion.updatedAt &&
+        !isNaN(new Date(suggestion.updatedAt).getTime()) && (
+          <div className="mt-1.5 text-xs text-muted-foreground">
+            {t('updated', 'Updated')}{' '}
+            {formatDistanceToNow(new Date(suggestion.updatedAt), {
+              addSuffix: true,
+            })}
+          </div>
+        )}
+    </div>
+  );
+};
+
 const TemplateSuggestionItem = ({
   suggestion,
   index,
@@ -33,8 +76,6 @@ const TemplateSuggestionItem = ({
   channelName?: string;
   onSelect: (content: string, templateId?: string) => void;
 }) => {
-  const { t } = useTranslation('frontline');
-
   return (
     <div
       onMouseDown={(event) => {
@@ -46,34 +87,11 @@ const TemplateSuggestionItem = ({
       }`}
     >
       <div className="flex w-full items-start justify-between gap-2">
-        <div className="min-w-0">
-          <div className="flex items-center gap-2">
-            <span
-              className={`truncate font-medium group-hover:text-info ${
-                isSelected ? 'text-info' : 'text-foreground'
-              }`}
-            >
-              {suggestion.name}
-            </span>
-            {suggestion.channelId && (
-              <span className="inline-flex items-center rounded-full bg-accent px-2 py-0.5 text-xs font-medium text-accent-foreground">
-                {channelName || t('channel-label', 'Channel')}
-              </span>
-            )}
-          </div>
-          <div className="mt-1 line-clamp-2 text-sm text-muted-foreground">
-            {suggestion.preview}
-          </div>
-          {suggestion.updatedAt &&
-            !isNaN(new Date(suggestion.updatedAt).getTime()) && (
-              <div className="mt-1.5 text-xs text-muted-foreground">
-                {t('updated', 'Updated')}{' '}
-                {formatDistanceToNow(new Date(suggestion.updatedAt), {
-                  addSuffix: true,
-                })}
-              </div>
-            )}
-        </div>
+        <TemplateSuggestionDetails
+          suggestion={suggestion}
+          isSelected={isSelected}
+          channelName={channelName}
+        />
         <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-muted text-xs text-muted-foreground transition-colors group-hover:bg-accent">
           {index + 1}
         </div>

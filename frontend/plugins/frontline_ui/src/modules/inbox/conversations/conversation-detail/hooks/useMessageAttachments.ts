@@ -2,6 +2,8 @@ import { useCallback, useRef, useState } from 'react';
 import { toast, useUpload, type IAttachment } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
+import { composerStorage } from '../utils/messageInput';
+
 const MAX_ATTACHMENTS = 10;
 const DEFAULT_MAXIMUM_BYTES = 20 * 1024 * 1024;
 const DISCORD_MAXIMUM_BYTES = 10 * 1024 * 1024;
@@ -27,9 +29,8 @@ export const useMessageAttachments = (isDiscord: boolean) => {
       const selectedFiles = Array.from(files);
       const configuredMaximumBytes =
         Number.parseInt(
-          window.localStorage.getItem(
-            'erxes_env_REACT_APP_FILE_UPLOAD_MAX_SIZE',
-          ) || '',
+          composerStorage.getItem('erxes_env_REACT_APP_FILE_UPLOAD_MAX_SIZE') ||
+            '',
           10,
         ) || DEFAULT_MAXIMUM_BYTES;
       const maximumBytes = Math.min(

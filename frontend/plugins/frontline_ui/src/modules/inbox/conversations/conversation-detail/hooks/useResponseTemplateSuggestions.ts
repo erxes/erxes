@@ -50,10 +50,10 @@ export const useResponseTemplateSuggestions = ({
         : [],
     [debouncedSearchValue, enabled, responses],
   );
+  const showSuggestionDropdown =
+    Boolean(debouncedSearchValue) && enabled && !isDismissed;
   const showSuggestions =
-    Boolean(debouncedSearchValue) &&
-    enabled &&
-    !isDismissed &&
+    showSuggestionDropdown &&
     !isInitialLoad &&
     !isRefetching &&
     suggestions.length > 0;
@@ -144,6 +144,7 @@ export const useResponseTemplateSuggestions = ({
     selectTemplate,
     setResponseTemplateId,
     setSearchValue,
+    showSuggestionDropdown,
     showSuggestions,
     suggestions,
   };

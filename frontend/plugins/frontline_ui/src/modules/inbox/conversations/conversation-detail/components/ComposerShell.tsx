@@ -35,7 +35,10 @@ export const ComposerShell = ({
           variant="outline"
           className="mx-auto flex h-11 w-full max-w-3xl justify-start rounded-xl border-warning/40 bg-warning/10 px-3 text-warning hover:bg-warning/20"
           onClick={() => onCollapsedChange(false)}
-          aria-label="Expand internal note composer"
+          aria-label={t(
+            'expand-internal-note-composer',
+            'Expand internal note composer',
+          )}
         >
           <IconLock className="size-4" />
           <span className="text-xs font-medium">
@@ -68,7 +71,10 @@ export const ComposerShell = ({
             <IconMessage2 className="size-3.5" />
           )}
           {isInternalNote
-            ? t('note-visibility', 'Internal note - only visible to your team')
+            ? t(
+                'internal-note-visibility',
+                'Internal note - only visible to your team',
+              )
             : t('reply-visibility', 'Reply - sent to the customer')}
           {isInternalNote && (
             <Button
@@ -76,7 +82,10 @@ export const ComposerShell = ({
               variant="ghost"
               size="icon"
               className="ml-auto size-7 rounded-full"
-              aria-label="Collapse internal note composer"
+              aria-label={t(
+                'collapse-internal-note-composer',
+                'Collapse internal note composer',
+              )}
               onClick={() => onCollapsedChange(true)}
             >
               <IconChevronDown className="size-4" />

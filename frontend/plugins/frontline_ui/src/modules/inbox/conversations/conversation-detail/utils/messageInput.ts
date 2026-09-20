@@ -5,6 +5,30 @@ type ConversationDraft = {
   internal?: boolean;
 };
 
+export const composerStorage = {
+  getItem: (key: string): string | null => {
+    try {
+      return window.localStorage.getItem(key);
+    } catch {
+      return null;
+    }
+  },
+  setItem: (key: string, value: string): void => {
+    try {
+      window.localStorage.setItem(key, value);
+    } catch {
+      // Draft persistence is best-effort when storage is unavailable.
+    }
+  },
+  removeItem: (key: string): void => {
+    try {
+      window.localStorage.removeItem(key);
+    } catch {
+      // Draft cleanup is best-effort when storage is unavailable.
+    }
+  },
+};
+
 export const getConversationDraftKey = (conversationId: string) =>
   `frontline:conversation-draft:${conversationId}`;
 

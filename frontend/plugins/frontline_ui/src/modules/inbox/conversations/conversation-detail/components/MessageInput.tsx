@@ -34,6 +34,7 @@ import { discordReplyToState } from '@/integrations/discord/states/discordReplyT
 import { IntegrationType } from '@/types/Integration';
 import { useTranslation } from 'react-i18next';
 import {
+  composerStorage,
   encodeDiscordMentions,
   getConversationDraftKey,
   parseConversationDraft,
@@ -58,7 +59,10 @@ export const MessageInput = ({
   const [mentionedUserIds, setMentionedUserIds] = useState<string[]>([]);
   const [isInternalNoteCollapsed, setIsInternalNoteCollapsed] = useState(false);
   const editor = useBlockEditor();
+  const draftInternalRef = useRef(false);
+  const restoredConversationIdRef = useRef<string>();
   const restoringDraftRef = useRef(false);
+  const submittingRef = useRef(false);
   const { addConversationMessage, loading } = useConversationMessageAdd();
   const {
     attachments,
@@ -79,7 +83,7 @@ export const MessageInput = ({
     selectTemplate,
     setResponseTemplateId,
     setSearchValue,
-    showSuggestions,
+    showSuggestionDropdown,
     suggestions,
   } = useResponseTemplateSuggestions({ editor, enabled: !isInternalNote });
   const {
@@ -91,13 +95,8 @@ export const MessageInput = ({
   } = useDiscordComposer({ conversationId, isDiscord, isInternalNote });
 
   useEffect(() => {
-    const isLead = integration?.kind === 'lead';
-    setIsInternalNoteCollapsed(false);
-    setOnlyInternal(isLead);
-    setIsInternalNote(isLead);
-  }, [conversationId, integration?.kind, setIsInternalNote, setOnlyInternal]);
-
-  useEffect(() => {
+    if (restoredConversationIdRef.current === conversationId) return;
+    restoredConversationIdRef.current = conversationId;
     restoringDraftRef.current = true;
     resetAttachments();
     resetSuggestions();
@@ -105,17 +104,18 @@ export const MessageInput = ({
 
     try {
       const draft = parseConversationDraft(
-        window.localStorage.getItem(getConversationDraftKey(conversationId)),
+        composerStorage.getItem(getConversationDraftKey(conversationId)),
       );
+      draftInternalRef.current = draft.internal ?? false;
       editor.replaceBlocks(editor.document, draft.blocks);
       setContent(draft.blocks.length ? draft.blocks : undefined);
-      if (draft.internal !== undefined && !onlyInternal) {
-        setIsInternalNote(draft.internal);
-      }
+      setIsInternalNote(draftInternalRef.current);
     } catch {
-      window.localStorage.removeItem(getConversationDraftKey(conversationId));
+      draftInternalRef.current = false;
+      composerStorage.removeItem(getConversationDraftKey(conversationId));
       editor.replaceBlocks(editor.document, []);
-      setContent();
+      setContent(undefined);
+      setIsInternalNote(false);
     } finally {
       window.setTimeout(() => {
         restoringDraftRef.current = false;
@@ -124,13 +124,18 @@ export const MessageInput = ({
   }, [
     conversationId,
     editor,
-    integration?.kind,
-    onlyInternal,
     resetAttachments,
     resetSuggestions,
     setDiscordReplyTo,
     setIsInternalNote,
   ]);
+
+  useEffect(() => {
+    const isLead = integration?.kind === 'lead';
+    setIsInternalNoteCollapsed(false);
+    setOnlyInternal(isLead);
+    setIsInternalNote(isLead || draftInternalRef.current);
+  }, [conversationId, integration?.kind, setIsInternalNote, setOnlyInternal]);
 
   const {
     setHotkeyScopeAndMemorizePreviousScope,
@@ -144,7 +149,7 @@ export const MessageInput = ({
       resetSuggestions();
       setResponseTemplateId(null);
       if (content?.length) {
-        window.localStorage.setItem(
+        composerStorage.setItem(
           getConversationDraftKey(conversationId),
           JSON.stringify({ blocks: content, internal }),
         );
@@ -174,73 +179,81 @@ export const MessageInput = ({
     setMentionedUserIds(getMentionedUserIds(blocks));
 
     if (nextContent) {
-      window.localStorage.setItem(
+      composerStorage.setItem(
         getConversationDraftKey(conversationId),
         JSON.stringify({ blocks, internal: isInternalNote }),
       );
     } else {
-      window.localStorage.removeItem(getConversationDraftKey(conversationId));
+      composerStorage.removeItem(getConversationDraftKey(conversationId));
     }
   }, [conversationId, editor, isInternalNote, pingAgentTyping, setSearchValue]);
 
   const handleSubmit = useCallback(async () => {
-    if (!conversationId || loading || isUploading) return;
+    if (!conversationId || loading || isUploading || submittingRef.current) {
+      return;
+    }
     if (!content?.length && attachments.length === 0) return;
+    submittingRef.current = true;
 
-    const outgoingBlocks =
-      isDiscord && !isInternalNote ? encodeDiscordMentions(content) : content;
-    const sendContent = isInternalNote
-      ? JSON.stringify(content || [])
-      : await editor.blocksToHTMLLossy(outgoingBlocks || []);
-    const blockAttachments = getBlockAttachments(content || []);
-    const attachmentUrls = new Set(attachments.map(({ url }) => url));
-    const allAttachments = [
-      ...attachments,
-      ...blockAttachments.filter(({ url }) => !attachmentUrls.has(url)),
-    ];
+    try {
+      const outgoingBlocks =
+        isDiscord && !isInternalNote ? encodeDiscordMentions(content) : content;
+      const sendContent = isInternalNote
+        ? JSON.stringify(content || [])
+        : await editor.blocksToHTMLLossy(outgoingBlocks || []);
+      const blockAttachments = getBlockAttachments(content || []);
+      const attachmentUrls = new Set(attachments.map(({ url }) => url));
+      const allAttachments = [
+        ...attachments,
+        ...blockAttachments.filter(({ url }) => !attachmentUrls.has(url)),
+      ];
 
-    addConversationMessage({
-      variables: {
-        conversationId,
-        content: sendContent,
-        mentionedUserIds: isDiscord && !isInternalNote ? [] : mentionedUserIds,
-        internal: isInternalNote,
-        extraInfo: messageExtraInfo,
-        attachments: allAttachments,
-        responseTemplateId,
-        ...(isDiscord && !isInternalNote && discordReplyTo
-          ? { replyToMessageId: discordReplyTo.messageId }
-          : {}),
-      },
-      onCompleted: () => {
-        toast({
-          title: isInternalNote
-            ? t('note-added', 'Internal note added')
-            : t('message-sent', 'Message sent!'),
-        });
-        editor.replaceBlocks(editor.document, []);
-        setContent(undefined);
-        setMentionedUserIds([]);
-        setIsInternalNote(onlyInternal);
-        resetAttachments();
-        resetSuggestions();
-        setResponseTemplateId(null);
-        setDiscordReplyTo(null);
-        window.localStorage.removeItem(getConversationDraftKey(conversationId));
-      },
-      refetchQueries: [
-        'Conversations',
-        'ConversationMessages',
-        'ConversationCounts',
-        'FrontlineInboxSidebarWorkCounts',
-      ],
-      onError: (error) =>
-        toast({
-          title: t('failed-to-send', 'Failed to send'),
-          description: error.message,
-          variant: 'destructive',
-        }),
-    });
+      await addConversationMessage({
+        variables: {
+          conversationId,
+          content: sendContent,
+          mentionedUserIds:
+            isDiscord && !isInternalNote ? [] : mentionedUserIds,
+          internal: isInternalNote,
+          extraInfo: messageExtraInfo,
+          attachments: allAttachments,
+          responseTemplateId,
+          ...(isDiscord && !isInternalNote && discordReplyTo
+            ? { replyToMessageId: discordReplyTo.messageId }
+            : {}),
+        },
+        onCompleted: () => {
+          toast({
+            title: isInternalNote
+              ? t('note-added', 'Internal note added')
+              : t('message-sent', 'Message sent!'),
+          });
+          editor.replaceBlocks(editor.document, []);
+          setContent(undefined);
+          setMentionedUserIds([]);
+          setIsInternalNote(onlyInternal);
+          resetAttachments();
+          resetSuggestions();
+          setResponseTemplateId(null);
+          setDiscordReplyTo(null);
+          composerStorage.removeItem(getConversationDraftKey(conversationId));
+        },
+        refetchQueries: [
+          'Conversations',
+          'ConversationMessages',
+          'ConversationCounts',
+          'FrontlineInboxSidebarWorkCounts',
+        ],
+        onError: (error) =>
+          toast({
+            title: t('failed-to-send', 'Failed to send'),
+            description: error.message,
+            variant: 'destructive',
+          }),
+      });
+    } finally {
+      submittingRef.current = false;
+    }
   }, [
     addConversationMessage,
     attachments,
@@ -315,7 +328,7 @@ export const MessageInput = ({
         onRemove={removeAttachment}
       />
 
-      {showSuggestions && !isInternalNote && (
+      {showSuggestionDropdown && !isInternalNote && (
         <ResponseTemplateDropdown
           suggestions={suggestions}
           selectedIndex={selectedIndex}
@@ -332,7 +345,7 @@ export const MessageInput = ({
           </span>
           <button
             type="button"
-            aria-label="Cancel reply"
+            aria-label={t('cancel-reply', 'Cancel reply')}
             onClick={() => setDiscordReplyTo(null)}
             className="flex-none hover:text-foreground"
           >
