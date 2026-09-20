@@ -20,7 +20,7 @@ export const PropertyFormSelectFields = ({
   const options = form.watch('options') || [];
 
   const savedOptionCount = isEdit
-    ? form.formState.defaultValues?.options?.length ?? 0
+    ? (form.formState.defaultValues?.options?.length ?? 0)
     : 0;
 
   const { usedValues } = useFieldOptionUsedValues({
@@ -50,61 +50,74 @@ export const PropertyFormSelectFields = ({
               ? (usedValues?.includes(option.value) ?? true)
               : false;
             return (
-            <div className="flex gap-2" key={index}>
-              <Form.Field
-                control={form.control}
-                name={`options.${index}.label`}
-                render={({ field }) => (
-                  <Form.Item className="flex-auto">
-                    {index === 0 && <Form.Label>{t('label', 'Label')}</Form.Label>}
-                    <Form.Control>
-                      <Input {...field} placeholder={t('enter-label', 'Enter label')} />
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-              <Form.Field
-                control={form.control}
-                name={`options.${index}.value`}
-                render={({ field }) => (
-                  <Form.Item className="flex-auto">
-                    {index === 0 && <Form.Label>{t('value', 'Value')}</Form.Label>}
-                    <Form.Control>
-                      <Input {...field} placeholder={t('enter-value', 'Enter value')} disabled={isExisting} />
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-              <Button
-                onClick={() => {
-                  if (isUsed) {
-                    toast({
-                      title: t(
-                        'option-in-use',
-                        'This option is used by existing records and cannot be removed',
+              <div className="flex gap-2" key={index}>
+                <Form.Field
+                  control={form.control}
+                  name={`options.${index}.label`}
+                  render={({ field }) => (
+                    <Form.Item className="flex-auto">
+                      {index === 0 && (
+                        <Form.Label>{t('label', 'Label')}</Form.Label>
+                      )}
+                      <Form.Control>
+                        <Input
+                          {...field}
+                          placeholder={t('enter-label', 'Enter label')}
+                        />
+                      </Form.Control>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+                <Form.Field
+                  control={form.control}
+                  name={`options.${index}.value`}
+                  render={({ field }) => (
+                    <Form.Item className="flex-auto">
+                      {index === 0 && (
+                        <Form.Label>{t('value', 'Value')}</Form.Label>
+                      )}
+                      <Form.Control>
+                        <Input
+                          {...field}
+                          placeholder={t('enter-value', 'Enter value')}
+                          disabled={isExisting}
+                        />
+                      </Form.Control>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+                <Button
+                  onClick={() => {
+                    if (isUsed) {
+                      toast({
+                        title: t(
+                          'option-in-use',
+                          'This option is used by existing records and cannot be removed',
+                        ),
+                        variant: 'destructive',
+                      });
+                      return;
+                    }
+                    confirm({
+                      message: t(
+                        'confirm-remove-option',
+                        'Are you sure you want to remove this option?',
                       ),
-                      variant: 'destructive',
+                    }).then(() => {
+                      setOptions(options.filter((_, i) => i !== index));
                     });
-                    return;
+                  }}
+                  variant="secondary"
+                  size="icon"
+                  className={
+                    isUsed ? 'mt-auto size-8 opacity-50' : 'mt-auto size-8'
                   }
-                  confirm({
-                    message: t(
-                      'confirm-remove-option',
-                      'Are you sure you want to remove this option?',
-                    ),
-                  }).then(() => {
-                    setOptions(options.filter((_, i) => i !== index));
-                  });
-                }}
-                variant="secondary"
-                size="icon"
-                className={isUsed ? 'mt-auto size-8 opacity-50' : 'mt-auto size-8'}
-              >
-                <IconTrash />
-              </Button>
-            </div>
+                >
+                  <IconTrash />
+                </Button>
+              </div>
             );
           })}
           <Button
