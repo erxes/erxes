@@ -7,25 +7,6 @@ import { ConversationDetail } from '@/inbox/conversations/conversation-detail/co
 import { Conversations } from '@/inbox/conversations/components/Conversations';
 import { useTranslation } from 'react-i18next';
 
-const InboxBreadcrumb = () => {
-  const { t } = useTranslation('frontline');
-
-  return (
-    <Breadcrumb>
-      <Breadcrumb.List className="gap-1">
-        <Breadcrumb.Item>
-          <Button variant="ghost" asChild>
-            <Link to="/frontline/inbox">
-              <IconMail />
-              {t('inbox', 'Inbox')}
-            </Link>
-          </Button>
-        </Breadcrumb.Item>
-      </Breadcrumb.List>
-    </Breadcrumb>
-  );
-};
-
 const InboxIndexPage = () => {
   const { t } = useTranslation('frontline');
   const favoriteBreadcrumb = createFavoriteBreadcrumb(
@@ -34,10 +15,21 @@ const InboxIndexPage = () => {
   );
 
   return (
-    <div className="flex h-full min-h-0 flex-col overflow-hidden">
+    <div className="flex flex-col h-dvh">
       <PageHeader>
         <PageHeader.Start>
-          <InboxBreadcrumb />
+          <Breadcrumb>
+            <Breadcrumb.List className="gap-1">
+              <Breadcrumb.Item>
+                <Button variant="ghost" asChild>
+                  <Link to="/frontline/inbox">
+                    <IconMail />
+                    {t('inbox', 'Inbox')}
+                  </Link>
+                </Button>
+              </Breadcrumb.Item>
+            </Breadcrumb.List>
+          </Breadcrumb>
           <Separator.Inline />
           <PageHeader.FavoriteToggleButton
             breadcrumb={favoriteBreadcrumb}

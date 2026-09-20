@@ -1,5 +1,5 @@
 import { QueryHookOptions, useQuery } from '@apollo/client';
-import { useCallback, useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { GET_CONVERSATION_MESSAGES } from '../../conversations/conversation-detail/graphql/queries/getConversationMessages';
 import { CONVERSATION_MESSAGE_INSERTED } from '../../conversations/graphql/subscriptions/inboxSubscriptions';
 import { IMessage } from '../../types/Conversation';
@@ -20,77 +20,31 @@ export const useConversationMessages = (
     conversationMessagesTotalCount: 0,
   };
 
-  const pageSize = options.variables?.limit ?? 10;
-  const historicalOffsetRef = useRef(pageSize);
-  const fetchMoreInFlightRef = useRef<Promise<unknown> | null>(null);
-  const previousConversationIdRef = useRef(options.variables?.conversationId);
-
-  if (previousConversationIdRef.current !== options.variables?.conversationId) {
-    previousConversationIdRef.current = options.variables?.conversationId;
-    historicalOffsetRef.current = pageSize;
-    fetchMoreInFlightRef.current = null;
-  }
-
-  const handleFetchMore = useCallback((): Promise<unknown> => {
+  const handleFetchMore = () => {
     if (
-      loading ||
-      fetchMoreInFlightRef.current ||
-      conversationMessagesTotalCount <= conversationMessages.length
+      !loading ||
+      conversationMessagesTotalCount > conversationMessages.length
     ) {
-      return fetchMoreInFlightRef.current || Promise.resolve();
-    }
+      fetchMore({
+        variables: {
+          skip: conversationMessages.length,
+          limit: 10,
+        },
+        updateQuery: (prev, { fetchMoreResult }) => {
+          if (!fetchMoreResult) return prev;
 
-    const skip = historicalOffsetRef.current;
-    const conversationId = options.variables?.conversationId;
-    const request = fetchMore({
-      variables: {
-        skip,
-        limit: pageSize,
-      },
-      updateQuery: (previous, { fetchMoreResult }) => {
-        if (!fetchMoreResult?.conversationMessages?.length) return previous;
-
-        const existingIds = new Set(
-          previous.conversationMessages.map((message) => message._id),
-        );
-        const olderMessages = fetchMoreResult.conversationMessages.filter(
-          (message) => !existingIds.has(message._id),
-        );
-
-        if (!olderMessages.length) return previous;
-
-        return {
-          conversationMessages: [
-            ...olderMessages,
-            ...previous.conversationMessages,
-          ],
-          conversationMessagesTotalCount:
-            fetchMoreResult.conversationMessagesTotalCount,
-        };
-      },
-    })
-      .then((result) => {
-        if (previousConversationIdRef.current === conversationId) {
-          historicalOffsetRef.current = skip + pageSize;
-        }
-        return result;
-      })
-      .finally(() => {
-        if (fetchMoreInFlightRef.current === request) {
-          fetchMoreInFlightRef.current = null;
-        }
+          return {
+            conversationMessages: [
+              ...fetchMoreResult.conversationMessages,
+              ...prev.conversationMessages,
+            ],
+            conversationMessagesTotalCount:
+              fetchMoreResult.conversationMessagesTotalCount,
+          };
+        },
       });
-
-    fetchMoreInFlightRef.current = request;
-    return request;
-  }, [
-    conversationMessages.length,
-    conversationMessagesTotalCount,
-    fetchMore,
-    loading,
-    options.variables?.conversationId,
-    pageSize,
-  ]);
+    }
+  };
 
   useEffect(() => {
     const unsubscribe = subscribeToMore<{
@@ -106,7 +60,7 @@ export const useConversationMessages = (
         const newMessage = subscriptionData.data.conversationMessageInserted;
 
         // The same message id can be re-emitted to push an update (e.g. a Discord
-        // poll's vote tallies refreshing on `extraData`). Replace the existing
+        // survey's vote tallies refreshing on `extraData`). Replace the existing
         // copy in place so the card updates, rather than dropping the event as a
         // duplicate or appending a second bubble.
         const existingIndex = prev.conversationMessages.findIndex(

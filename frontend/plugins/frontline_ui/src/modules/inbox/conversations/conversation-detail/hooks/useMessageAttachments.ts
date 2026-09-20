@@ -17,6 +17,7 @@ export const useMessageAttachments = (isDiscord: boolean) => {
     PendingAttachment[]
   >([]);
   const pendingCountRef = useRef(0);
+  const uploadGenerationRef = useRef(0);
   const { upload } = useUpload();
 
   const uploadFiles = useCallback(
@@ -78,10 +79,13 @@ export const useMessageAttachments = (isDiscord: boolean) => {
         })),
       ]);
       pendingCountRef.current += selectedFiles.length;
+      const uploadGeneration = uploadGenerationRef.current;
 
       upload({
         files,
         afterUpload: ({ status, response, fileInfo }) => {
+          if (uploadGeneration !== uploadGenerationRef.current) return;
+
           pendingCountRef.current = Math.max(0, pendingCountRef.current - 1);
           setPendingAttachments((current) => {
             const index = current.findIndex(
@@ -150,6 +154,7 @@ export const useMessageAttachments = (isDiscord: boolean) => {
   );
 
   const resetAttachments = useCallback(() => {
+    uploadGenerationRef.current += 1;
     pendingCountRef.current = 0;
     setAttachments([]);
     setPendingAttachments([]);
