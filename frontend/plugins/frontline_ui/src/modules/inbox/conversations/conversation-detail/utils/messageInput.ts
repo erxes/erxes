@@ -8,29 +8,46 @@ type ConversationDraft = {
 export const composerStorage = {
   getItem: (key: string): string | null => {
     try {
-      return window.localStorage.getItem(key);
+      return window.sessionStorage.getItem(key);
     } catch {
       return null;
     }
   },
   setItem: (key: string, value: string): void => {
     try {
-      window.localStorage.setItem(key, value);
+      window.sessionStorage.setItem(key, value);
     } catch {
       // Draft persistence is best-effort when storage is unavailable.
     }
   },
   removeItem: (key: string): void => {
     try {
-      window.localStorage.removeItem(key);
+      window.sessionStorage.removeItem(key);
     } catch {
       // Draft cleanup is best-effort when storage is unavailable.
     }
   },
 };
 
-export const getConversationDraftKey = (conversationId: string) =>
-  `frontline:conversation-draft:${conversationId}`;
+const LEGACY_CONVERSATION_DRAFT_PREFIX = 'frontline:conversation-draft:';
+
+export const clearLegacyConversationDrafts = (): void => {
+  try {
+    for (let index = window.localStorage.length - 1; index >= 0; index -= 1) {
+      const key = window.localStorage.key(index);
+      if (key?.startsWith(LEGACY_CONVERSATION_DRAFT_PREFIX)) {
+        window.localStorage.removeItem(key);
+      }
+    }
+  } catch {
+    // Legacy draft cleanup is best-effort when storage is unavailable.
+  }
+};
+
+export const getConversationDraftKey = (
+  userId: string,
+  conversationId: string,
+) => `${LEGACY_CONVERSATION_DRAFT_PREFIX}${userId}:${conversationId}`;
 
 export const parseConversationDraft = (
   stored: string | null,

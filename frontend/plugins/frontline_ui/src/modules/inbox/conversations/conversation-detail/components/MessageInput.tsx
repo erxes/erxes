@@ -33,7 +33,9 @@ import { InboxHotkeyScope } from '@/inbox/types/InboxHotkeyScope';
 import { discordReplyToState } from '@/integrations/discord/states/discordReplyToState';
 import { IntegrationType } from '@/types/Integration';
 import { useTranslation } from 'react-i18next';
+import { currentUserState } from 'ui-modules';
 import {
+  clearLegacyConversationDrafts,
   composerStorage,
   encodeDiscordMentions,
   getConversationDraftKey,
@@ -51,6 +53,7 @@ export const MessageInput = ({
   const setOnlyInternal = useSetAtom(onlyInternalState);
   const hideInput = useAtomValue(hideMessageInputState);
   const messageExtraInfo = useAtomValue(messageExtraInfoState);
+  const currentUserId = useAtomValue(currentUserState)?._id;
   const { integration } = useConversationContext();
   const [discordReplyTo, setDiscordReplyTo] = useAtom(discordReplyToState);
   const isDiscord = integration?.kind === IntegrationType.DISCORD_MESSENGER;
@@ -60,9 +63,16 @@ export const MessageInput = ({
   const [isInternalNoteCollapsed, setIsInternalNoteCollapsed] = useState(false);
   const editor = useBlockEditor();
   const draftInternalRef = useRef(false);
-  const restoredConversationIdRef = useRef<string>();
+  const restoredDraftKeyRef = useRef<string>();
   const restoringDraftRef = useRef(false);
   const submittingRef = useRef(false);
+  const activeConversationIdRef = useRef(conversationId);
+  const draftKey = currentUserId
+    ? getConversationDraftKey(currentUserId, conversationId)
+    : null;
+  const activeDraftKeyRef = useRef(draftKey);
+  activeConversationIdRef.current = conversationId;
+  activeDraftKeyRef.current = draftKey;
   const { addConversationMessage, loading } = useConversationMessageAdd();
   const {
     attachments,
@@ -95,24 +105,26 @@ export const MessageInput = ({
   } = useDiscordComposer({ conversationId, isDiscord, isInternalNote });
 
   useEffect(() => {
-    if (restoredConversationIdRef.current === conversationId) return;
-    restoredConversationIdRef.current = conversationId;
+    clearLegacyConversationDrafts();
+  }, []);
+
+  useEffect(() => {
+    if (!draftKey || restoredDraftKeyRef.current === draftKey) return;
+    restoredDraftKeyRef.current = draftKey;
     restoringDraftRef.current = true;
     resetAttachments();
     resetSuggestions();
     setDiscordReplyTo(null);
 
     try {
-      const draft = parseConversationDraft(
-        composerStorage.getItem(getConversationDraftKey(conversationId)),
-      );
+      const draft = parseConversationDraft(composerStorage.getItem(draftKey));
       draftInternalRef.current = draft.internal ?? false;
       editor.replaceBlocks(editor.document, draft.blocks);
       setContent(draft.blocks.length ? draft.blocks : undefined);
       setIsInternalNote(draftInternalRef.current);
     } catch {
       draftInternalRef.current = false;
-      composerStorage.removeItem(getConversationDraftKey(conversationId));
+      composerStorage.removeItem(draftKey);
       editor.replaceBlocks(editor.document, []);
       setContent(() => undefined);
       setIsInternalNote(false);
@@ -122,7 +134,7 @@ export const MessageInput = ({
       }, 0);
     }
   }, [
-    conversationId,
+    draftKey,
     editor,
     resetAttachments,
     resetSuggestions,
@@ -148,16 +160,16 @@ export const MessageInput = ({
       setIsInternalNote(internal);
       resetSuggestions();
       setResponseTemplateId(null);
-      if (content?.length) {
+      if (content?.length && draftKey) {
         composerStorage.setItem(
-          getConversationDraftKey(conversationId),
+          draftKey,
           JSON.stringify({ blocks: content, internal }),
         );
       }
     },
     [
       content,
-      conversationId,
+      draftKey,
       resetSuggestions,
       setIsInternalNote,
       setResponseTemplateId,
@@ -178,15 +190,15 @@ export const MessageInput = ({
     if (plain) pingAgentTyping();
     setMentionedUserIds(getMentionedUserIds(blocks));
 
-    if (nextContent) {
+    if (nextContent && draftKey) {
       composerStorage.setItem(
-        getConversationDraftKey(conversationId),
+        draftKey,
         JSON.stringify({ blocks, internal: isInternalNote }),
       );
-    } else {
-      composerStorage.removeItem(getConversationDraftKey(conversationId));
+    } else if (draftKey) {
+      composerStorage.removeItem(draftKey);
     }
-  }, [conversationId, editor, isInternalNote, pingAgentTyping, setSearchValue]);
+  }, [draftKey, editor, isInternalNote, pingAgentTyping, setSearchValue]);
 
   const handleSubmit = useCallback(async () => {
     if (!conversationId || loading || isUploading || submittingRef.current) {
@@ -194,6 +206,8 @@ export const MessageInput = ({
     }
     if (!content?.length && attachments.length === 0) return;
     submittingRef.current = true;
+    const submittedConversationId = conversationId;
+    const submittedDraftKey = draftKey;
 
     try {
       const outgoingBlocks =
@@ -210,7 +224,7 @@ export const MessageInput = ({
 
       await addConversationMessage({
         variables: {
-          conversationId,
+          conversationId: submittedConversationId,
           content: sendContent,
           mentionedUserIds:
             isDiscord && !isInternalNote ? [] : mentionedUserIds,
@@ -228,6 +242,15 @@ export const MessageInput = ({
               ? t('note-added', 'Internal note added')
               : t('message-sent', 'Message sent!'),
           });
+          if (submittedDraftKey) {
+            composerStorage.removeItem(submittedDraftKey);
+          }
+          if (
+            activeConversationIdRef.current !== submittedConversationId ||
+            activeDraftKeyRef.current !== submittedDraftKey
+          ) {
+            return;
+          }
           editor.replaceBlocks(editor.document, []);
           setContent(() => undefined);
           setMentionedUserIds([]);
@@ -236,7 +259,6 @@ export const MessageInput = ({
           resetSuggestions();
           setResponseTemplateId(null);
           setDiscordReplyTo(null);
-          composerStorage.removeItem(getConversationDraftKey(conversationId));
         },
         refetchQueries: [
           'Conversations',
@@ -260,6 +282,7 @@ export const MessageInput = ({
     content,
     conversationId,
     discordReplyTo,
+    draftKey,
     editor,
     isDiscord,
     isInternalNote,
