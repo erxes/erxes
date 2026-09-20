@@ -1,9 +1,13 @@
 import { Button, Form, InfoCard, Input, toast, useConfirm } from 'erxes-ui';
+import { nanoid } from 'nanoid';
 import { UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { IPropertyForm } from '../types/Properties';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { useFieldOptionUsedValues } from '../hooks/useFieldOptionUsedValues';
+
+type OptionRow = NonNullable<IPropertyForm['options']>[number];
+type OptionRowWithKey = OptionRow & { _key?: string };
 
 export const PropertyFormSelectFields = ({
   form,
@@ -17,17 +21,21 @@ export const PropertyFormSelectFields = ({
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const { confirm } = useConfirm();
   const type = form.watch('type');
-  const options = form.watch('options') || [];
+  const options = (form.watch('options') || []) as OptionRowWithKey[];
 
-  const savedOptionCount = isEdit
-    ? (form.formState.defaultValues?.options?.length ?? 0)
-    : 0;
+  const savedOptionValues = isEdit
+    ? new Set(
+        (form.formState.defaultValues?.options || [])
+          .map((option) => option?.value)
+          .filter((value): value is string => Boolean(value)),
+      )
+    : new Set<string>();
 
   const { usedValues } = useFieldOptionUsedValues({
     fieldId: isEdit ? fieldId : undefined,
   });
 
-  const setOptions = (next: NonNullable<IPropertyForm['options']>) =>
+  const setOptions = (next: OptionRowWithKey[]) =>
     form.setValue('options', next, {
       shouldDirty: true,
       shouldValidate: form.formState.isSubmitted,
@@ -42,15 +50,12 @@ export const PropertyFormSelectFields = ({
       <InfoCard.Content>
         <div className="flex flex-col gap-3">
           {options.map((option, index) => {
-            const isExisting = index < savedOptionCount;
-            // `usedValues` is null when usage cannot be checked for this
-            // field's content type (a plugin-owned type) — fall back to the
-            // old, safe assumption that any pre-existing option is in use.
+            const isExisting = savedOptionValues.has(option.value);
             const isUsed = isExisting
-              ? (usedValues?.includes(option.value) ?? true)
+              ? usedValues?.includes(option.value) ?? true
               : false;
             return (
-              <div className="flex gap-2" key={index}>
+              <div className="flex gap-2" key={option._key ?? option.value}>
                 <Form.Field
                   control={form.control}
                   name={`options.${index}.label`}
@@ -121,7 +126,9 @@ export const PropertyFormSelectFields = ({
             );
           })}
           <Button
-            onClick={() => setOptions([...options, { label: '', value: '' }])}
+            onClick={() =>
+              setOptions([...options, { label: '', value: '', _key: nanoid() }])
+            }
             variant="secondary"
           >
             <IconPlus /> {t('add-option', 'Add option')}

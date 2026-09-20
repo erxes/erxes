@@ -6,13 +6,13 @@ import {
   IFieldParams,
 } from '@/properties/@types';
 import { Resolver } from 'erxes-api-shared/core-types';
-import {
-  cursorPaginate,
-  defaultPaginate,
-  sendTRPCMessage,
-} from 'erxes-api-shared/utils';
+import { cursorPaginate, defaultPaginate } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
 import { IContext, IModels } from '~/connectionResolvers';
+import {
+  extractOptionValues,
+  getFieldOptionUsedValues,
+} from '~/modules/properties/db/models/fieldOptionUsage';
 
 const generateFilter = async (
   models: IModels,
@@ -33,24 +33,10 @@ const generateFilter = async (
   return filter;
 };
 
-const CORE_CONTENT_TYPE_MODELS: Record<string, keyof IModels> = {
-  'core:customer': 'Customers',
-  'core:company': 'Companies',
-  'core:product': 'Products',
-  'core:user': 'Users',
-};
-
-// Content types owned by a plugin rather than core: their records live in
-// that plugin's own database, so usage is checked via a tRPC call to the
-// `fields.fieldOptionUsedValues` procedure the owning plugin exposes, rather
-// than a local aggregate. A content type absent from both this map and
-// CORE_CONTENT_TYPE_MODELS still returns null ("unknown").
-const PLUGIN_CONTENT_TYPE_OWNERS: Record<string, string> = {
-  'frontline:ticket': 'frontline',
-  'sales:deal': 'sales',
-};
-
-export const fieldQueries: Record<string, Resolver<any, any, IContext>> = {
+export const fieldQueries: Record<
+  string,
+  Resolver<unknown, unknown, IContext>
+> = {
   fields: async (
     _: undefined,
     { params }: { params: IFieldCursorParams },
@@ -100,11 +86,6 @@ export const fieldQueries: Record<string, Resolver<any, any, IContext>> = {
     return await models.Fields.getField({ _id });
   },
 
-  // Which of a select/multiSelect/check/radio field's option values are
-  // currently stored on at least one record. Only core-owned content types
-  // can be checked here — a plugin-owned content type's records live in that
-  // plugin's own database, so this returns null to mean "unknown" rather than
-  // an empty (and misleadingly reassuring) list.
   fieldOptionUsedValues: async (
     _: undefined,
     { fieldId }: { fieldId: string },
@@ -116,94 +97,13 @@ export const fieldQueries: Record<string, Resolver<any, any, IContext>> = {
       return null;
     }
 
-    const values = (field.options || [])
-      .map((option: any) =>
-        typeof option === 'string' ? option : option?.value,
-      )
-      .filter((value: unknown): value is string => Boolean(value));
+    const values = extractOptionValues(field.options);
 
     if (!values.length) {
       return [];
     }
 
-    const modelName = CORE_CONTENT_TYPE_MODELS[field.contentType];
-
-    if (!modelName) {
-      const pluginName = PLUGIN_CONTENT_TYPE_OWNERS[field.contentType];
-
-      if (!pluginName) {
-        return null;
-      }
-
-      return sendTRPCMessage({
-        subdomain,
-        pluginName,
-        method: 'query',
-        module: 'fields',
-        action: 'fieldOptionUsedValues',
-        input: { contentType: field.contentType, fieldId, values },
-        defaultValue: null,
-      });
-    }
-
-    const model = models[modelName] as unknown as {
-      aggregate: (pipeline: any[]) => Promise<Array<{ _id: string }>>;
-    };
-
-    const propertiesDataPath = `propertiesData.${fieldId}`;
-
-    // A record's value for this field can live in either of two places:
-    // the legacy `customFieldsData` array (still written by imports and
-    // widget-submitted forms) or the newer `propertiesData` map (written by
-    // the record detail page's Properties panel). Both are checked and the
-    // used values are unioned. In each shape the stored value is a scalar
-    // for select/radio but an array for multiSelect/check, so it is
-    // normalized to an array before unwinding rather than matched directly.
-    const [fromCustomFieldsData, fromPropertiesData] = await Promise.all([
-      model.aggregate([
-        { $match: { 'customFieldsData.field': fieldId } },
-        { $unwind: '$customFieldsData' },
-        { $match: { 'customFieldsData.field': fieldId } },
-        {
-          $project: {
-            value: {
-              $cond: [
-                { $isArray: '$customFieldsData.value' },
-                '$customFieldsData.value',
-                ['$customFieldsData.value'],
-              ],
-            },
-          },
-        },
-        { $unwind: '$value' },
-        { $match: { value: { $in: values } } },
-        { $group: { _id: '$value' } },
-      ]),
-      model.aggregate([
-        { $match: { [propertiesDataPath]: { $in: values } } },
-        {
-          $project: {
-            value: {
-              $cond: [
-                { $isArray: `$${propertiesDataPath}` },
-                `$${propertiesDataPath}`,
-                [`$${propertiesDataPath}`],
-              ],
-            },
-          },
-        },
-        { $unwind: '$value' },
-        { $match: { value: { $in: values } } },
-        { $group: { _id: '$value' } },
-      ]),
-    ]);
-
-    const used = new Set([
-      ...fromCustomFieldsData.map((row) => row._id),
-      ...fromPropertiesData.map((row) => row._id),
-    ]);
-
-    return Array.from(used);
+    return getFieldOptionUsedValues(models, subdomain, field, values);
   },
 };
 

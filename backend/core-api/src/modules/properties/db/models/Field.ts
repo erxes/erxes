@@ -14,6 +14,10 @@ import validator from 'validator';
 import { IModels } from '~/connectionResolvers';
 import { fieldSchema } from '~/modules/properties/db/definitions/field';
 import { IField, IFieldDocument } from '../../@types';
+import {
+  extractOptionValues,
+  getFieldOptionUsedValues,
+} from './fieldOptionUsage';
 
 export interface IFieldValueValidationOptions {
   /** Also check the value against the shape its field type implies. */
@@ -105,6 +109,7 @@ export interface IFieldModel extends Model<IFieldDocument> {
     _id: string,
     doc: IField,
     user: IUserDocument,
+    subdomain: string,
   ): Promise<IFieldDocument>;
   removeField(_id: string): Promise<IFieldDocument>;
 
@@ -169,14 +174,57 @@ export const loadFieldClass = (models: IModels) => {
       _id: string,
       doc: IField,
       user: IUserDocument,
+      subdomain: string,
     ) {
       await this.validateField(doc, _id);
+
+      if (doc.options !== undefined) {
+        await this.validateOptionRemoval(_id, doc.options, subdomain);
+      }
 
       return models.Fields.findOneAndUpdate(
         { _id },
         { $set: { ...doc, updatedBy: user._id } },
         { new: true },
       );
+    }
+
+    public static async validateOptionRemoval(
+      _id: string,
+      nextOptions: IField['options'],
+      subdomain: string,
+    ) {
+      const existingField = await models.Fields.getField({ _id });
+
+      const previousValues = extractOptionValues(existingField.options);
+      const nextValues = new Set(extractOptionValues(nextOptions));
+      const removedValues = previousValues.filter(
+        (value) => !nextValues.has(value),
+      );
+
+      if (!removedValues.length) {
+        return;
+      }
+
+      const usedValues = await getFieldOptionUsedValues(
+        models,
+        subdomain,
+        existingField,
+        removedValues,
+      );
+
+      const blockedValues =
+        usedValues === null
+          ? removedValues
+          : removedValues.filter((value) => usedValues.includes(value));
+
+      if (blockedValues.length) {
+        throw new Error(
+          `Cannot remove option(s) "${blockedValues.join(
+            ', ',
+          )}": still used by existing records`,
+        );
+      }
     }
 
     public static async removeField(_id: string) {

@@ -57,10 +57,6 @@ export const appRouter = t.mergeRouters(
         },
       ),
 
-      // Which of a select/multiSelect/check/radio field's option values are
-      // currently stored on at least one record. Called by core-api when the
-      // field's contentType is owned by this plugin. Only deal properties
-      // are supported so far; anything else returns null ("unknown").
       fieldOptionUsedValues: t.procedure
         .input(
           z.object({
@@ -69,7 +65,7 @@ export const appRouter = t.mergeRouters(
             values: z.array(z.string()),
           }),
         )
-        .query(async ({ ctx, input }) => {
+        .query(({ ctx, input }) => {
           const { models } = ctx;
           const { contentType, fieldId, values } = input;
 
