@@ -52,7 +52,7 @@ export const PropertyFormSelectFields = ({
           {options.map((option, index) => {
             const isExisting = savedOptionValues.has(option.value);
             const isUsed = isExisting
-              ? usedValues?.includes(option.value) ?? true
+              ? (usedValues?.includes(option.value) ?? true)
               : false;
             return (
               <div className="flex gap-2" key={option._key ?? option.value}>
