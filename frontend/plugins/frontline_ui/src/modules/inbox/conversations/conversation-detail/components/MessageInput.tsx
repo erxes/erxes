@@ -114,7 +114,7 @@ export const MessageInput = ({
       draftInternalRef.current = false;
       composerStorage.removeItem(getConversationDraftKey(conversationId));
       editor.replaceBlocks(editor.document, []);
-      setContent(undefined);
+      setContent(() => undefined);
       setIsInternalNote(false);
     } finally {
       window.setTimeout(() => {
@@ -229,7 +229,7 @@ export const MessageInput = ({
               : t('message-sent', 'Message sent!'),
           });
           editor.replaceBlocks(editor.document, []);
-          setContent(undefined);
+          setContent(() => undefined);
           setMentionedUserIds([]);
           setIsInternalNote(onlyInternal);
           resetAttachments();
