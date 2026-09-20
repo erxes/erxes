@@ -51,7 +51,12 @@ export const useResponseTemplateSuggestions = ({
     [debouncedSearchValue, enabled, responses],
   );
   const showSuggestions =
-    Boolean(debouncedSearchValue) && enabled && !isDismissed;
+    Boolean(debouncedSearchValue) &&
+    enabled &&
+    !isDismissed &&
+    !isInitialLoad &&
+    !isRefetching &&
+    suggestions.length > 0;
 
   const resetSuggestions = useCallback(() => {
     setSearchValue('');

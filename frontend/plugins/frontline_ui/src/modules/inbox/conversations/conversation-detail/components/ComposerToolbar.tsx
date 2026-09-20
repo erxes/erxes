@@ -1,7 +1,6 @@
-import { Button, DropdownMenu, Input, Kbd, Spinner, cn } from 'erxes-ui';
+import { Button, Input, Kbd, Spinner, cn } from 'erxes-ui';
 import {
   IconArrowUp,
-  IconChevronDown,
   IconCommand,
   IconCornerDownLeft,
   IconLock,
@@ -104,44 +103,26 @@ export const ComposerToolbar = ({
 
       <div className="ml-auto flex min-w-0 items-center justify-end gap-1 sm:gap-2">
         {!onlyInternal && (
-          <DropdownMenu>
-            <DropdownMenu.Trigger asChild>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                disabled={isBusy}
-                aria-label={t('message-mode', 'Message mode')}
-                className={cn(
-                  'h-9 max-w-36 gap-1.5 px-2 sm:max-w-none sm:px-3',
-                  isInternalNote && 'border-warning/50 bg-warning/20',
-                )}
-              >
-                {isInternalNote ? <IconLock /> : <IconMessage2 />}
-                <span className="truncate">
-                  {isInternalNote
-                    ? t('internal-note', 'Internal Note')
-                    : t('reply', 'Reply')}
-                </span>
-                <IconChevronDown className="size-3.5 flex-none" />
-              </Button>
-            </DropdownMenu.Trigger>
-            <DropdownMenu.Content align="end">
-              <DropdownMenu.RadioGroup
-                value={isInternalNote ? 'note' : 'reply'}
-                onValueChange={(value) =>
-                  onInternalNoteChange(value === 'note')
-                }
-              >
-                <DropdownMenu.RadioItem value="reply">
-                  {t('reply-to-customer', 'Reply to customer')}
-                </DropdownMenu.RadioItem>
-                <DropdownMenu.RadioItem value="note">
-                  {t('internal-note', 'Internal Note')}
-                </DropdownMenu.RadioItem>
-              </DropdownMenu.RadioGroup>
-            </DropdownMenu.Content>
-          </DropdownMenu>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={isBusy}
+            aria-label={t('message-mode', 'Message mode')}
+            aria-pressed={isInternalNote}
+            onClick={() => onInternalNoteChange(!isInternalNote)}
+            className={cn(
+              'h-9 max-w-36 gap-1.5 px-2 sm:max-w-none sm:px-3',
+              isInternalNote && 'border-warning/50 bg-warning/20',
+            )}
+          >
+            {isInternalNote ? <IconLock /> : <IconMessage2 />}
+            <span className="truncate">
+              {isInternalNote
+                ? t('internal-note', 'Internal Note')
+                : t('reply', 'Reply')}
+            </span>
+          </Button>
         )}
 
         <Button
