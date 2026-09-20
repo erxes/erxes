@@ -97,7 +97,7 @@ export const MessageInput = ({
     selectTemplate,
     setResponseTemplateId,
     setSearchValue,
-    showSuggestionDropdown,
+    showSuggestions,
     suggestions,
   } = useResponseTemplateSuggestions({ editor, enabled: !isInternalNote });
   const {
@@ -360,7 +360,7 @@ export const MessageInput = ({
         onRemove={removeAttachment}
       />
 
-      {showSuggestionDropdown && !isInternalNote && (
+      {showSuggestions && !isInternalNote && (
         <ResponseTemplateDropdown
           suggestions={suggestions}
           selectedIndex={selectedIndex}

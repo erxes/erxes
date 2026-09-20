@@ -35,7 +35,7 @@ export const ComposerEditor = ({
     disabled={loading}
     sideMenu={false}
     className={cn(
-      'min-h-12 w-full flex-none',
+      'min-h-12 max-h-64 w-full flex-none overflow-y-auto overscroll-contain',
       isInternalNote && 'internal-note',
     )}
     onFocus={() => onFocus(InboxHotkeyScope.MessageInput)}

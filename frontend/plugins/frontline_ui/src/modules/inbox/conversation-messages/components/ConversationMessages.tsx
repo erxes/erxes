@@ -36,6 +36,7 @@ export const ConversationMessages = ({
 
   return (
     <InboxMessagesContainer
+      conversationId={conversationId}
       fetchMore={handleFetchMore}
       messagesLength={messages?.length || 0}
       totalCount={totalCount}

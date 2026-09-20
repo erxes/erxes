@@ -1,5 +1,5 @@
 import { QueryHookOptions, useQuery } from '@apollo/client';
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { GET_CONVERSATION_MESSAGES } from '../../conversations/conversation-detail/graphql/queries/getConversationMessages';
 import { CONVERSATION_MESSAGE_INSERTED } from '../../conversations/graphql/subscriptions/inboxSubscriptions';
 import { IMessage } from '../../types/Conversation';
@@ -20,31 +20,38 @@ export const useConversationMessages = (
     conversationMessagesTotalCount: 0,
   };
 
-  const handleFetchMore = () => {
+  const handleFetchMore = useCallback((): Promise<unknown> => {
     if (
-      !loading ||
-      conversationMessagesTotalCount > conversationMessages.length
+      loading ||
+      conversationMessagesTotalCount <= conversationMessages.length
     ) {
-      fetchMore({
-        variables: {
-          skip: conversationMessages.length,
-          limit: 10,
-        },
-        updateQuery: (prev, { fetchMoreResult }) => {
-          if (!fetchMoreResult) return prev;
-
-          return {
-            conversationMessages: [
-              ...fetchMoreResult.conversationMessages,
-              ...prev.conversationMessages,
-            ],
-            conversationMessagesTotalCount:
-              fetchMoreResult.conversationMessagesTotalCount,
-          };
-        },
-      });
+      return Promise.resolve();
     }
-  };
+
+    return fetchMore({
+      variables: {
+        skip: conversationMessages.length,
+        limit: 10,
+      },
+      updateQuery: (prev, { fetchMoreResult }) => {
+        if (!fetchMoreResult) return prev;
+
+        return {
+          conversationMessages: [
+            ...fetchMoreResult.conversationMessages,
+            ...prev.conversationMessages,
+          ],
+          conversationMessagesTotalCount:
+            fetchMoreResult.conversationMessagesTotalCount,
+        };
+      },
+    });
+  }, [
+    conversationMessages.length,
+    conversationMessagesTotalCount,
+    fetchMore,
+    loading,
+  ]);
 
   useEffect(() => {
     const unsubscribe = subscribeToMore<{
@@ -105,7 +112,7 @@ export const useConversationMessages = (
       },
     });
     return unsubscribe;
-  }, [options.variables?.conversationId]);
+  }, [client.cache, options.variables?.conversationId, subscribeToMore]);
 
   return {
     messages: conversationMessages,
