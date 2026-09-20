@@ -9,7 +9,13 @@ import {
 } from 'erxes-ui';
 import { IconX } from '@tabler/icons-react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 import type { Block } from '@blocknote/core';
 
 import {
@@ -71,8 +77,6 @@ export const MessageInput = ({
     ? getConversationDraftKey(currentUserId, conversationId)
     : null;
   const activeDraftKeyRef = useRef(draftKey);
-  activeConversationIdRef.current = conversationId;
-  activeDraftKeyRef.current = draftKey;
   const { addConversationMessage, loading } = useConversationMessageAdd();
   const {
     attachments,
@@ -103,6 +107,11 @@ export const MessageInput = ({
     searchMentionItems: searchDiscordMentionItems,
     stopAgentTyping,
   } = useDiscordComposer({ conversationId, isDiscord, isInternalNote });
+
+  useLayoutEffect(() => {
+    activeConversationIdRef.current = conversationId;
+    activeDraftKeyRef.current = draftKey;
+  }, [conversationId, draftKey]);
 
   useEffect(() => {
     clearLegacyConversationDrafts();
