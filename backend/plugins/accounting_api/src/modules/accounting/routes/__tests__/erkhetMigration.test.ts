@@ -2,9 +2,13 @@
 
 import { JOURNALS } from '../../@types/constants';
 import {
+  getErkhetTransactionCodeMapForTest,
   normalizeOpeningFixedAssetBalances,
+  resolveErkhetInvIncomeExpensesForTest,
   resolveErkhetFxaOwnerRecordSourcesForTest,
   resolveErkhetFxaOwnerRecordsForTest,
+  resolveErkhetTransactionFollowInfosForTest,
+  resolveErkhetTransactionVatRowIdForTest,
 } from '../erkhetMigration';
 import { IModels } from '~/connectionResolvers';
 
@@ -57,9 +61,150 @@ describe('Erkhet migration fixed asset openings', () => {
   });
 });
 
+describe('Erkhet migration inventory sale follow accounts', () => {
+  const transaction = {
+    date: new Date('2026-01-01T00:00:00.000Z'),
+    journal: JOURNALS.INV_SALE,
+    followInfos: {
+      saleOutAccountId: '201001',
+      saleCostAccountId: '701001',
+    },
+    hasVat: true,
+    vatRowId: '36',
+    details: [
+      {
+        accountId: '501001',
+        productId: 'product-1',
+        count: 1,
+        amount: 100,
+      },
+    ],
+  };
+
+  it('collects and resolves inventory sale follow account codes', () => {
+    expect(getErkhetTransactionCodeMapForTest([transaction])).toEqual(
+      expect.objectContaining({
+        accountCodes: expect.arrayContaining(['201001', '701001']),
+        vatRowNumbers: ['36'],
+      }),
+    );
+
+    expect(
+      resolveErkhetTransactionFollowInfosForTest(transaction, {
+        accountsByCode: {
+          '201001': 'sale-out-account-id',
+          '701001': 'sale-cost-account-id',
+        },
+        vatRowsByNumber: {},
+        ctaxRowsByNumber: {},
+        branchesByCode: {},
+        departmentsByCode: {},
+        customersByCode: {},
+        productsByCode: {},
+        fixedAssetCategoriesByCode: {},
+        fixedAssetsByCode: {},
+        usersByRef: {},
+      }),
+    ).toEqual(
+      expect.objectContaining({
+        saleOutAccountId: 'sale-out-account-id',
+        saleCostAccountId: 'sale-cost-account-id',
+        saleOutAccountCode: '201001',
+        saleCostAccountCode: '701001',
+      }),
+    );
+
+    expect(
+      resolveErkhetTransactionVatRowIdForTest(transaction, {
+        accountsByCode: {},
+        vatRowsByNumber: { '36': 'vat-row-id' },
+        ctaxRowsByNumber: {},
+        branchesByCode: {},
+        departmentsByCode: {},
+        customersByCode: {},
+        productsByCode: {},
+        fixedAssetCategoriesByCode: {},
+        fixedAssetsByCode: {},
+        usersByRef: {},
+      }),
+    ).toBe('vat-row-id');
+  });
+});
+
+describe('Erkhet migration inventory income expenses', () => {
+  const maps = {
+    accountsByCode: { '201001': 'expense-account-id' },
+    vatRowsByNumber: {},
+    ctaxRowsByNumber: {},
+    branchesByCode: {},
+    departmentsByCode: {},
+    customersByCode: {},
+    productsByCode: {},
+    fixedAssetCategoriesByCode: {},
+    fixedAssetsByCode: {},
+    usersByRef: {},
+  };
+
+  it('collects and resolves expense account codes while preserving weight allocation', () => {
+    const transaction = {
+      date: new Date('2026-01-01T00:00:00.000Z'),
+      journal: JOURNALS.INV_INCOME,
+      details: [
+        {
+          accountId: '101001',
+          productId: 'product-1',
+          count: 2,
+          weight: 10,
+          amount: 100,
+        },
+      ],
+      extraData: {
+        invIncomeExpenses: [
+          {
+            _id: 'expense-1',
+            title: 'Transport',
+            rule: 'weight' as const,
+            amount: 20,
+            accountId: '201001',
+          },
+        ],
+      },
+    };
+
+    expect(getErkhetTransactionCodeMapForTest([transaction])).toEqual(
+      expect.objectContaining({
+        accountCodes: expect.arrayContaining(['101001', '201001']),
+      }),
+    );
+    expect(
+      resolveErkhetInvIncomeExpensesForTest(
+        transaction.extraData.invIncomeExpenses,
+        maps,
+      ),
+    ).toEqual([
+      expect.objectContaining({
+        rule: 'weight',
+        accountId: 'expense-account-id',
+      }),
+    ]);
+    expect(transaction.details[0].weight).toBe(10);
+  });
+
+  it('rejects an unknown expense account code', () => {
+    expect(() =>
+      resolveErkhetInvIncomeExpensesForTest(
+        [{ rule: 'amount', amount: 20, accountId: 'missing' }],
+        maps,
+      ),
+    ).toThrow('Account not found: missing');
+  });
+});
+
 describe('Erkhet migration fixed asset owner records', () => {
   const maps = {
     accountsByCode: {},
+    vatRowsByNumber: {},
+    ctaxRowsByNumber: {},
     branchesByCode: {},
     departmentsByCode: {},
     customersByCode: {},

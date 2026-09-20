@@ -32,38 +32,38 @@ export const customerRouter = t.router({
       )
       .input(z.any())
       .query(async ({ ctx, input }) => {
-      const query = input?.query || input?.selector || input;
-      const { models } = ctx;
+        const query = input?.query || input?.selector || input;
+        const { models } = ctx;
 
-      if (!query || !Object.keys(query).length) {
-        return {};
-      }
+        if (!query || !Object.keys(query).length) {
+          return {};
+        }
 
-      const defaultFilter = { status: { $ne: 'deleted' } };
+        const defaultFilter = { status: { $ne: 'deleted' } };
 
-      if (query?.customerPrimaryEmail) {
-        defaultFilter['$or'] = [
-          { emails: { $in: [query.customerPrimaryEmail] } },
-          { primaryEmail: query.customerPrimaryEmail },
-        ];
-      }
+        if (query?.customerPrimaryEmail) {
+          defaultFilter['$or'] = [
+            { emails: { $in: [query.customerPrimaryEmail] } },
+            { primaryEmail: query.customerPrimaryEmail },
+          ];
+        }
 
-      if (query?.customerPrimaryPhone) {
-        defaultFilter['$or'] = [
-          { phones: { $in: [query.customerPrimaryPhone] } },
-          { primaryPhone: query.customerPrimaryPhone },
-        ];
-      }
+        if (query?.customerPrimaryPhone) {
+          defaultFilter['$or'] = [
+            { phones: { $in: [query.customerPrimaryPhone] } },
+            { primaryPhone: query.customerPrimaryPhone },
+          ];
+        }
 
-      if (query?.customerCode) {
-        defaultFilter['code'] = query.customerCode;
-      }
+        if (query?.customerCode) {
+          defaultFilter['code'] = query.customerCode;
+        }
 
-      if (query?._id) {
-        defaultFilter['_id'] = query._id;
-      }
-      return models.Customers.findOne(defaultFilter).lean();
-    }),
+        if (query?._id) {
+          defaultFilter['_id'] = query._id;
+        }
+        return models.Customers.findOne(defaultFilter).lean();
+      }),
 
     findActiveCustomers: t.procedure
       .meta(
@@ -120,12 +120,6 @@ export const customerRouter = t.router({
       }),
 
     createCustomer: t.procedure
-      .meta(
-        agentMeta(
-          'Create a customer (person). Input: { doc: { firstName?, lastName?, primaryEmail?, emails?, primaryPhone?, phones?, code?, tagIds?, customFieldsData?, ... } }. Workflow: (1) check for duplicates with customers.findOne by email or phone; (2) resolve tag IDs with tags.find (type "core:customer"); (3) for custom fields, discover field IDs via fields.fieldsCombinedByContentType (contentType "core:contacts.customers") and format values with fields.prepareCustomFieldsData.',
-          { module: 'contacts', action: 'contactsCreate' },
-        ),
-      )
       .input(z.object({ doc: z.any() }))
       .mutation(async ({ ctx, input }) => {
         const { doc } = input;
@@ -135,12 +129,6 @@ export const customerRouter = t.router({
       }),
 
     updateCustomer: t.procedure
-      .meta(
-        agentMeta(
-          'Update a customer by ID. Input: { _id, doc: { ...fields to change } } — only provided fields are modified. Call customers.findOne first to get the _id and current values. For custom fields, build doc.customFieldsData with fields.prepareCustomFieldsData.',
-          { module: 'contacts', action: 'contactsUpdate' },
-        ),
-      )
       .input(z.object({ _id: z.string(), doc: z.any() }))
       .mutation(async ({ ctx, input }) => {
         const { _id, doc } = input;
@@ -269,15 +257,7 @@ export const customerRouter = t.router({
         });
       }),
 
-    tag: t.procedure
-      .meta(
-        agentMeta(
-          'Attach tags to customers, or count tagged customers. Input: { action, _ids, tagIds, targetIds }. action "tagObject" sets tagIds on the customers listed in targetIds; action "count" counts customers carrying the tag IDs in _ids. Resolve tag IDs first with tags.find (type "core:customer").',
-          { module: 'tags', action: 'tagsTag' },
-        ),
-      )
-      .input(z.any())
-      .mutation(async ({ ctx, input }) => {
+    tag: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
       const { action, _ids, tagIds, targetIds } = input;
       const { models } = ctx;
 
