@@ -38,7 +38,8 @@ const Attachment = ({
 }) => {
   const { userId, customerId, botData } = useFbMessengerMessageContext();
   const isOutgoing = !!userId || !!botData?.length;
-  const isImage = attachment.type.startsWith('image');
+  const isSticker = attachment.type === 'sticker';
+  const isImage = attachment.type.startsWith('image') || isSticker;
 
   if (!isImage) {
     return (
@@ -71,7 +72,10 @@ const Attachment = ({
               'col-start-1':
                 length !== 1 || (length === 1 && (!isOutgoing || customerId)),
             },
-            'aspect-square w-full overflow-hidden rounded bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60',
+            'overflow-hidden rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60',
+            isSticker
+              ? 'w-fit max-w-full bg-transparent'
+              : 'aspect-square w-full bg-accent',
           )}
         >
           <img
@@ -80,7 +84,11 @@ const Attachment = ({
             loading="lazy"
             width={200}
             height={200}
-            className="size-full object-cover"
+            className={
+              isSticker
+                ? 'block max-h-48 max-w-48 bg-transparent object-contain'
+                : 'size-full object-cover'
+            }
           />
         </button>
       </Dialog.Trigger>

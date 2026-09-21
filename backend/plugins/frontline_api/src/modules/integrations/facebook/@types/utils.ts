@@ -129,6 +129,12 @@ export interface IChannelData {
     };
     payload?: any;
   };
+  reaction?: {
+    mid?: string;
+    action?: 'react' | 'unreact';
+    reaction?: string;
+    emoji?: string;
+  };
   postback?: IMessagePostback;
 }
 

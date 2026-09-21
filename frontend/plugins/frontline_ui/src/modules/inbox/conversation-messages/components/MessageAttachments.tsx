@@ -21,6 +21,7 @@ const MessageAttachment = ({
   const { t } = useTranslation('frontline');
   const type = attachment.type || '';
   const source = readImage(attachment.url);
+  const isSticker = type === 'sticker';
 
   if (!attachment.url) return null;
 
@@ -53,7 +54,7 @@ const MessageAttachment = ({
     );
   }
 
-  if (!type.startsWith('image')) {
+  if (!type.startsWith('image') && !isSticker) {
     return (
       <a
         href={source}
@@ -82,7 +83,8 @@ const MessageAttachment = ({
         <button
           type="button"
           className={cn(
-            'overflow-hidden rounded bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60',
+            'overflow-hidden rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60',
+            isSticker ? 'bg-transparent' : 'bg-accent',
             single ? 'w-fit max-w-full' : 'aspect-square size-full',
           )}
         >

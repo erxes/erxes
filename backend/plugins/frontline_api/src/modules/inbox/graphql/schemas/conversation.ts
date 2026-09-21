@@ -287,6 +287,12 @@ export const mutations = `
     contentType: String
     extraInfo: JSON
   ): ConversationMessage
+  conversationMessageReact(
+    conversationId: String!
+    messageId: String!
+    reaction: String
+    remove: Boolean
+  ): Boolean
   conversationsAssign(conversationIds: [String]!, assignedUserId: String): [Conversation]
   conversationsUnassign(_ids: [String]!): [Conversation]
   conversationsChangeStatus(_ids: [String]!, status: String!): [Conversation]

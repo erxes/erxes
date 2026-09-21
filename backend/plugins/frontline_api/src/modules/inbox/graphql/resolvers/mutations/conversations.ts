@@ -11,7 +11,7 @@ import {
 } from '@/inbox/db/definitions/constants';
 import { INTEGRATION_KINDS } from '@/integrations/facebook/constants';
 import { handleFacebookIntegration } from '@/integrations/facebook/messageBroker';
-import { sendReply } from '@/integrations/facebook/utils';
+import { sendReaction, sendReply } from '@/integrations/facebook/utils';
 import { handleInstagramIntegration } from '@/integrations/instagram/messageBroker';
 import { handleDiscordIntegration } from '@/integrations/discord/messageBroker';
 import { pConversationClientMessageInserted } from './widget';
@@ -40,6 +40,14 @@ interface DispatchConversationData {
 const DEFAULT_HANDOFF_MESSAGE =
   'A teammate will take over shortly. Automated replies are paused.';
 const DEFAULT_AUTOMATION_ACTIVE_MESSAGE = 'Automated replies are active again.';
+const FACEBOOK_REACTION_EMOJI: Record<string, string> = {
+  love: '❤️',
+  like: '👍',
+  wow: '😮',
+  haha: '😂',
+  sad: '😢',
+  angry: '😠',
+};
 
 const getErrorMessage = (error: unknown) =>
   error instanceof Error ? error.message : String(error);
@@ -499,6 +507,92 @@ const getConversationById = async (models: IModels, selector) => {
 };
 
 export const conversationMutations = {
+  async conversationMessageReact(
+    _root,
+    {
+      conversationId,
+      messageId,
+      reaction,
+      remove = false,
+    }: {
+      conversationId: string;
+      messageId: string;
+      reaction?: string;
+      remove?: boolean;
+    },
+    { user, models }: IContext,
+  ) {
+    const conversation = await models.Conversations.getConversation(
+      conversationId,
+    );
+    const integration = await models.Integrations.getIntegration({
+      _id: conversation.integrationId,
+    });
+
+    if (integration.kind !== INTEGRATION_KINDS.MESSENGER) {
+      throw new Error('Reactions are not supported by this integration');
+    }
+
+    const facebookConversation =
+      await models.FacebookConversations.getConversation({
+        erxesApiId: conversationId,
+      });
+    const message = await models.FacebookConversationMessages.findOne({
+      conversationId: facebookConversation._id,
+      mid: messageId,
+    });
+
+    if (!message) {
+      throw new Error('Facebook message not found');
+    }
+
+    let payload: Parameters<typeof sendReaction>[1];
+
+    if (remove) {
+      payload = {
+        recipient: { id: facebookConversation.senderId },
+        sender_action: 'unreact',
+        payload: { message_id: messageId },
+      };
+    } else {
+      const emoji = reaction && FACEBOOK_REACTION_EMOJI[reaction];
+
+      if (!reaction || !emoji) {
+        throw new Error('A supported reaction is required');
+      }
+
+      payload = {
+        recipient: { id: facebookConversation.senderId },
+        sender_action: 'react',
+        payload: { message_id: messageId, reaction: emoji },
+      };
+    }
+
+    await sendReaction(
+      models,
+      payload,
+      facebookConversation.recipientId,
+      integration._id,
+    );
+
+    const reactions = (message.reactions || []).filter(
+      (item) => item.senderId !== user._id,
+    );
+
+    if (!remove && reaction) {
+      reactions.push({
+        senderId: user._id,
+        reaction,
+        emoji: FACEBOOK_REACTION_EMOJI[reaction],
+      });
+    }
+
+    message.reactions = reactions;
+    await message.save();
+
+    return true;
+  },
+
   async conversationAgentTyping(
     _root,
     {

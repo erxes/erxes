@@ -658,14 +658,22 @@ export const sendReply = async (
   }
 };
 
-interface IFacebookReactionPayload {
-  recipient: { id: string };
-  sender_action: 'react' | 'unreact';
-  payload: {
-    message_id: string;
-    reaction?: string;
-  };
-}
+type IFacebookReactionPayload =
+  | {
+      recipient: { id: string };
+      sender_action: 'react';
+      payload: {
+        message_id: string;
+        reaction: string;
+      };
+    }
+  | {
+      recipient: { id: string };
+      sender_action: 'unreact';
+      payload: {
+        message_id: string;
+      };
+    };
 
 export const sendReaction = async (
   models: IModels,
@@ -685,12 +693,8 @@ export const sendReaction = async (
     throw new Error(`Page access token not found for page: ${pageId}`);
   }
 
-  const graphUrl =
-    getEnv({ name: 'FACEBOOK_GRAPH_URL', defaultValue: '' }) ||
-    'https://graph.facebook.com';
-
   const response = await fetch(
-    `${graphUrl.replace(/\/+$/, '')}/v25.0/${pageId}/messages`,
+    `https://graph.facebook.com/v25.0/${pageId}/messages`,
     {
       method: 'POST',
       headers: {
@@ -844,7 +848,7 @@ export const getFacebookUserProfilePic = async (
         false,
       );
 
-      return awsResponse;
+      return String(awsResponse);
     }
 
     return response.location;
