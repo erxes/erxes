@@ -1,63 +1,55 @@
 import { Block } from '@blocknote/core';
 import { useCreateBlockNote } from '@blocknote/react';
-import { useCallback, useEffect, useRef } from 'react';
-import { useErxesUpload, FileWithPreview } from '../../../hooks/use-upload-new';
+import { useCallback, useEffect } from 'react';
+import { useErxesUpload } from '../../../hooks/use-upload-new';
+import { useUploadChunked } from '../../../hooks/use-upload-chunked';
+import { useToast } from '../../../hooks/use-toast';
 import { readImage } from '../../../utils/core';
 import { BLOCK_SCHEMA, TABLE_SCHEMA } from '../constant';
+import type { IBlockEditor } from '../types';
 
 export const useBlockEditor = (args?: {
   initialContent?: Block[];
   placeholder?: string;
   uploadFile?: (file: File) => Promise<string>;
-}) => {
+}): IBlockEditor => {
   const { placeholder, uploadFile, ...restArgs } = args || {};
 
-  const pendingRef = useRef<{
-    resolve: (url: string) => void;
-    reject: (err: Error) => void;
-  } | null>(null);
-
-  const uploadProps = useErxesUpload({
-    maxFiles: 1,
-    onFilesAdded: (added) => {
-      const pending = pendingRef.current;
-      if (!pending) return;
-
-      if (added[0]?.url) {
-        pending.resolve(added[0].url);
-      } else {
-        pending.reject(new Error('Upload failed'));
-      }
-      pendingRef.current = null;
-    },
-  });
+  const { uploadFile: uploadEditorFile } = useErxesUpload({ maxFiles: 1 });
+  const { upload: uploadVideo, error: videoUploadError } = useUploadChunked();
+  const { toast } = useToast();
 
   useEffect(() => {
-    if (uploadProps.files.length > 0 && !uploadProps.loading) {
-      uploadProps.onUpload().catch((err: unknown) => {
-        pendingRef.current?.reject(
-          err instanceof Error ? err : new Error('Upload failed'),
-        );
-        pendingRef.current = null;
+    if (videoUploadError) {
+      toast({
+        title: 'Video upload failed',
+        description: videoUploadError,
+        variant: 'destructive',
       });
     }
-  }, [uploadProps.files[0]]);
+  }, [videoUploadError, toast]);
 
   const defaultUploadFile = useCallback(
-    (file: File): Promise<string> => {
-      return new Promise((resolve, reject) => {
-        pendingRef.current?.reject(
-          new Error('Previous upload was interrupted'),
-        );
-        pendingRef.current = { resolve, reject };
-        const fileWithPreview = Object.assign(file, {
-          preview: URL.createObjectURL(file),
-          errors: [],
-        }) as FileWithPreview;
-        uploadProps.setFiles([fileWithPreview]);
-      });
+    async (file: File): Promise<string> => {
+      if (file.type.startsWith('video/')) {
+        const video = await uploadVideo(file);
+
+        if (!video?.url) {
+          throw new Error('Video upload failed');
+        }
+
+        return video.url;
+      }
+
+      const result = await uploadEditorFile(file);
+
+      if (!result.url) {
+        throw new Error(result.message || 'Upload failed');
+      }
+
+      return result.url;
     },
-    [uploadProps.setFiles],
+    [uploadEditorFile, uploadVideo],
   );
 
   const editor = useCreateBlockNote({

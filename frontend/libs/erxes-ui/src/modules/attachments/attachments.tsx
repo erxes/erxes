@@ -1,4 +1,5 @@
 import { Button, Dialog, Spinner, Upload, cn, readImage } from 'erxes-ui/index';
+import { getCloudflareStreamBase } from '../../utils/videoEmbed';
 import {
   IconChevronLeft,
   IconChevronRight,
@@ -334,13 +335,6 @@ const AttachmentPreview = ({
 };
 
 
-
-const getCloudflareStreamBase = (url: string): string | null => {
-  const match = url.match(
-    /^(https:\/\/customer-[^/]+\.cloudflarestream\.com\/[^/]+)/,
-  );
-  return match ? match[1] : null;
-};
 
 export type AttachmentVideoProps = {
   heading?: string;

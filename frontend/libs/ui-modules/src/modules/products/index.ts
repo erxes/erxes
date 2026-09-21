@@ -4,4 +4,8 @@ export * from './components/SelectProduct';
 export * from './components';
 export * from './categories';
 export * from './utils/uom';
-export * from './utils/videoEmbed';
+export {
+  parseVideoEmbedUrl,
+  type VideoEmbedInfo,
+  type VideoEmbedProvider,
+} from 'erxes-ui';
