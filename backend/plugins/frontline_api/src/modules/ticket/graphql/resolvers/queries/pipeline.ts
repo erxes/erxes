@@ -34,7 +34,9 @@ export const pipelineQueries = {
       filterQuery.createdAt = { $gte: filter.createdAt };
     }
 
-    if (filter.channelId) {
+    if (filter.channelIds?.length) {
+      filterQuery.channelId = { $in: filter.channelIds };
+    } else if (filter.channelId) {
       filterQuery.channelId = filter.channelId;
     }
 
