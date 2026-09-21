@@ -99,7 +99,7 @@ export const useResponseTemplateSuggestions = ({
   );
 
   const handleKeyDown = useCallback(
-    (event: React.KeyboardEvent) => {
+    (event: Pick<KeyboardEvent, 'key' | 'preventDefault'>) => {
       if (!showSuggestions) return;
 
       if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {

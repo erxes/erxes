@@ -338,6 +338,25 @@ export const MessageInput = ({
 
   useScopedHotkeys('mod+enter', handleSubmit, InboxHotkeyScope.MessageInput);
 
+  /*
+   * The keys that drive the template suggestions are listened for on the
+   * editor node rather than on the form: only the editor takes focus,
+   * and the form is a drop target with no keyboard role of its own.
+   */
+  const editorRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const node = editorRef.current;
+
+    if (!node) {
+      return;
+    }
+
+    node.addEventListener('keydown', handleKeyDown);
+
+    return () => node.removeEventListener('keydown', handleKeyDown);
+  }, [handleKeyDown]);
+
   if (hideInput) return null;
 
   const sendDisabled =
@@ -352,7 +371,6 @@ export const MessageInput = ({
       isInternalNote={isInternalNote}
       onCollapsedChange={setIsInternalNoteCollapsed}
       onDrop={handleDrop}
-      onKeyDown={handleKeyDown}
     >
       <ComposerPreviews
         attachments={attachments}
@@ -386,21 +404,23 @@ export const MessageInput = ({
         </div>
       )}
 
-      <ComposerEditor
-        editor={editor}
-        isDiscord={isDiscord}
-        isInternalNote={isInternalNote}
-        loading={loading}
-        discordMentionItems={discordMentionItems}
-        discordMentionNote={discordMentionNote}
-        searchDiscordMentionItems={searchDiscordMentionItems}
-        onChange={handleChange}
-        onFocus={setHotkeyScopeAndMemorizePreviousScope}
-        onBlur={() => {
-          goBackToPreviousHotkeyScope();
-          stopAgentTyping();
-        }}
-      />
+      <div ref={editorRef}>
+        <ComposerEditor
+          editor={editor}
+          isDiscord={isDiscord}
+          isInternalNote={isInternalNote}
+          loading={loading}
+          discordMentionItems={discordMentionItems}
+          discordMentionNote={discordMentionNote}
+          searchDiscordMentionItems={searchDiscordMentionItems}
+          onChange={handleChange}
+          onFocus={setHotkeyScopeAndMemorizePreviousScope}
+          onBlur={() => {
+            goBackToPreviousHotkeyScope();
+            stopAgentTyping();
+          }}
+        />
+      </div>
 
       <ComposerToolbar
         conversationId={conversationId}

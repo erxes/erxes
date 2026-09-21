@@ -5,7 +5,7 @@ import {
   IconLock,
   IconMessage2,
 } from '@tabler/icons-react';
-import type { DragEventHandler, KeyboardEventHandler, ReactNode } from 'react';
+import type { DragEventHandler, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 
 type ComposerShellProps = {
@@ -14,7 +14,6 @@ type ComposerShellProps = {
   isInternalNote: boolean;
   onCollapsedChange: (collapsed: boolean) => void;
   onDrop: DragEventHandler<HTMLFormElement>;
-  onKeyDown: KeyboardEventHandler<HTMLFormElement>;
 };
 
 export const ComposerShell = ({
@@ -23,7 +22,6 @@ export const ComposerShell = ({
   isInternalNote,
   onCollapsedChange,
   onDrop,
-  onKeyDown,
 }: ComposerShellProps) => {
   const { t } = useTranslation('frontline');
 
@@ -58,7 +56,6 @@ export const ComposerShell = ({
       <form
         onSubmit={(event) => event.preventDefault()}
         onDropCapture={onDrop}
-        onKeyDown={onKeyDown}
         onDragOverCapture={(event) => event.preventDefault()}
         className={cn(
           'mx-auto flex max-h-full min-h-28 w-full max-w-3xl flex-col gap-1 rounded-2xl border border-border/70 bg-background/95 py-2 shadow-[0_8px_30px_rgba(15,23,42,0.08)] transition-colors duration-150',
