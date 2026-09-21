@@ -132,6 +132,7 @@ export const AUTOMATION_HISTORIES = gql`
         failedActionId
         failedActionType
         errorCode
+        handledFailureActionIds
         startWaitingDate
         waitingActionId
       }

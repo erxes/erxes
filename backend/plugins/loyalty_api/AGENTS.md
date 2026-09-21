@@ -6,7 +6,7 @@
 - **Project:** `loyalty_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/loyalty_api`
-- **Last synchronized:** `2026-08-12`
+- **Last synchronized:** `2026-09-21`
 
 ## Scope
 
@@ -78,6 +78,18 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-21` — An unhandled automation action says so
+
+- **Summary:** The voucher, score and spin `receiveActions` producers answered
+  `{ result: null }` when the action was not theirs, which the automations
+  engine recorded as a successful step. They now return a stated
+  `CONFIG_INVALID` failure through the shared action-outcome envelope, so a
+  misrouted action fails the execution instead of looking done.
+- **Affected areas:** `src/meta/automations/{voucher,score,spin}/producers.ts`
+- **Contracts changed:** The `receiveActions` producer may answer with
+  `{ outcome, result }` from `erxes-api-shared/core-modules`; issuing a
+  voucher, adjusting a score and awarding a spin are unchanged.
 
 ### `2026-08-12` — `Campaign-specific product totals`
 

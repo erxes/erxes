@@ -304,5 +304,19 @@
   "templates-empty-search-title": "Хайлтад тохирох загвар олдсонгүй",
   "templates-empty-search-description": "Өөр түлхүүр үг оруулах эсвэл шүүлтүүрээ арилгана уу.",
   "add-note": "Тэмдэглэл нэмэх",
-  "note-placeholder": "Тэмдэглэл бичих... markdown дэмжигдэнэ"
+  "note-placeholder": "Тэмдэглэл бичих... markdown дэмжигдэнэ",
+  "failed-after-finish": "Энэ ажиллалтын доторх {{count}} алхам унасан",
+  "error-handling": "Алдаа боловсруулалт",
+  "error-handling-title": "Алдаа боловсруулалт",
+  "error-handling-description": "Энэ алхам унавал юу болохыг шийднэ.",
+  "error-retry-label": "Унавал дахин оролдох",
+  "error-attempts-label": "Нэмэлт оролдлого (дээд тал нь 5)",
+  "error-delay-label": "Оролдлогуудын хоорондох хүлээлт (секунд)",
+  "error-backoff-label": "Backoff",
+  "error-backoff-none": "Тогтмол хүлээлт",
+  "error-backoff-linear": "Удаа тутам нэг алхмаар нэмэгдэнэ",
+  "error-backoff-exponential": "Удаа тутам хоёр дахин нэмэгдэнэ",
+  "error-branch-label": "Алдааг canvas дээр барих",
+  "error-branch-description": "Энэ алхмыг Success ба Error гэсэн хоёр гаралттай болгоно. Асаагаагүй бол алдаа гарахад ажиллалт зогсоно.",
+  "error-branch-drop-warning": "Унтраавал энэ алхмаас зурсан алдааны салаа устана."
 }

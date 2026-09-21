@@ -78,7 +78,17 @@ export interface IAutomationHistoryAction {
   startedAt?: Date;
   finishedAt?: Date;
   durationMs?: number;
-  status?: 'success' | 'error' | 'waiting' | 'queued' | 'standby' | 'dropped';
+  status?:
+    | 'success'
+    | 'skipped'
+    | 'error'
+    | 'waiting'
+    | 'queued'
+    | 'standby'
+    | 'dropped';
+  skipReason?: string;
+  // Which try this row is; above 1 only when an error policy asked for another.
+  attempt?: number;
   actionId: string;
   actionType: string;
   actionConfig?: any;
@@ -102,6 +112,8 @@ export interface IAutomationHistory {
   status: 'active' | 'waiting' | 'standby' | 'error' | 'missed' | 'complete';
   description: string;
   actions?: IAutomationHistoryAction[];
+  // Actions that failed while the run itself carried on.
+  handledFailureActionIds?: string[];
   startWaitingDate?: Date;
   waitingActionId?: string;
 }
@@ -323,6 +335,10 @@ export type IAutomationsActionConfigConstants = {
   /** Target record types this action can operate on; empty means any. */
   requiresTargetTypes?: string[];
   folks?: IAutomationsActionFolkConfig[];
+  /** The action queues its work and reports back later. */
+  deferred?: { enable?: boolean; mode?: string; timeoutMinutes?: number };
+  /** Whether the action can carry a retry / error-branch policy. */
+  errorPolicy?: { supported?: boolean };
 };
 
 export type IAutomationNodeConfigConstants =

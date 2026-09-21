@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-09-15`
+- **Last synchronized:** `2026-09-21`
 
 ## Scope
 
@@ -1803,6 +1803,26 @@ isInternal)` is the agent-side list and requires `showTickets`.
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-21` — Automation actions state their outcome instead of returning quietly
+
+- **Summary:** Every automation action this plugin owns now answers with the
+  shared outcome envelope, so the engine stops reading "did not throw" as
+  success. Facebook reports `window-closed` and `send-blocked` as skips, the
+  inbox bot reports `no-conversation`, `nothing-to-send` and `no-reply-text`,
+  and a `collectionType` none of these modules handles is now a stated
+  `CONFIG_INVALID` failure rather than a silent no-op. Instagram is left
+  untouched on purpose.
+- **Affected areas:**
+  `src/modules/integrations/facebook/meta/automation/{messages,comments}/index.ts`,
+  `src/modules/integrations/facebook/meta/automation/workers.ts`,
+  `src/modules/integrations/discord/meta/automation/workers.ts`,
+  `src/modules/inbox/meta/automation/workers.ts`,
+  `src/modules/ticket/meta/automations/ticketAutomationsProducers.ts`
+- **Contracts changed:** The `receiveActions` producer may now answer with
+  `{ outcome, result }` from `erxes-api-shared/core-modules`
+  (`buildSkippedAction` / `buildFailedAction`). Plain results are unchanged and
+  still count as success.
+
 ### `2026-09-15` — The persistent menu's back button reaches a handler
 
 - **Summary:** Tapping back in a persistent menu published to
@@ -1823,18 +1843,17 @@ isInternal)` is the agent-side list and requires `showTickets`.
   normally the person's own inbound message, so the check is free; only once
   that target has aged out does it look up the conversation's latest inbound
   message, which a flow that waited days may find has reopened the window.
-  Outside the window the action returns `status: 'skipped'` with
-  `reason: 'window-closed'` and the flow carries on, so the execution keeps a
-  row explaining the non-send instead of spending a refusal against the page.
+  Outside the window the action reports a `window-closed` skip and the flow
+  carries on, so the execution keeps a row explaining the non-send instead of
+  spending a refusal against the page.
   Comment-triggered sends are untouched: those go out as private replies under
   a separate Meta allowance.
 - **Affected areas:**
   `src/modules/integrations/facebook/meta/automation/messages/utils.ts`
   (`resolveMessagingWindow`),
   `src/modules/integrations/facebook/meta/automation/messages/index.ts`
-- **Contracts changed:** None. The descriptor is unchanged and the action still
-  returns a plain result; `skipped` reuses the shape the comment action already
-  returns when a bot is send-blocked.
+- **Contracts changed:** None. The descriptor is unchanged. The skip is stated
+  through the shared action-outcome envelope (see `2026-09-21`).
 
 ### `2026-09-14` — A ticket an automation opened records what produced it
 
@@ -1935,25 +1954,3 @@ isInternal)` is the agent-side list and requires `showTickets`.
   `src/modules/integrations/mail/utils/cloudflare/client.ts`,
   `src/modules/integrations/mail/controller/receiveMessage.ts`
 - **Contracts changed:** `None`
-
-### `2026-09-10` — A ticket pipeline owns its mail address
-
-- **Summary:** A pipeline can be given an address of its own. Mail sent there
-  opens a ticket, a reply threads onto it, and an agent's note that is not
-  internal goes back out as mail so the requester answers from their inbox. The
-  note it produced carries `mailMessageId`, and the note body is rendered from
-  its editor document to html before it is sent. Disconnecting an address now
-  disables its row instead of deleting it, so reconnecting keeps the address and
-  the thread scope the requester's mail client already knows. A pipeline address
-  can also be reached by forwarding, and the provider's forwarding confirmation
-  is held on the integration row instead of opening a ticket.
-- **Affected areas:** `src/modules/integrations/mail/utils/{pipeline,allocate,settings,scope,thread,tickets,comments,noteContent,forwardVerification}.ts`,
-  `src/modules/integrations/mail/{@types,db,controller,graphql}`,
-  `src/modules/ticket/{@types,db,graphql}` (mail link on notes),
-  `src/apollo/resolvers/resolvers.ts`.
-- **Contracts changed:** Added `mailPipelineConnect`, `mailPipelineUpdate`,
-  `mailPipelineForwardVerified`, `mailPipelineDisconnect`,
-  `mailPipelineIntegration` and `ticketGetNotes`; `TicketNote` exposes
-  `mailMessageId`; `mail_integrations` carries `pipelineId`, `disabledAt`,
-  `forwardPendingAt` and `forwardVerification`; `mail_messages` carries
-  `ticketId`.

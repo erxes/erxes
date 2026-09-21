@@ -155,6 +155,13 @@ export type IAutomationsActionConfig = {
   output?: TAutomationRuntimeOutputDefinition;
   setPropertyTargets?: TAutomationSetPropertyTarget[];
   deferred?: IAutomationsDeferredConfig;
+  /**
+   * Whether the action can carry a retry / error-branch policy. Declaring
+   * nothing means it can, unless the action defers its work — a deferred
+   * failure is reported long after the flow moved on, so the policy would
+   * have nothing left to act on.
+   */
+  errorPolicy?: { supported: boolean };
 };
 
 export type IAutomationsBotsConfig = {

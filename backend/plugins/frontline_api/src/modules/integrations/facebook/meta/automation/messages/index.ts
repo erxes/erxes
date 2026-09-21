@@ -6,6 +6,7 @@ import {
   isPostbackPayload,
 } from '@/integrations/facebook/meta/automation/utils/messageUtils';
 import {
+  buildSkippedAction,
   IAutomationAction,
   IAutomationExecution,
   replaceOutputPlaceholders,
@@ -258,7 +259,7 @@ export const actionCreateMessage = async ({
     if (!isOpen) {
       // Outside the window there is no free-form route. Record the skip and let
       // the flow continue rather than spend a refusal against the page.
-      return { status: 'skipped', reason: 'window-closed', lastInboundAt };
+      return buildSkippedAction('window-closed', { lastInboundAt });
     }
   }
 

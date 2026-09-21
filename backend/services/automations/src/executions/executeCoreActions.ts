@@ -21,6 +21,10 @@ import {
 type TCoreActionResponse = Promise<{
   shouldBreak: boolean;
   actionResponse?: any;
+  // The action recorded itself and drove the rest of the flow, so the caller
+  // must not write the exec action a second time.
+  handled?: boolean;
+  executionStatus?: string | null;
 }>;
 
 const SPLIT_ACTION_TYPE = 'split';
@@ -58,7 +62,7 @@ export const executeCoreActions = async (
   }
 
   if (actionType === AUTOMATION_CORE_ACTIONS.IF) {
-    executeIfCondition(
+    const executionStatus = await executeIfCondition(
       subdomain,
       triggerType,
       execution,
@@ -66,7 +70,13 @@ export const executeCoreActions = async (
       execAction,
       actionsMap,
     );
-    return { actionResponse, shouldBreak: true };
+
+    return {
+      actionResponse,
+      shouldBreak: false,
+      handled: true,
+      executionStatus,
+    };
   }
 
   if (actionType === SPLIT_ACTION_TYPE) {
@@ -108,15 +118,13 @@ export const executeCoreActions = async (
   }
 
   if (actionType === AUTOMATION_CORE_ACTIONS.SET_PROPERTY) {
-    const { result } = await executeSetPropertyAction(
+    actionResponse = await executeSetPropertyAction(
       subdomain,
       action,
       triggerType,
       targetType,
       execution,
     );
-
-    actionResponse = result;
   }
 
   if (actionType === AUTOMATION_CORE_ACTIONS.SEND_EMAIL) {

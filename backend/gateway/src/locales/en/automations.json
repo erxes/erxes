@@ -304,5 +304,19 @@
   "templates-empty-search-title": "No templates match your search",
   "templates-empty-search-description": "Try a different term or clear the filter.",
   "add-note": "Add note",
-  "note-placeholder": "Write a note... markdown is supported"
+  "note-placeholder": "Write a note... markdown is supported",
+  "failed-after-finish": "{{count}} step inside this run failed",
+  "error-handling": "Error handling",
+  "error-handling-title": "Error handling",
+  "error-handling-description": "Decide what happens when this step fails.",
+  "error-retry-label": "Try again when it fails",
+  "error-attempts-label": "Extra attempts (max 5)",
+  "error-delay-label": "Wait between attempts (seconds)",
+  "error-backoff-label": "Backoff",
+  "error-backoff-none": "Same wait every time",
+  "error-backoff-linear": "Grows by one step each time",
+  "error-backoff-exponential": "Doubles each time",
+  "error-branch-label": "Handle errors on the canvas",
+  "error-branch-description": "Splits this step into Success and Error outputs. Without it, a failure stops the run.",
+  "error-branch-drop-warning": "Turning this off removes the error branch already drawn from this step."
 }

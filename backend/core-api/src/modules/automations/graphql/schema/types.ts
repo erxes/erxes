@@ -118,6 +118,7 @@ const types = `
     failedActionId: String
     failedActionType: String
     errorCode: String
+    handledFailureActionIds: [String]
     startWaitingDate: Date
     waitingActionId: String
     parentExecutionId: String

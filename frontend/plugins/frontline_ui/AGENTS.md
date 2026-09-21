@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-09-15`
+- **Last synchronized:** `2026-09-21`
 
 ## Scope
 
@@ -1253,6 +1253,18 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-21` — The Facebook history reads a skip from the execution, not the payload
+
+- **Summary:** A skipped Facebook send used to be recognized by
+  `result.status === 'skipped'`, which only worked because the action wrote that
+  word into its own payload. The automations engine now records the skip and its
+  reason on the execution action itself, so the widget reads `action.status` and
+  `action.skipReason` first and falls back to the old payload fields for runs
+  recorded before the change.
+- **Affected areas:**
+  `src/widgets/automations/modules/facebook/components/history/useFacebookAutomationHistoryResult.ts`
+- **Contracts changed:** `None`
 
 <<<<<<< HEAD
 

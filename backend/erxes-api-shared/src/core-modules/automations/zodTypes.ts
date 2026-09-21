@@ -12,13 +12,23 @@ export const AutomationExecActionInput = z.object({
   finishedAt: z.string().optional(),
   durationMs: z.number().optional(),
   status: z
-    .enum(['success', 'error', 'waiting', 'queued', 'standby', 'dropped'])
+    .enum([
+      'success',
+      'skipped',
+      'error',
+      'waiting',
+      'queued',
+      'standby',
+      'dropped',
+    ])
     .optional(),
   actionId: z.string(),
   actionType: z.string(),
   actionConfig: z.any().optional(),
   nextActionId: z.string().optional(),
   result: z.any().optional(),
+  skipReason: z.string().optional(),
+  attempt: z.number().optional(),
   jobId: z.string().optional(),
   // Dates arrive serialized across the producer boundary, but stay Date
   // objects when the execution is passed in-process.
