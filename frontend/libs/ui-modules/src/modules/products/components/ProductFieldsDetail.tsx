@@ -21,10 +21,10 @@ import { SuggestedProductCodeInput } from './SuggestedProductCodeInput';
 export function AddProductFormFieldsDetail({
   form,
   showExtended = false,
-}: {
+}: Readonly<{
   form: UseFormReturn<IProductFormValues>;
   showExtended?: boolean;
-}) {
+}>) {
   const { t } = useTranslation('product', { keyPrefix: 'add' });
   const productType = form.watch('type');
   const categoryId = form.watch('categoryId');

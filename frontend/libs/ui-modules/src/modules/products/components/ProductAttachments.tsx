@@ -22,9 +22,9 @@ type AttachmentItem = ProductAttachmentItem;
 
 function AddProductFeaturedImage({
   form,
-}: {
+}: Readonly<{
   form: UseFormReturn<IProductFormValues>;
-}) {
+}>) {
   const { t } = useTranslation('product', { keyPrefix: 'add' });
   const attachment = form.watch('attachment');
   const file = toProductAttachmentItem(
@@ -52,9 +52,9 @@ function AddProductFeaturedImage({
 
 function AddProductAttachmentMore({
   form,
-}: {
+}: Readonly<{
   form: UseFormReturn<IProductFormValues>;
-}) {
+}>) {
   const { t } = useTranslation('product', { keyPrefix: 'add' });
   const attachmentMore = form.watch('attachmentMore');
 
@@ -91,9 +91,9 @@ function AddProductAttachmentMore({
 
 function AddProductVideos({
   form,
-}: {
+}: Readonly<{
   form: UseFormReturn<IProductFormValues>;
-}) {
+}>) {
   const { t } = useTranslation('product', { keyPrefix: 'add' });
   const videos = form.watch('videos');
 
@@ -121,9 +121,9 @@ function AddProductVideos({
 
 export function AddProductFormAttachmentsAndExtra({
   form,
-}: {
+}: Readonly<{
   form: UseFormReturn<IProductFormValues>;
-}) {
+}>) {
   const { t } = useTranslation('product', { keyPrefix: 'add' });
   return (
     <>

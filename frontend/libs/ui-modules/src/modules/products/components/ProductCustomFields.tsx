@@ -10,10 +10,10 @@ import { IProductFormValues } from '../types';
 export function AddProductFormCustomFields({
   form,
   noTopPadding,
-}: {
+}: Readonly<{
   form: UseFormReturn<IProductFormValues>;
   noTopPadding?: boolean;
-}) {
+}>) {
   const { t } = useTranslation('product', { keyPrefix: 'add' });
   const { fieldGroups, loading: fieldGroupsLoading } = useFieldGroups({
     contentType: 'core:product',
@@ -70,11 +70,11 @@ function CustomFieldsGroup({
   group,
   customFieldsData,
   onFieldChange,
-}: {
+}: Readonly<{
   group: IFieldGroup;
   customFieldsData: Record<string, unknown>;
   onFieldChange: (fieldId: string, value: unknown) => void;
-}) {
+}>) {
   const { fields, loading } = useFields({
     groupId: group._id,
     contentType: 'core:product',
@@ -116,11 +116,11 @@ function CustomField({
   field,
   value,
   onFieldChange,
-}: {
+}: Readonly<{
   field: any;
   value: unknown;
   onFieldChange: (fieldId: string, value: unknown) => void;
-}) {
+}>) {
   return (
     <PropertyFormField
       field={field}

@@ -26,14 +26,14 @@ export function AddProductForm({
   onShowMoreInfoChange,
   options,
   form,
-}: {
+}: Readonly<{
   embed?: boolean;
   onOpenChange: (open: boolean) => void;
   showMoreInfo?: boolean;
   onShowMoreInfoChange?: (showMoreInfo: boolean) => void;
   options?: MutationHookOptions<{ productsAdd: { _id: string } }>;
   form: UseFormReturn<IProductFormValues>;
-}) {
+}>) {
   const { productsAdd, loading } = useAddProduct();
 
   async function onSubmit(data: IProductFormValues) {

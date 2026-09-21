@@ -106,9 +106,9 @@ function BarcodeRow({
 
 export function BarcodeManager({
   form,
-}: {
+}: Readonly<{
   form: UseFormReturn<IProductFormValues>;
-}) {
+}>) {
   const { t } = useTranslation('product', { keyPrefix: 'add' });
 
   const [code, setCode] = useState('');
@@ -255,9 +255,9 @@ export function BarcodeManager({
 
 export function SubUomManager({
   form,
-}: {
+}: Readonly<{
   form: UseFormReturn<IProductFormValues>;
-}) {
+}>) {
   const { t } = useTranslation('product', { keyPrefix: 'add' });
 
   return (
