@@ -39,6 +39,7 @@ export const CustomerDetailFields = () => {
         (e): e is string => e != null,
       ),
       ownerId: customerDetail?.ownerId || '',
+      department: customerDetail?.department || '',
       description: customerDetail?.description || '',
       isSubscribed: customerDetail?.isSubscribed || 'Yes',
       links: customerDetail?.links || {},

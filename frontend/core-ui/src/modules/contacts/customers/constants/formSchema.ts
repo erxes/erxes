@@ -13,6 +13,7 @@ export const customerFormSchema = z.object({
   phones: z.array(z.string()).default([]),
   emails: z.array(z.union([z.literal(''), z.string().email()])).default([]),
   ownerId: z.string().default(''),
+  department: z.string().default(''),
   description: z.string().default(''),
   isSubscribed: z.string().default('Yes'),
   links: z.any().default({}),

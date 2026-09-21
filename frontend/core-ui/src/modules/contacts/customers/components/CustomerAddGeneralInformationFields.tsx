@@ -5,6 +5,7 @@ import {
   AvatarField,
   BirthDateField,
   CodeField,
+  DepartmentField,
   DescriptionField,
   FirstNameField,
   IsSubscribedField,
@@ -32,6 +33,7 @@ export const CustomerAddGeneralInformationFields = ({
         <LastNameField control={form.control} />
         <CodeField control={form.control} />
         <OwnerIdField control={form.control} />
+        <DepartmentField control={form.control} />
         <PrimaryEmailField control={form.control} />
         <PrimaryPhoneField control={form.control} />
         <PhoneValidationStatusField control={form.control} />

@@ -131,6 +131,29 @@ export const SexField = ({
   );
 };
 
+export const DepartmentField = ({
+  control,
+}: {
+  control: Control<CustomerFormType>;
+}) => {
+  const { t } = useTranslation('contact', { keyPrefix: 'customer.add' });
+  return (
+    <Form.Field
+      control={control}
+      name="department"
+      render={({ field }) => (
+        <Form.Item>
+          <Form.Label>{t('department', 'Department')}</Form.Label>
+          <Form.Control>
+            <Input className="h-8 rounded-md" {...field} />
+          </Form.Control>
+          <Form.Message className="text-destructive" />
+        </Form.Item>
+      )}
+    />
+  );
+};
+
 export const CodeField = ({
   control,
 }: {
