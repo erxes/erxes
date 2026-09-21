@@ -3,7 +3,9 @@ import { ComponentProps, ReactNode } from 'react';
 import { SlashMenu } from '../SlashMenu';
 
 jest.mock('../SuggestionMenu', () => ({
-  SuggestionMenu: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+  SuggestionMenu: ({ children }: { children: ReactNode }) => (
+    <div>{children}</div>
+  ),
   SuggestionMenuItem: ({
     children,
     onClick,

@@ -105,8 +105,8 @@ export const customVideoBlock = createReactBlockSpec(videoBlockConfig, {
       element.tagName === 'IFRAME'
         ? element
         : element.tagName === 'FIGURE'
-        ? element.querySelector('iframe')
-        : null;
+          ? element.querySelector('iframe')
+          : null;
     const url = getVideoEmbedSource(iframe?.getAttribute('src') || '');
 
     if (!url) return undefined;

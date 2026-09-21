@@ -334,8 +334,6 @@ const AttachmentPreview = ({
   );
 };
 
-
-
 export type AttachmentVideoProps = {
   heading?: string;
 };
@@ -511,7 +509,6 @@ const AttachmentVideo = ({
   );
 };
 
-
 export type AttachmentAudioProps = {
   heading?: string;
 };
@@ -580,8 +577,6 @@ const AttachmentAudio = ({
     </div>
   );
 };
-
-
 
 export type AttachmentUploaderProps = {
   onSave?: (attachments: IAttachment[]) => Promise<void> | void;
