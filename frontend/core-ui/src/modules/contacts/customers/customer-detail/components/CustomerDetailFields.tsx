@@ -15,8 +15,8 @@ import { useCustomerDetailWithQuery } from '../../hooks/useCustomerDetailWithQue
 const ISO_DATE_RE = /^(\d{4})-(\d{2})-(\d{2})/;
 
 const parseBirthDate = (value: unknown): Date | null => {
-  if (!value) return null;
-  const match = ISO_DATE_RE.exec(String(value));
+  if (typeof value !== 'string') return null;
+  const match = ISO_DATE_RE.exec(value);
   if (!match) return null;
   const [, year, month, day] = match;
   return new Date(Number(year), Number(month) - 1, Number(day));
