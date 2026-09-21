@@ -16,14 +16,8 @@ const PreviewImage = ({
   label: string;
   className: string;
 }) => (
-  <svg role="img" aria-label={label} className={className}>
-    <image
-      href={src}
-      width="100%"
-      height="100%"
-      preserveAspectRatio="xMidYMid slice"
-    />
-  </svg>
+  // skipcq: JS-W1015
+  <img src={src} alt={label} className={className} />
 );
 
 const AttachmentThumbnail = ({
@@ -115,7 +109,7 @@ export const ComposerAttachment = ({
   onRemove,
 }: ComposerAttachmentProps) => {
   const { t } = useTranslation('frontline');
-  const isImage = attachment.type.startsWith('image');
+  const isImage = Boolean(attachment.type?.startsWith('image'));
   const label =
     attachment.name ||
     (isImage ? t('photo', 'Photo') : t('attachment', 'Attachment'));

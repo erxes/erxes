@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { toast, useUpload, type IAttachment } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
@@ -10,6 +10,7 @@ const DISCORD_MAXIMUM_BYTES = 10 * 1024 * 1024;
 
 export type PendingAttachment = Pick<IAttachment, 'name' | 'size' | 'type'> & {
   id: string;
+  previewUrl?: string;
 };
 
 export const useMessageAttachments = (isDiscord: boolean) => {
@@ -18,9 +19,23 @@ export const useMessageAttachments = (isDiscord: boolean) => {
   const [pendingAttachments, setPendingAttachments] = useState<
     PendingAttachment[]
   >([]);
+  const pendingAttachmentsRef = useRef<PendingAttachment[]>([]);
   const pendingCountRef = useRef(0);
   const uploadGenerationRef = useRef(0);
   const { upload } = useUpload();
+
+  useEffect(() => {
+    pendingAttachmentsRef.current = pendingAttachments;
+  }, [pendingAttachments]);
+
+  useEffect(
+    () => () => {
+      pendingAttachmentsRef.current.forEach(({ previewUrl }) => {
+        if (previewUrl) URL.revokeObjectURL(previewUrl);
+      });
+    },
+    [],
+  );
 
   const uploadFiles = useCallback(
     (files: FileList) => {
@@ -72,11 +87,14 @@ export const useMessageAttachments = (isDiscord: boolean) => {
 
       setPendingAttachments((current) => [
         ...current,
-        ...selectedFiles.map(({ name, size, type }) => ({
+        ...selectedFiles.map((file) => ({
           id: crypto.randomUUID(),
-          name,
-          size,
-          type,
+          name: file.name,
+          size: file.size,
+          type: file.type,
+          previewUrl: file.type.startsWith('image/')
+            ? URL.createObjectURL(file)
+            : undefined,
         })),
       ]);
       pendingCountRef.current += selectedFiles.length;
@@ -94,9 +112,12 @@ export const useMessageAttachments = (isDiscord: boolean) => {
                 file.name === fileInfo.name && file.size === fileInfo.size,
             );
 
-            return index < 0
-              ? current
-              : current.filter((_, currentIndex) => currentIndex !== index);
+            if (index < 0) return current;
+
+            const previewUrl = current[index].previewUrl;
+            if (previewUrl) URL.revokeObjectURL(previewUrl);
+
+            return current.filter((_, currentIndex) => currentIndex !== index);
           });
 
           if (status !== 'ok') {
@@ -158,7 +179,12 @@ export const useMessageAttachments = (isDiscord: boolean) => {
     uploadGenerationRef.current += 1;
     pendingCountRef.current = 0;
     setAttachments([]);
-    setPendingAttachments([]);
+    setPendingAttachments((current) => {
+      current.forEach(({ previewUrl }) => {
+        if (previewUrl) URL.revokeObjectURL(previewUrl);
+      });
+      return [];
+    });
   }, []);
 
   return {
