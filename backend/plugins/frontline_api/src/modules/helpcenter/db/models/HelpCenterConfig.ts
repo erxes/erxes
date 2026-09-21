@@ -28,6 +28,24 @@ export const loadHelpCenterConfigClass = (models: IModels) => {
       return config;
     }
 
+    public static async getChannelFormIds(
+      formIds: string[] = [],
+      channelId?: string,
+    ) {
+      if (!formIds.length || !channelId) {
+        return [];
+      }
+
+      const forms = await models.Forms.find(
+        { _id: { $in: formIds }, channelId },
+        { _id: 1 },
+      ).lean();
+
+      const channelFormIds = new Set(forms.map((form) => String(form._id)));
+
+      return formIds.filter((formId) => channelFormIds.has(formId));
+    }
+
     public static async createOrUpdateConfig(
       config: IHelpCenterConfigInput,
       userId: string,
@@ -37,6 +55,11 @@ export const loadHelpCenterConfigClass = (models: IModels) => {
       }
 
       const { _id, ...doc } = normalizeHelpCenterConfig(config);
+
+      doc.formIds = await HelpCenterConfig.getChannelFormIds(
+        doc.formIds,
+        doc.formChannelId,
+      );
 
       if (!_id) {
         return models.HelpCenterConfigs.create({

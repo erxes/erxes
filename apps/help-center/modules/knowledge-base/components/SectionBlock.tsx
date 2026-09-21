@@ -8,11 +8,11 @@ import { CategoryCard } from './CategoryCard';
 const DirectLink = ({ section }: { section: PortalSection }) => (
   <CardLink
     href={`/knowledge-base/category/${section._id}`}
-    className="group mt-6 flex flex-wrap items-center justify-between gap-4 p-5"
+    className="group mt-5 flex flex-wrap items-center justify-between gap-4 p-5"
   >
-    <span className="flex items-center gap-4">
-      <span className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-brand-soft text-brand transition-colors group-hover:bg-brand group-hover:text-white">
-        <Icon name={section.icon} size={20} />
+    <span className="flex items-center gap-3">
+      <span className="flex shrink-0 items-center justify-center text-muted-foreground transition-colors group-hover:text-brand">
+        <Icon name={section.icon} size={18} />
       </span>
       <span className="flex flex-wrap items-center gap-x-6 gap-y-1.5 text-[13px] text-muted-foreground">
         <span className="flex items-center gap-1.5">
@@ -25,7 +25,7 @@ const DirectLink = ({ section }: { section: PortalSection }) => (
         </span>
       </span>
     </span>
-    <span className="flex items-center gap-1.5 text-sm font-semibold text-brand">
+    <span className="inline-flex items-center gap-1.5 text-[13px] font-medium text-muted-foreground transition-colors group-hover:text-brand">
       View articles
       <Icon
         name="chevronRight"
@@ -38,20 +38,32 @@ const DirectLink = ({ section }: { section: PortalSection }) => (
 
 export const SectionBlock = ({ section }: { section: PortalSection }) => (
   <section aria-labelledby={`section-${section._id}`}>
-    <h2
-      id={`section-${section._id}`}
-      className="scroll-mt-24 text-xl font-semibold tracking-[-0.01em] text-ink sm:text-2xl"
-    >
-      {section.title}
-    </h2>
-    {section.description ? (
-      <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted-foreground">
-        {section.description}
-      </p>
-    ) : null}
+    <div className="min-w-0">
+      <h2
+        id={`section-${section._id}`}
+        className="flex scroll-mt-24 items-center gap-2.5 text-lg font-semibold tracking-[-0.02em] text-ink"
+      >
+        <Icon
+          name={section.icon}
+          size={17}
+          className="shrink-0 text-muted-foreground"
+        />
+        {section.title}
+        {section.children.length ? (
+          <span className="text-[13px] font-normal tracking-normal text-muted-foreground">
+            {plural(section.children.length, 'category')}
+          </span>
+        ) : null}
+      </h2>
+      {section.description ? (
+        <p className="mt-1.5 max-w-3xl text-sm leading-relaxed text-muted-foreground">
+          {section.description}
+        </p>
+      ) : null}
+    </div>
 
     {section.children.length ? (
-      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-5 grid gap-5 sm:grid-cols-2">
         {section.children.map((category, index) => (
           <CategoryCard key={category._id} category={category} index={index} />
         ))}

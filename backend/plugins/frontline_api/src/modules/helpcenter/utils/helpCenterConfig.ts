@@ -66,6 +66,7 @@ export const normalizeHelpCenterConfig = (
 
   const kbToggle = config.kbToggle ?? false;
   const ticketToggle = config.ticketToggle ?? false;
+  const cmsId = config.cmsId?.trim() ?? '';
 
   if (kbToggle && !config.kbTopicId) {
     throw new Error('Please choose a knowledge base topic');
@@ -77,6 +78,10 @@ export const normalizeHelpCenterConfig = (
 
   if (ticketToggle && !config.ticketPipelineId) {
     throw new Error('Please choose a ticket pipeline');
+  }
+
+  if (cmsId && !config.cmsAppToken?.trim()) {
+    throw new Error("The chosen CMS's client portal has no app token");
   }
 
   return {
@@ -93,6 +98,12 @@ export const normalizeHelpCenterConfig = (
     ticketChannelId: ticketToggle ? (config.ticketChannelId ?? '') : '',
     ticketPipelineId: ticketToggle ? (config.ticketPipelineId ?? '') : '',
     ticketStatusId: ticketToggle ? (config.ticketStatusId ?? '') : '',
+    formChannelId: ticketToggle ? (config.formChannelId ?? '') : '',
+    formIds: ticketToggle
+      ? [...new Set((config.formIds ?? []).filter(Boolean))]
+      : [],
+    cmsId,
+    cmsAppToken: cmsId ? (config.cmsAppToken?.trim() ?? '') : '',
     header: normalizeHelpCenterHeader(config.header),
     footer: normalizeHelpCenterFooter(config.footer),
   };

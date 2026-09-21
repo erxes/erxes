@@ -7,11 +7,17 @@
 @theme {
   --font-sans: var(--font-open-sans), ui-sans-serif, system-ui, sans-serif;
 
-  --color-subtle: #f8f8fb;
-  --color-ink: #14142b;
-  --color-ink-soft: #45435f;
-  --color-line: #e7e6f0;
-  --color-line-soft: #f0eff6;
+  --color-subtle: #f6f6f7;
+  --color-canvas: #fbfbfc;
+  --color-shell: #0e0f12;
+  --color-shell-soft: #191b20;
+  --color-shell-line: #262930;
+  --color-canvas-deep: #f2f2f3;
+  --color-ink: #0f1011;
+  --color-ink-soft: #3d4046;
+  --color-line: #e6e6e8;
+  --color-line-strong: #d3d3d7;
+  --color-line-soft: #f0f0f2;
 
   --color-brand: #4f33af;
   --color-brand-strong: #3f2790;
@@ -22,9 +28,9 @@
   --color-hero-soft: #4d3f92;
   --color-hero-line: #6255a8;
 
-  --shadow-card: 0 1px 2px rgb(20 20 43 / 4%), 0 1px 3px rgb(20 20 43 / 3%);
+  --shadow-card: 0 1px 2px rgb(15 16 17 / 4%);
   --shadow-card-hover:
-    0 4px 12px rgb(20 20 43 / 6%), 0 12px 28px rgb(20 20 43 / 8%);
+    0 2px 6px rgb(15 16 17 / 6%), 0 8px 20px rgb(15 16 17 / 6%);
 
   --color-footer: #ffffff;
   --color-link: var(--color-brand);
@@ -48,7 +54,7 @@
   --color-destructive-foreground: #ffffff;
 
   --color-muted: var(--color-line);
-  --color-muted-foreground: #7b7a92;
+  --color-muted-foreground: #6b6f76;
   --color-accent: var(--color-subtle);
   --color-accent-foreground: var(--color-muted-foreground);
 

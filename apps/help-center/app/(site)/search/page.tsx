@@ -105,7 +105,7 @@ export default async function SearchPage({ searchParams }: Props) {
   if (topic.state !== 'ready') {
     return (
       <>
-        <Hero headline={headline} searchQuery={term} />
+        <Hero headline={headline} searchQuery={term} as="p" />
         <Container className="py-10 lg:py-14">
           {topic.state === 'unconfigured' ? (
             <SetupNotice missing={topic.missing} />
@@ -151,7 +151,7 @@ export default async function SearchPage({ searchParams }: Props) {
 
   return (
     <>
-      <Hero headline={headline} searchQuery={term} />
+      <Hero headline={headline} searchQuery={term} as="p" />
 
       <Container className="py-10 lg:py-14">
         <h1 className="text-2xl font-semibold text-ink">

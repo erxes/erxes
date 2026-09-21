@@ -1,50 +1,58 @@
 import { CardLink } from '@/modules/ui/components/Card';
 import { Icon } from '@/modules/ui/components/Icon';
 import { plural } from '@/modules/ui/lib/plural';
-import type { PortalTopic } from '../utils/normalize';
+import type { PortalSection, PortalTopic } from '../utils/normalize';
 import { sectionArticleCount } from '../utils/selectors';
+
+const sectionHref = (section: PortalSection) =>
+  section.children.length
+    ? `/knowledge-base#section-${section._id}`
+    : `/knowledge-base/category/${section._id}`;
 
 export const TopicOutline = ({ topic }: { topic: PortalTopic }) => (
   <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
     {topic.sections.map((section, index) => (
       <li
         key={section._id}
-        className="animate-in fade-in slide-in-from-bottom-2 fill-mode-both duration-500"
-        style={{ animationDelay: `${Math.min(index, 8) * 60}ms` }}
+        className="animate-in fade-in slide-in-from-bottom-1 fill-mode-both duration-500"
+        style={{ animationDelay: `${Math.min(index, 8) * 50}ms` }}
       >
         <CardLink
-          href={
-            section.children.length
-              ? `/knowledge-base#section-${section._id}`
-              : `/knowledge-base/category/${section._id}`
-          }
+          href={sectionHref(section)}
           className="group flex h-full flex-col p-5"
         >
-          <span className="flex size-10 items-center justify-center rounded-lg bg-brand-soft text-brand transition-colors group-hover:bg-brand group-hover:text-white">
-            <Icon name={section.icon} size={19} />
-          </span>
-
-          <span className="mt-4 block text-[15px] font-semibold leading-snug text-ink">
-            {section.title}
+          <span className="flex items-center gap-2.5">
+            <Icon
+              name={section.icon}
+              size={18}
+              className="shrink-0 text-muted-foreground transition-colors duration-200 group-hover:text-brand"
+            />
+            <span className="min-w-0 flex-1 text-[15px] font-semibold leading-snug text-ink">
+              {section.title}
+            </span>
           </span>
 
           {section.description ? (
-            <span className="mt-1.5 line-clamp-2 block text-sm leading-relaxed text-muted-foreground">
+            <span className="mt-2.5 line-clamp-2 block text-sm leading-relaxed text-muted-foreground">
               {section.description}
             </span>
           ) : null}
 
-          <span className="mt-auto flex items-center gap-4 pt-4 text-[13px] text-muted-foreground">
-            <span className="flex items-center gap-1.5">
-              <Icon name="article" size={14} />
-              {plural(sectionArticleCount(section), 'article')}
-            </span>
+          <span className="mt-auto flex items-center gap-3 pt-5 text-[13px] text-muted-foreground">
+            {plural(sectionArticleCount(section), 'article')}
             {section.children.length ? (
-              <span className="flex items-center gap-1.5">
-                <Icon name="book" size={14} />
+              <>
+                <span aria-hidden="true" className="text-line-strong">
+                  ·
+                </span>
                 {plural(section.children.length, 'category')}
-              </span>
+              </>
             ) : null}
+            <Icon
+              name="chevronRight"
+              size={14}
+              className="ml-auto opacity-0 transition-[opacity,transform] duration-200 group-hover:translate-x-0.5 group-hover:opacity-100"
+            />
           </span>
         </CardLink>
       </li>

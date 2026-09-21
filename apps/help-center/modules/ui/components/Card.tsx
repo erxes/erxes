@@ -2,7 +2,7 @@ import Link from 'next/link';
 import type { ComponentProps, ReactNode } from 'react';
 import { cn } from '@/modules/ui/lib/cn';
 
-const surface = 'rounded-xl border border-line bg-white shadow-card';
+const surface = 'rounded-xl border border-line bg-white';
 
 export const Card = ({
   className,
@@ -15,9 +15,9 @@ export const Card = ({
 export const cardLinkClass = (className?: string) =>
   cn(
     surface,
-    'block transition-[box-shadow,border-color,transform] duration-200 ease-out',
-    'hover:-translate-y-px hover:border-brand/25 hover:shadow-card-hover',
-    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2',
+    'block transition-[border-color,background-color,box-shadow] duration-200 ease-out',
+    'hover:border-line-strong hover:shadow-card',
+    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/30 focus-visible:ring-offset-2',
     className,
   );
 

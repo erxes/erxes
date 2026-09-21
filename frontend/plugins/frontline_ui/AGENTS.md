@@ -49,8 +49,12 @@
   website / knowledge base topic / ticket channel / pipeline / status selects,
   and the
   two-tab help center drawer (General, Appearance), which is the only place a
-  help center is edited. Both tabs read `helpCenterConfig` and write
-  `helpCenterConfigUpdate` — never a knowledge base operation.
+  help center is edited. Its **Forms** card, shown only while the ticket
+  switch is on, has its own channel select and a multi-select of that
+  channel's forms (`formChannelId` / `formIds`); its **CMS** card picks the
+  content CMS whose posts the site lists as announcements (`cmsId`). Both
+  tabs read `helpCenterConfig` and write `helpCenterConfigUpdate` — never a
+  knowledge base operation.
 - Call UI: call index, detail, and statistics pages.
 - Report screens for the frontline plugin, including the default chart catalogue
   and the saved charts board built on top of it.
@@ -445,6 +449,19 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
   `helpCenterConfigUpdate(config)` / `helpCenterConfigRemove(_id)` for every
   write. The help center reads `knowledgeBaseTopics` for one thing only — the
   `Knowledge base topic` picker's options.
+- `frontline_api` GraphQL `forms(channelId, status: "active", limit: 100)` as
+  `frontlineHelpCenterFormOptions` — the Forms picker's options (`_id`, `name`,
+  `title`), read-only, skipped until the Forms card's channel is chosen, and
+  `cache-and-network` so a form created elsewhere shows up the next time the
+  drawer opens. The API matches `status` literally — a form document written
+  without `status` is not listed.
+- `content_api` GraphQL `contentCMSList` as `frontlineHelpCenterCmsOptions` —
+  the CMS picker's options (`_id`, `name`, `clientPortalId`), read-only. When
+  the content plugin is disabled the query fails and the picker shows the
+  error; the rest of the drawer keeps working.
+- `core-api` GraphQL `getClientPortal(_id)` as
+  `frontlineHelpCenterCmsPortalToken` — read once when a CMS is picked, to copy
+  that CMS's client portal `token` into `cmsAppToken`.
 - `core-api` GraphQL `getClientPortals` as `frontlineHelpCenterWebsiteOptions` —
   the `Website` picker's options (`_id`, `domain`), read-only. The resolver
   ignores paging arguments and returns the newest 20 portals.
@@ -579,6 +596,10 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
 - `CONFIG` keeps a top-level `icon` alongside `navigationGroup.icon`. The host
   reads only the top-level one for a `frontline:*` notification's avatar in My
   Inbox, and renders nothing when it is missing.
+- A form's `leadData` may be `null` (forms written without the builder), so
+  `formSetSetupAtom` reads it null-safely, falls back to the default
+  `Initial step` when it has no steps, and places a field without
+  `pageNumber` on page 1 — never dereference `payload.leadData` directly.
 - The Convert menu shows the deal entry only when the `sales` plugin config is
   loaded and the task entry only when `operation` is, and each entry only with
   its create action (`createTicket`, `dealsAdd`, `taskCreate`) on top of
@@ -665,12 +686,28 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
 - A help center's ticket target is a channel → pipeline → status chain, so
   changing a level clears the levels under it — `useEditHelpCenter` does this
   for inline edits and `HelpCenterGeneralTab` does it through `form.setValue`.
+  The forms card has its own chain: a frontline form belongs to one channel
+  (Settings → Channels → Forms), so the Forms picker only offers
+  `formChannelId`'s forms, is disabled without a channel, and changing
+  `formChannelId` clears `formIds` — in the drawer and in `useEditHelpCenter`.
+  `formChannelId` is independent of `ticketChannelId`; the two channel selects
+  are deliberate. The forms card has no switch of its own: it follows
+  `ticketToggle`, and its channel is optional — no channel means no forms.
+  The CMS card stores two values the way the website picker does: `cmsId` and
+  `cmsAppToken`, the app token of the client portal that CMS belongs to,
+  because the site's `cp*` post queries are scoped by that token. Picking a
+  CMS whose portal has no token is refused with a toast, and picking the
+  selected CMS again clears both.
   The API blanks a switched-off feature's whole group in
   `normalizeHelpCenterConfig`, so a disabled feature never keeps stale
   configuration no matter which surface saved it.
 - `HelpCenterDrawer` splits across two `SheetNavSidebar` tabs, **general** and
-  **appearance**: general owns title, website, description, the embed script and
-  the knowledge base and ticket feature cards; appearance owns the published
+  **appearance**: general stacks full-width cards in a fixed order — general
+  settings (name and website side by side, then description), knowledge base,
+  tickets, forms, CMS, and the embed script last. Each feature card keeps its
+  switch row on top and lays its fields out in a two-column grid under a
+  divider, and `FULL_WIDTH_SELECT` stretches every select to the `h-8` input
+  height, so the two columns line up. Appearance owns the published
   site's whole look — logo and favicon, the six main colours, fonts with their
   text and link colours, the three form-element colours, this help center's own
   accent colour and cover image, the header's wording, the footer's content, and
@@ -1312,6 +1349,40 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 - **Affected areas:** `src/config.tsx`
 - **Contracts changed:** `None`
 
+### `2026-09-17` — A help center picks the CMS behind its announcements
+
+- **Summary:** The help center drawer gained a CMS card whose select lists
+  every content CMS; picking one stores `cmsId` and the app token of that
+  CMS's client portal, so the published site lists that CMS's posts.
+- **Affected areas:**
+  `src/modules/helpcenter/{components/SelectHelpCenterCms.tsx,components/help-center-drawer/HelpCenterGeneralTab.tsx,graphql/queries/{getHelpCenterCmsOptions,getHelpCenters}.ts,types/index.ts,constants/index.ts,utils/toHelpCenterConfigInput.ts}`
+- **Contracts changed:** `HELP_CENTER_CONFIG_FIELDS` selects `cmsId` and
+  `cmsAppToken`; new query documents `frontlineHelpCenterCmsOptions` and
+  `frontlineHelpCenterCmsPortalToken`.
+
+### `2026-09-17` — The form editor opens forms without lead data
+
+- **Summary:** Opening a form whose `leadData` is `null` no longer crashes the
+  editor on `primaryColor`; it loads with default settings and its fields on
+  the default first step.
+- **Affected areas:**
+  `src/modules/forms/{states/formSetupStates.tsx,types/formTypes.ts}`
+- **Contracts changed:** `IForm.leadData` is typed `ILeadData | null`.
+
+### `2026-09-17` — A help center offers forms from its own channel
+
+- **Summary:** The help center drawer gained a Forms card, shown while tickets
+  are on, with its own optional channel select and a multi-select of that
+  channel's active forms, cleared when the channel changes; the General tab
+  was also restacked into full-width cards with two-column fields, equal
+  select heights, a `Name` label without the doubled asterisk, and the embed
+  script last.
+- **Affected areas:**
+  `src/modules/helpcenter/{components/SelectHelpCenterForms.tsx,components/help-center-drawer/HelpCenterGeneralTab.tsx,hooks/useEditHelpCenter.ts,graphql/queries/{getHelpCenterFormOptions,getHelpCenters}.ts,types/index.ts,constants/index.ts,utils/toHelpCenterConfigInput.ts}`
+- **Contracts changed:** `HELP_CENTER_CONFIG_FIELDS` selects `formChannelId`
+  and `formIds`; new query document
+  `frontlineHelpCenterFormOptions($channelId: String!, $limit: Int)`.
+
 ### `2026-09-17` — Convert dialog honours Basic information settings
 
 - **Summary:** Priority, tags, start date and due date appear in the convert
@@ -1381,42 +1452,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `backend/gateway/src/locales/{en,mn}/frontline.json`, which is outside the
   plugin boundary, so they render from their inline fallbacks until those
   translations are added as separate repository-level work.
-
-### `2026-09-14` — Knowledge Base opens on its topics, not the first article list
-
-- **Summary:** Opening Knowledge Base drilled straight into the first topic's
-  first category because the sidebar auto-selected `topicId` on mount and the
-  page then auto-selected that topic's first `categoryId`. Both auto-selections
-  are gone, so the landing view is the topic grid; picking a topic now shows
-  that topic's categories as cards, and a `categoryId` left over from another
-  topic is cleared instead of being replaced by that topic's first category.
-- **Affected areas:**
-  `src/modules/knowledgebase/components/KnowledgeBase.tsx`,
-  `src/modules/knowledgebase/components/KnowledgeBaseTopicsNav.tsx`
-- **Contracts changed:** None. The `topicId` and `categoryId` query parameters
-  keep their meaning; neither is now set without a user action.
-
-### `2026-09-10` — Polls became surveys
-
-- **Summary:** `src/modules/poll` became `src/modules/survey` and every
-  component, hook, state, route (`/surveys`) and GraphQL document followed the
-  API's rename. Discord's poll renderer stayed behind as `MessagePoll`; erxes
-  surveys render through the new `MessageSurvey`.
-- **Affected areas:** `src/modules/survey/**`, `src/config.tsx`,
-  `src/modules/{FrontlineMain,FrontlineNavigation}.tsx`,
-  `src/modules/channels/**`, `src/modules/inbox/**`,
-  `src/modules/types/FrontlinePaths.ts`, `src/pages/Survey*.tsx`.
-- **Contracts changed:** Consumes the renamed `survey*` / `cpSurvey*`
-  operations; the `frontline/polls` route is now `frontline/surveys`.
-
-### `2026-09-10` — The activity timeline names a customer author
-
-- **Summary:** A note that arrived by mail is written by the requester, not by
-  a team member, and its `cp:` author id resolved to a blank member row.
-  `ActivityAuthor` now decodes that prefix and renders the customer through
-  `CustomersInline`, a team member through `MembersInline`, and an empty author
-  as `unknown`; the timeline row and the ticket's creator line both use it.
-- **Affected areas:** `src/modules/activity/components/ActivityAuthor.tsx`
-  (new), `src/modules/activity/components/ActivityItemWrapper.tsx`,
-  `src/modules/activity/components/CreatorInfo.tsx`
-- **Contracts changed:** `None`

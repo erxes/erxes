@@ -12,9 +12,9 @@ export const EmptyState = ({
   description: string;
   action?: ReactNode;
 }) => (
-  <div className="flex flex-col gap-4 rounded-xl border border-dashed border-line bg-subtle/50 px-5 py-6 sm:flex-row sm:items-center sm:gap-5 sm:px-6">
-    <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-white text-muted-foreground shadow-card">
-      <Icon name={icon} size={19} />
+  <div className="flex flex-col gap-4 rounded-xl border border-line bg-subtle/60 px-5 py-6 sm:flex-row sm:items-center sm:gap-5">
+    <span className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-line bg-white text-muted-foreground">
+      <Icon name={icon} size={17} />
     </span>
     <div className="min-w-0 flex-1">
       <p className="text-[15px] font-semibold text-ink">{title}</p>

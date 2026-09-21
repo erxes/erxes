@@ -1,32 +1,44 @@
-import { CardLink } from '@/modules/ui/components/Card';
+import Link from 'next/link';
 import { Icon } from '@/modules/ui/components/Icon';
 import { formTitle, type FormSummary } from '../types';
 
 export const FormList = ({ forms }: { forms: FormSummary[] }) => (
-  <ul className="grid gap-3 sm:grid-cols-2">
+  <ul className="divide-y divide-line overflow-hidden rounded-xl border border-line bg-white">
     {forms.map((form) => (
       <li key={form._id}>
-        <CardLink
+        <Link
           href={`/forms/${form._id}`}
-          className="flex h-full items-start gap-3.5 p-4"
+          className="group flex items-center gap-4 px-5 py-4 outline-none transition-colors duration-200 hover:bg-subtle/70 focus-visible:bg-subtle"
         >
-          <span className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-lg bg-brand-soft text-brand">
-            <Icon name="clipboard" size={18} />
-          </span>
+          <Icon
+            name="clipboard"
+            size={18}
+            className="shrink-0 text-muted-foreground transition-colors duration-200 group-hover:text-brand"
+          />
           <span className="min-w-0 flex-1">
-            <span className="block text-[15px] font-semibold text-ink">
+            <span className="block truncate text-[15px] font-medium text-ink">
               {formTitle(form)}
             </span>
             {form.description?.trim() ? (
-              <span className="mt-1 line-clamp-2 block text-[13px] leading-relaxed text-muted-foreground">
+              <span className="mt-0.5 line-clamp-1 block text-[13px] text-muted-foreground">
                 {form.description}
               </span>
             ) : null}
           </span>
-          <span className="mt-1 shrink-0 text-muted-foreground">
-            <Icon name="chevronRight" size={16} />
+          <span className="hidden shrink-0 items-center gap-1 text-[13px] font-medium text-muted-foreground transition-colors duration-200 group-hover:text-brand sm:flex">
+            Fill in
+            <Icon
+              name="chevronRight"
+              size={14}
+              className="transition-transform duration-200 group-hover:translate-x-0.5"
+            />
           </span>
-        </CardLink>
+          <Icon
+            name="chevronRight"
+            size={16}
+            className="shrink-0 text-muted-foreground sm:hidden"
+          />
+        </Link>
       </li>
     ))}
   </ul>

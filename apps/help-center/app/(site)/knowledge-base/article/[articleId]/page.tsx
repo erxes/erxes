@@ -2,19 +2,16 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getTopicWithArticles } from '@/modules/knowledge-base/api';
 import { ArticleView } from '@/modules/knowledge-base/components/ArticleView';
-import { CategorySidebar } from '@/modules/knowledge-base/components/CategorySidebar';
 import {
   findArticle,
   findCategory,
   findSectionOf,
   sortByRecency,
 } from '@/modules/knowledge-base/utils/selectors';
-import { getPortalIdentity } from '@/modules/layout/api';
-import { Hero } from '@/modules/layout/components/Hero';
-import { Breadcrumbs, type Crumb } from '@/modules/ui/components/Breadcrumbs';
+import { PortalShell } from '@/modules/layout/components/PortalShell';
+import { type Crumb } from '@/modules/ui/components/Breadcrumbs';
 import { ButtonLink } from '@/modules/ui/components/Button';
 import { Card } from '@/modules/ui/components/Card';
-import { Container } from '@/modules/ui/components/Container';
 import { Icon } from '@/modules/ui/components/Icon';
 import {
   LoadError,
@@ -34,26 +31,22 @@ export const generateMetadata = async ({ params }: Props) => {
 };
 
 export default async function ArticlePage({ params }: Props) {
-  const [{ headline }, { articleId }, topic] = await Promise.all([
-    getPortalIdentity(),
+  const [{ articleId }, topic] = await Promise.all([
     params,
     getTopicWithArticles(),
   ]);
 
   if (topic.state !== 'ready') {
     return (
-      <>
-        <Hero headline={headline} />
-        <Container className="py-10 lg:py-14">
-          {topic.state === 'unconfigured' ? (
-            <SetupNotice missing={topic.missing} />
-          ) : topic.state === 'unpublished' ? (
-            <Unpublished domain={topic.domain} />
-          ) : (
-            <LoadError message={topic.message} />
-          )}
-        </Container>
-      </>
+      <PortalShell>
+        {topic.state === 'unconfigured' ? (
+          <SetupNotice missing={topic.missing} />
+        ) : topic.state === 'unpublished' ? (
+          <Unpublished domain={topic.domain} />
+        ) : (
+          <LoadError message={topic.message} />
+        )}
+      </PortalShell>
     );
   }
 
@@ -97,60 +90,45 @@ export default async function ArticlePage({ params }: Props) {
   ];
 
   return (
-    <>
-      <Hero headline={headline} />
+    <PortalShell breadcrumbs={crumbs}>
+      <div className="animate-in fade-in slide-in-from-bottom-1 fill-mode-both duration-500">
+        <ArticleView article={article} />
 
-      <Container className="py-10 lg:py-14">
-        <Breadcrumbs items={crumbs} />
+        {related.length ? (
+          <Card className="mt-6 p-6">
+            <h2 className="text-base font-semibold text-ink">
+              Related articles
+            </h2>
+            <ul className="mt-4 space-y-2">
+              {related.map((item) => (
+                <li key={item._id}>
+                  <Link
+                    href={`/knowledge-base/article/${item._id}`}
+                    className="flex items-center gap-2.5 rounded-md px-2 py-2 text-sm text-ink-soft transition-colors hover:bg-subtle hover:text-brand"
+                  >
+                    <Icon name="article" size={16} />
+                    {item.title}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </Card>
+        ) : null}
 
-        <div className="mt-7 grid gap-8 lg:grid-cols-[300px_minmax(0,1fr)]">
-          <aside>
-            <CategorySidebar
-              topic={topic.data}
-              activeCategoryId={article.categoryId}
-            />
-          </aside>
-
-          <div className="animate-in fade-in slide-in-from-bottom-2 fill-mode-both duration-500">
-            <ArticleView article={article} />
-
-            {related.length ? (
-              <Card className="mt-6 p-6">
-                <h2 className="text-base font-semibold text-ink">
-                  Related articles
-                </h2>
-                <ul className="mt-4 space-y-2">
-                  {related.map((item) => (
-                    <li key={item._id}>
-                      <Link
-                        href={`/knowledge-base/article/${item._id}`}
-                        className="flex items-center gap-2.5 rounded-md px-2 py-2 text-sm text-ink-soft transition-colors hover:bg-subtle hover:text-brand"
-                      >
-                        <Icon name="article" size={16} />
-                        {item.title}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </Card>
-            ) : null}
-
-            <Card className="mt-6 flex flex-wrap items-center justify-between gap-4 p-6">
-              <div>
-                <h2 className="text-base font-semibold text-ink">
-                  Did not find your answer?
-                </h2>
-                <p className="mt-1.5 text-sm text-muted-foreground">
-                  Raise a ticket and the support team will get back to you.
-                </p>
-              </div>
-              <ButtonLink href="/tickets/new" size="sm">
-                Submit a ticket
-              </ButtonLink>
-            </Card>
+        <Card className="mt-6 flex flex-wrap items-center justify-between gap-4 p-6">
+          <div>
+            <h2 className="text-base font-semibold text-ink">
+              Did not find your answer?
+            </h2>
+            <p className="mt-1.5 text-sm text-muted-foreground">
+              Raise a ticket and the support team will get back to you.
+            </p>
           </div>
-        </div>
-      </Container>
-    </>
+          <ButtonLink href="/tickets/new" size="sm">
+            Submit a ticket
+          </ButtonLink>
+        </Card>
+      </div>
+    </PortalShell>
   );
 }
