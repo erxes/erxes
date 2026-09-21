@@ -1,5 +1,13 @@
 
 
+## [3.1.11](https://github.com/erxes/erxes/compare/3.1.10...3.1.11) (2026-09-20)
+
+
+### Bug Fixes
+
+* **accounting:** some improve transactions ([#9363](https://github.com/erxes/erxes/issues/9363)) ([9543a7a](https://github.com/erxes/erxes/commit/9543a7ac43cedbdc61d50a47fc347eb46fcb05b3))
+* products lastcode, weight  and accounting income ([#9365](https://github.com/erxes/erxes/issues/9365)) ([1c684b3](https://github.com/erxes/erxes/commit/1c684b38ced1db6996ff1c6abe21ffbc29574122))
+
 ## [3.1.10](https://github.com/erxes/erxes/compare/3.1.9...3.1.10) (2026-09-17)
 
 
