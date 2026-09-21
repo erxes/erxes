@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-09-20`
+- **Last synchronized:** `2026-09-21`
 
 ## Scope
 
@@ -421,6 +421,11 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
 - `erxes-ui`: all UI primitives — `NavigationMenuGroup`, `Sheet`, `Form`,
   `Dialog`, `Button`, `Badge`, `Label`, `Card`, `toast`, `useQueryState`,
   `useToast`, hotkey hooks.
+- `ui-modules`: `useRelationWidget` in `ConversationSideWidget` is called with
+  `contentType: 'frontline:conversation'`. A relation widget registered with a
+  `contentTypes` list is filtered out of any rail that passes no `contentType`,
+  so dropping this argument silently removes the core Tracked data tab from the
+  conversation rail.
 - `ui-modules`: `SelectBrand`, `MembersInline`, `CustomersInline`, contacts and
   structure selects,
   `AutomationRemoteEntryWrapper`, `AutomationRemoteEntryTypes`,
@@ -1304,6 +1309,18 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-21` — Tracked data returns to the conversation rail
+
+- **Summary:** `ConversationSideWidget` called `useRelationWidget()` with no
+  options. The shared hook drops every module that declares `contentTypes`
+  when no `contentType` is supplied, so the core Tracked data widget — which
+  the old product showed in the inbox sidebar — never appeared next to a
+  conversation. The rail now passes `contentType: 'frontline:conversation'`,
+  and the widget reads the conversation's `customerId`.
+- **Affected areas:**
+  `src/modules/inbox/conversations/conversation-detail/components/ConversationSideWidget.tsx`.
+- **Contracts changed:** `None`
+
 ### `2026-09-20` — Frontline notifications show their icon in My Inbox
 
 - **Summary:** `CONFIG` now declares a top-level `icon`, so a frontline
@@ -1408,15 +1425,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `src/modules/types/FrontlinePaths.ts`, `src/pages/Survey*.tsx`.
 - **Contracts changed:** Consumes the renamed `survey*` / `cpSurvey*`
   operations; the `frontline/polls` route is now `frontline/surveys`.
-
-### `2026-09-10` — The activity timeline names a customer author
-
-- **Summary:** A note that arrived by mail is written by the requester, not by
-  a team member, and its `cp:` author id resolved to a blank member row.
-  `ActivityAuthor` now decodes that prefix and renders the customer through
-  `CustomersInline`, a team member through `MembersInline`, and an empty author
-  as `unknown`; the timeline row and the ticket's creator line both use it.
-- **Affected areas:** `src/modules/activity/components/ActivityAuthor.tsx`
-  (new), `src/modules/activity/components/ActivityItemWrapper.tsx`,
-  `src/modules/activity/components/CreatorInfo.tsx`
-- **Contracts changed:** `None`
