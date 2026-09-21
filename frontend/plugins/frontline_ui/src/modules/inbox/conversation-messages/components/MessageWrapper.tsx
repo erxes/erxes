@@ -116,9 +116,11 @@ const MessageMemberAvatar = ({
 export const MessageWrapper = ({
   children,
   actions,
+  below,
 }: {
   children: React.ReactNode;
   actions?: React.ReactNode;
+  below?: React.ReactNode;
 }) => {
   const {
     separateNext,
@@ -141,23 +143,39 @@ export const MessageWrapper = ({
       : undefined;
 
   return (
-    <div className={getRowClassName(isOutgoing, separateNext, formWidgetData)}>
-      {separateNext && !isOutgoing && (
-        <MessageAuthorAvatar
-          customerId={customerId}
-          fromBot={fromBot}
-          inlineCustomers={inlineCustomers}
-        />
-      )}
-      {isOutgoing && <MessageActionBar actions={actions} isOutgoing />}
-      <div className="relative w-fit min-w-0 max-w-full">{children}</div>
-      {!isOutgoing && <MessageActionBar actions={actions} isOutgoing={false} />}
-      {separateNext && (
-        <MessageMemberAvatar
-          userId={userId}
-          isBotMessage={isBotMessage}
-          fromBot={fromBot}
-        />
+    <div className="w-full">
+      <div
+        className={getRowClassName(isOutgoing, separateNext, formWidgetData)}
+      >
+        {separateNext && !isOutgoing && (
+          <MessageAuthorAvatar
+            customerId={customerId}
+            fromBot={fromBot}
+            inlineCustomers={inlineCustomers}
+          />
+        )}
+        {isOutgoing && <MessageActionBar actions={actions} isOutgoing />}
+        <div className="relative w-fit min-w-0 max-w-full">{children}</div>
+        {!isOutgoing && (
+          <MessageActionBar actions={actions} isOutgoing={false} />
+        )}
+        {separateNext && (
+          <MessageMemberAvatar
+            userId={userId}
+            isBotMessage={isBotMessage}
+            fromBot={fromBot}
+          />
+        )}
+      </div>
+      {below && (
+        <div
+          className={cn(
+            'flex w-full',
+            isOutgoing ? 'justify-end pr-10' : 'justify-start pl-10',
+          )}
+        >
+          {below}
+        </div>
       )}
     </div>
   );

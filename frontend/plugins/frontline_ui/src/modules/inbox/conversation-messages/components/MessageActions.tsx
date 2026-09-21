@@ -23,10 +23,7 @@ import { useState } from 'react';
 import { useConversationContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationContext';
 import { messageReplyState } from '@/inbox/conversations/conversation-detail/states/messageReplyState';
 import { isSlashMenuOpenState } from '@/inbox/conversations/conversation-detail/states/isInternalState';
-import {
-  CONVERSATION_MESSAGE_PIN,
-  CONVERSATION_MESSAGE_REACT,
-} from '@/inbox/conversations/conversation-detail/graphql/mutations/conversationMessageReact';
+import { CONVERSATION_MESSAGE_PIN } from '@/inbox/conversations/conversation-detail/graphql/mutations/conversationMessageReact';
 import type { IMessage, IMessageReaction } from '@/inbox/types/Conversation';
 import { IntegrationType } from '@/types/Integration';
 import { currentUserState } from 'ui-modules';
@@ -41,6 +38,7 @@ import {
   type Reaction,
 } from '@/inbox/conversation-messages/constants/messageActions';
 import { getProviderMessageId } from '@/inbox/conversation-messages/utils/message';
+import { useMessageReaction } from '@/inbox/conversation-messages/hooks/useMessageReaction';
 
 const textOf = (message: IMessage) =>
   stripHtml(message.content) ||
@@ -303,35 +301,11 @@ function ReactionMenu({
   selectedReaction?: string;
   reactions: readonly Reaction[];
 }>) {
-  const [react, { loading }] = useMutation(CONVERSATION_MESSAGE_REACT, {
-    refetchQueries: [
-      'ConversationMessages',
-      'InstagramConversationMessages',
-      'FacebookConversationMessages',
-    ],
-  });
+  const { toggleReaction, loading } = useMessageReaction();
 
   const handleReaction = async (reaction: Reaction) => {
     const remove = selectedReaction === reaction;
-    try {
-      await react({
-        variables: {
-          conversationId,
-          messageId,
-          reaction,
-          remove,
-        },
-      });
-      toast({
-        title: remove ? 'Reaction removed' : 'Reaction added',
-        variant: 'default',
-      });
-    } catch (error) {
-      toast({
-        title: `Failed to react: ${(error as Error).message}`,
-        variant: 'destructive',
-      });
-    }
+    await toggleReaction({ conversationId, messageId, reaction, remove });
   };
 
   if (reactions.length === 1) {

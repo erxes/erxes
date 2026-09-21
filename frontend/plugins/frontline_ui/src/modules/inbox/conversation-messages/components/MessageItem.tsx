@@ -14,6 +14,7 @@ import { MESSAGE_ACTION_BAR_CLASS } from '@/inbox/conversation-messages/constant
 import {
   aggregateReactions,
   getProviderMessageId,
+  getReactionKey,
 } from '@/inbox/conversation-messages/utils/message';
 import { replaceHtmlTags } from '@/inbox/conversation-messages/utils/messageContent';
 import { Attachments } from '@/inbox/conversation-messages/components/MessageAttachments';
@@ -38,7 +39,13 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MessageActions } from '@/inbox/conversation-messages/components/MessageActions';
 import { DiscordMessageActions } from '@/integrations/discord/components/DiscordMessageActions';
-import type { IMessageSticker } from '@/inbox/types/Conversation';
+import type {
+  IMessageReaction,
+  IMessageSticker,
+} from '@/inbox/types/Conversation';
+import { useAtomValue } from 'jotai';
+import { currentUserState } from 'ui-modules';
+import { useMessageReaction } from '@/inbox/conversation-messages/hooks/useMessageReaction';
 export { MessageDaySeparator };
 
 const getPostAttachmentType = (type?: string): string =>
@@ -58,6 +65,8 @@ const getReplyPreview = (content?: string) => {
 export const MessageItem = () => {
   const { t } = useTranslation('frontline');
   const [actionsOpen, setActionsOpen] = useState(false);
+  const currentUser = useAtomValue(currentUserState);
+  const { toggleReaction, loading: reactionLoading } = useMessageReaction();
   const { previousMessage, ...message } = useConversationMessageContext();
   const { _id: conversationId, integration } = useConversationContext();
   const {
@@ -232,9 +241,9 @@ export const MessageItem = () => {
   const showAuthorName = Boolean(
     (isGroupConversation ||
       integration?.kind === IntegrationType.DISCORD_MESSENGER) &&
-    !userId &&
-    customerId &&
-    separatePrevious,
+      !userId &&
+      customerId &&
+      separatePrevious,
   );
 
   const showBotName = Boolean(fromBot) && separatePrevious;
@@ -247,6 +256,11 @@ export const MessageItem = () => {
     ? messageReactions
     : extraData?.reactions;
   const aggregatedReactions = aggregateReactions(reactions);
+  const ownReaction = reactions?.find(
+    (reaction: IMessageReaction) => reaction.senderId === currentUser?._id,
+  );
+  const ownReactionKey = ownReaction ? getReactionKey(ownReaction) : undefined;
+  const providerMessageId = getProviderMessageId(message);
 
   const hasRenderableContent =
     isDeleted ||
@@ -285,6 +299,39 @@ export const MessageItem = () => {
                 message={message}
                 additionalActions={additionalActions}
               />
+            </div>
+          ) : undefined
+        }
+        below={
+          !isDeleted && aggregatedReactions.length ? (
+            <div className="mt-1 flex flex-wrap gap-1">
+              {aggregatedReactions.map((reaction) => (
+                <button
+                  type="button"
+                  key={reaction.label}
+                  className="inline-flex h-7 items-center gap-0.5 rounded-full border border-border/70 bg-background px-2 text-xs shadow-xs transition-colors hover:bg-muted disabled:cursor-wait"
+                  disabled={reactionLoading || !providerMessageId}
+                  aria-label={`${
+                    ownReactionKey === reaction.reaction ? 'Remove' : 'Add'
+                  } ${reaction.reaction} reaction`}
+                  onClick={() => {
+                    if (!providerMessageId) return;
+                    toggleReaction({
+                      conversationId,
+                      messageId: providerMessageId,
+                      reaction: reaction.reaction,
+                      remove: ownReactionKey === reaction.reaction,
+                    });
+                  }}
+                >
+                  <ReactionLabel label={reaction.label} />
+                  {reaction.count > 1 && (
+                    <span className="ml-1 text-muted-foreground">
+                      {reaction.count}
+                    </span>
+                  )}
+                </button>
+              ))}
             </div>
           ) : undefined
         }
@@ -520,23 +567,6 @@ export const MessageItem = () => {
           {!isDeleted && poll && <MessagePoll poll={poll} />}
           {!isDeleted && survey && <MessageSurvey survey={survey} />}
           {!isDeleted && <MessageEmbeds embeds={embeds} />}
-          {!isDeleted && Boolean(aggregatedReactions.length) && (
-            <div className="mt-1 flex flex-wrap gap-1">
-              {aggregatedReactions.map((reaction) => (
-                <span
-                  key={reaction.label}
-                  className="inline-flex h-7 items-center gap-0.5 rounded-full border border-border/70 bg-background px-2 text-xs shadow-xs transition-colors hover:bg-muted"
-                >
-                  <ReactionLabel label={reaction.label} />
-                  {reaction.count > 1 && (
-                    <span className="ml-1 text-muted-foreground">
-                      {reaction.count}
-                    </span>
-                  )}
-                </span>
-              ))}
-            </div>
-          )}
           {!isDeleted &&
             !hasTextBubble &&
             separateNext &&
