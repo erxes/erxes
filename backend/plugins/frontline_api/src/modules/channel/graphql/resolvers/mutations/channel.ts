@@ -6,6 +6,10 @@ import {
   IChannelsEdit,
 } from '@/channel/@types/channel';
 import { checkUserRole } from '../../../utils';
+import {
+  IChannelMoveResourcesArgs,
+  moveChannelResources,
+} from '@/channel/moveResources';
 import { sendNotification } from 'erxes-api-shared/core-modules';
 
 export const channelMutations = {
@@ -211,5 +215,13 @@ export const channelMutations = {
     }
 
     return models.ChannelMembers.updateChannelMember(_id, role, user._id);
+  },
+
+  channelMoveResources: async (
+    _parent: undefined,
+    args: IChannelMoveResourcesArgs,
+    context: IContext,
+  ) => {
+    return moveChannelResources(args, context);
   },
 };

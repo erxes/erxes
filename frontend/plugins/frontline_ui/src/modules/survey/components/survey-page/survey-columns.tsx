@@ -1,4 +1,5 @@
 import {
+  IconArrowBarToRight,
   IconCalendarEvent,
   IconChartBar,
   IconEdit,
@@ -29,10 +30,13 @@ import {
   useSurveyToggleStatus,
 } from '@/survey/hooks/useSurveyMutations';
 import { ISurvey, SURVEY_STATUS } from '@/survey/types/surveyTypes';
+import { MoveToChannelDialog } from '@/channels/components/move-resources/MoveToChannelDialog';
+import { ChannelResourceType } from '@/channels/types';
 
 const SurveyMoreColumnCell = ({ cell }: { cell: Cell<ISurvey, unknown> }) => {
   const { t } = useTranslation('frontline');
   const [open, setOpen] = useState(false);
+  const [moveOpen, setMoveOpen] = useState(false);
   const survey = cell.row.original;
   const { id } = useParams<{ id: string }>();
   const channelId = survey.channelId || id;
@@ -101,11 +105,27 @@ const SurveyMoreColumnCell = ({ cell }: { cell: Cell<ISurvey, unknown> }) => {
             ? t('archive')
             : t('unarchive')}
         </DropdownMenu.Item>
+        <DropdownMenu.Item
+          onSelect={() => {
+            setOpen(false);
+            setMoveOpen(true);
+          }}
+        >
+          <IconArrowBarToRight />
+          {t('move-to-channel', 'Move to Channel')}
+        </DropdownMenu.Item>
         <DropdownMenu.Item onSelect={handleRemove}>
           <IconTrash />
           {t('remove')}
         </DropdownMenu.Item>
       </DropdownMenu.Content>
+      <MoveToChannelDialog
+        open={moveOpen}
+        onOpenChange={setMoveOpen}
+        resourceType={ChannelResourceType.SURVEY}
+        resourceIds={[survey._id]}
+        sourceChannelId={channelId || ''}
+      />
     </DropdownMenu>
   );
 };
