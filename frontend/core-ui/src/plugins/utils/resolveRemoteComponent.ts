@@ -6,6 +6,11 @@ export type RemoteModule = Record<string, unknown> & {
   default?: unknown;
 };
 
+export interface LoadedRemoteComponent {
+  remoteKey: string;
+  Component: RemoteComponent;
+}
+
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 

@@ -2,7 +2,7 @@ import { loadRemote } from '@module-federation/enhanced/runtime';
 import { Spinner } from 'erxes-ui';
 import { Suspense, useEffect, useState } from 'react';
 import {
-  RemoteComponent,
+  LoadedRemoteComponent,
   RemoteComponentProps,
   RemoteModule,
   resolveRemoteComponent,
@@ -18,20 +18,22 @@ export function RenderPluginsComponent({
   remoteModuleName: string;
   props?: RemoteComponentProps;
 }) {
-  const [Plugin, setPlugin] = useState<RemoteComponent | null>(null);
+  const remoteKey = `${pluginName}/${remoteModuleName}`;
+  const [Plugin, setPlugin] = useState<LoadedRemoteComponent | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState<{ message: string } | null>(null);
 
   useEffect(() => {
+    const remoteKey = `${pluginName}/${remoteModuleName}`;
+
     const loadPlugin = async () => {
       try {
         setIsLoading(true);
         setHasError(null);
 
-        const remoteModule = await loadRemote<RemoteModule>(
-          `${pluginName}/${remoteModuleName}`,
-          { from: 'runtime' },
-        );
+        const remoteModule = await loadRemote<RemoteModule>(remoteKey, {
+          from: 'runtime',
+        });
         const remoteComponent = resolveRemoteComponent(
           remoteModule,
           remoteModuleName,
@@ -41,7 +43,7 @@ export function RenderPluginsComponent({
           throw new Error('Plugin module is empty or invalid');
         }
 
-        setPlugin(() => remoteComponent);
+        setPlugin({ remoteKey, Component: remoteComponent });
       } catch (error) {
         setHasError({
           message:
@@ -68,7 +70,10 @@ export function RenderPluginsComponent({
     );
   }
 
-  if (isLoading || !Plugin) {
+  // A Plugin loaded for a different remote must not render: its Routes
+  // would resolve against the new URL and rewrite it (e.g. Navigate to a
+  // sub-path of the previous plugin).
+  if (isLoading || !Plugin || Plugin.remoteKey !== remoteKey) {
     return (
       <Suspense
         fallback={
@@ -90,7 +95,7 @@ export function RenderPluginsComponent({
         </div>
       }
     >
-      <Plugin key={`${pluginName}-${remoteModuleName}`} {...(props || {})} />
+      <Plugin.Component key={remoteKey} {...(props || {})} />
     </Suspense>
   );
 }

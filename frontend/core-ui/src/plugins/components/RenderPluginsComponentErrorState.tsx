@@ -2,7 +2,7 @@ import { loadRemote } from '@module-federation/enhanced/runtime';
 import { IconAlertTriangle, IconRefresh } from '@tabler/icons-react';
 import type { Dispatch, SetStateAction } from 'react';
 import {
-  RemoteComponent,
+  LoadedRemoteComponent,
   RemoteModule,
   resolveRemoteComponent,
 } from '../utils/resolveRemoteComponent';
@@ -16,7 +16,7 @@ export const RenderPluginsComponentErrorState = ({
 }: {
   pluginName: string;
   remoteModuleName: string;
-  setPlugin: Dispatch<SetStateAction<RemoteComponent | null>>;
+  setPlugin: Dispatch<SetStateAction<LoadedRemoteComponent | null>>;
   setHasError: Dispatch<
     SetStateAction<{
       message: string;
@@ -39,7 +39,10 @@ export const RenderPluginsComponentErrorState = ({
         if (!remoteComponent)
           throw new Error('Plugin module is empty or invalid');
 
-        setPlugin(() => remoteComponent);
+        setPlugin({
+          remoteKey: `${pluginName}/${remoteModuleName}`,
+          Component: remoteComponent,
+        });
       })
       .catch((error) => {
         setHasError({
