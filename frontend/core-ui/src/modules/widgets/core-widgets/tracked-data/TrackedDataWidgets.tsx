@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next';
 import {
   ITrackedDataItem,
   IRelationWidgetProps,
+  useCompanyDetail,
   useCustomerDetail,
 } from 'ui-modules';
 
@@ -29,36 +30,51 @@ const TrackedDataRow = ({
 );
 
 const renderTrackedValue = (item: ITrackedDataItem) => {
-  if (item.dateValue) {
-    return <RelativeDateDisplay.Value value={item.dateValue} />;
-  }
+  const raw = item.value ?? item.stringValue;
 
-  if (item.stringValue) {
-    return item.stringValue;
-  }
-
-  if (item.value === null || item.value === undefined) {
+  if (raw === null || raw === undefined || raw === '') {
     return '-';
   }
 
-  return String(item.value);
+  const asString = String(raw);
+
+  if (item.dateValue && Number.isNaN(Number(asString))) {
+    return <RelativeDateDisplay.Value value={item.dateValue} />;
+  }
+
+  return asString;
 };
 
 export const TrackedDataWidgets = ({
   contentId,
+  contentType,
   customerId,
+  companyId,
 }: IRelationWidgetProps) => {
   const { t } = useTranslation('contact', { keyPrefix: 'customer.detail' });
-  const _id = customerId || contentId;
 
-  const { customerDetail, loading } = useCustomerDetail({
-    variables: { _id },
-    skip: !_id,
+  const isCompany = contentType === 'core:company';
+
+  const resolvedCompanyId = isCompany ? companyId || contentId : undefined;
+  const resolvedCustomerId = isCompany
+    ? undefined
+    : customerId || (contentType === 'core:customer' ? contentId : undefined);
+
+  const { customerDetail, loading: customerLoading } = useCustomerDetail({
+    variables: { _id: resolvedCustomerId },
+    skip: !resolvedCustomerId,
   });
 
-  const { isOnline, lastSeenAt, sessionCount, trackedData } =
-    customerDetail || {};
-  const items = trackedData ?? [];
+  const { companyDetail, loading: companyLoading } = useCompanyDetail({
+    variables: { _id: resolvedCompanyId },
+    skip: !resolvedCompanyId,
+  });
+
+  const { isOnline, lastSeenAt, sessionCount } = customerDetail || {};
+  const items =
+    (isCompany ? companyDetail?.trackedData : customerDetail?.trackedData) ??
+    [];
+  const loading = isCompany ? companyLoading : customerLoading;
 
   return (
     <SideMenu.Content value="trackedData" className="bg-sidebar">
@@ -72,21 +88,27 @@ export const TrackedDataWidgets = ({
         <ScrollArea className="flex-1 min-h-0">
           <div className="p-3">
             <ul className="bg-background rounded-lg shadow-xs">
-              <TrackedDataRow label={t('status', 'Status')}>
-                <Badge variant={isOnline ? 'success' : 'secondary'}>
-                  {isOnline ? t('online', 'Online') : t('offline', 'Offline')}
-                </Badge>
-              </TrackedDataRow>
-              <TrackedDataRow label={t('last-online', 'Last online')}>
-                {lastSeenAt ? (
-                  <RelativeDateDisplay.Value value={lastSeenAt} />
-                ) : (
-                  '-'
-                )}
-              </TrackedDataRow>
-              <TrackedDataRow label={t('session-count', 'Session count')}>
-                {sessionCount ?? 0}
-              </TrackedDataRow>
+              {!isCompany && (
+                <>
+                  <TrackedDataRow label={t('status', 'Status')}>
+                    <Badge variant={isOnline ? 'success' : 'secondary'}>
+                      {isOnline
+                        ? t('online', 'Online')
+                        : t('offline', 'Offline')}
+                    </Badge>
+                  </TrackedDataRow>
+                  <TrackedDataRow label={t('last-online', 'Last online')}>
+                    {lastSeenAt ? (
+                      <RelativeDateDisplay.Value value={lastSeenAt} />
+                    ) : (
+                      '-'
+                    )}
+                  </TrackedDataRow>
+                  <TrackedDataRow label={t('session-count', 'Session count')}>
+                    {sessionCount ?? 0}
+                  </TrackedDataRow>
+                </>
+              )}
               {items.map((item) => (
                 <TrackedDataRow key={item.field} label={item.field}>
                   {renderTrackedValue(item)}

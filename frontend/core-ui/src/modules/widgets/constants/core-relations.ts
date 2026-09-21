@@ -18,6 +18,6 @@ export const CORE_RELATIONS = [
     name: 'trackedData',
     icon: IconRadar,
     label: 'Tracked data',
-    contentTypes: ['core:customer'],
+    contentTypes: ['core:customer', 'core:company', 'frontline:conversation'],
   },
 ];

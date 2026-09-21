@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-09-17`
+- **Last synchronized:** `2026-09-21`
 
 ## Scope
 
@@ -167,6 +167,12 @@
   invisible to agents.
 - Contributes permissions, notifications, segments, references, and
   import/export handlers to the platform through `meta/`.
+- `widgetsMessengerConnect` stores messenger `companyData` on the core company
+  as both `propertiesData` (keys matching a `core:company` field) and
+  `trackedData` (every remaining key). The company is matched by `name`, then
+  `email`, then `phone` — one `companies.findOne` query per selector, stopping
+  at the first hit — so a repeat connect updates the existing company instead
+  of creating a duplicate.
 
 ## Architecture
 
@@ -213,6 +219,42 @@
   core lists as the read-only "Basic information" group in Settings →
   Properties. A `code` must name a real field on the record; core-api reads
   this meta once per process, so a changed list shows after core-api restarts.
+
+### Consumes
+
+- `core` over tRPC — `companies.findOne` (query), `companies.createCompany` and
+  `companies.updateCompany` (mutations, `{ _id, doc }` / `{ doc }`),
+  `customers.createMessengerCustomer` / `updateMessengerCustomer`,
+  `conformity.create`, and `fields.generatePropertiesData`, which splits
+  messenger `companyData` into `propertiesData` for keys that match a Core
+  `core:company` field and `trackedData` for every remaining key.
+- `automations` over tRPC — `automations.trigger`. The path is
+  `automations.trigger`, not `triggers.trigger`; `sendTRPCMessage` swallows a
+  wrong path or a query/mutation mismatch and returns `defaultValue`, so a
+  typo here fails silently.
+
+## Recent Changes
+
+### `2026-09-21` — Messenger company writes actually reach Core
+
+- **Summary:** Every Core call in the company branch of
+  `widgetsMessengerConnect` used the wrong tRPC method or input shape, and
+  `sendTRPCMessage` swallows the resulting errors, so messenger `companyData`
+  silently produced no company at all: `companies.findOne` was called as a
+  mutation with `{ query: { companyData } }` (matching no selector key),
+  `updateCompany` received `{ query: { _id, doc } }` instead of `{ _id, doc }`,
+  `createCompany` was called as a query with `{ query: { ...companyData } }`
+  instead of a mutation with `{ doc }`, and the follow-up automation trigger
+  used the non-existent `triggers.trigger` path. All four now match the
+  published contracts, and lookup cascades name -> email -> phone, so the
+  company, its `trackedData`, and the customer-company conformity are written.
+- **Affected areas:**
+  `src/modules/inbox/graphql/resolvers/mutations/widget.ts`
+  (`findMessengerCompany` helper, company branch of
+  `widgetsMessengerConnect`).
+- **Contracts changed:** None. Consumed contracts corrected: Core
+  `companies.findOne` (query), `companies.updateCompany` / `createCompany`
+  (mutations), and automations `automations.trigger`.
 
 ### `2026-09-17` — Property types declare system fields
 
