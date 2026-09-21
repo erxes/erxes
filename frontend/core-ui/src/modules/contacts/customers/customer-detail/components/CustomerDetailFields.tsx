@@ -26,7 +26,7 @@ export const CustomerDetailFields = () => {
       firstName: customerDetail?.firstName || '',
       lastName: customerDetail?.lastName || '',
       middleName: customerDetail?.middleName || '',
-      sex: customerDetail?.sex || null,
+      sex: customerDetail?.sex ?? null,
       birthDate: customerDetail?.birthDate
         ? new Date(customerDetail.birthDate)
         : null,

@@ -37,6 +37,7 @@ export interface ICustomer extends ICustomerInline {
     countryCode?: CountryCode | undefined;
   };
   sex?: SexCode;
+  birthDate?: Date;
   owner?: IUser;
   propertiesData?: Record<string, unknown>;
   trackedData?: ITrackedDataItem[];
@@ -47,7 +48,6 @@ export interface ICustomerDetail extends ICustomer {
   position?: string;
   department?: string;
   state?: string;
-  birthDate?: string;
   isOnline?: boolean;
   lastSeenAt?: string;
   sessionCount?: number;

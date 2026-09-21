@@ -13,6 +13,7 @@ import {
   PhoneValidationStatusField,
   PrimaryEmailField,
   PrimaryPhoneField,
+  SexField,
   StateField,
 } from '@/contacts/customers/components/CustomerFormFields';
 // import { useVersion } from 'ui-modules';
@@ -36,6 +37,7 @@ export const CustomerAddGeneralInformationFields = ({
         <PhoneValidationStatusField control={form.control} />
         <StateField control={form.control} />
         <BirthDateField control={form.control} />
+        <SexField control={form.control} />
       </div>
       <DescriptionField control={form.control} />
       <IsSubscribedField control={form.control} />

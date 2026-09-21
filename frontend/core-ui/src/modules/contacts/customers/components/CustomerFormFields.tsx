@@ -5,6 +5,7 @@ import {
   Form,
   Input,
   Select,
+  SexCodes,
   Switch,
   Upload,
 } from 'erxes-ui';
@@ -80,6 +81,49 @@ export const BirthDateField = ({
               className="h-8 rounded-md w-full"
             />
           </Form.Control>
+          <Form.Message className="text-destructive" />
+        </Form.Item>
+      )}
+    />
+  );
+};
+
+export const SexField = ({
+  control,
+}: {
+  control: Control<CustomerFormType>;
+}) => {
+  const { t } = useTranslation('contact', { keyPrefix: 'customer.add' });
+  return (
+    <Form.Field
+      control={control}
+      name="sex"
+      render={({ field }) => (
+        <Form.Item>
+          <Form.Label>{t('sex', 'Gender')}</Form.Label>
+          <Select
+            onValueChange={(value) => field.onChange(Number(value))}
+            value={field.value != null ? String(field.value) : ''}
+          >
+            <Form.Control>
+              <Select.Trigger className="truncate w-full rounded-md justify-between text-foreground h-8">
+                <Select.Value placeholder={t('sex-choose', 'Choose gender')}>
+                  <span className="text-foreground font-medium text-sm">
+                    {field.value != null
+                      ? SexCodes[field.value as keyof typeof SexCodes]?.label
+                      : ''}
+                  </span>
+                </Select.Value>
+              </Select.Trigger>
+            </Form.Control>
+            <Select.Content align="start">
+              {Object.entries(SexCodes).map(([key, { label }]) => (
+                <Select.Item key={key} className="h-7 text-xs" value={key}>
+                  {label}
+                </Select.Item>
+              ))}
+            </Select.Content>
+          </Select>
           <Form.Message className="text-destructive" />
         </Form.Item>
       )}
