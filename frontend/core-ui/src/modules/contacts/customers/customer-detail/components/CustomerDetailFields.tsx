@@ -40,6 +40,7 @@ export const CustomerDetailFields = () => {
       ),
       ownerId: customerDetail?.ownerId || '',
       department: customerDetail?.department || '',
+      position: customerDetail?.position || '',
       description: customerDetail?.description || '',
       isSubscribed: customerDetail?.isSubscribed || 'Yes',
       links: customerDetail?.links || {},

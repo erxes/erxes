@@ -154,6 +154,29 @@ export const DepartmentField = ({
   );
 };
 
+export const PositionField = ({
+  control,
+}: {
+  control: Control<CustomerFormType>;
+}) => {
+  const { t } = useTranslation('contact', { keyPrefix: 'customer.add' });
+  return (
+    <Form.Field
+      control={control}
+      name="position"
+      render={({ field }) => (
+        <Form.Item>
+          <Form.Label>{t('position', 'Position')}</Form.Label>
+          <Form.Control>
+            <Input className="h-8 rounded-md" {...field} />
+          </Form.Control>
+          <Form.Message className="text-destructive" />
+        </Form.Item>
+      )}
+    />
+  );
+};
+
 export const CodeField = ({
   control,
 }: {
