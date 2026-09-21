@@ -61,6 +61,7 @@ function BarcodeRow({
           type="button"
           variant="ghost"
           size="icon"
+          aria-label={`Remove barcode ${barcode.code}`}
           className="mb-0 w-8 h-8 text-destructive hover:text-destructive shrink-0"
           onClick={() => onRemove(index)}
         >
@@ -216,6 +217,12 @@ export function BarcodeManager({
                   <Input
                     value={code}
                     onChange={(e) => setCode(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleAddBarcode();
+                      }
+                    }}
                   />
                 </div>
                 <Button
