@@ -17,7 +17,8 @@ import {
 import { FC, useRef, useState } from 'react';
 import { cn } from 'erxes-ui/lib';
 import { readImage } from 'erxes-ui/utils';
-import { Button, Dialog, Spinner } from 'erxes-ui/components';
+import { Button, Spinner } from 'erxes-ui/components';
+import { Attachments } from 'erxes-ui/modules/attachments';
 import { useToast } from 'erxes-ui/hooks';
 
 export interface GalleryImage {
@@ -59,9 +60,9 @@ const GalleryItem: FC<{
   image: GalleryImage;
   readonly: boolean;
   onRemove: () => void;
-}> = ({ image, readonly, onRemove }) => {
+  onPreview: () => void;
+}> = ({ image, readonly, onRemove, onPreview }) => {
   const { loadingState, downloadUrl } = useResolveUrl(image.url);
-  const [previewOpen, setPreviewOpen] = useState(false);
   const isResolving = loadingState === 'loading';
   const src = downloadUrl ?? image.url;
 
@@ -76,7 +77,7 @@ const GalleryItem: FC<{
           variant="ghost"
           aria-label="Preview image"
           className="h-full w-full p-0 rounded-none"
-          onClick={() => setPreviewOpen(true)}
+          onClick={onPreview}
         >
           <img
             src={src}
@@ -92,18 +93,6 @@ const GalleryItem: FC<{
         </Button>
       )}
 
-      <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
-        <Dialog.Content className="max-w-fit border-0 bg-transparent p-0 shadow-none">
-          <Dialog.Title className="sr-only">
-            {image.caption || 'Image preview'}
-          </Dialog.Title>
-          <img
-            src={src}
-            alt={image.caption ?? ''}
-            className="max-h-[85vh] max-w-[90vw] rounded object-contain shadow-2xl"
-          />
-        </Dialog.Content>
-      </Dialog>
       {!readonly && (
         <Button
           variant="ghost"
@@ -216,19 +205,35 @@ const GalleryBlockContent: FC<GalleryRenderProps> = ({ block, editor }) => {
   return (
     <div className="w-full my-1 select-none" contentEditable={false}>
       {images.length > 0 && (
-        <div
-          className="grid gap-2"
-          style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}
+        <Attachments.Root
+          initialAttachments={images.map((image) => ({
+            url: image.url,
+            name: image.caption ?? '',
+            type: 'image/*',
+            size: 0,
+          }))}
         >
-          {images.map((img, i) => (
-            <GalleryItem
-              key={`${img.url}-${i}`}
-              image={img}
-              readonly={readonly}
-              onRemove={() => removeImage(i)}
-            />
-          ))}
-        </div>
+          <Attachments.Preview
+            heading=""
+            className="p-0"
+            renderThumbnails={(openPreview) => (
+              <div
+                className="grid gap-2"
+                style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}
+              >
+                {images.map((img, i) => (
+                  <GalleryItem
+                    key={`${img.url}-${i}`}
+                    image={img}
+                    readonly={readonly}
+                    onRemove={() => removeImage(i)}
+                    onPreview={() => openPreview(i)}
+                  />
+                ))}
+              </div>
+            )}
+          />
+        </Attachments.Root>
       )}
 
       {!readonly && (

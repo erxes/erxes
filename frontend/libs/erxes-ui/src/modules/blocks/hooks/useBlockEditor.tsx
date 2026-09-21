@@ -1,10 +1,8 @@
 import { Block } from '@blocknote/core';
 import { useCreateBlockNote } from '@blocknote/react';
 import { useCallback, useEffect } from 'react';
-import { useErxesUpload } from '../../../hooks/use-upload-new';
-import { useUploadChunked } from '../../../hooks/use-upload-chunked';
-import { useToast } from '../../../hooks/use-toast';
-import { readImage } from '../../../utils/core';
+import { useErxesUpload, useUploadChunked, useToast } from 'erxes-ui/hooks';
+import { readImage } from 'erxes-ui/utils';
 import { BLOCK_SCHEMA, TABLE_SCHEMA } from '../constant';
 import type { IBlockEditor } from '../types';
 

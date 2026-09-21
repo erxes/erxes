@@ -1,5 +1,5 @@
 import { Button, Dialog, Spinner, Upload, cn, readImage } from 'erxes-ui/index';
-import { getCloudflareStreamBase } from '../../utils/videoEmbed';
+import { getCloudflareStreamBase } from 'erxes-ui/utils';
 import {
   IconChevronLeft,
   IconChevronRight,
@@ -166,10 +166,14 @@ const AttachmentFiles = ({
 
 export type AttachmentPreviewProps = {
   heading?: string;
+  className?: string;
+  renderThumbnails?: (openPreview: (index: number) => void) => React.ReactNode;
 };
 
 const AttachmentPreview = ({
   heading = 'Media Attachments',
+  className,
+  renderThumbnails,
 }: AttachmentPreviewProps) => {
   const [open, setOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -181,7 +185,8 @@ const AttachmentPreview = ({
     (a) => a?.type != null && a.type.startsWith('image/'),
   );
 
-  const current = mediaAttachments[currentIndex];
+  const current =
+    mediaAttachments[Math.min(currentIndex, mediaAttachments.length - 1)];
 
   // Clamp index when list shrinks
   useEffect(() => {
@@ -195,7 +200,7 @@ const AttachmentPreview = ({
 
   // Keyboard nav — only when dialog is open
   useEffect(() => {
-    if (!open) return;
+    if (!open || mediaAttachments.length === 0) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'ArrowRight')
         setCurrentIndex((i) => (i + 1) % mediaAttachments.length);
@@ -211,63 +216,76 @@ const AttachmentPreview = ({
   const prev = () =>
     setCurrentIndex((i) => (i === 0 ? mediaAttachments.length - 1 : i - 1));
   const next = () => setCurrentIndex((i) => (i + 1) % mediaAttachments.length);
+  const openPreview = (index: number) => {
+    setCurrentIndex(index);
+    setOpen(true);
+  };
 
   return (
-    <div className="py-4 px-8">
-      <h4 className="uppercase text-sm text-muted-foreground pb-4">
-        {heading}
-      </h4>
+    <div className={cn('py-4 px-8', className)}>
+      {heading && (
+        <h4 className="uppercase text-sm text-muted-foreground pb-4">
+          {heading}
+        </h4>
+      )}
 
-      <ScrollTrack label="Media attachments">
-        {mediaAttachments.map((attachment, index) => {
-          const isRemoving = removingUrl === attachment.url;
-          return (
-            <div
-              key={attachment.url}
-              role="listitem"
-              className="group relative w-36 h-36 rounded-lg border border-border shadow-md shrink-0 cursor-zoom-in"
-              onClick={() => {
-                setCurrentIndex(index);
-                setOpen(true);
-              }}
-            >
-              <img
-                className="w-full h-full object-cover rounded-lg"
-                src={readImage(attachment.url)}
-                alt={attachment.name}
-                loading="lazy"
-              />
-              <div className="absolute inset-0 flex items-center justify-center bg-background/30 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg">
-                {isLoading && isRemoving ? (
-                  <Spinner />
-                ) : (
-                  <IconZoomIn
-                    size={28}
-                    className="text-primary-foreground"
-                    aria-hidden
-                  />
-                )}
-              </div>
-              <Button
-                variant="ghost"
-                disabled={isLoading && isRemoving}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleRemoveAttachment(e, attachment);
-                }}
-                className="absolute hidden group-hover:flex items-center justify-center top-1 right-1 bg-destructive/40 hover:bg-destructive/80 text-background rounded-full p-1 w-5 h-5 shadow-md z-10"
-                aria-label={`Remove ${attachment.name}`}
+      {renderThumbnails ? (
+        renderThumbnails(openPreview)
+      ) : (
+        <ScrollTrack label="Media attachments">
+          {mediaAttachments.map((attachment, index) => {
+            const isRemoving = removingUrl === attachment.url;
+            return (
+              <div
+                key={attachment.url}
+                role="listitem"
+                className="group relative w-36 h-36 rounded-lg border border-border shadow-md shrink-0 cursor-zoom-in"
+                onClick={() => openPreview(index)}
               >
-                <IconX size={10} aria-hidden />
-              </Button>
-            </div>
-          );
-        })}
-      </ScrollTrack>
+                <img
+                  className="w-full h-full object-cover rounded-lg"
+                  src={readImage(attachment.url)}
+                  alt={attachment.name}
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 flex items-center justify-center bg-background/30 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg">
+                  {isLoading && isRemoving ? (
+                    <Spinner />
+                  ) : (
+                    <IconZoomIn
+                      size={28}
+                      className="text-primary-foreground"
+                      aria-hidden
+                    />
+                  )}
+                </div>
+                <Button
+                  variant="ghost"
+                  disabled={isLoading && isRemoving}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleRemoveAttachment(e, attachment);
+                  }}
+                  className="absolute hidden group-hover:flex items-center justify-center top-1 right-1 bg-destructive/40 hover:bg-destructive/80 text-background rounded-full p-1 w-5 h-5 shadow-md z-10"
+                  aria-label={`Remove ${attachment.name}`}
+                >
+                  <IconX size={10} aria-hidden />
+                </Button>
+              </div>
+            );
+          })}
+        </ScrollTrack>
+      )}
 
       {/* Lightbox */}
       <Dialog open={open} onOpenChange={setOpen}>
-        <Dialog.Content className="bg-transparent max-w-fit shadow-none border-0">
+        <Dialog.Content
+          className="relative bg-transparent max-w-fit shadow-none border-0"
+          aria-describedby={undefined}
+        >
+          <Dialog.Title className="sr-only">
+            {current.name || 'Image preview'}
+          </Dialog.Title>
           <Button
             variant={'secondary'}
             size={'icon'}

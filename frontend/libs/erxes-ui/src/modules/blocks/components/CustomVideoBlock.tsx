@@ -17,7 +17,7 @@ import { FC } from 'react';
 import {
   getCloudflareStreamBase,
   parseVideoEmbedUrl,
-} from '../../../utils/videoEmbed';
+} from 'erxes-ui/utils';
 
 type VideoRenderProps = ReactCustomBlockRenderProps<
   typeof videoBlockConfig,
