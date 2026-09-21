@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-09-17`
+- **Last synchronized:** `2026-09-20`
 
 ## Scope
 
@@ -576,6 +576,9 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
 
 ## Local Invariants
 
+- `CONFIG` keeps a top-level `icon` alongside `navigationGroup.icon`. The host
+  reads only the top-level one for a `frontline:*` notification's avatar in My
+  Inbox, and renders nothing when it is missing.
 - The Convert menu shows the deal entry only when the `sales` plugin config is
   loaded and the task entry only when `operation` is, and each entry only with
   its create action (`createTicket`, `dealsAdd`, `taskCreate`) on top of
@@ -1301,6 +1304,14 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-20` — Frontline notifications show their icon in My Inbox
+
+- **Summary:** `CONFIG` now declares a top-level `icon`, so a frontline
+  notification in My Inbox renders the frontline mark instead of an empty
+  circle.
+- **Affected areas:** `src/config.tsx`
+- **Contracts changed:** `None`
+
 ### `2026-09-17` — Convert dialog honours Basic information settings
 
 - **Summary:** Priority, tags, start date and due date appear in the convert
@@ -1409,23 +1420,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   (new), `src/modules/activity/components/ActivityItemWrapper.tsx`,
   `src/modules/activity/components/CreatorInfo.tsx`
 - **Contracts changed:** `None`
-
-### `2026-09-10` — A ticket pipeline gets a mail settings tab
-
-- **Summary:** A pipeline now has a `Mail settings` tab that shows the address
-  mail is sent or forwarded to, takes the forwarding mailbox and the sender name
-  recipients see, and connects, updates or removes the address. While the
-  forwarding address is waiting to be confirmed the tab says so and polls; when
-  the provider's confirmation arrives it is shown there with a copyable code, a
-  link, and a button that ends the waiting state.
-- **Affected areas:** `src/modules/integrations/mail/components/{PipelineMailSettings,PipelineForwardVerification,MailThread,MailConversationDetail,MailIntegrationForm}.tsx`,
-  `src/modules/integrations/mail/{hooks,graphql}/`,
-  `src/pages/PipelineMailPage.tsx`,
-  `src/modules/pipelines/constants/pipelineTabs.ts`,
-  `src/modules/channels/components/settings/Settings.tsx`.
-- **Contracts changed:** Added the `mailPipelineIntegration` query and the
-  `mailPipelineConnect`, `mailPipelineUpdate`, `mailPipelineForwardVerified` and
-  `mailPipelineDisconnect` mutation documents. `MailFormField` gained an
-  optional `descriptionFallback` and `MailAddressCallout` an optional
-  `description`/`descriptionFallback`, so the pipeline tab can say `ticket`
-  where the inbox says `conversation`.

@@ -49,6 +49,7 @@ const FormSubmissionActivityRow = lazy(() =>
 export const CONFIG: IUIConfig = {
   name: 'frontline',
   path: 'frontline',
+  icon: IconStackFront,
   hasFloatingWidget: true,
   settingsNavigation: () => (
     <Suspense fallback={<div />}>
