@@ -25,12 +25,12 @@ export const extractOptionValues = (
     .map((option) => (typeof option === 'string' ? option : option?.value))
     .filter((value): value is string => Boolean(value));
 
-export const getFieldOptionUsedValues = async (
+export const getFieldOptionUsedValues = (
   models: IModels,
   subdomain: string,
   field: { _id: string; contentType?: string },
   values: string[],
-): Promise<string[] | null> => {
+): Promise<string[] | null> | string[] | null => {
   if (!values.length) {
     return [];
   }
