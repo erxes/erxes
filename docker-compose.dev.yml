@@ -1,0 +1,121 @@
+# Local development infrastructure for erxes.
+#
+# Runs only the backing services the Nx dev servers need — MongoDB 7, Redis 7,
+# Elasticsearch 7 — while core-api, the gateway, and plugins run on the host
+# via `pnpm nx serve <project>` / `pnpm dev:apis` / `pnpm dev:uis`.
+#
+# The full self-hosted app stack lives in ./docker-compose.yml. This file is a
+# separate compose project (`name:` below) so the two never collide on
+# containers, volumes, or networks.
+#
+# Quick start:
+#   cp .env.sample .env          # one-time, then edit
+#   docker compose -f docker-compose.dev.yml up -d
+#   pnpm dev:core-api
+#
+# Values are interpolated from .env (docker compose reads it automatically):
+#   MONGO_PORT         -> published mongod port    (default 27017)
+#   REDIS_PORT         -> published redis port     (default 6379)
+#   REDIS_PASSWORD     -> optional --requirepass   (default: no auth)
+#   ELASTICSEARCH_PORT -> published ES HTTP port   (default 9200)
+#
+# Apps on the host connect with the .env values:
+#   MONGO_URL=mongodb://localhost:27017/erxes
+#   REDIS_HOST=localhost  REDIS_PORT=6379
+#   ELASTICSEARCH_URL=http://localhost:9200
+
+name: erxes-dev
+
+services:
+  mongo:
+    image: mongo:7
+    # Single-node replica set: change streams and transactions require one
+    # (the prod stack uses rs0; keep the same name). The member is registered
+    # as localhost so apps running on the host can use the plain
+    # mongodb://localhost:<MONGO_PORT>/erxes URL from .env unchanged. A client
+    # inside this compose network would have to use mongo:27017 with
+    # directConnection instead — nothing here does.
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
+    ports:
+      - "${MONGO_PORT:-27017}:27017"
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  # Initializes the replica set once (no-op when already initialized).
+  mongo-init:
+    image: mongo:7
+    depends_on:
+      mongo:
+        condition: service_healthy
+    command:
+      - mongosh
+      - --host
+      - mongo:27017
+      - --quiet
+      - --eval
+      - >-
+        try { rs.initiate({ _id: "rs0", members: [{ _id: 0, host: "localhost:${MONGO_PORT:-27017}" }] }) }
+        catch (e) { if (e.codeName !== "AlreadyInitialized") throw e }
+    restart: "no"
+
+  redis:
+    image: redis:7
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+    command:
+      - sh
+      - -c
+      - >-
+        exec redis-server --appendonly yes
+        $${REDIS_PASSWORD:+--requirepass "$$REDIS_PASSWORD"}
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "redis-cli $${REDIS_PASSWORD:+-a $$REDIS_PASSWORD} ping | grep -q PONG",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.26
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: "false"
+      ES_JAVA_OPTS: -Xms512m -Xmx512m
+    ports:
+      - "${ELASTICSEARCH_PORT:-9200}:9200"
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -sf http://localhost:9200/_cluster/health > /dev/null || exit 1",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+    restart: unless-stopped
+
+volumes:
+  mongo-data:
+  redis-data:
+  elasticsearch-data:
