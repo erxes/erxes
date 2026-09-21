@@ -1,4 +1,6 @@
-import { ScrollArea } from 'erxes-ui';
+import { IconListDetails } from '@tabler/icons-react';
+import { ScrollArea, SideMenu } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { FieldsInDetail, mutateFunction } from 'ui-modules';
 
 const EMPTY_PROPERTIES_DATA: Record<string, unknown> = {};
@@ -14,15 +16,26 @@ export const PropertiesSidePanel = ({
   propertiesData?: Record<string, unknown>;
   mutateHook: () => { mutate: mutateFunction; loading: boolean };
 }) => {
+  const { t } = useTranslation('operation');
+
   return (
-    <ScrollArea className="flex-auto" viewportClassName="[&>div]:h-full">
-      <FieldsInDetail
-        className="h-full gap-0 [&>div]:h-full [&>div]:rounded-none [&>div]:bg-transparent [&>div]:p-0 [&>div>div:first-child]:hidden [&>div>div:last-child]:rounded-none [&>div>div:last-child]:bg-transparent [&>div>div:last-child]:p-0 [&>div>div:last-child]:shadow-none [&_.grid-cols-2]:grid-cols-1"
-        fieldContentType={contentType}
-        id={contentId}
-        propertiesData={propertiesData ?? EMPTY_PROPERTIES_DATA}
-        mutateHook={mutateHook}
+    <>
+      <SideMenu.Header
+        Icon={IconListDetails}
+        label={t('properties', { defaultValue: 'Properties' })}
       />
-    </ScrollArea>
+      <ScrollArea
+        className="min-h-0 flex-auto"
+        viewportClassName="[&>div]:!block [&>div]:h-full"
+      >
+        <FieldsInDetail
+          className="h-full min-w-0 gap-0 p-4 [&>div]:h-full [&>div]:rounded-none [&>div]:bg-transparent [&>div]:p-0 [&>div>div:first-child]:hidden [&>div>div:last-child]:rounded-none [&>div>div:last-child]:bg-transparent [&>div>div:last-child]:p-0 [&>div>div:last-child]:shadow-none [&_.grid-cols-2]:grid-cols-1"
+          fieldContentType={contentType}
+          id={contentId}
+          propertiesData={propertiesData ?? EMPTY_PROPERTIES_DATA}
+          mutateHook={mutateHook}
+        />
+      </ScrollArea>
+    </>
   );
 };
