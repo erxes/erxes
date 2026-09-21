@@ -354,7 +354,9 @@ export const MessageInput = ({
 
     node.addEventListener('keydown', handleKeyDown);
 
-    return () => node.removeEventListener('keydown', handleKeyDown);
+    return () => {
+      node.removeEventListener('keydown', handleKeyDown);
+    };
   }, [handleKeyDown]);
 
   if (hideInput) return null;
