@@ -11,10 +11,12 @@ import { UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { SelectCategory } from '../categories';
 import { PRODUCT_DURATION_TYPES } from '../constants/productTypes';
+import { useProductLastCodeByCategory } from '../hooks/useProducts';
 import { IProductFormValues } from '../types';
 import { BarcodeManager, SubUomManager } from './ProductBarcodeAndUom';
 import { SelectProductType } from './SelectProductType';
 import { SelectUOMWithName } from './SelectUOMWithName';
+import { SuggestedProductCodeInput } from './SuggestedProductCodeInput';
 
 export function AddProductFormFieldsDetail({
   form,
@@ -25,6 +27,11 @@ export function AddProductFormFieldsDetail({
 }) {
   const { t } = useTranslation('product', { keyPrefix: 'add' });
   const productType = form.watch('type');
+  const categoryId = form.watch('categoryId');
+  const code = form.watch('code');
+  const { suggestedCode } = useProductLastCodeByCategory(
+    code?.trim() ? undefined : categoryId,
+  );
 
   return (
     <div className={showExtended ? 'grid gap-4 lg:grid-cols-5' : ''}>
@@ -34,14 +41,19 @@ export function AddProductFormFieldsDetail({
             <div className="grid grid-cols-2 gap-4">
               <Form.Field
                 control={form.control}
-                name="name"
+                name="categoryId"
                 render={({ field }) => (
                   <Form.Item>
                     <Form.Label>
-                      {t('name')} <span className="text-destructive">*</span>
+                      {t('category')}{' '}
+                      <span className="text-destructive">*</span>
                     </Form.Label>
                     <Form.Control>
-                      <Input {...field} />
+                      <SelectCategory
+                        value={field.value}
+                        onSelect={field.onChange}
+                        mode="single"
+                      />
                     </Form.Control>
                     <Form.Message />
                   </Form.Item>
@@ -54,6 +66,30 @@ export function AddProductFormFieldsDetail({
                   <Form.Item>
                     <Form.Label>
                       {t('code')} <span className="text-destructive">*</span>
+                    </Form.Label>
+                    <Form.Control>
+                      <SuggestedProductCodeInput
+                        {...field}
+                        suggestedCode={suggestedCode}
+                        onUseSuggestion={() =>
+                          form.setValue('code', suggestedCode, {
+                            shouldDirty: true,
+                            shouldValidate: true,
+                          })
+                        }
+                      />
+                    </Form.Control>
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
+              <Form.Field
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>
+                      {t('name')} <span className="text-destructive">*</span>
                     </Form.Label>
                     <Form.Control>
                       <Input {...field} />
@@ -92,26 +128,6 @@ export function AddProductFormFieldsDetail({
               />
               <Form.Field
                 control={form.control}
-                name="categoryId"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>
-                      {t('category')}{' '}
-                      <span className="text-destructive">*</span>
-                    </Form.Label>
-                    <Form.Control>
-                      <SelectCategory
-                        value={field.value}
-                        onSelect={field.onChange}
-                        mode="single"
-                      />
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-              <Form.Field
-                control={form.control}
                 name="unitPrice"
                 render={({ field }) => (
                   <Form.Item>
@@ -129,6 +145,21 @@ export function AddProductFormFieldsDetail({
                   </Form.Item>
                 )}
               />
+              {showExtended && (
+                <Form.Field
+                  control={form.control}
+                  name="weight"
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>{t('weight', 'Weight')}</Form.Label>
+                      <Form.Control>
+                        <NumberInput {...field} />
+                      </Form.Control>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+              )}
               {productType === 'unique' && (
                 <>
                   <Form.Field

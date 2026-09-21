@@ -101,6 +101,9 @@ const getFollowInfos = async (models: IModels, row: any, relatedData) => {
       moveInDepartmentId: departments?.find((department) =>
         [row.follow2, row.follow3].includes(department.code),
       )?._id,
+      accumulatedDepreciationAccountId: accounts?.find(
+        (acc) => acc.code === row.follow4,
+      )?._id,
     };
   }
   if (JOURNALS.INV_SALE === row.journal) {
@@ -109,14 +112,20 @@ const getFollowInfos = async (models: IModels, row: any, relatedData) => {
       saleCostAccountId: accounts?.find((acc) => acc.code === row.follow2)?._id,
     };
   }
-  if ([JOURNALS.FXA_OUT, JOURNALS.FXA_SALE].includes(row.journal)) {
+  if (JOURNALS.FXA_OUT === row.journal) {
     return {
-      fixedAssetAccountId: accounts?.find((acc) => acc.code === row.follow1)
-        ?._id,
       accumulatedDepreciationAccountId: accounts?.find(
         (acc) => acc.code === row.follow2,
       )?._id,
-      lossAccountId: accounts?.find((acc) => acc.code === row.follow3)?._id,
+    };
+  }
+  if (JOURNALS.FXA_SALE === row.journal) {
+    return {
+      saleOutAccountId: accounts?.find((acc) => acc.code === row.follow1)?._id,
+      accumulatedDepreciationAccountId: accounts?.find(
+        (acc) => acc.code === row.follow2,
+      )?._id,
+      saleCostAccountId: accounts?.find((acc) => acc.code === row.follow3)?._id,
     };
   }
   if (JOURNALS.INV_SALE_RETURN === row.journal) {
@@ -295,9 +304,15 @@ const extractFollowInfos = (row) => {
     return {
       branches: [row.follow1, row.follow2].filter(Boolean),
       departments: [row.follow2, row.follow3].filter(Boolean),
+      accounts: [row.follow4].filter(Boolean),
     };
   }
-  if ([JOURNALS.FXA_OUT, JOURNALS.FXA_SALE].includes(row.journal)) {
+  if (JOURNALS.FXA_OUT === row.journal) {
+    return {
+      accounts: [row.follow2].filter(Boolean),
+    };
+  }
+  if (JOURNALS.FXA_SALE === row.journal) {
     return {
       accounts: [row.follow1, row.follow2, row.follow3].filter(Boolean),
     };

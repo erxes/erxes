@@ -67,7 +67,10 @@ export function AddProductForm({
         value !== null
       ) {
         const customFieldsObj = Object.entries(value)
-          .filter(([_, val]) => val !== undefined && val !== null && val !== '')
+          .filter((entry) => {
+            const val = entry[1];
+            return val !== undefined && val !== null && val !== '';
+          })
           .reduce((acc, [fieldId, val]) => {
             acc[fieldId] = val;
             return acc;
@@ -85,8 +88,9 @@ export function AddProductForm({
 
       if (key === 'subUoms' && Array.isArray(value)) {
         cleanData[key] = value.map((subUom: SubUomItem) => {
-          const { _id, ...rest } = subUom;
-          return { ...rest };
+          const rest = { ...subUom };
+          delete rest._id;
+          return rest;
         });
         return;
       }

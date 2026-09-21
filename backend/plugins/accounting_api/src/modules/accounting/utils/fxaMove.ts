@@ -35,6 +35,31 @@ export const removeFxaMoveInstances = async (
   await removeFxaOwnerRecordsByTransaction(models, transaction);
 };
 
+const cleanGeneratedDetailBase = (detail?: ITrDetail) => {
+  if (!detail) {
+    return {};
+  }
+
+  const cleaned = { ...detail };
+  cleaned.followInfos = undefined;
+  return cleaned;
+};
+
+const cleanGeneratedTransactionBase = (
+  transaction?: ITransactionDocument | null,
+) => {
+  if (!transaction) {
+    return {};
+  }
+
+  const cleaned = { ...transaction };
+  cleaned.contentId = undefined;
+  cleaned.contentType = undefined;
+  cleaned.extraData = undefined;
+  cleaned.followInfos = undefined;
+  return cleaned;
+};
+
 export const createFxaMoveInFollowTr = async (
   models: IModels,
   userId: string,
@@ -57,11 +82,13 @@ export const createFxaMoveInFollowTr = async (
     );
 
     return {
-      ...oldDetail,
+      ...cleanGeneratedDetailBase(oldDetail),
       originId: detail._id,
       originType: TR_DETAIL_FOLLOW_TYPES.FXA_MOVE_IN,
       fixedAssetId: detail.fixedAssetId,
       accountId: detail.accountId,
+      branchId: followInfos.moveInBranchId,
+      departmentId: followInfos.moveInDepartmentId,
       count: detail.count,
       unitPrice: detail.unitPrice,
       amount: detail.amount,
@@ -72,10 +99,10 @@ export const createFxaMoveInFollowTr = async (
     models,
     userId,
     {
-      ...oldMoveInTr,
+      ...cleanGeneratedTransactionBase(oldMoveInTr),
       originId: transaction._id,
       originType: TR_FOLLOW_TYPES.FXA_MOVE_IN,
-      ptrId: oldMoveInTr?.ptrId || transaction.ptrId || nanoid(),
+      ptrId: transaction.ptrId || oldMoveInTr?.ptrId || nanoid(),
       parentId: transaction.parentId,
       number: transaction.number,
       date: transaction.date,
@@ -108,11 +135,15 @@ const deleteEmptyFxaFollowTr = async (
 
 const buildFxaMoveDepreciationDetails = ({
   accountId,
+  branchId,
+  departmentId,
   oldTr,
   originType,
   summaries,
 }: {
   accountId?: string;
+  branchId?: string;
+  departmentId?: string;
   oldTr?: ITransactionDocument | null;
   originType: string;
   summaries: TFxaDisposalSummary[];
@@ -125,11 +156,13 @@ const buildFxaMoveDepreciationDetails = ({
       );
 
       return {
-        ...oldDetail,
+        ...cleanGeneratedDetailBase(oldDetail),
         originId: summary.detailId,
         originType,
         fixedAssetId: summary.fixedAssetId,
         accountId: accountId || '',
+        branchId,
+        departmentId,
         count: summary.count,
         unitPrice: summary.count
           ? fixNum(summary.accumulatedDepreciation / summary.count)
@@ -142,6 +175,7 @@ const buildFxaMoveDepreciationTrDoc = ({
   branchId,
   departmentId,
   details,
+  journal,
   oldTr,
   originType,
   ptrId,
@@ -151,13 +185,14 @@ const buildFxaMoveDepreciationTrDoc = ({
   branchId?: string;
   departmentId?: string;
   details: ITrDetail[];
+  journal: string;
   oldTr?: ITransactionDocument | null;
   originType: string;
   ptrId: string;
   side: string;
   transaction: ITransactionDocument;
 }): ITransaction => ({
-  ...oldTr,
+  ...cleanGeneratedTransactionBase(oldTr),
   originId: transaction._id,
   originType,
   ptrId,
@@ -172,7 +207,7 @@ const buildFxaMoveDepreciationTrDoc = ({
   departmentId,
   customerType: transaction.customerType,
   customerId: transaction.customerId,
-  journal: JOURNALS.FXA_OUT_DEPRECIATION,
+  journal,
   side,
   details,
 });
@@ -194,16 +229,8 @@ export const createFxaMoveDepreciationFollowTrs = async (
   );
 
   const [oldOutTr, oldInTr] = await Promise.all([
-    cleanFxaFollowTr(
-      models,
-      transaction._id,
-      TR_FOLLOW_TYPES.FXA_MOVE_DEP_OUT,
-    ),
-    cleanFxaFollowTr(
-      models,
-      transaction._id,
-      TR_FOLLOW_TYPES.FXA_MOVE_DEP_IN,
-    ),
+    cleanFxaFollowTr(models, transaction._id, TR_FOLLOW_TYPES.FXA_DEP_OUT),
+    cleanFxaFollowTr(models, transaction._id, TR_FOLLOW_TYPES.FXA_DEP_IN),
   ]);
 
   if (!hasDepreciation) {
@@ -221,18 +248,22 @@ export const createFxaMoveDepreciationFollowTrs = async (
 
   const outDetails = buildFxaMoveDepreciationDetails({
     accountId: followInfos.accumulatedDepreciationAccountId,
+    branchId: transaction.branchId,
+    departmentId: transaction.departmentId,
     oldTr: oldOutTr,
-    originType: TR_DETAIL_FOLLOW_TYPES.FXA_MOVE_DEP_OUT,
+    originType: TR_DETAIL_FOLLOW_TYPES.FXA_DEP_OUT,
     summaries,
   });
   const inDetails = buildFxaMoveDepreciationDetails({
     accountId: followInfos.accumulatedDepreciationAccountId,
+    branchId: followInfos.moveInBranchId,
+    departmentId: followInfos.moveInDepartmentId,
     oldTr: oldInTr,
-    originType: TR_DETAIL_FOLLOW_TYPES.FXA_MOVE_DEP_IN,
+    originType: TR_DETAIL_FOLLOW_TYPES.FXA_DEP_IN,
     summaries,
   });
   const ptrId =
-    oldOutTr?.ptrId || oldInTr?.ptrId || transaction.ptrId || nanoid();
+    transaction.ptrId || oldOutTr?.ptrId || oldInTr?.ptrId || nanoid();
 
   // Дотоод хөдөлгөөнд хуримтлагдсан элэгдэл хөрөнгөө дагаж
   // хуучин байршлаас debit, шинэ байршил руу credit болж шилжинэ.
@@ -244,8 +275,9 @@ export const createFxaMoveDepreciationFollowTrs = async (
         branchId: transaction.branchId,
         departmentId: transaction.departmentId,
         details: outDetails,
+        journal: JOURNALS.FXA_DEP_OUT,
         oldTr: oldOutTr,
-        originType: TR_FOLLOW_TYPES.FXA_MOVE_DEP_OUT,
+        originType: TR_FOLLOW_TYPES.FXA_DEP_OUT,
         ptrId,
         side: TR_SIDES.DEBIT,
         transaction,
@@ -259,8 +291,9 @@ export const createFxaMoveDepreciationFollowTrs = async (
         branchId: followInfos.moveInBranchId,
         departmentId: followInfos.moveInDepartmentId,
         details: inDetails,
+        journal: JOURNALS.FXA_DEP_IN,
         oldTr: oldInTr,
-        originType: TR_FOLLOW_TYPES.FXA_MOVE_DEP_IN,
+        originType: TR_FOLLOW_TYPES.FXA_DEP_IN,
         ptrId,
         side: TR_SIDES.CREDIT,
         transaction,

@@ -20,7 +20,9 @@ const getConvertedValue = (key: string, value: string) => {
     key === 'trKinds' ||
     key === 'productIds' ||
     key === 'fixedAssetIds' ||
-    key === 'customerIds'
+    key === 'customerIds' ||
+    key === 'customerTagIds' ||
+    key === 'companyTagIds'
   ) {
     return { [key]: value.split(',') };
   }
@@ -66,6 +68,7 @@ export const useTransactionsQueryParams = () => {
     accountCategoryId: string;
     accountSearchValue: string;
     accountBrand: string;
+    accountIsTemp: string;
     accountIsOutBalance: string;
     accountBranchId: string;
     accountDepartmentId: string;
@@ -75,10 +78,16 @@ export const useTransactionsQueryParams = () => {
     isOutBalance: string;
     productId: string;
     productIds: string;
+    productCategoryId: string;
+    productSearchValue: string;
     fixedAssetId: string;
     fixedAssetIds: string;
+    fixedAssetCategoryId: string;
+    fixedAssetSearchValue: string;
     customerId: string;
     customerIds: string;
+    customerTagIds: string;
+    companyTagIds: string;
     contentType: string;
     contentId: string;
     branchId: string;
@@ -91,6 +100,7 @@ export const useTransactionsQueryParams = () => {
     getTrKind: string;
     createdUserId: string;
     modifiedUserId: string;
+    assignedUserId: string;
     fromDate: string;
     toDate: string;
     report: string;
@@ -107,6 +117,7 @@ export const useTransactionsQueryParams = () => {
     'accountCategoryId',
     'accountSearchValue',
     'accountBrand',
+    'accountIsTemp',
     'accountIsOutBalance',
     'accountBranchId',
     'accountDepartmentId',
@@ -116,10 +127,16 @@ export const useTransactionsQueryParams = () => {
     'isOutBalance',
     'productId',
     'productIds',
+    'productCategoryId',
+    'productSearchValue',
     'fixedAssetId',
     'fixedAssetIds',
+    'fixedAssetCategoryId',
+    'fixedAssetSearchValue',
     'customerId',
     'customerIds',
+    'customerTagIds',
+    'companyTagIds',
     'contentType',
     'contentId',
     'branchId',
@@ -132,6 +149,7 @@ export const useTransactionsQueryParams = () => {
     'getTrKind',
     'createdUserId',
     'modifiedUserId',
+    'assignedUserId',
     'fromDate',
     'toDate',
     'report',

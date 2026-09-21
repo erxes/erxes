@@ -62,6 +62,7 @@ export interface IProduct {
   variants: { [code: string]: { image?: IAttachment; name?: string } };
   barcodeDescription?: string;
   unitPrice?: number;
+  weight?: number;
   code: string;
   customFieldsData?: ICustomField[];
   propertiesData?: IPropertyField;

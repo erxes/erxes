@@ -214,7 +214,7 @@ export const afterProcess: AfterProcessConfigs = {
         subdomain,
         models,
         order: currentDocument,
-        userId,
+        userId: userId || currentDocument.userId,
       });
     }
   },

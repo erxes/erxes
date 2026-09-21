@@ -8,6 +8,7 @@ export const site = {
   searchPlaceholder: 'Search for articles...',
   authBlurb:
     'Signed-in users can track their requests, talk to the support team directly, and read internal articles.',
+  fallbackLanguageLabel: 'English',
 } as const;
 
 export type NavItem = {
