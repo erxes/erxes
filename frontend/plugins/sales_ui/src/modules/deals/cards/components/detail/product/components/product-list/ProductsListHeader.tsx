@@ -1,7 +1,11 @@
 import { Button, Filter, Input, Label, Switch } from 'erxes-ui';
 import { FilterButton, ProductFilterBar } from '../FilterButton';
 
-import { IconSearch } from '@tabler/icons-react';
+import {
+  IconArrowsMaximize,
+  IconArrowsMinimize,
+  IconSearch,
+} from '@tabler/icons-react';
 import { ProductFilterState } from '@/deals/actionBar/types/actionBarTypes';
 import { useTranslation } from 'react-i18next';
 
@@ -17,6 +21,8 @@ interface ProductsListHeaderProps {
   onShowAdvancedViewChange: (value: boolean) => void;
   showTaxView: boolean;
   onShowTaxViewChange: (value: boolean) => void;
+  showExpandedView: boolean;
+  onShowExpandedViewChange: (value: boolean) => void;
 }
 
 export const ProductsListHeader = ({
@@ -31,8 +37,13 @@ export const ProductsListHeader = ({
   onShowAdvancedViewChange,
   showTaxView,
   onShowTaxViewChange,
+  showExpandedView,
+  onShowExpandedViewChange,
 }: ProductsListHeaderProps) => {
   const { t } = useTranslation('sales');
+  const ExpandedViewIcon = showExpandedView
+    ? IconArrowsMinimize
+    : IconArrowsMaximize;
 
   return (
     <Filter id="product-filter">
@@ -115,6 +126,23 @@ export const ProductsListHeader = ({
               className="whitespace-nowrap text-xs font-medium"
             >
               {t('tax-view', 'Tax view')}
+            </Label>
+          </div>
+          <div className="flex h-9 items-center gap-2 rounded-md border px-2">
+            <Switch
+              id="product-expanded-view"
+              checked={showExpandedView}
+              onCheckedChange={onShowExpandedViewChange}
+            />
+            <ExpandedViewIcon
+              size={16}
+              className="shrink-0 text-muted-foreground"
+            />
+            <Label
+              htmlFor="product-expanded-view"
+              className="whitespace-nowrap text-xs font-medium"
+            >
+              {t('expand-view', 'Expand view')}
             </Label>
           </div>
         </div>

@@ -21,6 +21,33 @@ export interface IFieldValueValidationOptions {
 }
 import { ORDER_GAP } from '../../constants';
 
+export type TrackedValue =
+  | string
+  | number
+  | boolean
+  | Date
+  | string[]
+  | ILocationOption;
+
+const isValidDate = (value: TrackedValue) => {
+  if (value instanceof Date) {
+    return true;
+  }
+
+  if (!value) {
+    return false;
+  }
+
+  const stringValue = value.toString();
+
+  return (
+    validator.isISO8601(stringValue) ||
+    /\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)/.test(
+      stringValue,
+    )
+  );
+};
+
 const RESERVED_ROW_KEYS = new Set(['_id']);
 
 const MULTI_VALUE_TYPES = new Set(['multiSelect', 'check']);
@@ -118,10 +145,22 @@ export interface IFieldModel extends Model<IFieldDocument> {
     options?: IFieldValueValidationOptions,
   ): Promise<any>;
 
+  generateTypedItem(
+    fieldId: string,
+    value: TrackedValue,
+    type: string,
+    validation?: string,
+    extraValue?: string,
+  ): Promise<ICustomField>;
+
+  generateTypedListFromMap(data: {
+    [key: string]: TrackedValue;
+  }): Promise<ICustomField[]>;
+
   generatePropertiesData(
     data: { [key: string]: any },
     contentType: string,
-  ): Promise<{ propertiesData: IPropertyField }>;
+  ): Promise<{ propertiesData: IPropertyField; trackedData: ICustomField[] }>;
 
   syncFieldValues({
     customFieldsData,
@@ -390,6 +429,78 @@ export const loadFieldClass = (models: IModels) => {
       return result;
     }
 
+    public static async generateTypedItem(
+      fieldId: string,
+      value: TrackedValue,
+      type: string,
+      validation?: string,
+      extraValue?: string,
+    ): Promise<ICustomField> {
+      let typedValue: TrackedValue = value;
+      let stringValue: string | undefined;
+      let numberValue: number | undefined;
+      let dateValue: Date | undefined;
+      let locationValue: ILocationOption | undefined;
+
+      if (value) {
+        stringValue = value.toString();
+
+        if (type === 'input' && !validation) {
+          return {
+            field: fieldId,
+            value: stringValue,
+            stringValue,
+            numberValue,
+            dateValue,
+          };
+        }
+
+        if (type === 'map') {
+          const location = value as ILocationOption;
+
+          return {
+            field: fieldId,
+            value,
+            stringValue: `${location.lng},${location.lat}`,
+            locationValue: location,
+          };
+        }
+
+        if (type !== 'check' && validator.isFloat(stringValue)) {
+          numberValue = Number(value);
+          typedValue = numberValue;
+        }
+
+        if (isValidDate(typedValue)) {
+          const parsed = new Date(stringValue);
+
+          if (!isNaN(parsed.getTime())) {
+            dateValue = parsed;
+          }
+        }
+      }
+
+      return {
+        field: fieldId,
+        value: typedValue,
+        stringValue,
+        numberValue,
+        dateValue,
+        locationValue,
+        extraValue,
+      };
+    }
+
+    public static async generateTypedListFromMap(data: {
+      [key: string]: TrackedValue;
+    }): Promise<ICustomField[]> {
+      const keys = Object.keys(data || {});
+
+      return Promise.all(
+        keys.map((key) => this.generateTypedItem(key, data[key], '')),
+      );
+    }
+
     public static async generatePropertiesData(
       data: { [key: string]: any },
       contentType: string,
@@ -397,6 +508,7 @@ export const loadFieldClass = (models: IModels) => {
       const keys = Object.keys(data || {});
 
       let propertiesData: Record<string, any> = {};
+      const untrackedData: Record<string, TrackedValue> = { ...(data || {}) };
 
       for (const key of keys) {
         const field = await models.Fields.findOne({
@@ -408,12 +520,17 @@ export const loadFieldClass = (models: IModels) => {
 
         if (field) {
           propertiesData[field._id] = value;
+
+          delete untrackedData[key];
         }
       }
 
       propertiesData = await models.Fields.validateFieldValues(propertiesData);
 
-      return { propertiesData };
+      const trackedData =
+        await models.Fields.generateTypedListFromMap(untrackedData);
+
+      return { propertiesData, trackedData };
     }
 
     public static async syncFieldValues({
@@ -544,9 +661,8 @@ export const loadFieldClass = (models: IModels) => {
         });
       }
 
-      result.propertiesData = await models.Fields.validateFieldValues(
-        mergedData,
-      );
+      result.propertiesData =
+        await models.Fields.validateFieldValues(mergedData);
 
       return result;
     }

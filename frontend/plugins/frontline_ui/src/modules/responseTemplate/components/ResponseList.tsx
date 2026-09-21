@@ -16,6 +16,7 @@ import { Cell, ColumnDef } from '@tanstack/react-table';
 import { IResponseTemplate } from '../types';
 import {
   IconAlignLeft,
+  IconArrowBarToRight,
   IconCalendarPlus,
   IconCalendarUp,
   IconEdit,
@@ -24,6 +25,9 @@ import {
 } from '@tabler/icons-react';
 import { CreateResponse } from '@/responseTemplate/components/CreateResponse';
 import { useRemoveResponse } from '../hooks/useRemoveResponse';
+import { MoveToChannelDialog } from '@/channels/components/move-resources/MoveToChannelDialog';
+import { ChannelResourceType } from '@/channels/types';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const ResponseMoreCell = ({
@@ -36,6 +40,8 @@ const ResponseMoreCell = ({
   const navigate = useNavigate();
   const { removeResponse, loading } = useRemoveResponse();
   const { confirm } = useConfirm();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [moveOpen, setMoveOpen] = useState(false);
 
   const handleEdit = () => {
     navigate(`/settings/frontline/channels/${channelId}/response/${_id}`);
@@ -54,28 +60,47 @@ const ResponseMoreCell = ({
   };
 
   return (
-    <Popover>
-      <Popover.Trigger asChild>
-        <RecordTable.MoreButton className="w-full h-full" />
-      </Popover.Trigger>
-      <Combobox.Content>
-        <Command shouldFilter={false}>
-          <Command.List>
-            <Command.Item value="edit" onSelect={handleEdit}>
-              <IconEdit /> {t('edit', 'Edit')}
-            </Command.Item>
-            <Command.Item
-              value="delete"
-              onSelect={handleDelete}
-              className="text-destructive"
-            >
-              {loading ? <Spinner size="sm" /> : <IconTrash />}{' '}
-              {t('delete', 'Delete')}
-            </Command.Item>
-          </Command.List>
-        </Command>
-      </Combobox.Content>
-    </Popover>
+    <>
+      <Popover open={menuOpen} onOpenChange={setMenuOpen}>
+        <Popover.Trigger asChild>
+          <RecordTable.MoreButton className="w-full h-full" />
+        </Popover.Trigger>
+        <Combobox.Content>
+          <Command shouldFilter={false}>
+            <Command.List>
+              <Command.Item value="edit" onSelect={handleEdit}>
+                <IconEdit /> {t('edit', 'Edit')}
+              </Command.Item>
+              <Command.Item
+                value="move"
+                onSelect={() => {
+                  setMenuOpen(false);
+                  setMoveOpen(true);
+                }}
+              >
+                <IconArrowBarToRight />
+                {t('move-to-channel', 'Move to Channel')}
+              </Command.Item>
+              <Command.Item
+                value="delete"
+                onSelect={handleDelete}
+                className="text-destructive"
+              >
+                {loading ? <Spinner size="sm" /> : <IconTrash />}{' '}
+                {t('delete', 'Delete')}
+              </Command.Item>
+            </Command.List>
+          </Command>
+        </Combobox.Content>
+      </Popover>
+      <MoveToChannelDialog
+        open={moveOpen}
+        onOpenChange={setMoveOpen}
+        resourceType={ChannelResourceType.RESPONSE_TEMPLATE}
+        resourceIds={[_id]}
+        sourceChannelId={channelId}
+      />
+    </>
   );
 };
 

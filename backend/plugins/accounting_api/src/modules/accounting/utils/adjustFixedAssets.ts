@@ -1113,7 +1113,7 @@ export const createAdjustFixedAssetTransaction = async ({
       _id: details[0].transactionId,
       date: adjust.date,
       description: adjust.description,
-      journal: JOURNALS.MAIN,
+      journal: JOURNALS.FXA_DEP,
       status: TR_STATUSES.COMPLETE,
       side: TR_SIDES.DEBIT,
       contentType: 'accounting:adjustFixedAsset',
@@ -1123,7 +1123,7 @@ export const createAdjustFixedAssetTransaction = async ({
     {
       date: adjust.date,
       description: adjust.description,
-      journal: JOURNALS.MAIN,
+      journal: JOURNALS.FXA_DEP,
       status: TR_STATUSES.COMPLETE,
       side: TR_SIDES.CREDIT,
       contentType: 'accounting:adjustFixedAsset',

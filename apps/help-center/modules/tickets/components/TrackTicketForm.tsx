@@ -95,13 +95,11 @@ export const TrackTicketForm = () => {
         </Card>
       ) : called ? (
         results.length ? (
-          <Card className="p-2">
-            <ul className="divide-y divide-line">
-              {results.map((ticket) => (
-                <TicketListItem key={ticket._id} ticket={ticket} />
-              ))}
-            </ul>
-          </Card>
+          <ul className="flex flex-col gap-2.5">
+            {results.map((ticket) => (
+              <TicketListItem key={ticket._id} ticket={ticket} />
+            ))}
+          </ul>
         ) : (
           <EmptyState
             icon="binoculars"

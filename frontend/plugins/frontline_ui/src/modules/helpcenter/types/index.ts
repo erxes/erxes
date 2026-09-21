@@ -20,6 +20,31 @@ export interface IHelpCenterStyles {
   footerHtml?: string;
 }
 
+export interface IHelpCenterHeader {
+  wordmark: string;
+  homeLabel: string;
+  formsLabel: string;
+  announcementsLabel: string;
+  searchPlaceholder: string;
+}
+
+export interface IHelpCenterFooterLink {
+  label: string;
+  url: string;
+}
+
+export interface IHelpCenterFooterColumn {
+  heading: string;
+  links: IHelpCenterFooterLink[];
+}
+
+export interface IHelpCenterFooter {
+  logo: string;
+  description: string;
+  copyright: string;
+  columns: IHelpCenterFooterColumn[];
+}
+
 export interface IHelpCenter {
   _id: string;
   title?: string;
@@ -42,6 +67,8 @@ export interface IHelpCenter {
   color?: string;
   backgroundImage?: string;
   styles?: IHelpCenterStyles | null;
+  header?: IHelpCenterHeader | null;
+  footer?: IHelpCenterFooter | null;
 
   brand?: { _id: string; name?: string } | null;
   createdAt?: string;
@@ -78,6 +105,8 @@ export interface IHelpCenterConfigInput {
   color: string;
   backgroundImage: string;
   styles: IHelpCenterStyles;
+  header: IHelpCenterHeader;
+  footer: IHelpCenterFooter;
 }
 
 export type THelpCenterTab = 'general' | 'appearance';
@@ -86,10 +115,23 @@ export const HELP_CENTER_TABS: THelpCenterTab[] = ['general', 'appearance'];
 
 export type TStyleName = `styles.${keyof IHelpCenterStyles}`;
 
+export type THeaderName = `header.${keyof IHelpCenterHeader}`;
+
+export type TFooterColumnName = `footer.columns.${number}`;
+
+export type TFooterLinkName = `${TFooterColumnName}.links.${number}`;
+
 export type HelpCenterColorField = {
   name: TStyleName;
   key: string;
   label: string;
+};
+
+export type HelpCenterHeaderField = {
+  name: THeaderName;
+  key: string;
+  label: string;
+  placeholder: string;
 };
 
 export enum HelpCenterHotKeyScope {

@@ -52,7 +52,9 @@ export const ConversationSideWidget = ({
   asSheet?: boolean;
   boundaryRef: RefObject<HTMLElement>;
 }) => {
-  const { relationWidgetsModules, RelationWidget } = useRelationWidget();
+  const { relationWidgetsModules, RelationWidget } = useRelationWidget({
+    contentType: 'frontline:conversation',
+  });
   const sideMenuRef = useRef<HTMLDivElement>(null);
 
   return (

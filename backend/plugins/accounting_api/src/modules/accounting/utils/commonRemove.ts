@@ -158,6 +158,9 @@ async function handleFxaIncome(
   options?: TCommonRemoveOptions,
 ) {
   await removeFxaIncomeDetails(models, transaction, options);
+  await removeFollowTransactions(models, transaction._id, [
+    TR_FOLLOW_TYPES.FXA_DEP_IN,
+  ]);
 }
 
 async function handleFxaOut(
@@ -169,9 +172,7 @@ async function handleFxaOut(
 ) {
   await removeFxaDisposalInstances(models, transaction);
   await removeFollowTransactions(models, transaction._id, [
-    TR_FOLLOW_TYPES.FXA_OUT_COST,
-    TR_FOLLOW_TYPES.FXA_OUT_DEPRECIATION,
-    TR_FOLLOW_TYPES.FXA_OUT_LOSS,
+    TR_FOLLOW_TYPES.FXA_DEP_OUT,
   ]);
   await rebuildFixedAssetCurrentCounts(
     models,
@@ -195,8 +196,8 @@ async function handleFxaMove(
   await removeFxaMoveInstances(models, transaction);
   await removeFollowTransactions(models, transaction._id, [
     TR_FOLLOW_TYPES.FXA_MOVE_IN,
-    TR_FOLLOW_TYPES.FXA_MOVE_DEP_OUT,
-    TR_FOLLOW_TYPES.FXA_MOVE_DEP_IN,
+    TR_FOLLOW_TYPES.FXA_DEP_OUT,
+    TR_FOLLOW_TYPES.FXA_DEP_IN,
   ]);
   await rebuildFixedAssetCurrentCounts(
     models,
@@ -219,9 +220,9 @@ async function handleFxaSale(
 ) {
   await removeFxaDisposalInstances(models, transaction);
   await removeFollowTransactions(models, transaction._id, [
-    TR_FOLLOW_TYPES.FXA_OUT_COST,
-    TR_FOLLOW_TYPES.FXA_OUT_DEPRECIATION,
-    TR_FOLLOW_TYPES.FXA_OUT_LOSS,
+    TR_FOLLOW_TYPES.FXA_SALE_OUT,
+    TR_FOLLOW_TYPES.FXA_DEP_OUT,
+    TR_FOLLOW_TYPES.FXA_SALE_COST,
   ]);
   await rebuildFixedAssetCurrentCounts(
     models,

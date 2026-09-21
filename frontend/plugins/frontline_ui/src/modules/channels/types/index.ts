@@ -39,6 +39,22 @@ export interface IChannel {
   unreadConversationCount?: number;
 }
 
+export enum ChannelResourceType {
+  INTEGRATION = 'integration',
+  PIPELINE = 'pipeline',
+  FORM = 'form',
+  SURVEY = 'survey',
+  RESPONSE_TEMPLATE = 'responseTemplate',
+}
+
+export interface IChannelMoveResourcesResult {
+  movedIds: string[];
+  movedCount: number;
+  sourceChannelId: string;
+  targetChannelId: string;
+  targetChannelName?: string;
+}
+
 export interface IChannelMember {
   _id: string;
   memberId: string;

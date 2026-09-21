@@ -5,30 +5,52 @@ import {
   DatePicker,
   Dialog,
   Form,
+  Input,
   Select,
   Separator,
 } from 'erxes-ui';
-import { useAtom } from 'jotai';
-import { useForm } from 'react-hook-form';
-import { useTranslation } from 'react-i18next';
-import { SelectBranches, SelectDepartments, SelectProduct } from 'ui-modules';
+import { useAtomValue } from 'jotai';
+import { useEffect, useMemo } from 'react';
+import { useForm, UseFormReturn } from 'react-hook-form';
+import {
+  SelectBranches,
+  SelectCategory,
+  SelectDepartments,
+  SelectMember,
+  SelectProduct,
+  SelectTags,
+} from 'ui-modules';
 import { SelectCustomer } from 'ui-modules/modules/contacts';
 import { SelectAccountCategory } from '~/modules/settings/account/account-categories/components/SelectAccountCategory';
+import { SelectAccount } from '~/modules/settings/account/components/SelectAccount';
+import { SelectFixedAssetCategory } from '~/modules/settings/fixed-assets/components/SelectFixedAssetCategory';
 import { SelectFixedAsset } from '~/modules/settings/fixed-assets/components/SelectFixedAsset';
 import { activeReportState } from '../states/renderingReportsStates';
-import { IReportConfig, ReportRules } from '../types/reportsMap';
-import { useEffect, useMemo, useState } from 'react';
-import { SelectAccount } from '~/modules/settings/account/components/SelectAccount';
 import { ERKHET_TRANSACTION_TYPE_CHOICES } from '../types/erkhetTransactionTypes';
+import {
+  getReportFilterDefinitions,
+  REPORT_FILTER_GROUP_ORDER,
+  ReportFilterDefinition,
+} from '../types/reportFilters';
+import { IReportConfig, ReportRules } from '../types/reportsMap';
 
 interface ReportFormValues {
-  categoryId?: string;
+  accountCategoryId?: string;
   accountIds?: string[];
-  productIds?: string[];
-  fixedAssetIds?: string[];
   customerId?: string;
+  customerTagIds?: string[];
+  companyTagIds?: string[];
+  productCategoryId?: string;
+  productIds?: string[];
+  productSearchValue?: string;
+  fixedAssetCategoryId?: string;
+  fixedAssetIds?: string[];
+  fixedAssetSearchValue?: string;
   branchId?: string;
   departmentId?: string;
+  createdUserId?: string;
+  modifiedUserId?: string;
+  assignedUserId?: string;
   isTemp?: boolean;
   isOutBalance?: boolean;
   unhideZero?: boolean;
@@ -42,342 +64,430 @@ type ReportQueryValue = string | string[] | Date | boolean | undefined;
 
 const getQueryParam = (
   key: string,
-  value: string | string[] | Date | boolean,
-): string => {
+  value: Exclude<ReportQueryValue, undefined>,
+) => {
   if (key === 'fromDate' || key === 'toDate') {
     return format(value as Date, 'yyyy-MM-dd HH:mm:ss');
   }
 
-  if (key === 'isMore' || key === 'unhideZero') {
-    return 'true';
+  if (typeof value === 'boolean') {
+    return String(value);
   }
 
-  return Array.isArray(value) ? value.join(',') : `${value}`;
+  return Array.isArray(value) ? value.join(',') : String(value);
 };
+
+const hasQueryValue = (value: ReportQueryValue) =>
+  value instanceof Date ||
+  value === true ||
+  (typeof value === 'string' && value.length > 0) ||
+  (Array.isArray(value) && value.length > 0);
 
 const datePickerClassName = 'h-8 flex w-full';
 
-export const ReportForm = () => {
-  const { t } = useTranslation('accounting');
-  const [activeReport] = useAtom(activeReportState);
-  const activeReportConf = useMemo(() => {
-    return ReportRules[activeReport] || ({} as IReportConfig);
-  }, [activeReport]);
+const ReportFormField = ({
+  definition,
+  form,
+  reportConfig,
+}: {
+  definition: ReportFilterDefinition;
+  form: UseFormReturn<ReportFormValues>;
+  reportConfig: IReportConfig;
+}) => {
+  const { field, label } = definition;
 
-  const form = useForm<ReportFormValues>({
-    defaultValues: {},
-  });
+  if (field === 'accountCategoryId') {
+    return (
+      <Form.Field
+        control={form.control}
+        name={field}
+        render={({ field: control }) => (
+          <Form.Item>
+            <Form.Label>{label}</Form.Label>
+            <Form.Control>
+              <SelectAccountCategory
+                selected={control.value}
+                onSelect={control.onChange}
+                recordId={control.name}
+              />
+            </Form.Control>
+          </Form.Item>
+        )}
+      />
+    );
+  }
 
-  const [groupKeyChoices, setGroupKeyChoices] = useState(
-    activeReportConf.choices || [],
+  if (field === 'accountIds') {
+    return (
+      <Form.Field
+        control={form.control}
+        name={field}
+        render={({ field: control }) => (
+          <Form.Item>
+            <Form.Label>{label}</Form.Label>
+            <SelectAccount
+              value={control.value}
+              onValueChange={control.onChange}
+              mode="multiple"
+              defaultFilter={{ permissionMode: 'read' }}
+            />
+          </Form.Item>
+        )}
+      />
+    );
+  }
+
+  if (field === 'branchId' || field === 'departmentId') {
+    const StructureSelect =
+      field === 'branchId'
+        ? SelectBranches.FormItem
+        : SelectDepartments.FormItem;
+    return (
+      <Form.Field
+        control={form.control}
+        name={field}
+        render={({ field: control }) => (
+          <Form.Item>
+            <Form.Label>{label}</Form.Label>
+            <StructureSelect
+              mode="single"
+              value={control.value}
+              onValueChange={control.onChange}
+            />
+          </Form.Item>
+        )}
+      />
+    );
+  }
+
+  if (field === 'customerId') {
+    return (
+      <Form.Field
+        control={form.control}
+        name={field}
+        render={({ field: control }) => (
+          <Form.Item>
+            <Form.Label>{label}</Form.Label>
+            <SelectCustomer.FormItem
+              value={control.value}
+              onValueChange={control.onChange}
+              mode="single"
+            />
+          </Form.Item>
+        )}
+      />
+    );
+  }
+
+  if (field === 'customerTagIds' || field === 'companyTagIds') {
+    return (
+      <Form.Field
+        control={form.control}
+        name={field}
+        render={({ field: control }) => (
+          <Form.Item>
+            <Form.Label>{label}</Form.Label>
+            <SelectTags.FormItem
+              tagType={
+                field === 'customerTagIds' ? 'core:customer' : 'core:company'
+              }
+              value={control.value}
+              onValueChange={control.onChange}
+              mode="multiple"
+            />
+          </Form.Item>
+        )}
+      />
+    );
+  }
+
+  if (field === 'productCategoryId') {
+    return (
+      <Form.Field
+        control={form.control}
+        name={field}
+        render={({ field: control }) => (
+          <Form.Item>
+            <Form.Label>{label}</Form.Label>
+            <SelectCategory.FormItem
+              mode="single"
+              value={control.value}
+              onValueChange={control.onChange}
+            />
+          </Form.Item>
+        )}
+      />
+    );
+  }
+
+  if (field === 'productIds') {
+    return (
+      <Form.Field
+        control={form.control}
+        name={field}
+        render={({ field: control }) => (
+          <Form.Item>
+            <Form.Label>{label}</Form.Label>
+            <SelectProduct.FormItem
+              value={control.value}
+              onValueChange={control.onChange}
+              mode="multiple"
+            />
+          </Form.Item>
+        )}
+      />
+    );
+  }
+
+  if (field === 'fixedAssetCategoryId') {
+    return (
+      <Form.Field
+        control={form.control}
+        name={field}
+        render={({ field: control }) => (
+          <Form.Item>
+            <Form.Label>{label}</Form.Label>
+            <SelectFixedAssetCategory
+              selected={control.value}
+              onSelect={control.onChange}
+              nullable
+            />
+          </Form.Item>
+        )}
+      />
+    );
+  }
+
+  if (field === 'fixedAssetIds') {
+    return (
+      <Form.Field
+        control={form.control}
+        name={field}
+        render={({ field: control }) => (
+          <Form.Item>
+            <Form.Label>{label}</Form.Label>
+            <SelectFixedAsset.FormItem
+              value={control.value}
+              onValueChange={control.onChange}
+              mode="multiple"
+            />
+          </Form.Item>
+        )}
+      />
+    );
+  }
+
+  if (field === 'productSearchValue' || field === 'fixedAssetSearchValue') {
+    return (
+      <Form.Field
+        control={form.control}
+        name={field}
+        render={({ field: control }) => (
+          <Form.Item>
+            <Form.Label>{label}</Form.Label>
+            <Form.Control>
+              <Input {...control} value={control.value || ''} />
+            </Form.Control>
+          </Form.Item>
+        )}
+      />
+    );
+  }
+
+  if (
+    field === 'createdUserId' ||
+    field === 'modifiedUserId' ||
+    field === 'assignedUserId'
+  ) {
+    return (
+      <Form.Field
+        control={form.control}
+        name={field}
+        render={({ field: control }) => (
+          <Form.Item>
+            <Form.Label>{label}</Form.Label>
+            <SelectMember.FormItem
+              mode="single"
+              value={control.value}
+              onValueChange={control.onChange}
+            />
+          </Form.Item>
+        )}
+      />
+    );
+  }
+
+  if (field === 'trKind') {
+    return (
+      <Form.Field
+        control={form.control}
+        name={field}
+        render={({ field: control }) => (
+          <Form.Item>
+            <Form.Label>{label}</Form.Label>
+            <Select value={control.value} onValueChange={control.onChange}>
+              <Select.Trigger>
+                <Select.Value placeholder="Бүгд" />
+              </Select.Trigger>
+              <Select.Content>
+                {ERKHET_TRANSACTION_TYPE_CHOICES.map((choice) => (
+                  <Select.Item key={choice.code} value={choice.code}>
+                    {choice.title}
+                  </Select.Item>
+                ))}
+              </Select.Content>
+            </Select>
+          </Form.Item>
+        )}
+      />
+    );
+  }
+
+  if (field === 'groupKey') {
+    return (
+      <Form.Field
+        control={form.control}
+        name={field}
+        render={({ field: control }) => (
+          <Form.Item>
+            <Form.Label>{label}</Form.Label>
+            <Select value={control.value} onValueChange={control.onChange}>
+              <Select.Trigger>
+                <Select.Value placeholder="Бүлэглэх хэлбэр" />
+              </Select.Trigger>
+              <Select.Content>
+                {(reportConfig.choices || []).map((choice) => (
+                  <Select.Item key={choice.code} value={choice.code}>
+                    {choice.title}
+                  </Select.Item>
+                ))}
+              </Select.Content>
+            </Select>
+          </Form.Item>
+        )}
+      />
+    );
+  }
+
+  if (field === 'fromDate' || field === 'toDate') {
+    return (
+      <Form.Field
+        control={form.control}
+        name={field}
+        render={({ field: control }) => (
+          <Form.Item>
+            <Form.Label>{label}</Form.Label>
+            <DatePicker
+              value={control.value}
+              onChange={control.onChange}
+              format="YYYY-MM-DD"
+              className={datePickerClassName}
+            />
+          </Form.Item>
+        )}
+      />
+    );
+  }
+
+  return (
+    <Form.Field
+      control={form.control}
+      name={field}
+      render={({ field: control }) => (
+        <Form.Item className="flex items-center gap-2 space-y-0 pt-6">
+          <Checkbox
+            checked={Boolean(control.value)}
+            onCheckedChange={control.onChange}
+          />
+          <Form.Label>{label}</Form.Label>
+        </Form.Item>
+      )}
+    />
   );
+};
+
+export const ReportForm = () => {
+  const activeReport = useAtomValue(activeReportState);
+  const reportConfig = useMemo(
+    () => ReportRules[activeReport] || ({} as IReportConfig),
+    [activeReport],
+  );
+  const definitions = useMemo(
+    () => getReportFilterDefinitions(activeReport),
+    [activeReport],
+  );
+  const allowedFields = useMemo(
+    () => new Set(definitions.map(({ field }) => field)),
+    [definitions],
+  );
+  const form = useForm<ReportFormValues>({ defaultValues: {} });
 
   useEffect(() => {
-    const choices = activeReportConf?.choices || [];
-    setGroupKeyChoices(choices);
-    form.setValue('groupKey', choices[0]?.code || 'default');
-  }, [activeReport, activeReportConf?.choices, form]);
+    form.reset({
+      groupKey: reportConfig.choices?.[0]?.code || 'default',
+    });
+  }, [activeReport, form, reportConfig.choices]);
 
   const onSubmit = (data: ReportFormValues) => {
-    const params: Record<string, ReportQueryValue> = {
-      ...data,
-      ...activeReportConf?.initParams,
-    };
-    let result = '';
+    const params = new URLSearchParams({ report: activeReport });
 
-    for (const key of Object.keys(params)) {
-      const value = params[key];
-      if (value) {
-        const converted = getQueryParam(key, value);
-        result = `${result}&${key}=${converted}`;
+    definitions.forEach(({ field, queryParam }) => {
+      const value = data[field] as ReportQueryValue;
+      if (hasQueryValue(value)) {
+        params.set(queryParam, getQueryParam(queryParam, value!));
       }
-    }
+    });
+
+    Object.entries(reportConfig.initParams || {}).forEach(([key, value]) => {
+      if (value !== undefined && value !== false) {
+        params.set(key, String(value));
+      }
+    });
 
     window.open(
-      `accounting/gen-journal-report?report=${activeReport}${result}`,
+      `accounting/gen-journal-report?${params.toString()}`,
       '_blank',
       'noopener,noreferrer',
     );
   };
 
   if (!activeReport) {
-    return t('choose-report');
+    return 'Тайлан сонгоно уу';
   }
 
   return (
-    <div className="p-2 pt-8 mx-auto overflow-auto">
-      {activeReportConf?.title}
-      <Separator />
+    <div className="mx-auto overflow-auto p-3 pt-8">
+      <h2 className="text-base font-semibold">{reportConfig.title}</h2>
+      <Separator className="mt-3" />
       <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="py-4 pt-4 px-1 mx-auto grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-4 overflow-auto"
-        >
-          <Form.Field
-            control={form.control}
-            name="categoryId"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>{t('account-category')}</Form.Label>
-                <Form.Control>
-                  <SelectAccountCategory
-                    tabIndex={0}
-                    selected={field.value}
-                    onSelect={field.onChange}
-                    recordId={field.name}
-                  />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
+        <form onSubmit={form.handleSubmit(onSubmit)} className="py-4">
+          {REPORT_FILTER_GROUP_ORDER.map((group) => {
+            const groupDefinitions = definitions.filter(
+              (definition) => definition.group === group,
+            );
 
-          <Form.Field
-            control={form.control}
-            name="accountIds"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>{t('accounts')}</Form.Label>
-                <Form.Control>
-                  <SelectAccount
-                    value={field.value}
-                    onValueChange={field.onChange}
-                    mode="multiple"
-                    defaultFilter={{ permissionMode: 'read' }}
-                  />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
+            if (!groupDefinitions.length) {
+              return null;
+            }
 
-          <Form.Field
-            control={form.control}
-            name="branchId"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>{t('branch')}</Form.Label>
-                <Form.Control>
-                  <SelectBranches.FormItem
-                    mode="single"
-                    value={field.value}
-                    onValueChange={field.onChange}
-                  />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
-
-          <Form.Field
-            control={form.control}
-            name="productIds"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>Бараа материал</Form.Label>
-                <Form.Control>
-                  <SelectProduct.FormItem
-                    value={field.value}
-                    onValueChange={field.onChange}
-                    mode="multiple"
-                  />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
-
-          <Form.Field
-            control={form.control}
-            name="fixedAssetIds"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>Үндсэн хөрөнгө</Form.Label>
-                <Form.Control>
-                  <SelectFixedAsset.FormItem
-                    value={field.value}
-                    onValueChange={field.onChange}
-                    mode="multiple"
-                  />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
-
-          <Form.Field
-            control={form.control}
-            name="customerId"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>Харилцагч</Form.Label>
-                <Form.Control>
-                  <SelectCustomer.FormItem
-                    value={field.value}
-                    onValueChange={field.onChange}
-                    mode="single"
-                  />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
-
-          <Form.Field
-            control={form.control}
-            name="departmentId"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>{t('department')}</Form.Label>
-                <Form.Control>
-                  <SelectDepartments.FormItem
-                    mode="single"
-                    value={field.value}
-                    onValueChange={field.onChange}
-                  />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
-
-          <Form.Field
-            control={form.control}
-            name="isTemp"
-            render={({ field }) => (
-              <Form.Item className="flex items-center space-x-2 space-y-0 mt-4">
-                <Form.Control>
-                  <Checkbox
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </Form.Control>
-                <Form.Label>{t('temporary-account')}</Form.Label>
-              </Form.Item>
-            )}
-          />
-
-          <Form.Field
-            control={form.control}
-            name="isOutBalance"
-            render={({ field }) => (
-              <Form.Item className="flex items-center space-x-2 space-y-0 mt-4">
-                <Form.Control>
-                  <Checkbox
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </Form.Control>
-                <Form.Label>Баланс бус</Form.Label>
-              </Form.Item>
-            )}
-          />
-
-          <Form.Field
-            control={form.control}
-            name="unhideZero"
-            render={({ field }) => (
-              <Form.Item className="flex items-center space-x-2 space-y-0 mt-4">
-                <Form.Control>
-                  <Checkbox
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </Form.Control>
-                <Form.Label>Хоосон мөр харуулах</Form.Label>
-              </Form.Item>
-            )}
-          />
-
-          <Form.Field
-            control={form.control}
-            name="groupKey"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>{t('group-by')}</Form.Label>
-                <Form.Control>
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <Select.Trigger>
-                      <Select.Value placeholder={t('select-a-property-type')} />
-                    </Select.Trigger>
-                    <Select.Content>
-                      {groupKeyChoices.map(
-                        (choice: { code: string; title: string }) => (
-                          <Select.Item key={choice.code} value={choice.code}>
-                            {choice.title}
-                          </Select.Item>
-                        ),
-                      )}
-                    </Select.Content>
-                  </Select>
-                </Form.Control>
-              </Form.Item>
-            )}
-          />
-
-          <Form.Field
-            control={form.control}
-            name="trKind"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>Гүйлгээний төрөл</Form.Label>
-                <Form.Control>
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <Select.Trigger>
-                      <Select.Value placeholder="Бүгд" />
-                    </Select.Trigger>
-                    <Select.Content>
-                      {ERKHET_TRANSACTION_TYPE_CHOICES.map((choice) => (
-                        <Select.Item key={choice.code} value={choice.code}>
-                          {choice.title}
-                        </Select.Item>
-                      ))}
-                    </Select.Content>
-                  </Select>
-                </Form.Control>
-              </Form.Item>
-            )}
-          />
-
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:col-span-2 xl:col-span-2">
-            <Form.Field
-              control={form.control}
-              name="fromDate"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t('from-date')}</Form.Label>
-                  <Form.Control>
-                    <DatePicker
-                      value={field.value}
-                      onChange={field.onChange}
-                      format="YYYY-MM-DD"
-                      className={datePickerClassName}
+            return (
+              <div key={group} className="border-b py-4 last:border-0">
+                <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-4">
+                  {groupDefinitions.map((definition) => (
+                    <ReportFormField
+                      key={definition.field}
+                      definition={definition}
+                      form={form}
+                      reportConfig={reportConfig}
                     />
-                  </Form.Control>
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              control={form.control}
-              name="toDate"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t('to-date')}</Form.Label>
-                  <Form.Control>
-                    <DatePicker
-                      value={field.value}
-                      onChange={field.onChange}
-                      format="YYYY-MM-DD"
-                      className={datePickerClassName}
-                    />
-                  </Form.Control>
-                </Form.Item>
-              )}
-            />
-          </div>
-          <Dialog.Footer className="mt-4 lg:col-span-2 xl:col-span-4">
-            <Button type="submit" size="lg">
-              {t('generate-report')}
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+          <Dialog.Footer className="mt-4">
+            <Button type="submit" size="lg" disabled={!allowedFields.size}>
+              Тайлан харах
             </Button>
           </Dialog.Footer>
         </form>

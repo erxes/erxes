@@ -24,6 +24,14 @@
         "buildableProjectDepsInPackageJsonType": "dependencies"
       }
     },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/backend/plugins/frontline_api"],
+      "options": {
+        "jestConfig": "backend/plugins/frontline_api/jest.config.ts",
+        "passWithNoTests": true
+      }
+    },
     "start": {
       "executor": "nx:run-commands",
       "dependsOn": ["typecheck", "build"],
