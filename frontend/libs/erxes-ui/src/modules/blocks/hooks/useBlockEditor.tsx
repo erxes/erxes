@@ -1,63 +1,31 @@
 import { Block } from '@blocknote/core';
 import { useCreateBlockNote } from '@blocknote/react';
-import { useCallback, useEffect, useRef } from 'react';
-import { useErxesUpload, FileWithPreview } from '../../../hooks/use-upload-new';
+import { useCallback } from 'react';
+import { useErxesUpload } from '../../../hooks/use-upload-new';
 import { readImage } from '../../../utils/core';
 import { BLOCK_SCHEMA, TABLE_SCHEMA } from '../constant';
+import type { IBlockEditor } from '../types';
 
 export const useBlockEditor = (args?: {
   initialContent?: Block[];
   placeholder?: string;
   uploadFile?: (file: File) => Promise<string>;
-}) => {
+}): IBlockEditor => {
   const { placeholder, uploadFile, ...restArgs } = args || {};
 
-  const pendingRef = useRef<{
-    resolve: (url: string) => void;
-    reject: (err: Error) => void;
-  } | null>(null);
-
-  const uploadProps = useErxesUpload({
-    maxFiles: 1,
-    onFilesAdded: (added) => {
-      const pending = pendingRef.current;
-      if (!pending) return;
-
-      if (added[0]?.url) {
-        pending.resolve(added[0].url);
-      } else {
-        pending.reject(new Error('Upload failed'));
-      }
-      pendingRef.current = null;
-    },
-  });
-
-  useEffect(() => {
-    if (uploadProps.files.length > 0 && !uploadProps.loading) {
-      uploadProps.onUpload().catch((err: unknown) => {
-        pendingRef.current?.reject(
-          err instanceof Error ? err : new Error('Upload failed'),
-        );
-        pendingRef.current = null;
-      });
-    }
-  }, [uploadProps.files[0]]);
+  const { uploadFile: uploadEditorFile } = useErxesUpload({ maxFiles: 1 });
 
   const defaultUploadFile = useCallback(
-    (file: File): Promise<string> => {
-      return new Promise((resolve, reject) => {
-        pendingRef.current?.reject(
-          new Error('Previous upload was interrupted'),
-        );
-        pendingRef.current = { resolve, reject };
-        const fileWithPreview = Object.assign(file, {
-          preview: URL.createObjectURL(file),
-          errors: [],
-        }) as FileWithPreview;
-        uploadProps.setFiles([fileWithPreview]);
-      });
+    async (file: File): Promise<string> => {
+      const result = await uploadEditorFile(file);
+
+      if (!result.url) {
+        throw new Error(result.message || 'Upload failed');
+      }
+
+      return result.url;
     },
-    [uploadProps.setFiles],
+    [uploadEditorFile],
   );
 
   const editor = useCreateBlockNote({
