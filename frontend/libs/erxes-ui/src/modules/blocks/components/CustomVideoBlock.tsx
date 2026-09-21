@@ -47,7 +47,6 @@ const EmbeddedVideo: FC<{ src: string; title: string }> = ({ src, title }) => (
     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
     allowFullScreen
     referrerPolicy="strict-origin-when-cross-origin"
-    sandbox="allow-scripts allow-same-origin allow-presentation allow-popups allow-popups-to-escape-sandbox"
     contentEditable={false}
   />
 );
