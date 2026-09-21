@@ -1,4 +1,5 @@
 import {
+  IconBlocks,
   IconCalendarEvent,
   IconCheck,
   IconChevronDown,
@@ -19,6 +20,7 @@ export const FIELD_TYPES = [
   { value: 'text', label: 'Text', icon: IconTextSize },
   { value: 'textarea', label: 'Textarea', icon: IconTextScan2 },
   { value: 'list', label: 'String List', icon: IconList },
+  { value: 'editor', label: 'Editor', icon: IconBlocks },
   { value: 'objectList', label: 'Object List', icon: IconListDetails },
   { value: 'number', label: 'Number', icon: IconNumbers },
   { value: 'boolean', label: 'True/False', icon: IconCheck },
@@ -36,10 +38,7 @@ export const FIELD_TYPES = [
   { value: 'phone', label: 'Phone', icon: IconPhone },
 ];
 
-export const FIELD_TYPES_OBJECT = FIELD_TYPES.reduce(
-  (acc, type) => {
-    acc[type.value] = type;
-    return acc;
-  },
-  {} as Record<string, (typeof FIELD_TYPES)[number]>,
-);
+export const FIELD_TYPES_OBJECT = FIELD_TYPES.reduce((acc, type) => {
+  acc[type.value] = type;
+  return acc;
+}, {} as Record<string, (typeof FIELD_TYPES)[number]>);
