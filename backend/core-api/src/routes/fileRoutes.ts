@@ -142,7 +142,10 @@ router.get(
 
         const sanitizedFileName = sanitizeFilename(name || sanitizedKey);
 
-        res.setHeader('Content-Disposition', `inline; filename="${sanitizedFileName}"`);
+        res.setHeader(
+          'Content-Disposition',
+          `inline; filename="${sanitizedFileName}"`,
+        );
         res.setHeader('Content-Type', contentType);
 
         return res.send(response);
@@ -268,13 +271,18 @@ router.post(
 
     const sanitizedFilename = sanitizeFilename(req.body.fileName);
 
-    const status = await deleteFile(models, sanitizedFilename);
+    try {
+      const status = await deleteFile(models, sanitizedFilename);
 
-    if (status === 'ok') {
-      return res.send(status);
+      if (status === 'ok') {
+        return res.send(status);
+      }
+
+      return res.status(500).send(filterXSS(String(status)));
+    } catch (e) {
+      const message = e instanceof Error ? e.message : 'Delete failed';
+      return res.status(500).send(filterXSS(message));
     }
-
-    return res.status(500).send(status);
   },
 );
 

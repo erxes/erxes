@@ -1,5 +1,6 @@
 import {
   ISearchProvider,
+  TSearchPageInfo,
   TSearchPayload,
   TSearchProviderDefinition,
 } from '../types/UIConfig';
@@ -8,21 +9,33 @@ import { isAnObject } from './isAnObject';
 export const readCursorList = <TNode>(
   payload: TSearchPayload,
   alias: string,
-): { nodes: TNode[]; totalCount: number } => {
+): { nodes: TNode[]; totalCount: number; pageInfo: TSearchPageInfo } => {
   const page = payload[alias];
 
   if (!isAnObject(page)) {
-    return { nodes: [], totalCount: 0 };
+    return {
+      nodes: [],
+      totalCount: 0,
+      pageInfo: { hasNextPage: false, endCursor: null },
+    };
   }
 
-  const { list, totalCount } = page as {
+  const { list, totalCount, pageInfo } = page as {
     list?: TNode[];
     totalCount?: number;
+    pageInfo?: Partial<TSearchPageInfo> | null;
   };
+
+  const endCursor =
+    typeof pageInfo?.endCursor === 'string' ? pageInfo.endCursor : null;
 
   return {
     nodes: Array.isArray(list) ? list : [],
     totalCount: totalCount ?? 0,
+    pageInfo: {
+      hasNextPage: pageInfo?.hasNextPage === true && Boolean(endCursor),
+      endCursor,
+    },
   };
 };
 
@@ -48,10 +61,9 @@ export const defineSearchProvider = <TNode>(
   icon: definition.icon,
   order: definition.order,
   selections: definition.selections,
-  resolve: (payload, limit) => {
-    const { nodes, totalCount } = definition.select(payload);
+  resolve: (payload) => {
+    const { nodes, totalCount, pageInfo } = definition.select(payload);
     const items = nodes
-      .slice(0, limit)
       .map(definition.toItem)
       .filter((item): item is NonNullable<typeof item> => item !== null);
 
@@ -59,6 +71,7 @@ export const defineSearchProvider = <TNode>(
       items,
       totalCount: Math.max(totalCount ?? nodes.length, items.length),
       countMode: totalCount === undefined ? 'approximate' : 'exact',
+      pageInfo,
     };
   },
 });

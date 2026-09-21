@@ -10,11 +10,19 @@ import { classifyError } from 'erxes-api-shared/utils';
  */
 export class AutomationActionError extends Error {
   readonly errorCode: TAutomationErrorCode;
+  // Structured evidence from the failure, persisted onto the exec action so a
+  // cause can be read back later instead of guessed from the message.
+  readonly result?: unknown;
 
-  constructor(message: string, errorCode: TAutomationErrorCode) {
+  constructor(
+    message: string,
+    errorCode: TAutomationErrorCode,
+    result?: unknown,
+  ) {
     super(message);
     this.name = 'AutomationActionError';
     this.errorCode = errorCode;
+    this.result = result;
     Object.setPrototypeOf(this, AutomationActionError.prototype);
   }
 }

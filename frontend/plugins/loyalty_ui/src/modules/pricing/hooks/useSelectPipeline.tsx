@@ -8,6 +8,8 @@ import {
 import { useTranslation } from 'react-i18next';
 import { usePipelines, IPipeline } from '@/pricing/hooks/usePipelines';
 
+const CLEAR_PIPELINE_VALUE = '__clear_pipeline_selection__';
+
 // SelectPipeline Context
 interface SelectPipelineContextType {
   value: string;
@@ -51,7 +53,6 @@ const SelectPipelineProvider = ({
 
   const handleValueChange = useCallback(
     (pipelineId: string) => {
-      if (!pipelineId) return;
       onValueChange(pipelineId);
       setOpen?.(false);
     },
@@ -83,7 +84,9 @@ const SelectPipelineValue = ({ placeholder }: { placeholder?: string }) => {
 
   if (loading) {
     return (
-      <span className="text-accent-foreground/80">{t('loading-pipelines')}</span>
+      <span className="text-accent-foreground/80">
+        {t('loading-pipelines')}
+      </span>
     );
   }
 
@@ -133,6 +136,27 @@ const SelectPipelineCommandItem = ({ pipeline }: { pipeline: IPipeline }) => {
   );
 };
 
+const SelectPipelineClearItem = () => {
+  const { t } = useTranslation('loyalty');
+  const { onValueChange, value } = useSelectPipelineContext();
+
+  if (!value) {
+    return null;
+  }
+
+  return (
+    <Command.Item
+      value={CLEAR_PIPELINE_VALUE}
+      onSelect={() => {
+        onValueChange('');
+      }}
+    >
+      <span className="text-muted-foreground">{t('none')}</span>
+      <Combobox.Check checked={!value} />
+    </Command.Item>
+  );
+};
+
 // SelectPipeline Content
 const SelectPipelineContent = () => {
   const { t } = useTranslation('loyalty');
@@ -140,14 +164,15 @@ const SelectPipelineContent = () => {
   const emptyMessage = loading
     ? t('loading-pipelines')
     : boardId
-    ? t('no-pipelines-found')
-    : t('board-not-selected');
+      ? t('no-pipelines-found')
+      : t('board-not-selected');
   return (
     <Command>
       <Command.List>
         <Command.Empty>
           <div className="text-muted-foreground">{emptyMessage}</div>
         </Command.Empty>
+        <SelectPipelineClearItem />
         {pipelines?.map((pipeline) => (
           <SelectPipelineCommandItem key={pipeline._id} pipeline={pipeline} />
         ))}

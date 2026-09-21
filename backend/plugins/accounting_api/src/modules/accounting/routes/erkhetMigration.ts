@@ -1,12 +1,12 @@
 import { Request, Response } from 'express';
-import { getSubdomain, sendTRPCMessage } from 'erxes-api-shared/utils';
-import { nanoid } from 'nanoid';
+import { fixNum, getSubdomain, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels, generateModels } from '~/connectionResolvers';
 import {
-  ITransaction,
-  ITransactionDocument,
-  ITrDetail,
-} from '../@types/transaction';
+  FXA_OWNER_RECORD_ACTIONS,
+  FXA_OWNER_RECORD_STATUSES,
+} from '@/fixedAssets/@types/constants';
+import { JOURNALS } from '../@types/constants';
+import { ITransaction, ITrDetail } from '../@types/transaction';
 
 const ERKHET_CONTENT_TYPE = 'erkhet:ptr';
 
@@ -18,7 +18,6 @@ type ErkhetTransactionBatch = {
 type ErkhetTransactionsRequest = {
   userId?: string;
   dryRun?: boolean;
-  rawSave?: boolean;
   skipAccountPermission?: boolean;
   batches?: ErkhetTransactionBatch[];
 };
@@ -27,30 +26,42 @@ type TCodeMap = Record<string, string>;
 
 type TReferenceMaps = {
   accountsByCode: TCodeMap;
+  vatRowsByNumber: TCodeMap;
+  ctaxRowsByNumber: TCodeMap;
   branchesByCode: TCodeMap;
   departmentsByCode: TCodeMap;
   customersByCode: TCodeMap;
   productsByCode: TCodeMap;
+  fixedAssetCategoriesByCode: TCodeMap;
   fixedAssetsByCode: TCodeMap;
-  fxaInstanceIdsByCode: Record<string, string[]>;
-  fxaInstanceIdsByAssetAndCode: Record<string, Record<string, string[]>>;
-  fxaInstanceIdsById: TCodeMap;
+  usersByRef: TCodeMap;
 };
 
-type TFxaInstanceMigrationInput = {
+type TFxaOwnerRecordMigrationInput = {
   _id?: string;
+  fxaOwnerRecordId?: string;
   tempId?: string;
   transactionDetailId?: string;
   fixedAssetId?: string;
   code?: string;
   sequence?: number;
-  branchId?: string;
-  departmentId?: string;
+  count?: number;
+  ownerId?: string;
+  sourceOwnerId?: string;
   responsibleUserId?: string;
-  locationId?: string;
-  originalCost?: number;
-  depreciationStartDate?: Date;
-  openingAccumulatedDepreciation?: number;
+  sourceResponsibleUserId?: string;
+};
+
+type TErkhetCtaxRow = {
+  number: string;
+  name: string;
+  percent: number;
+};
+
+type TMigrationUser = {
+  _id: string;
+  email?: string;
+  username?: string;
 };
 
 type TErkhetContact = {
@@ -59,6 +70,14 @@ type TErkhetContact = {
   name?: string;
   phone?: string;
   email?: string;
+};
+
+type TInvIncomeExpense = {
+  _id?: string;
+  title?: string;
+  rule?: 'amount' | 'count' | 'weight';
+  amount?: number;
+  accountId?: string;
 };
 
 type TContactResolution = {
@@ -81,23 +100,6 @@ type TMigrationErrorRow = {
 
 const getErrorMessage = (error: unknown, fallback: string) =>
   error instanceof Error ? error.message : fallback;
-
-const getMigrationToken = (req: Request) =>
-  req.headers['x-erkhet-migration-token'] || req.headers['x-migration-token'];
-
-const assertMigrationToken = (req: Request) => {
-  const expectedToken = process.env.ERKHET_MIGRATION_TOKEN;
-
-  if (!expectedToken) {
-    throw new Error('Erkhet migration endpoint is disabled');
-  }
-
-  if (getMigrationToken(req) !== expectedToken) {
-    const error = new Error('Unauthorized');
-    (error as Error & { statusCode?: number }).statusCode = 401;
-    throw error;
-  }
-};
 
 const validateBatch = (batch: ErkhetTransactionBatch) => {
   if (!batch?.externalPtrId) {
@@ -123,7 +125,15 @@ const validateBatch = (batch: ErkhetTransactionBatch) => {
   }
 };
 
-const uniq = (values: string[]) => [...new Set(values.filter(Boolean))];
+const normalizeSourceCode = (value?: string) =>
+  typeof value === 'string' ? value.trim() : value || '';
+
+const normalizeIdentifierCode = (value?: string) =>
+  normalizeSourceCode(value).replace(/\s+/g, '');
+
+const uniq = (values: string[]) => [
+  ...new Set(values.map((value) => normalizeSourceCode(value)).filter(Boolean)),
+];
 
 const getCodeMap = (docs: ITransaction[]) => {
   const accountCodes: string[] = [];
@@ -131,74 +141,130 @@ const getCodeMap = (docs: ITransaction[]) => {
   const departmentCodes: string[] = [];
   const customerCodes: string[] = [];
   const productCodes: string[] = [];
+  const fixedAssetCategoryCodes: string[] = [];
   const fixedAssetCodes: string[] = [];
-  const fixedAssetIds: string[] = [];
-  const fxaInstanceRefs: string[] = [];
+  const userRefs: string[] = [];
+  const vatRowNumbers: string[] = [];
+  const ctaxRowNumbers: string[] = [];
 
+  // Payload дотор ирсэн бүх source code-г эхэлж цуглуулна. Дараагийн шатанд
+  // эдгээрийг нэг дор query хийж erxes _id болгон resolve хийх нь N+1 query-гээс хамгаална.
   for (const doc of docs) {
+    if (doc.hasVat && doc.vatRowId) {
+      vatRowNumbers.push(normalizeSourceCode(doc.vatRowId));
+    }
+    if (doc.hasCtax && doc.ctaxRowId) {
+      ctaxRowNumbers.push(normalizeSourceCode(doc.ctaxRowId));
+    }
     if (doc.branchId) {
-      branchCodes.push(doc.branchId);
+      branchCodes.push(normalizeSourceCode(doc.branchId));
     }
     if (doc.departmentId) {
-      departmentCodes.push(doc.departmentId);
+      departmentCodes.push(normalizeSourceCode(doc.departmentId));
     }
     if (doc.customerId) {
-      customerCodes.push(doc.customerId);
+      customerCodes.push(normalizeSourceCode(doc.customerId));
+    }
+
+    const invIncomeExpenses =
+      (doc.extraData?.invIncomeExpenses as TInvIncomeExpense[]) || [];
+    for (const expense of invIncomeExpenses) {
+      if (expense.accountId) {
+        accountCodes.push(normalizeSourceCode(expense.accountId));
+      }
     }
 
     const moveInBranchId = doc.followInfos?.moveInBranchId;
     const moveInDepartmentId = doc.followInfos?.moveInDepartmentId;
+    const moveInAccountId = doc.followInfos?.moveInAccountId;
     const accumulatedDepreciationAccountId =
       doc.followInfos?.accumulatedDepreciationAccountId;
+    const fixedAssetAccountId = doc.followInfos?.fixedAssetAccountId;
     const lossAccountId = doc.followInfos?.lossAccountId;
+    const saleOutAccountId = doc.followInfos?.saleOutAccountId;
+    const saleCostAccountId = doc.followInfos?.saleCostAccountId;
+    const isFxaOut = doc.journal === JOURNALS.FXA_OUT;
+    const isFxaMove = doc.journal === JOURNALS.FXA_MOVE;
+    const isFxaSale = doc.journal === JOURNALS.FXA_SALE;
+    const isSale = [
+      JOURNALS.FXA_SALE,
+      JOURNALS.INV_SALE,
+      JOURNALS.INV_SALE_RETURN,
+    ].includes(doc.journal);
 
     if (moveInBranchId) {
-      branchCodes.push(moveInBranchId);
+      branchCodes.push(normalizeSourceCode(moveInBranchId));
     }
     if (moveInDepartmentId) {
-      departmentCodes.push(moveInDepartmentId);
+      departmentCodes.push(normalizeSourceCode(moveInDepartmentId));
     }
-    if (accumulatedDepreciationAccountId) {
-      accountCodes.push(accumulatedDepreciationAccountId);
+    if (moveInAccountId) {
+      accountCodes.push(normalizeSourceCode(moveInAccountId));
     }
-    if (lossAccountId) {
-      accountCodes.push(lossAccountId);
+    if (
+      accumulatedDepreciationAccountId &&
+      (isFxaOut || isFxaMove || isFxaSale)
+    ) {
+      accountCodes.push(normalizeSourceCode(accumulatedDepreciationAccountId));
+    }
+    if (fixedAssetAccountId && isFxaSale) {
+      accountCodes.push(normalizeSourceCode(fixedAssetAccountId));
+    }
+    if (lossAccountId && isFxaSale) {
+      accountCodes.push(normalizeSourceCode(lossAccountId));
+    }
+    if (saleOutAccountId && isSale) {
+      accountCodes.push(normalizeSourceCode(saleOutAccountId));
+    }
+    if (saleCostAccountId && isSale) {
+      accountCodes.push(normalizeSourceCode(saleCostAccountId));
     }
 
-    const fxaInstances =
-      (doc.extraData?.fxaInstances as TFxaInstanceMigrationInput[]) || [];
-    for (const instance of fxaInstances) {
-      if (instance.fixedAssetId) {
-        fixedAssetCodes.push(instance.fixedAssetId);
+    const fxaOwnerRecords =
+      (doc.extraData?.fxaOwnerRecords as TFxaOwnerRecordMigrationInput[]) || [];
+    for (const ownerRecord of fxaOwnerRecords) {
+      if (ownerRecord.fixedAssetId) {
+        fixedAssetCodes.push(normalizeSourceCode(ownerRecord.fixedAssetId));
       }
-      if (instance.branchId) {
-        branchCodes.push(instance.branchId);
+      if (ownerRecord.ownerId) {
+        userRefs.push(normalizeSourceCode(ownerRecord.ownerId));
       }
-      if (instance.departmentId) {
-        departmentCodes.push(instance.departmentId);
+      if (ownerRecord.sourceOwnerId) {
+        userRefs.push(normalizeSourceCode(ownerRecord.sourceOwnerId));
       }
-    }
-
-    for (const instanceRef of doc.extraData?.fxaInstanceIds || []) {
-      fxaInstanceRefs.push(instanceRef);
+      if (ownerRecord.responsibleUserId) {
+        userRefs.push(normalizeSourceCode(ownerRecord.responsibleUserId));
+      }
+      if (ownerRecord.sourceResponsibleUserId) {
+        userRefs.push(normalizeSourceCode(ownerRecord.sourceResponsibleUserId));
+      }
     }
 
     for (const detail of doc.details || []) {
       if (detail.accountId) {
-        accountCodes.push(detail.accountId);
+        accountCodes.push(normalizeSourceCode(detail.accountId));
       }
       if (detail.fixedAssetId) {
-        fixedAssetCodes.push(detail.fixedAssetId);
-        fixedAssetIds.push(detail.fixedAssetId);
+        fixedAssetCodes.push(normalizeSourceCode(detail.fixedAssetId));
+      }
+      if (detail.fixedAssetCategoryId) {
+        fixedAssetCategoryCodes.push(
+          normalizeSourceCode(detail.fixedAssetCategoryId),
+        );
       }
       if (detail.branchId) {
-        branchCodes.push(detail.branchId);
+        branchCodes.push(normalizeSourceCode(detail.branchId));
       }
       if (detail.departmentId) {
-        departmentCodes.push(detail.departmentId);
+        departmentCodes.push(normalizeSourceCode(detail.departmentId));
       }
       if (detail.productId) {
-        productCodes.push(detail.productId);
+        productCodes.push(normalizeIdentifierCode(detail.productId));
+      }
+      if (detail.followInfos?.currencyDiffAccountId) {
+        accountCodes.push(
+          normalizeSourceCode(detail.followInfos.currencyDiffAccountId),
+        );
       }
     }
   }
@@ -209,11 +275,36 @@ const getCodeMap = (docs: ITransaction[]) => {
     departmentCodes: uniq(departmentCodes),
     customerCodes: uniq(customerCodes),
     productCodes: uniq(productCodes),
+    fixedAssetCategoryCodes: uniq(fixedAssetCategoryCodes),
     fixedAssetCodes: uniq(fixedAssetCodes),
-    fixedAssetIds: uniq(fixedAssetIds),
-    fxaInstanceRefs: uniq(fxaInstanceRefs),
+    userRefs: uniq(userRefs),
+    vatRowNumbers: uniq(vatRowNumbers),
+    ctaxRowNumbers: uniq(ctaxRowNumbers),
   };
 };
+
+export const getErkhetTransactionCodeMapForTest = getCodeMap;
+
+const resolveInvIncomeExpenses = (
+  expenses: TInvIncomeExpense[] = [],
+  maps: TReferenceMaps,
+) =>
+  expenses.map((expense) => {
+    const accountCode = normalizeSourceCode(expense.accountId);
+
+    if (accountCode && !maps.accountsByCode[accountCode]) {
+      throw new Error(`Account not found: ${accountCode}`);
+    }
+
+    return {
+      ...expense,
+      accountId: accountCode
+        ? maps.accountsByCode[accountCode]
+        : expense.accountId,
+    };
+  });
+
+export const resolveErkhetInvIncomeExpensesForTest = resolveInvIncomeExpenses;
 
 const indexByCode = <T extends { _id: string; code?: string }>(
   items: T[] = [],
@@ -224,6 +315,23 @@ const indexByCode = <T extends { _id: string; code?: string }>(
     }
     return byCode;
   }, {});
+
+const OMIT_DETAIL_FOLLOW_INFO_KEYS = [
+  'erkhetProduct',
+  'inventoryCode',
+  'invLocationCode',
+  'fxaLocationCode',
+];
+
+// Хуучин migration payload-оос ирсэн audit-only key-үүдийг хадгалахгүй.
+// Erxes тал resolve хийсний дараа хэрэгтэй source code-уудыг өөрөө followInfos-д нэмнэ.
+const cleanDetailFollowInfos = (followInfos: ITrDetail['followInfos'] = {}) =>
+  Object.fromEntries(
+    Object.entries(followInfos).filter(
+      ([key, value]) =>
+        value !== undefined && !OMIT_DETAIL_FOLLOW_INFO_KEYS.includes(key),
+    ),
+  );
 
 const fetchReferenceMaps = async (
   subdomain: string,
@@ -236,17 +344,104 @@ const fetchReferenceMaps = async (
     departmentCodes,
     customerCodes,
     productCodes,
+    fixedAssetCategoryCodes,
     fixedAssetCodes,
-    fixedAssetIds,
-    fxaInstanceRefs,
+    userRefs,
+    vatRowNumbers,
+    ctaxRowNumbers,
   } = getCodeMap(docs);
 
+  const sourceCtaxRows = docs.reduce<TErkhetCtaxRow[]>((rows, doc) => {
+    const metadata = doc.extraData?.erkhetCtaxRows;
+    if (!Array.isArray(metadata)) {
+      return rows;
+    }
+
+    for (const row of metadata) {
+      const number = normalizeSourceCode(row?.number);
+      const name = normalizeSourceCode(row?.name);
+      const percent = Number(row?.percent);
+      if (
+        number &&
+        name &&
+        Number.isFinite(percent) &&
+        !rows.some((item) => item.number === number)
+      ) {
+        rows.push({ number, name, percent });
+      }
+    }
+    return rows;
+  }, []);
+
+  if (sourceCtaxRows.length) {
+    const existingRows = await models.CtaxRows.find({
+      number: { $in: sourceCtaxRows.map((row) => row.number) },
+    }).lean();
+    const existingByNumber = existingRows.reduce<
+      Record<string, { _id: string; name?: string; percent?: number }>
+    >((byNumber, row) => {
+      byNumber[normalizeSourceCode(row.number)] = row;
+      return byNumber;
+    }, {});
+
+    await Promise.all(
+      sourceCtaxRows.map(async (row) => {
+        const existing = existingByNumber[row.number];
+        if (!existing) {
+          await models.CtaxRows.create({
+            number: row.number,
+            name: row.name,
+            percent: row.percent,
+          });
+          return;
+        }
+
+        if (
+          existing.name !== row.name ||
+          Number(existing.percent) !== row.percent
+        ) {
+          await models.CtaxRows.updateOne(
+            { _id: existing._id },
+            { $set: { name: row.name, percent: row.percent } },
+          );
+        }
+      }),
+    );
+  }
+
+  // Transaction route лавлах үүсгэхгүй. Reference migration өмнө нь
+  // bootstrap хийсэн байх ёстой бөгөөд энд зөвхөн code -> _id lookup хийнэ.
   const accounts = accountCodes.length
     ? await models.Accounts.find(
         { code: { $in: accountCodes } },
         { _id: 1, code: 1 },
       ).lean()
     : [];
+
+  const vatRows = vatRowNumbers.length
+    ? await models.VatRows.find(
+        { number: { $in: vatRowNumbers } },
+        { _id: 1, number: 1 },
+      ).lean()
+    : [];
+  const vatRowsByNumber = vatRows.reduce<TCodeMap>((byNumber, row) => {
+    if (row.number !== undefined && row.number !== null) {
+      byNumber[normalizeSourceCode(String(row.number))] = row._id;
+    }
+    return byNumber;
+  }, {});
+  const ctaxRows = ctaxRowNumbers.length
+    ? await models.CtaxRows.find(
+        { number: { $in: ctaxRowNumbers } },
+        { _id: 1, number: 1 },
+      ).lean()
+    : [];
+  const ctaxRowsByNumber = ctaxRows.reduce<TCodeMap>((byNumber, row) => {
+    if (row.number !== undefined && row.number !== null) {
+      byNumber[normalizeSourceCode(String(row.number))] = row._id;
+    }
+    return byNumber;
+  }, {});
 
   const departments = departmentCodes.length
     ? await sendTRPCMessage({
@@ -305,6 +500,14 @@ const fetchReferenceMaps = async (
         defaultValue: [],
       })
     : [];
+  const productsByCode = indexByCode(products);
+
+  const fixedAssetCategories = fixedAssetCategoryCodes.length
+    ? await models.FixedAssetCategories.find(
+        { code: { $in: fixedAssetCategoryCodes } },
+        { _id: 1, code: 1 },
+      ).lean()
+    : [];
 
   const fixedAssets = fixedAssetCodes.length
     ? await models.FixedAssets.find(
@@ -313,77 +516,48 @@ const fetchReferenceMaps = async (
       ).lean()
     : [];
   const fixedAssetsByCode = indexByCode(fixedAssets);
-  const fxaInstanceFixedAssetIds = [
-    ...fixedAssetIds,
-    ...fixedAssetCodes
-      .map((code) => fixedAssetsByCode[code])
-      .filter((fixedAssetId): fixedAssetId is string => !!fixedAssetId),
-  ];
 
-  const fxaInstances = fxaInstanceRefs.length
-    ? await models.FxaInstances.find(
-        {
-          $and: [
-            {
-              $or: [
-                { _id: { $in: fxaInstanceRefs } },
-                { code: { $in: fxaInstanceRefs } },
-              ],
-            },
-            fxaInstanceFixedAssetIds.length
-              ? { fixedAssetId: { $in: uniq(fxaInstanceFixedAssetIds) } }
-              : {},
-          ],
+  const users: TMigrationUser[] = userRefs.length
+    ? ((await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        module: 'users',
+        action: 'find',
+        defaultValue: [],
+        input: {
+          query: {
+            $or: [
+              { _id: { $in: userRefs } },
+              { email: { $in: userRefs } },
+              { username: { $in: userRefs } },
+            ],
+          },
+          fields: { _id: 1, email: 1, username: 1 },
         },
-        { _id: 1, code: 1, fixedAssetId: 1 },
-      )
-        .sort({ acquisitionDate: 1, createdAt: 1, _id: 1 })
-        .lean()
+      })) as TMigrationUser[])
     : [];
-
-  const fxaInstanceIdsByCode = fxaInstances.reduce<Record<string, string[]>>(
-    (byCode, instance) => {
-      if (!instance.code) {
-        return byCode;
-      }
-
-      byCode[instance.code] = [...(byCode[instance.code] || []), instance._id];
-      return byCode;
-    },
-    {},
-  );
-  const fxaInstanceIdsByAssetAndCode = fxaInstances.reduce<
-    Record<string, Record<string, string[]>>
-  >((byAssetAndCode, instance) => {
-    if (!instance.fixedAssetId || !instance.code) {
-      return byAssetAndCode;
+  const usersByRef = users.reduce<TCodeMap>((byRef, user) => {
+    byRef[user._id] = user._id;
+    if (user.email) {
+      byRef[user.email] = user._id;
     }
-
-    byAssetAndCode[instance.fixedAssetId] =
-      byAssetAndCode[instance.fixedAssetId] || {};
-    byAssetAndCode[instance.fixedAssetId][instance.code] = [
-      ...(byAssetAndCode[instance.fixedAssetId][instance.code] || []),
-      instance._id,
-    ];
-
-    return byAssetAndCode;
-  }, {});
-
-  const fxaInstanceIdsById = fxaInstances.reduce<TCodeMap>((byId, instance) => {
-    byId[instance._id] = instance._id;
-    return byId;
+    if (user.username) {
+      byRef[user.username] = user._id;
+    }
+    return byRef;
   }, {});
 
   return {
     accountsByCode: indexByCode(accounts),
+    vatRowsByNumber,
+    ctaxRowsByNumber,
     branchesByCode: indexByCode(branches),
     departmentsByCode: indexByCode(departments),
     customersByCode: indexByCode(customers),
-    productsByCode: indexByCode(products),
+    productsByCode,
+    fixedAssetCategoriesByCode: indexByCode(fixedAssetCategories),
     fixedAssetsByCode,
-    fxaInstanceIdsByCode,
-    fxaInstanceIdsByAssetAndCode,
-    fxaInstanceIdsById,
+    usersByRef,
   };
 };
 
@@ -426,6 +600,8 @@ const findOrCreateContact = async ({
     return {};
   }
 
+  // Erkhet-д бүх харилцагч нэг model-д байсан. Erxes дээр company/customer
+  // тусдаа тул source category mapping-ээр ирсэн type-г баримталж олж эсвэл үүсгэнэ.
   const type = contact.type === 'company' ? 'company' : 'customer';
   const module = type === 'company' ? 'companies' : 'customers';
   const findAction =
@@ -488,17 +664,33 @@ const findOrCreateContact = async ({
 };
 
 const resolveDetail = (detail: ITrDetail, maps: TReferenceMaps) => {
-  const accountCode = detail.accountId;
-  const branchCode = detail.branchId;
-  const productCode = detail.productId;
-  const departmentCode = detail.departmentId;
-  const fixedAssetCode = detail.fixedAssetId;
+  const accountCode = normalizeSourceCode(detail.accountId);
+  const branchCode = normalizeSourceCode(detail.branchId);
+  const productCode = normalizeIdentifierCode(detail.productId);
+  const departmentCode = normalizeSourceCode(detail.departmentId);
+  const fixedAssetCode = normalizeSourceCode(detail.fixedAssetId);
+  const fixedAssetCategoryCode = normalizeSourceCode(
+    detail.fixedAssetCategoryId,
+  );
+  const currencyDiffAccountCode = normalizeSourceCode(
+    detail.followInfos?.currencyDiffAccountId,
+  );
 
+  // Detail дээр байгаа account/product/fixedAsset/category/branch/department нь
+  // бүгд source code. Хадгалахаас өмнө erxes _id-р солихгүй бол journal logic ажиллахгүй.
   if (accountCode && !maps.accountsByCode[accountCode]) {
     throw new Error(`Account not found: ${accountCode}`);
   }
   if (fixedAssetCode && !maps.fixedAssetsByCode[fixedAssetCode]) {
     throw new Error(`Fixed asset not found: ${fixedAssetCode}`);
+  }
+  if (
+    fixedAssetCategoryCode &&
+    !maps.fixedAssetCategoriesByCode[fixedAssetCategoryCode]
+  ) {
+    throw new Error(
+      `Fixed asset category not found: ${fixedAssetCategoryCode}`,
+    );
   }
   if (productCode && !maps.productsByCode[productCode]) {
     throw new Error(`Product not found: ${productCode}`);
@@ -509,6 +701,12 @@ const resolveDetail = (detail: ITrDetail, maps: TReferenceMaps) => {
   if (departmentCode && !maps.departmentsByCode[departmentCode]) {
     throw new Error(`Department not found: ${departmentCode}`);
   }
+  if (
+    currencyDiffAccountCode &&
+    !maps.accountsByCode[currencyDiffAccountCode]
+  ) {
+    throw new Error(`Account not found: ${currencyDiffAccountCode}`);
+  }
 
   return {
     ...detail,
@@ -516,6 +714,12 @@ const resolveDetail = (detail: ITrDetail, maps: TReferenceMaps) => {
     fixedAssetId: fixedAssetCode
       ? maps.fixedAssetsByCode[fixedAssetCode] || detail.fixedAssetId
       : detail.fixedAssetId,
+    fixedAssetCategoryId: fixedAssetCategoryCode
+      ? maps.fixedAssetCategoriesByCode[fixedAssetCategoryCode] ||
+        detail.fixedAssetCategoryId
+      : detail.fixedAssetCategoryId,
+    fixedAssetCode: normalizeSourceCode(detail.fixedAssetCode),
+    fixedAssetName: normalizeSourceCode(detail.fixedAssetName),
     branchId: branchCode
       ? maps.branchesByCode[branchCode] || detail.branchId
       : detail.branchId,
@@ -526,103 +730,243 @@ const resolveDetail = (detail: ITrDetail, maps: TReferenceMaps) => {
       ? maps.departmentsByCode[departmentCode] || detail.departmentId
       : detail.departmentId,
     followInfos: {
-      ...detail.followInfos,
+      ...cleanDetailFollowInfos(detail.followInfos),
+      currencyDiffAccountId: currencyDiffAccountCode
+        ? maps.accountsByCode[currencyDiffAccountCode]
+        : detail.followInfos?.currencyDiffAccountId,
       accountCode,
       branchCode,
       productCode,
       departmentCode,
       fixedAssetCode,
+      fixedAssetCategoryCode,
+      currencyDiffAccountCode,
     },
   };
 };
 
-const resolveFxaInstances = (
-  instances: TFxaInstanceMigrationInput[],
+const resolveFxaOwnerRecords = (
+  ownerRecords: TFxaOwnerRecordMigrationInput[],
   maps: TReferenceMaps,
 ) =>
-  instances.map((instance) => {
-    const fixedAssetCode = instance.fixedAssetId;
-    const branchCode = instance.branchId;
-    const departmentCode = instance.departmentId;
+  ownerRecords.flatMap((ownerRecord) => {
+    const fixedAssetCode = normalizeSourceCode(ownerRecord.fixedAssetId);
+    const ownerRef = normalizeSourceCode(ownerRecord.ownerId);
+    const sourceOwnerRef = normalizeSourceCode(ownerRecord.sourceOwnerId);
+    const responsibleUserRef = normalizeSourceCode(
+      ownerRecord.responsibleUserId,
+    );
+    const sourceResponsibleUserRef = normalizeSourceCode(
+      ownerRecord.sourceResponsibleUserId,
+    );
 
+    // extraData.fxaOwnerRecords нь хөрөнгийн санхүүгийн хөдөлгөөн биш,
+    // зөвхөн эд хариуцагч/serial allocation ownerRecord. Ирсэн code-уудыг энд _id болгоно.
     if (fixedAssetCode && !maps.fixedAssetsByCode[fixedAssetCode]) {
       throw new Error(`Fixed asset not found: ${fixedAssetCode}`);
     }
-    if (branchCode && !maps.branchesByCode[branchCode]) {
-      throw new Error(`Branch not found: ${branchCode}`);
+    if (ownerRef && !maps.usersByRef[ownerRef]) {
+      return [];
     }
-    if (departmentCode && !maps.departmentsByCode[departmentCode]) {
-      throw new Error(`Department not found: ${departmentCode}`);
+    if (sourceOwnerRef && !maps.usersByRef[sourceOwnerRef]) {
+      return [];
+    }
+    if (responsibleUserRef && !maps.usersByRef[responsibleUserRef]) {
+      return [];
+    }
+    if (
+      sourceResponsibleUserRef &&
+      !maps.usersByRef[sourceResponsibleUserRef]
+    ) {
+      return [];
     }
 
-    return {
-      ...instance,
-      fixedAssetId: fixedAssetCode
-        ? maps.fixedAssetsByCode[fixedAssetCode]
-        : instance.fixedAssetId,
-      branchId: branchCode
-        ? maps.branchesByCode[branchCode]
-        : instance.branchId,
-      departmentId: departmentCode
-        ? maps.departmentsByCode[departmentCode]
-        : instance.departmentId,
-      depreciationStartDate: instance.depreciationStartDate
-        ? new Date(instance.depreciationStartDate)
-        : instance.depreciationStartDate,
-    };
+    return [
+      {
+        _id: ownerRecord._id,
+        fxaOwnerRecordId: ownerRecord.fxaOwnerRecordId,
+        tempId: ownerRecord.tempId,
+        transactionDetailId: ownerRecord.transactionDetailId,
+        code: ownerRecord.code,
+        sequence: ownerRecord.sequence,
+        count: ownerRecord.count,
+        fixedAssetId: fixedAssetCode
+          ? maps.fixedAssetsByCode[fixedAssetCode]
+          : ownerRecord.fixedAssetId,
+        ownerId: ownerRef
+          ? maps.usersByRef[ownerRef]
+          : responsibleUserRef
+            ? maps.usersByRef[responsibleUserRef]
+            : ownerRecord.ownerId || ownerRecord.responsibleUserId,
+        sourceOwnerId: sourceOwnerRef
+          ? maps.usersByRef[sourceOwnerRef]
+          : sourceResponsibleUserRef
+            ? maps.usersByRef[sourceResponsibleUserRef]
+            : ownerRecord.sourceOwnerId || ownerRecord.sourceResponsibleUserId,
+        sourceResponsibleUserId: sourceResponsibleUserRef
+          ? maps.usersByRef[sourceResponsibleUserRef]
+          : undefined,
+      },
+    ];
   });
 
-const resolveFxaInstanceIds = (
-  refs: string[],
+export const resolveErkhetFxaOwnerRecordsForTest = resolveFxaOwnerRecords;
+
+const isOwnerRecordMovementJournal = (journal?: string) =>
+  [JOURNALS.FXA_OUT, JOURNALS.FXA_SALE, JOURNALS.FXA_MOVE].includes(
+    journal || '',
+  );
+
+const getOwnerRecordInputKey = (input: TFxaOwnerRecordMigrationInput) =>
+  input.fxaOwnerRecordId || input._id || '';
+
+const getDetailId = (detail: ITrDetail) => detail._id?.toString() || '';
+
+const resolveOwnerRecordSources = async (
+  models: IModels,
   doc: ITransaction,
-  maps: TReferenceMaps,
+  ownerRecords: TFxaOwnerRecordMigrationInput[],
 ) => {
-  const usedByCode: Record<string, number> = {};
-  const fixedAssetIdsForRefs = (doc.details || []).flatMap((detail) => {
-    const fixedAssetCode = detail.fixedAssetId;
-    const fixedAssetId = fixedAssetCode
-      ? maps.fixedAssetsByCode[fixedAssetCode] || fixedAssetCode
-      : undefined;
-    const count = Math.max(1, Math.trunc(detail.count || 1));
+  if (!isOwnerRecordMovementJournal(doc.journal) || !ownerRecords.length) {
+    return ownerRecords;
+  }
 
-    return Array.from({ length: count }, () => fixedAssetId);
-  });
-  return refs.map((ref, index) => {
-    if (maps.fxaInstanceIdsById[ref]) {
-      return ref;
-    }
+  const detailById = new Map(
+    (doc.details || []).map((detail) => [getDetailId(detail), detail]),
+  );
+  const usedCountByOwnerKey = new Map<string, number>();
 
-    const fixedAssetId = fixedAssetIdsForRefs[index];
-    const instances = fixedAssetId
-      ? maps.fxaInstanceIdsByAssetAndCode[fixedAssetId]?.[ref] || []
-      : maps.fxaInstanceIdsByCode[ref] || [];
-    const usedIndex = usedByCode[ref] || 0;
-    const instanceId = instances[usedIndex];
+  // Зарлага/хөдөлгөөн дээр Erkhet-д owner record id байхгүй байж болно. Тийм үед
+  // fixedAsset + owner-аар хүлээж авсан/өгсөн мөрүүдийг нэгтгэж үлдэгдэл шалгана.
+  const resolvedOwnerRecords = await Promise.all(
+    ownerRecords.map(async (input) => {
+      if (getOwnerRecordInputKey(input) || !input.transactionDetailId) {
+        return input;
+      }
 
-    if (!instanceId) {
-      throw new Error(`Fixed asset instance not found: ${ref}`);
-    }
+      const detail = detailById.get(input.transactionDetailId);
+      const fixedAssetId = input.fixedAssetId || detail?.fixedAssetId;
+      const preferredSourceOwnerId =
+        input.sourceOwnerId || input.sourceResponsibleUserId;
+      const count = Math.max(0, Math.trunc(input.count || detail?.count || 0));
 
-    usedByCode[ref] = usedIndex + 1;
-    return instanceId;
-  });
+      if (!detail || !fixedAssetId || count <= 0) {
+        return input;
+      }
+
+      const selector: Record<string, unknown> = {
+        fixedAssetId,
+        status: FXA_OWNER_RECORD_STATUSES.ACTIVE,
+      };
+      if (preferredSourceOwnerId) {
+        selector.ownerId = preferredSourceOwnerId;
+      }
+
+      const candidates = await models.FxaOwnerRecords.find(selector, {
+        _id: 1,
+        count: 1,
+        action: 1,
+        ownerId: 1,
+      })
+        .limit(200)
+        .lean();
+      const balanceByOwner = candidates.reduce<Record<string, number>>(
+        (result, candidate) => {
+          const candidateOwnerId = candidate.ownerId || '';
+          const sign =
+            candidate.action === FXA_OWNER_RECORD_ACTIONS.RECEIVED
+              ? 1
+              : candidate.action === FXA_OWNER_RECORD_ACTIONS.HANDED_OVER
+                ? -1
+                : 0;
+
+          result[candidateOwnerId] =
+            (result[candidateOwnerId] || 0) +
+            sign * Math.max(0, Math.trunc(candidate.count || 0));
+
+          return result;
+        },
+        {},
+      );
+      const selectedSourceOwnerId = Object.keys(balanceByOwner).find(
+        (candidateOwnerId) => {
+          const ownerKey = `${fixedAssetId}:${candidateOwnerId}`;
+          const usedCount = usedCountByOwnerKey.get(ownerKey) || 0;
+
+          return balanceByOwner[candidateOwnerId] - usedCount >= count;
+        },
+      );
+
+      if (!selectedSourceOwnerId) {
+        return null;
+      }
+
+      const ownerKey = `${fixedAssetId}:${selectedSourceOwnerId}`;
+      const usedCount = usedCountByOwnerKey.get(ownerKey) || 0;
+
+      usedCountByOwnerKey.set(ownerKey, usedCount + count);
+
+      return {
+        ...input,
+        fixedAssetId,
+        ownerId: input.ownerId || selectedSourceOwnerId,
+        sourceOwnerId: selectedSourceOwnerId,
+        count,
+      };
+    }),
+  );
+
+  return resolvedOwnerRecords.filter(
+    (ownerRecord): ownerRecord is TFxaOwnerRecordMigrationInput =>
+      ownerRecord !== null,
+  );
 };
+
+export const resolveErkhetFxaOwnerRecordSourcesForTest =
+  resolveOwnerRecordSources;
 
 const resolveTransactionFollowInfos = (
   doc: ITransaction,
   maps: TReferenceMaps,
 ) => {
-  const moveInBranchCode = doc.followInfos?.moveInBranchId;
-  const moveInDepartmentCode = doc.followInfos?.moveInDepartmentId;
-  const accumulatedDepreciationAccountCode =
-    doc.followInfos?.accumulatedDepreciationAccountId;
-  const lossAccountCode = doc.followInfos?.lossAccountId;
+  const moveInBranchCode = normalizeSourceCode(doc.followInfos?.moveInBranchId);
+  const moveInDepartmentCode = normalizeSourceCode(
+    doc.followInfos?.moveInDepartmentId,
+  );
+  const moveInAccountCode = normalizeSourceCode(
+    doc.followInfos?.moveInAccountId,
+  );
+  const accumulatedDepreciationAccountCode = normalizeSourceCode(
+    doc.followInfos?.accumulatedDepreciationAccountId,
+  );
+  const fixedAssetAccountCode = normalizeSourceCode(
+    doc.followInfos?.fixedAssetAccountId,
+  );
+  const lossAccountCode = normalizeSourceCode(doc.followInfos?.lossAccountId);
+  const saleOutAccountCode = normalizeSourceCode(
+    doc.followInfos?.saleOutAccountId,
+  );
+  const saleCostAccountCode = normalizeSourceCode(
+    doc.followInfos?.saleCostAccountId,
+  );
+  const isFxaSale = doc.journal === JOURNALS.FXA_SALE;
+  const isSale = [
+    JOURNALS.FXA_SALE,
+    JOURNALS.INV_SALE,
+    JOURNALS.INV_SALE_RETURN,
+  ].includes(doc.journal);
 
+  // fxa болон inventory sale-ийн дагалдах данс, шилжих салбар/хэлтэс нь
+  // transaction root биш followInfos дотор ирдэг. Тэдгээрийг мөн _id-р сольж
+  // journal handler-т өгнө.
   if (moveInBranchCode && !maps.branchesByCode[moveInBranchCode]) {
     throw new Error(`Branch not found: ${moveInBranchCode}`);
   }
   if (moveInDepartmentCode && !maps.departmentsByCode[moveInDepartmentCode]) {
     throw new Error(`Department not found: ${moveInDepartmentCode}`);
+  }
+  if (moveInAccountCode && !maps.accountsByCode[moveInAccountCode]) {
+    throw new Error(`Account not found: ${moveInAccountCode}`);
   }
   if (
     accumulatedDepreciationAccountCode &&
@@ -630,29 +974,299 @@ const resolveTransactionFollowInfos = (
   ) {
     throw new Error(`Account not found: ${accumulatedDepreciationAccountCode}`);
   }
-  if (lossAccountCode && !maps.accountsByCode[lossAccountCode]) {
+  if (isFxaSale && lossAccountCode && !maps.accountsByCode[lossAccountCode]) {
     throw new Error(`Account not found: ${lossAccountCode}`);
   }
+  if (
+    isFxaSale &&
+    fixedAssetAccountCode &&
+    !maps.accountsByCode[fixedAssetAccountCode]
+  ) {
+    throw new Error(`Account not found: ${fixedAssetAccountCode}`);
+  }
+  if (
+    isSale &&
+    saleOutAccountCode &&
+    !maps.accountsByCode[saleOutAccountCode]
+  ) {
+    throw new Error(`Account not found: ${saleOutAccountCode}`);
+  }
+  if (
+    isSale &&
+    saleCostAccountCode &&
+    !maps.accountsByCode[saleCostAccountCode]
+  ) {
+    throw new Error(`Account not found: ${saleCostAccountCode}`);
+  }
 
-  return {
-    ...doc.followInfos,
-    moveInBranchId: moveInBranchCode
-      ? maps.branchesByCode[moveInBranchCode]
-      : doc.followInfos?.moveInBranchId,
-    moveInDepartmentId: moveInDepartmentCode
-      ? maps.departmentsByCode[moveInDepartmentCode]
-      : doc.followInfos?.moveInDepartmentId,
-    accumulatedDepreciationAccountId: accumulatedDepreciationAccountCode
-      ? maps.accountsByCode[accumulatedDepreciationAccountCode]
-      : doc.followInfos?.accumulatedDepreciationAccountId,
-    lossAccountId: lossAccountCode
-      ? maps.accountsByCode[lossAccountCode]
-      : doc.followInfos?.lossAccountId,
-    moveInBranchCode,
-    moveInDepartmentCode,
+  const resolvedFollowInfos = { ...doc.followInfos };
+  const resolveAccountId = (code: string, fallback?: string) =>
+    code ? maps.accountsByCode[code] : fallback;
+
+  resolvedFollowInfos.moveInBranchId = moveInBranchCode
+    ? maps.branchesByCode[moveInBranchCode]
+    : doc.followInfos?.moveInBranchId;
+  resolvedFollowInfos.moveInDepartmentId = moveInDepartmentCode
+    ? maps.departmentsByCode[moveInDepartmentCode]
+    : doc.followInfos?.moveInDepartmentId;
+  resolvedFollowInfos.moveInAccountId = moveInAccountCode
+    ? maps.accountsByCode[moveInAccountCode]
+    : doc.followInfos?.moveInAccountId;
+  resolvedFollowInfos.moveInBranchCode = moveInBranchCode;
+  resolvedFollowInfos.moveInDepartmentCode = moveInDepartmentCode;
+  resolvedFollowInfos.moveInAccountCode = moveInAccountCode;
+
+  const accumulatedDepreciationAccountId = resolveAccountId(
     accumulatedDepreciationAccountCode,
-    lossAccountCode,
-  };
+    doc.followInfos?.accumulatedDepreciationAccountId,
+  );
+
+  if (doc.journal === JOURNALS.FXA_MOVE) {
+    return {
+      moveInBranchId: resolvedFollowInfos.moveInBranchId,
+      moveInDepartmentId: resolvedFollowInfos.moveInDepartmentId,
+      moveInBranchCode,
+      moveInDepartmentCode,
+      accumulatedDepreciationAccountId,
+      accumulatedDepreciationAccountCode,
+      fxaDisposalSummaries: doc.followInfos?.fxaDisposalSummaries,
+    };
+  }
+
+  if (doc.journal === JOURNALS.FXA_OUT) {
+    return {
+      accumulatedDepreciationAccountId,
+      accumulatedDepreciationAccountCode,
+      fxaDisposalSummaries: doc.followInfos?.fxaDisposalSummaries,
+    };
+  }
+
+  if (doc.journal === JOURNALS.FXA_SALE) {
+    const saleOutAccountId = resolveAccountId(
+      saleOutAccountCode || fixedAssetAccountCode,
+      doc.followInfos?.saleOutAccountId || doc.followInfos?.fixedAssetAccountId,
+    );
+    const saleCostAccountId = resolveAccountId(
+      saleCostAccountCode || lossAccountCode,
+      doc.followInfos?.saleCostAccountId || doc.followInfos?.lossAccountId,
+    );
+
+    return {
+      accumulatedDepreciationAccountId,
+      saleOutAccountId,
+      saleCostAccountId,
+      accumulatedDepreciationAccountCode,
+      saleOutAccountCode: saleOutAccountCode || fixedAssetAccountCode,
+      saleCostAccountCode: saleCostAccountCode || lossAccountCode,
+      fxaDisposalSummaries: doc.followInfos?.fxaDisposalSummaries,
+    };
+  }
+
+  if (isSale) {
+    return {
+      ...resolvedFollowInfos,
+      saleOutAccountId: resolveAccountId(
+        saleOutAccountCode,
+        doc.followInfos?.saleOutAccountId,
+      ),
+      saleCostAccountId: resolveAccountId(
+        saleCostAccountCode,
+        doc.followInfos?.saleCostAccountId,
+      ),
+      saleOutAccountCode,
+      saleCostAccountCode,
+    };
+  }
+
+  if (doc.journal === JOURNALS.FXA_INCOME) {
+    const fxaIncomeDetails = Array.isArray(doc.followInfos?.fxaIncomeDetails)
+      ? [...doc.followInfos.fxaIncomeDetails]
+      : [];
+    const keyedDetails = new Set(
+      fxaIncomeDetails
+        .map((detail) => detail.transactionDetailId || detail.tempId || '')
+        .filter(Boolean),
+    );
+
+    for (const detail of doc.details || []) {
+      const detailId = detail._id || '';
+      const preDeprecation = Number(
+        detail.followInfos?.preDeprecation ||
+          detail.followInfos?.openingAccumulatedDepreciation ||
+          0,
+      );
+      const salvageValue = detail.followInfos?.salvageValue;
+
+      if (
+        !detailId ||
+        keyedDetails.has(detailId) ||
+        (preDeprecation <= 0 && salvageValue === undefined)
+      ) {
+        continue;
+      }
+
+      fxaIncomeDetails.push({
+        tempId: detailId,
+        transactionDetailId: detailId,
+        salvageValue,
+        preDeprecation,
+      });
+      keyedDetails.add(detailId);
+    }
+
+    return fxaIncomeDetails.length
+      ? { ...resolvedFollowInfos, fxaIncomeDetails }
+      : resolvedFollowInfos;
+  }
+
+  return resolvedFollowInfos;
+};
+
+export const resolveErkhetTransactionFollowInfosForTest =
+  resolveTransactionFollowInfos;
+
+const resolveTransactionVatRowId = (
+  doc: ITransaction,
+  maps: TReferenceMaps,
+) => {
+  const vatRowNumber = normalizeSourceCode(doc.vatRowId);
+
+  if (!doc.hasVat || !vatRowNumber) {
+    return doc.vatRowId;
+  }
+
+  const vatRowId = maps.vatRowsByNumber[vatRowNumber];
+  if (!vatRowId) {
+    throw new Error(`VAT row not found: ${vatRowNumber}`);
+  }
+
+  return vatRowId;
+};
+
+export const resolveErkhetTransactionVatRowIdForTest =
+  resolveTransactionVatRowId;
+
+const resolveTransactionCtaxRowId = (
+  doc: ITransaction,
+  maps: TReferenceMaps,
+) => {
+  const ctaxRowNumber = normalizeSourceCode(doc.ctaxRowId);
+
+  if (!doc.hasCtax || !ctaxRowNumber) {
+    return doc.ctaxRowId;
+  }
+
+  const ctaxRowId = maps.ctaxRowsByNumber[ctaxRowNumber];
+  if (!ctaxRowId) {
+    throw new Error(`CTAX row not found: ${ctaxRowNumber}`);
+  }
+
+  return ctaxRowId;
+};
+
+const getNumericFollowInfo = (
+  detail: ITrDetail,
+  key: string,
+): number | undefined => {
+  const value = detail.followInfos?.[key];
+  const numberValue =
+    typeof value === 'number'
+      ? value
+      : typeof value === 'string'
+        ? Number(value)
+        : NaN;
+
+  return Number.isFinite(numberValue) ? numberValue : undefined;
+};
+
+const getOpeningDepreciationTotal = (detail: ITrDetail) => {
+  const preDeprecation =
+    getNumericFollowInfo(detail, 'preDeprecation') ??
+    getNumericFollowInfo(detail, 'openingAccumulatedDepreciation');
+
+  if (!preDeprecation || preDeprecation <= 0) {
+    return 0;
+  }
+
+  return preDeprecation * Math.max(1, detail.count || 1);
+};
+
+const getOpeningBalanceKey = (
+  contentId: string | undefined,
+  accountCode: string,
+  branchCode?: string,
+  departmentCode?: string,
+) =>
+  [
+    contentId || '',
+    normalizeSourceCode(accountCode),
+    normalizeSourceCode(branchCode),
+    normalizeSourceCode(departmentCode),
+  ].join(':');
+
+export const normalizeOpeningFixedAssetBalances = (
+  docs: ITransaction[],
+): ITransaction[] => {
+  const openingDepByKey = new Map<string, number>();
+
+  for (const doc of docs) {
+    if (doc.journal !== JOURNALS.FXA_INCOME) {
+      continue;
+    }
+
+    for (const detail of doc.details || []) {
+      const amount = getOpeningDepreciationTotal(detail);
+      const accountCode = normalizeSourceCode(detail.followInfos?.accountCode);
+
+      if (!amount || !accountCode) {
+        continue;
+      }
+
+      const key = getOpeningBalanceKey(
+        doc.contentId,
+        accountCode,
+        detail.followInfos?.branchCode || doc.followInfos?.branchCode,
+        detail.followInfos?.departmentCode || doc.followInfos?.departmentCode,
+      );
+
+      openingDepByKey.set(key, (openingDepByKey.get(key) || 0) + amount);
+    }
+  }
+
+  if (!openingDepByKey.size) {
+    return docs;
+  }
+
+  return docs.map((doc) => {
+    const details = (doc.details || []).map((detail) => {
+      if (!detail.followInfos?.openingBalanceAccount) {
+        return detail;
+      }
+
+      const accountCode = normalizeSourceCode(
+        detail.followInfos?.sourceAccountCode ||
+          detail.followInfos?.accountCode,
+      );
+      const key = getOpeningBalanceKey(
+        doc.contentId,
+        accountCode,
+        detail.followInfos?.branchCode || doc.followInfos?.branchCode,
+        detail.followInfos?.departmentCode || doc.followInfos?.departmentCode,
+      );
+      const openingDepreciation = openingDepByKey.get(key) || 0;
+
+      if (!openingDepreciation) {
+        return detail;
+      }
+
+      return {
+        ...detail,
+        amount: fixNum(Math.max(0, detail.amount - openingDepreciation)),
+      };
+    });
+
+    return { ...doc, details };
+  });
 };
 
 const normalizeBatchDocs = async (
@@ -664,6 +1278,8 @@ const normalizeBatchDocs = async (
   const maps = await fetchReferenceMaps(subdomain, models, batch.trDocs);
   const contactByCode: Record<string, TContactResolution> = {};
 
+  // Нэг batch дотор ижил customer олон transaction дээр давтагддаг тул
+  // contact sync-г code-р cache хийж давхар create хийхээс сэргийлнэ.
   for (const doc of batch.trDocs) {
     const contact = doc.extraData?.erkhetCustomer as TErkhetContact | undefined;
     if (contact?.code && !contactByCode[contact.code]) {
@@ -675,108 +1291,79 @@ const normalizeBatchDocs = async (
     }
   }
 
-  return batch.trDocs.map((doc) => {
-    const customerCode = doc.customerId;
-    const branchCode = doc.branchId;
-    const departmentCode = doc.departmentId;
+  const resolvedDocs = await Promise.all(
+    batch.trDocs.map(async (doc) => {
+      const customerCode = normalizeSourceCode(doc.customerId);
+      const branchCode = normalizeSourceCode(doc.branchId);
+      const departmentCode = normalizeSourceCode(doc.departmentId);
 
-    const contact = customerCode ? contactByCode[customerCode] : undefined;
-    const fxaInstances =
-      (doc.extraData?.fxaInstances as TFxaInstanceMigrationInput[]) || [];
-    const fxaInstanceIds = doc.extraData?.fxaInstanceIds || [];
+      const contact = customerCode ? contactByCode[customerCode] : undefined;
+      const fxaOwnerRecords =
+        (doc.extraData?.fxaOwnerRecords as TFxaOwnerRecordMigrationInput[]) ||
+        [];
+      const extraData = { ...doc.extraData };
+      const invIncomeExpenses =
+        (doc.extraData?.invIncomeExpenses as TInvIncomeExpense[]) || [];
 
-    if (customerCode && !contact?._id && !maps.customersByCode[customerCode]) {
-      throw new Error(`Customer not found: ${customerCode}`);
-    }
-    if (branchCode && !maps.branchesByCode[branchCode]) {
-      throw new Error(`Branch not found: ${branchCode}`);
-    }
-    if (departmentCode && !maps.departmentsByCode[departmentCode]) {
-      throw new Error(`Department not found: ${departmentCode}`);
-    }
+      if (
+        customerCode &&
+        !contact?._id &&
+        !maps.customersByCode[customerCode]
+      ) {
+        throw new Error(`Customer not found: ${customerCode}`);
+      }
+      if (branchCode && !maps.branchesByCode[branchCode]) {
+        throw new Error(`Branch not found: ${branchCode}`);
+      }
+      if (departmentCode && !maps.departmentsByCode[departmentCode]) {
+        throw new Error(`Department not found: ${departmentCode}`);
+      }
+      const resolvedDoc = {
+        ...doc,
+        date: new Date(doc.date),
+        customerType: contact?.type || doc.customerType,
+        customerId:
+          contact?._id ||
+          (customerCode
+            ? maps.customersByCode[customerCode] || doc.customerId
+            : doc.customerId),
+        branchId: branchCode
+          ? maps.branchesByCode[branchCode] || doc.branchId
+          : doc.branchId,
+        departmentId: departmentCode
+          ? maps.departmentsByCode[departmentCode] || doc.departmentId
+          : doc.departmentId,
+        vatRowId: resolveTransactionVatRowId(doc, maps),
+        ctaxRowId: resolveTransactionCtaxRowId(doc, maps),
+        details: (doc.details || []).map((detail) =>
+          resolveDetail(detail, maps),
+        ),
+        followInfos: resolveTransactionFollowInfos(doc, maps),
+        contentType: doc.contentType || ERKHET_CONTENT_TYPE,
+        contentId: doc.contentId || batch.externalPtrId,
+        extraData: {
+          ...extraData,
+          invIncomeExpenses: resolveInvIncomeExpenses(invIncomeExpenses, maps),
+          fxaOwnerRecords: resolveFxaOwnerRecords(fxaOwnerRecords, maps),
+          migrationSource: 'erkhet',
+          externalPtrId: batch.externalPtrId,
+          customerCode,
+          branchCode,
+          departmentCode,
+        },
+      };
 
-    return {
-      ...doc,
-      date: new Date(doc.date),
-      customerType: contact?.type || doc.customerType,
-      customerId:
-        contact?._id ||
-        (customerCode
-          ? maps.customersByCode[customerCode] || doc.customerId
-          : doc.customerId),
-      branchId: branchCode
-        ? maps.branchesByCode[branchCode] || doc.branchId
-        : doc.branchId,
-      departmentId: departmentCode
-        ? maps.departmentsByCode[departmentCode] || doc.departmentId
-        : doc.departmentId,
-      details: (doc.details || []).map((detail) => resolveDetail(detail, maps)),
-      followInfos: resolveTransactionFollowInfos(doc, maps),
-      contentType: doc.contentType || ERKHET_CONTENT_TYPE,
-      contentId: doc.contentId || batch.externalPtrId,
-      extraData: {
-        ...doc.extraData,
-        fxaInstances: resolveFxaInstances(fxaInstances, maps),
-        fxaInstanceIds: resolveFxaInstanceIds(fxaInstanceIds, doc, maps),
-        migrationSource: 'erkhet',
-        externalPtrId: batch.externalPtrId,
-        customerCode,
-        branchCode,
-        departmentCode,
-      },
-    };
-  });
-};
+      resolvedDoc.extraData.fxaOwnerRecords = await resolveOwnerRecordSources(
+        models,
+        resolvedDoc,
+        resolvedDoc.extraData.fxaOwnerRecords || [],
+      );
 
-const cleanRawTransactionDoc = (doc: ITransaction) => {
-  const cleanDoc = { ...doc };
+      return resolvedDoc;
+    }),
+  );
 
-  delete cleanDoc._id;
-  delete cleanDoc.ptrId;
-  delete cleanDoc.parentId;
-  delete cleanDoc.ptrNumber;
-
-  return cleanDoc;
-};
-
-const saveRawBatch = async ({
-  models,
-  trDocs,
-  oldTr,
-  userId,
-}: {
-  models: IModels;
-  trDocs: ITransaction[];
-  oldTr?: ITransactionDocument | null;
-  userId: string;
-}) => {
-  const ptrId = oldTr?.ptrId || nanoid();
-  const parentId = oldTr?.parentId || nanoid();
-  const ptrNumber = oldTr?.ptrNumber || trDocs[0]?.number || '';
-
-  if (oldTr?.parentId) {
-    await models.Transactions.deleteMany({ parentId: oldTr.parentId });
-  }
-
-  const transactions: ITransactionDocument[] = [];
-
-  for (const doc of trDocs) {
-    const cleanDoc = cleanRawTransactionDoc(doc);
-    const transaction = await models.Transactions.createTransaction(
-      {
-        ...cleanDoc,
-        ptrId,
-        parentId,
-        ptrNumber,
-        number: cleanDoc.number || ptrNumber,
-      },
-      userId,
-    );
-
-    transactions.push(transaction);
-  }
-
-  return transactions;
+  return normalizeOpeningFixedAssetBalances(resolvedDocs);
 };
 
 const saveBatch = async ({
@@ -785,7 +1372,6 @@ const saveBatch = async ({
   userId,
   skipAccountPermission,
   dryRun,
-  rawSave,
   subdomain,
 }: {
   subdomain: string;
@@ -794,14 +1380,17 @@ const saveBatch = async ({
   userId: string;
   skipAccountPermission: boolean;
   dryRun: boolean;
-  rawSave: boolean;
 }) => {
   validateBatch(batch);
 
   const trDocs = await normalizeBatchDocs(subdomain, models, batch, userId);
+  const lookupContentType = trDocs[0]?.contentType || ERKHET_CONTENT_TYPE;
+  const lookupContentId = trDocs[0]?.contentId || batch.externalPtrId;
+  // Давтан ажиллуулахад ижил source баримт дахин үүсэхгүй байх гол түлхүүр.
+  // sync_id/sync_type байвал deal/source content-оор, байхгүй бол externalPtrId-р update хийнэ.
   const oldTr = await models.Transactions.findOne({
-    contentType: ERKHET_CONTENT_TYPE,
-    contentId: batch.externalPtrId,
+    contentType: lookupContentType,
+    contentId: lookupContentId,
     $or: [{ originId: { $exists: false } }, { originId: '' }],
   }).lean();
 
@@ -813,30 +1402,19 @@ const saveBatch = async ({
     };
   }
 
-  if (rawSave) {
-    const transactions = await saveRawBatch({
-      models,
-      trDocs,
-      oldTr,
-      userId,
-    });
-
-    return {
-      action: oldTr ? 'updated' : 'created',
-      parentId: transactions[0]?.parentId || oldTr?.parentId,
-      ptrId: transactions[0]?.ptrId || oldTr?.ptrId,
-      count: transactions.length,
-    };
-  }
+  const normalizedTrDocs =
+    oldTr && !trDocs[0]?._id
+      ? [{ ...trDocs[0], _id: oldTr.parentId }, ...trDocs.slice(1)]
+      : trDocs;
 
   const transactions = oldTr
     ? await models.Transactions.updatePTransaction(
         oldTr.parentId,
-        trDocs,
+        normalizedTrDocs,
         userId,
         { skipAccountPermission },
       )
-    : await models.Transactions.createPTransaction(trDocs, userId, {
+    : await models.Transactions.createPTransaction(normalizedTrDocs, userId, {
         skipAccountPermission,
       });
 
@@ -850,8 +1428,6 @@ const saveBatch = async ({
 
 export const importErkhetTransactions = async (req: Request, res: Response) => {
   try {
-    assertMigrationToken(req);
-
     const body = req.body as ErkhetTransactionsRequest;
     const userId = body.userId || String(req.headers.userid || '');
 
@@ -876,7 +1452,6 @@ export const importErkhetTransactions = async (req: Request, res: Response) => {
           userId,
           skipAccountPermission: body.skipAccountPermission !== false,
           dryRun: Boolean(body.dryRun),
-          rawSave: body.rawSave !== false,
           subdomain,
         });
 

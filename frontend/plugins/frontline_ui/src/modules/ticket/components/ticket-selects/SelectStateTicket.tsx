@@ -108,8 +108,8 @@ const SelectStateContent = () => {
   const { t } = useTranslation('frontline');
   return (
     <Command>
-      <Command.Input placeholder={t('search-state')} />
-      <Command.Empty>{t('no-state-found')}</Command.Empty>
+      <Command.Input placeholder={t('search-state', 'Search state')} />
+      <Command.Empty>{t('no-state-found', 'No state found')}</Command.Empty>
       <Command.List>
         {STATES.map((state) => (
           <SelectStateCommandItem key={state.value} state={state} />
@@ -201,7 +201,7 @@ const SelectStateTicketFilterBar = ({ scope }: { scope?: string }) => {
     >
       <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
         <SelectTriggerTicket variant="filter">
-          <SelectStateValue placeholder={t('state')} />
+          <SelectStateValue placeholder={t('state', 'State')} />
         </SelectTriggerTicket>
         <SelectTicketContent variant="filter">
           <SelectStateContent />

@@ -8,7 +8,6 @@ import { sendTRPCMessage } from 'erxes-api-shared/utils';
  */
 const getDynamicConfig = async (models: any, brandId?: string) => {
   const configs = await models.Configs.getConfigs('DYNAMIC');
-
   if (!configs?.length) {
     throw new Error('MS Dynamic config not found.');
   }
@@ -131,7 +130,26 @@ export const msdynamicSyncMutations = {
 
     for (const order of orders) {
       try {
-        const config = await getDynamicConfig(models, order.scopeBrandIds?.[0]);
+        let brandId = order.scopeBrandIds?.[0];
+
+        if (!brandId && order.posId) {
+          const pos = await sendTRPCMessage({
+            subdomain,
+            pluginName: 'sales',
+            module: 'pos',
+            action: 'findOne',
+            input: {
+              query: {
+                _id: order.posId,
+              },
+            },
+            defaultValue: null,
+          });
+
+          brandId = pos?.scopeBrandIds?.[0];
+        }
+
+        const config = await getDynamicConfig(models, brandId);
 
         const syncLog = await models.SyncLogsMSD.syncLogsAdd({
           contentType: 'pos:order',
@@ -148,6 +166,7 @@ export const msdynamicSyncMutations = {
           syncLog,
           order,
           config,
+          brandId,
         );
 
         results.push({

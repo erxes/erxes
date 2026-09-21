@@ -1,5 +1,6 @@
 import { useMemo, useCallback } from 'react';
 import { REACT_APP_API_URL } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import {
   TExportProgress,
   TUseExportStatusReturn,
@@ -8,12 +9,12 @@ import {
 export function useExportStatus(
   exportItem: TExportProgress | undefined,
 ): TUseExportStatusReturn {
+  const { t } = useTranslation('importExport');
+
   const handleDownload = useCallback(() => {
     if (!exportItem?.fileKey) return;
 
-    const downloadName =
-      exportItem.fileName ||
-      `export-${exportItem._id}.${exportItem.fileFormat || 'csv'}`;
+    const downloadName = exportItem.fileName || `export-${exportItem._id}.csv`;
     const fileUrl = `${REACT_APP_API_URL}/read-file?key=${encodeURIComponent(
       exportItem.fileKey,
     )}`;
@@ -37,12 +38,14 @@ export function useExportStatus(
     const canDownload = isCompleted && !!exportItem?.fileKey;
 
     const entitySuffix = exportItem?.entityType
-     ?.toUpperCase()
-     .split(':')
-     .pop()
-     ?.split('.')
-     .pop();
-    const fileName = entitySuffix ? `Export ${entitySuffix}` : 'Export';
+      ?.toUpperCase()
+      .split(':')
+      .pop()
+      ?.split('.')
+      .pop();
+    const fileName = entitySuffix
+      ? t('export-entity', { entity: entitySuffix })
+      : t('export');
 
     const dateValue =
       exportItem?.completedAt || exportItem?.startedAt || exportItem?.createdAt;
@@ -56,5 +59,5 @@ export function useExportStatus(
       fileName,
       dateValue,
     };
-  }, [exportItem, handleDownload]);
+  }, [exportItem, handleDownload, t]);
 }

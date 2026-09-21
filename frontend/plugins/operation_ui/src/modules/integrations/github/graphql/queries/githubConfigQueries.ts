@@ -1,26 +1,20 @@
 import { gql } from '@apollo/client';
 
-export const GET_TEAMS = gql`
-  query githubGetTeams {
-    getTeams {
-      _id
-      name
-    }
-  }
-`;
-
-export const GITHUB_ISSUES_SECTION_DATA = gql`
-  query GithubIssuesSectionData($installationId: Int!) {
-    getAllGithubConfigs(installationId: $installationId) {
+export const GET_GITHUB_CONFIG_BY_TEAM = gql`
+  query operationGithubConfigByTeam($teamId: String!) {
+    getGithubConfigByTeam(teamId: $teamId) {
       _id
       teamId
       repoName
       installationId
       syncMode
     }
-    getTeams {
+    getAllGithubConfigs {
       _id
-      name
+      teamId
+      repoName
+      installationId
+      syncMode
     }
   }
 `;

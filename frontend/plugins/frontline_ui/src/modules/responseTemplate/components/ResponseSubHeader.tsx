@@ -34,7 +34,7 @@ export const ResponseSubHeader = ({ channelId }: { channelId: string }) => {
             <Filter.View>
               <Command>
                 <Filter.CommandInput
-                  placeholder={t('filter')}
+                  placeholder={t('filter', 'Filter...')}
                   variant="secondary"
                   className="bg-background"
                 />
@@ -53,7 +53,7 @@ export const ResponseSubHeader = ({ channelId }: { channelId: string }) => {
           {isUndefinedOrNull(totalCount) || isInitialLoad || isRefetching ? (
             <Skeleton className="w-20 h-4 inline-block mt-1.5" />
           ) : (
-            t('records-found', { count: totalCount })
+            t('records-found', '{{count}} records found', { count: totalCount })
           )}
         </div>
       </Filter>

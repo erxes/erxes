@@ -1,7 +1,7 @@
 import { SelectMember } from 'ui-modules';
 import { useAtom } from 'jotai';
-import { selectConversationsState } from '../states/selectConversationsState';
-import { useAssignConversations } from '../hooks/useAssignConversations';
+import { selectConversationsState } from '@/inbox/conversations/states/selectConversationsState';
+import { useAssignConversations } from '@/inbox/conversations/hooks/useAssignConversations';
 import { useTranslation } from 'react-i18next';
 
 export const ReplaceAssignee = () => {
@@ -17,9 +17,15 @@ export const ReplaceAssignee = () => {
             conversationIds: selectedConversations,
             assignedUserId: value,
           },
+          refetchQueries: [
+            'Conversations',
+            'ConversationCounts',
+            'FrontlineInboxSidebarWorkCounts',
+            'GetMyChannels',
+          ],
         });
       }}
-      placeholder={t('select-assignee')}
+      placeholder={t('select-assignee', 'Select assignee')}
     />
   );
 };

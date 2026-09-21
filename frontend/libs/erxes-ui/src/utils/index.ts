@@ -4,6 +4,7 @@ export * from './cookie-storage';
 export * from './core';
 export * from './format';
 export * from './getPluginAssetsUrl';
+export * from './highlightMatch';
 export * from './isAnObject';
 export * from './isDefined';
 export * from './isDeeplyEqual';

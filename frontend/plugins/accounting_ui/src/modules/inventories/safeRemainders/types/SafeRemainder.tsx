@@ -1,10 +1,10 @@
-import {
-  IBranch,
-  IDepartment,
-  IProduct,
-  IProductCategory,
-  IUser,
-} from 'ui-modules';
+import { IBranch, IDepartment, IProduct, IUser } from 'ui-modules';
+
+interface IProductCategorySummary {
+  _id: string;
+  code?: string;
+  name: string;
+}
 
 export type ISafeRemainder = {
   _id: string;
@@ -23,14 +23,14 @@ export type ISafeRemainder = {
 
   branch: IBranch;
   department: IDepartment;
-  productCategory: IProductCategory;
+  productCategory: IProductCategorySummary;
   modifiedUser: IUser;
 
-  incomeRule?: any;
+  incomeRule?: Record<string, unknown>;
   incomeTrId?: string;
-  outRule?: any;
+  outRule?: Record<string, unknown>;
   outTrId?: string;
-  saleRule?: any;
+  saleRule?: Record<string, unknown>;
   saleTrId?: string;
 };
 

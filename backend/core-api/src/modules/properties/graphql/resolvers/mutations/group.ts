@@ -1,3 +1,4 @@
+import { IOrderInput } from 'erxes-api-shared/core-types';
 import { IContext } from '~/connectionResolvers';
 import { IFieldGroup } from '~/modules/properties/@types';
 
@@ -19,6 +20,15 @@ export const groupMutations = {
     await checkPermission('fieldGroupsManage');
 
     return await models.FieldsGroups.updateGroup(_id, doc, user);
+  },
+  fieldGroupsUpdateOrder: async (
+    _root: any,
+    { orders }: { orders: IOrderInput[] },
+    { models, checkPermission }: IContext,
+  ) => {
+    await checkPermission('fieldGroupsManage');
+
+    return await models.FieldsGroups.updateOrder(orders);
   },
   fieldGroupRemove: async (
     _root: any,

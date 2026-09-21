@@ -17,7 +17,7 @@ export const TicketsEditPriorityTrigger = ({
     >
       <div className="flex gap-2 items-center">
         <IconAlertSquareRounded className="size-4" />
-        {t('change-priority')}
+        {t('change-priority', 'Change priority')}
       </div>
       <IconChevronRight className="size-4 text-muted-foreground" />
     </Command.Item>
@@ -41,7 +41,12 @@ export const TicketsEditPriorityContent = ({
         await bulkUpdateTickets(
           ticketIds,
           { priority: value },
-          { successMessage: t('tickets-updated-successfully') },
+          {
+            successMessage: t(
+              'tickets-updated-successfully',
+              'Tickets updated successfully',
+            ),
+          },
         );
       }}
     >

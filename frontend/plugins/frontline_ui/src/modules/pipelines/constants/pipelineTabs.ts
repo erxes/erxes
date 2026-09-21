@@ -4,6 +4,7 @@ export const PIPELINE_TAB_SEGMENTS = {
   configs: 'configs',
   permissions: 'permissions',
   properties: 'properties',
+  mail: 'mail',
 } as const;
 
 export type TPipelineTabSegment =
@@ -12,12 +13,18 @@ export type TPipelineTabSegment =
 export const PIPELINE_TABS: {
   segment: TPipelineTabSegment;
   labelKey: string;
+  defaultLabel?: string;
 }[] = [
   { segment: PIPELINE_TAB_SEGMENTS.general, labelKey: 'general' },
   { segment: PIPELINE_TAB_SEGMENTS.statuses, labelKey: 'ticket-statuses' },
   { segment: PIPELINE_TAB_SEGMENTS.configs, labelKey: 'configuration' },
   { segment: PIPELINE_TAB_SEGMENTS.permissions, labelKey: 'permissions' },
   { segment: PIPELINE_TAB_SEGMENTS.properties, labelKey: 'properties' },
+  {
+    segment: PIPELINE_TAB_SEGMENTS.mail,
+    labelKey: 'pipeline-mail',
+    defaultLabel: 'Mail settings',
+  },
 ];
 
 export const getPipelinePath = (

@@ -888,8 +888,14 @@ export const widgetMutations: Record<string, Resolver> = {
   async widgetsReadConversationMessages(
     _root,
     args: { conversationId: string },
-    { models }: IContext,
+    { models, subdomain }: IContext,
   ) {
+    const unreadMessages = await models.ConversationMessages.find({
+      conversationId: args.conversationId,
+      userId: { $exists: true },
+      isCustomerRead: { $ne: true },
+    }).lean();
+
     await models.ConversationMessages.updateMany(
       {
         conversationId: args.conversationId,
@@ -898,6 +904,20 @@ export const widgetMutations: Record<string, Resolver> = {
       },
       { isCustomerRead: true },
       { multi: true },
+    );
+
+    await Promise.all(
+      unreadMessages.map((message) =>
+        graphqlPubsub.publish(
+          `conversationMessageUpdated:${subdomain}:${args.conversationId}`,
+          {
+            conversationMessageUpdated: {
+              ...message,
+              isCustomerRead: true,
+            },
+          },
+        ),
+      ),
     );
 
     return args.conversationId;

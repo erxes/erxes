@@ -3,6 +3,16 @@ import { getEnv } from 'erxes-api-shared/utils';
 type Replacement = (replacer: any, path: string) => any;
 type Transform = (block: any, text: any) => any | undefined;
 
+const BLOCK_LEVEL_TYPES = ['table', 'image'];
+
+const isBlankInline = (item: any) =>
+  (!item?.type || item.type === 'text') && !String(item?.text ?? '').trim();
+
+const isEmptiedBlock = (block: any) =>
+  Array.isArray(block?.content) &&
+  block.content.every(isBlankInline) &&
+  !(Array.isArray(block?.children) && block.children.length);
+
 export const replaceBlocks = ({
   replacer,
   content,
@@ -66,42 +76,68 @@ export const replaceBlocks = ({
     };
   };
 
-  const processBlock = (
-    block: any,
-    parentBlocks?: any[],
-    parentIndex?: number,
-  ) => {
-    if (!block) return;
+  const replaceAttribute = (node: any) =>
+    processAttribute(node, replacement(replacer, node?.props?.value));
 
-    if (block.type === 'attribute') {
-      const { props } = block;
-      const replacedValue = replacement(replacer, props?.value);
+  const processContainer = (node: any, hoisted: any[]) => {
+    if (!node || typeof node !== 'object') return;
 
-      if (parentBlocks && parentIndex !== undefined) {
-        parentBlocks[parentIndex] = processAttribute(block, replacedValue);
-      }
-
-      return;
-    }
-
-    for (const key in block) {
-      const value = block[key];
+    for (const key of Object.keys(node)) {
+      const value = node[key];
 
       if (Array.isArray(value)) {
-        value.forEach((item, childIndex) =>
-          processBlock(item, value, childIndex),
-        );
-      } else if (value && typeof value === 'object') {
-        processBlock(value);
+        node[key] = processNodes(value, hoisted);
+        continue;
+      }
+
+      if (value && typeof value === 'object') {
+        processContainer(value, hoisted);
       }
     }
   };
 
-  blocks.forEach((block: any, index: number) =>
-    processBlock(block, blocks, index),
-  );
+  const processNodes = (nodes: any[], hoisted: any[]): any[] => {
+    const result: any[] = [];
 
-  return JSON.stringify(blocks);
+    for (const node of nodes) {
+      if (node?.type === 'attribute') {
+        const replaced = replaceAttribute(node);
+
+        if (BLOCK_LEVEL_TYPES.includes(replaced?.type)) {
+          hoisted.push(replaced);
+          continue;
+        }
+
+        result.push(replaced);
+        continue;
+      }
+
+      processContainer(node, hoisted);
+      result.push(node);
+    }
+
+    return result;
+  };
+
+  const replacedBlocks: any[] = [];
+
+  for (const block of blocks) {
+    if (block?.type === 'attribute') {
+      replacedBlocks.push(replaceAttribute(block));
+      continue;
+    }
+
+    const hoisted: any[] = [];
+    processContainer(block, hoisted);
+
+    if (!hoisted.length || !isEmptiedBlock(block)) {
+      replacedBlocks.push(block);
+    }
+
+    replacedBlocks.push(...hoisted);
+  }
+
+  return JSON.stringify(replacedBlocks);
 };
 
 export const buildTableBlock = (rows: string[][]) => ({

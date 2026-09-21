@@ -6,7 +6,7 @@
 - **Project:** `accounting_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/accounting_ui`
-- **Last synchronized:** `2026-08-17`
+- **Last synchronized:** `2026-09-19`
 
 ## Scope
 
@@ -36,20 +36,34 @@
 - Fund and debt rate adjustment detail account balance grids, plus fund linked transaction rows, render with `RecordTable` instead of raw HTML tables.
 - Closing adjustment list renders account fields inline, and detail can calculate temporary-account balances grouped by branch/department, show validation state, render read-only branch/department code-title labels plus account inline names, edit tax percentage per row in collapsible `RecordTable` groups, show generated transactions in a `TBalance`-style transactions tab, run closing transactions, publish, cancel, and show tax impact.
 - Inventory transaction rows fill prices from product master, current inventory cost, or last completed inventory income price depending on journal behavior.
+- Inventory income can allocate additional expenses by amount, count, or editable total line weight; line weight initializes from core product weight multiplied by count.
+- Fixed asset income, out, move, and sale transaction rows can toggle detailed view to edit branch and department per detail.
+- Transaction balance rows display branch and department from each transaction detail when present, so generated follow rows with source/destination locations are shown at their row location instead of the root transaction location.
+- Fixed asset income rows capture acquisition category, code, name, count, unit cost, tax settings, and optional detail-level branch/department values; code and name are editable inline table cells that participate in transaction-form keyboard navigation, and the backend creates the fixed asset from the saved detail.
+- Fixed asset category forms show both derived useful years and annual depreciation percentage; changing either field updates the other rounded to two decimals, while the backend stores the annual percentage as the canonical value.
+- Fixed asset settings list income-created asset records without a direct add button; asset creation belongs to fixed asset income transactions.
+- Fixed asset income detail sheets start with no owner-allocation rows by default; the owner-record add button shows the remaining quantity, lets users split the detail count into responsible-user/serial rows, and keeps residual value plus `preDeprecation` as detail-level follow-info.
+- Fixed asset out, move, and sale rows select existing fixed assets directly, while the "Олон хөрөнгө нэмэх" sheet can filter by category and append multiple selected assets as separate details; selected rows refetch fixed asset location remainder whenever fixed asset, branch, department, or date changes, can optionally select active owner records up to the detail count, out/move cost is based on asset data, sale keeps user-entered sale price, branch/department values stay on each detail, `fxaOut` only asks for accumulated depreciation account, and generated sale/depreciation follow previews use `fxaSaleOut`, `fxaDepOut`, and `fxaSaleCost`.
+- Fixed asset out, move, and sale edit forms preserve persisted detail counts while location remainder loads; the remainder limits subsequent user edits but must not rewrite saved values during form initialization.
+- Fixed asset disposal follow previews run only for unsaved transactions; persisted edit forms keep Mongo-backed main details and generated follow transactions until the backend recalculates them on save.
+- Fixed asset navigation includes an "Үндсэн хөрөнгө" section with an owner-record list and a branch/department fixed asset remainder page; the redundant fixed asset settings and direct internal-move shortcuts are not shown there.
 - The in-form add-transaction dropdown can create cash, bank, receivable, payable, or main transaction tabs directly from a selected account by resolving the account journal and pre-filling the first detail account; journal-only additions start with an empty account.
 - Related account override inputs keep focus while users type and persist custom debit and credit code lists independently.
 - Empty related account overrides are omitted on submit so backend-calculated default debit/credit related accounts remain active, and the related-account editor falls back to default `dt/ct` codes when `customDt/customCt` are empty.
-- Accounting settings pages manage accounts, account categories, permissions, VAT, CTAX, and sync configuration.
-- Journal report rendering groups backend rows recursively, filters by Erkhet-compatible transaction type plus erxes-native account/product/fixed-asset/customer/branch/department fields, renders account statement, trial balance, general ledger, main journal, main journal summary, fund, debt, inventory cost, inventory sale, inventory sale-cost, inventory sale-period, inventory price, inventory profit, inventory shipper, inventory document, inventory seller subsystem, and fixed asset report variants, derives table headers and footers from report column metadata, keeps date filter controls visually consistent, drills account rows into account statements with filter context, calculates parent/footer totals after render, hides all-zero rows unless users choose to show them, loads account-statement detail rows without mutating report state, and opens transaction edit screens from detail rows.
+- Accounting settings pages manage accounts, account categories, permissions, VAT, CTAX, and sync configuration; VAT/CTAX row access is guarded by the unified tax-row permission actions.
+- Journal report rendering groups backend rows recursively, uses a declarative report-to-filter map to show and submit only applicable account, contact, inventory, fixed-asset, organization, user, and report controls, filters by Erkhet-compatible transaction type plus erxes-native category/search/tag/ownership fields, renders account statement, trial balance, general ledger, main journal, main journal summary, fund, debt, inventory cost, inventory sale, inventory sale-cost, inventory sale-period, inventory price, inventory profit, inventory shipper, inventory document, inventory seller subsystem, and fixed asset report variants, shows foreign-currency balance rows separately beneath non-MNT account leaves without adding them to base-currency totals, derives table headers and footers from report column metadata, keeps date filter controls visually consistent, shows table-body loading skeletons while report or drill-down data loads, drills account rows into account statements with filter context, calculates parent/footer totals after render, hides all-zero rows unless users choose to show them, loads account-statement detail rows without mutating report state, and opens transaction edit screens from detail rows.
+- Development Rspack serving ignores generated dependency/cache/output folders to keep local file watchers bounded.
 
 ## Architecture
 
 | Area                | Path                                                          | Responsibility                                                                                                  |
 | ------------------- | ------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
 | Runtime             | `src/main.ts`                                                 | Starts the accounting UI remote.                                                                                |
+| Dev server config   | `rspack.config.ts`                                            | Configures Module Federation development serving and ignores generated folders during watch mode.               |
 | Plugin config       | `src/config.tsx`                                              | Registers accounting routes and navigation with the host.                                                       |
 | Route composition   | `src/modules/AccountingMain.tsx`                              | Wires accounting pages into the plugin router.                                                                  |
 | Transactions        | `src/modules/transactions`                                    | Owns transaction tables, forms, GraphQL documents, hooks, and print documents.                                  |
+| Fixed assets        | `src/modules/fixedAssets`                                     | Owns fixed asset navigation and owner-record operational list surfaces.                                         |
 | Adjustments         | `src/modules/adjustments`                                     | Owns inventory, fixed asset, fund rate, debt rate, and closing adjustment UI.                                   |
 | Journal reports     | `src/modules/journal-reports`                                 | Owns report selection, filters, grouped rendering, totals, and detail rows.                                     |
 | Report configs      | `src/modules/journal-reports/types/reports`                   | Groups report titles, choices, and group rules by main, fund, debt, inventory, and fixed asset report families. |
@@ -70,6 +84,13 @@
 ### Consumes
 
 - Accounting API GraphQL contracts for transactions, reports, settings, inventory/fixed asset adjustments, fund rate adjustments, and debt rate adjustments, including journal report `trKind` filters.
+- Fixed asset location remainder contract `fixedAssetLocationRemainder(fixedAssetId, branchId, departmentId, date, excludeTransactionId)` for disposal/move/sale row count limits.
+- Fixed asset location remainder list contract `fixedAssetLocationRemainders(searchValue, fixedAssetId, categoryId, branchId, departmentId, date, limit)` for the fixed asset remainder page.
+- Fixed asset owner-record query contract `fxaOwnerRecords(fixedAssetIds, status, balanceOnly)` for disposal/move/sale owner balance selection sheets.
+- Fixed asset owner-record list contracts `fxaOwnerRecords(searchValue, fixedAssetId, categoryId, action, ownerId, status, createdFrom, createdTo, page, perPage)` and `fxaOwnerRecordsCount(...)`, plus direct `fixedAssetOwnerRecordsAdd`, `fixedAssetOwnerRecordsTransfer`, and `fixedAssetOwnerRecordsRemove` mutations for the fixed asset owner-record page.
+- Transaction journal labels and generated fixed-asset follow previews consume the fixed-asset journal names `fxaDep`, `fxaDepIn`, `fxaDepOut`, `fxaSaleOut`, and `fxaSaleCost`.
+- Fixed asset sale follow account fields use `saleOutAccountId` and `saleCostAccountId`; fixed asset income/out/move forms do not store a root `fixedAssetAccountId` because the asset account comes from transaction details.
+- Fixed asset category settings consume `defaultAnnualDepreciationRate` and `defaultTaxAnnualDepreciationRate`; useful years are UI-derived as `100 / annualRate` and are not sent to or read from the backend.
 - Fund rate adjustment contracts: `adjustFundRates`, `adjustFundRateDetail`, `adjustFundRateAdd`, `adjustFundRateChange`, `adjustFundRateCalculate`, `adjustFundRateDoTransaction`, `adjustFundRateRemove`, and `accountingAdjustFundRateChanged`.
 - Debt rate adjustment contracts: `adjustDebtRates`, `adjustDebtRateDetail`, `adjustDebtRatesAdd`, `adjustDebtRatesEdit`, `adjustDebtRateCalculate`, `adjustDebtRateDoTransaction`, `adjustDebtRatesRemove`, and `accountingAdjustDebtRateChanged`.
 - Closing adjustment contracts: `adjustClosings`, `adjustClosingsCount`, `adjustClosingDetail`, `adjustClosingEntriesCount`, `adjustClosingAdd`, `adjustClosingEdit`, `adjustClosingCalculate`, `adjustClosingDoTransaction`, `adjustClosingRun`, `adjustClosingPublish`, `adjustClosingCancel`, and `adjustClosingRemove`.
@@ -81,6 +102,7 @@
 
 - Apollo Client owns server state, mutation refreshes, subscriptions, and detail/list cache updates.
 - React Hook Form owns editable accounting transaction and adjustment form state.
+- Inventory income detail form state stores total line weight; product or count changes recalculate it from core product weight, while direct weight edits persist until either source changes.
 - Jotai atoms under `src/modules/transactions/transaction-form/states` hold transaction form UI state, tax percentages, follow transactions, and rendering selections.
 - URL query state owns selected detail ids and account table filters where existing accounting patterns use query params.
 - Rate adjustment detail subscriptions replace the loaded detail with the published calculated detail payload.
@@ -100,10 +122,24 @@
 - Account currency create/edit, inline edit, and filter selectors must use the same system `dealCurrency` options.
 - Currency amount inputs display rounded values by default but expose configured edit precision while focused.
 - Transaction currency amount synchronization must react to manual amount-field changes and avoid hook cycles.
+- Inventory income weight allocation must use persisted detail total weight; missing core product weight defaults to one per item, and manual detail weight remains unchanged until product or count changes.
+- Fixed asset income detail state must preserve `fixedAssetCategoryId`, `fixedAssetCode`, and `fixedAssetName` through save/refetch so generated fixed assets remain editable from their source transaction detail.
+- Fixed asset income code and name cells must use the same `PopoverScoped` plus `RecordTableInlineCell` pattern as numeric inline cells so shortcut navigation can focus and edit them.
+- Fixed asset detail tables must tolerate an uninitialized `details` watch value during create-route bootstrap and render with an empty array until form defaults arrive.
+- Fixed asset income owner sheet state must preserve `followInfos.fxaIncomeDetails` residual value and `preDeprecation` per detail; owner rows in `extraData.fxaOwnerRecords` are optional and represent responsible-user/serial allocation only.
+- Fixed asset disposal, move, and sale forms must not require owner-record selection or a row-level category selector; category filtering belongs in the multi-add sheet, while quantity, branch, and department are owned by transaction details.
+- Fixed asset disposal, move, and sale row count limits must be driven by `fixedAssetLocationRemainder` using the row fixed asset, row branch/department, form date, and current transaction id exclusion.
+- Loading or refetching a fixed asset location remainder must not mutate an existing transaction detail count; apply the limit only when the user changes the count.
+- Fixed asset disposal preview hooks must never rebuild saved main or follow rows from master-data queries; tab and T-balance remounts must leave Mongo-backed amounts, counts, sides, and generated `fxaDepOut` rows unchanged.
+- Fixed asset disposal, move, and sale owner-record selection is optional per detail; when users select owner balance rows, the selected owner counts must not exceed the detail count and are saved through `extraData.fxaOwnerRecords` with `ownerId`.
+- Fixed asset navigation should show the operational owner-record list and fixed asset remainder page; fixed asset master data remains under settings and internal movement remains an add-transaction action.
+- Fixed asset category annual depreciation percentage is canonical in saved data; useful years are displayed and editable only as a derived helper rounded to two decimals.
+- Fixed asset master rows are created by income transactions, so settings must not expose a direct "add fixed asset" action.
 - Module Federation exposes, route paths, and named exports must stay aligned.
 - Journal report total calculation must stay scoped to the rendered report table body and zero-row hiding must preserve rows explicitly marked with `data-draw-zero="1"`.
 - Journal report headers and footers must stay aligned with each report config's two recursive grouping columns plus `colCount` value columns.
 - Journal report inventory and fixed-asset location filtering is represented by branch/department selectors because erxes transaction details carry branch/department instead of Erkhet `inv_location`/`fxa_location` ids.
+- Journal report filter visibility and submitted query parameters must be declared in `src/modules/journal-reports/types/reportFilters.ts`; adding a field to a form without mapping it to applicable reports and its backend query parameter is not allowed.
 
 ## Validation
 
@@ -113,74 +149,73 @@
 - Smoke scenario: create a closing adjustment, calculate details, edit a row tax percent, run transactions, and confirm status plus tax impact refresh without a manual page reload.
 - Smoke scenario: in cash, bank, payable, and receivable transaction forms, manually edit main and foreign currency amounts and verify paired amount syncing does not loop or lose precision after refetch.
 - Smoke scenario: in inventory sale, income, out, and move rows, change products and verify `unitPrice` plus amount/follow cost values refresh without a manual page reload.
+- Smoke scenario: in fixed asset income, out, move, and sale forms, enable "Дэлгэрэнгүй харагдац" and verify each detail row can store independent branch and department values.
+- Smoke scenario: in fixed asset income, enter category/code/name/count/unit cost, verify keyboard shortcuts can reach and edit code/name cells, open the detail owner sheet, verify it starts empty, confirm the owner-record add button shows the remaining quantity in red while positive and disables at zero, optionally add owner rows whose counts total the detail count, set residual value and `preDeprecation`, save, refetch, and verify the generated fixed asset plus optional owner records remain.
+- Smoke scenario: in fixed asset out, move, and sale forms, select a fixed asset in a single row, verify branch/department default from the transaction header, change row branch/department and confirm the count limit refreshes from that location, open the owner-record sheet and select active owner balance rows below or equal to the detail count, open "Олон хөрөнгө нэмэх", filter by category, append multiple assets as separate details, verify out/move cost fields fill from the asset cost base, sale keeps user-entered sale price, and detail branch/department values persist from the detailed view.
+- Smoke scenario: open `/accounting/fixed-assets/owner-records`, verify the "Үндсэн хөрөнгө" navigation group appears, filter owner records by search, fixed asset, category, owner, action, status, and created date, then use Үүсгэх/Шилжүүлэх/Цуцлах actions to create direct owner-record ledger rows without leaving the page.
+- Smoke scenario: open `/accounting/fixed-assets/remainders`, verify the "Үлдэгдэл" navigation item appears without the fixed asset settings or direct internal-move shortcuts, filter by search, fixed asset, category, branch, department, and date, and confirm rows show positive fixed asset quantities grouped by branch and department.
 - Smoke scenario: generate account statement, trial balance, general ledger, main journal, main journal summary, fund, debt, inventory cost, inventory sale, inventory sale-cost, inventory sale-period, inventory price, inventory profit, inventory shipper, inventory document, inventory seller subsystem, and fixed asset journal reports with and without "Хоосон мөр харуулах" and "Гүйлгээний төрөл", verify parent/footer totals plus detail rows remain correct, and double-click an account statement detail row to open its transaction edit screen.
 
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
 
-### `2026-08-17` — `Related Account Default Display`
+### `2026-09-19` — `Inventory Income Weight Allocation`
 
-- **Summary:** Related account editing now falls back to backend-calculated default debit/credit codes whenever custom debit/credit override arrays are empty.
-- **Affected areas:** `src/modules/transactions/transaction-form/components/helpers/RelAccountsForm.tsx`.
+- **Summary:** Inventory income can allocate additional expenses by editable total line weight calculated from product weight and count.
+- **Affected areas:** Inventory income expense rules, detail state, advanced table columns, product lookup, and allocation calculation.
+- **Contracts changed:** Consumes optional core product `weight` and accounting transaction detail `weight`.
+
+### `2026-09-18` — `Transaction Delete Filter Return`
+
+- **Summary:** Transaction edit links now preserve the current list URL so deleting a transaction returns to the previously filtered list.
+- **Affected areas:** `src/modules/transactions/components`, `src/modules/transactions/transaction-form`, and transaction navigation utilities.
 - **Contracts changed:** None.
 
-### `2026-08-16` — `Empty Related Account Defaults`
+### `2026-09-18` — `Inventory Sale Edit Preservation`
 
-- **Summary:** Transaction submission now omits empty related-account overrides so backend default debit/credit related account calculation is preserved.
-- **Affected areas:** `src/modules/transactions/transaction-form/components/utils.ts`.
+- **Summary:** Inventory sale and return edit forms preserve persisted unit prices, amounts, and VAT/CTAX state until the user selects a different product.
+- **Affected areas:** Inventory sale row effects and transaction default values.
 - **Contracts changed:** None.
 
-### `2026-08-16` — `Journal Addition Account Isolation`
+### `2026-09-18` — `Mapped Journal Report Filters`
 
-- **Summary:** Adding a transaction tab by journal no longer copies the first tab's account, while account-based additions still prefill only the selected account.
-- **Affected areas:** `src/modules/transactions/transaction-form/components/TransactionTabs.tsx`.
+- **Summary:** The journal report form now separates related filters with unobtrusive dividers and uses one report map to expose only applicable customer/company tags, product/fixed-asset categories and searches, and created/modified/assigned user filters.
+- **Affected areas:** `src/modules/journal-reports/components/ReportForm.tsx`, `src/modules/journal-reports/types/reportFilters.ts`, report query variables.
+- **Contracts changed:** Consumes journal report `customerTagIds`, `companyTagIds`, `productCategoryId`, `productSearchValue`, `fixedAssetCategoryId`, `fixedAssetSearchValue`, and `assignedUserId` arguments.
+
+### `2026-09-17` — `Journal Report Foreign Currency Rows`
+
+- **Summary:** Main balance, fund, and debt reports now show an Erkhet-style italic currency row beneath each non-MNT leaf using currency opening, debit, credit, and closing amounts kept separate from base-currency totals.
+- **Affected areas:** `src/modules/journal-reports/components/ReportTableBody.tsx`, `src/modules/journal-reports/components/includes/main`, and report handler mappings.
+- **Contracts changed:** Balance report calculator results may provide an `afterNode` row.
+
+### `2026-09-17` — `Fund And Debt Report Details`
+
+- **Summary:** Fund and debt balance reports now render their loaded transaction drill-down rows using the shared account-statement detail table.
+- **Affected areas:** `src/modules/journal-reports/components/includes`.
 - **Contracts changed:** None.
 
-### `2026-08-15` — `Related Account Input Stability`
+### `2026-09-17` — `Journal Report Loading Skeleton`
 
-- **Summary:** Related account override inputs now use stable keys, independent debit/credit save timers, and non-submit edit buttons so typing no longer loses focus after a character.
-- **Affected areas:** `src/modules/transactions/transaction-form/components/helpers/RelAccountsForm.tsx`.
+- **Summary:** Journal report tables now render skeleton body rows while initial report data or drill-down rows are loading instead of showing an empty table.
+- **Affected areas:** `src/modules/journal-reports/components/ReportTableBody.tsx`.
 - **Contracts changed:** None.
 
-### `2026-08-14` — `Account-Based Transaction Tab Creation`
+### `2026-09-17` — `Fixed Asset Transaction Forms`
 
-- **Summary:** The in-form add-transaction dropdown now lets users select main, cash, bank, and debt accounts first, then creates the matching transaction tab with that account prefilled.
-- **Affected areas:** `src/modules/transactions/components/AddTransaction.tsx`, `src/modules/transactions/transaction-form/components/TransactionTabs.tsx`.
+- **Summary:** Normalized fixed asset income, disposal, sale, and move forms around detail-owned accounts and locations, optional owner allocation, prior depreciation, generated follow journals, and persisted edit-state preservation.
+- **Affected areas:** `src/modules/transactions/transaction-form`, transaction queries, balance-table rendering, and journal labels.
+- **Contracts changed:** Consumes detail branch/department data, `preDeprecation`, sale follow accounts `saleOutAccountId`/`saleCostAccountId`, and journals `fxaDep`, `fxaDepIn`, `fxaDepOut`, `fxaSaleOut`, and `fxaSaleCost`.
+
+### `2026-09-09` — `Safe Remainder Empty Location Cells`
+
+- **Summary:** Safe remainder list branch and department columns now render blank cells when no branch or department is selected instead of showing undefined labels.
+- **Affected areas:** `src/modules/inventories/safeRemainders/components/SafeRemainderColumns.tsx`.
 - **Contracts changed:** None.
 
-### `2026-08-14` — `Journal Report Drilldown`
+### `2026-09-09` — `Safe Remainder List Query Ownership`
 
-- **Summary:** Journal report account rows now double-click through to account statements with current filter and grouping context, while account-statement detail rows continue to open transaction edit screens.
-- **Affected areas:** `src/modules/journal-reports/components`.
+- **Summary:** Safe remainder list page now runs the list query once and shares loading, count, and rows with the filter count badge and table.
+- **Affected areas:** `src/pages/inventories/SafeRemaindersPage.tsx`, `src/modules/inventories/safeRemainders/components/SafeRemainderTable.tsx`, `src/modules/inventories/safeRemainders/components/SafeRemaindersTotalCount.tsx`.
 - **Contracts changed:** None.
-
-### `2026-08-14` — `Journal Report Table Layout`
-
-- **Summary:** Journal report headers and footers now come from a shared layout registry so displayed columns stay aligned with the recursive renderer, date range filters use consistent formatting and layout, and renderer lookup uses the Erkhet-aligned `getCalcReport` name.
-- **Affected areas:** `src/modules/journal-reports/components`.
-- **Contracts changed:** None.
-
-### `2026-08-14` — `Journal Report Detail Deduplication`
-
-- **Summary:** Journal report detail rows are rebuilt from the latest query result instead of appended onto previous render state, preventing repeated account-statement detail rows after rerenders or refetches.
-- **Affected areas:** `src/modules/journal-reports/components`.
-- **Contracts changed:** None.
-
-### `2026-08-14` — `Journal Report Structure`
-
-- **Summary:** Journal report config and renderer registries were split by report family, while the report selector shows full wrapped names inside wider, scrollable, collapsed report groups.
-- **Affected areas:** `src/modules/journal-reports/components`, `src/modules/journal-reports/types`.
-- **Contracts changed:** None.
-
-### `2026-08-14` — `Erkhet Journal Report Coverage`
-
-- **Summary:** Journal report UI now exposes erxes-native product/fixed-asset/customer filters and renders fund, debt, fixed asset, inventory sale/cost/period/price/profit/shipper/document, and inventory seller subsystem variants alongside the main journal reports through the shared grouped report renderer.
-- **Affected areas:** `src/modules/journal-reports/components`, `src/modules/journal-reports/types`.
-- **Contracts changed:** None.
-
-### `2026-08-13` — `Journal Report Rendering`
-
-- **Summary:** Journal report rendering now mirrors the Erkhet generated-report templates more closely with transaction-kind filtering, scoped total calculation, all-zero row hiding, immutable detail grouping, and transaction navigation from account-statement detail rows.
-- **Affected areas:** `src/modules/journal-reports/components`, `src/modules/journal-reports/graphql`, `src/modules/journal-reports/hooks`, `src/modules/journal-reports/states`, `src/modules/journal-reports/types`.
-- **Contracts changed:** Consumes optional `trKind`, `trKinds`, and `getTrKind` journal report filters.

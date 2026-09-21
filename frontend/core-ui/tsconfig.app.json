@@ -14,6 +14,10 @@
   },
   "exclude": [
     "jest.config.ts",
+    "../libs/**/*.spec.ts",
+    "../libs/**/*.test.ts",
+    "../libs/**/*.spec.tsx",
+    "../libs/**/*.test.tsx",
     "src/**/*.spec.ts",
     "src/**/*.test.ts",
     "src/**/*.spec.tsx",

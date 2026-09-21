@@ -31,15 +31,38 @@ export interface IAutomatedReplyControl {
   updatedBy?: string;
 }
 
+type IMessageAnswer = { id: string | number; text: string; emoji?: string };
+
+type IMessageTally = {
+  isFinalized?: boolean;
+  answerCounts: { id: string | number; count: number }[];
+};
+
 export interface IMessagePoll {
   question: string;
-  answers: { id: number; text: string; emoji?: string }[];
+  answers: IMessageAnswer[];
   allowMultiselect?: boolean;
   expiry?: string;
-  results?: {
-    isFinalized?: boolean;
-    answerCounts: { id: number; count: number }[];
-  };
+  results?: IMessageTally;
+}
+
+export interface IMessageSurveyStep {
+  stepId: string;
+  name?: string;
+  description?: string;
+  question: string;
+  answers: IMessageAnswer[];
+  allowMultiselect?: boolean;
+}
+
+export interface IMessageSurvey {
+  surveyId?: string;
+  question: string;
+  answers: IMessageAnswer[];
+  allowMultiselect?: boolean;
+  steps?: IMessageSurveyStep[];
+  expiry?: string;
+  results?: IMessageTally;
 }
 
 export interface IMessageEmbed {
@@ -70,6 +93,7 @@ export interface IMessage {
   formWidgetData?: IFormWidgetItem[];
   extraData?: {
     poll?: IMessagePoll;
+    survey?: IMessageSurvey;
     embeds?: IMessageEmbed[];
     discordMessageId?: string;
     discordDeletedAt?: string;

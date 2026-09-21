@@ -1,15 +1,19 @@
-import { IconCalendarPlus, IconSearch } from '@tabler/icons-react';
+import { IconCalendarPlus, IconSearch, IconTags } from '@tabler/icons-react';
 import {
   Combobox,
   Command,
   Filter,
   PageSubHeader,
+  Popover,
   useMultiQueryState,
 } from 'erxes-ui';
 import { useSearchParams } from 'react-router';
-import { SelectMember } from 'ui-modules';
+import { SelectMember, TagsSelect } from 'ui-modules';
 import { DocumentFilterState } from '../types';
 import { useTranslation } from 'react-i18next';
+import { DocumentsViewControl } from './DocumentsViewControl';
+
+const EMPTY_TAG_IDS: string[] = [];
 
 export const DocumentsFilter = () => {
   const [searchParams] = useSearchParams();
@@ -20,6 +24,7 @@ export const DocumentsFilter = () => {
     'createdAt',
     'createdBy',
     'searchValue',
+    'tagIds',
   ]);
 
   const hasFilters = Object.values(queries || {}).some(
@@ -53,7 +58,32 @@ export const DocumentsFilter = () => {
           </div>
         </Filter.Bar>
       </Filter>
+      <DocumentsViewControl />
     </PageSubHeader>
+  );
+};
+
+/** Selects document tag filters using the shared tag picker. */
+const DocumentTagFilter = () => {
+  const [{ tagIds }, setQueries] = useMultiQueryState<DocumentFilterState>([
+    'tagIds',
+  ]);
+  return (
+    <TagsSelect.Provider
+      type="core:documents"
+      value={tagIds || EMPTY_TAG_IDS}
+      mode="multiple"
+      onValueChange={(tagIds) => setQueries({ tagIds })}
+    >
+      <Popover.Trigger>
+        <Filter.BarButton filterKey="tagIds">
+          <TagsSelect.SelectedList />
+        </Filter.BarButton>
+      </Popover.Trigger>
+      <Popover.Content className="p-0">
+        <TagsSelect.Content />
+      </Popover.Content>
+    </TagsSelect.Provider>
   );
 };
 
@@ -82,12 +112,24 @@ const DocumentFilterBar = ({ queries }: { queries: DocumentFilterState }) => {
         </Filter.BarName>
         <Filter.Date filterKey="createdAt" />
       </Filter.BarItem>
-      {createdBy && <SelectMember.FilterBar queryKey="createdBy" label="Created By" />}
+      <Filter.BarItem queryKey="tagIds">
+        <Filter.BarName>
+          <IconTags />
+          Tags
+        </Filter.BarName>
+        <DocumentTagFilter />
+      </Filter.BarItem>
+      {createdBy && (
+        <SelectMember.FilterBar queryKey="createdBy" label="Created By" />
+      )}
     </>
   );
 };
 
 const DocumentFilterView = () => {
+  const [{ tagIds }, setQueries] = useMultiQueryState<DocumentFilterState>([
+    'tagIds',
+  ]);
   const { t } = useTranslation('documents', {
     keyPrefix: 'filter',
   });
@@ -106,6 +148,10 @@ const DocumentFilterView = () => {
               {t('search')}
             </Filter.Item>
 
+            <Filter.Item value="tagIds">
+              <IconTags />
+              Tags
+            </Filter.Item>
             <SelectMember.FilterItem value="createdBy" label="Created By" />
             <Command.Separator className="my-1" />
             <Filter.Item value="createdAt">
@@ -114,6 +160,16 @@ const DocumentFilterView = () => {
             </Filter.Item>
           </Command.List>
         </Command>
+      </Filter.View>
+      <Filter.View filterKey="tagIds">
+        <TagsSelect.Provider
+          type="core:documents"
+          value={tagIds || EMPTY_TAG_IDS}
+          mode="multiple"
+          onValueChange={(tagIds) => setQueries({ tagIds })}
+        >
+          <TagsSelect.Content />
+        </TagsSelect.Provider>
       </Filter.View>
       <SelectMember.FilterView queryKey="createdBy" />
       <Filter.View filterKey="createdAt">

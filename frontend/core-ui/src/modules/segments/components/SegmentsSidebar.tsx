@@ -1,4 +1,5 @@
 import { cn, Sidebar, useQueryState } from 'erxes-ui';
+import { useSegmentLabels } from 'ui-modules';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
@@ -10,6 +11,7 @@ type Props = {
 export const SegmentListSidebar = ({ types, className }: Props) => {
   const [selectedContentType] = useQueryState<string>('contentType');
   const { t } = useTranslation('segment');
+  const { contentTypeLabel } = useSegmentLabels();
 
   return (
     <Sidebar collapsible="none" className={cn('flex-none', className)}>
@@ -23,7 +25,9 @@ export const SegmentListSidebar = ({ types, className }: Props) => {
                   isActive={contentType === selectedContentType}
                   asChild
                 >
-                  <Link to={`?contentType=${contentType}`}>{description}</Link>
+                  <Link to={`?contentType=${contentType}`}>
+                    {contentTypeLabel(contentType, description)}
+                  </Link>
                 </Sidebar.MenuButton>
               </Sidebar.MenuItem>
             ))}

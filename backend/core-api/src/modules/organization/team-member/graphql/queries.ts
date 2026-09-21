@@ -24,7 +24,6 @@ type IListArgs = {
   branchIds: string[];
   unitId?: string;
   segment?: string;
-  segmentData?: string;
 };
 
 const NORMAL_USER_SELECTOR = { role: { $ne: USER_ROLES.SYSTEM } };

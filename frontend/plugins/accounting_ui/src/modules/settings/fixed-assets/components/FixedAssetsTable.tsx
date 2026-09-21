@@ -125,9 +125,9 @@ const getFixedAssetColumns = (
     size: 180,
   },
   {
-    id: 'usefulLife',
-    accessorKey: 'usefulLife',
-    header: () => <RecordTable.InlineHead label="Хугацаа" />,
+    id: 'annualDepreciationRate',
+    accessorKey: 'annualDepreciationRate',
+    header: () => <RecordTable.InlineHead label="Жилийн %" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>{cell.getValue() as string}</RecordTableInlineCell>
     ),

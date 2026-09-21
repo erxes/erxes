@@ -76,7 +76,13 @@ export const loadTeamClass = (models: IModels, subdomain: string) => {
         query._id = { $in: teamIds };
       }
 
-      return models.Team.find(query).lean();
+      const teamsQuery = models.Team.find(query);
+
+      if (params.orderBy?.createdAt) {
+        teamsQuery.sort({ createdAt: params.orderBy.createdAt });
+      }
+
+      return teamsQuery.lean();
     }
 
     public static async createTeam({

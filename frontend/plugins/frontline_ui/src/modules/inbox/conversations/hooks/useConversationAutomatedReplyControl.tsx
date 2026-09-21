@@ -2,6 +2,7 @@ import { MutationHookOptions, useMutation } from '@apollo/client';
 import { CONVERSATION_SET_AUTOMATED_REPLY_CONTROL } from '../graphql/mutations/conversationAutomatedReplyControl';
 import { IConversation } from '@/inbox/types/Conversation';
 import { toast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 interface IConversationAutomatedReplyControlVariables {
   _id: string;
@@ -14,6 +15,7 @@ interface IConversationAutomatedReplyControlResponse {
 }
 
 export const useConversationAutomatedReplyControl = () => {
+  const { t } = useTranslation('frontline');
   const [setAutomatedReplyControl, { loading }] = useMutation<
     IConversationAutomatedReplyControlResponse,
     IConversationAutomatedReplyControlVariables
@@ -28,7 +30,7 @@ export const useConversationAutomatedReplyControl = () => {
     setAutomatedReplyControl({
       onError: (error) => {
         toast({
-          title: 'Error',
+          title: t('error', 'Error'),
           description: error.message,
           variant: 'destructive',
         });

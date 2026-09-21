@@ -3,12 +3,27 @@ import { IModels } from '~/connectionResolvers';
 import { ITransactionDocument } from '../@types/transaction';
 import { removeSyncProductsInventory } from './utils';
 import { TR_FOLLOW_TYPES } from '../@types/constants';
-import { removeFxaIncomeInstances } from './fxaIncome';
+import { removeFxaIncomeDetails } from './fxaIncome';
 import { removeFxaDisposalInstances } from './fxaOut';
 import { removeFxaMoveInstances } from './fxaMove';
-import { TFxaIncomeInstanceRemoveOptions } from './fixedAssets';
+import {
+  getUniqueFxaOwnerRecordIds,
+  rebuildFixedAssetCurrentCounts,
+  TFxaIncomeDetailRemoveOptions,
+} from './fixedAssets';
 
-export type TCommonRemoveOptions = TFxaIncomeInstanceRemoveOptions;
+export type TCommonRemoveOptions = TFxaIncomeDetailRemoveOptions;
+
+const removeFollowTransactions = async (
+  models: IModels,
+  transactionId: string,
+  originTypes: string[],
+) => {
+  await models.Transactions.deleteMany({
+    originId: transactionId,
+    originType: { $in: originTypes },
+  });
+};
 
 export const commonRemove = async (
   subdomain: string,
@@ -142,7 +157,10 @@ async function handleFxaIncome(
   _followTrs?: ITransactionDocument[],
   options?: TCommonRemoveOptions,
 ) {
-  await removeFxaIncomeInstances(models, transaction, options);
+  await removeFxaIncomeDetails(models, transaction, options);
+  await removeFollowTransactions(models, transaction._id, [
+    TR_FOLLOW_TYPES.FXA_DEP_IN,
+  ]);
 }
 
 async function handleFxaOut(
@@ -153,6 +171,19 @@ async function handleFxaOut(
   _options?: TCommonRemoveOptions,
 ) {
   await removeFxaDisposalInstances(models, transaction);
+  await removeFollowTransactions(models, transaction._id, [
+    TR_FOLLOW_TYPES.FXA_DEP_OUT,
+  ]);
+  await rebuildFixedAssetCurrentCounts(
+    models,
+    getUniqueFxaOwnerRecordIds(
+      (transaction.details || [])
+        .map((detail) => detail.fixedAssetId)
+        .filter((fixedAssetId): fixedAssetId is string =>
+          Boolean(fixedAssetId),
+        ),
+    ),
+  );
 }
 
 async function handleFxaMove(
@@ -163,6 +194,21 @@ async function handleFxaMove(
   _options?: TCommonRemoveOptions,
 ) {
   await removeFxaMoveInstances(models, transaction);
+  await removeFollowTransactions(models, transaction._id, [
+    TR_FOLLOW_TYPES.FXA_MOVE_IN,
+    TR_FOLLOW_TYPES.FXA_DEP_OUT,
+    TR_FOLLOW_TYPES.FXA_DEP_IN,
+  ]);
+  await rebuildFixedAssetCurrentCounts(
+    models,
+    getUniqueFxaOwnerRecordIds(
+      (transaction.details || [])
+        .map((detail) => detail.fixedAssetId)
+        .filter((fixedAssetId): fixedAssetId is string =>
+          Boolean(fixedAssetId),
+        ),
+    ),
+  );
 }
 
 async function handleFxaSale(
@@ -173,4 +219,19 @@ async function handleFxaSale(
   _options?: TCommonRemoveOptions,
 ) {
   await removeFxaDisposalInstances(models, transaction);
+  await removeFollowTransactions(models, transaction._id, [
+    TR_FOLLOW_TYPES.FXA_SALE_OUT,
+    TR_FOLLOW_TYPES.FXA_DEP_OUT,
+    TR_FOLLOW_TYPES.FXA_SALE_COST,
+  ]);
+  await rebuildFixedAssetCurrentCounts(
+    models,
+    getUniqueFxaOwnerRecordIds(
+      (transaction.details || [])
+        .map((detail) => detail.fixedAssetId)
+        .filter((fixedAssetId): fixedAssetId is string =>
+          Boolean(fixedAssetId),
+        ),
+    ),
+  );
 }

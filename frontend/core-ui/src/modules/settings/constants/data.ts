@@ -12,12 +12,14 @@ import {
   IconFileImport,
   IconHierarchy,
   IconHierarchy2,
+  IconKey,
   IconMail,
   IconMessage,
   IconNotification,
   IconPassword,
   IconShoppingCart,
   IconShieldCheck,
+  IconShieldLock,
   IconTag,
   IconUserCircle,
   IconUsersGroup,
@@ -186,12 +188,12 @@ export const SETTINGS_PATH_DATA = (
     },
     {
       name: 'App tokens',
-      icon: IconBuilding,
+      icon: IconKey,
       path: SettingsWorkspacePath.AppTokens,
     },
     {
       name: 'OAuth clients',
-      icon: IconBuilding,
+      icon: IconShieldLock,
       path: SettingsWorkspacePath.OAuthClients,
     },
     {
@@ -243,4 +245,18 @@ export const GET_SETTINGS_PATH_DATA = (version?: boolean, t?: TFunction) => {
     nav,
     developer,
   };
+};
+
+export const SETTINGS_PERMISSION_MAP: Record<string, string> = {
+  [SettingsWorkspacePath.TeamMember]: 'teamMembers',
+  [SettingsWorkspacePath.Structure]: 'organization',
+  [SettingsWorkspacePath.Tags]: 'tags',
+  [SettingsWorkspacePath.Brands]: 'brands',
+  [SettingsWorkspacePath.Properties]: 'properties',
+  [SettingsWorkspacePath.Products]: 'products',
+  [SettingsWorkspacePath.Automations]: 'automations',
+  [SettingsWorkspacePath.ClientPortals]: 'clientPortal',
+  [SettingsWorkspacePath.OAuthClients]: 'apps',
+  [SettingsWorkspacePath.Permissions]: 'permissions',
+  [SettingsWorkspacePath.ApprovalRequests]: 'approval',
 };

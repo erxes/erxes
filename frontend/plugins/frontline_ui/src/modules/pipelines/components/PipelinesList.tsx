@@ -64,7 +64,10 @@ const PipelineDeleteItem = ({ pipelineId }: { pipelineId: string }) => {
 
   const onRemove = () => {
     confirm({
-      message: t('confirm-remove-pipeline'),
+      message: t(
+        'confirm-remove-pipeline',
+        'Are you sure you want to delete this pipeline?',
+      ),
       options: { confirmationValue: 'delete' },
     }).then(() => {
       removePipeline({ variables: { id: pipelineId } });
@@ -79,7 +82,7 @@ const PipelineDeleteItem = ({ pipelineId }: { pipelineId: string }) => {
       value="delete"
     >
       {loading ? <Spinner size="sm" /> : <IconTrash />}
-      {t('delete')}
+      {t('delete', 'Delete')}
     </Command.Item>
   );
 };
@@ -118,14 +121,17 @@ const usePipelineColumns = (): ColumnDef<IPipeline>[] => {
     },
     {
       accessorKey: 'name',
-      header: () => <RecordTable.InlineHead label={t('name')} />,
+      header: () => <RecordTable.InlineHead label={t('name', 'Name')} />,
       cell: PipelineNameCell,
       size: 360,
     },
     {
       id: 'createdUser',
       header: () => (
-        <RecordTable.InlineHead icon={IconUser} label={t('created-by')} />
+        <RecordTable.InlineHead
+          icon={IconUser}
+          label={t('created-by', 'Created by')}
+        />
       ),
       cell: PipelineCreatedByCell,
       size: 180,
@@ -135,7 +141,7 @@ const usePipelineColumns = (): ColumnDef<IPipeline>[] => {
       header: () => (
         <RecordTable.InlineHead
           icon={IconCalendarPlus}
-          label={t('created-at')}
+          label={t('created-at', 'Created at')}
         />
       ),
       cell: ({ cell }) => (
@@ -152,7 +158,7 @@ const usePipelineColumns = (): ColumnDef<IPipeline>[] => {
       header: () => (
         <RecordTable.InlineHead
           icon={IconCalendarUp}
-          label={t('col-updated-at')}
+          label={t('col-updated-at', 'updated at')}
         />
       ),
       cell: ({ cell }) => (
@@ -184,13 +190,18 @@ export const PipelinesList = ({ channelId }: { channelId: string }) => {
           <Empty.Media>
             <IconGitBranch />
           </Empty.Media>
-          <Empty.Title>{t('no-pipelines-yet')}</Empty.Title>
-          <Empty.Description>{t('no-pipelines-description')}</Empty.Description>
+          <Empty.Title>{t('no-pipelines-yet', 'No pipelines yet')}</Empty.Title>
+          <Empty.Description>
+            {t(
+              'no-pipelines-description',
+              'Get started by creating your first pipeline to organize and manage your workflow processes.',
+            )}
+          </Empty.Description>
         </Empty.Header>
         <Empty.Content>
           <Button onClick={() => setCreatePipelineOpen(true)} type="button">
             <IconPlus />
-            {t('create-pipeline')}
+            {t('create-pipeline', 'Create pipeline')}
           </Button>
         </Empty.Content>
       </Empty>

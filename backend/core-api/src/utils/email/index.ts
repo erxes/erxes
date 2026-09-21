@@ -152,7 +152,8 @@ export const sendEmail = async (
           : `Email sent successfully: ${toEmail} from ${from}`,
       );
     } catch (e) {
-      console.log(`Error sending email: ${e.message}`);
+      console.log(`Error sending email to ${toEmail}: ${e.name}: ${e.message}`);
+      console.log(e.stack);
     }
   }
 };

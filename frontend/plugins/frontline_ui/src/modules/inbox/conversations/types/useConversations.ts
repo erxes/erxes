@@ -4,8 +4,12 @@ export type InboxConversationQueryState = {
   integrationType: string;
   unassigned: boolean;
   awaitingResponse: boolean;
+  withSurvey: boolean;
   automationStatus: string;
+  participating: boolean;
   participated: boolean;
+  mentioned: boolean;
+  unread: boolean;
   status: string;
   conversationId: string;
   created: string;

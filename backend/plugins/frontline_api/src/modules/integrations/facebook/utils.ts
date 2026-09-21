@@ -5,8 +5,13 @@ import {
 } from '@/integrations/facebook/@types/utils';
 import { generateAttachmentUrl } from '@/integrations/facebook/commonUtils';
 import { debugError, debugFacebook } from '@/integrations/facebook/debuggers';
+import { FacebookSendError } from '@/integrations/facebook/errors';
 import * as AWS from 'aws-sdk';
-import { randomAlphanumeric, sendTRPCMessage } from 'erxes-api-shared/utils';
+import {
+  getEnv,
+  randomAlphanumeric,
+  sendTRPCMessage,
+} from 'erxes-api-shared/utils';
 import * as graph from 'fbgraph';
 import { IModels } from '~/connectionResolvers';
 import { SUBSCRIBED_FIELDS } from './constants';
@@ -14,6 +19,14 @@ import { validateMediaUrl } from './urlValidation';
 
 export const graphRequest = {
   base(method: string, path?: any, accessToken?: any, ...otherParams) {
+    // Load testing has to stop before Meta: pointing this at a local stand-in
+    // exercises the outbox, pacing and breaker without a page paying for it.
+    const graphUrl = getEnv({ name: 'FACEBOOK_GRAPH_URL', defaultValue: '' });
+
+    if (graphUrl) {
+      graph.setGraphUrl(graphUrl);
+    }
+
     // set access token
     graph.setAccessToken(accessToken);
     graph.setVersion('7.0');
@@ -530,6 +543,31 @@ export const restorePost = async (
   }
 };
 
+// Meta retired the CONFIRMED_EVENT_UPDATE, POST_PURCHASE_UPDATE and
+// ACCOUNT_UPDATE message tags on 2026-04-27; the Send API rejects them with
+// error 100 "Invalid parameter". HUMAN_AGENT is the only tag still valid for
+// replies outside the 24-hour window (up to 7 days after the customer's last
+// message).
+const DEPRECATED_MESSENGER_TAGS = [
+  'CONFIRMED_EVENT_UPDATE',
+  'POST_PURCHASE_UPDATE',
+  'ACCOUNT_UPDATE',
+];
+
+export const HUMAN_AGENT_MESSENGER_TAG = 'HUMAN_AGENT';
+
+export const normalizeMessengerTag = (
+  tag?: string | null,
+): string | undefined => {
+  const trimmed = tag?.trim();
+  if (!trimmed) {
+    return undefined;
+  }
+  return DEPRECATED_MESSENGER_TAGS.includes(trimmed)
+    ? HUMAN_AGENT_MESSENGER_TAG
+    : trimmed;
+};
+
 export const sendReply = async (
   models: IModels,
   url: string,
@@ -560,11 +598,16 @@ export const sendReply = async (
     throw new Error(e.message);
   }
 
+  const normalizedTag = normalizeMessengerTag(data?.tag);
+  const requestData = data?.tag ? { ...data, tag: normalizedTag } : data;
+
   try {
     const response = await graphRequest.post(`${url}`, pageAccessToken, {
-      ...data,
+      ...requestData,
     });
-    debugFacebook(`Successfully sent data to facebook ${JSON.stringify(data)}`);
+    debugFacebook(
+      `Successfully sent data to facebook ${JSON.stringify(requestData)}`,
+    );
     return response;
   } catch (e) {
     const targetRecipient = data?.recipient?.id || data?.recipient?.comment_id;
@@ -597,10 +640,14 @@ export const sendReply = async (
     }
 
     if (e.message.includes('does not exist')) {
-      throw new Error('Comment has been deleted by the customer');
+      throw new FacebookSendError(
+        'Comment has been deleted by the customer',
+        e.code,
+        e.error_subcode,
+      );
     }
 
-    throw new Error(e.message);
+    throw new FacebookSendError(e.message, e.code, e.error_subcode);
   }
 };
 

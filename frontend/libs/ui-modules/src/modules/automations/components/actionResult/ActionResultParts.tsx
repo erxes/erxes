@@ -10,6 +10,9 @@ const STATUS_CLASS: Record<TActionResultStatus, string> = {
   success: 'text-success',
   error: 'text-destructive',
   waiting: 'text-warning',
+  queued: 'text-warning',
+  standby: 'text-warning',
+  dropped: 'text-muted-foreground',
 };
 
 export const ActionResultLayout = ({ children }: { children: ReactNode }) => (

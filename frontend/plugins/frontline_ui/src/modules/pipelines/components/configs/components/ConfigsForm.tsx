@@ -39,7 +39,7 @@ export const ConfigsForm = ({ form, defaultValues }: Props) => {
               <Input
                 {...field}
                 className="shadow-none focus-visible:shadow-none h-8 text-xl p-0"
-                placeholder={t('configuration-name')}
+                placeholder={t('configuration-name', 'Configuration Name')}
               />
             </Form.Control>
             <Form.Message />
@@ -85,7 +85,9 @@ export const ConfigsForm = ({ form, defaultValues }: Props) => {
                     scope="configs"
                   >
                     <Combobox.Trigger className="w-full h-7 shadow-xs">
-                      <SelectTags.Value placeholder={t('select-tag-group')} />
+                      <SelectTags.Value
+                        placeholder={t('select-tag-group', 'Select tag group')}
+                      />
                     </Combobox.Trigger>
                     <Combobox.Content onClick={(e) => e.stopPropagation()}>
                       <SelectTags.GroupsCommand />

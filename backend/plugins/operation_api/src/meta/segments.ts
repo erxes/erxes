@@ -1,16 +1,18 @@
 import {
-  createCoreModuleProducerHandler,
+  createSegmentEvaluateFieldsHandler,
   SegmentConfigs,
-  splitType,
-  TSegmentProducers,
+  segmentModuleForContentType,
 } from 'erxes-api-shared/core-modules';
 import { generateModels } from '~/connectionResolvers';
 import { projectsSegments } from '~/modules/project/meta/segments';
 import { tasksSegments } from '~/modules/task/meta/segments';
-const modules = {
-  task: tasksSegments,
-  project: projectsSegments,
-};
+
+const segmentModules = { task: tasksSegments };
+
+const moduleContext = async (subdomain: string) => ({
+  models: await generateModels(subdomain),
+  subdomain,
+});
 
 export default {
   dependentModules: [
@@ -21,34 +23,42 @@ export default {
     ...tasksSegments.contentTypes,
     ...projectsSegments.contentTypes,
   ],
-  propertyConditionExtender: createCoreModuleProducerHandler({
-    moduleName: 'segments',
-    modules,
-    methodName: TSegmentProducers.PROPERTY_CONDITION_EXTENDER,
-    extractModuleName: (input) =>
-      splitType(input.condition?.propertyType || '')[1],
+
+  segmentFields: { ...tasksSegments.segmentFields },
+  segmentRelations: [...(tasksSegments.segmentRelations || [])],
+
+  evaluateFields: createSegmentEvaluateFieldsHandler({
+    modules: segmentModules,
     generateModels,
   }),
-  associationFilter: createCoreModuleProducerHandler({
-    moduleName: 'segments',
-    modules,
-    methodName: TSegmentProducers.ASSOCIATION_FILTER,
-    extractModuleName: (input) => splitType(input.mainType || '')[1],
-    generateModels,
-  }),
-  esTypesMap: createCoreModuleProducerHandler({
-    moduleName: 'segments',
-    modules,
-    methodName: TSegmentProducers.ES_TYPES_MAP,
-    extractModuleName: (input) => input.collectionType,
-    generateModels,
-  }),
-  initialSelector: createCoreModuleProducerHandler({
-    moduleName: 'segments',
-    modules,
-    methodName: TSegmentProducers.INITIAL_SELECTOR,
-    extractModuleName: (input) =>
-      splitType(input.segment?.contentType || '')[1],
-    generateModels,
-  }),
+  listSegmentMembers: async ({ subdomain, data }) => {
+    const module = segmentModuleForContentType(
+      segmentModules,
+      data.contentType,
+    );
+
+    return module
+      ? module.listSegmentMembers(data, await moduleContext(subdomain))
+      : { ids: [], unsupported: [data.contentType] };
+  },
+  countSegmentMembers: async ({ subdomain, data }) => {
+    const module = segmentModuleForContentType(
+      segmentModules,
+      data.contentType,
+    );
+
+    return module
+      ? module.countSegmentMembers(data, await moduleContext(subdomain))
+      : { count: 0, unsupported: [data.contentType] };
+  },
+  applyMembership: async ({ subdomain, data }) => {
+    const module = segmentModuleForContentType(
+      segmentModules,
+      data.contentType,
+    );
+
+    return module
+      ? module.applyMembership(data, await moduleContext(subdomain))
+      : { counts: {}, unsupported: [data.contentType] };
+  },
 } as SegmentConfigs;

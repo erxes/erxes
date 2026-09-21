@@ -4,6 +4,7 @@ import {
   TMessageTriggerCondition,
   TMessageTriggerDirectConditions,
   TMessageTriggerForm,
+  TMessageTriggerIceBreakerIds,
   TMessageTriggerPersistentMenuIds,
   TMessageTriggerSourceIds,
   TMessageTriggerSourceMode,
@@ -17,6 +18,7 @@ export const useMessageTriggerConditions = () => {
     conditionType: string,
     fieldName:
       | 'persistentMenuIds'
+      | 'iceBreakerIds'
       | 'conditions'
       | 'isSelected'
       | 'sourceMode'
@@ -24,6 +26,7 @@ export const useMessageTriggerConditions = () => {
     fieldValue:
       | TMessageTriggerDirectConditions
       | TMessageTriggerPersistentMenuIds
+      | TMessageTriggerIceBreakerIds
       | TMessageTriggerSourceMode
       | TMessageTriggerSourceIds
       | boolean,

@@ -1,5 +1,13 @@
 import { IClientPortal } from '@/client-portal/types/clientPortal';
-import { Input, InfoCard, Textarea, Button, Form, Spinner } from 'erxes-ui';
+import {
+  Input,
+  InfoCard,
+  Textarea,
+  Button,
+  Form,
+  Spinner,
+  Checkbox,
+} from 'erxes-ui';
 
 import { CLIENTPORTAL_EDIT_SCHEMA } from '@/client-portal/constants/clientPortalEditSchema';
 import { useForm } from 'react-hook-form';
@@ -19,6 +27,7 @@ export const ClientPortalGeneral = ({
       name: clientPortal?.name,
       description: clientPortal?.description,
       domain: clientPortal?.domain,
+      useB2B: clientPortal?.useB2B ?? false,
     },
   });
   const { updateClientPortal, loading } = useUpdateClientPortal();
@@ -31,6 +40,7 @@ export const ClientPortalGeneral = ({
           name: data.name,
           description: data.description,
           domain: data.domain,
+          useB2B: data.useB2B,
         },
       },
     });
@@ -72,6 +82,24 @@ export const ClientPortalGeneral = ({
                 <Form.Item className="col-span-2">
                   <Form.Label>Description</Form.Label>
                   <Textarea {...field} />
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              control={form.control}
+              name="useB2B"
+              render={({ field }) => (
+                <Form.Item className="col-span-2">
+                  <div className="flex items-center gap-2">
+                    <Form.Control>
+                      <Checkbox
+                        checked={!!field.value}
+                        onCheckedChange={(checked) => field.onChange(!!checked)}
+                      />
+                    </Form.Control>
+                    <Form.Label variant="peer">Use B2B</Form.Label>
+                  </div>
                   <Form.Message />
                 </Form.Item>
               )}

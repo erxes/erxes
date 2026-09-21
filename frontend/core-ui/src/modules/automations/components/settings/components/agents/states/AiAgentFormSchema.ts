@@ -159,6 +159,11 @@ type TAiAgentToolInput = {
 };
 
 export type TAiAgentFormDetail = {
+  usage?: {
+    total: number;
+    active: number;
+    automations: Array<{ _id: string; name: string; status: string }>;
+  };
   _id?: string;
   name?: string;
   description?: string;
@@ -387,7 +392,7 @@ export const normalizeAiAgentFormValues = (
   },
   runtime: {
     temperature: detail?.runtime?.temperature ?? 0.2,
-    maxTokens: detail?.runtime?.maxTokens ?? 500,
+    maxTokens: detail?.runtime?.maxTokens ?? 2000,
     timeoutMs: detail?.runtime?.timeoutMs ?? 15000,
   },
   context: {

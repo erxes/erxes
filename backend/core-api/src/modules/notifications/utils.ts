@@ -19,8 +19,21 @@ export const sendOnboardNotification = async (
 
   const onboarded = new Set(onboardedPlugins);
 
+  const notifications = await models.Notifications.find({
+    userId: user._id,
+    kind: 'system',
+    contentType: { $regex: /system\.welcome$/ },
+  })
+
   for (const pluginName of pluginNames || []) {
+    const contentType = `${pluginName}:system.welcome`;
+
     if (onboarded.has(pluginName)) {
+      continue;
+    }
+
+    if (notifications.some((n) => n.contentType === contentType)) {
+      onboarded.add(pluginName);
       continue;
     }
 
@@ -33,7 +46,7 @@ export const sendOnboardNotification = async (
         userIds: [user._id],
         priority: 'low',
         kind: 'system',
-        contentType: `${pluginName}:system.welcome`,
+        contentType,
       });
 
       onboarded.add(pluginName);
@@ -41,14 +54,14 @@ export const sendOnboardNotification = async (
       continue;
     }
 
-    sendNotification(subdomain, {
+    await sendNotification(subdomain, {
       title: `Get Started with ${pluginName}`,
       message: `Excited to introduce ${pluginName}! Dive in to explore its features and see how it can help your business thrive.`,
       type: 'info',
       userIds: [user._id],
       priority: 'low',
       kind: 'system',
-      contentType: `${pluginName}:system.welcome`,
+      contentType,
     });
 
     onboarded.add(pluginName);

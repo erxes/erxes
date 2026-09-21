@@ -1,23 +1,20 @@
 import * as React from 'react';
-import { Bar, BarChart, CartesianGrid, XAxis } from 'recharts';
+import { Bar, BarChart } from 'recharts';
 
-import {
-  ChartContainer,
-  ChartLegend,
-  ChartLegendContent,
-  ChartTooltip,
-  ChartTooltipContent,
-  type ChartConfig,
-} from 'erxes-ui/components/charts';
+import { ChartContainer, type ChartConfig } from 'erxes-ui/components/charts';
 import { useIsClient } from '../hooks/useIsClient';
 import type { ChartVizPayload } from '../types/chatVizTypes';
+import { getDefaultChartVizColor } from '../utils/chartVizPresentation';
+import { ChatVizCartesianDecorations } from './ChatVizCartesianDecorations';
 
 interface Props {
   payload: ChartVizPayload;
   className?: string;
+  /** Frozen zero-based axis domain for interactive charts. */
+  domain?: [number, number];
 }
 
-export function ChatVizBar({ payload, className }: Props) {
+export function ChatVizBar({ payload, className, domain }: Readonly<Props>) {
   const isClient = useIsClient();
 
   const config = React.useMemo<ChartConfig>(
@@ -25,7 +22,7 @@ export function ChatVizBar({ payload, className }: Props) {
       Object.fromEntries(
         payload.series.map((s, i) => [
           s.key,
-          { label: s.label, color: s.color ?? `hsl(var(--chart-${i + 1}))` },
+          { label: s.label, color: s.color ?? getDefaultChartVizColor(i) },
         ]),
       ),
     [payload.series],
@@ -36,23 +33,11 @@ export function ChatVizBar({ payload, className }: Props) {
 
   return (
     <ChartContainer config={config} className={className}>
-      <BarChart data={payload.data}>
-        <CartesianGrid vertical={false} />
-        <XAxis
-          dataKey="label"
-          tickLine={false}
-          axisLine={false}
-          tickMargin={8}
-        />
-        <ChartTooltip content={<ChartTooltipContent />} />
-        <ChartLegend
-          content={(props) => (
-            <ChartLegendContent
-              payload={props.payload ?? []}
-              verticalAlign={props.verticalAlign}
-            />
-          )}
-        />
+      <BarChart
+        data={payload.data}
+        margin={{ top: 8, right: 12, left: 4, bottom: 0 }}
+      >
+        <ChatVizCartesianDecorations domain={domain} />
         {payload.series.map((s) => (
           <Bar
             key={s.key}

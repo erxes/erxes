@@ -99,6 +99,7 @@ export const types = `
     unitPrice: Float
     discountAmount: Float
     discountPercent: Float
+    discountInfos: JSON
     bonusCount: Float
     productName: String
     isPackage: Boolean
@@ -169,6 +170,9 @@ export const types = `
     productId: String!
     count: Float!
     unitPrice: Float!
+    discountAmount: Float
+    discountPercent: Float
+    discountInfos: JSON
     isPackage: Boolean
     isTake: Boolean
     status: String

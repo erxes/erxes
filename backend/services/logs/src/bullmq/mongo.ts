@@ -32,9 +32,7 @@ type EventPayload = {
   processId?: string;
   userId?: string;
   contentType?: string;
-  // Recorded by the dynamic auto-capture so revert can resolve the model and
-  // refuse to apply against the wrong database connection.
-  mongooseName?: string;
+  // Recorded by the dynamic auto-capture: which database the write landed in.
   dbName?: string;
 };
 
@@ -56,7 +54,6 @@ type DeleteManyEventPayload = {
   processId?: string;
   userId?: string;
   contentType?: string;
-  mongooseName?: string;
   dbName?: string;
 };
 
@@ -72,7 +69,6 @@ type UpdateBatchEventPayload = {
   processId?: string;
   userId?: string;
   contentType?: string;
-  mongooseName?: string;
   dbName?: string;
 };
 
@@ -96,6 +92,19 @@ const withCollectionType = (
   ...payload,
   collectionType: getCollectionType(contentType, collectionName),
 });
+
+const hasUpdateChanges = (
+  updateDescription?: Record<string, unknown>,
+): boolean =>
+  ['added', 'removed', 'updated'].some((changeType) => {
+    const changes = updateDescription?.[changeType];
+
+    return (
+      changes !== null &&
+      typeof changes === 'object' &&
+      Object.keys(changes).some((field) => field !== 'updatedAt')
+    );
+  });
 
 const createLogDocument = async (
   Logs: Model<ILogDocument>,
@@ -175,10 +184,13 @@ const handleUpdate = async (
     throw new Error('Document ID is required for update operation');
   }
 
+  if (!hasUpdateChanges(payload.updateDescription)) {
+    return null;
+  }
+
   const logPayload = {
     collectionName: payload.collectionName,
     updateDescription: payload.updateDescription || {},
-    mongooseName: payload.mongooseName,
     dbName: payload.dbName,
   };
 
@@ -203,10 +215,8 @@ const handleDelete = async (
 
   const logPayload = {
     collectionName: payload.collectionName,
-    // The pre-deletion snapshot (when the caller supplied it) — what a revert
-    // re-inserts. Absent for callers not yet passing prevDocument.
+    // The pre-deletion snapshot, when the caller supplied one.
     prevDocument: payload.prevDocument,
-    mongooseName: payload.mongooseName,
     dbName: payload.dbName,
   };
 
@@ -221,7 +231,7 @@ const handleDelete = async (
   );
 };
 
-/** Journal a deleteMany as one revertable delete log per doc, snapshot included. */
+/** Journal a deleteMany as one delete log per doc, snapshot included. */
 const handleDeleteMany = async (
   Logs: Model<ILogDocument>,
   payload: DeleteManyEventPayload,
@@ -237,8 +247,7 @@ const handleDeleteMany = async (
     ]),
   );
 
-  // One log per deleted doc, each carrying its own snapshot, so a revert can
-  // re-insert every removed document.
+  // One log per deleted doc, each carrying its own snapshot.
   const entries = docIds.map((docId) => ({
     action: LOG_ACTIONS.DELETE_MANY,
     docId: String(docId),
@@ -246,7 +255,6 @@ const handleDeleteMany = async (
       {
         collectionName,
         prevDocument: snapshotById.get(String(docId)),
-        mongooseName: payload.mongooseName,
         dbName: payload.dbName,
       },
       payload.contentType,
@@ -275,7 +283,7 @@ const handleDeleteMany = async (
 /**
  * Auto-capture batched edit: expand ONE message into N single-`update` Log rows,
  * each IDENTICAL to what handleUpdate stores (action 'update', payload
- * {collectionName, updateDescription, mongooseName, dbName, collectionType}), so
+ * {collectionName, updateDescription, dbName, collectionType}), so
  * computeInverse/conflict read each row exactly as a single update. Only the
  * QUEUE transport is collapsed; the stored rows are unchanged.
  */
@@ -292,7 +300,6 @@ const handleUpdateBatch = async (
       {
         collectionName,
         updateDescription: entry.updateDescription || {},
-        mongooseName: payload.mongooseName,
         dbName: payload.dbName,
       },
       payload.contentType,
@@ -444,7 +451,6 @@ export const handleMongoChangeEvent = async (
       processId,
       userId,
       contentType,
-      mongooseName: payload?.mongooseName,
       dbName: payload?.dbName,
     });
   }
@@ -454,12 +460,10 @@ export const handleMongoChangeEvent = async (
   if (logAction === LOG_ACTIONS.UPDATE_BATCH) {
     return await handleUpdateBatch(Logs, {
       collectionName: payload?.collectionName || '',
-      updates:
-        (payload as { updates?: UpdateBatchEntry[] })?.updates || [],
+      updates: (payload as { updates?: UpdateBatchEntry[] })?.updates || [],
       processId,
       userId,
       contentType,
-      mongooseName: payload?.mongooseName,
       dbName: payload?.dbName,
     });
   }
@@ -500,14 +504,12 @@ export const handleMongoChangeEvent = async (
     collectionName: payload?.collectionName || '',
     docId,
     fullDocument: payload?.fullDocument,
-    // Forward the pre-deletion snapshot for single `delete` ops too — without this
-    // only deleteMany captured prevDocument, so single deletes were unrevertable.
+    // Forward the pre-deletion snapshot for single `delete` ops too.
     prevDocument: (payload as { prevDocument?: unknown })?.prevDocument,
     updateDescription: payload?.updateDescription,
     processId,
     userId,
     contentType,
-    mongooseName: (payload as { mongooseName?: string })?.mongooseName,
     dbName: (payload as { dbName?: string })?.dbName,
   };
 

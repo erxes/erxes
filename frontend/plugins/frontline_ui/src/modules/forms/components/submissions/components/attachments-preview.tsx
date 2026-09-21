@@ -197,7 +197,7 @@ const Details = () => {
     return (
       <div className="flex items-center justify-center p-6 border border-dashed rounded-lg bg-muted/30">
         <span className="text-sm text-muted-foreground">
-          {t('no-attachments-available')}
+          {t('no-attachments-available', 'No attachments available')}
         </span>
       </div>
     );

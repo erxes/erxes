@@ -1,33 +1,8 @@
 import { IModels } from '~/connectionResolvers';
-import { extractPropertiesData } from '~/meta/import-export/utils';
-
-const generateCompanyTagIds = async (models: IModels, tags: string = '') => {
-  const tagNames = tags
-    .split(',')
-    .map((t) => t.trim())
-    .filter(Boolean);
-
-  const tagIds = await Promise.all(
-    tagNames.map(async (tagName: string) => {
-      const existingTag = await models.Tags.findOne({
-        name: tagName,
-        type: `core:company`,
-      }).lean();
-
-      if (!existingTag) {
-        const createdTag = await models.Tags.createTag({
-          name: tagName,
-          type: `core:company`,
-        });
-        return createdTag._id;
-      }
-
-      return existingTag._id;
-    }),
-  );
-
-  return tagIds;
-};
+import {
+  extractPropertiesData,
+  resolveImportTagIds,
+} from '~/meta/import-export/utils';
 
 export async function prepareCompanyDoc(
   models: IModels,
@@ -73,7 +48,7 @@ export async function prepareCompanyDoc(
 
   // tags -> tagIds (company type)
   if (doc.tags) {
-    doc.tagIds = await generateCompanyTagIds(models, doc.tags);
+    doc.tagIds = await resolveImportTagIds(models, 'core:company', doc.tags);
     delete doc.tags;
   }
 

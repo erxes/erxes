@@ -9,8 +9,12 @@ const UNNAMED = 'Unnamed';
 
 type TPutResponseNode = {
   _id: string;
+  ebarimtId?: string | null;
+  createdAt?: string | null;
   number?: string | null;
   customerName?: string | null;
+  inactiveId?: string | null;
+  receipts?: Array<{ id?: string | null }> | null;
 };
 
 const putResponsesSearchProvider = defineSearchProvider<TPutResponseNode>({
@@ -22,8 +26,8 @@ const putResponsesSearchProvider = defineSearchProvider<TPutResponseNode>({
     {
       alias: 'gs_mongolian_put_responses',
       field: 'putResponses',
-      args: 'search: $searchValue, limit: $limit',
-      body: '{ list { _id number customerName } totalCount }',
+      args: 'search: $searchValue, limit: $limit, cursor: $cursor, direction: forward, orderBy: $orderBy',
+      body: '{ list { _id ebarimtId: id number customerName inactiveId receipts createdAt } totalCount pageInfo { hasNextPage endCursor } }',
     },
   ],
   select: (payload) =>
@@ -32,12 +36,34 @@ const putResponsesSearchProvider = defineSearchProvider<TPutResponseNode>({
     id: putResponse._id,
     title: putResponse.number || UNNAMED,
     description: putResponse.customerName || undefined,
+    createdAt: putResponse.createdAt ?? undefined,
+    matchFields: [
+      {
+        label: 'eBarimt ID',
+        labelKey: 'globalSearch.ebarimtId',
+        labelNamespace: 'mongolian',
+        value: putResponse.ebarimtId,
+      },
+      {
+        label: 'Inactive ID',
+        labelKey: 'globalSearch.inactiveId',
+        labelNamespace: 'mongolian',
+        value: putResponse.inactiveId,
+      },
+      ...(putResponse.receipts ?? []).map((receipt) => ({
+        label: 'Receipt ID',
+        labelKey: 'globalSearch.receiptId',
+        labelNamespace: 'mongolian',
+        value: receipt.id,
+      })),
+    ].flatMap(({ label, value }) => (value ? [{ label, value }] : [])),
     path: '/mongolian/put-response',
   }),
 });
 
 type TExchangeRateNode = {
   _id: string;
+  createdAt?: string | null;
   mainCurrency?: string | null;
   rateCurrency?: string | null;
   rate?: number | null;
@@ -52,8 +78,8 @@ const exchangeRatesSearchProvider = defineSearchProvider<TExchangeRateNode>({
     {
       alias: 'gs_mongolian_exchange_rates',
       field: 'exchangeRatesMain',
-      args: 'searchValue: $searchValue, limit: $limit',
-      body: '{ list { _id mainCurrency rateCurrency rate } totalCount }',
+      args: 'searchValue: $searchValue, limit: $limit, cursor: $cursor, direction: forward, orderBy: $orderBy',
+      body: '{ list { _id mainCurrency rateCurrency rate createdAt } totalCount pageInfo { hasNextPage endCursor } }',
     },
   ],
   select: (payload) =>
@@ -65,6 +91,7 @@ const exchangeRatesSearchProvider = defineSearchProvider<TExchangeRateNode>({
         ? `${rate.mainCurrency} / ${rate.rateCurrency}`
         : UNNAMED,
     description: typeof rate.rate === 'number' ? String(rate.rate) : undefined,
+    createdAt: rate.createdAt ?? undefined,
     path: `/settings/mongolian/exchange-rates?exchange_rate_id=${rate._id}`,
   }),
 });

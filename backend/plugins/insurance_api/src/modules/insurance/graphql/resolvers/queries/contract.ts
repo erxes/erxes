@@ -1,7 +1,7 @@
 import { IContext } from '~/connectionResolvers';
 
 const escapeRegex = (str: string): string => {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return str.replace(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
 };
 
 export const contractQueries = {
@@ -19,6 +19,7 @@ export const contractQueries = {
         insuranceTypeId?: string;
         startDate?: any;
         endDate?: any;
+        orderBy?: { createdAt?: 1 | -1 };
       },
       { models }: IContext,
     ) => {
@@ -101,9 +102,17 @@ export const contractQueries = {
           ];
         }
 
-        const contracts = await models.Contract.find(query)
+        let contractsQuery = models.Contract.find(query);
+
+        if (args.orderBy?.createdAt === 1 || args.orderBy?.createdAt === -1) {
+          contractsQuery = contractsQuery.sort({
+            createdAt: args.orderBy.createdAt,
+          });
+        }
+
+        const contracts = await contractsQuery
           .select(
-            'contractNumber vendor customer insuranceProduct insuranceType chargedAmount startDate endDate paymentStatus',
+            'contractNumber vendor customer insuranceProduct insuranceType chargedAmount startDate endDate paymentStatus createdAt',
           )
           .populate([
             { path: 'vendor', select: '_id name' },

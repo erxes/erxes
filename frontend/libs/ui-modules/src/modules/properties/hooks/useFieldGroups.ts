@@ -19,9 +19,11 @@ type FieldGroupsQueryResponse = {
 export const useFieldGroups = ({
   contentType,
   limit,
+  skip,
 }: {
   contentType: string;
   limit?: number;
+  skip?: boolean;
 }) => {
   const { data, loading, fetchMore } = useQuery<FieldGroupsQueryResponse>(
     FIELD_GROUPS_QUERY,
@@ -32,6 +34,7 @@ export const useFieldGroups = ({
           limit,
         },
       },
+      skip,
     },
   );
 

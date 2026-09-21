@@ -48,6 +48,7 @@ const DEFAULT_VAT_VALUES = (doc?: Partial<ITransaction>) => {
     isHandleVat: doc?.isHandleVat ?? false,
     afterVat: doc?.afterVat ?? false,
     vatRowId: doc?.vatRowId,
+    vatAmount: doc?.vatAmount ?? 0,
   };
 };
 
@@ -56,6 +57,7 @@ const DEFAULT_CTAX_VALUES = (doc?: Partial<ITransaction>) => {
     hasCtax: doc?.hasCtax ?? false,
     isHandleCtax: doc?.isHandleCtax ?? false,
     ctaxRowId: doc?.ctaxRowId,
+    ctaxAmount: doc?.ctaxAmount ?? 0,
   };
 };
 
@@ -65,6 +67,8 @@ const MAIN_JOURNAL_DEFAULT_VALUES = (
   return {
     ...trDataWrapper(doc),
     journal: TrJournalEnum.MAIN,
+    ...DEFAULT_VAT_VALUES(doc),
+    ...DEFAULT_CTAX_VALUES(doc),
     details: [
       {
         ...trDetailWrapper(doc?.details?.[0]),
@@ -244,6 +248,8 @@ const INV_SALE_JOURNAL_DEFAULT_VALUES = (
     ...trDataWrapper(doc),
     journal: TrJournalEnum.INV_SALE,
     side: TR_SIDES.CREDIT,
+    ...DEFAULT_VAT_VALUES(doc),
+    ...DEFAULT_CTAX_VALUES(doc),
     details: doc?.details?.length
       ? doc?.details.map((det) => ({
           ...trDetailWrapper(det),
@@ -272,6 +278,8 @@ const INV_SALE_RETURN_JOURNAL_DEFAULT_VALUES = (
     ...trDataWrapper(doc),
     journal: TrJournalEnum.INV_SALE_RETURN,
     side: TR_SIDES.DEBIT,
+    ...DEFAULT_VAT_VALUES(doc),
+    ...DEFAULT_CTAX_VALUES(doc),
     details: doc?.details?.length
       ? doc?.details.map((det) => ({
           ...trDetailWrapper(det),
@@ -295,13 +303,15 @@ const INV_SALE_RETURN_JOURNAL_DEFAULT_VALUES = (
 
 const FXA_FOLLOW_INFOS_DEFAULT_VALUES = (doc?: Partial<ITransaction>) => {
   return {
-    fixedAssetAccountId: doc?.followInfos?.fixedAssetAccountId,
+    saleOutAccountId:
+      doc?.followInfos?.saleOutAccountId ||
+      doc?.followInfos?.fixedAssetAccountId,
     accumulatedDepreciationAccountId:
       doc?.followInfos?.accumulatedDepreciationAccountId,
     depreciationExpenseAccountId:
       doc?.followInfos?.depreciationExpenseAccountId,
-    gainAccountId: doc?.followInfos?.gainAccountId,
-    lossAccountId: doc?.followInfos?.lossAccountId,
+    saleCostAccountId:
+      doc?.followInfos?.saleCostAccountId || doc?.followInfos?.lossAccountId,
     revaluationReserveAccountId: doc?.followInfos?.revaluationReserveAccountId,
     deferredTaxAssetAccountId: doc?.followInfos?.deferredTaxAssetAccountId,
     deferredTaxLiabilityAccountId:
@@ -309,7 +319,8 @@ const FXA_FOLLOW_INFOS_DEFAULT_VALUES = (doc?: Partial<ITransaction>) => {
     incomeTaxExpenseAccountId: doc?.followInfos?.incomeTaxExpenseAccountId,
     moveInBranchId: doc?.followInfos?.moveInBranchId,
     moveInDepartmentId: doc?.followInfos?.moveInDepartmentId,
-    responsibleUserId: doc?.followInfos?.responsibleUserId,
+    ownerId: doc?.followInfos?.ownerId || doc?.followInfos?.responsibleUserId,
+    fxaIncomeDetails: doc?.followInfos?.fxaIncomeDetails || [],
   };
 };
 
@@ -318,6 +329,9 @@ const fxaDetailsDefaultValues = (doc?: Partial<ITransaction>) =>
     ? doc?.details.map((det) => ({
         ...trDetailWrapper(det),
         fixedAssetId: det.fixedAssetId || '',
+        fixedAssetCategoryId: det.fixedAssetCategoryId || '',
+        fixedAssetCode: det.fixedAssetCode || '',
+        fixedAssetName: det.fixedAssetName || '',
         count: det.count ?? 0,
         unitPrice: det.unitPrice ?? 0,
         amount: det.amount ?? 0,
@@ -326,18 +340,23 @@ const fxaDetailsDefaultValues = (doc?: Partial<ITransaction>) =>
         {
           ...trDetailWrapper(),
           fixedAssetId: '',
+          fixedAssetCategoryId: '',
+          fixedAssetCode: '',
+          fixedAssetName: '',
           count: 0,
           unitPrice: 0,
           amount: 0,
         },
       ];
 
-const FXA_EXTRA_DATA_DEFAULT_VALUES = (doc?: Partial<ITransaction>) => ({
-  ...doc?.extraData,
-  fxaInstances: doc?.extraData?.fxaInstances || [],
-  fxaInstanceIds: doc?.extraData?.fxaInstanceIds || [],
-  fxaInstanceIdsByDetailId: doc?.extraData?.fxaInstanceIdsByDetailId || {},
-});
+const FXA_EXTRA_DATA_DEFAULT_VALUES = (doc?: Partial<ITransaction>) => {
+  const extraData = { ...doc?.extraData };
+
+  return {
+    ...extraData,
+    fxaOwnerRecords: doc?.extraData?.fxaOwnerRecords || [],
+  };
+};
 
 const FXA_INCOME_JOURNAL_DEFAULT_VALUES = (
   doc?: Partial<ITransaction>,

@@ -147,6 +147,16 @@ export const useAiAgentConfigForm = ({
 
     previousGoalTypeRef.current = config.goalType;
   }, [config?.goalType, setValue]);
+
+  // With a single agent there is nothing to choose, so picking it is busywork.
+  useEffect(() => {
+    if (config?.aiAgentId || automationsAiAgents.length !== 1) {
+      return;
+    }
+
+    setValue('aiAgentId', automationsAiAgents[0]._id, { shouldDirty: true });
+  }, [automationsAiAgents, config?.aiAgentId, setValue]);
+
   return {
     form,
     handleSubmit,

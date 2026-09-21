@@ -17,7 +17,6 @@ import {
 } from './types';
 import {
   CheckCustomTriggerInput,
-  CheckTargetMatchInput,
   FindObjectInput,
   GenerateAiContextInput,
   LoadAiKnowledgeDocumentBatchInput,
@@ -93,7 +92,6 @@ export const startAutomations = async (
     receiveActions,
     setProperties,
     checkCustomTrigger,
-    checkTargetMatch,
     findObject,
     generateAiContext,
     loadAiKnowledgeDocumentBatch,
@@ -162,12 +160,6 @@ export const startAutomations = async (
       t.procedure
         .input(CheckCustomTriggerInput)
         .mutation(async ({ ctx, input }) => checkCustomTrigger(input, ctx));
-  }
-
-  if (checkTargetMatch) {
-    automationProcedures[TAutomationProducers.CHECK_TARGET_MATCH] = t.procedure
-      .input(CheckTargetMatchInput)
-      .mutation(async ({ ctx, input }) => checkTargetMatch(input, ctx));
   }
 
   if (findObject) {

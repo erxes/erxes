@@ -29,17 +29,23 @@ const GeneralSettings = () => {
   });
 
   const updateCurrency = (data: TGeneralSettingsProps) => {
-    const updatedConfigs = {
-      // start with all existing configs
-      ...configs.reduce((acc: Record<string, any>, config: TConfig) => {
+    const existingConfigs = (configs ?? []).reduce(
+      (acc: Record<string, unknown>, config: TConfig) => {
         acc[config.code] = config.value;
         return acc;
-      }, {} as Record<string, any>),
-      // override/add with new data
-      ...data,
-    };
+      },
+      {} as Record<string, unknown>,
+    );
 
-    updateConfig(updatedConfigs);
+    // A setting the admin never chose must not be written back as an empty
+    // config: a blank TIMEZONE would read as "configured" downstream.
+    const chosen = Object.fromEntries(
+      Object.entries(data).filter(
+        ([, value]) => value !== undefined && value !== '',
+      ),
+    );
+
+    updateConfig({ ...existingConfigs, ...chosen });
   };
 
   const submitHandler: SubmitHandler<TGeneralSettingsProps> = (data) => {
@@ -74,7 +80,7 @@ const GeneralSettings = () => {
         (data: any) => data.code === 'DEPARTMENTS_MASTER_TEAM_MEMBERS_IDS',
       );
 
-      methods.setValue('dealCurrency', currencies?.value);
+      methods.setValue('dealCurrency', currencies?.value ?? []);
       methods.setValue('mainCurrency', mainCurrency?.value);
       methods.setValue(
         'CHECK_TEAM_MEMBER_SHOWN',
@@ -89,9 +95,7 @@ const GeneralSettings = () => {
         departmentMasterUserIds?.value || [],
       );
 
-      if (timezone) {
-        methods.setValue('TIMEZONE', timezone?.value);
-      }
+      methods.setValue('TIMEZONE', timezone?.value ?? '');
     }
   }, [configs, methods]);
 

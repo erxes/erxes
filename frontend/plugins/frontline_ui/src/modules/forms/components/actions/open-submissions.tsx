@@ -12,10 +12,10 @@ export const OpenSubmissionsAction: FC<Props> = ({ formId }) => {
   const navigate = useNavigate();
   return (
     <DropdownMenu.Item
-      title={t('open-submissions-list')}
+      title={t('open-submissions-list', 'Open submissions list')}
       onSelect={() => navigate(`submissions/${formId}`)}
     >
-      <IconListDetails /> {t('submissions')}
+      <IconListDetails /> {t('submissions', 'Submissions')}
     </DropdownMenu.Item>
   );
 };

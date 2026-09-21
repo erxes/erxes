@@ -13,10 +13,8 @@ import { engageMessageSchema } from '@/broadcast/db/definitions/engages';
 import {
   checkCustomerExists,
   checkRules,
-  findElk,
   getEditorAttributeUtil,
   getNumberOfVisits,
-  isUsingElk,
 } from '@/broadcast/utils';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { Model } from 'mongoose';
@@ -338,40 +336,18 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
 
       let prevMessage: IMessageDocument | null;
 
-      if (isUsingElk()) {
-        const conversationMessages = await findElk(
-          subdomain,
-          'conversation_messages',
-          {
-            bool: {
-              must: [
-                { match: { 'engageData.messageId': engageData.messageId } },
-                { match: customerId ? { customerId } : { visitorId } },
-              ],
-            },
-          },
-        );
+      const query = customerId
+        ? { customerId, 'engageData.messageId': engageData.messageId }
+        : { visitorId, 'engageData.messageId': engageData.messageId };
 
-        prevMessage = null;
-
-        if (conversationMessages.length > 0) {
-          prevMessage = conversationMessages[0];
-        }
-      } else {
-        const query = customerId
-          ? { customerId, 'engageData.messageId': engageData.messageId }
-          : { visitorId, 'engageData.messageId': engageData.messageId };
-
-        prevMessage = await sendTRPCMessage({
-          subdomain,
-
-          pluginName: 'frontline',
-          method: 'query',
-          module: 'conversationMessages',
-          action: 'findOne',
-          input: query,
-        });
-      }
+      prevMessage = await sendTRPCMessage({
+        subdomain,
+        pluginName: 'frontline',
+        method: 'query',
+        module: 'conversationMessages',
+        action: 'findOne',
+        input: query,
+      });
 
       if (prevMessage) {
         if (
@@ -384,23 +360,14 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
 
         const conversationId = prevMessage.conversationId;
 
-        if (isUsingElk()) {
-          messages = await findElk(subdomain, 'conversation_messages', {
-            match: {
-              conversationId,
-            },
-          });
-        } else {
-          messages = await sendTRPCMessage({
-            subdomain,
-
-            pluginName: 'frontline',
-            method: 'query',
-            module: 'conversationMessages',
-            action: 'find',
-            input: { conversationId },
-          });
-        }
+        messages = await sendTRPCMessage({
+          subdomain,
+          pluginName: 'frontline',
+          method: 'query',
+          module: 'conversationMessages',
+          action: 'find',
+          input: { conversationId },
+        });
 
         // leave conversations with responses alone
         if (messages.length > 1) {

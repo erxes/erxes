@@ -380,6 +380,7 @@ export const SelectCustomerFilterView = ({
 export const SelectCustomerFilterBar = ({
   mode = 'multiple',
   filterKey,
+  label,
   variant,
   scope,
   initialValue,
@@ -389,6 +390,7 @@ export const SelectCustomerFilterBar = ({
 }: {
   mode?: 'single' | 'multiple';
   filterKey: string;
+  label: string;
   variant?: `${SelectTriggerVariant}`;
   scope?: string;
   initialValue?: string[];
@@ -436,23 +438,52 @@ export const SelectCustomerFilterBar = ({
     }
   };
 
+  if (isCardVariant) {
+    return (
+      <SelectCustomerProvider
+        mode={mode}
+        value={query || []}
+        onValueChange={handleValueChange}
+        hideAvatar={hideAvatar}
+        loadSelectedCustomers={!hideAvatar || open}
+      >
+        <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
+          <SelectTriggerOperation variant={variant || 'filter'}>
+            <SelectCustomerValue />
+          </SelectTriggerOperation>
+          <SelectOperationContent variant={variant || 'filter'}>
+            <SelectCustomer.Content />
+          </SelectOperationContent>
+        </PopoverScoped>
+      </SelectCustomerProvider>
+    );
+  }
+
   return (
-    <SelectCustomerProvider
-      mode={mode}
-      value={query || []}
-      onValueChange={handleValueChange}
-      hideAvatar={hideAvatar}
-      loadSelectedCustomers={!isCardVariant || !hideAvatar || open}
-    >
-      <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
-        <SelectTriggerOperation variant={variant || 'filter'}>
-          <SelectCustomerValue />
-        </SelectTriggerOperation>
-        <SelectOperationContent variant={variant || 'filter'}>
-          <SelectCustomer.Content />
-        </SelectOperationContent>
-      </PopoverScoped>
-    </SelectCustomerProvider>
+    <Filter.BarItem queryKey={filterKey}>
+      <Filter.BarName>
+        <IconUser />
+        {label}
+      </Filter.BarName>
+      <SelectCustomerProvider
+        mode={mode}
+        value={query || []}
+        onValueChange={handleValueChange}
+        hideAvatar={hideAvatar}
+        loadSelectedCustomers
+      >
+        <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
+          <Popover.Trigger asChild>
+            <Filter.BarButton filterKey={filterKey}>
+              <SelectCustomerValue />
+            </Filter.BarButton>
+          </Popover.Trigger>
+          <Combobox.Content>
+            <SelectCustomer.Content />
+          </Combobox.Content>
+        </PopoverScoped>
+      </SelectCustomerProvider>
+    </Filter.BarItem>
   );
 };
 

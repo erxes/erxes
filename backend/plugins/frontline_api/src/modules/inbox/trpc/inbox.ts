@@ -24,6 +24,7 @@ interface CreateConversationAndMessageParams {
   content: string;
   engageData?: IEngageData;
   formWidgetData?: Record<string, unknown>;
+  extraData?: Record<string, unknown>;
 }
 const EngageDataSchema = z.object({
   messageId: z.string(),
@@ -47,6 +48,7 @@ export const createConversationAndMessage = async (
     content,
     engageData,
     formWidgetData,
+    extraData,
   } = params;
   // create conversation
   const conversation = await models.Conversations.createConversation({
@@ -62,6 +64,7 @@ export const createConversationAndMessage = async (
   const message = await models.ConversationMessages.createMessage({
     engageData,
     formWidgetData,
+    extraData,
     conversationId: conversation._id,
     userId,
     customerId,
@@ -505,52 +508,44 @@ export const conversationsRouter = t.router({
       }
     }),
 
-  changeStatus: t.procedure
-    .meta(
-      agentMeta(
-        'Open, close, or resolve an inbox conversation: { id, status } where status is one of "new", "open", "closed", "resolved". Both fields are required.',
-        { module: 'inbox', action: 'conversationsChangeStatus' },
-      ),
-    )
-    .input(z.any())
-    .query(async ({ ctx, input }) => {
-      try {
-        const { id, status } = input;
-        const { models } = ctx;
+  changeStatus: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+    try {
+      const { id, status } = input;
+      const { models } = ctx;
 
-        if (!id || !status) {
-          return {
-            status: 'error',
-            message: `Both id and status are required. Received id: ${id}, status: ${status}`,
-          };
-        }
-
-        const result = await models.Conversations.updateOne(
-          { _id: id },
-          { status: status },
-        );
-
-        if (result.matchedCount === 0) {
-          return {
-            status: 'not_found',
-            message: 'No conversation found with the provided ID',
-          };
-        }
-
-        return {
-          status: 'success',
-          data: result,
-        };
-      } catch (error) {
-        console.error('Update error:', error);
+      if (!id || !status) {
         return {
           status: 'error',
-          message: 'Update failed',
-          error:
-            process.env.NODE_ENV === 'development' ? error.message : undefined,
+          message: `Both id and status are required. Received id: ${id}, status: ${status}`,
         };
       }
-    }),
+
+      const result = await models.Conversations.updateOne(
+        { _id: id },
+        { status: status },
+      );
+
+      if (result.matchedCount === 0) {
+        return {
+          status: 'not_found',
+          message: 'No conversation found with the provided ID',
+        };
+      }
+
+      return {
+        status: 'success',
+        data: result,
+      };
+    } catch (error) {
+      console.error('Update error:', error);
+      return {
+        status: 'error',
+        message: 'Update failed',
+        error:
+          process.env.NODE_ENV === 'development' ? error.message : undefined,
+      };
+    }
+  }),
 });
 
 export const visitorRouter = t.router({});
@@ -926,7 +921,7 @@ export const inboxTrpcRouter = t.router({
     getIntegrationKinds: t.procedure
       .meta(
         agentMeta(
-          'List the integration kinds available on this workspace as a kind to label map (e.g. messenger, lead, webhook, imap, facebook-messenger). Call this before filtering integrations by kind with inbox.integrations.find.',
+          'List the integration kinds available on this workspace as a kind to label map (e.g. messenger, lead, webhook, mail, facebook-messenger). Call this before filtering integrations by kind with inbox.integrations.find.',
           { module: 'integration', action: 'showIntegrations' },
         ),
       )

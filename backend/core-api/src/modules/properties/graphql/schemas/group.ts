@@ -30,6 +30,11 @@ export const types = `
         ${GQL_CURSOR_PARAM_DEFS}
     }
 
+    input FieldGroupOrderItem {
+        _id: String!
+        order: Float!
+    }
+
     input CpFieldGroupParams {
         contentType: String!
         codes: [String]
@@ -55,5 +60,6 @@ const mutationParams = `
 export const mutations = `
     fieldGroupAdd(${mutationParams}): FieldGroup
     fieldGroupEdit(_id: String!, order: Float, ${mutationParams}): FieldGroup
+    fieldGroupsUpdateOrder(orders: [FieldGroupOrderItem!]!): [FieldGroup]
     fieldGroupRemove(_id: String!): FieldGroup
 `;

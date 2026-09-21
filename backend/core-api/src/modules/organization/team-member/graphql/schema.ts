@@ -69,7 +69,6 @@ export const types = `
     category: String
   }
 
-
   type User @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String
     createdAt: Date
@@ -167,7 +166,6 @@ const commonSelector = `
   departmentIds: [String]
   unitId: String
   segment: String
-  segmentData: String
 `;
 
 export const queries = `

@@ -18,10 +18,11 @@ import { useIntegrationDetail } from '@/integrations/hooks/useIntegrationDetail'
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useIntegrationEdit } from '@/integrations/hooks/useIntegrationEdit';
 import { FACEBOOK_INTEGRATION_SCHEMA } from '@/integrations/facebook/constants/FbMessengerSchema';
+import { IntegrationType } from '@/types/Integration';
 import { useSearchParams } from 'react-router-dom';
 import { useSetAtom } from 'jotai';
 import {
@@ -29,6 +30,12 @@ import {
   selectedFacebookAccountAtom,
   activeFacebookFormStepAtom,
 } from '@/integrations/facebook/states/facebookStates';
+
+const FacebookIntegrationBotSection = lazy(() =>
+  import(
+    '~/widgets/automations/modules/facebook/components/bots/components/FacebookIntegrationBotSection'
+  ).then((module) => ({ default: module.FacebookIntegrationBotSection })),
+);
 
 export const FacebookIntegrationDetail = ({ isPost }: { isPost?: boolean }) => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -198,6 +205,16 @@ export const FacebookIntegrationEditForm = ({
           </Dialog.Footer>
         </form>
       </Form>
+      {integrationDetail?.kind === IntegrationType.FACEBOOK_MESSENGER && (
+        <>
+          <Separator />
+          <div className="px-6 py-4">
+            <Suspense fallback={<Spinner />}>
+              <FacebookIntegrationBotSection integrationId={id} />
+            </Suspense>
+          </div>
+        </>
+      )}
     </>
   );
 };

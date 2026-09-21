@@ -95,7 +95,6 @@ const productsQueryParams = `
   ids: [String],
   excludeIds: Boolean,
   segment: String,
-  segmentData: String,
   isKiosk: Boolean,
   groupedSimilarity: String,
   isSimilarity: Boolean,
@@ -110,6 +109,7 @@ const productsQueryParams = `
   minDiscountPercent: Float
   maxDiscountPercent: Float
   discountConditions: JSON
+  propertiesData: String
 `;
 
 const productCategoriesParams = `

@@ -1,6 +1,4 @@
-import React from 'react';
-
-export const Response = (content: any): string => {
+export const Response = (content: string): string => {
   return `
     <!DOCTYPE html>
     <html>

@@ -18,7 +18,8 @@ export const useImportHistoryActionsCell = ({
   const canCancel =
     status === 'pending' || status === 'validating' || status === 'processing';
   const canRetry = status === 'failed';
-  const canResume = status === 'cancelled';
+  // the worker resumes from lastProcessedRow, so a failed job need not restart
+  const canResume = status === 'cancelled' || status === 'failed';
   const canOpenErrorFile = !!errorFileUrl;
   const canDownloadOriginal = !!fileKey;
   const isSuccess = status === 'completed';
@@ -48,24 +49,19 @@ export const useImportHistoryActionsCell = ({
     retryImportState.loading ||
     resumeImportState.loading;
 
-  function handleOpenErrorFile() {
-    if (!errorFileUrl) {
-      return;
-    }
-
-    window.open(errorFileUrl, '_blank');
-  }
-
   function handleDownloadErrorFile() {
     if (!errorFileUrl) {
       return;
     }
 
+    // errorFileUrl is a storage key, not a browsable URL
+    const fileUrl = `${REACT_APP_API_URL}/read-file?key=${encodeURIComponent(
+      errorFileUrl,
+    )}`;
+
     const a = document.createElement('a');
-    a.href = errorFileUrl;
-    a.target = '_blank';
-    a.rel = 'noreferrer';
-    a.download = '';
+    a.href = fileUrl;
+    a.download = `import-errors-${_id}.csv`;
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -76,7 +72,9 @@ export const useImportHistoryActionsCell = ({
       return;
     }
 
-    const fileUrl = `${REACT_APP_API_URL}/read-file?key=${encodeURIComponent(fileKey)}`;
+    const fileUrl = `${REACT_APP_API_URL}/read-file?key=${encodeURIComponent(
+      fileKey,
+    )}`;
     window.open(fileUrl, '_blank');
   }
 
@@ -106,7 +104,6 @@ export const useImportHistoryActionsCell = ({
     canRetry,
     canResume,
     isBusy,
-    handleOpenErrorFile,
     handleDownloadErrorFile,
     handleDownloadOriginal,
     handleCancel,

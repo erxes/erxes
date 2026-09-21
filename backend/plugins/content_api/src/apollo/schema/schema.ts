@@ -1,4 +1,9 @@
 import {
+  postizTypes,
+  postizQueries,
+  postizMutations,
+} from '@/cms/postiz/graphql';
+import {
   inputs as cmsInputs,
   mutations as cmsMutations,
   queries as cmsQueries,
@@ -61,6 +66,7 @@ import {
 } from '@/webbuilder/graphql/schemas/webPage';
 
 export const types = `
+  ${postizTypes}
 
   enum CacheControlScope {
     PUBLIC
@@ -103,6 +109,7 @@ export const types = `
 `;
 
 export const queries = `
+    ${postizQueries}
     ${webQueries}
     ${webPageQueries}
     ${cmsQueries}
@@ -115,6 +122,7 @@ export const queries = `
   `;
 
 export const mutations = `
+    ${postizMutations}
     ${webMutations}
     ${webPageMutations}
     ${cmsMutations}

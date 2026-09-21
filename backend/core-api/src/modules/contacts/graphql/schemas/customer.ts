@@ -14,6 +14,7 @@ export const types = `
     updatedAt: Date
     avatar: String
     integrationId: String
+    clientPortalId: String
     firstName: String
     lastName: String
     middleName: String
@@ -85,10 +86,14 @@ const queryParams = `
   excludeTagIds: [String]
   tagWithRelated: Boolean
 
+  segmentIds: [String]
+
   brandIds: [String]
 
   integrationIds: [String]
   integrationTypes: [String]
+
+  clientPortalId: String
 
   formIds: [String]
 
@@ -104,7 +109,6 @@ const queryParams = `
   birthDate: Date
   dateFilters: String
   propertiesData: String
-  segmentData: String
   emailValidationStatus:String
   status: CONTACT_STATUS
 

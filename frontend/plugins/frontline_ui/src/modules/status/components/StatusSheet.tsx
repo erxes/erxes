@@ -44,7 +44,7 @@ const StatusSheetForm = ({
 
   const isEditing = Boolean(editingStatus);
   const isSaving = adding || updating;
-  const submitLabel = isEditing ? t('update') : t('save');
+  const submitLabel = isEditing ? t('update', 'Update') : t('save', 'Save');
 
   const form = useForm<TStatusForm>({
     resolver: zodResolver(TICKET_STATUS_FORM_SCHEMA),
@@ -60,13 +60,13 @@ const StatusSheetForm = ({
   }, [form]);
 
   const onCompleted = () => {
-    toast({ title: t('success') });
+    toast({ title: t('success', 'Success!') });
     onClose();
   };
 
   const onError = (error: Error) =>
     toast({
-      title: t('error'),
+      title: t('error', 'Error'),
       description: error.message,
       variant: 'destructive',
     });
@@ -99,7 +99,7 @@ const StatusSheetForm = ({
         className="box-border flex size-full flex-col overflow-hidden"
         onSubmit={form.handleSubmit(onSubmit, (errors) => {
           toast({
-            title: t('error'),
+            title: t('error', 'Error'),
             description: Object.values(errors)[0]?.message,
             variant: 'destructive',
           });
@@ -107,10 +107,10 @@ const StatusSheetForm = ({
       >
         <Sheet.Header>
           <Sheet.Title className="capitalize">
-            {isEditing ? editingStatus.name : t('status')}
+            {isEditing ? editingStatus.name : t('status', 'Status')}
           </Sheet.Title>
           <Sheet.Description className="sr-only">
-            {t('manage-ticket-statuses')}
+            {t('manage-ticket-statuses', 'Manage ticket statuses')}
           </Sheet.Description>
           <Sheet.Close />
         </Sheet.Header>
@@ -120,7 +120,7 @@ const StatusSheetForm = ({
             name="name"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>{t('name')}</Form.Label>
+                <Form.Label>{t('name', 'Name')}</Form.Label>
                 <div className="flex items-center gap-2">
                   <Form.Field
                     control={form.control}
@@ -134,7 +134,7 @@ const StatusSheetForm = ({
                             the size has to come through `className` where
                             `cn` can win, not through an `asChild` button. */}
                         <ColorPicker.Trigger
-                          aria-label={t('color')}
+                          aria-label={t('color', 'Color')}
                           className="size-8 flex-none justify-center p-0"
                           style={{
                             backgroundColor: `${
@@ -152,7 +152,7 @@ const StatusSheetForm = ({
                     )}
                   />
                   <Form.Control>
-                    <Input placeholder={t('name')} {...field} />
+                    <Input placeholder={t('name', 'Name')} {...field} />
                   </Form.Control>
                 </div>
                 <Form.Message />
@@ -164,11 +164,11 @@ const StatusSheetForm = ({
             name="description"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>{t('description')}</Form.Label>
+                <Form.Label>{t('description', 'Description')}</Form.Label>
                 <Form.Control>
                   <Textarea
                     className="min-h-24 resize-none"
-                    placeholder={t('description')}
+                    placeholder={t('description', 'Description')}
                     {...field}
                   />
                 </Form.Control>
@@ -184,7 +184,7 @@ const StatusSheetForm = ({
             type="button"
             variant="ghost"
           >
-            {t('cancel')}
+            {t('cancel', 'Cancel')}
           </Button>
           <Button disabled={isSaving} type="submit">
             {isSaving ? <Spinner /> : submitLabel}

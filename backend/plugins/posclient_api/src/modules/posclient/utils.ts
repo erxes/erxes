@@ -3,7 +3,6 @@ import {
   getStatus,
 } from './graphql/resolvers/mutations/orders';
 import moment from 'moment';
-import { productSchema } from '~/modules/posclient/db/definitions/products';
 import { IConfigDocument } from '~/modules/posclient/@types/configs';
 import { IOrderDocument } from '~/modules/posclient/@types/orders';
 import { IModels } from '~/connectionResolvers';
@@ -12,11 +11,7 @@ import {
   BILL_TYPES,
   SUBSCRIPTION_INFO_STATUS,
 } from '~/modules/posclient/db/definitions/constants';
-import {
-  fetchEs,
-  graphqlPubsub,
-  sendTRPCMessage,
-} from 'erxes-api-shared/utils';
+import { graphqlPubsub, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IDoc } from '~/modules/posclient/db/models/PutData';
 import {
   checkOrderStatus,
@@ -30,166 +25,37 @@ export interface ICountBy {
   [index: string]: number;
 }
 
-export const getEsTypes = () => {
-  const schema = productSchema;
+/**
+ * The ids of the products a segment currently holds.
+ *
+ * Membership is materialised in core, so this reads the settled member list
+ * rather than re-running the definition. POS keeps its own copy of products
+ * and does not carry `segmentIds`, so the ids have to come across the wire.
+ */
+export const segmentProductIds = async (
+  subdomain: string,
+  segmentId: string,
+): Promise<string[]> => {
+  const ids: string[] = [];
+  let cursor: string | undefined;
 
-  const typesMap: { [key: string]: any } = {};
-
-  schema.eachPath((name) => {
-    const path = schema.paths[name];
-    typesMap[name] = path.options.esType;
-  });
-
-  return typesMap;
-};
-
-export interface IListArgs {
-  segment?: string;
-  segmentData?: string;
-}
-
-export class Builder {
-  public params: IListArgs;
-  public context;
-  public positiveList: any[];
-  public negativeList: any[];
-  public models: IModels;
-  public subdomain: string;
-
-  private contentType: 'products';
-
-  constructor(models: IModels, subdomain: string, params: IListArgs, context) {
-    this.contentType = 'products';
-    this.context = context;
-    this.params = params;
-    this.models = models;
-    this.subdomain = subdomain;
-
-    this.positiveList = [];
-    this.negativeList = [];
-
-    this.resetPositiveList();
-    this.resetNegativeList();
-  }
-
-  public resetNegativeList() {
-    this.negativeList = [{ term: { status: 'deleted' } }];
-  }
-
-  public resetPositiveList() {
-    this.positiveList = [];
-
-    if (this.context.commonQuerySelectorElk) {
-      this.positiveList.push(this.context.commonQuerySelectorElk);
-    }
-  }
-
-  // filter by segment
-  public async segmentFilter(segment: any, segmentData?: any) {
-    // const selector = await fetchSegment(
-    //   this.subdomain,
-    //   segment._id,
-    //   { returnSelector: true },
-    //   segmentData,
-    // );
-    const selector = await sendTRPCMessage({
-      subdomain: this.subdomain,
+  do {
+    const page: { ids?: string[]; cursor?: string } = await sendTRPCMessage({
+      subdomain,
       pluginName: 'core',
+      method: 'query',
       module: 'segment',
       action: 'fetchSegment',
-      input: {
-        segmentId: segment._id,
-        options: segmentData,
-      },
-      defaultValue: [],
-    });
-    this.positiveList = [...this.positiveList, selector];
-  }
-
-  public getRelType() {
-    return 'product';
-  }
-
-  /*
-   * prepare all queries. do not do any action
-   */
-  public async buildAllQueries(): Promise<void> {
-    this.resetPositiveList();
-    this.resetNegativeList();
-
-    // filter by segment data
-    if (this.params.segmentData) {
-      const segment = JSON.parse(this.params.segmentData);
-
-      await this.segmentFilter({}, segment);
-    }
-
-    // filter by segment
-    if (this.params.segment) {
-      // const segment = await sendCoreMessage({
-      //   isRPC: true,
-      //   action: 'segmentFindOne',
-      //   subdomain: this.subdomain,
-      //   data: { _id: this.params.segment },
-      // });
-
-      const segment = await sendTRPCMessage({
-        subdomain: this.subdomain,
-
-        method: 'query',
-        pluginName: 'core',
-        module: 'core',
-        action: 'segmentFindOne',
-        input: { data: { _id: this.params.segment } },
-        defaultValue: [],
-      });
-
-      await this.segmentFilter(segment);
-    }
-  }
-
-  public async runQueries(action = 'search'): Promise<any> {
-    const queryOptions: any = {
-      query: {
-        bool: {
-          must: this.positiveList,
-          must_not: this.negativeList,
-        },
-      },
-    };
-
-    let totalCount = 0;
-
-    const totalCountResponse = await fetchEs({
-      subdomain: this.subdomain,
-      action: 'count',
-      index: this.contentType,
-      body: queryOptions,
-      defaultValue: 0,
+      input: { segmentId, cursor, limit: 1000 },
+      defaultValue: { ids: [] },
     });
 
-    totalCount = totalCountResponse.count;
+    ids.push(...(page.ids || []));
+    cursor = page.cursor;
+  } while (cursor);
 
-    const response = await fetchEs({
-      subdomain: this.subdomain,
-      action: 'search', // todo:action
-      index: this.contentType,
-      body: queryOptions,
-    });
-
-    const list = response.hits.hits.map((hit) => {
-      return {
-        _id: hit._id,
-        ...hit._source,
-      };
-    });
-
-    return {
-      list,
-      totalCount,
-    };
-  }
-}
+  return ids;
+};
 
 export const updateMobileAmount = async (
   subdomain: string,

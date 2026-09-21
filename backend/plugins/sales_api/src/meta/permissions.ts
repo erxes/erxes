@@ -24,6 +24,11 @@ export const permissions: IPermissionConfig = {
         { title: 'Add deals', name: 'dealsAdd', description: 'Create deals' },
         { title: 'Edit deals', name: 'dealsEdit', description: 'Edit deals' },
         {
+          title: 'Edit deal products',
+          name: 'dealsProductsEdit',
+          description: 'Add, edit, and remove products on deals',
+        },
+        {
           title: 'Remove deals',
           name: 'dealsRemove',
           description: 'Delete deals',
@@ -272,6 +277,7 @@ export const permissions: IPermissionConfig = {
             'showDeals',
             'dealsAdd',
             'dealsEdit',
+            'dealsProductsEdit',
             'dealsRemove',
             'dealsWatch',
             'dealsArchive',
@@ -357,7 +363,13 @@ export const permissions: IPermissionConfig = {
         {
           plugin: 'sales',
           module: 'deal',
-          actions: ['showDeals', 'dealsAdd', 'dealsEdit', 'dealsWatch'],
+          actions: [
+            'showDeals',
+            'dealsAdd',
+            'dealsEdit',
+            'dealsWatch',
+            'dealsArchive',
+          ],
           scope: 'group',
         },
         {

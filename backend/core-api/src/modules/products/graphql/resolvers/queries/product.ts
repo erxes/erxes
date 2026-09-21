@@ -1,3 +1,4 @@
+import { buildPropertyFilter } from 'erxes-api-shared/core-modules';
 import { IProductDocument, Resolver } from 'erxes-api-shared/core-types';
 import {
   cursorPaginate,
@@ -13,13 +14,11 @@ import {
   PRODUCT_SIMILARITY_STATUSES,
   PRODUCT_STATUSES,
 } from '@/products/constants';
-import { fetchSegment } from '@/segments/utils/fetchSegment';
 import {
   getSimilaritiesProducts,
   getSimilaritiesProductsCount,
 } from '@/products/utils';
 import { getPipelineInventoryScope } from '@/products/graphql/resolvers/customResolvers/product';
-import { withPropertyConditions } from '@/properties/utils';
 
 const inventoryKey = (id?: string) => id || '_';
 type DiscountField = 'discount' | 'discountPercent';
@@ -292,7 +291,7 @@ const generateFilter = async (
   commonQuerySelector: any,
   params: IProductParams,
 ) => {
-  const { models, subdomain } = context;
+  const { models } = context;
   const {
     type,
     categoryIds,
@@ -307,7 +306,7 @@ const generateFilter = async (
     image,
     pipelineId,
     segment,
-    segmentData,
+    segmentIds,
     propertiesData,
     branchId,
     departmentId,
@@ -344,7 +343,7 @@ const generateFilter = async (
   }
 
   if (propertiesData) {
-    const propertyConditions = withPropertyConditions(propertiesData);
+    const propertyConditions = buildPropertyFilter(propertiesData);
 
     if (propertyConditions.length) {
       andFilters.push(...propertyConditions);
@@ -376,17 +375,20 @@ const generateFilter = async (
   }
 
   if (tagIds) {
-    const baseTagIds: Set<string> = new Set(tagIds);
-
     if (tagWithRelated) {
       const tagObjs = await models.Tags.find({ _id: { $in: tagIds } }).lean();
+      const tagsById = new Map(tagObjs.map((tag) => [tag._id, tag]));
 
-      for (const tag of tagObjs) {
-        (tag.relatedIds || []).forEach((id) => baseTagIds.add(id));
-      }
+      andFilters.push(
+        ...tagIds.map((tagId) => ({
+          tagIds: {
+            $in: [tagId, ...(tagsById.get(tagId)?.relatedIds || [])],
+          },
+        })),
+      );
+    } else {
+      andFilters.push({ tagIds: { $all: tagIds } });
     }
-
-    andFilters.push({ tagIds: { $in: Array.from(baseTagIds) } });
   }
 
   if (excludeTagIds?.length) {
@@ -576,20 +578,10 @@ const generateFilter = async (
     andFilters.push({ unitPrice: { $exists: true, $lte: maxPrice } });
   }
 
-  if (segment || segmentData) {
-    const segmentObj = segmentData
-      ? JSON.parse(segmentData)
-      : await models.Segments.findOne({ _id: segment }).lean();
-
-    if (segmentObj) {
-      const segmentProductIds = await fetchSegment(
-        models,
-        subdomain,
-        segmentObj,
-      );
-
-      andFilters.push({ _id: { $in: segmentProductIds } });
-    }
+  if (segmentIds?.length) {
+    andFilters.push({ segmentIds: { $in: segmentIds } });
+  } else if (segment) {
+    andFilters.push({ segmentIds: segment });
   }
 
   return { ...filter, ...(andFilters.length ? { $and: andFilters } : {}) };
@@ -742,6 +734,45 @@ export const productQueries: Record<string, Resolver<any, any, IContext>> = {
     { models }: IContext,
   ) {
     return await models.Products.findOne({ _id }).lean();
+  },
+
+  async productLastCodeByCategory(
+    _parent: undefined,
+    { categoryId }: { categoryId?: string },
+    context: IContext,
+  ) {
+    if (!categoryId) {
+      return null;
+    }
+
+    const { models } = context;
+    const categories = await models.ProductCategories.getChildCategories([
+      categoryId,
+    ]);
+    const categoryIds = categories.map((category) => category._id);
+
+    const [product] = await models.Products.aggregate<{ code: string }>([
+      {
+        $match: {
+          categoryId: { $in: categoryIds },
+        },
+      },
+      {
+        $addFields: {
+          codeLength: { $strLenCP: '$code' },
+        },
+      },
+      {
+        $sort: {
+          codeLength: -1,
+          code: -1,
+        },
+      },
+      { $limit: 1 },
+      { $project: { _id: 0, code: 1 } },
+    ]);
+
+    return product?.code || null;
   },
 
   async cpProductDetail(

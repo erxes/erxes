@@ -1,14 +1,51 @@
 import { generateModels } from '~/connectionResolvers';
 import { customerToDynamic } from './utilsCustomer';
 import { dealToDynamic, orderToDynamic } from './utils';
-
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 const allowTypes: Record<string, string[]> = {
   'core:customer': ['create'],
   'core:company': ['create'],
   'pos:order': ['synced'],
   'sales:deal': ['update'],
 };
+const handlePosOrder = async (
+  subdomain: string,
+  models: any,
+  updatedDocument: any,
+  object: any,
+  syncLogDoc: any,
+  configsMap: Record<string, any>,
+) => {
+  const updatedDoc = updatedDocument || object;
+  let brandId = updatedDoc?.scopeBrandIds?.[0];
 
+  if (!brandId && updatedDoc?.posId) {
+    const pos = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'sales',
+      module: 'pos',
+      action: 'findOne',
+      input: {
+        query: { _id: updatedDoc.posId },
+      },
+      defaultValue: null,
+    });
+
+    brandId = pos?.scopeBrandIds?.[0];
+  }
+
+  const config = configsMap[brandId || 'noBrand'];
+
+  if (!config || config.useBoard) {
+    return;
+  }
+
+  const syncLog = await models.SyncLogsMSD.syncLogsAdd(syncLogDoc);
+
+  await orderToDynamic(subdomain, models, syncLog, updatedDoc, config, brandId);
+
+  return syncLog;
+};
 export const afterMutationHandlers = async (subdomain: string, params: any) => {
   const { type, action, user, object, updatedDocument } = params;
 
@@ -92,16 +129,15 @@ export const afterMutationHandlers = async (subdomain: string, params: any) => {
       }
 
       case 'pos:order': {
-        syncLog = await models.SyncLogsMSD.syncLogsAdd(syncLogDoc);
+        syncLog = await handlePosOrder(
+          subdomain,
+          models,
+          updatedDocument,
+          object,
+          syncLogDoc,
+          configsMap,
+        );
 
-        const updatedDoc = updatedDocument || object;
-        const brandId = updatedDoc?.scopeBrandIds?.[0];
-
-        const config = configsMap[brandId || 'noBrand'];
-
-        if (config && !config.useBoard) {
-          await orderToDynamic(subdomain, models, syncLog, updatedDoc, config);
-        }
         break;
       }
 

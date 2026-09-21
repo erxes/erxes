@@ -53,6 +53,7 @@ export interface ProductDetail {
   barcodes?: string | string[];
   shortName?: string;
   unitPrice?: number;
+  weight?: number;
   uom?: string;
   subUoms?: SubUomItem[];
   vendorId?: string;

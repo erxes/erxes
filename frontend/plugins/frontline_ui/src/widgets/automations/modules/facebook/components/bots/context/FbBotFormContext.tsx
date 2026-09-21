@@ -7,6 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { createContext, ReactNode, useContext, useMemo } from 'react';
 import { DefaultValues, useForm, UseFormReturn } from 'react-hook-form';
 import { generateAutomationElementId } from 'ui-modules';
+import { TFacebookBotPage } from '~/widgets/automations/modules/facebook/components/bots/hooks/useFacebookIntegrationBot';
 
 interface FbBotFormContextType {
   form: UseFormReturn<TFacebookBotForm>;
@@ -18,9 +19,13 @@ const FbBotFormContext = createContext<FbBotFormContextType | null>(null);
 export const FbBotFormProvider = ({
   children,
   facebookMessengerBot,
+  page,
 }: {
   children: ReactNode;
   facebookMessengerBot?: IFacebookBot;
+  // Set when the form is opened from an integration that already owns the
+  // page, so the in-form page selector is skipped.
+  page?: TFacebookBotPage;
 }) => {
   const defaultValues = useMemo<DefaultValues<TFacebookBotForm>>(() => {
     const persistentMenus = facebookMessengerBot?.persistentMenus?.length
@@ -56,6 +61,13 @@ export const FbBotFormProvider = ({
     return {
       name: facebookMessengerBot?.name || '',
       persistentMenus,
+      iceBreakers: (facebookMessengerBot?.iceBreakers || []).map(
+        ({ _id, question }) => ({
+          _id: _id || generateAutomationElementId(),
+          question: question || '',
+        }),
+      ),
+      getStartedText: facebookMessengerBot?.getStartedText || '',
       tag: facebookMessengerBot?.tag || 'CONFIRMED_EVENT_UPDATE',
       greetText: facebookMessengerBot?.greetText || '',
       handoffMessage:
@@ -69,10 +81,10 @@ export const FbBotFormProvider = ({
         (menu) => menu.type === 'back_button',
       ),
       backButtonText: '',
-      accountId: facebookMessengerBot?.accountId || '',
-      pageId: facebookMessengerBot?.pageId || '',
+      accountId: facebookMessengerBot?.accountId || page?.accountId || '',
+      pageId: facebookMessengerBot?.pageId || page?.pageId || '',
     };
-  }, [facebookMessengerBot]);
+  }, [facebookMessengerBot, page]);
 
   const form = useForm<TFacebookBotForm>({
     resolver: zodResolver(facebookBotFormSchema),

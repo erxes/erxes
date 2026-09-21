@@ -27,7 +27,7 @@ export const PersonalChannelDetails = () => {
     return (
       <div className="w-full px-4 sm:px-8 lg:px-16">
         <p className="text-sm text-accent-foreground">
-          {t('no-personal-inbox')}
+          {t('no-personal-inbox', 'No personal inbox yet')}
         </p>
       </div>
     );
@@ -37,7 +37,10 @@ export const PersonalChannelDetails = () => {
       <span className="flex flex-col gap-1 shrink-0">
         <h1 className="text-2xl font-semibold">{channel.name}</h1>
         <p className="text-sm text-muted-foreground">
-          {t('personal-channel-description')}
+          {t(
+            'personal-channel-description',
+            'Your private inbox. Only you can see its conversations.',
+          )}
         </p>
       </span>
 
@@ -51,7 +54,7 @@ export const PersonalChannelDetails = () => {
           API rejects any attempt to add another. */}
       <IntegrationList
         channelId={channel._id}
-        heading={t('personal-integrations')}
+        heading={t('personal-integrations', 'Personal integrations')}
       />
     </div>
   );

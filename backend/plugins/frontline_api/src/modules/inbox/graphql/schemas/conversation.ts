@@ -131,6 +131,12 @@ export const types = `
     text: String
   }
 
+  type ConversationUnreadCountChangedResponse {
+    conversationId: String!
+    channelId: String!
+    unreadConversationCount: Int!
+  }
+
 type ConversationListResponse {
   list: [Conversation]
   totalCount: Int
@@ -148,6 +154,12 @@ type ConversationListResponse {
     list: [Conversation],
     pageInfo: PageInfo,
     totalCount: Int,
+  }
+
+  type ConversationConvertedItem {
+    type: String
+    _id: String
+    url: String
   }
 
   input ConversationMessageParams {
@@ -179,7 +191,10 @@ const mutationFilterParams = `
   tag: String
   integrationType: String
   participating: String
+  mentioned: String
+  unread: String
   awaitingResponse: String
+  withSurvey: String
   automationStatus: String
   starred: String
   startDate: String
@@ -193,13 +208,15 @@ const mutationFilterParams = `
 const convertParams = `
   _id: String!
   type: String!
-  itemId: String
   itemName: String
   stageId: String
   customFieldsData: JSON
   priority: String
   assignedUserIds: [String]
   labelIds: [String]
+  tagIds: [String]
+  branchIds: [String]
+  departmentIds: [String]
   startDate: Date
   closeDate: Date
   attachments: [AttachmentInput]
@@ -238,6 +255,7 @@ export const queries = `
   conversationsGetLast(${filterParams}): Conversation
   conversationsTotalUnreadCount: Int
   userConversations(_id: String, ${GQL_CURSOR_PARAM_DEFS}, perPage: Int): UserConversationListResponse
+  conversationConvertedItems(_id: String!): [ConversationConvertedItem]
 `;
 
 export const mutations = `

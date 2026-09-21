@@ -18,9 +18,32 @@ import {
   IPipelineDocument,
   IProductData,
   IStageDocument,
-} from './@types';
-import { CLOSE_DATE_TYPES, SALES_STATUSES } from './constants';
-import { generateFilter } from './graphql/resolvers/queries/deals';
+} from '@/sales/@types';
+import { CLOSE_DATE_TYPES, SALES_STATUSES } from '@/sales/constants';
+import { generateFilter } from '@/sales/graphql/resolvers/queries/deals';
+
+export const getCreatedAtSearchFilter = (
+  search: string,
+): { createdAt: { $gte: Date; $lt: Date } } | null => {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(search.trim());
+
+  if (!match) return null;
+
+  const [, year, month, day] = match;
+  const start = new Date(`${year}-${month}-${day}T00:00:00.000Z`);
+
+  if (
+    Number.isNaN(start.getTime()) ||
+    start.toISOString().slice(0, 10) !== `${year}-${month}-${day}`
+  ) {
+    return null;
+  }
+
+  const end = new Date(start);
+  end.setUTCDate(end.getUTCDate() + 1);
+
+  return { createdAt: { $gte: start, $lt: end } };
+};
 
 export const configReplacer = (config) => {
   const now = new Date();
@@ -330,29 +353,28 @@ const generateArchivedItemsFilter = (
 
   filter.stageId = { $in: stages.map((stage) => stage._id) };
 
+  const setInFilter = (field: string, values?: string[]) => {
+    if (values?.length) filter[field] = { $in: values };
+  };
+
   if (search) {
-    Object.assign(filter, regexSearchText(search, 'name'));
+    const createdAtFilter = getCreatedAtSearchFilter(search);
+
+    Object.assign(filter, {
+      $or: [
+        regexSearchText(search, 'name'),
+        regexSearchText(search, 'number'),
+        regexSearchText(search, 'description'),
+        ...(createdAtFilter ? [createdAtFilter] : []),
+      ],
+    });
   }
 
-  if (userIds && userIds.length) {
-    filter.userId = { $in: userIds };
-  }
-
-  if (priorities?.length) {
-    filter.priority = { $in: priorities };
-  }
-
-  if (assignedUserIds?.length) {
-    filter.assignedUserIds = { $in: assignedUserIds };
-  }
-
-  if (labelIds?.length) {
-    filter.labelIds = { $in: labelIds };
-  }
-
-  if (productIds?.length) {
-    filter['productsData.productId'] = { $in: productIds };
-  }
+  setInFilter('userId', userIds);
+  setInFilter('priority', priorities);
+  setInFilter('assignedUserIds', assignedUserIds);
+  setInFilter('labelIds', labelIds);
+  setInFilter('productsData.productId', productIds);
 
   if (startDate) {
     filter.closeDate = {
@@ -370,13 +392,8 @@ const generateArchivedItemsFilter = (
     }
   }
 
-  if (sources?.length) {
-    filter.source = { $in: sources };
-  }
-
-  if (hackStages?.length) {
-    filter.hackStages = { $in: hackStages };
-  }
+  setInFilter('source', sources);
+  setInFilter('hackStages', hackStages);
 
   return filter;
 };

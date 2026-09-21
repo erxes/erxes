@@ -10,6 +10,11 @@ interface IPersistentMenus {
   link?: string;
 }
 
+interface IIceBreakers {
+  _id: string;
+  question: string;
+}
+
 interface IBotHealth {
   status: 'healthy' | 'degraded' | 'broken' | 'syncing';
   isSubscribed?: boolean;
@@ -17,6 +22,12 @@ interface IBotHealth {
   lastSyncedAt?: Date;
   lastVerifiedAt?: Date;
   lastError?: string;
+  // Public comment replies are paused until this time after Facebook answers
+  // with a spam or rate-limit refusal. Persisted, not cached: a restart must
+  // not resume hammering a page Facebook already told us to leave alone.
+  sendBlockedUntil?: Date;
+  sendBlockReason?: string;
+  sendBlockCount?: number;
 }
 
 export interface IFacebookBot {
@@ -27,6 +38,10 @@ export interface IFacebookBot {
   token: string;
   status: string;
   persistentMenus: IPersistentMenus[];
+  iceBreakers?: IIceBreakers[];
+  // The Get Started button's label. Its payload is unaffected, so a renamed
+  // button keeps triggering the same automations.
+  getStartedText?: string;
   greetText?: string;
   handoffMessage?: string;
   automationActiveMessage?: string;
@@ -55,6 +70,11 @@ const persistentMenuSchema = new Schema({
   link: { type: String, optional: true },
 });
 
+const iceBreakerSchema = new Schema({
+  _id: { type: String },
+  question: { type: String },
+});
+
 const healthSchema = new Schema(
   {
     status: {
@@ -68,6 +88,9 @@ const healthSchema = new Schema(
     lastSyncedAt: { type: Date, optional: true },
     lastVerifiedAt: { type: Date, optional: true },
     lastError: { type: String, optional: true },
+    sendBlockedUntil: { type: Date, optional: true },
+    sendBlockReason: { type: String, optional: true },
+    sendBlockCount: { type: Number, default: 0 },
   },
   { _id: false },
 );
@@ -77,9 +100,12 @@ export const facebookBotSchema = schemaWrapper(
     name: { type: String },
     accountId: { type: String },
     uid: { type: String },
-    pageId: { type: String },
+    // Every outgoing reply resolves its bot by page, and a page has one bot.
+    pageId: { type: String, index: true },
     token: { type: String },
     persistentMenus: { type: [persistentMenuSchema] },
+    iceBreakers: { type: [iceBreakerSchema], default: [] },
+    getStartedText: { type: String, optional: true },
     greetText: { type: String, optional: true },
     handoffMessage: { type: String, optional: true },
     automationActiveMessage: { type: String, optional: true },

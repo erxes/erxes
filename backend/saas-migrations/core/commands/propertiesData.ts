@@ -3,6 +3,8 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 
 import { Db, MongoClient } from 'mongodb';
+import { nanoid } from 'nanoid';
+import { toPropertyGroupKey } from 'erxes-api-shared/core-modules';
 
 const {
   MONGO_URL = 'mongodb://localhost:27017/erxes?directConnection=true',
@@ -27,6 +29,22 @@ const client = new MongoClient(CORE_MONGO_URL || MONGO_URL);
 
 let db: Db;
 
+const toList = (value) => {
+  if (Array.isArray(value)) {
+    return value;
+  }
+
+  return typeof value === 'string' ? value.split(',') : value;
+};
+
+const toLowercaseList = (value) => {
+  const list = toList(value);
+
+  return Array.isArray(list)
+    ? list.map((v) => (v ? String(v).toLowerCase() : v))
+    : list;
+};
+
 const parseValue = (field, value) => {
   const fieldType = field.type;
 
@@ -38,13 +56,10 @@ const parseValue = (field, value) => {
     switch (fieldType) {
       case 'multiSelect':
       case 'check':
-        if (Array.isArray(value)) {
-          return value.map((v) => (v ? String(v).toLowerCase() : v));
-        } else if (typeof value === 'string') {
-          return value.split(',').map((v) => String(v).toLowerCase());
-        } else {
-          return value;
-        }
+        return toLowercaseList(value);
+
+      case 'list':
+        return toList(value);
 
       case 'select':
         return Array.isArray(value)
@@ -152,7 +167,10 @@ const toObject = (contentType, document, fields, groups) => {
         }
 
         if (values.length) {
-          propertiesData[group._id] = values;
+          propertiesData[toPropertyGroupKey(group._id)] = values.map((row) => ({
+            ...row,
+            _id: nanoid(),
+          }));
         }
       }
 

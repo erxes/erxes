@@ -206,7 +206,7 @@ const FacebookMessageButton = ({
           <Input
             autoFocus
             maxLength={20}
-            placeholder={t('enter-button-text')}
+            placeholder={t('enter-button-text', 'Enter button text')}
             value={button.text || button.link}
             onBlur={onSave}
             onChange={onChangeButtonText}
@@ -239,7 +239,7 @@ const FacebookMessageButton = ({
         <Popover.Content>
           <Input
             type="url"
-            placeholder={t('enter-url')}
+            placeholder={t('enter-url', 'Enter URL')}
             value={button.link}
             onChange={(e) =>
               handleChangeButton({ ...button, link: e.target.value })

@@ -17,17 +17,28 @@ export default composePlugins(
   withNx(),
   withReact(),
   withModuleFederation(config, { dts: false }),
-  (config) => ({
-    ...config,
-    module: {
-      ...config.module,
-      rules: [
-        ...((config.module?.rules as unknown[]) || []),
-        {
-          test: /\.(png|jpg|jpeg|gif|webp)$/i,
-          type: 'asset/resource',
-        },
-      ],
-    },
-  }),
+  (config: import('@rspack/core').Configuration) => {
+    config.module = config.module ?? {};
+    config.module.rules = config.module.rules ?? [];
+    config.module.rules.push({
+      test: /\.(png|jpg|jpeg|gif|webp)$/i,
+      type: 'asset/resource',
+    });
+
+    if (process.env.NODE_ENV !== 'production') {
+      config.watchOptions = {
+        ...config.watchOptions,
+        ignored: [
+          '**/node_modules/**',
+          '**/dist/**',
+          '**/.nx/**',
+          '**/coverage/**',
+          '**/tmp/**',
+          '**/.git/**',
+        ],
+      };
+    }
+
+    return config;
+  },
 );

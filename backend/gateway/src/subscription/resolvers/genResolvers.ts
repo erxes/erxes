@@ -5,6 +5,7 @@ dotenv.config();
 import graphqlPubsub from '../pubsub';
 import * as _ from 'lodash';
 import activityLogs from './activityLogs';
+import segments from './segments';
 import users from './users';
 
 export default function genResolvers(plugins: any[]) {
@@ -19,6 +20,7 @@ export default function genResolvers(plugins: any[]) {
   const Subscription: any = {
     ...pluginResolvers,
     ...activityLogs,
+    ...segments,
     ...users,
   };
 

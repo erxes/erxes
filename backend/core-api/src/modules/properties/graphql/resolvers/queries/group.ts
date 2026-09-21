@@ -37,7 +37,7 @@ export const groupQueries: Record<string, Resolver<any, any, IContext>> = {
     const filter = await generateFilter(params);
 
     if (!params.orderBy) {
-      params.orderBy = { code: 1 };
+      params.orderBy = { order: 1 };
     }
 
     return await cursorPaginate<IFieldGroupDocument>({

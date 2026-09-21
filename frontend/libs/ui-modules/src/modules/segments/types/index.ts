@@ -1,154 +1,62 @@
 import { z } from 'zod';
 import { segmentFormSchema } from '../states/segmentFormSchema';
-import { IField } from 'ui-modules/modules/properties';
-import { FieldArray } from 'react-hook-form';
+import { TSegmentNode } from './segmentNode';
 
-export type TSegmentForm = z.infer<typeof segmentFormSchema>;
-export interface ListQueryResponse {
-  segments: ISegment[];
-}
+export * from './segmentNode';
 
-export interface IAttributeFilter {
-  name: string;
-  operator: string;
-  value: string;
-}
+export type TSegmentForm = z.infer<typeof segmentFormSchema> & {
+  root: TSegmentNode;
+};
 
-export interface IOperator {
-  name: string;
-  value: string;
-  noInput?: boolean;
-}
-
-export interface ICondition {
-  // type: 'property' | 'event' | 'subSegment';
-
-  propertyType?: string;
-  propertyName?: string;
-  propertyOperator?: string;
-  propertyValue?: string;
-
-  eventName?: string;
-  eventOccurence?: 'exactly' | 'atleast' | 'atmost';
-  eventOccurenceValue?: number;
-  eventAttributeFilters?: IAttributeFilter[];
-
-  subSegmentId?: string;
-  subSegmentForPreview?: ISegment;
-
-  config?: Record<string, unknown>;
-  meta?: Record<string, unknown>;
-}
+export type TSegmentVisibility = 'private' | 'organization';
+export type TSegmentStatus =
+  | 'draft'
+  | 'building'
+  | 'active'
+  | 'failed'
+  | 'cancelled';
 
 export interface ISegment {
   _id: string;
   contentType: string;
-  name: string;
+  name?: string;
   description?: string;
-  subOf?: string;
+  ownedBy?: string;
   color?: string;
-  shouldWriteActivityLog: boolean;
-  count?: number;
+  root: TSegmentNode;
+  visibility: TSegmentVisibility;
+  ownerId: string;
+  status: TSegmentStatus;
+  revision: number;
 
-  conditions: ICondition[];
-  conditionsConjunction?:
-    | TConditionsConjunction.AND
-    | TConditionsConjunction.OR;
-  conditionSegments: ISegment[];
+  membersCount?: number;
+  membersCountedAt?: string;
 
-  scopeBrandIds?: string[];
-
-  config?: Record<string, unknown>;
+  buildStartedAt?: string;
+  buildProcessed?: number;
+  buildTotal?: number;
+  buildCancelRequested?: boolean;
 }
 
-export type FieldQueryResponse = {
-  fieldsCombinedByContentType: IField[];
-  segmentsGetAssociationTypes?: TPropertyTypeOption[];
-  automationSetPropertyTargets?: TPropertyTypeOption[];
-};
-
-export type TPropertyTypeOption = {
-  label?: string;
-  type?: string;
-  source?: 'target' | 'relation' | 'resolver' | 'targetField';
-  cardinality?: 'one' | 'many';
-  sourceType?: string;
-  relation?: {
-    contentType: string;
-    relatedContentType: string;
-  };
-  resolverKey?: string;
-  targetPath?: string;
-  pluginName?: string;
-  value: string;
-  description: string;
-};
-
-export type TConditionParentFieldName = `conditionSegments.${number}`;
-export type TConditionFieldPath =
-  | `${TConditionParentFieldName}.conditions`
-  | 'conditions';
-
-export type TSegmentCondition = FieldArray<TSegmentForm, TConditionFieldPath>;
-
-export type IFormFieldName = `${TConditionFieldPath}.${number}`;
-
-export type ConditionFieldKey =
-  | 'propertyType'
-  | 'propertyName'
-  | 'propertyOperator'
-  | 'propertyValue';
-
-export type IPropertyField = {
-  index: number;
-  fields: IField[];
-  currentField?: IField;
-  parentFieldName: IFormFieldName;
-  defaultValue?: unknown;
-  propertyTypes: TPropertyTypeOption[];
-  loading: boolean;
-  onBeforeFieldChange?: (field: ConditionFieldKey) => void;
-};
-
-export type IPropertyCondtion = {
-  index: number;
-  currentField?: IField;
-  operators: IOperator[];
-  parentFieldName: IFormFieldName;
-  defaultValue?: unknown;
-  loading: boolean;
-  onBeforeFieldChange?: (field: ConditionFieldKey) => void;
-};
-
-export type IPropertyInput = {
-  index: number;
-  parentFieldName: IFormFieldName;
-  defaultValue?: unknown;
-  operators: IOperator[];
-  selectedField?: IField;
-  loading: boolean;
-  onBeforeFieldChange?: (field: ConditionFieldKey) => void;
-};
-
-export interface ISegmentMap {
-  _id?: string;
-  key: string;
-  contentType: string;
-  config?: Record<string, unknown>;
-  conditions: ICondition[];
-  conditionsConjunction: string;
+export interface ListQueryResponse {
+  segments: ISegment[];
 }
 
-export interface IConditionsForPreview {
-  type: string;
-  subSegmentForPreview: ISegmentMap;
+export type TNodePath = string;
+
+export const childPath = (path: TNodePath, index: number): TNodePath =>
+  `${path}.children.${index}`;
+
+export interface ISegmentDay {
+  at: string;
+  date: string;
+  count: number | null;
+  joined: number;
+  left: number;
 }
 
-export enum TConditionsConjunction {
-  AND = 'and',
-  OR = 'or',
-}
-export enum SegmentFormMode {
-  DEFAULT = 'default',
-  SINGLE = 'single',
+export interface ISegmentUsage {
+  segmentId: string;
+  automations: { _id: string; name?: string; status?: string }[];
+  segments: { _id: string; name?: string }[];
 }

@@ -2,8 +2,9 @@ import { IconDownload } from '@tabler/icons-react';
 import { VariantProps } from 'class-variance-authority';
 import { Button, buttonVariants } from 'erxes-ui';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useExport } from '../../hooks/export/useExport';
-import { formatEntityLabel } from '../../utils/entityLabel';
+import { useEntityLabel } from '../../hooks/useEntityLabel';
 import { ActiveExportsPopover } from './ActiveExports';
 import { ExportFieldSelection } from './ExportFieldSelection';
 
@@ -14,7 +15,7 @@ export const Export = ({
   buttonVariant = 'outline',
   ids,
   getFilters,
-  confirmMessage = 'Create this CSV export with the selected fields?',
+  confirmMessage,
 }: {
   pluginName: string;
   moduleName: string;
@@ -24,9 +25,10 @@ export const Export = ({
   getFilters?: () => Record<string, any>;
   confirmMessage?: string;
 }) => {
+  const { t } = useTranslation('importExport');
   const [fieldSelectionOpen, setFieldSelectionOpen] = useState(false);
   const entityType = `${pluginName}:${moduleName}.${collectionName}`;
-  const entityDisplayName = formatEntityLabel(collectionName, {
+  const entityDisplayName = useEntityLabel(collectionName, {
     plural: true,
     capitalize: true,
   });
@@ -34,7 +36,7 @@ export const Export = ({
     entityType,
     ids,
     getFilters,
-    confirmMessage,
+    confirmMessage: confirmMessage ?? t('export-confirm'),
   });
 
   return (
@@ -47,7 +49,7 @@ export const Export = ({
           className="border-r-0 rounded-r-none"
         >
           <IconDownload />
-          Export
+          {t('export')}
         </Button>
         <ActiveExportsPopover
           buttonVariant={buttonVariant}

@@ -28,8 +28,11 @@ export const FormConfirmation = () => {
   const form = useForm<z.infer<typeof FORM_CONFIRMATION_SCHEMA>>({
     resolver: zodResolver(FORM_CONFIRMATION_SCHEMA),
     defaultValues: {
-      title: 'Confirmation',
-      description: 'Thank you for submitting the form',
+      title: t('confirmation-label', 'Confirmation'),
+      description: t(
+        'default-confirmation-description',
+        'Thank you for submitting the form',
+      ),
       image: null,
     },
   });
@@ -41,8 +44,8 @@ export const FormConfirmation = () => {
 
   return (
     <FormMutateLayout
-      title={t('confirmation-label')}
-      description={t('confirmation-settings')}
+      title={t('confirmation-label', 'Confirmation')}
+      description={t('confirmation-settings', 'Confirmation settings')}
       form={form}
       onSubmit={onSubmit}
       isLoading={loading}
@@ -53,7 +56,7 @@ export const FormConfirmation = () => {
           name="title"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('title-label')}</Form.Label>
+              <Form.Label>{t('title-label', 'Title')}</Form.Label>
               <Form.Control>
                 <Input {...field} />
               </Form.Control>
@@ -65,7 +68,7 @@ export const FormConfirmation = () => {
           name="description"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('description')}</Form.Label>
+              <Form.Label>{t('description', 'Description')}</Form.Label>
               <Form.Control>
                 <Textarea {...field} />
               </Form.Control>
@@ -77,7 +80,7 @@ export const FormConfirmation = () => {
           name="image"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('image-label')}</Form.Label>
+              <Form.Label>{t('image-label', 'Image')}</Form.Label>
               <Form.Control>
                 <FormConfirmationImage
                   value={field.value}

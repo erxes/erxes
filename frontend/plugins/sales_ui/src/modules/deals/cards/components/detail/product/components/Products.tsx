@@ -36,7 +36,7 @@ export const Products = ({
             productsData={deal.productsData || ([] as IProductData[])}
             dealId={deal._id}
             refetch={refetch}
-            tickUsed={deal.stage?.defaultTick === false ? false : true}
+            tickUsed={deal.stage?.defaultTick ?? true}
           />
         </Tabs.Content>
         <Tabs.Content

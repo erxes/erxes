@@ -9,6 +9,8 @@ exclude_patterns = [
   "**/*.min.js",
   "**/__generated__/**",
   "**/*.generated.*",
+  "pnpm-lock.yaml",
+  "**/package-lock.json",
 ]
 
 test_patterns = [
