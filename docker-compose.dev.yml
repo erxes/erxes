@@ -23,6 +23,10 @@
 #   MONGO_URL=mongodb://localhost:27017/erxes
 #   REDIS_HOST=localhost  REDIS_PORT=6379
 #   ELASTICSEARCH_URL=http://localhost:9200
+#
+# Linux hosts only: Elasticsearch needs vm.max_map_count >= 262144 — run
+# `sudo sysctl -w vm.max_map_count=262144` once. Docker Desktop on
+# macOS/Windows already satisfies this.
 
 name: erxes-dev
 
@@ -30,24 +34,44 @@ services:
   mongo:
     image: mongo:7
     # Single-node replica set: change streams and transactions require one
-    # (the prod stack uses rs0; keep the same name). The member is registered
-    # as localhost so apps running on the host can use the plain
-    # mongodb://localhost:<MONGO_PORT>/erxes URL from .env unchanged. A client
-    # inside this compose network would have to use mongo:27017 with
-    # directConnection instead — nothing here does.
-    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
+    # (the prod stack uses rs0; keep the same name). mongod listens on
+    # MONGO_PORT inside the container and the member is registered as
+    # localhost:<MONGO_PORT>, so the node can reach itself and apps on the
+    # host can use the plain mongodb://localhost:<MONGO_PORT>/erxes URL
+    # from .env unchanged. A client inside this compose network uses
+    # mongo:<MONGO_PORT> with directConnection instead — nothing here does.
+    command:
+      [
+        "mongod",
+        "--replSet",
+        "rs0",
+        "--bind_ip_all",
+        "--port",
+        "${MONGO_PORT:-27017}",
+      ]
     ports:
-      - "${MONGO_PORT:-27017}:27017"
+      - "127.0.0.1:${MONGO_PORT:-27017}:${MONGO_PORT:-27017}"
     volumes:
       - mongo-data:/data/db
     healthcheck:
-      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      test:
+        [
+          "CMD",
+          "mongosh",
+          "--port",
+          "${MONGO_PORT:-27017}",
+          "--quiet",
+          "--eval",
+          "db.adminCommand('ping')",
+        ]
       interval: 5s
       timeout: 5s
       retries: 20
     restart: unless-stopped
 
-  # Initializes the replica set once (no-op when already initialized).
+  # Initializes the replica set once, and repairs the member address when
+  # MONGO_PORT changed since the volume was initialized (force-reconfig works
+  # even while the node cannot elect itself on the stale address).
   mongo-init:
     image: mongo:7
     depends_on:
@@ -56,12 +80,21 @@ services:
     command:
       - mongosh
       - --host
-      - mongo:27017
+      - mongo:${MONGO_PORT:-27017}
       - --quiet
       - --eval
       - >-
-        try { rs.initiate({ _id: "rs0", members: [{ _id: 0, host: "localhost:${MONGO_PORT:-27017}" }] }) }
-        catch (e) { if (e.codeName !== "AlreadyInitialized") throw e }
+        const want = "localhost:${MONGO_PORT:-27017}";
+        try { rs.initiate({ _id: "rs0", members: [{ _id: 0, host: want }] }) }
+        catch (e) {
+          if (e.codeName !== "AlreadyInitialized") throw e;
+          const cfg = rs.conf();
+          if (cfg.members[0].host !== want) {
+            cfg.members[0].host = want;
+            cfg.version += 1;
+            try { rs.reconfig(cfg) } catch (_) { rs.reconfig(cfg, { force: true }) }
+          }
+        }
     restart: "no"
 
   redis:
@@ -75,7 +108,7 @@ services:
         exec redis-server --appendonly yes
         $${REDIS_PASSWORD:+--requirepass "$$REDIS_PASSWORD"}
     ports:
-      - "${REDIS_PORT:-6379}:6379"
+      - "127.0.0.1:${REDIS_PORT:-6379}:6379"
     volumes:
       - redis-data:/data
     healthcheck:
@@ -96,7 +129,7 @@ services:
       xpack.security.enabled: "false"
       ES_JAVA_OPTS: -Xms512m -Xmx512m
     ports:
-      - "${ELASTICSEARCH_PORT:-9200}:9200"
+      - "127.0.0.1:${ELASTICSEARCH_PORT:-9200}:9200"
     volumes:
       - elasticsearch-data:/usr/share/elasticsearch/data
     ulimits:

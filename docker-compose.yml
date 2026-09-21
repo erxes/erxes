@@ -36,7 +36,7 @@ x-backend-env: &backend-env
   MONGO_URL: mongodb://mongo:27017/erxes?replicaSet=rs0
   REDIS_HOST: redis
   REDIS_PORT: 6379
-  JWT_TOKEN_SECRET: ${JWT_TOKEN_SECRET:-changeme-generate-with-openssl-rand-hex-32}
+  JWT_TOKEN_SECRET: ${JWT_TOKEN_SECRET:?set JWT_TOKEN_SECRET to a private random value (openssl rand -hex 32)}
   DOMAIN: ${DOMAIN:-http://localhost:3000}
   GATEWAY_URL: ${GATEWAY_URL:-http://localhost:4000}
   ENABLED_PLUGINS: ${ENABLED_PLUGINS:-}

@@ -122,6 +122,8 @@ No local MongoDB/Redis? `docker-compose.dev.yml` runs MongoDB 7, Redis 7, and El
 docker compose -f docker-compose.dev.yml up -d
 ```
 
+On Linux, Elasticsearch also needs `sudo sysctl -w vm.max_map_count=262144` once (Docker Desktop on macOS/Windows already satisfies this).
+
 (`docker-compose.yml` is the full self-hosted stack — it runs the apps themselves in containers.)
 
 ### Installation
