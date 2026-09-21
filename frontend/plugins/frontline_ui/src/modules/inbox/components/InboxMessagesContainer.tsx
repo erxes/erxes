@@ -1,6 +1,12 @@
 import { Empty, ScrollArea } from 'erxes-ui';
 import { IconMessages } from '@tabler/icons-react';
-import { useCallback, useEffect, useRef } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 import { useTranslation } from 'react-i18next';
 import { InboxMessagesSkeleton } from '@/inbox/components/InboxMessagesSkeleton';
 
@@ -12,7 +18,7 @@ export const InboxMessagesContainer = ({
   conversationId,
   children,
 }: React.PropsWithChildren<{
-  fetchMore: () => void | Promise<unknown>;
+  fetchMore: () => unknown;
   messagesLength: number;
   totalCount: number;
   loading: boolean;
@@ -20,18 +26,27 @@ export const InboxMessagesContainer = ({
 }>) => {
   const { t } = useTranslation('frontline');
   const viewportRef = useRef<HTMLDivElement>(null);
+  const messagesRef = useRef<HTMLDivElement>(null);
   const shouldFollowNewestRef = useRef(true);
-  const distanceFromBottomRef = useRef(0);
+  const pendingPaginationRef = useRef<{
+    anchor: HTMLElement | null;
+    anchorOffset: number;
+    distanceFromBottom: number;
+    messagesLength: number;
+  } | null>(null);
   const isInitialScrollDoneRef = useRef(false);
   const isFetchingRef = useRef(false);
+  const fetchGenerationRef = useRef(0);
   const previousConversationIdRef = useRef(conversationId);
+  const [completedPagination, setCompletedPagination] = useState(0);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (previousConversationIdRef.current === conversationId) return;
 
     previousConversationIdRef.current = conversationId;
+    fetchGenerationRef.current += 1;
     isInitialScrollDoneRef.current = false;
-    distanceFromBottomRef.current = 0;
+    pendingPaginationRef.current = null;
     isFetchingRef.current = false;
     shouldFollowNewestRef.current = true;
   }, [conversationId]);
@@ -46,17 +61,32 @@ export const InboxMessagesContainer = ({
 
   const runFetchMore = useCallback(() => {
     const viewport = viewportRef.current;
+    const viewportTop = viewport?.getBoundingClientRect().top ?? 0;
+    const anchor = Array.from(messagesRef.current?.children ?? []).find(
+      (element) => element.getBoundingClientRect().bottom >= viewportTop,
+    ) as HTMLElement | undefined;
+    const fetchGeneration = fetchGenerationRef.current;
     isFetchingRef.current = true;
-    distanceFromBottomRef.current =
-      (viewport?.scrollHeight ?? 0) - (viewport?.scrollTop ?? 0);
+    pendingPaginationRef.current = {
+      anchor: anchor ?? null,
+      anchorOffset: anchor
+        ? anchor.getBoundingClientRect().top - viewportTop
+        : 0,
+      distanceFromBottom:
+        (viewport?.scrollHeight ?? 0) - (viewport?.scrollTop ?? 0),
+      messagesLength,
+    };
 
     Promise.resolve()
       .then(() => fetchMore())
       .catch(() => undefined)
       .finally(() => {
+        if (fetchGenerationRef.current !== fetchGeneration) return;
+
         isFetchingRef.current = false;
+        setCompletedPagination((value) => value + 1);
       });
-  }, [fetchMore]);
+  }, [fetchMore, messagesLength]);
 
   const handleScroll = () => {
     const viewport = viewportRef.current;
@@ -89,14 +119,36 @@ export const InboxMessagesContainer = ({
       return;
     }
 
-    if (distanceFromBottomRef.current > 0) {
-      viewport.scrollTop =
-        viewport.scrollHeight - distanceFromBottomRef.current;
-      distanceFromBottomRef.current = 0;
-    } else if (messagesLength > 0 && shouldFollowNewestRef.current) {
+    if (
+      !pendingPaginationRef.current &&
+      messagesLength > 0 &&
+      shouldFollowNewestRef.current
+    ) {
       scrollToBottom();
     }
   }, [conversationId, loading, messagesLength]);
+
+  useLayoutEffect(() => {
+    const viewport = viewportRef.current;
+    const pendingPagination = pendingPaginationRef.current;
+
+    if (!viewport || !pendingPagination || isFetchingRef.current) return;
+
+    if (messagesLength > pendingPagination.messagesLength) {
+      if (pendingPagination.anchor?.isConnected) {
+        const currentAnchorOffset =
+          pendingPagination.anchor.getBoundingClientRect().top -
+          viewport.getBoundingClientRect().top;
+        viewport.scrollTop +=
+          currentAnchorOffset - pendingPagination.anchorOffset;
+      } else {
+        viewport.scrollTop =
+          viewport.scrollHeight - pendingPagination.distanceFromBottom;
+      }
+    }
+
+    pendingPaginationRef.current = null;
+  }, [completedPagination, messagesLength]);
 
   useEffect(() => {
     if (
@@ -146,7 +198,10 @@ export const InboxMessagesContainer = ({
             </Empty.Header>
           </Empty>
         ) : (
-          <div className="mx-auto flex w-full max-w-[720px] min-w-0 flex-col overflow-x-hidden px-3 py-6 sm:px-4 md:px-6">
+          <div
+            ref={messagesRef}
+            className="mx-auto flex w-full max-w-[720px] min-w-0 flex-col overflow-x-hidden px-3 py-6 sm:px-4 md:px-6"
+          >
             {children}
           </div>
         )}

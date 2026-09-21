@@ -133,7 +133,7 @@ export const useMessageAttachments = (isDiscord: boolean) => {
   );
 
   const handleDrop = useCallback(
-    (event: React.DragEvent<HTMLDivElement>) => {
+    (event: React.DragEvent<HTMLFormElement>) => {
       if (!event.dataTransfer.files.length) return;
       event.preventDefault();
       event.stopPropagation();

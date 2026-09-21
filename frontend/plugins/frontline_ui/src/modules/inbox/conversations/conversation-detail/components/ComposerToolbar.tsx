@@ -53,6 +53,13 @@ export const ComposerToolbar = ({
   const submitLabel = isInternalNote
     ? t('add-note', 'Add note')
     : t('send', 'Send');
+  let submitIcon = <IconArrowUp />;
+
+  if (isBusy) {
+    submitIcon = <Spinner size="sm" />;
+  } else if (isInternalNote) {
+    submitIcon = <IconLock />;
+  }
 
   return (
     <div className="mt-1 flex min-w-0 flex-none flex-wrap items-center gap-1 border-t border-border/50 px-2 py-2 sm:gap-2 sm:px-3">
@@ -136,13 +143,7 @@ export const ComposerToolbar = ({
           disabled={sendDisabled}
           onClick={onSubmit}
         >
-          {isBusy ? (
-            <Spinner size="sm" />
-          ) : isInternalNote ? (
-            <IconLock />
-          ) : (
-            <IconArrowUp />
-          )}
+          {submitIcon}
           <span>{submitLabel}</span>
           <Kbd className="ml-1 hidden lg:flex">
             <IconCommand size={12} />
