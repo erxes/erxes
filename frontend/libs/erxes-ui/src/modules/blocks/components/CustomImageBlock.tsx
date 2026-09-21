@@ -14,6 +14,8 @@ import { IconPhoto } from '@tabler/icons-react';
 import { CSSProperties, FC, SyntheticEvent, useEffect, useState } from 'react';
 import { Button, Dialog, Spinner } from 'erxes-ui/components';
 
+const MAX_IMAGE_HEIGHT = 320;
+
 const IMAGE_STYLES = ['normal', 'wide', 'float-left', 'float-right'] as const;
 
 export type ImageStyle = (typeof IMAGE_STYLES)[number];
@@ -39,12 +41,20 @@ const getImageStyle = (value?: string): ImageStyle =>
 const getEditorMaxImageWidth = (
   editor: Pick<ImageRenderProps['editor'], 'domElement'>,
   imageStyle: ImageStyle,
+  dimensions?: { width: number; height: number },
 ) => {
   const editorWidth =
     editor.domElement?.firstElementChild?.clientWidth ||
     IMAGE_STYLE_PRESETS[imageStyle].maxWidth;
 
-  return Math.min(editorWidth, IMAGE_STYLE_PRESETS[imageStyle].maxWidth);
+  return Math.min(
+    editorWidth,
+    IMAGE_STYLE_PRESETS[imageStyle].maxWidth,
+    dimensions?.width || Infinity,
+    dimensions?.height
+      ? (dimensions.width / dimensions.height) * MAX_IMAGE_HEIGHT
+      : Infinity,
+  );
 };
 
 const getImageStyleFromElement = (element: HTMLElement): ImageStyle => {
@@ -83,37 +93,20 @@ type FileBlockRenderProps = Omit<
 const toFileBlockProps = (props: ImageRenderProps): FileBlockRenderProps =>
   props as unknown as FileBlockRenderProps;
 
-const CustomImagePreview: FC<ImageRenderProps> = ({ block, editor }) => {
+const CustomImagePreview: FC<
+  Pick<ImageRenderProps, 'block'> & {
+    onImageLoad: (event: SyntheticEvent<HTMLImageElement>) => void;
+  }
+> = ({ block, onImageLoad }) => {
   const { loadingState, downloadUrl } = useResolveUrl(block.props.url ?? '');
   const [imgLoaded, setImgLoaded] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
 
   const src = downloadUrl ?? block.props.url;
   const isResolving = loadingState === 'loading';
-  const imageStyle = getImageStyle(
-    (block.props as { imageStyle?: string }).imageStyle,
-  );
-  const maxWidth = getEditorMaxImageWidth(editor, imageStyle);
-  const hasPreviewWidth = Boolean(
-    (block.props as { previewWidth?: number }).previewWidth,
-  );
-  const previewWidth =
-    (block.props as { previewWidth?: number }).previewWidth || maxWidth;
-
   const handleImageLoad = (event: SyntheticEvent<HTMLImageElement>) => {
     setImgLoaded(true);
-
-    if (hasPreviewWidth || !editor.isEditable) {
-      return;
-    }
-
-    const naturalWidth = event.currentTarget.naturalWidth || previewWidth;
-
-    editor.updateBlock(block, {
-      props: {
-        previewWidth: Math.min(naturalWidth, previewWidth),
-      },
-    });
+    onImageLoad(event);
   };
 
   return (
@@ -139,12 +132,12 @@ const CustomImagePreview: FC<ImageRenderProps> = ({ block, editor }) => {
             }}
           >
             <img
-              className="block h-auto max-h-80 w-auto max-w-full object-contain"
+              className="block h-auto w-full max-w-full object-contain"
               src={src}
               alt={block.props.caption || block.props.name || ''}
               draggable={false}
               style={{
-                maxWidth: `min(100%, ${maxWidth}px)`,
+                maxHeight: MAX_IMAGE_HEIGHT,
               }}
               onLoad={handleImageLoad}
               onError={() => setImgLoaded(true)}
@@ -241,6 +234,39 @@ const CustomImageBlockContent: FC<ImageRenderProps> = (props) => {
   const fileProps = toFileBlockProps(props);
   const imageStyle = getImageStyle(props.block.props.imageStyle);
   const previewWidth = props.block.props.previewWidth;
+  const [imageDimensions, setImageDimensions] = useState<{
+    url: string;
+    width: number;
+    height: number;
+  }>();
+  const maxWidth = getEditorMaxImageWidth(
+    props.editor,
+    imageStyle,
+    imageDimensions?.url === props.block.props.url
+      ? imageDimensions
+      : undefined,
+  );
+
+  const handleImageLoad = (event: SyntheticEvent<HTMLImageElement>) => {
+    const dimensions = {
+      url: props.block.props.url,
+      width: event.currentTarget.naturalWidth,
+      height: event.currentTarget.naturalHeight,
+    };
+    setImageDimensions(dimensions);
+
+    if (!previewWidth && props.editor.isEditable) {
+      props.editor.updateBlock(props.block, {
+        props: {
+          previewWidth: getEditorMaxImageWidth(
+            props.editor,
+            imageStyle,
+            dimensions,
+          ),
+        },
+      });
+    }
+  };
 
   useEffect(() => {
     const blockId = props.block.id;
@@ -250,7 +276,7 @@ const CustomImageBlockContent: FC<ImageRenderProps> = (props) => {
 
     if (imageStyle !== 'float-left' && imageStyle !== 'float-right') return;
 
-    const maxWidth = previewWidth || IMAGE_STYLE_PRESETS[imageStyle].maxWidth;
+    const floatWidth = Math.min(previewWidth || maxWidth, maxWidth);
     const dir = imageStyle === 'float-left' ? 'left' : 'right';
     const margin =
       imageStyle === 'float-left'
@@ -259,13 +285,13 @@ const CustomImageBlockContent: FC<ImageRenderProps> = (props) => {
 
     const styleEl = document.createElement('style');
     styleEl.id = styleId;
-    styleEl.textContent = `[data-id="${blockId}"]{float:${dir};max-width:${maxWidth}px;width:100%;${margin};margin-bottom:.75em}`;
+    styleEl.textContent = `[data-id="${blockId}"]{float:${dir};max-width:${floatWidth}px;width:100%;${margin};margin-bottom:.75em}`;
     document.head.appendChild(styleEl);
 
     return () => {
       document.getElementById(styleId)?.remove();
     };
-  }, [props.block.id, imageStyle, previewWidth]);
+  }, [props.block.id, imageStyle, previewWidth, maxWidth]);
 
   if (loading) {
     return (
@@ -281,7 +307,7 @@ const CustomImageBlockContent: FC<ImageRenderProps> = (props) => {
   return (
     <div
       className="max-w-full [&>.bn-file-block-content-wrapper]:max-w-full"
-      style={{ maxWidth: getEditorMaxImageWidth(props.editor, imageStyle) }}
+      style={{ maxWidth: `min(100%, ${maxWidth}px)` }}
     >
       <ResizableFileBlockWrapper
         block={fileProps.block}
@@ -289,7 +315,7 @@ const CustomImageBlockContent: FC<ImageRenderProps> = (props) => {
         buttonText={props.editor.dictionary.file_blocks.image.add_button_text}
         buttonIcon={<IconPhoto size={24} />}
       >
-        <CustomImagePreview {...props} />
+        <CustomImagePreview block={props.block} onImageLoad={handleImageLoad} />
       </ResizableFileBlockWrapper>
     </div>
   );
