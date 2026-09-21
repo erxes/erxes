@@ -143,7 +143,7 @@ const GalleryBlockContent: FC<GalleryRenderProps> = ({ block, editor }) => {
     if (!files?.length || !uploadFile) return;
     setUploading(true);
     try {
-      const uploaded = await Promise.all(
+      const results = await Promise.allSettled(
         Array.from(files).map(async (file) => {
           const uploadedFile = await uploadFile(file);
           const url =
@@ -156,7 +156,28 @@ const GalleryBlockContent: FC<GalleryRenderProps> = ({ block, editor }) => {
           return { url };
         }),
       );
-      updateBlock({ images: JSON.stringify([...images, ...uploaded]) });
+      const uploaded = results.flatMap((result) =>
+        result.status === 'fulfilled' ? [result.value] : [],
+      );
+      const currentBlock = editor.getBlock(block.id);
+      if (uploaded.length && currentBlock) {
+        updateBlock({
+          images: JSON.stringify([
+            ...parseImages(currentBlock.props.images),
+            ...uploaded,
+          ]),
+        });
+      }
+      const failedNames = Array.from(files)
+        .filter((_, index) => results[index].status === 'rejected')
+        .map((file) => file.name);
+      if (failedNames.length) {
+        toast({
+          title: 'Failed to upload gallery images',
+          description: failedNames.join(', '),
+          variant: 'destructive',
+        });
+      }
     } catch (error) {
       toast({
         title: 'Failed to upload gallery images',
