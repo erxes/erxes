@@ -26,6 +26,31 @@ export interface IHelpCenterConfigStyles {
   footerHtml?: string;
 }
 
+export interface IHelpCenterHeader {
+  wordmark?: string;
+  homeLabel?: string;
+  formsLabel?: string;
+  announcementsLabel?: string;
+  searchPlaceholder?: string;
+}
+
+export interface IHelpCenterFooterLink {
+  label?: string;
+  url?: string;
+}
+
+export interface IHelpCenterFooterColumn {
+  heading?: string;
+  links?: IHelpCenterFooterLink[];
+}
+
+export interface IHelpCenterFooter {
+  logo?: string;
+  description?: string;
+  copyright?: string;
+  columns?: IHelpCenterFooterColumn[];
+}
+
 export interface IHelpCenterConfig {
   title?: string;
   description?: string;
@@ -47,6 +72,8 @@ export interface IHelpCenterConfig {
   color?: string;
   backgroundImage?: string;
   styles?: IHelpCenterConfigStyles;
+  header?: IHelpCenterHeader;
+  footer?: IHelpCenterFooter;
 
   createdBy?: string;
   modifiedBy?: string;

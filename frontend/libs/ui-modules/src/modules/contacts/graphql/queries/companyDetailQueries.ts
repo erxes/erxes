@@ -26,6 +26,7 @@ export const COMPANY_DETAIL = gql`
       }
       description
       businessType
+      trackedData
     }
   }
 `;

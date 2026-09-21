@@ -16,11 +16,11 @@ export const brandTrpcRouter = t.router({
       )
       .input(z.any())
       .query(async ({ ctx, input }) => {
-      const { query } = input;
-      const { models } = ctx;
+        const { query } = input;
+        const { models } = ctx;
 
-      return await models.Brands.find(query);
-    }),
+        return await models.Brands.find(query);
+      }),
     findOne: t.procedure
       .meta(
         agentMeta(
@@ -30,38 +30,22 @@ export const brandTrpcRouter = t.router({
       )
       .input(z.any())
       .query(async ({ ctx, input }) => {
-      const query = input?.query || input?.selector || input;
-      const { models } = ctx;
+        const query = input?.query || input?.selector || input;
+        const { models } = ctx;
 
-      if (!query || !Object.keys(query).length) {
-        return {};
-      }
+        if (!query || !Object.keys(query).length) {
+          return {};
+        }
 
-      return await models.Brands.findOne(query);
-    }),
-    create: t.procedure
-      .meta(
-        agentMeta(
-          'Create a brand. Input: { data: { name, code, description? } } — code must be unique. Check for an existing brand with brands.find first.',
-          { module: 'brands', action: 'brandsCreate' },
-        ),
-      )
-      .input(z.any())
-      .mutation(async ({ ctx, input }) => {
+        return await models.Brands.findOne(query);
+      }),
+    create: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
       const { data } = input;
       const { models } = ctx;
 
       return await models.Brands.createBrand(data);
     }),
-    updateOne: t.procedure
-      .meta(
-        agentMeta(
-          'Update a brand by ID. Input: { _id, fields: { name?, code?, description?, ... } }. Call brands.findOne first to get the _id.',
-          { module: 'brands', action: 'brandsUpdate' },
-        ),
-      )
-      .input(z.any())
-      .mutation(async ({ ctx, input }) => {
+    updateOne: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
       const { _id, fields } = input;
       const { models } = ctx;
 

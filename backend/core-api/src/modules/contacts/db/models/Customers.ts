@@ -528,14 +528,12 @@ export const loadCustomerClass = (
     }: ICreateMessengerCustomerParams) {
       doc = this.fixListFields(doc, customData);
 
-      const { propertiesData } = await models.Fields.generatePropertiesData(
-        customData,
-        'core:customer',
-      );
+      const { propertiesData, trackedData } =
+        await models.Fields.generatePropertiesData(customData, 'core:customer');
 
       return this.createCustomer({
         ...doc,
-        // trackedData: [], trackData note: trackedData is not used for now
+        trackedData,
         propertiesData,
         lastSeenAt: new Date(),
         isOnline: true,
@@ -555,10 +553,8 @@ export const loadCustomerClass = (
 
       doc = this.fixListFields(doc, customData, customer);
 
-      const { propertiesData } = await models.Fields.generatePropertiesData(
-        customData,
-        'core:customer',
-      );
+      const { propertiesData, trackedData } =
+        await models.Fields.generatePropertiesData(customData, 'core:customer');
 
       const modifier: any = {
         ...doc,
@@ -566,10 +562,9 @@ export const loadCustomerClass = (
         updatedAt: new Date(),
       };
 
-      // trackData note: trackedData is not used for now
-      // if (trackedData && trackedData.length > 0) {
-      //   modifier.trackedData = trackedData;
-      // }
+      if (trackedData.length > 0) {
+        modifier.trackedData = trackedData;
+      }
 
       if (Object.keys(propertiesData)?.length > 0) {
         // if use Customers.updateCustomer method then just pass propertiesData no spread neede

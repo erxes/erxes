@@ -12,6 +12,10 @@ export const CONVERSATION_CONVERT_TO_CARD = gql`
     $description: String
     $customFieldsData: JSON
     $attachments: [AttachmentInput]
+    $priority: String
+    $tagIds: [String]
+    $startDate: Date
+    $closeDate: Date
   ) {
     conversationConvertToCard(
       _id: $_id
@@ -24,6 +28,10 @@ export const CONVERSATION_CONVERT_TO_CARD = gql`
       description: $description
       customFieldsData: $customFieldsData
       attachments: $attachments
+      priority: $priority
+      tagIds: $tagIds
+      startDate: $startDate
+      closeDate: $closeDate
     )
   }
 `;

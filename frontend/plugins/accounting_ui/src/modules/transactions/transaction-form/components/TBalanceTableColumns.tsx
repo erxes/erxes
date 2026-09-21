@@ -1,6 +1,6 @@
 import { TR_SIDES } from '@/transactions/types/constants';
 import { IconCalendar, IconFile, IconMoneybag } from '@tabler/icons-react';
-import { Cell, ColumnDef } from '@tanstack/react-table';
+import { Cell, ColumnDef, Row } from '@tanstack/react-table';
 import dayjs from 'dayjs';
 import {
   CurrencyCode,
@@ -104,8 +104,8 @@ const CreditCell = ({ row }: any) => {
   return <AmountCell value={side === TR_SIDES.CREDIT ? fixNum(amount) : 0} />;
 };
 
-const BranchCell = ({ row }: any) => {
-  const { branch } = row.original;
+const BranchCell = ({ row }: { row: Row<ITBalanceTransaction> }) => {
+  const branch = row.original.detail.branch || row.original.branch;
 
   return (
     <RecordTableInlineCell>
@@ -114,8 +114,8 @@ const BranchCell = ({ row }: any) => {
   );
 };
 
-const DepartmentCell = ({ row }: any) => {
-  const { department } = row.original;
+const DepartmentCell = ({ row }: { row: Row<ITBalanceTransaction> }) => {
+  const department = row.original.detail.department || row.original.department;
 
   return (
     <RecordTableInlineCell>
@@ -253,15 +253,13 @@ export const tbalanceColumns: ColumnDef<ITBalanceTransaction>[] = [
     id: 'branch',
     header: () => <RecordTable.InlineHead icon={IconFile} label="Салбар" />,
     accessorKey: 'branch',
-    cell: ({ getValue, row }) => <BranchCell getValue={getValue} row={row} />,
+    cell: ({ row }) => <BranchCell row={row} />,
   },
   {
     id: 'department',
     header: () => <RecordTable.InlineHead icon={IconFile} label="Хэлтэс" />,
     accessorKey: 'department',
-    cell: ({ getValue, row }) => (
-      <DepartmentCell getValue={getValue} row={row} />
-    ),
+    cell: ({ row }) => <DepartmentCell row={row} />,
   },
   {
     id: 'description',

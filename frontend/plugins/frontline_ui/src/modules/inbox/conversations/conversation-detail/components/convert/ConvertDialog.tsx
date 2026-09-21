@@ -12,11 +12,12 @@ import {
   Spinner,
 } from 'erxes-ui';
 import { useMemo, useState } from 'react';
-import { useForm, useWatch } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { SelectBranches, SelectDepartments, SelectMember } from 'ui-modules';
 import { useConversationContext } from '@/inbox/conversations/hooks/useConversationContext';
 import { useConversationConvertToCard } from '@/inbox/conversations/hooks/useConversationConvertToCard';
+import { useConvertSystemFields } from '@/inbox/conversations/hooks/useConvertSystemFields';
 import { ConversationConvertType } from '@/inbox/conversations/types/conversationConvert';
 import { ConvertField, ConvertIdsField } from './ConvertFields';
 import {
@@ -24,11 +25,14 @@ import {
   TConvertPropertiesData,
   cleanConvertPropertiesData,
 } from './ConvertPropertiesSection';
+import { ConvertSystemFields } from './ConvertSystemFields';
 import { ConvertTargetFields } from './ConvertTargetFields';
 import {
   CONVERT_TYPE_OPTIONS,
   TConvertForm,
+  TConvertSystemFieldKey,
   buildConvertSchema,
+  hasConvertSystemFieldValue,
 } from './convertForm';
 
 const EMPTY_ATTACHMENTS: IAttachment[] = [];
@@ -49,6 +53,10 @@ const ConvertForm = ({
     {},
   );
   const { multipleSelect, supportsDetails } = CONVERT_TYPE_OPTIONS[type];
+  const { shownKeys, requiredKeys } = useConvertSystemFields(
+    type,
+    propertiesData,
+  );
 
   const namePlaceholders: Record<ConversationConvertType, string> = {
     ticket: t('add-a-new-ticket', 'Add a new ticket'),
@@ -72,21 +80,46 @@ const ConvertForm = ({
       departmentIds: [],
       attachments: [],
       description: '',
+      tagIds: [],
     },
   });
-
-  const pipelineId = useWatch({ control: form.control, name: 'pipelineId' });
 
   const handleFieldChange = (fieldId: string, value: unknown) =>
     setPropertiesData((current) => ({ ...current, [fieldId]: value }));
 
   const onSubmit = async (data: TConvertForm) => {
+    const missingKeys = requiredKeys.filter(
+      (key) => !hasConvertSystemFieldValue(data[key]),
+    );
+
+    missingKeys.forEach((key) =>
+      form.setError(key, {
+        type: 'required',
+        message: t('field-is-required', 'This field is required'),
+      }),
+    );
+
+    if (missingKeys.length) {
+      return;
+    }
+
+    const shownValue = <K extends TConvertSystemFieldKey>(key: K) =>
+      shownKeys.includes(key) ? data[key] : undefined;
+
+    const systemValues = {
+      priority: shownKeys.includes('priority')
+        ? String(data.priority ?? 0)
+        : undefined,
+      tagIds: shownValue('tagIds'),
+      startDate: shownValue('startDate'),
+      closeDate: shownValue('closeDate'),
+    };
+
     const details = supportsDetails
       ? {
           branchIds: data.branchIds,
           departmentIds: data.departmentIds,
           attachments: data.attachments,
-          customFieldsData: cleanConvertPropertiesData(propertiesData),
         }
       : {};
 
@@ -97,6 +130,8 @@ const ConvertForm = ({
       stageId: data.stageId,
       assignedUserIds: data.assignedUserIds,
       description: data.description || undefined,
+      customFieldsData: cleanConvertPropertiesData(propertiesData),
+      ...systemValues,
       ...details,
     });
 
@@ -166,6 +201,12 @@ const ConvertForm = ({
                 />
               )}
             </ConvertIdsField>
+            <ConvertSystemFields
+              type={type}
+              form={form}
+              shownKeys={shownKeys}
+              requiredKeys={requiredKeys}
+            />
             {supportsDetails && (
               <>
                 <div className="grid gap-5 sm:grid-cols-2">
@@ -234,18 +275,13 @@ const ConvertForm = ({
                 </ConvertField>
               )}
             />
-            {supportsDetails && (
-              <>
-                <Separator />
-                <ConvertProperties
-                  type={type}
-                  pipelineId={pipelineId}
-                  propertiesData={propertiesData}
-                  onFieldChange={handleFieldChange}
-                  onNavigate={onClose}
-                />
-              </>
-            )}
+            <Separator />
+            <ConvertProperties
+              type={type}
+              propertiesData={propertiesData}
+              onFieldChange={handleFieldChange}
+              onNavigate={onClose}
+            />
           </div>
         </div>
         <Dialog.Footer className="gap-2 border-t bg-muted/30 px-6 py-3">

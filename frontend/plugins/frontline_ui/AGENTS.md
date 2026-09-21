@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-09-17`
+- **Last synchronized:** `2026-09-21`
 
 ## Scope
 
@@ -421,6 +421,11 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
 - `erxes-ui`: all UI primitives — `NavigationMenuGroup`, `Sheet`, `Form`,
   `Dialog`, `Button`, `Badge`, `Label`, `Card`, `toast`, `useQueryState`,
   `useToast`, hotkey hooks.
+- `ui-modules`: `useRelationWidget` in `ConversationSideWidget` is called with
+  `contentType: 'frontline:conversation'`. A relation widget registered with a
+  `contentTypes` list is filtered out of any rail that passes no `contentType`,
+  so dropping this argument silently removes the core Tracked data tab from the
+  conversation rail.
 - `ui-modules`: `SelectBrand`, `MembersInline`, `CustomersInline`, contacts and
   structure selects,
   `AutomationRemoteEntryWrapper`, `AutomationRemoteEntryTypes`,
@@ -576,6 +581,9 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
 
 ## Local Invariants
 
+- `CONFIG` keeps a top-level `icon` alongside `navigationGroup.icon`. The host
+  reads only the top-level one for a `frontline:*` notification's avatar in My
+  Inbox, and renders nothing when it is missing.
 - The Convert menu shows the deal entry only when the `sales` plugin config is
   loaded and the task entry only when `operation` is, and each entry only with
   its create action (`createTicket`, `dealsAdd`, `taskCreate`) on top of
@@ -587,16 +595,22 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
   `SelectChannel`, `SelectPipeline` and `SelectStatusTicket`; the pipeline and
   status pickers watch `channelId` / `pipelineId` on whatever form they are
   given, so a form using them must name those fields exactly that.
-- Convert-time properties come from Settings → Properties, rendered per field
-  group under a `Properties` heading at the bottom of the dialog, after
-  `Description`. A deal shows fields
-  with `isVisibleToCreate` (as sales' own add form does); a ticket shows the
-  fields its ticket detail shows — `isVisible !== false`, limited to the
-  selected pipeline's `propertyIds` once `isPropertySelectionConfigured` is
-  true. Display logic applies to both. Multi-row groups are not offered at
-  convert time. The
-  values are sent as `customFieldsData` without empty entries. The task dialog
-  has no properties because `operation` tasks store none.
+- Convert-time properties come only from Settings → Properties, the same way
+  for every kind: `frontline:ticket`, `sales:deal` or `operation:task` fields
+  whose `Visible to create` (`isVisibleToCreate`) is on and whose display logic
+  passes, rendered per field group under a `Properties` heading at the bottom
+  of the dialog. Ticket pipeline property selection does not filter them.
+  Multi-row groups are not offered at convert time. The values are sent as
+  `customFieldsData` without empty entries.
+- Convert-time system fields come from core `propertySystemFields` (the Settings
+  → Properties "Basic information" group) through `FrontlineConvertSystemFields`.
+  Priority, tags, start date and due date render only when their system field
+  has `Visible to create` on and its display logic passes; `Required` blocks
+  submit while empty. `useConvertSystemFields` resolves which keys show;
+  `getConvertSystemFieldCode` maps a form key to the kind's code, and only
+  `closeDate` differs (`CONVERT_TYPE_OPTIONS[type].closeDateCode`, which is
+  `targetDate` on tickets and tasks). Name, stage,
+  assignee, branch, department, attachments and description stay always shown.
 - A successful convert refetches `ConversationConvertedItems` and
   `getRelationsByEntity`, so the menu and the relation widgets update without
   a reload.
@@ -664,12 +678,41 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
   the knowledge base and ticket feature cards; appearance owns the published
   site's whole look — logo and favicon, the six main colours, fonts with their
   text and link colours, the three form-element colours, this help center's own
-  accent colour and cover image, and the raw header/footer HTML. The sidebar
+  accent colour and cover image, the header's wording, the footer's content, and
+  the raw header/footer HTML. The sidebar
   keeps the active tab in the `tab` URL query param, so the drawer clears it on
   close or the next one opens wherever the last was left. Both tabs stay mounted
   (hidden, not unmounted) so values and validation survive switching, and an
   invalid submit switches to the tab holding the first failing field via
   `HELP_CENTER_FIELD_TAB` — add every new form field to that map.
+- The appearance tab's Header card edits `header` through
+  `HelpCenterHeaderFields`, which renders `HELP_CENTER_HEADER_FIELDS` as plain
+  inputs whose `placeholder` is the published site's own built-in wording — a
+  blank field means "keep that label", so the card never pre-fills a value. The
+  knowledge base and ticket tab labels are deliberately absent: they are
+  `kbLabel` / `ticketLabel` on the General tab, beside the toggles that gate
+  them.
+- Footer columns render as an `Accordion` (`type="multiple"`, controlled) so a
+  long footer stays scannable. The trigger shows a live heading and link count
+  through `useWatch`, and the remove button sits beside the trigger rather than
+  inside it — a button nested in a trigger is invalid markup. The trigger is
+  wrapped in its own `flex-1 min-w-0` div because a `flex-1` passed to
+  `Accordion.Trigger` lands on the inner button, not on the header Radix wraps
+  it in; without the wrapper the row shrinks to its text and the remove button
+  stops sitting at the right edge. Collapsed content
+  unmounts, which is safe only because the drawer's `useForm` leaves
+  `shouldUnregister` at its default `false`; turning that on would drop a
+  collapsed column's values on save.
+- The appearance tab's Footer card edits `footer`, a nested object with `logo`,
+  `description`, `copyright` and a `columns` array, through
+  `HelpCenterFooterFields`. The two `useFieldArray` levels — columns, and links
+  inside a column — are why the tab takes the whole `form` rather than just
+  `control`, and why `toFooterInput` rebuilds every level field by field: the
+  cached record carries `__typename` at each one and `HelpCenterFooterInput`
+  rejects it. Leaving `columns` empty is meaningful — it is what tells the
+  published site to keep its built-in Support / Knowledge base / Account
+  columns — so the card never seeds defaults on its own; the author asks for
+  them with the "Start from the built-in columns" action.
 - A help center has **no page of its own**: `/frontline/helpcenter/:id` was
   removed, and editing is addressed by the `editId` URL query on the list page,
   which opens `HelpCenterDrawer` over the table. The page mounts **one** drawer
@@ -1213,6 +1256,11 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `helpCenterConfigUpdate` for all three writes, `getClientPortals` only as the
   website picker's option list, and no `knowledgeBase*` operation other than the
   topic picker's option list.
+- Smoke (help center footer): on **Appearance** open the Footer card, press
+  "Start from the built-in columns", rename a heading, add a link and remove
+  another, then save and reload — the drawer shows what was saved and
+  `localhost:3900` renders those columns. Emptying every column and saving
+  brings the site's built-in Support / Knowledge base / Account columns back.
 - Smoke: open `/frontline/inbox` and confirm the sidebar shows `Me` then
   `Team inbox`; that `Me` lists the personal channel's integration types with
   their counts and a header total (empty state when there is no personal inbox);
@@ -1260,6 +1308,38 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-21` — Tracked data returns to the conversation rail
+
+- **Summary:** `ConversationSideWidget` called `useRelationWidget()` with no
+  options. The shared hook drops every module that declares `contentTypes`
+  when no `contentType` is supplied, so the core Tracked data widget — which
+  the old product showed in the inbox sidebar — never appeared next to a
+  conversation. The rail now passes `contentType: 'frontline:conversation'`,
+  and the widget reads the conversation's `customerId`.
+- **Affected areas:**
+  `src/modules/inbox/conversations/conversation-detail/components/ConversationSideWidget.tsx`.
+- **Contracts changed:** `None`
+
+### `2026-09-20` — Frontline notifications show their icon in My Inbox
+
+- **Summary:** `CONFIG` now declares a top-level `icon`, so a frontline
+  notification in My Inbox renders the frontline mark instead of an empty
+  circle.
+- **Affected areas:** `src/config.tsx`
+- **Contracts changed:** `None`
+
+### `2026-09-17` — Convert dialog honours Basic information settings
+
+- **Summary:** Priority, tags, start date and due date appear in the convert
+  dialog when their system field is `Visible to create`, respecting `Required`
+  and display logic.
+- **Affected areas:**
+  `src/modules/inbox/conversations/conversation-detail/components/convert/{ConvertDialog.tsx,ConvertSystemFields.tsx,convertForm.ts}`,
+  `src/modules/inbox/conversations/{graphql/queries/getConvertSystemFields.ts,graphql/mutations/conversationConvertToCard.ts,hooks/useConvertSystemFields.tsx,types/conversationConvert.ts}`
+- **Contracts changed:** New query document `FrontlineConvertSystemFields`;
+  `ConversationConvertToCard` now sends `priority`, `tagIds`, `startDate` and
+  `closeDate`.
 
 ### `2026-09-17` — The conversation header converts into a ticket, deal or task
 
@@ -1345,47 +1425,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 - **Contracts changed:** None. The `topicId` and `categoryId` query parameters
   keep their meaning; neither is now set without a user action.
 
-### `2026-09-10` — Polls became surveys
-
-- **Summary:** `src/modules/poll` became `src/modules/survey` and every
-  component, hook, state, route (`/surveys`) and GraphQL document followed the
-  API's rename. Discord's poll renderer stayed behind as `MessagePoll`; erxes
-  surveys render through the new `MessageSurvey`.
-- **Affected areas:** `src/modules/survey/**`, `src/config.tsx`,
-  `src/modules/{FrontlineMain,FrontlineNavigation}.tsx`,
-  `src/modules/channels/**`, `src/modules/inbox/**`,
-  `src/modules/types/FrontlinePaths.ts`, `src/pages/Survey*.tsx`.
-- **Contracts changed:** Consumes the renamed `survey*` / `cpSurvey*`
-  operations; the `frontline/polls` route is now `frontline/surveys`.
-
-### `2026-09-10` — The activity timeline names a customer author
-
-- **Summary:** A note that arrived by mail is written by the requester, not by
-  a team member, and its `cp:` author id resolved to a blank member row.
-  `ActivityAuthor` now decodes that prefix and renders the customer through
-  `CustomersInline`, a team member through `MembersInline`, and an empty author
-  as `unknown`; the timeline row and the ticket's creator line both use it.
-- **Affected areas:** `src/modules/activity/components/ActivityAuthor.tsx`
-  (new), `src/modules/activity/components/ActivityItemWrapper.tsx`,
-  `src/modules/activity/components/CreatorInfo.tsx`
-- **Contracts changed:** `None`
-
-### `2026-09-10` — A ticket pipeline gets a mail settings tab
-
-- **Summary:** A pipeline now has a `Mail settings` tab that shows the address
-  mail is sent or forwarded to, takes the forwarding mailbox and the sender name
-  recipients see, and connects, updates or removes the address. While the
-  forwarding address is waiting to be confirmed the tab says so and polls; when
-  the provider's confirmation arrives it is shown there with a copyable code, a
-  link, and a button that ends the waiting state.
-- **Affected areas:** `src/modules/integrations/mail/components/{PipelineMailSettings,PipelineForwardVerification,MailThread,MailConversationDetail,MailIntegrationForm}.tsx`,
-  `src/modules/integrations/mail/{hooks,graphql}/`,
-  `src/pages/PipelineMailPage.tsx`,
-  `src/modules/pipelines/constants/pipelineTabs.ts`,
-  `src/modules/channels/components/settings/Settings.tsx`.
-- **Contracts changed:** Added the `mailPipelineIntegration` query and the
-  `mailPipelineConnect`, `mailPipelineUpdate`, `mailPipelineForwardVerified` and
-  `mailPipelineDisconnect` mutation documents. `MailFormField` gained an
-  optional `descriptionFallback` and `MailAddressCallout` an optional
-  `description`/`descriptionFallback`, so the pipeline tab can say `ticket`
-  where the inbox says `conversation`.

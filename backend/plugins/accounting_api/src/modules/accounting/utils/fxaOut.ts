@@ -123,27 +123,23 @@ export const createFxaDisposalFollowTrs = async (
   validateFxaDisposalAccounts(transaction, summaries);
 
   const [oldCostTr, oldDepreciationTr, oldLossTr] = await Promise.all([
-    cleanFxaFollowTr(models, transaction._id, TR_FOLLOW_TYPES.FXA_OUT_COST),
-    cleanFxaFollowTr(
-      models,
-      transaction._id,
-      TR_FOLLOW_TYPES.FXA_OUT_DEPRECIATION,
-    ),
-    cleanFxaFollowTr(models, transaction._id, TR_FOLLOW_TYPES.FXA_OUT_LOSS),
+    cleanFxaFollowTr(models, transaction._id, TR_FOLLOW_TYPES.FXA_SALE_OUT),
+    cleanFxaFollowTr(models, transaction._id, TR_FOLLOW_TYPES.FXA_DEP_OUT),
+    cleanFxaFollowTr(models, transaction._id, TR_FOLLOW_TYPES.FXA_SALE_COST),
   ]);
-  const ptrId =
-    oldCostTr?.ptrId ||
-    oldDepreciationTr?.ptrId ||
-    oldLossTr?.ptrId ||
-    nanoid();
-  const followInfos = getFxaDisposalFollowInfos(transaction);
   const isSale = transaction.journal === JOURNALS.FXA_SALE;
+  const oldFollowPtrId =
+    oldCostTr?.ptrId || oldDepreciationTr?.ptrId || oldLossTr?.ptrId;
+  const ptrId = isSale
+    ? oldFollowPtrId || nanoid()
+    : transaction.ptrId || oldFollowPtrId || nanoid();
+  const followInfos = getFxaDisposalFollowInfos(transaction);
   const costDetails = isSale
     ? buildFxaDisposalFollowDetails({
-        accountId: followInfos.fixedAssetAccountId,
+        accountId: followInfos.saleOutAccountId,
         amountKey: 'originalCost',
         oldTr: oldCostTr,
-        originType: TR_DETAIL_FOLLOW_TYPES.FXA_OUT_COST,
+        originType: TR_DETAIL_FOLLOW_TYPES.FXA_SALE_OUT,
         summaries,
       })
     : [];
@@ -151,16 +147,16 @@ export const createFxaDisposalFollowTrs = async (
     accountId: followInfos.accumulatedDepreciationAccountId,
     amountKey: 'accumulatedDepreciation',
     oldTr: oldDepreciationTr,
-    originType: TR_DETAIL_FOLLOW_TYPES.FXA_OUT_DEPRECIATION,
+    originType: TR_DETAIL_FOLLOW_TYPES.FXA_DEP_OUT,
     summaries,
   });
   const lossDetails = buildFxaDisposalFollowDetails({
-    accountId: followInfos.lossAccountId,
+    accountId: followInfos.saleCostAccountId,
     amountKey: 'bookValue',
     oldTr: oldLossTr,
-    originType: TR_DETAIL_FOLLOW_TYPES.FXA_OUT_LOSS,
+    originType: TR_DETAIL_FOLLOW_TYPES.FXA_SALE_COST,
     summaries,
-  });
+  }).filter(() => isSale);
   const followTrs: ITransactionDocument[] = [];
 
   if (costDetails.length) {
@@ -170,9 +166,9 @@ export const createFxaDisposalFollowTrs = async (
         userId,
         buildFxaDisposalFollowTrDoc({
           details: costDetails,
-          journal: JOURNALS.FXA_OUT_COST,
+          journal: JOURNALS.FXA_SALE_OUT,
           oldTr: oldCostTr,
-          originType: TR_FOLLOW_TYPES.FXA_OUT_COST,
+          originType: TR_FOLLOW_TYPES.FXA_SALE_OUT,
           ptrId,
           side: TR_SIDES.CREDIT,
           transaction,
@@ -191,9 +187,9 @@ export const createFxaDisposalFollowTrs = async (
         userId,
         buildFxaDisposalFollowTrDoc({
           details: depreciationDetails,
-          journal: JOURNALS.FXA_OUT_DEPRECIATION,
+          journal: JOURNALS.FXA_DEP_OUT,
           oldTr: oldDepreciationTr,
-          originType: TR_FOLLOW_TYPES.FXA_OUT_DEPRECIATION,
+          originType: TR_FOLLOW_TYPES.FXA_DEP_OUT,
           ptrId,
           transaction,
         }),
@@ -211,9 +207,9 @@ export const createFxaDisposalFollowTrs = async (
         userId,
         buildFxaDisposalFollowTrDoc({
           details: lossDetails,
-          journal: JOURNALS.FXA_OUT_LOSS,
+          journal: JOURNALS.FXA_SALE_COST,
           oldTr: oldLossTr,
-          originType: TR_FOLLOW_TYPES.FXA_OUT_LOSS,
+          originType: TR_FOLLOW_TYPES.FXA_SALE_COST,
           ptrId,
           transaction,
         }),

@@ -16,6 +16,7 @@ export const SiteShell = async ({ children }: { children: ReactNode }) => {
       <SiteHeader
         title={title}
         logo={settings.theme?.mainLogo ?? null}
+        header={settings.header}
         knowledgeBaseEnabled={settings.knowledgeBaseEnabled}
         knowledgeBaseLabel={settings.knowledgeBaseLabel}
         ticketsEnabled={settings.ticketsEnabled}
@@ -26,6 +27,7 @@ export const SiteShell = async ({ children }: { children: ReactNode }) => {
         title={title}
         knowledgeBaseEnabled={settings.knowledgeBaseEnabled}
         ticketsEnabled={settings.ticketsEnabled}
+        footer={settings.footer}
       />
       <PortalHtml html={settings.theme?.footerHtml ?? null} />
     </>

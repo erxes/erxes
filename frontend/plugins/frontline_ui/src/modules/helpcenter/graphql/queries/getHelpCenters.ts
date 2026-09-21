@@ -43,6 +43,25 @@ export const HELP_CENTER_CONFIG_FIELDS = gql`
       headerHtml
       footerHtml
     }
+    header {
+      wordmark
+      homeLabel
+      formsLabel
+      announcementsLabel
+      searchPlaceholder
+    }
+    footer {
+      logo
+      description
+      copyright
+      columns {
+        heading
+        links {
+          label
+          url
+        }
+      }
+    }
 
     brand {
       _id

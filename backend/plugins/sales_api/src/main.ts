@@ -18,6 +18,7 @@ import {
 } from 'erxes-api-shared/core-modules';
 import { posExportHandlers } from './modules/pos/meta/export/exportHandlers';
 import { permissions } from '~/meta/permissions';
+import { properties } from './meta/properties';
 import { salesReferences } from './meta/references';
 import { documents } from './meta/documents';
 import { handleCreateDealFromPayment } from '~/modules/sales/meta/payments/createDealFromPayment';
@@ -119,14 +120,7 @@ startPlugin({
     documents,
     references: salesReferences,
     tags: { types: [{ type: 'deal', description: 'Sales' }] },
-    properties: {
-      types: [
-        {
-          description: 'Sales pipelines',
-          type: 'deal',
-        },
-      ],
-    },
+    properties,
     notifications,
     payments: {
       transactionCallback: async () => {

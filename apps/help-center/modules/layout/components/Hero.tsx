@@ -14,11 +14,11 @@ export const Hero = async ({
   searchQuery?: string;
   children?: ReactNode;
 }) => {
-  const { theme } = await getPortalSettings();
+  const { theme, header } = await getPortalSettings();
   const image = theme?.heroImage;
 
   return (
-    <section className="relative overflow-hidden bg-hero bg-[radial-gradient(120%_100%_at_50%_0%,var(--color-hero-soft),transparent_62%)] pb-16 pt-14 text-white sm:pb-20 sm:pt-16">
+    <section className="relative overflow-hidden bg-hero bg-[radial-gradient(120%_100%_at_50%_0%,var(--color-hero-soft),transparent_62%)] pb-10 pt-9 text-white sm:pb-12 sm:pt-11">
       {image ? (
         <>
           <img
@@ -39,11 +39,14 @@ export const Hero = async ({
         <h1 className="animate-in fade-in slide-in-from-bottom-3 fill-mode-both mx-auto max-w-3xl text-balance text-[22px] font-semibold leading-[1.35] tracking-[-0.02em] duration-700 sm:text-[28px]">
           {headline}
         </h1>
-        <div className="animate-in fade-in slide-in-from-bottom-3 fill-mode-both mx-auto mt-8 max-w-2xl delay-150 duration-700">
-          <SearchBar initialQuery={searchQuery} />
+        <div className="animate-in fade-in slide-in-from-bottom-3 fill-mode-both mx-auto mt-7 max-w-2xl delay-150 duration-700">
+          <SearchBar
+            initialQuery={searchQuery}
+            placeholder={header.searchPlaceholder}
+          />
         </div>
         {children ? (
-          <div className="animate-in fade-in fill-mode-both mt-6 delay-300 duration-700">
+          <div className="animate-in fade-in fill-mode-both mt-4 delay-300 duration-700">
             {children}
           </div>
         ) : null}

@@ -5,34 +5,37 @@ export type NavVisibility = {
   knowledgeBaseLabel: string;
   ticketsEnabled: boolean;
   ticketLabel: string;
+  homeLabel: string;
+  formsLabel: string;
+  announcementsLabel: string;
 };
 
-export const visibleNavItems = ({
-  knowledgeBaseEnabled,
-  knowledgeBaseLabel,
-  ticketsEnabled,
-  ticketLabel,
-}: NavVisibility): NavItem[] =>
-  navItems
+const labelOverrides = (visibility: NavVisibility): Record<string, string> => ({
+  '/': visibility.homeLabel,
+  '/knowledge-base': visibility.knowledgeBaseLabel,
+  '/tickets': visibility.ticketLabel,
+  '/forms': visibility.formsLabel,
+  '/announcements': visibility.announcementsLabel,
+});
+
+export const visibleNavItems = (visibility: NavVisibility): NavItem[] => {
+  const overrides = labelOverrides(visibility);
+
+  return navItems
     .filter((item) => {
       if (item.href === '/knowledge-base') {
-        return knowledgeBaseEnabled;
+        return visibility.knowledgeBaseEnabled;
       }
 
       if (item.href === '/tickets') {
-        return ticketsEnabled;
+        return visibility.ticketsEnabled;
       }
 
       return true;
     })
     .map((item) => {
-      if (item.href === '/knowledge-base' && knowledgeBaseLabel) {
-        return { ...item, label: knowledgeBaseLabel };
-      }
+      const label = overrides[item.href];
 
-      if (item.href === '/tickets' && ticketLabel) {
-        return { ...item, label: ticketLabel };
-      }
-
-      return item;
+      return label ? { ...item, label } : item;
     });
+};
