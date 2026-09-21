@@ -1,4 +1,4 @@
-import { cn, Form, Popover, Skeleton } from 'erxes-ui';
+import { cn, Combobox, Form, Label, Popover, Skeleton } from 'erxes-ui';
 import { useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useCustomerDetail } from 'ui-modules';
@@ -50,11 +50,11 @@ export const BroadcastTargetPopover = () => {
 
   if (targetType === 'customer') {
     return (
-      <div className="flex items-center gap-4">
-        <span className="w-24 shrink-0 text-sm text-muted-foreground">
-          {t('to')}
-        </span>
-        <BroadcastLockedCustomerTarget customerId={targetIds?.[0]} />
+      <div className="space-y-2">
+        <Label>{t('to')}</Label>
+        <div className="flex items-center gap-2">
+          <BroadcastLockedCustomerTarget customerId={targetIds?.[0]} />
+        </div>
       </div>
     );
   }
@@ -62,25 +62,20 @@ export const BroadcastTargetPopover = () => {
   const TargetContent = BROADCAST_TARGET_CONTENT[targetType];
 
   return (
-    <div className="flex items-center gap-4">
-      <span className="w-24 shrink-0 text-sm text-muted-foreground">
-        {t('to')}
-      </span>
+    <div className="space-y-2">
+      <Label>{t('to')}</Label>
 
       <Popover>
-        <Popover.Trigger asChild>
-          <button
-            type="button"
-            className={cn(
-              'flex-1 text-left text-sm text-muted-foreground hover:text-foreground py-1',
-              errors.targetIds && 'text-destructive hover:text-destructive',
-            )}
-          >
-            {targetIds?.length
-              ? t('recipientsCount', { count: targetCount || 0 })
-              : t('selectRecipients')}
-          </button>
-        </Popover.Trigger>
+        <Combobox.Trigger
+          className={cn(
+            'w-full',
+            errors.targetIds && 'text-destructive shadow-destructive',
+          )}
+        >
+          {targetIds?.length
+            ? t('recipientsCount', { count: targetCount || 0 })
+            : t('selectRecipients')}
+        </Combobox.Trigger>
         <Popover.Content className="w-96 flex flex-col gap-3" align="start">
           <Form.Field
             name="targetType"
@@ -88,7 +83,7 @@ export const BroadcastTargetPopover = () => {
             rules={{ required: 'Target type is required' }}
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>{t('to')}</Form.Label>
+                <Form.Label>{t('targetType')}</Form.Label>
                 <Form.Control>
                   <BroadcastSelectTargetType
                     value={field.value}

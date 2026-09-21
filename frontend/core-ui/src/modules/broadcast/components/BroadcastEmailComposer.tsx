@@ -17,6 +17,7 @@ import { BroadcastCopyHtmlButton } from './BroadcastCopyHtmlButton';
 import { BroadcastFromField } from './BroadcastFromField';
 import { BroadcastPreviewEmailDialog } from './BroadcastPreviewEmailDialog';
 import { BroadcastPreviewTextField } from './BroadcastPreviewTextField';
+import { BroadcastReplyToField } from './BroadcastReplyToField';
 import { BroadcastSaveAsTemplate } from './BroadcastSaveAsTemplate';
 import { BroadcastSendTestEmail } from './BroadcastSendTestEmail';
 import { BroadcastSubjectField } from './BroadcastSubjectField';
@@ -119,13 +120,13 @@ export const BroadcastEmailComposer = ({
   return (
     <FormProvider {...form}>
       <EmailSenderScopeProvider scope="broadcast">
-        <Sheet.Header className="px-8">
+        <Sheet.Header className="px-6">
           <BroadcastTitleInput />
           <Sheet.Close />
         </Sheet.Header>
 
         <Sheet.Content className="flex flex-col overflow-hidden">
-          <div className="flex items-center gap-2 px-8 py-3">
+          <div className="flex items-center gap-2 px-6 py-2">
             <BroadcastComposerSettings />
             <BroadcastPreviewEmailDialog />
             <BroadcastCopyHtmlButton />
@@ -134,26 +135,27 @@ export const BroadcastEmailComposer = ({
 
           <Separator />
 
-          <div className="flex flex-col gap-5 px-8 py-6">
+          <div className="grid grid-cols-2 gap-x-4 gap-y-2 px-6 py-3">
             <BroadcastSubjectField />
             <BroadcastFromField />
+            <BroadcastReplyToField />
             <BroadcastTargetPopover />
           </div>
 
           <Separator />
 
-          <div className="px-8 py-4">
+          <div className="px-6 py-3">
             <BroadcastPreviewTextField />
           </div>
 
           <Separator />
 
-          <div className="flex-1 min-h-0 overflow-hidden px-8 py-4">
+          <div className="flex-1 min-h-0 overflow-hidden px-6 py-3">
             <BroadcastEmailPreview />
           </div>
         </Sheet.Content>
 
-        <Sheet.Footer className="px-8">
+        <Sheet.Footer className="px-6">
           <Button onClick={handleClose} variant="secondary" type="button">
             {t('cancel')}
           </Button>

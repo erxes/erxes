@@ -8,7 +8,7 @@ export const BroadcastPreviewTextField = () => {
   const { t } = useTranslation('broadcasts', { keyPrefix: 'composer' });
 
   return (
-    <div className="flex items-center gap-4">
+    <div className="flex items-center gap-3">
       <span className="w-24 shrink-0 text-sm text-muted-foreground">
         {t('previewText')}
       </span>

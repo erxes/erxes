@@ -13,6 +13,7 @@
     "from": "From",
     "replyTo": "Reply-To",
     "to": "To",
+    "targetType": "Target type",
     "selectRecipients": "Select recipients",
     "recipientsCount": "{{count}} recipients",
     "previewText": "Preview Text",

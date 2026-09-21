@@ -13,6 +13,7 @@
     "from": "Илгээгч",
     "replyTo": "Хариулах хаяг",
     "to": "Хүлээн авагч",
+    "targetType": "Зорилтот төрөл",
     "selectRecipients": "Хүлээн авагч сонгох",
     "recipientsCount": "{{count}} хүлээн авагч",
     "previewText": "Урьдчилан харах текст",
