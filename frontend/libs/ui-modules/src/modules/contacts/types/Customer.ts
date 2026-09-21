@@ -47,6 +47,7 @@ export interface ICustomerDetail extends ICustomer {
   position?: string;
   department?: string;
   state?: string;
+  birthDate?: string;
   isOnline?: boolean;
   lastSeenAt?: string;
   sessionCount?: number;

@@ -1,5 +1,13 @@
 import { Control } from 'react-hook-form';
-import { Editor, Form, Input, Select, Switch, Upload } from 'erxes-ui';
+import {
+  DatePicker,
+  Editor,
+  Form,
+  Input,
+  Select,
+  Switch,
+  Upload,
+} from 'erxes-ui';
 import { CustomerFormType } from '@/contacts/customers/constants/formSchema';
 import { ContactsHotKeyScope } from '@/contacts/types/ContactsHotKeyScope';
 import { SelectMember } from 'ui-modules';
@@ -43,6 +51,36 @@ export const AvatarField = ({
               </div>
             </Upload.Root>
           </Form.Control>
+        </Form.Item>
+      )}
+    />
+  );
+};
+
+export const BirthDateField = ({
+  control,
+}: {
+  control: Control<CustomerFormType>;
+}) => {
+  const { t } = useTranslation('contact', { keyPrefix: 'customer.add' });
+  return (
+    <Form.Field
+      control={control}
+      name="birthDate"
+      render={({ field }) => (
+        <Form.Item>
+          <Form.Label>{t('birth-date', 'Birth date')}</Form.Label>
+          <Form.Control>
+            <DatePicker
+              value={field.value ?? undefined}
+              onChange={(date) => field.onChange(date ?? null)}
+              variant="outline"
+              mode="single"
+              withPresent
+              className="h-8 rounded-md w-full"
+            />
+          </Form.Control>
+          <Form.Message className="text-destructive" />
         </Form.Item>
       )}
     />

@@ -27,6 +27,9 @@ export const CustomerDetailFields = () => {
       lastName: customerDetail?.lastName || '',
       middleName: customerDetail?.middleName || '',
       sex: customerDetail?.sex || null,
+      birthDate: customerDetail?.birthDate
+        ? new Date(customerDetail.birthDate)
+        : null,
       primaryEmail: customerDetail?.primaryEmail || '',
       primaryPhone: customerDetail?.primaryPhone || '',
       phones: (customerDetail?.phones ?? []).filter(
@@ -57,6 +60,7 @@ export const CustomerDetailFields = () => {
       sex,
       avatar,
       state,
+      birthDate,
       ...rest
     } = data;
     void emailValidationStatus;
@@ -79,6 +83,7 @@ export const CustomerDetailFields = () => {
         ...rest,
         sex: sex === null ? undefined : sex,
         avatar: avatar === null ? undefined : avatar,
+        birthDate: birthDate === null ? undefined : birthDate,
         _id,
       },
       onCompleted: () => {

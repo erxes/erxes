@@ -7,6 +7,7 @@ export const customerFormSchema = z.object({
   lastName: z.string().default(''),
   middleName: z.string().default(''),
   sex: z.number().nullable().default(null),
+  birthDate: z.date().nullable().default(null),
   primaryEmail: z.union([z.literal(''), z.string().email("Invalid email format")]).default(''),
   primaryPhone: z.string().default(''),
   phones: z.array(z.string()).default([]),
