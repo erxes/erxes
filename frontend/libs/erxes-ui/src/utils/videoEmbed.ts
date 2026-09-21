@@ -15,6 +15,7 @@ const YOUTUBE_SHORT_PATTERN =
 const VIMEO_PATTERN =
   /^(?:https?:\/\/)?(?:www\.|player\.)?vimeo\.com\/(?:video\/)?(\d+)(?=$|[?&#/])/i;
 
+/** Parses a YouTube or Vimeo URL into an embeddable iframe URL (and thumbnail, when derivable without a network call). */
 export const parseVideoEmbedUrl = (url: string): VideoEmbedInfo | null => {
   const trimmed = url.trim();
   if (!trimmed) return null;
@@ -42,6 +43,11 @@ export const parseVideoEmbedUrl = (url: string): VideoEmbedInfo | null => {
   return null;
 };
 
+/**
+ * Cloudflare Stream returns an HLS playback URL like
+ * `https://customer-xxx.cloudflarestream.com/{uid}/manifest/video.m3u8`.
+ * Extract the base so we can build a thumbnail (`/thumbnails/thumbnail.jpg`).
+ */
 export const getCloudflareStreamBase = (url: string): string | null => {
   const match = url.match(
     /^(https:\/\/customer-[^/]+\.cloudflarestream\.com\/[^/]+)/,
