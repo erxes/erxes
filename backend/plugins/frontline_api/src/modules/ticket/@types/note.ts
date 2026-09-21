@@ -9,6 +9,7 @@ export interface INote {
   attachments?: IAttachment[];
   isInternal?: boolean;
   statusId?: string;
+  mailMessageId?: string;
 }
 
 export interface INoteDocument extends INote, Document {

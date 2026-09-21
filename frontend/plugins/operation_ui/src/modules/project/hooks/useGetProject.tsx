@@ -16,7 +16,7 @@ interface IProjectChanged {
 }
 
 export const useGetProject = (options: QueryHookOptions) => {
-  const { data, loading, refetch, subscribeToMore } =
+  const { data, loading, refetch, subscribeToMore, error } =
     useQuery<IGetProjectQueryResponse>(GET_PROJECT, options);
 
   const project = data?.getProject;
@@ -43,5 +43,5 @@ export const useGetProject = (options: QueryHookOptions) => {
     };
   }, [project?._id, subscribeToMore]);
 
-  return { project, loading, refetch };
+  return { project, loading, refetch, error };
 };

@@ -84,6 +84,12 @@ export const types = `
     mailData: MailData
     contentType: String
     mid: String
+    messageKind: String
+    providerData: JSON
+    replyTo: JSON
+    reactions: JSON
+    deliveryStatus: String
+    expiresAt: Date
   }
 
   type Email {
@@ -156,6 +162,12 @@ type ConversationListResponse {
     totalCount: Int,
   }
 
+  type ConversationConvertedItem {
+    type: String
+    _id: String
+    url: String
+  }
+
   input ConversationMessageParams {
     content: String,
     mentionedUserIds: [String],
@@ -188,6 +200,7 @@ const mutationFilterParams = `
   mentioned: String
   unread: String
   awaitingResponse: String
+  withSurvey: String
   withPoll: String
   automationStatus: String
   starred: String
@@ -202,13 +215,15 @@ const mutationFilterParams = `
 const convertParams = `
   _id: String!
   type: String!
-  itemId: String
   itemName: String
   stageId: String
   customFieldsData: JSON
   priority: String
   assignedUserIds: [String]
   labelIds: [String]
+  tagIds: [String]
+  branchIds: [String]
+  departmentIds: [String]
   startDate: Date
   closeDate: Date
   attachments: [AttachmentInput]
@@ -247,6 +262,7 @@ export const queries = `
   conversationsGetLast(${filterParams}): Conversation
   conversationsTotalUnreadCount: Int
   userConversations(_id: String, ${GQL_CURSOR_PARAM_DEFS}, perPage: Int): UserConversationListResponse
+  conversationConvertedItems(_id: String!): [ConversationConvertedItem]
 `;
 
 export const mutations = `

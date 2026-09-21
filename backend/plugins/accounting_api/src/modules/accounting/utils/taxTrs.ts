@@ -66,9 +66,8 @@ class TaxTrs {
     }
 
     if (hasCtax && this.doc.hasCtax) {
-      this.ctaxAccountId = await this.models.Configs.getConfigValue(
-        'CtaxPayableAccount',
-      );
+      this.ctaxAccountId =
+        await this.models.Configs.getConfigValue('CtaxPayableAccount');
 
       if (!this.ctaxAccountId) {
         throw new Error('must init ctax account id');
@@ -171,7 +170,26 @@ class TaxTrs {
     }
   };
 
-  private readonly calcTaxValue = (kind: 'vat' | 'ctax', taxPercent: number) => {
+  private readonly calcTaxValue = (
+    kind: 'vat' | 'ctax',
+    taxPercent: number,
+  ) => {
+    if (
+      kind === 'vat' &&
+      this.doc.isHandleVat &&
+      this.doc.vatAmount !== undefined
+    ) {
+      return this.doc.vatAmount;
+    }
+
+    if (
+      kind === 'ctax' &&
+      this.doc.isHandleCtax &&
+      this.doc.ctaxAmount !== undefined
+    ) {
+      return this.doc.ctaxAmount;
+    }
+
     const vatPercent = this.vatRow?.percent || 0;
     const ctaxPercent = this.ctaxRow?.percent || 0;
 

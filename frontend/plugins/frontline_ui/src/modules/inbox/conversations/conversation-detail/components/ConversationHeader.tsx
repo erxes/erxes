@@ -38,6 +38,7 @@ import {
 import { useAtomValue } from 'jotai';
 import { CustomersInline, SelectMember, SelectTags } from 'ui-modules';
 import { ConversationActions } from '@/inbox/conversations/conversation-detail/components/ConversationActions';
+import { ConversationConvert } from '@/inbox/conversations/conversation-detail/components/convert/ConversationConvert';
 import { useTranslation } from 'react-i18next';
 import { type SyntheticEvent, useState } from 'react';
 
@@ -408,6 +409,7 @@ export const ConversationHeader = () => {
       <div className="flex items-center gap-3 ml-auto flex-none">
         {!isCompact && <ConversationTags />}
         <IntegrationActions />
+        <ConversationConvert />
         {isCompact ? (
           <ConversationActionsDropdown showAssignee={hideAssignee} />
         ) : (

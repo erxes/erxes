@@ -27,6 +27,7 @@ export const GET_ACCOUNTING_PRODUCT_UNIT_PRICE_QUERY = gql`
     productDetail(_id: $_id) {
       _id
       unitPrice
+      weight
     }
   }
 `;

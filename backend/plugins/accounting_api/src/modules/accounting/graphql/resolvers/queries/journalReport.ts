@@ -32,10 +32,16 @@ export interface IReportFilterParams {
   isOutBalance?: boolean;
   productId?: string;
   productIds?: string[];
+  productCategoryId?: string;
+  productSearchValue?: string;
   fixedAssetId?: string;
   fixedAssetIds?: string[];
+  fixedAssetCategoryId?: string;
+  fixedAssetSearchValue?: string;
   customerId?: string;
   customerIds?: string[];
+  customerTagIds?: string[];
+  companyTagIds?: string[];
   contentType?: string;
   contentId?: string;
   branchId?: string;
@@ -50,6 +56,7 @@ export interface IReportFilterParams {
 
   createdUserId?: string;
   modifiedUserId?: string;
+  assignedUserId?: string;
   fromDate?: Date;
   toDate?: Date;
 }

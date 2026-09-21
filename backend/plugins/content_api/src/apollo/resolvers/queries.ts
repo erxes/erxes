@@ -1,4 +1,5 @@
 import { contentCmsQueries } from '@/cms/graphql/queries/cms';
+import { cmsPostizQueries } from '@/cms/postiz/graphql';
 import { postQueries } from '@/cms/graphql/queries/posts';
 import { contentCmsTagQueries } from '@/cms/graphql/queries/tag';
 import { contentCmsCategoryQueries } from '@/cms/graphql/queries/category';
@@ -9,6 +10,7 @@ import { webQueries } from '~/modules/webbuilder/graphql/resolvers/queries/web';
 import { webPageQueries } from '~/modules/webbuilder/graphql/resolvers/queries/webPage';
 
 export const queries = {
+  ...cmsPostizQueries,
   ...webQueries,
   ...postQueries,
   ...contentCmsTagQueries,

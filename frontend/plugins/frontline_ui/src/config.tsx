@@ -49,6 +49,7 @@ const FormSubmissionActivityRow = lazy(() =>
 export const CONFIG: IUIConfig = {
   name: 'frontline',
   path: 'frontline',
+  icon: IconStackFront,
   hasFloatingWidget: true,
   settingsNavigation: () => (
     <Suspense fallback={<div />}>
@@ -132,9 +133,9 @@ export const CONFIG: IUIConfig = {
       path: 'frontline/forms',
     },
     {
-      name: 'polls',
+      name: 'surveys',
       icon: IconChartBar,
-      path: 'frontline/polls',
+      path: 'frontline/surveys',
     },
     {
       name: 'knowledge-base',

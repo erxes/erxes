@@ -36,12 +36,19 @@ export const HelpCenterRecordTable = ({
           <Empty.Media variant="icon">
             <IconLifebuoy />
           </Empty.Media>
-          <Empty.Title>{t('kb-no-topics-yet')}</Empty.Title>
-          <Empty.Description>{t('kb-no-topics-description')}</Empty.Description>
+          <Empty.Title>
+            {t('helpcenter-none-yet', 'There are no help centers yet')}
+          </Empty.Title>
+          <Empty.Description>
+            {t(
+              'helpcenter-none-description',
+              'Create your first help center to publish your knowledge base.',
+            )}
+          </Empty.Description>
         </Empty.Header>
         <Empty.Content>
           <Button variant="outline" onClick={onCreate}>
-            {t('kb-create-topic')}
+            {t('helpcenter-create', 'Create Help Center')}
           </Button>
         </Empty.Content>
       </Empty>

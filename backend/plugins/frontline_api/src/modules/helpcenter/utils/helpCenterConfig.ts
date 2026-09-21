@@ -2,7 +2,11 @@ import {
   removeExtraSpaces,
   removeLastTrailingSlash,
 } from 'erxes-api-shared/utils';
-import { IHelpCenterConfigInput } from '@/helpcenter/@types/helpCenterConfig';
+import {
+  IHelpCenterConfigInput,
+  IHelpCenterFooter,
+  IHelpCenterHeader,
+} from '@/helpcenter/@types/helpCenterConfig';
 
 const isHttpUrl = (value: string) => {
   try {
@@ -16,6 +20,35 @@ const isHttpUrl = (value: string) => {
 
 export const normalizeHelpCenterUrl = (url?: string): string =>
   url ? removeExtraSpaces(removeLastTrailingSlash(url)) : '';
+
+const normalizeHelpCenterFooter = (
+  footer?: IHelpCenterFooter,
+): IHelpCenterFooter => ({
+  logo: footer?.logo?.trim() ?? '',
+  description: footer?.description?.trim() ?? '',
+  copyright: footer?.copyright?.trim() ?? '',
+  columns: (footer?.columns ?? [])
+    .map((column) => ({
+      heading: column.heading?.trim() ?? '',
+      links: (column.links ?? [])
+        .map((link) => ({
+          label: link.label?.trim() ?? '',
+          url: link.url?.trim() ?? '',
+        }))
+        .filter((link) => link.label && link.url),
+    }))
+    .filter((column) => column.heading || column.links.length),
+});
+
+const normalizeHelpCenterHeader = (
+  header?: IHelpCenterHeader,
+): IHelpCenterHeader => ({
+  wordmark: header?.wordmark?.trim() ?? '',
+  homeLabel: header?.homeLabel?.trim() ?? '',
+  formsLabel: header?.formsLabel?.trim() ?? '',
+  announcementsLabel: header?.announcementsLabel?.trim() ?? '',
+  searchPlaceholder: header?.searchPlaceholder?.trim() ?? '',
+});
 
 export const normalizeHelpCenterConfig = (
   config: IHelpCenterConfigInput,
@@ -60,5 +93,7 @@ export const normalizeHelpCenterConfig = (
     ticketChannelId: ticketToggle ? (config.ticketChannelId ?? '') : '',
     ticketPipelineId: ticketToggle ? (config.ticketPipelineId ?? '') : '',
     ticketStatusId: ticketToggle ? (config.ticketStatusId ?? '') : '',
+    header: normalizeHelpCenterHeader(config.header),
+    footer: normalizeHelpCenterFooter(config.footer),
   };
 };

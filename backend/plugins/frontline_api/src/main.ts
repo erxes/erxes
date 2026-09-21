@@ -19,6 +19,7 @@ import { generateModels } from './connectionResolvers';
 import { automations } from './meta/automations';
 import { notifications } from './meta/notifications';
 import { permissions } from './meta/permissions';
+import { properties } from './meta/properties';
 import { ticketImportHandlers } from './meta/import-export/import/importHandlers';
 import {
   ticketExportHandlers,
@@ -164,17 +165,6 @@ startPlugin({
         },
       ],
     },
-    properties: {
-      types: [
-        {
-          description: 'Inbox',
-          type: 'conversation',
-        },
-        {
-          description: 'Tickets',
-          type: 'ticket',
-        },
-      ],
-    },
+    properties,
   },
 });

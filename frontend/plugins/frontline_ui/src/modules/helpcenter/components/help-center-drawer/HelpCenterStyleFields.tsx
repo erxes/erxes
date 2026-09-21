@@ -1,6 +1,6 @@
 import { IconUpload } from '@tabler/icons-react';
 import { ColorPicker, Form, Select, Textarea, Upload } from 'erxes-ui';
-import { Control } from 'react-hook-form';
+import { Control, FieldPath } from 'react-hook-form';
 import { HELP_CENTER_FONTS } from '@/helpcenter/constants';
 import { IHelpCenterConfigInput, TStyleName } from '@/helpcenter/types';
 
@@ -43,7 +43,7 @@ export function StyleImageField({
   description,
 }: Readonly<{
   control: Control<IHelpCenterConfigInput>;
-  name: TStyleName;
+  name: FieldPath<IHelpCenterConfigInput>;
   label: string;
   description: string;
 }>) {

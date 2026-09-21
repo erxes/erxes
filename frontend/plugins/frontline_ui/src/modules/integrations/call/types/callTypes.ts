@@ -3,6 +3,7 @@ import { IAttachment } from 'erxes-ui';
 export interface ICallConfig {
   _id: string;
   inboxId: string;
+  name?: string;
   phone: string;
   wsServer: string;
   operators: { userId: string; gsUsername: string; gsPassword: string }[];

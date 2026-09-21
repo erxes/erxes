@@ -1,7 +1,5 @@
 {
   "typescript.tsserver.maxTsServerMemory": 3072,
-  "typescript.disableReferencedProjectLoad": true,
-  "typescript.disableSolutionSearching": true,
   "typescript.disableAutomaticTypeAcquisition": true,
   "javascript.disableAutomaticTypeAcquisition": true,
   "search.followSymlinks": false,

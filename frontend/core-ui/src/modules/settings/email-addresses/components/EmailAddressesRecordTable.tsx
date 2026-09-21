@@ -2,17 +2,48 @@ import { emailAddressColumns } from '@/settings/email-addresses/components/email
 import { EMAIL_ADDRESSES_CURSOR_SESSION_KEY } from '@/settings/email-addresses/constants';
 import { useEmailAddresses } from '@/settings/email-addresses/hooks/useEmailAddresses';
 import { IconAddressBook } from '@tabler/icons-react';
-import { RecordTable } from 'erxes-ui';
+import { Button, RecordTable, toast } from 'erxes-ui';
 
-export const EmailAddressesRecordTable = () => {
+export const EmailAddressesRecordTable = ({
+  email,
+}: { email?: string } = {}): JSX.Element => {
   const {
     list,
     loading,
     totalCount,
+    error,
+    refetch,
     handleFetchMore,
     hasNextPage,
     hasPreviousPage,
-  } = useEmailAddresses();
+  } = useEmailAddresses(
+    email
+      ? {
+          variables: { emails: [email], limit: 1 },
+          fetchPolicy: 'network-only',
+          notifyOnNetworkStatusChange: true,
+        }
+      : undefined,
+  );
+
+  if (error) {
+    return (
+      <div role="alert" className="p-4 text-sm text-destructive">
+        <p>{error.message}</p>
+        <Button
+          variant="outline"
+          disabled={loading}
+          onClick={() =>
+            refetch().catch((error: Error) =>
+              toast({ title: error.message, variant: 'destructive' }),
+            )
+          }
+        >
+          Retry
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <RecordTable.Provider
@@ -25,7 +56,12 @@ export const EmailAddressesRecordTable = () => {
         hasPreviousPage={hasPreviousPage}
         hasNextPage={hasNextPage}
         dataLength={list?.length}
-        sessionKey={EMAIL_ADDRESSES_CURSOR_SESSION_KEY}
+        sessionKey={
+          email
+            ? `${EMAIL_ADDRESSES_CURSOR_SESSION_KEY}:${email}`
+            : EMAIL_ADDRESSES_CURSOR_SESSION_KEY
+        }
+        loading={loading}
       >
         <RecordTable>
           <RecordTable.Header />

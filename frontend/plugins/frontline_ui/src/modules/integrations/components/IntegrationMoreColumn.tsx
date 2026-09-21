@@ -1,5 +1,7 @@
 import { CellContext, ColumnDef } from '@tanstack/react-table';
+import { IconArrowBarToRight } from '@tabler/icons-react';
 import { Popover, Command, Combobox, RecordTable } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { IIntegrationDetail } from '../types/Integration';
 import { ArchiveIntegration } from '@/integrations/components/ArchiveIntegration';
@@ -9,7 +11,9 @@ import { FacebookIntegrationRepair } from '../facebook/components/FacebookIntegr
 import { InstagramIntegrationRepair } from '../instagram/components/InstagramIntegrationRepair';
 import { DiscordIntegrationRepair } from '../discord/components/DiscordIntegrationActions';
 import { EMInstallScript } from '../erxes-messenger/components/EMInstallScript';
-import { lazy, Suspense } from 'react';
+import { MoveToChannelDialog } from '@/channels/components/move-resources/MoveToChannelDialog';
+import { ChannelResourceType } from '@/channels/types';
+import { lazy, Suspense, useState } from 'react';
 
 const ErxesMessengerActions = lazy(() =>
   import('../erxes-messenger/components/ErxesMessengerDetail').then(
@@ -62,76 +66,98 @@ export const IntegrationMoreColumnCell = ({
 }: {
   cell: CellContext<IIntegrationDetail, unknown>;
 }) => {
-  const { _id, name, isActive } = cell.row.original;
+  const { t } = useTranslation('frontline');
+  const { _id, name, isActive, channelId } = cell.row.original;
   const { integrationType } = useParams();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [moveOpen, setMoveOpen] = useState(false);
 
   return (
-    <Popover>
-      <Popover.Trigger asChild>
-        <RecordTable.MoreButton className="w-full h-full" />
-      </Popover.Trigger>
-      <Combobox.Content>
-        <Command shouldFilter={false}>
-          <Command.List>
-            <Command.Item value="edit">
-              <Suspense fallback={<div />}>
-                {integrationType === IntegrationType.ERXES_MESSENGER && (
-                  <ErxesMessengerActions cell={cell} />
-                )}
-                {(integrationType === IntegrationType.FACEBOOK_MESSENGER ||
-                  integrationType === IntegrationType.FACEBOOK_POST) && (
-                  <FacebookIntegrationActions cell={cell} />
-                )}
-                {integrationType === IntegrationType.CALL && (
-                  <CallIntegrationActions cell={cell} />
-                )}
-                {integrationType === IntegrationType.CALLPRO && (
-                  <CallProIntegrationActions cell={cell} />
-                )}
-                {integrationType === IntegrationType.MAIL && (
-                  <MailIntegrationActions cell={cell} />
-                )}
-                {(integrationType === IntegrationType.INSTAGRAM_MESSENGER ||
-                  integrationType === IntegrationType.INSTAGRAM_POST) && (
-                  <InstagramIntegrationActions cell={cell} />
-                )}
-                {integrationType === IntegrationType.DISCORD_MESSENGER && (
-                  <DiscordIntegrationActions cell={cell} />
-                )}
-              </Suspense>
-            </Command.Item>
-            {integrationType === IntegrationType.ERXES_MESSENGER && (
-              <Command.Item value="install">
-                <EMInstallScript integrationId={cell.row.original._id} />
+    <>
+      <Popover open={menuOpen} onOpenChange={setMenuOpen}>
+        <Popover.Trigger asChild>
+          <RecordTable.MoreButton className="w-full h-full" />
+        </Popover.Trigger>
+        <Combobox.Content>
+          <Command shouldFilter={false}>
+            <Command.List>
+              <Command.Item value="edit">
+                <Suspense fallback={<div />}>
+                  {integrationType === IntegrationType.ERXES_MESSENGER && (
+                    <ErxesMessengerActions cell={cell} />
+                  )}
+                  {(integrationType === IntegrationType.FACEBOOK_MESSENGER ||
+                    integrationType === IntegrationType.FACEBOOK_POST) && (
+                    <FacebookIntegrationActions cell={cell} />
+                  )}
+                  {integrationType === IntegrationType.CALL && (
+                    <CallIntegrationActions cell={cell} />
+                  )}
+                  {integrationType === IntegrationType.CALLPRO && (
+                    <CallProIntegrationActions cell={cell} />
+                  )}
+                  {integrationType === IntegrationType.MAIL && (
+                    <MailIntegrationActions cell={cell} />
+                  )}
+                  {(integrationType === IntegrationType.INSTAGRAM_MESSENGER ||
+                    integrationType === IntegrationType.INSTAGRAM_POST) && (
+                    <InstagramIntegrationActions cell={cell} />
+                  )}
+                  {integrationType === IntegrationType.DISCORD_MESSENGER && (
+                    <DiscordIntegrationActions cell={cell} />
+                  )}
+                </Suspense>
               </Command.Item>
-            )}
-            {IntegrationType.FACEBOOK_MESSENGER === integrationType ||
-            IntegrationType.FACEBOOK_POST === integrationType ? (
-              <Command.Item value="repair">
-                <FacebookIntegrationRepair cell={cell} />
+              {integrationType === IntegrationType.ERXES_MESSENGER && (
+                <Command.Item value="install">
+                  <EMInstallScript integrationId={cell.row.original._id} />
+                </Command.Item>
+              )}
+              {IntegrationType.FACEBOOK_MESSENGER === integrationType ||
+              IntegrationType.FACEBOOK_POST === integrationType ? (
+                <Command.Item value="repair">
+                  <FacebookIntegrationRepair cell={cell} />
+                </Command.Item>
+              ) : null}
+              {IntegrationType.INSTAGRAM_MESSENGER === integrationType ||
+              IntegrationType.INSTAGRAM_POST === integrationType ? (
+                <Command.Item value="repair">
+                  <InstagramIntegrationRepair cell={cell} />
+                </Command.Item>
+              ) : null}
+              {integrationType === IntegrationType.DISCORD_MESSENGER ? (
+                <Command.Item value="repair">
+                  <DiscordIntegrationRepair cell={cell} />
+                </Command.Item>
+              ) : null}
+              <Command.Item
+                value="move"
+                onSelect={() => {
+                  setMenuOpen(false);
+                  setMoveOpen(true);
+                }}
+              >
+                <IconArrowBarToRight />
+                {t('move-to-channel', 'Move to Channel')}
               </Command.Item>
-            ) : null}
-            {IntegrationType.INSTAGRAM_MESSENGER === integrationType ||
-            IntegrationType.INSTAGRAM_POST === integrationType ? (
-              <Command.Item value="repair">
-                <InstagramIntegrationRepair cell={cell} />
+              <Command.Item value="archive">
+                <ArchiveIntegration _id={_id} name={name} isActive={isActive} />
               </Command.Item>
-            ) : null}
-            {integrationType === IntegrationType.DISCORD_MESSENGER ? (
-              <Command.Item value="repair">
-                <DiscordIntegrationRepair cell={cell} />
+              <Command.Item value="remove">
+                <RemoveIntegration _id={_id} name={name} />
               </Command.Item>
-            ) : null}
-            <Command.Item value="archive">
-              <ArchiveIntegration _id={_id} name={name} isActive={isActive} />
-            </Command.Item>
-            <Command.Item value="remove">
-              <RemoveIntegration _id={_id} name={name} />
-            </Command.Item>
-          </Command.List>
-        </Command>
-      </Combobox.Content>
-    </Popover>
+            </Command.List>
+          </Command>
+        </Combobox.Content>
+      </Popover>
+      <MoveToChannelDialog
+        open={moveOpen}
+        onOpenChange={setMoveOpen}
+        resourceType={ChannelResourceType.INTEGRATION}
+        resourceIds={[_id]}
+        sourceChannelId={channelId}
+      />
+    </>
   );
 };
 

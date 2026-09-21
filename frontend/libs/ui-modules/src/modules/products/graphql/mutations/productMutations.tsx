@@ -11,6 +11,7 @@ export const PRODUCTS_ADD = gql`
     $variants: JSON
     $barcodeDescription: String
     $unitPrice: Float
+    $weight: Float
     $duration: Float
     $durationType: ProductDurationType
     $code: String
@@ -35,6 +36,7 @@ export const PRODUCTS_ADD = gql`
       variants: $variants
       barcodeDescription: $barcodeDescription
       unitPrice: $unitPrice
+      weight: $weight
       duration: $duration
       durationType: $durationType
       code: $code
@@ -63,6 +65,7 @@ export const PRODUCTS_ADD = gql`
       shortName
       uom
       unitPrice
+      weight
       duration
       durationType
       type
@@ -84,6 +87,7 @@ export const PRODUCTS_EDIT = gql`
     $type: String
     $description: String
     $unitPrice: Float
+    $weight: Float
     $code: String
     $propertiesData: JSON
     $vendorId: String
@@ -106,6 +110,7 @@ export const PRODUCTS_EDIT = gql`
       type: $type
       description: $description
       unitPrice: $unitPrice
+      weight: $weight
       code: $code
       propertiesData: $propertiesData
       vendorId: $vendorId

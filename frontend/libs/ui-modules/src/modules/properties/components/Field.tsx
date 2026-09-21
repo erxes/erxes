@@ -10,6 +10,7 @@ import {
   toPropertyGroupKey,
   validatePropertyValue,
 } from '../propertyUtils';
+
 import { FieldBoolean } from './FieldBoolean';
 import { FieldCheck } from './FieldCheck';
 import { FieldDate } from './FieldDate';
@@ -17,13 +18,14 @@ import { FieldEditor } from './FieldEditor';
 import { FieldFile } from './FieldFile';
 import { FieldLabel } from './FieldLabel';
 import { FieldNumber } from './FieldNumber';
+import { FieldObjectList } from './FieldObjectList';
+import { FieldPhone } from './FieldPhone';
 import { FieldRadio } from './FieldRadio';
 import { FieldRelation } from './FieldRelation';
 import { FieldSelect } from './FieldSelect';
 import { FieldSelectMultiple } from './FieldSelectMultiple';
 import { FieldString } from './FieldString';
 import { FieldStringMultiple } from './FieldStringMultiple';
-import { FieldPhone } from './FieldPhone';
 import { FieldTextarea } from './FieldTextarea';
 
 export interface FieldProps {
@@ -63,6 +65,7 @@ export const FIELD_COMPONENT_BY_TYPE: Record<
   relation: FieldRelation,
   file: FieldFile,
   editor: FieldEditor,
+  objectList: FieldObjectList,
 };
 
 export const Field = (props: FieldProps) => {
