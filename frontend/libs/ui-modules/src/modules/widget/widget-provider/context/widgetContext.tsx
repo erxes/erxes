@@ -66,8 +66,8 @@ export const useRelationWidget = (options?: {
   const hideCore = hideCoreRelations
     ? hideCoreRelations
     : REACT_APP_HIDE_CORE_MODULES === 'true'
-    ? true
-    : false;
+      ? true
+      : false;
 
   let filteredModules = context.relationWidgetsModules || [];
 
