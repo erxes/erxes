@@ -18,6 +18,8 @@
   inbox navigation sub-groups, response templates, and integration
   configuration screens.
 - Channel settings (list, detail, members, integrations) and channel forms.
+- The `Move to channel` action on every channel-owned resource: integrations,
+  ticket pipelines, forms, surveys and response templates.
 - Integration connect/detail UIs for Mail, Facebook, Instagram, Discord,
   calls, Call Pro, and the erxes messenger.
 - The mail conversation surface: the threaded reader, its compose box, the
@@ -88,6 +90,18 @@
   (the formatted phone only when the name is empty), and
   picking one makes it `callConfigAtom`. Turning off the selected integration
   moves `Call from` to another switched-on one, or disconnects when none is left.
+- Every channel-owned resource row carries a **Move to channel** action:
+  integrations, ticket pipelines, forms, surveys and response templates, in the
+  `⋮` menu of their list inside `settings/frontline/channels/:id/…` (and on the
+  global `/frontline/forms` page). It opens one shared `MoveToChannelDialog`
+  showing the current channel, a destination picker that excludes the current
+  channel, a confirmation line once a destination is picked, and
+  `Cancel` / `Move`. The dialog is always rendered as a sibling of the menu
+  content, never inside it, so closing the menu does not unmount it. Forms and
+  surveys also move in bulk from their command bar; that button stays disabled
+  when the selection spans more than one channel, because one move carries one
+  source channel. A successful move toasts, refetches the resource's list
+  queries and the channel counters, and clears the selection.
 - Surveys are split across two routes, mirroring how forms are laid out.
   `settings/frontline/channels/:id/surveys` manages the channel's surveys: the
   settings breadcrumb resolves to `Channels / <channel> / Surveys` and carries the
@@ -289,56 +303,58 @@
 
 ## Architecture
 
-| Area | Path | Responsibility |
-| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| Host registration | `src/config.tsx` | `CONFIG` — navigation, settings, widgets, property inputs, routes, and Module Federation exposes |
-| Federation | `module-federation.config.ts` | Remote name `frontline_ui` and its exposes |
-| Routes | `src/modules/FrontlineMain.tsx`, `src/pages/` | Routed pages for inbox, ticket, forms, call, channels |
-| Navigation groups | `src/modules/FrontlineSubGroups.tsx` | Route-aware sidebar sub-groups for every frontline page |
-| Settings routes | `src/modules/FrontlineSettings.tsx` | Top-level frontline settings routes and their page chrome |
-| Channel picker | `src/modules/inbox/channel/components/ChooseChannel.tsx` | Scope-filtered channel list bound to the `channelId` query param |
-| Inbox nav trees | `src/modules/inbox/channel/components/{PersonalInboxNav,TeamChannelsNav}.tsx` | The `Me` group and the `Team inbox` group, each rendering its own `NavigationMenuGroup` header |
-| Channel nav row | `src/modules/inbox/channel/components/ChannelNavItem.tsx` | The shared selectable, collapsible channel row both inbox nav groups render |
-| Nav group actions | `src/modules/NavigationGroupActions.tsx` | Click guard for a `NavigationMenuGroup` `actions` slot |
-| Sidebar counts | `src/modules/inbox/conversations/hooks/useConversationCounts.tsx` | Filter counts, plus the awaiting-reply figure per integration type inside one channel |
-| Live unread | `src/modules/inbox/channel/hooks/useChannelUnreadUpdates.tsx` | Subscribes to incoming customer messages and refreshes channel unread counts |
-| Channel settings | `src/modules/channels` | Channel CRUD, members, GraphQL documents, form schemas |
-| Personal channel | `src/modules/channels/components/settings/personal-channel`, `src/pages/PersonalChannelPage.tsx` | Profile page for the user's private inbox |
-| Inbox | `src/modules/inbox/` | Conversations, messages, filters, channels, brands, integrations |
-| Conversation convert | `src/modules/inbox/conversations/conversation-detail/components/convert/` | Convert menu, convert dialog, convert-time properties |
-| Integrations | `src/modules/integrations/` | Per-provider connect forms and detail views |
-| Call Pro | `src/modules/integrations/callpro/` | Add/edit sheets over one shared `CallProIntegrationForm`, webhook URL hint, recording player, and the caller-to-customer picker |
-| Ticket | `src/modules/ticket/`, `src/modules/pipelines/`, `src/modules/status/` | Ticket boards, pipelines, statuses |
-| Forms | `src/modules/forms/` | Form builder, preview, submissions |
-| Help Center | `src/modules/helpcenter/`, `src/pages/HelpCenterIndexPage.tsx` | `/frontline/helpcenter` — the help center record table (columns, more column, filter, total count, command bar) and the `editId` two-tab config drawer over it |
-| Surveys management | `src/modules/survey/components/survey-page/`, `src/pages/ChannelSurveysPage.tsx` | Channel-scoped list, results dialog, command bar, create button, detail breadcrumb |
-| Survey wizard | `src/modules/survey/components/{SurveyCreate,SurveyEdit}.tsx`, `src/modules/survey/components/mutate/`, `src/pages/Survey{Create,Detail}Page.tsx` | Three-step create/edit flow, `Add Step` builder, live preview |
-| Survey ticket automation | `src/modules/survey/components/mutate/SurveyOptionTicketConfig.tsx` | Per-option threshold, pipeline and status picker for automatic ticket creation |
-| Survey wizard state | `src/modules/survey/states/surveySetupStates.tsx`, `src/modules/survey/constants/surveySetup*.ts`, `src/modules/survey/hooks/useSurveyMutate.ts` | Per-step Jotai atoms, wizard Zod schemas and defaults, add/edit submit |
-| Surveys channel row | `src/modules/channels/components/settings/channel-details/SurveysSection.tsx` | `Manage channel surveys` row on the channel detail page |
-| Surveys results | `src/modules/survey/components/survey-results/`, `src/pages/SurveysIndexPage.tsx` | Read-only aggregated results board on `frontline/surveys` |
-| Surveys data | `src/modules/survey/{graphql,hooks,types}/` | Survey GraphQL documents, list/detail/mutation hooks, survey types |
-| Send survey | `src/modules/inbox/conversations/conversation-detail/components/SendSurveyDialog.tsx` | Picks an active survey and posts it into the open messenger conversation |
-| Survey inbox row | `src/modules/survey/components/ChannelSurveyNavItem.tsx` | `Surveys` row inside an expanded team channel, filtering the inbox by `withSurvey` |
-| Knowledge base | `src/modules/knowledgebase/` | Topics, categories, articles |
-| Automation widgets | `src/widgets/automations/modules/<module>/` | Per-module trigger/action/bot/history components |
-| FB message action | `src/widgets/automations/modules/facebook/components/action/` | Message sequence form, provider, constants, states |
-| FB post composer | `src/modules/integrations/facebook/components/FacebookPostSheet.tsx`, `FacebookPostImagesField.tsx`, `hooks/useFacebookPost*.tsx` | Post sheet, image upload state, channel/page loading |
-| Call report filters | `src/modules/report/call/components/{SubHeader,DateTimeRangeDialog}.tsx`, `src/modules/report/utils/dateFilters.ts` | Integration/queue/direction chips, date presets, and the date+time custom range |
-| Call report export | `src/modules/report/call/heatmapExcel.ts`, `src/modules/report/call/hooks/useHeatmapExport.ts` | Date × hour spreadsheet of the heatmap, built with `ExcelJS` and handed to `downloadExcel` |
-| Call report tables | `src/modules/report/call/components/{ReportTable,Meter}.tsx` | Shared density wrapper over `erxes-ui` `Table`, plus the proportional bar used inside its cells |
-| Reports board | `src/modules/report/components/TicketReportsList.tsx`, `src/modules/report/types/component-registry.ts` | Card layout, drag-and-drop, and the default-chart + saved-chart registry |
-| Saved charts | `src/modules/report/components/report-chart/`, `src/modules/report/hooks/{useReportCharts,useTicketChartFilterConfig,useTicketChartCard}.ts` | Save/delete actions, `reportCharts` reads and writes, capturing and restoring a filter selection |
-| Mail conversation | `src/modules/integrations/mail/components/MailConversationDetail.tsx` | Thread reader, compose box, delivery badges and resend, quoted-content toggle |
-| Mail body | `src/modules/integrations/mail/components/EmailBody.tsx` | Sanitised, CSP-locked `srcDoc` iframe with the remote-image gate |
-| Mail data | `src/modules/integrations/mail/{graphql,hooks,states}/` | `mailConversationDetail` window, send and retry mutations, form sheet atom |
-| Mail provider setup | `src/modules/integrations/mail/components/MailConfigUpdate.tsx`, `src/modules/integrations/mail/hooks/useMailCloudflare*.tsx` | Cloudflare connect form, provisioning step list, outbound state and quota, repair and disconnect |
-| Mail add wizard | `src/modules/integrations/mail/components/MailIntegrationForm.tsx` | Four-step `Sheet` wizard over the shared `IntegrationSteps` chrome |
-| Mail sending readiness | `src/modules/integrations/mail/components/MailSendingRequired.tsx`, `src/modules/integrations/mail/hooks/useMailSendingReadiness.tsx` | Names the Cloudflare domain replies leave from, or blocks the wizard's sending step with the reason and a link to Integrations config |
-| Mail delivery check | `src/modules/integrations/mail/components/MailConnectionCheck.tsx`, `src/modules/integrations/mail/hooks/useMailConnectionCheck.tsx` | Runs `mailCheckConnection` from the integration dialog and renders its verdict |
-| Notifications | `src/widgets/notifications/` | Notification remote entries |
-| Mail thread | `src/modules/integrations/mail/components/MailThread.tsx` | The thread reader and compose box the inbox renders; extracted so a second surface can reuse it rather than restate it |
-| Pipeline mail settings | `src/modules/integrations/mail/components/{PipelineMailSettings,PipelineForwardVerification}.tsx`, `src/pages/PipelineMailPage.tsx` | The pipeline's `Mail settings` tab: the address to forward to, the forwarding mailbox, the held forwarding confirmation, the sender name, connect, update and remove |
+| Area                     | Path                                                                                                                                              | Responsibility                                                                                                                                  |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| Host registration        | `src/config.tsx`                                                                                                                                  | `CONFIG` — navigation, settings, widgets, property inputs, routes, and Module Federation exposes                                                |
+| Federation               | `module-federation.config.ts`                                                                                                                     | Remote name `frontline_ui` and its exposes                                                                                                      |
+| Routes                   | `src/modules/FrontlineMain.tsx`, `src/pages/`                                                                                                     | Routed pages for inbox, ticket, forms, call, channels                                                                                           |
+| Navigation groups        | `src/modules/FrontlineSubGroups.tsx`                                                                                                              | Route-aware sidebar sub-groups for every frontline page                                                                                         |
+| Settings routes          | `src/modules/FrontlineSettings.tsx`                                                                                                               | Top-level frontline settings routes and their page chrome                                                                                       |
+| Channel picker           | `src/modules/inbox/channel/components/ChooseChannel.tsx`                                                                                          | Scope-filtered channel list bound to the `channelId` query param                                                                                |
+| Move to channel          | `src/modules/channels/components/move-resources/{MoveToChannelDialog,MoveToChannelCommandBarButton}.tsx`                                          | The shared move dialog and its command-bar trigger, used by every channel-owned resource list                                                   |
+| Move to channel mutation | `src/modules/channels/hooks/useChannelMoveResources.tsx`                                                                                          | `channelMoveResources` plus the per-resource list of queries a move refetches                                                                   |
+| Inbox nav trees          | `src/modules/inbox/channel/components/{PersonalInboxNav,TeamChannelsNav}.tsx`                                                                     | The `Me` group and the `Team inbox` group, each rendering its own `NavigationMenuGroup` header                                                  |
+| Channel nav row          | `src/modules/inbox/channel/components/ChannelNavItem.tsx`                                                                                         | The shared selectable, collapsible channel row both inbox nav groups render                                                                     |
+| Nav group actions        | `src/modules/NavigationGroupActions.tsx`                                                                                                          | Click guard for a `NavigationMenuGroup` `actions` slot                                                                                          |
+| Sidebar counts           | `src/modules/inbox/conversations/hooks/useConversationCounts.tsx`                                                                                 | Filter counts, plus the awaiting-reply figure per integration type inside one channel                                                           |
+| Live unread              | `src/modules/inbox/channel/hooks/useChannelUnreadUpdates.tsx`                                                                                     | Subscribes to incoming customer messages and refreshes channel unread counts                                                                    |
+| Channel settings         | `src/modules/channels`                                                                                                                            | Channel CRUD, members, GraphQL documents, form schemas                                                                                          |
+| Personal channel         | `src/modules/channels/components/settings/personal-channel`, `src/pages/PersonalChannelPage.tsx`                                                  | Profile page for the user's private inbox                                                                                                       |
+| Inbox                    | `src/modules/inbox/`                                                                                                                              | Conversations, messages, filters, channels, brands, integrations                                                                                |
+| Conversation convert     | `src/modules/inbox/conversations/conversation-detail/components/convert/`                                                                         | Convert menu, convert dialog, convert-time properties                                                                                           |
+| Integrations             | `src/modules/integrations/`                                                                                                                       | Per-provider connect forms and detail views                                                                                                     |
+| Call Pro                 | `src/modules/integrations/callpro/`                                                                                                               | Add/edit sheets over one shared `CallProIntegrationForm`, webhook URL hint, recording player, and the caller-to-customer picker                 |
+| Ticket                   | `src/modules/ticket/`, `src/modules/pipelines/`, `src/modules/status/`                                                                            | Ticket boards, pipelines, statuses                                                                                                              |
+| Forms                    | `src/modules/forms/`                                                                                                                              | Form builder, preview, submissions                                                                                                              |
+| Help Center              | `src/modules/helpcenter/`, `src/pages/HelpCenterIndexPage.tsx`                                                                                    | `/frontline/helpcenter` — the help center record table (columns, more column, filter, total count, command bar) and the `editId` drawer over it |
+| Surveys management       | `src/modules/survey/components/survey-page/`, `src/pages/ChannelSurveysPage.tsx`                                                                  | Channel-scoped list, results dialog, command bar, create button, detail breadcrumb                                                              |
+| Survey wizard            | `src/modules/survey/components/{SurveyCreate,SurveyEdit}.tsx`, `src/modules/survey/components/mutate/`, `src/pages/Survey{Create,Detail}Page.tsx` | Three-step create/edit flow, `Add Step` builder, live preview                                                                                   |
+| Survey ticket automation | `src/modules/survey/components/mutate/SurveyOptionTicketConfig.tsx`                                                                               | Per-option threshold, pipeline and status picker for automatic ticket creation                                                                  |
+| Survey wizard state      | `src/modules/survey/states/surveySetupStates.tsx`, `src/modules/survey/constants/surveySetup*.ts`, `src/modules/survey/hooks/useSurveyMutate.ts`  | Per-step Jotai atoms, wizard Zod schemas and defaults, add/edit submit                                                                          |
+| Surveys channel row      | `src/modules/channels/components/settings/channel-details/SurveysSection.tsx`                                                                     | `Manage channel surveys` row on the channel detail page                                                                                         |
+| Surveys results          | `src/modules/survey/components/survey-results/`, `src/pages/SurveysIndexPage.tsx`                                                                 | Read-only aggregated results board on `frontline/surveys`                                                                                       |
+| Surveys data             | `src/modules/survey/{graphql,hooks,types}/`                                                                                                       | Survey GraphQL documents, list/detail/mutation hooks, survey types                                                                              |
+| Send survey              | `src/modules/inbox/conversations/conversation-detail/components/SendSurveyDialog.tsx`                                                             | Picks an active survey and posts it into the open messenger conversation                                                                        |
+| Survey inbox row         | `src/modules/survey/components/ChannelSurveyNavItem.tsx`                                                                                          | `Surveys` row inside an expanded team channel, filtering the inbox by `withSurvey`                                                              |
+| Knowledge base           | `src/modules/knowledgebase/`                                                                                                                      | Topics, categories, articles                                                                                                                    |
+| Automation widgets       | `src/widgets/automations/modules/<module>/`                                                                                                       | Per-module trigger/action/bot/history components                                                                                                |
+| FB message action        | `src/widgets/automations/modules/facebook/components/action/`                                                                                     | Message sequence form, provider, constants, states                                                                                              |
+| FB post composer         | `src/modules/integrations/facebook/components/FacebookPostSheet.tsx`, `FacebookPostImagesField.tsx`, `hooks/useFacebookPost*.tsx`                 | Post sheet, image upload state, channel/page loading                                                                                            |
+| Call report filters      | `src/modules/report/call/components/{SubHeader,DateTimeRangeDialog}.tsx`, `src/modules/report/utils/dateFilters.ts`                               | Integration/queue/direction chips, date presets, and the date+time custom range                                                                 |
+| Call report export       | `src/modules/report/call/heatmapExcel.ts`, `src/modules/report/call/hooks/useHeatmapExport.ts`                                                    | Date × hour spreadsheet of the heatmap, built with `ExcelJS` and handed to `downloadExcel`                                                      |
+| Call report tables       | `src/modules/report/call/components/{ReportTable,Meter}.tsx`                                                                                      | Shared density wrapper over `erxes-ui` `Table`, plus the proportional bar used inside its cells                                                 |
+| Reports board            | `src/modules/report/components/TicketReportsList.tsx`, `src/modules/report/types/component-registry.ts`                                           | Card layout, drag-and-drop, and the default-chart + saved-chart registry                                                                        |
+| Saved charts             | `src/modules/report/components/report-chart/`, `src/modules/report/hooks/{useReportCharts,useTicketChartFilterConfig,useTicketChartCard}.ts`      | Save/delete actions, `reportCharts` reads and writes, capturing and restoring a filter selection                                                |
+| Mail conversation        | `src/modules/integrations/mail/components/MailConversationDetail.tsx`                                                                             | Thread reader, compose box, delivery badges and resend, quoted-content toggle                                                                   |
+| Mail body                | `src/modules/integrations/mail/components/EmailBody.tsx`                                                                                          | Sanitised, CSP-locked `srcDoc` iframe with the remote-image gate                                                                                |
+| Mail data                | `src/modules/integrations/mail/{graphql,hooks,states}/`                                                                                           | `mailConversationDetail` window, send and retry mutations, form sheet atom                                                                      |
+| Mail provider setup      | `src/modules/integrations/mail/components/MailConfigUpdate.tsx`, `src/modules/integrations/mail/hooks/useMailCloudflare*.tsx`                     | Cloudflare connect form, provisioning step list, outbound state and quota, repair and disconnect                                                |
+| Mail add wizard          | `src/modules/integrations/mail/components/MailIntegrationForm.tsx`                                                                                | Four-step `Sheet` wizard over the shared `IntegrationSteps` chrome                                                                              |
+| Mail sending readiness   | `src/modules/integrations/mail/components/MailSendingRequired.tsx`, `src/modules/integrations/mail/hooks/useMailSendingReadiness.tsx`             | Names the Cloudflare domain replies leave from, or blocks the wizard's sending step with the reason and a link to Integrations config           |
+| Mail delivery check      | `src/modules/integrations/mail/components/MailConnectionCheck.tsx`, `src/modules/integrations/mail/hooks/useMailConnectionCheck.tsx`              | Runs `mailCheckConnection` from the integration dialog and renders its verdict                                                                  |
+| Notifications            | `src/widgets/notifications/`                                                                                                                      | Notification remote entries                                                                                                                     |
+
+> > > > > > > f367b4a36cb66a9d80ba39450bef5cd15fd95d21
 
 ## Contracts
 
@@ -580,6 +596,15 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
   state and deliberately not persisted.
 
 ## Local Invariants
+
+- A channel change on a resource goes through `channelMoveResources`, never
+  through the resource's own edit mutation. The move mutation is the only path
+  that validates the destination and cascades a pipeline's tickets and a form's
+  lead integration. The one remaining exception is the inline `Channel` cell on
+  the global `/frontline/forms` table, which still writes `formsEdit`.
+- `MoveToChannelDialog` owns its `open` state in the row cell, outside the
+  `Popover` / `DropdownMenu` content. Rendering it inside the menu content
+  unmounts it the moment the menu closes and the dialog never appears.
 
 - `CONFIG` keeps a top-level `icon` alongside `navigationGroup.icon`. The host
   reads only the top-level one for a `frontline:*` notification's avatar in My
@@ -1245,6 +1270,12 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   changed rather than the whole project.
 - `project.json` defines only `build`, `serve`, and `serve-static` — there is no
   `test` target for this project; do not invent one.
+- Smoke (move to channel): in `settings/frontline/channels/:id`, open each of
+  Integrations, Pipelines, Forms, Surveys and Response templates, use `⋮` →
+  `Move to channel`, pick another channel and confirm the row leaves this list
+  at once, shows up under the destination channel, and is still there after a
+  reload. Select two forms and move them from the command bar; selecting forms
+  from two channels on `/frontline/forms` must leave that button disabled.
 - Smoke (convert): in a conversation open Convert → `Convert to a ticket`,
   `…a deal` and `…a task`; each save shows a success toast, the entry turns
   into `Go to a …`, and the Tickets/Deals/Tasks side widgets list the new item.
@@ -1308,6 +1339,33 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-21` — Move to channel on every channel-owned resource
+
+- **Summary:** Integrations, ticket pipelines, forms, surveys and response
+  templates each gained a `Move to channel` action in their row menu, backed by
+  one shared `MoveToChannelDialog` (current channel, destination picker that
+  hides the current channel, confirmation line, `Cancel` / `Move`) and the new
+  `channelMoveResources` mutation. Forms and surveys also move in bulk from
+  their command bar, disabled when the selection spans channels. The forms
+  page's old submenu, which moved a form with `formsEdit` and skipped the
+  server-side validation and cascades, was replaced by the same dialog and its
+  unused duplicate in `actions/move-form.tsx` deleted. `SelectChannelsContent`
+  gained an `excludeChannelIds` prop.
+- **Affected areas:**
+  `src/modules/channels/components/move-resources/*`,
+  `src/modules/channels/hooks/useChannelMoveResources.tsx`,
+  `src/modules/channels/graphql/mutations.ts`,
+  `src/modules/channels/types/index.ts`,
+  `src/modules/inbox/channel/components/SelectChannel.tsx`,
+  `src/modules/pipelines/components/PipelinesList.tsx`,
+  `src/modules/responseTemplate/components/ResponseList.tsx`,
+  `src/modules/integrations/components/IntegrationMoreColumn.tsx`,
+  `src/modules/forms/components/{FormsList.tsx,form-page/form-columns.tsx,form-page/command-bar/form-command-bar.tsx}`,
+  `src/modules/survey/components/survey-page/{survey-columns.tsx,command-bar/survey-command-bar.tsx}`
+- **Contracts changed:** Consumes the new `channelMoveResources` mutation.
+  Removed `MoveFormToChannel` from `form-columns.tsx` and deleted
+  `src/modules/forms/components/actions/move-form.tsx`.
 
 ### `2026-09-21` — Tracked data returns to the conversation rail
 
@@ -1424,4 +1482,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `src/modules/knowledgebase/components/KnowledgeBaseTopicsNav.tsx`
 - **Contracts changed:** None. The `topicId` and `categoryId` query parameters
   keep their meaning; neither is now set without a user action.
-

@@ -22,6 +22,45 @@ interface IEngageDataDocument extends IEngageData, Document {
   rules?: IEngageDataRulesDocument[];
 }
 
+export type MessageKind =
+  | 'text'
+  | 'image'
+  | 'video'
+  | 'audio'
+  | 'file'
+  | 'share'
+  | 'story_mention'
+  | 'story_reply'
+  | 'sticker'
+  | 'voice'
+  | 'forwarded'
+  | 'deleted'
+  | 'unsupported';
+
+export interface IMessageProviderData {
+  messageId?: string;
+  attachmentType?: string;
+  fallbackReason?: string;
+  previewText?: string;
+  previewUrl?: string;
+  shareType?: 'post' | 'reel';
+  storyUrl?: string;
+}
+
+export interface IMessageReplyTo {
+  messageId: string;
+  content?: string;
+  authorName?: string;
+}
+
+export interface IMessageReaction {
+  senderId: string;
+  emoji?: string;
+  reaction?: string;
+}
+
+export type MessageDeliveryStatus = 'sent' | 'delivered' | 'read' | 'deleted';
+
 export interface IMessage {
   content?: string;
   createdAt?: Date;
@@ -39,6 +78,12 @@ export interface IMessage {
   botData?: any;
   messengerAppData?: any;
   extraData?: Record<string, unknown>;
+  messageKind?: MessageKind;
+  providerData?: IMessageProviderData;
+  replyTo?: IMessageReplyTo;
+  reactions?: IMessageReaction[];
+  deliveryStatus?: MessageDeliveryStatus;
+  expiresAt?: Date;
   engageData?: IEngageData;
   contentType?: string;
   botId?: string;
