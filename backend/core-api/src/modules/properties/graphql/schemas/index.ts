@@ -15,19 +15,28 @@ import {
   types as propertyTypes,
 } from './property';
 
+import {
+  mutations as systemFieldMutations,
+  queries as systemFieldQueries,
+  types as systemFieldTypes,
+} from './systemField';
+
 export const types = `
     ${fieldTypes}
     ${groupTypes}
     ${propertyTypes}
+    ${systemFieldTypes}
 `;
 
 export const queries = `
     ${fieldQueries}
     ${groupQueries}
     ${propertyQueries}
+    ${systemFieldQueries}
 `;
 
 export const mutations = `
     ${fieldMutations}
     ${groupMutations}
+    ${systemFieldMutations}
 `;

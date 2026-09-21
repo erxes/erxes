@@ -1,9 +1,11 @@
 import { EnumCursorDirection, ICursorListResponse } from 'erxes-ui';
 import {
   GET_ASSIGNED_PRODUCTS,
+  GET_PRODUCT_LAST_CODE_BY_CATEGORY,
   GET_PRODUCTS,
 } from '../graphql/queries/productsQueries';
 import { NetworkStatus, QueryHookOptions, useQuery } from '@apollo/client';
+import { getNextProductCode } from '../utils/getNextProductCode';
 
 import { IProduct } from '../types/Product';
 
@@ -68,4 +70,21 @@ export const useProductsInline = (
     options,
   );
   return { products: data?.productsMain?.list || [], loading, error };
+};
+
+export const useProductLastCodeByCategory = (categoryId?: string) => {
+  const { data, loading, error } = useQuery<{
+    productLastCodeByCategory: string | null;
+  }>(GET_PRODUCT_LAST_CODE_BY_CATEGORY, {
+    skip: !categoryId,
+    variables: { categoryId },
+  });
+
+  return {
+    suggestedCode: loading
+      ? ''
+      : getNextProductCode(data?.productLastCodeByCategory),
+    loading,
+    error,
+  };
 };

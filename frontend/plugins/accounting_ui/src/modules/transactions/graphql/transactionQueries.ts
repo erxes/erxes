@@ -11,6 +11,16 @@ export const commonTrDetailFields = `
   transactionId
   branchId
   departmentId
+  branch {
+    _id
+    code
+    title
+  }
+  department {
+    _id
+    code
+    title
+  }
   originId
   originType
   originSubId
@@ -28,6 +38,7 @@ export const commonTrDetailFields = `
   fixedAssetName
   count
   unitPrice
+  weight
 
   excludeVat
   excludeCtax

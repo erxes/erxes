@@ -25,6 +25,7 @@ import { useFieldGroups } from 'ui-modules';
 import { useFieldGroupsReorder } from '../hooks/useFieldGroupsReorder';
 import { PropertiesCommandBar } from './record/PropertiesCommandBar';
 import { PropertiesGroupSection } from './record/PropertiesGroupSection';
+import { PropertiesSystemFieldsSection } from './record/PropertiesSystemFieldsSection';
 import { PropertyGroupEditSheet } from './PropertyGroupEdit';
 
 export const PropertyFieldsGroupSettings = () => {
@@ -73,6 +74,7 @@ export const PropertyFieldsGroupSettings = () => {
     <>
       <PropertyGroupEditSheet />
       <div className="m-3 max-w-4xl mx-auto flex flex-col gap-2">
+        <PropertiesSystemFieldsSection contentType={contentType || ''} />
         {loading ? (
           <Spinner containerClassName="py-12" />
         ) : fieldGroups.length === 0 ? (

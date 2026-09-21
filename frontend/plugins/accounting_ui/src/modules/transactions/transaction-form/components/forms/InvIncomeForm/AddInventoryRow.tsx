@@ -30,6 +30,7 @@ export const AddDetailRowButton = ({
     productId,
     count: 0,
     unitPrice: 0,
+    weight: undefined,
   });
 
   return (

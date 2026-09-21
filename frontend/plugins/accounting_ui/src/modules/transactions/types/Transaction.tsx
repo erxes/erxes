@@ -28,6 +28,7 @@ export interface ITrDetail {
   fixedAssetName?: string;
   count?: number;
   unitPrice?: number;
+  weight?: number;
   tempAmount?: number;
 
   account?: IAccount;

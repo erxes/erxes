@@ -736,6 +736,45 @@ export const productQueries: Record<string, Resolver<any, any, IContext>> = {
     return await models.Products.findOne({ _id }).lean();
   },
 
+  async productLastCodeByCategory(
+    _parent: undefined,
+    { categoryId }: { categoryId?: string },
+    context: IContext,
+  ) {
+    if (!categoryId) {
+      return null;
+    }
+
+    const { models } = context;
+    const categories = await models.ProductCategories.getChildCategories([
+      categoryId,
+    ]);
+    const categoryIds = categories.map((category) => category._id);
+
+    const [product] = await models.Products.aggregate<{ code: string }>([
+      {
+        $match: {
+          categoryId: { $in: categoryIds },
+        },
+      },
+      {
+        $addFields: {
+          codeLength: { $strLenCP: '$code' },
+        },
+      },
+      {
+        $sort: {
+          codeLength: -1,
+          code: -1,
+        },
+      },
+      { $limit: 1 },
+      { $project: { _id: 0, code: 1 } },
+    ]);
+
+    return product?.code || null;
+  },
+
   async cpProductDetail(
     _parent: undefined,
     { _id }: { _id: string },
