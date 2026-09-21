@@ -173,6 +173,24 @@ export const fieldsTrpcRouter = t.router({
         const { subdomain, models } = ctx;
         return await fieldsCombinedByContentType(models, subdomain, input);
       }),
+    generatePropertiesData: t.procedure
+      .input(
+        z.object({
+          query: z.object({
+            customData: z.record(z.any()).optional(),
+            contentType: z.string(),
+          }),
+        }),
+      )
+      .query(async ({ ctx, input }) => {
+        const { customData, contentType } = input.query;
+        const { models } = ctx;
+
+        return await models.Fields.generatePropertiesData(
+          customData || {},
+          contentType,
+        );
+      }),
     validateFieldValues: t.procedure
       .input(z.any())
       .mutation(async ({ ctx, input }) => {

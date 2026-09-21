@@ -246,7 +246,9 @@ export const posclientTrpcRouter = t.router({
         throw new Error('Not found');
       }
 
-      return order;
+      const items = await models.OrderItems.find({ orderId: order._id }).lean();
+
+      return { ...order, items };
     }),
     ordersEdit: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
       const { models, subdomain } = ctx;
