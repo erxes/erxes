@@ -1,261 +1,115 @@
-# Self-hosted erxes stack (single server).
+# Local development infrastructure for erxes.
+#
+# Runs only the backing services the Nx dev servers need — MongoDB 7 and
+# Redis 7 — while core-api, the gateway, and plugins run on the host
+# via `pnpm nx serve <project>` / `pnpm dev:apis` / `pnpm dev:uis`.
 #
 # Quick start:
-#   1. Set a private JWT secret (required for auth tokens):
-#        export JWT_TOKEN_SECRET=$(openssl rand -hex 32)
-#   2. Start the core stack:
-#        docker compose up -d
-#   3. Open http://localhost:3000 and create the owner account at /create-owner.
+#   cp .env.sample .env          # one-time, then edit
+#   docker compose up -d
+#   pnpm dev:core-api
 #
-# What runs here:
-#   - mongo / redis ......... persistence, queues, and service discovery
-#   - core-api .............. core business logic (internal only, port 3300)
-#   - gateway ............... federated GraphQL + service proxy (127.0.0.1:4000)
-#   - logs-service .......... persisted activity/event logs and undo journal
-#   - automations-service ... automation execution engine
-#   - core-ui ............... web app (127.0.0.1:3000 -> container port 80)
+# Values are interpolated from .env (docker compose reads it automatically):
+#   MONGO_PORT         -> published mongod port    (default 27017)
+#   REDIS_PORT         -> published redis port     (default 6379)
+#   REDIS_PASSWORD     -> optional --requirepass   (default: no auth)
 #
-# Only the UI (3000) and the gateway (4000) are published, and only on
-# loopback. Put your own HTTPS reverse proxy in front (see the deployment
-# guide) and never expose MongoDB or Redis to the internet.
-#
-# Images default to ERXES_VERSION (latest stable release). CI rebuilds
-# `:latest` on every main-branch run and release.yml promotes tested images
-# to `:$VERSION`, so pin an explicit version (and record digests) for
-# production upgrades and rollbacks.
-#
-# Plugins: uncomment an example below AND add its base name to ENABLED_PLUGINS
-# (comma-separated, no spaces, no `_api` suffix, e.g. ENABLED_PLUGINS=sales).
-# Plugin containers must resolve as plugin-<name>-api (see network aliases):
-# in production, service discovery registers http://plugin-<name>-api:<port>.
-
-x-backend-env: &backend-env
-  NODE_ENV: production
-  VERSION: ${VERSION:-os}
-  RELEASE_VERSION: ${ERXES_VERSION:-3.1.6}
-  MONGO_URL: mongodb://mongo:27017/erxes?replicaSet=rs0
-  REDIS_HOST: redis
-  REDIS_PORT: 6379
-  JWT_TOKEN_SECRET: ${JWT_TOKEN_SECRET:?set JWT_TOKEN_SECRET to a private random value (openssl rand -hex 32)}
-  DOMAIN: ${DOMAIN:-http://localhost:3000}
-  GATEWAY_URL: ${GATEWAY_URL:-http://localhost:4000}
-  ENABLED_PLUGINS: ${ENABLED_PLUGINS:-}
-  ENABLED_PLUGINS_ONLY_API: ${ENABLED_PLUGINS_ONLY_API:-}
+# Apps on the host connect with the .env values:
+#   MONGO_URL=mongodb://localhost:27017/erxes
+#   REDIS_HOST=localhost  REDIS_PORT=6379
 
 services:
   mongo:
     image: mongo:7
-    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
+    # Single-node replica set: change streams and transactions require one
+    # (rs0). mongod listens on MONGO_PORT inside the container and the member
+    # is registered as localhost:<MONGO_PORT>, so the node can reach itself
+    # and apps on the host can use the plain
+    # mongodb://localhost:<MONGO_PORT>/erxes URL from .env unchanged. A client
+    # inside this compose network uses mongo:<MONGO_PORT> with
+    # directConnection instead — nothing here does.
+    command:
+      [
+        "mongod",
+        "--replSet",
+        "rs0",
+        "--bind_ip_all",
+        "--port",
+        "${MONGO_PORT:-27017}",
+      ]
+    ports:
+      - "127.0.0.1:${MONGO_PORT:-27017}:${MONGO_PORT:-27017}"
     volumes:
-      - erxes-mongo:/data/db
+      - mongo-data:/data/db
     healthcheck:
-      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      test:
+        [
+          "CMD",
+          "mongosh",
+          "--port",
+          "${MONGO_PORT:-27017}",
+          "--quiet",
+          "--eval",
+          "db.adminCommand('ping')",
+        ]
       interval: 5s
       timeout: 5s
       retries: 20
     restart: unless-stopped
-    networks:
-      - erxes
 
-  # Initializes the single-node replica set once (no-op when already set up).
+  # Initializes the replica set once, and repairs the member address when
+  # MONGO_PORT changed since the volume was initialized (force-reconfig works
+  # even while the node cannot elect itself on the stale address).
   mongo-init:
     image: mongo:7
+    depends_on:
+      mongo:
+        condition: service_healthy
     command:
       - mongosh
       - --host
-      - mongo:27017
+      - mongo:${MONGO_PORT:-27017}
       - --quiet
       - --eval
       - >-
-        try { rs.initiate({ _id: "rs0", members: [{ _id: 0, host: "mongo:27017" }] }) }
-        catch (e) { if (e.codeName !== "AlreadyInitialized") throw e }
-    depends_on:
-      mongo:
-        condition: service_healthy
+        const want = "localhost:${MONGO_PORT:-27017}";
+        try { rs.initiate({ _id: "rs0", members: [{ _id: 0, host: want }] }) }
+        catch (e) {
+          if (e.codeName !== "AlreadyInitialized") throw e;
+          const cfg = rs.conf();
+          if (cfg.members[0].host !== want) {
+            cfg.members[0].host = want;
+            cfg.version += 1;
+            try { rs.reconfig(cfg) } catch (_) { rs.reconfig(cfg, { force: true }) }
+          }
+        }
     restart: "no"
-    networks:
-      - erxes
 
   redis:
     image: redis:7
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+    command:
+      - sh
+      - -c
+      - >-
+        exec redis-server --appendonly yes
+        $${REDIS_PASSWORD:+--requirepass "$$REDIS_PASSWORD"}
+    ports:
+      - "127.0.0.1:${REDIS_PORT:-6379}:6379"
     volumes:
-      - erxes-redis:/data
+      - redis-data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test:
+        [
+          "CMD-SHELL",
+          "redis-cli $${REDIS_PASSWORD:+-a $$REDIS_PASSWORD} ping | grep -q PONG",
+        ]
       interval: 5s
       timeout: 5s
       retries: 20
     restart: unless-stopped
-    networks:
-      - erxes
-
-  core-api:
-    image: erxes/erxes-next-core-api:${ERXES_VERSION:-3.1.6}
-    environment:
-      <<: *backend-env
-    depends_on:
-      mongo:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      mongo-init:
-        condition: service_completed_successfully
-    healthcheck:
-      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:3300/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 30
-    restart: unless-stopped
-    networks:
-      erxes:
-        aliases:
-          - plugin-core-api
-
-  gateway:
-    image: erxes/erxes-next-gateway:${ERXES_VERSION:-3.1.6}
-    environment:
-      <<: *backend-env
-    ports:
-      - "127.0.0.1:4000:4000"
-    depends_on:
-      redis:
-        condition: service_healthy
-      core-api:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD-SHELL", "curl -sf http://localhost:4000/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 30
-    restart: unless-stopped
-    networks:
-      - erxes
-
-  logs-service:
-    image: erxes/erxes-next-logs:${ERXES_VERSION:-3.1.6}
-    environment:
-      <<: *backend-env
-    depends_on:
-      mongo:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      mongo-init:
-        condition: service_completed_successfully
-    restart: unless-stopped
-    networks:
-      - erxes
-
-  automations-service:
-    image: erxes/erxes-next-automations:${ERXES_VERSION:-3.1.6}
-    environment:
-      <<: *backend-env
-    depends_on:
-      mongo:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      mongo-init:
-        condition: service_completed_successfully
-    restart: unless-stopped
-    networks:
-      - erxes
-
-  core-ui:
-    image: erxes/erxes-next-ui:${ERXES_VERSION:-3.1.6}
-    environment:
-      NGINX_HOST: ${NGINX_HOST:-localhost}
-      NGINX_PORT: "80"
-      # Point browsers at the gateway. Behind an HTTPS reverse proxy that
-      # serves the gateway under /gateway on DOMAIN, use
-      # REACT_APP_API_URL=https://<DOMAIN>/gateway instead.
-      REACT_APP_API_URL: ${REACT_APP_API_URL:-http://localhost:4000}
-    ports:
-      - "127.0.0.1:3000:80"
-    depends_on:
-      gateway:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:80/"]
-      interval: 10s
-      timeout: 5s
-      retries: 30
-    restart: unless-stopped
-    networks:
-      - erxes
-
-  # --- Plugin examples (uncomment + add to ENABLED_PLUGINS) ---
-  # sales-api:
-  #   image: erxes/erxes-next-sales_api:${ERXES_VERSION:-3.1.6}
-  #   environment:
-  #     <<: *backend-env
-  #   depends_on:
-  #     mongo:
-  #       condition: service_healthy
-  #     redis:
-  #       condition: service_healthy
-  #     mongo-init:
-  #       condition: service_completed_successfully
-  #   restart: unless-stopped
-  #   networks:
-  #     erxes:
-  #       aliases:
-  #         - plugin-sales-api
-  #
-  # frontline-api:
-  #   image: erxes/erxes-next-frontline_api:${ERXES_VERSION:-3.1.6}
-  #   environment:
-  #     <<: *backend-env
-  #   depends_on:
-  #     mongo:
-  #       condition: service_healthy
-  #     redis:
-  #       condition: service_healthy
-  #     mongo-init:
-  #       condition: service_completed_successfully
-  #   restart: unless-stopped
-  #   networks:
-  #     erxes:
-  #       aliases:
-  #         - plugin-frontline-api
-  #
-  # content-api:
-  #   image: erxes/erxes-next-content_api:${ERXES_VERSION:-3.1.6}
-  #   environment:
-  #     <<: *backend-env
-  #   depends_on:
-  #     mongo:
-  #       condition: service_healthy
-  #     redis:
-  #       condition: service_healthy
-  #     mongo-init:
-  #       condition: service_completed_successfully
-  #   restart: unless-stopped
-  #   networks:
-  #     erxes:
-  #       aliases:
-  #         - plugin-content-api
-  #
-  # operation-api:
-  #   image: erxes/erxes-next-operation_api:${ERXES_VERSION:-3.1.6}
-  #   environment:
-  #     <<: *backend-env
-  #   depends_on:
-  #     mongo:
-  #       condition: service_healthy
-  #     redis:
-  #       condition: service_healthy
-  #     mongo-init:
-  #       condition: service_completed_successfully
-  #   restart: unless-stopped
-  #   networks:
-  #     erxes:
-  #       aliases:
-  #         - plugin-operation-api
 
 volumes:
-  erxes-mongo:
-  erxes-redis:
-
-networks:
-  erxes:
+  mongo-data:
+  redis-data:

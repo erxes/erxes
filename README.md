@@ -118,15 +118,11 @@ erxes is built as an **Nx-powered monorepo** with a modern microservices archite
 
 #### For development environment
 
-`docker-compose.dev.yml` runs MongoDB 7, Redis 7, and Elasticsearch 7 on the ports `.env` expects:
+`docker-compose.yml` runs MongoDB 7 and Redis 7 on the ports `.env` expects:
 
 ```bash
-docker compose -f docker-compose.dev.yml up -d
+docker compose up -d
 ```
-
-On Linux, Elasticsearch also needs `sudo sysctl -w vm.max_map_count=262144` once (Docker Desktop on macOS/Windows already satisfies this).
-
-(`docker-compose.yml` is the full self-hosted stack — it runs the apps themselves in containers.)
 
 ### Installation
 
@@ -246,11 +242,5 @@ For general help using erxes, please refer to the erxes documentation. For addit
  
 ## License
 See the <a href="https://github.com/erxes/erxes/blob/master/LICENSE.md" >**LICENSE**</a> file for licensing information.
-
-## ⚡ Quick Start (5 minutes)
-
-docker compose up -d
-open http://localhost:3000
-
 
 
