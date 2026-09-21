@@ -253,6 +253,7 @@ import {
 import {
   IFieldDocument,
   IFieldGroupDocument,
+  ISystemFieldSettingDocument,
 } from './modules/properties/@types';
 import {
   IFieldModel,
@@ -262,6 +263,10 @@ import {
   IFieldGroupModel,
   loadFieldGroupClass,
 } from './modules/properties/db/models/Group';
+import {
+  ISystemFieldSettingModel,
+  loadSystemFieldSettingClass,
+} from './modules/properties/db/models/SystemField';
 import {
   ISegmentDailyCountDocument,
   ISegmentLevelSampleDocument,
@@ -342,6 +347,7 @@ export interface IModels {
   OAuthClientApps: IOAuthClientAppModel;
   Fields: IFieldModel;
   FieldsGroups: IFieldGroupModel;
+  SystemFieldSettings: ISystemFieldSettingModel;
   Forms: IFormModel;
   FormSubmissions: IFormSubmissionModel;
   Segments: ISegmentModel;
@@ -588,6 +594,11 @@ export const loadClasses = (
     'properties_groups',
     loadFieldGroupClass(models),
   );
+
+  models.SystemFieldSettings = db.model<
+    ISystemFieldSettingDocument,
+    ISystemFieldSettingModel
+  >('properties_system_fields', loadSystemFieldSettingClass(models));
 
   models.Forms = db.model<IForm, IFormModel>('forms', loadFormClass(models));
   models.FormSubmissions = db.model<

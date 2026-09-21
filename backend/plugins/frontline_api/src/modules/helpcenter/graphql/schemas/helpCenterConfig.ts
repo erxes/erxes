@@ -51,6 +51,56 @@ export const types = `
     footerHtml: String
   }
 
+  type HelpCenterHeader {
+    wordmark: String
+    homeLabel: String
+    formsLabel: String
+    announcementsLabel: String
+    searchPlaceholder: String
+  }
+
+  input HelpCenterHeaderInput {
+    wordmark: String
+    homeLabel: String
+    formsLabel: String
+    announcementsLabel: String
+    searchPlaceholder: String
+  }
+
+  type HelpCenterFooterLink {
+    label: String
+    url: String
+  }
+
+  input HelpCenterFooterLinkInput {
+    label: String
+    url: String
+  }
+
+  type HelpCenterFooterColumn {
+    heading: String
+    links: [HelpCenterFooterLink]
+  }
+
+  input HelpCenterFooterColumnInput {
+    heading: String
+    links: [HelpCenterFooterLinkInput]
+  }
+
+  type HelpCenterFooter {
+    logo: String
+    description: String
+    copyright: String
+    columns: [HelpCenterFooterColumn]
+  }
+
+  input HelpCenterFooterInput {
+    logo: String
+    description: String
+    copyright: String
+    columns: [HelpCenterFooterColumnInput]
+  }
+
   type HelpCenterConfig {
     _id: String!
     title: String
@@ -75,6 +125,8 @@ export const types = `
     color: String
     backgroundImage: String
     styles: HelpCenterConfigStyles
+    header: HelpCenterHeader
+    footer: HelpCenterFooter
 
     createdBy: String
     modifiedBy: String
@@ -104,6 +156,8 @@ export const types = `
     color: String
     backgroundImage: String
     styles: HelpCenterConfigStylesInput
+    header: HelpCenterHeaderInput
+    footer: HelpCenterFooterInput
   }
 `;
 

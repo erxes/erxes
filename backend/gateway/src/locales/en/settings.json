@@ -224,6 +224,9 @@
     "property-updated": "Property updated",
     "error": "Error",
     "confirm-delete-field": "Are you sure you want to delete this field?",
-    "confirm-delete-group": "Are you sure you want to delete this field group?"
+    "confirm-delete-group": "Are you sure you want to delete this field group?",
+    "basic-information": "Basic information",
+    "visible": "Visible",
+    "system-fields-hint": "Defined by the system. Only its settings can be changed."
   }
 }

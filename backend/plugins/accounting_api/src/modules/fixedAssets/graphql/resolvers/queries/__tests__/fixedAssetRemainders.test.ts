@@ -1,6 +1,26 @@
 import { JOURNALS } from '@/accounting/@types/constants';
 
-import { buildFixedAssetLocationRemainderRows } from '../fixedAssets';
+import {
+  buildFixedAssetLocationRemainderRows,
+  getFixedAssetRemainderExclusionFilter,
+} from '../fixedAssets';
+
+describe('getFixedAssetRemainderExclusionFilter', () => {
+  it('excludes the whole parent workflow for an edited transaction', () => {
+    expect(
+      getFixedAssetRemainderExclusionFilter(
+        { _id: 'out-1', parentId: 'parent-1' },
+        'out-1',
+      ),
+    ).toEqual({ parentId: { $ne: 'parent-1' } });
+  });
+
+  it('falls back to the transaction id when the transaction is unavailable', () => {
+    expect(getFixedAssetRemainderExclusionFilter(null, 'out-1')).toEqual({
+      _id: { $ne: 'out-1' },
+    });
+  });
+});
 
 describe('buildFixedAssetLocationRemainderRows', () => {
   it('groups fixed asset movement quantities by fixed asset, branch, and department', () => {

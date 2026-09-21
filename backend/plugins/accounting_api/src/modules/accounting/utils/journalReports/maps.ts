@@ -19,6 +19,7 @@ type AccountLookup = Record<
   | {
       code?: string;
       name?: string;
+      currency?: string;
       categoryId?: {
         _id?: string;
         code?: string;
@@ -171,6 +172,116 @@ const buildIdsFilter = (id?: string, ids?: string[]) => {
   return { $in: [...new Set(values)] };
 };
 
+const mergeIdSets = (...sets: Array<string[] | undefined>) => {
+  const activeSets = sets.filter((set): set is string[] => !!set);
+
+  if (!activeSets.length) {
+    return undefined;
+  }
+
+  return activeSets.slice(1).reduce(intersect, [...new Set(activeSets[0])]);
+};
+
+const getProductFilterIds = async (
+  subdomain: string,
+  params: IReportFilterParams,
+) => {
+  if (!params.productCategoryId && !params.productSearchValue) {
+    return undefined;
+  }
+
+  const searchRegex = params.productSearchValue
+    ? {
+        $regex: escapeRegExp(params.productSearchValue),
+        $options: 'i',
+      }
+    : undefined;
+  const products = await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    method: 'query',
+    module: 'products',
+    action: 'find',
+    input: {
+      query: searchRegex
+        ? { $or: [{ code: searchRegex }, { name: searchRegex }] }
+        : {},
+      categoryId: params.productCategoryId,
+      fields: { _id: 1 },
+    },
+    defaultValue: [],
+  });
+
+  return products.map((product) => product._id);
+};
+
+const getFixedAssetFilterIds = async (
+  models: IModels,
+  params: IReportFilterParams,
+) => {
+  if (!params.fixedAssetCategoryId && !params.fixedAssetSearchValue) {
+    return undefined;
+  }
+
+  const query: ReportQuery = {};
+  if (params.fixedAssetCategoryId) {
+    query.categoryId = params.fixedAssetCategoryId;
+  }
+  if (params.fixedAssetSearchValue) {
+    const regex = new RegExp(escapeRegExp(params.fixedAssetSearchValue), 'i');
+    query.$or = [{ code: regex }, { name: regex }];
+  }
+
+  const fixedAssets = await models.FixedAssets.find(query, { _id: 1 }).lean();
+  return fixedAssets.map((fixedAsset) => fixedAsset._id);
+};
+
+const getTaggedContactIds = async (
+  subdomain: string,
+  params: IReportFilterParams,
+) => {
+  if (!params.customerTagIds?.length && !params.companyTagIds?.length) {
+    return undefined;
+  }
+
+  const [customers, companies] = await Promise.all([
+    params.customerTagIds?.length
+      ? sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          method: 'query',
+          module: 'customers',
+          action: 'find',
+          input: {
+            query: {
+              tagIds: { $in: params.customerTagIds },
+              status: { $ne: 'deleted' },
+            },
+          },
+          defaultValue: [],
+        })
+      : Promise.resolve([]),
+    params.companyTagIds?.length
+      ? sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          method: 'query',
+          module: 'companies',
+          action: 'find',
+          input: {
+            query: {
+              tagIds: { $in: params.companyTagIds },
+              status: { $ne: 'deleted' },
+            },
+          },
+          defaultValue: [],
+        })
+      : Promise.resolve([]),
+  ]);
+
+  return [...customers, ...companies].map((contact) => contact._id);
+};
+
 const getJournalFilter = (params: IReportFilterParams) => {
   const explicitJournals = [
     ...(params.journals || []),
@@ -211,7 +322,13 @@ export const getFilter = async (
   const detailAndFilters: ReportQuery[] = [];
   const orFilters: ReportQuery[] = [];
 
-  const accountIds = await getAccountIds(models, params, user);
+  const [accountIds, productFilterIds, fixedAssetFilterIds, taggedContactIds] =
+    await Promise.all([
+      getAccountIds(models, params, user),
+      getProductFilterIds(subdomain, params),
+      getFixedAssetFilterIds(models, params),
+      getTaggedContactIds(subdomain, params),
+    ]);
   detailMatch['details.accountId'] = { $in: accountIds };
 
   if (params.createdUserId) {
@@ -220,6 +337,10 @@ export const getFilter = async (
 
   if (params.modifiedUserId) {
     transactionMatch.modifiedBy = params.modifiedUserId;
+  }
+
+  if (params.assignedUserId) {
+    transactionMatch.assignedUserIds = params.assignedUserId;
   }
 
   const journalFilter = getJournalFilter(params);
@@ -257,9 +378,13 @@ export const getFilter = async (
     transactionMatch.scopeBrandIds = { $in: [params.brandId] };
   }
 
-  const customerFilter = buildIdsFilter(params.customerId, params.customerIds);
-  if (customerFilter) {
-    transactionMatch.customerId = customerFilter;
+  const explicitCustomerIds = buildIdsFilter(
+    params.customerId,
+    params.customerIds,
+  )?.$in;
+  const customerIds = mergeIdSets(explicitCustomerIds, taggedContactIds);
+  if (customerIds) {
+    transactionMatch.customerId = { $in: customerIds };
   }
 
   if (params.contentType) {
@@ -270,17 +395,22 @@ export const getFilter = async (
     transactionMatch.contentId = params.contentId;
   }
 
-  const productFilter = buildIdsFilter(params.productId, params.productIds);
-  if (productFilter) {
-    detailMatch['details.productId'] = productFilter;
+  const explicitProductIds = buildIdsFilter(
+    params.productId,
+    params.productIds,
+  )?.$in;
+  const productIds = mergeIdSets(explicitProductIds, productFilterIds);
+  if (productIds) {
+    detailMatch['details.productId'] = { $in: productIds };
   }
 
-  const fixedAssetFilter = buildIdsFilter(
+  const explicitFixedAssetIds = buildIdsFilter(
     params.fixedAssetId,
     params.fixedAssetIds,
-  );
-  if (fixedAssetFilter) {
-    detailMatch['details.fixedAssetId'] = fixedAssetFilter;
+  )?.$in;
+  const fixedAssetIds = mergeIdSets(explicitFixedAssetIds, fixedAssetFilterIds);
+  if (fixedAssetIds) {
+    detailMatch['details.fixedAssetId'] = { $in: fixedAssetIds };
   }
 
   const branchIds = await getStructureIdsWithChildren(
@@ -511,6 +641,8 @@ const fetchDepartments = async (
   );
 };
 
+const PRODUCT_LOOKUP_BATCH_SIZE = 1000;
+
 const fetchProducts = async (
   subdomain: string,
   productIds: string[],
@@ -519,21 +651,34 @@ const fetchProducts = async (
     return {};
   }
 
-  const products = await sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    method: 'query',
-    module: 'products',
-    action: 'find',
-    input: {
-      query: { _id: { $in: productIds } },
-      fields: { _id: 1, code: 1, name: 1, categoryId: 1, unitPrice: 1 },
-      limit: productIds.length,
-    },
-    defaultValue: [],
-  });
+  const productById: ReportLookup = {};
 
-  return Object.fromEntries(products.map((product) => [product._id, product]));
+  for (
+    let index = 0;
+    index < productIds.length;
+    index += PRODUCT_LOOKUP_BATCH_SIZE
+  ) {
+    const batchIds = productIds.slice(index, index + PRODUCT_LOOKUP_BATCH_SIZE);
+    const products = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'products',
+      action: 'find',
+      input: {
+        query: { _id: { $in: batchIds } },
+        fields: { _id: 1, code: 1, name: 1, categoryId: 1, unitPrice: 1 },
+        limit: batchIds.length,
+      },
+      defaultValue: [],
+    });
+
+    for (const product of products) {
+      productById[product._id] = product;
+    }
+  }
+
+  return productById;
 };
 
 const fetchUsers = async (
@@ -596,7 +741,7 @@ const enrichRecords = async (
   const accountIds = uniqueStringValues(records, 'accountId');
   const accounts = await models.Accounts.find(
     { _id: { $in: accountIds } },
-    { _id: 1, code: 1, name: 1, kind: 1, categoryId: 1 },
+    { _id: 1, code: 1, name: 1, kind: 1, currency: 1, categoryId: 1 },
   ).populate({
     path: 'categoryId',
     model: 'account_categories',
@@ -619,6 +764,7 @@ const enrichRecords = async (
         {
           code: account.code,
           name: account.name,
+          currency: account.currency,
           categoryId:
             typeof category === 'object'
               ? {
@@ -702,6 +848,7 @@ const enrichRecords = async (
       ...record,
       accountCode: account?.code,
       accountName: account?.name,
+      accountCurrency: account?.currency,
       accountCategoryId: accountCategory?._id,
       accountCategoryCode: accountCategory?.code,
       accountCategoryName: accountCategory?.name,
@@ -783,6 +930,34 @@ export const recordListWithValues = async (
   return enrichRecords(subdomain, models, [
     ...openingRecords,
     ...betweenRecords,
+  ]);
+};
+
+export const getReportDetailRecords = async (
+  subdomain: string,
+  models: IModels,
+  filterParams: IReportFilterParams,
+  user: IUserDocument,
+  reportBase: IJournalReportBase,
+) => {
+  const { fromDate, toDate, ...filters } = filterParams;
+  const reportFilters = await getFilter(subdomain, models, filters, user);
+  const detailMatch = mergeMatch(
+    reportFilters.detailMatch,
+    reportBase.extraDetailMatch || {},
+  );
+  const transactionMatch = mergeMatch(
+    reportFilters.transactionMatch,
+    reportBase.extraTransactionMatch || {},
+    getDetailPreMatch(detailMatch),
+    getDateMatch(fromDate, toDate),
+  );
+
+  return models.Transactions.aggregate([
+    { $match: transactionMatch },
+    { $unwind: { path: '$details', includeArrayIndex: 'detailInd' } },
+    { $match: detailMatch },
+    { $sort: { date: 1 } },
   ]);
 };
 

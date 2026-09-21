@@ -17,18 +17,18 @@ export const productCategoryTrpcRouter = t.router({
       )
       .input(z.any())
       .query(async ({ ctx, input }) => {
-      const { query, sort, regData } = input;
-      const { models } = ctx;
+        const { query, sort, regData } = input;
+        const { models } = ctx;
 
-      if (regData) {
-        return await models.ProductCategories.find({
-          ...query,
-          order: { $regex: new RegExp(escapeRegExp(regData)) },
-        }).sort(sort);
-      }
+        if (regData) {
+          return await models.ProductCategories.find({
+            ...query,
+            order: { $regex: new RegExp(escapeRegExp(regData)) },
+          }).sort(sort);
+        }
 
-      return models.ProductCategories.find(query).sort(sort).lean();
-    }),
+        return models.ProductCategories.find(query).sort(sort).lean();
+      }),
 
     findOne: t.procedure
       .meta(
@@ -39,18 +39,17 @@ export const productCategoryTrpcRouter = t.router({
       )
       .input(z.any())
       .query(async ({ ctx, input }) => {
-      const query = input?.query || input?.selector || input;
-      const { models } = ctx;
-      if (!query || !Object.keys(query).length) {
-        return {};
-      }
+        const query = input?.query || input?.selector || input;
+        const { models } = ctx;
+        if (!query || !Object.keys(query).length) {
+          return {};
+        }
 
-      const productCategory = await models.ProductCategories.findOne(
-        query,
-      ).lean();
+        const productCategory =
+          await models.ProductCategories.findOne(query).lean();
 
-      return productCategory;
-    }),
+        return productCategory;
+      }),
 
     withChilds: t.procedure
       .meta(
@@ -61,22 +60,16 @@ export const productCategoryTrpcRouter = t.router({
       )
       .input(z.any())
       .query(async ({ ctx, input }) => {
-      const { ids } = input;
-      const { models } = ctx;
+        const { ids } = input;
+        const { models } = ctx;
 
-      const productCategories =
-        await models.ProductCategories.getChildCategories(ids);
+        const productCategories =
+          await models.ProductCategories.getChildCategories(ids);
 
-      return productCategories;
-    }),
+        return productCategories;
+      }),
 
     createProductCategory: t.procedure
-      .meta(
-        agentMeta(
-          'Create a product category. Input: { doc: { name, code, parentId?, description?, status?, ... } } — code must be unique; pass parentId to nest under an existing category (find it with productCategories.find).',
-          { module: 'products', action: 'productCategoriesManage' },
-        ),
-      )
       .input(z.any())
       .mutation(async ({ ctx, input }) => {
         const { doc } = input;
@@ -86,12 +79,6 @@ export const productCategoryTrpcRouter = t.router({
       }),
 
     updateProductCategory: t.procedure
-      .meta(
-        agentMeta(
-          'Update a product category by ID. Input: { _id, doc: { ...fields to change } }. Call productCategories.findOne first to get the _id and current values.',
-          { module: 'products', action: 'productCategoriesManage' },
-        ),
-      )
       .input(z.any())
       .mutation(async ({ ctx, input }) => {
         const { _id, doc } = input;
@@ -111,17 +98,17 @@ export const productCategoryTrpcRouter = t.router({
 
     count: t.procedure
       .meta(
-        agentMeta(
-          'Count product categories matching a filter: { query? }.',
-          { module: 'products', action: 'productsRead' },
-        ),
+        agentMeta('Count product categories matching a filter: { query? }.', {
+          module: 'products',
+          action: 'productsRead',
+        }),
       )
       .input(z.any())
       .query(async ({ ctx, input }) => {
-      const { query } = input;
-      const { models } = ctx;
+        const { query } = input;
+        const { models } = ctx;
 
-      return models.ProductCategories.countDocuments(query);
-    }),
+        return models.ProductCategories.countDocuments(query);
+      }),
   }),
 });

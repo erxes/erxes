@@ -1,6 +1,10 @@
 import {
   HelpCenterColorField,
+  HelpCenterHeaderField,
   IHelpCenterConfigInput,
+  IHelpCenterFooter,
+  IHelpCenterFooterColumn,
+  IHelpCenterHeader,
   IHelpCenterStyles,
   THelpCenterTab,
 } from '@/helpcenter/types';
@@ -93,6 +97,96 @@ export const DEFAULT_HELP_CENTER_STYLES: IHelpCenterStyles = {
   footerHtml: '',
 };
 
+export const DEFAULT_HELP_CENTER_HEADER: IHelpCenterHeader = {
+  wordmark: '',
+  homeLabel: '',
+  formsLabel: '',
+  announcementsLabel: '',
+  searchPlaceholder: '',
+};
+
+export const createDefaultHeader = (): IHelpCenterHeader => ({
+  ...DEFAULT_HELP_CENTER_HEADER,
+});
+
+export const HELP_CENTER_HEADER_FIELDS = [
+  {
+    name: 'header.wordmark',
+    key: 'kb-header-wordmark',
+    label: 'Wordmark',
+    placeholder: 'erxes',
+  },
+  {
+    name: 'header.homeLabel',
+    key: 'kb-header-home-label',
+    label: 'Home tab',
+    placeholder: 'Support portal',
+  },
+  {
+    name: 'header.formsLabel',
+    key: 'kb-header-forms-label',
+    label: 'Forms tab',
+    placeholder: 'Forms',
+  },
+  {
+    name: 'header.announcementsLabel',
+    key: 'kb-header-announcements-label',
+    label: 'Announcements tab',
+    placeholder: 'Announcements',
+  },
+  {
+    name: 'header.searchPlaceholder',
+    key: 'kb-header-search-placeholder',
+    label: 'Search placeholder',
+    placeholder: 'Search for articles...',
+  },
+] as const satisfies readonly HelpCenterHeaderField[];
+
+export const DEFAULT_HELP_CENTER_FOOTER_COLUMNS: IHelpCenterFooterColumn[] = [
+  {
+    heading: 'Support',
+    links: [
+      { label: 'Submit a ticket', url: '/tickets/new' },
+      { label: 'Track a ticket', url: '/tickets/track' },
+      { label: 'My tickets', url: '/tickets' },
+      { label: 'Fill in a form', url: '/forms' },
+    ],
+  },
+  {
+    heading: 'Knowledge base',
+    links: [
+      { label: 'All categories', url: '/knowledge-base' },
+      { label: 'Search', url: '/search' },
+      { label: 'Announcements', url: '/announcements' },
+    ],
+  },
+  {
+    heading: 'Account',
+    links: [
+      { label: 'My account', url: '/account' },
+      { label: 'Sign in', url: '/sign-in' },
+      { label: 'Sign up', url: '/sign-up' },
+    ],
+  },
+];
+
+export const DEFAULT_HELP_CENTER_FOOTER: IHelpCenterFooter = {
+  logo: '',
+  description: '',
+  copyright: '',
+  columns: [],
+};
+
+export const createEmptyFooterColumn = (): IHelpCenterFooterColumn => ({
+  heading: '',
+  links: [{ label: '', url: '' }],
+});
+
+export const createDefaultFooter = (): IHelpCenterFooter => ({
+  ...DEFAULT_HELP_CENTER_FOOTER,
+  columns: [],
+});
+
 export const EMPTY_HELP_CENTER_FORM: IHelpCenterConfigInput = {
   title: '',
   description: '',
@@ -111,6 +205,8 @@ export const EMPTY_HELP_CENTER_FORM: IHelpCenterConfigInput = {
   color: '#4f33af',
   backgroundImage: '',
   styles: DEFAULT_HELP_CENTER_STYLES,
+  header: DEFAULT_HELP_CENTER_HEADER,
+  footer: DEFAULT_HELP_CENTER_FOOTER,
 };
 
 export const HELP_CENTER_FIELD_TAB: Record<
@@ -135,6 +231,8 @@ export const HELP_CENTER_FIELD_TAB: Record<
   color: 'appearance',
   backgroundImage: 'appearance',
   styles: 'appearance',
+  header: 'appearance',
+  footer: 'appearance',
 };
 
 export const HELP_CENTER_FONTS = [

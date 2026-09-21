@@ -17,11 +17,11 @@ export const tagTrpcRouter = t.router({
       )
       .input(z.any())
       .query(async ({ ctx, input }) => {
-      const { query } = input;
-      const { models } = ctx;
+        const { query } = input;
+        const { models } = ctx;
 
-      return await models.Tags.find(query).lean();
-    }),
+        return await models.Tags.find(query).lean();
+      }),
 
     findOne: t.procedure
       .meta(
@@ -32,15 +32,15 @@ export const tagTrpcRouter = t.router({
       )
       .input(z.any())
       .query(async ({ ctx, input }) => {
-      const query = input?.query || input?.selector || input;
-      const { models } = ctx;
+        const query = input?.query || input?.selector || input;
+        const { models } = ctx;
 
-      if (!query || !Object.keys(query).length) {
-        return {};
-      }
+        if (!query || !Object.keys(query).length) {
+          return {};
+        }
 
-      return await models.Tags.findOne(query);
-    }),
+        return await models.Tags.findOne(query);
+      }),
 
     findWithChild: t.procedure
       .meta(
@@ -51,40 +51,32 @@ export const tagTrpcRouter = t.router({
       )
       .input(z.any())
       .query(async ({ ctx, input }) => {
-      const { query, fields } = input;
-      const { models } = ctx;
+        const { query, fields } = input;
+        const { models } = ctx;
 
-      const tags = await models.Tags.find(query).lean();
+        const tags = await models.Tags.find(query).lean();
 
-      if (!tags.length) {
-        return [];
-      }
+        if (!tags.length) {
+          return [];
+        }
 
-      const orderQry: any[] = [];
-      for (const tag of tags) {
-        orderQry.push({
-          order: { $regex: new RegExp(`^${escapeRegExp(tag.order || '')}`) },
-        });
-      }
+        const orderQry: any[] = [];
+        for (const tag of tags) {
+          orderQry.push({
+            order: { $regex: new RegExp(`^${escapeRegExp(tag.order || '')}`) },
+          });
+        }
 
-      return await models.Tags.find(
-        {
-          $or: orderQry,
-        },
-        fields || {},
-      )
-        .sort({ order: 1 })
-        .lean();
-    }),
-    create: t.procedure
-      .meta(
-        agentMeta(
-          'Create a tag. Input: { data: { name, type, colorCode?, parentId? } } — type scopes the tag, e.g. "core:customer", "core:company", "core:product". Check for an existing tag with tags.find (by name + type) before creating a duplicate. Then attach it with customers.tag or doc.tagIds.',
-          { module: 'tags', action: 'tagsCreate' },
-        ),
-      )
-      .input(z.any())
-      .mutation(async ({ ctx, input }) => {
+        return await models.Tags.find(
+          {
+            $or: orderQry,
+          },
+          fields || {},
+        )
+          .sort({ order: 1 })
+          .lean();
+      }),
+    create: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
       const { data } = input;
       const { models } = ctx;
 
