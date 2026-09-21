@@ -37,7 +37,7 @@ export interface ICustomer extends ICustomerInline {
     countryCode?: CountryCode | undefined;
   };
   sex?: SexCode;
-  birthDate?: Date;
+  birthDate?: Date | null;
   owner?: IUser;
   propertiesData?: Record<string, unknown>;
   trackedData?: ITrackedDataItem[];
