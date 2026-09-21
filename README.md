@@ -116,7 +116,9 @@ erxes is built as an **Nx-powered monorepo** with a modern microservices archite
 - **MongoDB** 27017
 - **Redis** 6379
 
-No local MongoDB/Redis? `docker-compose.dev.yml` runs MongoDB 7, Redis 7, and Elasticsearch 7 on the ports `.env` expects, while the services and UIs run on your machine:
+#### For development environment
+
+`docker-compose.dev.yml` runs MongoDB 7, Redis 7, and Elasticsearch 7 on the ports `.env` expects:
 
 ```bash
 docker compose -f docker-compose.dev.yml up -d
