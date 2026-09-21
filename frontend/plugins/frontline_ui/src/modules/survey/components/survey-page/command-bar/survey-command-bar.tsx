@@ -7,6 +7,8 @@ import {
   useSurveyToggleStatus,
 } from '@/survey/hooks/useSurveyMutations';
 import { ISurvey, SURVEY_STATUS } from '@/survey/types/surveyTypes';
+import { MoveToChannelCommandBarButton } from '@/channels/components/move-resources/MoveToChannelCommandBarButton';
+import { ChannelResourceType } from '@/channels/types';
 
 export const SurveyCommandBar = () => {
   const { t } = useTranslation('frontline');
@@ -16,6 +18,9 @@ export const SurveyCommandBar = () => {
 
   const selectedRows = table.getFilteredSelectedRowModel().rows;
   const surveyIds = selectedRows.map((row: Row<ISurvey>) => row.original._id);
+  const sourceChannelIds = selectedRows.map(
+    (row: Row<ISurvey>) => row.original.channelId || '',
+  );
 
   const onError = (error: Error) =>
     toast({
@@ -55,6 +60,12 @@ export const SurveyCommandBar = () => {
           <IconSquareToggle />
           {t('archive')}
         </Button>
+        <MoveToChannelCommandBarButton
+          resourceType={ChannelResourceType.SURVEY}
+          resourceIds={surveyIds}
+          sourceChannelIds={sourceChannelIds}
+          onMoved={() => table.resetRowSelection()}
+        />
         <Button
           variant="destructive"
           onClick={handleRemove}
