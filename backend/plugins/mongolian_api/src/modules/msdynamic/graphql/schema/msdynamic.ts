@@ -84,5 +84,6 @@ export const mutations = `
   toSendMsdOrders(orderIds: [String]): [MsdCheckResponse]
   toCheckMsdSynced(ids: [String]): [MsdCheckResponse]
   toCheckMsdPrices(brandId: String): JSON
-  toSyncMsdPrices(prices: [JSON]): JSON
+  toSyncMsdPrices(prices: [JSON], brandId: String): JSON
+  toCheckMsdProductCategories(brandId: String, categoryId: String): JSON
 `;

@@ -78,15 +78,30 @@ const comparePrices = async ({
   exchangeRates: any;
   result: any;
 }) => {
-  for (const itemNo of Object.keys(groupedItems)) {
-    try {
-      const { resPrice, resProd } = await getPrice(
-        groupedItems[itemNo],
+for (const itemNo of Object.keys(groupedItems)) {
+  if (itemNo === '20-KA900E-QS') {
+    console.log('🔥 FOUND 20-KA900E-QS BEFORE GETPRICE');
+    console.log(groupedItems[itemNo]);
+  }
+
+  try {
+    const { resPrice, resProd } = await getPrice(
+      groupedItems[itemNo],
+      pricePriority,
+      exchangeRates,
+    );
+
+    if (itemNo === '20-KA900E-QS') {
+      console.log('🔥 PRICE DEBUG:', {
+        items: groupedItems[itemNo],
         pricePriority,
         exchangeRates,
-      );
+        resPrice,
+        resProd,
+      });
+    }
 
-      const foundProduct = productsByCode[itemNo];
+    const foundProduct = productsByCode[itemNo];
 
       if (!foundProduct) {
         result.create.items.push({
@@ -243,6 +258,120 @@ export const msdynamicCheckMutations = {
       syncedCustomer: syncMap[_id]?.syncedCustomer || null,
     }));
   },
+  async toCheckMsdProductCategories(
+    _root: unknown,
+    { brandId, categoryId }: { brandId: string; categoryId?: string },
+    { subdomain, checkPermission }: IContext,
+  ) {
+    await checkPermission('msdCheck');
+
+    const models = await generateModels(subdomain);
+    const config = await getDynamicConfig(models, brandId);
+
+    if (!config.itemCategoryApi || !config.username || !config.password) {
+      throw new Error('MS Dynamic config not valid.');
+    }
+
+    const { itemCategoryApi, username, password } = config;
+
+    const categoriesCount = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      module: 'categories',
+      action: 'count',
+      input: {
+        query: { status: { $ne: 'deleted' } },
+      },
+      defaultValue: 0,
+    });
+
+    const categories = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      module: 'categories',
+      action: 'find',
+      input: {
+        query: { status: { $ne: 'deleted' } },
+        limit: categoriesCount,
+      },
+      defaultValue: [],
+    });
+
+    const response = await fetch(itemCategoryApi, {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Accept: 'application/json',
+        Authorization: `Basic ${Buffer.from(
+          `${username}:${password}`,
+        ).toString('base64')}`,
+      },
+    }).then((res) => res.json());
+
+    const dynamicCategories = Array.isArray(response?.value)
+      ? response.value
+      : [];
+
+    const resultCodes = dynamicCategories
+      .map((category: { Code?: string }) => category.Code)
+      .filter(Boolean);
+
+    const categoryByCode: Record<string, any> = {};
+    const categoryById: Record<string, any> = {};
+
+    const createCategories: any[] = [];
+    const updateCategories: any[] = [];
+    const deleteCategories: any[] = [];
+    let matchedCount = 0;
+
+    for (const category of categories) {
+      categoryByCode[category.code] = category;
+      categoryById[category._id] = category;
+
+      if (!resultCodes.includes(category.code)) {
+        deleteCategories.push(category);
+      }
+    }
+
+    for (const dynamicCategory of dynamicCategories) {
+      const category = categoryByCode[dynamicCategory.Code];
+
+      if (!category) {
+        createCategories.push(dynamicCategory);
+        continue;
+      }
+
+      const isMatched =
+        dynamicCategory.Code === category.code &&
+        (categoryId === category.parentId ||
+          categoryById[category.parentId]?.code ===
+            dynamicCategory.Parent_Category) &&
+        category.name === dynamicCategory.Description;
+
+      if (isMatched) {
+        matchedCount += 1;
+      } else {
+        updateCategories.push(dynamicCategory);
+      }
+    }
+
+    return {
+      create: {
+        count: createCategories.length,
+        items: createCategories,
+      },
+      update: {
+        count: updateCategories.length,
+        items: updateCategories,
+      },
+      delete: {
+        count: deleteCategories.length,
+        items: deleteCategories,
+      },
+      matched: {
+        count: matchedCount,
+      },
+    };
+  },
   async toCheckMsdPrices(
     _root,
     { brandId }: { brandId: string },
@@ -324,17 +453,67 @@ export const msdynamicCheckMutations = {
   },
   async toSyncMsdPrices(
     _root,
-    { prices = [] }: { prices: any[] },
+    { prices = [], brandId }: { prices: any[]; brandId: string },
     { subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('msdSync');
-
+    const models = await generateModels(subdomain);
+const config = await getDynamicConfig(models, brandId);
     let hasFailed = false;
 
     for (const price of prices) {
       if (!price._id) {
-        continue;
-      }
+  const response = await fetch(
+    `${config.itemApi}?$filter=No eq '${price.Item_No}'`,
+    {
+      timeout: 180000,
+      headers: {
+        Accept: 'application/json',
+        Authorization: `Basic ${Buffer.from(
+          `${config.username}:${config.password}`,
+        ).toString('base64')}`,
+      },
+    },
+  ).then((res) => res.json());
+
+  const doc = response?.value?.[0];
+
+  if (!doc) {
+    hasFailed = true;
+    console.error(
+      `MS Dynamic product not found: ${price.Item_No}`,
+    );
+    continue;
+  }
+
+  const document = {
+    name: doc.Description || 'default',
+    shortName: doc.Description_2 || '',
+    type: doc.Type === 'Inventory' ? 'product' : 'service',
+    unitPrice: Number(price.Unit_Price) || 0,
+    code: doc.No,
+    uom: doc.Base_Unit_of_Measure || 'PCS',
+    categoryId: null,
+    scopeBrandIds: [brandId],
+    status: 'active',
+  };
+
+  const result = await sendTRPCMessage({
+    subdomain,
+    method: 'mutation',
+    pluginName: 'core',
+    module: 'products',
+    action: 'createProduct',
+    input: { doc },
+    defaultValue: null,
+  });
+
+  if (!result) {
+    hasFailed = true;
+  }
+
+  continue;
+}
 
       const result = await sendTRPCMessage({
         subdomain,
