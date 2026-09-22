@@ -1,5 +1,6 @@
 import { composePlugins, withNx, withReact } from '@nx/rspack';
 import { withModuleFederation } from '@nx/rspack/module-federation';
+import { DefinePlugin } from '@rspack/core';
 
 import baseConfig from './module-federation.config';
 
@@ -24,6 +25,15 @@ export default composePlugins(
       test: /\.(mp3|wav|ogg)$/,
       type: 'asset/resource',
     });
+
+    config.plugins = config.plugins ?? [];
+    config.plugins.push(
+      new DefinePlugin({
+        'process.env.REACT_APP_WIDGETS_URL': JSON.stringify(
+          process.env.REACT_APP_WIDGETS_URL,
+        ),
+      }),
+    );
 
     if (process.env.NODE_ENV !== 'production') {
       config.watchOptions = {

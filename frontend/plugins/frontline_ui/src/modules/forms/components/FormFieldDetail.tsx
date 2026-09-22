@@ -4,7 +4,6 @@ import {
   Sheet,
   ToggleGroup,
   Button,
-  StringArrayInput,
   Select,
   Checkbox,
   ScrollArea,
@@ -149,6 +148,27 @@ export const FormFieldDetail = ({
       if (!prev) return prev;
       const updatedLogics = (prev.logics ?? []).filter((_, i) => i !== index);
       return { ...prev, logics: updatedLogics };
+    });
+  };
+
+  const handleAddOption = () => {
+    setDraft((prev) => prev && { ...prev, options: [...prev.options, ''] });
+  };
+
+  const handleChangeOption = (index: number, value: string) => {
+    setDraft((prev) => {
+      if (!prev) return prev;
+      const updatedOptions = prev.options.map((option, i) =>
+        i === index ? value : option,
+      );
+      return { ...prev, options: updatedOptions };
+    });
+  };
+
+  const handleRemoveOption = (index: number) => {
+    setDraft((prev) => {
+      if (!prev) return prev;
+      return { ...prev, options: prev.options.filter((_, i) => i !== index) };
     });
   };
 
@@ -365,14 +385,31 @@ export const FormFieldDetail = ({
               draft?.type === 'core:customer:sex') && (
               <div className="space-y-2 col-span-2">
                 <Label>{t('options', 'Options')}</Label>
-                <StringArrayInput
-                  styleClasses={{
-                    inlineTagsContainer: 'shadow-xs',
-                  }}
-                  value={draft.options}
-                  onValueChange={(value) => handleValueChange('options', value)}
-                  splitOnPaste
-                />
+                <div className="space-y-2">
+                  {draft.options.map((option, index) => (
+                    <div key={index} className="flex items-center gap-2">
+                      <Input
+                        value={option}
+                        placeholder={t('option-label', 'Option')}
+                        onChange={(e) =>
+                          handleChangeOption(index, e.target.value)
+                        }
+                      />
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="shrink-0 hover:text-destructive"
+                        onClick={() => handleRemoveOption(index)}
+                      >
+                        <IconTrash size={14} />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+                <Button variant="outline" size="sm" onClick={handleAddOption}>
+                  <IconPlus size={14} />
+                  {t('add-option', 'Add option')}
+                </Button>
               </div>
             )}
             <div className="space-y-2 col-span-2">

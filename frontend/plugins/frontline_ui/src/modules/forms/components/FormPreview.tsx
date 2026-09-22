@@ -392,7 +392,7 @@ export const FormPreviewContent = ({
                         erxesField.type === 'core:customer:sex'
                       ) {
                         return (
-                          <ErxesFormItem span={erxesField.span}>
+                          <ErxesFormItem span={2}>
                             <Form.Label>{erxesField.label}</Form.Label>
                             {erxesField.description && (
                               <Form.Description
@@ -405,7 +405,7 @@ export const FormPreviewContent = ({
                               <RadioGroup
                                 value={field.value}
                                 onValueChange={field.onChange}
-                                className="flex flex-col gap-2"
+                                className="grid-cols-2 gap-x-4"
                               >
                                 {erxesField.options.map((option) => {
                                   if (!option) return null;

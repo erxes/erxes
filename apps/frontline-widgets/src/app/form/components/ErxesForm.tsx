@@ -348,7 +348,7 @@ export const ErxesForm = ({
                         erxesField.type === 'core:customer:sex'
                       ) {
                         return (
-                          <ErxesFormItem span={erxesField.column}>
+                          <ErxesFormItem span={2}>
                             <Form.Label className="text-widget-label">
                               {erxesField.text}
                               {erxesField.isRequired && (
@@ -359,6 +359,7 @@ export const ErxesForm = ({
                               <RadioGroup
                                 value={field.value}
                                 onValueChange={field.onChange}
+                                className="grid-cols-2 gap-x-4"
                               >
                                 {erxesField.options.map((option) => (
                                   <div
@@ -369,7 +370,6 @@ export const ErxesForm = ({
                                       value={option}
                                       id={`${erxesField._id}-${option}`}
                                       required={erxesField.isRequired}
-                                      className="shadow-border"
                                     />
                                     <Label
                                       htmlFor={`${erxesField._id}-${option}`}
