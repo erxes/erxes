@@ -58,8 +58,9 @@ export const toPendingFile = (
   name: file.name,
   type: file.type,
   size: file.size,
-  preview: file.type.startsWith('image/')
-    ? URL.createObjectURL(file)
-    : undefined,
+  preview:
+    state === 'uploading' && file.type.startsWith('image/')
+      ? URL.createObjectURL(file)
+      : undefined,
   state,
 });

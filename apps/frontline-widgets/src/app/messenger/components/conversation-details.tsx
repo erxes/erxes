@@ -100,8 +100,8 @@ export const ConversationDetails = () => {
         typeof text === 'string'
           ? text
           : typeof content === 'string'
-            ? content
-            : '',
+          ? content
+          : '',
       )
       .join('');
   };

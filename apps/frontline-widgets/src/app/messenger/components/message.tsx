@@ -313,6 +313,9 @@ type ParsedMessageContent = {
   cleanHtml: string;
 };
 
+const decodeHtmlEntities = (value: string): string =>
+  new DOMParser().parseFromString(value, 'text/html').body.textContent || '';
+
 function SanitizedHtml({
   html,
   className,
@@ -346,11 +349,13 @@ export function parseQuotedMessage(html?: string): ParsedMessageContent {
 
   return {
     reply: {
-      author: replyMatch[1]?.trim() || 'a message',
-      preview: replyMatch[2]
-        .replace(/<[^<>]+>/g, ' ')
-        .replace(/\s+/g, ' ')
-        .trim(),
+      author: decodeHtmlEntities(replyMatch[1]?.trim() || 'a message'),
+      preview: decodeHtmlEntities(
+        replyMatch[2]
+          .replace(/<[^<>]+>/g, ' ')
+          .replace(/\s+/g, ' ')
+          .trim(),
+      ),
     },
     cleanHtml: html.slice(replyMatch[0].length).trim(),
   };
@@ -482,6 +487,20 @@ const ImagePreviewTrigger = React.forwardRef<
 ));
 ImagePreviewTrigger.displayName = 'ImagePreviewTrigger';
 
+function ImageAttachmentTrigger({
+  attachment,
+  name,
+}: {
+  attachment: IAttachment;
+  name: string;
+}) {
+  return (
+    <Dialog.Trigger asChild>
+      <ImagePreviewTrigger attachment={attachment} name={name} />
+    </Dialog.Trigger>
+  );
+}
+
 function ImagePreviewContent({
   attachment,
   name,
@@ -511,9 +530,7 @@ function AttachmentImage({ attachment }: { attachment: IAttachment }) {
 
   return (
     <Dialog>
-      <Dialog.Trigger asChild>
-        <ImagePreviewTrigger attachment={attachment} name={name} />
-      </Dialog.Trigger>
+      <ImageAttachmentTrigger attachment={attachment} name={name} />
       <ImagePreviewContent attachment={attachment} name={name} />
     </Dialog>
   );
@@ -547,6 +564,20 @@ const VideoPreviewTrigger = React.forwardRef<
 ));
 VideoPreviewTrigger.displayName = 'VideoPreviewTrigger';
 
+function VideoAttachmentTrigger({
+  attachment,
+  name,
+}: {
+  attachment: IAttachment;
+  name: string;
+}) {
+  return (
+    <Dialog.Trigger asChild>
+      <VideoPreviewTrigger attachment={attachment} name={name} />
+    </Dialog.Trigger>
+  );
+}
+
 function VideoPreviewContent({
   attachment,
   name,
@@ -577,9 +608,7 @@ function AttachmentVideo({ attachment }: { attachment: IAttachment }) {
 
   return (
     <Dialog>
-      <Dialog.Trigger asChild>
-        <VideoPreviewTrigger attachment={attachment} name={name} />
-      </Dialog.Trigger>
+      <VideoAttachmentTrigger attachment={attachment} name={name} />
       <VideoPreviewContent attachment={attachment} name={name} />
     </Dialog>
   );

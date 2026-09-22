@@ -48,7 +48,7 @@ const escapeHtml = (value: string) =>
         '>': '&gt;',
         "'": '&#39;',
         '"': '&quot;',
-      })[character] || character,
+      }[character] || character),
   );
 
 function UploadedAttachment({
@@ -195,6 +195,8 @@ export const ChatInput: FC<ChatInputProps> = ({ className, ...inputProps }) => {
   const uploadQueueRef = useRef<File[]>([]);
   const activeUploadRef = useRef<File | null>(null);
   const sawUploadRunningRef = useRef(false);
+  const pendingFilesRef = useRef<PendingFile[]>([]);
+  const revokedPreviewUrlsRef = useRef(new Set<string>());
   /** Names dismissed mid-flight — the request cannot be aborted, so its late
    *  response has to be dropped instead of silently re-attaching the file. */
   const cancelledUploadsRef = useRef<Set<File>>(new Set());
@@ -218,6 +220,25 @@ export const ChatInput: FC<ChatInputProps> = ({ className, ...inputProps }) => {
   const { hasEmailOrPhone } = useCustomerData();
   const shouldDisable = requireAuth === true && !hasEmailOrPhone;
   const isChat = activeTab === 'chat';
+
+  const revokePreviewUrl = useCallback((preview?: string) => {
+    if (!preview || revokedPreviewUrlsRef.current.has(preview)) return;
+    URL.revokeObjectURL(preview);
+    revokedPreviewUrlsRef.current.add(preview);
+  }, []);
+
+  useEffect(() => {
+    pendingFilesRef.current = pendingFiles;
+  }, [pendingFiles]);
+
+  useEffect(
+    () => () => {
+      pendingFilesRef.current.forEach(({ preview }) =>
+        revokePreviewUrl(preview),
+      );
+    },
+    [revokePreviewUrl],
+  );
 
   useEffect(() => {
     if (replyTo) messageInputRef.current?.focus();
@@ -261,7 +282,7 @@ export const ChatInput: FC<ChatInputProps> = ({ className, ...inputProps }) => {
 
             const next = [...prev];
             const [uploaded] = next.splice(index, 1);
-            if (uploaded.preview) URL.revokeObjectURL(uploaded.preview);
+            revokePreviewUrl(uploaded.preview);
             return next;
           });
         }
@@ -269,7 +290,7 @@ export const ChatInput: FC<ChatInputProps> = ({ className, ...inputProps }) => {
         startNextUpload();
       },
     });
-  }, [upload]);
+  }, [revokePreviewUrl, upload]);
 
   // `useUpload` has no error callback. Running one file at a time makes its
   // loading transition an unambiguous failure signal for the active file.
@@ -291,15 +312,17 @@ export const ChatInput: FC<ChatInputProps> = ({ className, ...inputProps }) => {
       if (index === -1) return prev;
 
       const next = [...prev];
+      revokePreviewUrl(next[index].preview);
       next[index] = {
         ...next[index],
+        preview: undefined,
         state: 'error',
         error: 'Upload failed. Remove and try again.',
       };
       return next;
     });
     startNextUpload();
-  }, [isUploadRunning, startNextUpload]);
+  }, [isUploadRunning, revokePreviewUrl, startNextUpload]);
   // A failed upload stays on screen but must not hold the send button hostage.
   const isUploading = pendingFiles.some((file) => file.state === 'uploading');
   const canSend = (!isDisabled || attachments.length > 0) && !isUploading;
@@ -354,9 +377,7 @@ export const ChatInput: FC<ChatInputProps> = ({ className, ...inputProps }) => {
           );
         }
       }
-      if (dismissed.preview) {
-        URL.revokeObjectURL(dismissed.preview);
-      }
+      revokePreviewUrl(dismissed.preview);
       return prev.filter((_, i) => i !== index);
     });
   };
