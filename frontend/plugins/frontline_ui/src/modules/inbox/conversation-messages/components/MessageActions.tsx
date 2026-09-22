@@ -124,7 +124,11 @@ export const MessageActions = ({
     (reaction: IMessageReaction) => reaction.senderId === currentUser?._id,
   )?.reaction;
   const isDiscord = kind === IntegrationType.DISCORD_MESSENGER;
-  const canReplyOrForward = kind !== 'lead';
+  const canReply = kind !== 'lead';
+  const canForward =
+    canReply &&
+    kind !== IntegrationType.FACEBOOK_MESSENGER &&
+    kind !== IntegrationType.FACEBOOK_POST;
   const showActionsInline = INLINE_ACTION_KINDS.has(kind);
   const isPinned = Boolean(message.extraData?.discordPinned);
 
@@ -203,7 +207,7 @@ export const MessageActions = ({
             reactions={availableReactions}
           />
         )}
-        {canReplyOrForward && (
+        {canReply && (
           <ActionButton label="Reply" onClick={handleReply}>
             <IconArrowBackUp className="size-4" />
           </ActionButton>
@@ -211,9 +215,11 @@ export const MessageActions = ({
         {additionalActions}
         {showActionsInline ? (
           <>
-            <ActionButton label="Forward" onClick={() => setForwardOpen(true)}>
-              <IconShare3 className="size-4" />
-            </ActionButton>
+            {canForward && (
+              <ActionButton label="Forward" onClick={() => setForwardOpen(true)}>
+                <IconShare3 className="size-4" />
+              </ActionButton>
+            )}
             <ActionButton label="Copy text" disabled={!preview} onClick={copy}>
               <IconCopy className="size-4" />
             </ActionButton>
@@ -237,7 +243,7 @@ export const MessageActions = ({
                 sideOffset={6}
                 className="min-w-44 rounded-xl p-1 shadow-lg"
               >
-                {canReplyOrForward && (
+                {canForward && (
                   <DropdownMenu.Item
                     className="rounded-lg"
                     onClick={() => setForwardOpen(true)}
@@ -273,7 +279,7 @@ export const MessageActions = ({
           </div>
         )}
       </div>
-      {canReplyOrForward && (
+      {canForward && (
         <ForwardMessageDialog
           open={forwardOpen}
           onOpenChange={setForwardOpen}

@@ -17,6 +17,10 @@ import { handleDiscordIntegration } from '@/integrations/discord/messageBroker';
 import { pConversationClientMessageInserted } from './widget';
 import { publishConversationUnreadCounts } from '@/inbox/services/conversationUnreadCounts';
 import { convertConversation } from '@/inbox/services/conversationConvert';
+import {
+  reactToConversationMessage,
+  type IConversationReaction,
+} from '@/inbox/services/conversationReaction';
 import { IConversationConvert } from '@/inbox/@types/conversationConvert';
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import {
@@ -496,6 +500,14 @@ const getConversationById = async (models: IModels, selector) => {
 };
 
 export const conversationMutations = {
+  async conversationMessageReact(
+    _root: unknown,
+    args: IConversationReaction,
+    context: IContext,
+  ): Promise<boolean> {
+    return reactToConversationMessage(args, context);
+  },
+
   async conversationAgentTyping(
     _root,
     {

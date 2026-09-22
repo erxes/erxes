@@ -60,9 +60,17 @@ const handleInternalMessage = async (
   );
 };
 
-const handleFacebookReaction = async (
+export const handleFacebookReaction = async (
   models: IModels,
-  doc: TFacebookRelayDoc,
+  doc: Pick<
+    TFacebookRelayDoc,
+    | 'integrationId'
+    | 'conversationId'
+    | 'messageId'
+    | 'reaction'
+    | 'remove'
+    | 'userId'
+  >,
 ) => {
   const { integrationId, conversationId, messageId, reaction, remove, userId } =
     doc;
@@ -317,6 +325,10 @@ const handleFacebookMessengerReply = async (
       });
     }
     throw new Error(getErrorMessage(error));
+  }
+
+  if (!localMessage) {
+    throw new Error('Facebook reply produced no message to persist');
   }
 
   return {

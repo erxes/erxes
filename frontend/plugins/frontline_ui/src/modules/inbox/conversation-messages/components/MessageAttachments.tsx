@@ -96,7 +96,8 @@ const MessageAttachment = ({
             className={cn(
               single
                 ? 'block max-h-96 max-w-full object-contain'
-                : 'size-full object-cover',
+                : 'size-full',
+              !single && (isSticker ? 'object-contain' : 'object-cover'),
             )}
           />
         </button>

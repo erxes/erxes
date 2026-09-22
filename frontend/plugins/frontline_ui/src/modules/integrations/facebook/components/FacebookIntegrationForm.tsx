@@ -104,5 +104,12 @@ export const FacebookIntegrationFormSteps = ({
   title: string;
   step: number;
 }) => {
-  return <IntegrationSteps step={step} title={title} stepsLength={3} />;
+  return (
+    <IntegrationSteps
+      step={step}
+      title={title}
+      stepsLength={3}
+      description=""
+    />
+  );
 };

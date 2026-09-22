@@ -56,6 +56,7 @@ import { PollComposer, PollDraft } from './PollComposer';
 import { SendSurveyDialog } from './SendSurveyDialog';
 import { getPreviewText } from '@/inbox/types/inbox';
 import { messageExtraInfoState } from '../states/messageExtraInfoState';
+import { messageReplyState } from '../states/messageReplyState';
 import { useConversationMessageAdd } from '../hooks/useConversationMessageAdd';
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
 import { useGetResponses } from '@/responseTemplate/hooks/useGetResponses';
@@ -94,6 +95,15 @@ export const MessageInput = ({
   const isMessenger = integration?.kind === IntegrationType.ERXES_MESSENGER;
   const messageExtraInfo = useAtomValue(messageExtraInfoState);
   const [discordReplyTo, setDiscordReplyTo] = useAtom(discordReplyToState);
+  const [messageReply, setMessageReply] = useAtom(messageReplyState);
+  const isFacebook = integration?.kind === IntegrationType.FACEBOOK_MESSENGER;
+  const facebookReply = isFacebook ? messageReply : null;
+  const replyPreview = facebookReply || (isDiscord ? discordReplyTo : null);
+  const replyToMessageId = facebookReply?.nativeReply
+    ? facebookReply.providerMessageId
+    : isDiscord
+      ? discordReplyTo?.messageId
+      : undefined;
 
   const discordParticipants = useDiscordConversationParticipants(
     conversationId,
@@ -151,7 +161,8 @@ export const MessageInput = ({
 
   useEffect(() => {
     setDiscordReplyTo(null);
-  }, [conversationId, setDiscordReplyTo]);
+    setMessageReply(null);
+  }, [conversationId, setDiscordReplyTo, setMessageReply]);
 
   const { channels: availableChannels } = useGetChannels();
   const [searchValue, setSearchValue] = useState('');
@@ -171,6 +182,13 @@ export const MessageInput = ({
   const [attachmentPreview, setAttachmentPreview] = useState<any>(null);
 
   const editor = useBlockEditor();
+
+  useEffect(() => {
+    if (facebookReply) {
+      setIsInternalNote(false);
+      editor?.focus();
+    }
+  }, [facebookReply, editor, setIsInternalNote]);
   const { addConversationMessage, loading } = useConversationMessageAdd();
 
   const [notifyAgentTyping] = useMutation(CONVERSATION_AGENT_TYPING);
@@ -419,8 +437,8 @@ export const MessageInput = ({
         extraInfo: messageExtraInfo,
         attachments: allAttachments,
         responseTemplateId: responseTemplateId,
-        ...(isDiscord && !isInternalNote && discordReplyTo
-          ? { replyToMessageId: discordReplyTo.messageId }
+        ...(!isInternalNote && replyToMessageId
+          ? { replyToMessageId }
           : {}),
       },
       onCompleted: () => {
@@ -438,20 +456,34 @@ export const MessageInput = ({
         setShowSuggestions(false);
         setResponseTemplateId(null);
         setDiscordReplyTo(null);
+        setMessageReply(null);
       },
       refetchQueries: [
         'Conversations',
         'ConversationMessages',
         'ConversationCounts',
         'FrontlineInboxSidebarWorkCounts',
+        ...(isFacebook ? ['FacebookConversationMessages'] : []),
       ],
-      onError: (err) =>
+      onError: (err) => {
+        const windowExpired =
+          isFacebook && /outside of (?:the )?allowed window/i.test(err.message);
         toast({
-          title: t('failed-to-send', 'Failed to send: {{message}}', {
-            message: err.message,
-          }),
+          title: windowExpired
+            ? t('message-window-expired', 'Messaging window expired')
+            : t('message-send-failed', "Couldn't send message"),
+          description: windowExpired
+            ? t(
+                'message-window-expired-description',
+                'You can reply once the customer sends a new message.',
+              )
+            : t(
+                'message-send-failed-description',
+                'Your message was not sent. Please try again in a moment.',
+              ),
           variant: 'destructive',
-        }),
+        });
+      },
     });
   }, [
     conversationId,
@@ -459,8 +491,10 @@ export const MessageInput = ({
     mentionedUserIds,
     isInternalNote,
     isDiscord,
-    discordReplyTo,
+    replyToMessageId,
     setDiscordReplyTo,
+    setMessageReply,
+    isFacebook,
     messageExtraInfo,
     attachments,
     editor,
@@ -522,18 +556,21 @@ export const MessageInput = ({
           />
         )}
 
-        {isDiscord && !isInternalNote && discordReplyTo && (
+        {!isInternalNote && replyPreview && (
           <div className="mx-6 mb-1 flex items-center justify-between gap-2 rounded-md bg-muted px-3 py-1.5 text-sm">
             <div className="flex min-w-0 items-center gap-2 text-muted-foreground">
               <IconArrowBackUp className="size-4 flex-none" />
               <span className="truncate">
-                {t('replying-to', 'Replying to:')} {discordReplyTo.preview}
+                {t('replying-to', 'Replying to:')} {replyPreview.preview}
               </span>
             </div>
             <button
               type="button"
               aria-label="Cancel reply"
-              onClick={() => setDiscordReplyTo(null)}
+              onClick={() => {
+                setDiscordReplyTo(null);
+                setMessageReply(null);
+              }}
               className="flex-none text-muted-foreground hover:text-foreground"
             >
               <IconX size={14} aria-hidden="true" />

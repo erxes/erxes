@@ -848,10 +848,10 @@ export const getFacebookUserProfilePic = async (
         false,
       );
 
-      return String(awsResponse);
+      return awsResponse || response.location || null;
     }
 
-    return response.location;
+    return response.location || null;
   } catch (e) {
     debugError(
       `Error occurred while getting facebook user profile pic: ${e.message}`,
