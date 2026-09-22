@@ -6,7 +6,7 @@
 - **Project:** `operation_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/operation_api`
-- **Last synchronized:** `2026-09-14`
+- **Last synchronized:** `2026-09-21`
 
 ## Scope
 
@@ -132,6 +132,17 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-21` — The task and project actions say they need someone to act for
+
+- **Summary:** `Create task` and `Create project` now declare
+  `requiresActor: true`. Both already take their owner from the run's
+  `createdVia.actorId` through `getAutomationUserId`; the declaration lets the
+  builder tell, before an automation goes live, whether its records will belong
+  to someone. Creation itself is unchanged.
+- **Affected areas:** `src/modules/automations/constants.ts`
+- **Contracts changed:** The action descriptor carries `requiresActor`, a field
+  `erxes-api-shared` added for every plugin to use.
 
 ### `2026-09-14` — A task an automation opened records what produced it
 

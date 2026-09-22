@@ -1803,6 +1803,17 @@ isInternal)` is the agent-side list and requires `showTickets`.
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-21` — The ticket action says it needs someone to act for
+
+- **Summary:** `Create ticket` now declares `requiresActor: true`. The ticket it
+  opens is assigned from the run's `createdVia.actorId` when the conversation
+  names nobody, so the builder can tell whether an automation about to go live
+  will create records that belong to a person. Assignment itself is unchanged.
+- **Affected areas:**
+  `src/modules/ticket/meta/automations/ticketAutomationsConstants.ts`
+- **Contracts changed:** The action descriptor carries `requiresActor`, a field
+  `erxes-api-shared` added for every plugin to use.
+
 ### `2026-09-21` — Automation actions state their outcome instead of returning quietly
 
 - **Summary:** Every automation action this plugin owns now answers with the
@@ -1940,17 +1951,4 @@ isInternal)` is the agent-side list and requires `showTickets`.
   while they are unclaimed, or to whoever subscribed to one.
 - **Affected areas:** `src/modules/integrations/mail/utils/tickets.ts`,
   `src/modules/ticket/utils/generateFilter.ts`
-- **Contracts changed:** `None`
-
-### `2026-09-10` — Review fixes on the pipeline mail path
-
-- **Summary:** An answer now goes to the sender of the ticket's newest inbound
-  message instead of its first related customer, inbound addresses are stored
-  lowercased so a mixed-case sender no longer opens a second ticket, Cloudflare
-  requests carry a 20s abort deadline, a forwarding confirmation is recognised
-  only from an automated-looking sender and only its https links on known
-  provider hosts are kept, and index reconciliation is serialized per subdomain.
-- **Affected areas:** `src/modules/integrations/mail/utils/{tickets,forwardVerification,indexes}.ts`,
-  `src/modules/integrations/mail/utils/cloudflare/client.ts`,
-  `src/modules/integrations/mail/controller/receiveMessage.ts`
 - **Contracts changed:** `None`

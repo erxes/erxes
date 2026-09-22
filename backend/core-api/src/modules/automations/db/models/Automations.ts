@@ -31,16 +31,14 @@ export interface IAutomationModel extends Model<IAutomationDocument> {
     doc: TAutomationEdit,
     userId: string,
   ): Promise<IAutomationDocument>;
-  archiveAutomations(
-    _ids: string[],
-    isRestore: boolean,
-  ): Promise<string[]>;
+  archiveAutomations(_ids: string[], isRestore: boolean): Promise<string[]>;
   removeAutomations(_ids: string[]): Promise<string[]>;
   duplicateAutomation(
     _id: string,
     userId: string,
     name?: string,
   ): Promise<IAutomationDocument>;
+  setOwner(_id: string, ownerId: string): Promise<IAutomationDocument>;
 }
 
 export const loadClass = (
@@ -54,11 +52,21 @@ export const loadClass = (
     }
 
     public static async createAutomation(doc: IAutomation, userId: string) {
+      // Creating it already live is the same act as activating it, so the
+      // same person takes it on.
+      const bornRunning = doc.status === AUTOMATION_STATUSES.ACTIVE;
+      const now = new Date();
+
       const created = await models.Automations.create({
         ...doc,
-        createdAt: new Date(),
+        createdAt: now,
         createdBy: userId,
         updatedBy: userId,
+        ...(bornRunning && {
+          ownerId: userId,
+          activatedBy: userId,
+          activatedAt: now,
+        }),
       });
 
       sendDbEventLog({
@@ -114,10 +122,31 @@ export const loadClass = (
         !!automation.duplicatedFrom &&
         (!isUntouchedDuplicate || !!acknowledgeDuplicate);
 
+      // Flipping the switch is not editing the flow. Stamping `updatedBy` for
+      // it used to hand the automation's authorship — and every record it goes
+      // on to create — to whoever last toggled it.
+      const isStatusOnly =
+        Object.keys(changes).length === 1 && changes.status !== undefined;
+
+      const startedRunning =
+        isActivating && automation.status !== AUTOMATION_STATUSES.ACTIVE;
+
       const updated = await models.Automations.findOneAndUpdate(
         { _id },
         {
-          $set: { ...changes, updatedAt: new Date(), updatedBy: userId },
+          $set: {
+            ...changes,
+            updatedAt: new Date(),
+            ...(isStatusOnly ? {} : { updatedBy: userId }),
+            ...(startedRunning && {
+              activatedBy: userId,
+              activatedAt: new Date(),
+              // Taken, never given: putting an automation live is answering
+              // for what it does, and the first person to do so is its owner
+              // until someone else accepts it from them.
+              ...(automation.ownerId ? {} : { ownerId: userId }),
+            }),
+          },
           ...(shouldClearDuplicatedFrom && { $unset: { duplicatedFrom: '' } }),
         },
         { new: true },
@@ -145,10 +174,7 @@ export const loadClass = (
       return models.Automations.getAutomation(_id);
     }
 
-    public static async archiveAutomations(
-      _ids: string[],
-      isRestore: boolean,
-    ) {
+    public static async archiveAutomations(_ids: string[], isRestore: boolean) {
       await models.Automations.updateMany(
         { _id: { $in: _ids } },
         {
@@ -196,6 +222,38 @@ export const loadClass = (
       await requestScheduleReconcile(subdomain);
 
       return _ids;
+    }
+
+    /**
+     * Moves ownership. Taken by activating it, or handed over through an
+     * approved change — never assigned to someone who did not agree, so the
+     * caller is responsible for having that agreement.
+     */
+    public static async setOwner(_id: string, ownerId: string) {
+      const automation = await models.Automations.getAutomation(_id);
+
+      if (!automation) {
+        throw new Error('Automation not found');
+      }
+
+      const updated = await models.Automations.findOneAndUpdate(
+        { _id },
+        { $set: { ownerId } },
+        { new: true },
+      );
+
+      if (!updated) {
+        throw new Error('Automation not found');
+      }
+
+      sendDbEventLog({
+        action: 'update',
+        docId: _id,
+        prevDocument: automation,
+        currentDocument: updated.toObject(),
+      });
+
+      return updated;
     }
 
     public static async duplicateAutomation(

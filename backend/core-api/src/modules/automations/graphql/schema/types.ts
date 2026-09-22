@@ -69,6 +69,9 @@ const types = `
     updatedAt: Date
     createdBy: String
     updatedBy: String
+    ownerId: String
+    activatedBy: String
+    activatedAt: Date
     tagIds:[String]
     triggers: [Trigger]
     actions: [Action]
@@ -82,6 +85,7 @@ const types = `
 
     createdUser: User
     updatedUser: User
+    ownerUser: User
     approvalLockState(action: String): ApprovalLockState
 
   }

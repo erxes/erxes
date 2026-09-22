@@ -21,6 +21,14 @@ export const APPROVAL_LOCK_FIELDS = gql`
 export const APPROVAL_REQUEST_FIELDS = gql`
   fragment ApprovalRequestFields on ApprovalRequest {
     _id
+    kind
+    change {
+      changeType
+      payload
+      summary
+    }
+    appliedAt
+    applyError
     contentType
     contentId
     lockId
@@ -118,6 +126,30 @@ export const APPROVAL_REQUEST_DETAIL = gql`
           avatar
         }
       }
+    }
+  }
+  ${APPROVAL_REQUEST_FIELDS}
+`;
+
+export const APPROVAL_REQUESTS = gql`
+  query ApprovalRequests(
+    $status: String
+    $contentType: String
+    $contentId: String
+    $kind: String
+    $limit: Int
+  ) {
+    approvalRequests(
+      status: $status
+      contentType: $contentType
+      contentId: $contentId
+      kind: $kind
+      limit: $limit
+    ) {
+      list {
+        ...ApprovalRequestFields
+      }
+      totalCount
     }
   }
   ${APPROVAL_REQUEST_FIELDS}

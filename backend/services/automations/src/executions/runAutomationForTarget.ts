@@ -88,7 +88,10 @@ export const runAutomationForTarget = async (
     ...(createdVia || {
       source: 'automation',
       sourceId: automationId,
-      actorId: automation.updatedBy || automation.createdBy,
+      // Its owner, not whoever touched it last: records are made on behalf of
+      // the person who answers for this automation, and editing a flow — or
+      // flipping its switch — is not that.
+      actorId: automation.ownerId || automation.createdBy,
     }),
     runId: execution._id,
   };

@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-09-14`
+- **Last synchronized:** `2026-09-21`
 
 ## Scope
 
@@ -330,6 +330,17 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-21` — The deal action says it needs someone to act for
+
+- **Summary:** `Create deal` now declares `requiresActor: true` on its action
+  descriptor. The deal it opens takes an owner from the run's
+  `createdVia.actorId`, and the builder reads this declaration to decide
+  whether putting an automation live is worth saying whose name its records
+  will carry. Nothing about how the deal is created changed.
+- **Affected areas:** `src/modules/sales/meta/automations/constants.ts`
+- **Contracts changed:** The action descriptor carries `requiresActor`, a field
+  `erxes-api-shared` added for every plugin to use.
+
 ### `2026-09-14` — A deal an automation opened records what produced it
 
 - **Summary:** Deals created by an automation now carry `createdVia` — the
@@ -449,16 +460,3 @@
   `src/modules/pos/db/definitions/orders.ts` (`customerId` index).
 - **Contracts changed:** New segment content type `sales:pos.orders`; new
   relation `customer.posOrders`.
-
-### `2026-09-01` — Segment evaluation moved to the shared engine
-
-- **Summary:** `evaluate/deal.ts`, `evaluate/relations.ts` and
-  `evaluate/readPath.ts` were replaced by `evaluateOwnedSegmentFields` from
-  `erxes-api-shared`; sales now states only what is its own - the deal
-  collection (`meta/segments/collections.ts`), its declarations, and the two
-  stage rewrites - and the plugin's segment code dropped from 1,142 to 773
-  lines with no behaviour change.
-- **Affected areas:** `src/modules/sales/meta/segments/collections.ts` (new),
-  `evaluate/index.ts`, `evaluate/stageDerived.ts` (new); `evaluate/deal.ts`,
-  `evaluate/relations.ts`, `evaluate/readPath.ts` removed.
-- **Contracts changed:** None.

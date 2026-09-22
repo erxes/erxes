@@ -23,6 +23,16 @@ export default {
     return await models.Users.findOne({ _id: updatedBy });
   },
 
+  // Nobody has taken it on until it first runs, so an untouched draft answers
+  // with its creator — the same person the engine would act for.
+  async ownerUser(
+    { ownerId, createdBy }: IAutomationDoc,
+    _args: unknown,
+    { models }: IContext,
+  ) {
+    return await models.Users.findOne({ _id: ownerId || createdBy });
+  },
+
   async tags({ tagIds }: IAutomationDoc, _args: unknown, { models }: IContext) {
     return await models.Tags.find({ _id: { $in: tagIds } });
   },

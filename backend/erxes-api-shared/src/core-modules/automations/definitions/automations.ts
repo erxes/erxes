@@ -92,6 +92,16 @@ export interface IAutomation {
   createdBy: string;
   updatedAt: Date;
   updatedBy: string;
+  /**
+   * Whose automation this is: the records it creates are made on this
+   * person's behalf. Taken by whoever first puts it live, and moved only by
+   * consent — never derived from who edited it last, because editing a flow
+   * is not the same as answering for what it does.
+   */
+  ownerId?: string;
+  /** Who last put it live, and when. Audit, not ownership. */
+  activatedBy?: string;
+  activatedAt?: Date;
   tagIds: string[];
 }
 
@@ -188,6 +198,9 @@ export const automationSchema = new Schema({
   createdBy: { type: String },
   updatedAt: { type: Date, default: new Date(), label: 'Updated date' },
   updatedBy: { type: String },
+  ownerId: { type: String, label: 'Owner', optional: true },
+  activatedBy: { type: String, optional: true },
+  activatedAt: { type: Date, optional: true },
   tagIds: { type: [String], label: 'Tag Ids', optional: true },
 });
 

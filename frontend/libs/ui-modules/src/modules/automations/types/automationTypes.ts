@@ -339,6 +339,8 @@ export type IAutomationsActionConfigConstants = {
   deferred?: { enable?: boolean; mode?: string; timeoutMinutes?: number };
   /** Whether the action can carry a retry / error-branch policy. */
   errorPolicy?: { supported?: boolean };
+  /** The action creates records that belong to someone. */
+  requiresActor?: boolean;
 };
 
 export type IAutomationNodeConfigConstants =

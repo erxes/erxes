@@ -95,6 +95,12 @@ export type WorkflowNodeData = {
   flowDirection?: TAutomationFlowDirection;
 };
 
+export type TAutomationUser = {
+  _id?: string;
+  email?: string;
+  details?: { fullName?: string; avatar?: string };
+};
+
 export interface IAutomationDoc {
   name: string;
   status: string;
@@ -107,8 +113,12 @@ export interface IAutomationDoc {
   createdBy?: string;
   updatedBy?: string;
   createdByIds?: string;
-  updatedUser?: any;
-  createdUser?: any;
+  /** Whose automation it is; records it creates are made on their behalf. */
+  ownerId?: string;
+  activatedAt?: string;
+  ownerUser?: TAutomationUser;
+  updatedUser?: TAutomationUser;
+  createdUser?: TAutomationUser;
   notes?: IAutomationNote[];
   tags?: any[];
   tagIds?: string[];

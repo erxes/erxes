@@ -162,6 +162,12 @@ export type IAutomationsActionConfig = {
    * have nothing left to act on.
    */
   errorPolicy?: { supported: boolean };
+  /**
+   * The action creates records that belong to someone, so the run needs a
+   * person to act for — the automation's owner. Declaring nothing means the
+   * action owns nothing and never asks who it is acting as.
+   */
+  requiresActor?: boolean;
 };
 
 export type IAutomationsBotsConfig = {

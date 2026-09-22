@@ -29,6 +29,7 @@ const mutations = `
   automationsEdit(_id: String, acknowledgeDuplicate: Boolean, ${commonFields}): Automation
   automationsDuplicate(_id: String!, name: String): Automation
   automationsRemove(automationIds: [String]): [String]
+
   archiveAutomations(automationIds: [String],isRestore:Boolean): [String]
 
   automationsSaveAsTemplate(_id: String!, name: String, duplicate: Boolean): Automation

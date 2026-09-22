@@ -20,6 +20,10 @@ import {
   TRecordReferenceProducers,
   TRecordReferenceProducersInput,
 } from '../../core-modules/common/references/types';
+import {
+  TApprovalChangeProducers,
+  TApprovalChangeProducersInput,
+} from '../../core-modules/approval/types';
 type TModuleProducerInputMap = {
   automations: {
     [K in TAutomationProducers]: TAutomationProducersInput[K];
@@ -38,6 +42,9 @@ type TModuleProducerInputMap = {
   };
   references: {
     [K in TRecordReferenceProducers]: TRecordReferenceProducersInput[K];
+  };
+  approval: {
+    [K in TApprovalChangeProducers]: TApprovalChangeProducersInput[K];
   };
 };
 

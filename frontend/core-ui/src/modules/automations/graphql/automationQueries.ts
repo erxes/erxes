@@ -41,6 +41,30 @@ query AutomationDetail($id: String!) {
     updatedAt
     createdBy
     updatedBy
+    ownerId
+    activatedAt
+    ownerUser {
+      _id
+      email
+      details {
+        fullName
+        avatar
+      }
+    }
+    createdUser {
+      _id
+      details {
+        fullName
+        avatar
+      }
+    }
+    updatedUser {
+      _id
+      details {
+        fullName
+        avatar
+      }
+    }
     duplicatedFrom
     duplicatedFromName
     triggers {

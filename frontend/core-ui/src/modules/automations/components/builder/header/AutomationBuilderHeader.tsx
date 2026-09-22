@@ -3,6 +3,7 @@ import { AutomationBuilderNameInput } from '@/automations/components/builder/hea
 import { AutomationBuilderStatusSwitch } from '@/automations/components/builder/header/AutomationBuilderStatusSwitch';
 import { AutomationDuplicatedFromLink } from '@/automations/components/builder/header/AutomationDuplicatedFromLink';
 import { AutomationHeaderTabs } from '@/automations/components/builder/header/AutomationHeaderTabs';
+import { AutomationOwnerBadge } from '@/automations/components/builder/header/AutomationOwnerBadge';
 import { useAutomationHeader } from '@/automations/components/builder/hooks/useAutomationHeader';
 import { useAutomation } from '@/automations/context/AutomationProvider';
 import { useAutomationNodes } from '@/automations/hooks/useAutomationNodes';
@@ -99,6 +100,7 @@ export const AutomationBuilderHeader = () => {
               <IconAlertTriangle className="size-3.5" /> Unsaved
             </Badge>
           )}
+          <AutomationOwnerBadge />
           <AutomationHeaderTabs toggleTabs={toggleTabs} />
         </div>
         <div className="ml-auto flex shrink-0">

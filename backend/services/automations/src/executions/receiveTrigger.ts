@@ -84,7 +84,7 @@ export const receiveTrigger = async ({
         const execution = await calculateExecution({
           models,
           subdomain,
-          automationId: automation._id,
+          automation,
           trigger,
           target,
           eventUpdateDescription,
