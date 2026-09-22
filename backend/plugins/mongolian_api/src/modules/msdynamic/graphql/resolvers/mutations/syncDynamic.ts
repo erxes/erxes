@@ -1,5 +1,5 @@
 import { IContext, generateModels } from '~/connectionResolvers';
-import { consumeInventory, orderToDynamic } from '../../../utils';
+import { consumeInventory, orderToDynamic, consumeCategory, } from '../../../utils';
 import { consumeCustomers } from '~/modules/msdynamic/utilsCustomer';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
@@ -97,7 +97,42 @@ export const msdynamicSyncMutations = {
 
     return { status: 'success' };
   },
+  async toSyncMsdProductCategories(
+    _root,
+    {
+      brandId,
+      categoryId,
+      action,
+      categories,
+    }: {
+      brandId: string;
+      categoryId?: string;
+      action: string;
+      categories: any[];
+    },
+    { subdomain, checkPermission }: IContext,
+  ) {
+    await checkPermission('msdSync');
 
+    const models = await generateModels(subdomain);
+    const config = await getDynamicConfig(models, brandId);
+
+    for (const category of categories || []) {
+      try {
+        await consumeCategory(
+          subdomain,
+          config,
+          categoryId,
+          category,
+          action.toLowerCase(),
+        );
+      } catch (e: any) {
+        console.error('toSyncMsdProductCategories error:', e?.message);
+      }
+    }
+
+    return { status: 'success' };
+  },
   async toSendMsdOrders(
     _root,
     { orderIds }: { orderIds: string[] },

@@ -86,4 +86,5 @@ export const mutations = `
   toCheckMsdPrices(brandId: String): JSON
   toSyncMsdPrices(prices: [JSON], brandId: String): JSON
   toCheckMsdProductCategories(brandId: String, categoryId: String): JSON
+  toSyncMsdProductCategories(brandId: String, action: String!, categoryId: String, categories: [JSON!]!): JSON
 `;

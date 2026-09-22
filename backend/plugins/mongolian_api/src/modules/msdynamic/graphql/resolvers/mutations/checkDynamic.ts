@@ -79,27 +79,12 @@ const comparePrices = async ({
   result: any;
 }) => {
 for (const itemNo of Object.keys(groupedItems)) {
-  if (itemNo === '20-KA900E-QS') {
-    console.log('🔥 FOUND 20-KA900E-QS BEFORE GETPRICE');
-    console.log(groupedItems[itemNo]);
-  }
-
   try {
     const { resPrice, resProd } = await getPrice(
       groupedItems[itemNo],
       pricePriority,
       exchangeRates,
     );
-
-    if (itemNo === '20-KA900E-QS') {
-      console.log('🔥 PRICE DEBUG:', {
-        items: groupedItems[itemNo],
-        pricePriority,
-        exchangeRates,
-        resPrice,
-        resProd,
-      });
-    }
 
     const foundProduct = productsByCode[itemNo];
 
@@ -277,7 +262,7 @@ export const msdynamicCheckMutations = {
     const categoriesCount = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
-      module: 'categories',
+      module: 'productCategories',
       action: 'count',
       input: {
         query: { status: { $ne: 'deleted' } },
@@ -288,7 +273,7 @@ export const msdynamicCheckMutations = {
     const categories = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
-      module: 'categories',
+      module: 'productCategories',
       action: 'find',
       input: {
         query: { status: { $ne: 'deleted' } },
