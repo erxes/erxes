@@ -224,6 +224,15 @@ export const FormPreviewContent = ({
     resolver: zodResolver(schema),
     defaultValues: defaultValues,
   });
+
+  useEffect(() => {
+    Object.entries(defaultValues).forEach(([fieldId, value]) => {
+      if (form.getValues(fieldId) === undefined) {
+        form.setValue(fieldId, value, { shouldDirty: false });
+      }
+    });
+  }, [fields]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const formGeneral = useAtomValue(formSetupGeneralAtom);
   return (
     <Form {...form}>
