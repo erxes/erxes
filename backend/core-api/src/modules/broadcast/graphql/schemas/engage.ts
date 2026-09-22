@@ -157,9 +157,12 @@ export const types = `
 
   input EngageMessageEmail {
     content: String,
+    contentJson: JSON,
+    contentFormat: String,
     subject: String!,
     replyTo: String,
     sender: String,
+    previewText: String,
     attachments: [JSON]
   }
 
@@ -371,7 +374,7 @@ export const mutations = `
     scope: String
   ): String
   engageMessageRemoveVerifiedEmail(email: String!, scope: String): String
-  engageMessageSendTestEmail(from: String!, to: String!, content: String!, title: String!): String
+  engageMessageSendTestEmail(from: String!, to: String!, content: String, contentJson: JSON, contentFormat: String, previewText: String, title: String!): String
   engageMessageCopy(_id: String!): EngageMessage
   engageMessageSetSchedule(
     _id: String!

@@ -167,53 +167,6 @@ export const automationMutations = {
     return models.AiAgents.reindexAgent(_id, fileId);
   },
 
-  /**
-   * Creates a new email template
-   */
-  async automationEmailTemplatesAdd(
-    _root,
-    doc: { name: string; description?: string; content: string },
-    { user, models, checkPermission }: IContext,
-  ) {
-    await checkPermission('automationsCreate');
-
-    const template = await models.AutomationEmailTemplates.createEmailTemplate({
-      ...doc,
-      createdBy: user._id,
-    });
-
-    return template;
-  },
-
-  /**
-   * Updates an email template
-   */
-  async automationEmailTemplatesEdit(
-    _root,
-    {
-      _id,
-      ...doc
-    }: { _id: string; name: string; description?: string; content: string },
-    { models, checkPermission }: IContext,
-  ) {
-    await checkPermission('automationsUpdate');
-
-    return models.AutomationEmailTemplates.updateEmailTemplate(_id, doc);
-  },
-
-  /**
-   * Removes an email template
-   */
-  async automationEmailTemplatesRemove(
-    _root,
-    { _id }: { _id: string },
-    { models, checkPermission }: IContext,
-  ) {
-    await checkPermission('automationsDelete');
-
-    await models.AutomationEmailTemplates.removeEmailTemplate(_id);
-    return { success: true };
-  },
 
   /**
    * Creates a workflow template

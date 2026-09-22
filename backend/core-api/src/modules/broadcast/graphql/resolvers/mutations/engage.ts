@@ -11,6 +11,11 @@ import {
 } from '@/broadcast/utils/outboundEmail';
 import { TBroadcastRecurrence } from '@/broadcast/utils/recurrence';
 import { scheduledAt } from '@/broadcast/utils/schedule';
+import {
+  JSONContent,
+  renderEmailContent,
+  TEmailContentFormat,
+} from 'erxes-api-shared/core-modules';
 import { deliverEmail, ISingleSenderInput } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { TEmailScope } from '~/utils/email/scope';
@@ -204,20 +209,22 @@ export const engageMutations = {
     args: {
       from: string;
       to: string;
-      content: string;
+      content?: string;
+      contentJson?: JSONContent;
+      contentFormat?: TEmailContentFormat;
+      previewText?: string;
       title: string;
     },
     { subdomain, models }: IContext,
   ) {
-    const { content, from, to, title } = args;
+    const { content, contentJson, contentFormat, previewText, from, to, title } =
+      args;
 
-    if (!(content && from && to && title)) {
+    if (!((content || contentJson) && from && to && title)) {
       throw new Error(
         'Email content, title, from address or to address is missing',
       );
     }
-
-    let replacedContent = content;
 
     const emails = to.split(',');
     if (emails.length > 1) {
@@ -232,12 +239,22 @@ export const engageMutations = {
       throw new Error('User not found');
     }
 
-    const attributeUtil = await getEditorAttributeUtil(subdomain);
+    const html = await renderEmailContent(
+      { content, contentJson, contentFormat, previewText },
+      {
+        replacer: targetUser || fromUser || {},
+        replaceBlocks: async (blocks) => {
+          const attributeUtil = await getEditorAttributeUtil(subdomain);
 
-    replacedContent = await attributeUtil.replaceAttributes({
-      content,
-      user: targetUser,
-    });
+          return (
+            (await attributeUtil.replaceAttributes({
+              content: blocks,
+              user: targetUser,
+            })) || blocks
+          );
+        },
+      },
+    );
 
     try {
       const response = await deliverEmail({
@@ -247,7 +264,7 @@ export const engageMutations = {
           from,
           to: [to],
           subject: title,
-          html: replacedContent || content,
+          html,
         },
         log: createDeliveryLogPort(models),
         meta: { source: 'broadcast', userId: fromUser?._id, subdomain },

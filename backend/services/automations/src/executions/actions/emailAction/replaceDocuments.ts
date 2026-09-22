@@ -1,5 +1,5 @@
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
-import { renderEmailContent } from './renderEmailContent';
+import { renderEmailContent } from 'erxes-api-shared/core-modules';
 
 export const replaceDocuments = async (
   subdomain: string,
@@ -58,7 +58,10 @@ export const replaceDocuments = async (
       defaultValue: null,
     });
 
-    replacements.set(documentId, renderEmailContent(document?.content || ''));
+    replacements.set(
+      documentId,
+      await renderEmailContent({ content: document?.content || '' }),
+    );
   }
 
   return content.replace(

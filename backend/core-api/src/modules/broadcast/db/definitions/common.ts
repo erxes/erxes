@@ -1,5 +1,8 @@
 import { MESSENGER_KINDS, SENT_AS_CHOICES } from '@/broadcast/constants';
-import { ruleSchema } from 'erxes-api-shared/core-modules';
+import {
+  EMAIL_CONTENT_FORMATS,
+  ruleSchema,
+} from 'erxes-api-shared/core-modules';
 import { Schema } from 'mongoose';
 
 export const scheduleDateSchema = new Schema(
@@ -40,7 +43,16 @@ export const emailSchema = new Schema(
     subject: { type: String, label: 'Subject', required: true },
     sender: { type: String, label: 'Sender' },
     replyTo: { type: String, label: 'Reply to' },
-    content: { type: String, label: 'Content', required: true },
+    previewText: { type: String, label: 'Preview text' },
+    content: { type: String, label: 'Content' },
+    contentJson: { type: Schema.Types.Mixed, label: 'Content JSON' },
+    // Which editor wrote the body. Absent on everything saved before the
+    // email editor existed, and that absence means block content.
+    contentFormat: {
+      type: String,
+      enum: Object.values(EMAIL_CONTENT_FORMATS),
+      label: 'Content format',
+    },
   },
   {
     _id: false,

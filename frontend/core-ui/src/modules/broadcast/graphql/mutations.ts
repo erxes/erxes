@@ -90,6 +90,26 @@ export const BROADCAST_MESSAGE_EDIT = gql`
   }
 `;
 
+export const BROADCAST_SEND_TEST_EMAIL = gql`
+  mutation BROADCAST_SEND_TEST_EMAIL(
+    $from: String!
+    $to: String!
+    $contentJson: JSON
+    $contentFormat: String
+    $previewText: String
+    $title: String!
+  ) {
+    engageMessageSendTestEmail(
+      from: $from
+      to: $to
+      contentJson: $contentJson
+      contentFormat: $contentFormat
+      previewText: $previewText
+      title: $title
+    )
+  }
+`;
+
 export const BROADCAST_UPDATE_CONFIGS = gql`
   mutation BROADCAST_UPDATE_CONFIGS($configsMap: JSON!) {
     broadcastUpdateConfigs(configsMap: $configsMap)

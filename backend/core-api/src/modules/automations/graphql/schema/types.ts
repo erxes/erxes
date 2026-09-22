@@ -203,23 +203,6 @@ const types = `
     checks: JSON
   }
 
-  type AutomationEmailTemplate {
-    _id: String!
-    name: String!
-    description: String
-    content: String!
-    createdBy: String!
-    createdAt: Date
-    updatedAt: Date
-    createdUser: User
-  }
-
-  type AutomationEmailTemplatesListResponse {
-    list: [AutomationEmailTemplate]
-    totalCount: Float
-    pageInfo: PageInfo
-  }
-
   type AutomationWorkflowTemplate {
     _id: String!
     name: String!

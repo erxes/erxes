@@ -8,23 +8,30 @@ import { BroadcastSteps } from './steps/BroadcastSteps';
  * Creating a campaign, opened by choosing a method.
  *
  * The chosen method is what holds the sheet open, rather than a flag beside
- * it: the calendar starts a campaign from a selection of days, and it has the
- * query string to hand, not this component's state. An edit carries a method
- * too, and belongs to the other sheet, so it is left alone here.
+ * it: the calendar starts a campaign from a selection of days, and the
+ * contacts list starts one for a single person — both have the query string to
+ * hand, not this component's state. An edit carries a method too, and belongs
+ * to the other sheet, so it is left alone here.
  */
-export const BroadcastSheet = () => {
+export const BroadcastSheet = ({
+  showTrigger = true,
+}: {
+  showTrigger?: boolean;
+}) => {
   const [{ method, editMessageId }, setQueryParams] = useMultiQueryState<{
     method: IBroadcastMethodEnum;
     editMessageId: string;
-  }>(['method', 'editMessageId']);
+    broadcastContactId: string;
+  }>(['method', 'editMessageId', 'broadcastContactId']);
 
   const { clearRange } = useBroadcastScheduleRange();
 
   const handleClose = () => {
-    // The days picked on the calendar were for this campaign; leaving them
-    // behind would quietly schedule the next one into them.
+    // The days picked on the calendar and the contact picked in the list were
+    // for this campaign; leaving them behind would quietly carry them into the
+    // next one.
     clearRange();
-    setQueryParams({ method: null });
+    setQueryParams({ method: null, broadcastContactId: null });
   };
 
   return (
@@ -32,7 +39,7 @@ export const BroadcastSheet = () => {
       open={!!method && !editMessageId}
       onOpenChange={(open) => !open && handleClose()}
     >
-      <BroadcastMethod onSelect={() => undefined} />
+      {showTrigger && <BroadcastMethod onSelect={() => undefined} />}
 
       <Sheet.View
         className={cn(

@@ -4,7 +4,6 @@ import {
   splitType,
 } from 'erxes-api-shared/core-modules';
 import {
-  IAutomationEmailTemplateDocument,
   ICursorPaginateParams,
 } from 'erxes-api-shared/core-types';
 import {
@@ -532,61 +531,6 @@ export const automationQueries = {
     } catch {
       return [];
     }
-  },
-
-  /**
-   * Email templates list
-   */
-  async automationEmailTemplates(
-    _root,
-    params: {
-      page?: number;
-      perPage?: number;
-      searchValue?: string;
-      sortField?: string;
-      sortDirection?: number;
-    },
-    { models }: IContext,
-  ) {
-    const { searchValue, sortField = 'createdAt', sortDirection = -1 } = params;
-
-    const filter: any = {};
-
-    if (searchValue) {
-      filter.$or = [
-        { name: new RegExp(`.*${searchValue}.*`, 'i') },
-        { description: new RegExp(`.*${searchValue}.*`, 'i') },
-      ];
-    }
-
-    const { list, totalCount, pageInfo } =
-      await cursorPaginate<IAutomationEmailTemplateDocument>({
-        model: models.AutomationEmailTemplates,
-        params: {
-          ...params,
-          orderBy: {
-            [sortField]: sortDirection as SortOrder,
-          },
-        },
-        query: filter,
-      });
-
-    return {
-      list,
-      totalCount,
-      pageInfo,
-    };
-  },
-
-  /**
-   * Get one email template
-   */
-  async automationEmailTemplateDetail(
-    _root,
-    { _id }: { _id: string },
-    { models }: IContext,
-  ) {
-    return models.AutomationEmailTemplates.getEmailTemplate(_id);
   },
 
   /**

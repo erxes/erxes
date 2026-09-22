@@ -10,7 +10,6 @@ import {
   Button,
   cn,
   Resizable,
-  Separator,
   Sheet,
   useQueryState,
   useToast,
@@ -46,7 +45,7 @@ const BROADCAST_STEPS = [
       'fromEmail',
       'email.subject',
       'email.replyTo',
-      'email.content',
+      'email.contentJson',
     ],
   },
 ];
@@ -72,7 +71,18 @@ const getConfigValidateFields = (method?: string | null) => {
     ];
   }
 
-  return ['fromEmail', 'email.subject', 'email.replyTo', 'email.content'];
+  return [
+    'fromEmail',
+    'email.subject',
+    'email.replyTo',
+    'email.contentJson',
+  ];
+};
+
+type BroadcastStepsProps = {
+  messageId?: string;
+  initialValues?: Partial<IBroadcastFormData>;
+  onClose: () => void;
 };
 
 /**
@@ -84,11 +94,7 @@ export const BroadcastSteps = ({
   messageId,
   initialValues,
   onClose,
-}: {
-  messageId?: string;
-  initialValues?: Partial<IBroadcastFormData>;
-  onClose: () => void;
-}) => {
+}: BroadcastStepsProps) => {
   const [method] = useQueryState<IBroadcastMethodEnum>('method');
   const { toast } = useToast();
 
@@ -268,7 +274,8 @@ export const BroadcastStep = ({ step }: { step: number }) => {
 
   return (
     <>
-      <div className="p-5 flex flex-col gap-5 h-full">
+      {/* The step is what scrolls; the sheet's own footer stays put. */}
+      <div className="p-5 flex flex-col gap-5 h-full overflow-y-auto">
         <div className="flex flex-col gap-3">
           <div className="flex items-center gap-2">
             <Badge className="rounded-xl text-xs font-mono">
@@ -289,7 +296,6 @@ export const BroadcastStep = ({ step }: { step: number }) => {
           </div>
           <div className="text-xs text-accent-foreground">{description}</div>
         </div>
-        <Separator />
         <StepContent />
       </div>
     </>

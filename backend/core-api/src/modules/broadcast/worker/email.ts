@@ -5,8 +5,8 @@ import { deliverEmail, normalizeEmail } from 'erxes-api-shared/utils';
 import * as _ from 'lodash';
 import { ICustomerDocument } from 'erxes-api-shared/core-types';
 import { generateModels, IModels } from '~/connectionResolvers';
-import { blocksToHtml } from '~/modules/documents/blocksToHtml';
 import { replaceContent } from '~/modules/documents/utils';
+import { renderEmailContent } from 'erxes-api-shared/core-modules';
 import { unsubscribeUrl } from '~/utils/email/links';
 import {
   createDeliveryLogPort,
@@ -75,33 +75,36 @@ const renderEmail = async (
   customer: ICustomerDocument,
   postalAddress: string,
 ) => {
-  const replacedContent = await replaceContent({
+  const link = unsubscribeUrl(subdomain, { cid: customer._id });
+
+  const htmlContent = await renderEmailContent(run.email || {}, {
     replacer: customer,
-    content: run.email?.content,
-    replacement: (replacer, path) => {
-      const value = _.get(replacer, path);
+    replaceBlocks: (content) =>
+      replaceContent({
+        replacer: customer,
+        content,
+        replacement: (replacer: Record<string, unknown>, path: string) => {
+          const value = _.get(replacer, path);
 
-      if (typeof value === 'number') {
-        return value.toString();
-      }
+          if (typeof value === 'number') {
+            return value.toString();
+          }
 
-      if (value instanceof Date) {
-        return dayjs(value).format('YYYY-MM-DD');
-      }
+          if (value instanceof Date) {
+            return dayjs(value).format('YYYY-MM-DD');
+          }
 
-      return value?.toString() || '-';
+          return value?.toString() || '-';
+        },
+      }),
+    unsubscribeUrl: link,
+    postalAddress,
+    blocksConfig: {
+      resolveImageUrl: (url: string) => readFileUrl(url, subdomain),
     },
   });
 
-  const link = unsubscribeUrl(subdomain, { cid: customer._id });
-
-  return {
-    link,
-    htmlContent: blocksToHtml(replacedContent, {
-      wrapper: { email: true, unsubscribeUrl: link, postalAddress },
-      resolveImageUrl: (url) => readFileUrl(url, subdomain),
-    }),
-  };
+  return { link, htmlContent };
 };
 
 const deliverEmails: TDrainDeliver = async ({

@@ -1,5 +1,4 @@
 import { AutomationConfigFormWrapper } from '@/automations/components/builder/nodes/components/AutomationConfigFormWrapper';
-import { ActionErrorPolicySection } from '@/automations/components/builder/sidebar/components/content/action/ActionErrorPolicySection';
 import { AutomationCoreActionSidebarContent } from '@/automations/components/builder/sidebar/components/content/action/AutomationCoreActionSidebarContent';
 import { useAutomationActionContentSidebar } from '@/automations/components/builder/sidebar/hooks/useAutomationActionContentSidebar';
 import { AutomationErrorState } from '@/automations/components/common/AutomationErrorState';
@@ -25,13 +24,6 @@ export const AutomationActionContentSidebar = () => {
   if (!currentAction || currentIndex === -1) {
     return <Card.Content>Something went wrong</Card.Content>;
   }
-
-  const errorPolicy = (
-    <ActionErrorPolicySection
-      currentIndex={currentIndex}
-      currentAction={currentAction}
-    />
-  );
 
   if (!isCoreActionComponent) {
     return (
@@ -78,7 +70,6 @@ export const AutomationActionContentSidebar = () => {
             </Suspense>
           </AutomationConfigFormWrapper>
         </div>
-        {errorPolicy}
       </div>
     );
   }
@@ -93,7 +84,6 @@ export const AutomationActionContentSidebar = () => {
           onSaveActionConfig={onSaveActionConfig}
         />
       </div>
-      {errorPolicy}
     </div>
   );
 };

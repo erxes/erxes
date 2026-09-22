@@ -1,42 +1,55 @@
 import { SelectEmailTemplate } from '@/automations/components/builder/nodes/actions/sendEmail/components/SelectEmailTemplate';
-import { useAutomationEmailTemplateDetailLazy } from '@/automations/components/settings/components/email-templates/hooks/useAutomationEmailTemplateDetailLazy';
+import { useEmailTemplateDetailLazy } from '@/emailTemplates/hooks/useEmailTemplateDetail';
+import { emailTemplateFormat } from '@/emailTemplates/types';
 import { useConfirm } from 'erxes-ui';
 import { useEffect } from 'react';
+import { useFormContext } from 'react-hook-form';
 
-interface EmailTemplateSelectorProps {
-  content: string;
-  onChange: (content: string) => void;
-}
-
-export const EmailTemplateSelector = ({
-  content,
-  onChange,
-}: EmailTemplateSelectorProps) => {
-  const { loadEmailTemplate, emailTemplate, loading } =
-    useAutomationEmailTemplateDetailLazy();
+/**
+ * Loading a template into the action brings its format with it: a block
+ * template keeps the block editor, an email-editor one switches to that.
+ */
+export const EmailTemplateSelector = ({ content }: { content: string }) => {
+  const { setValue } = useFormContext();
+  const { loadEmailTemplate, emailTemplate } = useEmailTemplateDetailLazy();
   const { confirm } = useConfirm();
 
   const handleTemplateSelect = (templateId: string) => {
-    if (templateId) {
-      // Check if content already exists
-      if (content?.trim()) {
-        confirm({
-          message: `Are you sure you want to set this template to the email content? This will replace the current content.`,
-        }).then(() => {
-          loadEmailTemplate(templateId);
-        });
-      } else {
-        loadEmailTemplate(templateId);
-      }
+    if (!templateId) {
+      return;
     }
+
+    if (content?.trim()) {
+      confirm({
+        message:
+          'Are you sure you want to set this template to the email content? This will replace the current content.',
+      }).then(() => loadEmailTemplate(templateId));
+
+      return;
+    }
+
+    loadEmailTemplate(templateId);
   };
 
-  // Load template content when template is loaded
   useEffect(() => {
-    if (emailTemplate?.content) {
-      onChange(emailTemplate.content);
+    if (!emailTemplate) {
+      return;
     }
-  }, [emailTemplate?.content, onChange]);
+
+    const format = emailTemplateFormat(emailTemplate);
+
+    setValue('contentFormat', format, { shouldDirty: true });
+
+    if (format === 'maily') {
+      setValue('contentJson', emailTemplate.contentJson, {
+        shouldDirty: true,
+      });
+
+      return;
+    }
+
+    setValue('content', emailTemplate.content || '', { shouldDirty: true });
+  }, [emailTemplate, setValue]);
 
   return (
     <SelectEmailTemplate

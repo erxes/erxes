@@ -8,13 +8,26 @@ const pickEmailVariables = (email?: Record<string, unknown>) => {
     return undefined;
   }
 
-  const { content, subject, replyTo, sender, attachments } = email;
-
-  return {
+  const {
     content,
+    contentJson,
+    contentFormat,
     subject,
     replyTo,
     sender,
+    previewText,
+    attachments,
+  } = email;
+
+  return {
+    content,
+    contentJson,
+    // Said outright rather than inferred later from which field is filled.
+    contentFormat: contentFormat || (contentJson ? 'maily' : 'blocks'),
+    subject,
+    replyTo,
+    sender,
+    previewText,
     attachments,
   };
 };

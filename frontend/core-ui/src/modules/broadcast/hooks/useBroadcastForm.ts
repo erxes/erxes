@@ -11,15 +11,27 @@ export type IBroadcastFormData = z.infer<typeof broadcastSchema>;
 
 const getDefaultValues = (
   method?: IBroadcastMethodEnum,
+  // Started from one person in the contacts list: they are the audience, so
+  // the campaign opens targeted at them rather than at a segment.
+  broadcastContactId?: string | null,
 ): Partial<IBroadcastFormData> => {
-  const base = {
-    targetType: 'segment' as const,
-    targetIds: [],
-    targetCount: 0,
-    isLive: false,
-    isDraft: false,
-    title: '',
-  };
+  const base = broadcastContactId
+    ? {
+        targetType: 'customer' as const,
+        targetIds: [broadcastContactId],
+        targetCount: 1,
+        isLive: false,
+        isDraft: false,
+        title: '',
+      }
+    : {
+        targetType: 'segment' as const,
+        targetIds: [],
+        targetCount: 0,
+        isLive: false,
+        isDraft: false,
+        title: '',
+      };
 
   if (method === 'notification') {
     return {
@@ -66,7 +78,8 @@ const getDefaultValues = (
       subject: '',
       sender: '',
       documentId: '',
-      content: '',
+      previewText: '',
+      contentFormat: 'maily' as const,
     },
   };
 };
@@ -78,6 +91,7 @@ const getDefaultValues = (
  */
 const useBroadcastForm = (initialValues?: Partial<IBroadcastFormData>) => {
   const [queryMethod] = useQueryState<IBroadcastMethodEnum>('method');
+  const [broadcastContactId] = useQueryState<string>('broadcastContactId');
   const method = (initialValues?.method ?? queryMethod ?? undefined) as
     | IBroadcastMethodEnum
     | undefined;
@@ -92,10 +106,20 @@ const useBroadcastForm = (initialValues?: Partial<IBroadcastFormData>) => {
       : undefined;
 
   const defaultValues = useMemo<Partial<IBroadcastFormData>>(
-    () => ({ ...getDefaultValues(method), ...planned, ...initialValues }),
+    () => ({
+      ...getDefaultValues(method, broadcastContactId),
+      ...planned,
+      ...initialValues,
+    }),
     // `planned` is rebuilt every render, so the days behind it are what the
     // defaults actually depend on.
-    [method, initialValues, range?.start.getTime(), range?.end.getTime()],
+    [
+      method,
+      broadcastContactId,
+      initialValues,
+      range?.start.getTime(),
+      range?.end.getTime(),
+    ],
   );
 
   const form = useForm<IBroadcastFormData>({ defaultValues });

@@ -3,7 +3,7 @@ import { BROADCAST_EVERY_VALUES } from './utils/scheduleForm';
 
 const baseSchema = {
   title: z.string().min(1),
-  targetType: z.enum(['segment', 'tag']),
+  targetType: z.enum(['segment', 'tag', 'customer']),
   targetIds: z.array(z.string()).min(1),
 
   targetCount: z.number().default(0),
@@ -39,7 +39,10 @@ export const broadcastSchema = z.discriminatedUnion('method', [
         )
         .optional(),
       documentId: z.string(),
-      content: z.string(),
+      content: z.string().optional(),
+      contentJson: z.any().optional(),
+      contentFormat: z.enum(['blocks', 'maily']).optional(),
+      previewText: z.string().optional(),
     }),
     ...baseSchema,
   }),

@@ -6,7 +6,7 @@ import { getEnv, resolveDefaultSenderEmail } from 'erxes-api-shared/utils';
 import { assertSenderAllowed } from '../../../utils/emailSender';
 import { getConfig } from '../../../utils/utils';
 import { collectEmails, getRecipientEmails } from './generateRecipientEmails';
-import { renderEmailContent } from './renderEmailContent';
+import { renderEmailContent } from 'erxes-api-shared/core-modules';
 import { replaceDocuments } from './replaceDocuments';
 import {
   filterOutSenderEmail,
@@ -69,7 +69,14 @@ export const generateEmailPayload = async ({
 
   await assertSenderAllowed(subdomain, fromUserEmail);
 
-  const templateContent = renderEmailContent(config?.content, config?.html);
+  const rendered = await renderEmailContent({
+    content: config?.content,
+    contentJson: config?.contentJson,
+    contentFormat: config?.contentFormat,
+  });
+
+  // Raw html kept on the action stands in when there is nothing to render.
+  const templateContent = rendered || config?.html || config?.content || '';
 
   let replacedContent = normalizeEmailActionPlaceholders(
     templateContent,

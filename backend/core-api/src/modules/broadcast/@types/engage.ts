@@ -1,13 +1,18 @@
 import { TBroadcastRecurrence } from '@/broadcast/utils/recurrence';
 import { ICursorPaginateParams, IRule } from 'erxes-api-shared/core-types';
 import { Document } from 'mongoose';
+import type { TEmailContentFormat } from 'erxes-api-shared/core-modules';
+import type { JSONContent } from '@tiptap/core';
 
 interface IEmail {
   attachments?: any;
   subject?: string;
   content?: string;
+  contentJson?: JSONContent;
+  contentFormat?: TEmailContentFormat;
   replyTo?: string;
   sender?: string;
+  previewText?: string;
 }
 
 export interface IEmailDocument extends IEmail, Document {}

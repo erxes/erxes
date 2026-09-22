@@ -3,7 +3,6 @@ import {
   IAutomationDoc,
 } from 'erxes-api-shared/core-modules';
 import { IContext } from '~/connectionResolvers';
-import { IAutomationEmailTemplateDocument } from 'erxes-api-shared/core-types';
 import { AUTOMATION_APPROVAL_CONTENT_TYPES } from '../../../constants';
 
 export default {
@@ -76,12 +75,3 @@ export default {
   },
 };
 
-export const automationEmailTemplateResolvers = {
-  async createdUser(
-    { createdBy }: IAutomationEmailTemplateDocument,
-    _args: unknown,
-    { models }: IContext,
-  ) {
-    return await models.Users.findOne({ _id: createdBy });
-  },
-};

@@ -1,40 +1,68 @@
-import { Form } from 'erxes-ui';
+import { EmailSenderScopeProvider } from '@/settings/mail-config/contexts/EmailSenderScope';
+import type { Editor as TiptapEditor } from '@tiptap/core';
+import { cn, Form } from 'erxes-ui';
+import { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
-import { BroadcastEditor } from '../BroadcastEditor';
+import { BroadcastCopyHtmlButton } from '../BroadcastCopyHtmlButton';
+import { EmailContentEditor } from '@/emailTemplates/components/EmailContentEditor';
+import { BroadcastInsertTemplate } from '../BroadcastInsertTemplate';
+import { BroadcastPreviewEmailDialog } from '../BroadcastPreviewEmailDialog';
+import { BroadcastSaveAsTemplate } from '../BroadcastSaveAsTemplate';
+import { BroadcastSendTestEmail } from '../BroadcastSendTestEmail';
 
+/**
+ * The email itself, with the tools that act on it in a bar above rather than
+ * among the fields in the other panel.
+ */
 export const BroadcastEmailPreview = () => {
   const {
     control,
     formState: { errors },
   } = useFormContext();
 
-  const hasError = !!errors?.email;
+  const [editor, setEditor] = useState<TiptapEditor>();
+
+  const hasError = !!(errors?.email as { contentJson?: unknown })?.contentJson;
 
   return (
-    <div className="h-full p-10">
-      <div
-        className={`
-          bg-white overflow-y-auto rounded-xl h-full py-8 border transition-all duration-300
-          ${
-            hasError
-              ? 'shadow-[0_0_15px_rgba(239,68,68,0.5)]'
-              : 'shadow-sm hover:shadow-md'
-          }
-        `}
-      >
+    // The test send reads the broadcast sender list, which is not the default
+    // scope this far from the form.
+    <EmailSenderScopeProvider scope="broadcast">
+      <div className="flex h-full flex-col">
+        <div className="flex h-12 shrink-0 items-center gap-2 border-b bg-background px-4">
+          {editor && <BroadcastInsertTemplate editor={editor} />}
+          <div className="ml-auto flex items-center gap-2">
+            <BroadcastPreviewEmailDialog />
+            <BroadcastCopyHtmlButton />
+            <BroadcastSendTestEmail />
+            <BroadcastSaveAsTemplate />
+          </div>
+        </div>
+
         <Form.Field
-          name="email.content"
+          name="email.contentJson"
           control={control}
           rules={{ required: 'Content is required' }}
           render={({ field }) => (
-            <Form.Item>
+            <Form.Item className="flex min-h-0 flex-1 flex-col">
               <Form.Control>
-                <BroadcastEditor attribute document {...field} />
+                <div
+                  className={cn(
+                    'min-h-0 flex-1 overflow-y-auto bg-white',
+                    hasError && 'ring-1 ring-inset ring-destructive',
+                  )}
+                >
+                  <EmailContentEditor
+                    contentJson={field.value}
+                    onChange={field.onChange}
+                    onCreate={setEditor}
+                  />
+                </div>
               </Form.Control>
             </Form.Item>
           )}
         />
       </div>
-    </div>
+    </EmailSenderScopeProvider>
   );
 };

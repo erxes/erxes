@@ -104,10 +104,10 @@ import {
 } from 'erxes-api-shared/core-modules';
 import {
   IAppDocument,
-  IAutomationEmailTemplateDocument,
   IBrandDocument,
   ICompanyDocument,
   ICustomerDocument,
+  IEmailTemplateDocument,
   ILogDocument,
   IMainContext,
   IPermissionGroupDocument,
@@ -153,9 +153,9 @@ import {
 } from '~/modules/auth/db/definitions/oauthRefreshTokens';
 
 import {
-  IAutomationEmailTemplateModel,
-  loadAutomationEmailTemplateClass,
-} from './modules/automations/db/models/AutomationEmailTemplates';
+  IEmailTemplateModel,
+  loadEmailTemplateClass,
+} from './modules/emailTemplates/db/models/EmailTemplates';
 import {
   IAutomationWorkflowTemplateDocument,
   IAutomationWorkflowTemplateModel,
@@ -374,7 +374,7 @@ export interface IModels {
   Documents: IDocumentModel;
   Automations: IAutomationModel;
   AutomationExecutions: IExecutionModel;
-  AutomationEmailTemplates: IAutomationEmailTemplateModel;
+  EmailTemplates: IEmailTemplateModel;
   AutomationWorkflowTemplates: IAutomationWorkflowTemplateModel;
   Logs: ILogModel;
   Imports: IImportModel;
@@ -671,10 +671,12 @@ export const loadClasses = (
     IExecutionModel
   >('automations_executions', loadExecutionClass(models));
 
-  models.AutomationEmailTemplates = db.model<
-    IAutomationEmailTemplateDocument,
-    IAutomationEmailTemplateModel
-  >('automation_email_templates', loadAutomationEmailTemplateClass(models));
+  // One store for both broadcasts and automations. The collection keeps its
+  // old name so nothing has to be migrated into a new one.
+  models.EmailTemplates = db.model<IEmailTemplateDocument, IEmailTemplateModel>(
+    'automation_email_templates',
+    loadEmailTemplateClass(models),
+  );
 
   models.AutomationWorkflowTemplates = db.model<
     IAutomationWorkflowTemplateDocument,
