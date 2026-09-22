@@ -1,8 +1,9 @@
-import { QueryHookOptions, useQuery } from '@apollo/client';
-import { useCallback, useEffect } from 'react';
-import { GET_CONVERSATION_MESSAGES } from '../../conversations/conversation-detail/graphql/queries/getConversationMessages';
-import { CONVERSATION_MESSAGE_INSERTED } from '../../conversations/graphql/subscriptions/inboxSubscriptions';
-import { IMessage } from '../../types/Conversation';
+import { useQuery } from '@apollo/client';
+import type { QueryHookOptions } from '@apollo/client';
+import { useCallback, useEffect, useRef } from 'react';
+import { GET_CONVERSATION_MESSAGES } from '@/inbox/conversations/conversation-detail/graphql/queries/getConversationMessages';
+import { CONVERSATION_MESSAGE_INSERTED } from '@/inbox/conversations/graphql/subscriptions/inboxSubscriptions';
+import type { IMessage } from '@/inbox/types/Conversation';
 
 export const useConversationMessages = (
   options: QueryHookOptions<{
@@ -20,35 +21,74 @@ export const useConversationMessages = (
     conversationMessagesTotalCount: 0,
   };
 
+  const conversationId = options.variables?.conversationId;
+  const initialLimit = options.variables?.limit ?? 10;
+  const oldMessagesSkipRef = useRef(initialLimit);
+  const fetchMoreInFlightRef = useRef<Promise<unknown> | null>(null);
+  const previousConversationIdRef = useRef(conversationId);
+
+  if (previousConversationIdRef.current !== conversationId) {
+    previousConversationIdRef.current = conversationId;
+    oldMessagesSkipRef.current = initialLimit;
+    fetchMoreInFlightRef.current = null;
+  }
+
   const handleFetchMore = useCallback((): Promise<unknown> => {
     if (
       loading ||
+      fetchMoreInFlightRef.current ||
       conversationMessagesTotalCount <= conversationMessages.length
     ) {
-      return Promise.resolve();
+      return fetchMoreInFlightRef.current || Promise.resolve();
     }
 
-    return fetchMore({
+    const skip = oldMessagesSkipRef.current;
+    const request = fetchMore({
       variables: {
-        skip: conversationMessages.length,
-        limit: 10,
+        skip,
+        limit: 50,
       },
       updateQuery: (prev, { fetchMoreResult }) => {
-        if (!fetchMoreResult) return prev;
+        if (!fetchMoreResult?.conversationMessages?.length) return prev;
+
+        const existingIds = new Set(
+          prev.conversationMessages.map((message) => message._id),
+        );
+        const uniqueMessages = fetchMoreResult.conversationMessages.filter(
+          (message) => !existingIds.has(message._id),
+        );
+
+        if (!uniqueMessages.length) return prev;
 
         return {
           conversationMessages: [
-            ...fetchMoreResult.conversationMessages,
+            ...uniqueMessages,
             ...prev.conversationMessages,
           ],
           conversationMessagesTotalCount:
-            fetchMoreResult.conversationMessagesTotalCount,
+            fetchMoreResult.conversationMessagesTotalCount ??
+            prev.conversationMessagesTotalCount,
         };
       },
-    });
+    })
+      .then((result) => {
+        if (previousConversationIdRef.current === conversationId) {
+          oldMessagesSkipRef.current = skip + 50;
+        }
+        return result;
+      })
+      .finally(() => {
+        if (fetchMoreInFlightRef.current === request) {
+          fetchMoreInFlightRef.current = null;
+        }
+      });
+
+    fetchMoreInFlightRef.current = request;
+    return request;
   }, [
     conversationMessages.length,
     conversationMessagesTotalCount,
+    conversationId,
     fetchMore,
     loading,
   ]);
@@ -59,7 +99,7 @@ export const useConversationMessages = (
     }>({
       document: CONVERSATION_MESSAGE_INSERTED,
       variables: {
-        _id: options.variables?.conversationId,
+        _id: conversationId,
       },
       updateQuery: (prev, { subscriptionData }) => {
         if (!prev || !subscriptionData.data) return prev;
@@ -87,7 +127,7 @@ export const useConversationMessages = (
           // Get the cache ID for the conversation
           const conversationId = client.cache.identify({
             __typename: 'Conversation',
-            _id: options.variables?.conversationId,
+            _id: conversationId,
           });
 
           if (conversationId && !newMessage.internal) {
@@ -112,7 +152,7 @@ export const useConversationMessages = (
       },
     });
     return unsubscribe;
-  }, [client.cache, options.variables?.conversationId, subscribeToMore]);
+  }, [client.cache, conversationId, subscribeToMore]);
 
   return {
     messages: conversationMessages,

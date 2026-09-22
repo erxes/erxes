@@ -83,3 +83,16 @@ export const encodeDiscordMentions = (blocks?: Block[]): Block[] | undefined =>
         } as Block)
       : block,
   );
+
+export const escapeComposerQuote = (value: string) =>
+  value.replace(
+    /[&<>"']/g,
+    (character) =>
+      ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;',
+      }[character] || character),
+  );

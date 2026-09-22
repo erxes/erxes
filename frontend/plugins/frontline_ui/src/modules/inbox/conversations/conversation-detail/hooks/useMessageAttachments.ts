@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { toast, useUpload, type IAttachment } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
-import { composerStorage } from '../utils/messageInput';
+import { composerStorage } from '@/inbox/conversations/conversation-detail/utils/messageInput';
 
 const MAX_ATTACHMENTS = 10;
 const DEFAULT_MAXIMUM_BYTES = 20 * 1024 * 1024;
@@ -92,9 +92,10 @@ export const useMessageAttachments = (isDiscord: boolean) => {
           name: file.name,
           size: file.size,
           type: file.type,
-          previewUrl: file.type.startsWith('image/')
-            ? URL.createObjectURL(file)
-            : undefined,
+          previewUrl:
+            file.type.startsWith('image/') || file.type.startsWith('video/')
+              ? URL.createObjectURL(file)
+              : undefined,
         })),
       ]);
       pendingCountRef.current += selectedFiles.length;

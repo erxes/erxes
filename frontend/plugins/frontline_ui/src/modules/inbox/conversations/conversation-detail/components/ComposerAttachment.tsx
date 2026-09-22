@@ -7,6 +7,14 @@ type ComposerAttachmentProps = {
   onRemove: () => void;
 };
 
+type AttachmentKind = 'image' | 'video' | 'file';
+
+const getAttachmentKind = (type?: string): AttachmentKind => {
+  if (type?.startsWith('image')) return 'image';
+  if (type?.startsWith('video')) return 'video';
+  return 'file';
+};
+
 const PreviewImage = ({
   src,
   label,
@@ -20,38 +28,129 @@ const PreviewImage = ({
   <img src={src} alt={label} className={className} />
 );
 
-const AttachmentThumbnail = ({
-  isImage,
+const PreviewVideo = ({
+  src,
+  label,
+  className,
+  controls = false,
+}: {
+  src: string;
+  label: string;
+  className: string;
+  controls?: boolean;
+}) => (
+  <video
+    src={src}
+    aria-label={label}
+    controls={controls}
+    muted={!controls}
+    playsInline
+    preload="metadata"
+    className={className}
+  >
+    <track kind="captions" />
+  </video>
+);
+
+const AttachmentThumbnailContent = ({
+  kind,
   source,
   label,
 }: {
-  isImage: boolean;
+  kind: AttachmentKind;
   source: string;
   label: string;
-}) => (
-  <span className="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-md bg-background text-muted-foreground">
-    {isImage ? (
+}) => {
+  if (kind === 'image') {
+    return (
       <PreviewImage
         src={source}
         label={label}
         className="size-full object-cover"
       />
-    ) : (
-      <IconFile className="size-4" />
-    )}
+    );
+  }
+
+  if (kind === 'video') {
+    return (
+      <PreviewVideo
+        src={source}
+        label={label}
+        className="pointer-events-none size-full object-cover"
+      />
+    );
+  }
+
+  return <IconFile className="size-4" />;
+};
+
+const AttachmentThumbnail = ({
+  kind,
+  source,
+  label,
+}: {
+  kind: AttachmentKind;
+  source: string;
+  label: string;
+}) => (
+  <span className="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-md bg-background text-muted-foreground">
+    <AttachmentThumbnailContent kind={kind} source={source} label={label} />
   </span>
 );
 
-const AttachmentDialogContent = ({
-  attachment,
-  isImage,
+const AttachmentPreview = ({
+  kind,
+  source,
   label,
 }: {
-  attachment: IAttachment;
-  isImage: boolean;
+  kind: AttachmentKind;
+  source: string;
   label: string;
 }) => {
   const { t } = useTranslation('frontline');
+
+  if (kind === 'image') {
+    return (
+      <PreviewImage
+        src={source}
+        label={label}
+        className="max-h-[70vh] w-full rounded-lg object-contain"
+      />
+    );
+  }
+
+  if (kind === 'video') {
+    return (
+      <PreviewVideo
+        src={source}
+        label={label}
+        controls
+        className="max-h-[70vh] w-full rounded-lg bg-black object-contain"
+      />
+    );
+  }
+
+  return (
+    <a
+      href={source}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="rounded-lg border bg-muted/40 p-4 text-sm text-primary underline"
+    >
+      {t('open-attachment', 'Open attachment')}
+    </a>
+  );
+};
+
+const AttachmentDialogContent = ({
+  attachment,
+  kind,
+  label,
+}: {
+  attachment: IAttachment;
+  kind: AttachmentKind;
+  label: string;
+}) => {
   const source = readImage(attachment.url);
 
   return (
@@ -59,34 +158,19 @@ const AttachmentDialogContent = ({
       <Dialog.Header>
         <Dialog.Title>{label}</Dialog.Title>
       </Dialog.Header>
-      {isImage ? (
-        <PreviewImage
-          src={source}
-          label={label}
-          className="max-h-[70vh] w-full rounded-lg object-contain"
-        />
-      ) : (
-        <a
-          href={source}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="rounded-lg border bg-muted/40 p-4 text-sm text-primary underline"
-        >
-          {t('open-attachment', 'Open attachment')}
-        </a>
-      )}
+      <AttachmentPreview kind={kind} source={source} label={label} />
     </Dialog.Content>
   );
 };
 
 const AttachmentTrigger = ({
   attachment,
-  isImage,
+  kind,
   label,
   source,
 }: {
   attachment: IAttachment;
-  isImage: boolean;
+  kind: AttachmentKind;
   label: string;
   source: string;
 }) => (
@@ -94,7 +178,7 @@ const AttachmentTrigger = ({
     type="button"
     className="flex min-w-0 items-center gap-2 rounded-lg text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
   >
-    <AttachmentThumbnail isImage={isImage} source={source} label={label} />
+    <AttachmentThumbnail kind={kind} source={source} label={label} />
     <span className="min-w-0 max-w-40">
       <span className="block truncate text-xs font-medium">{label}</span>
       <span className="block text-[11px] text-muted-foreground">
@@ -109,10 +193,11 @@ export const ComposerAttachment = ({
   onRemove,
 }: ComposerAttachmentProps) => {
   const { t } = useTranslation('frontline');
-  const isImage = Boolean(attachment.type?.startsWith('image'));
-  const label =
-    attachment.name ||
-    (isImage ? t('photo', 'Photo') : t('attachment', 'Attachment'));
+  const kind = getAttachmentKind(attachment.type);
+  let fallbackLabel = t('attachment', 'Attachment');
+  if (kind === 'image') fallbackLabel = t('photo', 'Photo');
+  if (kind === 'video') fallbackLabel = t('video', 'Video');
+  const label = attachment.name || fallbackLabel;
   const source = readImage(attachment.url);
 
   return (
@@ -121,14 +206,14 @@ export const ComposerAttachment = ({
         <Dialog.Trigger asChild>
           <AttachmentTrigger
             attachment={attachment}
-            isImage={isImage}
+            kind={kind}
             label={label}
             source={source}
           />
         </Dialog.Trigger>
         <AttachmentDialogContent
           attachment={attachment}
-          isImage={isImage}
+          kind={kind}
           label={label}
         />
       </Dialog>

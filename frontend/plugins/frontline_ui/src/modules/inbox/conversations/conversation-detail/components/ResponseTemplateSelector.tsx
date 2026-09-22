@@ -16,14 +16,15 @@ import {
   RESPONSES_PER_PAGE,
   useGetResponses,
 } from '@/responseTemplate/hooks/useGetResponses';
-import { ReactNode, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import type { ReactNode } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 
 import { ChannelsInline } from '@/inbox/channel/components/ChannelsInline';
 import { SelectChannel } from '@/inbox/channel/components/SelectChannel';
-import type { TViewMode as ViewMode } from '../types';
+import type { TViewMode as ViewMode } from '@/responseTemplate/types';
 import { getPreviewText } from '@/inbox/types/inbox';
-import { responseListViewAtom } from '../states/responseTemplate';
+import { responseListViewAtom } from '@/inbox/conversations/conversation-detail/states/responseTemplate';
 import { useDebounce } from 'use-debounce';
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
 import { useTranslation } from 'react-i18next';

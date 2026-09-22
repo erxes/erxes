@@ -4,7 +4,7 @@ import { useThrottledCallback } from 'use-debounce';
 import type { EditorMentionItem } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
 
-import { CONVERSATION_AGENT_TYPING } from '../graphql/mutations/conversationAgentTyping';
+import { CONVERSATION_AGENT_TYPING } from '@/inbox/conversations/conversation-detail/graphql/mutations/conversationAgentTyping';
 import {
   useDiscordChannelMemberSearch,
   useDiscordConversationParticipants,

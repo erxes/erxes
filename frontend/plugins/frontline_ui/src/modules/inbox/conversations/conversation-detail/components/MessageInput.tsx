@@ -7,7 +7,6 @@ import {
   usePreviousHotkeyScope,
   useScopedHotkeys,
 } from 'erxes-ui';
-import { IconX } from '@tabler/icons-react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import {
   useCallback,
@@ -22,21 +21,21 @@ import {
   hideMessageInputState,
   isInternalState,
   onlyInternalState,
-} from '../states/isInternalState';
-import { ComposerShell } from './ComposerShell';
-import { ComposerEditor } from './ComposerEditor';
-import { ComposerPreviews } from './ComposerPreviews';
-import { ComposerToolbar } from './ComposerToolbar';
-import type { PollDraft } from './PollComposer';
-import { ResponseTemplateDropdown } from './ResponseTemplateDropdown';
-import { useConversationContext } from '../hooks/useConversationContext';
-import { useConversationMessageAdd } from '../hooks/useConversationMessageAdd';
-import { useMessageAttachments } from '../hooks/useMessageAttachments';
-import { useDiscordComposer } from '../hooks/useDiscordComposer';
-import { useResponseTemplateSuggestions } from '../hooks/useResponseTemplateSuggestions';
-import { messageExtraInfoState } from '../states/messageExtraInfoState';
+} from '@/inbox/conversations/conversation-detail/states/isInternalState';
+import { ComposerShell } from '@/inbox/conversations/conversation-detail/components/ComposerShell';
+import { ComposerEditor } from '@/inbox/conversations/conversation-detail/components/ComposerEditor';
+import { ComposerPreviews } from '@/inbox/conversations/conversation-detail/components/ComposerPreviews';
+import { ComposerToolbar } from '@/inbox/conversations/conversation-detail/components/ComposerToolbar';
+import type { PollDraft } from '@/inbox/conversations/conversation-detail/components/PollComposer';
+import { ResponseTemplateDropdown } from '@/inbox/conversations/conversation-detail/components/ResponseTemplateDropdown';
+import { useConversationContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationContext';
+import { useConversationMessageAdd } from '@/inbox/conversations/conversation-detail/hooks/useConversationMessageAdd';
+import { useMessageAttachments } from '@/inbox/conversations/conversation-detail/hooks/useMessageAttachments';
+import { useDiscordComposer } from '@/inbox/conversations/conversation-detail/hooks/useDiscordComposer';
+import { useResponseTemplateSuggestions } from '@/inbox/conversations/conversation-detail/hooks/useResponseTemplateSuggestions';
+import { messageExtraInfoState } from '@/inbox/conversations/conversation-detail/states/messageExtraInfoState';
 import { InboxHotkeyScope } from '@/inbox/types/InboxHotkeyScope';
-import { discordReplyToState } from '@/integrations/discord/states/discordReplyToState';
+import { messageReplyState } from '@/inbox/conversations/conversation-detail/states/messageReplyState';
 import { IntegrationType } from '@/types/Integration';
 import { useTranslation } from 'react-i18next';
 import { currentUserState } from 'ui-modules';
@@ -44,9 +43,10 @@ import {
   clearLegacyConversationDrafts,
   composerStorage,
   encodeDiscordMentions,
+  escapeComposerQuote,
   getConversationDraftKey,
   parseConversationDraft,
-} from '../utils/messageInput';
+} from '@/inbox/conversations/conversation-detail/utils/messageInput';
 
 export const MessageInput = ({
   conversationId,
@@ -61,7 +61,7 @@ export const MessageInput = ({
   const messageExtraInfo = useAtomValue(messageExtraInfoState);
   const currentUserId = useAtomValue(currentUserState)?._id;
   const { integration } = useConversationContext();
-  const [discordReplyTo, setDiscordReplyTo] = useAtom(discordReplyToState);
+  const [replyTo, setReplyTo] = useAtom(messageReplyState);
   const isDiscord = integration?.kind === IntegrationType.DISCORD_MESSENGER;
   const isMessenger = integration?.kind === IntegrationType.ERXES_MESSENGER;
   const [content, setContent] = useState<Block[]>();
@@ -97,7 +97,7 @@ export const MessageInput = ({
     selectTemplate,
     setResponseTemplateId,
     setSearchValue,
-    showSuggestions,
+    showSuggestionDropdown,
     suggestions,
   } = useResponseTemplateSuggestions({ editor, enabled: !isInternalNote });
   const {
@@ -123,7 +123,7 @@ export const MessageInput = ({
     restoringDraftRef.current = true;
     resetAttachments();
     resetSuggestions();
-    setDiscordReplyTo(null);
+    setReplyTo(null);
 
     try {
       const draft = parseConversationDraft(composerStorage.getItem(draftKey));
@@ -147,8 +147,8 @@ export const MessageInput = ({
     editor,
     resetAttachments,
     resetSuggestions,
-    setDiscordReplyTo,
     setIsInternalNote,
+    setReplyTo,
   ]);
 
   useEffect(() => {
@@ -224,6 +224,12 @@ export const MessageInput = ({
       const sendContent = isInternalNote
         ? JSON.stringify(content || [])
         : await editor.blocksToHTMLLossy(outgoingBlocks || []);
+      const quotedContent =
+        replyTo && !replyTo.nativeReply && !isInternalNote
+          ? `<blockquote><strong>Replying to</strong><br/>${escapeComposerQuote(
+              replyTo.preview,
+            )}</blockquote>`
+          : '';
       const blockAttachments = getBlockAttachments(content || []);
       const attachmentUrls = new Set(attachments.map(({ url }) => url));
       const allAttachments = [
@@ -234,15 +240,17 @@ export const MessageInput = ({
       await addConversationMessage({
         variables: {
           conversationId: submittedConversationId,
-          content: sendContent,
+          content: `${quotedContent}${sendContent || ''}`,
           mentionedUserIds:
             isDiscord && !isInternalNote ? [] : mentionedUserIds,
           internal: isInternalNote,
           extraInfo: messageExtraInfo,
           attachments: allAttachments,
           responseTemplateId,
-          ...(isDiscord && !isInternalNote && discordReplyTo
-            ? { replyToMessageId: discordReplyTo.messageId }
+          ...(!isInternalNote &&
+          replyTo?.nativeReply &&
+          replyTo.providerMessageId
+            ? { replyToMessageId: replyTo.providerMessageId }
             : {}),
         },
         onCompleted: () => {
@@ -267,7 +275,7 @@ export const MessageInput = ({
           resetAttachments();
           resetSuggestions();
           setResponseTemplateId(null);
-          setDiscordReplyTo(null);
+          setReplyTo(null);
         },
         refetchQueries: [
           'Conversations',
@@ -290,7 +298,6 @@ export const MessageInput = ({
     attachments,
     content,
     conversationId,
-    discordReplyTo,
     draftKey,
     editor,
     isDiscord,
@@ -300,11 +307,12 @@ export const MessageInput = ({
     mentionedUserIds,
     messageExtraInfo,
     onlyInternal,
+    replyTo,
     resetAttachments,
     resetSuggestions,
     responseTemplateId,
-    setDiscordReplyTo,
     setIsInternalNote,
+    setReplyTo,
     setResponseTemplateId,
     t,
   ]);
@@ -349,7 +357,7 @@ export const MessageInput = ({
     const node = editorRef.current;
 
     if (!node) {
-      return;
+      return undefined;
     }
 
     node.addEventListener('keydown', handleKeyDown);
@@ -377,10 +385,12 @@ export const MessageInput = ({
       <ComposerPreviews
         attachments={attachments}
         pendingAttachments={pendingAttachments}
+        replyTo={isInternalNote ? null : replyTo}
         onRemove={removeAttachment}
+        onCancelReply={() => setReplyTo(null)}
       />
 
-      {showSuggestions && !isInternalNote && (
+      {showSuggestionDropdown && !isInternalNote && (
         <ResponseTemplateDropdown
           suggestions={suggestions}
           selectedIndex={selectedIndex}
@@ -388,22 +398,6 @@ export const MessageInput = ({
           loading={suggestionsLoading}
           onSelect={selectTemplate}
         />
-      )}
-
-      {isDiscord && !isInternalNote && discordReplyTo && (
-        <div className="mx-3 flex items-center justify-between gap-2 rounded-md bg-muted px-3 py-1.5 text-xs text-muted-foreground">
-          <span className="truncate">
-            {t('replying-to', 'Replying to:')} {discordReplyTo.preview}
-          </span>
-          <button
-            type="button"
-            aria-label={t('cancel-reply', 'Cancel reply')}
-            onClick={() => setDiscordReplyTo(null)}
-            className="flex-none hover:text-foreground"
-          >
-            <IconX className="size-3.5" aria-hidden="true" />
-          </button>
-        </div>
       )}
 
       <div ref={editorRef}>

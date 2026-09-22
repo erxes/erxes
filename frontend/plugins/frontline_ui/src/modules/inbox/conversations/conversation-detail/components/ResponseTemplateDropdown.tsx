@@ -1,6 +1,6 @@
 import { formatDistanceToNow } from 'date-fns';
 import { Popover, Spinner } from 'erxes-ui';
-import { IChannel } from '@/channels/types';
+import type { IChannel } from '@/channels/types';
 import { useTranslation } from 'react-i18next';
 
 interface TemplateSuggestion {

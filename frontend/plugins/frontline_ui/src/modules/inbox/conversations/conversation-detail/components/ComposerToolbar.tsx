@@ -10,9 +10,12 @@ import {
 import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { PollComposer, type PollDraft } from './PollComposer';
-import { ResponseTemplateSelector } from './ResponseTemplateSelector';
-import { SendSurveyDialog } from './SendSurveyDialog';
+import {
+  PollComposer,
+  type PollDraft,
+} from '@/inbox/conversations/conversation-detail/components/PollComposer';
+import { ResponseTemplateSelector } from '@/inbox/conversations/conversation-detail/components/ResponseTemplateSelector';
+import { SendSurveyDialog } from '@/inbox/conversations/conversation-detail/components/SendSurveyDialog';
 
 type ComposerToolbarProps = {
   conversationId: string;
