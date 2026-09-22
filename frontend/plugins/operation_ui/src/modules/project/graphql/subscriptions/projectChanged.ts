@@ -17,6 +17,7 @@ export const PROJECT_CHANGED = gql`
         targetDate
         createdAt
         updatedAt
+        propertiesData
       }
     }
   }

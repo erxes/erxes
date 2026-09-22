@@ -1,4 +1,5 @@
 import { IProjectUpdate } from '@/project/@types/project';
+import { validatePropertiesData } from '@/fields/validatePropertiesData';
 import { graphqlPubsub } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
@@ -17,10 +18,16 @@ export const projectMutations = {
       memberIds,
       tagIds,
       convertedFromId,
+      propertiesData,
     },
-    { models, user, checkPermission }: IContext,
+    { models, user, subdomain, checkPermission }: IContext,
   ) => {
     await checkPermission('projectCreate');
+
+    const validatedPropertiesData =
+      propertiesData === undefined
+        ? undefined
+        : await validatePropertiesData(subdomain, propertiesData);
 
     const createdProject = await models.Project.createProject(
       {
@@ -36,6 +43,7 @@ export const projectMutations = {
         tagIds,
         createdBy: user._id,
         convertedFromId,
+        propertiesData: validatedPropertiesData,
       },
       user,
     );
@@ -59,9 +67,16 @@ export const projectMutations = {
   updateProject: async (
     _parent: undefined,
     params: IProjectUpdate,
-    { models, user, checkPermission }: IContext,
+    { models, user, subdomain, checkPermission }: IContext,
   ) => {
     await checkPermission('projectUpdate');
+
+    if (params.propertiesData !== undefined) {
+      params.propertiesData = await validatePropertiesData(
+        subdomain,
+        params.propertiesData,
+      );
+    }
 
     const updatedProject = await models.Project.updateProject({
       doc: params,
