@@ -97,8 +97,11 @@ export const AddTicketForm = ({
       },
       onCompleted: (data) => {
         toast({
-          title: t('success'),
-          description: t('ticket-created-successfully'),
+          title: t('success', 'Success!'),
+          description: t(
+            'ticket-created-successfully',
+            'Ticket created successfully',
+          ),
           variant: 'default',
         });
         onClose();
@@ -112,7 +115,7 @@ export const AddTicketForm = ({
       <form
         onSubmit={form.handleSubmit(onSubmit, (errors) => {
           toast({
-            title: t('error'),
+            title: t('error', 'Error'),
             description: Object.entries(errors)[0][1].message,
             variant: 'destructive',
           });
@@ -120,7 +123,9 @@ export const AddTicketForm = ({
         className="h-full flex flex-col"
       >
         <Sheet.Header className="flex items-center gap-2 ">
-          <Sheet.Title className="">{t('new-ticket')}</Sheet.Title>
+          <Sheet.Title className="">
+            {t('new-ticket', 'New ticket')}
+          </Sheet.Title>
         </Sheet.Header>
         <Sheet.Content className="px-7 py-4 gap-2 flex flex-col min-h-0">
           <Form.Field
@@ -128,12 +133,12 @@ export const AddTicketForm = ({
             control={form.control}
             render={({ field }) => (
               <Form.Item>
-                <Form.Label className="sr-only">{t('name')}</Form.Label>
+                <Form.Label className="sr-only">{t('name', 'Name')}</Form.Label>
                 <Form.Control>
                   <Input
                     {...field}
                     className="shadow-none focus-visible:shadow-none h-8 text-xl p-0"
-                    placeholder={t('ticket-name')}
+                    placeholder={t('ticket-name', 'Ticket Name')}
                   />
                 </Form.Control>
               </Form.Item>
@@ -145,7 +150,9 @@ export const AddTicketForm = ({
               control={form.control}
               render={({ field, fieldState }) => (
                 <Form.Item>
-                  <Form.Label className="sr-only">{t('channels')}</Form.Label>
+                  <Form.Label className="sr-only">
+                    {t('channels', 'Channels')}
+                  </Form.Label>
                   <SelectChannel.FormItem
                     value={field.value || ''}
                     onValueChange={(value) => {
@@ -168,7 +175,7 @@ export const AddTicketForm = ({
               render={({ field, fieldState }) => (
                 <Form.Item>
                   <Form.Label className="sr-only">
-                    {t('pipeline-label')}
+                    {t('pipeline-label', 'Pipeline')}
                   </Form.Label>
                   <SelectPipeline.FormItem
                     value={field.value || ''}
@@ -192,7 +199,7 @@ export const AddTicketForm = ({
               render={({ field, fieldState }) => (
                 <Form.Item>
                   <Form.Label className="sr-only">
-                    {t('status-label')}
+                    {t('status-label', 'Status')}
                   </Form.Label>
                   <SelectStatusTicket.FormItem
                     value={field.value || ''}
@@ -213,7 +220,7 @@ export const AddTicketForm = ({
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label className="sr-only">
-                    {t('priority-label')}
+                    {t('priority-label', 'Priority')}
                   </Form.Label>
                   <SelectPriorityTicket.FormItem
                     value={field.value || 0}
@@ -228,7 +235,7 @@ export const AddTicketForm = ({
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label className="sr-only">
-                    {t('assignee-label')}
+                    {t('assignee-label', 'Assignee')}
                   </Form.Label>
                   <SelectAssigneeTicket.FormItem
                     value={field.value || ''}
@@ -282,11 +289,11 @@ export const AddTicketForm = ({
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label className="sr-only">
-                    {t('start-date-label')}
+                    {t('start-date-label', 'Start Date')}
                   </Form.Label>
                   <SelectDateTicket.FormItem
                     value={field.value}
-                    placeholder={t('start-date-label')}
+                    placeholder={t('start-date-label', 'Start Date')}
                     onValueChange={(value) => field.onChange(value)}
                   />
                 </Form.Item>
@@ -298,12 +305,12 @@ export const AddTicketForm = ({
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label className="sr-only">
-                    {t('due-date-label')}
+                    {t('due-date-label', 'Due Date')}
                   </Form.Label>
                   <SelectDateTicket.FormItem
                     value={field.value}
                     onValueChange={(value) => field.onChange(value)}
-                    placeholder={t('due-date-label')}
+                    placeholder={t('due-date-label', 'Due Date')}
                   />
                 </Form.Item>
               )}
@@ -313,7 +320,9 @@ export const AddTicketForm = ({
               control={form.control}
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label className="sr-only">{t('tags-label')}</Form.Label>
+                  <Form.Label className="sr-only">
+                    {t('tags-label', 'Tags')}
+                  </Form.Label>
                   <SelectTagsTicket.FormItem
                     value={field.value || []}
                     onValueChange={(value) => field.onChange(value)}
@@ -343,14 +352,14 @@ export const AddTicketForm = ({
               setDescriptionContent(undefined);
             }}
           >
-            {t('cancel')}
+            {t('cancel', 'Cancel')}
           </Button>
           <Button
             type="submit"
             className="bg-primary text-primary-foreground hover:bg-primary/90"
             disabled={createTicketLoading}
           >
-            {t('save')}
+            {t('save', 'Save')}
           </Button>
         </Sheet.Footer>
       </form>

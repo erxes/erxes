@@ -15,6 +15,11 @@ import { IFacebookConversationDocument } from '@/integrations/facebook/@types/co
 import { IFacebookConversationMessageDocument } from '@/integrations/facebook/@types/conversationMessages';
 import { IFacebookCommentConversationDocument } from '@/integrations/facebook/@types/comment_conversations';
 import { IFacebookCommentConversationReplyDocument } from '@/integrations/facebook/@types/comment_conversations_reply';
+import { IFacebookCommentOutboxDocument } from '@/integrations/facebook/db/definitions/comment_outbox';
+import {
+  IFacebookCommentOutboxModel,
+  loadFacebookCommentOutboxClass,
+} from '@/integrations/facebook/db/models/CommentOutbox';
 import { IFacebookPostConversationDocument } from '@/integrations/facebook/@types/postConversations';
 import { IFacebookConfigDocument } from '@/integrations/facebook/@types/config';
 import { IChannelModel, loadChannelClass } from '@/channel/db/models/Channel';
@@ -159,20 +164,26 @@ import {
   loadCallProLogClass,
 } from '@/integrations/callpro/db/models/Logs';
 
+import { IMailIntegrationDocument } from '@/integrations/mail/@types/integration';
+import { IMailCustomerDocument } from '@/integrations/mail/@types/customer';
+import { IMailMessageDocument } from '@/integrations/mail/@types/message';
+import { IMailCloudflareDocument } from '@/integrations/mail/@types/cloudflare';
 import {
-  ICustomerImapDocument,
-  IIntegrationImapDocument,
-  IMessageImapDocument,
-  ICustomerImapModel,
-  IIntegrationImapModel,
-  IMessageImapModel,
-  loadImapCustomerClass,
-  loadImapIntegrationClass,
-  loadImapMessageClass,
-  ILogImapModel,
-  ILogImapDocument,
-  loadImapLogClass,
-} from '@/integrations/imap/models';
+  IMailIntegrationModel,
+  loadMailIntegrationClass,
+} from '@/integrations/mail/db/models/Integrations';
+import {
+  IMailCustomerModel,
+  loadMailCustomerClass,
+} from '@/integrations/mail/db/models/Customers';
+import {
+  IMailMessageModel,
+  loadMailMessageClass,
+} from '@/integrations/mail/db/models/Messages';
+import {
+  IMailCloudflareModel,
+  loadMailCloudflareClass,
+} from '@/integrations/mail/db/models/CloudflareConnections';
 import {
   IChannelMemberModel,
   loadChannelMemberClass,
@@ -230,6 +241,13 @@ import {
   loadFormSubmissionClass,
 } from './modules/form/db/models/Forms';
 
+import { ISurveyDocument, ISurveyVoteDocument } from '@/survey/@types/survey';
+import { ISurveyModel, loadSurveyClass } from '@/survey/db/models/Surveys';
+import {
+  ISurveyVoteModel,
+  loadSurveyVoteClass,
+} from '@/survey/db/models/SurveyVotes';
+
 import { IArticleDocument } from '@/knowledgebase/@types/article';
 import { ICategoryDocument } from '@/knowledgebase/@types/category';
 import { ITopicDocument } from '@/knowledgebase/@types/topic';
@@ -243,6 +261,12 @@ import {
   loadCategoryClass,
 } from '@/knowledgebase/db/models/Category';
 import { ITopicModel, loadTopicClass } from '@/knowledgebase/db/models/Topic';
+
+import { IHelpCenterConfigDocument } from '@/helpcenter/@types/helpCenterConfig';
+import {
+  IHelpCenterConfigModel,
+  loadHelpCenterConfigClass,
+} from '@/helpcenter/db/models/HelpCenterConfig';
 
 // Instagram imports
 import {
@@ -325,6 +349,7 @@ export interface IModels {
   FacebookConversationMessages: IFacebookConversationMessageModel;
   FacebookCommentConversation: IFacebookCommentConversationModel;
   FacebookCommentConversationReply: IFacebookCommentConversationReplyModel;
+  FacebookCommentOutbox: IFacebookCommentOutboxModel;
   FacebookLogs: IFacebookLogModel;
   FacebookPostConversations: IFacebookPostConversationModel;
   FacebookConfigs: IFacebookConfigModel;
@@ -364,11 +389,10 @@ export interface IModels {
   CallProConversations: ICallProConversationModel;
   CallProLogs: ICallProLogModel;
 
-  //imap
-  ImapCustomers: ICustomerImapModel;
-  ImapIntegrations: IIntegrationImapModel;
-  ImapMessages: IMessageImapModel;
-  ImapLogs: ILogImapModel;
+  MailIntegrations: IMailIntegrationModel;
+  MailCustomers: IMailCustomerModel;
+  MailMessages: IMailMessageModel;
+  MailCloudflare: IMailCloudflareModel;
 
   // ticket
   Pipeline: ITicketPipelineModel;
@@ -387,11 +411,15 @@ export interface IModels {
   Fields: IFieldModel;
   Forms: IFormModel;
   FormSubmissions: IFormSubmissionModel;
+  Surveys: ISurveyModel;
+  SurveyVotes: ISurveyVoteModel;
 
   //knowledgebase
   Article: IArticleModel;
   Category: ICategoryModel;
   Topic: ITopicModel;
+
+  HelpCenterConfigs: IHelpCenterConfigModel;
 
   ReportCharts: IReportChartModel;
 }
@@ -459,7 +487,7 @@ export const loadClasses = (
   );
   models.Conversations = db.model<IConversationDocument, IConversationModel>(
     'conversations',
-    loadConversationClass(models),
+    loadConversationClass(models, subdomain),
   );
   models.ConversationMessages = db.model<IMessageDocument, IMessageModel>(
     'conversation_messages',
@@ -499,6 +527,10 @@ export const loadClasses = (
     'comment_conversations_reply_facebook',
     loadFacebookCommentConversationReplyClass(models),
   );
+  models.FacebookCommentOutbox = db.model<
+    IFacebookCommentOutboxDocument,
+    IFacebookCommentOutboxModel
+  >('comment_outbox_facebook', loadFacebookCommentOutboxClass(models));
   models.FacebookIntegrations = db.model<
     IFacebookIntegrationDocument,
     IFacebookIntegrationModel
@@ -651,23 +683,22 @@ export const loadClasses = (
     loadCallProLogClass(),
   );
 
-  //imap models
-  models.ImapCustomers = db.model<ICustomerImapDocument, ICustomerImapModel>(
-    'imap_customers',
-    loadImapCustomerClass(models),
+  models.MailIntegrations = db.model<
+    IMailIntegrationDocument,
+    IMailIntegrationModel
+  >('mail_integrations', loadMailIntegrationClass(models));
+  models.MailCustomers = db.model<IMailCustomerDocument, IMailCustomerModel>(
+    'mail_customers',
+    loadMailCustomerClass(models),
   );
-  models.ImapIntegrations = db.model<
-    IIntegrationImapDocument,
-    IIntegrationImapModel
-  >('imap_integrations', loadImapIntegrationClass(models));
-  models.ImapMessages = db.model<IMessageImapDocument, IMessageImapModel>(
-    'imap_messages',
-    loadImapMessageClass(models),
+  models.MailMessages = db.model<IMailMessageDocument, IMailMessageModel>(
+    'mail_messages',
+    loadMailMessageClass(models),
   );
-  models.ImapLogs = db.model<ILogImapDocument, ILogImapModel>(
-    'imap_logs',
-    loadImapLogClass(models),
-  );
+  models.MailCloudflare = db.model<
+    IMailCloudflareDocument,
+    IMailCloudflareModel
+  >('mail_cloudflare', loadMailCloudflareClass(models), 'mail_cloudflare');
   models.MessengerApps = db.model<IMessengerAppDocument, IMessengerAppModel>(
     'messenger_apps',
     loadMessengerAppClass(models),
@@ -689,6 +720,15 @@ export const loadClasses = (
     IFormSubmissionModel
   >('frontline_form_submissions', loadFormSubmissionClass(models));
 
+  models.Surveys = db.model<ISurveyDocument, ISurveyModel>(
+    'frontline_surveys',
+    loadSurveyClass(models),
+  );
+  models.SurveyVotes = db.model<ISurveyVoteDocument, ISurveyVoteModel>(
+    'frontline_survey_votes',
+    loadSurveyVoteClass(models),
+  );
+
   models.Article = db.model<IArticleDocument, IArticleModel>(
     'knowledgebase_articles',
     loadArticleClass(models),
@@ -703,6 +743,11 @@ export const loadClasses = (
     'knowledgebase_topics',
     loadTopicClass(models),
   );
+
+  models.HelpCenterConfigs = db.model<
+    IHelpCenterConfigDocument,
+    IHelpCenterConfigModel
+  >('frontline_help_center_configs', loadHelpCenterConfigClass(models));
 
   models.ReportCharts = db.model<IReportChartDocument, IReportChartModel>(
     'frontline_report_charts',

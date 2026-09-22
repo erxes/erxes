@@ -28,25 +28,25 @@ export function QueueCard({ stat, label, hint }: QueueCardProps) {
       )}
 
       <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-xs">
-        <Metric label={t('total')} value={fmtNum(stat.totalCalls)} />
+        <Metric label={t('total', 'Total')} value={fmtNum(stat.totalCalls)} />
         <Metric
-          label={t('answer-rate')}
+          label={t('answer-rate', 'Answer rate')}
           value={fmtPct(answerRate)}
           valueClass={
             answerRate >= 80
               ? 'text-[var(--pos)]'
               : answerRate >= 60
-              ? 'text-[var(--warn)]'
-              : 'text-[var(--neg)]'
+                ? 'text-[var(--warn)]'
+                : 'text-[var(--neg)]'
           }
         />
         <Metric
-          label={t('answered')}
+          label={t('answered', 'Answered')}
           value={fmtNum(stat.answeredCalls)}
           valueClass="text-[var(--pos)]"
         />
         <Metric
-          label={t('abandoned')}
+          label={t('abandoned', 'Abandoned')}
           value={fmtNum(stat.abandonedCalls)}
           valueClass="text-[var(--neg)]"
         />

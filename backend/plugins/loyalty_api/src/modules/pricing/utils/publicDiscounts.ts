@@ -32,6 +32,7 @@ type ProductDiscount = {
   discountPercent: number;
   prefixes: string[];
   conditions: DiscountConditions;
+  base: true | null;
 };
 
 type ProductDiscountInfo = {
@@ -77,6 +78,21 @@ const mergeConditions = (...conditionList: DiscountConditions[]) =>
     (result, conditions) => ({ ...result, ...conditions }),
     {},
   );
+
+const getBaseConditions = (
+  conditions: DiscountConditions,
+): DiscountConditions => {
+  return ['branchId', 'departmentId', 'pipelineId'].reduce<DiscountConditions>(
+    (result, key) => {
+      if (conditions[key] !== undefined) {
+        result[key] = conditions[key];
+      }
+
+      return result;
+    },
+    {},
+  );
+};
 
 const getProducts = async (
   subdomain: string,
@@ -427,11 +443,12 @@ const combineRuleOptions = (
 const buildProductDiscounts = (
   plan: IPricingPlanDocument,
   product: CoreProduct,
+  base: true | null = null,
 ): ProductDiscount[] => {
   const unitPrice = product.unitPrice || 0;
   const defaultDiscount = calculatePlanDiscount(plan, product);
 
-  if (unitPrice <= 0 || defaultDiscount <= 0) {
+  if (unitPrice <= 0 || defaultDiscount === 0) {
     return [];
   }
 
@@ -459,10 +476,13 @@ const buildProductDiscounts = (
 
   return ruleCombinations
     .map((combination) => {
-      const conditions = mergeConditions(
+      const mergedConditions = mergeConditions(
         planConditions,
         combination.conditions,
       );
+      const conditions = base
+        ? getBaseConditions(mergedConditions)
+        : mergedConditions;
       const discount = combination.discount || defaultDiscount;
 
       return {
@@ -471,9 +491,10 @@ const buildProductDiscounts = (
         discountPercent: (discount / unitPrice) * 100,
         prefixes: Object.keys(conditions),
         conditions,
+        base,
       };
     })
-    .filter((discount) => discount.discount > 0);
+    .filter((discount) => discount.discount !== 0);
 };
 
 export const recalculatePublicPricingPlanDiscounts = async ({
@@ -485,33 +506,47 @@ export const recalculatePublicPricingPlanDiscounts = async ({
 }): Promise<ProductDiscountInfo[]> => {
   const plans = await models.PricingPlans.find({
     status: 'active',
-    priority: PRIORITY_TYPES.PUBLIC,
+    priority: { $in: [PRIORITY_TYPES.PUBLIC, PRIORITY_TYPES.PIPELINE_BASE] },
   }).sort({ value: 1 });
 
-  const productDiscountsById = new Map<string, ProductDiscount[]>();
+  const productsInfoById = new Map<string, ProductDiscountInfo>();
 
   for (const plan of plans) {
+    const isBase = plan.priority === PRIORITY_TYPES.PIPELINE_BASE;
+
+    if (
+      isBase &&
+      !hasValues(plan.branchIds, plan.departmentIds, plan.pipelineId)
+    ) {
+      continue;
+    }
+
     const products = await getPlanProducts(subdomain, plan);
 
     for (const product of products) {
-      const discounts = buildProductDiscounts(plan, product);
+      const discounts = buildProductDiscounts(
+        plan,
+        product,
+        isBase ? true : null,
+      );
 
       if (!discounts.length) {
         continue;
       }
 
-      productDiscountsById.set(product._id, [
-        ...(productDiscountsById.get(product._id) || []),
-        ...discounts,
-      ]);
+      const productInfo = productsInfoById.get(product._id) || {
+        productId: product._id,
+        discounts: [],
+      };
+
+      productInfo.discounts.push(...discounts);
+
+      productsInfoById.set(product._id, productInfo);
     }
   }
 
-  const productsInfo = Array.from(productDiscountsById.entries()).map(
-    ([productId, discounts]) => ({
-      productId,
-      discounts,
-    }),
+  const productsInfo = Array.from(productsInfoById.values()).filter(
+    (productInfo) => productInfo.discounts.length,
   );
 
   await sendTRPCMessage({

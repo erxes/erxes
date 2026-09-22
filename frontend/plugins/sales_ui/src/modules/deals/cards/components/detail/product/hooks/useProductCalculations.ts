@@ -98,7 +98,6 @@ export const useProductCalculations = (productsData: IProductData[]) => {
       tax[currency].percent =
         clearTotal > 0 ? (tax[currency].value * 100) / clearTotal : 0;
 
-      clearTotal = clearTotal + discount[currency].value;
       discount[currency].percent =
         clearTotal > 0 ? (discount[currency].value * 100) / clearTotal : 0;
     }

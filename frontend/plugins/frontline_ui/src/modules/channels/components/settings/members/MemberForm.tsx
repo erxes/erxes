@@ -29,8 +29,10 @@ export const MemberForm = ({
         name="memberIds"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>{t('choose-members')}</Form.Label>
-            <Form.Description className="sr-only">Members</Form.Description>
+            <Form.Label>{t('choose-members', 'Choose members')}</Form.Label>
+            <Form.Description className="sr-only">
+              {t('members-title', 'Members')}
+            </Form.Description>
             <SelectChannelMember
               channelId={channelId ?? ''}
               mode="multiple"

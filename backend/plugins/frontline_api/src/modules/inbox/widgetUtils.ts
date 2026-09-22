@@ -1,9 +1,5 @@
 import { IBrowserInfo } from 'erxes-api-shared/core-types';
-import {
-  client,
-  getIndexPrefix,
-  sendTRPCMessage,
-} from 'erxes-api-shared/utils';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { debugError, debugInfo } from '~/modules/inbox/utils';
 
@@ -64,33 +60,6 @@ export const receiveVisitorDetail = async (subdomain: string, visitor) => {
       modifier: { $set: visitorData },
     },
   });
-
-  const index = `${getIndexPrefix()}events`;
-
-  try {
-    const response = await client.updateByQuery({
-      index,
-      body: {
-        script: {
-          lang: 'painless',
-          source:
-            'ctx._source.visitorId = null; ctx._source.customerId = params.customerId',
-          params: {
-            customerId: customer._id,
-          },
-        },
-        query: {
-          term: {
-            visitorId,
-          },
-        },
-      },
-    });
-
-    debugInfo(`Response ${JSON.stringify(response)}`);
-  } catch (e) {
-    debugError(`Update event error ${e.message}`);
-  }
 
   return customer;
 };

@@ -12,14 +12,19 @@ import {
 import { InboxHotkeyScope } from '@/inbox/types/InboxHotkeyScope';
 import {
   IconCalendarPlus,
+  IconAt,
+  IconBuildingStore,
   IconCheck,
   IconCheckbox,
+  IconInbox,
   IconLoader,
   IconSquare,
+  IconUserCheck,
   IconUsersGroup,
   IconUserX,
 } from '@tabler/icons-react';
 import { SelectMember } from 'ui-modules';
+import { gql, useQuery } from '@apollo/client';
 import { SelectChannel } from '@/inbox/channel/components/SelectChannel';
 import { DiscordChannelFilterBar } from '@/integrations/discord/components/DiscordChannelFilterBar';
 import { ConversationStatus } from '@/inbox/types/Conversation';
@@ -36,6 +41,7 @@ import {
   AutomationStatusFilterView,
 } from '@/inbox/conversations/components/AutomationStatusFilter';
 import { TAutomationStatusFilter } from '@/inbox/constants/automationStatusFilters';
+import { useIntegrationInline } from '@/integrations/hooks/useIntegrations';
 
 type ConversationFilterQueries = {
   status: ConversationStatus;
@@ -50,6 +56,15 @@ type ConversationFilterQueries = {
   created: string;
   searchValue: string;
 };
+
+const FRONTLINE_INBOX_BRAND_FILTER_DETAIL = gql`
+  query FrontlineInboxBrandFilterDetail($_id: String!) {
+    brandDetail(_id: $_id) {
+      _id
+      name
+    }
+  }
+`;
 
 type ConversationFilterQueryValues = {
   [Key in keyof ConversationFilterQueries]:
@@ -122,7 +137,7 @@ const ConversationFilterCommand = ({
   return (
     <Command>
       <Filter.CommandInput
-        placeholder={t('filter')}
+        placeholder={t('filter', 'Filter...')}
         variant="secondary"
         className="bg-background"
       />
@@ -136,7 +151,7 @@ const ConversationFilterCommand = ({
           onSelect={() => setQueries({ status: null })}
         >
           <IconSquare />
-          {t('unresolved')}
+          {t('unresolved', 'Unresolved')}
         </ConversationFilterCommandItem>
         <ConversationFilterCommandItem
           count={counts?.resolved}
@@ -145,7 +160,7 @@ const ConversationFilterCommand = ({
           onSelect={() => setQueries({ status: ConversationStatus.CLOSED })}
         >
           <IconCheckbox />
-          {t('resolved')}
+          {t('resolved', 'Resolved')}
         </ConversationFilterCommandItem>
         <Command.Separator className="my-1" />
         <ConversationFilterCommandItem
@@ -155,7 +170,7 @@ const ConversationFilterCommand = ({
           onSelect={() => setQueries({ unassigned: unassigned ? null : true })}
         >
           <IconUserX />
-          {t('unassigned')}
+          {t('unassigned', 'Unassigned')}
         </ConversationFilterCommandItem>
         <ConversationFilterCommandItem
           count={counts?.participating}
@@ -166,7 +181,7 @@ const ConversationFilterCommand = ({
           }
         >
           <IconUsersGroup />
-          {t('participated')}
+          {t('participated', 'Participated')}
         </ConversationFilterCommandItem>
         <Command.Separator className="my-1" />
         <ConversationFilterCommandItem
@@ -180,7 +195,7 @@ const ConversationFilterCommand = ({
           }
         >
           <IconLoader />
-          {t('awaiting-response')}
+          {t('awaiting-response', 'Awaiting response')}
         </ConversationFilterCommandItem>
         <AutomationStatusFilterItem />
         <SelectChannel.FilterItem />
@@ -188,7 +203,7 @@ const ConversationFilterCommand = ({
         <Command.Separator className="my-1" />
         <Filter.Item value="created">
           <IconCalendarPlus />
-          {t('created-at')}
+          {t('created-at', 'Created at')}
         </Filter.Item>
       </Command.List>
     </Command>
@@ -261,8 +276,13 @@ export const ConversationFilterBar = ({
     awaitingResponse: boolean;
     automationStatus: TAutomationStatusFilter;
     participated: boolean;
+    participating: boolean;
+    mentioned: boolean;
     created: Date;
     channelId: string;
+    integrationId: string;
+    integrationType: string;
+    brandId: string;
     searchValue: string;
   }>([
     'status',
@@ -270,8 +290,13 @@ export const ConversationFilterBar = ({
     'awaitingResponse',
     'automationStatus',
     'participated',
+    'participating',
+    'mentioned',
     'created',
     'channelId',
+    'integrationId',
+    'integrationType',
+    'brandId',
     'searchValue',
   ]);
 
@@ -292,7 +317,7 @@ export const ConversationFilterBar = ({
         <Filter.BarItem queryKey="status">
           <Filter.BarName>
             <IconCheckbox />
-            {t('resolved')}
+            {t('resolved', 'Resolved')}
           </Filter.BarName>
         </Filter.BarItem>
       )}
@@ -304,28 +329,101 @@ export const ConversationFilterBar = ({
       <Filter.BarItem queryKey="unassigned">
         <Filter.BarName>
           <IconUserX />
-          {t('unassigned')}
+          {t('unassigned', 'Unassigned')}
         </Filter.BarName>
       </Filter.BarItem>
 
       <Filter.BarItem queryKey="awaitingResponse">
         <Filter.BarName>
           <IconLoader />
-          {t('awaiting-response')}
+          {t('awaiting-response', 'Awaiting response')}
         </Filter.BarName>
       </Filter.BarItem>
 
       <Filter.BarItem queryKey="participated">
         <Filter.BarName>
           <IconUsersGroup />
-          {t('participated')}
+          {t('participated', 'Participated')}
+        </Filter.BarName>
+      </Filter.BarItem>
+      <Filter.BarItem queryKey="participating">
+        <Filter.BarName>
+          <IconUserCheck />
+          {t('assigned-to-me', 'Assigned to me')}
+        </Filter.BarName>
+      </Filter.BarItem>
+      <Filter.BarItem queryKey="mentioned">
+        <Filter.BarName>
+          <IconAt />
+          {t('mentions', 'Mentions', { defaultValue: 'Mentions' })}
         </Filter.BarName>
       </Filter.BarItem>
       <AutomationStatusFilterBar iconOnly />
       <SelectChannel.FilterBar iconOnly />
       <IntegrationTypeFilterBar iconOnly />
+      <IntegrationFilterBar />
+      <BrandFilterBar />
       <DiscordChannelFilterBar iconOnly />
       {children}
     </Filter.Bar>
+  );
+};
+
+const IntegrationFilterBar = () => {
+  const { t } = useTranslation('frontline');
+  const [integrationId] = useQueryState<string>('integrationId');
+  const integrationIds = integrationId?.split(',').filter(Boolean) ?? [];
+  const { integration, loading } = useIntegrationInline({
+    variables: { _id: integrationIds[0] || '' },
+    skip: integrationIds.length !== 1,
+  });
+
+  if (!integrationId) {
+    return null;
+  }
+
+  const label =
+    integrationIds.length > 1
+      ? t('selected-integrations', 'Selected integrations', {
+          count: integrationIds.length,
+          defaultValue: '{{count}} integrations',
+        })
+      : integration?.name ||
+        integration?.kind ||
+        t('integration', 'Integration');
+
+  return (
+    <Filter.BarItem queryKey="integrationId">
+      <Filter.BarName>
+        <IconInbox />
+        {loading ? <Skeleton className="h-4 w-20" /> : label}
+      </Filter.BarName>
+    </Filter.BarItem>
+  );
+};
+
+const BrandFilterBar = () => {
+  const [brandId] = useQueryState<string>('brandId');
+  const { data, loading } = useQuery<{
+    brandDetail?: { _id: string; name?: string };
+  }>(FRONTLINE_INBOX_BRAND_FILTER_DETAIL, {
+    variables: { _id: brandId || '' },
+    skip: !brandId,
+  });
+
+  if (!brandId) {
+    return null;
+  }
+
+  const brandName =
+    data?.brandDetail?._id === brandId ? data.brandDetail.name : undefined;
+
+  return (
+    <Filter.BarItem queryKey="brandId">
+      <Filter.BarName>
+        <IconBuildingStore />
+        {loading || !brandName ? <Skeleton className="h-4 w-20" /> : brandName}
+      </Filter.BarName>
+    </Filter.BarItem>
   );
 };

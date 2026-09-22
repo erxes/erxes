@@ -22,6 +22,7 @@ export const TASK_CHANGED = gql`
         projectId
         estimatePoint
         milestoneId
+        propertiesData
       }
     }
   }

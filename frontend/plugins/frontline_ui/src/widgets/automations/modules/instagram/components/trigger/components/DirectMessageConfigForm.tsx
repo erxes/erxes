@@ -78,7 +78,9 @@ const DirectMessageCondition = ({
       return (
         <div className="text-muted-foreground flex flex-col items-center">
           <IconSquareKey />
-          <span className="text-xs">{t('no-keywords-configured')}</span>
+          <span className="text-xs">
+            {t('no-keywords-configured', 'There is no keywords configured')}
+          </span>
         </div>
       );
     }
@@ -118,7 +120,7 @@ const DirectMessageCondition = ({
         onValueChange={(value) => onChange('operator', value)}
       >
         <Select.Trigger>
-          <Select.Value placeholder={t('select')} />
+          <Select.Value placeholder={t('select', 'Select...')} />
         </Select.Trigger>
         <Select.Content>
           {DIRECT_MESSAGE_OPERATOR_TYPES.map(({ label, value }) => (
@@ -128,7 +130,10 @@ const DirectMessageCondition = ({
           ))}
         </Select.Content>
       </Select>
-      <Input placeholder={t('add-keyword')} onKeyDown={handleKeyPress} />
+      <Input
+        placeholder={t('add-keyword', '+ add keyword')}
+        onKeyDown={handleKeyPress}
+      />
       {renderKeywords()}
     </div>
   );
@@ -167,7 +172,7 @@ export const DirectMessageConfigForm = ({
     <div>
       <div className="flex justify-end">
         <Button variant="ghost" onClick={onAddCondition}>
-          {t('add-optional-condition')}
+          {t('add-optional-condition', 'Add optional condition')}
         </Button>
       </div>
       {conditions.map((condition) => {

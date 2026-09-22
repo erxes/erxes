@@ -2,11 +2,14 @@ import { AccountingHotkeyScope } from '@/types/AccountingHotkeyScope';
 import {
   Button,
   Checkbox,
+  Label,
   RecordTableHotkeyProvider,
   ScrollArea,
+  Switch,
   Table,
   useSetHotkeyScope,
 } from 'erxes-ui';
+import { useAtom, useAtomValue } from 'jotai';
 import { IconPlus, IconX } from '@tabler/icons-react';
 import { useRef } from 'react';
 import { useFieldArray, useWatch } from 'react-hook-form';
@@ -16,6 +19,7 @@ import {
   TFxaIncomeJournal,
 } from '../../../types/JournalForms';
 import { getFxaDetailDefaultValues } from '../../helpers/fxaHelpers';
+import { showAdvancedViewState } from '../../../states/trStates';
 import { FixedAssetRow } from './FixedAssetRow';
 
 export const FixedAssetForm = ({
@@ -29,16 +33,20 @@ export const FixedAssetForm = ({
     control: form.control,
     name: `trDocs.${journalIndex}.details`,
   });
-  const details = useWatch({
-    control: form.control,
-    name: `trDocs.${journalIndex}.details`,
-  }) as TFxaDetail[];
+  const details =
+    (useWatch({
+      control: form.control,
+      name: `trDocs.${journalIndex}.details`,
+    }) as TFxaDetail[] | undefined) || [];
   const setHotkeyScope = useSetHotkeyScope();
   const tableRef = useRef<HTMLTableElement>(null);
   const columnsLength =
     tableRef.current?.querySelector('tr')?.querySelectorAll('td, th').length ||
     6;
   const hasCheckedDetails = details.some((detail) => detail.checked);
+  const [showAdvancedView, setShowAdvancedView] = useAtom(
+    showAdvancedViewState,
+  );
 
   const removeChecked = () => {
     form.setValue(
@@ -110,6 +118,13 @@ export const FixedAssetForm = ({
             Сонгосныг хасах
           </Button>
         )}
+        <div className="flex items-center">
+          <Label className="mr-3">Дэлгэрэнгүй харагдац</Label>
+          <Switch
+            checked={showAdvancedView}
+            onCheckedChange={(checked) => setShowAdvancedView(checked)}
+          />
+        </div>
       </div>
     </>
   );
@@ -127,7 +142,8 @@ const FixedAssetTableHeader = ({
   const trDoc = useWatch({
     control: form.control,
     name: `trDocs.${journalIndex}`,
-  }) as TFxaIncomeJournal;
+  }) as TFxaIncomeJournal | undefined;
+  const showAdvancedView = useAtomValue(showAdvancedViewState);
   const isAllChecked =
     details.length > 0 && details.every((detail) => detail.checked);
 
@@ -150,16 +166,25 @@ const FixedAssetTableHeader = ({
             />
           </div>
         </Table.Head>
-        <Table.Head>Үндсэн хөрөнгө</Table.Head>
+        <Table.Head>Бүлэг</Table.Head>
+        <Table.Head>Код</Table.Head>
+        <Table.Head>Нэр</Table.Head>
         <Table.Head>Тоо хэмжээ</Table.Head>
         <Table.Head>Нэгж үнэ</Table.Head>
         <Table.Head>Дүн</Table.Head>
-        {trDoc.hasVat && <Table.Head>НӨАТ</Table.Head>}
-        {trDoc.hasCtax && <Table.Head>НХАТ</Table.Head>}
-        {(trDoc.hasVat || trDoc.hasCtax) && (
+        {trDoc?.hasVat && <Table.Head>НӨАТ</Table.Head>}
+        {trDoc?.hasCtax && <Table.Head>НХАТ</Table.Head>}
+        {(trDoc?.hasVat || trDoc?.hasCtax) && (
           <>
             <Table.Head>Татвартай нэгж үнэ</Table.Head>
             <Table.Head>Татвартай дүн</Table.Head>
+          </>
+        )}
+        {showAdvancedView && (
+          <>
+            <Table.Head>Хур. элэгдэл</Table.Head>
+            <Table.Head>Салбар</Table.Head>
+            <Table.Head>Хэлтэс</Table.Head>
           </>
         )}
       </Table.Row>

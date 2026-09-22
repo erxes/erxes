@@ -11,7 +11,7 @@ const getDefaultValues = (
   method?: IBroadcastMethodEnum,
 ): Partial<IBroadcastFormData> => {
   const base = {
-    targetType: 'tag' as const,
+    targetType: 'segment' as const,
     targetIds: [],
     targetCount: 0,
     isLive: false,

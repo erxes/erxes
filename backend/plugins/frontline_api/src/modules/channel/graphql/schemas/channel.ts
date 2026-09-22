@@ -14,12 +14,29 @@ export const types = `
         updatedAt: Date
         memberCount: Int
         pipelineCount: Int
+        hasTickets: Boolean
         responseTemplateCount: Int
         formCount: Int
         integrationCount: Int
         integrationKinds: [String]
         conversationCount: Int
         unreadConversationCount: Int
+    }
+
+    enum ChannelResourceType {
+        integration
+        pipeline
+        form
+        survey
+        responseTemplate
+    }
+
+    type ChannelMoveResourcesResult {
+        movedIds: [String!]!
+        movedCount: Int!
+        sourceChannelId: String!
+        targetChannelId: String!
+        targetChannelName: String
     }
 
     type ChannelMember {
@@ -47,4 +64,5 @@ export const mutations = `
     channelRemoveMember(channelId: String!, memberId: String!): ChannelMember
     channelRemoveMembers(channelId: String!, memberIds: [String]): [ChannelMember]
     channelUpdateMember(_id: String!, role: String): ChannelMember
+    channelMoveResources(resourceType: ChannelResourceType!, resourceIds: [String!]!, sourceChannelId: String!, targetChannelId: String!): ChannelMoveResourcesResult
 `;

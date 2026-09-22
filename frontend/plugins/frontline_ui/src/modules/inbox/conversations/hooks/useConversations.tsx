@@ -50,8 +50,12 @@ export const useConversations = (
     integrationType,
     unassigned,
     awaitingResponse,
+    withSurvey,
     automationStatus,
+    participating,
     participated,
+    mentioned,
+    unread,
     status,
     created,
     brandId,
@@ -69,8 +73,11 @@ export const useConversations = (
       integrationType,
       unassigned: getBooleanFilterVariable(unassigned),
       awaitingResponse: getBooleanFilterVariable(awaitingResponse),
+      withSurvey: getBooleanFilterVariable(withSurvey),
       automationStatus,
-      participating: getBooleanFilterVariable(participated),
+      participating: getBooleanFilterVariable(participating || participated),
+      mentioned: getBooleanFilterVariable(mentioned),
+      unread: getBooleanFilterVariable(unread),
       status: status || '',
       startDate: parsedDate?.from,
       endDate: parsedDate?.to,
@@ -84,8 +91,12 @@ export const useConversations = (
       integrationType,
       unassigned,
       awaitingResponse,
+      withSurvey,
       automationStatus,
+      participating,
       participated,
+      mentioned,
+      unread,
       status,
       parsedDate?.from,
       parsedDate?.to,
@@ -205,26 +216,32 @@ export const useConversations = (
         conversationId: string;
         content: string;
         createdAt: string;
-      };
+      } | null;
     }>({
       document: CONVERSATION_CLIENT_MESSAGE_INSERTED,
       variables: {
         userId,
       },
       updateQuery: (prev, { subscriptionData }) => {
-        if (subscriptionData.data && ownsInboxState) {
+        const newMessage =
+          subscriptionData.data?.conversationClientMessageInserted;
+
+        if (!newMessage) {
+          scheduleRefetch();
+          return prev;
+        }
+
+        if (ownsInboxState) {
           setNewMessagesCount((prev) => prev + 1);
-          const incomingConversationId =
-            subscriptionData.data.conversationClientMessageInserted
-              .conversationId;
-          if (incomingConversationId !== activeConversationRef.current?._id) {
+
+          if (
+            newMessage.conversationId !== activeConversationRef.current?._id
+          ) {
             playNotificationSoundRef.current();
           }
         }
-        if (!subscriptionData.data) return prev;
-        const newMessage =
-          subscriptionData.data.conversationClientMessageInserted;
-        const conversationId = newMessage?.conversationId;
+
+        const conversationId = newMessage.conversationId;
         const index =
           prev?.conversations.list.findIndex(
             (conversation) => conversation._id === conversationId,
@@ -327,7 +344,7 @@ export const useConversations = (
       });
     } catch (error) {
       toast({
-        title: t('something-went-wrong'),
+        title: t('something-went-wrong', 'Uh oh! Something went wrong.'),
         description: error instanceof Error ? error.message : undefined,
         variant: 'destructive',
       });

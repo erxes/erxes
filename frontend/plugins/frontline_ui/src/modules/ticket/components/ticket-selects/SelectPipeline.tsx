@@ -20,7 +20,7 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import React, { useEffect, useState } from 'react';
-import { UseFormReturn, useWatch } from 'react-hook-form';
+import { Control, FieldValues, UseFormReturn, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { addTicketSchema } from '@/ticket/types';
 import { z } from 'zod';
@@ -158,23 +158,25 @@ const SelectPipelineContent = () => {
   const { pipelines, channelId } = useSelectPipelineContext();
   return (
     <Command>
-      <Command.Input placeholder={t('search-pipelines')} />
+      <Command.Input
+        placeholder={t('search-pipelines', 'Search pipelines...')}
+      />
       <Command.List>
         <Command.Empty>
           <div className="text-muted-foreground">
             {channelId ? (
               <div className="flex items-center flex-col gap-2">
-                {t('no-pipelines-found')}
+                {t('no-pipelines-found', 'No pipelines found')}
                 <Button asChild variant="secondary">
                   <Link
                     to={`/settings/frontline/channels/${channelId}/pipelines`}
                   >
-                    {t('add-pipeline')}
+                    {t('add-pipeline', 'Add pipeline')}
                   </Link>
                 </Button>
               </div>
             ) : (
-              t('channel-not-selected')
+              t('channel-not-selected', 'Channel not selected')
             )}
           </div>
         </Command.Empty>
@@ -262,16 +264,22 @@ const SelectPipelineFilterView = () => {
   );
 };
 
-const SelectPipelineFormItem = ({
+const SelectPipelineFormItem = <
+  TFieldValues extends FieldValues = z.infer<typeof addTicketSchema>,
+>({
   value,
   onValueChange,
   form,
 }: {
   value: string;
   onValueChange: (value: string) => void;
-  form?: UseFormReturn<z.infer<typeof addTicketSchema>>;
+  form?: UseFormReturn<TFieldValues>;
 }) => {
-  const channelId = useWatch({ name: 'channelId', control: form?.control });
+  const control = form?.control as Control<FieldValues> | undefined;
+  const channelId: string | undefined = useWatch({
+    name: 'channelId',
+    control,
+  });
   const [open, setOpen] = useState(false);
   const { pipelines } = useGetPipelines({
     variables: {

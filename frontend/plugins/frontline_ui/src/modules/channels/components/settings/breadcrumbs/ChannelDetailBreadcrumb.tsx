@@ -16,7 +16,6 @@ export const ChannelDetailBreadcrumb = ({
 
   useEffect(() => {
     if (id === 'fb-auth' || id === 'ig-auth') {
-
       window.opener?.postMessage(
         {
           type:

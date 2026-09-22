@@ -10,6 +10,7 @@ import { AutomationConfigFormWrapper } from '@/automations/components/builder/no
 import {
   IconBrain,
   IconChartPie,
+  IconExternalLink,
   IconListDetails,
   IconPlus,
   IconSettings,
@@ -89,28 +90,54 @@ export const AIAgentConfigForm = ({
                   <Form.Item>
                     <Form.Label>{t('ai-agent')}</Form.Label>
 
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <Select.Trigger className="mt-1">
-                        <Select.Value placeholder={t('select-ai-agent')} />
-                      </Select.Trigger>
-                      <Select.Content>
-                        {automationsAiAgents.map(({ _id, name }) => (
-                          <Select.Item key={_id} value={_id}>
-                            {name}
-                          </Select.Item>
-                        ))}
-                        <Link
-                          to={AutomationSettingsPath.Agents}
-                          onClick={() =>
-                            setAutomationSettingsReturnPath(pathname)
+                    <div className="mt-1 flex items-center gap-2">
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <Select.Trigger className="min-w-0 flex-1">
+                          <Select.Value placeholder={t('select-ai-agent')} />
+                        </Select.Trigger>
+                        <Select.Content>
+                          {automationsAiAgents.map(({ _id, name }) => (
+                            <Select.Item key={_id} value={_id}>
+                              {name}
+                            </Select.Item>
+                          ))}
+                          <Link
+                            to={AutomationSettingsPath.Agents}
+                            onClick={() =>
+                              setAutomationSettingsReturnPath(pathname)
+                            }
+                          >
+                            <Button variant="ghost" className="w-full">
+                              <IconPlus /> {t('add-new-agent')}
+                            </Button>
+                          </Link>
+                        </Select.Content>
+                      </Select>
+
+                      {/* Always reachable: the selected agent when there is
+                          one, the agent list otherwise */}
+                      <Link
+                        to={
+                          field.value
+                            ? `${AutomationSettingsPath.Agents}/${field.value}`
+                            : AutomationSettingsPath.Agents
+                        }
+                        onClick={() => setAutomationSettingsReturnPath(pathname)}
+                      >
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          aria-label={
+                            field.value ? t('ai-agent') : t('select-ai-agent')
                           }
                         >
-                          <Button variant="ghost" className="w-full">
-                            <IconPlus /> {t('add-new-agent')}
-                          </Button>
-                        </Link>
-                      </Select.Content>
-                    </Select>
+                          <IconExternalLink className="size-4" />
+                        </Button>
+                      </Link>
+                    </div>
                     <Form.Message />
                   </Form.Item>
                 );

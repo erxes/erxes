@@ -10,6 +10,11 @@ import { useFixedAssetEdit } from '../hooks/useFixedAssetMutations';
 import { TFixedAssetForm } from '../types/FixedAsset';
 import { FixedAssetForm } from './FixedAssetForm';
 
+const roundRate = (value: number) => Math.round(value * 100) / 100;
+
+const getUsefulLifeFromRate = (annualRate?: number) =>
+  annualRate && annualRate > 0 ? roundRate(100 / annualRate) : undefined;
+
 export const EditFixedAsset = () => {
   const [open, setOpen] = useQueryState<string>('fixedAssetId');
 
@@ -41,6 +46,12 @@ const EditFixedAssetForm = () => {
       reset({
         ...FIXED_ASSET_DEFAULT_VALUES,
         ...fixedAssetDetail,
+        usefulLife: getUsefulLifeFromRate(
+          fixedAssetDetail.annualDepreciationRate,
+        ),
+        taxUsefulLife: getUsefulLifeFromRate(
+          fixedAssetDetail.taxAnnualDepreciationRate,
+        ),
       });
     }
   }, [fixedAssetDetail, reset]);
@@ -49,6 +60,12 @@ const EditFixedAssetForm = () => {
     const initialData = {
       ...FIXED_ASSET_DEFAULT_VALUES,
       ...fixedAssetDetail,
+      usefulLife: getUsefulLifeFromRate(
+        fixedAssetDetail?.annualDepreciationRate,
+      ),
+      taxUsefulLife: getUsefulLifeFromRate(
+        fixedAssetDetail?.taxAnnualDepreciationRate,
+      ),
     };
 
     if (isDeeplyEqual({ ...initialData, ...data }, initialData)) {

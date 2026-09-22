@@ -28,6 +28,7 @@ export interface IChannel {
   updatedAt: string;
   memberCount: number;
   pipelineCount: number;
+  hasTickets: boolean;
   responseTemplateCount: number;
   formCount: number;
   integrationCount?: number;
@@ -36,6 +37,22 @@ export interface IChannel {
   // Open conversations this user has not read yet. Per-viewer, so it changes
   // with the caller and not just with the channel.
   unreadConversationCount?: number;
+}
+
+export enum ChannelResourceType {
+  INTEGRATION = 'integration',
+  PIPELINE = 'pipeline',
+  FORM = 'form',
+  SURVEY = 'survey',
+  RESPONSE_TEMPLATE = 'responseTemplate',
+}
+
+export interface IChannelMoveResourcesResult {
+  movedIds: string[];
+  movedCount: number;
+  sourceChannelId: string;
+  targetChannelId: string;
+  targetChannelName?: string;
 }
 
 export interface IChannelMember {

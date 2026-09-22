@@ -18,7 +18,7 @@ export const ResponseDetailPage = () => {
                 <Link to={`/settings/frontline/channels/${channelId}/response`}>
                   <Button variant="ghost">
                     <IconArrowLeft size={16} className="stroke-foreground" />
-                    {t('response-template')}
+                    {t('response-template', 'Response Template')}
                   </Button>
                 </Link>
               </Breadcrumb.Link>

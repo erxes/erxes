@@ -9,7 +9,7 @@ export const FormsBreadCrumb = () => {
     <Button variant="ghost" className="font-semibold" asChild>
       <Link to={`/frontline/forms`}>
         <IconForms />
-        {t('forms')}
+        {t('forms', 'Forms')}
       </Link>
     </Button>
   );

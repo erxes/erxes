@@ -231,7 +231,7 @@ export const loadCompanyClass = (
      * Remove company
      */
     public static async removeCompanies(companyIds: string[]) {
-      // Snapshot before deletion so the removal is revertable (point-in-time).
+      // Snapshot before deletion so the log carries what was removed.
       const prevDocuments = await models.Companies.find({
         _id: { $in: companyIds },
       }).lean();

@@ -29,14 +29,15 @@ export const FacebookBotMoreColumnCell = ({
         <Command shouldFilter={false}>
           <Command.List>
             <Command.Item value="edit" onSelect={handleEdit}>
-              <IconEdit /> {t('edit')}
+              <IconEdit /> {t('edit', 'Edit')}
             </Command.Item>
             <Command.Item value="repair" onSelect={handleRepair}>
               {loadingRepair ? <Spinner size="sm" /> : <IconRefresh />}{' '}
-              {t('repair')}
+              {t('repair', 'Repair')}
             </Command.Item>
             <Command.Item value="remove" onSelect={handleRemove}>
-              {loadingRemove ? <Spinner size="sm" /> : <IconX />} {t('remove')}
+              {loadingRemove ? <Spinner size="sm" /> : <IconX />}{' '}
+              {t('remove', 'Remove')}
             </Command.Item>
           </Command.List>
         </Command>

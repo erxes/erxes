@@ -35,8 +35,12 @@ export interface IMonpayInvoice {
 }
 
 export interface IPocketInvoice {
+  terminalId: number;
   amount: number;
   info: string;
+  orderNumber: string;
+  invoiceType: 'ZERO' | 'LEASING';
+  channel: 'ecommerce' | 'pos';
 }
 
 export interface IMonpayConfig {

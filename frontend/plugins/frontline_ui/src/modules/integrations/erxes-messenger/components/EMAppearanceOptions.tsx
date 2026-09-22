@@ -2,7 +2,6 @@ import { Label, RadioGroup } from 'erxes-ui';
 import { cn } from 'erxes-ui/lib';
 import { cva } from 'class-variance-authority';
 import { IconCheck } from '@tabler/icons-react';
-import { useTranslation } from 'react-i18next';
 
 type HeroStyleVariant = 'glossy' | 'aurora' | 'mesh' | 'flat';
 type NavigationVariant = 'pill' | 'fluid';
@@ -41,55 +40,54 @@ export const HeroStyleRadioGroup = ({
   value,
   onChange,
 }: HeroStyleRadioGroupProps) => {
-  const { t } = useTranslation('frontline');
   return (
-  <RadioGroup
-    value={value}
-    onValueChange={onChange}
-    className="grid grid-cols-4 gap-2"
-  >
-    {HERO_STYLE_OPTIONS.map(({ value: opt, label }) => {
-      const selected = value === opt;
-      return (
-        <Label
-          key={opt}
-          htmlFor={`hero-style-${opt}`}
-          className={cn(
-            'relative flex cursor-pointer flex-col items-center gap-1.5 overflow-hidden rounded-xl border-2',
-            selected ? 'border-primary' : 'border-border',
-          )}
-        >
-          <RadioGroup.Item
-            value={opt}
-            id={`hero-style-${opt}`}
-            className="sr-only"
-          />
-          <div
-            className={cn(heroBackgroundVariants({ variant: opt }), 'h-16')}
-          />
-          <span
+    <RadioGroup
+      value={value}
+      onValueChange={onChange}
+      className="grid grid-cols-4 gap-2"
+    >
+      {HERO_STYLE_OPTIONS.map(({ value: opt, label }) => {
+        const selected = value === opt;
+        return (
+          <Label
+            key={opt}
+            htmlFor={`hero-style-${opt}`}
             className={cn(
-              'pb-1.5 text-xs',
-              selected
-                ? 'font-semibold text-foreground'
-                : 'text-muted-foreground',
+              'relative flex cursor-pointer flex-col items-center gap-1.5 overflow-hidden rounded-xl border-2',
+              selected ? 'border-primary' : 'border-border',
             )}
           >
-            {t(label)}
-          </span>
-          {selected && (
-            <span className="absolute right-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-primary">
-              <IconCheck
-                size={11}
-                stroke={3}
-                className="text-primary-foreground"
-              />
+            <RadioGroup.Item
+              value={opt}
+              id={`hero-style-${opt}`}
+              className="sr-only"
+            />
+            <div
+              className={cn(heroBackgroundVariants({ variant: opt }), 'h-16')}
+            />
+            <span
+              className={cn(
+                'pb-1.5 text-xs',
+                selected
+                  ? 'font-semibold text-foreground'
+                  : 'text-muted-foreground',
+              )}
+            >
+              {label}
             </span>
-          )}
-        </Label>
-      );
-    })}
-  </RadioGroup>
+            {selected && (
+              <span className="absolute right-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-primary">
+                <IconCheck
+                  size={11}
+                  stroke={3}
+                  className="text-primary-foreground"
+                />
+              </span>
+            )}
+          </Label>
+        );
+      })}
+    </RadioGroup>
   );
 };
 
@@ -146,55 +144,56 @@ export const NavigationVariantRadioGroup = ({
   value,
   onChange,
 }: NavigationVariantRadioGroupProps) => {
-  const { t } = useTranslation('frontline');
   return (
     <RadioGroup
       value={value}
       onValueChange={onChange}
       className="grid grid-cols-2 gap-3"
     >
-      {NAV_VARIANT_OPTIONS.map(({ value: opt, label, description, Preview }) => {
-        const selected = value === opt;
-        return (
-          <Label
-            key={opt}
-            htmlFor={`nav-variant-${opt}`}
-            className={cn(
-              'relative flex cursor-pointer flex-col gap-2 rounded-xl border-2 p-3',
-              selected
-                ? 'border-primary bg-primary/5'
-                : 'border-border bg-background',
-            )}
-          >
-            <RadioGroup.Item
-              value={opt}
-              id={`nav-variant-${opt}`}
-              className="sr-only"
-            />
-            <Preview />
-            <div>
-              <p
-                className={cn(
-                  'text-sm font-semibold',
-                  selected ? 'text-foreground' : 'text-muted-foreground',
-                )}
-              >
-                {t(label)}
-              </p>
-              <p className="text-xs text-muted-foreground">{t(description)}</p>
-            </div>
-            {selected && (
-              <span className="absolute right-2 top-2 flex h-5 w-5 items-center justify-center rounded-full bg-primary">
-                <IconCheck
-                  size={11}
-                  stroke={3}
-                  className="text-primary-foreground"
-                />
-              </span>
-            )}
-          </Label>
-        );
-      })}
+      {NAV_VARIANT_OPTIONS.map(
+        ({ value: opt, label, description, Preview }) => {
+          const selected = value === opt;
+          return (
+            <Label
+              key={opt}
+              htmlFor={`nav-variant-${opt}`}
+              className={cn(
+                'relative flex cursor-pointer flex-col gap-2 rounded-xl border-2 p-3',
+                selected
+                  ? 'border-primary bg-primary/5'
+                  : 'border-border bg-background',
+              )}
+            >
+              <RadioGroup.Item
+                value={opt}
+                id={`nav-variant-${opt}`}
+                className="sr-only"
+              />
+              <Preview />
+              <div>
+                <p
+                  className={cn(
+                    'text-sm font-semibold',
+                    selected ? 'text-foreground' : 'text-muted-foreground',
+                  )}
+                >
+                  {label}
+                </p>
+                <p className="text-xs text-muted-foreground">{description}</p>
+              </div>
+              {selected && (
+                <span className="absolute right-2 top-2 flex h-5 w-5 items-center justify-center rounded-full bg-primary">
+                  <IconCheck
+                    size={11}
+                    stroke={3}
+                    className="text-primary-foreground"
+                  />
+                </span>
+              )}
+            </Label>
+          );
+        },
+      )}
     </RadioGroup>
   );
 };

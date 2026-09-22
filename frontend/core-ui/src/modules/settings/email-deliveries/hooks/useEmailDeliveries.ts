@@ -7,7 +7,7 @@ import {
   IEmailDelivery,
   IEmailDeliveryRow,
 } from '@/settings/email-deliveries/types';
-import { useQuery } from '@apollo/client';
+import { QueryHookOptions, useQuery } from '@apollo/client';
 import {
   EnumCursorDirection,
   ICursorListResponse,
@@ -20,7 +20,9 @@ import { useSearchParams } from 'react-router';
 
 const PER_PAGE = 30;
 
-export const useEmailDeliveries = () => {
+export const useEmailDeliveries = (
+  options?: QueryHookOptions<ICursorListResponse<IEmailDeliveryRow>>,
+) => {
   const [searchParams] = useSearchParams();
   const { cursor } = useRecordTableCursor({
     sessionKey: EMAIL_DELIVERIES_CURSOR_SESSION_KEY,
@@ -30,7 +32,7 @@ export const useEmailDeliveries = () => {
     searchParams.get('createdAt'),
   );
 
-  const { data, loading, error, fetchMore } = useQuery<
+  const { data, loading, error, fetchMore, refetch } = useQuery<
     ICursorListResponse<IEmailDeliveryRow>
   >(EMAIL_DELIVERIES, {
     variables: {
@@ -43,6 +45,7 @@ export const useEmailDeliveries = () => {
       createdAtFrom: createdAtRange?.from,
       createdAtTo: createdAtRange?.to,
     },
+    ...options,
   });
 
   const { list = [], totalCount = 0, pageInfo } = data?.emailDeliveries || {};
@@ -85,6 +88,7 @@ export const useEmailDeliveries = () => {
     loading,
     error,
     handleFetchMore,
+    refetch,
     hasNextPage: pageInfo?.hasNextPage,
     hasPreviousPage: pageInfo?.hasPreviousPage,
   };

@@ -1,5 +1,6 @@
 import { ChannelsInline } from '@/inbox/channel/components/ChannelsInline';
 import {
+  IconArrowBarToRight,
   IconCalendarEvent,
   IconCircles,
   IconEdit,
@@ -33,6 +34,8 @@ import { FormsCreateButton } from './form-page/forms-create';
 import { OpenLiveForm } from './actions/open-live-form';
 import { OpenSubmissionsAction } from './actions/open-submissions';
 import { DownloadResponsesAction } from './actions/download-responses';
+import { MoveToChannelDialog } from '@/channels/components/move-resources/MoveToChannelDialog';
+import { ChannelResourceType } from '@/channels/types';
 
 export const FormsList = () => {
   const { t } = useTranslation('frontline');
@@ -60,8 +63,13 @@ export const FormsList = () => {
           <Empty.Media>
             <IconForms />
           </Empty.Media>
-          <Empty.Title>{t('no-forms-found')}</Empty.Title>
-          <Empty.Description>{t('forms-empty-description')}</Empty.Description>
+          <Empty.Title>{t('no-forms-found', 'No forms found')}</Empty.Title>
+          <Empty.Description>
+            {t(
+              'forms-empty-description',
+              'Create a form to start collecting data.',
+            )}
+          </Empty.Description>
         </Empty.Header>
         <Empty.Content>
           <FormsCreateButton />
@@ -115,6 +123,7 @@ export const FormsMoreColumnCell = ({
   const navigate = useNavigate();
 
   const [open, setOpen] = useState(false);
+  const [moveOpen, setMoveOpen] = useState(false);
 
   return (
     <DownloadResponsesAction formId={_id} formName={name}>
@@ -136,14 +145,30 @@ export const FormsMoreColumnCell = ({
                 );
               }}
             >
-              <IconEdit /> {t('edit')}
+              <IconEdit /> {t('edit', 'Edit')}
             </DropdownMenu.Item>
             <OpenLiveForm formId={_id} channelId={channelId as string} />
             <OpenSubmissionsAction formId={_id} />
             {downloadResponsesAction}
             <FormToggleStatus formId={_id} status={status} setOpen={setOpen} />
+            <DropdownMenu.Item
+              onSelect={() => {
+                setOpen(false);
+                setMoveOpen(true);
+              }}
+            >
+              <IconArrowBarToRight />
+              {t('move-to-channel', 'Move to Channel')}
+            </DropdownMenu.Item>
             <RemoveForm formId={_id} title={cell.row.original.name} />
           </DropdownMenu.Content>
+          <MoveToChannelDialog
+            open={moveOpen}
+            onOpenChange={setMoveOpen}
+            resourceType={ChannelResourceType.FORM}
+            resourceIds={[_id]}
+            sourceChannelId={channelId as string}
+          />
         </DropdownMenu>
       )}
     </DownloadResponsesAction>
@@ -165,7 +190,12 @@ const formsColumns: ColumnDef<IForm>[] = [
     id: 'name',
     header: function FormNameHeader() {
       const { t } = useTranslation('frontline');
-      return <RecordTable.InlineHead label={t('col-name')} icon={IconLabel} />;
+      return (
+        <RecordTable.InlineHead
+          label={t('col-name', 'Name')}
+          icon={IconLabel}
+        />
+      );
     },
     cell: ({ cell }) => {
       return (
@@ -188,7 +218,10 @@ const formsColumns: ColumnDef<IForm>[] = [
     header: function FormStatusHeader() {
       const { t } = useTranslation('frontline');
       return (
-        <RecordTable.InlineHead label={t('status')} icon={IconToggleRight} />
+        <RecordTable.InlineHead
+          label={t('status', 'Status')}
+          icon={IconToggleRight}
+        />
       );
     },
     cell: ({ cell }) => {
@@ -209,7 +242,10 @@ const formsColumns: ColumnDef<IForm>[] = [
     header: function FormChannelHeader() {
       const { t } = useTranslation('frontline');
       return (
-        <RecordTable.InlineHead label={t('channel-label')} icon={IconCircles} />
+        <RecordTable.InlineHead
+          label={t('channel-label', 'Channel')}
+          icon={IconCircles}
+        />
       );
     },
     cell: function FormChannelCell({ cell }) {
@@ -218,7 +254,7 @@ const formsColumns: ColumnDef<IForm>[] = [
         <RecordTableInlineCell>
           <ChannelsInline
             channelIds={[cell.getValue() as string]}
-            placeholder={t('no-channel')}
+            placeholder={t('no-channel', 'No channel')}
           />
         </RecordTableInlineCell>
       );
@@ -229,7 +265,9 @@ const formsColumns: ColumnDef<IForm>[] = [
     id: 'tagIds',
     header: function FormTagsHeader() {
       const { t } = useTranslation('frontline');
-      return <RecordTable.InlineHead label={t('tags')} icon={IconTag} />;
+      return (
+        <RecordTable.InlineHead label={t('tags', 'Tags')} icon={IconTag} />
+      );
     },
     cell: ({ cell }) => {
       return (
@@ -248,7 +286,12 @@ const formsColumns: ColumnDef<IForm>[] = [
     id: 'createdUserId',
     header: function FormCreatedByHeader() {
       const { t } = useTranslation('frontline');
-      return <RecordTable.InlineHead label={t('created-by')} icon={IconUser} />;
+      return (
+        <RecordTable.InlineHead
+          label={t('created-by', 'Created by')}
+          icon={IconUser}
+        />
+      );
     },
     cell: ({ cell }) => {
       return (
@@ -265,7 +308,7 @@ const formsColumns: ColumnDef<IForm>[] = [
       const { t } = useTranslation('frontline');
       return (
         <RecordTable.InlineHead
-          label={t('created-at')}
+          label={t('created-at', 'Created at')}
           icon={IconCalendarEvent}
         />
       );

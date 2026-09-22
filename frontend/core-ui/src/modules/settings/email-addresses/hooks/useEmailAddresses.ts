@@ -4,7 +4,7 @@ import {
   EMAIL_ADDRESS_RELEASE,
 } from '@/settings/email-addresses/graphql/queries';
 import { IEmailAddress } from '@/settings/email-addresses/types';
-import { useMutation, useQuery } from '@apollo/client';
+import { QueryHookOptions, useMutation, useQuery } from '@apollo/client';
 import {
   EnumCursorDirection,
   ICursorListResponse,
@@ -17,13 +17,15 @@ import { useSearchParams } from 'react-router';
 
 const PER_PAGE = 30;
 
-export const useEmailAddresses = () => {
+export const useEmailAddresses = (
+  options?: QueryHookOptions<ICursorListResponse<IEmailAddress>>,
+) => {
   const [searchParams] = useSearchParams();
   const { cursor } = useRecordTableCursor({
     sessionKey: EMAIL_ADDRESSES_CURSOR_SESSION_KEY,
   });
 
-  const { data, loading, error, fetchMore } = useQuery<
+  const { data, loading, error, fetchMore, refetch } = useQuery<
     ICursorListResponse<IEmailAddress>
   >(EMAIL_ADDRESSES, {
     variables: {
@@ -33,6 +35,7 @@ export const useEmailAddresses = () => {
       suppressionReason: searchParams.get('suppressionReason') || undefined,
       searchValue: searchParams.get('searchValue') || undefined,
     },
+    ...options,
   });
 
   const { list = [], totalCount = 0, pageInfo } = data?.emailAddresses || {};
@@ -75,6 +78,7 @@ export const useEmailAddresses = () => {
     loading,
     error,
     handleFetchMore,
+    refetch,
     hasNextPage: pageInfo?.hasNextPage,
     hasPreviousPage: pageInfo?.hasPreviousPage,
   };

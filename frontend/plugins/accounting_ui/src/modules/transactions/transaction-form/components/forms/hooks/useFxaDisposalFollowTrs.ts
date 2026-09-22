@@ -3,16 +3,19 @@ import { TrJournalEnum, TR_SIDES } from '@/transactions/types/constants';
 import { ITransaction, ITrDetail } from '@/transactions/types/Transaction';
 import { fixNum } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useWatch } from 'react-hook-form';
-import { FXA_INSTANCES_QUERY } from '../../../graphql/queries/fixedAssets';
+import { FIXED_ASSETS_QUERY } from '../../../graphql/queries/fixedAssets';
 import { followTrDocsState } from '../../../states/trStates';
 import { ITransactionGroupForm, TFxaDetail } from '../../../types/JournalForms';
 import { fixSumDtCt, getTempId } from '../../utils';
 
 type TFxaDisposalInstance = {
   _id: string;
-  fixedAssetId: string;
+  code?: string;
+  name?: string;
+  count?: number;
+  currentCount?: number;
   originalCost?: number;
   accumulatedDepreciation?: number;
   bookValue?: number;
@@ -27,58 +30,35 @@ type TFxaDisposalSummary = {
   bookValue: number;
 };
 
-const getDetailInstances = (
-  detail: TFxaDetail,
-  instances: TFxaDisposalInstance[],
-  instanceIdsByDetailId?: Record<string, string[]>,
-) =>
-  instanceIdsByDetailId?.[detail._id || '']?.length
-    ? instances.filter((instance) =>
-        instanceIdsByDetailId[detail._id || ''].includes(instance._id),
-      )
-    : instances.filter(
-        (instance) => instance.fixedAssetId === detail.fixedAssetId,
-      );
-
 const buildSummary = (
   details: TFxaDetail[],
-  instances: TFxaDisposalInstance[] = [],
-  instanceIdsByDetailId?: Record<string, string[]>,
+  fixedAssets: TFxaDisposalInstance[] = [],
 ) =>
   details
     .map((detail) => {
-      const detailInstances = getDetailInstances(
-        detail,
-        instances,
-        instanceIdsByDetailId,
+      const fixedAsset = fixedAssets.find(
+        (item) => item._id === detail.fixedAssetId,
+      );
+      const count = Math.max(0, Math.trunc(detail.count || 0));
+      const originalCost = fixNum((fixedAsset?.originalCost || 0) * count);
+      const currentCount = fixedAsset?.currentCount ?? fixedAsset?.count ?? 0;
+      const perUnitAccumulated = currentCount
+        ? (fixedAsset?.accumulatedDepreciation || 0) / currentCount
+        : 0;
+      const accumulatedDepreciation = fixNum(perUnitAccumulated * count);
+      const bookValue = fixNum(
+        fixedAsset?.bookValue
+          ? (fixedAsset.bookValue / (currentCount || count || 1)) * count
+          : originalCost - accumulatedDepreciation,
       );
 
       return {
         detailId: detail._id,
         fixedAssetId: detail.fixedAssetId,
-        count: detailInstances.length,
-        originalCost: fixNum(
-          detailInstances.reduce(
-            (sum, instance) => sum + (instance.originalCost || 0),
-            0,
-          ),
-        ),
-        accumulatedDepreciation: fixNum(
-          detailInstances.reduce(
-            (sum, instance) => sum + (instance.accumulatedDepreciation || 0),
-            0,
-          ),
-        ),
-        bookValue: fixNum(
-          detailInstances.reduce(
-            (sum, instance) =>
-              sum +
-              (instance.bookValue ??
-                (instance.originalCost || 0) -
-                  (instance.accumulatedDepreciation || 0)),
-            0,
-          ),
-        ),
+        count,
+        originalCost,
+        accumulatedDepreciation,
+        bookValue,
       };
     })
     .filter((summary) => summary.fixedAssetId && summary.count > 0);
@@ -199,26 +179,47 @@ export const useFxaDisposalFollowTrs = ({
     name: `trDocs.${journalIndex}`,
   }) as ITransaction;
   const setFollowTrDocs = useSetAtom(followTrDocsState);
-  const selectedIds = trDoc?.extraData?.fxaInstanceIds || [];
-  const selectedIdsByDetailId =
-    trDoc?.extraData?.fxaInstanceIdsByDetailId || {};
-  const { data } = useQuery<{ fxaInstances: TFxaDisposalInstance[] }>(
-    FXA_INSTANCES_QUERY,
-    {
-      variables: { ids: selectedIds },
-      skip: !selectedIds.length,
-    },
+  const fixedAssetIds = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          (trDoc?.details || [])
+            .map((detail) => detail.fixedAssetId)
+            .filter(Boolean),
+        ),
+      ),
+    [trDoc?.details],
   );
+  const { data, loading } = useQuery<{
+    fixedAssets: TFxaDisposalInstance[];
+  }>(FIXED_ASSETS_QUERY, {
+    variables: { ids: fixedAssetIds, limit: fixedAssetIds.length },
+    skip: !fixedAssetIds.length,
+  });
 
   useEffect(() => {
-    if (!trDoc) {
+    if (!trDoc || loading || !data) {
+      return;
+    }
+
+    const hasAllFixedAssets = fixedAssetIds.every((fixedAssetId) =>
+      data.fixedAssets.some((fixedAsset) => fixedAsset._id === fixedAssetId),
+    );
+    if (!hasAllFixedAssets) {
+      return;
+    }
+
+    const isPersistedTransaction = Boolean(trDoc._id && trDoc.parentId);
+
+    // Persisted main/follow rows come from Mongo and are recalculated by the
+    // backend on save. Tab mounts must never rebuild them from master caches.
+    if (isPersistedTransaction) {
       return;
     }
 
     const summaries = buildSummary(
       (trDoc?.details || []) as TFxaDetail[],
-      data?.fxaInstances || [],
-      selectedIdsByDetailId,
+      data.fixedAssets,
     );
 
     const currentDetails = (trDoc?.details || []) as TFxaDetail[];
@@ -241,7 +242,7 @@ export const useFxaDisposalFollowTrs = ({
         (followTr) =>
           !(
             followTr.originId === trDoc._id &&
-            ['fxaOutCost', 'fxaOutDepreciation', 'fxaOutLoss'].includes(
+            ['fxaSaleOut', 'fxaDepOut', 'fxaSaleCost'].includes(
               followTr.originType || '',
             )
           ),
@@ -250,24 +251,27 @@ export const useFxaDisposalFollowTrs = ({
       const costDetails =
         trDoc.journal === TrJournalEnum.FXA_SALE
           ? buildFollowDetails({
-              accountId: trDoc.followInfos?.fixedAssetAccountId,
+              accountId: trDoc.followInfos?.saleOutAccountId,
               amountKey: 'originalCost',
-              originType: 'fxaOutCost',
+              originType: 'fxaSaleOut',
               summaries,
             })
           : [];
       const depreciationDetails = buildFollowDetails({
         accountId: trDoc.followInfos?.accumulatedDepreciationAccountId,
         amountKey: 'accumulatedDepreciation',
-        originType: 'fxaOutDepreciation',
+        originType: 'fxaDepOut',
         summaries,
       });
-      const lossDetails = buildFollowDetails({
-        accountId: trDoc.followInfos?.lossAccountId,
-        amountKey: 'bookValue',
-        originType: 'fxaOutLoss',
-        summaries,
-      });
+      const lossDetails =
+        trDoc.journal === TrJournalEnum.FXA_SALE
+          ? buildFollowDetails({
+              accountId: trDoc.followInfos?.saleCostAccountId,
+              amountKey: 'bookValue',
+              originType: 'fxaSaleCost',
+              summaries,
+            })
+          : [];
       const ptrId = trDoc.ptrId || getTempId();
 
       return [
@@ -276,8 +280,8 @@ export const useFxaDisposalFollowTrs = ({
           ? [
               buildFollowTr({
                 details: costDetails,
-                journal: TrJournalEnum.FXA_OUT_COST,
-                originType: 'fxaOutCost',
+                journal: TrJournalEnum.FXA_SALE_OUT,
+                originType: 'fxaSaleOut',
                 ptrId,
                 side: TR_SIDES.CREDIT,
                 trDoc,
@@ -288,8 +292,8 @@ export const useFxaDisposalFollowTrs = ({
           ? [
               buildFollowTr({
                 details: depreciationDetails,
-                journal: TrJournalEnum.FXA_OUT_DEPRECIATION,
-                originType: 'fxaOutDepreciation',
+                journal: TrJournalEnum.FXA_DEP_OUT,
+                originType: 'fxaDepOut',
                 ptrId,
                 trDoc,
               }),
@@ -299,8 +303,8 @@ export const useFxaDisposalFollowTrs = ({
           ? [
               buildFollowTr({
                 details: lossDetails,
-                journal: TrJournalEnum.FXA_OUT_LOSS,
-                originType: 'fxaOutLoss',
+                journal: TrJournalEnum.FXA_SALE_COST,
+                originType: 'fxaSaleCost',
                 ptrId,
                 trDoc,
               }),
@@ -311,11 +315,11 @@ export const useFxaDisposalFollowTrs = ({
   }, [
     createFollowTrs,
     data,
+    fixedAssetIds,
     form,
     journalIndex,
+    loading,
     JSON.stringify(trDoc?.details || []),
-    JSON.stringify(selectedIds),
-    JSON.stringify(selectedIdsByDetailId),
     setFollowTrDocs,
     trDoc,
     updateMainDetails,

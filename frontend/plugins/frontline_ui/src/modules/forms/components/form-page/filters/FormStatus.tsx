@@ -1,10 +1,50 @@
-import { IconCircleCheck, IconCircleDashed, IconSquareToggle } from "@tabler/icons-react"
-import { Badge, Combobox, Command, Filter, Popover, useFilterContext, useQueryState } from "erxes-ui"
-import { useState } from "react";
-import { useTranslation } from "react-i18next";
+import {
+  IconCircleCheck,
+  IconCircleDashed,
+  IconClock,
+  IconSquareToggle,
+} from '@tabler/icons-react';
+import {
+  Badge,
+  Combobox,
+  Command,
+  Filter,
+  Popover,
+  useFilterContext,
+  useQueryState,
+} from 'erxes-ui';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
-const BarItem = () => {
+const STATUS_LABELS: Record<string, string> = {
+  pending: 'Pending',
+  active: 'Active',
+  archived: 'Archived',
+};
+
+const DEFAULT_STATUSES = ['active', 'archived'];
+
+const StatusOptions = ({
+  statuses,
+  onSelect,
+}: {
+  statuses: string[];
+  onSelect: (value: string) => void;
+}) => {
   const { t } = useTranslation('frontline');
+
+  return (
+    <Command.Group>
+      {statuses.map((status) => (
+        <Command.Item key={status} onSelect={onSelect} value={status}>
+          {t(status, STATUS_LABELS[status] || status)}
+        </Command.Item>
+      ))}
+    </Command.Group>
+  );
+};
+
+const BarItem = ({ statuses = DEFAULT_STATUSES }: { statuses?: string[] }) => {
   const [query, setQuery] = useQueryState<string | null>('status');
   const [open, setOpen] = useState(false);
   const handleSelect = (value: string) => {
@@ -25,20 +65,16 @@ const BarItem = () => {
         <Combobox.Content>
           <Command>
             <Command.List>
-              <Command.Group>
-                <Command.Item onSelect={handleSelect} value="active">{t('active')}</Command.Item>
-                <Command.Item onSelect={handleSelect} value="archived">{t('archived')}</Command.Item>
-              </Command.Group>
+              <StatusOptions statuses={statuses} onSelect={handleSelect} />
             </Command.List>
           </Command>
         </Combobox.Content>
       </Popover>
     </Filter.BarItem>
   );
-}
+};
 
-const View = () => {
-  const { t } = useTranslation('frontline');
+const View = ({ statuses = DEFAULT_STATUSES }: { statuses?: string[] }) => {
   const [_, setQuery] = useQueryState<string | null>('status');
   const { resetFilterState } = useFilterContext();
   const handleSelect = (value: string) => {
@@ -50,34 +86,49 @@ const View = () => {
       <Combobox.Content>
         <Command>
           <Command.List>
-            <Command.Group>
-              <Command.Item onSelect={handleSelect} value="active">{t('active')}</Command.Item>
-              <Command.Item onSelect={handleSelect} value="archived">{t('archived')}</Command.Item>
-            </Command.Group>
+            <StatusOptions statuses={statuses} onSelect={handleSelect} />
           </Command.List>
         </Command>
       </Combobox.Content>
     </Filter.View>
-  )
-}
+  );
+};
 
 const Item = () => {
   const { t } = useTranslation('frontline');
   return (
     <Filter.Item value="status">
       <IconSquareToggle />
-      {t('status')}
+      {t('status', 'Status')}
     </Filter.Item>
-  )
-}
+  );
+};
+
+const STATUS_BADGES: Record<
+  string,
+  { variant: 'success' | 'warning' | 'secondary'; icon: typeof IconCircleCheck }
+> = {
+  active: { variant: 'success', icon: IconCircleCheck },
+  pending: { variant: 'warning', icon: IconClock },
+};
 
 const StatusBadge = ({ status }: { status: string }) => {
+  const { variant, icon: Icon } = STATUS_BADGES[status] || {
+    variant: 'secondary' as const,
+    icon: IconCircleDashed,
+  };
+
   return (
-    <Badge variant={status === 'active' ? 'success' : 'secondary'}>
-      {status === 'active' ? <IconCircleCheck size={16} /> : <IconCircleDashed size={16} />}
+    <Badge variant={variant}>
+      <Icon size={16} />
       {status}
     </Badge>
-  )
-}
+  );
+};
 
-export const FormStatus = Object.assign({ BarItem, View, Item, Badge: StatusBadge });
+export const FormStatus = Object.assign({
+  BarItem,
+  View,
+  Item,
+  Badge: StatusBadge,
+});

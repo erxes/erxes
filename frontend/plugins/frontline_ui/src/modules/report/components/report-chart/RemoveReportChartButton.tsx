@@ -20,11 +20,14 @@ export const RemoveReportChartButton = ({
     removeReportChart({
       variables: { _id: chartId },
       onCompleted: () =>
-        toast({ variant: 'success', title: t('chart-deleted') }),
+        toast({
+          variant: 'success',
+          title: t('chart-deleted', 'Chart deleted'),
+        }),
       onError: (error) =>
         toast({
           variant: 'destructive',
-          title: t('error'),
+          title: t('error', 'Error'),
           description: error.message,
         }),
     });
@@ -37,22 +40,28 @@ export const RemoveReportChartButton = ({
           variant="ghost"
           size="icon"
           className="size-7"
-          title={t('delete-chart')}
+          title={t('delete-chart', 'Delete chart')}
         >
           <IconTrash className="size-3.5" />
         </Button>
       </AlertDialog.Trigger>
       <AlertDialog.Content>
         <AlertDialog.Header>
-          <AlertDialog.Title>{t('delete-chart')}</AlertDialog.Title>
+          <AlertDialog.Title>
+            {t('delete-chart', 'Delete chart')}
+          </AlertDialog.Title>
           <AlertDialog.Description>
-            {t('confirm-delete-chart', { name: chartName })}
+            {t(
+              'confirm-delete-chart',
+              'Are you sure you want to delete "{{name}}"?',
+              { name: chartName },
+            )}
           </AlertDialog.Description>
         </AlertDialog.Header>
         <AlertDialog.Footer>
-          <AlertDialog.Cancel>{t('cancel')}</AlertDialog.Cancel>
+          <AlertDialog.Cancel>{t('cancel', 'Cancel')}</AlertDialog.Cancel>
           <AlertDialog.Action onClick={handleRemove} disabled={removing}>
-            {t('delete')}
+            {t('delete', 'Delete')}
           </AlertDialog.Action>
         </AlertDialog.Footer>
       </AlertDialog.Content>

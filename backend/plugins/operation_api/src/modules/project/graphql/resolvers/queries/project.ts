@@ -82,22 +82,20 @@ export const projectQueries: Record<string, Resolver> = {
     }
 
     if (
-      (filter.teamIds && filter.teamIds.length <= 0 && filter.userId) ||
-      (!filter.teamIds && !filter.memberId)
+      !filter?._ids?.length &&
+      filter.userId &&
+      !filter.memberId &&
+      (!filter.teamIds || filter.teamIds.length === 0)
     ) {
       const teamIds = await models.TeamMember.find({
         memberId: filter.userId,
       }).distinct('teamId');
 
-      if (filter.userId) {
-        filterQuery.$or = [
-          { teamIds: { $in: teamIds } },
-          { leadId: filter.userId },
-          { memberIds: filter.userId },
-        ];
-      } else {
-        filterQuery.teamIds = { $in: teamIds };
-      }
+      filterQuery.$or = [
+        ...(teamIds.length ? [{ teamIds: { $in: teamIds } }] : []),
+        { leadId: filter.userId },
+        { memberIds: filter.userId },
+      ];
     }
 
     if (filter.active) {

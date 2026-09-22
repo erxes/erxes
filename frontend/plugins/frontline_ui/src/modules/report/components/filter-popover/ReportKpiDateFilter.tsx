@@ -24,7 +24,7 @@ export const ReportKpiDateFilter = ({ filterId }: ReportKpiDateFilterProps) => {
           <Filter.View>
             <Command>
               <Command.List>
-                <Filter.Item value="date">{t('date')}</Filter.Item>
+                <Filter.Item value="date">{t('date', 'Date')}</Filter.Item>
                 {value && (
                   <>
                     <Command.Separator />
@@ -33,7 +33,7 @@ export const ReportKpiDateFilter = ({ filterId }: ReportKpiDateFilterProps) => {
                       onSelect={() => onChange('')}
                       className="text-destructive"
                     >
-                      {t('clear-all')}
+                      {t('clear-all', 'Clear all')}
                     </Command.Item>
                   </>
                 )}

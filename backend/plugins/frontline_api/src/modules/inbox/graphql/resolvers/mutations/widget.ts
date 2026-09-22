@@ -225,6 +225,42 @@ const createVisitor = async (subdomain: string, visitorId: string) => {
   return customer;
 };
 
+const findMessengerCompany = async (
+  subdomain: string,
+  companyData: { name?: string; email?: string; phone?: string },
+) => {
+  const selectors: Array<Record<string, string>> = [];
+
+  if (companyData.name) {
+    selectors.push({ name: companyData.name });
+  }
+
+  if (companyData.email) {
+    selectors.push({ email: companyData.email });
+  }
+
+  if (companyData.phone) {
+    selectors.push({ phone: companyData.phone });
+  }
+
+  for (const query of selectors) {
+    const company = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'companies',
+      action: 'findOne',
+      input: { query },
+    });
+
+    if (company?._id) {
+      return company;
+    }
+  }
+
+  return null;
+};
+
 export interface ITicketWidget {
   name: string;
   description: string;
@@ -398,18 +434,7 @@ export const widgetMutations: Record<string, Resolver> = {
 
     // get or create company
     if (companyData?.name) {
-      let company = await sendTRPCMessage({
-        subdomain,
-        pluginName: 'core',
-        method: 'mutation',
-        module: 'companies',
-        action: 'findOne',
-        input: {
-          query: {
-            companyData,
-          },
-        },
-      });
+      let company = await findMessengerCompany(subdomain, companyData);
 
       const fieldData = await sendTRPCMessage({
         subdomain,
@@ -426,9 +451,7 @@ export const widgetMutations: Record<string, Resolver> = {
       });
 
       companyData.propertiesData = fieldData?.propertiesData || {};
-
-      // trackData note: trackedData is not used for now
-      // companyData.trackedData = trackedData;
+      companyData.trackedData = fieldData?.trackedData || [];
 
       if (company) {
         company = await sendTRPCMessage({
@@ -438,10 +461,8 @@ export const widgetMutations: Record<string, Resolver> = {
           module: 'companies',
           action: 'updateCompany',
           input: {
-            query: {
-              _id: company._id,
-              doc: companyData,
-            },
+            _id: company._id,
+            doc: companyData,
           },
         });
 
@@ -449,7 +470,7 @@ export const widgetMutations: Record<string, Resolver> = {
           subdomain,
           pluginName: 'automations',
           method: 'mutation',
-          module: 'triggers',
+          module: 'automations',
           action: 'trigger',
           input: {
             type: 'core:company',
@@ -463,13 +484,11 @@ export const widgetMutations: Record<string, Resolver> = {
         company = await sendTRPCMessage({
           subdomain,
           pluginName: 'core',
-          method: 'query',
+          method: 'mutation',
           module: 'companies',
           action: 'createCompany',
           input: {
-            query: {
-              ...companyData,
-            },
+            doc: { ...companyData },
           },
         });
       }
@@ -890,8 +909,14 @@ export const widgetMutations: Record<string, Resolver> = {
   async widgetsReadConversationMessages(
     _root,
     args: { conversationId: string },
-    { models }: IContext,
+    { models, subdomain }: IContext,
   ) {
+    const unreadMessages = await models.ConversationMessages.find({
+      conversationId: args.conversationId,
+      userId: { $exists: true },
+      isCustomerRead: { $ne: true },
+    }).lean();
+
     await models.ConversationMessages.updateMany(
       {
         conversationId: args.conversationId,
@@ -900,6 +925,20 @@ export const widgetMutations: Record<string, Resolver> = {
       },
       { isCustomerRead: true },
       { multi: true },
+    );
+
+    await Promise.all(
+      unreadMessages.map((message) =>
+        graphqlPubsub.publish(
+          `conversationMessageUpdated:${subdomain}:${args.conversationId}`,
+          {
+            conversationMessageUpdated: {
+              ...message,
+              isCustomerRead: true,
+            },
+          },
+        ),
+      ),
     );
 
     return args.conversationId;

@@ -16,6 +16,7 @@ export interface IProject {
   memberIds?: string[];
   teamIds: string[];
   description: string;
+  propertiesData?: Record<string, unknown>;
 }
 
 export enum ProjectPageTypes {

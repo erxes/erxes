@@ -22,9 +22,10 @@ const STATUS_OPTIONS = [
 ];
 
 const DIFF_OPTIONS = [
+  { value: 'eq', label: 'Тэнцүү' },
+  { value: 'ne', label: 'Ялгаатай' },
   { value: 'gt', label: 'Илүү' },
   { value: 'lt', label: 'Дутуу' },
-  { value: 'eq', label: 'Тэнцүү' },
 ];
 
 const labelOf = (

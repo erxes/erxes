@@ -175,7 +175,9 @@ export function ArticleDrawer({
           >
             <Sheet.Header className="border-b gap-3 flex-shrink-0">
               <Sheet.Title>
-                {isEditing ? t('kb-edit-article') : t('kb-new-article')}
+                {isEditing
+                  ? t('kb-edit-article', 'Edit Article')
+                  : t('kb-new-article', 'New Article')}
               </Sheet.Title>
               <Sheet.Close />
             </Sheet.Header>
@@ -189,11 +191,14 @@ export function ArticleDrawer({
                     rules={{ required: 'Title is required' }}
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>{t('title-label')}</Form.Label>
+                        <Form.Label>{t('title-label', 'Title')}</Form.Label>
                         <Form.Control>
                           <Input
                             {...field}
-                            placeholder={t('kb-enter-article-title')}
+                            placeholder={t(
+                              'kb-enter-article-title',
+                              'Enter article title',
+                            )}
                           />
                         </Form.Control>
                         <Form.Message />
@@ -206,11 +211,14 @@ export function ArticleDrawer({
                     name="summary"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>{t('kb-summary')}</Form.Label>
+                        <Form.Label>{t('kb-summary', 'Summary')}</Form.Label>
                         <Form.Control>
                           <Textarea
                             {...field}
-                            placeholder={t('kb-enter-article-summary')}
+                            placeholder={t(
+                              'kb-enter-article-summary',
+                              'Enter article summary',
+                            )}
                           />
                         </Form.Control>
                         <Form.Message />
@@ -224,7 +232,7 @@ export function ArticleDrawer({
                     rules={{ required: 'Content is required' }}
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>{t('content-label')}</Form.Label>
+                        <Form.Label>{t('content-label', 'Content')}</Form.Label>
                         <Form.Control>
                           <Editor
                             initialContent={field.value}
@@ -241,7 +249,7 @@ export function ArticleDrawer({
 
                   <div className="border-t pt-4">
                     <h4 className="font-medium text-sm">
-                      {t('kb-publishing')}
+                      {t('kb-publishing', 'Publishing')}
                     </h4>
                   </div>
 
@@ -250,7 +258,7 @@ export function ArticleDrawer({
                     name="status"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>{t('status')}</Form.Label>
+                        <Form.Label>{t('status', 'Status')}</Form.Label>
                         <Form.Control>
                           <Select
                             value={field.value}
@@ -258,18 +266,21 @@ export function ArticleDrawer({
                           >
                             <Select.Trigger>
                               <Select.Value
-                                placeholder={t('kb-select-status')}
+                                placeholder={t(
+                                  'kb-select-status',
+                                  'Select Status',
+                                )}
                               />
                             </Select.Trigger>
                             <Select.Content>
                               <Select.Item value="draft">
-                                {t('kb-draft')}
+                                {t('kb-draft', 'Draft')}
                               </Select.Item>
                               <Select.Item value="publish">
-                                {t('kb-published')}
+                                {t('kb-published', 'Published')}
                               </Select.Item>
                               <Select.Item value="archived">
-                                {t('archived')}
+                                {t('archived', 'Archived')}
                               </Select.Item>
                             </Select.Content>
                           </Select>
@@ -285,7 +296,7 @@ export function ArticleDrawer({
                     render={({ field }) => (
                       <Form.Item className="flex flex-row items-center justify-between gap-2">
                         <Form.Label className="mb-0">
-                          {t('kb-is-private')}
+                          {t('kb-is-private', 'Is Private')}
                         </Form.Label>
                         <Form.Control>
                           <Switch
@@ -303,7 +314,9 @@ export function ArticleDrawer({
                     name="reactionChoices"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>{t('kb-reaction-choices')}</Form.Label>
+                        <Form.Label>
+                          {t('kb-reaction-choices', 'Reaction Choices')}
+                        </Form.Label>
                         <Form.Control>
                           <MultipleSelector
                             options={REACTIONS}
@@ -327,7 +340,9 @@ export function ArticleDrawer({
                   />
 
                   <div className="border-t pt-4">
-                    <h4 className="font-medium text-sm">{t('kb-media')}</h4>
+                    <h4 className="font-medium text-sm">
+                      {t('kb-media', 'Media')}
+                    </h4>
                   </div>
 
                   <Form.Field
@@ -335,7 +350,7 @@ export function ArticleDrawer({
                     name="image"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>{t('image-label')}</Form.Label>
+                        <Form.Label>{t('image-label', 'Image')}</Form.Label>
                         <Form.Control>
                           <Upload.Root
                             value={field.value?.url || ''}
@@ -356,7 +371,7 @@ export function ArticleDrawer({
                                 type="button"
                               >
                                 <IconUpload className="h-4 w-4 mr-2" />
-                                {t('kb-upload-image')}
+                                {t('kb-upload-image', 'Upload image')}
                               </Upload.Button>
                               <Upload.RemoveButton
                                 size="sm"
@@ -376,7 +391,9 @@ export function ArticleDrawer({
                     name="attachments"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>{t('kb-attachments')}</Form.Label>
+                        <Form.Label>
+                          {t('kb-attachments', 'Attachments')}
+                        </Form.Label>
                         <Form.Control>
                           <div className="space-y-2">
                             <Upload.Root
@@ -402,7 +419,7 @@ export function ArticleDrawer({
                                   type="button"
                                 >
                                   <IconUpload className="h-4 w-4 mr-2" />
-                                  {t('kb-add-file')}
+                                  {t('kb-add-file', 'Add file')}
                                 </Upload.Button>
                               </div>
                             </Upload.Root>
@@ -418,7 +435,9 @@ export function ArticleDrawer({
                     name="pdfAttachment"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>{t('kb-pdf-attachment')}</Form.Label>
+                        <Form.Label>
+                          {t('kb-pdf-attachment', 'PDF Attachment')}
+                        </Form.Label>
                         <Form.Control>
                           <Upload.Root
                             value={field.value?.pdf?.url || ''}
@@ -441,7 +460,7 @@ export function ArticleDrawer({
                                 type="button"
                               >
                                 <IconUpload className="h-4 w-4 mr-2" />
-                                {t('kb-upload-pdf')}
+                                {t('kb-upload-pdf', 'Upload PDF')}
                               </Upload.Button>
                               <Upload.RemoveButton
                                 size="sm"
@@ -461,13 +480,15 @@ export function ArticleDrawer({
                     onClick={() => setShowMoreInfo(!showMoreInfo)}
                     className="w-full"
                   >
-                    {showMoreInfo ? t('kb-see-less') : t('kb-fill-more-info')}
+                    {showMoreInfo
+                      ? t('kb-see-less', 'See less')
+                      : t('kb-fill-more-info', 'Fill in more info')}
                   </Button>
 
                   {showMoreInfo && (
                     <div className="space-y-4 border-t pt-4">
                       <h4 className="font-medium text-sm">
-                        {t('kb-file-details')}
+                        {t('kb-file-details', 'File Details')}
                       </h4>
 
                       <Form.Field
@@ -475,11 +496,16 @@ export function ArticleDrawer({
                         name="fileUrl"
                         render={({ field }) => (
                           <Form.Item>
-                            <Form.Label>{t('kb-file-url')}</Form.Label>
+                            <Form.Label>
+                              {t('kb-file-url', 'File URL')}
+                            </Form.Label>
                             <Form.Control>
                               <Input
                                 {...field}
-                                placeholder={t('kb-enter-file-url')}
+                                placeholder={t(
+                                  'kb-enter-file-url',
+                                  'Enter file URL',
+                                )}
                               />
                             </Form.Control>
                             <Form.Message />
@@ -492,12 +518,17 @@ export function ArticleDrawer({
                         name="fileSize"
                         render={({ field }) => (
                           <Form.Item>
-                            <Form.Label>{t('kb-file-size')}</Form.Label>
+                            <Form.Label>
+                              {t('kb-file-size', 'File Size (byte)')}
+                            </Form.Label>
                             <Form.Control>
                               <Input
                                 {...field}
                                 type="number"
-                                placeholder={t('kb-enter-file-size')}
+                                placeholder={t(
+                                  'kb-enter-file-size',
+                                  'Enter file size',
+                                )}
                                 onChange={(e) => {
                                   const value = e.target.value;
                                   field.onChange(
@@ -516,12 +547,17 @@ export function ArticleDrawer({
                         name="fileDuration"
                         render={({ field }) => (
                           <Form.Item>
-                            <Form.Label>{t('kb-file-duration')}</Form.Label>
+                            <Form.Label>
+                              {t('kb-file-duration', 'File Duration (sec)')}
+                            </Form.Label>
                             <Form.Control>
                               <Input
                                 {...field}
                                 type="number"
-                                placeholder={t('kb-enter-file-duration')}
+                                placeholder={t(
+                                  'kb-enter-file-duration',
+                                  'Enter file duration',
+                                )}
                                 onChange={(e) => {
                                   const value = e.target.value;
                                   field.onChange(
@@ -540,11 +576,16 @@ export function ArticleDrawer({
                         name="fileName"
                         render={({ field }) => (
                           <Form.Item>
-                            <Form.Label>{t('kb-file-name')}</Form.Label>
+                            <Form.Label>
+                              {t('kb-file-name', 'File Name')}
+                            </Form.Label>
                             <Form.Control>
                               <Input
                                 {...field}
-                                placeholder={t('kb-enter-file-name')}
+                                placeholder={t(
+                                  'kb-enter-file-name',
+                                  'Enter file name',
+                                )}
                               />
                             </Form.Control>
                             <Form.Message />
@@ -557,7 +598,7 @@ export function ArticleDrawer({
                         name="fileType"
                         render={({ field }) => (
                           <Form.Item>
-                            <Form.Label>{t('type')}</Form.Label>
+                            <Form.Label>{t('type', 'Type')}</Form.Label>
                             <Form.Control>
                               <Select
                                 onValueChange={field.onChange}
@@ -565,24 +606,27 @@ export function ArticleDrawer({
                               >
                                 <Select.Trigger>
                                   <Select.Value
-                                    placeholder={t('kb-select-type')}
+                                    placeholder={t(
+                                      'kb-select-type',
+                                      'Select type',
+                                    )}
                                   />
                                 </Select.Trigger>
                                 <Select.Content>
                                   <Select.Item value="image">
-                                    {t('kb-file-type-image')}
+                                    {t('kb-file-type-image', 'Image')}
                                   </Select.Item>
                                   <Select.Item value="video">
-                                    {t('kb-file-type-video')}
+                                    {t('kb-file-type-video', 'Video')}
                                   </Select.Item>
                                   <Select.Item value="audio">
-                                    {t('kb-file-type-audio')}
+                                    {t('kb-file-type-audio', 'Audio')}
                                   </Select.Item>
                                   <Select.Item value="document">
-                                    {t('kb-file-type-document')}
+                                    {t('kb-file-type-document', 'Document')}
                                   </Select.Item>
                                   <Select.Item value="other">
-                                    {t('kb-file-type-other')}
+                                    {t('kb-file-type-other', 'Other')}
                                   </Select.Item>
                                 </Select.Content>
                               </Select>
@@ -597,7 +641,7 @@ export function ArticleDrawer({
                   {/* <div className="space-y-4 border-t pt-4">
                     <div className="flex items-center justify-between">
                       <h4 className="font-medium text-sm">
-                        {t('kb-custom-forms')}
+                        {t('kb-custom-forms', 'Custom Forms')}
                       </h4>
                       <Button
                         type="button"
@@ -611,7 +655,7 @@ export function ArticleDrawer({
                           })
                         }
                       >
-                        {t('kb-add-another-form')}
+                        {t('kb-add-another-form', 'Add another form')}
                       </Button>
                     </div>
 
@@ -626,11 +670,11 @@ export function ArticleDrawer({
                             name={`customForms.${index}.label`}
                             render={({ field }) => (
                               <Form.Item>
-                                <Form.Label>{t('field-label')}</Form.Label>
+                                <Form.Label>{t('field-label', 'Label')}</Form.Label>
                                 <Form.Control>
                                   <Input
                                     {...field}
-                                    placeholder={t('kb-form-label-placeholder')}
+                                    placeholder={t('kb-form-label-placeholder', 'Form label')}
                                   />
                                 </Form.Control>
                                 <Form.Message />
@@ -642,11 +686,11 @@ export function ArticleDrawer({
                             name={`customForms.${index}.value`}
                             render={({ field }) => (
                               <Form.Item>
-                                <Form.Label>{t('value')}</Form.Label>
+                                <Form.Label>{t('value', 'Value')}</Form.Label>
                                 <Form.Control>
                                   <Textarea
                                     {...field}
-                                    placeholder={t('kb-form-value-placeholder')}
+                                    placeholder={t('kb-form-value-placeholder', 'Form value')}
                                   />
                                 </Form.Control>
                                 <Form.Message />
@@ -677,14 +721,14 @@ export function ArticleDrawer({
                 onClick={onClose}
                 className="bg-background hover:bg-background/90"
               >
-                {t('cancel')}
+                {t('cancel', 'Cancel')}
               </Button>
               <Button
                 type="submit"
                 disabled={adding || editing}
                 className="bg-primary text-primary-foreground hover:bg-primary/90"
               >
-                {adding || editing ? t('saving') : t('save')}
+                {adding || editing ? t('saving', 'Saving…') : t('save', 'Save')}
               </Button>
             </Sheet.Footer>
           </form>

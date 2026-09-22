@@ -22,7 +22,7 @@ type TRedlockLike = {
 
 // Distributed lock so that, across horizontally-scaled replicas, only ONE
 // process owns each bot's Gateway connection (and the work distributor). Mirrors
-// the proven IMAP/call integration pattern. Degrades to a granting stub when
+// the proven call integration pattern. Degrades to a granting stub when
 // Redis is absent so a single-instance deployment still runs (see below). Built
 // in a factory so the export stays a `const` rather than a reassigned `let`.
 const createRedlock = (): TRedlockLike => {

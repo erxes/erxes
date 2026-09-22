@@ -27,8 +27,25 @@ export const taskSchema = new Schema(
     githubIssueNumber: { type: Number, label: 'GitHub Issue Number' },
     githubIssueUrl: { type: String, label: 'GitHub Issue URL' },
     githubRepoName: { type: String, label: 'GitHub Repo Name' },
+    propertiesData: {
+      type: Schema.Types.Mixed,
+      optional: true,
+      label: 'Properties data',
+    },
+
+    segmentIds: {
+      type: [String],
+      optional: true,
+      default: undefined,
+      index: true,
+      sparse: true,
+      label: 'Segment IDs',
+    },
   },
   {
     timestamps: true,
   },
 );
+
+taskSchema.index({ assigneeId: 1 }, { sparse: true });
+taskSchema.index({ createdBy: 1 }, { sparse: true });

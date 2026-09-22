@@ -4,14 +4,58 @@ import { AutomationHistoryResultName } from '@/automations/components/builder/hi
 import { useAutomationExecutionDetail } from '@/automations/components/builder/history/context/AutomationExecutionDetailContext';
 import { AutomationErrorEmptyState } from '@/automations/components/common/AutomationErrorEmptyState';
 import { AutomationExecutionResultPanel } from '@/automations/components/builder/history/components/result/AutomationExecutionResultPanel';
-import { AutomationExecutionSelectionProvider } from '@/automations/components/builder/history/context/AutomationExecutionSelectionContext';
+import {
+  AutomationExecutionSelectionProvider,
+  useAutomationExecutionSelection,
+} from '@/automations/components/builder/history/context/AutomationExecutionSelectionContext';
 import { useAutomationHistoryDetail } from '@/automations/components/builder/history/context/AutomationHistoryDetailContext';
 import {
   IconArrowLeft,
   IconAutomaticGearbox,
   IconTournament,
 } from '@tabler/icons-react';
-import { Button, Tabs } from 'erxes-ui';
+import { Button, Resizable, Tabs } from 'erxes-ui';
+
+/**
+ * A result payload can be far larger than a fixed sidebar, so the reader sets
+ * the split. The panel only joins the group while an action is selected, and
+ * `order` keeps the remaining panel identified across that change.
+ */
+const AutomationExecutionDetailBody = () => {
+  const { selectedAction } = useAutomationExecutionSelection();
+
+  return (
+    <Resizable.PanelGroup
+      direction="horizontal"
+      autoSaveId="automation-execution-detail"
+      className="flex min-h-0 flex-1"
+    >
+      <Resizable.Panel order={1} minSize={30} className="flex min-w-0 flex-col">
+        <Tabs.Content value="flow" className="flex-1 min-h-0">
+          <AutomationHistoryFlow />
+        </Tabs.Content>
+
+        <Tabs.Content value="table" className="flex-1 min-h-0">
+          <AutomationHistoryByTable />
+        </Tabs.Content>
+      </Resizable.Panel>
+
+      {selectedAction && (
+        <>
+          <Resizable.Handle withHandle />
+          <Resizable.Panel
+            order={2}
+            minSize={15}
+            defaultSize={28}
+            className="flex min-w-0"
+          >
+            <AutomationExecutionResultPanel />
+          </Resizable.Panel>
+        </>
+      )}
+    </Resizable.PanelGroup>
+  );
+};
 
 export const AutomationExecutionBackButton = () => {
   const { canGoBack, backToParentExecution } = useAutomationHistoryDetail();
@@ -88,19 +132,7 @@ export const AutomationExecutionDetailTabs = () => {
           <AutomationExecutionResultName />
         </div>
 
-        <div className="flex min-h-0 flex-1">
-          <div className="flex min-w-0 flex-1 flex-col">
-            <Tabs.Content value="flow" className="flex-1 min-h-0">
-              <AutomationHistoryFlow />
-            </Tabs.Content>
-
-            <Tabs.Content value="table" className="flex-1 min-h-0">
-              <AutomationHistoryByTable />
-            </Tabs.Content>
-          </div>
-
-          <AutomationExecutionResultPanel />
-        </div>
+        <AutomationExecutionDetailBody />
       </Tabs>
     </AutomationExecutionSelectionProvider>
   );

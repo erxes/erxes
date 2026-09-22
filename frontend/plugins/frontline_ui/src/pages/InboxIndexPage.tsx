@@ -6,11 +6,13 @@ import { InboxLayout } from '@/inbox/components/InboxLayout';
 import { ConversationDetail } from '@/inbox/conversations/conversation-detail/components/ConversationDetail';
 import { Conversations } from '@/inbox/conversations/components/Conversations';
 import { useTranslation } from 'react-i18next';
-import { InboxWorkspaceToggleGroup } from '@/inbox/components/InboxWorkspaceToggleGroup';
 
 const InboxIndexPage = () => {
   const { t } = useTranslation('frontline');
-  const favoriteBreadcrumb = createFavoriteBreadcrumb('Frontline', t('inbox'));
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(
+    'Frontline',
+    t('inbox', 'Inbox'),
+  );
 
   return (
     <div className="flex flex-col h-dvh">
@@ -22,14 +24,12 @@ const InboxIndexPage = () => {
                 <Button variant="ghost" asChild>
                   <Link to="/frontline/inbox">
                     <IconMail />
-                    {t('inbox')}
+                    {t('inbox', 'Inbox')}
                   </Link>
                 </Button>
               </Breadcrumb.Item>
             </Breadcrumb.List>
           </Breadcrumb>
-          <Separator.Inline />
-          <InboxWorkspaceToggleGroup />
           <Separator.Inline />
           <PageHeader.FavoriteToggleButton
             breadcrumb={favoriteBreadcrumb}

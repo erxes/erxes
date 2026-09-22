@@ -20,6 +20,9 @@ interface GithubInstallationPayload {
 
 interface GithubIssuesPayload {
   action: string;
+  installation?: {
+    id: number;
+  };
   sender?: {
     type?: string;
   };
@@ -29,6 +32,11 @@ interface GithubIssuesPayload {
     body: string | null;
     html_url: string;
     state_reason: string | null;
+  };
+  milestone?: {
+    id: number;
+    number: number;
+    title: string;
   };
   repository: {
     full_name: string;
@@ -127,7 +135,8 @@ const handleIssues = async (
   payload: GithubIssuesPayload,
   subdomain: string,
 ): Promise<void> => {
-  const { action, issue, sender, repository } = payload;
+  const { action, installation, issue, milestone, sender, repository } =
+    payload;
   const { state_reason } = issue || {};
   if (sender?.type === 'Bot') {
     return;
@@ -149,7 +158,9 @@ const handleIssues = async (
 
   if (!taskCheckByIssue && !triageCheckByIssue && action === 'opened') {
     const config = await models.GithubConfig.findOne({
+      installationId: installation?.id,
       repoName: repository?.full_name,
+      subdomain,
     }).lean();
 
     if (
@@ -192,6 +203,84 @@ const handleIssues = async (
     }
     return;
   }
+
+  if (
+    taskCheckByIssue &&
+    (action === 'milestoned' || action === 'demilestoned')
+  ) {
+    const config = await models.GithubConfig.findOne({
+      installationId: installation?.id,
+      repoName: repository.full_name,
+      subdomain,
+    }).lean();
+
+    if (
+      !config ||
+      config.teamId.toString() !== taskCheckByIssue.teamId.toString()
+    ) {
+      return;
+    }
+
+    const mapping = milestone?.id
+      ? await models.GithubMilestoneMapping.findOne({
+          subdomain,
+          installationId: config.installationId,
+          repoName: repository.full_name,
+          githubMilestoneId: milestone.id,
+        }).lean()
+      : action === 'demilestoned' && taskCheckByIssue.milestoneId
+      ? await models.GithubMilestoneMapping.findOne({
+          subdomain,
+          installationId: config.installationId,
+          repoName: repository.full_name,
+          erxesMilestoneId: taskCheckByIssue.milestoneId,
+        }).lean()
+      : null;
+
+    if (!mapping) {
+      return;
+    }
+
+    const currentMilestoneId = taskCheckByIssue.milestoneId?.toString() ?? null;
+    const mappedMilestoneId = mapping.erxesMilestoneId.toString();
+    const nextMilestoneId = action === 'milestoned' ? mappedMilestoneId : null;
+
+    if (
+      currentMilestoneId === nextMilestoneId ||
+      (action === 'demilestoned' && currentMilestoneId !== mappedMilestoneId)
+    ) {
+      return;
+    }
+
+    const updatedTask = await models.Task.updateTask({
+      doc: {
+        _id: taskCheckByIssue._id.toString(),
+        milestoneId: nextMilestoneId,
+      },
+      userId: 'system',
+      subdomain,
+    });
+
+    await graphqlPubsub.publish(
+      `operationTaskChanged:${taskCheckByIssue._id}`,
+      {
+        operationTaskChanged: {
+          type: 'update',
+          task: updatedTask,
+        },
+      },
+    );
+
+    await graphqlPubsub.publish('operationTaskListChanged', {
+      operationTaskListChanged: {
+        type: 'update',
+        task: updatedTask,
+      },
+    });
+
+    return;
+  }
+
   const targetStatusType = getTargetStatusType(action, state_reason);
   if (targetStatusType && taskCheckByIssue) {
     const task = await models.Task.findOne({
@@ -267,20 +356,20 @@ export const handleGithubWebhook = async (
     const rawBody = Buffer.isBuffer(req.rawBody)
       ? req.rawBody
       : Buffer.isBuffer(req.body)
-        ? req.body
-        : Buffer.from(
-            typeof req.rawBody === 'string'
-              ? req.rawBody
-              : typeof req.body === 'string'
-                ? req.body
-                : JSON.stringify(req.body ?? {}),
-            'utf8',
-          );
+      ? req.body
+      : Buffer.from(
+          typeof req.rawBody === 'string'
+            ? req.rawBody
+            : typeof req.body === 'string'
+            ? req.body
+            : JSON.stringify(req.body ?? {}),
+          'utf8',
+        );
 
     let isValid: boolean;
     try {
       isValid = verifyGithubSignature(rawBody, signature);
-    } catch (err) {
+    } catch {
       res.status(500).send('Webhook secret not configured');
       return;
     }

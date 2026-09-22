@@ -93,11 +93,9 @@ export const ConversationDetail = () => {
           <Separator />
           <ConversationDetailLayout
             input={
-              integration?.kind === 'imap' ? null : (
-                <MessageInputIntegrationWrapper>
-                  <MessageInput conversationId={conversationId || ''} />
-                </MessageInputIntegrationWrapper>
-              )
+              <MessageInputIntegrationWrapper>
+                <MessageInput conversationId={conversationId || ''} />
+              </MessageInputIntegrationWrapper>
             }
           >
             {loading ? (

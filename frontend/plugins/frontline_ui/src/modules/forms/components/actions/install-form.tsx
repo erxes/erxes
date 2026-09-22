@@ -32,8 +32,10 @@ function CopyButton({
       })
       .catch(() => {
         toast({
-          title: t('failed-to-copy', { label: label.toLowerCase() }),
-          description: t('please-try-again'),
+          title: t('failed-to-copy', 'Failed to copy {{label}}', {
+            label: label.toLowerCase(),
+          }),
+          description: t('please-try-again', 'Please try again'),
           variant: 'destructive',
         });
       });
@@ -49,7 +51,7 @@ function CopyButton({
       {copied ? (
         <>
           <IconCheck className="w-4 h-4 mr-2" />
-          {t('copied')}
+          {t('copied', 'Copied!')}
         </>
       ) : (
         <>
@@ -105,14 +107,14 @@ export function FormInstallScript({
             setDialogOpen(true);
           }}
         >
-          <IconCode /> {t('install-script')}
+          <IconCode /> {t('install-script', 'Install Script')}
         </DropdownMenu.Item>
       ) : (
         <Button
           variant="outline"
           size={'icon'}
           onClick={() => setDialogOpen(true)}
-          title={t('view-installation-script')}
+          title={t('view-installation-script', 'View installation script')}
         >
           <IconCode />
         </Button>
@@ -122,9 +124,14 @@ export function FormInstallScript({
         <Dialog.Content className="max-w-2xl p-0 gap-0 overflow-hidden">
           <div className="flex flex-col max-h-[75vh] overflow-hidden p-6 gap-4">
             <Dialog.Header>
-              <Dialog.Title>{t('installation-guide')}</Dialog.Title>
+              <Dialog.Title>
+                {t('installation-guide', 'Installation Guide')}
+              </Dialog.Title>
               <Dialog.Description>
-                {t('installation-guide-description')}
+                {t(
+                  'installation-guide-description',
+                  'Follow the steps below to embed this form on your website.',
+                )}
               </Dialog.Description>
             </Dialog.Header>
 
@@ -136,11 +143,17 @@ export function FormInstallScript({
                       1
                     </span>
                     <p className="text-sm font-medium">
-                      {t('install-step-1-title')}
+                      {t(
+                        'install-step-1-title',
+                        'Add the loader script to your HTML',
+                      )}
                     </p>
                   </div>
                   <p className="text-xs text-muted-foreground pl-7">
-                    {t('install-step-1-description')}
+                    {t(
+                      'install-step-1-description',
+                      'Paste this snippet just before the closing </body> tag. It loads the form widget asynchronously without blocking your page.',
+                    )}
                   </p>
                   <div className="relative pl-7">
                     <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-sm font-mono">
@@ -156,11 +169,17 @@ export function FormInstallScript({
                       2
                     </span>
                     <p className="text-sm font-medium">
-                      {t('install-step-2-title')}
+                      {t(
+                        'install-step-2-title',
+                        'Place the embed element where the form should appear',
+                      )}
                     </p>
                   </div>
                   <p className="text-xs text-muted-foreground pl-7">
-                    {t('install-step-2-description')}
+                    {t(
+                      'install-step-2-description',
+                      'Add this element anywhere in your page body. The form will render inside it.',
+                    )}
                   </p>
                   <div className="relative pl-7">
                     <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-sm font-mono">
@@ -169,7 +188,10 @@ export function FormInstallScript({
                     <CopyButton text={embed} label="" />
                   </div>
                   <p className="text-xs text-muted-foreground pl-7">
-                    {t('install-step-2-popup-note')}
+                    {t(
+                      'install-step-2-popup-note',
+                      'If your form style is a popup, additionally paste this code after the main code.',
+                    )}
                   </p>
                   <div className="relative pl-7">
                     <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-sm font-mono">
@@ -180,12 +202,34 @@ export function FormInstallScript({
                 </div>
 
                 <Badge variant="info" className="block w-full h-auto p-3">
-                  <h4 className="font-medium text-sm mb-2">{t('quick-checklist')}</h4>
+                  <h4 className="font-medium text-sm mb-2">
+                    {t('quick-checklist', 'Quick checklist')}
+                  </h4>
                   <ul className="text-sm space-y-1 list-disc list-inside text-muted-foreground">
-                    <li>{t('checklist-loader-script')}</li>
-                    <li>{t('checklist-embed-element')}</li>
-                    <li>{t('checklist-same-page')}</li>
-                    <li>{t('checklist-https')}</li>
+                    <li>
+                      {t(
+                        'checklist-loader-script',
+                        'Loader script is placed before </body>',
+                      )}
+                    </li>
+                    <li>
+                      {t(
+                        'checklist-embed-element',
+                        'Embed element is placed where you want the form to appear',
+                      )}
+                    </li>
+                    <li>
+                      {t(
+                        'checklist-same-page',
+                        'Both snippets are on the same page',
+                      )}
+                    </li>
+                    <li>
+                      {t(
+                        'checklist-https',
+                        'Page is served over HTTPS (required for the widget)',
+                      )}
+                    </li>
                   </ul>
                 </Badge>
               </div>
@@ -193,14 +237,14 @@ export function FormInstallScript({
 
             <Dialog.Footer>
               <Button variant="secondary" onClick={() => setDialogOpen(false)}>
-                {t('close')}
+                {t('close', 'Close')}
               </Button>
               <Button>
                 <Link
                   target="_blank"
                   to={`/settings/frontline/forms/form-preview?inPreview=true&formId=${formId}`}
                 >
-                  {t('preview-form')}
+                  {t('preview-form', 'Preview Form')}
                 </Link>
               </Button>
             </Dialog.Footer>

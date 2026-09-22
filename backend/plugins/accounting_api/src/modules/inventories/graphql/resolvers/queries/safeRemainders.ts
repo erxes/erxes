@@ -9,7 +9,13 @@ const buildDateRange = (from?: string, to?: string) => {
 };
 
 const safeRemainderQueries = {
-  safeRemainders: async (_root: any, params: any, { models }: IContext) => {
+  safeRemainders: async (
+    _root: any,
+    params: any,
+    { models, checkPermission }: IContext,
+  ) => {
+    await checkPermission('readSafeRemainders');
+
     const query: any = {};
 
     if (params.departmentId) {
@@ -81,8 +87,10 @@ const safeRemainderQueries = {
   safeRemainderDetail: async (
     _root: any,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
+    await checkPermission('readSafeRemainders');
+
     return await models.SafeRemainders.getRemainder(_id);
   },
 };

@@ -60,6 +60,18 @@ const FormPreviewPage = lazy(() =>
   })),
 );
 
+const HelpCenter = lazy(() =>
+  import('~/pages/HelpCenterIndexPage').then((module) => ({
+    default: module.default,
+  })),
+);
+
+const Surveys = lazy(() =>
+  import('~/pages/SurveysIndexPage').then((module) => ({
+    default: module.SurveysIndexPage,
+  })),
+);
+
 const KnowledgeBase = lazy(() =>
   import('~/pages/knowledgebase/IndexPage').then((module) => ({
     default: module.default,
@@ -105,7 +117,9 @@ const IntegrationsMain = () => {
           />
         </Route>
         <Route path="/forms/preview" element={<FormPreviewPage />} />
+        <Route path="/surveys" element={<Surveys />} />
         <Route path="/knowledgebase" element={<KnowledgeBase />} />
+        <Route path="/helpcenter" element={<HelpCenter />} />
       </Routes>
     </Suspense>
   );

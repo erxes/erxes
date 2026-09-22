@@ -1,6 +1,8 @@
 import { gql } from '@apollo/client';
 import { ATTACHMENT_GQL } from 'erxes-ui';
-import messageFields from './messageFields';
+import messageFields, {
+  STRUCTURED_MESSAGE_FIELDS,
+} from '@/inbox/conversations/graphql/subscriptions/messageFields';
 
 export const conversationChanged = gql`
   subscription conversationChanged($_id: String!) {
@@ -11,7 +13,7 @@ export const conversationChanged = gql`
 `;
 
 export const conversationMessageInserted = gql`
-  subscription conversationMessageInserted($_id: String!) {
+  subscription FrontlineLegacyConversationMessageInserted($_id: String!) {
     conversationMessageInserted(_id: $_id) {
       ${messageFields}
     }
@@ -26,9 +28,10 @@ export const CONVERSATION_CHANGED = gql`
 `;
 
 export const CONVERSATION_MESSAGE_INSERTED = gql`
-  subscription conversationMessageInserted($_id: String!) {
+  subscription FrontlineConversationMessageInserted($_id: String!) {
     conversationMessageInserted(_id: $_id) {
       _id
+      ${STRUCTURED_MESSAGE_FIELDS}
       conversationId
       content
       formWidgetData
@@ -42,7 +45,18 @@ export const CONVERSATION_MESSAGE_INSERTED = gql`
       customerId
       botData
       source
+      relatedMessage
       fromBot
+    }
+  }
+`;
+
+export const CONVERSATION_MESSAGE_UPDATED = gql`
+  subscription FrontlineConversationMessageUpdated($_id: String!) {
+    conversationMessageUpdated(_id: $_id) {
+      _id
+      conversationId
+      isCustomerRead
     }
   }
 `;
@@ -54,6 +68,16 @@ export const CONVERSATION_CLIENT_MESSAGE_INSERTED = gql`
       conversationId
       content
       createdAt
+    }
+  }
+`;
+
+export const CONVERSATION_UNREAD_COUNT_CHANGED = gql`
+  subscription FrontlineConversationUnreadCountChanged {
+    conversationUnreadCountChanged {
+      conversationId
+      channelId
+      unreadConversationCount
     }
   }
 `;

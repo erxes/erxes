@@ -1,0 +1,56 @@
+name = "erxes-mail-worker"
+main = "src/index.ts"
+compatibility_date = "2026-07-01"
+compatibility_flags = ["nodejs_compat"]
+
+[observability]
+enabled = true
+
+[vars]
+ERXES_ENDPOINT_TEMPLATE = "https://{tenant}.erxes.io/gateway/pl:frontline/mail/receive"
+# ERXES_ENDPOINT and DEFAULT_TENANT belong to a Worker dedicated to one install.
+# On the shared Worker they stay empty: tenants come from the template above, and
+# installs on their own domain come from MAIL_ROUTES. A non-empty ERXES_ENDPOINT
+# wins over the template, which is what lets .dev.vars point local runs at
+# localhost without editing this file.
+ERXES_ENDPOINT = ""
+DEFAULT_TENANT = ""
+# This Worker's own public origin, which only exists once it has been deployed:
+# run `wrangler deploy`, take the workers.dev origin it prints, put it here, and
+# deploy again. erxes downloads attachments from here, so a stale value silently
+# drops every attachment — the placeholder fails loudly instead.
+ATTACHMENT_BASE_URL = "https://erxes-mail-worker.erxes.workers.dev"
+
+[[queues.producers]]
+queue = "erxes-mail-inbound"
+binding = "MAIL_QUEUE"
+
+[[queues.producers]]
+queue = "erxes-mail-dlq"
+binding = "MAIL_DLQ"
+
+[[queues.consumers]]
+queue = "erxes-mail-inbound"
+max_batch_size = 10
+max_batch_timeout = 5
+max_retries = 5
+dead_letter_queue = "erxes-mail-dlq"
+
+# Consumed only to log what gave up, so the dead-letter queue drains instead of
+# silently filling and an alert can watch for these lines.
+[[queues.consumers]]
+queue = "erxes-mail-dlq"
+max_batch_size = 10
+max_batch_timeout = 30
+max_retries = 0
+
+[[r2_buckets]]
+binding = "MAIL_STORE"
+bucket_name = "erxes-mail-inbound"
+
+# One entry per enterprise install: `<tenant>` -> {"endpoint": "...", "secret": "..."}.
+# Tenants without an entry fall back to ERXES_ENDPOINT_TEMPLATE and WEBHOOK_SECRET.
+# `npm run setup` creates the namespace and prints the id to paste here.
+[[kv_namespaces]]
+binding = "MAIL_ROUTES"
+id = "47b1bd56e8d946268b2f8cb075f2bfa3"

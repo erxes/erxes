@@ -1,6 +1,9 @@
 import dayjs from 'dayjs';
 import { fixNum } from 'erxes-ui';
-import { ITransaction, ITrDetail } from '~/modules/transactions/types/Transaction';
+import {
+  ITransaction,
+  ITrDetail,
+} from '~/modules/transactions/types/Transaction';
 import { amountToMongolianText } from './numberToWords';
 import { keyRows } from './shared';
 
@@ -47,8 +50,7 @@ const buildRows = (details: ITrDetail[]): IInvoiceRow[] =>
   details.map((d) => {
     const amount = d.currencyAmount ?? d.amount ?? 0;
     const count = d.count ?? 0;
-    const unitPrice =
-      d.unitPrice ?? (count > 0 ? amount / count : amount);
+    const unitPrice = d.unitPrice ?? (count > 0 ? amount / count : amount);
 
     return {
       description: d.product?.name || d.account?.name || '',
@@ -164,12 +166,9 @@ export const PrintInvoiceDocument = ({
           <div>Байгууллагын нэр: {counterpartyName}</div>
           <div>Утас, факс: {counterpartyPhone}</div>
           <div>Э-шуудан: {counterpartyEmail}</div>
-          <div>
-            Гэрээний №: ............................................
-          </div>
+          <div>Гэрээний №: ............................................</div>
           <div className="pt-3">
-            Нэхэмжилсэн огноо:{' '}
-            {transactionDate || '20...-...-...'}
+            Нэхэмжилсэн огноо: {transactionDate || '20...-...-...'}
           </div>
           <div>Төлбөр хийх хугацаа: 20...-...-...</div>
         </div>
@@ -211,7 +210,7 @@ export const PrintInvoiceDocument = ({
                 {row?.unitPrice ? formatNumber(row.unitPrice) : ' '}
               </td>
               <td className="border border-black/60 px-2 py-1.5 text-right">
-                {formatNumber(row.amount)}
+                {row ? formatNumber(row.amount) : ' '}
               </td>
             </tr>
           ))}
@@ -252,8 +251,7 @@ export const PrintInvoiceDocument = ({
       </table>
 
       <div className="mt-4">
-        <span className="font-bold">Мөнгөн дүн (үсгээр):</span>{' '}
-        {amountInWords}
+        <span className="font-bold">Мөнгөн дүн (үсгээр):</span> {amountInWords}
       </div>
 
       {config.showStamp && <div className="mt-3">(Тамга)</div>}

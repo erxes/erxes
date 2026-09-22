@@ -59,22 +59,23 @@ function PieChart({ value }: { value: number }) {
 
 const EXPORT_STATUS_META: Record<
   TExportProgress['status'],
-  {
-    label: string;
-    variant: 'success' | 'destructive' | 'secondary' | 'warning' | 'info';
-  }
+  { variant: 'success' | 'destructive' | 'secondary' | 'warning' | 'info' }
 > = {
-  pending: { label: 'Pending', variant: 'secondary' },
-  validating: { label: 'Validating', variant: 'warning' },
-  processing: { label: 'Processing', variant: 'info' },
-  completed: { label: 'Completed', variant: 'success' },
-  failed: { label: 'Failed', variant: 'destructive' },
-  cancelled: { label: 'Cancelled', variant: 'secondary' },
+  pending: { variant: 'secondary' },
+  validating: { variant: 'warning' },
+  processing: { variant: 'info' },
+  completed: { variant: 'success' },
+  failed: { variant: 'destructive' },
+  cancelled: { variant: 'secondary' },
 };
 
-export const exportHistoryColumns = (
-  contentTypes: ImportExportContentType[] = [],
-): ColumnDef<TExportProgress>[] => [
+export const exportHistoryColumns = ({
+  t,
+  contentTypes = [],
+}: {
+  t: (key: string) => string;
+  contentTypes?: ImportExportContentType[];
+}): ColumnDef<TExportProgress>[] => [
   {
     id: 'actions',
     size: 34,
@@ -86,7 +87,7 @@ export const exportHistoryColumns = (
     accessorKey: 'fileName',
     size: 220,
     minSize: 180,
-    header: () => <RecordTable.InlineHead label="File" />,
+    header: () => <RecordTable.InlineHead label={t('file')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell className="max-w-xs gap-2">
         <IconFileText className="size-4 text-muted-foreground flex-shrink-0" />
@@ -99,7 +100,7 @@ export const exportHistoryColumns = (
     accessorKey: 'entityType',
     size: 120,
     minSize: 100,
-    header: () => <RecordTable.InlineHead label="Type" />,
+    header: () => <RecordTable.InlineHead label={t('type')} />,
     cell: ({ row }) => (
       <RecordTableInlineCell className="whitespace-nowrap">
         <Badge variant="secondary" className="font-normal">
@@ -116,7 +117,7 @@ export const exportHistoryColumns = (
     accessorKey: 'status',
     size: 100,
     minSize: 90,
-    header: () => <RecordTable.InlineHead label="Status" />,
+    header: () => <RecordTable.InlineHead label={t('status')} />,
     cell: ({ row }) => {
       const { status, errorMessage } = row.original;
       const statusMeta =
@@ -127,7 +128,7 @@ export const exportHistoryColumns = (
           variant={statusMeta.variant}
           className="uppercase tracking-wide text-[11px] px-2 py-0.5"
         >
-          {statusMeta.label}
+          {t(`status-${status}`)}
         </Badge>
       );
 
@@ -164,7 +165,7 @@ export const exportHistoryColumns = (
     accessorKey: 'totalRows',
     size: 84,
     minSize: 72,
-    header: () => <RecordTable.InlineHead label="Records" />,
+    header: () => <RecordTable.InlineHead label={t('records')} />,
     cell: ({ row }) => {
       const totalRows = row.original.totalRows || 0;
 
@@ -180,7 +181,7 @@ export const exportHistoryColumns = (
     accessorKey: 'progress',
     size: 100,
     minSize: 90,
-    header: () => <RecordTable.InlineHead label="Progress" />,
+    header: () => <RecordTable.InlineHead label={t('progress')} />,
     cell: ({ row }) => {
       const progressValue = row.original.progress;
 
@@ -205,7 +206,7 @@ export const exportHistoryColumns = (
     accessorKey: 'createdAt',
     size: 118,
     minSize: 108,
-    header: () => <RecordTable.InlineHead label="Created" />,
+    header: () => <RecordTable.InlineHead label={t('created')} />,
     cell: ({ row }) => {
       const { createdAt } = row.original;
 
@@ -221,7 +222,7 @@ export const exportHistoryColumns = (
     accessorKey: 'completedAt',
     size: 118,
     minSize: 108,
-    header: () => <RecordTable.InlineHead label="Completed" />,
+    header: () => <RecordTable.InlineHead label={t('completed')} />,
     cell: ({ row }) => {
       const { completedAt } = row.original;
 
@@ -240,7 +241,7 @@ export const exportHistoryColumns = (
     id: 'duration',
     size: 82,
     minSize: 72,
-    header: () => <RecordTable.InlineHead label="Duration" />,
+    header: () => <RecordTable.InlineHead label={t('duration')} />,
     cell: ({ row }) => {
       const { startedAt, completedAt } =
         row.original || ({} as TExportProgress);

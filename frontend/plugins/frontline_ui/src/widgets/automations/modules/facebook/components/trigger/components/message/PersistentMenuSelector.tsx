@@ -1,11 +1,14 @@
 import { IconList } from '@tabler/icons-react';
 import { Checkbox, cn, Spinner } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { useFacebookBotTriggerClaims } from '../../hooks/useFacebookBotTriggerClaims';
 import { usePersistentMenus } from '../../hooks/usePersistentMenus';
+import { TriggerClaimNote } from './TriggerClaimNote';
 import { TMessageTriggerDirectConditions } from '../../types/messageTrigger';
 
 type Props = {
   botId: string;
+  currentTriggerId?: string;
   selectedPersistentMenuIds?: string[];
   onConditionChange: (
     fieldName: 'persistentMenuIds' | 'conditions',
@@ -15,11 +18,13 @@ type Props = {
 
 export const PersistentMenuSelector = ({
   botId,
+  currentTriggerId,
   selectedPersistentMenuIds = [],
   onConditionChange,
 }: Props) => {
   const { t } = useTranslation('frontline');
   const { persistentMenus, loading } = usePersistentMenus(botId);
+  const { claims } = useFacebookBotTriggerClaims(botId, currentTriggerId);
   const selectablePersistentMenus = persistentMenus.filter(
     ({ type }) => type === 'button',
   );
@@ -32,11 +37,20 @@ export const PersistentMenuSelector = ({
     return (
       <div className="flex justify-center text-muted-foreground">
         <IconList className="h-6 w-6" />
-        <p>{t('no-persistent-menus')}</p>
-        <span>{t('persistent-menu-link-note')}</span>
+        <p>{t('no-persistent-menus', 'No persistent menus in selected bot')}</p>
+        <span>
+          {t(
+            'persistent-menu-link-note',
+            "Persistent menu with link can't display as selectable condition on section",
+          )}
+        </span>
       </div>
     );
   }
+
+  const isClaimed = (_id: string) =>
+    !selectedPersistentMenuIds.includes(_id) &&
+    Boolean(claims.persistentMenuIds[_id]?.length);
 
   const onCheck = (_id: string) => {
     const updatedMenuIds = selectedPersistentMenuIds.includes(_id)
@@ -52,17 +66,24 @@ export const PersistentMenuSelector = ({
         <div
           key={_id}
           className={cn(
-            'flex w-full flex-row gap-4 rounded-lg border px-4 py-2 text-sm font-semibold text-muted-foreground',
+            'flex w-full flex-row items-center gap-4 rounded-lg border px-4 py-2 text-sm font-semibold text-muted-foreground',
             { 'mt-2': index > 0 },
           )}
         >
           <Checkbox
             className="rounded-full border-2 border-blue-500 data-[state=checked]:border-blue-500 data-[state=checked]:bg-blue-500"
             checked={selectedPersistentMenuIds.includes(_id)}
+            disabled={isClaimed(_id)}
             onCheckedChange={() => onCheck(_id)}
           />
 
-          <span>{text}</span>
+          <span className={cn('truncate', isClaimed(_id) && 'opacity-60')}>
+            {text}
+          </span>
+          <TriggerClaimNote
+            claims={claims.persistentMenuIds[_id]}
+            className="ml-auto"
+          />
         </div>
       ))}
     </div>

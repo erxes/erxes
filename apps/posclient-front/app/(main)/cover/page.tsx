@@ -40,7 +40,7 @@ const Cover = () => {
           Нэмэх
         </Button>
       </div>
-      {!loadingCovers && <DataTable data={(data || {}).covers} />}
+      {!loadingCovers && <DataTable data={data?.covers ?? []} />}
     </div>
   )
 }

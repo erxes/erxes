@@ -27,7 +27,9 @@ export async function generateTicketNumber(
 
   const { numberSize, numberConfig = '' } = pipeline;
   const replacedConfig = configReplacer(numberConfig);
-  const re = new RegExp(replacedConfig.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '[0-9]+$');
+  const re = new RegExp(
+    replacedConfig.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '[0-9]+$',
+  );
 
   const existing = await models.Pipeline.findOne({
     lastNum: re,
@@ -38,9 +40,12 @@ export async function generateTicketNumber(
 
   if (existing?.lastNum) {
     const lastGeneratedPart = existing.lastNum.slice(replacedConfig.length);
-    number = replacedConfig + numberCalculator(parseInt(numberSize, 10), lastGeneratedPart);
+    number =
+      replacedConfig +
+      numberCalculator(parseInt(numberSize, 10), lastGeneratedPart);
   } else {
-    number = replacedConfig + numberCalculator(parseInt(numberSize, 10), '', true);
+    number =
+      replacedConfig + numberCalculator(parseInt(numberSize, 10), '', true);
   }
 
   return number;
@@ -51,12 +56,8 @@ export async function updatePipelineLastNum(
   numberConfig: string,
   lastNum: string,
 ): Promise<void> {
-  await models.Pipeline.updateMany(
-    { numberConfig },
-    { $set: { lastNum } },
-  );
+  await models.Pipeline.updateMany({ numberConfig }, { $set: { lastNum } });
 }
-
 
 async function fetchCustomers(
   subdomain: string,
@@ -142,20 +143,34 @@ export async function applyNameConfig(
       if (serviceName === 'customer') {
         const c = customers[0];
         switch (parts[1]) {
-          case 'firstName':  result = result.replace(token, c?.firstName || ''); break;
-          case 'lastName':   result = result.replace(token, c?.lastName || ''); break;
-          case 'email':      result = result.replace(token, c?.primaryEmail || ''); break;
-          case 'phone':      result = result.replace(token, c?.primaryPhone || ''); break;
-          case 'count':      result = result.replace(token, String(customers.length)); break;
-          default:           result = result.replace(token, ''); break;
+          case 'firstName':
+            result = result.replace(token, c?.firstName || '');
+            break;
+          case 'lastName':
+            result = result.replace(token, c?.lastName || '');
+            break;
+          case 'email':
+            result = result.replace(token, c?.primaryEmail || '');
+            break;
+          case 'phone':
+            result = result.replace(token, c?.primaryPhone || '');
+            break;
+          case 'count':
+            result = result.replace(token, String(customers.length));
+            break;
+          default:
+            result = result.replace(token, '');
+            break;
         }
         continue;
       }
 
       if (serviceName === 'company') {
         const co = companies[0];
-        if (parts[1] === 'name')  result = result.replace(token, co?.primaryName || '');
-        else if (parts[1] === 'count') result = result.replace(token, String(companies.length));
+        if (parts[1] === 'name')
+          result = result.replace(token, co?.primaryName || '');
+        else if (parts[1] === 'count')
+          result = result.replace(token, String(companies.length));
         else result = result.replace(token, '');
         continue;
       }
@@ -163,11 +178,21 @@ export async function applyNameConfig(
       if (serviceName === 'user' && user) {
         const details = user.details || {};
         switch (parts[1]) {
-          case 'firstName': result = result.replace(token, details.firstName || ''); break;
-          case 'lastName':  result = result.replace(token, details.lastName || ''); break;
-          case 'fullName':  result = result.replace(token, details.fullName || ''); break;
-          case 'email':     result = result.replace(token, user.email || ''); break;
-          default:          result = result.replace(token, ''); break;
+          case 'firstName':
+            result = result.replace(token, details.firstName || '');
+            break;
+          case 'lastName':
+            result = result.replace(token, details.lastName || '');
+            break;
+          case 'fullName':
+            result = result.replace(token, details.fullName || '');
+            break;
+          case 'email':
+            result = result.replace(token, user.email || '');
+            break;
+          default:
+            result = result.replace(token, '');
+            break;
         }
         continue;
       }

@@ -10,6 +10,10 @@ import {
   TAutomationBuilderForm,
   TAutomationBuilderSaveValues,
 } from '@/automations/utils/automationFormDefinitions';
+import {
+  collectNodeErrors,
+  findFirstErrorMessage,
+} from '@/automations/utils/automationBuilderUtils/collectNodeErrors';
 import { setAutomationSettingsReturnPath } from '@/automations/utils/settingsReturn';
 import { useMutation } from '@apollo/client';
 import { Node, useReactFlow } from '@xyflow/react';
@@ -34,7 +38,7 @@ export const useAutomationHeader = () => {
   const automationCreatedBy = detail?.createdBy;
 
   const isAutomationCreator = currentUser?._id === automationCreatedBy;
-  const { actions, triggers } = useAutomationNodes();
+  const { actions, triggers, workflows } = useAutomationNodes();
 
   const { getNode } = useReactFlow();
   const { id } = useParams();
@@ -105,49 +109,28 @@ export const useAutomationHeader = () => {
   };
 
   const handleError: SubmitErrorHandler<TAutomationBuilderForm> = (errors) => {
-    const { triggers: triggersErrors, actions: actionsErrors } = errors || {};
-
-    const nodeErrorMap: Record<string, string> = {};
-
-    for (const { errors, list = [] } of [
-      { errors: triggersErrors, list: triggers },
-      { errors: actionsErrors, list: actions },
-    ]) {
-      if (Array.isArray(errors)) {
-        errors.forEach((err, i) => {
-          if (err && list[i]?.id) {
-            const nodeId = list[i].id;
-            const errorKeys = Object.keys(err);
-            nodeErrorMap[nodeId] =
-              errorKeys.length === 1
-                ? err[errorKeys[0]]?.message
-                : JSON.stringify(err);
-          }
-        });
-      }
-    }
+    const nodeErrorMap = collectNodeErrors(errors, {
+      triggers,
+      actions,
+      workflows,
+    });
 
     if (Object.keys(nodeErrorMap).length > 0) {
-      // Use the new error handler
       handleNodeErrors(nodeErrorMap);
-    } else {
-      console.log({ errors });
-      const errorKeys = Object.keys(errors || {});
-      if (errorKeys?.length > 0) {
-        const { message, ref } =
-          (errors as Record<string, { message?: string; ref: any }>)[
-            errorKeys[0]
-          ] || {};
-        toast({
-          title: 'Something went wrong',
-          description: message,
-          variant: 'destructive',
-        });
+    }
 
-        if (ref) {
-          ref?.focus();
-        }
-      }
+    // The marked node can be off-canvas — a collapsed workflow, another scope —
+    // so the reason is always stated outright as well.
+    const { message, ref } = findFirstErrorMessage(errors) || {};
+
+    if (message) {
+      toast({
+        title: 'Something went wrong',
+        description: message,
+        variant: 'destructive',
+      });
+
+      ref?.focus?.();
     }
   };
 

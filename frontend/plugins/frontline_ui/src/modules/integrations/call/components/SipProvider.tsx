@@ -671,7 +671,7 @@ const SipProvider = ({
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+  }, [host, port, user]);
 
   // Create context value
   const contextValue = useMemo(

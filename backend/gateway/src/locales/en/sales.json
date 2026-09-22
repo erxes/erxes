@@ -84,7 +84,6 @@
   "display": "Display",
   "move-deal": "Move Deal",
   "add-rule": "Add Rule",
-
   "// --- Inline text ---": "",
   "unknown": "Unknown",
   "unknown-product": "Unknown Product",
@@ -225,7 +224,11 @@
   "customer-type": "Customer Type",
   "company": "Company",
   "companies": "Companies",
-  "relation": "Relation",
+  "relation": {
+    "company-deals": "Deals",
+    "customer-deals": "Deals",
+    "customer-posOrders": "POS orders"
+  },
   "tag": "Tag",
   "due-date": "Due Date",
   "to": "to",
@@ -452,7 +455,6 @@
   "search": "Search",
   "filter": "Filter",
   "list": "List",
-
   "// --- Placeholders ---": "",
   "select-board": "Select Board",
   "select-pipeline": "Select Pipeline",
@@ -527,7 +529,6 @@
   "Select-day-after-card-created": "Select the day after the card created date",
   "payment-type-placeholder": "e.g. golomtCard, khaanCard",
   "payment-config-placeholder": "e.g. skipEbarimt: true",
-
   "// --- Messages ---": "",
   "no-deals-to-display": "No deals to display at the moment.",
   "no-pos-orders-to-display": "No POS orders to display at the moment.",
@@ -796,7 +797,6 @@
   "sort-by-created-date": "Sort by created date",
   "newest-first": "Newest first",
   "oldest-first": "Oldest first",
-
   "deal-moved-successfully": "Deal moved successfully",
   "service": "Service",
   "mobile-paid": "Mobile Paid",
@@ -841,5 +841,52 @@
   "leave-a-note": "Leave a note...",
   "send": "Send",
   "note-added": "Note added successfully",
-  "view-more-activities": "View more activities"
+  "view-more-activities": "View more activities",
+  "field": {
+    "assignedUserIds": "Assigned users",
+    "boardId": "Board",
+    "bothTotalAmount": "Both total amount",
+    "branchId": "Branch",
+    "branchIds": "Branches",
+    "cashAmount": "Cash amount",
+    "closeDate": "Close date",
+    "createdAt": "Created at",
+    "customerId": "Customer",
+    "customerType": "Customer type",
+    "departmentId": "Department",
+    "departmentIds": "Departments",
+    "description": "Description",
+    "dueDate": "Due date",
+    "finalAmount": "Final amount",
+    "initialStageId": "Initial stage",
+    "isComplete": "Is complete",
+    "isPre": "Is pre-order",
+    "labelIds": "Labels",
+    "mobileAmount": "Mobile amount",
+    "name": "Name",
+    "number": "Order number",
+    "paidDate": "Paid date",
+    "parentId": "Parent deal",
+    "pipelineId": "Pipeline",
+    "posId": "POS",
+    "priority": "Priority",
+    "productId": "Product",
+    "score": "Score",
+    "stageChangedDate": "Stage changed date",
+    "stageId": "Stage",
+    "stageProbability": "Stage probability",
+    "startDate": "Start date",
+    "status": "Status",
+    "tagIds": "Tags",
+    "totalAmount": "Total amount",
+    "type": "Order type",
+    "unUsedTotalAmount": "Unused total amount",
+    "updatedAt": "Modified at",
+    "userId": "Cashier",
+    "watchedUserIds": "Watched users"
+  },
+  "content-type": {
+    "sales-pos-orders": "POS order",
+    "sales-sales-deals": "Deal"
+  }
 }

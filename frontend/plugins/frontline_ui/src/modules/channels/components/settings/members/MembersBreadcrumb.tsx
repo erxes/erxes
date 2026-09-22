@@ -8,7 +8,7 @@ export const MembersBreadcrumb = () => {
   return (
     <Link to={`/settings/frontline/channels/${id}/members`}>
       <Button variant="ghost" className="font-semibold">
-        {t('members-title')}
+        {t('members-title', 'Members')}
       </Button>
     </Link>
   );

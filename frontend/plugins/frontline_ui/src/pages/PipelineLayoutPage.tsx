@@ -19,7 +19,7 @@ export const PipelineLayoutPage = () => {
           <Empty.Media>
             <IconGitBranch />
           </Empty.Media>
-          <Empty.Title>{t('not-found')}</Empty.Title>
+          <Empty.Title>{t('not-found', 'Not found')}</Empty.Title>
         </Empty.Header>
       </Empty>
     );

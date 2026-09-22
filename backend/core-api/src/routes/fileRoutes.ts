@@ -141,8 +141,18 @@ router.get(
         const contentType = mimeTypes[extension] || `application/${extension}`;
 
         const sanitizedFileName = sanitizeFilename(name || sanitizedKey);
+        // HTTP headers need ASCII; filename* preserves the Unicode name.
+        const asciiFileName = sanitizedFileName.replace(/[^\x20-\x7e]/g, '_');
+        const encodedFileName = encodeURIComponent(sanitizedFileName).replace(
+          /['()*]/g,
+          (character) =>
+            `%${character.charCodeAt(0).toString(16).toUpperCase()}`,
+        );
 
-        res.setHeader('Content-Disposition', `inline; filename="${sanitizedFileName}"`);
+        res.setHeader(
+          'Content-Disposition',
+          `inline; filename="${asciiFileName}"; filename*=UTF-8''${encodedFileName}`,
+        );
         res.setHeader('Content-Type', contentType);
 
         return res.send(response);
@@ -268,13 +278,18 @@ router.post(
 
     const sanitizedFilename = sanitizeFilename(req.body.fileName);
 
-    const status = await deleteFile(models, sanitizedFilename);
+    try {
+      const status = await deleteFile(models, sanitizedFilename);
 
-    if (status === 'ok') {
-      return res.send(status);
+      if (status === 'ok') {
+        return res.send(status);
+      }
+
+      return res.status(500).send(filterXSS(String(status)));
+    } catch (e) {
+      const message = e instanceof Error ? e.message : 'Delete failed';
+      return res.status(500).send(filterXSS(message));
     }
-
-    return res.status(500).send(status);
   },
 );
 

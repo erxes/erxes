@@ -14,7 +14,6 @@ export const VOUCHER_COMPANIES_QUERY = gql`
     $sortField: String
     $sortDirection: Int
     $dateFilters: String
-    $segmentData: String
     $status: CONTACT_STATUS
     $conformityMainType: String
     $conformityMainTypeId: String
@@ -42,7 +41,6 @@ export const VOUCHER_COMPANIES_QUERY = gql`
       sortField: $sortField
       sortDirection: $sortDirection
       dateFilters: $dateFilters
-      segmentData: $segmentData
       status: $status
       conformityMainType: $conformityMainType
       conformityMainTypeId: $conformityMainTypeId

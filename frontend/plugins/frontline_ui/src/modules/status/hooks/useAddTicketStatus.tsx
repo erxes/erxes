@@ -13,13 +13,13 @@ export const useAddTicketStatus = () => {
       ...options,
       onCompleted: (data) => {
         toast({
-          title: t('success'),
+          title: t('success', 'Success!'),
         });
         options.onCompleted?.(data);
       },
       onError: (error) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: error.message,
           variant: 'destructive',
         });

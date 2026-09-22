@@ -1,73 +1,44 @@
-import { Button, cn, Separator } from 'erxes-ui';
-import React, { Children, isValidElement } from 'react';
-import { FormProvider, useWatch } from 'react-hook-form';
-import { useSegmentActions } from 'ui-modules/modules/segments/hooks/useSegmentActions';
-import { useSegmentDetail } from 'ui-modules/modules/segments/hooks/useSegmentDetail';
-
-import { IconPlus } from '@tabler/icons-react';
-import { SegmentFormFooter } from 'ui-modules/modules/segments/components/form/SegmentFormFooter';
-import { SegmentFormLoading } from 'ui-modules/modules/segments/components/form/SegmentFormLoading';
-import { SegmentMetadataForm } from 'ui-modules/modules/segments/components/form/SegmentMetadataForm';
-import {
-  SegmentProvider,
-  useSegment,
-} from 'ui-modules/modules/segments/context/SegmentProvider';
-import { SegmentGroups } from './SegmentGroups';
-import { SegmentConfigWidget } from './SegmentConfigWidget';
-import { useTranslation } from 'react-i18next';
+import { useIsMobile } from 'erxes-ui';
+import { FormProvider } from 'react-hook-form';
+import { SegmentProvider, useSegment } from '../../context/SegmentProvider';
+import { useSegmentDetail } from '../../hooks/useSegmentDetail';
+import { SegmentFormFooter } from './SegmentFormFooter';
+import { SegmentFormLoading } from './SegmentFormLoading';
+import { SegmentFormUnavailable } from './SegmentFormUnavailable';
+import { SegmentConditionHeader } from './SegmentConditionHeader';
 import { SegmentGroup } from './SegmentGroup';
-import { SegmentFormMode } from '../../types';
+import { SegmentTreeSteps } from './SegmentTreeSteps';
+import { SegmentMetadataForm } from './SegmentMetadataForm';
 
-function hasSegmentMetadataForm(children: React.ReactNode): boolean {
-  let found = false;
-
-  Children.forEach(children, (child) => {
-    if (found) return;
-
-    if (isValidElement(child)) {
-      if (
-        child.type === SegmentFormHeader ||
-        (child.type as any)?.displayName === 'SegmentFormHeader'
-      ) {
-        found = true;
-        return;
-      }
-
-      if (child.props?.children) {
-        found = hasSegmentMetadataForm(child.props.children);
-      }
-    }
-  });
-
-  return found;
-}
-
-type SegmentFormRootProps = {
+type RootProps = {
   contentType: string;
   segmentId?: string;
-  mode?: SegmentFormMode.DEFAULT | SegmentFormMode.SINGLE;
+  ownedBy?: string;
   children: React.ReactNode;
 };
 
 const SegmentFormRoot = ({
   contentType,
   segmentId,
-  mode,
+  ownedBy,
   children,
-}: SegmentFormRootProps) => {
-  const { segment, segmentLoading } = useSegmentDetail(segmentId);
-  const hasMetadataForm = hasSegmentMetadataForm(children);
+}: RootProps) => {
+  const { segment, segmentLoading, unavailable } = useSegmentDetail(segmentId);
 
   if (segmentLoading) {
     return <SegmentFormLoading />;
   }
 
+  if (unavailable) {
+    return <SegmentFormUnavailable />;
+  }
+
   return (
     <SegmentProvider
+      key={`${contentType}:${segment?._id ?? 'new'}:${segment?.revision ?? 0}`}
       contentType={contentType}
       segment={segment}
-      mode={mode}
-      hasMetadataForm={hasMetadataForm}
+      ownedBy={ownedBy}
     >
       {children}
     </SegmentProvider>
@@ -86,97 +57,67 @@ const SegmentFormWrapper = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-const SegmentFormHeader = () => {
-  return (
-    <div className="w-full p-2 pb-0">
-      <SegmentMetadataForm />
-    </div>
-  );
-};
+const SegmentFormHeader = () => (
+  <div className="w-full p-2 pb-0">
+    <SegmentMetadataForm />
+  </div>
+);
 
 SegmentFormHeader.displayName = 'SegmentFormHeader';
 
-const SegmentFormContent = ({
-  callback,
-  children,
-}: {
-  callback?: (contentId: string) => void;
-  children?: React.ReactNode;
-}) => {
-  const { form, contentType } = useSegment();
-
-  const conditionSegments = useWatch({
-    control: form.control,
-    name: 'conditionSegments',
-  });
-  const { t } = useTranslation('segment', { keyPrefix: 'detail' });
-
-  const { onAddSegmentGroup } = useSegmentActions({ callback });
-  const defaultContent = (
-    <>
-      <div className="pb-4">
-        <SegmentGroups />
-      </div>
-      <Separator className="my-2" />
-      <Button
-        variant="secondary"
-        className={cn(
-          'w-full font-mono uppercase font-semibold text-xs text-accent-foreground',
-          {
-            'pl-12': (conditionSegments?.length || 0) > 1,
-          },
-        )}
-        onClick={onAddSegmentGroup}
-      >
-        <IconPlus />
-        {t('add-group')}
-      </Button>
-    </>
-  );
+const SegmentFormContent = ({ children }: { children?: React.ReactNode }) => {
+  const stepped = useIsMobile();
 
   return (
     <div className="flex flex-col flex-1 min-h-0 overflow-y-auto w-full p-2 pt-0">
-      <SegmentConfigWidget contentType={contentType} />
-      {children ?? defaultContent}
+      {children ??
+        (stepped ? (
+          <SegmentTreeSteps />
+        ) : (
+          <div className="pt-4 overflow-x-auto">
+            <div className="min-w-[640px]">
+              <SegmentConditionHeader />
+              <SegmentGroup path="root" />
+            </div>
+          </div>
+        ))}
     </div>
   );
 };
 
-// Legacy props interface for backward compatibility
-type LegacyProps = {
+type SegmentFormProps = {
   contentType: string;
   segmentId?: string;
-  callback: (contentId: string) => void;
-  onCreateSuccess?: (contentId: string) => void;
-  saveButtonText?: string;
+  callback?: (id: string) => void;
+  onCreateSuccess?: (id: string) => void;
+  onOpenExisting?: (segmentId: string) => void;
 };
 
-// Legacy component wrapper
-const SegmentFormLegacy = ({
+const SegmentFormDefault = ({
   contentType,
+  segmentId,
   callback,
   onCreateSuccess,
-  segmentId,
-}: LegacyProps) => {
-  return (
-    <SegmentFormRoot contentType={contentType} segmentId={segmentId}>
-      <SegmentFormWrapper>
-        <SegmentFormHeader />
-        <SegmentFormContent callback={callback} />
-        <SegmentFormFooter
-          callback={callback}
-          onCreateSuccess={onCreateSuccess}
-        />
-      </SegmentFormWrapper>
-    </SegmentFormRoot>
-  );
-};
+  onOpenExisting,
+}: SegmentFormProps) => (
+  <SegmentFormRoot contentType={contentType} segmentId={segmentId}>
+    <SegmentFormWrapper>
+      <SegmentFormHeader />
+      <SegmentFormContent />
+      <SegmentFormFooter
+        callback={callback}
+        onCreateSuccess={onCreateSuccess}
+        onOpenExisting={onOpenExisting}
+      />
+    </SegmentFormWrapper>
+  </SegmentFormRoot>
+);
 
-export const SegmentForm = Object.assign(SegmentFormLegacy, {
+export const SegmentForm = Object.assign(SegmentFormDefault, {
   Root: SegmentFormRoot,
   Wrapper: SegmentFormWrapper,
   Header: SegmentFormHeader,
   Content: SegmentFormContent,
-  SegmentGroup: SegmentGroup,
+  Group: SegmentGroup,
   Footer: SegmentFormFooter,
 });

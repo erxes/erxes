@@ -86,6 +86,8 @@ const queryParams = `
   excludeTagIds: [String]
   tagWithRelated: Boolean
 
+  segmentIds: [String]
+
   brandIds: [String]
 
   integrationIds: [String]
@@ -107,7 +109,6 @@ const queryParams = `
   birthDate: Date
   dateFilters: String
   propertiesData: String
-  segmentData: String
   emailValidationStatus:String
   status: CONTACT_STATUS
 

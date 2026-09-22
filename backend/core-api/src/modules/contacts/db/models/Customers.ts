@@ -1,4 +1,7 @@
-import { customerSchema } from '@/contacts/db/definitions/customers';
+import {
+  customerSchema,
+  customerSearchTokenConfig,
+} from '@/contacts/db/definitions/customers';
 import {
   IBrowserInfo,
   ICustomer,
@@ -6,7 +9,10 @@ import {
   IPropertyField,
   IUserDocument,
 } from 'erxes-api-shared/core-types';
-import { validSearchText } from 'erxes-api-shared/utils';
+import {
+  generateConfiguredSearchTokens,
+  validSearchText,
+} from 'erxes-api-shared/utils';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { generateCustomerUpdateActivityLogs } from '../../meta/activity-log/customers';
@@ -315,7 +321,7 @@ export const loadCustomerClass = (
      * Remove customers
      */
     public static async removeCustomers(customerIds: string[]) {
-      // Snapshot before deletion so the removal is revertable (point-in-time).
+      // Snapshot before deletion so the log carries what was removed.
       const prevDocuments = await models.Customers.find({
         _id: { $in: customerIds },
       }).lean();
@@ -522,14 +528,12 @@ export const loadCustomerClass = (
     }: ICreateMessengerCustomerParams) {
       doc = this.fixListFields(doc, customData);
 
-      const { propertiesData } = await models.Fields.generatePropertiesData(
-        customData,
-        'core:customer',
-      );
+      const { propertiesData, trackedData } =
+        await models.Fields.generatePropertiesData(customData, 'core:customer');
 
       return this.createCustomer({
         ...doc,
-        // trackedData: [], trackData note: trackedData is not used for now
+        trackedData,
         propertiesData,
         lastSeenAt: new Date(),
         isOnline: true,
@@ -549,10 +553,8 @@ export const loadCustomerClass = (
 
       doc = this.fixListFields(doc, customData, customer);
 
-      const { propertiesData } = await models.Fields.generatePropertiesData(
-        customData,
-        'core:customer',
-      );
+      const { propertiesData, trackedData } =
+        await models.Fields.generatePropertiesData(customData, 'core:customer');
 
       const modifier: any = {
         ...doc,
@@ -560,10 +562,9 @@ export const loadCustomerClass = (
         updatedAt: new Date(),
       };
 
-      // trackData note: trackedData is not used for now
-      // if (trackedData && trackedData.length > 0) {
-      //   modifier.trackedData = trackedData;
-      // }
+      if (trackedData.length > 0) {
+        modifier.trackedData = trackedData;
+      }
 
       if (Object.keys(propertiesData)?.length > 0) {
         // if use Customers.updateCustomer method then just pass propertiesData no spread neede
@@ -953,14 +954,22 @@ export const loadCustomerClass = (
       }
 
       searchText = validSearchText([searchText]);
-
+      const searchTokens = generateConfiguredSearchTokens(
+        customer,
+        customerSearchTokenConfig,
+      );
       let state = customer.state || 'visitor';
 
       if (possibleLead && state !== 'customer') {
         state = 'lead';
       }
 
-      return { profileScore: score, searchText, state };
+      return {
+        profileScore: score,
+        searchText,
+        searchTokens,
+        state,
+      };
     }
 
     /**

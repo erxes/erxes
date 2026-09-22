@@ -138,13 +138,11 @@ export const buildAnthropicMessagesBody = ({
   connection,
   runtime,
   messages,
-  responseFormat,
   tools,
 }: {
   connection: TAiBridgeConnection;
   runtime: TAiBridgeRuntime;
   messages: TAiBridgeMessage[];
-  responseFormat?: 'json' | 'text';
   tools?: TAiBridgeToolDefinition[];
 }) => {
   const system = messages
@@ -156,11 +154,11 @@ export const buildAnthropicMessagesBody = ({
     .filter((message) => message.role !== 'system')
     .map(toAnthropicMessage);
 
-  // The "{" prefill forces plain text, which breaks tool_use turns
-  if (responseFormat === 'json' && !tools?.length) {
-    // Assistant prefill forces the completion to continue a JSON object.
-    chatMessages.push({ role: 'assistant', content: '{' });
-  }
+  // No assistant "{" prefill here. A model with extended thinking must open its
+  // turn with a thinking block, so prefilling the assistant turn degenerates it:
+  // measured against kimi-for-coding the same request returned 7 tokens and an
+  // empty content array with the prefill, and a complete JSON object without it.
+  // The JSON shape is carried by the instructions instead.
 
   return {
     model: connection.model,

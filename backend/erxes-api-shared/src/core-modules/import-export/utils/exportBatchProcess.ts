@@ -10,7 +10,6 @@ import { Job, UnrecoverableError } from 'bullmq';
 import { nanoid } from 'nanoid';
 import * as fs from 'fs';
 import * as path from 'path';
-import ExcelJS from 'exceljs';
 import { uploadFileToStorage } from '../../../utils/file/upload';
 import { ImportExportError, withImportExportStage } from './importExportError';
 import {
@@ -161,88 +160,30 @@ const createCSVRowWriter = async ({
   };
 };
 
-const createXLSXRowWriter = async ({
-  filePath,
-  headerLabels,
-  headerKeys,
-}: {
-  filePath: string;
-  headerLabels: string[];
-  headerKeys: string[];
-}): Promise<ExportRowWriter> => {
-  const workbook = new ExcelJS.stream.xlsx.WorkbookWriter({
-    filename: filePath,
-    useStyles: false,
-    useSharedStrings: false,
-  });
-
-  const worksheet = workbook.addWorksheet('Export');
-  worksheet.addRow(headerLabels).commit();
-
-  let finalized = false;
-
-  return {
-    async writeRows(rows) {
-      for (const row of rows) {
-        worksheet.addRow(headerKeys.map((key) => row[key] ?? '')).commit();
-      }
-    },
-
-    async finalize() {
-      if (finalized) {
-        return;
-      }
-
-      worksheet.commit();
-      await workbook.commit();
-      finalized = true;
-    },
-
-    async cleanup() {
-      // ExcelJS streaming writer does not expose an explicit destroy API.
-      // The temporary file is removed by the caller in the surrounding finally.
-    },
-  };
-};
-
 const createExportRowWriter = ({
-  fileFormat,
   filePath,
   headerLabels,
   headerKeys,
 }: {
-  fileFormat: 'csv' | 'xlsx';
   filePath: string;
   headerLabels: string[];
   headerKeys: string[];
-}): Promise<ExportRowWriter> => {
-  if (fileFormat === 'csv') {
-    return createCSVRowWriter({ filePath, headerLabels, headerKeys });
-  }
-
-  return createXLSXRowWriter({ filePath, headerLabels, headerKeys });
-};
+}): Promise<ExportRowWriter> =>
+  createCSVRowWriter({ filePath, headerLabels, headerKeys });
 
 const uploadExportFile = async (
   subdomain: string,
   filePath: string,
   fileName: string,
-  fileFormat: 'csv' | 'xlsx',
-): Promise<string> => {
-  const mimetype =
-    fileFormat === 'csv'
-      ? 'text/csv'
-      : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-
+): Promise<string> =>
   // Force private to get file key instead of URL (same pattern as core-api)
-  return await uploadFileToStorage({
+  await uploadFileToStorage({
     subdomain,
     filePath,
     fileName,
-    mimetype,
+    mimetype: 'text/csv',
     forcePrivate: true,
   });
-};
 
 export const createExportBatchProcessor = (
   config: TExportHandlers,
@@ -251,7 +192,7 @@ export const createExportBatchProcessor = (
 ) => {
   return async (job: Job<ExportJobData>) => {
     const { subdomain, data } = job.data;
-    const { exportId, entityType, fileFormat } = data;
+    const { exportId, entityType } = data;
     const [jobPluginName, moduleName, collectionName] = splitType(entityType);
 
     if (jobPluginName !== pluginName) {
@@ -284,7 +225,6 @@ export const createExportBatchProcessor = (
       event: 'job_started',
       extra: {
         entityType,
-        fileFormat,
       },
     });
 
@@ -339,7 +279,11 @@ export const createExportBatchProcessor = (
               data: {
                 moduleName,
                 collectionName,
-                ...(exportDoc.filters !== null && typeof exportDoc.filters === 'object' && !Array.isArray(exportDoc.filters) ? { filters: exportDoc.filters } : {}),
+                ...(exportDoc.filters !== null &&
+                typeof exportDoc.filters === 'object' &&
+                !Array.isArray(exportDoc.filters)
+                  ? { filters: exportDoc.filters }
+                  : {}),
               },
             },
             context,
@@ -364,14 +308,13 @@ export const createExportBatchProcessor = (
       });
 
       try {
-        const tempFileName = `export-${exportId}.${fileFormat}`;
+        const tempFileName = `export-${exportId}.csv`;
         const tempFilePath = tempWorkspace.createFilePath(tempFileName);
         const writer = await withImportExportStage({
           stage: 'WRITE_TEMP_FILE',
           fallbackMessage: 'Failed to initialize export writer',
           run: async () =>
             await createExportRowWriter({
-              fileFormat,
               filePath: tempFilePath,
               headerLabels,
               headerKeys,
@@ -394,7 +337,11 @@ export const createExportBatchProcessor = (
                 collectionName,
                 limit: BATCH_SIZE,
                 ...(cursor ? { cursor } : {}),
-                ...(exportDoc.filters !== null && typeof exportDoc.filters === 'object' && !Array.isArray(exportDoc.filters) ? { filters: exportDoc.filters } : {}),
+                ...(exportDoc.filters !== null &&
+                typeof exportDoc.filters === 'object' &&
+                !Array.isArray(exportDoc.filters)
+                  ? { filters: exportDoc.filters }
+                  : {}),
                 ...(exportDoc.ids && exportDoc.ids.length > 0
                   ? { ids: exportDoc.ids }
                   : {}),
@@ -511,16 +458,11 @@ export const createExportBatchProcessor = (
             stage: 'FINALIZE_UPLOAD',
             fallbackMessage: 'Failed to upload export file',
             run: async () =>
-              await uploadExportFile(
-                subdomain,
-                tempFilePath,
-                tempFileName,
-                fileFormat,
-              ),
+              await uploadExportFile(subdomain, tempFilePath, tempFileName),
           });
 
           const baseFileName = exportDoc.fileName || `export-${exportId}`;
-          const fileName = `${baseFileName}.${fileFormat}`;
+          const fileName = `${baseFileName}.csv`;
 
           await withImportExportStage({
             stage: 'SAVE_RESULT',

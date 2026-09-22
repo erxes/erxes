@@ -28,7 +28,7 @@ const adjustDebtRateMutations = {
     doc: IAdjustDebtRateInput,
     { models, user, checkPermission }: IContext,
   ) {
-    await checkPermission('manageAdjustInventories');
+    await checkPermission('manageAdjustDebtRates');
 
     const adjustDebtRate = await models.AdjustDebtRates.createAdjustDebtRate({
       ...doc,
@@ -48,7 +48,7 @@ const adjustDebtRateMutations = {
     { _id, ...doc }: { _id: string } & IAdjustDebtRateInput,
     { models, user, checkPermission }: IContext,
   ) {
-    await checkPermission('manageAdjustInventories');
+    await checkPermission('manageAdjustDebtRates');
 
     const adjust = await models.AdjustDebtRates.getAdjustDebtRate(_id);
 
@@ -90,7 +90,7 @@ const adjustDebtRateMutations = {
     { adjustDebtRateIds }: { adjustDebtRateIds: string[] },
     { models, checkPermission }: IContext,
   ) {
-    await checkPermission('removeAdjustInventories');
+    await checkPermission('removeAdjustDebtRates');
 
     for (const _id of adjustDebtRateIds) {
       await models.AdjustDebtRates.removeAdjustDebtRate(_id);
@@ -104,7 +104,7 @@ const adjustDebtRateMutations = {
     { _id }: { _id: string },
     { models, user, checkPermission }: IContext,
   ) {
-    await checkPermission('manageAdjustInventories');
+    await checkPermission('manageAdjustDebtRates');
 
     const adjust = await models.AdjustDebtRates.getAdjustDebtRate(_id);
 
@@ -116,8 +116,7 @@ const adjustDebtRateMutations = {
     { _id }: { _id: string },
     { models, user, checkPermission }: IContext,
   ) {
-    await checkPermission('manageAdjustInventories');
-    await checkPermission('manageTransactions');
+    await checkPermission('manageAdjustDebtRates');
 
     const adjust = await models.AdjustDebtRates.getAdjustDebtRate(_id);
 

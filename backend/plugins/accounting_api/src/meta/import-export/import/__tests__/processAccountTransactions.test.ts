@@ -67,7 +67,7 @@ describe('account transaction import fixed assets', () => {
     mockRelatedData();
   });
 
-  it('uses productCode as fixed asset code without creating instance extra data', async () => {
+  it('uses productCode as fixed asset code without creating owner record extra data', async () => {
     const models = makeModels();
 
     const result = await processTransactionRows(
@@ -92,9 +92,7 @@ describe('account transaction import fixed assets', () => {
     );
 
     expect(result.errorRows).toEqual([]);
-    expect(models.FixedAssets.find).toHaveBeenCalledWith({
-      code: { $in: ['LAPTOP'] },
-    });
+    expect(models.FixedAssets.find).not.toHaveBeenCalled();
     expect(models.Transactions.createPTransaction).toHaveBeenCalledTimes(1);
 
     const trDocs = models.Transactions.createPTransaction.mock.calls[0][0];
@@ -103,14 +101,15 @@ describe('account transaction import fixed assets', () => {
         journal: JOURNALS.FXA_INCOME,
       }),
     );
-    expect(trDocs[0]).not.toHaveProperty('extraData.fxaInstances');
+    expect(trDocs[0]).not.toHaveProperty('extraData.fxaOwnerRecords');
     expect(trDocs[0].details[0]).toEqual(
       expect.objectContaining({
         accountId: 'asset-account',
         branchId: 'branch-1',
         departmentId: 'department-1',
         productId: '',
-        fixedAssetId: 'fixed-asset-1',
+        fixedAssetId: '',
+        fixedAssetCode: 'LAPTOP',
         count: 2,
         unitPrice: 500,
         amount: 1000,
@@ -146,9 +145,7 @@ describe('account transaction import fixed assets', () => {
       'user-1',
     );
 
-    expect(models.FixedAssets.find).toHaveBeenCalledWith({
-      code: { $in: ['LAPTOP'] },
-    });
+    expect(models.FixedAssets.find).not.toHaveBeenCalled();
     expect(sendTRPCMessage).not.toHaveBeenCalledWith(
       expect.objectContaining({
         module: 'products',
@@ -159,7 +156,8 @@ describe('account transaction import fixed assets', () => {
     expect(trDocs[0].details[0]).toEqual(
       expect.objectContaining({
         productId: '',
-        fixedAssetId: 'fixed-asset-1',
+        fixedAssetId: '',
+        fixedAssetCode: 'LAPTOP',
         amount: 500,
       }),
     );
@@ -192,15 +190,83 @@ describe('account transaction import fixed assets', () => {
 
     const trDocs = models.Transactions.createPTransaction.mock.calls[0][0];
     expect(trDocs[0].followInfos).toEqual({
-      fixedAssetAccountId: 'asset-account',
+      saleOutAccountId: 'asset-account',
       accumulatedDepreciationAccountId: 'accumulated-account',
-      lossAccountId: 'loss-account',
+      saleCostAccountId: 'loss-account',
     });
     expect(trDocs[0].details[0]).toEqual(
       expect.objectContaining({
         accountId: 'sale-account',
         fixedAssetId: 'fixed-asset-1',
         productId: '',
+      }),
+    );
+  });
+
+  it('maps only accumulated depreciation account for fixed asset out', async () => {
+    const models = makeModels();
+
+    await processTransactionRows(
+      'os',
+      models as unknown as Parameters<typeof processTransactionRows>[1],
+      [
+        {
+          date: '2026-01-12',
+          number: 'FXA-OUT-1',
+          journal: JOURNALS.FXA_OUT,
+          description: 'Fixed asset out import',
+          side: 'ct',
+          accountCode: '1010',
+          fixedAssetCode: 'LAPTOP',
+          count: 1,
+          unitPrice: 500,
+          follow1: '1010',
+          follow2: '1310',
+          follow3: '8910',
+        },
+      ],
+      'user-1',
+    );
+
+    const trDocs = models.Transactions.createPTransaction.mock.calls[0][0];
+    expect(trDocs[0].followInfos).toEqual({
+      accumulatedDepreciationAccountId: 'accumulated-account',
+    });
+  });
+
+  it('maps fixed asset move destination and accumulated depreciation account', async () => {
+    const models = makeModels();
+
+    await processTransactionRows(
+      'os',
+      models as unknown as Parameters<typeof processTransactionRows>[1],
+      [
+        {
+          date: '2026-01-13',
+          number: 'FXA-MOVE-1',
+          journal: JOURNALS.FXA_MOVE,
+          description: 'Fixed asset move import',
+          side: 'ct',
+          accountCode: '1010',
+          branchId: 'BR01',
+          departmentId: 'DP01',
+          fixedAssetCode: 'LAPTOP',
+          count: 1,
+          unitPrice: 500,
+          follow1: 'BR01',
+          follow2: 'DP01',
+          follow4: '1310',
+        },
+      ],
+      'user-1',
+    );
+
+    const trDocs = models.Transactions.createPTransaction.mock.calls[0][0];
+    expect(trDocs[0].followInfos).toEqual(
+      expect.objectContaining({
+        moveInBranchId: 'branch-1',
+        moveInDepartmentId: 'department-1',
+        accumulatedDepreciationAccountId: 'accumulated-account',
       }),
     );
   });

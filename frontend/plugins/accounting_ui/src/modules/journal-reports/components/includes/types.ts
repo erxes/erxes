@@ -3,6 +3,7 @@ import { IGroupRule } from '../../types/reportsMap';
 
 export type CalcReportResult = {
   lastNode: React.ReactNode;
+  afterNode?: React.ReactNode;
   lastData?: Record<string, unknown>;
 };
 

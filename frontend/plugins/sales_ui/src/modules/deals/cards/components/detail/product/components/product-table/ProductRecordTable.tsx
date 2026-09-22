@@ -20,53 +20,62 @@ export const ProductsRecordTable = ({
   products,
   refetch,
   showAdvancedView,
+  showTaxView,
   hasProductFilters,
 }: {
   products: IProductData[];
   refetch: () => void;
   showAdvancedView: boolean;
+  showTaxView: boolean;
   hasProductFilters: boolean;
 }) => {
   const { t } = useTranslation('sales');
 
   const columns = useMemo<ColumnDef<IProductData>[]>(() => {
     const baseColumns = productColumns(t);
-    if (!showAdvancedView) return baseColumns;
+    if (!showAdvancedView && !showTaxView) return baseColumns;
 
     const newColumns = [...baseColumns];
 
-    const discountIndex = newColumns.findIndex((col) => col.id === 'discount');
-    if (discountIndex !== -1)
-      newColumns.splice(discountIndex + 1, 0, taxPercent(t), tax(t));
+    if (showTaxView) {
+      const discountIndex = newColumns.findIndex(
+        (col) => col.id === 'discount',
+      );
+      if (discountIndex !== -1)
+        newColumns.splice(discountIndex + 1, 0, taxPercent(t), tax(t));
+    }
 
-    const amountIndex = newColumns.findIndex((col) => col.id === 'amount');
-    if (amountIndex !== -1)
-      newColumns.splice(amountIndex + 1, 0, currency(t), uom(t));
+    if (showAdvancedView) {
+      const amountIndex = newColumns.findIndex((col) => col.id === 'amount');
+      if (amountIndex !== -1)
+        newColumns.splice(amountIndex + 1, 0, currency(t), uom(t));
 
-    const assignedIndex = newColumns.findIndex(
-      (col) => col.id === 'assignUserId',
-    );
-    if (assignedIndex !== -1)
-      newColumns.splice(assignedIndex + 1, 0, branch(t), department(t));
+      const assignedIndex = newColumns.findIndex(
+        (col) => col.id === 'assignUserId',
+      );
+      if (assignedIndex !== -1)
+        newColumns.splice(assignedIndex + 1, 0, branch(t), department(t));
+    }
 
     return newColumns;
-  }, [showAdvancedView, t]);
+  }, [showAdvancedView, showTaxView, t]);
 
   return (
     <RecordTable.Provider
-      key={showAdvancedView ? 'advanced' : 'basic'}
+      key={`${showAdvancedView ? 'advanced' : 'basic'}-${
+        showTaxView ? 'tax' : 'no-tax'
+      }`}
       columns={columns}
       data={products}
       className="flex h-full min-h-0 flex-col overflow-hidden rounded-lg border"
-      stickyColumns={[
-        'more',
-        'checkbox',
-        'name',
-        'type',
-        'unitPrice',
-        'assignUserId',
-      ]}
-      tableId="products_record_table"
+      stickyColumns={['more', 'checkbox', 'name']}
+      tableId={
+        showAdvancedView || showTaxView
+          ? `products_record_table_${showAdvancedView ? 'advanced' : 'basic'}_${
+              showTaxView ? 'tax' : 'no_tax'
+            }`
+          : 'products_record_table'
+      }
     >
       {products.length === 0 ? (
         <Empty className="border-0 bg-transparent">

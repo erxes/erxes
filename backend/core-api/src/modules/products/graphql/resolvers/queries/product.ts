@@ -1,3 +1,4 @@
+import { buildPropertyFilter } from 'erxes-api-shared/core-modules';
 import { IProductDocument, Resolver } from 'erxes-api-shared/core-types';
 import {
   cursorPaginate,
@@ -13,18 +14,23 @@ import {
   PRODUCT_SIMILARITY_STATUSES,
   PRODUCT_STATUSES,
 } from '@/products/constants';
-import { fetchSegment } from '@/segments/utils/fetchSegment';
 import {
   getSimilaritiesProducts,
   getSimilaritiesProductsCount,
 } from '@/products/utils';
-import { getPipelineInventoryScope } from '@/products/graphql/resolvers/customResolvers/product';
-import { withPropertyConditions } from '@/properties/utils';
+import {
+  getMatchingBaseDiscount,
+  getPipelineInventoryScope,
+} from '@/products/graphql/resolvers/customResolvers/product';
 
 const inventoryKey = (id?: string) => id || '_';
 type DiscountField = 'discount' | 'discountPercent';
 type DiscountRangeOperator = '$gte' | '$lte';
 type DiscountConditions = Record<string, unknown>;
+type BasePricedProduct = Record<string, unknown> & {
+  unitPrice?: number;
+  discounts?: unknown[];
+};
 
 const isDiscountSortField = (sortField?: string) =>
   sortField === 'discount' || sortField === 'discountPercent';
@@ -55,6 +61,63 @@ const getDiscountConditions = (params: IProductParams): DiscountConditions =>
 
 const getSortField = (params: IProductParams) => {
   return params.sortField;
+};
+
+const getBasePrice = (product: BasePricedProduct, params: IProductParams) => {
+  const conditions = getDiscountConditions(params);
+
+  if (!params.branchId && !params.departmentId && !params.pipelineId) {
+    return undefined;
+  }
+
+  const discount = getMatchingBaseDiscount(product.discounts, conditions);
+
+  return discount?.discount !== undefined &&
+    typeof product.unitPrice === 'number'
+    ? Math.max(product.unitPrice - discount.discount, 0)
+    : undefined;
+};
+
+const applyBasePrice = <T extends BasePricedProduct>(
+  product: T,
+  params: IProductParams,
+): T => {
+  const price = getBasePrice(product, params);
+
+  if (price === undefined) {
+    return product;
+  }
+
+  return { ...product, unitPrice: price };
+};
+
+const applyBasePrices = <T>(result: T, params: IProductParams): T => {
+  if (!params.branchId && !params.departmentId && !params.pipelineId) {
+    return result;
+  }
+
+  if (Array.isArray(result)) {
+    return (result as BasePricedProduct[]).map((product) =>
+      applyBasePrice(product, params),
+    ) as T;
+  }
+
+  if (
+    result &&
+    typeof result === 'object' &&
+    Array.isArray((result as { list?: unknown[] }).list)
+  ) {
+    const pagedResult = result as unknown as {
+      list: BasePricedProduct[];
+    };
+
+    return {
+      ...(result as Record<string, unknown>),
+      list: pagedResult.list.map((product) => applyBasePrice(product, params)),
+    } as T;
+  }
+
+  return result;
 };
 
 const getConditionValueExpression = (
@@ -155,7 +218,12 @@ const getMatchingDiscountsExpression = (conditions: DiscountConditions) => ({
   $filter: {
     input: { $ifNull: ['$discounts', []] },
     as: 'discount',
-    cond: getRuleConditionMatchExpression(conditions),
+    cond: {
+      $and: [
+        { $ne: ['$$discount.base', true] },
+        getRuleConditionMatchExpression(conditions),
+      ],
+    },
   },
 });
 
@@ -292,7 +360,7 @@ const generateFilter = async (
   commonQuerySelector: any,
   params: IProductParams,
 ) => {
-  const { models, subdomain } = context;
+  const { models } = context;
   const {
     type,
     categoryIds,
@@ -307,7 +375,7 @@ const generateFilter = async (
     image,
     pipelineId,
     segment,
-    segmentData,
+    segmentIds,
     propertiesData,
     branchId,
     departmentId,
@@ -344,7 +412,7 @@ const generateFilter = async (
   }
 
   if (propertiesData) {
-    const propertyConditions = withPropertyConditions(propertiesData);
+    const propertyConditions = buildPropertyFilter(propertiesData);
 
     if (propertyConditions.length) {
       andFilters.push(...propertyConditions);
@@ -356,8 +424,9 @@ const generateFilter = async (
   }
 
   if (categoryIds) {
-    const categories =
-      await models.ProductCategories.getChildCategories(categoryIds);
+    const categories = await models.ProductCategories.getChildCategories(
+      categoryIds,
+    );
 
     const catIds = categories.map((c) => c._id);
     andFilters.push({ categoryId: { $in: catIds } });
@@ -376,17 +445,20 @@ const generateFilter = async (
   }
 
   if (tagIds) {
-    const baseTagIds: Set<string> = new Set(tagIds);
-
     if (tagWithRelated) {
       const tagObjs = await models.Tags.find({ _id: { $in: tagIds } }).lean();
+      const tagsById = new Map(tagObjs.map((tag) => [tag._id, tag]));
 
-      for (const tag of tagObjs) {
-        (tag.relatedIds || []).forEach((id) => baseTagIds.add(id));
-      }
+      andFilters.push(
+        ...tagIds.map((tagId) => ({
+          tagIds: {
+            $in: [tagId, ...(tagsById.get(tagId)?.relatedIds || [])],
+          },
+        })),
+      );
+    } else {
+      andFilters.push({ tagIds: { $all: tagIds } });
     }
-
-    andFilters.push({ tagIds: { $in: Array.from(baseTagIds) } });
   }
 
   if (excludeTagIds?.length) {
@@ -576,20 +648,10 @@ const generateFilter = async (
     andFilters.push({ unitPrice: { $exists: true, $lte: maxPrice } });
   }
 
-  if (segment || segmentData) {
-    const segmentObj = segmentData
-      ? JSON.parse(segmentData)
-      : await models.Segments.findOne({ _id: segment }).lean();
-
-    if (segmentObj) {
-      const segmentProductIds = await fetchSegment(
-        models,
-        subdomain,
-        segmentObj,
-      );
-
-      andFilters.push({ _id: { $in: segmentProductIds } });
-    }
+  if (segmentIds?.length) {
+    andFilters.push({ segmentIds: { $in: segmentIds } });
+  } else if (segment) {
+    andFilters.push({ segmentIds: segment });
   }
 
   return { ...filter, ...(andFilters.length ? { $and: andFilters } : {}) };
@@ -621,7 +683,7 @@ export const productQueries: Record<string, Resolver<any, any, IContext>> = {
     if (isDiscountSortField(params.sortField)) {
       const discountPipeline = buildDiscountSortPipeline(filter, params);
 
-      return await cursorPaginateAggregation({
+      const result = await cursorPaginateAggregation({
         model: models.Products,
         pipeline: initialCategoryIds.length
           ? withInitialCategoryPriority(discountPipeline, initialCategoryIds)
@@ -635,6 +697,8 @@ export const productQueries: Record<string, Resolver<any, any, IContext>> = {
           },
         },
       });
+
+      return applyBasePrices(result, params);
     }
 
     if (sortField) {
@@ -648,7 +712,7 @@ export const productQueries: Record<string, Resolver<any, any, IContext>> = {
     }
 
     if (initialCategoryIds.length) {
-      return await cursorPaginateAggregation({
+      const result = await cursorPaginateAggregation({
         model: models.Products,
         pipeline: withInitialCategoryPriority(
           [{ $match: filter }],
@@ -663,13 +727,17 @@ export const productQueries: Record<string, Resolver<any, any, IContext>> = {
           },
         },
       });
+
+      return applyBasePrices(result, params);
     }
 
-    return await cursorPaginate({
+    const result = await cursorPaginate({
       model: models.Products,
       params,
       query: filter,
     });
+
+    return applyBasePrices(result, params);
   },
 
   async products(
@@ -690,18 +758,31 @@ export const productQueries: Record<string, Resolver<any, any, IContext>> = {
     }
 
     if (params.groupedSimilarity) {
-      return await getSimilaritiesProducts(models, filter, sort, {
+      const result = await getSimilaritiesProducts(models, filter, sort, {
         groupedSimilarity: params.groupedSimilarity,
       });
+
+      return applyBasePrices(result, params);
     }
 
     if (isDiscountSortField(params.sortField)) {
-      return await paginateDiscountSortedProducts(models, filter, params);
+      const result = await paginateDiscountSortedProducts(
+        models,
+        filter,
+        params,
+      );
+
+      return applyBasePrices(result, params);
     }
 
-    return await defaultPaginate(models.Products.find(filter).sort(sort), {
-      ...params,
-    });
+    const result = await defaultPaginate(
+      models.Products.find(filter).sort(sort).lean(),
+      {
+        ...params,
+      },
+    );
+
+    return applyBasePrices(result, params);
   },
 
   async cpProducts(
@@ -742,6 +823,45 @@ export const productQueries: Record<string, Resolver<any, any, IContext>> = {
     { models }: IContext,
   ) {
     return await models.Products.findOne({ _id }).lean();
+  },
+
+  async productLastCodeByCategory(
+    _parent: undefined,
+    { categoryId }: { categoryId?: string },
+    context: IContext,
+  ) {
+    if (!categoryId) {
+      return null;
+    }
+
+    const { models } = context;
+    const categories = await models.ProductCategories.getChildCategories([
+      categoryId,
+    ]);
+    const categoryIds = categories.map((category) => category._id);
+
+    const [product] = await models.Products.aggregate<{ code: string }>([
+      {
+        $match: {
+          categoryId: { $in: categoryIds },
+        },
+      },
+      {
+        $addFields: {
+          codeLength: { $strLenCP: '$code' },
+        },
+      },
+      {
+        $sort: {
+          codeLength: -1,
+          code: -1,
+        },
+      },
+      { $limit: 1 },
+      { $project: { _id: 0, code: 1 } },
+    ]);
+
+    return product?.code || null;
   },
 
   async cpProductDetail(
@@ -794,8 +914,9 @@ export const productQueries: Record<string, Resolver<any, any, IContext>> = {
         );
       };
 
-      const similarityGroups =
-        await models.ProductsConfigs.getConfig('similarityGroup');
+      const similarityGroups = await models.ProductsConfigs.getConfig(
+        'similarityGroup',
+      );
 
       const codeMasks = Object.keys(similarityGroups);
       const customFieldIds = (product.customFieldsData || []).map(

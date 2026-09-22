@@ -57,6 +57,7 @@
     "main-currency": "Үндсэн валют",
     "currency": "Валют",
     "timezone": "Цагийн бүс",
+    "timezone-description": "Огноон дээр суурилсан segment нөхцөл болон товлосон ажлын өдөр хэзээ эхэлж дуусахыг тодорхойлно. Тохируулаагүй бол UTC.",
     "update": "Хадгалах"
   },
   "team-member": {
@@ -143,7 +144,6 @@
     "not-found": "Таг олдсонгүй",
     "workspace-description": "Workspace tag-ууд нь бүх төрлийн tag-уудаас ашиглах боломжтой, түгээмэл tag-ууд юм."
   },
-
   "broadcast": {
     "_": "Броадкаст",
     "broadcast": "Броадкаст"
@@ -161,6 +161,8 @@
       "core-company": "Компаниуд",
       "core-product": "Бүтээгдэхүүн / Үйлчилгээ",
       "core-user": "Багийн гишүүн",
+      "core-branch": "Салбарууд",
+      "core-department": "Хэлтсүүд",
       "sales-deal": "Борлуулалтын урсгал"
     },
     "add-group": "Бүлэг нэмэх",
@@ -175,6 +177,7 @@
     "field-type": {
       "text": "Текст",
       "textarea": "Урт текст",
+      "list": "Текст жагсаалт",
       "number": "Тоо",
       "boolean": "Тийм/Үгүй",
       "date": "Огноо",
@@ -184,7 +187,8 @@
       "radio": "Радио товч",
       "relation": "Холбоос",
       "file": "Файл",
-      "phone": "Утас"
+      "phone": "Утас",
+      "objectList": "Объектын жагсаалт"
     },
     "icon": "Дүрс",
     "description": "Тайлбар",
@@ -198,6 +202,9 @@
     "value": "Утга",
     "enter-value": "Утга оруулах",
     "add-option": "Сонголт нэмэх",
+    "object-list-fields": "Объектын жагсаалтын талбарууд",
+    "key": "Түлхүүр",
+    "enter-key": "Түлхүүр оруулах",
     "validation": "Шалгалт",
     "select-validation": "Шалгалт сонгох",
     "validation-text": "Текст",
@@ -210,6 +217,7 @@
     "select-relation-type": "Холбоосын төрөл сонгох",
     "multiple": "Олон утгатай",
     "no-fields-found": "Талбар олдсонгүй",
+    "no-groups-found": "Талбарын бүлэг олдсонгүй",
     "edit": "Засах",
     "reorder-group": "Бүлгийн эрэмбэ солих",
     "delete": "Устгах",
@@ -217,8 +225,12 @@
     "create": "Үүсгэх",
     "update": "Шинэчлэх",
     "property-added": "Талбар нэмэгдлээ",
+    "property-updated": "Талбар шинэчлэгдлээ",
     "error": "Алдаа",
     "confirm-delete-field": "Энэ талбарыг устгахдаа итгэлтэй байна уу?",
-    "confirm-delete-group": "Энэ талбарын бүлгийг устгахдаа итгэлтэй байна уу?"
+    "confirm-delete-group": "Энэ талбарын бүлгийг устгахдаа итгэлтэй байна уу?",
+    "basic-information": "Үндсэн мэдээлэл",
+    "visible": "Харагдах",
+    "system-fields-hint": "Системээс тодорхойлсон талбар. Зөвхөн тохиргоог нь өөрчилнө."
   }
 }

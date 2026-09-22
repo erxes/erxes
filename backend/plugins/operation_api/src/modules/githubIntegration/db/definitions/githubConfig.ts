@@ -19,3 +19,6 @@ export const githubConfigSchema = new Schema(
   },
   { timestamps: true },
 );
+
+githubConfigSchema.index({ teamId: 1, subdomain: 1 }, { unique: true });
+githubConfigSchema.index({ repoName: 1, subdomain: 1 }, { unique: true });

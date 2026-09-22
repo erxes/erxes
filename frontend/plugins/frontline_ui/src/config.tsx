@@ -1,7 +1,9 @@
 import {
   IconBook,
+  IconChartBar,
   IconChartHistogram,
   IconForms,
+  IconLifebuoy,
   IconMail,
   IconPhone,
   IconSettings,
@@ -47,6 +49,7 @@ const FormSubmissionActivityRow = lazy(() =>
 export const CONFIG: IUIConfig = {
   name: 'frontline',
   path: 'frontline',
+  icon: IconStackFront,
   hasFloatingWidget: true,
   settingsNavigation: () => (
     <Suspense fallback={<div />}>
@@ -130,9 +133,19 @@ export const CONFIG: IUIConfig = {
       path: 'frontline/forms',
     },
     {
+      name: 'surveys',
+      icon: IconChartBar,
+      path: 'frontline/surveys',
+    },
+    {
       name: 'knowledge-base',
       icon: IconBook,
       path: 'frontline/knowledgebase',
+    },
+    {
+      name: 'help-center',
+      icon: IconLifebuoy,
+      path: 'frontline/helpcenter',
     },
     {
       name: 'channels',

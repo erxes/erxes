@@ -13,7 +13,7 @@ export const useCreateTask = () => {
   const [createTaskMutation, { loading, error }] = useMutation(
     CREATE_TASK_MUTATION,
     {
-      // refetchQueries: [GET_TASKS],
+      refetchQueries: ['GetTasks'],
       onCompleted: () => {
         toast({
           title: t('success'),

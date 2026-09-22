@@ -2,6 +2,7 @@ import { AutomationBuilder } from '@/automations/components/builder/AutomationBu
 import { AutomationErrorEmptyState } from '@/automations/components/common/AutomationErrorEmptyState';
 import { AUTOMATION_APPROVAL_CONTENT_TYPES } from '@/automations/constants';
 import { AUTOMATION_DETAIL } from '@/automations/graphql/automationQueries';
+import { useAutomationSeed } from '@/automations/hooks/useAutomationSeed';
 import { IAutomation } from '@/automations/types';
 import { useQuery } from '@apollo/client';
 import { PageContainer, Spinner } from 'erxes-ui';
@@ -26,6 +27,8 @@ export const AutomationDetailPage = () => {
     },
   );
 
+  const { seed, loading: seedLoading } = useAutomationSeed();
+
   const { data, loading, error, refetch } = useQuery<{
     automationDetail: IAutomation;
   }>(AUTOMATION_DETAIL, {
@@ -36,7 +39,9 @@ export const AutomationDetailPage = () => {
       (lockState?.locked === true && !lockState.hasAccess),
   });
 
-  if (lockLoading || loading) {
+  // The builder reads its default values once, so it must not mount before the
+  // seed resolves.
+  if (lockLoading || loading || seedLoading) {
     return <Spinner />;
   }
 
@@ -67,7 +72,7 @@ export const AutomationDetailPage = () => {
 
   return (
     <PageContainer>
-      <AutomationBuilder detail={detail} />
+      <AutomationBuilder detail={detail} seed={id ? undefined : seed} />
     </PageContainer>
   );
 };

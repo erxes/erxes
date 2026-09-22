@@ -17,6 +17,7 @@ type TFacebookAutomationPayload = {
   isBackBtn?: boolean;
   persistentMenuId?: string;
   persistentMenuType?: string;
+  iceBreakerId?: string;
 };
 
 type TFacebookOpenThreadAdData = {
@@ -77,11 +78,21 @@ export const parseAutomationPayload = (
       isBackBtn: getBooleanValue(parsed.isBackBtn),
       persistentMenuId: getStringValue(parsed.persistentMenuId),
       persistentMenuType: getStringValue(parsed.persistentMenuType),
+      iceBreakerId: getStringValue(parsed.iceBreakerId),
     };
   } catch {
     return {};
   }
 };
+
+/**
+ * Every key a bot payload can carry names a tap: Get Started, a menu item, an
+ * ice breaker, or a button inside a running automation. Facebook delivers all
+ * of them with the button's own title as the message text, so the payload is
+ * the only thing separating a tap from someone typing.
+ */
+export const isPostbackPayload = (payload?: TFacebookAutomationPayload) =>
+  Object.values(payload || {}).some((value) => value !== undefined);
 
 export const triggerFacebookMessageAutomation = (
   subdomain: string,
@@ -278,35 +289,48 @@ export const generateBotData = (
   return botData;
 };
 
+const matchesCondition = (content: string, condition: TContentCondition) => {
+  const keywords = (condition?.keywords || [])
+    .map((keyword) => keyword.text?.trim())
+    .filter((keyword): keyword is string => !!keyword);
+
+  // A rule with nothing to look for matches nothing; `every` would otherwise
+  // report true on an empty list and answer every message.
+  if (!keywords.length) {
+    return false;
+  }
+
+  switch (condition?.operator || '') {
+    case 'every':
+      return keywords.every((keyword) => content.includes(keyword));
+    case 'some':
+      return keywords.some((keyword) => content.includes(keyword));
+    case 'isEqual':
+      return keywords.some((keyword) => keyword === content);
+    case 'isContains':
+      // Was a RegExp compiled from the keyword, which threw on any rule
+      // holding a bracket or a plus. Stays case-insensitive as it was.
+      return keywords.some((keyword) =>
+        content.toLowerCase().includes(keyword.toLowerCase()),
+      );
+    case 'startWith':
+      return keywords.some((keyword) => content.startsWith(keyword));
+    case 'endWith':
+      return keywords.some((keyword) => content.endsWith(keyword));
+    default:
+      return false;
+  }
+};
+
+/**
+ * Conditions widen the match: each one is another way for the same trigger to
+ * answer, so any of them matching is enough.
+ */
 export const checkContentConditions = (
   content: string,
   conditions: TContentCondition[],
-) => {
-  for (const cond of conditions || []) {
-    const keywords = (cond?.keywords || [])
-      .map((keyword) => keyword.text)
-      .filter((keyword): keyword is string => !!keyword);
-
-    switch (cond?.operator || '') {
-      case 'every':
-        return keywords.every((keyword) => content === keyword);
-      case 'some':
-        return keywords.some((keyword) => content === keyword);
-      case 'isEqual':
-        return keywords.some((keyword) => keyword === content);
-      case 'isContains':
-        return keywords.some((keyword) =>
-          content.match(new RegExp(keyword, 'i')),
-        );
-      case 'startWith':
-        return keywords.some((keyword) => content.startsWith(keyword));
-      case 'endWith':
-        return keywords.some((keyword) => content.endsWith(keyword));
-      default:
-        return;
-    }
-  }
-};
+) =>
+  (conditions || []).some((condition) => matchesCondition(content, condition));
 
 export const getUrl = (subdomain, key) => {
   const DOMAIN = getEnv({

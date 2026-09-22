@@ -178,8 +178,9 @@ export const ConversationSideWidget = ({
   asSheet?: boolean;
   boundaryRef: RefObject<HTMLElement>;
 }) => {
-  const { t } = useTranslation('common');
-  const { relationWidgetsModules, RelationWidget } = useRelationWidget();
+  const { relationWidgetsModules, RelationWidget } = useRelationWidget({
+    contentType: 'frontline:conversation',
+  });
   const sideMenuRef = useRef<HTMLDivElement>(null);
   const contentClassName = cn(
     'data-[state=active]:animate-in data-[state=active]:fade-in-0 data-[state=active]:slide-in-from-right-4 duration-150 motion-reduce:animate-none',

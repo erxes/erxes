@@ -1,5 +1,8 @@
 import { InCallActionButton } from '@/integrations/call/components/InCall';
-import { useExtentionList, useTransferCall } from '@/integrations/call/hooks/useTransferCall';
+import {
+  useExtentionList,
+  useTransferCall,
+} from '@/integrations/call/hooks/useTransferCall';
 import { inCallViewAtom } from '@/integrations/call/states/callStates';
 import { callConfigAtom } from '@/integrations/call/states/sipStates';
 import { IconCheck, IconPhoneOutgoing } from '@tabler/icons-react';
@@ -83,10 +86,10 @@ export const Transfer = () => {
           <Select.Trigger>
             <Select.Value placeholder={t('select-an-extension')} />
           </Select.Trigger>
-          <Select.Content>
+          <Select.Content className="z-110">
             {callExtensionList?.map((extension) => (
               <Select.Primitive.Item
-                key={extension._id}
+                key={extension.extension}
                 value={extension.extension}
                 className={cn(
                   'relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-2 pr-8 text-sm outline-hidden focus:bg-accent data-disabled:pointer-events-none data-disabled:opacity-50',

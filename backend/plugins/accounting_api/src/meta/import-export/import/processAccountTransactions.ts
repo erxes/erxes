@@ -12,6 +12,10 @@ const FXA_JOURNALS = [
 ];
 
 const isFxaJournal = (journal?: string) => FXA_JOURNALS.includes(journal || '');
+const getRowFixedAssetCode = (row: Record<string, string>) =>
+  row.fixedAssetCode || row.productCode;
+const getRowFixedAssetCategoryCode = (row: Record<string, string>) =>
+  row.fixedAssetCategoryCode || row.categoryCode;
 
 const savePtr = async (
   models: IModels,
@@ -97,6 +101,9 @@ const getFollowInfos = async (models: IModels, row: any, relatedData) => {
       moveInDepartmentId: departments?.find((department) =>
         [row.follow2, row.follow3].includes(department.code),
       )?._id,
+      accumulatedDepreciationAccountId: accounts?.find(
+        (acc) => acc.code === row.follow4,
+      )?._id,
     };
   }
   if (JOURNALS.INV_SALE === row.journal) {
@@ -105,14 +112,20 @@ const getFollowInfos = async (models: IModels, row: any, relatedData) => {
       saleCostAccountId: accounts?.find((acc) => acc.code === row.follow2)?._id,
     };
   }
-  if ([JOURNALS.FXA_OUT, JOURNALS.FXA_SALE].includes(row.journal)) {
+  if (JOURNALS.FXA_OUT === row.journal) {
     return {
-      fixedAssetAccountId: accounts?.find((acc) => acc.code === row.follow1)
-        ?._id,
       accumulatedDepreciationAccountId: accounts?.find(
         (acc) => acc.code === row.follow2,
       )?._id,
-      lossAccountId: accounts?.find((acc) => acc.code === row.follow3)?._id,
+    };
+  }
+  if (JOURNALS.FXA_SALE === row.journal) {
+    return {
+      saleOutAccountId: accounts?.find((acc) => acc.code === row.follow1)?._id,
+      accumulatedDepreciationAccountId: accounts?.find(
+        (acc) => acc.code === row.follow2,
+      )?._id,
+      saleCostAccountId: accounts?.find((acc) => acc.code === row.follow3)?._id,
     };
   }
   if (JOURNALS.INV_SALE_RETURN === row.journal) {
@@ -205,9 +218,17 @@ const getTrDoc = async (models: IModels, row: any, ptrInfo, relatedData) => {
 };
 
 const getDetailDoc = async (row, currentTr, relatedData) => {
-  const { accounts, branches, departments, users, products, fixedAssets } =
-    relatedData;
+  const {
+    accounts,
+    branches,
+    departments,
+    users,
+    products,
+    fixedAssets,
+    fixedAssetCategories,
+  } = relatedData;
   const isFxa = isFxaJournal(currentTr.journal);
+  const isFxaIncome = JOURNALS.FXA_INCOME === currentTr.journal;
   const count = fixNum(row.count, 6);
   const unitPrice = fixNum(row.unitPrice, 6);
   const amount =
@@ -237,12 +258,22 @@ const getDetailDoc = async (row, currentTr, relatedData) => {
       '',
     fixedAssetId:
       (isFxa &&
-        (row.fixedAssetCode || row.productCode) &&
+        !isFxaIncome &&
+        getRowFixedAssetCode(row) &&
         fixedAssets.find(
-          (fixedAsset) =>
-            fixedAsset.code === (row.fixedAssetCode || row.productCode),
+          (fixedAsset) => fixedAsset.code === getRowFixedAssetCode(row),
         )?._id) ||
       '',
+    fixedAssetCategoryId:
+      (isFxaIncome &&
+        getRowFixedAssetCategoryCode(row) &&
+        fixedAssetCategories.find(
+          (category) => category.code === getRowFixedAssetCategoryCode(row),
+        )?._id) ||
+      '',
+    fixedAssetCode: isFxaIncome ? getRowFixedAssetCode(row) || '' : '',
+    fixedAssetName:
+      (isFxaIncome && (row.fixedAssetName || row.productName)) || '',
     count,
     unitPrice,
 
@@ -273,9 +304,15 @@ const extractFollowInfos = (row) => {
     return {
       branches: [row.follow1, row.follow2].filter(Boolean),
       departments: [row.follow2, row.follow3].filter(Boolean),
+      accounts: [row.follow4].filter(Boolean),
     };
   }
-  if ([JOURNALS.FXA_OUT, JOURNALS.FXA_SALE].includes(row.journal)) {
+  if (JOURNALS.FXA_OUT === row.journal) {
+    return {
+      accounts: [row.follow2].filter(Boolean),
+    };
+  }
+  if (JOURNALS.FXA_SALE === row.journal) {
     return {
       accounts: [row.follow1, row.follow2, row.follow3].filter(Boolean),
     };
@@ -301,6 +338,7 @@ const getRelatedDatas = async (
   const accountCodes: string[] = [];
   const productCodes: string[] = [];
   const fixedAssetCodes: string[] = [];
+  const fixedAssetCategoryCodes: string[] = [];
   let currentJournal = '';
 
   for (const row of rows) {
@@ -342,8 +380,13 @@ const getRelatedDatas = async (
     if (row.accountCode && !accountCodes.includes(row.accountCode))
       accountCodes.push(row.accountCode);
 
-    if (isFxaJournal(currentJournal)) {
-      const fixedAssetCode = row.fixedAssetCode || row.productCode;
+    if (JOURNALS.FXA_INCOME === currentJournal) {
+      const categoryCode = getRowFixedAssetCategoryCode(row);
+      if (categoryCode && !fixedAssetCategoryCodes.includes(categoryCode)) {
+        fixedAssetCategoryCodes.push(categoryCode);
+      }
+    } else if (isFxaJournal(currentJournal)) {
+      const fixedAssetCode = getRowFixedAssetCode(row);
       if (fixedAssetCode && !fixedAssetCodes.includes(fixedAssetCode)) {
         fixedAssetCodes.push(fixedAssetCode);
       }
@@ -485,6 +528,11 @@ const getRelatedDatas = async (
   const fixedAssets = fixedAssetCodes.length
     ? await models.FixedAssets.find({ code: { $in: fixedAssetCodes } }).lean()
     : [];
+  const fixedAssetCategories = fixedAssetCategoryCodes.length
+    ? await models.FixedAssetCategories.find({
+        code: { $in: fixedAssetCategoryCodes },
+      }).lean()
+    : [];
 
   return {
     branches,
@@ -495,6 +543,7 @@ const getRelatedDatas = async (
     accounts,
     products,
     fixedAssets,
+    fixedAssetCategories,
   };
 };
 

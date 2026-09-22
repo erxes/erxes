@@ -40,12 +40,6 @@ export const exportSchema = schemaWrapper(
         stage: { type: String, optional: true },
         retryable: { type: Boolean, optional: true },
       },
-      fileFormat: {
-        type: String,
-        enum: ['csv', 'xlsx'],
-        default: 'csv',
-        label: 'File Format',
-      },
       fileKey: { type: String, label: 'File Key' },
       filters: { type: Schema.Types.Mixed, optional: true, label: 'Filters' },
       ids: { type: [String], default: [], label: 'Selected IDs' },

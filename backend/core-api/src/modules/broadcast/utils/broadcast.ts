@@ -6,6 +6,7 @@ import { IModels } from '~/connectionResolvers';
 import { getValueAsString } from '~/modules/organization/settings/db/models/Configs';
 import { IEngageMessageDocument } from '../@types';
 import { generateCustomerSelector, resolveCampaignFromEmail } from './engage';
+import { customerTargetFilter } from './targeting';
 import { addBroadcastWorkerQueue } from './worker';
 
 const CUSTOMER_BATCH_SIZE = 1000;
@@ -19,13 +20,9 @@ const countAllCustomers = ({
   targetType: string;
   targetIds: string[];
 }) => {
-  const query: FilterQuery<ICustomer> = {};
-
-  if (targetType === 'tag') {
-    query.tagIds = { $in: targetIds };
-  }
-
-  return models.Customers.countDocuments(query);
+  return models.Customers.countDocuments(
+    customerTargetFilter(targetType, targetIds),
+  );
 };
 
 const traceExcludedCustomers = async ({
@@ -40,16 +37,13 @@ const traceExcludedCustomers = async ({
   engageMessageId: string;
 }) => {
   const query: FilterQuery<ICustomer> = {
+    ...customerTargetFilter(targetType, targetIds),
     $or: [
       { primaryEmail: { $in: [null, '', undefined] } },
       { primaryEmail: { $exists: false } },
       { isSubscribed: 'No' },
     ],
   };
-
-  if (targetType === 'tag') {
-    query.tagIds = { $in: targetIds };
-  }
 
   const cursor = models.Customers.find(query, {
     _id: 1,
@@ -82,13 +76,10 @@ const prepareCustomers = ({
   targetIds: string[];
 }) => {
   const query: FilterQuery<ICustomer> = {
+    ...customerTargetFilter(targetType, targetIds),
     primaryEmail: { $exists: true, $nin: [null, '', undefined] },
     $or: [{ isSubscribed: 'Yes' }, { isSubscribed: { $exists: false } }],
   };
-
-  if (targetType === 'tag') {
-    query.tagIds = { $in: targetIds };
-  }
 
   return models.Customers.find(query).batchSize(CUSTOMER_BATCH_SIZE).lean();
 };
@@ -267,8 +258,7 @@ const sendBroadcastNotification = async ({
     },
   );
 
-  const customersSelector = await generateCustomerSelector(subdomain, models, {
-    engageId: _id,
+  const customersSelector = generateCustomerSelector({
     targetType,
     targetIds,
   });

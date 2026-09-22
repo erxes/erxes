@@ -14,7 +14,7 @@ const FileAttachments = ({ attachments }: { attachments: IAttachment[] }) => {
   return (
     <div className="py-4 px-8">
       <h4 className="uppercase text-sm text-muted-foreground pb-4">
-        {t('file-attachments')}
+        {t('file-attachments', 'File Attachments')}
       </h4>
       <div className="relative">
         <div className="overflow-x-auto flex gap-4">

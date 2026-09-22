@@ -1,11 +1,8 @@
+import { collectPropertyDataFromColumns } from 'erxes-api-shared/core-modules';
 import mongoose from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { STATUS_TYPES } from '@/status/constants/types';
-import {
-  ITask,
-  ITaskDocument,
-  ITaskUpdate,
-} from '@/task/@types/task';
+import { ITask, ITaskDocument, ITaskUpdate } from '@/task/@types/task';
 import { graphqlPubsub, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { safeString, stringifyId, TASK_CONTENT_TYPE } from '../utils';
 
@@ -113,7 +110,10 @@ function isPreparedTaskDoc(doc: TImportTaskDoc): doc is TPreparedTaskDoc {
  * @param teamVal The raw team identifier value.
  * @returns A promise resolving to the team ID.
  */
-async function resolveTeam(models: IModels, teamVal?: unknown): Promise<string> {
+async function resolveTeam(
+  models: IModels,
+  teamVal?: unknown,
+): Promise<string> {
   const val = safeString(teamVal).trim();
   if (!val) {
     throw new Error('Team is required');
@@ -298,7 +298,11 @@ function resolveEstimate(estimateVal?: unknown): number | undefined {
   }
   const num = Number(estimateVal);
   if (Number.isNaN(num) || num < 0) {
-    throw new TypeError(`Estimate Point must be a non-negative number, got: "${safeString(estimateVal)}"`);
+    throw new TypeError(
+      `Estimate Point must be a non-negative number, got: "${safeString(
+        estimateVal,
+      )}"`,
+    );
   }
   return num;
 }
@@ -336,7 +340,10 @@ function parseDateValue(value: unknown, fieldName: string): Date | undefined {
  * @param targetDateVal The raw target/due date value.
  * @returns An object containing the parsed start and target dates.
  */
-function resolveDates(startDateVal?: unknown, targetDateVal?: unknown): { startDate?: Date; targetDate?: Date } {
+function resolveDates(
+  startDateVal?: unknown,
+  targetDateVal?: unknown,
+): { startDate?: Date; targetDate?: Date } {
   const startDate = parseDateValue(startDateVal, 'Start Date');
   const targetDate = parseDateValue(targetDateVal, 'Due Date');
 
@@ -393,7 +400,11 @@ async function resolveTaskTeamAndStatus(
   }
 
   try {
-    const statusInfo = await resolveStatus(models, teamId, row.status ?? row.Status);
+    const statusInfo = await resolveStatus(
+      models,
+      teamId,
+      row.status ?? row.Status,
+    );
     doc.status = statusInfo.status;
     doc.statusType = statusInfo.statusType;
   } catch (e) {
@@ -447,7 +458,11 @@ async function resolveTaskProjectAndMilestone(
   let projectId: string | undefined;
 
   try {
-    projectId = await resolveProject(models, row.projectId ?? row.Project, teamId);
+    projectId = await resolveProject(
+      models,
+      row.projectId ?? row.Project,
+      teamId,
+    );
     doc.projectId = projectId;
   } catch (e) {
     errors.push(getErrorMessage(e));
@@ -500,7 +515,9 @@ function resolveTaskPriorityEstimateAndDates(
   }
 
   try {
-    doc.estimatePoint = resolveEstimate(row.estimatePoint ?? row['Estimate Point']);
+    doc.estimatePoint = resolveEstimate(
+      row.estimatePoint ?? row['Estimate Point'],
+    );
   } catch (e) {
     errors.push(getErrorMessage(e));
   }
@@ -595,16 +612,8 @@ async function resolveTaskCustomProperties(
   doc: TImportTaskDoc,
   errors: string[],
 ): Promise<void> {
-  const propertiesData: Record<string, unknown> = {};
-  for (const key of Object.keys(row)) {
-    if (key.startsWith('propertiesData.')) {
-      const fieldId = key.slice('propertiesData.'.length);
-      const val = row[key];
-      if (val !== undefined && val !== null && val !== '') {
-        propertiesData[fieldId] = val;
-      }
-    }
-  }
+  // the collector consumes what it reads; the caller still needs `row`
+  const propertiesData = collectPropertyDataFromColumns({ ...row });
 
   if (Object.keys(propertiesData).length === 0) {
     return;
@@ -723,7 +732,10 @@ function extractAssigneeValues(rows: Record<string, unknown>[]): Set<string> {
 /**
  * Registers user identity lookups (IDs, emails, names) in the search mapping.
  */
-function registerUserMappings(userMap: Map<string, string>, user: IUserToMap): void {
+function registerUserMappings(
+  userMap: Map<string, string>,
+  user: IUserToMap,
+): void {
   if (!user._id) {
     return;
   }
@@ -957,7 +969,11 @@ async function saveTaskDoc({
     }
 
     const updateDoc: ITaskUpdate = { ...doc, _id };
-    const task = await models.Task.updateTask({ doc: updateDoc, userId, subdomain });
+    const task = await models.Task.updateTask({
+      doc: updateDoc,
+      userId,
+      subdomain,
+    });
     return { task, type: 'update' };
   }
 
@@ -1011,7 +1027,10 @@ export async function processTaskRows(
   models: IModels,
   rows: Record<string, unknown>[],
   userId: string,
-): Promise<{ successRows: Record<string, unknown>[]; errorRows: Record<string, unknown>[] }> {
+): Promise<{
+  successRows: Record<string, unknown>[];
+  errorRows: Record<string, unknown>[];
+}> {
   const successRows: Record<string, unknown>[] = [];
   const errorRows: Record<string, unknown>[] = [];
 

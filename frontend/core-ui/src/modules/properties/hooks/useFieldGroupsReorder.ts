@@ -2,6 +2,7 @@ import { useApolloClient, useMutation } from '@apollo/client';
 import { arrayMove } from '@dnd-kit/sortable';
 import { toast } from 'erxes-ui';
 import { useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { FIELD_GROUPS_QUERY } from 'ui-modules';
 import { FIELD_GROUPS_UPDATE_ORDER } from '../graphql/mutations/propertiesMutations';
 import { IFieldGroup } from '../types/Properties';
@@ -20,6 +21,7 @@ export const useFieldGroupsReorder = ({
 }: {
   contentType: string;
 }): FieldGroupsReorder => {
+  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const client = useApolloClient();
   const [mutate, { loading }] = useMutation(FIELD_GROUPS_UPDATE_ORDER);
   const pendingRef = useRef<Promise<void>>(Promise.resolve());
@@ -69,7 +71,7 @@ export const useFieldGroupsReorder = ({
         .catch(() => undefined);
 
       toast({
-        title: 'Error',
+        title: t('error', 'Error'),
         description: (error as Error).message,
         variant: 'destructive',
       });

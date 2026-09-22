@@ -74,6 +74,12 @@ export const GET_PRODUCT_INLINE = gql`
   }
 `;
 
+export const GET_PRODUCT_LAST_CODE_BY_CATEGORY = gql`
+  query ProductLastCodeByCategory($categoryId: String) {
+    productLastCodeByCategory(categoryId: $categoryId)
+  }
+`;
+
 export const UOM_QUERY = gql`
   query uoms {
     uoms {

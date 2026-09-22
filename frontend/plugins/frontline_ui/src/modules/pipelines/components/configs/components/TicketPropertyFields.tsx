@@ -26,7 +26,7 @@ import {
   cn,
 } from 'erxes-ui';
 import { useEffect, useRef, useState } from 'react';
-import { UseFormReturn, useFieldArray } from 'react-hook-form';
+import { UseFormReturn, useFieldArray, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { IField, useFieldGroups, useFields } from 'ui-modules';
 import { TICKET_PROPERTY_CONTENT_TYPE } from '../constant';
@@ -40,6 +40,18 @@ type PropertyGroup = {
   name: string;
   groupFields: IField[];
 };
+
+const toPropertyValue = (
+  field: IField,
+): TPipelineConfig['propertyFields'][number] => ({
+  fieldId: field._id,
+  groupId: field.groupId ?? null,
+  label: field.name,
+  placeholder: '',
+  isRequired: !!field.isRequired,
+  type: field.type ?? null,
+  options: (field.options ?? []).map(({ label, value }) => ({ label, value })),
+});
 
 // The properties list is a picker, the platform cursor pagination caps at 100.
 const PROPERTY_FIELDS_LIMIT = 100;
@@ -70,6 +82,8 @@ export const TicketPropertyFields = ({ form }: Props) => {
     control,
     name: 'propertyFields',
   });
+
+  const propertyValues = useWatch({ control, name: 'propertyFields' }) ?? [];
 
   const [groupIds, setGroupIds] = useState<string[]>([]);
   const [openGroupIds, setOpenGroupIds] = useState<string[]>([]);
@@ -218,18 +232,52 @@ export const TicketPropertyFields = ({ form }: Props) => {
       if (groupId === field.groupId) break;
     }
 
-    insert(Math.min(insertAt, selectedFields.length), {
-      fieldId: field._id,
-      groupId: field.groupId ?? null,
-      label: field.name,
-      placeholder: '',
-      isRequired: !!field.isRequired,
-      type: field.type ?? null,
-      options: (field.options ?? []).map(({ label, value }) => ({
-        label,
-        value,
-      })),
+    insert(Math.min(insertAt, selectedFields.length), toPropertyValue(field));
+  };
+
+  const groupRank = (groupId?: string | null) => {
+    const position = groupIds.indexOf(groupId ?? '');
+
+    return position === -1 ? groupIds.length : position;
+  };
+
+  const toggleGroup = (group: PropertyGroup, checked: boolean) => {
+    const values = form.getValues('propertyFields') ?? [];
+    const groupFieldIds = new Set(group.groupFields.map((field) => field._id));
+
+    replace(
+      (checked
+        ? [
+            ...values,
+            ...group.groupFields
+              .filter((field) => indexOfSelected(field._id) === -1)
+              .map(toPropertyValue),
+          ]
+        : values.filter((value) => !groupFieldIds.has(value.fieldId))
+      ).sort((a, b) => groupRank(a.groupId) - groupRank(b.groupId)),
+    );
+  };
+
+  const toggleGroupRequired = (group: PropertyGroup, checked: boolean) => {
+    group.groupFields.forEach((field) => {
+      const index = indexOfSelected(field._id);
+
+      if (index > -1) {
+        form.setValue(`propertyFields.${index}.isRequired`, checked);
+      }
     });
+  };
+
+  const isGroupRequired = (group: PropertyGroup) => {
+    const selectedIds = selectedIdsOf(group);
+
+    return (
+      selectedIds.length > 0 &&
+      selectedIds.every(
+        (fieldId) =>
+          propertyValues.find((value) => value.fieldId === fieldId)?.isRequired,
+      )
+    );
   };
 
   const handleDragEnd = ({ active, over }: DragEndEvent) => {
@@ -279,11 +327,13 @@ export const TicketPropertyFields = ({ form }: Props) => {
 
   return (
     <div className="flex flex-col gap-3">
-      <Label>{t('select-ticket-property-fields')}</Label>
+      <Label>
+        {t('select-ticket-property-fields', 'Select Ticket Property Fields')}
+      </Label>
       {loading && <Spinner size="sm" />}
       {!loading && groups.length === 0 && (
         <p className="text-sm text-muted-foreground">
-          {t('no-ticket-property-fields')}
+          {t('no-ticket-property-fields', 'No ticket property fields found')}
         </p>
       )}
       {!loading && groups.length > 0 && (
@@ -311,6 +361,9 @@ export const TicketPropertyFields = ({ form }: Props) => {
                   group={group}
                   indexOfSelected={indexOfSelected}
                   onToggleField={toggleField}
+                  onToggleGroup={toggleGroup}
+                  onToggleGroupRequired={toggleGroupRequired}
+                  required={isGroupRequired(group)}
                   selectedIds={selectedIdsOf(group)}
                 />
               ))}
@@ -327,12 +380,18 @@ const SortablePropertyGroup = ({
   group,
   indexOfSelected,
   onToggleField,
+  onToggleGroup,
+  onToggleGroupRequired,
+  required,
   selectedIds,
 }: {
   form: UseFormReturn<TPipelineConfig>;
   group: PropertyGroup;
   indexOfSelected: (fieldId: string) => number;
   onToggleField: (field: IField, checked: boolean) => void;
+  onToggleGroup: (group: PropertyGroup, checked: boolean) => void;
+  onToggleGroupRequired: (group: PropertyGroup, checked: boolean) => void;
+  required: boolean;
   selectedIds: string[];
 }) => {
   const { t } = useTranslation('frontline');
@@ -364,7 +423,7 @@ const SortablePropertyGroup = ({
     >
       <div className="flex items-center gap-2 [&_h3]:flex-1">
         <DragHandle
-          aria-label={t('reorder')}
+          aria-label={t('reorder', 'Reorder')}
           {...attributes}
           {...listeners}
           className="my-2.5 flex-0"
@@ -372,8 +431,28 @@ const SortablePropertyGroup = ({
         <Accordion.Trigger className="py-2.5 flex-1 text-sm hover:no-underline">
           {group.name}
         </Accordion.Trigger>
+        {!!selectedFields.length && (
+          <div className="flex flex-none items-center gap-2">
+            <span className="text-sm text-muted-foreground">
+              {t('required-attribute', 'Required')}
+            </span>
+            <Switch
+              aria-label={t('required-attribute', 'Required')}
+              checked={required}
+              onCheckedChange={(checked) =>
+                onToggleGroupRequired(group, checked)
+              }
+            />
+          </div>
+        )}
+        <Switch
+          aria-label={group.name}
+          checked={!unselectedFields.length}
+          className="flex-none"
+          onCheckedChange={(checked) => onToggleGroup(group, checked)}
+        />
       </div>
-      <Accordion.Content className="flex flex-col divide-y pb-2.5 pl-6 pt-0">
+      <Accordion.Content className="flex flex-col divide-y pb-2.5 pl-6 pt-2">
         <SortableContext
           items={selectedIds.map((fieldId) => `${FIELD_DRAG_PREFIX}${fieldId}`)}
           strategy={verticalListSortingStrategy}
@@ -459,7 +538,11 @@ const SelectedPropertyFieldRow = ({
       }}
     >
       <div className="flex items-center gap-2">
-        <DragHandle aria-label={t('reorder')} {...attributes} {...listeners} />
+        <DragHandle
+          aria-label={t('reorder', 'Reorder')}
+          {...attributes}
+          {...listeners}
+        />
         <Label
           className="flex-1 text-sm font-normal text-foreground"
           htmlFor={`propertyFields.${field._id}`}
@@ -482,14 +565,14 @@ const SelectedPropertyFieldRow = ({
           render={({ field: labelField }) => (
             <Form.Item className="min-w-32 flex-1 space-y-0">
               <Form.Label className="sr-only">
-                {t('label-attribute')}
+                {t('label-attribute', 'Label attribute')}
               </Form.Label>
               <Form.Control>
                 <Input
                   name={labelField.name}
                   onBlur={labelField.onBlur}
                   onChange={labelField.onChange}
-                  placeholder={t('label-attribute')}
+                  placeholder={t('label-attribute', 'Label attribute')}
                   value={labelField.value ?? ''}
                 />
               </Form.Control>
@@ -503,14 +586,17 @@ const SelectedPropertyFieldRow = ({
           render={({ field: placeholderField }) => (
             <Form.Item className="min-w-32 flex-1 space-y-0">
               <Form.Label className="sr-only">
-                {t('placeholder-attribute')}
+                {t('placeholder-attribute', 'Placeholder Attribute')}
               </Form.Label>
               <Form.Control>
                 <Input
                   name={placeholderField.name}
                   onBlur={placeholderField.onBlur}
                   onChange={placeholderField.onChange}
-                  placeholder={t('placeholder-attribute')}
+                  placeholder={t(
+                    'placeholder-attribute',
+                    'Placeholder Attribute',
+                  )}
                   value={placeholderField.value ?? ''}
                 />
               </Form.Control>
@@ -527,7 +613,7 @@ const SelectedPropertyFieldRow = ({
                 className="text-sm font-normal text-muted-foreground"
                 variant="peer"
               >
-                {t('required-attribute')}
+                {t('required-attribute', 'Required')}
               </Form.Label>
               <Form.Control>
                 <Switch

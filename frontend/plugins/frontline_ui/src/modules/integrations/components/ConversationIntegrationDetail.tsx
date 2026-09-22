@@ -1,10 +1,11 @@
 import { lazy, Suspense } from 'react';
 import { IntegrationType } from '@/types/Integration';
 import { useConversationContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationContext';
+import { InboxMessagesSkeleton } from '@/inbox/components/InboxMessagesSkeleton';
 
-const IMapConversationDetail = lazy(() =>
-  import('@/integrations/imap/components/ImapConversationDetail').then(
-    (module) => ({ default: module.ImapConversationDetail }),
+const MailConversationDetail = lazy(() =>
+  import('@/integrations/mail/components/MailConversationDetail').then(
+    (module) => ({ default: module.MailConversationDetail }),
   ),
 );
 
@@ -20,35 +21,35 @@ const CallConversationDetail = lazy(() =>
 );
 
 const CallProConversationDetail = lazy(() =>
-  import(
-    '@/integrations/callpro/components/CallProConversationDetail'
-  ).then((module) => ({ default: module.CallProConversationDetail })),
+  import('@/integrations/callpro/components/CallProConversationDetail').then(
+    (module) => ({ default: module.CallProConversationDetail }),
+  ),
 );
 
 const FbMessengerConversationDetail = lazy(() =>
-  import(
-    '@/integrations/facebook/components/FacebookConversationMessages'
-  ).then((module) => ({ default: module.FacebookConversationMessages })),
+  import('@/integrations/facebook/components/FacebookConversationMessages').then(
+    (module) => ({ default: module.FacebookConversationMessages }),
+  ),
 );
 
 const IgMessengerConversationDetail = lazy(() =>
-  import(
-    '@/integrations/instagram/components/InstagramConversationMessages'
-  ).then((module) => ({ default: module.InstagramConversationMessages })),
+  import('@/integrations/instagram/components/InstagramConversationMessages').then(
+    (module) => ({ default: module.InstagramConversationMessages }),
+  ),
 );
 
 const IgPostConversationDetail = lazy(() =>
-  import(
-    '@/integrations/instagram/components/IgPostConversationDetail'
-  ).then((module) => ({ default: module.IgPostConversationDetail })),
+  import('@/integrations/instagram/components/IgPostConversationDetail').then(
+    (module) => ({ default: module.IgPostConversationDetail }),
+  ),
 );
 
 export const ConversationIntegrationDetail = () => {
   const { integration } = useConversationContext();
 
   return (
-    <Suspense fallback={<div />}>
-      {integration?.kind === IntegrationType.IMAP && <IMapConversationDetail />}
+    <Suspense fallback={<InboxMessagesSkeleton />}>
+      {integration?.kind === IntegrationType.MAIL && <MailConversationDetail />}
       {integration?.kind === IntegrationType.CALL && <CallConversationDetail />}
       {integration?.kind === IntegrationType.CALLPRO && (
         <CallProConversationDetail />

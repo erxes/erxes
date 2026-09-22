@@ -15,5 +15,3 @@ export const typeDefs = async (): Promise<DocumentNode> => {
     }
   `);
 };
-
-

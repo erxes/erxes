@@ -59,6 +59,24 @@ export const ExecutionActionResult = ({
       )
     : null;
 
+  // A failure is presented the same way whatever the action type: an action's
+  // own renderer only knows how to lay out a successful payload, and reading
+  // one as a result would style the error as a success.
+  if (action.result?.error) {
+    return (
+      <ActionResult>
+        <ActionResult.Status status="error">
+          {getActionResultErrorText(action.result.error)}
+        </ActionResult.Status>
+        {action.result.result ? (
+          <ActionResult.Body title="Failure details">
+            <ActionResult.Json value={action.result.result} />
+          </ActionResult.Body>
+        ) : null}
+      </ActionResult>
+    );
+  }
+
   if (CoreActionResult) {
     return (
       <ActionResult>
@@ -67,16 +85,6 @@ export const ExecutionActionResult = ({
           action={action}
           status={status}
         />
-      </ActionResult>
-    );
-  }
-
-  if (action.result?.error) {
-    return (
-      <ActionResult>
-        <ActionResult.Status status="error">
-          {getActionResultErrorText(action.result.error)}
-        </ActionResult.Status>
       </ActionResult>
     );
   }

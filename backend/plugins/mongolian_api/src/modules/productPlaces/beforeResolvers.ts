@@ -1,42 +1,56 @@
-import { IModels } from '~/connectionResolvers';
+import { BeforeResolverParams } from 'erxes-api-shared/utils';
+import { generateModels } from '~/connectionResolvers';
+
+const toStringArray = (value: unknown): string[] =>
+  Array.isArray(value) ? value.filter((item) => typeof item === 'string') : [];
 
 export default {
-  products: ['products', 'productsTotalCount'],
+  productsMain: ['productsMain', 'products', 'productsTotalCount'],
 };
 
 export const beforeResolverHandlers = async (
-  models: IModels,
   subdomain: string,
-  params,
+  params: BeforeResolverParams,
 ) => {
-  const { args, user } = params;
-  const { segment } = args;
+  const models = await generateModels(subdomain);
+  const { args = {}, user } = params;
+  const { segment, segmentIds } = args;
 
-  if (segment) {
+  if (segment || (Array.isArray(segmentIds) && segmentIds.length)) {
+    return args;
+  }
+
+  const userId =
+    typeof user === 'object' &&
+    user !== null &&
+    '_id' in user &&
+    typeof user._id === 'string'
+      ? user._id
+      : '';
+
+  if (!userId) {
     return args;
   }
 
   const configValue = await models.Configs.getConfigValue(
     'dealsProductsDefaultFilter',
-    '',
-    null,
+    userId,
+    {},
   );
-  let configs = Array.isArray(configValue)
-    ? configValue
-    : Object.values(configValue || {});
+  const config =
+    configValue &&
+    typeof configValue === 'object' &&
+    !Array.isArray(configValue)
+      ? (configValue as { segmentIds?: unknown })
+      : {};
+  const defaultSegmentIds = toStringArray(config.segmentIds);
 
-  if (!configs?.length) {
-    configs = (await models.Configs.getConfigs('dealsProductsDefaultFilter'))
-      .map((config) => config.value)
-      .flat();
-  }
-
-  if (!configs?.length) {
+  if (!defaultSegmentIds.length) {
     return args;
   }
 
   return {
     ...args,
-    segment: configs.find((c) => c.userIds?.includes(user._id))?.segmentId,
+    segmentIds: defaultSegmentIds,
   };
 };

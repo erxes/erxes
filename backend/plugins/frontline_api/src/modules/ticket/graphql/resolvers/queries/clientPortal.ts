@@ -56,8 +56,12 @@ export const cpTicketQueries = {
     { ticketId }: { ticketId: string },
     { models }: IContext,
   ) => {
-     return models.Note.find({ contentId: ticketId }).sort({ createdAt: -1 }).lean();
-
+    return models.Note.find({
+      contentId: ticketId,
+      isInternal: { $ne: true },
+    })
+      .sort({ createdAt: -1 })
+      .lean();
   },
 };
 

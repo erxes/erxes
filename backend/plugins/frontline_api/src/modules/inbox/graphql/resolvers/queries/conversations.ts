@@ -5,6 +5,7 @@ import {
   IConversationRes,
 } from '@/inbox/@types/conversations';
 import { countByConversations } from '@/inbox/conversationUtils';
+import { getConversationConvertedItems } from '@/inbox/services/conversationConvert';
 import {
   CONVERSATION_AUTOMATION_STATUS,
   CONVERSATION_STATUSES,
@@ -188,6 +189,12 @@ export const conversationQueries = {
       ...qb.participatingFilter(),
     });
 
+    // conversations where the current user was mentioned
+    response.mentioned = await count(models, {
+      ...mainQuery,
+      ...(await qb.mentionedFilter()),
+    });
+
     // starred count
     response.starred = await count(models, {
       ...mainQuery,
@@ -228,6 +235,16 @@ export const conversationQueries = {
     { models }: IContext,
   ) {
     return models.Conversations.findOne({ _id });
+  },
+
+  async conversationConvertedItems(
+    _root,
+    { _id }: { _id: string },
+    { models, subdomain, checkPermission }: IContext,
+  ) {
+    await checkPermission('showConversations');
+
+    return getConversationConvertedItems(models, subdomain, _id);
   },
 
   /**

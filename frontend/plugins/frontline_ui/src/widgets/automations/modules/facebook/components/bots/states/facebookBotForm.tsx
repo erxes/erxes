@@ -12,6 +12,15 @@ export const facebookBotFormSchema = z.object({
       link: z.string().optional(),
     }),
   ),
+  iceBreakers: z
+    .array(
+      z.object({
+        _id: z.string(),
+        question: z.string(),
+      }),
+    )
+    .optional(),
+  getStartedText: z.string().optional(),
   tag: z.enum([
     'CONFIRMED_EVENT_UPDATE',
     'POST_PURCHASE_UPDATE',

@@ -62,7 +62,7 @@ export const FormDndStep = ({ step }: { step: UniqueIdentifier }) => {
       </div>
       {isMultipleSteps && (
         <div className="mx-4 mt-4 w-auto space-y-2">
-          <Label>{t('description')}</Label>
+          <Label>{t('description', 'Description')}</Label>
           <Textarea
             value={getStepValue(step).description}
             onChange={(e) =>
@@ -103,7 +103,7 @@ export const AddStep = () => {
       className="h-12 w-full rounded-lg shadow-none border-dashed border"
       onClick={handleAddStep}
     >
-      <IconPlus /> {t('add-step')}
+      <IconPlus /> {t('add-step', 'Add Step')}
     </Button>
   );
 };

@@ -16,11 +16,16 @@ export const FilterTags = () => {
 
   return (
     <div className="flex flex-col gap-2 px-2 pt-4">
-      <span className="text-xs text-accent-foreground">{t('filters-label')}</span>
+      <span className="text-xs text-accent-foreground">
+        {t('filters-label', 'Filters:')}
+      </span>
       <div className="flex flex-wrap gap-2">
         <IntegrationTypeTag />
         {status === 'closed' && (
-          <FilterTagBoolean label={t('resolved')} statusKey="status" />
+          <FilterTagBoolean
+            label={t('resolved', 'Resolved')}
+            statusKey="status"
+          />
         )}
         {BOOLEAN_FILTERS.map((filter) => (
           <FilterTagBoolean

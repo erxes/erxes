@@ -1,9 +1,12 @@
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import { IModels } from '~/connectionResolvers';
 import { IReportFilterParams } from '../../graphql/resolvers/queries/journalReport';
-import { handleMainACMore } from './details/main';
 import { getReportBase } from './definitions';
-import { getLineRecords, recordListWithValues } from './maps';
+import {
+  getLineRecords,
+  getReportDetailRecords,
+  recordListWithValues,
+} from './maps';
 
 export interface IGroupRule {
   group: string;
@@ -21,8 +24,6 @@ export interface IGroupCommon {
   code: string;
   name?: string;
 }
-
-type ReportRecord = Record<string, unknown>;
 
 export const getRecords = async (
   subdomain: string,
@@ -54,29 +55,20 @@ export const getRecMore = async (
   filterParams: IReportFilterParams,
   user: IUserDocument,
 ) => {
-  const handler = getReportMoreHandler(report);
-  if (!handler) throw new Error(`Unsupported journal: ${report}`);
+  const reportBase = getReportBase(report);
+  if (!reportBase) throw new Error(`Unsupported journal: ${report}`);
 
-  const { trDetails } = await handler(subdomain, models, filterParams, user);
+  if (!reportBase.supportsMore) {
+    return [];
+  }
 
-  return trDetails;
-};
-
-const getReportMoreHandler = (report: string) => {
-  const handlers: Record<
-    string,
-    (
-      subdomain: string,
-      models: IModels,
-      filterParams: IReportFilterParams,
-      user: IUserDocument,
-    ) => Promise<{ trDetails: ReportRecord[] }>
-  > = {
-    ac: handleMainACMore,
-    tb: async () => ({ trDetails: [] }),
-  };
-
-  return handlers[report];
+  return getReportDetailRecords(
+    subdomain,
+    models,
+    filterParams,
+    user,
+    reportBase,
+  );
 };
 
 export const getGroupRule = (

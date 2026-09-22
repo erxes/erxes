@@ -26,6 +26,7 @@ export const orderFields = `
 export const orderItemBaseFields = `
  _id
  discountAmount
+ discountInfos
 `
 export const orderItemFields = `
     ${orderItemBaseFields}

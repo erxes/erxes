@@ -6,6 +6,7 @@ import { useInsertWorkflowTemplate } from '@/automations/components/builder/hook
 import { WORKFLOW_INPUT_NODE_ID } from '@/automations/components/builder/nodes/components/WorkflowInputNode';
 import { useWorkflowEditScope } from '@/automations/context/WorkflowEditScopeProvider';
 import { useAutomationFormController } from '@/automations/hooks/useFormSetValue';
+import { useInsertNodeOnEdge } from '@/automations/hooks/useInsertNodeOnEdge';
 import { useNodeConnect } from '@/automations/hooks/useNodeConnect';
 import { useNodeEvents } from '@/automations/hooks/useNodeEvents';
 import { AutomationNodeType, NodeData } from '@/automations/types';
@@ -13,15 +14,17 @@ import { automationDropHandler } from '@/automations/utils/automationBuilderUtil
 import { generateNodes } from '@/automations/utils/automationBuilderUtils/generateNodes';
 import {
   Node,
+  OnNodeDrag,
   useEdgesState,
   useNodesState,
   useReactFlow,
 } from '@xyflow/react';
 // @ts-ignore
 import { generateEdges } from '@/automations/utils/automationBuilderUtils/generateEdges';
+import { automationInsertHoverEdgeIdState } from '@/automations/states/automationState';
 import { TAutomationBuilderForm } from '@/automations/utils/automationFormDefinitions';
 import { themeState } from 'erxes-ui';
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useWatch } from 'react-hook-form';
 
@@ -155,6 +158,9 @@ export const useReactFlowEditor = () => {
   );
 
   const { onNodeClick, onNodeDoubleClick, onPaneClick } = useNodeEvents();
+  const { findInsertEdgeForNode, insertExistingNodeOnEdge } =
+    useInsertNodeOnEdge();
+  const setInsertHoverEdgeId = useSetAtom(automationInsertHoverEdgeIdState);
   const { isValidConnection, onConnect, onAwaitingNodeConnection } =
     useNodeConnect();
 
@@ -291,12 +297,43 @@ export const useReactFlowEditor = () => {
     };
   }, []);
 
-  const onNodeDragStop = useCallback(() => {
-    syncPositionUpdates({
-      shouldDirty: true,
-      shouldTouch: true,
-    });
-  }, [syncPositionUpdates]);
+  const onNodeDrag = useCallback<OnNodeDrag<Node<NodeData>>>(
+    (_event, node, draggedNodes) => {
+      // Splicing one node out of a moved group would leave the rest behind.
+      const candidate =
+        draggedNodes.length > 1 ? null : findInsertEdgeForNode(node);
+
+      setInsertHoverEdgeId(candidate?.edgeId ?? null);
+    },
+    [findInsertEdgeForNode, setInsertHoverEdgeId],
+  );
+
+  const onNodeDragStop = useCallback<OnNodeDrag<Node<NodeData>>>(
+    (_event, node, draggedNodes) => {
+      setInsertHoverEdgeId(null);
+
+      const candidate =
+        draggedNodes.length > 1 ? null : findInsertEdgeForNode(node);
+
+      if (candidate) {
+        // Takes over persisting positions: the node snaps into the slot it
+        // was dropped on rather than staying where the pointer left it.
+        insertExistingNodeOnEdge(candidate, node.id);
+        return;
+      }
+
+      syncPositionUpdates({
+        shouldDirty: true,
+        shouldTouch: true,
+      });
+    },
+    [
+      findInsertEdgeForNode,
+      insertExistingNodeOnEdge,
+      setInsertHoverEdgeId,
+      syncPositionUpdates,
+    ],
+  );
 
   return {
     theme,
@@ -311,6 +348,7 @@ export const useReactFlowEditor = () => {
     onPaneClick,
     isValidConnection,
     onDragOver,
+    onNodeDrag,
     onNodeDragStop,
     onNodesChange,
     onEdgesChange,
