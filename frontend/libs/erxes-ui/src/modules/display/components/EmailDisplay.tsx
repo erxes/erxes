@@ -9,8 +9,12 @@ export const EmailDisplay = ({
   emails,
   emailValidationStatus,
   onEmailClick,
+  onEmailDoubleClick,
+  onEmailKeyActivate,
 }: IEmailFieldProps & {
   onEmailClick?: (email: string) => void;
+  onEmailDoubleClick?: (email: string) => void;
+  onEmailKeyActivate?: (email: string) => void;
 }) => {
   const emailsWithProperties = formatEmails(
     primaryEmail,
@@ -34,12 +38,15 @@ export const EmailDisplay = ({
                     event.stopPropagation();
                     onEmailClick(email.email || '');
                   }}
-                  onDoubleClick={(event) => event.stopPropagation()}
+                  onDoubleClick={(event) => {
+                    event.stopPropagation();
+                    onEmailDoubleClick?.(email.email || '');
+                  }}
                   onKeyDown={(event) => {
                     if (event.key === 'Enter' || event.key === ' ') {
                       event.preventDefault();
                       event.stopPropagation();
-                      onEmailClick(email.email || '');
+                      (onEmailKeyActivate || onEmailClick)(email.email || '');
                     }
                   }}
                 >

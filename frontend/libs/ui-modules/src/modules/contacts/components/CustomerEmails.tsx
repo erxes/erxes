@@ -34,6 +34,7 @@ export function CustomerEmails({
     open,
     setOpen,
     handleEmailClick: handleVerifiedEmailClick,
+    handleEmailDoubleClick: handleVerifiedEmailDoubleClick,
   } = useEmailDoubleClick(onEmailClick);
 
   const emailProps = {
@@ -71,7 +72,12 @@ export function CustomerEmails({
   return (
     <PopoverScoped scope={scope || ''} modal open={open} onOpenChange={setOpen}>
       <Trigger>
-        <EmailDisplay {...emailProps} onEmailClick={handleVerifiedEmailClick} />
+        <EmailDisplay
+          {...emailProps}
+          onEmailClick={handleVerifiedEmailClick}
+          onEmailDoubleClick={handleVerifiedEmailDoubleClick}
+          onEmailKeyActivate={onEmailClick || handleVerifiedEmailClick}
+        />
       </Trigger>
       <RecordTableInlineCell.Content className="w-72">
         <EmailListField

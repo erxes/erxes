@@ -27,7 +27,8 @@ export const CompanyEmails = ({
   onEmailClick?: (email: string) => void;
 }) => {
   const { companiesEdit } = useCompaniesEdit();
-  const { open, setOpen, handleEmailClick } = useEmailDoubleClick(onEmailClick);
+  const { open, setOpen, handleEmailClick, handleEmailDoubleClick } =
+    useEmailDoubleClick(onEmailClick);
   const emailProps = {
     primaryEmail,
     emails,
@@ -55,7 +56,12 @@ export const CompanyEmails = ({
   return (
     <PopoverScoped scope={scope || ''} modal open={open} onOpenChange={setOpen}>
       <Trigger>
-        <EmailDisplay {...emailProps} onEmailClick={handleEmailClick} />
+        <EmailDisplay
+          {...emailProps}
+          onEmailClick={handleEmailClick}
+          onEmailDoubleClick={handleEmailDoubleClick}
+          onEmailKeyActivate={onEmailClick || handleEmailClick}
+        />
       </Trigger>
       <RecordTableInlineCell.Content className="w-72">
         <EmailListField

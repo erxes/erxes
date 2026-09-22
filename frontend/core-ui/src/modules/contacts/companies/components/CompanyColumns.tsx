@@ -4,7 +4,6 @@ import {
   IconBuildingFactory,
   IconChartBar,
   IconClock,
-  IconCreditCard,
   IconLabelFilled,
   IconMail,
   IconMapPin,

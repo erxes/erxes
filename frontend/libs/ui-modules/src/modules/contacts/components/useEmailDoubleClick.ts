@@ -15,7 +15,6 @@ export const useEmailDoubleClick = (onEmailClick?: (email: string) => void) => {
     if (pendingClick?.email === email) {
       window.clearTimeout(pendingClick.timeoutId);
       pendingClickRef.current = null;
-      onEmailClick?.(email);
       return;
     }
 
@@ -32,6 +31,15 @@ export const useEmailDoubleClick = (onEmailClick?: (email: string) => void) => {
     };
   };
 
+  const handleEmailDoubleClick = (email: string) => {
+    if (pendingClickRef.current) {
+      window.clearTimeout(pendingClickRef.current.timeoutId);
+      pendingClickRef.current = null;
+    }
+    setOpen(false);
+    onEmailClick?.(email);
+  };
+
   useEffect(
     () => () => {
       if (pendingClickRef.current) {
@@ -41,5 +49,5 @@ export const useEmailDoubleClick = (onEmailClick?: (email: string) => void) => {
     [],
   );
 
-  return { open, setOpen, handleEmailClick };
+  return { open, setOpen, handleEmailClick, handleEmailDoubleClick };
 };
