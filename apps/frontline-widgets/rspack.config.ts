@@ -14,7 +14,6 @@ module.exports = composePlugins(withNx(), withReact(), (config: any) => {
   );
   // Configure dev server to serve static files from dist folder
   config.devServer = config.devServer || {};
-  config.devServer.historyApiFallback = true;
   config.devServer.static = config.devServer.static || [];
 
   // Add the dist folder as a static directory
