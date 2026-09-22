@@ -19,6 +19,7 @@ import {
 } from 'erxes-ui';
 
 import { IconFilter } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { FORMAT_OPTIONS } from '../../constants/formatNumberData';
 import {
   SelectContent,
@@ -126,6 +127,7 @@ const SelectFormatNumberValue = ({
   placeholder?: string;
   className?: string;
 }) => {
+  const { t } = useTranslation('loyalty');
   const { value, formatOptions } = useSelectFormatNumberContext();
   const selectedFormatOption = formatOptions?.find(
     (type) => type.value === value,
@@ -134,7 +136,7 @@ const SelectFormatNumberValue = ({
   if (!selectedFormatOption) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select format option'}
+        {placeholder || t('select-format-option')}
       </span>
     );
   }
@@ -170,13 +172,14 @@ const SelectFormatNumberCommandItem = ({
 };
 
 const SelectFormatNumberContent = () => {
+  const { t } = useTranslation('loyalty');
   const { formatOptions } = useSelectFormatNumberContext();
 
   return (
     <Command>
-      <Command.Input placeholder="Search format option" />
+      <Command.Input placeholder={t('search-format-option')} />
       <Command.Empty>
-        <span className="text-muted-foreground">No format options found</span>
+        <span className="text-muted-foreground">{t('no-format-options-found')}</span>
       </Command.Empty>
       <Command.List>
         {formatOptions?.map((formatOption) => (
@@ -191,10 +194,11 @@ const SelectFormatNumberContent = () => {
 };
 
 export const SelectFormatNumberFilterItem = () => {
+  const { t } = useTranslation('loyalty');
   return (
     <Filter.Item value="formatNumber">
       <IconFilter />
-      Format Number
+      {t('format-number')}
     </Filter.Item>
   );
 };
@@ -239,6 +243,7 @@ export const SelectFormatNumberFilterBar = ({
   onValueChange?: (value: string[] | string) => void;
   mode?: 'single' | 'multiple';
 }) => {
+  const { t } = useTranslation('loyalty');
   const [formatNumber, setFormatNumber] = useQueryState<string[] | string>(
     'formatNumber',
   );
@@ -248,7 +253,7 @@ export const SelectFormatNumberFilterBar = ({
     <Filter.BarItem queryKey={'formatNumber'}>
       <Filter.BarName>
         <IconFilter />
-        Format Number
+        {t('format-number')}
       </Filter.BarName>
       <SelectFormatNumberProvider
         mode={mode}

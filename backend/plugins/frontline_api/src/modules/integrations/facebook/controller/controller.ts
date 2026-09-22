@@ -94,9 +94,17 @@ export const facebookWebhook = async (req, res, next) => {
 
   const models = await generateModels(subdomain);
   const data = req.body;
+  const respond = () => {
+    if (!res.writableEnded) {
+      res.end('success');
+    }
+  };
+
   if (data.object !== 'page' && !checkIsAdsOpenThread(data?.entry)) {
-    return;
+    debugFacebook(`Ignored a webhook for object ${data?.object}`);
+    return respond();
   }
+
   for (const entry of data.entry) {
     // receive chat
     try {
@@ -112,14 +120,19 @@ export const facebookWebhook = async (req, res, next) => {
       }
       if (entry.standby) {
         const activities = await processStandbyEvents(entry, models);
+
         for (const { activity, integration } of activities) {
           await receiveMessage(models, subdomain, integration, activity);
         }
       }
     } catch (error) {
       debugFacebook(`Error processing entry: ${error.message}`);
-      // Optionally, send a response or log the error
-      res.status(500).send('Internal Server Error');
+
+      if (!res.writableEnded) {
+        res.status(500).send('Internal Server Error');
+      }
+
+      return;
     }
 
     // receive post and comment
@@ -130,10 +143,10 @@ export const facebookWebhook = async (req, res, next) => {
           try {
             await receiveComment(models, subdomain, event.value, entry.id);
             debugFacebook(`Successfully saved  ${JSON.stringify(event.value)}`);
-            return res.end('success');
+            return respond();
           } catch (e) {
             debugError(`Error processing comment: ${e.message}`);
-            return res.end('success');
+            return respond();
           }
         }
 
@@ -144,17 +157,20 @@ export const facebookWebhook = async (req, res, next) => {
             debugFacebook(
               `Successfully saved post ${JSON.stringify(event.value)}`,
             );
-            return res.end('success');
+            return respond();
           } catch (e) {
             debugError(`Error processing post: ${e.message}`);
-            return res.end('success');
+            return respond();
           }
         } else {
-          return res.end('success');
+          debugFacebook(`Unhandled change item ${event.value?.item}`);
+          return respond();
         }
       }
     }
   }
+
+  return respond();
 };
 
 export async function processMessagingEvent(

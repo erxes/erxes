@@ -40,9 +40,6 @@ export const ItemFooter = ({
         mode="multiple"
         value={assignedUsers.map((user) => user?._id) || ['']}
         id={id}
-        teamIds={
-          assignedUsers ? assignedUsers.map((user) => user._id) : undefined
-        }
       />
     </div>
   );

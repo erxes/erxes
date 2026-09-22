@@ -5,15 +5,15 @@ export default {
   typeDefs: `
 			conversationChanged(_id: String!): ConversationChangedResponse
 			conversationMessageInserted(_id: String!): ConversationMessage
+			conversationMessageUpdated(_id: String!): ConversationMessage
 			conversationClientMessageInserted(userId: String!): ConversationMessage
+			conversationUnreadCountChanged: ConversationUnreadCountChangedResponse
 			conversationClientTypingStatusChanged(_id: String!): ConversationClientTypingStatusChangedResponse
 			conversationAdminMessageInserted(customerId: String): ConversationAdminMessageInsertedResponse
 			conversationExternalIntegrationMessageInserted: JSON
 			conversationBotTypingStatus(_id: String!): JSON
-      waitingCallReceived(extension: String): String
-      talkingCallReceived(extension: String): String
-      agentCallReceived(extension: String): String
       queueRealtimeUpdate(extension: String): String
+      callSessionUpdated(inboxIntegrationId: String, uniqueid: String, extension: String): CallSession
       ticketPipelineChanged(filter: TicketsPipelineFilter): TicketSubscription
       ticketPipelineListChanged: PipelineSubscription
       ticketChanged(_id: String!): TicketSubscription
@@ -27,6 +27,58 @@ export default {
 
 		`,
   generateResolvers: (graphqlPubsub) => {
+    const getTenantTopics = (topic, subdomain, suffix) => {
+      // OSS background workers use the stable `os` tenant key, while browser
+      // subscriptions derive theirs from the request hostname (for example,
+      // `localhost`). Listen to both aliases so worker events reach the UI.
+      const tenantKeys =
+        process.env.VERSION === 'saas'
+          ? [subdomain]
+          : [...new Set([subdomain, 'os'])];
+
+      return tenantKeys.map((tenantKey) => `${topic}:${tenantKey}:${suffix}`);
+    };
+    const enforceCallAuth = () =>
+      process.env.CALL_SUBSCRIPTION_REQUIRE_AUTH === 'true';
+    const requireAuth = (context, label) => {
+      if (context?.user?._id) {
+        return true;
+      }
+      if (enforceCallAuth()) {
+        return false;
+      }
+      console.warn(
+        `[call-subscription] ${label}: unauthenticated (grace mode)`,
+      );
+      return true;
+    };
+
+    const sessionBelongsToUser = (session, variables, userId) => {
+      if (!userId) {
+        return false;
+      }
+      const ext = variables?.extension;
+      if (ext) {
+        const op = (session.ringingOperators || []).find(
+          (o) => o.extensionNumber === ext,
+        );
+        if (op) {
+          return String(op.userId) === userId;
+        }
+        if (session.answeredExtension === ext) {
+          return String(session.answeredBy) === userId;
+        }
+        return false;
+      }
+      const ids = [
+        ...(session.ringingOperators || []).map((o) => o.userId),
+        session.answeredBy,
+      ]
+        .filter(Boolean)
+        .map((id) => String(id));
+      return ids.includes(userId);
+    };
+
     return {
       // --- Ticket Pipeline ---
       ticketActivityChanged: {
@@ -67,6 +119,8 @@ export default {
           async (payload, variables) => {
             const ticket = payload.ticketListChanged.ticket;
             const filter = variables.filter || {};
+
+            if (!ticket) return false;
 
             if (!filter) return true;
 
@@ -132,6 +186,18 @@ export default {
           graphqlPubsub.asyncIterator(`conversationChanged:${_id}`),
       },
 
+      conversationUnreadCountChanged: {
+        subscribe: (_root, _args, { subdomain, user }) => {
+          if (!user?._id) {
+            throw new Error('Authentication required');
+          }
+
+          return graphqlPubsub.asyncIterator(
+            `conversationUnreadCountChanged:${subdomain}:${user._id}`,
+          );
+        },
+      },
+
       /*
        * Listen for new message insertion
        */
@@ -151,6 +217,28 @@ export default {
               return true;
             }
             return false;
+          },
+        ),
+      },
+
+      /*
+       * An existing message changed (e.g. read state) — never a new insert
+       */
+      conversationMessageUpdated: {
+        resolve: (payload) => payload.conversationMessageUpdated,
+        subscribe: withFilter(
+          (_root, { _id }, { subdomain, user }) => {
+            if (!user?._id) {
+              throw new Error('Authentication required');
+            }
+            return graphqlPubsub.asyncIterator(
+              `conversationMessageUpdated:${subdomain}:${_id}`,
+            );
+          },
+          async (payload, variables) => {
+            const conversationId =
+              payload.conversationMessageUpdated.conversationId;
+            return !!conversationId && variables._id === conversationId;
           },
         ),
       },
@@ -214,7 +302,11 @@ export default {
         subscribe: withFilter(
           (_, { userId }, { subdomain }) => {
             return graphqlPubsub.asyncIterator(
-              `conversationClientMessageInserted:${subdomain}:${userId}`,
+              getTenantTopics(
+                'conversationClientMessageInserted',
+                subdomain,
+                userId,
+              ),
             );
           },
           async (payload) => {
@@ -253,45 +345,52 @@ export default {
       },
 
       //call center subscriptions
-      waitingCallReceived: {
-        subscribe: withFilter(
-          () => graphqlPubsub.asyncIterator(`waitingCallReceived`),
-          (payload, variables) => {
-            const response = JSON.parse(payload.waitingCallReceived);
-            return response.extension === variables.extension;
-          },
-        ),
-      },
-      talkingCallReceived: {
-        subscribe: withFilter(
-          () => graphqlPubsub.asyncIterator(`talkingCallReceived`),
-          (payload, variables) => {
-            const response = JSON.parse(payload.talkingCallReceived);
-            return response.extension === variables.extension;
-          },
-        ),
-      },
-
-      agentCallReceived: {
-        subscribe: withFilter(
-          () => graphqlPubsub.asyncIterator(`agentCallReceived`),
-          (payload, variables) => {
-            const response = JSON.parse(payload.agentCallReceived);
-            return response.extension === variables.extension;
-          },
-        ),
-      },
-
       queueRealtimeUpdate: {
         subscribe: withFilter(
-          () => graphqlPubsub.asyncIterator(`queueRealtimeUpdate`),
-          (payload, variables) => {
+          (_, _args, { subdomain }) =>
+            graphqlPubsub.asyncIterator(`queueRealtimeUpdate:${subdomain}`),
+          (payload, variables, context) => {
+            if (!requireAuth(context, 'queueRealtimeUpdate')) return false;
             const response = JSON.parse(payload.queueRealtimeUpdate);
             return response.extension === variables.extension;
           },
         ),
       },
 
+      callSessionUpdated: {
+        resolve: (payload) => payload.callSessionUpdated,
+        subscribe: withFilter(
+          (_, { inboxIntegrationId, uniqueid, extension }) => {
+            if (uniqueid) {
+              return graphqlPubsub.asyncIterator(
+                `callSessionUpdated:uniqueid:${uniqueid}`,
+              );
+            }
+            if (inboxIntegrationId && extension) {
+              return graphqlPubsub.asyncIterator(
+                `callSessionUpdated:ext:${inboxIntegrationId}:${extension}`,
+              );
+            }
+            return graphqlPubsub.asyncIterator(`callSessionUpdated:__denied__`);
+          },
+          (payload, variables, context) => {
+            if (!requireAuth(context, 'callSessionUpdated')) return false;
+            const session = payload?.callSessionUpdated;
+            if (!session) return false;
+            const userId = context?.user?._id ? String(context.user._id) : '';
+            const owns = sessionBelongsToUser(session, variables, userId);
+            if (!owns) {
+              console.warn(
+                `[call-subscription] callSessionUpdated: ${
+                  userId || 'anon'
+                } is not an operator on session ${session.uniqueid}`,
+              );
+              if (enforceCallAuth()) return false;
+            }
+            return true;
+          },
+        ),
+      },
       cpConversationChanged: {
         subscribe: (_, { _id }) =>
           graphqlPubsub.asyncIterator(`conversationChanged:${_id}`),

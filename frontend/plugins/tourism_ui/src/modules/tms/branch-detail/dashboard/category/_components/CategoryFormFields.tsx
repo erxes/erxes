@@ -1,5 +1,6 @@
 import { Control, FieldPathByValue } from 'react-hook-form';
 import { Form, Input, Upload, readImage } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { CategoryCreateFormType } from '../constants/formSchema';
 import { SelectParentCategory } from './SelectParentCategory';
 import { IconUpload, IconTrash } from '@tabler/icons-react';
@@ -21,6 +22,7 @@ export const CategoryNameField = ({
   name = 'name',
   labelSuffix = '',
 }: CategoryNameFieldProps) => {
+  const { t } = useTranslation('tourism');
   return (
     <Form.Field
       control={control}
@@ -28,12 +30,12 @@ export const CategoryNameField = ({
       render={({ field }) => (
         <Form.Item>
           <Form.Label>
-            Name<span className="text-primary">{labelSuffix}</span>{' '}
+            {t('name')}<span className="text-primary">{labelSuffix}</span>{' '}
             <span className="text-destructive">*</span>
           </Form.Label>
           <Form.Control>
             <Input
-              placeholder="e.g., Adventure Tours, Cultural Tours"
+              placeholder={t('category-name-placeholder')}
               {...field}
             />
           </Form.Control>
@@ -49,6 +51,7 @@ export const CategoryCodeField = ({
 }: {
   control: Control<CategoryCreateFormType>;
 }) => {
+  const { t } = useTranslation('tourism');
   return (
     <Form.Field
       control={control}
@@ -56,10 +59,10 @@ export const CategoryCodeField = ({
       render={({ field }) => (
         <Form.Item>
           <Form.Label>
-            Code <span className="text-destructive">*</span>
+            {t('code')} <span className="text-destructive">*</span>
           </Form.Label>
           <Form.Control>
-            <Input placeholder="e.g., ADV, CUL" {...field} />
+            <Input placeholder={t('category-code-placeholder')} {...field} />
           </Form.Control>
           <Form.Message className="text-destructive" />
         </Form.Item>
@@ -77,13 +80,14 @@ export const CategoryParentIdField = ({
   branchId?: string;
   language?: string;
 }) => {
+  const { t } = useTranslation('tourism');
   return (
     <Form.Field
       control={control}
       name="parentId"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>Parent Category</Form.Label>
+          <Form.Label>{t('parent-category')}</Form.Label>
           <Form.Control>
             <SelectParentCategory
               selected={field.value}
@@ -104,6 +108,7 @@ export const CategoryAttachmentField = ({
 }: {
   control: Control<CategoryCreateFormType>;
 }) => {
+  const { t } = useTranslation('tourism');
   const [isLoading, setIsLoading] = useState(false);
 
   return (
@@ -112,7 +117,7 @@ export const CategoryAttachmentField = ({
       name="attachment"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>Category Image</Form.Label>
+          <Form.Label>{t('category-image')}</Form.Label>
 
           <Form.Control>
             <Upload.Root
@@ -144,11 +149,11 @@ export const CategoryAttachmentField = ({
                 {!field.value?.url && (
                   <div className="flex flex-col gap-2 justify-center items-center text-sm text-muted-foreground">
                     {isLoading ? (
-                      <span>Uploading...</span>
+                      <span>{t('uploading')}</span>
                     ) : (
                       <>
                         <IconUpload size={22} />
-                        <span>Upload category image</span>
+                        <span>{t('upload-category-image')}</span>
                       </>
                     )}
                   </div>
@@ -157,7 +162,7 @@ export const CategoryAttachmentField = ({
                 {field.value?.url && (
                   <div className="flex absolute inset-0 justify-center items-center transition bg-black/0 group-hover:bg-black/30">
                     <span className="px-2 py-1 text-xs font-medium text-white rounded opacity-0 group-hover:opacity-100 bg-black/70">
-                      Change image
+                      {t('change-image')}
                     </span>
                   </div>
                 )}

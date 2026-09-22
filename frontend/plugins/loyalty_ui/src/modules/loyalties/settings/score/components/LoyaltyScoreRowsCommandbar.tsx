@@ -7,14 +7,16 @@ import {
   useConfirm,
 } from 'erxes-ui';
 import { IconTrash } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { useDeleteScore } from '../hooks/useLoyaltyScoreRowsRemove';
 export const LoyaltyScoreRowsCommandbar = () => {
+  const { t } = useTranslation('loyalty');
   const { table } = RecordTable.useRecordTable();
   return (
     <CommandBar open={table.getFilteredSelectedRowModel().rows.length > 0}>
       <CommandBar.Bar>
         <CommandBar.Value onClose={() => table.setRowSelection({})}>
-          {table.getFilteredSelectedRowModel().rows.length} selected
+          {t('selected-count', { count: table.getFilteredSelectedRowModel().rows.length })}
         </CommandBar.Value>
         <Separator.Inline />
         <LoyaltyScoreRowsDelete />
@@ -24,16 +26,17 @@ export const LoyaltyScoreRowsCommandbar = () => {
 };
 
 export const LoyaltyScoreRowsDelete = () => {
+  const { t } = useTranslation('loyalty');
   const { table } = RecordTable.useRecordTable();
   const { confirm } = useConfirm();
   const { removeScore, loading } = useDeleteScore();
 
   const handleDelete = () => {
     confirm({
-      message: 'Are you sure you want to delete these loyalty score rows?',
+      message: t('delete-score-rows-confirm'),
       options: {
-        okLabel: 'Delete',
-        cancelLabel: 'Cancel',
+        okLabel: t('delete'),
+        cancelLabel: t('cancel'),
       },
     }).then(() => {
       const loyaltyScoreRowIds = table
@@ -44,7 +47,7 @@ export const LoyaltyScoreRowsDelete = () => {
         variables: { _ids: loyaltyScoreRowIds },
         onError: (error: Error) => {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: error.message,
             variant: 'destructive',
           });
@@ -52,8 +55,8 @@ export const LoyaltyScoreRowsDelete = () => {
         onCompleted: () => {
           table.setRowSelection({});
           toast({
-            title: 'Success',
-            description: 'Loyalty score rows deleted successfully',
+            title: t('success'),
+            description: t('score-rows-deleted'),
           });
         },
       });
@@ -63,7 +66,7 @@ export const LoyaltyScoreRowsDelete = () => {
   return (
     <Button variant="secondary" disabled={loading} onClick={handleDelete}>
       <IconTrash />
-      Delete
+      {t('delete')}
     </Button>
   );
 };

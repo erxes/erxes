@@ -1,6 +1,7 @@
 import { Button, Form, Input, Sheet } from 'erxes-ui';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { addPipelineRemainderConfigSchema } from '../constants/addPipelineRemainderConfigSchema';
 import { AddPipelineRemainderConfig } from '../types';
@@ -22,6 +23,7 @@ export const PipelineRemainderConfigEditSheet = ({
   onSubmit,
   loading,
 }: Props) => {
+  const { t } = useTranslation('mongolian');
   const form = useForm<AddPipelineRemainderConfig>({
     resolver: zodResolver(addPipelineRemainderConfigSchema),
     defaultValues: {
@@ -54,7 +56,7 @@ export const PipelineRemainderConfigEditSheet = ({
     <Sheet open={open} onOpenChange={onOpenChange} modal>
       <Sheet.View className="sm:max-w-2xl">
         <Sheet.Header>
-          <Sheet.Title>Edit Pipeline Remainder Config</Sheet.Title>
+          <Sheet.Title>{t('edit-pipeline-remainder-config')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="flex flex-col overflow-hidden p-0">
@@ -71,9 +73,9 @@ export const PipelineRemainderConfigEditSheet = ({
                       control={form.control}
                       render={({ field }) => (
                         <Form.Item>
-                          <Form.Label>Title</Form.Label>
+                          <Form.Label>{t('title')}</Form.Label>
                           <Form.Control>
-                            <Input {...field} placeholder="Title" />
+                            <Input {...field} placeholder={t('title')} />
                           </Form.Control>
                           <Form.Message />
                         </Form.Item>
@@ -84,9 +86,9 @@ export const PipelineRemainderConfigEditSheet = ({
                       control={form.control}
                       render={({ field }) => (
                         <Form.Item>
-                          <Form.Label>Account</Form.Label>
+                          <Form.Label>{t('account')}</Form.Label>
                           <Form.Control>
-                            <Input {...field} placeholder="Account" />
+                            <Input {...field} placeholder={t('account')} />
                           </Form.Control>
                           <Form.Message />
                         </Form.Item>
@@ -97,9 +99,9 @@ export const PipelineRemainderConfigEditSheet = ({
                       control={form.control}
                       render={({ field }) => (
                         <Form.Item>
-                          <Form.Label>Location</Form.Label>
+                          <Form.Label>{t('location')}</Form.Label>
                           <Form.Control>
-                            <Input {...field} placeholder="Location" />
+                            <Input {...field} placeholder={t('location')} />
                           </Form.Control>
                           <Form.Message />
                         </Form.Item>
@@ -113,10 +115,10 @@ export const PipelineRemainderConfigEditSheet = ({
               </div>
               <div className="flex justify-end gap-2 p-5 border-t">
                 <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-                  Cancel
+                  {t('cancel')}
                 </Button>
                 <Button type="submit" disabled={loading}>
-                  {loading ? 'Saving...' : 'Save'}
+                  {loading ? t('saving') : t('save')}
                 </Button>
               </div>
             </form>

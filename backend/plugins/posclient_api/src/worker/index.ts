@@ -3,34 +3,34 @@ import { createMQWorkerWithListeners } from 'erxes-api-shared/utils';
 import { mainScheduler, runner } from '~/worker/hourlyRunner';
 
 export const initMQWorkers = async (redis: any) => {
-  const myQueue = new Queue('posclient-synch-remainder', {
+  const myQueue = new Queue('posclient-sync-remainder', {
     connection: redis,
   });
 
   await myQueue.upsertJobScheduler(
-    'posclient-hourly-synch-remainder',
+    'posclient-hourly-sync-remainder',
     {
       pattern: '0 * * * *',
       tz: 'UTC',
     },
     {
-      name: 'posclient-synch-remainder',
+      name: 'posclient-sync-remainder',
     },
   );
 
   createMQWorkerWithListeners(
     'posclient',
-    'synch-remainder',
+    'sync-remainder',
     runner,
     redis,
     () => {
-      console.log('Worker for queue posclient-synch-remainder is ready');
+      console.log('Worker for queue posclient-sync-remainder is ready');
     },
   );
 
   createMQWorkerWithListeners(
     'posclient',
-    'hourly-synch-remainder',
+    'hourly-sync-remainder',
     mainScheduler,
     redis,
     () => {

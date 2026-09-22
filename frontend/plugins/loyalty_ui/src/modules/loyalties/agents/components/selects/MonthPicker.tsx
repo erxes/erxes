@@ -1,21 +1,22 @@
 import { useState } from 'react';
 import { Combobox, Popover } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
 import dayjs from 'dayjs';
 
 const MONTHS = [
-  'Jan',
-  'Feb',
-  'Mar',
-  'Apr',
-  'May',
-  'Jun',
-  'Jul',
-  'Aug',
-  'Sep',
-  'Oct',
-  'Nov',
-  'Dec',
+  'jan',
+  'feb',
+  'mar',
+  'apr',
+  'may',
+  'jun',
+  'jul',
+  'aug',
+  'sep',
+  'oct',
+  'nov',
+  'dec',
 ];
 
 interface MonthPickerProps {
@@ -27,8 +28,9 @@ interface MonthPickerProps {
 export const MonthPicker = ({
   value,
   onChange,
-  placeholder = 'Pick a month',
+  placeholder,
 }: MonthPickerProps) => {
+  const { t } = useTranslation('loyalty');
   const [open, setOpen] = useState(false);
   const [year, setYear] = useState(() =>
     value ? dayjs(value).year() : dayjs().year(),
@@ -39,7 +41,7 @@ export const MonthPicker = ({
     setOpen(false);
   };
 
-  const label = value ? dayjs(value).format('MMM YYYY') : placeholder;
+  const label = value ? dayjs(value).format('MMM YYYY') : (placeholder || t('pick-a-month'));
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -85,7 +87,7 @@ export const MonthPicker = ({
                     : ''
                 }`}
               >
-                {month}
+                {t(month)}
               </button>
             );
           })}

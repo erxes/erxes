@@ -16,14 +16,14 @@ interface SourceOption {
 
 export function getSourceFilter(value: string): SourceOption {
   const sourceMap: Record<SourceType, Omit<SourceOption, 'value'>> = {
-    all: { label: 'All Sources' },
-    'facebook-messenger': { label: 'Facebook Messenger' },
-    'facebook-post': { label: 'Facebook Post' },
-    'instagram-messenger': { label: 'Instagram Messenger' },
-    'instagram-post': { label: 'Instagram Post' },
-    form: { label: 'Form' },
-    messenger: { label: 'Messenger' },
-    calls: { label: 'Calls' },
+    all: { label: 'all-sources' },
+    'facebook-messenger': { label: 'facebook-messenger' },
+    'facebook-post': { label: 'facebook-post' },
+    'instagram-messenger': { label: 'instagram-messenger' },
+    'instagram-post': { label: 'instagram-post' },
+    form: { label: 'form' },
+    messenger: { label: 'messenger' },
+    calls: { label: 'calls' },
   };
 
   const normalizedValue = value.toLowerCase() as SourceType;

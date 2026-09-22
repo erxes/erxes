@@ -1,10 +1,11 @@
-import { redis, startPlugin } from 'erxes-api-shared/utils';
+import { redis, sendTRPCMessage, startPlugin } from 'erxes-api-shared/utils';
 import { appRouter } from '~/trpc/init-trpc';
 import { initMQWorkers } from '~/worker';
 
 import { generateModels } from './connectionResolvers';
 import { typeDefs } from './apollo/typeDefs';
 import resolvers from './apollo/resolvers';
+import { afterProcess } from '~/meta/afterProcess';
 
 startPlugin({
   name: 'tourism',
@@ -13,10 +14,46 @@ startPlugin({
     typeDefs: await typeDefs(),
     resolvers: resolvers,
   }),
+  meta: {
+    afterProcess,
+  },
   apolloServerContext: async (subdomain, context) => {
     const models = await generateModels(subdomain, context);
 
     context.models = models;
+
+    const fields = await sendTRPCMessage({
+      subdomain,
+      method: 'query',
+      pluginName: 'core',
+      module: 'propertyFields',
+      action: 'find',
+      input: {
+        query: { _id: 'status' },
+      },
+      defaultValue: [],
+    });
+
+    if (fields.length === 0) {
+      await sendTRPCMessage({
+        subdomain,
+        method: 'mutation',
+        pluginName: 'core',
+        module: 'propertyFields',
+        action: 'create',
+        input: {
+          data: {
+            _id: 'status',
+            code: 'status',
+            name: 'Status',
+            icon: 'IconArrowBackUp',
+            type: 'text',
+            groupId: 'oBJkzKucFS9D8uXand7Fy',
+            contentType: 'core:customer',
+          },
+        },
+      });
+    }
 
     return context;
   },

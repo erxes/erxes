@@ -1,8 +1,10 @@
+import { useTranslation } from 'react-i18next';
 import { Combobox, Command, Filter } from 'erxes-ui';
 import { ITINERARIES_CURSOR_SESSION_KEY } from '../constants/itineraryCursorSessionKey';
 import { ItineraryTotalCount } from './ItineraryTotalCount';
 
 const ItineraryFilterPopover = () => {
+  const { t } = useTranslation('tourism');
   return (
     <>
       <Filter.Popover>
@@ -10,7 +12,7 @@ const ItineraryFilterPopover = () => {
         <Combobox.Content>
           <Filter.View>
             <Command>
-              <Filter.CommandInput placeholder="Filter" variant="secondary" />
+              <Filter.CommandInput placeholder={t('filter')} variant="secondary" />
               <Command.List className="p-1">
                 <Filter.SearchValueTrigger />
               </Command.List>

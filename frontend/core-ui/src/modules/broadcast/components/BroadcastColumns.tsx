@@ -36,13 +36,9 @@ export const broadcastColumns: ColumnDef<any>[] = [
     cell: ({ cell }) => {
       const [_, setMessageId] = useQueryState('messageId');
 
-      const { _id, method } = cell.row.original || {};
+      const { _id } = cell.row.original || {};
 
       const handleClick = () => {
-        if (method !== 'email') {
-          return;
-        }
-
         setMessageId(_id);
       };
 
@@ -215,18 +211,25 @@ export const broadcastColumns: ColumnDef<any>[] = [
     },
   },
   {
-    id: 'fromUserId',
-    accessorKey: 'fromUserId',
+    id: 'from',
+    accessorKey: 'fromEmail',
     header: () => (
       <RecordTable.InlineHead label="From" icon={IconLabelFilled} />
     ),
     cell: ({ cell }) => {
+      const fromEmail = cell.getValue() as string | undefined;
+      const { fromUserId } = cell.row.original as { fromUserId?: string };
+
       return (
         <RecordTableInlineCell>
-          <MembersInline
-            memberIds={[cell.getValue() as string]}
-            placeholder="No Member"
-          />
+          {fromEmail ? (
+            fromEmail
+          ) : (
+            <MembersInline
+              memberIds={[fromUserId as string]}
+              placeholder="No Member"
+            />
+          )}
         </RecordTableInlineCell>
       );
     },

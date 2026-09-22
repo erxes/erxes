@@ -48,6 +48,7 @@ interface GroupedTourColumnsProps {
 
 export const GroupedTourColumns = (
   props?: GroupedTourColumnsProps,
+  t: (key: string) => string = (k) => k,
 ): ColumnDef<TourGroupRow>[] => [
   {
     id: 'checkbox',
@@ -97,7 +98,7 @@ export const GroupedTourColumns = (
   {
     id: 'name',
     accessorKey: 'name',
-    header: () => <RecordTable.InlineHead icon={IconLabel} label="Name" />,
+    header: () => <RecordTable.InlineHead icon={IconLabel} label={t('name')} />,
     cell: ({ cell, row }) => {
       const value = cell.getValue() as string;
 
@@ -133,7 +134,7 @@ export const GroupedTourColumns = (
   {
     id: 'refNumber',
     accessorKey: 'refNumber',
-    header: () => <RecordTable.InlineHead icon={IconHash} label="Ref" />,
+    header: () => <RecordTable.InlineHead icon={IconHash} label={t('ref')} />,
     cell: ({ cell, row }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip
@@ -148,7 +149,7 @@ export const GroupedTourColumns = (
   {
     id: 'date',
     accessorKey: 'dateRangeLabel',
-    header: () => <RecordTable.InlineHead icon={IconCalendar} label="Date" />,
+    header: () => <RecordTable.InlineHead icon={IconCalendar} label={t('date')} />,
     cell: ({ row }) => {
       if (row.original.isGroup) {
         return (
@@ -179,7 +180,7 @@ export const GroupedTourColumns = (
   {
     id: 'status',
     accessorKey: 'statusLabel',
-    header: () => <RecordTable.InlineHead icon={IconUsers} label="Status" />,
+    header: () => <RecordTable.InlineHead icon={IconUsers} label={t('status')} />,
     cell: ({ row }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip

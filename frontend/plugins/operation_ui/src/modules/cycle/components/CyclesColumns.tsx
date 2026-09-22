@@ -1,4 +1,5 @@
 /* eslint-disable react-hooks/rules-of-hooks */
+import { useTranslation } from 'react-i18next';
 import { CycleStatusDisplay } from '@/cycle/components/CycleStatusDisplay';
 import { DateSelect } from '@/cycle/components/DateSelect';
 import { CycleHotKeyScope } from '@/cycle/CycleHotkeyScope';
@@ -43,9 +44,10 @@ export const cyclesColumns: ColumnDef<ICycle>[] = [
   {
     id: 'name',
     accessorKey: 'name',
-    header: () => (
-      <RecordTable.InlineHead label="Name" icon={IconLabelFilled} />
-    ),
+    header: () => {
+      const { t } = useTranslation('operation');
+      return <RecordTable.InlineHead label={t('name')} icon={IconLabelFilled} />;
+    },
     cell: ({ cell }) => {
       const name = cell.getValue() as string;
       const [value, setValue] = useState(name);
@@ -108,9 +110,10 @@ export const cyclesColumns: ColumnDef<ICycle>[] = [
   {
     id: 'donePercent',
     accessorKey: 'donePercent',
-    header: () => (
-      <RecordTable.InlineHead label="Progress" icon={IconProgress} />
-    ),
+    header: () => {
+      const { t } = useTranslation('operation');
+      return <RecordTable.InlineHead label={t('progress')} icon={IconProgress} />;
+    },
     cell: ({ cell }) => {
       const { donePercent } = cell.row.original;
       return (
@@ -155,9 +158,10 @@ export const cyclesColumns: ColumnDef<ICycle>[] = [
   {
     id: 'status',
     accessorKey: 'status',
-    header: () => (
-      <RecordTable.InlineHead label="Status" icon={IconProgressCheck} />
-    ),
+    header: () => {
+      const { t } = useTranslation('operation');
+      return <RecordTable.InlineHead label={t('status')} icon={IconProgressCheck} />;
+    },
     cell: ({ cell }) => {
       const { isActive, isCompleted } = cell.row.original;
       return (
@@ -171,9 +175,10 @@ export const cyclesColumns: ColumnDef<ICycle>[] = [
   {
     id: 'startDate',
     accessorKey: 'startDate',
-    header: () => (
-      <RecordTable.InlineHead label="Start Date" icon={IconCalendarFilled} />
-    ),
+    header: () => {
+      const { t } = useTranslation('operation');
+      return <RecordTable.InlineHead label={t('start-date')} icon={IconCalendarFilled} />;
+    },
     cell: ({ cell }) => {
       const startDate = cell.getValue() as string;
       return (
@@ -189,9 +194,10 @@ export const cyclesColumns: ColumnDef<ICycle>[] = [
   {
     id: 'endDate',
     accessorKey: 'endDate',
-    header: () => (
-      <RecordTable.InlineHead label="End Date" icon={IconCalendarFilled} />
-    ),
+    header: () => {
+      const { t } = useTranslation('operation');
+      return <RecordTable.InlineHead label={t('end-date')} icon={IconCalendarFilled} />;
+    },
     cell: ({ cell }) => {
       const { endDate, startDate } = cell.row.original;
       return (

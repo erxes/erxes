@@ -16,6 +16,7 @@ import {
 import { Payment, usePayments } from '@/pms/hooks/usePayments';
 import React, { useState } from 'react';
 import { useDebounce } from 'use-debounce';
+import { useTranslation } from 'react-i18next';
 
 const SelectPaymentProvider = ({
   children,
@@ -96,6 +97,7 @@ const PaymentInline = ({
   placeholder?: string;
   updatePayments?: (payments: Payment[]) => void;
 }) => {
+  const { t } = useTranslation('tourism');
   const { payments: fetchedPayments, loading } = usePayments({
     status: 'active',
   });
@@ -126,13 +128,13 @@ const PaymentInline = ({
   }, [paymentIds, fetchedPayments, payments, updatePayments]);
 
   if (loading && paymentIds?.length && !payments?.length) {
-    return <span className="text-sm text-muted-foreground">Loading...</span>;
+    return <span className="text-sm text-muted-foreground">{t('loading')}</span>;
   }
 
   if (!payments?.length) {
     return (
       <span className="text-sm text-muted-foreground">
-        {placeholder || 'Select payment'}
+        {placeholder || t('select-payment')}
       </span>
     );
   }
@@ -187,6 +189,7 @@ const SelectPaymentCommandItem = ({ payment }: { payment: Payment }) => {
 };
 
 const SelectPaymentContent = () => {
+  const { t } = useTranslation('tourism');
   const [search, setSearch] = useState('');
   const [debouncedSearch] = useDebounce(search, 300);
   const { paymentIds, payments: selectedPayments } = useSelectPaymentContext();
@@ -207,7 +210,7 @@ const SelectPaymentContent = () => {
         variant="secondary"
         wrapperClassName="flex-auto"
         focusOnMount
-        placeholder="Search payments..."
+        placeholder={t('search-payments')}
       />
       <Command.List className="max-h-[300px] overflow-y-auto">
         <Combobox.Empty loading={loading} error={error} />
@@ -327,6 +330,7 @@ export const SelectPaymentDetail = ({
   className?: string;
   placeholder?: string;
 }) => {
+  const { t } = useTranslation('tourism');
   const [open, setOpen] = useState(false);
   const { loading } = usePayments({ status: 'active' });
   return (
@@ -347,7 +351,7 @@ export const SelectPaymentDetail = ({
             </Button>
           ) : (
             <Combobox.TriggerBase className="font-medium">
-              Add Payment <IconPlus />
+              {t('add-payment')} <IconPlus />
             </Combobox.TriggerBase>
           )}
         </Popover.Trigger>

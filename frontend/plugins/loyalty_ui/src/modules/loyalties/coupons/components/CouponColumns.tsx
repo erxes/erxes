@@ -14,15 +14,19 @@ import {
   RelativeDateDisplay,
   useToast,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { ICoupon } from '../types/coupon';
+import { couponMoreColumn } from './CouponMoreColumn';
+import { TFunction } from 'i18next';
 
 const CodeCell = ({ code }: { code?: string }) => {
   const { toast } = useToast();
+  const { t } = useTranslation('loyalty');
 
   const handleCopy = () => {
     if (!code) return;
     navigator.clipboard.writeText(code);
-    toast({ title: 'Copied!', description: code, variant: 'default' });
+    toast({ title: t('copied'), description: code, variant: 'default' });
   };
 
   return (
@@ -60,11 +64,16 @@ const statusVariant = (status?: string) => {
   return 'secondary';
 };
 
-export const couponColumns: ColumnDef<ICoupon>[] = [
+export const couponColumns = (
+  t: TFunction<'loyalty'>,
+): ColumnDef<ICoupon>[] => [
+  couponMoreColumn,
   {
     id: 'campaignId',
     accessorKey: 'campaign',
-    header: () => <RecordTable.InlineHead icon={IconTag} label="Campaign" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconTag} label={t('campaign')} />
+    ),
     size: 160,
     cell: ({ row }) => (
       <RecordTableInlineCell className="text-xs text-muted-foreground">
@@ -75,14 +84,16 @@ export const couponColumns: ColumnDef<ICoupon>[] = [
   {
     id: 'code',
     accessorKey: 'code',
-    header: () => <RecordTable.InlineHead icon={IconHash} label="Code" />,
+    header: () => <RecordTable.InlineHead icon={IconHash} label={t('code')} />,
     size: 140,
     cell: ({ row }) => <CodeCell code={row.original.code} />,
   },
   {
     id: 'usageCount',
     accessorKey: 'usageCount',
-    header: () => <RecordTable.InlineHead icon={IconChartBar} label="Usage" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconChartBar} label={t('usage')} />
+    ),
     size: 90,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
@@ -93,7 +104,7 @@ export const couponColumns: ColumnDef<ICoupon>[] = [
   {
     id: 'usageLimit',
     accessorKey: 'usageLimit',
-    header: () => <RecordTable.InlineHead icon={IconLock} label="Limit" />,
+    header: () => <RecordTable.InlineHead icon={IconLock} label={t('limit')} />,
     size: 90,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
@@ -105,7 +116,7 @@ export const couponColumns: ColumnDef<ICoupon>[] = [
     id: 'status',
     accessorKey: 'status',
     header: () => (
-      <RecordTable.InlineHead icon={IconToggleLeft} label="Status" />
+      <RecordTable.InlineHead icon={IconToggleLeft} label={t('status')} />
     ),
     size: 100,
     cell: ({ cell }) => {
@@ -123,7 +134,7 @@ export const couponColumns: ColumnDef<ICoupon>[] = [
     id: 'createdAt',
     accessorKey: 'createdAt',
     header: () => (
-      <RecordTable.InlineHead icon={IconCalendar} label="Created At" />
+      <RecordTable.InlineHead icon={IconCalendar} label={t('created-at')} />
     ),
     size: 150,
     cell: ({ cell }) => (

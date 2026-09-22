@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   IconArrowsRight,
   IconCalendar,
@@ -30,6 +31,7 @@ import {
 import { SelectOwner } from '~/modules/loyalties/components/SelectOwner';
 
 const ScoreFilterPopover = () => {
+  const { t } = useTranslation('loyalty');
   const [scoreBoardId] = useFilterQueryState<string>('scoreBoardId');
   const [scorePipelineId] = useFilterQueryState<string>('scorePipelineId');
   const [, setPipelineId] = useQueryState<string>('scorePipelineId');
@@ -72,7 +74,7 @@ const ScoreFilterPopover = () => {
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder="Filter"
+                placeholder={t('filter')}
                 variant="secondary"
                 className="bg-background"
               />
@@ -83,28 +85,28 @@ const ScoreFilterPopover = () => {
                 <SelectScoreAction.FilterItem />
                 <Filter.Item value="scoreBoardId">
                   <IconLabel />
-                  Board
+                  {t('board')}
                 </Filter.Item>
                 <Filter.Item value="scorePipelineId">
                   <IconArrowsRight />
-                  Pipeline
+                  {t('pipeline')}
                 </Filter.Item>
                 <Filter.Item value="scoreStageId">
                   <IconListCheck />
-                  Stage
+                  {t('stage')}
                 </Filter.Item>
                 <Filter.Item value="number" inDialog>
                   <IconSearch />
-                  Number
+                  {t('number')}
                 </Filter.Item>
                 <Filter.Item value="description" inDialog>
                   <IconFileDescription />
-                  Description
+                  {t('description')}
                 </Filter.Item>
                 <SelectScoreActionTypeFilterItem />
                 <Filter.Item value="scoreDate">
                   <IconCalendar />
-                  Date
+                  {t('date')}
                 </Filter.Item>
               </Command.List>
             </Command>
@@ -165,6 +167,7 @@ const ScoreFilterPopover = () => {
 };
 
 export const ScoreFilter = () => {
+  const { t } = useTranslation('loyalty');
   const { sessionKey } = useScoreLeadSessionKey();
   const [number] = useFilterQueryState<string>('number');
   const [description] = useFilterQueryState<string>('description');
@@ -192,7 +195,7 @@ export const ScoreFilter = () => {
         <Filter.BarItem queryKey="number">
           <Filter.BarName>
             <IconSearch />
-            Number
+            {t('number')}
           </Filter.BarName>
           <Filter.BarButton filterKey="number" inDialog>
             {number}
@@ -201,7 +204,7 @@ export const ScoreFilter = () => {
         <Filter.BarItem queryKey="description">
           <Filter.BarName>
             <IconFileDescription />
-            Description
+            {t('description')}
           </Filter.BarName>
           <Filter.BarButton filterKey="description" inDialog>
             {description}
@@ -212,7 +215,7 @@ export const ScoreFilter = () => {
         <Filter.BarItem queryKey="scoreDate">
           <Filter.BarName>
             <IconCalendar />
-            Date
+            {t('date')}
           </Filter.BarName>
           <Filter.Date filterKey="scoreDate" />
         </Filter.BarItem>

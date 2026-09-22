@@ -16,11 +16,12 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import { IconArrowsExchange } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
 const ACTION_OPTIONS = [
-  { value: 'add', label: 'Add' },
-  { value: 'subtract', label: 'Subtract' },
-  { value: 'hasDescription', label: 'Has A description' },
+  { value: 'add', label: 'add' },
+  { value: 'subtract', label: 'subtract' },
+  { value: 'hasDescription', label: 'has-a-description' },
 ];
 
 interface SelectScoreActionTypeContextType {
@@ -76,32 +77,34 @@ const SelectScoreActionTypeValue = ({
   placeholder?: string;
   className?: string;
 }) => {
+  const { t } = useTranslation('loyalty');
   const { value } = useSelectScoreActionTypeContext();
   const selected = ACTION_OPTIONS.find((o) => o.value === value);
 
   if (!selected) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select action'}
+        {placeholder || t('select-action')}
       </span>
     );
   }
 
   return (
     <div className="flex items-center gap-2">
-      <p className={cn('font-medium text-sm', className)}>{selected.label}</p>
+      <p className={cn('font-medium text-sm', className)}>{t(selected.label)}</p>
     </div>
   );
 };
 
 const SelectScoreActionTypeContent = () => {
+  const { t } = useTranslation('loyalty');
   const { value, onValueChange } = useSelectScoreActionTypeContext();
 
   return (
     <Command>
-      <Command.Input placeholder="Search action..." />
+      <Command.Input placeholder={t('search-action')} />
       <Command.Empty>
-        <span className="text-muted-foreground">No action found</span>
+        <span className="text-muted-foreground">{t('no-action-found')}</span>
       </Command.Empty>
       <Command.List>
         {ACTION_OPTIONS.map((opt) => (
@@ -110,7 +113,7 @@ const SelectScoreActionTypeContent = () => {
             value={opt.value}
             onSelect={() => onValueChange(opt.value)}
           >
-            <span className="font-medium">{opt.label}</span>
+            <span className="font-medium">{t(opt.label)}</span>
             <Combobox.Check checked={value === opt.value} />
           </Command.Item>
         ))}
@@ -119,12 +122,15 @@ const SelectScoreActionTypeContent = () => {
   );
 };
 
-export const SelectScoreActionTypeFilterItem = () => (
-  <Filter.Item value="scoreAction">
-    <IconArrowsExchange />
-    Action
-  </Filter.Item>
-);
+export const SelectScoreActionTypeFilterItem = () => {
+  const { t } = useTranslation('loyalty');
+  return (
+    <Filter.Item value="scoreAction">
+      <IconArrowsExchange />
+      {t('action')}
+    </Filter.Item>
+  );
+};
 
 export const SelectScoreActionTypeFilterView = ({
   queryKey = 'scoreAction',
@@ -150,6 +156,7 @@ export const SelectScoreActionTypeFilterView = ({
 };
 
 export const SelectScoreActionTypeFilterBar = () => {
+  const { t } = useTranslation('loyalty');
   const [value, setValue] = useQueryState<string>('scoreAction');
   const [open, setOpen] = useState(false);
 
@@ -157,7 +164,7 @@ export const SelectScoreActionTypeFilterBar = () => {
     <Filter.BarItem queryKey="scoreAction">
       <Filter.BarName>
         <IconArrowsExchange />
-        Action
+        {t('action')}
       </Filter.BarName>
       <SelectScoreActionTypeProvider
         value={value || ''}

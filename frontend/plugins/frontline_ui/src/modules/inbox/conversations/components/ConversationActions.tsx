@@ -8,17 +8,17 @@ import { selectConversationsState } from '@/inbox/conversations/states/selectCon
 import { FilterConversationsPopover } from '@/inbox/conversations/components/ConversationsFilter';
 import { ConversationTag } from './ConversationTag';
 import { ConversationDisplay } from './ConversationDisplay';
-import { ConversationRefetch } from './ConversationRefetch';
 import { ResolveAll } from './ResolveAll';
+import { ConversationRefetch } from '@/inbox/conversations/components/ConversationRefetch';
 
 export const ConversationActions = () => {
   return (
     <>
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-1 flex-none">
         <ConversationSelectAll />
-        <ConversationRefetch />
         <FilterConversationsPopover />
         <ConversationDisplay />
+        <ConversationRefetch />
       </div>
       <ConversationsCommandBar />
     </>

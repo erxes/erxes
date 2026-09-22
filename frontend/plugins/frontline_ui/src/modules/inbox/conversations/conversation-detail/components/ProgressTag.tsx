@@ -2,6 +2,7 @@ import { useGetConversationTagProgress } from '@/inbox/conversations/conversatio
 import { Button, HoverCard } from 'erxes-ui';
 import { SelectTags } from 'ui-modules';
 import { PolarAngleAxis, RadialBar, RadialBarChart } from 'recharts';
+import { useTranslation } from 'react-i18next';
 
 const ALL_STATUSES = ['new', 'open', 'closed', 'resolved'] as const;
 type Status = (typeof ALL_STATUSES)[number];
@@ -11,6 +12,7 @@ interface TagStats {
 }
 
 export const ProgressTags = ({ customerId }: { customerId?: string }) => {
+  const { t } = useTranslation('frontline');
   const { conversationTagProgress } = useGetConversationTagProgress({
     variables: { customerId },
     skip: !customerId,
@@ -49,7 +51,7 @@ export const ProgressTags = ({ customerId }: { customerId?: string }) => {
   if (Object.keys(tagsStats).length === 0) {
     return (
       <div className="p-4 text-sm text-muted-foreground">
-        No tag data available
+        {t('no-tag-data', 'No tag data available')}
       </div>
     );
   }
@@ -125,25 +127,28 @@ interface StatusDetailsProps {
   percentage: number;
 }
 
-const StatusDetails = ({ statuses, total, percentage }: StatusDetailsProps) => (
-  <div className="space-y-3">
-    {Object.entries(statuses).map(([status, count]) => (
-      <div key={status} className="flex justify-between text-sm">
-        <span className="text-muted-foreground capitalize">{status}</span>
-        <span className="font-medium">{count}</span>
+const StatusDetails = ({ statuses, total, percentage }: StatusDetailsProps) => {
+  const { t } = useTranslation('frontline');
+  return (
+    <div className="space-y-3">
+      {Object.entries(statuses).map(([status, count]) => (
+        <div key={status} className="flex justify-between text-sm">
+          <span className="text-muted-foreground capitalize">{status}</span>
+          <span className="font-medium">{count}</span>
+        </div>
+      ))}
+      <div className="flex justify-between text-sm font-medium border-t pt-2">
+        <span>{t('total', 'Total')}</span>
+        <span>{total}</span>
       </div>
-    ))}
-    <div className="flex justify-between text-sm font-medium border-t pt-2">
-      <span>Total</span>
-      <span>{total}</span>
-    </div>
-    <div className="pt-2">
-      <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
-        <div
-          className="h-full bg-primary rounded-full transition-all duration-500"
-          style={{ width: `${percentage}%` }}
-        />
+      <div className="pt-2">
+        <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
+          <div
+            className="h-full bg-primary rounded-full transition-all duration-500"
+            style={{ width: `${percentage}%` }}
+          />
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
+};

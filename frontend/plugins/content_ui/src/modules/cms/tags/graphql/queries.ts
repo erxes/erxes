@@ -29,6 +29,7 @@ export const CMS_TAGS = gql`
       aggregationPipeline: $aggregationPipeline
       sortDirection: $sortDirection
     ) {
+      totalCount
       tags {
         _id
         colorCode

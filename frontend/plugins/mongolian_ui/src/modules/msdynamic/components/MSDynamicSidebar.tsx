@@ -1,5 +1,6 @@
 import { Sidebar } from 'erxes-ui';
 import { Link, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { MSDYNAMIC_ROUTES } from './MSDynamicRoutes';
 
 const resetRecordTableSession = (sessionKey: string) => {
@@ -8,6 +9,7 @@ const resetRecordTableSession = (sessionKey: string) => {
 };
 
 export const MSDynamicSidebar = () => {
+  const { t } = useTranslation('mongolian');
   const { pathname } = useLocation();
 
   return (
@@ -26,7 +28,7 @@ export const MSDynamicSidebar = () => {
                     isActive={pathname === path}
                     onClick={() => resetRecordTableSession(route.sessionKey)}
                   >
-                    <Link to={path}>{route.label}</Link>
+                    <Link to={path}>{t(route.label)}</Link>
                   </Sidebar.MenuButton>
                 </Sidebar.MenuItem>
               );

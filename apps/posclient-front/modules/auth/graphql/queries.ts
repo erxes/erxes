@@ -29,7 +29,6 @@ const currentConfig = gql`
       token
       waitingScreen
       kitchenScreen
-      erxesAppToken
       orderPassword
       uiOptions {
         colors
@@ -53,12 +52,15 @@ const currentConfig = gql`
         companyName
         ebarimtUrl
         companyRD
+        headerText
         footerText
         hasCopy
         hasSumQty
         isCleanTaxPrice
       }
       saveRemainder
+      serviceCharge
+      serviceChargeApplicableProductId
     }
   }
 `

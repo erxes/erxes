@@ -1,6 +1,7 @@
 import { IconPlus } from '@tabler/icons-react';
 import { Button, Kbd, PageContainer } from 'erxes-ui';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { CmsSidebar } from '../shared/CmsSidebar';
 import { CmsCategoryDrawer } from './CmsCategoryDrawer';
@@ -10,6 +11,7 @@ import { useRemoveCategories } from './hooks/useRemoveCategories';
 import { ICategory } from './types';
 
 export function Categories() {
+  const { t } = useTranslation('content');
   const { websiteId } = useParams();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<
@@ -44,7 +46,7 @@ export function Categories() {
     <div>
       <Button onClick={handleAddCategory}>
         <IconPlus />
-        Add Categories
+        {t('add-categories')}
         <Kbd>C</Kbd>
       </Button>
     </div>

@@ -8,6 +8,7 @@ import {
 export const GET_CONVERSATIONS = gql`
   query Conversations(
     $channelId: String
+    $integrationId: String
     $status: String
     $unassigned: String
     $tag: String
@@ -17,13 +18,19 @@ export const GET_CONVERSATIONS = gql`
     $endDate: String
     $segment: String
     $awaitingResponse: String
+    $withSurvey: String
+    $automationStatus: String
     $participating: String
+    $mentioned: String
+    $unread: String
     $customerId: String
     $brandId: String
+    $searchValue: String
     ${GQL_CURSOR_PARAM_DEFS}
   ) {
     conversations(
       channelId: $channelId
+      integrationId: $integrationId
       status: $status
       unassigned: $unassigned
       tag: $tag
@@ -33,9 +40,14 @@ export const GET_CONVERSATIONS = gql`
       endDate: $endDate
       segment: $segment
       awaitingResponse: $awaitingResponse
+      withSurvey: $withSurvey
+      automationStatus: $automationStatus
       participating: $participating
+      mentioned: $mentioned
+      unread: $unread
       customerId: $customerId
       brandId: $brandId
+      searchValue: $searchValue
       ${GQL_CURSOR_PARAMS}
     ) {
       list {

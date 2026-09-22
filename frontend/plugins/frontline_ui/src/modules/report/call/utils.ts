@@ -1,22 +1,27 @@
 import { formatSeconds } from '@/integrations/call/utils/callUtils';
 import type { SelectOption } from './types';
 
-/** Format a number to fixed decimals (defaults 1). */
 export const fmt = (n: number | null | undefined, decimals = 1): string =>
   (n ?? 0).toFixed(decimals);
 
-/** Format a number as a percentage string, e.g. "83.5%". */
 export const fmtPct = (n: number | null | undefined): string => `${fmt(n)}%`;
 
-/** Format a seconds value as a human-readable duration. */
 export const fmtDur = (n: number | null | undefined): string =>
   formatSeconds(Math.round(n ?? 0));
 
-/** Format a number with locale thousands separators. */
 export const fmtNum = (n: number | null | undefined): string =>
   (n ?? 0).toLocaleString();
 
-/** Days-of-week labels indexed 1–7 (Mon–Sun, matching $isoDayOfWeek). */
+export const NO_DATA = '—';
+
+export const NO_QUEUE = '__no_queue__';
+
+export const fmtPctOrDash = (n: number | null | undefined): string =>
+  n == null ? NO_DATA : fmtPct(n);
+
+export const fmtDurOrDash = (n: number | null | undefined): string =>
+  n == null ? NO_DATA : fmtDur(n);
+
 export const DOW_LABELS: string[] = [
   '',
   'Mon',
@@ -28,10 +33,6 @@ export const DOW_LABELS: string[] = [
   'Sun',
 ];
 
-/**
- * Carrier colour CSS custom properties in insertion order.
- * Use `var(--carrier-mobicom)` etc. directly in components.
- */
 export const CARRIER_CSS_VARS: string[] = [
   'var(--carrier-mobicom)',
   'var(--carrier-unitel)',
@@ -43,41 +44,47 @@ export const CARRIER_CSS_VARS: string[] = [
   'var(--chart-3)',
 ];
 
-/**
- * Detect carrier from phone-number prefix (first 2 digits).
- * Returns the carrier name string.
- */
+const CARRIER_BY_PREFIX: Record<string, string> = {
+  '85': 'Mobicom',
+  '94': 'Mobicom',
+  '95': 'Mobicom',
+  '99': 'Mobicom',
+  '80': 'Unitel',
+  '86': 'Unitel',
+  '88': 'Unitel',
+  '89': 'Unitel',
+  '90': 'Skytel',
+  '91': 'Skytel',
+  '92': 'Skytel',
+  '96': 'Skytel',
+  '83': 'G-Mobile',
+  '93': 'G-Mobile',
+  '97': 'G-Mobile',
+  '98': 'G-Mobile',
+  '60': 'Ondo',
+  '66': 'Ondo',
+};
+
 export function detectCarrier(phone: string): string {
-  const prefix = phone.replace(/^\+976/, '').slice(0, 2);
-  const map: Record<string, string> = {
-    '99': 'Mobicom',
-    '95': 'Mobicom',
-    '85': 'Mobicom',
-    '89': 'Unitel',
-    '96': 'Unitel',
-    '91': 'Skytel',
-    '94': 'Skytel',
-    '90': 'Skytel',
-    '98': 'G-Mobile',
-    '93': 'G-Mobile',
-    '97': 'Ondo',
-  };
-  return map[prefix] ?? 'Unknown';
+  const digits = phone.replace(/\D/g, '');
+
+  const national =
+    digits.length === 11 && digits.startsWith('976') ? digits.slice(3) : digits;
+
+  if (national.startsWith('696')) return 'Skytel';
+
+  return CARRIER_BY_PREFIX[national.slice(0, 2)] ?? 'Other';
 }
 
-/** Map carrier name → CSS custom property variable string. */
 export const CARRIER_COLOR_VAR: Record<string, string> = {
   Mobicom: 'var(--carrier-mobicom)',
   Unitel: 'var(--carrier-unitel)',
   Skytel: 'var(--carrier-skytel)',
   'G-Mobile': 'var(--carrier-gmobile)',
   Ondo: 'var(--carrier-ondo)',
+  Other: 'var(--muted-foreground)',
 };
 
-/**
- * Normalise a raw queue value (string | object) to a SelectOption.
- * Returns null if the value is empty.
- */
 export function normalizeQueue(
   queue: string | { _id?: string; name?: string; queue?: string },
 ): SelectOption | null {
@@ -87,9 +94,6 @@ export function normalizeQueue(
   return { label: queue.name || String(value), value: String(value) };
 }
 
-/**
- * Collapse duplicate integrations by inboxId, joining phone numbers.
- */
 export function deduplicateIntegrations(
   integrations: Array<{
     inboxId: string;

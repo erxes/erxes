@@ -25,6 +25,10 @@ export function useProductFieldTypes() {
       label: t('similarity-group'),
     },
     {
+      value: ProductsPath.Similarities,
+      label: t('similarities', 'Similarities'),
+    },
+    {
       value: ProductsPath.BundleCondition,
       label: t('bundle-condition'),
     },

@@ -62,6 +62,7 @@ const getBearerToken = (req: Request) => {
   return match?.[1] || '';
 };
 
+// skipcq: JS-R1005 — legacy middleware complexity
 export default async function userMiddleware(
   req: Request & { user?: any; cpUser?: any; clientPortal?: any },
   res: Response,
@@ -134,7 +135,18 @@ export default async function userMiddleware(
   }
 
   const appToken = (req.headers['erxes-app-token'] || '').toString();
-  const subdomain = getSubdomain(req);
+  let subdomain: string;
+
+  try {
+    subdomain = getSubdomain(req);
+  } catch (e: unknown) {
+    debugAuth(req, 'missing-hostname', {
+      error: e instanceof Error ? e.message : 'unknown',
+      durationMs: Date.now() - startedAt,
+    });
+
+    return res.status(400).json({ error: 'Hostname is required' });
+  }
 
   let models: IModels;
   try {
@@ -173,6 +185,20 @@ export default async function userMiddleware(
         { _id: appInDb._id },
         { $set: { lastUsedAt: new Date() } },
       );
+
+      // Forward the app as an authenticated system principal so plugin
+      // resolvers behind login/permission wrappers accept machine calls.
+      // Mirrors the JWT path's setUserHeader below; without this a valid
+      // app token authenticates the request but every wrapped mutation
+      // still fails "Login required".
+      if (!req.user) {
+        req.user = {
+          _id: `app:${appInDb._id}`,
+          username: appInDb.name,
+          isOwner: appInDb.allowAllPermission === true,
+        } as any;
+        setUserHeader(req.headers, req.user);
+      }
     } catch (e) {
       console.error(e);
       debugAuth(req, 'app-token-error', {
@@ -308,7 +334,7 @@ export default async function userMiddleware(
 
     const userDoc = await models.Users.findOne(
       { _id: user._id },
-      '_id email details isOwner groupIds brandIds username code branchIds departmentIds permissionGroupIds',
+      '_id email details isOwner groupIds brandIds username code branchIds departmentIds permissionGroupIds customPermissions',
     ).lean();
 
     if (!userDoc) {

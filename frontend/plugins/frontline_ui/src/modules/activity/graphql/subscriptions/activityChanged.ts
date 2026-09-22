@@ -12,6 +12,14 @@ export const ACTIVITY_CHANGED = gql`
         metadata {
           newValue
           previousValue
+          conversationId
+          ticketId
+          formId
+          formTitle
+          submissions {
+            label
+            value
+          }
         }
         createdBy
         createdAt

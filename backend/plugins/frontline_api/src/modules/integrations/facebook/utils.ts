@@ -5,8 +5,13 @@ import {
 } from '@/integrations/facebook/@types/utils';
 import { generateAttachmentUrl } from '@/integrations/facebook/commonUtils';
 import { debugError, debugFacebook } from '@/integrations/facebook/debuggers';
+import { FacebookSendError } from '@/integrations/facebook/errors';
 import * as AWS from 'aws-sdk';
-import { randomAlphanumeric, sendTRPCMessage } from 'erxes-api-shared/utils';
+import {
+  getEnv,
+  randomAlphanumeric,
+  sendTRPCMessage,
+} from 'erxes-api-shared/utils';
 import * as graph from 'fbgraph';
 import { IModels } from '~/connectionResolvers';
 import { SUBSCRIBED_FIELDS } from './constants';
@@ -14,6 +19,14 @@ import { validateMediaUrl } from './urlValidation';
 
 export const graphRequest = {
   base(method: string, path?: any, accessToken?: any, ...otherParams) {
+    // Load testing has to stop before Meta: pointing this at a local stand-in
+    // exercises the outbox, pacing and breaker without a page paying for it.
+    const graphUrl = getEnv({ name: 'FACEBOOK_GRAPH_URL', defaultValue: '' });
+
+    if (graphUrl) {
+      graph.setGraphUrl(graphUrl);
+    }
+
     // set access token
     graph.setAccessToken(accessToken);
     graph.setVersion('7.0');
@@ -40,6 +53,13 @@ export const graphRequest = {
   },
 };
 
+export const getPageAccessTokenFromMap = (
+  pageId: string,
+  pageTokens: { [key: string]: string },
+): string => {
+  return pageTokens?.[pageId];
+};
+
 export const getPostDetails = async (
   pageId: string,
   pageTokens: { [key: string]: string },
@@ -64,6 +84,115 @@ export const getPostDetails = async (
   } catch (e) {
     debugError(`Error occurred while getting facebook post: ${e.message}`);
     return null;
+  }
+};
+
+const MAX_POST_IMAGE_BYTES = 4 * 1024 * 1024;
+
+export const uploadUnpublishedPhotoFromKey = async (
+  subdomain: string,
+  pageId: string,
+  pageTokens: { [key: string]: string },
+  fileKey: string,
+): Promise<{ id: string }> => {
+  const pageAccessToken = getPageAccessTokenFromMap(pageId, pageTokens);
+
+  if (!pageAccessToken) {
+    throw new Error('Page access token not found');
+  }
+
+  if (!fileKey || /^[a-zA-Z]+:\/\//.test(fileKey) || fileKey.includes('..')) {
+    throw new Error('Invalid image reference');
+  }
+
+  const sourceUrl = generateAttachmentUrl(
+    subdomain,
+    encodeURIComponent(fileKey),
+  );
+
+  let bytes: ArrayBuffer;
+
+  try {
+    const file = await fetch(sourceUrl);
+
+    if (!file.ok) {
+      throw new Error(`storage returned ${file.status}`);
+    }
+
+    bytes = await file.arrayBuffer();
+  } catch (e) {
+    debugError(`Error reading uploaded image ${fileKey}: ${e.message}`);
+    throw new Error('Could not read the uploaded image');
+  }
+
+  if (bytes.byteLength > MAX_POST_IMAGE_BYTES) {
+    throw new Error('Each image must be 4 MB or smaller');
+  }
+
+  const form = new FormData();
+  form.append('published', 'false');
+  form.append('access_token', pageAccessToken);
+  form.append('source', new Blob([bytes]), fileKey.split('/').pop() || 'image');
+
+  try {
+    const response = await fetch(
+      `https://graph.facebook.com/v7.0/${pageId}/photos`,
+      { method: 'POST', body: form },
+    );
+
+    const result = (await response.json()) as {
+      id?: string;
+      error?: { message?: string };
+    };
+
+    if (!response.ok || !result.id) {
+      throw new Error(result?.error?.message || `HTTP ${response.status}`);
+    }
+
+    return { id: result.id };
+  } catch (e) {
+    debugError(`Error uploading facebook photo bytes: ${e.message}`);
+    throw new Error(e.message);
+  }
+};
+
+export const createPagePost = async (
+  pageId: string,
+  pageTokens: { [key: string]: string },
+  message: string,
+  link?: string,
+  attachedMediaIds?: string[],
+): Promise<{ id: string }> => {
+  const pageAccessToken = getPageAccessTokenFromMap(pageId, pageTokens);
+
+  if (!pageAccessToken) {
+    throw new Error('Page access token not found');
+  }
+
+  const doc: { [key: string]: string } = { message };
+
+  if (link) {
+    doc.link = link;
+  }
+
+  for (let i = 0; i < (attachedMediaIds || []).length; i++) {
+    doc[`attached_media[${i}]`] = JSON.stringify({
+      media_fbid: (attachedMediaIds as string[])[i],
+    });
+  }
+
+  try {
+    // Requires the pages_manage_posts permission on the page token.
+    const response: any = await graphRequest.post(
+      `${pageId}/feed`,
+      pageAccessToken,
+      doc,
+    );
+
+    return response;
+  } catch (e) {
+    debugError(`Error occurred while creating facebook post: ${e.message}`);
+    throw new Error(e.message);
   }
 };
 
@@ -309,13 +438,6 @@ export const refreshPageAccessToken = async (
   return facebookPageTokensMap;
 };
 
-export const getPageAccessTokenFromMap = (
-  pageId: string,
-  pageTokens: { [key: string]: string },
-): string => {
-  return pageTokens?.[pageId];
-};
-
 export const subscribePage = async (
   models: IModels,
   pageId,
@@ -421,6 +543,31 @@ export const restorePost = async (
   }
 };
 
+// Meta retired the CONFIRMED_EVENT_UPDATE, POST_PURCHASE_UPDATE and
+// ACCOUNT_UPDATE message tags on 2026-04-27; the Send API rejects them with
+// error 100 "Invalid parameter". HUMAN_AGENT is the only tag still valid for
+// replies outside the 24-hour window (up to 7 days after the customer's last
+// message).
+const DEPRECATED_MESSENGER_TAGS = [
+  'CONFIRMED_EVENT_UPDATE',
+  'POST_PURCHASE_UPDATE',
+  'ACCOUNT_UPDATE',
+];
+
+export const HUMAN_AGENT_MESSENGER_TAG = 'HUMAN_AGENT';
+
+export const normalizeMessengerTag = (
+  tag?: string | null,
+): string | undefined => {
+  const trimmed = tag?.trim();
+  if (!trimmed) {
+    return undefined;
+  }
+  return DEPRECATED_MESSENGER_TAGS.includes(trimmed)
+    ? HUMAN_AGENT_MESSENGER_TAG
+    : trimmed;
+};
+
 export const sendReply = async (
   models: IModels,
   url: string,
@@ -448,28 +595,44 @@ export const sendReply = async (
     debugError(
       `Error occurred while trying to get page access token with ${e.message}`,
     );
-    return e;
+    throw new Error(e.message);
   }
+
+  const normalizedTag = normalizeMessengerTag(data?.tag);
+  const requestData = data?.tag ? { ...data, tag: normalizedTag } : data;
 
   try {
     const response = await graphRequest.post(`${url}`, pageAccessToken, {
-      ...data,
+      ...requestData,
     });
-    debugFacebook(`Successfully sent data to facebook ${JSON.stringify(data)}`);
+    debugFacebook(
+      `Successfully sent data to facebook ${JSON.stringify(requestData)}`,
+    );
     return response;
   } catch (e) {
-    debugError(
-      `Error ocurred while trying to send post request to facebook ${
-        e.message
-      } data: ${JSON.stringify(data)}`,
-    );
+    const targetRecipient = data?.recipient?.id || data?.recipient?.comment_id;
 
+    debugError(
+      `Facebook Graph request failed ${JSON.stringify({
+        path: url,
+        pageId: recipientId,
+        targetRecipient,
+        requestType: data?.sender_action ? 'sender_action' : 'message',
+        code: e.code,
+        errorSubcode: e.error_subcode,
+        fbtraceId: e.fbtrace_id,
+        message: e.message,
+      })}`,
+    );
+    // request-level failures (unknown error, invalid parameter, messaging
+    // window, already replied) say nothing about the token's health
+    const messageLevelErrorCodes = [1, 10, 100, 10900];
     if (e.message.includes('access token')) {
       await models.FacebookIntegrations.updateOne(
         { _id: integration._id },
         { $set: { healthStatus: 'page-token', error: `${e.message}` } },
       );
-    } else if (e.code !== 10) {
+    } else if (!messageLevelErrorCodes.includes(e.code)) {
       await models.FacebookIntegrations.updateOne(
         { _id: integration._id },
         { $set: { healthStatus: 'account-token', error: `${e.message}` } },
@@ -477,10 +640,14 @@ export const sendReply = async (
     }
 
     if (e.message.includes('does not exist')) {
-      throw new Error('Comment has been deleted by the customer');
+      throw new FacebookSendError(
+        'Comment has been deleted by the customer',
+        e.code,
+        e.error_subcode,
+      );
     }
 
-    throw new Error(e.message);
+    throw new FacebookSendError(e.message, e.code, e.error_subcode);
   }
 };
 

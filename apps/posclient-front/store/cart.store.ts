@@ -5,10 +5,9 @@ import {
   IAddToCartInput,
   IOrderItemStatus,
   OrderItem,
-  OrderItemInput,
 } from "@/types/order.types"
 import { ORDER_ITEM_STATUSES, ORDER_STATUSES } from "@/lib/constants"
-import { getCartTotal, getItemInputs } from "@/lib/utils"
+import { getCartTotal } from "@/lib/utils"
 
 import { banFractionsAtom, orderPasswordAtom } from "./config.store"
 import { activeOrderIdAtom, setOpenCancelDialogAtom } from "./order.store"
@@ -71,18 +70,22 @@ export const addToCart = (
   product: IAddToCartInput,
   cart: OrderItem[]
 ): OrderItem[] => {
+  const manufacturedDate =
+    product.manufacturedDate || product.manufactureDate || ""
   const prevItem = cart.find(
     ({
       productId,
       status,
-      manufacturedDate,
+      manufacturedDate: itemManufacturedDate,
       isTake,
       description,
       attachment,
     }) =>
       productId === product._id &&
-      status === ORDER_STATUSES.NEW &&
-      manufacturedDate == product.manufacturedDate &&
+      [ORDER_ITEM_STATUSES.NEW, ORDER_ITEM_STATUSES.CONFIRM].includes(
+        status || ORDER_ITEM_STATUSES.NEW
+      ) &&
+      (itemManufacturedDate || "") === manufacturedDate &&
       !isTake &&
       !description &&
       !attachment
@@ -93,16 +96,17 @@ export const addToCart = (
     return changeCartItem({ _id, count: count + 1, fromAdd: true }, cart)
   }
 
-  const { unitPrice, _id, name, attachment } = product
+  const { unitPrice, _id, name, code, attachment } = product
 
   const cartItem = {
     _id: Math.random().toString(),
     productId: _id,
     count: 1,
     unitPrice,
-    productName: name,
+    productName: code ? `${code} - ${name}` : name,
     status: ORDER_STATUSES.NEW as IOrderItemStatus,
     productImgUrl: attachment?.url,
+    manufacturedDate: manufacturedDate || undefined,
   }
 
   return [cartItem, ...cart]
@@ -114,9 +118,6 @@ export const cartAtom = atomWithStorage<OrderItem[]>("cart", [])
 export const cartChangedAtom = atomWithStorage<boolean | string>(
   "cartChanged",
   false
-)
-export const orderItemInput = atom<OrderItemInput[]>((get) =>
-  getItemInputs(get(cartAtom))
 )
 export const requirePasswordAtom = atom<IUpdateItem | null>(null)
 
@@ -147,16 +148,17 @@ export const updateCartAtom = atom(
     }
     set(cartChangedAtom, get(activeOrderIdAtom) ?? "-")
 
-    const changedCartItems = changeCartItem(update, get(cartAtom), !!get(banFractionsAtom))
+    const changedCartItems = changeCartItem(
+      update,
+      get(cartAtom),
+      !!get(banFractionsAtom)
+    )
 
     const currentCart = get(cartAtom)
-  if (currentCart.length > 0 && changedCartItems.length === 0) {
-  set(setOpenCancelDialogAtom)
-}
-    set(
-      cartAtom,
-      changedCartItems
-    )
+    if (currentCart.length > 0 && changedCartItems.length === 0) {
+      set(setOpenCancelDialogAtom)
+    }
+    set(cartAtom, changedCartItems)
   }
 )
 export const setCartAtom = atom(

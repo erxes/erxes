@@ -1,17 +1,25 @@
-import { IconCircleMinus } from '@tabler/icons-react';
+import { IconMessages } from '@tabler/icons-react';
+import { Empty } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const NoConversationSelected = () => {
+  const { t } = useTranslation('frontline');
   return (
-    <div className="h-full w-full flex flex-col items-center justify-center">
-      <div className="size-28 bg-sidebar rounded-2xl border border-dashed flex items-center justify-center">
-        <IconCircleMinus size={64} className="text-scroll" stroke={1} />
-      </div>
-      <div className="font-medium mt-5 text-muted-foreground">
-        No conversations selected
-      </div>
-      <div className="text-accent-foreground mt-2">
-        Please select a conversation to view its details.
-      </div>
-    </div>
+    <Empty className="h-full rounded-none border-0 bg-muted/20">
+      <Empty.Header>
+        <Empty.Media variant="icon">
+          <IconMessages />
+        </Empty.Media>
+        <Empty.Title>
+          {t('no-conversations-selected', 'No conversations selected')}
+        </Empty.Title>
+        <Empty.Description>
+          {t(
+            'select-conversation-to-view',
+            'Please select a conversation to view its details.',
+          )}
+        </Empty.Description>
+      </Empty.Header>
+    </Empty>
   );
 };

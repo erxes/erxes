@@ -8,6 +8,7 @@ import {
   toast,
 } from 'erxes-ui';
 import { useNavigate } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import {
   IconArrowBarToRight,
   IconCalendarEvent,
@@ -25,6 +26,8 @@ import { SelectChannel } from '@/inbox/channel/components/SelectChannel';
 import { useFormEdit } from '@/forms/hooks/useFormEdit';
 import { GET_FORMS_LIST } from '@/forms/graphql/formQueries';
 import { useFormToggleStatus } from '@/forms/hooks/useFormToggleStatus';
+import { MoveToChannelDialog } from '@/channels/components/move-resources/MoveToChannelDialog';
+import { ChannelResourceType } from '@/channels/types';
 import { FormStatus } from './filters/FormStatus';
 import { FormInstallScript } from '../actions/install-form';
 import { RemoveForm } from '../actions/remove-form';
@@ -40,7 +43,8 @@ export function FormToggleStatus({
   status: string;
   setOpen: (open: boolean) => void;
 }) {
-  const { toggleStatus, loading } = useFormToggleStatus();
+  const { t } = useTranslation('frontline');
+  const { toggleStatus } = useFormToggleStatus();
 
   const onSelect = () => {
     toggleStatus({
@@ -53,7 +57,7 @@ export function FormToggleStatus({
       },
       onError: (error) => {
         toast({
-          title: 'Error',
+          title: t('error', 'Error'),
           variant: 'destructive',
           description: error.message,
         });
@@ -64,85 +68,27 @@ export function FormToggleStatus({
   return (
     <DropdownMenu.Item onSelect={onSelect}>
       <IconSquareToggle />
-      {status === 'active' ? 'Archive' : 'Unarchive'}
+      {status === 'active'
+        ? t('archive', 'Archive')
+        : t('unarchive', 'Unarchive')}
     </DropdownMenu.Item>
   );
 }
-
-export const MoveFormToChannel = ({
-  formId,
-  channelId,
-  setOpen,
-  name,
-  type,
-}: {
-  formId: string;
-  channelId: string;
-  setOpen: (open: boolean) => void;
-  name: string;
-  type: string;
-}) => {
-  const { editForm, loading } = useFormEdit();
-
-  const onSelect = (id: string) => {
-    editForm({
-      variables: {
-        id: formId,
-        name,
-        type,
-        channelId: id,
-      },
-      refetchQueries: [GET_FORMS_LIST],
-      onCompleted: () => {
-        setOpen(false);
-        toast({
-          title: 'Success',
-          variant: 'success',
-          description: 'Form moved successfully',
-        });
-      },
-      onError: (error) => {
-        toast({
-          title: 'Error',
-          variant: 'destructive',
-          description: error.message,
-        });
-      },
-    });
-  };
-
-  return (
-    <DropdownMenu.Sub>
-      <DropdownMenu.SubTrigger>
-        <IconArrowBarToRight />
-        Move to Channel
-      </DropdownMenu.SubTrigger>
-      <DropdownMenu.Portal>
-        <DropdownMenu.SubContent className="min-w-56" sideOffset={8}>
-          <SelectChannel.DropDownContent
-            channelId={channelId}
-            onValueChange={(value) => {
-              onSelect(value);
-            }}
-          />
-        </DropdownMenu.SubContent>
-      </DropdownMenu.Portal>
-    </DropdownMenu.Sub>
-  );
-};
 
 export const FormsMoreColumnCell = ({
   cell,
 }: {
   cell: Cell<IForm, unknown>;
 }) => {
+  const { t } = useTranslation('frontline');
   const { _id, status, code, channelId } = cell.row.original;
   const navigate = useNavigate();
 
   const [open, setOpen] = useState(false);
+  const [moveOpen, setMoveOpen] = useState(false);
 
   return (
-    <DropdownMenu>
+    <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenu.Trigger asChild>
         <RecordTable.MoreButton className="w-full h-full" />
       </DropdownMenu.Trigger>
@@ -157,27 +103,37 @@ export const FormsMoreColumnCell = ({
             navigate(`/frontline/forms/${cell.row.original._id}`);
           }}
         >
-          <IconEdit /> Edit
+          <IconEdit /> {t('edit', 'Edit')}
         </DropdownMenu.Item>
         <OpenLiveForm formId={_id} channelId={channelId as string} />
         <OpenSubmissionsAction formId={_id} />
         <FormToggleStatus formId={_id} status={status} setOpen={setOpen} />
-        <MoveFormToChannel
-          formId={_id}
-          channelId={cell.row.original.channelId || ''}
-          setOpen={setOpen}
-          name={cell.row.original.name}
-          type={cell.row.original.type}
-        />
+        <DropdownMenu.Item
+          onSelect={() => {
+            setOpen(false);
+            setMoveOpen(true);
+          }}
+        >
+          <IconArrowBarToRight />
+          {t('move-to-channel', 'Move to Channel')}
+        </DropdownMenu.Item>
         <RemoveForm formId={_id} title={cell.row.original.name} />
       </DropdownMenu.Content>
+      <MoveToChannelDialog
+        open={moveOpen}
+        onOpenChange={setMoveOpen}
+        resourceType={ChannelResourceType.FORM}
+        resourceIds={[_id]}
+        sourceChannelId={channelId || ''}
+      />
     </DropdownMenu>
   );
 };
 
 export const MoreColumn: ColumnDef<IForm> = {
   id: 'more',
-  size: 30,
+  header: () => <RecordTable.ColumnSelector />,
+  size: 33,
   cell: FormsMoreColumnCell,
 };
 
@@ -187,8 +143,16 @@ export const formColumns: ColumnDef<IForm>[] = [
   {
     accessorKey: 'name',
     id: 'name',
-    header: () => <RecordTable.InlineHead label="Name" icon={IconLabel} />,
-    cell: ({ cell }) => {
+    header: function FormPageNameHeader() {
+      const { t } = useTranslation('frontline');
+      return (
+        <RecordTable.InlineHead
+          label={t('col-name', 'Name')}
+          icon={IconLabel}
+        />
+      );
+    },
+    cell: function FormPageNameCell({ cell }) {
       const navigate = useNavigate();
 
       return (
@@ -208,9 +172,15 @@ export const formColumns: ColumnDef<IForm>[] = [
   {
     accessorKey: 'status',
     id: 'status',
-    header: () => (
-      <RecordTable.InlineHead label="Status" icon={IconToggleRight} />
-    ),
+    header: function FormPageStatusHeader() {
+      const { t } = useTranslation('frontline');
+      return (
+        <RecordTable.InlineHead
+          label={t('status', 'Status')}
+          icon={IconToggleRight}
+        />
+      );
+    },
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -221,9 +191,18 @@ export const formColumns: ColumnDef<IForm>[] = [
   },
   {
     accessorKey: 'channelId',
-    header: () => <RecordTable.InlineHead label="Channel" icon={IconCircles} />,
+    header: function FormPageChannelHeader() {
+      const { t } = useTranslation('frontline');
+      return (
+        <RecordTable.InlineHead
+          label={t('channel-label', 'Channel')}
+          icon={IconCircles}
+        />
+      );
+    },
     id: 'channelId',
-    cell: ({ cell }) => {
+    cell: function FormPageChannelCell({ cell }) {
+      const { t } = useTranslation('frontline');
       const { channel, _id, name, type } = cell.row.original;
       const { editForm } = useFormEdit();
 
@@ -238,14 +217,17 @@ export const formColumns: ColumnDef<IForm>[] = [
           refetchQueries: [GET_FORMS_LIST],
           onCompleted: () => {
             toast({
-              title: 'Success',
+              title: t('success', 'Success!'),
               variant: 'success',
-              description: 'Form updated successfully',
+              description: t(
+                'form-updated-successfully',
+                'Form updated successfully',
+              ),
             });
           },
           onError: (error) => {
             toast({
-              title: 'Error',
+              title: t('error', 'Error'),
               variant: 'destructive',
               description: error.message,
             });
@@ -264,7 +246,12 @@ export const formColumns: ColumnDef<IForm>[] = [
   {
     accessorKey: 'tagIds',
     id: 'tagIds',
-    header: () => <RecordTable.InlineHead label="Tags" icon={IconTag} />,
+    header: function FormPageTagsHeader() {
+      const { t } = useTranslation('frontline');
+      return (
+        <RecordTable.InlineHead label={t('tags', 'Tags')} icon={IconTag} />
+      );
+    },
     cell: ({ cell }) => {
       return (
         <SelectTags.InlineCell
@@ -280,7 +267,15 @@ export const formColumns: ColumnDef<IForm>[] = [
   {
     accessorKey: 'createdUserId',
     id: 'createdUserId',
-    header: () => <RecordTable.InlineHead label="Created By" icon={IconUser} />,
+    header: function FormPageCreatedByHeader() {
+      const { t } = useTranslation('frontline');
+      return (
+        <RecordTable.InlineHead
+          label={t('created-by', 'Created by')}
+          icon={IconUser}
+        />
+      );
+    },
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -292,9 +287,15 @@ export const formColumns: ColumnDef<IForm>[] = [
   {
     accessorKey: 'createdDate',
     id: 'createdDate',
-    header: () => (
-      <RecordTable.InlineHead label="Created At" icon={IconCalendarEvent} />
-    ),
+    header: function FormPageCreatedAtHeader() {
+      const { t } = useTranslation('frontline');
+      return (
+        <RecordTable.InlineHead
+          label={t('created-at', 'Created at')}
+          icon={IconCalendarEvent}
+        />
+      );
+    },
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>

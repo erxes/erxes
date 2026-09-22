@@ -1,4 +1,5 @@
 import { Checkbox, Form, Label } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useWatch, type Control } from 'react-hook-form';
 import { type ProductsFormData } from '@/pos/components/products/Products';
 import { SelectCategory } from 'ui-modules/modules';
@@ -10,6 +11,7 @@ interface RemainderConfigsProps {
 export const RemainderConfigs: React.FC<RemainderConfigsProps> = ({
   control,
 }) => {
+  const { t } = useTranslation('sales');
   const isCheckRemainder = useWatch({
     control,
     name: 'isCheckRemainder',
@@ -32,7 +34,7 @@ export const RemainderConfigs: React.FC<RemainderConfigsProps> = ({
                   />
                 </Form.Control>
                 <Label htmlFor="isCheckRemainder" className="cursor-pointer">
-                  Check Remainder
+                  {t('check-remainder')}
                 </Label>
               </div>
             </Form.Item>
@@ -53,7 +55,7 @@ export const RemainderConfigs: React.FC<RemainderConfigsProps> = ({
                   />
                 </Form.Control>
                 <Label htmlFor="saveRemainder" className="cursor-pointer">
-                  Save Remainder
+                  {t('save-remainder')}
                 </Label>
               </div>
             </Form.Item>
@@ -73,7 +75,7 @@ export const RemainderConfigs: React.FC<RemainderConfigsProps> = ({
                     onCheckedChange={field.onChange}
                   />
                 </Form.Control>
-                <Label htmlFor="banFractions">BAN FRACTIONS</Label>
+                <Label htmlFor="banFractions">{t('ban-fractions')}</Label>
               </div>
             </Form.Item>
           )}
@@ -85,14 +87,14 @@ export const RemainderConfigs: React.FC<RemainderConfigsProps> = ({
         name="checkExcludeCategoryIds"
         render={({ field }) => (
           <Form.Item>
-            <Label>EXCLUDE CATEGORIES</Label>
+            <Label>{t('exclude-categories')}</Label>
 
             <Form.Control>
               <SelectCategory
                 mode="multiple"
                 value={field.value}
                 onValueChange={field.onChange}
-                placeholder="Select categories to exclude"
+                placeholder={t('select-categories-to-exclude')}
               />
             </Form.Control>
           </Form.Item>

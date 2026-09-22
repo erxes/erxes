@@ -3,6 +3,7 @@ import { GET_BOARDS, GET_BOARD_DETAIL } from "@/deals/graphql/queries/BoardsQuer
 import { IBoard, TBoardForm } from "@/deals/types/boards";
 import { MutationHookOptions, QueryHookOptions, useMutation, useQuery } from "@apollo/client";
 import { toast, useQueryState } from "erxes-ui";
+import { useTranslation } from "react-i18next";
 
 import { BOARD_CREATE_SCHEMA } from "@/deals/schemas/boardFormSchema";
 import { useForm } from "react-hook-form";
@@ -107,7 +108,8 @@ export const useBoards = (
     };
   };
 
-  export const useBoardRemove = (options?: MutationHookOptions<{ salesBoards: IBoard[] }>) => {    
+  export const useBoardRemove = (options?: MutationHookOptions<{ salesBoards: IBoard[] }>) => {
+    const { t } = useTranslation('sales');
     const [removeBoard, { loading, error }] = useMutation(REMOVE_BOARD, {
       ...options,
        variables: {
@@ -124,15 +126,15 @@ export const useBoards = (
         awaitRefetchQueries: true,
         onCompleted: (...args) => {
           toast({
-            title: 'Successfully removed a board',
+            title: t('board-removed'),
             variant: 'default',
           });
           options?.onCompleted?.(...args);
         },
         onError: (err) => {
           toast({
-            title: 'Error',
-            description: err.message || 'Remove failed',
+            title: t('error'),
+            description: err.message || t('remove-failed'),
             variant: 'destructive',
           });
         },

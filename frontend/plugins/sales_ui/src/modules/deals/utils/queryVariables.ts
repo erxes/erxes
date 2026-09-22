@@ -7,14 +7,22 @@ const IGNORED_QUERY_VARIABLE_KEYS = [
   'tab',
   'archivedOnly',
   'archivedSort',
+  'stageId',
 ];
 
 const DATE_RANGE_MAP: Record<string, [string, string]> = {
   createdStartDate: ['createdStartDate', 'createdEndDate'],
   startDateStartDate: ['startDateStartDate', 'startDateEndDate'],
+  closeDateStartDate: ['closeDateStartDate', 'closeDateEndDate'],
+  stageChangedStartDate: ['stageChangedStartDate', 'stageChangedEndDate'],
 };
 
-const DATE_UPPER_BOUND_KEYS = new Set(['startDateEndDate', 'createdEndDate']);
+const DATE_UPPER_BOUND_KEYS = new Set([
+  'startDateEndDate',
+  'createdEndDate',
+  'closeDateEndDate',
+  'stageChangedEndDate',
+]);
 
 const parseValidRange = (value: string) => {
   const range = parseDateRangeFromString(value);
@@ -29,7 +37,7 @@ const parseValidRange = (value: string) => {
 };
 
 const resolveParam = (
-  vars: Record<string, any>,
+  vars: Record<string, unknown>,
   key: string,
   value: string,
 ) => {
@@ -57,8 +65,11 @@ const resolveParam = (
   }
 };
 
-export const getDealsQueryVariables = (searchParams: URLSearchParams) => {
-  const vars: Record<string, any> = {};
+export const getDealsQueryVariables = (
+  searchParams: URLSearchParams,
+  { includeArchivedMode = true }: { includeArchivedMode?: boolean } = {},
+) => {
+  const vars: Record<string, unknown> = {};
 
   for (const [key, value] of searchParams.entries()) {
     if (!IGNORED_QUERY_VARIABLE_KEYS.includes(key)) {
@@ -66,16 +77,14 @@ export const getDealsQueryVariables = (searchParams: URLSearchParams) => {
     }
   }
 
-
-  if (vars.productId) {
-    vars.productIds = Array.isArray(vars.productId)
-      ? vars.productId
-      : [vars.productId];
+  const productId = vars.productId;
+  if (productId) {
+    vars.productIds = Array.isArray(productId) ? productId : [productId];
     delete vars.productId;
   }
 
-  if (searchParams.get('archivedOnly') === 'true') {
-    vars.noSkipArchive = true;
+  if (includeArchivedMode && searchParams.get('archivedOnly') === 'true') {
+    vars.status = 'archived';
     const sortDir = searchParams.get('archivedSort') || 'desc';
     vars.orderBy = { createdAt: sortDir === 'asc' ? 1 : -1 };
   }

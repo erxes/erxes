@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useGetProjectProgress } from '@/project/hooks/useGetProjectProgress';
 import { IconCircleFilled } from '@tabler/icons-react';
 import { cn, Tooltip } from 'erxes-ui';
@@ -28,6 +29,7 @@ export const ProgressDot = ({
 };
 
 export const Progress = ({ projectId }: { projectId: string }) => {
+  const { t } = useTranslation('operation');
   const { projectProgress } = useGetProjectProgress({
     variables: { _id: projectId },
     skip: !projectId,
@@ -38,7 +40,7 @@ export const Progress = ({ projectId }: { projectId: string }) => {
       <span className="flex flex-col items-center gap-1">
         <span className="flex items-center gap-2">
           <ProgressDot status="total" />
-          <p className="text-xs font-medium text-muted-foreground">Total:</p>
+          <p className="text-xs font-medium text-muted-foreground">{t('total-colon')}</p>
         </span>
         <p className="text-xs font-medium">
           {projectProgress?.totalScope || 0}
@@ -47,7 +49,7 @@ export const Progress = ({ projectId }: { projectId: string }) => {
       <span className="flex flex-col items-center gap-1">
         <span className="flex items-center gap-2">
           <ProgressDot status="started" />
-          <p className="text-xs font-medium text-muted-foreground">Started:</p>
+          <p className="text-xs font-medium text-muted-foreground">{t('started-colon')}</p>
         </span>
         <p className="text-xs font-medium">
           {projectProgress?.totalStartedScope || 0}
@@ -57,7 +59,7 @@ export const Progress = ({ projectId }: { projectId: string }) => {
         <span className="flex items-center gap-2">
           <ProgressDot status="completed" />
           <p className="text-xs font-medium text-muted-foreground">
-            Completed:
+            {t('completed-colon')}
           </p>
         </span>
         <p className="text-xs font-medium">

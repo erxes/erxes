@@ -1,5 +1,3 @@
-import { IAttachment } from 'erxes-ui';
-
 export interface IReceiptItem {
   _id: string;
   name: string;
@@ -74,14 +72,4 @@ export interface IPutResponse {
   lottery: string | null;
   date: string;
   __typename?: string;
-}
-
-export interface IPutResponseCategory {
-  _id: string;
-  name: string;
-  avatar: IAttachment;
-  code: string;
-  order: string;
-  productCount: number;
-  parentId: string;
 }

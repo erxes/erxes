@@ -51,19 +51,6 @@ export const CompanyDetail = () => {
                 <Tabs.Content value="overview" className="h-full">
                   <ScrollArea className="h-full">
                     <CompanyDetailFields />
-                    {!!companyDetail?._id && (
-                      <div className="flex flex-col mb-12">
-                        <ActivityLogs
-                          targetId={companyDetail._id}
-                          customActivities={companyCustomActivities}
-                          limit={10}
-                        />
-                        <AddInternalNote
-                          contentTypeId={companyDetail._id}
-                          contentType="core:company"
-                        />
-                      </div>
-                    )}
                   </ScrollArea>
                 </Tabs.Content>
                 <Tabs.Content value="properties" className="h-full">

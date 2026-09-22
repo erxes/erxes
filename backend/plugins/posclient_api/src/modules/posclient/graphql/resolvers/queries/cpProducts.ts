@@ -1,4 +1,10 @@
 import {
+  isPropertyDataPath,
+  propertyDataExistsFilter,
+  fieldIdFromPropertyDataPath,
+  propertyDataRegexFilter,
+} from 'erxes-api-shared/core-modules';
+import {
   IProductCategoryDocument,
   Resolver,
 } from 'erxes-api-shared/core-types';
@@ -8,6 +14,7 @@ import {
   paginate,
   sendTRPCMessage,
 } from 'erxes-api-shared/utils';
+import { segmentProductIds } from '~/modules/posclient/utils';
 import { IModels } from '~/connectionResolvers';
 import { IConfigDocument } from '~/modules/posclient/@types/configs';
 import { IContext } from '~/modules/posclient/@types/types';
@@ -16,35 +23,20 @@ import {
   getSimilaritiesProducts,
   getSimilaritiesProductsCount,
 } from '~/modules/posclient/maskUtils';
-import { Builder } from '~/modules/posclient/utils';
 import {
   checkRemainders,
+  getDiscountSortedProducts,
   getRemBranchId,
+  isDiscountSortField,
+  pushDiscountRangeFilters,
+  type ProductWithRemainder,
 } from '~/modules/posclient/utils/products';
-
-const getPropertyFieldId = (field: string) =>
-  field.replace('propertiesData.', '');
 
 const getProductPropertyValue = (product: any, fieldId: string) =>
   product?.propertiesData?.[fieldId];
 
 const getProductPropertyIds = (product: any) =>
   Object.keys(product.propertiesData || {});
-
-const isPropertyField = (field: string) =>
-  field.includes('propertiesData.');
-
-const propertyExistsFilter = (fieldIds: string[]) => ({
-  $or: [
-    ...fieldIds.map((fieldId) => ({
-      [`propertiesData.${fieldId}`]: { $exists: true },
-    })),
-  ],
-});
-
-const propertyRegexFilter = (fieldId: string, regex: RegExp) => ({
-  [`propertiesData.${fieldId}`]: { $regex: regex },
-});
 
 export interface ICommonParams {
   sortField?: string;
@@ -67,16 +59,20 @@ export interface IProductParams extends ICommonParams {
   pipelineId?: string;
   boardId?: string;
   segment?: string;
-  segmentData?: string;
   isKiosk?: boolean;
   groupedSimilarity?: string;
   categoryMeta?: string;
   image?: string;
-
+  isSimilarity?: boolean;
   minRemainder?: number;
   maxRemainder?: number;
   minPrice?: number;
   maxPrice?: number;
+  minDiscountValue?: number;
+  maxDiscountValue?: number;
+  minDiscountPercent?: number;
+  maxDiscountPercent?: number;
+  discountConditions?: Record<string, unknown>;
 }
 
 export interface ICategoryParams extends ICommonParams {
@@ -108,14 +104,19 @@ const generateFilter = async (
     ids,
     excludeIds,
     segment,
-    segmentData,
     categoryMeta,
     isKiosk,
     image,
+    isSimilarity,
     minRemainder,
     maxRemainder,
     minPrice,
     maxPrice,
+    minDiscountValue,
+    maxDiscountValue,
+    minDiscountPercent,
+    maxDiscountPercent,
+    discountConditions,
     ...paginationArgs
   }: IProductParams,
 ) => {
@@ -126,6 +127,25 @@ const generateFilter = async (
     status: { $ne: PRODUCT_STATUSES.DELETED },
     tokens: { $in: [token] },
   };
+
+  if (isSimilarity) {
+    const similarityGroups = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      module: 'products',
+      action: 'similarities.find',
+      input: { query: { status: { $ne: 'deleted' } } },
+      defaultValue: [],
+    });
+
+    const starProductIds = (similarityGroups || [])
+      .map((group) => group.starProductId)
+      .filter(Boolean);
+
+    $and.push({
+      $or: [{ similarityId: null }, { _id: { $in: starProductIds } }],
+    });
+  }
 
   if (type) {
     filter.type = type;
@@ -208,14 +228,8 @@ const generateFilter = async (
     ];
   }
 
-  if (segment || segmentData) {
-    const qb = new Builder(models, subdomain, { segment, segmentData }, {});
-
-    await qb.buildAllQueries();
-
-    const { list } = await qb.runQueries();
-
-    filter._id = { $in: list.map((l) => l._id) };
+  if (segment) {
+    filter._id = { $in: await segmentProductIds(subdomain, segment) };
   }
 
   if (vendorId) {
@@ -290,6 +304,14 @@ const generateFilter = async (
       [`remainderByToken.${token}.${remBranchId}`]: { $lte: maxRemainder },
     });
   }
+
+  pushDiscountRangeFilters($and, config, branchId, {
+    minDiscountValue,
+    maxDiscountValue,
+    minDiscountPercent,
+    maxDiscountPercent,
+    discountConditions,
+  });
 
   const lastFilter = { ...filter, $and };
 
@@ -408,6 +430,23 @@ const cpProductQueries: Record<string, Resolver> = {
       });
     }
 
+    if (isDiscountSortField(sortField)) {
+      const products = await getDiscountSortedProducts({
+        models,
+        filter,
+        config,
+        params,
+      });
+
+      return checkRemainders(
+        subdomain,
+        models,
+        config,
+        products,
+        branchId || '',
+      );
+    }
+
     const paginatedProducts = await paginate(
       models.Products.find(filter).sort(sortParams).lean(),
       paginationArgs,
@@ -475,8 +514,8 @@ const cpProductQueries: Record<string, Resolver> = {
         const filterFieldDef = mask.filterField || 'code';
         const regexer = getRegex(cm);
 
-        if (isPropertyField(filterFieldDef)) {
-          const fieldId = getPropertyFieldId(filterFieldDef);
+        if (isPropertyDataPath(filterFieldDef)) {
+          const fieldId = fieldIdFromPropertyDataPath(filterFieldDef);
           if (
             !String(getProductPropertyValue(product, fieldId) || '').match(
               regexer,
@@ -517,10 +556,10 @@ const cpProductQueries: Record<string, Resolver> = {
         const matched = similarityGroups[matchedMask];
         const filterFieldDef = matched.filterField || 'code';
 
-        if (isPropertyField(filterFieldDef)) {
+        if (isPropertyDataPath(filterFieldDef)) {
           codeRegexs.push(
-            propertyRegexFilter(
-              getPropertyFieldId(filterFieldDef),
+            propertyDataRegexFilter(
+              fieldIdFromPropertyDataPath(filterFieldDef),
               getRegex(matchedMask),
             ),
           );
@@ -544,11 +583,13 @@ const cpProductQueries: Record<string, Resolver> = {
           {
             $or: codeRegexs,
           },
-          propertyExistsFilter(fieldIds),
+          propertyDataExistsFilter(fieldIds),
         ],
       };
 
-      let products = await models.Products.find(filters).sort({ code: 1 });
+      let products: ProductWithRemainder[] = await models.Products.find(
+        filters,
+      ).sort({ code: 1 });
       if (!products.length) {
         products = await checkRemainders(
           subdomain,
@@ -584,7 +625,7 @@ const cpProductQueries: Record<string, Resolver> = {
       $and: [
         {
           categoryId: category._id,
-          ...propertyExistsFilter(fieldIds),
+          ...propertyDataExistsFilter(fieldIds),
         },
       ],
     };
@@ -741,6 +782,7 @@ const cpProductQueries: Record<string, Resolver> = {
     return JSON.stringify(d);
   },
 };
+
 markResolvers(cpProductQueries, {
   wrapperConfig: {
     forClientPortal: true,

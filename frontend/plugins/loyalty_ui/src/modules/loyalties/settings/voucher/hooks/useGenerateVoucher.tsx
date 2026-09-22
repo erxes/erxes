@@ -1,5 +1,6 @@
 import { MutationHookOptions, useMutation } from '@apollo/client';
 import { useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { GENERATE_VOUCHER } from '../graphql/mutations/generateVoucherMutation';
 
 export interface GenerateVoucherResult {
@@ -22,6 +23,7 @@ export interface GenerateVoucherVariables {
 }
 
 export const useGenerateVoucher = () => {
+  const { t } = useTranslation('loyalty');
   const { toast } = useToast();
   const [generateVoucher, { loading, error }] = useMutation<
     GenerateVoucherResult,
@@ -38,15 +40,15 @@ export const useGenerateVoucher = () => {
       ...options,
       onCompleted: (data) => {
         toast({
-          title: 'Success',
-          description: 'Voucher generated successfully',
+          title: t('success'),
+          description: t('voucher-generated'),
           variant: 'default',
         });
         options?.onCompleted?.(data);
       },
       onError: (error) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });

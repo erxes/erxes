@@ -1,22 +1,22 @@
 import { RecordTable } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 import { donationColumns } from './DonationColumns';
 import { DonationCommandBar } from './donation-command-bar/DonationCommandBar';
 import { useDonations } from '../hooks/useDonations';
-import { useDonationStatusEdit } from '../hooks/useDonationStatusEdit';
 import { DONATIONS_CURSOR_SESSION_KEY } from '../constants/donationsCursorSessionKey';
 
 import { IconHeart } from '@tabler/icons-react';
 import { LoyaltyDonationAddSheet } from './DonationAddSheet';
 
 export const DonationRecordTable = () => {
+  const { t } = useTranslation('loyalty');
   const { donations, handleFetchMore, loading, pageInfo } = useDonations();
-  const { editStatus } = useDonationStatusEdit();
 
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
   return (
     <RecordTable.Provider
-      columns={donationColumns(editStatus)}
+      columns={donationColumns(t)}
       data={donations || []}
       className="m-3"
       stickyColumns={['more', 'checkbox', 'title']}
@@ -50,10 +50,10 @@ export const DonationRecordTable = () => {
                     className="text-muted-foreground mx-auto mb-4"
                   />
                   <h3 className="text-xl font-semibold mb-2">
-                    No donation yet
+                    {t('no-donations-yet')}
                   </h3>
                   <p className="text-muted-foreground max-w-md">
-                    Get started by creating your first donation.
+                    {t('get-started-donation')}
                   </p>
                 </div>
                 <LoyaltyDonationAddSheet />

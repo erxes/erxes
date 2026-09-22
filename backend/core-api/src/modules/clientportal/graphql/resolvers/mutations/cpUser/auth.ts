@@ -10,6 +10,7 @@ import {
   sendOTPForLogin,
   loginWithOTP,
   loginWithSocial,
+  loginWithToki,
 } from '~/modules/clientportal/services/auth/login';
 import { getSocialUserProfile } from '@/clientportal/services/helpers/socialAuth';
 import { AuthenticationError } from '@/clientportal/services/errorHandler';
@@ -34,6 +35,7 @@ import {
   generateCPUserLogoutActivityLog,
   createCPUserActivityLog,
 } from '@/clientportal/meta/activity-log';
+import { getTokiConnection } from '~/modules/clientportal/utils';
 
 export const authMutations: Record<string, Resolver<any, any, IContext>> = {
   async clientPortalUserRegister(
@@ -228,5 +230,55 @@ export const authMutations: Record<string, Resolver<any, any, IContext>> = {
       clientPortal,
       res,
     );
+  },
+  async clientPortalUserLoginWithToki(
+    _root: unknown,
+    { token },
+    { models, subdomain, clientPortal, res }: IContext,
+  ) {
+    console.log(JSON.stringify({ token, clientPortal }));
+    const user = await loginWithToki(token, clientPortal, models);
+    console.log('toki user:', JSON.stringify(user || {}));
+
+    const tokens = jwtManager.setAuthCookie(res, user, clientPortal);
+
+    const payload = generateCPUserLoginActivityLog(user, 'toki');
+
+    await createCPUserActivityLog(models, subdomain, payload, user);
+
+    if (tokens?.token && tokens?.refreshToken) {
+      return {
+        success: true,
+        ...tokens,
+      };
+    }
+
+    return 'Success';
+  },
+  async checkTokiUserLegalAge(_root, { token }, { clientPortal }: IContext) {
+    const { apiUrl, apiKey } = getTokiConnection(clientPortal);
+    const response = await fetch(
+      `${apiUrl}/third-party-service/v1/shoppy/user`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+          'api-key': apiKey,
+        },
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error('Unable to check Toki user age');
+    }
+
+    const { data = {} } = await response.json();
+
+    if (typeof data?.isAdult21 === 'boolean') {
+      return data.isAdult21;
+    }
+
+    return data?.isAdult === true;
   },
 };

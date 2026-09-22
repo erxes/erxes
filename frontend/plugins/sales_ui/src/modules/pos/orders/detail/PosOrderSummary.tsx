@@ -1,5 +1,6 @@
 import { IconCircleFilled } from '@tabler/icons-react';
 import { cn, Tooltip } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 const getFieldConfig = (field: string, index: number) => {
   const colors = [
@@ -51,6 +52,7 @@ interface PosOrderSummaryProps {
 }
 
 export const PosOrderSummary = ({ summary }: PosOrderSummaryProps) => {
+  const { t } = useTranslation('sales');
   const summaryEntries = Object.entries(summary).filter(
     ([_, value]) => value > 0,
   );
@@ -59,7 +61,8 @@ export const PosOrderSummary = ({ summary }: PosOrderSummaryProps) => {
     <div className="flex flex-col gap-4 items-start w-full my-4">
       {summaryEntries.map(([field, value], index) => {
         const config = getFieldConfig(field, index);
-        const label = config?.label || field.replace(/([A-Z])/g, ' $1').trim();
+        const fallback = config?.label || field.replace(/([A-Z])/g, ' $1').trim();
+        const label = t(field, { defaultValue: fallback });
 
         return (
           <div key={field} className="flex items-center gap-1">

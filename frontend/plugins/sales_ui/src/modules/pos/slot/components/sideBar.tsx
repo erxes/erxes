@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Badge, Button, ScrollArea } from 'erxes-ui';
 import { IconPlus } from '@tabler/icons-react';
 import { SidebarListProps } from '../types';
@@ -12,10 +13,11 @@ const SidebarList: React.FC<SidebarListProps> = ({
   onDuplicateSlot,
   onDeleteSlot,
 }) => {
+  const { t } = useTranslation('sales');
   return (
     <div className="flex h-full min-h-0 flex-col bg-background">
       <div className="flex shrink-0 justify-between items-center p-4 border-b">
-        <h2 className="text-2xl text-foreground">ALL SLOTS</h2>
+        <h2 className="text-2xl text-foreground">{t('all-slots')}</h2>
 
         <Badge variant="default">{nodes.length}</Badge>
       </div>
@@ -37,11 +39,11 @@ const SidebarList: React.FC<SidebarListProps> = ({
             ))
           ) : (
             <div className="py-8 text-center">
-              <p className="mb-4 text-foreground">No slots available</p>
+              <p className="mb-4 text-foreground">{t('no-slots-available')}</p>
 
               <Button onClick={onAddSlot} variant="default">
                 <IconPlus className="mr-2 w-4 h-4" />
-                Add your first slot
+                {t('add-your-first-slot')}
               </Button>
             </div>
           )}
@@ -53,7 +55,7 @@ const SidebarList: React.FC<SidebarListProps> = ({
               onClick={onAddSlot}
             >
               <IconPlus className="mr-2 w-4 h-4" />
-              Add slot
+              {t('add-slot')}
             </Button>
           )}
         </div>

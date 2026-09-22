@@ -37,6 +37,8 @@ export const GET_PIPELINE = gql`
       __typename
       memberIds
       visibility
+      propertyIds
+      isPropertySelectionConfigured
     }
   }
 `;

@@ -29,8 +29,10 @@ class InvMoveInTrs {
     const { moveInAccountId, moveInBranchId, moveInDepartmentId } =
       this.trDoc.followInfos;
 
-    if (!moveInBranchId || !moveInDepartmentId) {
-      throw new Error('Must fill move in branch and department');
+    // Зарим Erkhet location erxes дээр зөвхөн branch-р илэрхийлэгддэг.
+    // Тиймээс branch department ядаж нэг нь заавал бөглөгдсөн байх ёстой
+    if (!moveInBranchId && !moveInDepartmentId) {
+      throw new Error('Must fill move in branch');
     }
 
     if (!moveInAccountId) {

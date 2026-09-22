@@ -1,28 +1,37 @@
-import { IconBriefcase, IconSandbox } from '@tabler/icons-react';
+import { IconBriefcase, IconReceipt, IconSandbox } from '@tabler/icons-react';
 import { Suspense, lazy } from 'react';
 
-import { IUIConfig } from 'erxes-ui';
+import { IUIConfig, TPropertyInputProps } from 'erxes-ui';
+import { SEARCH_PROVIDERS } from '~/searchProviders';
+
+const DealStagePropertyInput = lazy(() =>
+  import('@/deals/components/deal-selects/DealStagePropertyInput').then(
+    (module) => ({
+      default: module.DealStagePropertyInput,
+    }),
+  ),
+);
 
 const MainNavigation = lazy(() =>
-  import('./modules/MainNavigation').then((module) => ({
+  import('@/MainNavigation').then((module) => ({
     default: module.MainNavigation,
   })),
 );
 
 const SalesSubNavigation = lazy(() =>
-  import('./modules/SalesSubNavigation').then((module) => ({
+  import('@/SalesSubNavigation').then((module) => ({
     default: module.SalesSubNavigation,
   })),
 );
 
 const PosOrderNavigation = lazy(() =>
-  import('./modules/pos/PosOrderNavigation').then((module) => ({
+  import('@/pos/PosOrderNavigation').then((module) => ({
     default: module.PosOrderNavigation,
   })),
 );
 
 const SalesSettingsNavigation = lazy(() =>
-  import('./modules/SalesSettingsNavigation').then((module) => ({
+  import('@/SalesSettingsNavigation').then((module) => ({
     default: module.SalesSettingsNavigation,
   })),
 );
@@ -37,6 +46,7 @@ export const CONFIG: IUIConfig = {
   ),
   navigationGroup: {
     name: 'sales',
+    defaultPath: 'sales/deals',
     icon: IconBriefcase,
     content: () => (
       <Suspense fallback={<div />}>
@@ -52,19 +62,24 @@ export const CONFIG: IUIConfig = {
   },
   modules: [
     {
-      name: 'sales',
-      icon: IconBriefcase,
-      path: 'sales',
-      hasAutomation: true,
-    },
-    {
       name: 'deals',
       path: 'sales/deals',
+      hasAutomation: true,
     },
     {
       name: 'pos',
       icon: IconBriefcase,
       path: 'sales/pos',
+    },
+    {
+      name: 'POS settings',
+      icon: IconBriefcase,
+      path: 'settings/sales/pos',
+    },
+    {
+      name: 'Deals settings',
+      icon: IconBriefcase,
+      path: 'settings/sales/deals',
     },
   ],
   widgets: {
@@ -73,6 +88,19 @@ export const CONFIG: IUIConfig = {
         name: 'deals',
         icon: IconSandbox,
       },
+      {
+        name: 'posOrders',
+        icon: IconReceipt,
+        label: 'POS orders',
+      },
     ],
+    propertyInputs: {
+      dealStage: (props: TPropertyInputProps) => (
+        <Suspense fallback={<div />}>
+          <DealStagePropertyInput {...props} />
+        </Suspense>
+      ),
+    },
   },
+  searchProviders: SEARCH_PROVIDERS,
 };

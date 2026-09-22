@@ -6,7 +6,10 @@ export type TAutomationOutputVariable = {
   key: string;
   label: string;
   exposure?: 'placeholder' | 'reference';
+  isLink?: boolean;
   field?: string;
+  /** Plain sub-fields of an array/object value, expanded inline without a reference lookup. */
+  fields?: TAutomationOutputVariable[];
   referenceFields?: TAutomationOutputVariable[];
   referenceType?: string;
   sourceType?: string;
@@ -38,6 +41,11 @@ export type TAutomationVariableSourceNode = {
   nodeType: AutomationNodeType;
   label: string;
   icon?: string;
+  // Pseudo sources (e.g. workflow inputs) carry their variables directly
+  // instead of fetching output definitions by node type.
+  staticVariables?: TAutomationOutputVariable[];
+  // Overrides the Trigger/Action tag shown next to the source label
+  kindLabel?: string;
 };
 
 export type TAutomationVariableEmptyState = {
@@ -61,6 +69,7 @@ export type TAutomationVariableBrowserProps = {
   sourceNodes?: TAutomationVariableSourceNode[];
   emptyState?: TAutomationVariableEmptyState | null;
   onInsertVariable?: (payload: TAutomationVariableDragPayload) => void;
+  onInsertVariableAsLink?: (payload: TAutomationVariableDragPayload) => void;
   sourceSectionTitle?: string;
   className?: string;
 };

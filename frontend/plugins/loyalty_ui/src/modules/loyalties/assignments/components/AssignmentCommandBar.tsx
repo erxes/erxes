@@ -9,6 +9,7 @@ import {
   useToast,
 } from 'erxes-ui';
 import { useMutation } from '@apollo/client';
+import { useTranslation } from 'react-i18next';
 import { IAssignmentItem } from '../types/assignment';
 import { ASSIGNMENTS_REMOVE_MUTATION } from '../graphql/mutations';
 
@@ -21,6 +22,7 @@ const AssignmentRemove = ({
 }) => {
   const { confirm } = useConfirm();
   const { toast } = useToast();
+  const { t } = useTranslation('loyalty');
 
   const [removeAssignments] = useMutation(ASSIGNMENTS_REMOVE_MUTATION, {
     refetchQueries: ['AssignmentsMain'],
@@ -32,19 +34,19 @@ const AssignmentRemove = ({
       className="text-destructive"
       onClick={() =>
         confirm({
-          message: `Are you sure you want to delete ${ids.length} selected assignment(s)?`,
+          message: t('delete-assignment-confirm', { count: ids.length }),
         }).then(async () => {
           try {
             await removeAssignments({ variables: { _ids: ids } });
             rows.forEach((row) => row.toggleSelected(false));
             toast({
-              title: 'Success',
+              title: t('success'),
               variant: 'success',
-              description: `${ids.length} assignment(s) deleted successfully`,
+              description: t('assignments-deleted', { count: ids.length }),
             });
           } catch (e: unknown) {
             toast({
-              title: 'Error',
+              title: t('error'),
               description: e instanceof Error ? e.message : String(e),
               variant: 'destructive',
             });
@@ -53,13 +55,14 @@ const AssignmentRemove = ({
       }
     >
       <IconTrash />
-      Delete
+      {t('delete')}
     </Button>
   );
 };
 
 export const AssignmentCommandBar = () => {
   const { table } = RecordTable.useRecordTable();
+  const { t } = useTranslation('loyalty');
   const selectedRows = table.getFilteredSelectedRowModel()
     .rows as Row<IAssignmentItem>[];
   const ids = selectedRows.map((row) => row.original._id);
@@ -67,7 +70,7 @@ export const AssignmentCommandBar = () => {
   return (
     <CommandBar open={selectedRows.length > 0}>
       <CommandBar.Bar>
-        <CommandBar.Value>{selectedRows.length} selected</CommandBar.Value>
+        <CommandBar.Value>{t('selected-count', { count: selectedRows.length })}</CommandBar.Value>
         <Separator.Inline />
         <AssignmentRemove ids={ids} rows={selectedRows} />
       </CommandBar.Bar>

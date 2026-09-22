@@ -10,6 +10,7 @@ import {
   toast,
 } from 'erxes-ui';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { PostsHotKeyScope } from '../types/PostsHotKeyScope';
 import { POSTS_EDIT } from '../graphql/mutations/postsEditMutation';
 export const PostsRecordTableStatusInlineCell = ({
@@ -17,6 +18,7 @@ export const PostsRecordTableStatusInlineCell = ({
 }: {
   cell: Cell<any, any>;
 }) => {
+  const { t } = useTranslation('content');
   const [open, setOpen] = useState(false);
   const status = cell.getValue() as string;
   const [edit, { loading }] = useMutation(POSTS_EDIT);
@@ -31,14 +33,14 @@ export const PostsRecordTableStatusInlineCell = ({
       onCompleted: () => {
         setOpen(false);
         toast({
-          title: 'Success',
-          description: 'Post status updated successfully',
+          title: t('success'),
+          description: t('post-status-updated-successfully'),
           variant: 'success',
         });
       },
       onError: (error) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });

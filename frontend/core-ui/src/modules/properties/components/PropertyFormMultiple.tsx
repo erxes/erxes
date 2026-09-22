@@ -1,4 +1,5 @@
 import { UseFormReturn } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { IPropertyForm } from '../types/Properties';
 import { Form, Switch } from 'erxes-ui';
 
@@ -7,6 +8,7 @@ export const PropertyFormMultiple = ({
 }: {
   form: UseFormReturn<IPropertyForm>;
 }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const type = form.watch('type');
 
   if (!type || ['number', 'boolean'].includes(type)) {
@@ -22,7 +24,7 @@ export const PropertyFormMultiple = ({
             <Form.Control>
               <Switch checked={field.value} onCheckedChange={field.onChange} />
             </Form.Control>
-            <Form.Label variant="peer">Multiple</Form.Label>
+            <Form.Label variant="peer">{t('multiple', 'Multiple')}</Form.Label>
           </div>
         </Form.Item>
       )}

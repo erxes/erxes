@@ -5,6 +5,7 @@ import {
   Tooltip,
 } from 'erxes-ui';
 import { useEffect, useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   VoucherCampaignInlineProps,
   IVoucherCampaign,
@@ -30,6 +31,7 @@ const VoucherCampaignInlineProvider = ({
   placeholder,
   updateVoucherCampaigns,
 }: VoucherCampaignInlineProps & { children?: React.ReactNode }) => {
+  const { t } = useTranslation('loyalty');
   const [currentVoucherCampaigns, setCurrentVoucherCampaigns] = useState<
     IVoucherCampaign[]
   >(voucherCampaigns || []);
@@ -44,7 +46,7 @@ const VoucherCampaignInlineProvider = ({
         && [voucherCampaignId]
         || [],
       placeholder: isUndefinedOrNull(placeholder)
-        ? 'Select voucher campaigns'
+        ? t('select-voucher-campaigns')
         : placeholder,
       updateVoucherCampaigns: updateVoucherCampaigns || setCurrentVoucherCampaigns,
     };
@@ -102,6 +104,7 @@ const VoucherCampaignInlineEffectComponent = ({
 };
 
 const VoucherCampaignInlineTitle = () => {
+  const { t } = useTranslation('loyalty');
   const { voucherCampaigns, loading, placeholder } =
     useVoucherCampaignInlineContext();
 
@@ -117,7 +120,7 @@ const VoucherCampaignInlineTitle = () => {
     return (
       <TextOverflowTooltip
         value={voucherCampaigns
-          .map((c) => c.title || 'Unnamed Campaign')
+          .map((c) => c.title || t('unnamed-campaign'))
           .join(', ')}
       />
     );
@@ -127,10 +130,10 @@ const VoucherCampaignInlineTitle = () => {
     <Tooltip.Provider>
       <Tooltip>
         <Tooltip.Trigger asChild>
-          <span>{`${voucherCampaigns.length} voucher campaigns`}</span>
+          <span>{t('voucher-campaigns-count', { count: voucherCampaigns.length })}</span>
         </Tooltip.Trigger>
         <Tooltip.Content>
-          {voucherCampaigns.map((c) => c.title || 'Unnamed Campaign').join(', ')}
+          {voucherCampaigns.map((c) => c.title || t('unnamed-campaign')).join(', ')}
         </Tooltip.Content>
       </Tooltip>
     </Tooltip.Provider>

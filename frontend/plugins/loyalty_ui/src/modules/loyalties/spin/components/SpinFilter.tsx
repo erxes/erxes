@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
 import { SpinHotKeyScope } from '../types/path/SpinHotKeyScope';
 import { SpinTotalCount } from './SpinTotalCount';
@@ -9,6 +10,7 @@ import { SelectVoucherCampaign } from '../../vouchers/components/selects/SelectV
 import { SelectOwner } from '~/modules/loyalties/components/SelectOwner';
 
 const SpinFilterPopover = () => {
+  const { t } = useTranslation('loyalty');
   const [queries] = useMultiQueryState<{
     spinCampaign: string;
     ownerType: string;
@@ -35,7 +37,7 @@ const SpinFilterPopover = () => {
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder="Filter"
+                placeholder={t('filter')}
                 variant="secondary"
                 className="bg-background"
               />
@@ -77,6 +79,7 @@ const SpinFilterPopover = () => {
 };
 
 export const SpinFilter = () => {
+  const { t } = useTranslation('loyalty');
   const { sessionKey } = useSpinLeadSessionKey();
 
   return (

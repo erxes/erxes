@@ -2,8 +2,10 @@ import { STATUS_TYPES } from '@/operation/components/StatusInline';
 import { useConvertTriage } from '@/triage/hooks/useConvertTriage';
 import { Button, Dialog, Textarea } from 'erxes-ui';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const DeclineTriage = ({ triageId }: { triageId: string }) => {
+  const { t } = useTranslation('operation');
   const [reason, setReason] = useState('');
   const [open, setOpen] = useState(false);
   const { convertTriageToTask, loading } = useConvertTriage();
@@ -23,28 +25,28 @@ export const DeclineTriage = ({ triageId }: { triageId: string }) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <Dialog.Trigger asChild>
-        <Button variant="outline">Decline Triage</Button>
+        <Button variant="outline">{t('decline-triage')}</Button>
       </Dialog.Trigger>
       <Dialog.Content>
         <Dialog.Header>
-          <Dialog.Title>Decline Triage</Dialog.Title>
+          <Dialog.Title>{t('decline-triage')}</Dialog.Title>
           <Dialog.Description className="pt-1">
-            Please provide a reason for declining this triage.
+            {t('decline-triage-reason')}
           </Dialog.Description>
         </Dialog.Header>
         <div className="py-3">
           <Textarea
-            placeholder="Reason..."
+            placeholder={t('reason-placeholder')}
             value={reason}
             onChange={(e) => setReason(e.target.value)}
           />
         </div>
         <Dialog.Footer>
           <Dialog.Close asChild>
-            <Button variant="ghost">Cancel</Button>
+            <Button variant="ghost">{t('cancel')}</Button>
           </Dialog.Close>
           <Button onClick={declineTriage} disabled={!reason || loading}>
-            Decline
+            {t('decline')}
           </Button>
         </Dialog.Footer>
       </Dialog.Content>

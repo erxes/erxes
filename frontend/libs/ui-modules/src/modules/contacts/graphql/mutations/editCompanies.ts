@@ -50,6 +50,11 @@ export const EDIT_COMPANIES = gql`
       isSubscribed: $isSubscribed
     ) {
       _id
+      avatar
+      primaryName
+      primaryEmail
+      primaryPhone
+      code
     }
   }
 `;

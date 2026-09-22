@@ -1,39 +1,38 @@
-import { productsMutations, productsQueries } from '@/products/graphql';
-import { OperationVariables, useMutation, ApolloCache } from '@apollo/client';
-import { IProductCategory } from 'ui-modules';
+import { productsMutations } from '@/products/graphql';
+import {
+  ApolloError,
+  OperationVariables,
+  useApolloClient,
+  useMutation,
+} from '@apollo/client';
 import { useState } from 'react';
 
 const normalizeCategoryIds = (categoryIds: string | string[]) => {
   const rawIds = Array.isArray(categoryIds) ? categoryIds : [categoryIds];
 
-  return rawIds
-    .flatMap((id) => id.split(','))
-    .map((id) => id.trim())
-    .filter(Boolean);
+  return [
+    ...new Set(
+      rawIds
+        .flatMap((id) => id.split(','))
+        .map((id) => id.trim())
+        .filter(Boolean),
+    ),
+  ];
 };
 
-const filterOutCategories = (ids: string[]) => (category: IProductCategory) =>
-  !ids.includes(category._id);
+const getErrorDedupeKey = (message: string) =>
+  message.replace(/category "[^"]+"/, 'category').replace(/\d+/g, '{count}');
 
-const getUpdatedCategories = (
-  productCategories: IProductCategory[],
-  ids: string[],
-) => ({
-  productCategories: productCategories.filter(filterOutCategories(ids)),
-});
+const getMutationErrorMessage = (error: unknown) => {
+  if (error instanceof ApolloError) {
+    return (
+      error.graphQLErrors[0]?.message ||
+      error.networkError?.message ||
+      error.message
+    );
+  }
 
-const applyCacheCategoryRemoval = (cache: ApolloCache<any>, ids: string[]) => {
-  cache.updateQuery(
-    {
-      query: productsQueries.productCategories,
-    },
-    (data: { productCategories: IProductCategory[] } | null | undefined) => {
-      if (!data?.productCategories) {
-        return data;
-      }
-      return getUpdatedCategories(data.productCategories, ids);
-    },
-  );
+  return error instanceof Error ? error.message : 'Unknown error';
 };
 
 interface RemoveError {
@@ -52,6 +51,7 @@ interface RemoveCategoryOptions {
 }
 
 export const useRemoveCategories = () => {
+  const client = useApolloClient();
   const [_removeCategory] = useMutation(productsMutations.categoryRemove);
   const [isRemoving, setIsRemoving] = useState<boolean>(false);
 
@@ -73,34 +73,36 @@ export const useRemoveCategories = () => {
               ...(variables as OperationVariables),
               _id: id,
             },
-            update: (cache) => applyCacheCategoryRemoval(cache, [id]),
+            update: (cache) => {
+              cache.evict({ fieldName: 'productCategories' });
+              cache.evict({ fieldName: 'productCategoriesTotalCount' });
+            },
           }),
         ),
       );
 
+      client.cache.gc();
+
       const succeededIds: string[] = [];
-      const errors: RemoveError[] = [];
+      const errorMessages = new Map<string, string>();
 
       results.forEach((result, index) => {
         if (result.status === 'fulfilled') {
           succeededIds.push(ids[index]);
         } else {
-          const errorMessage =
-            result.reason instanceof Error
-              ? result.reason.message
-              : 'Unknown error';
-          errors.push({ message: errorMessage });
+          const errorMessage = getMutationErrorMessage(result.reason);
+          errorMessages.set(getErrorDedupeKey(errorMessage), errorMessage);
         }
       });
 
-      if (errors.length === 0) {
-        if (typeof onCompleted === 'function') {
-          onCompleted(succeededIds);
-        }
+      const errors = Array.from(errorMessages.values(), (message) => ({
+        message,
+      }));
+
+      if (errors.length > 0) {
+        onError?.({ succeededIds, errors });
       } else {
-        if (typeof onError === 'function') {
-          onError({ succeededIds, errors });
-        }
+        onCompleted?.(succeededIds);
       }
     } finally {
       setIsRemoving(false);

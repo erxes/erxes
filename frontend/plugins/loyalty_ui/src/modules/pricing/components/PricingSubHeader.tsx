@@ -5,6 +5,7 @@ import {
   Skeleton,
   useMultiQueryState,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { usePricing } from '@/pricing/hooks/usePricing';
 import {
   PricingFilterBar,
@@ -17,7 +18,7 @@ type PricingFilterState = {
   branchId?: string | null;
   departmentId?: string | null;
   productId?: string | null;
-  isPriority?: string | null;
+  priority?: string | null;
   date?: string | null;
   isQuantityEnabled?: boolean | null;
   isPriceEnabled?: boolean | null;
@@ -27,6 +28,7 @@ type PricingFilterState = {
 };
 
 export function PricingSubHeader() {
+  const { t } = useTranslation('loyalty');
   const { totalCount, loading } = usePricing();
   const [queries] = useMultiQueryState<PricingFilterState>([
     'searchValue',
@@ -34,7 +36,7 @@ export function PricingSubHeader() {
     'branchId',
     'departmentId',
     'productId',
-    'isPriority',
+    'priority',
     'date',
     'isQuantityEnabled',
     'isPriceEnabled',
@@ -64,7 +66,7 @@ export function PricingSubHeader() {
 
           <div className="h-7 text-sm font-medium leading-7 whitespace-nowrap text-muted-foreground">
             {totalCount
-              ? `${totalCount} records found`
+              ? `${totalCount} ${t('records-found')}`
               : loading && (
                   <Skeleton className="w-20 h-4 inline-block mt-1.5" />
                 )}

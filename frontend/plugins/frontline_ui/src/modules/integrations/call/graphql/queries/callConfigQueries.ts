@@ -14,7 +14,6 @@ export const CALL_INTEGRATION_DETAIL = gql`
       phone
       wsServer
       operators
-      token
       queues
       srcTrunk
       dstTrunk
@@ -27,10 +26,10 @@ export const CALL_USER_INTEGRATIONS = gql`
     callUserIntegrations {
       _id
       inboxId
+      name
       operators
       phone
       wsServer
-      token
       queues
       srcTrunk
       dstTrunk
@@ -161,21 +160,9 @@ export const CALL_EXTENSION_LIST = gql`
   }
 `;
 
-export const CALL_QUEUE_LIST = gql`
-  query callQueueList {
-    callQueueList
-  }
-`;
-
 export const CALL_QUEUE_INITIAL_LIST = gql`
   query callQueueInitialList($queue: String!) {
     callQueueInitialList(queue: $queue)
-  }
-`;
-
-export const CALL_QUEUE_MEMBER_LIST = gql`
-  query callQueueMemberList($integrationId: String!, $queue: String!) {
-    callQueueMemberList(integrationId: $integrationId, queue: $queue)
   }
 `;
 

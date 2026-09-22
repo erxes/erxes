@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { agentTotalCountAtom } from '../states/useAgentCounts';
 
 export const AgentTotalCount = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('loyalty');
   const totalCount = useAtomValue(agentTotalCountAtom);
   return (
     <div className="text-muted-foreground font-medium text-sm whitespace-nowrap h-7 leading-7">

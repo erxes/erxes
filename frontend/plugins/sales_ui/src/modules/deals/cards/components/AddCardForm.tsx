@@ -1,11 +1,30 @@
-import { Button, Editor, Form, Input, ScrollArea, Sheet } from 'erxes-ui';
+import {
+  Button,
+  Editor,
+  Form,
+  Input,
+  ScrollArea,
+  Sheet,
+  Spinner,
+} from 'erxes-ui';
+import {
+  PropertyFormField,
+  SelectCompany,
+  SelectCustomer,
+  SelectMember,
+  isFieldVisibleByLogic,
+  useFields,
+} from 'ui-modules';
 import { SalesFormType, salesFormSchema } from '@/deals/constants/formSchema';
-import { SelectCompany, SelectCustomer, SelectMember } from 'ui-modules';
+import { useCallback, useEffect } from 'react';
 
+import { IconInfoCircle } from '@tabler/icons-react';
 import { SelectLabels } from '../../components/common/filters/SelectLabel';
 import WorkflowFields from './WorkflowFields';
 import { useDealsAdd } from '@/deals/cards/hooks/useDeals';
 import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 export function AddCardForm({
@@ -27,14 +46,37 @@ export function AddCardForm({
       customerIds: [],
       labelIds: [],
       tagIds: [],
+      propertiesData: {},
     },
   });
   const { addDeals, loading } = useDealsAdd();
 
-  const onSubmit = (data: SalesFormType) => {
+  const updateCustomFieldValue = useCallback(
+    (fieldId: string, value: unknown) => {
+      const current = form.getValues('propertiesData') || {};
+      form.setValue('propertiesData', { ...current, [fieldId]: value });
+    },
+    [form],
+  );
+
+  useEffect(() => {
+    form.setFocus('name');
+  }, [form]);
+
+  const onSubmit = ({ propertiesData, ...rest }: SalesFormType) => {
+    const cleanPropertiesData =
+      propertiesData && Object.keys(propertiesData).length > 0
+        ? Object.fromEntries(
+            Object.entries(propertiesData).filter(
+              ([, v]) => v !== undefined && v !== null && v !== '',
+            ),
+          )
+        : undefined;
+
     addDeals({
       variables: {
-        ...data,
+        ...rest,
+        propertiesData: cleanPropertiesData,
       },
       onCompleted: (data) => {
         form.reset();
@@ -44,6 +86,16 @@ export function AddCardForm({
     });
   };
 
+  const propertiesData = form.watch('propertiesData') || {};
+
+  const { t } = useTranslation('sales');
+  const navigate = useNavigate();
+
+  const onConfigureProperties = () => {
+    onCloseSheet();
+    navigate('/settings/properties/sales:deal');
+  };
+
   return (
     <Form {...form}>
       <form
@@ -51,9 +103,9 @@ export function AddCardForm({
         className="flex flex-col h-full overflow-hidden"
       >
         <Sheet.Header className="p-5">
-          <Sheet.Title>Add deal</Sheet.Title>
+          <Sheet.Title>{t('add-deal')}</Sheet.Title>
           <Sheet.Description className="sr-only">
-            Add a new deal to your stage.
+            {t('add-new-deal-to-stage')}
           </Sheet.Description>
           <Sheet.Close />
         </Sheet.Header>
@@ -66,7 +118,7 @@ export function AddCardForm({
                   name="name"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>NAME</Form.Label>
+                      <Form.Label>{t('name')}</Form.Label>
                       <Form.Control>
                         <Input {...field} required />
                       </Form.Control>
@@ -79,7 +131,7 @@ export function AddCardForm({
                   name="description"
                   render={({ field }) => (
                     <Form.Item className="mb-5">
-                      <Form.Label>Description</Form.Label>
+                      <Form.Label>{t('description')}</Form.Label>
 
                       <Form.Control>
                         <Editor
@@ -102,7 +154,7 @@ export function AddCardForm({
                   name="assignedUserIds"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>Assigned to</Form.Label>
+                      <Form.Label>{t('assigned-to')}</Form.Label>
                       <Form.Control>
                         <SelectMember.FormItem
                           mode="multiple"
@@ -119,7 +171,7 @@ export function AddCardForm({
                   name="labelIds"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>Select label</Form.Label>
+                      <Form.Label>{t('select-label')}</Form.Label>
                       <Form.Control>
                         <SelectLabels.FormItem
                           mode="multiple"
@@ -136,7 +188,7 @@ export function AddCardForm({
                   name="companyIds"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>Select companies</Form.Label>
+                      <Form.Label>{t('select-companies')}</Form.Label>
                       <Form.Control>
                         <SelectCompany
                           mode="multiple"
@@ -153,7 +205,7 @@ export function AddCardForm({
                   name={'customerIds'}
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>Select customers</Form.Label>
+                      <Form.Label>{t('select-customers')}</Form.Label>
                       <SelectCustomer.FormItem
                         mode="multiple"
                         value={field.value}
@@ -163,6 +215,20 @@ export function AddCardForm({
                   )}
                 />
               </div>
+              <DealPropertiesSection
+                propertiesData={propertiesData}
+                onFieldChange={updateCustomFieldValue}
+              />
+              <button
+                type="button"
+                onClick={onConfigureProperties}
+                className="mt-4 flex w-full cursor-pointer items-start gap-2.5 rounded-lg border border-info/40 bg-info/10 px-3 py-2.5 text-left text-xs text-info hover:bg-info/15"
+              >
+                <IconInfoCircle className="mt-0.5 size-3.5 shrink-0" />
+                <span className="cursor-pointer leading-5 underline underline-offset-2">
+                  {t('configure-properties-in-settings')}
+                </span>
+              </button>
             </div>
           </ScrollArea>
         </Sheet.Content>
@@ -175,17 +241,53 @@ export function AddCardForm({
             onPointerDown={(e) => e.stopPropagation()}
             onPointerUp={(e) => e.stopPropagation()}
           >
-            Cancel
+            {t('cancel')}
           </Button>
           <Button
             type="submit"
             className="bg-primary text-primary-foreground hover:bg-primary/90"
             disabled={loading}
           >
-            {loading ? 'Saving...' : 'Save'}
+            {loading ? t('saving') : t('save')}
           </Button>
         </Sheet.Footer>
       </form>
     </Form>
+  );
+}
+
+function DealPropertiesSection({
+  propertiesData,
+  onFieldChange,
+}: Readonly<{
+  propertiesData: Record<string, unknown>;
+  onFieldChange: (fieldId: string, value: unknown) => void;
+}>) {
+  const { fields, loading } = useFields({ contentType: 'sales:deal' });
+
+  const visibleFields = fields
+    .filter((field) => field.isVisibleToCreate)
+    .filter((field) => isFieldVisibleByLogic(field, propertiesData));
+
+  if (loading) {
+    return <Spinner containerClassName="py-6" />;
+  }
+
+  if (visibleFields.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="grid grid-cols-2 gap-4 mt-4">
+      {visibleFields.map((field) => (
+        <PropertyFormField
+          key={field._id}
+          field={field}
+          value={propertiesData[field._id]}
+          idPrefix="deal_add_form"
+          onFieldChange={onFieldChange}
+        />
+      ))}
+    </div>
   );
 }

@@ -14,7 +14,7 @@ const useBroadcastConfig = () => {
       onError(error) {
         console.error(error.message);
       },
-      refetchQueries: ['Configs'],
+      refetchQueries: ['Configs', 'EmailSenderOptions'],
       awaitRefetchQueries: true,
     },
   );

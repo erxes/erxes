@@ -1,8 +1,10 @@
 import { useMutation, MutationHookOptions } from '@apollo/client';
 import { useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { UPDATE_TRIAGE_MUTATION } from '../graphql/mutations/updateTriage';
 
 export const useUpdateTriage = () => {
+  const { t } = useTranslation('operation');
   const { toast } = useToast();
   const [updateTriageMutation, { loading, error }] = useMutation(
     UPDATE_TRIAGE_MUTATION,
@@ -12,7 +14,7 @@ export const useUpdateTriage = () => {
       ...options,
       onError: (error) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });

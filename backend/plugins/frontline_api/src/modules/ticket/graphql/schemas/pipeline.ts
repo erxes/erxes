@@ -27,6 +27,8 @@ export const types = `
     updatedAt: Date
     visibility: String
     memberIds: [String]
+    propertyIds: [String]
+    isPropertySelectionConfigured: Boolean
   }
 
   type PipelineSubscription {
@@ -76,6 +78,7 @@ const pipelineParams = `
     branchIds: [String],
     visibility: String,
     memberIds :[String]
+    propertyIds: [String]
 `;
 export const mutations = `
   createPipeline(

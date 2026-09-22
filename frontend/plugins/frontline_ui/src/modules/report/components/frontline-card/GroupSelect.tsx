@@ -1,5 +1,6 @@
 import { PopoverScoped, Combobox, Command } from 'erxes-ui';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface GroupSelectProps {
   value?: string;
@@ -10,6 +11,7 @@ export const GroupSelect = ({
   value = 'all',
   onValueChange,
 }: GroupSelectProps) => {
+  const { t } = useTranslation('frontline');
   const [open, setOpen] = useState(false);
 
   const handleValueChange = (newValue: string) => {
@@ -19,14 +21,14 @@ export const GroupSelect = ({
 
   const getDisplayLabel = () => {
     const labels: Record<string, string> = {
-      all: 'All Sources',
-      'facebook-messenger': 'Facebook Messenger',
-      'facebook-post': 'Facebook Post',
-      'instagram-messenger': 'Instagram Messenger',
-      'instagram-post': 'Instagram Post',
-      calls: 'Calls',
-      messenger: 'Messenger',
-      form: 'Form',
+      all: t('all-sources', 'All Sources'),
+      'facebook-messenger': t('facebook-messenger', 'Facebook Messenger'),
+      'facebook-post': t('facebook-post', 'Facebook Post'),
+      'instagram-messenger': t('instagram-messenger', 'Instagram Messenger'),
+      'instagram-post': t('instagram-post', 'Instagram Post'),
+      calls: t('calls', 'Calls'),
+      messenger: t('messenger', 'Messenger'),
+      form: t('source-form', 'Form'),
     };
     return labels[value] || value;
   };
@@ -34,7 +36,7 @@ export const GroupSelect = ({
   return (
     <div className="flex items-center gap-2 shrink-0 flex-none">
       <span className="text-xs text-muted-foreground whitespace-nowrap">
-        Group By
+        {t('group-by-label', 'Group By')}
       </span>
       <PopoverScoped open={open} onOpenChange={setOpen}>
         <Combobox.TriggerBase>
@@ -47,49 +49,49 @@ export const GroupSelect = ({
                 value="all"
                 onSelect={() => handleValueChange('all')}
               >
-                All Sources
+                {t('all-sources', 'All Sources')}
               </Command.Item>
               <Command.Item
                 value="facebook-messenger"
                 onSelect={() => handleValueChange('facebook-messenger')}
               >
-                Facebook Messenger
+                {t('facebook-messenger', 'Facebook Messenger')}
               </Command.Item>
               <Command.Item
                 value="facebook-post"
                 onSelect={() => handleValueChange('facebook-post')}
               >
-                Facebook Post
+                {t('facebook-post', 'Facebook Post')}
               </Command.Item>
               <Command.Item
                 value="instagram-messenger"
                 onSelect={() => handleValueChange('instagram-messenger')}
               >
-                Instagram Messenger
+                {t('instagram-messenger', 'Instagram Messenger')}
               </Command.Item>
               <Command.Item
                 value="instagram-post"
                 onSelect={() => handleValueChange('instagram-post')}
               >
-                Instagram Post
+                {t('instagram-post', 'Instagram Post')}
               </Command.Item>
               <Command.Item
                 value="calls"
                 onSelect={() => handleValueChange('calls')}
               >
-                Calls
+                {t('calls', 'Calls')}
               </Command.Item>
               <Command.Item
                 value="messenger"
                 onSelect={() => handleValueChange('messenger')}
               >
-                Messenger
+                {t('messenger', 'Messenger')}
               </Command.Item>
               <Command.Item
                 value="form"
                 onSelect={() => handleValueChange('form')}
               >
-                Form
+                {t('source-form', 'Form')}
               </Command.Item>
             </Command.List>
           </Command>

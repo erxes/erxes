@@ -1,4 +1,4 @@
-import gql from "graphql-tag";
+import gql from 'graphql-tag';
 
 const commonParams = `
   $search: String,
@@ -12,7 +12,6 @@ const commonParams = `
   $branchIds: [String]
   $departmentIds: [String]
   $segment: String
-  $segmentData:String
   $createdStartDate: Date
   $createdEndDate: Date
   $stateChangedStartDate: Date
@@ -35,7 +34,6 @@ const commonParamDefs = `
   branchIds:$branchIds
   departmentIds:$departmentIds
   segment: $segment
-  segmentData:$segmentData
   createdStartDate: $createdStartDate
   createdEndDate: $createdEndDate
   stateChangedStartDate: $stateChangedStartDate

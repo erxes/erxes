@@ -14,6 +14,7 @@ export const usePipelineConfigForm = () => {
       channelId: id,
       pipelineId,
       selectedStatusId: undefined,
+      propertyFields: [],
     },
     resolver: zodResolver(PIPELINE_CONFIG_SCHEMA),
   });

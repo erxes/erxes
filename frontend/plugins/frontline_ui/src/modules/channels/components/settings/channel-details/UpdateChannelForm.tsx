@@ -4,8 +4,10 @@ import { useChannelUpdate } from '@/channels/hooks/useChannelUpdate';
 import { Button, Form, IconPicker, Input, Textarea, useToast } from 'erxes-ui';
 import { SubmitHandler } from 'react-hook-form';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const UpdateChannelForm = ({ channel }: { channel: IChannel }) => {
+  const { t } = useTranslation('frontline');
   const { toast } = useToast();
   const { updateChannel } = useChannelUpdate();
   const form = useChannelsForm({
@@ -24,11 +26,11 @@ export const UpdateChannelForm = ({ channel }: { channel: IChannel }) => {
           ...data,
         },
         onCompleted: () => {
-          toast({ title: 'Success!' });
+          toast({ title: t('success', 'Success!') });
         },
         onError: (error) => {
           toast({
-            title: 'Error',
+            title: t('error', 'Error'),
             description: error.message,
             variant: 'destructive',
           });
@@ -51,8 +53,10 @@ export const UpdateChannelForm = ({ channel }: { channel: IChannel }) => {
               name="icon"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Icon</Form.Label>
-                  <Form.Description className="sr-only">Icon</Form.Description>
+                  <Form.Label>{t('icon', 'Icon')}</Form.Label>
+                  <Form.Description className="sr-only">
+                    {t('icon', 'Icon')}
+                  </Form.Description>
                   <Form.Control>
                     <IconPicker
                       onValueChange={field.onChange}
@@ -70,7 +74,7 @@ export const UpdateChannelForm = ({ channel }: { channel: IChannel }) => {
               name="name"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Name</Form.Label>
+                  <Form.Label>{t('name', 'Name')}</Form.Label>
                   <Form.Control>
                     <Input {...field} />
                   </Form.Control>
@@ -84,7 +88,7 @@ export const UpdateChannelForm = ({ channel }: { channel: IChannel }) => {
           name="description"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Description</Form.Label>
+              <Form.Label>{t('description', 'Description')}</Form.Label>
               <Form.Control>
                 <Textarea {...field} />
               </Form.Control>
@@ -92,7 +96,7 @@ export const UpdateChannelForm = ({ channel }: { channel: IChannel }) => {
           )}
         />
         <div className="flex justify-end">
-          <Button type="submit">Update</Button>
+          <Button type="submit">{t('update', 'Update')}</Button>
         </div>
       </form>
     </Form>

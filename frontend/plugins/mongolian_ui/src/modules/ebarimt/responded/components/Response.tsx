@@ -1,6 +1,6 @@
-import React from 'react';
+export const Response = (content: string | string[]) => {
+  const bodyContent = Array.isArray(content) ? content.join('') : content;
 
-export const Response = (content: any) => {
   return `
     <!DOCTYPE html>
     <html>
@@ -15,7 +15,7 @@ export const Response = (content: any) => {
 
     <body>
       <div class="wrapper">
-      ${content}
+      ${bodyContent}
       </div>
       <style type="text/css">
         /*receipt*/
@@ -71,6 +71,12 @@ export const Response = (content: any) => {
           text-align: center;
         }
 
+        .receipt-logo {
+          max-width: 100px;
+          height: 40px;
+          object-fit: contain;
+        }
+
         .lottery {
           font-weight: bold;
           margin-top: 20px;
@@ -113,9 +119,36 @@ export const Response = (content: any) => {
         }
       </style>
       <script>
+        const waitForReceiptImages = () => {
+          const images = Array.from(document.images || []);
+
+          return Promise.all(
+            images.map((image) => {
+              if (image.complete && image.naturalWidth > 0) {
+                return Promise.resolve();
+              }
+
+              return new Promise((resolve) => {
+                const timeout = window.setTimeout(resolve, 1000);
+                const finish = () => {
+                  window.clearTimeout(timeout);
+                  resolve();
+                };
+
+                image.addEventListener("load", finish, { once: true });
+                image.addEventListener("error", finish, { once: true });
+
+                if (image.decode) {
+                  image.decode().then(finish).catch(() => {});
+                }
+              });
+            }),
+          );
+        };
+
         setTimeout(() => {
-          window.print();
-        }, "150");
+          waitForReceiptImages().then(() => window.print());
+        }, 150);
       </script>
     </body>
 

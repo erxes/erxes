@@ -11,6 +11,7 @@ import {
 } from 'erxes-ui';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { AssignmentTabs } from '../add-assignment-campaign/components/AssignmentTabs';
 import {
   assignmentFormSchema,
@@ -19,6 +20,7 @@ import {
 import { AssignmentHotKeyScope } from '../types/AssignmentHotKeyScope';
 
 export const LoyaltyAssignmentAddSheet = () => {
+  const { t } = useTranslation('loyalty');
   const setHotkeyScope = useSetHotkeyScope();
   const [open, setOpen] = useState<boolean>(false);
   const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
@@ -61,7 +63,7 @@ export const LoyaltyAssignmentAddSheet = () => {
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          Add assignment campaign
+          {t('add-assignment-campaign')}
           <Kbd>C</Kbd>
         </Button>
       </Sheet.Trigger>
@@ -72,7 +74,7 @@ export const LoyaltyAssignmentAddSheet = () => {
         }}
       >
         <Sheet.Header>
-          <Sheet.Title>Add assignment campaign</Sheet.Title>
+          <Sheet.Title>{t('add-assignment-campaign')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="grow size-full h-auto flex flex-col overflow-hidden">

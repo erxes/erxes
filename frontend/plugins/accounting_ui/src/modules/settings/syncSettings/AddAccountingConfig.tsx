@@ -1,5 +1,5 @@
 import { IconPlus } from '@tabler/icons-react';
-import { Button, Dialog } from 'erxes-ui';
+import { Button, Sheet } from 'erxes-ui';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { ACCOUNTING_SETTINGS_CODES } from '../constants/settingsRoutes';
@@ -13,21 +13,21 @@ export const AddAccountingConfig = ({
 }) => {
   const [open, setOpen] = useState(false);
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <Dialog.Trigger asChild>
+    <Sheet open={open} onOpenChange={setOpen}>
+      <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
           Тохиргоо нэмэх
         </Button>
-      </Dialog.Trigger>
-      <Dialog.ContentCombined
-        title="Тохиргоо нэмэх"
-        description="Шинэ тохиргоо нэмэх"
-        className="sm:max-w-2xl"
-      >
+      </Sheet.Trigger>
+      <Sheet.View className="sm:max-w-4xl">
+        <Sheet.Header>
+          <Sheet.Title>Тохиргоо нэмэх</Sheet.Title>
+          <Sheet.Close />
+        </Sheet.Header>
         <AddAccountingConfigForm code={code} setOpen={setOpen} />
-      </Dialog.ContentCombined>
-    </Dialog>
+      </Sheet.View>
+    </Sheet>
   );
 };
 

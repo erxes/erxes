@@ -14,6 +14,16 @@ export interface IPMSBranchModel extends Model<IPmsBranchDocument> {
 
 export const loadPmsBranchClass = (models: IModels) => {
   class Branch {
+    private static normalizeAppointmentConfig(
+      doc: IPmsBranch,
+      currentBranch?: IPmsBranchDocument,
+    ) {
+      const hasAppointment =
+        doc.hasAppointment ?? currentBranch?.hasAppointment ?? false;
+
+      doc.hasAppointment = hasAppointment;
+    }
+
     public static async getList(query: any) {
       return models.PmsBranch.find(query).sort({ createdAt: 1 });
     }
@@ -35,6 +45,8 @@ export const loadPmsBranchClass = (models: IModels) => {
 
     public static async add(user, doc: IPmsBranchDocument) {
       try {
+        this.normalizeAppointmentConfig(doc);
+
         return models.PmsBranch.create({
           ...doc,
           userId: user._id,
@@ -49,7 +61,8 @@ export const loadPmsBranchClass = (models: IModels) => {
     }
 
     public static async edit(_id: string, doc: IPmsBranch) {
-      await models.PmsBranch.get({ _id });
+      const branch = await models.PmsBranch.get({ _id });
+      this.normalizeAppointmentConfig(doc, branch);
 
       await models.PmsBranch.updateOne(
         { _id },

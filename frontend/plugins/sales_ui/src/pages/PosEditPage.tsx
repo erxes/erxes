@@ -1,4 +1,5 @@
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Button, Breadcrumb, Select } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
 import { IconCashRegister } from '@tabler/icons-react';
@@ -8,6 +9,7 @@ import { usePosList } from '~/modules/pos/hooks/usePosList';
 import { IPos } from '~/modules/pos/types/pos';
 
 export const PosEditPage = () => {
+  const { t } = useTranslation('sales');
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { posList, loading } = usePosList();
@@ -28,7 +30,7 @@ export const PosEditPage = () => {
                 <Button variant="ghost" asChild>
                   <Link to="/settings/sales/pos">
                     <IconCashRegister />
-                    POS
+                    {t('pos')}
                   </Link>
                 </Button>
               </Breadcrumb.Item>
@@ -39,8 +41,8 @@ export const PosEditPage = () => {
                     <Select.Value
                       placeholder={
                         loading
-                          ? 'Loading...'
-                          : currentPos?.name || 'Select POS'
+                          ? t('loading')
+                          : currentPos?.name || t('select-pos')
                       }
                     />
                   </Select.Trigger>

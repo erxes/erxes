@@ -1,8 +1,31 @@
-import { paginate, sendTRPCMessage } from 'erxes-api-shared/utils';
+import {
+  escapeRegExp,
+  paginate,
+  sendTRPCMessage,
+} from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
+const DIFF_TYPE_OPERATORS: Record<string, '$gt' | '$lt' | '$eq' | '$ne'> = {
+  gt: '$gt',
+  lt: '$lt',
+  eq: '$eq',
+  ne: '$ne',
+};
+
+const canViewSafeRemainderItemCounts = async (
+  checkPermission: IContext['checkPermission'],
+) => {
+  try {
+    await checkPermission('viewSafeRemainderItemCounts');
+    return true;
+  } catch {
+    return false;
+  }
+};
+
 export const generateFilterItems = async (subdomain: string, params: any) => {
-  const { remainderId, productCategoryIds, status, diffType } = params;
+  const { remainderId, productCategoryIds, status, diffType, searchValue } =
+    params;
   const query: any = { remainderId };
 
   if (productCategoryIds?.length) {
@@ -29,29 +52,42 @@ export const generateFilterItems = async (subdomain: string, params: any) => {
     query.productId = { $in: productIds };
   }
 
+  if (searchValue) {
+    const regex = { $regex: `.*${escapeRegExp(searchValue)}.*`, $options: 'i' };
+    const products = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      module: 'products',
+      action: 'find',
+      input: {
+        query: {
+          $or: [{ code: regex }, { name: regex }, { barcodes: regex }],
+        },
+        fields: { _id: 1 },
+      },
+      defaultValue: [],
+    });
+
+    const searchIds = products.map((p) => p._id);
+
+    if (query.productId?.$in) {
+      const searchIdSet = new Set(searchIds);
+      query.productId = {
+        $in: query.productId.$in.filter((id: string) => searchIdSet.has(id)),
+      };
+    } else {
+      query.productId = { $in: searchIds };
+    }
+  }
+
   if (status) {
     query.status = status;
   }
 
-  if (diffType) {
-    const diffTypes = diffType.split(',');
-    let op;
-    if (diffTypes.includes('gt')) {
-      op = '>';
-    }
-    if (diffTypes.includes('lt')) {
-      op = '<';
-    }
-    if (op) {
-      if (diffTypes.includes('eq')) {
-        op = `${op}=`;
-      }
-    } else {
-      if (diffTypes.includes('eq')) {
-        op = `===`;
-      }
-    }
-    query.$where = `this.preCount ${op} this.count`;
+  const diffOperator = DIFF_TYPE_OPERATORS[diffType];
+
+  if (diffOperator) {
+    query.$expr = { [diffOperator]: ['$count', '$preCount'] };
   }
 
   return query;
@@ -61,9 +97,16 @@ const safeRemainderItemsQueries = {
   safeRemainderItems: async (
     _root: any,
     params: any,
-    { models, subdomain }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) => {
-    const query: any = await generateFilterItems(subdomain, params);
+    await checkPermission('readSafeRemainders');
+    const canViewItemCounts =
+      await canViewSafeRemainderItemCounts(checkPermission);
+    const filterParams = canViewItemCounts
+      ? params
+      : { ...params, diffType: undefined };
+
+    const query: any = await generateFilterItems(subdomain, filterParams);
     return paginate(
       models.SafeRemainderItems.find(query).sort({ order: 1 }).lean(),
       params,
@@ -73,9 +116,16 @@ const safeRemainderItemsQueries = {
   safeRemainderItemsCount: async (
     _root: any,
     params: any,
-    { models, subdomain }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) => {
-    const query: any = await generateFilterItems(subdomain, params);
+    await checkPermission('readSafeRemainders');
+    const canViewItemCounts =
+      await canViewSafeRemainderItemCounts(checkPermission);
+    const filterParams = canViewItemCounts
+      ? params
+      : { ...params, diffType: undefined };
+
+    const query: any = await generateFilterItems(subdomain, filterParams);
     return models.SafeRemainderItems.find(query).countDocuments();
   },
 };

@@ -3,12 +3,14 @@ import { UPDATE_TEAM_MEMBER } from '@/team/graphql/mutations/updateTeamMember';
 import { ITeamMember } from '@/team/types';
 import { GET_TEAM_MEMBERS } from '@/team/graphql/queries/getTeamMembers';
 import { useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 interface CreateTeamMutationResponse {
   updateTeamMember: ITeamMember;
 }
 
 export const useTeamMemberUpdate = () => {
+  const { t } = useTranslation('operation');
   const { toast } = useToast();
   const [updateTeamMember, { loading, error }] =
     useMutation<CreateTeamMutationResponse>(UPDATE_TEAM_MEMBER);
@@ -20,11 +22,11 @@ export const useTeamMemberUpdate = () => {
       ...options,
       onCompleted: (data) => {
         options?.onCompleted?.(data);
-        toast({ title: 'Success!' });
+        toast({ title: t('success') });
       },
       onError: (error) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });

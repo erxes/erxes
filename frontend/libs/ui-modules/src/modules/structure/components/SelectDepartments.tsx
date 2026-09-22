@@ -29,6 +29,22 @@ import {
   SelectDepartmentsCreateContainer,
 } from './CreateDepartmentForm';
 
+const cacheSelectedDepartment = (
+  department: IDepartment | undefined,
+  selectedDepartmentIds: string[],
+  setSelectedDepartments: React.Dispatch<React.SetStateAction<IDepartment[]>>,
+) => {
+  if (!department || !selectedDepartmentIds.includes(department._id)) return;
+
+  setSelectedDepartments((previousDepartments) => {
+    if (previousDepartments.some(({ _id }) => _id === department._id)) {
+      return previousDepartments;
+    }
+
+    return [...previousDepartments, department];
+  });
+};
+
 export const SelectDepartmentsProvider = ({
   children,
   value,
@@ -39,29 +55,40 @@ export const SelectDepartmentsProvider = ({
   const [selectedDepartments, setSelectedDepartments] = useState<IDepartment[]>(
     [],
   );
-  const departmentIds = !value ? [] : Array.isArray(value) ? value : [value];
+  let departmentIds: string[] = [];
+
+  if (Array.isArray(value)) {
+    departmentIds = value;
+  } else if (value) {
+    departmentIds = [value];
+  }
 
   const handleSelectCallback = (department: IDepartment) => {
     if (!department) return;
 
     const isSingleMode = mode === 'single';
+
+    if (isSingleMode) {
+      const isCurrent = value === department._id;
+
+      setSelectedDepartments(isCurrent ? [] : [department]);
+      onValueChange?.(isCurrent ? undefined : department._id);
+      return;
+    }
+
     const multipleValue = (value as string[]) || [];
-    const isSelected = !isSingleMode && multipleValue.includes(department._id);
+    const isSelected = multipleValue.includes(department._id);
 
-    const newSelectedDepartmentIds = isSingleMode
-      ? [department._id]
-      : isSelected
-        ? multipleValue.filter((d) => d !== department._id)
-        : [...multipleValue, department._id];
+    const newSelectedDepartmentIds = isSelected
+      ? multipleValue.filter((d) => d !== department._id)
+      : [...multipleValue, department._id];
 
-    const newSelectedDepartments = isSingleMode
-      ? [department]
-      : isSelected
-        ? selectedDepartments.filter((d) => d._id !== department._id)
-        : [...selectedDepartments, department];
+    const newSelectedDepartments = isSelected
+      ? selectedDepartments.filter((d) => d._id !== department._id)
+      : [...selectedDepartments, department];
 
     setSelectedDepartments(newSelectedDepartments);
-    onValueChange?.(isSingleMode ? department._id : newSelectedDepartmentIds);
+    onValueChange?.(newSelectedDepartmentIds);
   };
 
   return (
@@ -89,7 +116,7 @@ export const SelectDepartmentsCommand = ({
 }) => {
   const [search, setSearch] = useState<string>('');
   const [debouncedSearch] = useDebounce(search, 500);
-  const { selectedDepartments, departmentIds } = useSelectDepartmentsContext();
+  const { departmentIds } = useSelectDepartmentsContext();
   const [noDepartmentsSearchValue, setNoDepartmentsSearchValue] =
     useState<string>('');
 
@@ -121,7 +148,7 @@ export const SelectDepartmentsCommand = ({
       />
 
       <Command.List>
-        {selectedDepartments?.length > 0 && (
+        {(departmentIds?.length ?? 0) > 0 && (
           <>
             <div className="flex flex-wrap justify-start p-2 gap-2">
               <DepartmentsList />
@@ -209,6 +236,7 @@ export const SelectDepartmentsItem = ({
 export const DepartmentsList = ({
   placeholder,
   renderAsPlainText,
+  className,
   ...props
 }: Omit<React.ComponentProps<typeof DepartmentBadge>, 'onClose'> & {
   placeholder?: string;
@@ -217,7 +245,13 @@ export const DepartmentsList = ({
   const { value, selectedDepartments, setSelectedDepartments, onSelect } =
     useSelectDepartmentsContext();
 
-  const selectedDepartmentIds = Array.isArray(value) ? value : [value];
+  let selectedDepartmentIds: string[] = [];
+
+  if (Array.isArray(value)) {
+    selectedDepartmentIds = value;
+  } else if (value) {
+    selectedDepartmentIds = [value];
+  }
 
   if (!value?.length) {
     return <Combobox.Value placeholder={placeholder || ''} />;
@@ -231,18 +265,21 @@ export const DepartmentsList = ({
           departmentId={departmentId}
           department={selectedDepartments.find((d) => d._id === departmentId)}
           renderAsPlainText={renderAsPlainText}
+          showMissingId
           variant={'secondary'}
-          onCompleted={(department) => {
-            if (!department) return;
-            if (selectedDepartmentIds.includes(department._id)) {
-              setSelectedDepartments([...selectedDepartments, department]);
-            }
-          }}
+          className={cn('min-w-0', className)}
+          onCompleted={(department) =>
+            cacheSelectedDepartment(
+              department,
+              selectedDepartmentIds,
+              setSelectedDepartments,
+            )
+          }
           onClose={() =>
             onSelect?.(
-              selectedDepartments.find(
-                (d) => d._id === departmentId,
-              ) as IDepartment,
+              (selectedDepartments.find((d) => d._id === departmentId) ?? {
+                _id: departmentId,
+              }) as IDepartment,
             )
           }
           {...props}
@@ -252,19 +289,23 @@ export const DepartmentsList = ({
   );
 };
 
-export const SelectDepartmentsValue = () => {
-  const { selectedDepartments, mode } = useSelectDepartmentsContext();
+export const SelectDepartmentsValue = ({
+  placeholder,
+}: {
+  placeholder?: string;
+}) => {
+  const { departmentIds, mode } = useSelectDepartmentsContext();
 
-  if (selectedDepartments?.length > 1 && mode === 'multiple')
+  if ((departmentIds?.length ?? 0) > 1 && mode === 'multiple')
     return (
       <span className="text-muted-foreground">
-        {selectedDepartments.length} departments selected
+        {departmentIds?.length} departments selected
       </span>
     );
 
   return (
     <DepartmentsList
-      placeholder="Select departments"
+      placeholder={placeholder ?? 'Select departments'}
       renderAsPlainText={mode === 'single'}
     />
   );
@@ -282,6 +323,54 @@ export const SelectDepartmentsContent = () => {
   }
   return <SelectDepartmentsCommand />;
 };
+
+export const SelectDepartmentsRoot = React.forwardRef<
+  React.ElementRef<typeof Combobox.Trigger>,
+  Omit<React.ComponentProps<typeof SelectDepartmentsProvider>, 'children'> &
+    Omit<
+      React.ComponentPropsWithoutRef<typeof Combobox.Trigger>,
+      'children'
+    > & {
+      placeholder?: string;
+      scope?: string;
+    }
+>(
+  (
+    { onValueChange, className, mode, value, placeholder, scope, ...props },
+    ref,
+  ) => {
+    const [open, setOpen] = useState<boolean>(false);
+
+    return (
+      <SelectDepartmentsProvider
+        mode={mode}
+        value={value}
+        onValueChange={(newValue) => {
+          if (mode === 'single') {
+            setOpen(false);
+          }
+          onValueChange?.(newValue);
+        }}
+      >
+        <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
+          <Combobox.Trigger
+            className={cn('inline-flex w-full', className)}
+            variant="outline"
+            ref={ref}
+            {...props}
+          >
+            <SelectDepartmentsValue placeholder={placeholder} />
+          </Combobox.Trigger>
+          <Combobox.Content>
+            <SelectDepartmentsContent />
+          </Combobox.Content>
+        </PopoverScoped>
+      </SelectDepartmentsProvider>
+    );
+  },
+);
+
+SelectDepartmentsRoot.displayName = 'SelectDepartmentsRoot';
 
 export const SelectDepartmentsInlineCell = ({
   onValueChange,
@@ -326,17 +415,19 @@ const SelectDepartmentsBadgesView = () => {
         <DepartmentBadge
           key={departmentId}
           departmentId={departmentId}
-          onCompleted={(position) => {
-            if (!position) return;
-            if (departmentIds.includes(position._id)) {
-              setSelectedDepartments([...selectedDepartments, position]);
-            }
-          }}
+          showMissingId
+          onCompleted={(department) =>
+            cacheSelectedDepartment(
+              department,
+              departmentIds || [],
+              setSelectedDepartments,
+            )
+          }
           onClose={() =>
             onSelect?.(
-              selectedDepartments.find(
-                (p) => p._id === departmentId,
-              ) as IDepartment,
+              (selectedDepartments.find((p) => p._id === departmentId) ?? {
+                _id: departmentId,
+              }) as IDepartment,
             )
           }
         />
@@ -578,6 +669,7 @@ export const SelectDepartmentsFilterBar = ({
 };
 
 export const SelectDepartments = Object.assign(SelectDepartmentsProvider, {
+  Root: SelectDepartmentsRoot,
   CommandBarItem: SelectDepartmentsCommandbarItem,
   Content: SelectDepartmentsContent,
   Command: SelectDepartmentsCommand,

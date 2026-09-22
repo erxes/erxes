@@ -14,7 +14,18 @@ export const useGetSalesPipelinePaymentTypes = (pipelineId: string) => {
     fetchPolicy: 'cache-and-network',
   });
 
-  const paymentTypes: TPaymentType[] = data?.salesPipelineDetail?.paymentTypes || [];
+  const pipeline = data?.salesPipelineDetail;
+  const pipelinePaymentTypes: TPaymentType[] = pipeline?.paymentTypes || [];
+  const otherPaymentTypes = pipelinePaymentTypes.filter(
+    (paymentType) => !['cash', 'bank'].includes(paymentType.type),
+  );
+  const paymentTypes: TPaymentType[] = [
+    { _id: 'cash', title: 'Бэлнээр', type: 'cash' },
+    ...((pipeline?.paymentIds || []).length
+      ? [{ _id: 'mobile', title: 'Цахимаар', type: 'mobile' }]
+      : []),
+    ...otherPaymentTypes,
+  ];
 
   return { paymentTypes, loading };
 };

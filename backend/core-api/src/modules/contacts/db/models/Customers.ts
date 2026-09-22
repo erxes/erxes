@@ -1,4 +1,7 @@
-import { customerSchema } from '@/contacts/db/definitions/customers';
+import {
+  customerSchema,
+  customerSearchTokenConfig,
+} from '@/contacts/db/definitions/customers';
 import {
   IBrowserInfo,
   ICustomer,
@@ -6,7 +9,10 @@ import {
   IPropertyField,
   IUserDocument,
 } from 'erxes-api-shared/core-types';
-import { validSearchText } from 'erxes-api-shared/utils';
+import {
+  generateConfiguredSearchTokens,
+  validSearchText,
+} from 'erxes-api-shared/utils';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { generateCustomerUpdateActivityLogs } from '../../meta/activity-log/customers';
@@ -19,6 +25,7 @@ import {
 } from '../../@types/customer';
 import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 import { AWS_EMAIL_STATUSES, EMAIL_VALIDATION_STATUSES } from '../../constants';
+import { screenNewAddresses } from '~/utils/email/screenNewAddresses';
 
 interface ICustomerFieldsInput {
   primaryEmail?: string;
@@ -98,6 +105,58 @@ export const loadCustomerClass = (
   subdomain: string,
   { sendDbEventLog, createActivityLog }: EventDispatcherReturn,
 ) => {
+  const updateCustomerMergeReferences = async (
+    oldCustomerIds: string[],
+    newCustomerId: string,
+  ) => {
+    await models.CPUser.updateMany(
+      { erxesCustomerId: { $in: oldCustomerIds } },
+      { $set: { erxesCustomerId: newCustomerId } },
+    );
+
+    await models.FormSubmissions.updateMany(
+      { customerId: { $in: oldCustomerIds } },
+      { $set: { customerId: newCustomerId } },
+    );
+
+    await models.DeliveryReports.updateMany(
+      { customerId: { $in: oldCustomerIds } },
+      { $set: { customerId: newCustomerId } },
+    );
+
+    await models.EngageMessages.changeCustomer(newCustomerId, oldCustomerIds);
+
+    await models.Relations.updateMany(
+      {
+        entities: {
+          $elemMatch: {
+            contentType: 'core:customer',
+            contentId: { $in: oldCustomerIds },
+          },
+        },
+      },
+      {
+        $set: {
+          'entities.$[entity].contentId': newCustomerId,
+        },
+      },
+      {
+        arrayFilters: [
+          {
+            'entity.contentType': 'core:customer',
+            'entity.contentId': { $in: oldCustomerIds },
+          },
+        ],
+      },
+    );
+
+    await models.Conformities.changeConformity({
+      type: 'customer',
+      newTypeId: newCustomerId,
+      oldTypeIds: oldCustomerIds,
+    });
+  };
+
   class Customer {
     public static getCustomerName(customer: ICustomer) {
       if (customer.firstName || customer.lastName) {
@@ -186,6 +245,8 @@ export const loadCustomerClass = (
 
       const customer = await models.Customers.create(newDoc);
 
+      await screenNewAddresses(models, doc.emails);
+
       sendDbEventLog({
         action: 'create',
         docId: customer._id,
@@ -260,6 +321,11 @@ export const loadCustomerClass = (
      * Remove customers
      */
     public static async removeCustomers(customerIds: string[]) {
+      // Snapshot before deletion so the log carries what was removed.
+      const prevDocuments = await models.Customers.find({
+        _id: { $in: customerIds },
+      }).lean();
+
       const response = await models.Customers.deleteMany({
         _id: { $in: customerIds },
       });
@@ -267,6 +333,7 @@ export const loadCustomerClass = (
       sendDbEventLog({
         action: 'deleteMany',
         docIds: customerIds,
+        prevDocuments,
       });
       return response;
     }
@@ -355,11 +422,7 @@ export const loadCustomerClass = (
         user,
       );
 
-      await models.Conformities.changeConformity({
-        type: 'customer',
-        newTypeId: customer._id,
-        oldTypeIds: customerIds,
-      });
+      await updateCustomerMergeReferences(customerIds, customer._id);
 
       return customer;
     }
@@ -465,14 +528,12 @@ export const loadCustomerClass = (
     }: ICreateMessengerCustomerParams) {
       doc = this.fixListFields(doc, customData);
 
-      const { propertiesData } = await models.Fields.generatePropertiesData(
-        customData,
-        'core:customer',
-      );
+      const { propertiesData, trackedData } =
+        await models.Fields.generatePropertiesData(customData, 'core:customer');
 
       return this.createCustomer({
         ...doc,
-        // trackedData: [], trackData note: trackedData is not used for now
+        trackedData,
         propertiesData,
         lastSeenAt: new Date(),
         isOnline: true,
@@ -492,10 +553,8 @@ export const loadCustomerClass = (
 
       doc = this.fixListFields(doc, customData, customer);
 
-      const { propertiesData } = await models.Fields.generatePropertiesData(
-        customData,
-        'core:customer',
-      );
+      const { propertiesData, trackedData } =
+        await models.Fields.generatePropertiesData(customData, 'core:customer');
 
       const modifier: any = {
         ...doc,
@@ -503,10 +562,9 @@ export const loadCustomerClass = (
         updatedAt: new Date(),
       };
 
-      // trackData note: trackedData is not used for now
-      // if (trackedData && trackedData.length > 0) {
-      //   modifier.trackedData = trackedData;
-      // }
+      if (trackedData.length > 0) {
+        modifier.trackedData = trackedData;
+      }
 
       if (Object.keys(propertiesData)?.length > 0) {
         // if use Customers.updateCustomer method then just pass propertiesData no spread neede
@@ -896,14 +954,22 @@ export const loadCustomerClass = (
       }
 
       searchText = validSearchText([searchText]);
-
+      const searchTokens = generateConfiguredSearchTokens(
+        customer,
+        customerSearchTokenConfig,
+      );
       let state = customer.state || 'visitor';
 
       if (possibleLead && state !== 'customer') {
         state = 'lead';
       }
 
-      return { profileScore: score, searchText, state };
+      return {
+        profileScore: score,
+        searchText,
+        searchTokens,
+        state,
+      };
     }
 
     /**

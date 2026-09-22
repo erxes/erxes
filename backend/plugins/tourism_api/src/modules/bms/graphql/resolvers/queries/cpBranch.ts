@@ -1,5 +1,5 @@
 import { IContext, IModels } from '~/connectionResolvers';
-import { paginate } from 'erxes-api-shared/utils';
+import { cursorPaginate, paginate } from 'erxes-api-shared/utils';
 import { Resolver } from 'erxes-api-shared/core-types';
 
 export const cpBms: Record<string, Resolver> = {
@@ -12,7 +12,13 @@ export const cpBms: Record<string, Resolver> = {
       throw new Error('Models not found in context');
     }
 
-    return paginate(models.Branches.find(commonQuerySelector || {}), params);
+    const { list, totalCount, pageInfo } = await cursorPaginate({
+      model: models.Branches,
+      params,
+      query: commonQuerySelector || {},
+    });
+
+    return { list, totalCount, pageInfo };
   },
 
   async cpBmsBranches(_root, params, context: IContext, info) {

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useGetCurrentUsersTeams } from '@/team/hooks/useGetCurrentUsersTeams';
 import {
   Button,
@@ -102,10 +103,11 @@ const SelectLeadContent = ({ teamIds }: { teamIds?: string[] | string }) => {
 };
 
 export const SelectLeadFilterItem = () => {
+  const { t } = useTranslation('operation');
   return (
     <Filter.Item value="lead">
       <IconUser />
-      Lead
+      {t('lead')}
     </Filter.Item>
   );
 };
@@ -203,6 +205,7 @@ export const SelectLeadInlineCell = ({
   React.ComponentProps<typeof SelectLeadProvider>,
   'children' | 'onValueChange' | 'value'
 >) => {
+  const { t } = useTranslation('operation');
   const { updateProject } = useUpdateProject();
   const [open, setOpen] = useState(false);
 
@@ -228,7 +231,7 @@ export const SelectLeadInlineCell = ({
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
         <RecordTableInlineCell.Trigger>
-          <SelectLeadValue placeholder="Lead not specified" />
+          <SelectLeadValue placeholder={t('lead-not-specified')} />
         </RecordTableInlineCell.Trigger>
         <RecordTableInlineCell.Content>
           <SelectLeadContent teamIds={teamIds} />
@@ -239,6 +242,7 @@ export const SelectLeadInlineCell = ({
 };
 
 const SelectLeadFormValue = () => {
+  const { t } = useTranslation('operation');
   const { members, memberIds, setMembers } = useSelectMemberContext();
   return (
     <MembersInline
@@ -246,7 +250,7 @@ const SelectLeadFormValue = () => {
       members={members}
       updateMembers={setMembers}
       className="font-medium text-base text-foreground"
-      placeholder="Select lead"
+      placeholder={t('select-lead')}
     />
   );
 };

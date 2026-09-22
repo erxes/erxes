@@ -1,22 +1,18 @@
 export const VISIBILITY_RULES = [
   {
     name: 'dayAfterCreated',
-    title: 'Day after created',
-    description: 'Only show tickets created after the previous day',
+    label: 'visibility-rule-day-after-created-desc',
   },
   {
     name: 'branchOnly',
-    title: 'Branch only',
-    description: "Show only tickets from user's branch",
+    label: 'visibility-rule-branch-only-desc',
   },
   {
     name: 'myTicketsOnly',
-    title: 'My tickets only',
-    description: 'Show only tickets assigned to the user',
+    label: 'visibility-rule-my-tickets-only-desc',
   },
   {
     name: 'departmentOnly',
-    title: 'Department only',
-    description: "Show only tickets from user's department",
+    label: 'visibility-rule-department-only-desc',
   },
 ] as const;

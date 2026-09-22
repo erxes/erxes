@@ -1,7 +1,11 @@
 import type { TAiAgentInput } from '../aiAgent';
 import { anthropicMessagesBridge } from './anthropicMessages';
 import { openAiCompatibleBridge } from './openaiCompatible';
-import type { IAiProviderBridge, TAiBridgeMessage } from './types';
+import type {
+  IAiProviderBridge,
+  TAiBridgeMessage,
+  TAiBridgeToolDefinition,
+} from './types';
 import { resolveAiProviderConnection } from '../providers';
 
 const providerBridgeRegistry: Record<string, IAiProviderBridge> = {
@@ -42,6 +46,11 @@ export const invokeAiProvider = async (
   agent: TAiAgentInput,
   messages: TAiBridgeMessage[],
   subdomain?: string,
+  options?: {
+    responseFormat?: 'json' | 'text';
+    tools?: TAiBridgeToolDefinition[];
+    toolChoice?: 'auto' | 'required';
+  },
 ) => {
   const connection = resolveAiProviderConnection({
     subdomain,
@@ -53,6 +62,9 @@ export const invokeAiProvider = async (
     connection,
     runtime: agent.runtime,
     messages,
+    responseFormat: options?.responseFormat,
+    tools: options?.tools,
+    toolChoice: options?.toolChoice,
   });
 };
 

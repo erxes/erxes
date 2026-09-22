@@ -1,5 +1,6 @@
 import { memo, useMemo } from 'react';
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
+import { useTranslation } from 'react-i18next';
 import { CARRIER_CSS_VARS, CARRIER_COLOR_VAR, fmtPct } from '../../utils';
 import type { CarrierSlice } from '../../types';
 
@@ -7,16 +8,16 @@ interface CarrierDonutProps {
   data: CarrierSlice[];
 }
 
-/** Donut chart showing call distribution by Mongolian carrier. */
 export const CarrierDonut = memo(function CarrierDonut({
   data,
 }: CarrierDonutProps) {
+  const { t } = useTranslation('frontline');
   const total = useMemo(() => data.reduce((s, d) => s + d.value, 0), [data]);
 
   if (!data.length) {
     return (
       <div className="flex h-56 items-center justify-center text-sm text-muted-foreground">
-        No carrier data
+        {t('no-carrier-data', 'No carrier data')}
       </div>
     );
   }
@@ -27,7 +28,6 @@ export const CarrierDonut = memo(function CarrierDonut({
 
   return (
     <div className="flex items-center gap-4">
-      {/* Donut */}
       <ResponsiveContainer width={160} height={160}>
         <PieChart>
           <Pie
@@ -53,7 +53,6 @@ export const CarrierDonut = memo(function CarrierDonut({
         </PieChart>
       </ResponsiveContainer>
 
-      {/* Legend */}
       <ul className="flex flex-col gap-1.5 min-w-0 flex-1">
         {data.map((slice, i) => (
           <li key={slice.name} className="flex items-center gap-2 text-xs">

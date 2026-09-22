@@ -9,6 +9,7 @@ import {
   useToast,
 } from 'erxes-ui';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useRemoveCategories } from '../hooks/useRemoveCategories';
 import { ApolloError } from '@apollo/client';
@@ -28,12 +29,15 @@ export const CategoryMoreColumnCell = ({
   onDelete,
   onRefetch,
 }: CategoryMoreColumnCellProps) => {
+  const { t } = useTranslation('content');
   const { _id } = cell.row.original;
   const navigate = useNavigate();
   const { confirm } = useConfirm();
   const { toast } = useToast();
-  const { removeSingleCategory, removeBulkCategories, loading } =
-    useRemoveCategories(clientPortalId, onRefetch || (() => {}));
+  const { removeSingleCategory, loading } = useRemoveCategories(
+    clientPortalId,
+    onRefetch || (() => undefined),
+  );
 
   const handleEdit = () => {
     const category = cell.row.original;
@@ -49,20 +53,20 @@ export const CategoryMoreColumnCell = ({
       onDelete(_id);
     } else {
       confirm({
-        message: 'Are you sure you want to delete this category?',
+        message: t('confirm-delete-this-category'),
       }).then(() => {
         removeSingleCategory(_id)
           .then(() => {
             toast({
-              title: 'Success',
+              title: t('success'),
               variant: 'success',
-              description: 'Category deleted successfully',
+              description: t('category-deleted-successfully'),
             });
             onRefetch?.();
           })
           .catch((e: ApolloError) => {
             toast({
-              title: 'Error',
+              title: t('error'),
               description: e.message,
               variant: 'destructive',
             });
@@ -91,7 +95,7 @@ export const CategoryMoreColumnCell = ({
                 onClick={handleEdit}
               >
                 <IconEdit className="size-4" />
-                Edit
+                {t('edit')}
               </Button>
             </Command.Item>
             <Command.Item asChild>
@@ -103,7 +107,7 @@ export const CategoryMoreColumnCell = ({
                 disabled={loading}
               >
                 <IconTrash className="size-4" />
-                Delete
+                {t('delete')}
               </Button>
             </Command.Item>
           </Command.List>
@@ -120,6 +124,7 @@ export const categoryMoreColumn = (
   onRefetch?: () => void,
 ) => ({
   id: 'more',
+  header: () => <RecordTable.ColumnSelector />,
   cell: (cell: CellContext<any, unknown>) => (
     <CategoryMoreColumnCell
       cell={cell}

@@ -11,12 +11,19 @@ export const AutomationExecActionInput = z.object({
   startedAt: z.string().optional(),
   finishedAt: z.string().optional(),
   durationMs: z.number().optional(),
-  status: z.enum(['success', 'error', 'waiting']).optional(),
+  status: z
+    .enum(['success', 'error', 'waiting', 'queued', 'standby', 'dropped'])
+    .optional(),
   actionId: z.string(),
   actionType: z.string(),
   actionConfig: z.any().optional(),
   nextActionId: z.string().optional(),
   result: z.any().optional(),
+  jobId: z.string().optional(),
+  // Dates arrive serialized across the producer boundary, but stay Date
+  // objects when the execution is passed in-process.
+  queuedAt: z.union([z.string(), z.date()]).optional(),
+  expiresAt: z.union([z.string(), z.date()]).optional(),
 });
 
 export const AutomationExecutionInput = z.object({
@@ -33,7 +40,7 @@ export const AutomationExecutionInput = z.object({
   status: z.string(),
   description: z.string(),
   actions: z.array(AutomationExecActionInput).optional(),
-  startWaitingDate: z.date().optional(),
+  startWaitingDate: z.coerce.date().optional(),
   waitingActionId: z.string().optional(),
   objToCheck: z.record(z.any()).optional(),
   responseActionId: z.string().optional(),
@@ -85,14 +92,6 @@ export const CheckCustomTriggerInputData = z.object({
   eventUpdateDescription: z.record(z.string(), z.any()).optional(),
 });
 
-export const CheckTargetMatchInputData = z.object({
-  moduleName: z.string(),
-  contentType: z.string(),
-  collectionType: z.string(),
-  targetId: z.string(),
-  selector: z.record(z.any()),
-});
-
 export const FindObjectInputData = z.object({
   objectType: z.string(),
   field: z.string(),
@@ -123,12 +122,29 @@ export const GenerateAiContextInputData = z.object({
   target: z.record(z.any()),
 });
 
-export const CheckCustomTriggerInput = AutomationBaseInput.extend({
-  data: CheckCustomTriggerInputData,
+export const LoadAiKnowledgeDocumentBatchInputData = z.object({
+  moduleName: z.string(),
+  sourceKey: z.string(),
+  // 'all' means the whole source, so providers must not require a filter.
+  scope: z.enum(['all', 'selected']).optional(),
+  sourceIds: z.array(z.string()).max(1000).optional(),
+  candidateSourceIds: z.array(z.string()).max(1000).optional(),
+  config: z.record(z.unknown()).optional(),
+  cursor: z.string().optional(),
+  limit: z.number().int().min(1).max(5000).optional(),
+  skipTotalCount: z.boolean().optional(),
 });
 
-export const CheckTargetMatchInput = AutomationBaseInput.extend({
-  data: CheckTargetMatchInputData,
+export const LookupAiToolInputData = z.object({
+  moduleName: z.string(),
+  toolKey: z.string(),
+  query: z.string().default(''),
+  limit: z.number().int().min(1).max(20).optional(),
+  filters: z.record(z.unknown()).optional(),
+});
+
+export const CheckCustomTriggerInput = AutomationBaseInput.extend({
+  data: CheckCustomTriggerInputData,
 });
 
 export const FindObjectInput = AutomationBaseInput.extend({
@@ -147,15 +163,20 @@ export const GenerateAiContextInput = AutomationBaseInput.extend({
   data: GenerateAiContextInputData,
 });
 
+export const LoadAiKnowledgeDocumentBatchInput = AutomationBaseInput.extend({
+  data: LoadAiKnowledgeDocumentBatchInputData,
+});
+
+export const LookupAiToolInput = AutomationBaseInput.extend({
+  data: LookupAiToolInputData,
+});
+
 export type TAutomationProducersInput = {
   [TAutomationProducers.RECEIVE_ACTIONS]: z.infer<
     typeof ReceiveActionsInputData
   >;
   [TAutomationProducers.CHECK_CUSTOM_TRIGGER]: z.infer<
     typeof CheckCustomTriggerInputData
-  >;
-  [TAutomationProducers.CHECK_TARGET_MATCH]: z.infer<
-    typeof CheckTargetMatchInputData
   >;
   [TAutomationProducers.FIND_OBJECT]: z.infer<typeof FindObjectInputData>;
   [TAutomationProducers.RESOLVE_OUTPUT_PATHS]: z.infer<
@@ -166,4 +187,8 @@ export type TAutomationProducersInput = {
   [TAutomationProducers.GENERATE_AI_CONTEXT]: z.infer<
     typeof GenerateAiContextInputData
   >;
+  [TAutomationProducers.LOAD_AI_KNOWLEDGE_DOCUMENT_BATCH]: z.infer<
+    typeof LoadAiKnowledgeDocumentBatchInputData
+  >;
+  [TAutomationProducers.LOOKUP_AI_TOOL]: z.infer<typeof LookupAiToolInputData>;
 };

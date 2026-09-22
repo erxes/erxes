@@ -1,4 +1,5 @@
 import { gql } from '@apollo/client';
+import { PROPERTY_SYSTEM_FIELD_SELECTION } from '../queries/propertiesQueries';
 
 export const FIELD_GROUP_ADD = gql`
   mutation FieldGroupAdd(
@@ -6,12 +7,14 @@ export const FIELD_GROUP_ADD = gql`
     $code: String
     $contentType: String
     $logics: JSON
+    $configs: JSON
   ) {
     fieldGroupAdd(
       name: $name
       code: $code
       contentType: $contentType
       logics: $logics
+      configs: $configs
     ) {
       _id
     }
@@ -27,6 +30,7 @@ export const FIELD_GROUP_EDIT = gql`
     $description: String
     $contentType: String
     $logics: JSON
+    $configs: JSON
   ) {
     fieldGroupEdit(
       _id: $id
@@ -36,8 +40,18 @@ export const FIELD_GROUP_EDIT = gql`
       description: $description
       contentType: $contentType
       logics: $logics
+      configs: $configs
     ) {
       _id
+    }
+  }
+`;
+
+export const FIELD_GROUPS_UPDATE_ORDER = gql`
+  mutation propertiesFieldGroupsUpdateOrder($orders: [FieldGroupOrderItem!]!) {
+    fieldGroupsUpdateOrder(orders: $orders) {
+      _id
+      order
     }
   }
 `;
@@ -60,7 +74,12 @@ export const FIELD_ADD = gql`
     $options: [FieldOptionInput]
     $validations: JSON
     $logics: JSON
+    $configs: JSON
     $icon: String
+    $isVisible: Boolean
+    $isVisibleToCreate: Boolean
+    $isRequired: Boolean
+    $isVisibleInCard: Boolean
   ) {
     fieldAdd(
       name: $name
@@ -71,7 +90,12 @@ export const FIELD_ADD = gql`
       options: $options
       validations: $validations
       logics: $logics
+      configs: $configs
       icon: $icon
+      isVisible: $isVisible
+      isVisibleToCreate: $isVisibleToCreate
+      isRequired: $isRequired
+      isVisibleInCard: $isVisibleInCard
     ) {
       _id
     }
@@ -90,7 +114,12 @@ export const FIELD_EDIT = gql`
     $options: [FieldOptionInput]
     $validations: JSON
     $logics: JSON
+    $configs: JSON
     $icon: String
+    $isVisible: Boolean
+    $isVisibleToCreate: Boolean
+    $isRequired: Boolean
+    $isVisibleInCard: Boolean
   ) {
     fieldEdit(
       _id: $id
@@ -103,9 +132,18 @@ export const FIELD_EDIT = gql`
       options: $options
       validations: $validations
       logics: $logics
+      configs: $configs
       icon: $icon
+      isVisible: $isVisible
+      isVisibleToCreate: $isVisibleToCreate
+      isRequired: $isRequired
+      isVisibleInCard: $isVisibleInCard
     ) {
       _id
+      isVisible
+      isVisibleToCreate
+      isRequired
+      isVisibleInCard
     }
   }
 `;
@@ -114,6 +152,28 @@ export const FIELD_REMOVE = gql`
   mutation FieldRemove($id: String!) {
     fieldRemove(_id: $id) {
       _id
+    }
+  }
+`;
+
+export const PROPERTY_SYSTEM_FIELD_EDIT = gql`
+  mutation PropertySystemFieldEdit(
+    $contentType: String!
+    $code: String!
+    $isVisible: Boolean
+    $isVisibleToCreate: Boolean
+    $isRequired: Boolean
+    $logics: [PropertySystemFieldLogicInput!]
+  ) {
+    propertySystemFieldEdit(
+      contentType: $contentType
+      code: $code
+      isVisible: $isVisible
+      isVisibleToCreate: $isVisibleToCreate
+      isRequired: $isRequired
+      logics: $logics
+    ) {
+      ${PROPERTY_SYSTEM_FIELD_SELECTION}
     }
   }
 `;

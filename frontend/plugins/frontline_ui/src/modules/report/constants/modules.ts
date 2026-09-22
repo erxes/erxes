@@ -26,33 +26,38 @@ export const REPORT_MODULES = [
     icon: 'IconDeviceLaptop',
     module: 'channel',
   },
+  {
+    name: 'Facebook',
+    icon: 'IconBrandFacebook',
+    module: 'facebook',
+  },
 ];
 
 export const RESPONSES_CHART_TYPE_OPTIONS: ResponsesChartTypeOption[] = [
   {
     IconComponent: IconTable,
     value: ResponsesChartType.Table,
-    label: 'Table',
+    label: 'table',
   },
   {
     IconComponent: IconChartBar,
     value: ResponsesChartType.Bar,
-    label: 'Bar',
+    label: 'bar',
   },
   {
     IconComponent: IconChartLine,
     value: ResponsesChartType.Line,
-    label: 'Line',
+    label: 'line',
   },
   {
     IconComponent: IconChartPie,
     value: ResponsesChartType.Pie,
-    label: 'Pie',
+    label: 'pie',
   },
   {
     IconComponent: IconChartRadar,
     value: ResponsesChartType.Radar,
-    label: 'Radar',
+    label: 'radar',
   },
 ];
 

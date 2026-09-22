@@ -11,6 +11,7 @@ export const GET_TICKET = gql`
       labelIds
       tagIds
       assigneeId
+      assignedMembers
       userId
       startDate
       targetDate
@@ -18,6 +19,8 @@ export const GET_TICKET = gql`
       updatedAt
       createdBy
       channelId
+      branchId
+      departmentId
       statusChangedDate
       number
       pipelineId

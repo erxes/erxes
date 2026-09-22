@@ -17,6 +17,7 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import { IconUsers } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
 interface OwnerTypeOption {
   value: string;
@@ -24,10 +25,10 @@ interface OwnerTypeOption {
 }
 
 const OWNER_TYPE_OPTIONS: OwnerTypeOption[] = [
-  { value: 'customer', label: 'Customer' },
-  { value: 'company', label: 'Company' },
-  { value: 'user', label: 'Team Member' },
-  { value: 'cpUser', label: 'Client Portal User' },
+  { value: 'customer', label: 'customer' },
+  { value: 'company', label: 'company' },
+  { value: 'user', label: 'team-member' },
+  { value: 'cpUser', label: 'client-portal-user' },
 ];
 
 interface SelectOwnerTypeContextType {
@@ -95,6 +96,7 @@ const SelectOwnerTypeValue = ({
   placeholder?: string;
   className?: string;
 }) => {
+  const { t } = useTranslation('loyalty');
   const { value } = useSelectOwnerTypeContext();
   const selectedOption = OWNER_TYPE_OPTIONS.find(
     (option) => option.value === value,
@@ -103,7 +105,7 @@ const SelectOwnerTypeValue = ({
   if (!selectedOption) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select owner type'}
+        {placeholder || t('select-owner-type')}
       </span>
     );
   }
@@ -111,7 +113,7 @@ const SelectOwnerTypeValue = ({
   return (
     <div className="flex items-center gap-2">
       <p className={cn('font-medium text-sm', className)}>
-        {selectedOption.label}
+        {t(selectedOption.label)}
       </p>
     </div>
   );
@@ -123,6 +125,7 @@ const SelectOwnerTypeCommandItem = ({
   option: OwnerTypeOption;
 }) => {
   const { onValueChange, value } = useSelectOwnerTypeContext();
+  const { t } = useTranslation('loyalty');
   const { value: optionValue, label } = option;
   const isChecked = value.split(',').includes(optionValue);
 
@@ -132,7 +135,7 @@ const SelectOwnerTypeCommandItem = ({
       onSelect={() => onValueChange(optionValue)}
     >
       <div className="flex items-center gap-2">
-        <span className="font-medium">{label}</span>
+        <span className="font-medium">{t(label)}</span>
       </div>
       <Combobox.Check checked={isChecked} />
     </Command.Item>
@@ -140,11 +143,12 @@ const SelectOwnerTypeCommandItem = ({
 };
 
 const SelectOwnerTypeContent = () => {
+  const { t } = useTranslation('loyalty');
   return (
     <Command>
-      <Command.Input placeholder="Search owner types..." />
+      <Command.Input placeholder={t('search-owner-types')} />
       <Command.Empty>
-        <span className="text-muted-foreground">No owner types found</span>
+        <span className="text-muted-foreground">{t('no-owner-types-found')}</span>
       </Command.Empty>
       <Command.List>
         {OWNER_TYPE_OPTIONS.map((option) => (
@@ -156,10 +160,11 @@ const SelectOwnerTypeContent = () => {
 };
 
 export const SelectOwnerTypeFilterItem = () => {
+  const { t } = useTranslation('loyalty');
   return (
     <Filter.Item value="ownerType">
       <IconUsers />
-      Owner Type
+      {t('owner-type')}
     </Filter.Item>
   );
 };
@@ -204,6 +209,7 @@ export const SelectOwnerTypeFilterBar = ({
   onValueChange?: (value: string[] | string) => void;
   mode?: 'single' | 'multiple';
 }) => {
+  const { t } = useTranslation('loyalty');
   const [ownerType, setOwnerType] = useQueryState<string[] | string>(
     'ownerType',
   );
@@ -213,7 +219,7 @@ export const SelectOwnerTypeFilterBar = ({
     <Filter.BarItem queryKey="ownerType">
       <Filter.BarName>
         <IconUsers />
-        {!iconOnly && 'Owner Type'}
+        {!iconOnly && t('owner-type')}
       </Filter.BarName>
       <SelectOwnerTypeProvider
         mode={mode}

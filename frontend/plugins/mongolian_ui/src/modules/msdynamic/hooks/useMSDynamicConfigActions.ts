@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { toast, useConfirm } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 import {
   getMSDynamicConfigs,
@@ -19,6 +20,7 @@ export const useMSDynamicConfigActions = ({
   configsMap: IConfigsMap;
   saveConfigs: SaveMSDynamicConfigs;
 }) => {
+  const { t } = useTranslation('mongolian');
   const [loading, setLoading] = useState(false);
   const { confirm } = useConfirm();
 
@@ -43,8 +45,8 @@ export const useMSDynamicConfigActions = ({
 
     if (duplicateKey) {
       toast({
-        title: 'Error',
-        description: 'Brand ID already has a config',
+        title: t('error'),
+        description: t('brand-id-already-has-config'),
         variant: 'destructive',
       });
       return false;
@@ -62,11 +64,11 @@ export const useMSDynamicConfigActions = ({
       setLoading(true);
       await saveConfigs({ ...configsMap, DYNAMIC: nextDynamic });
       toast({
-        title: 'Success',
+        title: t('success'),
         description:
           mode === 'update'
-            ? 'Config updated successfully'
-            : 'Config created successfully',
+            ? t('config-updated-successfully')
+            : t('config-created-successfully'),
       });
       return true;
     } catch (error) {
@@ -84,11 +86,11 @@ export const useMSDynamicConfigActions = ({
 
   const removeConfig = (row: MSMDynamicConfigRow) => {
     confirm({
-      message: 'Delete MS Dynamics config?',
+      message: t('delete-config'),
       options: {
-        description: 'This will delete this config.',
-        okLabel: 'Delete',
-        cancelLabel: 'Cancel',
+        description: t('delete-config-description'),
+        okLabel: t('delete'),
+        cancelLabel: t('cancel'),
       },
     }).then(async () => {
       const nextDynamic = { ...getMSDynamicConfigs(configsMap) };
@@ -98,15 +100,15 @@ export const useMSDynamicConfigActions = ({
         setLoading(true);
         await saveConfigs({ ...configsMap, DYNAMIC: nextDynamic });
         toast({
-          title: 'Success',
-          description: 'Config deleted successfully',
+          title: t('success'),
+          description: t('config-deleted-successfully'),
         });
       } catch (error) {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: getMSDynamicErrorMessage(
             error,
-            'Failed to delete config',
+            t('failed-to-delete-config'),
           ),
           variant: 'destructive',
         });
@@ -127,15 +129,15 @@ export const useMSDynamicConfigActions = ({
       setLoading(true);
       await saveConfigs({ ...configsMap, DYNAMIC: nextDynamic });
       toast({
-        title: 'Success',
-        description: 'Selected configs deleted successfully',
+        title: t('success'),
+        description: t('selected-configs-deleted-successfully'),
       });
     } catch (error) {
       toast({
-        title: 'Error',
+        title: t('error'),
         description: getMSDynamicErrorMessage(
           error,
-          'Failed to delete selected configs',
+          t('failed-to-delete-selected-configs'),
         ),
         variant: 'destructive',
       });

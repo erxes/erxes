@@ -79,4 +79,3 @@ export const GET_BOARD_LOGS = gql`
     salesBoardLogs(action: $action, content: $content, contentId: $contentId)
   }
 `;
-

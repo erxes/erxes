@@ -13,15 +13,17 @@ interface CircularProgressBarProps {
   className?: string;
 }
 
-const CircularProgressBar: React.FC<CircularProgressBarProps> = ({
+export const CircularProgressBar: React.FC<
+  Readonly<CircularProgressBarProps>
+> = ({
   value,
   max,
   size = 80,
   strokeWidth = 8,
   showText = true,
-  textColor = 'text-black',
-  progressColor = '#4f46e5',
-  trackColor = '#e5e7eb',
+  textColor = 'text-foreground',
+  progressColor = 'var(--primary)',
+  trackColor = 'var(--muted)',
   className,
 }) => {
   const radius = (size - strokeWidth) / 2;
@@ -63,5 +65,3 @@ const CircularProgressBar: React.FC<CircularProgressBarProps> = ({
     </div>
   );
 };
-
-export default CircularProgressBar;

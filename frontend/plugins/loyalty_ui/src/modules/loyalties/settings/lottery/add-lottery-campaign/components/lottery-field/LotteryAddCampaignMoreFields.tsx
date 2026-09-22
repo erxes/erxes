@@ -1,6 +1,7 @@
 import React from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { Form, Popover, Combobox } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { LotteryFormValues } from '../../../constants/lotteryFormSchema';
 import {
   DateSelectTask,
@@ -31,6 +32,7 @@ const DateSelectFormField = ({
   onValueChange?: (value?: Date) => void;
   placeholder?: string;
 }) => {
+  const { t } = useTranslation('loyalty');
   const [open, setOpen] = React.useState(false);
 
   const dateValue = getSafeDate(value);
@@ -64,7 +66,7 @@ const DateSelectFormField = ({
                 <>
                   <IconCalendarPlus className="text-accent-foreground" />
                   <span className="text-accent-foreground font-medium">
-                    {placeholder || 'Select date...'}
+                    {placeholder || t('select-date')}
                   </span>
                 </>
               )}
@@ -83,6 +85,7 @@ const DateSelectFormField = ({
 export const LotteryAddCampaignMoreFields: React.FC<
   LotteryAddCampaignMoreFieldsProps
 > = ({ form }) => {
+  const { t } = useTranslation('loyalty');
   return (
     <div className="grid grid-cols-2 gap-4">
       <Form.Field
@@ -90,11 +93,11 @@ export const LotteryAddCampaignMoreFields: React.FC<
         name="startDate"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Start Date</Form.Label>
+            <Form.Label>{t('start-date')}</Form.Label>
             <DateSelectFormField
               value={field.value}
               onValueChange={field.onChange}
-              placeholder="Select start date"
+              placeholder={t('select-start-date')}
             />
             <Form.Message />
           </Form.Item>
@@ -106,11 +109,11 @@ export const LotteryAddCampaignMoreFields: React.FC<
         name="endDate"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>End Date</Form.Label>
+            <Form.Label>{t('end-date')}</Form.Label>
             <DateSelectFormField
               value={field.value}
               onValueChange={field.onChange}
-              placeholder="Select end date"
+              placeholder={t('select-end-date')}
             />
             <Form.Message />
           </Form.Item>

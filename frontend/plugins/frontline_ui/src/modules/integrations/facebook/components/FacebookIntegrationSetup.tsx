@@ -7,6 +7,7 @@ import { Button, Form, Input } from 'erxes-ui';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useForm } from 'react-hook-form';
 import { useParams } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import { SelectBrands } from 'ui-modules';
 import { z } from 'zod';
 import {
@@ -21,6 +22,7 @@ import {
 } from './FacebookIntegrationForm';
 
 export const FacebookIntegrationSetup = () => {
+  const { t } = useTranslation('frontline');
   const { id: channelId } = useParams();
   const { isPost } = useFbIntegrationContext();
   const form = useForm<z.infer<typeof FACEBOOK_INTEGRATION_SCHEMA>>({
@@ -72,16 +74,16 @@ export const FacebookIntegrationSetup = () => {
                 className="bg-border"
                 onClick={() => setActiveStep(2)}
               >
-                Previous step
+                {t('previous-step')}
               </Button>
               <Button type="submit" disabled={loading}>
-                Save
+                {t('save')}
               </Button>
             </>
           }
         >
           <FacebookIntegrationFormSteps
-            title="Integration Setup"
+            title={t('integration-setup')}
             step={3}
             description=""
           />
@@ -90,12 +92,12 @@ export const FacebookIntegrationSetup = () => {
               name="name"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Integration name</Form.Label>
+                  <Form.Label>{t('integration-name')}</Form.Label>
                   <Form.Control>
                     <Input {...field} />
                   </Form.Control>
                   <Form.Description>
-                    Name this integration to differentiate from the rest
+                    {t('integration-name-description')}
                   </Form.Description>
                   <Form.Message />
                 </Form.Item>
@@ -106,7 +108,7 @@ export const FacebookIntegrationSetup = () => {
               name="brandId"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Brand</Form.Label>
+                  <Form.Label>{t('brand')}</Form.Label>
                   <Form.Control>
                     <SelectBrands.FormItem
                       value={field.value}
@@ -114,7 +116,7 @@ export const FacebookIntegrationSetup = () => {
                     />
                   </Form.Control>
                   <Form.Description>
-                    Choose the brand for this integration
+                    {t('choose-brand-description')}
                   </Form.Description>
                   <Form.Message />
                 </Form.Item>

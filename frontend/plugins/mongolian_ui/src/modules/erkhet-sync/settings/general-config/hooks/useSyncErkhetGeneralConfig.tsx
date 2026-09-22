@@ -2,6 +2,7 @@ import { useQuery, useMutation } from '@apollo/client';
 import { useForm } from 'react-hook-form';
 import { useEffect, useState } from 'react';
 import { useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { GET_ERKHET_SYNC_GENERAL_CONFIG } from '../graphql/queries/syncErkhetGeneralConfigQueries';
 import {
   CREATE_ERKHET_SYNC_GENERAL_CONFIG,
@@ -32,19 +33,20 @@ export const useSyncErkhetGeneralConfig = () => {
   const [isUpdating, setIsUpdating] = useState(false);
   const [selectedFieldGroup, setSelectedFieldGroup] = useState('empty');
   const { toast } = useToast();
+  const { t } = useTranslation('mongolian');
 
   const mutationOptions = {
     onCompleted: () => {
       toast({
-        title: 'Success',
-        description: 'Erkhet sync general config updated successfully',
+        title: t('success'),
+        description: t('erkhet-sync-general-config-updated-successfully'),
         variant: 'default',
       });
       setIsUpdating(false);
     },
     onError: (err: Error) => {
       toast({
-        title: 'Error',
+        title: t('error'),
         description: err.message,
         variant: 'destructive',
       });

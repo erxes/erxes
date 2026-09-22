@@ -1,3 +1,4 @@
+import { AutomationExecutionCountsLoader } from '@/automations/components/list/AutomationExecutionCountCell';
 import { AutomationRecordTableCommandBar } from '@/automations/components/list/AutomationRecordTableCommandBar';
 import {
   IAutomation,
@@ -24,33 +25,38 @@ export const AutomationsRecordTableContent = ({
   handleFetchMore,
 }: AutomationsRecordTableContentProps) => {
   return (
-    <RecordTable.Provider
-      columns={columns}
-      data={list}
-      stickyColumns={['more', 'checkbox', 'name']}
-      className="m-3"
-    >
-      <RecordTable.CursorProvider
-        hasPreviousPage={hasPreviousPage}
-        hasNextPage={hasNextPage}
-        dataLength={list.length}
-        sessionKey="automations_cursor"
+    <>
+      <AutomationExecutionCountsLoader
+        automationIds={list.map(({ _id }) => _id)}
+      />
+      <RecordTable.Provider
+        columns={columns}
+        data={list}
+        stickyColumns={['more', 'checkbox', 'name']}
+        className="m-3"
       >
-        <RecordTable className="w-full">
-          <RecordTable.Header />
-          <RecordTable.Body>
-            <RecordTable.CursorBackwardSkeleton
-              handleFetchMore={handleFetchMore}
-            />
-            {loading && <RecordTable.RowSkeleton rows={40} />}
-            <RecordTable.RowList />
-            <RecordTable.CursorForwardSkeleton
-              handleFetchMore={handleFetchMore}
-            />
-          </RecordTable.Body>
-        </RecordTable>
-      </RecordTable.CursorProvider>
-      <AutomationRecordTableCommandBar />
-    </RecordTable.Provider>
+        <RecordTable.CursorProvider
+          hasPreviousPage={hasPreviousPage}
+          hasNextPage={hasNextPage}
+          dataLength={list.length}
+          sessionKey="automations_cursor"
+        >
+          <RecordTable>
+            <RecordTable.Header />
+            <RecordTable.Body>
+              <RecordTable.CursorBackwardSkeleton
+                handleFetchMore={handleFetchMore}
+              />
+              {loading && <RecordTable.RowSkeleton rows={40} />}
+              <RecordTable.RowList />
+              <RecordTable.CursorForwardSkeleton
+                handleFetchMore={handleFetchMore}
+              />
+            </RecordTable.Body>
+          </RecordTable>
+        </RecordTable.CursorProvider>
+        <AutomationRecordTableCommandBar />
+      </RecordTable.Provider>
+    </>
   );
 };

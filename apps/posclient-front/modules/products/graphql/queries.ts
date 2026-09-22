@@ -38,8 +38,16 @@ const products = gql`
     $perPage: Int, 
     $isKiosk: Boolean, 
     $groupedSimilarity: String
+    $isSimilarity: Boolean
     $ids: [String]
     $minRemainder: Float
+    $minDiscountValue: Float
+    $maxDiscountValue: Float
+    $minDiscountPercent: Float
+    $maxDiscountPercent: Float
+    $discountConditions: JSON
+    $sortField: String
+    $sortDirection: Int
     ) {
     poscProducts(
       searchValue: $searchValue, 
@@ -49,8 +57,16 @@ const products = gql`
       perPage: $perPage, 
       isKiosk: $isKiosk, 
       groupedSimilarity: $groupedSimilarity
+      isSimilarity: $isSimilarity
       ids: $ids
       minRemainder: $minRemainder
+      minDiscountValue: $minDiscountValue
+      maxDiscountValue: $maxDiscountValue
+      minDiscountPercent: $minDiscountPercent
+      maxDiscountPercent: $maxDiscountPercent
+      discountConditions: $discountConditions
+      sortField: $sortField
+      sortDirection: $sortDirection
     ) {
       ${commonFields}
       categoryId
@@ -59,6 +75,7 @@ const products = gql`
       description
       remainder
       remainders
+      discount(discountConditions: $discountConditions)
       isCheckRem
       hasSimilarity
       attachment {
@@ -78,6 +95,7 @@ const productSimilarities = gql`
         name
         remainder
         remainders
+        discount
         isCheckRem
         attachment {
           url
@@ -98,15 +116,57 @@ const productsCount = gql`
     $type: String
     $searchValue: String
     $groupedSimilarity: String
+    $isSimilarity: Boolean
     $isKiosk: Boolean
+    $minRemainder: Float
+    $minDiscountValue: Float
+    $maxDiscountValue: Float
+    $minDiscountPercent: Float
+    $maxDiscountPercent: Float
+    $discountConditions: JSON
   ) {
     poscProductsTotalCount(
       categoryId: $categoryId
       type: $type
       searchValue: $searchValue
       groupedSimilarity: $groupedSimilarity
+      isSimilarity: $isSimilarity
       isKiosk: $isKiosk
+      minRemainder: $minRemainder
+      minDiscountValue: $minDiscountValue
+      maxDiscountValue: $maxDiscountValue
+      minDiscountPercent: $minDiscountPercent
+      maxDiscountPercent: $maxDiscountPercent
+      discountConditions: $discountConditions
     )
+  }
+`
+
+const productBulkSimilarity = gql`
+  query PoscProductBulkSimilarity($id: String!) {
+    poscProductBulkSimilarity(_id: $id) {
+      _id
+      starProductId
+      products {
+        _id
+        name
+        code
+        description
+        unitPrice
+        remainder
+        remainders
+        isCheckRem
+        propertiesData
+        attachment {
+          url
+        }
+      }
+      fields {
+        fieldId
+        title
+        values
+      }
+    }
   }
 `
 
@@ -144,6 +204,7 @@ const queries = {
   getPriceInfo,
   getInitialCategory,
   productSimilarities,
+  productBulkSimilarity,
   getKioskCategory,
   getCategoryOrders,
 }

@@ -2,8 +2,10 @@ import { IconFileX } from '@tabler/icons-react';
 import { contractsColumns } from './ContractsColumns';
 import { useContracts } from '~/modules/insurance/hooks';
 import { GenericRecordTable } from '../shared';
+import { useTranslation } from 'react-i18next';
 
 export const ContractsRecordTable = () => {
+  const { t } = useTranslation('insurance');
   const { contracts, loading } = useContracts();
 
   return (
@@ -12,11 +14,12 @@ export const ContractsRecordTable = () => {
       data={contracts || []}
       loading={loading}
       sessionKey="contracts-cursor"
+      tableId="insurance_contracts_record_table"
       stickyColumns={['more', 'checkbox', 'contractNumber']}
       emptyState={{
         icon: <IconFileX size={64} />,
-        title: 'No contracts yet',
-        description: 'Get started by creating your first insurance contract.',
+        title: t('no-contracts-yet'),
+        description: t('no-contracts-description'),
       }}
     />
   );

@@ -1,4 +1,4 @@
-import { IChannelDocument } from '@/channel/@types/channel';
+import { ChannelScopes, IChannelDocument } from '@/channel/@types/channel';
 import {
   IArchiveParams,
   IIntegration,
@@ -13,10 +13,10 @@ import {
   callUpdateIntegration,
 } from '@/integrations/call/messageBroker';
 import {
-  imapCreateIntegration,
-  imapUpdateIntegration,
-  imapRemoveIntegrations,
-} from '~/modules/integrations/imap/messageBroker';
+  mailCreateIntegration,
+  mailUpdateIntegration,
+  mailRemoveIntegrations,
+} from '~/modules/integrations/mail/messageBroker';
 import {
   facebookCreateIntegrations,
   facebookRemoveAccount,
@@ -36,8 +36,22 @@ import {
   whatsappRemoveIntegrations,
   whatsappUpdateIntegrations,
 } from '@/integrations/whatsapp/messageBroker';
-import { getUniqueValue, sendTRPCMessage,markResolvers } from 'erxes-api-shared/utils';
-import { IContext } from '~/connectionResolvers';
+import {
+  discordCreateIntegrations,
+  discordRemoveIntegrations,
+  discordRepairIntegrations,
+} from '@/integrations/discord/messageBroker';
+import {
+  callProCreateIntegration,
+  callProRemoveIntegration,
+  callProUpdateIntegration,
+} from '@/integrations/callpro/messageBroker';
+import {
+  getUniqueValue,
+  sendTRPCMessage,
+  markResolvers,
+} from 'erxes-api-shared/utils';
+import { IContext, IModels } from '~/connectionResolvers';
 
 interface IntegrationParams {
   integrationId: string;
@@ -74,17 +88,28 @@ export const sendCreateIntegration = async (
         return await facebookCreateIntegrations({ subdomain, data });
       case 'calls':
         return await callCreateIntegration({ subdomain, data });
-      case 'imap':
-        return await imapCreateIntegration({ subdomain, data });
+      case 'mail':
+        return await mailCreateIntegration({ subdomain, data });
 
       case 'instagram':
         return await instagramCreateIntegrations({ subdomain, data });
 
+      case 'discord':
+        return await discordCreateIntegrations({ subdomain, data });
+
+      case 'callpro': {
+        const result = await callProCreateIntegration({ subdomain, data });
+
+        if (result.status !== 'success') {
+          throw new Error(result.errorMessage);
+        }
+
+        return result;
+      }
       case 'whatsapp':
         return await whatsappCreateIntegrations({ subdomain, data });
 
       case 'mobinetSms':
-        // TODO: Implement MobinetSms integration
         break;
 
       default:
@@ -110,10 +135,13 @@ export const sendUpdateIntegration = async (
         return await callUpdateIntegration({ subdomain, data });
       case 'instagram':
         return await instagramUpdateIntegrations({ subdomain, data });
+      case 'mail':
+        return await mailUpdateIntegration({ subdomain, data });
+
+      case 'callpro':
+        return await callProUpdateIntegration({ subdomain, data });
       case 'whatsapp':
         return await whatsappUpdateIntegrations({ subdomain, data });
-      case 'imap':
-        return await imapUpdateIntegration({ subdomain, data });
 
       case 'mobinetSms':
         break;
@@ -141,10 +169,16 @@ export const sendRemoveIntegration = async (
         return await callRemoveIntergration({ subdomain, data });
       case 'instagram':
         return await instagramRemoveIntegrations({ subdomain, data });
+      case 'mail':
+        return await mailRemoveIntegrations({ subdomain, data });
+
+      case 'discord':
+        return await discordRemoveIntegrations({ subdomain, data });
+
+      case 'callpro':
+        return await callProRemoveIntegration({ subdomain, data });
       case 'whatsapp':
         return await whatsappRemoveIntegrations({ subdomain, data });
-      case 'imap':
-        return await imapRemoveIntegrations({ subdomain, data });
 
       case 'mobinetSms':
         break;
@@ -198,6 +232,9 @@ export const sendRepairIntegration = async (
       case 'instagram':
         return await instagramRepairIntegrations({ subdomain, data });
 
+      case 'discord':
+        return await discordRepairIntegrations({ subdomain, data });
+
       case 'mobinetSms':
         break;
 
@@ -211,10 +248,29 @@ export const sendRepairIntegration = async (
   }
 };
 
+const createOnService = async (
+  models: IModels,
+  subdomain: string,
+  serviceKind: string,
+  payload: CreateIntegrationParams,
+) => {
+  if (serviceKind === 'webhook') {
+    return;
+  }
+
+  try {
+    const result = await sendCreateIntegration(subdomain, serviceKind, payload);
+
+    if (result?.status === 'error') {
+      throw new Error(result.errorMessage || 'Failed to create integration');
+    }
+  } catch (e) {
+    await models.Integrations.deleteOne({ _id: payload.integrationId });
+    throw e instanceof Error ? e : new Error(String(e));
+  }
+};
+
 export const integrationMutations = {
-  /**
-   * Creates a new messenger onboarding
-   */
   async integrationsCreateMessengerOnboarding(
     _root,
     doc: IOnboardingParamsEdit,
@@ -310,7 +366,6 @@ export const integrationMutations = {
 
     const integrationDocs = {
       name: 'Default brand',
-      // brandId: brand._id,
       channelId: channel?._id,
     } as IIntegration;
 
@@ -327,10 +382,6 @@ export const integrationMutations = {
     );
   },
 
-  /**
-   * Creates a new messenger integration
-   */
-
   async integrationsCreateMessengerIntegration(
     _root,
     doc: IIntegration,
@@ -339,9 +390,6 @@ export const integrationMutations = {
     return await models.Integrations.createMessengerIntegration(doc, user._id);
   },
 
-  /**
-   * Updates a messenger integration
-   */
   async integrationsEditMessengerIntegration(
     _root,
     { _id, ...fields }: any,
@@ -356,9 +404,6 @@ export const integrationMutations = {
     return await models.Integrations.updateMessengerIntegration(_id, fields);
   },
 
-  /**
-   * Update/save messenger appearance data
-   */
   async integrationsSaveMessengerAppearanceData(
     _root,
     {
@@ -374,9 +419,6 @@ export const integrationMutations = {
     return models.Integrations.saveMessengerAppearanceData(_id, uiOptions);
   },
 
-  /**
-   * Update/save messenger data
-   */
   async integrationsSaveMessengerConfigs(
     _root,
     {
@@ -414,7 +456,10 @@ export const integrationMutations = {
       }
     }
 
-    return models.Integrations.saveMessengerConfigs(_id, messengerDataWithoutApps as IMessengerData);
+    return models.Integrations.saveMessengerConfigs(
+      _id,
+      messengerDataWithoutApps as IMessengerData,
+    );
   },
 
   async integrationsSaveMessengerColorTheme(
@@ -436,9 +481,6 @@ export const integrationMutations = {
       },
     ];
   },
-  /**
-   * Create a new messenger integration
-   */
   async integrationsCreateLeadIntegration(
     _root,
     doc: IIntegration,
@@ -447,9 +489,6 @@ export const integrationMutations = {
     return await models.Integrations.createLeadIntegration(doc, user._id);
   },
 
-  /**
-   * Edit a lead integration
-   */
   async integrationsEditLeadIntegration(
     _root,
     { _id, ...doc }: any,
@@ -464,15 +503,45 @@ export const integrationMutations = {
     return await models.Integrations.updateLeadIntegration(_id, doc);
   },
 
-  /**
-   * Create external integrations like twitter, gmail etc ...
-   */
   async integrationsCreateExternalIntegration(
     _root,
     { data, ...doc }: IExternalIntegrationParams & { data: object },
     { user, models, subdomain }: IContext,
   ) {
-    const modifiedDoc: any = { ...doc };
+    const modifiedDoc: IExternalIntegrationParams & {
+      webhookData?: Record<string, unknown>;
+    } = { ...doc };
+    const serviceKind = doc.kind.split('-')[0];
+
+    if (modifiedDoc.channelId) {
+      const channel = await models.Channels.findOne({
+        _id: modifiedDoc.channelId,
+      });
+
+      if (!channel) {
+        throw new Error(
+          `Channel "${modifiedDoc.channelId}" not found — cannot create an integration on a channel that doesn't exist.`,
+        );
+      }
+
+      if (
+        channel.scope === ChannelScopes.PERSONAL &&
+        channel.createdBy !== user._id
+      ) {
+        throw new Error(
+          "Cannot create an integration on another user's personal channel.",
+        );
+      }
+    } else {
+      // No channel named: the integration lands in the connecting user's own
+      // inbox. A personal channel accepts every kind a team channel does, so
+      // this fallback is not restricted by kind.
+      const personalChannel = await models.Channels.getPersonalChannel(
+        user._id,
+      );
+
+      modifiedDoc.channelId = personalChannel._id;
+    }
 
     if (modifiedDoc.kind === 'webhook') {
       modifiedDoc.webhookData = { ...data };
@@ -493,26 +562,16 @@ export const integrationMutations = {
       user._id,
     );
 
-    const kind = doc.kind.split('-')[0];
-    if (kind === 'cloudflarecalls') {
+    if (serviceKind === 'cloudflarecalls') {
       data = { ...data, name: doc.name };
     }
 
-    try {
-      if ('webhook' !== kind) {
-        const payload: CreateIntegrationParams = {
-          accountId: doc.accountId,
-          kind: doc.kind,
-          integrationId: integration._id,
-          data: data ? JSON.stringify(data) : '',
-        };
-
-        await sendCreateIntegration(subdomain, kind, payload);
-      }
-    } catch (e) {
-      await models.Integrations.deleteOne({ _id: integration._id });
-      throw new Error(e);
-    }
+    await createOnService(models, subdomain, serviceKind, {
+      accountId: doc.accountId,
+      kind: doc.kind,
+      integrationId: integration._id,
+      data: data ? JSON.stringify(data) : '',
+    });
 
     return integration;
   },
@@ -549,7 +608,7 @@ export const integrationMutations = {
     const updated = await models.Integrations.getIntegration({ _id });
 
     const serviceName = integration.kind.split('-')[0];
-    await sendUpdateIntegration(subdomain, serviceName, {
+    const result = await sendUpdateIntegration(subdomain, serviceName, {
       kind,
       integrationId: integration._id,
       doc: {
@@ -561,12 +620,13 @@ export const integrationMutations = {
       },
     });
 
+    if (result?.status === 'error') {
+      throw new Error(result.errorMessage || 'Failed to update integration');
+    }
+
     return updated;
   },
 
-  /**
-   * Deletes an integration
-   */
   async integrationsRemove(
     _root,
     { _id }: { _id: string },
@@ -588,9 +648,6 @@ export const integrationMutations = {
     return models.Integrations.removeIntegration(_id);
   },
 
-  /**
-   * Delete an account
-   */
   async integrationsRemoveAccount(
     _root,
     { _id, kind }: { _id: string; kind?: string },
@@ -609,7 +666,9 @@ export const integrationMutations = {
     { subdomain }: IContext,
   ) {
     const serviceName = kind.split('-')[0];
-    return sendRepairIntegration(subdomain, serviceName, { integrationId: _id });
+    return sendRepairIntegration(subdomain, serviceName, {
+      integrationId: _id,
+    });
   },
   async integrationsArchive(
     _root,
@@ -654,12 +713,12 @@ export const integrationMutations = {
 
   async integrationsSaveMessengerTicketData(
     _root,
-    { _id, configId }: { _id: string; configId: string },
+    { _id, configIds }: { _id: string; configIds?: string[] },
     { models }: IContext,
   ) {
     return models.Integrations.integrationsSaveMessengerTicketData(
       _id,
-      configId,
+      configIds,
     );
   },
 };

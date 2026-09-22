@@ -5,10 +5,15 @@ import { getOrCreateCustomer } from '@/integrations/facebook/controller/store';
 import { receiveInboxMessage } from '@/inbox/receiveMessage';
 import { debugFacebook } from '@/integrations/facebook/debuggers';
 import { Activity } from '@/integrations/facebook/@types/utils';
+import { IFacebookBotDocument } from '@/integrations/facebook/db/definitions/bots';
 import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
 import { graphqlPubsub } from 'erxes-api-shared/utils';
+import { sendReply } from '@/integrations/facebook/utils';
+import { IFacebookConversationDocument } from '@/integrations/facebook/@types/conversations';
+import { IFacebookConversationMessageDocument } from '@/integrations/facebook/@types/conversationMessages';
 import {
   checkIsBot,
+  parseAutomationPayload,
   triggerFacebookMessageAutomation,
 } from '@/integrations/facebook/meta/automation/utils/messageUtils';
 
@@ -22,6 +27,125 @@ const sanitizeString = (value: unknown): string => {
     return value;
   }
   return String(value ?? '');
+};
+
+const DEFAULT_HANDOFF_MESSAGE =
+  'A teammate will take over shortly. Automated replies are paused.';
+
+const getErrorMessage = (error: unknown) =>
+  error instanceof Error ? error.message : String(error);
+
+const buildMessengerTextPayload = ({
+  senderId,
+  text,
+  tag,
+}: {
+  senderId: string;
+  text: string;
+  tag?: string;
+}) => {
+  const trimmedTag = tag?.trim();
+  const payload: {
+    recipient: { id: string };
+    message: { text: string };
+    messaging_type: string;
+    tag?: string;
+  } = {
+    recipient: { id: senderId },
+    message: { text },
+    messaging_type: trimmedTag ? 'MESSAGE_TAG' : 'RESPONSE',
+  };
+
+  if (trimmedTag) {
+    payload.tag = trimmedTag;
+  }
+
+  return payload;
+};
+
+const handleHumanHandoff = async ({
+  models,
+  subdomain,
+  conversation,
+  conversationMessage,
+  integration,
+  bot,
+  senderId,
+  recipientId,
+}: {
+  models: IModels;
+  subdomain: string;
+  conversation: IFacebookConversationDocument;
+  conversationMessage: IFacebookConversationMessageDocument;
+  integration: IFacebookIntegrationDocument;
+  bot: IFacebookBotDocument;
+  senderId: string;
+  recipientId: string;
+}) => {
+  if (!conversation.erxesApiId) {
+    return;
+  }
+
+  const pauseMinutes = Math.max(1, Number(bot.handoffPauseMinutes || 10));
+  const pausedUntil = new Date(Date.now() + pauseMinutes * 60 * 1000);
+  const inboxConversation = await models.Conversations.findOne({
+    _id: conversation.erxesApiId,
+  }).lean();
+
+  if (inboxConversation?.automatedReplyControl?.status !== 'human_active') {
+    await receiveInboxMessage(subdomain, {
+      action: 'set-automated-reply-control',
+      payload: JSON.stringify({
+        conversationId: conversation.erxesApiId,
+        status: 'handoff_requested',
+        pausedUntil,
+        reason: 'customer_requested',
+      }),
+    });
+  }
+
+  const text = bot.handoffMessage || DEFAULT_HANDOFF_MESSAGE;
+
+  const sendHandoffReply = (tag?: string) =>
+    sendReply(
+      models,
+      'me/messages',
+      buildMessengerTextPayload({
+        senderId,
+        text,
+        tag,
+      }),
+      recipientId,
+      integration.erxesApiId,
+    );
+
+  let sendResult;
+
+  try {
+    sendResult = await sendHandoffReply();
+  } catch (error) {
+    const errorMessage = getErrorMessage(error);
+    const shouldRetryWithTag =
+      errorMessage.includes('outside of allowed window') && bot.tag;
+
+    if (!shouldRetryWithTag) {
+      throw new Error(errorMessage);
+    }
+
+    sendResult = await sendHandoffReply(bot.tag);
+  }
+
+  await models.FacebookConversationMessages.addBotMessage(subdomain, {
+    conversationId: conversation._id,
+    botId: bot._id,
+    botData: [{ type: 'text', text }],
+    mid: String(
+      sendResult?.mid ||
+        sendResult?.message_id ||
+        `handoff-${conversationMessage._id}`,
+    ),
+    conversationErxesApiId: conversation.erxesApiId,
+  });
 };
 
 export const receiveMessage = async (
@@ -213,6 +337,28 @@ export const receiveMessage = async (
         }
 
         conversationMessage = created;
+
+        const payload = parseAutomationPayload(message?.payload);
+        if (payload.persistentMenuType === 'human_handoff') {
+          const handoffBot = await models.FacebookBots.findOne({
+            _id: payload.botId || botId,
+          });
+
+          if (handoffBot) {
+            await handleHumanHandoff({
+              models,
+              subdomain,
+              conversation,
+              conversationMessage,
+              integration,
+              bot: handoffBot,
+              senderId: userId,
+              recipientId: pageId,
+            });
+          }
+
+          return;
+        }
 
         triggerFacebookMessageAutomation(subdomain, {
           conversationMessage: conversationMessage.toObject(),

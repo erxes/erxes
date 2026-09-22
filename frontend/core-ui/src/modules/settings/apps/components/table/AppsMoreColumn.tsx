@@ -1,12 +1,10 @@
 import { Cell } from '@tanstack/react-table';
 import { RecordTable, useConfirm, useToast } from 'erxes-ui';
 import { Popover, Command, Combobox } from 'erxes-ui';
-import { IconEdit, IconTrash, IconLock } from '@tabler/icons-react';
+import { IconTrash, IconLock } from '@tabler/icons-react';
 import { IApp } from '../../types';
 import { useAppsRemove } from '../../hooks/useAppsRemove';
 import { useAppsRevoke } from '../../hooks/useAppsRevoke';
-import { useSetAtom } from 'jotai';
-import { editingAppAtom } from '../../state';
 import { Can } from 'ui-modules';
 
 export const AppsMoreColumnCell = ({ cell }: { cell: Cell<IApp, unknown> }) => {
@@ -15,7 +13,6 @@ export const AppsMoreColumnCell = ({ cell }: { cell: Cell<IApp, unknown> }) => {
   const { toast } = useToast();
   const { appsRemove } = useAppsRemove();
   const { appsRevoke } = useAppsRevoke();
-  const setEditingApp = useSetAtom(editingAppAtom);
 
   const handleDelete = () => {
     confirm({
@@ -60,12 +57,6 @@ export const AppsMoreColumnCell = ({ cell }: { cell: Cell<IApp, unknown> }) => {
       <Combobox.Content>
         <Command shouldFilter={false}>
           <Command.List>
-            <Command.Item
-              value="edit"
-              onSelect={() => setEditingApp(cell.row.original)}
-            >
-              <IconEdit /> Edit
-            </Command.Item>
             {status === 'active' && (
               <Command.Item value="revoke" onSelect={handleRevoke}>
                 <IconLock /> Revoke
@@ -84,5 +75,5 @@ export const AppsMoreColumnCell = ({ cell }: { cell: Cell<IApp, unknown> }) => {
 export const appsMoreColumn = {
   id: 'more',
   cell: AppsMoreColumnCell,
-  size: 25,
+  size: 33,
 };

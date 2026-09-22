@@ -1,4 +1,8 @@
-import { CONVERSATION_STATUSES } from '@/inbox/db/definitions/constants';
+import {
+  AUTOMATION_STATUS_MAP,
+  CONVERSATION_AUTOMATION_STATUS,
+  CONVERSATION_STATUSES,
+} from '@/inbox/db/definitions/constants';
 import { fixDate, sendTRPCMessage } from 'erxes-api-shared/utils';
 import * as _ from 'underscore';
 import { IModels } from '~/connectionResolvers';
@@ -7,7 +11,6 @@ interface IIn {
   $in: string[];
 }
 
-
 interface IExists {
   $exists: boolean;
 }
@@ -15,13 +18,19 @@ interface IExists {
 export interface IListArgs {
   limit?: number;
   channelId?: string;
+  integrationId?: string;
   status?: string;
   unassigned?: string;
   awaitingResponse?: string;
+  withSurvey?: string;
+  withPoll?: string;
+  automationStatus?: string;
   brandId?: string;
   tag?: string;
   integrationType?: string;
   participating?: string;
+  mentioned?: string;
+  unread?: string;
   starred?: string;
   ids?: string[];
   startDate?: string;
@@ -51,7 +60,6 @@ interface IUnassignedFilter {
   assignedUserId: IExists;
 }
 
-
 export default class Builder {
   public models: IModels;
   public subdomain: string;
@@ -73,7 +81,6 @@ export default class Builder {
     this.user = user;
   }
 
-  // filter by segment
   public async segmentFilter(segmentId: string): Promise<{ _id: IIn }> {
     const selector = await sendTRPCMessage({
       subdomain: this.subdomain,
@@ -131,16 +138,12 @@ export default class Builder {
   public async intersectIntegrationIds(
     ...queries: any[]
   ): Promise<{ integrationId: IIn }> {
-    // filter only queries with $in field
     const withIn = queries.filter((q) => q.integrationId?.$in?.length);
 
-    // [{$in: ['id1', 'id2']}, {$in: ['id3', 'id1', 'id4']}]
     const $ins = _.pluck(withIn, 'integrationId');
 
-    // [['id1', 'id2'], ['id3', 'id1', 'id4']]
     const nestedIntegrationIds = _.pluck($ins, '$in');
 
-    // ['id1']
     const integrationids: string[] = _.intersection(...nestedIntegrationIds);
 
     return {
@@ -181,22 +184,30 @@ export default class Builder {
       { integrationId: { $in: availIntegrationIds } },
     ];
 
-    // filter by channel
     if (this.params.channelId) {
       const _channelQuery = await this.channelFilter(this.params.channelId);
       nestedIntegrationIds.push(_channelQuery);
     }
 
-    // filter by brand
     if (this.params.brandId) {
       const brandQuery = await this.brandFilter(this.params.brandId);
       if (brandQuery) nestedIntegrationIds.push(brandQuery);
     }
 
+    if (this.params.integrationId) {
+      const ids = this.params.integrationId
+        .split(',')
+        .map((id) => id.trim())
+        .filter(Boolean);
+
+      if (ids.length) {
+        nestedIntegrationIds.push({ integrationId: { $in: ids } });
+      }
+    }
+
     return this.intersectIntegrationIds(...nestedIntegrationIds);
   }
 
-  // filter by channel
   public async channelFilter(
     channelId: string,
   ): Promise<{ integrationId: IIn }> {
@@ -224,7 +235,6 @@ export default class Builder {
     };
   }
 
-  // filter by brand
   public async brandFilter(
     brandId: string,
   ): Promise<{ integrationId: IIn } | undefined> {
@@ -239,7 +249,6 @@ export default class Builder {
     return { integrationId: { $in: integrationIds } };
   }
 
-  // filter all unassigned
   public unassignedFilter(): IUnassignedFilter {
     this.unassignedQuery = {
       assignedUserId: { $exists: false },
@@ -248,7 +257,6 @@ export default class Builder {
     return this.unassignedQuery;
   }
 
-  // filter by participating
   public participatingFilter(): { $or: object[] } {
     return {
       $or: [
@@ -258,7 +266,23 @@ export default class Builder {
     };
   }
 
-  // filter by starred
+  public async mentionedFilter(): Promise<{ _id: IIn }> {
+    const conversationIds: string[] =
+      await this.models.ConversationMessages.distinct('conversationId', {
+        mentionedUserIds: this.user._id,
+      });
+
+    return {
+      _id: { $in: conversationIds },
+    };
+  }
+
+  public unreadFilter(): { readUserIds: { $ne: string } } {
+    return {
+      readUserIds: { $ne: this.user._id },
+    };
+  }
+
   public starredFilter(): { _id: IIn | { $in: string[] } } {
     return {
       _id: {
@@ -273,14 +297,44 @@ export default class Builder {
     };
   }
 
-  // filter by awaiting Response
   public awaitingResponse(): { isCustomerRespondedLast: boolean } {
     return {
       isCustomerRespondedLast: true,
     };
   }
 
-  // filter by integration type
+  public withSurveyFilter(): { hasSurvey: boolean } {
+    return {
+      hasSurvey: true,
+    };
+  }
+
+  public withoutSurveyFilter(): { hasSurvey: { $ne: true } } {
+    return {
+      hasSurvey: { $ne: true },
+    };
+  }
+
+  public automationStatusFilter(value: string): {
+    'automatedReplyControl.status'?: IIn | IExists;
+  } {
+    const keys = value.split(',').map((key) => key.trim());
+
+    if (keys.includes(CONVERSATION_AUTOMATION_STATUS.RESPONDED)) {
+      return { 'automatedReplyControl.status': { $exists: true } };
+    }
+
+    const statuses = keys
+      .map((key) => AUTOMATION_STATUS_MAP[key])
+      .filter(Boolean);
+
+    if (!statuses.length) {
+      return {};
+    }
+
+    return { 'automatedReplyControl.status': { $in: statuses } };
+  }
+
   public async integrationTypeFilter(
     integrationType: string,
   ): Promise<IIntersectIntegrationIds[]> {
@@ -289,15 +343,12 @@ export default class Builder {
     });
 
     return [
-      // add channel && brand filter
       this.queries.integrations,
 
-      // filter by integration type
       { integrationId: { $in: _.pluck(integrations, '_id') } },
     ];
   }
 
-  // filter by tag
   public async tagFilter(tagIds: string[]): Promise<{ tagIds: IIn }> {
     let ids: string[] = [];
 
@@ -346,20 +397,95 @@ export default class Builder {
     };
   }
 
-  public async extendedQueryFilter({ integrationType }: IListArgs) {
+  public async searchFilter(searchValue: string): Promise<{ $or: object[] }> {
+    const value = searchValue.trim();
+    const digits = value.replace(/\D/g, '');
+    const isPhoneSearch =
+      digits.length >= 4 && digits.length >= value.length / 2;
+
+    const escapeRegex = (str: string) =>
+      str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+    const customerQuery = isPhoneSearch
+      ? {
+          $or: [
+            { primaryPhone: { $regex: escapeRegex(digits) } },
+            { phones: { $regex: escapeRegex(digits) } },
+          ],
+        }
+      : {
+          $or: [
+            { firstName: { $regex: escapeRegex(value), $options: 'i' } },
+            { lastName: { $regex: escapeRegex(value), $options: 'i' } },
+            { primaryEmail: { $regex: escapeRegex(value), $options: 'i' } },
+            { primaryPhone: { $regex: escapeRegex(value) } },
+          ],
+        };
+
+    const customers = await sendTRPCMessage({
+      subdomain: this.subdomain,
+
+      pluginName: 'core',
+      method: 'query',
+      module: 'customers',
+      action: 'find',
+      input: { query: { status: { $ne: 'deleted' }, ...customerQuery } },
+      defaultValue: [],
+    });
+
+    const customerIds = (customers || []).map((customer: any) =>
+      customer._id.toString(),
+    );
+
+    const orConditions: object[] = [{ customerId: { $in: customerIds } }];
+
+    if (!isPhoneSearch) {
+      orConditions.push({
+        content: { $regex: escapeRegex(value), $options: 'i' },
+      });
+    }
+
+    const availableIntegrationIds: string[] =
+      this.queries?.integrations?.integrationId?.$in || [];
+
+    if (isPhoneSearch && availableIntegrationIds.length) {
+      const digitsRegex = escapeRegex(digits);
+
+      const cdrConversationIds = await this.models.CallCdrs.distinct(
+        'conversationId',
+        {
+          conversationId: { $exists: true, $nin: [null, ''] },
+          inboxIntegrationId: { $in: availableIntegrationIds },
+          $or: [
+            { src: { $regex: digitsRegex } },
+            { dst: { $regex: digitsRegex } },
+          ],
+        },
+      );
+
+      if (cdrConversationIds.length) {
+        orConditions.push({ _id: { $in: cdrConversationIds } });
+      }
+    }
+
+    return { $or: orConditions };
+  }
+
+  public async extendedQueryFilter({
+    integrationType,
+    searchValue,
+  }: IListArgs) {
     return {
       $and: [
         { $or: this.userRelevanceQuery() },
         ...(integrationType
           ? await this.integrationTypeFilter(integrationType)
           : []),
+        ...(searchValue ? [await this.searchFilter(searchValue)] : []),
       ],
     };
   }
 
-  /*
-   * prepare all queries. do not do any action
-   */
   public async buildAllQueries(): Promise<void> {
     this.queries = {
       default: await this.defaultFilters(),
@@ -370,48 +496,63 @@ export default class Builder {
       channel: {},
       integrationType: {},
 
-      // find it using channel && brand
       integrations: {},
 
       participating: {},
+      mentioned: {},
+      unread: {},
       createdAt: {},
       segments: {},
+      automationStatus: {},
+      withSurvey: {},
     };
 
-    // filter by channel
     if (this.params.channelId) {
       this.queries.channel = await this.channelFilter(this.params.channelId);
     }
 
-    // filter by channelId & brandId
     this.queries.integrations = await this.integrationsFilter();
 
-    // unassigned
     if (this.params.unassigned) {
       this.queries.unassigned = this.unassignedFilter();
     }
 
-    // participating
     if (this.params.participating) {
       this.queries.participating = this.participatingFilter();
     }
 
-    // starred
+    if (this.params.mentioned) {
+      this.queries.mentioned = await this.mentionedFilter();
+    }
+
+    if (this.params.unread) {
+      this.queries.unread = this.unreadFilter();
+    }
+
     if (this.params.starred) {
       this.queries.starred = this.starredFilter();
     }
 
-    // awaiting response
     if (this.params.awaitingResponse) {
       this.queries.awaitingResponse = this.awaitingResponse();
     }
 
-    // filter by status
+    if (this.params.withSurvey || this.params.withPoll) {
+      this.queries.withSurvey = this.withSurveyFilter();
+    } else if (this.params.integrationType) {
+      this.queries.withSurvey = this.withoutSurveyFilter();
+    }
+
+    if (this.params.automationStatus) {
+      this.queries.automationStatus = this.automationStatusFilter(
+        this.params.automationStatus,
+      );
+    }
+
     if (this.params.status) {
       this.queries.status = this.statusFilter([this.params.status]);
     }
 
-    // filter by tag
     if (this.params.tag) {
       this.queries.tag = await this.tagFilter(this.params.tag.split(','));
     }
@@ -423,7 +564,6 @@ export default class Builder {
       );
     }
 
-    // filter by segment
     if (this.params.segment) {
       this.queries.segments = await this.segmentFilter(this.params.segment);
     }
@@ -438,11 +578,15 @@ export default class Builder {
       ...this.queries.extended,
       ...this.queries.unassigned,
       ...this.queries.participating,
+      ...this.queries.mentioned,
+      ...this.queries.unread,
       ...this.queries.status,
       ...this.queries.starred,
       ...this.queries.tag,
       ...this.queries.createdAt,
       ...this.queries.awaitingResponse,
+      ...this.queries.automationStatus,
+      ...this.queries.withSurvey,
       ...this.queries.segments,
     };
   }

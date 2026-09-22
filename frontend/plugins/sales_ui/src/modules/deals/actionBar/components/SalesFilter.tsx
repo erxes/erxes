@@ -1,8 +1,11 @@
-import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
+import { Combobox, Command, Filter, useMultiQueryState, useQueryState } from 'erxes-ui';
 import {
   IconCalendarBolt,
+  IconCalendarClock,
   IconCalendarPlus,
   IconCalendarX,
+  IconSearch,
+  IconStack2,
 } from '@tabler/icons-react';
 import {
   SelectBranches,
@@ -11,6 +14,7 @@ import {
   SelectDepartments,
   SelectMember,
   SelectProduct,
+  SelectStage,
 } from 'ui-modules';
 
 import { DealsTotalCount } from '@/deals/components/DealsTotalCount';
@@ -18,9 +22,16 @@ import { IDeal } from '@/deals/types/deals';
 import { SalesFilterState } from '@/deals/actionBar/types/actionBarTypes';
 import { SelectLabels } from '@/deals/components/common/filters/SelectLabel';
 import { SelectPriority } from '@/deals/components/common/filters/SelectPriority';
+import { dealsViewAtom } from '@/deals/states/dealsViewState';
+import { useAtomValue } from 'jotai';
+import { useTranslation } from 'react-i18next';
 
 export const SalesFilter = () => {
+  const { t } = useTranslation('sales');
+  const view = useAtomValue(dealsViewAtom);
+  const [pipelineId] = useQueryState<string>('pipelineId');
   const [queries] = useMultiQueryState<SalesFilterState>([
+    'search',
     'companyIds',
     'productId',
     'userIds',
@@ -32,6 +43,10 @@ export const SalesFilter = () => {
     'createdEndDate',
     'startDateStartDate',
     'startDateEndDate',
+    'closeDateStartDate',
+    'closeDateEndDate',
+    'stageChangedStartDate',
+    'stageChangedEndDate',
     'priority',
     'labelIds',
     'tagIds',
@@ -46,35 +61,54 @@ export const SalesFilter = () => {
   return (
     <Filter id="sales-filter">
       <Filter.Bar className="overflow-auto styled-scroll">
-        <SalesFilterBar queries={queries} />
         <div className="flex flex-wrap items-center gap-2">
           <Filter.Popover scope={'sales-page'}>
             <Filter.Trigger isFiltered={hasFilters} />
             <Combobox.Content>
-              <SalesFilterView />
+              <SalesFilterView
+                view={view}
+                pipelineId={pipelineId || undefined}
+              />
             </Combobox.Content>
           </Filter.Popover>
           <Filter.Dialog>
+            <Filter.View filterKey="search" inDialog>
+              <Filter.DialogStringView
+                filterKey="search"
+                label={t('search', 'Search')}
+              />
+            </Filter.View>
             <Filter.View filterKey="createdStartDate" inDialog>
               <Filter.DialogDateView
                 filterKey="createdStartDate"
-                label="Date created"
+                label={t('date-created', 'Date created')}
               />
             </Filter.View>
             <Filter.View filterKey="startDateStartDate" inDialog>
               <Filter.DialogDateView
                 filterKey="startDateStartDate"
-                label="Start date"
+                label={t('start-date', 'Start Date')}
               />
             </Filter.View>
-            <Filter.View filterKey="startDateEndDate" inDialog>
+            <Filter.View filterKey="closeDateStartDate" inDialog>
               <Filter.DialogDateView
-                filterKey="startDateEndDate"
-                label="End date"
+                filterKey="closeDateStartDate"
+                label={t('close-date', 'Close Date')}
+              />
+            </Filter.View>
+            <Filter.View filterKey="stageChangedStartDate" inDialog>
+              <Filter.DialogDateView
+                filterKey="stageChangedStartDate"
+                label={t('stage-changed-date', 'Stage changed date')}
               />
             </Filter.View>
           </Filter.Dialog>
         </div>
+        <SalesFilterBar
+          queries={queries}
+          view={view}
+          pipelineId={pipelineId || undefined}
+        />
         <DealsTotalCount />
       </Filter.Bar>
     </Filter>
@@ -105,8 +139,18 @@ export const filterDeals = (deals: IDeal[], filters: SalesFilterState) => {
   return result;
 };
 
-const SalesFilterBar = ({ queries }: { queries: SalesFilterState }) => {
+const SalesFilterBar = ({
+  queries,
+  view,
+  pipelineId,
+}: {
+  queries: SalesFilterState;
+  view: 'list' | 'board';
+  pipelineId?: string;
+}) => {
+  const { t } = useTranslation('sales');
   const {
+    search,
     assignedUserIds,
     branchIds,
     departmentIds,
@@ -120,126 +164,198 @@ const SalesFilterBar = ({ queries }: { queries: SalesFilterState }) => {
 
   return (
     <>
+      {search && (
+        <Filter.BarItem queryKey="search">
+          <Filter.BarName>
+            <IconSearch />
+            {t('search', 'Search')}
+          </Filter.BarName>
+          <Filter.BarButton filterKey="search" inDialog>
+            {search}
+          </Filter.BarButton>
+        </Filter.BarItem>
+      )}
       <Filter.BarItem queryKey="createdStartDate">
         <Filter.BarName>
           <IconCalendarPlus />
-          Date created
+          {t('date-created', 'Date created')}
         </Filter.BarName>
-        <Filter.Date filterKey="createdStartDate" label="Date created" />
+        <Filter.Date
+          filterKey="createdStartDate"
+          label={t('date-created', 'Date created')}
+        />
       </Filter.BarItem>
       <Filter.BarItem queryKey="startDateStartDate">
         <Filter.BarName>
           <IconCalendarBolt />
-          Start date
+          {t('start-date', 'Start Date')}
         </Filter.BarName>
-        <Filter.Date filterKey="startDateStartDate" label="Start date" />
+        <Filter.Date
+          filterKey="startDateStartDate"
+          label={t('start-date', 'Start Date')}
+        />
       </Filter.BarItem>
-      <Filter.BarItem queryKey="startDateEndDate">
+      <Filter.BarItem queryKey="closeDateStartDate">
         <Filter.BarName>
           <IconCalendarX />
-          End date
+          {t('close-date', 'Close Date')}
         </Filter.BarName>
-        <Filter.Date filterKey="startDateEndDate" label="End date" />
+        <Filter.Date
+          filterKey="closeDateStartDate"
+          label={t('close-date', 'Close Date')}
+        />
+      </Filter.BarItem>
+      <Filter.BarItem queryKey="stageChangedStartDate">
+        <Filter.BarName>
+          <IconCalendarClock />
+          {t('stage-changed', 'Stage changed')}
+        </Filter.BarName>
+        <Filter.Date
+          filterKey="stageChangedStartDate"
+          label={t('stage-changed-date', 'Stage changed date')}
+        />
       </Filter.BarItem>
       {companyIds && (
         <SelectCompany.FilterBar
           mode="multiple"
           filterKey="companyIds"
-          label="By Company"
+          label={t('by-company', 'By Company')}
         />
       )}
       {customerIds && (
         <SelectCustomer.FilterBar
           mode="multiple"
           filterKey="customerIds"
-          label="By Customer"
+          label={t('by-customer', 'By Customer')}
         />
       )}
       {assignedUserIds && (
         <SelectMember.FilterBar
           mode="multiple"
           queryKey="assignedUserIds"
-          label="By User"
+          label={t('by-user', 'By User')}
         />
       )}
       {userIds && (
         <SelectMember.FilterBar
           mode="multiple"
           queryKey="userIds"
-          label="By User"
+          label={t('by-user', 'By User')}
         />
       )}
       {branchIds && (
         <SelectBranches.FilterBar
           mode="multiple"
           filterKey="branchIds"
-          label="By Branch"
+          label={t('by-branch', 'By Branch')}
         />
       )}
       {departmentIds && (
         <SelectDepartments.FilterBar
           mode="multiple"
           filterKey="departmentIds"
-          label="By Department"
+          label={t('by-department', 'By Department')}
         />
       )}
       {priority && <SelectPriority.FilterBar />}
       {labelIds && (
-        <SelectLabels.FilterBar
-          filterKey="labelIds"
-          mode="multiple"
-          label="By Label"
-        />
+        <SelectLabels.FilterBar filterKey="labelIds" mode="multiple" />
       )}
       {productId && (
         <SelectProduct.FilterBar
           filterKey="productId"
           mode="multiple"
-          label="By Product"
+          label={t('by-product', 'By Product')}
+        />
+      )}
+      {view === 'list' && (
+        <SelectStage.FilterBar
+          queryKey="stageId"
+          pipelineId={pipelineId || undefined}
         />
       )}
     </>
   );
 };
 
-const SalesFilterView = () => {
+const SalesFilterView = ({
+  view,
+  pipelineId,
+}: {
+  view: 'list' | 'board';
+  pipelineId?: string;
+}) => {
+  const { t } = useTranslation('sales');
   return (
     <>
       <Filter.View>
         <Command>
           <Command.List className="p-1">
-            <SelectCompany.FilterItem value="companyIds" label="By Company" />
+            <Filter.Item value="search" inDialog>
+              <IconSearch />
+              {t('search', 'Search')}
+            </Filter.Item>
+            <Command.Separator className="my-1" />
+            <SelectCompany.FilterItem
+              value="companyIds"
+              label={t('by-company', 'By Company')}
+            />
             <SelectCustomer.FilterItem
               value="customerIds"
-              label="By Customer"
+              label={t('by-customer', 'By Customer')}
             />
             <Command.Separator className="my-1" />
             <SelectMember.FilterItem
               value="assignedUserIds"
-              label="By Assigned user"
+              label={t('by-assigned-user', 'By Assigned user')}
             />
-            <SelectMember.FilterItem value="userIds" label="Created By" />
+            <SelectMember.FilterItem
+              value="userIds"
+              label={t('created-by-user', 'Created By')}
+            />
             <Command.Separator className="my-1" />
-            <SelectBranches.FilterItem value="branchIds" label="By Branch" />
+            <SelectBranches.FilterItem
+              value="branchIds"
+              label={t('by-branch', 'By Branch')}
+            />
             <SelectDepartments.FilterItem
               value="departmentIds"
-              label="By Department"
+              label={t('by-department', 'By Department')}
             />
-            <SelectProduct.FilterItem value="productId" label="By Product" />
-            <SelectPriority.FilterItem value="priority" label="By Priority" />
-            <SelectLabels.FilterItem value="labelIds" label="By Label" />
+            <SelectProduct.FilterItem
+              value="productId"
+              label={t('by-product', 'By Product')}
+            />
+            <SelectPriority.FilterItem
+              value="priority"
+              label={t('by-priority', 'By Priority')}
+            />
+            <SelectLabels.FilterItem
+              value="labelIds"
+              label={t('by-label', 'By Label')}
+            />
+            {view === 'list' && (
+              <Filter.Item value="stageId">
+                <IconStack2 />
+                {t('by-stage', 'By Stage')}
+              </Filter.Item>
+            )}
             <Command.Separator className="my-1" />
             <Filter.Item value="createdStartDate">
               <IconCalendarPlus />
-              Date created
+              {t('date-created', 'Date created')}
             </Filter.Item>
             <Filter.Item value="startDateStartDate">
               <IconCalendarBolt />
-              Start date
+              {t('start-date', 'Start Date')}
             </Filter.Item>
-            <Filter.Item value="startDateEndDate">
+            <Filter.Item value="closeDateStartDate">
               <IconCalendarX />
-              End date
+              {t('close-date', 'Close Date')}
+            </Filter.Item>
+            <Filter.Item value="stageChangedStartDate">
+              <IconCalendarClock />
+              {t('stage-changed', 'Stage changed')}
             </Filter.Item>
           </Command.List>
         </Command>
@@ -253,14 +369,35 @@ const SalesFilterView = () => {
       <SelectProduct.FilterView filterKey="productId" mode="multiple" />
       <SelectPriority.FilterView />
       <SelectLabels.FilterView filterKey="labelIds" mode="multiple" />
+      {view === 'list' && (
+        <SelectStage.FilterView
+          queryKey="stageId"
+          pipelineId={pipelineId || undefined}
+        />
+      )}
       <Filter.View filterKey="createdStartDate">
-        <Filter.DateView filterKey="createdStartDate" label="Date created" />
+        <Filter.DateView
+          filterKey="createdStartDate"
+          label={t('date-created', 'Date created')}
+        />
       </Filter.View>
       <Filter.View filterKey="startDateStartDate">
-        <Filter.DateView filterKey="startDateStartDate" label="Start date" />
+        <Filter.DateView
+          filterKey="startDateStartDate"
+          label={t('start-date', 'Start Date')}
+        />
       </Filter.View>
-      <Filter.View filterKey="startDateEndDate">
-        <Filter.DateView filterKey="startDateEndDate" label="End date" />
+      <Filter.View filterKey="closeDateStartDate">
+        <Filter.DateView
+          filterKey="closeDateStartDate"
+          label={t('close-date', 'Close Date')}
+        />
+      </Filter.View>
+      <Filter.View filterKey="stageChangedStartDate">
+        <Filter.DateView
+          filterKey="stageChangedStartDate"
+          label={t('stage-changed-date', 'Stage changed date')}
+        />
       </Filter.View>
     </>
   );

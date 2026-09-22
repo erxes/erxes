@@ -21,7 +21,11 @@ const COMBINED_CMS_DATA = gql`
         parentId
       }
     }
-    cmsTags(clientPortalId: $clientPortalId, language: $language) {
+    cmsTags(
+      clientPortalId: $clientPortalId
+      limit: $limit
+      language: $language
+    ) {
       tags {
         _id
         name
@@ -182,10 +186,11 @@ export const usePostData = (
     ) {
       return false;
     }
-    // if specific posts are set, only show for this post
+    // if specific posts are set, only show for those posts. A new post (no
+    // postId yet) can never be in the list, so hide the group while creating.
     const enabledPostIds: string[] = group.enabledPostIds || [];
-    if (enabledPostIds.length > 0 && postId) {
-      return enabledPostIds.includes(postId);
+    if (enabledPostIds.length > 0) {
+      return postId ? enabledPostIds.includes(postId) : false;
     }
     return true;
   });

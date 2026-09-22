@@ -4,7 +4,8 @@ import type { TopNumber } from '../types';
 import { useCallFilters } from './useCallFilters';
 
 export function useTopNumbers(limit = 12) {
-  const { startDate, endDate, queueId, direction } = useCallFilters();
+  const { startDate, endDate, integrationId, queueId, direction } =
+    useCallFilters();
 
   const { data, loading, error } = useQuery<{ callTopNumbers: TopNumber[] }>(
     gql(CALL_TOP_NUMBERS),
@@ -12,11 +13,12 @@ export function useTopNumbers(limit = 12) {
       variables: {
         startDate,
         endDate,
-        queueId: queueId || undefined,
+        integrationId: integrationId || undefined,
+        queueId: queueId && queueId !== 'all' ? queueId : undefined,
         direction: direction !== 'all' ? direction : undefined,
         limit,
       },
-      skip: !queueId,
+      skip: !integrationId,
     },
   );
 

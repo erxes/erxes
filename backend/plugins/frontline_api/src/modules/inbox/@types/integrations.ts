@@ -64,6 +64,7 @@ type BotPersistentMenuTypeMessenger = {
   type: string;
   text: string;
   link: string;
+  contentType: string;
   isEditing?: boolean;
 };
 type WebsiteApp = {
@@ -199,7 +200,7 @@ export interface IIntegration {
   departmentIds?: string[];
   visibility?: string;
   configId?: string;
-  ticketConfigId?: string;
+  ticketConfigIds?: string[];
   brandId?: string;
 }
 

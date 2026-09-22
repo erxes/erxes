@@ -10,12 +10,14 @@ import {
 import { AddTriageForm } from '@/triage/components/add-triage/AddTriageForm';
 import { useAtom } from 'jotai';
 import { triageCreateSheetState } from '@/triage/states/triageCreateSheetState';
+import { useTranslation } from 'react-i18next';
 
 export const AddTriageSheet = ({
   onComplete: onCompleteProp,
 }: {
   onComplete?: (triageId: string) => void;
 }) => {
+  const { t } = useTranslation('operation');
   const setHotkeyScope = useSetHotkeyScope();
   const [open, setOpen] = useAtom(triageCreateSheetState);
   const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
@@ -42,7 +44,7 @@ export const AddTriageSheet = ({
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          Add triage
+          {t('add-triage')}
         </Button>
       </Sheet.Trigger>
       <Sheet.View

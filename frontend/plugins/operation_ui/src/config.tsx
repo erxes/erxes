@@ -5,16 +5,25 @@ import {
 } from '@tabler/icons-react';
 import { Suspense, lazy } from 'react';
 
-import { IUIConfig } from 'erxes-ui';
+import { IUIConfig, TPropertyInputProps } from 'erxes-ui';
+import { SEARCH_PROVIDERS } from '~/searchProviders';
+
+const TaskStatusPropertyInput = lazy(() =>
+  import('@/task/components/task-selects/TaskStatusPropertyInput').then(
+    (module) => ({
+      default: module.TaskStatusPropertyInput,
+    }),
+  ),
+);
 
 const MainNavigation = lazy(() =>
-  import('./modules/navigation/MainNavigation').then((module) => ({
+  import('@/navigation/MainNavigation').then((module) => ({
     default: module.MainNavigation,
   })),
 );
 
 const TeamsNavigation = lazy(() =>
-  import('./modules/navigation/TeamsNavigation').then((mod) => ({
+  import('@/navigation/TeamsNavigation').then((mod) => ({
     default: mod.TeamsNavigation,
   })),
 );
@@ -36,6 +45,7 @@ export const CONFIG: IUIConfig = {
   ),
   navigationGroup: {
     name: 'operation',
+    defaultPath: 'operation/projects',
     icon: IconListCheck,
     content: () => (
       <Suspense fallback={<div />}>
@@ -50,18 +60,32 @@ export const CONFIG: IUIConfig = {
   },
   modules: [
     {
-      name: 'operation',
-      icon: IconListCheck,
-      path: 'operation',
+      name: 'projects',
+      icon: IconClipboard,
+      path: 'operation/projects',
       hasAutomation: true,
+      hasRelationWidget: true,
+    },
+    {
+      name: 'tasks',
+      icon: IconChecklist,
+      path: 'operation/tasks',
+      hasRelationWidget: true,
     },
     {
       name: 'team',
+      icon: IconListCheck,
       path: 'operation/team',
     },
     {
-      name: 'projects',
-      path: 'operation/projects',
+      name: 'teams',
+      icon: IconListCheck,
+      path: 'settings/operation/teams',
+    },
+    {
+      name: 'github-integration',
+      icon: IconListCheck,
+      path: 'settings/operation/github',
     },
   ],
   widgets: {
@@ -75,5 +99,13 @@ export const CONFIG: IUIConfig = {
         icon: IconClipboard,
       },
     ],
+    propertyInputs: {
+      taskStatus: (props: TPropertyInputProps) => (
+        <Suspense fallback={<div />}>
+          <TaskStatusPropertyInput {...props} />
+        </Suspense>
+      ),
+    },
   },
+  searchProviders: SEARCH_PROVIDERS,
 };

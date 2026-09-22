@@ -7,6 +7,7 @@ import { CashierPermissions } from '@/pos/components/permission/CashierPermissio
 import mutations from '@/pos/graphql/mutations';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
 import { cleanData } from '@/pos/utils/cleanData';
+import { useTranslation } from 'react-i18next';
 
 interface PermissionProps {
   posId?: string;
@@ -21,6 +22,7 @@ export interface PermissionFormData {
   adminDirectDiscountLimit: string;
   cashierIds: string[];
   cashierIsPrintTempBill: boolean;
+  cashierSeeReport: boolean;
   cashierDirectDiscount: boolean;
   cashierDirectDiscountLimit: string;
 }
@@ -34,6 +36,7 @@ const DEFAULT_FORM_VALUES: PermissionFormData = {
   adminDirectDiscountLimit: '',
   cashierIds: [],
   cashierIsPrintTempBill: false,
+  cashierSeeReport: false,
   cashierDirectDiscount: false,
   cashierDirectDiscountLimit: '',
 };
@@ -47,6 +50,7 @@ const Permission: React.FC<PermissionProps> = ({
   posId,
   onSaveActionChange,
 }) => {
+  const { t } = useTranslation('sales');
   const { posDetail, loading: detailLoading, error } = usePosDetail(posId);
   const [posEdit, { loading: saving }] = useMutation(mutations.posEdit);
   const form = useForm<PermissionFormData>({
@@ -71,6 +75,7 @@ const Permission: React.FC<PermissionProps> = ({
         adminConfig?.directDiscountLimit?.toString() || '',
       cashierIds: posDetail.cashierIds || [],
       cashierIsPrintTempBill: cashierConfig?.isTempBill ?? false,
+      cashierSeeReport: cashierConfig?.seeReport ?? false,
       cashierDirectDiscount: cashierConfig?.directDiscount ?? false,
       cashierDirectDiscountLimit:
         cashierConfig?.directDiscountLimit?.toString() || '',
@@ -81,8 +86,8 @@ const Permission: React.FC<PermissionProps> = ({
     async (data: PermissionFormData) => {
       if (!posId) {
         toast({
-          title: 'Error',
-          description: 'POS ID is required',
+          title: t('error'),
+          description: t('pos-id-required'),
           variant: 'destructive',
         });
         return;
@@ -109,6 +114,7 @@ const Permission: React.FC<PermissionProps> = ({
               },
               cashiers: {
                 isTempBill: data.cashierIsPrintTempBill,
+                seeReport: data.cashierSeeReport,
                 directDiscount: data.cashierDirectDiscount,
                 directDiscountLimit: parseLimit(
                   data.cashierDirectDiscountLimit,
@@ -119,14 +125,14 @@ const Permission: React.FC<PermissionProps> = ({
         });
 
         toast({
-          title: 'Success',
-          description: 'Permissions saved successfully',
+          title: t('success'),
+          description: t('permissions-saved'),
         });
         reset(data);
       } catch {
         toast({
-          title: 'Error',
-          description: 'Failed to save permissions',
+          title: t('error'),
+          description: t('failed-to-save-permissions'),
           variant: 'destructive',
         });
       }
@@ -152,7 +158,7 @@ const Permission: React.FC<PermissionProps> = ({
           size="sm"
           disabled={saving}
         >
-          {saving ? 'Saving...' : 'Save Changes'}
+          {saving ? t('saving') : t('save-changes')}
         </Button>
       ) : null,
     );
@@ -175,7 +181,7 @@ const Permission: React.FC<PermissionProps> = ({
       return (
         <div className="p-6 text-center">
           <p className="text-destructive">
-            Failed to load POS details: {error.message}
+            {t('failed-to-load-pos-details', { message: error.message })}
           </p>
         </div>
       );
@@ -189,13 +195,13 @@ const Permission: React.FC<PermissionProps> = ({
           className="space-y-8"
         >
           <section className="space-y-4">
-            <Label>Admins</Label>
+            <Label>{t('admins')}</Label>
 
             <AdminPermissions control={control} />
           </section>
 
           <section className="pt-6 space-y-4 border-t">
-            <Label>Cashiers</Label>
+            <Label>{t('cashiers')}</Label>
 
             <CashierPermissions control={control} />
           </section>
@@ -206,7 +212,7 @@ const Permission: React.FC<PermissionProps> = ({
 
   return (
     <div className="p-6">
-      <InfoCard title="Permission configuration">
+      <InfoCard title={t('permission-configuration')}>
         <InfoCard.Content>{renderContent()}</InfoCard.Content>
       </InfoCard>
     </div>

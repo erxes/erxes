@@ -9,6 +9,7 @@ import {
   IconUser,
 } from '@tabler/icons-react';
 import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import {
   AccountsFilterCategory,
   AccountsFilterCurrency,
@@ -59,6 +60,7 @@ const PERMISSION_QUERY_KEYS = [
 ];
 
 const PermissionsFilterPopover = () => {
+  const { t } = useTranslation('accounting');
   const [queries] = useMultiQueryState<Record<string, string>>(
     PERMISSION_QUERY_KEYS,
   );
@@ -75,7 +77,7 @@ const PermissionsFilterPopover = () => {
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder="Filter"
+                placeholder={t('filter')}
                 variant="secondary"
                 className="bg-background"
               />
@@ -83,50 +85,50 @@ const PermissionsFilterPopover = () => {
                 <FilterPopoverStringItems filterKeys={['searchValue']} />
                 <Filter.Item value="userId">
                   <IconUser />
-                  User
+                  {t('user')}
                 </Filter.Item>
                 <Filter.Item value="reads">
                   <IconEye />
-                  Read
+                  {t('read')}
                 </Filter.Item>
                 <Filter.Item value="writes">
                   <IconEdit />
-                  Write
+                  {t('write')}
                 </Filter.Item>
                 <Filter.Item value="minLvl" inDialog>
                   <IconStairs />
-                  Level
+                  {t('level')}
                 </Filter.Item>
                 <Command.Separator className="my-1" />
                 <FilterPopoverStringItems filterKeys={['code', 'name']} />
                 <Filter.Item value="category">
                   <IconLayoutGridAdd />
-                  Category
+                  {t('category')}
                 </Filter.Item>
                 <Filter.Item value="currency">
                   <IconCoins />
-                  Currency
+                  {t('currency')}
                 </Filter.Item>
                 <Filter.Item value="kind">
                   <IconToggleRightFilled />
-                  Kind
+                  {t('kind')}
                 </Filter.Item>
                 <Command.Separator className="my-1" />
                 <Filter.Item value="journal">
                   <IconNotebook />
-                  Journal
+                  {t('journal')}
                 </Filter.Item>
                 <Filter.Item value="isTemp">
                   <IconToggleRightFilled />
-                  Is Temp
+                  {t('is-temp')}
                 </Filter.Item>
                 <Filter.Item value="isOutBalance">
                   <IconToggleRightFilled />
-                  Out of balance
+                  {t('out-of-balance')}
                 </Filter.Item>
                 <Filter.Item value="status">
                   <IconToggleRightFilled />
-                  Status
+                  {t('status')}
                 </Filter.Item>
               </Command.List>
             </Command>

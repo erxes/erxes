@@ -2,24 +2,40 @@ import { IconPlus } from '@tabler/icons-react';
 
 import {
   Button,
+  cn,
   FocusSheet,
   Kbd,
   Sheet,
+  useFocusSheet,
   usePreviousHotkeyScope,
   useScopedHotkeys,
   useQueryState,
 } from 'erxes-ui';
-import { useState } from 'react';
+import { ReactNode, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { ProductHotKeyScope } from '@/products/types/ProductsHotKeyScope';
-import { AddProductForm, Can, usePermissionCheck } from 'ui-modules';
+import {
+  AddProductForm,
+  Can,
+  EMPTY_PRODUCT_FORM_VALUES,
+  IProductFormValues,
+  PRODUCT_FORM_SCHEMA,
+  usePermissionCheck,
+} from 'ui-modules';
 import { productsQueries } from '../graphql';
 import { useTranslation } from 'react-i18next';
 import { ProductCreateSidebar } from './ProductCreateSidebar';
+import { FormWidgetSideTabs } from '@/widgets/components/FormWidgets';
 
 export const ProductAddSheet = () => {
   const [open, setOpen] = useState<boolean>(false);
   const [showMoreInfo, setShowMoreInfo] = useState<boolean>(false);
   const [, setSelectedTab] = useQueryState<string>('tab');
+  const form = useForm<IProductFormValues>({
+    resolver: zodResolver(PRODUCT_FORM_SCHEMA),
+    defaultValues: EMPTY_PRODUCT_FORM_VALUES,
+  });
   const {
     setHotkeyScopeAndMemorizePreviousScope,
     goBackToPreviousHotkeyScope,
@@ -67,13 +83,7 @@ export const ProductAddSheet = () => {
           </Button>
         </Sheet.Trigger>
       </Can>
-      <FocusSheet.View
-        className={
-          showMoreInfo
-            ? 'w-[70%] md:w-[70%] lg:w-[70%]'
-            : 'w-[30%] md:w-[30%] lg:w-[30%]'
-        }
-      >
+      <ProductAddSheetView showMoreInfo={showMoreInfo}>
         <FocusSheet.Header title={t('create-product')} />
         <FocusSheet.Content className="flex-1 min-h-0">
           {showMoreInfo && (
@@ -81,9 +91,10 @@ export const ProductAddSheet = () => {
               <ProductCreateSidebar />
             </FocusSheet.SideBar>
           )}
-          <div className="flex overflow-hidden flex-col flex-1">
+          <div className="flex overflow-hidden flex-col flex-1 min-w-0">
             <AddProductForm
               embed
+              form={form}
               onOpenChange={(isOpen) => {
                 if (!isOpen) {
                   onClose();
@@ -96,9 +107,41 @@ export const ProductAddSheet = () => {
               options={{ refetchQueries: [productsQueries.productsMain] }}
             />
           </div>
+          <FormWidgetSideTabs contentType="core:product" form={form} />
         </FocusSheet.Content>
-      </FocusSheet.View>
+      </ProductAddSheetView>
     </FocusSheet>
+  );
+};
+
+const ProductAddSheetView = ({
+  showMoreInfo,
+  children,
+}: {
+  showMoreInfo: boolean;
+  children: ReactNode;
+}) => {
+  const { activeSideTab } = useFocusSheet();
+
+  const baseWidthClass = showMoreInfo
+    ? 'w-[70%] md:w-[70%] lg:w-[70%]'
+    : 'w-[30%] md:w-[30%] lg:w-[30%]';
+
+  const widenedWidthClass = showMoreInfo
+    ? 'w-[90%] md:w-[90%] lg:w-[90%]'
+    : 'w-[50%] md:w-[50%] lg:w-[50%]';
+
+  const widthClass = activeSideTab ? widenedWidthClass : baseWidthClass;
+
+  return (
+    <FocusSheet.View
+      className={cn(
+        'transition-[width] duration-300 ease-in-out',
+        widthClass,
+      )}
+    >
+      {children}
+    </FocusSheet.View>
   );
 };
 

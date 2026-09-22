@@ -1,6 +1,7 @@
+import { useTranslation } from 'react-i18next';
 import { IconUserSquare } from '@tabler/icons-react';
 import { Button, PageContainer } from 'erxes-ui';
-import { lazy, Suspense } from 'react';
+import { Suspense } from 'react';
 import { Outlet, Route, Routes } from 'react-router';
 import { SettingsHeader } from 'ui-modules';
 import { TeamDetailPage } from '~/pages/TeamDetailPage';
@@ -8,16 +9,13 @@ import { TeamMembersPage } from '~/pages/TeamMembersPage';
 import { TeamsSettingsPage } from '~/pages/TeamSettingsIndexPage';
 import { TeamStatusPage } from '~/pages/TeamStatusPage';
 import { TeamTemplatesPage } from '~/pages/TeamTemplatesPage';
+import { TeamGithubPage } from '~/pages/TeamGithubPage';
 import { TemplateFormPage } from '~/pages/TemplateFormPage';
+import { GithubIntegrationPage } from '~/pages/GithubIntegrationPage';
 import { OperationPaths } from '~/types/paths';
 
-const TeamsSettings = lazy(() =>
-  import('@/team/TeamSettings').then((module) => ({
-    default: module.TeamSettings,
-  })),
-);
-
 const OperationSettings = () => {
+  const { t } = useTranslation('operation');
   return (
     <Suspense fallback={<div />}>
       <Routes>
@@ -29,7 +27,7 @@ const OperationSettings = () => {
                 breadcrumbs={
                   <Button variant="ghost" className="font-semibold">
                     <IconUserSquare className="w-4 h-4 text-accent-foreground" />
-                    Team
+                    {t('team')}
                   </Button>
                 }
               />
@@ -55,6 +53,10 @@ const OperationSettings = () => {
             element={<TeamTemplatesPage />}
           />
           <Route
+            path={OperationPaths.TeamGithub}
+            element={<TeamGithubPage />}
+          />
+          <Route
             path="templates/:id/template-new"
             element={<TemplateFormPage />}
           />
@@ -63,6 +65,10 @@ const OperationSettings = () => {
             element={<TemplateFormPage />}
           />
         </Route>
+        <Route
+          path={OperationPaths.GithubIntegration}
+          element={<GithubIntegrationPage />}
+        />
       </Routes>
     </Suspense>
   );

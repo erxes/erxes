@@ -1,4 +1,6 @@
-export interface RecursiveGroupNode<T = any> {
+export type IJournalReportRecord = Record<string, unknown>;
+
+export interface RecursiveGroupNode<T = IJournalReportRecord> {
   items?: T[];
   [groupKey: string]:
     | string
@@ -8,6 +10,7 @@ export interface RecursiveGroupNode<T = any> {
     | undefined;
 }
 
-export type IJournalReport<T = any> = Record<string, RecursiveGroupNode<T>>;
-
-export type IJournalReportRecord = any;
+export type IJournalReport<T = IJournalReportRecord> = Record<
+  string,
+  RecursiveGroupNode<T>
+>;

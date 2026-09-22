@@ -192,6 +192,7 @@ export const startImportExportWorker = ({
       exportWorkerOptions,
     );
   }
+
   if (importConfig) {
     const importWorkerOptions = getImportExportWorkerOptions('import');
     createMQWorkerWithListeners(

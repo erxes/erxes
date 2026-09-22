@@ -10,4 +10,5 @@ export const JOURNAL_LABELS = {
   [JournalEnum.INVENTORY]: 'Бараа материал',
   [JournalEnum.INV_FOLLOW]: 'Бараа материал дагалдах',
   [JournalEnum.FIXED_ASSET]: 'Үндсэн хөрөнгө',
+  [JournalEnum.FXA_FOLLOW]: 'Үндсэн хөрөнгө дагалдах',
 };

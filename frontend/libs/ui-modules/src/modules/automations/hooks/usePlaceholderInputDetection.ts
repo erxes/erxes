@@ -2,7 +2,7 @@ import type React from 'react';
 import { RefObject, useCallback, useEffect, useState } from 'react';
 import {
   SuggestionConfig,
-  SuggestionType,
+  TPlaceholderInputSuggestionType,
   UsePlaceHolderInputProps,
 } from '../types/placeholderInputTypes';
 import {
@@ -23,7 +23,7 @@ type PlaceholderInputTriggerDetectionProps = {
   suggestionPopoverRef?: RefObject<HTMLDivElement> | null;
   isSelectionPopoverOpen?: boolean;
   setIsSelectionPopoverOpen?: (open: boolean) => void;
-  enabledTypes?: Record<SuggestionType, boolean>;
+  enabledTypes?: Record<TPlaceholderInputSuggestionType, boolean>;
   suggestionTypeByTriggerMap: Map<string, SuggestionConfig>;
   allowOnlyTriggers?: boolean;
   placeholderConfig?: UsePlaceHolderInputProps['placeholderConfig'];
@@ -152,7 +152,8 @@ export function usePlaceHolderInputTriggerDetection({
     const lastChar = textBeforeCursor.slice(-1);
     const { type } = suggestionTypeByTriggerMap.get(lastChar) || {};
     const isEnabled =
-      !enabledTypes || (type && enabledTypes[type as SuggestionType]);
+      !enabledTypes ||
+      (type && enabledTypes[type as TPlaceholderInputSuggestionType]);
 
     if (
       dismissedTriggerContext &&
@@ -452,8 +453,8 @@ export function usePlaceHolderInputTriggerDetection({
         const finalValue = wrap
           ? wrap(composed)
           : wrapPrefix || wrapSuffix
-            ? `${wrapPrefix}${composed}${wrapSuffix}`
-            : composed;
+          ? `${wrapPrefix}${composed}${wrapSuffix}`
+          : composed;
 
         onChange(finalValue);
         setShowSuggestions(false);

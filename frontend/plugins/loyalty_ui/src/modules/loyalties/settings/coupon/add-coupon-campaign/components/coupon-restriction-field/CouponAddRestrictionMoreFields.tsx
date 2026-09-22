@@ -1,6 +1,7 @@
 import React from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { Form } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { CouponFormValues } from '../../../constants/couponFormSchema';
 import { SelectProduct, SelectTags } from 'ui-modules';
 
@@ -11,6 +12,7 @@ interface CouponAddRestrictionMoreFieldsProps {
 export const CouponAddRestrictionMoreFields: React.FC<
   CouponAddRestrictionMoreFieldsProps
 > = ({ form }) => {
+  const { t } = useTranslation('loyalty');
   return (
     <div className="grid grid-cols-2 gap-4">
       <div className="flex flex-col gap-4">
@@ -19,7 +21,7 @@ export const CouponAddRestrictionMoreFields: React.FC<
           name="productIds"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Product</Form.Label>
+              <Form.Label>{t('product')}</Form.Label>
               <Form.Control>
                 <SelectProduct
                   mode="multiple"
@@ -38,7 +40,7 @@ export const CouponAddRestrictionMoreFields: React.FC<
           name="tag"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Tag</Form.Label>
+              <Form.Label>{t('tag')}</Form.Label>
               <Form.Control>
                 <SelectTags
                   mode="multiple"
@@ -59,7 +61,7 @@ export const CouponAddRestrictionMoreFields: React.FC<
           name="excludeProductIds"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Or Exclude Product</Form.Label>
+              <Form.Label>{t('or-exclude-product')}</Form.Label>
               <Form.Control>
                 <SelectProduct
                   mode="multiple"
@@ -78,7 +80,7 @@ export const CouponAddRestrictionMoreFields: React.FC<
           name="orExcludeTag"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Or Exclude Tag</Form.Label>
+              <Form.Label>{t('or-exclude-tag')}</Form.Label>
               <Form.Control>
                 <SelectTags
                   mode="multiple"

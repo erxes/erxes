@@ -2,16 +2,18 @@ import { Skeleton } from 'erxes-ui';
 
 export const DocumentEditorSkeleton = () => {
   return (
-    <div className="flex flex-col h-full">
-      <div className="px-9 py-4">
-        <Skeleton className="h-14 w-3/4 mb-2" />
-      </div>
-      <div className="flex-1 px-9 space-y-3">
-        <Skeleton className="h-4 w-full" />
-        <Skeleton className="h-4 w-5/6" />
-        <Skeleton className="h-4 w-4/5" />
-        <Skeleton className="h-4 w-full" />
-        <Skeleton className="h-4 w-3/4" />
+    <div className="h-full overflow-auto bg-background">
+      <div className="flex min-h-full w-full flex-col">
+        <div className="px-8 pb-3 pt-10">
+          <Skeleton className="h-12 w-3/4" />
+        </div>
+        <div className="space-y-3 px-8">
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-5/6" />
+          <Skeleton className="h-4 w-4/5" />
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-3/4" />
+        </div>
       </div>
     </div>
   );

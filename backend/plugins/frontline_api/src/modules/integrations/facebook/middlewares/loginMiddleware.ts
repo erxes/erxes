@@ -1,5 +1,10 @@
-import { getConfig } from '@/integrations/facebook/commonUtils';
 import {
+  facebookAccountSelector,
+  getConfig,
+  resolveFacebookApp,
+} from '@/integrations/facebook/commonUtils';
+import {
+  debugError,
   debugFacebook,
   debugRequest,
   debugResponse,
@@ -10,22 +15,49 @@ import { getEnv, getSubdomain } from 'erxes-api-shared/utils';
 import * as graph from 'fbgraph';
 import { generateModels } from '~/connectionResolvers';
 
+
+const KIND_PATH_SEGMENT = '/kind/';
+
+const buildStateUrl = (apiDomain: string, kind?: string) =>
+  kind
+    ? `${apiDomain}/pl:frontline/facebook${KIND_PATH_SEGMENT}${encodeURIComponent(kind)}`
+    : `${apiDomain}/pl:frontline/facebook`;
+
+const readKindFromState = (state?: string): string | undefined => {
+  const [path] = (state || '').split('?');
+  const index = path.indexOf(KIND_PATH_SEGMENT);
+
+  if (index === -1) {
+    return undefined;
+  }
+
+  return (
+    decodeURIComponent(
+      path.slice(index + KIND_PATH_SEGMENT.length).split('/')[0],
+    ) || undefined
+  );
+};
+
 export const loginMiddleware = async (req, res) => {
   const subdomain = getSubdomain(req);
   const models = await generateModels(subdomain);
 
-  const FACEBOOK_APP_ID = await getConfig(models, 'FACEBOOK_APP_ID');
-  const FACEBOOK_APP_SECRET = await getConfig(models, 'FACEBOOK_APP_SECRET');
+  const kind =
+    (req.query.kind as string) ||
+    (req.params.kind as string) ||
+    readKindFromState(req.query.state as string);
+
+  const app = await resolveFacebookApp(models, kind);
+
   const FACEBOOK_PERMISSIONS = await getConfig(
     models,
     'FACEBOOK_PERMISSIONS',
-    'pages_messaging,pages_manage_ads,pages_manage_engagement,pages_manage_metadata,pages_read_user_content',
+    'pages_messaging,pages_manage_ads,pages_manage_engagement,pages_manage_metadata,pages_read_user_content,business_management,pages_manage_posts',
   );
 
   // WhatsApp connections reuse this Facebook OAuth flow, but need extra
   // scopes to discover WhatsApp Business Accounts after login.
-  const kind = typeof req.query.kind === 'string' ? req.query.kind : '';
-  const extraScopes = kind.startsWith('whatsapp')
+  const extraScopes = kind?.startsWith('whatsapp')
     ? ',business_management,whatsapp_business_management,whatsapp_business_messaging'
     : '';
 
@@ -37,21 +69,25 @@ export const loginMiddleware = async (req, res) => {
     `${API_DOMAIN}/pl:frontline/facebook/fblogin`,
   );
   const conf = {
-    client_id: FACEBOOK_APP_ID,
-    client_secret: FACEBOOK_APP_SECRET,
+    client_id: app.appId,
+    client_secret: app.appSecret,
     scope:
-      FACEBOOK_PERMISSIONS + ',pages_read_engagement,pages_show_list' + extraScopes,
+      FACEBOOK_PERMISSIONS +
+      ',pages_read_engagement,pages_show_list,pages_manage_posts' +
+      extraScopes,
     redirect_uri: FACEBOOK_LOGIN_REDIRECT_URL,
   };
 
   debugRequest(debugFacebook, req);
 
   if (!req.query.code) {
+    const state = buildStateUrl(API_DOMAIN, kind);
+
     const authUrl = graph.getOauthUrl({
       client_id: conf.client_id,
       redirect_uri: conf.redirect_uri,
       scope: conf.scope,
-      state: `${API_DOMAIN}/pl:frontline/facebook`,
+      state,
     });
 
     if (!req.query.error) {
@@ -82,32 +118,38 @@ export const loginMiddleware = async (req, res) => {
       'me?fields=id,first_name,last_name',
       access_token,
     );
+
     const name = `${userAccount.first_name} ${userAccount.last_name}`;
-    const account = await models.FacebookAccounts.findOne({
-      uid: userAccount.id,
-    });
-    let accountId: string;
+    const account = await models.FacebookAccounts.findOne(
+      facebookAccountSelector(userAccount.id, app),
+    );
+
     if (account) {
       await models.FacebookAccounts.updateOne(
         { _id: account._id },
-        { $set: { token: access_token } },
+        { $set: { token: access_token, appId: app.appId } },
       );
       const integrations = await models.FacebookIntegrations.find({
         accountId: account._id,
       });
-      accountId = account._id;
 
       for (const integration of integrations) {
-        await repairIntegrations(subdomain, integration.erxesApiId);
+        try {
+          await repairIntegrations(subdomain, integration.erxesApiId);
+        } catch (e) {
+          debugError(
+            `Failed to repair facebook integration ${integration.erxesApiId}: ${e.message}`,
+          );
+        }
       }
     } else {
-      const newAccount = await models.FacebookAccounts.create({
+      await models.FacebookAccounts.create({
         token: access_token,
         name,
         kind: 'facebook',
         uid: userAccount.id,
+        appId: app.appId,
       });
-      accountId = newAccount._id;
     }
 
     const reactAppUrl = !DOMAIN.includes('zrok')

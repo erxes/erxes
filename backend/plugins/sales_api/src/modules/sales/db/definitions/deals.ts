@@ -6,13 +6,23 @@ import { mongooseStringRandomId, schemaWrapper } from 'erxes-api-shared/utils';
 import { Schema } from 'mongoose';
 import { SALES_STATUSES, TIME_TRACK_TYPES } from '../../constants';
 
+const discountInfoSchema = new Schema(
+  {
+    type: { type: String, label: 'Discount type' },
+    title: { type: String, optional: true, label: 'Discount title' },
+    amount: { type: Number, optional: true, label: 'Discount amount' },
+    percent: { type: Number, optional: true, label: 'Discount percent' },
+  },
+  { _id: false },
+);
+
 export const productDataSchema = new Schema(
   {
     _id: { type: String },
-    productId: { type: String, esType: 'keyword' }, // Product
-    name: { type: String, esType: 'name' }, // Product name
-    uom: { type: String, esType: 'keyword' }, // Units of measurement
-    currency: { type: String, esType: 'keyword' }, // Currency
+    productId: { type: String }, // Product
+    name: { type: String }, // Product name
+    uom: { type: String }, // Units of measurement
+    currency: { type: String }, // Currency
     quantity: { type: Number, label: 'Quantity' }, // Quantity
     maxQuantity: { type: Number, label: 'Max' }, // Max quantity when selected bonus voucher
     unitPrice: { type: Number, label: 'Unit price' }, // Unit price
@@ -23,13 +33,18 @@ export const productDataSchema = new Schema(
     tax: { type: Number, label: 'Tax' }, // Tax
     discountPercent: { type: Number, label: 'Discount percent' }, // Discount percent
     discount: { type: Number, label: 'Discount' }, // Discount
+    discountInfos: {
+      type: [discountInfoSchema],
+      optional: true,
+      label: 'Discount infos',
+    },
     bonusCount: { type: Number, label: 'Bonus Count' }, // Bonus Count
     amount: { type: Number, label: 'Amount' }, // Amount
     tickUsed: { type: Boolean, label: 'Tick used' }, // TickUsed
     isVatApplied: { type: Boolean, label: 'Is vat applied' }, // isVatApplied
-    assignUserId: { type: String, optional: true, esType: 'keyword' }, // AssignUserId
-    branchId: { type: String, optional: true, esType: 'keyword' },
-    departmentId: { type: String, optional: true, esType: 'keyword' },
+    assignUserId: { type: String, optional: true }, // AssignUserId
+    branchId: { type: String, optional: true },
+    departmentId: { type: String, optional: true },
     startDate: { type: Date, optional: true, label: 'Start date' }, //pms
     endDate: { type: Date, optional: true, label: 'End date' }, //pms
     information: { type: Object, optional: true, label: 'information' }, //pms
@@ -59,44 +74,62 @@ const relationSchema = new Schema(
   { _id: false },
 );
 
+const mobileAmountSchema = new Schema({
+  _id: { type: String },
+  amount: { type: Number },
+});
+
 export const dealSchema = schemaWrapper(
   new Schema(
     {
       _id: mongooseStringRandomId,
       parentId: { type: String, optional: true, label: 'Parent Id' },
-      userId: { type: String, optional: true, esType: 'keyword' },
+      userId: { type: String, optional: true },
       order: { type: Number, index: true },
       name: { type: String, optional: true, label: 'Name' },
-      startDate: { type: Date, label: 'Start date', esType: 'date' },
-      closeDate: { type: Date, label: 'Close date', esType: 'date' },
+      startDate: {
+        type: Date,
+        index: true,
+        label: 'Start date',
+      },
+      closeDate: {
+        type: Date,
+        index: true,
+        label: 'Close date',
+      },
       stageChangedDate: {
         type: Date,
+        index: true,
         label: 'Stage changed date',
-        esType: 'date',
       },
       reminderMinute: { type: Number, label: 'Reminder minute' },
       isComplete: {
         type: Boolean,
         default: false,
         label: 'Is complete',
-        esType: 'boolean',
       },
       description: { type: String, optional: true, label: 'Description' },
-      assignedUserIds: { type: [String], esType: 'keyword' },
-      watchedUserIds: { type: [String], esType: 'keyword' },
-      labelIds: { type: [String], esType: 'keyword' },
+      assignedUserIds: { type: [String] },
+      watchedUserIds: { type: [String] },
+      labelIds: { type: [String] },
       attachments: { type: [attachmentSchema], label: 'Attachments' },
       stageId: { type: String, index: true },
       initialStageId: {
         type: String,
         optional: true,
       },
-      modifiedBy: { type: String, esType: 'keyword' },
+      modifiedBy: { type: String },
       searchText: { type: String, optional: true, index: true },
       priority: { type: String, optional: true, label: 'Priority' },
       // TODO remove after migration
       sourceConversationId: { type: String, optional: true },
       sourceConversationIds: { type: [String], optional: true },
+      sourceInvoiceId: {
+        type: String,
+        optional: true,
+        index: true,
+        label: 'Source invoice',
+      },
       timeTrack: {
         type: timeTrackSchema,
       },
@@ -121,7 +154,6 @@ export const dealSchema = schemaWrapper(
         type: Number,
         optional: true,
         label: 'Score',
-        esType: 'number',
       },
       number: {
         type: String,
@@ -157,11 +189,32 @@ export const dealSchema = schemaWrapper(
       totalAmount: { type: Number, label: 'Total Amount', index: true },
       unUsedTotalAmount: { type: Number, label: 'UnUsed TotalAmount' },
       bothTotalAmount: { type: Number, label: 'Both Total Amount' },
+      mobileAmount: { type: Number, label: 'Mobile amount' },
+      mobileAmounts: {
+        type: [mobileAmountSchema],
+        optional: true,
+        label: 'Mobile amounts',
+      },
       paymentsData: { type: Object, optional: true, label: 'Payments' },
       extraData: { type: Object, optional: true },
+      brokerType: {
+        type: String,
+        optional: true,
+        enum: ['customer', 'company', 'user'],
+        label: 'Broker type',
+      },
+      brokerId: {
+        type: String,
+        optional: true,
+        label: 'Broker ID',
+      },
     },
     {
       timestamps: true,
     },
   ),
 );
+dealSchema.index({ stageId: 1, status: 1, createdAt: -1, _id: 1 });
+dealSchema.index({ stageId: 1, status: 1, parentId: 1 });
+dealSchema.index({ parentId: 1, order: 1, _id: 1, status: 1 });
+dealSchema.index({ stageId: 1, number: 1 });

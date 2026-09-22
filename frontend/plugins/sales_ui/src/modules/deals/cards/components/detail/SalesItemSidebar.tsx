@@ -1,12 +1,14 @@
 import { Sidebar, useQueryState } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const SalesItemSidebar = () => {
   const [selectedTab, setSelectedTab] = useQueryState<string>('tab');
+  const { t } = useTranslation('sales');
 
   return (
     <Sidebar.Content>
       <Sidebar.Group>
-        <Sidebar.GroupLabel>General</Sidebar.GroupLabel>
+        <Sidebar.GroupLabel>{t('general')}</Sidebar.GroupLabel>
         <Sidebar.GroupContent className="mt-2">
           <Sidebar.Menu>
             {['overview', 'properties', 'activity'].map((tab) => (
@@ -17,7 +19,7 @@ export const SalesItemSidebar = () => {
                   }
                   onClick={() => setSelectedTab(tab)}
                 >
-                  {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                  {t(tab)}
                 </Sidebar.MenuButton>
               </Sidebar.MenuItem>
             ))}
@@ -25,7 +27,7 @@ export const SalesItemSidebar = () => {
         </Sidebar.GroupContent>
       </Sidebar.Group>
       <Sidebar.Group>
-        <Sidebar.GroupLabel>Plugins</Sidebar.GroupLabel>
+        <Sidebar.GroupLabel>{t('plugins')}</Sidebar.GroupLabel>
         <Sidebar.GroupContent className="mt-2">
           <Sidebar.Menu>
             {['products'].map((tab) => (
@@ -36,7 +38,7 @@ export const SalesItemSidebar = () => {
                   }
                   onClick={() => setSelectedTab(tab)}
                 >
-                  {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                  {t(tab)}
                 </Sidebar.MenuButton>
               </Sidebar.MenuItem>
             ))}

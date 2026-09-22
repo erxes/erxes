@@ -12,6 +12,7 @@ export const FbMessengerBotMessageItem = ({
   separateNext,
   userId,
   internal,
+  isFocused,
 }: {
   botData: TBotData[];
   attachments?: IAttachment[];
@@ -20,6 +21,7 @@ export const FbMessengerBotMessageItem = ({
   separateNext: boolean;
   userId?: string;
   internal?: boolean;
+  isFocused?: boolean;
 }) => {
   return (
     <div className="max-w-92 flex flex-row gap-2 items-end">
@@ -29,6 +31,7 @@ export const FbMessengerBotMessageItem = ({
           className={cn(separatePrevious ? 'mt-8' : 'mt-2')}
           internal={internal}
           userId={userId}
+          isFocused={isFocused}
         />
 
         <FbMessengerMessageAttachments attachments={attachments} />

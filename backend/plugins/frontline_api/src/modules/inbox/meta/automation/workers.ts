@@ -205,6 +205,13 @@ const toISOString = (value?: Date | string): string | undefined => {
   return String(value);
 };
 
+// An execution can start seconds after its message, by which time newer
+// messages exist. History must stay strictly older than the one being handled.
+const toHistoryCutoff = (value?: Date | string) => {
+  const date = value instanceof Date ? value : new Date(String(value || ''));
+  return Number.isNaN(date.getTime()) ? undefined : date;
+};
+
 const toHistoryRole = (message: {
   fromBot?: boolean;
   userId?: string;
@@ -213,6 +220,116 @@ const toHistoryRole = (message: {
   if (message.fromBot) return 'bot';
   if (message.userId) return 'agent';
   return 'customer';
+};
+
+type TMessengerBotButton = {
+  title: string;
+  url: string | null;
+  type: string | null;
+};
+
+type TMessengerBotDataItem =
+  | { type: 'text'; text: string }
+  | { type: 'button_template'; text: string; buttons: TMessengerBotButton[] }
+  | { type: 'quickReplies'; elements: { title: string }[] }
+  | {
+      type: 'carousel';
+      elements: {
+        picture: string;
+        title: string;
+        subtitle: string;
+        buttons: TMessengerBotButton[];
+      }[];
+    }
+  | { type: 'ticketForm'; text: string };
+
+const toButtonItem = (btn: {
+  text?: string;
+  link?: string;
+}): TMessengerBotButton => ({
+  title: btn.text || '',
+  url: btn.link || null,
+  type: btn.link ? 'openUrl' : null,
+});
+
+const generateMessengerBotData = (
+  message: Record<string, any>,
+): { botData: TMessengerBotDataItem[]; content: string } => {
+  const {
+    type,
+    text = '',
+    buttons = [],
+    cards = [],
+    quickReplies = [],
+    input,
+  } = message;
+
+  if (type === 'ticketForm') {
+    const botData: TMessengerBotDataItem[] = [];
+    if (text) {
+      botData.push({ type: 'text', text: `<p>${text}</p>` });
+    }
+    botData.push({ type: 'ticketForm', text });
+    return { botData, content: text };
+  }
+
+  if (type === 'quickReplies') {
+    const botData: TMessengerBotDataItem[] = [];
+    if (text) {
+      botData.push({ type: 'text', text: `<p>${text}</p>` });
+    }
+    botData.push({
+      type: 'quickReplies',
+      elements: quickReplies.map((qr: { text: string }) => ({
+        title: qr.text,
+      })),
+    });
+    return { botData, content: text };
+  }
+
+  if (type === 'card') {
+    return {
+      botData: [
+        {
+          type: 'carousel',
+          elements: cards.map(
+            (card: {
+              title?: string;
+              subtitle?: string;
+              image?: string;
+              buttons?: { text?: string; link?: string }[];
+            }) => ({
+              picture: card.image || '',
+              title: card.title || '',
+              subtitle: card.subtitle || '',
+              buttons: (card.buttons || []).map(toButtonItem),
+            }),
+          ),
+        },
+      ],
+      content: cards.map((c: { title?: string }) => c.title || '').join(', '),
+    };
+  }
+
+  const actualText = type === 'input' ? input?.text || text : text;
+
+  if (buttons.length > 0) {
+    return {
+      botData: [
+        {
+          type: 'button_template',
+          text: `<p>${actualText}</p>`,
+          buttons: buttons.map(toButtonItem),
+        },
+      ],
+      content: actualText,
+    };
+  }
+
+  return {
+    botData: [{ type: 'text', text: `<p>${actualText}</p>` }],
+    content: actualText,
+  };
 };
 
 export const inboxAutomationWorkers = {
@@ -250,10 +367,29 @@ export const inboxAutomationWorkers = {
 
     if (!target.conversationId) return context;
 
+    /**
+     * The mutation that created the customer message publishes `typing: true`
+     * inline, before it has returned the conversation id — a widget starting a
+     * new conversation is not subscribed yet and misses it. Re-assert it here,
+     * when the agent actually starts working, so the indicator is live for the
+     * whole wait. `receiveActions` clears it.
+     */
+    graphqlPubsub.publish(
+      `conversationBotTypingStatus:${target.conversationId}`,
+      {
+        conversationBotTypingStatus: {
+          conversationId: target.conversationId,
+          typing: true,
+        },
+      },
+    );
+
+    const historyCutoff = toHistoryCutoff(target.createdAt);
     const messages = await models.ConversationMessages.find({
       conversationId: target.conversationId,
       internal: { $ne: true },
       _id: { $ne: target._id },
+      ...(historyCutoff ? { createdAt: { $lt: historyCutoff } } : {}),
     })
       .sort({ createdAt: -1 })
       .limit(12)
@@ -275,12 +411,62 @@ export const inboxAutomationWorkers = {
       collectionType,
       relationType,
       config,
+      target,
       eventUpdateDescription,
     }: TAutomationProducersInput[TAutomationProducers.CHECK_CUSTOM_TRIGGER],
     _context: TCoreModuleProducerContext<IModels>,
   ) => {
     if (collectionType === 'messages') {
-      return true;
+      const conditions = Array.isArray(config.conditions)
+        ? config.conditions
+        : [];
+
+      for (const { isSelected, type } of conditions) {
+        if (!isSelected) continue;
+
+        if (
+          type === 'directMessage' &&
+          target?.contentType === 'text' &&
+          String(target?.content || '').trim()
+        ) {
+          return true;
+        }
+
+        if (
+          type === 'getStarted' &&
+          (target?.contentType === 'getStarted' ||
+            target?.content === 'Get Started')
+        ) {
+          return true;
+        }
+
+        if (type === 'quickReply' && target?.contentType === 'quickReply') {
+          return true;
+        }
+
+        if (
+          type === 'customerRegistration' &&
+          target?.contentType === 'customerRegistration'
+        ) {
+          return true;
+        }
+
+        if (
+          type === 'ticketFormSubmission' &&
+          target?.contentType === 'ticketFormSubmission'
+        ) {
+          return true;
+        }
+
+        if (
+          type === 'requestCreateTicket' &&
+          target?.contentType === 'requestCreateTicket'
+        ) {
+          return true;
+        }
+      }
+
+      return false;
     }
 
     if (collectionType !== 'conversations' || relationType !== 'event') {
@@ -321,8 +507,61 @@ export const inboxAutomationWorkers = {
         defaultValue: '',
       });
 
-      const text =
+      const configMessages = Array.isArray(resolvedConfig.messages)
+        ? resolvedConfig.messages
+        : [];
+
+      if (configMessages.length > 0) {
+        const sentMessages: any[] = [];
+
+        for (const message of configMessages) {
+          const { botData, content } = generateMessengerBotData(message);
+
+          if (!content && !botData.length) continue;
+
+          const botMessage = await models.ConversationMessages.createMessage({
+            conversationId,
+            content,
+            botData,
+            fromBot: true,
+          });
+
+          graphqlPubsub.publish(
+            `conversationMessageInserted:${botMessage.conversationId}`,
+            { conversationMessageInserted: botMessage },
+          );
+
+          await pConversationClientMessageInserted(subdomain, botMessage);
+          sentMessages.push(botMessage);
+        }
+
+        if (!sentMessages.length) return { result: null };
+
+        const first = sentMessages[0];
+        return {
+          result: {
+            _id: first._id,
+            conversationId: first.conversationId,
+            content: first.content,
+          },
+        };
+      }
+
+      // Legacy single-text config fallback
+      let text =
         typeof resolvedConfig.text === 'string' ? resolvedConfig.text : '';
+
+      if (!text) {
+        const lastAiText = [...(execution.actions || [])]
+          .reverse()
+          .find(
+            (a) => a.status === 'success' && typeof a.result?.text === 'string',
+          )?.result?.text;
+
+        if (typeof lastAiText === 'string') {
+          text = lastAiText;
+        }
+      }
 
       if (!text) return { result: null };
 
@@ -369,6 +608,7 @@ export const inboxAutomationWorkers = {
       execution,
       targetType,
       relation: setPropertyTarget?.relation,
+      targetPath: setPropertyTarget?.targetPath,
     });
 
     return await setProperty({

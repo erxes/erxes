@@ -1,5 +1,6 @@
 import { useToast } from 'erxes-ui';
 import { MutationFunctionOptions, useMutation } from '@apollo/client';
+import { useTranslation } from 'react-i18next';
 import { POS_ORDER_CHANGE_PAYMENTS } from '../graphql/mutations/posOrderChangePayments';
 
 export const usePosOrderChangePayments = (
@@ -7,13 +8,14 @@ export const usePosOrderChangePayments = (
     posOrderChangePayments: { _id: string };
   }>,
 ) => {
+  const { t } = useTranslation('sales');
   const { toast } = useToast();
   const [posOrderChangePayments, { loading, error }] = useMutation(
     POS_ORDER_CHANGE_PAYMENTS,
     {
       onError: (error) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });

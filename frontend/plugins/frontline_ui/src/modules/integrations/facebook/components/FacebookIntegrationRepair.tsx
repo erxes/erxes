@@ -1,27 +1,69 @@
+import { FACEBOOK_AUTH_SUCCESS_MESSAGE } from '@/integrations/constants/authMessages';
+import { useIntegrationReauth } from '@/integrations/hooks/useIntegrationReauth';
 import { IIntegrationDetail } from '@/integrations/types/Integration';
 import { IconTool } from '@tabler/icons-react';
-import { Spinner, toast } from 'erxes-ui';
 import { CellContext } from '@tanstack/react-table';
-import { useFbIntegrationsRepair } from '../hooks/useFbIntegrationsRepair';
+import { Spinner, toast } from 'erxes-ui';
 import { useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { useFbIntegrationsRepair } from '../hooks/useFbIntegrationsRepair';
+import { parseRepairResult } from '@/integrations/utils/repairResult';
 
 type Props = {
   cell: CellContext<IIntegrationDetail, unknown>;
 };
 
 export const FacebookIntegrationRepair = ({ cell }: Props) => {
-  const { repairIntegrations, loading } = useFbIntegrationsRepair();
-  const { _id } = cell.row.original;
+  const { t } = useTranslation('frontline');
+  const { _id, healthStatus } = cell.row.original;
   const { integrationType } = useParams();
+  const { repairIntegrations, loading: repairLoading } =
+    useFbIntegrationsRepair();
 
-  const handleRepair = () => {
+  const isUnhealthy =
+    !!healthStatus?.status && healthStatus.status !== 'healthy';
+
+  const runRepair = () => {
     repairIntegrations({
       variables: { _id, kind: integrationType },
-      onCompleted: () => {
-        toast({ title: 'Repaired successfully' });
+      refetchQueries: ['Integrations'],
+      onCompleted: (data) => {
+        const result = parseRepairResult(data?.integrationsRepair);
+
+        if (result.failed) {
+          toast({
+            title: result.message || t('repair-failed'),
+            variant: 'destructive',
+          });
+          return;
+        }
+
+        toast({ title: t('repaired-successfully') });
+      },
+      onError: (error) => {
+        toast({ title: error.message, variant: 'destructive' });
       },
     });
   };
+
+  const { reauth, loading: authLoading } = useIntegrationReauth(
+    `/pl:frontline/facebook/fblogin?kind=${
+      integrationType || 'facebook-messenger'
+    }`,
+    FACEBOOK_AUTH_SUCCESS_MESSAGE,
+    runRepair,
+  );
+
+  const handleRepair = () => {
+    if (isUnhealthy) {
+      reauth();
+    } else {
+      runRepair();
+    }
+  };
+
+  const loading = authLoading || repairLoading;
+
   return (
     <div onClick={handleRepair} className="flex items-center gap-2 w-full">
       {loading ? (
@@ -29,7 +71,7 @@ export const FacebookIntegrationRepair = ({ cell }: Props) => {
       ) : (
         <IconTool size={16} />
       )}
-      Repair
+      {t('repair')}
     </div>
   );
 };

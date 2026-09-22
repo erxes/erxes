@@ -108,10 +108,6 @@ const integerToMongolianText = (value: number): string => {
   return parts.filter(Boolean).join(' ');
 };
 
-/**
- * Formats an amount as Mongolian text, e.g.
- * 1250.50 => "нэг мянга хоёр зуун тавин төгрөг тавин мөнгө"
- */
 export const amountToMongolianText = (amount: number): string => {
   const safeAmount = Number.isFinite(amount) ? Math.abs(amount) : 0;
 

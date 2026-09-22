@@ -1,9 +1,35 @@
 'use client';
 
 import { AnimatePresence, motion } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import { useSyncExternalStore } from 'react';
+import { cn } from 'erxes-ui';
 
 import { IPipelineLabel } from '@/deals/types/pipelines';
+
+const LABELS_SHOW_TEXT_KEY = 'labels-show-text';
+
+const listeners = new Set<() => void>();
+
+const readShowText = () => {
+  const saved = localStorage.getItem(LABELS_SHOW_TEXT_KEY);
+  return saved === null ? true : saved === 'true';
+};
+
+let showTextState = typeof window !== 'undefined' ? readShowText() : true;
+
+const subscribeShowText = (listener: () => void) => {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+};
+
+const getShowTextSnapshot = () => showTextState;
+const getShowTextServerSnapshot = () => true;
+
+const toggleShowText = () => {
+  showTextState = !showTextState;
+  localStorage.setItem(LABELS_SHOW_TEXT_KEY, String(showTextState));
+  listeners.forEach((listener) => listener());
+};
 
 export const Labels = ({
   labels,
@@ -13,25 +39,16 @@ export const Labels = ({
   type?: 'label' | 'toggle';
 }) => {
   const isToggle = type === 'toggle';
-  const [showText, setShowText] = useState(false);
-
-  useEffect(() => {
-    if (isToggle) {
-      const saved = localStorage.getItem('labels-show-text');
-      if (saved) setShowText(saved === 'true');
-    }
-  }, [isToggle]);
-
-  useEffect(() => {
-    if (isToggle) {
-      localStorage.setItem('labels-show-text', String(showText));
-    }
-  }, [showText, isToggle]);
+  const showText = useSyncExternalStore(
+    subscribeShowText,
+    getShowTextSnapshot,
+    getShowTextServerSnapshot,
+  );
 
   const handleToggle = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (isToggle) setShowText((prev) => !prev);
+    if (isToggle) toggleShowText();
   };
 
   if (!isToggle) {
@@ -54,7 +71,10 @@ export const Labels = ({
     <motion.div
       key={label._id}
       onClick={handleToggle}
-      className="rounded text-white text-sm font-medium flex items-center justify-center cursor-pointer px-2 py-1 overflow-hidden"
+      className={cn(
+        'rounded text-white text-sm font-medium flex items-center justify-center cursor-pointer px-2 overflow-hidden',
+        showText ? 'py-0.5' : 'py-1',
+      )}
       style={{
         backgroundColor: label.colorCode,
         width: showText ? 'auto' : '40px',

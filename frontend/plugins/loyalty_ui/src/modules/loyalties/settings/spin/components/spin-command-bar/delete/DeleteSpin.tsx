@@ -1,9 +1,11 @@
 import { Button, useConfirm, useToast } from 'erxes-ui';
 import { IconTrash } from '@tabler/icons-react';
 import { ApolloError } from '@apollo/client';
+import { useTranslation } from 'react-i18next';
 import { useDeleteSpin } from '../../../hooks/useDeleteSpin';
 
 export const DeleteSpin = ({ spinIds }: { spinIds: string[] }) => {
+  const { t } = useTranslation('loyalty');
   const { confirm } = useConfirm();
   const { removeSpin } = useDeleteSpin();
   const { toast } = useToast();
@@ -13,20 +15,20 @@ export const DeleteSpin = ({ spinIds }: { spinIds: string[] }) => {
       className="text-destructive"
       onClick={() =>
         confirm({
-          message: `Are you sure you want to delete ${spinIds.length} selected spin(s)?`,
+          message: t('delete-spin-confirm', { count: spinIds.length }),
         }).then(() => {
           removeSpin({
             variables: { _ids: spinIds },
           })
             .then(() => {
               toast({
-                title: `${spinIds.length} spin(s) deleted successfully`,
+                title: t('spins-deleted', { count: spinIds.length }),
                 variant: 'success',
               });
             })
             .catch((e: ApolloError) => {
               toast({
-                title: 'Error',
+                title: t('error'),
                 description: e.message,
                 variant: 'destructive',
               });
@@ -35,7 +37,7 @@ export const DeleteSpin = ({ spinIds }: { spinIds: string[] }) => {
       }
     >
       <IconTrash />
-      Delete
+      {t('delete')}
     </Button>
   );
 };

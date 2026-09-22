@@ -8,8 +8,10 @@ import { ColorPicker, Form, Input, Textarea, ToggleGroup } from 'erxes-ui';
 import { FormValueEffectComponent } from './FormValueEffectComponent';
 import { SelectChannel } from '@/inbox/channel/components/SelectChannel';
 import { useParams } from 'react-router';
+import { useTranslation } from 'react-i18next';
 
 export const FormGeneral = () => {
+  const { t } = useTranslation('frontline');
   const { id } = useParams<{ id: string }>();
   const form = useForm<z.infer<typeof FORM_GENERAL_SCHEMA>>({
     resolver: zodResolver(FORM_GENERAL_SCHEMA),
@@ -28,8 +30,8 @@ export const FormGeneral = () => {
 
   return (
     <FormMutateLayout
-      title="General"
-      description="General settings"
+      title={t('general-label', 'General')}
+      description={t('general-settings', 'General settings')}
       form={form}
       onSubmit={onSubmit}
     >
@@ -39,7 +41,7 @@ export const FormGeneral = () => {
           name="title"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Title</Form.Label>
+              <Form.Label>{t('title-label', 'Title')}</Form.Label>
               <Form.Control>
                 <Input {...field} />
               </Form.Control>
@@ -51,7 +53,7 @@ export const FormGeneral = () => {
           name="description"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Description</Form.Label>
+              <Form.Label>{t('description', 'Description')}</Form.Label>
               <Form.Control>
                 <Textarea {...field} />
               </Form.Control>
@@ -63,7 +65,7 @@ export const FormGeneral = () => {
           name="primaryColor"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Primary color</Form.Label>
+              <Form.Label>{t('primary-color', 'Primary color')}</Form.Label>
               <div className="w-24">
                 <Form.Control>
                   <ColorPicker
@@ -82,7 +84,7 @@ export const FormGeneral = () => {
           name="appearance"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Appearance</Form.Label>
+              <Form.Label>{t('appearance', 'Appearance')}</Form.Label>
               <Form.Control>
                 <ToggleGroup
                   type="single"
@@ -92,10 +94,10 @@ export const FormGeneral = () => {
                   className="max-w-96"
                 >
                   <ToggleGroup.Item value="iframe" className="flex-auto">
-                    Iframe
+                    {t('iframe', 'Iframe')}
                   </ToggleGroup.Item>
                   <ToggleGroup.Item value="messenger" className="flex-auto">
-                    Messenger
+                    {t('messenger', 'Messenger')}
                   </ToggleGroup.Item>
                 </ToggleGroup>
               </Form.Control>
@@ -107,7 +109,7 @@ export const FormGeneral = () => {
           name="loadType"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Load type</Form.Label>
+              <Form.Label>{t('load-type', 'Load type')}</Form.Label>
               <Form.Control>
                 <ToggleGroup
                   type="single"
@@ -117,10 +119,10 @@ export const FormGeneral = () => {
                   className="max-w-96"
                 >
                   <ToggleGroup.Item value="embedded" className="flex-auto">
-                    Embedded
+                    {t('embedded', 'Embedded')}
                   </ToggleGroup.Item>
                   <ToggleGroup.Item value="popup" className="flex-auto">
-                    Popup
+                    {t('popup', 'Popup')}
                   </ToggleGroup.Item>
                 </ToggleGroup>
               </Form.Control>
@@ -132,7 +134,7 @@ export const FormGeneral = () => {
           name="buttonText"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Button text</Form.Label>
+              <Form.Label>{t('button-text', 'Button text')}</Form.Label>
               <Form.Control>
                 <Input {...field} />
               </Form.Control>
@@ -144,7 +146,7 @@ export const FormGeneral = () => {
           name="channelId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Channel</Form.Label>
+              <Form.Label>{t('channel-label', 'Channel')}</Form.Label>
               <SelectChannel.FormItem
                 value={field.value}
                 mode="single"

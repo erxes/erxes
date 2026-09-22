@@ -1,5 +1,4 @@
-import { Dialog, useQueryState } from 'erxes-ui';
-import { AccountingDialog } from '@/layout/components/Dialog';
+import { Sheet, useQueryState } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { useEffect } from 'react';
 import { ACCOUNTING_SETTINGS_CODES } from '../constants/settingsRoutes';
@@ -16,18 +15,20 @@ export const EditAccountingConfig = ({
   const [open, setOpen] = useQueryState<string>('configId');
 
   return (
-    <Dialog
+    <Sheet
       open={open !== null && open !== ''}
-      onOpenChange={() => setOpen(null)}
+      onOpenChange={(isOpen) => {
+        if (!isOpen) setOpen(null);
+      }}
     >
-      <AccountingDialog
-        title="Синк тохиргоо засах"
-        description="Синк тохиргоо засах"
-        className="max-w-4xl"
-      >
+      <Sheet.View className="sm:max-w-4xl">
+        <Sheet.Header>
+          <Sheet.Title>Синк тохиргоо засах</Sheet.Title>
+          <Sheet.Close />
+        </Sheet.Header>
         <EditAccountingConfigForm code={code} />
-      </AccountingDialog>
-    </Dialog>
+      </Sheet.View>
+    </Sheet>
   );
 };
 

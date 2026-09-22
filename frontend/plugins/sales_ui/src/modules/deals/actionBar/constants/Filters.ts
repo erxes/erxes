@@ -24,7 +24,8 @@ export const ActionBarFilters: FilterItem[][] = [
   [
     { key: 'createdStartDate', value: 'Date created', icon: IconCalendar },
     { key: 'startDateStartDate', value: 'Start date', icon: IconCalendarBolt },
-    { key: 'startDateEndDate', value: 'End date', icon: IconCalendarX },
+    { key: 'closeDateStartDate', value: 'Close date', icon: IconCalendarX },
+    { key: 'stageChangedStartDate', value: 'Stage changed', icon: IconCalendarClock },
     { key: 'cycle', value: 'Cycle', icon: IconCalendarClock },
   ],
   [

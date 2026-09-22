@@ -1,6 +1,7 @@
 import { Button, useErxesUpload } from 'erxes-ui';
 import { IconX, IconPaperclip } from '@tabler/icons-react';
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface AttachmentsUploaderProps {
   value?: string[];
@@ -11,6 +12,7 @@ export const AttachmentsUploader = ({
   value = [],
   onChange,
 }: AttachmentsUploaderProps) => {
+  const { t } = useTranslation('content');
   const urls = value || [];
 
   const uploadProps = useErxesUpload({
@@ -61,7 +63,7 @@ export const AttachmentsUploader = ({
           ))}
           {uploadProps.loading && (
             <div className="absolute inset-0 bg-white/50 flex items-center justify-center">
-              <div className="text-sm text-gray-500">Uploading...</div>
+              <div className="text-sm text-gray-500">{t('uploading')}</div>
             </div>
           )}
         </div>
@@ -75,7 +77,7 @@ export const AttachmentsUploader = ({
           disabled={uploadProps.loading}
           type="button"
         >
-          {uploadProps.loading ? 'Uploading...' : 'Upload Attachments'}
+          {uploadProps.loading ? t('uploading') : t('upload-attachments')}
         </Button>
       </div>
     </div>

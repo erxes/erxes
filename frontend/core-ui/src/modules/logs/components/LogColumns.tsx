@@ -2,6 +2,7 @@ import { LogUserInfo } from '@/logs/components/LogUser';
 import { ILogDoc } from '@/logs/types';
 import {
   IconCalendarTime,
+  IconCode,
   IconInfoCircle,
   IconProgressCheck,
   IconProgressX,
@@ -95,6 +96,25 @@ export const logColumns: ColumnDef<ILogDoc>[] = [
     cell: ({ cell }) => (
       <RecordTableInlineCell>{cell.getValue() as string}</RecordTableInlineCell>
     ),
+  },
+  {
+    id: 'name',
+    accessorKey: 'name',
+    header: () => <RecordTable.InlineHead icon={IconCode} label="Operation" />,
+    cell: ({ cell }) => {
+      const name = cell.getValue() as string | undefined;
+      return (
+        <RecordTableInlineCell>
+          {name ? (
+            <span className="font-mono text-sm" title={name}>
+              {name}
+            </span>
+          ) : (
+            <span className="text-muted-foreground">-</span>
+          )}
+        </RecordTableInlineCell>
+      );
+    },
   },
   {
     id: 'userId',

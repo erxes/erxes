@@ -31,6 +31,9 @@ const FACEBOOK_BOT_DETAIL = `
       facebootMessengerBot(_id:$_id) {
         ${FACEBOOK_BOT_FIELDS}
         greetText
+        handoffMessage
+        automationActiveMessage
+        handoffPauseMinutes
         tag
         isEnabledBackBtn
         backButtonText

@@ -26,7 +26,6 @@ export interface IConfig {
     value?: string
     type?: string
   }
-  erxesAppToken?: string
   kitchenScreen?: IKitchenScreen
   uiOptions?: IUIOptions
   paymentTypes?: IPaymentType[]
@@ -76,6 +75,7 @@ export interface IKitchenScreen {
 
 export interface IPermissionConfig {
   isTempBill?: boolean
+  seeReport?: boolean
   directDiscount?: boolean
   directDiscountLimit?: number
 }

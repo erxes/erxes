@@ -13,6 +13,10 @@ export const GET_CONVERSATION_DETAIL = gql`
       customerId
       updatedAt
       status
+      automatedReplyControl
+      callProAudio
+      callProPotentialCustomerIds
+      callProPhone
       customer {
         _id
         firstName

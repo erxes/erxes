@@ -37,7 +37,8 @@ export const types = `
     excludeProductIds: [String]
     paymentIds: [String]
     paymentTypes: JSON
-    erxesAppToken: String
+    propertyIds: [String]
+    isPropertySelectionConfigured: Boolean
     order: Int
     createdAt: Date
     type: String
@@ -100,7 +101,7 @@ const mutationParams = `
   excludeProductIds: [String]
   paymentIds: [String]
   paymentTypes: JSON
-  erxesAppToken: String
+  propertyIds: [String]
 `;
 
 export const mutations = `

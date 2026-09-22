@@ -15,12 +15,27 @@ import {
   SelectCustomerFilterBar,
 } from 'ui-modules/modules/contacts';
 import { SelectTagsFilterBar } from 'ui-modules/modules/tags';
-import { useManageRelations } from 'ui-modules';
-import type { IProductData } from 'ui-modules';
-import { DealCardDetails } from './DealsBoardCardDetails';
+import {
+  CardDetailBadges,
+  formatFieldValue,
+  hasFieldValue,
+  useManageRelations,
+  useFields,
+  type CardDetailBadgeItem,
+} from 'ui-modules';
+import {
+  DealCardProducts,
+  DealCardRelationDetails,
+} from './DealsBoardCardDetails';
+import { useTranslation } from 'react-i18next';
 
 interface DealsBoardCardProps {
   deal: IDeal;
+}
+
+interface DealProductReference {
+  _id: string;
+  name?: string;
 }
 
 const normalizeSelectedIds = (value?: string | string[]) => {
@@ -31,106 +46,173 @@ const normalizeSelectedIds = (value?: string | string[]) => {
   return Array.isArray(value) ? value : [value];
 };
 
+const normalizeCustomProperty = (
+  property: unknown,
+  index: number,
+): CardDetailBadgeItem | null => {
+  if (typeof property !== 'object' || property === null) {
+    return null;
+  }
+
+  const name = Reflect.get(property, 'name');
+
+  if (typeof name !== 'string' || !name.trim()) {
+    return null;
+  }
+
+  const id = Reflect.get(property, '_id');
+  const colorCode = Reflect.get(property, 'colorCode');
+
+  return {
+    _id: typeof id === 'string' ? id : `custom-property-${index}`,
+    name: name.trim(),
+    colorCode: typeof colorCode === 'string' ? colorCode : undefined,
+  };
+};
+
 const CardDetails = ({ deal }: { deal: IDeal }) => {
-  const { companies, customers, tags, customProperties } = deal;
+  const { t } = useTranslation('sales');
+  const {
+    branches,
+    companies,
+    customers,
+    departments,
+    tags,
+    customProperties,
+  } = deal;
+  const { fields: dealFields } = useFields({ contentType: 'sales:deal' });
 
-  const productMap = new Map(deal.products?.map((p) => [p._id, p]));
+  const cardPropertyItems = (dealFields || [])
+    .filter(
+      (field) =>
+        field.isVisibleInCard &&
+        hasFieldValue(deal.propertiesData?.[field._id]),
+    )
+    .map((field) => ({
+      _id: field._id,
+      name: `${field.name}: ${formatFieldValue(
+        field,
+        deal.propertiesData?.[field._id],
+      )}`,
+    }));
 
-  const filterProducts = (tickUsed: boolean) =>
-    deal.productsData
-      ?.filter((p) => p.tickUsed === tickUsed)
-      .map((p) => {
-        const product = productMap.get(p.productId || '');
-        if (!product) return null;
+  const productMap = new Map(
+    deal.products?.map((product: DealProductReference) => [
+      product._id,
+      product,
+    ]),
+  );
 
-        return {
-          _id: product._id,
-          product: product.product,
-          name: product.name,
-          quantity: p.quantity,
-          uom: p.uom,
-          unitPrice: p.unitPrice,
-        };
-      })
-      .filter((p): p is NonNullable<typeof p> => p !== null) || [];
+  const filterProducts = (tickUsed: boolean) => {
+    return (
+      deal.productsData
+        ?.filter((p) => p.tickUsed === tickUsed)
+        .map((p) => {
+          const product = productMap.get(p.productId || '');
+          if (!product) return null;
+
+          return {
+            _id: p._id,
+            name: product.name || t('unknown-product'),
+            quantity: p.quantity || 0,
+            unitPrice: p.unitPrice || 0,
+            amount:
+              typeof p.amount === 'number'
+                ? p.amount
+                : (p.unitPrice || 0) * (p.quantity || 0),
+            currency: p.currency,
+          };
+        })
+        .filter((p): p is NonNullable<typeof p> => Boolean(p)) || []
+    );
+  };
 
   const dealProducts = filterProducts(true);
   const excludedProducts = filterProducts(false);
-
-  const computeTotals = (items: IProductData[]) => {
-    const totals: Record<string, number> = {};
-    items.forEach((p) => {
-      const currency = p.currency || '';
-      totals[currency] = (totals[currency] || 0) + (p.amount || 0);
-    });
-    return totals;
-  };
-
-  const usedTotals = computeTotals(
-    deal.productsData?.filter((p) => p.tickUsed !== false) || [],
-  );
-  const unusedTotals = computeTotals(
-    deal.productsData?.filter((p) => p.tickUsed === false) || [],
-  );
-
   const hasProducts = dealProducts.length > 0 || excludedProducts.length > 0;
+  const customerItems = (customers || []).map((customer) => ({
+    _id: customer._id,
+    name:
+      [customer.firstName, customer.middleName, customer.lastName]
+        .filter(Boolean)
+        .join(' ') ||
+      customer.primaryEmail ||
+      customer.primaryPhone ||
+      t('unknown'),
+    avatar: customer.avatar,
+  }));
+  const companyItems = (companies || []).map((company) => ({
+    _id: company._id,
+    name:
+      company.primaryName ||
+      company.primaryEmail ||
+      company.primaryPhone ||
+      t('unknown'),
+    avatar: company.avatar,
+  }));
+  const departmentItems = (departments || []).map((department) => ({
+    _id: department._id,
+    name: department.title || t('unknown'),
+  }));
+  const branchItems = (branches || []).map((branch) => ({
+    _id: branch._id,
+    name: branch.title || t('unknown'),
+  }));
+  const customPropertyItems = Array.isArray(customProperties)
+    ? customProperties
+        .map((property, index) => normalizeCustomProperty(property, index))
+        .filter((item): item is CardDetailBadgeItem => Boolean(item))
+    : [];
 
   if (
     !hasProducts &&
+    !branches?.length &&
     !companies?.length &&
     !customers?.length &&
+    !departments?.length &&
     !tags?.length &&
-    !customProperties?.length
+    !customPropertyItems.length &&
+    !cardPropertyItems.length
   ) {
     return null;
   }
 
   return (
-    <div className="flex flex-col gap-1.5 p-3 pt-0">
-      <DealCardDetails items={companies} color="#EA475D" separated />
-      <DealCardDetails items={customers} color="#F7CE53" separated />
-      <DealCardDetails items={dealProducts} color="#63D2D6" separated />
-      <DealCardDetails items={excludedProducts} color="#b49cf1" separated />
-      <DealCardDetails items={tags || []} color="#FF6600" separated />
-      <DealCardDetails
-        items={customProperties || []}
-        color="#FF9900"
-        separated
+    <div className="flex flex-col gap-1 p-3 pt-0">
+      <DealCardProducts
+        items={dealProducts}
+        label={t('products')}
+        totalLabel={t('total')}
       />
-      {hasProducts && (
-        <div className="flex flex-col gap-0.5 pt-0.5">
-          {Object.entries(usedTotals).map(([currency, total]) => (
-            <div
-              key={currency}
-              className="flex justify-between text-xs font-semibold"
-            >
-              <span className="text-muted-foreground">Total</span>
-              <span>
-                {total.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                {currency && (
-                  <span className="text-muted-foreground ml-1 text-[10px]">
-                    {currency}
-                  </span>
-                )}
-              </span>
-            </div>
-          ))}
-          {Object.entries(unusedTotals).map(([currency, total]) => (
-            <div
-              key={currency}
-              className="flex justify-between text-xs opacity-60"
-            >
-              <span className="text-muted-foreground">Unused</span>
-              <span>
-                {total.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                {currency && (
-                  <span className="text-muted-foreground ml-1 text-[10px]">
-                    {currency}
-                  </span>
-                )}
-              </span>
-            </div>
-          ))}
+      <DealCardProducts
+        items={excludedProducts}
+        label={t('exclude-products')}
+        totalLabel={t('total')}
+        muted
+      />
+      <DealCardRelationDetails items={customerItems} type="customer" />
+      <DealCardRelationDetails items={companyItems} type="company" />
+      <DealCardRelationDetails items={departmentItems} type="department" />
+      <DealCardRelationDetails items={branchItems} type="branch" />
+      {Boolean(
+        tags?.length || customPropertyItems.length || cardPropertyItems.length,
+      ) && (
+        <div className="mt-1 flex flex-col gap-1">
+          <CardDetailBadges
+            items={tags || []}
+            color="#FF6600"
+            maxVisibleItems={5}
+          />
+          <CardDetailBadges
+            items={customPropertyItems}
+            color="#FF9900"
+            maxVisibleItems={5}
+          />
+          <CardDetailBadges
+            items={cardPropertyItems}
+            color="#0EA5E9"
+            maxVisibleItems={5}
+          />
         </div>
       )}
     </div>
@@ -151,6 +233,7 @@ export const DealsBoardCard = memo(function DealsBoardCard({
   const [currentCompanies, setCurrentCompanies] = useState(
     deal.companies || [],
   );
+  const { t } = useTranslation('sales');
 
   if (!deal) return null;
 
@@ -183,14 +266,14 @@ export const DealsBoardCard = memo(function DealsBoardCard({
     >
       <div className="flex items-center justify-between h-9 px-1.5">
         <DateSelectDeal
-          placeholder="Start Date"
+          placeholder={t('start-date')}
           value={startDate}
           id={_id}
           type="startDate"
           variant="card"
         />
         <DateSelectDeal
-          placeholder="Close Date"
+          placeholder={t('close-date')}
           value={closeDate}
           id={_id}
           type="closeDate"
@@ -214,9 +297,7 @@ export const DealsBoardCard = memo(function DealsBoardCard({
             <span className="px-2 rounded flex gap-1 bg-yellow-50 text-yellow-400 border-yellow-100 border">
               <IconAlertCircleFilled className="size-6 pt-2" />
               <h5 className="text-sm py-2">
-                Ready to move this card to the next column? (
-                {Math.abs(stage.age)}{' '}
-                {Math.abs(stage.age) === 1 ? 'day' : 'days'} elapsed)
+                {t('ready-to-move-card', { count: Math.abs(stage.age) })}
               </h5>
             </span>
           )}
@@ -230,7 +311,6 @@ export const DealsBoardCard = memo(function DealsBoardCard({
           <SelectLabels.FilterBar
             filterKey=""
             mode="multiple"
-            label="By Label"
             variant="card"
             targetId={_id}
             initialValue={labels?.map((label) => label._id || '') || []}
@@ -239,9 +319,8 @@ export const DealsBoardCard = memo(function DealsBoardCard({
           <SelectTagsFilterBar
             filterKey=""
             mode="multiple"
-            label="By Tag"
+            label={t('by-tag')}
             variant="card"
-            targetId={_id}
             tagType="sales:deal"
             initialValue={tagIds || []}
             onValueChange={(value) => {
@@ -257,9 +336,7 @@ export const DealsBoardCard = memo(function DealsBoardCard({
           <SelectCustomerFilterBar
             filterKey=""
             mode="multiple"
-            label="By Customer"
             variant="card"
-            targetId={_id}
             initialValue={
               currentCustomers?.map((customer) => customer._id || '') || []
             }
@@ -289,7 +366,7 @@ export const DealsBoardCard = memo(function DealsBoardCard({
           <SelectCompanyFilterBar
             filterKey=""
             mode="multiple"
-            label="By Company"
+            label={t('by-company')}
             variant="card"
             targetId={_id}
             initialValue={
@@ -329,7 +406,7 @@ export const DealsBoardCard = memo(function DealsBoardCard({
       {showArchivedBadge && (
         <div className="pointer-events-none select-none absolute bottom-6 -right-10 -rotate-45 w-40">
           <span className="block w-full text-center px-8 py-1 text-xs font-semibold bg-yellow-100 text-yellow-800 border-t border-b border-yellow-200 ">
-            Archived
+            {t('archived')}
           </span>
         </div>
       )}

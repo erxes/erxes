@@ -5,6 +5,7 @@ import {
   Tooltip,
 } from 'erxes-ui';
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   useSpinCampaignInlineContext,
   SpinCampaignInlineContext,
@@ -30,6 +31,7 @@ const SpinCampaignInlineProvider = ({
   placeholder,
   updateSpinCampaigns,
 }: SpinCampaignInlineProps & { children?: React.ReactNode }) => {
+  const { t } = useTranslation('loyalty');
   const [currentSpinCampaigns, setCurrentSpinCampaigns] = useState<
     ISpinCampaign[]
   >(spinCampaigns || []);
@@ -43,7 +45,7 @@ const SpinCampaignInlineProvider = ({
       loading: false,
       spinCampaignId: normalizedSpinCampaignId,
       placeholder: isUndefinedOrNull(placeholder)
-        ? 'Select spin campaigns'
+        ? t('select-spin-campaigns')
         : placeholder,
       updateSpinCampaigns: updateSpinCampaigns || setCurrentSpinCampaigns,
     };
@@ -63,6 +65,7 @@ const SpinCampaignInlineProvider = ({
 };
 
 const SpinCampaignInlineTitle = () => {
+  const { t } = useTranslation('loyalty');
   const { spinCampaignId, spinCampaigns, loading, placeholder } =
     useSpinCampaignInlineContext();
 
@@ -85,7 +88,7 @@ const SpinCampaignInlineTitle = () => {
   if (!campaign) {
     return (
       <span className="text-muted-foreground">
-        {placeholder ?? 'No campaign selected'}
+        {placeholder ?? t('no-campaign-selected')}
       </span>
     );
   }
@@ -93,7 +96,7 @@ const SpinCampaignInlineTitle = () => {
   return (
     <Tooltip>
       <Tooltip.Trigger>
-        <TextOverflowTooltip value={campaign.title || 'Untitled Campaign'} />
+        <TextOverflowTooltip value={campaign.title || t('untitled-campaign')} />
       </Tooltip.Trigger>
       <Tooltip.Content>
         <p>{campaign.title}</p>

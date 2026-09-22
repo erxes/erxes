@@ -2,6 +2,9 @@ import { ICPUserDocument } from '@/clientportal/types/cpUser';
 import { IContext } from '~/connectionResolvers';
 
 export default {
+  isVerified: (user: ICPUserDocument) => user?.isVerified ?? false,
+  isPhoneVerified: (user: ICPUserDocument) => user?.isPhoneVerified ?? false,
+  isEmailVerified: (user: ICPUserDocument) => user?.isEmailVerified ?? false,
   clientPortal: async (
     user: ICPUserDocument,
     _params: unknown,

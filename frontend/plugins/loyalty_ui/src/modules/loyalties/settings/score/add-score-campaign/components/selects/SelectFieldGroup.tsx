@@ -19,6 +19,7 @@ import {
 
 import { IconComponents } from '@tabler/icons-react';
 import { useQuery } from '@apollo/client';
+import { useTranslation } from 'react-i18next';
 import {
   SelectContent,
   SelectTrigger,
@@ -120,6 +121,7 @@ const SelectFieldGroupValue = ({
   placeholder?: string;
   className?: string;
 }) => {
+  const { t } = useTranslation('loyalty');
   const { value, fieldGroups } = useSelectFieldGroupContext();
 
   // Ensure fieldGroups is an array to prevent runtime errors
@@ -131,7 +133,7 @@ const SelectFieldGroupValue = ({
   if (!selectedFieldGroup) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select field group'}
+        {placeholder || t('select-field-group')}
       </span>
     );
   }
@@ -170,6 +172,7 @@ const SelectFieldGroupCommandItem = ({
 };
 
 const SelectFieldGroupContent = () => {
+  const { t } = useTranslation('loyalty');
   const { fieldGroups, loading } = useSelectFieldGroupContext();
 
   // Ensure fieldGroups is an array to prevent runtime errors
@@ -178,11 +181,11 @@ const SelectFieldGroupContent = () => {
   if (loading) {
     return (
       <Command>
-        <Command.Input placeholder="Search field groups" />
+        <Command.Input placeholder={t('search-field-groups')} />
         <Command.List>
           <div className="flex items-center justify-center py-4 h-32">
             <span className="text-muted-foreground">
-              Loading field groups...
+              {t('loading-field-groups')}
             </span>
           </div>
         </Command.List>
@@ -192,9 +195,9 @@ const SelectFieldGroupContent = () => {
 
   return (
     <Command>
-      <Command.Input placeholder="Search field groups" />
+      <Command.Input placeholder={t('search-field-groups')} />
       <Command.Empty>
-        <span className="text-muted-foreground">No field groups found</span>
+        <span className="text-muted-foreground">{t('no-field-groups-found')}</span>
       </Command.Empty>
       <Command.List>
         {fieldGroupsArray.map((fieldGroup) => (
@@ -209,10 +212,11 @@ const SelectFieldGroupContent = () => {
 };
 
 export const SelectFieldGroupFilterItem = () => {
+  const { t } = useTranslation('loyalty');
   return (
     <Filter.Item value="fieldGroups">
       <IconComponents />
-      Field Groups
+      {t('field-groups')}
     </Filter.Item>
   );
 };
@@ -262,6 +266,7 @@ export const SelectFieldGroupFilterBar = ({
   mode?: 'single' | 'multiple';
   contentTypes?: string[];
 }) => {
+  const { t } = useTranslation('loyalty');
   const [fieldGroups, setFieldGroups] = useQueryState<string[] | string>(
     'fieldGroups',
   );
@@ -271,7 +276,7 @@ export const SelectFieldGroupFilterBar = ({
     <Filter.BarItem queryKey={'fieldGroups'}>
       <Filter.BarName>
         <IconComponents />
-        Field Groups
+        {t('field-groups')}
       </Filter.BarName>
       <SelectFieldGroupProvider
         mode={mode}

@@ -1,14 +1,13 @@
 import { TaskDetails } from '@/task/components/detail/TaskDetails';
 import { useGetTask } from '@/task/hooks/useGetTask';
-import { taskDetailSheetState } from '@/task/states/taskDetailSheetState';
+import { useTaskDetailSheet } from '@/task/hooks/useTaskDetailSheet';
 import { IconArrowsDiagonal } from '@tabler/icons-react';
 import { Button, Separator, Sheet, TextOverflowTooltip } from 'erxes-ui';
-import { useAtom } from 'jotai';
 import { Link, useParams } from 'react-router-dom';
 import { TaskDetailActions } from './task-actions/TaskDetailActions';
 
 export const TaskDetailSheet = () => {
-  const [activeTask, setActiveTask] = useAtom(taskDetailSheetState);
+  const [activeTask, setActiveTask] = useTaskDetailSheet();
 
   return (
     <Sheet open={!!activeTask} onOpenChange={() => setActiveTask(null)}>
@@ -31,7 +30,7 @@ export const TaskDetailSheet = () => {
 
 export const TaskDetailSheetHeader = () => {
   const { teamId, projectId } = useParams();
-  const [activeTask, setActiveTask] = useAtom(taskDetailSheetState);
+  const [activeTask, setActiveTask] = useTaskDetailSheet();
   const { task } = useGetTask({ variables: { _id: activeTask } });
 
   const url =

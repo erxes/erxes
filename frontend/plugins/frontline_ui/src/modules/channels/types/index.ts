@@ -12,16 +12,47 @@ export enum ChannelHotKeyScope {
   ChannelIntegrationsPage = 'frontline-channel-integrations-page',
 }
 
+export enum ChannelScope {
+  TEAM = 'team',
+  PERSONAL = 'personal',
+}
+
 export interface IChannel {
   _id: string;
   icon: string;
   name: string;
   description: string;
+  // Absent on channels created before scope existed; treat as TEAM.
+  scope?: ChannelScope;
   createdAt: string;
   updatedAt: string;
   memberCount: number;
   pipelineCount: number;
+  hasTickets: boolean;
   responseTemplateCount: number;
+  formCount: number;
+  integrationCount?: number;
+  integrationKinds?: string[];
+  conversationCount?: number;
+  // Open conversations this user has not read yet. Per-viewer, so it changes
+  // with the caller and not just with the channel.
+  unreadConversationCount?: number;
+}
+
+export enum ChannelResourceType {
+  INTEGRATION = 'integration',
+  PIPELINE = 'pipeline',
+  FORM = 'form',
+  SURVEY = 'survey',
+  RESPONSE_TEMPLATE = 'responseTemplate',
+}
+
+export interface IChannelMoveResourcesResult {
+  movedIds: string[];
+  movedCount: number;
+  sourceChannelId: string;
+  targetChannelId: string;
+  targetChannelName?: string;
 }
 
 export interface IChannelMember {

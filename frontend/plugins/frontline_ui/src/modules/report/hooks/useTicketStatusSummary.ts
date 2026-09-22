@@ -2,8 +2,10 @@ import { QueryHookOptions, useQuery } from '@apollo/client';
 import { GET_TICKET_STATUS_SUMMARY } from '@/report/graphql/queries/getTicketChart';
 
 export interface TicketStatusSummaryItem {
+  _id?: string | null;
   statusType: number;
   name: string;
+  group?: string | null;
   color: string;
   count: number;
   percentage: number;

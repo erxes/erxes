@@ -1,7 +1,5 @@
 import { ReactFlowProvider } from '@xyflow/react';
 import { useEffect } from 'react';
-// @ts-ignore
-import '@xyflow/react/dist/style.css';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FormProvider, useForm } from 'react-hook-form';
@@ -21,71 +19,90 @@ import {
   automationBuilderFormSchema,
   TAutomationBuilderForm,
 } from '@/automations/utils/automationFormDefinitions';
-import { useAtom } from 'jotai';
+import { normalizeAutomationWorkflows } from '@/automations/utils/workflowInputs';
+import { useAtom, useSetAtom } from 'jotai';
 import { AutomationBuilderTabsType, IAutomation } from '@/automations/types';
 import { AutomationBuilderHeader } from '@/automations/components/builder/header/AutomationBuilderHeader';
+import { TAutomationSeed } from '@/automations/hooks/useAutomationSeed';
 import { AutomationHistories } from '@/automations/components/builder/history/components/AutomationHistories';
+import { AutomationStats } from '@/automations/components/builder/stats/components/AutomationStats';
 
 type AutomationBuilderProps = {
   detail?: IAutomation;
+  // Prefilled nodes for a fresh automation opened from another module; never
+  // set alongside a saved detail.
+  seed?: TAutomationSeed;
 };
 
-export const AutomationBuilder = ({ detail }: AutomationBuilderProps) => {
+export const AutomationBuilder = ({ detail, seed }: AutomationBuilderProps) => {
   const [activeTab, setActiveTab] = useAtom(automationBuilderActiveTabState);
-  const [isOpenSideBar, setOpenSidebar] = useAtom(
-    automationBuilderSiderbarOpenState,
-  );
+  const setOpenSidebar = useSetAtom(automationBuilderSiderbarOpenState);
   const [queryParams] = useMultiQueryState<{
     activeNodeId: string;
     activeTab: AutomationBuilderTabsType;
   }>(['activeNodeId', 'activeTab']);
+  const cleanedDetail = deepCleanNulls(detail);
+
+  // Migrates legacy workflow formats (raw trigger.* refs, memberActionIds
+  // reference model) on load; no-op for clean data
+  const normalized = normalizeAutomationWorkflows({
+    triggers: cleanedDetail?.triggers ?? [],
+    actions: cleanedDetail?.actions ?? [],
+    workflows: cleanedDetail?.workflows ?? [],
+  });
 
   const form = useForm<TAutomationBuilderForm>({
     resolver: zodResolver(automationBuilderFormSchema),
     defaultValues: {
-      edgeType: 'default',
-      flowDirection: 'horizontal',
-      triggers: [],
-      actions: [],
-      workflows: [],
-      ...deepCleanNulls(detail),
+      ...cleanedDetail,
+      edgeType: cleanedDetail?.edgeType ?? 'default',
+      flowDirection: cleanedDetail?.flowDirection ?? 'horizontal',
+      ...normalized,
+      ...(detail ? {} : seed),
     },
   });
 
   useEffect(() => {
-    if (activeTab !== queryParams.activeTab) {
-      setActiveTab(queryParams.activeTab || AutomationBuilderTabsType.Builder);
-    }
+    const nextActiveTab =
+      queryParams.activeTab || AutomationBuilderTabsType.Builder;
 
-    if (queryParams.activeNodeId && !isOpenSideBar) {
+    if (activeTab !== nextActiveTab) {
+      setActiveTab(nextActiveTab);
+    }
+  }, [activeTab, queryParams.activeTab, setActiveTab]);
+
+  useEffect(() => {
+    if (queryParams.activeNodeId) {
       setOpenSidebar(true);
     }
-  }, [queryParams?.activeTab, queryParams?.activeNodeId]);
+  }, [queryParams.activeNodeId, setOpenSidebar]);
 
   return (
-    <AutomationProvider>
+    <AutomationProvider detail={detail}>
       <ReactFlowProvider>
         <AutomationBuilderDnDProvider>
           <FormProvider {...form}>
-            <AutomationBuilderUnsavedChangesAlert detail={detail} />
-            <Tabs value={activeTab} className="h-screen flex flex-col">
+            <AutomationBuilderUnsavedChangesAlert />
+            <Tabs value={activeTab} className="h-full flex flex-col">
               <AutomationBuilderHeader />
-              {activeTab === 'builder' && (
-                <Tabs.Content
-                  value="builder"
-                  className="flex-1 h-full relative"
-                >
-                  <AutomationBuilderWorkspace />
-                </Tabs.Content>
-              )}
-              {activeTab === 'history' && (
-                <Tabs.Content
-                  value="history"
-                  className="flex-1 flex flex-col min-h-0"
-                >
-                  <AutomationHistories />
-                </Tabs.Content>
-              )}
+              <Tabs.Content
+                value="builder"
+                className="flex-1 min-h-0 relative animate-in fade-in-0 slide-in-from-bottom-2 duration-200"
+              >
+                <AutomationBuilderWorkspace />
+              </Tabs.Content>
+              <Tabs.Content
+                value="history"
+                className="flex-1 flex flex-col min-h-0 animate-in fade-in-0 slide-in-from-bottom-2 duration-200"
+              >
+                <AutomationHistories />
+              </Tabs.Content>
+              <Tabs.Content
+                value="stats"
+                className="flex-1 flex flex-col min-h-0 animate-in fade-in-0 slide-in-from-bottom-2 duration-200"
+              >
+                <AutomationStats />
+              </Tabs.Content>
             </Tabs>
           </FormProvider>
         </AutomationBuilderDnDProvider>

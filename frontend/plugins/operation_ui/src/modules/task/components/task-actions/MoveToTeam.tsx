@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useApolloClient } from '@apollo/client';
 import { useProjects } from '@/project/hooks/useGetProjects';
 import { useUpdateProject } from '@/project/hooks/useUpdateProject';
@@ -51,6 +52,7 @@ export const MoveToTeamProvider = ({
     projectId: string | null;
   }[];
 }) => {
+  const { t } = useTranslation('operation');
   const { updateTask } = useUpdateTask();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
@@ -78,10 +80,8 @@ export const MoveToTeamProvider = ({
       );
 
       toast({
-        title: 'Success',
-        description: `Successfully moved ${taskIds.length} ${
-          taskIds.length === 1 ? 'task' : 'tasks'
-        } to team.`,
+        title: t('success'),
+        description: t('tasks-moved-to-team', { count: taskIds.length }),
         variant: 'default',
       });
       client.refetchQueries({ include: ['GetTasks'] });
@@ -108,6 +108,7 @@ export const TaskMoveToTeamContent = ({
   setOpen: (open: boolean) => void;
   currentTeamId?: string;
 }) => {
+  const { t } = useTranslation('operation');
   const { tasks, moveTasksToTeam, loading } = useMoveToTeamContext();
   const { teams, loading: teamsLoading } = useGetTeams();
   const { table } = RecordTable.useRecordTable();
@@ -218,11 +219,11 @@ export const TaskMoveToTeamContent = ({
   };
   return (
     <Command>
-      <Command.Input placeholder="Search teams..." />
+      <Command.Input placeholder={t('search-teams')} />
 
       {teamsLoading ? (
         <div className="p-4 text-center text-sm text-muted-foreground">
-          Loading teams...
+          {t('loading-teams')}
         </div>
       ) : teams && teams.length > 0 ? (
         <Command.List>
@@ -239,7 +240,7 @@ export const TaskMoveToTeamContent = ({
                   <span>{team.name}</span>
                   {team._id === currentTeamId && (
                     <span className="text-xs text-muted-foreground">
-                      Current team
+                      {t('current-team')}
                     </span>
                   )}
                 </div>
@@ -249,7 +250,7 @@ export const TaskMoveToTeamContent = ({
         </Command.List>
       ) : (
         <div className="p-4 text-center text-sm text-muted-foreground">
-          No teams available
+          {t('no-teams-available')}
         </div>
       )}
 
@@ -290,10 +291,11 @@ export const TasksMoveToTeamTrigger = ({
 }: {
   setCurrentContent: (content: string) => void;
 }) => {
+  const { t } = useTranslation('operation');
   return (
     <Command.Item onSelect={() => setCurrentContent('moveToTeam')}>
       <IconUsersGroup className="size-4" />
-      <div className="flex items-center">Move to team</div>
+      <div className="flex items-center">{t('move-to-team')}</div>
     </Command.Item>
   );
 };
@@ -320,6 +322,7 @@ export const ProjectTeamConflictDialog = ({
   targetTeamName,
   onSuccess,
 }: ProjectTeamConflictDialogProps) => {
+  const { t } = useTranslation('operation');
   const [isProcessing, setIsProcessing] = useState(false);
   const { updateProject } = useUpdateProject();
   const { updateTask } = useUpdateTask();
@@ -355,8 +358,8 @@ export const ProjectTeamConflictDialog = ({
       );
 
       toast({
-        title: 'Success',
-        description: 'Added team to projects and moved tasks successfully',
+        title: t('success'),
+        description: t('added-team-to-projects-and-moved-tasks'),
         variant: 'default',
       });
       client.refetchQueries({ include: ['GetTasks'] });
@@ -394,9 +397,8 @@ export const ProjectTeamConflictDialog = ({
       );
 
       toast({
-        title: 'Success',
-        description:
-          'Removed tasks from projects and moved to team successfully',
+        title: t('success'),
+        description: t('removed-tasks-from-projects-and-moved'),
         variant: 'default',
       });
       client.refetchQueries({ include: ['GetTasks'] });
@@ -427,7 +429,7 @@ export const ProjectTeamConflictDialog = ({
             <div className="flex size-10 items-center justify-center rounded-full bg-warning/10">
               <IconAlertTriangle className="size-5 text-warning" />
             </div>
-            <Dialog.Title>Project Team Conflict</Dialog.Title>
+            <Dialog.Title>{t('project-team-conflict')}</Dialog.Title>
           </div>
           <Dialog.Description className="pt-4">
             {projectCount === 1 ? (
@@ -458,8 +460,7 @@ export const ProjectTeamConflictDialog = ({
             disabled={isProcessing}
             className="w-full"
           >
-            Add "{targetTeamName}" to{' '}
-            {projectCount === 1 ? 'project' : 'projects'}
+            {t('add-team-to-projects', { teamName: targetTeamName, count: projectCount })}
           </Button>
           <Button
             onClick={handleRemoveFromProjects}
@@ -467,8 +468,7 @@ export const ProjectTeamConflictDialog = ({
             variant="outline"
             className="w-full"
           >
-            Remove {totalTaskCount > 1 ? 'tasks' : 'task'} from{' '}
-            {projectCount === 1 ? 'project' : 'projects'} and move to team
+            {t('remove-tasks-from-projects-and-move', { taskCount: totalTaskCount, projectCount })}
           </Button>
           <Button
             onClick={() => onOpenChange(false)}
@@ -476,7 +476,7 @@ export const ProjectTeamConflictDialog = ({
             variant="ghost"
             className="w-full"
           >
-            Cancel
+            {t('cancel')}
           </Button>
         </Dialog.Footer>
       </Dialog.Content>

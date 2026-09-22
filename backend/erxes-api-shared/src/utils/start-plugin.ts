@@ -49,8 +49,11 @@ import {
   leaveErxesGateway,
 } from './service-discovery';
 import { createTRPCContext } from './trpc';
+import { mountAgentTools } from './agent-tools';
 import { applyTrustProxy, getSubdomain } from './utils';
 import * as Sentry from '@sentry/node';
+
+export const MAX_HEADER_BYTES = 64 * 1024;
 
 dotenv.config();
 
@@ -72,10 +75,20 @@ type IMeta = {
   payments?: any;
   notifications?: any;
   tags?: any;
+  documents?: {
+    types: {
+      label: string;
+      contentType: string;
+    }[];
+  };
   properties?: IPropertyMeta;
   references?: TRecordReferencesConfig;
   permissions?: IPermissionConfig;
   beforeResolvers?: BeforeResolversConfig;
+  importExport?: ImportExportConfigs;
+  relations?: {
+    subscribedTypes: string[];
+  };
 };
 
 type ApiHandler = {
@@ -111,7 +124,6 @@ type ConfigTypes = {
   hasSubscriptions?: boolean;
   corsOptions?: any;
   subscriptionPluginPath?: any;
-  importExport?: ImportExportConfigs;
   trpcAppRouter?: {
     router: any;
     createContext: <TContext>(
@@ -119,6 +131,14 @@ type ConfigTypes = {
       context: any,
     ) => Promise<TContext>;
   };
+  /**
+   * tRPC procedure paths to exclude from the agent capability manifest.
+   * Agent-tools endpoints are mounted automatically on every plugin that
+   * supplies a `trpcAppRouter`. Only procedures declaring
+   * `.meta({ agent: { permission } })` appear in the manifest; this list
+   * removes specific annotated procedures when needed.
+   */
+  agentToolsExclude?: string[];
   meta?: IMeta;
 };
 
@@ -141,9 +161,10 @@ export async function startPlugin(
     apolloServerContext,
     trpcAppRouter,
     onServerInit,
+    // agent capability endpoint exclusions
+    agentToolsExclude,
     // meta
     meta,
-    importExport,
   } = configs || {};
   const PORT = process.env.PORT ? Number(process.env.PORT) : port;
 
@@ -159,6 +180,9 @@ export async function startPlugin(
   app.use(
     express.json({
       limit: '15mb',
+      verify: (req: any, _res, buf: Buffer) => {
+        req.rawBody = buf;
+      },
     }),
   );
   app.use(cookieParser());
@@ -253,12 +277,27 @@ export async function startPlugin(
     );
   }
 
-  app.use((req: any, _res, next) => {
-    req.rawBody = '';
-
-    req.on('data', (chunk: any) => {
-      req.rawBody += chunk.toString();
+  // Agent capability endpoints are mounted automatically on every plugin with
+  // a tRPC router. The manifest is admit-only: only procedures declaring
+  // `.meta({ agent: { permission } })` are exposed, so an empty router
+  // produces an empty manifest and zero callable tools.
+  if (trpcAppRouter) {
+    mountAgentTools(app, {
+      plugin: name,
+      trpcRouter: trpcAppRouter.router,
+      createContext: trpcAppRouter.createContext,
+      exclude: agentToolsExclude || [],
     });
+  }
+
+  app.use((req: any, _res, next) => {
+    if (req.rawBody === undefined) {
+      req.rawBody = '';
+
+      req.on('data', (chunk: any) => {
+        req.rawBody += chunk.toString();
+      });
+    }
 
     next();
   });
@@ -272,7 +311,10 @@ export async function startPlugin(
   //   res.status(500).send(msg);
   // });
 
-  const httpServer = http.createServer(app);
+  const httpServer = http.createServer(
+    { maxHeaderSize: MAX_HEADER_BYTES },
+    app,
+  );
   httpServer.keepAliveTimeout = 120000;
   httpServer.headersTimeout = 121000;
 
@@ -354,6 +396,13 @@ export async function startPlugin(
     `🚀 ${name} graphql api ready at http://localhost:${PORT}/graphql`,
   );
 
+  await joinErxesGateway({
+    name,
+    port: PORT,
+    hasSubscriptions,
+    meta,
+  });
+
   if (meta) {
     const {
       automations,
@@ -363,7 +412,20 @@ export async function startPlugin(
       payments,
       beforeResolvers,
       references,
+      importExport,
     } = meta || {};
+
+    if (beforeResolvers) {
+      await startBeforeResolvers(app, name, beforeResolvers);
+    }
+
+    if (afterProcess) {
+      await startAfterProcess(app, name, afterProcess);
+    }
+
+    if (references) {
+      await initRecordReferences(app, name, references);
+    }
 
     if (automations) {
       await startAutomations(app, name, automations);
@@ -373,43 +435,22 @@ export async function startPlugin(
       await initSegmentProducers(app, name, segments);
     }
 
-    if (references) {
-      await initRecordReferences(app, name, references);
-    }
-
-    if (afterProcess) {
-      await startAfterProcess(app, name, afterProcess);
-    }
-
     if (notifications) {
       await initializePluginConfig(name, 'notifications', notifications);
+    }
+
+    if (importExport) {
+      startImportExportWorker({
+        pluginName: name,
+        config: importExport,
+        app,
+      });
     }
 
     if (payments) {
       await startPayments(name, payments);
     }
-
-    if (beforeResolvers) {
-      await startBeforeResolvers(app, name, beforeResolvers);
-    }
   } // end meta if
-
-  await joinErxesGateway({
-    name: name,
-    port: PORT,
-    hasSubscriptions: hasSubscriptions,
-    meta: meta,
-  });
-
-  if (importExport) {
-    startImportExportWorker({
-      pluginName: name,
-      config: {
-        ...importExport,
-      },
-      app,
-    });
-  }
 
   if (onServerInit) {
     onServerInit(app);

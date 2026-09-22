@@ -19,9 +19,11 @@ export const useAttachmentContext = () => {
 
 export const AttachmentProvider = ({
   children,
+  ticketId,
   initialAttachments = [],
 }: {
   children: React.ReactNode;
+  ticketId?: string;
   initialAttachments?: IAttachment[];
 }) => {
   const [attachments, setAttachments] =
@@ -43,6 +45,8 @@ export const AttachmentProvider = ({
   const { updateTicket } = useUpdateTicket();
 
   const removeAttachment = async (attachment: IAttachment) => {
+    if (!ticketId) return;
+
     setRemovingUrl(attachment.url);
 
     const newAttachments = attachments
@@ -51,7 +55,7 @@ export const AttachmentProvider = ({
 
     try {
       await updateTicket({
-        variables: { attachments: newAttachments },
+        variables: { _id: ticketId, attachments: newAttachments },
       });
 
       setAttachments((prev) =>

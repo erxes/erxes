@@ -2,6 +2,9 @@ import {
   Combobox,
   Command,
   Filter,
+  Skeleton,
+  cn,
+  parseDateRangeFromString,
   useMultiQueryState,
   useNonNullMultiQueryState,
   useQueryState,
@@ -9,111 +12,246 @@ import {
 import { InboxHotkeyScope } from '@/inbox/types/InboxHotkeyScope';
 import {
   IconCalendarPlus,
+  IconAt,
+  IconBuildingStore,
   IconCheck,
   IconCheckbox,
+  IconInbox,
   IconLoader,
   IconSquare,
+  IconUserCheck,
   IconUsersGroup,
   IconUserX,
 } from '@tabler/icons-react';
 import { SelectMember } from 'ui-modules';
+import { gql, useQuery } from '@apollo/client';
 import { SelectChannel } from '@/inbox/channel/components/SelectChannel';
+import { DiscordChannelFilterBar } from '@/integrations/discord/components/DiscordChannelFilterBar';
 import { ConversationStatus } from '@/inbox/types/Conversation';
 import {
   IntegrationTypeFilterBar,
   IntegrationTypeFilterItem,
   IntegrationTypeFilterView,
 } from '@/integrations/components/IntegrationTypeFilter';
-import { useAtomValue } from 'jotai';
-import { inboxLayoutState } from '@/inbox/states/inboxLayoutState';
+import { useTranslation } from 'react-i18next';
+import { useConversationFilterCounts } from '@/inbox/conversations/hooks/useConversationCounts';
+import {
+  AutomationStatusFilterBar,
+  AutomationStatusFilterItem,
+  AutomationStatusFilterView,
+} from '@/inbox/conversations/components/AutomationStatusFilter';
+import { TAutomationStatusFilter } from '@/inbox/constants/automationStatusFilters';
+import { useIntegrationInline } from '@/integrations/hooks/useIntegrations';
+
+type ConversationFilterQueries = {
+  status: ConversationStatus;
+  unassigned: boolean;
+  awaitingResponse: boolean;
+  automationStatus: TAutomationStatusFilter;
+  participated: boolean;
+  channelId: string;
+  integrationId: string;
+  integrationType: string;
+  brandId: string;
+  created: string;
+  searchValue: string;
+};
+
+const FRONTLINE_INBOX_BRAND_FILTER_DETAIL = gql`
+  query FrontlineInboxBrandFilterDetail($_id: String!) {
+    brandDetail(_id: $_id) {
+      _id
+      name
+    }
+  }
+`;
+
+type ConversationFilterQueryValues = {
+  [Key in keyof ConversationFilterQueries]:
+    | ConversationFilterQueries[Key]
+    | null;
+};
+
+type ConversationFilterCounts = {
+  unresolved?: number;
+  resolved?: number;
+  unassigned?: number;
+  participating?: number;
+  awaitingResponse?: number;
+  responded?: number;
+  standby?: number;
+  handoff?: number;
+};
+
+const FilterCount = ({
+  count,
+  loading,
+}: {
+  count?: number;
+  loading: boolean;
+}) =>
+  loading ? (
+    <Skeleton className="ml-auto size-4 rounded-full" />
+  ) : (
+    <span className="ml-auto tabular-nums text-xs text-muted-foreground">
+      {count ?? 0}
+    </span>
+  );
+
+const ConversationFilterCommandItem = ({
+  children,
+  count,
+  loading,
+  selected,
+  onSelect,
+}: {
+  children: React.ReactNode;
+  count?: number;
+  loading: boolean;
+  selected: boolean;
+  onSelect: () => void;
+}) => (
+  <Filter.CommandItem onSelect={onSelect}>
+    {children}
+    <span className="ml-auto flex items-center gap-2">
+      <FilterCount count={count} loading={loading} />
+      {selected && <IconCheck />}
+    </span>
+  </Filter.CommandItem>
+);
+
+const ConversationFilterCommand = ({
+  counts,
+  loading,
+  queries,
+  setQueries,
+}: {
+  counts?: ConversationFilterCounts;
+  loading: boolean;
+  queries: ConversationFilterQueryValues;
+  setQueries: (values: Partial<ConversationFilterQueryValues>) => void;
+}) => {
+  const { t } = useTranslation('frontline');
+  const { status, unassigned, awaitingResponse, participated } = queries;
+
+  return (
+    <Command>
+      <Filter.CommandInput
+        placeholder={t('filter', 'Filter...')}
+        variant="secondary"
+        className="bg-background"
+      />
+      <Command.List className="max-h-none">
+        <Filter.SearchValueTrigger />
+        <Command.Separator className="my-1" />
+        <ConversationFilterCommandItem
+          count={counts?.unresolved}
+          loading={loading}
+          selected={status === null}
+          onSelect={() => setQueries({ status: null })}
+        >
+          <IconSquare />
+          {t('unresolved', 'Unresolved')}
+        </ConversationFilterCommandItem>
+        <ConversationFilterCommandItem
+          count={counts?.resolved}
+          loading={loading}
+          selected={status === ConversationStatus.CLOSED}
+          onSelect={() => setQueries({ status: ConversationStatus.CLOSED })}
+        >
+          <IconCheckbox />
+          {t('resolved', 'Resolved')}
+        </ConversationFilterCommandItem>
+        <Command.Separator className="my-1" />
+        <ConversationFilterCommandItem
+          count={counts?.unassigned}
+          loading={loading}
+          selected={Boolean(unassigned)}
+          onSelect={() => setQueries({ unassigned: unassigned ? null : true })}
+        >
+          <IconUserX />
+          {t('unassigned', 'Unassigned')}
+        </ConversationFilterCommandItem>
+        <ConversationFilterCommandItem
+          count={counts?.participating}
+          loading={loading}
+          selected={Boolean(participated)}
+          onSelect={() =>
+            setQueries({ participated: participated ? null : true })
+          }
+        >
+          <IconUsersGroup />
+          {t('participated', 'Participated')}
+        </ConversationFilterCommandItem>
+        <Command.Separator className="my-1" />
+        <ConversationFilterCommandItem
+          count={counts?.awaitingResponse}
+          loading={loading}
+          selected={Boolean(awaitingResponse)}
+          onSelect={() =>
+            setQueries({
+              awaitingResponse: awaitingResponse ? null : true,
+            })
+          }
+        >
+          <IconLoader />
+          {t('awaiting-response', 'Awaiting response')}
+        </ConversationFilterCommandItem>
+        <AutomationStatusFilterItem />
+        <SelectChannel.FilterItem />
+        <IntegrationTypeFilterItem />
+        <Command.Separator className="my-1" />
+        <Filter.Item value="created">
+          <IconCalendarPlus />
+          {t('created-at', 'Created at')}
+        </Filter.Item>
+      </Command.List>
+    </Command>
+  );
+};
 
 export const FilterConversationsPopover = () => {
-  const [queries, setQueries] = useMultiQueryState<{
-    status: ConversationStatus;
-    unassigned: boolean;
-    awaitingResponse: boolean;
-    participated: boolean;
-    channelId: string;
-  }>(['status', 'unassigned', 'awaitingResponse', 'participated', 'channelId']);
-  const { status, unassigned, awaitingResponse, participated } = queries || {};
+  const [queries, setQueries] = useMultiQueryState<ConversationFilterQueries>([
+    'status',
+    'unassigned',
+    'awaitingResponse',
+    'automationStatus',
+    'participated',
+    'channelId',
+    'integrationId',
+    'integrationType',
+    'brandId',
+    'created',
+    'searchValue',
+  ]);
+  const parsedDate = parseDateRangeFromString(queries.created || '');
+  const { counts, loading } = useConversationFilterCounts({
+    channelId: queries.channelId,
+    integrationId: queries.integrationId,
+    integrationType: queries.integrationType,
+    brandId: queries.brandId,
+    startDate: parsedDate?.from,
+    endDate: parsedDate?.to,
+    searchValue: queries.searchValue,
+  });
 
   return (
     <Filter.Popover scope={InboxHotkeyScope.MainPage}>
       <Filter.Trigger isFiltered />
       <Combobox.Content className="w-64">
         <Filter.View>
-          <Command>
-            <Filter.CommandInput
-              placeholder="Filter"
-              variant="secondary"
-              className="bg-background"
-            />
-            <Command.List className="max-h-none">
-              <Filter.CommandItem onSelect={() => setQueries({ status: null })}>
-                <IconSquare />
-                Unresolved
-                {status === null && <IconCheck className="ml-auto" />}
-              </Filter.CommandItem>
-              <Filter.CommandItem
-                onSelect={() =>
-                  setQueries({ status: ConversationStatus.CLOSED })
-                }
-              >
-                <IconCheckbox />
-                Resolved
-                {status === ConversationStatus.CLOSED && (
-                  <IconCheck className="ml-auto" />
-                )}
-              </Filter.CommandItem>
-              <Command.Separator className="my-1" />
-              <Filter.CommandItem
-                onSelect={() => {
-                  setQueries({
-                    unassigned: unassigned ? null : true,
-                  });
-                }}
-              >
-                <IconUserX />
-                Unassigned
-                {unassigned && <IconCheck className="ml-auto" />}
-              </Filter.CommandItem>
-              <Filter.CommandItem
-                onSelect={() => {
-                  setQueries({
-                    participated: participated ? null : true,
-                  });
-                }}
-              >
-                <IconUsersGroup />
-                Participated
-                {participated && <IconCheck className="ml-auto" />}
-              </Filter.CommandItem>
-              <Command.Separator className="my-1" />
-              <Filter.CommandItem
-                onSelect={() =>
-                  setQueries({
-                    awaitingResponse: awaitingResponse ? null : true,
-                  })
-                }
-              >
-                <IconLoader />
-                Awaiting response
-                {awaitingResponse && <IconCheck className="ml-auto" />}
-              </Filter.CommandItem>
-              <SelectChannel.FilterItem />
-              <IntegrationTypeFilterItem />
-              <Command.Separator className="my-1" />
-              <Filter.Item value="created">
-                <IconCalendarPlus />
-                Created At
-              </Filter.Item>
-            </Command.List>
-          </Command>
+          <ConversationFilterCommand
+            counts={counts}
+            loading={loading}
+            queries={queries}
+            setQueries={setQueries}
+          />
         </Filter.View>
         <SelectMember.FilterView
           onValueChange={() => setQueries({ unassigned: null })}
         />
         <SelectChannel.FilterView />
+        <AutomationStatusFilterView counts={counts} loading={loading} />
         <Filter.View filterKey="created">
           <Filter.DateView filterKey="created" />
         </Filter.View>
@@ -125,25 +263,41 @@ export const FilterConversationsPopover = () => {
 
 export const ConversationFilterBar = ({
   children,
+  className,
 }: {
   children?: React.ReactNode;
+  className?: string;
 }) => {
+  const { t } = useTranslation('frontline');
   const [status] = useQueryState<ConversationStatus>('status');
-  const inboxLayout = useAtomValue(inboxLayoutState);
   const filterStates = useNonNullMultiQueryState<{
     status: ConversationStatus;
     unassigned: boolean;
     awaitingResponse: boolean;
+    automationStatus: TAutomationStatusFilter;
     participated: boolean;
+    participating: boolean;
+    mentioned: boolean;
     created: Date;
     channelId: string;
+    integrationId: string;
+    integrationType: string;
+    brandId: string;
+    searchValue: string;
   }>([
     'status',
     'unassigned',
     'awaitingResponse',
+    'automationStatus',
     'participated',
+    'participating',
+    'mentioned',
     'created',
     'channelId',
+    'integrationId',
+    'integrationType',
+    'brandId',
+    'searchValue',
   ]);
 
   if (Object.values(filterStates).length === 0) {
@@ -152,14 +306,18 @@ export const ConversationFilterBar = ({
 
   return (
     <Filter.Bar
-      className={inboxLayout === 'list' ? 'pl-2' : 'pt-1'}
+      className={cn(
+        'hide-scroll min-w-0 flex-nowrap overflow-x-auto overflow-y-hidden [&>div]:min-w-0 [&>div]:max-w-full [&>div]:shrink-0 [&>div]:overflow-hidden [&>div>button]:min-w-0 [&>div>button]:truncate [&>div>button:last-child]:shrink-0',
+        className,
+      )}
       id="conversations-filter-bar"
     >
+      <Filter.SearchValueBarItem />
       {status === ConversationStatus.CLOSED && (
         <Filter.BarItem queryKey="status">
           <Filter.BarName>
             <IconCheckbox />
-            Resolved
+            {t('resolved', 'Resolved')}
           </Filter.BarName>
         </Filter.BarItem>
       )}
@@ -171,26 +329,101 @@ export const ConversationFilterBar = ({
       <Filter.BarItem queryKey="unassigned">
         <Filter.BarName>
           <IconUserX />
-          Unassigned
+          {t('unassigned', 'Unassigned')}
         </Filter.BarName>
       </Filter.BarItem>
 
       <Filter.BarItem queryKey="awaitingResponse">
         <Filter.BarName>
           <IconLoader />
-          Awaiting response
+          {t('awaiting-response', 'Awaiting response')}
         </Filter.BarName>
       </Filter.BarItem>
 
       <Filter.BarItem queryKey="participated">
         <Filter.BarName>
           <IconUsersGroup />
-          Participated
+          {t('participated', 'Participated')}
         </Filter.BarName>
       </Filter.BarItem>
+      <Filter.BarItem queryKey="participating">
+        <Filter.BarName>
+          <IconUserCheck />
+          {t('assigned-to-me', 'Assigned to me')}
+        </Filter.BarName>
+      </Filter.BarItem>
+      <Filter.BarItem queryKey="mentioned">
+        <Filter.BarName>
+          <IconAt />
+          {t('mentions', 'Mentions', { defaultValue: 'Mentions' })}
+        </Filter.BarName>
+      </Filter.BarItem>
+      <AutomationStatusFilterBar iconOnly />
       <SelectChannel.FilterBar iconOnly />
       <IntegrationTypeFilterBar iconOnly />
+      <IntegrationFilterBar />
+      <BrandFilterBar />
+      <DiscordChannelFilterBar iconOnly />
       {children}
     </Filter.Bar>
+  );
+};
+
+const IntegrationFilterBar = () => {
+  const { t } = useTranslation('frontline');
+  const [integrationId] = useQueryState<string>('integrationId');
+  const integrationIds = integrationId?.split(',').filter(Boolean) ?? [];
+  const { integration, loading } = useIntegrationInline({
+    variables: { _id: integrationIds[0] || '' },
+    skip: integrationIds.length !== 1,
+  });
+
+  if (!integrationId) {
+    return null;
+  }
+
+  const label =
+    integrationIds.length > 1
+      ? t('selected-integrations', 'Selected integrations', {
+          count: integrationIds.length,
+          defaultValue: '{{count}} integrations',
+        })
+      : integration?.name ||
+        integration?.kind ||
+        t('integration', 'Integration');
+
+  return (
+    <Filter.BarItem queryKey="integrationId">
+      <Filter.BarName>
+        <IconInbox />
+        {loading ? <Skeleton className="h-4 w-20" /> : label}
+      </Filter.BarName>
+    </Filter.BarItem>
+  );
+};
+
+const BrandFilterBar = () => {
+  const [brandId] = useQueryState<string>('brandId');
+  const { data, loading } = useQuery<{
+    brandDetail?: { _id: string; name?: string };
+  }>(FRONTLINE_INBOX_BRAND_FILTER_DETAIL, {
+    variables: { _id: brandId || '' },
+    skip: !brandId,
+  });
+
+  if (!brandId) {
+    return null;
+  }
+
+  const brandName =
+    data?.brandDetail?._id === brandId ? data.brandDetail.name : undefined;
+
+  return (
+    <Filter.BarItem queryKey="brandId">
+      <Filter.BarName>
+        <IconBuildingStore />
+        {loading || !brandName ? <Skeleton className="h-4 w-20" /> : brandName}
+      </Filter.BarName>
+    </Filter.BarItem>
   );
 };

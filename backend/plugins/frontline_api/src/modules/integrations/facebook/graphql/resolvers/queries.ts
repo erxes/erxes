@@ -13,6 +13,24 @@ import {
 } from '@/integrations/facebook/@types/utils';
 import { IFacebookConversationMessageDocument } from '@/integrations/facebook/@types/conversationMessages';
 import { INTEGRATION_KINDS } from '@/integrations/facebook/constants';
+import {
+  facebookAppSelector,
+  resolveFacebookApp,
+} from '@/integrations/facebook/commonUtils';
+
+/** How many posts one reply text lists before the count speaks for itself. */
+const TOP_POSTS_PER_REPLY = 5;
+
+type TCommentReplyStat = {
+  text: string;
+  total: number;
+  sent: number;
+  failed: number;
+  pending: number;
+  posts?: { postId: string; count: number }[];
+  lastAt?: Date;
+  lastError?: string;
+};
 
 const buildSelector = async (conversationId: string, model: any) => {
   const query = { conversationId: '' };
@@ -28,24 +46,114 @@ const buildSelector = async (conversationId: string, model: any) => {
   return query;
 };
 
+const COMMENT_PRIVATE_REPLY_SOURCE_TYPE = 'facebook_comment_private_reply';
+
+type TFacebookMessageSource = {
+  type?: string;
+  conversationId?: string;
+  messageId?: string;
+  targetConversationId?: string;
+  content?: string;
+};
+
+type TMessageWithToObject = Record<string, unknown> & {
+  toObject?: () => Record<string, unknown>;
+};
+
+const toPlainObject = (message: TMessageWithToObject) =>
+  message.toObject ? message.toObject() : message;
+
+const appendRelatedMessengerMessages = async (
+  models: IContext['models'],
+  conversationId: string,
+  messages: TMessageWithToObject[],
+) => {
+  const messageIds = messages
+    .map((message) => String(toPlainObject(message)._id || ''))
+    .filter(Boolean);
+
+  if (!messageIds.length) {
+    return messages.map(toPlainObject);
+  }
+
+  const relatedMessages = await models.FacebookConversationMessages.find({
+    'source.type': COMMENT_PRIVATE_REPLY_SOURCE_TYPE,
+    'source.conversationId': conversationId,
+    'source.messageId': { $in: messageIds },
+  }).lean();
+
+  const relatedBySourceMessageId = new Map<string, Record<string, unknown>>();
+
+  for (const relatedMessage of relatedMessages) {
+    const source = relatedMessage.source as TFacebookMessageSource | undefined;
+
+    if (source?.messageId) {
+      relatedBySourceMessageId.set(String(source.messageId), relatedMessage);
+    }
+  }
+
+  return messages.map((message) => {
+    const messageObject = toPlainObject(message);
+    const relatedMessage = relatedBySourceMessageId.get(
+      String(messageObject._id || ''),
+    );
+
+    if (!relatedMessage) {
+      return messageObject;
+    }
+
+    const source = relatedMessage.source as TFacebookMessageSource | undefined;
+
+    return {
+      ...messageObject,
+      relatedMessage: {
+        conversationId: source?.targetConversationId,
+        messageId: relatedMessage._id,
+        content: relatedMessage.content,
+      },
+    };
+  });
+};
+
 export const facebookQueries = {
-  async facebookGetConfigs(_root, _args, { models }: IContext) {
+  async facebookGetConfigs(
+    _root,
+    _args,
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('integrationsEdit');
+
     return await models.FacebookConfigs.find({});
   },
-  async facebookGetAccounts(_root, { kind }: IKind, { models }: IContext) {
-    return models.FacebookAccounts.find({ kind });
+  async facebookGetAccounts(
+    _root,
+    { kind, integrationKind }: IKind & { integrationKind?: string },
+    { models }: IContext,
+  ) {
+    const app = await resolveFacebookApp(models, integrationKind);
+
+    return models.FacebookAccounts.find(
+      { kind, ...facebookAppSelector(app) },
+      { token: 0, tokenSecret: 0 },
+    );
   },
 
-  async facebookGetIntegrations(_root, { kind }: IKind, { models }: IContext) {
-    return models.FacebookIntegrations.find({ kind });
+  facebookGetIntegrations(_root, { kind }: IKind, { models }: IContext) {
+    return models.FacebookIntegrations.find(
+      { kind },
+      { facebookPageTokensMap: 0 },
+    );
   },
 
-  async facebookGetIntegrationDetail(
+  facebookGetIntegrationDetail(
     _root,
     { erxesApiId }: IDetailParams,
     { models }: IContext,
   ) {
-    return models.FacebookIntegrations.findOne({ erxesApiId });
+    return models.FacebookIntegrations.findOne(
+      { erxesApiId },
+      { facebookPageTokensMap: 0 },
+    );
   },
 
   async facebookGetComments(
@@ -263,10 +371,19 @@ export const facebookQueries = {
         const combinedResult = [...comment, ...search].sort((a, b) =>
           a.createdAt > b.createdAt ? 1 : -1,
         );
-        return combinedResult;
-      } else {
-        return comment;
+
+        return await appendRelatedMessengerMessages(
+          models,
+          conversationId,
+          combinedResult,
+        );
       }
+
+      return await appendRelatedMessengerMessages(
+        models,
+        conversationId,
+        comment,
+      );
     }
   },
   /**
@@ -526,6 +643,160 @@ export const facebookQueries = {
 
   async facebookMessengerBot(_root, { _id }, { models }: IContext) {
     return await models.FacebookBots.findOne({ _id });
+  },
+
+  /** What the outbox is holding for this bot's page, and when it next sends. */
+  async facebookMessengerBotDelivery(_root, { _id }, { models }: IContext) {
+    const bot = await models.FacebookBots.findOne(
+      { _id },
+      { pageId: 1 },
+    ).lean();
+
+    if (!bot) {
+      throw new Error('Bot not found');
+    }
+
+    const [counts, next] = await Promise.all([
+      models.FacebookCommentOutbox.aggregate([
+        { $match: { pageId: bot.pageId } },
+        { $group: { _id: '$status', n: { $sum: 1 } } },
+      ]),
+      models.FacebookCommentOutbox.findOne(
+        { pageId: bot.pageId, status: 'pending' },
+        { sendAfter: 1 },
+      )
+        .sort({ sendAfter: 1 })
+        .lean(),
+    ]);
+
+    const byStatus = Object.fromEntries(
+      counts.map(({ _id: status, n }) => [status, n]),
+    );
+
+    return {
+      pending: byStatus.pending || 0,
+      sent: byStatus.sent || 0,
+      failed: byStatus.failed || 0,
+      nextSendAt: next?.sendAfter || null,
+    };
+  },
+
+  /**
+   * What this page has been saying under its comments, one row per distinct
+   * reply. Meta counts repetition, not volume, so the useful question is which
+   * sentence dominates a page rather than what the last ten replies were.
+   */
+  async facebookMessengerBotCommentReplyStats(
+    _root,
+    { _id, limit }: { _id: string; limit?: number },
+    { models }: IContext,
+  ) {
+    const bot = await models.FacebookBots.findOne(
+      { _id },
+      { pageId: 1 },
+    ).lean();
+
+    if (!bot) {
+      throw new Error('Bot not found');
+    }
+
+    const countIf = (status: string) => ({
+      $sum: { $cond: [{ $eq: ['$status', status] }, 1, 0] },
+    });
+
+    const rows: TCommentReplyStat[] =
+      await models.FacebookCommentOutbox.aggregate([
+        { $match: { pageId: bot.pageId } },
+        { $sort: { createdAt: 1 } },
+        {
+          // Per post first, so the second stage can both total the text and
+          // keep the breakdown of where it was used.
+          $group: {
+            _id: { text: '$text', postId: '$postId' },
+            count: { $sum: 1 },
+            sent: countIf('sent'),
+            failed: countIf('failed'),
+            pending: countIf('pending'),
+            lastAt: { $last: '$createdAt' },
+            // `$last` would report the newest row's error, which is empty
+            // whenever the newest row succeeded. Documents compare field by
+            // field, so a max over `{ at, error }` is the newest failure.
+            lastFailure: {
+              $max: {
+                $cond: [
+                  { $eq: ['$status', 'failed'] },
+                  { at: '$createdAt', error: '$error' },
+                  null,
+                ],
+              },
+            },
+          },
+        },
+        {
+          $group: {
+            _id: '$_id.text',
+            total: { $sum: '$count' },
+            sent: { $sum: '$sent' },
+            failed: { $sum: '$failed' },
+            pending: { $sum: '$pending' },
+            lastAt: { $max: '$lastAt' },
+            lastFailure: { $max: '$lastFailure' },
+            posts: { $push: { postId: '$_id.postId', count: '$count' } },
+          },
+        },
+        { $sort: { total: -1 } },
+        { $limit: Math.min(Math.max(limit || 10, 1), 50) },
+        {
+          $project: {
+            _id: 0,
+            text: '$_id',
+            total: 1,
+            sent: 1,
+            failed: 1,
+            pending: 1,
+            posts: 1,
+            lastAt: 1,
+            lastError: '$lastFailure.error',
+          },
+        },
+      ]);
+
+    const postIds = [
+      ...new Set(
+        rows.flatMap(({ posts }) =>
+          (posts || []).map(({ postId }) => postId).filter(Boolean),
+        ),
+      ),
+    ];
+
+    // The outbox only records the id; the post's own text lives with the
+    // conversation Facebook opened for it.
+    const postDocs = postIds.length
+      ? await models.FacebookPostConversations.find(
+          { postId: { $in: postIds } },
+          { postId: 1, content: 1, permalink_url: 1 },
+        ).lean()
+      : [];
+
+    const postById = new Map(postDocs.map((post) => [post.postId, post]));
+
+    return rows.map((row) => {
+      const posts = (row.posts || []).filter(({ postId }) => Boolean(postId));
+
+      return {
+        ...row,
+        postCount: posts.length,
+        posts: posts
+          .sort((a, b) => b.count - a.count)
+          .slice(0, TOP_POSTS_PER_REPLY)
+          .map(({ postId, count }) => ({
+            postId,
+            count,
+            content: postById.get(postId)?.content || '',
+            permalinkUrl: postById.get(postId)?.permalink_url || '',
+          })),
+      };
+    });
   },
 
   async facebookGetBotPosts(_root, { botId }, { models }: IContext) {

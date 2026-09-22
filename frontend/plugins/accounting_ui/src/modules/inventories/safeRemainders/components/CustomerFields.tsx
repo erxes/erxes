@@ -7,6 +7,7 @@ import {
 } from 'ui-modules';
 import { TSafeRemainderEditForm } from '../types/safeRemainderForm';
 import { UseFormReturn } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 export const CustomerFields = ({
   form,
@@ -15,6 +16,7 @@ export const CustomerFields = ({
   form: UseFormReturn<TSafeRemainderEditForm>;
   kind: 'incomeRule' | 'outRule' | 'saleRule';
 }) => {
+  const { t } = useTranslation('accounting');
   const { customerType } = form.watch(`${kind}`);
 
   const SelectComponent =
@@ -31,12 +33,12 @@ export const CustomerFields = ({
         name={`${kind}.customerType`}
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Customer Type</Form.Label>
+            <Form.Label>{t('customer-type')}</Form.Label>
 
             <Select value={field.value} onValueChange={field.onChange}>
               <Form.Control>
                 <Select.Trigger>
-                  <Select.Value placeholder="Select Customer Type" />
+                  <Select.Value placeholder={t('select-customer-type')} />
                 </Select.Trigger>
               </Form.Control>
               <Select.Content>

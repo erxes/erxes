@@ -8,6 +8,10 @@ import { dealToTrs } from './afterProcessHandlers/dealToTrs';
 import { dealToReturnTrs } from './afterProcessHandlers/dealToReturnTrs';
 import { orderToTrs } from './afterProcessHandlers/orderToTrs';
 import { orderToReturnTrs } from './afterProcessHandlers/orderToReturnTrs';
+import {
+  handleCoreMergeMutation,
+  mergeMutationNames,
+} from './afterProcessHandlers/coreMerge';
 
 const allRules: IAfterProcessRule[] = [
   {
@@ -37,6 +41,10 @@ const allRules: IAfterProcessRule[] = [
     when: {
       fieldsWith: ['status'],
     },
+  },
+  {
+    type: 'afterMutation',
+    mutationNames: [...mergeMutationNames],
   },
 ];
 
@@ -114,6 +122,12 @@ const setOrderAccountingResponse = async ({
 
 export const afterProcess: AfterProcessConfigs = {
   rules: allRules,
+  afterMutation: async (ctx, input) => {
+    await handleCoreMergeMutation(
+      await generateModels(ctx.subdomain),
+      input?.data,
+    );
+  },
   afterDocumentUpdated: (ctx, input) => {
     (async () => {
       const { data } = input;

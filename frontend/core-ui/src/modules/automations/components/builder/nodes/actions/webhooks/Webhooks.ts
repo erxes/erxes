@@ -1,3 +1,4 @@
+import { getWebhookResultPreview } from '@/automations/components/builder/nodes/actions/webhooks/utils/webhookResultPreview';
 import {
   AutomationComponentMap,
   AutomationNodeType,
@@ -27,6 +28,7 @@ const WebhooksComponents: AutomationComponentMap<AutomationNodeType.Action> = {
         default: module.OutgoinWebhookActionResponse,
       })),
     ),
+    actionResultPreview: getWebhookResultPreview,
   },
 };
 

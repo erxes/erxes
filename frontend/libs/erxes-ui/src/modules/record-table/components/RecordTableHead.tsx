@@ -8,6 +8,7 @@ import { cva } from 'class-variance-authority';
 
 import { Table } from 'erxes-ui/components';
 import { cn } from 'erxes-ui/lib/utils';
+import { isStructuralColumn } from 'erxes-ui/modules/record-table/utils/columnUtils';
 
 import { useRecordTable } from './RecordTableProvider';
 
@@ -29,6 +30,7 @@ export const recordTableHeadVariants = cva(
 export const RecordTableHead = ({
   header,
   children,
+  className,
   ...props
 }: React.ComponentProps<'th'> & {
   header: Header<any, unknown>;
@@ -50,12 +52,13 @@ export const RecordTableHead = ({
             column.getIsPinned() === 'left'
               ? 'left'
               : column.getIsPinned() === 'right'
-              ? 'right'
-              : null,
+                ? 'right'
+                : null,
         }),
+        className,
       )}
       style={{
-        width: `calc(var(--header-${column.id}-size) * 1px)`,
+        width: `var(--header-${column.id}-width)`,
         left:
           column.getIsPinned() === 'left'
             ? `${column.getStart('left')}px`
@@ -64,7 +67,7 @@ export const RecordTableHead = ({
       {...props}
     >
       {children}
-      {header.column.id !== 'checkbox' && header.column.id !== 'more' && (
+      {!isStructuralColumn(column.id) && (
         <>
           <span
             {...attributes}

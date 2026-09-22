@@ -3,6 +3,7 @@ import { IconPlus } from '@tabler/icons-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 import { useMSDynamicConfigActions } from '../../hooks/useMSDynamicConfigActions';
 import { useMSDynamicConfigs } from '../../hooks/useMSDynamicConfigs';
@@ -13,6 +14,7 @@ import { MSDynamicConfigSheet } from './MSDynamicConfigSheet';
 const FORM_ID = 'add-msdynamic-config-form';
 
 export const AddMSDynamicConfig = () => {
+  const { t } = useTranslation('mongolian');
   const [open, setOpen] = useState(false);
   const {
     configsMap,
@@ -48,11 +50,11 @@ export const AddMSDynamicConfig = () => {
       onOpenChange={setOpen}
       onSubmit={handleSubmit}
       open={open}
-      title="New config"
+      title={t('new-config')}
       trigger={
         <Button>
           <IconPlus />
-          New config
+          {t('new-config')}
         </Button>
       }
     />

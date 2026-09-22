@@ -13,11 +13,53 @@ export const CONVERSATION_OPERATOR_STATUS = {
   ALL: ['bot', 'operator'],
 };
 
+export const AUTOMATED_REPLY_STATUS = {
+  ACTIVE: 'active',
+  HANDOFF_REQUESTED: 'handoff_requested',
+  HUMAN_ACTIVE: 'human_active',
+  ALL: ['active', 'handoff_requested', 'human_active'],
+} as const;
+
+export const CONVERSATION_AUTOMATION_STATUS = {
+  RESPONDED: 'responded',
+  STANDBY: 'standby',
+  HANDOFF: 'handoff',
+  ALL: ['responded', 'standby', 'handoff'],
+} as const;
+
+export const AUTOMATION_STATUS_MAP: Record<string, string> = {
+  [CONVERSATION_AUTOMATION_STATUS.STANDBY]:
+    AUTOMATED_REPLY_STATUS.HANDOFF_REQUESTED,
+  [CONVERSATION_AUTOMATION_STATUS.HANDOFF]:
+    AUTOMATED_REPLY_STATUS.HUMAN_ACTIVE,
+};
+
+export const AUTOMATED_REPLY_REASON = {
+  CUSTOMER_REQUESTED: 'customer_requested',
+  OPERATOR_REPLY: 'operator_reply',
+  MANUAL: 'manual',
+  TIMEOUT_EXPIRED: 'timeout_expired',
+} as const;
+
 export const MESSAGE_TYPES = {
   VIDEO_CALL: 'videoCall',
   VIDEO_CALL_REQUEST: 'videoCallRequest',
   TEXT: 'text',
-  ALL: ['videoCall', 'videoCallRequest', 'text'],
+  GET_STARTED: 'getStarted',
+  QUICK_REPLY: 'quickReply',
+  CUSTOMER_REGISTRATION: 'customerRegistration',
+  TICKET_FORM_SUBMISSION: 'ticketFormSubmission',
+  REQUEST_CREATE_TICKET: 'requestCreateTicket',
+  ALL: [
+    'videoCall',
+    'videoCallRequest',
+    'text',
+    'getStarted',
+    'quickReply',
+    'customerRegistration',
+    'ticketFormSubmission',
+    'requestCreateTicket',
+  ],
 };
 
 export const CONVERSATION_SELECT_OPTIONS = {

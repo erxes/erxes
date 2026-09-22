@@ -1,5 +1,4 @@
 import { RenderPluginsComponentWrapper } from '@/automations/components/common/RenderPluginsComponentWrapper';
-import { CellContext } from '@tanstack/table-core';
 import { Button } from 'erxes-ui';
 import { Link } from 'react-router-dom';
 import {
@@ -11,9 +10,11 @@ import {
 } from 'ui-modules';
 
 export const AutomationHistoryResultName = ({
-  cell,
-}: CellContext<IAutomationHistory, unknown>) => {
-  const { triggerType, target } = cell.row.original;
+  executionDetail,
+}: {
+  executionDetail: IAutomationHistory;
+}) => {
+  const { triggerType, target } = executionDetail;
   const [pluginName, moduleName, collectionType] =
     splitAutomationNodeType(triggerType);
 

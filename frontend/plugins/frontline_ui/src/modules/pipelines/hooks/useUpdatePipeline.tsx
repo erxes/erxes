@@ -5,24 +5,34 @@ import {
 } from '@apollo/client';
 import { UPDATE_PIPELINE } from '@/pipelines/graphql/mutations/updatePipeline';
 import { useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 export const useUpdatePipeline = () => {
+  const { t } = useTranslation('frontline');
   const { toast } = useToast();
   const [_updatePipeline, { loading }] = useMutation(UPDATE_PIPELINE);
   const updatePipeline = (options: MutationFunctionOptions) => {
     return _updatePipeline({
       ...options,
       onCompleted: (data) => {
+        toast({
+          title: t('success', 'Success!'),
+          description: t(
+            'pipeline-updated-successfully',
+            'Pipeline updated successfully',
+          ),
+          variant: 'success',
+        });
         options.onCompleted?.(data);
       },
       onError: (error: ApolloError) => {
         toast({
-          title: 'Error',
+          title: t('error', 'Error'),
           variant: 'destructive',
           description: error.message,
         });
         options.onError?.(error);
       },
-      refetchQueries: ['GetTicketPipelines'],
+      refetchQueries: ['GetTicketPipelines', 'GetTicketPipeline'],
     });
   };
   return { updatePipeline, loading };

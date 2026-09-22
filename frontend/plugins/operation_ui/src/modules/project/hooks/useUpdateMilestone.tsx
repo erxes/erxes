@@ -3,10 +3,12 @@ import { REMOVE_MILESTONE_MUTATION } from '@/project/graphql/mutation/removeMile
 import { UPDATE_MILESTONE_MUTATION } from '@/project/graphql/mutation/updateMilestone';
 import { useMutation } from '@apollo/client';
 import { useRecordTableCursor, useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { GET_PROJECT_PROGRESS_BY_MILESTONE } from '../graphql/queries/getProjectProgressByMilestone';
 import { IMilestone, IMilestoneProgress } from '../types';
 
 export const useUpdateMilestone = () => {
+  const { t } = useTranslation('operation');
   const { toast } = useToast();
   const { setCursor } = useRecordTableCursor({
     sessionKey: PROJECTS_CURSOR_SESSION_KEY,
@@ -17,15 +19,15 @@ export const useUpdateMilestone = () => {
     {
       onCompleted: () => {
         toast({
-          title: 'Success',
-          description: 'Milestone updated successfully',
+          title: t('success'),
+          description: t('milestone-updated-successfully'),
           variant: 'default',
         });
         setCursor('');
       },
       onError: (e) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: e.message,
           variant: 'destructive',
         });
@@ -53,7 +55,7 @@ export const useUpdateMilestone = () => {
   const [removeMilestoneMutation] = useMutation(REMOVE_MILESTONE_MUTATION, {
     onError: (e) => {
       toast({
-        title: 'Error',
+        title: t('error'),
         description: e.message,
         variant: 'destructive',
       });

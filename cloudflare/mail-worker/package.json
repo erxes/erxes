@@ -1,0 +1,22 @@
+{
+  "name": "erxes-mail-worker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "setup": "node scripts/setup.mjs",
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev",
+    "typecheck": "tsc --noEmit",
+    "fixture": "node scripts/send-fixture.mjs",
+    "bundle": "node scripts/bundle.mjs"
+  },
+  "dependencies": {
+    "postal-mime": "^2.4.4"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260701.0",
+    "typescript": "^5.9.2",
+    "wrangler": "^4.42.0"
+  }
+}

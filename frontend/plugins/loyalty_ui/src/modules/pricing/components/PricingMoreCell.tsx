@@ -23,7 +23,7 @@ export const PricingMoreCell = ({ row }: CellContext<IPricing, unknown>) => {
   const { confirm } = useConfirm();
   const { toast } = useToast();
   const { deletePricing, loading } = useDeletePricing();
-  const { t } = useTranslation();
+  const { t } = useTranslation('loyalty');
 
   const handleEdit = () => {
     navigate(`/settings/loyalty/pricing/${pricing._id}`);
@@ -31,34 +31,25 @@ export const PricingMoreCell = ({ row }: CellContext<IPricing, unknown>) => {
 
   const handleDelete = () => {
     confirm({
-      message: t('pricing.deleteConfirm', {
-        name: pricing.name,
-        defaultValue: 'Are you sure you want to delete "{{name}}"?',
-      }),
+      message: t('delete-pricing-by-name', { name: pricing.name }),
       options: {
-        confirmationValue: t('pricing.deleteConfirmationValue', {
-          defaultValue: 'delete',
-        }),
+        confirmationValue: 'delete',
       },
     }).then(async () => {
       try {
         await deletePricing(pricing._id);
 
         toast({
-          title: t('pricing.deleteSuccessTitle', { defaultValue: 'Success' }),
-          description: t('pricing.deleteSuccessDescription', {
-            defaultValue: 'Pricing deleted successfully.',
-          }),
+          title: t('success'),
+          description: t('pricing-deleted', { count: 1 }),
           variant: 'success',
         });
       } catch (error: unknown) {
         toast({
-          title: t('pricing.deleteErrorTitle', { defaultValue: 'Error' }),
+          title: t('error'),
           description: getErrorMessage(
             error,
-            t('pricing.deleteErrorDescription', {
-              defaultValue: 'Failed to delete pricing.',
-            }),
+            t('pricing-delete-failed'),
           ),
           variant: 'destructive',
         });
@@ -88,7 +79,7 @@ export const PricingMoreCell = ({ row }: CellContext<IPricing, unknown>) => {
                 onClick={handleEdit}
               >
                 <IconEdit className="size-4" />
-                {t('pricing.edit', { defaultValue: 'Edit' })}
+                {t('edit')}
               </Button>
             </Command.Item>
             <Command.Item asChild>
@@ -100,7 +91,7 @@ export const PricingMoreCell = ({ row }: CellContext<IPricing, unknown>) => {
                 disabled={loading}
               >
                 <IconTrash className="size-4" />
-                {t('pricing.delete', { defaultValue: 'Delete' })}
+                {t('delete')}
               </Button>
             </Command.Item>
           </Command.List>

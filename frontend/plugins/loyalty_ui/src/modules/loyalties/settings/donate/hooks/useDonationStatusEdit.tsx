@@ -1,9 +1,11 @@
 import { MutationHookOptions, useMutation } from '@apollo/client';
 import { useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { QUERY_DONATE_CAMPAIGNS } from '../add-donation-campaign/graphql/queries/getCampaignsQuery';
 import { UPDATE_DONATE_CAMPAIGN } from '../graphql/mutations/donationEditStatusMutations';
 
 export function useDonationStatusEdit() {
+  const { t } = useTranslation('loyalty');
   const { toast } = useToast();
 
   const [editDonation, { loading, error }] = useMutation(
@@ -27,15 +29,15 @@ export function useDonationStatusEdit() {
       },
       onCompleted: (data) => {
         toast({
-          title: 'Success',
-          description: 'Donation status updated successfully',
+          title: t('success'),
+          description: t('donation-status-updated'),
           variant: 'default',
         });
         options?.onCompleted?.(data);
       },
       onError: (err) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: err.message,
           variant: 'destructive',
         });

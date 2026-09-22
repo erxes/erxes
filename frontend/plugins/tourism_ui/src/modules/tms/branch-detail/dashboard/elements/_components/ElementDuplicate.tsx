@@ -1,5 +1,6 @@
 import { useLazyQuery } from '@apollo/client';
 import { useConfirm, useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useCreateElement } from '../hooks/useCreateElement';
 import { IElement } from '../types/element';
 import { GET_ELEMENT_DETAIL } from '../graphql/queries';
@@ -18,6 +19,7 @@ export const ElementDuplicate = ({
   branchId,
   children,
 }: ElementDuplicateProps) => {
+  const { t } = useTranslation('tourism');
   const { confirm } = useConfirm();
   const { toast } = useToast();
   const { createElement, loading } = useCreateElement();
@@ -69,7 +71,7 @@ export const ElementDuplicate = ({
     };
 
     confirm({
-      message: 'Are you sure you want to duplicate this element?',
+      message: t('confirm-duplicate-element'),
       options: { confirmationValue: 'duplicate' },
     }).then(async () => {
       try {
@@ -86,25 +88,25 @@ export const ElementDuplicate = ({
           variables: buildDuplicatePayload(source),
           onCompleted: () => {
             toast({
-              title: 'Success',
+              title: t('success'),
               variant: 'success',
-              description: 'Element duplicated successfully',
+              description: t('element-duplicated-successfully'),
             });
           },
           onError: (e: unknown) => {
             toast({
-              title: 'Error',
+              title: t('error'),
               description:
-                e instanceof Error ? e.message : 'Failed to duplicate element',
+                e instanceof Error ? e.message : t('failed-to-create-element'),
               variant: 'destructive',
             });
           },
         });
       } catch (e: unknown) {
         toast({
-          title: 'Error',
+          title: t('error'),
           description:
-            e instanceof Error ? e.message : 'Failed to load element detail',
+            e instanceof Error ? e.message : t('failed-to-load-element-detail'),
           variant: 'destructive',
         });
       }

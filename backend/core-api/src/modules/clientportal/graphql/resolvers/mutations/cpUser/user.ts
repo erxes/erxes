@@ -44,6 +44,7 @@ export const userMutations: Record<string, Resolver<any, any, IContext>> = {
       ICustomer,
       | 'firstName'
       | 'lastName'
+      | 'avatar'
       | 'primaryEmail'
       | 'emails'
       | 'primaryPhone'
@@ -293,7 +294,7 @@ export const userMutations: Record<string, Resolver<any, any, IContext>> = {
       throw new AuthenticationError('User not authenticated');
     }
 
-    await models.CPUser.removeUser(cpUser._id, models);
+    await models.CPUser.removeUsers([cpUser._id], models);
     return { _id: cpUser._id };
   },
 

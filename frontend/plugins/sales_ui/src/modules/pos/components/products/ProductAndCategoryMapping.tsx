@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from 'erxes-ui';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { type CatProd } from '@/pos/pos-detail/types/IPos';
@@ -14,14 +15,14 @@ interface ProductAndCategoryMappingProps {
 export const ProductAndCategoryMapping: React.FC<
   ProductAndCategoryMappingProps
 > = ({ mappings, onMappingAdded, onMappingUpdated, onMappingDeleted }) => {
+  const { t } = useTranslation('sales');
   const [editingMapping, setEditingMapping] = useState<CatProd | null>(null);
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <p className="text-muted-foreground">
-          Map product categories to specific products based on code and name
-          patterns
+          {t('map-product-categories-description')}
         </p>
         <AddMappingSheet
           onMappingAdded={onMappingAdded}
@@ -33,7 +34,7 @@ export const ProductAndCategoryMapping: React.FC<
 
       {!mappings || mappings.length === 0 ? (
         <div className="py-8 text-center text-gray-500">
-          <p>No mappings found. Create your first mapping to get started.</p>
+          <p>{t('no-mappings-found')}</p>
         </div>
       ) : (
         <div className="space-y-2">

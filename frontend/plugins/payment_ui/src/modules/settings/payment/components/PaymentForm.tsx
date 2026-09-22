@@ -1,6 +1,18 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Input, ScrollArea, Select, Sheet, Switch, toast } from 'erxes-ui';
-import { Form } from 'erxes-ui/components/form';
+import {
+  Button,
+  Combobox,
+  Command,
+  Form,
+  Input,
+  Popover,
+  ScrollArea,
+  Select,
+  Sheet,
+  Switch,
+  toast,
+} from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import React, { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -11,10 +23,20 @@ import { IPayment, IPaymentDocument } from '~/modules/payment/types/Payment';
 import { PaymentKind } from '~/modules/payment/types/PaymentMethods';
 import { paymentKind } from '~/modules/payment/utils';
 import QuickQrForm from '~/modules/settings/payment/components/QuickQrForm';
+import KhanbankForm from '~/modules/settings/payment/components/KhanbankForm';
+import { DealConfigForm } from '~/modules/settings/payment/components/DealConfigForm';
 
 type Props = {
   payment: any;
   onCancel: () => void;
+};
+
+const settingsFields = {
+  sendEmailOnPayment: z.boolean().optional(),
+  dealEnabled: z.boolean().optional(),
+  dealBoardId: z.string().optional(),
+  dealPipelineId: z.string().optional(),
+  dealStageId: z.string().optional(),
 };
 
 // Base validation schema
@@ -55,16 +77,24 @@ const quickQrSchema = z.object({
   ibanNumber: z.string().min(1, 'IBAN number is required'),
   bankAccountName: z.string().min(1, 'Bank account name is required'),
 });
+const khanbankSchema = z.object({
+  kind: z.string().min(1, 'Payment method is required'),
+  name: z.string().min(1, 'Name is required'),
+  status: z.enum(['active', 'inactive']),
+  configId: z.string().min(1, 'Configuration is required'),
+  accountNumber: z.string().min(1, 'Account is required'),
+  ibanAcctNo: z.string().optional(),
+});
 
 // Dynamic schema generator based on payment kind
 const createPaymentSchema = (selectedKind: string) => {
   if (!selectedKind) {
-    return baseSchema;
+    return baseSchema.extend(settingsFields);
   }
 
   const payment = paymentKind(selectedKind);
   if (!payment?.fields) {
-    return baseSchema;
+    return baseSchema.extend(settingsFields);
   }
 
   // Create dynamic fields schema
@@ -119,14 +149,19 @@ const createPaymentSchema = (selectedKind: string) => {
   });
 
   if (selectedKind === PaymentKind.QUICKQR) {
-    return quickQrSchema;
+    return quickQrSchema.extend(settingsFields);
   }
-
-  return baseSchema.extend(dynamicFields);
+  if (selectedKind === PaymentKind.KHANBANK) {
+    return khanbankSchema.extend(settingsFields);
+  }
+  return baseSchema.extend(dynamicFields).extend(settingsFields);
 };
 
 const PaymentForm = ({ payment, onCancel }: Props) => {
+  const { t } = useTranslation('payment');
   const [selectedKind, setSelectedKind] = useState(payment?.kind || '');
+  const [kindOpen, setKindOpen] = useState(false);
+  const [kindSearch, setKindSearch] = useState('');
   const [paymentState, setPayment] = useState<
     IPayment | IPaymentDocument | null
   >(payment);
@@ -143,7 +178,16 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
   // Get default values from payment prop
   const getDefaultValues = useMemo(() => {
     if (!payment) {
-      return { kind: '', name: '', status: 'active', sendEmailOnPayment: true };
+      return {
+        kind: '',
+        name: '',
+        status: 'active',
+        sendEmailOnPayment: true,
+        dealEnabled: false,
+        dealBoardId: '',
+        dealPipelineId: '',
+        dealStageId: '',
+      };
     }
 
     const defaultValues: Record<string, any> = {
@@ -151,6 +195,10 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
       name: payment.name || '',
       status: payment.status || 'active',
       sendEmailOnPayment: payment.sendEmailOnPayment !== false,
+      dealEnabled: payment.dealConfig?.enabled || false,
+      dealBoardId: payment.dealConfig?.boardId || '',
+      dealPipelineId: payment.dealConfig?.pipelineId || '',
+      dealStageId: payment.dealConfig?.stageId || '',
     };
 
     // Add payment config values
@@ -163,8 +211,10 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
     }
 
     if (selectedKind === PaymentKind.QUICKQR) {
-      defaultValues.type = 'person';
-      defaultValues.city = '11000';
+      defaultValues.type =
+        defaultValues.type ||
+        (payment.config?.isCompany ? 'company' : 'person');
+      defaultValues.city = defaultValues.city || '11000';
     }
 
     return defaultValues;
@@ -208,20 +258,35 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
     }
   }, [payment, form, getDefaultValues]);
 
-  const onSubmit = (data: any) => {
+  const onSubmit = async (data: any) => {
     const input: IPayment = {
       name: data.name,
       kind: data.kind,
       status: data.status,
       sendEmailOnPayment: data.sendEmailOnPayment !== false,
+      dealConfig: {
+        enabled: !!data.dealEnabled,
+        boardId: data.dealEnabled ? data.dealBoardId || '' : '',
+        pipelineId: data.dealEnabled ? data.dealPipelineId || '' : '',
+        stageId: data.dealEnabled ? data.dealStageId || '' : '',
+      },
       config: {},
     };
 
     const config: any = {};
-    const topLevelKeys = new Set(['kind', 'name', 'status', 'sendEmailOnPayment']);
+    const topLevelKeys = new Set([
+      'kind',
+      'name',
+      'status',
+      'sendEmailOnPayment',
+      'dealEnabled',
+      'dealBoardId',
+      'dealPipelineId',
+      'dealStageId',
+    ]);
     Object.entries(data).forEach(([key, value]) => {
       if (!topLevelKeys.has(key)) {
-        config[key] = value;
+        config[key] = key === 'pocketTerminalId' ? Number(value) : value;
       }
     });
     input.config = config;
@@ -229,47 +294,38 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
     try {
       if (paymentState) {
         // Update existing payment
-        editPayment({
+        await editPayment({
           variables: {
             _id: payment._id,
             input,
           },
-        })
-          .then(() => {
-            toast({
-              title: 'Success',
-              description: 'Payment method updated successfully',
-            });
-          })
-          .catch((e) => {
-            toast({
-              title: 'Error',
-              description: e.message,
-            });
-          });
+        });
+
+        toast({
+          title: t('success'),
+          description: t('payment-method-updated'),
+        });
       } else {
-        addPayment({
+        await addPayment({
           variables: {
             input,
           },
-        })
-          .then(() => {
-            toast({
-              title: 'Success',
-              description: 'Payment method added successfully',
-            });
-          })
-          .catch((e) => {
-            toast({
-              title: 'Error',
-              description: e.message,
-            });
-          });
+        });
+
+        toast({
+          title: t('success'),
+          description: t('payment-method-added'),
+        });
       }
 
       onCancel();
-    } catch (error) {
-      console.error('Form submission error:', error);
+    } catch (e) {
+      // Keep the sheet open so the user can correct the input and retry
+      toast({
+        title: t('error'),
+        description: e instanceof Error ? e.message : String(e),
+        variant: 'destructive',
+      });
     }
   };
 
@@ -280,7 +336,14 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
       return null;
     }
 
-    return <QuickQrForm payment={payment} form={form} Form={Form} />;
+    return <QuickQrForm payment={payment} form={form} />;
+  };
+  const renderKhanbank = () => {
+    if (selectedKind !== PaymentKind.KHANBANK) {
+      return null;
+    }
+
+    return <KhanbankForm payment={payment} form={form} />;
   };
 
   return (
@@ -291,7 +354,9 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
         onSubmit={form.handleSubmit(onSubmit)}
       >
         <Sheet.Header className="gap-3 border-b">
-          <Sheet.Title>{payment ? 'Edit Payment' : 'Add Payment'}</Sheet.Title>
+          <Sheet.Title>
+            {payment ? t('edit-payment') : t('add-payment')}
+          </Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
 
@@ -301,58 +366,72 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
               <Form.Field
                 name="kind"
                 control={form.control}
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>Payment Method *</Form.Label>
-                    <Form.Control>
-                      <Select
-                        disabled={payment}
-                        value={field.value}
-                        onValueChange={(value) => {
-                          field.onChange(value);
+                render={({ field }) => {
+                  const selectedMethod =
+                    PAYMENT_KINDS[field.value as keyof typeof PAYMENT_KINDS];
+                  const filteredKinds = Object.entries(PAYMENT_KINDS).filter(
+                    ([, method]) =>
+                      method.name
+                        .toLowerCase()
+                        .includes(kindSearch.trim().toLowerCase()),
+                  );
+
+                  return (
+                    <Form.Item>
+                      <Form.Label>{t('payment-method-label')} *</Form.Label>
+                      <Popover
+                        open={kindOpen}
+                        onOpenChange={(open) => {
+                          setKindOpen(open);
+                          if (!open) setKindSearch('');
                         }}
                       >
-                        <Form.Control>
-                          <Select.Trigger>
-                            <Select.Value
-                              placeholder={
-                                <span className="font-medium text-muted-foreground text-sm text-center truncate">
-                                  {'Select payment method'}
-                                </span>
-                              }
-                            >
-                              <span className="font-medium text-foreground text-sm">
-                                {
-                                  Object.entries(PAYMENT_KINDS).find(
-                                    ([key, method]) => key === field.value,
-                                  )?.[1].name
-                                }
-                              </span>
-                            </Select.Value>
-                          </Select.Trigger>
-                        </Form.Control>
-                        <Select.Content
-                          className="[&_*[role=option]>span]:flex [&_*[role=option]>span]:items-center [&_*[role=option]>span]:gap-2 p-0 [&_*[role=option]]:ps-2 [&_*[role=option]]:pe-8 border [&_*[role=option]>span>svg]:text-muted-foreground/80 [&_*[role=option]>span>svg]:shrink-0 [&_*[role=option]>span]:end-2 [&_*[role=option]>span]:start-auto"
-                          align="start"
+                        <Combobox.Trigger
+                          disabled={!!payment}
+                          className="w-full"
                         >
-                          <Select.Group>
-                            {Object.entries(PAYMENT_KINDS).map(
-                              ([key, method]) => (
-                                <Select.Item
+                          <Combobox.Value
+                            value={selectedMethod?.name}
+                            placeholder={t('select-payment-method')}
+                          />
+                        </Combobox.Trigger>
+                        <Combobox.Content>
+                          <Command shouldFilter={false}>
+                            <Command.Input
+                              placeholder={t('search-payment-method')}
+                              value={kindSearch}
+                              onValueChange={setKindSearch}
+                            />
+                            <Command.Separator />
+                            <Command.List>
+                              <Combobox.Empty />
+                              {filteredKinds.map(([key, method]) => (
+                                <Command.Item
                                   key={key}
-                                  className="h-7 text-xs"
                                   value={key}
+                                  className="cursor-pointer text-xs"
+                                  onSelect={() => {
+                                    field.onChange(key);
+                                    setKindOpen(false);
+                                    setKindSearch('');
+                                  }}
                                 >
                                   {method.name}
-                                </Select.Item>
-                              ),
-                            )}
-                          </Select.Group>
-                        </Select.Content>
-                      </Select>
-                    </Form.Control>
-                  </Form.Item>
-                )}
+                                  {field.value === key && (
+                                    <Combobox.Check
+                                      checked
+                                      className="ml-auto"
+                                    />
+                                  )}
+                                </Command.Item>
+                              ))}
+                            </Command.List>
+                          </Command>
+                        </Combobox.Content>
+                      </Popover>
+                    </Form.Item>
+                  );
+                }}
               />
 
               {/* Display Name */}
@@ -361,12 +440,9 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
                 control={form.control}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Display Name *</Form.Label>
+                    <Form.Label>{t('display-name')} *</Form.Label>
                     <Form.Control>
-                      <Input
-                        {...field}
-                        placeholder="Enter a name for this payment method"
-                      />
+                      <Input {...field} placeholder={t('enter-payment-name')} />
                     </Form.Control>
                   </Form.Item>
                 )}
@@ -378,7 +454,7 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
                 control={form.control}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Status *</Form.Label>
+                    <Form.Label>{t('status')} *</Form.Label>
                     <Form.Control>
                       <Select
                         value={field.value}
@@ -391,7 +467,7 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
                             <Select.Value
                               placeholder={
                                 <span className="font-medium text-muted-foreground text-sm text-center truncate">
-                                  {'Select status'}
+                                  {t('select-status')}
                                 </span>
                               }
                             >
@@ -407,13 +483,13 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
                               className="h-7 text-xs capitalize"
                               value="active"
                             >
-                              Active
+                              {t('active')}
                             </Select.Item>
                             <Select.Item
                               className="h-7 text-xs capitalize"
                               value="inactive"
                             >
-                              Inactive
+                              {t('inactive')}
                             </Select.Item>
                           </Select.Group>
                         </Select.Content>
@@ -430,9 +506,9 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
                   <Form.Item>
                     <div className="flex items-center justify-between gap-3">
                       <div className="space-y-0.5">
-                        <Form.Label>Send email after successful payment</Form.Label>
+                        <Form.Label>{t('send-email-after-payment')}</Form.Label>
                         <p className="text-xs text-muted-foreground">
-                          Automatically send a QR ticket to the customer's email when payment is completed.
+                          {t('send-email-description')}
                         </p>
                       </div>
                       <Form.Control>
@@ -446,6 +522,8 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
                 )}
               />
 
+              <DealConfigForm form={form} />
+
               {/* Dynamic Payment-Specific Fields */}
               {currentPaymentKind?.fields.map((fieldConfig) => (
                 <Form.Field
@@ -454,12 +532,12 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
                   control={form.control}
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>{fieldConfig.label} *</Form.Label>
+                      <Form.Label>{t(fieldConfig.label)} *</Form.Label>
                       <Form.Control>
                         <Input
                           {...field}
                           type={fieldConfig.type || 'text'}
-                          placeholder={`Enter ${fieldConfig.label.toLowerCase()}`}
+                          placeholder={`Enter ${t(fieldConfig.label).toLowerCase()}`}
                           autoComplete={
                             fieldConfig.type === 'password' ? '' : 'off'
                           }
@@ -471,6 +549,7 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
               ))}
 
               {renderQuickQr()}
+              {renderKhanbank()}
             </div>
           </ScrollArea>
         </Sheet.Content>
@@ -482,15 +561,18 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
             onClick={onCancel}
             disabled={isSubmitting}
           >
-            Cancel
+            {t('cancel')}
           </Button>
           <Button
             type="submit"
             disabled={isSubmitting}
             className="bg-primary hover:bg-primary/90 text-primary-foreground"
           >
-            {isSubmitting ? 'Saving...' : payment ? 'Update' : 'Save'} Payment
-            Method
+            {isSubmitting
+              ? t('saving')
+              : payment
+                ? t('update-payment-method')
+                : t('save-payment-method')}
           </Button>
         </Sheet.Footer>
       </form>

@@ -19,6 +19,11 @@ const trDetailFields = `
   productId: String
   count: Float
   unitPrice: Float
+  weight: Float
+  fixedAssetId: String
+  fixedAssetCategoryId: String
+  fixedAssetCode: String
+  fixedAssetName: String
 
   excludeVat: Boolean
   excludeCtax: Boolean

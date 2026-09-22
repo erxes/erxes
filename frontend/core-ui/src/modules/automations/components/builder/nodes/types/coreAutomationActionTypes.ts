@@ -29,6 +29,8 @@ export type ActionResultComponentProps<TResult = any> = {
   action: IAutomationHistoryAction;
   status: IAutomationHistory['status'];
 };
+export type TActionResultPreview = (action: IAutomationHistoryAction) => string;
+
 export type WaitEventFormComponentProps<TConfig = any> = {
   actionData: TAutomationAction;
   config: TConfig;
@@ -38,6 +40,7 @@ export type TActionComponents = {
   sidebar?: LazyAutomationComponent<TSidebarComponentProps>;
   nodeContent?: LazyAutomationComponent<NodeContentComponentProps>;
   actionResult?: LazyAutomationComponent<ActionResultComponentProps>;
+  actionResultPreview?: TActionResultPreview;
   waitEvent?: LazyAutomationComponent<WaitEventFormComponentProps>;
 };
 

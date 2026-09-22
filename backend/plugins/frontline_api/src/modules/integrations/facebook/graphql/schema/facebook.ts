@@ -18,7 +18,12 @@ const commonBotMutationParams = `
   accountId:String,
   pageId:String,
   persistentMenus:[BotPersistentMenuInput],
-  greetText:String
+  iceBreakers:[BotIceBreakerInput],
+  getStartedText:String,
+  greetText:String,
+  handoffMessage:String,
+  automationActiveMessage:String,
+  handoffPauseMinutes:Int,
   tag:String,
   isEnabledBackBtn:Boolean,
   backButtonText:String
@@ -64,6 +69,8 @@ export const types = `
     attachments: [Attachment]
     fromBot: Boolean
     botData: JSON
+    source: JSON
+    relatedMessage: JSON
     customerId: String
     userId: String
     createdAt: Date
@@ -109,6 +116,36 @@ export const types = `
     isProfileSynced: Boolean
     lastSyncedAt: Date
     lastVerifiedAt: Date
+    lastError: String
+    sendBlockedUntil: Date
+    sendBlockReason: String
+    sendBlockCount: Int
+  }
+
+  type FacebookBotDelivery {
+    pending: Int
+    sent: Int
+    failed: Int
+    nextSendAt: Date
+  }
+
+  type FacebookBotCommentReplyPost {
+    postId: String
+    count: Int
+    content: String
+    permalinkUrl: String
+  }
+
+  type FacebookBotCommentReplyStat {
+    text: String
+    total: Int
+    sent: Int
+    failed: Int
+    pending: Int
+    postCount: Int
+    posts: [FacebookBotCommentReplyPost]
+    lastAt: Date
+    lastError: String
   }
 
   input BotPersistentMenuInput {
@@ -116,6 +153,16 @@ export const types = `
     type:String
     text: String
     link: String
+  }
+
+  type BotIceBreakerType {
+    _id:String
+    question: String
+  }
+
+  input BotIceBreakerInput {
+    _id:String
+    question: String
   }
 
   type FacebookMessengerBot {
@@ -132,8 +179,13 @@ export const types = `
     createdUser: User
     updatedUser: User
     persistentMenus:[BotPersistentMenuType]
+    iceBreakers:[BotIceBreakerType]
+    getStartedText:String
     profileUrl:String
     greetText:String
+    handoffMessage:String
+    automationActiveMessage:String
+    handoffPauseMinutes:Int
     tag:String
     isEnabledBackBtn:Boolean
     backButtonText:String
@@ -142,7 +194,7 @@ export const types = `
 `;
 
 export const queries = `
-  facebookGetAccounts(kind: String): JSON
+  facebookGetAccounts(kind: String, integrationKind: String): JSON
   facebookGetIntegrations(kind: String): JSON
   facebookGetIntegrationDetail(erxesApiId: String): JSON
   facebookGetConfigs: JSON
@@ -159,6 +211,8 @@ export const queries = `
   facebookMessengerBotsTotalCount:Int
   facebookMessengerBots:[FacebookMessengerBot]
   facebookMessengerBot(_id:String):FacebookMessengerBot
+  facebookMessengerBotDelivery(_id:String!):FacebookBotDelivery
+  facebookMessengerBotCommentReplyStats(_id:String!, limit:Int):[FacebookBotCommentReplyStat]
   facebookGetBotPosts(botId:String):JSON
   facebookGetBotPost(botId:String,postId:String):JSON
 `;
@@ -167,6 +221,7 @@ export const mutations = `
   facebookUpdateConfigs(configsMap: JSON!): JSON
   facebookRepair(_id: String!): JSON
   facebookReplyToComment(conversationId: String, commentId: String, content: String): FacebookComment
+  facebookCreatePost(erxesApiId: String!, pageId: String!, message: String!, link: String, imageKeys: [String]): JSON
   facebookMessengerAddBot(${commonBotMutationParams}):FacebookMessengerBot
   facebookMessengerUpdateBot(_id:String,${commonBotMutationParams}):FacebookMessengerBot
   facebookMessengerRemoveBot(_id:String):JSON

@@ -1,46 +1,20 @@
 import { REMOVE_CHANNEL_MEMBERS } from '@/channels/graphql';
-import {
-  useMutation,
-  OperationVariables,
-  useApolloClient,
-} from '@apollo/client';
+import { useBulkRemove } from '@/channels/hooks/useBulkRemove';
+import { useMutation } from '@apollo/client';
 
 interface IChannelMemberRemoveMutationResponse {
   channelRemoveMember: { __typename: string } | null;
 }
 
 export const useChannelMembersRemove = () => {
-  const client = useApolloClient();
-  const [singleMemberRemove, { loading }] =
+  const [singleMemberRemove] =
     useMutation<IChannelMemberRemoveMutationResponse>(REMOVE_CHANNEL_MEMBERS);
+  const { bulkRemove, loading } = useBulkRemove(['GetChannelMembers']);
 
-  const removeMembers = async (
-    memberIds: string[],
-    channelId: string,
-    options?: OperationVariables,
-  ) => {
-    try {
-      await Promise.all(
-        memberIds.map((memberId) =>
-          singleMemberRemove({
-            variables: { channelId, memberId },
-          }),
-        ),
-      );
-
-      options?.onCompleted?.(null as any);
-
-      await client.refetchQueries({
-        include: ['GetChannelMembers'],
-      });
-    } catch (error) {
-      if (options?.onError) {
-        options.onError(error);
-      } else {
-        throw error;
-      }
-    }
-  };
+  const removeMembers = (memberIds: string[], channelId: string) =>
+    bulkRemove(memberIds, (memberId) =>
+      singleMemberRemove({ variables: { channelId, memberId } }),
+    );
 
   return { removeMembers, loading };
 };

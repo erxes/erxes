@@ -30,7 +30,7 @@ export const WorkflowsNodeLibrary = ({
       {list.map(({ _id, name = '', createdAt = '' }) => (
         <Command.Item key={_id} value={name} asChild>
           <Card
-            className="hover:shadow-md transition-shadow cursor-pointer border-accent cursor-grab hover:bg-accent transition-colors h-16 mb-2 w-[350px] sm:w-[500px] hover:border-warning"
+            className="hover:shadow-md transition-shadow cursor-pointer border-accent cursor-grab hover:bg-accent transition-colors h-16 mb-2 w-[350px] sm:w-[500px] hover:border-info"
             draggable
             onDragStart={(event) =>
               onDragStart(event, {
@@ -43,7 +43,7 @@ export const WorkflowsNodeLibrary = ({
           >
             <Card.Content className="p-3 w-full">
               <div className="flex items-center gap-4">
-                <div className="p-3 rounded-lg bg-warning/10 text-warning border-warning">
+                <div className="p-3 rounded-lg bg-info/10 text-info border-info">
                   <IconArrowsSplit2 />
                 </div>
                 <div className="flex-1 space-y-2">

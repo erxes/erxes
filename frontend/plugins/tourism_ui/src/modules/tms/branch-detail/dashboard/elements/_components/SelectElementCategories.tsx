@@ -1,5 +1,6 @@
 import { useQuery } from '@apollo/client';
 import { useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Control } from 'react-hook-form';
 import { Form, Button, Popover, Command } from 'erxes-ui';
 import { IconCheck } from '@tabler/icons-react';
@@ -14,6 +15,7 @@ interface SelectElementCategoriesProps {
 export const SelectElementCategories = ({
   control,
 }: SelectElementCategoriesProps) => {
+  const { t } = useTranslation('tourism');
   const [open, setOpen] = useState(false);
 
   const { data, loading } = useQuery<{
@@ -74,7 +76,7 @@ export const SelectElementCategories = ({
 
         return (
           <Form.Item>
-            <Form.Label>Categories</Form.Label>
+            <Form.Label>{t('categories')}</Form.Label>
             <Form.Control>
               <div className="space-y-3">
                 <Popover open={open} onOpenChange={setOpen}>
@@ -88,26 +90,24 @@ export const SelectElementCategories = ({
                     >
                       <span className="truncate">
                         {selectedIds.length > 0
-                          ? `${selectedIds.length} categor${
-                              selectedIds.length === 1 ? 'y' : 'ies'
-                            } selected`
-                          : 'Select categories'}
+                          ? t('categories-selected', { count: selectedIds.length })
+                          : t('select-categories')}
                       </span>
                     </Button>
                   </Popover.Trigger>
                   <Popover.Content className="w-[400px] p-0" align="start">
                     <Command className="rounded-lg border shadow-md">
                       <Command.Input
-                        placeholder="Search categories..."
+                        placeholder={t('search-categories')}
                         className="h-8"
                       />
                       <Command.Empty className="py-6 text-sm text-center">
-                        No categories found.
+                        {t('no-categories-found')}
                       </Command.Empty>
                       <Command.Group className="max-h-[300px] overflow-auto">
                         {loading ? (
                           <Command.Item disabled className="h-8">
-                            Loading...
+                            {t('loading')}
                           </Command.Item>
                         ) : (
                           flattenedCategories.map(({ category, level }) => {

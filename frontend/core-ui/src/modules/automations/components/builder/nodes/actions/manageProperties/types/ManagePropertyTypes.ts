@@ -21,13 +21,14 @@ export type TAutomationManagePropertyRule = {
   fieldLabel?: string;
   operator: string;
   value?: any;
+  fallbackValue?: string;
   isExpression?: boolean;
 };
 
 export type TAutomationManagePropertyTarget = {
   label?: string;
   type?: string;
-  source?: 'target' | 'relation' | 'resolver';
+  source?: 'target' | 'relation' | 'resolver' | 'targetField';
   cardinality?: 'one' | 'many';
   sourceType?: string;
   relation?: {
@@ -35,6 +36,7 @@ export type TAutomationManagePropertyTarget = {
     relatedContentType: string;
   };
   resolverKey?: string;
+  targetPath?: string;
   pluginName?: string;
   value?: string;
   description?: string;

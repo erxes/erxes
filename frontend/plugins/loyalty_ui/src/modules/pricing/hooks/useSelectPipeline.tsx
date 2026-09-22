@@ -5,7 +5,10 @@ import {
   PopoverScoped,
   TextOverflowTooltip,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { usePipelines, IPipeline } from '@/pricing/hooks/usePipelines';
+
+const CLEAR_PIPELINE_VALUE = '__clear_pipeline_selection__';
 
 // SelectPipeline Context
 interface SelectPipelineContextType {
@@ -50,7 +53,6 @@ const SelectPipelineProvider = ({
 
   const handleValueChange = useCallback(
     (pipelineId: string) => {
-      if (!pipelineId) return;
       onValueChange(pipelineId);
       setOpen?.(false);
     },
@@ -77,18 +79,21 @@ const SelectPipelineProvider = ({
 
 // SelectPipeline Value Display
 const SelectPipelineValue = ({ placeholder }: { placeholder?: string }) => {
+  const { t } = useTranslation('loyalty');
   const { value, pipelines, loading } = useSelectPipelineContext();
 
   if (loading) {
     return (
-      <span className="text-accent-foreground/80">Loading pipelines...</span>
+      <span className="text-accent-foreground/80">
+        {t('loading-pipelines')}
+      </span>
     );
   }
 
   if (!pipelines || pipelines.length === 0 || !value) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select pipeline'}
+        {placeholder || t('select-pipeline')}
       </span>
     );
   }
@@ -100,7 +105,7 @@ const SelectPipelineValue = ({ placeholder }: { placeholder?: string }) => {
   if (!selectedPipeline) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select pipeline'}
+        {placeholder || t('select-pipeline')}
       </span>
     );
   }
@@ -131,20 +136,43 @@ const SelectPipelineCommandItem = ({ pipeline }: { pipeline: IPipeline }) => {
   );
 };
 
+const SelectPipelineClearItem = () => {
+  const { t } = useTranslation('loyalty');
+  const { onValueChange, value } = useSelectPipelineContext();
+
+  if (!value) {
+    return null;
+  }
+
+  return (
+    <Command.Item
+      value={CLEAR_PIPELINE_VALUE}
+      onSelect={() => {
+        onValueChange('');
+      }}
+    >
+      <span className="text-muted-foreground">{t('none')}</span>
+      <Combobox.Check checked={!value} />
+    </Command.Item>
+  );
+};
+
 // SelectPipeline Content
 const SelectPipelineContent = () => {
+  const { t } = useTranslation('loyalty');
   const { pipelines, boardId, loading } = useSelectPipelineContext();
   const emptyMessage = loading
-    ? 'Loading pipelines...'
+    ? t('loading-pipelines')
     : boardId
-    ? 'No pipelines found'
-    : 'Board not selected';
+      ? t('no-pipelines-found')
+      : t('board-not-selected');
   return (
     <Command>
       <Command.List>
         <Command.Empty>
           <div className="text-muted-foreground">{emptyMessage}</div>
         </Command.Empty>
+        <SelectPipelineClearItem />
         {pipelines?.map((pipeline) => (
           <SelectPipelineCommandItem key={pipeline._id} pipeline={pipeline} />
         ))}

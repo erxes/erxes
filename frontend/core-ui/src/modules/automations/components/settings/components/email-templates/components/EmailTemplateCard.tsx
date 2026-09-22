@@ -3,6 +3,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { Button, Card, DropdownMenu } from 'erxes-ui';
 import { Link } from 'react-router';
 import { IAutomationEmailTemplate } from '@/automations/components/settings/components/email-templates/types/automationEmailTemplates';
+import { AutomationSettingsPath } from '@/types/paths/AutomationPath';
 
 interface EmailTemplateCardProps {
   template: IAutomationEmailTemplate;
@@ -21,7 +22,7 @@ export function EmailTemplateCard({
 
   return (
     <Card className="h-auto p-4 flex flex-col gap-3 rounded-lg hover:shadow-md transition-shadow">
-      <Link to={`/settings/automations/email-templates/${template._id}`}>
+      <Link to={`${AutomationSettingsPath.EmailTemplates}/${template._id}`}>
         <div className="flex gap-3 items-start">
           <div className="size-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
             <IconMail className="size-5 text-primary" />

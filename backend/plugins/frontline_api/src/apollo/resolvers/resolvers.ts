@@ -1,5 +1,6 @@
 import inboxResolvers from '@/inbox/graphql/resolvers/customResolvers';
 import integrationFacebookResolvers from '@/integrations/facebook/graphql/resolvers/customResolvers';
+import integrationInstagramResolvers from '@/integrations/instagram/graphql/resolvers/customResolvers';
 import { Channel } from '@/channel/graphql/resolvers/customResolvers/channel';
 import { ChannelMember } from '@/channel/graphql/resolvers/customResolvers/member';
 import { Pipeline } from '@/ticket/graphql/resolvers/customResolvers/pipeline';
@@ -8,23 +9,30 @@ import {
   Form,
   Submission,
 } from '@/form/graphql/resolvers/customResolvers/forms';
+import { Survey } from '@/survey/graphql/resolvers/customResolvers/survey';
 import KnowledgeBaseArticle from '@/knowledgebase/graphql/resolvers/customResolvers/article';
 import {
   KnowledgeBaseCategory,
   KnowledgeBaseParentCategory,
 } from '@/knowledgebase/graphql/resolvers/customResolvers/category';
 import KnowledgeBaseTopic from '@/knowledgebase/graphql/resolvers/customResolvers/topic';
+import { HelpCenterConfig } from '@/helpcenter/graphql/resolvers/customResolvers/helpCenterConfig';
+import { MailPipelineIntegration } from '@/integrations/mail/graphql/resolvers/customResolvers/pipelineIntegration';
 export const customResolvers = {
   ...inboxResolvers,
   ...integrationFacebookResolvers,
+  ...integrationInstagramResolvers,
   Channel,
   ChannelMember,
   Pipeline,
   Ticket,
   Form,
   Submission,
+  Survey,
   KnowledgeBaseArticle,
   KnowledgeBaseCategory,
   KnowledgeBaseParentCategory,
   KnowledgeBaseTopic,
+  HelpCenterConfig,
+  MailPipelineIntegration,
 };

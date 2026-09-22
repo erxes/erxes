@@ -86,6 +86,11 @@ const FocusSheetView = ({
       )}
       {...props}
     >
+      {(loading || error || notFound) && (
+        <Sheet.Title className="sr-only">
+          {loading ? 'Loading' : error ? 'Error' : 'Not found'}
+        </Sheet.Title>
+      )}
       {loading && <Spinner />}
       {!loading && error && errorState}
       {!loading && !error && notFound && notFoundState}

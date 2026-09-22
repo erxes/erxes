@@ -19,7 +19,7 @@ export type TAutomationOptionalConnect = {
 
 type IConfig = {
   workflowConnection?: WorkflowConnection;
-  optionalConnect?: TAutomationOptionalConnect[];
+  optionalConnects?: TAutomationOptionalConnect[];
   [key: string]: any;
 };
 
@@ -65,6 +65,11 @@ export type TAutomationWorkflowNode = {
   description: string;
   config: any;
   automationId: string;
+  // Source template when inserted from one
+  templateId?: string;
+  // Snapshot of the member actions this workflow owns (containment model)
+  actions?: TAutomationAction[];
+  icon?: string;
   position?: any;
 };
 
@@ -73,12 +78,14 @@ export interface IAutomationHistoryAction {
   startedAt?: Date;
   finishedAt?: Date;
   durationMs?: number;
-  status?: 'success' | 'error' | 'waiting';
+  status?: 'success' | 'error' | 'waiting' | 'queued' | 'standby' | 'dropped';
   actionId: string;
   actionType: string;
   actionConfig?: any;
   nextActionId?: string;
   result?: any;
+  // Set on workflow node actions: links to the child execution
+  childExecutionId?: string;
 }
 
 export interface IAutomationHistory {
@@ -92,7 +99,7 @@ export interface IAutomationHistory {
   nextActionId?: string;
   targetId: string;
   target: any;
-  status: 'active' | 'waiting' | 'error' | 'missed' | 'complete';
+  status: 'active' | 'waiting' | 'standby' | 'error' | 'missed' | 'complete';
   description: string;
   actions?: IAutomationHistoryAction[];
   startWaitingDate?: Date;
@@ -124,6 +131,9 @@ export type AutomationActionFormProps<TConfig = any> =
     onSaveActionConfig: (config: TConfig) => void;
     trigger?: TAutomationTrigger;
     targetType?: string;
+    // Every action reachable backwards from the current one, so a form can tell
+    // how it is connected to its trigger (e.g. behind an optional connect).
+    previousActions?: TAutomationAction[];
   };
 
 export type AutomationTriggerConfigProps<TConfig = any> =
@@ -161,6 +171,67 @@ export type AutomationCustomWaitEventFormProps<TConfig = any> = {
   actionData: TAutomationAction;
 };
 
+export type TAiKnowledgeSourceConfig = {
+  pluginName: string;
+  moduleName: string;
+  key: string;
+  label: string;
+  sourceSelector: 'remote-module' | 'local';
+  // Off for collections too large to stream, e.g. customers.
+  supportsFullScope?: boolean;
+};
+
+export type TAiToolConfig = {
+  pluginName: string;
+  moduleName: string;
+  key: string;
+  label: string;
+  input: string;
+  output: string;
+};
+
+export type TAiKnowledgeSourceSelection = {
+  pluginName: string;
+  moduleName: string;
+  key: string;
+  sourceIds: string[];
+  config?: Record<string, unknown>;
+};
+
+export type TAiToolSelection = {
+  pluginName: string;
+  moduleName: string;
+  key: string;
+  enabled?: boolean;
+  config?: Record<string, unknown>;
+};
+
+export type TAiKnowledgeSourceIndexStatus = {
+  pluginName: string;
+  moduleName: string;
+  sourceKey: string;
+  sourceId: string;
+  status: 'queued' | 'indexing' | 'indexed' | 'failed' | 'skipped';
+  chunkCount?: number;
+  indexedAt?: string;
+  indexError?: string;
+  runId?: string;
+  totalCount?: number;
+  processedCount?: number;
+  indexedCount?: number;
+  failedCount?: number;
+  removedCount?: number;
+};
+
+export type AutomationAiKnowledgeSourceSelectorProps = {
+  componentType: 'aiKnowledgeSourceSelector';
+  source: TAiKnowledgeSourceConfig;
+  value: string[];
+  config?: Record<string, unknown>;
+  onChange: (sourceIds: string[], config?: Record<string, unknown>) => void;
+  statuses?: TAiKnowledgeSourceIndexStatus[];
+};
+
 export type AutomationRemoteEntryProps =
   | AutomationTriggerFormProps
   | AutomationActionFormProps
@@ -169,6 +240,7 @@ export type AutomationRemoteEntryProps =
   | AutomationExecutionHistoryNameProps
   | AutomationExecutionActionResultProps
   | AutomationCustomWaitEventFormProps
+  | AutomationAiKnowledgeSourceSelectorProps
   | { componentType: 'automationBotsContent' };
 
 export type AutomationRemoteEntryComponentType =
@@ -226,6 +298,7 @@ export type IAutomationsActionConfigConstants = {
   isTargetSource?: boolean;
   targetSourceType?: string;
   allowTargetFromActions?: boolean;
+  allowedMultiTriggerTypes?: string[];
   folks?: IAutomationsActionFolkConfig[];
 };
 

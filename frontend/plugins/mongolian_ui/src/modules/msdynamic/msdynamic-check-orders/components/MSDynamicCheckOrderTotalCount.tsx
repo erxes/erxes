@@ -1,0 +1,20 @@
+import { isUndefinedOrNull, Skeleton } from 'erxes-ui';
+import { useAtomValue } from 'jotai';
+import { msdynamicCheckOrderTotalCountAtom } from '../states/MSDynamicCheckOrderCounts';
+import { useTranslation } from 'react-i18next';
+
+/** Total count text haruulna. */
+export const MSDynamicCheckOrderTotalCount = () => {
+  const { t } = useTranslation('mongolian');
+  const totalCount = useAtomValue(msdynamicCheckOrderTotalCountAtom);
+
+  return (
+    <div className="text-muted-foreground font-medium text-sm whitespace-nowrap h-7 leading-7">
+      {isUndefinedOrNull(totalCount) ? (
+        <Skeleton className="w-20 h-4 inline-block mt-1.5" />
+      ) : (
+        t('records-found', { count: totalCount })
+      )}
+    </div>
+  );
+};

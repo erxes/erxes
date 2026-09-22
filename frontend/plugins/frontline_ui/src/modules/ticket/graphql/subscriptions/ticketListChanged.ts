@@ -19,9 +19,12 @@ export const TICKET_LIST_CHANGED = gql`
         createdAt
         updatedAt
         channelId
+        branchId
+        departmentId
         statusChangedDate
         number
         pipelineId
+        state
       }
     }
   }

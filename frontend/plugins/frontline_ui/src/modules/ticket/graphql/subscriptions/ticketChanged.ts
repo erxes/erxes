@@ -18,11 +18,21 @@ export const TICKET_CHANGED = gql`
         targetDate
         createdAt
         updatedAt
+        createdBy
         channelId
         statusChangedDate
         number
         pipelineId
+        isSubscribed
         state
+        propertiesData
+        attachments {
+          name
+          url
+          size
+          type
+          duration
+        }
       }
     }
   }

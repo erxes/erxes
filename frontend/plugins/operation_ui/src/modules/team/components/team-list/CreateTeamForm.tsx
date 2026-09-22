@@ -1,6 +1,7 @@
 import { Form, Input, IconPicker, Textarea } from 'erxes-ui';
 import { SelectMember } from 'ui-modules';
 import { UseFormReturn } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 import { TTeamForm } from '@/team/types';
 
@@ -9,6 +10,7 @@ export const CreateTeamForm = ({
 }: {
   form: UseFormReturn<TTeamForm>;
 }) => {
+  const { t } = useTranslation('operation');
   return (
     <div className="flex flex-col gap-3">
       <div className="w-full flex gap-2">
@@ -17,8 +19,8 @@ export const CreateTeamForm = ({
           name="icon"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Icon</Form.Label>
-              <Form.Description className="sr-only">Icon</Form.Description>
+              <Form.Label>{t('icon')}</Form.Label>
+              <Form.Description className="sr-only">{t('icon')}</Form.Description>
               <Form.Control>
                 <IconPicker
                   onValueChange={field.onChange}
@@ -35,8 +37,8 @@ export const CreateTeamForm = ({
           name="name"
           render={({ field }) => (
             <Form.Item className="flex-auto">
-              <Form.Label>Team name</Form.Label>
-              <Form.Description className="sr-only">Team Name</Form.Description>
+              <Form.Label>{t('team-name')}</Form.Label>
+              <Form.Description className="sr-only">{t('team-name-label')}</Form.Description>
               <Form.Control>
                 <Input {...field} />
               </Form.Control>
@@ -50,8 +52,8 @@ export const CreateTeamForm = ({
         name="description"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>description</Form.Label>
-            <Form.Description className="sr-only">description</Form.Description>
+            <Form.Label>{t('description-label')}</Form.Label>
+            <Form.Description className="sr-only">{t('description-label')}</Form.Description>
             <Form.Control>
               <Textarea {...field} />
             </Form.Control>
@@ -65,8 +67,8 @@ export const CreateTeamForm = ({
         name="memberIds"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Members</Form.Label>
-            <Form.Description className="sr-only">Members</Form.Description>
+            <Form.Label>{t('members')}</Form.Label>
+            <Form.Description className="sr-only">{t('members')}</Form.Description>
             <Form.Control>
               <SelectMember.FormItem
                 value={field.value}

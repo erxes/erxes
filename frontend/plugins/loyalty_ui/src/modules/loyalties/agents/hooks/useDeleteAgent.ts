@@ -1,5 +1,6 @@
 import { useMutation, Reference } from '@apollo/client';
 import { useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { DELETE_AGENT_MUTATION } from '../graphql/mutations/mutations';
 
 const makeAgentsMainUpdater =
@@ -21,6 +22,7 @@ const makeAgentsMainUpdater =
 
 export const useDeleteAgent = () => {
   const { toast } = useToast();
+  const { t } = useTranslation('loyalty');
 
   const [deleteAgent, { loading, error }] = useMutation(DELETE_AGENT_MUTATION);
 
@@ -36,14 +38,14 @@ export const useDeleteAgent = () => {
       },
       onCompleted: () => {
         toast({
-          title: 'Success',
-          description: 'Agent deleted successfully',
+          title: t('success'),
+          description: t('agent-deleted'),
           variant: 'default',
         });
       },
       onError: (err) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: err.message,
           variant: 'destructive',
         });

@@ -1,6 +1,7 @@
 import { NotificationPriorityCommandBar } from '@/notification/components/filter/NotificationPriorityCommandBar';
 import { NotificationTypeCommandBar } from '@/notification/components/filter/NotificationTypeCommandBar';
 import { Command, Filter, useMultiQueryState } from 'erxes-ui';
+import { IconCheck, IconLock } from '@tabler/icons-react';
 import { SelectMember } from 'ui-modules';
 
 export const NotificationFilterViews = () => {
@@ -8,9 +9,10 @@ export const NotificationFilterViews = () => {
     status?: string;
     priority?: string;
     fromUserId?: string;
-  }>(['priority', 'fromUserId']);
+    notificationModule?: string | null;
+  }>(['priority', 'fromUserId', 'notificationModule']);
 
-  const { priority, fromUserId } = queries;
+  const { priority, fromUserId, notificationModule } = queries;
 
   return (
     <>
@@ -23,6 +25,27 @@ export const NotificationFilterViews = () => {
           priority={priority || ''}
           setQueries={setQueries}
         />
+      </Filter.View>
+      <Filter.View filterKey="module">
+        <Command>
+          <Command.List>
+            <Command.Item
+              value="approval"
+              onSelect={() =>
+                setQueries({
+                  notificationModule:
+                    notificationModule === 'approval' ? null : 'approval',
+                })
+              }
+            >
+              <IconLock />
+              Approval
+              {notificationModule === 'approval' && (
+                <IconCheck className="ml-auto" />
+              )}
+            </Command.Item>
+          </Command.List>
+        </Command>
       </Filter.View>
       <Filter.View filterKey="createdAt">
         <Filter.DateView filterKey="createdAt" />

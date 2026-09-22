@@ -1,4 +1,5 @@
 import { Form } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { SelectSalesBoard } from './selects/SelectBoard';
 import { SelectPipeline } from './selects/SelectPipeline';
 import { SelectStage } from './selects/SelectStage';
@@ -19,6 +20,7 @@ export const PipelineFields: React.FC<PipelineFieldsProps> = ({
   onBoardChange,
   onPipelineChange,
 }) => {
+  const { t } = useTranslation('mongolian');
   return (
     <>
       <Form.Field
@@ -26,7 +28,7 @@ export const PipelineFields: React.FC<PipelineFieldsProps> = ({
         name="boardId"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Board</Form.Label>
+            <Form.Label>{t('board')}</Form.Label>
             <SelectSalesBoard
               value={field.value}
               onValueChange={(value: string) => {
@@ -43,7 +45,7 @@ export const PipelineFields: React.FC<PipelineFieldsProps> = ({
         name="pipelineId"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Pipeline</Form.Label>
+            <Form.Label>{t('pipeline')}</Form.Label>
             <SelectPipeline
               value={field.value}
               onValueChange={(value: string) => {
@@ -62,7 +64,7 @@ export const PipelineFields: React.FC<PipelineFieldsProps> = ({
         name="stageId"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Stage</Form.Label>
+            <Form.Label>{t('stage')}</Form.Label>
             <SelectStage
               id="stageId"
               variant="form"

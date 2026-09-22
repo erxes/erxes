@@ -1,9 +1,11 @@
 import { Control, useWatch } from 'react-hook-form';
 import { Form, Label, Select, Switch } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { lockDurations } from '@/pms/constants/time.constants';
 import { PmsBranchFormType } from '@/pms/constants/formSchema';
 
 const Lock = ({ control }: { control: Control<PmsBranchFormType> }) => {
+  const { t } = useTranslation('tourism');
   const timeSwitch = useWatch({
     control,
     name: 'websiteReservationLock',
@@ -16,7 +18,7 @@ const Lock = ({ control }: { control: Control<PmsBranchFormType> }) => {
         name={'websiteReservationLock'}
         render={({ field }) => (
           <div className="flex flex-col gap-3">
-            <Label>Website Reservation Lock</Label>
+            <Label>{t('website-reservation-lock')}</Label>
             <Switch
               checked={Boolean(field.value)}
               onCheckedChange={field.onChange}
@@ -32,11 +34,11 @@ const Lock = ({ control }: { control: Control<PmsBranchFormType> }) => {
           name={'time'}
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Reservation lock duration</Form.Label>
+              <Form.Label>{t('reservation-lock-duration')}</Form.Label>
               <Form.Control>
                 <Select value={field.value} onValueChange={field.onChange}>
                   <Select.Trigger>
-                    <Select.Value placeholder="Choose lock duration" />
+                    <Select.Value placeholder={t('choose-lock-duration')} />
                   </Select.Trigger>
                   <Select.Content className="max-h-52">
                     {lockDurations.map((duration, index) => (

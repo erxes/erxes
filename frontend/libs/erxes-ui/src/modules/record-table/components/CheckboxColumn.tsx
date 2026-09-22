@@ -1,5 +1,89 @@
 import { Checkbox } from 'erxes-ui/components/checkbox';
-import { ColumnDef } from '@tanstack/react-table';
+import { ColumnDef, Row, Table } from '@tanstack/react-table';
+
+const dragSelection = {
+  owner: null as Table<unknown> | null,
+  selecting: false,
+  suppressClickOn: null as { table: Table<unknown>; rowId: string } | null,
+};
+
+const DRAG_END_EVENTS = ['pointerup', 'pointercancel', 'blur'] as const;
+
+const endDragSelection = () => {
+  dragSelection.owner = null;
+  document.body.style.userSelect = '';
+  DRAG_END_EVENTS.forEach((event) =>
+    window.removeEventListener(event, endDragSelection),
+  );
+};
+
+const startDragSelection = <TData,>(
+  selecting: boolean,
+  row: Row<TData>,
+  table: Table<TData>,
+) => {
+  const owner = table as unknown as Table<unknown>;
+  dragSelection.owner = owner;
+  dragSelection.selecting = selecting;
+  dragSelection.suppressClickOn = { table: owner, rowId: row.id };
+  document.body.style.userSelect = 'none';
+  DRAG_END_EVENTS.forEach((event) =>
+    window.addEventListener(event, endDragSelection),
+  );
+};
+
+const CheckboxCell = <TData,>({
+  row,
+  table,
+}: {
+  row: Row<TData>;
+  table: Table<TData>;
+}) => (
+  <div
+    className="flex items-center justify-center size-full"
+    onPointerDown={(event) => {
+      dragSelection.suppressClickOn = null;
+
+      if (!event.shiftKey || event.button !== 0) {
+        return;
+      }
+
+      event.preventDefault();
+      const selecting = !row.getIsSelected();
+      startDragSelection(selecting, row, table);
+      row.toggleSelected(selecting);
+    }}
+    onPointerEnter={(event) => {
+      if (
+        dragSelection.owner !== (table as unknown as Table<unknown>) ||
+        event.buttons !== 1
+      ) {
+        return;
+      }
+
+      row.toggleSelected(dragSelection.selecting);
+    }}
+    onClickCapture={(event) => {
+      const suppressed = dragSelection.suppressClickOn;
+
+      if (
+        suppressed?.table !== (table as unknown as Table<unknown>) ||
+        suppressed.rowId !== row.id
+      ) {
+        return;
+      }
+
+      dragSelection.suppressClickOn = null;
+      event.preventDefault();
+      event.stopPropagation();
+    }}
+  >
+    <Checkbox
+      checked={row.getIsSelected()}
+      onCheckedChange={(value) => row.toggleSelected(!!value)}
+    />
+  </div>
+);
 
 export const checkboxColumn: ColumnDef<any> = {
   accessorKey: 'checkbox',
@@ -19,12 +103,5 @@ export const checkboxColumn: ColumnDef<any> = {
     );
   },
   size: 33,
-  cell: ({ row }) => (
-    <div className="flex items-center justify-center">
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-      />
-    </div>
-  ),
+  cell: ({ row, table }) => <CheckboxCell row={row} table={table} />,
 };

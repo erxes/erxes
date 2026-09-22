@@ -8,23 +8,14 @@ import { usePageTrackerStore } from 'react-page-tracker';
 import { useNavigate } from 'react-router-dom';
 import { pluginsConfigState, useVersion, usePermissionCheck } from 'ui-modules';
 import { GET_CORE_MODULES } from '~/plugins/constants/core-plugins.constants';
-import { GET_SETTINGS_PATH_DATA } from '../constants/data';
-import { SettingsWorkspacePath } from '@/types/paths/SettingsPath';
+import {
+  GET_SETTINGS_PATH_DATA,
+  SETTINGS_PERMISSION_MAP,
+} from '../constants/data';
 
-const SETTINGS_PERMISSION_MAP: Record<string, string> = {
-  [SettingsWorkspacePath.TeamMember]: 'teamMembers',
-  [SettingsWorkspacePath.Structure]: 'organization',
-  [SettingsWorkspacePath.Tags]: 'tags',
-  [SettingsWorkspacePath.Brands]: 'brands',
-  [SettingsWorkspacePath.Properties]: 'properties',
-  [SettingsWorkspacePath.Products]: 'products',
-  [SettingsWorkspacePath.Automations]: 'automations',
-  [SettingsWorkspacePath.ClientPortals]: 'clientPortal',
-  [SettingsWorkspacePath.OAuthClients]: 'apps',
-  [SettingsWorkspacePath.Permissions]: 'permissions',
-};
-
-export function SettingsSidebar() {
+export function SettingsSidebar({
+  hideExit = false,
+}: Readonly<{ hideExit?: boolean }>) {
   const pluginsMetaData = useAtomValue(pluginsConfigState) || {};
   const { isLoaded, isWildcard, hasModulePermission, hasPluginPermission } =
     usePermissionCheck();
@@ -65,67 +56,69 @@ export function SettingsSidebar() {
   });
 
   return (
-    <>
-      <Sidebar.Content className="styled-scroll gap-2">
-        <SettingsExitButton />
-        <SettingsNavigationGroup name={t('account')}>
-          {sidebar.account.map((item) => (
-            <NavigationMenuLinkItem
-              key={item.name}
-              pathPrefix={AppPath.Settings}
-              path={item.path}
-              name={item.name}
-            />
-          ))}
-        </SettingsNavigationGroup>
-        <SettingsNavigationGroup name={t('workspace')}>
-          {filteredNav.map((item) => (
-            <NavigationMenuLinkItem
-              pathPrefix={AppPath.Settings}
-              path={item.path}
-              name={item.name}
-              key={item.name}
-            />
-          ))}
-        </SettingsNavigationGroup>
+    <Sidebar.Content className="styled-scroll gap-2">
+      {!hideExit && <SettingsExitButton />}
+      <SettingsNavigationGroup name={t('account')}>
+        {sidebar.account.map((item) => (
+          <NavigationMenuLinkItem
+            key={item.name}
+            pathPrefix={AppPath.Settings}
+            path={item.path}
+            name={item.name}
+            icon={item.icon}
+          />
+        ))}
+      </SettingsNavigationGroup>
+      <SettingsNavigationGroup name={t('workspace')}>
+        {filteredNav.map((item) => (
+          <NavigationMenuLinkItem
+            pathPrefix={AppPath.Settings}
+            path={item.path}
+            name={item.name}
+            icon={item.icon}
+            key={item.name}
+          />
+        ))}
+      </SettingsNavigationGroup>
 
-        <SettingsNavigationGroup name={t('developer')}>
-          {filteredDeveloper.map((item) => (
-            <NavigationMenuLinkItem
-              pathPrefix={AppPath.Settings}
-              path={item.path}
-              name={item.name}
-              key={item.name}
-            />
-          ))}
-        </SettingsNavigationGroup>
+      <SettingsNavigationGroup name={t('developer')}>
+        {filteredDeveloper.map((item) => (
+          <NavigationMenuLinkItem
+            pathPrefix={AppPath.Settings}
+            path={item.path}
+            name={item.name}
+            icon={item.icon}
+            key={item.name}
+          />
+        ))}
+      </SettingsNavigationGroup>
 
-        <SettingsNavigationGroup name={t('core-modules')}>
-          {filteredCoreModules.map((item) => (
-            <NavigationMenuLinkItem
-              key={item.name}
-              pathPrefix={AppPath.Settings}
-              path={item.path}
-              name={item.name}
-            />
-          ))}
-        </SettingsNavigationGroup>
+      <SettingsNavigationGroup name={t('core-modules')}>
+        {filteredCoreModules.map((item) => (
+          <NavigationMenuLinkItem
+            key={item.name}
+            pathPrefix={AppPath.Settings}
+            path={item.path}
+            name={item.name}
+            icon={item.icon}
+          />
+        ))}
+      </SettingsNavigationGroup>
 
-        {pluginsWithSettingsNavigations.map(
-          ({ Navigation, name }) => Navigation && <Navigation key={name} />,
-        )}
-      </Sidebar.Content>
-    </>
+      {pluginsWithSettingsNavigations.map(
+        ({ Navigation, name }) => Navigation && <Navigation key={name} />,
+      )}
+    </Sidebar.Content>
   );
 }
 
-export const SettingsNavigationGroup = ({
+export function SettingsNavigationGroup({
   name,
   children,
-}: {
+}: Readonly<{
   name: string;
   children: React.ReactNode;
-}) => {
+}>) {
   if (React.Children.count(children) === 0) return null;
 
   return (
@@ -136,15 +129,16 @@ export const SettingsNavigationGroup = ({
       </Sidebar.GroupContent>
     </Sidebar.Group>
   );
-};
+}
 
-export const SettingsExitButton = () => {
+export function SettingsExitButton() {
   const navigate = useNavigate();
   const pageHistory = usePageTrackerStore((state) => state.pageHistory);
 
   const handleExitSettings = () =>
     navigate(
-      pageHistory.reverse().find((page) => !page.includes('settings')) || '/',
+      [...pageHistory].reverse().find((page) => !page.includes('settings')) ||
+        '/',
     );
 
   const { t } = useTranslation('common', {
@@ -163,4 +157,4 @@ export const SettingsExitButton = () => {
       </Sidebar.Menu>
     </Sidebar.Header>
   );
-};
+}

@@ -56,7 +56,7 @@ export const sanitizeKey = (key: string): string => {
 
   // Allow alphanumeric, Unicode letters/marks (for non-Latin filenames),
   // slash, dash, underscore, space, parentheses, and dot
-  if (!/^[a-zA-Z0-9/_\-. ()\p{L}\p{M}]+$/u.test(key)) {
+  if (!/^[a-zA-Z0-9/_\-., ()\p{L}\p{M}]+$/u.test(key)) {
     throw new Error('Invalid key: contains disallowed characters');
   }
 

@@ -1,5 +1,6 @@
 import { Row } from '@tanstack/table-core';
 import { Button, useConfirm } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useDeleteAgent } from '../../hooks/useDeleteAgent';
 import { IAgent } from '../../types/agent';
 import { IconTrash } from '@tabler/icons-react';
@@ -12,10 +13,11 @@ interface AgentRemoveProps {
 export const AgentRemove = ({ agentIds, rows }: AgentRemoveProps) => {
   const { deleteAgent, loading } = useDeleteAgent();
   const { confirm } = useConfirm();
+  const { t } = useTranslation('loyalty');
 
   const handleDelete = () => {
     confirm({
-      message: `Are you sure you want to delete ${rows.length} agent${rows.length > 1 ? 's' : ''}?`,
+      message: t('delete-agent-confirm', { count: rows.length }),
       options: {
         confirmationValue: 'delete',
       },
@@ -29,7 +31,7 @@ export const AgentRemove = ({ agentIds, rows }: AgentRemoveProps) => {
   return (
     <Button variant="ghost" size="sm" onClick={handleDelete} disabled={loading}>
       <IconTrash className="h-4 w-4" />
-      Delete
+      {t('delete')}
     </Button>
   );
 };

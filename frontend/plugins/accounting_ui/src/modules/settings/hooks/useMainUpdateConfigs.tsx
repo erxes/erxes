@@ -1,4 +1,5 @@
 import { useMutation } from '@apollo/client';
+import { toast } from 'erxes-ui';
 import { ACCOUNTINGS_MAIN_CONFIGS_UPDATE } from '../graphql/mutations/updateConfig';
 
 export const useMainUpdateConfigs = () => {
@@ -10,6 +11,19 @@ export const useMainUpdateConfigs = () => {
     return updateConfig({
       variables: { configsMap },
       refetchQueries: ['accountingsConfigs'],
+      onError: (error) => {
+        toast({
+          title: 'Алдаа',
+          description: error.message,
+          variant: 'destructive',
+        });
+      },
+      onCompleted: () => {
+        toast({
+          title: 'Амжилттай',
+          description: 'Тохиргоог хадгаллаа',
+        });
+      },
     });
   };
 

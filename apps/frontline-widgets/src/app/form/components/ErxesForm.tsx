@@ -252,6 +252,7 @@ export const ErxesForm = ({
                               onChange={(value) => field.onChange(value)}
                               placeholder={erxesField.text}
                               required={erxesField.isRequired}
+                              thousandsSeparator=""
                             />
                             {erxesField.description && (
                               <Form.Description

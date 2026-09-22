@@ -1,6 +1,7 @@
 import { IconPlus } from '@tabler/icons-react';
-import { Button, Sheet, Sidebar } from 'erxes-ui';
+import { Button, Sheet, Sidebar, Spinner } from 'erxes-ui';
 import { FC, PropsWithChildren, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import CreatePmsForm from './CreatePmsForm';
 import { steps } from '../constants/steps.constants';
 import { useAtom, useSetAtom } from 'jotai';
@@ -14,7 +15,14 @@ type CreatePmsSheetContentLayoutProps = PropsWithChildren & {
 };
 
 const STEP_VALIDATION_FIELDS: Record<number, Array<keyof PmsBranchFormType>> = {
-  1: ['name', 'checkInTime', 'checkOutTime', 'checkInAmount', 'checkOutAmount'],
+  1: [
+    'name',
+    'checkInTime',
+    'checkOutTime',
+    'checkInAmount',
+    'checkOutAmount',
+    'discount',
+  ],
   2: [],
   3: ['user1Ids'],
   4: [],
@@ -32,6 +40,7 @@ const validateStep = async (
 };
 
 export const PmsCreateSheet = () => {
+  const { t } = useTranslation('tourism');
   const [open, setOpen] = useAtom(sheetOpenState);
   const setCurrentStep = useSetAtom(stepState);
 
@@ -46,7 +55,7 @@ export const PmsCreateSheet = () => {
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          Create PMS
+          {t('create-pms')}
         </Button>
       </Sheet.Trigger>
       <Sheet.View
@@ -66,12 +75,11 @@ export const PmsCreateSheetHeader = ({
 }: {
   mode?: 'create' | 'edit';
 }) => {
+  const { t } = useTranslation('tourism');
   return (
     <Sheet.Header className="p-5">
       <Sheet.Title>
-        {mode === 'edit'
-          ? 'Edit PMS /Property Management System/'
-          : 'Create PMS /Property Management System/'}
+        {mode === 'edit' ? t('edit-pms') : t('create-pms-full')}
       </Sheet.Title>
       <Sheet.Close />
     </Sheet.Header>
@@ -89,6 +97,7 @@ export const PmsCreateSheetFooter = ({
   mode?: 'create' | 'edit';
   onSave?: () => void;
 }) => {
+  const { t } = useTranslation('tourism');
   const [currentStep, setCurrentStep] = useAtom(stepState);
   const setOpen = useSetAtom(sheetOpenState);
 
@@ -110,37 +119,45 @@ export const PmsCreateSheetFooter = ({
     setCurrentStep(currentStep + 1);
   };
 
-  const handleSaveOrNext = async () => {
-    if (currentStep === steps.length) {
-      const isValid = await validateStep(currentStep, form);
-      if (isValid) {
-        await Promise.resolve(onSave?.());
+  // Saving from an earlier step still has to clear every step, so an unmet
+  // requirement sends the user to the step that owns it.
+  const handleSave = async () => {
+    for (const step of Object.keys(STEP_VALIDATION_FIELDS)
+      .map(Number)
+      .sort((left, right) => left - right)) {
+      if (!(await validateStep(step, form))) {
+        setCurrentStep(step);
+        return;
       }
-    } else {
-      await handleNextButton();
     }
+
+    await Promise.resolve(onSave?.());
   };
+
+  const isLastStep = currentStep === steps.length;
+  const isEdit = mode === 'edit';
 
   return (
     <Sheet.Footer className="flex sm:justify-between lg:p-5">
       <Button variant={'outline'} onClick={handlePreviousButton} type="button">
-        {currentStep === 1 ? 'Cancel' : 'Previous'}
+        {currentStep === 1 ? t('cancel') : t('previous')}
       </Button>
-      <Button
-        disabled={currentStep === steps.length && loading}
-        type="button"
-        onClick={handleSaveOrNext}
-      >
-        {currentStep === steps.length
-          ? loading
-            ? mode === 'edit'
-              ? 'Saving...'
-              : 'Creating...'
-            : mode === 'edit'
-              ? 'Save'
-              : 'Create'
-          : 'Next'}
-      </Button>
+      <div className="flex gap-2">
+        {!isLastStep && (
+          <Button
+            variant={isEdit ? 'secondary' : 'default'}
+            type="button"
+            onClick={handleNextButton}
+          >
+            {t('next')}
+          </Button>
+        )}
+        {(isEdit || isLastStep) && (
+          <Button type="button" disabled={loading} onClick={handleSave}>
+            {loading ? <Spinner /> : isEdit ? t('save') : t('create')}
+          </Button>
+        )}
+      </div>
     </Sheet.Footer>
   );
 };
@@ -148,6 +165,7 @@ export const PmsCreateSheetFooter = ({
 export const CreatePmsSheetContentLayout: FC<
   CreatePmsSheetContentLayoutProps
 > = ({ children, form }) => {
+  const { t } = useTranslation('tourism');
   const [currentStep, setCurrentStep] = useAtom(stepState);
 
   const handleStepChange = async (nextStep: number) => {
@@ -179,7 +197,7 @@ export const CreatePmsSheetContentLayout: FC<
                       isActive={active}
                       onClick={() => void handleStepChange(stepNumber)}
                     >
-                      {`${stepNumber}. ${step}`}
+                      {`${stepNumber}. ${t(step)}`}
                     </Sidebar.MenuButton>
                   </Sidebar.MenuItem>
                 );

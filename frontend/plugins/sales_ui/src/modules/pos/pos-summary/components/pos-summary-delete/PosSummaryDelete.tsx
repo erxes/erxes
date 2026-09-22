@@ -3,6 +3,7 @@ import { IconTrash } from '@tabler/icons-react';
 import { useConfirm } from 'erxes-ui/hooks';
 import { useToast } from 'erxes-ui';
 import { ApolloError } from '@apollo/client';
+import { useTranslation } from 'react-i18next';
 import { useDeletePosSummary } from '@/pos/pos-summary/hooks/useDeletePosSummary';
 
 interface PosSummaryDeleteProps {
@@ -14,6 +15,7 @@ export const PosSummaryDelete = ({
   posSummaryIds,
   onDeleteSuccess,
 }: PosSummaryDeleteProps) => {
+  const { t } = useTranslation('sales');
   const { confirm } = useConfirm();
   const { removePosSummary } = useDeletePosSummary();
   const { toast } = useToast();
@@ -28,20 +30,20 @@ export const PosSummaryDelete = ({
       className="text-destructive"
       onClick={() =>
         confirm({
-          message: `Are you sure you want to delete the ${posSummaryCount} selected pos summary?`,
+          message: t('delete-pos-summary-confirm', { count: posSummaryCount }),
         }).then(() => {
           removePosSummary(posSummaryIds, {
             onError: (e: ApolloError) => {
               toast({
-                title: 'Error',
+                title: t('error'),
                 description: e.message,
                 variant: 'destructive',
               });
             },
             onCompleted: () => {
               toast({
-                title: 'Success',
-                description: `pos summary deleted successfully.`,
+                title: t('success'),
+                description: t('pos-summary-deleted'),
               });
 
               if (onDeleteSuccess) {
@@ -53,7 +55,7 @@ export const PosSummaryDelete = ({
       }
     >
       <IconTrash />
-      Delete
+      {t('delete')}
     </Button>
   );
 };

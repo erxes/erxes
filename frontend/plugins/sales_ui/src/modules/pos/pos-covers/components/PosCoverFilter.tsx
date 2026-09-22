@@ -12,6 +12,7 @@ import {
 import { PosCoverTotalCount } from './PosCoverTotalCount';
 import { PosCoverHotKeyScope } from '../types/path/PosCoverHotKeyScope';
 import { useIsPosCoverLeadSessionKey } from '../hooks/UsePosCoverLeadSessionKey';
+import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 export const PosCoverFilterPopover = () => {
   const [queries] = useMultiQueryState<{
@@ -24,26 +25,27 @@ export const PosCoverFilterPopover = () => {
     (value) => value !== null,
   );
   const { resetFilterState } = useFilterContext();
+  const { t } = useTranslation('sales');
   return (
     <>
       <Filter.Popover scope={PosCoverHotKeyScope.PosCoverPage}>
-        <Filter.Trigger isFiltered={hasFilters}>Filter</Filter.Trigger>
+        <Filter.Trigger isFiltered={hasFilters}>{t('filter')}</Filter.Trigger>
         <Combobox.Content>
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder="Filter"
+                placeholder={t('filter')}
                 variant="secondary"
                 className="bg-background"
               />
               <Command.List className="p-1">
                 <Filter.Item value="user">
                   <IconUser />
-                  Users
+                  {t('users')}
                 </Filter.Item>
                 <Filter.Item value="dateRange">
                   <IconCalendar />
-                  Date Range
+                  {t('date-range')}
                 </Filter.Item>
               </Command.List>
             </Command>
@@ -78,6 +80,7 @@ export const PosCoverFilter = () => {
   const { sessionKey } = useIsPosCoverLeadSessionKey();
   const [user, setUser] = useQueryState<string>('user');
   const [open, setOpen] = useState<boolean>(false);
+  const { t } = useTranslation('sales');
   return (
     <Filter id="pos-cover-filter" sessionKey={sessionKey}>
       <Filter.Bar>
@@ -85,14 +88,14 @@ export const PosCoverFilter = () => {
         <Filter.BarItem queryKey="dateRange">
           <Filter.BarName>
             <IconClock />
-            Date Range
+            {t('date-range')}
           </Filter.BarName>
           <Filter.Date filterKey="dateRange" />
         </Filter.BarItem>
         <Filter.BarItem queryKey="user">
           <Filter.BarName>
             <IconUser />
-            Users
+            {t('users')}
           </Filter.BarName>
           <SelectUsers.Provider
             mode="single"

@@ -14,20 +14,20 @@ import {
 import { queries } from '../../graphql';
 import { useMSDynamicSessionKey } from '../../hooks/useMSDynamicSessionKey';
 import { msDynamicSyncHistoryTotalCountAtom } from '../states/msDynamicSyncHistoryCounts';
-import { MSDynamicSyncHistory } from '../types/msDynamicSyncHistory';
+import { IMSDynamicSyncHistory } from '../types/msDynamicSyncHistory';
 
 export const MS_DYNAMIC_SYNC_HISTORIES_PER_PAGE = 20;
 
-type MSDynamicSyncHistoryQueryResponse = {
+type TMSDynamicSyncHistoryQueryResponse = {
   syncMsdHistories: {
-    list: MSDynamicSyncHistory[];
+    list: IMSDynamicSyncHistory[];
     totalCount: number;
     pageInfo: IRecordTableCursorPageInfo;
   };
 };
 
 export const useMSDynamicSyncHistoryVariables = (
-  variables?: QueryHookOptions<MSDynamicSyncHistoryQueryResponse>['variables'],
+  variables?: QueryHookOptions<TMSDynamicSyncHistoryQueryResponse>['variables'],
 ) => {
   const [
     {
@@ -82,20 +82,21 @@ export const useMSDynamicSyncHistoryVariables = (
 };
 
 export const useMSDynamicSyncHistory = (
-  options?: QueryHookOptions<MSDynamicSyncHistoryQueryResponse>,
+  options?: QueryHookOptions<TMSDynamicSyncHistoryQueryResponse>,
 ) => {
   const setTotalCount = useSetAtom(msDynamicSyncHistoryTotalCountAtom);
   const variables = useMSDynamicSyncHistoryVariables(options?.variables);
 
   const { data, loading, fetchMore } =
-    useQuery<MSDynamicSyncHistoryQueryResponse>(gql(queries.syncMsdHistories), {
-      ...options,
-      variables: {
+    useQuery<TMSDynamicSyncHistoryQueryResponse>(
+      gql(queries.syncMsdHistories),
+      {
+        ...options,
         skip: options?.skip || isUndefinedOrNull(variables.cursor),
-        ...variables,
+        variables,
+        fetchPolicy: 'network-only',
       },
-      fetchPolicy: 'network-only',
-    });
+    );
 
   const {
     list: syncHistories,

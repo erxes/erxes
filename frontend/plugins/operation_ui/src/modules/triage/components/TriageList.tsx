@@ -4,6 +4,7 @@ import { useInView } from 'react-intersection-observer';
 import { useGetTriages } from '@/triage/hooks/useGetTriages';
 import { TriageHeader } from './TriageHeader';
 import { TriageItem } from './TriageItem';
+import { useTranslation } from 'react-i18next';
 
 export const Triages = () => {
   return (
@@ -15,6 +16,7 @@ export const Triages = () => {
 };
 
 const TriageList = () => {
+  const { t } = useTranslation('operation');
   const { triages, loading, handleFetchMore, totalCount } = useGetTriages();
   const { ref: inViewRef } = useInView({
     onChange: (inView) => {
@@ -30,7 +32,7 @@ const TriageList = () => {
         <div className="border border-dashed p-6 bg-sidebar rounded-xl">
           <IconCaretLeftRight />
         </div>
-        <span className="text-sm">No triages to display at the moment.</span>
+        <span className="text-sm">{t('no-triages-to-display')}</span>
       </div>
     );
   }
@@ -54,7 +56,7 @@ const TriageList = () => {
               >
                 <div>
                   <Spinner containerClassName="inline-flex flex-none" />
-                  loading more...
+                  {t('loading-more')}
                 </div>
               </Button>
             )}

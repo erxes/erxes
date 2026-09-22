@@ -1,5 +1,6 @@
 import { Form } from 'erxes-ui';
 import { UseFormReturn, FieldValues, Path } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { SelectBoard, SelectPipeline, SelectStage } from 'ui-modules';
 
 interface Props<T extends FieldValues & { boardId: string; pipelineId: string; stageId: string }> {
@@ -11,6 +12,7 @@ export const PipelineSelectorFields = <
 >({
   form,
 }: Props<T>) => {
+  const { t } = useTranslation('mongolian');
   const selectedBoardId = form.watch('boardId' as Path<T>) as string;
   const selectedPipelineId = form.watch('pipelineId' as Path<T>) as string;
 
@@ -21,7 +23,7 @@ export const PipelineSelectorFields = <
         name={'boardId' as Path<T>}
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Board</Form.Label>
+            <Form.Label>{t('board')}</Form.Label>
             <SelectBoard
               mode="single"
               value={field.value}
@@ -30,7 +32,7 @@ export const PipelineSelectorFields = <
                 form.setValue('pipelineId' as Path<T>, '' as any);
                 form.setValue('stageId' as Path<T>, '' as any);
               }}
-              placeholder="Select board"
+              placeholder={t('select-board')}
             />
             <Form.Message />
           </Form.Item>
@@ -41,7 +43,7 @@ export const PipelineSelectorFields = <
         name={'pipelineId' as Path<T>}
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Pipeline</Form.Label>
+            <Form.Label>{t('pipeline')}</Form.Label>
             <SelectPipeline
               mode="single"
               value={field.value}
@@ -50,7 +52,7 @@ export const PipelineSelectorFields = <
                 form.setValue('stageId' as Path<T>, '' as any);
               }}
               boardId={selectedBoardId || undefined}
-              placeholder="Select pipeline"
+              placeholder={t('select-pipeline')}
             />
             <Form.Message />
           </Form.Item>
@@ -61,13 +63,13 @@ export const PipelineSelectorFields = <
         name={'stageId' as Path<T>}
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Stage</Form.Label>
+            <Form.Label>{t('stage')}</Form.Label>
             <SelectStage
               mode="single"
               value={field.value}
               onValueChange={(value) => field.onChange(value as string)}
               pipelineId={selectedPipelineId || undefined}
-              placeholder="Select stage"
+              placeholder={t('select-stage')}
             />
             <Form.Message />
           </Form.Item>

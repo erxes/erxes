@@ -1,7 +1,7 @@
 import * as _ from 'underscore';
 import { CONVERSATION_STATUSES } from '@/inbox/db/definitions/constants';
 import { IListArgs } from '~/conversationQueryBuilder';
-import { fixDate, fetchEs, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { fixDate, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { getIntegrationsKinds } from '@/inbox/utils';
 
@@ -79,6 +79,27 @@ const countByIntegrationTypes = async (
   return counts;
 };
 
+// Count conversations per individual Discord channel (each Discord channel is
+// its own integration), keyed by integration id. Used by the inbox sidebar's
+// "Discord Channels" section to badge each channel with its open count.
+const countByIntegrations = async (
+  qb: CommonBuilder<IListArgs>,
+  counts: ICountBy,
+): Promise<ICountBy> => {
+  const integrations = await qb.models.Integrations.findIntegrations({
+    kind: 'discord-messenger',
+  });
+
+  for (const integration of integrations) {
+    await qb.buildAllQueries();
+    qb.integrationFilter(integration._id);
+
+    counts[integration._id as string] = await qb.runQueries();
+  }
+
+  return counts;
+};
+
 export const countByConversations = async (
   models: IModels,
   subdomain: string,
@@ -102,6 +123,10 @@ export const countByConversations = async (
 
     case 'byTags':
       await countByTags(subdomain, qb, counts);
+      break;
+
+    case 'byIntegrations':
+      await countByIntegrations(qb, counts);
       break;
   }
 
@@ -362,6 +387,15 @@ export class CommonBuilder<IArgs extends IListArgs> {
     });
   }
 
+  // Restrict to a single integration (e.g. one Discord channel) by id.
+  public integrationFilter(integrationId: string) {
+    this.filterList.push({
+      terms: {
+        'integrationId.keyword': [integrationId],
+      },
+    });
+  }
+
   /*
    * prepare all queries. do not do any action
    */
@@ -411,27 +445,13 @@ export class CommonBuilder<IArgs extends IListArgs> {
     }
   }
 
-  /*
-   * Run queries
+  /**
+   * The counts were read from an Elasticsearch `conversations` index this
+   * deployment never had - the call already resolved to nothing, so every
+   * count has been empty. The clause builders above are kept as the seam a
+   * Mongo implementation fills; until then the answer is honestly zero.
    */
-  public async runQueries(): Promise<any> {
-    const queryOptions: any = {
-      query: {
-        bool: {
-          must: this.positiveList,
-          filter: this.filterList,
-        },
-      },
-    };
-
-    const response = await fetchEs({
-      subdomain: this.subdomain,
-      action: 'count',
-      index: 'conversations',
-      body: queryOptions,
-      defaultValue: 0,
-    });
-
-    return response.count;
+  public async runQueries(): Promise<number> {
+    return 0;
   }
 }

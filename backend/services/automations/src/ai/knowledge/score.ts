@@ -19,7 +19,7 @@ export const scoreAiKnowledgeChunk = (
   chunk: TAiKnowledgeChunk,
   query: Required<TAiKnowledgeQuery>,
 ): TAiKnowledgeScoredChunk => {
-  let score = PRIORITY_BOOST[chunk.priority];
+  let matchScore = 0;
   const reasons: string[] = [];
   const normalizedTitle = normalizeKnowledgeText(chunk.title || '');
   const normalizedContent = normalizeKnowledgeText(chunk.content);
@@ -33,14 +33,14 @@ export const scoreAiKnowledgeChunk = (
 
   for (const topic of query.topics.map(normalizeKnowledgeText)) {
     if (normalizedTopics.includes(topic)) {
-      score += 28;
+      matchScore += 28;
       reasons.push(`topic:${topic}`);
     }
   }
 
   for (const keyword of query.keywords.map(normalizeKnowledgeText)) {
     if (normalizedKeywords.includes(keyword)) {
-      score += 16;
+      matchScore += 16;
       reasons.push(`keyword:${keyword}`);
     }
   }
@@ -50,24 +50,31 @@ export const scoreAiKnowledgeChunk = (
     .map(normalizeKnowledgeText)
     .filter(Boolean)) {
     if (normalizedTitle.includes(term)) {
-      score += 14;
+      matchScore += 14;
       reasons.push(`title:${term}`);
     }
 
     if (includesAny(normalizedHeadingPath, [term])) {
-      score += 10;
+      matchScore += 10;
       reasons.push(`heading:${term}`);
     }
 
     if (normalizedKeywords.includes(term)) {
-      score += 8;
+      matchScore += 8;
       reasons.push(`term-keyword:${term}`);
     }
 
     if (normalizedContent.includes(term)) {
-      score += 3;
+      matchScore += 3;
     }
   }
 
-  return { chunk, score, reasons };
+  // Priority only breaks ties between chunks the query already reached; on its
+  // own it used to lift every unrelated chunk above the relevance floor.
+  return {
+    chunk,
+    score: matchScore + PRIORITY_BOOST[chunk.priority],
+    matchScore,
+    reasons,
+  };
 };

@@ -1,5 +1,6 @@
 import { ITask } from '@/task/types';
 import { Command, useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import {
   IconChevronRight,
   IconCopy,
@@ -68,6 +69,7 @@ export const CopyTaskMenu = ({
   tasks: ITask[];
   setOpen: (open: boolean) => void;
 }) => {
+  const { t } = useTranslation('operation');
   const { toast } = useToast();
 
   const assigneeIds = [
@@ -95,27 +97,27 @@ export const CopyTaskMenu = ({
   });
 
   const getAssigneeName = (assigneeId: string): string => {
-    if (!assigneeId) return 'Unassigned';
+    if (!assigneeId) return t('unassigned');
     const user = users?.find((u) => u._id === assigneeId);
     return user?.details?.fullName || assigneeId;
   };
 
   const getTagNames = (taskTagIds: string[]): string => {
-    if (!taskTagIds?.length) return 'None';
+    if (!taskTagIds?.length) return t('none');
     const tagNames = taskTagIds
       .map((id) => tags?.find((t) => t._id === id)?.name)
       .filter(Boolean);
-    return tagNames.length > 0 ? tagNames.join(', ') : 'None';
+    return tagNames.length > 0 ? tagNames.join(', ') : t('none');
   };
 
   const getStatusLabel = (status: string): string => {
     return (
-      statuses?.find((s) => s.value === status)?.label || status || 'No Status'
+      statuses?.find((s) => s.value === status)?.label || status || t('no-status')
     );
   };
 
   const getPriorityLabel = (priority: number): string => {
-    return PROJECT_PRIORITIES_OPTIONS[priority] || 'No Priority';
+    return t(PROJECT_PRIORITIES_OPTIONS[priority] || 'no-priority');
   };
 
   const generateMarkdown = (t: ITask): string => `**Name:** ${
@@ -158,21 +160,21 @@ export const CopyTaskMenu = ({
     const content = generateContent(type);
     const labels: Record<CopyType, string> = {
       url: 'URL',
-      title: 'Title',
-      titleAndDescription: 'Title & Description',
-      markdown: 'Markdown',
+      title: t('title'),
+      titleAndDescription: t('title-and-description'),
+      markdown: t('markdown'),
     };
     try {
       await navigator.clipboard.writeText(content);
       toast({
-        title: 'Copied!',
-        description: `${labels[type]} copied to clipboard`,
+        title: t('copied'),
+        description: t('copied-to-clipboard', { label: labels[type] }),
       });
       setOpen(false);
     } catch {
       toast({
-        title: 'Error',
-        description: 'Failed to copy',
+        title: t('error'),
+        description: t('failed-to-copy'),
         variant: 'destructive',
       });
     }
@@ -204,10 +206,13 @@ export const CopyTaskTrigger = ({
   setCurrentContent,
 }: {
   setCurrentContent: (content: string) => void;
-}) => (
-  <Command.Item onSelect={() => setCurrentContent('copy')}>
-    <IconCopy className="size-4" />
-    <div className="flex items-center flex-1">Copy</div>
-    <IconChevronRight className="size-4 text-muted-foreground" />
-  </Command.Item>
-);
+}) => {
+  const { t } = useTranslation('operation');
+  return (
+    <Command.Item onSelect={() => setCurrentContent('copy')}>
+      <IconCopy className="size-4" />
+      <div className="flex items-center flex-1">{t('copy')}</div>
+      <IconChevronRight className="size-4 text-muted-foreground" />
+    </Command.Item>
+  );
+};

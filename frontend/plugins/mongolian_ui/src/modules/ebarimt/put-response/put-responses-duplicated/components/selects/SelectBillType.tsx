@@ -23,6 +23,7 @@ import {
   SelectTrigger,
   SelectTriggerVariant,
 } from './SelectShared';
+import { useTranslation } from 'react-i18next';
 import { BILL_TYPE_DATA } from '../../constants/billTypeData';
 
 interface IBillType {
@@ -97,13 +98,14 @@ const SelectBillTypeValue = ({
   placeholder?: string;
   className?: string;
 }) => {
+  const { t } = useTranslation('mongolian');
   const { value, billTypes } = useSelectBillTypeContext();
   const selectedBillType = billTypes?.find((type) => type.value === value);
 
   if (!selectedBillType) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select bill type'}
+        {placeholder || t('select-bill-type')}
       </span>
     );
   }
@@ -135,13 +137,14 @@ const SelectBillTypeCommandItem = ({ billType }: { billType: IBillType }) => {
 };
 
 const SelectBillTypeContent = () => {
+  const { t } = useTranslation('mongolian');
   const { billTypes } = useSelectBillTypeContext();
 
   return (
     <Command>
-      <Command.Input placeholder="Search bill type" />
+      <Command.Input placeholder={t('search-bill-type')} />
       <Command.Empty>
-        <span className="text-muted-foreground">No bill types found</span>
+        <span className="text-muted-foreground">{t('no-bill-types-found')}</span>
       </Command.Empty>
       <Command.List>
         {billTypes?.map((billType) => (
@@ -153,10 +156,11 @@ const SelectBillTypeContent = () => {
 };
 
 export const SelectBillTypeFilterItem = () => {
+  const { t } = useTranslation('mongolian');
   return (
     <Filter.Item value="billType">
       <IconSettings />
-      Bill Type
+      {t('bill-type')}
     </Filter.Item>
   );
 };
@@ -201,6 +205,7 @@ export const SelectBillTypeFilterBar = ({
   onValueChange?: (value: string[] | string) => void;
   mode?: 'single' | 'multiple';
 }) => {
+  const { t } = useTranslation('mongolian');
   const [billType, setBillType] = useQueryState<string[] | string>('billType');
   const [open, setOpen] = useState(false);
 
@@ -208,7 +213,7 @@ export const SelectBillTypeFilterBar = ({
     <Filter.BarItem queryKey={'billType'}>
       <Filter.BarName>
         <IconSettings />
-        Bill Type
+        {t('bill-type')}
       </Filter.BarName>
       <SelectBillTypeProvider
         mode={mode}

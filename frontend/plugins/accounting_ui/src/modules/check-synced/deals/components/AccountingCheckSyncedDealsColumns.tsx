@@ -1,12 +1,4 @@
 import {
-  IconCalendarPlus,
-  IconCategory,
-  IconCurrencyDollar,
-  IconHash,
-  IconLabel,
-} from '@tabler/icons-react';
-import { ColumnDef } from '@tanstack/table-core';
-import {
   Checkbox,
   RecordTable,
   RecordTableInlineCell,
@@ -14,9 +6,17 @@ import {
   TextOverflowTooltip,
 } from 'erxes-ui';
 import {
-  AccountingCheckSyncedDeal,
-  AccountingCheckSyncedStatus,
-} from '../types';
+  IconCalendarPlus,
+  IconCategory,
+  IconCurrencyDollar,
+  IconHash,
+  IconLabel,
+} from '@tabler/icons-react';
+
+import { AccountingCheckSyncedDeal } from '../types';
+import { ColumnDef } from '@tanstack/table-core';
+import { HeaderCell } from '~/modules/check-synced/constants/HeaderCell';
+import { isSyncable } from '~/modules/check-synced/constants/shared';
 
 type AccountingCheckSyncedDealsColumnsOptions = {
   toSyncDealIds: Record<string, boolean>;
@@ -24,21 +24,6 @@ type AccountingCheckSyncedDealsColumnsOptions = {
   onToggleToSync: (id: string, checked: boolean) => void;
   onToggleAllToSync: (ids: string[], checked: boolean) => void;
 };
-
-const syncableStatuses = new Set<AccountingCheckSyncedStatus>([
-  'checked',
-  'synced',
-  'pending',
-  'error',
-  'resynced',
-]);
-
-const getSyncStatus = (
-  deal: AccountingCheckSyncedDeal,
-): AccountingCheckSyncedStatus => deal.syncStatus || 'skipped';
-
-export const isSyncableAccountingDeal = (deal: AccountingCheckSyncedDeal) =>
-  syncableStatuses.has(getSyncStatus(deal));
 
 const stringifyAmount = (amount: unknown) => {
   if (!amount) {
@@ -62,7 +47,7 @@ export const getAccountingCheckSyncedDealsColumns = ({
   {
     id: 'name',
     accessorKey: 'name',
-    header: () => <RecordTable.InlineHead icon={IconLabel} label="Deal name" />,
+    header: () => <HeaderCell icon={IconLabel} labelKey="deal-name" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={cell.getValue() as string} />
@@ -72,9 +57,7 @@ export const getAccountingCheckSyncedDealsColumns = ({
   {
     id: 'number',
     accessorKey: 'number',
-    header: () => (
-      <RecordTable.InlineHead icon={IconHash} label="Deal number" />
-    ),
+    header: () => <HeaderCell icon={IconHash} labelKey="deal-number" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={cell.getValue() as string} />
@@ -84,9 +67,7 @@ export const getAccountingCheckSyncedDealsColumns = ({
   {
     id: 'amount',
     accessorKey: 'amount',
-    header: () => (
-      <RecordTable.InlineHead icon={IconCurrencyDollar} label="Amount" />
-    ),
+    header: () => <HeaderCell icon={IconCurrencyDollar} labelKey="amount" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={stringifyAmount(cell.getValue())} />
@@ -96,9 +77,7 @@ export const getAccountingCheckSyncedDealsColumns = ({
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
-    header: () => (
-      <RecordTable.InlineHead icon={IconCalendarPlus} label="Created At" />
-    ),
+    header: () => <HeaderCell icon={IconCalendarPlus} labelKey="created-at" />,
     cell: ({ cell }) => (
       <RelativeDateDisplay value={cell.getValue() as string} asChild>
         <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
@@ -110,9 +89,7 @@ export const getAccountingCheckSyncedDealsColumns = ({
   {
     id: 'syncStatus',
     accessorKey: 'syncStatus',
-    header: () => (
-      <RecordTable.InlineHead icon={IconCategory} label="Sync status" />
-    ),
+    header: () => <HeaderCell icon={IconCategory} labelKey="sync-status" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={(cell.getValue() as string) || 'skipped'} />
@@ -148,7 +125,7 @@ export const getAccountingCheckSyncedDealsColumns = ({
     size: 33,
     cell: ({ row }) => {
       const deal = row.original;
-      const disabled = !isSyncableAccountingDeal(deal);
+      const disabled = !isSyncable(deal);
 
       return (
         <div className="flex items-center justify-center">
@@ -167,9 +144,7 @@ export const getAccountingCheckSyncedDealsColumns = ({
   {
     id: 'syncedDate',
     accessorKey: 'syncedDate',
-    header: () => (
-      <RecordTable.InlineHead icon={IconCategory} label="Synced date" />
-    ),
+    header: () => <HeaderCell icon={IconCategory} labelKey="synced-date" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={cell.getValue() as string} />
@@ -179,9 +154,7 @@ export const getAccountingCheckSyncedDealsColumns = ({
   {
     id: 'syncedBillNumber',
     accessorKey: 'syncedBillNumber',
-    header: () => (
-      <RecordTable.InlineHead icon={IconCategory} label="Synced number" />
-    ),
+    header: () => <HeaderCell icon={IconCategory} labelKey="synced-number" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={cell.getValue() as string} />

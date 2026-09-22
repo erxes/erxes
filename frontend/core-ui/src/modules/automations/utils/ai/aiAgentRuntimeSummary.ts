@@ -35,13 +35,20 @@ export type TAiAgentRuntimeSummary = {
   contextBytes: number;
   goalPromptChars: number;
   goalItemCount: number;
-  customInputChars: number;
-  inputMode: 'focused' | 'full-trigger' | 'previous-action' | 'custom';
-  notes: Array<{
-    variant: 'default' | 'warning';
-    text: string;
-  }>;
+  inputChars: number;
+  inputMode: 'full-trigger' | 'output-variable' | 'custom';
+  notes: TAiAgentRuntimeNote[];
 };
+
+export type TAiAgentRuntimeNote =
+  | {
+      variant: 'default' | 'warning';
+      text: string;
+    }
+  | {
+      variant: 'warning';
+      translationKey: 'ai-agent-input-full-trigger-warning';
+    };
 
 const DEFAULT_RUNTIME = {
   temperature: 0.2,
@@ -58,9 +65,23 @@ const getGoalPromptStats = (config?: DeepPartial<TAiAgentConfigForm>) => {
   }
 
   if (config.goalType === 'generateText') {
+    const captureFields = config.captureFields || [];
+
     return {
-      chars: config.prompt?.trim().length || 0,
-      itemCount: config.prompt?.trim() ? 1 : 0,
+      chars:
+        (config.prompt?.trim().length || 0) +
+        captureFields.reduce<number>(
+          (total, field) =>
+            total +
+            sumStringLength(
+              field?.fieldName,
+              field?.prompt,
+              field?.validation,
+              field?.dataType,
+            ),
+          0,
+        ),
+      itemCount: (config.prompt?.trim() ? 1 : 0) + captureFields.length,
     };
   }
 
@@ -102,6 +123,14 @@ const getGoalPromptStats = (config?: DeepPartial<TAiAgentConfigForm>) => {
 const getInputMode = (
   config?: DeepPartial<TAiAgentConfigForm>,
 ): TAiAgentRuntimeSummary['inputMode'] => {
+  if (config?.input !== undefined) {
+    if (!config.input.trim()) {
+      return 'full-trigger';
+    }
+
+    return config.input.includes('{{') ? 'output-variable' : 'custom';
+  }
+
   if (!config?.inputMapping) {
     return 'full-trigger';
   }
@@ -110,11 +139,17 @@ const getInputMode = (
     return 'custom';
   }
 
-  if (config.inputMapping.source === 'previousAction') {
-    return 'previous-action';
+  return config.inputMapping.path?.trim() ? 'output-variable' : 'full-trigger';
+};
+
+const getInputChars = (config?: DeepPartial<TAiAgentConfigForm>) => {
+  if (config?.input !== undefined) {
+    return config.input.trim().length;
   }
 
-  return config.inputMapping.path?.trim() ? 'focused' : 'full-trigger';
+  return config?.inputMapping?.source === 'custom'
+    ? config.inputMapping.customValue?.trim().length || 0
+    : 0;
 };
 
 export const formatAiAgentByteSize = (bytes: number) => {
@@ -144,10 +179,7 @@ export const buildAiAgentRuntimeSummary = ({
   const { chars: goalPromptChars, itemCount: goalItemCount } =
     getGoalPromptStats(actionConfig);
   const inputMode = getInputMode(actionConfig);
-  const customInputChars =
-    actionConfig?.inputMapping?.source === 'custom'
-      ? actionConfig?.inputMapping?.customValue?.trim().length || 0
-      : 0;
+  const inputChars = getInputChars(actionConfig);
   const model = agent?.connection?.model || '';
   const normalizedSystemPrompt =
     agent?.context?.systemPrompt?.trim().toLowerCase() || '';
@@ -157,26 +189,19 @@ export const buildAiAgentRuntimeSummary = ({
   const temperature =
     agent?.runtime?.temperature ?? DEFAULT_RUNTIME.temperature;
 
-  const notes: TAiAgentRuntimeSummary['notes'] = [];
+  const notes: TAiAgentRuntimeNote[] = [];
 
   if (inputMode === 'full-trigger') {
     notes.push({
       variant: 'warning',
-      text: 'This action will send the full trigger payload to the AI agent. Narrow the input path if you only need a few fields.',
+      translationKey: 'ai-agent-input-full-trigger-warning',
     });
   }
 
-  if (inputMode === 'previous-action') {
+  if (model.trim().toLowerCase().startsWith('gpt-5') && maxTokens < 2000) {
     notes.push({
       variant: 'warning',
-      text: 'This action reads the whole previous action result. Large upstream payloads can slow the model call.',
-    });
-  }
-
-  if (model.trim().toLowerCase().startsWith('gpt-5') && maxTokens <= 250) {
-    notes.push({
-      variant: 'warning',
-      text: 'GPT-5 models may spend part of the completion budget on internal reasoning. Very low max token caps can end with no visible text even when the prompt is short.',
+      text: 'GPT-5 models spend part of the completion budget on internal reasoning before any visible text. Caps below 2000 can return an empty reply even when the prompt is short. Raise max tokens.',
     });
   }
 
@@ -195,19 +220,12 @@ export const buildAiAgentRuntimeSummary = ({
     });
   }
 
-  if (actionConfig?.goalType === 'generateText' && maxTokens > 300) {
-    notes.push({
-      variant: 'default',
-      text: 'Short email or reply generation usually stays stable around 150-300 max tokens.',
-    });
-  }
-
   if (
     timeoutMs <= 15000 &&
     (contextBytes >= 25_000 ||
       systemPromptChars >= 1_000 ||
       goalPromptChars >= 600 ||
-      inputMode !== 'focused')
+      inputMode !== 'output-variable')
   ) {
     notes.push({
       variant: 'warning',
@@ -232,7 +250,7 @@ export const buildAiAgentRuntimeSummary = ({
     contextBytes,
     goalPromptChars,
     goalItemCount,
-    customInputChars,
+    inputChars,
     inputMode,
     notes,
   };

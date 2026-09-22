@@ -82,5 +82,5 @@ export const PositionsMoreColumnCell = ({
 export const PositionsMoreColumn = {
   id: 'more',
   cell: PositionsMoreColumnCell,
-  size: 25,
+  size: 33,
 };

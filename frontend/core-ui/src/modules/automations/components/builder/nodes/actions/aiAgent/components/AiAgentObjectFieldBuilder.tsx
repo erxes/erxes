@@ -2,17 +2,27 @@ import { TAiAgentConfigForm } from '@/automations/components/builder/nodes/actio
 import { IconTrash } from '@tabler/icons-react';
 import { Button, Form, Input, Select, Separator, Textarea } from 'erxes-ui';
 import { useFormContext } from 'react-hook-form';
+
+export type TAiAgentFieldsGroupName = 'objectFields' | 'captureFields';
+
+type TAiAgentFieldSuffix = 'fieldName' | 'prompt' | 'validation' | 'dataType';
+
 export const AiAgentObjectFieldBuilder = ({
   isLastElement,
   index,
   handleRemove,
+  name = 'objectFields',
 }: {
   isLastElement: boolean;
   index: number;
-
   handleRemove: () => void;
+  name?: TAiAgentFieldsGroupName;
 }) => {
   const { control } = useFormContext<TAiAgentConfigForm>();
+  // captureFields items share the exact shape of objectFields items, so the
+  // objectFields path type is reused while the runtime path stays correct.
+  const fieldPath = <S extends TAiAgentFieldSuffix>(suffix: S) =>
+    `${name}.${index}.${suffix}` as `objectFields.${number}.${S}`;
 
   return (
     <>
@@ -20,7 +30,7 @@ export const AiAgentObjectFieldBuilder = ({
         <div className="grid grid-cols-12 items-center gap-2">
           <Form.Field
             control={control}
-            name={`objectFields.${index}.fieldName`}
+            name={fieldPath('fieldName')}
             render={({ field }) => (
               <Form.Item className="col-span-5">
                 <Input {...field} placeholder="productName" />
@@ -31,10 +41,10 @@ export const AiAgentObjectFieldBuilder = ({
 
           <Form.Field
             control={control}
-            name={`objectFields.${index}.dataType`}
+            name={fieldPath('dataType')}
             render={({ field }) => (
               <Form.Item className="col-span-2">
-                <Select {...field} onValueChange={field.onChange}>
+                <Select value={field.value} onValueChange={field.onChange}>
                   <Select.Trigger>
                     <Select.Value />
                   </Select.Trigger>
@@ -53,7 +63,7 @@ export const AiAgentObjectFieldBuilder = ({
 
           <Form.Field
             control={control}
-            name={`objectFields.${index}.validation`}
+            name={fieldPath('validation')}
             render={({ field }) => (
               <Form.Item className="col-span-4">
                 <Input
@@ -78,7 +88,7 @@ export const AiAgentObjectFieldBuilder = ({
         </div>
         <Form.Field
           control={control}
-          name={`objectFields.${index}.prompt`}
+          name={fieldPath('prompt')}
           render={({ field }) => (
             <Form.Item>
               <Textarea

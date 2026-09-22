@@ -1,8 +1,10 @@
 import { IActivity } from '@/activity/types';
-export const ActivityNote = ({
-  action,
-}: {
-  action: IActivity['action'];
-}) => {
-  return <div className="lowercase">{action} note</div>;
+import { useTranslation } from 'react-i18next';
+export const ActivityNote = ({ action }: { action: IActivity['action'] }) => {
+  const { t } = useTranslation('frontline');
+  return (
+    <div className="lowercase">
+      {t('activity-note', '{{action}} note', { action })}
+    </div>
+  );
 };

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { IconChevronRight, IconUser } from '@tabler/icons-react';
 import { Command } from 'erxes-ui';
 import { SelectAssigneeTask } from '../task-selects/SelectAssigneeTask';
@@ -9,6 +10,7 @@ export const TasksAssignToTrigger = ({
 }: {
   setCurrentContent: (currentContent: string) => void;
 }) => {
+  const { t } = useTranslation('operation');
   return (
     <Command.Item
       className="w-full justify-between"
@@ -18,7 +20,7 @@ export const TasksAssignToTrigger = ({
     >
       <div className="flex gap-2 items-center">
         <IconUser className="size-4" />
-        Assign to
+        {t('assign-to')}
       </div>
       <IconChevronRight />
     </Command.Item>

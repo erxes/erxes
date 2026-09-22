@@ -510,28 +510,6 @@ export const permissions: IPermissionConfig = {
       ],
     },
     {
-      name: 'exchangeRates',
-      description: 'Exchange rate management',
-      scopeField: null,
-      ownerFields: [],
-
-      scopes: [{ name: 'all', description: 'All records' }],
-
-      actions: [
-        {
-          title: 'View exchange rates',
-          name: 'exchangeRatesRead',
-          description: 'View exchange rates',
-          always: true,
-        },
-        {
-          title: 'Manage exchange rates',
-          name: 'exchangeRatesManage',
-          description: 'Create, edit, delete exchange rates',
-        },
-      ],
-    },
-    {
       name: 'permissions',
       description: 'Permission management',
       scopeField: null,
@@ -599,6 +577,28 @@ export const permissions: IPermissionConfig = {
       ],
     },
     {
+      name: 'approval',
+      description: 'Approval lock management',
+      scopeField: null,
+      ownerFields: [],
+
+      scopes: [{ name: 'all', description: 'All records' }],
+
+      actions: [
+        {
+          title: 'Manage approval locks',
+          name: 'approvalLocksManage',
+          description: 'Create and release approval locks',
+          always: true,
+        },
+        {
+          title: 'Force release approval locks',
+          name: 'approvalLocksForceRelease',
+          description: 'Force release locked resources with a reason',
+        },
+      ],
+    },
+    {
       name: 'automations',
       description: 'Automation management',
       scopeField: null,
@@ -639,21 +639,21 @@ export const permissions: IPermissionConfig = {
           oauthScopes: ['automations:delete', 'automations:manage'],
         },
         {
-          title: 'Create automations',
+          title: 'Create AI agents',
           name: 'automationsAiAgentAdd',
-          description: 'Create automations',
+          description: 'Create AI agents',
           oauthScopes: ['automations:create', 'automations:manage'],
         },
         {
-          title: 'Edit ai agent automations',
+          title: 'Edit AI agents',
           name: 'automationsAiAgentEdit',
-          description: 'Edit automations',
+          description: 'Edit AI agents',
           oauthScopes: ['automations:update', 'automations:manage'],
         },
         {
-          title: 'Delete ai agent automations',
+          title: 'Delete AI agents',
           name: 'automationsAiAgentRemove',
-          description: 'Delete automations',
+          description: 'Delete AI agents',
           oauthScopes: ['automations:delete', 'automations:manage'],
         },
       ],
@@ -825,6 +825,12 @@ export const permissions: IPermissionConfig = {
           plugin: 'core',
           module: 'clientPortal',
           actions: ['clientPortalManage'],
+          scope: 'all',
+        },
+        {
+          plugin: 'core',
+          module: 'approval',
+          actions: ['approvalLocksManage', 'approvalLocksForceRelease'],
           scope: 'all',
         },
         {
@@ -1007,20 +1013,15 @@ export const permissions: IPermissionConfig = {
         },
         {
           plugin: 'core',
-          module: 'automations',
-          actions: ['automationsRead'],
+          module: 'approval',
+          actions: ['approvalLocksManage'],
           scope: 'all',
         },
         {
           plugin: 'core',
           module: 'automations',
-          actions: [
-            'automationsCreate',
-            'automationsUpdate',
-            'automationsAiAgentAdd',
-            'automationsAiAgentEdit',
-          ],
-          scope: 'own',
+          actions: ['automationsRead'],
+          scope: 'all',
         },
         {
           plugin: 'core',

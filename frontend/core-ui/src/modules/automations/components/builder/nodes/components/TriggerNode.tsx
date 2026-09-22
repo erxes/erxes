@@ -4,6 +4,7 @@ import {
   NodeErrorIndicator,
 } from '@/automations/components/builder/nodes/components/NodeErrorDisplay';
 import { NodeOutputHandler } from '@/automations/components/builder/nodes/components/NodeOutputHandler';
+import { ReadOnlyNodeHandles } from '@/automations/components/builder/nodes/components/ReadOnlyNodeHandles';
 import { TriggerNodeConfigurationContent } from '@/automations/components/builder/nodes/components/TriggerNodeConfigurationContent';
 import { useNodeContent } from '@/automations/components/builder/nodes/hooks/useTriggerNodeContent';
 import { AutomationNodeType, NodeData } from '@/automations/types';
@@ -85,9 +86,11 @@ const TriggerNode = ({ data, selected, id }: NodeProps<Node<NodeData>>) => {
             {data?.error && <NodeErrorIndicator error={data.error} />}
           </div>
 
-          <div className="flex items-center gap-1">
-            <NodeDropdownActions id={id} data={data} />
-          </div>
+          {!data.readOnly && (
+            <div className="flex items-center gap-1">
+              <NodeDropdownActions id={id} data={data} />
+            </div>
+          )}
         </div>
         <div className="p-3">
           <span className="text-xs text-accent-foreground ">
@@ -109,14 +112,18 @@ const TriggerNode = ({ data, selected, id }: NodeProps<Node<NodeData>>) => {
           <TriggerNodeContent data={data} />
         </div>
 
-        <NodeOutputHandler
-          nodeType={AutomationNodeType.Trigger}
-          handlerId={id}
-          className="!bg-primary"
-          addButtonClassName="hover:border-primary hover:text-primary "
-          showAddButton={!actionId}
-          flowDirection={data.flowDirection}
-        />
+        {data.readOnly ? (
+          <ReadOnlyNodeHandles flowDirection={data.flowDirection} />
+        ) : (
+          <NodeOutputHandler
+            nodeType={AutomationNodeType.Trigger}
+            handlerId={id}
+            className="!bg-primary"
+            addButtonClassName="hover:border-primary hover:text-primary "
+            showAddButton={!actionId}
+            flowDirection={data.flowDirection}
+          />
+        )}
       </div>
     </div>
   );

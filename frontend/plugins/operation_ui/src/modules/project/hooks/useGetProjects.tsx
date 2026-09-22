@@ -17,6 +17,7 @@ import {
   useToast,
   validateFetchMore,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useEffect } from 'react';
 import { currentUserState } from 'ui-modules';
@@ -69,6 +70,7 @@ export const useProjectsVariables = (
 export const useProjects = (
   options?: QueryHookOptions<ICursorListResponse<IProject>>,
 ) => {
+  const { t } = useTranslation('operation');
   const setProjectTotalCount = useSetAtom(projectTotalCountAtom);
   const { toast } = useToast();
   const variables = useProjectsVariables(options?.variables);
@@ -81,7 +83,7 @@ export const useProjects = (
     skip: options?.skip || isUndefinedOrNull(variables.cursor),
     onError: (e) => {
       toast({
-        title: 'Error',
+        title: t('error'),
         description: e.message,
         variant: 'destructive',
       });
@@ -95,11 +97,13 @@ export const useProjects = (
       document: PROJECT_LIST_CHANGED,
       variables: { filter: variables },
       updateQuery: (prev, { subscriptionData }) => {
-        if (!prev || !subscriptionData.data) return prev;
+        if (!subscriptionData.data) return prev;
 
         const { type, project } =
           subscriptionData.data.operationProjectListChanged;
-        const currentList = prev.getProjects.list;
+        const currentList = prev?.getProjects?.list;
+
+        if (!currentList) return prev;
 
         let updatedList = currentList;
 
@@ -134,8 +138,8 @@ export const useProjects = (
               type === 'create'
                 ? prev.getProjects.totalCount + 1
                 : type === 'remove'
-                ? prev.getProjects.totalCount - 1
-                : prev.getProjects.totalCount,
+                  ? prev.getProjects.totalCount - 1
+                  : prev.getProjects.totalCount,
           },
         };
       },

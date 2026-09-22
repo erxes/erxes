@@ -12,6 +12,7 @@ export const GET_PRODUCTS = gql`
     $categoryIds: [String]
     $vendorId: String
     $pipelineId: String
+    $sortField: String
     ${GQL_CURSOR_PARAM_DEFS}
   ) {
     productsMain(
@@ -19,6 +20,7 @@ export const GET_PRODUCTS = gql`
       categoryIds: $categoryIds
       vendorId: $vendorId
       pipelineId: $pipelineId
+      sortField: $sortField
       ${GQL_CURSOR_PARAMS}
     ) {
       list {
@@ -69,6 +71,12 @@ export const GET_PRODUCT_INLINE = gql`
       name
       code
     }
+  }
+`;
+
+export const GET_PRODUCT_LAST_CODE_BY_CATEGORY = gql`
+  query ProductLastCodeByCategory($categoryId: String) {
+    productLastCodeByCategory(categoryId: $categoryId)
   }
 `;
 

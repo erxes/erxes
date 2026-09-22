@@ -1,4 +1,5 @@
 import { PopoverScoped, Combobox, Command, Filter, useQueryState, useFilterContext, cn } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useGetActiveCycles } from '@/cycle/hooks/useGetActiveCycles';
 import { ICycle } from '@/cycle/types';
 import {
@@ -110,6 +111,7 @@ export const SelectCycleFormItem = ({
 };
 
 const SelectCycleValue = ({ placeholder }: { placeholder?: string }) => {
+  const { t } = useTranslation('operation');
   const { activeCycles, value } = useSelectCycleContext();
 
   if (!value)
@@ -117,7 +119,7 @@ const SelectCycleValue = ({ placeholder }: { placeholder?: string }) => {
       <div className="flex items-center gap-2 text-accent-foreground">
         <IconRestore className="size-4" />
         <span className="truncate font-medium">
-          {placeholder || 'Select cycle'}
+          {placeholder || t('select-cycle')}
         </span>
       </div>
     );
@@ -162,15 +164,16 @@ const SelectCycleCommandItem = ({ cycle }: { cycle: ICycle }) => {
 };
 
 const SelectCycleContent = () => {
+  const { t } = useTranslation('operation');
   const { activeCycles } = useSelectCycleContext();
 
   return (
     <Command id="cycle-command-menu">
-      <Command.Input placeholder="Search cycle" />
-      <Command.Empty>No cycle found</Command.Empty>
+      <Command.Input placeholder={t('search-cycle')} />
+      <Command.Empty>{t('no-cycle-found')}</Command.Empty>
       <Command.List>
         <SelectCycleCommandItem
-          cycle={{ _id: '', name: 'No cycle' } as ICycle}
+          cycle={{ _id: '', name: t('no-cycle') } as ICycle}
         />
         {activeCycles.map((cycle) => (
           <SelectCycleCommandItem key={cycle._id} cycle={cycle} />
@@ -325,6 +328,7 @@ const SelectCycleFilterContent = () => {
 };
 
 const SelectCycleFilterValue = () => {
+  const { t } = useTranslation('operation');
   const { value } = useSelectCycleContext();
 
   const selectedOption = CYCLE_FILTER_OPTIONS.find((opt) => opt.value === value);
@@ -333,7 +337,7 @@ const SelectCycleFilterValue = () => {
     <div className="flex items-center gap-2">
       <IconRestore className="size-4" />
       <span className="truncate font-medium">
-        {selectedOption?.label || 'Filter by cycle'}
+        {selectedOption?.label || t('filter-by-cycle')}
       </span>
     </div>
   );

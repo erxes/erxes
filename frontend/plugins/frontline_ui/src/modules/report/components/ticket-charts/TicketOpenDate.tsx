@@ -9,9 +9,10 @@ import {
 import { FrontlineCard } from '../frontline-card/FrontlineCard';
 import { useTicketDate } from '@/report/hooks/useTicketOpenDate';
 import { SelectChartType } from '../select-chart-type/SelectChartType';
-import { ResponsesChartType } from '@/report/types';
-import { memo, useMemo, useState, useEffect } from 'react';
-import { useAtom } from 'jotai';
+import { ReportChart, ResponsesChartType } from '@/report/types';
+import { memo, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import {
   Bar,
   BarChart,
@@ -20,6 +21,7 @@ import {
   XAxis,
   YAxis,
   Legend,
+  LabelList,
   Tooltip,
   CartesianGrid,
   PieChart,
@@ -33,21 +35,12 @@ import {
   type LegendPayload,
 } from 'recharts';
 import { ColumnDef } from '@tanstack/table-core';
-import { getFilters } from '@/report/utils/dateFilters';
 import { AreaGradient } from '../chart/AreaGradient';
 import { CustomLegendContent } from '../chart/legend';
 import {
   getReportChartTypeAtom,
-  getReportDateFilterAtom,
-  getReportChannelFilterAtom,
-  getReportMemberFilterAtom,
-  getReportPipelineFilterAtom,
-  getReportStateFilterAtom,
-  getReportPriorityFilterAtom,
   getReportFrequencyFilterAtom,
-  getReportTicketTagFilterAtom,
-  getReportCustomerFilterAtom,
-  getReportCompanyFilterAtom,
+  reportChartTypeState,
 } from '@/report/states';
 import { TicketReportFilter } from '../filter-popover/ticket-report-filter';
 import {
@@ -55,9 +48,14 @@ import {
   ChartPagination,
 } from '../chart-pagination/ChartPagination';
 import { ChartExportButton } from '../chart-export/ChartExportButton';
+import { ReportChartActions } from '../report-chart/ReportChartActions';
+import { useTicketChartCard } from '@/report/hooks/useTicketChartCard';
+import { TICKET_CHART_TYPES } from '@/report/types/component-registry';
 
 interface TicketOpenDateProps {
   title: string;
+  cardId?: string;
+  savedChart?: ReportChart;
   colSpan?: 6 | 12;
   onColSpanChange?: (span: 6 | 12) => void;
 }
@@ -68,39 +66,24 @@ interface ChartProps {
 
 export const TicketOpenDate = ({
   title,
+  cardId,
+  savedChart,
   colSpan = 6,
   onColSpanChange,
 }: TicketOpenDateProps) => {
-  const id = title.toLowerCase().replace(/\s+/g, '-');
-  const [chartType, setChartType] = useAtom(getReportChartTypeAtom(id));
-  const [dateValue] = useAtom(getReportDateFilterAtom(id));
-  const [channelFilter] = useAtom(getReportChannelFilterAtom(id));
-  const [memberFilter] = useAtom(getReportMemberFilterAtom(id));
-  const [pipelineFilter] = useAtom(getReportPipelineFilterAtom(id));
-  const [stateFilter] = useAtom(getReportStateFilterAtom(id));
-  const [priorityFilter] = useAtom(getReportPriorityFilterAtom(id));
+  const { t } = useTranslation('frontline');
+  const { id, filterConfig, queryFilters, filtersRestored } =
+    useTicketChartCard({ title, cardId, savedChart });
+  const setChartType = useSetAtom(getReportChartTypeAtom(id));
+  const chartType =
+    useAtomValue(reportChartTypeState)[id] ?? ResponsesChartType.Table;
   const [frequency] = useAtom(getReportFrequencyFilterAtom(id));
-  const [tagFilter] = useAtom(getReportTicketTagFilterAtom(id));
-  const [customerFilter] = useAtom(getReportCustomerFilterAtom(id));
-  const [companyFilter] = useAtom(getReportCompanyFilterAtom(id));
-  const [filters, setFilters] = useState(() => getFilters());
-
-  useEffect(() => {
-    setFilters(getFilters(dateValue || undefined));
-  }, [dateValue]);
 
   const { ticketDate, loading, error } = useTicketDate({
+    skip: !filtersRestored,
     variables: {
       filters: {
-        ...filters,
-        channelIds: channelFilter.length ? channelFilter : undefined,
-        memberIds: memberFilter.length ? memberFilter : undefined,
-        pipelineIds: pipelineFilter.length ? pipelineFilter : undefined,
-        state: stateFilter || undefined,
-        priority: priorityFilter.length ? priorityFilter : undefined,
-        tagIds: tagFilter.length ? tagFilter : undefined,
-        customerIds: customerFilter.length ? customerFilter : undefined,
-        companyIds: companyFilter.length ? companyFilter : undefined,
+        ...queryFilters,
         frequency,
       },
     },
@@ -128,6 +111,13 @@ export const TicketOpenDate = ({
     <>
       <TicketReportFilter cardId={id} />
       <SelectChartType value={chartType} onValueChange={setChartType} />
+      <ReportChartActions
+        chartType={TICKET_CHART_TYPES.date}
+        visualType={chartType}
+        colSpan={colSpan}
+        filters={filterConfig}
+        savedChart={savedChart}
+      />
       <ChartExportButton
         data={allData}
         columns={exportColumns}
@@ -136,7 +126,7 @@ export const TicketOpenDate = ({
     </>
   );
 
-  if (loading) {
+  if (loading || !filtersRestored) {
     return (
       <FrontlineCard
         id={id}
@@ -162,7 +152,9 @@ export const TicketOpenDate = ({
       >
         <FrontlineCard.Content>
           <Alert variant="destructive">
-            <Alert.Title>Error loading data</Alert.Title>
+            <Alert.Title>
+              {t('error-loading-data', 'Error loading data')}
+            </Alert.Title>
             <Alert.Description>{error.message}</Alert.Description>
           </Alert>
         </FrontlineCard.Content>
@@ -228,10 +220,17 @@ export const TicketOpenBarChart = memo(function TicketOpenBarChart({
     <ChartContainer config={chartConfig} className="aspect-video w-full">
       <BarChart
         data={chartData}
-        margin={{ top: 10, right: 10, left: 10, bottom: 60 }}
+        margin={{ top: 24, right: 10, left: 10, bottom: 60 }}
       >
         <CartesianGrid vertical={false} strokeDasharray="3 3" />
-        <Bar dataKey="count" fill="var(--primary)" name="Count" />
+        <Bar dataKey="count" fill="var(--primary)" name="Count">
+          <LabelList
+            dataKey="count"
+            position="top"
+            className="fill-foreground"
+            fontSize={12}
+          />
+        </Bar>
         <XAxis
           dataKey="date"
           tickLine={false}

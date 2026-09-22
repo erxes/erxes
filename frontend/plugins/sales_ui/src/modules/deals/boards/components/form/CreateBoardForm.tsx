@@ -7,12 +7,15 @@ import { useForm } from 'react-hook-form';
 import { useSelectBoardsContext } from '@/deals/context/DealContext';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useTranslation } from 'react-i18next';
+
 
 const formSchema = z.object({
   title: z.string().min(1),
 });
 
 export const CreateBoardForm = () => {
+  const { t } = useTranslation('sales');
   const { newBoardName, setNewBoardName } = useSelectBoardsContext();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -55,7 +58,7 @@ export const CreateBoardForm = () => {
             name="title"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Title</Form.Label>
+                <Form.Label>{t('title')}</Form.Label>
                 <Input {...field} />
                 <Form.Message />
               </Form.Item>
@@ -68,7 +71,7 @@ export const CreateBoardForm = () => {
             {loading ? (
               <IconLoader2 className="w-4 h-4 animate-spin" />
             ) : (
-              'Create'
+              t('create')
             )}
           </Button>
         </div>
@@ -82,6 +85,7 @@ export function SelectBoardsCreateContainer({
 }: {
   children: React.ReactNode;
 }) {
+  const { t } = useTranslation('sales');
   const { setNewBoardName } = useSelectBoardsContext();
   return (
     <div className="overflow-auto">
@@ -94,7 +98,7 @@ export function SelectBoardsCreateContainer({
           className="pl-1 gap-1"
         >
           <IconChevronLeft />
-          <h6>Create new board</h6>
+          <h6>{t('create-new-board')}</h6>
         </Button>
       </div>
       <Separator />

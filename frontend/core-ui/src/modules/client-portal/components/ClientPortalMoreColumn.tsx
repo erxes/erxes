@@ -93,5 +93,5 @@ export const ClientPortalMoreColumnCell = ({
 export const clientPortalMoreColumn = {
   id: 'more',
   cell: ClientPortalMoreColumnCell,
-  size: 15,
+  size: 33,
 };

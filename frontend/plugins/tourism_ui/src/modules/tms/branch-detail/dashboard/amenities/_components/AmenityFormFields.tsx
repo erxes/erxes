@@ -1,5 +1,6 @@
 import { Control, FieldPathByValue } from 'react-hook-form';
 import { Form, Input } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { AmenityCreateFormType } from '../constants/formSchema';
 import { AmenityIconPicker } from './AmenityIconPicker';
 
@@ -19,6 +20,7 @@ export const AmenityNameField = ({
   name = 'name',
   labelSuffix = '',
 }: AmenityNameFieldProps) => {
+  const { t } = useTranslation('tourism');
   return (
     <Form.Field
       control={control}
@@ -26,12 +28,12 @@ export const AmenityNameField = ({
       render={({ field }) => (
         <Form.Item>
           <Form.Label>
-            Name<span className="text-primary">{labelSuffix}</span>{' '}
+            {t('name')}<span className="text-primary">{labelSuffix}</span>{' '}
             <span className="text-destructive">*</span>
           </Form.Label>
           <Form.Control>
             <Input
-              placeholder="e.g., Free WiFi, Swimming Pool, Parking"
+              placeholder={t('amenity-name-placeholder')}
               {...field}
             />
           </Form.Control>
@@ -47,13 +49,14 @@ export const AmenityIconField = ({
 }: {
   control: Control<AmenityCreateFormType>;
 }) => {
+  const { t } = useTranslation('tourism');
   return (
     <Form.Field
       control={control}
       name="icon"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>Icon</Form.Label>
+          <Form.Label>{t('icon')}</Form.Label>
           <Form.Control>
             <AmenityIconPicker
               value={field.value}

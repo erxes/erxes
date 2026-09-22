@@ -1,5 +1,5 @@
 import { getBranchesUtil } from '@/pos/utils';
-import { paginate } from 'erxes-api-shared/utils';
+import { escapeRegExp, paginate } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
 const generateFilterQuery = async ({ isOnline, search }) => {
@@ -9,7 +9,7 @@ const generateFilterQuery = async ({ isOnline, search }) => {
   }
 
   if (search) {
-    query.name = { $regex: search }
+    query.name = { $regex: escapeRegExp(search), $options: 'i' };
   }
 
   return query;
@@ -19,14 +19,22 @@ const queries = {
   async posEnv() {
     const { ALLOW_OFFLINE_POS } = process.env;
     return {
-      ALLOW_OFFLINE_POS: [true, 'true', 'True', '1'].includes(ALLOW_OFFLINE_POS || ''),
+      ALLOW_OFFLINE_POS: [true, 'true', 'True', '1'].includes(
+        ALLOW_OFFLINE_POS || '',
+      ),
     };
   },
 
   async posList(_root, params, { models, checkPermission }: IContext) {
     await checkPermission('posRead');
     const query = await generateFilterQuery(params);
-    const posList = paginate(models.Pos.find(query), params);
+    const posQuery = models.Pos.find(query);
+
+    if (params.sortField === 'createdAt') {
+      posQuery.sort({ createdAt: params.sortDirection === 1 ? 1 : -1 });
+    }
+
+    const posList = paginate(posQuery, params);
     return posList;
   },
 
@@ -49,11 +57,15 @@ const queries = {
     { posId }: { posId: string },
     { models, checkPermission }: IContext,
   ) {
-    await checkPermission('posRead'); 
+    await checkPermission('posRead');
     return await models.ProductGroups.groups(posId);
   },
 
-  async posSlots(_root, { posId }: { posId: string }, { models, checkPermission }: IContext) {
+  async posSlots(
+    _root,
+    { posId }: { posId: string },
+    { models, checkPermission }: IContext,
+  ) {
     await checkPermission('posRead');
     return await models.PosSlots.find({ posId }).lean();
   },

@@ -23,6 +23,15 @@ const conversationClientMessageInserted = `
   }
 `;
 
+const conversationMessageUpdated = `
+  subscription frontlineConversationMessageUpdated($_id: String!) {
+    conversationMessageUpdated(_id: $_id) {
+      _id
+      isCustomerRead
+    }
+  }
+`;
+
 const conversationClientTypingStatusChanged = `
   subscription conversationClientTypingStatusChanged($_id: String!) {
     conversationClientTypingStatusChanged(_id: $_id) {
@@ -49,24 +58,6 @@ const customerConnectionChanged = `
 const callReceived = `
   subscription phoneCallReceived($userId: String) {
     phoneCallReceived(userId: $userId)
-  }
-`;
-
-const callWaitingReceived = `
-  subscription waitingCallReceived($extension: String) {
-    waitingCallReceived(extension: $extension)
-  }
-`;
-
-const callTalkingReceived = `
-  subscription talkingCallReceived($extension: String) {
-    talkingCallReceived(extension: $extension)
-  }
-`;
-
-const callAgentReceived = `
-  subscription agentCallReceived($extension: String) {
-    agentCallReceived(extension: $extension)
   }
 `;
 
@@ -189,14 +180,12 @@ const ticketActivityChanged = `
 export default {
   conversationChanged,
   conversationMessageInserted,
+  conversationMessageUpdated,
   conversationClientMessageInserted,
   conversationClientTypingStatusChanged,
   conversationExternalIntegrationMessageInserted,
   customerConnectionChanged,
   callReceived,
-  callTalkingReceived,
-  callWaitingReceived,
-  callAgentReceived,
   queueRealtimeUpdate,
   ticketPipelineChanged,
   ticketPipelineListChanged,

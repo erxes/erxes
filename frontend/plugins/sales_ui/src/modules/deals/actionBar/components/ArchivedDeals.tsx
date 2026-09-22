@@ -5,13 +5,28 @@ import {
   IconSortDescending,
 } from '@tabler/icons-react';
 import { useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { useAtomValue } from 'jotai';
+import { useEffect } from 'react';
+import { dealsViewAtom } from '@/deals/states/dealsViewState';
 
-export default function ArchivedDeals() {
+export const ArchivedDeals = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const isArchivedMode = searchParams.get('archivedOnly') === 'true';
+  const { t } = useTranslation('sales');
+  const view = useAtomValue(dealsViewAtom);
   const sortDir = (searchParams.get('archivedSort') || 'desc') as
     | 'asc'
     | 'desc';
+
+  useEffect(() => {
+    if (view === 'list' || !isArchivedMode) return;
+
+    const params = new URLSearchParams(searchParams);
+    params.delete('archivedOnly');
+    params.delete('archivedSort');
+    setSearchParams(params, { replace: true });
+  }, [view, isArchivedMode, searchParams, setSearchParams]);
 
   const handleToggle = () => {
     const params = new URLSearchParams(searchParams);
@@ -33,6 +48,10 @@ export default function ArchivedDeals() {
     setSearchParams(params, { replace: true });
   };
 
+  if (view !== 'list') {
+    return null;
+  }
+
   return (
     <div className="flex items-center">
       <Button
@@ -41,7 +60,7 @@ export default function ArchivedDeals() {
         className="gap-2"
       >
         <IconArchive size={18} />
-        {isArchivedMode ? 'Show Active Items' : 'Show Archived Items'}
+        {isArchivedMode ? t('show-active-items') : t('show-archived-items')}
       </Button>
 
       {isArchivedMode && (
@@ -51,8 +70,8 @@ export default function ArchivedDeals() {
               variant="ghost"
               size="icon"
               className="size-8 ml-1"
-              title="Sort by created date"
-              aria-label="Sort by created date"
+              title={t('sort-by-created-date')}
+              aria-label={t('sort-by-created-date')}
             >
               {sortDir === 'asc' ? (
                 <IconSortAscending size={16} />
@@ -62,14 +81,14 @@ export default function ArchivedDeals() {
             </Button>
           </DropdownMenu.Trigger>
           <DropdownMenu.Content align="end" className="w-52">
-            <DropdownMenu.Label>Sort by Created Date</DropdownMenu.Label>
+            <DropdownMenu.Label>{t('sort-by-created-date')}</DropdownMenu.Label>
             <DropdownMenu.Separator />
             <DropdownMenu.Item
               onClick={() => handleSortChange('desc')}
               className={sortDir === 'desc' ? 'text-primary' : ''}
             >
               <IconSortDescending className="size-4 mr-2" />
-              Newest first
+              {t('newest-first')}
               {sortDir === 'desc' && (
                 <DropdownMenu.Shortcut>✓</DropdownMenu.Shortcut>
               )}
@@ -79,7 +98,7 @@ export default function ArchivedDeals() {
               className={sortDir === 'asc' ? 'text-primary' : ''}
             >
               <IconSortAscending className="size-4 mr-2" />
-              Oldest first
+              {t('oldest-first')}
               {sortDir === 'asc' && (
                 <DropdownMenu.Shortcut>✓</DropdownMenu.Shortcut>
               )}
@@ -89,4 +108,4 @@ export default function ArchivedDeals() {
       )}
     </div>
   );
-}
+};

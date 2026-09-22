@@ -1,9 +1,11 @@
 import { Button, useConfirm, useToast } from 'erxes-ui';
 import { IconTrash } from '@tabler/icons-react';
 import { ApolloError } from '@apollo/client';
+import { useTranslation } from 'react-i18next';
 import { useDeleteLottery } from '../../../hooks/useDeleteLottery';
 
 export const DeleteLottery = ({ lotteryIds }: { lotteryIds: string[] }) => {
+  const { t } = useTranslation('loyalty');
   const { confirm } = useConfirm();
   const { removeLottery } = useDeleteLottery();
   const { toast } = useToast();
@@ -13,20 +15,20 @@ export const DeleteLottery = ({ lotteryIds }: { lotteryIds: string[] }) => {
       className="text-destructive"
       onClick={() =>
         confirm({
-          message: `Are you sure you want to delete ${lotteryIds.length} selected lottery(s)?`,
+          message: t('delete-lottery-confirm', { count: lotteryIds.length }),
         }).then(() => {
           removeLottery({
             variables: { _ids: lotteryIds },
           })
             .then(() => {
               toast({
-                title: `${lotteryIds.length} lottery(s) deleted successfully`,
+                title: t('lotteries-deleted', { count: lotteryIds.length }),
                 variant: 'success',
               });
             })
             .catch((e: ApolloError) => {
               toast({
-                title: 'Error',
+                title: t('error'),
                 description: e.message,
                 variant: 'destructive',
               });
@@ -35,7 +37,7 @@ export const DeleteLottery = ({ lotteryIds }: { lotteryIds: string[] }) => {
       }
     >
       <IconTrash />
-      Delete
+      {t('delete')}
     </Button>
   );
 };

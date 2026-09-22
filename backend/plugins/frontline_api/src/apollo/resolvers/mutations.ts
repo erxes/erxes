@@ -4,16 +4,23 @@ import { integrationMutations } from '@/inbox/graphql/resolvers/mutations/integr
 import { cpInboxMutations } from '@/inbox/graphql/resolvers/mutations/clientPortal';
 import { widgetMutations } from '@/inbox/graphql/resolvers/mutations/widget';
 import callMutations from '@/integrations/call/graphql/resolvers/mutations';
+import callProMutations from '@/integrations/callpro/graphql/resolvers/mutations';
 import { facebookMutations } from '@/integrations/facebook/graphql/resolvers/mutations';
+import { discordMutations } from '@/integrations/discord/graphql/resolvers/mutations';
 import { instagramMutations } from '@/integrations/instagram/graphql/resolvers/mutations';
+import { mailMutations } from '@/integrations/mail/graphql/resolvers/mutations';
 import { whatsappMutations } from '@/integrations/whatsapp/graphql/resolvers/mutations';
-import { imapMutations } from '@/integrations/imap/graphql/resolvers/mutations';
 import { knowledgeBaseMutations } from '@/knowledgebase/graphql/resolvers/mutations/knowledgeBaseMutations';
+import { helpCenterConfigMutations } from '@/helpcenter/graphql/resolvers/mutations/helpCenterConfig';
+import { reportChartMutations } from '@/reports/graphql/resolvers/chartMutations';
+import { reportFacebookMutations } from '@/reports/graphql/resolvers/facebookMutations';
 import { reportInboxQueries } from '@/reports/graphql/resolvers/inboxQueries';
 import { reportTicketQueries } from '@/reports/graphql/resolvers/ticketQueries';
 import { fieldMutations } from '~/modules/form/graphql/resolvers/mutations/fields';
 import { formMutations } from '~/modules/form/graphql/resolvers/mutations/forms';
 import { widgetFormMutation } from '~/modules/form/graphql/resolvers/mutations/widget';
+import { surveyMutations } from '~/modules/survey/graphql/resolvers/mutations/surveys';
+import { cpSurveyMutations } from '~/modules/survey/graphql/resolvers/mutations/clientPortal';
 import { responseTemplateMutations } from '~/modules/response/graphql/responseTemplateMutations';
 import ticketMutations from '~/modules/ticket/graphql/resolvers/mutations';
 
@@ -23,17 +30,24 @@ export const mutations = {
   ...integrationMutations,
   ...cpInboxMutations,
   ...facebookMutations,
+  ...discordMutations,
   ...instagramMutations,
   ...whatsappMutations,
   ...callMutations,
-  ...imapMutations,
+  ...callProMutations,
+  ...mailMutations,
   ...ticketMutations,
   ...widgetMutations,
   ...responseTemplateMutations,
   ...formMutations,
   ...widgetFormMutation,
   ...fieldMutations,
+  ...surveyMutations,
+  ...cpSurveyMutations,
   ...knowledgeBaseMutations,
+  ...helpCenterConfigMutations,
   ...reportInboxQueries,
   ...reportTicketQueries,
+  ...reportChartMutations,
+  ...reportFacebookMutations,
 };

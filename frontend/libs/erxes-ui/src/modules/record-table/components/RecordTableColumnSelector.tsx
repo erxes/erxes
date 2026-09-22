@@ -46,7 +46,13 @@ const getColumnLabel = (column: Column<any, unknown>): string => {
   return column.id;
 };
 
-const SortableColumnItem = ({ column }: { column: Column<any, unknown> }) => {
+const SortableColumnItem = ({
+  column,
+  isLastVisible,
+}: {
+  column: Column<unknown, unknown>;
+  isLastVisible: boolean;
+}) => {
   const isPinned = !!column.getIsPinned();
   const {
     attributes,
@@ -83,6 +89,10 @@ const SortableColumnItem = ({ column }: { column: Column<any, unknown> }) => {
       <Checkbox
         id={`col-visibility-${column.id}`}
         checked={column.getIsVisible()}
+        disabled={isLastVisible}
+        title={
+          isLastVisible ? 'At least one column must stay visible' : undefined
+        }
         onCheckedChange={(checked) => column.toggleVisibility(!!checked)}
       />
 
@@ -117,11 +127,14 @@ export const RecordTableColumnSelector = ({
   children?: React.ReactElement;
   align?: 'start' | 'center' | 'end';
 }) => {
-  const { table } = useRecordTable();
+  const { table, columnSelectorOpen, setColumnSelectorOpen } = useRecordTable();
 
   const columns = table
     .getAllLeafColumns()
-    .filter((col) => col.id !== 'select' && col.id !== 'more');
+    .filter(
+      (col) =>
+        col.id !== 'checkbox' && col.id !== 'select' && col.id !== 'more',
+    );
 
   const sensors = useSensors(
     useSensor(MouseSensor, {
@@ -143,10 +156,15 @@ export const RecordTableColumnSelector = ({
     }
   };
 
+  const visibleColumns = columns.filter((col) => col.getIsVisible());
+
   if (columns.length === 0) return null;
 
   return (
-    <DropdownMenu>
+    <DropdownMenu
+      open={columnSelectorOpen}
+      onOpenChange={setColumnSelectorOpen}
+    >
       <DropdownMenu.Trigger asChild>
         {children ?? (
           <Button variant="ghost" className="h-full w-full rounded-none px-0">
@@ -155,7 +173,10 @@ export const RecordTableColumnSelector = ({
         )}
       </DropdownMenu.Trigger>
 
-      <DropdownMenu.Content align={align} className="min-w-50 p-1">
+      <DropdownMenu.Content
+        align={align}
+        className="hide-scroll max-h-(--radix-dropdown-menu-content-available-height) w-72 max-w-[calc(100vw-2rem)] overflow-y-auto overscroll-contain p-1"
+      >
         <DndContext
           sensors={sensors}
           modifiers={[restrictToVerticalAxis]}
@@ -166,7 +187,14 @@ export const RecordTableColumnSelector = ({
             strategy={verticalListSortingStrategy}
           >
             {columns.map((column) => (
-              <SortableColumnItem key={column.id} column={column} />
+              <SortableColumnItem
+                key={column.id}
+                column={column}
+                isLastVisible={
+                  visibleColumns.length === 1 &&
+                  visibleColumns[0].id === column.id
+                }
+              />
             ))}
           </SortableContext>
         </DndContext>

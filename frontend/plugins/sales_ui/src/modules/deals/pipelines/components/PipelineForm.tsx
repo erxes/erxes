@@ -1,23 +1,25 @@
-import { Button, Tabs } from 'erxes-ui';
-
+import { Button, Tabs, useQueryState } from 'erxes-ui';
 import GeneralForm from '@/deals/boards/components/detail/GeneralForm';
-import PipelineStages from './PipelineStages';
-import ProductConfig from '@/deals/cards/components/detail/product/components/ProductConfig';
-import { useLocation } from 'react-router-dom';
+import { PipelineStages } from './PipelineStages';
+import { ProductConfig } from '@/deals/cards/components/detail/product/components/ProductConfig';
+import { useTranslation } from 'react-i18next';
+import type { TPipelineForm } from '@/deals/types/pipelines';
+import type { UseFormReturn } from 'react-hook-form';
+import { PipelinePropertySelector } from './PipelinePropertySelector';
 
 type Props = {
-  form: any;
+  form: UseFormReturn<TPipelineForm>;
   stagesLoading: boolean;
 };
 
 export const PipelineForm = ({ form, stagesLoading }: Props) => {
-  const location = useLocation();
-  const searchParams = new URLSearchParams(location.search);
-  const defaultTab = searchParams.get('tab') || 'general';
+  const { t } = useTranslation('sales');
+  const [activeTab, setActiveTab] = useQueryState<string>('tab');
 
   return (
     <Tabs
-      defaultValue={defaultTab}
+      value={activeTab || 'general'}
+      onValueChange={setActiveTab}
       className="flex flex-col h-full shadow-none"
     >
       <Tabs.List className="flex justify-center">
@@ -26,7 +28,7 @@ export const PipelineForm = ({ form, stagesLoading }: Props) => {
             variant={'outline'}
             className="bg-transparent data-[state=active]:bg-background data-[state=inactive]:shadow-none"
           >
-            General
+            {t('general')}
           </Button>
         </Tabs.Trigger>
         <Tabs.Trigger asChild value="stages">
@@ -34,7 +36,7 @@ export const PipelineForm = ({ form, stagesLoading }: Props) => {
             variant={'outline'}
             className="bg-transparent data-[state=active]:bg-background data-[state=inactive]:shadow-none"
           >
-            Stages
+            {t('stages')}
           </Button>
         </Tabs.Trigger>
         <Tabs.Trigger asChild value="productConfig">
@@ -42,7 +44,15 @@ export const PipelineForm = ({ form, stagesLoading }: Props) => {
             variant={'outline'}
             className="bg-transparent data-[state=active]:bg-background data-[state=inactive]:shadow-none"
           >
-            Product config
+            {t('product-config')}
+          </Button>
+        </Tabs.Trigger>
+        <Tabs.Trigger asChild value="properties">
+          <Button
+            variant={'outline'}
+            className="bg-transparent data-[state=active]:bg-background data-[state=inactive]:shadow-none"
+          >
+            {t('properties')}
           </Button>
         </Tabs.Trigger>
       </Tabs.List>
@@ -57,6 +67,12 @@ export const PipelineForm = ({ form, stagesLoading }: Props) => {
         className="h-full py-4 px-5 overflow-auto"
       >
         <ProductConfig form={form} />
+      </Tabs.Content>
+      <Tabs.Content
+        value="properties"
+        className="h-full py-4 px-5 overflow-auto"
+      >
+        <PipelinePropertySelector form={form} />
       </Tabs.Content>
     </Tabs>
   );

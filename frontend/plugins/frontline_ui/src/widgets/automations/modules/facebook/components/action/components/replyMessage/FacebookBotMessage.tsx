@@ -2,10 +2,10 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { IconGripVertical, IconTrash } from '@tabler/icons-react';
 import { Button, Card, Collapsible, Separator } from 'erxes-ui';
-import { FieldPath } from 'react-hook-form';
 import { REPLY_MESSAGE_ACTION_BUTTONS } from '../../constants/ReplyMessage';
 import { TBotMessage } from '../../states/replyMessageActionForm';
 import { FacebookMessageContent } from '~/widgets/automations/modules/facebook/components/action/components/replyMessage/FacebookMessageContent';
+import { FieldPath } from 'react-hook-form';
 
 export const FacebookBotMessage = ({
   index,
@@ -35,7 +35,11 @@ export const FacebookBotMessage = ({
     {};
 
   const collapsibleTitle =
-    message.type === 'text' ? message.text : `${title} Message`;
+    message.type === 'text'
+      ? message.text
+        ? message.text
+        : 'Text Message'
+      : `${title} Message`;
 
   return (
     <Card ref={setNodeRef} style={style} {...attributes} className="mt-4 ">

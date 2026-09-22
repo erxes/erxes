@@ -12,6 +12,7 @@ import {
 } from 'erxes-ui';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { SpinHotKeyScope } from '../../types/SpinHotKeyScope';
 
 import { spinFormSchema, SpinFormValues } from '../../constants/spinFormSchema';
@@ -23,6 +24,7 @@ type Props = {
 };
 
 export const LoyaltySpinEditSheet = ({ spinId }: Props) => {
+  const { t } = useTranslation('loyalty');
   const setHotkeyScope = useSetHotkeyScope();
   const [open, setOpen] = useState<boolean>(false);
   const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
@@ -109,7 +111,7 @@ export const LoyaltySpinEditSheet = ({ spinId }: Props) => {
         <Sheet.Trigger asChild>
           <Button variant="ghost" size="sm">
             <IconEdit className="h-4 w-4" />
-            Edit
+            {t('edit')}
             <Kbd>E</Kbd>
           </Button>
         </Sheet.Trigger>
@@ -121,7 +123,7 @@ export const LoyaltySpinEditSheet = ({ spinId }: Props) => {
         }}
       >
         <Sheet.Header>
-          <Sheet.Title>Edit spin campaign</Sheet.Title>
+          <Sheet.Title>{t('edit-spin-campaign')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="grow size-full h-auto flex flex-col overflow-hidden">

@@ -53,8 +53,12 @@ export const createDefaultOnlineHours = () => {
 };
 
 /**
- * Processes online hours from API response
+ * Only concrete weekdays are persisted. The `everyday`/`weekday`/`weekend`
+ * group keys exist purely as UI quick-selectors and are derived from the
+ * individual days, so legacy group entries are dropped on load.
  */
+const VALID_SCHEDULE_KEYS = new Set<string>(Object.values(Weekday));
+
 export const processOnlineHours = (
   onlineHours?: Exclude<
     MessengerSetupPayload['messengerData'],
@@ -62,9 +66,10 @@ export const processOnlineHours = (
   >['onlineHours'],
 ) => {
   return onlineHours?.reduce((acc, { day, from, to }) => {
-    acc[day] = { from, to, work: true };
+    if (!VALID_SCHEDULE_KEYS.has(day)) return acc;
+    acc[day] = { from: from ?? '', to: to ?? '', work: true };
     return acc;
-  }, {} as Record<Weekday, { from?: string; to?: string; work?: boolean }>);
+  }, {} as Record<string, { from?: string; to?: string; work?: boolean }>);
 };
 
 /**

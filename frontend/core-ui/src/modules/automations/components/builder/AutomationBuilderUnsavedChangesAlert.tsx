@@ -1,14 +1,9 @@
 import { useAutomationBuilderUnsavedChangesAlert } from '@/automations/hooks/useAutomationBuilderUnsavedChangesAlert';
-import { IAutomation } from '@/automations/types';
 import { AlertDialog } from 'erxes-ui';
 
-export const AutomationBuilderUnsavedChangesAlert = ({
-  detail,
-}: {
-  detail?: IAutomation;
-}) => {
+export const AutomationBuilderUnsavedChangesAlert = () => {
   const { blocker, isProceeding, isProceedingRef, t, processWithoutSaving } =
-    useAutomationBuilderUnsavedChangesAlert(detail);
+    useAutomationBuilderUnsavedChangesAlert();
 
   return (
     <AlertDialog

@@ -64,6 +64,12 @@ export const configSchema = new Schema({
     optional: true,
     label: ' OrderPassword',
   }),
+  serviceCharge: field({ type: Number, optional: true }),
+  serviceChargeApplicableProductId: field({
+    type: String,
+    optional: true,
+    label: 'Service charge applicable product id',
+  }),
   pdomain: field({ type: String, optional: true, label: 'Domain' }),
   userId: field({ type: String, optional: true, label: 'Created by' }),
   createdAt: getDateFieldDefinition('Created at'),
@@ -78,9 +84,9 @@ export const configSchema = new Schema({
   kioskMachine: field({ type: Object, optional: true }),
   kitchenScreen: field({ type: Object }),
   token: field({ type: String, label: 'Token generated at erxes-api' }),
-  erxesAppToken: field({ type: String, label: 'Erxes app token' }),
   uiOptions: field({ type: Object, label: 'Logo & color configs' }),
   ebarimtConfig: field({ type: ebarimtConfigSchema, optional: true }),
+  erkhetConfig: field({ type: Object, optional: true }),
   catProdMappings: field({
     type: [Object],
     label: 'Product category mappings',

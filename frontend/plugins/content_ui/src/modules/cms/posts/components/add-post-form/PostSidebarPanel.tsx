@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Tabs } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import type { FieldValues, UseFormReturn } from 'react-hook-form';
 import { ContentTab } from './ContentTab';
 import type {
@@ -43,6 +44,7 @@ export const PostSidebarPanel = ({
   cmsConfig,
   handleLanguageChange,
 }: PostSidebarPanelProps) => {
+  const { t } = useTranslation('content');
   const [activeTab, setActiveTab] = useState<'content' | 'media'>('content');
 
   return (
@@ -55,10 +57,10 @@ export const PostSidebarPanel = ({
           <Tabs.List className="border-none">
             <div className="flex justify-evenly items-center gap-4">
               <Tabs.Trigger value="content" className="w-full">
-                Content
+                {t('content')}
               </Tabs.Trigger>
               <Tabs.Trigger value="media" className="w-full">
-                Media
+                {t('media')}
               </Tabs.Trigger>
             </div>
           </Tabs.List>

@@ -3,20 +3,24 @@ import { useTagsColumns } from './TagsColumn';
 import { TagsCommandBar } from './tags-command-bar/TagsCommandBar';
 import { useTags } from '../../hooks/useTags';
 import { TAGS_CURSOR_SESSION_KEY } from '../constants/tagsCursorSessionKey';
+import { CmsTag } from '../types/tagTypes';
 
 interface TagsRecordTableProps {
   clientPortalId: string;
-  onEdit?: (tag: any) => void;
+  searchValue?: string;
+  onEdit?: (tag: CmsTag) => void;
   onBulkDelete?: (ids: string[]) => Promise<void> | void;
 }
 
 export const TagsRecordTable = ({
   clientPortalId,
+  searchValue,
   onEdit,
   onBulkDelete,
 }: TagsRecordTableProps) => {
   const { tags, loading, refetch, pageInfo, handleFetchMore } = useTags({
     clientPortalId,
+    searchValue,
   });
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
@@ -28,6 +32,7 @@ export const TagsRecordTable = ({
       data={tags || []}
       className="h-full"
       stickyColumns={['more', 'checkbox', 'name']}
+      tableId="content_tags_record_table"
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}
@@ -49,7 +54,7 @@ export const TagsRecordTable = ({
           </RecordTable.Body>
         </RecordTable>
       </RecordTable.CursorProvider>
-      {onBulkDelete && <TagsCommandBar onBulkDelete={onBulkDelete} />}
+      <TagsCommandBar onBulkDelete={onBulkDelete} />
     </RecordTable.Provider>
   );
 };

@@ -10,8 +10,10 @@ export const useAutomationsRemoteModules = (pluginName: string) => {
 
   const plugins = Object.values(pluginsMetaData);
 
+  const normalizedName = pluginName.replaceAll('-', '_');
+
   const result = plugins
-    .filter(({ name }) => name === pluginName)
+    .filter(({ name }) => name === normalizedName)
     .flatMap((plugin) =>
       (plugin.modules || [])
         .filter((module) => module.hasAutomation)

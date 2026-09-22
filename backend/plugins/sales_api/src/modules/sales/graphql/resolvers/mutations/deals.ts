@@ -8,6 +8,7 @@ import {
   getNewOrder,
   getTotalAmounts,
 } from '~/modules/sales/utils';
+import { normalizeProductDiscountInfos } from '~/modules/sales/utils/discountInfos';
 import {
   checkAssignedUserFromPData,
   copyChecklists,
@@ -15,7 +16,7 @@ import {
 } from '../utils';
 import { addDeal, changeDeal, createProductsData, editDeal } from './utils';
 import { graphqlPubsub } from 'erxes-api-shared/utils';
-import { Resolver } from 'erxes-api-shared/core-types';
+import { IUserDocument, Resolver } from 'erxes-api-shared/core-types';
 
 export const dealMutations: Record<string, Resolver> = {
   /**
@@ -27,6 +28,11 @@ export const dealMutations: Record<string, Resolver> = {
     { user, models, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('dealsAdd');
+
+    if (doc.productsData !== undefined) {
+      await checkPermission('dealsProductsEdit');
+    }
+
     return await addDeal({ models, subdomain, user, doc });
   },
 
@@ -39,14 +45,27 @@ export const dealMutations: Record<string, Resolver> = {
     { user, models, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('dealsEdit');
+
+    if (doc.productsData !== undefined) {
+      await checkPermission('dealsProductsEdit');
+    }
+
     return await editDeal({ models, subdomain, _id, processId, doc, user });
   },
 
   async cpDealsEdit(
     _root,
     { _id, processId, ...doc }: IDealDocument & { processId: string },
-    { user, models, subdomain }: IContext,
+    { models, subdomain, cpUser }: IContext,
   ) {
+    const userId = cpUser?.erxesCustomerId || cpUser?._id || null;
+
+    if (!userId) {
+      throw new Error('ClientPortal User not found');
+    }
+
+    const user = { _id: `cp:${userId}` } as IUserDocument;
+
     return await editDeal({ models, subdomain, _id, processId, doc, user });
   },
 
@@ -80,7 +99,11 @@ export const dealMutations: Record<string, Resolver> = {
     },
     { cpUser, models, subdomain }: IContext,
   ) {
-    return changeDeal(subdomain, models, cpUser?._id, { ...doc });
+    const userId = cpUser?.erxesCustomerId || cpUser?._id || null;
+    if (!userId) {
+      throw new Error('ClientPortal User not found');
+    }
+    return changeDeal(subdomain, models, `cp:${userId}`, { ...doc });
   },
 
   /**
@@ -110,7 +133,7 @@ export const dealMutations: Record<string, Resolver> = {
       throw new Error('Permission denied');
     }
 
-    const removed = await models.Deals.removeDeals([item._id]);
+    await models.Deals.removeDeals([item._id]);
 
     await subscriptionWrapper(models, {
       action: 'delete',
@@ -118,7 +141,7 @@ export const dealMutations: Record<string, Resolver> = {
       oldDeal: item,
     });
 
-    return removed;
+    return item;
   },
 
   /**
@@ -143,6 +166,10 @@ export const dealMutations: Record<string, Resolver> = {
 
     if (!item) {
       throw new Error('No Item Found');
+    }
+
+    if (item.productsData?.length) {
+      await checkPermission('dealsProductsEdit');
     }
 
     const doc = {
@@ -174,7 +201,12 @@ export const dealMutations: Record<string, Resolver> = {
 
     delete doc.sourceConversationIds;
 
-    for (const param of ['productsData', 'paymentsData']) {
+    for (const param of [
+      'productsData',
+      'paymentsData',
+      'mobileAmount',
+      'mobileAmounts',
+    ]) {
       doc[param] = item[param];
     }
 
@@ -209,8 +241,8 @@ export const dealMutations: Record<string, Resolver> = {
 
   async dealsArchive(
     _root,
-    { stageId, processId }: { stageId: string; processId: string },
-    { user, models, checkPermission }: IContext,
+    { stageId }: { stageId: string; processId: string },
+    { models, checkPermission }: IContext,
   ) {
     await checkPermission('dealsArchive');
     const items = await models.Deals.find({
@@ -226,15 +258,16 @@ export const dealMutations: Record<string, Resolver> = {
     const stage = await models.Stages.findOne({ _id: stageId }).lean();
     const pipelineId = stage?.pipelineId;
 
-    items.forEach(async (item) => {
-      await graphqlPubsub.publish('salesDealListChanged', {
-        salesDealListChanged: {
-          pipelineIds: [pipelineId],
-          deal: item,
-          oldDeal: { ...item, status: SALES_STATUSES.ARCHIVED },
-        },
-      });
-    });
+    await Promise.all(
+      items.map((item) =>
+        subscriptionWrapper(models, {
+          action: 'update',
+          deal: { ...item, status: SALES_STATUSES.ARCHIVED } as IDealDocument,
+          oldDeal: item as IDealDocument,
+          pipelineId,
+        }),
+      ),
+    );
 
     return 'ok';
   },
@@ -249,6 +282,7 @@ export const dealMutations: Record<string, Resolver> = {
     { models, checkPermission }: IContext,
   ) {
     await checkPermission('dealsEdit');
+    await checkPermission('dealsProductsEdit');
     return createProductsData({ models, processId, dealId, docs });
   },
 
@@ -268,6 +302,7 @@ export const dealMutations: Record<string, Resolver> = {
     { models, user, checkPermission }: IContext,
   ) {
     await checkPermission('dealsEdit');
+    await checkPermission('dealsProductsEdit');
     const deal = await models.Deals.getDeal(dealId);
 
     if (!deal.productsData?.length) {
@@ -282,8 +317,10 @@ export const dealMutations: Record<string, Resolver> = {
       throw new Error('Deals productData not found');
     }
 
-    const productsData: IProductData[] = (deal.productsData || []).map(
-      (data) => (data._id === dataId ? { ...doc } : data),
+    const productsData: IProductData[] = normalizeProductDiscountInfos(
+      (deal.productsData || []).map((data) =>
+        data._id === dataId ? { ...doc } : data,
+      ),
     );
 
     const possibleAssignedUsersIds: string[] = (deal.productsData || [])
@@ -380,8 +417,10 @@ export const dealMutations: Record<string, Resolver> = {
       throw new Error('Deals productData not found');
     }
 
-    const productsData: IProductData[] = (deal.productsData || []).map(
-      (data) => (data._id === dataId ? { ...doc } : data),
+    const productsData: IProductData[] = normalizeProductDiscountInfos(
+      (deal.productsData || []).map((data) =>
+        data._id === dataId ? { ...doc } : data,
+      ),
     );
 
     const possibleAssignedUsersIds: string[] = (deal.productsData || [])
@@ -451,6 +490,7 @@ export const dealMutations: Record<string, Resolver> = {
     { models, user, checkPermission }: IContext,
   ) {
     await checkPermission('dealsEdit');
+    await checkPermission('dealsProductsEdit');
     const deal = await models.Deals.getDeal(dealId);
 
     const oldPData = (deal.productsData || []).filter(
@@ -458,7 +498,10 @@ export const dealMutations: Record<string, Resolver> = {
     );
 
     if (!oldPData.length) {
-      throw new Error('Deals productData not found');
+      return {
+        dataIds,
+        productsData: deal.productsData || [],
+      };
     }
 
     const productsData = (deal.productsData || []).filter(

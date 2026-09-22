@@ -8,6 +8,7 @@ import {
   useConfirm,
   useToast,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { cn } from 'erxes-ui/lib';
 import { useMemo, useState } from 'react';
 import { useAtomValue } from 'jotai';
@@ -103,6 +104,7 @@ export const TourCalendar = ({
   branchLanguages,
   mainLanguage,
 }: TourCalendarProps) => {
+  const { t } = useTranslation('tourism');
   const { toast } = useToast();
   const { confirm } = useConfirm();
   const confirmOptions = { confirmationValue: 'delete' };
@@ -191,7 +193,9 @@ export const TourCalendar = ({
 
   const handleDelete = (tourId: string, tourName?: string) => {
     confirm({
-      message: `Are you sure you want to delete ${tourName || 'this tour'}?`,
+      message: tourName
+        ? t('confirm-delete-named-tour', { name: tourName })
+        : t('confirm-delete-tour'),
       options: confirmOptions,
     })
       .then(() => {
@@ -203,7 +207,7 @@ export const TourCalendar = ({
           onError: (error: ApolloError) => {
             setDeletingTourId(null);
             toast({
-              title: 'Error',
+              title: t('error'),
               description: error.message,
               variant: 'destructive',
             });
@@ -211,8 +215,8 @@ export const TourCalendar = ({
           onCompleted: () => {
             setDeletingTourId(null);
             toast({
-              title: 'Success',
-              description: 'Tour deleted successfully',
+              title: t('success'),
+              description: t('tour-deleted-successfully'),
               variant: 'success',
             });
           },
@@ -224,7 +228,7 @@ export const TourCalendar = ({
   return (
     <div className="flex flex-col overflow-hidden border rounded-md bg-sidebar">
       <div className="flex items-center justify-between gap-2 px-4 py-2 border-b bg-sidebar">
-        <div className="text-sm font-medium">Tours calendar</div>
+        <div className="text-sm font-medium">{t('tours-calendar')}</div>
 
         <div className="flex items-center gap-2">
           <Button
@@ -272,7 +276,7 @@ export const TourCalendar = ({
       {showEmptyMonthMessage ? (
         <div className="flex items-center justify-center px-6 py-10 bg-background">
           <div className="inline-flex items-center justify-center flex-1 max-w-xl px-4 py-3 text-sm text-center border border-dashed rounded-md bg-background text-muted-foreground">
-            No tours start in {monthLabel} {currentYear}.
+            {t('no-tours-in-month', { month: monthLabel, year: currentYear })}
           </div>
         </div>
       ) : (
@@ -285,7 +289,7 @@ export const TourCalendar = ({
               }}
             >
               <div className="sticky left-0 z-40 px-3 py-2 font-medium border-r bg-background text-foreground">
-                Tours
+                {t('calendar-tours-col')}
               </div>
 
               {days.map((day) => {
@@ -323,13 +327,13 @@ export const TourCalendar = ({
 
               {!loading && error && (
                 <div className="flex items-center justify-center py-10 text-sm text-destructive">
-                  {error.message || 'Failed to load tours'}
+                  {error.message || t('failed-to-load-tours')}
                 </div>
               )}
 
               {!loading && !error && (!tours || tours.length === 0) && (
                 <div className="flex items-center justify-center py-10 text-sm text-muted-foreground">
-                  No tours to display
+                  {t('no-tours-to-display')}
                 </div>
               )}
               {visibleRows.map((tour: ITour) => (

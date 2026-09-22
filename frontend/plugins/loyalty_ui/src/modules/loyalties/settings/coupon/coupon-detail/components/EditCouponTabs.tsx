@@ -2,6 +2,7 @@ import { ApolloError } from '@apollo/client';
 import { Button, Form, Sheet, Tabs, useToast } from 'erxes-ui';
 import { useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { AddCouponCampaignForm } from '../../add-coupon-campaign/components/AddCouponCampaignForm';
 import { AddCouponCodeRuleForm } from '../../add-coupon-campaign/components/AddCouponCodeRuleForm';
 import { AddCouponRestrictionForm } from '../../add-coupon-campaign/components/AddCouponRestrictionForm';
@@ -15,6 +16,7 @@ type Props = {
 };
 
 export const EditCouponTabs = ({ onOpenChange, form }: Props) => {
+  const { t } = useTranslation('loyalty');
   const [activeTab, setActiveTab] = useState('campaign');
 
   const { couponDetail } = useCouponDetailWithQuery();
@@ -98,7 +100,7 @@ export const EditCouponTabs = ({ onOpenChange, form }: Props) => {
       variables,
       onError: (e: ApolloError) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: e.message,
           variant: 'destructive',
         });
@@ -114,7 +116,7 @@ export const EditCouponTabs = ({ onOpenChange, form }: Props) => {
         className="bg-background hover:bg-background/90"
         onClick={() => onOpenChange(false)}
       >
-        Cancel
+        {t('cancel')}
       </Button>
       {isLastTab() ? (
         <Button
@@ -123,7 +125,7 @@ export const EditCouponTabs = ({ onOpenChange, form }: Props) => {
           onClick={handleSubmit}
           disabled={editLoading}
         >
-          {editLoading ? 'Updating...' : 'Update'}
+          {editLoading ? t('updating') : t('update')}
         </Button>
       ) : (
         <Button
@@ -131,7 +133,7 @@ export const EditCouponTabs = ({ onOpenChange, form }: Props) => {
           className="bg-primary text-primary-foreground hover:bg-primary/90"
           onClick={handleNext}
         >
-          Next
+          {t('next')}
         </Button>
       )}
     </Sheet.Footer>
@@ -149,7 +151,7 @@ export const EditCouponTabs = ({ onOpenChange, form }: Props) => {
             variant={'outline'}
             className="bg-transparent data-[state=active]:bg-background data-[state=inactive]:shadow-none"
           >
-            Campaign
+            {t('campaign')}
           </Button>
         </Tabs.Trigger>
         <Tabs.Trigger asChild value="restriction">
@@ -157,7 +159,7 @@ export const EditCouponTabs = ({ onOpenChange, form }: Props) => {
             variant={'outline'}
             className="bg-transparent data-[state=active]:bg-background data-[state=inactive]:shadow-none"
           >
-            Restriction
+            {t('restriction')}
           </Button>
         </Tabs.Trigger>
         <Tabs.Trigger asChild value="codeRule">
@@ -165,7 +167,7 @@ export const EditCouponTabs = ({ onOpenChange, form }: Props) => {
             variant={'outline'}
             className="bg-transparent data-[state=active]:bg-background data-[state=inactive]:shadow-none"
           >
-            Code rule
+            {t('code-rule')}
           </Button>
         </Tabs.Trigger>
       </Tabs.List>

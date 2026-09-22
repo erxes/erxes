@@ -11,12 +11,14 @@ import {
   useConfirm,
 } from 'erxes-ui';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 export const ChannelsMoreColumnCell = ({
   cell,
 }: {
   cell: Cell<IChannel, unknown>;
 }) => {
+  const { t } = useTranslation('frontline');
   const { _id } = cell.row.original;
   const navigate = useNavigate();
   const { removeChannel, loading } = useChannelRemove();
@@ -28,7 +30,10 @@ export const ChannelsMoreColumnCell = ({
 
   const handleDelete = () => {
     const confirmationValue = 'delete';
-    const confirmationMessage = 'Are you sure you want to delete this channel?';
+    const confirmationMessage = t(
+      'confirm-delete-channel',
+      'Are you sure you want to delete this channel?',
+    );
 
     confirm({
       message: confirmationMessage,
@@ -47,10 +52,11 @@ export const ChannelsMoreColumnCell = ({
         <Command shouldFilter={false}>
           <Command.List>
             <Command.Item value="edit" onSelect={handleEdit}>
-              <IconEdit /> Edit
+              <IconEdit /> {t('edit', 'Edit')}
             </Command.Item>
             <Command.Item value="delete" onSelect={handleDelete}>
-              {loading ? <Spinner size="sm" /> : <IconTrash />} Delete
+              {loading ? <Spinner size="sm" /> : <IconTrash />}{' '}
+              {t('delete', 'Delete')}
             </Command.Item>
           </Command.List>
         </Command>
@@ -61,8 +67,7 @@ export const ChannelsMoreColumnCell = ({
 
 export const channelsMoreColumn = {
   id: 'more',
+  header: () => <RecordTable.ColumnSelector />,
   cell: ChannelsMoreColumnCell,
-  size: 45,
-  minSize: 45,
-  maxSize: 45,
+  size: 33,
 };

@@ -1,5 +1,5 @@
 import { IOrderInput } from 'erxes-api-shared/core-types';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { graphqlPubsub, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import {
   IPipeline,
@@ -7,6 +7,7 @@ import {
   IStageDocument,
 } from '~/modules/sales/@types';
 import { checkNumberConfig } from '~/modules/sales/utils';
+import { validatePipelinePropertyIds } from '~/modules/sales/utils/pipelineProperties';
 
 export const pipelineMutations = {
   /**
@@ -15,7 +16,7 @@ export const pipelineMutations = {
   async salesPipelinesAdd(
     _root,
     { stages, ...doc }: IPipeline & { stages: IStageDocument[] },
-    { user, models, checkPermission }: IContext,
+    { user, models, checkPermission, subdomain }: IContext,
   ) {
     await checkPermission('pipelinesAdd');
     if (doc.numberConfig || doc.numberSize) {
@@ -31,8 +32,18 @@ export const pipelineMutations = {
     //   }
     // });
 
+    const propertyIds = await validatePipelinePropertyIds(
+      subdomain,
+      doc.propertyIds,
+    );
+
     return await models.Pipelines.createPipeline(
-      { userId: user._id, ...doc },
+      {
+        userId: user._id,
+        ...doc,
+        propertyIds,
+        isPropertySelectionConfigured: doc.propertyIds !== undefined,
+      },
       stages,
     );
   },
@@ -43,14 +54,29 @@ export const pipelineMutations = {
   async salesPipelinesEdit(
     _root,
     { _id, stages, ...doc }: IPipelineDocument & { stages: IStageDocument[] },
-    { models, checkPermission }: IContext,
+    { models, checkPermission, subdomain }: IContext,
   ) {
     await checkPermission('pipelinesEdit');
     if (doc.numberConfig || doc.numberSize) {
       await checkNumberConfig(doc.numberConfig || '', doc.numberSize || '');
     }
 
-    return await models.Pipelines.updatePipeline(_id, doc, stages);
+    const propertyIds =
+      doc.propertyIds === undefined
+        ? undefined
+        : await validatePipelinePropertyIds(subdomain, doc.propertyIds);
+
+    return await models.Pipelines.updatePipeline(
+      _id,
+      {
+        ...doc,
+        ...(propertyIds !== undefined && {
+          propertyIds,
+          isPropertySelectionConfigured: true,
+        }),
+      },
+      stages,
+    );
   },
 
   /**
@@ -127,10 +153,25 @@ export const pipelineMutations = {
    */
   async salesPipelinesArchive(
     _root,
-    { _id, status }: { _id: string; status: string },
-    { models }: IContext,
+    { _id }: { _id: string },
+    { models, user }: IContext,
   ) {
-    return await models.Pipelines.archivePipeline(_id, status);
+    await models.Pipelines.archivePipeline(_id, user._id);
+
+    const pipeline = await models.Pipelines.getPipeline(_id);
+
+    await graphqlPubsub.publish('salesPipelineListChanged', {
+      salesPipelineListChanged: {
+        _id,
+        action: 'statusChanged',
+        data: {
+          boardId: pipeline.boardId,
+          status: pipeline.status,
+        },
+      },
+    });
+
+    return true;
   },
 
   /**

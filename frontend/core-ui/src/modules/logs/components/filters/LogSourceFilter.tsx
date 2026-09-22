@@ -5,14 +5,26 @@ import {
   IconUserCheck,
   IconWebhook,
 } from '@tabler/icons-react';
-import { Combobox, Command, useMultiQueryState } from 'erxes-ui';
+import {
+  Combobox,
+  Command,
+  useFilterContext,
+  useMultiQueryState,
+} from 'erxes-ui';
 
-export const LogSourceFilter = () => {
+export const LogSourceFilter = ({
+  onValueChange,
+}: {
+  onValueChange?: () => void;
+}) => {
   const [queries, setQueries] = useMultiQueryState<{
     source: string;
     sourceOperator: string;
-  }>(['source', 'sourceOperator']);
+    action: string;
+    actionOperator: string;
+  }>(['source', 'sourceOperator', 'action', 'actionOperator']);
   const { source } = queries;
+  const { resetFilterState } = useFilterContext();
 
   return (
     <Command shouldFilter={false}>
@@ -44,12 +56,16 @@ export const LogSourceFilter = () => {
             key={value}
             value={value}
             className="cursor-pointer"
-            onSelect={() =>
+            onSelect={() => {
               setQueries({
                 source: value === source ? null : value,
                 sourceOperator: null,
-              })
-            }
+                action: null,
+                actionOperator: null,
+              });
+              resetFilterState();
+              onValueChange?.();
+            }}
           >
             <Icon />
             {label}

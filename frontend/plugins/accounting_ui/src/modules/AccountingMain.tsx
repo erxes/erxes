@@ -39,6 +39,42 @@ const AdjustInventoryDetail = lazy(() =>
   })),
 );
 
+const AdjustFundRateList = lazy(() =>
+  import('~/pages/AdjustFundRateListPage').then((module) => ({
+    default: module.AdjustFundRateListPage,
+  })),
+);
+
+const AdjustFundRateDetail = lazy(() =>
+  import('~/pages/AdjustFundRateDetailPage').then((module) => ({
+    default: module.AdjustFundRateDetailPage,
+  })),
+);
+
+const AdjustDebtRateList = lazy(() =>
+  import('~/pages/AdjustDebtRateListPage').then((module) => ({
+    default: module.AdjustDebtRateListPage,
+  })),
+);
+
+const AdjustDebtRateDetail = lazy(() =>
+  import('~/pages/AdjustDebtRateDetailPage').then((module) => ({
+    default: module.AdjustDebtRateDetailPage,
+  })),
+);
+
+const AdjustFixedAssetList = lazy(() =>
+  import('~/pages/AdjustFixedAssetListPage').then((module) => ({
+    default: module.AdjustFixedAssetListPage,
+  })),
+);
+
+const AdjustFixedAssetDetail = lazy(() =>
+  import('~/pages/AdjustFixedAssetDetailPage').then((module) => ({
+    default: module.AdjustFixedAssetDetailPage,
+  })),
+);
+
 const AccountingJournalReports = lazy(() =>
   import('~/pages/JournalReports').then((module) => ({
     default: module.JournalReports,
@@ -72,9 +108,33 @@ const InventoryReserveRemainders = lazy(() =>
   })),
 );
 
+const FxaOwnerRecords = lazy(() =>
+  import('~/pages/fixed-assets/FxaOwnerRecordsPage').then((module) => ({
+    default: module.FxaOwnerRecordsPage,
+  })),
+);
+
+const FxaRemainders = lazy(() =>
+  import('~/pages/fixed-assets/FxaRemaindersPage').then((module) => ({
+    default: module.FxaRemaindersPage,
+  })),
+);
+
 const TransactionPrint = lazy(() =>
   import('~/pages/TransactionPrintPage').then((module) => ({
     default: module.TransactionPrintPage,
+  })),
+);
+
+const AdjustClosingList = lazy(() =>
+  import('~/pages/AdjustClosingPage').then((module) => ({
+    default: module.AdjustClosingListPage,
+  })),
+);
+
+const AdjustClosingDetail = lazy(() =>
+  import('~/pages/AdjustClosingDetailPage').then((module) => ({
+    default: module.AdjustClosingDetailPage,
   })),
 );
 
@@ -106,6 +166,21 @@ const PluginAccounting = () => {
           path="/adjustment/inventory/detail"
           element={<AdjustInventoryDetail />}
         />
+        <Route path="/adjustment/fundRate" element={<AdjustFundRateList />} />
+        <Route
+          path="/adjustment/fundRate/detail"
+          element={<AdjustFundRateDetail />}
+        />
+        <Route path="/adjustment/debRate" element={<AdjustDebtRateList />} />
+        <Route
+          path="/adjustment/debRate/detail"
+          element={<AdjustDebtRateDetail />}
+        />
+        <Route path="/adjustment/fxa" element={<AdjustFixedAssetList />} />
+        <Route
+          path="/adjustment/fxa/detail"
+          element={<AdjustFixedAssetDetail />}
+        />
         <Route path="/journal-reports" element={<AccountingJournalReports />} />
         <Route path="/check-sync/*" element={<AccountingCheckSync />} />
         <Route
@@ -128,6 +203,16 @@ const PluginAccounting = () => {
         <Route
           path="/inventories/reserve-remainders"
           element={<InventoryReserveRemainders />}
+        />
+        <Route
+          path="/fixed-assets/owner-records"
+          element={<FxaOwnerRecords />}
+        />
+        <Route path="/fixed-assets/remainders" element={<FxaRemainders />} />
+        <Route path="adjustment/closing" element={<AdjustClosingList />} />
+        <Route
+          path="adjustment/closing/:id"
+          element={<AdjustClosingDetail />}
         />
       </Routes>
       <PageChangeEffect />

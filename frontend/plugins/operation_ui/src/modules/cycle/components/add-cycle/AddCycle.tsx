@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { IconPlus } from '@tabler/icons-react';
 import { CycleHotKeyScope } from '@/cycle/CycleHotkeyScope';
 import {
@@ -12,6 +13,7 @@ import { useState } from 'react';
 import { AddCycleForm } from '@/cycle/components/add-cycle/AddCycleForm';
 
 export const AddCycleSheet = () => {
+  const { t } = useTranslation('operation');
   const setHotkeyScope = useSetHotkeyScope();
   const [open, setOpen] = useState<boolean>(false);
   const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
@@ -33,7 +35,7 @@ export const AddCycleSheet = () => {
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          Add cycle
+          {t('add-cycle')}
           <Kbd>C</Kbd>
         </Button>
       </Sheet.Trigger>
@@ -50,11 +52,12 @@ export const AddCycleSheet = () => {
 };
 
 export const AddCycleSheetHeader = () => {
+  const { t } = useTranslation('operation');
   return (
     <Sheet.Header className="p-5">
-      <Sheet.Title>Add cycle</Sheet.Title>
+      <Sheet.Title>{t('add-cycle')}</Sheet.Title>
       <Sheet.Description className="sr-only">
-        Add a new cycle to your organization.
+        {t('add-a-new-cycle')}
       </Sheet.Description>
       <Sheet.Close />
     </Sheet.Header>

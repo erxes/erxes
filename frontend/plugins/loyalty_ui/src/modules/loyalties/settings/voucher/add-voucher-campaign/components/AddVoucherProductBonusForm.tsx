@@ -1,6 +1,7 @@
 import React from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { Form, Input } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { VoucherFormValues } from '../../constants/voucherFormSchema';
 import { SelectProduct } from 'ui-modules';
 
@@ -11,6 +12,7 @@ interface AddVoucherProductBonusFormProps {
 export const AddVoucherProductBonusForm: React.FC<
   AddVoucherProductBonusFormProps
 > = ({ form }) => {
+  const { t } = useTranslation('loyalty');
   return (
     <div className="space-y-4 p-5">
       <Form.Field
@@ -18,7 +20,7 @@ export const AddVoucherProductBonusForm: React.FC<
         name="bonusProduct"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Bonus Product</Form.Label>
+            <Form.Label>{t('bonus-product')}</Form.Label>
             <Form.Control>
               <SelectProduct
                 value={field.value}
@@ -36,11 +38,11 @@ export const AddVoucherProductBonusForm: React.FC<
         name="bonusCount"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Bonus Count</Form.Label>
+            <Form.Label>{t('bonus-count')}</Form.Label>
             <Form.Control>
               <Input
                 type="number"
-                placeholder="Enter bonus count"
+                placeholder={t('enter-bonus-count')}
                 value={field.value ?? ''}
                 onChange={(e) =>
                   field.onChange(

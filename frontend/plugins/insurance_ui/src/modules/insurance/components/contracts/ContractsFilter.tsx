@@ -8,15 +8,17 @@ import {
   IconToggleRightFilled,
 } from '@tabler/icons-react';
 import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useInsuranceTypes } from '~/modules/insurance/hooks';
 
 const PAYMENT_STATUS_OPTIONS = [
-  { label: 'Төлсөн', value: 'paid' },
-  { label: 'Хүлээгдэж буй', value: 'pending' },
-  { label: 'Цуцлагдсан', value: 'cancelled' },
+  { label: 'paid-label', value: 'paid' },
+  { label: 'pending-label', value: 'pending' },
+  { label: 'cancelled-label', value: 'cancelled' },
 ];
 
 const PaymentStatusFilterView = () => {
+  const { t } = useTranslation('insurance');
   const [queries, setQueries] = useMultiQueryState<{ paymentStatus: string }>([
     'paymentStatus',
   ]);
@@ -34,7 +36,7 @@ const PaymentStatusFilterView = () => {
             value === opt.value ? 'bg-accent font-medium' : ''
           }`}
         >
-          {opt.label}
+          {t(opt.label)}
         </button>
       ))}
     </div>
@@ -68,6 +70,7 @@ const InsuranceTypeFilterView = () => {
 };
 
 const ContractsFilterPopover = () => {
+  const { t } = useTranslation('insurance');
   const [queries] = useMultiQueryState<{
     searchValue: string;
     contractNumber: string;
@@ -98,44 +101,44 @@ const ContractsFilterPopover = () => {
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder="Filter"
+                placeholder={t('filter')}
                 variant="secondary"
                 className="bg-background"
               />
               <Command.List className="p-1">
                 <Filter.Item value="searchValue" inDialog>
                   <IconSearch />
-                  Хайх
+                  {t('search')}
                 </Filter.Item>
                 <Filter.Item value="contractNumber" inDialog>
                   <IconFileDescription />
-                  Гэрээний дугаар
+                  {t('contract-number')}
                 </Filter.Item>
                 <Filter.Item value="customerRegistration" inDialog>
                   <IconIdBadge2 />
-                  Регистрийн дугаар
+                  {t('registration-number')}
                 </Filter.Item>
                 <Filter.Item value="plateNumber" inDialog>
                   <IconCar />
-                  Улсын дугаар
+                  {t('plate-number')}
                 </Filter.Item>
                 <Command.Separator className="my-1" />
                 <Filter.Item value="paymentStatus">
                   <IconToggleRightFilled />
-                  Төлбөрийн төлөв
+                  {t('payment-status')}
                 </Filter.Item>
                 <Filter.Item value="insuranceTypeId">
                   <IconHash />
-                  Даатгалын төрөл
+                  {t('insurance-type')}
                 </Filter.Item>
                 <Command.Separator className="my-1" />
                 <Filter.Item value="startDate" inDialog>
                   <IconCalendar />
-                  Эхлэх огноо
+                  {t('start-date')}
                 </Filter.Item>
                 <Filter.Item value="endDate" inDialog>
                   <IconCalendar />
-                  Дуусах огноо
+                  {t('end-date')}
                 </Filter.Item>
               </Command.List>
             </Command>
@@ -176,6 +179,7 @@ const ContractsFilterPopover = () => {
 };
 
 export const ContractsFilter = () => {
+  const { t } = useTranslation('insurance');
   const [queries] = useMultiQueryState<{
     searchValue: string;
     contractNumber: string;
@@ -218,7 +222,7 @@ export const ContractsFilter = () => {
           <Filter.BarItem queryKey="searchValue">
             <Filter.BarName>
               <IconSearch />
-              Хайх
+              {t('search')}
             </Filter.BarName>
             <Filter.BarButton filterKey="searchValue" inDialog>
               {searchValue}
@@ -229,7 +233,7 @@ export const ContractsFilter = () => {
           <Filter.BarItem queryKey="contractNumber">
             <Filter.BarName>
               <IconFileDescription />
-              Гэрээний дугаар
+              {t('contract-number')}
             </Filter.BarName>
             <Filter.BarButton filterKey="contractNumber" inDialog>
               {contractNumber}
@@ -240,7 +244,7 @@ export const ContractsFilter = () => {
           <Filter.BarItem queryKey="customerRegistration">
             <Filter.BarName>
               <IconIdBadge2 />
-              Регистр
+              {t('registration')}
             </Filter.BarName>
             <Filter.BarButton filterKey="customerRegistration" inDialog>
               {customerRegistration}
@@ -251,7 +255,7 @@ export const ContractsFilter = () => {
           <Filter.BarItem queryKey="plateNumber">
             <Filter.BarName>
               <IconCar />
-              Улсын дугаар
+              {t('plate-number')}
             </Filter.BarName>
             <Filter.BarButton filterKey="plateNumber" inDialog>
               {plateNumber}
@@ -261,20 +265,21 @@ export const ContractsFilter = () => {
         <Filter.BarItem queryKey="paymentStatus">
           <Filter.BarName>
             <IconToggleRightFilled />
-            Төлбөрийн төлөв
+            {t('payment-status')}
           </Filter.BarName>
           <Filter.BarButton filterKey="paymentStatus">
-            {
-              PAYMENT_STATUS_OPTIONS.find(
+            {(() => {
+              const opt = PAYMENT_STATUS_OPTIONS.find(
                 (o) => o.value === queries?.paymentStatus,
-              )?.label
-            }
+              );
+              return opt ? t(opt.label) : undefined;
+            })()}
           </Filter.BarButton>
         </Filter.BarItem>
         <Filter.BarItem queryKey="insuranceTypeId">
           <Filter.BarName>
             <IconHash />
-            Даатгалын төрөл
+            {t('insurance-type')}
           </Filter.BarName>
           <Filter.BarButton filterKey="insuranceTypeId">
             {selectedTypeName}
@@ -284,7 +289,7 @@ export const ContractsFilter = () => {
           <Filter.BarItem queryKey="startDate">
             <Filter.BarName>
               <IconCalendar />
-              Эхлэх огноо
+              {t('start-date')}
             </Filter.BarName>
             <Filter.Date filterKey="startDate" />
           </Filter.BarItem>
@@ -293,7 +298,7 @@ export const ContractsFilter = () => {
           <Filter.BarItem queryKey="endDate">
             <Filter.BarName>
               <IconCalendar />
-              Дуусах огноо
+              {t('end-date')}
             </Filter.BarName>
             <Filter.Date filterKey="endDate" />
           </Filter.BarItem>

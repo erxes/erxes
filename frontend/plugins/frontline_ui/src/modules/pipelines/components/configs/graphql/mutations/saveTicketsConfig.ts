@@ -36,6 +36,19 @@ const SAVE_TICKETS_CONFIG = gql`
           placeholder
         }
       }
+      propertyFields {
+        fieldId
+        groupId
+        label
+        placeholder
+        order
+        isRequired
+        type
+        options {
+          label
+          value
+        }
+      }
       updatedAt
     }
   }

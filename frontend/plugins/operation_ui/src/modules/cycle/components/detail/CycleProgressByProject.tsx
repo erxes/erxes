@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { ProgressDot } from '@/cycle/components/detail/CycleProgress';
 import CycleProjectDetail from '@/cycle/components/detail/CycleProjectDetail';
 import { useGetCycleProgressByProject } from '@/cycle/hooks/useGetCycleProgressByProject';
@@ -14,6 +15,7 @@ export const CycleProgressByProject = ({
   isCompleted: boolean;
   statistics: any;
 }) => {
+  const { t } = useTranslation('operation');
   const { cycleProgressByProject } = useGetCycleProgressByProject({
     variables: { _id: cycleId },
     skip: !cycleId || isCompleted,
@@ -96,21 +98,21 @@ export const CycleProgressByProject = ({
             <div className="flex flex-col gap-1 text-muted-foreground">
               <p className="text-sm flex items-center gap-1">
                 <ProgressDot status="total" />
-                total:
+                {t('total')}
                 <span className="text-foreground ml-auto">
                   {item.totalScope}
                 </span>
               </p>
               <p className="text-sm flex items-center gap-1">
                 <ProgressDot status="completed" />
-                completed:
+                {t('completed-label')}
                 <span className="text-foreground ml-auto">
                   {item.totalCompletedScope}
                 </span>
               </p>
               <p className="text-sm flex items-center gap-1">
                 <ProgressDot status="started" />
-                started:
+                {t('started-label')}
                 <span className="text-foreground ml-auto">
                   {item.totalStartedScope}
                 </span>

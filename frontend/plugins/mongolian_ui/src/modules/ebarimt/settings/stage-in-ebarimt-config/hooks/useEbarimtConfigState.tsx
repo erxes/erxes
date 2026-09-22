@@ -71,6 +71,7 @@ export const useEbarimtConfigState = () => {
       reverseCtaxRules: [],
       withDescription: false,
       skipEbarimt: false,
+      sendEmail: false,
     };
 
     const updatedConfigsMap = {

@@ -8,6 +8,8 @@ import { taskQueries } from '@/task/graphql/resolvers/queries/task';
 import { teamQueries } from '@/team/graphql/resolvers/queries/team';
 import { triageQueries } from '@/task/graphql/resolvers/queries/triage';
 import { queries as templateQueries } from '@/template/graphql/resolvers';
+import { githubConfigQueries } from '@/githubIntegration/graphql/resolvers/queries/githubConfig';
+import { githubConnectionQueries } from '@/githubIntegration/graphql/resolvers/queries/githubConnection';
 
 export const queries = {
   ...taskQueries,
@@ -20,4 +22,6 @@ export const queries = {
   ...milestoneQueries,
   ...triageQueries,
   ...templateQueries,
+  ...githubConfigQueries,
+  ...githubConnectionQueries,
 };

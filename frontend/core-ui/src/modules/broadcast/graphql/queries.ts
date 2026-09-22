@@ -44,6 +44,7 @@ export const BROADCAST_MESSAGES = gql`
         validCustomersCount
         runCount
         fromUserId
+        fromEmail
         status
         progress
         shortMessage {
@@ -103,6 +104,7 @@ export const BROADCAST_MESSAGE = gql`
       runCount
       lastRunAt
       fromUserId
+      fromEmail
       stats
       shortMessage {
         from

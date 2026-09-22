@@ -2,34 +2,40 @@ import { ActionResultComponentProps } from '@/automations/components/builder/nod
 import { copyText } from '@/automations/utils/automationBuilderUtils/triggerUtils';
 import { IconCopy } from '@tabler/icons-react';
 import { Button } from 'erxes-ui';
-import { AutomationNodeMetaInfoRow } from 'ui-modules';
+import { ActionResult } from 'ui-modules';
+
+type TWaitEventResult = { waiting: string; description: string };
 
 export const WaitEventActionResult = ({
   result,
   action,
-}: ActionResultComponentProps<{ waiting: string; description: string }>) => {
+}: ActionResultComponentProps<TWaitEventResult>) => {
   const { waiting, description } = result || {};
-  const { targetType } = action?.actionConfig || {};
-
   const isWaitingWebhookEvent = action?.actionConfig?.targetType === 'custom';
+
   return (
-    <div className="m-2">
-      <AutomationNodeMetaInfoRow
-        fieldName="Waiting"
-        content={
-          isWaitingWebhookEvent ? (
-            <Button variant="link" onClick={() => copyText(waiting)}>
-              <IconCopy /> Copy Url
-            </Button>
-          ) : (
-            waiting
-          )
-        }
-      />
-      <AutomationNodeMetaInfoRow
-        fieldName="Description"
-        content={description}
-      />
-    </div>
+    <>
+      <ActionResult.Status status="waiting">
+        {description || 'Waiting for an event'}
+      </ActionResult.Status>
+      <ActionResult.Fields>
+        <ActionResult.Field
+          label="Waiting"
+          value={
+            isWaitingWebhookEvent ? (
+              <Button
+                variant="link"
+                size="sm"
+                onClick={() => copyText(waiting)}
+              >
+                <IconCopy /> Copy url
+              </Button>
+            ) : (
+              waiting
+            )
+          }
+        />
+      </ActionResult.Fields>
+    </>
   );
 };

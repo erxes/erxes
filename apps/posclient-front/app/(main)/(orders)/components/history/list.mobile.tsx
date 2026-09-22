@@ -72,7 +72,7 @@ const Loading = () => {
 }
 
 const OrderItem = (props: IOrderHistory) => {
-  const { type, status, number, createdAt, modifiedAt, paidDate } = props
+  const { type, status, number, createdAt, modifiedAt, user, paidDate } = props
   const TypeIcon = type === "eat" ? SoupIcon : TruckIcon
   const fd = (date: string) =>
     date ? format(new Date(date), "yyyy.MM.dd HH:mm") : "-"
@@ -93,6 +93,10 @@ const OrderItem = (props: IOrderHistory) => {
         <div className="flex items-center justify-between text-sm">
           <span className="text-neutral-600">Өөрчилсөн огноо</span>
           {fd(modifiedAt)}
+        </div>
+        <div className="flex items-center justify-between gap-2 text-sm">
+          <span className="text-neutral-600">Хэрэглэгч</span>
+          <span className="truncate">{user?.email || "-"}</span>
         </div>
         <div className="flex items-center justify-between text-sm">
           <span className="text-neutral-600">Төлбөр төлсөн огноо</span>

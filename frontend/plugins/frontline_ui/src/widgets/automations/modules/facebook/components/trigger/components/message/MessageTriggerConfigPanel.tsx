@@ -1,14 +1,21 @@
 import { IconChevronLeft } from '@tabler/icons-react';
 import { Button } from 'erxes-ui';
 import { useFormContext } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { useMessageTriggerFormContext } from '../../context/MessageTriggerFormContext';
 import { useMessageTriggerConditions } from '../../hooks/useMessageTriggerConditions';
 import { TMessageTriggerForm } from '../../types/messageTrigger';
 import { DirectMessageEditor } from './DirectMessageEditor';
+import { IceBreakerSelector } from './IceBreakerSelector';
 import { OpenThreadTriggerEditor } from './OpenThreadTriggerEditor';
 import { PersistentMenuSelector } from './PersistentMenuSelector';
 
-export const MessageTriggerConfigPanel = () => {
+export const MessageTriggerConfigPanel = ({
+  currentTriggerId,
+}: {
+  currentTriggerId?: string;
+}) => {
+  const { t } = useTranslation('frontline');
   const { watch } = useFormContext<TMessageTriggerForm>();
   const { activeConditionType, setActiveConditionType } =
     useMessageTriggerFormContext();
@@ -27,11 +34,13 @@ export const MessageTriggerConfigPanel = () => {
     <div className="m-4 border border-md px-4 py-2">
       <Button variant="ghost" onClick={() => setActiveConditionType('')}>
         <IconChevronLeft />
-        Back to conditions
+        {t('back-to-conditions', 'Back to conditions')}
       </Button>
 
       {activeConditionType === 'direct' ? (
         <DirectMessageEditor
+          botId={botId}
+          currentTriggerId={currentTriggerId}
           conditions={currentCondition?.conditions || []}
           onConditionChange={(fieldName, fieldValue) =>
             updateCondition(activeConditionType, fieldName, fieldValue as any)
@@ -42,7 +51,19 @@ export const MessageTriggerConfigPanel = () => {
       {activeConditionType === 'persistentMenu' ? (
         <PersistentMenuSelector
           botId={botId}
+          currentTriggerId={currentTriggerId}
           selectedPersistentMenuIds={currentCondition?.persistentMenuIds}
+          onConditionChange={(fieldName, fieldValue) =>
+            updateCondition(activeConditionType, fieldName, fieldValue as any)
+          }
+        />
+      ) : null}
+
+      {activeConditionType === 'iceBreaker' ? (
+        <IceBreakerSelector
+          botId={botId}
+          currentTriggerId={currentTriggerId}
+          selectedIceBreakerIds={currentCondition?.iceBreakerIds}
           onConditionChange={(fieldName, fieldValue) =>
             updateCondition(activeConditionType, fieldName, fieldValue as any)
           }

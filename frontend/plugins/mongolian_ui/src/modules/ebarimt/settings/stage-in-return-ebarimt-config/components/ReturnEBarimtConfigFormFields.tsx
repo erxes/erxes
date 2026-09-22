@@ -1,5 +1,6 @@
 import { UseFormReturn } from 'react-hook-form';
 import { Form, Input } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { SelectBoard, SelectPipeline, SelectStage } from 'ui-modules';
 import { TReturnEbarimtConfig } from '@/ebarimt/settings/stage-in-return-ebarimt-config/types';
 
@@ -16,6 +17,7 @@ export const ReturnEBarimtConfigFormFields = ({
   onBoardChange: (value: string | string[]) => void;
   onPipelineChange: (value: string | string[]) => void;
 }) => {
+  const { t } = useTranslation('mongolian');
   const selectedBoardId = form.watch('destinationStageBoard');
   const selectedPipelineId = form.watch('pipelineId');
 
@@ -31,9 +33,9 @@ export const ReturnEBarimtConfigFormFields = ({
           control={form.control}
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Title</Form.Label>
+              <Form.Label>{t('title')}</Form.Label>
               <Form.Control>
-                <Input {...field} placeholder="Title" />
+                <Input {...field} placeholder={t('title')} />
               </Form.Control>
               <Form.Message />
             </Form.Item>
@@ -46,7 +48,7 @@ export const ReturnEBarimtConfigFormFields = ({
             name="destinationStageBoard"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Destination Stage Board</Form.Label>
+                <Form.Label>{t('destination-stage-board')}</Form.Label>
                 <SelectBoard.FormItem
                   value={field.value}
                   onValueChange={onBoardChange}
@@ -60,7 +62,7 @@ export const ReturnEBarimtConfigFormFields = ({
             name="pipelineId"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Pipeline</Form.Label>
+                <Form.Label>{t('pipeline')}</Form.Label>
                 <SelectPipeline.FormItem
                   value={field.value}
                   boardId={selectedBoardId}
@@ -75,7 +77,7 @@ export const ReturnEBarimtConfigFormFields = ({
             name="stageId"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Stage</Form.Label>
+                <Form.Label>{t('stage')}</Form.Label>
                 <SelectStage.FormItem
                   value={field.value}
                   pipelineId={selectedPipelineId}

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import { Dialog, Button, Label, Input } from 'erxes-ui';
 import { useCreateRiskType, useUpdateRiskType } from '../hooks';
@@ -16,6 +17,7 @@ export const RiskTypeForm = ({
   riskType,
   onSuccess,
 }: RiskTypeFormProps) => {
+  const { t } = useTranslation('insurance');
   const { createRiskType, loading: creating } = useCreateRiskType();
   const { updateRiskType, loading: updating } = useUpdateRiskType();
 
@@ -72,26 +74,26 @@ export const RiskTypeForm = ({
       <Dialog.Content className="max-w-md">
         <Dialog.Header>
           <Dialog.Title>
-            {riskType ? 'Edit Risk Type' : 'Create New Risk Type'}
+            {riskType ? t('edit-risk-type') : t('create-new-risk-type')}
           </Dialog.Title>
         </Dialog.Header>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Name *</Label>
+            <Label htmlFor="name">{t('name-required')}</Label>
             <Input
               id="name"
               value={formData.name}
               onChange={(e) =>
                 setFormData({ ...formData, name: e.target.value })
               }
-              placeholder="e.g., Fire, Theft, Accident"
+              placeholder={t('risk-type-name-placeholder')}
               required
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description">{t('description')}</Label>
             <textarea
               id="description"
               className="w-full min-h-[100px] p-2 border rounded-md"
@@ -99,7 +101,7 @@ export const RiskTypeForm = ({
               onChange={(e) =>
                 setFormData({ ...formData, description: e.target.value })
               }
-              placeholder="Describe this risk type..."
+              placeholder={t('describe-risk-type')}
             />
           </div>
 
@@ -110,14 +112,14 @@ export const RiskTypeForm = ({
               onClick={() => onOpenChange(false)}
               disabled={creating || updating}
             >
-              Cancel
+              {t('cancel')}
             </Button>
             <Button type="submit" disabled={creating || updating}>
               {creating || updating
-                ? 'Saving...'
+                ? t('saving')
                 : riskType
-                ? 'Update'
-                : 'Create'}
+                ? t('update')
+                : t('create')}
             </Button>
           </Dialog.Footer>
         </form>

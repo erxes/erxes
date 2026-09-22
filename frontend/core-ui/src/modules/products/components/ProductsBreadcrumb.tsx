@@ -1,6 +1,7 @@
 import { IconCube } from '@tabler/icons-react';
 import { Breadcrumb, Button } from 'erxes-ui';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { PageHeader } from 'ui-modules';
 import type { IProductNavigationItem } from '@/products/hooks/useProductNavigationItems';
 
@@ -11,6 +12,7 @@ interface ProductsBreadcrumbProps {
 export function ProductsBreadcrumb({
   currentPage,
 }: Readonly<ProductsBreadcrumbProps>) {
+  const { t } = useTranslation('product');
   const Icon = currentPage.icon;
 
   return (
@@ -21,7 +23,7 @@ export function ProductsBreadcrumb({
             <Button variant="ghost" asChild>
               <Link to="/settings/products">
                 <IconCube />
-                Product
+                {t('product', 'Product')}
               </Link>
             </Button>
           </Breadcrumb.Item>

@@ -32,5 +32,8 @@ export const PRINT_DOCUMENTS = {
   [TrJournalEnum.INV_SALE_RETURN_OUT]: '',
   [TrJournalEnum.INV_SALE_RETURN_COST]: '',
 
-  [TrJournalEnum.FIXED_ASSET]: '',
+  [TrJournalEnum.FXA_INCOME]: '',
+  [TrJournalEnum.FXA_OUT]: '',
+  [TrJournalEnum.FXA_MOVE]: '',
+  [TrJournalEnum.FXA_SALE]: '',
 };

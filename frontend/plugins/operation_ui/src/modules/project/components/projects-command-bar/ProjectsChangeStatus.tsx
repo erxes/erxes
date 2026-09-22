@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Command } from 'erxes-ui';
 import { SelectStatus } from '@/operation/components/SelectStatus';
 import { useUpdateProject } from '@/project/hooks/useUpdateProject';
@@ -7,13 +8,14 @@ export const ProjectsChangeStatusTrigger = ({
 }: {
   setCurrentContent: (currentContent: string) => void;
 }) => {
+  const { t } = useTranslation('operation');
   return (
     <Command.Item
       onSelect={() => {
         setCurrentContent('status');
       }}
     >
-      <div className="flex gap-2 items-center">Change Status</div>
+      <div className="flex gap-2 items-center">{t('change-status')}</div>
     </Command.Item>
   );
 };

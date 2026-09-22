@@ -1,8 +1,10 @@
 import { Sidebar } from 'erxes-ui';
 import { Link, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { SETTINGS_ROUTES } from '@/ebarimt/settings/constants/settingRoutes';
 
 export const EBarimtSidebar = () => {
+  const { t } = useTranslation('mongolian');
   return (
     <Sidebar collapsible="none" className="border-r flex-none">
       <Sidebar.Group>
@@ -13,7 +15,7 @@ export const EBarimtSidebar = () => {
                 key={path}
                 to={path ? `/settings/mongolian/ebarimt/${path}` : '/settings/mongolian/ebarimt'}
               >
-                {label}
+                {t(label)}
               </EBarimtSidebarItem>
             ))}
           </Sidebar.Menu>

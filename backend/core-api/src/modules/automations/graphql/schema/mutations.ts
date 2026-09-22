@@ -32,7 +32,8 @@ const emailTemplateFields = `
 
 const mutations = `
   automationsAdd(${commonFields}): Automation
-  automationsEdit(_id: String, ${commonFields}): Automation
+  automationsEdit(_id: String, acknowledgeDuplicate: Boolean, ${commonFields}): Automation
+  automationsDuplicate(_id: String!, name: String): Automation
   automationsRemove(automationIds: [String]): [String]
   archiveAutomations(automationIds: [String],isRestore:Boolean): [String]
 
@@ -50,6 +51,10 @@ const mutations = `
   automationEmailTemplatesAdd(${emailTemplateFields}): AutomationEmailTemplate
   automationEmailTemplatesEdit(_id: String!, ${emailTemplateFields}): AutomationEmailTemplate
   automationEmailTemplatesRemove(_id: String!): JSON
+
+  automationWorkflowTemplatesAdd(name: String!, description: String, entryActionId: String, actions: JSON, inputs: JSON): AutomationWorkflowTemplate
+  automationWorkflowTemplatesEdit(_id: String!, name: String, description: String, entryActionId: String, actions: JSON, inputs: JSON): AutomationWorkflowTemplate
+  automationWorkflowTemplatesRemove(_id: String!): JSON
 `;
 
 export default mutations;

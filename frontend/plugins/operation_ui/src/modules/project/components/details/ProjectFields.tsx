@@ -5,6 +5,7 @@ import {
   useBlockEditor,
   BlockEditor,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useUpdateProject } from '@/project/hooks/useUpdateProject';
 import { useDebounce } from 'use-debounce';
 import { useEffect, useState } from 'react';
@@ -22,6 +23,7 @@ import { SelectTags, SelectMember } from 'ui-modules';
 import { parseDescriptionBlocks } from '@/operation/utils/parseDescriptionBlocks';
 
 export const ProjectFields = ({ projectId }: { projectId: string }) => {
+  const { t } = useTranslation('operation');
   const { project } = useGetProject({
     variables: { _id: projectId },
   });
@@ -45,7 +47,7 @@ export const ProjectFields = ({ projectId }: { projectId: string }) => {
   >(parseDescriptionBlocks(description));
   const editor = useBlockEditor({
     initialContent: descriptionContent?.length ? descriptionContent : undefined,
-    placeholder: 'Description...',
+    placeholder: t('description-placeholder'),
   });
   const { updateProject } = useUpdateProject();
 
@@ -138,7 +140,7 @@ export const ProjectFields = ({ projectId }: { projectId: string }) => {
       />
       <Input
         className="shadow-none focus-visible:shadow-none h-8 text-xl p-0"
-        placeholder="Project Name"
+        placeholder={t('project-name')}
         value={name}
         onChange={(e) => setName(e.target.value)}
       />

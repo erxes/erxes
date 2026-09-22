@@ -5,6 +5,7 @@ import {
 } from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
 import { generateFilter } from '~/modules/contacts/utils';
+import { customerSearchTokenConfig } from '@/contacts/db/definitions/customers';
 import { buildCustomerExportRow } from './buildCustomerExportRow';
 
 export async function getCustomerExportData(
@@ -20,7 +21,12 @@ export async function getCustomerExportData(
   let query: any = {};
 
   if (filters && Object.keys(filters).length > 0) {
-    query = await generateFilter(subdomain, filters, models);
+    query = await generateFilter(
+      subdomain,
+      filters,
+      models,
+      customerSearchTokenConfig,
+    );
   }
 
   const { query: exportQuery, isIdsMode } = buildExportCursorQuery({

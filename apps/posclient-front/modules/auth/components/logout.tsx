@@ -1,26 +1,20 @@
-import { gql, useMutation } from "@apollo/client"
+import { useMutation } from "@apollo/client"
 import { LogOutIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu"
 
+import mutations from "../graphql/mutations"
 import queries from "../graphql/queries"
 import { onError } from '@/components/ui/use-toast'
 
 const Logout = () => {
-  const [logout, { loading }] = useMutation(
-    gql`
-      mutation {
-        posLogout
-      }
-    `,
-    {
-      onError({ message }) {
-        onError(message)
-      },
-      refetchQueries: [queries.posCurrentUser],
-    }
-  )
+  const [logout, { loading }] = useMutation(mutations.logout, {
+    onError({ message }) {
+      onError(message)
+    },
+    refetchQueries: [queries.posCurrentUser],
+  })
   return (
     <DropdownMenuItem asChild onClick={() => logout()}>
       <Button

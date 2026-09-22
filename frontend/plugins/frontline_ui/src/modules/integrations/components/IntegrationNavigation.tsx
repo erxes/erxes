@@ -2,8 +2,10 @@ import { useUsedIntegrationTypes } from '@/integrations/hooks/useUsedIntegration
 import { IconPhone } from '@tabler/icons-react';
 import { NavigationMenuLinkItem, Skeleton } from 'erxes-ui';
 import { useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 export const IntegrationNavigation = () => {
+  const { t } = useTranslation('frontline');
   const { integrationTypes, loading } = useUsedIntegrationTypes();
   const { pathname } = useLocation();
 
@@ -12,7 +14,7 @@ export const IntegrationNavigation = () => {
   return (
     integrationTypes.find((type) => type._id === 'calls') && (
       <NavigationMenuLinkItem
-        name="Call center"
+        name={t('call-center')}
         icon={IconPhone}
         path="frontline/calls/dashboard"
         isActive={pathname.includes('/frontline/calls')}

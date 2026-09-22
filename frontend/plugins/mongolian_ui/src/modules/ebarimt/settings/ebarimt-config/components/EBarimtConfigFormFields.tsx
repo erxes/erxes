@@ -1,7 +1,9 @@
 import { Button, Form, Input, Select } from 'erxes-ui';
 import { useEBarimtConfig } from '@/ebarimt/settings/ebarimt-config/hooks/useEBarimtConfig';
+import { useTranslation } from 'react-i18next';
 
 export const EBarimtMainSettingsForm = () => {
+  const { t } = useTranslation('mongolian');
   const {
     form,
     handleUpdate,
@@ -22,10 +24,10 @@ export const EBarimtMainSettingsForm = () => {
   const billTypeValue = form.watch('BillTypeChooser');
 
   const billTypePlaceholder = (() => {
-    if (isFieldGroupEmpty) return 'Choose Field Group first';
+    if (isFieldGroupEmpty) return t('choose-field-group-first');
     if (isFieldGroupBasic && billTypeValue === 'description')
-      return 'Description';
-    return 'Select bill type';
+      return t('description');
+    return t('select-bill-type');
   })();
 
   return (
@@ -34,7 +36,7 @@ export const EBarimtMainSettingsForm = () => {
         className="h-full w-full mx-auto max-w-2xl px-9 py-5 flex flex-col gap-8"
         onSubmit={form.handleSubmit(onSubmit)}
       >
-        <h1 className="text-lg font-semibold">Ebarimt configs</h1>
+        <h1 className="text-lg font-semibold">{t('ebarimt-configs')}</h1>
 
         <Form.Field
           name="CompanyName"
@@ -42,13 +44,13 @@ export const EBarimtMainSettingsForm = () => {
           render={({ field }) => (
             <Form.Item>
               <Form.Label className="font-sans normal-case text-foreground text-sm font-medium leading-none">
-                Company name
+                {t('company-name')}
               </Form.Label>
               <Form.Message />
               <Form.Control>
                 <Input
                   type="text"
-                  placeholder="Enter company name"
+                  placeholder={t('enter-company-name')}
                   className="h-8"
                   {...field}
                 />
@@ -63,13 +65,13 @@ export const EBarimtMainSettingsForm = () => {
           render={({ field }) => (
             <Form.Item>
               <Form.Label className="font-sans normal-case text-foreground text-sm font-medium leading-none">
-                Ebarimt url
+                {t('ebarimt-url')}
               </Form.Label>
               <Form.Message />
               <Form.Control>
                 <Input
                   type="text"
-                  placeholder="Enter ebarimt url"
+                  placeholder={t('enter-ebarimt-url')}
                   className="h-8"
                   {...field}
                 />
@@ -84,13 +86,13 @@ export const EBarimtMainSettingsForm = () => {
           render={({ field }) => (
             <Form.Item>
               <Form.Label className="font-sans normal-case text-foreground text-sm font-medium leading-none">
-                Check taxpayer url
+                {t('check-taxpayer-url')}
               </Form.Label>
               <Form.Message />
               <Form.Control>
                 <Input
                   type="text"
-                  placeholder="Enter check taxpayer url"
+                  placeholder={t('enter-check-taxpayer-url')}
                   className="h-8"
                   {...field}
                 />
@@ -99,7 +101,7 @@ export const EBarimtMainSettingsForm = () => {
           )}
         />
 
-        <h1 className="text-lg font-semibold">Deals ebarimt billType config</h1>
+        <h1 className="text-lg font-semibold">{t('deals-ebarimt-billtype-config')}</h1>
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-4">
@@ -108,7 +110,7 @@ export const EBarimtMainSettingsForm = () => {
               name="FieldGroup"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Field Group</Form.Label>
+                  <Form.Label>{t('field-group')}</Form.Label>
                   <Select
                     value={field.value}
                     onValueChange={(value) => {
@@ -117,7 +119,7 @@ export const EBarimtMainSettingsForm = () => {
                     }}
                   >
                     <Select.Trigger>
-                      <Select.Value placeholder="Select a field group" />
+                      <Select.Value placeholder={t('select-a-field-group')} />
                     </Select.Trigger>
                     <Select.Content>
                       {fieldGroupOptions.map((group) => (
@@ -137,7 +139,7 @@ export const EBarimtMainSettingsForm = () => {
               name="BillTypeChooser"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Bill Type Chooser</Form.Label>
+                  <Form.Label>{t('bill-type-chooser')}</Form.Label>
                   <Select
                     value={field.value}
                     onValueChange={(value) => {
@@ -168,14 +170,14 @@ export const EBarimtMainSettingsForm = () => {
               name="RegNoInput"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>RegNo or TINNo Input</Form.Label>
+                  <Form.Label>{t('regno-or-tinno-input')}</Form.Label>
                   <Select value={field.value} onValueChange={field.onChange}>
                     <Select.Trigger>
                       <Select.Value
                         placeholder={
                           isFieldGroupEmpty
-                            ? 'Choose Field Group first'
-                            : 'Select field type'
+                            ? t('choose-field-group-first')
+                            : t('select-field-type')
                         }
                       />
                     </Select.Trigger>
@@ -197,14 +199,14 @@ export const EBarimtMainSettingsForm = () => {
               name="CompanyNameResponse"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Company Name Response</Form.Label>
+                  <Form.Label>{t('company-name-response')}</Form.Label>
                   <Select value={field.value} onValueChange={field.onChange}>
                     <Select.Trigger>
                       <Select.Value
                         placeholder={
                           isFieldGroupEmpty
-                            ? 'Choose Field Group first'
-                            : 'Select field type'
+                            ? t('choose-field-group-first')
+                            : t('select-field-type')
                         }
                       />
                     </Select.Trigger>
@@ -231,7 +233,7 @@ export const EBarimtMainSettingsForm = () => {
             type="submit"
             disabled={isUpdating}
           >
-            {isUpdating ? 'Saving...' : 'Save'}
+            {isUpdating ? t('saving') : t('save')}
           </Button>
         </div>
       </form>

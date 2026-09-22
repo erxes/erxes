@@ -6,6 +6,7 @@ import {
   IconWorld,
 } from '@tabler/icons-react';
 import { Popover } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 interface ActionMenuProps {
   onEdit: () => void;
@@ -24,23 +25,24 @@ export const ActionMenu = ({
   onDelete,
   onVisitWebsite,
 }: ActionMenuProps) => {
+  const { t } = useTranslation('tourism');
   const dropdownItems: DropdownItem[] = [
     {
-      label: 'Edit',
+      label: t('edit'),
       icon: <IconEdit size={16} stroke={1.5} />,
       onClick: onEdit,
     },
     ...(onVisitWebsite
       ? [
           {
-            label: 'Open website',
+            label: t('open-website'),
             icon: <IconWorld size={16} stroke={1.5} />,
             onClick: onVisitWebsite,
           },
         ]
       : []),
     {
-      label: 'Remove',
+      label: t('remove'),
       icon: <IconTrash size={16} stroke={1.5} />,
       onClick: onDelete,
     },
@@ -55,7 +57,7 @@ export const ActionMenu = ({
           aria-haspopup="true"
           type="button"
         >
-          Action
+          {t('action')}
           <IconChevronDown size={18} stroke={2} />
         </button>
       </Popover.Trigger>

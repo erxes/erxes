@@ -1,9 +1,11 @@
 import {
+  AUTOMATION_ERROR_CODES,
   IAutomationAction,
   IAutomationActionsMap,
   IAutomationExecAction,
   IAutomationExecutionDocument,
 } from 'erxes-api-shared/core-modules';
+import { AutomationActionError } from '../errorCodes';
 import { isInSegment } from '../../utils/isInSegment';
 import { executeActions } from '../executeActions';
 import { TIfActionConfig } from '../../types';
@@ -29,10 +31,11 @@ export const executeIfCondition = async (
 ) => {
   let ifActionId: string;
   if (!action.config) {
-    throw new Error(
+    throw new AutomationActionError(
       `Execute If Condition failed: action config is missing for action ID "${
         action?.id || 'unknown'
       }"`,
+      AUTOMATION_ERROR_CODES.CONFIG_INVALID,
     );
   }
 

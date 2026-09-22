@@ -3,6 +3,7 @@ import {
   DefaultReactSuggestionItem,
   getDefaultReactSlashMenuItems,
   SuggestionMenuController,
+  TableHandlesController,
 } from '@blocknote/react';
 import { filterSuggestionItems } from '@blocknote/core';
 import { BlockNoteView } from '@blocknote/shadcn';
@@ -12,10 +13,18 @@ import { cn } from 'erxes-ui/lib';
 import { themeState } from 'erxes-ui/state';
 import { IconPhoto } from '@tabler/icons-react';
 import { useAtomValue } from 'jotai';
-import { useState } from 'react';
+import { KeyboardEvent, useState } from 'react';
 import { BlockEditorProps } from '../types';
 import { SlashMenu } from './SlashMenu';
 import { Toolbar } from './Toolbar';
+import { BarcodeAttribute } from './BarcodeAttribute';
+import { TableHandleWithRemove } from './TableHandleWithRemove';
+
+const isEmptyBlock = (block?: any) =>
+  !!block &&
+  Array.isArray(block.content) &&
+  !block.content.length &&
+  !block.children?.length;
 
 export const BlockEditor = ({
   editor,
@@ -29,7 +38,9 @@ export const BlockEditor = ({
   style,
   disabled,
   variant = 'default',
-  sideMenu = false,
+  sideMenu = true,
+  linkToolbar = true,
+  additionalSlashMenuItems,
 }: BlockEditorProps) => {
   const theme = useAtomValue(themeState);
   const [focus, setFocus] = useState(false);
@@ -82,11 +93,44 @@ export const BlockEditor = ({
       } satisfies DefaultReactSuggestionItem);
     }
 
+    const customItems =
+      typeof additionalSlashMenuItems === 'function'
+        ? additionalSlashMenuItems(editor)
+        : additionalSlashMenuItems;
+
+    if (customItems?.length) {
+      items.push(...customItems);
+    }
+
     return Promise.resolve(filterSuggestionItems(items, query));
+  };
+
+  const handleKeyDownCapture = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (readonly || disabled || (e.key !== 'Backspace' && e.key !== 'Delete')) {
+      return;
+    }
+
+    const { block, prevBlock, nextBlock, parentBlock } =
+      editor.getTextCursorPosition();
+
+    if (parentBlock || !nextBlock || !isEmptyBlock(block)) {
+      return;
+    }
+
+    if (e.key === 'Backspace' && prevBlock) {
+      return;
+    }
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    editor.removeBlocks([block]);
+    editor.setTextCursorPosition(nextBlock, 'start');
   };
 
   return (
     <div
+      onKeyDownCapture={handleKeyDownCapture}
       className={cn(
         'transition-shadow',
         variant === 'outline' && (focus ? 'shadow-focus' : 'shadow-xs'),
@@ -98,6 +142,7 @@ export const BlockEditor = ({
         editor={editor}
         slashMenu={false}
         sideMenu={sideMenu}
+        linkToolbar={linkToolbar}
         onFocus={() => {
           setFocus(true);
           onFocus?.();
@@ -109,6 +154,7 @@ export const BlockEditor = ({
         editable={!readonly && !disabled}
         onChange={onChange}
         formattingToolbar={false}
+        tableHandles={false}
         shadCNComponents={{
           Button: { Button },
           Tooltip: {
@@ -126,6 +172,7 @@ export const BlockEditor = ({
           suggestionMenuComponent={SlashMenu}
         />
         <Toolbar />
+        <TableHandlesController tableHandle={TableHandleWithRemove} />
         {children}
       </BlockNoteView>
     </div>
@@ -164,14 +211,33 @@ export const Attribute = createReactInlineContentSpec(
       value: {
         default: '',
       },
+      width: {
+        default: 150,
+      },
+      height: {
+        default: 50,
+      },
     },
     content: 'none',
   },
   {
-    render: (props) => (
-      <span className="bg-yellow-50 p-1 rounded font-bold text-sm text-yellow-900 inline-flex items-center">
-        {props.inlineContent.props.name}
-      </span>
-    ),
+    render: (props) =>
+      props.inlineContent.props.value === 'barcode' ? (
+        <BarcodeAttribute
+          editable={props.editor.isEditable}
+          height={props.inlineContent.props.height}
+          width={props.inlineContent.props.width}
+          onResize={({ width, height }) =>
+            props.updateInlineContent({
+              type: 'attribute',
+              props: { ...props.inlineContent.props, width, height },
+            })
+          }
+        />
+      ) : (
+        <span className="bg-yellow-50 p-1 rounded font-bold text-sm text-yellow-900 inline-flex items-center">
+          {props.inlineContent.props.name}
+        </span>
+      ),
   },
 );

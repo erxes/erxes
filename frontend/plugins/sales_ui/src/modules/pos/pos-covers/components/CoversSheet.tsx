@@ -12,8 +12,10 @@ import {
   Sheet,
   TextOverflowTooltip,
 } from 'erxes-ui';
+import { TFunction } from 'i18next';
 import React from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import { usePosCoversQuery } from '../detail/hook/usePosCoversQuery';
 
@@ -25,12 +27,12 @@ interface ICoverItemRow {
   amount: number;
 }
 
-const itemColumns: ColumnDef<ICoverItemRow>[] = [
+const itemColumns: (t: TFunction) => ColumnDef<ICoverItemRow>[] = (t) => [
   {
     id: 'paidType',
     accessorKey: 'paidType',
     header: () => (
-      <RecordTable.InlineHead icon={IconShoppingCart} label="Type" />
+      <RecordTable.InlineHead icon={IconShoppingCart} label={t('type')} />
     ),
     cell: ({ cell }) => (
       <RecordTableInlineCell>
@@ -42,7 +44,7 @@ const itemColumns: ColumnDef<ICoverItemRow>[] = [
   {
     id: 'kind',
     accessorKey: 'kind',
-    header: () => <RecordTable.InlineHead icon={IconTag} label="Kind" />,
+    header: () => <RecordTable.InlineHead icon={IconTag} label={t('kind')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={String(cell.getValue() ?? '')} />
@@ -53,7 +55,9 @@ const itemColumns: ColumnDef<ICoverItemRow>[] = [
   {
     id: 'kindOfVal',
     accessorKey: 'kindOfVal',
-    header: () => <RecordTable.InlineHead icon={IconTag} label="Kind of Val" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconTag} label={t('kind-of-val')} />
+    ),
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={String(cell.getValue() ?? '')} />
@@ -64,7 +68,7 @@ const itemColumns: ColumnDef<ICoverItemRow>[] = [
   {
     id: 'value',
     accessorKey: 'value',
-    header: () => <RecordTable.InlineHead icon={IconTag} label="Value" />,
+    header: () => <RecordTable.InlineHead icon={IconTag} label={t('value')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={String(cell.getValue() ?? '')} />
@@ -75,7 +79,7 @@ const itemColumns: ColumnDef<ICoverItemRow>[] = [
   {
     id: 'amount',
     accessorKey: 'amount',
-    header: () => <RecordTable.InlineHead icon={IconTag} label="Amount" />,
+    header: () => <RecordTable.InlineHead icon={IconTag} label={t('amount')} />,
     cell: ({ cell }) => {
       const val = cell.getValue() as number | undefined;
       return (
@@ -115,6 +119,8 @@ export const PosCoversSheet = () => {
   );
 
   const { posCovers } = usePosCoversQuery(posCoverId || undefined);
+  const { t } = useTranslation('sales');
+  const coverItemColumns = React.useMemo(() => itemColumns(t), [t]);
 
   const form = useForm<{ note?: string }>({
     defaultValues: {
@@ -139,7 +145,7 @@ export const PosCoversSheet = () => {
           >
             <Sheet.Header>
               <IconChessKnight />
-              <Sheet.Title>Cover detail</Sheet.Title>
+              <Sheet.Title>{t('cover-detail')}</Sheet.Title>
               <Sheet.Close />
             </Sheet.Header>
             <Sheet.Content className="grow size-full flex flex-col px-5 py-4">
@@ -147,7 +153,7 @@ export const PosCoversSheet = () => {
                 <div className="flex flex-col gap-4 w-full my-4">
                   <div className="flex justify-between w-full gap-1">
                     <span className="text-base font-medium text-muted-foreground">
-                      Begin Date
+                      {t('begin-date')}
                     </span>
                     <span className="text-base font-medium">
                       {dayjs(posCovers.beginDate).format('YYYY-MM-DD HH:mm')}
@@ -155,7 +161,7 @@ export const PosCoversSheet = () => {
                   </div>
                   <div className="flex justify-between w-full gap-1">
                     <span className="text-base font-medium text-muted-foreground">
-                      End Date:
+                      {t('end-date')}
                     </span>
                     <span className="text-base font-medium">
                       {dayjs(posCovers.endDate).format('YYYY-MM-DD HH:mm')}
@@ -163,7 +169,7 @@ export const PosCoversSheet = () => {
                   </div>
                   <div className="flex justify-between w-full gap-1">
                     <span className="text-base font-medium text-muted-foreground">
-                      User:
+                      {t('user')}
                     </span>
                     <span className="text-base font-medium">
                       {posCovers.user?.email}
@@ -171,7 +177,7 @@ export const PosCoversSheet = () => {
                   </div>
                   <div className="flex justify-between w-full gap-1">
                     <span className="text-base font-medium text-muted-foreground">
-                      POS:
+                      {t('pos')}
                     </span>
                     <span className="text-base font-medium">
                       {posCovers.posName}
@@ -179,7 +185,7 @@ export const PosCoversSheet = () => {
                   </div>
                   <div className="flex justify-between w-full gap-1">
                     <span className="text-base font-medium text-muted-foreground">
-                      Total Amount
+                      {t('total-amount')}
                     </span>
                     <span className="text-base font-medium">
                       {(posCovers.details || [])
@@ -190,7 +196,7 @@ export const PosCoversSheet = () => {
                   </div>
                   <div className="flex justify-between w-full gap-1">
                     <span className="text-base font-medium text-muted-foreground">
-                      Description:
+                      {t('description')}
                     </span>
                     <span className="text-base font-medium">
                       {posCovers.description}
@@ -199,7 +205,7 @@ export const PosCoversSheet = () => {
 
                   <div className="rounded-md overflow-hidden relative">
                     <RecordTable.Provider
-                      columns={itemColumns}
+                      columns={coverItemColumns}
                       data={(posCovers.details || []).flatMap((d) =>
                         (d?.paidSummary || []).map((s) => ({
                           paidType: d.paidType,
@@ -223,10 +229,10 @@ export const PosCoversSheet = () => {
                       <div className="absolute inset-0 flex items-center justify-center">
                         <div className="flex flex-col items-center justify-center text-center">
                           <h3 className="text-lg font-semibold text-gray-900">
-                            No payment details
+                            {t('no-payment-details')}
                           </h3>
                           <p className="mt-1 text-sm text-gray-500">
-                            This cover has no payment breakdown.
+                            {t('cover-no-payment-breakdown')}
                           </p>
                         </div>
                       </div>

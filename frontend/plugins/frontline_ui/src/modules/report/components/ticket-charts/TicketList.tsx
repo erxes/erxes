@@ -7,94 +7,62 @@ import {
 } from 'erxes-ui';
 import { FrontlineCard } from '../frontline-card/FrontlineCard';
 import { useTicketList, TicketListItem } from '@/report/hooks/useTicketList';
-import { getFilters } from '@/report/utils/dateFilters';
 import { formatDate } from 'date-fns';
 import { MembersInline } from 'ui-modules';
 import { memo, useState, useEffect, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import {
   IconTicket,
   IconChevronLeft,
   IconChevronRight,
   IconDownload,
 } from '@tabler/icons-react';
+import { StatusInlineIcon } from '@/status/components/StatusInline';
 import { useNavigate } from 'react-router-dom';
-import { useAtom } from 'jotai';
-import {
-  getReportDateFilterAtom,
-  getReportChannelFilterAtom,
-  getReportMemberFilterAtom,
-  getReportPipelineFilterAtom,
-  getReportStateFilterAtom,
-  getReportPriorityFilterAtom,
-  getReportTicketTagFilterAtom,
-  getReportCustomerFilterAtom,
-  getReportCompanyFilterAtom,
-} from '@/report/states';
 import { TicketReportFilter } from '../filter-popover/ticket-report-filter';
 import { ColumnDef, Cell } from '@tanstack/react-table';
-import { PROJECT_PRIORITIES_OPTIONS } from '@/ticket/constants/priorityOption';
 import { useTicketExport } from '@/report/hooks/useTicketExport';
 import { generateTicketExcel, downloadExcel } from '@/report/utils/exportCsv';
+import { ReportChartActions } from '../report-chart/ReportChartActions';
+import { useTicketChartCard } from '@/report/hooks/useTicketChartCard';
+import { ReportChart } from '@/report/types';
+import { TICKET_CHART_TYPES } from '@/report/types/component-registry';
 
 const PER_PAGE = 10;
 
 interface TicketListProps {
   title: string;
+  cardId?: string;
+  savedChart?: ReportChart;
   colSpan?: 6 | 12;
   onColSpanChange?: (span: 6 | 12) => void;
 }
 
 export const TicketList = ({
   title,
+  cardId,
+  savedChart,
   colSpan = 6,
   onColSpanChange,
 }: TicketListProps) => {
-  const id = title.toLowerCase().replace(/\s+/g, '-');
-  const [dateValue] = useAtom(getReportDateFilterAtom(id));
-  const [channelFilter] = useAtom(getReportChannelFilterAtom(id));
-  const [memberFilter] = useAtom(getReportMemberFilterAtom(id));
-  const [pipelineFilter] = useAtom(getReportPipelineFilterAtom(id));
-  const [stateFilter] = useAtom(getReportStateFilterAtom(id));
-  const [priorityFilter] = useAtom(getReportPriorityFilterAtom(id));
-  const [tagFilter] = useAtom(getReportTicketTagFilterAtom(id));
-  const [customerFilter] = useAtom(getReportCustomerFilterAtom(id));
-  const [companyFilter] = useAtom(getReportCompanyFilterAtom(id));
-  const [filters, setFilters] = useState(() => getFilters());
+  const { t } = useTranslation('frontline');
+  const { id, filterConfig, queryFilters, filtersRestored } =
+    useTicketChartCard({ title, cardId, savedChart });
   const [page, setPage] = useState(1);
   const { fetchExport, loading: exportLoading } = useTicketExport();
 
   useEffect(() => {
-    setFilters(getFilters(dateValue || undefined));
     setPage(1);
-  }, [dateValue]);
-
-  useEffect(() => {
-    setPage(1);
-  }, [
-    channelFilter,
-    memberFilter,
-    pipelineFilter,
-    stateFilter,
-    priorityFilter,
-    tagFilter,
-    customerFilter,
-    companyFilter,
-  ]);
+  }, [queryFilters]);
 
   const { ticketList, isInitialLoad, isFetching, error } = useTicketList({
+    skip: !filtersRestored,
     variables: {
       filters: {
-        ...filters,
+        ...queryFilters,
         page,
         limit: PER_PAGE,
-        channelIds: channelFilter.length ? channelFilter : undefined,
-        memberIds: memberFilter.length ? memberFilter : undefined,
-        pipelineIds: pipelineFilter.length ? pipelineFilter : undefined,
-        state: stateFilter || undefined,
-        priority: priorityFilter.length ? priorityFilter : undefined,
-        tagIds: tagFilter.length ? tagFilter : undefined,
-        customerIds: customerFilter.length ? customerFilter : undefined,
-        companyIds: companyFilter.length ? companyFilter : undefined,
       },
     },
   });
@@ -105,18 +73,7 @@ export const TicketList = ({
   const handleExport = useCallback(async () => {
     const result = await fetchExport({
       variables: {
-        filters: {
-          ...filters,
-          limit: undefined,
-          channelIds: channelFilter.length ? channelFilter : undefined,
-          memberIds: memberFilter.length ? memberFilter : undefined,
-          pipelineIds: pipelineFilter.length ? pipelineFilter : undefined,
-          state: stateFilter || undefined,
-          priority: priorityFilter.length ? priorityFilter : undefined,
-          tagIds: tagFilter.length ? tagFilter : undefined,
-          customerIds: customerFilter.length ? customerFilter : undefined,
-          companyIds: companyFilter.length ? companyFilter : undefined,
-        },
+        filters: { ...queryFilters, limit: undefined },
       },
     });
     const tickets = result.data?.reportTicketExport;
@@ -125,44 +82,39 @@ export const TicketList = ({
       const timestamp = new Date().toISOString().slice(0, 10);
       downloadExcel(buffer, `ticket-list-${timestamp}.xlsx`);
     }
-  }, [
-    fetchExport,
-    filters,
-    channelFilter,
-    memberFilter,
-    pipelineFilter,
-    stateFilter,
-    priorityFilter,
-    tagFilter,
-    customerFilter,
-    companyFilter,
-  ]);
+  }, [fetchExport, queryFilters]);
 
   const filterEl = useMemo(
     () => (
       <>
         <TicketReportFilter cardId={id} />
+        <ReportChartActions
+          chartType={TICKET_CHART_TYPES.list}
+          colSpan={colSpan}
+          filters={filterConfig}
+          savedChart={savedChart}
+        />
         <Button
           variant="ghost"
           size="icon"
           className="size-7"
           onClick={handleExport}
           disabled={exportLoading}
-          title="Export Excel"
+          title={t('export-excel', 'Export Excel')}
         >
           <IconDownload className="size-3.5" />
         </Button>
       </>
     ),
-    [id, handleExport, exportLoading],
+    [id, handleExport, exportLoading, t, colSpan, filterConfig, savedChart],
   );
 
-  if (isInitialLoad) {
+  if (isInitialLoad || !filtersRestored) {
     return (
       <FrontlineCard
         id={id}
         title={title}
-        description="Ticket list"
+        description={t('ticket-list', 'Ticket list')}
         colSpan={colSpan}
         onColSpanChange={onColSpanChange}
       >
@@ -179,13 +131,15 @@ export const TicketList = ({
       <FrontlineCard
         id={id}
         title={title}
-        description="Ticket list"
+        description={t('ticket-list', 'Ticket list')}
         colSpan={colSpan}
         onColSpanChange={onColSpanChange}
       >
         <FrontlineCard.Content>
           <Alert variant="destructive">
-            <Alert.Title>Error loading data</Alert.Title>
+            <Alert.Title>
+              {t('error-loading-data', 'Error loading data')}
+            </Alert.Title>
             <Alert.Description>{error.message}</Alert.Description>
           </Alert>
         </FrontlineCard.Content>
@@ -198,7 +152,7 @@ export const TicketList = ({
       <FrontlineCard
         id={id}
         title={title}
-        description="No tickets found."
+        description={t('no-tickets-found', 'No tickets found')}
         colSpan={colSpan}
         onColSpanChange={onColSpanChange}
       >
@@ -216,7 +170,9 @@ export const TicketList = ({
     <FrontlineCard
       id={id}
       title={title}
-      description={`${totalCount} tickets`}
+      description={t('ticket-count', '{{count}} tickets', {
+        count: totalCount,
+      })}
       colSpan={colSpan}
       onColSpanChange={onColSpanChange}
     >
@@ -252,13 +208,18 @@ const Pagination = memo(function Pagination({
   onPrev: () => void;
   onNext: () => void;
 }) {
+  const { t } = useTranslation('frontline');
   const from = (page - 1) * PER_PAGE + 1;
   const to = Math.min(page * PER_PAGE, totalCount);
 
   return (
     <div className="flex items-center justify-between px-4 py-3 border-t">
       <span className="text-xs text-muted-foreground">
-        {from}–{to} of {totalCount}
+        {t('pagination-range', '{{from}}–{{to}} of {{total}}', {
+          from,
+          to,
+          total: totalCount,
+        })}
       </span>
       <div className="flex items-center gap-1">
         <Button
@@ -268,7 +229,7 @@ const Pagination = memo(function Pagination({
           disabled={page <= 1}
         >
           <IconChevronLeft className="size-4" />
-          Prev
+          {t('prev', 'Prev')}
         </Button>
         <span className="text-xs text-muted-foreground px-2">
           {page} / {totalPages}
@@ -279,7 +240,7 @@ const Pagination = memo(function Pagination({
           onClick={onNext}
           disabled={page >= totalPages}
         >
-          Next
+          {t('next', 'Next')}
           <IconChevronRight className="size-4" />
         </Button>
       </div>
@@ -292,12 +253,14 @@ const TicketListTable = memo(function TicketListTable({
 }: {
   tickets: TicketListItem[];
 }) {
+  const { t } = useTranslation('frontline');
   return (
     <div className="bg-sidebar w-full rounded-lg [&_th]:last-of-type:text-right">
       <RecordTable.Provider
         data={tickets}
-        columns={ticketListColumns}
+        columns={ticketListColumns(t)}
         className="m-3"
+        tableId="frontline_ticket_report_record_table"
       >
         <RecordTable.Scroll>
           <RecordTable>
@@ -312,10 +275,12 @@ const TicketListTable = memo(function TicketListTable({
   );
 });
 
-export const ticketListColumns: ColumnDef<TicketListItem>[] = [
+export const ticketListColumns = (
+  t: TFunction,
+): ColumnDef<TicketListItem>[] => [
   {
     id: 'name',
-    header: 'Name',
+    header: t('name', 'Name'),
     accessorKey: 'name',
     cell: ({ cell }) => (
       <RecordTableInlineCell className="px-4 text-xs font-medium">
@@ -325,7 +290,7 @@ export const ticketListColumns: ColumnDef<TicketListItem>[] = [
   },
   {
     id: 'createdAt',
-    header: 'Created',
+    header: t('created', 'Created'),
     accessorKey: 'createdAt',
     cell: ({ cell }) => (
       <RecordTableInlineCell>
@@ -336,17 +301,37 @@ export const ticketListColumns: ColumnDef<TicketListItem>[] = [
     ),
   },
   {
-    id: 'priority',
-    header: 'Priority',
-    accessorKey: 'priority',
-    size: 80,
+    id: 'status',
+    header: t('status', 'Status'),
+    accessorKey: 'status',
+    size: 160,
     cell: ({ cell }) => {
-      const priority = cell.getValue() as number;
-      const label = PROJECT_PRIORITIES_OPTIONS[priority] || 'Unknown';
+      const status = cell.getValue<TicketListItem['status']>();
+
+      if (!status) {
+        return (
+          <RecordTableInlineCell className="flex items-center justify-center">
+            <span className="text-xs text-muted-foreground">—</span>
+          </RecordTableInlineCell>
+        );
+      }
+
       return (
         <RecordTableInlineCell className="flex items-center justify-center">
-          <Badge variant="secondary" className="text-xs">
-            {label}
+          <Badge
+            variant="secondary"
+            className="text-xs gap-1 max-w-40 truncate"
+            style={{
+              backgroundColor: status.color ? `${status.color}1a` : undefined,
+              color: status.color,
+            }}
+          >
+            <StatusInlineIcon
+              statusType={status.type}
+              color={status.color}
+              className="size-3"
+            />
+            <span className="truncate">{status.name}</span>
           </Badge>
         </RecordTableInlineCell>
       );
@@ -354,7 +339,7 @@ export const ticketListColumns: ColumnDef<TicketListItem>[] = [
   },
   {
     id: 'state',
-    header: 'State',
+    header: t('state', 'State'),
     accessorKey: 'state',
     size: 80,
     cell: ({ cell }) => {
@@ -372,14 +357,14 @@ export const ticketListColumns: ColumnDef<TicketListItem>[] = [
   },
   {
     id: 'assigneeId',
-    header: 'Assigned',
+    header: t('assigned', 'Assigned'),
     accessorKey: 'assigneeId',
     cell: ({ cell }) => {
       const assigneeId = cell.getValue() as string;
       if (!assigneeId)
         return (
           <RecordTableInlineCell className="text-xs text-muted-foreground">
-            Unassigned
+            {t('unassigned', 'Unassigned')}
           </RecordTableInlineCell>
         );
       return (
@@ -394,7 +379,7 @@ export const ticketListColumns: ColumnDef<TicketListItem>[] = [
   },
   {
     id: 'targetDate',
-    header: 'Due Date',
+    header: t('due-date', 'Due Date'),
     accessorKey: 'targetDate',
     size: 100,
     cell: ({ cell }) => {
@@ -408,12 +393,13 @@ export const ticketListColumns: ColumnDef<TicketListItem>[] = [
   },
   {
     id: 'open',
+    header: () => <RecordTable.ColumnSelector />,
     size: 33,
     cell: ({ cell }) => <TicketMoreCell cell={cell} />,
   },
 ];
 
-const TicketMoreCell = ({ cell }: { cell: Cell<TicketListItem, any> }) => {
+const TicketMoreCell = ({ cell }: { cell: Cell<TicketListItem, unknown> }) => {
   const { _id } = cell.row.original || {};
   const navigate = useNavigate();
   return (

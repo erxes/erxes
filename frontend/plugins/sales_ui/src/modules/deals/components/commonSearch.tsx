@@ -1,112 +1,74 @@
-import { Input, Popover } from 'erxes-ui';
-import { useNavigate } from 'react-router-dom';
-
-import { GET_DEALS } from '@/deals/graphql/queries/DealsQueries';
-import { IDeal, IDealList } from '@/deals/types/deals';
-import { IconLoader2, IconSearch } from '@tabler/icons-react';
-import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
-import { useQuery } from '@apollo/client';
-import { useSetAtom } from 'jotai';
-import { useState } from 'react';
-import { useDebounce } from 'use-debounce';
+import { DealSearchInput } from '@/deals/components/search/DealSearchInput';
+import { DealSearchResults } from '@/deals/components/search/DealSearchResults';
+import { DealSearchToolbar } from '@/deals/components/search/DealSearchToolbar';
+import { useCommonDealSearch } from '@/deals/hooks/useCommonDealSearch';
+import { TDealSearchCategory } from '@/deals/types/dealSearch';
+import { IconSearch } from '@tabler/icons-react';
+import { Button, Dialog } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const CommonDealSearch = () => {
-  const navigate = useNavigate();
-  const setActiveDealId = useSetAtom(dealDetailSheetState);
-  const [search, setSearch] = useState('');
-  const [focused, setFocused] = useState(false);
-  const [debouncedSearch] = useDebounce(search.trim(), 350);
-
-  const { data, loading } = useQuery<{ deals: IDealList }>(GET_DEALS, {
-    variables: {
-      search: debouncedSearch,
-      noSkipArchive: true,
-      limit: 10,
-      orderBy: { modifiedAt: -1 },
-    },
-    skip: debouncedSearch.length < 2,
-    fetchPolicy: 'cache-and-network',
-  });
-
-  const deals = data?.deals?.list || [];
-  const showDropdown = focused && debouncedSearch.length >= 2;
-
-  const handleSelect = (deal: IDeal) => {
-    const pipelineId = deal.pipeline?._id;
-    const boardId = deal.boardId || deal.pipeline?.boardId;
-
-    if (!pipelineId || !boardId) {
-      return;
-    }
-
-    setActiveDealId(deal._id);
-    setSearch('');
-    setFocused(false);
-    navigate(
-      `/sales/deals?boardId=${boardId}&pipelineId=${pipelineId}&salesItemId=${deal._id}`,
-    );
+  const { t } = useTranslation('sales');
+  const search = useCommonDealSearch();
+  const placeholders: Record<TDealSearchCategory, string> = {
+    date: t('search-deals-by-date', 'Search by date'),
+    number: t('search-deals-by-number', 'Search by deal number, e.g. #0000'),
+    name: t('search-deals-by-name', 'Search by name'),
   };
 
   return (
-    <Popover
-      open={showDropdown}
-      onOpenChange={(open) => {
-        if (!open) {
-          setFocused(false);
-        }
-      }}
-    >
-      <Popover.Anchor asChild>
-        <div className="relative w-72">
-          <IconSearch className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            className="h-8 pl-8"
-            placeholder="Search deals"
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            onFocus={() => setFocused(true)}
-          />
-        </div>
-      </Popover.Anchor>
-      <Popover.Content
-        align="end"
-        sideOffset={4}
-        className="w-96 overflow-hidden p-0"
-        onOpenAutoFocus={(event) => event.preventDefault()}
-      >
-        {loading && (
-          <div className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground">
-            <IconLoader2 className="size-4 animate-spin" />
-            Searching
-          </div>
-        )}
+    <Dialog open={search.open} onOpenChange={search.setOpen}>
+      <Dialog.Trigger asChild>
+        <Button
+          variant="ghost"
+          className="font-normal focus-visible:ring-0 focus-visible:outline-none"
+        >
+          <IconSearch className="size-4" />
+          {t('search-deals')}
+        </Button>
+      </Dialog.Trigger>
 
-        {!loading && !deals.length && (
-          <div className="px-3 py-2 text-sm text-muted-foreground">
-            No deals found
-          </div>
-        )}
+      <Dialog.Content className="w-[calc(100vw-2rem)] max-h-[85vh] max-w-2xl gap-0 overflow-hidden border-0 p-0">
+        <Dialog.Title className="sr-only">{t('search-deals')}</Dialog.Title>
+        <Dialog.Description className="sr-only">
+          {t(
+            'search-deals-description',
+            'Search deals by date, deal number, or name',
+          )}
+        </Dialog.Description>
 
-        {!loading &&
-          deals.map((deal) => (
-            <button
-              key={deal._id}
-              type="button"
-              className="flex w-full flex-col items-start gap-0.5 px-3 py-2 text-left text-sm hover:bg-muted"
-              onMouseDown={(event) => {
-                event.preventDefault();
-                handleSelect(deal);
-              }}
-            >
-              <span className="font-medium">
-                {[deal.number, deal.name].filter(Boolean).join(' - ')}
-              </span>
-              <span className="text-xs text-muted-foreground">
-                {deal.pipeline?.name}
-              </span>
-            </button>
-          ))}
-      </Popover.Content>
-    </Popover>
+        <DealSearchInput
+          category={search.category}
+          dateRange={search.dateRange}
+          placeholders={placeholders}
+          searches={search.searches}
+          onDateRangeChange={search.setDateRange}
+          onSearchChange={search.setActiveSearch}
+        />
+        <DealSearchToolbar
+          category={search.category}
+          hasDateFilter={Boolean(search.dateRange?.from)}
+          hasNameFilter={search.nameSearchReady}
+          hasNumberFilter={search.numberSearchReady}
+          sortOrder={search.sortOrder}
+          onCategoryChange={search.setCategory}
+          onSortOrderChange={search.setSortOrder}
+        />
+        <DealSearchResults
+          category={search.category}
+          deals={search.deals}
+          loading={search.loading}
+          loadingMore={search.loadingMore}
+          nameSearch={search.nameSearch}
+          numberSearch={search.numberSearch}
+          resultsReady={search.resultsReady}
+          searchSettled={search.searchSettled}
+          totalCount={search.totalCount}
+          hasNextPage={search.pageInfo?.hasNextPage}
+          loadMoreRef={search.loadMoreRef}
+          onSelect={search.selectDeal}
+        />
+      </Dialog.Content>
+    </Dialog>
   );
 };

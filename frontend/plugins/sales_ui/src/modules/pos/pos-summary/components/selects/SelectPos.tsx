@@ -12,6 +12,7 @@ import {
 import { useDebounce } from 'use-debounce';
 import React, { useState, useCallback } from 'react';
 import { IconLabel } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { IPos } from '../../types/pos';
 
 import { PosInline } from '../PosInline';
@@ -91,11 +92,12 @@ const SelectPosValue = ({ placeholder }: { placeholder?: string }) => {
 };
 
 const SelectPosCommandItem = ({ pos }: { pos: IPos }) => {
+  const { t } = useTranslation('sales');
   const { onSelect, posIds } = useSelectPosContext();
 
   return (
     <Command.Item value={pos._id} onSelect={() => onSelect(pos)}>
-      <PosInline pos={[pos]} placeholder="Unnamed user" />
+      <PosInline pos={[pos]} placeholder={t('unnamed-user')} />
       <Combobox.Check checked={posIds.includes(pos._id)} />
     </Command.Item>
   );
@@ -115,6 +117,7 @@ const SelectPosContent = () => {
     variables: { search: debouncedSearch },
   });
 
+  const { t } = useTranslation('sales');
   return (
     <Command shouldFilter={false} id="pos-command-menu">
       <Command.Input
@@ -122,7 +125,7 @@ const SelectPosContent = () => {
         onValueChange={setSearch}
         variant="secondary"
         wrapperClassName="flex-auto"
-        placeholder="Search pos..."
+        placeholder={t('search-pos')}
         className="h-9"
       />
       <Command.List>
@@ -152,12 +155,15 @@ const SelectPosContent = () => {
   );
 };
 
-export const SelectPosFilterItem = () => (
-  <Filter.Item value="pos">
-    <IconLabel />
-    Pos
-  </Filter.Item>
-);
+export const SelectPosFilterItem = () => {
+  const { t } = useTranslation('sales');
+  return (
+    <Filter.Item value="pos">
+      <IconLabel />
+      {t('pos')}
+    </Filter.Item>
+  );
+};
 
 export const SelectPosFilterView = ({
   onValueChange,
@@ -206,11 +212,12 @@ export const SelectPosFilterBar = ({
   );
   const [open, setOpen] = useState(false);
 
+  const { t } = useTranslation('sales');
   return (
     <Filter.BarItem queryKey={queryKey || 'pos'}>
       <Filter.BarName>
         <IconLabel />
-        {!iconOnly && 'Pos'}
+        {!iconOnly && t('pos')}
       </Filter.BarName>
 
       <SelectPosProvider

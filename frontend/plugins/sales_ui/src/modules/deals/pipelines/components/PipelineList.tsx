@@ -1,9 +1,9 @@
 import { Accordion, Sidebar } from 'erxes-ui';
-
-import { IPipeline } from '@/deals/types/pipelines';
 import { Link } from 'react-router-dom';
-import { PipelineListLoading } from '@/deals/components/loading/PipelineListLoading';
+import { useTranslation } from 'react-i18next';
+
 import { useBoardDetail } from '@/deals/boards/hooks/useBoards';
+import { PipelineListLoading } from '@/deals/components/loading/PipelineListLoading';
 
 export const PipelineList = ({
   boardId,
@@ -12,6 +12,7 @@ export const PipelineList = ({
   boardId: string;
   pipelineId: string;
 }) => {
+  const { t } = useTranslation('sales');
   const { boardDetail, loading } = useBoardDetail({
     variables: {
       _id: boardId,
@@ -22,12 +23,12 @@ export const PipelineList = ({
     return <PipelineListLoading />;
   }
 
-  const pipelines = boardDetail?.pipelines || ([] as IPipeline[]);
+  const pipelines = boardDetail?.pipelines || [];
 
   return (
     <>
       <Accordion.Trigger className="text-gray-400 text-sm">
-        Pipelines ({pipelines?.length || 0})
+        {t('pipelines')} ({pipelines?.length || 0})
       </Accordion.Trigger>
       <Accordion.Content className="content">
         <Sidebar.Menu className="px-2">

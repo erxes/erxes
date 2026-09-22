@@ -1,5 +1,3 @@
-import { ICallConfigDoc } from '@/integrations/call/types/callTypes';
-
 export enum SipStatusEnum {
   DISCONNECTED = 'sipStatus/DISCONNECTED',
   CONNECTING = 'sipStatus/CONNECTING',
@@ -82,53 +80,15 @@ export interface SipProviderProps {
   extraHeaders?: ExtraHeaders;
   iceServers?: IceServers;
   debug?: boolean;
-  createSession: () => void;
-
-  addHistory: (
-    callStatus: string,
-    timeStamp: number,
-    direction: string,
-    customerPhone: string,
-    callStartTime: Date,
-    queueName: string | null,
-  ) => void;
-  updateHistory: (
-    timeStamp: number,
-    callStartTime: Date,
-    callEndTime: Date,
-    callStatus: string,
-    direction: string,
-    customerPhone: string,
-    diversionHeader?: string,
-    endedBy?: string,
-    historyId?: string,
-  ) => void;
+  createSession?: () => void;
 }
 export interface SipContextValue {
   sip: {
-    createSession: () => void;
-
-    addHistory: (
-      callStatus: string,
-      timeStamp: number,
-      direction: string,
-      customerPhone: string,
-      callStartTime: Date,
-      queueName: string | null,
-    ) => void;
-    updateHistory: (
-      timeStamp: number,
-      callStartTime: Date,
-      callEndTime: Date,
-      callStatus: string,
-      direction: string,
-      customerPhone: string,
-      diversionHeader?: string,
-      endedBy?: string,
-    ) => void;
+    createSession?: () => void;
   };
   registerSip: () => void;
   unregisterSip: () => void;
+  reconnectSip: () => void;
   answerCall: () => void;
   startCall: (destination: string) => void;
   stopCall: () => void;

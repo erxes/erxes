@@ -1,7 +1,7 @@
 import { NotificationsFilters } from '@/notification/components/filter/NotificationsFilters';
 import { NotificationSort } from '@/notification/components/NotificationSort';
 import { IconInbox } from '@tabler/icons-react';
-import { Button, Separator, Sidebar } from 'erxes-ui';
+import { Button, Separator } from 'erxes-ui';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
@@ -10,8 +10,7 @@ export const MyInboxHeader = () => {
   return (
     <>
       <div className="flex flex-col h-13 shrink-0 bg-sidebar w-full">
-        <div className="flex gap-2 px-3 flex-auto items-center">
-          <Sidebar.Trigger /> <Separator.Inline />
+        <div className="flex flex-auto items-center gap-2 px-3 pl-[calc(0.75rem_+_var(--navigation-panel-toggle-space,0rem)_+_var(--visited-page-tabs-open-button-space,0rem))]">
           <Button variant="ghost" asChild>
             <Link to="/my-inbox">
               <IconInbox />

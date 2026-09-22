@@ -5,7 +5,7 @@ export const types = `
         contentId: String
         createdBy: String
         mentions: [String]
-
+        statusId: String
         createdAt: String
         updatedAt: String
     }

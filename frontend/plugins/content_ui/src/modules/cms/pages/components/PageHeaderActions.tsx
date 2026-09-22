@@ -1,5 +1,6 @@
 import { Button, Form, Spinner } from 'erxes-ui';
 import { UseFormReturn } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { IPageFormData } from '../types/pageTypes';
 
 interface PageHeaderActionsProps {
@@ -13,6 +14,7 @@ export const PageHeaderActions = ({
   onSubmit,
   getSaving,
 }: PageHeaderActionsProps) => {
+  const { t } = useTranslation('content');
   const saving = getSaving();
 
   return (
@@ -32,7 +34,7 @@ export const PageHeaderActions = ({
                     onClick={() => field.onChange('active')}
                     className="h-8"
                   >
-                    Publish
+                    {t('publish')}
                   </Button>
                   <Button
                     type="button"
@@ -41,7 +43,7 @@ export const PageHeaderActions = ({
                     onClick={() => field.onChange('inactive')}
                     className="h-8"
                   >
-                    Draft
+                    {t('draft')}
                   </Button>
                 </div>
               </Form.Control>
@@ -53,10 +55,10 @@ export const PageHeaderActions = ({
         {saving ? (
           <>
             <Spinner size="sm" className="mr-2" />
-            Saving...
+            {t('saving')}
           </>
         ) : (
-          'Save'
+          t('save')
         )}
       </Button>
     </div>

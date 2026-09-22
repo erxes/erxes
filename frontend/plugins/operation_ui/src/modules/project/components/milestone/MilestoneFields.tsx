@@ -3,6 +3,7 @@ import { format } from 'date-fns';
 import { Button, Calendar, Combobox, Form, Popover } from 'erxes-ui';
 import { useEffect, useRef, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 export const MilestoneFields = ({
   isActive,
@@ -17,6 +18,7 @@ export const MilestoneFields = ({
   onClick: () => void;
   setActiveMilestone: (milestoneId: string | null) => void;
 }) => {
+  const { t } = useTranslation('operation');
   const nameInputRef = useRef<HTMLInputElement | null>(null);
   const milestoneRef = useRef<HTMLDivElement>(null);
 
@@ -86,7 +88,7 @@ export const MilestoneFields = ({
                     {...field}
                     ref={nameInputRef}
                     type="text"
-                    placeholder="Milestone name"
+                    placeholder={t('milestone-name')}
                     autoFocus
                     className="bg-transparent outline-hidden border-none focus:ring-0 focus:outline-hidden w-full"
                   />

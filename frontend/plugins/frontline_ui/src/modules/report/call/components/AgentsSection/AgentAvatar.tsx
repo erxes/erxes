@@ -1,8 +1,3 @@
-/**
- * Avatar generated from the agent's name (or extension string).
- * Uses a deterministic hue derived from the char-code sum so each agent
- * gets a consistent colour without any hardcoded palette.
- */
 export function AgentAvatar({ name }: { name: string }) {
   const initials = name
     .split(/[\s._-]+/)

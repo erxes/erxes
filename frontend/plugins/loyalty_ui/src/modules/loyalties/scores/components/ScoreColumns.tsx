@@ -12,6 +12,7 @@ import {
   IconUser,
 } from '@tabler/icons-react';
 import { ColumnDef, Row } from '@tanstack/table-core';
+import { TFunction } from 'i18next';
 import { useSetAtom } from 'jotai';
 import {
   Badge,
@@ -73,11 +74,15 @@ const ScoreOwnerNameCell = ({ row }: { row: Row<IScoreLog> }) => {
   );
 };
 
-export const scoreLogColumns: ColumnDef<IScoreLog>[] = [
+export const scoreLogColumns = (
+  t: TFunction<'loyalty'>,
+): ColumnDef<IScoreLog>[] => [
   makeScoreMoreColumn(),
   {
     id: 'ownerName',
-    header: () => <RecordTable.InlineHead icon={IconUser} label="Owner Name" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconUser} label={t('owner-name')} />
+    ),
     size: 180,
     cell: ({ row }) => <ScoreOwnerNameCell row={row} />,
   },
@@ -85,7 +90,7 @@ export const scoreLogColumns: ColumnDef<IScoreLog>[] = [
     id: 'ownerType',
     accessorKey: 'ownerType',
     header: () => (
-      <RecordTable.InlineHead icon={IconLabelFilled} label="Owner Type" />
+      <RecordTable.InlineHead icon={IconLabelFilled} label={t('owner-type')} />
     ),
     size: 120,
     cell: ({ cell }) => (
@@ -98,7 +103,7 @@ export const scoreLogColumns: ColumnDef<IScoreLog>[] = [
     id: 'totalScore',
     accessorKey: 'totalScore',
     header: () => (
-      <RecordTable.InlineHead icon={IconStar} label="Total Score" />
+      <RecordTable.InlineHead icon={IconStar} label={t('total-score')} />
     ),
     size: 140,
     cell: ({ cell }) => (
@@ -110,7 +115,9 @@ export const scoreLogColumns: ColumnDef<IScoreLog>[] = [
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
-    header: () => <RecordTable.InlineHead icon={IconCalendar} label="Date" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconCalendar} label={t('date')} />
+    ),
     size: 120,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
@@ -122,7 +129,7 @@ export const scoreLogColumns: ColumnDef<IScoreLog>[] = [
     id: 'dealNumber',
     accessorFn: (row) => row.target?.number,
     header: () => (
-      <RecordTable.InlineHead icon={IconHash} label="Deal Number" />
+      <RecordTable.InlineHead icon={IconHash} label={t('deal-number')} />
     ),
     size: 200,
     cell: ({ cell }) => (
@@ -134,7 +141,7 @@ export const scoreLogColumns: ColumnDef<IScoreLog>[] = [
   {
     id: 'action',
     accessorKey: 'action',
-    header: () => <RecordTable.InlineHead icon={IconTag} label="Type" />,
+    header: () => <RecordTable.InlineHead icon={IconTag} label={t('type')} />,
     size: 90,
     cell: ({ cell }) => {
       const action = cell.getValue() as string | undefined;
@@ -144,13 +151,12 @@ export const scoreLogColumns: ColumnDef<IScoreLog>[] = [
             <span className="text-muted-foreground"></span>
           </RecordTableInlineCell>
         );
-      let variant = 'secondary';
+      let variant: 'secondary' | 'success' | 'destructive' = 'secondary';
       if (action === 'add') variant = 'success';
       else if (action === 'subtract') variant = 'destructive';
-      else if (action === 'set') variant = 'outline';
       return (
         <RecordTableInlineCell>
-          <Badge variant={variant as any}>{action}</Badge>
+          <Badge variant={variant}>{action}</Badge>
         </RecordTableInlineCell>
       );
     },
@@ -159,7 +165,7 @@ export const scoreLogColumns: ColumnDef<IScoreLog>[] = [
     id: 'pointsEarned',
     accessorFn: (row) => (row.action === 'add' ? row.change : undefined),
     header: () => (
-      <RecordTable.InlineHead icon={IconCoins} label="Points Earned" />
+      <RecordTable.InlineHead icon={IconCoins} label={t('points-earned')} />
     ),
     size: 130,
     cell: ({ cell }) => {
@@ -175,7 +181,7 @@ export const scoreLogColumns: ColumnDef<IScoreLog>[] = [
     id: 'pointsSpent',
     accessorFn: (row) => (row.action === 'subtract' ? row.change : undefined),
     header: () => (
-      <RecordTable.InlineHead icon={IconChartBar} label="Points Spent" />
+      <RecordTable.InlineHead icon={IconChartBar} label={t('points-spent')} />
     ),
     size: 130,
     cell: ({ cell }) => {
@@ -191,7 +197,7 @@ export const scoreLogColumns: ColumnDef<IScoreLog>[] = [
     id: 'pointsRefunded',
     accessorFn: (row) => (row.action === 'refund' ? row.change : undefined),
     header: () => (
-      <RecordTable.InlineHead icon={IconRefresh} label="Points Refunded" />
+      <RecordTable.InlineHead icon={IconRefresh} label={t('points-refunded')} />
     ),
     size: 150,
     cell: ({ cell }) => {
@@ -206,7 +212,9 @@ export const scoreLogColumns: ColumnDef<IScoreLog>[] = [
   {
     id: 'pointsSet',
     accessorFn: (row) => (row.action === 'set' ? row.change : undefined),
-    header: () => <RecordTable.InlineHead icon={IconCoins} label="Score Set" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconCoins} label={t('score-set')} />
+    ),
     size: 120,
     cell: ({ cell }) => {
       const val = cell.getValue() as number | undefined;
@@ -220,7 +228,9 @@ export const scoreLogColumns: ColumnDef<IScoreLog>[] = [
   {
     id: 'campaign',
     accessorFn: (row) => row.campaign?.title,
-    header: () => <RecordTable.InlineHead icon={IconTrophy} label="Campaign" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconTrophy} label={t('campaign')} />
+    ),
     size: 140,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
@@ -232,7 +242,7 @@ export const scoreLogColumns: ColumnDef<IScoreLog>[] = [
     id: 'description',
     accessorKey: 'description',
     header: () => (
-      <RecordTable.InlineHead icon={IconNote} label="Description" />
+      <RecordTable.InlineHead icon={IconNote} label={t('description')} />
     ),
     size: 160,
     cell: ({ cell }) => (
@@ -248,7 +258,9 @@ export const scoreLogColumns: ColumnDef<IScoreLog>[] = [
 // are redundant when every row already belongs to the same person.
 const DETAIL_EXCLUDED_COLUMNS = new Set(['more', 'ownerName', 'ownerType']);
 
-export const scoreDetailColumns: ColumnDef<IScoreLog>[] =
-  scoreLogColumns.filter(
+export const scoreDetailColumns = (
+  t: TFunction<'loyalty'>,
+): ColumnDef<IScoreLog>[] =>
+  scoreLogColumns(t).filter(
     (column) => !DETAIL_EXCLUDED_COLUMNS.has(column.id || ''),
   );

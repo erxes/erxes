@@ -23,8 +23,7 @@ export const CustomersChangeState = ({
   const { table } = RecordTable.useRecordTable();
   const { toast } = useToast();
 
-  const currentState =
-    rows.length === 1 ? rows[0].original.state : undefined;
+  const currentState = rows.length === 1 ? rows[0].original.state : undefined;
 
   const handleSelect = async (value: string) => {
     // Clear selection BEFORE the mutation so the cache update

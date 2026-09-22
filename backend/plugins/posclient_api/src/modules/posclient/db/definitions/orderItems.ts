@@ -7,6 +7,22 @@ import {
   schemaHooksWrapper,
 } from './utils';
 
+const discountInfoSchema = new Schema(
+  {
+    type: field({ type: String, label: 'Discount type' }),
+    title: field({ type: String, optional: true, label: 'Discount title' }),
+    amount: getNumberFieldDefinition({
+      label: 'Discount amount',
+      optional: true,
+    }),
+    percent: getNumberFieldDefinition({
+      label: 'Discount percent',
+      optional: true,
+    }),
+  },
+  { _id: false },
+);
+
 export const orderItemSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
@@ -28,6 +44,11 @@ export const orderItemSchema = schemaHooksWrapper(
       discount: true,
       optional: true,
       default: 0,
+    }),
+    discountInfos: field({
+      type: [discountInfoSchema],
+      optional: true,
+      label: 'Discount infos',
     }),
     bonusCount: getNumberFieldDefinition({
       label: 'Bonus count',

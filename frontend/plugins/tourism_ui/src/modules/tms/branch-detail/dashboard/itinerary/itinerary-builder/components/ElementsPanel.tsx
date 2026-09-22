@@ -1,6 +1,7 @@
 import { IconPlus, IconEdit, IconTrash, IconSearch } from '@tabler/icons-react';
 import { Button, Input, useConfirm, useToast } from 'erxes-ui';
 import { useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { IElement } from '../../../elements/types/element';
 import { ElementCreateSheet } from '../../../elements/_components/ElementCreateSheet';
@@ -24,6 +25,7 @@ export const ElementsPanel = ({
   mainLanguage,
   branchLanguages,
 }: ElementsPanelProps) => {
+  const { t } = useTranslation('tourism');
   const [search, setSearch] = useState('');
   const [createOpen, setCreateOpen] = useState(false);
   const [editElement, setEditElement] = useState<IElement | null>(null);
@@ -52,20 +54,20 @@ export const ElementsPanel = ({
   const handleDelete = async (element: IElement) => {
     try {
       await confirm({
-        message: `Are you sure you want to delete "${element.name}"?`,
+        message: t('confirm-delete-named-element', { name: element.name }),
         options: confirmOptions,
       });
 
       await removeElements([element._id]);
 
       toast({
-        title: 'Success',
-        description: 'Element deleted successfully',
+        title: t('success'),
+        description: t('element-deleted-successfully'),
         variant: 'success',
       });
     } catch (e: unknown) {
       toast({
-        title: 'Error',
+        title: t('error'),
         description: (e as Error).message,
         variant: 'destructive',
       });
@@ -104,7 +106,7 @@ export const ElementsPanel = ({
               />
 
               <Input
-                placeholder="Search elements..."
+                placeholder={t('search-elements')}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="pl-9"
@@ -117,7 +119,7 @@ export const ElementsPanel = ({
               onClick={handleCreateOpen}
             >
               <IconPlus size={16} />
-              Add Element
+              {t('add-element')}
             </Button>
           </div>
         </div>
@@ -125,7 +127,7 @@ export const ElementsPanel = ({
         <div className="overflow-y-auto flex-1 p-3 space-y-2">
           {!filteredElements.length && (
             <p className="py-6 text-sm text-center text-muted-foreground">
-              {search ? 'No elements found' : 'No elements available'}
+              {search ? t('no-elements-found') : t('no-elements-available')}
             </p>
           )}
 
@@ -151,7 +153,7 @@ export const ElementsPanel = ({
                     size="icon"
                     variant="outline"
                     className="w-6 h-6"
-                    aria-label="Edit element"
+                    aria-label={t('edit-element-label')}
                     onClick={(e) => {
                       e.stopPropagation();
                       setEditElement(element);
@@ -165,7 +167,7 @@ export const ElementsPanel = ({
                     size="icon"
                     variant="outline"
                     className="w-6 h-6"
-                    aria-label="Delete element"
+                    aria-label={t('delete-element-label')}
                     onClick={(e) => {
                       e.stopPropagation();
                       handleDelete(element);

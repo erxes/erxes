@@ -13,19 +13,13 @@ import { getValueAsString } from '@/organization/settings/db/models/Configs';
 import { ICustomerDocument } from 'erxes-api-shared/core-types';
 import {
   EditorAttributeUtil,
-  fetchEs,
   getEnv,
   getPlugins,
 } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { EMAIL_VALIDATION_STATUSES } from '~/modules/contacts/constants';
+import { coreUrl, engageTrackerUrl } from '~/utils/email/links';
 import { generateCustomerSelector } from './engage';
-
-export const isUsingElk = () => {
-  const ELK_SYNCER = getEnv({ name: 'ELK_SYNCER', defaultValue: 'true' });
-
-  return ELK_SYNCER !== 'false';
-};
 
 export interface IUser {
   name: string;
@@ -44,7 +38,7 @@ interface IEngageParams {
   user;
 }
 
-export const subscribeEngage = async (models: IModels) => {
+export const subscribeEngage = async (models: IModels, subdomain: string) => {
   const snsApi = await getApi(models, 'sns');
   const sesApi = await getApi(models, 'ses');
   const configSet = await getValueAsString(
@@ -53,8 +47,6 @@ export const subscribeEngage = async (models: IModels) => {
     'AWS_SES_CONFIG_SET',
     'erxes',
   );
-
-  const DOMAIN = getEnv({ name: 'DOMAIN' });
 
   try {
     const topicArn = await snsApi.createTopic({ Name: configSet }).promise();
@@ -67,7 +59,7 @@ export const subscribeEngage = async (models: IModels) => {
       .subscribe({
         TopicArn: topicArn.TopicArn,
         Protocol: 'https',
-        Endpoint: `${DOMAIN}/gateway/pl:core/service/engage/tracker`,
+        Endpoint: engageTrackerUrl(subdomain),
       })
       .promise();
 
@@ -121,6 +113,7 @@ export const subscribeEngage = async (models: IModels) => {
 
 export const updateConfigs = async (
   models: IModels,
+  subdomain: string,
   configsMap,
 ): Promise<void> => {
   const prevSESConfigs = await models.EngageMessages.broadcastConfigs();
@@ -130,7 +123,7 @@ export const updateConfigs = async (
   const updatedSESConfigs = await models.EngageMessages.broadcastConfigs();
 
   if (JSON.stringify(prevSESConfigs) !== JSON.stringify(updatedSESConfigs)) {
-    await subscribeEngage(models);
+    await subscribeEngage(models, subdomain);
   }
 };
 
@@ -300,10 +293,8 @@ export const setCampaignCount = async (models: IModels, data: ICampaign) => {
 export const getEditorAttributeUtil = async (subdomain: string) => {
   const services = await getPlugins();
 
-  const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
-
   const editor: any = new EditorAttributeUtil(
-    `${DOMAIN}/gateway/pl:core`,
+    coreUrl(subdomain),
     services,
     subdomain,
   );
@@ -329,68 +320,17 @@ export const getCustomerName = (customer) => {
   return 'Unknown';
 };
 
-export const getNumberOfVisits = async (params: {
+/**
+ * Page-visit counts came from an Elasticsearch `events` index that this
+ * deployment never had, so there is no store to count from. Kept as the seam
+ * a real visitor-event store would fill; every rule reading it sees zero.
+ */
+export const getNumberOfVisits = async (_params: {
   subdomain: string;
   url: string;
   visitorId?: string;
   customerId?: string;
-}): Promise<number> => {
-  const searchId = params.customerId
-    ? { customerId: params.customerId }
-    : { visitorId: params.visitorId };
-
-  try {
-    const response = await fetchEs({
-      subdomain: params.subdomain,
-      action: 'search',
-      index: 'events',
-      body: {
-        query: {
-          bool: {
-            must: [
-              { term: { name: 'viewPage' } },
-              { term: searchId },
-              {
-                nested: {
-                  path: 'attributes',
-                  query: {
-                    bool: {
-                      must: [
-                        {
-                          term: {
-                            'attributes.field': 'url',
-                          },
-                        },
-                        {
-                          match: {
-                            'attributes.value': params.url,
-                          },
-                        },
-                      ],
-                    },
-                  },
-                },
-              },
-            ],
-          },
-        },
-      },
-    });
-
-    const hits = response.hits.hits;
-
-    if (hits.length === 0) {
-      return 0;
-    }
-
-    const [firstHit] = hits;
-
-    return firstHit._source.count;
-  } catch (e) {
-    console.log(`Error occurred during getNumberOfVisits ${e.message}`);
-    return 0;
-  }
-};
+}): Promise<number> => 0;
 
 export const timeCheckScheduledBroadcast = async (
   _id: string,
@@ -467,8 +407,7 @@ export const send = async (
     return;
   }
 
-  const customersSelector = await generateCustomerSelector(subdomain, models, {
-    engageId: _id,
+  const customersSelector = generateCustomerSelector({
     targetType,
     targetIds,
   });
@@ -585,7 +524,6 @@ export const prepareEngageCustomers = async (
   // Ensure email & phone are valid based on the engage message method
   if (engageMessage.method === 'email') {
     customersSelector.primaryEmail = exists;
-    customersSelector.emailValidationStatus = EMAIL_VALIDATION_STATUSES.VALID;
   }
   if (engageMessage.method === 'sms') {
     customersSelector.primaryPhone = exists;

@@ -3,7 +3,8 @@ import { AUTOMATION_EXECUTION_STATUS } from 'erxes-api-shared/core-modules';
 import { IJobData } from '../initMQWorkers';
 import { IModels } from '../../connectionResolver';
 import { debugInfo } from '../../debugger';
-import { getActionsMap } from '../../utils/utils';
+import { resolveAutomationErrorCode } from '../../executions/errorCodes';
+import { getExecutionActionsMap } from '../../utils/utils';
 import { executeActions } from '../../executions/executeActions';
 
 // Type for play wait job data
@@ -32,17 +33,22 @@ export const playWaitingActionWorker = async (
     return;
   }
 
+  // No 'actions.id' filter: child executions wait on workflow member actions
+  // that live in the workflow snapshot, not in the root actions list.
   const automation = await models.Automations.findOne({
     _id: automationId,
-    'actions.id': waitingActionId,
   }).lean();
 
   if (!automation) {
-    await models.Executions.updateOne({
-      _id: execution.id,
-      status: AUTOMATION_EXECUTION_STATUS.MISSID,
-      description: 'Not found automation of execution',
-    });
+    await models.Executions.updateOne(
+      { _id: execution._id },
+      {
+        $set: {
+          status: AUTOMATION_EXECUTION_STATUS.MISSID,
+          description: 'Not found automation of execution',
+        },
+      },
+    );
     debugInfo(
       `Not found automation ${automationId} with action ${waitingActionId} for start action`,
     );
@@ -50,22 +56,27 @@ export const playWaitingActionWorker = async (
   }
 
   try {
-    const { actions = [] } = automation;
-
-    const action = actions.find(({ id }) => id === waitingActionId);
+    const actionsMap = await getExecutionActionsMap(automation, execution);
+    const action = actionsMap[waitingActionId];
 
     executeActions(
       subdomain,
       execution.triggerType,
       execution,
-      await getActionsMap(automation.actions || []),
+      actionsMap,
       action?.nextActionId,
     );
   } catch (error) {
-    models.Executions.updateOne({
-      _id: execution.id,
-      status: AUTOMATION_EXECUTION_STATUS.ERROR,
-      description: error.message,
-    });
+    await models.Executions.updateOne(
+      { _id: execution._id },
+      {
+        $set: {
+          status: AUTOMATION_EXECUTION_STATUS.ERROR,
+          description: error.message,
+          failedActionId: waitingActionId,
+          errorCode: resolveAutomationErrorCode(error),
+        },
+      },
+    );
   }
 };

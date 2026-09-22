@@ -29,7 +29,8 @@ export interface IPipeline {
   excludeProductIds?: string[];
   paymentIds?: string[];
   paymentTypes?: any[];
-  erxesAppToken?: string;
+  propertyIds?: string[];
+  isPropertySelectionConfigured?: boolean;
 
   userId?: string;
   order?: number;

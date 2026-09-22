@@ -24,6 +24,7 @@ import {
 } from 'erxes-ui';
 import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 import { IBranch } from '@/tms/types/branch';
 import {
@@ -111,6 +112,7 @@ const buildFieldFormValues = (field?: ITourCustomField | null): FieldForm => ({
 });
 
 export const CustomFieldsPage = ({ branch }: { branch: IBranch }) => {
+  const { t } = useTranslation('tourism');
   const { confirm } = useConfirm();
   const [typeDrawerOpen, setTypeDrawerOpen] = useState(false);
   const [groupDrawerOpen, setGroupDrawerOpen] = useState(false);
@@ -186,12 +188,12 @@ export const CustomFieldsPage = ({ branch }: { branch: IBranch }) => {
 
   const [addType] = useMutation(TOUR_CUSTOM_TYPE_ADD, {
     onCompleted: () => {
-      toast({ title: 'Success', description: 'Tour type created' });
+      toast({ title: t('success'), description: t('tour-type-created') });
       refetchTypes();
     },
     onError: (error) =>
       toast({
-        title: 'Error',
+        title: t('error'),
         description: error.message,
         variant: 'destructive',
       }),
@@ -199,12 +201,12 @@ export const CustomFieldsPage = ({ branch }: { branch: IBranch }) => {
 
   const [editType] = useMutation(TOUR_CUSTOM_TYPE_EDIT, {
     onCompleted: () => {
-      toast({ title: 'Success', description: 'Tour type updated' });
+      toast({ title: t('success'), description: t('tour-type-updated') });
       refetchTypes();
     },
     onError: (error) =>
       toast({
-        title: 'Error',
+        title: t('error'),
         description: error.message,
         variant: 'destructive',
       }),
@@ -212,13 +214,13 @@ export const CustomFieldsPage = ({ branch }: { branch: IBranch }) => {
 
   const [removeType] = useMutation(TOUR_CUSTOM_TYPE_REMOVE, {
     onCompleted: () => {
-      toast({ title: 'Success', description: 'Tour type removed' });
+      toast({ title: t('success'), description: t('tour-type-removed') });
       refetchTypes();
       refetchGroups();
     },
     onError: (error) =>
       toast({
-        title: 'Error',
+        title: t('error'),
         description: error.message,
         variant: 'destructive',
       }),
@@ -226,12 +228,12 @@ export const CustomFieldsPage = ({ branch }: { branch: IBranch }) => {
 
   const [addGroup] = useMutation(TOUR_CUSTOM_FIELD_GROUP_ADD, {
     onCompleted: () => {
-      toast({ title: 'Success', description: 'Field group created' });
+      toast({ title: t('success'), description: t('field-group-created') });
       refetchGroups();
     },
     onError: (error) =>
       toast({
-        title: 'Error',
+        title: t('error'),
         description: error.message,
         variant: 'destructive',
       }),
@@ -239,12 +241,12 @@ export const CustomFieldsPage = ({ branch }: { branch: IBranch }) => {
 
   const [editGroup] = useMutation(TOUR_CUSTOM_FIELD_GROUP_EDIT, {
     onCompleted: () => {
-      toast({ title: 'Success', description: 'Field group updated' });
+      toast({ title: t('success'), description: t('field-group-updated') });
       refetchGroups();
     },
     onError: (error) =>
       toast({
-        title: 'Error',
+        title: t('error'),
         description: error.message,
         variant: 'destructive',
       }),
@@ -252,13 +254,13 @@ export const CustomFieldsPage = ({ branch }: { branch: IBranch }) => {
 
   const [removeGroup] = useMutation(TOUR_CUSTOM_FIELD_GROUP_REMOVE, {
     onCompleted: () => {
-      toast({ title: 'Success', description: 'Field group removed' });
+      toast({ title: t('success'), description: t('field-group-removed') });
       setSelectedGroup(null);
       refetchGroups();
     },
     onError: (error) =>
       toast({
-        title: 'Error',
+        title: t('error'),
         description: error.message,
         variant: 'destructive',
       }),
@@ -266,13 +268,13 @@ export const CustomFieldsPage = ({ branch }: { branch: IBranch }) => {
 
   const handleRemoveType = (type: ITourCustomPostType) => {
     confirm({
-      message: `Delete "${type.label}" tour type?`,
+      message: t('confirm-delete-tour-type', { label: type.label }),
     }).then(() => removeType({ variables: { _id: type._id } }));
   };
 
   const handleRemoveGroup = (group: ITourCustomFieldGroup) => {
     confirm({
-      message: `Delete "${group.label}" field group and all its fields?`,
+      message: t('confirm-delete-field-group', { label: group.label }),
     }).then(() => removeGroup({ variables: { _id: group._id } }));
   };
 
@@ -311,7 +313,7 @@ export const CustomFieldsPage = ({ branch }: { branch: IBranch }) => {
     field: ITourCustomField,
   ) => {
     confirm({
-      message: `Delete "${field.label}" field?`,
+      message: t('confirm-delete-field', { label: field.label }),
     }).then(() => {
       const fields = (group.fields || []).filter(
         (item) => item._id !== field._id,
@@ -325,7 +327,7 @@ export const CustomFieldsPage = ({ branch }: { branch: IBranch }) => {
       <PageSubHeader>
         <div className="flex items-center gap-2 text-sm font-medium">
           <IconSettings size={16} />
-          Custom Fields
+          {t('custom-fields')}
         </div>
         <div className="flex items-center gap-2 ml-auto">
           <Button
@@ -337,7 +339,7 @@ export const CustomFieldsPage = ({ branch }: { branch: IBranch }) => {
             }}
           >
             <IconPlus size={16} />
-            Tour Type
+            {t('tour-type')}
           </Button>
           <Button
             size="sm"
@@ -347,7 +349,7 @@ export const CustomFieldsPage = ({ branch }: { branch: IBranch }) => {
             }}
           >
             <IconPlus size={16} />
-            Field Group
+            {t('field-group')}
           </Button>
         </div>
       </PageSubHeader>
@@ -355,8 +357,8 @@ export const CustomFieldsPage = ({ branch }: { branch: IBranch }) => {
       <div className="flex-auto min-h-0 p-4 overflow-auto">
         <Tabs defaultValue="groups" className="flex flex-col gap-4">
           <Tabs.List className="w-fit">
-            <Tabs.Trigger value="groups">Field Groups</Tabs.Trigger>
-            <Tabs.Trigger value="types">Tour Types</Tabs.Trigger>
+            <Tabs.Trigger value="groups">{t('field-groups')}</Tabs.Trigger>
+            <Tabs.Trigger value="types">{t('tour-types')}</Tabs.Trigger>
           </Tabs.List>
 
           <Tabs.Content value="groups" className="min-h-0">
@@ -502,6 +504,7 @@ const TourTypesView = ({
   onEditType: (type: ITourCustomPostType) => void;
   onRemoveType: (type: ITourCustomPostType) => void;
 }) => {
+  const { t } = useTranslation('tourism');
   if (loading) {
     return <LoadingBlock />;
   }
@@ -511,9 +514,9 @@ const TourTypesView = ({
       <Table>
         <Table.Header>
           <Table.Row>
-            <Table.Head className="w-[45%] px-4">Label</Table.Head>
-            <Table.Head className="px-4">Key</Table.Head>
-            <Table.Head className="px-4 w-28">Status</Table.Head>
+            <Table.Head className="w-[45%] px-4">{t('label')}</Table.Head>
+            <Table.Head className="px-4">{t('key')}</Table.Head>
+            <Table.Head className="px-4 w-28">{t('status')}</Table.Head>
             <Table.Head className="w-20" />
           </Table.Row>
         </Table.Header>
@@ -521,7 +524,7 @@ const TourTypesView = ({
           {customTypes.length === 0 ? (
             <Table.Row>
               <Table.Cell colSpan={4} className="h-24 text-center">
-                No custom tour types yet
+                {t('no-custom-tour-types-yet')}
               </Table.Cell>
             </Table.Row>
           ) : (
@@ -544,7 +547,7 @@ const TourTypesView = ({
                   <Badge
                     variant={type.isActive === false ? 'secondary' : 'default'}
                   >
-                    {type.isActive === false ? 'Inactive' : 'Active'}
+                    {type.isActive === false ? t('inactive') : t('active')}
                   </Badge>
                 </Table.Cell>
                 <Table.Cell className="px-2 py-2">
@@ -602,6 +605,7 @@ const FieldGroupsView = ({
     field: ITourCustomField,
   ) => void;
 }) => {
+  const { t } = useTranslation('tourism');
   if (loading) {
     return <LoadingBlock />;
   }
@@ -609,7 +613,7 @@ const FieldGroupsView = ({
   if (!groups.length) {
     return (
       <div className="flex items-center justify-center h-40 border rounded-lg text-muted-foreground">
-        No custom field groups yet
+        {t('no-custom-field-groups-yet')}
       </div>
     );
   }
@@ -620,7 +624,7 @@ const FieldGroupsView = ({
         <Table>
           <Table.Header>
             <Table.Row>
-              <Table.Head className="px-4">Group</Table.Head>
+              <Table.Head className="px-4">{t('field-group')}</Table.Head>
               <Table.Head className="w-20" />
             </Table.Row>
           </Table.Header>
@@ -636,7 +640,7 @@ const FieldGroupsView = ({
               >
                 <Table.Cell className="min-w-0 px-4 py-3 whitespace-normal">
                   <div className="font-medium leading-5 break-words [overflow-wrap:anywhere]">
-                    {group.label || 'Untitled group'}
+                    {group.label || t('untitled-group')}
                   </div>
                   {group.code && (
                     <div className="text-xs text-muted-foreground break-words [overflow-wrap:anywhere]">
@@ -645,7 +649,7 @@ const FieldGroupsView = ({
                   )}
                   <div className="flex flex-wrap gap-1.5 mt-2">
                     {(group.customTourTypeIds || []).length === 0 ? (
-                      <Badge variant="secondary">All tours</Badge>
+                      <Badge variant="secondary">{t('all-tours')}</Badge>
                     ) : (
                       (group.customTourTypeIds || []).map((typeId) => (
                         <Badge
@@ -704,7 +708,7 @@ const FieldGroupsView = ({
           />
         ) : (
           <div className="flex items-center justify-center h-full text-muted-foreground">
-            Select a field group
+            {t('select-a-field-group')}
           </div>
         )}
       </div>
@@ -726,6 +730,7 @@ const FieldList = ({
     field: ITourCustomField,
   ) => void;
 }) => {
+  const { t } = useTranslation('tourism');
   const fields = group.fields || [];
 
   return (
@@ -736,21 +741,21 @@ const FieldList = ({
             {group.label}
           </div>
           <div className="text-xs text-muted-foreground">
-            {fields.length} field{fields.length === 1 ? '' : 's'}
+            {t('fields-count', { count: fields.length })}
           </div>
         </div>
         <Button size="sm" className="ml-auto" onClick={() => onAddField(group)}>
           <IconPlus size={16} />
-          Add Field
+          {t('add-field')}
         </Button>
       </div>
       <div className="overflow-auto">
         <Table>
           <Table.Header>
             <Table.Row>
-              <Table.Head className="w-[45%] px-4">Field</Table.Head>
-              <Table.Head className="px-4">Type</Table.Head>
-              <Table.Head className="w-24 px-4">Required</Table.Head>
+              <Table.Head className="w-[45%] px-4">{t('field')}</Table.Head>
+              <Table.Head className="px-4">{t('type')}</Table.Head>
+              <Table.Head className="w-24 px-4">{t('required')}</Table.Head>
               <Table.Head className="w-20" />
             </Table.Row>
           </Table.Header>
@@ -758,7 +763,7 @@ const FieldList = ({
             {fields.length === 0 ? (
               <Table.Row>
                 <Table.Cell colSpan={4} className="h-24 text-center">
-                  No fields in this group
+                  {t('no-fields-in-group')}
                 </Table.Cell>
               </Table.Row>
             ) : (
@@ -774,7 +779,7 @@ const FieldList = ({
                     {field.type}
                   </Table.Cell>
                   <Table.Cell className="px-4 py-3">
-                    {field.isRequired ? 'Yes' : 'No'}
+                    {field.isRequired ? t('yes') : t('no')}
                   </Table.Cell>
                   <Table.Cell className="px-2 py-2">
                     <div className="flex justify-end gap-1">
@@ -818,6 +823,7 @@ const TourTypeDrawer = ({
   onOpenChange: (open: boolean) => void;
   onSubmit: (values: TourTypeForm) => void;
 }) => {
+  const { t } = useTranslation('tourism');
   const form = useForm<TourTypeForm>({
     defaultValues: {
       label: '',
@@ -844,7 +850,7 @@ const TourTypeDrawer = ({
       <Sheet.View className="p-0 sm:max-w-lg">
         <Sheet.Header>
           <Sheet.Title>
-            {editingType ? 'Edit Tour Type' : 'New Tour Type'}
+            {editingType ? t('edit-tour-type') : t('new-tour-type')}
           </Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
@@ -857,7 +863,7 @@ const TourTypeDrawer = ({
               <TextField
                 form={form}
                 name="label"
-                label="Label"
+                label={t('label')}
                 onChange={(value) => {
                   if (!editingType && !form.getValues('code')) {
                     form.setValue('code', generateCode(value));
@@ -867,12 +873,12 @@ const TourTypeDrawer = ({
                   }
                 }}
               />
-              <TextField form={form} name="pluralLabel" label="Plural Label" />
-              <TextField form={form} name="code" label="Key" />
+              <TextField form={form} name="pluralLabel" label={t('plural-label')} />
+              <TextField form={form} name="code" label={t('key')} />
               <TextAreaField
                 form={form}
                 name="description"
-                label="Description"
+                label={t('description')}
               />
               <Form.Field
                 control={form.control}
@@ -885,7 +891,7 @@ const TourTypeDrawer = ({
                         onCheckedChange={field.onChange}
                       />
                     </Form.Control>
-                    <Form.Label>Active</Form.Label>
+                    <Form.Label>{t('active')}</Form.Label>
                   </Form.Item>
                 )}
               />
@@ -896,9 +902,9 @@ const TourTypeDrawer = ({
                 variant="outline"
                 onClick={() => onOpenChange(false)}
               >
-                Cancel
+                {t('cancel')}
               </Button>
-              <Button type="submit">{editingType ? 'Save' : 'Create'}</Button>
+              <Button type="submit">{editingType ? t('save') : t('create')}</Button>
             </Sheet.Footer>
           </form>
         </Form>
@@ -921,6 +927,7 @@ const FieldGroupDrawer = ({
   onOpenChange: (open: boolean) => void;
   onSubmit: (values: FieldGroupForm) => void;
 }) => {
+  const { t } = useTranslation('tourism');
   const form = useForm<FieldGroupForm>({
     defaultValues: {
       label: '',
@@ -931,10 +938,10 @@ const FieldGroupDrawer = ({
   const typeSelectOptions = useMemo(
     () =>
       typeOptions.map((type) => ({
-        label: type.label || type.code || 'Untitled type',
+        label: type.label || type.code || t('unnamed-type'),
         value: type._id,
       })),
-    [typeOptions],
+    [typeOptions, t],
   );
 
   useEffect(() => {
@@ -951,7 +958,7 @@ const FieldGroupDrawer = ({
       <Sheet.View className="p-0 sm:max-w-lg">
         <Sheet.Header>
           <Sheet.Title>
-            {editingGroup ? 'Edit Field Group' : 'New Field Group'}
+            {editingGroup ? t('edit-field-group') : t('new-field-group')}
           </Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
@@ -964,14 +971,14 @@ const FieldGroupDrawer = ({
               <TextField
                 form={form}
                 name="label"
-                label="Label"
+                label={t('label')}
                 onChange={(value) => {
                   if (!editingGroup && !form.getValues('code')) {
                     form.setValue('code', generateCode(value));
                   }
                 }}
               />
-              <TextField form={form} name="code" label="Key" />
+              <TextField form={form} name="code" label={t('key')} />
               <Form.Field
                 control={form.control}
                 name="customTourTypeIds"
@@ -980,16 +987,16 @@ const FieldGroupDrawer = ({
 
                   return (
                     <Form.Item>
-                      <Form.Label>Show On Tour Types</Form.Label>
+                      <Form.Label>{t('show-on-tour-types')}</Form.Label>
                       <Form.Control>
                         <MultipleSelector
                           value={typeSelectOptions.filter((option) =>
                             selectedValues.includes(option.value),
                           )}
                           options={typeSelectOptions}
-                          placeholder="Select tour types"
+                          placeholder={t('select-tour-types')}
                           hidePlaceholderWhenSelected
-                          emptyIndicator="No tour types"
+                          emptyIndicator={t('no-tour-types')}
                           onChange={(options) =>
                             field.onChange(
                               options.map((option) => option.value),
@@ -1008,9 +1015,9 @@ const FieldGroupDrawer = ({
                 variant="outline"
                 onClick={() => onOpenChange(false)}
               >
-                Cancel
+                {t('cancel')}
               </Button>
-              <Button type="submit">{editingGroup ? 'Save' : 'Create'}</Button>
+              <Button type="submit">{editingGroup ? t('save') : t('create')}</Button>
             </Sheet.Footer>
           </form>
         </Form>
@@ -1030,6 +1037,7 @@ const FieldDrawer = ({
   onOpenChange: (open: boolean) => void;
   onSubmit: (values: FieldForm) => void;
 }) => {
+  const { t } = useTranslation('tourism');
   const form = useForm<FieldForm>({
     defaultValues: buildFieldFormValues(),
   });
@@ -1045,7 +1053,7 @@ const FieldDrawer = ({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <Sheet.View className="p-0 sm:max-w-lg">
         <Sheet.Header>
-          <Sheet.Title>{editingField ? 'Edit Field' : 'New Field'}</Sheet.Title>
+          <Sheet.Title>{editingField ? t('edit-field') : t('new-field')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <Form {...form}>
@@ -1057,27 +1065,27 @@ const FieldDrawer = ({
               <TextField
                 form={form}
                 name="label"
-                label="Label"
+                label={t('label')}
                 onChange={(value) => {
                   if (!editingField && !form.getValues('code')) {
                     form.setValue('code', generateCode(value));
                   }
                 }}
               />
-              <TextField form={form} name="code" label="Key" />
+              <TextField form={form} name="code" label={t('key')} />
               <Form.Field
                 control={form.control}
                 name="type"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Field Type</Form.Label>
+                    <Form.Label>{t('field-type')}</Form.Label>
                     <Form.Control>
                       <Select
                         value={field.value}
                         onValueChange={field.onChange}
                       >
                         <Select.Trigger>
-                          <Select.Value placeholder="Select field type" />
+                          <Select.Value placeholder={t('select-field-type')} />
                         </Select.Trigger>
                         <Select.Content>
                           {FIELD_TYPES.map((option) => (
@@ -1085,7 +1093,7 @@ const FieldDrawer = ({
                               key={option.value}
                               value={option.value}
                             >
-                              {option.label}
+                              {t(`field-type-${option.value}`)}
                             </Select.Item>
                           ))}
                         </Select.Content>
@@ -1097,14 +1105,14 @@ const FieldDrawer = ({
               <TextAreaField
                 form={form}
                 name="description"
-                label="Description"
+                label={t('description')}
               />
               {needsOptions && (
                 <TextField
                   form={form}
                   name="options"
-                  label="Options"
-                  placeholder="Option A, Option B"
+                  label={t('options')}
+                  placeholder={t('option-placeholder')}
                 />
               )}
               <Form.Field
@@ -1118,7 +1126,7 @@ const FieldDrawer = ({
                         onCheckedChange={field.onChange}
                       />
                     </Form.Control>
-                    <Form.Label>Required</Form.Label>
+                    <Form.Label>{t('required')}</Form.Label>
                   </Form.Item>
                 )}
               />
@@ -1129,9 +1137,9 @@ const FieldDrawer = ({
                 variant="outline"
                 onClick={() => onOpenChange(false)}
               >
-                Cancel
+                {t('cancel')}
               </Button>
-              <Button type="submit">{editingField ? 'Save' : 'Create'}</Button>
+              <Button type="submit">{editingField ? t('save') : t('create')}</Button>
             </Sheet.Footer>
           </form>
         </Form>

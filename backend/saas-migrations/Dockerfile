@@ -1,0 +1,35 @@
+# Image for the one-off SaaS cross-tenant data migrations.
+#
+# Build from the repo root (the build context must include backend/saas-migrations):
+#   docker build -f backend/saas-migrations/Dockerfile -t erxes/saas-migrations:<tag> .
+#
+# The scripts only need a Mongo client + tsx; they talk to MongoDB directly and
+# do not touch Elasticsearch/Redis/RabbitMQ. Connection string and the
+# SOURCE_SUBDOMAIN/TARGET_SUBDOMAIN params are injected at run time (see the
+# Kubernetes Job in infra/kubernetes/erxes-saas/migrations-job.ts).
+FROM node:22-alpine3.22
+WORKDIR /app
+
+RUN npm install -g pnpm@9
+
+# Runtime deps for the migration scripts. mongodb / dotenv / tsx are pinned to
+# the repo root package.json; the rest are pinned to
+# backend/saas-migrations/package.json (used by the WordPress content import,
+# including its media upload to S3-compatible storage).
+RUN printf '%s' '{"name":"saas-migrations-runtime","private":true,"dependencies":{"mongodb":"^6.18.0","dotenv":"^16.4.7","tsx":"^4.19.3","@aws-sdk/client-s3":"3.913.0","fast-xml-parser":"5.10.1","file-type":"20.5.0","undici":"6.27.0"}}' > package.json \
+    && pnpm install --prod --shamefully-hoist --no-frozen-lockfile
+
+COPY backend/saas-migrations ./saas-migrations
+# Drop any node_modules that came along in the build context: pnpm's symlinks
+# point outside the image and would shadow the hoisted /app/node_modules.
+RUN rm -rf ./saas-migrations/node_modules ./saas-migrations/dist
+
+ENV NODE_ENV=production
+# Safe by default: do nothing destructive unless explicitly overridden to "0".
+ENV DRY_RUN=1
+
+USER 1000
+
+# Default: run every migration (core first, then the rest). Override the args to
+# scope to specific domains, e.g. ["saas-migrations/run.ts","core","frontline"].
+ENTRYPOINT ["node", "--import", "tsx", "saas-migrations/run.ts"]

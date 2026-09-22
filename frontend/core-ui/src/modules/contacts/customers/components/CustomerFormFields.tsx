@@ -100,65 +100,6 @@ export const DescriptionField = ({
   );
 };
 
-const emailValidationStatuses = [
-  { label: 'Valid', value: 'valid' },
-  { label: 'Invalid', value: 'invalid' },
-  { label: 'Accept all unverifiable', value: 'accept_all_unverifiable' },
-  { label: 'Unknown', value: 'unknown' },
-  { label: 'Disposable', value: 'disposable' },
-  { label: 'Catch all', value: 'catchall' },
-  { label: 'Bad syntax', value: 'bad_syntax' },
-  { label: 'Not checked', value: 'not_checked' },
-];
-
-export const EmailValidationStatusField = ({
-  control,
-  disabled,
-}: {
-  control: Control<CustomerFormType>;
-  disabled?: boolean;
-}) => {
-  const { t } = useTranslation('contact', { keyPrefix: 'customer.add' });
-  return (
-    <Form.Field
-      control={control}
-      name="emailValidationStatus"
-      render={({ field }) => (
-        <Form.Item>
-          <Form.Label>{t('email-verification-status')}</Form.Label>
-          <Select onValueChange={field.onChange} value={field.value} disabled={disabled}>
-            <Form.Control>
-              <Select.Trigger>
-                <Select.Value placeholder={'Choose'}>
-                  {
-                    emailValidationStatuses.find(
-                      (status) => status.value === field.value,
-                    )?.label
-                  }
-                </Select.Value>
-              </Select.Trigger>
-            </Form.Control>
-            <Select.Content>
-              <Select.Group>
-                {emailValidationStatuses.map((status) => (
-                  <Select.Item
-                    key={status.value}
-                    className="text-xs h-7"
-                    value={status.value}
-                  >
-                    {status.label}
-                  </Select.Item>
-                ))}
-              </Select.Group>
-            </Select.Content>
-          </Select>
-          <Form.Message className="text-destructive" />
-        </Form.Item>
-      )}
-    />
-  );
-};
-
 export const FirstNameField = ({
   control,
 }: {

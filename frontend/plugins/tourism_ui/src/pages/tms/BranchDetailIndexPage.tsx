@@ -1,8 +1,9 @@
 import { IconBox } from '@tabler/icons-react';
 import { Breadcrumb, Button, Select, Separator } from 'erxes-ui';
-import { PageHeader } from 'ui-modules';
+import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { BranchDetailView } from '@/tms/branch-detail/components/BranchDetailView';
 import { useBranchDetailPage } from '@/tms/branch-detail/hooks/useBranchDetailPage';
@@ -33,6 +34,7 @@ const VALID_TABS = new Set<ActiveTab>([
 ]);
 
 export const BranchDetailIndexPage = () => {
+  const { t } = useTranslation('tourism');
   const [searchParams] = useSearchParams();
 
   const {
@@ -66,6 +68,10 @@ export const BranchDetailIndexPage = () => {
     mainLanguage: selectedBranch?.language,
     availableLanguages: availableLangCodes,
   });
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(
+    t('tms-index-breadcrumb'),
+    selectedBranch?.name,
+  );
 
   const onSelectLanguage = (lang: string) => {
     setActiveLang(lang);
@@ -133,7 +139,7 @@ export const BranchDetailIndexPage = () => {
                 <Button variant="ghost" asChild>
                   <Link to={basePath}>
                     <IconBox />
-                    Tour management system
+                    {t('tms-index-breadcrumb')}
                   </Link>
                 </Button>
               </Breadcrumb.Item>
@@ -146,15 +152,15 @@ export const BranchDetailIndexPage = () => {
                     <Select.Value
                       placeholder={
                         listLoading
-                          ? 'Loading branches...'
-                          : selectedBranch?.name || 'Select branch'
+                          ? t('loading-branches')
+                          : selectedBranch?.name || t('select-branch')
                       }
                     />
                   </Select.Trigger>
                   <Select.Content>
                     {list.map((branch) => (
                       <Select.Item key={branch._id} value={branch._id}>
-                        {branch.name || 'Unnamed Branch'}
+                        {branch.name || t('unnamed-branch')}
                       </Select.Item>
                     ))}
                   </Select.Content>
@@ -168,7 +174,7 @@ export const BranchDetailIndexPage = () => {
                   <Breadcrumb.Item>
                     <Select value={activeLang} onValueChange={onSelectLanguage}>
                       <Select.Trigger className="w-[180px]">
-                        <Select.Value placeholder="Select language" />
+                        <Select.Value placeholder={t('select-language')} />
                       </Select.Trigger>
                       <Select.Content>
                         {availableLanguages.map((lang) => (
@@ -186,7 +192,10 @@ export const BranchDetailIndexPage = () => {
 
           <Separator.Inline />
 
-          <PageHeader.FavoriteToggleButton />
+          <PageHeader.FavoriteToggleButton
+            breadcrumb={favoriteBreadcrumb}
+            icon="IconBox"
+          />
         </PageHeader.Start>
 
         <PageHeader.End>{renderCreateSheet()}</PageHeader.End>

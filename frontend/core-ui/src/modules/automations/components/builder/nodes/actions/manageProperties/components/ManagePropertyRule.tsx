@@ -1,7 +1,12 @@
 import { useManagePropertyRule } from '@/automations/components/builder/nodes/actions/manageProperties/hooks/useManagePropertyRule';
-import { IconTrash } from '@tabler/icons-react';
+import {
+  ManagePropertyCustomInput,
+  useManagePropertyCustomInput,
+} from '@/automations/components/builder/nodes/actions/manageProperties/components/ManagePropertyCustomInput';
+import { IconCornerDownRight, IconTrash, IconX } from '@tabler/icons-react';
 import { Button, Form, Select } from 'erxes-ui';
-import { PlaceholderInput } from 'ui-modules';
+import { useState } from 'react';
+import { PlaceholderInput, TPlaceholderInputSuggestion } from 'ui-modules';
 
 interface LocalRuleProps {
   index: number;
@@ -16,6 +21,7 @@ export const ManagePropertyRule = ({
 }: LocalRuleProps) => {
   const {
     control,
+    setValue,
     groups,
     operators,
     handleFieldChange,
@@ -23,7 +29,18 @@ export const ManagePropertyRule = ({
     handleUpdate,
     placeholderInputProps,
     rule,
+    selectedField,
   } = useManagePropertyRule({ propertyType, sourceType, index });
+  const CustomInput = useManagePropertyCustomInput(propertyType, selectedField);
+  const [showFallback, setShowFallback] = useState(
+    () => !!String(rule?.fallbackValue ?? '').trim(),
+  );
+
+  const handleRemoveFallback = () => {
+    setValue(`rules.${index}.fallbackValue`, undefined, { shouldDirty: true });
+    setShowFallback(false);
+  };
+
   return (
     <div className="border rounded p-4  mb-2 relative group">
       <div className="flex flex-row gap-4 mb-4  items-end">
@@ -105,24 +122,86 @@ export const ManagePropertyRule = ({
             <Form.Item>
               <Form.Label>Value</Form.Label>
 
-              <PlaceholderInput
-                propertyType={propertyType}
-                value={field.value ?? ''}
-                onChange={field.onChange}
-                disabled={{ attribute: true }}
-                isExpression={rule.isExpression}
-                onChangeInputMode={(mode) =>
-                  handleUpdate({ isExpression: mode === 'expression' })
-                }
-                {...placeholderInputProps}
-              >
-                <PlaceholderInput.Header />
-              </PlaceholderInput>
+              {CustomInput ? (
+                <ManagePropertyCustomInput
+                  CustomInput={CustomInput}
+                  value={field.value ?? ''}
+                  onChange={field.onChange}
+                  meta={rule?.meta}
+                  onMetaChange={(meta) =>
+                    setValue(`rules.${index}.meta`, meta, {
+                      shouldDirty: true,
+                    })
+                  }
+                  disabled={placeholderInputProps.isDisabled}
+                />
+              ) : (
+                <PlaceholderInput
+                  propertyType={propertyType}
+                  value={field.value ?? ''}
+                  onChange={field.onChange}
+                  disabled={[TPlaceholderInputSuggestion.Attribute]}
+                  isExpression={rule.isExpression}
+                  onChangeInputMode={(mode) =>
+                    handleUpdate({ isExpression: mode === 'expression' })
+                  }
+                  {...placeholderInputProps}
+                >
+                  <PlaceholderInput.Header />
+                </PlaceholderInput>
+              )}
 
               <Form.Message />
             </Form.Item>
           )}
         />
+
+        {!CustomInput &&
+          (showFallback ? (
+            <Form.Field
+              control={control}
+              name={`rules.${index}.fallbackValue`}
+              render={({ field }) => (
+                <Form.Item className="mt-2">
+                  <div className="flex items-center justify-between">
+                    <Form.Label className="text-muted-foreground">
+                      Else — used when the value above is empty
+                    </Form.Label>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="size-6"
+                      onClick={handleRemoveFallback}
+                    >
+                      <IconX size={14} />
+                    </Button>
+                  </div>
+                  <PlaceholderInput
+                    propertyType={propertyType}
+                    value={field.value ?? ''}
+                    onChange={field.onChange}
+                    disabled={[TPlaceholderInputSuggestion.Attribute]}
+                    {...placeholderInputProps}
+                  >
+                    <PlaceholderInput.Header />
+                  </PlaceholderInput>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+          ) : (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="mt-2 text-muted-foreground"
+              onClick={() => setShowFallback(true)}
+            >
+              <IconCornerDownRight size={14} />
+              Else (fallback when empty)
+            </Button>
+          ))}
       </div>
     </div>
   );

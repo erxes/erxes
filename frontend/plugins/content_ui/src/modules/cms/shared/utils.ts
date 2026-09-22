@@ -12,6 +12,17 @@ export const getTranslation = <T extends { language: string }>(
   return translations.find((t) => t.language === language);
 };
 
+interface RecordTableRow<T extends { _id: string }> {
+  original: T;
+}
+
+export const getRecordTableSelectedIds = <T extends { _id: string }>(
+  rows: RecordTableRow<T>[],
+) => rows.map(({ original }) => original._id);
+
+export const getErrorMessage = (error: unknown) =>
+  error instanceof Error ? error.message : undefined;
+
 export type PostUrlField = '_id' | 'count' | 'slug';
 
 export interface PostUrlSource {

@@ -9,7 +9,14 @@ import {
   Combobox,
   Command,
 } from 'erxes-ui';
-import { IconClipboardList, IconCode, IconEdit, IconToggleLeft, IconTrash } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
+import {
+  IconClipboardList,
+  IconCode,
+  IconEdit,
+  IconToggleLeft,
+  IconTrash,
+} from '@tabler/icons-react';
 import { useSetAtom } from 'jotai';
 import { useQuery } from '@apollo/client';
 import { GET_MN_CONFIGS } from '@/ebarimt/settings/stage-in-return-ebarimt-config/graphql/queries/mnConfigs';
@@ -69,6 +76,7 @@ export const ReturnEBarimtConfigMoreCell = ({
 }: {
   cell: Cell<IReturnEbarimtConfigRow, unknown>;
 }) => {
+  const { t } = useTranslation('mongolian');
   const [, setOpen] = useQueryState('return_ebarimt_id');
   const setDetail = useSetAtom(returnEbarimtDetailAtom);
   const { removeEbarimtReturnConfig } = useRemoveEbarimtReturnConfig();
@@ -81,8 +89,8 @@ export const ReturnEBarimtConfigMoreCell = ({
 
   const handleDelete = () => {
     confirm({
-      message: 'Are you sure you want to delete this config?',
-      options: { okLabel: 'Delete', cancelLabel: 'Cancel' },
+      message: t('delete-this-config-confirm'),
+      options: { okLabel: t('delete'), cancelLabel: t('cancel') },
     }).then(() => removeEbarimtReturnConfig(cell.row.original._id));
   };
 
@@ -95,10 +103,10 @@ export const ReturnEBarimtConfigMoreCell = ({
         <Command shouldFilter={false}>
           <Command.List>
             <Command.Item value="edit" onSelect={handleEdit}>
-              <IconEdit /> Edit
+              <IconEdit /> {t('edit')}
             </Command.Item>
             <Command.Item value="delete" onSelect={handleDelete}>
-              <IconTrash /> Delete
+              <IconTrash /> {t('delete')}
             </Command.Item>
           </Command.List>
         </Command>
@@ -119,14 +127,20 @@ const returnEbarimtColumns: ColumnDef<IReturnEbarimtConfigRow>[] = [
   {
     id: 'title',
     accessorKey: 'title',
-    header: () => <RecordTable.InlineHead label="Title" icon={IconCode} />,
+    header: () => {
+      const { t } = useTranslation('mongolian');
+      return <RecordTable.InlineHead label={t('title')} icon={IconCode} />;
+    },
     cell: ({ cell }) => <ReturnEBarimtConfigTitleCell cell={cell} />,
     size: 200,
   },
   {
     id: 'stageId',
     accessorKey: 'stageId',
-    header: () => <RecordTable.InlineHead label="Stage" icon={IconCode} />,
+    header: () => {
+      const { t } = useTranslation('mongolian');
+      return <RecordTable.InlineHead label={t('stage')} icon={IconCode} />;
+    },
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={cell.getValue() as string} />
@@ -137,36 +151,57 @@ const returnEbarimtColumns: ColumnDef<IReturnEbarimtConfigRow>[] = [
   {
     id: 'hasVat',
     accessorKey: 'hasVat',
-    header: () => (
-      <RecordTable.InlineHead label="Has VAT" icon={IconToggleLeft} />
-    ),
-    cell: ({ cell }) => (
-      <RecordTableInlineCell>
-        <TextOverflowTooltip value={cell.getValue() ? 'Yes' : 'No'} />
-      </RecordTableInlineCell>
-    ),
+    header: () => {
+      const { t } = useTranslation('mongolian');
+      return (
+        <RecordTable.InlineHead label={t('has-vat')} icon={IconToggleLeft} />
+      );
+    },
+    cell: ({ cell }) => {
+      const { t } = useTranslation('mongolian');
+      return (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip value={cell.getValue() ? t('yes') : t('no')} />
+        </RecordTableInlineCell>
+      );
+    },
     size: 100,
   },
   {
     id: 'hasCitytax',
     accessorKey: 'hasCitytax',
-    header: () => (
-      <RecordTable.InlineHead label="Has Citytax" icon={IconToggleLeft} />
-    ),
-    cell: ({ cell }) => (
-      <RecordTableInlineCell>
-        <TextOverflowTooltip value={cell.getValue() ? 'Yes' : 'No'} />
-      </RecordTableInlineCell>
-    ),
+    header: () => {
+      const { t } = useTranslation('mongolian');
+      return (
+        <RecordTable.InlineHead
+          label={t('has-citytax')}
+          icon={IconToggleLeft}
+        />
+      );
+    },
+    cell: ({ cell }) => {
+      const { t } = useTranslation('mongolian');
+      return (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip value={cell.getValue() ? t('yes') : t('no')} />
+        </RecordTableInlineCell>
+      );
+    },
     size: 100,
   },
 ];
 
 export const ReturnEBarimtConfigTable = () => {
+  const { t } = useTranslation('mongolian');
   const { rows, loading } = useReturnEbarimtConfigRows();
 
   return (
-    <RecordTable.Provider columns={returnEbarimtColumns} data={rows}>
+    <RecordTable.Provider
+      columns={returnEbarimtColumns}
+      data={rows}
+      stickyColumns={['more', 'checkbox']}
+      tableId="mongolian_ebarimt_return_ebarimt_config_record_table"
+    >
       <RecordTable.Scroll>
         <RecordTable>
           <RecordTable.Header />
@@ -180,10 +215,10 @@ export const ReturnEBarimtConfigTable = () => {
             <div className="flex flex-col items-center text-center">
               <IconClipboardList size={48} className="text-gray-400 mb-4" />
               <h3 className="text-lg font-semibold text-gray-900">
-                No Return Ebarimt config yet
+                {t('no-return-ebarimt-config-yet')}
               </h3>
               <p className="mt-1 text-sm text-gray-500 mb-4">
-                Get started by creating your first Return Ebarimt config.
+                {t('create-first-return-ebarimt-config')}
               </p>
               <AddReturnEBarimtConfig />
             </div>

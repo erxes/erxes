@@ -16,11 +16,14 @@ import {
   markResolvers,
 } from 'erxes-api-shared/utils';
 import { SortOrder } from 'mongoose';
-import { IContext } from '~/connectionResolvers';
+import { IContext, IModels } from '~/connectionResolvers';
+import { AUTOMATION_APPROVAL_CONTENT_TYPES } from '../../constants';
 import { sanitizeAiAgent, sanitizeAiAgents } from './utils/aiAgent';
 import {
   generateAutomationHistoriesFilter,
+  generateAutomationStatsFilter,
   generateAutomationsFilter,
+  addReferenceExtensionsToAutomationOutput,
   getAutomationReferenceFields,
   getAutomationConstants,
   getAutomationSetPropertyTargets,
@@ -46,6 +49,12 @@ export interface IListArgs extends ICursorPaginateParams {
   actionTypes: string[];
 }
 
+export interface IStatsParams {
+  automationId: string;
+  beginDate?: Date;
+  endDate?: Date;
+}
+
 export interface IHistoriesParams {
   automationId: string;
   page?: number;
@@ -55,7 +64,108 @@ export interface IHistoriesParams {
   triggerType?: string;
   beginDate?: Date;
   endDate?: Date;
+  // Set to list a workflow child executions; omitted = root executions only
+  parentExecutionId?: string;
+  failedActionIds?: string[];
+  errorCodes?: string[];
+  waitingActionIds?: string[];
 }
+
+type TAiAgentUsage = {
+  total: number;
+  active: number;
+  automations: Array<{ _id: string; name: string; status: string }>;
+};
+
+/**
+ * An agent is referenced from a root action and from a workflow member action
+ * alike, so both are counted: a usage read that missed one would make an agent
+ * look free to delete while an automation still depends on it.
+ */
+const getAiAgentUsage = async (
+  models: IModels,
+  agentIds: string[],
+): Promise<Record<string, TAiAgentUsage>> => {
+  if (!agentIds.length) {
+    return {};
+  }
+
+  const rows = await models.Automations.aggregate([
+    {
+      $project: {
+        name: 1,
+        status: 1,
+        agentIds: {
+          $setUnion: [
+            {
+              $map: {
+                input: {
+                  $filter: {
+                    input: { $ifNull: ['$actions', []] },
+                    as: 'action',
+                    cond: { $eq: ['$$action.type', 'aiAgent'] },
+                  },
+                },
+                as: 'action',
+                in: '$$action.config.aiAgentId',
+              },
+            },
+            {
+              $map: {
+                input: {
+                  $filter: {
+                    input: {
+                      $reduce: {
+                        input: { $ifNull: ['$workflows', []] },
+                        initialValue: [],
+                        in: {
+                          $concatArrays: [
+                            '$$value',
+                            { $ifNull: ['$$this.actions', []] },
+                          ],
+                        },
+                      },
+                    },
+                    as: 'action',
+                    cond: { $eq: ['$$action.type', 'aiAgent'] },
+                  },
+                },
+                as: 'action',
+                in: '$$action.config.aiAgentId',
+              },
+            },
+          ],
+        },
+      },
+    },
+    { $unwind: '$agentIds' },
+    { $match: { agentIds: { $in: agentIds } } },
+    {
+      $group: {
+        _id: '$agentIds',
+        automations: {
+          $addToSet: { _id: '$_id', name: '$name', status: '$status' },
+        },
+      },
+    },
+  ]);
+
+  return rows.reduce((acc, row) => {
+    const automations = (row.automations || []).map((automation) => ({
+      _id: String(automation._id),
+      name: automation.name || '',
+      status: automation.status || '',
+    }));
+
+    acc[row._id] = {
+      total: automations.length,
+      active: automations.filter(({ status }) => status === 'active').length,
+      automations,
+    };
+
+    return acc;
+  }, {} as Record<string, TAiAgentUsage>);
+};
 
 export const automationQueries = {
   /**
@@ -98,9 +208,22 @@ export const automationQueries = {
   async automationDetail(
     _root,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, user }: IContext,
   ) {
-    return models.Automations.getAutomation(_id);
+    const automation = await models.Automations.getAutomation(_id);
+    if (!automation) {
+      throw new Error('Automation not found');
+    }
+
+    await models.ApprovalLocks.assertAccess({
+      user,
+      contentType: AUTOMATION_APPROVAL_CONTENT_TYPES.AUTOMATION,
+      contentId: _id,
+      ownerId: automation.createdBy,
+      action: 'view',
+    });
+
+    return automation;
   },
 
   async cpAutomationDetail(
@@ -120,7 +243,6 @@ export const automationQueries = {
     { models }: IContext,
   ) {
     const filter: any = generateAutomationHistoriesFilter(params);
-
     const { list, totalCount, pageInfo } =
       await cursorPaginate<IAutomationExecutionDocument>({
         model: models.AutomationExecutions,
@@ -146,6 +268,28 @@ export const automationQueries = {
     const filter: any = generateAutomationHistoriesFilter(params);
 
     return await models.AutomationExecutions.find(filter).countDocuments();
+  },
+
+  /**
+   * Execution counts for the automations currently listed, so the list itself
+   * never waits on them.
+   */
+  async automationExecutionCounts(
+    _root,
+    { automationIds }: { automationIds: string[] },
+    { models }: IContext,
+  ) {
+    return models.AutomationExecutions.getExecutionCounts(automationIds);
+  },
+
+  /**
+   * Execution stats of one automation: run status breakdown, daily buckets and
+   * per action node counts/durations.
+   */
+  async automationStats(_root, params: IStatsParams, { models }: IContext) {
+    return models.AutomationExecutions.getStats(
+      generateAutomationStatsFilter(params),
+    );
   },
 
   async automationsTotalCount(
@@ -181,13 +325,13 @@ export const automationQueries = {
 
     const matchedTrigger = triggersConst.find(({ type }) => type === nodeType);
 
-    if (matchedTrigger?.output) {
-      return matchedTrigger.output;
-    }
-
     const matchedAction = actionsConst.find(({ type }) => type === nodeType);
+    const output = matchedTrigger?.output || matchedAction?.output || null;
 
-    return matchedAction?.output || null;
+    return await addReferenceExtensionsToAutomationOutput({
+      nodeType,
+      output,
+    });
   },
 
   async automationReferenceFields(
@@ -230,8 +374,9 @@ export const automationQueries = {
     { executionId },
     { models }: IContext,
   ) {
-    const execution =
-      await models.AutomationExecutions.findById(executionId).lean();
+    const execution = await models.AutomationExecutions.findById(
+      executionId,
+    ).lean();
     if (!execution) {
       throw new Error('Execution not found');
     }
@@ -255,12 +400,36 @@ export const automationQueries = {
     return botsConstants;
   },
 
-  async automationsAiAgents(_root, { kind }, { models }: IContext) {
+  async automationsAiAgents(
+    _root,
+    { kind }: { kind?: string },
+    { models, user }: IContext,
+  ) {
     const agents = await models.AiAgents.find(
       kind ? { 'connection.provider': kind } : {},
     );
+    const agentIds = agents.map((agent) => agent._id.toString());
+    const lockStates = await models.ApprovalLocks.getStates({
+      user,
+      contentType: AUTOMATION_APPROVAL_CONTENT_TYPES.AUTOMATION_AI_AGENT,
+      contentIds: agentIds,
+      action: 'view',
+    });
+    const lockStateByAgentId = new Map(
+      lockStates.map((state) => [state.contentId, state]),
+    );
 
-    return sanitizeAiAgents(agents as any[]);
+    const usageByAgentId = await getAiAgentUsage(models, agentIds);
+
+    return sanitizeAiAgents(agents as any[]).map((agent) => ({
+      ...agent,
+      approvalLockState: lockStateByAgentId.get(agent._id.toString()),
+      usage: usageByAgentId[agent._id.toString()] || {
+        total: 0,
+        active: 0,
+        automations: [],
+      },
+    }));
   },
 
   async automationsAiAgentTotalCounts(_root, _args, { models }: IContext) {
@@ -285,16 +454,49 @@ export const automationQueries = {
   async automationsAiAgentDetail(
     _root,
     { _id }: { _id?: string },
-    { models }: IContext,
+    { models, user }: IContext,
   ) {
-    return sanitizeAiAgent(await models.AiAgents.findOne(_id ? { _id } : {}));
+    const agent = await models.AiAgents.findOne(_id ? { _id } : {});
+
+    if (_id && agent) {
+      await models.ApprovalLocks.assertAccess({
+        user,
+        contentType: AUTOMATION_APPROVAL_CONTENT_TYPES.AUTOMATION_AI_AGENT,
+        contentId: _id,
+        action: 'view',
+      });
+    }
+
+    if (!agent) {
+      return sanitizeAiAgent(agent);
+    }
+
+    const usageByAgentId = await getAiAgentUsage(models, [
+      agent._id.toString(),
+    ]);
+
+    return {
+      ...sanitizeAiAgent(agent),
+      usage: usageByAgentId[agent._id.toString()] || {
+        total: 0,
+        active: 0,
+        automations: [],
+      },
+    };
   },
 
   async automationsAiAgentHealth(
     _root,
     { agentId }: { agentId: string },
-    { subdomain }: IContext,
+    { models, subdomain, user }: IContext,
   ) {
+    await models.ApprovalLocks.assertAccess({
+      user,
+      contentType: AUTOMATION_APPROVAL_CONTENT_TYPES.AUTOMATION_AI_AGENT,
+      contentId: agentId,
+      action: 'view',
+    });
+
     return await sendWorkerMessage({
       pluginName: 'automations',
       queueName: 'aiAgent',
@@ -303,6 +505,33 @@ export const automationQueries = {
       data: { agentId },
       timeout: 10000,
     });
+  },
+
+  async automationsAiAgentKnowledgeSourceStatuses(
+    _root,
+    { agentId }: { agentId: string },
+    { models, subdomain, user }: IContext,
+  ) {
+    await models.ApprovalLocks.assertAccess({
+      user,
+      contentType: AUTOMATION_APPROVAL_CONTENT_TYPES.AUTOMATION_AI_AGENT,
+      contentId: agentId,
+      action: 'view',
+    });
+
+    try {
+      return await sendWorkerMessage({
+        pluginName: 'automations',
+        queueName: 'aiAgent',
+        jobName: 'getAiAgentKnowledgeSourceStatuses',
+        subdomain,
+        data: { agentId },
+        defaultValue: [],
+        timeout: 10000,
+      });
+    } catch {
+      return [];
+    }
   },
 
   /**
@@ -358,6 +587,28 @@ export const automationQueries = {
     { models }: IContext,
   ) {
     return models.AutomationEmailTemplates.getEmailTemplate(_id);
+  },
+
+  /**
+   * Workflow templates list
+   */
+  async automationWorkflowTemplates(
+    _root,
+    { searchValue }: { searchValue?: string },
+    { models }: IContext,
+  ) {
+    const filter: any = {};
+
+    if (searchValue) {
+      filter.$or = [
+        { name: new RegExp(`.*${searchValue}.*`, 'i') },
+        { description: new RegExp(`.*${searchValue}.*`, 'i') },
+      ];
+    }
+
+    return models.AutomationWorkflowTemplates.find(filter).sort({
+      createdAt: -1,
+    });
   },
 };
 

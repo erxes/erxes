@@ -1,4 +1,4 @@
-import { Button, RelativeDateDisplay, cn } from 'erxes-ui';
+import { Button, RelativeDateDisplay, cn, useQueryState } from 'erxes-ui';
 import { useFbMessengerMessageContext } from '../contexts/FbMessengerMessageContext';
 import { useAtomValue } from 'jotai';
 import { activeConversationState } from '@/inbox/conversations/states/activeConversationState';
@@ -7,6 +7,8 @@ import { MessageContent } from '@/inbox/conversation-messages/components/Message
 import { HAS_ATTACHMENT } from '@/inbox/constants/messengerConstants';
 import { FbMessengerBotMessageItem } from './FbMessengerBotMessageBlocks/FbMessengerBotMessageItem';
 import { FbMessengerMessageAttachments } from './FbMessengerMessageAttachments';
+import { FacebookMessageRelationNotice } from './FacebookMessageRelationNotice';
+import { useEffect, useRef } from 'react';
 
 export const FbMessengerMessage = () => {
   const {
@@ -20,25 +22,31 @@ export const FbMessengerMessage = () => {
     attachments,
     botData,
   } = useFbMessengerMessageContext();
+  const [focusedMessageId] = useQueryState<string>('messageId');
+  const isFocused = focusedMessageId === _id;
 
   if (botData?.length) {
     return (
-      <MessageWrapper>
-        <FbMessengerBotMessageItem
-          botData={botData}
-          attachments={attachments}
-          createdAt={createdAt}
-          separatePrevious={separatePrevious}
-          separateNext={separateNext}
-          userId={userId}
-          internal={internal}
-        />
+      <MessageWrapper isFocused={isFocused}>
+        <div className="flex max-w-92 flex-col items-end">
+          <FbMessengerBotMessageItem
+            botData={botData}
+            attachments={attachments}
+            createdAt={createdAt}
+            separatePrevious={separatePrevious}
+            separateNext={separateNext}
+            userId={userId}
+            internal={internal}
+            isFocused={isFocused}
+          />
+          <FacebookMessageRelationNotice placement="messenger" />
+        </div>
       </MessageWrapper>
     );
   }
 
   return (
-    <MessageWrapper>
+    <MessageWrapper isFocused={isFocused}>
       <div className={cn('max-w-[428px]')} key={_id}>
         {content !== HAS_ATTACHMENT ? (
           <Button
@@ -49,6 +57,14 @@ export const FbMessengerMessage = () => {
               internal && 'bg-warning/20 hover:bg-warning/5',
               separatePrevious && 'mt-8',
             )}
+            style={
+              isFocused
+                ? {
+                    boxShadow:
+                      '0 0 0 1px color-mix(in oklab, var(--color-primary) 10%, transparent), 0 0 18px color-mix(in oklab, var(--color-primary) 20%, transparent)',
+                  }
+                : undefined
+            }
             asChild
           >
             <div>
@@ -65,22 +81,42 @@ export const FbMessengerMessage = () => {
         ) : (
           <div className={cn(separatePrevious ? 'mt-2' : 'mt-8')} />
         )}
+        <FacebookMessageRelationNotice placement="comment" />
         <FbMessengerMessageAttachments attachments={attachments} />
       </div>
     </MessageWrapper>
   );
 };
 
-export const MessageWrapper = ({ children }: { children: React.ReactNode }) => {
+export const MessageWrapper = ({
+  children,
+  isFocused,
+}: {
+  children: React.ReactNode;
+  isFocused?: boolean;
+}) => {
   const { separateNext, customerId, userId, botData } =
     useFbMessengerMessageContext();
   const isBotMessage = !!botData?.length;
   const isOutgoing = !!userId || isBotMessage;
+  const wrapperRef = useRef<HTMLDivElement>(null);
 
   const { customer } = useAtomValue(activeConversationState) || {};
 
+  useEffect(() => {
+    if (!isFocused) {
+      return;
+    }
+
+    wrapperRef.current?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center',
+    });
+  }, [isFocused]);
+
   return (
     <div
+      ref={wrapperRef}
       className={cn(
         'flex items-end w-full gap-3',
         isOutgoing ? 'justify-end' : 'justify-start',

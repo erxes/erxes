@@ -1,6 +1,7 @@
 import { ACTIVITY_ACTIONS } from '@/activity/constants';
 import { IActivity } from '@/activity/types';
 import { CycleInline } from '@/cycle/components/CycleInline';
+import { useTranslation } from 'react-i18next';
 
 export const ActivityCycle = ({
   metadata,
@@ -9,10 +10,12 @@ export const ActivityCycle = ({
   metadata: IActivity['metadata'];
   action: IActivity['action'];
 }) => {
+  const { t } = useTranslation('operation');
+
   if (action === ACTIVITY_ACTIONS.CREATED) {
     return (
       <div className="inline-flex items-center gap-1">
-        added cycle
+        {t('added-cycle')}
         <span className="font-bold">
           <CycleInline cycleId={metadata.newValue} />
         </span>
@@ -21,11 +24,11 @@ export const ActivityCycle = ({
   }
   return (
     <div className="inline-flex items-center gap-1">
-      changed cycle
+      {t('changed-cycle')}
       <span className="font-bold">
         <CycleInline cycleId={metadata.previousValue || ''} />
       </span>
-      to
+      {t('to')}
       <span className="font-bold">
         <CycleInline cycleId={metadata.newValue} />
       </span>

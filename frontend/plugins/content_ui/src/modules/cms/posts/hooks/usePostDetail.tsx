@@ -1,9 +1,11 @@
 import { toast } from 'erxes-ui';
 import { useQuery, useMutation } from '@apollo/client';
+import { useTranslation } from 'react-i18next';
 import { CMS_POST } from '../../graphql/queries';
 import { POST_CMS_EDIT } from '../graphql/queries/postCmsEditQuery';
 
 export const usePostDetail = (postId?: string) => {
+  const { t } = useTranslation('content');
   const { data, loading, error, refetch } = useQuery(
     CMS_POST,
     postId ? { variables: { id: postId } } : { skip: true },
@@ -14,16 +16,16 @@ export const usePostDetail = (postId?: string) => {
     {
       onCompleted: () => {
         toast({
-          title: 'Success',
-          description: 'Post updated successfully',
+          title: t('success'),
+          description: t('post-updated-successfully'),
           variant: 'default',
         });
         refetch();
       },
       onError: (error) => {
         toast({
-          title: 'Error',
-          description: error.message || 'Failed to update post',
+          title: t('error'),
+          description: error.message || t('failed-to-update-post'),
           variant: 'destructive',
         });
       },

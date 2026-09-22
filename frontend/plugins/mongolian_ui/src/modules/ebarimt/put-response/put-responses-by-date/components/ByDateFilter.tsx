@@ -14,6 +14,7 @@ import {
   useFilterQueryState,
   useMultiQueryState,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 import { useByDateLeadSessionKey } from '~/modules/ebarimt/put-response/put-responses-by-date/hooks/useByDateLeadSessionKey';
 import { ByDateTotalCount } from '~/modules/ebarimt/put-response/put-responses-by-date/components/ByDateTotalCount';
@@ -28,6 +29,7 @@ import { SelectPipeline } from './selects/SelectPipeline';
 import { SelectStage } from './selects/SelectStage';
 
 const ByDateFilterPopover = () => {
+  const { t } = useTranslation('mongolian');
   const [boardId] = useFilterQueryState<string>('boardId');
   const [pipelineId] = useFilterQueryState<string>('pipelineId');
   const [queries] = useMultiQueryState<{
@@ -79,14 +81,14 @@ const ByDateFilterPopover = () => {
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder="Filter"
+                placeholder={t('filter')}
                 variant="secondary"
                 className="bg-background"
               />
               <Command.List className="p-1 max-h-none">
                 <Filter.Item value="billId" inDialog>
                   <IconSearch />
-                  Bill Id
+                  {t('bill-id')}
                 </Filter.Item>
                 <SelectContentType.FilterItem />
 
@@ -94,7 +96,7 @@ const ByDateFilterPopover = () => {
                   <>
                     <Filter.Item value="dealName" inDialog>
                       <IconBuilding />
-                      Deal Name
+                      {t('deal-name')}
                     </Filter.Item>
                     <SelectSalesBoard.FilterItem />
                     <SelectPipeline.FilterItem />
@@ -105,7 +107,7 @@ const ByDateFilterPopover = () => {
                 {showPosFields && (
                   <Filter.Item value="orderNumber" inDialog>
                     <IconReceipt />
-                    Order Number
+                    {t('order-number')}
                   </Filter.Item>
                 )}
 
@@ -113,11 +115,11 @@ const ByDateFilterPopover = () => {
                   <>
                     <Filter.Item value="contractNumber" inDialog>
                       <IconFileText />
-                      Contract Number
+                      {t('contract-number')}
                     </Filter.Item>
                     <Filter.Item value="transactionNumber" inDialog>
                       <IconCreditCard />
-                      Transaction Number
+                      {t('transaction-number')}
                     </Filter.Item>
                   </>
                 )}
@@ -131,7 +133,7 @@ const ByDateFilterPopover = () => {
                 <Command.Separator className="my-1" />
                 <Filter.Item value="dateRange">
                   <IconCalendarPlus />
-                  Date Range
+                  {t('date-range')}
                 </Filter.Item>
               </Command.List>
             </Command>
@@ -222,6 +224,7 @@ const ByDateFilterPopover = () => {
 };
 
 export const ByDateFilter = () => {
+  const { t } = useTranslation('mongolian');
   const [billId] = useFilterQueryState<string>('billId');
   const [boardId] = useFilterQueryState<string>('boardId');
   const [pipelineId] = useFilterQueryState<string>('pipelineId');
@@ -243,7 +246,7 @@ export const ByDateFilter = () => {
         <Filter.BarItem queryKey="billId">
           <Filter.BarName>
             <IconSearch />
-            billId
+            {t('bill-id')}
           </Filter.BarName>
           <Filter.BarButton filterKey="billId" inDialog>
             {billId}
@@ -255,7 +258,7 @@ export const ByDateFilter = () => {
             <Filter.BarItem queryKey="dealName">
               <Filter.BarName>
                 <IconBuilding />
-                Deal Name
+                {t('deal-name')}
               </Filter.BarName>
               <Filter.BarButton filterKey="dealName" inDialog>
                 {dealName}
@@ -271,7 +274,7 @@ export const ByDateFilter = () => {
           <Filter.BarItem queryKey="orderNumber">
             <Filter.BarName>
               <IconReceipt />
-              Order Number
+              {t('order-number')}
             </Filter.BarName>
             <Filter.BarButton filterKey="orderNumber" inDialog>
               {orderNumber}
@@ -284,7 +287,7 @@ export const ByDateFilter = () => {
             <Filter.BarItem queryKey="contractNumber">
               <Filter.BarName>
                 <IconFileText />
-                Contract Number
+                {t('contract-number')}
               </Filter.BarName>
               <Filter.BarButton filterKey="contractNumber" inDialog>
                 {contractNumber}
@@ -293,7 +296,7 @@ export const ByDateFilter = () => {
             <Filter.BarItem queryKey="transactionNumber">
               <Filter.BarName>
                 <IconCreditCard />
-                Transaction Number
+                {t('transaction-number')}
               </Filter.BarName>
               <Filter.BarButton filterKey="transactionNumber" inDialog>
                 {transactionNumber}
@@ -305,7 +308,7 @@ export const ByDateFilter = () => {
         <Filter.BarItem queryKey="dateRange">
           <Filter.BarName>
             <IconCalendarPlus />
-            Date Range
+            {t('date-range')}
           </Filter.BarName>
           <Filter.Date filterKey="dateRange" />
         </Filter.BarItem>

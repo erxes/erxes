@@ -3,6 +3,7 @@ import { IconAlertCircle } from '@tabler/icons-react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { Button, Form, Input, Sheet, toast } from 'erxes-ui';
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { CONTENT_CMS_LIST } from '@/cms/graphql/queries';
 import { LanguageSelector } from '@/cms/shared/LanguageSelector';
@@ -102,6 +103,7 @@ export function TagDrawer({
   onClose,
   clientPortalId,
 }: TagDrawerProps) {
+  const { t } = useTranslation('content');
   const isEditing = !!tag?._id;
   const [hasPermissionError, setHasPermissionError] = useState(false);
   const setCmsLanguage = useSetAtom(cmsLanguageAtom);
@@ -270,8 +272,8 @@ export function TagDrawer({
       onClose();
       form.reset();
       toast({
-        title: 'Success',
-        description: 'Tag created successfully',
+        title: t('success'),
+        description: t('tag-created-successfully'),
         variant: 'default',
       });
     },
@@ -287,17 +289,16 @@ export function TagDrawer({
       if (permissionError) {
         setHasPermissionError(true);
         toast({
-          title: 'Permission Required',
-          description:
-            'You do not have permission to create tags. Please contact your administrator to grant the necessary permissions.',
+          title: t('permission-required'),
+          description: t('no-permission-to-create-tags'),
           variant: 'destructive',
           duration: 8000,
         });
       } else {
         toast({
-          title: 'Error',
+          title: t('error'),
           description:
-            error.message || 'Failed to create tag. Please try again.',
+            error.message || t('failed-to-create-tag'),
           variant: 'destructive',
           duration: 5000,
         });
@@ -311,8 +312,8 @@ export function TagDrawer({
       onClose();
       form.reset();
       toast({
-        title: 'Success',
-        description: 'Tag updated successfully',
+        title: t('success'),
+        description: t('tag-updated-successfully'),
         variant: 'default',
       });
     },
@@ -328,17 +329,16 @@ export function TagDrawer({
       if (permissionError) {
         setHasPermissionError(true);
         toast({
-          title: 'Permission Required',
-          description:
-            'You do not have permission to edit tags. Please contact your administrator to grant the necessary permissions.',
+          title: t('permission-required'),
+          description: t('no-permission-to-edit-tags'),
           variant: 'destructive',
           duration: 8000,
         });
       } else {
         toast({
-          title: 'Error',
+          title: t('error'),
           description:
-            error.message || 'Failed to update tag. Please try again.',
+            error.message || t('failed-to-update-tag'),
           variant: 'destructive',
           duration: 5000,
         });
@@ -358,9 +358,8 @@ export function TagDrawer({
     if (!isEditing && isNonDefaultLang) {
       if (!defaultLangData?.title?.trim()) {
         toast({
-          title: 'Validation Error',
-          description:
-            'Please fill in the default language name before creating a tag in another language.',
+          title: t('validation-error'),
+          description: t('tag-fill-default-lang-first'),
           variant: 'destructive',
         });
         return;
@@ -425,7 +424,7 @@ export function TagDrawer({
     >
       <Sheet.View className="sm:max-w-lg p-0 bg-background">
         <Sheet.Header className="border-b gap-3">
-          <Sheet.Title>{isEditing ? 'Edit Tag' : 'New Tag'}</Sheet.Title>
+          <Sheet.Title>{isEditing ? t('edit-tag') : t('new-tag')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
 
@@ -448,11 +447,10 @@ export function TagDrawer({
                   <IconAlertCircle className="h-5 w-5 text-red-500 mt-0.5" />
                   <div className="text-sm">
                     <p className="font-medium text-red-800">
-                      Permission Required
+                      {t('permission-required')}
                     </p>
                     <p className="text-red-700 mt-1">
-                      You need permission to create or edit tags. Please contact
-                      your administrator to grant the necessary permissions.
+                      {t('tag-permission-inline-desc')}
                     </p>
                   </div>
                 </div>
@@ -465,7 +463,7 @@ export function TagDrawer({
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label>
-                    Tag Name
+                    {t('tag-name')}
                     {isTranslationMode && (
                       <span className="ml-2 text-xs text-blue-600">
                         ({selectedLanguage})
@@ -475,7 +473,7 @@ export function TagDrawer({
                   <Form.Control>
                     <Input
                       {...field}
-                      placeholder="Enter tag name"
+                      placeholder={t('enter-tag-name')}
                       required
                       onChange={(e) => {
                         field.onChange(e);
@@ -496,10 +494,10 @@ export function TagDrawer({
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label>
-                    Slug
+                    {t('slug')}
                     {isTranslationMode && (
                       <span className="ml-2 text-xs text-gray-500">
-                        (shared across languages)
+                        ({t('shared-across-languages')})
                       </span>
                     )}
                   </Form.Label>
@@ -513,7 +511,7 @@ export function TagDrawer({
 
             <div className="flex justify-end space-x-2">
               <Button type="button" onClick={onClose} variant="outline">
-                Cancel
+                {t('cancel')}
               </Button>
               <Button
                 type="submit"
@@ -521,13 +519,13 @@ export function TagDrawer({
               >
                 {saving || editing
                   ? isEditing
-                    ? 'Saving...'
-                    : 'Creating...'
+                    ? t('saving')
+                    : t('creating')
                   : hasPermissionError
-                    ? 'Permission Required'
+                    ? t('permission-required')
                     : isEditing
-                      ? 'Save Changes'
-                      : 'Create Tag'}
+                      ? t('save-changes')
+                      : t('create-tag')}
               </Button>
             </div>
           </form>

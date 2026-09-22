@@ -9,7 +9,7 @@ export interface IReserveRemModel extends Model<IReserveRemDocument> {
   reserveRemAdd(doc: IReserveRem): Promise<IReserveRemDocument>;
   reserveRemEdit(
     _id: string,
-    doc: IReserveRem,
+    doc: Partial<IReserveRem>,
     user: IUserDocument,
   ): Promise<IReserveRemDocument>;
   reserveRemsRemove(_ids: string[]): Promise<JSON>;
@@ -31,7 +31,7 @@ export const loadReserveRemClass = (models: IModels, _subdomain: string) => {
 
     public static async reserveRemEdit(
       _id: string,
-      doc: IReserveRem,
+      doc: Partial<IReserveRem>,
       user: IUserDocument,
     ) {
       return await models.ReserveRems.updateOne(

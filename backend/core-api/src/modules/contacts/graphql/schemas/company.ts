@@ -73,7 +73,6 @@ const queryParams = `
   sortField: String
   sortDirection: Int
   dateFilters: String
-  segmentData: String
 
   status: CONTACT_STATUS
   ${conformityQueryFields}
@@ -82,6 +81,7 @@ const queryParams = `
 
 export const queries = `
   companies(${queryParams}): CompaniesListResponse
+  cpCompanies(${queryParams}): CompaniesListResponse
   companyDetail(_id: String!): Company
 `;
 

@@ -1,4 +1,4 @@
-import { ColumnDef } from '@tanstack/table-core';
+import { ColumnDef, Row } from '@tanstack/table-core';
 import {
   RecordTable,
   RecordTableInlineCell,
@@ -47,7 +47,7 @@ export const SyncLinkCell = ({
   row,
   renderVal,
 }: {
-  row: any;
+  row: Row<IConfig>;
   renderVal: string;
 }) => {
   const [, setOpen] = useQueryState('configId', { defaultValue: '' });
@@ -65,7 +65,6 @@ export const SyncLinkCell = ({
 };
 
 export const syncBaseColumns: ColumnDef<IConfig>[] = [
-  RecordTable.checkboxColumn as ColumnDef<IConfig>,
   {
     id: 'code',
     accessorKey: 'code',
@@ -91,11 +90,15 @@ export const syncBaseColumns: ColumnDef<IConfig>[] = [
 export const SyncConfigTable = ({
   code,
   columns,
-  stickyColumns = ['more', 'checkbox', 'code'],
+  stickyColumns = ['more', 'code'],
+  tableId,
+  showColumnSelector = false,
 }: {
   code: ACCOUNTING_SETTINGS_CODES;
   columns: ColumnDef<IConfig>[];
   stickyColumns?: string[];
+  tableId?: string;
+  showColumnSelector?: boolean;
 }) => {
   const { configs, loading } = useAccountingConfigs({ variables: { code } });
   const isInitialLoading = loading && !configs?.length;
@@ -105,9 +108,10 @@ export const SyncConfigTable = ({
       columns={columns}
       data={isInitialLoading ? [] : configs || []}
       stickyColumns={stickyColumns}
+      tableId={tableId}
     >
       <RecordTable>
-        <RecordTable.Header />
+        <RecordTable.Header showColumnSelector={showColumnSelector} />
         <RecordTable.Body>
           <RecordTable.RowList />
           {isInitialLoading && (

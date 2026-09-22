@@ -1,3 +1,4 @@
+import { PIPELINE_TAB_SEGMENTS } from '@/pipelines/constants/pipelineTabs';
 import { FrontlinePaths } from '@/types/FrontlinePaths';
 import { PageContainer } from 'erxes-ui';
 import { lazy, Suspense } from 'react';
@@ -34,6 +35,24 @@ export const ChannelPipelinesPage = lazy(() =>
 export const ChannelResponsePage = lazy(() =>
   import('~/pages/ResponsePage').then((module) => ({
     default: module.ChannelResponsePage,
+  })),
+);
+
+export const ChannelSurveysPage = lazy(() =>
+  import('~/pages/ChannelSurveysPage').then((module) => ({
+    default: module.ChannelSurveysPage,
+  })),
+);
+
+export const SurveyCreatePage = lazy(() =>
+  import('~/pages/SurveyCreatePage').then((module) => ({
+    default: module.SurveyCreatePage,
+  })),
+);
+
+export const SurveyDetailPage = lazy(() =>
+  import('~/pages/SurveyDetailPage').then((module) => ({
+    default: module.SurveyDetailPage,
   })),
 );
 
@@ -79,21 +98,39 @@ export const ChannelMembersPage = lazy(() =>
   })),
 );
 
+export const PipelineLayoutPage = lazy(() =>
+  import('~/pages/PipelineLayoutPage').then((module) => ({
+    default: module.PipelineLayoutPage,
+  })),
+);
+
 export const PipelineDetailPage = lazy(() =>
   import('~/pages/PipelineDetailPage').then((module) => ({
     default: module.PipelineDetailPage,
   })),
 );
 
-export const PipielineConfigListPage = lazy(() =>
-  import('~/pages/PipielineConfigListPage').then((module) => ({
-    default: module.PipielineConfigListPage,
+export const PipelineConfigsPage = lazy(() =>
+  import('~/pages/PipelineConfigsPage').then((module) => ({
+    default: module.PipelineConfigsPage,
   })),
 );
 
 export const PipelinePermissionsPage = lazy(() =>
   import('~/pages/PipelinePermissionsPage').then((module) => ({
     default: module.PipelinePermissionsPage,
+  })),
+);
+
+export const PipelinePropertiesPage = lazy(() =>
+  import('~/pages/PipelinePropertiesPage').then((module) => ({
+    default: module.PipelinePropertiesPage,
+  })),
+);
+
+export const PipelineMailPage = lazy(() =>
+  import('~/pages/PipelineMailPage').then((module) => ({
+    default: module.PipelineMailPage,
   })),
 );
 
@@ -146,20 +183,30 @@ const ChannelsSettings = () => {
           />
           <Route
             path={FrontlinePaths.PipelineDetail}
-            element={<PipelineDetailPage />}
-          />
-          <Route
-            path={FrontlinePaths.TicketsConfigs}
-            element={<PipielineConfigListPage />}
-          />
-          <Route
-            path={FrontlinePaths.PipelinePermissions}
-            element={<PipelinePermissionsPage />}
-          />
-          <Route
-            path={FrontlinePaths.TicketsStatuses}
-            element={<TicketStatusesPage />}
-          />
+            element={<PipelineLayoutPage />}
+          >
+            <Route index element={<PipelineDetailPage />} />
+            <Route
+              path={PIPELINE_TAB_SEGMENTS.statuses}
+              element={<TicketStatusesPage />}
+            />
+            <Route
+              path={PIPELINE_TAB_SEGMENTS.configs}
+              element={<PipelineConfigsPage />}
+            />
+            <Route
+              path={PIPELINE_TAB_SEGMENTS.permissions}
+              element={<PipelinePermissionsPage />}
+            />
+            <Route
+              path={PIPELINE_TAB_SEGMENTS.properties}
+              element={<PipelinePropertiesPage />}
+            />
+            <Route
+              path={PIPELINE_TAB_SEGMENTS.mail}
+              element={<PipelineMailPage />}
+            />
+          </Route>
           <Route
             path={FrontlinePaths.ChannelResponsePage}
             element={<ChannelResponsePage />}
@@ -171,6 +218,18 @@ const ChannelsSettings = () => {
           <Route
             path={FrontlinePaths.ChannelForms}
             element={<ChannelFormsPage />}
+          />
+          <Route
+            path={FrontlinePaths.ChannelSurveys}
+            element={<ChannelSurveysPage />}
+          />
+          <Route
+            path={FrontlinePaths.SurveysCreate}
+            element={<SurveyCreatePage />}
+          />
+          <Route
+            path={FrontlinePaths.SurveyDetail}
+            element={<SurveyDetailPage />}
           />
           <Route
             path={FrontlinePaths.FormsCreate}

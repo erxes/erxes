@@ -3,6 +3,7 @@ import { IconPointerUp } from '@tabler/icons-react';
 import { SelectDealsBulk } from './SelectDealsBulk';
 import { dealChooserSheetState } from '@/deals/states/dealCreateSheetState';
 import { useSetAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 
 const ChooseDealSheet = ({
   onComplete,
@@ -11,6 +12,7 @@ const ChooseDealSheet = ({
   onComplete: (dealId: string) => void;
   showText?: boolean;
 }) => {
+  const { t } = useTranslation('sales');
   const setOpenDealChooser = useSetAtom(dealChooserSheetState);
 
   return (
@@ -27,7 +29,7 @@ const ChooseDealSheet = ({
     >
       <Button variant="secondary" onClick={() => setOpenDealChooser(true)}>
         <IconPointerUp />
-        {showText && 'Choose an existing deal'}
+        {showText && t('choose-existing-deal')}
       </Button>
     </SelectDealsBulk>
   );

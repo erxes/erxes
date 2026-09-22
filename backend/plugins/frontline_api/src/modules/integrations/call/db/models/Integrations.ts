@@ -8,19 +8,12 @@ import {
 import { integrationSchema } from '@/integrations/call/db/definitions/integrations';
 
 export interface ICallIntegrationModel extends Model<ICallIntegrationDocument> {
-  getIntegrations(
-    userId: string,
-    isAdmin?: boolean,
-  ): Promise<ICallIntegrationDocument>;
+  getIntegrations(userId: string): Promise<ICallIntegration[]>;
   getIntegration(
     userId: string,
     integrationId: string,
-    isAdmin?: boolean,
   ): Promise<ICallIntegrationDocument>;
-  getIntegrationQueuesByUser(
-    userId: string,
-    isAdmin?: boolean,
-  ): Promise<string[]>;
+  getIntegrationQueuesByUser(userId: string): Promise<string[]>;
 }
 
 export const loadCallIntegrationClass = (models: IModels) => {
@@ -65,19 +58,15 @@ export const loadCallIntegrationClass = (models: IModels) => {
 
       return integration;
     }
+    public static async getIntegrationQueuesByUser(userId: string) {
+      const integrations = await models.CallIntegrations.find({
+        'operators.userId': userId,
+      }).lean();
 
-    public static async getIntegrationQueuesByUser(
-      userId: string,
-      isAdmin?: boolean,
-    ) {
-      const query = isAdmin ? {} : { 'operators.userId': userId };
-
-      const integration = await models.CallIntegrations.findOne(query);
-
-      if (!integration) {
+      if (!integrations.length) {
         throw new Error('Integration not found');
       }
-      return integration.queues || [];
+      return integrations.flatMap((integration) => integration.queues || []);
     }
   }
 

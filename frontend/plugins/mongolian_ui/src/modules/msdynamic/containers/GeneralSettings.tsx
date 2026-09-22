@@ -1,6 +1,7 @@
 import { IconExternalLink } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
 import { Button } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 import { SettingsLayout } from '~/modules/SettingsLayout';
 import { EditMSDynamicConfig } from '../components/settings/EditMSDynamicConfig';
@@ -9,6 +10,7 @@ import { MSDynamicBreadCrumb } from '../components/settings/MSDynamicBreadcrumb'
 import { AddMSDynamicConfig } from '../components/settings/AddMSDynamicConfig';
 
 export const GeneralSettings = () => {
+  const { t } = useTranslation('mongolian');
   return (
     <SettingsLayout
       sidebar={false}
@@ -18,17 +20,15 @@ export const GeneralSettings = () => {
           <Button variant="outline" asChild>
             <Link to="/mongolian/msdynamic">
               <IconExternalLink />
-              Go to MSDynamic
+              {t('go-to-msdynamic')}
             </Link>
           </Button>
           <AddMSDynamicConfig />
         </div>
       }
     >
-      <section className="flex min-w-0 flex-1 flex-col">
-        <div className="min-h-0 flex-1 overflow-y-auto p-6">
-          <MSDynamicConfigTable />
-        </div>
+      <section className="flex h-full min-w-0 flex-1 flex-col overflow-hidden">
+        <MSDynamicConfigTable />
       </section>
       <EditMSDynamicConfig />
     </SettingsLayout>

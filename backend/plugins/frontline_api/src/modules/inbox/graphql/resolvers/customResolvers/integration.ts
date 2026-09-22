@@ -3,9 +3,10 @@ import { IContext } from '~/connectionResolvers';
 import { facebookStatus } from '@/integrations/facebook/messageBroker';
 import { graphRequest } from '@/integrations/facebook/utils';
 import { IFacebookPageResponse } from '@/integrations/facebook/@types/integrations';
-import { imapIntegrationDetails } from '@/integrations/imap/messageBroker';
+import { mailIntegrationDetails } from '@/integrations/mail/messageBroker';
 import { graphRequest as instagramGraphRequest } from '@/integrations/instagram/utils';
 import { instagramStatus } from '@/integrations/instagram/messageBroker';
+import { discordStatus } from '@/integrations/discord/messageBroker';
 import { whatsappStatus } from '@/integrations/whatsapp/messageBroker';
 import { debugError } from '~/modules/inbox/utils';
 
@@ -26,6 +27,8 @@ export const integrationStatus = async (
       return facebookStatus({ subdomain, data });
     case 'instagram':
       return instagramStatus({ subdomain, data });
+    case 'discord':
+      return discordStatus({ subdomain, data });
     case 'whatsapp':
       return whatsappStatus({ subdomain, data });
     default:
@@ -39,8 +42,8 @@ export const integrationDetail = async (
   data: { integrationId: string },
 ) => {
   switch (serviceName) {
-    case 'imap':
-      return imapIntegrationDetails({ subdomain, data });
+    case 'mail':
+      return mailIntegrationDetails({ subdomain, data });
     default:
       return null;
   }
@@ -193,7 +196,7 @@ export default {
 
       if (!igIntegration) return null;
 
-      const instagramPageId = igIntegration.instagramPageIds?.[0];
+      const instagramPageId = igIntegration.instagramPageId;
       if (!instagramPageId) return null;
 
       const account = await models.InstagramAccounts.findOne({

@@ -16,8 +16,10 @@ import {
 import React, { useState } from 'react';
 import { SubmitHandler } from 'react-hook-form';
 import { useParams } from 'react-router';
+import { useTranslation } from 'react-i18next';
 
 export const AddMembers = () => {
+  const { t } = useTranslation('operation');
   const form = useAddMemberForm({});
   const { id: teamId } = useParams();
 
@@ -47,13 +49,13 @@ export const AddMembers = () => {
       addTeamMember({
         variables: { ...data, teamId },
         onCompleted: () => {
-          toast({ title: 'Success!' });
+          toast({ title: t('success') });
           form.reset();
           _setOpen(false);
         },
         onError: (error) =>
           toast({
-            title: 'Error',
+            title: t('error'),
             description: error.message,
             variant: 'destructive',
           }),
@@ -67,7 +69,7 @@ export const AddMembers = () => {
       <Dialog.Trigger asChild>
         <Button>
           <IconPlus />
-          Add members
+          {t('add-members')}
           <Kbd>C</Kbd>
         </Button>
       </Dialog.Trigger>
@@ -75,10 +77,10 @@ export const AddMembers = () => {
         <Dialog.Header className="flex-row">
           <Dialog.Title className="flex items-center gap-2">
             {/* <IconTagPlus size={16} /> */}
-            Add members
+            {t('add-members')}
           </Dialog.Title>
           <Dialog.Description className="sr-only">
-            Add a new members to the team.
+            {t('add-members-description')}
           </Dialog.Description>
           <Dialog.Close asChild>
             <Button
@@ -99,11 +101,11 @@ export const AddMembers = () => {
             <div className="flex justify-end gap-2">
               <Dialog.Close asChild>
                 <Button variant="secondary" type="button">
-                  Cancel
+                  {t('cancel')}
                 </Button>
               </Dialog.Close>
               <Button type="submit" disabled={loading}>
-                Add
+                {t('add')}
               </Button>
             </div>
           </form>

@@ -17,11 +17,16 @@ const UpdateLogSchema = z.object({
 const DeleteLogSchema = z.object({
   action: z.literal('delete'),
   docId: z.string(),
+  // The document as it was just before deletion. Optional for backward
+  // compatibility; when supplied the log records what was removed.
+  prevDocument: z.any().optional(),
 });
 
 const DeleteManyLogSchema = z.object({
   action: z.literal('deleteMany'),
   docIds: z.array(z.string()),
+  // Prior documents (any order; matched to docIds by _id). Optional.
+  prevDocuments: z.array(z.any()).optional(),
 });
 
 const UpdateManyLogSchema = z.object({

@@ -40,7 +40,7 @@ export const ProductMoreColumn = (props: CellContext<IProduct, unknown>) => {
               </Command.Item>
             </Can>
             <ProductsDelete productIds={[product._id]}>
-              {({ onClick, disabled }) => (
+              {({ onClick, disabled, trailing }) => (
                 <Command.Item
                   value="delete"
                   onSelect={onClick}
@@ -48,6 +48,7 @@ export const ProductMoreColumn = (props: CellContext<IProduct, unknown>) => {
                 >
                   <IconTrash className="w-4 h-4" />
                   Delete
+                  {trailing}
                 </Command.Item>
               )}
             </ProductsDelete>

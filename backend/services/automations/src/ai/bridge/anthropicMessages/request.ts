@@ -1,8 +1,9 @@
-import fetch from 'node-fetch';
+import { nativeFetch as fetch } from '../nativeFetch';
 import {
   TAiBridgeConnection,
   TAiBridgeMessage,
   TAiBridgeRuntime,
+  TAiBridgeToolDefinition,
 } from '../types';
 
 type TAnthropicMessagesRequestParams = {
@@ -96,26 +97,68 @@ export const requestAnthropicMessages = async <TJson = any>({
   }
 };
 
+const toAnthropicMessage = (message: TAiBridgeMessage) => {
+  if (message.role === 'assistant' && message.toolCalls?.length) {
+    return {
+      role: 'assistant',
+      content: [
+        ...(message.content
+          ? [{ type: 'text', text: message.content }]
+          : []),
+        ...message.toolCalls.map((call) => ({
+          type: 'tool_use',
+          id: call.id,
+          name: call.name,
+          input: call.arguments || {},
+        })),
+      ],
+    };
+  }
+
+  if (message.role === 'tool') {
+    return {
+      role: 'user',
+      content: [
+        {
+          type: 'tool_result',
+          tool_use_id: message.toolCallId,
+          content: message.content,
+        },
+      ],
+    };
+  }
+
+  return {
+    role: message.role === 'assistant' ? 'assistant' : 'user',
+    content: message.content,
+  };
+};
+
 export const buildAnthropicMessagesBody = ({
   connection,
   runtime,
   messages,
+  tools,
 }: {
   connection: TAiBridgeConnection;
   runtime: TAiBridgeRuntime;
   messages: TAiBridgeMessage[];
+  tools?: TAiBridgeToolDefinition[];
 }) => {
   const system = messages
     .filter((message) => message.role === 'system')
     .map((message) => message.content)
     .filter(Boolean)
     .join('\n\n');
-  const chatMessages = messages
+  const chatMessages: any[] = messages
     .filter((message) => message.role !== 'system')
-    .map((message) => ({
-      role: message.role === 'assistant' ? 'assistant' : 'user',
-      content: message.content,
-    }));
+    .map(toAnthropicMessage);
+
+  // No assistant "{" prefill here. A model with extended thinking must open its
+  // turn with a thinking block, so prefilling the assistant turn degenerates it:
+  // measured against kimi-for-coding the same request returned 7 tokens and an
+  // empty content array with the prefill, and a complete JSON object without it.
+  // The JSON shape is carried by the instructions instead.
 
   return {
     model: connection.model,
@@ -124,6 +167,15 @@ export const buildAnthropicMessagesBody = ({
       ? { temperature: runtime.temperature }
       : {}),
     ...(system ? { system } : {}),
+    ...(tools?.length
+      ? {
+          tools: tools.map((tool) => ({
+            name: tool.name,
+            description: tool.description,
+            input_schema: tool.parameters,
+          })),
+        }
+      : {}),
     messages: chatMessages.length
       ? chatMessages
       : [{ role: 'user', content: 'Hello' }],

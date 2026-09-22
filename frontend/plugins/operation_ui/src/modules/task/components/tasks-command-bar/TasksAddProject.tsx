@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { IconChevronRight, IconClipboard } from '@tabler/icons-react';
 import { Command } from 'erxes-ui';
 import { SelectProject } from '@/task/components/task-selects/SelectProjectTask';
@@ -7,6 +8,7 @@ export const TasksAddProjectTrigger = ({
 }: {
   setCurrentContent: (currentContent: string) => void;
 }) => {
+  const { t } = useTranslation('operation');
   return (
     <Command.Item
       className="flex justify-between"
@@ -16,7 +18,7 @@ export const TasksAddProjectTrigger = ({
     >
       <div className="flex gap-2 items-center">
         <IconClipboard className="size-4" />
-        Add Project
+        {t('add-project')}
       </div>
       <IconChevronRight />
     </Command.Item>

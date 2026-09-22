@@ -1,139 +1,86 @@
-import { useDocumentRemove } from '@/documents/hooks/useDocumentRemove';
-import {
-  IconCalendarPlus,
-  IconChevronDown,
-  IconTrash,
-} from '@tabler/icons-react';
+import { IconCalendarPlus, IconFileText } from '@tabler/icons-react';
 import dayjs from 'dayjs';
-import {
-  AlertDialog,
-  Card,
-  RelativeDateDisplay,
-  useSetQueryStateByKey,
-} from 'erxes-ui';
-import { useState } from 'react';
-import { Can, MembersInline } from 'ui-modules';
+import { Card, RelativeDateDisplay, useSetQueryStateByKey } from 'erxes-ui';
+import { ApprovalLockedBadge, MembersInline } from 'ui-modules';
+import { DOCUMENTS_TYPES_SET } from '../constants';
+import { IDocument } from '../types';
 import { DocumentPreview } from './DocumentPreview';
+import { DocumentsActions } from './DocumentsActions';
 
-export const DocumentsGrid = ({ documents }: { documents: any[] }) => {
+export const DocumentsGrid = ({ documents }: { documents: IDocument[] }) => {
   const setQuery = useSetQueryStateByKey();
-  const { removeDocument } = useDocumentRemove();
-  const [isMenuOpen, setIsMenuOpen] = useState<number | null>(null);
-  const [documentToDelete, setDocumentToDelete] = useState<string | null>(null);
 
-  const toggleMenu = (index: number) => {
-    setIsMenuOpen(isMenuOpen === index ? null : index);
-  };
-
-  const handleDeleteDocument = () => {
-    removeDocument({
-      variables: { id: documentToDelete },
-      refetchQueries: ['Documents'],
-    });
-    setDocumentToDelete(null);
-    setIsMenuOpen(null);
+  const handleOpenDocument = (document: IDocument) => {
+    setQuery('documentId', document._id);
+    setQuery('contentType', document.contentType);
   };
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-6">
-      {documents.map((document, index) => (
-        <Card
-          key={document._id}
-          className="flex flex-col overflow-hidden cursor-pointer"
-          onClick={() => {
-            setQuery('documentId', document._id);
-            setQuery('contentType', document.contentType);
-          }}
-        >
-          <div className="flex items-center justify-between p-3 relative">
-            <h3 className="text-md font-medium text-black truncate flex-1 mr-2">
-              {document.name}
-            </h3>
-            <Can action="removeDocuments">
-              <>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    toggleMenu(index);
-                  }}
-                  className="flex items-center leading-[100%] text-black font-inter gap-1 text-sm font-medium rounded-md px-1"
+    <div className="grid grid-cols-1 gap-4 p-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      {documents.map((document) => {
+        const documentType = DOCUMENTS_TYPES_SET[document.contentType];
+        const DocumentTypeIcon = documentType?.icon ?? IconFileText;
+        const documentTypeLabel = documentType?.label ?? document.contentType;
+
+        return (
+          <Card
+            key={document._id}
+            className="group flex cursor-pointer flex-col overflow-hidden transition-shadow hover:shadow-md"
+            onClick={() => handleOpenDocument(document)}
+          >
+            <Card.Content className="relative flex h-40 items-center justify-center overflow-hidden border-b bg-muted/30 p-0">
+              {document.approvalLockState?.hasAccess !== false && (
+                <DocumentPreview document={document} />
+              )}
+              <span
+                className={`text-xs py-1 px-2 ${
+                  documentType?.color ?? ''
+                } border whitespace-nowrap absolute top-0 right-0 mt-2 mr-2 rounded-lg`}
+              >
+                {documentTypeLabel}
+              </span>
+            </Card.Content>
+
+            <div className="flex items-start justify-between gap-2 p-4">
+              <div className="flex min-w-0 items-center gap-2">
+                <div
+                  className="flex size-8 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground"
+                  title={documentTypeLabel}
                 >
-                  Action
-                  <IconChevronDown size={18} stroke={2} />
-                </button>
-
-                {isMenuOpen === index && (
-                  <div className="absolute right-3 top-12 py-1 bg-white rounded-lg shadow-lg border border-gray-100 w-[150px] z-10">
-                    <div
-                      className="flex items-center w-full gap-3 px-4 py-2 text-left cursor-pointer hover:bg-gray-50"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setDocumentToDelete(document._id);
-                      }}
-                    >
-                      <IconTrash size={16} stroke={1.5} />
-                      <p className="text-sm font-medium leading-[100%] text-black font-inter">
-                        Delete
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </>
-            </Can>
-          </div>
-          <Card.Content className="p-0 relative flex items-center justify-center h-[140px]">
-            <DocumentPreview document={document} />
-          </Card.Content>
-
-          <Card.Footer className="flex-auto p-4 border-t flex-col">
-            <div className="w-full h-full flex flex-col justify-between">
-              <Card.Description className="flex items-center justify-between self-stretch">
-                <div className="flex items-center gap-2">
-                  <IconCalendarPlus size={18} className="text-black" />
-                  <p className="text-sm shrink-0 text-muted-foreground leading-[100%]">
-                    {document.createdAt ? (
-                      <RelativeDateDisplay.Value
-                        value={dayjs(document.createdAt as string).format(
-                          'YYYY-MM-DD HH:mm:ss',
-                        )}
-                      />
-                    ) : (
-                      'N/A'
-                    )}
-                  </p>
+                  <DocumentTypeIcon className="size-4" />
                 </div>
-                <MembersInline.Provider members={[document.createdUser || {}]}>
-                  <MembersInline.Avatar size="lg" />
-                </MembersInline.Provider>
-              </Card.Description>
+                <h3 className="truncate text-sm font-semibold leading-tight">
+                  {document.name || 'Untitled'}
+                </h3>
+              </div>
+              <ApprovalLockedBadge state={document.approvalLockState} />
+              <DocumentsActions documentItem={document} variant="grid" />
             </div>
-          </Card.Footer>
-        </Card>
-      ))}
-      <AlertDialog
-        open={!!documentToDelete}
-        onOpenChange={() => setDocumentToDelete(null)}
-      >
-        <AlertDialog.Content>
-          <AlertDialog.Header>
-            <AlertDialog.Title>Delete Document</AlertDialog.Title>
-            <AlertDialog.Description>
-              Are you sure you want to remove the document? This action cannot
-              be undone.
-            </AlertDialog.Description>
-          </AlertDialog.Header>
-          <AlertDialog.Footer>
-            <AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
-            <AlertDialog.Action
-              onClick={() => {
-                handleDeleteDocument();
-              }}
-            >
-              Yes, delete document
-            </AlertDialog.Action>
-          </AlertDialog.Footer>
-        </AlertDialog.Content>
-      </AlertDialog>
+
+            <Card.Footer className="flex items-center justify-between border-t px-4 py-3">
+              <div className="flex items-center gap-1.5 text-muted-foreground">
+                <IconCalendarPlus size={16} />
+                <span className="text-xs">
+                  {document.createdAt ? (
+                    <RelativeDateDisplay.Value
+                      value={dayjs(document.createdAt as string).format(
+                        'YYYY-MM-DD HH:mm:ss',
+                      )}
+                    />
+                  ) : (
+                    'N/A'
+                  )}
+                </span>
+              </div>
+              <MembersInline.Provider
+                members={document.createdUser ? [document.createdUser] : []}
+              >
+                <MembersInline.Avatar size="lg" />
+              </MembersInline.Provider>
+            </Card.Footer>
+          </Card>
+        );
+      })}
     </div>
   );
 };

@@ -5,7 +5,6 @@ interface AgentDrilldownProps {
   stat: AgentStat;
 }
 
-/** Inline expanded row shown when an agent row is clicked. */
 export function AgentDrilldown({ stat }: AgentDrilldownProps) {
   const totalTalk = stat.averageTalkTime * stat.answeredCalls;
 
@@ -17,11 +16,15 @@ export function AgentDrilldown({ stat }: AgentDrilldownProps) {
   ];
 
   return (
-    <div className="flex flex-wrap gap-x-6 gap-y-1 text-xs px-4 py-2.5 bg-muted/30">
+    <div className="grid grid-cols-2 gap-x-6 gap-y-4 bg-muted/30 px-5 py-4 sm:grid-cols-4">
       {items.map(({ label, value }) => (
-        <div key={label}>
-          <span className="text-muted-foreground">{label}</span>
-          <span className="ml-1.5 font-mono font-semibold">{value}</span>
+        <div key={label} className="space-y-1">
+          <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+            {label}
+          </p>
+          <p className="font-mono text-sm font-semibold tabular-nums">
+            {value}
+          </p>
         </div>
       ))}
     </div>

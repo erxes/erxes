@@ -25,6 +25,8 @@ export interface IOrder {
   number?: string;
   customerId?: string;
   customerType?: string;
+  brokerId?: string;
+  brokerType?: string;
   cashAmount?: number;
   mobileAmount?: number;
   mobileAmounts?: IMobileAmount[];

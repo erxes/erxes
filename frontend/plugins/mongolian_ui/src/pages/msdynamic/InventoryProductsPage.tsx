@@ -1,11 +1,5 @@
-import { useLocation } from 'react-router-dom';
-import InventoryProductsContainer from '@/msdynamic/containers/InventoryProducts';
+import { MSDynamicCheckProducts } from '@/msdynamic/msdynamic-check-products/components/InventoryProducts';
 
 export const InventoryProductsPage = () => {
-  const location = useLocation();
-  const queryParams = Object.fromEntries(new URLSearchParams(location.search));
-
-  return <InventoryProductsContainer queryParams={queryParams} />;
+  return <MSDynamicCheckProducts />;
 };
-
-export default InventoryProductsPage;

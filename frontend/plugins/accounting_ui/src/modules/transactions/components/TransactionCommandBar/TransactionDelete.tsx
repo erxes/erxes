@@ -2,6 +2,7 @@ import { useTransactionsBulkRemove } from '../../hooks/useTransactionsBulkRemove
 import { IconTrash } from '@tabler/icons-react';
 import { Row } from '@tanstack/table-core';
 import { Button, useConfirm, useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const TransactionDelete = ({
   transactions,
@@ -10,6 +11,7 @@ export const TransactionDelete = ({
   transactions: any[];
   rows: Row<any>[];
 }) => {
+  const { t } = useTranslation('accounting');
   const { confirm } = useConfirm();
   const { removeTransactions } = useTransactionsBulkRemove();
 
@@ -20,7 +22,7 @@ export const TransactionDelete = ({
       className="text-destructive"
       onClick={() =>
         confirm({
-          message: `Are you sure you want to delete the ${transactions.length} selected Transaction?`,
+          message: t('are-you-sure-delete-selected-transactions', { count: transactions.length }),
         }).then(async () => {
           try {
             await removeTransactions(transactions);
@@ -28,13 +30,13 @@ export const TransactionDelete = ({
               row.toggleSelected(false);
             });
             toast({
-              title: 'Success',
+              title: t('success'),
               variant: 'success',
-              description: 'Transaction deleted successfully',
+              description: t('transaction-deleted-successfully'),
             });
           } catch (e: any) {
             toast({
-              title: 'Error',
+              title: t('error'),
               description: e.message,
               variant: 'destructive',
             });
@@ -43,7 +45,7 @@ export const TransactionDelete = ({
       }
     >
       <IconTrash />
-      Delete
+      {t('delete')}
     </Button>
   );
 };

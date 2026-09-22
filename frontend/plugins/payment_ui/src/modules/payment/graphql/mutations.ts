@@ -26,6 +26,19 @@ export const REMOVE_PAYMENT = gql`
   }
 `;
 
+export const INVOICE_EDIT = gql`
+  mutation PaymentInvoiceEdit($_id: String!, $input: InvoiceEditInput!) {
+    invoiceEdit(_id: $_id, input: $input) {
+      _id
+      amount
+      currency
+      description
+      status
+      resolvedAt
+    }
+  }
+`;
+
 export const INVOICE_SCAN_BARCODE = gql`
   mutation InvoiceScanBarcode($code: String!) {
     invoiceScanBarcode(code: $code) {
@@ -36,6 +49,8 @@ export const INVOICE_SCAN_BARCODE = gql`
       description
       status
       scannedAt
+      scannedCount
+      ticketCount
       createdAt
     }
   }

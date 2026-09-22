@@ -19,6 +19,7 @@ import {
 
 import { IconTag } from '@tabler/icons-react';
 import { useQuery } from '@apollo/client';
+import { useTranslation } from 'react-i18next';
 import { GET_SEGMENT } from '../../../graphql/queries/getSegmentQuery';
 import {
   SelectContent,
@@ -118,6 +119,7 @@ const SelectSegmentValue = ({
   placeholder?: string;
   className?: string;
 }) => {
+  const { t } = useTranslation('loyalty');
   const { value, segments } = useSelectSegmentContext();
 
   // Ensure segments is an array to prevent runtime errors
@@ -129,7 +131,7 @@ const SelectSegmentValue = ({
   if (!selectedSegment) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select segment'}
+        {placeholder || t('select-segment')}
       </span>
     );
   }
@@ -176,6 +178,7 @@ const SelectSegmentCommandItem = ({ segment }: { segment: ISegment }) => {
 };
 
 const SelectSegmentContent = () => {
+  const { t } = useTranslation('loyalty');
   const { segments, loading } = useSelectSegmentContext();
 
   // Ensure segments is an array to prevent runtime errors
@@ -184,10 +187,10 @@ const SelectSegmentContent = () => {
   if (loading) {
     return (
       <Command>
-        <Command.Input placeholder="Search segments" />
+        <Command.Input placeholder={t('search-segments')} />
         <Command.List>
           <div className="flex items-center justify-center py-4 h-32">
-            <span className="text-muted-foreground">Loading segments...</span>
+            <span className="text-muted-foreground">{t('loading-segments')}</span>
           </div>
         </Command.List>
       </Command>
@@ -196,9 +199,9 @@ const SelectSegmentContent = () => {
 
   return (
     <Command>
-      <Command.Input placeholder="Search segments" />
+      <Command.Input placeholder={t('search-segments')} />
       <Command.Empty>
-        <span className="text-muted-foreground">No segments found</span>
+        <span className="text-muted-foreground">{t('no-segments-found')}</span>
       </Command.Empty>
       <Command.List>
         {segmentsArray.map((segment) => (
@@ -210,10 +213,11 @@ const SelectSegmentContent = () => {
 };
 
 export const SelectSegmentFilterItem = () => {
+  const { t } = useTranslation('loyalty');
   return (
     <Filter.Item value="segments">
       <IconTag />
-      Segments
+      {t('segments')}
     </Filter.Item>
   );
 };
@@ -263,6 +267,7 @@ export const SelectSegmentFilterBar = ({
   mode?: 'single' | 'multiple';
   contentTypes?: string[];
 }) => {
+  const { t } = useTranslation('loyalty');
   const [segments, setSegments] = useQueryState<string[] | string>('segments');
   const [open, setOpen] = useState(false);
 
@@ -270,7 +275,7 @@ export const SelectSegmentFilterBar = ({
     <Filter.BarItem queryKey={'segments'}>
       <Filter.BarName>
         <IconTag />
-        Segments
+        {t('segments')}
       </Filter.BarName>
       <SelectSegmentProvider
         mode={mode}

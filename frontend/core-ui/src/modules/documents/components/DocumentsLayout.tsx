@@ -1,36 +1,48 @@
-import { Resizable } from 'erxes-ui';
 import { useSearchParams } from 'react-router-dom';
+import { ApprovalLockGuard } from 'ui-modules';
+import { DOCUMENT_APPROVAL_CONTENT_TYPE } from '../constants';
+import { DocumentEditorSkeleton } from './DocumentEditorSkeleton';
 
 export const DocumentsLayout = ({
   Documents,
   DocumentsTypes,
   Editor,
 }: {
-  Documents: React.ComponentType<any>;
-  DocumentsTypes: React.ComponentType<any>;
-  Editor: React.ComponentType<any>;
+  Documents: React.ComponentType<{ viewType: 'list' | 'grid' }>;
+  DocumentsTypes: React.ComponentType;
+  Editor: React.ComponentType;
 }) => {
   const [searchParams] = useSearchParams();
 
   const documentId = searchParams.get('documentId');
   const contentType = searchParams.get('contentType');
 
-  return (
-    <Resizable.PanelGroup
-      direction="horizontal"
-      className="flex-1 overflow-hidden"
+  const editor = documentId?.trim() ? (
+    <ApprovalLockGuard
+      key={documentId}
+      contentType={DOCUMENT_APPROVAL_CONTENT_TYPE}
+      contentId={documentId.trim()}
+      action="view"
+      loadingFallback={<DocumentEditorSkeleton />}
     >
-      <Resizable.Panel minSize={20} maxSize={25} defaultSize={20}>
+      <Editor key={documentId} />
+    </ApprovalLockGuard>
+  ) : (
+    <Editor key={documentId} />
+  );
+
+  return (
+    <div className="flex min-h-0 flex-1 overflow-hidden">
+      <div className="w-(--sidebar-width) flex-none overflow-hidden">
         {contentType && documentId !== null ? (
-          <Documents viewType={'list'} />
+          <Documents viewType="list" />
         ) : (
           <DocumentsTypes />
         )}
-      </Resizable.Panel>
-      <Resizable.Handle />
-      <Resizable.Panel defaultSize={75}>
-        {documentId !== null ? <Editor /> : <Documents viewType={'grid'} />}
-      </Resizable.Panel>
-    </Resizable.PanelGroup>
+      </div>
+      <div className="min-w-0 flex-1 overflow-hidden">
+        {documentId !== null ? editor : <Documents viewType="grid" />}
+      </div>
+    </div>
   );
 };

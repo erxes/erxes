@@ -18,9 +18,32 @@ import {
   IPipelineDocument,
   IProductData,
   IStageDocument,
-} from './@types';
-import { CLOSE_DATE_TYPES, SALES_STATUSES } from './constants';
-import { generateFilter } from './graphql/resolvers/queries/deals';
+} from '@/sales/@types';
+import { CLOSE_DATE_TYPES, SALES_STATUSES } from '@/sales/constants';
+import { generateFilter } from '@/sales/graphql/resolvers/queries/deals';
+
+export const getCreatedAtSearchFilter = (
+  search: string,
+): { createdAt: { $gte: Date; $lt: Date } } | null => {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(search.trim());
+
+  if (!match) return null;
+
+  const [, year, month, day] = match;
+  const start = new Date(`${year}-${month}-${day}T00:00:00.000Z`);
+
+  if (
+    Number.isNaN(start.getTime()) ||
+    start.toISOString().slice(0, 10) !== `${year}-${month}-${day}`
+  ) {
+    return null;
+  }
+
+  const end = new Date(start);
+  end.setUTCDate(end.getUTCDate() + 1);
+
+  return { createdAt: { $gte: start, $lt: end } };
+};
 
 export const configReplacer = (config) => {
   const now = new Date();
@@ -330,29 +353,28 @@ const generateArchivedItemsFilter = (
 
   filter.stageId = { $in: stages.map((stage) => stage._id) };
 
+  const setInFilter = (field: string, values?: string[]) => {
+    if (values?.length) filter[field] = { $in: values };
+  };
+
   if (search) {
-    Object.assign(filter, regexSearchText(search, 'name'));
+    const createdAtFilter = getCreatedAtSearchFilter(search);
+
+    Object.assign(filter, {
+      $or: [
+        regexSearchText(search, 'name'),
+        regexSearchText(search, 'number'),
+        regexSearchText(search, 'description'),
+        ...(createdAtFilter ? [createdAtFilter] : []),
+      ],
+    });
   }
 
-  if (userIds && userIds.length) {
-    filter.userId = { $in: userIds };
-  }
-
-  if (priorities?.length) {
-    filter.priority = { $in: priorities };
-  }
-
-  if (assignedUserIds?.length) {
-    filter.assignedUserIds = { $in: assignedUserIds };
-  }
-
-  if (labelIds?.length) {
-    filter.labelIds = { $in: labelIds };
-  }
-
-  if (productIds?.length) {
-    filter['productsData.productId'] = { $in: productIds };
-  }
+  setInFilter('userId', userIds);
+  setInFilter('priority', priorities);
+  setInFilter('assignedUserIds', assignedUserIds);
+  setInFilter('labelIds', labelIds);
+  setInFilter('productsData.productId', productIds);
 
   if (startDate) {
     filter.closeDate = {
@@ -370,13 +392,8 @@ const generateArchivedItemsFilter = (
     }
   }
 
-  if (sources?.length) {
-    filter.source = { $in: sources };
-  }
-
-  if (hackStages?.length) {
-    filter.hackStages = { $in: hackStages };
-  }
+  setInFilter('source', sources);
+  setInFilter('hackStages', hackStages);
 
   return filter;
 };
@@ -501,6 +518,10 @@ export const checkItemPermByUser = async (
   return deal;
 };
 
+type GetItemListOptions = {
+  formatter?: Record<string, 'date' | 'number' | 'boolean'>;
+};
+
 export const getItemList = async (
   models: IModels,
   subdomain: string,
@@ -508,6 +529,7 @@ export const getItemList = async (
   args: IDealQueryParams,
   user: IUserDocument,
   getExtraFields?: (item: any) => { [key: string]: any },
+  options?: GetItemListOptions,
 ) => {
   const { orderBy } = args;
   if (!orderBy || !Object.keys(orderBy)) {
@@ -518,6 +540,7 @@ export const getItemList = async (
     model: models.Deals,
     params: args,
     query: filter,
+    formatter: options?.formatter,
   });
 
   const updatedList: any[] = [];
@@ -605,6 +628,30 @@ export const generateProducts = async (
     defaultValue: [],
   });
 
+  const fieldIds = Array.from(
+    new Set(
+      allProducts.flatMap((product) =>
+        Object.keys(product.propertiesData || {}),
+      ),
+    ),
+  );
+  const fields: Array<{ _id: string; text?: string }> = fieldIds.length
+    ? await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        method: 'query',
+        module: 'fields',
+        action: 'find',
+        input: {
+          query: {
+            _id: { $in: fieldIds },
+          },
+        },
+        defaultValue: [],
+      })
+    : [];
+  const fieldsById = new Map(fields.map((field) => [field._id, field]));
+
   for (const data of productsData || []) {
     if (!data.productId) {
       continue;
@@ -619,28 +666,12 @@ export const generateProducts = async (
 
     const properties: any = {};
 
-    const fieldIds: string[] = Object.keys(propertiesData || {});
-
-    const fields = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'query',
-      module: 'fields',
-      action: 'find',
-      input: {
-        query: {
-          _id: { $in: fieldIds },
-        },
-      },
-      defaultValue: [],
-    });
-
-    for (const fieldId of fieldIds || []) {
-      const field = fields.find((f) => f._id === fieldId);
+    for (const fieldId of Object.keys(propertiesData || {})) {
+      const field = fieldsById.get(fieldId);
 
       if (field) {
         properties[fieldId] = {
-          text: field.text,
+          text: field.text || '',
           data: propertiesData[fieldId],
         };
       }
@@ -992,7 +1023,7 @@ export const convertNestedDate = (obj: any) => {
   if (typeof obj !== 'object' || obj === null) return obj;
 
   for (const key in obj) {
-    if (obj.hasOwnProperty(key)) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
       // Check if the key is one of the target comparison operators
       if (
         ['$gte', '$lte', '$gt', '$lt'].includes(key) &&
@@ -1203,7 +1234,7 @@ export const itemsAdd = async (
       pluginName: 'core',
       module: 'fields',
       action: 'validateFieldValues',
-      input: extendedDoc.propertiesData,
+      input: { data: extendedDoc.propertiesData },
       defaultValue: {},
     });
   }

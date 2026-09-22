@@ -5,8 +5,12 @@ import {
   IConversationRes,
 } from '@/inbox/@types/conversations';
 import { countByConversations } from '@/inbox/conversationUtils';
-import { CONVERSATION_STATUSES } from '@/inbox/db/definitions/constants';
-import { cursorPaginate,markResolvers } from 'erxes-api-shared/utils';
+import { getConversationConvertedItems } from '@/inbox/services/conversationConvert';
+import {
+  CONVERSATION_AUTOMATION_STATUS,
+  CONVERSATION_STATUSES,
+} from '@/inbox/db/definitions/constants';
+import { cursorPaginate, markResolvers } from 'erxes-api-shared/utils';
 import { IContext, IModels } from '~/connectionResolvers';
 import QueryBuilder, { IListArgs } from '~/conversationQueryBuilder';
 
@@ -37,7 +41,7 @@ export const conversationQueries = {
           model: models.Conversations,
           params: {
             ...params,
-            orderBy: { updatedAt: -1 }, // Optional, _id is used as a fallback
+            orderBy: params.orderBy ?? { updatedAt: -1 },
           },
           query: { _id: { $in: params.ids } },
         });
@@ -51,7 +55,7 @@ export const conversationQueries = {
           model: models.Conversations,
           params: {
             ...params,
-            orderBy: { updatedAt: -1 },
+            orderBy: params.orderBy ?? { updatedAt: -1 },
             limit: params.limit || 20,
           },
           query: { customerId: params.customerId },
@@ -69,7 +73,7 @@ export const conversationQueries = {
         model: models.Conversations,
         params: {
           ...params,
-          orderBy: { updatedAt: -1 },
+          orderBy: params.orderBy ?? { updatedAt: -1 },
           limit: params.limit || 20,
         },
         query: qb.mainQuery(),
@@ -185,6 +189,12 @@ export const conversationQueries = {
       ...qb.participatingFilter(),
     });
 
+    // conversations where the current user was mentioned
+    response.mentioned = await count(models, {
+      ...mainQuery,
+      ...(await qb.mentionedFilter()),
+    });
+
     // starred count
     response.starred = await count(models, {
       ...mainQuery,
@@ -203,6 +213,16 @@ export const conversationQueries = {
       ...qb.awaitingResponse(),
     });
 
+    const automationCounts = await Promise.all(
+      CONVERSATION_AUTOMATION_STATUS.ALL.map((key) =>
+        count(models, { ...mainQuery, ...qb.automationStatusFilter(key) }),
+      ),
+    );
+
+    CONVERSATION_AUTOMATION_STATUS.ALL.forEach((key, index) => {
+      response[key] = automationCounts[index];
+    });
+
     return response;
   },
 
@@ -215,6 +235,16 @@ export const conversationQueries = {
     { models }: IContext,
   ) {
     return models.Conversations.findOne({ _id });
+  },
+
+  async conversationConvertedItems(
+    _root,
+    { _id }: { _id: string },
+    { models, subdomain, checkPermission }: IContext,
+  ) {
+    await checkPermission('showConversations');
+
+    return getConversationConvertedItems(models, subdomain, _id);
   },
 
   /**

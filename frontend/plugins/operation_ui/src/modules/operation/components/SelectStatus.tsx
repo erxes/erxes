@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import React, { useState } from 'react';
 import {
   Combobox,
@@ -70,12 +71,13 @@ export const SelectStatusProvider = ({
 };
 
 const SelectStatusValue = ({ placeholder }: { placeholder?: string }) => {
+  const { t } = useTranslation('operation');
   const { value } = useSelectStatusContext();
 
   if (!value) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select status...'}
+        {placeholder || t('select-status')}
       </span>
     );
   }
@@ -120,6 +122,7 @@ const SelectStatusContent = ({
 }: {
   useExtendedLabels?: boolean;
 }) => {
+  const { t } = useTranslation('operation');
   const visibleStatuses = useExtendedLabels
     ? STATUS_TYPE_LABELS
     : STATUS_TYPE_LABELS.filter(
@@ -128,9 +131,9 @@ const SelectStatusContent = ({
 
   return (
     <Command id="status-command-menu">
-      <Command.Input placeholder="Search status" />
+      <Command.Input placeholder={t('search-status')} />
       <Command.List>
-        <Command.Empty>No status found</Command.Empty>
+        <Command.Empty>{t('no-status-found')}</Command.Empty>
         {visibleStatuses.map((label) => {
           const originalIndex = STATUS_TYPE_LABELS.indexOf(label);
           return (

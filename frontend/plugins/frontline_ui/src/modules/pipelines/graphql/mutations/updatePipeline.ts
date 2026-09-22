@@ -13,6 +13,10 @@ export const UPDATE_PIPELINE = gql`
     $isCheckDepartment: Boolean
     $visibility: String
     $memberIds: [String]
+    $numberConfig: String
+    $numberSize: String
+    $nameConfig: String
+    $propertyIds: [String]
   ) {
     updatePipeline(
       _id: $_id
@@ -26,6 +30,10 @@ export const UPDATE_PIPELINE = gql`
       isCheckDepartment: $isCheckDepartment
       visibility: $visibility
       memberIds: $memberIds
+      numberConfig: $numberConfig
+      numberSize: $numberSize
+      nameConfig: $nameConfig
+      propertyIds: $propertyIds
     ) {
       _id
       name
@@ -42,6 +50,11 @@ export const UPDATE_PIPELINE = gql`
       isCheckDepartment
       visibility
       memberIds
+      numberConfig
+      numberSize
+      nameConfig
+      propertyIds
+      isPropertySelectionConfigured
     }
   }
 `;

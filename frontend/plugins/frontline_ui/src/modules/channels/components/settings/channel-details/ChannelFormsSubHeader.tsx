@@ -18,6 +18,7 @@ import { SelectTags } from 'ui-modules';
 
 export const ChannelFormsSubHeader = () => {
   const { t } = useTranslation('common');
+  const { t: tf } = useTranslation('frontline');
   const { id: channelId } = useParams<{ id: string }>();
 
   const [queries] = useMultiQueryState<{
@@ -50,13 +51,16 @@ export const ChannelFormsSubHeader = () => {
             <Filter.View>
               <Command>
                 <Filter.CommandInput
-                  placeholder={t('filter._')}
+                  placeholder={t('filter._', 'Filter')}
                   variant="secondary"
                   className="bg-background"
                 />
                 <Command.List className="p-1">
                   <Filter.SearchValueTrigger />
-                  <SelectTags.FilterItem value="tagId" label="By Tag" />
+                  <SelectTags.FilterItem
+                    value="tagId"
+                    label={tf('by-tag', 'By Tag')}
+                  />
                   <FormStatus.Item />
                 </Command.List>
               </Command>
@@ -75,7 +79,7 @@ export const ChannelFormsSubHeader = () => {
           {isUndefinedOrNull(totalCount) || loading ? (
             <Skeleton className="w-20 h-4 inline-block mt-1.5" />
           ) : (
-            `${totalCount} ${t('records-found')}`
+            `${totalCount} ${t('records-found', 'Records Found')}`
           )}
         </div>
       </Filter>
@@ -84,6 +88,7 @@ export const ChannelFormsSubHeader = () => {
 };
 
 const ChannelFormsTagFilterBarItem = ({ queryKey }: { queryKey: string }) => {
+  const { t: tf } = useTranslation('frontline');
   const [query, setQuery] = useQueryState<string | null>(queryKey);
   return (
     <Filter.BarItem queryKey={queryKey}>
@@ -95,7 +100,7 @@ const ChannelFormsTagFilterBarItem = ({ queryKey }: { queryKey: string }) => {
         filterKey={queryKey}
         tagType="frontline:form"
         variant="filter"
-        label="By Tag"
+        label={tf('by-tag', 'By Tag')}
         initialValue={[query as string]}
         onValueChange={(value) => setQuery(value as string)}
       />

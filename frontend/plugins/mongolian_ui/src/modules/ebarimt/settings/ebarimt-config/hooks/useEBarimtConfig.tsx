@@ -7,6 +7,7 @@ import {
   EBarimtFormData,
 } from '@/ebarimt/settings/ebarimt-config/types/ebarimtConfigTypes';
 import { useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 import { UPDATE_MN_CONFIG, CREATE_MN_CONFIG } from '@/ebarimt/settings/ebarimt-config/graphql/mutations/ebarimtConfigMutations';
 import { GET_MN_CONFIGS } from '../graphql/queries/mnConfigs';
@@ -25,6 +26,7 @@ const toFormValue = (val?: string) => val || 'empty';
 const toBackendValue = (val: string) => (val === 'empty' ? '' : val);
 
 export const useEBarimtConfig = () => {
+  const { t } = useTranslation('mongolian');
   const { toast } = useToast();
 
   const [isUpdating, setIsUpdating] = useState(false);
@@ -79,12 +81,12 @@ export const useEBarimtConfig = () => {
         });
 
         toast({
-          title: 'Success',
-          description: 'Ebarimt config saved successfully',
+          title: t('success'),
+          description: t('ebarimt-config-saved-successfully'),
         });
       } catch (err: any) {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: err.message,
           variant: 'destructive',
         });
@@ -101,12 +103,12 @@ export const useEBarimtConfig = () => {
         });
 
         toast({
-          title: 'Success',
-          description: 'Ebarimt config saved successfully',
+          title: t('success'),
+          description: t('ebarimt-config-saved-successfully'),
         });
       } catch (err: any) {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: err.message,
           variant: 'destructive',
         });

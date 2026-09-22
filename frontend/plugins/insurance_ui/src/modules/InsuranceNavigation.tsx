@@ -7,47 +7,49 @@ import {
   IconMapPin,
 } from '@tabler/icons-react';
 import { NavigationMenuLinkItem } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const InsuranceNavigation = () => {
+  const { t } = useTranslation('insurance');
   return (
     <div>
       <NavigationMenuLinkItem
-        name="Insurance Types"
+        name={t('insurance-types')}
         path="/insurance/types"
         icon={IconShieldCheck}
       />
       <NavigationMenuLinkItem
-        name="Products"
+        name={t('products')}
         path="/insurance/products"
         icon={IconPackage}
       />
       <NavigationMenuLinkItem
-        name="Risk Types"
+        name={t('risk-types')}
         path="/insurance/risks"
         icon={IconAlertTriangle}
       />
       <NavigationMenuLinkItem
-        name="Vendors"
+        name={t('vendors')}
         path="/insurance/vendors"
         icon={IconBuilding}
       />
       <NavigationMenuLinkItem
-        name="Vendor Users"
+        name={t('vendor-users')}
         path="/insurance/vendor-users"
         icon={IconUsers}
       />
       <NavigationMenuLinkItem
-        name="Customers"
+        name={t('customers')}
         path="/insurance/customers"
         icon={IconUsers}
       />
       <NavigationMenuLinkItem
-        name="Regions"
+        name={t('regions')}
         path="/insurance/regions"
         icon={IconMapPin}
       />
       <NavigationMenuLinkItem
-        name="Contracts"
+        name={t('contracts')}
         path="/insurance/contracts"
         icon={IconPackage}
       />

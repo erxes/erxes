@@ -2,13 +2,27 @@ import { initTRPC } from '@trpc/server';
 import { escapeRegExp } from 'erxes-api-shared/utils';
 import { z } from 'zod';
 import { CoreTRPCContext } from '~/init-trpc';
+import { agentMeta } from '~/utils/agentMeta';
+import { similaritiesTrpcRouter } from '@/products/trpc/similarity';
 
 const t = initTRPC.context<CoreTRPCContext>().create();
 
 const inventoryKey = (id?: string) => id || '_';
 
+const discountValueSchema = z.object({
+  planId: z.string(),
+  discount: z.number(),
+  discountPercent: z.number(),
+  prefixes: z.array(z.string()),
+  conditions: z.record(z.any()),
+  base: z.boolean().nullable(),
+});
+
+const discountsSchema = z.array(discountValueSchema);
+
 export const productsTrpcRouter = t.router({
   products: t.router({
+    similarities: similaritiesTrpcRouter,
     find: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
       const {
         query: rawQuery,
@@ -66,15 +80,23 @@ export const productsTrpcRouter = t.router({
         .lean();
     }),
 
-    findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-      const query = input?.query || input?.selector || input;
-      const { models } = ctx;
-      if (!query || !Object.keys(query).length) {
-        return {};
-      }
+    findOne: t.procedure
+      .meta(
+        agentMeta(
+          'Get a single product by { _id }, { code }, or any MongoDB-style query. Returns {} when nothing matches. Call this before products.updateProduct to confirm the record and read current values.',
+          { module: 'products', action: 'productsRead' },
+        ),
+      )
+      .input(z.any())
+      .query(async ({ ctx, input }) => {
+        const query = input?.query || input?.selector || input;
+        const { models } = ctx;
+        if (!query || !Object.keys(query).length) {
+          return {};
+        }
 
-      return models.Products.findOne(query).lean();
-    }),
+        return models.Products.findOne(query).lean();
+      }),
 
     createProduct: t.procedure
       .input(z.any())
@@ -100,7 +122,7 @@ export const productsTrpcRouter = t.router({
         const { query, doc } = input;
         const { models } = ctx;
 
-        return models.Products.updateMany(query, doc);
+        return models.Products.updateProducts(query, doc);
       }),
 
     removeProducts: t.procedure
@@ -112,41 +134,56 @@ export const productsTrpcRouter = t.router({
         return models.Products.removeProducts(_ids);
       }),
 
-    count: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-      const { query: rawQuery, categoryId } = input;
-      const { models } = ctx;
-
-      const query = rawQuery || {};
-
-      if (categoryId) {
-        const category = await models.ProductCategories.findOne({
-          _id: categoryId,
-        }).lean();
-        if (!category) {
-          throw new Error(`ProductCategory ${categoryId} not found`);
-        }
-        const categories = await models.ProductCategories.find({
-          order: { $regex: new RegExp(`^${escapeRegExp(category.order)}`) },
-        }).lean();
-
-        query.categoryId = { $in: categories.map((c) => c._id) };
-      }
-
-      return models.Products.find(query).countDocuments();
-    }),
-    rules: t.router({
-      find: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+    count: t.procedure
+      .meta(
+        agentMeta(
+          'Count products matching a filter: { query?, categoryId? } — categoryId automatically includes all child categories. Use for "how many products ..." questions instead of fetching records.',
+          { module: 'products', action: 'productsRead' },
+        ),
+      )
+      .input(z.any())
+      .query(async ({ ctx, input }) => {
+        const { query: rawQuery, categoryId } = input;
         const { models } = ctx;
-        const { _ids = [] } = input || {};
 
-        if (!_ids.length) {
-          return [];
+        const query = rawQuery || {};
+
+        if (categoryId) {
+          const category = await models.ProductCategories.findOne({
+            _id: categoryId,
+          }).lean();
+          if (!category) {
+            throw new Error(`ProductCategory ${categoryId} not found`);
+          }
+          const categories = await models.ProductCategories.find({
+            order: { $regex: new RegExp(`^${escapeRegExp(category.order)}`) },
+          }).lean();
+
+          query.categoryId = { $in: categories.map((c) => c._id) };
         }
 
-        return models.ProductRules.find({ _id: { $in: _ids } }).lean();
+        return models.Products.find(query).countDocuments();
       }),
-    }),
+    rules: t.router({
+      find: t.procedure
+        .meta(
+          agentMeta(
+            'Search products with a MongoDB-style filter plus pagination: { query?, sort?, skip?, limit?, fields?, categoryId?, categoryIds? }. categoryId/categoryIds automatically expand to include all child categories. Use products.findOne for a single known product and products.count for totals.',
+            { module: 'products', action: 'productsRead' },
+          ),
+        )
+        .input(z.any())
+        .query(async ({ ctx, input }) => {
+          const { models } = ctx;
+          const { _ids = [] } = input || {};
 
+          if (!_ids.length) {
+            return [];
+          }
+
+          return models.ProductRules.find({ _id: { $in: _ids } }).lean();
+        }),
+    }),
 
     setInventories: t.procedure
       .input(
@@ -255,6 +292,44 @@ export const productsTrpcRouter = t.router({
                 },
               },
               upsert: true,
+            },
+          })),
+        );
+      }),
+
+    replaceDiscounts: t.procedure
+      .input(
+        z.object({
+          productsInfo: z.array(
+            z.object({
+              productId: z.string(),
+              discounts: discountsSchema,
+            }),
+          ),
+        }),
+      )
+      .mutation(async ({ ctx, input }) => {
+        const { models } = ctx;
+        const { productsInfo } = input;
+
+        await models.Products.updateMany(
+          { discounts: { $exists: true } },
+          { $unset: { discounts: 1 } },
+        );
+
+        if (!productsInfo.length) {
+          return;
+        }
+
+        await models.Products.bulkWrite(
+          productsInfo.map((info) => ({
+            updateOne: {
+              filter: { _id: info.productId },
+              update: {
+                $set: {
+                  discounts: info.discounts,
+                },
+              },
             },
           })),
         );

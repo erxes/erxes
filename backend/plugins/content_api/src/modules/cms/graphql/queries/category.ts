@@ -59,10 +59,8 @@ class CategoryQueryResolver extends BaseQueryResolver {
     const { language } = args;
     const clientPortalId = args.clientPortalId || clientPortal?._id;
 
-    const query: any = {
-      clientPortalId,
-      status: 'active',
-    };
+    const queryBuilder = getQueryBuilder('category', models);
+    const query = queryBuilder.buildQuery({ ...args, clientPortalId });
 
     return this.getListWithTranslations(
       models.Categories,

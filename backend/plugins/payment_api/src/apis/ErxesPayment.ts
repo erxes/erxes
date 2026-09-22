@@ -74,7 +74,7 @@ class ErxesPayment {
       case 'toki':
         this.api = new TokiAPI(payment.config, this.domain);
         break;
-      case 'tdb':   
+      case 'tdb':
         this.api = new TDBAPI(payment.config, this.domain);
         break;
       default:
@@ -108,14 +108,21 @@ class ErxesPayment {
       ? Math.max(transaction.amount - details.monpayCoupon, 0)
       : transaction.amount;
 
-    // clone transaction safely instead of mutating
     const invoicePayload = {
       ...transaction,
+      _id: transaction._id,
       amount: invoiceAmount,
     };
 
+
     try {
-      return await this.api.createInvoice(invoicePayload, this.payment);
+      const response = await this.api.createInvoice(
+        invoicePayload,
+        this.payment,
+      );
+
+
+      return response;
     } catch (e: any) {
       return { error: extractErrorMessage(e) };
     }

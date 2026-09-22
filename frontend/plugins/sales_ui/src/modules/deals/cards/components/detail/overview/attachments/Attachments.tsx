@@ -1,6 +1,7 @@
 import FileAttachments from './FileAttachments';
-import MediaAttachments from './MediaAttachments';
+import { MediaAttachments } from './MediaAttachments';
 import { useAttachmentContext } from './AttachmentContext';
+import { useTranslation } from 'react-i18next';
 
 const fileTypes = [
   'text/plain',
@@ -16,8 +17,9 @@ const fileTypes = [
 // const audioTypes = ['audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/ogg'];
 // const videoTypes = ['video/mp4', 'video/webm', 'video/ogg'];
 
-const Attachments = () => {
+export const Attachments = () => {
   const { attachments } = useAttachmentContext();
+  const { t } = useTranslation('sales');
 
   if (attachments.length === 0) {
     return null;
@@ -29,25 +31,29 @@ const Attachments = () => {
   const fileAttachments = attachments.filter((attachment) =>
     fileTypes.includes(attachment.type),
   );
-  // const audioAttachments = attachments.filter((attachment) =>
-  //   audioTypes.includes(attachment.type),
-  // );
-  // const videoAttachments = attachments.filter((attachment) =>
-  //   videoTypes.includes(attachment.type),
-  // );
+
+  if (mediaAttachments.length === 0 && fileAttachments.length === 0) {
+    return null;
+  }
 
   return (
-    <div className="border-b">
-      <div className="flex flex-col">
-        {fileAttachments.length > 0 && (
-          <FileAttachments attachments={fileAttachments} />
-        )}
-        {mediaAttachments.length > 0 && (
+    <div className="flex flex-col">
+      {mediaAttachments.length > 0 && (
+        <div className="flex flex-col gap-4 py-4">
+          <span className="px-8 text-sm uppercase text-muted-foreground">
+            {t('media-attachments')}
+          </span>
           <MediaAttachments attachments={mediaAttachments} />
-        )}
-      </div>
+        </div>
+      )}
+      {fileAttachments.length > 0 && (
+        <div className="flex flex-col gap-2 px-8 py-4">
+          <span className="text-sm uppercase text-muted-foreground">
+            {t('file-attachments')}
+          </span>
+          <FileAttachments attachments={fileAttachments} />
+        </div>
+      )}
     </div>
   );
 };
-
-export default Attachments;

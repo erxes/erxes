@@ -5,6 +5,7 @@ import {
   IconLayoutGrid,
 } from '@tabler/icons-react';
 import { Button, Checkbox, Dialog, Input, Label } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import type { ItineraryPdfLabels } from '../../itinerary/pdf/types';
 import type { TourPdfLabels, TourPdfRenderConfig } from './types';
 
@@ -252,6 +253,7 @@ export const CustomizeTourPdfDialog: React.FC<CustomizeTourPdfDialogProps> = ({
   onItineraryLabelChange,
   onReset,
 }) => {
+  const { t } = useTranslation('tourism');
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <Dialog.Content className="max-w-5xl p-0 overflow-hidden">
@@ -259,18 +261,17 @@ export const CustomizeTourPdfDialog: React.FC<CustomizeTourPdfDialogProps> = ({
           <section className="min-h-0 overflow-y-auto bg-background">
             <Dialog.Header className="px-6 py-6 border-b bg-muted/30">
               <Dialog.Title className="text-xl">
-                Customize Tour PDF
+                {t('customize-tour-pdf')}
               </Dialog.Title>
               <Dialog.Description className="max-w-xl text-sm leading-6">
-                Control which tour sections appear and rename the built-in text
-                used in the exported PDF.
+                {t('customize-tour-pdf-desc')}
               </Dialog.Description>
             </Dialog.Header>
 
             <div className="px-6 py-5 space-y-4">
               <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
                 <IconLayoutGrid size={14} />
-                Visible Sections
+                {t('visible-sections')}
               </div>
 
               <div className="grid gap-3">
@@ -308,7 +309,7 @@ export const CustomizeTourPdfDialog: React.FC<CustomizeTourPdfDialogProps> = ({
               <div className="pt-2">
                 <div className="mb-3 flex items-center gap-2 text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
                   <IconLayoutGrid size={14} />
-                  Attached Itinerary
+                  {t('attached-itinerary')}
                 </div>
 
                 <div className="grid gap-3">
@@ -350,11 +351,10 @@ export const CustomizeTourPdfDialog: React.FC<CustomizeTourPdfDialogProps> = ({
             <div className="px-6 py-6 border-b bg-background/70 backdrop-blur">
               <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
                 <IconForms size={14} />
-                Static Text
+                {t('static-text')}
               </div>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                Update the built-in labels used in the cover, overview, and
-                pricing sections.
+                {t('update-built-in-labels')}
               </p>
             </div>
 
@@ -362,7 +362,7 @@ export const CustomizeTourPdfDialog: React.FC<CustomizeTourPdfDialogProps> = ({
               <div className="px-4 py-4 border shadow-sm rounded-2xl border-border/60 bg-background">
                 <div className="mb-4 flex items-center gap-2 text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
                   <IconFileDescription size={14} />
-                  Tour Labels
+                  {t('tour-labels')}
                 </div>
 
                 <div className="space-y-4">
@@ -388,7 +388,7 @@ export const CustomizeTourPdfDialog: React.FC<CustomizeTourPdfDialogProps> = ({
               <div className="px-4 py-4 border shadow-sm rounded-2xl border-border/60 bg-background">
                 <div className="mb-4 flex items-center gap-2 text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
                   <IconFileDescription size={14} />
-                  Itinerary Labels
+                  {t('itinerary-labels')}
                 </div>
 
                 <div className="space-y-4">
@@ -413,18 +413,17 @@ export const CustomizeTourPdfDialog: React.FC<CustomizeTourPdfDialogProps> = ({
 
               <div className="px-4 py-4 border border-dashed rounded-2xl border-border/70 bg-background/70">
                 <p className="text-sm leading-6 text-muted-foreground">
-                  Preview refreshes automatically when these values change.
-                  Short labels usually fit best in the exported layout.
+                  {t('preview-refreshes-auto')}
                 </p>
               </div>
             </div>
 
             <Dialog.Footer className="sticky bottom-0 px-6 py-4 border-t bg-background/95 backdrop-blur">
               <Button variant="outline" onClick={onReset}>
-                Reset to defaults
+                {t('reset-to-defaults')}
               </Button>
               <Button variant="outline" onClick={() => onOpenChange(false)}>
-                Close
+                {t('close')}
               </Button>
             </Dialog.Footer>
           </aside>

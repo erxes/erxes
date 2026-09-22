@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Form, Input, Tabs } from 'erxes-ui';
 import { UseFormReturn } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { LanguageSelector } from '~/modules/cms/shared/LanguageSelector';
 import { MediaSection } from '~/modules/cms/posts/components/add-post-form/MediaSection';
 import { SelectParentPage } from './SelectParentPage';
@@ -30,20 +31,23 @@ const SidebarTabs = ({
 }: {
   activeTab: string;
   onTabChange: (v: string) => void;
-}) => (
+}) => {
+  const { t } = useTranslation('content');
+  return (
   <Tabs value={activeTab} onValueChange={onTabChange}>
     <Tabs.List className="border-none">
       <div className="flex justify-evenly items-center gap-4">
         <Tabs.Trigger value="content" className="w-full">
-          Content
+          {t('content')}
         </Tabs.Trigger>
         <Tabs.Trigger value="media" className="w-full">
-          Media
+          {t('media')}
         </Tabs.Trigger>
       </div>
     </Tabs.List>
   </Tabs>
-);
+  );
+};
 
 const ContentTab = ({
   form,
@@ -56,7 +60,9 @@ const ContentTab = ({
   isTranslationMode,
 }: Omit<PageSidebarPanelProps, 'form'> & {
   form: UseFormReturn<IPageFormData>;
-}) => (
+}) => {
+  const { t } = useTranslation('content');
+  return (
   <>
     {availableLanguages.length > 0 && (
       <LanguageSelector
@@ -71,7 +77,7 @@ const ContentTab = ({
       name="parentId"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>Parent Page</Form.Label>
+          <Form.Label>{t('parent-page')}</Form.Label>
           <SelectParentPage.FormItem
             value={field.value}
             onValueChange={field.onChange}
@@ -89,10 +95,10 @@ const ContentTab = ({
       render={({ field }) => (
         <Form.Item>
           <Form.Label>
-            Slug
+            {t('slug')}
             {isTranslationMode && (
               <span className="ml-2 text-xs text-gray-500">
-                (shared across languages)
+                ({t('shared-across-languages')})
               </span>
             )}
           </Form.Label>
@@ -104,7 +110,8 @@ const ContentTab = ({
       )}
     />
   </>
-);
+  );
+};
 
 export const PageSidebarPanel = (props: PageSidebarPanelProps) => {
   const [activeTab, setActiveTab] = useState<'content' | 'media'>('content');

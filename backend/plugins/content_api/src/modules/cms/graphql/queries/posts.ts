@@ -15,6 +15,7 @@ import {
   requireCmsPermission,
 } from '@/cms/utils/permissions';
 import { CMS_POST_ACTIONS } from '~/meta/permissions';
+import { assertCmsAccessByClientPortal } from '@/cms/utils/cms-access';
 
 const applyFieldConstraint = (query: any, field: string, value: any) => {
   if (query[field] === undefined || query[field] === value) {
@@ -282,9 +283,16 @@ class PostQueryResolver extends BaseQueryResolver {
    */
   async cmsPosts(_parent: any, args: any, context: IContext): Promise<any> {
     const { language, clientPortalId } = args;
+
+    await assertCmsAccessByClientPortal(context, clientPortalId);
+
     const { models } = context;
 
-    const readAccess = await getCmsReadAccess(context, clientPortalId, language);
+    const readAccess = await getCmsReadAccess(
+      context,
+      clientPortalId,
+      language,
+    );
 
     const queryBuilder = getQueryBuilder('post', models);
     const query = await queryBuilder.buildQuery({ ...args, clientPortalId });
@@ -308,7 +316,11 @@ class PostQueryResolver extends BaseQueryResolver {
     const { models } = context;
     const { _id, count, slug, identifier, language, clientPortalId } = args;
 
-    const readAccess = await getCmsReadAccess(context, clientPortalId, language);
+    const readAccess = await getCmsReadAccess(
+      context,
+      clientPortalId,
+      language,
+    );
 
     const query = await this.buildPostLookupQuery(
       { _id, count, slug, identifier, clientPortalId },
@@ -336,7 +348,13 @@ class PostQueryResolver extends BaseQueryResolver {
     const { language, clientPortalId } = args;
     const { models } = context;
 
-    const readAccess = await getCmsReadAccess(context, clientPortalId, language);
+    await assertCmsAccessByClientPortal(context, clientPortalId);
+
+    const readAccess = await getCmsReadAccess(
+      context,
+      clientPortalId,
+      language,
+    );
 
     const queryBuilder = getQueryBuilder('post', models);
     const query = await queryBuilder.buildQuery({ ...args, clientPortalId });
@@ -417,7 +435,11 @@ class PostQueryResolver extends BaseQueryResolver {
     const { models } = context;
     const { clientPortalId, days, limit, language, webId, type } = args;
 
-    const readAccess = await getCmsReadAccess(context, clientPortalId, language);
+    const readAccess = await getCmsReadAccess(
+      context,
+      clientPortalId,
+      language,
+    );
 
     return this.findMostViewedPosts(
       {

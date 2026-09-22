@@ -1,20 +1,22 @@
 import { Sidebar } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router-dom';
 
 const steps = [
-  { value: 'tour', title: 'Tour' },
-  { value: 'category', title: 'Category' },
-  { value: 'itinerary', title: 'Itinerary' },
-  { value: 'elements', title: 'Elements' },
-  { value: 'amenities', title: 'Amenities' },
-  { value: 'customFields', title: 'Custom Fields' },
+  { value: 'tour', title: 'tour' },
+  { value: 'category', title: 'category' },
+  { value: 'itinerary', title: 'itinerary' },
+  { value: 'elements', title: 'elements' },
+  { value: 'amenities', title: 'amenities' },
+  { value: 'customFields', title: 'custom-fields' },
 ];
 
 export const BranchSideBar = ({ activeTab }: { activeTab: string }) => {
+  const { t } = useTranslation('tourism');
   return (
     <Sidebar collapsible="none" className="flex-none border-r">
       <Sidebar.Group>
-        <Sidebar.GroupLabel>Tour Management</Sidebar.GroupLabel>
+        <Sidebar.GroupLabel>{t('tour-management')}</Sidebar.GroupLabel>
         <Sidebar.GroupContent>
           <Sidebar.Menu>
             {steps.map((step) => (
@@ -23,7 +25,7 @@ export const BranchSideBar = ({ activeTab }: { activeTab: string }) => {
                 to={step.value}
                 isActive={activeTab === step.value}
               >
-                {step.title}
+                {t(step.title)}
               </BranchSidebarItem>
             ))}
           </Sidebar.Menu>

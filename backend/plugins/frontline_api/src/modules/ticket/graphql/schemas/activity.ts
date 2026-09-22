@@ -1,9 +1,19 @@
 import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
 
 export const types = `
+    type TicketActivityFormField {
+        label: String
+        value: JSON
+    }
+
     type TicketActivityMetadata {
         newValue: String
         previousValue: String
+        conversationId: String
+        ticketId: String
+        formId: String
+        formTitle: String
+        submissions: [TicketActivityFormField]
     }
 
     type TicketActivity {

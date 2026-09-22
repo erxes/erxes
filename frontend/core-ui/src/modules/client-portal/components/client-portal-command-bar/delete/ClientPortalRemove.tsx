@@ -18,8 +18,7 @@ export const ClientPortalRemove = ({
   return (
     <Can action="clientPortalManage">
       <Button
-        variant="secondary"
-        className="text-destructive"
+        variant="destructive"
         onClick={() =>
           confirm({
             message: `Are you sure you want to delete the ${clientPortalIds.length} selected client portal?`,

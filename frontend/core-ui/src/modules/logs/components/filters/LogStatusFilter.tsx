@@ -3,45 +3,57 @@ import {
   IconProgressCheck,
   IconProgressX,
 } from '@tabler/icons-react';
-import { Command, Combobox, useMultiQueryState } from 'erxes-ui';
+import {
+  Combobox,
+  Command,
+  useFilterContext,
+  useMultiQueryState,
+} from 'erxes-ui';
 
-export const LogStatusFilter = () => {
+import { ILogStatusType } from '@/logs/types';
+
+const LOG_STATUS_OPTIONS = [
+  {
+    value: ILogStatusType.SUCCESS,
+    label: 'Success',
+    icon: IconProgressCheck,
+  },
+  {
+    value: ILogStatusType.FAILED,
+    label: 'Failed',
+    icon: IconProgressX,
+  },
+] as const;
+
+export const LogStatusFilter = ({
+  onValueChange,
+}: {
+  onValueChange?: () => void;
+}) => {
   const [queries, setQueries] = useMultiQueryState<{
     status: string;
     statusOperator: string;
   }>(['status', 'statusOperator']);
   const { status } = queries;
+  const { resetFilterState } = useFilterContext();
 
   return (
     <Command shouldFilter={false}>
-      <Command.List className="p-1 ">
+      <Command.List className="p-1">
         <Combobox.Empty />
-        {[
-          {
-            value: 'success',
-            className:
-              'bg-success/10 data-[selected=true]:bg-success/20 text-success border-success/10',
-            icon: IconProgressCheck,
-            label: 'Success',
-          },
-          {
-            value: 'failed',
-            className:
-              'mt-2 bg-destructive/10 data-[selected=true]:bg-destructive/20 text-destructive border-destructive/10',
-            icon: IconProgressX,
-            label: 'Failed',
-          },
-        ].map(({ value, className, icon: Icon, label }) => (
+        {LOG_STATUS_OPTIONS.map(({ value, label, icon: Icon }) => (
           <Command.Item
             key={value}
             value={value}
-            className={`cursor-pointer ${className}`}
-            onSelect={() =>
+            className="cursor-pointer"
+            onSelect={() => {
               setQueries({
                 status: value === status ? null : value,
                 statusOperator: null,
-              })
-            }
+              });
+              resetFilterState();
+              onValueChange?.();
+            }}
           >
             <Icon />
             {label}

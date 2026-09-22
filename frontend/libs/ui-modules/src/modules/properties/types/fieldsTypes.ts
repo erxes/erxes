@@ -1,3 +1,29 @@
+export type TObjectListFieldConfig = {
+  key: string;
+  label: string;
+  type: 'text' | 'textarea';
+};
+
+export type TFieldSelectionConfig = {
+  queryName?: string;
+  labelField?: string;
+  valueField?: string;
+  multi?: boolean;
+  component?: string;
+  objectListConfigs?: TObjectListFieldConfig[];
+  [key: string]: unknown;
+};
+
+export type LogicAction = 'show' | 'hide';
+export type LogicOperator = 'is' | 'isNot';
+
+export interface IFieldLogicRule {
+  field: string;
+  operator: LogicOperator | string;
+  value: string;
+  action: LogicAction | string;
+}
+
 export type IField = {
   _id: string;
   name: string;
@@ -6,14 +32,24 @@ export type IField = {
   type: string;
   group?: string;
   groupId?: string;
-  logics?: Record<string, any>;
+  logics?: IFieldLogicRule[] | Record<string, unknown>;
   relationType?: string;
   multiple?: boolean;
   icon?: string;
-  configs?: Record<string, any>;
-  validation?: any;
+  configs?: TFieldSelectionConfig;
+  selectionConfig?: TFieldSelectionConfig;
+  validation?: unknown;
+  validations?: Record<string, unknown>;
   selectOptions?: Array<{ label: string; value: string }>;
+  isVisible?: boolean;
+  isVisibleToCreate?: boolean;
+  isRequired?: boolean;
+  isVisibleInCard?: boolean;
 };
+
+export interface IPropertyRow extends Record<string, unknown> {
+  _id: string;
+}
 
 export interface IFieldGroup {
   _id: string;
@@ -22,8 +58,8 @@ export interface IFieldGroup {
   description: string;
   contentType: string;
   order: number;
-  logics?: Record<string, any>;
-  configs?: Record<string, any>;
+  logics?: Record<string, unknown>;
+  configs?: Record<string, unknown>;
 }
 
 export type mutateFunction = (

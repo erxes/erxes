@@ -2,12 +2,13 @@ import { CellContext } from '@tanstack/react-table';
 import { IIntegrationDetail } from '@/integrations/types/Integration';
 import { Switch, Tooltip } from 'erxes-ui';
 import { IconEdit } from '@tabler/icons-react';
-import { useAtom, useSetAtom } from 'jotai';
+import { useSetAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 import { callEditSheetAtom } from '@/integrations/call/states/callEditSheetAtom';
 import { CallIntegrationSheetEdit } from '@/integrations/call/components/CallIntegrationEdit';
 import { CallIntegrationAddSheet } from '@/integrations/call/components/CallIntegrationAdd';
 import { useCallUserIntegration } from '@/integrations/call/hooks/useCallUserIntegration';
-import { callConfigAtom } from '@/integrations/call/states/sipStates';
+import { useCallEnabledIntegrations } from '@/integrations/call/hooks/useCallEnabledIntegrations';
 
 export const CallIntegrationDetail = () => {
   return (
@@ -23,6 +24,7 @@ export const CallIntegrationActions = ({
 }: {
   cell: CellContext<IIntegrationDetail, unknown>;
 }) => {
+  const { t } = useTranslation('frontline');
   const setEditId = useSetAtom(callEditSheetAtom);
 
   return (
@@ -33,7 +35,7 @@ export const CallIntegrationActions = ({
         className="flex items-center gap-2 w-full"
       >
         <IconEdit size={16} />
-        Edit
+        {t('edit')}
       </div>
     </>
   );
@@ -44,8 +46,9 @@ export const CallIntegrationConnect = ({
 }: {
   integrationId: string;
 }) => {
-  const [callConfig, setCallConfig] = useAtom(callConfigAtom);
+  const { t } = useTranslation('frontline');
   const { callUserIntegrations } = useCallUserIntegration();
+  const { isEnabled, toggleIntegration } = useCallEnabledIntegrations();
 
   const integration = callUserIntegrations?.find(
     (integration) => integration.inboxId === integrationId,
@@ -55,25 +58,18 @@ export const CallIntegrationConnect = ({
     return null;
   }
 
-  const handleChange = (checked: boolean) => {
-    setCallConfig({
-      ...integration,
-      isAvailable: checked,
-    });
-  };
-
   return (
     <Tooltip.Provider>
       <Tooltip>
         <Tooltip.Trigger asChild>
           <Switch
-            checked={
-              callConfig?.inboxId === integrationId && callConfig.isAvailable
+            checked={isEnabled(integrationId)}
+            onCheckedChange={(checked) =>
+              toggleIntegration(integration, checked)
             }
-            onCheckedChange={handleChange}
           />
         </Tooltip.Trigger>
-        <Tooltip.Content>Connect to call</Tooltip.Content>
+        <Tooltip.Content>{t('connect-to-call')}</Tooltip.Content>
       </Tooltip>
     </Tooltip.Provider>
   );

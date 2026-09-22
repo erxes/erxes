@@ -29,7 +29,7 @@ export const clientPortalColumns: ColumnDef<IClientPortal>[] = [
   clientPortalMoreColumn,
   {
     ...RecordTable.checkboxColumn,
-    size: 20,
+    size: 33,
   } as ColumnDef<IClientPortal>,
 
   {

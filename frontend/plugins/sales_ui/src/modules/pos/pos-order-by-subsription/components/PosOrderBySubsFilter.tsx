@@ -13,6 +13,7 @@ import { usePosOrderBySubsLeadSessionKey } from '../hooks/usePosOrderBySubsLeadS
 import { PosOrderBySubsTotalCount } from './PosOrderBySubsTotalCount';
 import { PosOrderBySubsHotKeyScope } from '../types/path/PosOrderBySubsHotKeyScope';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const PosOrderBySubsFilterPopover = () => {
   const [queries] = useMultiQueryState<{
@@ -27,30 +28,31 @@ export const PosOrderBySubsFilterPopover = () => {
     (value) => value !== null,
   );
   const { resetFilterState } = useFilterContext();
+  const { t } = useTranslation('sales');
   return (
     <>
       <Filter.Popover scope={PosOrderBySubsHotKeyScope.PosOrderBySubsPage}>
-        <Filter.Trigger isFiltered={hasFilters}>Filter</Filter.Trigger>
+        <Filter.Trigger isFiltered={hasFilters}>{t('filter')}</Filter.Trigger>
         <Combobox.Content>
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder="Filter"
+                placeholder={t('filter')}
                 variant="secondary"
                 className="bg-background"
               />
               <Command.List className="p-1 max-h-none">
                 <Filter.Item value="customer">
                   <IconCashRegister />
-                  Customer
+                  {t('customer')}
                 </Filter.Item>
                 <Filter.Item value="company">
                   <IconBuilding />
-                  Company
+                  {t('company')}
                 </Filter.Item>
                 <Filter.Item value="user">
                   <IconUser />
-                  Assign to
+                  {t('assign-to')}
                 </Filter.Item>
               </Command.List>
             </Command>
@@ -104,6 +106,7 @@ export const PosOrderBySubsFilter = () => {
   const [company, setCompany] = useQueryState<string>('company');
   const [user, setUser] = useQueryState<string>('user');
   const [open, setOpen] = useState<boolean>(false);
+  const { t } = useTranslation('sales');
   return (
     <Filter id="pos-order-by-subs-filter" sessionKey={sessionKey}>
       <Filter.Bar>
@@ -111,7 +114,7 @@ export const PosOrderBySubsFilter = () => {
         <Filter.BarItem queryKey={'customer'}>
           <Filter.BarName>
             <IconUser />
-            Customer
+            {t('customer')}
           </Filter.BarName>
           <SelectCustomer.Provider
             mode="single"
@@ -136,7 +139,7 @@ export const PosOrderBySubsFilter = () => {
         <Filter.BarItem queryKey={'company'}>
           <Filter.BarName>
             <IconBuilding />
-            Company
+            {t('company')}
           </Filter.BarName>
           <SelectCompany.Provider
             mode="single"
@@ -161,7 +164,7 @@ export const PosOrderBySubsFilter = () => {
         <Filter.BarItem queryKey="user">
           <Filter.BarName>
             <IconUser />
-            Assign To
+            {t('assign-to')}
           </Filter.BarName>
           <SelectMember.Provider
             mode="single"

@@ -1,27 +1,31 @@
+import { IChannelMember } from '@/channels/types';
 import { Row } from '@tanstack/table-core';
 import { CommandBar, RecordTable, Separator } from 'erxes-ui';
-import { MemberRemoveButtonCommandBar } from './MemberRemoveButton';
 import { useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { MemberRemoveButtonCommandBar } from './MemberRemoveButton';
+
 export const MemberCommandBar = () => {
+  const { t } = useTranslation('frontline');
   const { table } = RecordTable.useRecordTable();
   const { id: channelId } = useParams<{ id: string }>();
 
-  const memberIds = table
-    .getFilteredSelectedRowModel()
-    .rows.map((row: Row<any>) => row.original.memberId);
+  const rows = table.getFilteredSelectedRowModel()
+    .rows as Row<IChannelMember>[];
 
-  const isSelected = table.getFilteredSelectedRowModel().rows.length > 0;
   return (
-    <CommandBar open={isSelected}>
+    <CommandBar open={rows.length > 0}>
       <CommandBar.Bar>
-        <CommandBar.Value>
-          {table.getFilteredSelectedRowModel().rows.length} selected
+        <CommandBar.Value onClose={() => table.setRowSelection({})}>
+          {t('n-selected', {
+            defaultValue: '{{count}} selected',
+            count: rows.length,
+          })}
         </CommandBar.Value>
         <Separator.Inline />
         <MemberRemoveButtonCommandBar
-          memberIds={memberIds}
+          memberIds={rows.map((row) => row.original.memberId)}
           channelId={channelId || ''}
-          rows={table.getFilteredSelectedRowModel().rows}
         />
       </CommandBar.Bar>
     </CommandBar>

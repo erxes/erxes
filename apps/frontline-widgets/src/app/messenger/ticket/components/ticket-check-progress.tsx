@@ -23,7 +23,6 @@ import {
   Textarea,
   cn,
   Card,
-  Tabs,
   Tooltip,
 } from 'erxes-ui';
 import { useCallback, useEffect, useState } from 'react';
@@ -49,6 +48,7 @@ export const TicketCheckProgress = ({
   const [userTicketCreatedNumber, setUserTicketCreatedNumber] = useAtom(
     userTicketCreatedNumberAtom,
   );
+
 
   useEffect(() => {
     if (userTicketCreatedNumber) {
@@ -387,39 +387,25 @@ export const TicketStatusInlineValue = ({
     return null;
   }
 
-  const iconElement = (
-    <StatusIconComponent
-      {...props}
-      color={status.color}
-      style={!hasName ? {
-        backgroundColor: `${status.color}25`,
-      } : undefined}
-      className={cn('size-6 flex-none rounded-sm p-1', colorClassName)}
-    />
-  );
-
-  if (hasName) {
-    return (
-      <div
-        className="flex items-center gap-2 rounded-sm shadow-xs w-min pe-2"
-      >
-        <Tooltip.Provider>
-          <Tooltip>
-            <Tooltip.Trigger>{iconElement}</Tooltip.Trigger>
-            <Tooltip.Content>
-              <p className="capitalize">{status.name}</p>
-            </Tooltip.Content>
-          </Tooltip>
-        </Tooltip.Provider>
-        <p className="font-medium text-sm capitalize">{status.name}</p>
-      </div>
-    );
-  }
+  const iconElement = <StatusIconComponent {...props} className='size-4' color={status.color} />;
 
   return (
     <Tooltip.Provider>
       <Tooltip>
-        <Tooltip.Trigger>{iconElement}</Tooltip.Trigger>
+        <Tooltip.Trigger asChild>
+          <div
+            className={cn(
+              'flex items-center gap-2 flex-none rounded-sm p-1',
+              colorClassName,
+            )}
+            style={{
+              backgroundColor: `${status.color}25`,
+            }}
+          >
+            {iconElement}
+            {hasName ? status.name : null}
+          </div>
+        </Tooltip.Trigger>
         <Tooltip.Content>
           <p className="capitalize">{status.name}</p>
         </Tooltip.Content>

@@ -1,15 +1,8 @@
 import { Cell } from '@tanstack/react-table';
-import {
-  Button,
-  Combobox,
-  Command,
-  Popover,
-  RecordTable,
-  useConfirm,
-  useToast,
-} from 'erxes-ui';
-import { IconEdit, IconTrash } from '@tabler/icons-react';
+import { RecordTable, useConfirm, useToast } from 'erxes-ui';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { LoyaltyMoreActions } from '~/modules/loyalties/components/LoyaltyMoreActions';
 import { useDeleteAgent } from '../hooks/useDeleteAgent';
 import { IAgent } from '../types/agent';
 import { AgentEditSheet } from './AgentEditSheet';
@@ -24,18 +17,19 @@ export const AgentMoreColumnCell = ({
   const { deleteAgent, loading } = useDeleteAgent();
   const { confirm } = useConfirm();
   const { toast } = useToast();
+  const { t } = useTranslation('loyalty');
   const confirmationValue = 'delete';
   const handleDelete = () => {
     if (!agent._id) return;
 
     confirm({
       options: { confirmationValue },
-      message: 'Are you sure you want to delete this agent?',
+      message: t('delete-agent-confirm', { count: 1 }),
     }).then(() => {
       deleteAgent(agent._id).catch(() => {
         toast({
-          title: 'Error',
-          description: 'Failed to delete agent',
+          title: t('error'),
+          description: t('failed-to-delete-agent'),
           variant: 'destructive',
         });
       });
@@ -43,37 +37,13 @@ export const AgentMoreColumnCell = ({
   };
 
   return (
-    <>
-      <Popover>
-        <Popover.Trigger asChild>
-          <RecordTable.MoreButton className="w-full h-full" />
-        </Popover.Trigger>
-        <Combobox.Content
-          align="start"
-          className="w-[280px] min-w-0 [&>button]:cursor-pointer"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <Command>
-            <Command.List>
-              <Command.Item value="edit" onSelect={() => setEditOpen(true)}>
-                <IconEdit /> Edit
-              </Command.Item>
-              <Command.Item asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="w-full justify-start h-8"
-                  onClick={handleDelete}
-                  disabled={loading}
-                >
-                  <IconTrash className="size-4" />
-                  Delete
-                </Button>
-              </Command.Item>
-            </Command.List>
-          </Command>
-        </Combobox.Content>
-      </Popover>
+    <LoyaltyMoreActions
+      editLabel={t('edit')}
+      deleteLabel={t('delete')}
+      deleteLoading={loading}
+      onEdit={() => setEditOpen(true)}
+      onDelete={handleDelete}
+    >
       {editOpen && (
         <AgentEditSheet
           agent={agent}
@@ -81,12 +51,13 @@ export const AgentMoreColumnCell = ({
           onOpenChange={setEditOpen}
         />
       )}
-    </>
+    </LoyaltyMoreActions>
   );
 };
 
 export const agentMoreColumn = {
   id: 'more',
+  header: () => <RecordTable.ColumnSelector />,
   cell: AgentMoreColumnCell,
-  size: 25,
+  size: 33,
 };

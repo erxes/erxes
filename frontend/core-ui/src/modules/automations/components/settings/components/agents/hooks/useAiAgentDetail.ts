@@ -4,10 +4,12 @@ import {
   AUTOMATIONS_AI_AGENT_ADD,
   AUTOMATIONS_AI_AGENT_DETAIL,
   AUTOMATIONS_AI_AGENT_EDIT,
+  AUTOMATIONS_AI_AGENT_KNOWLEDGE_SOURCE_STATUSES,
   AUTOMATIONS_AI_AGENT_TOTAL_COUNTS,
 } from '@/automations/components/settings/components/agents/graphql/automationsAiAgents';
+import { AutomationSettingsPath } from '@/types/paths/AutomationPath';
 import { toast } from 'erxes-ui';
-import { useParams } from 'react-router';
+import { useLocation, useNavigate, useParams } from 'react-router';
 
 export interface AiAgentInput {
   name?: string;
@@ -33,15 +35,28 @@ export interface AiAgentInput {
   context?: {
     systemPrompt?: string;
     files?: unknown;
+    knowledgeSources?: Array<{
+      pluginName: string;
+      moduleName: string;
+      key: string;
+      sourceIds: string[];
+    }>;
+  };
+  usage?: {
+    total: number;
+    active: number;
+    automations: Array<{ _id: string; name: string; status: string }>;
   };
 }
 
-export function useAiAgentDetail() {
+export function useAiAgentDetail({ skip = false }: { skip?: boolean } = {}) {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const { search } = useLocation();
 
   const { data, loading } = useQuery(AUTOMATIONS_AI_AGENT_DETAIL, {
     variables: { id },
-    skip: !id,
+    skip: !id || skip,
   });
 
   const [addMutation, { loading: adding }] = useMutation(
@@ -62,7 +77,21 @@ export function useAiAgentDetail() {
 
       const res = await mutation({
         variables: id ? { ...input, id } : input,
-        refetchQueries: [AUTOMATIONS_AI_AGENT_TOTAL_COUNTS],
+        refetchQueries: [
+          AUTOMATIONS_AI_AGENT_TOTAL_COUNTS,
+          ...(id
+            ? [
+                {
+                  query: AUTOMATIONS_AI_AGENT_DETAIL,
+                  variables: { id },
+                },
+                {
+                  query: AUTOMATIONS_AI_AGENT_KNOWLEDGE_SOURCE_STATUSES,
+                  variables: { agentId: id },
+                },
+              ]
+            : []),
+        ],
         onError: ({ message }) => {
           toast({
             title: 'Something went wrong',
@@ -78,9 +107,20 @@ export function useAiAgentDetail() {
         },
       });
 
-      return res?.data?.[responseFieldName];
+      const savedAgent = res?.data?.[responseFieldName];
+
+      // After a create, switch to the new agent's edit route so the form
+      // binds to the saved record instead of staying on the blank create page.
+      if (!id && savedAgent?._id) {
+        navigate(
+          `${AutomationSettingsPath.Agents}/${savedAgent._id}${search}`,
+          { replace: true },
+        );
+      }
+
+      return savedAgent;
     },
-    [addMutation, editMutation, id],
+    [addMutation, editMutation, id, navigate, search],
   );
 
   return {

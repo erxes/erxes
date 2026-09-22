@@ -2,6 +2,7 @@ import { ADD_PIPELINE_LABEL, EDIT_PIPELINE_LABEL, LABEL_PIPELINE_LABEL, REMOVE_P
 import { GET_PIPELINE_LABELS, GET_PIPELINE_LABEL_DETAIL } from "@/deals/graphql/queries/PipelinesQueries";
 import { MutationHookOptions, QueryHookOptions, useMutation, useQuery } from "@apollo/client";
 import { toast, useQueryState } from "erxes-ui";
+import { useTranslation } from "react-i18next";
 
 import { IPipelineLabel } from "@/deals/types/pipelines";
 
@@ -38,8 +39,9 @@ export const usePipelineLabels = (
 }
 
 export const usePipelineLabelAdd = (options?: MutationHookOptions<any, any>) => {
+  const { t } = useTranslation('sales');
   const [pipelineId] = useQueryState('pipelineId');
-  
+
     const [addPipelineLabel, { loading, error }] = useMutation(ADD_PIPELINE_LABEL, {
       ...options,
       variables: {
@@ -58,15 +60,15 @@ export const usePipelineLabelAdd = (options?: MutationHookOptions<any, any>) => 
       awaitRefetchQueries: true,
       onCompleted: (...args) => {
         toast({
-          title: 'Successfully added a label',
+          title: t('label-added'),
           variant: 'default',
         });
         options?.onCompleted?.(...args);
       },
       onError: (err) => {
         toast({
-          title: 'Error',
-          description: err.message || 'Label add failed',
+          title: t('error'),
+          description: err.message || t('label-add-failed'),
           variant: 'destructive',
         });
       },
@@ -80,8 +82,9 @@ export const usePipelineLabelAdd = (options?: MutationHookOptions<any, any>) => 
   }
 
   export const usePipelineLabelRemove = (options?: MutationHookOptions<any, any>) => {
+    const { t } = useTranslation('sales');
     const [pipelineId] = useQueryState('pipelineId');
-    
+
     const [removePipelineLabel, { loading, error }] = useMutation(REMOVE_PIPELINE_LABEL, {
       ...options,
       variables: {
@@ -100,15 +103,15 @@ export const usePipelineLabelAdd = (options?: MutationHookOptions<any, any>) => 
       awaitRefetchQueries: true,
       onCompleted: (...args) => {
         toast({
-          title: 'Successfully removed a label',
+          title: t('label-removed'),
           variant: 'default',
         });
         options?.onCompleted?.(...args);
       },
       onError: (err) => {
         toast({
-          title: 'Error',
-          description: err.message || 'Label remove failed',
+          title: t('error'),
+          description: err.message || t('label-remove-failed'),
           variant: 'destructive',
         });
       },
@@ -122,8 +125,9 @@ export const usePipelineLabelAdd = (options?: MutationHookOptions<any, any>) => 
   }
 
   export const usePipelineLabelEdit = (options?: MutationHookOptions<any, any>) => {
+    const { t } = useTranslation('sales');
     const [pipelineId] = useQueryState('pipelineId');
-    
+
     const [editPipelineLabel, { loading, error }] = useMutation(EDIT_PIPELINE_LABEL, {
       ...options,
       variables: {
@@ -142,15 +146,15 @@ export const usePipelineLabelAdd = (options?: MutationHookOptions<any, any>) => 
       awaitRefetchQueries: true,
       onCompleted: (...args) => {
         toast({
-          title: 'Successfully edited a label',
+          title: t('label-edited'),
           variant: 'default',
         });
         options?.onCompleted?.(...args);
       },
       onError: (err) => {
         toast({
-          title: 'Error',
-          description: err.message || 'Label edit failed',
+          title: t('error'),
+          description: err.message || t('label-edit-failed'),
           variant: 'destructive',
         });
       },
@@ -164,6 +168,7 @@ export const usePipelineLabelAdd = (options?: MutationHookOptions<any, any>) => 
   }
 
   export const usePipelineLabelLabel = (options?: MutationHookOptions<any, any>) => {
+    const { t } = useTranslation('sales');
     const [pipelineId] = useQueryState('pipelineId');
 
     const [labelPipelineLabel, { loading, error }] = useMutation(LABEL_PIPELINE_LABEL, {
@@ -183,15 +188,15 @@ export const usePipelineLabelAdd = (options?: MutationHookOptions<any, any>) => 
       awaitRefetchQueries: true,
       onCompleted: (...args) => {
         toast({
-          title: 'Successfully labeled a deal',
+          title: t('deal-labeled'),
           variant: 'default',
         });
         options?.onCompleted?.(...args);
       },
       onError: (err) => {
         toast({
-          title: 'Error',
-          description: err.message || 'Label label failed',
+          title: t('error'),
+          description: err.message || t('deal-label-failed'),
           variant: 'destructive',
         });
       },

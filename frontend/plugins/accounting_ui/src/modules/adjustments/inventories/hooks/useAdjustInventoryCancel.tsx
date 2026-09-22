@@ -1,6 +1,7 @@
 import { OperationVariables, useMutation } from '@apollo/client';
 import { ADJUST_INVENTORY_CANCEL } from '../graphql/adjustInventoryChange';
 import { toast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import {
   ADJUST_INVENTORY_DETAIL_QUERY,
   ADJUST_INVENTORY_DETAILS_QUERY,
@@ -11,6 +12,7 @@ export const useAdjustInventoryCancel = (
   adjustId: string,
   options?: OperationVariables,
 ) => {
+  const { t } = useTranslation('accounting');
   const [_cancelMutation, { loading }] = useMutation(
     ADJUST_INVENTORY_CANCEL,
     options,
@@ -25,7 +27,7 @@ export const useAdjustInventoryCancel = (
       },
       onError: (error: Error) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });
@@ -33,8 +35,8 @@ export const useAdjustInventoryCancel = (
       },
       onCompleted: (data) => {
         toast({
-          title: 'Success',
-          description: 'Inventory adjust running successfully',
+          title: t('success'),
+          description: t('inventory-adjust-running-successfully'),
         });
         options?.onCompleted?.(data);
       },

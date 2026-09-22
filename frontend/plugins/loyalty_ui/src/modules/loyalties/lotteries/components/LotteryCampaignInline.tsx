@@ -5,6 +5,7 @@ import {
   Tooltip,
 } from 'erxes-ui';
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   useLotteryCampaignInlineContext,
   LotteryCampaignInlineContext,
@@ -30,6 +31,7 @@ const LotteryCampaignInlineProvider = ({
   placeholder,
   updateLotteryCampaigns,
 }: LotteryCampaignInlineProps & { children?: React.ReactNode }) => {
+  const { t } = useTranslation('loyalty');
   const [currentLotteryCampaigns, setCurrentLotteryCampaigns] = useState<
     ILotteryCampaign[]
   >(lotteryCampaigns || []);
@@ -43,7 +45,7 @@ const LotteryCampaignInlineProvider = ({
       loading: false,
       lotteryCampaignId: normalizedLotteryCampaignId,
       placeholder: isUndefinedOrNull(placeholder)
-        ? 'Select lottery campaigns'
+        ? t('select-lottery-campaigns')
         : placeholder,
       updateLotteryCampaigns:
         updateLotteryCampaigns || setCurrentLotteryCampaigns,
@@ -64,6 +66,7 @@ const LotteryCampaignInlineProvider = ({
 };
 
 const LotteryCampaignInlineTitle = () => {
+  const { t } = useTranslation('loyalty');
   const { lotteryCampaignId, lotteryCampaigns, loading, placeholder } =
     useLotteryCampaignInlineContext();
 
@@ -88,7 +91,7 @@ const LotteryCampaignInlineTitle = () => {
   if (!campaign) {
     return (
       <span className="text-muted-foreground">
-        {placeholder ?? 'No campaign selected'}
+        {placeholder ?? t('no-campaign-selected')}
       </span>
     );
   }
@@ -96,7 +99,7 @@ const LotteryCampaignInlineTitle = () => {
   return (
     <Tooltip>
       <Tooltip.Trigger>
-        <TextOverflowTooltip value={campaign.title || 'Untitled Campaign'} />
+        <TextOverflowTooltip value={campaign.title || t('untitled-campaign')} />
       </Tooltip.Trigger>
       <Tooltip.Content>
         <p>{campaign.title}</p>

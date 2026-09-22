@@ -2,6 +2,7 @@ import { Button, Form, Input, Sheet, toast } from 'erxes-ui';
 import { useMutation } from '@apollo/client';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import {
   CMS_CUSTOM_POST_TYPE_ADD,
   CMS_CUSTOM_POST_TYPE_EDIT,
@@ -32,6 +33,7 @@ export function CustomTypeDrawer({
   onCreate,
   onUpdate,
 }: CustomTypeDrawerProps) {
+  const { t } = useTranslation('content');
   const isEditing = !!customType;
 
   const [addCustomPostType, { loading: creating }] = useMutation(
@@ -102,7 +104,7 @@ export function CustomTypeDrawer({
           },
         });
         if (onUpdate) await onUpdate();
-        toast({ title: 'Custom type updated' });
+        toast({ title: t('custom-type-updated') });
       } else {
         await addCustomPostType({
           variables: {
@@ -116,23 +118,22 @@ export function CustomTypeDrawer({
           },
         });
         if (onCreate) await onCreate(data);
-        toast({ title: 'Custom type created' });
+        toast({ title: t('custom-type-created') });
       }
       onClose();
     } catch (e: any) {
       const msg: string = e?.message || '';
-      let pretty = msg || 'Failed to create';
+      let pretty = msg || t('failed-to-create');
       if (/duplicate key/i.test(msg) || /already exists/i.test(msg)) {
-        pretty = 'Custom type code already exists for this site';
+        pretty = t('custom-type-code-already-exists');
       }
       if (/invalid characters/i.test(msg)) {
-        pretty =
-          'Code has invalid characters. Use only letters, numbers, and underscores';
+        pretty = t('custom-type-code-invalid-chars');
       }
       if (/system post type/i.test(msg)) {
-        pretty = 'Cannot use reserved system type codes (page, post, category)';
+        pretty = t('custom-type-reserved-code');
       }
-      toast({ title: 'Error', description: pretty, variant: 'destructive' });
+      toast({ title: t('error'), description: pretty, variant: 'destructive' });
     }
   };
 
@@ -141,7 +142,7 @@ export function CustomTypeDrawer({
       <Sheet.View className="sm:max-w-lg p-0 bg-background">
         <Sheet.Header className="border-b gap-3">
           <Sheet.Title>
-            {isEditing ? 'Edit Custom Type' : 'New Custom Type'}
+            {isEditing ? t('edit-custom-type') : t('new-custom-type')}
           </Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
@@ -156,11 +157,11 @@ export function CustomTypeDrawer({
               name="label"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Label</Form.Label>
+                  <Form.Label>{t('label')}</Form.Label>
                   <Form.Control>
                     <Input
                       {...field}
-                      placeholder="Enter label"
+                      placeholder={t('enter-label')}
                       required
                       onChange={(e) => {
                         field.onChange(e);
@@ -178,11 +179,11 @@ export function CustomTypeDrawer({
               name="pluralLabel"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Plural Label</Form.Label>
+                  <Form.Label>{t('plural-label')}</Form.Label>
                   <Form.Control>
                     <Input
                       {...field}
-                      placeholder="Enter plural label"
+                      placeholder={t('enter-plural-label')}
                       required
                     />
                   </Form.Control>
@@ -196,9 +197,9 @@ export function CustomTypeDrawer({
               name="description"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Description</Form.Label>
+                  <Form.Label>{t('description')}</Form.Label>
                   <Form.Control>
-                    <Input {...field} placeholder="Optional description" />
+                    <Input {...field} placeholder={t('optional-description')} />
                   </Form.Control>
                   <Form.Message />
                 </Form.Item>
@@ -210,7 +211,7 @@ export function CustomTypeDrawer({
               name="code"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Key</Form.Label>
+                  <Form.Label>{t('key')}</Form.Label>
                   <Form.Control>
                     <Input {...field} placeholder="custom_type_key" required />
                   </Form.Control>
@@ -221,16 +222,16 @@ export function CustomTypeDrawer({
 
             <div className="flex justify-end space-x-2">
               <Button onClick={onClose} variant="outline">
-                Cancel
+                {t('cancel')}
               </Button>
               <Button type="submit" disabled={creating || updating}>
                 {creating || updating
                   ? isEditing
-                    ? 'Saving…'
-                    : 'Creating…'
+                    ? t('saving')
+                    : t('creating')
                   : isEditing
-                  ? 'Save Changes'
-                  : 'Create'}
+                  ? t('save-changes')
+                  : t('create')}
               </Button>
             </div>
           </form>

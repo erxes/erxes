@@ -1,9 +1,11 @@
 import { useMutation } from '@apollo/client';
 import { useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { LOTTERIES_ADD_MUTATION } from '../graphql/mutations/mutations';
 
 export const useAddLottery = () => {
   const { toast } = useToast();
+  const { t } = useTranslation('loyalty');
 
   const [addLottery, { loading, error }] = useMutation(LOTTERIES_ADD_MUTATION, {
     refetchQueries: ['LotteriesMain'],
@@ -20,14 +22,14 @@ export const useAddLottery = () => {
       variables,
       onCompleted: () => {
         toast({
-          title: 'Success',
-          description: 'Lottery created successfully',
+          title: t('success'),
+          description: t('lottery-created'),
           variant: 'default',
         });
       },
       onError: (err) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: err.message,
           variant: 'destructive',
         });

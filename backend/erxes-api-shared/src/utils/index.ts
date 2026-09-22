@@ -1,9 +1,10 @@
 export * from './apollo';
+export * from './agent-tools';
 export * from './constants';
-export * from './elasticsearch';
 export * from './graphqlPubSub';
 export * from './headers';
 export * from './logs';
+export * from './knowledge';
 export * from './mongo';
 export * from './mq-worker';
 export * from './random';
@@ -23,3 +24,4 @@ export * from './bulkUtils';
 export * from './editor';
 export * from './errorClassifier';
 export * from './sentry-init';
+export * from './email';

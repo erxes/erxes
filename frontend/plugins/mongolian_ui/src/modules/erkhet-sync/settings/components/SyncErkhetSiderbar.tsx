@@ -1,8 +1,10 @@
 import { Sidebar } from 'erxes-ui';
 import { Link, useLocation } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import { SETTINGS_ROUTES } from '@/erkhet-sync/settings/constants/settingRoutes';
 
 export const SyncErkhetSidebar = () => {
+  const { t } = useTranslation('mongolian');
   return (
     <Sidebar collapsible="none" className="border-r flex-none w-[300px]">
       <Sidebar.Group>
@@ -10,7 +12,7 @@ export const SyncErkhetSidebar = () => {
           <Sidebar.Menu>
             {Object.entries(SETTINGS_ROUTES).map(([path, label]) => (
               <SyncErkhetSidebarItem key={path} to={path}>
-                {label}
+                {t(label)}
               </SyncErkhetSidebarItem>
             ))}
           </Sidebar.Menu>

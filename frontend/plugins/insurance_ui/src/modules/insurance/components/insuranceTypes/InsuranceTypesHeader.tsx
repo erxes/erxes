@@ -1,5 +1,6 @@
 import { IconSandbox, IconShieldCheck, IconPlus } from '@tabler/icons-react';
 import { Button } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { GenericHeader } from '../shared';
 
 interface InsuranceTypesHeaderProps {
@@ -9,17 +10,18 @@ interface InsuranceTypesHeaderProps {
 export const InsuranceTypesHeader = ({
   onCreateClick,
 }: InsuranceTypesHeaderProps) => {
+  const { t } = useTranslation('insurance');
   return (
     <GenericHeader
       icon={<IconShieldCheck />}
       parentIcon={<IconSandbox />}
-      parentLabel="Insurance"
+      parentLabel={t('insurance')}
       parentLink="/insurance/products"
-      currentLabel="Insurance Types"
+      currentLabel={t('insurance-types')}
       actions={
         <Button onClick={onCreateClick}>
           <IconPlus size={16} />
-          New Insurance Type
+          {t('new-insurance-type')}
         </Button>
       }
     />

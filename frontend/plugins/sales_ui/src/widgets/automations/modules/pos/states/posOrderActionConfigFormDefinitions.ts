@@ -7,6 +7,7 @@ export const posOrderActionConfigFormSchema = z.object({
   customerId: z.string().optional(),
   customerType: z.string().optional(),
   productIds: z.string().optional(),
+  items: z.string().optional(),
 });
 
 export type TPosOrderActionConfigForm = z.infer<

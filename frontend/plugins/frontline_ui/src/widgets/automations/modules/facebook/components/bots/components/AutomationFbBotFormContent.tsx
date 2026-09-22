@@ -1,43 +1,72 @@
-import { IconChevronDown, IconChevronUp, IconPlus } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import {
   Button,
   cn,
-  Collapsible,
   Form,
   Input,
-  Label,
-  Select,
   Separator,
   Sheet,
   Spinner,
-  Switch,
+  Tabs,
   toast,
 } from 'erxes-ui';
 import { useAtom } from 'jotai';
-import { useState } from 'react';
-import { FacebookMessageButtonsGenerator } from '~/widgets/automations/modules/facebook/components/action/components/FacebookMessageButtonsGenerator';
+import { useEffect } from 'react';
 import { FacebookBotPageSelectorSteps } from '~/widgets/automations/modules/facebook/components/bots/components/FacebookBotPageSelectorSteps';
 import { FacebookPageInfo } from '~/widgets/automations/modules/facebook/components/bots/components/FacebookPageInfo';
 import { useFacebookBotSave } from '~/widgets/automations/modules/facebook/components/bots/hooks/useFacebookBotForm';
-import { isOpenFacebookBotSecondarySheet } from '~/widgets/automations/modules/facebook/components/bots/states/facebookBotStates';
+import {
+  facebookBotFormTabState,
+  isOpenFacebookBotSecondarySheet,
+  TFacebookBotFormTab,
+} from '~/widgets/automations/modules/facebook/components/bots/states/facebookBotStates';
+import { FacebookBotAutomations } from '~/widgets/automations/modules/facebook/components/bots/components/FacebookBotAutomations';
+import { FacebookBotCommentActivity } from '~/widgets/automations/modules/facebook/components/bots/components/FacebookBotCommentActivity';
+import { FacebookBotProfileHealth } from '~/widgets/automations/modules/facebook/components/bots/components/FacebookBotProfileHealth';
+import { FacebookBotSettingsTab } from '~/widgets/automations/modules/facebook/components/bots/components/FacebookBotSettingsTab';
 import { useFbBotFormContext } from '../context/FbBotFormContext';
 import { AutomationBotFormEffect } from './AutomationBotFormEffect';
 
-export const AutomationFbBotFormContent = () => {
-  const { form } = useFbBotFormContext();
-  const [isOptionalOpen, setOptionalOpen] = useState(false);
-  const { onSave, onSaveloading } = useFacebookBotSave();
-  const [accountId, pageId] = form.watch(['accountId', 'pageId']);
+export const AutomationFbBotFormContent = ({
+  isPageFixed,
+}: {
+  // The page came from the caller, so the selector and its gate are dropped.
+  isPageFixed?: boolean;
+} = {}) => {
+  const { t } = useTranslation('frontline');
+  const { form, facebookMessengerBot } = useFbBotFormContext();
+  const [activeTab, setActiveTab] = useAtom(facebookBotFormTabState);
+  const { onSave, onSaveloading } = useFacebookBotSave(
+    facebookMessengerBot?._id,
+  );
+  const [accountId, pageId, persistentMenus] = form.watch([
+    'accountId',
+    'pageId',
+    'persistentMenus',
+  ]);
+  const hasBackButtonMenu = persistentMenus?.some(
+    (menu) => menu.type === 'back_button',
+  );
+
+  useEffect(() => {
+    form.setValue('isEnabledBackBtn', Boolean(hasBackButtonMenu));
+  }, [form, hasBackButtonMenu]);
 
   return (
     <>
-      <Sheet.Content className="p-4">
+      <Sheet.Content className="overflow-y-auto p-4">
         <Form {...form}>
-          <FbBotFormSecondarySheet accountId={accountId} pageId={pageId} />
-          <AutomationBotFormEffect />
+          {isPageFixed ? (
+            <div className="flex items-center pb-2">
+              <FacebookPageInfo accountId={accountId} pageId={pageId} />
+            </div>
+          ) : (
+            <FbBotFormSecondarySheet accountId={accountId} pageId={pageId} />
+          )}
+          <AutomationBotFormEffect isPageFixed={isPageFixed} />
           <div
             className={cn('flex flex-col gap-4', {
-              blur: !accountId || !pageId,
+              blur: !isPageFixed && (!accountId || !pageId),
             })}
           >
             <Form.Field
@@ -45,135 +74,44 @@ export const AutomationFbBotFormContent = () => {
               name="name"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Name</Form.Label>
+                  <Form.Label>{t('name')}</Form.Label>
 
                   <Input {...field} />
                   <Form.Message />
                 </Form.Item>
               )}
             />
-            <Form.Field
-              control={form.control}
-              name="persistentMenus"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>Persistent Menu</Form.Label>
-                  <Form.Description>
-                    Configure menu items that appear in your bot
-                  </Form.Description>
-                  <FacebookMessageButtonsGenerator
-                    addButtonContent={
-                      <>
-                        <IconPlus />
-                        Add persistent menu
-                      </>
-                    }
-                    buttons={field.value}
-                    setButtons={field.onChange}
-                    limit={5}
-                  />
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-            <Collapsible open={isOptionalOpen} onOpenChange={setOptionalOpen}>
-              <Collapsible.Trigger asChild>
-                <Button variant="secondary" className="w-full">
-                  <Label className="flex items-center gap-2">
-                    {isOptionalOpen ? 'Hide' : 'Show'} Optional configuration{' '}
-                    {isOptionalOpen ? <IconChevronUp /> : <IconChevronDown />}
-                  </Label>
-                </Button>
-              </Collapsible.Trigger>
-              <Collapsible.Content className="flex flex-col gap-4">
-                <Form.Field
-                  control={form.control}
-                  name="tag"
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>Tag</Form.Label>
-                      <Select
-                        value={field.value}
-                        onValueChange={field.onChange}
-                      >
-                        <Select.Trigger id="messenger-tag" className="mt-1">
-                          <Select.Value placeholder="Select tag" />
-                        </Select.Trigger>
-                        <Select.Content>
-                          <Select.Item value="CONFIRMED_EVENT_UPDATE">
-                            Confirmed Event Update
-                          </Select.Item>
-                          <Select.Item value="POST_PURCHASE_UPDATE">
-                            Post-Purchase Update
-                          </Select.Item>
-                          <Select.Item value="ACCOUNT_UPDATE">
-                            Account Update
-                          </Select.Item>
-                        </Select.Content>
-                      </Select>
-                      <span className="text-accent-foreground">
-                        Message tags may not be used to send promotional
-                        content, including but not limited to deals,purchases
-                        offers, coupons, and discounts. Use of tags outside of
-                        the approved use cases may result in restrictions on the
-                        Page's ability to send messages.
-                        <a
-                          href="https://developers.facebook.com/docs/messenger-platform/send-messages/message-tags/"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-500 hover:text-blue-500/70 transition ease-in-out"
-                        >
-                          Learn more
-                        </a>
-                      </span>
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
-                <Form.Field
-                  control={form.control}
-                  name="greetText"
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>Greet Message</Form.Label>
-                      <Input {...field} />
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
-                <Form.Field
-                  control={form.control}
-                  name="isEnabledBackBtn"
-                  render={({ field }) => (
-                    <Form.Item className="flex justify-between">
-                      <Form.Label className="mt-3">
-                        Enable Back Button on Persistence menu
-                      </Form.Label>
-                      <Switch
-                        className="flex-none"
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
-                <Form.Field
-                  control={form.control}
-                  name="backButtonText"
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>Back Button Text</Form.Label>
-                      <Input
-                        {...field}
-                        disabled={!form.watch('isEnabledBackBtn')}
-                      />
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
-              </Collapsible.Content>
-            </Collapsible>
+            <Tabs
+              value={activeTab}
+              onValueChange={(value) =>
+                setActiveTab(value as TFacebookBotFormTab)
+              }
+            >
+              <Tabs.List className="grid w-full grid-cols-2">
+                <Tabs.Trigger value="settings">
+                  {t('bot-tab-settings', { defaultValue: 'Settings' })}
+                </Tabs.Trigger>
+                <Tabs.Trigger value="activity">
+                  {t('bot-tab-activity', { defaultValue: 'Activity' })}
+                </Tabs.Trigger>
+              </Tabs.List>
+              <Tabs.Content
+                value="settings"
+                className="flex flex-col gap-4 pt-4"
+              >
+                <FacebookBotSettingsTab />
+              </Tabs.Content>
+              <Tabs.Content
+                value="activity"
+                className="flex flex-col gap-4 pt-4"
+              >
+                <FacebookBotProfileHealth bot={facebookMessengerBot} />
+                <Separator />
+                <FacebookBotAutomations botId={facebookMessengerBot?._id} />
+                <Separator />
+                <FacebookBotCommentActivity bot={facebookMessengerBot} />
+              </Tabs.Content>
+            </Tabs>
           </div>
         </Form>
       </Sheet.Content>
@@ -182,12 +120,12 @@ export const AutomationFbBotFormContent = () => {
           disabled={onSaveloading}
           onClick={form.handleSubmit(onSave, (error) =>
             toast({
-              title: 'Something went wrong',
+              title: t('something-went-wrong'),
               description: JSON.stringify(error),
             }),
           )}
         >
-          {onSaveloading ? <Spinner /> : 'Save'}
+          {onSaveloading ? <Spinner /> : t('save')}
         </Button>
       </Sheet.Footer>
     </>
@@ -201,6 +139,7 @@ const FbBotFormSecondarySheet = ({
   accountId: string;
   pageId: string;
 }) => {
+  const { t } = useTranslation('frontline');
   const [isOpenAccountSheet, setOpenAccountSheet] = useAtom(
     isOpenFacebookBotSecondarySheet,
   );
@@ -210,7 +149,7 @@ const FbBotFormSecondarySheet = ({
       <div className="flex justify-between items-center pb-2">
         <FacebookPageInfo accountId={accountId} pageId={pageId} />
         <Sheet.Trigger asChild>
-          <Button>Select Page</Button>
+          <Button>{t('select-page')}</Button>
         </Sheet.Trigger>
       </div>
       <Separator />

@@ -5,9 +5,11 @@ import { TransactionsFilter } from '@/transactions/components/TrFilters';
 import { TrRecordTable } from '@/transactions/components/TrRecordTable';
 import { IconPlus } from '@tabler/icons-react';
 import { Button, Kbd, PageSubHeader } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { TrRecsTotalCount } from '~/modules/transactions/components/TrRecsTotalCount';
 
 export const TrRecordListPage = () => {
+  const { t } = useTranslation('accounting');
   return (
     <AccountingLayout>
       <AccountingHeader>
@@ -15,7 +17,7 @@ export const TrRecordListPage = () => {
           <AddTransaction>
             <Button>
               <IconPlus />
-              Add Transaction
+              {t('add-transaction')}
               <Kbd>C</Kbd>
             </Button>
           </AddTransaction>

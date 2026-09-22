@@ -1,5 +1,4 @@
 import { MutationHookOptions } from '@apollo/client';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { IconChevronDown, IconPlus, IconTrash } from '@tabler/icons-react';
 import {
   Button,
@@ -11,6 +10,7 @@ import {
   InfoCard,
   Input,
   Label,
+  NumberInput,
   ScrollArea,
   Select,
   Sheet,
@@ -20,28 +20,17 @@ import {
 } from 'erxes-ui';
 import { nanoid } from 'nanoid';
 import { useCallback, useMemo, useState } from 'react';
-import { useForm, UseFormReturn } from 'react-hook-form';
+import { UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { SelectBrand } from 'ui-modules/modules/brands';
 import { SelectCompany } from 'ui-modules/modules/contacts';
 import { useFieldGroups, useFields } from 'ui-modules/modules/properties';
-import { FieldBoolean } from 'ui-modules/modules/properties/components/FieldBoolean';
-import { FieldDate } from 'ui-modules/modules/properties/components/FieldDate';
-import { FieldFile } from 'ui-modules/modules/properties/components/FieldFile';
-import { FieldLabel } from 'ui-modules/modules/properties/components/FieldLabel';
-import { FieldNumber } from 'ui-modules/modules/properties/components/FieldNumber';
-import { FieldRelation } from 'ui-modules/modules/properties/components/FieldRelation';
-import { FieldSelect } from 'ui-modules/modules/properties/components/FieldSelect';
-import { FieldString } from 'ui-modules/modules/properties/components/FieldString';
-import { FieldPhone } from 'ui-modules/modules/properties/components/FieldPhone';
+import { PropertyFormField } from 'ui-modules/modules/properties/components/PropertyFormField';
 import { IFieldGroup } from 'ui-modules/modules/properties/types/fieldsTypes';
 import { SelectCategory } from '../categories';
-import {
-  EMPTY_PRODUCT_FORM_VALUES,
-  PRODUCT_FORM_SCHEMA,
-} from '../constants/addProductFormSchema';
+import { PRODUCT_DURATION_TYPES } from '../constants/productTypes';
+import { useProductLastCodeByCategory } from '../hooks/useProducts';
 import { useAddProduct } from '../hooks/useProductsAdd';
-import { useUom } from '../hooks/useUom';
 import { IProductFormValues } from '../types';
 import {
   PRODUCT_SECONDARY_IMAGE_LIMIT,
@@ -51,7 +40,12 @@ import {
   toProductAttachmentList,
   type ProductAttachmentItem,
 } from './ProductImageUploads';
+import {
+  PRODUCT_VIDEO_LIMIT,
+  ProductVideosUpload,
+} from './ProductVideoUploads';
 import { SelectProductType } from './SelectProductType';
+import { SuggestedProductCodeInput } from './SuggestedProductCodeInput';
 import { SelectUOMWithName } from './SelectUOMWithName';
 import { SubUomRow, type SubUomItem } from './SubUomRow';
 
@@ -61,26 +55,16 @@ export function AddProductForm({
   showMoreInfo: controlledShowMoreInfo,
   onShowMoreInfoChange,
   options,
+  form,
 }: {
   embed?: boolean;
   onOpenChange: (open: boolean) => void;
   showMoreInfo?: boolean;
   onShowMoreInfoChange?: (showMoreInfo: boolean) => void;
   options?: MutationHookOptions<{ productsAdd: { _id: string } }>;
+  form: UseFormReturn<IProductFormValues>;
 }) {
   const { productsAdd, loading } = useAddProduct();
-  const { uoms } = useUom();
-
-  const uomIdToCode = useMemo(() => {
-    const map = new Map<string, string>();
-    uoms.forEach((uom) => map.set(uom._id, uom.code));
-    return map;
-  }, [uoms]);
-
-  const form = useForm<IProductFormValues>({
-    resolver: zodResolver(PRODUCT_FORM_SCHEMA),
-    defaultValues: EMPTY_PRODUCT_FORM_VALUES,
-  });
 
   async function onSubmit(data: IProductFormValues) {
     const cleanData: Record<string, unknown> = {};
@@ -113,7 +97,10 @@ export function AddProductForm({
         value !== null
       ) {
         const customFieldsObj = Object.entries(value)
-          .filter(([_, val]) => val !== undefined && val !== null && val !== '')
+          .filter((entry) => {
+            const val = entry[1];
+            return val !== undefined && val !== null && val !== '';
+          })
           .reduce(
             (acc, [fieldId, val]) => {
               acc[fieldId] = val;
@@ -128,19 +115,15 @@ export function AddProductForm({
       }
 
       if (key === 'uom') {
-        const uomCode = uomIdToCode.get(value as string);
-        cleanData[key] = uomCode || value;
+        cleanData[key] = value;
         return;
       }
 
       if (key === 'subUoms' && Array.isArray(value)) {
         cleanData[key] = value.map((subUom: SubUomItem) => {
-          const { _id, ...rest } = subUom;
-          const mappedUom = uomIdToCode.get(rest.uom);
-          return {
-            ...rest,
-            uom: mappedUom || rest.uom,
-          };
+          const rest = { ...subUom };
+          delete rest._id;
+          return rest;
         });
         return;
       }
@@ -148,7 +131,7 @@ export function AddProductForm({
       cleanData[key] = value;
     });
 
-    productsAdd({
+    await productsAdd({
       variables: cleanData,
       ...options,
       onError: (e) => {
@@ -634,6 +617,13 @@ function AddProductFormFieldsDetail({
   showExtended?: boolean;
 }) {
   const { t } = useTranslation('product', { keyPrefix: 'add' });
+  const productType = form.watch('type');
+  const categoryId = form.watch('categoryId');
+  const code = form.watch('code');
+  const { suggestedCode } = useProductLastCodeByCategory(
+    code?.trim() ? undefined : categoryId,
+  );
+
   return (
     <div className={showExtended ? 'grid gap-4 lg:grid-cols-5' : ''}>
       <div className={showExtended ? 'grid gap-4 lg:col-span-3' : ''}>
@@ -642,14 +632,19 @@ function AddProductFormFieldsDetail({
             <div className="grid grid-cols-2 gap-4">
               <Form.Field
                 control={form.control}
-                name="name"
+                name="categoryId"
                 render={({ field }) => (
                   <Form.Item>
                     <Form.Label>
-                      {t('name')} <span className="text-destructive">*</span>
+                      {t('category')}{' '}
+                      <span className="text-destructive">*</span>
                     </Form.Label>
                     <Form.Control>
-                      <Input {...field} />
+                      <SelectCategory
+                        value={field.value}
+                        onSelect={field.onChange}
+                        mode="single"
+                      />
                     </Form.Control>
                     <Form.Message />
                   </Form.Item>
@@ -662,6 +657,30 @@ function AddProductFormFieldsDetail({
                   <Form.Item>
                     <Form.Label>
                       {t('code')} <span className="text-destructive">*</span>
+                    </Form.Label>
+                    <Form.Control>
+                      <SuggestedProductCodeInput
+                        {...field}
+                        suggestedCode={suggestedCode}
+                        onUseSuggestion={() =>
+                          form.setValue('code', suggestedCode, {
+                            shouldDirty: true,
+                            shouldValidate: true,
+                          })
+                        }
+                      />
+                    </Form.Control>
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
+              <Form.Field
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>
+                      {t('name')} <span className="text-destructive">*</span>
                     </Form.Label>
                     <Form.Control>
                       <Input {...field} />
@@ -700,26 +719,6 @@ function AddProductFormFieldsDetail({
               />
               <Form.Field
                 control={form.control}
-                name="categoryId"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>
-                      {t('category')}{' '}
-                      <span className="text-destructive">*</span>
-                    </Form.Label>
-                    <Form.Control>
-                      <SelectCategory
-                        value={field.value}
-                        onSelect={field.onChange}
-                        mode="single"
-                      />
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-              <Form.Field
-                control={form.control}
                 name="unitPrice"
                 render={({ field }) => (
                   <Form.Item>
@@ -737,6 +736,70 @@ function AddProductFormFieldsDetail({
                   </Form.Item>
                 )}
               />
+              {showExtended && (
+                <Form.Field
+                  control={form.control}
+                  name="weight"
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>{t('weight', 'Weight')}</Form.Label>
+                      <Form.Control>
+                        <NumberInput {...field} />
+                      </Form.Control>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+              )}
+              {productType === 'unique' && (
+                <>
+                  <Form.Field
+                    control={form.control}
+                    name="duration"
+                    render={({ field }) => (
+                      <Form.Item>
+                        <Form.Label>{t('duration')}</Form.Label>
+                        <Form.Control>
+                          <NumberInput {...field} />
+                        </Form.Control>
+                        <Form.Message />
+                      </Form.Item>
+                    )}
+                  />
+                  <Form.Field
+                    control={form.control}
+                    name="durationType"
+                    render={({ field }) => (
+                      <Form.Item>
+                        <Form.Label>{t('duration-type')}</Form.Label>
+                        <Form.Control>
+                          <Select
+                            value={field.value || ''}
+                            onValueChange={field.onChange}
+                          >
+                            <Select.Trigger>
+                              <Select.Value
+                                placeholder={t('select-duration-type')}
+                              />
+                            </Select.Trigger>
+                            <Select.Content>
+                              {PRODUCT_DURATION_TYPES.map((durationType) => (
+                                <Select.Item
+                                  key={durationType.value}
+                                  value={durationType.value}
+                                >
+                                  {durationType.label}
+                                </Select.Item>
+                              ))}
+                            </Select.Content>
+                          </Select>
+                        </Form.Control>
+                        <Form.Message />
+                      </Form.Item>
+                    )}
+                  />
+                </>
+              )}
               <Form.Field
                 control={form.control}
                 name="uom"
@@ -886,6 +949,36 @@ function AddProductAttachmentMore({
   );
 }
 
+function AddProductVideos({
+  form,
+}: {
+  form: UseFormReturn<IProductFormValues>;
+}) {
+  const { t } = useTranslation('product', { keyPrefix: 'add' });
+  const videos = form.watch('videos');
+
+  const files = useMemo(() => toProductAttachmentList(videos), [videos]);
+
+  const syncForm = useCallback(
+    (next: AttachmentItem[]) => {
+      form.setValue('videos', next as IProductFormValues['videos']);
+    },
+    [form],
+  );
+
+  return (
+    <InfoCard title={t('videos', 'Videos')} className="h-full">
+      <InfoCard.Content className="h-full">
+        <ProductVideosUpload
+          value={files}
+          onChange={syncForm}
+          maxVideos={PRODUCT_VIDEO_LIMIT}
+        />
+      </InfoCard.Content>
+    </InfoCard>
+  );
+}
+
 function AddProductFormAttachmentsAndExtra({
   form,
 }: {
@@ -901,6 +994,9 @@ function AddProductFormAttachmentsAndExtra({
         <div className="col-span-2 h-full">
           <AddProductAttachmentMore form={form} />
         </div>
+      </div>
+      <div className="pt-4">
+        <AddProductVideos form={form} />
       </div>
       <div className="pt-4">
         <InfoCard title={t('more-info')}>
@@ -1080,46 +1176,12 @@ function CustomField({
   value: unknown;
   onFieldChange: (fieldId: string, value: unknown) => void;
 }) {
-  const handleChange = useCallback(
-    (newValue: unknown) => {
-      onFieldChange(field._id, newValue);
-    },
-    [field._id, onFieldChange],
-  );
-
-  const fieldProps = {
-    field,
-    value: value ?? '',
-    handleChange,
-    loading: false,
-    id: `product_form_${field._id}`,
-    customFieldsData: {},
-  };
-
   return (
-    <FieldLabel field={field} id={fieldProps.id}>
-      {(() => {
-        switch (field.type) {
-          case 'text':
-            return <FieldString {...fieldProps} />;
-          case 'phone':
-            return <FieldPhone {...fieldProps} />;
-          case 'number':
-            return <FieldNumber {...fieldProps} />;
-          case 'boolean':
-            return <FieldBoolean {...fieldProps} />;
-          case 'date':
-            return <FieldDate {...fieldProps} />;
-          case 'select':
-            return <FieldSelect {...fieldProps} />;
-          case 'relation':
-            return <FieldRelation {...fieldProps} />;
-          case 'file':
-            return <FieldFile {...fieldProps} />;
-          default:
-            return null;
-        }
-      })()}
-    </FieldLabel>
+    <PropertyFormField
+      field={field}
+      value={value}
+      idPrefix="product_form"
+      onFieldChange={onFieldChange}
+    />
   );
 }

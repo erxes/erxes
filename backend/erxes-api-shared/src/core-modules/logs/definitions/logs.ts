@@ -29,6 +29,9 @@ logsSchema.index(
   { expireAfterSeconds: LOG_RETENTION_SECONDS },
 );
 
+// Match the default logsMainList cursor order for index-only pagination.
+logsSchema.index({ createdAt: -1, _id: 1 });
+
 logsSchema.index(
   { docId: 1, createdAt: -1 },
   { partialFilterExpression: { docId: { $exists: true } } },
@@ -37,4 +40,10 @@ logsSchema.index(
 logsSchema.index(
   { contentType: 1, createdAt: -1 },
   { partialFilterExpression: { contentType: { $exists: true } } },
+);
+
+// One request's cascade of changes shares a processId.
+logsSchema.index(
+  { processId: 1, createdAt: -1 },
+  { partialFilterExpression: { processId: { $exists: true } } },
 );

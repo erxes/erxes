@@ -1,29 +1,366 @@
+import { buildPropertyFilter } from 'erxes-api-shared/core-modules';
 import { IProductDocument, Resolver } from 'erxes-api-shared/core-types';
 import {
   cursorPaginate,
+  cursorPaginateAggregation,
   defaultPaginate,
   escapeRegExp,
-  sendTRPCMessage,
 } from 'erxes-api-shared/utils';
-import { FilterQuery, SortOrder } from 'mongoose';
+import { FilterQuery, PipelineStage, SortOrder } from 'mongoose';
 import { IContext, IModels } from '~/connectionResolvers';
 
 import { IProductParams } from '@/products/@types/product';
-import { PRODUCT_STATUSES } from '@/products/constants';
-import { fetchSegment } from '@/segments/utils/fetchSegment';
+import {
+  PRODUCT_SIMILARITY_STATUSES,
+  PRODUCT_STATUSES,
+} from '@/products/constants';
 import {
   getSimilaritiesProducts,
   getSimilaritiesProductsCount,
 } from '@/products/utils';
+import {
+  getMatchingBaseDiscount,
+  getPipelineInventoryScope,
+} from '@/products/graphql/resolvers/customResolvers/product';
 
 const inventoryKey = (id?: string) => id || '_';
+type DiscountField = 'discount' | 'discountPercent';
+type DiscountRangeOperator = '$gte' | '$lte';
+type DiscountConditions = Record<string, unknown>;
+type BasePricedProduct = Record<string, unknown> & {
+  unitPrice?: number;
+  discounts?: unknown[];
+};
+
+const isDiscountSortField = (sortField?: string) =>
+  sortField === 'discount' || sortField === 'discountPercent';
+
+const hasRangeValue = (value?: number | null): value is number =>
+  value !== undefined && value !== null;
+
+const compactDiscountConditions = (conditions: DiscountConditions = {}) =>
+  Object.entries(conditions).reduce<DiscountConditions>(
+    (result, [key, value]) => {
+      if (value === undefined || value === null || value === '') {
+        return result;
+      }
+
+      result[key] = value;
+      return result;
+    },
+    {},
+  );
+
+const getDiscountConditions = (params: IProductParams): DiscountConditions =>
+  compactDiscountConditions({
+    ...params.discountConditions,
+    branchId: params.branchId,
+    departmentId: params.departmentId,
+    pipelineId: params.pipelineId,
+  });
+
+const getSortField = (params: IProductParams) => {
+  return params.sortField;
+};
+
+const getBasePrice = (product: BasePricedProduct, params: IProductParams) => {
+  const conditions = getDiscountConditions(params);
+
+  if (!params.branchId && !params.departmentId && !params.pipelineId) {
+    return undefined;
+  }
+
+  const discount = getMatchingBaseDiscount(product.discounts, conditions);
+
+  return discount?.discount !== undefined &&
+    typeof product.unitPrice === 'number'
+    ? Math.max(product.unitPrice - discount.discount, 0)
+    : undefined;
+};
+
+const applyBasePrice = <T extends BasePricedProduct>(
+  product: T,
+  params: IProductParams,
+): T => {
+  const price = getBasePrice(product, params);
+
+  if (price === undefined) {
+    return product;
+  }
+
+  return { ...product, unitPrice: price };
+};
+
+const applyBasePrices = <T>(result: T, params: IProductParams): T => {
+  if (!params.branchId && !params.departmentId && !params.pipelineId) {
+    return result;
+  }
+
+  if (Array.isArray(result)) {
+    return (result as BasePricedProduct[]).map((product) =>
+      applyBasePrice(product, params),
+    ) as T;
+  }
+
+  if (
+    result &&
+    typeof result === 'object' &&
+    Array.isArray((result as { list?: unknown[] }).list)
+  ) {
+    const pagedResult = result as unknown as {
+      list: BasePricedProduct[];
+    };
+
+    return {
+      ...(result as Record<string, unknown>),
+      list: pagedResult.list.map((product) => applyBasePrice(product, params)),
+    } as T;
+  }
+
+  return result;
+};
+
+const getConditionValueExpression = (
+  conditionsExpression,
+  prefixExpression,
+) => ({
+  $first: {
+    $map: {
+      input: {
+        $filter: {
+          input: { $objectToArray: conditionsExpression },
+          as: 'condition',
+          cond: { $eq: ['$$condition.k', prefixExpression] },
+        },
+      },
+      as: 'condition',
+      in: '$$condition.v',
+    },
+  },
+});
+
+const getRuleConditionMatchExpression = (
+  requestConditions: DiscountConditions,
+) => {
+  const requestConditionsExpression = { $literal: requestConditions };
+
+  return {
+    $allElementsTrue: {
+      $map: {
+        input: { $ifNull: ['$$discount.prefixes', []] },
+        as: 'prefix',
+        in: {
+          $let: {
+            vars: {
+              requestValue: getConditionValueExpression(
+                requestConditionsExpression,
+                '$$prefix',
+              ),
+              ruleValue: getConditionValueExpression(
+                { $ifNull: ['$$discount.conditions', {}] },
+                '$$prefix',
+              ),
+            },
+            in: {
+              $and: [
+                { $ne: ['$$requestValue', null] },
+                {
+                  $cond: [
+                    { $isArray: '$$ruleValue' },
+                    { $in: ['$$requestValue', '$$ruleValue'] },
+                    {
+                      $cond: [
+                        { $eq: [{ $type: '$$ruleValue' }, 'object'] },
+                        {
+                          $and: [
+                            {
+                              $or: [
+                                { $eq: ['$$ruleValue.start', null] },
+                                {
+                                  $gte: ['$$requestValue', '$$ruleValue.start'],
+                                },
+                              ],
+                            },
+                            {
+                              $or: [
+                                { $eq: ['$$ruleValue.end', null] },
+                                { $lte: ['$$requestValue', '$$ruleValue.end'] },
+                              ],
+                            },
+                          ],
+                        },
+                        {
+                          $cond: [
+                            {
+                              $in: [
+                                { $type: '$$ruleValue' },
+                                ['int', 'long', 'double', 'decimal'],
+                              ],
+                            },
+                            { $gte: ['$$requestValue', '$$ruleValue'] },
+                            { $eq: ['$$ruleValue', '$$requestValue'] },
+                          ],
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+          },
+        },
+      },
+    },
+  };
+};
+
+const getMatchingDiscountsExpression = (conditions: DiscountConditions) => ({
+  $filter: {
+    input: { $ifNull: ['$discounts', []] },
+    as: 'discount',
+    cond: {
+      $and: [
+        { $ne: ['$$discount.base', true] },
+        getRuleConditionMatchExpression(conditions),
+      ],
+    },
+  },
+});
+
+const getDiscountValueExpression = (
+  field: DiscountField,
+  conditions: DiscountConditions,
+) => ({
+  $ifNull: [
+    {
+      $max: {
+        $map: {
+          input: getMatchingDiscountsExpression(conditions),
+          as: 'discount',
+          in: `$$discount.${field}`,
+        },
+      },
+    },
+    0,
+  ],
+});
+
+const buildScopedDiscountRangeFilter = (
+  field: DiscountField,
+  operator: DiscountRangeOperator,
+  value: number,
+  conditions: DiscountConditions,
+) => ({
+  $expr: {
+    [operator]: [getDiscountValueExpression(field, conditions), value],
+  },
+});
+
+const pushScopedDiscountRangeFilter = (
+  filters: FilterQuery<IProductDocument>[],
+  field: DiscountField,
+  operator: DiscountRangeOperator,
+  value: number | undefined,
+  conditions: DiscountConditions,
+) => {
+  if (!hasRangeValue(value)) {
+    return;
+  }
+
+  filters.push(
+    buildScopedDiscountRangeFilter(field, operator, value, conditions),
+  );
+};
+
+const buildDiscountSortPipeline = (
+  filter: FilterQuery<IProductDocument>,
+  params: IProductParams,
+): PipelineStage[] => {
+  const discountField =
+    params.sortField === 'discountPercent' ? 'discountPercent' : 'discount';
+  const conditions = getDiscountConditions(params);
+
+  return [
+    { $match: filter },
+    {
+      $addFields: {
+        discountSortValue: getDiscountValueExpression(
+          discountField,
+          conditions,
+        ),
+      },
+    },
+  ];
+};
+
+/**
+ * Categories configured as a pipeline's initial ones, expanded with their
+ * descendants. Products of these categories are listed before the rest.
+ */
+const getPipelineInitialCategoryIds = async (
+  context: IContext,
+  pipelineId?: string,
+): Promise<string[]> => {
+  if (!pipelineId) {
+    return [];
+  }
+
+  const pipeline = await getPipelineInventoryScope(context, pipelineId);
+
+  if (!pipeline?.initialCategoryIds?.length) {
+    return [];
+  }
+
+  const categories = await context.models.ProductCategories.getChildCategories(
+    pipeline.initialCategoryIds,
+  );
+
+  return categories.map((category) => category._id);
+};
+
+const withInitialCategoryPriority = (
+  pipeline: PipelineStage[],
+  initialCategoryIds: string[],
+): PipelineStage[] => [
+  ...pipeline,
+  {
+    $addFields: {
+      initialCategoryOrder: {
+        $cond: [{ $in: ['$categoryId', initialCategoryIds] }, 0, 1],
+      },
+    },
+  },
+];
+
+const paginateDiscountSortedProducts = async (
+  models: IModels,
+  filter: FilterQuery<IProductDocument>,
+  params: IProductParams,
+) => {
+  const pipeline = buildDiscountSortPipeline(filter, params);
+  const sortDirection = params.sortDirection === -1 ? -1 : 1;
+  const paginationParams = params as IProductParams & {
+    page?: number;
+    perPage?: number;
+  };
+  const page = Number(paginationParams.page || 1);
+  const perPage = Number(paginationParams.perPage || params.limit || 20);
+
+  pipeline.push(
+    { $sort: { discountSortValue: sortDirection, code: 1, _id: 1 } },
+    { $skip: (page - 1) * perPage },
+    { $limit: perPage },
+  );
+
+  return models.Products.aggregate(pipeline);
+};
 
 const generateFilter = async (
-  models: IModels,
-  subdomain: string,
+  context: IContext,
   commonQuerySelector: any,
   params: IProductParams,
 ) => {
+  const { models } = context;
   const {
     type,
     categoryIds,
@@ -38,7 +375,8 @@ const generateFilter = async (
     image,
     pipelineId,
     segment,
-    segmentData,
+    segmentIds,
+    propertiesData,
     branchId,
     departmentId,
     minRemainder,
@@ -53,12 +391,32 @@ const generateFilter = async (
 
   const filter: FilterQuery<IProductParams> = { ...commonQuerySelector };
 
-  const andFilters: any[] = [];
+  const andFilters: FilterQuery<IProductDocument>[] = [];
 
   filter.status = { $ne: PRODUCT_STATUSES.DELETED };
 
+  // one card per similarity group: standalone products + each group's star
+  if (params.similarity) {
+    const starProductIds = await models.ProductSimilarities.distinct(
+      'starProductId',
+      { status: { $ne: PRODUCT_SIMILARITY_STATUSES.DELETED } },
+    );
+
+    andFilters.push({
+      $or: [{ similarityId: null }, { _id: { $in: starProductIds } }],
+    });
+  }
+
   if (params.status) {
     filter.status = params.status;
+  }
+
+  if (propertiesData) {
+    const propertyConditions = buildPropertyFilter(propertiesData);
+
+    if (propertyConditions.length) {
+      andFilters.push(...propertyConditions);
+    }
   }
 
   if (type) {
@@ -87,17 +445,20 @@ const generateFilter = async (
   }
 
   if (tagIds) {
-    const baseTagIds: Set<string> = new Set(tagIds);
-
     if (tagWithRelated) {
       const tagObjs = await models.Tags.find({ _id: { $in: tagIds } }).lean();
+      const tagsById = new Map(tagObjs.map((tag) => [tag._id, tag]));
 
-      for (const tag of tagObjs) {
-        (tag.relatedIds || []).forEach((id) => baseTagIds.add(id));
-      }
+      andFilters.push(
+        ...tagIds.map((tagId) => ({
+          tagIds: {
+            $in: [tagId, ...(tagsById.get(tagId)?.relatedIds || [])],
+          },
+        })),
+      );
+    } else {
+      andFilters.push({ tagIds: { $all: tagIds } });
     }
-
-    andFilters.push({ tagIds: { $in: Array.from(baseTagIds) } });
   }
 
   if (excludeTagIds?.length) {
@@ -141,41 +502,23 @@ const generateFilter = async (
   }
 
   if (pipelineId) {
-    const pipeline = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'sales',
-      method: 'query',
-      module: 'pipeline',
-      action: 'findOne',
-      input: {
-        query: { _id: pipelineId },
-        fields: {
-          initialCategoryIds: 1,
-          excludeCategoryIds: 1,
-          excludeProductIds: 1,
-        },
-      },
-      defaultValue: {},
-    });
+    const pipeline = await getPipelineInventoryScope(context, pipelineId);
 
-    if (pipeline?.initialCategoryIds?.length) {
-      let incCategories = await models.ProductCategories.getChildCategories(
-        pipeline.initialCategoryIds,
-      );
-
-      if (pipeline?.excludeCategoryIds?.length) {
-        const excCategories = await models.ProductCategories.getChildCategories(
+    if (pipeline?.excludeCategoryIds?.length) {
+      const excludedCategories =
+        await models.ProductCategories.getChildCategories(
           pipeline.excludeCategoryIds,
         );
-        const excCatIds = excCategories.map((c) => c._id);
-        incCategories = incCategories.filter((c) => !excCatIds.includes(c._id));
-      }
 
-      andFilters.push({ categoryId: { $in: incCategories.map((c) => c._id) } });
-
-      if (pipeline?.excludeProductIds?.length) {
-        andFilters.push({ _id: { $nin: pipeline.excludeProductIds } });
+      if (excludedCategories.length) {
+        andFilters.push({
+          categoryId: { $nin: excludedCategories.map((c) => c._id) },
+        });
       }
+    }
+
+    if (pipeline?.excludeProductIds?.length) {
+      andFilters.push({ _id: { $nin: pipeline.excludeProductIds } });
     }
   }
 
@@ -196,40 +539,6 @@ const generateFilter = async (
         [`inventories.${branchKey}.${departmentKey}.remainder`]: {
           $exists: true,
           $lte: maxRemainder,
-        },
-      });
-    }
-
-    if (minDiscountValue || minDiscountValue === 0) {
-      andFilters.push({
-        [`discounts.${branchKey}.${departmentKey}.value`]: {
-          $exists: true,
-          $gte: minDiscountValue,
-        },
-      });
-    }
-    if (maxDiscountValue || maxDiscountValue === 0) {
-      andFilters.push({
-        [`discounts.${branchKey}.${departmentKey}.value`]: {
-          $exists: true,
-          $lte: maxDiscountValue,
-        },
-      });
-    }
-
-    if (minDiscountPercent || minDiscountPercent === 0) {
-      andFilters.push({
-        [`discounts.${branchKey}.${departmentKey}.percent`]: {
-          $exists: true,
-          $gte: minDiscountPercent,
-        },
-      });
-    }
-    if (maxDiscountPercent || maxDiscountPercent === 0) {
-      andFilters.push({
-        [`discounts.${branchKey}.${departmentKey}.percent`]: {
-          $exists: true,
-          $lte: maxDiscountPercent,
         },
       });
     }
@@ -286,113 +595,38 @@ const generateFilter = async (
         },
       });
     }
-
-    if (minDiscountValue || minDiscountValue === 0) {
-      andFilters.push({
-        $expr: {
-          $gte: [
-            {
-              $sum: {
-                $map: {
-                  input: { $objectToArray: { $ifNull: ['$discounts', {}] } },
-                  as: 'branch',
-                  in: {
-                    $sum: {
-                      $map: {
-                        input: { $objectToArray: '$$branch.v' },
-                        as: 'dept',
-                        in: { $ifNull: ['$$dept.v.value', 0] },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-            minDiscountValue,
-          ],
-        },
-      });
-    }
-    if (maxDiscountValue || maxDiscountValue === 0) {
-      andFilters.push({
-        $expr: {
-          $lte: [
-            {
-              $sum: {
-                $map: {
-                  input: { $objectToArray: { $ifNull: ['$discounts', {}] } },
-                  as: 'branch',
-                  in: {
-                    $sum: {
-                      $map: {
-                        input: { $objectToArray: '$$branch.v' },
-                        as: 'dept',
-                        in: { $ifNull: ['$$dept.v.value', 0] },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-            maxDiscountValue,
-          ],
-        },
-      });
-    }
-
-    if (minDiscountPercent || minDiscountPercent === 0) {
-      andFilters.push({
-        $expr: {
-          $gte: [
-            {
-              $avg: {
-                $map: {
-                  input: { $objectToArray: { $ifNull: ['$discounts', {}] } },
-                  as: 'branch',
-                  in: {
-                    $avg: {
-                      $map: {
-                        input: { $objectToArray: '$$branch.v' },
-                        as: 'dept',
-                        in: { $ifNull: ['$$dept.v.percent', 0] },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-            minDiscountPercent,
-          ],
-        },
-      });
-    }
-    if (maxDiscountPercent || maxDiscountPercent === 0) {
-      andFilters.push({
-        $expr: {
-          $lte: [
-            {
-              $avg: {
-                $map: {
-                  input: { $objectToArray: { $ifNull: ['$discounts', {}] } },
-                  as: 'branch',
-                  in: {
-                    $avg: {
-                      $map: {
-                        input: { $objectToArray: '$$branch.v' },
-                        as: 'dept',
-                        in: { $ifNull: ['$$dept.v.percent', 0] },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-            maxDiscountPercent,
-          ],
-        },
-      });
-    }
   }
+
+  const discountConditions = getDiscountConditions(params);
+
+  pushScopedDiscountRangeFilter(
+    andFilters,
+    'discount',
+    '$gte',
+    minDiscountValue,
+    discountConditions,
+  );
+  pushScopedDiscountRangeFilter(
+    andFilters,
+    'discount',
+    '$lte',
+    maxDiscountValue,
+    discountConditions,
+  );
+  pushScopedDiscountRangeFilter(
+    andFilters,
+    'discountPercent',
+    '$gte',
+    minDiscountPercent,
+    discountConditions,
+  );
+  pushScopedDiscountRangeFilter(
+    andFilters,
+    'discountPercent',
+    '$lte',
+    maxDiscountPercent,
+    discountConditions,
+  );
 
   if (vendorId) {
     filter.vendorId = vendorId;
@@ -414,20 +648,10 @@ const generateFilter = async (
     andFilters.push({ unitPrice: { $exists: true, $lte: maxPrice } });
   }
 
-  if (segment || segmentData) {
-    const segmentObj = segmentData
-      ? JSON.parse(segmentData)
-      : await models.Segments.findOne({ _id: segment }).lean();
-
-    if (segmentObj) {
-      const segmentProductIds = await fetchSegment(
-        models,
-        subdomain,
-        segmentObj,
-      );
-
-      andFilters.push({ _id: { $in: segmentProductIds } });
-    }
+  if (segmentIds?.length) {
+    andFilters.push({ segmentIds: { $in: segmentIds } });
+  } else if (segment) {
+    andFilters.push({ segmentIds: segment });
   }
 
   return { ...filter, ...(andFilters.length ? { $and: andFilters } : {}) };
@@ -440,39 +664,92 @@ export const productQueries: Record<string, Resolver<any, any, IContext>> = {
   async productsMain(
     _parent: undefined,
     params: IProductParams,
-    { commonQuerySelector, models, subdomain }: IContext,
+    context: IContext,
   ) {
-    const filter = await generateFilter(
-      models,
-      subdomain,
-      commonQuerySelector,
-      params,
+    const { commonQuerySelector, models } = context;
+    const filter = await generateFilter(context, commonQuerySelector, params);
+
+    const sortField = getSortField(params);
+
+    const initialCategoryIds = await getPipelineInitialCategoryIds(
+      context,
+      params.pipelineId,
     );
+
+    const priorityOrder: Record<string, SortOrder> = initialCategoryIds.length
+      ? { initialCategoryOrder: 1 }
+      : {};
+
+    if (isDiscountSortField(params.sortField)) {
+      const discountPipeline = buildDiscountSortPipeline(filter, params);
+
+      const result = await cursorPaginateAggregation({
+        model: models.Products,
+        pipeline: initialCategoryIds.length
+          ? withInitialCategoryPriority(discountPipeline, initialCategoryIds)
+          : discountPipeline,
+        params: {
+          ...params,
+          orderBy: {
+            ...priorityOrder,
+            discountSortValue: (params.sortDirection || 1) as SortOrder,
+            _id: 1,
+          },
+        },
+      });
+
+      return applyBasePrices(result, params);
+    }
+
+    if (sortField) {
+      params.orderBy = {
+        [sortField]: (params.sortDirection || 1) as SortOrder,
+      };
+    }
 
     if (!params.orderBy) {
       params.orderBy = { code: 1 };
     }
 
-    return await cursorPaginate({
+    if (initialCategoryIds.length) {
+      const result = await cursorPaginateAggregation({
+        model: models.Products,
+        pipeline: withInitialCategoryPriority(
+          [{ $match: filter }],
+          initialCategoryIds,
+        ),
+        params: {
+          ...params,
+          orderBy: {
+            ...priorityOrder,
+            ...params.orderBy,
+            _id: params.orderBy._id ?? 1,
+          },
+        },
+      });
+
+      return applyBasePrices(result, params);
+    }
+
+    const result = await cursorPaginate({
       model: models.Products,
       params,
       query: filter,
     });
+
+    return applyBasePrices(result, params);
   },
 
   async products(
     _parent: undefined,
     params: IProductParams,
-    { commonQuerySelector, models, subdomain }: IContext,
+    context: IContext,
   ) {
-    const filter = await generateFilter(
-      models,
-      subdomain,
-      commonQuerySelector,
-      params,
-    );
+    const { commonQuerySelector, models } = context;
+    const filter = await generateFilter(context, commonQuerySelector, params);
 
-    const { sortField, sortDirection } = params;
+    const { sortDirection } = params;
+    const sortField = getSortField(params);
 
     let sort: { [key: string]: SortOrder } = { code: 1 };
 
@@ -481,29 +758,43 @@ export const productQueries: Record<string, Resolver<any, any, IContext>> = {
     }
 
     if (params.groupedSimilarity) {
-      return await getSimilaritiesProducts(models, filter, sort, {
+      const result = await getSimilaritiesProducts(models, filter, sort, {
         groupedSimilarity: params.groupedSimilarity,
       });
+
+      return applyBasePrices(result, params);
     }
 
-    return await defaultPaginate(models.Products.find(filter).sort(sort), {
-      ...params,
-    });
+    if (isDiscountSortField(params.sortField)) {
+      const result = await paginateDiscountSortedProducts(
+        models,
+        filter,
+        params,
+      );
+
+      return applyBasePrices(result, params);
+    }
+
+    const result = await defaultPaginate(
+      models.Products.find(filter).sort(sort).lean(),
+      {
+        ...params,
+      },
+    );
+
+    return applyBasePrices(result, params);
   },
 
   async cpProducts(
     _parent: undefined,
     params: IProductParams,
-    { commonQuerySelector, models, subdomain }: IContext,
+    context: IContext,
   ) {
-    const filter = await generateFilter(
-      models,
-      subdomain,
-      commonQuerySelector,
-      params,
-    );
+    const { commonQuerySelector, models } = context;
+    const filter = await generateFilter(context, commonQuerySelector, params);
 
-    const { sortField, sortDirection } = params;
+    const { sortDirection } = params;
+    const sortField = getSortField(params);
 
     let sort: { [key: string]: SortOrder } = { code: 1 };
 
@@ -515,6 +806,10 @@ export const productQueries: Record<string, Resolver<any, any, IContext>> = {
       return await getSimilaritiesProducts(models, filter, sort, {
         groupedSimilarity: params.groupedSimilarity,
       });
+    }
+
+    if (isDiscountSortField(params.sortField)) {
+      return await paginateDiscountSortedProducts(models, filter, params);
     }
 
     return await defaultPaginate(models.Products.find(filter).sort(sort), {
@@ -530,6 +825,45 @@ export const productQueries: Record<string, Resolver<any, any, IContext>> = {
     return await models.Products.findOne({ _id }).lean();
   },
 
+  async productLastCodeByCategory(
+    _parent: undefined,
+    { categoryId }: { categoryId?: string },
+    context: IContext,
+  ) {
+    if (!categoryId) {
+      return null;
+    }
+
+    const { models } = context;
+    const categories = await models.ProductCategories.getChildCategories([
+      categoryId,
+    ]);
+    const categoryIds = categories.map((category) => category._id);
+
+    const [product] = await models.Products.aggregate<{ code: string }>([
+      {
+        $match: {
+          categoryId: { $in: categoryIds },
+        },
+      },
+      {
+        $addFields: {
+          codeLength: { $strLenCP: '$code' },
+        },
+      },
+      {
+        $sort: {
+          codeLength: -1,
+          code: -1,
+        },
+      },
+      { $limit: 1 },
+      { $project: { _id: 0, code: 1 } },
+    ]);
+
+    return product?.code || null;
+  },
+
   async cpProductDetail(
     _parent: undefined,
     { _id }: { _id: string },
@@ -541,14 +875,10 @@ export const productQueries: Record<string, Resolver<any, any, IContext>> = {
   async productsTotalCount(
     _parent: undefined,
     params: IProductParams,
-    { commonQuerySelector, models, subdomain }: IContext,
+    context: IContext,
   ) {
-    const filter = await generateFilter(
-      models,
-      subdomain,
-      commonQuerySelector,
-      params,
-    );
+    const { commonQuerySelector, models } = context;
+    const filter = await generateFilter(context, commonQuerySelector, params);
 
     if (params.groupedSimilarity) {
       return await getSimilaritiesProductsCount(models, filter, {

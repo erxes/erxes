@@ -1,6 +1,16 @@
 import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
 
 export const types = `
+  enum ProductDurationType {
+    minute
+    hour
+    day
+    week
+    month
+    quarter
+    year
+  }
+
   type Product @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String!
     name: String
@@ -13,21 +23,27 @@ export const types = `
     variants: JSON
     barcodeDescription: String
     unitPrice: Float
+    weight: Float
     categoryId: String
     propertiesData: JSON
     createdAt: Date
     tagIds: [String]
     attachment: Attachment
     attachmentMore: [Attachment]
+    videos: [Attachment]
     vendorId: String
     scopeBrandIds: [String]
     uom: String
     subUoms: JSON
     currency: String
+    duration: Float
+    durationType: ProductDurationType
 
     category: ProductCategory
     vendor: Company
     hasSimilarity: Boolean
+    similarityId: String
+    similarity: ProductBulkSimilarity
 
     pdfAttachment: PdfAttachment
 
@@ -36,7 +52,12 @@ export const types = `
     discounts: JSON
 
     remainder: JSON
-    discount: JSON
+    discount(
+      branchId: String
+      departmentId: String
+      pipelineId: String
+      discountConditions: JSON
+    ): JSON
   }
 
   type ProductSimilarityGroup {
@@ -73,8 +94,10 @@ const queryParams = `
   pipelineId: String,
   boardId: String,
   segment: String,
-  segmentData: String,
+  segmentIds: [String],
+  propertiesData: String,
   groupedSimilarity: String,
+  similarity: Boolean,
   image: String,
   brand: String,
 
@@ -88,6 +111,7 @@ const queryParams = `
   maxDiscountValue: Float,
   minDiscountPercent: Float,
   maxDiscountPercent: Float,
+  discountConditions: JSON,
 `;
 
 export const queries = `
@@ -106,6 +130,7 @@ export const queries = `
   ): [Product]
   productsTotalCount(${queryParams}): Int
   productDetail(_id: String): Product
+  productLastCodeByCategory(categoryId: String): String
   productSimilarities(_id: String!, groupedSimilarity: String): ProductSimilarity
   productCountByTags: JSON
 
@@ -129,15 +154,19 @@ export const mutationParams = `
   variants: JSON,
   barcodeDescription: String,
   unitPrice: Float,
+  weight: Float,
   code: String,
   propertiesData: JSON
   attachment: AttachmentInput,
   attachmentMore: [AttachmentInput],
+  videos: [AttachmentInput],
   vendorId: String,
   scopeBrandIds: [String],
   uom: String,
   subUoms: JSON,
   currency: String
+  duration: Float
+  durationType: ProductDurationType
   pdfAttachment: PdfAttachmentInput
 `;
 

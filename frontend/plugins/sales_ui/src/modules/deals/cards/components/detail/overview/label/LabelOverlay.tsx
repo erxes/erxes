@@ -10,6 +10,7 @@ import { IPipelineLabel } from '@/deals/types/pipelines';
 import LabelForm from './LabelForm';
 import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
 import { useAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 
 const LabelOverlay = ({ labels }: { labels: IPipelineLabel[] }) => {
   const [pipelineId] = useQueryState('pipelineId');
@@ -49,6 +50,8 @@ const LabelOverlay = ({ labels }: { labels: IPipelineLabel[] }) => {
     });
   };
 
+  const { t } = useTranslation('sales');
+
   if (showForm) {
     return (
       <>
@@ -57,7 +60,7 @@ const LabelOverlay = ({ labels }: { labels: IPipelineLabel[] }) => {
             onClick={() => setShowForm(false)}
             className="text-sm text-blue-600 hover:underline"
           >
-            Back
+            {t('back')}
           </button>
 
         </div>
@@ -75,7 +78,7 @@ const LabelOverlay = ({ labels }: { labels: IPipelineLabel[] }) => {
   return (
     <>
       <h3 className="text-sm font-semibold text-gray-600 border-b pb-2">
-        Labels
+        {t('labels')}
       </h3>
       <div className="flex-auto overflow-hidden py-2">
         <div className="space-y-4">
@@ -83,7 +86,7 @@ const LabelOverlay = ({ labels }: { labels: IPipelineLabel[] }) => {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search labels"
+            placeholder={t('search-labels')}
             className="w-full border px-3 py-2 rounded-md"
           />
 
@@ -131,7 +134,7 @@ const LabelOverlay = ({ labels }: { labels: IPipelineLabel[] }) => {
               ))}
               {filteredLabels.length === 0 && (
                 <li className="text-sm text-gray-400">
-                  No matching labels found
+                  {t('no-matching-labels-found')}
                 </li>
               )}
             </ul>
@@ -146,7 +149,7 @@ const LabelOverlay = ({ labels }: { labels: IPipelineLabel[] }) => {
             }}
           >
             <IconPlus size={16} />
-            Create a new label
+            {t('create-new-label')}
           </Button>
         </div>
       </div>

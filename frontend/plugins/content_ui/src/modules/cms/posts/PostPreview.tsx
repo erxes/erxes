@@ -1,7 +1,9 @@
-import { Form, Editor } from 'erxes-ui';
+import { Form } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { REACT_APP_API_URL } from 'erxes-ui/utils';
 import { readImage } from 'erxes-ui/utils/core';
 import { UseFormReturn, FieldValues } from 'react-hook-form';
+import { CmsPostEditor } from './components/CmsPostEditor';
 
 interface PostPreviewProps {
   form: UseFormReturn<FieldValues>;
@@ -18,6 +20,7 @@ export const PostPreview = ({
   fullPost,
   handleEditorChange,
 }: PostPreviewProps) => {
+  const { t } = useTranslation('content');
   return (
     <div className="rounded-lg overflow-hidden bg-background">
       <Form {...form}>
@@ -27,7 +30,7 @@ export const PostPreview = ({
           render={() => (
             <Form.Item>
               <Form.Label>
-                Content
+                {t('content')}
                 {selectedLanguage !== defaultLanguage && (
                   <span className="ml-2 text-xs text-blue-600">
                     ({selectedLanguage})
@@ -35,10 +38,9 @@ export const PostPreview = ({
                 )}
               </Form.Label>
               <Form.Control>
-                <Editor
+                <CmsPostEditor
                   className="h-[calc(100vh-200px)] border text-justify"
                   key={`editor-${selectedLanguage}-${fullPost?._id || 'new'}`}
-                  isHTML
                   initialContent={form.getValues('content') || ''}
                   onChange={handleEditorChange}
                   uploadFile={async (file) => {

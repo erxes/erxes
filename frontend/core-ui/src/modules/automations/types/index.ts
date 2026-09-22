@@ -17,6 +17,8 @@ import {
   IAutomationHistoryAction,
   IAutomationsActionConfigConstants,
   IAutomationsTriggerConfigConstants,
+  ApprovalLockState,
+  TAiKnowledgeSourceConfig,
   TAutomationAction,
   TAutomationActionProps,
   TAutomationTrigger,
@@ -44,6 +46,7 @@ export interface AutomationConstants {
       resolverKeys?: string[];
     };
   }>;
+  aiKnowledgeSourcesConst: TAiKnowledgeSourceConfig[];
 }
 export interface ConstantsQueryResponse {
   automationConstants: AutomationConstants;
@@ -52,6 +55,9 @@ export interface ConstantsQueryResponse {
 export type NodeData<TConfig = any> = {
   id: string;
   nodeIndex: number;
+  // Form path of the node's entry when it doesn't live in the root actions
+  // array (e.g. workflow members: `workflows.0.actions.1`)
+  formPath?: string;
   label: string;
   nodeType: AutomationNodeType;
   icon?: string;
@@ -72,6 +78,8 @@ export type NodeData<TConfig = any> = {
     id: string,
     type: AutomationNodeType,
   ) => React.ReactNode;
+  readOnly?: boolean;
+  actionSnapshot?: TAutomationAction;
 };
 
 export type WorkflowNodeData = {
@@ -80,6 +88,7 @@ export type WorkflowNodeData = {
   description: string;
   label: string;
   nodeType: string;
+  icon?: string;
   flowDirection?: TAutomationFlowDirection;
 };
 
@@ -92,12 +101,16 @@ export interface IAutomationDoc {
   actions: TAutomationAction[];
   updatedAt?: string;
   createdAt?: string;
+  createdBy?: string;
   updatedBy?: string;
   createdByIds?: string;
   updatedUser?: any;
   createdUser?: any;
   tags?: any[];
   tagIds?: string[];
+  approvalLockState?: ApprovalLockState;
+  duplicatedFrom?: string;
+  duplicatedFromName?: string;
 }
 
 export interface IAutomationNoteDoc {
@@ -166,7 +179,60 @@ export enum AutomationNodesType {
 export enum AutomationBuilderTabsType {
   Builder = 'builder',
   History = 'history',
+  Stats = 'stats',
 }
+
+export enum AutomationHistoryViewMode {
+  Sheet = 'sheet',
+  Split = 'split',
+}
+
+export enum AutomationHistorySplitDirection {
+  Vertical = 'vertical',
+  Horizontal = 'horizontal',
+}
+
+export type TAutomationStatsCount = {
+  key: string;
+  count: number;
+};
+
+export type TAutomationStatsBucket = {
+  date: string;
+  total: number;
+  complete: number;
+  error: number;
+  waiting: number;
+};
+
+export type TAutomationStatsNode = {
+  actionId: string;
+  actionType?: string;
+  total: number;
+  success: number;
+  error: number;
+  waiting: number;
+  avgDurationMs?: number;
+  maxDurationMs?: number;
+  errorCodes: TAutomationStatsCount[];
+};
+
+export type TAutomationStatsErrorMessage = {
+  message: string;
+  errorCode: string;
+  actionTypes: string[];
+  count: number;
+  lastAt?: string;
+};
+
+export type TAutomationStats = {
+  total: number;
+  byStatus: TAutomationStatsCount[];
+  byErrorCode: TAutomationStatsCount[];
+  timeSeries: TAutomationStatsBucket[];
+  nodes: TAutomationStatsNode[];
+  errorMessages: TAutomationStatsErrorMessage[];
+};
 
 export type AutomationTriggerSidebarCoreFormProps = {
   formRef: React.RefObject<{
@@ -194,9 +260,8 @@ interface BaseComponentConfig<TConfig = any> {
 }
 
 // Generic action component configuration with config type parameter
-interface ActionComponentConfig<
-  TConfig = any,
-> extends BaseComponentConfig<TConfig> {
+interface ActionComponentConfig<TConfig = any>
+  extends BaseComponentConfig<TConfig> {
   sidebar?: LazyAutomationComponent<TAutomationActionProps>;
   actionResult?: LazyAutomationComponent<{
     componentType: 'historyActionResult';
@@ -204,6 +269,7 @@ interface ActionComponentConfig<
     action: IAutomationHistoryAction;
     status: IAutomationHistory['status'];
   }>;
+  actionResultPreview?: (action: IAutomationHistoryAction) => string;
   waitEvent?: LazyAutomationComponent<WaitEventFormComponentProps>;
 }
 

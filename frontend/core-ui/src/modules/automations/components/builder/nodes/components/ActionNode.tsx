@@ -6,6 +6,7 @@ import {
   NodeErrorIndicator,
 } from '@/automations/components/builder/nodes/components/NodeErrorDisplay';
 import { NodeOutputHandler } from '@/automations/components/builder/nodes/components/NodeOutputHandler';
+import { ReadOnlyNodeHandles } from '@/automations/components/builder/nodes/components/ReadOnlyNodeHandles';
 import { useActionNodeSourceHandler } from '@/automations/components/builder/nodes/hooks/useActionNodeSourceHandler';
 import { TAutomationFlowDirection } from '@/automations/constants/flowDirection';
 import { AutomationNodeType, NodeData } from '@/automations/types';
@@ -86,11 +87,13 @@ const ActionNodeHeader = ({
           {error && <NodeErrorIndicator error={error} />}
         </div>
 
-        <div className="flex items-center gap-1">
-          <NodeDropdownActions id={id} data={data} />
-        </div>
+        {!data.readOnly && (
+          <div className="flex items-center gap-1">
+            <NodeDropdownActions id={id} data={data} />
+          </div>
+        )}
       </div>
-      <div className="p-3 border-b border-muted ">
+      <div className="p-3 border-b border-muted">
         <span className="text-xs text-accent-foreground font-medium">
           {data.description}
         </span>
@@ -116,7 +119,10 @@ const ActionNode = ({ data, selected, id, ...props }: any) => {
   const isVertical = data.flowDirection === 'vertical';
 
   return (
-    <div className="flex flex-col" key={id}>
+    <div
+      className="flex flex-col animate-in fade-in zoom-in-95 duration-200"
+      key={id}
+    >
       <div className="w-1/4 ml-1 bg-success/10 text-success text-center px-2 py-1 rounded-t-md">
         <p className="font-medium font-bold">Action</p>
       </div>
@@ -138,24 +144,30 @@ const ActionNode = ({ data, selected, id, ...props }: any) => {
 
         <ActionNodeConfigurationContent data={{ ...data, id }} />
 
-        <Handle
-          key="left"
-          id="left"
-          type="target"
-          position={isVertical ? Position.Top : Position.Left}
-          className={cn('!size-4 -z-10 !bg-success', {
-            '!left-1/2 !top-0 -translate-x-1/2': isVertical,
-          })}
-        />
+        {data.readOnly ? (
+          <ReadOnlyNodeHandles flowDirection={data.flowDirection} />
+        ) : (
+          <>
+            <Handle
+              key="left"
+              id="left"
+              type="target"
+              position={isVertical ? Position.Top : Position.Left}
+              className={cn('!size-4 -z-10 !bg-success', {
+                '!left-1/2 !top-0 -translate-x-1/2': isVertical,
+              })}
+            />
 
-        <ActionNodeSourceHandler
-          id={id}
-          type={data.type}
-          nextActionId={nextActionId}
-          workflowId={workflowId}
-          config={config}
-          flowDirection={data.flowDirection}
-        />
+            <ActionNodeSourceHandler
+              id={id}
+              type={data.type}
+              nextActionId={nextActionId}
+              workflowId={workflowId}
+              config={config}
+              flowDirection={data.flowDirection}
+            />
+          </>
+        )}
       </div>
     </div>
   );

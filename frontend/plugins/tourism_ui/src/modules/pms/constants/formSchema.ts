@@ -14,15 +14,23 @@ export const PmsBranchFormSchema = z.object({
   checkInAmount: optionalNonNegativeNumber,
   checkOutTime: z.string().min(1, 'Check out time is required'),
   checkOutAmount: optionalNonNegativeNumber,
-  discount: z.array(
-    z.object({
-      _id: z.string().optional(),
-      type: z.string().optional(),
-      title: z.string().optional(),
-      icon: z.string().optional(),
-      config: z.string().optional(),
-    }),
-  ),
+  discount: z
+    .array(
+      z.object({
+        _id: z.string().optional(),
+        type: z.string().optional(),
+        title: z.string().optional(),
+        icon: z.string().optional(),
+        config: z.string().optional(),
+      }),
+    )
+    .refine(
+      (rows) => {
+        const targets = rows.map((row) => row.type).filter(Boolean);
+        return new Set(targets).size === targets.length;
+      },
+      { message: 'Each discount target can use only one pricing plan' },
+    ),
   websiteReservationLock: z.boolean().optional(),
   time: z.string().optional(),
   paymentIds: z.array(z.string()).optional(),
@@ -54,6 +62,7 @@ export const PmsBranchFormSchema = z.object({
   pipelineConfig: z.any().optional(),
   extraProductCategories: z.array(z.any()).optional(),
   roomCategories: z.array(z.any()).optional(),
+  appointmentCategories: z.array(z.string()).optional(),
   logo: z.string().optional(),
   primaryColor: z.string().optional(),
   secondaryColor: z.string().optional(),
@@ -64,6 +73,14 @@ export const PmsBranchFormSchema = z.object({
   stageId: z.string().optional(),
   roomsCategoryIds: z.array(z.string()).optional(),
   extrasCategoryIds: z.array(z.string()).optional(),
+  excludeExtraProductCategoryIds: z.array(z.string()).optional(),
+  excludeExtraProductIds: z.array(z.string()).optional(),
+  excludeRoomCategoryIds: z.array(z.string()).optional(),
+  excludeRoomIds: z.array(z.string()).optional(),
+  hasAppointment: z.boolean().optional(),
+  appointmentCategoryIds: z.array(z.string()).optional(),
+  excludeAppointmentCategoryIds: z.array(z.string()).optional(),
+  excludeAppointmentIds: z.array(z.string()).optional(),
 });
 
 export type PmsBranchFormType = z.infer<typeof PmsBranchFormSchema>;

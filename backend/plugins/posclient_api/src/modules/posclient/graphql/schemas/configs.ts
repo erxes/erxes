@@ -29,6 +29,14 @@ export const types = `
     isCleanTaxPrice: Boolean
   }
 
+  type ErkhetConfig {
+    useRemainder: Boolean
+    accounts: String
+    locations: String
+    account: String
+    location: String
+  }
+
   type PoscCatProd {
     _id: String
     categoryId: String
@@ -57,6 +65,8 @@ export const types = `
     name: String
     description: String
     orderPassword: String
+    serviceCharge: Float
+    serviceChargeApplicableProductId: String
     pdomain: String
     userId: String
     createdAt: Date
@@ -71,9 +81,9 @@ export const types = `
     kioskMachine: JSON
     kitchenScreen: JSON
     token: String
-    erxesAppToken: String
     uiOptions: UIOptions
     ebarimtConfig: EbarimtConfig
+    erkhetConfig: ErkhetConfig
     catProdMappings: [PoscCatProd]
     initialCategoryIds: [String]
     kioskExcludeCategoryIds: [String]

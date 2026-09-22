@@ -2,6 +2,7 @@ import { IconTrash, IconGripVertical } from '@tabler/icons-react';
 import { Button, Form, Input, Editor } from 'erxes-ui';
 import { Control } from 'react-hook-form';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { IElement } from '../../../elements/types/element';
 import { IAmenity } from '../../../amenities/types/amenity';
@@ -37,6 +38,7 @@ export const DayForm = ({
   daysFieldPathPrefix = 'groupDays',
   dayDescriptionKey = 'description',
 }: DayFormProps) => {
+  const { t } = useTranslation('tourism');
   const dayCost = useMemo(() => {
     return droppedElements.reduce((sum, el) => sum + (el.cost || 0), 0);
   }, [droppedElements]);
@@ -49,12 +51,12 @@ export const DayForm = ({
             className="cursor-move text-muted-foreground"
             size={20}
           />
-          <h3 className="text-lg font-semibold">Day {dayIndex + 1}</h3>
+          <h3 className="text-lg font-semibold">{t('day-title', { number: dayIndex + 1 })}</h3>
         </div>
 
         <div className="flex items-center gap-4">
           <span className="text-sm text-muted-foreground">
-            day cost:{' '}
+            {t('day-cost')}{' '}
             <span className="font-semibold">
               {dayCost} {currencySymbol}
             </span>
@@ -80,12 +82,12 @@ export const DayForm = ({
         render={({ field }) => (
           <Form.Item>
             <Form.Label>
-              Day Title<span className="text-primary">{labelSuffix}</span>{' '}
+              {t('day-title-label')}<span className="text-primary">{labelSuffix}</span>{' '}
               <span className="text-destructive">*</span>
             </Form.Label>
 
             <Form.Control>
-              <Input {...field} placeholder="Enter the title for this day" />
+              <Input {...field} placeholder={t('enter-day-title')} />
             </Form.Control>
 
             <Form.Message className="text-destructive" />
@@ -96,7 +98,7 @@ export const DayForm = ({
       <div className="border-2 border-dashed rounded-lg min-h-[120px] flex items-center justify-center">
         {droppedElements.length === 0 ? (
           <p className="text-sm text-center text-muted-foreground">
-            Please drag and drop from elements
+            {t('please-drag-drop-elements')}
           </p>
         ) : (
           <div className="w-full p-4">
@@ -132,7 +134,7 @@ export const DayForm = ({
         render={({ field }) => (
           <Form.Item>
             <Form.Label>
-              Description for customers
+              {t('description-for-customers')}
               <span className="text-primary">{labelSuffix}</span>
             </Form.Label>
 
@@ -152,7 +154,7 @@ export const DayForm = ({
         name={`groupDays.${dayIndex}.images`}
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Upload Images</Form.Label>
+            <Form.Label>{t('upload-images')}</Form.Label>
 
             <ImageUploadGrid
               value={field.value}

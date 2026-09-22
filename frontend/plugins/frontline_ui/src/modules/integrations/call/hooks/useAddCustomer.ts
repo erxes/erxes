@@ -4,12 +4,15 @@ import { CALL_CUSTOMER_ADD } from '../graphql/mutations/callMutations';
 import { toast } from 'erxes-ui';
 import { useState } from 'react';
 import { ICustomer } from '@/integrations/call/types/callTypes';
+import { useTranslation } from 'react-i18next';
 
 export const useAddCallCustomer = () => {
+  const { t } = useTranslation('frontline');
   const [createCustomerMutation, { loading }] = useMutation(CALL_CUSTOMER_ADD);
   const [customer, setCustomer] = useState<any>({} as ICustomer);
 
   const [channels, setChannels] = useState<any>();
+  const [integrationName, setIntegrationName] = useState<string>('');
   const addCustomer = (
     inboxId: string,
     phoneNumber: string,
@@ -27,10 +30,11 @@ export const useAddCallCustomer = () => {
           setCustomer(data.callAddCustomer.customer);
           setChannels(data.callAddCustomer.channels);
         }
+        setIntegrationName(data?.callAddCustomer?.integration?.name || '');
       })
       .catch((e) => {
         toast({
-          title: 'Uh oh! Something went wrong',
+          title: t('something-went-wrong'),
           description: e.message,
           variant: 'destructive',
         });
@@ -41,6 +45,7 @@ export const useAddCallCustomer = () => {
     addCustomer,
     customer,
     channels,
+    integrationName,
     loading,
   };
 };

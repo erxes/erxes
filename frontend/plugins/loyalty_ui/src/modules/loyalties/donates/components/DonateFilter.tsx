@@ -1,4 +1,5 @@
 import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { DonateHotKeyScope } from '../types/path/DonateHotKeyScope';
 import { DonateTotalCount } from './DonateTotalCount';
 import { useDonateLeadSessionKey } from '../hooks/useDonateLeadSessionKey';
@@ -8,6 +9,7 @@ import { SelectOwnerType } from './selects/SelectOwnerType';
 import { SelectOwner } from '~/modules/loyalties/components/SelectOwner';
 
 const DonateFilterPopover = () => {
+  const { t } = useTranslation('loyalty');
   const [queries] = useMultiQueryState<{
     donateCampaign: string;
     ownerType: string;
@@ -27,7 +29,7 @@ const DonateFilterPopover = () => {
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder="Filter"
+                placeholder={t('filter')}
                 variant="secondary"
                 className="bg-background"
               />

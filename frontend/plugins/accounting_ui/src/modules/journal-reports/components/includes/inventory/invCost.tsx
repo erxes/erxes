@@ -3,20 +3,34 @@ import { IGroupRule } from '~/modules/journal-reports/types/reportsMap';
 import { TR_SIDES } from '~/modules/transactions/types/constants';
 import { CalcReportResult } from '..';
 
+type InventoryCostRecord = {
+  side?: string;
+  sumAmount?: number;
+  sumCount?: number;
+  isBetween?: number;
+};
+
+const getItems = (dic: Record<string, unknown>) =>
+  Array.isArray(dic.items) ? (dic.items as InventoryCostRecord[]) : [];
+
 export const HandleInvCost = (
-  dic: any,
+  dic: Record<string, unknown>,
   _groupRule: IGroupRule,
   _attr: string,
 ): CalcReportResult => {
-  const { items } = dic;
+  const items = getItems(dic);
   let [fCount, fAmount, dtCount, dtAmount, ctCount, ctAmount, lCount, lAmount] =
     [0, 0, 0, 0, 0, 0, 0, 0];
 
   for (const rec of items) {
     const [dtAmountCur, ctAmountCur] =
-      rec.side === TR_SIDES.DEBIT ? [rec.sumAmount, 0] : [0, rec.sumAmount];
+      rec.side === TR_SIDES.DEBIT
+        ? [rec.sumAmount || 0, 0]
+        : [0, rec.sumAmount || 0];
     const [dtCountCur, ctCountCur] =
-      rec.side === TR_SIDES.DEBIT ? [rec.sumCount, 0] : [0, rec.sumCount];
+      rec.side === TR_SIDES.DEBIT
+        ? [rec.sumCount || 0, 0]
+        : [0, rec.sumCount || 0];
     const diffAmount = dtAmountCur - ctAmountCur;
     const diffCount = dtCountCur - ctCountCur;
 

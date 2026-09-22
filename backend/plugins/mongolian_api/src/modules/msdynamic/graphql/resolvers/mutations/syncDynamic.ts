@@ -8,7 +8,6 @@ import { sendTRPCMessage } from 'erxes-api-shared/utils';
  */
 const getDynamicConfig = async (models: any, brandId?: string) => {
   const configs = await models.Configs.getConfigs('DYNAMIC');
-
   if (!configs?.length) {
     throw new Error('MS Dynamic config not found.');
   }
@@ -18,7 +17,12 @@ const getDynamicConfig = async (models: any, brandId?: string) => {
     return acc;
   }, {});
 
-  const config = map[brandId || 'noBrand'];
+  const key = brandId || 'noBrand';
+  let config = map[key];
+
+  if (!config && map['noBrand'] && typeof map['noBrand'] === 'object') {
+    config = map['noBrand'][key];
+  }
 
   if (!config) {
     throw new Error('MS Dynamic config not found.');
@@ -103,54 +107,86 @@ export const msdynamicSyncMutations = {
 
     const models = await generateModels(subdomain);
 
-    const order = await sendTRPCMessage({
+    const orders = await sendTRPCMessage({
       subdomain,
-      pluginName: 'pos',
+      pluginName: 'sales',
       module: 'orders',
-      action: 'findOne',
-      input: { _id: { $in: orderIds } },
-      defaultValue: {},
+      action: 'find',
+      input: {
+        query: {
+          _id: { $in: orderIds },
+        },
+      },
+      defaultValue: [],
     });
 
-    if (!order?._id) {
-      throw new Error('Order not found');
+    if (!Array.isArray(orders)) {
+      throw new Error(
+        `Expected orders to be an array but got ${typeof orders}`,
+      );
     }
 
-    const config = await getDynamicConfig(models, order.scopeBrandIds?.[0]);
+    const results: any[] = [];
 
-    const syncLog = await models.SyncLogsMSD.syncLogsAdd({
-      contentType: 'pos:order',
-      contentId: order._id,
-      createdAt: new Date(),
-      createdBy: user?._id,
-      consumeData: order,
-      consumeStr: JSON.stringify(order),
-    });
+    for (const order of orders) {
+      try {
+        let brandId = order.scopeBrandIds?.[0];
 
-    let response;
+        if (!brandId && order.posId) {
+          const pos = await sendTRPCMessage({
+            subdomain,
+            pluginName: 'sales',
+            module: 'pos',
+            action: 'findOne',
+            input: {
+              query: {
+                _id: order.posId,
+              },
+            },
+            defaultValue: null,
+          });
 
-    try {
-      response = await orderToDynamic(
-        subdomain,
-        models,
-        syncLog,
-        order,
-        config,
-      );
-    } catch (e: any) {
-      await models.SyncLogsMSD.updateOne(
-        { _id: syncLog._id },
-        { $set: { error: e?.message } },
-      );
-      throw e;
+          brandId = pos?.scopeBrandIds?.[0];
+        }
+
+        const config = await getDynamicConfig(models, brandId);
+
+        const syncLog = await models.SyncLogsMSD.syncLogsAdd({
+          contentType: 'pos:order',
+          contentId: order._id,
+          createdAt: new Date(),
+          createdBy: user?._id,
+          consumeData: order,
+          consumeStr: JSON.stringify(order),
+        });
+
+        const response = await orderToDynamic(
+          subdomain,
+          models,
+          syncLog,
+          order,
+          config,
+          brandId,
+        );
+
+        results.push({
+          _id: order._id,
+          isSynced: true,
+          syncedDate: response?.Order_Date,
+          syncedBillNumber: response?.No,
+          syncedCustomer: response?.Sell_to_Customer_No,
+        });
+      } catch (e: any) {
+        console.error(`[MSD] Failed to sync order ${order._id}`, e);
+
+        results.push({
+          _id: order._id,
+          isSynced: false,
+          error: e?.message || 'Unknown error',
+        });
+      }
     }
 
-    return {
-      _id: order._id,
-      isSynced: true,
-      syncedDate: response?.Order_Date,
-      syncedBillNumber: response?.No,
-      syncedCustomer: response?.Sell_to_Customer_No,
-    };
+    return results;
   },
 };

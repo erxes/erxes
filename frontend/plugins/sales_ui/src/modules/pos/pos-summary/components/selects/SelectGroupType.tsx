@@ -18,6 +18,7 @@ import {
 } from 'erxes-ui';
 
 import { IconTag } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
 import {
   SelectContent,
@@ -98,13 +99,14 @@ const SelectGroupTypeValue = ({
   placeholder?: string;
   className?: string;
 }) => {
+  const { t } = useTranslation('sales');
   const { value, groupTypes } = useSelectGroupTypeContext();
   const selectedGroupType = groupTypes?.find((type) => type.value === value);
 
   if (!selectedGroupType) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select group type'}
+        {placeholder || t('select-group-type')}
       </span>
     );
   }
@@ -140,13 +142,14 @@ const SelectGroupTypeCommandItem = ({
 };
 
 const SelectGroupTypeContent = () => {
+  const { t } = useTranslation('sales');
   const { groupTypes } = useSelectGroupTypeContext();
 
   return (
     <Command>
-      <Command.Input placeholder="Search group type" />
+      <Command.Input placeholder={t('search-group-type')} />
       <Command.Empty>
-        <span className="text-muted-foreground">No group types found</span>
+        <span className="text-muted-foreground">{t('no-group-types-found')}</span>
       </Command.Empty>
       <Command.List>
         {groupTypes?.map((groupType) => (
@@ -161,10 +164,11 @@ const SelectGroupTypeContent = () => {
 };
 
 export const SelectGroupTypeFilterItem = () => {
+  const { t } = useTranslation('sales');
   return (
     <Filter.Item value="groupField">
       <IconTag />
-      Group Type
+      {t('group-type')}
     </Filter.Item>
   );
 };
@@ -214,11 +218,12 @@ export const SelectGroupTypeFilterBar = ({
   );
   const [open, setOpen] = useState(false);
 
+  const { t } = useTranslation('sales');
   return (
     <Filter.BarItem queryKey={'groupField'}>
       <Filter.BarName>
         <IconTag />
-        Group Type
+        {t('group-type')}
       </Filter.BarName>
       <SelectGroupTypeProvider
         mode={mode}

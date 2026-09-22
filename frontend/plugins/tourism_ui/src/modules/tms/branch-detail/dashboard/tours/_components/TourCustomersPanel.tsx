@@ -3,10 +3,12 @@
 import { Button, Card, Separator, Spinner, Tooltip } from 'erxes-ui';
 import { IconMail, IconPhone, IconUser, IconUsers } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { CustomersInline } from 'ui-modules';
 import { useTourCustomers } from '../hooks/useTourOrders';
 
 export const TourCustomersPanel = ({ tourId }: { tourId: string }) => {
+  const { t } = useTranslation('tourism');
   const navigate = useNavigate();
   const { customerIds, customers, loading, refetch } = useTourCustomers(tourId);
 
@@ -23,11 +25,10 @@ export const TourCustomersPanel = ({ tourId }: { tourId: string }) => {
       <div className="flex flex-col items-center justify-center h-full gap-3 px-4 text-center">
         <IconUsers className="w-8 h-8 text-muted-foreground" />
 
-        <h3 className="text-base font-semibold">No customers yet</h3>
+        <h3 className="text-base font-semibold">{t('no-customers-yet')}</h3>
 
         <p className="max-w-xs text-sm text-muted-foreground">
-          This tour does not have any booked customers yet. Once an order is
-          created, customers will appear here.
+          {t('no-customers-yet-desc')}
         </p>
       </div>
     );
@@ -37,9 +38,7 @@ export const TourCustomersPanel = ({ tourId }: { tourId: string }) => {
     <div className="p-3 space-y-3">
       <div className="flex items-center justify-between px-1">
         <span className="text-xs text-muted-foreground">
-          {customerIds.length === 1
-            ? '1 customer'
-            : `${customerIds.length} customers`}
+          {t('customers-count', { count: customerIds.length })}
         </span>
 
         <Button
@@ -48,7 +47,7 @@ export const TourCustomersPanel = ({ tourId }: { tourId: string }) => {
           className="px-2 text-xs h-7"
           onClick={() => refetch()}
         >
-          Refresh
+          {t('refresh')}
         </Button>
       </div>
 
@@ -73,7 +72,7 @@ export const TourCustomersPanel = ({ tourId }: { tourId: string }) => {
                 <div className="flex items-center justify-between gap-2 text-muted-foreground">
                   <span className="inline-flex items-center gap-2">
                     <IconPhone className="w-4 h-4" />
-                    Phone
+                    {t('phone')}
                   </span>
                   <span className="text-foreground">
                     {customer.primaryPhone || '-'}
@@ -83,7 +82,7 @@ export const TourCustomersPanel = ({ tourId }: { tourId: string }) => {
                 <div className="flex items-center justify-between gap-2 text-muted-foreground">
                   <span className="inline-flex items-center gap-2">
                     <IconMail className="w-4 h-4" />
-                    Email
+                    {t('email')}
                   </span>
                   <Tooltip.Provider>
                     <Tooltip>
@@ -112,7 +111,7 @@ export const TourCustomersPanel = ({ tourId }: { tourId: string }) => {
                   navigate(`/contacts/customers?contactId=${customer._id}`)
                 }
               >
-                View customer
+                {t('view-customer')}
                 <IconUser className="w-4 h-4" />
               </Button>
             </div>

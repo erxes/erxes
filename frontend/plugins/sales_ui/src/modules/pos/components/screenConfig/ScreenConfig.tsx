@@ -2,6 +2,7 @@ import { useCallback, useEffect, type ReactNode } from 'react';
 import { useMutation } from '@apollo/client';
 import { Button, Form, InfoCard, Label, toast } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { KitchenScreen } from '@/pos/components/screenConfig/KitchenScreen';
 import { WaitingScreen } from '@/pos/components/screenConfig/WaitingScreen';
 import { PrintConfig } from '@/pos/components/screenConfig/PrintConfig';
@@ -47,6 +48,7 @@ const ScreenConfig: React.FC<ScreenConfigProps> = ({
   posType,
   onSaveActionChange,
 }) => {
+  const { t } = useTranslation('sales');
   const { posDetail, loading: detailLoading, error } = usePosDetail(posId);
   const [posEdit, { loading: saving }] = useMutation(mutations.posEdit);
   const form = useForm<ScreenConfigFormData>({
@@ -81,8 +83,8 @@ const ScreenConfig: React.FC<ScreenConfigProps> = ({
     async (data: ScreenConfigFormData) => {
       if (!posId) {
         toast({
-          title: 'Error',
-          description: 'POS ID is required',
+          title: t('error'),
+          description: t('pos-id-required'),
           variant: 'destructive',
         });
         return;
@@ -110,14 +112,14 @@ const ScreenConfig: React.FC<ScreenConfigProps> = ({
         });
 
         toast({
-          title: 'Success',
-          description: 'Screen config saved successfully',
+          title: t('success'),
+          description: t('screen-config-saved'),
         });
         reset(data);
       } catch {
         toast({
-          title: 'Error',
-          description: 'Failed to save screen config',
+          title: t('error'),
+          description: t('screen-config-save-failed'),
           variant: 'destructive',
         });
       }
@@ -138,7 +140,7 @@ const ScreenConfig: React.FC<ScreenConfigProps> = ({
           size="sm"
           disabled={saving}
         >
-          {saving ? 'Saving...' : 'Save Changes'}
+          {saving ? t('saving') : t('save-changes')}
         </Button>
       ) : null,
     );
@@ -163,7 +165,7 @@ const ScreenConfig: React.FC<ScreenConfigProps> = ({
       return (
         <div className="p-6 text-center">
           <p className="text-destructive">
-            Failed to load POS details: {error.message}
+            {t('failed-to-load-pos-details')}: {error.message}
           </p>
         </div>
       );
@@ -177,19 +179,19 @@ const ScreenConfig: React.FC<ScreenConfigProps> = ({
           className="space-y-8"
         >
           <section className="space-y-4">
-            <Label>Kitchen screen</Label>
+            <Label>{t('kitchen-screen')}</Label>
 
             <KitchenScreen control={control} />
           </section>
 
           <section className="pt-6 space-y-4 border-t">
-            <Label>Waiting screen</Label>
+            <Label>{t('waiting-screen')}</Label>
 
             <WaitingScreen control={control} />
           </section>
 
           <section className="pt-6 space-y-4 border-t">
-            <Label>Print</Label>
+            <Label>{t('print')}</Label>
 
             <PrintConfig control={control} />
           </section>
@@ -200,7 +202,7 @@ const ScreenConfig: React.FC<ScreenConfigProps> = ({
 
   return (
     <div className="p-6">
-      <InfoCard title="Screen configuration">
+      <InfoCard title={t('screen-configuration')}>
         <InfoCard.Content>{renderContent()}</InfoCard.Content>
       </InfoCard>
     </div>

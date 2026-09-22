@@ -1,4 +1,5 @@
 import { Form, Select } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 interface LanguageOption {
   value: string;
@@ -17,9 +18,11 @@ export const LanguageSelector = ({
   selectedLanguage,
   languageOptions,
   onLanguageChange,
-}: LanguageSelectorProps) => (
+}: LanguageSelectorProps) => {
+  const { t } = useTranslation('content');
+  return (
   <Form.Item>
-    <Form.Label>Language</Form.Label>
+    <Form.Label>{t('language')}</Form.Label>
     <Form.Control>
       <Select value={selectedLanguage} onValueChange={onLanguageChange}>
         <Select.Trigger>
@@ -41,4 +44,5 @@ export const LanguageSelector = ({
       </Select>
     </Form.Control>
   </Form.Item>
-);
+  );
+};

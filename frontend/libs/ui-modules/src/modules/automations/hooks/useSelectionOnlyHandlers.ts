@@ -1,10 +1,10 @@
 import { useRef, useState } from 'react';
-import { SuggestionType } from '../types/placeholderInputTypes';
+import { TPlaceholderInputSuggestionType } from '../types/placeholderInputTypes';
 
 interface UseSelectionOnlyHandlersParams {
   value?: string;
   onChange?: (value: string) => void;
-  selectionType?: SuggestionType;
+  selectionType?: TPlaceholderInputSuggestionType;
 }
 
 export function useSelectionOnlyHandlers({

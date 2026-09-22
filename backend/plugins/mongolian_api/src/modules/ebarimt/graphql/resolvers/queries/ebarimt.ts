@@ -1,29 +1,26 @@
 import {
   cursorPaginate,
+  escapeRegExp,
   getFullDate,
   getTomorrow,
   regexSearchText,
   sendTRPCMessage,
 } from 'erxes-api-shared/utils';
-import moment from 'moment';
-import { nanoid } from 'nanoid';
 import { IContext } from '~/connectionResolvers';
-import { IDoc } from '~/modules/ebarimt/@types';
-import {
-  getCompanyInfo,
-  getEbarimtData,
-  getPostData,
-} from '~/modules/ebarimt/utils';
+import { getPutResponseDetail } from '~/modules/ebarimt/getPutResponseDetail';
+import { getCompanyInfo } from '~/modules/ebarimt/utils';
 
 const generateFilter = async (subdomain, params) => {
   const filter: any = {};
 
   if (params.search) {
+    const escapedSearch = escapeRegExp(params.search);
+
     filter.$or = [
-      { id: new RegExp(`.*${params.search}.*`, 'i') },
-      { inactiveId: new RegExp(`.*${params.search}.*`, 'i') },
-      { number: new RegExp(`.*${params.search}.*`, 'i') },
-      { 'receipts.id': new RegExp(`.*${params.search}.*`, 'i') },
+      { id: new RegExp(escapedSearch, 'i') },
+      { inactiveId: new RegExp(escapedSearch, 'i') },
+      { number: new RegExp(escapedSearch, 'i') },
+      { 'receipts.id': new RegExp(escapedSearch, 'i') },
     ];
   }
 
@@ -245,101 +242,15 @@ export const putResponseQueries = {
     { subdomain, models, checkPermission }: IContext,
   ) => {
     await checkPermission('ebarimt:putResponseDetail');
-    const putHistory = await models.PutResponses.putHistory({
+
+    return getPutResponseDetail({
       contentType,
       contentId,
+      stageId,
+      isTemp,
+      models,
+      subdomain,
     });
-    if (putHistory) {
-      return putHistory;
-    }
-
-    if (!isTemp) {
-      throw new Error('Ebarimt not found');
-    }
-
-    if (contentType === 'deal') {
-      const deal = await sendTRPCMessage({
-        subdomain,
-        pluginName: 'sales',
-        method: 'query',
-        module: 'deal',
-        action: 'findOne',
-        input: { _id: contentId },
-        defaultValue: {},
-      });
-      const dealData = deal || {};
-
-      stageId = stageId || dealData.stageId;
-
-      if (!dealData?._id || !stageId) {
-        throw new Error('Deal not found');
-      }
-
-      const configVal = await models.Configs.getConfigValue(
-        'stageInEbarimt',
-        stageId,
-      );
-
-      if (!configVal) {
-        throw new Error('Ebarimt config not found');
-      }
-
-      const config = {
-        ...(await models.Configs.getConfigValue('EBARIMT', '', {})),
-        ...configVal,
-      };
-
-      const pipeline = await sendTRPCMessage({
-        subdomain,
-        pluginName: 'sales',
-        method: 'query',
-        module: 'pipeline',
-        action: 'findOne',
-        input: { stageId: stageId || deal.stageId },
-        defaultValue: {},
-      });
-      const pipelineData = pipeline || {};
-
-      const ebarimtData: IDoc = await getPostData(
-        subdomain,
-        models,
-        config,
-        dealData,
-        pipelineData.paymentTypes,
-      );
-      const { status, msg, data, innerData } = await getEbarimtData({
-        config,
-        doc: ebarimtData,
-      });
-
-      if (status !== 'ok' || (!data && !innerData)) {
-        return {
-          _id: nanoid(),
-          id: 'Error',
-          status: 'ERROR',
-          message: msg,
-        };
-      }
-      if (data) {
-        return {
-          _id: nanoid(),
-          ...data,
-          id: 'Түр баримт',
-          status: 'SUCCESS',
-          date: moment(new Date()).format('"yyyy-MM-dd HH:mm:ss'),
-          registerNo: config.companyRD || '',
-        };
-      }
-      if (innerData) {
-        return {
-          ...innerData,
-          id: 'Түр баримт',
-          status: 'SUCCESS',
-          date: moment(new Date()).format('"yyyy-MM-dd HH:mm:ss'),
-          registerNo: config.companyRD || '',
-        };
-      }
-    }
   },
 
   putResponsesAmount: async (
@@ -449,7 +360,7 @@ export const putResponseQueries = {
 
     const { perPage = 20, page = 1 } = params;
 
-    return await models.PutResponses.aggregate([
+    const pipeline = [
       {
         $match: {
           ...filter,
@@ -464,12 +375,62 @@ export const putResponseQueries = {
           count: { $sum: 1 },
           number: { $first: '$number' },
           date: { $first: { $substr: ['$date', 0, 10] } },
+          totalAmount: { $sum: '$totalAmount' },
+          totalVAT: { $sum: '$totalVAT' },
+          totalCityTax: { $sum: '$totalCityTax' },
         },
       },
       { $match: { count: { $gt: 1 } } },
       { $skip: perPage * (page - 1) },
       { $limit: perPage },
+      {
+        $project: {
+          _id: { $concat: ['$_id.contentId', '_', '$_id.taxType'] },
+          date: '$date',
+          values: {
+            counter: '$count',
+            cityTax: '$totalCityTax',
+            vat: '$totalVAT',
+            amount: '$totalAmount',
+          },
+        },
+      },
+    ];
+
+    const list = await models.PutResponses.aggregate(pipeline);
+
+    const totalCountResult = await models.PutResponses.aggregate([
+      {
+        $match: {
+          ...filter,
+          status: 'SUCCESS',
+          $or: [{ inactiveId: { $exists: false } }, { inactiveId: '' }],
+          state: { $ne: 'inactive' },
+        },
+      },
+      {
+        $group: {
+          _id: { contentId: '$contentId', taxType: '$taxType' },
+          count: { $sum: 1 },
+        },
+      },
+      { $match: { count: { $gt: 1 } } },
+      { $group: { _id: null, count: { $sum: 1 } } },
     ]);
+
+    const totalCount =
+      (totalCountResult.length && totalCountResult[0].count) || 0;
+
+    return {
+      list,
+      totalCount,
+      pageInfo: {
+        hasNextPage: page * perPage < totalCount,
+        hasPreviousPage: page > 1,
+        startCursor: null,
+        endCursor: null,
+      },
+    };
   },
 
   putResponsesDuplicatedCount: async (

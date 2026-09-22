@@ -6,8 +6,8 @@ import { ApolloLink, split } from '@apollo/client/link/core';
 import { getMainDefinition } from '@apollo/client/utilities';
 import { API_URL } from '../config';
 
-
-const wsUri = API_URL.replace(/^http/, 'ws');
+// Subscriptions are federated at the gateway root, NOT behind /pl:payment
+const wsUri = window.location.origin.replace(/^http/, 'ws');
 
 const httpLink = createHttpLink({
   uri: `${API_URL}/graphql`,

@@ -11,6 +11,6 @@ ENV="$(cat <<EOF
 EOF
 )"
 
-echo $ENV > /erxespos/public/js/env.js
+echo "$ENV" > /app/public/js/env.js
 
 exec "$@"

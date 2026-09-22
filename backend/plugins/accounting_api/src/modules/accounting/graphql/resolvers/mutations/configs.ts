@@ -42,7 +42,6 @@ const configMutations = {
       }
 
       const value = configsMap[code];
-
       await models.Configs.updateSingleByCode(code, value);
     }
 

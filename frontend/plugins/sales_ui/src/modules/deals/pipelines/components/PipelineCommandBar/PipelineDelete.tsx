@@ -2,6 +2,8 @@ import { IPipeline } from '@/deals/types/pipelines';
 import { IconTrash } from '@tabler/icons-react';
 import { Button, useConfirm } from 'erxes-ui';
 import { usePipelinesBulkRemove } from '../../../boards/hooks/usePipelines';
+import { useTranslation } from 'react-i18next';
+
 interface PipelineDeleteProps {
   pipelines: IPipeline[];
   rows: any[];
@@ -10,6 +12,7 @@ interface PipelineDeleteProps {
 export const PipelineDelete = ({ pipelines, rows }: PipelineDeleteProps) => {
   const { confirm } = useConfirm();
   const { removePipelines } = usePipelinesBulkRemove();
+  const { t } = useTranslation('sales');
 
   const handleDelete = () => {
     confirm({
@@ -35,7 +38,7 @@ export const PipelineDelete = ({ pipelines, rows }: PipelineDeleteProps) => {
       onClick={handleDelete}
     >
       <IconTrash />
-      Delete
+      {t('delete')}
     </Button>
   );
 };

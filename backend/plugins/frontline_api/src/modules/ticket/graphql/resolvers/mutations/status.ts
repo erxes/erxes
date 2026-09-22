@@ -2,38 +2,16 @@ import { IContext } from '~/connectionResolvers';
 import { IStatusEditInput } from '@/ticket/@types/status';
 import { checkPipeline } from '~/modules/ticket/utils/ticket';
 import { graphqlPubsub } from 'erxes-api-shared/utils';
-import { PermissionError } from '@/ticket/utils/permissionValidator';
-
-/**
- * Asserts that the current user is the owner of the pipeline.
- * Status management (add/update/delete) is restricted to pipeline owners.
- */
-const assertPipelineOwner = async (
-  pipelineId: string,
-  userId: string,
-  models: IContext['models'],
-): Promise<void> => {
-  const pipeline = await models.Pipeline.findOne({ _id: pipelineId });
-
-  if (!pipeline) {
-    throw new Error('Pipeline not found');
-  }
-
-  // if (pipeline.userId !== userId) {
-  //   throw new PermissionError(
-  //     'Access denied: Only the pipeline owner can manage statuses',
-  //   );
-  // }
-};
 
 export const statusMutations = {
   addTicketStatus: async (
     _parent: undefined,
     params: IStatusEditInput,
-    { models, user }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
+    await checkPermission('ticketStatusesManage');
+
     await checkPipeline({ models, pipelineId: params.pipelineId });
-    await assertPipelineOwner(params.pipelineId, user._id, models);
 
     const status = await models.Status.addStatus(params);
 
@@ -50,10 +28,11 @@ export const statusMutations = {
   updateTicketStatus: async (
     _parent: undefined,
     { _id, ...params }: IStatusEditInput,
-    { models, user }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
-    const existing = await models.Status.getStatus(_id);
-    await assertPipelineOwner(existing.pipelineId, user._id, models);
+    await checkPermission('ticketStatusesManage');
+
+    await models.Status.getStatus(_id);
 
     const updatedStatus = await models.Status.updateStatus(_id, params);
 
@@ -70,10 +49,11 @@ export const statusMutations = {
   deleteTicketStatus: async (
     _parent: undefined,
     { _id }: { _id: string },
-    { models, user }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
-    const existing = await models.Status.getStatus(_id);
-    await assertPipelineOwner(existing.pipelineId, user._id, models);
+    await checkPermission('ticketStatusesManage');
+
+    await models.Status.getStatus(_id);
 
     const deleted = await models.Status.removeStatus(_id);
 

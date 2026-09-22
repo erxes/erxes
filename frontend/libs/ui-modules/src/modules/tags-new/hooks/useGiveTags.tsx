@@ -16,6 +16,9 @@ export const useGiveTags = (
     GiveTagsMutationResponse,
     GiveTagsMutationVariables
   >(GIVE_TAGS, {
+    // run consumers' cache updates immediately instead of waiting for the
+    // server response; rolled back automatically if the mutation fails
+    optimisticResponse: { tagsTag: null },
     ...options,
     onError: (error) => {
       toast({

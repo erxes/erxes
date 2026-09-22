@@ -9,19 +9,18 @@ import {
   archivedItems,
   archivedItemsCount,
   checkItemPermByUser,
+  getCreatedAtSearchFilter,
   getItemList,
 } from '~/modules/sales/utils';
 import {
   getNextMonth,
   getToday,
-  regexSearchText,
   escapeRegExp,
   sendTRPCMessage,
 } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
-import dealResolvers from '../customResolvers/deal';
+import dealResolvers from '@/sales/graphql/resolvers/customResolvers/deal';
 import moment from 'moment';
-import { fetchSegment } from '~/modules/sales/trpc/deal';
 import { Resolver } from 'erxes-api-shared/core-types';
 
 const contains = (values: string[]) => {
@@ -30,6 +29,160 @@ const contains = (values: string[]) => {
 
 const isListEmpty = (value) => {
   return value.length === 1 && value[0].length === 0;
+};
+
+const getPipelineVisibilityFilter = async ({
+  models,
+  subdomain,
+  userId,
+  pipelineId,
+}: {
+  models: IModels;
+  subdomain: string;
+  userId: string;
+  pipelineId: string;
+}): Promise<FilterQuery<IDealDocument> | null> => {
+  const pipeline = await models.Pipelines.getPipeline(pipelineId);
+  const isCheckEnabled = pipeline.isCheckUser || pipeline.isCheckDepartment;
+
+  if (!isCheckEnabled) {
+    return null;
+  }
+
+  if ((pipeline.excludeCheckUserIds || []).includes(userId)) {
+    return null;
+  }
+
+  const pipelineDepartmentIds = pipeline.departmentIds || [];
+  const includeCheckUserIds: string[] = [];
+
+  if (pipelineDepartmentIds.length > 0) {
+    const user = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'users',
+      action: 'findOne',
+      input: {
+        _id: userId,
+      },
+    });
+
+    const supervisorDepartments = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'departments',
+      action: 'findWithChild',
+      input: {
+        query: {
+          supervisorId: userId,
+        },
+        fields: {
+          _id: 1,
+        },
+      },
+      defaultValue: [],
+    });
+
+    const supervisorDepartmentIds =
+      supervisorDepartments?.map((department) => department._id) || [];
+    const supervisorPipelineDepartmentIds = supervisorDepartmentIds.filter(
+      (departmentId) => pipelineDepartmentIds.includes(departmentId),
+    );
+    const userDepartmentIds = user?.departmentIds || [];
+    const userPipelineDepartmentIds = userDepartmentIds.filter((departmentId) =>
+      pipelineDepartmentIds.includes(departmentId),
+    );
+    let checkDepartmentIds = supervisorPipelineDepartmentIds;
+
+    if (!checkDepartmentIds.length && pipeline.isCheckDepartment) {
+      checkDepartmentIds = userPipelineDepartmentIds;
+    }
+
+    if (checkDepartmentIds.length > 0) {
+      const departmentUsers = await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        method: 'query',
+        module: 'users',
+        action: 'find',
+        input: {
+          query: { departmentIds: { $in: checkDepartmentIds } },
+        },
+        defaultValue: [],
+      });
+
+      includeCheckUserIds.push(
+        ...departmentUsers.map((departmentUser) => departmentUser._id),
+        user?._id || userId,
+      );
+    }
+  }
+
+  const uniqueCheckUserIds = [...new Set([...includeCheckUserIds, userId])];
+
+  return {
+    $or: [
+      { assignedUserIds: { $in: uniqueCheckUserIds } },
+      { userId: { $in: uniqueCheckUserIds } },
+    ],
+  };
+};
+
+const getDealIdsByCustomerPhone = async (
+  subdomain: string,
+  search: string,
+): Promise<string[]> => {
+  const trimmedSearch = search.trim();
+  const phoneDigits = trimmedSearch.replace(/\D/g, '');
+
+  // Do not treat alphanumeric identifiers as phone searches.
+  const isPhoneSearch =
+    phoneDigits.length >= 4 && /^[\d\s+()-]+$/.test(trimmedSearch);
+
+  if (!isPhoneSearch) {
+    return [];
+  }
+
+  const phonePattern = phoneDigits.split('').join('\\D*');
+  const customers: Array<{ _id: unknown }> = await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    method: 'query',
+    module: 'customers',
+    action: 'findActiveCustomers',
+    input: {
+      query: {
+        $or: [
+          { primaryPhone: { $regex: phonePattern } },
+          { phones: { $regex: phonePattern } },
+        ],
+      },
+      fields: { _id: 1 },
+      skip: 0,
+      limit: 0,
+    },
+    defaultValue: [],
+  });
+
+  if (!customers.length) {
+    return [];
+  }
+
+  return sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    method: 'query',
+    module: 'relation',
+    action: 'filterRelationIds',
+    input: {
+      contentType: 'core:customer',
+      contentIds: customers.map(({ _id }) => String(_id)),
+      relatedContentType: 'sales:deal',
+    },
+    defaultValue: [],
+  });
 };
 
 export const generateFilter = async (
@@ -63,7 +216,6 @@ export const generateFilter = async (
     userIds,
     tagIds,
     segment,
-    segmentData,
     assignedToMe,
     startDate,
     endDate,
@@ -71,6 +223,7 @@ export const generateFilter = async (
     stageChangedStartDate,
     stageChangedEndDate,
     noSkipArchive,
+    status,
     number,
     branchIds,
     departmentIds,
@@ -90,9 +243,11 @@ export const generateFilter = async (
   } = params;
   Object.assign(
     filter,
-    noSkipArchive
-      ? {}
-      : { status: { $ne: SALES_STATUSES.ARCHIVED }, parentId: undefined },
+    status
+      ? { status }
+      : noSkipArchive
+        ? {}
+        : { status: { $ne: SALES_STATUSES.ARCHIVED }, parentId: undefined },
   );
 
   let filterIds: string[] = [];
@@ -106,7 +261,6 @@ export const generateFilter = async (
   }
 
   if (assignedUserIds) {
-    // Filter by assigned to no one
     const notAssigned = isListEmpty(assignedUserIds);
 
     filter.assignedUserIds = notAssigned ? [] : { $in: assignedUserIds };
@@ -299,10 +453,17 @@ export const generateFilter = async (
   }
 
   if (search) {
+    const escaped = escapeRegExp(search);
+    const customerDealIds = await getDealIdsByCustomerPhone(subdomain, search);
+    const createdAtFilter = getCreatedAtSearchFilter(search);
+
     Object.assign(filter, {
       $or: [
-        regexSearchText(search),
-        { number: { $regex: new RegExp(`.*${escapeRegExp(search)}.*`, 'i') } },
+        { name: { $regex: escaped, $options: 'i' } },
+        { number: { $regex: escaped, $options: 'i' } },
+        { description: { $regex: escaped, $options: 'i' } },
+        ...(customerDealIds.length ? [{ _id: { $in: customerDealIds } }] : []),
+        ...(createdAtFilter ? [createdAtFilter] : []),
       ],
     });
   }
@@ -370,129 +531,16 @@ export const generateFilter = async (
     filter.tagIds = { $in: tagIds };
   }
 
-  // Pipeline user/department permission check — internal users only.
-  // CP users are not erxes users so this block must be skipped for client portal.
   if (pipelineId && !forClientPortal) {
-    const pipeline = await models.Pipelines.getPipeline(pipelineId);
-
-    const user = await sendTRPCMessage({
+    const pipelineVisibilityFilter = await getPipelineVisibilityFilter({
+      models,
       subdomain,
-
-      pluginName: 'core',
-      method: 'query',
-      module: 'users',
-      action: 'findOne',
-      input: {
-        _id: userId,
-      },
-    });
-
-    const departments = await sendTRPCMessage({
-      subdomain,
-
-      pluginName: 'core',
-      method: 'query',
-      module: 'departments',
-      action: 'findWithChild',
-      input: {
-        _id: userId,
-      },
-      defaultValue: [],
-    });
-
-    const supervisorDepartmentIds = departments?.map((x) => x._id) || [];
-    const pipelineDepartmentIds = pipeline.departmentIds || [];
-
-    const commonIds =
-      supervisorDepartmentIds.filter((id) =>
-        pipelineDepartmentIds.includes(id),
-      ) || [];
-    const isEligibleSeeAllCards = (pipeline.excludeCheckUserIds || []).includes(
       userId,
-    );
-    if (
-      commonIds?.length > 0 &&
-      (pipeline.isCheckUser || pipeline.isCheckDepartment) &&
-      !isEligibleSeeAllCards
-    ) {
-      // current user is supervisor in departments and this pipeline has included that some of user's departments
-      // so user is eligible to see all cards of people who share same department.
-      const otherDepartmentUsers = await sendTRPCMessage({
-        subdomain,
+      pipelineId,
+    });
 
-        pluginName: 'core',
-        method: 'query',
-        module: 'users',
-        action: 'find',
-        input: {
-          query: { departmentIds: { $in: commonIds } },
-        },
-        defaultValue: [],
-      });
-
-      let includeCheckUserIds = otherDepartmentUsers.map((x) => x._id) || [];
-      includeCheckUserIds = includeCheckUserIds.concat(user._id || []);
-
-      const uqinueCheckUserIds = [
-        ...new Set(includeCheckUserIds.concat(userId)),
-      ];
-
-      Object.assign(filter, {
-        $or: [
-          { assignedUserIds: { $in: uqinueCheckUserIds } },
-          { userId: { $in: uqinueCheckUserIds } },
-        ],
-      });
-    } else {
-      if (
-        (pipeline.isCheckUser || pipeline.isCheckDepartment) &&
-        !isEligibleSeeAllCards
-      ) {
-        let includeCheckUserIds: string[] = [];
-
-        if (pipeline.isCheckDepartment) {
-          const userDepartmentIds = user?.departmentIds || [];
-          const commonIds = userDepartmentIds.filter((id) =>
-            pipelineDepartmentIds.includes(id),
-          );
-
-          const otherDepartmentUsers = await sendTRPCMessage({
-            subdomain,
-
-            pluginName: 'core',
-            method: 'query',
-            module: 'users',
-            action: 'find',
-            input: {
-              query: { departmentIds: { $in: commonIds } },
-            },
-            defaultValue: [],
-          });
-
-          for (const departmentUser of otherDepartmentUsers) {
-            includeCheckUserIds = [...includeCheckUserIds, departmentUser._id];
-          }
-
-          if (
-            pipelineDepartmentIds.filter((departmentId) =>
-              userDepartmentIds.includes(departmentId),
-            ).length
-          ) {
-            includeCheckUserIds = includeCheckUserIds.concat(user._id || []);
-          }
-        }
-
-        const uqinueCheckUserIds = [
-          ...new Set(includeCheckUserIds.concat(userId)),
-        ];
-
-        Object.assign(filter, {
-          $or: [
-            { assignedUserIds: { $in: uqinueCheckUserIds } },
-            { userId: { $in: uqinueCheckUserIds } },
-          ],
-        });
-      }
+    if (pipelineVisibilityFilter) {
+      filter.$and = [...(filter.$and || []), pipelineVisibilityFilter];
     }
   }
 
@@ -506,16 +554,8 @@ export const generateFilter = async (
     filter.assignedUserIds = { $in: [userId] };
   }
 
-  if (segmentData) {
-    const segment = JSON.parse(segmentData);
-    const itemIds = await fetchSegment(subdomain, '', {}, segment);
-    filter._id = { $in: itemIds };
-  }
-
   if (segment) {
-    const itemIds = await fetchSegment(subdomain, segment);
-
-    filter._id = { $in: itemIds };
+    filter.segmentIds = segment;
   }
 
   if (hasStartAndCloseDate) {
@@ -524,7 +564,7 @@ export const generateFilter = async (
   }
 
   if (number) {
-    filter.number = { $regex: `${number}`, $options: 'mui' };
+    filter.number = { $regex: escapeRegExp(number), $options: 'i' };
   }
 
   if (vendorCustomerIds?.length > 0) {
@@ -626,6 +666,18 @@ export const generateFilter = async (
     };
   }
 
+  const hasPipelineContext = Boolean(
+    pipelineId || pipelineIds || stageId || boardIds || stageCodes,
+  );
+
+  if (!noSkipArchive && !hasPipelineContext && !filter.stageId) {
+    const validStageIds = await models.Stages.find({
+      status: { $ne: SALES_STATUSES.ARCHIVED },
+    }).distinct('_id');
+
+    filter.stageId = { $in: validStageIds };
+  }
+
   return filter;
 };
 
@@ -681,6 +733,12 @@ const fetchDeals = async (
   user: IContext['user'],
   forClientPortal = false,
 ) => {
+  const { search, noSkipArchive } = args;
+
+  if (noSkipArchive && search) {
+    args.orderBy = { status: 1, ...args.orderBy };
+  }
+
   const filter = await generateFilter(
     models,
     subdomain,
@@ -698,7 +756,11 @@ const fetchDeals = async (
     list: deals,
     pageInfo,
     totalCount,
-  } = await getItemList(models, subdomain, filter, args, user, getExtraFields);
+  } = await getItemList(models, subdomain, filter, args, user, getExtraFields, {
+    formatter: {
+      modifiedAt: 'date',
+    },
+  });
 
   await enrichDealsWithProducts(subdomain, deals);
 
@@ -775,7 +837,11 @@ export const dealQueries: Record<string, Resolver> = {
       stageId: stage._id,
       pipelineId: pipeline._id,
       boardId: pipeline.boardId,
-      href: `/sales/deals?boardId=${encodeURIComponent(pipeline.boardId)}&pipelineId=${encodeURIComponent(pipeline._id)}&salesItemId=${encodeURIComponent(deal._id)}`,
+      href: `/sales/deals?boardId=${encodeURIComponent(
+        pipeline.boardId,
+      )}&pipelineId=${encodeURIComponent(
+        pipeline._id,
+      )}&salesItemId=${encodeURIComponent(deal._id)}`,
     };
   },
 

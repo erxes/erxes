@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useUpdateProject } from '@/project/hooks/useUpdateProject';
 import { format, nextFriday, addDays } from 'date-fns';
 import { Button, Calendar, Command } from 'erxes-ui';
@@ -21,17 +22,17 @@ const buildDueDateOptions = () => {
 
   return [
     {
-      label: 'Tomorrow',
+      label: 'tomorrow',
       date: tomorrow,
       description: format(tomorrow, 'EEE, MMM dd'),
     },
     {
-      label: 'End of this week',
+      label: 'end-of-this-week',
       date: endOfWeek,
       description: format(endOfWeek, 'EEE, MMM dd'),
     },
     {
-      label: 'In one week',
+      label: 'in-one-week',
       date: inOneWeek,
       description: format(inOneWeek, 'EEE, MMM dd'),
     },
@@ -43,9 +44,10 @@ export const ProjectsSetTargetDateTrigger = ({
 }: {
   setCurrentContent: (content: string) => void;
 }) => {
+  const { t } = useTranslation('operation');
   return (
     <Command.Item onSelect={() => setCurrentContent('targetDate')}>
-      <div className="flex gap-2 items-center">Set Target Date</div>
+      <div className="flex gap-2 items-center">{t('set-target-date')}</div>
     </Command.Item>
   );
 };
@@ -57,6 +59,7 @@ export const ProjectsSetTargetDateContent = ({
   projectIds: string[];
   setOpen: (open: boolean) => void;
 }) => {
+  const { t } = useTranslation('operation');
   const { updateProject, loading } = useUpdateProject();
   const [showCalendar, setShowCalendar] = useState(false);
 
@@ -84,7 +87,7 @@ export const ProjectsSetTargetDateContent = ({
           onClick={() => setShowCalendar(false)}
         >
           <IconChevronLeft className="size-4 mr-1" />
-          Back to options
+          {t('back-to-options')}
         </Button>
         <Calendar
           mode="single"
@@ -110,7 +113,7 @@ export const ProjectsSetTargetDateContent = ({
           disabled={loading}
         >
           <IconCalendarTime className="size-4 mr-2" />
-          <span>Custom date</span>
+          <span>{t('custom-date')}</span>
         </Command.Item>
 
         <Command.Separator />
@@ -126,7 +129,7 @@ export const ProjectsSetTargetDateContent = ({
           >
             <IconClock className="size-4 mr-2" />
             <div className="flex justify-between items-center w-full">
-              <span>{option.label}</span>
+              <span>{t(option.label)}</span>
               <span className="text-xs text-muted-foreground">
                 {option.description}
               </span>

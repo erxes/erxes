@@ -32,6 +32,19 @@ export interface MenuInput {
   translations?: TranslationInput[];
 }
 
+export interface MenuItem {
+  _id: string;
+  label: string;
+  parentId?: string;
+  kind?: string;
+  url?: string;
+  order?: number;
+  depth?: number;
+  path?: string[];
+  translations?: { language: string }[];
+  [key: string]: unknown;
+}
+
 export interface MenuRecord {
   _id: string;
   label: string;

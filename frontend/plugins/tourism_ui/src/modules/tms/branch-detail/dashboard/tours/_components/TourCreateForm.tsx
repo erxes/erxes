@@ -3,6 +3,7 @@ import { useForm, useWatch, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@apollo/client';
 import { useEffect, useMemo, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { nanoid } from 'nanoid';
 
 import { GET_ITINERARIES } from '../../itinerary/graphql/queries';
@@ -97,6 +98,7 @@ export const TourCreateForm = ({
   mainLanguage,
   onSuccess,
 }: Props) => {
+  const { t } = useTranslation('tourism');
   const { toast } = useToast();
   const { createTour, loading } = useCreateTour();
   const previousTypeRef = useRef<string | undefined>();
@@ -284,8 +286,8 @@ export const TourCreateForm = ({
   const handleSubmit = async (values: TourFormValues) => {
     if (!branchId) {
       toast({
-        title: 'Error',
-        description: 'Branch required',
+        title: t('error'),
+        description: t('branch-required'),
         variant: 'destructive',
       });
       return;
@@ -293,8 +295,8 @@ export const TourCreateForm = ({
 
     if (!values.pricingOptions || values.pricingOptions.length === 0) {
       toast({
-        title: 'Error',
-        description: 'At least one pricing option is required',
+        title: t('error'),
+        description: t('at-least-one-pricing'),
         variant: 'destructive',
       });
       return;
@@ -414,17 +416,17 @@ export const TourCreateForm = ({
       }
 
       toast({
-        title: 'Success',
-        description: 'Tour created successfully',
+        title: t('success'),
+        description: t('tour-created-successfully'),
       });
 
       form.reset();
       onSuccess?.();
     } catch (error) {
       toast({
-        title: 'Error',
+        title: t('error'),
         description:
-          error instanceof Error ? error.message : 'Failed to create tour',
+          error instanceof Error ? error.message : t('failed-to-create-tour'),
         variant: 'destructive',
       });
     }
@@ -434,9 +436,8 @@ export const TourCreateForm = ({
     const nameValue = form.getValues('name');
     if (!nameValue?.trim()) {
       toast({
-        title: 'Error',
-        description:
-          'Please enter values for the main language before creating.',
+        title: t('error'),
+        description: t('enter-main-lang-before-creating'),
         variant: 'destructive',
       });
       setSelectedLang(resolvedPrimaryLanguage);
@@ -450,7 +451,7 @@ export const TourCreateForm = ({
         className="flex flex-col h-full"
       >
         <Sheet.Header>
-          <Sheet.Title>Create tour</Sheet.Title>
+          <Sheet.Title>{t('create-tour')}</Sheet.Title>
           {allLanguages.length > 1 && (
             <div className="flex items-center gap-2 ml-auto">
               <TourFieldLanguageSwitch
@@ -541,7 +542,7 @@ export const TourCreateForm = ({
 
             <div className="flex items-center">
               <div className="flex-1 border-t" />
-              <Form.Label className="mx-2">Duration Info</Form.Label>
+              <Form.Label className="mx-2">{t('duration-info')}</Form.Label>
               <div className="flex-1 border-t" />
             </div>
 
@@ -559,7 +560,7 @@ export const TourCreateForm = ({
 
             <div className="flex items-center">
               <div className="flex-1 border-t" />
-              <Form.Label className="mx-2">Crew</Form.Label>
+              <Form.Label className="mx-2">{t('crew')}</Form.Label>
               <div className="flex-1 border-t" />
             </div>
 
@@ -567,7 +568,7 @@ export const TourCreateForm = ({
 
             <div className="flex items-center">
               <div className="flex-1 border-t" />
-              <Form.Label className="mx-2">Pricing Info</Form.Label>
+              <Form.Label className="mx-2">{t('pricing-info')}</Form.Label>
               <div className="flex-1 border-t" />
             </div>
 
@@ -592,7 +593,7 @@ export const TourCreateForm = ({
 
             <div className="flex items-center">
               <div className="flex-1 border-t" />
-              <Form.Label className="mx-2">More Info</Form.Label>
+              <Form.Label className="mx-2">{t('more-info')}</Form.Label>
               <div className="flex-1 border-t" />
             </div>
 
@@ -605,13 +606,13 @@ export const TourCreateForm = ({
             <div className="pt-4 space-y-4">
               <Tabs defaultValue="info1" className="w-full">
                 <Tabs.List className="grid w-full grid-cols-5">
-                  <Tabs.Trigger value="info1">Included</Tabs.Trigger>
-                  <Tabs.Trigger value="info2">Not Included</Tabs.Trigger>
-                  <Tabs.Trigger value="info3">Highlights</Tabs.Trigger>
+                  <Tabs.Trigger value="info1">{t('included')}</Tabs.Trigger>
+                  <Tabs.Trigger value="info2">{t('not-included')}</Tabs.Trigger>
+                  <Tabs.Trigger value="info3">{t('highlights')}</Tabs.Trigger>
                   <Tabs.Trigger value="info4">
-                    Additional Information
+                    {t('additional-information')}
                   </Tabs.Trigger>
-                  <Tabs.Trigger value="info5">Notes</Tabs.Trigger>
+                  <Tabs.Trigger value="info5">{t('notes')}</Tabs.Trigger>
                 </Tabs.List>
 
                 <Tabs.Content value="info1" className="pt-4">
@@ -665,11 +666,11 @@ export const TourCreateForm = ({
             disabled={loading}
             onClick={onSuccess}
           >
-            Cancel
+            {t('cancel')}
           </Button>
 
           <Button type="submit" disabled={loading}>
-            {loading ? 'Creating...' : 'Create'}
+            {loading ? t('creating') : t('create')}
           </Button>
         </Sheet.Footer>
       </form>

@@ -1,4 +1,6 @@
 import {
+  CMS_ACCESS_POLICIES,
+  CMS_DEFAULT_ACCESS_POLICY,
   ICMSMenuDocument,
   ICMSPageDocument,
   IContentCMSDocument,
@@ -35,6 +37,13 @@ export const cmsSchema = new mongoose.Schema<IContentCMSDocument>(
     languages: { type: [String], optional: true },
     postUrlField: { type: String, optional: true, default: '_id' },
     postUrlPrefix: { type: String, optional: true, default: '/posts' },
+    accessPolicy: {
+      type: String,
+      enum: CMS_ACCESS_POLICIES,
+      optional: true,
+      default: CMS_DEFAULT_ACCESS_POLICY,
+    },
+    assignedMemberIds: { type: [String], optional: true, default: [] },
   },
   { timestamps: true },
 );

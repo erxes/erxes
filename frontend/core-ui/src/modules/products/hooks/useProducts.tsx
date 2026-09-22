@@ -23,13 +23,15 @@ type ProductsQueryVariables = {
   direction?: EnumCursorDirection;
 
   type?: string;
+  status?: string;
   categoryIds?: string[];
   searchValue?: string;
   vendorId?: string;
   brandIds?: string[];
   tagIds?: string[];
   segment?: string;
-  segmentData?: string;
+  segmentIds?: string[];
+  propertiesData?: string;
 
   sortField?: string;
   sortDirection?: number;
@@ -41,36 +43,39 @@ export const useProductsVariables = (
   const [
     {
       type,
+      status,
       categoryIds,
       searchValue,
       vendorId,
       brandIds,
       tags,
-      segment,
-      segmentData,
+      segments,
+      propertiesData,
       sortField,
       sortDirection,
     },
   ] = useMultiQueryState<{
     type: string;
+    status: string;
     categoryIds: string[];
     searchValue: string;
     vendorId: string;
     brandIds: string[];
     tags: string[]; // stored in URL as "tags"
-    segment: string;
-    segmentData: string;
+    segments: string[];
+    propertiesData: string;
     sortField: string;
     sortDirection: string; // stored in URL as string (ex: "-1")
   }>([
     'type',
+    'status',
     'categoryIds',
     'searchValue',
     'vendorId',
     'brandIds',
     'tags',
-    'segment',
-    'segmentData',
+    'segments',
+    'propertiesData',
     'sortField',
     'sortDirection',
   ]);
@@ -90,6 +95,7 @@ export const useProductsVariables = (
 
     // filters from URL/query-state
     type: type || undefined,
+    status: status || undefined,
     categoryIds: categoryIds?.length ? categoryIds : undefined,
     searchValue: searchValue || undefined,
     vendorId: vendorId || undefined,
@@ -98,8 +104,8 @@ export const useProductsVariables = (
     // URL key is "tags", GraphQL expects "tagIds"
     tagIds: tags?.length ? tags : undefined,
 
-    segment: segment || undefined,
-    segmentData: segmentData || undefined,
+    segmentIds: segments?.length ? segments : undefined,
+    propertiesData: propertiesData || undefined,
 
     // sorting defaults
     sortField: sortField || 'createdAt',

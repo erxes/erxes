@@ -45,7 +45,15 @@ const PmsBranchDetail = gql`
       uiOptions
       pipelineConfig
       extraProductCategories
+      excludeExtraProductCategoryIds
+      excludeExtraProductIds
       roomCategories
+      excludeRoomCategoryIds
+      excludeRoomIds
+      hasAppointment
+      appointmentCategories
+      excludeAppointmentCategoryIds
+      excludeAppointmentIds
       websiteReservationLock
       time
       discount
@@ -83,9 +91,22 @@ const ProductCategories = gql`
   }
 `;
 
+const PmsPricingPlans = gql`
+  query PmsPricingPlans($status: String) {
+    pricingPlans(status: $status) {
+      _id
+      name
+      status
+      type
+      value
+    }
+  }
+`;
+
 export const pmsQueries = {
   PmsBranchList,
   PmsBranchDetail,
   Payments,
   ProductCategories,
+  PmsPricingPlans,
 };

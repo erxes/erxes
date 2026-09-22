@@ -1,20 +1,27 @@
 import { graphqlPubsub } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { ITicketPipelineUpdate } from '@/ticket/@types/pipeline';
-import { PermissionError } from '@/ticket/utils/permissionValidator';
+import { validatePipelinePropertyIds } from '@/ticket/utils/pipelineProperties';
 
 export const pipelineMutations = {
   createPipeline: async (
     _parent: undefined,
     params: ITicketPipelineUpdate,
-    { models, user }: IContext,
+    { models, user, subdomain }: IContext,
   ) => {
     if (!user) {
       throw new Error('Authentication required');
     }
 
+    const propertyIds = await validatePipelinePropertyIds(
+      subdomain,
+      params.propertyIds,
+    );
+
     const pipeline = await models.Pipeline.addPipeline({
       ...params,
+      propertyIds,
+      isPropertySelectionConfigured: params.propertyIds !== undefined,
       userId: user._id,
     });
 
@@ -31,11 +38,22 @@ export const pipelineMutations = {
   updatePipeline: async (
     _parent: undefined,
     params: ITicketPipelineUpdate & { _id: string },
-    { models, user }: IContext,
+    context: IContext,
   ) => {
+    const { models, user, subdomain } = context;
+    const propertyIds =
+      params.propertyIds === undefined
+        ? undefined
+        : await validatePipelinePropertyIds(subdomain, params.propertyIds);
     const updatedPipeline = await models.Pipeline.updatePipeline(
       params._id,
-      params,
+      {
+        ...params,
+        ...(propertyIds !== undefined && {
+          propertyIds,
+          isPropertySelectionConfigured: true,
+        }),
+      },
       user,
     );
 
@@ -52,7 +70,7 @@ export const pipelineMutations = {
   removePipeline: async (
     _parent: undefined,
     { _id }: { _id: string },
-    { models, user }: IContext,
+    { models }: IContext,
   ) => {
     const pipeline = await models.Pipeline.getPipeline(_id);
 

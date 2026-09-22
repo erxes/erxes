@@ -6,6 +6,12 @@ const TicketReportsList = lazy(() =>
   import('./TicketReportsList').then((m) => ({ default: m.TicketReportsList })),
 );
 
+const FacebookReportsList = lazy(() =>
+  import('./FacebookReportsList').then((m) => ({
+    default: m.FacebookReportsList,
+  })),
+);
+
 export const ReportsView = () => {
   const [reportModule] = useQueryState<string>('reportModule');
 
@@ -14,6 +20,8 @@ export const ReportsView = () => {
       <div className="flex flex-col overflow-hidden h-full relative">
         {reportModule === 'ticket' ? (
           <TicketReportsList />
+        ) : reportModule === 'facebook' ? (
+          <FacebookReportsList />
         ) : (
           <FrontlineReportsList />
         )}

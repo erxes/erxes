@@ -1,9 +1,11 @@
 import { useMutation } from '@apollo/client';
 import { useToast, useRecordTableCursor } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { CREATE_STAGE_IN_MOVEMENT_ERKHET_CONFIG } from '../graphql/mutations/createStageInErkhetMovementConfigMutations';
 import { STAGE_IN_MOVEMENT_ERKHET_CONFIG_CURSOR_SESSION_KEY } from '../constants';
 
 export const useCreateStageInErkhetMovementConfig = () => {
+  const { t } = useTranslation('mongolian');
   const { toast } = useToast();
   const { setCursor } = useRecordTableCursor({
     sessionKey: STAGE_IN_MOVEMENT_ERKHET_CONFIG_CURSOR_SESSION_KEY,
@@ -13,15 +15,15 @@ export const useCreateStageInErkhetMovementConfig = () => {
     useMutation(CREATE_STAGE_IN_MOVEMENT_ERKHET_CONFIG, {
       onCompleted: () => {
         toast({
-          title: 'Success',
-          description: 'Stage in erkhet movement config created successfully',
+          title: t('success'),
+          description: t('stage-in-erkhet-movement-config-created-successfully'),
           variant: 'default',
         });
         setCursor("");
       },
       onError: (e) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: e.message,
           variant: 'destructive',
         });

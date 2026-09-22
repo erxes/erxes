@@ -1,5 +1,7 @@
 {
   "settings": "Тохиргоо",
+  "theme": "Загвар",
+  "language": "Хэл",
   "change-theme": "Загвар солих",
   "change-language": "Хэл солих",
   "logout": "Гарах",

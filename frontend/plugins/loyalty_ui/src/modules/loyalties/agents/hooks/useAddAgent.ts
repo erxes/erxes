@@ -1,10 +1,12 @@
 import { useMutation } from '@apollo/client';
 import { useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { AGENTS_ADD_MUTATION } from '../graphql/mutations/mutations';
 import { IAgent } from '../types/agent';
 
 export const useAddAgent = () => {
   const { toast } = useToast();
+  const { t } = useTranslation('loyalty');
 
   const [addAgent, { loading, error }] = useMutation(AGENTS_ADD_MUTATION);
 
@@ -29,14 +31,14 @@ export const useAddAgent = () => {
       },
       onCompleted: () => {
         toast({
-          title: 'Success',
-          description: 'Agent created successfully',
+          title: t('success'),
+          description: t('agent-created'),
           variant: 'default',
         });
       },
       onError: (err) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: err.message,
           variant: 'destructive',
         });

@@ -3,7 +3,17 @@ import type { IModels } from '../../connectionResolver';
 import type { TAiAgentFile } from '../aiAgent';
 import { buildAiKnowledgeChunks } from './chunk';
 import { hashKnowledgeContent } from './normalize';
+import {
+  AI_AGENT_FILE_KNOWLEDGE_SOURCE_TYPE,
+  buildAiAgentFileKnowledgeSourceId,
+} from './sourceConfig';
 import { TAiKnowledgeMetadata } from './types';
+import {
+  buildAiSectionKey,
+  buildAiSectionName,
+  detectAiSectionRole,
+  mergeAiFileSections,
+} from './sectionRole';
 
 type TAiKnowledgeIndexFileParams = {
   models: IModels;
@@ -95,6 +105,11 @@ export const indexAiAgentKnowledgeFile = async ({
     }
 
     const contentHash = hashKnowledgeContent(content);
+    const sourceUpdatedAt = new Date();
+    const sourceId = buildAiAgentFileKnowledgeSourceId({
+      agentId,
+      fileId: file.id,
+    });
     const chunks = buildAiKnowledgeChunks({
       agentId,
       fileId: file.id,
@@ -106,14 +121,83 @@ export const indexAiAgentKnowledgeFile = async ({
       },
     });
 
-    await models.AiAgentKnowledgeChunks.deleteMany({
-      agentId,
-      fileId: file.id,
+    const detectedSections = chunks.map((chunk, index) => ({
+      key: buildAiSectionKey(chunk, index),
+      name: buildAiSectionName(chunk, index),
+      role: detectAiSectionRole(chunk),
+      detected: true,
+    }));
+    const sections = mergeAiFileSections({
+      storedSections: file.sections || [],
+      detectedSections,
     });
+    // Rules and examples shape the reply from the system prompt; letting them
+    // into the chunk store is what lets a customer ask the agent to recite them.
+    const indexableChunks = chunks.filter(
+      (_chunk, index) => sections[index]?.role === 'content',
+    );
+    const indexedChunkIndexes = indexableChunks.map(
+      (chunk) => chunk.chunkIndex,
+    );
 
-    if (chunks.length) {
-      await models.AiAgentKnowledgeChunks.insertMany(chunks, { ordered: true });
+    if (indexableChunks.length) {
+      await models.KnowledgeChunks.bulkWrite(
+        indexableChunks.map((chunk) => ({
+          updateOne: {
+            filter: {
+              sourceType: AI_AGENT_FILE_KNOWLEDGE_SOURCE_TYPE,
+              sourceId,
+              chunkIndex: chunk.chunkIndex,
+            },
+            update: {
+              $set: {
+                sourceType: AI_AGENT_FILE_KNOWLEDGE_SOURCE_TYPE,
+                sourceId,
+                sourceVersion: contentHash,
+                sourceUpdatedAt,
+                agentId,
+                fileId: file.id,
+                fileName: file.name,
+                visibility: 'internal',
+                title: chunk.title || file.name,
+                chunkIndex: chunk.chunkIndex,
+                headingPath: chunk.headingPath,
+                content: chunk.content,
+                contentHash: chunk.contentHash,
+                byteSize: chunk.byteSize,
+                tokenCount: chunk.tokenCount,
+                topics: chunk.topics,
+                keywords: chunk.keywords,
+                priority: chunk.priority,
+                language: chunk.language,
+                metadata: {
+                  ...chunk.metadata,
+                  sourceKind: 'ai-agent-context-file',
+                  agentId,
+                  fileId: file.id,
+                  fileName: file.name,
+                  purpose: file.purpose || 'knowledge',
+                },
+              },
+            },
+            upsert: true,
+          },
+        })),
+        { ordered: false },
+      );
     }
+
+    // Indexed indexes are sparse now, so anything not written this run — including
+    // a section a human just reclassified away from content — has to go.
+    await models.KnowledgeChunks.deleteMany({
+      sourceType: AI_AGENT_FILE_KNOWLEDGE_SOURCE_TYPE,
+      sourceId,
+      chunkIndex: { $nin: indexedChunkIndexes },
+      $or: [
+        { sourceUpdatedAt: { $lte: sourceUpdatedAt } },
+        { sourceUpdatedAt: { $exists: false } },
+      ],
+    });
 
     await updateAgentFileIndexState({
       models,
@@ -121,7 +205,8 @@ export const indexAiAgentKnowledgeFile = async ({
       fileId: file.id,
       state: {
         status: 'indexed',
-        chunkCount: chunks.length,
+        chunkCount: indexableChunks.length,
+        sections,
         indexedAt: new Date(),
         contentHash,
         indexError: undefined,
@@ -132,16 +217,11 @@ export const indexAiAgentKnowledgeFile = async ({
       fileId: file.id,
       fileName: file.name,
       status: 'indexed' as const,
-      chunkCount: chunks.length,
+      chunkCount: indexableChunks.length,
       contentHash,
     };
   } catch (error) {
     const message = (error as Error).message;
-
-    await models.AiAgentKnowledgeChunks.deleteMany({
-      agentId,
-      fileId: file.id,
-    });
 
     await updateAgentFileIndexState({
       models,

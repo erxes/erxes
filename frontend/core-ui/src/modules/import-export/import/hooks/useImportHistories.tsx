@@ -19,13 +19,16 @@ interface ImportHistoriesQueryResponse {
 
 export function useImportHistories({
   entityTypes,
+  status,
 }: {
   entityTypes?: string[];
+  status?: string;
 }) {
   const { data, loading, error, fetchMore } =
     useQuery<ImportHistoriesQueryResponse>(GET_IMPORT_HISTORIES, {
       variables: {
         entityTypes,
+        status,
         limit: IMPORT_HISTORIES_PER_PAGE,
       },
       notifyOnNetworkStatusChange: true,
@@ -51,6 +54,7 @@ export function useImportHistories({
             ? pageInfo?.endCursor
             : pageInfo?.startCursor,
         entityTypes,
+        status,
       },
       updateQuery: (prev, { fetchMoreResult }) => {
         if (!fetchMoreResult) {

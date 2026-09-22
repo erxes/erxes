@@ -11,6 +11,7 @@ import {
 } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { useBranchesMain, useDepartmentsMain } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 import { useReCalcRemainders } from '../hooks/useReCalcRemainders';
 import { selectedRemainderProductAtom } from '../states/productDetailStates';
 
@@ -174,9 +175,10 @@ export const InventoriesTable = ({ inventories }: InventoriesTableProps) => {
       columns={columns}
       data={rows}
       className="h-full px-4 pb-4"
+      tableId="accounting_inventory_remainder_detail_record_table"
     >
       <RecordTable>
-        <RecordTable.Header />
+        <RecordTable.Header showColumnSelector />
         <RecordTable.Body>
           <RecordTable.RowList />
         </RecordTable.Body>
@@ -186,6 +188,7 @@ export const InventoriesTable = ({ inventories }: InventoriesTableProps) => {
 };
 
 export const RemainderDetailSheet = () => {
+  const { t } = useTranslation('accounting');
   const [selected, setSelected] = useAtom(selectedRemainderProductAtom);
   const { addSafeRemainder, loading } = useReCalcRemainders();
 
@@ -225,12 +228,12 @@ export const RemainderDetailSheet = () => {
             {loading ? (
               <>
                 <Spinner />
-                Running...
+                {t('running')}
               </>
             ) : (
               <>
                 <IconRefresh size={16} />
-                ReCalc Remainder
+                {t('recalc-remainder')}
               </>
             )}
           </Button>

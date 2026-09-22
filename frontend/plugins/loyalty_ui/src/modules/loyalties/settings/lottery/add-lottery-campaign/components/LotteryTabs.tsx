@@ -1,6 +1,7 @@
 import { ApolloError } from '@apollo/client';
 import { Button, Form, Sheet, useToast } from 'erxes-ui';
 import { UseFormReturn } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { LotteryFormValues } from '../../constants/lotteryFormSchema';
 import { useAddLottery } from '../../hooks/useAddLottery';
 import { AddLotteryCampaignForm } from './AddLotteryCampaignForm';
@@ -11,6 +12,7 @@ type Props = {
 };
 
 export const LotteryTabs = ({ onOpenChange, form }: Props) => {
+  const { t } = useTranslation('loyalty');
   const { lotteryAdd, loading: editLoading } = useAddLottery();
   const { toast } = useToast();
 
@@ -43,7 +45,7 @@ export const LotteryTabs = ({ onOpenChange, form }: Props) => {
       variables,
       onError: (e: ApolloError) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: e.message,
           variant: 'destructive',
         });
@@ -63,7 +65,7 @@ export const LotteryTabs = ({ onOpenChange, form }: Props) => {
         className="bg-background hover:bg-background/90"
         onClick={() => onOpenChange(false)}
       >
-        Cancel
+        {t('cancel')}
       </Button>
       <Button
         type="button"
@@ -71,7 +73,7 @@ export const LotteryTabs = ({ onOpenChange, form }: Props) => {
         onClick={handleSubmit}
         disabled={editLoading}
       >
-        {editLoading ? 'Saving...' : 'Save'}
+        {editLoading ? t('saving') : t('save')}
       </Button>
     </Sheet.Footer>
   );

@@ -1,5 +1,6 @@
 import { IModels } from '../connectionResolver';
 import { debugError } from '../debugger';
+import { resolveAutomationErrorCode } from './errorCodes';
 import { isInSegment } from '../utils/isInSegment';
 import { isDiffValue } from '../utils/utils';
 import {
@@ -121,7 +122,7 @@ export const calculateExecution = async ({
   eventUpdateDescription?: Record<string, any>;
 }): Promise<IAutomationExecutionDocument | null | undefined> => {
   const { id, type = '', config } = trigger;
-  const { reEnrollment, reEnrollmentRules } = config || {};
+  const { reEnrollment, reEnrollmentRules = [] } = config || {};
   const executionTarget = buildExecutionTarget(target, eventUpdateDescription);
 
   try {
@@ -145,6 +146,7 @@ export const calculateExecution = async ({
       target: executionTarget,
       status: AUTOMATION_EXECUTION_STATUS.ERROR,
       description: `An error occurred while checking the is in segment: "${e.message}"`,
+      errorCode: resolveAutomationErrorCode(e),
       createdAt: new Date(),
     });
     return;

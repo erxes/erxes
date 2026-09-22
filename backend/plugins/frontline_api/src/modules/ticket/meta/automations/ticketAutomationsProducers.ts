@@ -1,4 +1,6 @@
 import {
+  getSetPropertySelector,
+  setProperty,
   TCoreModuleProducerContext,
   TAutomationProducers,
   TAutomationProducersInput,
@@ -25,21 +27,36 @@ export const ticketAutomationProducers = {
 
   checkCustomTrigger: async () => false,
 
-  checkTargetMatch: async (
-    input: TAutomationProducersInput[TAutomationProducers.CHECK_TARGET_MATCH],
+  setProperties: async (
+    data: TAutomationProducersInput[TAutomationProducers.SET_PROPERTIES],
     context: TCoreModuleProducerContext<IModels>,
   ) => {
-    const { moduleName, collectionType, targetId, selector } = input;
-    console.log({ moduleName, collectionType, targetId, selector });
+    const { models, subdomain } = context;
+    const { action, execution, targetType } = data;
+    const { module, rules, setPropertyTarget } = action.config;
 
-    if (collectionType === 'tickets' && moduleName === 'tickets') {
-      return Boolean(
-        await context.models.Ticket.exists({
-          $and: [{ _id: targetId }, selector],
-        }),
-      );
-    }
+    const selector = await getSetPropertySelector({
+      subdomain,
+      module,
+      execution,
+      targetType,
+      relation: setPropertyTarget?.relation,
+      targetPath: setPropertyTarget?.targetPath,
+    });
 
-    return false;
+    return await setProperty({
+      models,
+      subdomain,
+      module,
+      rules,
+      execution,
+      setPropertyTarget,
+      selector,
+      fetchItems: async (itemSelector) =>
+        await models.Ticket.find(itemSelector).lean(),
+      update: async ({ selector: itemSelector, modifier }) =>
+        await models.Ticket.updateMany(itemSelector, modifier),
+      targetType,
+    });
   },
 };

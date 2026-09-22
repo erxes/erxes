@@ -1,6 +1,7 @@
 import { ApolloError } from '@apollo/client';
 import { Button, Form, Sheet, useToast } from 'erxes-ui';
 import { UseFormReturn } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { AddLotteryCampaignForm } from '../../add-lottery-campaign/components/AddLotteryCampaignForm';
 import { LotteryFormValues } from '../../constants/lotteryFormSchema';
 import { useEditLottery } from '../../hooks/useEditLottery';
@@ -12,14 +13,15 @@ type Props = {
 };
 
 export const EditLotteryTabs = ({ onOpenChange, form, lotteryId }: Props) => {
+  const { t } = useTranslation('loyalty');
   const { lotteryEdit, loading: editLoading } = useEditLottery();
   const { toast } = useToast();
 
   const handleSubmit = async () => {
     if (!lotteryId) {
       toast({
-        title: 'Error',
-        description: 'No lottery ID provided',
+        title: t('error'),
+        description: t('no-lottery-id-provided'),
         variant: 'destructive',
       });
       return;
@@ -56,7 +58,7 @@ export const EditLotteryTabs = ({ onOpenChange, form, lotteryId }: Props) => {
       variables,
       onError: (e: ApolloError) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: e.message,
           variant: 'destructive',
         });
@@ -76,7 +78,7 @@ export const EditLotteryTabs = ({ onOpenChange, form, lotteryId }: Props) => {
         className="bg-background hover:bg-background/90"
         onClick={() => onOpenChange(false)}
       >
-        Cancel
+        {t('cancel')}
       </Button>
       <Button
         type="button"
@@ -84,7 +86,7 @@ export const EditLotteryTabs = ({ onOpenChange, form, lotteryId }: Props) => {
         onClick={handleSubmit}
         disabled={editLoading}
       >
-        {editLoading ? 'Saving...' : 'Save'}
+        {editLoading ? t('saving') : t('save')}
       </Button>
     </Sheet.Footer>
   );

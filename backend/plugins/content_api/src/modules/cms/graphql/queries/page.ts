@@ -1,7 +1,8 @@
-import { IContext } from '~/connectionResolvers';
 import { BaseQueryResolver, FIELD_MAPPINGS } from '@/cms/utils/base-resolvers';
+import { assertCmsAccessByClientPortal } from '@/cms/utils/cms-access';
 import { getQueryBuilder } from '@/cms/utils/query-builders';
 import { Resolver } from 'erxes-api-shared/core-types';
+import { IContext } from '~/connectionResolvers';
 
 class PageQueryResolver extends BaseQueryResolver {
   async cmsPages(_parent: any, args: any, context: IContext) {
@@ -9,6 +10,8 @@ class PageQueryResolver extends BaseQueryResolver {
     const { models } = context;
 
     if (!clientPortalId) throw new Error('clientPortalId is required');
+
+    await assertCmsAccessByClientPortal(context, clientPortalId);
 
     const orderBy = args.orderBy || { createdAt: -1 };
 
@@ -31,6 +34,8 @@ class PageQueryResolver extends BaseQueryResolver {
     const { models } = context;
 
     if (!clientPortalId) throw new Error('clientPortalId is required');
+
+    await assertCmsAccessByClientPortal(context, clientPortalId);
 
     const orderBy = args.orderBy || { createdAt: -1 };
 
@@ -73,17 +78,26 @@ class PageQueryResolver extends BaseQueryResolver {
     const { language } = args;
     const clientPortalId = clientPortal._id;
 
-    const query: any = { clientPortalId };
+    const pages = await models.Pages.getPages({ clientPortalId });
 
-    const { list } = await this.getListWithTranslations(
-      models.Pages,
-      query,
-      { ...args, clientPortalId, language },
-      FIELD_MAPPINGS.PAGE,
+    if (
+      !language ||
+      (await this.shouldSkipTranslation(clientPortalId, language))
+    ) {
+      return pages;
+    }
+
+    const translations = await this.getTranslations(
+      pages.map((page) => page._id.toString()),
+      language,
       'page',
     );
 
-    return list;
+    return this.applyTranslationsToList(
+      pages,
+      translations,
+      FIELD_MAPPINGS.PAGE,
+    );
   }
 
   async cpPageList(_parent: any, args: any, context: IContext) {

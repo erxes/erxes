@@ -6,29 +6,72 @@ import {
   ToggleGroup,
 } from 'erxes-ui';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { PageHeader } from 'ui-modules';
+import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
 import { IconChartHistogram } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { ReportsView } from '@/report/components/ReportsView';
 import { CallReportsView } from '@/report/components/CallReportsView';
 import { TicketReportsList } from '@/report/components/TicketReportsList';
+import { FacebookReportsList } from '@/report/components/FacebookReportsList';
+import {
+  OVERVIEW_KPI_DATE_FILTER_ID,
+  ReportKpiDateFilter,
+  TICKET_PRIORITY_DATE_FILTER_ID,
+} from '@/report/components/filter-popover/ReportKpiDateFilter';
 
 const ROUTES = {
   overview: '/frontline/reports',
   call: '/frontline/reports/call',
   ticket: '/frontline/reports/ticket',
+  facebook: '/frontline/reports/facebook',
 } as const;
 
 type Section = keyof typeof ROUTES;
 
 export default function ReportIndexPage() {
+  const { t } = useTranslation('frontline');
   const location = useLocation();
   const navigate = useNavigate();
 
-  const activeSection: Section = location.pathname.includes('/call')
-    ? 'call'
-    : location.pathname.includes('/ticket')
-      ? 'ticket'
-      : 'overview';
+  let activeSection: Section = 'overview';
+
+  if (location.pathname.includes('/call')) {
+    activeSection = 'call';
+  } else if (location.pathname.includes('/ticket')) {
+    activeSection = 'ticket';
+  } else if (location.pathname.includes('/facebook')) {
+    activeSection = 'facebook';
+  }
+
+  let activeSectionLabel: string | undefined;
+
+  if (activeSection === 'call') {
+    activeSectionLabel = t('call-center', 'Call center');
+  } else if (activeSection === 'ticket') {
+    activeSectionLabel = t('ticket', 'Ticket');
+  } else if (activeSection === 'facebook') {
+    activeSectionLabel = t('facebook-reports', 'Facebook');
+  }
+
+  let reportContent = <ReportsView />;
+
+  if (activeSection === 'ticket') {
+    reportContent = <TicketReportsList />;
+  } else if (activeSection === 'call') {
+    reportContent = <CallReportsView />;
+  } else if (activeSection === 'facebook') {
+    reportContent = <FacebookReportsList />;
+  }
+
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(
+    'Frontline',
+    t('reports', 'Reports'),
+    activeSectionLabel,
+  );
+  const kpiDateFilterId =
+    activeSection === 'ticket'
+      ? TICKET_PRIORITY_DATE_FILTER_ID
+      : OVERVIEW_KPI_DATE_FILTER_ID;
 
   return (
     <PageContainer>
@@ -40,7 +83,7 @@ export default function ReportIndexPage() {
                 <Button variant="ghost" asChild>
                   <Link to="/frontline/reports">
                     <IconChartHistogram />
-                    Reports
+                    {t('reports', 'Reports')}
                   </Link>
                 </Button>
               </Breadcrumb.Item>
@@ -56,23 +99,32 @@ export default function ReportIndexPage() {
             }}
           >
             <ToggleGroup.Item value="overview">
-              Frontline Overview
+              {t('frontline-overview', 'Frontline Overview')}
             </ToggleGroup.Item>
-            <ToggleGroup.Item value="ticket">Ticket</ToggleGroup.Item>
-            <ToggleGroup.Item value="call">Call Center</ToggleGroup.Item>
+            <ToggleGroup.Item value="ticket">
+              {t('ticket', 'Ticket')}
+            </ToggleGroup.Item>
+            <ToggleGroup.Item value="facebook">
+              {t('facebook-reports', 'Facebook')}
+            </ToggleGroup.Item>
+            <ToggleGroup.Item value="call">
+              {t('call-center', 'Call center')}
+            </ToggleGroup.Item>
           </ToggleGroup>
           <Separator.Inline />
-          <PageHeader.FavoriteToggleButton />
+          <PageHeader.FavoriteToggleButton
+            breadcrumb={favoriteBreadcrumb}
+            icon="IconChartHistogram"
+          />
         </PageHeader.Start>
+        {activeSection !== 'call' && (
+          <PageHeader.End>
+            <ReportKpiDateFilter filterId={kpiDateFilterId} />
+          </PageHeader.End>
+        )}
       </PageHeader>
 
-      {activeSection === 'ticket' ? (
-        <TicketReportsList />
-      ) : activeSection === 'call' ? (
-        <CallReportsView />
-      ) : (
-        <ReportsView />
-      )}
+      {reportContent}
     </PageContainer>
   );
 }

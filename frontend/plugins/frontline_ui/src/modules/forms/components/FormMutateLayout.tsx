@@ -8,6 +8,11 @@ import {
 import { UseFormReturn } from 'react-hook-form';
 import { z } from 'zod';
 import { useNavigate, useParams } from 'react-router';
+import { useTranslation } from 'react-i18next';
+import {
+  FORM_SETUP_STEPS,
+  FORM_SETUP_STEPS_LENGTH,
+} from '@/forms/constants/formStatesDefaultValues';
 
 export const FormMutateLayout = ({
   children,
@@ -24,6 +29,7 @@ export const FormMutateLayout = ({
   onSubmit?: (values: z.infer<any>) => void;
   isLoading?: boolean;
 }) => {
+  const { t } = useTranslation('frontline');
   const [step, setStep] = useAtom(formSetupStepAtom);
   const { id } = useParams<{ id: string }>();
 
@@ -43,7 +49,9 @@ export const FormMutateLayout = ({
       <form
         onSubmit={form.handleSubmit((values) => {
           onSubmit?.(values);
-          setStep((prev) => (prev === 3 ? prev : prev + 1));
+          setStep((prev) =>
+            prev === FORM_SETUP_STEPS.CONFIRMATION ? prev : prev + 1,
+          );
         })}
         className="flex-auto flex flex-col h-full overflow-hidden bg-sidebar"
       >
@@ -52,7 +60,7 @@ export const FormMutateLayout = ({
             <IntegrationSteps
               step={step}
               title={title}
-              stepsLength={3}
+              stepsLength={FORM_SETUP_STEPS_LENGTH}
               description={description}
             />
             <div className="px-5">{children}</div>
@@ -64,19 +72,19 @@ export const FormMutateLayout = ({
             className="mr-auto bg-border"
             onClick={handleCancel}
           >
-            Cancel
+            {t('cancel', 'Cancel')}
           </Button>
           <FormMutateLayoutPreviousStepButton />
           <Button type="submit" disabled={isLoading}>
             {isLoading
               ? id
-                ? 'Updating form...'
-                : 'Creating form...'
-              : step === 3
-              ? id
-                ? 'Update form'
-                : 'Create form'
-              : 'Next step'}
+                ? t('updating-form', 'Updating form...')
+                : t('creating-form', 'Creating form...')
+              : step === FORM_SETUP_STEPS.CONFIRMATION
+                ? id
+                  ? t('update-form', 'Update form')
+                  : t('create-form', 'Create form')
+                : t('next-step', 'Next step')}
           </Button>
         </Sheet.Footer>
       </form>
@@ -85,15 +93,16 @@ export const FormMutateLayout = ({
 };
 
 export const FormMutateLayoutPreviousStepButton = () => {
+  const { t } = useTranslation('frontline');
   const [step, setStep] = useAtom(formSetupStepAtom);
   return (
     <Button
       variant="secondary"
       className="bg-border"
       onClick={() => setStep(step - 1)}
-      disabled={step === 1}
+      disabled={step === FORM_SETUP_STEPS.GENERAL}
     >
-      Previous step
+      {t('previous-step', 'Previous step')}
     </Button>
   );
 };

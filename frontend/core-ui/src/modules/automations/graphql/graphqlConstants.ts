@@ -58,6 +58,9 @@ export const AUTOMATION_HISTORIES_PARAMS = `
     $targetIds: [String]
     $triggerTypes: [String]
     $ids: [String]
+    $failedActionIds: [String]
+    $errorCodes: [String]
+    $waitingActionIds: [String]
   `;
 
 export const AUTOMATION_HISTORIES_PARAMS_DEFS = `
@@ -74,6 +77,9 @@ export const AUTOMATION_HISTORIES_PARAMS_DEFS = `
     targetIds: $targetIds
     triggerTypes: $triggerTypes
     ids: $ids
+    failedActionIds: $failedActionIds
+    errorCodes: $errorCodes
+    waitingActionIds: $waitingActionIds
   `;
 
 export const AUTOMATION_TRIGGER_FIELDS = `

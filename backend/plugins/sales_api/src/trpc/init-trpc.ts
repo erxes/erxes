@@ -1,10 +1,12 @@
 import { posTrpcRouter } from '@/pos/trpc/pos';
 import { dealTrpcRouter } from '@/sales/trpc/deal';
+import { documentTrpcRouter } from '@/sales/trpc/document';
 import { initTRPC } from '@trpc/server';
 import { ITRPCContext } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { z } from 'zod';
 import { generateSalesFields } from '~/modules/sales/fieldUtils';
+import { generatePosOrderFields } from '~/modules/pos/fieldUtils';
 
 export type SalesTRPCContext = ITRPCContext<{ models: IModels }>;
 
@@ -36,14 +38,19 @@ const createFieldListProcedure = (
 export const appRouter = t.mergeRouters(
   dealTrpcRouter,
   posTrpcRouter,
+  documentTrpcRouter,
   t.router({
     fields: t.router({
-      // Use the factory with sales-specific generator
       getFieldList: createFieldListProcedure(
         async (subdomain, models, input) => {
           if (input.moduleType === 'sales') {
             return await generateSalesFields(subdomain, models, input);
           }
+
+          if (input.moduleType === 'pos') {
+            return await generatePosOrderFields(models);
+          }
+
           return [];
         },
       ),

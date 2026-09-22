@@ -18,6 +18,7 @@ export const AutomationActionContentSidebar = () => {
     moduleName,
     trigger,
     targetType,
+    previousActions,
   } = useAutomationActionContentSidebar();
 
   if (!currentAction || currentIndex === -1) {
@@ -49,6 +50,7 @@ export const AutomationActionContentSidebar = () => {
             )}
           >
             <RenderPluginsComponentWrapper
+              key={currentAction.id}
               pluginName={pluginName}
               moduleName={moduleName}
               props={{
@@ -59,6 +61,7 @@ export const AutomationActionContentSidebar = () => {
                 onSaveActionConfig: onSaveActionConfig,
                 trigger,
                 targetType,
+                previousActions,
               }}
             />
           </ErrorBoundary>
@@ -69,6 +72,7 @@ export const AutomationActionContentSidebar = () => {
 
   return (
     <AutomationCoreActionSidebarContent
+      key={currentAction.id}
       currentIndex={currentIndex}
       currentAction={currentAction}
       onSaveActionConfig={onSaveActionConfig}

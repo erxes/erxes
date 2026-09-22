@@ -1,14 +1,16 @@
 import { CommandBar, RecordTable, Separator } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { LoyaltyScoreDelete } from './delete/LoyaltyScoreDelete';
 
 export const LoyaltyScoreCommandBar = () => {
+  const { t } = useTranslation('loyalty');
   const { table } = RecordTable.useRecordTable();
 
   return (
     <CommandBar open={table.getFilteredSelectedRowModel().rows.length > 0}>
       <CommandBar.Bar>
         <CommandBar.Value>
-          {table.getFilteredSelectedRowModel().rows.length} selected
+          {t('selected-count', { count: table.getFilteredSelectedRowModel().rows.length })}
         </CommandBar.Value>
         <Separator.Inline />
         <LoyaltyScoreDelete

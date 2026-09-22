@@ -9,21 +9,7 @@ export const UomsRecordTable = () => {
   const { uoms, loading } = useUoms();
 
   if (!loading && (uoms?.length ?? 0) === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center h-full min-h-[400px] text-center">
-        <div className="mb-6">
-          <IconRulerMeasure
-            size={64}
-            className="mx-auto mb-4 text-muted-foreground"
-          />
-          <h3 className="mb-2 text-xl font-semibold">No UOMs yet</h3>
-          <p className="max-w-md text-muted-foreground">
-            Get started by creating your first UOM.
-          </p>
-        </div>
-        <AddUomSheet />
-      </div>
-    );
+    return <EmptyStateRow />;
   }
 
   return (
@@ -46,3 +32,22 @@ export const UomsRecordTable = () => {
     </RecordTable.Provider>
   );
 };
+
+function EmptyStateRow() {
+  return (
+    <div className="flex flex-col gap-2 justify-center items-center p-6 w-full h-full text-center">
+      <IconRulerMeasure
+        size={64}
+        stroke={1.5}
+        className="text-muted-foreground"
+      />
+      <h2 className="text-lg font-semibold text-muted-foreground">
+        No UOMs yet
+      </h2>
+      <p className="mb-4 text-md text-muted-foreground">
+        Get started by creating your first UOM.
+      </p>
+      <AddUomSheet />
+    </div>
+  );
+}

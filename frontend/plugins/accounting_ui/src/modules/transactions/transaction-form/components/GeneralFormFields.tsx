@@ -12,14 +12,16 @@ export const AccountField = ({
   filter,
   allDetails,
   labelTxt,
+  onAccountChange,
 }: ICommonFieldProps & {
   filter?: any;
   allDetails?: boolean;
+  onAccountChange?: (account: IAccount) => void;
 }) => {
   const details = useWatch({
     control: form.control,
     name: `trDocs.${index}.details`,
-  });
+  }) as unknown[];
   const onChangeAccount = (account: IAccount) => {
     if (allDetails) {
       details.forEach((_d, ind) => {
@@ -43,6 +45,8 @@ export const AccountField = ({
     if (account?.departmentId) {
       form.setValue(`trDocs.${index}.departmentId`, account.departmentId);
     }
+
+    onAccountChange?.(account);
   };
 
   return (
@@ -108,7 +112,10 @@ export const AmountField = ({
   index,
   detIndex,
   labelTxt,
-}: ICommonFieldProps) => (
+  onAmountChange,
+}: ICommonFieldProps & {
+  onAmountChange?: (value: number) => void;
+}) => (
   <Form.Field
     control={form.control}
     name={`trDocs.${index}.details.${detIndex ?? 0}.amount`}
@@ -118,7 +125,10 @@ export const AmountField = ({
         <Form.Control>
           <CurrencyField.ValueInput
             value={field.value}
-            onChange={field.onChange}
+            onChange={(value) => {
+              field.onChange(value);
+              onAmountChange?.(value || 0);
+            }}
           />
         </Form.Control>
       </Form.Item>
@@ -150,7 +160,7 @@ export const BranchField = ({ form, index, labelTxt }: ICommonFieldProps) => {
   const details = useWatch({
     control: form.control,
     name: `trDocs.${index}.details`,
-  });
+  }) as unknown[];
 
   const onChangeBranch = (branchId: string[] | string | undefined) => {
     form.setValue(`trDocs.${index}.branchId`, branchId as string);
@@ -191,7 +201,7 @@ export const DepartmentField = ({
   const details = useWatch({
     control: form.control,
     name: `trDocs.${index}.details`,
-  });
+  }) as unknown[];
 
   const onChangeDepartment = (departmentId: string[] | string | undefined) => {
     form.setValue(`trDocs.${index}.departmentId`, departmentId as string);

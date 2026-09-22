@@ -6,7 +6,8 @@ import {
   type ReactNode,
 } from 'react';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
-import { Button, InfoCard, useToast } from 'erxes-ui';
+import { Button, InfoCard, Switch, useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useEditPricing } from '@/pricing/hooks/useEditPricing';
 import {
   IPricingExpiryRule,
@@ -53,6 +54,7 @@ interface PricingRuleInfoProps<T extends PricingRuleConfig> {
   pricingDetail?: IPricingPlanDetail;
   embedded?: boolean;
   onSaveActionChange?: (action: ReactNode | null) => void;
+  onEnabledChange?: (enabled: boolean) => void;
   title: string;
   rulesKey: PricingRuleField;
   enabledKey: PricingRuleEnabledField;
@@ -103,6 +105,7 @@ export const PricingRuleInfo = <T extends PricingRuleConfig>({
   pricingDetail,
   embedded = false,
   onSaveActionChange,
+  onEnabledChange,
   title,
   rulesKey,
   enabledKey,
@@ -117,6 +120,7 @@ export const PricingRuleInfo = <T extends PricingRuleConfig>({
   const [initialLoaded, setInitialLoaded] = useState(false);
   const [enabled, setEnabled] = useState(false);
 
+  const { t } = useTranslation('loyalty');
   const { editPricing, loading } = useEditPricing();
   const { toast } = useToast();
 
@@ -130,10 +134,13 @@ export const PricingRuleInfo = <T extends PricingRuleConfig>({
       | undefined;
 
     setRules((detailRules?.map(mapRuleToConfig) || []) as T[]);
-    setEnabled(pricingDetail[enabledKey] ?? !!detailRules?.length);
+    const nextEnabled = pricingDetail[enabledKey] ?? false;
+
+    setEnabled(nextEnabled);
+    onEnabledChange?.(nextEnabled);
     setHasChanges(false);
     setInitialLoaded(true);
-  }, [enabledKey, pricingDetail, rulesKey]);
+  }, [enabledKey, onEnabledChange, pricingDetail, rulesKey]);
 
   const markChanged = () => {
     if (initialLoaded) {
@@ -146,6 +153,14 @@ export const PricingRuleInfo = <T extends PricingRuleConfig>({
       ...prev,
       { ...rule, _id: rule._id || `${Date.now()}_${prev.length}` },
     ]);
+    setEnabled(true);
+    onEnabledChange?.(true);
+    markChanged();
+  };
+
+  const handleEnabledChange = (checked: boolean) => {
+    setEnabled(checked);
+    onEnabledChange?.(checked);
     markChanged();
   };
 
@@ -173,7 +188,6 @@ export const PricingRuleInfo = <T extends PricingRuleConfig>({
     }
 
     const mappedRules = rules.map(mapConfigToRule);
-
     try {
       await editPricing({
         _id: pricingId,
@@ -183,12 +197,12 @@ export const PricingRuleInfo = <T extends PricingRuleConfig>({
       setHasChanges(false);
       toast({
         title: successTitle,
-        description: 'Changes have been saved successfully.',
+        description: t('changes-saved'),
       });
     } catch {
       toast({
         title: errorTitle,
-        description: 'An unexpected error occurred.',
+        description: t('unexpected-error'),
         variant: 'destructive',
       });
     }
@@ -217,7 +231,7 @@ export const PricingRuleInfo = <T extends PricingRuleConfig>({
           onClick={handleSaveAll}
           disabled={loading}
         >
-          {loading ? 'Saving...' : 'Save Changes'}
+          {loading ? t('saving') : t('save-changes')}
         </Button>
       ) : null,
     );
@@ -227,7 +241,11 @@ export const PricingRuleInfo = <T extends PricingRuleConfig>({
 
   const content = (
     <div className="space-y-4">
-      <div className="flex justify-end">
+      <div className="flex items-center justify-between gap-3">
+        <label className="flex items-center gap-2 text-sm font-medium">
+          <Switch checked={enabled} onCheckedChange={handleEnabledChange} />
+          {t('enabled')}
+        </label>
         <RuleSheet
           onRuleAdded={handleRuleAdded}
           onRuleUpdated={handleRuleUpdated}
@@ -243,13 +261,13 @@ export const PricingRuleInfo = <T extends PricingRuleConfig>({
       ) : (
         <div className="space-y-2">
           <div className="flex flex-1 px-3 text-sm font-medium text-muted-foreground">
-            <div className="flex-1">Rule type</div>
-            <div className="flex-1">Rule value</div>
-            <div className="flex-1">Discount type</div>
-            <div className="flex-1">Discount value</div>
-            <div className="flex-1">Price adjust type</div>
-            <div className="flex-1">Price adjust factor</div>
-            <div className="w-20 text-center">Actions</div>
+            <div className="flex-1">{t('rule-type')}</div>
+            <div className="flex-1">{t('rule-value')}</div>
+            <div className="flex-1">{t('discount-type')}</div>
+            <div className="flex-1">{t('discount-value')}</div>
+            <div className="flex-1">{t('price-adjust-type')}</div>
+            <div className="flex-1">{t('price-adjust-factor')}</div>
+            <div className="w-20 text-center">{t('actions')}</div>
           </div>
 
           {rules.map((rule) => (

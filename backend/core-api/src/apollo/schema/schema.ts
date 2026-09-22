@@ -88,6 +88,8 @@ import {
   types as SegmentTypes,
 } from '~/modules/segments/graphql/schemas';
 
+import { queries as BeforeResolverQueries } from '@/beforeResolvers/graphql/schema';
+
 import { queries as FormQueries } from '~/modules/forms/graphql/schema';
 
 import {
@@ -112,6 +114,11 @@ import {
   queries as PermissionQueries,
   types as PermissionTypes,
 } from '~/modules/permissions/graphql/schemas/permission';
+import {
+  mutations as ApprovalMutations,
+  queries as ApprovalQueries,
+  types as ApprovalTypes,
+} from '@/approval/graphql/schema';
 
 import {
   mutations as DocumentMutations,
@@ -126,6 +133,7 @@ import {
 } from '@/automations/graphql/schema';
 
 import {
+  mutations as LogsMutations,
   queries as LogsQueries,
   types as LogsTypes,
 } from '@/logs/graphql/schema';
@@ -203,6 +211,12 @@ import {
   mutations as templateMutations,
 } from '@/template/graphql/schemas';
 
+import {
+  types as searchTypes,
+  queries as searchQueries,
+} from '@/search/graphql/schema';
+import { queries as ReferenceQueries } from '~/meta/references/graphql/schema';
+
 export const types = `
     enum CacheControlScope {
       PUBLIC
@@ -237,6 +251,7 @@ export const types = `
     ${RelationTypes}
     ${FavoritesTypes}
     ${PermissionTypes}
+    ${ApprovalTypes}
     ${DocumentTypes}
     ${AutomationsTypes}
     ${LogsTypes}
@@ -253,10 +268,12 @@ export const types = `
     ${BroadcastTypes}
     ${bundleTypes}
     ${templateTypes}
+    ${searchTypes}
   `;
 
 export const queries = `
     _sentryGraphqlTest: String
+    ${ReferenceQueries}
     ${CustomerQueries}
     ${CompanyQueries}
     ${AuthQueries}
@@ -276,8 +293,10 @@ export const queries = `
     ${RelationQueries}
     ${FavoritesQueries}
     ${PermissionQueries}
+    ${ApprovalQueries}
     ${DocumentQueries}
     ${AutomationsQueries}
+    ${BeforeResolverQueries}
     ${LogsQueries}
     ${NotificationsQueries}
     ${InternalNoteQueries}  
@@ -292,6 +311,7 @@ export const queries = `
     ${BroadcastQueries}
     ${bundleQueries}
     ${templateQueries}
+    ${searchQueries}
   `;
 
 export const mutations = `
@@ -314,6 +334,7 @@ export const mutations = `
     ${RelationMutations}
     ${FavoritesMutations}
     ${PermissionMutations}
+    ${ApprovalMutations}
     ${DocumentMutations}
     ${AutomationsMutations}
     ${NotificationsMutations}
@@ -328,6 +349,7 @@ export const mutations = `
     ${BroadcastMutations}
     ${bundleMutations}
     ${templateMutations}
+    ${LogsMutations}
   `;
 
 export default { types, queries, mutations };

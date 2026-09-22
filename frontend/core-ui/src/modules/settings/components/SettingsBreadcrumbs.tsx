@@ -1,12 +1,16 @@
 import { Link, useLocation } from 'react-router';
 import { Breadcrumb, Button } from 'erxes-ui';
-import { IconMinusVertical, IconSettings } from '@tabler/icons-react';
 import { GET_SETTINGS_PATH_DATA } from '../constants/data';
+import { TSettingPath } from '@/types/paths/SettingsPath';
 import { PageHeader, PageHeaderStart, useVersion } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
 import { useMemo } from 'react';
 
-export function SettingsBreadcrumbs() {
+export function SettingsBreadcrumbs({
+  children,
+}: {
+  children?: React.ReactNode;
+}) {
   const { pathname } = useLocation();
   const { t } = useTranslation('common', {
     keyPrefix: 'sidebar',
@@ -14,11 +18,13 @@ export function SettingsBreadcrumbs() {
   const version = useVersion();
   const currentPath = useMemo(() => {
     const settingsData = GET_SETTINGS_PATH_DATA(version, t);
-    return (
-      settingsData.nav.find((nav: any) => pathname.includes(nav.path)) ||
-      settingsData.account.find((acc: any) => pathname.includes(acc.path))
-    );
-  }, [pathname, t]);
+
+    return [
+      ...settingsData.nav,
+      ...settingsData.account,
+      ...settingsData.developer,
+    ].find((entry: TSettingPath) => pathname.includes(entry.path));
+  }, [pathname, t, version]);
 
   return (
     <PageHeader>
@@ -32,6 +38,7 @@ export function SettingsBreadcrumbs() {
             </Breadcrumb.Item>
           </Breadcrumb.List>
         </Breadcrumb>
+        {children}
       </PageHeaderStart>
     </PageHeader>
   );

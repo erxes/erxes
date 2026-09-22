@@ -11,7 +11,11 @@ export const DocumentPreview = ({ document }: any) => {
       try {
         blocks = JSON.parse(document.content);
       } catch (_error) {
-        blocks = await editor.tryParseHTMLToBlocks(document.content);
+        try {
+          blocks = await editor.tryParseHTMLToBlocks(document.content);
+        } catch (_htmlError) {
+          blocks = await editor.tryParseMarkdownToBlocks(document.content);
+        }
       }
 
       editor.replaceBlocks(editor.document, blocks);
@@ -22,7 +26,7 @@ export const DocumentPreview = ({ document }: any) => {
 
   return (
     <div className="relative w-full h-full overflow-hidden">
-      <div className="scale-[0.3] origin-top-left w-[333%] h-auto pointer-events-none select-none">
+      <div className="scale-[0.7] origin-top-left w-[333%] h-auto pointer-events-none select-none">
         <BlockEditor editor={editor} readonly className="py-8 px-4" />
       </div>
     </div>

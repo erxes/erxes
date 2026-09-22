@@ -1,6 +1,6 @@
 export const types = `
   extend type Company @key(fields: "_id") {
-      _id: String! @external
+      _id: String @external
   }
 
   input SubmissionFilter {
@@ -14,6 +14,7 @@ export const types = `
     body: String,
     buttonText: String,
     featuredImage: String,
+    calloutImgSize: String,
     skip: Boolean
   }
 
@@ -36,6 +37,7 @@ export const types = `
 
     visibility: String
     leadData: JSON
+    callout: Callout
     languageCode: String
     departmentIds: [String]
     tagIds: [String]
@@ -62,6 +64,7 @@ export const types = `
     _id: String!
     contentTypeId: String
     formId: String
+    conversationId: String
     channelId: String
     customerId: String
     customer: Customer

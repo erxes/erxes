@@ -79,8 +79,13 @@ const pricingProductSchema = z.object({
   unitPrice: z.number().nonnegative().optional(),
   price: z.number().nonnegative().optional(),
   quantity: z.number().int().positive(),
-  manufacturedDate: z.string().optional(),
+  manufacturedDate: z.string().nullish(),
 });
+
+const participantKindSchema = z.preprocess(
+  (value) => value || 'customer',
+  z.enum(['customer', 'company', 'user']),
+);
 
 const checkPricingInput = z.object({
   prioritizeRule: z.string(),
@@ -88,7 +93,11 @@ const checkPricingInput = z.object({
   departmentId: z.string().optional().default(''),
   branchId: z.string().optional().default(''),
   products: z.array(pricingProductSchema),
-  pipelineId: z.string().optional(),
+  pipelineId: z.string().nullish(),
+  customerType: participantKindSchema,
+  customerId: z.string().optional(),
+  brokerType: participantKindSchema,
+  brokerId: z.string().optional(),
 });
 
 const quantityRulesInput = z.object({
@@ -270,6 +279,10 @@ export const appRouter = t.router({
           branchId,
           products,
           pipelineId,
+          customerType,
+          customerId,
+          brokerType,
+          brokerId,
         } = input;
 
         // Map products to OrderItem type expected by checkPricing
@@ -290,6 +303,10 @@ export const appRouter = t.router({
           branchId,
           pipelineId: pipelineId || '',
           orderItems,
+          customerType,
+          customerId,
+          brokerType,
+          brokerId,
         });
       }),
 
@@ -309,7 +326,12 @@ export const appRouter = t.router({
         const rulesByProductId = {};
 
         const conditions = getMainConditions({ branchId, departmentId });
-        conditions.isPriority = false;
+        conditions.$and = [
+          ...(conditions.$and || []),
+          {
+            $or: [{ priority: { $ne: 'posBase' } }],
+          },
+        ];
 
         const plans = await models.PricingPlans.find({
           ...conditions,

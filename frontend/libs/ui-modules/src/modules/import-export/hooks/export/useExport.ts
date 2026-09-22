@@ -3,6 +3,7 @@ import { useCallback } from 'react';
 import { START_EXPORT } from '../../graphql/export/exportMutations';
 import { GET_ACTIVE_EXPORTS } from '../../graphql/export/exportQueries';
 import { toast, useConfirm } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const useExport = ({
   entityType,
@@ -15,6 +16,7 @@ export const useExport = ({
   getFilters?: () => Record<string, any>;
   confirmMessage: string;
 }) => {
+  const { t } = useTranslation('importExport');
   const { confirm } = useConfirm();
 
   const [startExportMutation, { loading: startLoading }] = useMutation(
@@ -31,26 +33,20 @@ export const useExport = ({
     async (
       entityType: string,
       options?: {
-        fileFormat?: 'csv' | 'xlsx';
         filters?: Record<string, any>;
         ids?: string[];
         selectedFields?: string[];
       },
     ) => {
-      try {
-        const result = await startExportMutation({
-          variables: {
-            entityType,
-            fileFormat: options?.fileFormat || 'csv',
-            filters: options?.filters,
-            ids: options?.ids,
-            selectedFields: options?.selectedFields,
-          },
-        });
-        return result.data?.exportStart;
-      } catch (error) {
-        throw error;
-      }
+      const result = await startExportMutation({
+        variables: {
+          entityType,
+          filters: options?.filters,
+          ids: options?.ids,
+          selectedFields: options?.selectedFields,
+        },
+      });
+      return result.data?.exportStart;
     },
     [startExportMutation],
   );
@@ -64,22 +60,20 @@ export const useExport = ({
 
     confirm({ message: confirmMessage }).then(() =>
       startExport(entityType, {
-        fileFormat: 'csv',
         filters,
         ids: exportIds,
         selectedFields,
       })
         .then(() =>
           toast({
-            title: 'Export started',
-            description:
-              'Your export has been started. You will be notified when it is ready.',
+            title: t('export-started'),
+            description: t('export-started-description'),
           }),
         )
         .catch((error: Error) =>
           toast({
-            title: 'Export failed',
-            description: error.message || 'Failed to start export',
+            title: t('export-failed'),
+            description: error.message || t('export-failed'),
             variant: 'destructive',
           }),
         ),

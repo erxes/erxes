@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import { useMutation } from '@apollo/client';
 import { Button, Form, InfoCard, Label, toast } from 'erxes-ui';
 import { useForm, useFieldArray } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { SyncList } from '@/pos/components/syncCard/SyncList';
 import mutations from '@/pos/graphql/mutations';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
@@ -28,6 +29,7 @@ const SyncCard: React.FC<SyncCardProps> = ({
   posType,
   onSaveActionChange,
 }) => {
+  const { t } = useTranslation('sales');
   const { posDetail, loading: detailLoading, error } = usePosDetail(posId);
   const [posEdit, { loading: saving }] = useMutation(mutations.posEdit);
   const [editingConfig, setEditingConfig] = useState<CardConfig | null>(null);
@@ -69,8 +71,8 @@ const SyncCard: React.FC<SyncCardProps> = ({
     async (data: SyncCardFormData) => {
       if (!posId) {
         toast({
-          title: 'Error',
-          description: 'POS ID is required',
+          title: t('error'),
+          description: t('pos-id-required'),
           variant: 'destructive',
         });
         return;
@@ -102,14 +104,14 @@ const SyncCard: React.FC<SyncCardProps> = ({
         });
 
         toast({
-          title: 'Success',
-          description: 'Cards config saved successfully',
+          title: t('success'),
+          description: t('cards-config-saved'),
         });
         reset(data);
       } catch {
         toast({
-          title: 'Error',
-          description: 'Failed to save cards config',
+          title: t('error'),
+          description: t('cards-config-save-failed'),
           variant: 'destructive',
         });
       }
@@ -130,7 +132,7 @@ const SyncCard: React.FC<SyncCardProps> = ({
           size="sm"
           disabled={saving}
         >
-          {saving ? 'Saving...' : 'Save Changes'}
+          {saving ? t('saving') : t('save-changes')}
         </Button>
       ) : null,
     );
@@ -172,7 +174,7 @@ const SyncCard: React.FC<SyncCardProps> = ({
       return (
         <div className="p-6 text-center">
           <p className="text-destructive">
-            Failed to load POS details: {error.message}
+            {t('failed-to-load-pos-details')}: {error.message}
           </p>
         </div>
       );
@@ -186,7 +188,7 @@ const SyncCard: React.FC<SyncCardProps> = ({
           className="space-y-8"
         >
           <section className="space-y-4">
-            <Label>Sync Cards</Label>
+            <Label>{t('sync-cards')}</Label>
             <SyncList
               fields={fields}
               onConfigAdded={handleConfigAdded}
@@ -204,7 +206,7 @@ const SyncCard: React.FC<SyncCardProps> = ({
 
   return (
     <div className="p-6">
-      <InfoCard title="Sync configuration">
+      <InfoCard title={t('sync-configuration')}>
         <InfoCard.Content>{renderContent()}</InfoCard.Content>
       </InfoCard>
     </div>

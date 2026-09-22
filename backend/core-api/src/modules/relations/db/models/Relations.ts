@@ -1,6 +1,13 @@
-import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
+import {
+  EventDispatcherReturn,
+  gatherSegmentRecordTypes,
+  sendSegmentChanged,
+} from 'erxes-api-shared/core-modules';
 import { IRelation, IRelationDocument } from 'erxes-api-shared/core-types';
-import { generateRelationActivityLogs } from '@/relations/meta/activity-log';
+import {
+  generateRelationActivityLogs,
+  RelationEntityPair,
+} from '@/relations/meta/activity-log';
 import lodash from 'lodash';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
@@ -92,9 +99,55 @@ export const loadRelationClass = (
   models: IModels,
   { createActivityLog, getContext }: EventDispatcherReturn,
 ) => {
+  const toEntityPairs = (relations: IRelation[]): RelationEntityPair[] =>
+    relations
+      .filter(({ entities = [] }) => entities.length >= 2)
+      .map(({ entities: [entity, relatedEntity] }) => [entity, relatedEntity]);
+
+  const recheckEntities = async (
+    entities: { contentType: string; contentId: string }[],
+  ) => {
+    if (!entities.length) {
+      return;
+    }
+
+    const { subdomain } = getContext();
+    const recordTypes = await gatherSegmentRecordTypes();
+    const byType = new Map<string, Set<string>>();
+
+    for (const entity of entities) {
+      for (const segmentType of recordTypes.get(entity.contentType) || []) {
+        byType.set(
+          segmentType,
+          (byType.get(segmentType) || new Set<string>()).add(entity.contentId),
+        );
+      }
+    }
+
+    for (const [contentType, docIds] of byType) {
+      sendSegmentChanged({ subdomain, contentType, docIds: [...docIds] });
+    }
+  };
+
+  const entitiesOf = (relations: { entities?: IRelation['entities'] }[]) =>
+    relations.flatMap((relation) => relation.entities || []);
+
   class Relation {
     public static async createRelation({ relation }: { relation: IRelation }) {
-      return models.Relations.create(relation);
+      const created = await models.Relations.create(relation);
+      const { subdomain, userId } = getContext();
+
+      await generateRelationActivityLogs({
+        subdomain,
+        userId,
+        createActivityLog,
+        added: toEntityPairs([relation]),
+        removed: [],
+      });
+
+      await recheckEntities(entitiesOf([relation]));
+
+      return created;
     }
 
     public static async createMultipleRelations({
@@ -102,7 +155,20 @@ export const loadRelationClass = (
     }: {
       relations: IRelation[];
     }) {
-      return models.Relations.insertMany(relations);
+      const created = await models.Relations.insertMany(relations);
+      const { subdomain, userId } = getContext();
+
+      await generateRelationActivityLogs({
+        subdomain,
+        userId,
+        createActivityLog,
+        added: toEntityPairs(relations),
+        removed: [],
+      });
+
+      await recheckEntities(entitiesOf(relations));
+
+      return created;
     }
 
     public static async updateRelation({
@@ -116,7 +182,12 @@ export const loadRelationClass = (
     }
 
     public static async deleteRelation({ _id }: { _id: string }) {
-      return models.Relations.deleteOne({ _id });
+      const relation = await models.Relations.findOne({ _id }).lean();
+      const deleted = await models.Relations.deleteOne({ _id });
+
+      await recheckEntities(entitiesOf(relation ? [relation] : []));
+
+      return deleted;
     }
 
     public static async cleanRelation({
@@ -126,6 +197,15 @@ export const loadRelationClass = (
       contentType: string;
       contentIds: string[];
     }) {
+      const removing = await models.Relations.find({
+        entities: {
+          $elemMatch: {
+            contentType: contentType,
+            contentId: { $in: contentIds },
+          },
+        },
+      }).lean();
+
       await models.Relations.deleteMany({
         entities: {
           $elemMatch: {
@@ -134,6 +214,9 @@ export const loadRelationClass = (
           },
         },
       });
+
+      await recheckEntities(entitiesOf(removing));
+
       return 'success';
     }
 
@@ -164,7 +247,7 @@ export const loadRelationClass = (
             },
           },
         ],
-      });
+      }).sort({ createdAt: -1 });
 
       return relation;
     }
@@ -273,7 +356,7 @@ export const loadRelationClass = (
       relatedContentType: string;
       relatedContentIds: string[];
     }) {
-      const { subdomain } = getContext();
+      const { subdomain, userId } = getContext();
       const existingRels = await models.Relations.getRelationsByEntity({
         contentType,
         contentId,
@@ -333,15 +416,28 @@ export const loadRelationClass = (
         );
       }
 
+      const toPair = (relatedContentId: string): RelationEntityPair => [
+        { contentType, contentId },
+        { contentType: relatedContentType, contentId: relatedContentId },
+      ];
+
       await generateRelationActivityLogs({
         subdomain,
+        userId,
         createActivityLog,
-        contentType,
-        contentId,
-        relatedContentType,
-        addedRelationIds: toCreateRelIds,
-        removedRelationIds: toDeleteRelIds,
+        added: toCreateRelIds.map(toPair),
+        removed: toDeleteRelIds.map(toPair),
       });
+
+      await recheckEntities([
+        ...(toCreateRelIds.length || toDeleteRelIds.length
+          ? [{ contentType, contentId }]
+          : []),
+        ...[...toCreateRelIds, ...toDeleteRelIds].map((relId) => ({
+          contentType: relatedContentType,
+          contentId: relId,
+        })),
+      ]);
 
       return models.Relations.getRelationsByEntity({
         contentType,

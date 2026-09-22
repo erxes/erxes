@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import { Dialog, Button, Label, Input, Select } from 'erxes-ui';
 import { useCreateCustomer, useUpdateCustomer } from '../hooks';
@@ -16,6 +17,7 @@ export const CustomerForm = ({
   customer,
   onSuccess,
 }: CustomerFormProps) => {
+  const { t } = useTranslation('insurance');
   const { createCustomer, loading: creating } = useCreateCustomer();
   const { updateCustomer, loading: updating } = useUpdateCustomer();
 
@@ -104,13 +106,13 @@ export const CustomerForm = ({
       <Dialog.Content className="max-w-lg">
         <Dialog.Header>
           <Dialog.Title>
-            {customer ? 'Edit Customer' : 'New Customer'}
+            {customer ? t('edit-customer') : t('new-customer')}
           </Dialog.Title>
         </Dialog.Header>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="type">Type *</Label>
+            <Label htmlFor="type">{t('type-required')}</Label>
             <Select
               value={formData.type}
               onValueChange={(value) =>
@@ -118,45 +120,45 @@ export const CustomerForm = ({
               }
             >
               <Select.Trigger>
-                <Select.Value placeholder="Select type" />
+                <Select.Value placeholder={t('select-type')} />
               </Select.Trigger>
               <Select.Content>
-                <Select.Item value="individual">Individual</Select.Item>
-                <Select.Item value="company">Company</Select.Item>
+                <Select.Item value="individual">{t('individual')}</Select.Item>
+                <Select.Item value="company">{t('company')}</Select.Item>
               </Select.Content>
             </Select>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="lastName">Last Name *</Label>
+              <Label htmlFor="lastName">{t('last-name-required')}</Label>
               <Input
                 id="lastName"
                 value={formData.lastName}
                 onChange={(e) =>
                   setFormData({ ...formData, lastName: e.target.value })
                 }
-                placeholder="Last name"
+                placeholder={t('last-name')}
                 required
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="firstName">First Name *</Label>
+              <Label htmlFor="firstName">{t('first-name-required')}</Label>
               <Input
                 id="firstName"
                 value={formData.firstName}
                 onChange={(e) =>
                   setFormData({ ...formData, firstName: e.target.value })
                 }
-                placeholder="First name"
+                placeholder={t('first-name')}
                 required
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="registrationNumber">Registration Number *</Label>
+            <Label htmlFor="registrationNumber">{t('registration-number-required')}</Label>
             <Input
               id="registrationNumber"
               value={formData.registrationNumber}
@@ -170,21 +172,21 @@ export const CustomerForm = ({
 
           {formData.type === 'company' && (
             <div className="space-y-2">
-              <Label htmlFor="companyName">Company Name</Label>
+              <Label htmlFor="companyName">{t('company-name')}</Label>
               <Input
                 id="companyName"
                 value={formData.companyName}
                 onChange={(e) =>
                   setFormData({ ...formData, companyName: e.target.value })
                 }
-                placeholder="Company name"
+                placeholder={t('company-name-placeholder')}
               />
             </div>
           )}
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t('email')}</Label>
               <Input
                 id="email"
                 type="email"
@@ -192,19 +194,19 @@ export const CustomerForm = ({
                 onChange={(e) =>
                   setFormData({ ...formData, email: e.target.value })
                 }
-                placeholder="email@example.com"
+                placeholder={t('email-placeholder')}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="phone">Phone</Label>
+              <Label htmlFor="phone">{t('phone')}</Label>
               <Input
                 id="phone"
                 value={formData.phone}
                 onChange={(e) =>
                   setFormData({ ...formData, phone: e.target.value })
                 }
-                placeholder="99001122"
+                placeholder={t('phone-placeholder')}
               />
             </div>
           </div>
@@ -216,14 +218,14 @@ export const CustomerForm = ({
               onClick={() => onOpenChange(false)}
               disabled={creating || updating}
             >
-              Cancel
+              {t('cancel')}
             </Button>
             <Button type="submit" disabled={creating || updating}>
               {creating || updating
-                ? 'Saving...'
+                ? t('saving')
                 : customer
-                  ? 'Update'
-                  : 'Create'}
+                  ? t('update')
+                  : t('create')}
             </Button>
           </Dialog.Footer>
         </form>

@@ -24,6 +24,13 @@ export default composePlugins(
       test: /\.(mp3|wav|ogg)$/,
       type: 'asset/resource',
     });
+
+    if (process.env.NODE_ENV !== 'production') {
+      config.watchOptions = {
+        ...config.watchOptions,
+        ignored: ['**/node_modules/**', '**/dist/**', '**/.nx/**'],
+      };
+    }
     return config;
   },
 );

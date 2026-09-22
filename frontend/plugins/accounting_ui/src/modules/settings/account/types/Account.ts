@@ -55,4 +55,5 @@ export enum JournalEnum {
   INVENTORY = 'inventory',
   INV_FOLLOW = 'invFollow',
   FIXED_ASSET = 'fixedAsset',
+  FXA_FOLLOW = 'fxaFollow',
 }

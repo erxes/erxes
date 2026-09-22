@@ -89,6 +89,15 @@ export const resetLocal = () => {
   })
 }
 
+// Clears remaining client-side storage and refreshes the page.
+// Auth cookies are HttpOnly, so they must be cleared via the logout mutation first.
+export const clearAllSessionData = () => {
+  resetLocal()
+  sessionStorage.clear()
+
+  window.location.reload()
+}
+
 export function hexToHsl(hex: string) {
   // Remove the '#' symbol from the hex code
   hex = hex.replace("#", "")
@@ -150,9 +159,9 @@ export const formatNum = (num: number | string, splitter?: string): string => {
   if (checked) {
     const options = splitter
       ? {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      }
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }
       : undefined
 
     return checked.toLocaleString(undefined, options)
@@ -162,19 +171,17 @@ export const formatNum = (num: number | string, splitter?: string): string => {
 }
 
 export const fixNum = (value: any, p = 4) => {
-  const cleanNumber = Number((value ?? '').toString().replace(/,/g, ""));
+  const cleanNumber = Number((value ?? "").toString().replace(/,/g, ""))
 
   if (isNaN(cleanNumber)) {
-    return 0;
+    return 0
   }
-  const multiplier = 10 ** p;
+  const multiplier = 10 ** p
 
-  const big = Math.round(
-    Number((cleanNumber * multiplier).toFixed(2))
-  );
+  const big = Math.round(Number((cleanNumber * multiplier).toFixed(2)))
 
   return Number((big / multiplier).toFixed(p))
-};
+}
 
 export const getCartTotal = (items: OrderItem[]) =>
   (items || []).reduce(
@@ -182,31 +189,89 @@ export const getCartTotal = (items: OrderItem[]) =>
     0
   )
 
-export const getItemInputs = (items: OrderItem[]) =>
+type DiscountInfo = NonNullable<OrderItem["discountInfos"]>[number]
+
+const HAND_DISCOUNT_TYPE = "hand"
+
+const numberValue = (value?: number) =>
+  Number.isFinite(Number(value)) ? Number(value) : 0
+
+const getDiscountInfoAmount = (discountInfo: DiscountInfo) =>
+  numberValue(discountInfo.amount)
+
+const getManualDiscountInfos = (
+  discountInfos: DiscountInfo[] = [],
+  includeHandDiscounts = true
+) =>
+  includeHandDiscounts
+    ? discountInfos.filter(
+        (discountInfo) => discountInfo.type === HAND_DISCOUNT_TYPE
+      )
+    : []
+
+const getAutoDiscountAmount = (discountInfos: DiscountInfo[] = []) =>
+  discountInfos
+    .filter((discountInfo) => discountInfo.type !== HAND_DISCOUNT_TYPE)
+    .reduce((sum, discountInfo) => sum + getDiscountInfoAmount(discountInfo), 0)
+
+const getManualDiscountAmount = (discountInfos: DiscountInfo[] = []) =>
+  getManualDiscountInfos(discountInfos).reduce(
+    (sum, discountInfo) => sum + getDiscountInfoAmount(discountInfo),
+    0
+  )
+
+export const getItemInputs = (
+  items: OrderItem[],
+  options: { includeHandDiscounts?: boolean } = {}
+) =>
   items.map(
     ({
       _id,
       productId,
       count,
       unitPrice,
+      discountAmount,
+      discountInfos,
       isPackage,
       isTake,
       status,
       manufacturedDate,
       description,
       attachment,
-    }) => ({
-      _id,
-      productId,
-      count,
-      unitPrice,
-      isPackage,
-      isTake,
-      status,
-      manufacturedDate,
-      description,
-      attachment,
-    })
+    }) => {
+      const includeHandDiscounts = options.includeHandDiscounts ?? true
+      const hasDiscountInfos = !!discountInfos?.length
+      const manualDiscountInfos = getManualDiscountInfos(
+        discountInfos,
+        includeHandDiscounts
+      )
+      const totalDiscountAmount = hasDiscountInfos
+        ? getAutoDiscountAmount(discountInfos) +
+          getManualDiscountAmount(getManualDiscountInfos(discountInfos))
+        : numberValue(discountAmount)
+      const unitPriceBeforeDiscount =
+        totalDiscountAmount && count
+          ? fixNum(unitPrice + totalDiscountAmount / count)
+          : unitPrice
+
+      return {
+        _id,
+        productId,
+        count,
+        unitPrice: unitPriceBeforeDiscount,
+        discountAmount: undefined,
+        discountPercent: undefined,
+        discountInfos: manualDiscountInfos.length
+          ? manualDiscountInfos
+          : undefined,
+        isPackage,
+        isTake,
+        status,
+        manufacturedDate,
+        description,
+        attachment,
+      }
+    }
   )
 
 export const getSumsOfAmount = (
@@ -260,7 +325,7 @@ export const getPaymentType = (paymentTypes: IPaymentType[], type: string) =>
 
 export function strToObj(str?: string | { [key: string]: string }) {
   if (!str) return {}
-  if (typeof str === 'object') return { ...str }
+  if (typeof str === "object") return { ...str }
   try {
     return JSON.parse(str)
   } catch {
@@ -294,8 +359,9 @@ export const getCustomerLabel = ({
   _id,
 }: Customer) => {
   if (firstName || lastName || primaryEmail || primaryPhone || code) {
-    return `${firstName ?? ""} ${lastName ?? ""} ${primaryPhone ?? ""} ${primaryEmail ?? ""
-      } ${code ?? ""}`
+    return `${firstName ?? ""} ${lastName ?? ""} ${primaryPhone ?? ""} ${
+      primaryEmail ?? ""
+    } ${code ?? ""}`
   }
 
   return _id || "Unknown"

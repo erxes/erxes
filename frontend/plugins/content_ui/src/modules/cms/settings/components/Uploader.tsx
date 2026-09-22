@@ -1,5 +1,6 @@
 import { Button, Upload } from 'erxes-ui';
 import { ComponentType, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { CmsAttachment } from '../types/settingsTypes';
 
 type UploadValue = Partial<CmsAttachment> & {
@@ -45,6 +46,7 @@ export const Uploader = ({
   value: CmsAttachment | null;
   onChange: (value: CmsAttachment | null) => void;
 }) => {
+  const { t } = useTranslation('content');
   const [uploadKey, setUploadKey] = useState(0);
   const [hasLocalPreview, setHasLocalPreview] = useState(false);
 
@@ -86,7 +88,7 @@ export const Uploader = ({
         />
         <div className="flex flex-col gap-2">
           <Upload.Button type="button" variant="secondary" size="sm">
-            {value ? 'Change' : 'Upload'}
+            {value ? t('change') : t('upload')}
           </Upload.Button>
           {hasImage ? (
             <Button
@@ -95,7 +97,7 @@ export const Uploader = ({
               size="sm"
               onClick={handleRemove}
             >
-              Remove
+              {t('remove')}
             </Button>
           ) : null}
         </div>

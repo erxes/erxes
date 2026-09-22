@@ -10,12 +10,14 @@ import {
   useConfirm,
 } from 'erxes-ui';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   useChangePackageStatus,
   useRemovePackages,
 } from '../hooks/usePackageMutations';
 
 export const PackageCommandBar = () => {
+  const { t } = useTranslation('product', { keyPrefix: 'package' });
   const { table } = RecordTable.useRecordTable();
   const { removePackages, loading: archiving } = useRemovePackages();
   const { changeStatus, loading: statusLoading } = useChangePackageStatus();
@@ -28,17 +30,21 @@ export const PackageCommandBar = () => {
 
   const handleDelete = () => {
     confirm({
-      message: `Are you sure you want to delete the ${selectedIds.length} selected package${selectedIds.length === 1 ? '' : 's'}?`,
+      message: t('confirm-delete', {
+        count: selectedIds.length,
+        defaultValue:
+          'Are you sure you want to delete the {{count}} selected package(s)?',
+      }),
       options: { confirmationValue: 'delete' },
     }).then(async () => {
       try {
         await removePackages({ variables: { _ids: selectedIds } });
-        toast({ variant: 'success', title: 'Packages deleted' });
+        toast({ variant: 'success', title: t('packages-deleted', 'Packages deleted') });
         table.resetRowSelection();
       } catch (e: any) {
         toast({
           variant: 'destructive',
-          title: 'Failed to delete packages',
+          title: t('delete-failed', 'Failed to delete packages'),
           description: e?.message,
         });
       }
@@ -49,12 +55,18 @@ export const PackageCommandBar = () => {
     setStatusOpen(false);
     try {
       await changeStatus({ variables: { _ids: selectedIds, status } });
-      toast({ variant: 'success', title: `Packages set to ${status}` });
+      toast({
+        variant: 'success',
+        title: t('status-set', {
+          status,
+          defaultValue: 'Packages set to {{status}}',
+        }),
+      });
       table.resetRowSelection();
     } catch (e: any) {
       toast({
         variant: 'destructive',
-        title: 'Failed to update status',
+        title: t('status-update-failed', 'Failed to update status'),
         description: e?.message,
       });
     }
@@ -65,13 +77,18 @@ export const PackageCommandBar = () => {
   return (
     <CommandBar open={selectedIds.length > 0}>
       <CommandBar.Bar>
-        <CommandBar.Value>{selectedIds.length} selected</CommandBar.Value>
+        <CommandBar.Value>
+          {t('selected', {
+            count: selectedIds.length,
+            defaultValue: '{{count}} selected',
+          })}
+        </CommandBar.Value>
         <Separator.Inline />
         <Popover open={statusOpen} onOpenChange={setStatusOpen}>
           <Popover.Trigger asChild>
             <Button variant="secondary" disabled={busy}>
               <IconChevronUp />
-              Status
+              {t('status', 'Status')}
             </Button>
           </Popover.Trigger>
           <Popover.Content
@@ -83,10 +100,10 @@ export const PackageCommandBar = () => {
             <Command>
               <Command.List className="p-1">
                 <Command.Item onSelect={() => handleChangeStatus('active')}>
-                  Set Active
+                  {t('set-active', 'Set Active')}
                 </Command.Item>
                 <Command.Item onSelect={() => handleChangeStatus('draft')}>
-                  Set Draft
+                  {t('set-draft', 'Set Draft')}
                 </Command.Item>
               </Command.List>
             </Command>
@@ -100,7 +117,7 @@ export const PackageCommandBar = () => {
           disabled={busy}
         >
           <IconTrash />
-          Delete
+          {t('delete', 'Delete')}
         </Button>
       </CommandBar.Bar>
     </CommandBar>

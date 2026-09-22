@@ -1,4 +1,5 @@
 import { forwardRef, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Combobox,
   Command,
@@ -61,6 +62,7 @@ const ExpandableSection = <T,>({
   keyExtractor,
   emptyText,
 }: ExpandableSectionProps<T>) => {
+  const { t } = useTranslation('operation');
   const [expanded, setExpanded] = useState(false);
   const LIMIT = 2;
 
@@ -71,7 +73,7 @@ const ExpandableSection = <T,>({
           <Icon className="size-3.5" />
           <span>{title}</span>
         </div>
-        <div className="text-xs text-muted-foreground pl-5">Loading...</div>
+        <div className="text-xs text-muted-foreground pl-5">{t('loading')}</div>
       </div>
     );
   }
@@ -108,7 +110,7 @@ const ExpandableSection = <T,>({
                   setExpanded(!expanded);
                 }}
               >
-                {expanded ? 'Show less' : `+${remainingCount} more`}
+                {expanded ? t('show-less') : t('show-more', { count: remainingCount })}
               </Button>
             )}
           </>
@@ -132,6 +134,7 @@ const AssigneeHoverCard = forwardRef(
     },
     ref,
   ) => {
+    const { t } = useTranslation('operation');
     const { details: assigneeDetails, loading: userLoading } =
       useAssignedMember({
         variables: { _id: assigneeId },
@@ -183,15 +186,15 @@ const AssigneeHoverCard = forwardRef(
                 <Avatar.Fallback>{fullName?.charAt(0) || ''}</Avatar.Fallback>
               </Avatar>
               <div className="font-semibold text-sm truncate">
-                {fullName || 'Unnamed user'}
+                {fullName || t('unnamed-user')}
               </div>
             </div>
             <ExpandableSection
-              title="Teams"
+              title={t('teams')}
               icon={IconUsers}
               loading={teamsLoading}
               items={teams}
-              emptyText="No teams assigned"
+              emptyText={t('no-teams-assigned')}
               keyExtractor={(team) => team._id}
               renderItem={(team) => (
                 <div key={team._id} className="text-xs flex items-center gap-1">
@@ -206,11 +209,11 @@ const AssigneeHoverCard = forwardRef(
               )}
             />
             <ExpandableSection
-              title="Projects"
+              title={t('projects')}
               icon={IconClipboard}
               loading={projectsLoading}
               items={projects}
-              emptyText="No projects assigned"
+              emptyText={t('no-projects-assigned')}
               keyExtractor={(project) => project._id}
               renderItem={(project) => (
                 <div
@@ -241,6 +244,7 @@ const SelectAssigneeValue = ({
   placeholder?: string;
   variant?: `${SelectTriggerVariant}`;
 }) => {
+  const { t } = useTranslation('operation');
   const { memberIds, members, setMembers } = useSelectMemberContext();
   if (variant === SelectTriggerVariant.CARD) {
     return (
@@ -254,7 +258,7 @@ const SelectAssigneeValue = ({
       </MembersInline.Provider>
     );
   }
-  return <SelectMember.Value placeholder={placeholder || 'Select assignee'} />;
+  return <SelectMember.Value placeholder={placeholder || t('select-assignee')} />;
 };
 
 const SelectTeamMemberContent = ({

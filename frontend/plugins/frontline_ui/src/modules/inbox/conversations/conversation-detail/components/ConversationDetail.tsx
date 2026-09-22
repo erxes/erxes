@@ -21,9 +21,16 @@ import { MessageInputIntegrationWrapper } from '@/integrations/components/Messag
 import { messageExtraInfoState } from '../states/messageExtraInfoState';
 import { useEffect } from 'react';
 import { ConversationSideWidget } from '@/inbox/conversations/conversation-detail/components/ConversationSideWidget';
+import { useCompactWidth } from '@/inbox/hooks/useCompactWidth';
 import { useLocation } from 'react-router-dom';
 
+// Narrower than this, the widget overlays instead of taking a 320px column.
+const SIDE_WIDGET_OVERLAY_WIDTH = 700;
+
 export const ConversationDetail = () => {
+  const { ref: detailRef, isCompact } = useCompactWidth<HTMLDivElement>(
+    SIDE_WIDGET_OVERLAY_WIDTH,
+  );
   const [conversationId] = useQueryState<string>('conversationId');
   const [relatedConversationId] = useQueryState<string>(
     'relatedConversationId',
@@ -79,18 +86,16 @@ export const ConversationDetail = () => {
   };
 
   return (
-    <div className="flex h-full overflow-hidden">
-      <div className="flex flex-col h-full overflow-hidden flex-auto">
+    <div ref={detailRef} className="relative flex h-full overflow-hidden">
+      <div className="flex flex-col h-full overflow-hidden flex-auto min-w-0">
         <ConversationProvider conversation={conversationAllDetails}>
           <ConversationHeader />
           <Separator />
           <ConversationDetailLayout
             input={
-              integration?.kind === 'imap' ? null : (
-                <MessageInputIntegrationWrapper>
-                  <MessageInput conversationId={conversationId || ''} />
-                </MessageInputIntegrationWrapper>
-              )
+              <MessageInputIntegrationWrapper>
+                <MessageInput conversationId={conversationId || ''} />
+              </MessageInputIntegrationWrapper>
             }
           >
             {loading ? (
@@ -98,7 +103,9 @@ export const ConversationDetail = () => {
             ) : (
               <>
                 {integration?.kind &&
-                  ['messenger', 'lead'].includes(integration.kind) && (
+                  ['messenger', 'lead', 'discord-messenger'].includes(
+                    integration.kind,
+                  ) && (
                     <ConversationMessages
                       conversationId={conversationId || ''}
                     />
@@ -113,6 +120,8 @@ export const ConversationDetail = () => {
       <ConversationSideWidget
         customerId={conversationAllDetails?.customerId || ''}
         _id={conversationAllDetails?._id || ''}
+        asSheet={isCompact}
+        boundaryRef={detailRef}
       />
     </div>
   );

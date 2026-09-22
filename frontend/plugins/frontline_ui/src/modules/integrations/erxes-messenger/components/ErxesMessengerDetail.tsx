@@ -5,6 +5,7 @@ import { IconEdit } from '@tabler/icons-react';
 import { EditErxesMessengerSheet } from './EditErxesMessengerSheet';
 import { useSetAtom } from 'jotai';
 import { erxesMessengerSetupEditSheetOpenAtom } from '@/integrations/erxes-messenger/states/erxesMessengerSetupStates';
+import { useTranslation } from 'react-i18next';
 export const ErxesMessengerDetail = () => {
   return (
     <>
@@ -19,6 +20,7 @@ export const ErxesMessengerActions = ({
 }: {
   cell: CellContext<IIntegrationDetail, unknown>;
 }) => {
+  const { t } = useTranslation('frontline');
   const setEditId = useSetAtom(erxesMessengerSetupEditSheetOpenAtom);
   return (
     <div className="flex flex-col gap-2 w-full">
@@ -27,7 +29,7 @@ export const ErxesMessengerActions = ({
         className="flex items-center gap-2 w-full cursor-pointer"
       >
         <IconEdit size={16} />
-        Edit
+        {t('edit')}
       </div>
     </div>
   );

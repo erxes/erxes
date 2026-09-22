@@ -7,7 +7,6 @@
   "products": "Products",
   "automations": "Automations",
   "exit-settings": "Exit Settings",
-
   "profile": {
     "_": "Profile",
     "profile-picture": "Profile picture",
@@ -37,7 +36,6 @@
     "firstname-placeholder": "Enter First Name",
     "username-placeholder": "Enter Username"
   },
-
   "change-password": {
     "_": "Change Password",
     "current-password": "Current password",
@@ -52,7 +50,6 @@
     "password-same": "Passwords must match",
     "password-error": "Please provide your current password"
   },
-
   "general": {
     "_": "General",
     "general-settings": "General Settings",
@@ -60,9 +57,9 @@
     "main-currency": "Main currency",
     "currency": "Currency",
     "timezone": "Timezone",
+    "timezone-description": "Decides when a day starts and ends for date-based segment conditions and scheduled work. Defaults to UTC while unset.",
     "update": "Update"
   },
-
   "team-member": {
     "_": "Team Member",
     "invite-team-members": "Invite team members",
@@ -82,9 +79,11 @@
     "status": "Status",
     "role": "Role",
     "actions": "Actions",
+    "branches": "Branches",
+    "departments": "Departments",
+    "unit": "Unit",
     "team-member": "Team Member"
   },
-
   "brands": {
     "_": "Brands",
     "create-brand": "Create brand",
@@ -98,7 +97,6 @@
     "brands": "Brands",
     "brand-created-successfully": "Brand created successfully"
   },
-
   "file-upload": {
     "_": "File Upload",
     "upload-file-types": "Upload file types",
@@ -113,7 +111,6 @@
     "update": "Update",
     "file-upload": "File Upload"
   },
-
   "mail-config": {
     "_": "Mail Configuration",
     "update": "Update",
@@ -125,9 +122,18 @@
     "template": "Template",
     "temp-desc": "Your email will be sent with erxes email template.",
     "default-email-service": "Default email service",
-    "default-email-service-desc": "Choose your email service name. The default email service is SES."
+    "default-email-service-desc": "Choose your email service name. The default email service is SES.",
+    "postal-address": "Postal address",
+    "postal-address-desc": "Your organization's physical address. Anti-spam law requires it in the footer of marketing email.",
+    "postal-city": "City",
+    "postal-country": "Country",
+    "postal-address-missing": "Set a postal address — marketing email is required by law to carry one, and campaigns are sent without it until you do.",
+    "sendgrid-api-key-desc": "API key from your SendGrid account. Used to send mail and manage senders.",
+    "sendgrid-subuser-desc": "Optional. Scopes sender management to a SendGrid subuser.",
+    "sendgrid-webhook-key-desc": "Verification key from SendGrid's Signed Event Webhook. Delivery events are rejected until it is set, so bounces and spam reports stay unrecorded.",
+    "verified-senders": "Verified senders",
+    "verified-senders-desc": "Addresses your provider allows mail to be sent from. A sender can only send after opening its confirmation link."
   },
-
   "tags": {
     "_": "Tags",
     "add-group": "Add Group",
@@ -138,9 +144,93 @@
     "not-found": "No tags found",
     "workspace-description": "Workspace tags are shared tags that can be used across all tag types."
   },
-
   "broadcast": {
     "_": "Broadcast",
     "broadcast": "Broadcast"
+  },
+  "properties": {
+    "properties": "Properties",
+    "properties-suffix": "properties",
+    "add-field": "Add field",
+    "plugin": {
+      "core": "core properties",
+      "sales": "sales properties"
+    },
+    "content-type": {
+      "core-customer": "Customer",
+      "core-company": "Company",
+      "core-product": "Product & Service",
+      "core-user": "Team member",
+      "core-branch": "Branches",
+      "core-department": "Departments",
+      "sales-deal": "Sales pipelines"
+    },
+    "add-group": "Add Group",
+    "edit-group": "Edit Group",
+    "group-description": "Add a new group for the content type {{type}}",
+    "group-name": "Group Name",
+    "enter-group-name": "Enter group name",
+    "enter-group-code": "Enter group code",
+    "name": "Name",
+    "code": "Code",
+    "data-type": "Data type",
+    "field-type": {
+      "text": "Text",
+      "textarea": "Textarea",
+      "list": "String List",
+      "number": "Number",
+      "boolean": "True/False",
+      "date": "Date",
+      "select": "Select",
+      "multiSelect": "Multiple Select",
+      "check": "Checkbox",
+      "radio": "Radio Button",
+      "relation": "Relation",
+      "file": "File",
+      "phone": "Phone",
+      "objectList": "Object List"
+    },
+    "icon": "Icon",
+    "description": "Description",
+    "type": "Type",
+    "select-type": "Select type",
+    "add-property": "Add Property",
+    "update-property": "Update Property",
+    "select-options": "Select options",
+    "label": "Label",
+    "enter-label": "Enter label",
+    "value": "Value",
+    "enter-value": "Enter value",
+    "add-option": "Add option",
+    "object-list-fields": "Object list fields",
+    "key": "Key",
+    "enter-key": "Enter key",
+    "validation": "Validation",
+    "select-validation": "Select validation",
+    "validation-text": "Text",
+    "validation-number": "Number",
+    "validation-url": "URL",
+    "validation-phone": "Phone",
+    "validation-email": "Email",
+    "validation-password": "Password",
+    "relation-type": "Relation Type",
+    "select-relation-type": "Select relation type",
+    "multiple": "Multiple",
+    "no-fields-found": "No fields found",
+    "no-groups-found": "No field groups found",
+    "edit": "Edit",
+    "reorder-group": "Reorder group",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "create": "Create",
+    "update": "Update",
+    "property-added": "Property added",
+    "property-updated": "Property updated",
+    "error": "Error",
+    "confirm-delete-field": "Are you sure you want to delete this field?",
+    "confirm-delete-group": "Are you sure you want to delete this field group?",
+    "basic-information": "Basic information",
+    "visible": "Visible",
+    "system-fields-hint": "Defined by the system. Only its settings can be changed."
   }
 }

@@ -5,6 +5,7 @@ import {
   useQueryState,
   useMultiQueryState,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { IconTags } from '@tabler/icons-react';
 import { ELEMENTS_CURSOR_SESSION_KEY } from '../constants/elementCursorSessionKey';
 import { useElementCategories } from '../hooks/useElementCategories';
@@ -12,15 +13,17 @@ import { CategorySelector } from './CategorySelector';
 import { ElementsTotalCount } from './ElementsTotalCount';
 
 function SelectCategoryFilterItem() {
+  const { t } = useTranslation('tourism');
   return (
     <Filter.Item value="category">
       <IconTags />
-      Category
+      {t('category')}
     </Filter.Item>
   );
 }
 
 function SelectCategoryFilterView() {
+  const { t } = useTranslation('tourism');
   const [categoryId, setCategoryId] = useQueryState<string | undefined>(
     'categoryId',
   );
@@ -28,9 +31,9 @@ function SelectCategoryFilterView() {
   return (
     <Filter.View filterKey="category">
       <Command>
-        <Command.Input placeholder="Search category" />
+        <Command.Input placeholder={t('search-category')} />
         <Command.List>
-          <Command.Empty>No category found.</Command.Empty>
+          <Command.Empty>{t('no-category-found')}</Command.Empty>
           <CategorySelector
             value={categoryId ?? undefined}
             onChange={(value) => setCategoryId(value)}
@@ -42,6 +45,7 @@ function SelectCategoryFilterView() {
 }
 
 const ElementFilterPopover = () => {
+  const { t } = useTranslation('tourism');
   return (
     <>
       <Filter.Popover>
@@ -49,7 +53,7 @@ const ElementFilterPopover = () => {
         <Combobox.Content>
           <Filter.View>
             <Command>
-              <Filter.CommandInput placeholder="Filter" variant="secondary" />
+              <Filter.CommandInput placeholder={t('filter')} variant="secondary" />
               <Command.List className="p-1">
                 <Filter.SearchValueTrigger />
                 <Command.Separator className="my-1" />
@@ -70,6 +74,7 @@ const ElementFilterPopover = () => {
 };
 
 export const ElementFilter = () => {
+  const { t } = useTranslation('tourism');
   const [queries] = useMultiQueryState<{
     searchValue: string;
     categoryId: string;
@@ -90,10 +95,10 @@ export const ElementFilter = () => {
         <Filter.BarItem queryKey="categoryId">
           <Filter.BarName>
             <IconTags />
-            Category
+            {t('category')}
           </Filter.BarName>
           <Filter.BarButton filterKey="category">
-            {selectedCategoryLabel || 'Select category'}
+            {selectedCategoryLabel || t('select-category')}
           </Filter.BarButton>
         </Filter.BarItem>
         <ElementsTotalCount />

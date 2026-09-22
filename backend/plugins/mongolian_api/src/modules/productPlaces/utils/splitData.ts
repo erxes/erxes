@@ -8,7 +8,9 @@ const checkSplit = async (
   pdata,
   config,
   categoryIds,
+  excludeCategoryIds,
   tagIds,
+  excludeTagIds,
   productById,
 ) => {
   const product = productById[pdata.productId];
@@ -33,13 +35,28 @@ const checkSplit = async (
   let segmentRes = true;
   let tagRes = true;
 
+  if (config.excludeProductIds?.includes(product._id)) {
+    return;
+  }
+
+  if (
+    excludeCategoryIds?.length &&
+    excludeCategoryIds.includes(product.categoryId)
+  ) {
+    return;
+  }
+
+  if (
+    excludeTagIds?.length &&
+    _.intersection(excludeTagIds, product.tagIds ?? []).length
+  ) {
+    return;
+  }
+
   if (categoryIds?.length) {
     catRes = false;
 
-    if (
-      !config.excludeProductIds?.includes(product._id) &&
-      categoryIds.includes(product.categoryId)
-    ) {
+    if (categoryIds.includes(product.categoryId)) {
       catRes = true;
     }
   }
@@ -47,10 +64,7 @@ const checkSplit = async (
   if (tagIds?.length) {
     tagRes = false;
 
-    if (
-      !config.excludeProductIds?.includes(product._id) &&
-      _.intersection(tagIds, product.tagIds ?? []).length
-    ) {
+    if (_.intersection(tagIds, product.tagIds ?? []).length) {
       tagRes = true;
     }
   }
@@ -98,34 +112,22 @@ export const splitData = async (
   let pdatas = productsData.map((p) => ({ ...p }));
 
   let calcedCatIds: string[] = [];
+  let calcedExcludeCatIds: string[] = [];
   let calcedTagIds: string[] = [];
+  let calcedExcludeTagIds: string[] = [];
 
-  if (config.productCategoryIds?.length) {
-    const includeCatIds = (await getChildCategories(
-      subdomain,
-      config.productCategoryIds,
-    )) as string[];
-
-    const excludeCatIds = (await getChildCategories(
-      subdomain,
-      config.excludeCategoryIds ?? [],
-    )) as string[];
-
-    calcedCatIds = includeCatIds.filter((c) => !excludeCatIds.includes(c));
+  if (config.productCategoryIds?.length || config.excludeCategoryIds?.length) {
+    [calcedCatIds, calcedExcludeCatIds] = (await Promise.all([
+      getChildCategories(subdomain, config.productCategoryIds ?? []),
+      getChildCategories(subdomain, config.excludeCategoryIds ?? []),
+    ])) as string[][];
   }
 
-  if (config.productTagIds?.length) {
-    const includeTagIds = (await getChildTags(
-      subdomain,
-      config.productTagIds,
-    )) as string[];
-
-    const excludeTagIds = (await getChildTags(
-      subdomain,
-      config.excludeTagIds ?? [],
-    )) as string[];
-
-    calcedTagIds = includeTagIds.filter((id) => !excludeTagIds.includes(id));
+  if (config.productTagIds?.length || config.excludeTagIds?.length) {
+    [calcedTagIds, calcedExcludeTagIds] = (await Promise.all([
+      getChildTags(subdomain, config.productTagIds ?? []),
+      getChildTags(subdomain, config.excludeTagIds ?? []),
+    ])) as string[][];
   }
 
   for (const pdata of productsData) {
@@ -134,7 +136,9 @@ export const splitData = async (
       pdata,
       config,
       calcedCatIds,
+      calcedExcludeCatIds,
       calcedTagIds,
+      calcedExcludeTagIds,
       productById,
     );
 

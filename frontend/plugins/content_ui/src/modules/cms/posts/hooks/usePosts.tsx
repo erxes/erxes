@@ -35,6 +35,7 @@ export const usePostsVariables = (
       status,
       type,
       categories,
+      author,
       created,
       updated,
       publishedDate,
@@ -46,7 +47,8 @@ export const usePostsVariables = (
     searchValue: string;
     status: string;
     type: string;
-    categories: string;
+    categories: string | string[];
+    author: string;
     created: string;
     updated: string;
     publishedDate: string;
@@ -58,6 +60,7 @@ export const usePostsVariables = (
     'status',
     'type',
     'categories',
+    'author',
     'created',
     'updated',
     'publishedDate',
@@ -81,17 +84,25 @@ export const usePostsVariables = (
       : undefined;
 
   if (created) {
+    const parsed = parseDateRangeFromString(created);
     dateField = 'createdAt';
-    dateFrom = parseDateRangeFromString(created)?.from;
-    dateTo = parseDateRangeFromString(created)?.to;
+    dateFrom = parsed?.from;
+    dateTo = parsed?.to;
   } else if (updated) {
+    const parsed = parseDateRangeFromString(updated);
     dateField = 'updatedAt';
-    dateFrom = parseDateRangeFromString(updated)?.from;
-    dateTo = parseDateRangeFromString(updated)?.to;
+    dateFrom = parsed?.from;
+    dateTo = parsed?.to;
   } else if (publishedDate) {
+    const parsed = parseDateRangeFromString(publishedDate);
     dateField = 'publishedDate';
-    dateFrom = parseDateRangeFromString(publishedDate)?.from;
-    dateTo = parseDateRangeFromString(publishedDate)?.to;
+    dateFrom = parsed?.from;
+    dateTo = parsed?.to;
+  }
+
+  let categoryIds: string[] | undefined;
+  if (categories) {
+    categoryIds = Array.isArray(categories) ? categories : [categories];
   }
 
   return {
@@ -100,10 +111,11 @@ export const usePostsVariables = (
     sortField: sortField || 'createdAt',
     sortDirection: parsedSortDirection ?? '-1',
     searchValue: searchValue || undefined,
-    status: status && status !== 'all' ? status : undefined,
-    type: type || 'post',
+    status: status === 'all' ? undefined : status || undefined,
+    type: type || undefined,
     tagIds: tags || undefined,
-    categoryIds: categories || undefined,
+    categoryIds,
+    authorId: author || undefined,
     dateField: dateField || undefined,
     dateFrom: dateFrom || undefined,
     dateTo: dateTo || undefined,

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
 import { LotteryHotKeyScope } from '../types/path/LotteryHotKeyScope';
 import { LotteryTotalCount } from './LotteryTotalCount';
@@ -9,6 +10,7 @@ import { SelectVoucherCampaign } from '../../vouchers/components/selects/SelectV
 import { SelectOwner } from '~/modules/loyalties/components/SelectOwner';
 
 const LotteryFilterPopover = () => {
+  const { t } = useTranslation('loyalty');
   const [queries] = useMultiQueryState<{
     lotteryCampaign: string;
     ownerType: string;
@@ -35,7 +37,7 @@ const LotteryFilterPopover = () => {
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder="Filter"
+                placeholder={t('filter')}
                 variant="secondary"
                 className="bg-background"
               />
@@ -77,6 +79,7 @@ const LotteryFilterPopover = () => {
 };
 
 export const LotteryFilter = () => {
+  const { t } = useTranslation('loyalty');
   const { sessionKey } = useLotteryLeadSessionKey();
 
   return (

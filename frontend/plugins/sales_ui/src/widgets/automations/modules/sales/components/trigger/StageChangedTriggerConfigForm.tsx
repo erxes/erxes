@@ -4,6 +4,7 @@ import {
   useFormValidationErrorHandler,
 } from 'ui-modules';
 import { Form } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import {
   TStageProbalityTriggerConfigForm,
   stageProbalityTriggerConfigFormSchema,
@@ -20,6 +21,7 @@ export const StageChangedTriggerConfigForm = ({
   onSaveTriggerConfig,
   activeTrigger,
 }: AutomationTriggerFormProps<TStageProbalityTriggerConfigForm>) => {
+  const { t } = useTranslation('sales');
   const form = useForm<TStageProbalityTriggerConfigForm>({
     resolver: zodResolver(stageProbalityTriggerConfigFormSchema),
     defaultValues: {
@@ -54,13 +56,13 @@ export const StageChangedTriggerConfigForm = ({
           <SalesTriggerStageField
             control={control}
             name="fromStageId"
-            label="From stage"
+            label={t('from-stage')}
             pipelineId={pipelineId}
           />
           <SalesTriggerStageField
             control={control}
             name="toStageId"
-            label="To stage"
+            label={t('to-stage')}
             pipelineId={pipelineId}
           />
         </div>

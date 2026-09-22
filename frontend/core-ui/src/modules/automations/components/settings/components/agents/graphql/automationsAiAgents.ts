@@ -69,3 +69,9 @@ export const AUTOMATIONS_AI_AGENT_HEALTH = gql`
     }
   }
 `;
+
+export const AUTOMATIONS_AI_AGENT_KNOWLEDGE_SOURCE_STATUSES = gql`
+  query automationsAiAgentKnowledgeSourceStatuses($agentId: String!) {
+    automationsAiAgentKnowledgeSourceStatuses(agentId: $agentId)
+  }
+`;

@@ -1,7 +1,16 @@
 {
+  "confirm-form-responses-export": "\"{{formName}}\" формд ирүүлсэн хариултуудыг CSV файлаар экспортлох уу?",
+  "download-responses": "Хариултуудыг татах",
+  "form-responses-export-label": "{{formName}} формын хариултууд",
   "inbox": "Инбокс",
   "login": "Нэвтрэх",
   "logout": "Гарах",
   "username": "Нэр",
-  "password": "Нууц үг"
+  "password": "Нууц үг",
+  "hide-conversations": "Яриануудыг нуух",
+  "show-conversations": "Яриануудыг харуулах",
+  "no-form-responses": "Формын хариулт одоогоор байхгүй",
+  "form-responses-empty-description": "Илгээсэн формын дэлгэрэнгүй мэдээлэл энд харагдана.",
+  "discord-open-conversations_one": "{{count}} нээлттэй харилцан яриа",
+  "discord-open-conversations_other": "{{count}} нээлттэй харилцан яриа"
 }

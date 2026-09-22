@@ -1,5 +1,5 @@
 import { IContext } from '~/connectionResolvers';
-import { defaultPaginate } from 'erxes-api-shared/utils';
+import { cursorPaginate, escapeRegExp } from 'erxes-api-shared/utils';
 
 interface IQueryParams {
   searchValue?: string;
@@ -15,9 +15,10 @@ const generateFilter = async (
 
   // search =========
   if (searchValue) {
+    const escapedSearch = escapeRegExp(searchValue);
     filter.$or = [
-      { mainCurrency: { $regex: new RegExp(searchValue, 'i') } },
-      { rateCurrency: { $regex: new RegExp(searchValue, 'i') } },
+      { mainCurrency: { $regex: new RegExp(escapedSearch, 'i') } },
+      { rateCurrency: { $regex: new RegExp(escapedSearch, 'i') } },
     ];
   }
 
@@ -35,16 +36,16 @@ export const exchangeRateQueries = {
   ) => {
     const filter = await generateFilter(commonQuerySelector, params);
 
-    return {
-      list: await defaultPaginate(
-        models.ExchangeRates.find(filter).sort({ createdAt: -1 }),
-        {
-          page: params.page,
-          perPage: params.perPage,
-        },
-      ),
-      totalCount: await models.ExchangeRates.find(filter).countDocuments(),
-    };
+    const { list, totalCount, pageInfo } = await cursorPaginate({
+      model: models.ExchangeRates,
+      params: {
+        ...params,
+        orderBy: params.orderBy ?? { createdAt: -1 },
+      },
+      query: filter,
+    });
+
+    return { list, totalCount, pageInfo };
   },
 
   async exchangeGetRate(

@@ -7,6 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { createContext, ReactNode, useContext, useMemo } from 'react';
 import { DefaultValues, useForm, UseFormReturn } from 'react-hook-form';
 import { generateAutomationElementId } from 'ui-modules';
+import { TFacebookBotPage } from '~/widgets/automations/modules/facebook/components/bots/hooks/useFacebookIntegrationBot';
 
 interface FbBotFormContextType {
   form: UseFormReturn<TFacebookBotForm>;
@@ -18,39 +19,72 @@ const FbBotFormContext = createContext<FbBotFormContextType | null>(null);
 export const FbBotFormProvider = ({
   children,
   facebookMessengerBot,
+  page,
 }: {
   children: ReactNode;
   facebookMessengerBot?: IFacebookBot;
+  // Set when the form is opened from an integration that already owns the
+  // page, so the in-form page selector is skipped.
+  page?: TFacebookBotPage;
 }) => {
-  const defaultValues = useMemo<DefaultValues<TFacebookBotForm>>(
-    () => ({
+  const defaultValues = useMemo<DefaultValues<TFacebookBotForm>>(() => {
+    const persistentMenus = facebookMessengerBot?.persistentMenus?.length
+      ? facebookMessengerBot.persistentMenus.map(
+          ({ _id, text, type, link }) => ({
+            _id: _id || generateAutomationElementId(),
+            text: type === 'back_button' ? text || 'Back' : text || '',
+            type: type || 'button',
+            link: link || '',
+          }),
+        )
+      : [
+          {
+            _id: generateAutomationElementId(),
+            text: 'Persistent Menu 1',
+            type: 'button' as const,
+            link: '',
+          },
+        ];
+
+    if (
+      facebookMessengerBot?.isEnabledBackBtn &&
+      !persistentMenus.some((menu) => menu.type === 'back_button')
+    ) {
+      persistentMenus.push({
+        _id: generateAutomationElementId(),
+        text: 'Back',
+        type: 'back_button',
+        link: '',
+      });
+    }
+
+    return {
       name: facebookMessengerBot?.name || '',
-      persistentMenus: facebookMessengerBot?.persistentMenus?.length
-        ? facebookMessengerBot.persistentMenus.map(
-            ({ _id, text, type, link }) => ({
-              _id: _id || generateAutomationElementId(),
-              text: text || '',
-              type: (type || 'button') as 'button' | 'link',
-              link: link || '',
-            }),
-          )
-        : [
-            {
-              _id: generateAutomationElementId(),
-              text: 'Persistent Menu 1',
-              type: 'button',
-              link: '',
-            },
-          ],
+      persistentMenus,
+      iceBreakers: (facebookMessengerBot?.iceBreakers || []).map(
+        ({ _id, question }) => ({
+          _id: _id || generateAutomationElementId(),
+          question: question || '',
+        }),
+      ),
+      getStartedText: facebookMessengerBot?.getStartedText || '',
       tag: facebookMessengerBot?.tag || 'CONFIRMED_EVENT_UPDATE',
       greetText: facebookMessengerBot?.greetText || '',
-      isEnabledBackBtn: facebookMessengerBot?.isEnabledBackBtn || false,
-      backButtonText: facebookMessengerBot?.backButtonText || '',
-      accountId: facebookMessengerBot?.accountId || '',
-      pageId: facebookMessengerBot?.pageId || '',
-    }),
-    [facebookMessengerBot],
-  );
+      handoffMessage:
+        facebookMessengerBot?.handoffMessage ||
+        'A teammate will take over shortly. Automated replies are paused.',
+      automationActiveMessage:
+        facebookMessengerBot?.automationActiveMessage ||
+        'Automated replies are active again.',
+      handoffPauseMinutes: facebookMessengerBot?.handoffPauseMinutes || 10,
+      isEnabledBackBtn: persistentMenus.some(
+        (menu) => menu.type === 'back_button',
+      ),
+      backButtonText: '',
+      accountId: facebookMessengerBot?.accountId || page?.accountId || '',
+      pageId: facebookMessengerBot?.pageId || page?.pageId || '',
+    };
+  }, [facebookMessengerBot, page]);
 
   const form = useForm<TFacebookBotForm>({
     resolver: zodResolver(facebookBotFormSchema),

@@ -21,13 +21,18 @@ import {
 import { IconX } from '@tabler/icons-react';
 import { useFormMutate } from '../hooks/useFormMutate';
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const FormConfirmation = () => {
+  const { t } = useTranslation('frontline');
   const form = useForm<z.infer<typeof FORM_CONFIRMATION_SCHEMA>>({
     resolver: zodResolver(FORM_CONFIRMATION_SCHEMA),
     defaultValues: {
-      title: 'Confirmation',
-      description: 'Thank you for submitting the form',
+      title: t('confirmation-label', 'Confirmation'),
+      description: t(
+        'default-confirmation-description',
+        'Thank you for submitting the form',
+      ),
       image: null,
     },
   });
@@ -39,8 +44,8 @@ export const FormConfirmation = () => {
 
   return (
     <FormMutateLayout
-      title="Confirmation"
-      description="Confirmation settings"
+      title={t('confirmation-label', 'Confirmation')}
+      description={t('confirmation-settings', 'Confirmation settings')}
       form={form}
       onSubmit={onSubmit}
       isLoading={loading}
@@ -51,7 +56,7 @@ export const FormConfirmation = () => {
           name="title"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Title</Form.Label>
+              <Form.Label>{t('title-label', 'Title')}</Form.Label>
               <Form.Control>
                 <Input {...field} />
               </Form.Control>
@@ -63,7 +68,7 @@ export const FormConfirmation = () => {
           name="description"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Description</Form.Label>
+              <Form.Label>{t('description', 'Description')}</Form.Label>
               <Form.Control>
                 <Textarea {...field} />
               </Form.Control>
@@ -75,7 +80,7 @@ export const FormConfirmation = () => {
           name="image"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Image</Form.Label>
+              <Form.Label>{t('image-label', 'Image')}</Form.Label>
               <Form.Control>
                 <FormConfirmationImage
                   value={field.value}

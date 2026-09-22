@@ -38,5 +38,23 @@ export const normalizeRecordReferenceType = (
   type: string,
 ) => (type.includes(':') ? type : `${pluginName}:${type}`);
 
+const getComparableRecordReferencePluginName = (type: string) =>
+  type.includes(':') ? getRecordReferencePluginName(type) : '';
+
+const getComparableRecordReferenceLocalType = (type: string) =>
+  getLocalRecordReferenceType(
+    getComparableRecordReferencePluginName(type),
+    type,
+  );
+
+export const isSameRecordReferenceType = (candidate: string, target: string) =>
+  candidate === target ||
+  ((!getComparableRecordReferencePluginName(candidate) ||
+    !getComparableRecordReferencePluginName(target) ||
+    getComparableRecordReferencePluginName(candidate) ===
+      getComparableRecordReferencePluginName(target)) &&
+    getComparableRecordReferenceLocalType(candidate) ===
+      getComparableRecordReferenceLocalType(target));
+
 export const isBlankReferenceValue = (value: any) =>
   value === undefined || value === null || value === '';

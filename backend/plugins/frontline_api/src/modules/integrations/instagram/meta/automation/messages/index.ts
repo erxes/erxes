@@ -129,7 +129,7 @@ export const actionCreateMessage = async ({
       }
 
       const conversationMessage =
-        await models.FacebookConversationMessages.addMessage({
+        await models.InstagramConversationMessages.addMessage({
           conversationId: conversation._id,
           content: '<p>Bot Message</p>',
           internal: false,

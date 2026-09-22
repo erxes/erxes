@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { IconCaretRightFilled, IconChartHistogram } from '@tabler/icons-react';
 import {
   Button,
@@ -21,6 +22,7 @@ export enum CycleSideWidgetTabsEnum {
 }
 
 export const CycleSideWidget = ({ cycleId }: { cycleId: string }) => {
+  const { t } = useTranslation('operation');
   const { cycleDetail, loading } = useGetCycle(cycleId);
 
   const statistics = cycleDetail?.statistics || {};
@@ -33,7 +35,7 @@ export const CycleSideWidget = ({ cycleId }: { cycleId: string }) => {
   return (
     <SideMenu defaultValue="cycle">
       <SideMenu.Content value="cycle">
-        <SideMenu.Header Icon={IconChartHistogram} label="Cycle Report" />
+        <SideMenu.Header Icon={IconChartHistogram} label={t('cycle-report')} />
         <>
           <div className="p-4 border-b">
             <Collapsible className="group/collapsible-menu" defaultOpen>
@@ -44,7 +46,7 @@ export const CycleSideWidget = ({ cycleId }: { cycleId: string }) => {
                   size="sm"
                 >
                   <IconCaretRightFilled className="transition-transform group-data-[state=open]/collapsible-menu:rotate-90" />
-                  Progress
+                  {t('progress')}
                 </Button>
               </Collapsible.Trigger>
               <Collapsible.Content>
@@ -82,7 +84,7 @@ export const CycleSideWidget = ({ cycleId }: { cycleId: string }) => {
       <SideMenu.Sidebar>
         <SideMenu.Trigger
           value="cycle"
-          label="Cycle Report"
+          label={t('cycle-report')}
           Icon={IconChartHistogram}
         />
       </SideMenu.Sidebar>
@@ -95,6 +97,7 @@ export const CycleSideWidgetTabs = ({
 }: {
   children: React.ReactNode;
 }) => {
+  const { t } = useTranslation('operation');
   const [value, setValue] = useState<CycleSideWidgetTabsEnum>(
     CycleSideWidgetTabsEnum.Assignees,
   );
@@ -118,13 +121,13 @@ export const CycleSideWidgetTabs = ({
             value={CycleSideWidgetTabsEnum.Assignees}
             className="flex-auto"
           >
-            Assignees
+            {t('assignees')}
           </ToggleGroup.Item>
           <ToggleGroup.Item
             value={CycleSideWidgetTabsEnum.Projects}
             className="flex-auto"
           >
-            Projects
+            {t('projects')}
           </ToggleGroup.Item>
         </ToggleGroup>
         <Tabs

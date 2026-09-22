@@ -1,5 +1,6 @@
 import { IconSearch } from '@tabler/icons-react';
 import { Combobox, Command, Filter } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 interface GenericFilterProps {
   id: string;
@@ -17,6 +18,7 @@ export const GenericFilter = ({ id, sessionKey }: GenericFilterProps) => {
 };
 
 export const GenericFilterPopover = () => {
+  const { t } = useTranslation('insurance');
   return (
     <>
       <Filter.Popover>
@@ -24,11 +26,11 @@ export const GenericFilterPopover = () => {
         <Combobox.Content>
           <Filter.View>
             <Command>
-              <Filter.CommandInput placeholder="Filter" variant="secondary" />
+              <Filter.CommandInput placeholder={t('filter')} variant="secondary" />
               <Command.List className="p-1">
                 <Filter.Item value="searchValue" inDialog>
                   <IconSearch />
-                  Search
+                  {t('search')}
                 </Filter.Item>
               </Command.List>
             </Command>

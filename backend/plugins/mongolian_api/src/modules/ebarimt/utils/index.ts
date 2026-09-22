@@ -303,7 +303,7 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
     innerData = {
       _id: 'tempBill',
       id: 'tempBIll',
-      date: moment(new Date()).format('"YYYY-MM-DD HH:mm:ss'),
+      date: moment(new Date()).format('YYYY-MM-DD HH:mm:ss'),
       createdAt: new Date(),
       modifiedAt: new Date(),
       status: 'SUCCESS',
@@ -438,9 +438,7 @@ const billTypeCustomFieldsData = async (config, deal) => {
 
     const customDataBillType = getPropertyValue(config.dealBillType.billType);
     const customDataRegNo = getPropertyValue(config.dealBillType.regNo);
-    const customDataComName = getPropertyValue(
-      config.dealBillType.companyName,
-    );
+    const customDataComName = getPropertyValue(config.dealBillType.companyName);
 
     if (
       checkCompanyStrs.includes(customDataBillType) &&

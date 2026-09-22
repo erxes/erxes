@@ -11,6 +11,7 @@ import {
   UPDATE_STAGES_ORDER,
 } from '@/deals/graphql/mutations/StagesMutations';
 import { toast, useQueryState } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 import { GET_DEALS } from '@/deals/graphql/queries/DealsQueries';
 import {
@@ -36,6 +37,7 @@ export const useStages = (
 };
 
 export const useStagesOrder = (options?: MutationHookOptions<any, any>) => {
+  const { t } = useTranslation('sales');
   const [updateStagesOrder, { loading, error }] = useMutation(
     UPDATE_STAGES_ORDER,
     {
@@ -54,15 +56,15 @@ export const useStagesOrder = (options?: MutationHookOptions<any, any>) => {
       awaitRefetchQueries: true,
       onCompleted: (...args) => {
         toast({
-          title: 'Successfully updated a deal stage',
+          title: t('successfully-updated-deal-stage'),
           variant: 'default',
         });
         options?.onCompleted?.(...args);
       },
       onError: (err) => {
         toast({
-          title: 'Error',
-          description: err.message || 'Update failed',
+          title: t('error'),
+          description: err.message || t('update-failed'),
           variant: 'destructive',
         });
       },
@@ -73,6 +75,7 @@ export const useStagesOrder = (options?: MutationHookOptions<any, any>) => {
 };
 
 export function useStagesRemove(options?: MutationHookOptions<any, any>) {
+  const { t } = useTranslation('sales');
   const [pipelineId] = useQueryState<string>('pipelineId');
 
   const [removeStage, { loading, error }] = useMutation(STAGES_REMOVE, {
@@ -90,13 +93,13 @@ export function useStagesRemove(options?: MutationHookOptions<any, any>) {
     ],
     awaitRefetchQueries: true,
     onCompleted: (...args) => {
-      toast({ title: 'Stage removed', variant: 'default' });
+      toast({ title: t('stage-removed'), variant: 'default' });
       options?.onCompleted?.(...args);
     },
     onError: (err) => {
       toast({
-        title: 'Error',
-        description: err.message || 'Remove failed',
+        title: t('error'),
+        description: err.message || t('remove-failed'),
         variant: 'destructive',
       });
       options?.onError?.(err);
@@ -107,6 +110,7 @@ export function useStagesRemove(options?: MutationHookOptions<any, any>) {
 }
 
 export function useStagesEdit(options?: MutationHookOptions<any, any>) {
+  const { t } = useTranslation('sales');
   const [pipelineId] = useQueryState<string>('pipelineId');
 
   const [editStage, { loading, error }] = useMutation(STAGES_EDIT, {
@@ -124,13 +128,13 @@ export function useStagesEdit(options?: MutationHookOptions<any, any>) {
     ],
     awaitRefetchQueries: true,
     onCompleted: (...args) => {
-      toast({ title: 'Stage updated', variant: 'default' });
+      toast({ title: t('stage-updated'), variant: 'default' });
       options?.onCompleted?.(...args);
     },
     onError: (err) => {
       toast({
-        title: 'Error',
-        description: err.message || 'Edit failed',
+        title: t('error'),
+        description: err.message || t('edit-failed'),
         variant: 'destructive',
       });
       options?.onError?.(err);
@@ -141,6 +145,7 @@ export function useStagesEdit(options?: MutationHookOptions<any, any>) {
 }
 
 export function useStagesSortItems(options?: MutationHookOptions<any, any>) {
+  const { t } = useTranslation('sales');
   const [pipelineId] = useQueryState<string>('pipelineId');
   const [sortItemsBase, { loading, error }] = useMutation(STAGES_SORT_ITEMS, {
     ...options,
@@ -149,13 +154,13 @@ export function useStagesSortItems(options?: MutationHookOptions<any, any>) {
     },
     awaitRefetchQueries: true,
     onCompleted: (...args) => {
-      toast({ title: 'Items sorted', variant: 'default' });
+      toast({ title: t('items-sorted'), variant: 'default' });
       options?.onCompleted?.(...args);
     },
     onError: (err) => {
       toast({
-        title: 'Error',
-        description: err.message || 'Sorting failed',
+        title: t('error'),
+        description: err.message || t('sorting-failed'),
         variant: 'destructive',
       });
       options?.onError?.(err);

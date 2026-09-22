@@ -6,6 +6,7 @@ import React, {
   useState,
 } from 'react';
 import { cn, Combobox, Command, PopoverScoped } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useGetSalesPipelines } from '@/ebarimt/settings/stage-in-ebarimt-config/hooks/useGetSalesPipelines';
 import {
   SelectTrigger,
@@ -91,6 +92,7 @@ const SelectPipelineValue = ({
   placeholder?: string;
   className?: string;
 }) => {
+  const { t } = useTranslation('mongolian');
   const { value, pipelines, boardId } = useSelectPipelineContext();
   const selectedPipeline = pipelines?.find(
     (pipeline) => pipeline._id === value,
@@ -98,14 +100,14 @@ const SelectPipelineValue = ({
 
   if (!boardId) {
     return (
-      <span className="text-accent-foreground/80">Choose board first</span>
+      <span className="text-accent-foreground/80">{t('choose-board-first')}</span>
     );
   }
 
   if (!selectedPipeline) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select pipeline'}
+        {placeholder || t('select-pipeline')}
       </span>
     );
   }
@@ -137,13 +139,14 @@ const SelectPipelineCommandItem = ({ pipeline }: { pipeline: IPipeline }) => {
 };
 
 const SelectPipelineContent = () => {
+  const { t } = useTranslation('mongolian');
   const { pipelines, boardId, loading, error } = useSelectPipelineContext();
 
   const renderContent = useCallback(() => {
     if (!boardId) {
       return (
         <div className="flex items-center justify-center h-24">
-          <span className="text-muted-foreground">Choose board first</span>
+          <span className="text-muted-foreground">{t('choose-board-first')}</span>
         </div>
       );
     }
@@ -151,7 +154,7 @@ const SelectPipelineContent = () => {
     if (loading) {
       return (
         <div className="flex items-center justify-center h-24">
-          <span className="text-muted-foreground">Loading...</span>
+          <span className="text-muted-foreground">{t('loading')}</span>
         </div>
       );
     }
@@ -159,7 +162,7 @@ const SelectPipelineContent = () => {
     if (error) {
       return (
         <div className="flex items-center justify-center h-24 text-destructive">
-          Error: {error.message}
+          {t('error')}: {error.message}
         </div>
       );
     }
@@ -167,13 +170,13 @@ const SelectPipelineContent = () => {
     return pipelines?.map((pipeline) => (
       <SelectPipelineCommandItem key={pipeline._id} pipeline={pipeline} />
     ));
-  }, [boardId, loading, error, pipelines]);
+  }, [boardId, loading, error, pipelines, t]);
 
-  const emptyMessage = boardId ? 'No pipelines found' : 'Choose board first';
+  const emptyMessage = boardId ? t('no-pipelines-found') : t('choose-board-first');
 
   return (
     <Command>
-      <Command.Input placeholder="Search pipeline" />
+      <Command.Input placeholder={t('search-pipeline')} />
       <Command.Empty>
         <span className="text-muted-foreground">{emptyMessage}</span>
       </Command.Empty>

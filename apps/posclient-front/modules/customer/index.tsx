@@ -61,7 +61,7 @@ const Customer = () => {
   })
 
   const { poscCustomers } = data || {}
-  
+
   useEffect(() => {
     const timeOutId = setTimeout(() => setSearchValue(value), 500)
     return () => clearTimeout(timeOutId)

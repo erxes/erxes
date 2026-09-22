@@ -1,4 +1,5 @@
 import {
+  logicSchema,
   propertyGroupSchema,
   propertySchema,
 } from '@/properties/propertySchema';
@@ -24,5 +25,21 @@ export interface IFieldGroup {
   description: string;
   contentType: string;
   order: number;
-  logics: string;
+  logics?: Record<string, unknown>;
+  configs?: { isMultiple?: boolean };
+}
+
+export type IPropertySystemFieldLogic = z.infer<typeof logicSchema>;
+
+export interface IPropertySystemFieldConfig {
+  isVisible: boolean;
+  isVisibleToCreate: boolean;
+  isRequired: boolean;
+  logics: IPropertySystemFieldLogic[];
+}
+
+export interface IPropertySystemField extends IPropertySystemFieldConfig {
+  code: string;
+  name: string;
+  type: string;
 }

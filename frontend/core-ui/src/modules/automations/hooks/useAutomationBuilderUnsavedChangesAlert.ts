@@ -9,15 +9,15 @@ import { TSplitConditionsConfigForm } from '../components/builder/nodes/actions/
 import { TAutomationWaitEventConfig } from '../components/builder/nodes/actions/waitEvent/type/waitEvent';
 import { IAutomation } from '../types';
 import { useRemoveSegments } from '@/segments/hooks/useRemoveSegments';
+import { useAutomation } from '../context/AutomationProvider';
 
 const SEGMENT_AVIABLE_ACTION_TYPES = ['if', 'split', 'waitEvent'];
 
-export const useAutomationBuilderUnsavedChangesAlert = (
-  detail?: IAutomation,
-) => {
+export const useAutomationBuilderUnsavedChangesAlert = () => {
   const {
     formState: { isDirty },
   } = useFormContext<TAutomationBuilderForm>();
+  const { detail } = useAutomation();
   const { t } = useTranslation('automations');
   const isProceedingRef = useRef(false);
   const [isProceeding, setIsProceeding] = useState(false);

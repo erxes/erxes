@@ -1,9 +1,16 @@
 export const types = `
+  input TicketPropertyValueFilter {
+    propertyId: String
+    type: String
+    values: [String]
+  }
+
   input TicketReportFilter {
     date: String
     fromDate: String
     toDate: String
     status: String
+    statusIds: [String]
     source: String
     limit: Int
     page: Int
@@ -19,6 +26,12 @@ export const types = `
     customerIds: [String]
     frequency: String
     branchIds: [String]
+    pageIds: [String]
+    searchValue: String
+    propertyIds: [String]
+    groupPropertyId: String
+    groupPropertyValue: String
+    propertyValueFilters: [TicketPropertyValueFilter!]
   }
 
   type ReportTicketMetric {
@@ -41,6 +54,14 @@ export const types = `
     colorCode: String
   }
 
+  type ReportTicketCustomProperty {
+    _id: String
+    name: String
+    group: String
+    count: Int
+    percentage: Int
+  }
+
   type TicketDateStat {
     date: String
     count: Int
@@ -54,8 +75,10 @@ export const types = `
   }
 
   type ReportTicketStatusSummary {
+    _id: String
     statusType: Int
     name: String
+    group: String
     color: String
     count: Int
     percentage: Int
@@ -90,6 +113,7 @@ export const queries = `
   reportTicketOpen(filters: TicketReportFilter): ReportTicketMetric
   reportTicketList(filters: TicketReportFilter): TicketListResult
   reportTicketTags(filters: TicketReportFilter): [ReportTicketTag]
+  reportTicketCustomProperties(filters: TicketReportFilter): [ReportTicketCustomProperty]
   reportTicketTotalCount(filters: TicketReportFilter): Int
   reportTicketStatusSummary(filters: TicketReportFilter): [ReportTicketStatusSummary]
   reportTicketPriority(filters: TicketReportFilter): [ReportTicketPriority]

@@ -5,6 +5,7 @@ import {
   IconUsers,
 } from '@tabler/icons-react';
 import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 import { ProjectHotKeyScope } from '@/project/constants/ProjectHotKeyScope';
 import { ProjectsTotalCount } from '@/project/components/ProjectsTotalCount';
@@ -17,6 +18,7 @@ import { SelectPriority } from '@/operation/components/SelectPriority';
 import { TagsFilter } from 'ui-modules';
 
 const ProjectsFilterPopover = () => {
+  const { t } = useTranslation('operation');
   const { teamId } = useParams();
 
   const [queries] = useMultiQueryState<{
@@ -40,30 +42,30 @@ const ProjectsFilterPopover = () => {
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder="Filter"
+                placeholder={t('filter')}
                 variant="secondary"
                 className="bg-background"
               />
               <Command.List className="p-1">
                 <Filter.Item value="name" inDialog>
                   <IconSearch />
-                  Search
+                  {t('search')}
                 </Filter.Item>
                 <Command.Separator className="my-1" />
                 <SelectLead.FilterItem />
                 {!teamId && (
                   <Filter.Item value="team">
                     <IconUsers />
-                    Team
+                    {t('team')}
                   </Filter.Item>
                 )}
                 <Filter.Item value="priority">
                   <IconAlertSquareRounded />
-                  Priority
+                  {t('priority')}
                 </Filter.Item>
                 <Filter.Item value="status">
                   <IconProgressCheck />
-                  Status
+                  {t('status')}
                 </Filter.Item>
                 <TagsFilter />
               </Command.List>
@@ -86,6 +88,7 @@ const ProjectsFilterPopover = () => {
 };
 
 export const ProjectsFilter = () => {
+  const { t } = useTranslation('operation');
   const { teamId } = useParams();
 
   const [queries] = useMultiQueryState<{
@@ -105,7 +108,7 @@ export const ProjectsFilter = () => {
           <Filter.BarItem queryKey="name">
             <Filter.BarName>
               <IconSearch />
-              Search
+              {t('search')}
             </Filter.BarName>
             <Filter.BarButton filterKey="name" inDialog>
               {name}
@@ -117,7 +120,7 @@ export const ProjectsFilter = () => {
           <Filter.BarItem queryKey="team">
             <Filter.BarName>
               <IconUsers />
-              Team
+              {t('team')}
             </Filter.BarName>
             <SelectTeam.FilterBar />
           </Filter.BarItem>
@@ -125,14 +128,14 @@ export const ProjectsFilter = () => {
         <Filter.BarItem queryKey="priority">
           <Filter.BarName>
             <IconAlertSquareRounded />
-            Priority
+            {t('priority')}
           </Filter.BarName>
           <SelectPriority.FilterBar />
         </Filter.BarItem>
         <Filter.BarItem queryKey="status">
           <Filter.BarName>
             <IconProgressCheck />
-            Status
+            {t('status')}
           </Filter.BarName>
           <SelectStatus.FilterBar />
         </Filter.BarItem>

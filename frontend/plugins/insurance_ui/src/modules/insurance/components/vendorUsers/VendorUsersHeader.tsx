@@ -1,7 +1,8 @@
-import { PageHeader } from 'ui-modules';
+import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
 import { Link } from 'react-router-dom';
 import { IconSandbox, IconUsers, IconPlus } from '@tabler/icons-react';
 import { Breadcrumb, Button, Separator } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 interface VendorUsersHeaderProps {
   onAddUser: () => void;
@@ -12,6 +13,12 @@ export const VendorUsersHeader = ({
   onAddUser,
   canAddUser,
 }: VendorUsersHeaderProps) => {
+  const { t } = useTranslation('insurance');
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(
+    t('insurance'),
+    t('vendor-users'),
+  );
+
   return (
     <PageHeader>
       <PageHeader.Start>
@@ -21,7 +28,7 @@ export const VendorUsersHeader = ({
               <Button variant="ghost" asChild>
                 <Link to="/insurance/products">
                   <IconSandbox />
-                  Insurance
+                  {t('insurance')}
                 </Link>
               </Button>
             </Breadcrumb.Item>
@@ -29,18 +36,21 @@ export const VendorUsersHeader = ({
             <Breadcrumb.Item>
               <Button variant="ghost">
                 <IconUsers />
-                Vendor Users
+                {t('vendor-users')}
               </Button>
             </Breadcrumb.Item>
           </Breadcrumb.List>
         </Breadcrumb>
         <Separator.Inline />
-        <PageHeader.FavoriteToggleButton />
+        <PageHeader.FavoriteToggleButton
+          breadcrumb={favoriteBreadcrumb}
+          icon="IconSandbox"
+        />
       </PageHeader.Start>
       <PageHeader.End>
         <Button onClick={onAddUser} disabled={!canAddUser}>
           <IconPlus size={16} />
-          New User
+          {t('new-user')}
         </Button>
       </PageHeader.End>
     </PageHeader>

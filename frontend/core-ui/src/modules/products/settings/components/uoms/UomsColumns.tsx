@@ -10,8 +10,9 @@ import { uomNameColumn } from './UomNameColumn';
 import { uomMoreColumn } from './UomMoreColumn';
 
 export const uomsColumns: ColumnDef<IUom>[] = [
-  uomNameColumn,
+  uomMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<IUom>,
+  uomNameColumn,
 
   {
     id: 'code',
@@ -41,5 +42,4 @@ export const uomsColumns: ColumnDef<IUom>[] = [
     },
     size: 150,
   },
-  uomMoreColumn,
 ];

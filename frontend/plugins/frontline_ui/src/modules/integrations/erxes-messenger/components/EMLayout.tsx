@@ -3,6 +3,7 @@ import { erxesMessengerSetupStepAtom } from '@/integrations/erxes-messenger/stat
 import { Button, Sheet } from 'erxes-ui';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { resetErxesMessengerSetupAtom } from '@/integrations/erxes-messenger/states/EMSetupResetState';
+import { useTranslation } from 'react-i18next';
 
 export const EMLayout = ({
   children,
@@ -13,6 +14,7 @@ export const EMLayout = ({
   actions: React.ReactNode;
   title: string;
 }) => {
+  const { t } = useTranslation('frontline');
   const step = useAtomValue(erxesMessengerSetupStepAtom);
   const resetErxesMessengerSetup = useSetAtom(resetErxesMessengerSetupAtom);
 
@@ -37,7 +39,7 @@ export const EMLayout = ({
           className="mr-auto bg-border"
           onClick={handleCancel}
         >
-          Cancel
+          {t('cancel')}
         </Button>
         {actions}
       </Sheet.Footer>
@@ -46,6 +48,7 @@ export const EMLayout = ({
 };
 
 export const EMLayoutPreviousStepButton = () => {
+  const { t } = useTranslation('frontline');
   const [step, setStep] = useAtom(erxesMessengerSetupStepAtom);
   return (
     <Button
@@ -54,7 +57,7 @@ export const EMLayoutPreviousStepButton = () => {
       disabled={step === 1}
       onClick={() => setStep(step - 1)}
     >
-      Previous step
+      {t('previous-step')}
     </Button>
   );
 };

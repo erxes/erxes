@@ -1,8 +1,10 @@
 import { OperationVariables, useMutation } from '@apollo/client';
 import { toast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { SAFE_REMAINDER_ITEMS_REMOVE } from '../graphql/safeRemainderChange';
 
 export const useSafeRemainderItemsRemove = () => {
+  const { t } = useTranslation('accounting');
   const [_removeRemItems, { loading }] = useMutation(
     SAFE_REMAINDER_ITEMS_REMOVE,
   );
@@ -15,7 +17,7 @@ export const useSafeRemainderItemsRemove = () => {
       variables,
       onError: (error) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });
@@ -23,8 +25,8 @@ export const useSafeRemainderItemsRemove = () => {
       },
       onCompleted: (data) => {
         toast({
-          title: 'Success',
-          description: 'Item updated successfully',
+          title: t('success'),
+          description: t('item-updated'),
           variant: 'success',
         });
         options?.onCompleted?.(data);

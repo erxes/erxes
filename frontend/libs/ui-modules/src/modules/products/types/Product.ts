@@ -7,6 +7,7 @@ export interface IProduct {
   _id: string;
   name: string;
   unitPrice: number;
+  weight?: number;
   code: string;
   categoryId: string;
   category?: IProductCategory;
@@ -15,8 +16,18 @@ export interface IProduct {
   departmentId?: string;
   uom: string;
   type: 'product' | 'service' | 'unique' | 'subscription';
+  duration?: number;
+  durationType?:
+    | 'minute'
+    | 'hour'
+    | 'day'
+    | 'week'
+    | 'month'
+    | 'quarter'
+    | 'year';
   currency: CurrencyCode;
   remainder: any;
+  status?: 'active' | 'deleted';
 }
 export interface IBundleRuleItem {
   code: string;

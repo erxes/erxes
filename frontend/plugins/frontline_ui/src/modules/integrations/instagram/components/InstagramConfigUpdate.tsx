@@ -9,6 +9,7 @@ import {
   Textarea,
   useConfirm,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useInstagramUpdateConfigs } from '../hooks/useInstagramUpdateConfigs';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -20,6 +21,7 @@ import { IntegrationLogo } from '@/integrations/components/IntegrationLogo';
 import { INTEGRATIONS } from '@/integrations/constants/integrations';
 import { IntegrationType } from '@/types/Integration';
 import { getPluginAssetsUrl } from 'erxes-ui';
+import { SecretInput } from '@/integrations/components/SecretInput';
 
 export const InstagramConfigUpdateCollapse = () => {
   return (
@@ -48,6 +50,7 @@ export const InstagramConfigUpdateCollapse = () => {
 };
 
 export const InstagramConfigUpdate = () => {
+  const { t } = useTranslation('frontline');
   const confirmationValue = 'update';
   const { confirm } = useConfirm();
   const confirmOptions = { confirmationValue };
@@ -73,7 +76,7 @@ export const InstagramConfigUpdate = () => {
 
   const onSubmit = (data: z.infer<typeof instagramConfigSchema>) => {
     confirm({
-      message: 'Are you sure you want to update the Instagram configs?',
+      message: t('confirm-update-instagram-configs'),
       options: confirmOptions,
     }).then(() => {
       updateConfigs({ variables: { configsMap: data } });
@@ -101,7 +104,7 @@ export const InstagramConfigUpdate = () => {
           name="INSTAGRAM_APP_ID"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Instagram App Id</Form.Label>
+              <Form.Label>{t('instagram-app-id')}</Form.Label>
               <Form.Control>
                 <Input {...field} />
               </Form.Control>
@@ -113,9 +116,9 @@ export const InstagramConfigUpdate = () => {
           name="INSTAGRAM_APP_SECRET"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Instagram App Secret</Form.Label>
+              <Form.Label>{t('instagram-app-secret')}</Form.Label>
               <Form.Control>
-                <Input {...field} />
+                <SecretInput {...field} />
               </Form.Control>
               <Form.Message />
             </Form.Item>
@@ -125,9 +128,9 @@ export const InstagramConfigUpdate = () => {
           name="INSTAGRAM_VERIFY_TOKEN"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Instagram Verify Token</Form.Label>
+              <Form.Label>{t('instagram-verify-token')}</Form.Label>
               <Form.Control>
-                <Input {...field} />
+                <SecretInput {...field} />
               </Form.Control>
               <Form.Message />
             </Form.Item>
@@ -137,7 +140,7 @@ export const InstagramConfigUpdate = () => {
           name="INSTAGRAM_PERMISSIONS"
           render={({ field }) => (
             <Form.Item className="col-span-2">
-              <Form.Label>Instagram Permissions</Form.Label>
+              <Form.Label>{t('instagram-permissions')}</Form.Label>
               <Form.Control>
                 <Textarea {...field} />
               </Form.Control>
@@ -147,7 +150,7 @@ export const InstagramConfigUpdate = () => {
         />
         <Dialog.Footer className="col-span-2 items-center">
           <Button type="submit" disabled={loading}>
-            {loading ? <Spinner /> : 'Save'}
+            {loading ? <Spinner /> : t('save')}
           </Button>
         </Dialog.Footer>
       </form>

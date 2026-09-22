@@ -11,7 +11,11 @@ export interface BoardState<TItem, TColumn> {
   columnItems: Record<string, string[]>;
 }
 
-export type DealsBoardState = BoardState<IDeal, BoardDealColumn>;
+export type DealsBoardItem = IDeal & {
+  columnId: string;
+};
+
+export type DealsBoardState = BoardState<DealsBoardItem, BoardDealColumn>;
 
 export const fetchedDealsState = atom<BoardItemProps[]>([]);
 export const allDealsMapState = atom<Record<string, IDeal>>({});

@@ -1,3 +1,5 @@
+import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
+
 const posOrderFields = () => `
   _id: String,
   createdAt: Date,
@@ -7,6 +9,9 @@ const posOrderFields = () => `
   number: String,
   customerId: String,
   customerType: String,
+  brokerId: String,
+  brokerType: String,
+  brokerName: String,
   cashAmount: Float,
   mobileAmount: Float,
   paidAmounts: JSON,
@@ -52,6 +57,7 @@ export const types = () => `
 
   type PosOrder {
     ${posOrderFields()}
+    returnDescription: String
   }
 
   type PosOrderDetail {
@@ -103,6 +109,12 @@ export const types = () => `
     products: [PosProduct],
     totalCount: Float,
   }
+
+  type PosOrderListResponse {
+    list: [PosOrder]
+    totalCount: Int
+    pageInfo: PageInfo
+  }
 `;
 
 const commonQueryParams = `
@@ -128,9 +140,10 @@ const queryParams = `
   posToken: String
   types: [String]
   statuses: [String]
-  excludeStatuses: [String] 
+  excludeStatuses: [String]
   hasPaidDate: Boolean
   brandId: String
+  dealId: String
 `;
 
 const groupParams = `
@@ -149,6 +162,7 @@ const commonSubsQueryParams = `
 
 export const queries = `
   posOrders(${queryParams}): [PosOrder]
+  posOrdersList(${GQL_CURSOR_PARAM_DEFS} ${queryParams}): PosOrderListResponse
   posOrderDetail(_id: String): PosOrderDetail
   posOrderLink(_id: String): JSON
   posProducts(${queryParams} categoryId: String, searchValue: String): PosProducts

@@ -1,16 +1,16 @@
-import { Button, Form, Input, Popover, cn, toast } from 'erxes-ui';
+import { Button, Form, Input, Popover, Spinner, toast } from 'erxes-ui';
 import {
   ChecklistFormType,
   checklistFormSchema,
 } from './constants/checklistFormSchema';
 
-import { IconLoader } from '@tabler/icons-react';
 import { useChecklistsAdd } from '@/deals/cards/hooks/useChecklists';
 import { useForm } from 'react-hook-form';
 import { useRef } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useTranslation } from 'react-i18next';
 
-const ChecklistForm = () => {
+export const ChecklistForm = () => {
   const form = useForm<ChecklistFormType>({
     resolver: zodResolver(checklistFormSchema),
   });
@@ -18,20 +18,22 @@ const ChecklistForm = () => {
   const { checklistsAdd, loading } = useChecklistsAdd();
   const closeRef = useRef<HTMLButtonElement>(null);
 
+  const { t } = useTranslation('sales');
+
   const onSubmit = (data: ChecklistFormType) => {
     checklistsAdd({
       variables: {
         ...data,
       },
       onCompleted: () => {
-        toast({ title: 'Success!' });
+        toast({ title: t('success') });
         form.reset();
 
         closeRef.current?.click();
       },
       onError: (error) =>
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         }),
@@ -44,8 +46,8 @@ const ChecklistForm = () => {
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-col h-full overflow-hidden"
       >
-        <h3 className="text-sm font-semibold text-gray-600 border-b pb-2">
-          Add Checklist
+        <h3 className="text-sm font-semibold text-muted-foreground border-b pb-2">
+          {t('add-checklist')}
         </h3>
         <div className="flex-auto overflow-hidden py-2 px-1">
           <Form.Field
@@ -53,9 +55,9 @@ const ChecklistForm = () => {
             name="title"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>NAME</Form.Label>
+                <Form.Label>{t('name')}</Form.Label>
                 <Form.Control>
-                  <Input {...field} className="" />
+                  <Input {...field} />
                 </Form.Control>
                 <Form.Message />
               </Form.Item>
@@ -64,29 +66,16 @@ const ChecklistForm = () => {
         </div>
 
         <div className="flex justify-end shrink-0 gap-3">
-          <Popover.Close ref={closeRef}>
-            <Button
-              type="button"
-              variant="ghost"
-              className="bg-background hover:bg-background/90"
-            >
-              Cancel
+          <Popover.Close asChild ref={closeRef}>
+            <Button type="button" variant="ghost">
+              {t('cancel')}
             </Button>
           </Popover.Close>
-          <Button
-            type="submit"
-            className={cn(
-              loading
-                ? 'bg-primary/50 text-primary-foreground'
-                : 'bg-primary text-primary-foreground hover:bg-primary/90',
-            )}
-          >
-            {loading ? <IconLoader className="w-4 h-4 animate-spin" /> : 'Save'}
+          <Button type="submit" disabled={loading}>
+            {loading ? <Spinner /> : t('save')}
           </Button>
         </div>
       </form>
     </Form>
   );
 };
-
-export default ChecklistForm;

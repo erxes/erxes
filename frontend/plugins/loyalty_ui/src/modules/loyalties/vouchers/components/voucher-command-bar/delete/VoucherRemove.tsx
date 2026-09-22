@@ -2,6 +2,7 @@ import { IconTrash } from '@tabler/icons-react';
 import { Row } from '@tanstack/table-core';
 import { Button, useConfirm, useToast } from 'erxes-ui';
 import { useMutation } from '@apollo/client';
+import { useTranslation } from 'react-i18next';
 import { DELETE_VOUCHER_MUTATION } from '@/loyalties/vouchers/graphql/mutations/mutations';
 import { IVoucher } from '@/loyalties/vouchers/types/voucher';
 
@@ -12,6 +13,7 @@ export const VoucherRemove = ({
   voucherIds: string[];
   rows: Row<IVoucher>[];
 }) => {
+  const { t } = useTranslation('loyalty');
   const { confirm } = useConfirm();
   const { toast } = useToast();
 
@@ -25,19 +27,19 @@ export const VoucherRemove = ({
       className="text-destructive"
       onClick={() =>
         confirm({
-          message: `Are you sure you want to delete ${voucherIds.length} selected voucher(s)?`,
+          message: t('delete-voucher-confirm', { count: voucherIds.length }),
         }).then(async () => {
           try {
             await deleteVoucher({ variables: { _ids: voucherIds } });
             rows.forEach((row) => row.toggleSelected(false));
             toast({
-              title: 'Success',
+              title: t('success'),
               variant: 'success',
-              description: `${voucherIds.length} voucher(s) deleted successfully`,
+              description: t('vouchers-deleted', { count: voucherIds.length }),
             });
           } catch (e: unknown) {
             toast({
-              title: 'Error',
+              title: t('error'),
               description: e instanceof Error ? e.message : String(e),
               variant: 'destructive',
             });
@@ -46,7 +48,7 @@ export const VoucherRemove = ({
       }
     >
       <IconTrash />
-      Delete
+      {t('delete')}
     </Button>
   );
 };

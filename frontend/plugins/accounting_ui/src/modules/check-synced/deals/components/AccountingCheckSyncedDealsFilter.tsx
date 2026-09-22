@@ -8,6 +8,7 @@ import {
   useMultiQueryState,
   useQueryState,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { SelectMember } from 'ui-modules';
 import {
   AccountingCheckSyncedDealRuleFilterBar,
@@ -31,6 +32,7 @@ import {
 } from './AccountingCheckSyncedDealSelects';
 
 export const AccountingCheckSyncedDealsFilterPopover = () => {
+  const { t } = useTranslation('accounting');
   const [boardId] = useFilterQueryState<string>('boardId');
   const [pipelineId] = useFilterQueryState<string>('pipelineId');
   const [user, setUser] = useQueryState<string>('user');
@@ -44,6 +46,8 @@ export const AccountingCheckSyncedDealsFilterPopover = () => {
     number: string;
     dateType: string;
     dateRange: string;
+    createdDateRange: string;
+    stageChangedDateRange: string;
   }>([
     'user',
     'ruleId',
@@ -54,6 +58,8 @@ export const AccountingCheckSyncedDealsFilterPopover = () => {
     'number',
     'dateType',
     'dateRange',
+    'createdDateRange',
+    'stageChangedDateRange',
   ]);
   const hasFilters = Object.values(queries || {}).some(
     (value) => value !== null,
@@ -68,7 +74,7 @@ export const AccountingCheckSyncedDealsFilterPopover = () => {
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder="Filter"
+                placeholder={t('filter')}
                 variant="secondary"
                 className="bg-background"
               />
@@ -77,19 +83,27 @@ export const AccountingCheckSyncedDealsFilterPopover = () => {
                 <AccountingDealBoardFilterItem />
                 <AccountingDealPipelineFilterItem />
                 <AccountingDealStageFilterItem />
-                <SelectMember.FilterItem value="user" label="Assigned To" />
+                <SelectMember.FilterItem value="user" label={t('assigned-to')} />
                 <Command.Separator className="my-1" />
                 <Filter.Item value="dealSearch" inDialog>
                   <IconBuilding />
-                  Deal Search
+                  {t('deal-search')}
                 </Filter.Item>
                 <Filter.Item value="number" inDialog>
                   <IconHash />
-                  Number
+                  {t('number')}
                 </Filter.Item>
                 <Filter.Item value="dateRange">
                   <IconCalendar />
-                  Created date range
+                  {t('close-date-range')}
+                </Filter.Item>
+                <Filter.Item value="createdDateRange">
+                  <IconCalendar />
+                  {t('created-date-range')}
+                </Filter.Item>
+                <Filter.Item value="stageChangedDateRange">
+                  <IconCalendar />
+                  {t('stage-changed-date-range')}
                 </Filter.Item>
                 <AccountingDealDateTypeFilterItem />
               </Command.List>
@@ -115,6 +129,12 @@ export const AccountingCheckSyncedDealsFilterPopover = () => {
           <Filter.View filterKey="dateRange">
             <Filter.DateView filterKey="dateRange" />
           </Filter.View>
+          <Filter.View filterKey="createdDateRange">
+            <Filter.DateView filterKey="createdDateRange" />
+          </Filter.View>
+          <Filter.View filterKey="stageChangedDateRange">
+            <Filter.DateView filterKey="stageChangedDateRange" />
+          </Filter.View>
         </Combobox.Content>
       </Filter.Popover>
       <Filter.Dialog>
@@ -127,12 +147,19 @@ export const AccountingCheckSyncedDealsFilterPopover = () => {
         <Filter.View filterKey="dateRange" inDialog>
           <Filter.DialogDateView filterKey="dateRange" />
         </Filter.View>
+        <Filter.View filterKey="createdDateRange" inDialog>
+          <Filter.DialogDateView filterKey="createdDateRange" />
+        </Filter.View>
+        <Filter.View filterKey="stageChangedDateRange" inDialog>
+          <Filter.DialogDateView filterKey="stageChangedDateRange" />
+        </Filter.View>
       </Filter.Dialog>
     </>
   );
 };
 
 export const AccountingCheckSyncedDealsFilter = () => {
+  const { t } = useTranslation('accounting');
   const [boardId] = useFilterQueryState<string>('boardId');
   const [pipelineId] = useFilterQueryState<string>('pipelineId');
   const [dealSearch] = useFilterQueryState<string>('dealSearch');
@@ -146,7 +173,7 @@ export const AccountingCheckSyncedDealsFilter = () => {
         <Filter.BarItem queryKey="dealSearch">
           <Filter.BarName>
             <IconBuilding />
-            Deal search
+            {t('deal-search')}
           </Filter.BarName>
           <Filter.BarButton filterKey="dealSearch" inDialog>
             {dealSearch}
@@ -155,7 +182,7 @@ export const AccountingCheckSyncedDealsFilter = () => {
         <Filter.BarItem queryKey="number">
           <Filter.BarName>
             <IconHash />
-            Number
+            {t('number')}
           </Filter.BarName>
           <Filter.BarButton filterKey="number" inDialog>
             {number}
@@ -164,9 +191,23 @@ export const AccountingCheckSyncedDealsFilter = () => {
         <Filter.BarItem queryKey="dateRange">
           <Filter.BarName>
             <IconCalendar />
-            Created date range
+            {t('close-date-range')}
           </Filter.BarName>
           <Filter.Date filterKey="dateRange" />
+        </Filter.BarItem>
+        <Filter.BarItem queryKey="createdDateRange">
+          <Filter.BarName>
+            <IconCalendar />
+            {t('created-date-range')}
+          </Filter.BarName>
+          <Filter.Date filterKey="createdDateRange" />
+        </Filter.BarItem>
+        <Filter.BarItem queryKey="stageChangedDateRange">
+          <Filter.BarName>
+            <IconCalendar />
+            {t('stage-changed-date-range')}
+          </Filter.BarName>
+          <Filter.Date filterKey="stageChangedDateRange" />
         </Filter.BarItem>
         <AccountingDealBoardFilterBar />
         <AccountingDealPipelineFilterBar boardId={boardId || undefined} />

@@ -13,6 +13,8 @@ export const orderFields = `
   slotCode
   customerId
   customerType
+  brokerId
+  brokerType
   printedEbarimt
   origin
   type
@@ -24,6 +26,7 @@ export const orderFields = `
 export const orderItemBaseFields = `
  _id
  discountAmount
+ discountInfos
 `
 export const orderItemFields = `
     ${orderItemBaseFields}
@@ -332,6 +335,9 @@ const ordersHistory = gql`
       type
       createdAt
       modifiedAt
+      user {
+        email
+      }
       paidDate
     }
   }

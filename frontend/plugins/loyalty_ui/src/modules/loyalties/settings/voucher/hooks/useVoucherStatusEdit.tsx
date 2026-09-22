@@ -1,9 +1,11 @@
 import { MutationHookOptions, useMutation } from '@apollo/client';
 import { useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { UPDATE_VOUCHER_CAMPAIGN } from '../graphql/mutations/voucherEditStatusMutations';
 import { QUERY_VOUCHER_CAMPAIGNS } from '../graphql/queries/getCampaignsQuery';
 
 export function useVoucherStatusEdit() {
+  const { t } = useTranslation('loyalty');
   const { toast } = useToast();
 
   const [editVoucher, { loading, error }] = useMutation(
@@ -27,15 +29,15 @@ export function useVoucherStatusEdit() {
       },
       onCompleted: (data) => {
         toast({
-          title: 'Success',
-          description: 'Voucher status updated successfully',
+          title: t('success'),
+          description: t('voucher-status-updated'),
           variant: 'default',
         });
         options?.onCompleted?.(data);
       },
       onError: (err) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: err.message,
           variant: 'destructive',
         });

@@ -34,5 +34,8 @@ export const columns: ColumnDef<IConfig>[] = [
 ];
 
 export const SettingSyncOrderTable = () => (
-  <SyncConfigTable code={ACCOUNTING_SETTINGS_CODES.SYNC_ORDER} columns={columns} />
+  <SyncConfigTable
+    code={ACCOUNTING_SETTINGS_CODES.SYNC_ORDER}
+    columns={columns}
+  />
 );

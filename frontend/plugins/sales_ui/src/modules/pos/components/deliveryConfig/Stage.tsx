@@ -5,6 +5,7 @@ import { SelectPipelineFormItem } from '@/pos/hooks/useSelectPipeline';
 import { SelectStageFormItem } from '@/pos/hooks/useSelectStage';
 import { useFieldsCombined } from '@/pos/hooks/useFieldsCombined';
 import type { DeliveryConfigFormData } from './DeliveryConfig';
+import { useTranslation } from 'react-i18next';
 
 interface StageProps {
   control: Control<DeliveryConfigFormData>;
@@ -17,6 +18,7 @@ export const Stage: React.FC<StageProps> = ({ control }) => {
 
   const boardId = useWatch({ control, name: 'boardId' });
   const pipelineId = useWatch({ control, name: 'pipelineId' });
+  const { t } = useTranslation('sales');
 
   return (
     <div className="space-y-6">
@@ -26,13 +28,13 @@ export const Stage: React.FC<StageProps> = ({ control }) => {
           control={control}
           render={({ field }) => (
             <div className="space-y-2">
-              <Label>BOARD</Label>
+              <Label>{t('board')}</Label>
               <SelectBoardFormItem
                 value={field.value}
                 onValueChange={(val) => {
                   field.onChange(val);
                 }}
-                placeholder="Choose a board"
+                placeholder={t('choose-board')}
               />
             </div>
           )}
@@ -43,12 +45,12 @@ export const Stage: React.FC<StageProps> = ({ control }) => {
           control={control}
           render={({ field }) => (
             <div className="space-y-2">
-              <Label>PIPELINE</Label>
+              <Label>{t('PIPELINE')}</Label>
               <SelectPipelineFormItem
                 value={field.value}
                 onValueChange={field.onChange}
                 boardId={boardId}
-                placeholder="Choose a pipeline"
+                placeholder={t('choose-pipeline')}
               />
             </div>
           )}
@@ -59,12 +61,12 @@ export const Stage: React.FC<StageProps> = ({ control }) => {
           control={control}
           render={({ field }) => (
             <div className="space-y-2">
-              <Label>STAGE</Label>
+              <Label>{t('STAGE')}</Label>
               <SelectStageFormItem
                 value={field.value}
                 onValueChange={field.onChange}
                 pipelineId={pipelineId}
-                placeholder="Choose a stage"
+                placeholder={t('choose-stage')}
               />
             </div>
           )}
@@ -76,11 +78,11 @@ export const Stage: React.FC<StageProps> = ({ control }) => {
         control={control}
         render={({ field }) => (
           <div className="space-y-2">
-            <Label>CHOOSE MAP FIELD</Label>
+            <Label>{t('CHOOSE-MAP-FIELD')}</Label>
             <Select value={field.value} onValueChange={field.onChange}>
               <Select.Trigger className="w-48" disabled={fieldsLoading}>
                 <Select.Value
-                  placeholder={fieldsLoading ? 'Loading...' : 'Select field'}
+                  placeholder={fieldsLoading ? t('loading') : t('select-field')}
                 />
               </Select.Trigger>
               <Select.Content>

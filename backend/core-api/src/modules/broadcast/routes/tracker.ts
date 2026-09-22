@@ -1,5 +1,6 @@
 import { Request, Response, Router } from 'express';
 import { engageTracker } from '../trackers';
+import { sendgridTracker } from '../trackers/sendgrid';
 import { routeErrorHandling } from '../utils';
 
 const router: Router = Router();
@@ -8,6 +9,14 @@ router.post(
   '/',
   routeErrorHandling(async (req: Request, res: Response) => {
     return engageTracker(req, res);
+  }),
+);
+
+router.post(
+  '/sendgrid',
+  routeErrorHandling(async (req: Request, res: Response) => {
+    console.log(JSON.stringify(req.body));
+    return sendgridTracker(req, res);
   }),
 );
 

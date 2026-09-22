@@ -6,6 +6,8 @@ import {
   updateIntegrationQueueNames,
   updateIntegrationQueues,
 } from '@/integrations/call/utils';
+import { generateWebhookSecret } from '@/integrations/call/webhookAuth';
+import { ensureCallIndexes } from '@/integrations/call/indexes';
 
 export const createIntegration = async (subdomain: string, data: any) => {
   const ENDPOINT_URL = getEnv({ name: 'CALL_ENDPOINT_URL' });
@@ -15,6 +17,8 @@ export const createIntegration = async (subdomain: string, data: any) => {
   const { integrationId, data: doc } = data;
 
   try {
+    await ensureCallIndexes(models, subdomain);
+
     const docData = JSON.parse(doc);
 
     const updateData = {
@@ -31,6 +35,10 @@ export const createIntegration = async (subdomain: string, data: any) => {
     // if no existing integration found, use updateData to create
     if (!integrationData) {
       integrationData = updateData;
+    }
+
+    if (!integrationData.token) {
+      integrationData.token = generateWebhookSecret();
     }
 
     // Create new integration
@@ -66,10 +74,12 @@ export const createIntegration = async (subdomain: string, data: any) => {
         domain,
         erxesApiId: integration._id,
         subdomain,
+        token: integration.token,
       };
 
       if (integration.srcTrunk) requestBody.srcTrunk = integration.srcTrunk;
       if (integration.dstTrunk) requestBody.dstTrunk = integration.dstTrunk;
+      if (integration.queues?.length) requestBody.queues = integration.queues;
       await fetch(`${ENDPOINT_URL}/register-endpoint`, {
         method: 'POST',
         body: JSON.stringify(requestBody),
@@ -83,22 +93,9 @@ export const createIntegration = async (subdomain: string, data: any) => {
     await models.CallIntegrations.deleteOne({ inboxId: integrationId });
     await models.Integrations.deleteOne({ _id: integrationId });
 
-    const duplicateErrors: Record<string, string> = {
-      wsServer:
-        'Duplicate queue detected. Queues must be unique across integrations.',
-      srcTrunk: 'Duplicate srcTrunk detected.',
-      dstTrunk: 'Duplicate dstTrunk detected.',
-    };
-
-    let errorMessage = `Error creating integration: ${error.message}`;
-    if (error?.keyPattern) {
-      for (const key of Object.keys(duplicateErrors)) {
-        if (error.keyPattern[key]) {
-          errorMessage = duplicateErrors[key];
-          break;
-        }
-      }
-    }
+    const errorMessage = error?.keyPattern?.wsServer
+      ? 'Duplicate queue detected. Queues must be unique across integrations.'
+      : `Error creating integration: ${error.message}`;
 
     return { status: 'error', errorMessage };
   }
@@ -112,12 +109,23 @@ export const updateIntegration = async ({
     const details = JSON.parse(doc.data);
     const models = await generateModels(subdomain);
 
+    await ensureCallIndexes(models, subdomain);
+
     const integration = await models.CallIntegrations.findOne({
       inboxId: integrationId,
     }).lean();
 
     if (!integration) {
       return { status: 'error', errorMessage: 'Integration not found.' };
+    }
+
+    let token = integration.token;
+    if (!token) {
+      token = generateWebhookSecret();
+      await models.CallIntegrations.updateOne(
+        { inboxId: integrationId },
+        { $set: { token } },
+      );
     }
 
     // Update queues
@@ -127,8 +135,16 @@ export const updateIntegration = async ({
       details,
     );
 
-    // Update queue names this function role is detect which incoming call queue
-    await updateIntegrationQueueNames(subdomain, integrationId, updatedQueues);
+    // Update queue names this function role is detect which incoming call queue.
+    try {
+      await updateIntegrationQueueNames(
+        subdomain,
+        integrationId,
+        updatedQueues,
+      );
+    } catch (e) {
+      console.error('Failed to update queue names:', e.message);
+    }
 
     // Notify external endpoint if necessary
     const ENDPOINT_URL = getEnv({ name: 'CALL_ENDPOINT_URL' });
@@ -139,6 +155,7 @@ export const updateIntegration = async ({
           domain,
           erxesApiId: integration._id,
           subdomain,
+          token,
         } as any;
 
         if (details.srcTrunk) {
@@ -146,6 +163,9 @@ export const updateIntegration = async ({
         }
         if (details.dstTrunk) {
           requestBody.dstTrunk = details.dstTrunk;
+        }
+        if (updatedQueues?.length) {
+          requestBody.queues = updatedQueues;
         }
 
         await fetch(`${ENDPOINT_URL}/update-endpoint`, {
@@ -176,10 +196,6 @@ export const updateIntegration = async ({
       status: 'error',
       errorMessage: error?.keyPattern?.wsServer
         ? 'Duplicate queue detected. Queues must be unique across integrations.'
-        : error?.keyPattern?.srcTrunk
-        ? 'Duplicate srcTrunk detected.'
-        : error?.keyPattern?.dstTrunk
-        ? 'Duplicate dstTrunk detected.'
         : `Error creating integration: ${error?.message}`,
     };
   }

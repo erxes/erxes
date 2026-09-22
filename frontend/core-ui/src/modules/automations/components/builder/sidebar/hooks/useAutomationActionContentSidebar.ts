@@ -3,12 +3,14 @@ import { TAutomationActionComponent } from '@/automations/components/builder/nod
 import { useAutomation } from '@/automations/context/AutomationProvider';
 import { useAutomationNodes } from '@/automations/hooks/useAutomationNodes';
 import { useAutomationFormController } from '@/automations/hooks/useFormSetValue';
-import { toggleAutomationBuilderOpenSidebar } from '@/automations/states/automationState';
 import { AutomationNodesType, NodeData } from '@/automations/types';
-import { getTriggerOfAction } from '@/automations/utils/automationBuilderUtils/triggerUtils';
+import {
+  getConnectedPreviousActions,
+  getTriggerOfAction,
+} from '@/automations/utils/automationBuilderUtils/triggerUtils';
 import { Node, useReactFlow } from '@xyflow/react';
 import { toast } from 'erxes-ui';
-import { useSetAtom } from 'jotai';
+import { useMemo } from 'react';
 import {
   IAutomationsActionConfigConstants,
   splitAutomationNodeType,
@@ -35,10 +37,14 @@ const getTargetType = (
 };
 
 export const useAutomationActionContentSidebar = () => {
-  const { queryParams, setQueryParams, actionConstMap, actionFolks } =
-    useAutomation();
+  const {
+    queryParams,
+    setQueryParams,
+    actionConstMap,
+    actionFolks,
+    toggleSidebar: toggleSideBarOpen,
+  } = useAutomation();
   const { setAutomationBuilderFormValue } = useAutomationFormController();
-  const toggleSideBarOpen = useSetAtom(toggleAutomationBuilderOpenSidebar);
   const { getNode, updateNodeData } = useReactFlow<Node<NodeData>>();
   const { actions, triggers } = useAutomationNodes();
   const { clearNodeError } = useNodeErrorHandler();
@@ -58,6 +64,16 @@ export const useAutomationActionContentSidebar = () => {
     actions,
     triggers,
     actionFolks,
+  );
+
+  const previousActions = useMemo(
+    () =>
+      getConnectedPreviousActions(
+        queryParams?.activeNodeId ?? '',
+        actions,
+        actionFolks,
+      ),
+    [queryParams?.activeNodeId, actions, actionFolks],
   );
 
   const targetType = getTargetType(
@@ -88,13 +104,20 @@ export const useAutomationActionContentSidebar = () => {
   };
 
   const onSaveActionConfig = (config: any) => {
+    const prevConfig = currentAction?.config || {};
+
+    const updatedConfig = { ...prevConfig, ...config };
+
     setAutomationBuilderFormValue(
       `${AutomationNodesType.Actions}.${currentIndex}.config`,
-      config,
+      updatedConfig,
     );
     if (currentAction) {
       const node = getNode(currentAction.id);
-      updateNodeData(currentAction.id, { ...node?.data, config });
+      updateNodeData(currentAction.id, {
+        ...node?.data,
+        config: updatedConfig,
+      });
     }
     onSaveActionConfigCallback();
   };
@@ -110,5 +133,6 @@ export const useAutomationActionContentSidebar = () => {
     moduleName,
     trigger,
     targetType,
+    previousActions,
   };
 };

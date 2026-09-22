@@ -1,29 +1,50 @@
 import { onLocalChangeAtom } from '../productTableAtom';
 import { useAtomValue } from 'jotai';
-import { useDealsEditProductData } from '../hooks/useDealsEditProductData';
-import { useQueryState } from 'erxes-ui';
+import { useDealsEditProductData } from './mutations/useDealsEditProductData';
+import { IProductData } from 'ui-modules';
+import { ProductDataWithDiscountInfos } from '../utils/discountInfos';
 
 export const useUpdateProductRecord = () => {
   const { editDealsProductData } = useDealsEditProductData();
-  const [salesItemId] = useQueryState<string>('salesItemId');
   const processId = localStorage.getItem('processId') || '';
   const onLocalChange = useAtomValue(onLocalChangeAtom);
 
-  const updateRecord = (product: any, patch: any) => {
+  const updateRecord = (
+    product: IProductData,
+    patch: Partial<ProductDataWithDiscountInfos>,
+  ) => {
     const doc = { ...product, ...patch };
+    const processId = crypto.randomUUID();
+    localStorage.setItem('processId', processId);
 
     if (onLocalChange && product._id) {
       onLocalChange(product._id, patch);
     }
 
-    return editDealsProductData({
+    const request = editDealsProductData({
       variables: {
         processId,
-        dealId: salesItemId || '',
         dataId: product._id,
         doc,
       },
     });
+
+    // Rollback attaches here so fire-and-forget callers don't surface an
+    // unhandled rejection; awaiting callers still observe the failure.
+    request.catch(() => {
+      if (onLocalChange && product._id) {
+        const revertPatch = Object.fromEntries(
+          Object.keys(patch).map((key) => [
+            key,
+            product[key as keyof IProductData],
+          ]),
+        ) as Partial<ProductDataWithDiscountInfos>;
+
+        onLocalChange(product._id, revertPatch);
+      }
+    });
+
+    return request;
   };
 
   return { updateRecord };

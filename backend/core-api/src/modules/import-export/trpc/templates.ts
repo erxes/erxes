@@ -22,7 +22,7 @@ export const importTemplates: Record<
     ],
   },
 
-  'core:contact.customer': {
+  'core:contacts.customers': {
     filename: 'customers-template.csv',
     headers: [
       'First Name',
@@ -43,7 +43,7 @@ export const importTemplates: Record<
     ],
   },
 
-  'core:contact.company': {
+  'core:contacts.companies': {
     filename: 'companies-template.csv',
     headers: [
       'Name',
@@ -81,7 +81,7 @@ export const importTemplates: Record<
     ],
   },
 
-  'core:user.user': {
+  'core:organization.users': {
     filename: 'team-members-template.csv',
     headers: [
       'Username',

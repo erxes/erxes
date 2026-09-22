@@ -23,6 +23,7 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
 import { SelectMember, SelectTags } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const AddProjectForm = ({
   onClose,
@@ -33,6 +34,7 @@ export const AddProjectForm = ({
   onComplete?: (projectId: string) => void;
   task?: ITask;
 }) => {
+  const { t } = useTranslation('operation');
   const navigate = useNavigate();
   const { teamId } = useParams();
   const { createProject } = useCreateProject();
@@ -106,7 +108,7 @@ export const AddProjectForm = ({
             control={form.control}
             render={({ field }) => (
               <Form.Item className="space-y-0">
-                <Form.Label className="sr-only">Team</Form.Label>
+                <Form.Label className="sr-only">{t('team')}</Form.Label>
                 <SelectTeam.FormItem
                   value={field.value}
                   onValueChange={field.onChange}
@@ -115,7 +117,7 @@ export const AddProjectForm = ({
             )}
           />
           <IconChevronRight className="size-4" />
-          <Sheet.Title className="">New project</Sheet.Title>
+          <Sheet.Title className="">{t('new-project')}</Sheet.Title>
         </Sheet.Header>
         <Sheet.Content className="px-7 py-4 gap-2 flex flex-col min-h-0">
           <Form.Field
@@ -123,7 +125,7 @@ export const AddProjectForm = ({
             name="icon"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label className="sr-only">Icon</Form.Label>
+                <Form.Label className="sr-only">{t('icon')}</Form.Label>
                 <Form.Control>
                   <IconPicker
                     onValueChange={field.onChange}
@@ -141,12 +143,12 @@ export const AddProjectForm = ({
             control={form.control}
             render={({ field }) => (
               <Form.Item>
-                <Form.Label className="sr-only">Name</Form.Label>
+                <Form.Label className="sr-only">{t('name')}</Form.Label>
                 <Form.Control>
                   <Input
                     {...field}
                     className="shadow-none focus-visible:shadow-none h-8 text-xl p-0"
-                    placeholder="Project Name"
+                    placeholder={t('project-name')}
                   />
                 </Form.Control>
               </Form.Item>
@@ -158,7 +160,7 @@ export const AddProjectForm = ({
               control={form.control}
               render={({ field }) => (
                 <Form.Item className="shrink-0">
-                  <Form.Label className="sr-only">Status</Form.Label>
+                  <Form.Label className="sr-only">{t('status')}</Form.Label>
                   <SelectStatus.FormItem
                     value={field.value}
                     onValueChange={field.onChange}
@@ -171,7 +173,7 @@ export const AddProjectForm = ({
               control={form.control}
               render={({ field }) => (
                 <Form.Item className="shrink-0">
-                  <Form.Label className="sr-only">Priority</Form.Label>
+                  <Form.Label className="sr-only">{t('priority')}</Form.Label>
                   <SelectPriority.FormItem
                     value={field.value}
                     onValueChange={field.onChange}
@@ -184,7 +186,7 @@ export const AddProjectForm = ({
               control={form.control}
               render={({ field }) => (
                 <Form.Item className="shrink-0">
-                  <Form.Label className="sr-only">Lead</Form.Label>
+                  <Form.Label className="sr-only">{t('lead')}</Form.Label>
                   <SelectLead.FormItem
                     {...field}
                     value={field.value}
@@ -201,7 +203,7 @@ export const AddProjectForm = ({
               control={form.control}
               render={({ field }) => (
                 <Form.Item className="shrink-0">
-                  <Form.Label className="sr-only">Members</Form.Label>
+                  <Form.Label className="sr-only">{t('members')}</Form.Label>
                   <SelectMember.FormItem
                     value={field.value}
                     onValueChange={field.onChange}
@@ -215,11 +217,11 @@ export const AddProjectForm = ({
               control={form.control}
               render={({ field }) => (
                 <Form.Item className="shrink-0">
-                  <Form.Label className="sr-only">Start Date</Form.Label>
+                  <Form.Label className="sr-only">{t('start-date')}</Form.Label>
                   <DateSelect.FormItem
                     {...field}
                     type="start"
-                    placeholder="Start Date"
+                    placeholder={t('start-date')}
                   />
                 </Form.Item>
               )}
@@ -229,11 +231,11 @@ export const AddProjectForm = ({
               control={form.control}
               render={({ field }) => (
                 <Form.Item className="shrink-0">
-                  <Form.Label className="sr-only">Target Date</Form.Label>
+                  <Form.Label className="sr-only">{t('target-date')}</Form.Label>
                   <DateSelect.FormItem
                     {...field}
                     type="target"
-                    placeholder="Target Date"
+                    placeholder={t('target-date')}
                   />
                 </Form.Item>
               )}
@@ -243,7 +245,7 @@ export const AddProjectForm = ({
               control={form.control}
               render={({ field }) => (
                 <Form.Item className="shrink-0">
-                  <Form.Label className="sr-only">Tags</Form.Label>
+                  <Form.Label className="sr-only">{t('tags')}</Form.Label>
                   <SelectTags.FormItem
                     tagType="operation:project"
                     mode="multiple"
@@ -275,13 +277,13 @@ export const AddProjectForm = ({
               setDescriptionContent(undefined);
             }}
           >
-            Cancel
+            {t('cancel')}
           </Button>
           <Button
             type="submit"
             className="bg-primary text-primary-foreground hover:bg-primary/90"
           >
-            Save
+            {t('save')}
           </Button>
         </Sheet.Footer>
       </form>

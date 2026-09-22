@@ -3,6 +3,65 @@ import { Badge, Button, Combobox, Form, Popover } from 'erxes-ui/components';
 import { Filter } from 'erxes-ui/modules/filter';
 import { RecordTableInlineCell } from 'erxes-ui/modules/record-table';
 
+const FORM_CONTROL_SELECTOR = [
+  'a[href]',
+  'button',
+  'input',
+  'select',
+  'textarea',
+  '[contenteditable="true"]',
+  '[tabindex]',
+].join(',');
+
+const getFocusableFormControls = (form: HTMLFormElement) =>
+  Array.from(form.querySelectorAll<HTMLElement>(FORM_CONTROL_SELECTOR)).filter(
+    (element) =>
+      element.tabIndex >= 0 &&
+      !element.hasAttribute('disabled') &&
+      element.getAttribute('aria-hidden') !== 'true' &&
+      element.getClientRects().length > 0,
+  );
+
+const getPopoverTrigger = (content: HTMLElement) => {
+  if (!content.id) {
+    return;
+  }
+
+  return Array.from(
+    content.ownerDocument.querySelectorAll<HTMLElement>('[aria-controls]'),
+  ).find((element) => element.getAttribute('aria-controls') === content.id);
+};
+
+const handleFormContentTab = (event: React.KeyboardEvent<HTMLDivElement>) => {
+  if (event.key !== 'Tab' || event.defaultPrevented) {
+    return;
+  }
+
+  const trigger = getPopoverTrigger(event.currentTarget);
+  const form = trigger?.closest('form');
+
+  if (!trigger || !form) {
+    return;
+  }
+
+  const controls = getFocusableFormControls(form);
+  const triggerIndex = controls.indexOf(trigger);
+
+  if (triggerIndex === -1) {
+    return;
+  }
+
+  const nextControl = controls[triggerIndex + (event.shiftKey ? -1 : 1)];
+
+  if (!nextControl) {
+    return;
+  }
+
+  event.preventDefault();
+  trigger.click();
+  requestAnimationFrame(() => nextControl.focus());
+};
+
 export enum SelectTriggerVariant {
   TABLE = 'table',
   CARD = 'card',
@@ -98,6 +157,9 @@ export const SelectOperationContent = ({
     <Combobox.Content
       sideOffset={variant === SelectTriggerVariant.CARD ? 4 : 8}
       onClick={(e) => e.stopPropagation()}
+      onKeyDown={
+        variant === SelectTriggerVariant.FORM ? handleFormContentTab : undefined
+      }
     >
       {children}
     </Combobox.Content>

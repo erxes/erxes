@@ -1,6 +1,7 @@
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { Button, Sheet, Form, Input, Checkbox, Spinner } from 'erxes-ui';
 import { useFieldArray, UseFormReturn } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { CALL_INTEGRATION_FORM_SCHEMA } from '@/integrations/call/constants/callIntegrationAddSchema';
 import { z } from 'zod';
 import { SelectMember, SelectBrand } from 'ui-modules';
@@ -16,6 +17,7 @@ export const CallIntegrationForm = ({
   onSubmit: (data: z.infer<typeof CALL_INTEGRATION_FORM_SCHEMA>) => void;
   loading?: boolean;
 }) => {
+  const { t } = useTranslation('frontline');
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: 'operators',
@@ -35,7 +37,7 @@ export const CallIntegrationForm = ({
               disabled={loading}
             >
               {loading && <Spinner size="sm" />}
-              Save
+              {t('save')}
             </Button>
           }
         >
@@ -43,7 +45,7 @@ export const CallIntegrationForm = ({
             name="name"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Name</Form.Label>
+                <Form.Label>{t('name')}</Form.Label>
                 <Form.Control>
                   <Input {...field} />
                 </Form.Control>
@@ -55,7 +57,7 @@ export const CallIntegrationForm = ({
             name="phone"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Phone Number</Form.Label>
+                <Form.Label>{t('phone-number')}</Form.Label>
                 <Form.Control>
                   <Input {...field} />
                 </Form.Control>
@@ -67,7 +69,7 @@ export const CallIntegrationForm = ({
             name="websocketServer"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>WebSocket Server</Form.Label>
+                <Form.Label>{t('websocket-server')}</Form.Label>
                 <Form.Control>
                   <Input {...field} />
                 </Form.Control>
@@ -80,13 +82,13 @@ export const CallIntegrationForm = ({
             render={({ field }) => (
               <Form.Item>
                 <Form.Label>
-                  Brand <span className="text-destructive">*</span>
+                  {t('brand')} <span className="text-destructive">*</span>
                 </Form.Label>
                 <Form.Control>
                   <SelectBrand
                     value={field.value}
                     onValueChange={field.onChange}
-                    placeholder="Select a brand"
+                    placeholder={t('select-a-brand')}
                     className="w-full"
                   />
                 </Form.Control>
@@ -98,7 +100,7 @@ export const CallIntegrationForm = ({
             name="queues"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Queues</Form.Label>
+                <Form.Label>{t('queues')}</Form.Label>
                 <Form.Control>
                   <Input {...field} />
                 </Form.Control>
@@ -111,7 +113,7 @@ export const CallIntegrationForm = ({
             name="srcTrunk"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Source Trunk</Form.Label>
+                <Form.Label>{t('source-trunk')}</Form.Label>
                 <Form.Control>
                   <Input {...field} />
                 </Form.Control>
@@ -123,7 +125,7 @@ export const CallIntegrationForm = ({
             name="dstTrunk"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Destination Trunk</Form.Label>
+                <Form.Label>{t('destination-trunk')}</Form.Label>
                 <Form.Control>
                   <Input {...field} />
                 </Form.Control>
@@ -131,7 +133,7 @@ export const CallIntegrationForm = ({
               </Form.Item>
             )}
           />
-          <div className="font-medium">Operators</div>
+          <div className="font-medium">{t('operators')}</div>
           {fields.map((field, index) => (
             <div
               className="col-span-2 border-b last-of-type:border-b-0 border-dashed pb-4 last-of-type:pb-0"
@@ -142,7 +144,7 @@ export const CallIntegrationForm = ({
                   name={`operators.${index}.userId`}
                   render={({ field }) => (
                     <Form.Item className="flex-auto w-1/3">
-                      <Form.Label>Operator</Form.Label>
+                      <Form.Label>{t('operator')}</Form.Label>
                       <SelectMember.FormItem
                         value={field.value}
                         onValueChange={field.onChange}
@@ -155,7 +157,7 @@ export const CallIntegrationForm = ({
                   name={`operators.${index}.gsUsername`}
                   render={({ field }) => (
                     <Form.Item className="flex-auto">
-                      <Form.Label>Username</Form.Label>
+                      <Form.Label>{t('username')}</Form.Label>
                       <Form.Control>
                         <Input {...field} />
                       </Form.Control>
@@ -167,7 +169,7 @@ export const CallIntegrationForm = ({
                   name={`operators.${index}.gsPassword`}
                   render={({ field }) => (
                     <Form.Item className="flex-auto">
-                      <Form.Label>Password</Form.Label>
+                      <Form.Label>{t('password')}</Form.Label>
                       <Form.Control>
                         <Input {...field} />
                       </Form.Control>
@@ -198,7 +200,7 @@ export const CallIntegrationForm = ({
             }
           >
             <IconPlus />
-            Add Operator
+            {t('add-operator')}
           </Button>
         </CallIntegrationFormLayout>
       </form>
@@ -213,11 +215,12 @@ export const CallIntegrationFormLayout = ({
   children: React.ReactNode;
   actions: React.ReactNode;
 }) => {
+  const { t } = useTranslation('frontline');
   const callEditSheet = useAtomValue(callEditSheetAtom);
   return (
     <>
       <Sheet.Header>
-        <Sheet.Title>{callEditSheet ? 'Edit Call' : 'Add Call'}</Sheet.Title>
+        <Sheet.Title>{callEditSheet ? t('edit-call') : t('add-call')}</Sheet.Title>
         <Sheet.Close />
       </Sheet.Header>
       <Sheet.Content className="overflow-auto p-4 styled-scroll">
@@ -226,7 +229,7 @@ export const CallIntegrationFormLayout = ({
       <Sheet.Footer>
         <Sheet.Close asChild>
           <Button className="mr-auto text-muted-foreground" variant="ghost">
-            Cancel
+            {t('cancel')}
           </Button>
         </Sheet.Close>
         {actions}

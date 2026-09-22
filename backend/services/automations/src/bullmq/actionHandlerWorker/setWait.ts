@@ -38,6 +38,18 @@ export const setExecutionWaitAction = async (
     condition,
   } = data;
 
+  await models.Executions.updateOne(
+    { _id: executionId },
+    {
+      $set: {
+        waitingActionId: currentActionId,
+        ...(condition.type !== EXECUTE_WAIT_TYPES.DELAY && {
+          startWaitingDate: new Date(),
+        }),
+      },
+    },
+  );
+
   if (condition.type === EXECUTE_WAIT_TYPES.DELAY) {
     const { subdomain, startWaitingDate, waitFor, timeUnit } = condition;
 

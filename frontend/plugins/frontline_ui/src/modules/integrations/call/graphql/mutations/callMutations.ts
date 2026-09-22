@@ -32,6 +32,10 @@ export const CALL_CUSTOMER_ADD = gql`
         _id
         name
       }
+      integration {
+        _id
+        name
+      }
       customer {
         _id
         avatar
@@ -57,75 +61,6 @@ export const CALL_CUSTOMER_ADD = gql`
         phones
       }
     }
-  }
-`;
-
-export const CALL_HISTORY_ADD = gql`
-  mutation CallHistoryAdd(
-    $inboxIntegrationId: String
-    $customerPhone: String
-    $callStartTime: Date
-    $callStatus: String
-    $callType: String
-    $timeStamp: Float
-    $endedBy: String
-    $queueName: String
-  ) {
-    callHistoryAdd(
-      inboxIntegrationId: $inboxIntegrationId
-      customerPhone: $customerPhone
-      callStartTime: $callStartTime
-      callStatus: $callStatus
-      callType: $callType
-      timeStamp: $timeStamp
-      endedBy: $endedBy
-      queueName: $queueName
-    ) {
-      _id
-      timeStamp
-      conversationId
-    }
-  }
-`;
-export const callHistoryEdit = gql`
-  mutation CallHistoryEdit(
-    $id: String
-    $inboxIntegrationId: String
-    $customerPhone: String
-    $callDuration: Int
-    $callStartTime: Date
-    $callEndTime: Date
-    $callType: String
-    $callStatus: String
-    $timeStamp: Float
-    $transferredCallStatus: String
-    $endedBy: String
-  ) {
-    callHistoryEdit(
-      _id: $id
-      inboxIntegrationId: $inboxIntegrationId
-      customerPhone: $customerPhone
-      callDuration: $callDuration
-      callStartTime: $callStartTime
-      callEndTime: $callEndTime
-      callType: $callType
-      callStatus: $callStatus
-      timeStamp: $timeStamp
-      transferredCallStatus: $transferredCallStatus
-      endedBy: $endedBy
-    )
-  }
-`;
-
-export const CALL_HISTORY_EDIT_STATUS = gql`
-  mutation CallHistoryEditStatus($callStatus: String, $timeStamp: Float) {
-    callHistoryEditStatus(callStatus: $callStatus, timeStamp: $timeStamp)
-  }
-`;
-
-export const CALL_HISTORY_REMOVE = gql`
-  mutation CallHistoryRemove($id: String!) {
-    callHistoryRemove(_id: $id)
   }
 `;
 

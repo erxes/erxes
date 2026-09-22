@@ -4,7 +4,8 @@ import type { CarrierSlice } from '../types';
 import { useCallFilters } from './useCallFilters';
 
 export function useCarrierBreakdown() {
-  const { startDate, endDate, queueId, direction } = useCallFilters();
+  const { startDate, endDate, integrationId, queueId, direction } =
+    useCallFilters();
 
   const { data, loading, error } = useQuery<{
     callCarrierBreakdown: CarrierSlice[];
@@ -12,10 +13,11 @@ export function useCarrierBreakdown() {
     variables: {
       startDate,
       endDate,
-      queueId: queueId || undefined,
+      integrationId: integrationId || undefined,
+      queueId: queueId && queueId !== 'all' ? queueId : undefined,
       direction: direction !== 'all' ? direction : undefined,
     },
-    skip: !queueId,
+    skip: !integrationId,
   });
 
   return {

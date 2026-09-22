@@ -1,64 +1,42 @@
+import { debugError } from '../../debugger';
+import { handleTrigger } from '../../executions/handleTrigger';
+import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 import { t } from '../init-trpc';
-import { generateModels } from '../../connectionResolver';
-import { checkIsWaitingAction } from '../../executions/checkIsWaitingActionTarget';
-import { executeWaitingAction } from '../../executions/executeWaitingAction';
-import { receiveTrigger } from '../../executions/receiveTrigger';
-import { repeatActionExecution } from '../../executions/repeatActionExecution';
 
-export const automationsTriggerTrpcRouter = t.router({
-  automations: t.router({
-    trigger: t.procedure
-      .input(
-        z.object({
-          type: z.string(),
-          targets: z.array(z.any()),
-          recordType: z.string().optional(),
-          repeatOptions: z
-            .object({
-              executionId: z.string(),
-              actionId: z.string(),
-              optionalConnectId: z.string().optional(),
-            })
-            .optional(),
-          eventUpdateDescription: z.record(z.string(), z.any()).optional(),
-        }),
-      )
-      .mutation(async ({ ctx, input }) => {
-        const { subdomain, processId } = ctx;
-        const models = await generateModels(subdomain);
+const getErrorMessage = (error: unknown) =>
+  error instanceof Error ? error.message : String(error);
 
-        const {
-          type,
-          targets,
-          repeatOptions,
-          recordType,
-          eventUpdateDescription,
-        } = input;
+export const triggerProcedure = t.procedure
+  .input(
+    z.object({
+      type: z.string(),
+      targets: z.array(z.any()),
+      recordType: z.string().optional(),
+      repeatOptions: z
+        .object({
+          executionId: z.string(),
+          actionId: z.string(),
+          optionalConnectId: z.string().optional(),
+        })
+        .optional(),
+      eventUpdateDescription: z.record(z.string(), z.any()).optional(),
+    }),
+  )
+  .mutation(async ({ ctx, input }) => {
+    try {
+      return await handleTrigger(ctx.subdomain, input);
+    } catch (error: unknown) {
+      debugError(
+        `Trigger mutation failed on subdomain ${
+          ctx.subdomain
+        }: ${getErrorMessage(error)}`,
+      );
 
-        if (repeatOptions) {
-          repeatActionExecution(subdomain, models, repeatOptions);
-        } else {
-          const waitingAction = await checkIsWaitingAction(
-            subdomain,
-            models,
-            type,
-            targets,
-          );
-          if (waitingAction) {
-            executeWaitingAction(subdomain, models, waitingAction);
-          }
-        }
-        await receiveTrigger({
-          models,
-          subdomain,
-          type,
-          targets,
-          recordType,
-          eventUpdateDescription,
-        });
-
-        return 'success';
-      }),
-  }),
-});
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Failed to handle trigger',
+        cause: error,
+      });
+    }
+  });

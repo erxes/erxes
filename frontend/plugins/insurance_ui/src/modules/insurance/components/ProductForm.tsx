@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Dialog, Button, Label, Input, Select } from 'erxes-ui';
 import { IconEye, IconPlus, IconX } from '@tabler/icons-react';
 import {
@@ -35,6 +36,7 @@ const RegionFields = ({
   setNewCountry: (v: string) => void;
   regions: { id: string; name: string; countries: string[] }[];
 }) => {
+  const { t } = useTranslation('insurance');
   const countries = (pricingConfig.countries as string[]) || [];
   const selectedRegionId = (pricingConfig.region as string) || '';
 
@@ -55,19 +57,19 @@ const RegionFields = ({
 
   return (
     <div className="space-y-3 border rounded-md p-3 bg-blue-50/50">
-      <Label className="font-semibold">Бүс нутгийн тохиргоо (Travel)</Label>
+      <Label className="font-semibold">{t('region-config-travel')}</Label>
 
       {/* Region selector from DB */}
       <div className="space-y-1">
-        <Label className="text-xs">Бүс нутаг сонгох *</Label>
+        <Label className="text-xs">{t('select-region-required')}</Label>
         <Select value={selectedRegionId} onValueChange={handleRegionSelect}>
           <Select.Trigger>
-            <Select.Value placeholder="Бүс нутаг сонгоно уу" />
+            <Select.Value placeholder={t('select-region-placeholder')} />
           </Select.Trigger>
           <Select.Content>
             {regions.map((r) => (
               <Select.Item key={r.id} value={r.id}>
-                {r.name} ({r.countries.length} улс)
+                {r.name} ({r.countries.length} {t('countries-count-suffix')})
               </Select.Item>
             ))}
           </Select.Content>
@@ -76,7 +78,7 @@ const RegionFields = ({
 
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1">
-          <Label className="text-xs">Icon (emoji)</Label>
+          <Label className="text-xs">{t('icon-emoji')}</Label>
           <Input
             value={(pricingConfig.regionIcon as string) || ''}
             onChange={(e) => onFieldChange('regionIcon', e.target.value)}
@@ -84,11 +86,11 @@ const RegionFields = ({
           />
         </div>
         <div className="space-y-1">
-          <Label className="text-xs">Тайлбар</Label>
+          <Label className="text-xs">{t('region-description-label')}</Label>
           <Input
             value={(pricingConfig.regionDescription as string) || ''}
             onChange={(e) => onFieldChange('regionDescription', e.target.value)}
-            placeholder="Азийн орнууд"
+            placeholder={t('region-description-placeholder')}
           />
         </div>
       </div>
@@ -96,10 +98,10 @@ const RegionFields = ({
       <div className="space-y-2 mt-3 pt-3 border-t">
         <div className="flex items-center justify-between">
           <Label className="text-xs font-semibold">
-            Хамрагдах улсууд ({countries.length})
+            {t('covered-countries')} ({countries.length})
           </Label>
           <span className="text-xs text-muted-foreground">
-            Гараар нэмж/хасаж болно
+            {t('add-remove-manually')}
           </span>
         </div>
         <div className="flex gap-2">
@@ -112,7 +114,7 @@ const RegionFields = ({
                 addCountry(newCountry);
               }
             }}
-            placeholder="Улсын нэр бичээд Enter дарна"
+            placeholder={t('country-name-enter-placeholder')}
             className="flex-1"
           />
           <Button
@@ -148,7 +150,7 @@ const RegionFields = ({
         </div>
         {countries.length === 0 && (
           <p className="text-xs text-muted-foreground">
-            Бүс нутаг сонгоход улсууд автоматаар нэмэгдэнэ.
+            {t('countries-auto-added-on-region-select')}
           </p>
         )}
       </div>
@@ -162,6 +164,7 @@ export const ProductForm = ({
   product,
   onSuccess,
 }: ProductFormProps) => {
+  const { t } = useTranslation('insurance');
   const { createInsuranceProduct, loading: creating } =
     useCreateInsuranceProduct();
   const { updateInsuranceProduct, loading: updating } =
@@ -426,27 +429,27 @@ export const ProductForm = ({
       <Dialog.Content className="max-h-[90vh] overflow-y-auto">
         <Dialog.Header>
           <Dialog.Title>
-            {product ? 'Edit Product' : 'Create New Product'}
+            {product ? t('edit-product') : t('create-new-product')}
           </Dialog.Title>
         </Dialog.Header>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Product Name *</Label>
+            <Label htmlFor="name">{t('product-name-required')}</Label>
             <Input
               id="name"
               value={formData.name}
               onChange={(e) =>
                 setFormData({ ...formData, name: e.target.value })
               }
-              placeholder="e.g., Basic Car Insurance"
+              placeholder={t('product-name-placeholder')}
               required
             />
           </div>
 
           {!product && (
             <div className="space-y-2">
-              <Label htmlFor="insuranceTypeId">Insurance Type *</Label>
+              <Label htmlFor="insuranceTypeId">{t('insurance-type-required')}</Label>
               <Select
                 value={formData.insuranceTypeId}
                 onValueChange={(value) =>
@@ -454,12 +457,12 @@ export const ProductForm = ({
                 }
               >
                 <Select.Trigger>
-                  <Select.Value placeholder="Select insurance type" />
+                  <Select.Value placeholder={t('select-insurance-type')} />
                 </Select.Trigger>
                 <Select.Content>
                   {typesLoading ? (
                     <Select.Item value="loading" disabled>
-                      Loading...
+                      {t('loading')}
                     </Select.Item>
                   ) : (
                     insuranceTypes.map((type) => (
@@ -479,7 +482,7 @@ export const ProductForm = ({
               t.id === (product?.insuranceType?.id || formData.insuranceTypeId),
           )?.isCitizen && (
             <div className="space-y-2">
-              <Label>Бүс нутаг сонгох</Label>
+              <Label>{t('select-region')}</Label>
               <div className="flex flex-wrap gap-2">
                 {regions.map((r) => {
                   const isSelected = formData.regionIds.includes(r.id);
@@ -509,11 +512,11 @@ export const ProductForm = ({
               </div>
               {formData.regionIds.length > 0 && (
                 <p className="text-xs text-muted-foreground">
-                  {formData.regionIds.length} бүс нутаг сонгогдсон —{' '}
+                  {formData.regionIds.length} {t('regions-selected-prefix')}{' '}
                   {regions
                     .filter((r) => formData.regionIds.includes(r.id))
                     .reduce((sum, r) => sum + r.countries.length, 0)}{' '}
-                  улс хамрагдана
+                  {t('countries-covered-suffix')}
                 </p>
               )}
             </div>
@@ -521,7 +524,7 @@ export const ProductForm = ({
 
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label>PDF Contract Template</Label>
+              <Label>{t('pdf-contract-template')}</Label>
               <div className="flex gap-2">
                 {!formData.pdfContent && (
                   <Button
@@ -536,7 +539,7 @@ export const ProductForm = ({
                       setShowPdfEditor(true);
                     }}
                   >
-                    Use Default Template
+                    {t('use-default-template')}
                   </Button>
                 )}
                 {formData.pdfContent && (
@@ -553,7 +556,7 @@ export const ProductForm = ({
                     }}
                   >
                     <IconEye size={16} />
-                    Preview
+                    {t('preview')}
                   </Button>
                 )}
               </div>
@@ -562,7 +565,7 @@ export const ProductForm = ({
               <div className="space-y-2">
                 <div className="flex items-center justify-between p-3 bg-green-50 rounded-md border border-green-200">
                   <span className="text-sm font-medium text-green-700">
-                    ✓ PDF template configured
+                    {t('pdf-template-configured')}
                   </span>
                   <div className="flex gap-2">
                     <Button
@@ -572,7 +575,7 @@ export const ProductForm = ({
                       onClick={() => setShowPdfEditor(!showPdfEditor)}
                       className="bg-white"
                     >
-                      {showPdfEditor ? 'Hide Editor' : 'Edit Template'}
+                      {showPdfEditor ? t('hide-editor') : t('edit-template')}
                     </Button>
                     <Button
                       type="button"
@@ -583,14 +586,14 @@ export const ProductForm = ({
                       }
                       className="bg-white text-red-600 hover:bg-red-50"
                     >
-                      Remove
+                      {t('remove')}
                     </Button>
                   </div>
                 </div>
                 {showPdfEditor && (
                   <div className="space-y-2">
                     <Label className="text-sm font-medium">
-                      HTML Template Editor
+                      {t('html-template-editor')}
                     </Label>
                     <textarea
                       value={formData.pdfContent}
@@ -598,7 +601,7 @@ export const ProductForm = ({
                         setFormData({ ...formData, pdfContent: e.target.value })
                       }
                       className="w-full h-[400px] p-3 font-mono text-sm border rounded-md focus:ring-2 focus:ring-blue-500"
-                      placeholder="Enter HTML template..."
+                      placeholder={t('enter-html-template')}
                     />
                     <p className="text-xs text-gray-500">
                       Use variables like {'{{contractNumber}}'},{' '}
@@ -609,28 +612,27 @@ export const ProductForm = ({
               </div>
             ) : (
               <p className="text-xs text-muted-foreground">
-                PDF template displayed when creating a contract. Click "Use
-                Default Template" to start.
+                {t('pdf-template-hint')}
               </p>
             )}
           </div>
 
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label>Covered Risks *</Label>
+              <Label>{t('covered-risks-required')}</Label>
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
                 onClick={handleAddRisk}
               >
-                Add Risk
+                {t('add-risk')}
               </Button>
             </div>
 
             {formData.coveredRisks.length === 0 ? (
               <p className="text-sm text-muted-foreground">
-                No risks added yet. Click "Add Risk" to start.
+                {t('no-risks-added-yet')}
               </p>
             ) : (
               <div className="space-y-2">
@@ -644,12 +646,12 @@ export const ProductForm = ({
                         }
                       >
                         <Select.Trigger>
-                          <Select.Value placeholder="Select risk" />
+                          <Select.Value placeholder={t('select-risk')} />
                         </Select.Trigger>
                         <Select.Content>
                           {risksLoading ? (
                             <Select.Item value="loading" disabled>
-                              Loading...
+                              {t('loading')}
                             </Select.Item>
                           ) : (
                             riskTypes.map((riskType) => (
@@ -686,7 +688,7 @@ export const ProductForm = ({
                       size="sm"
                       onClick={() => handleRemoveRisk(index)}
                     >
-                      Remove
+                      {t('remove')}
                     </Button>
                   </div>
                 ))}
@@ -697,7 +699,7 @@ export const ProductForm = ({
           <div className="space-y-4">
             {/* Pricing Mode Selector */}
             <div className="space-y-2">
-              <Label>Үнийн тооцооны төрөл *</Label>
+              <Label>{t('pricing-mode-required')}</Label>
               <Select
                 value={pricingMode}
                 onValueChange={(
@@ -785,10 +787,10 @@ export const ProductForm = ({
                 </Select.Trigger>
                 <Select.Content>
                   <Select.Item value="percentage">
-                    Хувиар (Тээврийн хэрэгсэл)
+                    {t('pricing-mode-percentage')}
                   </Select.Item>
                   <Select.Item value="formula">
-                    Томъёо y=ax+b (Гадаад зорчигч)
+                    {t('pricing-mode-formula')}
                   </Select.Item>
                 </Select.Content>
               </Select>
@@ -798,7 +800,7 @@ export const ProductForm = ({
             {pricingMode === 'percentage' && (
               <>
                 <div className="space-y-2">
-                  <Label htmlFor="percentage">Base Rate (%) *</Label>
+                  <Label htmlFor="percentage">{t('base-rate-required')}</Label>
                   <Input
                     id="percentage"
                     type="number"
@@ -818,14 +820,14 @@ export const ProductForm = ({
                     required
                   />
                   <p className="text-xs text-muted-foreground">
-                    Хураамж = Үнэлгээ × Хувь
+                    {t('premium-formula-hint')}
                   </p>
                 </div>
 
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <Label className="text-sm">
-                      Хугацааны хувь (сонголттой)
+                      {t('duration-rate-optional')}
                     </Label>
                     <Button
                       type="button"
@@ -838,13 +840,13 @@ export const ProductForm = ({
                         ]);
                       }}
                     >
-                      Add Duration
+                      {t('add-duration')}
                     </Button>
                   </div>
 
                   {durationFields.length === 0 ? (
                     <p className="text-sm text-muted-foreground">
-                      Click "Add Duration" to set different rates by duration
+                      {t('click-add-duration-hint-short')}
                     </p>
                   ) : (
                     <div className="space-y-2">
@@ -854,7 +856,7 @@ export const ProductForm = ({
                           className="flex gap-2 items-end"
                         >
                           <div className="flex-1">
-                            <Label className="text-xs">Duration (months)</Label>
+                            <Label className="text-xs">{t('duration-months')}</Label>
                             <Input
                               value={field.duration}
                               onChange={(e) => {
@@ -870,7 +872,7 @@ export const ProductForm = ({
                             />
                           </div>
                           <div className="w-32">
-                            <Label className="text-xs">Rate (%)</Label>
+                            <Label className="text-xs">{t('rate-label')}</Label>
                             <Input
                               type="number"
                               min="0"
@@ -900,7 +902,7 @@ export const ProductForm = ({
                               syncPercentageByDuration(newFields);
                             }}
                           >
-                            Remove
+                            {t('remove')}
                           </Button>
                         </div>
                       ))}
@@ -915,7 +917,7 @@ export const ProductForm = ({
               <>
                 <div className="space-y-2">
                   <Label htmlFor="coverageAmount">
-                    Нөхөн олговрын хэмжээ (USD)
+                    {t('coverage-amount-usd')}
                   </Label>
                   <Input
                     id="coverageAmount"
@@ -937,18 +939,18 @@ export const ProductForm = ({
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <Label className="text-sm font-semibold">
-                      Бүс нутгийн томъёо (y = ax + b, мянган ₮)
+                      {t('region-formula-label')}
                     </Label>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    x = аялалын хоног, y = хураамж (мянган ₮)
+                    {t('formula-variables-hint')}
                   </p>
 
                   {/* Header */}
                   <div className="grid grid-cols-[1fr_1fr_1fr] gap-2 text-xs font-semibold text-center border-b pb-2">
-                    <div>Бүс нутаг</div>
-                    <div>≤21 хоног</div>
-                    <div>&gt;21 хоног</div>
+                    <div>{t('region')}</div>
+                    <div>{t('formula-days-lte21')}</div>
+                    <div>{t('formula-days-gt21')}</div>
                   </div>
 
                   {formulas.map((f, idx) => (
@@ -1031,8 +1033,7 @@ export const ProductForm = ({
                   ))}
 
                   <p className="text-xs text-muted-foreground">
-                    Жишээ: Asia ≤21 хоног, y=0.7x+1.9 → 10 хоног = 0.7×10+1.9 =
-                    8.9 мянган₮ = 8,900₮
+                    {t('formula-example-hint')}
                   </p>
                 </div>
               </>
@@ -1040,11 +1041,11 @@ export const ProductForm = ({
           </div>
 
           <div className="space-y-4 border-t pt-4">
-            <h3 className="font-semibold">Additional Coverage</h3>
+            <h3 className="font-semibold">{t('additional-coverage')}</h3>
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label>Additional Coverage</Label>
+                <Label>{t('additional-coverage')}</Label>
                 <Button
                   type="button"
                   variant="outline"
@@ -1059,13 +1060,13 @@ export const ProductForm = ({
                     });
                   }}
                 >
-                  Add
+                  {t('add')}
                 </Button>
               </div>
 
               {formData.additionalCoverages.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
-                  No additional coverage added yet
+                  {t('no-additional-coverage-yet')}
                 </p>
               ) : (
                 <div className="space-y-3">
@@ -1076,7 +1077,7 @@ export const ProductForm = ({
                     >
                       <div className="flex gap-2 items-end">
                         <div className="flex-1">
-                          <Label className="text-xs">Name</Label>
+                          <Label className="text-xs">{t('name')}</Label>
                           <Input
                             value={coverage.name}
                             onChange={(e) => {
@@ -1092,7 +1093,7 @@ export const ProductForm = ({
                                 additionalCoverages: newCoverages,
                               });
                             }}
-                            placeholder="Insurance damage assessment cost"
+                            placeholder={t('coverage-name-placeholder')}
                           />
                         </div>
                         <Button
@@ -1109,12 +1110,12 @@ export const ProductForm = ({
                             });
                           }}
                         >
-                          Remove
+                          {t('remove')}
                         </Button>
                       </div>
                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
-                          <Label className="text-xs">Limits</Label>
+                          <Label className="text-xs">{t('limits')}</Label>
                           <Button
                             type="button"
                             variant="ghost"
@@ -1137,14 +1138,14 @@ export const ProductForm = ({
                               });
                             }}
                           >
-                            + Add Level
+                            {t('add-level')}
                           </Button>
                         </div>
                         {coverage.limits.map((limit, limitIndex) => (
                           <div key={limitIndex} className="flex gap-2">
                             <div className="flex-1">
                               <Input
-                                placeholder="Level (PLATINUM, GOLD...)"
+                                placeholder={t('level-placeholder')}
                                 value={coverage.appliesTo[limitIndex] || ''}
                                 onChange={(e) => {
                                   const newCoverages = [
@@ -1168,7 +1169,7 @@ export const ProductForm = ({
                             <div className="flex-1">
                               <Input
                                 type="number"
-                                placeholder="Limit (200000)"
+                                placeholder={t('limit-placeholder')}
                                 value={limit || ''}
                                 onChange={(e) => {
                                   const newCoverages = [
@@ -1228,7 +1229,7 @@ export const ProductForm = ({
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label>Compensation Calculation Methods</Label>
+                <Label>{t('compensation-calculation-methods')}</Label>
                 <Button
                   type="button"
                   variant="outline"
@@ -1243,13 +1244,13 @@ export const ProductForm = ({
                     });
                   }}
                 >
-                  Add
+                  {t('add')}
                 </Button>
               </div>
 
               {formData.compensationCalculations.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
-                  No calculation methods added yet
+                  {t('no-calculation-methods-yet')}
                 </p>
               ) : (
                 <div className="space-y-3">
@@ -1260,7 +1261,7 @@ export const ProductForm = ({
                     >
                       <div className="flex gap-2 items-end">
                         <div className="flex-1">
-                          <Label className="text-xs">Name</Label>
+                          <Label className="text-xs">{t('name')}</Label>
                           <Input
                             value={calc.name}
                             onChange={(e) => {
@@ -1276,7 +1277,7 @@ export const ProductForm = ({
                                 compensationCalculations: newCalcs,
                               });
                             }}
-                            placeholder="Replacement part valuation method"
+                            placeholder={t('calc-name-placeholder')}
                           />
                         </div>
                         <Button
@@ -1293,12 +1294,12 @@ export const ProductForm = ({
                             });
                           }}
                         >
-                          Remove
+                          {t('remove')}
                         </Button>
                       </div>
                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
-                          <Label className="text-xs">Methods</Label>
+                          <Label className="text-xs">{t('methods')}</Label>
                           <Button
                             type="button"
                             variant="ghost"
@@ -1320,13 +1321,13 @@ export const ProductForm = ({
                               });
                             }}
                           >
-                            + Add Method
+                            {t('add-method')}
                           </Button>
                         </div>
                         {calc.methodologies.map((methodology, methodIndex) => (
                           <div key={methodIndex} className="flex gap-2">
                             <Input
-                              placeholder="Method (No depreciation)"
+                              placeholder={t('method-placeholder')}
                               value={methodology}
                               onChange={(e) => {
                                 const newCalcs = [
@@ -1381,7 +1382,7 @@ export const ProductForm = ({
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label>Deductible Levels</Label>
+                <Label>{t('deductible-levels')}</Label>
                 <Button
                   type="button"
                   variant="outline"
@@ -1395,19 +1396,19 @@ export const ProductForm = ({
                     });
                   }}
                 >
-                  + Add Level
+                  {t('add-level')}
                 </Button>
               </div>
               {formData.deductibleConfig.levels.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
-                  No deductible levels added yet
+                  {t('no-deductible-levels-yet')}
                 </p>
               ) : (
                 <div className="space-y-2">
                   {formData.deductibleConfig.levels.map((level, levelIndex) => (
                     <div key={levelIndex} className="flex gap-2">
                       <Input
-                        placeholder="Deductible (None, 20% of damage)"
+                        placeholder={t('deductible-placeholder')}
                         value={level}
                         onChange={(e) => {
                           const newLevels = [
@@ -1451,14 +1452,14 @@ export const ProductForm = ({
               onClick={() => onOpenChange(false)}
               disabled={creating || updating}
             >
-              Cancel
+              {t('cancel')}
             </Button>
             <Button type="submit" disabled={creating || updating}>
               {creating || updating
-                ? 'Saving...'
+                ? t('saving')
                 : product
-                  ? 'Update'
-                  : 'Create'}
+                  ? t('update')
+                  : t('create')}
             </Button>
           </Dialog.Footer>
         </form>

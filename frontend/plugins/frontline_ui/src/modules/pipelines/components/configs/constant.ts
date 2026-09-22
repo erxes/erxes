@@ -1,3 +1,5 @@
+export const TICKET_PROPERTY_CONTENT_TYPE = 'frontline:ticket';
+
 export enum TICKET_FORM_FIELDS_KEY {
   NAME = 'name',
   DESCRIPTION = 'description',
@@ -7,22 +9,26 @@ export enum TICKET_FORM_FIELDS_KEY {
 
 export const TICKET_FORM_FIELDS = [
   {
-    label: 'Name',
+    label: 'name',
+    showLabel: 'show-name-field',
     key: TICKET_FORM_FIELDS_KEY.NAME,
     path: 'formFields.name',
   },
   {
-    label: 'Description',
+    label: 'description',
+    showLabel: 'show-description-field',
     key: TICKET_FORM_FIELDS_KEY.DESCRIPTION,
     path: 'formFields.description',
   },
   {
-    label: 'Attachment',
+    label: 'attachment',
+    showLabel: 'show-attachment-field',
     key: TICKET_FORM_FIELDS_KEY.ATTACHMENT,
     path: 'formFields.attachment',
   },
   {
-    label: 'Tags',
+    label: 'tags',
+    showLabel: 'show-tags-field',
     key: TICKET_FORM_FIELDS_KEY.TAGS,
     path: 'formFields.tags',
   },

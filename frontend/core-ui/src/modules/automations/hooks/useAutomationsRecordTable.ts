@@ -1,13 +1,13 @@
 import { AUTOMATIONS_MAIN_LIST } from '@/automations/graphql/automationQueries';
 import { IAutomation } from '@/automations/types';
 import { QueryHookOptions, useQuery } from '@apollo/client';
-import { IPageInfo } from 'ui-modules';
-import { useAutomationRecordTableFilters } from './useAutomationRecordTableFilters';
 import {
   EnumCursorDirection,
-  validateFetchMore,
   mergeCursorData,
+  validateFetchMore,
 } from 'erxes-ui';
+import { IPageInfo } from 'ui-modules';
+import { useAutomationRecordTableFilters } from './useAutomationRecordTableFilters';
 
 type QueryResponse = {
   automationsMain: {
@@ -21,7 +21,7 @@ export const useAutomationsRecordTable = (
   options?: QueryHookOptions<QueryResponse>,
 ) => {
   const filters = useAutomationRecordTableFilters();
-  const { data, loading, fetchMore } = useQuery<QueryResponse>(
+  const { data, loading, error, refetch, fetchMore } = useQuery<QueryResponse>(
     AUTOMATIONS_MAIN_LIST,
     {
       ...(options || {}),
@@ -71,6 +71,8 @@ export const useAutomationsRecordTable = (
   };
 
   return {
+    error,
+    refetch,
     list,
     loading,
     totalCount,

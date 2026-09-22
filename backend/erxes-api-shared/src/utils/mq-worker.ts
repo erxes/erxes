@@ -1,15 +1,43 @@
 import type {
   DefaultJobOptions,
   Job,
+  JobsOptions,
   Worker as WorkerType,
   WorkerOptions,
 } from 'bullmq';
 import { Queue, QueueEvents, Worker } from 'bullmq';
 import type { Redis } from 'ioredis';
 import { redis } from './redis';
+// Kept in its own module so it can be tested without opening a connection.
+import { toSerializablePayload } from './serializablePayload';
+
+export { toSerializablePayload };
 
 const queueMap = new Map<string, Queue>();
 const queueEventsMap = new Map<string, QueueEvents>();
+
+export const DEFAULT_JOB_OPTIONS: DefaultJobOptions = {
+  removeOnComplete: true,
+  removeOnFail: { count: 5000, age: 24 * 3600 },
+};
+
+const makeQueueSerializable = (queue: Queue) => {
+  const serializableQueue = queue as Queue & {
+    isSerializableAddWrapped?: boolean;
+  };
+
+  if (serializableQueue.isSerializableAddWrapped) {
+    return serializableQueue;
+  }
+
+  const add = serializableQueue.add.bind(serializableQueue);
+
+  serializableQueue.add = ((name: string, data?: unknown, opts?: JobsOptions) =>
+    add(name, toSerializablePayload(data), opts)) as Queue['add'];
+  serializableQueue.isSerializableAddWrapped = true;
+
+  return serializableQueue;
+};
 
 export const createMQWorkerWithListeners = (
   service: string,
@@ -56,7 +84,11 @@ export const sendWorkerQueue = (serviceName: string, queueName: string) => {
   let queue = queueMap.get(queueKey);
 
   if (!queue) {
-    queue = new Queue(queueKey, { connection: redis });
+    queue = new Queue(queueKey, {
+      connection: redis,
+      defaultJobOptions: DEFAULT_JOB_OPTIONS,
+    });
+    makeQueueSerializable(queue);
     queueMap.set(queueKey, queue);
   }
 
@@ -87,7 +119,11 @@ export const sendWorkerMessage = async ({
   // Get or create the Queue instance
   let queue = queueMap.get(queueKey);
   if (!queue) {
-    queue = new Queue(queueKey, { connection: redis });
+    queue = new Queue(queueKey, {
+      connection: redis,
+      defaultJobOptions: DEFAULT_JOB_OPTIONS,
+    });
+    makeQueueSerializable(queue);
     queueMap.set(queueKey, queue);
   }
 
@@ -99,7 +135,8 @@ export const sendWorkerMessage = async ({
     queueEventsMap.set(queueKey, queueEvents);
   }
 
-  const job = await queue.add(jobName, { subdomain, data }, { ...options });
+  const jobData = toSerializablePayload({ subdomain, data });
+  const job = await queue.add(jobName, jobData, { ...options });
   const result = await Promise.race([
     job.waitUntilFinished(queueEvents),
     new Promise((_, reject) =>

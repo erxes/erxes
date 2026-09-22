@@ -1,16 +1,3 @@
-import { QueryHookOptions, useMutation, useQuery } from '@apollo/client';
-import {
-  EnumCursorDirection,
-  isUndefinedOrNull,
-  mergeCursorData,
-  parseDateRangeFromString,
-  useMultiQueryState,
-  useRecordTableCursor,
-  useToast,
-  validateFetchMore,
-} from 'erxes-ui';
-import { atom, useAtom, useSetAtom } from 'jotai';
-import { useCallback, useEffect, useMemo } from 'react';
 import {
   ACCOUNTING_CHECK_SYNCED_DEALS_QUERY,
   ACCOUNTING_CHECK_SYNCED_MUTATION,
@@ -28,6 +15,28 @@ import {
   accountingCheckSyncedDealsStatusCountsAtom,
   accountingCheckSyncedDealsTotalCountAtom,
 } from '../states';
+import {
+  EnumCursorDirection,
+  isUndefinedOrNull,
+  mergeCursorData,
+  parseDateRangeFromString,
+  useMultiQueryState,
+  useRecordTableCursor,
+  useToast,
+  validateFetchMore,
+} from 'erxes-ui';
+import { QueryHookOptions, useMutation, useQuery } from '@apollo/client';
+import { atom, useAtom, useSetAtom } from 'jotai';
+import {
+  chunkIds,
+  getSyncStatus,
+  useAccountingCheckSyncedAction,
+  useSyncSelectedIds,
+  useSyncToggle,
+} from '~/modules/check-synced/constants/shared';
+import { useEffect, useMemo } from 'react';
+
+import { useTranslation } from 'react-i18next';
 
 const ACCOUNTING_CHECK_SYNCED_DEALS_PER_PAGE = 50;
 const ACCOUNTING_SYNC_DEALS_BATCH_SIZE = 1;
@@ -40,51 +49,46 @@ const checkedDealsAtom = atom<
 
 const toSyncDealIdsAtom = atom<Record<string, boolean>>({});
 
-type CheckDealsOptions = {
-  silent?: boolean;
-  keepToSyncIds?: boolean;
-  statusById?: Record<string, AccountingCheckSyncedStatus>;
-};
-
-const getDealStatus = (
-  deal?: Partial<AccountingCheckSyncedDeal>,
-): AccountingCheckSyncedStatus => deal?.syncStatus || 'skipped';
-
-const chunkIds = (ids: string[], size: number) => {
-  const chunks: string[][] = [];
-
-  for (let index = 0; index < ids.length; index += size) {
-    chunks.push(ids.slice(index, index + size));
-  }
-
-  return chunks;
-};
-
 export const useAccountingCheckSyncedDealsVariables = (
   variables?: QueryHookOptions<AccountingDealsQueryResult>['variables'],
 ) => {
-  const [{ user, ruleId, stageId, dealSearch, number, dateType, dateRange }] =
-    useMultiQueryState<{
-      user: string;
-      ruleId: string;
-      boardId: string;
-      pipelineId: string;
-      stageId: string;
-      dealSearch: string;
-      number: string;
-      dateType: string;
-      dateRange: string;
-    }>([
-      'user',
-      'ruleId',
-      'boardId',
-      'pipelineId',
-      'stageId',
-      'dealSearch',
-      'number',
-      'dateType',
-      'dateRange',
-    ]);
+  const [
+    {
+      user,
+      ruleId,
+      stageId,
+      dealSearch,
+      number,
+      dateType,
+      dateRange,
+      createdDateRange,
+      stageChangedDateRange,
+    },
+  ] = useMultiQueryState<{
+    user: string;
+    ruleId: string;
+    boardId: string;
+    pipelineId: string;
+    stageId: string;
+    dealSearch: string;
+    number: string;
+    dateType: string;
+    dateRange: string;
+    createdDateRange: string;
+    stageChangedDateRange: string;
+  }>([
+    'user',
+    'ruleId',
+    'boardId',
+    'pipelineId',
+    'stageId',
+    'dealSearch',
+    'number',
+    'dateType',
+    'dateRange',
+    'createdDateRange',
+    'stageChangedDateRange',
+  ]);
 
   const { cursor } = useRecordTableCursor({
     sessionKey: ACCOUNTING_CHECK_SYNCED_DEALS_SESSION_KEY,
@@ -103,6 +107,11 @@ export const useAccountingCheckSyncedDealsVariables = (
     number: String(number ?? '') || undefined,
     startDate: parseDateRangeFromString(dateRange)?.from,
     endDate: parseDateRangeFromString(dateRange)?.to,
+    createdStartDate: parseDateRangeFromString(createdDateRange)?.from,
+    createdEndDate: parseDateRangeFromString(createdDateRange)?.to,
+    stageChangedStartDate: parseDateRangeFromString(stageChangedDateRange)
+      ?.from,
+    stageChangedEndDate: parseDateRangeFromString(stageChangedDateRange)?.to,
     dateType: dateType || undefined,
     ruleId: ruleId || undefined,
     ...variables,
@@ -112,6 +121,7 @@ export const useAccountingCheckSyncedDealsVariables = (
 export const useAccountingCheckSyncedDeals = (
   options?: QueryHookOptions<AccountingDealsQueryResult>,
 ) => {
+  const { t } = useTranslation('accounting');
   const { toast } = useToast();
   const [checkedDeals, setCheckedDeals] = useAtom(checkedDealsAtom);
   const [toSyncDealIds, setToSyncDealIds] = useAtom(toSyncDealIdsAtom);
@@ -147,147 +157,43 @@ export const useAccountingCheckSyncedDeals = (
       (rawDeals || []).map((deal) => ({
         ...deal,
         ...checkedDeals[deal._id],
-        syncStatus: getDealStatus(checkedDeals[deal._id]),
+        syncStatus: getSyncStatus(checkedDeals[deal._id]),
       })),
     [checkedDeals, rawDeals],
   );
 
-  const syncSelectedDealIds = useMemo(
-    () =>
-      Object.entries(toSyncDealIds)
-        .filter(([, selected]) => selected)
-        .map(([id]) => id),
-    [toSyncDealIds],
-  );
+  const { setToSync: setDealToSync, setAllToSync: setAllDealsToSync } =
+    useSyncToggle(setToSyncDealIds);
 
-  const setDealToSync = useCallback(
-    (id: string, checked: boolean) => {
-      setToSyncDealIds((current) => {
-        const next = { ...current };
+  const syncSelectedDealIds = useSyncSelectedIds(toSyncDealIds);
 
-        if (checked) {
-          next[id] = true;
-        } else {
-          delete next[id];
-        }
-
-        return next;
-      });
-    },
-    [setToSyncDealIds],
-  );
-
-  const setAllDealsToSync = useCallback(
-    (ids: string[], checked: boolean) => {
-      setToSyncDealIds((current) => {
-        const next = { ...current };
-
-        for (const id of ids) {
-          if (checked) {
-            next[id] = true;
-          } else {
-            delete next[id];
-          }
-        }
-
-        return next;
-      });
-    },
-    [setToSyncDealIds],
-  );
-
-  const checkDeals = async (
-    ids: string[],
-    checkOptions?: CheckDealsOptions,
-  ) => {
-    if (!ids.length) {
-      if (!checkOptions?.silent) {
-        toast({
-          title: 'Warning',
-          description: 'No deals selected',
-          variant: 'destructive',
-        });
-      }
-      return;
-    }
-
-    const response = await accountingCheckSynced({
-      variables: { ids, contentType: 'sales:deal' },
-      onError: (error) => {
-        toast({
-          title: 'Error',
-          description: error.message,
-          variant: 'destructive',
-        });
-      },
-    });
-
-    const checked = response.data?.accountingCheckSynced || [];
-
-    setCheckedDeals((current) => {
-      const next = { ...current };
-
-      for (const item of checked) {
-        const syncStatus =
-          checkOptions?.statusById?.[item._id] ||
-          (item.isSynced ? 'synced' : 'checked');
-
-        next[item._id] = {
-          isSynced: item.isSynced,
-          syncStatus,
-          syncedDate: item.syncedDate,
-          syncedBillNumber: item.syncedBillNumber,
-          syncedCustomer: item.syncedCustomer,
-        };
-      }
-
-      return next;
-    });
-
-    setToSyncDealIds((current) => {
-      const next = { ...current };
-
-      for (const item of checked) {
-        if (checkOptions?.keepToSyncIds) {
-          continue;
-        }
-
-        if (item.isSynced) {
-          delete next[item._id];
-        } else {
-          next[item._id] = true;
-        }
-      }
-
-      return next;
-    });
-
-    if (!checkOptions?.silent) {
-      toast({
-        title: 'Success',
-        description: `${checked.length} deals checked`,
-      });
-    }
-  };
+  const checkDeals = useAccountingCheckSyncedAction<AccountingCheckSyncedDeal>({
+    contentType: 'sales:deal',
+    setCheckedItems: setCheckedDeals,
+    setToSyncIds: setToSyncDealIds,
+    checkSyncedMutation: accountingCheckSynced,
+    warningMsg: 'no-deals-selected',
+    successMsg: 'deals-checked',
+  });
 
   const syncDeals = async (ids: string[]) => {
     if (!variables.ruleId) {
       toast({
-        title: 'Warning',
-        description: 'Select a rule before syncing deals',
+        title: t('warning'),
+        description: t('select-rule-before-syncing-deals'),
         variant: 'destructive',
       });
       return;
     }
 
     const syncableIds = ids.filter(
-      (id) => getDealStatus(checkedDeals[id]) !== 'skipped',
+      (id) => getSyncStatus(checkedDeals[id]) !== 'skipped',
     );
 
     if (!syncableIds.length) {
       toast({
-        title: 'Warning',
-        description: 'No checked deals selected',
+        title: t('warning'),
+        description: t('no-checked-deals-selected'),
         variant: 'destructive',
       });
       return;
@@ -334,7 +240,7 @@ export const useAccountingCheckSyncedDeals = (
         },
         onError: (error) => {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: error.message,
             variant: 'destructive',
           });
@@ -406,10 +312,17 @@ export const useAccountingCheckSyncedDeals = (
       }
 
       setToSyncDealIds((current) => {
-        const next = { ...current };
+        const idsToRemove = new Set([
+          ...skippedIds,
+          ...errorIds,
+          ...successIds,
+        ]);
+        const next: Record<string, boolean> = {};
 
-        for (const id of [...skippedIds, ...errorIds, ...successIds]) {
-          delete next[id];
+        for (const [key, value] of Object.entries(current)) {
+          if (!idsToRemove.has(key)) {
+            next[key] = value;
+          }
         }
 
         return next;
@@ -419,8 +332,13 @@ export const useAccountingCheckSyncedDeals = (
     const syncedCount = summary.success - summary.resynced;
 
     toast({
-      title: 'Sync complete',
-      description: `${syncedCount} synced, ${summary.resynced} resynced, ${summary.error} failed, ${summary.skipped} skipped`,
+      title: t('sync-complete'),
+      description: t('sync-summary', {
+        synced: syncedCount,
+        resynced: summary.resynced,
+        failed: summary.error,
+        skipped: summary.skipped,
+      }),
     });
   };
 
@@ -429,9 +347,14 @@ export const useAccountingCheckSyncedDeals = (
   }, [setTotalCount, totalCount]);
 
   useEffect(() => {
+    setCheckedDeals({});
+    setToSyncDealIds({});
+  }, [variables.ruleId, setCheckedDeals, setToSyncDealIds]);
+
+  useEffect(() => {
     const counts = deals.reduce<AccountingCheckSyncedDealsStatusCounts>(
       (acc, deal) => {
-        const status = getDealStatus(deal);
+        const status = getSyncStatus(deal);
 
         acc[status] += 1;
 

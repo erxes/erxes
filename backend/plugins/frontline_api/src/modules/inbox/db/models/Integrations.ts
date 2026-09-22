@@ -7,7 +7,7 @@ import {
 } from '@/inbox/@types/integrations';
 import { integrationSchema } from '@/inbox/db/definitions/integrations';
 import moment from 'moment-timezone';
-import { Model, Query } from 'mongoose';
+import { isValidObjectId, Model, Query } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 
 export interface IMessengerIntegration {
@@ -24,7 +24,7 @@ export interface IExternalIntegrationParams {
   name: string;
   brandId: string;
   accountId: string;
-  channelId: string;
+  channelId?: string;
 }
 
 interface IIntegrationBasicInfo {
@@ -72,6 +72,15 @@ export const isTimeInBetween = (
   const end = getHourAndMinute(closeTime);
   const closeDate = moment(now).hours(end.hour).minutes(end.minute);
 
+  if (!closeDate.isAfter(startDate)) {
+    closeDate.add(1, 'day');
+
+    if (now.isBefore(startDate)) {
+      startDate.subtract(1, 'day');
+      closeDate.subtract(1, 'day');
+    }
+  }
+
   return now.isBetween(startDate, closeDate);
 };
 
@@ -103,7 +112,7 @@ export interface IIntegrationModel extends Model<IIntegrationDocument> {
   ): Promise<IIntegrationDocument>;
   integrationsSaveMessengerTicketData(
     _id: string,
-    configId: string,
+    configIds?: string[],
   ): Promise<IIntegrationDocument>;
   saveMessengerAppearanceData(
     _id: string,
@@ -293,25 +302,35 @@ export const loadClass = (models: IModels, subdomain: string) => {
 
     public static async integrationsSaveMessengerTicketData(
       _id: string,
-      configId: string,
+      configIds?: string[],
     ) {
-      const integration = await models.Integrations.findOne({
-        _id: _id,
-      });
+      const integration = await models.Integrations.findOne({ _id });
       if (!integration) {
         throw new Error('Integration not found');
       }
-      const config = await models.TicketConfig.findOne({ _id: configId });
-      if (!config) {
-        throw new Error('Config not found');
-      }
+
+      const uniqueConfigIds = [...new Set(configIds || [])].filter((configId) =>
+        isValidObjectId(configId),
+      );
+
+      const existingConfigs = await models.TicketConfig.find(
+        { _id: { $in: uniqueConfigIds } },
+        { _id: 1 },
+      ).lean();
+
+      const existingConfigIds = new Set(
+        existingConfigs.map((config) => String(config._id)),
+      );
+
+      const validConfigIds = uniqueConfigIds.filter((configId) =>
+        existingConfigIds.has(configId),
+      );
+
       const result = await models.Integrations.updateOne(
         { _id },
-        {
-          $set: {
-            ticketConfigId: configId,
-          },
-        },
+        validConfigIds.length
+          ? { $set: { ticketConfigIds: validConfigIds } }
+          : { $unset: { ticketConfigIds: 1 } },
         { runValidators: true },
       );
 
@@ -570,10 +589,12 @@ export const loadClass = (models: IModels, subdomain: string) => {
       /*
        * Auto
        */
-      const day = daysAsString[now.getDay()];
+      const day = daysAsString[moment(now).tz(timezoneString).day()];
 
       // check by everyday config
-      const everydayConf = onlineHours.find((c) => c.day === 'everyday');
+      const everydayConf = onlineHours.find(
+        (c) => c.day === 'everyday' && c.from && c.to,
+      );
 
       if (everydayConf) {
         return isTimeInBetween(

@@ -1,8 +1,8 @@
 import { TAutomationFlowDirection } from '@/automations/constants/flowDirection';
 import { useAutomation } from '@/automations/context/AutomationProvider';
 import { AutomationNodeType } from '@/automations/types';
-import { IconLinkPlus, IconPlus } from '@tabler/icons-react';
-import { Handle, Position } from '@xyflow/react';
+import { IconGripVertical, IconLinkPlus, IconPlus } from '@tabler/icons-react';
+import { Handle, Position, useConnection } from '@xyflow/react';
 import { Button, cn } from 'erxes-ui';
 import { AnimatePresence, motion } from 'framer-motion';
 import React, { memo, useCallback } from 'react';
@@ -52,12 +52,14 @@ const AwaitToConnectButtonIcon = ({
   return (
     <motion.div
       key="plus"
+      className="relative size-4"
       initial={{ opacity: 0, rotate: -90, scale: 0.5 }}
       animate={{ opacity: 1, rotate: 0, scale: 1 }}
       exit={{ opacity: 0, rotate: 90, scale: 0.5 }}
       transition={{ duration: 0.2 }}
     >
-      <IconPlus className="size-4 text-accent-foreground" />
+      <IconPlus className="absolute inset-0 size-4 text-accent-foreground transition-opacity group-hover:opacity-0" />
+      <IconGripVertical className="absolute inset-0 size-4 text-accent-foreground opacity-0 transition-opacity group-hover:opacity-100" />
     </motion.div>
   );
 };
@@ -77,6 +79,9 @@ const AwaitToConnectButton = memo(
       setAwaitingToConnectNodeId,
       setQueryParams,
     } = useAutomation();
+    const isConnectionDragging = useConnection(
+      (connection) => connection.inProgress,
+    );
 
     const handleClick = useCallback(
       (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -94,7 +99,7 @@ const AwaitToConnectButton = memo(
 
     const isSelected = awaitingToConnectNodeId === nodeHandleId;
 
-    if (!showButton) return null;
+    if (!showButton || isConnectionDragging) return null;
 
     return (
       <div
@@ -111,13 +116,12 @@ const AwaitToConnectButton = memo(
             'h-px w-4': !isVertical,
           })}
         />
-        {/* nodrag prevents node move; React Flow 12.8.3 still allows connection drag from Handle children */}
         <Button
           onClick={handleClick}
           size="sm"
           variant="outline"
           className={cn(
-            'nodrag pointer-events-auto cursor-grab',
+            'group nodrag pointer-events-auto cursor-grab',
             addButtonClassName,
           )}
         >
@@ -143,7 +147,6 @@ export const NodeOutputHandler = memo(
         nodeType,
         handlerId,
         flowDirection = 'horizontal',
-        onClick,
         children,
         ...props
       },

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Button, PageContainer, Kbd } from 'erxes-ui';
 import { IconMenu, IconPlus } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { CmsSidebar } from '../shared/CmsSidebar';
 import { HeaderLanguageTabs } from '../shared/HeaderLanguageTabs';
 import { EmptyState } from '../shared/EmptyState';
@@ -10,13 +11,13 @@ import { MenusHeader } from './components/MenusHeader';
 import { MenusRecordTable } from './components/MenusRecordTable';
 import { useMenus } from './hooks/useMenus';
 
-const KIND_OPTIONS = [
-  { label: 'All', value: undefined },
-  { label: 'Header', value: 'header' },
-  { label: 'Footer', value: 'footer' },
-] as const;
-
 export function Menus() {
+  const { t } = useTranslation('content');
+  const KIND_OPTIONS = [
+    { label: t('all'), value: undefined },
+    { label: t('header'), value: 'header' },
+    { label: t('footer'), value: 'footer' },
+  ];
   const { websiteId } = useParams();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [editingMenu, setEditingMenu] = useState<any>(null);
@@ -41,7 +42,7 @@ export function Menus() {
     <div>
       <Button onClick={handleAddMenu}>
         <IconPlus />
-        Add Menu
+        {t('add-menu')}
         <Kbd>M</Kbd>
       </Button>
     </div>
@@ -73,7 +74,7 @@ export function Menus() {
                 ))}
               </div>
               <span className="text-sm text-gray-600">
-                Found {totalCount} menus
+                {t('found-x-menus', { count: totalCount })}
               </span>
             </div>
           </div>
@@ -82,9 +83,9 @@ export function Menus() {
             <div className="rounded-lg overflow-hidden">
               <EmptyState
                 icon={IconMenu}
-                title="No menus yet"
-                description="Get started by creating your first menu."
-                actionLabel="Add menu"
+                title={t('no-menus-yet')}
+                description={t('no-menus-yet-desc')}
+                actionLabel={t('add-menu')}
                 onAction={handleAddMenu}
               />
             </div>

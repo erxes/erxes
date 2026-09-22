@@ -1,4 +1,5 @@
 import { RecordTable, Spinner } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import {
   firstLotteryColumns,
   secondLotteryColumns,
@@ -8,12 +9,13 @@ import { IconShoppingCartX } from '@tabler/icons-react';
 import { LotteryCommandBar } from './lottery-command-bar/LotteryCommandBar';
 
 export const LotteryRecordTable = ({ posId }: { posId?: string }) => {
+  const { t } = useTranslation('loyalty');
   const { lotteriesList, handleFetchMore, loading, pageInfo } = useLotteryList({
     posId,
   });
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
-  const allColumns = [...firstLotteryColumns, ...secondLotteryColumns];
+  const allColumns = [...firstLotteryColumns(t), ...secondLotteryColumns(t)];
   const columnsKey = allColumns.map((c) => c.id || '').join('|');
 
   if (loading) return <Spinner />;
@@ -25,6 +27,7 @@ export const LotteryRecordTable = ({ posId }: { posId?: string }) => {
       data={lotteriesList || []}
       className="m-3"
       stickyColumns={['more', 'checkbox', 'number']}
+      tableId="loyalties_lotteries_record_table"
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}
@@ -55,10 +58,10 @@ export const LotteryRecordTable = ({ posId }: { posId?: string }) => {
                 <IconShoppingCartX size={48} className="text-gray-400" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900">
-                No lotteries yet
+                {t('no-lotteries-yet')}
               </h3>
               <p className="mt-1 text-sm text-gray-500">
-                Get started by creating your first lottery.
+                {t('get-started-lottery')}
               </p>
             </div>
           </div>

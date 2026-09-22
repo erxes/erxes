@@ -5,15 +5,17 @@ import {
 } from '@/loyalties/spin/components/SpinColumns';
 import { useSpinList } from '@/loyalties/spin/hooks/UseSpinList';
 import { IconShoppingCartX } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { SpinCommandBar } from './SpinCommandBar';
 
 export const SpinRecordTable = ({ posId }: { posId?: string }) => {
+  const { t } = useTranslation('loyalty');
   const { spinsList, handleFetchMore, loading, pageInfo } = useSpinList({
     posId,
   });
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
-  const allColumns = [...firstSpinColumns, ...secondSpinColumns];
+  const allColumns = [...firstSpinColumns(t), ...secondSpinColumns(t)];
   const columnsKey = allColumns.map((c) => c.id || '').join('|');
 
   if (loading) return <Spinner />;
@@ -55,10 +57,10 @@ export const SpinRecordTable = ({ posId }: { posId?: string }) => {
                 <IconShoppingCartX size={48} className="text-gray-400" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900">
-                No spins yet
+                {t('no-spins-yet')}
               </h3>
               <p className="mt-1 text-sm text-gray-500">
-                Get started by creating your first spin.
+                {t('get-started-spin')}
               </p>
             </div>
           </div>

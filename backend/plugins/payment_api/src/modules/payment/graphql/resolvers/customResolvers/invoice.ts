@@ -8,11 +8,30 @@ export default {
   },
 
   async transactions(invoice: IInvoiceDocument, _args, { models }: IContext) {
+    if (invoice?.transactions && Array.isArray(invoice?.transactions)) {
+      return invoice.transactions;
+    }
+
     return models.Transactions.find({ invoiceId: invoice._id });
   },
 
   async description(invoice: IInvoiceDocument, _args, { models }: IContext) {
     return invoice.description || invoice.invoiceNumber;
+  },
+
+  ticketCount(invoice: IInvoiceDocument) {
+    if (invoice.ticketCodes?.length) {
+      return invoice.ticketCodes.length;
+    }
+    const quantity = Math.floor(Number((invoice.data as any)?.quantity) || 1);
+    return Number.isFinite(quantity) && quantity > 0 ? quantity : 1;
+  },
+
+  scannedCount(invoice: IInvoiceDocument) {
+    if (invoice.ticketCodes?.length) {
+      return invoice.ticketCodes.filter((ticket) => ticket.scannedAt).length;
+    }
+    return invoice.scannedAt ? 1 : 0;
   },
 
   async remainingAmount(
@@ -60,8 +79,6 @@ export default {
         return null;
     }
   },
-
-
 
   idOfProvider(invoice: IInvoiceDocument) {
     return '';

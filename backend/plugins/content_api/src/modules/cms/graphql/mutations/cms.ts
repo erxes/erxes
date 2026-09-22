@@ -2,6 +2,7 @@ import { IContext } from '~/connectionResolvers';
 import { IContentCMSInput } from '@/cms/@types/cms';
 import { Resolver } from 'erxes-api-shared/core-types';
 import { requireClientPortalId } from '@/cms/graphql/utils/clientPortal';
+import { assertCmsDocAccess } from '@/cms/utils/cms-access';
 
 export const contentCmsMutations: Record<string, Resolver> = {
   contentCreateCMS: async (
@@ -30,19 +31,24 @@ export const contentCmsMutations: Record<string, Resolver> = {
   contentUpdateCMS: async (
     _parent: any,
     { id, input }: { id: string; input: IContentCMSInput },
-    { models }: IContext,
+    context: IContext,
   ) => {
+    const { models } = context;
+    const existing = await models.CMS.getContentCMS(id);
+    assertCmsDocAccess(context, existing);
     return models.CMS.updateContentCMS(id, input);
   },
   contentDeleteCMS: async (
     _parent: any,
     { id }: { id: string },
-    { models }: IContext,
+    context: IContext,
   ) => {
+    const { models } = context;
+    const existing = await models.CMS.getContentCMS(id);
+    assertCmsDocAccess(context, existing);
     return models.CMS.deleteContentCMS(id);
   },
 };
-
 
 contentCmsMutations.cpContentCreateCMS.wrapperConfig = {
   forClientPortal: true,

@@ -1,13 +1,15 @@
 import { DEFAULT_SUGGESTION_CONFIGS } from '../constants/placeholderInputConstants';
 import {
   SuggestionConfig,
-  SuggestionsOption,
+  TPlaceholderInputSuggestionsOption,
 } from '../types/placeholderInputTypes';
 
 export function useSuggestionMaps(
   enabledTypes: Record<string, boolean>,
   extraSuggestionConfigs: SuggestionConfig[],
-  suggestionsOptions?: Partial<Record<string, SuggestionsOption>>,
+  suggestionsOptions?: Partial<
+    Record<string, TPlaceholderInputSuggestionsOption>
+  >,
 ) {
   const allSuggestions = [
     ...DEFAULT_SUGGESTION_CONFIGS,

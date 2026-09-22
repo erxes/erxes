@@ -1,43 +1,21 @@
-import { Button, Sheet, ScrollArea } from 'erxes-ui';
-import { IconPlus } from '@tabler/icons-react';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { TAccountCategoryForm } from '../types/AccountCategory';
-import { useForm } from 'react-hook-form';
-import { accountCategorySchema } from '../constants/accountCategorySchema';
+import { Button, Sheet } from 'erxes-ui';
+
 import { ACCOUNT_CATEGORY_DEFAULT_VALUES } from '../constants/accountCategoryDefaultValues';
 import { AccountCategoryForm } from './AccountCategoryForm';
+import { AccountingSheet } from '~/modules/layout/components/Sheet';
+import { IconPlus } from '@tabler/icons-react';
+import { TAccountCategoryForm } from '../types/AccountCategory';
+import { accountCategorySchema } from '../constants/accountCategorySchema';
 import { useAccountCategoryAdd } from '../hooks/useAccountCategoryAdd';
+import { useForm } from 'react-hook-form';
+import { useState } from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
 
-export const AddAccountCategory = () => {
-  return (
-    <Sheet>
-      <Sheet.Trigger asChild>
-        <Button>
-          <IconPlus />
-          Дансны ангилал нэмэх
-        </Button>
-      </Sheet.Trigger>
-      <Sheet.View className="p-0 flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none">
-        <Sheet.Header className="flex-row gap-3 items-center p-3 space-y-0 border-b">
-          <Sheet.Title>Дансны ангилал нэмэх</Sheet.Title>
-          <Sheet.Close />
-          <Sheet.Description className="sr-only">
-            Дансны ангилал нэмэх
-          </Sheet.Description>
-        </Sheet.Header>
-        <Sheet.Content className="overflow-hidden flex-auto">
-          <ScrollArea className="h-full">
-            <div className="p-5">
-              <AddAccountCategoryForm />
-            </div>
-          </ScrollArea>
-        </Sheet.Content>
-      </Sheet.View>
-    </Sheet>
-  );
-};
-
-const AddAccountCategoryForm = () => {
+const AddAccountCategoryForm = ({
+  setOpen,
+}: {
+  setOpen: (open: boolean) => void;
+}) => {
   const form = useForm<TAccountCategoryForm>({
     resolver: zodResolver(accountCategorySchema),
     defaultValues: ACCOUNT_CATEGORY_DEFAULT_VALUES,
@@ -50,6 +28,7 @@ const AddAccountCategoryForm = () => {
       variables: { ...data },
       onCompleted: () => {
         form.reset();
+        setOpen(false);
       },
     });
   };
@@ -60,5 +39,23 @@ const AddAccountCategoryForm = () => {
       handleSubmit={handleSubmit}
       loading={loading}
     />
+  );
+};
+
+export const AddAccountCategory = () => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <Sheet open={open} onOpenChange={setOpen}>
+      <Sheet.Trigger asChild>
+        <Button>
+          <IconPlus />
+          Дансны ангилал нэмэх
+        </Button>
+      </Sheet.Trigger>
+      <AccountingSheet title="Дансны ангилал нэмэх">
+        <AddAccountCategoryForm setOpen={setOpen} />
+      </AccountingSheet>
+    </Sheet>
   );
 };

@@ -26,6 +26,8 @@ export const GET_CONVERSATION_MESSAGES = gql`
       isCustomerRead
       internal
       botData
+      source
+      relatedMessage
       attachments {
         url
         name

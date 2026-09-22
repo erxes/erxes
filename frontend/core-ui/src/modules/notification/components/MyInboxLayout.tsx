@@ -28,6 +28,7 @@ export const MyInboxLayout = ({
       </div>
     );
   }
+
   return (
     <Resizable.PanelGroup
       direction="horizontal"

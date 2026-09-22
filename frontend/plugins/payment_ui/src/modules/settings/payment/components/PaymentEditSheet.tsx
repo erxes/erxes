@@ -1,6 +1,7 @@
 import { IconEdit } from '@tabler/icons-react';
 import { Command, Sheet } from 'erxes-ui';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { IPaymentDocument } from '~/modules/payment/types/Payment';
 import PaymentForm from './PaymentForm';
 
@@ -9,6 +10,7 @@ export const PaymentEditSheet = ({
 }: {
   payment: IPaymentDocument;
 }) => {
+  const { t } = useTranslation('payment');
   const [open, setOpen] = useState<boolean>(false);
 
   return (
@@ -16,7 +18,7 @@ export const PaymentEditSheet = ({
       <Sheet.Trigger asChild>
         <>
           <IconEdit className="w-4 h-4" />
-          Edit
+          {t('edit')}
         </>
       </Sheet.Trigger>
       <Sheet.View

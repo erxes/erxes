@@ -8,7 +8,7 @@ export type TMessageTriggerCondition = NonNullable<
 >[number];
 
 export type TMessageTriggerDirectConditions = NonNullable<
-  Extract<TMessageTriggerCondition, { type: 'direct' }>['conditions']
+  TMessageTriggerCondition['conditions']
 >;
 
 export type TMessageTriggerPersistentMenuIds = NonNullable<
@@ -16,6 +16,10 @@ export type TMessageTriggerPersistentMenuIds = NonNullable<
     TMessageTriggerCondition,
     { type: 'persistentMenu' }
   >['persistentMenuIds']
+>;
+
+export type TMessageTriggerIceBreakerIds = NonNullable<
+  Extract<TMessageTriggerCondition, { type: 'iceBreaker' }>['iceBreakerIds']
 >;
 
 export type TMessageTriggerSourceMode = NonNullable<

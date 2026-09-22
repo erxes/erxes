@@ -8,6 +8,7 @@ import {
   Spinner,
 } from 'erxes-ui';
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconChevronDown } from '@tabler/icons-react';
@@ -82,6 +83,7 @@ export const ItineraryEditSheet = ({
   open,
   onOpenChange,
 }: ItineraryEditSheetProps) => {
+  const { t } = useTranslation('tourism');
   const [currentStep, setCurrentStep] = useState<Step>('build');
   const [showMoreOptions, setShowMoreOptions] = useState(false);
 
@@ -220,9 +222,8 @@ export const ItineraryEditSheet = ({
     const nameValue = form.getValues('name');
     if (!nameValue?.trim()) {
       toast({
-        title: 'Error',
-        description:
-          'Please enter values for the main language before updating.',
+        title: t('error'),
+        description: t('enter-main-lang-before-updating'),
         variant: 'destructive',
       });
       setSelectedLang(mainLanguage || allLanguages[0] || '');
@@ -232,7 +233,7 @@ export const ItineraryEditSheet = ({
     const firstError = extractFirstError(errors);
     if (firstError) {
       toast({
-        title: 'Validation Error',
+        title: t('validation-error'),
         description: firstError,
         variant: 'destructive',
       });
@@ -242,8 +243,8 @@ export const ItineraryEditSheet = ({
   const handleSubmit = async (values: ItineraryCreateFormType) => {
     if (!itineraryId) {
       toast({
-        title: 'Error',
-        description: 'Itinerary ID is required',
+        title: t('error'),
+        description: t('itinerary-id-required'),
         variant: 'destructive',
       });
       return;
@@ -251,8 +252,8 @@ export const ItineraryEditSheet = ({
 
     if (!values.groupDays || values.groupDays.length === 0) {
       toast({
-        title: 'Error',
-        description: 'At least one day is required',
+        title: t('error'),
+        description: t('at-least-one-day-required'),
         variant: 'destructive',
       });
       return;
@@ -319,17 +320,17 @@ export const ItineraryEditSheet = ({
       });
 
       toast({
-        title: 'Success',
-        description: 'Itinerary updated successfully',
+        title: t('success'),
+        description: t('itinerary-updated-successfully'),
       });
 
       handleOpenChange(false);
     } catch (error: unknown) {
       const message =
-        error instanceof Error ? error.message : 'Failed to update itinerary';
+        error instanceof Error ? error.message : t('failed-to-update-itinerary');
 
       toast({
-        title: 'Error',
+        title: t('error'),
         description: message,
         variant: 'destructive',
       });
@@ -357,7 +358,7 @@ export const ItineraryEditSheet = ({
               className="flex flex-col h-full"
             >
               <Sheet.Header>
-                <Sheet.Title>Edit itinerary</Sheet.Title>
+                <Sheet.Title>{t('edit-itinerary')}</Sheet.Title>
                 {allLanguages.length > 1 && (
                   <div className="flex items-center gap-2 ml-auto">
                     <TourFieldLanguageSwitch
@@ -468,8 +469,8 @@ export const ItineraryEditSheet = ({
                             size="sm"
                           >
                             {showMoreOptions
-                              ? 'Hide more options'
-                              : 'Show more options'}
+                              ? t('hide-more-options')
+                              : t('show-more-options')}
                             <IconChevronDown
                               size={12}
                               strokeWidth={2}
@@ -494,7 +495,7 @@ export const ItineraryEditSheet = ({
                       onClick={() => handleOpenChange(false)}
                       disabled={editLoading}
                     >
-                      Cancel
+                      {t('cancel')}
                     </Button>
 
                     <Button
@@ -502,7 +503,7 @@ export const ItineraryEditSheet = ({
                       disabled={editLoading}
                       onClick={handleNextStep}
                     >
-                      Next
+                      {t('next')}
                     </Button>
                   </div>
                 ) : (
@@ -516,11 +517,11 @@ export const ItineraryEditSheet = ({
                       }}
                       disabled={editLoading}
                     >
-                      Back
+                      {t('back')}
                     </Button>
 
                     <Button type="submit" disabled={editLoading}>
-                      {editLoading ? 'Updating...' : 'Update'}
+                      {editLoading ? t('updating') : t('update')}
                     </Button>
                   </div>
                 )}

@@ -6,9 +6,11 @@ import { IBranch } from '@/tms/types/branch';
 import { EmptyList } from './EmptyList';
 import { BranchCard } from './BranchCard';
 import { Sheet, Spinner, useConfirm } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import CreateTmsForm from './CreateTmsForm';
 
 export const BranchList = () => {
+  const { t } = useTranslation('tourism');
   const { list, totalCount, loading, error, refetch } = useBranchList();
 
   const { handleDeleteBranch } = useBranchRemove();
@@ -29,7 +31,7 @@ export const BranchList = () => {
     if (!branch) return;
 
     confirm({
-      message: `Are you sure you want to create a duplicate of "${branchName}"?`,
+      message: t('confirm-duplicate-branch', { name: branchName }),
       options: duplicateConfirmOptions,
     }).then(async () => {
       await handleDuplicateBranch(branch, refetch);
@@ -40,7 +42,7 @@ export const BranchList = () => {
     const branchName = list?.find((b) => b._id === branchId)?.name || '';
 
     confirm({
-      message: `Are you sure you want to permanently delete "${branchName}"?`,
+      message: t('confirm-delete-branch', { name: branchName }),
       options: deleteConfirmOptions,
     }).then(async () => {
       await handleDeleteBranch(branchId, refetch);

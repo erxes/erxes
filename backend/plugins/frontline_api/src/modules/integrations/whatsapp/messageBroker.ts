@@ -77,7 +77,10 @@ export const whatsappCreateIntegrations = async ({
 export const whatsappUpdateIntegrations = async ({
   subdomain,
   data,
-}: IIntegrationMessage<IUpdateData>) => {
+}: IIntegrationMessage<IUpdateData>): Promise<{
+  status: string;
+  errorMessage?: string;
+}> => {
   try {
     return await updateIntegration(
       subdomain,

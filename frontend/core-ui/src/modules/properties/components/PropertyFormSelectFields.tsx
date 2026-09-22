@@ -1,41 +1,50 @@
 import { Button, Form, InfoCard, Input } from 'erxes-ui';
-import { useFieldArray, UseFormReturn } from 'react-hook-form';
+import { UseFormReturn } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { IPropertyForm } from '../types/Properties';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
-import { useParams } from 'react-router-dom';
 
 export const PropertyFormSelectFields = ({
   form,
+  isEdit,
 }: {
   form: UseFormReturn<IPropertyForm>;
+  isEdit?: boolean;
 }) => {
-  const { id } = useParams<{ id: string }>();
-
+  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const type = form.watch('type');
-  
-  const { fields, append, remove } = useFieldArray({
-    control: form.control,
-    name: 'options' as never,
-  });
+  const options = form.watch('options') || [];
+
+  const savedOptionCount = isEdit
+    ? form.formState.defaultValues?.options?.length ?? 0
+    : 0;
+
+  const setOptions = (next: NonNullable<IPropertyForm['options']>) =>
+    form.setValue('options', next, {
+      shouldDirty: true,
+      shouldValidate: form.formState.isSubmitted,
+    });
 
   if (!['multiSelect', 'select', 'check', 'radio'].includes(type)) {
     return <></>;
   }
 
   return (
-    <InfoCard title="Select options">
+    <InfoCard title={t('select-options', 'Select options')}>
       <InfoCard.Content>
         <div className="flex flex-col gap-3">
-          {fields.map((field, index) => (
-            <div className="flex gap-2" key={field.id}>
+          {options.map((_, index) => {
+            const isExisting = index < savedOptionCount;
+            return (
+            <div className="flex gap-2" key={index}>
               <Form.Field
                 control={form.control}
                 name={`options.${index}.label`}
                 render={({ field }) => (
                   <Form.Item className="flex-auto">
-                    {index === 0 && <Form.Label>Label</Form.Label>}
+                    {index === 0 && <Form.Label>{t('label', 'Label')}</Form.Label>}
                     <Form.Control>
-                      <Input {...field} placeholder="Enter label" disabled={Boolean(id)}/>
+                      <Input {...field} placeholder={t('enter-label', 'Enter label')} />
                     </Form.Control>
                     <Form.Message />
                   </Form.Item>
@@ -46,29 +55,33 @@ export const PropertyFormSelectFields = ({
                 name={`options.${index}.value`}
                 render={({ field }) => (
                   <Form.Item className="flex-auto">
-                    {index === 0 && <Form.Label>Value</Form.Label>}
+                    {index === 0 && <Form.Label>{t('value', 'Value')}</Form.Label>}
                     <Form.Control>
-                      <Input {...field} placeholder="Enter value" disabled={Boolean(id)}/>
+                      <Input {...field} placeholder={t('enter-value', 'Enter value')} disabled={isExisting} />
                     </Form.Control>
                     <Form.Message />
                   </Form.Item>
                 )}
               />
               <Button
-                onClick={() => remove(index)}
+                onClick={() =>
+                  setOptions(options.filter((_, i) => i !== index))
+                }
                 variant="secondary"
                 size="icon"
                 className="mt-auto size-8"
+                disabled={isExisting}
               >
                 <IconTrash />
               </Button>
             </div>
-          ))}
+            );
+          })}
           <Button
-            onClick={() => append({ label: '', value: '' })}
+            onClick={() => setOptions([...options, { label: '', value: '' }])}
             variant="secondary"
           >
-            <IconPlus /> Add option
+            <IconPlus /> {t('add-option', 'Add option')}
           </Button>
         </div>
       </InfoCard.Content>

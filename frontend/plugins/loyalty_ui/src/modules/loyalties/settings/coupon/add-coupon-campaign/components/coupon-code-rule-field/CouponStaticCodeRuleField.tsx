@@ -1,6 +1,7 @@
 import React from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { Form, Input } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { CouponFormValues } from '../../../constants/couponFormSchema';
 
 interface CouponStaticCodeRuleFieldProps {
@@ -10,6 +11,7 @@ interface CouponStaticCodeRuleFieldProps {
 export const CouponStaticCodeRuleField: React.FC<
   CouponStaticCodeRuleFieldProps
 > = ({ form }) => {
+  const { t } = useTranslation('loyalty');
   return (
     <div className="grid grid-cols-2 gap-4">
       <div className="flex flex-col gap-4">
@@ -18,10 +20,10 @@ export const CouponStaticCodeRuleField: React.FC<
           name="staticCode"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>CODE</Form.Label>
+              <Form.Label>{t('code')}</Form.Label>
               <Form.Control>
                 <Input
-                  placeholder="Enter the coupon code here"
+                  placeholder={t('enter-coupon-code')}
                   value={field.value ?? ''}
                   onChange={(e) => field.onChange(e.target.value)}
                 />
@@ -37,11 +39,11 @@ export const CouponStaticCodeRuleField: React.FC<
           name="usageLimit"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>USAGE LIMIT</Form.Label>
+              <Form.Label>{t('usage-limit')}</Form.Label>
               <Form.Control>
                 <Input
                   type="number"
-                  placeholder="Enter usage limit"
+                  placeholder={t('enter-usage-limit')}
                   {...field}
                   value={field.value ?? ''}
                   onChange={(e) =>
@@ -64,11 +66,11 @@ export const CouponStaticCodeRuleField: React.FC<
           name="redemptionLimitPerUser"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>REDEMPTION LIMIT PER USER</Form.Label>
+              <Form.Label>{t('redemption-limit-per-user')}</Form.Label>
               <Form.Control>
                 <Input
                   type="number"
-                  placeholder="Enter redemption limit per user"
+                  placeholder={t('enter-redemption-limit-per-user')}
                   value={field.value ?? ''}
                   onChange={(e) =>
                     field.onChange(

@@ -26,6 +26,7 @@ import {
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDebounce } from 'use-debounce';
+import { useTranslation } from 'react-i18next';
 
 export const SelectProjectProvider = ({
   children,
@@ -96,7 +97,8 @@ const SelectProjectValue = () => {
     }
   };
 
-  const projectName = name || project?.name || 'No project';
+  const { t } = useTranslation('operation');
+  const projectName = name || project?.name || t('no-project');
 
   return (
     <div
@@ -112,7 +114,7 @@ const SelectProjectValue = () => {
           variant="ghost"
           className="h-6 w-6 shrink-0"
           onClick={handleNavigateToProject}
-          title={`Go to ${projectName} project`}
+          title={t('go-to-project', { name: projectName })}
         >
           <IconChevronRight className="size-4" />
         </Button>
@@ -152,18 +154,19 @@ const SelectProjectCommandItem = ({
 const SelectProjectContent = () => {
   const { projects, handleFetchMore, totalCount, search, setSearch } =
     useSelectProjectContext();
+  const { t } = useTranslation('operation');
 
   return (
     <Command id="project-command-menu">
       <Command.Input
-        placeholder="Search project"
+        placeholder={t('search-project')}
         value={search}
         onValueChange={setSearch}
       />
-      <Command.Empty>No project found</Command.Empty>
+      <Command.Empty>{t('no-project-found')}</Command.Empty>
       <Command.List>
         <SelectProjectCommandItem
-          project={{ _id: 'no-project', name: 'No project' } as IProject}
+          project={{ _id: 'no-project', name: t('no-project') } as IProject}
         />
         {projects.map((project) => (
           <SelectProjectCommandItem key={project._id} project={project} />

@@ -1,18 +1,20 @@
 import { useMutation } from '@apollo/client';
 import { CMS_CUSTOM_POST_TYPE_REMOVE } from '../graphql/mutations';
 import { toast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const useRemoveCustomType = (onRefetch?: () => void) => {
+  const { t } = useTranslation('content');
   const [removeTypeMutation, { loading, error }] = useMutation(
     CMS_CUSTOM_POST_TYPE_REMOVE,
     {
       onCompleted: () => {
-        toast({ title: 'Success', description: 'Custom type deleted!' });
+        toast({ title: t('success'), description: t('custom-type-deleted') });
         onRefetch?.();
       },
       onError: (error) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });

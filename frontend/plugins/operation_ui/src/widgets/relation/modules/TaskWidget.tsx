@@ -3,8 +3,10 @@ import { Spinner } from 'erxes-ui';
 import { useGetTriage } from '@/triage/hooks/useGetTriage';
 import { TaskWidgetCard } from './TaskWidgetCard';
 import { TriageWidgetCard } from './TriageWidgetCard';
+import { useTranslation } from 'react-i18next';
 
 export const TaskWidget = ({ taskId }: { taskId: string }) => {
+  const { t } = useTranslation('operation');
   const { loading, task } = useGetTask({ variables: { _id: taskId } });
 
   const { loading: loadingTriage, triage } = useGetTriage({
@@ -24,5 +26,5 @@ export const TaskWidget = ({ taskId }: { taskId: string }) => {
     return <TriageWidgetCard triage={triage} />;
   }
 
-  return <div>No task or triage found</div>;
+  return <div>{t('no-task-or-triage-found')}</div>;
 };

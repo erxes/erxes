@@ -3,6 +3,7 @@ import { PRODUCTS_CURSOR_SESSION_KEY } from '../../../constants/productsCursorSe
 import { IconCheck, IconTag } from '@tabler/icons-react';
 import { useState } from 'react';
 import { gql, useQuery } from '@apollo/client';
+import { useTranslation } from 'react-i18next';
 
 const GET_SEGMENTS = gql`
   query AccountingProductSegments($contentTypes: [String]!) {
@@ -43,8 +44,9 @@ function SegmentCommandList({
   selectedId?: string;
   onSelect: (id: string) => void;
 }>) {
+  const { t } = useTranslation('accounting');
   if (loading) return <Combobox.Empty loading />;
-  if (!segments.length) return <Command.Empty>No segments found</Command.Empty>;
+  if (!segments.length) return <Command.Empty>{t('no-segments-found')}</Command.Empty>;
   return (
     <>
       {segments.map((seg) => (
@@ -61,15 +63,17 @@ function SegmentCommandList({
 }
 
 export function SelectProductSegmentFilterItem() {
+  const { t } = useTranslation('accounting');
   return (
     <Filter.Item value="segment">
       <IconTag size={14} />
-      Segment
+      {t('segment')}
     </Filter.Item>
   );
 }
 
 export function SelectProductSegmentFilterView() {
+  const { t } = useTranslation('accounting');
   const { resetFilterState, sessionKey } = useFilterContext();
   const [segment, setSegment] = useFilterQueryState<string>('segment', sessionKey);
   const { segments, loading } = useProductSegments();
@@ -77,7 +81,7 @@ export function SelectProductSegmentFilterView() {
   return (
     <Filter.View filterKey="segment">
       <Command className="outline-hidden">
-        <Command.Input placeholder="Search segments" />
+        <Command.Input placeholder={t('search-segments')} />
         <Command.List>
           <SegmentCommandList
             segments={segments}
@@ -95,6 +99,7 @@ export function SelectProductSegmentFilterView() {
 }
 
 export function SelectProductSegmentFilterBar() {
+  const { t } = useTranslation('accounting');
   const [segment, setSegment] = useFilterQueryState<string>('segment', PRODUCTS_CURSOR_SESSION_KEY);
   const [open, setOpen] = useState(false);
   const { segments, loading } = useProductSegments();
@@ -107,7 +112,7 @@ export function SelectProductSegmentFilterBar() {
     <Filter.BarItem queryKey="segment">
       <Filter.BarName>
         <IconTag size={14} />
-        Segment
+        {t('segment')}
       </Filter.BarName>
       <Popover open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
@@ -118,13 +123,13 @@ export function SelectProductSegmentFilterBar() {
                 <span>{selected.name}</span>
               </div>
             ) : (
-              <Combobox.Value placeholder="Select segment" />
+              <Combobox.Value placeholder={t('select-segment')} />
             )}
           </Filter.BarButton>
         </Popover.Trigger>
         <Combobox.Content>
           <Command className="outline-hidden">
-            <Command.Input placeholder="Search segments" />
+            <Command.Input placeholder={t('search-segments')} />
             <Command.List>
               <SegmentCommandList
                 segments={segments}

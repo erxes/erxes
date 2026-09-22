@@ -24,6 +24,7 @@ import {
 } from './SelectShared';
 import { useGetSalesStages } from '../../hooks/SelectStage';
 import { IconLabel } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
 interface IStage {
   _id: string;
@@ -109,12 +110,13 @@ const SelectStageValue = ({
   className?: string;
 }) => {
   const { value, stages, mode } = useSelectStageContext();
+  const { t } = useTranslation('mongolian');
   const selectedStage = stages?.find((stage) => stage._id === value);
 
   if (!selectedStage && mode === 'single') {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select stage'}
+        {placeholder || t('select-stage')}
       </span>
     );
   }
@@ -127,7 +129,7 @@ const SelectStageValue = ({
     if (!selectedStages?.length) {
       return (
         <span className="text-accent-foreground/80">
-          {placeholder || 'Select stages'}
+          {placeholder || t('select-stages')}
         </span>
       );
     }
@@ -169,6 +171,7 @@ const SelectStageCommandItem = ({ stage }: { stage: IStage }) => {
 
 const SelectStageContent = () => {
   const { stages, pipelineId, loading, error } = useSelectStageContext();
+  const { t } = useTranslation('mongolian');
 
   const renderContent = useCallback(() => {
     if (!pipelineId) {
@@ -178,7 +181,7 @@ const SelectStageContent = () => {
     if (loading) {
       return (
         <div className="flex items-center justify-center h-24">
-          <span className="text-muted-foreground">Loading...</span>
+          <span className="text-muted-foreground">{t('loading')}</span>
         </div>
       );
     }
@@ -186,7 +189,7 @@ const SelectStageContent = () => {
     if (error) {
       return (
         <div className="flex items-center justify-center h-24 text-destructive">
-          Error: {error.message}
+          {t('error')}: {error.message}
         </div>
       );
     }
@@ -194,13 +197,13 @@ const SelectStageContent = () => {
     return stages?.map((stage) => (
       <SelectStageCommandItem key={stage._id} stage={stage} />
     ));
-  }, [pipelineId, loading, error, stages]);
+  }, [pipelineId, loading, error, stages, t]);
 
-  const emptyMessage = pipelineId ? 'No stage found' : '';
+  const emptyMessage = pipelineId ? t('no-stage-found') : '';
 
   return (
     <Command>
-      <Command.Input placeholder="Search stage" />
+      <Command.Input placeholder={t('search-stage')} />
       <Command.Empty>
         <span className="text-muted-foreground">{emptyMessage}</span>
       </Command.Empty>
@@ -255,10 +258,11 @@ const SelectStageRoot = ({
 };
 
 export const SelectStageFilterItem = () => {
+  const { t } = useTranslation('mongolian');
   return (
     <Filter.Item value="stageId">
       <IconLabel />
-      Stage
+      {t('stage')}
     </Filter.Item>
   );
 };
@@ -314,12 +318,13 @@ export const SelectStageFilterBar = ({
     queryKey || 'stageId',
   );
   const [open, setOpen] = useState(false);
+  const { t } = useTranslation('mongolian');
 
   return (
     <Filter.BarItem queryKey={queryKey || 'stageId'}>
       <Filter.BarName>
         <IconLabel />
-        {!iconOnly && 'Stage'}
+        {!iconOnly && t('stage')}
       </Filter.BarName>
       <SelectStageProvider
         mode={mode}

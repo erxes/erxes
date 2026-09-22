@@ -8,6 +8,7 @@ import {
   cn,
 } from 'erxes-ui';
 import { useEffect, useId, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { DateRange } from 'react-day-picker';
 import {
   endOfDay,
@@ -162,6 +163,7 @@ export const ReportDateFilter = ({
   value: string;
   onChange: (value: string) => void;
 }) => {
+  const { t } = useTranslation('frontline');
   const [tabs, setTabs] = useState('day');
   const [currentDateRange, setCurrentDateRange] = useState<
     DateRange | undefined
@@ -203,7 +205,9 @@ export const ReportDateFilter = ({
     <Dialog.Content className="max-w-xl p-0">
       <Tabs value={tabs} onValueChange={setTabs}>
         <Dialog.Header className="p-6 space-y-3">
-          <Dialog.Title className="text-sm capitalize">Date</Dialog.Title>
+          <Dialog.Title className="text-sm capitalize">
+            {t('date', 'Date')}
+          </Dialog.Title>
           <div>
             <ToggleGroup
               type="single"
@@ -213,9 +217,13 @@ export const ReportDateFilter = ({
               onValueChange={setTabs}
               className="inline-flex"
             >
-              <ToggleGroup.Item value="day">Day</ToggleGroup.Item>
-              <ToggleGroup.Item value="month">Month</ToggleGroup.Item>
-              <ToggleGroup.Item value="year">Year</ToggleGroup.Item>
+              <ToggleGroup.Item value="day">{t('day', 'Day')}</ToggleGroup.Item>
+              <ToggleGroup.Item value="month">
+                {t('month', 'Month')}
+              </ToggleGroup.Item>
+              <ToggleGroup.Item value="year">
+                {t('year', 'Year')}
+              </ToggleGroup.Item>
             </ToggleGroup>
           </div>
         </Dialog.Header>
@@ -253,11 +261,11 @@ export const ReportDateFilter = ({
         <Dialog.Footer className="p-6">
           <Dialog.Close asChild>
             <Button variant="ghost" size="lg" data-dialog-close>
-              Cancel
+              {t('cancel', 'Cancel')}
             </Button>
           </Dialog.Close>
           <Button size="lg" disabled={!currentValue} onClick={handleApply}>
-            Apply
+            {t('apply', 'Apply')}
           </Button>
         </Dialog.Footer>
       </Tabs>

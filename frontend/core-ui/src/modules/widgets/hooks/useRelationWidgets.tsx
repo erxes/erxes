@@ -5,7 +5,10 @@ import {
   usePermissionCheck,
 } from 'ui-modules';
 import { Icon } from '@tabler/icons-react';
-import { CORE_RELATIONS } from '../constants/core-relations';
+import {
+  CORE_RELATIONS,
+  CORE_TRAILING_RELATIONS,
+} from '../constants/core-relations';
 
 export const useRelationWidgetsModules = (): IRelationModules[] => {
   const [pluginsMetaData] = useAtom(pluginsConfigState);
@@ -26,8 +29,13 @@ export const useRelationWidgetsModules = (): IRelationModules[] => {
       pluginName: plugin.name,
       icon: module.icon as Icon,
       name: module.name,
+      label: module.label,
     }));
   });
 
-  return [...CORE_RELATIONS, ...pluginsRelationWidgets];
+  return [
+    ...CORE_RELATIONS,
+    ...pluginsRelationWidgets,
+    ...CORE_TRAILING_RELATIONS,
+  ];
 };

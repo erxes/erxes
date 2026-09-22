@@ -6,6 +6,7 @@ import {
   useMultiQueryState,
   useQueryState,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { SelectMember } from 'ui-modules';
 import {
   type ISyncHistoryFilterField,
@@ -49,6 +50,7 @@ const SyncHistoryTextDialogView = ({
 };
 
 export const MSDynamicSyncHistoryFilterPopover = () => {
+  const { t } = useTranslation('mongolian');
   const [user, setUser] = useQueryState<string>('user');
   const [queries] = useMultiQueryState<ISyncHistoryFilterValues>(
     SYNC_HISTORY_FILTER_KEYS,
@@ -66,7 +68,7 @@ export const MSDynamicSyncHistoryFilterPopover = () => {
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder="Filter"
+                placeholder={t('filter')}
                 variant="secondary"
                 className="bg-background"
               />

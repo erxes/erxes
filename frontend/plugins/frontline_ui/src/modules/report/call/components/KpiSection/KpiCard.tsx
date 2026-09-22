@@ -6,22 +6,17 @@ interface KpiCardProps {
   value: string;
   subtitle?: string;
   icon: ReactNode;
-  /** Colour class for the value text, e.g. 'text-[var(--chart-1)]'. */
+
   valueClass?: string;
-  /** Inline style override for the value — use when colour comes from dynamic data. */
+
   valueStyle?: CSSProperties;
-  /** Background + text class for the icon badge. */
+
   iconClass?: string;
-  /** Inline style override for the icon badge — use when colour comes from dynamic data. */
+
   iconStyle?: CSSProperties;
   trend?: 'up' | 'down' | null;
 }
 
-/**
- * Single KPI metric card.
- * Uses CSS custom properties for shadows so it adapts to light/dark mode.
- * `valueStyle` / `iconStyle` accept inline overrides for dynamic backend colours.
- */
 export function KpiCard({
   title,
   value,

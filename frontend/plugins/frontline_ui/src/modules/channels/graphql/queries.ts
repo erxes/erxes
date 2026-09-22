@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 
 const GET_CHANNELS = gql`
-  query GetChannels(
+  query frontlineChannelList(
     $name: String
     $userId: String
     $channelIds: [String]
@@ -17,10 +17,16 @@ const GET_CHANNELS = gql`
       icon
       name
       description
+      scope
       createdAt
       updatedAt
       memberCount
       pipelineCount
+      hasTickets
+      responseTemplateCount
+      formCount
+      integrationCount
+      integrationKinds
     }
   }
 `;
@@ -50,6 +56,7 @@ const GET_CHANNEL_MEMBERS = gql`
         _id
         email
         username
+        isActive
         details {
           firstName
           lastName
@@ -63,18 +70,48 @@ const GET_CHANNEL_MEMBERS = gql`
 `;
 
 const GET_MY_CHANNELS = gql`
-  query GetMyChannels($name: String) {
-    getMyChannels(name: $name) {
+  query GetMyChannels($name: String, $sortField: String, $sortDirection: Int) {
+    getMyChannels(
+      name: $name
+      sortField: $sortField
+      sortDirection: $sortDirection
+    ) {
       _id
       icon
       name
       description
+      scope
       createdAt
       updatedAt
       memberCount
       pipelineCount
+      unreadConversationCount
     }
   }
 `;
 
-export { GET_CHANNELS, GET_CHANNEL, GET_CHANNEL_MEMBERS, GET_MY_CHANNELS };
+// Reading this provisions the caller's personal channel on the API side if they
+// do not have one yet, so it is safe to call from the settings page directly.
+const GET_PERSONAL_CHANNEL = gql`
+  query GetPersonalChannel {
+    getPersonalChannel {
+      _id
+      icon
+      name
+      description
+      scope
+      createdAt
+      updatedAt
+      memberCount
+      integrationCount
+    }
+  }
+`;
+
+export {
+  GET_CHANNELS,
+  GET_CHANNEL,
+  GET_CHANNEL_MEMBERS,
+  GET_MY_CHANNELS,
+  GET_PERSONAL_CHANNEL,
+};

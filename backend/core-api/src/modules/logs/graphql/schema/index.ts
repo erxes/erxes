@@ -8,6 +8,9 @@ export const types = `
       status:String,
       userId:String,
       cursor:String,
+      processId:String,
+      contentType:String,
+      name:String,
 
       user:User
       prevObject:JSON
@@ -35,6 +38,7 @@ export const types = `
         _id: String
         createdAt: Date
         activityType: String
+        sourcePlugin: String
         actorType: String
         actor: JSON
         targetType: String
@@ -45,6 +49,7 @@ export const types = `
         changes: JSON
         metadata: JSON
     }
+
 `;
 
 const cursorParams = `
@@ -81,6 +86,10 @@ const activityLogQueryParams = `
     targetId: String!
     action: String
     variant: String
+    activityType: String
+    excludeActivityType: String
+    dateFrom: Date
+    dateTo: Date
 `;
 
 export const queries = `
@@ -89,4 +98,5 @@ export const queries = `
     logsGetContentTypes: [LogContentType!]!
     logDetail(_id:String!):Log
 `;
-export default { types, queries };
+
+export const mutations = ``;

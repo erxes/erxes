@@ -1,6 +1,7 @@
 import { Button, toast } from 'erxes-ui';
 import { useConfirm } from 'erxes-ui/hooks/use-confirm';
 import { IconTrash } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
 export const TagsDelete = ({
   selectedIds,
@@ -11,6 +12,7 @@ export const TagsDelete = ({
   selectedRows: any[];
   onBulkDelete: (ids: string[]) => Promise<void> | void;
 }) => {
+  const { t } = useTranslation('content');
   const { confirm } = useConfirm();
   return (
     <Button
@@ -19,23 +21,23 @@ export const TagsDelete = ({
       size="sm"
       onClick={() =>
         confirm({
-          message: `Are you sure you want to delete the ${selectedIds.length} selected tags?`,
+          message: t('confirm-delete-x-tags', { count: selectedIds.length }),
         }).then(async () => {
           try {
             await onBulkDelete(selectedIds);
             selectedRows.forEach((row: any) => row.toggleSelected(false));
-            toast({ title: 'Success', variant: 'default' });
+            toast({ title: t('success'), variant: 'default' });
           } catch (e: any) {
             toast({
-              title: 'Error',
-              description: e?.message || 'Failed to delete tags',
+              title: t('error'),
+              description: e?.message || t('failed-to-delete-tags'),
               variant: 'destructive',
             });
           }
         })
       }
     >
-      <IconTrash className="mr-2 h-4 w-4" /> Delete
+      <IconTrash className="mr-2 h-4 w-4" /> {t('delete')}
     </Button>
   );
 };

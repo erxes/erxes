@@ -2,6 +2,7 @@ import React from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { Form, Input, Textarea } from 'erxes-ui';
 import { SelectCategory, SelectProduct, SelectTags } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 import { LoyaltyScoreFormValues } from '../../constants/formSchema';
 
 interface LoyaltyScoreAddCoreFieldsProps {
@@ -11,6 +12,7 @@ interface LoyaltyScoreAddCoreFieldsProps {
 export const LoyaltyScoreAddCoreFields: React.FC<
   LoyaltyScoreAddCoreFieldsProps
 > = ({ form }) => {
+  const { t } = useTranslation('loyalty');
   return (
     <div className="flex flex-col gap-5">
       <div className="grid grid-cols-[1fr_120px] gap-4">
@@ -19,9 +21,9 @@ export const LoyaltyScoreAddCoreFields: React.FC<
           name="title"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Title</Form.Label>
+              <Form.Label>{t('title')}</Form.Label>
               <Form.Control>
-                <Input {...field} placeholder="Enter title" />
+                <Input {...field} placeholder={t('enter-title')} />
               </Form.Control>
               <Form.Message />
             </Form.Item>
@@ -32,7 +34,7 @@ export const LoyaltyScoreAddCoreFields: React.FC<
           name="order"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Order</Form.Label>
+              <Form.Label>{t('order')}</Form.Label>
               <Form.Control>
                 <Input
                   {...field}
@@ -51,11 +53,11 @@ export const LoyaltyScoreAddCoreFields: React.FC<
         name="description"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Description</Form.Label>
+            <Form.Label>{t('description')}</Form.Label>
             <Form.Control>
               <Textarea
                 {...field}
-                placeholder="Enter description"
+                placeholder={t('enter-description')}
                 className="min-h-[80px]"
               />
             </Form.Control>
@@ -70,7 +72,7 @@ export const LoyaltyScoreAddCoreFields: React.FC<
             name="conditions.productCategoryIds"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Product Category</Form.Label>
+                <Form.Label>{t('product-category')}</Form.Label>
                 <Form.Control>
                   <SelectCategory
                     mode="multiple"
@@ -90,7 +92,7 @@ export const LoyaltyScoreAddCoreFields: React.FC<
             name="conditions.productIds"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Product</Form.Label>
+                <Form.Label>{t('product')}</Form.Label>
                 <Form.Control>
                   <SelectProduct
                     mode="multiple"
@@ -109,7 +111,7 @@ export const LoyaltyScoreAddCoreFields: React.FC<
             name="conditions.tagIds"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Tag</Form.Label>
+                <Form.Label>{t('tag')}</Form.Label>
                 <Form.Control>
                   <SelectTags
                     mode="multiple"
@@ -131,7 +133,7 @@ export const LoyaltyScoreAddCoreFields: React.FC<
             name="conditions.excludeProductCategoryIds"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Or Exclude Product Category</Form.Label>
+                <Form.Label>{t('or-exclude-product-category')}</Form.Label>
                 <Form.Control>
                   <SelectCategory
                     mode="multiple"
@@ -151,7 +153,7 @@ export const LoyaltyScoreAddCoreFields: React.FC<
             name="conditions.excludeProductIds"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Or Exclude Product</Form.Label>
+                <Form.Label>{t('or-exclude-product')}</Form.Label>
                 <Form.Control>
                   <SelectProduct
                     mode="multiple"
@@ -170,7 +172,7 @@ export const LoyaltyScoreAddCoreFields: React.FC<
             name="conditions.excludeTagIds"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Or Exclude Tag</Form.Label>
+                <Form.Label>{t('or-exclude-tag')}</Form.Label>
                 <Form.Control>
                   <SelectTags
                     mode="multiple"

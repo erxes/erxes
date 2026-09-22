@@ -1,14 +1,51 @@
 import { generateModels } from '~/connectionResolvers';
 import { customerToDynamic } from './utilsCustomer';
 import { dealToDynamic, orderToDynamic } from './utils';
-
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 const allowTypes: Record<string, string[]> = {
   'core:customer': ['create'],
   'core:company': ['create'],
   'pos:order': ['synced'],
   'sales:deal': ['update'],
 };
+const handlePosOrder = async (
+  subdomain: string,
+  models: any,
+  updatedDocument: any,
+  object: any,
+  syncLogDoc: any,
+  configsMap: Record<string, any>,
+) => {
+  const updatedDoc = updatedDocument || object;
+  let brandId = updatedDoc?.scopeBrandIds?.[0];
 
+  if (!brandId && updatedDoc?.posId) {
+    const pos = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'sales',
+      module: 'pos',
+      action: 'findOne',
+      input: {
+        query: { _id: updatedDoc.posId },
+      },
+      defaultValue: null,
+    });
+
+    brandId = pos?.scopeBrandIds?.[0];
+  }
+
+  const config = configsMap[brandId || 'noBrand'];
+
+  if (!config || config.useBoard) {
+    return;
+  }
+
+  const syncLog = await models.SyncLogsMSD.syncLogsAdd(syncLogDoc);
+
+  await orderToDynamic(subdomain, models, syncLog, updatedDoc, config, brandId);
+
+  return syncLog;
+};
 export const afterMutationHandlers = async (subdomain: string, params: any) => {
   const { type, action, user, object, updatedDocument } = params;
 
@@ -18,7 +55,6 @@ export const afterMutationHandlers = async (subdomain: string, params: any) => {
 
   const models = await generateModels(subdomain);
 
-  // ✅ NEW: Load configs from MNConfig system
   const dynamicConfigs = await models.Configs.getConfigs('DYNAMIC');
 
   if (!dynamicConfigs?.length) {
@@ -27,7 +63,11 @@ export const afterMutationHandlers = async (subdomain: string, params: any) => {
 
   const configsMap = dynamicConfigs.reduce(
     (acc, conf) => {
-      acc[conf.subId || 'noBrand'] = conf.value;
+      const sub = conf.subId || 'noBrand';
+      acc[sub] = conf.value;
+      if (sub === 'noBrand' && typeof conf.value === 'object') {
+        Object.assign(acc, conf.value);
+      }
       return acc;
     },
     {} as Record<string, any>,
@@ -52,7 +92,6 @@ export const afterMutationHandlers = async (subdomain: string, params: any) => {
       case 'core:customer':
       case 'core:company': {
         syncLog = await models.SyncLogsMSD.syncLogsAdd(syncLogDoc);
-
         await customerToDynamic(
           subdomain,
           syncLog,
@@ -61,7 +100,6 @@ export const afterMutationHandlers = async (subdomain: string, params: any) => {
           models,
           configsMap,
         );
-
         break;
       }
 
@@ -70,8 +108,9 @@ export const afterMutationHandlers = async (subdomain: string, params: any) => {
         const oldDeal = object;
 
         const destinationStageId = deal?.stageId;
+        const oldStageId = oldDeal?.stageId;
 
-        if (!destinationStageId || destinationStageId === oldDeal?.stageId) {
+        if (!destinationStageId || destinationStageId === oldStageId) {
           return;
         }
 
@@ -85,23 +124,19 @@ export const afterMutationHandlers = async (subdomain: string, params: any) => {
         }
 
         syncLog = await models.SyncLogsMSD.syncLogsAdd(syncLogDoc);
-
         await dealToDynamic(subdomain, models, syncLog, deal, foundConfig);
-
         break;
       }
 
       case 'pos:order': {
-        syncLog = await models.SyncLogsMSD.syncLogsAdd(syncLogDoc);
-
-        const updatedDoc = updatedDocument || object;
-        const brandId = updatedDoc?.scopeBrandIds?.[0];
-
-        const config = configsMap[brandId || 'noBrand'];
-
-        if (config && !config.useBoard) {
-          await orderToDynamic(subdomain, models, syncLog, updatedDoc, config);
-        }
+        syncLog = await handlePosOrder(
+          subdomain,
+          models,
+          updatedDocument,
+          object,
+          syncLogDoc,
+          configsMap,
+        );
 
         break;
       }
@@ -110,6 +145,7 @@ export const afterMutationHandlers = async (subdomain: string, params: any) => {
         break;
     }
   } catch (e: any) {
+    console.error(`MSDynamic error:`, e);
     if (syncLog?._id) {
       await models.SyncLogsMSD.updateOne(
         { _id: syncLog._id },

@@ -8,6 +8,7 @@ import {
   Separator,
   Spinner,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 const RELATED_TRANSACTIONS_QUERY = gql`
   query RelatedTransactions($contentType: String!, $contentId: String!) {
@@ -85,6 +86,7 @@ export const Transactions = ({
   contentId: string;
   contentType: string;
 }) => {
+  const { t } = useTranslation('accounting');
   const { data, loading } = useQuery<{
     accTransactionsByContent: {
       list: RelatedTransaction[];
@@ -115,8 +117,8 @@ export const Transactions = ({
         </div>
         <span className="text-sm">
           {totalCount
-            ? `${totalCount} transaction linked. No permitted transactions to display.`
-            : 'No transactions to display.'}
+            ? t('transaction-linked', { count: totalCount })
+            : t('no-transactions')}
         </span>
       </div>
     );
@@ -126,7 +128,7 @@ export const Transactions = ({
     <>
       <FocusSheet.SideContentHeader
         Icon={IconReceipt}
-        label={`Transactions (${totalCount})`}
+        label={t('transactions-count', { count: totalCount })}
       />
       <ScrollArea className="flex-auto">
         <div className="flex flex-col gap-3 p-4">
@@ -143,7 +145,7 @@ export const Transactions = ({
                   <div className="truncate text-sm font-medium">
                     {transaction.ptrNumber ||
                       transaction.number ||
-                      'Transaction'}
+                      t('transaction')}
                   </div>
                   <div className="text-xs text-muted-foreground">
                     {[transaction.journal, transaction.status]
@@ -168,7 +170,7 @@ export const Transactions = ({
               <Separator className="my-2" />
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <div>
-                  <span className="text-muted-foreground">Debit</span>
+                  <span className="text-muted-foreground">{t('debit')}</span>
                   <div className="font-medium">
                     <CurrencyFormatedDisplay
                       currencyValue={{
@@ -179,7 +181,7 @@ export const Transactions = ({
                   </div>
                 </div>
                 <div>
-                  <span className="text-muted-foreground">Credit</span>
+                  <span className="text-muted-foreground">{t('credit')}</span>
                   <div className="font-medium">
                     <CurrencyFormatedDisplay
                       currencyValue={{

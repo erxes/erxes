@@ -18,6 +18,7 @@ import {
   useMultiQueryState,
   useQueryState,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { SyncHistoryHotKeyScope } from '../types/SyncHistoryHotKeyScope';
 import { useSyncErkhetHistoryLeadSessionKey } from '../hooks/useSyncErkhetHistoryLeadSessionKey';
 import { SelectMember } from 'ui-modules';
@@ -25,6 +26,7 @@ import { SyncErkhetHistoryTotalCount } from './SyncErkhetHistoryTotalCount';
 import { useState } from 'react';
 
 export const SyncErkhetHistoryFilterPopover = () => {
+  const { t } = useTranslation('mongolian');
   const [user, setUser] = useQueryState<string>('user');
   const [queries] = useMultiQueryState<{
     user: string;
@@ -57,7 +59,7 @@ export const SyncErkhetHistoryFilterPopover = () => {
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder="Filter"
+                placeholder={t('filter')}
                 variant="secondary"
                 className="bg-background"
               />
@@ -65,36 +67,36 @@ export const SyncErkhetHistoryFilterPopover = () => {
               <Command.List className="p-1">
                 <Filter.Item value="user">
                   <IconUser />
-                  Assigned To
+                  {t('assigned-to')}
                 </Filter.Item>
                 <Filter.Item value="dateRange">
                   <IconCalendar />
-                  Date Range
+                  {t('date-range')}
                 </Filter.Item>
                 <Filter.Item value="contentType" inDialog>
                   <IconTag />
-                  Content Type
+                  {t('content-type')}
                 </Filter.Item>
                 <Filter.Item value="contentId" inDialog>
                   <IconHash />
-                  Content ID
+                  {t('content-id')}
                 </Filter.Item>
                 <Command.Separator className="my-1" />
                 <Filter.Item value="searchConsume" inDialog>
                   <IconDownload />
-                  Search Consume
+                  {t('search-consume')}
                 </Filter.Item>
                 <Filter.Item value="searchSend" inDialog>
                   <IconUpload />
-                  Search Send
+                  {t('search-send')}
                 </Filter.Item>
                 <Filter.Item value="searchResponse" inDialog>
                   <IconExchange />
-                  Search Response
+                  {t('search-response')}
                 </Filter.Item>
                 <Filter.Item value="searchError" inDialog>
                   <IconAlertTriangle />
-                  Search Error
+                  {t('search-error')}
                 </Filter.Item>
               </Command.List>
             </Command>
@@ -144,6 +146,7 @@ export const SyncErkhetHistoryFilterPopover = () => {
 };
 
 export const SyncErkhetHistoryFilter = () => {
+  const { t } = useTranslation('mongolian');
   const [user, setUser] = useQueryState<string>('user');
   const [contentType] = useFilterQueryState<string>('contentType');
   const [contentId] = useFilterQueryState<string>('contentId');
@@ -160,7 +163,7 @@ export const SyncErkhetHistoryFilter = () => {
         <Filter.BarItem queryKey="user">
           <Filter.BarName>
             <IconUser />
-            Assigned To
+            {t('assigned-to')}
           </Filter.BarName>
           <SelectMember.Provider
             mode="single"
@@ -185,14 +188,14 @@ export const SyncErkhetHistoryFilter = () => {
         <Filter.BarItem queryKey="dateRange">
           <Filter.BarName>
             <IconCalendar />
-            Date Range
+            {t('date-range')}
           </Filter.BarName>
           <Filter.Date filterKey="dateRange" />
         </Filter.BarItem>
         <Filter.BarItem queryKey="contentType">
           <Filter.BarName>
             <IconTag />
-            Content Type
+            {t('content-type')}
           </Filter.BarName>
           <Filter.BarButton filterKey="contentType" inDialog>
             {contentType}
@@ -201,7 +204,7 @@ export const SyncErkhetHistoryFilter = () => {
         <Filter.BarItem queryKey="contentId">
           <Filter.BarName>
             <IconHash />
-            Content ID
+            {t('content-id')}
           </Filter.BarName>
           <Filter.BarButton filterKey="contentId" inDialog>
             {contentId}
@@ -210,7 +213,7 @@ export const SyncErkhetHistoryFilter = () => {
         <Filter.BarItem queryKey="searchConsume">
           <Filter.BarName>
             <IconDownload />
-            Search Consume
+            {t('search-consume')}
           </Filter.BarName>
           <Filter.BarButton filterKey="searchConsume" inDialog>
             {searchConsume}
@@ -219,7 +222,7 @@ export const SyncErkhetHistoryFilter = () => {
         <Filter.BarItem queryKey="searchSend">
           <Filter.BarName>
             <IconUpload />
-            Search Send
+            {t('search-send')}
           </Filter.BarName>
           <Filter.BarButton filterKey="searchSend" inDialog>
             {searchSend}
@@ -228,7 +231,7 @@ export const SyncErkhetHistoryFilter = () => {
         <Filter.BarItem queryKey="searchResponse">
           <Filter.BarName>
             <IconExchange />
-            Search Response
+            {t('search-response')}
           </Filter.BarName>
           <Filter.BarButton filterKey="searchResponse" inDialog>
             {searchResponse}
@@ -237,7 +240,7 @@ export const SyncErkhetHistoryFilter = () => {
         <Filter.BarItem queryKey="searchError">
           <Filter.BarName>
             <IconAlertTriangle />
-            Search Error
+            {t('search-error')}
           </Filter.BarName>
           <Filter.BarButton filterKey="searchError" inDialog>
             {searchError}

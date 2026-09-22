@@ -81,6 +81,9 @@ export interface IPost {
   videoUrl?: string;
   pdfAttachment?: IPdfAttachment;
 
+  seoTitle?: string;
+  seoDescription?: string;
+
   customFieldsData?: ICustomField;
 }
 

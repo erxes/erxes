@@ -1,11 +1,13 @@
 import { useMutation } from '@apollo/client';
 import { syncCategoriesMutation } from '../graphql/mutations/syncCategriesMutations';
 import { useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { CategoryItem, CategoryStatus } from '../types/categoryItem';
 
 export const useSyncCategory = () => {
   const [mutate, { loading, error }] = useMutation(syncCategoriesMutation);
   const { toast } = useToast();
+  const { t } = useTranslation('mongolian');
 
   const syncCategories = async (
     toCheckCategories: CategoryItem[],
@@ -13,8 +15,8 @@ export const useSyncCategory = () => {
   ): Promise<CategoryItem[] | undefined> => {
     if (!toCheckCategories || toCheckCategories.length === 0) {
       toast({
-        title: 'Error',
-        description: 'Sync categories not found',
+        title: t('error'),
+        description: t('sync-categories-not-found'),
         variant: 'destructive',
       });
       return;
@@ -26,8 +28,8 @@ export const useSyncCategory = () => {
 
     if (categoriesToSync.length === 0) {
       toast({
-        title: 'Info',
-        description: `All ${selectedFilter} categories are already synced`,
+        title: t('info'),
+        description: t('all-categories-already-synced'),
       });
       return toCheckCategories;
     }
@@ -54,7 +56,7 @@ export const useSyncCategory = () => {
         },
         onError: (error) => {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: error.message,
             variant: 'destructive',
           });
@@ -76,8 +78,8 @@ export const useSyncCategory = () => {
         });
 
         toast({
-          title: 'Success',
-          description: `${categoriesToSync.length} ${selectedFilter} categories synced`,
+          title: t('success'),
+          description: t('categories-synced', { count: categoriesToSync.length }),
         });
 
         return updatedCategories;
@@ -85,8 +87,8 @@ export const useSyncCategory = () => {
     } catch (err) {
       console.error('Sync categories error:', err);
       toast({
-        title: 'Error',
-        description: 'Sync categories error',
+        title: t('error'),
+        description: t('sync-categories-error'),
         variant: 'destructive',
       });
     }

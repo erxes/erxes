@@ -2,7 +2,7 @@ import { generateModels } from '../../../../connectionResolver';
 import { validateAgainstSchema } from './bodyValidator';
 import { resolveWebhookTargetId, validateSecurity } from './utils';
 import { executeActions } from '../../../executeActions';
-import { getActionsMap } from '../../../../utils/utils';
+import { getExecutionActionsMap } from '../../../../utils/utils';
 import {
   AUTOMATION_CORE_TRIGGER_TYPES,
   AUTOMATION_EXECUTION_STATUS,
@@ -185,7 +185,7 @@ export const incomingWebhookHandler = async (req: Request, res: Response) => {
       subdomain,
       trigger.type,
       execution,
-      await getActionsMap(automation.actions),
+      await getExecutionActionsMap(automation, execution),
       trigger.actionId,
     ).catch(async (error) => {
       // Log execution errors but don't expose to client

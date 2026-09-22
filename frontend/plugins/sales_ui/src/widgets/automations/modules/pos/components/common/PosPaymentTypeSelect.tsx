@@ -1,5 +1,6 @@
 import { useGetPos } from '@/pos/hooks/useGetPos';
 import { Select } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 const EMPTY_PAYMENT_TYPE = '__any_payment__';
 
@@ -12,6 +13,7 @@ export const PosPaymentTypeSelect = ({
   value?: string;
   onChange: (value: string) => void;
 }) => {
+  const { t } = useTranslation('sales');
   const { pos = [] } = useGetPos({
     variables: { perPage: 1000 },
   });
@@ -36,10 +38,10 @@ export const PosPaymentTypeSelect = ({
       }
     >
       <Select.Trigger>
-        <Select.Value placeholder="Any payment" />
+        <Select.Value placeholder={t('any-payment')} />
       </Select.Trigger>
       <Select.Content>
-        <Select.Item value={EMPTY_PAYMENT_TYPE}>Any payment</Select.Item>
+        <Select.Item value={EMPTY_PAYMENT_TYPE}>{t('any-payment')}</Select.Item>
         {hasCurrentValue && (
           <Select.Item value={currentValue}>{currentValue}</Select.Item>
         )}

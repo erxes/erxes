@@ -1,0 +1,1495 @@
+# `frontline_ui` Plugin Guide
+
+## Identity
+
+- **Plugin:** `frontline`
+- **Project:** `frontline_ui`
+- **Layer:** `Frontend UI`
+- **Path:** `frontend/plugins/frontline_ui`
+- **Last synchronized:** `2026-09-22`
+
+## Scope
+
+### Owns
+
+- The `frontline` navigation group and settings navigation registered through
+  `src/config.tsx`.
+- Inbox surfaces: conversation list, conversation detail, message input, the
+  inbox navigation sub-groups, response templates, and integration
+  configuration screens.
+- Channel settings (list, detail, members, integrations) and channel forms.
+- The `Move to channel` action on every channel-owned resource: integrations,
+  ticket pipelines, forms, surveys and response templates.
+- Integration connect/detail UIs for Mail, Facebook, Instagram, Discord,
+  calls, Call Pro, and the erxes messenger.
+- The mail conversation surface: the threaded reader, its compose box, the
+  quoted-content toggle, the sandboxed email body renderer, and delivery state
+  and resend.
+- The mail channel's **Bring your own Cloudflare Email Routing & Sending** section
+  in Integrations config: paste an API token,
+  pick one of that account's domains, watch the fourteen provisioning steps, and
+  repair, update or disconnect afterwards. The connected card also reports whether
+  replies leave through that account and, when they do, its sending quota.
+- The mail inbox's four-step add wizard — basics, receiving, sending, done — and
+  the matching edit dialog. The sending step names the domain replies will leave
+  from and takes the sender display name, or blocks with the reason when neither
+  the workspace's Cloudflare account nor the deployment's can sign. A preview
+  renders the exact `Name <address>` recipients will see.
+- The mail inbox's delivery check: a button in the integration dialog that runs
+  `mailCheckConnection` and reports whether inbound mail reaches this workspace,
+  naming the tenant and the endpoint the worker delivers to.
+- Ticket UI: pipelines, statuses, ticket boards and detail, plus the legacy
+  ticket surface.
+- Forms UI: form builder, preview, and submissions.
+- Surveys UI: per-channel survey management inside channel settings (list, the
+  step-based create/edit wizard, archive, remove), the read-only results board
+  on the main `frontline/surveys` route, and the composer dialog that posts a
+  saved survey into a messenger conversation.
+- Knowledge base UI: topics, categories, and articles.
+- Help Center UI: the `/frontline/helpcenter` record table over client portal
+  configs, its filter bar and command bar, its inline-editable name cell and its
+  website / knowledge base topic / ticket channel / pipeline / status selects,
+  and the
+  two-tab help center drawer (General, Appearance), which is the only place a
+  help center is edited. Both tabs read `helpCenterConfig` and write
+  `helpCenterConfigUpdate` — never a knowledge base operation.
+- Call UI: call index, detail, and statistics pages.
+- Report screens for the frontline plugin, including the default chart catalogue
+  and the saved charts board built on top of it.
+- Automation remote entries under `src/widgets` for facebook, instagram, inbox,
+  discord, knowledgebase, and ticket — trigger forms, action forms, node
+  configuration content, bot management, and execution history renderers.
+- Notification, relation, activity, and floating widgets exposed to the host.
+
+### Does not own
+
+- Any server contract. GraphQL schema, resolvers, and Facebook Send API
+  behavior live in `frontline_api`.
+- The automation builder canvas, sidebar, and node plumbing — owned by `core-ui`
+  and consumed through `ui-modules` remote-entry prop types.
+- Shared primitives — consume `erxes-ui` and `ui-modules`; never fork them or
+  import Radix directly.
+- The `frontline` i18n namespace JSON, which lives in
+  `backend/gateway/src/locales/{en,mn}/frontline.json` (gateway-owned).
+- Other plugins' modules or state.
+
+## Current Capabilities
+
+- The call widget's dialpad header carries a clear-cache icon button next to
+  Pause and Turn off. After a confirm it closes the widget, resets the call
+  atoms persisted in `localStorage` (`config:call_integrations`,
+  `config:call_enabled_integrations`, `callInfo`,
+  `callHistoryId`, `callWidgetPosition`) and reopens the call config picker,
+  which unmounts `SipProvider` and stops the SIP user agent.
+- The incoming-call popup reads `Incoming call to <integration name>`, naming
+  the inbox integration `callAddCustomer` matched for the call's queue, not the
+  integration's channel.
+- Each call integration row's switch is independent: any number can be on at
+  once and turning one on never turns another off. `Call from` in the dialpad
+  lists exactly the integrations switched on, labelled by integration name
+  (the formatted phone only when the name is empty), and
+  picking one makes it `callConfigAtom`. Turning off the selected integration
+  moves `Call from` to another switched-on one, or disconnects when none is left.
+- Every channel-owned resource row carries a **Move to channel** action:
+  integrations, ticket pipelines, forms, surveys and response templates, in the
+  `⋮` menu of their list inside `settings/frontline/channels/:id/…` (and on the
+  global `/frontline/forms` page). It opens one shared `MoveToChannelDialog`
+  showing the current channel, a destination picker that excludes the current
+  channel, a confirmation line once a destination is picked, and
+  `Cancel` / `Move`. The dialog is always rendered as a sibling of the menu
+  content, never inside it, so closing the menu does not unmount it. Forms and
+  surveys also move in bulk from their command bar; that button stays disabled
+  when the selection spans more than one channel, because one move carries one
+  source channel. A successful move toasts, refetches the resource's list
+  queries and the channel counters, and clears the selection.
+- Surveys are split across two routes, mirroring how forms are laid out.
+  `settings/frontline/channels/:id/surveys` manages the channel's surveys: the
+  settings breadcrumb resolves to `Channels / <channel> / Surveys` and carries the
+  `Create survey` button on the right, the sub-header holds only the status/search
+  filters and the record count, and the page renders a `RecordTable` list, the
+  per-row results dialog, and a command bar that archives or removes a
+  selection. The channel detail page reaches it through the
+  `Manage channel surveys` row.
+- A survey requested by a client portal user arrives as `pending` and is
+  approved from this list. The status filter offers `pending` alongside
+  `active` and `archived`, `FormStatus.Badge` renders `pending` as a warning
+  clock badge, a `Created by` column names the requester next to a
+  `Client portal` badge (falling back to the team member's full name for an
+  agent-created survey), and the channel sub-header carries a
+  `<n> pending approval` shortcut that filters the list — it reads its own
+  `surveyTotalCount` with `status: 'pending'`, so it stays visible under any
+  other filter, and is skipped without a `channelId` so the read-only
+  `frontline/surveys` board never offers an approval it cannot perform. A pending row's row menu swaps Archive/Unarchive for
+  `Approve`, and the command bar shows an `Approve` button whenever the
+  selection holds a pending survey, approving only those ids. Approving is a
+  `surveyToggleStatus` to `active`, which refetches the list and the counts.
+- Creating and editing a survey is a full-page step wizard on
+  `settings/frontline/channels/:id/surveys/create` and
+  `settings/frontline/channels/:id/surveys/:surveyId`, laid out exactly like the
+  form builder: a left panel carrying `IntegrationSteps` (STEP badge, progress
+  bar, description) over the current step's fields, a live preview on the right,
+  and a `Cancel` / `Previous step` / `Next step` footer whose last step reads
+  `Create survey` or `Update survey`. The three steps are **General** (title,
+  brand), **Content** (the survey's steps) and **Confirmation** (duration plus a
+  read-only review of every step).
+- The Content step is where a survey gains questions. Each survey step is an
+  `InfoCard.Content` card holding its name, question, description, 2–10 unique
+  options and its own multi-answer switch; `Add Step` appends another (up to
+  ten), the grip handle reorders them with `@dnd-kit`, and the trash button
+  removes one. The name, description, grip and trash appear only once a survey
+  has more than one step, so a single-question survey looks unchanged.
+- Every option row carries a ticket-automation popover
+  (`SurveyOptionTicketConfig`): a switch, a vote threshold, and the pipeline and
+  status a triggered ticket lands in. The ticket's name is derived by the API
+  from the survey title and the option text — there is no field for it. The trigger
+  button badges the threshold once armed and turns green once the API reports
+  the ticket was already created; that state is read-only in the UI.
+- The preview panel renders the wizard's live state through the real
+  `MessageSurvey` component, so it shows exactly what a respondent will see, with
+  Desktop/Tablet/Mobile width toggles.
+  `frontline/surveys` is read-only — a card board of aggregated `Survey.results`
+  per survey, with status/search filters and no create control.
+- In a messenger conversation the composer's survey button opens
+  `SendSurveyDialog`, scoped to the conversation integration's `channelId`, which
+  posts a saved survey through `surveySendToConversation`.
+  `MessageSurvey` then renders the tallies read-only, refreshed by the message
+  subscription.
+- An expanded team channel lists a `Surveys` row **above** its integration types
+  when the channel has open survey conversations; selecting it filters the inbox
+  with `withSurvey=true` scoped to that channel. The row and the integration-type
+  rows are disjoint — the API keeps survey conversations out of an
+  `integrationType`-scoped list.
+
+- Ticket pipeline settings include a Properties route that lists only Core
+  `frontline:ticket` properties, grouped by their Core field group. Checked
+  fields are stored on the pipeline, and ticket detail renders only that
+  pipeline's selected fields. Legacy pipelines continue rendering all fields
+  until their Properties selection is saved for the first time.
+- Runs as a Module Federation remote on port `3004`, bundled with Rspack.
+- The messenger ticket form builder lives on a pipeline's configuration sheet
+  (`src/modules/pipelines/components/configs/`): a pipeline owns **one**
+  configuration, which picks a status and a tag group, toggles the four built-in
+  ticket fields, and also selects ticket custom properties out of the
+  `frontline:ticket` field groups. The four built-in fields are
+  drag-reorderable and each carries its own label and placeholder. Ticket
+  properties are an `Accordion` with two drag levels: the field groups reorder
+  among themselves, and inside an open group its selected properties reorder
+  among themselves. Switching a property on reveals its label, placeholder, and
+  required inputs inline under that row and moves it into the group's selected
+  block; switching it off removes it. There is no second editor section — the
+  saved order is the order the list shows.
+- A messenger integration attaches **several** ticket configs. The erxes
+  messenger config form binds `ticketConfigIds` to `SelectTicketConfig.FormItem`,
+  a multi-select over the selected channel's `ticketConfigs`.
+- Registers navigation, settings navigation, relation widgets, property inputs,
+  and activity rows with the host via `CONFIG` in `src/config.tsx`.
+- The conversation header carries a **Convert** menu. Each entry opens
+  `ConvertDialog`, a centred dialog laid out like the 1.x convert modal: the
+  target fields (ticket: channel → pipeline → status; deal: board → pipeline →
+  stage; task: team → status), then name, assigned to, branch and department
+  (not for a task; single for a ticket, multiple for a deal), attachments (not
+  for a task), description and the Settings → Properties fields. Saving calls
+  `conversationConvertToCard`; once a kind exists the entry becomes
+  `Go to a …` and navigates to the item's URL.
+- Inbox navigation splits into **Me** — the integration types in use by the
+  caller's personal channel, listed flat — and **Team inbox**, where every team
+  channel is a collapsible row over the integration types in use inside it.
+  Discord servers and Brands groups follow.
+- `Team inbox` channel rows carry the caller's unread count from
+  `Channel.unreadConversationCount` and dim when it is zero; integration-type
+  rows in both groups carry their open-conversation count from
+  `conversationCounts` and show a warning dot when some are still awaiting a
+  reply. The `Me` header carries the group total as "N unread".
+- Those unread badges stay live: `useChannelUnreadUpdates` subscribes to
+  `conversationClientMessageInserted` for the current user and refetches
+  `GetMyChannels`, debounced by a second. Marking a conversation read refetches
+  the same query so the badge falls again.
+- `Team inbox` lists channels in the name order `getMyChannels` returns; there
+  is no sort control. Channels with nothing unread (and that are not the
+  selected channel) collapse behind a single "N quiet teams" row, unless every
+  channel is quiet.
+- Each team channel row shows an avatar stack of its members, rendered from one
+  batched `GetChannelMembers` query for the whole group.
+- The conversation filter popover carries an `Automation status` sub-view over
+  the `automationStatus` query param: `responded` (automation touched the
+  conversation at all), `standby` (handoff requested), `handoff` (an operator
+  took over). It is single-select, each row shows its count from
+  `conversationCounts`, and `responded` is a superset of the other two, so the
+  three counts overlap by design.
+- Selecting a nested integration type filters the conversation list by both
+  `channelId` and `integrationType`; selecting a channel row filters by
+  `channelId` and clears `integrationType`.
+- Channel creation from either the settings page or the Team inbox group; the
+  form sends no `scope`, so the API creates a `team` channel.
+- A `Personal channel` settings route (`/settings/frontline/personal-channel`)
+  acting as the profile for the user's private inbox: name, icon, description,
+  and its integrations — the same catalogue a team channel offers. Opening it is
+  what provisions the channel — there is no create button anywhere for personal
+  channels.
+- Channel member management, integration attachment, and per-channel forms,
+  pipelines, and response templates.
+- Renders plugin-specific automation trigger/action forms selected by node type
+  in each module's `*RemoteEntry.tsx`.
+- The Facebook message trigger reads without opening anything: each condition
+  card shows what it currently listens for, and the bot picker shows each bot's
+  page and health, refusing a broken one.
+- The Facebook comment trigger names the other automations answering the same
+  post scope on that bot, since two of them post two public replies under one
+  post. A new one starts on first-level comments only; a saved one keeps
+  whatever it had.
+- Names, on the Facebook message trigger form, which other automations already
+  listen for the same Get Started, persistent menu item, ice breaker, keyword or
+  keyword-less direct message on that bot. Any claim — draft included, since a
+  draft becomes active later and nobody watches for that moment — stops the
+  condition from being selected, unless this automation already selected it,
+  which stays editable. A condition that owns a configuration also cannot be
+  turned on while that configuration is empty. Only Get Started is unopenable,
+  because it is the one condition with nothing to configure.
+- Configures a Facebook bot's ice breakers — the questions Messenger shows under
+  “Tap to send” before the first message — and the Get Started button's label,
+  both previewed and both usable as automation trigger conditions.
+- Previews a Facebook bot beside its form: a Messenger frame showing the
+  welcome screen (greeting plus Get Started) and the persistent menu exactly as
+  `connectBotPageMessenger` composes it, on a phone or the desktop chat window,
+  including the Get Started action the backend prepends, and flagging menu items
+  that never reach Facebook. Tapping a menu action in the preview names what it
+  actually does — opens a webview, hands off to a person, resumes a paused step,
+  starts a listed automation, or reaches nothing. Only a plain button menu item
+  can be listened for; a link, a human handoff and a back action are each
+  consumed before the trigger. Typing in the preview's composer resolves the
+  same way for direct messages, mirroring `checkContentConditions`. When nothing
+  listens, the preview links to a new automation already carrying the trigger
+  condition that would catch that exact tap or message, plus an empty Send
+  Facebook Message action wired to it. A menu item or ice breaker added since
+  the last save is marked unsaved and offers no link, because a trigger
+  condition addresses it by an id that does not exist yet.
+- Lists the automations already listening to a bot on the bot form itself,
+  matched by `botId` inside a `frontline:facebook.messages` trigger config.
+- Starts an automation from a saved bot: the bot sheet links to the automation
+  builder with a `frontline:facebook.messages` trigger already carrying that
+  `botId`, built through `buildAutomationSeedLink` from `ui-modules`.
+- Attaches a Facebook Messenger bot to an integration from the integration list
+  itself: a `Bot` column on the facebook-messenger table and a bot section in the
+  integration edit dialog, both showing the bot's name and health, and both
+  opening the bot form with that integration's account and page already bound.
+  The bots settings sheet shows that same form for a saved bot, and keeps the
+  account/page steps only for creating one.
+- The Facebook comment reply action holds a set of reply variants and one is
+  picked at random per comment; a single variant is warned about, because Meta's
+  Spam policy restricts pages "posting repetitive content" regardless of rate.
+  Public replies are paced through an outbox so a page sends at most a set
+  number a minute, and paused on the bot for hours after Facebook refuses one;
+  a paused reply waits the window out and is only dropped once it is a day old.
+  History reports the queue, the wait, the expiry and which variant went out. Private replies are never paced. The bot form reports its
+  Public replies are also capped per post, paced through an outbox so a page
+  sends at most a set number a minute, and paused on the bot for hours after
+  Facebook refuses one. History reports the queue, the skip, the pause and which
+  variant went out. Private replies are never paced. The bot form reports its
+  own health: the breaker's pause, the last error, and how many replies are
+  queued, sent and failed for that page.
+- Facebook bot message action supports a drag-orderable message sequence of
+  text, card, quick replies, input, image, attachments, audio, and video, with
+  postback/link buttons and optional connects.
+- Caps the Facebook message sequence at one message under a comment trigger only
+  until the customer clicks a button: an action reached through an optional
+  connect gets the full five, one reached through `nextActionId` stays at one.
+  The sequence header explains the cap whenever it applies.
+- Composes Facebook page posts from the integrations sidebar: channel and page
+  selection, message, optional link, drag-and-drop image upload (max 10), and a
+  permalink to the published post.
+- Ticket tag selection (board card, detail sheet, create form) shows a single
+  count trigger — a tag icon plus placeholder, or "Tag +N" once tags are
+  selected — instead of listing every selected tag inline; the board card also
+  renders up to 5 tag pills with a "+N" overflow badge below the card body.
+- The ticket index favorite breadcrumb waits only while selected channel or
+  pipeline metadata is loading. A terminally missing selection falls back to
+  the tickets-only breadcrumb, while query failures render an explicit error
+  state.
+- The ticket reports board renders the default charts from
+  `TICKET_DEFAULT_CARD_CONFIGS` plus every saved chart returned by
+  `reportCharts`. **Every** ticket card — status summary, date, source, tags,
+  custom properties, and list — carries Save in its header: it names the current
+  filter selection into a new saved chart, which appears on the board
+  immediately and reopens with those filters restored. The default charts are a
+  frontend constant and are never modified by saving; a saved card additionally
+  carries a delete action.
+
+## Architecture
+
+| Area                     | Path                                                                                                                                              | Responsibility                                                                                                                                  |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| Host registration        | `src/config.tsx`                                                                                                                                  | `CONFIG` — navigation, settings, widgets, property inputs, routes, and Module Federation exposes                                                |
+| Federation               | `module-federation.config.ts`                                                                                                                     | Remote name `frontline_ui` and its exposes                                                                                                      |
+| Routes                   | `src/modules/FrontlineMain.tsx`, `src/pages/`                                                                                                     | Routed pages for inbox, ticket, forms, call, channels                                                                                           |
+| Navigation groups        | `src/modules/FrontlineSubGroups.tsx`                                                                                                              | Route-aware sidebar sub-groups for every frontline page                                                                                         |
+| Settings routes          | `src/modules/FrontlineSettings.tsx`                                                                                                               | Top-level frontline settings routes and their page chrome                                                                                       |
+| Channel picker           | `src/modules/inbox/channel/components/ChooseChannel.tsx`                                                                                          | Scope-filtered channel list bound to the `channelId` query param                                                                                |
+| Move to channel          | `src/modules/channels/components/move-resources/{MoveToChannelDialog,MoveToChannelCommandBarButton}.tsx`                                          | The shared move dialog and its command-bar trigger, used by every channel-owned resource list                                                   |
+| Move to channel mutation | `src/modules/channels/hooks/useChannelMoveResources.tsx`                                                                                          | `channelMoveResources` plus the per-resource list of queries a move refetches                                                                   |
+| Inbox nav trees          | `src/modules/inbox/channel/components/{PersonalInboxNav,TeamChannelsNav}.tsx`                                                                     | The `Me` group and the `Team inbox` group, each rendering its own `NavigationMenuGroup` header                                                  |
+| Channel nav row          | `src/modules/inbox/channel/components/ChannelNavItem.tsx`                                                                                         | The shared selectable, collapsible channel row both inbox nav groups render                                                                     |
+| Nav group actions        | `src/modules/NavigationGroupActions.tsx`                                                                                                          | Click guard for a `NavigationMenuGroup` `actions` slot                                                                                          |
+| Sidebar counts           | `src/modules/inbox/conversations/hooks/useConversationCounts.tsx`                                                                                 | Filter counts, plus the awaiting-reply figure per integration type inside one channel                                                           |
+| Live unread              | `src/modules/inbox/channel/hooks/useChannelUnreadUpdates.tsx`                                                                                     | Subscribes to incoming customer messages and refreshes channel unread counts                                                                    |
+| Channel settings         | `src/modules/channels`                                                                                                                            | Channel CRUD, members, GraphQL documents, form schemas                                                                                          |
+| Personal channel         | `src/modules/channels/components/settings/personal-channel`, `src/pages/PersonalChannelPage.tsx`                                                  | Profile page for the user's private inbox                                                                                                       |
+| Inbox                    | `src/modules/inbox/`                                                                                                                              | Conversations, messages, filters, channels, brands, integrations                                                                                |
+| Conversation convert     | `src/modules/inbox/conversations/conversation-detail/components/convert/`                                                                         | Convert menu, convert dialog, convert-time properties                                                                                           |
+| Integrations             | `src/modules/integrations/`                                                                                                                       | Per-provider connect forms and detail views                                                                                                     |
+| Call Pro                 | `src/modules/integrations/callpro/`                                                                                                               | Add/edit sheets over one shared `CallProIntegrationForm`, webhook URL hint, recording player, and the caller-to-customer picker                 |
+| Ticket                   | `src/modules/ticket/`, `src/modules/pipelines/`, `src/modules/status/`                                                                            | Ticket boards, pipelines, statuses                                                                                                              |
+| Forms                    | `src/modules/forms/`                                                                                                                              | Form builder, preview, submissions                                                                                                              |
+| Help Center              | `src/modules/helpcenter/`, `src/pages/HelpCenterIndexPage.tsx`                                                                                    | `/frontline/helpcenter` — the help center record table (columns, more column, filter, total count, command bar) and the `editId` drawer over it |
+| Surveys management       | `src/modules/survey/components/survey-page/`, `src/pages/ChannelSurveysPage.tsx`                                                                  | Channel-scoped list, results dialog, command bar, create button, detail breadcrumb                                                              |
+| Survey wizard            | `src/modules/survey/components/{SurveyCreate,SurveyEdit}.tsx`, `src/modules/survey/components/mutate/`, `src/pages/Survey{Create,Detail}Page.tsx` | Three-step create/edit flow, `Add Step` builder, live preview                                                                                   |
+| Survey ticket automation | `src/modules/survey/components/mutate/SurveyOptionTicketConfig.tsx`                                                                               | Per-option threshold, pipeline and status picker for automatic ticket creation                                                                  |
+| Survey wizard state      | `src/modules/survey/states/surveySetupStates.tsx`, `src/modules/survey/constants/surveySetup*.ts`, `src/modules/survey/hooks/useSurveyMutate.ts`  | Per-step Jotai atoms, wizard Zod schemas and defaults, add/edit submit                                                                          |
+| Surveys channel row      | `src/modules/channels/components/settings/channel-details/SurveysSection.tsx`                                                                     | `Manage channel surveys` row on the channel detail page                                                                                         |
+| Surveys results          | `src/modules/survey/components/survey-results/`, `src/pages/SurveysIndexPage.tsx`                                                                 | Read-only aggregated results board on `frontline/surveys`                                                                                       |
+| Surveys data             | `src/modules/survey/{graphql,hooks,types}/`                                                                                                       | Survey GraphQL documents, list/detail/mutation hooks, survey types                                                                              |
+| Send survey              | `src/modules/inbox/conversations/conversation-detail/components/SendSurveyDialog.tsx`                                                             | Picks an active survey and posts it into the open messenger conversation                                                                        |
+| Survey inbox row         | `src/modules/survey/components/ChannelSurveyNavItem.tsx`                                                                                          | `Surveys` row inside an expanded team channel, filtering the inbox by `withSurvey`                                                              |
+| Knowledge base           | `src/modules/knowledgebase/`                                                                                                                      | Topics, categories, articles                                                                                                                    |
+| Automation widgets       | `src/widgets/automations/modules/<module>/`                                                                                                       | Per-module trigger/action/bot/history components                                                                                                |
+| FB message action        | `src/widgets/automations/modules/facebook/components/action/`                                                                                     | Message sequence form, provider, constants, states                                                                                              |
+| FB post composer         | `src/modules/integrations/facebook/components/FacebookPostSheet.tsx`, `FacebookPostImagesField.tsx`, `hooks/useFacebookPost*.tsx`                 | Post sheet, image upload state, channel/page loading                                                                                            |
+| Call report filters      | `src/modules/report/call/components/{SubHeader,DateTimeRangeDialog}.tsx`, `src/modules/report/utils/dateFilters.ts`                               | Integration/queue/direction chips, date presets, and the date+time custom range                                                                 |
+| Call report export       | `src/modules/report/call/heatmapExcel.ts`, `src/modules/report/call/hooks/useHeatmapExport.ts`                                                    | Date × hour spreadsheet of the heatmap, built with `ExcelJS` and handed to `downloadExcel`                                                      |
+| Call report tables       | `src/modules/report/call/components/{ReportTable,Meter}.tsx`                                                                                      | Shared density wrapper over `erxes-ui` `Table`, plus the proportional bar used inside its cells                                                 |
+| Reports board            | `src/modules/report/components/TicketReportsList.tsx`, `src/modules/report/types/component-registry.ts`                                           | Card layout, drag-and-drop, and the default-chart + saved-chart registry                                                                        |
+| Saved charts             | `src/modules/report/components/report-chart/`, `src/modules/report/hooks/{useReportCharts,useTicketChartFilterConfig,useTicketChartCard}.ts`      | Save/delete actions, `reportCharts` reads and writes, capturing and restoring a filter selection                                                |
+| Mail conversation        | `src/modules/integrations/mail/components/MailConversationDetail.tsx`                                                                             | Thread reader, compose box, delivery badges and resend, quoted-content toggle                                                                   |
+| Mail body                | `src/modules/integrations/mail/components/EmailBody.tsx`                                                                                          | Sanitised, CSP-locked `srcDoc` iframe with the remote-image gate                                                                                |
+| Mail data                | `src/modules/integrations/mail/{graphql,hooks,states}/`                                                                                           | `mailConversationDetail` window, send and retry mutations, form sheet atom                                                                      |
+| Mail provider setup      | `src/modules/integrations/mail/components/MailConfigUpdate.tsx`, `src/modules/integrations/mail/hooks/useMailCloudflare*.tsx`                     | Cloudflare connect form, provisioning step list, outbound state and quota, repair and disconnect                                                |
+| Mail add wizard          | `src/modules/integrations/mail/components/MailIntegrationForm.tsx`                                                                                | Four-step `Sheet` wizard over the shared `IntegrationSteps` chrome                                                                              |
+| Mail sending readiness   | `src/modules/integrations/mail/components/MailSendingRequired.tsx`, `src/modules/integrations/mail/hooks/useMailSendingReadiness.tsx`             | Names the Cloudflare domain replies leave from, or blocks the wizard's sending step with the reason and a link to Integrations config           |
+| Mail delivery check      | `src/modules/integrations/mail/components/MailConnectionCheck.tsx`, `src/modules/integrations/mail/hooks/useMailConnectionCheck.tsx`              | Runs `mailCheckConnection` from the integration dialog and renders its verdict                                                                  |
+| Notifications            | `src/widgets/notifications/`                                                                                                                      | Notification remote entries                                                                                                                     |
+
+> > > > > > > f367b4a36cb66a9d80ba39450bef5cd15fd95d21
+
+## Contracts
+
+### Provides
+
+- Route `frontline/surveys` (registered in `config.tsx`, `FrontlineNavigation`,
+  and `FrontlineMain`) — the read-only survey results board.
+- Settings route `settings/frontline/channels/:id/surveys` (registered in the
+  channels `Settings.tsx` as `FrontlinePaths.ChannelSurveys`) — the channel's
+  survey management page — plus `FrontlinePaths.SurveysCreate`
+  (`/:id/surveys/create`) and `FrontlinePaths.SurveyDetail` (`/:id/surveys/:surveyId`)
+  for the wizard.
+
+- Module Federation exposes declared in `module-federation.config.ts` /
+  `src/config.tsx`: `./config`, `./frontline`, `./frontlineSettings`,
+  `./knowledgebase`, `./automationsWidget`, `./notificationWidget`,
+  `./relationWidget`, `./floatingWidget`, `./selectErxesMessenger`.
+- `CONFIG` with `name: 'frontline'`, `path: 'frontline'`, default navigation
+  path `frontline/inbox`, relation widgets (`conversation`, `ticket`), the
+  `ticketStatus` property input, and the `formSubmission` activity row.
+- Automation remote-entry components keyed by `componentType`: `actionForm`,
+  `triggerForm`, `triggerConfigContent`, `actionNodeConfiguration`,
+  `automationBotsContent`, `historyName`, `historyActionResult`.
+- `ChooseChannel({ scope?, emptyMessage? })` — omitting `scope` lists every
+  channel the user belongs to.
+- `ChooseIntegrationTypeContent({ allowedIntegrationTypes? })` from
+  `src/modules/integrations/components/ChooseIntegrationType.tsx` — the sidebar
+  integration-type list, filtered by type `name` when the prop is passed. A
+  second, unrelated `ChooseIntegrationTypeContent` in
+  `src/modules/integrations/components/IntegrationTypeFilter.tsx` backs the
+  `Combobox` filter; import each from its own file.
+- `IntegrationTypeItem({ _id, name, channelId?, nested?, count?, awaitingCount? })`
+  — one sidebar type row. With `channelId` it toggles `channelId` +
+  `integrationType` together; without it, only `integrationType`. `nested`
+  indents it under a channel. `count` renders the trailing figure and dims the
+  row when zero; `awaitingCount` renders the warning dot. Its icon comes from
+  `INTEGRATION_ICONS` keyed by kind, falling back to `IconInbox`.
+- `channelScopeOf(channel)` from `src/modules/channels/utils/channelScope.ts` —
+  the single place that resolves a missing `scope` to `team`.
+- `ReportComponentProps` — every report card component receives `title`,
+  `colSpan`, `onColSpanChange`, plus `cardId` (the registry id for a default
+  chart, the chart `_id` for a saved one) and `savedChart` when it renders a
+  saved configuration. A component that ignores the last two still works; one
+  that supports saving reads `cardId` for its filter atoms.
+- `FACEBOOK_CHART_TYPES` and `facebookReportComponents` from
+  `src/modules/report/types/component-registry.ts` — the Facebook card registry.
+  `FACEBOOK_DEFAULT_CARD_CONFIGS` is the board's default catalogue, and the same
+  strings are persisted as a saved chart's `chartType`.
+- `useFacebookChartCard({ title, cardId, savedChart })` from
+  `src/modules/report/hooks/useFacebookChartCard.ts` — the Facebook equivalent
+  of `useTicketChartCard`, carrying `date` plus `pageIds`.
+- `TICKET_CHART_TYPES` from
+  `src/modules/report/types/component-registry.ts` — the registry keys shared by
+  the default cards, `ticketReportComponents`, and each card's save action.
+  These strings are persisted as a saved chart's `chartType`, so they must not
+  be renamed.
+- `useTicketChartCard({ title, cardId, savedChart })` from
+  `src/modules/report/hooks/useTicketChartCard.ts` — the plumbing every ticket
+  card shares: `id`, `filterConfig` (what gets saved), `queryFilters` (what gets
+  queried, with the relative `date` resolved to a range), and `filtersRestored`.
+  A new ticket card uses this rather than reading the filter atoms itself.
+
+### Consumes
+
+- `frontline_api` GraphQL: `GetMyChannels`, `GetChannels`, `GetChannel`,
+  `GetPersonalChannel` (get-or-create — reading it provisions the channel),
+  `GetChannelMembers`, `ChannelAdd` (accepts an optional `scope` variable this
+  UI does not send), `ChannelUpdate`, `IntegrationsCreateExternalIntegration`,
+  `IntegrationsGetUsedTypes`, `IntegrationsGetUsedTypesByChannel(channelId?,
+scope?)` — the latter is already restricted server-side to channels the caller
+  can see, so the UI never has to filter its result.
+- `frontline_api` GraphQL subscription `conversationClientMessageInserted(userId)`
+  — published to every member of the channel a customer message landed in, for
+  every integration kind, so one subscription covers all of a user's channels.
+- `frontline_api` GraphQL `conversationCounts(only, channelId?, brandId?,
+awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
+  `only: "byIntegrationTypes"` keys by integration kind, `only: "byIntegrations"`
+  keys by integration id (Discord). Counts are open + new conversations; passing
+  `awaitingResponse: "true"` narrows them to the ones the customer spoke last in.
+- `erxes-ui`: all UI primitives — `NavigationMenuGroup`, `Sheet`, `Form`,
+  `Dialog`, `Button`, `Badge`, `Label`, `Card`, `toast`, `useQueryState`,
+  `useToast`, hotkey hooks.
+- `ui-modules`: `useRelationWidget` in `ConversationSideWidget` is called with
+  `contentType: 'frontline:conversation'`. A relation widget registered with a
+  `contentTypes` list is filtered out of any rail that passes no `contentType`,
+  so dropping this argument silently removes the core Tracked data tab from the
+  conversation rail.
+- `ui-modules`: `SelectBrand`, `MembersInline`, `CustomersInline`, contacts and
+  structure selects,
+  `AutomationRemoteEntryWrapper`, `AutomationRemoteEntryTypes`,
+  `AutomationActionFormProps` (which carries `trigger` and `targetType`),
+  `splitAutomationNodeType`, `generateAutomationElementId`,
+  `useAutomationRemoteFormSubmit`, `useFormValidationErrorHandler`.
+- `ui-modules`: `TagsSelect` (tags-new) for the `frontline:ticket` tag type —
+  `Provider`/`Value`/`Content` drive `SelectTagsTicket`; `useGetTags` reads the
+  full `frontline:ticket` tag catalogue for the board card's overflow pill
+  list.
+- `frontline_api` GraphQL `TicketConfigs`, `TicketConfigDetail`, `TicketConfig`,
+  `TicketSaveConfig` — the messenger ticket form configuration, including
+  `propertyFields` (chosen ticket custom properties, each carrying the source
+  property's `type` and `options` so the messenger widget can render it).
+- `ui-modules` properties hooks `useFieldGroups` / `useFields` with
+  `contentType: 'frontline:ticket'` — the ticket property groups and their
+  fields, read straight from core; this UI never defines property metadata.
+- `frontline_api` GraphQL `helpCenterConfigs(page, perPage, searchValue,
+brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
+  together as the help center's own `frontlineHelpCenterList` document;
+  `helpCenterConfig(_id)` as `frontlineHelpCenterDetail`; and
+  `helpCenterConfigUpdate(config)` / `helpCenterConfigRemove(_id)` for every
+  write. The help center reads `knowledgeBaseTopics` for one thing only — the
+  `Knowledge base topic` picker's options.
+- `core-api` GraphQL `getClientPortals` as `frontlineHelpCenterWebsiteOptions` —
+  the `Website` picker's options (`_id`, `domain`), read-only. The resolver
+  ignores paging arguments and returns the newest 20 portals.
+- `frontline_api` GraphQL `reportCharts`, `reportChartAdd`, and
+  `reportChartRemove` — saved report charts. The board reads **all** saved
+  charts in one query and filters them to the chart types it can render, and
+  both mutations update that same cache entry, so a chart saved from any card
+  appears without a refetch or a reload. Do not reintroduce a per-chart-type
+  query: the mutation would then write to a different cache entry than the
+  board reads.
+- `frontline_api` GraphQL `mailConversationDetail(conversationId!, limit)` —
+  returns `{ messages, hasMore }`, the newest `limit` messages oldest-first, not
+  a bare list. `mailSendMail` and `mailMessageRetry` return the delivery outcome
+  (`_id`, `deliveryStatus`, `deliveryError`, `bouncedRecipients`), so the caller
+  reads `deliveryStatus` instead of assuming the send worked.
+  New mail arrives through `conversationMessageInserted`. An
+  attachment the server could not store still carries a `url` — the mail worker's
+  own signed link, kept as a fallback — plus an `error` saying why it was not
+  re-hosted. The chip therefore stays clickable and puts the reason in its
+  tooltip; only an attachment with no link at all falls back to the dimmed state.
+  `readImage` returns absolute URLs untouched, so no special handling is needed.
+- `frontline_api` GraphQL `mailCloudflareConnection`, `mailCloudflareZones`,
+  `mailCloudflareConnect`, `mailCloudflareProvision` and `mailCloudflareDisconnect` —
+  the Cloudflare section. The token is sent to fetch the domain list and again to
+  connect; it is never read back, so the form always starts empty and a connected
+  workspace shows the zone and worker origin instead.
+- `frontline_api` GraphQL `mailCloudflareSendingQuota` — the connected account's
+  sending allowance, read live from Cloudflare. It is skipped while
+  `sendingEnabled` is false, so a workspace that only receives mail never pays for
+  the round trip, and it is refetched with `mailCloudflareProvision` and
+  `mailCloudflareConnect` so enabling sending fills the row in without a reload.
+- `frontline_api` GraphQL `mailSendingReadiness` — whether this workspace can reply
+  and from which domain. `cloudflare.domain` wins over `platform.domain` when both
+  are ready, because a connected account addresses its inboxes on its own zone. The
+  wizard gates Create on `ready` and the edit dialog reads the same query, so the
+  button and the banner can never disagree with the server.
+- `frontline_api` GraphQL `mailCheckConnection` — run on demand from the
+  integration dialog, never cached (`fetchPolicy: 'no-cache'`), and rendered as a
+  verdict rather than a toast, because its `{ ok, tenant, endpoint, error }` is
+  the diagnostic itself. It is a deployment-wide check shown on an integration,
+  so it is not refetched with integration data.
+- `dompurify` — already a repository dependency, used to sanitise mail bodies
+  before they reach the reader's iframe.
+- `frontline_api` GraphQL `reportFacebookSyncPostStats` — the Sync button on
+  the posts card. It is the only place this UI causes a Meta API call, it is
+  always user-initiated, and it refetches `reportFacebookPosts` and
+  `reportFacebookSummary` on completion so the table shows the new numbers
+  without a reload.
+- `frontline_api` GraphQL `reportFacebookPages`, `reportFacebookSummary`,
+  `reportFacebookActivity`, `reportFacebookPosts`, and `reportFacebookBots` —
+  the Facebook board's data. `reportFacebookPosts` pages on the server
+  (`limit` + `page` in the filter), every other card pages client-side through
+  `useChartPagination`.
+- `frontline_api` GraphQL `conversationConvertToCard` and
+  `conversationConvertedItems` — the conversation Convert menu.
+- `operation_api` GraphQL `getTeams(userId)` and
+  `getStatusesChoicesByTeam(teamId)` under the operation names
+  `FrontlineConvertTaskTeams` / `FrontlineConvertTaskStatuses` — the task
+  convert dialog's team and status pickers.
+- `ui-modules` `SelectBoard`, `SelectPipeline`, `SelectStage`, `SelectMember`,
+  `pluginsConfigState` and `usePermissionCheck` — the deal convert fields and
+  the Convert menu's visibility; `useFields`, `PropertyFormField` and
+  `isFieldVisibleByLogic` — convert-time properties.
+- `react-i18next` with the `frontline` namespace.
+
+## Data and State
+
+- Apollo Client for all server state; GraphQL documents live next to the feature
+  they serve and use `frontline`/module-prefixed operation names.
+- `GET_MY_CHANNELS` backs the inbox navigation and is refetched after
+  `ChannelAdd`. `useGetMyChannels` pins `sortField: 'name', sortDirection: 1`
+  for every caller, so the list arrives ordered and all consumers share one
+  cache entry — do not vary those variables per component or the query fans out
+  into several network requests on the inbox page.
+- `IChannel.scope` is optional — channels created before the field existed
+  return no value and must be treated as `team`.
+- `GET_MY_CHANNELS` selects `unreadConversationCount` but not
+  `conversationCount`; each count costs the API a query per channel, so add one
+  to the selection only when a surface actually renders it.
+- Report card filters live in per-card Jotai atoms in
+  `src/modules/report/states.ts`, keyed by `cardId`. Two cards never share a
+  key, which is what lets a saved chart hold its own selection next to the
+  default chart it was saved from. `useTicketChartFilterConfig` reads those
+  atoms into the shape that is both saved and sent as query variables, and
+  `useRestoreTicketChartFilters` writes a saved chart back into them once per
+  mount.
+- Jotai atoms for plugin-wide UI state (`channelCreateSheetOpenState`,
+  hotkey scopes); `useQueryState` for URL-backed filters
+  such as `channelId`; component-local state stays in `useState`. `Team inbox`
+  has no sort control and holds no sort state — the order is whatever
+  `getMyChannels` returns.
+- `PIPELINE_CONFIG_SCHEMA.propertyFields` is a `useFieldArray` list whose array
+  position is the display order — the API renumbers both `order` and
+  `groupOrder` from that position on save, so nothing in this UI writes either
+  value. Every reorder instead rewrites positions through `replace`, and
+  switching a property on `insert`s it at the end of its own group's block
+  rather than appending to the array. Group order is not stored per group
+  anywhere: it is the order the groups' blocks appear in, which
+  `TicketPropertyFields` seeds its local `groupIds` state from on first load.
+  Each
+  entry also carries the source property's `type` and `options`, taken from
+  `useFields` when the property is toggled on; the API overwrites both from the
+  current core definition on save, so never edit them in this UI.
+- The help center list is read twice on purpose: `useHelpCenters` applies the
+  `searchValue`/`brand` URL filters and owns `helpCenterTotalCountAtom` for the
+  filter bar, while `useAllHelpCenters` reads the same document unfiltered so
+  `HelpCenterIndexPage` can resolve the one help center `editId` names even when
+  the table is narrowed past it. With no filter set both resolve to the same
+  variables and Apollo serves one request.
+
+- React Hook Form + Zod for every form (`CHANNEL_SCHEMA`); the
+  Facebook message action schema is in
+  `src/widgets/automations/modules/facebook/components/action/states/replyMessageActionForm.tsx`.
+- `ReplyMessageProvider` is the single source of message-sequence state for the
+  Facebook message action (`messages`, `maxMessages`, `addMessage`, form
+  helpers); components read it through `useReplyMessageAction` rather than
+  prop drilling.
+- `useFacebookPostImages` owns the post composer's attachments (upload state,
+  storage keys) and `useFacebookPostTargets` owns its channel and page
+  selection; both live inside the sheet body, so closing the sheet unmounts the
+  draft — the same reset-on-close behavior as `CreateBrand`.
+- The mail thread keeps its page size in local state and passes it as the
+  `limit` variable: "Show earlier messages" widens the window rather than
+  merging pages, so the subscription's `refetch` keeps every loaded message and
+  still picks up the new one. `previousData` backs the render while a wider
+  window is in flight, so the thread never blanks. Whether the quoted part of a
+  message and whether its remote images are shown are per-message component
+  state and deliberately not persisted.
+
+## Local Invariants
+
+- A channel change on a resource goes through `channelMoveResources`, never
+  through the resource's own edit mutation. The move mutation is the only path
+  that validates the destination and cascades a pipeline's tickets and a form's
+  lead integration. The one remaining exception is the inline `Channel` cell on
+  the global `/frontline/forms` table, which still writes `formsEdit`.
+- `MoveToChannelDialog` owns its `open` state in the row cell, outside the
+  `Popover` / `DropdownMenu` content. Rendering it inside the menu content
+  unmounts it the moment the menu closes and the dialog never appears.
+- `FormStatus` is shared by the forms and surveys surfaces. Its `BarItem` and
+  `View` default to `['active', 'archived']`; only the surveys sub-header
+  passes `statuses`, so adding a status there must never change the forms
+  filter. Its `Badge` keeps rendering the raw status string, and an unknown
+  status falls back to the neutral dashed-circle badge.
+
+- `CONFIG` keeps a top-level `icon` alongside `navigationGroup.icon`. The host
+  reads only the top-level one for a `frontline:*` notification's avatar in My
+  Inbox, and renders nothing when it is missing.
+- The Convert menu shows the deal entry only when the `sales` plugin config is
+  loaded and the task entry only when `operation` is, and each entry only with
+  its create action (`createTicket`, `dealsAdd`, `taskCreate`) on top of
+  `conversationConvertToCard`. The task fields query operation's GraphQL, so
+  they must never render without that plugin.
+- The convert dialog keeps its own open state and never touches
+  `ticketCreateSheetState` / `ticketCreateDefaultValuesState`, which the ticket
+  relation widget in the same sidebar drives. Its ticket pickers reuse
+  `SelectChannel`, `SelectPipeline` and `SelectStatusTicket`; the pipeline and
+  status pickers watch `channelId` / `pipelineId` on whatever form they are
+  given, so a form using them must name those fields exactly that.
+- Convert-time properties come only from Settings → Properties, the same way
+  for every kind: `frontline:ticket`, `sales:deal` or `operation:task` fields
+  whose `Visible to create` (`isVisibleToCreate`) is on and whose display logic
+  passes, rendered per field group under a `Properties` heading at the bottom
+  of the dialog. Ticket pipeline property selection does not filter them.
+  Multi-row groups are not offered at convert time. The values are sent as
+  `customFieldsData` without empty entries.
+- Convert-time system fields come from core `propertySystemFields` (the Settings
+  → Properties "Basic information" group) through `FrontlineConvertSystemFields`.
+  Priority, tags, start date and due date render only when their system field
+  has `Visible to create` on and its display logic passes; `Required` blocks
+  submit while empty. `useConvertSystemFields` resolves which keys show;
+  `getConvertSystemFieldCode` maps a form key to the kind's code, and only
+  `closeDate` differs (`CONVERT_TYPE_OPTIONS[type].closeDateCode`, which is
+  `targetDate` on tickets and tasks). Name, stage,
+  assignee, branch, department, attachments and description stay always shown.
+- A successful convert refetches `ConversationConvertedItems` and
+  `getRelationsByEntity`, so the menu and the relation widgets update without
+  a reload.
+- Any new call atom created with `atomWithStorage` must also be reset in
+  `ClearCallCacheButton` (`call/components/CallSipActions.tsx`), otherwise the
+  clear-cache action leaves stale call state behind. `callConfigAtom` is reset
+  last, after `callSelectConfigDialogAtom` is set to `true`, so the picker opens.
+- Which call integrations are switched on is `callEnabledIntegrationIdsAtom`
+  unioned with `callConfigAtom.inboxId` while it `isAvailable`; read and change
+  it only through `useCallEnabledIntegrations`, so the switches and `Call from`
+  never disagree. The union keeps a config chosen before multi-toggle existed
+  switched on.
+- The call widget popover sits at `z-100` and `Select.Content` portals to
+  `body` at `z-50`, so any select inside the widget must raise its content
+  above the widget (`SelectPhoneCallFrom` uses `z-110`), or its list opens
+  hidden behind it.
+- `SipProvider` restarts its JsSIP user agent in place when `host`, `port` or
+  `user` change, so a `Call from` change to different SIP credentials
+  re-registers and one on the same credentials keeps the live connection. Never
+  force a `key` on `SipProvider`: `CallWidget` renders inside it, and a remount
+  runs the widget's `IDLE` effect and closes the widget.
+- `RecordTable.Provider`'s container is `overflow-hidden`, so a table that is
+  not wrapped in a scroll area clips every column past the viewport instead of
+  scrolling. The help center and its categories tables paginate by page, not by
+  cursor, so they need an explicit `RecordTable.Scroll` wrapper — only the
+  cursor-paginated tables get a scroll area for free from
+  `RecordTable.CursorProvider`.
+- This migration deliberately changed **no** user-facing wording: the drawer,
+  its tabs and the table keep the exact `kb-*` i18n keys and English fallbacks
+  they had when a help center was a knowledge base topic. Renaming a label is a
+  separate, explicitly-asked-for change — an API migration must not drift the
+  copy, especially not onto new keys the gateway locales do not carry, which
+  would silently drop non-English users to the English fallback.
+- A help center's settings are **not** a client portal's. `core-api` owns
+  `ClientPortal` (portal users, auth, OAuth) and `core-ui` edits it under
+  Settings; this surface owns `HelpCenterConfig` through `helpCenterConfig*`
+  operations. `getClientPortals` is read for exactly one thing — the website
+  picker's options — and never written: never point a help center write at
+  `clientPortalUpdate`, and never name a help center field `clientPortal*`.
+- Every help center read and write goes through one fragment,
+  `HELP_CENTER_CONFIG_FIELDS` on `HelpCenterConfig`, shared by
+  `frontlineHelpCenterList`, `frontlineHelpCenterDetail` and the
+  `helpCenterConfigUpdate` mutation. Because the mutation selects the same
+  fragment, Apollo normalizes the result onto the cached record and every
+  surface updates without a refetch — never narrow one of the three selections.
+- `helpCenterConfigUpdate` replaces the whole config, so an inline cell can
+  never send only the field it changed. `useEditHelpCenter` rebuilds the full
+  input from the cached record through `toHelpCenterConfigInput`, applies the
+  patch on top, and refuses the write when `title` would end up empty. `title`
+  is the only required field — `brandId` is optional, and a brand-less help
+  center stays inline-editable.
+- The table's ticket channel/pipeline/status cells reuse the ticket module's
+  `Select*` components in their `table` variant, but pass their own
+  `onValueChange` — those components' roots save onto a ticket, and
+  `SelectStatusTicket`'s needs an `id`, so the status cell composes the provider
+  itself the way `HelpCenterGeneralTab` does.
+- A help center's ticket target is a channel → pipeline → status chain, so
+  changing a level clears the levels under it — `useEditHelpCenter` does this
+  for inline edits and `HelpCenterGeneralTab` does it through `form.setValue`.
+  The API blanks a switched-off feature's whole group in
+  `normalizeHelpCenterConfig`, so a disabled feature never keeps stale
+  configuration no matter which surface saved it.
+- `HelpCenterDrawer` splits across two `SheetNavSidebar` tabs, **general** and
+  **appearance**: general owns title, website, description, the embed script and
+  the knowledge base and ticket feature cards; appearance owns the published
+  site's whole look — logo and favicon, the six main colours, fonts with their
+  text and link colours, the three form-element colours, this help center's own
+  accent colour and cover image, the header's wording, the footer's content, and
+  the raw header/footer HTML. The sidebar
+  keeps the active tab in the `tab` URL query param, so the drawer clears it on
+  close or the next one opens wherever the last was left. Both tabs stay mounted
+  (hidden, not unmounted) so values and validation survive switching, and an
+  invalid submit switches to the tab holding the first failing field via
+  `HELP_CENTER_FIELD_TAB` — add every new form field to that map.
+- The appearance tab's Header card edits `header` through
+  `HelpCenterHeaderFields`, which renders `HELP_CENTER_HEADER_FIELDS` as plain
+  inputs whose `placeholder` is the published site's own built-in wording — a
+  blank field means "keep that label", so the card never pre-fills a value. The
+  knowledge base and ticket tab labels are deliberately absent: they are
+  `kbLabel` / `ticketLabel` on the General tab, beside the toggles that gate
+  them.
+- Footer columns render as an `Accordion` (`type="multiple"`, controlled) so a
+  long footer stays scannable. The trigger shows a live heading and link count
+  through `useWatch`, and the remove button sits beside the trigger rather than
+  inside it — a button nested in a trigger is invalid markup. The trigger is
+  wrapped in its own `flex-1 min-w-0` div because a `flex-1` passed to
+  `Accordion.Trigger` lands on the inner button, not on the header Radix wraps
+  it in; without the wrapper the row shrinks to its text and the remove button
+  stops sitting at the right edge. Collapsed content
+  unmounts, which is safe only because the drawer's `useForm` leaves
+  `shouldUnregister` at its default `false`; turning that on would drop a
+  collapsed column's values on save.
+- The appearance tab's Footer card edits `footer`, a nested object with `logo`,
+  `description`, `copyright` and a `columns` array, through
+  `HelpCenterFooterFields`. The two `useFieldArray` levels — columns, and links
+  inside a column — are why the tab takes the whole `form` rather than just
+  `control`, and why `toFooterInput` rebuilds every level field by field: the
+  cached record carries `__typename` at each one and `HelpCenterFooterInput`
+  rejects it. Leaving `columns` empty is meaningful — it is what tells the
+  published site to keep its built-in Support / Knowledge base / Account
+  columns — so the card never seeds defaults on its own; the author asks for
+  them with the "Start from the built-in columns" action.
+- A help center has **no page of its own**: `/frontline/helpcenter/:id` was
+  removed, and editing is addressed by the `editId` URL query on the list page,
+  which opens `HelpCenterDrawer` over the table. The page mounts **one** drawer
+  for both creating and editing, keyed on the record — two would each mount a
+  `FocusSheet` and each read the same `tab` query param. The row menu's Edit, the
+  name cell's anchor and a shared link all go through that one param — never
+  reintroduce a detail route. Every surface widens a list record for a save
+  through `toHelpCenterConfigInput`; passing a partial record would reset the
+  fields it omitted on the next save.
+- Category editing lives on the Knowledge Base page (`TopicList`), which owns
+  create, edit and delete. The help center surface does not duplicate it.
+- The upload slots use the repo's usual `Upload.Root` handler
+  (`if ('url' in fileInfo) field.onChange(fileInfo.url)`) — `Upload.RemoveButton`
+  reports a removal in that same shape, so no special case is needed here. The
+  gateway stamps the `userid` header `/delete-file` needs from the session.
+- Never hide a pane or a field group with the `hidden` **attribute** here: this
+  app runs Tailwind v4, whose `display` utilities are declared after preflight's
+  `[hidden]` rule and win over it, so `<div className="grid" hidden>` stays
+  visible. Toggle the class instead (`enabled ? 'flex flex-col' : 'hidden'`) —
+  both the drawer's tab panes and its feature sections do.
+- The help center's own types and constants live in `helpcenter/types/index.ts`
+  and `helpcenter/constants/index.ts`, **not** in the knowledge base module's
+  `types.ts` / `constants.ts` — those two re-export from `content_ui`, so
+  importing them pulls another plugin's code into this remote and breaks it at
+  runtime.
+- The help center table shows the three identifying columns — name, website,
+  knowledge base topic — followed by the three ticket routing selects, each
+  headed `Ticket channel` / `Ticket pipeline` / `Ticket status` so a row reads
+  as one ticket target rather than three unrelated picks. Those three headers
+  pass their own `ticket-*-label` keys with inline English fallbacks; the bare
+  `channel-label` / `pipeline-label` / `status-label` keys are shared repo-wide
+  and live in the gateway locales, outside this plugin, so never rename them to
+  suit this table. The two on/off switches (`kbToggle`, `ticketToggle`), the
+  knowledge base name (`kbLabel`), the ticket menu label and the description are
+  drawer-only; put a new field of that kind in `HelpCenterGeneralTab`, not in a
+  column. `kbLabel` still ships in `HELP_CENTER_CONFIG_FIELDS` and is rebuilt by
+  `useEditHelpCenter` on every inline write even though no column shows it —
+  dropping it would blank the drawer's field on the next save. `erxesAppToken`
+  is in the fragment for exactly the same reason: no field or column shows it,
+  and a whole-config write that omitted it would clear the site's widget token. The ticket selects cascade: pipeline is disabled until a channel is
+  chosen and status until a pipeline is, and `useEditHelpCenter` clears the
+  downstream ids when an upstream one changes.
+- The website (`url`) is optional and is never typed: both write paths pick a
+  client portal through `helpcenter/components/SelectHelpCenterWebsite.tsx` and
+  store that portal's `domain` in `url`. `core-ui` already validates a portal's
+  `domain` as a URL, so the field needs no URL validator of its own here — the
+  plugin's own API still rejects a non-`http(s)` value as a guard. `url` stays a
+  plain string on `HelpCenterConfig`: `ClientPortal` is not a federated entity,
+  so this remote cannot store a portal id and resolve the portal through
+  `frontline_api`. A stored `url` that matches no portal is shown as-is instead
+  of reading blank.
+- `InlineTextCell` is controlled (`open` state) rather than using
+  `closeOnEnter`, so a cell writes on Enter or on clicking away and never twice
+  (`saved` ref). It is now the name cell's only user; a field that must come
+  from a fixed set of records gets a select cell instead, as website, knowledge
+  base topic and the three ticket ids do.
+- `kbToggle` defaults to **on** wherever a help center is read or written, and
+  there is now exactly one place that decides it: `toHelpCenterConfigInput`
+  returns `EMPTY_HELP_CENTER_FORM` for a new record and `?? true` for an existing
+  one, and both the drawer's reset and `useEditHelpCenter` go through it. Change
+  the default there, never by adding a second `??` at a call site.
+- The `Website` select is one component,
+  `helpcenter/components/SelectHelpCenterWebsite.tsx`, rendered by both surfaces
+  the same way the topic select is. It reads `getClientPortals` and passes the
+  chosen portal's `domain` **and its `token`** up — `onValueChange(domain,
+erxesAppToken)` — because picking a website is also what fills the config's
+  `erxesAppToken`, the widget token the published site boots with. Both call
+  sites must write both fields (the drawer through `form.setValue`, the table
+  cell through one `editHelpCenter` patch); writing only `url` leaves a config
+  pointing at one portal with another's token. The field is a website, so every surface of it — trigger,
+  option, search — shows **the domain and nothing else**; a portal's `name` is
+  not read here. Because the stored value is a domain, `toWebsiteOptions` keeps
+  only portals that have one and **collapses portals that share a domain** — two
+  rows for one domain would both read as checked. Change the option query and
+  that shaping in the one file.
+- The `Knowledge base topic` select is one component,
+  `helpcenter/components/SelectHelpCenterTopic.tsx`, rendered by both surfaces:
+  the table cell passes `variant="table"` plus a cell `scope`, the drawer field
+  passes `variant="form"`. It reads `knowledgeBaseTopics` — the one knowledge
+  base call a help center surface still makes, because picking which topic the
+  site publishes is a knowledge base read, not a setting stored on a topic.
+  Change the option query in that one file — never fork a second copy for one of
+  the two surfaces.
+- The help center drawer is split by responsibility, all under
+  `helpcenter/components/help-center-drawer/`: `HelpCenterDrawer.tsx` owns only
+  the sheet, the form and the save; `HelpCenterGeneralTab.tsx` and
+  `HelpCenterAppearanceTab.tsx` own a tab each; `HelpCenterStyleFields.tsx` the
+  reusable `Style*Field` helpers; the knowledge base module's
+  `TopicEmbedScriptDialog.tsx` the embed snippet (a presentational component, no
+  query of its own); and `helpcenter/{types,constants}/index.ts` the shapes and
+  defaults. Add new fields to the owning tab, never back into the drawer. The tabs take the form **as a
+  prop**: `react-hook-form` is not in this remote's shared `coreLibraries`, so
+  the copy backing `useFormContext` here is not the one `erxes-ui`'s `Form`
+  provider filled and reading the context returns null. Never reach for
+  `useFormContext` across an `erxes-ui` provider in this plugin.
+- Appearance fields are one nested `styles` block on the config, addressed as
+  `styles.<name>` through React Hook Form and rendered by the four
+  `Style*Field` helpers (colour, image, font, HTML). Fonts pick from
+  `HELP_CENTER_FONTS`, storing the CSS stack the site serves rather than a bare
+  family name; add a face there rather than to a field. Colours use `erxes-ui`'s
+  `ColorPicker` — the palette the rest of the product picks from, whose popover
+  already carries a hex field; never a native `<input type="color">` — add a style through those
+  rather than hand-rolling a field. Apollo runs with `addTypename: true`, so a
+  cached block carries a `__typename` that `HelpCenterConfigStylesInput`
+  rejects: `toHelpCenterConfigInput` strips it in `stripStylesTypename`, and
+  every write path — drawer reset and inline edit alike — goes through it. Any
+  new path that sends `styles` back must go through it too.
+- The drawer does not collect `brandId` or `languageCode` — they are absent from
+  its fields but present in `IHelpCenterConfigInput`, and
+  `toHelpCenterConfigInput` carries them through every save, so a config edited
+  here keeps them. The brand filter reads `brandId`, so do not drop it from the
+  shape or from `HELP_CENTER_CONFIG_FIELDS`.
+- `SelectTriggerTicket`'s `form` variant is `w-fit max-w-64` and takes no
+  `className`, and ~15 other ticket forms depend on that width.
+  `HelpCenterGeneralTab` needs its channel/pipeline/status pickers full width,
+  so it overrides them from its own `Form.Item` wrappers via
+  `FULL_WIDTH_SELECT`; widen the pickers there, never in the shared trigger.
+- `HelpCenterGeneralTab` composes `SelectPipeline` (root) and
+  `SelectStatusTicket.Provider` directly rather than their `FormItem` variants:
+  `SelectPipeline.FormItem` is typed to `addTicketSchema` and both watch
+  `channelId` / `pipelineId` field names this form does not use, and
+  `SelectStatusTicket`'s root saves onto an existing ticket.
+- `helpCenterConfigsTotalCount` takes the same `searchValue`/`brandId` the
+  list does, so the record count is the server's count under the active filter —
+  `useHelpCenters` reports it directly and never falls back to the row count.
+  `HELP_CENTERS_PER_PAGE` still has to stay large enough to hold the whole list
+  in one page: the query pages with `page`/`perPage`, not a cursor, and the table
+  has no load-more affordance.
+- A survey's `brandId` is optional and selected on the wizard's General step through
+  `SelectBrands.FormItem` (`mode="single"`, `disableCreateOption`), which pins
+  which of the channel's messenger integrations the survey's answers are filed
+  under. Inline brand creation stays disabled there: a brand invented in this
+  form has no messenger integration in the channel, and `frontline_api` rejects
+  it. The selector lists every brand in the org, so a wrong pick surfaces as the
+  mutation's error toast rather than as a filtered-out option.
+- Creating, editing, archiving, and removing a survey lives only under a
+  channel's settings page. `frontline/surveys` must stay read-only — its
+  `SurveySubHeader` renders filters and the record count only, and the
+  `Create survey` button lives in `ChannelSettingsBreadcrumb`, which supplies the
+  route's `channelId`.
+- The wizard keeps one step's values per Jotai `atomWithStorage` atom
+  (`surveySetupGeneralAtom`, `surveySetupContentAtom`, `surveySetupConfirmationAtom`),
+  synced by the shared `FormValueEffectComponent`, exactly as the form builder
+  does. `SurveyCreate` resets them when the previous visit left an edited survey
+  behind; `SurveyEdit` seeds them once per survey id, so a background
+  `cache-and-network` refetch cannot discard in-progress edits.
+- An option's `ticketCreated` / `ticketId` are server-owned. The wizard reads
+  them to show state but never sends them back; `surveySetupValuesAtom` submits
+  only the config fields, and it nulls every ticket field when
+  `ticketCreationEnabled` is off so a disabled option cannot carry stale config.
+- `SurveyOptionTicketConfig` reuses `SelectPipeline` (scoped to the route's
+  `channelId`) and `useGetAccessibleTicketStatuses`; changing the pipeline
+  clears the chosen status, because statuses belong to one pipeline.
+- `useSurveyMutate` sends only `title`, `brandId`, `channelId`, `durationHours`
+  and `steps`. The API mirrors step 1 onto the survey's legacy
+  `question`/`options`/`allowMultiselect`, so the UI never sends them.
+- Survey results are read per step: `SurveyStepResults` renders
+  `results.steps[].options` with each step's own percentages, and both the
+  results dialog and the results board go through it. `results.options` is the
+  flat cross-step list and is not selected by any document here.
+- The inbox `withSurvey` filter lives in `INBOX_CONVERSATION_QUERY_KEYS` and
+  `INBOX_TARGET_KEYS`, so selecting the channel `Surveys` row clears
+  `integrationType`/`integrationId` the same way an integration row does.
+  `ChannelSurveyNavItem` counts through its own light
+  `frontlineChannelSurveyConversationCount` query — never `useConversations`,
+  which owns inbox state and subscriptions.
+- `useSurveyList({ withResults: true })` switches to the `surveyResultsList`
+  document because `Survey.results` runs two aggregations per survey; the
+  management list must not select it.
+- The composer shows two different controls by integration kind:
+  `PollComposer` (ad-hoc, Discord-native) for `discord-messenger`, and
+  `SendSurveyDialog` (saved survey) for `messenger`. Neither is a fallback for
+  the other.
+- Discord polls and erxes surveys are separate all the way down. Discord writes
+  `extraData.poll` and renders through `MessagePoll`; a survey writes
+  `extraData.survey` and renders through `MessageSurvey`. `MessageItem` reads
+  both and may show either. Never merge the two renderers again — the split is
+  what lets a survey carry steps while a Discord poll keeps its numeric answer
+  ids.
+- `MessageSurvey` reads `survey.steps` when present and otherwise synthesises a
+  single step from the snapshot's top-level `question`/`answers`, which is what
+  every message sent before multi-step surveys carries. It labels steps only
+  when there is more than one.
+- The inbox navigation is a single-selection tree over three query params that
+  intersect on the server: `channelId`, `integrationId`, and `integrationType`.
+  Every selector writes all three through `INBOX_TARGET_KEYS`, clearing the ones
+  it does not own — a channel row clears `integrationId` and `integrationType`, a
+  Discord row clears `channelId` and `integrationType`. Setting one without
+  clearing the others strands a filter and empties the list. `ConversationFilterBar`
+  carries a chip for all three, so whatever is selected stays visible and
+  removable.
+- The per-kind figure beside an integration row comes from
+  `integrationsGetUsedTypesByChannel`, which already returns
+  `unreadConversationCount` scoped to the channel and to the caller. Read it from
+  that query rather than recomputing it through `conversationCounts`, so a row
+  and its channel row count the same thing and the sidebar does not pay for a
+  second request per expanded channel. `useAwaitingCountsByIntegrationType`
+  exists only for the awaiting-reply dot, which that query does not carry.
+- `useConversations` is mounted more than once (the inbox list, the navigation
+  count badge, the relation widget). Only the instance that passes no options
+  owns the shared inbox state: it alone registers `refetchConversationsAtom`,
+  consumes `refetchNewMessagesState`, raises `newMessagesCountState`, and plays
+  the notification sound. A secondary consumer that took these over would
+  refetch the wrong query after a mutation and multiply the badge and the sound
+  by the number of mounted consumers.
+- The live subscription in `useConversations` must not be keyed on Apollo's
+  `subscribeToMore` identity — it is a new function each render, so the effect
+  would tear the websocket subscription down and back up continuously and drop
+  the events landing in the gap. Key it on the viewer and the serialized query
+  variables, and reach `subscribeToMore` through a ref.
+- Passing `options` to `useConversations` overrides the query variables
+  wholesale; it no longer discards the rest of the Apollo options. Callers that
+  want the sidebar filters applied must not pass `variables` at all.
+- Both inbox nav groups render channels through `ChannelNavItem`, so `Me` and
+  `Team inbox` stay structurally identical: the row itself selects the whole
+  channel (`channelId` set, `integrationType` cleared) and the caret expands the
+  integration types inside it, each of which narrows the same channel by source.
+  A `NavigationMenuGroup` header is itself a collapse control, so a group that
+  holds exactly one channel renders that channel with `collapsible={false}`:
+  the personal row therefore has no caret of its own, since a second caret there
+  would collapse the very rows the group header already collapses. Do not turn a
+  group header into a selection control to work around this.
+- The personal channel row is labelled `personal-channel` ("Personal channel"),
+  the same word the settings breadcrumb uses. `inbox` and `my-inbox` are already
+  taken in the same sidebar — by the frontline `Inbox` entry and by core's
+  notification inbox in Favorites — so neither may label this row.
+- A subscription payload the gateway could not resolve arrives as a null field, so
+  `useConversations` treats a null `conversationClientMessageInserted` as "a message
+  landed, ask the server" — it refetches the list and never reads the message. Any
+  new `subscribeToMore` over a gateway-merged subscription reads its field the same
+  optional way.
+- A mail body is never rendered into the page. It goes through `DOMPurify`, then
+  into an iframe `srcDoc` whose CSP is `default-src 'none'; style-src
+'unsafe-inline'` with `img-src` narrowed to `data:` plus the origins of that
+  message's own stored attachments. Remote images are stripped of their `src`
+  until the reader presses "Show images", which widens `img-src` to `https:`.
+  The sandbox stays script-free — `allow-same-origin allow-popups
+allow-popups-to-escape-sandbox` only — and every link is rewritten to
+  `target="_blank" rel="noopener noreferrer"`, so adding `allow-scripts` or
+  rendering the body with `dangerouslySetInnerHTML` would undo the whole guard.
+- The mail UI reports the delivery outcome the server returned. `mailSendMail`
+  resolving is not success: the toast and the per-message badge read
+  `deliveryStatus`, and a `failed` message shows its error plus a resend action
+  wired to `mailMessageRetry`. Never restore an unconditional "email sent"
+  message.
+- An inbound message whose `senderMismatch` is set renders an unverified-sender
+  warning above its body. The server decides that flag from the SMTP envelope;
+  the UI never re-derives it from the visible addresses.
+- Every Call Pro surface is gated on `useCallProConfig().enabled`, which reads
+  the backend's `CALLPRO_ENABLED`. The frontend has no env var of its own for
+  this — never add a `REACT_APP_*` flag, since injecting one means editing
+  `core-ui`'s rspack config, outside this plugin.
+- A Call Pro conversation with several candidate customers must never be
+  auto-attributed in the UI. `CallProCustomerSelect` is the only path to
+  `customerId`, and the unattached picker renders exactly when
+  `!customerId && callProPotentialCustomerIds.length > 1`; once a customer is
+  attached the same component reappears as the confirm/switch list built from
+  `callProCustomersByPhone`, and only when that returns more than one match.
+- Call Pro follows the `call` module's integration-form shape: `callProAddSheetAtom`
+  (boolean) and `callProEditSheetAtom` (integration id) drive two `Sheet`s over a
+  single `CallProIntegrationForm`, and `CallProIntegrationDetail` is the one place
+  both sheets are mounted. Do not fork a second form for edit.
+- Messenger `onlineHours` is persisted per concrete `Weekday` only. The
+  `everyday` / `weekday` / `weekend` keys of `ScheduleDay` live in the same form
+  record but are UI quick-selectors derived from the individual days, so they
+  must never reach the save payload and are dropped when loading an existing
+  integration. Build the payload by iterating `Object.values(Weekday)` in
+  `EMStateValues.ts`, not by iterating the record's own keys.
+- `TicketBasicFields` and `TicketPropertyFields` are one visual list on the
+  configuration sheet: a `Label` section heading over `flex flex-col divide-y`
+  rows of `py-2.5 first:pt-0 last:pb-0`, each row ending in a `flex-none`
+  `Switch`, with the row's inputs below it carrying `sr-only` labels and
+  placeholder text. Keep both in that shape; do not reintroduce `InfoCard`/`Card`
+  wrappers around one of them.
+- A ticket property is edited in place, under the row that toggles it —
+  `SelectedPropertyFieldRow` renders the `propertyFields.<index>` inputs, and an
+  unselected property renders as the plain `PropertyFieldRow`. The sheet is
+  narrow, so never add a second section that repeats the selected properties,
+  and never give a property both a switch and a separate delete control.
+- The property accordion runs one `DndContext` over two `SortableContext`
+  levels, so drag ids are prefixed `group:` and `field:` to say which level they
+  belong to. Only **selected** properties are sortable — an unselected one has
+  no array position to persist — and a drop outside the dragged row's own group
+  is ignored, because a property belongs to the group its core field defines.
+  Never move a row between groups or write `groupId` from a drag.
+- `flatten` in `TicketPropertyFields` rebuilds the whole field array from the
+  group and field order. It must append every value whose group or field
+  definition is not loaded, otherwise a property from a group the picker cannot
+  currently show is silently dropped from the configuration on the next drag.
+- The theme's semantic colour tokens are `--success`, `--warning`, `--info`, and
+  `--destructive` (each also exposed to Tailwind as `bg-success`,
+  `text-destructive`, …). `--pos`, `--neg`, and `--warn` are **not defined
+  anywhere** — call report code still references them in places, and those rules
+  silently resolve to nothing, which is why some badges render untinted. Never
+  add a new use; the fix is the real token, not a new variable in `core-ui`
+  (out of plugin scope).
+- Call report tables compose `ReportTable`, never `erxes-ui`'s `Table`
+  directly. `Table` is tuned for the record grids — `table-fixed` columns and
+  `p-0` cells against `px-2` heads — which in a seven-column report gives the
+  label column the same width as a two-digit count and misaligns every header
+  from its values. `ReportTable` re-establishes `table-auto`, symmetric padding,
+  and a horizontal scroll container; fix density there, not per table, and never
+  by editing `erxes-ui` (out of plugin scope, and the record grids depend on
+  those defaults).
+- The call report is scoped by **integration**, not by queue. `CallReportsPage`
+  gates every tab on `integrationId`, defaults `queueId` to the synthetic
+  `ALL_QUEUES` (`'all'`) option it prepends to `queueOptions`, and each report
+  hook skips on `!integrationId` while sending `queueId` only when it is a real
+  queue. Never restore the "select the first queue and gate on it" behaviour: a
+  deployment that moves its traffic off queues (to an IVR, say) then renders an
+  entirely empty report even though every other tab has data.
+- The call report's date chip has exactly one custom entry, and it is the
+  plugin's own `DateTimeRangeDialog` — the shared `Filter.DialogDateView` is
+  deliberately not mounted here, because its Day tab duplicated the same
+  from–to calendar while silently rounding away the time. Its month, quarter,
+  half-year, and year tabs are covered by the presets (`this-quarter` and
+  `last-quarter` included); values already stored in those formats still parse.
+- The call report's date filter can carry a time window, written as
+  `custom-time:<fromISO>,<toISO>` by `DateTimeRangeDialog` and read by
+  `parseCustomTimeRange` in `report/utils/dateFilters.ts` **before** the value
+  reaches `erxes-ui`'s `parseDateRangeFromString`. That shared parser forces
+  `startOfDay`/`endOfDay` on any `<from>,<to>` value, so a time written into
+  the plain comma format the shared date dialog owns is silently rounded to
+  whole days. Keep the two formats separate; the backend needs no change
+  because `startDate`/`endDate` already travel as full ISO timestamps.
+- `callGetQueueStats` can return the sentinel queue `__no_queue__` for calls
+  that never entered a queue. `NO_QUEUE` in `report/call/utils.ts` mirrors that
+  string in `frontline_api`; `QueuesSection` renders it as a labelled card
+  instead of a raw id. The queue cards are meant to add up to the KPI Total
+  Calls for the same filters — never filter them down to `queueOptions`, which
+  lists only the queues configured on the integration.
+- `callKpiScorecard.serviceLevel` and `averageSpeed` are nullable `Float`s.
+  Render them with `fmtPctOrDash` / `fmtDurOrDash` so an absent measurement
+  shows `—`; `fmtPct` / `fmtDur` coerce null to `0` and report a fabricated
+  metric. Both currently arrive as numbers from the CDR pipelines, so the dash
+  is a fallback, not the common case.
+- The overview charts read `noAnswer` from `callVolumeSeries` and `callHeatmap`
+  — every call in the bucket no human answered, both directions. It is not
+  `abandoned` (inbound only) and not `total - answered` computed in the UI; ask
+  the API for it so the chart and the Call history outcome counts agree.
+- The heatmap's Excel export reads `callHeatmapDaily` lazily on click (never
+  with the chart), because that query re-reads the range's CDRs. `heatmapExcel`
+  lays the sheet out as date rows × hour columns with row/column totals and the
+  peak hour of each row filled green, and keys the API's PBX-midnight `day`
+  through `pbxDayKey` — the `+08:00` offset mirrors `PBX_OFFSET_MS` in
+  `frontline_api`'s call report service, so an operator in another timezone
+  still sees each call on its PBX date. Change both together.
+- `HeatmapChart` colours a cell from the selected metric's own maximum, with the
+  hue per metric in `METRIC_HUE` — `var(--heatmap-hue)` for total calls, and
+  literal green / red hues for answered and no answer. `core-ui` defines only
+  the one hue variable, so a new metric hue stays a constant in this component
+  (adding a variable to `core-ui` is out of plugin scope).
+- `detectCarrier` mirrors `carrierExpression` in `frontline_api`'s call report
+  service, which is what actually labels the report data — the UI helper only
+  covers phone numbers the plugin classifies itself. Change both together.
+- "Can move" applies at **both ends** of a status change, matching
+  `frontline_api`: the status the ticket leaves and the one it lands in must
+  each accept the user. `canMoveTicketToStatus` in `useTicketPermissions` is the
+  single implementation and is called once per end — the board checks the card's
+  own column and then the column being dropped on, `useTicketPermissions({
+status })` returns the leaving side as `canMoveTicket` (what disables the
+  status field in ticket detail), and `SelectStatusTicket` disables the options a
+  user may not move into when the surface passes `restrictToMovable` (moves only
+  — never on filter or create surfaces, where no ticket is being moved). An empty
+  `canMoveMemberIds` means "everyone". `useTicketPermissions({ pipeline })`
+  without a `status` returns permissive defaults, so its `canMoveTicket` must
+  never stand in for a real per-status check.
+- `useUpdateTicketStatus` hands Apollo its own `onError`, so its promise
+  **resolves** on a refused write instead of rejecting — a `try`/`catch` around
+  it never fires. Every caller decides success from `result?.data`
+  (`StatusPermissionControl` commits the member selection only then,
+  `StatusGroup` checks `result.value?.data` per reorder write). Committing local
+  state unconditionally is what once made "Can move" look configured while the
+  server stored nothing.
+- The board keeps its own optimistic copy of the cards
+  (`fetchedTicketsState` + `ticketCountByBoardAtom`), and nothing else restores
+  it. Every optimistic move must pass an `onError` that puts the card and both
+  counts back, otherwise a rejected move stays on screen until a reload.
+- Channel scope is presentation-only here; the server is the authority. Never
+  infer privacy from the UI, and never offer a members/invite affordance on a
+  channel whose `scope` is `personal`.
+- A missing `scope` means `team`. Use `channelScopeOf` rather than reading
+  `channel.scope` directly.
+- The per-channel integration-type and per-channel count queries are fetched
+  lazily (`skip` while the channel row is collapsed) so a long channel list
+  costs one request, not one per channel. Keep it that way when adding rows to
+  the tree — each `only: "byIntegrationTypes"` read fans out to one Elasticsearch
+  count per integration kind on the server.
+- Channel-level unread counts ride along on `GetMyChannels` itself, and member
+  avatars come from a single batched `GetChannelMembers`. Never move either into
+  the per-channel row.
+- `NavigationMenuGroup` renders its `actions` slot inside the group's own
+  collapsible trigger, so every interactive control there must go through
+  `NavigationGroupActions` — without it, clicking the control also folds the
+  group.
+- That same slot stays hidden until the header is hovered. Anything that must
+  remain on screen there (the unread summary) needs its own `visible` class,
+  because `visibility` inherits.
+- Anything that creates, removes, or archives an integration must refetch
+  `IntegrationsGetUsedTypes` and `IntegrationsGetUsedTypesByChannel`, or the
+  sidebar keeps listing a type that no longer exists.
+- Never expose a scope picker or a "create personal channel" action. Personal
+  channels are provisioned lazily by the API when `GetPersonalChannel` is read
+  or an integration is created without a channel; the UI only ever reads one.
+- `IntegrationList` renders the whole `INTEGRATIONS` catalogue on every channel.
+  Personal and team channels accept the same kinds, so do not add a per-scope
+  filter to it.
+- Any mutation that changes channel membership or channel lists must refetch or
+  update `GetMyChannels`, otherwise the sidebar goes stale.
+- Under a comment trigger, only a message action that is **not** behind an
+  optional connect may hold exactly one message; a private reply does not open
+  the messaging window. A button click does, so every action downstream of an
+  optional connect gets the normal five. `getMaxMessagesForAction` decides this
+  from `trigger`, `currentAction.id` and `previousActions`, and the result is
+  enforced in both `ReplyMessageProvider.addMessage` and the
+  `MessageSequenceHeader` add buttons — keep the two in sync.
+- `nextActionId` is not a customer response, so chaining message actions with it
+  under a comment trigger keeps the one-message limit. Only
+  `config.optionalConnects` lifts it.
+- The trigger and the connected ancestor actions reach the action form through
+  the `trigger` and `previousActions` props on `AutomationActionFormProps`; do
+  not re-derive the automation graph inside the plugin.
+- Remote entries must switch on the node type via `splitAutomationNodeType` and
+  return `null` for unknown content types.
+- A post carries images or a link preview, never both; only files whose storage
+  key matches the readable-key pattern may be attached, because any other key
+  cannot be read back for publishing.
+- File pickers use the shared `Dropzone`/`DropzoneEmptyState`/`DropzoneContent`
+  composition with `useErxesUpload`; uploaded files render through
+  `Attachments.Root` and its `Preview`/`Files` parts. Do not hand-roll a drop
+  area or an attachment tile.
+- The message input ignores drops while a dialog is open, so a composer dialog
+  keeps its own dropzone (`isDialogOpen` in `MessageInput.tsx`).
+- The ticket KPI row derives its total by summing **every** row
+  `reportTicketPriority` returns, including the `priority: 0` one, so it shows
+  the real ticket count. Only rows with `priority > 0` become cards — the
+  untriaged figure goes in the total card's subtitle, which keeps the row at
+  five cards and inside `xl:grid-cols-5`. Never sum only the rendered cards; that
+  is what made "Total Tickets" disagree with its own percentages.
+- Ticket Status Summary rows are pipeline statuses, not the six built-in
+  categories: `name` is the status as the settings screen shows it, `group` is
+  the category it sits under, and `color` is the category's, so the colour
+  coding survives. A row with no `group` is a fallback for tickets whose status
+  was deleted. Never assume six rows, and never assume a non-empty list.
+- The report state filter defaults to `active`, matching the API. `all` is a
+  real value meaning "include archived and deleted", not the absence of a
+  filter — so `hasFilters` ignores `active` rather than treating any value as a
+  filter, and Clear resets to `active`, not to an empty string.
+- `state` (menu label "State") and `statusIds` (menu label "Status") are two
+  unrelated ticket filters that sit next to each other in the same menu:
+  `state` (`getReportStateFilterAtom`) is the active/archived/deleted
+  lifecycle flag; `statusIds` (`getReportTicketStatusFilterAtom`, multi-select)
+  is a set of real pipeline `Status._id` values from Settings → Channels →
+  Pipelines → Ticket statuses, fetched per-pipeline via
+  `useGetAccessibleTicketStatuses`. Never conflate the two atoms or their
+  query variables — the backend also keeps a separate, frontend-unused
+  single-value `status: String` field on `TicketReportFilter`, so never wire
+  `statusIds` through that field either. Ticket statuses are pipeline-scoped
+  (`getAccessibleTicketStatuses(pipelineId: String!)` takes exactly one), so
+  — matching `PipelineFilterView`'s existing `channelIds[0]` convention —
+  `TicketStatusFilterView` reads only the first selected pipeline and shows
+  "Pipeline not selected" until at least one is picked; it does not attempt
+  to merge statuses across multiple selected pipelines.
+- A report card must take its identity from the `cardId` prop, never from its
+  translated `title`. Deriving the id from the title made filter atoms, the
+  filter popover's session key, and the drag-and-drop id change with the
+  interface language; `cardId` is stable and is also the saved chart's `_id`.
+- A card that renders a saved chart must not query before
+  `useRestoreTicketChartFilters` reports back — it holds the query with `skip`
+  and shows its skeleton, otherwise the card flashes unfiltered data before the
+  saved filters land.
+- The Facebook board is reached through `/frontline/reports/facebook` and the
+  page header's `ToggleGroup` in `ReportIndexPage`, which is the only report
+  navigation a user can actually click. `ReportsView` also still renders it for
+  `?reportModule=facebook`; keep both, because the query-param path is what the
+  `REPORT_MODULES` entry uses. The KPI row reads the header's
+  `OVERVIEW_KPI_DATE_FILTER_ID` date atom, exactly like the conversation board,
+  so the header filter keeps driving it.
+- **`REPORT_MODULES` is not a visible menu.** `ChooseReportModule` renders it,
+  but its only consumer `ReportNavigations` is imported nowhere and
+  `FrontlineSubGroups` computes `isReport` and then returns `null` for
+  `/frontline/reports`. Adding an entry to `REPORT_MODULES` therefore ships no
+  clickable surface — a new report board needs a `ReportIndexPage` route and
+  toggle item as well.
+- The posts card's "On Meta" column shows `—` until a sync has run, and the
+  signed difference next to Meta's count is `meta − (comments + replies)` — a
+  positive number means Meta has comments erxes never received, which is the
+  gap the card exists to surface. Never hide it behind a zero default.
+- The posts card pages on the **server**, so its query re-runs on every page
+  step. `useFacebookPosts` falls back to Apollo's `previousData` and the card
+  only shows its skeleton when nothing has loaded yet — gating the skeleton on
+  `loading` alone unmounts the header, filters, and Sync button on every Next
+  click, which reads as the whole card reloading. The other Facebook cards page
+  client-side through `useChartPagination` and never refetch.
+- `FacebookReportFilter` takes `showSearch`, and only the posts card passes it:
+  search matches post text, so offering it on the activity or bot cards would
+  show a control that silently does nothing. It follows the shared filter's
+  string pattern: an `inDialog` `Filter.Item` opening a `Dialog.Content` with a
+  title, `Input`, and Cancel/Apply footer, mirroring `Filter.DialogStringView`
+  but controlled by the card's atom instead of query state. Applying is
+  explicit, never debounced live, because the posts query pages on the server.
+- A `Filter` may mount only **one** `Filter.Dialog`: it binds to the shared
+  `openDialogState(id)`, so two siblings both open at once. The Facebook filter
+  therefore renders its own single dialog holding the date and search views
+  instead of reusing `ReportDateFilterView`, which brings its own.
+- Facebook cards filter on page and date only. Their page list comes from
+  `reportFacebookPages` (pages the plugin already stores), never from a Graph
+  API call — this board reads no Facebook Insights and no automation-execution
+  data, and a card must not start doing so on its own.
+- Exposed modules stay lazy-loaded and wrapped in `Suspense`.
+- Routed pages use `h-full`, never `h-dvh`/`h-screen`.
+- New user-visible strings go through `useTranslation('frontline')` with keys
+  added to both `en` and `mn` gateway-owned locale files; that is a
+  repository-level change and must be requested explicitly.
+- Ticket tag selectors must go through `SelectTagsTicket`
+  (`src/modules/ticket/components/ticket-selects/SelectTagsTicket.tsx`), never
+  `TagsSelect.SelectedList` directly — the shared component chains every
+  selected tag as a badge with no cap, which is the long-list look the ticket
+  UI intentionally avoids in favor of a "Tag +N" count trigger, matching how
+  Sales' `DealTagsChip` calls `TagsSelect.Trigger` with `showSelectedTagsOutside={false}`.
+- The ticket index favorite control uses selected channel and pipeline query
+  loading states for its skeleton. Missing records after those queries settle
+  are not loading states; they must leave a valid tickets-only breadcrumb.
+
+## Validation
+
+- `pnpm nx build frontline_ui`
+- `npx eslint src/...` on touched files — the project carries pre-existing lint
+  errors and TypeScript errors elsewhere, so lint and typecheck the files you
+  changed rather than the whole project.
+- `project.json` defines only `build`, `serve`, and `serve-static` — there is no
+  `test` target for this project; do not invent one.
+- Smoke (move to channel): in `settings/frontline/channels/:id`, open each of
+  Integrations, Pipelines, Forms, Surveys and Response templates, use `⋮` →
+  `Move to channel`, pick another channel and confirm the row leaves this list
+  at once, shows up under the destination channel, and is still there after a
+  reload. Select two forms and move them from the command bar; selecting forms
+  from two channels on `/frontline/forms` must leave that button disabled.
+- Smoke (convert): in a conversation open Convert → `Convert to a ticket`,
+  `…a deal` and `…a task`; each save shows a success toast, the entry turns
+  into `Go to a …`, and the Tickets/Deals/Tasks side widgets list the new item.
+- Smoke (help center): open `/frontline/helpcenter`, change a name inline, then
+  open the drawer and pick a website on **General** and save a colour on
+  **Appearance**; reload and confirm both persisted. The website picker must
+  list each client portal domain once and nothing but the domain, in the drawer
+  and in the table cell alike. The network tab must show `helpCenterConfig` /
+  `helpCenterConfigUpdate` for all three writes, `getClientPortals` only as the
+  website picker's option list, and no `knowledgeBase*` operation other than the
+  topic picker's option list.
+- Smoke (help center footer): on **Appearance** open the Footer card, press
+  "Start from the built-in columns", rename a heading, add a link and remove
+  another, then save and reload — the drawer shows what was saved and
+  `localhost:3900` renders those columns. Emptying every column and saving
+  brings the site's built-in Support / Knowledge base / Account columns back.
+- Smoke: open `/frontline/inbox` and confirm the sidebar shows `Me` then
+  `Team inbox`; that `Me` lists the personal channel's integration types with
+  their counts and a header total (empty state when there is no personal inbox);
+  that expanding a team channel loads its types and clicking one filters the
+  conversation list by that channel and type; that clicking the channel row
+  itself clears the type filter; that team channels list in name order;
+  that quiet channels fold behind the "N quiet teams" row
+  and expand when it is clicked; and that creating a channel from `Team inbox`
+  adds it to that group without a reload.
+- Smoke (mail): open a mail conversation and confirm the thread loads the newest
+  20 messages with "Show earlier messages" above them when more exist; that a
+  message with quoted history shows the `•••` toggle and expands it; that an
+  external image is hidden until "Show images" is pressed while an inline image
+  from the message's own attachments renders straight away; that a link opens in
+  a new tab; and that a reply which the server could not deliver shows the
+  failure with a working resend instead of a success toast.
+- Smoke (mail sending): with a Cloudflare account connected, open Integrations
+  config and confirm the card names the domain replies leave through and shows the
+  quota underneath. Break it by revoking the token's Email Sending permission and
+  running _Update worker_: the card must say sending is inactive, name the step
+  that failed, and keep reporting the inbound connection as healthy.
+- Smoke (mail add wizard): add a mail inbox and confirm each step gates the next —
+  step 1 will not advance without a name and a brand, and Create is only enabled
+  once `mailSendingReadiness` reports `ready`. Step 3 must name the domain replies
+  leave from. Unset the deployment's `MAIL_SENDING_ACCOUNT_ID` on a workspace with
+  no Cloudflare connection: step 3 must block with the reason and a link to
+  Integrations config instead of offering a credentials form. The done step names
+  both the forwarding address and where replies will leave from.
+- Smoke (mail delivery check): open a mail integration's edit dialog, press
+  "Check connection", and confirm a healthy deployment reports success with the
+  tenant and endpoint, while an unset `MAIL_WORKER_URL` or a wrong
+  `MAIL_WEBHOOK_SECRET` reports the failure inline instead of a success state.
+- Smoke: in the automation builder attach a Facebook message action to a
+  `frontline:facebook.comments` trigger and confirm the sequence header shows
+  the single-message notice and every "Add …" button is disabled once one
+  message exists; attach the same action to a `frontline:facebook.messages`
+  trigger and confirm five messages are still allowed.
+- Smoke: with `CALLPRO_ENABLED` off, the channel integrations list must not show
+  the Call Pro card. With it on, add a Call Pro line (name, phone number, record
+  URL, brand), confirm the dialog shows the webhook URL to point the PBX at, and
+  open a Call Pro conversation — the recording plays, and a conversation with
+  several candidates shows the picker until a customer is chosen, after which
+  the picker is replaced by the confirm/switch control without a reload.
+
+## Recent Changes
+
+<!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-22` — Surveys requested from the client portal get approved here
+
+- **Summary:** The channel survey list became the approval queue for the new
+  `pending` survey status: a pending badge, a `pending` status filter option, a
+  `Created by` column naming the client portal requester, a
+  `<n> pending approval` sub-header shortcut, and `Approve` in both the row menu
+  and the command bar, each a `surveyToggleStatus` to `active` that refetches
+  the list and the counters.
+- **Affected areas:**
+  `src/modules/survey/types/surveyTypes.ts`,
+  `src/modules/survey/graphql/surveyQueries.ts`,
+  `src/modules/survey/components/survey-page/survey-columns.tsx`,
+  `src/modules/survey/components/survey-page/SurveySubHeader.tsx`,
+  `src/modules/survey/components/survey-page/command-bar/survey-command-bar.tsx`,
+  `src/modules/forms/components/form-page/filters/FormStatus.tsx`
+- **Contracts changed:** `FormStatus.BarItem` and `FormStatus.View` take an
+  optional `statuses` prop (default `['active', 'archived']`, so forms are
+  unchanged); `SurveyFields` now selects `createdCpUserId` and `createdCpUser`.
+
+### `2026-09-21` — Move to channel on every channel-owned resource
+
+- **Summary:** Integrations, ticket pipelines, forms, surveys and response
+  templates each gained a `Move to channel` action in their row menu, backed by
+  one shared `MoveToChannelDialog` (current channel, destination picker that
+  hides the current channel, confirmation line, `Cancel` / `Move`) and the new
+  `channelMoveResources` mutation. Forms and surveys also move in bulk from
+  their command bar, disabled when the selection spans channels. The forms
+  page's old submenu, which moved a form with `formsEdit` and skipped the
+  server-side validation and cascades, was replaced by the same dialog and its
+  unused duplicate in `actions/move-form.tsx` deleted. `SelectChannelsContent`
+  gained an `excludeChannelIds` prop.
+- **Affected areas:**
+  `src/modules/channels/components/move-resources/*`,
+  `src/modules/channels/hooks/useChannelMoveResources.tsx`,
+  `src/modules/channels/graphql/mutations.ts`,
+  `src/modules/channels/types/index.ts`,
+  `src/modules/inbox/channel/components/SelectChannel.tsx`,
+  `src/modules/pipelines/components/PipelinesList.tsx`,
+  `src/modules/responseTemplate/components/ResponseList.tsx`,
+  `src/modules/integrations/components/IntegrationMoreColumn.tsx`,
+  `src/modules/forms/components/{FormsList.tsx,form-page/form-columns.tsx,form-page/command-bar/form-command-bar.tsx}`,
+  `src/modules/survey/components/survey-page/{survey-columns.tsx,command-bar/survey-command-bar.tsx}`
+- **Contracts changed:** Consumes the new `channelMoveResources` mutation.
+  Removed `MoveFormToChannel` from `form-columns.tsx` and deleted
+  `src/modules/forms/components/actions/move-form.tsx`.
+
+### `2026-09-21` — Tracked data returns to the conversation rail
+
+- **Summary:** `ConversationSideWidget` called `useRelationWidget()` with no
+  options. The shared hook drops every module that declares `contentTypes`
+  when no `contentType` is supplied, so the core Tracked data widget — which
+  the old product showed in the inbox sidebar — never appeared next to a
+  conversation. The rail now passes `contentType: 'frontline:conversation'`,
+  and the widget reads the conversation's `customerId`.
+- **Affected areas:**
+  `src/modules/inbox/conversations/conversation-detail/components/ConversationSideWidget.tsx`.
+- **Contracts changed:** `None`
+
+### `2026-09-20` — Frontline notifications show their icon in My Inbox
+
+- **Summary:** `CONFIG` now declares a top-level `icon`, so a frontline
+  notification in My Inbox renders the frontline mark instead of an empty
+  circle.
+- **Affected areas:** `src/config.tsx`
+- **Contracts changed:** `None`
+
+### `2026-09-17` — Convert dialog honours Basic information settings
+
+- **Summary:** Priority, tags, start date and due date appear in the convert
+  dialog when their system field is `Visible to create`, respecting `Required`
+  and display logic.
+- **Affected areas:**
+  `src/modules/inbox/conversations/conversation-detail/components/convert/{ConvertDialog.tsx,ConvertSystemFields.tsx,convertForm.ts}`,
+  `src/modules/inbox/conversations/{graphql/queries/getConvertSystemFields.ts,graphql/mutations/conversationConvertToCard.ts,hooks/useConvertSystemFields.tsx,types/conversationConvert.ts}`
+- **Contracts changed:** New query document `FrontlineConvertSystemFields`;
+  `ConversationConvertToCard` now sends `priority`, `tagIds`, `startDate` and
+  `closeDate`.
+
+### `2026-09-17` — The conversation header converts into a ticket, deal or task
+
+- **Summary:** Added the Convert menu and a 1.x-style convert dialog for
+  tickets, deals and tasks with Settings → Properties fields and attachments,
+  plus `Go to a …` links for items a conversation was already converted into.
+- **Affected areas:**
+  `src/modules/inbox/conversations/conversation-detail/components/{ConversationHeader.tsx,convert/}`,
+  `src/modules/inbox/conversations/{graphql,hooks,types}/*onvert*`,
+  `src/modules/ticket/components/ticket-selects/SelectPipeline.tsx`,
+  `src/modules/pipelines/types/index.ts`
+- **Contracts changed:** `SelectPipeline.FormItem` accepts any form carrying a
+  `channelId` field; `IPipeline` declares `propertyIds` and
+  `isPropertySelectionConfigured`; consumes `conversationConvertToCard` (with
+  `customFieldsData` and `attachments`) and `conversationConvertedItems`.
+
+### `2026-09-15` — Several call integrations can be switched on
+
+- **Summary:** Call integration switches no longer turn each other off, and
+  `Call from` lists every switched-on integration by name.
+- **Affected areas:**
+  `src/modules/integrations/call/{hooks/useCallEnabledIntegrations.ts,components/{CallIntegrationDetail,SelectPhoneCallFrom,SipContainer,CallSipActions}.tsx,states/sipStates.ts,types/callTypes.ts,graphql/queries/callConfigQueries.ts}`
+- **Contracts changed:** `callUserIntegrations` also selects `name`; new
+  `localStorage` key `config:call_enabled_integrations`.
+
+### `2026-09-15` — The incoming call names its integration
+
+- **Summary:** The incoming-call popup shows the name of the integration the
+  call rang instead of the channel name.
+- **Affected areas:**
+  `src/modules/integrations/call/{components/IncomingCall,components/CallWidget,hooks/useAddCustomer,graphql/mutations/callMutations}.ts(x)`
+- **Contracts changed:** `CallAddCustomer` also selects
+  `integration { _id name }`.
+
+### `2026-09-15` — The call widget can clear its cached state
+
+- **Summary:** An eraser button in the dialpad header, behind a confirm, resets
+  every persisted call atom and sends the agent back to the call config picker,
+  so a stale config or SIP registration no longer needs manual `localStorage`
+  cleanup.
+- **Affected areas:**
+  `src/modules/integrations/call/components/CallSipActions.tsx`
+- **Contracts changed:** None.
+
+### `2026-09-14` — Help Center stops calling its records topics
+
+- **Summary:** The Help Center surface reused the knowledge base's `kb-*`
+  strings, so its create button, drawer title and empty state all said "topic"
+  while acting on help centers. Those five labels now use `helpcenter-*` keys
+  with inline English fallbacks, matching the `t(key, 'Default')` form already
+  used elsewhere in the plugin.
+- **Affected areas:** `src/pages/HelpCenterIndexPage.tsx`,
+  `src/modules/helpcenter/components/HelpCenterRecordTable.tsx`,
+  `src/modules/helpcenter/components/help-center-drawer/HelpCenterDrawer.tsx`
+- **Contracts changed:** None. The new `helpcenter-*` keys have no entry in
+  `backend/gateway/src/locales/{en,mn}/frontline.json`, which is outside the
+  plugin boundary, so they render from their inline fallbacks until those
+  translations are added as separate repository-level work.

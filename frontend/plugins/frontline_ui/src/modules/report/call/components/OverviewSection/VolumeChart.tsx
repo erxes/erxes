@@ -10,6 +10,7 @@ import {
   YAxis,
 } from 'recharts';
 import { ChartContainer, ChartTooltipContent } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import type { VolumePoint } from '../../types';
 
 interface VolumeChartProps {
@@ -20,12 +21,13 @@ const CHART_CONFIG = {
   incoming: { label: 'Inbound', color: 'var(--chart-2)' },
   outgoing: { label: 'Outbound', color: 'var(--chart-3)' },
   answered: { label: 'Answered', color: 'var(--pos)' },
+  noAnswer: { label: 'No answer', color: 'var(--destructive)' },
 } as const;
 
-/** Daily call-volume area chart with inbound / outbound / answered series. */
 export const VolumeChart = memo(function VolumeChart({
   data,
 }: VolumeChartProps) {
+  const { t } = useTranslation('frontline');
   const chartData = useMemo(
     () =>
       data.map((d) => ({
@@ -38,7 +40,7 @@ export const VolumeChart = memo(function VolumeChart({
   if (!data.length) {
     return (
       <div className="flex h-56 items-center justify-center text-sm text-muted-foreground">
-        No volume data for selected range
+        {t('no-volume-data', 'No volume data for selected range')}
       </div>
     );
   }
@@ -51,12 +53,12 @@ export const VolumeChart = memo(function VolumeChart({
       >
         <defs>
           <linearGradient id="cr-vol-incoming" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor="var(--chart-2)" stopOpacity={0.25} />
-            <stop offset="95%" stopColor="var(--chart-2)" stopOpacity={0} />
+            <stop offset="5%" stopColor="var(--chart-1)" stopOpacity={0.25} />
+            <stop offset="95%" stopColor="var(--chart-1)" stopOpacity={0} />
           </linearGradient>
           <linearGradient id="cr-vol-outgoing" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor="var(--chart-3)" stopOpacity={0.25} />
-            <stop offset="95%" stopColor="var(--chart-3)" stopOpacity={0} />
+            <stop offset="5%" stopColor="var(--chart-5)" stopOpacity={0.25} />
+            <stop offset="95%" stopColor="var(--chart-5)" stopOpacity={0} />
           </linearGradient>
         </defs>
 
@@ -79,8 +81,8 @@ export const VolumeChart = memo(function VolumeChart({
         <Area
           type="monotone"
           dataKey="incoming"
-          name="Inbound"
-          stroke="var(--chart-2)"
+          name={t('inbound', 'Inbound')}
+          stroke="var(--chart-1)"
           fill="url(#cr-vol-incoming)"
           strokeWidth={2}
           dot={false}
@@ -88,8 +90,8 @@ export const VolumeChart = memo(function VolumeChart({
         <Area
           type="monotone"
           dataKey="outgoing"
-          name="Outbound"
-          stroke="var(--chart-3)"
+          name={t('outbound', 'Outbound')}
+          stroke="var(--chart-5)"
           fill="url(#cr-vol-outgoing)"
           strokeWidth={2}
           dot={false}
@@ -98,10 +100,20 @@ export const VolumeChart = memo(function VolumeChart({
           type="monotone"
           dataKey="answered"
           name="Answered"
-          stroke="var(--pos)"
+          stroke="var(--success)"
           fill="none"
           strokeWidth={1.5}
           strokeDasharray="4 2"
+          dot={false}
+        />
+        <Area
+          type="monotone"
+          dataKey="noAnswer"
+          name={t('no-answer', 'No answer')}
+          stroke="var(--destructive)"
+          fill="none"
+          strokeWidth={1.5}
+          strokeDasharray="2 3"
           dot={false}
         />
       </AreaChart>

@@ -1,6 +1,7 @@
 import { Button, Form, Sheet, Select } from 'erxes-ui';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { useEditLottery } from '../hooks/useEditLottery';
 import { SelectCustomer } from 'ui-modules';
 import { SelectCompany } from 'ui-modules/modules/contacts/components/SelectCompany';
@@ -27,6 +28,7 @@ export const LotteryEditSheet = ({
   open,
   onOpenChange,
 }: LotteryEditSheetProps) => {
+  const { t } = useTranslation('loyalty');
   const { lotteryEdit, loading } = useEditLottery();
 
   const form = useForm<LotteryEditFormValues>({
@@ -76,7 +78,7 @@ export const LotteryEditSheet = ({
     <Sheet open={open} onOpenChange={onOpenChange} modal>
       <Sheet.View className="sm:max-w-md">
         <Sheet.Header>
-          <Sheet.Title>Edit Lottery</Sheet.Title>
+          <Sheet.Title>{t('edit-lottery')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="p-5">
@@ -88,14 +90,14 @@ export const LotteryEditSheet = ({
               <Form.Field
                 control={form.control}
                 name="campaignId"
-                rules={{ required: 'Campaign is required' }}
+                rules={{ required: t('campaign-required') }}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Campaign *</Form.Label>
+                    <Form.Label>{t('campaign-label')}</Form.Label>
                     <SelectLotteryCampaign
                       value={field.value}
                       onValueChange={field.onChange}
-                      placeholder="Select campaign..."
+                      placeholder={t('select-campaign')}
                     />
                     <Form.Message />
                   </Form.Item>
@@ -107,7 +109,7 @@ export const LotteryEditSheet = ({
                 name="ownerType"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Owner Type</Form.Label>
+                    <Form.Label>{t('owner-type')}</Form.Label>
                     <Form.Control>
                       <Select
                         value={field.value}
@@ -120,11 +122,11 @@ export const LotteryEditSheet = ({
                           <Select.Value />
                         </Select.Trigger>
                         <Select.Content>
-                          <Select.Item value="customer">Customer</Select.Item>
-                          <Select.Item value="company">Company</Select.Item>
-                          <Select.Item value="user">Team Members</Select.Item>
+                          <Select.Item value="customer">{t('customer')}</Select.Item>
+                          <Select.Item value="company">{t('company')}</Select.Item>
+                          <Select.Item value="user">{t('team-members')}</Select.Item>
                           <Select.Item value="cpUser">
-                            Client Portal User
+                            {t('cp-user')}
                           </Select.Item>
                         </Select.Content>
                       </Select>
@@ -137,10 +139,10 @@ export const LotteryEditSheet = ({
               <Form.Field
                 control={form.control}
                 name="ownerId"
-                rules={{ required: 'Owner is required' }}
+                rules={{ required: t('owner-required') }}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Owner *</Form.Label>
+                    <Form.Label>{t('owner-label')}</Form.Label>
                     <Form.Control>
                       {ownerType === 'company' ? (
                         <SelectCompany
@@ -166,7 +168,7 @@ export const LotteryEditSheet = ({
                 name="status"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Status</Form.Label>
+                    <Form.Label>{t('status')}</Form.Label>
                     <Form.Control>
                       <Select
                         value={field.value}
@@ -176,10 +178,10 @@ export const LotteryEditSheet = ({
                           <Select.Value />
                         </Select.Trigger>
                         <Select.Content>
-                          <Select.Item value="new">New</Select.Item>
-                          <Select.Item value="active">Active</Select.Item>
-                          <Select.Item value="used">Used</Select.Item>
-                          <Select.Item value="expired">Expired</Select.Item>
+                          <Select.Item value="new">{t('new')}</Select.Item>
+                          <Select.Item value="active">{t('active')}</Select.Item>
+                          <Select.Item value="used">{t('used')}</Select.Item>
+                          <Select.Item value="expired">{t('expired')}</Select.Item>
                         </Select.Content>
                       </Select>
                     </Form.Control>
@@ -193,11 +195,11 @@ export const LotteryEditSheet = ({
                 name="voucherCampaignId"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Voucher Campaign</Form.Label>
+                    <Form.Label>{t('voucher-campaign')}</Form.Label>
                     <SelectVoucherCampaign.FormItem
                       value={field.value}
                       onValueChange={(val) => field.onChange(val as string)}
-                      placeholder="Choose voucher campaign"
+                      placeholder={t('choose-voucher-campaign')}
                     />
                     <Form.Message />
                   </Form.Item>
@@ -210,10 +212,10 @@ export const LotteryEditSheet = ({
                   variant="outline"
                   onClick={() => onOpenChange(false)}
                 >
-                  Cancel
+                  {t('cancel')}
                 </Button>
                 <Button type="submit" disabled={loading}>
-                  {loading ? 'Saving...' : 'Save'}
+                  {loading ? t('saving') : t('save')}
                 </Button>
               </div>
             </form>

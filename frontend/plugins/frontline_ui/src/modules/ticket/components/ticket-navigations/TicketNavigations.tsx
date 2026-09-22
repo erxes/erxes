@@ -1,19 +1,26 @@
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
 import { useGetPipelines } from '@/pipelines/hooks/useGetPipelines';
+import { TICKET_LIST_CHANGED } from '@/ticket/graphql/subscriptions/ticketListChanged';
+import { useSubscription } from '@apollo/client';
 import {
+  Button,
   cn,
   Collapsible,
+  Empty,
   IconComponent,
   NavigationMenuGroup,
-  NavigationMenuLinkItem,
   Sidebar,
   Skeleton,
   TextOverflowTooltip,
   useQueryState,
 } from 'erxes-ui';
 import { IChannel } from '@/channels/types';
-import { useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
+import { IconGitBranch, IconMinus, IconPlus } from '@tabler/icons-react';
+
+const PIPELINES_PER_PAGE = 100;
 
 function LoadingSkeleton() {
   return (
@@ -27,15 +34,26 @@ function LoadingSkeleton() {
 
 interface ChannelItemProps {
   channel: IChannel;
+  pipelineId?: string;
 }
 
-function ChannelItem({ channel }: ChannelItemProps) {
+interface ITicketListChangedResponse {
+  ticketListChanged: {
+    type: string;
+  };
+}
+
+function ChannelItem({ channel, pipelineId }: Readonly<ChannelItemProps>) {
   const [channelId] = useQueryState<string | null>('channelId');
   const isActive = channelId === channel._id;
   return (
     <Sidebar.MenuItem>
       <Sidebar.MenuButton asChild isActive={isActive}>
-        <Link to={`frontline/tickets?channelId=${channel._id}`}>
+        <Link
+          to={`frontline/tickets?channelId=${channel._id}${
+            pipelineId ? `&pipelineId=${pipelineId}` : ''
+          }`}
+        >
           {!!channel.icon && (
             <IconComponent
               name={channel.icon}
@@ -53,31 +71,170 @@ function ChannelItem({ channel }: ChannelItemProps) {
 }
 
 export function TicketNavigations() {
-  const { channels, loading } = useGetChannels();
+  const { t } = useTranslation('frontline');
+  const { channels, loading, refetch } = useGetChannels();
+  useSubscription<ITicketListChangedResponse>(TICKET_LIST_CHANGED, {
+    onData: ({ data }) => {
+      const eventType = data.data?.ticketListChanged.type;
+
+      if (eventType === 'create' || eventType === 'delete') {
+        void refetch();
+      }
+    },
+  });
+  const { pipelines, loading: pipelinesLoading } = useGetPipelines({
+    variables: {
+      filter: {
+        applyVisibilityFilter: true,
+        direction: 'forward',
+        limit: PIPELINES_PER_PAGE,
+      },
+    },
+  });
   const [channelId, setChannelId] = useQueryState<string | null>('channelId');
+  const [showUnconfigured, setShowUnconfigured] = useState(false);
+
+  const channelPipelineIds = useMemo(
+    () =>
+      (pipelines ?? []).reduce<Record<string, string>>((result, pipeline) => {
+        if (pipeline.channelId && !result[pipeline.channelId]) {
+          result[pipeline.channelId] = pipeline._id;
+        }
+
+        return result;
+      }, {}),
+    [pipelines],
+  );
+
+  const { channelsWithTickets, unconfiguredChannels } = useMemo(() => {
+    const availableChannels = channels ?? [];
+
+    return {
+      channelsWithTickets: availableChannels.filter(
+        (channel) => channel.hasTickets,
+      ),
+      unconfiguredChannels: availableChannels.filter(
+        (channel) => !channel.hasTickets,
+      ),
+    };
+  }, [channels]);
+
+  const navigationLoading = loading || pipelinesLoading;
+
+  const visibleUnconfiguredChannels = showUnconfigured
+    ? unconfiguredChannels
+    : [];
+
+  const handleToggleUnconfigured = () => {
+    const nextShowUnconfigured = !showUnconfigured;
+
+    if (
+      !nextShowUnconfigured &&
+      unconfiguredChannels.some((channel) => channel._id === channelId)
+    ) {
+      setChannelId(channelsWithTickets[0]?._id || null);
+    }
+
+    setShowUnconfigured(nextShowUnconfigured);
+  };
 
   useEffect(() => {
-    !channelId && channels?.[0]?._id && setChannelId(channels[0]._id);
-  }, [channels, setChannelId, channelId]);
+    if (!channels || navigationLoading) {
+      return;
+    }
+
+    const hasSelectedChannel = channels.some(
+      (channel) => channel._id === channelId,
+    );
+
+    if (!channelId || !hasSelectedChannel) {
+      setChannelId(channelsWithTickets[0]?._id || null);
+    }
+  }, [
+    channels,
+    channelsWithTickets,
+    navigationLoading,
+    setChannelId,
+    channelId,
+  ]);
+
+  useEffect(() => {
+    if (
+      !navigationLoading &&
+      !showUnconfigured &&
+      unconfiguredChannels.some((channel) => channel._id === channelId)
+    ) {
+      setChannelId(channelsWithTickets[0]?._id || null);
+    }
+  }, [
+    channelId,
+    channelsWithTickets,
+    navigationLoading,
+    setChannelId,
+    showUnconfigured,
+    unconfiguredChannels,
+  ]);
+
   return (
     <>
       <NavigationMenuGroup name="Channels">
-        {loading ? (
+        {navigationLoading ? (
           <LoadingSkeleton />
         ) : (
-          channels?.map((channel) => (
-            <ChannelItem key={channel._id} channel={channel} />
-          ))
+          <>
+            {channelsWithTickets.map((channel) => (
+              <ChannelItem
+                key={channel._id}
+                channel={channel}
+                pipelineId={channelPipelineIds[channel._id] || undefined}
+              />
+            ))}
+            {visibleUnconfiguredChannels.map((channel) => (
+              <ChannelItem key={channel._id} channel={channel} />
+            ))}
+            {unconfiguredChannels.length > 0 && (
+              <Button
+                variant="ghost"
+                className="w-full justify-start gap-2 px-2 font-medium text-muted-foreground"
+                onClick={handleToggleUnconfigured}
+                aria-expanded={showUnconfigured}
+              >
+                {showUnconfigured ? (
+                  <IconMinus className="size-4 shrink-0" />
+                ) : (
+                  <IconPlus className="size-4 shrink-0" />
+                )}
+                <TextOverflowTooltip
+                  className="min-w-0 flex-1 text-left"
+                  value={
+                    showUnconfigured
+                      ? t('hide-not-configured-tickets', {
+                          defaultValue: 'Hide not configured tickets',
+                        })
+                      : t('not-configured-tickets', {
+                          count: unconfiguredChannels.length,
+                          defaultValue_one: '{{count}} not configured ticket',
+                          defaultValue_other:
+                            '{{count}} not configured tickets',
+                        })
+                  }
+                />
+              </Button>
+            )}
+          </>
         )}
       </NavigationMenuGroup>
-      <NavigationMenuGroup name="Pipelines">
-        {channelId && <Pipelines />}
-      </NavigationMenuGroup>
+      {channelId && (
+        <NavigationMenuGroup name="Pipelines">
+          <Pipelines />
+        </NavigationMenuGroup>
+      )}
     </>
   );
 }
 
 const Pipelines = () => {
+  const { t } = useTranslation('frontline');
   const [channelId] = useQueryState<string | null>('channelId');
   const [pipelineId, setPipelineId] = useQueryState<string | null>(
     'pipelineId',
@@ -88,11 +245,18 @@ const Pipelines = () => {
     },
   });
   useEffect(() => {
-    if (channelId && pipelines) {
-      setPipelineId(pipelines?.[0] ? pipelines?.[0]?._id : null);
+    if (!channelId || !pipelines) {
+      return;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [channelId, pipelines]);
+
+    const hasSelectedPipeline = pipelines.some(
+      (pipeline) => pipeline._id === pipelineId,
+    );
+
+    if (!pipelineId || !hasSelectedPipeline) {
+      setPipelineId(pipelines[0]?._id || null);
+    }
+  }, [channelId, pipelines, pipelineId, setPipelineId]);
   return (
     <Collapsible.Content className="pt-1">
       <Sidebar.GroupContent>
@@ -108,17 +272,22 @@ const Pipelines = () => {
                     setPipelineId(pipeline._id);
                   }}
                 >
-                  <span className="capitalize min-w-0 truncate">{pipeline.name}</span>
+                  <span className="capitalize min-w-0 truncate">
+                    {pipeline.name}
+                  </span>
                 </Sidebar.MenuButton>
               </Sidebar.MenuItem>
             ))
           )}
-          {!loading && !pipelines?.length && (
-            <Sidebar.MenuItem>
-              <Sidebar.MenuButton disabled={true}>
-                <span className="capitalize text-foreground">No pipelines</span>
-              </Sidebar.MenuButton>
-            </Sidebar.MenuItem>
+          {!loading && pipelines?.length === 0 && (
+            <Empty className="py-6">
+              <Empty.Header>
+                <Empty.Media>
+                  <IconGitBranch />
+                </Empty.Media>
+                <Empty.Title>{t('no-pipelines', 'No pipelines')}</Empty.Title>
+              </Empty.Header>
+            </Empty>
           )}
         </Sidebar.Menu>
       </Sidebar.GroupContent>

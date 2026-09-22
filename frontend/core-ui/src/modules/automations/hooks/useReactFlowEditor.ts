@@ -2,23 +2,29 @@ import { AUTOMATION_NODE_TYPE_LIST_PROERTY } from '@/automations/constants';
 import { useDnDActions } from '@/automations/context/AutomationBuilderDnDProvider';
 import { useAutomation } from '@/automations/context/AutomationProvider';
 import { useAutomationNodes } from '@/automations/hooks/useAutomationNodes';
+import { useInsertWorkflowTemplate } from '@/automations/components/builder/hooks/useInsertWorkflowTemplate';
+import { WORKFLOW_INPUT_NODE_ID } from '@/automations/components/builder/nodes/components/WorkflowInputNode';
+import { useWorkflowEditScope } from '@/automations/context/WorkflowEditScopeProvider';
 import { useAutomationFormController } from '@/automations/hooks/useFormSetValue';
+import { useInsertNodeOnEdge } from '@/automations/hooks/useInsertNodeOnEdge';
 import { useNodeConnect } from '@/automations/hooks/useNodeConnect';
 import { useNodeEvents } from '@/automations/hooks/useNodeEvents';
-import { NodeData } from '@/automations/types';
+import { AutomationNodeType, NodeData } from '@/automations/types';
 import { automationDropHandler } from '@/automations/utils/automationBuilderUtils/dropNodeHandler';
 import { generateNodes } from '@/automations/utils/automationBuilderUtils/generateNodes';
 import {
   Node,
+  OnNodeDrag,
   useEdgesState,
   useNodesState,
   useReactFlow,
 } from '@xyflow/react';
 // @ts-ignore
 import { generateEdges } from '@/automations/utils/automationBuilderUtils/generateEdges';
+import { automationInsertHoverEdgeIdState } from '@/automations/states/automationState';
 import { TAutomationBuilderForm } from '@/automations/utils/automationFormDefinitions';
 import { themeState } from 'erxes-ui';
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useWatch } from 'react-hook-form';
 
@@ -42,29 +48,107 @@ export const useReactFlowEditor = () => {
     actionFolks,
   } = useAutomation();
   const { triggers, actions, workflows, getList } = useAutomationNodes();
+  const { insertTemplate } = useInsertWorkflowTemplate();
   const { getNodes, addNodes } = useReactFlow<Node<NodeData>>();
   const [edgeType, flowDirection] = useWatch<TAutomationBuilderForm>({
     name: ['edgeType', 'flowDirection'],
   });
 
-  // Memoize nodes and edges generation to prevent multiple executions
-  const generatedNodes = useMemo(
-    () => generateNodes(triggers, actions, workflows, {}, flowDirection),
-    [triggers, actions, workflows, flowDirection],
-  );
+  const workflowEditScope = useWorkflowEditScope();
 
-  const computedEdges = useMemo(
-    () =>
-      generateEdges(
-        triggers,
-        actions,
-        workflows,
-        actionFolks,
-        edgeType,
-        flowDirection,
-      ),
-    [triggers, actions, workflows, actionFolks, edgeType, flowDirection],
-  );
+  const entryActionId = useMemo(() => {
+    if (!workflowEditScope || !actions.length) {
+      return undefined;
+    }
+
+    return actions.some(({ id }) => id === workflowEditScope.entryActionId)
+      ? workflowEditScope.entryActionId
+      : actions[0].id;
+  }, [workflowEditScope, actions]);
+
+  // Memoize nodes and edges generation to prevent multiple executions
+  const generatedNodes = useMemo(() => {
+    // Inside a workflow with no members yet: show only the Input marker. A
+    // workflow has no trigger, so never fall back to the trigger placeholder.
+    if (workflowEditScope && actions.length === 0) {
+      return [
+        {
+          id: WORKFLOW_INPUT_NODE_ID,
+          type: 'workflowInput',
+          position: { x: 0, y: 0 },
+          data: {},
+        },
+      ] as Node<NodeData>[];
+    }
+
+    const nodes = generateNodes(
+      triggers,
+      actions,
+      workflows,
+      {},
+      flowDirection,
+    );
+
+    // Inside a workflow the trigger slot is taken by the Input marker
+    const entryNode = entryActionId
+      ? nodes.find(({ id }) => id === entryActionId)
+      : undefined;
+
+    if (entryNode) {
+      nodes.push({
+        id: WORKFLOW_INPUT_NODE_ID,
+        type: 'workflowInput',
+        position: {
+          x: entryNode.position.x - 260,
+          y: entryNode.position.y,
+        },
+        data: {},
+      });
+    }
+
+    return nodes;
+  }, [
+    triggers,
+    actions,
+    workflows,
+    flowDirection,
+    entryActionId,
+    workflowEditScope,
+  ]);
+
+  const computedEdges = useMemo(() => {
+    const edges = generateEdges(
+      triggers,
+      actions,
+      workflows,
+      actionFolks,
+      edgeType,
+      flowDirection,
+    );
+
+    if (entryActionId) {
+      edges.push({
+        id: `${WORKFLOW_INPUT_NODE_ID}-edge`,
+        source: WORKFLOW_INPUT_NODE_ID,
+        target: entryActionId,
+        sourceHandle: 'right',
+        targetHandle: 'left',
+        type: 'primary',
+        style: { strokeWidth: 2 },
+        data: { edgeType, flowDirection },
+      });
+    }
+
+    return edges;
+  }, [
+    triggers,
+    actions,
+    workflows,
+    actionFolks,
+    edgeType,
+    flowDirection,
+    entryActionId,
+  ]);
 
   const [nodes, setNodes, onNodesChange] = useNodesState<Node<NodeData>>(
     generatedNodes || [],
@@ -74,12 +158,19 @@ export const useReactFlowEditor = () => {
   );
 
   const { onNodeClick, onNodeDoubleClick, onPaneClick } = useNodeEvents();
+  const { findInsertEdgeForNode, insertExistingNodeOnEdge } =
+    useInsertNodeOnEdge();
+  const setInsertHoverEdgeId = useSetAtom(automationInsertHoverEdgeIdState);
   const { isValidConnection, onConnect, onAwaitingNodeConnection } =
     useNodeConnect();
 
   const onDragOver = useCallback(
     (event: React.DragEvent<HTMLDivElement>) => {
       event.preventDefault();
+      // React portals propagate synthetic events through the REACT tree, so
+      // drag events inside the workflow sheet would bubble to the main
+      // canvas' handlers too.
+      event.stopPropagation();
       event.dataTransfer.dropEffect = 'move';
       latestDragCursorRef.current = { x: event.clientX, y: event.clientY };
       if (dragCursorFrameRef.current === null) {
@@ -103,8 +194,44 @@ export const useReactFlowEditor = () => {
 
   const onDrop = (event: React.DragEvent<HTMLDivElement>) => {
     try {
+      // Same portal-bubbling issue as onDragOver: without this a drop inside
+      // the workflow sheet also fires the main canvas' onDrop, creating the
+      // node twice.
+      event.stopPropagation();
+
       if (dragOverTimeoutRef.current) {
         window.clearTimeout(dragOverTimeoutRef.current);
+      }
+
+      const draggingNode = JSON.parse(
+        event.dataTransfer.getData('application/reactflow/draggingNode') ||
+          '{}',
+      );
+
+      // Workflows accept only actions: no triggers, no nested workflows
+      if (
+        workflowEditScope &&
+        draggingNode.nodeType !== AutomationNodeType.Action
+      ) {
+        return;
+      }
+
+      // Workflow templates carry their whole snapshot and insert themselves
+      if (
+        draggingNode.nodeType === AutomationNodeType.Workflow &&
+        draggingNode.template
+      ) {
+        event.preventDefault();
+
+        insertTemplate(
+          draggingNode.template,
+          reactFlowInstance?.screenToFlowPosition({
+            x: event.clientX,
+            y: event.clientY,
+          }),
+        );
+
+        return;
       }
 
       const { newNodeId, newNode, nodeType, generatedNode } =
@@ -170,12 +297,43 @@ export const useReactFlowEditor = () => {
     };
   }, []);
 
-  const onNodeDragStop = useCallback(() => {
-    syncPositionUpdates({
-      shouldDirty: true,
-      shouldTouch: true,
-    });
-  }, [syncPositionUpdates]);
+  const onNodeDrag = useCallback<OnNodeDrag<Node<NodeData>>>(
+    (_event, node, draggedNodes) => {
+      // Splicing one node out of a moved group would leave the rest behind.
+      const candidate =
+        draggedNodes.length > 1 ? null : findInsertEdgeForNode(node);
+
+      setInsertHoverEdgeId(candidate?.edgeId ?? null);
+    },
+    [findInsertEdgeForNode, setInsertHoverEdgeId],
+  );
+
+  const onNodeDragStop = useCallback<OnNodeDrag<Node<NodeData>>>(
+    (_event, node, draggedNodes) => {
+      setInsertHoverEdgeId(null);
+
+      const candidate =
+        draggedNodes.length > 1 ? null : findInsertEdgeForNode(node);
+
+      if (candidate) {
+        // Takes over persisting positions: the node snaps into the slot it
+        // was dropped on rather than staying where the pointer left it.
+        insertExistingNodeOnEdge(candidate, node.id);
+        return;
+      }
+
+      syncPositionUpdates({
+        shouldDirty: true,
+        shouldTouch: true,
+      });
+    },
+    [
+      findInsertEdgeForNode,
+      insertExistingNodeOnEdge,
+      setInsertHoverEdgeId,
+      syncPositionUpdates,
+    ],
+  );
 
   return {
     theme,
@@ -190,6 +348,7 @@ export const useReactFlowEditor = () => {
     onPaneClick,
     isValidConnection,
     onDragOver,
+    onNodeDrag,
     onNodeDragStop,
     onNodesChange,
     onEdgesChange,

@@ -1,4 +1,5 @@
 import { useConfirm, useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useCreateAmenity } from '../hooks/useCreateAmenity';
 import { IAmenity } from '../types/amenity';
 
@@ -16,6 +17,7 @@ export const AmenityDuplicate = ({
   branchId,
   children,
 }: AmenityDuplicateProps) => {
+  const { t } = useTranslation('tourism');
   const { confirm } = useConfirm();
   const { toast } = useToast();
   const { createAmenity, loading } = useCreateAmenity();
@@ -39,7 +41,7 @@ export const AmenityDuplicate = ({
       .filter((translation) => translation.name);
 
     confirm({
-      message: 'Are you sure you want to duplicate this amenity?',
+      message: t('confirm-duplicate-amenity'),
       options: { confirmationValue: 'duplicate' },
     })
       .then(() => {
@@ -54,16 +56,16 @@ export const AmenityDuplicate = ({
           },
           onCompleted: () => {
             toast({
-              title: 'Success',
+              title: t('success'),
               variant: 'success',
-              description: 'Amenity duplicated successfully',
+              description: t('amenity-duplicated-successfully'),
             });
           },
           onError: (e: unknown) => {
             toast({
-              title: 'Error',
+              title: t('error'),
               description:
-                e instanceof Error ? e.message : 'Something went wrong',
+                e instanceof Error ? e.message : t('unknown-error-occurred'),
               variant: 'destructive',
             });
           },
@@ -72,7 +74,7 @@ export const AmenityDuplicate = ({
       .catch((e: unknown) => {
         if (e instanceof Error) {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: e.message,
             variant: 'destructive',
           });

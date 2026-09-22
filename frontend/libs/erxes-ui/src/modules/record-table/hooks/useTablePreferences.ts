@@ -1,7 +1,9 @@
 import { useState, useCallback } from 'react';
+import type { ColumnPinningState } from '@tanstack/react-table';
 
 export interface TablePrefs {
   columnOrder?: string[];
+  columnPinning?: ColumnPinningState;
   columnSizing?: Record<string, number>;
   columnVisibility?: Record<string, boolean>;
 }

@@ -1,4 +1,4 @@
-import { PageHeader } from 'ui-modules';
+import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
 import { Link } from 'react-router-dom';
 import { Breadcrumb, Button, Separator } from 'erxes-ui';
 import { ReactNode } from 'react';
@@ -20,6 +20,8 @@ export const GenericHeader = ({
   currentLabel,
   actions,
 }: GenericHeaderProps) => {
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(parentLabel, currentLabel);
+
   return (
     <PageHeader>
       <PageHeader.Start>
@@ -43,7 +45,10 @@ export const GenericHeader = ({
           </Breadcrumb.List>
         </Breadcrumb>
         <Separator.Inline />
-        <PageHeader.FavoriteToggleButton />
+        <PageHeader.FavoriteToggleButton
+          breadcrumb={favoriteBreadcrumb}
+          icon="IconSandbox"
+        />
       </PageHeader.Start>
       {actions && <PageHeader.End>{actions}</PageHeader.End>}
     </PageHeader>

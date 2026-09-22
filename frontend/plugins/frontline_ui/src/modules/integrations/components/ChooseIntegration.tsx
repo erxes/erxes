@@ -10,10 +10,12 @@ import { useAtom } from 'jotai';
 import { integrationCollapsibleState } from '@/integrations/state/integrationCollapsibleState';
 import { IIntegration } from '@/integrations/types/Integration';
 import { IconCheck } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
 // TODO: remove this component if we not use it
 
 export const ChooseIntegration = () => {
+  const { t } = useTranslation('frontline');
   const [open, setOpen] = useAtom(integrationCollapsibleState);
 
   return (
@@ -24,7 +26,7 @@ export const ChooseIntegration = () => {
     >
       <Collapsible.TriggerButton>
         <Collapsible.TriggerIcon className="group-data-[state=open]/integration:rotate-180" />
-        Integrations
+        {t('integrations')}
       </Collapsible.TriggerButton>
       <Collapsible.Content className="pl-1 flex flex-col gap-1 py-1 overflow-hidden">
         <ChooseIntegrationContent open={open} />

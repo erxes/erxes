@@ -6,9 +6,25 @@ export interface IFacebookConversationMessage {
   createdAt: string;
   attachments: IAttachment[];
   botData?: TBotData[];
+  source?: IFacebookMessageRelationSource;
+  relatedMessage?: IFacebookMessageRelation;
   customerId?: string;
   userId?: string;
   internal?: boolean;
+}
+
+export interface IFacebookMessageRelationSource {
+  type?: string;
+  conversationId?: string;
+  messageId?: string;
+  commentId?: string;
+  content?: string;
+}
+
+export interface IFacebookMessageRelation {
+  conversationId?: string;
+  messageId?: string;
+  content?: string;
 }
 
 export interface IFacebookBotButton {
@@ -60,8 +76,9 @@ export type TBotData =
   | TBotDataText
   | TBotDataQuickReplies;
 
+// Meta retired CONFIRMED_EVENT_UPDATE / POST_PURCHASE_UPDATE / ACCOUNT_UPDATE
+// on 2026-04-27; sends using them fail with "Invalid parameter". HUMAN_AGENT
+// is the only tag valid for inbox replies outside the 24-hour window.
 export enum EnumFacebookTag {
-  CONFIRMED_EVENT_UPDATE = 'CONFIRMED_EVENT_UPDATE',
-  POST_PURCHASE_UPDATE = 'POST_PURCHASE_UPDATE',
-  ACCOUNT_UPDATE = 'ACCOUNT_UPDATE',
+  HUMAN_AGENT = 'HUMAN_AGENT',
 }

@@ -1,6 +1,7 @@
 import { Control } from 'react-hook-form';
 import { Form, InfoCard } from 'erxes-ui';
 import { SelectMember } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 import PmsFormFieldsLayout from '@/pms/components/pmsFormFields/PmsFormFieldsLayout';
 import { PmsBranchFormType } from '@/pms/constants/formSchema';
 
@@ -17,9 +18,10 @@ const roleFields = [
 ] as const;
 
 const Admins = ({ control }: Props) => {
+  const { t } = useTranslation('tourism');
   return (
     <PmsFormFieldsLayout>
-      <InfoCard title="Users">
+      <InfoCard title={t('users')}>
         <InfoCard.Content>
           {roleFields.map(({ name, label }) => (
             <Form.Field
@@ -39,7 +41,7 @@ const Admins = ({ control }: Props) => {
                       mode="multiple"
                       value={field.value || []}
                       onValueChange={(value) => field.onChange(value)}
-                      placeholder="Choose team member"
+                      placeholder={t('choose-team-member')}
                     />
                   </Form.Control>
                   <Form.Message className="text-destructive" />

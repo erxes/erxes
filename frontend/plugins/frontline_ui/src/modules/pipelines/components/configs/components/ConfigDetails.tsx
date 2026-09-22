@@ -6,8 +6,10 @@ import { useSaveTicketsConfig } from '../hooks/useSaveTicketsConfig';
 import { useCallback } from 'react';
 import { ConfigsForm } from './ConfigsForm';
 import { useGetTicketConfigDetail } from '../hooks/useGetTicketConfigDetail';
+import { useTranslation } from 'react-i18next';
 
 export const ConfigDetails = () => {
+  const { t } = useTranslation('frontline');
   const [configId, setConfigId] = useQueryState('configId');
   const { ticketConfigDetail } = useGetTicketConfigDetail({
     variables: {
@@ -33,22 +35,25 @@ export const ConfigDetails = () => {
         },
         onCompleted: () => {
           toast({
-            title: 'Success',
-            description: 'Tickets config saved successfully',
+            title: t('success', 'Success!'),
+            description: t(
+              'tickets-config-saved-successfully',
+              'Tickets config saved successfully',
+            ),
             variant: 'success',
           });
           handleClose();
         },
         onError: (error) => {
           toast({
-            title: 'Error',
+            title: t('error', 'Error'),
             description: error.message,
             variant: 'destructive',
           });
         },
       });
     },
-    [saveTicketsConfig, handleClose],
+    [saveTicketsConfig, handleClose, t],
   );
 
   return (
@@ -60,14 +65,16 @@ export const ConfigDetails = () => {
         }
       }}
     >
-      <Sheet.View className="p-0">
+      <Sheet.View className="p-0 min-w-xl">
         <Form {...methods}>
           <form
             onSubmit={handleSubmit(onSubmit)}
             className="flex flex-col gap-0 size-full box-border overflow-hidden"
           >
             <Sheet.Header>
-              <Sheet.Title>Messenger Configuration</Sheet.Title>
+              <Sheet.Title>
+                {t('messenger-configuration', 'Messenger Configuration')}
+              </Sheet.Title>
               <Sheet.Close />
             </Sheet.Header>
             <Sheet.Content className="flex-1 size-full flex flex-col px-5 py-4 space-y-4 overflow-y-auto hide-scroll styled-scroll">
@@ -75,10 +82,10 @@ export const ConfigDetails = () => {
             </Sheet.Content>
             <Sheet.Footer className="shrink-0">
               <Button variant="ghost" onClick={handleClose}>
-                Cancel
+                {t('cancel', 'Cancel')}
               </Button>
               <Button type="submit" disabled={loading}>
-                {loading ? <Spinner /> : 'Save'}
+                {loading ? <Spinner /> : t('save', 'Save')}
               </Button>
             </Sheet.Footer>
           </form>

@@ -11,6 +11,7 @@ import {
   SelectContent,
   SelectTrigger,
 } from '@/ebarimt/settings/pos-in-ebarimt-config/components/selects/SelectShared';
+import { useTranslation } from 'react-i18next';
 
 interface IProductRule {
   _id: string;
@@ -96,6 +97,7 @@ const SelectEbarimtProductRulesValue = ({
   placeholder?: string;
   className?: string;
 }) => {
+  const { t } = useTranslation('mongolian');
   const { value, productRules } = useSelectEbarimtProductRulesContext();
   const selectedRules = productRules?.filter((rule) =>
     value.includes(rule._id),
@@ -104,7 +106,7 @@ const SelectEbarimtProductRulesValue = ({
   if (!selectedRules?.length) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select rule'}
+        {placeholder || t('select-rule')}
       </span>
     );
   }
@@ -140,6 +142,7 @@ const SelectEbarimtProductRulesCommandItem = ({
 };
 
 const SelectEbarimtProductRulesContent = () => {
+  const { t } = useTranslation('mongolian');
   const { productRules, loading, error } =
     useSelectEbarimtProductRulesContext();
 
@@ -147,7 +150,7 @@ const SelectEbarimtProductRulesContent = () => {
     if (loading) {
       return (
         <div className="flex items-center justify-center h-24">
-          <span className="text-muted-foreground">Loading...</span>
+          <span className="text-muted-foreground">{t('loading')}</span>
         </div>
       );
     }
@@ -155,7 +158,7 @@ const SelectEbarimtProductRulesContent = () => {
     if (error) {
       return (
         <div className="flex items-center justify-center h-24 text-destructive">
-          Error: {error.message}
+          {t('error')}: {error.message}
         </div>
       );
     }
@@ -167,9 +170,9 @@ const SelectEbarimtProductRulesContent = () => {
 
   return (
     <Command>
-      <Command.Input placeholder="Search rule" />
+      <Command.Input placeholder={t('search-rule')} />
       <Command.Empty>
-        <span className="text-muted-foreground">No rules found</span>
+        <span className="text-muted-foreground">{t('no-rules-found')}</span>
       </Command.Empty>
       <Command.List>{renderContent()}</Command.List>
     </Command>

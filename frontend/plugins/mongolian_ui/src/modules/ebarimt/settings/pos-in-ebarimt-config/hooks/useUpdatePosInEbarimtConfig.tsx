@@ -1,8 +1,10 @@
 import { useMutation } from '@apollo/client';
 import { useToast } from 'erxes-ui';
 import { UPDATE_MN_CONFIG } from '@/ebarimt/settings/pos-in-ebarimt-config/graphql/mnConfigs';
+import { useTranslation } from 'react-i18next';
 
 export const useUpdatePosInEbarimtConfig = () => {
+  const { t } = useTranslation('mongolian');
   const { toast } = useToast();
 
   const [updatePosInEbarimtConfigMutation, { loading, error }] = useMutation(
@@ -10,14 +12,14 @@ export const useUpdatePosInEbarimtConfig = () => {
     {
       onCompleted: () => {
         toast({
-          title: 'Success',
-          description: 'Pos in ebarimt config updated successfully',
+          title: t('success'),
+          description: t('pos-in-ebarimt-config-updated-successfully'),
           variant: 'default',
         });
       },
       onError: (e) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: e.message,
           variant: 'destructive',
         });

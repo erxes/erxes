@@ -1,4 +1,9 @@
-import { IconForms, IconMessageFilled, IconPhone } from '@tabler/icons-react';
+import {
+  IconBrandDiscord,
+  IconForms,
+  IconMessageFilled,
+  IconPhone,
+} from '@tabler/icons-react';
 import type { FC } from 'react';
 import {
   InstagramIcon,
@@ -16,4 +21,6 @@ export const INTEGRATION_ICONS: Record<string, FC<any>> = {
   'whatsapp-messenger': WhatsAppIcon,
   messenger: IconMessageFilled,
   calls: IconPhone,
+  callpro: IconPhone,
+  'discord-messenger': IconBrandDiscord,
 };

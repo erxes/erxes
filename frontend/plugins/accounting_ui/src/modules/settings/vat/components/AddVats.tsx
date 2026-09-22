@@ -1,42 +1,20 @@
-import { Button, Sheet, ScrollArea } from 'erxes-ui';
+import { Button, Sheet } from 'erxes-ui';
 import { TVatRowForm, VatKind, VatStatus } from '../types/VatRow';
-import { vatFormSchema } from '../constants/vatFormSchema';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { VatRowForm } from './VatRowForm';
+
+import { AccountingSheet } from '~/modules/layout/components/Sheet';
 import { IconPlus } from '@tabler/icons-react';
+import { VatRowForm } from './VatRowForm';
 import { useAddVatRow } from '../hooks/useVatRowAdd';
+import { useForm } from 'react-hook-form';
+import { useState } from 'react';
+import { vatFormSchema } from '../constants/vatFormSchema';
+import { zodResolver } from '@hookform/resolvers/zod';
 
-export const AddVats = () => {
-  return (
-    <Sheet>
-      <Sheet.Trigger asChild>
-        <Button>
-          <IconPlus />
-          НӨАТ нэмэх
-        </Button>
-      </Sheet.Trigger>
-      <Sheet.View className="p-0 flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none">
-        <Sheet.Header className="flex-row gap-3 items-center p-3 space-y-0 border-b">
-          <Sheet.Title>НӨАТ нэмэх</Sheet.Title>
-          <Sheet.Close />
-          <Sheet.Description className="sr-only">
-            НӨАТ нэмэх
-          </Sheet.Description>
-        </Sheet.Header>
-        <Sheet.Content className="overflow-hidden flex-auto">
-          <ScrollArea className="h-full">
-            <div className="p-5">
-              <AddVatForm />
-            </div>
-          </ScrollArea>
-        </Sheet.Content>
-      </Sheet.View>
-    </Sheet>
-  );
-};
-
-export const AddVatForm = () => {
+export const AddVatForm = ({
+  setOpen,
+}: {
+  setOpen: (open: boolean) => void;
+}) => {
   const form = useForm<TVatRowForm>({
     resolver: zodResolver(vatFormSchema),
     defaultValues: {
@@ -52,9 +30,28 @@ export const AddVatForm = () => {
       variables: { ...data },
       onCompleted: () => {
         form.reset();
+        setOpen(false);
       },
     });
   };
 
   return <VatRowForm form={form} onSubmit={onSubmit} loading={loading} />;
+};
+
+export const AddVats = () => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <Sheet open={open} onOpenChange={setOpen}>
+      <Sheet.Trigger asChild>
+        <Button>
+          <IconPlus />
+          НӨАТ нэмэх
+        </Button>
+      </Sheet.Trigger>
+      <AccountingSheet title="НӨАТ нэмэх">
+        <AddVatForm setOpen={setOpen} />
+      </AccountingSheet>
+    </Sheet>
+  );
 };

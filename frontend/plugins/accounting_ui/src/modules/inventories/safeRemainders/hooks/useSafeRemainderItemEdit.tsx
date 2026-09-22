@@ -1,8 +1,10 @@
 import { OperationVariables, useMutation } from '@apollo/client';
 import { toast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { SAFE_REMAINDER_ITEM_EDIT } from '../graphql/safeRemainderChange';
 
 export const useSafeRemainderItemEdit = () => {
+  const { t } = useTranslation('accounting');
   const [_editRemItem, { loading }] = useMutation(SAFE_REMAINDER_ITEM_EDIT);
 
   const editRemItem = (options: OperationVariables, fields: string[]) => {
@@ -16,7 +18,7 @@ export const useSafeRemainderItemEdit = () => {
       variables,
       onError: (error) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });
@@ -24,8 +26,8 @@ export const useSafeRemainderItemEdit = () => {
       },
       onCompleted: (data) => {
         toast({
-          title: 'Success',
-          description: 'Item updated successfully',
+          title: t('success'),
+          description: t('item-updated'),
           variant: 'success',
         });
         options?.onCompleted?.(data);

@@ -10,6 +10,14 @@ export interface OrderItemInput {
   isPackage?: boolean
   isTake?: boolean
   status?: IOrderItemStatus
+  discountAmount?: number
+  discountPercent?: number
+  discountInfos?: {
+    type: string
+    title?: string
+    amount?: number
+    percent?: number
+  }[]
   manufacturedDate?: string
 }
 
@@ -21,7 +29,6 @@ export interface OrderItem extends OrderItemInput {
   createdAt?: string
   categoryId?: string
   orderId?: string
-  discountAmount?: number
   productName?: string
   productImgUrl?: string
   attachment?: { url?: string } | null
@@ -53,6 +60,8 @@ export interface IOrderCommon {
   type?: IOrderType
   customerId?: string
   customerType?: CustomerType
+  brokerId?: string
+  brokerType?: string
   description?: string
   billType?: IBillType
   registerNumber?: string
@@ -190,6 +199,7 @@ export interface IOrderHistory {
   type: string
   createdAt: string
   modifiedAt: string
+  user?: Customer
   paidDate: string
 }
 

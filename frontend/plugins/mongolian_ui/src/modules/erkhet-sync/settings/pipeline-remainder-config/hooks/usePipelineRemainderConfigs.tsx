@@ -1,5 +1,6 @@
 import { useMutation, useQuery } from '@apollo/client';
 import { useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { GET_CONFIGS_GET_VALUE } from '../graphql/queries/usePipelineRemainderConfigQuery';
 import {
   CREATE_PIPELINE_REMAINDER_CONFIG,
@@ -17,6 +18,7 @@ const parseConfigValue = (value: any) =>
 
 export const usePipelineRemainderConfigs = () => {
   const { toast } = useToast();
+  const { t } = useTranslation('mongolian');
 
   const { data, loading, refetch } = useQuery(GET_CONFIGS_GET_VALUE, {
     variables: { code: CONFIG_CODE },
@@ -33,7 +35,7 @@ export const usePipelineRemainderConfigs = () => {
 
   const mutationOptions = {
     onError: (e: Error) => {
-      toast({ title: 'Error', description: e.message, variant: 'destructive' });
+      toast({ title: t('error'), description: e.message, variant: 'destructive' });
     },
   };
 
@@ -55,7 +57,7 @@ export const usePipelineRemainderConfigs = () => {
       variables: { code: CONFIG_CODE, subId: data.pipelineId, value: data },
     });
     await refetch();
-    toast({ title: 'Success', description: 'Config created successfully' });
+    toast({ title: t('success'), description: t('config-created-successfully') });
   };
 
   const editConfig = async (id: string, data: AddPipelineRemainderConfig) => {
@@ -63,19 +65,19 @@ export const usePipelineRemainderConfigs = () => {
       variables: { id, subId: data.pipelineId, value: data },
     });
     await refetch();
-    toast({ title: 'Success', description: 'Config updated successfully' });
+    toast({ title: t('success'), description: t('config-updated-successfully') });
   };
 
   const deleteConfig = async (id: string) => {
     await removeConfig({ variables: { id } });
     await refetch();
-    toast({ title: 'Success', description: 'Config deleted successfully' });
+    toast({ title: t('success'), description: t('config-deleted-successfully') });
   };
 
   const deleteManyConfigs = async (ids: string[]) => {
     await Promise.all(ids.map((id) => removeConfig({ variables: { id } })));
     await refetch();
-    toast({ title: 'Success', description: `${ids.length} config(s) deleted` });
+    toast({ title: t('success'), description: t('configs-deleted', { count: ids.length }) });
   };
 
   return {

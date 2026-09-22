@@ -83,6 +83,7 @@ export const branchSchema = schemaWrapper(
     supervisorId: { type: String, optional: true },
     radius: { type: Number, label: 'Coordinate radius /M/' },
     workhours: { type: Object, label: 'WorkHours', optional: true },
+    holidays: { type: Object, label: 'Holidays', optional: true },
   }),
 );
 

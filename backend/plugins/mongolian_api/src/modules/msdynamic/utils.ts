@@ -345,8 +345,8 @@ export const dealToDynamic = async (
     const sendData: any = {
       Sell_to_Customer_No:
         customerType === 'company'
-          ? msdCustomer?.No ?? config.defaultUserCode
-          : custCode ?? config.defaultUserCode,
+          ? (msdCustomer?.No ?? config.defaultUserCode)
+          : (custCode ?? config.defaultUserCode),
       Sell_to_Phone_No: customer?.primaryPhone ?? '',
       Sell_to_E_Mail: customer?.primaryEmail ?? '',
       External_Document_No: deal.number ?? deal.name.split(':').pop().trim(),
@@ -436,13 +436,13 @@ export const dealToDynamic = async (
             { _id: syncLog._id },
             {
               $set: {
-                error: `not found product ${product._id}`,
+                error: `Product not found: ${item.productId}`,
               },
             },
           );
+
           continue;
         }
-
         const sendSalesLine: any = {
           Document_No: responseSale.No,
           Type: 'Item',
@@ -582,9 +582,8 @@ export const orderToDynamic = async (
   syncLog: ISyncLogDocument,
   order: any,
   config: any,
+  brandId: string,
 ) => {
-  const brandId = order.scopeBrandIds[0];
-
   let msdCustomer: any = {};
 
   let orderMsdNo: string;
@@ -637,7 +636,9 @@ export const orderToDynamic = async (
     }
 
     const customerNo = await getCustomerNo(subdomain, customer);
-
+    const hasTokiPayment = (order.paidAmounts || []).some(
+      (payment) => payment.type === 'toki',
+    );
     const sendData: any = {
       Sell_to_Customer_No: msdCustomer?.No
         ? msdCustomer?.No
@@ -646,7 +647,7 @@ export const orderToDynamic = async (
       Sell_to_E_Mail: customer?.primaryEmail || '',
       External_Document_No: order.number,
       Responsibility_Center: config.responsibilityCenter || '',
-      Sync_Type: config.syncType || '',
+      Sync_Type: hasTokiPayment ? 'TOKI' : config.syncType || '',
       Mobile_Phone_No: customer?.primaryPhone || '',
       VAT_Bus_Posting_Group: config.vatBusPostingGroup || '',
       Payment_Terms_Code: config.paymentTermsCode || '',
@@ -680,13 +681,16 @@ export const orderToDynamic = async (
     if (!order.items.length) {
       throw new Error('Has not items order');
     }
-
     const responseSale = await fetch(`${salesApi}${urlParam}`, {
       method: postMethod,
       headers: postHeaders,
       body: JSON.stringify(sendData),
     }).then((res) => res.json());
-
+    if (responseSale?.error) {
+      throw new Error(
+        responseSale.error.message || 'MS Dynamic returned an error',
+      );
+    }
     const lineNoById = {};
 
     if (responseSale) {
@@ -861,12 +865,19 @@ export const orderToDynamic = async (
     );
 
     return responseSale;
-  } catch (e) {
+  } catch (e: any) {
     await models.SyncLogsMSD.updateOne(
       { _id: syncLog._id },
-      { $set: { error: e.message } },
+      {
+        $set: {
+          error: e?.message || 'Unknown error',
+        },
+      },
     );
-    console.log(e, 'error');
+
+    console.error(e);
+
+    throw e;
   }
 };
 

@@ -75,6 +75,11 @@ export const productSchema = schemaWrapper(
       optional: true,
       label: 'remainderByToken by token',
     }),
+    discounts: field({
+      type: [Object],
+      optional: true,
+      label: 'discounts by pricing conditions',
+    }),
     customFieldsData: field({
       type: [customFieldSchema],
       optional: true,
@@ -91,13 +96,18 @@ export const productSchema = schemaWrapper(
       optional: true,
       label: 'Status',
       default: 'active',
-      esType: 'keyword',
       index: true,
     }),
     vendorId: field({ type: String, optional: true, label: 'Vendor' }),
     mergedIds: field({ type: [String], optional: true }),
     attachmentMore: field({ type: [attachmentSchema] }),
     tokens: field({ type: [String] }),
+    external: field({
+      type: Boolean,
+      optional: true,
+      label:
+        'Pushed in by another plugin, not built from the pos product groups',
+    }),
     isCheckRems: field({
       type: Object,
       optional: true,
@@ -105,6 +115,12 @@ export const productSchema = schemaWrapper(
     }),
     sameMasks: field({ type: [String] }),
     sameDefault: field({ type: [String] }),
+    similarityId: field({
+      type: String,
+      optional: true,
+      label: 'Similarity group',
+      index: true,
+    }),
     pdfAttachment: field({
       type: Object,
       optional: true,
@@ -129,11 +145,16 @@ export const productCategorySchema = schemaHooksWrapper(
       optional: true,
       label: 'Status',
       default: 'active',
-      esType: 'keyword',
       index: true,
     }),
     createdAt: getDateFieldDefinition('Created at'),
     tokens: field({ type: [String] }),
+    external: field({
+      type: Boolean,
+      optional: true,
+      label:
+        'Pushed in by another plugin, not built from the pos product groups',
+    }),
     mask: field({ type: Object, label: 'Mask' }),
     isSimilarity: field({ type: Boolean, label: 'is Similiraties' }),
     similarities: field({

@@ -3,12 +3,14 @@ import { useGetTeams } from '@/team/hooks/useGetTeams';
 import { Badge, IconComponent, TextOverflowTooltip } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import { currentUserState } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const ActivityTeam = ({
   metadata,
 }: {
   metadata: IActivity['metadata'];
 }) => {
+  const { t } = useTranslation('operation');
   const currentUser = useAtomValue(currentUserState);
   const { teams } = useGetTeams({
     variables: {
@@ -20,7 +22,7 @@ export const ActivityTeam = ({
     const selectedTeams = teams?.filter((team) => teamIds.includes(team._id));
     const teamNames = selectedTeams.map((team) => team.name).join(', ');
     if (selectedTeams.length === 0)
-      return <span className="text-accent-foreground text-sm">{'Team'}</span>;
+      return <span className="text-accent-foreground text-sm">{t('team')}</span>;
 
     return (
       <div className="flex items-center gap-2 max-w-[200px]">
@@ -39,12 +41,12 @@ export const ActivityTeam = ({
 
   return (
     <div className="inline-flex items-center gap-1">
-      changed team to
+      {t('changed-team-to')}
       <Badge variant="secondary" className="flex-none">
         <IconComponent name={newTeam?.icon} className="size-4" />
         {renderTeamValue([newValue])}
       </Badge>
-      from
+      {t('from')}
       <Badge variant="secondary" className="flex-none">
         <IconComponent name={previousTeam?.icon} className="size-4" />
         {previousValue && renderTeamValue([previousValue])}

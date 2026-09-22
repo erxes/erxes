@@ -1,8 +1,13 @@
 export type IFacebookBotPersistentMenu = {
   _id: string;
   text: string;
-  type: 'button' | 'link';
-  link: string;
+  type: 'button' | 'link' | 'human_handoff' | 'back_button';
+  link?: string;
+};
+
+export type IFacebookBotIceBreaker = {
+  _id: string;
+  question: string;
 };
 
 export type IFacebookBotHealth = {
@@ -12,6 +17,10 @@ export type IFacebookBotHealth = {
   lastSyncedAt?: string;
   lastVerifiedAt?: string;
   lastError?: string;
+  // Public comment replies are paused until this time after Facebook refused one.
+  sendBlockedUntil?: string;
+  sendBlockReason?: string;
+  sendBlockCount?: number;
 };
 
 export type IFacebookBotUser = {
@@ -39,7 +48,12 @@ export type IFacebookBot = {
   pageId: string;
   profileUrl: string;
   persistentMenus: IFacebookBotPersistentMenu[];
+  iceBreakers?: IFacebookBotIceBreaker[];
+  getStartedText?: string;
   greetText: string;
+  handoffMessage?: string;
+  automationActiveMessage?: string;
+  handoffPauseMinutes?: number;
   tag: 'CONFIRMED_EVENT_UPDATE' | 'POST_PURCHASE_UPDATE' | 'ACCOUNT_UPDATE';
   isEnabledBackBtn: boolean;
   backButtonText: string;

@@ -249,7 +249,7 @@ export const CustomersMerge = ({
   if (disabled) return <MergeSheet disabled />;
   return (
     <MergeSheet
-      className="p-6 flex gap-2 h-full"
+      className="p-6 flex gap-2 items-start"
       open={sheetOpen}
       onOpenChange={setSheetOpen}
       onDiscard={() => {
@@ -257,7 +257,7 @@ export const CustomersMerge = ({
       }}
       onSave={handleSave}
     >
-      <div className="flex-2 h-full flex flex-col gap-2  ">
+      <div className="flex-2 flex flex-col gap-2  ">
         <div className="flex justify-between gap-2 mb-1 ">
           <span className="text-sm font-semibold text-muted-foreground w-full">
             {customers[0]?.firstName}
@@ -342,7 +342,7 @@ export const CustomersMerge = ({
         })}
       </div>
 
-      <div className="flex-[1.2] h-full ml-5 flex flex-col gap-2">
+      <div className="flex-[1.2] ml-5 flex flex-col gap-2">
         <span className="text-sm font-semibold text-primary mb-1">Merge</span>
 
         {value ? (

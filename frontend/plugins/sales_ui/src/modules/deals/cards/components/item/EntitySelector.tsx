@@ -11,6 +11,7 @@ import {
 
 import { Button } from 'erxes-ui';
 import { IDeal } from '@/deals/types/deals';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
   card: IDeal;
@@ -43,48 +44,50 @@ export const EntitySelector = ({ card = {} as IDeal }: Props) => {
     branches = [],
   } = card;
 
+  const { t } = useTranslation('sales');
+
   return (
     <div className="flex flex-wrap gap-1">
       {(branches || []).length > 0 && (
         <EntityItem
           Icon={IconGitBranch}
-          text="Branch"
+          text={t('branch')}
           totalCount={branches?.length || 0}
         />
       )}
       {companies && (
         <EntityItem
           Icon={IconBuilding}
-          text="Company"
+          text={t('company')}
           totalCount={companies?.length || 0}
         />
       )}
       {customers && (
         <EntityItem
           Icon={IconUser}
-          text="Customer"
+          text={t('customer')}
           totalCount={customers?.length || 0}
         />
       )}
       {(departments || []).length > 0 && (
         <EntityItem
           Icon={IconUsers}
-          text="Department"
+          text={t('department')}
           totalCount={departments?.length || 0}
         />
       )}
       {priority && (
-        <EntityItem Icon={IconFlag} text="Priority" totalCount={0} />
+        <EntityItem Icon={IconFlag} text={t('priority')} totalCount={0} />
       )}
       {relations && (
         <EntityItem
           Icon={IconCirclesRelation}
-          text="Relation"
+          text={t('relation')}
           totalCount={relations?.length || 0}
         />
       )}
       {(tags || []).length > 0 && (
-        <EntityItem Icon={IconTag} text="Tag" totalCount={tags?.length || 0} />
+        <EntityItem Icon={IconTag} text={t('tag')} totalCount={tags?.length || 0} />
       )}
     </div>
   );

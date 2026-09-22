@@ -1,10 +1,21 @@
 import { sendWorkerQueue } from 'erxes-api-shared/utils';
 
-export const addBroadcastWorkerQueue = ({ queueName, data, jobId }) => {
+export const addBroadcastWorkerQueue = async ({
+  queueName,
+  data,
+  jobId,
+  delay,
+}: {
+  queueName: string;
+  data: unknown;
+  jobId: string;
+  delay?: number;
+}) => {
   const queue = sendWorkerQueue('core', queueName);
 
-  queue.add(queueName, data, {
+  await queue.add(queueName, data, {
     jobId,
+    delay,
     removeOnComplete: true,
     removeOnFail: true,
   });

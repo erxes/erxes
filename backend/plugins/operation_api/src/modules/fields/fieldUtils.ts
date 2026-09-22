@@ -10,10 +10,11 @@ type TSelectOption = {
 };
 
 type TSelectionConfig = {
-  queryName: string;
-  labelField: string;
+  queryName?: string;
+  labelField?: string;
   valueField?: string;
   multi?: boolean;
+  component?: string;
 };
 
 type TOperationField = {
@@ -195,22 +196,13 @@ const getTeamOptions = async (models: IModels, name = 'teamId') => {
   });
 };
 
-const getTaskStatusOptions = async (models: IModels, teamId?: string) => {
-  const selector = teamId ? { teamId } : {};
-  const statuses = await models.Status.find(selector)
-    .sort({ teamId: 1, order: 1, name: 1 })
-    .lean();
-  const options = statuses
-    .map((status) => toOption(status._id, status.name))
-    .filter((option): option is TSelectOption => Boolean(option));
-
-  return withStaticOptions({
-    name: 'status',
-    label: 'Status',
-    type: 'status',
-    options,
-  });
-};
+const getTaskStatusOptions = (): TOperationField => ({
+  _id: 'status',
+  name: 'status',
+  label: 'Status',
+  type: 'status',
+  selectionConfig: { component: 'taskStatus' },
+});
 
 const getStatusTypeOptions = () =>
   withStaticOptions({
@@ -346,7 +338,7 @@ export const generateTaskFields = async ({
       TASK_FIELD_NAMES_WITH_OPTIONS,
     )),
     await getTeamOptions(models),
-    await getTaskStatusOptions(models, teamId),
+    getTaskStatusOptions(),
     getStatusTypeOptions(),
     getPriorityOptions(),
     generateUsersOptions('assigneeId', 'Assignee'),

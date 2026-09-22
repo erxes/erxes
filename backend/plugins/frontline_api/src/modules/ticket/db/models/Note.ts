@@ -4,6 +4,9 @@ import { FilterQuery, Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { createNotifications } from '~/utils/notifications';
 
+const isClientPortalAuthor = (userId: string) =>
+  Boolean(userId) && userId.startsWith('cp:');
+
 export interface INoteModel extends Model<INoteDocument> {
   getNote(_id: string): Promise<INoteDocument>;
   getNotes(filter: FilterQuery<INoteDocument>): Promise<INoteDocument[]>;
@@ -53,6 +56,16 @@ export const loadNoteClass = (models: IModels) => {
       subdomain: string;
       userId: string;
     }): Promise<INoteDocument> {
+      if (doc.contentId && !doc.statusId) {
+        const ticket = await models.Ticket.findOne(
+          { _id: doc.contentId },
+          { statusId: 1 },
+        ).lean();
+        if (ticket?.statusId) {
+          doc.statusId = ticket.statusId;
+        }
+      }
+
       const note = await models.Note.create(doc);
 
       await models.Activity.createActivity({
@@ -75,7 +88,7 @@ export const loadNoteClass = (models: IModels) => {
           .forEach((id) => mentionUserIds.add(id));
       }
 
-      if (note.contentId) {
+      if (note.contentId && !isClientPortalAuthor(userId)) {
         await models.Ticket.updateOne(
           { _id: note.contentId },
           { $addToSet: { subscribedUserIds: userId } },

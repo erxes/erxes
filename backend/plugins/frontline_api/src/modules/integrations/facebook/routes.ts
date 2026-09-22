@@ -10,6 +10,7 @@ export const router: Router = express.Router();
 
 // Facebook routes
 router.get('/fblogin', loginMiddleware);
+router.get('/kind/:kind/fblogin', loginMiddleware);
 
 router.get('/get-post', async (req, res, next) => {
   try {

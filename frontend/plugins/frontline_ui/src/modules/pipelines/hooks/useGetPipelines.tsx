@@ -33,5 +33,9 @@ export const useGetPipelines = (
       },
     },
   });
-  return { pipelines: data?.getTicketPipelines?.list, loading };
+  return {
+    pipelines: data?.getTicketPipelines?.list,
+    totalCount: data?.getTicketPipelines?.totalCount,
+    loading,
+  };
 };

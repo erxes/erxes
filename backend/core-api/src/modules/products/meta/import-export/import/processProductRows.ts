@@ -1,4 +1,8 @@
 import { IModels } from '~/connectionResolvers';
+import {
+  buildImportUpdateDoc,
+  readImportBulkOutcome,
+} from '~/meta/import-export/utils';
 import { prepareProductDoc } from './utils';
 
 export async function processProductRows(
@@ -9,46 +13,38 @@ export async function processProductRows(
   const errorRows: any[] = [];
 
   try {
-    const codes = rows
-      .map((r) => (r.code != null ? String(r.code).trim() : ''))
-      .filter(Boolean);
+    const codes = rows.map((r) => r.code).filter(Boolean);
+
+    const existingDocs = await models.Products.find({
+      ...(codes.length ? { code: { $in: codes } } : {}),
+    }).lean();
 
     const existingByCode = new Map<string, any>();
-    if (codes.length) {
-      const existingDocs = await models.Products.find({
-        code: { $in: codes },
-      }).lean();
-      for (const doc of existingDocs) {
-        if (doc.code) existingByCode.set(String(doc.code).trim(), doc);
-      }
+    for (const doc of existingDocs) {
+      if (doc.code) existingByCode.set(doc.code, doc);
     }
 
     const operations: any[] = [];
-    const rowToMetaMap = new Map<any, { _id?: any; operationIndex?: number }>();
-
-    const isBlankRow = (row: any) =>
-      Object.values(row).every(
-        (v) => v === undefined || v === null || v === '' || v === '-',
-      );
+    const rowToMetaMap = new Map<any, { _id?: any; operationIndex: number }>();
 
     for (const row of rows) {
-      if (isBlankRow(row)) continue;
       try {
         const doc = await prepareProductDoc(models, row);
         const existing = existingByCode.get(doc.code);
+
+        const operationIndex = operations.length;
 
         if (existing) {
           operations.push({
             updateOne: {
               filter: { _id: existing._id },
-              update: { $set: { ...doc, updatedAt: new Date() } },
+              update: { $set: buildImportUpdateDoc(existing, doc) },
             },
           });
-          rowToMetaMap.set(row, { _id: existing._id });
+          rowToMetaMap.set(row, { _id: existing._id, operationIndex });
         } else {
-          const opIndex = operations.length;
           operations.push({ insertOne: { document: doc } });
-          rowToMetaMap.set(row, { operationIndex: opIndex });
+          rowToMetaMap.set(row, { operationIndex });
         }
       } catch (e: any) {
         errorRows.push({
@@ -59,41 +55,25 @@ export async function processProductRows(
     }
 
     if (operations.length) {
-      let bulkResult: any;
-      const failedOpIndices = new Set<number>();
-
-      try {
-        bulkResult = await models.Products.bulkWrite(operations, {
-          ordered: false,
-        });
-      } catch (e: any) {
-        const isBulkError =
-          e?.name === 'MongoBulkWriteError' || e?.name === 'BulkWriteError';
-        if (!isBulkError) throw e;
-
-        bulkResult = e.result ?? e;
-        for (const writeError of e.writeErrors ?? []) {
-          const idx = writeError.index ?? writeError.err?.index;
-          if (idx != null) failedOpIndices.add(idx);
-        }
-      }
+      // unordered so one refused row does not abandon the rest of the batch
+      const result = await models.Products.bulkWrite(operations, {
+        ordered: false,
+      });
 
       for (const [row, meta] of rowToMetaMap.entries()) {
-        if (meta.operationIndex !== undefined) {
-          if (failedOpIndices.has(meta.operationIndex)) {
-            errorRows.push({
-              ...row,
-              error: 'Write failed (duplicate or invalid data)',
-            });
-          } else {
-            successRows.push({
-              ...row,
-              _id: bulkResult?.insertedIds?.[meta.operationIndex],
-            });
-          }
-        } else {
-          successRows.push({ ...row, _id: meta._id });
+        const isInsert = !meta._id;
+        const { error, insertedId } = readImportBulkOutcome({
+          bulkResult: result,
+          operationIndex: meta.operationIndex,
+          isInsert,
+        });
+
+        if (error) {
+          errorRows.push({ ...row, error });
+          continue;
         }
+
+        successRows.push({ ...row, _id: isInsert ? insertedId : meta._id });
       }
     }
 

@@ -9,8 +9,10 @@ import {
 } from 'erxes-ui';
 import { useUsedIntegrationTypes } from '../hooks/useUsedIntegrationTypes';
 import { IIntegrationType } from '../types/Integration';
+import { useTranslation } from 'react-i18next';
 
 export const IntegrationTypeTag = () => {
+  const { t } = useTranslation('frontline');
   const [integrationTypeId, setIntegrationTypeId] =
     useQueryState<string>('integrationType');
   const { integrationTypes, loading } = useUsedIntegrationTypes();
@@ -36,7 +38,7 @@ export const IntegrationTypeTag = () => {
         </Popover.Trigger>
         <Combobox.Content>
           <Command>
-            <Command.Input placeholder="Select integration" />
+            <Command.Input placeholder={t('select-integration')} />
             <Command.List>
               {integrationTypes?.map((integrationType: IIntegrationType) => (
                 <Command.Item

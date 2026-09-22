@@ -23,7 +23,11 @@ export const CategoriesUpdateCoreFields: React.FC<
         ...prevValues,
         code: categoryDetail.code,
         name: categoryDetail.name,
-        parentId: categoryDetail.parentId || '',
+        parentId:
+          categoryDetail.parentId &&
+          categoryDetail.parentId !== categoryDetail._id
+            ? categoryDetail.parentId
+            : '',
         maskType: categoryDetail.maskType || '',
       }));
     }
@@ -79,6 +83,7 @@ export const CategoriesUpdateCoreFields: React.FC<
               <SelectCategory
                 selected={field.value}
                 onSelect={(val) => field.onChange(val || '')}
+                excludeCategoryId={categoryDetail?._id}
               />
             </Form.Control>
             <Form.Message />

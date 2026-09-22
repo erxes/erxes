@@ -1,13 +1,16 @@
 import { useNavigate, useParams } from 'react-router';
+import { Sheet, toast } from 'erxes-ui';
 import { PropertyForm } from './PropertyForm';
 import { useFieldDetail } from '../hooks/useFieldDetail';
 import { useEditProperty } from '../hooks/useEditProperty';
 import { IPropertyForm } from '../types/Properties';
 import { useSetAtom } from 'jotai';
 import { needsToRefreshState } from '../states/needsToRefresh';
+import { useTranslation } from 'react-i18next';
 
 export const PropertyEdit = () => {
-  const { groupId, id, type } = useParams<{
+  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
+  const { id, type } = useParams<{
     groupId: string;
     id: string;
     type: string;
@@ -19,36 +22,61 @@ export const PropertyEdit = () => {
 
   const navigate = useNavigate();
 
+  const handleClose = () => navigate(`/settings/properties/${type}`);
+
   const [fieldType, ...relationType] = fieldDetail?.type?.split(':') || [];
 
   const handleSubmit = (data: IPropertyForm) => {
     editProperty({
       variables: {
         id,
-        groupId,
         contentType: type,
         ...data,
       },
       onCompleted: () => {
-        navigate(`/settings/properties/${type}`);
+        toast({
+          title: t('property-updated', 'Property updated'),
+          variant: 'success',
+        });
         setNeedsToRefresh(true);
+        handleClose();
+      },
+      onError: (error) => {
+        toast({
+          title: t('error', 'Error'),
+          variant: 'destructive',
+          description: error.message,
+        });
       },
     });
   };
 
-  if (loading) return null;
-
   return (
-    <PropertyForm
-      onSubmit={handleSubmit}
-      loading={editPropertyLoading}
-      defaultValues={{
-        ...fieldDetail,
-        icon: fieldDetail?.icon ?? '123',
-        type: fieldType,
-        relationType: relationType.join(':'),
-      }}
-      isEdit
-    />
+    <Sheet open onOpenChange={handleClose}>
+      <Sheet.View
+        className="p-0"
+        onEscapeKeyDown={(e) => {
+          e.preventDefault();
+        }}
+      >
+        {!loading && fieldDetail && (
+          <PropertyForm
+            onSubmit={handleSubmit}
+            loading={editPropertyLoading}
+            defaultValues={{
+              ...fieldDetail,
+              icon: fieldDetail?.icon ?? '123',
+              type: fieldType,
+              relationType: relationType.join(':'),
+              objectListConfigs: fieldDetail?.configs?.objectListConfigs ?? [],
+            }}
+            isEdit
+            onCancel={handleClose}
+            contentType={type || ''}
+            fieldId={id}
+          />
+        )}
+      </Sheet.View>
+    </Sheet>
   );
 };

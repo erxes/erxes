@@ -1,6 +1,59 @@
 import { Resolver } from 'erxes-api-shared/core-types';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { ARCHIVED_DEAL_STATUS } from '@/pms/constants';
 import { IContext } from '~/connectionResolvers';
+
+const escapeRegExp = (value: string) =>
+  value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+const getFilteredProducts = async ({
+  subdomain,
+  categoryIds,
+  excludeCategoryIds,
+  excludeProductIds,
+}: {
+  subdomain: string;
+  categoryIds: string[];
+  excludeCategoryIds: string[];
+  excludeProductIds: string[];
+}) => {
+  if (!categoryIds.length) {
+    return [];
+  }
+
+  const products = await sendTRPCMessage({
+    subdomain,
+    method: 'query',
+    pluginName: 'core',
+    module: 'products',
+    action: 'find',
+    input: { categoryIds },
+    defaultValue: [],
+  });
+
+  const excludedCategoriesWithChildren = excludeCategoryIds.length
+    ? await sendTRPCMessage({
+        subdomain,
+        method: 'query',
+        pluginName: 'core',
+        module: 'categories',
+        action: 'withChilds',
+        input: { ids: excludeCategoryIds },
+        defaultValue: [],
+      })
+    : [];
+
+  const excludedCategoryIdSet = new Set(
+    excludedCategoriesWithChildren.map((category) => category._id),
+  );
+  const excludedProductIdSet = new Set(excludeProductIds);
+
+  return products.filter(
+    (product: any) =>
+      !excludedProductIdSet.has(product._id) &&
+      !excludedCategoryIdSet.has(product.categoryId),
+  );
+};
 
 const configQueries: Record<string, Resolver> = {
   /**
@@ -18,6 +71,62 @@ const configQueries: Record<string, Resolver> = {
     return await models.Configs.findOne({ code }).lean();
   },
 
+  async rooms(
+    _root,
+    {
+      branchId,
+    }: {
+      branchId: string;
+    },
+    { subdomain, models }: IContext,
+  ) {
+    const branch = branchId ? await models.PmsBranch.findById(branchId) : null;
+    const roomCategoryIds = branch?.roomCategories || [];
+    const excludeRoomCategoryIds = branch?.excludeRoomCategoryIds || [];
+    const excludeRoomIds = branch?.excludeRoomIds || [];
+
+    return getFilteredProducts({
+      subdomain,
+      categoryIds: roomCategoryIds,
+      excludeCategoryIds: excludeRoomCategoryIds,
+      excludeProductIds: excludeRoomIds,
+    });
+  },
+
+  async extraProducts(
+    _root,
+    { branchId }: { branchId: string },
+    { subdomain, models }: IContext,
+  ) {
+    const branch = branchId ? await models.PmsBranch.findById(branchId) : null;
+
+    return getFilteredProducts({
+      subdomain,
+      categoryIds: branch?.extraProductCategories || [],
+      excludeCategoryIds: branch?.excludeExtraProductCategoryIds || [],
+      excludeProductIds: branch?.excludeExtraProductIds || [],
+    });
+  },
+
+  async pmsAppointmentProducts(
+    _root,
+    { branchId }: { branchId: string },
+    { subdomain, models }: IContext,
+  ) {
+    const branch = branchId ? await models.PmsBranch.findById(branchId) : null;
+
+    if (!branch?.hasAppointment) {
+      return [];
+    }
+
+    return getFilteredProducts({
+      subdomain,
+      categoryIds: branch.appointmentCategories || [],
+      excludeCategoryIds: branch.excludeAppointmentCategoryIds || [],
+      excludeProductIds: branch.excludeAppointmentIds || [],
+    });
+  },
+
   async pmsRooms(
     _root,
     {
@@ -27,6 +136,7 @@ const configQueries: Record<string, Resolver> = {
       perPage = 50,
       page = 1,
       skipStageIds = [],
+      search,
     }: {
       startDate: Date;
       endDate: Date;
@@ -34,6 +144,7 @@ const configQueries: Record<string, Resolver> = {
       perPage: number;
       page: number;
       skipStageIds: string[];
+      search: string;
     },
     { subdomain }: IContext,
   ) {
@@ -57,6 +168,7 @@ const configQueries: Record<string, Resolver> = {
       action: 'find',
       input: {
         query: {
+          status: { $ne: ARCHIVED_DEAL_STATUS },
           stageId: { $in: newArray },
           productsData: {
             $elemMatch: {
@@ -65,10 +177,12 @@ const configQueries: Record<string, Resolver> = {
             },
           },
         },
+        search,
         skip: (page - 1) * perPage,
         limit: perPage,
       },
     });
+
     return deals || [];
   },
 
@@ -81,6 +195,7 @@ const configQueries: Record<string, Resolver> = {
       perPage = 50,
       page = 1,
       skipStageIds = [],
+      search,
     }: {
       startDate: Date;
       endDate: Date;
@@ -88,6 +203,7 @@ const configQueries: Record<string, Resolver> = {
       perPage: number;
       page: number;
       skipStageIds: string[];
+      search?: string;
     },
     { models, subdomain }: IContext,
   ) {
@@ -111,6 +227,7 @@ const configQueries: Record<string, Resolver> = {
       action: 'find',
       input: {
         query: {
+          status: { $ne: ARCHIVED_DEAL_STATUS },
           stageId: { $in: newArray },
           productsData: {
             $elemMatch: {
@@ -119,6 +236,7 @@ const configQueries: Record<string, Resolver> = {
             },
           },
         },
+        search,
         skip: (page - 1) * perPage,
         limit: perPage,
       },
@@ -166,6 +284,7 @@ const configQueries: Record<string, Resolver> = {
       action: 'find',
       input: {
         query: {
+          status: { $ne: ARCHIVED_DEAL_STATUS },
           stageId: { $in: newArray },
           // 1. Broad filter: Find any deal that touches our range and has our rooms
           productsData: {
@@ -240,6 +359,7 @@ const configQueries: Record<string, Resolver> = {
       action: 'find',
       input: {
         query: {
+          status: { $ne: ARCHIVED_DEAL_STATUS },
           stageId: { $in: newArray },
           productsData: {
             $elemMatch: {

@@ -1,5 +1,6 @@
 import { Form, Input, Select } from 'erxes-ui';
 import { UseFormReturn } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { MenuContentItem, MenuCustomType, MenuFormData } from '../types/menuDrawerTypes';
 
 interface MenuLinkFieldProps {
@@ -40,6 +41,7 @@ export function MenuLinkField({
   categories,
   tags,
 }: MenuLinkFieldProps) {
+  const { t } = useTranslation('content');
   return (
     <>
       <Form.Field
@@ -47,7 +49,7 @@ export function MenuLinkField({
         name="linkType"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Link Type</Form.Label>
+            <Form.Label>{t('link-type')}</Form.Label>
             <Form.Control>
               <Select
                 value={field.value}
@@ -57,14 +59,14 @@ export function MenuLinkField({
                 }}
               >
                 <Select.Trigger>
-                  <Select.Value placeholder="Select type" />
+                  <Select.Value placeholder={t('select-type')} />
                 </Select.Trigger>
                 <Select.Content>
-                  <Select.Item value="url">URL</Select.Item>
-                  <Select.Item value="page">Page</Select.Item>
-                  <Select.Item value="post">Post</Select.Item>
-                  <Select.Item value="category">Category</Select.Item>
-                  <Select.Item value="tag">Tag</Select.Item>
+                  <Select.Item value="url">{t('url')}</Select.Item>
+                  <Select.Item value="page">{t('page')}</Select.Item>
+                  <Select.Item value="post">{t('post')}</Select.Item>
+                  <Select.Item value="category">{t('category')}</Select.Item>
+                  <Select.Item value="tag">{t('tag')}</Select.Item>
                   {customTypes.length > 0 && <Select.Separator />}
                   {customTypes.map((ct) => (
                     <Select.Item key={ct._id} value={ct._id}>
@@ -85,9 +87,9 @@ export function MenuLinkField({
           render={({ field }) => (
             <Form.Item>
               <Form.Label>
-                URL
+                {t('url')}
                 {isTranslationMode && (
-                  <span className="ml-2 text-xs text-gray-500">(shared across languages)</span>
+                  <span className="ml-2 text-xs text-gray-500">({t('shared-across-languages')})</span>
                 )}
               </Form.Label>
               <Form.Control>

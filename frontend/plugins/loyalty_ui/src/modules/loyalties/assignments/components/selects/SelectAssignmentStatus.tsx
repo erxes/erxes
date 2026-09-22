@@ -8,23 +8,28 @@ import {
 } from 'erxes-ui';
 import { IconToggleLeft } from '@tabler/icons-react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const STATUS_OPTIONS = [
-  { value: 'new', label: 'New' },
-  { value: 'won', label: 'Won' },
-  { value: 'loss', label: 'Loss' },
+  { value: 'new', label: 'new' },
+  { value: 'won', label: 'won' },
+  { value: 'loss', label: 'loss' },
 ];
 
-export const SelectAssignmentStatusFilterItem = () => (
-  <Filter.Item value="assignmentStatus">
-    <IconToggleLeft />
-    Status
-  </Filter.Item>
-);
+export const SelectAssignmentStatusFilterItem = () => {
+  const { t } = useTranslation('loyalty');
+  return (
+    <Filter.Item value="assignmentStatus">
+      <IconToggleLeft />
+      {t('status')}
+    </Filter.Item>
+  );
+};
 
 export const SelectAssignmentStatusFilterView = () => {
   const [value, setValue] = useQueryState<string>('assignmentStatus');
   const { resetFilterState } = useFilterContext();
+  const { t } = useTranslation('loyalty');
 
   return (
     <Filter.View filterKey="assignmentStatus">
@@ -39,7 +44,7 @@ export const SelectAssignmentStatusFilterView = () => {
                 resetFilterState();
               }}
             >
-              {opt.label}
+              {t(opt.label)}
               <Combobox.Check checked={value === opt.value} />
             </Command.Item>
           ))}
@@ -52,18 +57,19 @@ export const SelectAssignmentStatusFilterView = () => {
 export const SelectAssignmentStatusFilterBar = () => {
   const [value, setValue] = useQueryState<string>('assignmentStatus');
   const [open, setOpen] = useState(false);
+  const { t } = useTranslation('loyalty');
   const selected = STATUS_OPTIONS.find((o) => o.value === value);
 
   return (
     <Filter.BarItem queryKey="assignmentStatus">
       <Filter.BarName>
         <IconToggleLeft />
-        Status
+        {t('status')}
       </Filter.BarName>
       <Popover open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
           <Filter.BarButton filterKey="assignmentStatus">
-            <span>{selected?.label || 'Status'}</span>
+            <span>{selected ? t(selected.label) : t('status')}</span>
           </Filter.BarButton>
         </Popover.Trigger>
         <Combobox.Content>
@@ -78,7 +84,7 @@ export const SelectAssignmentStatusFilterBar = () => {
                     setOpen(false);
                   }}
                 >
-                  {opt.label}
+                  {t(opt.label)}
                   <Combobox.Check checked={value === opt.value} />
                 </Command.Item>
               ))}

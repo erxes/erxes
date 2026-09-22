@@ -32,14 +32,20 @@ export const FIELDS_QUERY = gql`
         order
         groupId
         validations
-        logics 
+        logics
         createdAt
         updatedAt
+        isVisible
+        isVisibleToCreate
+        isRequired
+        isVisibleInCard
+        configs
         options {
           label
           value
         }
       }
+      totalCount
       ${GQL_PAGE_INFO}
     }
   }
@@ -51,6 +57,7 @@ export const FIELD_DETAILS_QUERY = gql`
       _id
       name
       code
+      groupId
       type
       order
       options {
@@ -59,7 +66,12 @@ export const FIELD_DETAILS_QUERY = gql`
       }
       validations
       logics
+      configs
       icon
+      isVisible
+      isVisibleToCreate
+      isRequired
+      isVisibleInCard
       createdAt
       updatedAt
     }

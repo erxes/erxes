@@ -1,13 +1,26 @@
 import { IConfigDocument } from '~/modules/posclient/@types/configs';
-import { IOrderInput } from '~/modules/posclient/@types/types';
+import { IOrderInput, IOrderItemInput } from '~/modules/posclient/@types/types';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import {
+  applyDiscountInfo,
+  ensureHandDiscountInfo,
+  recalculateDiscountFields,
+} from './discountInfos';
+
+type PricingDiscount = {
+  value: number;
+  bonusProducts: string[];
+};
+
+type PricingResponse = Record<string, PricingDiscount>;
+type BonusProductsToAdd = Record<string, { count: number }>;
 
 export const checkPricing = async (
   subdomain: string,
   doc: IOrderInput,
   config: IConfigDocument,
 ) => {
-  let pricing: any = {};
+  let pricing: PricingResponse = {};
 
   try {
     pricing = await sendTRPCMessage({
@@ -20,6 +33,10 @@ export const checkPricing = async (
         totalAmount: doc.totalAmount,
         departmentId: config.departmentId,
         branchId: config.branchId,
+        customerType: doc.customerType,
+        customerId: doc.customerId,
+        brokerType: doc.brokerType || '',
+        brokerId: doc.brokerId || '',
         products: [
           ...doc.items.map((i) => ({
             itemId: i._id,
@@ -32,15 +49,14 @@ export const checkPricing = async (
       },
       defaultValue: {},
     });
-  } catch (e) {
-    console.log(e.message);
-  }
+  } catch (e) {}
 
-  const bonusProductsToAdd: any = {};
+  const bonusProductsToAdd: BonusProductsToAdd = {};
 
   for (const item of doc.items || []) {
     const discount = pricing[item._id];
     item.unitPrice = item.unitPrice || 0;
+    item.discountInfos = ensureHandDiscountInfo(item);
 
     if (discount) {
       if (discount.bonusProducts.length !== 0) {
@@ -55,21 +71,28 @@ export const checkPricing = async (
         }
       }
 
-      item.discountPercent = Number.parseFloat(
-        ((discount.value / item.unitPrice) * 100).toFixed(2),
-      );
+      applyDiscountInfo(item, {
+        type: 'pricing',
+        title: 'Pricing discount',
+        amount: discount.value * item.count,
+        percent: Number.parseFloat(
+          ((discount.value / item.unitPrice) * 100).toFixed(2),
+        ),
+      });
       item.unitPrice -= discount.value;
-      item.discountAmount = discount.value * item.count;
+    } else {
+      recalculateDiscountFields(item);
     }
   }
 
   for (const bonusProductId of Object.keys(bonusProductsToAdd)) {
     const orderIndex = doc.items.findIndex(
-      (docItem: any) => docItem.productId === bonusProductId,
+      (docItem: IOrderItemInput) => docItem.productId === bonusProductId,
     );
 
     if (orderIndex === -1) {
-      const bonusProduct: any = {
+      const bonusProduct: IOrderItemInput = {
+        _id: bonusProductId,
         productId: bonusProductId,
         unitPrice: 0,
         count: bonusProductsToAdd[bonusProductId].count,

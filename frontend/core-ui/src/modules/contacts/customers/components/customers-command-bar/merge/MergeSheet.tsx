@@ -37,10 +37,8 @@ export const MergeSheet = ({
       </MergeTooltip>
       <Sheet.View className="sm:max-w-5xl flex gap-0 flex-col m-0 p-0">
         <MergeSheetHeader />
-        <Sheet.Content>
-          <div className={cn('w-full h-full overflow-y-auto ', className)}>
-            {children}
-          </div>
+        <Sheet.Content className="min-h-0 overflow-y-auto">
+          <div className={cn('w-full', className)}>{children}</div>
         </Sheet.Content>
         {!disabled && (
           <MergeSheetFooter onDiscard={onDiscard} onSave={onSave} />

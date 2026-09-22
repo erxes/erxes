@@ -1,5 +1,6 @@
 import { IconPlus } from '@tabler/icons-react';
 import { ProjectHotKeyScope } from '@/project/constants/ProjectHotKeyScope';
+import { useTranslation } from 'react-i18next';
 import {
   Button,
   Kbd,
@@ -12,6 +13,7 @@ import { useState } from 'react';
 import { AddProjectForm } from './AddProjectForm';
 
 export const AddProjectSheet = () => {
+  const { t } = useTranslation('operation');
   const setHotkeyScope = useSetHotkeyScope();
   const [open, setOpen] = useState<boolean>(false);
   const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
@@ -33,7 +35,7 @@ export const AddProjectSheet = () => {
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          Add project
+          {t('add-project')}
           <Kbd>C</Kbd>
         </Button>
       </Sheet.Trigger>
@@ -50,11 +52,12 @@ export const AddProjectSheet = () => {
 };
 
 export const AddProjectSheetHeader = () => {
+  const { t } = useTranslation('operation');
   return (
     <Sheet.Header className="p-5">
-      <Sheet.Title>Add project</Sheet.Title>
+      <Sheet.Title>{t('add-project')}</Sheet.Title>
       <Sheet.Description className="sr-only">
-        Add a new project to your organization.
+        {t('add-project-description')}
       </Sheet.Description>
       <Sheet.Close />
     </Sheet.Header>

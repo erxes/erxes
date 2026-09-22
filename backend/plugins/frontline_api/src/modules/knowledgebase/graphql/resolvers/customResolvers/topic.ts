@@ -5,15 +5,15 @@ export default {
   async __resolveReference({ _id }, { models }: IContext) {
     return models.Topic.findOne({ _id });
   },
-  
   brand(topic: ITopicDocument) {
-    return (
-      topic.brandId && {
-        __typename: 'Brand',
-        _id: topic.brandId
-      }
-    );
+    if (!topic.brandId) {
+      return null;
+    }
 
+    return {
+      __typename: 'Brand',
+      _id: topic.brandId,
+    };
   },
 
   async categories(topic: ITopicDocument, _args, { models }: IContext) {
@@ -37,5 +37,9 @@ export default {
 
   color(topic: ITopicDocument) {
     return topic.color || '';
+  },
+
+  createdDate(topic: ITopicDocument) {
+    return topic.createdDate || topic.createdAt;
   },
 };

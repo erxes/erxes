@@ -57,9 +57,9 @@ export const generateDbEventPayload = (
   }
   if (input.action === 'delete') {
     return {
-      ...input,
       collectionName: collectionName,
       docId: input.docId,
+      prevDocument: input.prevDocument,
     };
   }
   if (input.action === 'updateMany') {
@@ -77,6 +77,7 @@ export const generateDbEventPayload = (
   if (input.action === 'deleteMany') {
     return {
       collectionName: collectionName,
+      prevDocuments: input.prevDocuments,
     };
   }
 };

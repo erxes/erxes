@@ -43,7 +43,6 @@ const queryParams = `
   priority: [String]
   userIds: [String]
   segment: String
-  segmentData: String
   assignedToMe: String
   startDate: String
   endDate: String
@@ -51,6 +50,7 @@ const queryParams = `
   stageChangedStartDate: Date
   stageChangedEndDate: Date
   noSkipArchive: Boolean
+  status: String
   tagIds: [String]
   number: String
   branchIds: [String]
@@ -110,6 +110,7 @@ export const types = `
     assignedUsers: [User]
     stage: SalesStage
     labels: [SalesPipelineLabel]
+    pipelineId: String
     pipeline: SalesPipeline
     createdUser: User
     propertiesData: JSON
@@ -130,8 +131,12 @@ export const types = `
 
     products: [Product]
     productsData: JSON
+    mobileAmount: Float
+    mobileAmounts: JSON
     paymentsData: JSON
     extraData: JSON
+    brokerType: String
+    brokerId: String
 
     cursor: String
   }
@@ -220,8 +225,12 @@ const mutationParams = `
   departmentIds: [String],
 
   paymentsData: JSON,
+  mobileAmount: Float,
+  mobileAmounts: JSON,
   productsData: JSON,
   extraData: JSON,
+  brokerType: String,
+  brokerId: String,
 `;
 
 export const mutations = `

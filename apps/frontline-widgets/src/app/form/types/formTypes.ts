@@ -55,6 +55,14 @@ export interface IRule {
   value: string;
 }
 
+export interface ICallout {
+  title?: string | null;
+  body?: string | null;
+  buttonText?: string | null;
+  featuredImage?: string | null;
+  skip?: boolean | null;
+}
+
 export interface LeadData {
   adminEmails: string[];
   successImage?: string;
@@ -84,6 +92,7 @@ export interface IFormData {
   fields: IFormField[];
   visibility: string | null;
   leadData: LeadData;
+  callout: ICallout | null;
   languageCode: string | null;
   departmentIds: string[];
   tagIds: string[];

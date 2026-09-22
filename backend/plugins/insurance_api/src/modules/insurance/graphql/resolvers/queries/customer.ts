@@ -1,17 +1,43 @@
 import { IContext } from '~/connectionResolvers';
+import { escapeRegExp } from 'erxes-api-shared/utils';
+import { FilterQuery, SortOrder } from 'mongoose';
+import { ICustomerDocument } from '@/insurance/@types/customer';
+
+type TCustomerQueryArgs = {
+  search?: string;
+  page?: number;
+  limit?: number;
+  sort?: 'ASC' | 'DESC';
+  sortField?: string;
+  filter?: Record<string, unknown>;
+  orderBy?: { createdAt?: 1 | -1 };
+};
 
 export const customerQueries = {
   insuranceCustomers: Object.assign(
-    async (_parent: undefined, args: any, { models }: IContext) => {
-      const { search, page = 1, limit = 100, sort, sortField, filter } = args;
-      const query: any = {};
+    async (
+      _parent: undefined,
+      args: TCustomerQueryArgs,
+      { models }: IContext,
+    ) => {
+      const {
+        search,
+        page = 1,
+        limit = 100,
+        sort,
+        sortField,
+        filter,
+        orderBy,
+      } = args;
+      const query: FilterQuery<ICustomerDocument> = {};
 
       if (search) {
+        const escapedSearch = escapeRegExp(search);
         query.$or = [
-          { firstName: { $regex: search, $options: 'i' } },
-          { lastName: { $regex: search, $options: 'i' } },
-          { email: { $regex: search, $options: 'i' } },
-          { registrationNumber: { $regex: search, $options: 'i' } },
+          { firstName: { $regex: escapedSearch, $options: 'i' } },
+          { lastName: { $regex: escapedSearch, $options: 'i' } },
+          { email: { $regex: escapedSearch, $options: 'i' } },
+          { registrationNumber: { $regex: escapedSearch, $options: 'i' } },
         ];
       }
 
@@ -23,8 +49,10 @@ export const customerQueries = {
         });
       }
 
-      const sortOptions: any = {};
-      if (sort && sortField) {
+      const sortOptions: Record<string, SortOrder> = {};
+      if (orderBy?.createdAt === 1 || orderBy?.createdAt === -1) {
+        sortOptions.createdAt = orderBy.createdAt;
+      } else if (sort && sortField) {
         sortOptions[sortField] = sort === 'DESC' ? -1 : 1;
       }
 

@@ -1,11 +1,24 @@
 import { IconEditCircle, IconEyeCheck } from '@tabler/icons-react';
 import { Button, Input, Label, Separator } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useWatch } from 'react-hook-form';
 import { TR_SIDES } from '~/modules/transactions/types/constants';
 import { followTrDocsState } from '../../states/trStates';
 import { ICommonFieldProps } from '../../types/JournalForms';
+
+const relatedAccountCodes = (
+  customCodes?: string[],
+  defaultCodes?: string[],
+) => {
+  const filteredCustomCodes = customCodes?.filter(Boolean);
+
+  if (filteredCustomCodes?.length) {
+    return filteredCustomCodes;
+  }
+
+  return defaultCodes || [];
+};
 
 export const RelAccountsForm = ({ form, index }: ICommonFieldProps) => {
   const [showEdit, setShowEdit] = useState<boolean>(false);
@@ -80,15 +93,28 @@ export const RelAccountsForm = ({ form, index }: ICommonFieldProps) => {
     };
   }, [trDocs, followTrDocs, trDoc._id, trDoc.ptrId]);
 
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const dtTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const ctTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [customDts, setCustomDts] = useState<string[]>([
-    ...(trDoc.relAccounts?.customDt || dtCodes),
+    ...relatedAccountCodes(trDoc.relAccounts?.customDt, dtCodes),
     '',
   ]);
   const [customCts, setCustomCts] = useState<string[]>([
-    ...(trDoc.relAccounts?.customDt || ctCodes),
+    ...relatedAccountCodes(trDoc.relAccounts?.customCt, ctCodes),
     '',
   ]);
+
+  useEffect(() => {
+    return () => {
+      if (dtTimeoutRef.current) {
+        clearTimeout(dtTimeoutRef.current);
+      }
+
+      if (ctTimeoutRef.current) {
+        clearTimeout(ctTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const onChangeDt = (value: string, ind: number) => {
     const newValues = customDts.map((code, cInd) =>
@@ -97,16 +123,19 @@ export const RelAccountsForm = ({ form, index }: ICommonFieldProps) => {
 
     setCustomDts(newValues);
 
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
+    if (dtTimeoutRef.current) {
+      clearTimeout(dtTimeoutRef.current);
     }
 
-    timeoutRef.current = setTimeout(() => {
+    dtTimeoutRef.current = setTimeout(() => {
       const filtered = newValues.filter((code) => !!code);
       setCustomDts([...filtered, '']);
 
+      const currentRelAccounts =
+        form.getValues(`trDocs.${index}.relAccounts`) || {};
+
       form.setValue(`trDocs.${index}.relAccounts`, {
-        ...trDoc.relAccounts,
+        ...currentRelAccounts,
         customDt: filtered.length ? filtered : undefined,
       });
     }, 900);
@@ -118,15 +147,19 @@ export const RelAccountsForm = ({ form, index }: ICommonFieldProps) => {
 
     setCustomCts(newValues);
 
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
+    if (ctTimeoutRef.current) {
+      clearTimeout(ctTimeoutRef.current);
     }
 
-    timeoutRef.current = setTimeout(() => {
+    ctTimeoutRef.current = setTimeout(() => {
       const filtered = newValues.filter((code) => !!code);
       setCustomCts([...filtered, '']);
+
+      const currentRelAccounts =
+        form.getValues(`trDocs.${index}.relAccounts`) || {};
+
       form.setValue(`trDocs.${index}.relAccounts`, {
-        ...trDoc.relAccounts,
+        ...currentRelAccounts,
         customCt: filtered.length ? filtered : undefined,
       });
     }, 900);
@@ -138,6 +171,7 @@ export const RelAccountsForm = ({ form, index }: ICommonFieldProps) => {
     return (
       <div className="flex flex-auto">
         <Button
+          type="button"
           variant="link"
           className="bg-border"
           onClick={() => setShowEdit(true)}
@@ -159,7 +193,7 @@ export const RelAccountsForm = ({ form, index }: ICommonFieldProps) => {
         {customDts?.map((code, ind) => (
           <Input
             className="ml-4 max-w-36"
-            key={code}
+            key={`${trDoc._id}-dt-${ind}`}
             value={code}
             onChange={(e) => onChangeDt(e.target.value, ind)}
           />
@@ -170,13 +204,14 @@ export const RelAccountsForm = ({ form, index }: ICommonFieldProps) => {
         {customCts?.map((code, ind) => (
           <Input
             className="ml-4 max-w-36"
-            key={code}
+            key={`${trDoc._id}-ct-${ind}`}
             value={code}
             onChange={(e) => onChangeCt(e.target.value, ind)}
           />
         ))}
       </div>
       <Button
+        type="button"
         variant="link"
         className="bg-border mt-2 mb-2"
         onClick={() => setShowEdit(false)}

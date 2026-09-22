@@ -7,22 +7,11 @@ export const useProductsEdit = () => {
     productsMutations.productsEdit,
   );
 
-  const mutate = ({ variables, ...options }: MutationHookOptions) => {
+  const mutate = ({ variables, ...options }: MutationHookOptions) =>
     productsEdit({
       ...options,
       variables,
-      update: (cache, { data: { productsEdit } }) => {
-        cache.modify({
-          id: cache.identify(productsEdit),
-          fields: Object.keys(variables || {}).reduce((fields: any, field) => {
-            fields[field] = () => variables?.[field];
-            return fields;
-          }, {}),
-          optimistic: true,
-        });
-      },
     });
-  };
 
   return { productsEdit: mutate, loading };
 };

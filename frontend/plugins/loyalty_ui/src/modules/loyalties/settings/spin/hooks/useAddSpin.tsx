@@ -1,5 +1,6 @@
 import { MutationHookOptions, useMutation } from '@apollo/client';
 import { useRecordTableCursor, useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { QUERY_SPIN_CAMPAIGNS } from '../add-spin-campaign/graphql/queries/getCampaignsQuery';
 import { SPINS_CURSOR_SESSION_KEY } from '../constants/spinsCursorSessionKey';
 import { CREATE_SPIN_CAMPAIGN } from '../graphql/mutations/SpinMutations';
@@ -30,6 +31,7 @@ export interface AddSpinVariables {
 }
 
 export const useAddSpin = () => {
+  const { t } = useTranslation('loyalty');
   const { toast } = useToast();
   const { cursor } = useRecordTableCursor({
     sessionKey: SPINS_CURSOR_SESSION_KEY,
@@ -91,15 +93,15 @@ export const useAddSpin = () => {
       ...options,
       onCompleted: (data) => {
         toast({
-          title: 'Success',
-          description: 'Spin campaign created successfully',
+          title: t('success'),
+          description: t('spin-campaign-created'),
           variant: 'default',
         });
         options?.onCompleted?.(data);
       },
       onError: (error) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });

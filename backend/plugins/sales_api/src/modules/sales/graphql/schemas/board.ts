@@ -23,6 +23,13 @@ export const types = `
     startTime: Date
     endTime: Date
   }
+
+  type SalesPipelineChangeResponse {
+    _id: String
+    processId: String
+    action: String
+    data: JSON
+  }
 `;
 
 export const queries = `

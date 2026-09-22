@@ -10,6 +10,8 @@ import {
 import { AlertDialog, Button, Dialog, DropdownMenu } from 'erxes-ui';
 import { Dispatch, SetStateAction } from 'react';
 import { useTranslation } from 'react-i18next';
+import { NodeEditMetaDataDialog } from './NodeEditMetaDataDialog';
+import { useAutomation } from '@/automations/context/AutomationProvider';
 
 export const NodeDropdownActions = ({
   id,
@@ -18,8 +20,8 @@ export const NodeDropdownActions = ({
   id: string;
   data: NodeData;
 }) => {
+  const { isReadOnly } = useAutomation();
   const {
-    fieldName,
     isOpenDialog,
     isOpenDropDown,
     isOpenRemoveAlert,
@@ -29,6 +31,10 @@ export const NodeDropdownActions = ({
     onRemoveNode,
     openNodeConfigurationForm,
   } = useNodeDropDownActions(id, data.nodeType);
+
+  if (isReadOnly) {
+    return null;
+  }
 
   return (
     <DropdownMenu
@@ -61,7 +67,6 @@ export const NodeDropdownActions = ({
           setOpenDialog={setOpenDialog}
           data={data}
           id={id}
-          fieldName={fieldName}
         />
         <DropdownMenu.Item asChild>
           <Button
@@ -125,48 +130,5 @@ export const NodeRemoveActionDialog = ({
         </AlertDialog.Footer>
       </AlertDialog.Content>
     </AlertDialog>
-  );
-};
-
-const NodeEditMetaDataDialog = ({
-  isOpenDialog,
-  setOpenDialog,
-  data,
-  id,
-  fieldName,
-}: {
-  isOpenDialog: boolean;
-  setOpenDialog: Dispatch<SetStateAction<boolean>>;
-  data: NodeData;
-  id: string;
-  fieldName:
-    | AutomationNodesType.Triggers
-    | AutomationNodesType.Actions
-    | AutomationNodesType.Workflows;
-}) => {
-  const { t } = useTranslation('automations');
-  return (
-    <Dialog open={isOpenDialog} onOpenChange={setOpenDialog}>
-      <Dialog.Trigger asChild>
-        <DropdownMenu.Item asChild>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="w-full justify-start"
-            onClick={(e) => e.stopPropagation()}
-            onDoubleClick={(e) => e.stopPropagation()}
-          >
-            <IconEdit className="size-4" />
-            {t('edit')}
-          </Button>
-        </DropdownMenu.Item>
-      </Dialog.Trigger>
-      <NodeEditMetaDataForm
-        id={id}
-        fieldName={fieldName}
-        data={data}
-        callback={() => setOpenDialog(false)}
-      />
-    </Dialog>
   );
 };

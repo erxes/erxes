@@ -20,10 +20,10 @@ const BarcodeResult = () => {
   const addToCart = useSetAtom(addToCartAtom)
   const [open, setOpen] = useState(false)
 
-  const [searchValue, manufactureDate] = barcode.split("_")
+  const [searchValue, manufacturedDate] = barcode.split("_")
 
   const handleAddToCart = (product: IProduct) =>
-    addToCart(manufactureDate ? { ...product, manufactureDate } : product)
+    addToCart(manufacturedDate ? { ...product, manufacturedDate } : product)
 
   const [getProducts, { loading, data }] = useLazyQuery(queries.products, {
     onCompleted(data) {

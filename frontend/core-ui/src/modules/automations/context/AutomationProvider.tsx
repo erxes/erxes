@@ -4,6 +4,7 @@ import {
   AutomationConstants,
   AutomationNodeType,
   ConstantsQueryResponse,
+  IAutomation,
   NodeData,
 } from '@/automations/types';
 import { useQuery } from '@apollo/client';
@@ -14,7 +15,12 @@ import {
   OnInit,
   ReactFlowInstance,
 } from '@xyflow/react';
+import {
+  automationBuilderSecondarySidebarOpenState,
+  automationBuilderSiderbarOpenState,
+} from '@/automations/states/automationState';
 import { useMultiQueryState } from 'erxes-ui';
+import { useAtom } from 'jotai';
 import {
   createContext,
   SetStateAction,
@@ -28,6 +34,7 @@ import {
   IAutomationsActionConfigConstants,
   IAutomationsActionFolkConfig,
   IAutomationsTriggerConfigConstants,
+  usePermissionCheck,
 } from 'ui-modules';
 
 type QueryTypes = Record<string, unknown>;
@@ -59,6 +66,19 @@ type TConstantCached = Pick<AutomationConstants, TConstantCachedFields> | null;
 interface AutomationContextType {
   awaitingToConnectNodeId?: string;
   setAwaitingToConnectNodeId: Dispatch<SetStateAction<string>>;
+  // Sidebar visibility, scoped like queryParams: the workflow edit sheet has
+  // its own sidebar that must not open/close the main canvas one
+  isSidebarOpen: boolean;
+  setSidebarOpen: (open: boolean) => void;
+  toggleSidebar: () => void;
+  isSecondarySidebarOpen: boolean;
+  setSecondarySidebarOpen: (open: boolean) => void;
+  toggleSecondarySidebar: () => void;
+  // Drill-in editing: the id of the workflow whose members are being edited on
+  // the main workspace, or null when the root automation is shown. Lives on the
+  // root provider so the WorkflowNode maximize control and the workspace agree.
+  editingWorkflowId: string | null;
+  setEditingWorkflowId: (workflowId: string | null) => void;
   selectedNode: TAutomationSelectedNode;
   setSelectedNode: Dispatch<SetStateAction<TAutomationSelectedNode>>;
   queryParams: QueryValues<AutomationQueryParams>;
@@ -76,14 +96,22 @@ interface AutomationContextType {
   actionConstMap: Map<string, IAutomationsActionConfigConstants>;
   triggerConstMap: Map<string, IAutomationsTriggerConfigConstants>;
   isCreatePage: boolean;
+  detail?: IAutomation;
+  isReadOnly: boolean;
 }
 
 const AutomationContext = createContext<AutomationContextType | null>(null);
 
 export const AutomationProvider = ({
   children,
+  detail,
+  scoped,
 }: {
   children: React.ReactNode;
+  detail?: IAutomation;
+  // Scoped providers (e.g. workflow edit sheet) keep their node selection in
+  // local state instead of URL params, so they don't fight the main canvas.
+  scoped?: boolean;
 }) => {
   const [awaitingToConnectNodeId, setAwaitingToConnectNodeId] = useState('');
   const [selectedNode, setSelectedNode] = useState<{
@@ -97,14 +125,56 @@ export const AutomationProvider = ({
     Node<NodeData>,
     Edge<EdgeProps>
   > | null>(null);
-  const [queryParams, setQueryParams] =
+  const [urlQueryParams, setUrlQueryParams] =
     useMultiQueryState<AutomationQueryParams>([
       'activeTab',
       'activeNodeTab',
       'activeNodeId',
     ]);
+  const [localQueryParams, setLocalQueryParams] = useState<
+    QueryValues<AutomationQueryParams>
+  >({ activeTab: null, activeNodeTab: null, activeNodeId: null });
+
+  const queryParams = scoped ? localQueryParams : urlQueryParams;
+  const setQueryParams = scoped
+    ? (values: QueryValues<AutomationQueryParams>) =>
+        setLocalQueryParams((previous) => ({ ...previous, ...values }))
+    : setUrlQueryParams;
+
+  const [globalSidebarOpen, setGlobalSidebarOpen] = useAtom(
+    automationBuilderSiderbarOpenState,
+  );
+  const [globalSecondarySidebarOpen, setGlobalSecondarySidebarOpen] = useAtom(
+    automationBuilderSecondarySidebarOpenState,
+  );
+  const [localSidebarOpen, setLocalSidebarOpen] = useState(false);
+  const [localSecondarySidebarOpen, setLocalSecondarySidebarOpen] =
+    useState(false);
+
+  const isSidebarOpen = scoped ? localSidebarOpen : globalSidebarOpen;
+  const setSidebarOpen = scoped ? setLocalSidebarOpen : setGlobalSidebarOpen;
+  const isSecondarySidebarOpen = scoped
+    ? localSecondarySidebarOpen
+    : globalSecondarySidebarOpen;
+  const setSecondarySidebarOpen = scoped
+    ? setLocalSecondarySidebarOpen
+    : setGlobalSecondarySidebarOpen;
+  const toggleSidebar = () => setSidebarOpen(!isSidebarOpen);
+  const toggleSecondarySidebar = () =>
+    setSecondarySidebarOpen(!isSecondarySidebarOpen);
+
+  const [editingWorkflowId, setEditingWorkflowId] = useState<string | null>(
+    null,
+  );
+
   const { pathname } = useLocation();
   const isCreatePage = pathname === '/automations/create';
+  const { isLoaded, hasActionPermission } = usePermissionCheck();
+  const isReadOnly =
+    isLoaded &&
+    !hasActionPermission(
+      isCreatePage ? 'automationsCreate' : 'automationsUpdate',
+    );
   const [cached, setCached] = useState<TConstantCached>(null);
 
   const { data, loading, error, refetch } = useQuery<ConstantsQueryResponse>(
@@ -183,6 +253,14 @@ export const AutomationProvider = ({
       value={{
         awaitingToConnectNodeId,
         setAwaitingToConnectNodeId,
+        isSidebarOpen,
+        setSidebarOpen,
+        toggleSidebar,
+        isSecondarySidebarOpen,
+        setSecondarySidebarOpen,
+        toggleSecondarySidebar,
+        editingWorkflowId,
+        setEditingWorkflowId,
         selectedNode,
         setSelectedNode,
         queryParams,
@@ -200,6 +278,8 @@ export const AutomationProvider = ({
         actionConstMap,
         triggerConstMap,
         isCreatePage,
+        detail,
+        isReadOnly,
       }}
     >
       {children}

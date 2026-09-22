@@ -35,6 +35,7 @@ const subIdConfigCodes = new Set([
   'stageInMoveConfig',
   'stageInIncomeConfig',
   'remainderConfig',
+  'DYNAMIC',
 ]);
 
 const configCodes = ['EBARIMT', ...subIdConfigCodes, 'DYNAMIC', 'ERKHET'];

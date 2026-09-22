@@ -1,23 +1,25 @@
 import { OperationVariables, useMutation } from '@apollo/client';
 import { toast } from 'erxes-ui';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { SAFE_REMAINDERS_QUERY } from '../graphql/safeRemainderQueries';
 import { SAFE_REMAINDER_REMOVE } from '../graphql/safeRemainderRemove';
-import { useSafeRemainderQueryParams } from './useSafeRemainders';
+import { useSafeRemainderVariables } from './useSafeRemainders';
 
 export const useSafeRemainderRemove = () => {
+  const { t } = useTranslation('accounting');
   const navigate = useNavigate();
+  const filterVariables = useSafeRemainderVariables();
   const [_removeMutation, { loading }] = useMutation(SAFE_REMAINDER_REMOVE);
 
   const removeSafeRemainder = (options?: OperationVariables) => {
-    const queryParams = useSafeRemainderQueryParams();
     const variables = options?.variables || {};
     return _removeMutation({
       ...options,
       variables,
       onError: (error: Error) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });
@@ -25,8 +27,8 @@ export const useSafeRemainderRemove = () => {
       },
       onCompleted: (data) => {
         toast({
-          title: 'Success',
-          description: 'Inventory safe remainder deleted successfully',
+          title: t('success'),
+          description: t('safe-remainder-deleted'),
         });
         options?.onCompleted?.(data);
         const pathname = '/accounting/inventories/safe-remainders';
@@ -36,7 +38,7 @@ export const useSafeRemainderRemove = () => {
         {
           query: SAFE_REMAINDERS_QUERY,
           variables: {
-            ...queryParams,
+            ...filterVariables,
           },
         },
       ],

@@ -6,6 +6,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { ApolloError, useMutation } from '@apollo/client';
 import {
+  IconCopy,
   IconEdit,
   IconPointerBolt,
   IconShare,
@@ -13,6 +14,7 @@ import {
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
+  Badge,
   Input,
   PopoverScoped,
   RecordTable,
@@ -23,10 +25,17 @@ import {
   useConfirm,
   useToast,
 } from 'erxes-ui';
-import { TagsSelect, TAutomationAction, TAutomationTrigger } from 'ui-modules';
+import {
+  ApprovalLockedBadge,
+  TagsSelect,
+  TAutomationAction,
+  TAutomationTrigger,
+} from 'ui-modules';
+import { AutomationExecutionCountCell } from '@/automations/components/list/AutomationExecutionCountCell';
 import { AutomationRecordTableUserInlineCell } from '@/automations/components/list/AutomationRecordTableUserInlineCell';
 import { AutomationRecordTableStatusInlineCell } from '@/automations/components/list/AutomationRecordTableStatusInlineCell';
 import { useState } from 'react';
+import { useDuplicateAutomation } from '@/automations/hooks/useDuplicateAutomation';
 import { useRemoveAutomations } from '@/automations/hooks/useRemoveAutomations';
 import { useTranslation } from 'react-i18next';
 
@@ -42,8 +51,34 @@ export const getAutomationColumns: (
       const navigate = useNavigate();
       const { confirm } = useConfirm();
       const { removeAutomations, loading } = useRemoveAutomations();
+      const { duplicateAutomation, loading: duplicating } =
+        useDuplicateAutomation();
       const { t } = useTranslation('automations');
       const { toast } = useToast();
+      const lockState = cell.row.original.approvalLockState;
+      const canWrite = !lockState?.locked || lockState.hasAccess;
+
+      const onDuplicate = () =>
+        duplicateAutomation(cell.row.original._id, {
+          onError: (e: ApolloError) => {
+            toast({
+              title: 'Error',
+              description: e.message,
+              variant: 'destructive',
+            });
+          },
+          onCompleted: ({
+            automationsDuplicate,
+          }: {
+            automationsDuplicate?: { _id: string; name: string };
+          }) => {
+            toast({
+              title: 'Success',
+              variant: 'success',
+              description: `“${automationsDuplicate?.name}” created as a draft`,
+            });
+          },
+        });
 
       const onRemove = () => {
         confirm({
@@ -69,22 +104,24 @@ export const getAutomationColumns: (
       };
       return (
         <DropdownMenu>
-          <DropdownMenu.Trigger asChild disabled={loading}>
+          <DropdownMenu.Trigger asChild disabled={loading || duplicating}>
             <RecordTable.MoreButton className="w-full h-full" />
           </DropdownMenu.Trigger>
           <DropdownMenu.Content
             align="start"
-            className="w-[100px] min-w-0 [&>button]:cursor-pointer"
+            className="w-[140px] min-w-0 [&>button]:cursor-pointer"
             onClick={(e) => e.stopPropagation()}
           >
-            <DropdownMenu.Item asChild>
+            <DropdownMenu.Item
+              asChild
+              onSelect={() =>
+                navigate(`/automations/edit/${cell.row.original._id}`)
+              }
+            >
               <Button
                 variant="ghost"
                 size="sm"
                 className="w-full justify-start"
-                onClick={() =>
-                  navigate(`/automations/edit/${cell.row.original._id}`)
-                }
               >
                 <IconEdit className="size-4" />
                 {t('edit')}
@@ -94,7 +131,20 @@ export const getAutomationColumns: (
               <Button
                 variant="ghost"
                 size="sm"
+                className="w-full justify-start"
+                disabled={duplicating}
+                onClick={() => onDuplicate()}
+              >
+                <IconCopy className="size-4" />
+                {t('duplicate')}
+              </Button>
+            </DropdownMenu.Item>
+            <DropdownMenu.Item asChild>
+              <Button
+                variant="ghost"
+                size="sm"
                 className="w-full justify-start text-destructive"
+                disabled={!canWrite}
                 onClick={() => onRemove()}
               >
                 <IconTrash className="size-4" />
@@ -105,9 +155,9 @@ export const getAutomationColumns: (
         </DropdownMenu>
       );
     },
-    size: 34,
-    maxSize: 34,
-    minSize: 34,
+    size: 33,
+    maxSize: 33,
+    minSize: 33,
   },
   checkBoxColumn,
   {
@@ -115,20 +165,25 @@ export const getAutomationColumns: (
     accessorKey: 'name',
     header: () => <RecordTable.InlineHead label={t('name')} />,
     cell: ({ cell }) => {
-      const [editingName, setEditingName] = useState(cell.getValue() as string);
+      const currentName = cell.getValue() as string;
+      const automationId = cell.row.original._id;
+      const [editingName, setEditingName] = useState(currentName);
       const navigate = useNavigate();
       const [edit] = useMutation(AUTOMATION_EDIT);
       const { toast } = useToast();
+      const lockState = cell.row.original.approvalLockState;
+      const canWrite = !lockState?.locked || lockState.hasAccess;
       const handleEnter = () => {
-        if (
-          editingName === (cell.getValue() as string) ||
-          editingName.trim() === ''
-        ) {
+        if (!canWrite) {
+          return;
+        }
+
+        if (editingName === currentName || editingName.trim() === '') {
           return;
         }
         edit({
           variables: {
-            id: cell.row.original._id,
+            id: automationId,
             name: editingName,
           },
           onError: (e: ApolloError) => {
@@ -147,15 +202,32 @@ export const getAutomationColumns: (
           },
         });
       };
+
+      if (!canWrite) {
+        return (
+          <RecordTableInlineCell.Anchor
+            onClick={() => {
+              navigate(`/automations/edit/${automationId}`);
+            }}
+          >
+            <span className="truncate">{currentName}</span>
+          </RecordTableInlineCell.Anchor>
+        );
+      }
+
       return (
-        <PopoverScoped closeOnEnter onEnter={handleEnter}>
+        <PopoverScoped
+          closeOnEnter
+          onEnter={handleEnter}
+          dependencies={[automationId, canWrite, currentName, editingName]}
+        >
           <RecordTableInlineCell.Trigger>
             <RecordTableInlineCell.Anchor
               onClick={() => {
-                navigate(`/automations/edit/${cell.row.original._id}`);
+                navigate(`/automations/edit/${automationId}`);
               }}
             >
-              {cell.getValue() as string}
+              <span className="truncate">{currentName}</span>
             </RecordTableInlineCell.Anchor>
           </RecordTableInlineCell.Trigger>
           <RecordTableInlineCell.Content>
@@ -168,6 +240,25 @@ export const getAutomationColumns: (
       );
     },
     minSize: 150,
+  },
+  {
+    id: 'visibility',
+    header: () => <RecordTable.InlineHead label={t('visibility')} />,
+    cell: ({ cell }) => {
+      const lockState = cell.row.original.approvalLockState;
+      const isPrivate = lockState?.locked === true;
+
+      return (
+        <RecordTableInlineCell>
+          {isPrivate ? (
+            <ApprovalLockedBadge state={lockState} />
+          ) : (
+            <Badge variant="secondary">{t('public')}</Badge>
+          )}
+        </RecordTableInlineCell>
+      );
+    },
+    size: 120,
   },
   {
     id: 'status',
@@ -208,6 +299,14 @@ export const getAutomationColumns: (
       );
     },
     size: 80,
+  },
+  {
+    id: 'executionCount',
+    header: () => <RecordTable.InlineHead label={t('runs')} />,
+    cell: ({ cell }) => (
+      <AutomationExecutionCountCell id={cell.row.original._id} />
+    ),
+    size: 100,
   },
   {
     id: 'tagIds',

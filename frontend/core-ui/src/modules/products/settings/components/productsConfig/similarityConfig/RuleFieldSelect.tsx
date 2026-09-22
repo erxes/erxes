@@ -1,4 +1,5 @@
 import { Select } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useFields } from 'ui-modules';
 
 interface RuleFieldSelectProps {
@@ -12,6 +13,7 @@ export const RuleFieldSelect = ({
   value,
   onValueChange,
 }: RuleFieldSelectProps) => {
+  const { t } = useTranslation('product', { keyPrefix: 'similarity-config' });
   const { fields } = useFields({
     contentType: 'core:product',
     groupId: groupId || undefined,
@@ -20,7 +22,7 @@ export const RuleFieldSelect = ({
   return (
     <Select value={value} onValueChange={onValueChange}>
       <Select.Trigger className="flex-1">
-        <Select.Value placeholder="Select field" />
+        <Select.Value placeholder={t('select-field', 'Select field')} />
       </Select.Trigger>
       <Select.Content>
         {fields.map((field) => (

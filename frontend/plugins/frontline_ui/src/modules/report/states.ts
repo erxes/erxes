@@ -1,5 +1,5 @@
 import { atom, WritableAtom } from 'jotai';
-import { ResponsesChartType } from './types';
+import { ResponsesChartType, type TicketPropertyFilter } from './types';
 
 function getOrCreate<K, V>(map: Map<K, V>, key: K, factory: () => V): V {
   let value = map.get(key);
@@ -186,7 +186,7 @@ export const getReportTicketTagFilterAtom = (cardId: string) =>
 export const getReportStateFilterAtom = (cardId: string) =>
   getOrCreate(stateFilterAtomCache, cardId, () =>
     atom(
-      (get) => get(reportStateFilterState)[cardId] || '',
+      (get) => get(reportStateFilterState)[cardId] || 'active',
       (get, set, newValue: string) => {
         set(reportStateFilterState, {
           ...get(reportStateFilterState),
@@ -255,6 +255,108 @@ export const getReportCompanyFilterAtom = (cardId: string) =>
       (get, set, newValue: string[]) => {
         set(reportCompanyFilterState, {
           ...get(reportCompanyFilterState),
+          [cardId]: newValue,
+        });
+      },
+    ),
+  );
+
+export const reportPropertyFilterState = atom<
+  Record<string, TicketPropertyFilter[]>
+>({});
+
+const propertyFilterAtomCache = new Map<
+  string,
+  WritableAtom<TicketPropertyFilter[], [TicketPropertyFilter[]], void>
+>();
+
+export const getReportPropertyFilterAtom = (cardId: string) =>
+  getOrCreate(propertyFilterAtomCache, cardId, () =>
+    atom(
+      (get) => get(reportPropertyFilterState)[cardId] || [],
+      (get, set, newValue: TicketPropertyFilter[]) => {
+        set(reportPropertyFilterState, {
+          ...get(reportPropertyFilterState),
+          [cardId]: newValue,
+        });
+      },
+    ),
+  );
+
+export const reportGroupPropertyFilterState = atom<Record<string, string>>({});
+
+const groupPropertyFilterAtomCache = new Map<
+  string,
+  WritableAtom<string, [string], void>
+>();
+
+export const getReportGroupPropertyFilterAtom = (cardId: string) =>
+  getOrCreate(groupPropertyFilterAtomCache, cardId, () =>
+    atom(
+      (get) => get(reportGroupPropertyFilterState)[cardId] || '',
+      (get, set, newValue: string) => {
+        set(reportGroupPropertyFilterState, {
+          ...get(reportGroupPropertyFilterState),
+          [cardId]: newValue,
+        });
+      },
+    ),
+  );
+
+export const reportTicketStatusFilterState = atom<Record<string, string[]>>({});
+
+const ticketStatusFilterAtomCache = new Map<
+  string,
+  WritableAtom<string[], [string[]], void>
+>();
+
+export const getReportTicketStatusFilterAtom = (cardId: string) =>
+  getOrCreate(ticketStatusFilterAtomCache, cardId, () =>
+    atom(
+      (get) => get(reportTicketStatusFilterState)[cardId] || [],
+      (get, set, newValue: string[]) => {
+        set(reportTicketStatusFilterState, {
+          ...get(reportTicketStatusFilterState),
+          [cardId]: newValue,
+        });
+      },
+    ),
+  );
+
+export const reportFacebookPageFilterState = atom<Record<string, string[]>>({});
+
+const facebookPageFilterAtomCache = new Map<
+  string,
+  WritableAtom<string[], [string[]], void>
+>();
+
+export const getReportFacebookPageFilterAtom = (cardId: string) =>
+  getOrCreate(facebookPageFilterAtomCache, cardId, () =>
+    atom(
+      (get) => get(reportFacebookPageFilterState)[cardId] || [],
+      (get, set, newValue: string[]) => {
+        set(reportFacebookPageFilterState, {
+          ...get(reportFacebookPageFilterState),
+          [cardId]: newValue,
+        });
+      },
+    ),
+  );
+
+export const reportFacebookSearchFilterState = atom<Record<string, string>>({});
+
+const facebookSearchFilterAtomCache = new Map<
+  string,
+  WritableAtom<string, [string], void>
+>();
+
+export const getReportFacebookSearchFilterAtom = (cardId: string) =>
+  getOrCreate(facebookSearchFilterAtomCache, cardId, () =>
+    atom(
+      (get) => get(reportFacebookSearchFilterState)[cardId] || '',
+      (get, set, newValue: string) => {
+        set(reportFacebookSearchFilterState, {
+          ...get(reportFacebookSearchFilterState),
           [cardId]: newValue,
         });
       },

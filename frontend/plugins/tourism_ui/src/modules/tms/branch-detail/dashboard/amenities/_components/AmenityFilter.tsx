@@ -1,8 +1,10 @@
 import { Combobox, Command, Filter } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { AMENITIES_CURSOR_SESSION_KEY } from '../constants/amenityCursorSessionKey';
 import { AmenityTotalCount } from './AmenityTotalCount';
 
 const AmenityFilterPopover = () => {
+  const { t } = useTranslation('tourism');
   return (
     <>
       <Filter.Popover>
@@ -10,7 +12,7 @@ const AmenityFilterPopover = () => {
         <Combobox.Content>
           <Filter.View>
             <Command>
-              <Filter.CommandInput placeholder="Filter" variant="secondary" />
+              <Filter.CommandInput placeholder={t('filter')} variant="secondary" />
               <Command.List className="p-1">
                 <Filter.SearchValueTrigger />
               </Command.List>

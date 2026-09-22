@@ -8,12 +8,14 @@ import {
   INVOICE,
   INVOICE_SUBSCRIPTION,
   PAYMENTS_QRY,
-  TRANSACTION_SUBSCRIPTION
+  TRANSACTION_SUBSCRIPTION,
 } from '../lib/graphql';
 import React from 'react';
 
 const InvoiceDetail = () => {
   const { id } = useParams();
+  const hasPostedRef = React.useRef(false); //
+  const checkingRef = React.useRef(false);
   const [checkInvoice, { loading: checkInvoiceLoading }] =
     useMutation(CHECK_INVOICE);
 
@@ -37,25 +39,27 @@ const InvoiceDetail = () => {
     skip: !invoiceDetail,
     variables: {
       ...(invoiceDetail?.paymentIds?.length > 0 && {
-        ids: invoiceDetail?.paymentIds,
+        _ids: invoiceDetail?.paymentIds,
       }),
       currency: invoiceDetail?.currency || '',
     },
   });
-
   React.useEffect(() => {
     if (invoiceSubscription.data?.invoiceUpdated) {
-      const message = {
-        fromPayment: true,
-        message: 'paymentSuccessful',
-        invoiceId: id,
-        invoice: invoiceSubscription.data.invoiceUpdated,
-        contentType: invoiceDetail.contentType,
-        contentTypeId: invoiceDetail.contentTypeId,
-      };
-
       const res = invoiceSubscription.data.invoiceUpdated;
-      if (res.status === 'paid') {
+
+      if (res.status === 'paid' && !hasPostedRef.current) {
+        hasPostedRef.current = true;
+
+        const message = {
+          fromPayment: true,
+          message: 'paymentSuccessful',
+          invoiceId: id,
+          invoice: res,
+          contentType: invoiceDetail?.contentType,
+          contentTypeId: invoiceDetail?.contentTypeId,
+        };
+
         window.alert('Payment has been successfully processed. Thank you!');
         postMessage(message);
       }
@@ -65,7 +69,45 @@ const InvoiceDetail = () => {
       invoiceDetailQuery.refetch();
     }
   }, [invoiceSubscription.data, transactionSubscription.data]);
+ React.useEffect(() => {
+    if (!id || !invoiceDetail || invoiceDetail.status === 'paid') {
+      return;
+    }
 
+    const interval = setInterval(async () => {
+      if (checkingRef.current) {
+        return;
+      }
+
+      checkingRef.current = true;
+
+      try {
+        const { data } = await checkInvoice({
+          variables: { id },
+        });
+
+        const status = data?.invoicesCheck;
+
+        if (status === 'paid') {
+          await invoiceDetailQuery.refetch();
+          clearInterval(interval);
+          return;
+        }
+
+        if (status === 'failed' || status === 'expired') {
+          clearInterval(interval);
+          window.location.href =
+            `/gateway/pl:payment/widget/payment-failed/${id}`;
+        }
+      } catch (error) {
+        console.error('[Payment] Automatic invoice check failed:', error);
+      } finally {
+        checkingRef.current = false;
+      }
+    }, 15000);
+
+    return () => clearInterval(interval);
+  }, [id, invoiceDetail?.status, checkInvoice]);
   if (invoiceDetailQuery.loading || paymentsLoading) {
     return (
       <div className="py-12 flex items-center justify-center">
@@ -86,8 +128,8 @@ const InvoiceDetail = () => {
           paymentId,
           details,
           amount: invoiceDetail.amount,
-        }
-      }
+        },
+      },
     }).then(() => {
       invoiceDetailQuery.refetch();
     });
@@ -103,8 +145,11 @@ const InvoiceDetail = () => {
         invoiceDetailQuery.refetch();
         if (status !== 'paid') {
           window.alert('Not paid yet!, Please try again later.');
-        } else {
+        } else if (!hasPostedRef.current) {
+          hasPostedRef.current = true;
+
           window.alert('Payment has been successfully processed. Thank you!');
+
           const message = {
             fromPayment: true,
             message: 'paymentSuccessful',
@@ -113,18 +158,21 @@ const InvoiceDetail = () => {
             contentType: invoiceDetail.contentType,
             contentTypeId: invoiceDetail.contentTypeId,
           };
+
           postMessage(message);
         }
       });
   };
 
   const postMessage = (message: any) => {
-    if (window.opener) {
-      window.opener.postMessage(message, '*');
+    const win = globalThis as unknown as Window;
+
+    if (win.opener) {
+      win.opener.postMessage(message, '*');
     }
 
-    if (window.parent) {
-      window.parent.postMessage(message, '*');
+    if (win.parent && win.parent !== win) {
+      win.parent.postMessage(message, '*');
     }
   };
 
@@ -132,22 +180,10 @@ const InvoiceDetail = () => {
     addTransactionResponse.data || {};
   let payments = data?.paymentsPublic || [];
 
-  // if invoice amount is less than 100000, hide storepay
   if (invoiceDetail && invoiceDetail.amount < 100000) {
     payments = payments.filter((p: any) => p.kind !== 'storepay');
   }
-
   if (invoiceDetail.status === 'paid') {
-    window.alert('Payment has been successfully processed. Thank you!');
-    postMessage({
-      fromPayment: true,
-      message: 'paymentSuccessful',
-      invoiceId: id,
-      invoice: invoiceDetail,
-      contentType: invoiceDetail.contentType,
-      contentTypeId: invoiceDetail.contentTypeId,
-    });
-
     return (
       <div className="py-12 flex items-center justify-center">
         Payment has been successfully processed. Thank you!

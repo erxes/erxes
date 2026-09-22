@@ -1,5 +1,6 @@
 import { Schema } from 'mongoose';
 import {
+  AUTOMATED_REPLY_STATUS,
   CONVERSATION_OPERATOR_STATUS,
   CONVERSATION_SELECT_OPTIONS,
   CONVERSATION_STATUSES,
@@ -8,6 +9,20 @@ import { mongooseStringRandomId, schemaWrapper } from 'erxes-api-shared/utils';
 import { customFieldSchema } from 'erxes-api-shared/core-modules';
 
 // Conversation schema
+const automatedReplyControlSchema = new Schema(
+  {
+    status: {
+      type: String,
+      enum: AUTOMATED_REPLY_STATUS.ALL,
+      default: AUTOMATED_REPLY_STATUS.ACTIVE,
+    },
+    pausedUntil: { type: Date, optional: true },
+    reason: { type: String, optional: true },
+    updatedAt: { type: Date, optional: true },
+    updatedBy: { type: String, optional: true },
+  },
+  { _id: false },
+);
 
 export const conversationSchemaOptions = {
   operatorStatus: {
@@ -62,6 +77,11 @@ export const conversationSchemaOptions = {
     type: 'Boolean',
     label: 'Last responder is customer',
   },
+  hasSurvey: {
+    type: 'Boolean',
+    index: true,
+    label: 'Carries a poll message',
+  },
   isBot: {
     type: 'Boolean',
     label: 'isBot',
@@ -69,6 +89,21 @@ export const conversationSchemaOptions = {
   botId: {
     type: 'String',
     label: 'botId',
+  },
+  automatedReplyControl: {
+    type: automatedReplyControlSchema,
+    optional: true,
+  },
+
+  callProPotentialCustomerIds: {
+    type: ['String'],
+    label: 'Call Pro potential customer ids',
+    optional: true,
+  },
+  callProPhone: {
+    type: 'String',
+    label: 'Call Pro caller phone',
+    optional: true,
   },
 };
 
@@ -95,6 +130,15 @@ conversationSchema.index(
 conversationSchema.index(
   { userRelevance: 1 },
   { partialFilterExpression: { userRelevance: { $exists: true } } },
+);
+
+conversationSchema.index(
+  { 'automatedReplyControl.status': 1, updatedAt: -1 },
+  {
+    partialFilterExpression: {
+      'automatedReplyControl.status': { $exists: true },
+    },
+  },
 );
 
 conversationSchema.index({ createdAt: 1 });

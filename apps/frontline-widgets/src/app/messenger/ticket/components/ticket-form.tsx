@@ -9,39 +9,93 @@ import {
   toast,
   Upload,
 } from 'erxes-ui';
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useAtom, useSetAtom } from 'jotai';
 import { Path } from 'react-hook-form';
 import { z } from 'zod';
 import { EXCLUDED_TICKET_FORM_FIELDS } from '../../constants';
-import { ticketConfigAtom, userTicketCreatedNumberAtom } from '../../states';
+import {
+  selectedTicketConfigAtom,
+  ticketTabAtom,
+  userTicketCreatedNumberAtom,
+} from '../../states';
+import { ITicketPropertiesFields } from '../../types/connection';
 import { useCreateWidgetTicket } from '../hooks/useCreateWidgetTicket';
 import { useTicketForm } from '../hooks/useTicketForm';
 import { SelectTicketTag } from './tags/select-ticket-tag';
+import { TicketPropertyField } from './ticket-property-field';
 
 const TICKET_DETAILS_FIELDS = ['name', 'description', 'attachments', 'tags'];
 
-export const TicketForm = ({
-  setPage,
-}: {
-  setPage: (page: 'submissions' | 'submit') => void;
-}) => {
+// Turns the form values of the configured property fields into the
+// { [fieldId]: value } payload the widget ticket mutation expects
+const buildPropertiesData = (
+  propertyFields: ITicketPropertiesFields[],
+  values: Record<string, unknown>,
+) =>
+  propertyFields.reduce<Record<string, unknown>>((acc, propertyField) => {
+    const value = values?.[propertyField.fieldId];
+
+    if (value === undefined || value === null) {
+      return acc;
+    }
+
+    if (Array.isArray(value)) {
+      if (value.length) {
+        acc[propertyField.fieldId] = value;
+      }
+      return acc;
+    }
+
+    if (value instanceof Date) {
+      acc[propertyField.fieldId] = value.toISOString();
+      return acc;
+    }
+
+    if (typeof value === 'string') {
+      const trimmedValue = value.trim();
+
+      if (!trimmedValue) {
+        return acc;
+      }
+
+      acc[propertyField.fieldId] =
+        propertyField.type === 'number' ? Number(trimmedValue) : trimmedValue;
+      return acc;
+    }
+
+    acc[propertyField.fieldId] = value;
+    return acc;
+  }, {});
+
+export const TicketForm = () => {
+  const setPage = useSetAtom(ticketTabAtom);
   const cachedCustomerId = getLocalStorageItem('customerId');
   const { form, ticketSchema } = useTicketForm();
   const { createTicket, loading, saveTicketCustomersLoading } =
     useCreateWidgetTicket();
   const { control, handleSubmit, reset } = form;
-  const ticketConfig = useAtomValue(ticketConfigAtom);
+  const [ticketConfig, setTicketConfig] = useAtom(selectedTicketConfigAtom);
   const setUserTicketCreatedNumber = useSetAtom(userTicketCreatedNumberAtom);
 
   const excludedFields = EXCLUDED_TICKET_FORM_FIELDS;
 
+  const propertyFields = [...(ticketConfig?.propertyFields ?? [])].sort(
+    (a, b) => (a.order ?? 0) - (b.order ?? 0),
+  );
+
   const handleCancel = () => {
     form.reset();
-    setPage('submissions');
+    setPage('selection');
+    setTicketConfig(null);
   };
 
   const onSubmit = (data: z.infer<typeof ticketSchema>) => {
     const formData = data as Record<string, unknown>;
+
+    const propertiesData = buildPropertiesData(
+      propertyFields,
+      (formData?.propertiesData as Record<string, unknown>) ?? {},
+    );
 
     createTicket({
       refetchQueries: ['WidgetTicketsByCustomer'],
@@ -52,6 +106,7 @@ export const TicketForm = ({
         statusId: ticketConfig?.selectedStatusId as string,
         tagIds: (formData?.tags as string[]) ?? [],
         customerIds: [cachedCustomerId],
+        propertiesData,
       },
       onCompleted: (dataOnCompleted: {
         widgetTicketCreated: { _id: string; number: string };
@@ -232,30 +287,47 @@ export const TicketForm = ({
               >
                 <InfoCard.Content>
                   {ticketDetailsFields.map(renderField)}
-                  <div className="flex justify-end shrink-0 px-5 gap-3">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="flex-1 shadow-xs"
-                      onClick={handleCancel}
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      type="submit"
-                      disabled={loading || saveTicketCustomersLoading}
-                      className="bg-primary shadow-2xs flex-1"
-                    >
-                      {loading || saveTicketCustomersLoading ? (
-                        <Spinner size="sm" />
-                      ) : (
-                        'Submit'
-                      )}
-                    </Button>
-                  </div>
                 </InfoCard.Content>
               </InfoCard>
             )}
+            {/* Ticket Properties */}
+            {propertyFields.length > 0 && (
+              <InfoCard
+                title="Additional information"
+                description="Please fill in the additional information of the ticket"
+              >
+                <InfoCard.Content>
+                  {propertyFields.map((propertyField) => (
+                    <TicketPropertyField
+                      key={propertyField.fieldId}
+                      propertyField={propertyField}
+                      control={control}
+                    />
+                  ))}
+                </InfoCard.Content>
+              </InfoCard>
+            )}
+            <div className="flex justify-end shrink-0 px-5 gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                className="flex-1 shadow-xs"
+                onClick={handleCancel}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={loading || saveTicketCustomersLoading}
+                className="bg-primary shadow-2xs flex-1"
+              >
+                {loading || saveTicketCustomersLoading ? (
+                  <Spinner size="sm" />
+                ) : (
+                  'Submit'
+                )}
+              </Button>
+            </div>
           </div>
         </form>
       </Form>

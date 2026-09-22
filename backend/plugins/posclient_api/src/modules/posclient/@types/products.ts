@@ -33,6 +33,26 @@ export interface IPerRemainder {
 export interface IRemainder {
   [token: string]: IPerRemainder;
 }
+
+export interface IDiscount {
+  planId: string;
+  discount: number;
+  discountPercent: number;
+  prefixes: string[];
+  conditions: Record<string, IDiscountConditionValue>;
+}
+
+type IDiscountConditionValue =
+  | string
+  | number
+  | boolean
+  | string[]
+  | number[]
+  | {
+      start?: string | number;
+      end?: string | number;
+    };
+
 interface ITaxRule {
   [token: string]: {
     taxType?: string;
@@ -62,10 +82,12 @@ export interface IProduct extends IProductCommonFields {
   isCheckRems: { [token: string]: boolean };
   sameMasks?: string[];
   sameDefault?: string[];
+  similarityId?: string | null;
   pdfAttachment?: IPdfAttachment;
 
   taxRules?: ITaxRule;
   remainderByToken?: IRemainder;
+  discounts?: IDiscount[];
 }
 
 export interface IProductDocument extends IProduct, Document {

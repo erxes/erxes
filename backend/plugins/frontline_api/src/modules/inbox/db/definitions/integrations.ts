@@ -29,6 +29,7 @@ const persistentMenuSchema = new Schema({
   text: { type: String },
   type: { type: String },
   link: { type: String, optional: true },
+  contentType: { type: String, default: 'text' },
   isEditing: { type: Boolean },
 });
 
@@ -338,6 +339,6 @@ export const integrationSchema = schemaWrapper(
     formData: { type: leadDataSchema },
     messengerData: { type: messengerDataSchema },
     uiOptions: { type: uiOptionsSchema },
-    ticketConfigId: { type: String },
+    ticketConfigIds: { type: [String] },
   }),
 );

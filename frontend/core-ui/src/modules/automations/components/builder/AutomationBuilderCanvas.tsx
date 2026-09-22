@@ -1,24 +1,33 @@
 import ConnectionLine from '@/automations/components/builder/edges/connectionLine';
 import { AutomationBuilderCanvasDragOverlay } from '@/automations/components/builder/AutomationBuilderCanvasDragOverlay';
-import { AutomationBuilderControls } from '@/automations/components/builder/AutomationBuilderControls';
+import { AutomationBuilderControls } from '@/automations/components/builder/controls/AutomationBuilderControls';
 import { edgeTypes } from '@/automations/components/builder/edges/edgeTypesRegistry';
 import { nodeTypes } from '@/automations/components/builder/nodes/nodeTypesRegistry';
-import { AutomationBuilderSidebar } from '@/automations/components/builder/sidebar/components/AutomationBuilderSidebar';
-import { CANVAS_FIT_VIEW_OPTIONS } from '@/automations/constants';
+import {
+  CANVAS_FIT_VIEW_OPTIONS,
+  CANVAS_MAX_ZOOM,
+  CANVAS_MIN_ZOOM,
+} from '@/automations/constants';
+import { MarqueeSelectionPanel } from '@/automations/components/builder/marquee/MarqueeSelectionPanel';
 import { useReactFlowEditor } from '@/automations/hooks/useReactFlowEditor';
-import { Background, MiniMap, ReactFlow } from '@xyflow/react';
-import { useState } from 'react';
+import {
+  automationCanvasMarqueeModeState,
+  automationCanvasViewState,
+} from '@/automations/states/automationState';
+import { Background, MiniMap, ReactFlow, SelectionMode } from '@xyflow/react';
+import { useAutomation } from '@/automations/context/AutomationProvider';
+import { useAtomValue } from 'jotai';
+import '@xyflow/react/dist/style.css';
 
 export const AutomationBuilderCanvas = () => {
-  const [showGrid, setShowGrid] = useState(true);
-  const [showMiniMap, setShowMiniMap] = useState(true);
+  const { isReadOnly } = useAutomation();
+  const { showGrid, showMiniMap } = useAtomValue(automationCanvasViewState);
+  const isMarqueeMode = useAtomValue(automationCanvasMarqueeModeState);
   const {
     theme,
     reactFlowWrapper,
     nodes,
     edges,
-    edgeType,
-    flowDirection,
     onNodesChange,
     onEdgesChange,
     editorWrapper,
@@ -29,6 +38,7 @@ export const AutomationBuilderCanvas = () => {
     onNodeDoubleClick,
     onPaneClick,
     onDragOver,
+    onNodeDrag,
     onNodeDragStop,
     setReactFlowInstance,
   } = useReactFlowEditor();
@@ -43,34 +53,43 @@ export const AutomationBuilderCanvas = () => {
         edgeTypes={edgeTypes}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        onDrop={onDrop}
+        onConnect={isReadOnly ? undefined : onConnect}
+        onDrop={isReadOnly ? undefined : onDrop}
         isValidConnection={isValidConnection}
         onNodeClick={onNodeClick}
         onNodeDoubleClick={onNodeDoubleClick}
         onPaneClick={onPaneClick}
+        onNodeDrag={isReadOnly ? undefined : onNodeDrag}
         onNodeDragStop={onNodeDragStop}
         onInit={setReactFlowInstance}
-        onDragOver={onDragOver}
+        onDragOver={isReadOnly ? undefined : onDragOver}
         fitView
         fitViewOptions={CANVAS_FIT_VIEW_OPTIONS}
         connectionLineComponent={ConnectionLine}
         colorMode={theme}
-        minZoom={0.5}
+        minZoom={CANVAS_MIN_ZOOM}
+        maxZoom={CANVAS_MAX_ZOOM}
+        selectionOnDrag={isMarqueeMode}
+        panOnDrag={isMarqueeMode ? [1, 2] : true}
+        selectionMode={SelectionMode.Partial}
+        nodesDraggable={!isReadOnly}
+        nodesConnectable={!isReadOnly}
+        deleteKeyCode={isReadOnly ? null : undefined}
       >
         {showGrid && <Background />}
-        {showMiniMap && <MiniMap pannable position="top-left" zoomable />}
-        <AutomationBuilderControls
-          edgeType={edgeType}
-          flowDirection={flowDirection}
-          showGrid={showGrid}
-          showMiniMap={showMiniMap}
-          onToggleGrid={() => setShowGrid((value) => !value)}
-          onToggleMiniMap={() => setShowMiniMap((value) => !value)}
-        />
+        {showMiniMap && (
+          <MiniMap
+            pannable
+            zoomable
+            position="bottom-right"
+            style={{ width: 140, height: 100 }}
+            className="overflow-hidden rounded-md border shadow-sm"
+          />
+        )}
+        <MarqueeSelectionPanel isMarqueeMode={isMarqueeMode} />
+        <AutomationBuilderControls />
       </ReactFlow>
       <AutomationBuilderCanvasDragOverlay />
-      <AutomationBuilderSidebar />
     </div>
   );
 };

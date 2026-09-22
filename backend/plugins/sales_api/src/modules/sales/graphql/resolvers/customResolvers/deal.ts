@@ -76,10 +76,12 @@ export default {
       return [];
     }
 
-    return deal.productsData.map((pd) => ({
-      __typename: 'Product',
-      _id: pd.productId,
-    }));
+    return deal.productsData
+      .filter((pd) => !!pd.productId)
+      .map((pd) => ({
+        __typename: 'Product',
+        _id: pd.productId,
+      }));
   },
 
   async unusedAmount(deal: IDealDocument) {
@@ -90,16 +92,40 @@ export default {
     return generateAmounts(deal.productsData || []);
   },
 
+  async pipelineId(
+    deal: IDealDocument,
+    _args: undefined,
+    { models }: IContext,
+  ) {
+    if (!deal.stageId) {
+      return null;
+    }
+
+    return (await models.Stages.getStage(deal.stageId)).pipelineId;
+  },
+
   async pipeline(deal: IDealDocument, _args: undefined, { loaders }: IContext) {
+    if (!deal.stageId) {
+      return null;
+    }
+
     return await loaders.deal.pipelineByDealId.load(deal.stageId);
   },
 
   async boardId(deal: IDealDocument, _args: undefined, { loaders }: IContext) {
+    if (!deal.stageId) {
+      return null;
+    }
+
     const pipeline = await loaders.deal.pipelineByDealId.load(deal.stageId);
-    return pipeline.boardId;
+    return pipeline?.boardId ?? null;
   },
 
   async stage(deal: IDealDocument, _args: undefined, { models }: IContext) {
+    if (!deal.stageId) {
+      return null;
+    }
+
     return models.Stages.getStage(deal.stageId);
   },
 

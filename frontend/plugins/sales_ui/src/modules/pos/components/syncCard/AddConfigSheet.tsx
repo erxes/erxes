@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import {
   Button,
   Sheet,
@@ -42,6 +43,7 @@ export const AddConfigSheet: React.FC<AddConfigSheetProps> = ({
   editingConfig,
   onEditComplete,
 }) => {
+  const { t } = useTranslation('sales');
   const [open, setOpen] = useState<boolean>(false);
 
   const { fields: mapFields, loading: fieldsLoading } = useFieldsCombined({
@@ -149,13 +151,13 @@ export const AddConfigSheet: React.FC<AddConfigSheetProps> = ({
         <Sheet.Trigger asChild>
           <Button variant="outline">
             <IconPlus size={16} className="mr-2" />
-            Add Config
+            {t('add-config')}
           </Button>
         </Sheet.Trigger>
       )}
       <Sheet.View className="p-0 sm:max-w-lg">
         <Sheet.Header>
-          <Sheet.Title>{isEditing ? 'Edit Config' : 'Add Config'}</Sheet.Title>
+          <Sheet.Title>{isEditing ? t('edit-config') : t('add-config')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
 
@@ -164,13 +166,13 @@ export const AddConfigSheet: React.FC<AddConfigSheetProps> = ({
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <div className="space-y-2">
                 <Label>
-                  TITLE <span className="text-red-500">*</span>
+                  {t('TITLE')} <span className="text-red-500">*</span>
                 </Label>
                 <Input
                   {...form.register('title', {
-                    required: 'Title is required',
+                    required: t('title-required'),
                   })}
-                  placeholder="Enter title"
+                  placeholder={t('enter-title')}
                   aria-invalid={!!form.formState.errors.title}
                 />
                 {form.formState.errors.title && (
@@ -181,7 +183,7 @@ export const AddConfigSheet: React.FC<AddConfigSheetProps> = ({
               </div>
 
               <div className="space-y-2">
-                <Label>CHOOSE BRANCH</Label>
+                <Label>{t('CHOOSE-BRANCH')}</Label>
                 <Form.Field
                   control={form.control}
                   name="branchId"
@@ -197,39 +199,39 @@ export const AddConfigSheet: React.FC<AddConfigSheetProps> = ({
 
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label className="text-xs text-muted-foreground">BOARD</Label>
+                  <Label className="text-xs text-muted-foreground">{t('BOARD')}</Label>
                   <SelectBoardFormItem
                     value={boardId}
                     onValueChange={handleBoardChange}
-                    placeholder="Choose a board"
+                    placeholder={t('choose-board')}
                   />
                 </div>
 
                 <div className="space-y-2">
                   <Label className="text-xs text-muted-foreground">
-                    PIPELINE
+                    {t('PIPELINE')}
                   </Label>
                   <SelectPipelineFormItem
                     value={pipelineId}
                     onValueChange={handlePipelineChange}
                     boardId={boardId}
-                    placeholder="Choose a pipeline"
+                    placeholder={t('choose-pipeline')}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-xs text-muted-foreground">STAGE</Label>
+                  <Label className="text-xs text-muted-foreground">{t('STAGE')}</Label>
                   <SelectStageFormItem
                     value={form.watch('stageId')}
                     onValueChange={(value) => form.setValue('stageId', value)}
                     pipelineId={pipelineId}
-                    placeholder="Choose a stage"
+                    placeholder={t('choose-stage')}
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label>CHOOSE ASSIGNED USERS</Label>
+                <Label>{t('CHOOSE-ASSIGNED-USERS')}</Label>
                 <SelectMember.Provider
                   value={form.watch('assignedUserIds')}
                   onValueChange={(value) =>
@@ -239,7 +241,7 @@ export const AddConfigSheet: React.FC<AddConfigSheetProps> = ({
                 >
                   <PopoverScoped>
                     <Combobox.Trigger className="w-full h-8">
-                      <SelectMember.Value placeholder="Choose team member" />
+                      <SelectMember.Value placeholder={t('choose-team-member')} />
                     </Combobox.Trigger>
                     <Combobox.Content>
                       <SelectMember.Content />
@@ -249,7 +251,7 @@ export const AddConfigSheet: React.FC<AddConfigSheetProps> = ({
               </div>
 
               <div className="space-y-2">
-                <Label>CHOOSE MAP FIELD</Label>
+                <Label>{t('CHOOSE-MAP-FIELD')}</Label>
                 <Select
                   value={form.watch('deliveryMapField')}
                   onValueChange={(val) =>
@@ -258,7 +260,7 @@ export const AddConfigSheet: React.FC<AddConfigSheetProps> = ({
                 >
                   <Select.Trigger className="w-full" disabled={fieldsLoading}>
                     <Select.Value
-                      placeholder={fieldsLoading ? 'Loading...' : 'Select...'}
+                      placeholder={fieldsLoading ? t('loading') : t('select-option')}
                     />
                   </Select.Trigger>
                   <Select.Content>
@@ -276,10 +278,10 @@ export const AddConfigSheet: React.FC<AddConfigSheetProps> = ({
 
         <Sheet.Footer className="bg-background">
           <Button variant="outline" onClick={onCancel}>
-            Cancel
+            {t('cancel')}
           </Button>
 
-          <Button onClick={form.handleSubmit(onSubmit)}>Save</Button>
+          <Button onClick={form.handleSubmit(onSubmit)}>{t('save')}</Button>
         </Sheet.Footer>
       </Sheet.View>
     </Sheet>

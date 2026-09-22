@@ -1,10 +1,12 @@
 import { useMutation } from '@apollo/client';
 import { useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { ACC_TRANSACTIONS_REMOVE } from '../graphql/accTransactionsRemove';
 import { TRANSACTIONS_QUERY } from '../graphql/transactionQueries';
 import { useTransactionsVariables } from './useTransactionVars';
 
 export const useTransactionsBulkRemove = () => {
+  const { t } = useTranslation('accounting');
   const variables = useTransactionsVariables();
   const [_removeTransactions, { loading }] = useMutation(
     ACC_TRANSACTIONS_REMOVE,
@@ -34,13 +36,13 @@ export const useTransactionsBulkRemove = () => {
       }
 
       toast({
-        title: 'Success',
+        title: t('success'),
         variant: 'success',
-        description: 'Transactions deleted successfully',
+        description: t('transactions-deleted-successfully'),
       });
     } catch (e: any) {
       toast({
-        title: 'Error',
+        title: t('error'),
         description: e.message,
         variant: 'destructive',
       });

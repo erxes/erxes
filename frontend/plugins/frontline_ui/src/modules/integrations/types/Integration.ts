@@ -7,6 +7,8 @@ export interface IIntegration {
   kind: string;
   channelId: string;
   channel: any;
+  // Returned by the integrations list query (GET_INTEGRATIONS_BY_KIND).
+  isActive?: boolean;
 }
 
 export interface IIntegrationDetail extends IIntegration {
@@ -24,6 +26,7 @@ export interface IIntegrationDetail extends IIntegration {
   isActive: boolean;
   healthStatus: {
     status: 'healthy' | string;
+    error?: string;
   };
   channel: IChannel;
 }
@@ -31,4 +34,5 @@ export interface IIntegrationDetail extends IIntegration {
 export interface IIntegrationType {
   _id: string;
   name: string;
+  unreadConversationCount?: number;
 }

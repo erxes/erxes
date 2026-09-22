@@ -1,16 +1,19 @@
-import { Control } from 'react-hook-form';
+import { UseFormReturn } from 'react-hook-form';
 import { Form, Input, Textarea, InfoCard } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import PmsFormFieldsLayout from '../PmsFormFieldsLayout';
 import CheckInCheckOutTime from './CheckInCheckOutTime';
 import Discount from './Discount';
 import Lock from './Lock';
 import { PmsBranchFormType } from '@/pms/constants/formSchema';
 
-const General = ({ control }: { control: Control<PmsBranchFormType> }) => {
+const General = ({ form }: { form: UseFormReturn<PmsBranchFormType> }) => {
+  const { t } = useTranslation('tourism');
+  const { control } = form;
   return (
     <PmsFormFieldsLayout>
       <div className="space-y-3">
-        <InfoCard title="Basic Information">
+        <InfoCard title={t('basic-information')}>
           <InfoCard.Content className="space-y-2">
             <Form.Field
               control={control}
@@ -18,10 +21,10 @@ const General = ({ control }: { control: Control<PmsBranchFormType> }) => {
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label>
-                    Name <span className="text-destructive">*</span>
+                    {t('name')} <span className="text-destructive">*</span>
                   </Form.Label>
                   <Form.Control>
-                    <Input {...field} placeholder="Write here" />
+                    <Input {...field} placeholder={t('write-here')} />
                   </Form.Control>
                   <Form.Message className="text-destructive" />
                 </Form.Item>
@@ -33,9 +36,12 @@ const General = ({ control }: { control: Control<PmsBranchFormType> }) => {
               name="description"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Description</Form.Label>
+                  <Form.Label>{t('description')}</Form.Label>
                   <Form.Control>
-                    <Textarea {...field} placeholder="Description..." />
+                    <Textarea
+                      {...field}
+                      placeholder={t('description-placeholder')}
+                    />
                   </Form.Control>
                   <Form.Message className="text-destructive" />
                 </Form.Item>
@@ -44,19 +50,19 @@ const General = ({ control }: { control: Control<PmsBranchFormType> }) => {
           </InfoCard.Content>
         </InfoCard>
 
-        <InfoCard title="Check In Check Out Time">
+        <InfoCard title={t('check-in-check-out-time')}>
           <InfoCard.Content>
             <CheckInCheckOutTime control={control} />
           </InfoCard.Content>
         </InfoCard>
 
-        <InfoCard title="Discount">
+        <InfoCard title={t('discount')}>
           <InfoCard.Content>
-            <Discount control={control} />
+            <Discount form={form} />
           </InfoCard.Content>
         </InfoCard>
 
-        <InfoCard title="Lock">
+        <InfoCard title={t('lock')}>
           <InfoCard.Content>
             <Lock control={control} />
           </InfoCard.Content>

@@ -16,7 +16,7 @@ import {
 const DEFAULT_TOP_K = 5;
 const DEFAULT_MAX_CONTEXT_BYTES = 8000;
 
-const fitChunksWithinBytes = (
+export const fitChunksWithinBytes = (
   chunks: TAiKnowledgeChunk[],
   maxContextBytes: number,
 ) => {
@@ -80,8 +80,7 @@ export const retrieveAiKnowledgeChunks = ({
   };
   const includeAlways = config.includeAlways !== false;
   const topK = config.topK || DEFAULT_TOP_K;
-  const maxContextBytes =
-    config.maxContextBytes || DEFAULT_MAX_CONTEXT_BYTES;
+  const maxContextBytes = config.maxContextBytes || DEFAULT_MAX_CONTEXT_BYTES;
   const minScore = config.minScore ?? 1;
 
   const alwaysChunks = includeAlways
@@ -90,6 +89,7 @@ export const retrieveAiKnowledgeChunks = ({
         .map((chunk) => ({
           chunk,
           score: 1000,
+          matchScore: 1000,
           reasons: ['always'],
         }))
     : [];
@@ -97,13 +97,13 @@ export const retrieveAiKnowledgeChunks = ({
   const scored = chunks
     .filter((chunk) => chunk.priority !== 'always')
     .map((chunk) => scoreAiKnowledgeChunk(chunk, fullQuery))
-    .filter((item) => item.score >= minScore)
+    .filter((item) => item.matchScore >= minScore)
     .sort((a, b) => b.score - a.score);
 
-  const selectedScored = dedupeScoredChunks([
-    ...alwaysChunks,
-    ...scored,
-  ]).slice(0, Math.max(topK * 3, topK));
+  const selectedScored = dedupeScoredChunks([...alwaysChunks, ...scored]).slice(
+    0,
+    Math.max(topK * 3, topK),
+  );
 
   const fitted = fitChunksWithinBytes(
     selectedScored.map(({ chunk }) => chunk),
@@ -123,14 +123,13 @@ export const retrieveAiKnowledgeChunks = ({
   };
 };
 
-export const formatAiKnowledgeChunksForPrompt = (
-  chunks: TAiKnowledgeChunk[],
-) =>
+export const formatAiKnowledgeChunksForPrompt = (chunks: TAiKnowledgeChunk[]) =>
   chunks
     .map((chunk) => {
       const heading = [
         `source="${chunk.fileName}"`,
         chunk.title ? `title="${chunk.title}"` : '',
+        chunk.sourceUrl ? `url="${chunk.sourceUrl}"` : '',
         chunk.topics.length ? `topics="${chunk.topics.join(', ')}"` : '',
       ]
         .filter(Boolean)

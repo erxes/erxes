@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { Cell, ColumnDef } from '@tanstack/react-table';
+import { Cell, CellContext, ColumnDef } from '@tanstack/react-table';
 import { IAdjustInventory } from '../types/AdjustInventory';
 import { Link } from 'react-router-dom';
 import {
@@ -11,14 +11,17 @@ import {
 import { IconFile, IconCalendar } from '@tabler/icons-react';
 import { useState } from 'react';
 
-const DescriptionCell = ({ getValue, row }: any) => {
-  const [description, setDescription] = useState(getValue() as string);
+const DescriptionCell = ({
+  getValue,
+  row,
+}: CellContext<IAdjustInventory, string>) => {
+  const [description, setDescription] = useState(getValue());
   const { _id } = row.original;
 
   return (
     <PopoverScoped scope={`transaction-${_id}-description`}>
       <RecordTableInlineCell.Trigger>
-        {getValue() as string}
+        {getValue()}
       </RecordTableInlineCell.Trigger>
       <RecordTableInlineCell.Content>
         <Input
@@ -30,7 +33,7 @@ const DescriptionCell = ({ getValue, row }: any) => {
   );
 };
 
-const DateCell = ({ getValue }: any) => {
+const DateCell = ({ getValue }: CellContext<IAdjustInventory, Date>) => {
   return (
     <RecordTableInlineCell>
       {dayjs(new Date(getValue())).format('YYYY-MM-DD')}
@@ -56,23 +59,25 @@ const transactionMoreColumn = {
   id: 'more',
   cell: TransactionMoreColumnCell,
   size: 33,
-};
+} satisfies ColumnDef<IAdjustInventory>;
 
-export const adjustTableColumns: ColumnDef<IAdjustInventory>[] = [
+const dateColumn = {
+  id: 'date',
+  header: () => <RecordTable.InlineHead icon={IconCalendar} label="Огноо" />,
+  accessorKey: 'date',
+  cell: DateCell,
+} satisfies ColumnDef<IAdjustInventory, Date>;
+
+const descriptionColumn = {
+  id: 'description',
+  header: () => <RecordTable.InlineHead icon={IconFile} label="Тайлбар" />,
+  accessorKey: 'description',
+  cell: DescriptionCell,
+  size: 300,
+} satisfies ColumnDef<IAdjustInventory, string>;
+
+export const adjustTableColumns = [
   transactionMoreColumn,
-  {
-    id: 'date',
-    header: () => <RecordTable.InlineHead icon={IconCalendar} label="Огноо" />,
-    accessorKey: 'date',
-    cell: ({ getValue, row }) => <DateCell getValue={getValue} row={row} />,
-  },
-  {
-    id: 'description',
-    header: () => <RecordTable.InlineHead icon={IconFile} label="Тайлбар" />,
-    accessorKey: 'description',
-    cell: ({ getValue, row }) => (
-      <DescriptionCell getValue={getValue} row={row} />
-    ),
-    size: 300,
-  },
+  dateColumn,
+  descriptionColumn,
 ];

@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Label } from 'erxes-ui';
 import { SelectCategory, SelectProduct } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 import { MoreOptionsButton } from '@/pos/components/MoreOptionsButton';
 import { ProductGroup } from '@/pos/pos-detail/types/IPos';
 import { nanoid } from 'nanoid';
@@ -32,6 +33,7 @@ export const AddGroupForm: React.FC<AddGroupFormProps> = ({
   onDirtyChange,
   onSaveRequestChange,
 }) => {
+  const { t } = useTranslation('sales');
   const [formState, setFormState] = useState<FormState>(INITIAL_STATE);
   const [initialState, setInitialState] = useState<FormState>(INITIAL_STATE);
   const [showMore, setShowMore] = useState(false);
@@ -113,12 +115,12 @@ export const AddGroupForm: React.FC<AddGroupFormProps> = ({
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <Label>PRODUCT CATEGORY</Label>
+        <Label>{t('PRODUCT-CATEGORY')}</Label>
         <SelectCategory
           mode="multiple"
           value={formState.categoryIds}
           onValueChange={handleCategorySelect}
-          placeholder="Select product categories"
+          placeholder={t('select-product-categories')}
         />
       </div>
 
@@ -127,22 +129,22 @@ export const AddGroupForm: React.FC<AddGroupFormProps> = ({
       {showMore && (
         <>
           <div className="space-y-2">
-            <Label>EXCLUDE PRODUCT CATEGORY</Label>
+            <Label>{t('EXCLUDE-PRODUCT-CATEGORY')}</Label>
             <SelectCategory
               mode="multiple"
               value={formState.excludedCategoryIds}
               onValueChange={handleExcludeCategorySelect}
-              placeholder="Select product categories to exclude"
+              placeholder={t('select-product-categories-to-exclude')}
             />
           </div>
 
           <div className="space-y-2">
-            <Label>EXCLUDE PRODUCTS</Label>
+            <Label>{t('exclude-products')}</Label>
             <SelectProduct
               mode="multiple"
               value={formState.excludedProductIds}
               onValueChange={handleExcludeProductsChange}
-              placeholder="Select products to exclude"
+              placeholder={t('select-products-to-exclude')}
             />
           </div>
         </>

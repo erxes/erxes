@@ -26,6 +26,10 @@ export const types = `
         logics: JSON
         configs: JSON
         icon: String
+        isVisible: Boolean
+        isVisibleToCreate: Boolean
+        isRequired: Boolean
+        isVisibleInCard: Boolean
         createdAt: Date
         updatedAt: Date
     }
@@ -74,6 +78,10 @@ const mutationParams = `
     logics: JSON
     configs: JSON
     icon: String
+    isVisible: Boolean
+    isVisibleToCreate: Boolean
+    isRequired: Boolean
+    isVisibleInCard: Boolean
 `;
 
 export const mutations = `

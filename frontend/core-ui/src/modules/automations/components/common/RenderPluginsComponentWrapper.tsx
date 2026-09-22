@@ -23,6 +23,7 @@ export const RenderPluginsComponentWrapper = ({
   }
 
   const { isEnabled } = useAutomationsRemoteModules(pluginName);
+  const remoteContainerName = `${pluginName.replaceAll('-', '_')}_ui`;
 
   if (!isEnabled) {
     return (
@@ -41,7 +42,7 @@ export const RenderPluginsComponentWrapper = ({
         )}
       >
         <RenderPluginsComponent
-          pluginName={`${pluginName}_ui`}
+          pluginName={remoteContainerName}
           remoteModuleName="automationsWidget"
           props={{
             ...props,

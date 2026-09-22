@@ -1,11 +1,4 @@
 import {
-  IconCalendarPlus,
-  IconCategory,
-  IconCurrencyDollar,
-  IconHash,
-} from '@tabler/icons-react';
-import { ColumnDef } from '@tanstack/table-core';
-import {
   Checkbox,
   RecordTable,
   RecordTableInlineCell,
@@ -13,9 +6,16 @@ import {
   TextOverflowTooltip,
 } from 'erxes-ui';
 import {
-  AccountingCheckSyncedOrder,
-  AccountingCheckSyncedStatus,
-} from '../types';
+  IconCalendarPlus,
+  IconCategory,
+  IconCurrencyDollar,
+  IconHash,
+} from '@tabler/icons-react';
+
+import { AccountingCheckSyncedOrder } from '../types';
+import { ColumnDef } from '@tanstack/table-core';
+import { HeaderCell } from '~/modules/check-synced/constants/HeaderCell';
+import { isSyncable } from '~/modules/check-synced/constants/shared';
 
 type AccountingCheckSyncedOrdersColumnsOptions = {
   toSyncOrderIds: Record<string, boolean>;
@@ -23,21 +23,6 @@ type AccountingCheckSyncedOrdersColumnsOptions = {
   onToggleToSync: (id: string, checked: boolean) => void;
   onToggleAllToSync: (ids: string[], checked: boolean) => void;
 };
-
-const syncableStatuses = new Set<AccountingCheckSyncedStatus>([
-  'checked',
-  'synced',
-  'pending',
-  'error',
-  'resynced',
-]);
-
-const getSyncStatus = (
-  order: AccountingCheckSyncedOrder,
-): AccountingCheckSyncedStatus => order.syncStatus || 'skipped';
-
-export const isSyncableAccountingOrder = (order: AccountingCheckSyncedOrder) =>
-  syncableStatuses.has(getSyncStatus(order));
 
 export const getAccountingCheckSyncedOrdersColumns = ({
   toSyncOrderIds,
@@ -49,9 +34,7 @@ export const getAccountingCheckSyncedOrdersColumns = ({
   {
     id: 'number',
     accessorKey: 'number',
-    header: () => (
-      <RecordTable.InlineHead icon={IconHash} label="Order number" />
-    ),
+    header: () => <HeaderCell icon={IconHash} labelKey="order-number" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={cell.getValue() as string} />
@@ -61,9 +44,7 @@ export const getAccountingCheckSyncedOrdersColumns = ({
   {
     id: 'totalAmount',
     accessorKey: 'totalAmount',
-    header: () => (
-      <RecordTable.InlineHead icon={IconCurrencyDollar} label="Amount" />
-    ),
+    header: () => <HeaderCell icon={IconCurrencyDollar} labelKey="amount" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={String(cell.getValue() || '')} />
@@ -73,9 +54,7 @@ export const getAccountingCheckSyncedOrdersColumns = ({
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
-    header: () => (
-      <RecordTable.InlineHead icon={IconCalendarPlus} label="Created At" />
-    ),
+    header: () => <HeaderCell icon={IconCalendarPlus} labelKey="created-at" />,
     cell: ({ cell }) => (
       <RelativeDateDisplay value={cell.getValue() as string} asChild>
         <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
@@ -87,9 +66,7 @@ export const getAccountingCheckSyncedOrdersColumns = ({
   {
     id: 'syncStatus',
     accessorKey: 'syncStatus',
-    header: () => (
-      <RecordTable.InlineHead icon={IconCategory} label="Sync status" />
-    ),
+    header: () => <HeaderCell icon={IconCategory} labelKey="sync-status" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={(cell.getValue() as string) || 'skipped'} />
@@ -126,7 +103,7 @@ export const getAccountingCheckSyncedOrdersColumns = ({
     size: 33,
     cell: ({ row }) => {
       const order = row.original;
-      const disabled = !isSyncableAccountingOrder(order);
+      const disabled = !isSyncable(order);
 
       return (
         <div className="flex items-center justify-center">
@@ -145,9 +122,7 @@ export const getAccountingCheckSyncedOrdersColumns = ({
   {
     id: 'syncedDate',
     accessorKey: 'syncedDate',
-    header: () => (
-      <RecordTable.InlineHead icon={IconCategory} label="Synced date" />
-    ),
+    header: () => <HeaderCell icon={IconCategory} labelKey="synced-date" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={cell.getValue() as string} />

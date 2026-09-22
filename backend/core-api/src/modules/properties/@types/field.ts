@@ -10,6 +10,16 @@ export interface FieldOption {
   value: string;
 }
 
+export interface IObjectListFieldConfig {
+  key: string;
+  label: string;
+  type: 'text' | 'textarea';
+}
+
+export interface IFieldConfigs {
+  objectListConfigs?: IObjectListFieldConfig[];
+}
+
 export interface IField {
   name: string;
   code: string;
@@ -25,6 +35,12 @@ export interface IField {
 
   logics?: any;
   validations?: any;
+  configs?: IFieldConfigs;
+
+  isVisible?: boolean;
+  isVisibleToCreate?: boolean;
+  isRequired?: boolean;
+  isVisibleInCard?: boolean;
 }
 
 export interface IFieldDocument extends IField, Document {

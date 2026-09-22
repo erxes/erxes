@@ -2,17 +2,23 @@ import { IMessageDocument } from '@/inbox/@types/conversationMessages';
 import {
   IConversation,
   IConversationDocument,
+  TAutomatedReplyControl,
 } from '@/inbox/@types/conversations';
 import { CONVERSATION_STATUSES } from '@/inbox/db/definitions/constants';
 import { conversationSchema } from '@/inbox/db/definitions/conversations';
 import { cleanHtml, graphqlPubsub, stream } from 'erxes-api-shared/utils';
 import { Model } from 'mongoose';
+import { conversationsChanged } from '@/inbox/meta/segments';
 import { IModels } from '~/connectionResolvers';
 
 export interface IConversationModel extends Model<IConversationDocument> {
   getConversation(_id: string): Promise<IConversationDocument>;
   createConversation(doc: IConversation): Promise<IConversationDocument>;
   updateConversation(_id: string, doc): Promise<IConversationDocument>;
+  setAutomatedReplyControl(
+    _id: string,
+    doc: TAutomatedReplyControl,
+  ): Promise<IConversationDocument | null>;
   checkExistanceConversations(ids: string[]): any;
   reopen(_id: string): Promise<IConversationDocument>;
 
@@ -73,7 +79,7 @@ export interface IConversationModel extends Model<IConversationDocument> {
   ): Promise<{ n: number; nModified: number; ok: number }>;
 }
 
-export const loadClass = (models: IModels) => {
+export const loadClass = (models: IModels, subdomain: string) => {
   class Conversation {
     /**
      * Retrieves conversation
@@ -118,6 +124,8 @@ export const loadClass = (models: IModels) => {
         messageCount: 0,
       });
 
+      conversationsChanged(subdomain, [result._id]);
+
       return result;
     }
 
@@ -133,7 +141,40 @@ export const loadClass = (models: IModels) => {
 
       // clean custom field values
 
-      return models.Conversations.updateOne({ _id }, { $set: doc });
+      const updated = await models.Conversations.updateOne(
+        { _id },
+        { $set: doc },
+      );
+
+      conversationsChanged(subdomain, [_id], doc);
+
+      return updated;
+    }
+
+    public static async setAutomatedReplyControl(
+      _id: string,
+      doc: TAutomatedReplyControl,
+    ) {
+      await models.Conversations.updateOne(
+        { _id },
+        {
+          $set: {
+            automatedReplyControl: {
+              ...doc,
+              updatedAt: new Date(),
+            },
+          },
+        },
+      );
+
+      await graphqlPubsub.publish(`conversationChanged:${_id}`, {
+        conversationChanged: {
+          conversationId: _id,
+          type: 'automatedReplyControlChanged',
+        },
+      });
+
+      return models.Conversations.findOne({ _id });
     }
 
     /*
@@ -168,6 +209,8 @@ export const loadClass = (models: IModels) => {
         { $set: { assignedUserId } },
       );
 
+      conversationsChanged(subdomain, conversationIds, { assignedUserId });
+
       return models.Conversations.find({ _id: { $in: conversationIds } });
     }
 
@@ -181,6 +224,10 @@ export const loadClass = (models: IModels) => {
         { _id: { $in: conversationIds } },
         { $unset: { assignedUserId: 1 } },
       );
+
+      conversationsChanged(subdomain, conversationIds, {
+        assignedUserId: null,
+      });
 
       return models.Conversations.find({ _id: { $in: conversationIds } });
     }
@@ -251,17 +298,19 @@ export const loadClass = (models: IModels) => {
       }
 
       const readUserIds = conversation.readUserIds || [];
-      // if current user is first one
-      if (!readUserIds || readUserIds.length === 0) {
-        await models.Conversations.updateConversation(_id, {
-          readUserIds: [userId],
-        });
-      }
 
-      // if current user is not in read users list then add it
+      // Not updateConversation: that stamps `updatedAt`, which the inbox sorts
+      // and shows its relative time from. Reading is not activity.
       if (!readUserIds.includes(userId)) {
-        readUserIds.push(userId);
-        await models.Conversations.updateConversation(_id, { readUserIds });
+        await models.Conversations.updateOne({ _id }, [
+          {
+            $set: {
+              readUserIds: {
+                $setUnion: [{ $ifNull: ['$readUserIds', []] }, [userId]],
+              },
+            },
+          },
+        ]);
       }
 
       graphqlPubsub.publish(`conversationChanged:${_id}`, {

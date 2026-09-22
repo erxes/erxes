@@ -1,6 +1,7 @@
 import { Sidebar, Tabs, useQueryState } from 'erxes-ui';
-
 import React from 'react';
+import { useTranslation } from 'react-i18next';
+
 
 export const SalesDetailLeftSidebar = ({
   children,
@@ -8,6 +9,7 @@ export const SalesDetailLeftSidebar = ({
   children: React.ReactNode;
 }) => {
   const [selectedTab, setSelectedTab] = useQueryState<string>('tab');
+  const { t } = useTranslation('sales');
 
   return (
     <Tabs
@@ -22,13 +24,13 @@ export const SalesDetailLeftSidebar = ({
           className="flex-none w-64 border-r justify-start"
         >
           <Sidebar.Group>
-            <Sidebar.GroupLabel>General</Sidebar.GroupLabel>
+            <Sidebar.GroupLabel>{t('general')}</Sidebar.GroupLabel>
             <Sidebar.GroupContent>
               <Sidebar.Menu>
                 <Sidebar.MenuItem>
                   <Tabs.Trigger value="overview" asChild>
                     <Sidebar.MenuButton className="justify-start data-[state=active]:bg-primary/10 data-[state=active]:text-primary">
-                      Overview
+                      {t('overview')}
                     </Sidebar.MenuButton>
                   </Tabs.Trigger>
                 </Sidebar.MenuItem>
@@ -39,13 +41,13 @@ export const SalesDetailLeftSidebar = ({
           <Sidebar.Separator />
 
           <Sidebar.Group>
-            <Sidebar.GroupLabel>Plugins</Sidebar.GroupLabel>
+            <Sidebar.GroupLabel>{t('plugins')}</Sidebar.GroupLabel>
             <Sidebar.GroupContent>
               <Sidebar.Menu>
                 <Sidebar.MenuItem>
                   <Tabs.Trigger value="products" asChild>
                     <Sidebar.MenuButton className="justify-start data-[state=active]:bg-primary/10 data-[state=active]:text-primary">
-                      Products
+                      {t('products')}
                     </Sidebar.MenuButton>
                   </Tabs.Trigger>
                 </Sidebar.MenuItem>

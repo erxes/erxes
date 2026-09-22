@@ -20,6 +20,7 @@ import {
   useEdgesState,
   useNodesState,
 } from '@xyflow/react';
+import '@xyflow/react/dist/style.css';
 import { Card, Spinner, themeState } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import { TAutomationAction } from 'ui-modules';

@@ -2,7 +2,6 @@ import { Cell, ColumnDef } from '@tanstack/react-table';
 import { useConversationList } from '@/report/hooks/useConversationList';
 import { useConversationExport } from '@/report/hooks/useConversationExport';
 import { FrontlineCard } from '../frontline-card/FrontlineCard';
-import { getFilters } from '@/report/utils/dateFilters';
 import {
   Alert,
   Badge,
@@ -10,10 +9,12 @@ import {
   RecordTable,
   RecordTableInlineCell,
 } from 'erxes-ui';
-import { ConversationListItem } from '@/report/types';
+import { ConversationListItem, ReportChart } from '@/report/types';
 import { formatDate } from 'date-fns';
 import { CustomersInline, MembersInline } from 'ui-modules';
 import { memo, useState, useEffect, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import {
   IconMessageShare,
   IconDownload,
@@ -21,22 +22,18 @@ import {
   IconChevronRight,
 } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
-import { useAtom } from 'jotai';
-import {
-  getReportCallStatusFilterAtom,
-  getReportDateFilterAtom,
-  getReportSourceFilterAtom,
-  getReportChannelFilterAtom,
-  getReportMemberFilterAtom,
-} from '@/report/states';
 import { ReportFilter } from '../filter-popover/report-filter';
 import ExcelJS from 'exceljs';
 import { downloadExcel } from '@/report/utils/exportCsv';
+import { ReportChartActions } from '../report-chart/ReportChartActions';
+import { useConversationChartCard } from '@/report/hooks/useConversationChartCard';
 
 const PER_PAGE = 10;
 
 interface ConversationListProps {
   title: string;
+  cardId?: string;
+  savedChart?: ReportChart;
   colSpan?: 6 | 12;
   onColSpanChange?: (span: 6 | 12) => void;
 }
@@ -54,50 +51,31 @@ const CONVERSATION_LIST_EXPORT_COLUMNS = [
 
 export const ConversationList = ({
   title,
+  cardId,
+  savedChart,
   colSpan = 6,
   onColSpanChange,
 }: ConversationListProps) => {
-  const id = title.toLowerCase().replace(/\s+/g, '-');
-  const [dateValue, setDateValue] = useAtom(getReportDateFilterAtom(id));
-  const [sourceFilter, setSourceFilter] = useAtom(
-    getReportSourceFilterAtom(id),
-  );
-  const [channelFilter, setChannelFilter] = useAtom(
-    getReportChannelFilterAtom(id),
-  );
-  const [memberFilter, setMemberFilter] = useAtom(
-    getReportMemberFilterAtom(id),
-  );
-  const [callStatusFilter] = useAtom(getReportCallStatusFilterAtom(id));
-  const [filters, setFilters] = useState(() => getFilters());
+  const { t } = useTranslation('frontline');
+  const { id, filterConfig, queryFilters, filtersRestored } =
+    useConversationChartCard({ title, cardId, savedChart });
   const [exporting, setExporting] = useState(false);
   const [page, setPage] = useState(1);
 
   useEffect(() => {
-    setFilters(getFilters(dateValue || undefined));
     setPage(1);
-  }, [dateValue]);
-
-  useEffect(() => {
-    setPage(1);
-  }, [channelFilter, memberFilter, sourceFilter, callStatusFilter]);
+  }, [queryFilters]);
 
   const { conversationList, isFetching, isInitialLoad, error } =
     useConversationList({
       variables: {
         filters: {
-          ...filters,
+          ...queryFilters,
           page,
           limit: PER_PAGE,
-          channelIds: channelFilter.length ? channelFilter : undefined,
-          memberIds: memberFilter.length ? memberFilter : undefined,
-          source: sourceFilter !== 'all' ? sourceFilter : undefined,
-          callStatus:
-            sourceFilter === 'calls' && callStatusFilter !== 'all'
-              ? callStatusFilter
-              : undefined,
         },
       },
+      skip: !filtersRestored,
     });
 
   const handlePrev = useCallback(() => setPage((p) => Math.max(1, p - 1)), []);
@@ -110,16 +88,7 @@ export const ConversationList = ({
     try {
       const result = await fetchExport({
         variables: {
-          filters: {
-            ...filters,
-            channelIds: channelFilter.length ? channelFilter : undefined,
-            memberIds: memberFilter.length ? memberFilter : undefined,
-            source: sourceFilter !== 'all' ? sourceFilter : undefined,
-            callStatus:
-              sourceFilter === 'calls' && callStatusFilter !== 'all'
-                ? callStatusFilter
-                : undefined,
-          },
+          filters: queryFilters,
         },
       });
 
@@ -171,35 +140,34 @@ export const ConversationList = ({
     } finally {
       setExporting(false);
     }
-  }, [
-    fetchExport,
-    filters,
-    channelFilter,
-    memberFilter,
-    sourceFilter,
-    callStatusFilter,
-  ]);
+  }, [fetchExport, queryFilters]);
 
   const filterEl = useMemo(
     () => (
       <>
         <ReportFilter cardId={id} />
+        <ReportChartActions
+          chartType="conversation-list"
+          colSpan={colSpan}
+          filters={filterConfig}
+          savedChart={savedChart}
+        />
         <Button
           variant="ghost"
           size="icon"
           className="size-7"
           onClick={handleExport}
           disabled={exporting}
-          title="Export Excel"
+          title={t('export-excel', 'Export Excel')}
         >
           <IconDownload className="size-3.5" />
         </Button>
       </>
     ),
-    [id, handleExport, exporting],
+    [id, colSpan, filterConfig, savedChart, handleExport, exporting, t],
   );
 
-  if (isInitialLoad) {
+  if (isInitialLoad || !filtersRestored) {
     return (
       <FrontlineCard
         id={id}
@@ -227,7 +195,9 @@ export const ConversationList = ({
       >
         <FrontlineCard.Content>
           <Alert variant="destructive">
-            <Alert.Title>Error loading data</Alert.Title>
+            <Alert.Title>
+              {t('error-loading-data', 'Error loading data')}
+            </Alert.Title>
             <Alert.Description>
               {error.message || 'Failed to load conversation list'}
             </Alert.Description>
@@ -296,6 +266,7 @@ const Pagination = memo(function Pagination({
   onPrev: () => void;
   onNext: () => void;
 }) {
+  const { t } = useTranslation('frontline');
   if (totalPages <= 1) return null;
   const from = (page - 1) * PER_PAGE + 1;
   const to = Math.min(page * PER_PAGE, totalCount);
@@ -313,7 +284,7 @@ const Pagination = memo(function Pagination({
           disabled={page <= 1}
         >
           <IconChevronLeft className="size-4" />
-          Prev
+          {t('prev', 'Prev')}
         </Button>
         <span className="text-xs text-muted-foreground px-2">
           {page} / {totalPages}
@@ -324,7 +295,7 @@ const Pagination = memo(function Pagination({
           onClick={onNext}
           disabled={page >= totalPages}
         >
-          Next
+          {t('next', 'Next')}
           <IconChevronRight className="size-4" />
         </Button>
       </div>
@@ -337,13 +308,14 @@ const ConversationListTable = memo(function ConversationListTable({
 }: {
   conversationList: ConversationListItem[];
 }) {
-  const navigate = useNavigate();
+  const { t } = useTranslation('frontline');
   return (
     <div className="bg-sidebar w-full rounded-lg [&_th]:last-of-type:text-right">
       <RecordTable.Provider
         data={conversationList}
-        columns={conversationListColumns}
+        columns={conversationListColumns(t)}
         className="m-3"
+        tableId="frontline_conversation_report_record_table"
       >
         <RecordTable.Scroll>
           <RecordTable>
@@ -358,10 +330,12 @@ const ConversationListTable = memo(function ConversationListTable({
   );
 });
 
-export const conversationListColumns: ColumnDef<ConversationListItem>[] = [
+export const conversationListColumns = (
+  t: TFunction,
+): ColumnDef<ConversationListItem>[] => [
   {
     id: 'createdAt',
-    header: 'Created At',
+    header: t('created-at', 'Created At'),
     accessorKey: 'createdAt',
     cell: ({ cell }) => {
       return (
@@ -375,7 +349,7 @@ export const conversationListColumns: ColumnDef<ConversationListItem>[] = [
   },
   {
     id: 'customerId',
-    header: 'Customer',
+    header: t('customer', 'Customer'),
     accessorKey: 'customerId',
     cell: ({ cell }) => {
       return (
@@ -390,7 +364,7 @@ export const conversationListColumns: ColumnDef<ConversationListItem>[] = [
   },
   {
     id: 'userId',
-    header: 'Last Conversation by',
+    header: t('last-conversation-by', 'Last Conversation by'),
     accessorKey: 'userId',
     size: 100,
     cell: ({ cell }) => {
@@ -399,7 +373,7 @@ export const conversationListColumns: ColumnDef<ConversationListItem>[] = [
         return (
           <RecordTableInlineCell className="flex items-center justify-center">
             <Badge variant="secondary" className="text-xs">
-              Customer
+              {t('customer', 'Customer')}
             </Badge>
           </RecordTableInlineCell>
         );
@@ -407,7 +381,7 @@ export const conversationListColumns: ColumnDef<ConversationListItem>[] = [
       return (
         <RecordTableInlineCell className="flex items-center justify-center">
           <Badge variant="secondary" className="text-xs">
-            Member
+            {t('member', 'Member')}
           </Badge>
         </RecordTableInlineCell>
       );
@@ -415,7 +389,7 @@ export const conversationListColumns: ColumnDef<ConversationListItem>[] = [
   },
   {
     id: 'status',
-    header: 'Status',
+    header: t('status', 'Status'),
     accessorKey: 'status',
     size: 100,
     cell: ({ cell }) => {
@@ -428,7 +402,7 @@ export const conversationListColumns: ColumnDef<ConversationListItem>[] = [
   },
   {
     id: 'assignedUserId',
-    header: 'Assigned to',
+    header: t('assigned-to', 'Assigned to'),
     accessorKey: 'assignedUserId',
     cell: ({ cell }) => {
       return (
@@ -443,12 +417,12 @@ export const conversationListColumns: ColumnDef<ConversationListItem>[] = [
   },
   {
     id: 'readUsers',
-    header: 'Opened by',
+    header: t('opened-by', 'Opened by'),
     accessorKey: 'readUsers',
     cell: ({ cell }) => {
       const { readUsers } = cell.row.original || {};
       if (!readUsers) {
-        return <RecordTableInlineCell>N/A</RecordTableInlineCell>;
+        return <RecordTableInlineCell>{t('n-a', 'N/A')}</RecordTableInlineCell>;
       }
       return (
         <RecordTableInlineCell>
@@ -462,6 +436,7 @@ export const conversationListColumns: ColumnDef<ConversationListItem>[] = [
   },
   {
     id: 'open',
+    header: () => <RecordTable.ColumnSelector />,
     size: 33,
     cell: ({ cell }) => <MoreCell cell={cell} />,
   },

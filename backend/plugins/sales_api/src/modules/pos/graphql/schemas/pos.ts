@@ -32,7 +32,6 @@ const posCommonFields = `
   kioskMachine: JSON
   uiOptions: JSON
   token: String
-  erxesAppToken: String
   initialCategoryIds: [String]
   kioskExcludeCategoryIds: [String]
   kioskExcludeProductIds: [String]

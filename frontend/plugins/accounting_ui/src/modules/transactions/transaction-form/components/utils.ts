@@ -69,9 +69,24 @@ export const getSingleJournalByAccount = (
   }
 };
 
+const cleanRelAccounts = (relAccounts?: ITransaction['relAccounts']) => {
+  const customDt = relAccounts?.customDt?.filter(Boolean);
+  const customCt = relAccounts?.customCt?.filter(Boolean);
+
+  if (!customDt?.length && !customCt?.length) {
+    return undefined;
+  }
+
+  return {
+    ...(customDt?.length ? { customDt } : {}),
+    ...(customCt?.length ? { customCt } : {}),
+  };
+};
+
 export const cleanTrDoc = (trDoc: ITransaction) => {
   return {
     ...trDoc,
+    relAccounts: cleanRelAccounts(trDoc.relAccounts),
     details: trDoc.details.map((det) => ({
       ...det,
       account: undefined,
@@ -99,8 +114,7 @@ export const cleanTrDocs = (data: TAddTransactionGroup) => {
   );
 };
 
-export const DUPLICATE_PRODUCT_CELL_CLASS =
-  'bg-pink-50/80 dark:bg-pink-950/30';
+export const DUPLICATE_PRODUCT_CELL_CLASS = 'bg-pink-50/80 dark:bg-pink-950/30';
 
 export const hasDuplicateProductId = (
   details: Pick<ITrDetail, 'productId'>[] = [],

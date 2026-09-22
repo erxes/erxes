@@ -4,8 +4,10 @@ import { PosCardGrid } from '@/pos/components/PosRecordList';
 import { PosCreate } from '@/pos/components/pos-create';
 import { SettingsHeader } from 'ui-modules';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const PosSettingsPage = () => {
+  const { t } = useTranslation('sales');
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
 
   const onCreatePos = () => {
@@ -19,11 +21,11 @@ export const PosSettingsPage = () => {
           <div className="flex justify-between items-center w-full">
             <Button variant="ghost" className="font-semibold">
               <IconCashRegister className="w-4 h-4 text-accent-foreground" />
-              POS
+              {t('pos')}
             </Button>
             <Button onClick={onCreatePos}>
               <IconPlus className="mr-2 w-4 h-4" />
-              Create POS
+              {t('pos-create')}
             </Button>
           </div>
         </SettingsHeader>

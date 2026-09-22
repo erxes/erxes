@@ -7,6 +7,7 @@ import {
   useQueryState,
   useFilterContext,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { PROJECT_PRIORITIES_OPTIONS } from '@/ticket/constants/priorityOption';
 import {
   PriorityBadge,
@@ -111,10 +112,13 @@ const SelectPriorityCommandItem = ({ priority }: { priority: number }) => {
 };
 
 const SelectPriorityContent = () => {
+  const { t } = useTranslation('frontline');
   return (
     <Command>
-      <Command.Input placeholder="Search priority" />
-      <Command.Empty>No priority found</Command.Empty>
+      <Command.Input placeholder={t('search-priority', 'Search priority')} />
+      <Command.Empty>
+        {t('no-priority-found', 'No priority found')}
+      </Command.Empty>
       <Command.List>
         {PROJECT_PRIORITIES_OPTIONS.map((priority, index) => (
           <SelectPriorityCommandItem key={priority} priority={index} />
@@ -246,6 +250,8 @@ export const SelectPriorityFormItem = ({
 };
 
 export const SelectPriorityTicket = Object.assign(SelectPriorityRoot, {
+  Provider: SelectPriorityProvider,
+  Content: SelectPriorityContent,
   FilterBar: SelectPriorityFilterBar,
   FormItem: SelectPriorityFormItem,
   FilterView: SelectPriorityFilterView,

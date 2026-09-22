@@ -28,6 +28,7 @@ const mutations: Record<string, Resolver> = {
     args: any,
     { models, subdomain }: IContext,
   ) {
+
     const { input } = args;
     const invoice = await models.Invoices.getInvoice(
       { _id: input.invoiceId },

@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import React from 'react';
 
 import { useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { UPDATE_LOYALTY_CONFIG } from '../graphql/mutations/loyaltyConfigMutations';
 import { LOYALTY_CONFIGS_QUERY } from '../graphql/queries/loyaltyConfigQueries';
 import { LoyaltyFormData } from '../types/loyaltyConfigTypes';
@@ -13,6 +14,7 @@ export const DEFAULT_VALUES: LoyaltyFormData = {
 };
 
 export const useLoyaltyConfig = () => {
+  const { t } = useTranslation('loyalty');
   const { toast } = useToast();
 
   const { data, loading: queryLoading } = useQuery(LOYALTY_CONFIGS_QUERY);
@@ -21,14 +23,14 @@ export const useLoyaltyConfig = () => {
     refetchQueries: [{ query: LOYALTY_CONFIGS_QUERY }],
     onCompleted: () => {
       toast({
-        title: 'Success',
-        description: 'Loyalty config updated successfully',
+        title: t('success'),
+        description: t('loyalty-config-updated'),
         variant: 'default',
       });
     },
     onError: (err) => {
       toast({
-        title: 'Error',
+        title: t('error'),
         description: err.message,
         variant: 'destructive',
       });

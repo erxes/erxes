@@ -1,5 +1,6 @@
 import { IconEdit, IconTrash, IconDotsVertical } from '@tabler/icons-react';
 import { Button, DropdownMenu } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useDeleteInsuranceType } from '~/modules/insurance/hooks';
 
 interface InsuranceTypesMoreColumnProps {
@@ -13,12 +14,13 @@ export const InsuranceTypesMoreColumn = ({
   onEdit,
   onDeleted,
 }: InsuranceTypesMoreColumnProps) => {
+  const { t } = useTranslation('insurance');
   const insuranceType = cell.row.original;
   const { deleteInsuranceType, loading } = useDeleteInsuranceType();
 
   const handleDelete = async () => {
     if (
-      window.confirm('Are you sure you want to delete this insurance type?')
+      window.confirm(t('confirm-delete-insurance-type'))
     ) {
       try {
         await deleteInsuranceType({ variables: { id: insuranceType.id } });
@@ -32,14 +34,14 @@ export const InsuranceTypesMoreColumn = ({
   return (
     <DropdownMenu>
       <DropdownMenu.Trigger asChild>
-        <Button variant="ghost" size="icon" className="h-8 w-8">
+        <Button variant="ghost" size="icon" className="h-8 w-full">
           <IconDotsVertical size={16} />
         </Button>
       </DropdownMenu.Trigger>
       <DropdownMenu.Content align="start">
         <DropdownMenu.Item onClick={() => onEdit?.(insuranceType)}>
           <IconEdit size={16} />
-          Edit
+          {t('edit')}
         </DropdownMenu.Item>
         <DropdownMenu.Separator />
         <DropdownMenu.Item
@@ -48,7 +50,7 @@ export const InsuranceTypesMoreColumn = ({
           className="text-destructive"
         >
           <IconTrash size={16} />
-          Delete
+          {t('delete')}
         </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu>

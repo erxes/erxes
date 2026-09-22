@@ -424,16 +424,18 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
         module: 'relation',
         action: 'createRelation',
         input: {
-          entities: [
-            {
-              contentType: 'sales:deal',
-              contentId: deal._id,
-            },
-            {
-              contentType: `core:${doneOrder.customerType || 'customer'}`,
-              contentId: doneOrder.customerId,
-            },
-          ],
+          relation: {
+            entities: [
+              {
+                contentType: 'sales:deal',
+                contentId: deal._id,
+              },
+              {
+                contentType: `core:${doneOrder.customerType || 'customer'}`,
+                contentId: doneOrder.customerId,
+              },
+            ],
+          },
         },
       });
     }
@@ -602,16 +604,18 @@ const createDealPerOrder = async ({
         module: 'relation',
         action: 'createRelation',
         input: {
-          entities: [
-            {
-              contentType: 'sales:deal',
-              contentId: cardDeal._id,
-            },
-            {
-              contentType: `core:${newOrder.customerType || 'customer'}`,
-              contentId: newOrder.customerId,
-            },
-          ],
+          relation: {
+            entities: [
+              {
+                contentType: 'sales:deal',
+                contentId: cardDeal._id,
+              },
+              {
+                contentType: `core:${newOrder.customerType || 'customer'}`,
+                contentId: newOrder.customerId,
+              },
+            ],
+          },
         },
       });
     }
@@ -775,17 +779,17 @@ export const syncOrderFromClient = async ({
 
   const syncedResponseIds = enabledMN
     ? (
-      (await sendTRPCMessage({
-        subdomain,
-        pluginName: 'mongolian',
-        module: 'putResponses',
-        action: 'find',
-        input: {
-          query: { _id: { $in: (responses || []).map((resp) => resp._id) } },
-        },
-        defaultValue: [],
-      })) || []
-    ).map((r) => r._id)
+        (await sendTRPCMessage({
+          subdomain,
+          pluginName: 'mongolian',
+          module: 'putResponses',
+          action: 'find',
+          input: {
+            query: { _id: { $in: (responses || []).map((resp) => resp._id) } },
+          },
+          defaultValue: [],
+        })) || []
+      ).map((r) => r._id)
     : [];
 
   // return info saved

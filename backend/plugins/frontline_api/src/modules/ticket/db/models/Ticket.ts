@@ -56,6 +56,8 @@ export const loadTicketClass = (
       if (params.pipelineId) query.pipelineId = params.pipelineId;
       if (params.statusId) query.statusId = params.statusId;
       if (params.assigneeId) query.assigneeId = params.assigneeId;
+      if (params.assignedMembers)
+        query.assignedMembers = { $in: params.assignedMembers };
       if (params.priority) query.priority = params.priority;
       if (params.labelIds) query.labelIds = { $in: params.labelIds };
       if (params.tagIds) query.tagIds = { $in: params.tagIds };
@@ -137,7 +139,7 @@ export const loadTicketClass = (
       userId: string;
       subdomain: string;
     }) {
-      const { _id, ...rest } = doc;
+      const { _id, propertiesData: incomingPropertiesData, ...rest } = doc;
       const permissionValidator = createPermissionValidator(models);
 
       const ticket = await models.Ticket.findOne({ _id });
@@ -146,25 +148,28 @@ export const loadTicketClass = (
         throw new Error('Ticket not found');
       }
 
+      const editsFields =
+        !!incomingPropertiesData ||
+        Object.keys(rest).some((field) => field !== 'statusId');
+
       await permissionValidator.validateEditPermission(
         ticket.statusId || '',
         doc.statusId || '',
         userId,
+        editsFields,
       );
-      if (doc.propertiesData) {
-        const propertiesData = await sendTRPCMessage({
+      if (incomingPropertiesData) {
+        await sendTRPCMessage({
           subdomain,
           pluginName: 'core',
           method: 'mutation',
           module: 'fields',
           action: 'validateFieldValues',
           input: {
-            data: doc.propertiesData,
+            data: incomingPropertiesData,
           },
-          defaultValue: doc.propertiesData,
+          defaultValue: incomingPropertiesData,
         });
-
-        doc.propertiesData = propertiesData;
       }
 
       if (doc.statusId && doc.statusId !== ticket.statusId) {
@@ -218,9 +223,15 @@ export const loadTicketClass = (
           action: 'assignee',
         });
       }
-      const update = {
-        $set: rest,
+      const update: { $set: Record<string, any>; [key: string]: any } = {
+        $set: { ...rest },
       };
+
+      if (incomingPropertiesData) {
+        for (const [key, value] of Object.entries(incomingPropertiesData)) {
+          update.$set[`propertiesData.${key}`] = value;
+        }
+      }
 
       if (doc.isSubscribed !== false) {
         update['$addToSet'] = {

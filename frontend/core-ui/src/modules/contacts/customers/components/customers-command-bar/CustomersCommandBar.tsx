@@ -1,6 +1,5 @@
 import { CustomersDelete } from '@/contacts/customers/components/customers-command-bar/delete/CustomersDelete';
 import { CustomersMerge } from '@/contacts/customers/components/customers-command-bar/merge/CustomersMerge';
-import { CustomersVerificationStatus } from '@/contacts/customers/components/customers-command-bar/CustomersVerificationStatus';
 import { CustomersChangeState } from '@/contacts/customers/components/customers-command-bar/CustomersChangeState';
 import { ApolloError } from '@apollo/client';
 import { Row } from '@tanstack/table-core';
@@ -36,9 +35,8 @@ export const CustomersCommandBar = () => {
               variant="secondary"
               className="shadow-none"
               value={
-                intersection(
-                  selectedRows.map((row) => row.original.tagIds),
-                ) || []
+                intersection(selectedRows.map((row) => row.original.tagIds)) ||
+                []
               }
               targetIds={customerIds}
               options={(newSelectedTagIds) => ({
@@ -74,21 +72,13 @@ export const CustomersCommandBar = () => {
           buttonVariant="secondary"
           ids={customerIds}
         />
-        {isOs && (
-          <Can action="contactsUpdate">
-            <>
-              <Separator.Inline />
-              <CustomersVerificationStatus
-                customerIds={customerIds}
-                rows={selectedRows}
-              />
-            </>
-          </Can>
-        )}
         <Can action="contactsUpdate">
           <>
             <Separator.Inline />
-            <CustomersChangeState customerIds={customerIds} rows={selectedRows} />
+            <CustomersChangeState
+              customerIds={customerIds}
+              rows={selectedRows}
+            />
           </>
         </Can>
         <Can action="contactsMerge">

@@ -1,6 +1,7 @@
 import { ApolloError } from '@apollo/client';
 import { Button, Form, Sheet, useToast } from 'erxes-ui';
 import { UseFormReturn } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { AddDonationCampaignForm } from '../../add-donation-campaign/components/AddDonationCampaignForm';
 import { DonationFormValues } from '../../constants/donationFormSchema';
 import { useDonationDetailWithQuery } from '../hooks/useDonationDetailWithQuery';
@@ -12,6 +13,7 @@ type Props = {
 };
 
 export const EditDonationTabs = ({ onOpenChange, form }: Props) => {
+  const { t } = useTranslation('loyalty');
   const { donationEdit, loading: editLoading } = useDonationEdit();
   const { donationDetail } = useDonationDetailWithQuery();
   const { toast } = useToast();
@@ -47,7 +49,7 @@ export const EditDonationTabs = ({ onOpenChange, form }: Props) => {
       variables,
       onError: (e: ApolloError) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: e.message,
           variant: 'destructive',
         });
@@ -66,7 +68,7 @@ export const EditDonationTabs = ({ onOpenChange, form }: Props) => {
         className="bg-background hover:bg-background/90"
         onClick={() => onOpenChange(false)}
       >
-        Cancel
+        {t('cancel')}
       </Button>
       <Button
         type="button"
@@ -74,7 +76,7 @@ export const EditDonationTabs = ({ onOpenChange, form }: Props) => {
         onClick={handleSubmit}
         disabled={editLoading}
       >
-        {editLoading ? 'Updating...' : 'Update'}
+        {editLoading ? t('updating') : t('update')}
       </Button>
     </Sheet.Footer>
   );

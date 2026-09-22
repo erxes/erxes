@@ -7,8 +7,10 @@ import {
   Separator,
   useConfirm,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const PaymentsCommandBar = () => {
+  const { t } = useTranslation('payment');
   const { table } = RecordTable.useRecordTable();
   const { confirm } = useConfirm();
   const { removePayment } = usePaymentRemove();
@@ -36,7 +38,7 @@ export const PaymentsCommandBar = () => {
     <CommandBar open={table.getFilteredSelectedRowModel().rows.length > 0}>
       <CommandBar.Bar>
         <CommandBar.Value>
-          {table.getFilteredSelectedRowModel().rows.length} selected
+          {t('selected', { count: table.getFilteredSelectedRowModel().rows.length })}
         </CommandBar.Value>
         <Separator.Inline />
         <Button
@@ -45,7 +47,7 @@ export const PaymentsCommandBar = () => {
           onClick={handleDelete}
         >
           <IconTrash />
-          Delete
+          {t('delete')}
         </Button>
       </CommandBar.Bar>
     </CommandBar>

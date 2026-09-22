@@ -157,6 +157,7 @@ type ClientPortal {
     smsProvidersConfig: SMSProvidersConfig
     manualVerificationConfig: ManualVerificationConfig
     enableManualVerification: Boolean
+    useB2B: Boolean
     testUser: TestUser
     firebaseConfig: FirebaseConfig
 
@@ -320,6 +321,7 @@ type ClientPortal {
     smsProvidersConfig: SMSProvidersConfigInput
     manualVerificationConfig: ManualVerificationConfigInput
     enableManualVerification: Boolean
+    useB2B: Boolean
     testUser: TestUserInput
     firebaseConfig: FirebaseConfigInput
   }
@@ -353,4 +355,8 @@ export const mutations = `
   ): ClientPortal
   clientPortalChangeToken (_id: String!): String
   clientPortalDelete (_id: String!): JSON
+  clientPortalCheckTokiInvoice(
+    clientPortalId: String!
+    transactionId: String!
+  ): JSON
 `;

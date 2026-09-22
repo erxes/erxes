@@ -19,7 +19,7 @@ import { ORIGIN_TR_JOURNALS } from '~/modules/transactions/types/constants';
 import { TR_JOURNAL_LABELS } from '../modules/transactions/types/constants';
 
 export const TransactionListPage = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('accounting');
 
   const renderAdditionHelper = () => {
     return (

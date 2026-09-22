@@ -2,13 +2,13 @@ import crypto from 'crypto';
 import {
   IAttachment,
   IBrowserInfo,
+  IPropertyField,
   Resolver,
 } from 'erxes-api-shared/core-types';
 import { sendAutomationTrigger } from 'erxes-api-shared/core-modules';
 import {
   getEnv,
   graphqlPubsub,
-  isEnabled,
   markResolvers,
   redis,
   sendTRPCMessage,
@@ -103,6 +103,7 @@ export const getMessengerData = async (
 ) => {
   let messagesByLanguage: IMessengerDataMessagesItem | null = null;
   let messengerData = integration.messengerData;
+  const isOnline = models.Integrations.isOnline(integration) ?? false;
 
   if (messengerData) {
     if (messengerData.toJSON) {
@@ -134,12 +135,10 @@ export const getMessengerData = async (
     if (
       messengerData &&
       messengerData.hideWhenOffline &&
-      messengerData.availabilityMethod === 'auto'
+      messengerData.availabilityMethod === 'auto' &&
+      !isOnline
     ) {
-      const isOnline = models.Integrations.isOnline(integration);
-      if (!isOnline) {
-        messengerData.showChat = false;
-      }
+      messengerData.showChat = false;
     }
   }
 
@@ -168,37 +167,46 @@ export const getMessengerData = async (
     kind: 'website',
     'credentials.integrationId': integration._id,
   });
+  const { automationId } = (messengerData || {}) as any;
   let getStartedCondition: { isSelected?: boolean } | false = false;
-  const isServiceAvailable = await isEnabled('automations');
+  let aiAgentLabel = 'erxes';
 
-  if (isServiceAvailable) {
-    const getStarted = await sendTRPCMessage({
+  if (automationId) {
+    const automations = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
       module: 'automation',
-      action: 'trigger.find',
+      action: 'find',
       input: {
         query: {
-          triggerType: 'inbox:messages',
-          botId: integration._id,
+          triggerType: 'frontline:inbox.messages',
         },
       },
-    }).catch((error) => {
-      throw error;
-    });
+    }).catch(() => []);
 
-    getStartedCondition = (
-      getStarted[0]?.triggers[0]?.config?.conditions || []
-    ).find((condition) => condition.type === 'getStarted');
+    const automation = (automations || []).find(
+      (a: any) => String(a._id) === String(automationId),
+    );
+
+    getStartedCondition =
+      (automation?.triggers || [])
+        .flatMap((t: any) => t.config?.conditions || [])
+        .find((c: any) => c.type === 'getStarted') || false;
+
+    aiAgentLabel =
+      (automation?.actions || []).find((a: any) => a.type === 'aiAgent')
+        ?.label ?? 'erxes';
   }
 
   return {
     ...messengerData,
+    isOnline,
     getStarted: getStartedCondition ? getStartedCondition.isSelected : false,
     messages: messagesByLanguage,
     knowledgeBaseTopicId: topicId ?? messengerData?.knowledgeBaseTopicId,
     websiteApps,
     formCodes,
+    aiAgentLabel,
   };
 };
 
@@ -217,6 +225,42 @@ const createVisitor = async (subdomain: string, visitorId: string) => {
   return customer;
 };
 
+const findMessengerCompany = async (
+  subdomain: string,
+  companyData: { name?: string; email?: string; phone?: string },
+) => {
+  const selectors: Array<Record<string, string>> = [];
+
+  if (companyData.name) {
+    selectors.push({ name: companyData.name });
+  }
+
+  if (companyData.email) {
+    selectors.push({ email: companyData.email });
+  }
+
+  if (companyData.phone) {
+    selectors.push({ phone: companyData.phone });
+  }
+
+  for (const query of selectors) {
+    const company = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'companies',
+      action: 'findOne',
+      input: { query },
+    });
+
+    if (company?._id) {
+      return company;
+    }
+  }
+
+  return null;
+};
+
 export interface ITicketWidget {
   name: string;
   description: string;
@@ -227,7 +271,58 @@ export interface ITicketWidget {
   type: string;
   customerIds: string[];
   tagIds: string[];
+  propertiesData?: IPropertyField;
 }
+
+/*
+ * Keeps only the property fields the ticket form of that pipeline exposes,
+ * enforces the required ones and validates the values against their definition
+ */
+const buildTicketPropertiesData = async (
+  models: IModels,
+  subdomain: string,
+  pipelineId: string,
+  propertiesData?: IPropertyField,
+): Promise<IPropertyField | undefined> => {
+  const config = await models.TicketConfig.findOne({ pipelineId }).lean();
+  const propertyFields = config?.propertyFields || [];
+
+  if (!propertyFields.length) {
+    return undefined;
+  }
+
+  const filteredData: IPropertyField = {};
+
+  for (const propertyField of propertyFields) {
+    const value = propertiesData?.[propertyField.fieldId];
+    const isEmpty = value === undefined || value === null || value === '';
+
+    if (isEmpty) {
+      if (propertyField.isRequired) {
+        throw new Error(
+          `${propertyField.label || 'Property field'} is required`,
+        );
+      }
+      continue;
+    }
+
+    filteredData[propertyField.fieldId] = value;
+  }
+
+  if (!Object.keys(filteredData).length) {
+    return undefined;
+  }
+
+  return await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    method: 'mutation',
+    module: 'fields',
+    action: 'validateFieldValues',
+    input: { data: filteredData },
+    defaultValue: filteredData,
+  });
+};
 
 export const widgetMutations: Record<string, Resolver> = {
   async widgetsLeadIncreaseViewCount(
@@ -339,20 +434,9 @@ export const widgetMutations: Record<string, Resolver> = {
 
     // get or create company
     if (companyData?.name) {
-      let company = await sendTRPCMessage({
-        subdomain,
-        pluginName: 'core',
-        method: 'mutation',
-        module: 'companies',
-        action: 'findOne',
-        input: {
-          query: {
-            companyData,
-          },
-        },
-      });
+      let company = await findMessengerCompany(subdomain, companyData);
 
-      const { propertiesData } = await sendTRPCMessage({
+      const fieldData = await sendTRPCMessage({
         subdomain,
         pluginName: 'core',
         method: 'query',
@@ -366,10 +450,8 @@ export const widgetMutations: Record<string, Resolver> = {
         },
       });
 
-      companyData.propertiesData = propertiesData;
-
-      // trackData note: trackedData is not used for now
-      // companyData.trackedData = trackedData;
+      companyData.propertiesData = fieldData?.propertiesData || {};
+      companyData.trackedData = fieldData?.trackedData || [];
 
       if (company) {
         company = await sendTRPCMessage({
@@ -379,10 +461,8 @@ export const widgetMutations: Record<string, Resolver> = {
           module: 'companies',
           action: 'updateCompany',
           input: {
-            query: {
-              _id: company._id,
-              doc: companyData,
-            },
+            _id: company._id,
+            doc: companyData,
           },
         });
 
@@ -390,7 +470,7 @@ export const widgetMutations: Record<string, Resolver> = {
           subdomain,
           pluginName: 'automations',
           method: 'mutation',
-          module: 'triggers',
+          module: 'automations',
           action: 'trigger',
           input: {
             type: 'core:company',
@@ -404,13 +484,11 @@ export const widgetMutations: Record<string, Resolver> = {
         company = await sendTRPCMessage({
           subdomain,
           pluginName: 'core',
-          method: 'query',
+          method: 'mutation',
           module: 'companies',
           action: 'createCompany',
           input: {
-            query: {
-              ...companyData,
-            },
+            doc: { ...companyData },
           },
         });
       }
@@ -466,10 +544,10 @@ export const widgetMutations: Record<string, Resolver> = {
         { $set: { isConnected: true } },
       );
     }
-    let ticketConfig;
-    if (integration.ticketConfigId) {
-      ticketConfig = await models.TicketConfig.findOne({
-        _id: integration.ticketConfigId,
+    let ticketConfigs = [];
+    if (integration.ticketConfigIds && integration.ticketConfigIds.length > 0) {
+      ticketConfigs = await models.TicketConfig.find({
+        _id: { $in: integration.ticketConfigIds },
       });
     }
 
@@ -477,7 +555,7 @@ export const widgetMutations: Record<string, Resolver> = {
       integrationId: integration._id,
       uiOptions: integration.uiOptions,
       languageCode: integration.languageCode,
-      ticketConfig: ticketConfig || {},
+      ticketConfigs: ticketConfigs || [],
       messengerData: await getMessengerData(models, subdomain, integration),
       customerId: customer?._id,
       visitorId: customer ? null : visitorId,
@@ -611,6 +689,39 @@ export const widgetMutations: Record<string, Resolver> = {
       });
     }
 
+    let parsedPayload: Record<string, string> | undefined;
+    let ticketFormWidgetData:
+      | {
+          _id: string;
+          type: string;
+          text: string;
+          value: string;
+          column: number;
+        }[]
+      | undefined;
+    if (contentType === MESSAGE_TYPES.TICKET_FORM_SUBMISSION && payload) {
+      try {
+        parsedPayload = JSON.parse(payload);
+      } catch (_e) {
+        // ignore malformed payload
+      }
+      if (parsedPayload) {
+        const TICKET_FIELD_LABELS: Record<string, string> = {
+          'ticket:name': 'Ticket name',
+          'ticket:description': 'Description',
+        };
+        ticketFormWidgetData = Object.entries(parsedPayload).map(
+          ([key, value]) => ({
+            _id: key,
+            type: key === 'ticket:description' ? 'textarea' : 'input',
+            text: TICKET_FIELD_LABELS[key] || key,
+            value: String(value),
+            column: 6,
+          }),
+        );
+      }
+    }
+
     const msg = await models.ConversationMessages.createMessage({
       conversationId: conversation._id,
       customerId,
@@ -618,6 +729,7 @@ export const widgetMutations: Record<string, Resolver> = {
       contentType,
       content: message,
       botId: botId,
+      ...(ticketFormWidgetData ? { formWidgetData: ticketFormWidgetData } : {}),
     });
 
     await models.Conversations.updateOne(
@@ -653,7 +765,11 @@ export const widgetMutations: Record<string, Resolver> = {
       conversationMessageInserted: msg,
     });
 
-    if (botId && !HAS_BOTENDPOINT_URL) {
+    if (
+      botId &&
+      !HAS_BOTENDPOINT_URL &&
+      conversation.operatorStatus !== CONVERSATION_OPERATOR_STATUS.OPERATOR
+    ) {
       graphqlPubsub.publish(
         `conversationBotTypingStatus:${msg.conversationId}`,
         {
@@ -669,7 +785,11 @@ export const widgetMutations: Record<string, Resolver> = {
         {
           type: 'frontline:inbox.messages',
           targets: [
-            { ...msg.toObject(), automationId: automationId || undefined },
+            {
+              ...msg.toObject(),
+              ...(parsedPayload || {}),
+              automationId: automationId || undefined,
+            },
           ],
         },
         {
@@ -727,8 +847,8 @@ export const widgetMutations: Record<string, Resolver> = {
           customerId,
           contentType,
           botData,
+          fromBot: true,
         });
-
         graphqlPubsub.publish(
           `conversationBotTypingStatus:${msg.conversationId}`,
           {
@@ -789,8 +909,14 @@ export const widgetMutations: Record<string, Resolver> = {
   async widgetsReadConversationMessages(
     _root,
     args: { conversationId: string },
-    { models }: IContext,
+    { models, subdomain }: IContext,
   ) {
+    const unreadMessages = await models.ConversationMessages.find({
+      conversationId: args.conversationId,
+      userId: { $exists: true },
+      isCustomerRead: { $ne: true },
+    }).lean();
+
     await models.ConversationMessages.updateMany(
       {
         conversationId: args.conversationId,
@@ -799,6 +925,20 @@ export const widgetMutations: Record<string, Resolver> = {
       },
       { isCustomerRead: true },
       { multi: true },
+    );
+
+    await Promise.all(
+      unreadMessages.map((message) =>
+        graphqlPubsub.publish(
+          `conversationMessageUpdated:${subdomain}:${args.conversationId}`,
+          {
+            conversationMessageUpdated: {
+              ...message,
+              isCustomerRead: true,
+            },
+          },
+        ),
+      ),
     );
 
     return args.conversationId;
@@ -1067,6 +1207,33 @@ export const widgetMutations: Record<string, Resolver> = {
     return msg;
   },
 
+  async widgetChangeOperatorStatus(
+    _root,
+    {
+      conversationId,
+      operatorStatus,
+    }: { conversationId: string; operatorStatus: string },
+    { models }: IContext,
+  ) {
+    if (operatorStatus === CONVERSATION_OPERATOR_STATUS.OPERATOR) {
+      const message = await models.ConversationMessages.createMessage({
+        conversationId,
+        botData: [{ type: 'text', text: AUTO_BOT_MESSAGES.CHANGE_OPERATOR }],
+        fromBot: true,
+      });
+
+      graphqlPubsub.publish(
+        `conversationMessageInserted:${message.conversationId}`,
+        { conversationMessageInserted: message },
+      );
+    }
+
+    return models.Conversations.updateOne(
+      { _id: conversationId },
+      { $set: { operatorStatus } },
+    );
+  },
+
   async widgetGetBotInitialMessage(
     _root,
     { integrationId }: { integrationId: string },
@@ -1105,7 +1272,7 @@ export const widgetMutations: Record<string, Resolver> = {
     doc: ITicketWidget,
     { models, subdomain, user }: IContext,
   ) {
-    const { statusId, ...restFields } = doc;
+    const { statusId, propertiesData, ...restFields } = doc;
     const status = await models.Status.findOne({ _id: statusId });
     if (!status) {
       throw new Error('Status not found');
@@ -1128,9 +1295,17 @@ export const widgetMutations: Record<string, Resolver> = {
     });
     const validCustomerIds = customers.map((c: any) => c._id);
 
+    const validatedPropertiesData = await buildTicketPropertiesData(
+      models,
+      subdomain,
+      status.pipelineId,
+      propertiesData,
+    );
+
     try {
       const ticket = await models.Ticket.create({
         ...restFields,
+        propertiesData: validatedPropertiesData,
         statusId: statusId,
         pipelineId: status.pipelineId,
         channelId: pipeline.channelId,

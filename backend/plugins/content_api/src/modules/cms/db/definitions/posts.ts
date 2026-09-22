@@ -44,6 +44,9 @@ export const postSchema = new Schema<IPostDocument>(
     scheduledDate: { type: Date },
     autoArchiveDate: { type: Date },
 
+    seoTitle: { type: String, optional: true },
+    seoDescription: { type: String, optional: true },
+
     reactions: [
       {
         type: String,

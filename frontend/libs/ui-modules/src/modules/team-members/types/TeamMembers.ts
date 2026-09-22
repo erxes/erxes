@@ -5,6 +5,7 @@ export interface IUser {
   email?: string;
   username?: string;
   isOwner?: boolean;
+  isActive?: boolean;
   configs?: any;
   isOnboarded: boolean;
   details?: {

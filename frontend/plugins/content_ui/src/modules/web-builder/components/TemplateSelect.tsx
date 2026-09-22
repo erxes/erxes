@@ -1,6 +1,7 @@
 import { IconEye, IconWorldPlus, IconX } from '@tabler/icons-react';
 import { Button, Dialog } from 'erxes-ui';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { TEMPLATES } from '../constants';
 
 type Template = (typeof TEMPLATES)[number];
@@ -16,13 +17,14 @@ export const TemplateSelect = ({
   value,
   onChange,
 }: TemplateSelectProps) => {
+  const { t } = useTranslation('content');
   const [preview, setPreview] = useState<Template | null>(null);
-  const templates = TEMPLATES.filter((t) => t.type === type);
+  const templates = TEMPLATES.filter((tmpl) => tmpl.type === type);
 
   if (!type) {
     return (
       <p className="text-sm text-muted-foreground py-2">
-        Select a template type first
+        {t('select-template-type-first')}
       </p>
     );
   }
@@ -30,7 +32,7 @@ export const TemplateSelect = ({
   if (!templates.length) {
     return (
       <p className="text-sm text-muted-foreground py-2">
-        No templates available
+        {t('no-templates-available')}
       </p>
     );
   }
@@ -38,23 +40,23 @@ export const TemplateSelect = ({
   return (
     <>
       <div className="grid grid-cols-2 gap-3 max-h-72 overflow-y-auto pr-1">
-        {templates.map((t) => (
-          <div key={t.id} className="relative group">
+        {templates.map((tmpl) => (
+          <div key={tmpl.id} className="relative group">
             <button
               type="button"
-              onClick={() => onChange(t.id)}
+              onClick={() => onChange(tmpl.id)}
               className={[
                 'w-full border rounded-lg overflow-hidden text-left hover:border-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary/20',
-                value === t.id
+                value === tmpl.id
                   ? 'border-primary ring-2 ring-primary/20'
                   : 'border-border',
               ].join(' ')}
             >
               <div className="aspect-video bg-gray-100 overflow-hidden">
-                {t.thumbnail ? (
+                {tmpl.thumbnail ? (
                   <img
-                    src={t.thumbnail}
-                    alt={t.name}
+                    src={tmpl.thumbnail}
+                    alt={tmpl.name}
                     className="w-full h-full object-cover"
                   />
                 ) : (
@@ -64,7 +66,7 @@ export const TemplateSelect = ({
                 )}
               </div>
               <div className="px-2 py-1.5 text-xs font-medium truncate">
-                {t.name}
+                {tmpl.name}
               </div>
             </button>
 
@@ -72,13 +74,13 @@ export const TemplateSelect = ({
               type="button"
               onClick={(e) => {
                 e.stopPropagation();
-                setPreview(t);
+                setPreview(tmpl);
               }}
-              title="Preview"
+              title={t('preview')}
               className="text-sm cursor-pointer flex gap-2 items-center text-white absolute top-1.5 right-1.5 opacity-0 group-hover:opacity-100 transition-opacity bg-black/60 hover:bg-black/80 rounded py-1 px-3"
             >
               <IconEye className="w-3 h-3 " />
-              Preview
+              {t('preview')}
             </button>
           </div>
         ))}
@@ -87,7 +89,7 @@ export const TemplateSelect = ({
       <Dialog open={!!preview} onOpenChange={() => setPreview(null)}>
         <Dialog.Content className="max-w-2xl p-0 overflow-hidden gap-0">
           <Dialog.Description className="sr-only">
-            Template preview
+            {t('template-preview')}
           </Dialog.Description>
 
           <div className="aspect-video bg-gray-100 overflow-hidden">
@@ -126,7 +128,7 @@ export const TemplateSelect = ({
 
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="text-xs text-muted-foreground">Colors</span>
+                <span className="text-xs text-muted-foreground">{t('colors')}</span>
                 <span
                   className="w-5 h-5 rounded-full border border-border"
                   style={{ background: preview?.primaryColor }}
@@ -147,7 +149,7 @@ export const TemplateSelect = ({
                   }
                 }}
               >
-                Use This Template
+                {t('use-this-template')}
               </Button>
             </div>
           </div>

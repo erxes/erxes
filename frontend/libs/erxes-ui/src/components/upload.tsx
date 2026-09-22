@@ -12,7 +12,7 @@ import React, {
 import { ButtonProps } from './button';
 import { cn } from '../lib/utils';
 import { readImage } from 'erxes-ui/utils/core';
-import { useUpload } from 'erxes-ui/hooks';
+import { useToast, useUpload } from 'erxes-ui/hooks';
 import { useTranslation } from 'react-i18next';
 
 type IUploadContext = {
@@ -37,9 +37,7 @@ type UploadPreviewProps = {
 } & React.ComponentPropsWithoutRef<'div'>;
 
 const UploadRoot = React.forwardRef<HTMLDivElement, UploadPreviewProps>(
-  ({ className, ...props }, ref) => {
-    const { value, onChange, multiple } = props;
-
+  ({ className, value, onChange, multiple, ...rest }, ref) => {
     const previewRef = useRef<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -84,7 +82,7 @@ const UploadRoot = React.forwardRef<HTMLDivElement, UploadPreviewProps>(
             </Dialog.Content>
           </Dialog.Portal>
         </Dialog>
-        <div ref={ref} className={cn('flex gap-4', className)} {...props} />
+        <div ref={ref} className={cn('flex gap-4', className)} {...rest} />
       </UploadContext.Provider>
     );
   },
@@ -270,12 +268,15 @@ const RemoveButton = React.forwardRef<
   }
 
   const { url, previewRef, onChange, setPreviewUrl } = uploadContext;
+  const { toast } = useToast();
 
   if (!url) {
     return <div />;
   }
 
   const handleRemove = () => {
+    const isStoredFile = !url.startsWith('data:') && !url.startsWith('blob:');
+
     const urlArray = url.split('/');
 
     const fileName =
@@ -286,13 +287,23 @@ const RemoveButton = React.forwardRef<
       previewRef.current = null;
     }
 
+    setPreviewUrl(undefined);
+    onChange({ url: '', fileInfo: null });
+
+    if (!isStoredFile) {
+      return;
+    }
+
     remove({
       fileName,
-
       afterRemove: ({ status }) => {
-        if (status === 'ok') {
-          setPreviewUrl(undefined);
-          onChange('');
+        if (status !== 'ok') {
+          toast({
+            title: 'Could not delete the stored file',
+            description:
+              'It has been removed here, but the server still holds a copy.',
+            variant: 'destructive',
+          });
         }
       },
     });

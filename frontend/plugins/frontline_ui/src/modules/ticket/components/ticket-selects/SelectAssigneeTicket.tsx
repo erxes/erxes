@@ -237,6 +237,8 @@ export const SelectAssigneeTicketFormItem = ({
 };
 
 export const SelectAssigneeTicket = Object.assign(SelectAssigneeTicketRoot, {
+  Provider: SelectAssigneeProvider,
+  Content: SelectTeamMemberContent,
   FormItem: SelectAssigneeTicketFormItem,
   FilterView: SelectAssigneeFilterView,
   FilterBar: SelectAssigneeFilterBar,

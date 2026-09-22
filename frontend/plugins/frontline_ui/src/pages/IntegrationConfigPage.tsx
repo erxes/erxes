@@ -1,6 +1,7 @@
 import { FacebookConfigUpdateCollapse } from '@/integrations/facebook/components/FacebookConfigUpdate';
 import { CallConfigUpdateCollapse } from '@/integrations/call/components/CallConfigUpdate';
 import { InstagramConfigUpdateCollapse } from '@/integrations/instagram/components/InstagramConfigUpdate';
+import { MailConfigUpdateCollapse } from '@/integrations/mail/components/MailConfigUpdate';
 import { WhatsappConfigUpdateCollapse } from '@/integrations/whatsapp/components/WhatsappConfigUpdate';
 import { useAtomValue } from 'jotai';
 import { currentOrganizationState } from 'ui-modules';
@@ -14,6 +15,7 @@ export const IntegrationConfigPage = () => {
       {!isSaas && <InstagramConfigUpdateCollapse />}
       {!isSaas && <WhatsappConfigUpdateCollapse />}
       <CallConfigUpdateCollapse />
+      <MailConfigUpdateCollapse />
     </div>
   );
 };

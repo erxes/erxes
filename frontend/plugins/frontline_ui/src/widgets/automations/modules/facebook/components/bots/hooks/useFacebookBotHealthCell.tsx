@@ -1,11 +1,12 @@
+import { useTranslation } from 'react-i18next';
 import { IFacebookBotHealth } from '@/integrations/facebook/types/FacebookBot';
 
 const BOT_STATUS_LABELS = {
-  healthy: 'Healthy',
-  degraded: 'Needs repair',
-  broken: 'Broken',
-  syncing: 'Syncing',
-  unknown: 'Unknown',
+  healthy: 'healthy',
+  degraded: 'needs-repair',
+  broken: 'broken',
+  syncing: 'syncing',
+  unknown: 'unknown',
 } as const;
 
 const BOT_STATUS_VARIANTS = {
@@ -17,10 +18,12 @@ const BOT_STATUS_VARIANTS = {
 } as const;
 
 export const useFacebookBotHealthCell = (health?: IFacebookBotHealth) => {
+  const { t } = useTranslation('frontline');
   const status = health?.status || 'unknown';
-  const statusLabel =
+  const statusLabel = t(
     BOT_STATUS_LABELS[status as keyof typeof BOT_STATUS_LABELS] ||
-    BOT_STATUS_LABELS.unknown;
+      BOT_STATUS_LABELS.unknown,
+  );
   const statusVariant =
     BOT_STATUS_VARIANTS[status as keyof typeof BOT_STATUS_VARIANTS] ||
     BOT_STATUS_VARIANTS.unknown;
@@ -28,16 +31,18 @@ export const useFacebookBotHealthCell = (health?: IFacebookBotHealth) => {
   const hasProfileIssue = health?.isProfileSynced === false;
   const lastError = health?.lastError || '';
   const detailItems = [
-    { label: 'Status', value: statusLabel },
+    { label: t('status', 'Status'), value: statusLabel },
     {
-      label: 'Subscription',
-      value: hasSubscriptionIssue ? 'Missing' : 'OK',
+      label: t('subscription', 'Subscription'),
+      value: hasSubscriptionIssue
+        ? t('missing-label', 'Missing')
+        : t('ok', 'OK'),
     },
     {
-      label: 'Profile sync',
-      value: hasProfileIssue ? 'Out of sync' : 'OK',
+      label: t('profile-sync', 'Profile sync'),
+      value: hasProfileIssue ? t('out-of-sync', 'Out of sync') : t('ok', 'OK'),
     },
-    ...(lastError ? [{ label: 'Message', value: lastError }] : []),
+    ...(lastError ? [{ label: t('message'), value: lastError }] : []),
   ];
 
   return {

@@ -1,7 +1,6 @@
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import { IAccount, JournalEnum } from '../types/Account';
 import {
-  CurrencyCode,
   ITextFieldContainerProps,
   RecordTable,
   CurrencyField,
@@ -13,11 +12,16 @@ import {
   Command,
   useConfirm,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { SelectAccountCategory } from '../account-categories/components/SelectAccountCategory';
 import { useAccountEdit } from '../hooks/useAccountEdit';
 import { useAccountsRemove } from '../hooks/useAccountsRemove';
 import { JOURNAL_LABELS } from '../constants/journalLabel';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
+import {
+  getCurrencyCodeFromOptions,
+  useCurrencyConfigs,
+} from '../../hooks/useCurrencyConfigs';
 
 const AccountCategoryCell = ({ cell }: { cell: Cell<IAccount, unknown> }) => {
   const { original } = cell.row;
@@ -70,12 +74,16 @@ const AccountTextField = ({
 
 const AccountCurrencyCell = ({ cell }: { cell: Cell<IAccount, unknown> }) => {
   const { editAccount } = useAccountEdit();
+  const { dealCurrencyOptions } = useCurrencyConfigs();
+  const value = cell.getValue<string>();
+
   return (
     <CurrencyField.SelectCurrency
-      value={cell.getValue() as CurrencyCode}
+      value={getCurrencyCodeFromOptions(value, dealCurrencyOptions)}
       variant="ghost"
       className="w-full focus-visible:relative focus-visible:z-10 font-normal"
       hideChevron
+      currencies={dealCurrencyOptions}
       onChange={(value) => {
         editAccount({ variables: { ...cell.row.original, currency: value } }, [
           'currency',
@@ -90,6 +98,7 @@ export const AccountMoreColumnCell = ({
 }: {
   cell: Cell<IAccount, unknown>;
 }) => {
+  const { t } = useTranslation('accounting');
   const [, setOpen] = useQueryState('accountId');
   const { confirm } = useConfirm();
   const { removeAccounts } = useAccountsRemove();
@@ -100,10 +109,10 @@ export const AccountMoreColumnCell = ({
 
   const handleDelete = () =>
     confirm({
-      message: 'Are you sure you want to delete this account?',
+      message: t('are-you-sure-delete-this-account'),
       options: {
-        okLabel: 'Delete',
-        cancelLabel: 'Cancel',
+        okLabel: t('delete'),
+        cancelLabel: t('cancel'),
       },
     }).then(() => {
       removeAccounts({
@@ -120,10 +129,10 @@ export const AccountMoreColumnCell = ({
         <Command shouldFilter={false}>
           <Command.List>
             <Command.Item value="edit" onSelect={handleEdit}>
-              <IconEdit /> Edit
+              <IconEdit /> {t('edit')}
             </Command.Item>
             <Command.Item value="delete" onSelect={handleDelete}>
-              <IconTrash /> Delete
+              <IconTrash /> {t('delete')}
             </Command.Item>
           </Command.List>
         </Command>
@@ -134,6 +143,7 @@ export const AccountMoreColumnCell = ({
 
 export const accountMoreColumn = {
   id: 'more',
+  header: () => <RecordTable.ColumnSelector />,
   cell: AccountMoreColumnCell,
   size: 33,
 };

@@ -7,12 +7,12 @@ import {
 import { IconAlertTriangle, IconInfoCircle } from '@tabler/icons-react';
 import { Alert, Badge, Card } from 'erxes-ui';
 import { DeepPartial } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
-const INPUT_MODE_LABELS = {
-  focused: 'Focused field',
-  'full-trigger': 'Full trigger payload',
-  'previous-action': 'Previous action result',
-  custom: 'Custom text',
+const INPUT_MODE_LABEL_KEYS = {
+  'full-trigger': 'ai-agent-input-mode-full-trigger',
+  'output-variable': 'ai-agent-input-mode-output-variable',
+  custom: 'ai-agent-input-mode-custom',
 } as const;
 
 export const AiAgentRuntimeInfo = ({
@@ -26,6 +26,8 @@ export const AiAgentRuntimeInfo = ({
   title?: string;
   description?: string;
 }) => {
+  const { t } = useTranslation('automations');
+
   if (!agent) {
     return (
       <Alert className="bg-muted/20">
@@ -92,18 +94,18 @@ export const AiAgentRuntimeInfo = ({
                 : ''}
             </span>
           </div>
-          {summary.customInputChars ? (
+          {summary.inputChars ? (
             <div className="flex items-center justify-between gap-4">
-              <span>Custom input</span>
+              <span>{t('ai-agent-input')}</span>
               <span className="text-foreground">
-                {summary.customInputChars} chars
+                {summary.inputChars} chars
               </span>
             </div>
           ) : null}
           <div className="flex items-center justify-between gap-4">
-            <span>Input mode</span>
+            <span>{t('ai-agent-input-mode')}</span>
             <span className="text-foreground">
-              {INPUT_MODE_LABELS[summary.inputMode]}
+              {t(INPUT_MODE_LABEL_KEYS[summary.inputMode])}
             </span>
           </div>
         </div>
@@ -120,7 +122,11 @@ export const AiAgentRuntimeInfo = ({
               >
                 <Icon />
                 <Alert.Description>
-                  <p>{note.text}</p>
+                  <p>
+                    {'translationKey' in note
+                      ? t(note.translationKey)
+                      : note.text}
+                  </p>
                 </Alert.Description>
               </Alert>
             );

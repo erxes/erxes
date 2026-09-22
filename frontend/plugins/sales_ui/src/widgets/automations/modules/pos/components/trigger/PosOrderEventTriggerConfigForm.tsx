@@ -2,6 +2,7 @@ import { SelectPos } from '@/pos/orders/components/selects/SelectPos';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Form } from 'erxes-ui';
 import { useForm, useWatch } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import {
   AutomationTriggerFormProps,
   useAutomationRemoteFormSubmit,
@@ -24,6 +25,7 @@ export const PosOrderEventTriggerConfigForm = ({
   onSaveTriggerConfig,
   activeTrigger,
 }: AutomationTriggerFormProps<TPosOrderEventTriggerConfigForm>) => {
+  const { t } = useTranslation('sales');
   const form = useForm<TPosOrderEventTriggerConfigForm>({
     resolver: zodResolver(posOrderEventTriggerConfigFormSchema),
     defaultValues: {
@@ -55,14 +57,14 @@ export const PosOrderEventTriggerConfigForm = ({
           name="posId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>POS</Form.Label>
+              <Form.Label>{t('pos')}</Form.Label>
               <SelectPos.FormItem
                 mode="single"
                 value={field.value || ''}
                 onValueChange={(value) =>
                   field.onChange(typeof value === 'string' ? value : '')
                 }
-                placeholder="Any POS"
+                placeholder={t('any-pos')}
               />
               <Form.Message />
             </Form.Item>
@@ -73,12 +75,12 @@ export const PosOrderEventTriggerConfigForm = ({
           name="eventType"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Event</Form.Label>
+              <Form.Label>{t('event')}</Form.Label>
               <PosOptionInput
                 value={field.value}
                 onChange={field.onChange}
                 options={POS_ORDER_EVENT_OPTIONS}
-                placeholder="Select event"
+                placeholder={t('select-event')}
               />
               <Form.Message />
             </Form.Item>
@@ -93,14 +95,14 @@ export const PosOrderEventTriggerConfigForm = ({
             name="fromStatus"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>From status</Form.Label>
+                <Form.Label>{t('from-status')}</Form.Label>
                 <PosOptionInput
                   value={field.value}
                   onChange={field.onChange}
                   options={POS_ORDER_STATUS_OPTIONS}
-                  placeholder="Any status"
+                  placeholder={t('any-status')}
                   allowEmpty
-                  emptyLabel="Any status"
+                  emptyLabel={t('any-status')}
                 />
                 <Form.Message />
               </Form.Item>
@@ -111,14 +113,14 @@ export const PosOrderEventTriggerConfigForm = ({
             name="toStatus"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>To status</Form.Label>
+                <Form.Label>{t('to-status')}</Form.Label>
                 <PosOptionInput
                   value={field.value}
                   onChange={field.onChange}
                   options={POS_ORDER_STATUS_OPTIONS}
-                  placeholder="Any status"
+                  placeholder={t('any-status')}
                   allowEmpty
-                  emptyLabel="Any status"
+                  emptyLabel={t('any-status')}
                 />
                 <Form.Message />
               </Form.Item>
@@ -133,14 +135,14 @@ export const PosOrderEventTriggerConfigForm = ({
           name="orderType"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Order type</Form.Label>
+              <Form.Label>{t('order-type')}</Form.Label>
               <PosOptionInput
                 value={field.value}
                 onChange={field.onChange}
                 options={POS_ORDER_TYPE_OPTIONS}
-                placeholder="Any order type"
+                placeholder={t('any-order-type')}
                 allowEmpty
-                emptyLabel="Any order type"
+                emptyLabel={t('any-order-type')}
               />
               <Form.Message />
             </Form.Item>
@@ -151,7 +153,7 @@ export const PosOrderEventTriggerConfigForm = ({
           name="paymentType"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Payment type</Form.Label>
+              <Form.Label>{t('payment-type')}</Form.Label>
               <PosPaymentTypeSelect
                 posId={posId}
                 value={field.value || ''}

@@ -6,6 +6,7 @@ import {
   IconTicket,
 } from '@tabler/icons-react';
 import { cn } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { SCORE_ACTION_LABELS } from '../../constants/adjustScoreAction';
 import { TAdjustScoreActionConfigForm } from '../../states/adjustScoreActionConfigFormDefinitions';
 import {
@@ -27,6 +28,8 @@ export const LoyaltyActionNodeContent = ({
   actionData,
   config,
 }: AutomationActionNodeConfigProps<TLoyaltyActionNodeConfig>) => {
+  const { t } = useTranslation('loyalty');
+
   if (isIssueVoucherActionType(actionData?.type)) {
     const voucherCampaignId =
       config && 'voucherCampaignId' in config
@@ -39,8 +42,8 @@ export const LoyaltyActionNodeContent = ({
           <IconReceipt className="size-3.5" />
         </span>
         <span>
-          Issue voucher using{' '}
-          {voucherCampaignId ? 'voucher campaign' : 'no campaign selected'}
+          {t('issue-voucher-using')}{' '}
+          {voucherCampaignId ? t('voucher-campaign') : t('no-campaign-selected')}
         </span>
       </div>
     );
@@ -56,8 +59,8 @@ export const LoyaltyActionNodeContent = ({
           <IconTicket className="size-3.5" />
         </span>
         <span>
-          Award spin using{' '}
-          {spinCampaignId ? 'spin campaign' : 'no campaign selected'}
+          {t('award-spin-using')}{' '}
+          {spinCampaignId ? t('spin-campaign') : t('no-campaign-selected')}
         </span>
       </div>
     );
@@ -84,8 +87,8 @@ export const LoyaltyActionNodeContent = ({
         <Icon className="size-3.5" />
       </span>
       <span>
-        {SCORE_ACTION_LABELS[action]} using{' '}
-        {campaignId ? 'score campaign' : 'no campaign selected'}
+        {SCORE_ACTION_LABELS[action]} {t('using')}{' '}
+        {campaignId ? t('score-campaign') : t('no-campaign-selected')}
       </span>
     </div>
   );

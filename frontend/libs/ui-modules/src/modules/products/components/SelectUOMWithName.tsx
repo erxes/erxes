@@ -7,7 +7,7 @@ import { UOM_QUERY } from '../graphql/queries/productsQueries';
 import { IconPlus } from '@tabler/icons-react';
 
 function normalizeUomCode(name: string): string {
-  const normalized = name.trim().toUpperCase();
+  const normalized = name.trim().toLowerCase();
   const replaced = (normalized as any).replaceAll?.(/\s+/g, '_');
   return replaced ?? normalized.replace(/\s+/g, '_');
 }
@@ -51,7 +51,7 @@ export const SelectUOMWithName = ({
       });
 
       if (data?.uomsAdd) {
-        onValueChange(data.uomsAdd._id);
+        onValueChange(data.uomsAdd.code);
         setNewUomName('');
         setIsCreating(false);
         toast({
@@ -70,7 +70,10 @@ export const SelectUOMWithName = ({
   };
 
   const Controller = inForm ? Form.Control : React.Fragment;
-  const selectedUom = uoms.find((uom) => uom._id === value);
+  const selectableUoms = uoms.filter(
+    (uom) => (uom.code ?? '').trim().length > 0,
+  );
+  const selectedUom = uoms.find((uom) => uom.code === value);
 
   const displayValue =
     selectedUom?.name || (value && !loading ? value : 'Choose UOM');
@@ -131,20 +134,20 @@ export const SelectUOMWithName = ({
             </Select.Trigger>
           </Controller>
           <Select.Content>
-            {uoms.length === 0 ? (
-              <div className="flex flex-col gap-2 justify-center items-center py-8 text-sm text-center text-muted-foreground">
-                No UOMs available
-              </div>
-            ) : (
-              uoms.map((uom) => (
+            {selectableUoms.length ? (
+              selectableUoms.map((uom) => (
                 <Select.Item
                   key={uom._id}
-                  value={uom._id}
-                  disabled={disabledUoms.includes(uom._id)}
+                  value={uom.code}
+                  disabled={disabledUoms.includes(uom.code)}
                 >
                   {uom.name}
                 </Select.Item>
               ))
+            ) : (
+              <div className="flex flex-col gap-2 justify-center items-center py-8 text-sm text-center text-muted-foreground">
+                No UOMs available
+              </div>
             )}
           </Select.Content>
         </Select>

@@ -1,9 +1,11 @@
+import { useTranslation } from 'react-i18next';
 import { TemplateList } from '@/template/components/TemplateList';
 import { PageContainer, Breadcrumb, Button } from 'erxes-ui';
 import { IconArrowLeft } from '@tabler/icons-react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 export const TeamTemplatesPage = () => {
+  const { t } = useTranslation('operation');
   const navigate = useNavigate();
   const { id } = useParams();
 
@@ -23,7 +25,7 @@ export const TeamTemplatesPage = () => {
                     }
                   >
                     <IconArrowLeft size={16} className="stroke-foreground" />
-                    Team settings
+                    {t('team-settings')}
                   </Button>
                 </Breadcrumb.Link>
               </Breadcrumb.Item>

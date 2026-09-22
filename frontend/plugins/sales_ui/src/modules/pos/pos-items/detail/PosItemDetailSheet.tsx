@@ -22,13 +22,17 @@ import { usePosItemChangePayments } from './hooks/usePosItemsChangePayments';
 import { SubmitHandler } from 'react-hook-form';
 import { TPosItemFormData } from '../types/posItemType';
 import { IPosItem } from '../types/posItem';
+import { useTranslation } from 'react-i18next';
+import { TFunction } from 'i18next';
 
-const itemColumns: ColumnDef<NonNullable<IPosItem['items']>>[] = [
+const itemColumns: (
+  t: TFunction,
+) => ColumnDef<NonNullable<IPosItem['items']>>[] = (t) => [
   {
     id: 'productName',
     accessorKey: 'productName',
     header: () => (
-      <RecordTable.InlineHead icon={IconShoppingCart} label="Product" />
+      <RecordTable.InlineHead icon={IconShoppingCart} label={t('product')} />
     ),
     cell: ({ cell }) => {
       const value = cell.getValue() as string;
@@ -43,7 +47,7 @@ const itemColumns: ColumnDef<NonNullable<IPosItem['items']>>[] = [
   {
     id: 'count',
     accessorKey: 'count',
-    header: () => <RecordTable.InlineHead icon={IconTag} label="Count" />,
+    header: () => <RecordTable.InlineHead icon={IconTag} label={t('count')} />,
     cell: ({ cell }) => {
       const value = cell.getValue() as number;
       return (
@@ -57,7 +61,9 @@ const itemColumns: ColumnDef<NonNullable<IPosItem['items']>>[] = [
   {
     id: 'unitPrice',
     accessorKey: 'unitPrice',
-    header: () => <RecordTable.InlineHead icon={IconTag} label="Unit Price" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconTag} label={t('unit-price')} />
+    ),
     cell: ({ cell }) => {
       const value = cell.getValue() as number;
       return (
@@ -71,7 +77,7 @@ const itemColumns: ColumnDef<NonNullable<IPosItem['items']>>[] = [
   {
     id: 'amount',
     accessorKey: 'amount',
-    header: () => <RecordTable.InlineHead icon={IconTag} label="Amount" />,
+    header: () => <RecordTable.InlineHead icon={IconTag} label={t('amount')} />,
     cell: ({ row }) => {
       const count = row.original.count || 0;
       const unitPrice = row.original.unitPrice || 0;
@@ -88,6 +94,7 @@ const itemColumns: ColumnDef<NonNullable<IPosItem['items']>>[] = [
 ];
 
 export const PosItemDetailSheet = () => {
+  const { t } = useTranslation('sales');
   const [posItemId, setPosItemId] = React.useState<string>('');
   const [searchParams, setSearchParams] = useSearchParams();
   const { toast } = useToast();
@@ -139,7 +146,7 @@ export const PosItemDetailSheet = () => {
       <>
         <div className="flex justify-between w-full gap-1">
           <span className="text-base font-medium text-muted-foreground">
-            Customer:
+            {t('customer')}
           </span>
           <span className="text-base font-medium">
             {posItem.customer?.primaryEmail || '-'}
@@ -147,13 +154,13 @@ export const PosItemDetailSheet = () => {
         </div>
         <div className="flex justify-between w-full gap-1">
           <span className="text-base font-medium text-muted-foreground">
-            Bill Number:
+            {t('bill-number')}
           </span>
           <span className="text-base font-medium">{posItem.number}</span>
         </div>
         <div className="flex justify-between w-full gap-1">
           <span className="text-base font-medium text-muted-foreground">
-            Date:
+            {t('date')}
           </span>
           <span className="text-base font-medium">
             {new Date(posItem.createdAt).toLocaleDateString()}
@@ -161,7 +168,7 @@ export const PosItemDetailSheet = () => {
         </div>
         <div className="flex justify-between w-full gap-1">
           <span className="text-base font-medium text-muted-foreground">
-            Erkhet Info:
+            {t('erkhet-info')}
           </span>
           <span className="text-base font-medium">
             {posItem.syncErkhetInfo || '-'}
@@ -169,13 +176,13 @@ export const PosItemDetailSheet = () => {
         </div>
         <div className="flex justify-between w-full gap-1">
           <span className="text-base font-medium text-muted-foreground">
-            Bill Id:
+            {t('bill-id')}
           </span>
           <span className="text-base font-medium">{posItem.billId || '-'}</span>
         </div>
         <div className="flex justify-between w-full gap-1">
           <span className="text-base font-medium text-muted-foreground">
-            Ebarimt Date:
+            {t('ebarimt-date')}
           </span>
           <span className="text-base font-medium">
             {posItem.putResponses?.[0]?.createdAt
@@ -185,7 +192,7 @@ export const PosItemDetailSheet = () => {
         </div>
         <div className="flex justify-between w-full gap-1">
           <span className="text-base font-medium text-muted-foreground">
-            Deal
+            {t('deal')}
           </span>
           <span className="text-base font-medium">
             {posItem.deal?.searchText || '-'}
@@ -193,7 +200,7 @@ export const PosItemDetailSheet = () => {
         </div>
       </>
     );
-  }, [posItem]);
+  }, [posItem, t]);
 
   const renderItemsTable = React.useMemo(() => {
     if (!posItem?.items) return null;
@@ -201,7 +208,7 @@ export const PosItemDetailSheet = () => {
     return (
       <div className="rounded-md overflow-hidden">
         <RecordTable.Provider
-          columns={itemColumns}
+          columns={itemColumns(t)}
           data={[posItem.items]}
           className="w-full"
         >
@@ -214,7 +221,7 @@ export const PosItemDetailSheet = () => {
         </RecordTable.Provider>
       </div>
     );
-  }, [posItem?.items]);
+  }, [posItem?.items, t]);
 
   const renderTotalAmount = React.useMemo(() => {
     if (!posItem) return null;
@@ -222,14 +229,14 @@ export const PosItemDetailSheet = () => {
     return (
       <div className="flex justify-between w-full gap-1">
         <span className="text-base font-medium text-muted-foreground">
-          Total Amount:
+          {t('total-amount')}
         </span>
         <span className="text-base font-medium">
           {posItem.totalAmount ? posItem.totalAmount.toLocaleString() : '0'}
         </span>
       </div>
     );
-  }, [posItem]);
+  }, [posItem, t]);
 
   const { methods } = usePosItemForm(paymentSummary);
 
@@ -240,8 +247,8 @@ export const PosItemDetailSheet = () => {
       try {
         if (posItem?.status === 'returned' || posItem?.status === 'completed') {
           toast({
-            title: 'Cannot modify payment',
-            description: 'This item has been returned and cannot be modified.',
+            title: t('cannot-modify-payment'),
+            description: t('item-returned-cannot-modify'),
             variant: 'destructive',
           });
           return;
@@ -264,8 +271,11 @@ export const PosItemDetailSheet = () => {
 
         if (expectedTotal > 0 && sum !== expectedTotal) {
           toast({
-            title: 'Amount mismatch',
-            description: `Sum of payments (${sum.toLocaleString()}) must equal total amount (${expectedTotal.toLocaleString()}).`,
+            title: t('amount-mismatch'),
+            description: t('payments-sum-must-equal', {
+              sum: sum.toLocaleString(),
+              expectedTotal: expectedTotal.toLocaleString(),
+            }),
             variant: 'destructive',
           });
           return;
@@ -277,24 +287,23 @@ export const PosItemDetailSheet = () => {
 
         await refetch();
 
-        toast({ title: 'Item updated successfully', variant: 'success' });
+        toast({ title: t('item-updated-successfully'), variant: 'success' });
         updatePosItemId('');
       } catch (error) {
         let errorMessage = 'Unknown error';
         if (error instanceof Error) {
           if (error.message.includes('Already returned')) {
-            errorMessage =
-              'This item has been returned and payment changes are not allowed.';
+            errorMessage = t('item-already-returned');
           } else if (error.message.includes('not balanced')) {
-            errorMessage = `Payments must sum to the total amount (${
-              posItem?.totalAmount?.toLocaleString() || 0
-            }).`;
+            errorMessage = t('payments-not-balanced', {
+              totalAmount: posItem?.totalAmount?.toLocaleString() || 0,
+            });
           } else {
             errorMessage = error.message;
           }
         }
         toast({
-          title: 'Failed to update item',
+          title: t('failed-to-update-item'),
           variant: 'destructive',
           description: errorMessage,
         });
@@ -307,6 +316,7 @@ export const PosItemDetailSheet = () => {
       posItemChangePayments,
       refetch,
       toast,
+      t,
       updatePosItemId,
     ],
   );
@@ -326,7 +336,7 @@ export const PosItemDetailSheet = () => {
           >
             <Sheet.Header>
               <IconChessKnight />
-              <Sheet.Title>POS Item detail</Sheet.Title>
+              <Sheet.Title>{t('pos-item-detail')}</Sheet.Title>
               <Sheet.Close />
             </Sheet.Header>
             <Sheet.Content className="grow size-full flex flex-col px-5 py-4 overflow-auto">
@@ -352,7 +362,7 @@ export const PosItemDetailSheet = () => {
             </Sheet.Content>
             <Sheet.Footer>
               <Button type="submit" disabled={mutationLoading || loading}>
-                Save payments change
+                {t('save-payments-change')}
               </Button>
             </Sheet.Footer>
           </form>

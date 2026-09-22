@@ -1,43 +1,99 @@
-import { Sidebar } from 'erxes-ui';
-import { Organization } from './Organization';
-import { SidebarNavigationFavorites } from './SidebarNavigationFavorites';
-import { NavigationCoreModules } from '@/navigation/components/NavigationCoreModules';
-import {
-  NavigationPluginExitButton,
-  NavigationPlugins,
-} from '@/navigation/components/NavigationPlugins';
-import { lazy } from 'react';
-
-const SHOW_COMPONENTS = false;
-
-export const DevelopmentNavigation = lazy(() =>
-  import('./DevelopmentMenus').then((m) => ({
-    default: m.DevelopmentNavigation,
-  })),
-);
+import { NavigationActivityRail } from '@/navigation/components/NavigationActivityRail';
+import { NavigationPanel } from '@/navigation/components/NavigationPanel';
+import { useNavigationActivities } from '@/navigation/hooks/useNavigationActivities';
+import { usePinnedNavigationActivities } from '@/navigation/hooks/usePinnedNavigationActivities';
+import { usePluginsNavigationGroups } from '@/navigation/hooks/usePluginsNavigationGroups';
+import { findNavigationActivityByPath } from '@/navigation/utils/navigationActivities';
+import { globalSearchOpenState } from '@/search/states/globalSearchState';
+import { AppPath } from '@/types/paths/AppPath';
+import { activePluginState, Sidebar } from 'erxes-ui';
+import { useAtom, useSetAtom } from 'jotai';
+import { useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 export const MainNavigationBar = () => {
+  const activities = useNavigationActivities();
+  const navigationGroups = usePluginsNavigationGroups();
+  const {
+    isActivityPinned,
+    setActivityPinned,
+    visibleActivities,
+    hiddenActivities,
+  } = usePinnedNavigationActivities(activities);
+  const [activeActivityId, setActiveActivityId] = useAtom(activePluginState);
+  const setSearchOpen = useSetAtom(globalSearchOpenState);
+  const { pathname } = useLocation();
+  const navigate = useNavigate();
+  const { isMobile } = Sidebar.useSidebar();
+  const isSettings = pathname.includes(`/${AppPath.Settings}`);
+  const isInboxActive =
+    pathname === `/${AppPath.MyInbox}` ||
+    pathname.startsWith(`/${AppPath.MyInbox}/`);
+  const routeActivity = findNavigationActivityByPath(activities, pathname);
+  const activeActivity =
+    routeActivity ||
+    activities.find((activity) => activity.id === activeActivityId) ||
+    activities[0];
+  const activeNavigationGroup =
+    routeActivity?.kind === 'plugin'
+      ? navigationGroups[routeActivity.id]
+      : undefined;
+  const hasNavigationPanel = Boolean(
+    isSettings ||
+    activeNavigationGroup?.contents.length ||
+    activeNavigationGroup?.subGroups.length,
+  );
+
+  useEffect(() => {
+    if (isSettings) {
+      return;
+    }
+
+    if (routeActivity && routeActivity.id !== activeActivityId) {
+      setActiveActivityId(routeActivity.id);
+      return;
+    }
+
+    if (
+      activities.length > 0 &&
+      !activities.some((activity) => activity.id === activeActivityId)
+    ) {
+      setActiveActivityId(activities[0].id);
+    }
+  }, [
+    activeActivityId,
+    activities,
+    isSettings,
+    routeActivity,
+    setActiveActivityId,
+  ]);
+
+  const handleSelectActivity = (activity: (typeof activities)[number]) => {
+    navigate(`/${activity.defaultPath.replace(/^\/+/, '')}`);
+  };
+
+  /** Opens the Inbox activity. */
+  const handleSelectInbox = () => {
+    navigate(`/${AppPath.MyInbox}`);
+  };
+
   return (
-    <>
-      <Sidebar.Header className="px-2 h-13 justify-center">
-        <Sidebar.Menu>
-          <Sidebar.MenuItem className="flex gap-2 items-center">
-            <Organization />
-          </Sidebar.MenuItem>
-        </Sidebar.Menu>
-      </Sidebar.Header>
-      <Sidebar.Separator className="mx-0" />
-      <Sidebar.Content className="gap-0">
-        <NavigationPluginExitButton />
-        {process.env.NODE_ENV === 'development' && SHOW_COMPONENTS && (
-          <DevelopmentNavigation />
-        )}
-        <SidebarNavigationFavorites />
-        <NavigationPlugins />
-        <NavigationCoreModules />
-      </Sidebar.Content>
-    </>
+    <div className="flex h-full min-w-0">
+      <NavigationActivityRail
+        activities={activities}
+        activeActivityId={isInboxActive ? null : activeActivity?.id || null}
+        isInboxActive={isInboxActive}
+        hiddenActivities={hiddenActivities}
+        isActivityPinned={isActivityPinned}
+        isSettings={isSettings}
+        mobileExpanded={!hasNavigationPanel}
+        onActivityPinnedChange={setActivityPinned}
+        onSearch={() => setSearchOpen(true)}
+        onSelectInbox={handleSelectInbox}
+        onSelectActivity={handleSelectActivity}
+        visibleActivities={visibleActivities}
+      />
+      {isMobile && hasNavigationPanel && <NavigationPanel />}
+    </div>
   );
 };
-
-export default MainNavigationBar;

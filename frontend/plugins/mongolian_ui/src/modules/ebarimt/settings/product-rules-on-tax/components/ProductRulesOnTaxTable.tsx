@@ -9,6 +9,7 @@ import {
   Combobox,
   Command,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import {
   IconCode,
   IconEdit,
@@ -27,14 +28,35 @@ import { useProductRulesOnTaxRemove } from '@/ebarimt/settings/product-rules-on-
 import { AddProductRulesOnTax } from './ProductRulesOnTax';
 import { TAX_TYPES } from '../constants/productRulesOnTaxDefaultValues';
 
+const ProductRulesOnTaxEmptyState = () => {
+  const { t } = useTranslation('mongolian');
+  return (
+    <div className="absolute inset-0 flex items-center justify-center">
+      <div className="flex flex-col items-center text-center">
+        <IconClipboardList size={48} className="text-gray-400 mb-4" />
+        <h3 className="text-lg font-semibold text-gray-900">
+          {t('no-product-rules-on-tax-config-yet')}
+        </h3>
+        <p className="mt-1 text-sm text-gray-500 mb-4">
+          {t('create-first-product-rules-on-tax-config')}
+        </p>
+        <AddProductRulesOnTax />
+      </div>
+    </div>
+  );
+};
+
 export const ProductRulesOnTaxTable = () => {
   const { productRulesOnTaxRows, loading, handleFetchMore, totalCount } =
     useProductRulesOnTaxRows();
+  const productRulesOnTaxColumns = useProductRulesOnTaxColumns();
 
   return (
     <RecordTable.Provider
       columns={productRulesOnTaxColumns}
       data={productRulesOnTaxRows || []}
+      stickyColumns={['more', 'checkbox']}
+      tableId="mongolian_ebarimt_product_rules_on_tax_record_table"
     >
       <RecordTable.Scroll>
         <RecordTable>
@@ -51,18 +73,7 @@ export const ProductRulesOnTaxTable = () => {
           </RecordTable.Body>
         </RecordTable>
         {!loading && productRulesOnTaxRows?.length === 0 && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="flex flex-col items-center text-center">
-              <IconClipboardList size={48} className="text-gray-400 mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900">
-                No Product Rules on Tax config yet
-              </h3>
-              <p className="mt-1 text-sm text-gray-500 mb-4">
-                Get started by creating your first Product Rules on Tax config.
-              </p>
-              <AddProductRulesOnTax />
-            </div>
-          </div>
+          <ProductRulesOnTaxEmptyState />
         )}
       </RecordTable.Scroll>
       <ProductRulesOnTaxRowsCommandbar />
@@ -95,6 +106,7 @@ export const ProductRulesOnTaxRowMoreColumnCell = ({
 }: {
   cell: Cell<IProductRulesOnTax, unknown>;
 }) => {
+  const { t } = useTranslation('mongolian');
   const [, setOpen] = useQueryState('product_rules_on_tax_id');
   const setProductRulesOnTaxDetail = useSetAtom(productRulesOnTaxDetailAtom);
   const { removeProductRulesOnTax } = useProductRulesOnTaxRemove();
@@ -107,9 +119,11 @@ export const ProductRulesOnTaxRowMoreColumnCell = ({
 
   const handleDelete = () => {
     confirm({
-      message: 'Are you sure you want to delete this rule?',
-      options: { okLabel: 'Delete', cancelLabel: 'Cancel' },
-    }).then(() => removeProductRulesOnTax({ variables: { ids: [cell.row.original._id] } }));
+      message: t('delete-this-rule-confirm'),
+      options: { okLabel: t('delete'), cancelLabel: t('cancel') },
+    }).then(() =>
+      removeProductRulesOnTax({ variables: { ids: [cell.row.original._id] } }),
+    );
   };
 
   return (
@@ -121,10 +135,10 @@ export const ProductRulesOnTaxRowMoreColumnCell = ({
         <Command shouldFilter={false}>
           <Command.List>
             <Command.Item value="edit" onSelect={handleEdit}>
-              <IconEdit /> Edit
+              <IconEdit /> {t('edit')}
             </Command.Item>
             <Command.Item value="delete" onSelect={handleDelete}>
-              <IconTrash /> Delete
+              <IconTrash /> {t('delete')}
             </Command.Item>
           </Command.List>
         </Command>
@@ -135,74 +149,92 @@ export const ProductRulesOnTaxRowMoreColumnCell = ({
 
 export const productRulesOnTaxRowMoreColumn = {
   id: 'more',
+  header: () => <RecordTable.ColumnSelector />,
   cell: ProductRulesOnTaxRowMoreColumnCell,
   size: 33,
 };
 
-export const productRulesOnTaxColumns: ColumnDef<IProductRulesOnTax>[] = [
-  productRulesOnTaxRowMoreColumn,
-  RecordTable.checkboxColumn as ColumnDef<IProductRulesOnTax>,
-  {
-    id: 'title',
-    accessorKey: 'title',
-    header: () => <RecordTable.InlineHead label="Title" icon={IconCode} />,
-    cell: ({ cell }) => <ProductRulesOnTaxTitleCell cell={cell} />,
-    size: 150,
-  },
-  {
-    id: 'kind',
-    accessorKey: 'kind',
-    header: () => <RecordTable.InlineHead label="Kind" icon={IconTag} />,
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
-        </RecordTableInlineCell>
-      );
-    },
-    size: 100,
-  },
-  {
-    id: 'taxType',
-    accessorKey: 'taxType',
-    header: () => (
-      <RecordTable.InlineHead label="Tax Type" icon={IconReceipt} />
-    ),
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
-        </RecordTableInlineCell>
-      );
-    },
-  },
-  {
-    id: 'taxCode',
-    accessorKey: 'taxCode',
-    header: () => <RecordTable.InlineHead label="Tax Code" icon={IconCode} />,
-    cell: ({ row, cell }) => {
-      return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={TAX_TYPES[row.original.taxType]?.options.find(opt => opt.value === cell.getValue() as string)?.label} />
-        </RecordTableInlineCell>
-      );
-    },
-    size: 150,
-  },
+export const useProductRulesOnTaxColumns =
+  (): ColumnDef<IProductRulesOnTax>[] => {
+    const { t } = useTranslation('mongolian');
+    return [
+      productRulesOnTaxRowMoreColumn,
+      RecordTable.checkboxColumn as ColumnDef<IProductRulesOnTax>,
+      {
+        id: 'title',
+        accessorKey: 'title',
+        header: () => (
+          <RecordTable.InlineHead label={t('title')} icon={IconCode} />
+        ),
+        cell: ({ cell }) => <ProductRulesOnTaxTitleCell cell={cell} />,
+        size: 150,
+      },
+      {
+        id: 'kind',
+        accessorKey: 'kind',
+        header: () => (
+          <RecordTable.InlineHead label={t('kind')} icon={IconTag} />
+        ),
+        cell: ({ cell }) => {
+          return (
+            <RecordTableInlineCell>
+              <TextOverflowTooltip value={cell.getValue() as string} />
+            </RecordTableInlineCell>
+          );
+        },
+        size: 100,
+      },
+      {
+        id: 'taxType',
+        accessorKey: 'taxType',
+        header: () => (
+          <RecordTable.InlineHead label={t('tax-type')} icon={IconReceipt} />
+        ),
+        cell: ({ cell }) => {
+          return (
+            <RecordTableInlineCell>
+              <TextOverflowTooltip value={cell.getValue() as string} />
+            </RecordTableInlineCell>
+          );
+        },
+      },
+      {
+        id: 'taxCode',
+        accessorKey: 'taxCode',
+        header: () => (
+          <RecordTable.InlineHead label={t('tax-code')} icon={IconCode} />
+        ),
+        cell: ({ row, cell }) => {
+          return (
+            <RecordTableInlineCell>
+              <TextOverflowTooltip
+                value={
+                  TAX_TYPES[row.original.taxType]?.options.find(
+                    (opt) => opt.value === (cell.getValue() as string),
+                  )?.label
+                }
+              />
+            </RecordTableInlineCell>
+          );
+        },
+        size: 150,
+      },
+      {
+        id: 'taxPercent',
+        accessorKey: 'taxPercent',
+        header: () => (
+          <RecordTable.InlineHead label={t('percent')} icon={IconPercentage} />
+        ),
+        cell: ({ cell }) => {
+          const value = cell.getValue() as string | number | null | undefined;
+          return (
+            <RecordTableInlineCell>
+              {value !== null && value !== undefined ? String(value) : ''}
+            </RecordTableInlineCell>
+          );
+        },
+      },
+    ];
+  };
 
-  {
-    id: 'taxPercent',
-    accessorKey: 'taxPercent',
-    header: () => (
-      <RecordTable.InlineHead label="Percent" icon={IconPercentage} />
-    ),
-    cell: ({ cell }) => {
-      const value = cell.getValue() as string | number | null | undefined;
-      return (
-        <RecordTableInlineCell>
-          {value !== null && value !== undefined ? String(value) : ''}
-        </RecordTableInlineCell>
-      );
-    },
-  },
-];
+export const productRulesOnTaxColumns: ColumnDef<IProductRulesOnTax>[] = [];

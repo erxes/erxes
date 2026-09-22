@@ -26,3 +26,5 @@ export interface MovementErkhetConfig {
 export type TMovementErkhetConfig = z.infer<
   typeof addStageInMovementErkhetConfigSchema
 >;
+
+export type TMovementConfigRow = TMovementErkhetConfig & { _id: string };

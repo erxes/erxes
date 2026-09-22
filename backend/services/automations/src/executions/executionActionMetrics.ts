@@ -11,7 +11,7 @@ export const markExecActionStarted = (execAction: IAutomationExecAction) => {
 
 export const finalizeExecAction = (
   execAction: IAutomationExecAction,
-  status: 'success' | 'error' | 'waiting',
+  status: 'success' | 'error' | 'waiting' | 'standby' | 'dropped',
 ) => {
   const finishedAt = new Date();
   const startedAt = execAction.startedAt

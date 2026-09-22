@@ -1,5 +1,6 @@
 import { useMutation } from '@apollo/client';
 import { useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { CHANGE_SCORE_MUTATION } from '../graphql/mutations';
 
 export interface ChangeScoreVariables {
@@ -16,6 +17,7 @@ export interface ChangeScoreVariables {
 export const useChangeScore = (
   refetchQueries: string[] = ['ScoreLogs', 'ScoreLogStatistics'],
 ) => {
+  const { t } = useTranslation('loyalty');
   const { toast } = useToast();
 
   const [changeScoreMutation, { loading, error }] = useMutation(
@@ -28,14 +30,14 @@ export const useChangeScore = (
       variables,
       onCompleted: () => {
         toast({
-          title: 'Success',
-          description: 'Score given successfully',
+          title: t('success'),
+          description: t('score-given'),
           variant: 'default',
         });
       },
       onError: (err) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: err.message,
           variant: 'destructive',
         });

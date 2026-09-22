@@ -5,6 +5,7 @@ import {
   IconPhone,
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
+import { TFunction } from 'i18next';
 import {
   RecordTable,
   TextOverflowTooltip,
@@ -16,13 +17,13 @@ import { ICovers } from '@/pos/pos-covers/types/posCover';
 import { coverMoreColumn } from '@/pos/pos-covers/components/CoversMoreColumns';
 import { ClickablePosName } from '@/pos/pos-covers/components/ClickablePosName';
 
-export const coverColumns: ColumnDef<ICovers>[] = [
+export const coverColumns: (t: TFunction) => ColumnDef<ICovers>[] = (t) => [
   coverMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<ICovers>,
   {
     id: 'posName',
     accessorKey: 'posName',
-    header: () => <RecordTable.InlineHead icon={IconPhone} label="Pos" />,
+    header: () => <RecordTable.InlineHead icon={IconPhone} label={t('pos')} />,
     cell: ({ row }) => {
       return <ClickablePosName value={row.original.posName || ''} row={row} />;
     },
@@ -32,7 +33,7 @@ export const coverColumns: ColumnDef<ICovers>[] = [
     id: 'beginDate',
     accessorKey: 'beginDate',
     header: () => (
-      <RecordTable.InlineHead icon={IconLabel} label="Begin Date" />
+      <RecordTable.InlineHead icon={IconLabel} label={t('begin-date')} />
     ),
     cell: ({ cell }) => {
       return (
@@ -56,7 +57,7 @@ export const coverColumns: ColumnDef<ICovers>[] = [
     id: 'endDate',
     accessorKey: 'endDate',
     header: () => (
-      <RecordTable.InlineHead icon={IconMobiledata} label="End Date" />
+      <RecordTable.InlineHead icon={IconMobiledata} label={t('end-date')} />
     ),
     cell: ({ cell }) => {
       return (
@@ -78,7 +79,9 @@ export const coverColumns: ColumnDef<ICovers>[] = [
   {
     id: 'user.email',
     accessorKey: 'user.email',
-    header: () => <RecordTable.InlineHead icon={IconBuilding} label="User" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconBuilding} label={t('user')} />
+    ),
     cell: ({ row }) => {
       return (
         <RecordTableInlineCell>

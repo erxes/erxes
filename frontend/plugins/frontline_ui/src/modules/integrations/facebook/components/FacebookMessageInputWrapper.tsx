@@ -1,111 +1,105 @@
 import { differenceInHours } from 'date-fns';
-import { useFacebookConversationMessages } from '../hooks/useFacebookConversationMessages';
-import { Alert, Button, Form, ToggleGroup } from 'erxes-ui';
-import { IconExclamationCircle } from '@tabler/icons-react';
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useEffect } from 'react';
+import { useFacebookConversationMessages } from '@/integrations/facebook/hooks/useFacebookConversationMessages';
+import { Button, Skeleton, useQueryState } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
+import { useAtom } from 'jotai';
 import { messageExtraInfoState } from '@/inbox/conversations/conversation-detail/states/messageExtraInfoState';
 import { EnumFacebookTag } from '@/integrations/facebook/types/FacebookTypes';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { FACEBOOK_TAG_FORM_SCHEMA } from '../constants/FbTagSchema';
-import { z } from 'zod';
-import { FACEBOOK_MESSAGE_WINDOW_HOURS } from '@/integrations/facebook/constants/FbMessageWindow';
-
-export const FacebookTaggingForm = () => {
-  const setExtraInfo = useSetAtom(messageExtraInfoState);
-  const form = useForm<z.infer<typeof FACEBOOK_TAG_FORM_SCHEMA>>({
-    resolver: zodResolver(FACEBOOK_TAG_FORM_SCHEMA),
-    defaultValues: {
-      tag: EnumFacebookTag.CONFIRMED_EVENT_UPDATE,
-    },
-  });
-
-  const onSubmit = (data: z.infer<typeof FACEBOOK_TAG_FORM_SCHEMA>) => {
-    setExtraInfo((prev) => ({ ...prev, tag: data.tag }));
-  };
-
-  return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-2">
-        <Form.Field
-          name="tag"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Control>
-                <ToggleGroup
-                  type="single"
-                  variant="outline"
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  className="gap-2"
-                >
-                  <ToggleGroup.Item
-                    value={EnumFacebookTag.CONFIRMED_EVENT_UPDATE}
-                  >
-                    Confirmed event update
-                  </ToggleGroup.Item>
-                  <ToggleGroup.Item
-                    value={EnumFacebookTag.POST_PURCHASE_UPDATE}
-                  >
-                    Post purchase update
-                  </ToggleGroup.Item>
-                  <ToggleGroup.Item value={EnumFacebookTag.ACCOUNT_UPDATE}>
-                    Account update
-                  </ToggleGroup.Item>
-                </ToggleGroup>
-              </Form.Control>
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
-        <Button variant="secondary" type="submit">
-          Submit
-        </Button>
-      </form>
-    </Form>
-  );
-};
+import {
+  FACEBOOK_HUMAN_AGENT_WINDOW_HOURS,
+  FACEBOOK_MESSAGE_WINDOW_HOURS,
+} from '@/integrations/facebook/constants/FbMessageWindow';
 
 export const FacebookMessageInputWrapper = ({
   children,
 }: {
   children: React.ReactNode;
 }) => {
+  const { t } = useTranslation('frontline');
+  const [conversationId] = useQueryState<string>('conversationId');
   const { facebookConversationMessages, loading } =
     useFacebookConversationMessages();
 
-  const extraInfo = useAtomValue(messageExtraInfoState);
+  const [extraInfo, setExtraInfo] = useAtom(messageExtraInfoState);
 
-  const { createdAt: lastMessageDate } =
-    facebookConversationMessages?.[facebookConversationMessages?.length - 1] ||
-    {};
+  // A tag chosen for one conversation must not leak into another one
+  useEffect(() => {
+    setExtraInfo(undefined);
+    return () => setExtraInfo(undefined);
+  }, [conversationId, setExtraInfo]);
 
   if (loading) {
     return (
-      <div className="flex-auto h-full px-6">
-        <div className="rounded-lg bg-sidebar h-full mx-auto max-w-2xl" />
+      <div className="flex h-full min-h-0 items-center justify-center p-4">
+        <Skeleton className="h-24 w-full max-w-lg rounded-lg" />
       </div>
     );
   }
 
-  const isNotIn24Hours =
-    differenceInHours(new Date(), new Date(lastMessageDate || '')) >
-    FACEBOOK_MESSAGE_WINDOW_HOURS;
+  // Facebook measures both windows from the customer's last message
+  const lastCustomerMessage = [...(facebookConversationMessages || [])]
+    .reverse()
+    .find(
+      (message) => message.customerId && !message.internal && !message.botData,
+    );
+  const lastMessage =
+    facebookConversationMessages?.[facebookConversationMessages.length - 1];
+  const referenceDate = lastCustomerMessage?.createdAt || lastMessage?.createdAt;
 
-  if (lastMessageDate && isNotIn24Hours && !extraInfo?.tag) {
+  if (!referenceDate) {
+    return children;
+  }
+
+  const hoursSinceCustomerMessage = differenceInHours(
+    new Date(),
+    new Date(referenceDate),
+  );
+
+  if (hoursSinceCustomerMessage > FACEBOOK_HUMAN_AGENT_WINDOW_HOURS) {
     return (
-      <div className="max-w-2xl mx-auto p-6">
-        <Alert className="">
-          <IconExclamationCircle />
-          <Alert.Title>
-            Your last interaction with this contact was more than 24 hours ago.
-          </Alert.Title>
-          <Alert.Description>
-            Only Tagged Messages are allowed outside the standard messaging
-            window
-            <FacebookTaggingForm />
-          </Alert.Description>
-        </Alert>
+      <div className="flex h-full min-h-0 items-center justify-center overflow-hidden p-4">
+        <div className="flex max-w-lg flex-col items-center gap-2 text-center">
+          <p className="text-sm font-medium text-foreground">
+            {t('fb-window-expired-title')}
+          </p>
+          <p className="text-xs leading-5 text-muted-foreground">
+            {t('fb-window-expired-description')}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (
+    hoursSinceCustomerMessage > FACEBOOK_MESSAGE_WINDOW_HOURS &&
+    extraInfo?.tag !== EnumFacebookTag.HUMAN_AGENT
+  ) {
+    return (
+      <div className="flex h-full min-h-0 items-center justify-center overflow-hidden p-4">
+        <div className="flex max-w-lg flex-col items-center gap-2 text-center">
+          <p className="text-sm font-medium text-foreground">
+            {t('fb-24h-window-title')}
+          </p>
+          <p className="text-xs leading-5 text-muted-foreground">
+            {t('fb-24h-window-description')}
+          </p>
+          <div className="pt-1">
+            <Button
+              type="button"
+              size="sm"
+              variant="secondary"
+              onClick={() =>
+                setExtraInfo((prev) => ({
+                  ...prev,
+                  tag: EnumFacebookTag.HUMAN_AGENT,
+                }))
+              }
+            >
+              {t('fb-reply-as-human-agent')}
+            </Button>
+          </div>
+        </div>
       </div>
     );
   }

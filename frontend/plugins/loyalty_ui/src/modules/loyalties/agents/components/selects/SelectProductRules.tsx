@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useQuery } from '@apollo/client';
 import { Combobox, Command, Form, Popover } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { AGENT_PRODUCT_RULES_QUERY } from '../../graphql/queries/queries';
 
 interface IProductRule {
@@ -20,6 +21,7 @@ export const SelectProductRules = ({
   placeholder,
 }: SelectProductRulesProps) => {
   const [open, setOpen] = useState(false);
+  const { t } = useTranslation('loyalty');
 
   const { data, loading } = useQuery(AGENT_PRODUCT_RULES_QUERY);
   const rules: IProductRule[] = data?.productRules || [];
@@ -46,17 +48,17 @@ export const SelectProductRules = ({
         <Combobox.Trigger className="w-full shadow-xs">
           {selectedNames || (
             <span className="text-accent-foreground/80">
-              {placeholder || 'Choose product rule'}
+              {placeholder || t('choose-product-rule')}
             </span>
           )}
         </Combobox.Trigger>
       </Form.Control>
       <Combobox.Content>
         <Command>
-          <Command.Input placeholder="Search rules..." />
+          <Command.Input placeholder={t('search-rules')} />
           <Command.Empty>
             <span className="text-muted-foreground">
-              {loading ? 'Loading...' : 'No rules found'}
+              {loading ? t('loading') : t('no-rules-found')}
             </span>
           </Command.Empty>
           <Command.List>

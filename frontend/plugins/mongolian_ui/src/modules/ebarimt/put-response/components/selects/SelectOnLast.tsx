@@ -18,6 +18,7 @@ import {
 } from 'erxes-ui';
 
 import { IconToggleLeft } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { ON_LAST_DATA } from '../../constants/onLastData';
 import {
   SelectContent,
@@ -103,6 +104,7 @@ const SelectOnLastValue = ({
   className?: string;
 }) => {
   const { value, onLasts, mode } = useSelectOnLastContext();
+  const { t } = useTranslation('mongolian');
 
   if (mode === 'multiple') {
     const valueArray = Array.isArray(value) ? value : [];
@@ -113,7 +115,7 @@ const SelectOnLastValue = ({
     if (!selectedOnLasts || selectedOnLasts.length === 0) {
       return (
         <span className="text-accent-foreground/80">
-          {placeholder || 'Select on last'}
+          {placeholder || t('select-on-last')}
         </span>
       );
     }
@@ -132,7 +134,7 @@ const SelectOnLastValue = ({
   if (!selectedOnLast) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select on last'}
+        {placeholder || t('select-on-last')}
       </span>
     );
   }
@@ -170,12 +172,13 @@ const SelectOnLastCommandItem = ({ onLast }: { onLast: IOnLast }) => {
 
 const SelectOnLastContent = () => {
   const { onLasts } = useSelectOnLastContext();
+  const { t } = useTranslation('mongolian');
 
   return (
     <Command>
-      <Command.Input placeholder="Search on last" />
+      <Command.Input placeholder={t('search-on-last')} />
       <Command.Empty>
-        <span className="text-muted-foreground">No on last options found</span>
+        <span className="text-muted-foreground">{t('no-on-last-options-found')}</span>
       </Command.Empty>
       <Command.List>
         {onLasts?.map((onLast) => (
@@ -187,10 +190,11 @@ const SelectOnLastContent = () => {
 };
 
 export const SelectOnLastFilterItem = () => {
+  const { t } = useTranslation('mongolian');
   return (
     <Filter.Item value="isLast">
       <IconToggleLeft />
-      On Last
+      {t('on-last')}
     </Filter.Item>
   );
 };
@@ -239,13 +243,14 @@ export const SelectOnLastFilterBar = ({
 }) => {
   const [onLast, setOnLast] = useQueryState<string[] | string>('isLast');
   const [open, setOpen] = useState(false);
+  const { t } = useTranslation('mongolian');
 
   return (
     <Filter.BarItem queryKey={'isLast'}>
       {!iconOnly && (
         <Filter.BarName>
           <IconToggleLeft />
-          On Last
+          {t('on-last')}
         </Filter.BarName>
       )}
       <SelectOnLastProvider

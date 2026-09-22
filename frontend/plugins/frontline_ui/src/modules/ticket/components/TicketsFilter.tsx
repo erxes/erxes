@@ -17,9 +17,11 @@ import {
 import clsx from 'clsx';
 import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { fetchedTicketsState } from '@/ticket/states/fetchedTicketState';
 
 const TicketsFilterPopover = () => {
+  const { t } = useTranslation('frontline');
   const [queries] = useMultiQueryState<{
     searchValue: string;
     assignee: string;
@@ -56,32 +58,32 @@ const TicketsFilterPopover = () => {
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder="Filter"
+                placeholder={t('filter', 'Filter...')}
                 variant="secondary"
                 className="bg-background"
               />
               <Command.List className="p-1">
                 <Filter.Item value="searchValue" inDialog>
                   <IconSearch />
-                  Search
+                  {t('search', 'Search')}
                 </Filter.Item>
                 <Command.Separator className="my-1" />
                 <Filter.Item value="assignee">
                   <IconUser />
-                  Assignee
+                  {t('assignee-label', 'Assignee')}
                 </Filter.Item>
                 <Filter.Item value="priority">
                   <IconAlertSquareRounded />
-                  Priority
+                  {t('priority-label', 'Priority')}
                 </Filter.Item>
                 <Filter.Item value="state">
                   <IconArchive />
-                  Status
+                  {t('state-label', 'State')}
                 </Filter.Item>
                 {view === 'list' && (
                   <Filter.Item value="statusId">
                     <IconProgressCheck />
-                    Status
+                    {t('status-label', 'Status')}
                   </Filter.Item>
                 )}
               </Command.List>
@@ -107,6 +109,7 @@ const TicketsFilterPopover = () => {
 };
 
 export const TicketsFilter = () => {
+  const { t } = useTranslation('frontline');
   const [queries] = useMultiQueryState<{
     searchValue: string;
     assignee: string;
@@ -133,7 +136,7 @@ export const TicketsFilter = () => {
           <Filter.BarItem queryKey="searchValue">
             <Filter.BarName>
               <IconSearch />
-              Search
+              {t('search', 'Search')}
             </Filter.BarName>
             <Filter.BarButton filterKey="searchValue" inDialog>
               {searchValue}
@@ -144,14 +147,14 @@ export const TicketsFilter = () => {
         <Filter.BarItem queryKey="priority">
           <Filter.BarName>
             <IconAlertSquareRounded />
-            Priority
+            {t('priority-label', 'Priority')}
           </Filter.BarName>
           <SelectPriorityTicket.FilterBar />
         </Filter.BarItem>
         <Filter.BarItem queryKey="state">
           <Filter.BarName>
             <IconArchive />
-            Status
+            {t('state-label', 'State')}
           </Filter.BarName>
           <SelectStateTicket.FilterBar />
         </Filter.BarItem>
@@ -159,7 +162,7 @@ export const TicketsFilter = () => {
           <Filter.BarItem queryKey="statusId">
             <Filter.BarName>
               <IconProgressCheck />
-              Status
+              {t('status-label', 'Status')}
             </Filter.BarName>
             <SelectStatusTicket.FilterBar
               pipelineId={queries?.pipelineId || ''}
@@ -170,7 +173,7 @@ export const TicketsFilter = () => {
         <Filter.BarItem queryKey="assignee">
           <Filter.BarName>
             <IconUser />
-            Assignee
+            {t('assignee-label', 'Assignee')}
           </Filter.BarName>
           <SelectAssigneeTicket.FilterBar />
         </Filter.BarItem>

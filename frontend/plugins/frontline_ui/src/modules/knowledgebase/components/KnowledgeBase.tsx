@@ -10,15 +10,17 @@ import { ArticleList } from './ArticleList';
 import { TopicDrawer } from './TopicDrawer';
 import { CategoryDrawer } from './CategoryDrawer';
 import { Button } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export function KnowledgeBase() {
+  const { t } = useTranslation('frontline');
   const [isTopicDrawerOpen, setIsTopicDrawerOpen] = useState(false);
   const [isArticleDrawerOpen, setIsArticleDrawerOpen] = useState(false);
   const [isCategoryDrawerOpen, setIsCategoryDrawerOpen] = useState(false);
   const [editingTopic, setEditingTopic] = useState<ITopic | undefined>(
     undefined,
   );
-  const [editingArticle, setEditingArticle] = useState<any>(null);
+  const [editingArticleId, setEditingArticleId] = useState<string | null>(null);
   const [editingCategory, setEditingCategory] = useState<ICategory | undefined>(
     undefined,
   );
@@ -62,34 +64,23 @@ export function KnowledgeBase() {
     }
   }, [selectedCategoryId, topics]);
 
-  // Auto-select first category when topic is selected
   useEffect(() => {
-    if (selectedTopicId && topics.length > 0) {
-      const selectedTopic = topics.find(
-        (topic) => topic._id === selectedTopicId,
-      );
+    if (!selectedTopicId || !selectedCategoryId || topics.length === 0) {
+      return;
+    }
 
-      // Check if selected category belongs to the current topic
-      const isCategoryBelongsToTopic =
-        selectedCategoryId &&
-        selectedTopic?.categories?.some(
-          (cat) => cat._id === selectedCategoryId,
-        );
+    const selectedTopic = topics.find((topic) => topic._id === selectedTopicId);
 
-      // Auto-select only if no category selected OR selected category doesn't belong to this topic
-      if (
-        (!selectedCategoryId || !isCategoryBelongsToTopic) &&
-        selectedTopic?.categories &&
-        selectedTopic.categories.length > 0
-      ) {
-        const firstCategory = selectedTopic.categories[0];
+    const isCategoryBelongsToTopic = selectedTopic?.categories?.some(
+      (cat) => cat._id === selectedCategoryId,
+    );
 
-        memoizedSetSearchParams((prev) => {
-          const next = new URLSearchParams(prev.toString());
-          next.set('categoryId', firstCategory._id);
-          return next;
-        });
-      }
+    if (!isCategoryBelongsToTopic) {
+      memoizedSetSearchParams((prev) => {
+        const next = new URLSearchParams(prev.toString());
+        next.delete('categoryId');
+        return next;
+      });
     }
   }, [selectedTopicId, selectedCategoryId, topics, memoizedSetSearchParams]);
 
@@ -114,7 +105,7 @@ export function KnowledgeBase() {
 
   const handleCloseArticleDrawer = () => {
     setIsArticleDrawerOpen(false);
-    setEditingArticle(null);
+    setEditingArticleId(null);
   };
 
   const handleCloseCategoryDrawer = () => {
@@ -138,24 +129,61 @@ export function KnowledgeBase() {
           <div className="flex justify-center items-center h-64">
             <div className="text-center">
               <div className="text-lg font-semibold mb-2">
-                No categories found
+                {t('kb-no-categories-found', 'No categories found')}
               </div>
               <div className="text-sm opacity-70 mb-4">
-                This topic doesn't have any categories yet. Create your first
-                category to start organizing articles.
+                {t(
+                  'kb-no-categories-description',
+                  "This topic doesn't have any categories yet. Create your first category to start organizing articles.",
+                )}
               </div>
               <Button onClick={() => setIsCategoryDrawerOpen(true)}>
-                Create Category
+                {t('kb-create-category', 'Create Category')}
               </Button>
             </div>
           </div>
         )}
 
+      {selectedTopicId && !selectedCategoryId && hasCategories && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {(selectedTopic?.categories || []).map((category: ICategory) => (
+            <div
+              key={category._id}
+              className="bg-background rounded-lg border p-6 hover:shadow-md transition-shadow"
+            >
+              <h3 className="text-lg font-semibold mb-2">{category.title}</h3>
+              <p className="text-muted-foreground mb-4">
+                {category.description ||
+                  t('no-description-available', 'No description available')}
+              </p>
+              <div className="flex items-center justify-end">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setSearchParams((prev) => {
+                      const next = new URLSearchParams(prev.toString());
+                      next.set('categoryId', category._id);
+                      return next;
+                    });
+                  }}
+                >
+                  {t('kb-view-details', 'View Details')}
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
       {selectedCategoryId && !isArticleDrawerOpen && (
         <ArticleList
-          onCreateArticle={() => setIsArticleDrawerOpen(true)}
+          onCreateArticle={() => {
+            setEditingArticleId(null);
+            setIsArticleDrawerOpen(true);
+          }}
           onEditArticle={(article) => {
-            setEditingArticle(article);
+            setEditingArticleId(article?._id ?? null);
             setIsArticleDrawerOpen(true);
           }}
         />
@@ -165,19 +193,24 @@ export function KnowledgeBase() {
         <>
           {loading ? (
             <div className="flex justify-center items-center h-64">
-              <div className="text-sm opacity-70">Loading topics...</div>
+              <div className="text-sm opacity-70">
+                {t('loading', 'Loading...')}
+              </div>
             </div>
           ) : topics.length === 0 ? (
             <div className="flex justify-center items-center h-64">
               <div className="text-center">
                 <div className="text-lg font-semibold mb-2">
-                  There are no topics yet
+                  {t('kb-no-topics-yet', 'There are no topics yet')}
                 </div>
                 <div className="text-sm opacity-70 mb-4">
-                  Create your first topic and start your knowledge base.
+                  {t(
+                    'kb-no-topics-description',
+                    'Create your first topic and start your knowledge base.',
+                  )}
                 </div>
                 <Button onClick={() => setIsTopicDrawerOpen(true)}>
-                  Create Topic
+                  {t('kb-create-topic', 'Create Topic')}
                 </Button>
               </div>
             </div>
@@ -190,11 +223,13 @@ export function KnowledgeBase() {
                 >
                   <h3 className="text-lg font-semibold mb-2">{topic.title}</h3>
                   <p className="text-muted-foreground mb-4">
-                    {topic.description || 'No description available'}
+                    {topic.description ||
+                      t('no-description-available', 'No description available')}
                   </p>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">
-                      {topic.categories?.length || 0} categories
+                      {topic.categories?.length || 0}{' '}
+                      {t('kb-categories-count', 'categories')}
                     </span>
                     <Button
                       variant="outline"
@@ -207,7 +242,7 @@ export function KnowledgeBase() {
                         });
                       }}
                     >
-                      View Details
+                      {t('kb-view-details', 'View Details')}
                     </Button>
                   </div>
                 </div>
@@ -233,7 +268,7 @@ export function KnowledgeBase() {
       />
 
       <ArticleDrawer
-        article={editingArticle}
+        articleId={editingArticleId}
         categoryId={selectedCategoryId || ''}
         isOpen={isArticleDrawerOpen}
         onClose={handleCloseArticleDrawer}

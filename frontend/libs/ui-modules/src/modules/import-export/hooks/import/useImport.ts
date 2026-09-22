@@ -7,7 +7,10 @@ import {
   RETRY_IMPORT,
   RESUME_IMPORT,
 } from '../../graphql/import/importMutations';
-import { TImportProgress } from '../../types/import/importTypes';
+import {
+  TImportColumnMapping,
+  TImportProgress,
+} from '../../types/import/importTypes';
 
 export const useImport = (entityType?: string) => {
   const { data, refetch, startPolling, stopPolling } = useQuery(
@@ -83,64 +86,54 @@ export const useImport = (entityType?: string) => {
   );
 
   const startImport = useCallback(
-    async (entityType: string, fileKey: string, fileName: string) => {
-      try {
-        const result = await startImportMutation({
-          variables: {
-            entityType,
-            fileKey,
-            fileName,
-          },
-        });
-        // Ensure immediate refetch and start polling
-        await refetch();
-        startPolling(2000);
-        return result.data?.importStart;
-      } catch (error) {
-        throw error;
-      }
+    async (
+      entityType: string,
+      fileKey: string,
+      fileName: string,
+      columnMapping: TImportColumnMapping[],
+    ) => {
+      const result = await startImportMutation({
+        variables: {
+          entityType,
+          fileKey,
+          fileName,
+          columnMapping,
+        },
+      });
+      // Ensure immediate refetch and start polling
+      await refetch();
+      startPolling(2000);
+      return result.data?.importStart;
     },
     [startImportMutation, refetch, startPolling],
   );
 
   const cancelImport = useCallback(
     async (importId: string) => {
-      try {
-        const result = await cancelImportMutation({
-          variables: { importId },
-        });
-        return result.data?.importCancel;
-      } catch (error) {
-        throw error;
-      }
+      const result = await cancelImportMutation({
+        variables: { importId },
+      });
+      return result.data?.importCancel;
     },
     [cancelImportMutation],
   );
 
   const retryImport = useCallback(
     async (importId: string) => {
-      try {
-        const result = await retryImportMutation({
-          variables: { importId },
-        });
-        return result.data?.importRetry;
-      } catch (error) {
-        throw error;
-      }
+      const result = await retryImportMutation({
+        variables: { importId },
+      });
+      return result.data?.importRetry;
     },
     [retryImportMutation],
   );
 
   const resumeImport = useCallback(
     async (importId: string) => {
-      try {
-        const result = await resumeImportMutation({
-          variables: { importId },
-        });
-        return result.data?.importResume;
-      } catch (error) {
-        throw error;
-      }
+      const result = await resumeImportMutation({
+        variables: { importId },
+      });
+      return result.data?.importResume;
     },
     [resumeImportMutation],
   );

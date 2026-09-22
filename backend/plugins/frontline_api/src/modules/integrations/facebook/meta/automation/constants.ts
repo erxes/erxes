@@ -1,3 +1,15 @@
+import type { TAutomationSetPropertyTarget } from 'erxes-api-shared/core-modules';
+
+const FACEBOOK_MESSAGE_SET_PROPERTY_TARGETS: TAutomationSetPropertyTarget[] = [
+  {
+    label: 'Conversation customer',
+    type: 'core:contacts.customers',
+    source: 'targetField',
+    targetPath: 'customerId',
+    cardinality: 'one',
+  },
+];
+
 const facebookMessageTriggerOutput = {
   variables: [
     { key: '_id', label: 'Message ID' },
@@ -94,6 +106,10 @@ export const facebookConstants = {
       label: 'Send Facebook Message',
       description: 'Send Facebook Message',
       isAvailableOptionalConnect: true,
+      allowedMultiTriggerTypes: [
+        'frontline:facebook.messages',
+        'frontline:facebook.comments',
+      ],
       output: facebookMessageActionOutput,
     },
     {
@@ -103,6 +119,9 @@ export const facebookConstants = {
       icon: 'IconBrandFacebook',
       label: 'Send Facebook Comment',
       description: 'Send Facebook Comments',
+      // Public replies are paced through an outbox, and the private reply that
+      // follows must not wait behind them.
+      deferred: { enable: true, mode: 'ignore' as const, timeoutMinutes: 60 },
       output: facebookCommentActionOutput,
     },
   ],
@@ -116,6 +135,7 @@ export const facebookConstants = {
         'Start with a blank workflow that enrolls and is triggered off facebook messages',
       isCustom: true,
       output: facebookMessageTriggerOutput,
+      setPropertyTargets: FACEBOOK_MESSAGE_SET_PROPERTY_TARGETS,
     },
     {
       moduleName: 'facebook',

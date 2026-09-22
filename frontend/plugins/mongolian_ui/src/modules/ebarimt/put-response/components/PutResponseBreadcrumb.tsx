@@ -1,39 +1,45 @@
-import { Breadcrumb, ToggleGroup, recordTableCursorAtomFamily } from 'erxes-ui';
-import { Link, useLocation } from 'react-router-dom';
-import { useSetAtom } from 'jotai';
-import { usePutResponseLeadSessionKey } from '~/modules/ebarimt/put-response/hooks/usePutResponseLeadSessionKey';
+import { Button, Separator } from 'erxes-ui';
+import { IconSandbox } from '@tabler/icons-react';
+import { useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { PUT_RESPONSE_ROUTES } from './PutResponseRoutes';
+import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
 
 export const PutResponseBreadcrumb = () => {
+  const { t } = useTranslation('mongolian');
   const { pathname } = useLocation();
-  const { sessionKey } = usePutResponseLeadSessionKey();
-  const setCursor = useSetAtom(recordTableCursorAtomFamily(sessionKey));
+  const rootLabel = t('put-response');
+  const currentLabel = t(
+    PUT_RESPONSE_ROUTES.find((r) => pathname.endsWith(r.value))?.label ?? '',
+  );
+  const hasCurrentSegment = currentLabel && currentLabel !== rootLabel;
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(
+    rootLabel,
+    hasCurrentSegment && currentLabel,
+  );
+
   return (
-    <Breadcrumb>
-      <Breadcrumb.List className="gap-1">
-        <ToggleGroup type="single" value={pathname}>
-          <ToggleGroup.Item
-            value="/mongolian/put-response/put-response"
-            asChild
-            onClick={() => setCursor('')}
+    <>
+      <Button variant="ghost" className="font-semibold">
+        <IconSandbox className="w-4 h-4 mr-1.5" />
+        {rootLabel}
+      </Button>
+      {hasCurrentSegment && (
+        <>
+          <Separator.Inline />
+          <Button
+            variant="ghost"
+            className="hover:bg-transparent font-semibold"
           >
-            <Link to="/mongolian/put-response/put-response">Put Response</Link>
-          </ToggleGroup.Item>
-          <ToggleGroup.Item
-            value="/mongolian/put-response/by-date"
-            asChild
-            onClick={() => setCursor('')}
-          >
-            <Link to="/mongolian/put-response/by-date">By Date</Link>
-          </ToggleGroup.Item>
-          <ToggleGroup.Item
-            value="/mongolian/put-response/duplicated"
-            asChild
-            onClick={() => setCursor('')}
-          >
-            <Link to="/mongolian/put-response/duplicated">Duplicated</Link>
-          </ToggleGroup.Item>
-        </ToggleGroup>
-      </Breadcrumb.List>
-    </Breadcrumb>
+            {currentLabel}
+          </Button>
+        </>
+      )}
+      <Separator.Inline />
+      <PageHeader.FavoriteToggleButton
+        breadcrumb={favoriteBreadcrumb}
+        icon="IconSandbox"
+      />
+    </>
   );
 };

@@ -8,3 +8,5 @@ export const logSchema = new Schema({
   specialValue: { type: String },
   createdAt: { type: Date },
 });
+
+logSchema.index({ createdAt: 1 }, { expireAfterSeconds: 180 * 24 * 3600 });

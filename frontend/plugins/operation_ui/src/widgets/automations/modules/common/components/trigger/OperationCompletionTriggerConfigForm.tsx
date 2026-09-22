@@ -4,6 +4,7 @@ import { SelectTeam } from '@/team/components/SelectTeam';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Form } from 'erxes-ui';
 import { Control, useForm, useWatch } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import {
   AutomationTriggerFormProps,
   splitAutomationNodeType,
@@ -25,6 +26,7 @@ export const OperationCompletionTriggerConfigForm = ({
   onSaveTriggerConfig,
   activeTrigger,
 }: AutomationTriggerFormProps<TOperationCompletionTriggerConfigForm>) => {
+  const { t } = useTranslation('operation');
   const triggerType = type || activeTrigger?.type;
   const [, moduleName, collectionType] = splitAutomationNodeType(triggerType);
   const currentConfig = activeTrigger?.config;
@@ -60,7 +62,7 @@ export const OperationCompletionTriggerConfigForm = ({
           name="projectId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Project</Form.Label>
+              <Form.Label>{t('project')}</Form.Label>
               <SelectProject.FormItem
                 value={field.value || ''}
                 onValueChange={(value) => field.onChange(value || '')}
@@ -79,7 +81,7 @@ export const OperationCompletionTriggerConfigForm = ({
               name="projectId"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Project</Form.Label>
+                  <Form.Label>{t('project')}</Form.Label>
                   <SelectProject.FormItem
                     value={field.value || ''}
                     onValueChange={(value) => {
@@ -97,7 +99,7 @@ export const OperationCompletionTriggerConfigForm = ({
               name="milestoneId"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Milestone</Form.Label>
+                  <Form.Label>{t('milestone')}</Form.Label>
                   <SelectMilestone.FormItem
                     projectId={projectId}
                     value={field.value || ''}
@@ -120,7 +122,7 @@ export const OperationCompletionTriggerConfigForm = ({
             name="teamIds"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Teams</Form.Label>
+                <Form.Label>{t('teams')}</Form.Label>
                 <SelectTeam.FormItem
                   mode="multiple"
                   value={field.value || []}
@@ -142,19 +144,22 @@ const CompletionModeField = ({
   control,
 }: {
   control: Control<TOperationCompletionTriggerConfigForm>;
-}) => (
-  <Form.Field
-    control={control}
-    name="mode"
-    render={({ field }) => (
-      <Form.Item>
-        <Form.Label>Completion mode</Form.Label>
-        <OperationCompletionModeInput
-          value={field.value}
-          onChange={field.onChange}
-        />
-        <Form.Message />
-      </Form.Item>
-    )}
-  />
-);
+}) => {
+  const { t } = useTranslation('operation');
+  return (
+    <Form.Field
+      control={control}
+      name="mode"
+      render={({ field }) => (
+        <Form.Item>
+          <Form.Label>{t('completion-mode')}</Form.Label>
+          <OperationCompletionModeInput
+            value={field.value}
+            onChange={field.onChange}
+          />
+          <Form.Message />
+        </Form.Item>
+      )}
+    />
+  );
+};

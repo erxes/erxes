@@ -79,17 +79,68 @@ export const requestBrowserInfo = ({
       window.removeEventListener('message', messageHandler);
     }
     callback({
-      remoteAddress: '',
-      region: '',
-      countryCode: '',
-      city: '',
-      country: '',
       url: window.location.href,
       hostname: window.location.hostname,
       language: navigator.language,
       userAgent: navigator.userAgent,
     });
   }, 2000);
+};
+
+// ---------------------------------------------------------------------------
+// Parent-page (host site) browser info — used by the loader scripts
+// (index.ts / formIndex.ts), which run in the host page itself, to answer
+// 'requestingBrowserInfo' messages sent by the widget iframe. window.location
+// here is the host page's location, not the iframe's.
+// ---------------------------------------------------------------------------
+
+export type IHostBrowserInfo = {
+  url: string;
+  hostname: string;
+  language: string;
+  userAgent: string;
+};
+
+export const getBrowserInfo = (): IHostBrowserInfo => ({
+  url: window.location.pathname,
+  hostname: window.location.origin,
+  language: navigator.language,
+  userAgent: navigator.userAgent,
+});
+
+// Answers a 'requestingBrowserInfo' message from the widget iframe, and
+// mirrors any 'setLocalStorageItem' request into localStorage. Shared by
+// both loader scripts so an SPA host page gets identical behavior for the
+// messenger widget and the embedded/popup forms.
+export const listenForCommonRequests = (
+  event: MessageEvent,
+  iframe: HTMLIFrameElement | null | undefined,
+) => {
+  const { message, fromErxes, source, key, value } = event.data || {};
+
+  if (!fromErxes || !iframe?.contentWindow) {
+    return;
+  }
+
+  if (message === 'requestingBrowserInfo') {
+    iframe.contentWindow.postMessage(
+      {
+        fromPublisher: true,
+        source,
+        message: 'sendingBrowserInfo',
+        browserInfo: getBrowserInfo(),
+      },
+      '*',
+    );
+  }
+
+  if (message === 'setLocalStorageItem') {
+    const erxesStorage = JSON.parse(localStorage.getItem('erxes') || '{}');
+
+    erxesStorage[key] = value;
+
+    localStorage.setItem('erxes', JSON.stringify(erxesStorage));
+  }
 };
 
 export const getDomain = (subdomain: string) => {

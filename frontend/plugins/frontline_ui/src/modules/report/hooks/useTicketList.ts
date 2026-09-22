@@ -5,6 +5,12 @@ export interface TicketListItem {
   _id: string;
   name: string;
   statusId: string;
+  status?: {
+    _id: string;
+    name: string;
+    color?: string;
+    type?: number;
+  };
   state?: string;
   priority: number;
   assigneeId: string;

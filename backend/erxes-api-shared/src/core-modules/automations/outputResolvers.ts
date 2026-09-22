@@ -1,3 +1,4 @@
+import { parsePropertyDataKey, toPropertyGroupKey } from '../properties/keys';
 import { getPlugin, sendCoreModuleProducer } from '../../utils';
 import { sendTRPCMessage } from '../../utils/trpc';
 import { resolveRecordReferenceValue } from '../common/references';
@@ -6,8 +7,8 @@ import {
   AutomationConstants,
   IAutomationsActionConfig,
   IAutomationsTriggerConfig,
-  TAutomationProducers,
   TAutomationOutputDefinition,
+  TAutomationProducers,
   TAutomationRuntimeOutputDefinition,
 } from './types';
 import { splitType } from './typeUtils';
@@ -25,7 +26,7 @@ type TPropertyField = {
 type TPlaceholderToken = {
   token: string;
   sourceKey: string;
-  sourceType: 'trigger' | 'action';
+  sourceType: 'trigger' | 'action' | 'input';
   path: string;
 };
 type TOutputResolveGroup = {
@@ -65,10 +66,7 @@ export const resolveFromSourceField =
       defaultValue,
     });
 
-export const matchAutomationResolverKey = (
-  resolverKey: string,
-  path: string,
-) =>
+export const matchAutomationResolverKey = (resolverKey: string, path: string) =>
   resolverKey.endsWith('.*')
     ? path.startsWith(resolverKey.slice(0, -1))
     : resolverKey === path;
@@ -84,13 +82,35 @@ export const getValueByPath = (
     if (
       current === null ||
       current === undefined ||
-      typeof current !== 'object' ||
-      !(segment in current)
+      typeof current !== 'object'
     ) {
       return { found: false };
     }
 
-    current = (current as Record<string, unknown>)[segment];
+    const bag = current as Record<string, unknown>;
+
+    if (segment in bag) {
+      current = bag[segment];
+      continue;
+    }
+
+    const key = parsePropertyDataKey(segment);
+    const rows =
+      key.kind === 'row' ? bag[toPropertyGroupKey(key.groupId)] : undefined;
+
+    if (!Array.isArray(rows)) {
+      return { found: false };
+    }
+
+    const collected = rows
+      .map((row) => (row as Record<string, unknown>)?.[key.fieldId])
+      .filter((item) => item !== undefined && item !== null);
+
+    if (!collected.length) {
+      return { found: false };
+    }
+
+    current = collected;
   }
 
   return { found: true, value: current };
@@ -125,14 +145,121 @@ const findReferenceVariable = (
       (variable.key === head || variable.field === head),
   );
 
+const findSourceTypeReferenceVariable = (
+  definition: TAutomationRuntimeOutputDefinition,
+  head: string,
+) =>
+  (definition.variables || []).find(
+    (variable) =>
+      variable.sourceType && (variable.key === head || variable.field === head),
+  );
+
 const getOutputSourceType = ({
   propertySource,
 }: TAutomationRuntimeOutputDefinition) => propertySource?.propertyType || '';
+
+const getSourceReferenceTarget = (source: TAutomationOutputSource) => {
+  const targetId = source.targetId;
+
+  if (typeof targetId === 'string' && targetId) {
+    return { targetId };
+  }
+
+  return { target: source };
+};
+
+const resolveCurrentOutputSource = async ({
+  definition,
+  path,
+  source,
+  subdomain,
+}: {
+  definition: TAutomationRuntimeOutputDefinition;
+  path: string;
+  source: TAutomationOutputSource;
+  subdomain: string;
+}) => {
+  const sourceType = getOutputSourceType(definition);
+  const targetId = source.targetId;
+
+  if (!sourceType || typeof targetId !== 'string' || !targetId) {
+    return source;
+  }
+
+  const [head] = path.split('.');
+  const propertyKey = definition.propertySource?.key;
+  const sourceField =
+    propertyKey && head === propertyKey ? 'propertiesData' : head;
+  const currentValue = await resolveRecordReferenceValue({
+    subdomain,
+    type: sourceType,
+    targetId,
+    path: sourceField,
+  });
+
+  return currentValue === undefined
+    ? source
+    : { ...source, [sourceField]: currentValue };
+};
 
 const toReferenceIds = (value: unknown) =>
   (Array.isArray(value) ? value : [value])
     .filter((item) => item !== undefined && item !== null && item !== '')
     .map(String);
+
+const resolveNestedFieldsOutputValue = (
+  definition: TAutomationRuntimeOutputDefinition,
+  source: TAutomationOutputSource,
+  path: string,
+) => {
+  const [head, ...restParts] = path.split('.');
+  const restPath = restParts.join('.');
+
+  if (!restPath) {
+    return { found: false };
+  }
+
+  const variable = (definition.variables || []).find(
+    (item) => item.fields?.length && (item.key === head || item.field === head),
+  );
+
+  if (!variable) {
+    return { found: false };
+  }
+
+  const sourceValue = getValueByPath(source, variable.field || variable.key);
+
+  if (!sourceValue.found) {
+    return { found: false };
+  }
+
+  if (Array.isArray(sourceValue.value)) {
+    const values = sourceValue.value
+      .map((item) =>
+        getValueByPath((item ?? {}) as TAutomationOutputSource, restPath),
+      )
+      .filter(
+        (result) => result.found && result.value != null && result.value !== '',
+      )
+      .map((result) => result.value);
+
+    return {
+      found: true,
+      value: values.length ? values.join(', ') : undefined,
+    };
+  }
+
+  if (sourceValue.value && typeof sourceValue.value === 'object') {
+    const nested = getValueByPath(
+      sourceValue.value as TAutomationOutputSource,
+      restPath,
+    );
+
+    return nested.found ? nested : { found: false };
+  }
+
+  return { found: false };
+};
 
 const resolveReferenceOutputValue = async ({
   definition,
@@ -149,6 +276,21 @@ const resolveReferenceOutputValue = async ({
 }) => {
   const [head, ...restParts] = path.split('.');
   const restPath = restParts.join('.');
+
+  const sourceTypeVariable = findSourceTypeReferenceVariable(definition, head);
+
+  if (sourceTypeVariable?.sourceType) {
+    return {
+      found: true,
+      value: await resolveRecordReferenceValue({
+        subdomain,
+        type: sourceTypeVariable.sourceType,
+        target: source,
+        path,
+        defaultValue,
+      }),
+    };
+  }
 
   if (!restPath) {
     return { found: false };
@@ -189,7 +331,38 @@ const resolveReferenceOutputValue = async ({
     value: await resolveRecordReferenceValue({
       subdomain,
       type: sourceType,
-      target: source,
+      ...getSourceReferenceTarget(source),
+      path,
+      defaultValue,
+    }),
+  };
+};
+
+const resolveSourceReferenceOutputValue = async ({
+  definition,
+  defaultValue,
+  source,
+  subdomain,
+  path,
+}: {
+  definition: TAutomationRuntimeOutputDefinition;
+  defaultValue?: unknown;
+  source: TAutomationOutputSource;
+  subdomain: string;
+  path: string;
+}) => {
+  const sourceType = getOutputSourceType(definition);
+
+  if (!sourceType) {
+    return { found: false };
+  }
+
+  return {
+    found: true,
+    value: await resolveRecordReferenceValue({
+      subdomain,
+      type: sourceType,
+      ...getSourceReferenceTarget(source),
       path,
       defaultValue,
     }),
@@ -212,6 +385,12 @@ const resolveOutputPathsFromDefinition = async ({
   const result: Record<string, unknown> = {};
 
   for (const path of [...new Set(paths)]) {
+    const currentSource = await resolveCurrentOutputSource({
+      definition,
+      path,
+      source,
+      subdomain,
+    });
     const matchedResolver = Object.entries(definition.resolvers || {}).find(
       ([resolverKey]) => matchAutomationResolverKey(resolverKey, path),
     );
@@ -219,7 +398,7 @@ const resolveOutputPathsFromDefinition = async ({
     if (matchedResolver) {
       result[path] = await matchedResolver[1]({
         subdomain,
-        source,
+        source: currentSource,
         path,
         defaultValue,
       });
@@ -238,20 +417,31 @@ const resolveOutputPathsFromDefinition = async ({
         (item) => item.code === propertyCode || item.name === propertyCode,
       );
 
-      const propertiesData = source.propertiesData as
+      const propertiesData = currentSource.propertiesData as
         | Record<string, unknown>
         | undefined;
 
       result[path] = field
-        ? (propertiesData?.[field._id] ?? defaultValue)
+        ? propertiesData?.[field._id] ?? defaultValue
         : defaultValue;
+      continue;
+    }
+
+    const nestedFields = resolveNestedFieldsOutputValue(
+      definition,
+      currentSource,
+      path,
+    );
+
+    if (nestedFields.found) {
+      result[path] = nestedFields.value ?? defaultValue;
       continue;
     }
 
     const reference = await resolveReferenceOutputValue({
       definition,
       defaultValue,
-      source,
+      source: currentSource,
       subdomain,
       path,
     });
@@ -261,8 +451,22 @@ const resolveOutputPathsFromDefinition = async ({
       continue;
     }
 
-    const direct = getValueByPath(source, path);
-    result[path] = direct.found ? direct.value : defaultValue;
+    const direct = getValueByPath(currentSource, path);
+
+    if (direct.found) {
+      result[path] = direct.value;
+      continue;
+    }
+
+    const sourceReference = await resolveSourceReferenceOutputValue({
+      definition,
+      defaultValue,
+      source: currentSource,
+      subdomain,
+      path,
+    });
+
+    result[path] = sourceReference.found ? sourceReference.value : defaultValue;
   }
 
   return result;
@@ -321,8 +525,8 @@ const ENTITY_PLACEHOLDER_TYPES = [
 
 const BRACKET_PLACEHOLDER_REGEX = /\[\[\s*([^\]]+?)\s*\]\]/g;
 
-// [[ user.XCMwd... ]] -> "XCMwd..."   (split[0] нь entity бол split[1]-ийг авна)
-// [[ High ]]          -> "High"        (split[1] байхгүй бол бүхэлд нь авна)
+// [[ user.XCMwd... ]] -> "XCMwd..."   (use split[1] when split[0] is an entity)
+// [[ High ]]          -> "High"        (use the full token when split[1] is missing)
 const resolveBracketPlaceholderToken = (token: string) => {
   const trimmed = token.trim();
   const parts = trimmed.split('.');
@@ -335,13 +539,26 @@ const resolveBracketPlaceholderToken = (token: string) => {
 };
 
 const extractOutputPlaceholderTokens = (value: string) => {
-  const regex = /{{\s*([^}]+)\s*}}/g;
+  // Token body excludes both braces so malformed nested placeholders like
+  // "{{ trigger.{{ trigger.content }} }}" never match as a whole.
+  const regex = /{{\s*([^{}]+)\s*}}/g;
   const tokens = new Map<string, TPlaceholderToken>();
 
   for (const match of value.matchAll(regex)) {
     const token = match[1].trim();
 
     if (tokens.has(token)) {
+      continue;
+    }
+
+    // Workflow member scope: resolved from the child execution's frozen inputs
+    if (token.startsWith('input.')) {
+      tokens.set(token, {
+        token,
+        sourceKey: 'input',
+        sourceType: 'input',
+        path: token.slice('input.'.length),
+      });
       continue;
     }
 
@@ -470,6 +687,17 @@ const buildOutputResolveGroups = ({
 
   for (const tokens of Object.values(tokensByValueKey)) {
     for (const token of tokens) {
+      // Direct lookup on the frozen input values — no plugin definition
+      if (token.sourceType === 'input') {
+        addPathToOutputResolveGroup(groups, {
+          groupKey: 'input',
+          nodeType: '',
+          source: execution.inputs || {},
+          path: token.path,
+        });
+        continue;
+      }
+
       if (token.sourceType === 'trigger') {
         addPathToOutputResolveGroup(groups, {
           groupKey: 'trigger',
@@ -552,7 +780,7 @@ const hasMatchingResolverKey = (
   );
 };
 
-const resolveOutputPathsByNodeType = async ({
+export const resolveOutputPathsByNodeType = async ({
   subdomain,
   nodeType,
   source,
@@ -642,7 +870,7 @@ const resolveOutputGroups = async ({
   return resolvedByToken;
 };
 
-// {{ token }} -> resolve хийсэн түүхий утга (object/number/string), эсвэл undefined
+// {{ token }} -> resolved raw value (object/number/string), or undefined
 const resolveCurlyPlaceholderToken = (
   token: string,
   resolvedByToken: Record<string, unknown>,
@@ -657,13 +885,13 @@ const resolveCurlyPlaceholderToken = (
   );
 };
 
-// string доторх бүх {{ }}-ийг орлуулна
+// Replace all {{ }} placeholders in a string.
 const replaceCurlyPlaceholders = (
   value: string,
   resolvedByToken: Record<string, unknown>,
   defaultValue?: unknown,
 ) =>
-  value.replace(/{{\s*([^}]+)\s*}}/g, (_, token: string) => {
+  value.replace(/{{\s*([^{}]+)\s*}}/g, (_, token: string) => {
     const resolved = resolveCurlyPlaceholderToken(token, resolvedByToken);
 
     if (resolved === undefined || resolved === null) {
@@ -673,7 +901,7 @@ const replaceCurlyPlaceholders = (
     return String(resolved);
   });
 
-// string доторх бүх [[ ]]-ийг орлуулна
+// Replace all [[ ]] placeholders in a string.
 const replaceBracketPlaceholders = (value: string) =>
   value.replace(BRACKET_PLACEHOLDER_REGEX, (_, token: string) =>
     resolveBracketPlaceholderToken(token),
@@ -685,12 +913,12 @@ const replaceOutputPlaceholderValue = (
   defaultValue?: unknown,
   keepUnresolvedPlaceholders = true,
 ) => {
-  const regex = /{{\s*([^}]+)\s*}}/g;
+  const regex = /{{\s*([^{}]+)\s*}}/g;
   const matches = [...value.matchAll(regex)];
   const fullTokenMatch =
     matches.length === 1 && matches[0][0].trim() === value.trim();
 
-  // {{ ... }} бүхэлдээ нэг token бол түүхий утгыг (object г.м.) буцаана
+  // Return the raw value when the entire string is a single {{ ... }} token.
   if (fullTokenMatch) {
     const resolved = resolveCurlyPlaceholderToken(
       matches[0][1],
@@ -701,10 +929,10 @@ const replaceOutputPlaceholderValue = (
       return resolved;
     }
 
-    return keepUnresolvedPlaceholders ? (defaultValue ?? value) : defaultValue;
+    return keepUnresolvedPlaceholders ? defaultValue ?? value : defaultValue;
   }
 
-  // бусад тохиолдолд: curly -> bracket дарааллаар орлуулна
+  // Otherwise replace placeholders in curly -> bracket order.
   return replaceBracketPlaceholders(
     replaceCurlyPlaceholders(value, resolvedByToken, defaultValue),
   );
@@ -833,7 +1061,7 @@ export const toTransportOutput = (
   return {
     variables: output.variables,
     propertySource: output.propertySource,
-    resolverKeys: output.resolverKeys || Object.keys(output.resolvers || {}),
+    resolverKeys: Object.keys(output.resolvers || {}),
   };
 };
 

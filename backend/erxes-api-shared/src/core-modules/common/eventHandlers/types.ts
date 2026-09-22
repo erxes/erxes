@@ -11,6 +11,7 @@ export enum DbLogActions {
 
 export type ActivityLogInput = {
   activityType: string;
+  sourcePlugin?: string;
   target: any;
   context?: any;
   action: any;

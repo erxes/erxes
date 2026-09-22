@@ -127,6 +127,11 @@ export const checkFile = async (
     'audio/vnd.wave',
     'audio/wave',
     'audio/wav',
+    'video/mp4',
+    'video/webm',
+    'video/quicktime',
+    'video/x-msvideo',
+    'video/x-matroska',
   ];
 
   if (Array.isArray(source)) {

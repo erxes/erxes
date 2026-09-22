@@ -3,6 +3,7 @@ import {
   EnumCursorDirection,
   IRecordTableCursorPageInfo,
   mergeCursorData,
+  useMultiQueryState,
   useRecordTableCursor,
   validateFetchMore,
 } from 'erxes-ui';
@@ -13,7 +14,9 @@ import {
   PRODUCT_GROUP_ORDER_BY,
   PRODUCT_GROUP_ROW_PER_PAGE,
 } from '@/ebarimt/settings/product-group/constants/productGroupRowDefaultVariables';
-import { useMemo } from 'react';
+import { productGroupTotalCountAtom } from '@/ebarimt/settings/product-group/states/productGroupRowStates';
+import { useSetAtom } from 'jotai';
+import { useEffect, useMemo } from 'react';
 
 interface IProductGroupQueryResult {
   ebarimtProductGroups: {
@@ -24,13 +27,23 @@ interface IProductGroupQueryResult {
 }
 
 export const useProductGroupRows = () => {
+  const setProductGroupTotalCount = useSetAtom(productGroupTotalCountAtom);
   const { cursor } = useRecordTableCursor({
     sessionKey: PRODUCT_GROUP_CURSOR_SESSION_KEY,
   });
 
+  const [{ searchValue, productId, status }] = useMultiQueryState<{
+    searchValue: string;
+    productId: string;
+    status: string;
+  }>(['searchValue', 'productId', 'status']);
+
   const { data, loading, fetchMore, error } =
     useQuery<IProductGroupQueryResult>(GET_PRODUCT_GROUP, {
       variables: {
+        searchValue: searchValue || undefined,
+        productId: productId || undefined,
+        status: status || undefined,
         limit: PRODUCT_GROUP_ROW_PER_PAGE,
         orderBy: PRODUCT_GROUP_ORDER_BY,
         cursor,
@@ -40,6 +53,14 @@ export const useProductGroupRows = () => {
   const { list, totalCount = 0, pageInfo } = data?.ebarimtProductGroups || {};
 
   const productGroupRows = useMemo(() => list ?? [], [list]);
+
+  useEffect(() => {
+    if (loading) {
+      setProductGroupTotalCount(null);
+      return;
+    }
+    setProductGroupTotalCount(totalCount);
+  }, [loading, totalCount, setProductGroupTotalCount]);
 
   const handleFetchMore = ({
     direction,

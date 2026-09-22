@@ -1,9 +1,11 @@
+import { useTranslation } from 'react-i18next';
 import { useAtom } from 'jotai';
 import { slotDetailAtom } from '../states/slot';
 import { Checkbox, ColorPicker, Input, Label } from 'erxes-ui';
 import { SidebarDetailProps, SlotDetailForm } from '../types';
 
 const SidebarDetail = ({ onSave, onCancel }: SidebarDetailProps) => {
+  const { t } = useTranslation('sales');
   const [slotDetail, setSlotDetail] = useAtom(slotDetailAtom);
 
   const handleChange = (
@@ -21,7 +23,7 @@ const SidebarDetail = ({ onSave, onCancel }: SidebarDetailProps) => {
       <div className="p-4 space-y-3">
         <div className="space-y-2">
           <Label htmlFor="name" className="uppercase">
-            Name
+            {t('name')}
           </Label>
           <Input
             id="name"
@@ -34,7 +36,7 @@ const SidebarDetail = ({ onSave, onCancel }: SidebarDetailProps) => {
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="code" className="uppercase">
-              Code
+              {t('code')}
             </Label>
             <Input
               id="code"
@@ -47,7 +49,7 @@ const SidebarDetail = ({ onSave, onCancel }: SidebarDetailProps) => {
 
           <div className="space-y-2">
             <Label htmlFor="rounded" className="uppercase">
-              Rounded
+              {t('rounded')}
             </Label>
 
             <Input
@@ -63,7 +65,7 @@ const SidebarDetail = ({ onSave, onCancel }: SidebarDetailProps) => {
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="width" className="uppercase">
-              Width
+              {t('width')}
             </Label>
             <Input
               id="width"
@@ -76,7 +78,7 @@ const SidebarDetail = ({ onSave, onCancel }: SidebarDetailProps) => {
 
           <div className="space-y-2">
             <Label htmlFor="height" className="uppercase">
-              Height
+              {t('height')}
             </Label>
             <Input
               id="height"
@@ -91,7 +93,7 @@ const SidebarDetail = ({ onSave, onCancel }: SidebarDetailProps) => {
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="top" className="uppercase">
-              Top
+              {t('top')}
             </Label>
             <Input
               id="top"
@@ -104,7 +106,7 @@ const SidebarDetail = ({ onSave, onCancel }: SidebarDetailProps) => {
 
           <div className="space-y-2">
             <Label htmlFor="left" className="uppercase">
-              Left
+              {t('left')}
             </Label>
             <Input
               id="left"
@@ -119,7 +121,7 @@ const SidebarDetail = ({ onSave, onCancel }: SidebarDetailProps) => {
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="rotateAngle" className="uppercase">
-              Rotate Angle
+              {t('rotate-angle')}
             </Label>
             <Input
               id="rotateAngle"
@@ -132,7 +134,7 @@ const SidebarDetail = ({ onSave, onCancel }: SidebarDetailProps) => {
 
           <div className="space-y-2">
             <Label htmlFor="zIndex" className="uppercase">
-              Z Index
+              {t('z-index')}
             </Label>
             <Input
               id="zIndex"
@@ -147,7 +149,7 @@ const SidebarDetail = ({ onSave, onCancel }: SidebarDetailProps) => {
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="color" className="uppercase">
-              Color
+              {t('color')}
             </Label>
             <div className="flex space-x-2">
               <ColorPicker
@@ -168,7 +170,7 @@ const SidebarDetail = ({ onSave, onCancel }: SidebarDetailProps) => {
             />
 
             <Label htmlFor="disabled" className="uppercase">
-              Disabled
+              {t('disabled')}
             </Label>
           </div>
         </div>

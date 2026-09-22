@@ -109,7 +109,6 @@ export interface IPos {
     icon: string;
     config?: string;
   }>;
-  erxesAppToken?: string;
   adminIds?: string[];
   cashierIds?: string[];
   permissionConfig?: {
@@ -120,6 +119,7 @@ export interface IPos {
     };
     cashiers?: {
       isTempBill?: boolean;
+      seeReport?: boolean;
       directDiscount?: boolean;
       directDiscountLimit?: number;
     };

@@ -1,14 +1,17 @@
 import { IconPlus } from '@tabler/icons-react';
 import { Button, cn, Sheet, useQueryState } from 'erxes-ui';
-import { useAtomValue } from 'jotai';
-import { useEffect, useState } from 'react';
+import { useAtom, useAtomValue } from 'jotai';
+import { useEffect } from 'react';
 import { AutomationBotForm } from '~/widgets/automations/modules/instagram/components/bots/components/AutomationBotForm';
-import { isOpenInstagramBotSecondarySheet } from '~/widgets/automations/modules/instagram/components/bots/states/instagramBotStates';
+import {
+  isOpenInstagramBotSecondarySheet,
+  isOpenInstagramBotSheet,
+} from '~/widgets/automations/modules/instagram/components/bots/states/instagramBotStates';
 
 export const AutomationBotSheetForm = () => {
   const [instagramBotId, setInstagramBotId] =
     useQueryState<string>('instagramBotId');
-  const [isOpen, setOpen] = useState(false);
+  const [isOpen, setOpen] = useAtom(isOpenInstagramBotSheet);
   const isOpenSecondarySheet = useAtomValue(isOpenInstagramBotSecondarySheet);
 
   useEffect(() => {

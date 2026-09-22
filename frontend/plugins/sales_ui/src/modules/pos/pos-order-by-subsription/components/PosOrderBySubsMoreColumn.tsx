@@ -35,6 +35,7 @@ export const PosOrderBySubsMoreColumnCell = ({
 
 export const PosOrderBySubsMoreColumn = {
   id: 'more',
+  header: () => <RecordTable.ColumnSelector />,
   cell: PosOrderBySubsMoreColumnCell,
   size: 33,
 };

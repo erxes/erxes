@@ -7,6 +7,7 @@ import { ICategory } from '../types';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconPicker } from '@/knowledgebase/components/IconPicker';
+import { useTranslation } from 'react-i18next';
 
 interface CategoryDrawerProps {
   readonly category?: ICategory;
@@ -36,6 +37,7 @@ export function CategoryDrawer({
   onClose,
   refetch,
 }: CategoryDrawerProps) {
+  const { t } = useTranslation('frontline');
   const { toast } = useToast();
 
   const isEditing = !!category;
@@ -110,7 +112,9 @@ export function CategoryDrawer({
       <Sheet.View className="sm:max-w-lg p-0 flex flex-col h-full">
         <Sheet.Header className="border-b gap-3 shrink-0">
           <Sheet.Title>
-            {isEditing ? 'Edit Category' : 'New Category'}
+            {isEditing
+              ? t('kb-edit-category', 'Edit Category')
+              : t('kb-new-category', 'New Category')}
           </Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
@@ -127,9 +131,15 @@ export function CategoryDrawer({
               name="code"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Code</Form.Label>
+                  <Form.Label>{t('kb-code', 'Code')}</Form.Label>
                   <Form.Control>
-                    <Input {...field} placeholder="Enter category code" />
+                    <Input
+                      {...field}
+                      placeholder={t(
+                        'kb-enter-category-code',
+                        'Enter category code',
+                      )}
+                    />
                   </Form.Control>
                   <Form.Message className="text-destructive" />
                 </Form.Item>
@@ -141,11 +151,14 @@ export function CategoryDrawer({
               name="title"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Title</Form.Label>
+                  <Form.Label>{t('title-label', 'Title')}</Form.Label>
                   <Form.Control>
                     <Input
                       {...field}
-                      placeholder="Enter category title"
+                      placeholder={t(
+                        'kb-enter-category-title',
+                        'Enter category title',
+                      )}
                       required
                     />
                   </Form.Control>
@@ -159,11 +172,14 @@ export function CategoryDrawer({
               name="description"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Description</Form.Label>
+                  <Form.Label>{t('description', 'Description')}</Form.Label>
                   <Form.Control>
                     <Textarea
                       {...field}
-                      placeholder="Enter category description"
+                      placeholder={t(
+                        'kb-enter-category-description',
+                        'Enter category description',
+                      )}
                     />
                   </Form.Control>
                   <Form.Message className="text-destructive" />
@@ -177,7 +193,7 @@ export function CategoryDrawer({
               name="icon"
               render={({ field }) => (
                 <Form.Item className="flex flex-col gap-2">
-                  <Form.Label>Icon</Form.Label>
+                  <Form.Label>{t('icon', 'Icon')}</Form.Label>
                   <Form.Control>
                     <IconPicker value={field.value} onChange={field.onChange} />
                   </Form.Control>
@@ -201,7 +217,7 @@ export function CategoryDrawer({
 
         <div className="border-t gap-3 p-4 bg-background shrink-0 flex justify-end">
           <Button onClick={onClose} variant="outline">
-            Cancel
+            {t('cancel', 'Cancel')}
           </Button>
           <Button
             type="submit"
@@ -210,11 +226,11 @@ export function CategoryDrawer({
           >
             {adding || editing
               ? isEditing
-                ? 'Saving...'
-                : 'Creating...'
+                ? t('saving', 'Saving…')
+                : t('kb-creating', 'Creating...')
               : isEditing
-              ? 'Save Changes'
-              : 'Create Category'}
+                ? t('kb-save-changes', 'Save Changes')
+                : t('kb-create-category', 'Create Category')}
           </Button>
         </div>
       </Sheet.View>

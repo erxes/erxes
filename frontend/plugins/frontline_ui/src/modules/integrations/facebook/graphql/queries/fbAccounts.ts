@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client';
 
 export const GET_FB_ACCOUNTS = gql`
-  query FacebookGetAccounts($kind: String) {
-    facebookGetAccounts(kind: $kind)
+  query FacebookGetAccounts($kind: String, $integrationKind: String) {
+    facebookGetAccounts(kind: $kind, integrationKind: $integrationKind)
   }
 `;
 

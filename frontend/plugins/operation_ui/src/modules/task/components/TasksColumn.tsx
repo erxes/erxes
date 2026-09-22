@@ -9,7 +9,7 @@ import { SelectStatusTask } from '@/task/components/task-selects/SelectStatusTas
 import { SelectTaskPriority } from '@/task/components/task-selects/SelectTaskPriority';
 import { SelectTeamTask } from '@/task/components/task-selects/SelectTeamTask';
 import { useUpdateTask } from '@/task/hooks/useUpdateTask';
-import { taskDetailSheetState } from '@/task/states/taskDetailSheetState';
+import { useTaskDetailSheet } from '@/task/hooks/useTaskDetailSheet';
 import { ITask } from '@/task/types';
 import { ITeam } from '@/team/types';
 import {
@@ -31,7 +31,6 @@ import {
   RecordTable,
   RecordTableInlineCell,
 } from 'erxes-ui';
-import { useSetAtom } from 'jotai';
 import { useState } from 'react';
 import { SelectMilestone } from './task-selects/SelectMilestone';
 import { TagsSelect } from 'ui-modules';
@@ -40,6 +39,7 @@ import { tasksMoreColumn } from './TasksMoreColumn';
 export const tasksColumns = (
   _teams: ITeam[] | undefined,
   _team: ITeam | undefined,
+  t: (key: string) => string,
 ): ColumnDef<ITask>[] => {
   const checkBoxColumn = RecordTable.checkboxColumn as ColumnDef<ITask>;
 
@@ -50,13 +50,13 @@ export const tasksColumns = (
       id: 'name',
       accessorKey: 'name',
       header: () => (
-        <RecordTable.InlineHead label="Name" icon={IconLabelFilled} />
+        <RecordTable.InlineHead label={t('name')} icon={IconLabelFilled} />
       ),
       cell: ({ cell }) => {
         const name = cell.getValue() as string;
         const [value, setValue] = useState(name);
         const { updateTask } = useUpdateTask();
-        const setActiveTask = useSetAtom(taskDetailSheetState);
+        const [, setActiveTask] = useTaskDetailSheet();
 
         const handleUpdate = () => {
           if (value !== name) {
@@ -110,7 +110,7 @@ export const tasksColumns = (
       id: 'status',
       accessorKey: 'status',
       header: () => (
-        <RecordTable.InlineHead label="Status" icon={IconProgressCheck} />
+        <RecordTable.InlineHead label={t('status')} icon={IconProgressCheck} />
       ),
       cell: ({ cell }) => {
         return (
@@ -127,7 +127,7 @@ export const tasksColumns = (
 
     {
       id: 'assigneeId',
-      header: () => <RecordTable.InlineHead label="Assignee" icon={IconUser} />,
+      header: () => <RecordTable.InlineHead label={t('assignee')} icon={IconUser} />,
       cell: ({ cell }) => {
         return (
           <SelectAssigneeTask
@@ -150,7 +150,7 @@ export const tasksColumns = (
       accessorKey: 'priority',
       header: () => (
         <RecordTable.InlineHead
-          label="Priority"
+          label={t('priority')}
           icon={IconAlertSquareRounded}
         />
       ),
@@ -169,7 +169,7 @@ export const tasksColumns = (
       id: 'estimatePoint',
       accessorKey: 'estimatePoint',
       header: () => (
-        <RecordTable.InlineHead label="Estimate Point" icon={IconTriangle} />
+        <RecordTable.InlineHead label={t('estimate-point')} icon={IconTriangle} />
       ),
       cell: ({ cell }) => {
         const { _id, estimatePoint, teamId } = cell.row.original;
@@ -187,7 +187,7 @@ export const tasksColumns = (
     {
       id: 'cycleId',
       accessorKey: 'cycleId',
-      header: () => <RecordTable.InlineHead label="Cycle" icon={IconRestore} />,
+      header: () => <RecordTable.InlineHead label={t('cycle')} icon={IconRestore} />,
       cell: ({ cell }) => {
         return (
           <SelectCycle
@@ -204,7 +204,7 @@ export const tasksColumns = (
       id: 'project',
       accessorKey: 'project',
       header: () => (
-        <RecordTable.InlineHead label="Project" icon={IconClipboard} />
+        <RecordTable.InlineHead label={t('project')} icon={IconClipboard} />
       ),
       cell: ({ cell }) => {
         return (
@@ -222,7 +222,7 @@ export const tasksColumns = (
       id: 'milestoneId',
       accessorKey: 'milestoneId',
       header: () => (
-        <RecordTable.InlineHead label="Milestone" icon={IconClipboard} />
+        <RecordTable.InlineHead label={t('milestone')} icon={IconClipboard} />
       ),
       cell: ({ cell }) => {
         return (
@@ -239,7 +239,7 @@ export const tasksColumns = (
     {
       id: 'teamId',
       header: () => (
-        <RecordTable.InlineHead label="Team" icon={IconUsersGroup} />
+        <RecordTable.InlineHead label={t('team')} icon={IconUsersGroup} />
       ),
       cell: ({ cell }) => {
         return (
@@ -255,7 +255,7 @@ export const tasksColumns = (
     {
       id: 'tagIds',
       accessorKey: 'tagIds',
-      header: () => <RecordTable.InlineHead label="Tags" />,
+      header: () => <RecordTable.InlineHead label={t('tags')} />,
       cell: ({ cell }) => {
         const tagIds = cell.getValue() as string[];
 
@@ -287,7 +287,7 @@ export const tasksColumns = (
       id: 'startDate',
       accessorKey: 'startDate',
       header: () => (
-        <RecordTable.InlineHead label="Start Date" icon={IconCalendarFilled} />
+        <RecordTable.InlineHead label={t('start-date')} icon={IconCalendarFilled} />
       ),
       cell: ({ cell }) => {
         const startDate = cell.getValue() as string;
@@ -305,7 +305,7 @@ export const tasksColumns = (
       id: 'targetDate',
       accessorKey: 'targetDate',
       header: () => (
-        <RecordTable.InlineHead label="Target Date" icon={IconCalendarFilled} />
+        <RecordTable.InlineHead label={t('target-date')} icon={IconCalendarFilled} />
       ),
       cell: ({ cell }) => {
         const targetDate = cell.getValue() as string;

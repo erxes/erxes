@@ -5,6 +5,16 @@ import {
 } from 'erxes-api-shared/core-types';
 import { Document } from 'mongoose';
 
+export interface ITicketSourceSurvey {
+  surveyId: string;
+  surveyStepId: string;
+  surveyOptionId: string;
+  question: string;
+  optionText: string;
+  voteCount: number;
+  threshold: number;
+}
+
 export interface ITicket {
   name: string;
   channelId: string;
@@ -13,10 +23,13 @@ export interface ITicket {
   statusId?: string;
   description?: string;
   priority?: number;
+  branchId?: string;
+  departmentId?: string;
   labelIds?: string[];
   tagIds?: string[];
   status?: string;
   assigneeId?: string;
+  assignedMembers?: string[];
   createdBy?: string;
   userId?: string;
   startDate?: Date;
@@ -32,6 +45,7 @@ export interface ITicket {
   attachments?: IAttachment[];
   companyIds?: string[];
   customerFieldData?: any;
+  sourceSurvey?: ITicketSourceSurvey;
 }
 
 export interface ITicketUpdate extends ITicket {

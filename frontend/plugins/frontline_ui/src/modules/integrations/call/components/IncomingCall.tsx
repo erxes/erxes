@@ -10,11 +10,13 @@ import {
 import { extractPhoneNumberFromCounterpart } from '@/integrations/call/utils/callUtils';
 import { renderUserInfo } from '@/integrations/call/utils/renderUserInfo';
 import { IconPhone, IconPhoneEnd } from '@tabler/icons-react';
-import { Button, getPluginAssetsUrl } from 'erxes-ui';
+import { Button, getPluginAssetsUrl, toast } from 'erxes-ui';
 import { useAtom, useAtomValue } from 'jotai';
 import { useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const IncomingCallAudio = () => {
+  const { t } = useTranslation('frontline');
   const audioRef = useRef<HTMLAudioElement>(null);
   const sip = useAtomValue(sipStateAtom);
   useEffect(() => {
@@ -32,6 +34,10 @@ export const IncomingCallAudio = () => {
           if (audioRef.current) {
             audioRef.current.src = '';
           }
+          toast({
+            title: t('ringtone-blocked'),
+            variant: 'warning',
+          });
         });
       }
     } else {
@@ -40,7 +46,7 @@ export const IncomingCallAudio = () => {
         audioRef.current.src = '';
       }
     }
-  }, [sip?.callStatus, sip?.callDirection]);
+  }, [sip?.callStatus, sip?.callDirection, t]);
 
   return <audio ref={audioRef} loop autoPlay />;
 };
@@ -48,14 +54,15 @@ export const IncomingCallAudio = () => {
 export const IncomingCall = ({
   addCustomer,
   customer,
-  channels,
+  integrationName,
   loading,
 }: {
   addCustomer: any;
   customer: any;
-  channels: any;
+  integrationName: string;
   loading: boolean;
 }) => {
+  const { t } = useTranslation('frontline');
   const sipState = useAtomValue(sipStateAtom);
 
   const phoneNumber = extractPhoneNumberFromCounterpart(
@@ -88,16 +95,11 @@ export const IncomingCall = ({
       <div className="mt-2 px-3 pt-3 mb-1 space-y-2">
         {!loading && renderUserInfo(customer, null, phoneNumber)}
         <div className="text-center text-accent-foreground">
-          Incoming call to{' '}
+          {t('incoming-call-to')}{' '}
           <span className="font-semibold text-foreground">
-            <span role="img" aria-label="flag-mn">
-              🇲🇳
-            </span>
-            {channels && channels.length > 0 && (
+            {integrationName && (
               <div className="text-xs text-accent-foreground">
-                {channels.map((channel: any, index: number) => (
-                  <div key={index}>{channel.name}</div>
-                ))}
+                {integrationName}
               </div>
             )}
           </span>
@@ -110,7 +112,7 @@ export const IncomingCall = ({
           onClick={onDeclineCall}
         >
           <IconPhoneEnd />
-          Decline
+          {t('decline')}
         </Button>
         <Button
           variant="secondary"
@@ -118,7 +120,7 @@ export const IncomingCall = ({
           onClick={onAcceptCall}
         >
           <IconPhone />
-          Answer
+          {t('answer')}
         </Button>
       </div>
     </>

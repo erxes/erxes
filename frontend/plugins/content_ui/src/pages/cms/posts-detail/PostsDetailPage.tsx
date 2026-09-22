@@ -1,18 +1,19 @@
 import { PageContainer, Spinner } from 'erxes-ui';
 import { useCallback, useRef, useState } from 'react';
-import type { UseFormReturn } from 'react-hook-form';
-import { useNavigate, useParams } from 'react-router-dom';
+import type { FieldValues, UseFormReturn } from 'react-hook-form';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { AddPostForm } from '~/modules/cms/posts/components/add-post-form';
-import {
-  AddPostHeaderActions,
-  type PostFormData,
-} from '~/modules/cms/posts/components/add-post-form/AddPostHeaderActions';
+import { AddPostHeaderActions } from '~/modules/cms/posts/components/add-post-form/AddPostHeaderActions';
 import { PostsHeader } from '~/modules/cms/posts/components/PostsHeader';
 import { usePostDetail } from '~/modules/cms/posts/hooks/usePostDetail';
+import {
+  buildPostsListPath,
+  getPostsReturnPath,
+} from '~/modules/cms/posts/utils/postsNavigation';
 
 interface PostHeaderFormState {
-  form: UseFormReturn<PostFormData>;
-  onSubmit: (data?: PostFormData) => void | Promise<void>;
+  form: UseFormReturn<FieldValues>;
+  onSubmit: (data?: FieldValues) => void | Promise<void>;
   creating: boolean;
   saving: boolean;
   handleLanguageChange: (lang: string) => void;
@@ -28,6 +29,7 @@ export const PostsDetailPage = ({
   const [formState, setFormState] = useState<PostHeaderFormState | null>(null);
   const { post, loading } = usePostDetail(postId ?? '');
   const navigate = useNavigate();
+  const location = useLocation();
   const { websiteId } = useParams();
 
   const languageChangeRef = useRef<(lang: string) => void>();
@@ -44,8 +46,25 @@ export const PostsDetailPage = ({
   }, []);
 
   const handleClose = useCallback(() => {
-    navigate(`/content/cms/${websiteId}/posts`);
-  }, [navigate, websiteId]);
+    const returnTo = getPostsReturnPath(location.state, postId);
+
+    navigate(
+      returnTo ||
+        buildPostsListPath({
+          websiteId,
+          search: location.search,
+          postType: post?.type,
+          postId,
+        }),
+    );
+  }, [
+    location.search,
+    location.state,
+    navigate,
+    post?.type,
+    postId,
+    websiteId,
+  ]);
 
   return (
     <PageContainer key={postId}>

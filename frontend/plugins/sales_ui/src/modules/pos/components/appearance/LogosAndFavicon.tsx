@@ -3,6 +3,7 @@ import { Form, Upload, Spinner, readImage } from 'erxes-ui';
 import { IconTrash, IconUpload } from '@tabler/icons-react';
 import { Control } from 'react-hook-form';
 import type { AppearanceFormData } from './Appearance';
+import { useTranslation } from 'react-i18next';
 
 interface LogosAndFaviconProps {
   control: Control<AppearanceFormData>;
@@ -12,37 +13,37 @@ interface LogosAndFaviconProps {
 const imageFields = [
   {
     key: 'logo',
-    label: 'MAIN LOGO',
+    label: 'main-logo',
     configKey: 'posMainLogo',
   },
   {
     key: 'bgImage',
-    label: 'BACKGROUND IMAGE',
+    label: 'background-image',
     configKey: 'backgroundImage',
   },
   {
     key: 'favIcon',
-    label: 'FAVICON',
+    label: 'favicon',
     configKey: 'logosFavicon',
   },
   {
     key: 'receiptIcon',
-    label: 'RECEIPT ICON',
+    label: 'receipt-icon',
     configKey: 'receiptIcon',
   },
   {
     key: 'kioskHeaderImage',
-    label: 'KIOSK HEADER IMAGE',
+    label: 'kiosk-header-image',
     configKey: 'kioskHeader',
   },
   {
     key: 'mobileAppImage',
-    label: 'MOBILE APP IMAGE',
+    label: 'mobile-app-image',
     configKey: 'mobileAppImage',
   },
   {
     key: 'qrCodeImage',
-    label: 'QR CODE IMAGE',
+    label: 'qr-code-image',
     configKey: 'qrCodeImage',
   },
 ] as const;
@@ -58,6 +59,7 @@ const ImageUploadField = ({
   name: ImageFieldName;
   label: string;
 }) => {
+  const { t } = useTranslation('sales');
   const [isLoading, setIsLoading] = useState(false);
 
   return (
@@ -66,7 +68,7 @@ const ImageUploadField = ({
       control={control}
       render={({ field }) => (
         <Form.Item>
-          <Form.Label className="text-xs">{label}</Form.Label>
+          <Form.Label className="text-xs">{t(label)}</Form.Label>
           <Form.Control>
             <Upload.Root
               value={typeof field.value === 'string' ? field.value : ''}
@@ -122,7 +124,7 @@ const ImageUploadField = ({
                       <div className="absolute inset-0 flex items-center justify-center transition-all duration-200 bg-black/0 group-hover:bg-black/20">
                         <div className="transition-opacity duration-200 opacity-0 group-hover:opacity-100">
                           <div className="px-2 py-1 text-xs font-medium text-black rounded-lg backdrop-blur-sm bg-white/90">
-                            Change
+                            {t('change')}
                           </div>
                         </div>
                       </div>

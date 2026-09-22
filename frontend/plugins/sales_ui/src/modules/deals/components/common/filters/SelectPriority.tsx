@@ -14,6 +14,7 @@ import {
 import React, { useState } from 'react';
 
 import { IconStackFront } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
 interface SelectPriorityContextType {
   value: string;
@@ -138,10 +139,11 @@ const SelectPriorityCommandItem = ({ priority }: { priority: string }) => {
 };
 
 const SelectPriorityContent = () => {
+  const { t } = useTranslation('sales');
   return (
     <Command>
-      <Command.Input placeholder="Search priority" />
-      <Command.Empty>No priority found</Command.Empty>
+      <Command.Input placeholder={t('search-priority')} />
+      <Command.Empty>{t('no-priority-found')}</Command.Empty>
       <Command.List>
         {PROJECT_PRIORITIES_OPTIONS.map((priority) => (
           <SelectPriorityCommandItem key={priority} priority={priority} />
@@ -188,6 +190,7 @@ const SelectPriorityFilterView = () => {
 };
 
 const SelectPriorityFilterBar = () => {
+  const { t } = useTranslation('sales');
   const [priority, setPriority] = useQueryState<TPriorityValue[]>('priority', {
     defaultValue: [],
   });
@@ -199,7 +202,7 @@ const SelectPriorityFilterBar = () => {
     <Filter.BarItem queryKey="priority">
       <Filter.BarName>
         <IconStackFront />
-        By Priority
+        {t('by-priority')}
       </Filter.BarName>
       <SelectPriorityProvider
         value={priority?.[0] ?? 'No Priority'}

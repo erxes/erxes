@@ -3,6 +3,8 @@ import { useCoversList } from '@/pos/pos-covers/hooks/UseCoversList';
 import { coverColumns } from '@/pos/pos-covers/components/CoverColumns';
 import { useIsPosCoverLeadSessionKey } from '@/pos/pos-covers/hooks/UsePosCoverLeadSessionKey';
 import { IconShoppingCartX } from '@tabler/icons-react';
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { PosCoverCommandBar } from './pos-cover-command-bar/PosCoverCommandbar';
 
 interface CoversRecordTableProps {
@@ -10,15 +12,17 @@ interface CoversRecordTableProps {
 }
 
 export const CoversRecordTable = ({ posId }: CoversRecordTableProps) => {
+  const { t } = useTranslation('sales');
   const { coversList, handleFetchMore, loading, pageInfo } = useCoversList({
     posId,
   });
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
   const { sessionKey } = useIsPosCoverLeadSessionKey();
+  const columns = useMemo(() => coverColumns(t), [t]);
 
   return (
     <RecordTable.Provider
-      columns={coverColumns}
+      columns={columns}
       data={coversList}
       className="m-3"
       stickyColumns={['more', 'checkbox', 'pos']}
@@ -52,10 +56,10 @@ export const CoversRecordTable = ({ posId }: CoversRecordTableProps) => {
                 <IconShoppingCartX size={48} className="text-gray-400" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900">
-                No covers yet
+                {t('no-covers-yet')}
               </h3>
               <p className="mt-1 text-sm text-gray-500">
-                Get started by creating your first cover.
+                {t('create-first-cover')}
               </p>
             </div>
           </div>

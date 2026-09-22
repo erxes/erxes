@@ -1,5 +1,6 @@
 import { useCallback, useMemo } from 'react';
 import { Control, UseFormSetValue, useController } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { Form, Switch } from 'erxes-ui';
 import { RHFDatePicker } from './RHFDatePicker';
 import { TourFormValues } from '../constants/formSchema';
@@ -10,6 +11,7 @@ type Props = {
 };
 
 export const TourDateSchedulingField = ({ control, setValue }: Props) => {
+  const { t } = useTranslation('tourism');
   const { field: flexibleField } = useController({
     control,
     name: 'isFlexibleDate',
@@ -66,11 +68,11 @@ export const TourDateSchedulingField = ({ control, setValue }: Props) => {
           onCheckedChange={handleFlexibleChange}
         />
         <div className="space-y-1">
-          <Form.Label>Flexible dates (anytime within range)</Form.Label>
+          <Form.Label>{t('flexible-dates')}</Form.Label>
           <Form.Description className="text-xs">
             {isFlexibleDate
-              ? 'Customers can choose their start date within a range'
-              : 'Tour has specific start and end dates'}
+              ? t('customers-can-choose-date')
+              : t('tour-has-specific-dates')}
           </Form.Description>
         </div>
       </Form.Item>
@@ -80,7 +82,7 @@ export const TourDateSchedulingField = ({ control, setValue }: Props) => {
           <div className="grid gap-4 md:grid-cols-2">
             <Form.Item>
               <Form.Label>
-                Available from <span className="text-destructive">*</span>
+                {t('available-from')} <span className="text-destructive">*</span>
               </Form.Label>
               <Form.Control>
                 <RHFDatePicker
@@ -93,7 +95,7 @@ export const TourDateSchedulingField = ({ control, setValue }: Props) => {
 
             <Form.Item>
               <Form.Label>
-                Available until <span className="text-destructive">*</span>
+                {t('available-until-label')} <span className="text-destructive">*</span>
               </Form.Label>
               <Form.Control>
                 <RHFDatePicker
@@ -113,11 +115,11 @@ export const TourDateSchedulingField = ({ control, setValue }: Props) => {
               onCheckedChange={handleGroupChange}
             />
             <div className="space-y-1">
-              <Form.Label>Group tour (multiple start dates)</Form.Label>
+              <Form.Label>{t('group-tour')}</Form.Label>
               <Form.Description className="text-xs">
                 {isGroupTour
-                  ? 'Create one tour per selected start date'
-                  : 'Create a single tour date'}
+                  ? t('create-one-tour-per-date')
+                  : t('create-single-tour-date')}
               </Form.Description>
             </div>
           </Form.Item>
@@ -125,13 +127,13 @@ export const TourDateSchedulingField = ({ control, setValue }: Props) => {
           <div className="grid gap-4 md:grid-cols-2">
             <Form.Item>
               <Form.Label>
-                {isGroupTour ? 'Start Dates' : 'Start Date'}{' '}
+                {isGroupTour ? t('start-dates') : t('start-date')}{' '}
                 <span className="text-destructive">*</span>
               </Form.Label>
 
               {isGroupTour && (
                 <Form.Description className="text-xs">
-                  Select multiple available start dates for this group tour
+                  {t('select-multiple-start-dates')}
                 </Form.Description>
               )}
 
@@ -147,7 +149,7 @@ export const TourDateSchedulingField = ({ control, setValue }: Props) => {
 
             {!isGroupTour && (
               <Form.Item>
-                <Form.Label>End Date</Form.Label>
+                <Form.Label>{t('end-date')}</Form.Label>
                 <Form.Control>
                   <RHFDatePicker control={control} name="endDate" disabled />
                 </Form.Control>

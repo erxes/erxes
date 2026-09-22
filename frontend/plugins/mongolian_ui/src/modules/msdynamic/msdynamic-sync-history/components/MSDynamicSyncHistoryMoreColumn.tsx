@@ -35,6 +35,7 @@ export const MSDynamicSyncHistoryMoreColumnCell = ({
 
 export const MSDynamicSyncHistoryMoreColumn = {
   id: 'more',
+  header: () => <RecordTable.ColumnSelector />,
   cell: MSDynamicSyncHistoryMoreColumnCell,
   size: 33,
 };

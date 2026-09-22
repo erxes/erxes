@@ -14,6 +14,11 @@ const AutomationDetailPage = lazy(() =>
     default: module.AutomationDetailPage,
   })),
 );
+const WorkflowTemplateDetailPage = lazy(() =>
+  import('~/pages/automations/WorkflowTemplateDetailPage').then((module) => ({
+    default: module.WorkflowTemplateDetailPage,
+  })),
+);
 
 export const AutomationRoutes = () => {
   return (
@@ -27,6 +32,15 @@ export const AutomationRoutes = () => {
         <Route
           path={AutomationsPath.Detail}
           element={<AutomationDetailPage />}
+        />
+        {/* Create must precede the :id route so it isn't captured as an id */}
+        <Route
+          path={AutomationsPath.TemplateCreate}
+          element={<WorkflowTemplateDetailPage />}
+        />
+        <Route
+          path={AutomationsPath.TemplateDetail}
+          element={<WorkflowTemplateDetailPage />}
         />
       </Routes>
       <AutomationsPageEffect />

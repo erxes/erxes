@@ -1,9 +1,16 @@
 import dayjs from 'dayjs';
+import { splitType } from 'erxes-api-shared/core-modules';
 import { isEnabled } from 'erxes-api-shared/utils';
 import * as _ from 'lodash';
 import { generateModels, IModels } from '~/connectionResolvers';
 import { replaceContent } from '~/modules/documents/utils';
 import { fieldsCombinedByContentType } from '~/modules/forms/utils';
+import { buildProductReplacer } from '~/modules/products/meta/document/productReplacer';
+
+const DOCUMENT_ATTRIBUTE_CONTENT_TYPES: Record<string, string> = {
+  'core:contact.customer': 'core:contacts.customers',
+  'core:contact.company': 'core:contacts.companies',
+};
 
 export const documents = {
   types: [
@@ -42,7 +49,7 @@ export const documents = {
     }
 
     const fields = await fieldsCombinedByContentType(models, subdomain, {
-      contentType,
+      contentType: DOCUMENT_ATTRIBUTE_CONTENT_TYPES[contentType] || contentType,
     });
 
     const fieldsList = fields.map(({ name, label, groupDetail }) => ({
@@ -86,7 +93,8 @@ export const documents = {
 
     const models = await generateModels(subdomain);
 
-    const [_pluginName, moduleName] = contentType.split(':');
+    const [, modulePath, collectionName] = splitType(contentType);
+    const moduleName = collectionName || modulePath;
 
     const modelMap = {
       customer: models.Customers,
@@ -94,25 +102,55 @@ export const documents = {
       company: models.Companies,
       form: models.Forms,
       product: models.Products,
+      broadcast: models.Customers,
       automation: models.Automations,
     };
 
     const model = modelMap[moduleName];
 
     if (!model) {
-      throw new Error(`Unknown content type: ${moduleName}`);
+      return [content];
     }
 
     const documents = await model.find({ _id: { $in: replacerIds } });
 
+    if (!documents.length) {
+      return [content];
+    }
+
     const replacedContents: any[] = [];
 
     for (const document of documents) {
+      if (moduleName === 'product') {
+        const { replacement, transform } = await buildProductReplacer({
+          models,
+          subdomain,
+          product: document,
+          config: config || {},
+        });
+
+        const replacedContent = await replaceContent({
+          replacer: document,
+          content,
+          replacement,
+          transform,
+        });
+
+        replacedContents.push(replacedContent);
+        continue;
+      }
+
       const replacedContent = await replaceContent({
         replacer: document,
         content,
         replacement: (replacer, path) => {
-          const value = _.get(replacer, path);
+          const value =
+            _.get(replacer, path) ??
+            (['customer', 'company', 'broadcast'].includes(moduleName) &&
+            typeof path === 'string' &&
+            path.startsWith('details.')
+              ? _.get(replacer, path.slice('details.'.length))
+              : undefined);
 
           if (typeof value === 'number') {
             return value.toString();

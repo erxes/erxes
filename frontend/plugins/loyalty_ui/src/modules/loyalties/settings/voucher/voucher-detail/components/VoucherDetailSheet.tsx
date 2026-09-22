@@ -9,6 +9,7 @@ import {
   Label,
 } from 'erxes-ui';
 import { IconMoodAnnoyed } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
 export const VoucherDetailSheet = ({
   children,
@@ -69,6 +70,7 @@ export const VoucherDetailLayout = ({
 };
 
 const NotFound = ({ title }: { title: string }) => {
+  const { t } = useTranslation('loyalty');
   return (
     <div className="flex items-center justify-center h-full">
       <div className="flex flex-col items-center gap-3">
@@ -78,14 +80,14 @@ const NotFound = ({ title }: { title: string }) => {
         />
         <div className="flex flex-col gap-2">
           <h2 className="text-xl font-semibold w-full text-center">
-            {title} details not found
+            {t('details-not-found', { title })}
           </h2>
           <p className="text-accent-foreground w-full text-center">
-            There seems to be no data on this {title}
+            {t('no-data-on-title', { title })}
           </p>
         </div>
         <Sheet.Close asChild>
-          <Button variant="outline">Close</Button>
+          <Button variant="outline">{t('close')}</Button>
         </Sheet.Close>
       </div>
     </div>

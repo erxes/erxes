@@ -2,22 +2,26 @@ import { useEffect } from 'react';
 import { Button, PageSubHeader } from 'erxes-ui';
 import { Link } from 'react-router';
 import { IconSettings } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { SpinRecordTable } from '~/modules/loyalties/spin/components/SpinRecordTable';
 import { SpinAddSheet } from '~/modules/loyalties/spin/components/SpinAddSheet';
 import { useLoyaltyHeaderAction } from '~/modules/loyalties/components/LoyaltyHeaderActionContext';
 import { SpinFilter } from '~/modules/loyalties/spin/components/SpinFilter';
 
-const SpinHeaderActions = () => (
-  <div className="flex items-center gap-2">
-    <Button variant="outline" size="sm" asChild>
-      <Link to="/settings/loyalty/config/spin">
-        <IconSettings className="size-4" />
-        Go to settings
-      </Link>
-    </Button>
-    <SpinAddSheet />
-  </div>
-);
+const SpinHeaderActions = () => {
+  const { t } = useTranslation('loyalty');
+  return (
+    <div className="flex items-center gap-2">
+      <Button variant="outline" size="sm" asChild>
+        <Link to="/settings/loyalty/config/spin">
+          <IconSettings className="size-4" />
+          {t('go-to-settings')}
+        </Link>
+      </Button>
+      <SpinAddSheet />
+    </div>
+  );
+};
 
 export const SpinPage = () => {
   const { setAction } = useLoyaltyHeaderAction();

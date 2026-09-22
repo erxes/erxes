@@ -2,6 +2,7 @@ import { ApolloError } from '@apollo/client';
 import { IconTrash } from '@tabler/icons-react';
 import { useAtomValue } from 'jotai';
 import { useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Button,
   CommandBar,
@@ -27,6 +28,7 @@ export const TourCommandBar = ({
   branchLanguages,
   mainLanguage,
 }: TourCommandBarProps) => {
+  const { t } = useTranslation('tourism');
   const { table } = RecordTable.useRecordTable();
   const { confirm } = useConfirm();
   const confirmOptions = useMemo(() => ({ confirmationValue: 'delete' }), []);
@@ -57,7 +59,7 @@ export const TourCommandBar = ({
     }
 
     confirm({
-      message: `Are you sure you want to delete the ${selectedCount} selected tours?`,
+      message: t('confirm-delete-tours', { count: selectedCount }),
       options: confirmOptions,
     }).then(() => {
       removeTours({
@@ -66,7 +68,7 @@ export const TourCommandBar = ({
         },
         onError: (e: ApolloError) => {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: e.message,
             variant: 'destructive',
           });
@@ -74,9 +76,9 @@ export const TourCommandBar = ({
         onCompleted: () => {
           table.resetRowSelection();
           toast({
-            title: 'Success',
+            title: t('success'),
             variant: 'success',
-            description: 'Tours deleted successfully',
+            description: t('tours-deleted-successfully'),
           });
         },
       });
@@ -94,7 +96,7 @@ export const TourCommandBar = ({
   return (
     <CommandBar open={selectedCount > 0}>
       <CommandBar.Bar>
-        <CommandBar.Value>{selectedCount} selected</CommandBar.Value>
+        <CommandBar.Value>{t('x-selected', { count: selectedCount })}</CommandBar.Value>
         <Separator.Inline />
         {selectedCount === 1 && (
           <>
@@ -119,7 +121,7 @@ export const TourCommandBar = ({
           onClick={handleRemove}
         >
           {loading ? <Spinner /> : <IconTrash />}
-          Delete
+          {t('delete')}
         </Button>
       </CommandBar.Bar>
     </CommandBar>
