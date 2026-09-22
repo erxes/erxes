@@ -307,12 +307,10 @@ export const msdynamicCheckMutations = {
       syncedCustomer: syncMap[_id]?.syncedCustomer || null,
     }));
   },
+
   async toCheckMsdProductCategories(
     _root: unknown,
     { brandId, categoryId }: { brandId: string; categoryId?: string },
-  async toCheckMsdCustomers(
-    _root,
-    { brandId }: { brandId: string },
     { subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('msdCheck');
@@ -363,28 +361,48 @@ export const msdynamicCheckMutations = {
       ? response.value
       : [];
 
-    const resultCodes = dynamicCategories
-      .map((category: { Code?: string }) => category.Code)
-      .filter(Boolean);
+    const categoryById: Record<string, any> = {};
+    for (const category of categories) {
+      categoryById[category._id] = category;
+    }
+
+    const selectedParentCode = categoryId
+      ? categoryById[categoryId]?.code
+      : undefined;
+
+    const scopedCategories = categoryId
+      ? categories.filter((category: any) => category.parentId === categoryId)
+      : categories;
+
+    const scopedDynamicCategories = categoryId
+      ? dynamicCategories.filter(
+          (category: { Parent_Category?: string }) =>
+            category.Parent_Category === (selectedParentCode || ''),
+        )
+      : dynamicCategories;
+
+    const resultCodes = new Set(
+      scopedDynamicCategories
+        .map((category: { Code?: string }) => category.Code)
+        .filter(Boolean),
+    );
 
     const categoryByCode: Record<string, any> = {};
-    const categoryById: Record<string, any> = {};
 
     const createCategories: any[] = [];
     const updateCategories: any[] = [];
     const deleteCategories: any[] = [];
     let matchedCount = 0;
 
-    for (const category of categories) {
+    for (const category of scopedCategories) {
       categoryByCode[category.code] = category;
-      categoryById[category._id] = category;
 
-      if (!resultCodes.includes(category.code)) {
+      if (!resultCodes.has(category.code)) {
         deleteCategories.push(category);
       }
     }
 
-    for (const dynamicCategory of dynamicCategories) {
+    for (const dynamicCategory of scopedDynamicCategories) {
       const category = categoryByCode[dynamicCategory.Code];
 
       if (!category) {
@@ -394,9 +412,8 @@ export const msdynamicCheckMutations = {
 
       const isMatched =
         dynamicCategory.Code === category.code &&
-        (categoryId === category.parentId ||
-          categoryById[category.parentId]?.code ===
-            dynamicCategory.Parent_Category) &&
+        categoryById[category.parentId]?.code ===
+          dynamicCategory.Parent_Category &&
         category.name === dynamicCategory.Description;
 
       if (isMatched) {
@@ -423,6 +440,18 @@ export const msdynamicCheckMutations = {
         count: matchedCount,
       },
     };
+  },
+
+  async toCheckMsdCustomers(
+    _root,
+    { brandId }: { brandId: string },
+    { subdomain, checkPermission }: IContext,
+  ) {
+    await checkPermission('msdCheck');
+
+    const models = await generateModels(subdomain);
+    const config = await getDynamicConfig(models, brandId);
+
     if (!config.customerApi || !config.username || !config.password) {
       throw new Error('MS Dynamic config not valid.');
     }
@@ -474,6 +503,7 @@ export const msdynamicCheckMutations = {
         };
       }
     }
+
     const pageSize = 500;
     const concurrency = 10;
     const msdCustomers: any[] = [];
@@ -528,8 +558,10 @@ export const msdynamicCheckMutations = {
 
       skip += concurrency * pageSize;
     }
+
     return buildCustomerCheckResult(msdCustomers, erxesByMsdNo);
   },
+
   async toCheckMsdPrices(
     _root,
     { brandId }: { brandId: string },
@@ -609,90 +641,112 @@ export const msdynamicCheckMutations = {
 
     return result;
   },
+
   async toSyncMsdPrices(
     _root,
     { prices = [], brandId }: { prices: any[]; brandId: string },
     { subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('msdSync');
+
     const models = await generateModels(subdomain);
-const config = await getDynamicConfig(models, brandId);
+    const config = await getDynamicConfig(models, brandId);
+
+    if (!config.itemApi || !config.username || !config.password) {
+      throw new Error('MS Dynamic config not valid.');
+    }
+
     let hasFailed = false;
 
     for (const price of prices) {
-      if (!price._id) {
-  const response = await fetch(
-    `${config.itemApi}?$filter=No eq '${price.Item_No}'`,
-    {
-      timeout: 180000,
-      headers: {
-        Accept: 'application/json',
-        Authorization: `Basic ${Buffer.from(
-          `${config.username}:${config.password}`,
-        ).toString('base64')}`,
-      },
-    },
-  ).then((res) => res.json());
+      try {
+        if (!price._id) {
+          const response = await fetch(
+            `${config.itemApi}?$filter=No eq '${price.Item_No}'`,
+            {
+              timeout: 180000,
+              headers: {
+                Accept: 'application/json',
+                Authorization: `Basic ${Buffer.from(
+                  `${config.username}:${config.password}`,
+                ).toString('base64')}`,
+              },
+            },
+          );
 
-  const doc = response?.value?.[0];
+          if (!response.ok) {
+            throw new Error(
+              `MS Dynamic product request failed: ${response.status}`,
+            );
+          }
 
-  if (!doc) {
-    hasFailed = true;
-    console.error(
-      `MS Dynamic product not found: ${price.Item_No}`,
-    );
-    continue;
-  }
+          const data = await response.json();
+          const doc = data?.value?.[0];
 
-  const document = {
-    name: doc.Description || 'default',
-    shortName: doc.Description_2 || '',
-    type: doc.Type === 'Inventory' ? 'product' : 'service',
-    unitPrice: Number(price.Unit_Price) || 0,
-    code: doc.No,
-    uom: doc.Base_Unit_of_Measure || 'PCS',
-    categoryId: null,
-    scopeBrandIds: [brandId],
-    status: 'active',
-  };
+          if (!doc) {
+            hasFailed = true;
+            console.error(
+              `MS Dynamic product not found: ${price.Item_No}`,
+            );
+            continue;
+          }
 
-  const result = await sendTRPCMessage({
-    subdomain,
-    method: 'mutation',
-    pluginName: 'core',
-    module: 'products',
-    action: 'createProduct',
-    input: { doc },
-    defaultValue: null,
-  });
-
-  if (!result) {
-    hasFailed = true;
-  }
-
-  continue;
-}
-
-      const result = await sendTRPCMessage({
-        subdomain,
-        method: 'mutation',
-        pluginName: 'core',
-        module: 'products',
-        action: 'updateProduct',
-        input: {
-          _id: price._id,
-          doc: {
+          const document = {
+            name: doc.Description || 'default',
+            shortName: doc.Description_2 || '',
+            type: doc.Type === 'Inventory' ? 'product' : 'service',
             unitPrice: Number(price.Unit_Price) || 0,
-            currency: 'MNT',
-          },
-        },
-        defaultValue: null,
-      });
+            code: doc.No,
+            uom: doc.Base_Unit_of_Measure || 'PCS',
+            categoryId: null,
+            scopeBrandIds: [brandId],
+            status: 'active',
+          };
 
-      if (!result) {
+          const result = await sendTRPCMessage({
+            subdomain,
+            method: 'mutation',
+            pluginName: 'core',
+            module: 'products',
+            action: 'createProduct',
+            input: { doc: document },
+            defaultValue: null,
+          });
+
+          if (!result) {
+            hasFailed = true;
+          }
+
+          continue;
+        }
+
+        const result = await sendTRPCMessage({
+          subdomain,
+          method: 'mutation',
+          pluginName: 'core',
+          module: 'products',
+          action: 'updateProduct',
+          input: {
+            _id: price._id,
+            doc: {
+              unitPrice: Number(price.Unit_Price) || 0,
+              currency: 'MNT',
+            },
+          },
+          defaultValue: null,
+        });
+
+        if (!result) {
+          hasFailed = true;
+          console.error(
+            `Failed to sync MS Dynamic price for product ${price._id}`,
+          );
+        }
+      } catch (e: any) {
         hasFailed = true;
         console.error(
-          `Failed to sync MS Dynamic price for product ${price._id}`,
+          `Failed to sync MS Dynamic price for ${price.Item_No}`,
+          e?.message,
         );
       }
     }
@@ -700,5 +754,5 @@ const config = await getDynamicConfig(models, brandId);
     return {
       status: hasFailed ? 'failed' : 'success',
     };
-  },
+  }
 };
