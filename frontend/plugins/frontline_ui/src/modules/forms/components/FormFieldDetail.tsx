@@ -193,8 +193,17 @@ export const FormFieldDetail = ({
     handleClose();
   };
 
-  const handleConfirm = () => {
-    handleChangeField(stepId, fieldId, draft);
+  const serializeDescription = async () => {
+    const html = await editor.blocksToHTMLLossy(editor.document);
+    const safe = DOMPurify.sanitize(html);
+    const stripped = safe.replace(/<[^>]*>/g, '').trim();
+    return stripped ? safe : '';
+  };
+
+  const handleConfirm = async () => {
+    if (!draft) return;
+    const description = await serializeDescription();
+    handleChangeField(stepId, fieldId, { ...draft, description });
     handleClose();
   };
 
@@ -232,10 +241,8 @@ export const FormFieldDetail = ({
                 variant="outline"
                 className="min-h-20"
                 onChange={() => {
-                  editor.blocksToHTMLLossy(editor.document).then((html) => {
-                    const safe = DOMPurify.sanitize(html);
-                    const stripped = safe.replace(/<[^>]*>/g, '').trim();
-                    handleValueChange('description', stripped ? safe : '');
+                  serializeDescription().then((description) => {
+                    handleValueChange('description', description);
                   });
                 }}
               />
