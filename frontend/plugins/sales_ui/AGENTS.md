@@ -6,7 +6,7 @@
 - **Project:** `sales_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/sales_ui`
-- **Last synchronized:** `2026-09-21`
+- **Last synchronized:** `2026-09-22`
 
 ## Scope
 
@@ -33,6 +33,9 @@
 - Deal detail renders only the properties selected on the deal's pipeline;
   legacy pipelines continue showing all deal properties until their selection is
   saved for the first time.
+- Deal detail broker selection shows `Broker: None` until a broker type is
+  chosen, then renders a matching entity selector with a `Select broker`
+  placeholder.
 - Deal product management supports filtering, advanced product fields, tax
   fields, row editing, duplication, deletion, product bulk add, footer totals,
   save feedback, and an expanded dialog view for working with dense product
@@ -123,6 +126,12 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-22` — Clarify deal broker selector
+
+- **Summary:** Deal detail broker selection now starts as `Broker: None`, labels the selected type, and uses `Select broker` for each matching entity selector.
+- **Affected areas:** `src/modules/deals/components/deal-selects/DealDetailChips.tsx`, `src/modules/deals/cards/components/detail/overview/SalesFormFields.tsx`.
+- **Contracts changed:** None.
+
 ### `2026-09-21` — Expanded deal product workspace
 
 - **Summary:** Deal product management now has an Expand view toggle that opens
@@ -193,12 +202,3 @@
   stored contract remains the group's field ids.
 - **Affected areas:** `src/modules/deals/pipelines/components/PipelinePropertySelector.tsx`.
 - **Contracts changed:** None.
-
-### `2026-08-12` — Pipeline-scoped deal properties
-
-- **Summary:** Sales pipelines now choose grouped Core deal properties; legacy
-  pipelines retain show-all behavior until first save, then deal detail renders
-  only the chosen fields.
-- **Affected areas:** `src/modules/deals/{pipelines,cards,graphql,types,schemas}`.
-- **Contracts changed:** Pipeline GraphQL reads and mutations now include
-  `propertyIds`.
