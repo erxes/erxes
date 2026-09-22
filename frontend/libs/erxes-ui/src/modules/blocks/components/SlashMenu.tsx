@@ -12,6 +12,7 @@ import {
   IconMicrophone,
   IconMoodHappy,
   IconPhoto,
+  IconQuote,
   IconTable,
   IconVideo,
 } from '@tabler/icons-react';
@@ -27,7 +28,7 @@ export const SlashMenu = ({
   onItemClick,
 }: SuggestionMenuProps<DefaultReactSuggestionItem>) => {
   return (
-    <SuggestionMenu>
+    <SuggestionMenu className="max-h-80 [&>div]:max-h-72">
       {items.map((item, index) => (
         <SuggestionMenuItem
           isSelected={selectedIndex === index}
@@ -43,6 +44,14 @@ export const SlashMenu = ({
           </p>
         </SuggestionMenuItem>
       ))}
+      {loadingState !== 'loaded' && (
+        <p role="status" className="p-2 text-sm text-muted-foreground">
+          Loading commands…
+        </p>
+      )}
+      {loadingState === 'loaded' && items.length === 0 && (
+        <p className="p-2 text-sm text-muted-foreground">No commands found.</p>
+      )}
     </SuggestionMenu>
   );
 };
@@ -62,4 +71,5 @@ const icons = {
   Audio: <IconMicrophone />,
   File: <IconFile />,
   Emoji: <IconMoodHappy />,
+  Quote: <IconQuote />,
 };
