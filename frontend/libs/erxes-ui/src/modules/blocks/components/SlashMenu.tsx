@@ -55,7 +55,6 @@ const icons = {
   'Bullet List': <IconList />,
   'Check List': <IconListCheck />,
   Paragraph: <IconLetterT />,
-  'Code Block': <IconCode />,
   Table: <IconTable />,
   Image: <IconPhoto />,
   Gallery: <IconLayoutGrid />,
