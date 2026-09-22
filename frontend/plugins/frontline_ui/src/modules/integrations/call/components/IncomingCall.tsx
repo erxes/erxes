@@ -12,7 +12,7 @@ import { renderUserInfo } from '@/integrations/call/utils/renderUserInfo';
 import { IconPhone, IconPhoneEnd } from '@tabler/icons-react';
 import { Button, getPluginAssetsUrl, toast } from 'erxes-ui';
 import { useAtom, useAtomValue } from 'jotai';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 export const IncomingCallAudio = () => {
@@ -71,6 +71,7 @@ export const IncomingCall = ({
   const [callConfig] = useAtom(callConfigAtom);
 
   const { answerCall, stopCall } = useSip();
+  const [isAnswering, setIsAnswering] = useState(false);
 
   useEffect(() => {
     if (phoneNumber) {
@@ -79,7 +80,11 @@ export const IncomingCall = ({
   }, [phoneNumber]);
 
   const onAcceptCall = () => {
+    if (isAnswering) {
+      return;
+    }
     if (answerCall && sipState?.callStatus !== CallStatusEnum.IDLE) {
+      setIsAnswering(true);
       answerCall();
     }
   };
@@ -118,6 +123,7 @@ export const IncomingCall = ({
           variant="secondary"
           className="text-success bg-success/10 hover:bg-success/15"
           onClick={onAcceptCall}
+          disabled={isAnswering}
         >
           <IconPhone />
           {t('answer')}

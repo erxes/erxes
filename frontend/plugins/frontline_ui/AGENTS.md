@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-09-21`
+- **Last synchronized:** `2026-09-22`
 
 ## Scope
 
@@ -652,6 +652,15 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
   `body` at `z-50`, so any select inside the widget must raise its content
   above the widget (`SelectPhoneCallFrom` uses `z-110`), or its list opens
   hidden behind it.
+- Answering an incoming call is only valid while its JsSIP session is still
+  ringing. `answerCall` checks `rtcSession.isInProgress()` before calling
+  `answer()`, because `answer()` flips the session to `STATUS_ANSWERED` (`5`)
+  synchronously and then throws `INVALID_STATE_ERROR: Invalid status: 5` on
+  every later call, while `callStatus` stays `STARTING` until the `accepted`
+  event arrives after `getUserMedia` and the 200 OK. `IncomingCall` also
+  disables its `Answer` button once clicked, so the gap between the click and
+  `accepted` cannot be re-triggered. Any new answer path must keep both guards.
+
 - `SipProvider` restarts its JsSIP user agent in place when `host`, `port` or
   `user` change, so a `Call from` change to different SIP credentials
   re-registers and one on the same credentials keeps the live connection. Never
@@ -1340,6 +1349,21 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-22` — Answering an incoming call cannot be double-triggered
+
+- **Summary:** Clicking `Answer` more than once while the browser was still
+  acquiring the microphone flooded the console with
+  `INVALID_STATE_ERROR: Invalid status: 5` from JsSIP, because `answerCall`
+  re-entered `RTCSession.answer()` on a session already in `STATUS_ANSWERED`
+  (`callStatus` only leaves `STARTING` on the `accepted` event). `answerCall`
+  now returns early unless the session `isInProgress()`, logs a genuine failure
+  through the provider's logger instead of `console.error`, and the `Answer`
+  button disables itself after the first click.
+- **Affected areas:**
+  `src/modules/integrations/call/components/SipProvider.tsx`,
+  `src/modules/integrations/call/components/IncomingCall.tsx`
+- **Contracts changed:** None.
+
 ### `2026-09-21` — Move to channel on every channel-owned resource
 
 - **Summary:** Integrations, ticket pipelines, forms, surveys and response
@@ -1456,17 +1480,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `backend/gateway/src/locales/{en,mn}/frontline.json`, which is outside the
   plugin boundary, so they render from their inline fallbacks until those
   translations are added as separate repository-level work.
-
-### `2026-09-14` — Knowledge Base opens on its topics, not the first article list
-
-- **Summary:** Opening Knowledge Base drilled straight into the first topic's
-  first category because the sidebar auto-selected `topicId` on mount and the
-  page then auto-selected that topic's first `categoryId`. Both auto-selections
-  are gone, so the landing view is the topic grid; picking a topic now shows
-  that topic's categories as cards, and a `categoryId` left over from another
-  topic is cleared instead of being replaced by that topic's first category.
-- **Affected areas:**
-  `src/modules/knowledgebase/components/KnowledgeBase.tsx`,
-  `src/modules/knowledgebase/components/KnowledgeBaseTopicsNav.tsx`
-- **Contracts changed:** None. The `topicId` and `categoryId` query parameters
-  keep their meaning; neither is now set without a user action.
