@@ -252,7 +252,6 @@
   settings are `helpCenterConfig*` operations over `HelpCenterConfig` types in
   `frontline_help_center_configs`.
 
-
 - GraphQL: surveys — `surveyList(searchValue, status, channelId, cursor params)`,
   `surveyDetail(_id)`, `surveyTotalCount(searchValue, status, channelId)`; `surveyAdd`,
   `surveyEdit` (both taking `brandId` and `steps: [SurveyStepInput!]`, with the
