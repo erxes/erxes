@@ -29,6 +29,7 @@ export const types = `
   type MailPipelineIntegration {
     _id: String
     pipelineId: String
+    statusId: String
     name: String
     address: String
     senderName: String
@@ -129,12 +130,14 @@ export const mutations = `
     pipelineId: String!
     senderName: String
     forwardFrom: String
+    statusId: String
   ): MailPipelineIntegration
 
   mailPipelineUpdate(
     pipelineId: String!
     senderName: String
     forwardFrom: String
+    statusId: String
   ): MailPipelineIntegration
 
   mailPipelineForwardVerified(pipelineId: String!): MailPipelineIntegration
