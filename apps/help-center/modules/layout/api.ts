@@ -1,5 +1,7 @@
 import { readConfig } from '@/modules/config/api';
 import { getPortalCopy } from '@/modules/cms/api';
+import { storedFileUrl } from '@/modules/apollo/utils/file';
+import type { PortalFooterColumn, PortalHeader } from '@/modules/config/types';
 import { normalizeTheme } from '@/modules/knowledge-base/utils/normalize';
 import type {
   PortalTheme,
@@ -22,13 +24,23 @@ export const getPortalIdentity = async (): Promise<PortalIdentity> => {
   };
 };
 
+export type PortalFooterView = {
+  logo: string | null;
+  description: string;
+  copyright: string;
+  columns: PortalFooterColumn[];
+  languageLabel: string;
+};
+
 export type PortalSettings = {
+  header: PortalHeader;
   knowledgeBaseEnabled: boolean;
   knowledgeBaseLabel: string;
   ticketsEnabled: boolean;
   ticketLabel: string;
   ticketTarget: PortalTicketTarget;
   theme: PortalTheme | null;
+  footer: PortalFooterView;
 };
 
 const EMPTY_TARGET: PortalTicketTarget = {
@@ -37,21 +49,54 @@ const EMPTY_TARGET: PortalTicketTarget = {
   statusId: '',
 };
 
+const EMPTY_HEADER: PortalHeader = {
+  wordmark: '',
+  homeLabel: '',
+  formsLabel: '',
+  announcementsLabel: '',
+  searchPlaceholder: '',
+};
+
+const EMPTY_FOOTER: PortalFooterView = {
+  logo: null,
+  description: '',
+  copyright: '',
+  columns: [],
+  languageLabel: site.fallbackLanguageLabel,
+};
+
+const languageLabel = (code: string): string => {
+  if (!code) {
+    return site.fallbackLanguageLabel;
+  }
+
+  try {
+    const label = new Intl.DisplayNames([code], { type: 'language' }).of(code);
+
+    return label ? label.charAt(0).toUpperCase() + label.slice(1) : code;
+  } catch {
+    return code;
+  }
+};
+
 export const getPortalSettings = async (): Promise<PortalSettings> => {
   const config = await readConfig();
 
   if (!config) {
     return {
+      header: EMPTY_HEADER,
       knowledgeBaseEnabled: false,
       knowledgeBaseLabel: '',
       ticketsEnabled: false,
       ticketLabel: '',
       ticketTarget: EMPTY_TARGET,
       theme: null,
+      footer: EMPTY_FOOTER,
     };
   }
 
   return {
+    header: config.header,
     knowledgeBaseEnabled: config.knowledgeBaseEnabled,
     knowledgeBaseLabel: config.knowledgeBaseLabel,
     ticketsEnabled: config.ticketsEnabled,
@@ -62,5 +107,12 @@ export const getPortalSettings = async (): Promise<PortalSettings> => {
       statusId: config.ticketStatusId,
     },
     theme: normalizeTheme(config),
+    footer: {
+      logo: storedFileUrl(config.footer.logo),
+      description: config.footer.description,
+      copyright: config.footer.copyright,
+      columns: config.footer.columns,
+      languageLabel: languageLabel(config.languageCode),
+    },
   };
 };

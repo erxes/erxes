@@ -27,6 +27,11 @@ export const taskSchema = new Schema(
     githubIssueNumber: { type: Number, label: 'GitHub Issue Number' },
     githubIssueUrl: { type: String, label: 'GitHub Issue URL' },
     githubRepoName: { type: String, label: 'GitHub Repo Name' },
+    propertiesData: {
+      type: Schema.Types.Mixed,
+      optional: true,
+      label: 'Properties data',
+    },
 
     segmentIds: {
       type: [String],

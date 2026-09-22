@@ -301,6 +301,7 @@
   "priority": "Priority",
   "public": "Public",
   "pos-base": "POS base price",
+  "pipeline-base": "Base price",
   "quantity-enabled": "Quantity Enabled",
   "price-enabled": "Price Enabled",
   "expiry-enabled": "Expiry Enabled",

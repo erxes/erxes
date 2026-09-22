@@ -5,6 +5,7 @@ import { ITransactionGroupForm } from '../../../types/JournalForms';
 export const useFxaAccountConfig = (
   form: ITransactionGroupForm,
   index: number,
+  options: { setSaleOutAccount?: boolean } = {},
 ) => {
   const { configs } = useFixedAssetAccountConfigs();
 
@@ -13,11 +14,13 @@ export const useFxaAccountConfig = (
       (config) => config.accountId === account._id,
     )?.value;
 
-    form.setValue(
-      `trDocs.${index}.followInfos.fixedAssetAccountId`,
-      account._id,
-    );
-    form.setValue(`trDocs.${index}.followExtras.fixedAssetAccount`, account);
+    if (options.setSaleOutAccount) {
+      form.setValue(
+        `trDocs.${index}.followInfos.saleOutAccountId`,
+        account._id,
+      );
+      form.setValue(`trDocs.${index}.followExtras.saleOutAccount`, account);
+    }
 
     if (!value) {
       return;

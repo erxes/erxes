@@ -1,7 +1,11 @@
 import { flexRender } from '@tanstack/react-table';
 import { cn, RecordTable, Table } from 'erxes-ui';
 import React, { useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
+import {
+  buildTransactionEditPath,
+  getCurrentTransactionReturnPath,
+} from '../utils/transactionNavigation';
 
 const PTR_STATUS_LABELS: Record<string, string> = {
   diff: 'Зөрүүтэй',
@@ -28,6 +32,7 @@ export const AccountingTableRow = ({
   Row?: React.ComponentType<React.HTMLAttributes<HTMLTableRowElement>>;
 }) => {
   const { table } = RecordTable.useRecordTable();
+  const location = useLocation();
   const RowComponent = Row || RecordTable.Row;
   const rows = table.getRowModel().rows;
 
@@ -71,7 +76,10 @@ export const AccountingTableRow = ({
               style={moreColumn ? getPinnedCellStyle(moreColumn) : undefined}
             >
               <Link
-                to={`/accounting/transaction/edit?parentId=${row.original.parentId}`}
+                to={buildTransactionEditPath({
+                  parentId: row.original.parentId,
+                  returnTo: getCurrentTransactionReturnPath(location),
+                })}
               >
                 <RecordTable.MoreButton className="w-full h-full" />
               </Link>

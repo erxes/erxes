@@ -26,6 +26,8 @@ import { SelectChannel } from '@/inbox/channel/components/SelectChannel';
 import { useFormEdit } from '@/forms/hooks/useFormEdit';
 import { GET_FORMS_LIST } from '@/forms/graphql/formQueries';
 import { useFormToggleStatus } from '@/forms/hooks/useFormToggleStatus';
+import { MoveToChannelDialog } from '@/channels/components/move-resources/MoveToChannelDialog';
+import { ChannelResourceType } from '@/channels/types';
 import { FormStatus } from './filters/FormStatus';
 import { FormInstallScript } from '../actions/install-form';
 import { RemoveForm } from '../actions/remove-form';
@@ -73,69 +75,6 @@ export function FormToggleStatus({
   );
 }
 
-export const MoveFormToChannel = ({
-  formId,
-  channelId,
-  setOpen,
-  name,
-  type,
-}: {
-  formId: string;
-  channelId: string;
-  setOpen: (open: boolean) => void;
-  name: string;
-  type: string;
-}) => {
-  const { t } = useTranslation('frontline');
-  const { editForm } = useFormEdit();
-
-  const onSelect = (id: string) => {
-    editForm({
-      variables: {
-        id: formId,
-        name,
-        type,
-        channelId: id,
-      },
-      refetchQueries: [GET_FORMS_LIST],
-      onCompleted: () => {
-        setOpen(false);
-        toast({
-          title: t('success', 'Success!'),
-          variant: 'success',
-          description: t('form-moved-successfully', 'Form moved successfully'),
-        });
-      },
-      onError: (error) => {
-        toast({
-          title: t('error', 'Error'),
-          variant: 'destructive',
-          description: error.message,
-        });
-      },
-    });
-  };
-
-  return (
-    <DropdownMenu.Sub>
-      <DropdownMenu.SubTrigger>
-        <IconArrowBarToRight />
-        {t('move-to-channel', 'Move to Channel')}
-      </DropdownMenu.SubTrigger>
-      <DropdownMenu.Portal>
-        <DropdownMenu.SubContent className="min-w-56" sideOffset={8}>
-          <SelectChannel.DropDownContent
-            channelId={channelId}
-            onValueChange={(value) => {
-              onSelect(value);
-            }}
-          />
-        </DropdownMenu.SubContent>
-      </DropdownMenu.Portal>
-    </DropdownMenu.Sub>
-  );
-};
-
 export const FormsMoreColumnCell = ({
   cell,
 }: {
@@ -146,6 +85,7 @@ export const FormsMoreColumnCell = ({
   const navigate = useNavigate();
 
   const [open, setOpen] = useState(false);
+  const [moveOpen, setMoveOpen] = useState(false);
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
@@ -168,15 +108,24 @@ export const FormsMoreColumnCell = ({
         <OpenLiveForm formId={_id} channelId={channelId as string} />
         <OpenSubmissionsAction formId={_id} />
         <FormToggleStatus formId={_id} status={status} setOpen={setOpen} />
-        <MoveFormToChannel
-          formId={_id}
-          channelId={cell.row.original.channelId || ''}
-          setOpen={setOpen}
-          name={cell.row.original.name}
-          type={cell.row.original.type}
-        />
+        <DropdownMenu.Item
+          onSelect={() => {
+            setOpen(false);
+            setMoveOpen(true);
+          }}
+        >
+          <IconArrowBarToRight />
+          {t('move-to-channel', 'Move to Channel')}
+        </DropdownMenu.Item>
         <RemoveForm formId={_id} title={cell.row.original.name} />
       </DropdownMenu.Content>
+      <MoveToChannelDialog
+        open={moveOpen}
+        onOpenChange={setMoveOpen}
+        resourceType={ChannelResourceType.FORM}
+        resourceIds={[_id]}
+        sourceChannelId={channelId || ''}
+      />
     </DropdownMenu>
   );
 };
