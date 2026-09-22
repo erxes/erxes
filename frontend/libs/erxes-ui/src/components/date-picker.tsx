@@ -1,6 +1,7 @@
 import { DateRange } from 'react-day-picker';
 import { Calendar, CalendarProps } from './calendar';
 
+import { Button } from './button';
 import { Combobox } from './combobox';
 import { Popover } from './popover';
 import React from 'react';
@@ -8,13 +9,14 @@ import { cn } from '../lib/utils';
 import dayjs from 'dayjs';
 
 export type DatePickerProps = {
-  value: Date | Date[] | DateRange | undefined;
-  onChange: (date: Date | Date[] | DateRange | undefined) => void;
+  value: Date | Date[] | DateRange | undefined | null;
+  onChange: (date: Date | Date[] | DateRange | undefined | null) => void;
   placeholder?: string;
   withPresent?: boolean;
   mode?: 'single' | 'multiple' | 'range';
   format?: string;
   variant?: 'outline' | 'default' | 'ghost';
+  allowNull?: boolean;
 } & Omit<CalendarProps, 'mode' | 'selected' | 'onSelect'>;
 
 export const DatePicker = ({
@@ -27,6 +29,7 @@ export const DatePicker = ({
   mode = 'single',
   format = 'MMM DD, YYYY',
   variant = 'outline',
+  allowNull = false,
   ...props
 }: DatePickerProps) => {
   const [isOpen, setIsOpen] = React.useState(false);
@@ -78,11 +81,15 @@ export const DatePicker = ({
       }
     }
 
-    onChange && onChange(selectedDate);
     if (mode === 'single') {
       setIsOpen(false);
     }
     onChange?.(selectedDate);
+  };
+
+  const handleClear = () => {
+    onChange(null);
+    setIsOpen(false);
   };
 
   return (
@@ -125,6 +132,19 @@ export const DatePicker = ({
           onSelect={handleDateChange as any}
           className="text-foreground"
         />
+        {allowNull && value && (
+          <div className="border-t p-1">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="w-full text-muted-foreground"
+              onClick={handleClear}
+            >
+              Clear
+            </Button>
+          </div>
+        )}
       </Popover.Content>
     </Popover>
   );
