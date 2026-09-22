@@ -72,7 +72,10 @@ const normalizePlanDoc = (
     ...(priority ? { priority } : {}),
   };
 
-  if (priority === PRIORITY_TYPES.POS_BASE) {
+  if (
+    priority === PRIORITY_TYPES.POS_BASE ||
+    priority === PRIORITY_TYPES.PIPELINE_BASE
+  ) {
     const participants = normalizedDoc as Record<
       ParticipantField,
       string[] | undefined
@@ -152,6 +155,17 @@ export const loadPricingPlanClass = (models: IModels) => {
       if (!result) throw new Error(`Can't find plan`);
       if (doc._id) delete doc._id;
       const normalizedDoc = normalizePlanDoc(doc);
+      const unsetDates: Record<string, string> = {};
+
+      if (normalizedDoc.isStartDateEnabled === false) {
+        delete normalizedDoc.startDate;
+        unsetDates.startDate = '';
+      }
+
+      if (normalizedDoc.isEndDateEnabled === false) {
+        delete normalizedDoc.endDate;
+        unsetDates.endDate = '';
+      }
 
       await models.PricingPlans.collection.updateOne(filter, {
         $set: {
@@ -159,6 +173,7 @@ export const loadPricingPlanClass = (models: IModels) => {
           updatedAt: new Date(),
           updatedBy: userId,
         },
+        ...(Object.keys(unsetDates).length ? { $unset: unsetDates } : {}),
       });
 
       return models.PricingPlans.collection.findOne(filter);
