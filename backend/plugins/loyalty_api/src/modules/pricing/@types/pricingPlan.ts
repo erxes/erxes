@@ -4,7 +4,7 @@ import { IQuantityRule } from './quantityRule';
 import { IExpiryRule } from './expiryRule';
 import { IRepeatRule } from './repeatRule';
 
-export type PricingPlanPriority = '' | 'public' | 'posBase';
+export type PricingPlanPriority = '' | 'public' | 'posBase' | 'pipelineBase';
 
 export interface IPricingPlan {
   name: string;
