@@ -8,20 +8,22 @@ export const PortalShell = ({
   title,
   description,
   meta,
+  heroExtra,
   children,
 }: {
   breadcrumbs?: Crumb[];
   title?: string;
   description?: string;
   meta?: ReactNode;
+  heroExtra?: ReactNode;
   children: ReactNode;
 }) => {
-  const hasBand = !!(breadcrumbs?.length || title);
+  const hasBand = !!(breadcrumbs?.length || title || heroExtra);
 
   return (
     <>
       {hasBand ? (
-        <HeroBand className="pb-12 pt-10 lg:pb-14 lg:pt-12">
+        <HeroBand className="pb-12 pt-10 lg:pb-14 lg:pt-20">
           {breadcrumbs?.length ? (
             <Breadcrumbs items={breadcrumbs} tone="onHero" />
           ) : null}
@@ -42,6 +44,12 @@ export const PortalShell = ({
                 {meta ? <div className="shrink-0 pb-1.5">{meta}</div> : null}
               </div>
             </header>
+          ) : null}
+
+          {heroExtra ? (
+            <div className="animate-in fade-in fill-mode-both mt-7 max-w-xl delay-150 duration-500">
+              {heroExtra}
+            </div>
           ) : null}
         </HeroBand>
       ) : null}

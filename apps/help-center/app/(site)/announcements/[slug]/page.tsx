@@ -7,6 +7,7 @@ import { Card } from '@/modules/ui/components/Card';
 import { EmptyState } from '@/modules/ui/components/EmptyState';
 import { RichText } from '@/modules/ui/components/RichText';
 import { Icon } from '@/modules/ui/components/Icon';
+import { IconOrb } from '@/modules/ui/components/IconOrb';
 import {
   LoadError,
   SetupNotice,
@@ -15,6 +16,12 @@ import {
 
 type Props = { params: Promise<{ slug: string }> };
 
+const crumbs = (label: string) => [
+  { label: 'Home', href: '/' },
+  { label: 'Announcements', href: '/announcements' },
+  { label },
+];
+
 export const generateMetadata = async ({ params }: Props) => {
   const { slug } = await params;
   const post = await getAnnouncement(decodeURIComponent(slug));
@@ -22,7 +29,7 @@ export const generateMetadata = async ({ params }: Props) => {
   return {
     title:
       post.state === 'ready' && post.data
-        ? (post.data.title ?? 'Announcement')
+        ? post.data.title ?? 'Announcement'
         : 'Announcement',
   };
 };
@@ -32,69 +39,69 @@ export default async function AnnouncementPage({ params }: Props) {
 
   const post = await getAnnouncement(decodeURIComponent(slug));
 
-  if (post.state === 'ready' && !post.data) {
-    notFound();
-  }
-
-  return (
-    <PortalShell
-      breadcrumbs={[
-        { label: 'Home', href: '/' },
-        { label: 'Announcements', href: '/announcements' },
-        {
-          label:
-            post.state === 'ready'
-              ? (post.data?.title ?? 'Announcement')
-              : 'Announcement',
-        },
-      ]}
-    >
-      <div>
+  if (post.state !== 'ready') {
+    return (
+      <PortalShell breadcrumbs={crumbs('Announcement')} title="Announcement">
         {post.state === 'unconfigured' ? (
           <SetupNotice missing={post.missing} />
         ) : post.state === 'unpublished' ? (
           <Unpublished domain={post.domain} />
-        ) : post.state === 'error' ? (
+        ) : (
           <LoadError message={post.message} />
-        ) : !post.data ? null : (
-          <>
-            <article className="rounded-xl border border-line bg-white p-6 sm:p-8">
-              <p className="flex items-center gap-2 text-[13px] text-muted-foreground">
-                <Icon name="megaphone" size={15} />
-                {formatDate(post.data.publishedDate ?? post.data.createdAt)}
-              </p>
-              <h1 className="mt-3 text-2xl font-semibold leading-snug text-ink sm:text-[26px]">
-                {post.data.title ?? 'Untitled announcement'}
-              </h1>
-              {post.data.excerpt ? (
-                <p className="mt-3 text-[15px] leading-relaxed text-ink-soft">
-                  {post.data.excerpt}
-                </p>
-              ) : null}
-
-              <hr className="my-6 border-line" />
-
-              {post.data.content ? (
-                <RichText html={post.data.content} />
-              ) : (
-                <EmptyState
-                  icon="megaphone"
-                  title="This announcement is empty"
-                  description="No content has been added to this announcement."
-                />
-              )}
-            </article>
-
-            <Card className="mt-6 flex flex-wrap items-center justify-between gap-4 p-6">
-              <p className="text-sm text-muted-foreground">
-                Browse other notices and updates.
-              </p>
-              <ButtonLink href="/announcements" size="sm" variant="secondary">
-                All announcements
-              </ButtonLink>
-            </Card>
-          </>
         )}
+      </PortalShell>
+    );
+  }
+
+  if (!post.data) {
+    notFound();
+  }
+
+  const title = post.data.title ?? 'Untitled announcement';
+  const published = formatDate(post.data.publishedDate ?? post.data.createdAt);
+
+  return (
+    <PortalShell
+      breadcrumbs={crumbs(title)}
+      title={title}
+      meta={
+        <span className="inline-flex items-center gap-1.5 text-[13px] text-white/60">
+          <Icon name="clock" size={14} />
+          {published}
+        </span>
+      }
+    >
+      <div className="animate-in fade-in slide-in-from-bottom-1 fill-mode-both duration-500">
+        <article className="rounded-2xl bg-white p-6 shadow-shell sm:p-9">
+          {post.data.content ? (
+            <RichText html={post.data.content} />
+          ) : (
+            <EmptyState
+              icon="megaphone"
+              title="This announcement is empty"
+              description="No content has been added to this announcement."
+            />
+          )}
+        </article>
+
+        <Card className="mt-5 flex flex-wrap items-center justify-between gap-4 px-6 py-5">
+          <div className="flex items-center gap-3.5">
+            <IconOrb name="megaphone" size="sm" />
+            <div className="min-w-0">
+              <h2 className="text-[15px] font-semibold text-ink">
+                More from the team
+              </h2>
+              <p className="mt-0.5 text-[13px] text-muted-foreground">
+                Browse every notice and update.
+              </p>
+            </div>
+          </div>
+
+          <ButtonLink href="/announcements" size="sm" variant="secondary">
+            All announcements
+            <Icon name="chevronRight" size={15} />
+          </ButtonLink>
+        </Card>
       </div>
     </PortalShell>
   );

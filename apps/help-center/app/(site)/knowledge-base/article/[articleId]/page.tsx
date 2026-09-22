@@ -1,6 +1,6 @@
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getTopicWithArticles } from '@/modules/knowledge-base/api';
+import { ArticleAside } from '@/modules/knowledge-base/components/ArticleAside';
 import { ArticleView } from '@/modules/knowledge-base/components/ArticleView';
 import {
   findArticle,
@@ -10,14 +10,13 @@ import {
 } from '@/modules/knowledge-base/utils/selectors';
 import { PortalShell } from '@/modules/layout/components/PortalShell';
 import { type Crumb } from '@/modules/ui/components/Breadcrumbs';
-import { ButtonLink } from '@/modules/ui/components/Button';
-import { Card } from '@/modules/ui/components/Card';
-import { Icon } from '@/modules/ui/components/Icon';
 import {
   LoadError,
   SetupNotice,
   Unpublished,
 } from '@/modules/ui/components/PortalState';
+
+const RELATED_COUNT = 6;
 
 type Props = { params: Promise<{ articleId: string }> };
 
@@ -90,44 +89,25 @@ export default async function ArticlePage({ params }: Props) {
   ];
 
   return (
-    <PortalShell breadcrumbs={crumbs}>
-      <div className="animate-in fade-in slide-in-from-bottom-1 fill-mode-both duration-500">
-        <ArticleView article={article} />
+    <PortalShell
+      breadcrumbs={crumbs}
+      title={article.title}
+      description={article.summary || undefined}
+    >
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_288px] lg:gap-8">
+        <div className="animate-in fade-in slide-in-from-bottom-1 fill-mode-both duration-500">
+          <ArticleView article={article} />
+        </div>
 
-        {related.length ? (
-          <Card className="mt-6 p-6">
-            <h2 className="text-base font-semibold text-ink">
-              Related articles
-            </h2>
-            <ul className="mt-4 space-y-2">
-              {related.map((item) => (
-                <li key={item._id}>
-                  <Link
-                    href={`/knowledge-base/article/${item._id}`}
-                    className="flex items-center gap-2.5 rounded-md px-2 py-2 text-sm text-ink-soft transition-colors hover:bg-subtle hover:text-brand"
-                  >
-                    <Icon name="article" size={16} />
-                    {item.title}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </Card>
-        ) : null}
-
-        <Card className="mt-6 flex flex-wrap items-center justify-between gap-4 p-6">
-          <div>
-            <h2 className="text-base font-semibold text-ink">
-              Did not find your answer?
-            </h2>
-            <p className="mt-1.5 text-sm text-muted-foreground">
-              Raise a ticket and the support team will get back to you.
-            </p>
-          </div>
-          <ButtonLink href="/tickets/new" size="sm">
-            Submit a ticket
-          </ButtonLink>
-        </Card>
+        <ArticleAside
+          categoryTitle={category?.title ?? 'this category'}
+          categoryHref={
+            category
+              ? `/knowledge-base/category/${category._id}`
+              : '/knowledge-base'
+          }
+          related={related.slice(0, RELATED_COUNT)}
+        />
       </div>
     </PortalShell>
   );

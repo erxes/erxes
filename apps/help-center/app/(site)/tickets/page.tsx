@@ -31,7 +31,7 @@ export default async function TicketsPage() {
         />
       ) : (
         <>
-          <div className="flex flex-wrap items-center gap-2.5 rounded-xl border border-line bg-white px-4 py-3">
+          <div className="flex flex-wrap items-center gap-2.5 rounded-2xl bg-white px-4 py-3 shadow-shell">
             <SessionLink
               href={NEW_TICKET_ROUTE}
               reason={NEW_TICKET_REASON}
@@ -43,7 +43,7 @@ export default async function TicketsPage() {
 
             <Link
               href="/tickets/track"
-              className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-[13px] font-medium text-ink-soft outline-none transition-colors duration-150 hover:bg-subtle hover:text-ink focus-visible:bg-subtle"
+              className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-[13px] font-medium text-ink-soft outline-none transition-colors duration-300 ease-out-soft hover:bg-subtle hover:text-ink focus-visible:bg-subtle"
             >
               <Icon name="binoculars" size={16} />
               Track by number

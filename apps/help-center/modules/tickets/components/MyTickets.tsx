@@ -34,7 +34,7 @@ const bucketOf = (ticket: Ticket): Exclude<FilterKey, 'all'> => {
 };
 
 const Skeleton = () => (
-  <Card className="divide-y divide-line overflow-hidden">
+  <Card className="divide-y divide-line-soft overflow-hidden">
     {[0, 1, 2].map((row) => (
       <div key={row} className="px-5 py-4">
         <span className="block h-4 w-2/5 animate-pulse rounded bg-subtle" />
@@ -118,7 +118,7 @@ export const MyTickets = ({ limit = 20 }: { limit?: number }) => {
 
   return (
     <div>
-      <div className="flex flex-wrap gap-1.5">
+      <div className="inline-flex flex-wrap items-center gap-1 rounded-full bg-white p-1 shadow-shell">
         {FILTERS.map((entry) => {
           const active = entry.key === filter;
 
@@ -129,17 +129,17 @@ export const MyTickets = ({ limit = 20 }: { limit?: number }) => {
               onClick={() => setFilter(entry.key)}
               aria-pressed={active}
               className={cn(
-                'inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-[13px] font-medium outline-none transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-brand/30',
+                'inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-medium outline-none transition-colors duration-300 ease-out-soft focus-visible:ring-2 focus-visible:ring-brand/30',
                 active
-                  ? 'border-brand bg-brand text-white'
-                  : 'border-line bg-white text-ink-soft hover:border-line-strong hover:text-ink',
+                  ? 'bg-brand text-white'
+                  : 'text-muted-foreground hover:bg-subtle hover:text-ink',
               )}
             >
               {entry.label}
               <span
                 className={cn(
                   'tabular-nums',
-                  active ? 'text-white/80' : 'text-muted-foreground',
+                  active ? 'text-white/70' : 'text-muted-foreground/60',
                 )}
               >
                 {counts[entry.key]}
@@ -150,15 +150,15 @@ export const MyTickets = ({ limit = 20 }: { limit?: number }) => {
       </div>
 
       {shown.length ? (
-        <Card className="mt-4 overflow-hidden">
-          <ul className="divide-y divide-line">
+        <Card className="mt-4 p-2">
+          <ul className="divide-y divide-line-soft">
             {shown.map((ticket) => (
               <TicketListItem key={ticket._id} ticket={ticket} />
             ))}
           </ul>
         </Card>
       ) : (
-        <p className="mt-4 rounded-xl border border-line bg-white px-5 py-6 text-sm text-muted-foreground">
+        <p className="mt-4 rounded-2xl bg-white shadow-shell px-5 py-6 text-sm text-muted-foreground">
           No tickets in this state.
         </p>
       )}

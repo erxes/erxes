@@ -5,27 +5,36 @@ import {
   formatDate as formatPostDate,
 } from '@/modules/cms/utils/format';
 import { getTopicWithArticles } from '@/modules/knowledge-base/api';
+import { CategoryCard } from '@/modules/knowledge-base/components/CategoryCard';
+import { PopularArticles } from '@/modules/knowledge-base/components/PopularArticles';
 import {
-  allArticles,
+  articleEntries,
+  browseCategories,
   formatDate,
   searchArticles,
-  sortByRecency,
+  sortByReadership,
 } from '@/modules/knowledge-base/utils/selectors';
 import { getPortalIdentity } from '@/modules/layout/api';
 import { Hero } from '@/modules/layout/components/Hero';
-import { Avatar } from '@/modules/ui/components/Avatar';
-import { Badge } from '@/modules/ui/components/Badge';
+import { Badge, type BadgeTone } from '@/modules/ui/components/Badge';
 import { ButtonLink } from '@/modules/ui/components/Button';
 import { Card } from '@/modules/ui/components/Card';
 import { Container } from '@/modules/ui/components/Container';
 import { EmptyState } from '@/modules/ui/components/EmptyState';
-import { Icon, type IconName } from '@/modules/ui/components/Icon';
+import { Icon } from '@/modules/ui/components/Icon';
 import {
   LoadError,
   SetupNotice,
   Unpublished,
 } from '@/modules/ui/components/PortalState';
+import { Section } from '@/modules/ui/components/Section';
 import { plural } from '@/modules/ui/lib/plural';
+
+const POST_LIMIT = 20;
+const POPULAR_COUNT = 6;
+const CATEGORY_COUNT = 6;
+const SUGGESTION_COUNT = 4;
+const POPULAR_MINIMUM = 3;
 
 type Props = { searchParams: Promise<{ q?: string | string[] }> };
 
@@ -34,52 +43,46 @@ export const metadata = { title: 'Search' };
 type ResultRow = {
   key: string;
   href: string;
-  icon: IconName;
   kind: string;
+  tone: BadgeTone;
   title: string;
   summary: string;
   meta: string;
-  author?: string;
 };
 
 const ResultList = ({ rows }: { rows: ResultRow[] }) => (
   <Card className="p-2">
-    <ul className="divide-y divide-line">
+    <ul className="divide-y divide-line-soft">
       {rows.map((row) => (
         <li key={row.key}>
           <Link
             href={row.href}
-            className="block rounded-lg px-4 py-4 transition-colors hover:bg-subtle"
+            className="group flex items-start gap-4 rounded-xl px-5 py-4 outline-none transition-colors duration-300 ease-out-soft hover:bg-subtle focus-visible:bg-subtle"
           >
-            <span className="flex items-start gap-3">
-              <span className="mt-0.5 text-muted-foreground">
-                <Icon name={row.icon} size={18} />
+            <span className="min-w-0 flex-1">
+              <Badge tone={row.tone}>{row.kind}</Badge>
+
+              <span className="mt-2.5 block text-[15px] font-semibold leading-snug text-ink transition-colors duration-300 group-hover:text-brand">
+                {row.title}
               </span>
-              <span className="min-w-0 flex-1">
-                <span className="flex flex-wrap items-center gap-2">
-                  <Badge tone="brand">{row.kind}</Badge>
+
+              {row.summary ? (
+                <span className="mt-1 block truncate text-[13px] leading-relaxed text-muted-foreground">
+                  {row.summary}
                 </span>
-                <span className="mt-1.5 block text-[15px] font-semibold text-ink">
-                  {row.title}
-                </span>
-                {row.summary ? (
-                  <span className="mt-1 block text-sm leading-relaxed text-muted-foreground">
-                    {row.summary}
-                  </span>
-                ) : null}
-                <span className="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[13px] text-muted-foreground">
-                  {row.author ? (
-                    <span className="flex items-center gap-1.5">
-                      <Avatar name={row.author} size={20} />
-                      {row.author}
-                    </span>
-                  ) : null}
-                  <span className="flex items-center gap-1.5">
-                    <Icon name="clock" size={14} />
-                    {row.meta}
-                  </span>
-                </span>
-              </span>
+              ) : null}
+            </span>
+
+            <span className="hidden shrink-0 items-center gap-1.5 pt-1 text-[12px] tabular-nums text-muted-foreground sm:flex">
+              <Icon name="clock" size={13} />
+              {row.meta}
+            </span>
+
+            <span
+              aria-hidden="true"
+              className="mt-1 shrink-0 text-muted-foreground/40 transition-[transform,color] duration-500 ease-out-soft group-hover:translate-x-1 group-hover:text-brand"
+            >
+              <Icon name="chevronRight" size={16} />
             </span>
           </Link>
         </li>
@@ -99,7 +102,7 @@ export default async function SearchPage({ searchParams }: Props) {
 
   const [topic, announcements] = await Promise.all([
     getTopicWithArticles(),
-    getAnnouncements(term ? 20 : 5, term || undefined),
+    term ? getAnnouncements(POST_LIMIT, term) : null,
   ]);
 
   if (topic.state !== 'ready') {
@@ -119,29 +122,93 @@ export default async function SearchPage({ searchParams }: Props) {
     );
   }
 
-  const articles = term
-    ? searchArticles(topic.data, term)
-    : sortByRecency(allArticles(topic.data));
+  const readMost = sortByReadership(articleEntries(topic.data));
+  const suggestions = readMost
+    .slice(0, SUGGESTION_COUNT)
+    .map(({ article }) => article.title);
 
-  const articleRows: ResultRow[] = articles.map((article) => ({
-    key: `kb-${article._id}`,
-    href: `/knowledge-base/article/${article._id}`,
-    icon: 'article',
-    kind: 'Knowledge base',
-    title: article.title,
-    summary: article.summary,
-    meta: formatDate(article.modifiedAt),
-    author: article.author,
-  }));
+  if (!term) {
+    const popular = readMost.slice(0, POPULAR_COUNT);
+    const categories = browseCategories(topic.data).slice(0, CATEGORY_COUNT);
 
-  const cmsReady = announcements.state === 'ready';
-  const posts = cmsReady ? announcements.data : [];
+    return (
+      <>
+        <Hero headline={headline} as="p" searchSuggestions={suggestions} />
+
+        <Container className="py-10 lg:py-14">
+          <h1 className="text-2xl font-semibold tracking-[-0.02em] text-ink">
+            Search the knowledge base
+          </h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Type a keyword above — it looks through every article and
+            announcement. Or start from one of these.
+          </p>
+
+          <div className="mt-10 space-y-12 lg:space-y-14">
+            {popular.length >= POPULAR_MINIMUM ? (
+              <Section
+                icon="star"
+                title="Popular articles"
+                description="What other people opened most in this help center."
+              >
+                <PopularArticles entries={popular} />
+              </Section>
+            ) : null}
+
+            {categories.length ? (
+              <Section
+                icon="book"
+                title="Browse by category"
+                description="Every answer, grouped by the part of the product it covers."
+                action={
+                  <ButtonLink
+                    href="/knowledge-base"
+                    size="sm"
+                    variant="secondary"
+                  >
+                    All categories
+                    <Icon name="chevronRight" size={15} />
+                  </ButtonLink>
+                }
+              >
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {categories.map(({ category, group }, index) => (
+                    <CategoryCard
+                      key={category._id}
+                      category={category}
+                      eyebrow={group ?? undefined}
+                      index={index}
+                    />
+                  ))}
+                </div>
+              </Section>
+            ) : null}
+          </div>
+        </Container>
+      </>
+    );
+  }
+
+  const articleRows: ResultRow[] = searchArticles(topic.data, term).map(
+    (article) => ({
+      key: `kb-${article._id}`,
+      href: `/knowledge-base/article/${article._id}`,
+      kind: 'Knowledge base',
+      tone: 'brand',
+      title: article.title,
+      summary: article.summary,
+      meta: formatDate(article.modifiedAt),
+    }),
+  );
+
+  const cmsReady = announcements?.state === 'ready';
+  const posts = announcements?.state === 'ready' ? announcements.data : [];
 
   const postRows: ResultRow[] = posts.map((post) => ({
     key: `cms-${post._id}`,
     href: announcementHref(post),
-    icon: 'megaphone',
-    kind: 'Announcements',
+    kind: 'Announcement',
+    tone: 'neutral',
     title: post.title ?? 'Untitled announcement',
     summary: post.excerpt ?? '',
     meta: formatPostDate(post.publishedDate ?? post.createdAt),
@@ -154,31 +221,36 @@ export default async function SearchPage({ searchParams }: Props) {
       <Hero headline={headline} searchQuery={term} as="p" />
 
       <Container className="py-10 lg:py-14">
-        <h1 className="text-2xl font-semibold text-ink">
-          {term
-            ? `“${term}” — ${plural(rows.length, 'result')}`
-            : 'All content'}
+        <h1 className="text-2xl font-semibold tracking-[-0.02em] text-ink">
+          “{term}” — {plural(rows.length, 'result')}
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          {term
-            ? cmsReady
-              ? `Found ${plural(articleRows.length, 'match')} in the knowledge base and ${plural(postRows.length, 'match')} in announcements.`
-              : `Found ${plural(articleRows.length, 'match')} in the knowledge base.`
-            : `The knowledge base holds ${plural(articleRows.length, 'article')}.`}
+          {cmsReady
+            ? `Found ${plural(
+                articleRows.length,
+                'match',
+              )} in the knowledge base and ${plural(
+                postRows.length,
+                'match',
+              )} in announcements.`
+            : `Found ${plural(
+                articleRows.length,
+                'match',
+              )} in the knowledge base.`}
         </p>
 
-        {cmsReady ? null : (
+        {announcements && !cmsReady ? (
           <p className="mt-4 flex items-start gap-2 rounded-lg bg-warning-soft px-4 py-3 text-[13px] text-warning">
             <Icon name="alert" size={15} className="mt-px shrink-0" />
             {announcements.state === 'error'
               ? `Announcements could not be included in the search: ${announcements.message}`
               : announcements.state === 'unpublished'
-                ? `Announcements are not included in the search — no help center is published at ${announcements.domain}.`
-                : `Announcements are not included in the search — ${announcements.missing.join(
-                    ', ',
-                  )} is not configured.`}
+              ? `Announcements are not included in the search — no help center is published at ${announcements.domain}.`
+              : `Announcements are not included in the search — ${announcements.missing.join(
+                  ', ',
+                )} is not configured.`}
           </p>
-        )}
+        ) : null}
 
         <div className="mt-7">
           {rows.length ? (

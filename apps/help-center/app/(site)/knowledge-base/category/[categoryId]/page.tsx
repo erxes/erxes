@@ -14,6 +14,7 @@ import { type Crumb } from '@/modules/ui/components/Breadcrumbs';
 import { ButtonLink } from '@/modules/ui/components/Button';
 import { Card } from '@/modules/ui/components/Card';
 import { EmptyState } from '@/modules/ui/components/EmptyState';
+import { IconOrb } from '@/modules/ui/components/IconOrb';
 import { CountBadge } from '@/modules/ui/components/PageHeader';
 import {
   LoadError,
@@ -91,7 +92,7 @@ export default async function CategoryPage({ params }: Props) {
         {articles.length ? (
           <>
             <Card className="p-2">
-              <ul className="divide-y divide-line">
+              <ul className="divide-y divide-line-soft">
                 {articles.map((article, index) => (
                   <ArticleListItem
                     key={article._id}
@@ -102,14 +103,17 @@ export default async function CategoryPage({ params }: Props) {
               </ul>
             </Card>
 
-            <Card className="mt-6 flex flex-wrap items-center justify-between gap-4 p-6">
-              <div>
-                <h2 className="text-base font-semibold text-ink">
-                  Did not find your answer?
-                </h2>
-                <p className="mt-1.5 text-sm text-muted-foreground">
-                  Raise a ticket and the support team will get back to you.
-                </p>
+            <Card className="mt-5 flex flex-wrap items-center justify-between gap-4 px-6 py-5">
+              <div className="flex items-center gap-3.5">
+                <IconOrb name="smile" size="sm" />
+                <div className="min-w-0">
+                  <h2 className="text-[15px] font-semibold text-ink">
+                    Did not find your answer?
+                  </h2>
+                  <p className="mt-0.5 text-[13px] text-muted-foreground">
+                    Raise a ticket and the support team will get back to you.
+                  </p>
+                </div>
               </div>
               <ButtonLink href="/tickets/new" size="sm">
                 Submit a ticket

@@ -78,13 +78,23 @@ const NavList = ({
               onClick={onNavigate}
               aria-current={active ? 'page' : undefined}
               className={cn(
-                'flex items-center gap-2.5 rounded-lg px-2.5 py-2 font-medium transition-colors duration-150',
+                'group relative flex items-center gap-2.5 overflow-hidden rounded-lg px-2.5 py-2 font-medium transition-[background-color,color] duration-300 ease-out-soft',
                 active
                   ? 'bg-shell-soft text-white'
                   : 'text-white/60 hover:bg-shell-soft/70 hover:text-white',
               )}
             >
-              <Icon name={link.icon} size={16} className="shrink-0" />
+              {active ? (
+                <span
+                  aria-hidden="true"
+                  className="absolute inset-y-1.5 left-0 w-0.5 rounded-full bg-brand"
+                />
+              ) : null}
+              <Icon
+                name={link.icon}
+                size={16}
+                className="shrink-0 transition-transform duration-300 ease-out-soft group-hover:scale-110"
+              />
               {link.label}
             </Link>
           </li>
@@ -178,31 +188,41 @@ const AccountBlock = ({ onNavigate }: { onNavigate?: () => void }) => {
 
   if (!user) {
     return (
-      <div className="flex items-center gap-2">
-        <Link
-          href="/sign-in"
-          onClick={onNavigate}
-          className="flex h-9 flex-1 items-center justify-center rounded-lg bg-white text-[13px] font-semibold text-shell transition-colors duration-150 hover:bg-white/90"
-        >
-          Sign in
-        </Link>
-        <Link
-          href="/sign-up"
-          onClick={onNavigate}
-          className="flex h-9 items-center justify-center rounded-lg px-3 text-[13px] font-medium text-white/60 transition-colors duration-150 hover:bg-shell-soft hover:text-white"
-        >
-          Sign up
-        </Link>
+      <div className="rounded-xl bg-shell-soft p-3.5">
+        <p className="flex items-center gap-2 text-[13px] font-semibold text-white">
+          <Icon name="ticket" size={14} className="shrink-0 text-white/50" />
+          Track your tickets
+        </p>
+        <p className="mt-1.5 text-[12px] leading-relaxed text-white/45">
+          Sign in to follow replies and see everything you have raised.
+        </p>
+
+        <div className="mt-3 flex items-center gap-2">
+          <Link
+            href="/sign-in"
+            onClick={onNavigate}
+            className="flex h-8 flex-1 items-center justify-center rounded-lg bg-white text-[12px] font-semibold text-shell outline-none transition-[background-color,transform] duration-300 ease-out-soft hover:bg-white/90 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-white/60"
+          >
+            Sign in
+          </Link>
+          <Link
+            href="/sign-up"
+            onClick={onNavigate}
+            className="flex h-8 items-center justify-center rounded-lg px-3 text-[12px] font-medium text-white/55 outline-none transition-colors duration-300 ease-out-soft hover:bg-white/10 hover:text-white focus-visible:bg-white/10"
+          >
+            Sign up
+          </Link>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="flex items-center gap-2.5">
+    <div className="flex items-center gap-2.5 rounded-xl bg-shell-soft p-1.5">
       <Link
         href="/account"
         onClick={onNavigate}
-        className="flex min-w-0 flex-1 items-center gap-2.5 rounded-lg px-1.5 py-1.5 transition-colors duration-150 hover:bg-shell-soft"
+        className="flex min-w-0 flex-1 items-center gap-2.5 rounded-lg px-1.5 py-1 transition-colors duration-150 hover:bg-white/5"
       >
         <Avatar name={user.name} size={28} />
         <span className="min-w-0 flex-1">
@@ -218,7 +238,7 @@ const AccountBlock = ({ onNavigate }: { onNavigate?: () => void }) => {
         type="button"
         aria-label="Sign out"
         onClick={signOut}
-        className="flex size-8 shrink-0 items-center justify-center rounded-lg text-white/40 transition-colors duration-150 hover:bg-shell-soft hover:text-white"
+        className="flex size-8 shrink-0 items-center justify-center rounded-lg text-white/40 transition-colors duration-150 hover:bg-white/10 hover:text-white"
       >
         <Icon name="logout" size={16} />
       </button>
@@ -280,17 +300,13 @@ export const AppNav = ({
         </Link>
       </div>
 
-      <div className="mt-5 min-h-0 flex-1 overflow-y-auto px-3 pb-4">
+      <div className="mt-4 min-h-0 flex-1 overflow-y-auto px-3 pb-4">
         <NavList
           links={links}
           sections={sections}
           pathname={pathname}
           onNavigate={close}
         />
-      </div>
-
-      <div className="shrink-0 border-t border-shell-line p-3">
-        <AccountBlock onNavigate={close} />
       </div>
     </>
   );
@@ -342,6 +358,10 @@ export const AppNav = ({
               <Icon name="close" size={18} />
             </button>
             {panel}
+
+            <div className="shrink-0 border-t border-shell-line p-3">
+              <AccountBlock onNavigate={close} />
+            </div>
           </div>
         </div>
       ) : null}

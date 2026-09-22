@@ -1,64 +1,48 @@
 import Link from 'next/link';
 import { Icon } from '@/modules/ui/components/Icon';
-import { cn } from '@/modules/ui/lib/cn';
 import { formatDateTime, formatRelativeTime } from '../utils/format';
 import type { Ticket } from '../types';
-import { PriorityText, statusTone, StatusText } from './TicketBadges';
-
-const toneStripe: Record<string, string> = {
-  neutral: 'bg-muted-foreground/40',
-  brand: 'bg-brand',
-  success: 'bg-success',
-  warning: 'bg-warning',
-  danger: 'bg-danger',
-};
+import { PriorityText, StatusText } from './TicketBadges';
 
 export const TicketListItem = ({ ticket }: { ticket: Ticket }) => {
-  const tone = statusTone(ticket.status);
   const updated = ticket.updatedAt ?? ticket.createdAt;
 
   return (
     <li>
       <Link
         href={`/tickets/${ticket._id}`}
-        className="group flex items-stretch gap-4 px-5 py-4 outline-none transition-colors duration-150 hover:bg-subtle/70 focus-visible:bg-subtle"
+        className="group flex items-start gap-4 rounded-xl px-5 py-4 outline-none transition-colors duration-300 ease-out-soft hover:bg-subtle focus-visible:bg-subtle"
       >
-        <span
-          aria-hidden="true"
-          className={cn(
-            'w-0.5 shrink-0 rounded-full',
-            toneStripe[tone] ?? toneStripe.neutral,
-          )}
-        />
-
         <span className="min-w-0 flex-1">
-          <span className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
-            {ticket.number ? (
-              <span className="font-mono text-xs text-muted-foreground">
-                #{ticket.number}
-              </span>
-            ) : null}
-            <span className="min-w-0 flex-1 truncate text-[15px] font-medium text-ink transition-colors duration-150 group-hover:text-brand">
-              {ticket.name ?? 'Untitled ticket'}
-            </span>
+          <span className="block truncate text-[15px] font-semibold leading-snug text-ink transition-colors duration-300 group-hover:text-brand">
+            {ticket.name ?? 'Untitled ticket'}
           </span>
 
-          <span className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] text-muted-foreground">
+          <span className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-muted-foreground">
+            {ticket.number ? (
+              <span className="font-mono tabular-nums">#{ticket.number}</span>
+            ) : null}
             <StatusText status={ticket.status} />
             {ticket.priority ? (
               <PriorityText priority={ticket.priority} />
             ) : null}
-            <span title={formatDateTime(updated)}>
-              {formatRelativeTime(updated)}
-            </span>
           </span>
         </span>
 
-        <Icon
-          name="chevronRight"
-          size={16}
-          className="mt-1 shrink-0 self-start text-muted-foreground/60 transition-[transform,color] duration-150 group-hover:translate-x-0.5 group-hover:text-brand"
-        />
+        <span
+          title={formatDateTime(updated)}
+          className="hidden shrink-0 items-center gap-1.5 pt-0.5 text-[12px] tabular-nums text-muted-foreground sm:flex"
+        >
+          <Icon name="clock" size={13} />
+          {formatRelativeTime(updated)}
+        </span>
+
+        <span
+          aria-hidden="true"
+          className="mt-0.5 shrink-0 text-muted-foreground/40 transition-[transform,color] duration-500 ease-out-soft group-hover:translate-x-1 group-hover:text-brand"
+        >
+          <Icon name="chevronRight" size={16} />
+        </span>
       </Link>
     </li>
   );

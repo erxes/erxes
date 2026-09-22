@@ -15,6 +15,8 @@ export default async function TicketPage({ params }: Props) {
         { label: 'Support', href: '/tickets' },
         { label: 'Ticket' },
       ]}
+      title="Ticket"
+      description="Follow the replies and add anything the support team still needs."
     >
       <TicketDetail ticketId={ticketId} />
     </PortalShell>

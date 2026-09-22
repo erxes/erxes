@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { CardReveal } from '@/modules/ui/components/CardReveal';
 import { Icon } from '@/modules/ui/components/Icon';
+import { IconOrb } from '@/modules/ui/components/IconOrb';
+import { Spotlight } from '@/modules/ui/components/Spotlight';
 import { cn } from '@/modules/ui/lib/cn';
 import { formTitle, type FormSummary } from '../types';
 
@@ -19,29 +21,35 @@ export const FormList = ({ forms }: { forms: FormSummary[] }) => (
   >
     {forms.map((form, index) => (
       <CardReveal key={form._id} index={index}>
-        <article className="group relative h-full rounded-2xl border border-line bg-white p-6 pr-20 shadow-card transition-[transform,border-color,box-shadow] duration-300 ease-out hover:-translate-y-1 hover:border-brand/30 hover:shadow-card-hover">
-          <h3 className="text-base font-semibold leading-snug text-ink transition-colors duration-200 group-hover:text-brand">
-            <Link
-              href={`/forms/${form._id}`}
-              className="outline-none after:absolute after:inset-0 after:content-[''] focus-visible:text-brand"
-            >
-              {formTitle(form)}
-            </Link>
-          </h3>
+        <Spotlight
+          as="article"
+          className="group flex h-full items-center gap-4 rounded-2xl bg-white p-5 shadow-shell transition-[transform,box-shadow] duration-500 ease-out-soft hover:-translate-y-1 hover:shadow-shell-hover"
+        >
+          <IconOrb name="clipboard" size="sm" />
 
-          {form.description?.trim() ? (
-            <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-muted-foreground">
-              {form.description}
-            </p>
-          ) : null}
+          <span className="min-w-0 flex-1">
+            <span className="block text-[15px] font-semibold leading-snug text-ink transition-colors duration-300 group-hover:text-brand">
+              <Link
+                href={`/forms/${form._id}`}
+                className="outline-none after:absolute after:inset-0 after:content-[''] focus-visible:text-brand"
+              >
+                {formTitle(form)}
+              </Link>
+            </span>
 
-          <span
-            aria-hidden="true"
-            className="absolute right-6 top-6 flex size-10 items-center justify-center rounded-full bg-white text-muted-foreground shadow-card transition-[background-color,color,transform] duration-300 ease-out group-hover:translate-x-0.5 group-hover:bg-brand group-hover:text-white"
-          >
-            <Icon name="chevronRight" size={17} />
+            {form.description?.trim() ? (
+              <span className="mt-1 block line-clamp-2 text-[12px] leading-relaxed text-muted-foreground">
+                {form.description}
+              </span>
+            ) : null}
           </span>
-        </article>
+
+          <Icon
+            name="chevronRight"
+            size={16}
+            className="shrink-0 text-muted-foreground/40 transition-[transform,color] duration-500 ease-out-soft group-hover:translate-x-1 group-hover:text-brand"
+          />
+        </Spotlight>
       </CardReveal>
     ))}
   </div>
