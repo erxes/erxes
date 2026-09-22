@@ -1,60 +1,49 @@
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { SessionLink } from '@/modules/auth/components/SessionLink';
-import { Container } from '@/modules/ui/components/Container';
+import { buttonClass } from '@/modules/ui/components/Button';
 import { Icon, type IconName } from '@/modules/ui/components/Icon';
-import { cn } from '@/modules/ui/lib/cn';
 
 export type QuickLink = {
   href: string;
   icon: IconName;
   title: string;
-  description: string;
   sessionReason?: string;
+  primary?: boolean;
 };
 
-const COLUMNS: Record<number, string> = {
-  1: 'sm:grid-cols-1',
-  2: 'sm:grid-cols-2',
-  3: 'sm:grid-cols-3',
-  4: 'sm:grid-cols-2 lg:grid-cols-4',
-};
+const Action = ({ link }: { link: QuickLink }): ReactNode => {
+  const className = buttonClass({
+    variant: link.primary ? 'onHero' : 'onHeroSoft',
+    size: 'md',
+    className: 'group rounded-xl',
+  });
 
-const tileClass =
-  'group flex h-full items-start gap-3 rounded-xl border border-line bg-white p-4 outline-none transition-[border-color,box-shadow] duration-200 hover:border-line-strong hover:shadow-card focus-visible:ring-2 focus-visible:ring-brand/30 focus-visible:ring-offset-2';
+  const content = (
+    <>
+      <Icon
+        name={link.icon}
+        size={16}
+        className="shrink-0 opacity-60 transition-opacity duration-200 group-hover:opacity-100"
+      />
+      {link.title}
+    </>
+  );
 
-const TileContent = ({ link }: { link: QuickLink }) => (
-  <>
-    <Icon
-      name={link.icon}
-      size={18}
-      className="mt-0.5 shrink-0 text-muted-foreground transition-colors duration-200 group-hover:text-brand"
-    />
-    <span className="min-w-0 flex-1">
-      <span className="block truncate text-sm font-semibold text-ink">
-        {link.title}
-      </span>
-      <span className="mt-0.5 block truncate text-[13px] text-muted-foreground">
-        {link.description}
-      </span>
-    </span>
-  </>
-);
-
-const Tile = ({ link }: { link: QuickLink }): ReactNode =>
-  link.sessionReason ? (
+  return link.sessionReason ? (
     <SessionLink
       href={link.href}
       reason={link.sessionReason}
-      className={tileClass}
+      className={className}
     >
-      <TileContent link={link} />
+      {content}
     </SessionLink>
   ) : (
-    <Link href={link.href} className={tileClass}>
-      <TileContent link={link} />
+    <Link href={link.href} className={className}>
+      {content}
     </Link>
   );
+};
 
 export const QuickLinks = ({ links }: { links: QuickLink[] }) => {
   if (!links.length) {
@@ -62,23 +51,12 @@ export const QuickLinks = ({ links }: { links: QuickLink[] }) => {
   }
 
   return (
-    <Container className="relative z-10 -mt-7">
-      <ul
-        className={cn(
-          'grid gap-3',
-          COLUMNS[Math.min(links.length, 4)] ?? COLUMNS[4],
-        )}
-      >
-        {links.map((link, index) => (
-          <li
-            key={link.href}
-            className="animate-in fade-in slide-in-from-bottom-1 fill-mode-both duration-500"
-            style={{ animationDelay: `${120 + index * 60}ms` }}
-          >
-            <Tile link={link} />
-          </li>
-        ))}
-      </ul>
-    </Container>
+    <ul className="flex flex-wrap items-center gap-2.5">
+      {links.map((link) => (
+        <li key={link.href}>
+          <Action link={link} />
+        </li>
+      ))}
+    </ul>
   );
 };

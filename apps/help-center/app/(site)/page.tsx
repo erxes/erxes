@@ -1,11 +1,10 @@
-import Link from 'next/link';
 import { SessionLink } from '@/modules/auth/components/SessionLink';
 import { getAnnouncements } from '@/modules/cms/api';
 import { AnnouncementList } from '@/modules/cms/components/AnnouncementList';
 import { getPortalForms } from '@/modules/forms/api';
 import { FormList } from '@/modules/forms/components/FormList';
-import { getTopicOverview } from '@/modules/knowledge-base/api';
-import { TopicOutline } from '@/modules/knowledge-base/components/TopicOutline';
+import { getTopicArticleList } from '@/modules/knowledge-base/api';
+import { CategoryCard } from '@/modules/knowledge-base/components/CategoryCard';
 import { getPortalIdentity } from '@/modules/layout/api';
 import { Hero } from '@/modules/layout/components/Hero';
 import {
@@ -32,7 +31,7 @@ import {
 export default async function HomePage() {
   const [{ headline }, topic, announcements, forms] = await Promise.all([
     getPortalIdentity(),
-    getTopicOverview(),
+    getTopicArticleList(),
     getAnnouncements(5),
     getPortalForms(),
   ]);
@@ -43,69 +42,40 @@ export default async function HomePage() {
 
   const portalForms = forms.state === 'ready' ? forms.data : [];
 
+  const categories =
+    topic.state === 'ready'
+      ? topic.data.sections
+          .flatMap((section) =>
+            section.children.length ? section.children : [section],
+          )
+          .slice(0, 4)
+      : [];
+
   const showAnnouncements =
     announcements.state !== 'ready' || announcements.data.length > 0;
 
-  const quickLinks: QuickLink[] = [
-    ...(knowledgeBaseEnabled
-      ? [
-          {
-            href: '/knowledge-base',
-            icon: 'book' as const,
-            title: 'Knowledge base',
-            description: 'Guides, answers and policies',
-          },
-        ]
-      : []),
-    ...(ticketsEnabled
-      ? [
-          {
-            href: NEW_TICKET_ROUTE,
-            icon: 'ticket' as const,
-            title: 'Submit a ticket',
-            description: 'Get help from the support team',
-            sessionReason: NEW_TICKET_REASON,
-          },
-        ]
-      : []),
-    ...(portalForms.length
-      ? [
-          {
-            href: '/forms',
-            icon: 'clipboard' as const,
-            title: 'Forms',
-            description: 'Send details in a ready-made form',
-          },
-        ]
-      : []),
-    ...(announcements.state === 'ready' && announcements.data.length
-      ? [
-          {
-            href: '/announcements',
-            icon: 'megaphone' as const,
-            title: 'Announcements',
-            description: 'Latest notices and updates',
-          },
-        ]
-      : []),
-  ];
+  const quickLinks: QuickLink[] = ticketsEnabled
+    ? [
+        {
+          href: NEW_TICKET_ROUTE,
+          icon: 'ticket' as const,
+          title: 'Submit a ticket',
+          sessionReason: NEW_TICKET_REASON,
+          primary: true,
+        },
+        {
+          href: '/tickets/track',
+          icon: 'binoculars' as const,
+          title: 'Track a ticket',
+        },
+      ]
+    : [];
 
   return (
     <>
       <Hero headline={headline}>
-        {ticketsEnabled ? (
-          <Link
-            href="/tickets/track"
-            className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-[13px] font-medium text-white outline-none ring-1 ring-inset ring-white/20 transition-colors duration-200 hover:bg-white/20 hover:ring-white/35 focus-visible:ring-2 focus-visible:ring-white/70"
-          >
-            <Icon name="binoculars" size={15} />
-            Track a ticket with your number
-            <Icon name="chevronRight" size={14} />
-          </Link>
-        ) : null}
+        {quickLinks.length ? <QuickLinks links={quickLinks} /> : null}
       </Hero>
-
-      <QuickLinks links={quickLinks} />
 
       <Container className="pb-14 pt-12 lg:pb-20 lg:pt-16">
         <div className="space-y-12 lg:space-y-16">
@@ -133,8 +103,16 @@ export default async function HomePage() {
                 <Unpublished domain={topic.domain} />
               ) : topic.state === 'error' ? (
                 <LoadError message={topic.message} />
-              ) : topic.data.sections.length ? (
-                <TopicOutline topic={topic.data} />
+              ) : categories.length ? (
+                <div className="grid gap-5 sm:grid-cols-2">
+                  {categories.map((category, index) => (
+                    <CategoryCard
+                      key={category._id}
+                      category={category}
+                      index={index}
+                    />
+                  ))}
+                </div>
               ) : (
                 <EmptyState
                   icon="book"

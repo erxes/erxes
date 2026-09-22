@@ -133,10 +133,15 @@ export const useUpload = () => {
                 if (!response.ok) {
                   setStatus(false);
 
+                  const serverMessage =
+                    typeof text === 'string' ? text.trim() : '';
+
                   return toast({
                     title: 'Error uploading file',
                     description:
-                      'Failed to upload file please check your file upload config',
+                      serverMessage && serverMessage.length <= 200
+                        ? serverMessage
+                        : 'Failed to upload file please check your file upload config',
                     variant: 'destructive',
                   });
                 }

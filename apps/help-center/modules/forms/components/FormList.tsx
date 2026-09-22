@@ -1,45 +1,48 @@
 import Link from 'next/link';
+import { CardReveal } from '@/modules/ui/components/CardReveal';
 import { Icon } from '@/modules/ui/components/Icon';
+import { cn } from '@/modules/ui/lib/cn';
 import { formTitle, type FormSummary } from '../types';
 
+const COLUMNS: Record<number, string> = {
+  1: 'sm:grid-cols-1',
+  2: 'sm:grid-cols-2',
+  3: 'sm:grid-cols-2 lg:grid-cols-3',
+};
+
 export const FormList = ({ forms }: { forms: FormSummary[] }) => (
-  <ul className="divide-y divide-line overflow-hidden rounded-xl border border-line bg-white">
-    {forms.map((form) => (
-      <li key={form._id}>
-        <Link
-          href={`/forms/${form._id}`}
-          className="group flex items-center gap-4 px-5 py-4 outline-none transition-colors duration-200 hover:bg-subtle/70 focus-visible:bg-subtle"
-        >
-          <Icon
-            name="clipboard"
-            size={18}
-            className="shrink-0 text-muted-foreground transition-colors duration-200 group-hover:text-brand"
-          />
-          <span className="min-w-0 flex-1">
-            <span className="block truncate text-[15px] font-medium text-ink">
+  <div
+    className={cn(
+      'grid gap-4',
+      COLUMNS[Math.min(forms.length, 3)] ?? COLUMNS[3],
+    )}
+  >
+    {forms.map((form, index) => (
+      <CardReveal key={form._id} index={index}>
+        <article className="group relative h-full rounded-2xl border border-line bg-white p-6 pr-20 shadow-card transition-[transform,border-color,box-shadow] duration-300 ease-out hover:-translate-y-1 hover:border-brand/30 hover:shadow-card-hover">
+          <h3 className="text-base font-semibold leading-snug text-ink transition-colors duration-200 group-hover:text-brand">
+            <Link
+              href={`/forms/${form._id}`}
+              className="outline-none after:absolute after:inset-0 after:content-[''] focus-visible:text-brand"
+            >
               {formTitle(form)}
-            </span>
-            {form.description?.trim() ? (
-              <span className="mt-0.5 line-clamp-1 block text-[13px] text-muted-foreground">
-                {form.description}
-              </span>
-            ) : null}
+            </Link>
+          </h3>
+
+          {form.description?.trim() ? (
+            <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-muted-foreground">
+              {form.description}
+            </p>
+          ) : null}
+
+          <span
+            aria-hidden="true"
+            className="absolute right-6 top-6 flex size-10 items-center justify-center rounded-full bg-white text-muted-foreground shadow-card transition-[background-color,color,transform] duration-300 ease-out group-hover:translate-x-0.5 group-hover:bg-brand group-hover:text-white"
+          >
+            <Icon name="chevronRight" size={17} />
           </span>
-          <span className="hidden shrink-0 items-center gap-1 text-[13px] font-medium text-muted-foreground transition-colors duration-200 group-hover:text-brand sm:flex">
-            Fill in
-            <Icon
-              name="chevronRight"
-              size={14}
-              className="transition-transform duration-200 group-hover:translate-x-0.5"
-            />
-          </span>
-          <Icon
-            name="chevronRight"
-            size={16}
-            className="shrink-0 text-muted-foreground sm:hidden"
-          />
-        </Link>
-      </li>
+        </article>
+      </CardReveal>
     ))}
-  </ul>
+  </div>
 );

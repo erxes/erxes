@@ -6,7 +6,7 @@ type Variant = 'primary' | 'secondary' | 'ghost' | 'onHero' | 'onHeroSoft';
 type Size = 'sm' | 'md' | 'lg';
 
 const base =
-  'inline-flex items-center justify-center gap-2 rounded-lg font-semibold transition-[background-color,color,border-color,transform] duration-200 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2';
+  'inline-flex items-center justify-center gap-2 rounded-lg font-semibold transition-[background-color,color,border-color,box-shadow,transform] duration-200 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2';
 
 const variants: Record<Variant, string> = {
   primary:
@@ -14,9 +14,10 @@ const variants: Record<Variant, string> = {
   secondary:
     'border border-line bg-white text-ink hover:bg-subtle focus-visible:ring-brand/40',
   ghost: 'text-brand hover:bg-brand-soft focus-visible:ring-brand/40',
-  onHero: 'bg-white text-hero hover:bg-white/90 focus-visible:ring-white/70',
+  onHero:
+    'bg-white text-hero shadow-lg shadow-black/25 hover:-translate-y-px hover:bg-white hover:shadow-xl hover:shadow-black/30 focus-visible:ring-white/70',
   onHeroSoft:
-    'border border-white/25 bg-white/10 text-white hover:border-white/40 hover:bg-white/20 focus-visible:ring-white/70',
+    'border border-white/15 bg-white/[0.07] text-white/90 backdrop-blur-sm hover:-translate-y-px hover:border-white/30 hover:bg-white/15 hover:text-white focus-visible:ring-white/70',
 };
 
 const sizes: Record<Size, string> = {

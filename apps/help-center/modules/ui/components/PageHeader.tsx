@@ -40,7 +40,8 @@ export const CountBadge = ({
   count: number;
   label: string;
 }) => (
-  <span className="text-[13px] text-muted-foreground">
-    <span className="font-semibold tabular-nums text-ink">{count}</span> {label}
+  <span className="text-[13px]">
+    <span className="font-semibold tabular-nums">{count}</span>{' '}
+    <span className="opacity-70">{label}</span>
   </span>
 );
