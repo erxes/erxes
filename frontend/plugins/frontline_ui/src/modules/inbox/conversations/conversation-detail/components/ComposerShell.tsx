@@ -1,4 +1,4 @@
-import { Button, cn } from 'erxes-ui';
+import { Button, Tabs, cn } from 'erxes-ui';
 import {
   IconChevronDown,
   IconChevronUp,
@@ -11,17 +11,23 @@ import { useTranslation } from 'react-i18next';
 type ComposerShellProps = {
   children: ReactNode;
   collapsed: boolean;
+  disabled: boolean;
   isInternalNote: boolean;
+  onlyInternal: boolean;
   onCollapsedChange: (collapsed: boolean) => void;
   onDrop: DragEventHandler<HTMLFormElement>;
+  onInternalNoteChange: (internal: boolean) => void;
 };
 
 export const ComposerShell = ({
   children,
   collapsed,
+  disabled,
   isInternalNote,
+  onlyInternal,
   onCollapsedChange,
   onDrop,
+  onInternalNoteChange,
 }: ComposerShellProps) => {
   const { t } = useTranslation('frontline');
 
@@ -58,28 +64,46 @@ export const ComposerShell = ({
         onDropCapture={onDrop}
         onDragOverCapture={(event) => event.preventDefault()}
         className={cn(
-          'mx-auto flex max-h-full min-h-28 w-full max-w-3xl flex-col gap-1 rounded-2xl border border-border/70 bg-background/95 py-2 shadow-[0_8px_30px_rgba(15,23,42,0.08)] transition-colors duration-150',
+          'mx-auto flex max-h-[min(70vh,40rem)] min-h-28 w-full max-w-3xl flex-col gap-1 rounded-2xl border border-border/70 bg-background/95 pb-2 shadow-[0_8px_30px_rgba(15,23,42,0.08)] transition-colors duration-150',
           isInternalNote && 'border-warning/50 bg-warning/20',
         )}
       >
-        <div className="flex flex-none items-center gap-2 px-3 py-1 text-xs font-medium text-muted-foreground">
-          {isInternalNote ? (
-            <IconLock className="size-3.5" />
-          ) : (
-            <IconMessage2 className="size-3.5" />
-          )}
-          {isInternalNote
-            ? t(
-                'internal-note-visibility',
-                'Internal note - only visible to your team',
-              )
-            : t('reply-visibility', 'Reply - sent to the customer')}
+        <div className="flex flex-none items-center gap-3 border-b border-border/50 px-3 py-2">
+          <Tabs
+            value={isInternalNote ? 'internal' : 'reply'}
+            onValueChange={(value) =>
+              onInternalNoteChange(value === 'internal')
+            }
+            className="min-w-0 flex-1"
+          >
+            <Tabs.List
+              variant="segment"
+              className="grid h-8 w-full max-w-xs grid-cols-2 gap-0 rounded-lg bg-muted/70 p-0.5"
+            >
+              <Tabs.Trigger
+                value="reply"
+                disabled={disabled || onlyInternal}
+                className="h-7 gap-1.5 rounded-md px-3 py-1 text-xs shadow-none"
+              >
+                <IconMessage2 className="size-3.5" />
+                {t('reply', 'Reply')}
+              </Tabs.Trigger>
+              <Tabs.Trigger
+                value="internal"
+                disabled={disabled}
+                className="h-7 gap-1.5 rounded-md px-3 py-1 text-xs shadow-none data-[state=active]:bg-warning/15 data-[state=active]:text-warning data-[state=active]:shadow-none data-[state=active]:hover:bg-warning/15"
+              >
+                <IconLock className="size-3.5" />
+                {t('internal-note', 'Internal Note')}
+              </Tabs.Trigger>
+            </Tabs.List>
+          </Tabs>
           {isInternalNote && (
             <Button
               type="button"
               variant="ghost"
               size="icon"
-              className="ml-auto size-7 rounded-full"
+              className="ml-auto size-7 shrink-0 rounded-full"
               aria-label={t(
                 'collapse-internal-note-composer',
                 'Collapse internal note composer',

@@ -1,5 +1,6 @@
-import { IconFile, IconX } from '@tabler/icons-react';
+import { IconFile, IconMusic, IconX } from '@tabler/icons-react';
 import { Button, Dialog, readImage, type IAttachment } from 'erxes-ui';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 type ComposerAttachmentProps = {
@@ -7,11 +8,30 @@ type ComposerAttachmentProps = {
   onRemove: () => void;
 };
 
-type AttachmentKind = 'image' | 'video' | 'file';
+type AttachmentKind = 'image' | 'video' | 'audio' | 'file';
 
-const getAttachmentKind = (type?: string): AttachmentKind => {
-  if (type?.startsWith('image')) return 'image';
-  if (type?.startsWith('video')) return 'video';
+const getAttachmentKind = (attachment: IAttachment): AttachmentKind => {
+  const type = attachment.type?.toLowerCase();
+  const filename = `${attachment.name} ${attachment.url}`.toLowerCase();
+
+  if (
+    type?.startsWith('image') ||
+    /\.(avif|bmp|gif|ico|jpe?g|png|svg|tiff?|webp)(\?|\s|$)/.test(filename)
+  ) {
+    return 'image';
+  }
+  if (
+    type?.startsWith('video') ||
+    /\.(m4v|mkv|mov|mp4|ogv|webm)(\?|\s|$)/.test(filename)
+  ) {
+    return 'video';
+  }
+  if (
+    type?.startsWith('audio') ||
+    /\.(aac|flac|m4a|mp3|oga|ogg|wav)(\?|\s|$)/.test(filename)
+  ) {
+    return 'audio';
+  }
   return 'file';
 };
 
@@ -52,6 +72,18 @@ const PreviewVideo = ({
   </video>
 );
 
+const PreviewAudio = ({ src, label }: { src: string; label: string }) => (
+  <audio
+    src={src}
+    aria-label={label}
+    controls
+    preload="metadata"
+    className="w-full min-w-64"
+  >
+    <track kind="captions" />
+  </audio>
+);
+
 const AttachmentThumbnailContent = ({
   kind,
   source,
@@ -79,6 +111,10 @@ const AttachmentThumbnailContent = ({
         className="pointer-events-none size-full object-cover"
       />
     );
+  }
+
+  if (kind === 'audio') {
+    return <IconMusic className="size-4" />;
   }
 
   return <IconFile className="size-4" />;
@@ -130,6 +166,10 @@ const AttachmentPreview = ({
     );
   }
 
+  if (kind === 'audio') {
+    return <PreviewAudio src={source} label={label} />;
+  }
+
   return (
     <a
       href={source}
@@ -168,21 +208,27 @@ const AttachmentTrigger = ({
   kind,
   label,
   source,
+  onOpen,
 }: {
   attachment: IAttachment;
   kind: AttachmentKind;
   label: string;
   source: string;
+  onOpen: () => void;
 }) => (
   <button
     type="button"
+    aria-haspopup="dialog"
+    onClick={onOpen}
     className="flex min-w-0 items-center gap-2 rounded-lg text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
   >
     <AttachmentThumbnail kind={kind} source={source} label={label} />
     <span className="min-w-0 max-w-40">
       <span className="block truncate text-xs font-medium">{label}</span>
       <span className="block text-[11px] text-muted-foreground">
-        {Math.max(1, Math.round(attachment.size / 1024))} KB
+        {attachment.size > 0
+          ? `${Math.max(1, Math.round(attachment.size / 1024))} KB`
+          : kind}
       </span>
     </span>
   </button>
@@ -193,24 +239,25 @@ export const ComposerAttachment = ({
   onRemove,
 }: ComposerAttachmentProps) => {
   const { t } = useTranslation('frontline');
-  const kind = getAttachmentKind(attachment.type);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const kind = getAttachmentKind(attachment);
   let fallbackLabel = t('attachment', 'Attachment');
   if (kind === 'image') fallbackLabel = t('photo', 'Photo');
   if (kind === 'video') fallbackLabel = t('video', 'Video');
+  if (kind === 'audio') fallbackLabel = t('audio', 'Audio');
   const label = attachment.name || fallbackLabel;
   const source = readImage(attachment.url);
 
   return (
     <div className="flex min-w-0 max-w-full items-center gap-2 rounded-xl border bg-muted/35 p-1.5 pr-2 shadow-xs">
-      <Dialog>
-        <Dialog.Trigger asChild>
-          <AttachmentTrigger
-            attachment={attachment}
-            kind={kind}
-            label={label}
-            source={source}
-          />
-        </Dialog.Trigger>
+      <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+        <AttachmentTrigger
+          attachment={attachment}
+          kind={kind}
+          label={label}
+          source={source}
+          onOpen={() => setPreviewOpen(true)}
+        />
         <AttachmentDialogContent
           attachment={attachment}
           kind={kind}

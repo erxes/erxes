@@ -23,11 +23,9 @@ type ComposerToolbarProps = {
   isDiscord: boolean;
   isMessenger: boolean;
   isInternalNote: boolean;
-  onlyInternal: boolean;
   isUploading: boolean;
   loading: boolean;
   sendDisabled: boolean;
-  onInternalNoteChange: (internal: boolean) => void;
   onFilesSelected: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onTemplateSelect: (content: string, templateId?: string) => void;
   onSendPoll: (poll: PollDraft) => Promise<boolean>;
@@ -40,11 +38,9 @@ export const ComposerToolbar = ({
   isDiscord,
   isMessenger,
   isInternalNote,
-  onlyInternal,
   isUploading,
   loading,
   sendDisabled,
-  onInternalNoteChange,
   onFilesSelected,
   onTemplateSelect,
   onSendPoll,
@@ -112,29 +108,6 @@ export const ComposerToolbar = ({
       )}
 
       <div className="ml-auto flex min-w-0 items-center justify-end gap-1 sm:gap-2">
-        {!onlyInternal && (
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            disabled={isBusy}
-            aria-label={t('message-mode', 'Message mode')}
-            aria-pressed={isInternalNote}
-            onClick={() => onInternalNoteChange(!isInternalNote)}
-            className={cn(
-              'h-9 max-w-36 gap-1.5 px-2 sm:max-w-none sm:px-3',
-              isInternalNote && 'border-warning/50 bg-warning/20',
-            )}
-          >
-            {isInternalNote ? <IconLock /> : <IconMessage2 />}
-            <span className="truncate">
-              {isInternalNote
-                ? t('internal-note', 'Internal Note')
-                : t('reply', 'Reply')}
-            </span>
-          </Button>
-        )}
-
         <Button
           type="button"
           size="sm"

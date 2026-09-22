@@ -119,27 +119,38 @@ const ReplyPreview = ({
 
 type ComposerPreviewsProps = {
   attachments: IAttachment[];
+  blockAttachments: IAttachment[];
   pendingAttachments: PendingAttachment[];
   replyTo: MessageReplyTarget | null;
   onRemove: (url: string) => void;
+  onRemoveBlockAttachment: (url: string) => void;
   onCancelReply: () => void;
 };
 
 export const ComposerPreviews = ({
   attachments,
+  blockAttachments,
   pendingAttachments,
   replyTo,
   onRemove,
+  onRemoveBlockAttachment,
   onCancelReply,
 }: ComposerPreviewsProps) => {
   const { t } = useTranslation('frontline');
-  if (!replyTo && !attachments.length && !pendingAttachments.length)
+  if (
+    !replyTo &&
+    !attachments.length &&
+    !blockAttachments.length &&
+    !pendingAttachments.length
+  )
     return null;
 
   return (
     <div className="flex max-h-44 flex-none flex-col gap-2 overflow-y-auto border-b border-border/50 p-2 sm:px-3">
       {replyTo && <ReplyPreview replyTo={replyTo} onCancel={onCancelReply} />}
-      {(pendingAttachments.length > 0 || attachments.length > 0) && (
+      {(pendingAttachments.length > 0 ||
+        attachments.length > 0 ||
+        blockAttachments.length > 0) && (
         <div className="flex flex-wrap gap-2">
           {pendingAttachments.map((file) => (
             <div
@@ -165,6 +176,13 @@ export const ComposerPreviews = ({
               key={attachment.url}
               attachment={attachment}
               onRemove={() => onRemove(attachment.url)}
+            />
+          ))}
+          {blockAttachments.map((attachment, index) => (
+            <ComposerAttachment
+              key={`block-${attachment.url}-${index}`}
+              attachment={attachment}
+              onRemove={() => onRemoveBlockAttachment(attachment.url)}
             />
           ))}
         </div>

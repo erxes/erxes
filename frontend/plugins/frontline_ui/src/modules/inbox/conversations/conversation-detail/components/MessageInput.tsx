@@ -97,7 +97,7 @@ export const MessageInput = ({
     selectTemplate,
     setResponseTemplateId,
     setSearchValue,
-    showSuggestionDropdown,
+    showSuggestions,
     suggestions,
   } = useResponseTemplateSuggestions({ editor, enabled: !isInternalNote });
   const {
@@ -346,6 +346,23 @@ export const MessageInput = ({
 
   useScopedHotkeys('mod+enter', handleSubmit, InboxHotkeyScope.MessageInput);
 
+  const removeBlockAttachment = useCallback(
+    (url: string) => {
+      const mediaTypes = new Set(['image', 'video', 'audio', 'file']);
+      const blocks = editor.document.filter((block) => {
+        const props = block.props as { url?: string };
+
+        return mediaTypes.has(block.type) && props.url === url;
+      });
+
+      if (!blocks.length) return;
+
+      editor.removeBlocks(blocks);
+      toast({ title: t('attachment-removed', 'Attachment removed') });
+    },
+    [editor, t],
+  );
+
   /*
    * The keys that drive the template suggestions are listened for on the
    * editor node rather than on the form: only the editor takes focus,
@@ -374,23 +391,29 @@ export const MessageInput = ({
     isUploading ||
     pendingAttachments.length > 0 ||
     (!content?.length && attachments.length === 0);
+  const blockAttachments = getBlockAttachments(content || []);
 
   return (
     <ComposerShell
       collapsed={isInternalNoteCollapsed}
+      disabled={loading || isUploading}
       isInternalNote={isInternalNote}
+      onlyInternal={onlyInternal}
       onCollapsedChange={setIsInternalNoteCollapsed}
       onDrop={handleDrop}
+      onInternalNoteChange={handleInternalNoteChange}
     >
       <ComposerPreviews
         attachments={attachments}
+        blockAttachments={blockAttachments}
         pendingAttachments={pendingAttachments}
         replyTo={isInternalNote ? null : replyTo}
         onRemove={removeAttachment}
+        onRemoveBlockAttachment={removeBlockAttachment}
         onCancelReply={() => setReplyTo(null)}
       />
 
-      {showSuggestionDropdown && !isInternalNote && (
+      {showSuggestions && !isInternalNote && (
         <ResponseTemplateDropdown
           suggestions={suggestions}
           selectedIndex={selectedIndex}
@@ -424,11 +447,9 @@ export const MessageInput = ({
         isDiscord={isDiscord}
         isMessenger={isMessenger}
         isInternalNote={isInternalNote}
-        onlyInternal={onlyInternal}
         isUploading={isUploading}
         loading={loading}
         sendDisabled={sendDisabled}
-        onInternalNoteChange={handleInternalNoteChange}
         onFilesSelected={handleFileInput}
         onTemplateSelect={selectTemplate}
         onSendPoll={handleSendPoll}
