@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
+  ContextMenu,
   Spinner,
   cn,
   formatDateISOStringToRelativeDate,
@@ -12,7 +13,9 @@ import {
   IconArrowBackUp,
   IconChevronDown,
   IconChevronUp,
+  IconCopy,
   IconMailForward,
+  IconMailPlus,
   IconPaperclip,
   IconRefresh,
   IconSend,
@@ -298,6 +301,77 @@ const AttachmentChip: React.FC<{ attachment: Attachment }> = ({
   );
 };
 
+const SenderContextMenu = ({
+  sender,
+  children,
+  onReply,
+  onReplyAll,
+  onForward,
+  onNewEmail,
+}: {
+  sender?: EmailAddress;
+  children: React.ReactNode;
+  onReply: () => void;
+  onReplyAll: () => void;
+  onForward: () => void;
+  onNewEmail?: (email: string) => void;
+}) => {
+  const { t } = useTranslation('frontline');
+  const email = sender?.email;
+
+  const copyAddress = async () => {
+    if (!email) return;
+
+    try {
+      await navigator.clipboard.writeText(email);
+      toast({ title: 'Email address copied' });
+    } catch {
+      toast({
+        title: 'Could not copy email address',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  return (
+    <ContextMenu>
+      <ContextMenu.Trigger asChild>{children}</ContextMenu.Trigger>
+      <ContextMenu.Content className="w-56">
+        <ContextMenu.Label className="truncate text-xs text-muted-foreground">
+          {email || sender?.name || 'Unknown sender'}
+        </ContextMenu.Label>
+        <ContextMenu.Separator />
+        <ContextMenu.Item disabled={!email} onSelect={copyAddress}>
+          <IconCopy className="size-4" />
+          Copy address
+        </ContextMenu.Item>
+        <ContextMenu.Item
+          disabled={!email || !onNewEmail}
+          onSelect={() => {
+            if (email) onNewEmail?.(email);
+          }}
+        >
+          <IconMailPlus className="size-4" />
+          New email
+        </ContextMenu.Item>
+        <ContextMenu.Separator />
+        <ContextMenu.Item onSelect={onReply}>
+          <IconArrowBackUp className="size-4" />
+          {t('reply')}
+        </ContextMenu.Item>
+        <ContextMenu.Item onSelect={onReplyAll}>
+          <IconUsers className="size-4" />
+          {t('reply-all')}
+        </ContextMenu.Item>
+        <ContextMenu.Item onSelect={onForward}>
+          <IconMailForward className="size-4" />
+          {t('forward')}
+        </ContextMenu.Item>
+      </ContextMenu.Content>
+    </ContextMenu>
+  );
+};
+
 const EmailRow: React.FC<{
   message: MailMessage;
   defaultExpanded?: boolean;
@@ -306,6 +380,7 @@ const EmailRow: React.FC<{
   onReply: () => void;
   onReplyAll: () => void;
   onForward: () => void;
+  onNewEmail?: (email: string) => void;
 }> = ({
   message,
   defaultExpanded = false,
@@ -314,6 +389,7 @@ const EmailRow: React.FC<{
   onReply,
   onReplyAll,
   onForward,
+  onNewEmail,
 }) => {
   const { t } = useTranslation('frontline');
   const [expanded, setExpanded] = useState(defaultExpanded);
@@ -343,26 +419,63 @@ const EmailRow: React.FC<{
           'border-b border-[rgba(0,0,0,0.08)] dark:border-[rgba(255,255,255,0.06)]',
       )}
     >
-      <button
-        type="button"
-        className="w-full text-left px-4 py-3 hover:bg-background/2 transition-colors"
-        onClick={() => setExpanded((v) => !v)}
+      <SenderContextMenu
+        sender={sender}
+        onReply={onReply}
+        onReplyAll={onReplyAll}
+        onForward={onForward}
+        onNewEmail={onNewEmail}
       >
-        <div className="flex items-center gap-3">
-          <div
-            className="w-9 h-9 rounded-full flex-none flex items-center justify-center text-[14px] font-bold text-foreground select-none"
-            style={{ background: bg }}
-          >
-            {initial(sender?.name, sender?.email)}
-          </div>
+        <button
+          type="button"
+          className="w-full text-left px-4 py-3 hover:bg-background/2 transition-colors"
+          onClick={() => setExpanded((v) => !v)}
+          title="Right-click for sender actions"
+        >
+          <div className="flex items-center gap-3">
+            <div
+              className="w-9 h-9 rounded-full flex-none flex items-center justify-center text-[14px] font-bold text-foreground select-none"
+              style={{ background: bg }}
+            >
+              {initial(sender?.name, sender?.email)}
+            </div>
 
-          <div className="flex-1 min-w-0">
-            {expanded ? (
-              <div className="space-y-0.5">
-                <div className="flex items-baseline justify-between gap-2">
-                  <span className="text-[13px] font-semibold text-foreground truncate">
-                    {sender?.name || sender?.email || '—'}
-                  </span>
+            <div className="flex-1 min-w-0">
+              {expanded ? (
+                <div className="space-y-0.5">
+                  <div className="flex items-baseline justify-between gap-2">
+                    <span className="text-[13px] font-semibold text-foreground truncate">
+                      {sender?.name || sender?.email || '—'}
+                    </span>
+                    <span className="flex flex-none items-center gap-1.5">
+                      {delivery && delivery !== 'sent' && (
+                        <DeliveryBadge status={delivery} />
+                      )}
+                      <span className="text-[11px] text-[#5f6368] dark:text-[#9aa0a6] whitespace-nowrap">
+                        {formatDateISOStringToRelativeDate(createdAt)}
+                      </span>
+                    </span>
+                  </div>
+                  <div className="text-[11px] text-[#5f6368] dark:text-[#9aa0a6] space-y-px">
+                    {!isSent && mailData.from?.length ? (
+                      <p>from: {fmt(mailData.from)}</p>
+                    ) : null}
+                    {mailData.to?.length ? <p>to: {fmt(mailData.to)}</p> : null}
+                    {mailData.cc?.length ? <p>cc: {fmt(mailData.cc)}</p> : null}
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-baseline gap-2 justify-between">
+                  <div className="flex items-baseline gap-2 min-w-0">
+                    <span className="text-[13px] font-semibold text-foreground whitespace-nowrap">
+                      {sender?.name || sender?.email || '—'}
+                    </span>
+                    <span className="text-[12px] text-[#5f6368] dark:text-[#9aa0a6] truncate">
+                      {mailData.body
+                        ? mailData.body.replace(/<[^<>]*>/g, '').slice(0, 80)
+                        : mailData.subject}
+                    </span>
+                  </div>
                   <span className="flex flex-none items-center gap-1.5">
                     {delivery && delivery !== 'sent' && (
                       <DeliveryBadge status={delivery} />
@@ -372,47 +485,19 @@ const EmailRow: React.FC<{
                     </span>
                   </span>
                 </div>
-                <div className="text-[11px] text-[#5f6368] dark:text-[#9aa0a6] space-y-px">
-                  {!isSent && mailData.from?.length ? (
-                    <p>from: {fmt(mailData.from)}</p>
-                  ) : null}
-                  {mailData.to?.length ? <p>to: {fmt(mailData.to)}</p> : null}
-                  {mailData.cc?.length ? <p>cc: {fmt(mailData.cc)}</p> : null}
-                </div>
-              </div>
-            ) : (
-              <div className="flex items-baseline gap-2 justify-between">
-                <div className="flex items-baseline gap-2 min-w-0">
-                  <span className="text-[13px] font-semibold text-foreground whitespace-nowrap">
-                    {sender?.name || sender?.email || '—'}
-                  </span>
-                  <span className="text-[12px] text-[#5f6368] dark:text-[#9aa0a6] truncate">
-                    {mailData.body
-                      ? mailData.body.replace(/<[^<>]*>/g, '').slice(0, 80)
-                      : mailData.subject}
-                  </span>
-                </div>
-                <span className="flex flex-none items-center gap-1.5">
-                  {delivery && delivery !== 'sent' && (
-                    <DeliveryBadge status={delivery} />
-                  )}
-                  <span className="text-[11px] text-[#5f6368] dark:text-[#9aa0a6] whitespace-nowrap">
-                    {formatDateISOStringToRelativeDate(createdAt)}
-                  </span>
-                </span>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
 
-          <span className="flex-none text-[#5f6368] dark:text-[#9aa0a6]">
-            {expanded ? (
-              <IconChevronUp size={14} />
-            ) : (
-              <IconChevronDown size={14} />
-            )}
-          </span>
-        </div>
-      </button>
+            <span className="flex-none text-[#5f6368] dark:text-[#9aa0a6]">
+              {expanded ? (
+                <IconChevronUp size={14} />
+              ) : (
+                <IconChevronDown size={14} />
+              )}
+            </span>
+          </div>
+        </button>
+      </SenderContextMenu>
 
       {expanded && (
         <div className="px-4 pb-2 ml-12">
@@ -752,6 +837,7 @@ export interface MailThreadProps {
   startAddress?: string;
   startSubject?: string;
   readOnly?: boolean;
+  onNewEmail?: (email: string) => void;
 }
 
 // skipcq: JS-R1005
@@ -768,6 +854,7 @@ export const MailThread: React.FC<MailThreadProps> = ({
   startAddress,
   startSubject,
   readOnly,
+  onNewEmail,
 }) => {
   const { t } = useTranslation('frontline');
   const [composeMode, setComposeMode] = useState<ComposeMode | null>(null);
@@ -895,6 +982,7 @@ export const MailThread: React.FC<MailThreadProps> = ({
             onReply={() => open(msg, 'reply')}
             onReplyAll={() => open(msg, 'replyAll')}
             onForward={() => open(msg, 'forward')}
+            onNewEmail={onNewEmail}
           />
         ))}
       </div>

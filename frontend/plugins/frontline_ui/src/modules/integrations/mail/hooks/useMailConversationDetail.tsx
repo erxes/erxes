@@ -3,7 +3,7 @@ import { toast } from 'erxes-ui';
 import {
   MAIL_MESSAGE_RETRY_MUTATION,
   MAIL_SEND_MAIL_MUTATION,
-} from '../graphql/mutations/mailMutations';
+} from '@/integrations/mail/graphql/mutations/mailMutations';
 import { useTranslation } from 'react-i18next';
 
 export type MailDeliveryStatus = 'pending' | 'sent' | 'bounced' | 'failed';

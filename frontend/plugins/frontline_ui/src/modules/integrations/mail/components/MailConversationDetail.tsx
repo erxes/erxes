@@ -12,11 +12,15 @@ import { useSetAtom } from 'jotai';
 import {
   MAIL_CONVERSATION_DETAIL_QUERY,
   MAIL_MESSAGE_INSERTED_SUBSCRIPTION,
-} from '../graphql/queries/mailQueries';
+} from '@/integrations/mail/graphql/queries/mailQueries';
 import { useConversationContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationContext';
 import { hideMessageInputState } from '@/inbox/conversations/conversation-detail/states/isInternalState';
-import { useMailSendMail } from '../hooks/useMailConversationDetail';
-import { MailComposePayload, MailMessage, MailThread } from './MailThread';
+import { useMailSendMail } from '@/integrations/mail/hooks/useMailConversationDetail';
+import { MailThread } from '@/integrations/mail/components/MailThread';
+import type {
+  MailComposePayload,
+  MailMessage,
+} from '@/integrations/mail/components/MailThread';
 import { Attachments } from '@/inbox/conversation-messages/components/MessageAttachments';
 import type { IMessage } from '@/inbox/types/Conversation';
 
@@ -145,6 +149,7 @@ export const MailConversationDetail = () => {
           error={error?.message}
           onLoadMore={() => setLimit((value) => value + PAGE_SIZE)}
           onSend={onSend}
+          onNewEmail={startNewEmail}
         />
         {contactEmail && (
           <div className="flex justify-center">
