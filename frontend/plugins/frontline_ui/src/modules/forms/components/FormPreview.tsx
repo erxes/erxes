@@ -428,7 +428,7 @@ export const FormPreviewContent = ({
 
                       if (erxesField.type === 'check') {
                         return (
-                          <ErxesFormItem span={erxesField.span}>
+                          <ErxesFormItem span={2}>
                             <Form.Label>{erxesField.label}</Form.Label>
                             {erxesField.description && (
                               <Form.Description
@@ -437,7 +437,7 @@ export const FormPreviewContent = ({
                                 }}
                               />
                             )}
-                            <div className="flex flex-col gap-2">
+                            <div className="grid grid-cols-2 gap-x-4 gap-y-2">
                               {erxesField.options.map((option) => {
                                 if (!option) return null;
                                 const checked = (

@@ -395,14 +395,14 @@ export const ErxesForm = ({
 
                       if (erxesField.type === 'check') {
                         return (
-                          <ErxesFormItem span={erxesField.column}>
+                          <ErxesFormItem span={2}>
                             <Form.Label className="text-widget-label">
                               {erxesField.text}
                               {erxesField.isRequired && (
                                 <span className="text-destructive"> *</span>
                               )}
                             </Form.Label>
-                            <div className="flex flex-col gap-2">
+                            <div className="grid grid-cols-2 gap-x-4 gap-y-2">
                               {erxesField.options.map((option) => {
                                 if (!option) return null;
                                 const checked = (
