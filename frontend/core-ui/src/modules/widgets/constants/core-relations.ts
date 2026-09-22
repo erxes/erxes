@@ -1,4 +1,4 @@
-import { IconBuilding, IconUser } from '@tabler/icons-react';
+import { IconBuilding, IconRadar, IconUser } from '@tabler/icons-react';
 
 export const CORE_RELATIONS = [
   {
@@ -12,5 +12,15 @@ export const CORE_RELATIONS = [
     name: 'company',
     icon: IconBuilding,
     label: 'Companies',
+  },
+];
+
+export const CORE_TRAILING_RELATIONS = [
+  {
+    pluginName: 'core',
+    name: 'trackedData',
+    icon: IconRadar,
+    label: 'Tracked data',
+    contentTypes: ['core:customer', 'core:company', 'frontline:conversation'],
   },
 ];

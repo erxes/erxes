@@ -1,4 +1,22 @@
+# Changelog
 
+## [3.1.12](https://github.com/erxes/erxes/compare/3.1.11...3.1.12) (2026-09-21)
+
+
+### Bug Fixes
+
+* **frontline:** show plugin icon on My Inbox notifications ([86664bd](https://github.com/erxes/erxes/commit/86664bde92d6d917c926cbef7e6280901ceb8cf4))
+* **queue:** keep shared references when serializing job payloads ([#9387](https://github.com/erxes/erxes/issues/9387)) ([0be204b](https://github.com/erxes/erxes/commit/0be204bc7eed79afdadb139fc15808e2fd688abb))
+
+
+### Features
+
+* **frontline:** restore messenger tracked data ([52ddcd8](https://github.com/erxes/erxes/commit/52ddcd8a24fd0466227bed4b6da7bcdde9ffd24b))
+
+
+### Reverts
+
+* Revert "feat(frontline): limit Call Pro to specific subdomains via CALLPRO_SUBDOMAINS" ([fdb963a](https://github.com/erxes/erxes/commit/fdb963a8475fcd831d67e44f55de5b58f7be9b63))
 
 ## [3.1.11](https://github.com/erxes/erxes/compare/3.1.10...3.1.11) (2026-09-20)
 
@@ -165,7 +183,7 @@
 * **frontline:** add polls for messenger conversations  ([f31acda](https://github.com/erxes/erxes/commit/f31acda70ac0490efd333a1e69660532e9123279))
 * refactor empty state components to use unified Empty component ([a7864ff](https://github.com/erxes/erxes/commit/a7864ff3b221459eb1e764ab1af366bcf312430f))
 
-# Changelog
+
 
 ## [3.1.1](https://github.com/erxes/erxes/compare/3.1.0...3.1.1) (2026-09-07)
 

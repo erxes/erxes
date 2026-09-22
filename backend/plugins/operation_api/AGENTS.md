@@ -38,6 +38,7 @@
   team member (`user.assignedTasks`, `user.createdTasks`).
 - Task import/export through the platform's import-export producers.
 - GraphQL subscriptions for live task and project updates.
+- Settings-configured custom property values on tasks and projects, validated through Core fields and exposed as GraphQL `propertiesData`.
 - GitHub issue synchronisation for tasks.
 - Another service can create a task on a user's behalf from a status id
   (`task.createFromSource`) and check which of a list of ids are tasks
@@ -75,8 +76,8 @@
   `task.tag`; `task.findOne({ _ids })` returns the first task among the ids
   (`{ _id, name, teamId }`) or `null`, skipping ids that are not ObjectIds;
   `task.createFromSource({ userId, doc: { name, status, description?,
-  priority?, assigneeId?, labelIds?, tagIds?, startDate?, targetDate?,
-  propertiesData? } })`
+priority?, assigneeId?, labelIds?, tagIds?, startDate?, targetDate?,
+propertiesData? } })`
   resolves `teamId` from the status, creates the task as `userId`, publishes
   `operationTaskChanged` / `operationTaskListChanged`, and returns `{ _id }`.
 
@@ -87,12 +88,14 @@
   `applySegmentMembership`, `segmentPage*`) and the event dispatcher.
 - Core's `users` and `tags` list queries, named by the lookup fields a segment
   renders.
+- Core's `fields.validateFieldValues` tRPC mutation for task and project custom property values.
 
 ## Data and State
 
 - Every model is generated from the request `subdomain`.
 - `operation_tasks` carries `segmentIds`, written only by the segmentation
   worker through `applyMembership`.
+- Tasks and projects store optional custom field values in the schema-owned `propertiesData` mixed object.
 - A task's `_id` is a Mongo `ObjectId`, not the generated string id most erxes
   collections use.
 - `operation_tasks.propertiesData` holds `operation:task` property values keyed
@@ -117,6 +120,7 @@
   collection.
 - Preserve tenant isolation by using the request `subdomain` for every model,
   resolver, worker and route access.
+- Validate `propertiesData` whenever it is present on a GraphQL create or update; an empty object is a valid explicit clear and must not be treated as omitted.
 - The plugin answers segment requests only about its own collections. No
   segment producer here may call another plugin: that shape is what produced
   the plugin-to-plugin RPC loop the Elasticsearch-era producers carried.

@@ -39,6 +39,7 @@ export interface ITask {
   githubIssueNumber?: number;
   githubIssueUrl?: string;
   githubRepoName?: string;
+  propertiesData?: Record<string, unknown>;
 }
 
 export interface ITaskStatus {
