@@ -40,8 +40,11 @@ import {
 import { getProviderMessageId } from '@/inbox/conversation-messages/utils/message';
 import { useMessageReaction } from '@/inbox/conversation-messages/hooks/useMessageReaction';
 
+const LEGACY_REPLY_QUOTE_PATTERN =
+  /^<blockquote><strong>Replying to<\/strong><br\s*\/?>[\s\S]*?<\/blockquote>/i;
+
 const textOf = (message: IMessage) =>
-  stripHtml(message.content) ||
+  stripHtml(message.content?.replace(LEGACY_REPLY_QUOTE_PATTERN, '')) ||
   message.providerData?.previewText ||
   message.attachments?.[0]?.name ||
   'Attachment';
