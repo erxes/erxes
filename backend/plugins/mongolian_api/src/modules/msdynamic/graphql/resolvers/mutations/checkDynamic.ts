@@ -203,6 +203,18 @@ const buildCustomerCheckResult = (
 
   return result;
 };
+const isCategoryMatched = (
+  dynamicCategory: any,
+  category: any,
+  categoryById: Record<string, any>,
+) => {
+  return (
+    dynamicCategory.Code === category.code &&
+    categoryById[category.parentId]?.code ===
+      dynamicCategory.Parent_Category &&
+    category.name === dynamicCategory.Description
+  );
+};
 /**
  * ============================
  * MS Dynamic Check Mutations
@@ -410,18 +422,11 @@ export const msdynamicCheckMutations = {
         continue;
       }
 
-      const isMatched =
-        dynamicCategory.Code === category.code &&
-        categoryById[category.parentId]?.code ===
-          dynamicCategory.Parent_Category &&
-        category.name === dynamicCategory.Description;
-
-      if (isMatched) {
+      if (isCategoryMatched(dynamicCategory, category, categoryById)) {
         matchedCount += 1;
       } else {
         updateCategories.push(dynamicCategory);
       }
-    }
 
     return {
       create: {
@@ -440,6 +445,7 @@ export const msdynamicCheckMutations = {
         count: matchedCount,
       },
     };
+  }
   },
 
   async toCheckMsdCustomers(
