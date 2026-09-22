@@ -150,7 +150,7 @@ export const MyTickets = ({ limit = 20 }: { limit?: number }) => {
       </div>
 
       {shown.length ? (
-        <Card className="mt-4 divide-y divide-line overflow-hidden">
+        <Card className="mt-4 overflow-hidden">
           <ul className="divide-y divide-line">
             {shown.map((ticket) => (
               <TicketListItem key={ticket._id} ticket={ticket} />

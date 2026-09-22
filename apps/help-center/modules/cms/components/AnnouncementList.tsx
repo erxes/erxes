@@ -11,7 +11,7 @@ export const AnnouncementList = ({
   posts: CmsPost[];
   featureFirst?: boolean;
 }) => (
-  <ul className="divide-y divide-line rounded-2xl border border-line bg-white px-5 sm:px-6">
+  <ul className="@container divide-y divide-line overflow-hidden rounded-xl border border-line bg-white">
     {posts.map((post, index) => {
       const lead = featureFirst && index === 0;
 
@@ -19,11 +19,9 @@ export const AnnouncementList = ({
         <li key={post._id}>
           <Link
             href={announcementHref(post)}
-            className={cn(
-              'group flex flex-col gap-1 py-5 outline-none sm:flex-row sm:gap-8',
-            )}
+            className="group flex flex-col gap-1.5 px-5 py-4 outline-none transition-colors duration-150 hover:bg-subtle/70 focus-visible:bg-subtle @2xl:flex-row @2xl:gap-8 @2xl:py-5"
           >
-            <span className="shrink-0 pt-1 font-mono text-xs uppercase tracking-wide text-muted-foreground sm:w-28">
+            <span className="shrink-0 font-mono text-xs uppercase tracking-wide text-muted-foreground @2xl:w-28 @2xl:pt-1">
               {formatDate(post.publishedDate ?? post.createdAt)}
             </span>
 

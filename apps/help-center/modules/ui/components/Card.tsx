@@ -15,8 +15,8 @@ export const Card = ({
 export const cardLinkClass = (className?: string) =>
   cn(
     surface,
-    'block transition-[border-color,background-color,box-shadow] duration-200 ease-out',
-    'hover:border-line-strong hover:shadow-card',
+    'block transition-[border-color,background-color,box-shadow,transform] duration-200 ease-out',
+    'hover:border-line-strong hover:shadow-card-hover',
     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/30 focus-visible:ring-offset-2',
     className,
   );

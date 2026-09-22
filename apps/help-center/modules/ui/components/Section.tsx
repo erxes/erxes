@@ -19,20 +19,21 @@ export const Section = ({
   children: ReactNode;
 }) => (
   <Reveal as="section" className={cn('scroll-mt-24', className)}>
-    <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
+    <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2">
       <div className="min-w-0">
-        <h2 className="flex items-center gap-2 text-[17px] font-semibold tracking-[-0.01em] text-ink">
+        <h2 className="flex items-center gap-2.5 text-[19px] font-semibold tracking-[-0.02em] text-ink">
           {icon ? (
-            <Icon
-              name={icon}
-              size={16}
-              className="shrink-0 text-muted-foreground"
-            />
+            <span
+              aria-hidden="true"
+              className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-brand-soft text-brand"
+            >
+              <Icon name={icon} size={15} />
+            </span>
           ) : null}
           {title}
         </h2>
         {description ? (
-          <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">
+          <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
             {description}
           </p>
         ) : null}
@@ -40,6 +41,6 @@ export const Section = ({
       {action ? <div className="shrink-0">{action}</div> : null}
     </div>
 
-    <div className="mt-5">{children}</div>
+    <div className="mt-6">{children}</div>
   </Reveal>
 );
