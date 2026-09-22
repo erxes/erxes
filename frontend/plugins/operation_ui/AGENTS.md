@@ -23,7 +23,7 @@
 - Runs as the `operation_ui` Module Federation remote on port `3006`.
 - Registers operation navigation for projects, tasks, team, teams settings, and GitHub integration settings.
 - Provides relation widgets for tasks and projects, a task status property input, notification widgets, and automation widgets.
-- Task and project detail right rails expose configured custom properties in an editable Properties panel with a standard side-menu header and evenly padded, width-constrained scrollable content; the empty state is centered within the remaining rail height.
+- Task and project detail right rails expose configured custom properties in an editable Properties panel with a header action linking to the matching property settings, evenly padded width-constrained scrollable content, and an empty state centered within the remaining rail height.
 - Development Rspack serving ignores generated dependency/cache/output folders to keep local file watchers bounded.
 
 ## Architecture
@@ -69,7 +69,7 @@
 - Module Federation exposes, route paths, widget names, and named exports must stay aligned.
 - Use `erxes-ui` and `ui-modules`; do not import another plugin's source.
 - Keep custom properties as a local panel in the existing task/project right-side `SideMenu`, separate from cross-record relation widget registration; do not duplicate the form in the main detail body.
-- The property side panel uses `SideMenu.Header` and a `p-4` scroll-content inset like neighboring right-rail widgets, while suppressing the shared form's redundant InfoCard shell; its scroll viewport wrapper must remain block-sized to the rail width so fields do not erase the right inset, and it fills the remaining rail height to center the empty state.
+- The property side panel uses `SideMenu.Header` with a standard-size secondary Manage action to `/settings/properties/<contentType>` and a `p-4` scroll-content inset like neighboring right-rail widgets, while suppressing the shared form's redundant InfoCard shell; its scroll viewport wrapper must remain block-sized to the rail width so fields do not erase the right inset, and it fills the remaining rail height to center the empty state.
 - Dev watch ignores must not include plugin source directories required for hot reload.
 
 ## Validation
@@ -80,6 +80,18 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-22` — Match Properties action to Ticket widget
+
+- **Summary:** The Properties header Manage action now uses the same standard-size secondary button treatment as the Ticket widget's Add ticket action.
+- **Affected areas:** `src/modules/operation/components/PropertiesSidePanel.tsx`.
+- **Contracts changed:** None.
+
+### `2026-09-22` — Add Properties management action
+
+- **Summary:** Task and project Properties panel headers now link to the corresponding property configuration page.
+- **Affected areas:** `src/modules/operation/components/PropertiesSidePanel.tsx`.
+- **Contracts changed:** None.
 
 ### `2026-09-22` — Keep Properties content within the right rail
 

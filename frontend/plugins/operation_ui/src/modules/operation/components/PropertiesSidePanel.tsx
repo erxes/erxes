@@ -1,6 +1,7 @@
-import { IconListDetails } from '@tabler/icons-react';
-import { ScrollArea, SideMenu } from 'erxes-ui';
+import { IconListDetails, IconSettings } from '@tabler/icons-react';
+import { Button, ScrollArea, SideMenu } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import { FieldsInDetail, mutateFunction } from 'ui-modules';
 
 const EMPTY_PROPERTIES_DATA: Record<string, unknown> = {};
@@ -23,7 +24,19 @@ export const PropertiesSidePanel = ({
       <SideMenu.Header
         Icon={IconListDetails}
         label={t('properties', { defaultValue: 'Properties' })}
-      />
+      >
+        <Button variant="secondary" asChild>
+          <Link
+            to={`/settings/properties/${contentType}`}
+            aria-label={t('manage-properties', {
+              defaultValue: 'Manage properties',
+            })}
+          >
+            <IconSettings className="size-4" />
+            {t('manage', { defaultValue: 'Manage' })}
+          </Link>
+        </Button>
+      </SideMenu.Header>
       <ScrollArea
         className="min-h-0 flex-auto"
         viewportClassName="[&>div]:!block [&>div]:h-full"
