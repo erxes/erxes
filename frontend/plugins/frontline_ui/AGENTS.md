@@ -354,8 +354,6 @@
 | Mail delivery check      | `src/modules/integrations/mail/components/MailConnectionCheck.tsx`, `src/modules/integrations/mail/hooks/useMailConnectionCheck.tsx`              | Runs `mailCheckConnection` from the integration dialog and renders its verdict                                                                  |
 | Notifications            | `src/widgets/notifications/`                                                                                                                      | Notification remote entries                                                                                                                     |
 
-> > > > > > > f367b4a36cb66a9d80ba39450bef5cd15fd95d21
-
 ## Contracts
 
 ### Provides
@@ -1340,6 +1338,20 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-22` — Form builder no longer crashes on stale fields or discards step reorders
+
+- **Summary:** The form preview rendered a `react-hook-form` `Controller` per
+  field keyed by `field.id`; a field left over from an older, incompatible
+  `localStorage` snapshot of `formContent` could have no `id`, which crashed
+  the whole builder with `Cannot read properties of undefined (reading
+  'substring')`. Separately, dragging a step in the builder called `setSteps`
+  to reorder it but fell through into the field-move branch below, which
+  re-derived the whole steps object from the pre-reorder `value` closure and
+  overwrote the move, so a dragged step snapped back to its original position.
+- **Affected areas:** `src/modules/forms/components/FormPreview.tsx`,
+  `src/modules/forms/components/FormDnd.tsx`
+- **Contracts changed:** None.
+
 ### `2026-09-22` — Reverted the incoming-call double-answer guard
 
 - **Summary:** Reverted `fix(frontline): stop double-answering an incoming
@@ -1454,18 +1466,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 - **Affected areas:**
   `src/modules/integrations/call/components/CallSipActions.tsx`
 - **Contracts changed:** None.
-
-### `2026-09-14` — Help Center stops calling its records topics
-
-- **Summary:** The Help Center surface reused the knowledge base's `kb-*`
-  strings, so its create button, drawer title and empty state all said "topic"
-  while acting on help centers. Those five labels now use `helpcenter-*` keys
-  with inline English fallbacks, matching the `t(key, 'Default')` form already
-  used elsewhere in the plugin.
-- **Affected areas:** `src/pages/HelpCenterIndexPage.tsx`,
-  `src/modules/helpcenter/components/HelpCenterRecordTable.tsx`,
-  `src/modules/helpcenter/components/help-center-drawer/HelpCenterDrawer.tsx`
-- **Contracts changed:** None. The new `helpcenter-*` keys have no entry in
-  `backend/gateway/src/locales/{en,mn}/frontline.json`, which is outside the
-  plugin boundary, so they render from their inline fallbacks until those
-  translations are added as separate repository-level work.

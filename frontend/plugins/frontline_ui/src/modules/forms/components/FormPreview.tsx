@@ -127,7 +127,7 @@ export const FormPreview = () => {
     Object.entries(steps).map(([stepId, step]) => {
       const formSchema: Record<string, z.ZodType> = {};
       step.fields.forEach((field) => {
-        if (!field?.type) return;
+        if (!field?.id || !field.type) return;
 
         if (field.type === 'text' || field.type === 'textarea') {
           formSchema[field.id] = z.string();
@@ -153,7 +153,7 @@ export const FormPreview = () => {
     Object.entries(formContent.steps).map(([stepId, step]) => {
       const stepDefaultValues: Record<string, any> = {};
       step.fields.forEach((field) => {
-        if (!field?.type) return;
+        if (!field?.id || !field.type) return;
         if (
           field.type === 'text' ||
           field.type === 'textarea' ||
@@ -262,7 +262,7 @@ export const FormPreviewContent = ({
           )}
           <InfoCard.Content className="mt-2">
             <div className="grid grid-cols-2 gap-4 mb-2">
-              {fields.map((erxesField) => {
+              {fields.filter((erxesField) => !!erxesField.id).map((erxesField) => {
                 return (
                   <Form.Field
                     key={erxesField.id}
