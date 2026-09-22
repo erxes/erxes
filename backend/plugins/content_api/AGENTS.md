@@ -84,17 +84,17 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
-### `2026-09-16` - Include Postiz sharing in CMS authoring roles
-
-- **Summary:** Grant Postiz sharing to the four existing CMS authoring/editor/admin groups without creating a custom group or changing approval rules.
-- **Affected areas:** Default permission metadata and role-resolution regression tests.
-- **Contracts changed:** Existing default role IDs resolve `cmsPostsSharePostiz` after updated metadata is loaded; Viewer and publication/approval grants are unchanged. No database backfill is required.
-
 ### `2026-09-16` - Persist CMS delivery tenant routing
 
 - **Summary:** Route enterprise and SaaS delivery jobs through their originating tenant, including retries and remote status polling.
 - **Affected areas:** CMS delivery model, service, worker, history query, tenant guards and regression tests.
 - **Contracts changed:** Add optional persisted `subdomain` for backward compatibility. No GraphQL input, signing protocol, secret or startup configuration changes. Legacy enterprise deliveries require verified recovery as documented in `CMS_POSTIZ.md`.
+
+### `2026-09-16` - Include Postiz sharing in CMS authoring roles
+
+- **Summary:** Grant Postiz sharing to the four existing CMS authoring/editor/admin groups without creating a custom group or changing approval rules.
+- **Affected areas:** Default permission metadata and role-resolution regression tests.
+- **Contracts changed:** Existing default role IDs resolve `cmsPostsSharePostiz` after updated metadata is loaded; Viewer and publication/approval grants are unchanged. No database backfill is required.
 
 ### `2026-09-15` - Match agent installer QEMU compatibility
 

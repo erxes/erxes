@@ -116,6 +116,14 @@ erxes is built as an **Nx-powered monorepo** with a modern microservices archite
 - **MongoDB** 27017
 - **Redis** 6379
 
+#### For development environment
+
+`docker-compose.yml` runs MongoDB 7 and Redis 7 on the ports `.env` expects:
+
+```bash
+docker compose up -d
+```
+
 ### Installation
 
 ```bash
@@ -234,11 +242,5 @@ For general help using erxes, please refer to the erxes documentation. For addit
  
 ## License
 See the <a href="https://github.com/erxes/erxes/blob/master/LICENSE.md" >**LICENSE**</a> file for licensing information.
-
-## ⚡ Quick Start (5 minutes)
-
-docker compose up -d
-open http://localhost:3000
-
 
 

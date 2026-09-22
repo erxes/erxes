@@ -1,0 +1,115 @@
+# Local development infrastructure for erxes.
+#
+# Runs only the backing services the Nx dev servers need — MongoDB 7 and
+# Redis 7 — while core-api, the gateway, and plugins run on the host
+# via `pnpm nx serve <project>` / `pnpm dev:apis` / `pnpm dev:uis`.
+#
+# Quick start:
+#   cp .env.sample .env          # one-time, then edit
+#   docker compose up -d
+#   pnpm dev:core-api
+#
+# Values are interpolated from .env (docker compose reads it automatically):
+#   MONGO_PORT         -> published mongod port    (default 27017)
+#   REDIS_PORT         -> published redis port     (default 6379)
+#   REDIS_PASSWORD     -> optional --requirepass   (default: no auth)
+#
+# Apps on the host connect with the .env values:
+#   MONGO_URL=mongodb://localhost:27017/erxes
+#   REDIS_HOST=localhost  REDIS_PORT=6379
+
+services:
+  mongo:
+    image: mongo:7
+    # Single-node replica set: change streams and transactions require one
+    # (rs0). mongod listens on MONGO_PORT inside the container and the member
+    # is registered as localhost:<MONGO_PORT>, so the node can reach itself
+    # and apps on the host can use the plain
+    # mongodb://localhost:<MONGO_PORT>/erxes URL from .env unchanged. A client
+    # inside this compose network uses mongo:<MONGO_PORT> with
+    # directConnection instead — nothing here does.
+    command:
+      [
+        "mongod",
+        "--replSet",
+        "rs0",
+        "--bind_ip_all",
+        "--port",
+        "${MONGO_PORT:-27017}",
+      ]
+    ports:
+      - "127.0.0.1:${MONGO_PORT:-27017}:${MONGO_PORT:-27017}"
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mongosh",
+          "--port",
+          "${MONGO_PORT:-27017}",
+          "--quiet",
+          "--eval",
+          "db.adminCommand('ping')",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  # Initializes the replica set once, and repairs the member address when
+  # MONGO_PORT changed since the volume was initialized (force-reconfig works
+  # even while the node cannot elect itself on the stale address).
+  mongo-init:
+    image: mongo:7
+    depends_on:
+      mongo:
+        condition: service_healthy
+    command:
+      - mongosh
+      - --host
+      - mongo:${MONGO_PORT:-27017}
+      - --quiet
+      - --eval
+      - >-
+        const want = "localhost:${MONGO_PORT:-27017}";
+        try { rs.initiate({ _id: "rs0", members: [{ _id: 0, host: want }] }) }
+        catch (e) {
+          if (e.codeName !== "AlreadyInitialized") throw e;
+          const cfg = rs.conf();
+          if (cfg.members[0].host !== want) {
+            cfg.members[0].host = want;
+            cfg.version += 1;
+            try { rs.reconfig(cfg) } catch (_) { rs.reconfig(cfg, { force: true }) }
+          }
+        }
+    restart: "no"
+
+  redis:
+    image: redis:7
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+    command:
+      - sh
+      - -c
+      - >-
+        exec redis-server --appendonly yes
+        $${REDIS_PASSWORD:+--requirepass "$$REDIS_PASSWORD"}
+    ports:
+      - "127.0.0.1:${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "redis-cli $${REDIS_PASSWORD:+-a \"$$REDIS_PASSWORD\"} ping | grep -q PONG",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+volumes:
+  mongo-data:
+  redis-data:
