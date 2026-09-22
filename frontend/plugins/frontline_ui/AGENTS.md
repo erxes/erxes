@@ -652,15 +652,6 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
   `body` at `z-50`, so any select inside the widget must raise its content
   above the widget (`SelectPhoneCallFrom` uses `z-110`), or its list opens
   hidden behind it.
-- Answering an incoming call is only valid while its JsSIP session is still
-  ringing. `answerCall` checks `rtcSession.isInProgress()` before calling
-  `answer()`, because `answer()` flips the session to `STATUS_ANSWERED` (`5`)
-  synchronously and then throws `INVALID_STATE_ERROR: Invalid status: 5` on
-  every later call, while `callStatus` stays `STARTING` until the `accepted`
-  event arrives after `getUserMedia` and the 200 OK. `IncomingCall` also
-  disables its `Answer` button once clicked, so the gap between the click and
-  `accepted` cannot be re-triggered. Any new answer path must keep both guards.
-
 - `SipProvider` restarts its JsSIP user agent in place when `host`, `port` or
   `user` change, so a `Call from` change to different SIP credentials
   re-registers and one on the same credentials keeps the live connection. Never
@@ -1349,16 +1340,14 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 <!-- Newest first. Keep at most 10 entries. -->
 
-### `2026-09-22` — Answering an incoming call cannot be double-triggered
+### `2026-09-22` — Reverted the incoming-call double-answer guard
 
-- **Summary:** Clicking `Answer` more than once while the browser was still
-  acquiring the microphone flooded the console with
-  `INVALID_STATE_ERROR: Invalid status: 5` from JsSIP, because `answerCall`
-  re-entered `RTCSession.answer()` on a session already in `STATUS_ANSWERED`
-  (`callStatus` only leaves `STARTING` on the `accepted` event). `answerCall`
-  now returns early unless the session `isInProgress()`, logs a genuine failure
-  through the provider's logger instead of `console.error`, and the `Answer`
-  button disables itself after the first click.
+- **Summary:** Reverted `fix(frontline): stop double-answering an incoming
+  call`. `answerCall` no longer checks `rtcSession.isInProgress()` before
+  `answer()` and logs through `console.error` again, and the `Answer` button
+  has no `isAnswering` disabled state. Clicking `Answer` repeatedly while the
+  browser is still acquiring the microphone therefore throws
+  `INVALID_STATE_ERROR: Invalid status: 5` from JsSIP once per click again.
 - **Affected areas:**
   `src/modules/integrations/call/components/SipProvider.tsx`,
   `src/modules/integrations/call/components/IncomingCall.tsx`
