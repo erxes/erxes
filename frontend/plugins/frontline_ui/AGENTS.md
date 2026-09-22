@@ -1358,24 +1358,18 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 <!-- Newest first. Keep at most 10 entries. -->
 
-### `2026-09-22` — Surveys requested from the client portal get approved here
+### `2026-09-22` — Reverted the incoming-call double-answer guard
 
-- **Summary:** The channel survey list became the approval queue for the new
-  `pending` survey status: a pending badge, a `pending` status filter option, a
-  `Created by` column naming the client portal requester, a
-  `<n> pending approval` sub-header shortcut, and `Approve` in both the row menu
-  and the command bar, each a `surveyToggleStatus` to `active` that refetches
-  the list and the counters.
+- **Summary:** Reverted `fix(frontline): stop double-answering an incoming
+  call`. `answerCall` no longer checks `rtcSession.isInProgress()` before
+  `answer()` and logs through `console.error` again, and the `Answer` button
+  has no `isAnswering` disabled state. Clicking `Answer` repeatedly while the
+  browser is still acquiring the microphone therefore throws
+  `INVALID_STATE_ERROR: Invalid status: 5` from JsSIP once per click again.
 - **Affected areas:**
-  `src/modules/survey/types/surveyTypes.ts`,
-  `src/modules/survey/graphql/surveyQueries.ts`,
-  `src/modules/survey/components/survey-page/survey-columns.tsx`,
-  `src/modules/survey/components/survey-page/SurveySubHeader.tsx`,
-  `src/modules/survey/components/survey-page/command-bar/survey-command-bar.tsx`,
-  `src/modules/forms/components/form-page/filters/FormStatus.tsx`
-- **Contracts changed:** `FormStatus.BarItem` and `FormStatus.View` take an
-  optional `statuses` prop (default `['active', 'archived']`, so forms are
-  unchanged); `SurveyFields` now selects `createdCpUserId` and `createdCpUser`.
+  `src/modules/integrations/call/components/SipProvider.tsx`,
+  `src/modules/integrations/call/components/IncomingCall.tsx`
+- **Contracts changed:** None.
 
 ### `2026-09-21` — Move to channel on every channel-owned resource
 
@@ -1450,6 +1444,18 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `channelId` field; `IPipeline` declares `propertyIds` and
   `isPropertySelectionConfigured`; consumes `conversationConvertToCard` (with
   `customFieldsData` and `attachments`) and `conversationConvertedItems`.
+
+### `2026-09-17` — Pipeline delete reports why it failed
+
+- **Summary:** Deleting a pipeline that still has a ticket threw an
+  `ApolloError` with no `onError` handler, surfacing as an unhandled runtime
+  error in dev and silently doing nothing in production. `usePipelineRemove`
+  now shows a destructive toast with the server's message, and the delete
+  command's call site swallows the resulting promise rejection so it can't
+  reach the console as unhandled.
+- **Affected areas:** `src/modules/pipelines/hooks/usePipelineRemove.tsx`,
+  `src/modules/pipelines/components/PipelinesList.tsx`
+- **Contracts changed:** None.
 
 ### `2026-09-15` — Several call integrations can be switched on
 

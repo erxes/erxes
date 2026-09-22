@@ -19,7 +19,11 @@ export const PIPELINE_TABS: {
   { segment: PIPELINE_TAB_SEGMENTS.statuses, labelKey: 'ticket-statuses' },
   { segment: PIPELINE_TAB_SEGMENTS.configs, labelKey: 'configuration' },
   { segment: PIPELINE_TAB_SEGMENTS.permissions, labelKey: 'permissions' },
-  { segment: PIPELINE_TAB_SEGMENTS.properties, labelKey: 'properties' },
+  {
+    segment: PIPELINE_TAB_SEGMENTS.properties,
+    labelKey: 'properties',
+    defaultLabel: 'Properties',
+  },
   {
     segment: PIPELINE_TAB_SEGMENTS.mail,
     labelKey: 'pipeline-mail',

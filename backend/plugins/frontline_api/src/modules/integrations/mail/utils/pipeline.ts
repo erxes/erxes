@@ -12,6 +12,7 @@ import { assertSendableIntegration } from '@/integrations/mail/utils/transports/
 export interface IPipelineMailSettings {
   senderName?: string;
   forwardFrom?: string;
+  statusId?: string;
 }
 
 export interface IPipelineMailConnectInput extends IPipelineMailSettings {
@@ -47,6 +48,31 @@ const getPipeline = async (models: IModels, pipelineId: string) => {
   }
 
   return pipeline;
+};
+
+const normalizePipelineStatusId = async (
+  models: IModels,
+  pipelineId: string,
+  value: unknown,
+) => {
+  const statusId = typeof value === 'string' ? value.trim() : '';
+
+  if (!statusId) {
+    return '';
+  }
+
+  const status = await models.Status.findOne({
+    _id: statusId,
+    pipelineId,
+  }).lean();
+
+  if (!status) {
+    throw new Error(
+      'New mail tickets can only open in a status of this pipeline',
+    );
+  }
+
+  return statusId;
 };
 
 const releaseAddress = async (models: IModels, address: string) => {
@@ -86,8 +112,15 @@ export const connectPipelineMail = async ({
   pipelineId,
   senderName,
   forwardFrom,
+  statusId,
 }: IPipelineMailConnectInput): Promise<IMailIntegrationDocument> => {
   const pipeline = await getPipeline(models, pipelineId);
+
+  const openingStatusId = await normalizePipelineStatusId(
+    models,
+    pipelineId,
+    statusId,
+  );
 
   await ensureMailIndexes(models, subdomain);
 
@@ -110,6 +143,7 @@ export const connectPipelineMail = async ({
         $set: {
           name: pipeline.name,
           senderName: normalizeSenderName(senderName),
+          statusId: openingStatusId,
           healthStatus: MAIL_HEALTH_STATUSES.HEALTHY,
           error: '',
           disabledAt: null,
@@ -131,6 +165,7 @@ export const connectPipelineMail = async ({
     name: pipeline.name,
     address,
     senderName: normalizeSenderName(senderName),
+    statusId: openingStatusId,
     healthStatus: MAIL_HEALTH_STATUSES.HEALTHY,
     error: '',
     ...forwardSetupFields(normalizeForwardFrom(forwardFrom, address)),
@@ -140,7 +175,7 @@ export const connectPipelineMail = async ({
 export const updatePipelineMail = async (
   models: IModels,
   pipelineId: string,
-  { senderName, forwardFrom }: IPipelineMailSettings,
+  { senderName, forwardFrom, statusId }: IPipelineMailSettings,
 ): Promise<IMailIntegrationDocument> => {
   const integration = await findPipelineIntegration(models, pipelineId);
 
@@ -155,6 +190,14 @@ export const updatePipelineMail = async (
 
   if (senderName !== undefined) {
     update.senderName = normalizeSenderName(senderName);
+  }
+
+  if (statusId !== undefined) {
+    update.statusId = await normalizePipelineStatusId(
+      models,
+      pipelineId,
+      statusId,
+    );
   }
 
   if (forwardFrom !== undefined) {

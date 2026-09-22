@@ -1,4 +1,4 @@
-import { useMutation } from '@apollo/client';
+import { ApolloError, useMutation } from '@apollo/client';
 import { REMOVE_PIPELINE } from '@/pipelines/graphql/mutations/removePipeline';
 import { toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
@@ -12,6 +12,13 @@ export const usePipelineRemove = () => {
           'pipeline-removed-successfully',
           'Pipeline removed successfully',
         ),
+      });
+    },
+    onError: (e: ApolloError) => {
+      toast({
+        title: t('error', 'Error'),
+        description: e.message,
+        variant: 'destructive',
       });
     },
     refetchQueries: ['GetTicketPipelines'],
