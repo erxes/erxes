@@ -1,4 +1,6 @@
+import { IconClock } from '@tabler/icons-react';
 import {
+  Button,
   Combobox,
   Command,
   Filter,
@@ -10,11 +12,15 @@ import {
 import { useTranslation } from 'react-i18next';
 import { FormStatus } from '@/forms/components/form-page/filters/FormStatus';
 import { useSurveyTotalCount } from '@/survey/hooks/useSurveyTotalCount';
-import { SurveysPageHotKeyScope } from '@/survey/types/surveyTypes';
+import {
+  SURVEY_STATUS,
+  SURVEY_STATUSES,
+  SurveysPageHotKeyScope,
+} from '@/survey/types/surveyTypes';
 
 export const SurveySubHeader = ({ channelId }: { channelId?: string }) => {
   const { t } = useTranslation('common');
-  const [queries] = useMultiQueryState<{
+  const [queries, setQueries] = useMultiQueryState<{
     status: string;
     searchValue: string;
   }>(['status', 'searchValue']);
@@ -27,6 +33,11 @@ export const SurveySubHeader = ({ channelId }: { channelId?: string }) => {
       searchValue: searchValue || undefined,
       channelId,
     },
+  });
+
+  const { totalCount: pendingCount } = useSurveyTotalCount({
+    variables: { status: SURVEY_STATUS.PENDING, channelId },
+    skip: !channelId,
   });
 
   const hasFilters = Object.values(queries || {}).some(
@@ -52,14 +63,25 @@ export const SurveySubHeader = ({ channelId }: { channelId?: string }) => {
                 </Command.List>
               </Command>
             </Filter.View>
-            <FormStatus.View />
+            <FormStatus.View statuses={SURVEY_STATUSES} />
           </Combobox.Content>
         </Filter.Popover>
         <Filter.Dialog>
           <Filter.DialogStringView filterKey="searchValue" />
         </Filter.Dialog>
         <Filter.SearchValueBarItem />
-        <FormStatus.BarItem />
+        <FormStatus.BarItem statuses={SURVEY_STATUSES} />
+
+        {!!pendingCount && status !== SURVEY_STATUS.PENDING && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setQueries({ status: SURVEY_STATUS.PENDING })}
+          >
+            <IconClock />
+            {`${pendingCount} ${t('pending-approval', 'pending approval')}`}
+          </Button>
+        )}
 
         <div className="text-muted-foreground font-medium text-sm whitespace-nowrap h-7 leading-7">
           {isUndefinedOrNull(totalCount) || loading ? (

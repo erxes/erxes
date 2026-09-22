@@ -114,6 +114,19 @@
   per-row results dialog, and a command bar that archives or removes a
   selection. The channel detail page reaches it through the
   `Manage channel surveys` row.
+- A survey requested by a client portal user arrives as `pending` and is
+  approved from this list. The status filter offers `pending` alongside
+  `active` and `archived`, `FormStatus.Badge` renders `pending` as a warning
+  clock badge, a `Created by` column names the requester next to a
+  `Client portal` badge (falling back to the team member's full name for an
+  agent-created survey), and the channel sub-header carries a
+  `<n> pending approval` shortcut that filters the list — it reads its own
+  `surveyTotalCount` with `status: 'pending'`, so it stays visible under any
+  other filter, and is skipped without a `channelId` so the read-only
+  `frontline/surveys` board never offers an approval it cannot perform. A pending row's row menu swaps Archive/Unarchive for
+  `Approve`, and the command bar shows an `Approve` button whenever the
+  selection holds a pending survey, approving only those ids. Approving is a
+  `surveyToggleStatus` to `active`, which refetches the list and the counts.
 - Creating and editing a survey is a full-page step wizard on
   `settings/frontline/channels/:id/surveys/create` and
   `settings/frontline/channels/:id/surveys/:surveyId`, laid out exactly like the
@@ -622,6 +635,11 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
 - `MoveToChannelDialog` owns its `open` state in the row cell, outside the
   `Popover` / `DropdownMenu` content. Rendering it inside the menu content
   unmounts it the moment the menu closes and the dialog never appears.
+- `FormStatus` is shared by the forms and surveys surfaces. Its `BarItem` and
+  `View` default to `['active', 'archived']`; only the surveys sub-header
+  passes `statuses`, so adding a status there must never change the forms
+  filter. Its `Badge` keeps rendering the raw status string, and an unknown
+  status falls back to the neutral dashed-circle badge.
 
 - `CONFIG` keeps a top-level `icon` alongside `navigationGroup.icon`. The host
   reads only the top-level one for a `frontline:*` notification's avatar in My
@@ -1497,6 +1515,18 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `channelId` field; `IPipeline` declares `propertyIds` and
   `isPropertySelectionConfigured`; consumes `conversationConvertToCard` (with
   `customFieldsData` and `attachments`) and `conversationConvertedItems`.
+
+### `2026-09-17` — Pipeline delete reports why it failed
+
+- **Summary:** Deleting a pipeline that still has a ticket threw an
+  `ApolloError` with no `onError` handler, surfacing as an unhandled runtime
+  error in dev and silently doing nothing in production. `usePipelineRemove`
+  now shows a destructive toast with the server's message, and the delete
+  command's call site swallows the resulting promise rejection so it can't
+  reach the console as unhandled.
+- **Affected areas:** `src/modules/pipelines/hooks/usePipelineRemove.tsx`,
+  `src/modules/pipelines/components/PipelinesList.tsx`
+- **Contracts changed:** None.
 
 ### `2026-09-15` — Several call integrations can be switched on
 

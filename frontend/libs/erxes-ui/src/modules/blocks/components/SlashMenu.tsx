@@ -24,6 +24,7 @@ import {
 export const SlashMenu = ({
   items,
   selectedIndex,
+  onItemClick,
 }: SuggestionMenuProps<DefaultReactSuggestionItem>) => {
   return (
     <SuggestionMenu>
@@ -31,10 +32,10 @@ export const SlashMenu = ({
         <SuggestionMenuItem
           isSelected={selectedIndex === index}
           key={item.title}
-          onClick={item.onItemClick}
+          onClick={() => onItemClick?.(item)}
         >
           <span className="flex items-center gap-2">
-            {icons[item.title as keyof typeof icons]}
+            {icons[item.title as keyof typeof icons] ?? item.icon}
             {item.title}
           </span>
           <p className="text-xs font-normal text-muted-foreground">
@@ -54,7 +55,6 @@ const icons = {
   'Bullet List': <IconList />,
   'Check List': <IconListCheck />,
   Paragraph: <IconLetterT />,
-  'Code Block': <IconCode />,
   Table: <IconTable />,
   Image: <IconPhoto />,
   Gallery: <IconLayoutGrid />,

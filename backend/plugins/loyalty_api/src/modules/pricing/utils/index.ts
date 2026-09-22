@@ -102,7 +102,7 @@ const applyPriorityConditions = (
     conditions.$and = [
       ...(conditions.$and || []),
       {
-        $or: [{ priority: { $ne: 'posBase' } }],
+        $or: [{ priority: { $nin: ['posBase', 'pipelineBase'] } }],
       },
     ];
   }

@@ -46,12 +46,41 @@ export interface ISurveyInput {
   status?: string;
 }
 
+export interface ICpSurveyOptionInput {
+  text: string;
+  order?: number;
+}
+
+export interface ICpSurveyStepInput {
+  name?: string;
+  description?: string;
+  order?: number;
+  question: string;
+  options: ICpSurveyOptionInput[];
+  allowMultiselect?: boolean;
+}
+
+export interface ICpSurveyInput {
+  title: string;
+  channelId: string;
+  brandId?: string;
+  question?: string;
+  options?: ICpSurveyOptionInput[];
+  steps?: ICpSurveyStepInput[];
+  allowMultiselect?: boolean;
+  durationHours?: number;
+}
+
 export interface ISurveyModel extends Model<ISurveyDocument> {
   getSurvey(_id: string): Promise<ISurveyDocument>;
   generateCode(): Promise<string>;
   createSurvey(
     doc: ISurveyInput,
     createdUserId: string,
+  ): Promise<ISurveyDocument>;
+  createCpSurvey(
+    doc: ICpSurveyInput,
+    createdCpUserId: string,
   ): Promise<ISurveyDocument>;
   updateSurvey(_id: string, doc: ISurveyInput): Promise<ISurveyDocument>;
   removeSurveys(_ids: string[]): Promise<string[]>;
@@ -179,6 +208,29 @@ export const normalizeSurveySteps = (
   });
 };
 
+const toVotingOnlyOptions = (
+  options: ICpSurveyOptionInput[] = [],
+): ISurveyOptionInput[] =>
+  options.map((option) => ({ text: option.text, order: option.order }));
+
+const toVotingOnlyInput = (doc: ICpSurveyInput): ISurveyInput => ({
+  title: doc.title,
+  channelId: doc.channelId,
+  brandId: doc.brandId,
+  question: doc.question,
+  allowMultiselect: doc.allowMultiselect,
+  durationHours: doc.durationHours,
+  options: toVotingOnlyOptions(doc.options),
+  steps: doc.steps?.map((step) => ({
+    name: step.name,
+    description: step.description,
+    order: step.order,
+    question: step.question,
+    allowMultiselect: step.allowMultiselect,
+    options: toVotingOnlyOptions(step.options),
+  })),
+});
+
 const validateDoc = (doc: ISurveyInput) => {
   const title = (doc.title || '').trim();
 
@@ -284,6 +336,19 @@ export const loadSurveyClass = (models: IModels) => {
         status: doc.status || SURVEY_STATUSES.ACTIVE,
         sentCount: 0,
         createdUserId,
+      });
+    }
+
+    public static async createCpSurvey(
+      doc: ICpSurveyInput,
+      createdCpUserId: string,
+    ) {
+      return models.Surveys.create({
+        ...validateDoc(toVotingOnlyInput(doc)),
+        code: await models.Surveys.generateCode(),
+        status: SURVEY_STATUSES.PENDING,
+        sentCount: 0,
+        createdCpUserId,
       });
     }
 
