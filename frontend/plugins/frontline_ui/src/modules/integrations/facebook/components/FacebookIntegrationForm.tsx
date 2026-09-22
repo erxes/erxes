@@ -6,12 +6,12 @@ import { useTranslation } from 'react-i18next';
 import {
   FbIntegrationProvider,
   useFbIntegrationContext,
-} from '../contexts/FbIntegrationContext';
+} from '@/integrations/facebook/contexts/FbIntegrationContext';
 import {
   activeFacebookFormStepAtom,
   facebookFormSheetAtom,
   resetFacebookAddStateAtom,
-} from '../states/facebookStates';
+} from '@/integrations/facebook/states/facebookStates';
 import { FacebookGetAccounts } from './FacebookGetAccounts';
 import { FacebookGetPages } from './FacebookGetPages';
 import { FacebookIntegrationSetup } from './FacebookIntegrationSetup';

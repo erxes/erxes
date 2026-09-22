@@ -15,7 +15,7 @@ import {
   resetFacebookAddStateAtom,
   selectedFacebookAccountAtom,
   selectedFacebookPageAtom,
-} from '../states/facebookStates';
+} from '@/integrations/facebook/states/facebookStates';
 import {
   FacebookIntegrationFormLayout,
   FacebookIntegrationFormSteps,

@@ -8,8 +8,8 @@ import { useAtom, useSetAtom } from 'jotai';
 import {
   activeFacebookFormStepAtom,
   selectedFacebookPageAtom,
-} from '../states/facebookStates';
-import { useFacebookPages } from '../hooks/useFacebookPages';
+} from '@/integrations/facebook/states/facebookStates';
+import { useFacebookPages } from '@/integrations/facebook/hooks/useFacebookPages';
 
 export const FacebookGetPages = () => {
   const { t } = useTranslation('frontline');

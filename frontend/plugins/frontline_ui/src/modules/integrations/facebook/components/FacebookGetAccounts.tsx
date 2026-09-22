@@ -8,21 +8,21 @@ import {
   RadioGroup,
   Spinner,
 } from 'erxes-ui';
-import { useFacebookAccounts } from '../hooks/useFacebookAccounts';
+import { useFacebookAccounts } from '@/integrations/facebook/hooks/useFacebookAccounts';
 import { IconBrandFacebook } from '@tabler/icons-react';
 import { useAtom, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import {
   activeFacebookFormStepAtom,
   selectedFacebookAccountAtom,
-} from '../states/facebookStates';
+} from '@/integrations/facebook/states/facebookStates';
 import {
   FacebookIntegrationFormLayout,
   FacebookIntegrationFormSteps,
 } from './FacebookIntegrationForm';
-import { useFacebookPages } from '../hooks/useFacebookPages';
-import { useFbAuthPopup } from '../hooks/useFbAuthPopup';
-import { useFbIntegrationContext } from '../contexts/FbIntegrationContext';
+import { useFacebookPages } from '@/integrations/facebook/hooks/useFacebookPages';
+import { useFbAuthPopup } from '@/integrations/facebook/hooks/useFbAuthPopup';
+import { useFbIntegrationContext } from '@/integrations/facebook/contexts/FbIntegrationContext';
 
 const FacebookAccountRow = ({
   account,
