@@ -51,6 +51,14 @@ const SURVEY_FIELDS = gql`
         avatar
       }
     }
+    createdCpUserId
+    createdCpUser {
+      _id
+      firstName
+      lastName
+      email
+      phone
+    }
   }
 `;
 

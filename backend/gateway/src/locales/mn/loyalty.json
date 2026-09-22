@@ -301,6 +301,7 @@
   "priority": "Тэргүүлэх",
   "public": "Нийтийн",
   "pos-base": "POS суурь үнэ",
+  "pipeline-base": "Суурь үнэ",
   "quantity-enabled": "Тоо хэмжээ идэвхтэй",
   "price-enabled": "Үнэ идэвхтэй",
   "expiry-enabled": "Хугацаа дуусалт идэвхтэй",

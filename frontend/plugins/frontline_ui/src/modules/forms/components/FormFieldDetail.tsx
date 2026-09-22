@@ -91,10 +91,16 @@ export const FormFieldDetail = ({
   }, [fieldId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    const description = draft?.description || '';
+    let isActive = true;
+    const description = fieldData?.description || '';
     editor.tryParseHTMLToBlocks(description).then((blocks) => {
-      editor.replaceBlocks(editor.document, blocks);
+      if (isActive) {
+        editor.replaceBlocks(editor.document, blocks);
+      }
     });
+    return () => {
+      isActive = false;
+    };
   }, [fieldId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const availableFields = Object.entries(fields)
