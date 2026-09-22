@@ -136,11 +136,8 @@ const SipProvider = ({
         `Calling answerCall() is not allowed when call status is ${sipState.callStatus} and call direction is ${sipState.callDirection}`,
       );
     }
-    if (!rtcSessionState?.isInProgress()) {
-      return;
-    }
     try {
-      rtcSessionState.answer({
+      rtcSessionState?.answer({
         mediaConstraints: {
           audio: true,
           video: false,
@@ -150,7 +147,7 @@ const SipProvider = ({
         },
       });
     } catch (error) {
-      loggerRef.current.debug('answerCall() failed', error);
+      console.error(error);
     }
   }, [
     sipState.callStatus,
