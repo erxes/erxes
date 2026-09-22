@@ -193,7 +193,7 @@ export const FormFieldDetail = ({
     handleClose();
   };
 
-  const handleSave = () => {
+  const handleConfirm = () => {
     handleChangeField(stepId, fieldId, draft);
     handleClose();
   };
@@ -535,7 +535,7 @@ export const FormFieldDetail = ({
           <IconTrash />
           {t('delete', 'Delete')}
         </Button>
-        <Button onClick={handleSave}>{t('save', 'Save')}</Button>
+        <Button onClick={handleConfirm}>{t('confirm', 'Confirm')}</Button>
       </Sheet.Footer>
     </div>
   );
