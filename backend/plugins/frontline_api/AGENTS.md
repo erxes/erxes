@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-09-21`
+- **Last synchronized:** `2026-09-22`
 
 ## Scope
 
@@ -61,8 +61,8 @@
 ## Current Capabilities
 
 - Surveys are a reusable definition (`title`, ordered `steps`, optional
-  `durationHours`, optional `brandId`, `active`/`archived` status) owned by a
-  channel through `channelId`. Each step is one question with its own
+  `durationHours`, optional `brandId`, `pending`/`active`/`archived` status)
+  owned by a channel through `channelId`. Each step is one question with its own
   `name`, `description`, ordered `options` and `allowMultiselect`, so a survey can
   ask several questions in sequence. Step 1 stays mirrored on the survey's
   top-level `question` / `options` / `allowMultiselect`, which is what every
@@ -70,12 +70,12 @@
   conversation with `surveySendToConversation`,
   which writes a snapshot to the message's `extraData.survey` and bumps the
   survey's `sentCount` and sets `hasSurvey` on the conversation. Client portal
-  users vote through `cpSurveyVote`; each vote recomputes the tallies, marks the
+  users vote through `cpSurveySubmit`; each vote recomputes the tallies, marks the
   conversation as customer-responded and unread, then republishes the message
   through `pConversationClientMessageInserted`, so the conversation rises in
   the agent's list and both the inbox and the portal update without a refresh.
 - A survey option can arm a **ticket automation**: `ticketCreationEnabled`,
-  `ticketCreationThreshold`, `ticketPipelineId` and `ticketStatusId`. Every vote written through `cpSurveySubmit` or `cpSurveyVote` counts
+  `ticketCreationThreshold`, `ticketPipelineId` and `ticketStatusId`. Every vote written through `cpSurveySubmit` counts
   that option's votes and, once the count reaches the threshold, creates one
   ticket in the configured status and records `ticketCreated` / `ticketId` back
   on the option. The ticket name is always derived —
@@ -96,6 +96,21 @@
   ledger carries `cpUserId` and a partial unique index on
   `(surveyId, cpUserId)` enforces it, so a repeat submit — even one choosing
   different options — returns `alreadyVoted` and writes nothing.
+- A client portal user may also **request** a survey with `cpSurveyAdd`. The
+  request is moderated, never live: `Surveys.createCpSurvey` forces
+  `status: 'pending'`, stamps `createdCpUserId` instead of `createdUserId`, and
+  maps every option through a voting-only projection, so a portal caller can
+  never arm an option's ticket automation. `pending` is invisible to every
+  client portal read — `cpSurveys` filters on `active` and `getActiveSurvey`
+  backs `cpSurveyDetail` and `cpSurveySubmit` — and `surveySendToConversation`
+  and the ticket automation both refuse a non-`active` survey, so nothing
+  reaches a customer until an agent approves it by moving the status to
+  `active` through `surveyToggleStatus` (permission `surveyToggleStatus`; no new
+  action). `cpSurveyAdd` requires a `channelId` whose channel exists and holds
+  an active messenger integration, and copies that integration's `brandId` onto
+  the survey, so an approved request is votable rather than dead on arrival.
+  `Survey.createdCpUser` resolves the requester's name over tRPC for the
+  agent's approval queue.
 
 - A channel-owned resource moves between channels through one mutation,
   `channelMoveResources`. It covers integrations, ticket pipelines, forms,
@@ -233,6 +248,10 @@
   `integration | pipeline | form | survey | responseTemplate`;
   `ChannelMoveResourcesResult` carries `movedIds`, `movedCount`,
   `sourceChannelId`, `targetChannelId` and `targetChannelName`.
+- `cpSurveyAdd(title: String!, channelId: String!, question: String, options: [CpSurveyOptionInput!], steps: [CpSurveyStepInput!], allowMultiselect: Boolean, durationHours: Int): Survey`
+  — a signed-in client portal user's survey request, created as `pending`.
+  `CpSurveyOptionInput` carries `text` and `order` only; there is no client
+  portal input that can set an option's ticket-automation fields.
 - Plugin meta `properties` (`src/meta/properties.ts`) — the `conversation` and
   `ticket` property types, each with the `systemFields` (`code`, `name`, `type`)
   core lists as the read-only "Basic information" group in Settings →
@@ -241,7 +260,8 @@
 
 ### Consumes
 
-- `core` over tRPC — `companies.findOne` (query), `companies.createCompany` and
+- `core` over tRPC — `cpUsers.get` (query, `{ id }`), which backs
+  `Survey.createdCpUser`; `companies.findOne` (query), `companies.createCompany` and
   `companies.updateCompany` (mutations, `{ _id, doc }` / `{ doc }`),
   `customers.createMessengerCustomer` / `updateMessengerCustomer`,
   `conformity.create`, and `fields.generatePropertiesData`, which splits
@@ -266,6 +286,26 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-22` — Client portal users request surveys for approval
+
+- **Summary:** `cpSurveyAdd` lets a signed-in client portal user submit a
+  survey against a channel that has an active messenger integration; it is
+  stored as the new `pending` status with `createdCpUserId` and voting-only
+  options, stays hidden from every client portal read and from
+  `surveySendToConversation` until an agent approves it with
+  `surveyToggleStatus`, and `Survey.createdCpUser` names the requester.
+- **Affected areas:** `src/modules/survey/db/definitions/surveys.ts`,
+  `src/modules/survey/db/models/Surveys.ts`,
+  `src/modules/survey/@types/survey.ts`,
+  `src/modules/survey/graphql/schema/survey.ts`,
+  `src/modules/survey/graphql/resolvers/mutations/clientPortal.ts`,
+  `src/modules/survey/graphql/resolvers/customResolvers/survey.ts`,
+  `src/modules/survey/graphql/resolvers/queries/surveys.ts`
+- **Contracts changed:** added mutation `cpSurveyAdd`, inputs
+  `CpSurveyOptionInput` / `CpSurveyStepInput`, type `SurveyCpRequester` and
+  `Survey.createdCpUserId` / `Survey.createdCpUser`; survey `status` accepts
+  `pending` and `surveyTotalCount.byStatus` now reports it.
 
 ### `2026-09-21` — Channel-owned resources move between channels
 
@@ -387,16 +427,4 @@
 - **Affected areas:** `src/modules/integrations/mail/utils/notes.ts`,
   `src/modules/integrations/mail/controller/receiveMessage.ts`,
   `src/modules/ticket/graphql/resolvers/mutations/note.ts`
-- **Contracts changed:** `None`
-
-### `2026-09-10` — A mail ticket belongs to the customer who wrote in
-
-- **Summary:** A ticket opened from mail is now created as `cp:<customerId>`
-  rather than as the pipeline owner, so the requester owns it in the client
-  portal and the activity timeline names them; the pipeline owner is kept as
-  its only subscriber instead. `generateFilter` gained the matching visibility
-  branches so an `isCheckUser` pipeline still shows those tickets to its agents
-  while they are unclaimed, or to whoever subscribed to one.
-- **Affected areas:** `src/modules/integrations/mail/utils/tickets.ts`,
-  `src/modules/ticket/utils/generateFilter.ts`
 - **Contracts changed:** `None`

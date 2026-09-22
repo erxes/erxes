@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-09-21`
+- **Last synchronized:** `2026-09-22`
 
 ## Scope
 
@@ -110,6 +110,19 @@
   per-row results dialog, and a command bar that archives or removes a
   selection. The channel detail page reaches it through the
   `Manage channel surveys` row.
+- A survey requested by a client portal user arrives as `pending` and is
+  approved from this list. The status filter offers `pending` alongside
+  `active` and `archived`, `FormStatus.Badge` renders `pending` as a warning
+  clock badge, a `Created by` column names the requester next to a
+  `Client portal` badge (falling back to the team member's full name for an
+  agent-created survey), and the channel sub-header carries a
+  `<n> pending approval` shortcut that filters the list — it reads its own
+  `surveyTotalCount` with `status: 'pending'`, so it stays visible under any
+  other filter, and is skipped without a `channelId` so the read-only
+  `frontline/surveys` board never offers an approval it cannot perform. A pending row's row menu swaps Archive/Unarchive for
+  `Approve`, and the command bar shows an `Approve` button whenever the
+  selection holds a pending survey, approving only those ids. Approving is a
+  `surveyToggleStatus` to `active`, which refetches the list and the counts.
 - Creating and editing a survey is a full-page step wizard on
   `settings/frontline/channels/:id/surveys/create` and
   `settings/frontline/channels/:id/surveys/:surveyId`, laid out exactly like the
@@ -605,6 +618,11 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
 - `MoveToChannelDialog` owns its `open` state in the row cell, outside the
   `Popover` / `DropdownMenu` content. Rendering it inside the menu content
   unmounts it the moment the menu closes and the dialog never appears.
+- `FormStatus` is shared by the forms and surveys surfaces. Its `BarItem` and
+  `View` default to `['active', 'archived']`; only the surveys sub-header
+  passes `statuses`, so adding a status there must never change the forms
+  filter. Its `Badge` keeps rendering the raw status string, and an unknown
+  status falls back to the neutral dashed-circle badge.
 
 - `CONFIG` keeps a top-level `icon` alongside `navigationGroup.icon`. The host
   reads only the top-level one for a `frontline:*` notification's avatar in My
@@ -1340,6 +1358,25 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-22` — Surveys requested from the client portal get approved here
+
+- **Summary:** The channel survey list became the approval queue for the new
+  `pending` survey status: a pending badge, a `pending` status filter option, a
+  `Created by` column naming the client portal requester, a
+  `<n> pending approval` sub-header shortcut, and `Approve` in both the row menu
+  and the command bar, each a `surveyToggleStatus` to `active` that refetches
+  the list and the counters.
+- **Affected areas:**
+  `src/modules/survey/types/surveyTypes.ts`,
+  `src/modules/survey/graphql/surveyQueries.ts`,
+  `src/modules/survey/components/survey-page/survey-columns.tsx`,
+  `src/modules/survey/components/survey-page/SurveySubHeader.tsx`,
+  `src/modules/survey/components/survey-page/command-bar/survey-command-bar.tsx`,
+  `src/modules/forms/components/form-page/filters/FormStatus.tsx`
+- **Contracts changed:** `FormStatus.BarItem` and `FormStatus.View` take an
+  optional `statuses` prop (default `['active', 'archived']`, so forms are
+  unchanged); `SurveyFields` now selects `createdCpUserId` and `createdCpUser`.
+
 ### `2026-09-21` — Move to channel on every channel-owned resource
 
 - **Summary:** Integrations, ticket pipelines, forms, surveys and response
@@ -1456,17 +1493,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `backend/gateway/src/locales/{en,mn}/frontline.json`, which is outside the
   plugin boundary, so they render from their inline fallbacks until those
   translations are added as separate repository-level work.
-
-### `2026-09-14` — Knowledge Base opens on its topics, not the first article list
-
-- **Summary:** Opening Knowledge Base drilled straight into the first topic's
-  first category because the sidebar auto-selected `topicId` on mount and the
-  page then auto-selected that topic's first `categoryId`. Both auto-selections
-  are gone, so the landing view is the topic grid; picking a topic now shows
-  that topic's categories as cards, and a `categoryId` left over from another
-  topic is cleared instead of being replaced by that topic's first category.
-- **Affected areas:**
-  `src/modules/knowledgebase/components/KnowledgeBase.tsx`,
-  `src/modules/knowledgebase/components/KnowledgeBaseTopicsNav.tsx`
-- **Contracts changed:** None. The `topicId` and `categoryId` query parameters
-  keep their meaning; neither is now set without a user action.

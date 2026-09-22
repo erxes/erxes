@@ -37,6 +37,7 @@ export interface ISurvey {
   status: string;
   sentCount?: number;
   createdUserId?: string;
+  createdCpUserId?: string;
   createdAt: Date;
   updatedAt?: Date;
 }
