@@ -1338,6 +1338,60 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-22` — Radio options are visible, full-width and editable in place
+
+- **Summary:** The shared `RadioGroup.Item` (`erxes-ui`) had no border in its
+  unchecked state, so every radio circle — in the form builder preview and in
+  the public form widget (`apps/frontline-widgets`) — was invisible until
+  checked; a `shadow-border` class the widget used to work around this did
+  nothing (no such Tailwind utility exists) and was removed once the shared
+  component carried its own `border border-scroll bg-background`. Radio and
+  `core:customer:sex` fields now always render at full row width
+  (`span`/`column` forced to `2`) with their options laid out two per row
+  instead of stacked in a single column. The builder's Options editor
+  (`FormFieldDetail.tsx`) was rebuilt from the `StringArrayInput` tag input,
+  which only supported add/remove, into a `PropertyFormSelectFields`-style
+  editable list with one `Input` per option so an existing option can be
+  corrected without deleting and retyping it. Also fixed: `Open live form`
+  pointed at the gateway URL in dev because `REACT_APP_WIDGETS_URL` was never
+  injected via `DefinePlugin` in this plugin's `rspack.config.ts`, and the
+  standalone widgets app 404'd on a direct `/live/:id/:formId` load because
+  its dev server had no `historyApiFallback`.
+- **Affected areas:** `src/modules/forms/components/{FormPreview.tsx,
+  FormFieldDetail.tsx}`, `rspack.config.ts`; outside the plugin:
+  `frontend/libs/erxes-ui/src/components/radio-group.tsx`,
+  `apps/frontline-widgets/src/app/form/components/ErxesForm.tsx`,
+  `apps/frontline-widgets/rspack.config.ts`.
+- **Contracts changed:** None.
+
+### `2026-09-22` — Long field names no longer overflow, and edits need Save
+
+- **Summary:** A field's label had no `truncate`/`min-w-0` in the builder's
+  compact field card (`FormDndField.tsx`) or in the edit sheet's
+  `Sheet.Title` (`FormFieldDetail.tsx`), so a long name could stretch the
+  card past its grid column or push the sheet's close button off. Also,
+  `FormFieldDetail.tsx` used to call `handleChangeField` on every keystroke,
+  committing each edit straight into the live form state with no way to
+  discard it; it now edits a local `draft` and only commits via an explicit
+  Save button (the sheet's own close `X` discards unsaved changes by
+  unmounting the draft, so the redundant footer Close button was removed).
+- **Affected areas:** `src/modules/forms/components/{FormDndField.tsx,
+  FormFieldDetail.tsx}`
+- **Contracts changed:** None.
+
+### `2026-09-22` — Form preview stops flagging newly added fields as missing
+
+- **Summary:** `FormPreviewContent`'s `useForm` captured `defaultValues` only
+  at the step's first mount; adding a field afterward changed the live `schema`
+  and `defaultValues` props but not the form's registered values, so the new
+  field stayed `undefined` and Zod's required check on its non-optional type
+  (`z.string()`, `z.number()`, …) rejected it with `Required` on submit,
+  independent of the field's own `required` toggle. An effect now seeds
+  `form.setValue` for any field id missing from the current form values
+  whenever the step's field list changes.
+- **Affected areas:** `src/modules/forms/components/FormPreview.tsx`
+- **Contracts changed:** None.
+
 ### `2026-09-22` — Form builder no longer crashes on stale fields or discards step reorders
 
 - **Summary:** The form preview rendered a `react-hook-form` `Controller` per
@@ -1438,31 +1492,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `channelId` field; `IPipeline` declares `propertyIds` and
   `isPropertySelectionConfigured`; consumes `conversationConvertToCard` (with
   `customFieldsData` and `attachments`) and `conversationConvertedItems`.
-
-### `2026-09-15` — Several call integrations can be switched on
-
-- **Summary:** Call integration switches no longer turn each other off, and
-  `Call from` lists every switched-on integration by name.
-- **Affected areas:**
-  `src/modules/integrations/call/{hooks/useCallEnabledIntegrations.ts,components/{CallIntegrationDetail,SelectPhoneCallFrom,SipContainer,CallSipActions}.tsx,states/sipStates.ts,types/callTypes.ts,graphql/queries/callConfigQueries.ts}`
-- **Contracts changed:** `callUserIntegrations` also selects `name`; new
-  `localStorage` key `config:call_enabled_integrations`.
-
-### `2026-09-15` — The incoming call names its integration
-
-- **Summary:** The incoming-call popup shows the name of the integration the
-  call rang instead of the channel name.
-- **Affected areas:**
-  `src/modules/integrations/call/{components/IncomingCall,components/CallWidget,hooks/useAddCustomer,graphql/mutations/callMutations}.ts(x)`
-- **Contracts changed:** `CallAddCustomer` also selects
-  `integration { _id name }`.
-
-### `2026-09-15` — The call widget can clear its cached state
-
-- **Summary:** An eraser button in the dialpad header, behind a confirm, resets
-  every persisted call atom and sends the agent back to the call config picker,
-  so a stale config or SIP registration no longer needs manual `localStorage`
-  cleanup.
-- **Affected areas:**
-  `src/modules/integrations/call/components/CallSipActions.tsx`
-- **Contracts changed:** None.
