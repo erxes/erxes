@@ -256,6 +256,7 @@ export const queries = `
   ): [ConversationMessage]
 
   conversationMessagesTotalCount(conversationId: String!): Int
+  conversationPinnedMessages(conversationId: String!): [ConversationMessage]
   conversationCounts(${filterParams}, only: String): JSON
   conversationsTotalCount(${filterParams}): Int
   conversationDetail(_id: String!): Conversation

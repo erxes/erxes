@@ -1,9 +1,9 @@
 import { useAtomValue, useSetAtom } from 'jotai';
-import { Separator, useQueryState } from 'erxes-ui';
+import { Separator, cn, useQueryState } from 'erxes-ui';
 
 import { ConversationProvider } from '@/inbox/conversations/context/ConversationContext';
 import { ConversationHeader } from './ConversationHeader';
-import { useConversationDetail } from '../hooks/useConversationDetail';
+import { useConversationDetail } from '@/inbox/conversations/conversation-detail/hooks/useConversationDetail';
 
 import { activeConversationState } from '@/inbox/conversations/states/activeConversationState';
 import { ConversationDetailLayout } from './ConversationDetailLayout';
@@ -18,7 +18,7 @@ import { ConversationMarkAsReadEffect } from './ConversationMarkAsReadEffect';
 import { IConversation } from '@/inbox/types/Conversation';
 import { IIntegration } from '@/integrations/types/Integration';
 import { MessageInputIntegrationWrapper } from '@/integrations/components/MessageInputIntegrationWrapper';
-import { messageExtraInfoState } from '../states/messageExtraInfoState';
+import { messageExtraInfoState } from '@/inbox/conversations/conversation-detail/states/messageExtraInfoState';
 import { useEffect } from 'react';
 import { ConversationSideWidget } from '@/inbox/conversations/conversation-detail/components/ConversationSideWidget';
 import { useCompactWidth } from '@/inbox/hooks/useCompactWidth';
@@ -86,8 +86,16 @@ export const ConversationDetail = () => {
   };
 
   return (
-    <div ref={detailRef} className="relative flex h-full overflow-hidden">
-      <div className="flex flex-col h-full overflow-hidden flex-auto min-w-0">
+    <div
+      ref={detailRef}
+      className="relative flex h-full min-w-0 overflow-hidden"
+    >
+      <div
+        className={cn(
+          'flex h-full w-0 min-w-0 flex-1 flex-col overflow-hidden',
+          isCompact && 'mr-12',
+        )}
+      >
         <ConversationProvider conversation={conversationAllDetails}>
           <ConversationHeader />
           <Separator />
