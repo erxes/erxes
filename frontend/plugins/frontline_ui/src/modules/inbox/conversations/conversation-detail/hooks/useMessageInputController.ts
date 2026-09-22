@@ -25,7 +25,7 @@ import { useTranslation } from 'react-i18next';
 import type { Block } from '@blocknote/core';
 import { IntegrationType } from '@/types/Integration';
 import { InboxHotkeyScope } from '@/inbox/types/InboxHotkeyScope';
-import { type PollDraft } from '@/inbox/conversations/conversation-detail/components/PollComposer';
+import type { PollDraft } from '@/inbox/conversations/conversation-detail/components/PollComposer';
 import { messageExtraInfoState } from '@/inbox/conversations/conversation-detail/states/messageExtraInfoState';
 import { useConversationMessageAdd } from '@/inbox/conversations/conversation-detail/hooks/useConversationMessageAdd';
 import { messageReplyState } from '@/inbox/conversations/conversation-detail/states/messageReplyState';
@@ -345,7 +345,7 @@ export const useMessageInputController = (conversationId: string) => {
                 '>': '&gt;',
                 '"': '&quot;',
                 "'": '&#39;',
-              })[character] || character,
+              }[character] || character),
           )}</blockquote>`
         : '';
 

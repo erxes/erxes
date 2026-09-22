@@ -3,7 +3,7 @@ import { Separator, cn, useQueryState } from 'erxes-ui';
 
 import { ConversationProvider } from '@/inbox/conversations/context/ConversationContext';
 import { ConversationHeader } from './ConversationHeader';
-import { useConversationDetail } from '../hooks/useConversationDetail';
+import { useConversationDetail } from '@/inbox/conversations/conversation-detail/hooks/useConversationDetail';
 
 import { activeConversationState } from '@/inbox/conversations/states/activeConversationState';
 import { ConversationDetailLayout } from './ConversationDetailLayout';
@@ -18,7 +18,7 @@ import { ConversationMarkAsReadEffect } from './ConversationMarkAsReadEffect';
 import { IConversation } from '@/inbox/types/Conversation';
 import { IIntegration } from '@/integrations/types/Integration';
 import { MessageInputIntegrationWrapper } from '@/integrations/components/MessageInputIntegrationWrapper';
-import { messageExtraInfoState } from '../states/messageExtraInfoState';
+import { messageExtraInfoState } from '@/inbox/conversations/conversation-detail/states/messageExtraInfoState';
 import { useEffect } from 'react';
 import { ConversationSideWidget } from '@/inbox/conversations/conversation-detail/components/ConversationSideWidget';
 import { useCompactWidth } from '@/inbox/hooks/useCompactWidth';

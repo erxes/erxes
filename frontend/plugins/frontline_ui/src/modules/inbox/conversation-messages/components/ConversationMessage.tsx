@@ -1,9 +1,9 @@
 import { Button, RelativeDateDisplay, cn, type IAttachment } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import { CustomersInline, MembersInline } from 'ui-modules';
-import { HAS_ATTACHMENT } from '../../constants/messengerConstants';
-import { useConversationMessageContext } from '../../conversations/conversation-detail/hooks/useConversationMessageContext';
-import { activeConversationState } from '../../conversations/states/activeConversationState';
+import { HAS_ATTACHMENT } from '@/inbox/constants/messengerConstants';
+import { useConversationMessageContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationMessageContext';
+import { activeConversationState } from '@/inbox/conversations/states/activeConversationState';
 import { ConversationFormDisplay } from './ConversationFormDisplay';
 import { MessageContent } from './MessageContent';
 import { InboxImage } from '@/inbox/conversation-messages/components/InboxImage';

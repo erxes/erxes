@@ -4,10 +4,7 @@ import {
   IConversationListParams,
   IConversationRes,
 } from '@/inbox/@types/conversations';
-import {
-  authorizeConversationAccess,
-  countByConversations,
-} from '@/inbox/conversationUtils';
+import { countByConversations } from '@/inbox/conversationUtils';
 import { getConversationConvertedItems } from '@/inbox/services/conversationConvert';
 import {
   CONVERSATION_AUTOMATION_STATUS,
@@ -17,6 +14,36 @@ import { cursorPaginate, markResolvers } from 'erxes-api-shared/utils';
 import { IContext, IModels } from '~/connectionResolvers';
 import QueryBuilder, { IListArgs } from '~/conversationQueryBuilder';
 import { FilterQuery } from 'mongoose';
+
+const authorizeConversationAccess = async (
+  models: IModels,
+  user: IContext['user'],
+  conversationId: string,
+): Promise<void> => {
+  if (!user) {
+    throw new Error('Authentication required');
+  }
+
+  if (user.role === 'system') {
+    return;
+  }
+
+  const conversation = await models.Conversations.getConversation(
+    conversationId,
+  );
+  const memberships = await models.ChannelMembers.find({
+    memberId: user._id,
+  }).lean();
+  const channelIds = memberships.map((membership) => membership.channelId);
+  const integration = await models.Integrations.findOne({
+    _id: conversation.integrationId,
+    channelId: { $in: channelIds },
+  }).lean();
+
+  if (!integration) {
+    throw new Error('You do not have permission to access this conversation');
+  }
+};
 
 const count = async (
   models: IModels,
