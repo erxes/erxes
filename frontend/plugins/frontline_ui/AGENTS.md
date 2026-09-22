@@ -1338,30 +1338,25 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 <!-- Newest first. Keep at most 10 entries. -->
 
-### `2026-09-22` — Radio options are visible, full-width and editable in place
+### `2026-09-22` — Radio/checkbox options are visible, full-width and editable in place
 
 - **Summary:** The shared `RadioGroup.Item` (`erxes-ui`) had no border in its
   unchecked state, so every radio circle — in the form builder preview and in
   the public form widget (`apps/frontline-widgets`) — was invisible until
   checked; a `shadow-border` class the widget used to work around this did
   nothing (no such Tailwind utility exists) and was removed once the shared
-  component carried its own `border border-scroll bg-background`. Radio and
-  `core:customer:sex` fields now always render at full row width
+  component carried its own `border border-scroll bg-background`. Radio,
+  `core:customer:sex` and `check` fields now always render at full row width
   (`span`/`column` forced to `2`) with their options laid out two per row
   instead of stacked in a single column. The builder's Options editor
   (`FormFieldDetail.tsx`) was rebuilt from the `StringArrayInput` tag input,
   which only supported add/remove, into a `PropertyFormSelectFields`-style
   editable list with one `Input` per option so an existing option can be
-  corrected without deleting and retyping it. Also fixed: `Open live form`
-  pointed at the gateway URL in dev because `REACT_APP_WIDGETS_URL` was never
-  injected via `DefinePlugin` in this plugin's `rspack.config.ts`, and the
-  standalone widgets app 404'd on a direct `/live/:id/:formId` load because
-  its dev server had no `historyApiFallback`.
+  corrected without deleting and retyping it.
 - **Affected areas:** `src/modules/forms/components/{FormPreview.tsx,
-  FormFieldDetail.tsx}`, `rspack.config.ts`; outside the plugin:
+  FormFieldDetail.tsx}`; outside the plugin:
   `frontend/libs/erxes-ui/src/components/radio-group.tsx`,
-  `apps/frontline-widgets/src/app/form/components/ErxesForm.tsx`,
-  `apps/frontline-widgets/rspack.config.ts`.
+  `apps/frontline-widgets/src/app/form/components/ErxesForm.tsx`.
 - **Contracts changed:** None.
 
 ### `2026-09-22` — Long field names no longer overflow, and edits need Save
