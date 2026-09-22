@@ -43,6 +43,15 @@ export const types = `
     steps: [SurveyStepResult!]!
   }
 
+  type SurveyCpRequester {
+    _id: String!
+    firstName: String
+    lastName: String
+    email: String
+    phone: String
+    avatar: String
+  }
+
   type Survey {
     _id: String!
     code: String
@@ -59,6 +68,8 @@ export const types = `
     sentCount: Int
     createdUserId: String
     createdUser: User
+    createdCpUserId: String
+    createdCpUser: SurveyCpRequester
     createdAt: Date
     updatedAt: Date
     results: SurveyResults
@@ -116,6 +127,20 @@ export const types = `
     options: [SurveyOptionInput!]!
     allowMultiselect: Boolean
   }
+
+  input CpSurveyOptionInput {
+    text: String!
+    order: Int
+  }
+
+  input CpSurveyStepInput {
+    name: String
+    description: String
+    order: Int
+    question: String!
+    options: [CpSurveyOptionInput!]!
+    allowMultiselect: Boolean
+  }
 `;
 
 const commonSurveyFields = `
@@ -154,4 +179,13 @@ export const mutations = `
   surveyToggleStatus(_ids: [String!]!, status: String!): Boolean
   surveySendToConversation(_id: String!, conversationId: String!): ConversationMessage
   cpSurveySubmit(surveyCode: String!, optionIds: [String!]!): SurveySubmitResponse
+  cpSurveyAdd(
+    title: String!
+    channelId: String!
+    question: String
+    options: [CpSurveyOptionInput!]
+    steps: [CpSurveyStepInput!]
+    allowMultiselect: Boolean
+    durationHours: Int
+  ): Survey
 `;

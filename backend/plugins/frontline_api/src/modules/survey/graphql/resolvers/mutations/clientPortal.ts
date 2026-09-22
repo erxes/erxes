@@ -1,6 +1,7 @@
 import { markResolvers, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { createConversationAndMessage } from '@/inbox/trpc/inbox';
 import { ISurveyCpUser, ISurveySnapshotStep } from '@/survey/@types/survey';
+import { ICpSurveyInput } from '@/survey/db/models/Surveys';
 import {
   buildSurveySnapshot,
   getActiveSurvey,
@@ -8,11 +9,14 @@ import {
   getSnapshotSteps,
   isSurveyClosed,
   refreshSurveyTallies,
+  toCpSurvey,
 } from '@/survey/utils';
 import { runSurveyTicketAutomation } from '@/survey/ticketAutomation';
 import { IContext, IModels } from '~/connectionResolvers';
 
 const VOTER_REQUIRED_ERROR = 'Sign in to the client portal to vote';
+const AUTHOR_REQUIRED_ERROR =
+  'Sign in to the client portal to request a survey';
 
 const isDuplicateVote = (error: unknown) =>
   (error as { code?: number })?.code === 11000;
@@ -135,6 +139,33 @@ const assertSelection = (selected: string[], steps: ISurveySnapshotStep[]) => {
 };
 
 export const cpSurveyMutations = {
+  async cpSurveyAdd(
+    _root: undefined,
+    { channelId, ...doc }: ICpSurveyInput,
+    { models, cpUser }: IContext,
+  ) {
+    const cpUserId = cpUser?._id;
+
+    if (!cpUserId) {
+      throw new Error(AUTHOR_REQUIRED_ERROR);
+    }
+
+    const channel = await models.Channels.findOne({ _id: channelId }).lean();
+
+    if (!channel) {
+      throw new Error('Channel not found');
+    }
+
+    const integration = await resolveChannelIntegration(models, channelId);
+
+    const survey = await models.Surveys.createCpSurvey(
+      { ...doc, channelId, brandId: integration.brandId },
+      cpUserId,
+    );
+
+    return toCpSurvey(survey);
+  },
+
   async cpSurveySubmit(
     _root: undefined,
     { surveyCode, optionIds }: { surveyCode: string; optionIds: string[] },

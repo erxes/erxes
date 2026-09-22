@@ -27,6 +27,7 @@ interface ICreateTicketFromMailInput {
   models: IModels;
   subdomain: string;
   pipelineId: string;
+  statusId?: string;
   customerId: string;
   subject?: string;
   body: string;
@@ -75,10 +76,26 @@ const toDescription = (body: string) => {
     : text;
 };
 
+const findOpeningStatus = async (
+  models: IModels,
+  pipelineId: string,
+  statusId?: string,
+) => {
+  const chosen = statusId
+    ? await models.Status.findOne({ _id: statusId, pipelineId }).lean()
+    : null;
+
+  return (
+    chosen ??
+    models.Status.findOne({ pipelineId }).sort({ type: 1, order: 1 }).lean()
+  );
+};
+
 export const createTicketFromMail = async ({
   models,
   subdomain,
   pipelineId,
+  statusId,
   customerId,
   subject,
   body,
@@ -89,9 +106,7 @@ export const createTicketFromMail = async ({
     throw new Error(`Ticket pipeline ${pipelineId} no longer exists`);
   }
 
-  const status = await models.Status.findOne({ pipelineId })
-    .sort({ order: 1 })
-    .lean();
+  const status = await findOpeningStatus(models, pipelineId, statusId);
 
   if (!status) {
     throw new Error(

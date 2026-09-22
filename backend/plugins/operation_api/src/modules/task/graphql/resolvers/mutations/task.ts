@@ -1,4 +1,5 @@
 import { ITask, ITaskUpdate } from '@/task/@types/task';
+import { validatePropertiesData } from '@/fields/validatePropertiesData';
 import { graphqlPubsub } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import {
@@ -16,6 +17,13 @@ export const taskMutations = {
     { models, user, subdomain, checkPermission }: IContext,
   ) => {
     await checkPermission('taskCreate');
+
+    if (params.propertiesData !== undefined) {
+      params.propertiesData = await validatePropertiesData(
+        subdomain,
+        params.propertiesData,
+      );
+    }
 
     const task = await models.Task.createTask({
       doc: params,
@@ -115,6 +123,13 @@ export const taskMutations = {
     { models, user, subdomain, checkPermission }: IContext,
   ) => {
     await checkPermission('taskUpdate');
+
+    if (params.propertiesData !== undefined) {
+      params.propertiesData = await validatePropertiesData(
+        subdomain,
+        params.propertiesData,
+      );
+    }
 
     const updatedTask = await models.Task.updateTask({
       doc: params,

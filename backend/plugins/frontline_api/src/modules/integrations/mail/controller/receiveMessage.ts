@@ -142,6 +142,11 @@ interface IInboundContext {
   attachments: IMailAttachment[];
 }
 
+interface ITicketTarget {
+  pipelineId: string;
+  statusId?: string;
+}
+
 const resolveConversationId = async ({
   models,
   subdomain,
@@ -221,7 +226,7 @@ const resolveTicketId = async (
     isAuto,
     body,
   }: IInboundContext,
-  pipelineId: string,
+  { pipelineId, statusId }: ITicketTarget,
 ) => {
   const openThread = async (message: { ticketId?: string } | null) =>
     message?.ticketId && (await isTicketOpen(models, message.ticketId))
@@ -272,6 +277,7 @@ const resolveTicketId = async (
     models,
     subdomain,
     pipelineId,
+    statusId,
     customerId,
     subject: payload.subject,
     body,
@@ -355,11 +361,11 @@ const storeConversationMail = async (context: IInboundContext) => {
 
 const storeTicketMail = async (
   context: IInboundContext,
-  pipelineId: string,
+  target: ITicketTarget,
 ) => {
   const { isAuto, attachments } = context;
 
-  const ticketId = await resolveTicketId(context, pipelineId);
+  const ticketId = await resolveTicketId(context, target);
 
   if (!ticketId) {
     return { status: 'ignored', reason: 'auto-reply' };
@@ -432,10 +438,10 @@ const storeInboundMessage = async (
     ),
   };
 
-  const { pipelineId } = integration;
+  const { pipelineId, statusId } = integration;
 
   const result = pipelineId
-    ? await storeTicketMail(context, pipelineId)
+    ? await storeTicketMail(context, { pipelineId, statusId })
     : await storeConversationMail(context);
 
   await models.MailIntegrations.markHealthy(integration._id);
