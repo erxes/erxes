@@ -37,7 +37,7 @@ export interface IForm {
   status: string;
   buttonText: string;
   fields: IFormField[];
-  leadData: ILeadData | null;
+  leadData: ILeadData;
   channel?: IChannel;
   integrationId?: string;
 }

@@ -393,7 +393,7 @@ const uploadFileLocal = async (file: {
   const oldPath = file.filepath;
 
   if (!fs.existsSync(uploadsFolderPath)) {
-    fs.mkdirSync(uploadsFolderPath, { recursive: true });
+    fs.mkdirSync(uploadsFolderPath);
   }
 
   const fileName = `${randomAlphanumeric()}${sanitizedFilename}`;

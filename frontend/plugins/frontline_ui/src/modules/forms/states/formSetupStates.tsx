@@ -12,7 +12,7 @@ import {
 } from '../constants/formSchema';
 import { z } from 'zod';
 import { atom } from 'jotai';
-import { IForm, ILeadData } from '../types/formTypes';
+import { IForm } from '../types/formTypes';
 
 export const formSetupStepAtom = atomWithStorage<number>(
   FORM_STORAGE_KEYS.STEP,
@@ -139,41 +139,35 @@ export const resetFormSetupAtom = atom(null, (_, set) => {
 });
 
 export const formSetSetupAtom = atom(null, (_, set, payload: IForm) => {
-  const leadData: Partial<ILeadData> = payload.leadData ?? {};
-  const steps =
-    leadData.steps && Object.keys(leadData.steps).length
-      ? leadData.steps
-      : FORM_STATES_DEFAULT_VALUES.CONTENT.steps;
-
   const general = {
     channelId: payload.channelId ?? '',
     title: payload.title ?? '',
     name: payload.title ?? '',
     description: payload.description ?? '',
     buttonText: payload.buttonText ?? '',
-    primaryColor: leadData.primaryColor ?? '',
-    appearance: leadData.appearance ?? 'iframe',
-    loadType: leadData.loadType ?? 'embedded',
+    primaryColor: payload.leadData.primaryColor ?? '',
+    appearance: payload.leadData.appearance ?? 'iframe',
+    loadType: payload.leadData.loadType ?? 'embedded',
   };
 
   const callout = {
-    title: leadData.callout?.title ?? '',
-    body: leadData.callout?.body ?? '',
-    buttonText: leadData.callout?.buttonText ?? '',
-    featuredImage: leadData.callout?.featuredImage ?? null,
-    skip: leadData.callout?.skip ?? false,
+    title: payload.leadData.callout?.title ?? '',
+    body: payload.leadData.callout?.body ?? '',
+    buttonText: payload.leadData.callout?.buttonText ?? '',
+    featuredImage: payload.leadData.callout?.featuredImage ?? null,
+    skip: payload.leadData.callout?.skip ?? false,
   };
 
   const content = {
     steps: Object.fromEntries(
-      Object.entries(steps).map(([key, step]) => [
+      Object.entries(payload.leadData.steps || {}).map(([key, step]) => [
         key,
         {
           name: step.name,
           description: step.description,
           order: step.order,
           fields: payload.fields
-            .filter((field) => (field.pageNumber ?? 1) === step.order)
+            .filter((field) => field.pageNumber === step.order)
             .map((field) => ({
               id: field._id,
               type: field.type,
@@ -197,9 +191,9 @@ export const formSetSetupAtom = atom(null, (_, set, payload: IForm) => {
   };
 
   const confirmation = {
-    title: leadData.thankTitle ?? '',
-    description: leadData.thankContent ?? '',
-    image: leadData.thankImage ?? null,
+    title: payload.leadData.thankTitle ?? '',
+    description: payload.leadData.thankContent ?? '',
+    image: payload.leadData.thankImage ?? null,
   };
 
   set(formSetupStepAtom, FORM_SETUP_STEPS.GENERAL);
