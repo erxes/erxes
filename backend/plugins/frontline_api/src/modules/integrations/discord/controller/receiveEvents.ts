@@ -1,7 +1,7 @@
 import { graphqlPubsub } from 'erxes-api-shared/utils';
-import { IModels } from '~/connectionResolvers';
-import { IDiscordBotDocument } from '@/integrations/discord/@types/bot';
-import {
+import type { IModels } from '~/connectionResolvers';
+import type { IDiscordBotDocument } from '@/integrations/discord/@types/bot';
+import type {
   DiscordActivity,
   DiscordMessageDeleteEvent,
   DiscordPollVoteEvent,
@@ -105,6 +105,19 @@ export const receiveDiscordMessageEdit = async ({
       discordPinned: activity.raw.pinned,
       ...(!activity.raw.edited_timestamp && { discordEditedAt: null }),
     });
+  }
+
+  if (Array.isArray(activity.raw?.attachments)) {
+    await models.DiscordConversationMessages.updateOne(
+      { _id: message._id },
+      { $set: { attachments: activity.attachments || [] } },
+    );
+    await updateInboxMessageExtra(
+      models,
+      activity.messageId,
+      {},
+      { attachments: activity.attachments || [] },
+    );
   }
 
   const editedAt = activity.raw?.edited_timestamp;
@@ -230,43 +243,68 @@ export const receiveDiscordReaction = async ({
   bot: IDiscordBotDocument;
   event: DiscordReactionEvent;
 }) => {
-  const inboxMessage = await models.ConversationMessages.findOne({
-    'extraData.discordMessageId': event.messageId,
-  });
-  if (!inboxMessage) return;
-
-  const extraData = inboxMessage.extraData || {};
-  const current = Array.isArray(extraData.reactions)
-    ? (extraData.reactions as Array<{
-        senderId: string;
-        emoji: string;
-        reaction?: string;
-      }>)
-    : [];
   const isBotReaction = event.userId === bot.applicationId;
-  const hasLocalBotReaction = current.some(
-    (reaction) => reaction.reaction && reaction.emoji === event.emoji,
-  );
-  const reactions = current.filter((reaction) => {
-    const isProviderReaction =
-      reaction.senderId === event.userId && reaction.emoji === event.emoji;
-    const isRemovedLocalReaction = Boolean(
-      !event.added &&
-      isBotReaction &&
-      reaction.reaction &&
-      reaction.emoji === event.emoji,
-    );
-    return !isProviderReaction && !isRemovedLocalReaction;
-  });
-  if (event.added && !(isBotReaction && hasLocalBotReaction)) {
-    reactions.push({ senderId: event.userId, emoji: event.emoji });
-  }
+  const messageFilter = {
+    'extraData.discordMessageId': event.messageId,
+  };
+  const providerReaction = {
+    senderId: event.userId,
+    emoji: event.emoji,
+  };
 
-  await updateInboxMessageExtra(
-    models,
-    event.messageId,
-    { reactions },
-    { reactions },
+  const updated = event.added
+    ? await models.ConversationMessages.findOneAndUpdate(
+        {
+          ...messageFilter,
+          ...(isBotReaction && {
+            'extraData.reactions': {
+              $not: {
+                $elemMatch: {
+                  emoji: event.emoji,
+                  reaction: { $exists: true },
+                },
+              },
+            },
+          }),
+        },
+        {
+          $addToSet: {
+            'extraData.reactions': providerReaction,
+            reactions: providerReaction,
+          },
+        },
+        { new: true },
+      )
+    : await models.ConversationMessages.findOneAndUpdate(
+        messageFilter,
+        {
+          $pull: {
+            'extraData.reactions': isBotReaction
+              ? {
+                  $or: [
+                    providerReaction,
+                    { emoji: event.emoji, reaction: { $exists: true } },
+                  ],
+                }
+              : providerReaction,
+            reactions: isBotReaction
+              ? {
+                  $or: [
+                    providerReaction,
+                    { emoji: event.emoji, reaction: { $exists: true } },
+                  ],
+                }
+              : providerReaction,
+          },
+        },
+        { new: true },
+      );
+
+  if (!updated) return;
+
+  await graphqlPubsub.publish(
+    `conversationMessageInserted:${updated.conversationId}`,
+    { conversationMessageInserted: updated },
   );
 };
 

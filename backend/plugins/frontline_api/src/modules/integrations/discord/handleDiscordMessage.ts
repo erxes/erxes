@@ -1,10 +1,8 @@
-import { APIMessage } from 'discord-api-types/v10';
+import type { APIMessage } from 'discord-api-types/v10';
 import { stripHtml } from 'string-strip-html';
-import { IModels } from '~/connectionResolvers';
+import type { IModels } from '~/connectionResolvers';
 import {
-  DiscordMessageAttachment,
   DiscordApiError,
-  DiscordPollRequest,
   getDiscordUser,
   resolveAttachmentUrl,
   sendChannelMessage,
@@ -15,7 +13,11 @@ import {
   pinChannelMessage,
   unpinChannelMessage,
 } from '@/integrations/discord/utils';
-import { getErrorMessage } from '@/integrations/utils';
+import type {
+  DiscordMessageAttachment,
+  DiscordPollRequest,
+} from '@/integrations/discord/utils';
+import { getErrorMessage } from '@/integrations/discord/utils';
 import { graphqlPubsub } from 'erxes-api-shared/utils';
 import {
   normalizeDiscordEmbeds,
@@ -405,7 +407,7 @@ const handleDiscordReactMessenger = async (
           (item) =>
             typeof item === 'object' &&
             item !== null &&
-            item.senderId !== userId &&
+            !(item.senderId === (userId || 'agent') && item.emoji === emoji) &&
             !(item.senderId === bot.applicationId && item.emoji === emoji),
         )
       : [];

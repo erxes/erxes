@@ -15,7 +15,7 @@ import {
   normalizeMemberQuery,
   searchGuildMembers,
 } from '@/integrations/discord/utils';
-import { getErrorMessage } from '@/integrations/utils';
+import { getErrorMessage } from '@/integrations/discord/utils';
 import { debugError } from '@/integrations/discord/debuggers';
 
 const VIEW_CHANNEL = PermissionFlagsBits.ViewChannel;

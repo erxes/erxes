@@ -31,7 +31,7 @@ import { IntegrationType } from '@/types/Integration';
 import {
   buildDiscordInviteUrl,
   DISCORD_INTEGRATION_SCHEMA,
-} from '../constants/discordSchema';
+} from '@/integrations/discord/constants/discordSchema';
 import {
   useDiscordBotChannels,
   useDiscordConnectedServers,
@@ -40,14 +40,23 @@ import {
   useDiscordNamePresets,
   useDiscordTakenChannels,
   useDiscordValidateToken,
-} from '../hooks/useDiscordSetup';
+} from '@/integrations/discord/hooks/useDiscordSetup';
 
 type FormValues = z.infer<typeof DISCORD_INTEGRATION_SCHEMA>;
 
 const STEP_DETAILS = [
-  { title: 'Connect token' },
-  { title: 'Pick server' },
-  { title: 'Pick channels' },
+  {
+    title: 'Connect token',
+    description: 'Authenticate the Discord bot used by this integration.',
+  },
+  {
+    title: 'Pick server',
+    description: 'Choose the Discord server the bot should connect to.',
+  },
+  {
+    title: 'Pick channels',
+    description: 'Select the Discord channels to manage from the inbox.',
+  },
 ];
 
 const NAME_PLACEHOLDER = 'e.g. Enterprise Support';
@@ -367,6 +376,7 @@ export const DiscordIntegrationDetail = () => {
                 <IntegrationSteps
                   step={step}
                   title={STEP_DETAILS[step - 1].title}
+                  description={STEP_DETAILS[step - 1].description}
                   stepsLength={3}
                 />
                 <div className="flex-1 overflow-auto p-4 pt-0 flex flex-col gap-4">

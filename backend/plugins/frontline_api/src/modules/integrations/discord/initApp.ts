@@ -19,7 +19,7 @@ import {
 } from '@/integrations/discord/controller/receiveEvents';
 import { IDiscordBotDocument } from '@/integrations/discord/@types/bot';
 import { getChannel, isThreadChannel } from '@/integrations/discord/utils';
-import { getErrorMessage } from '@/integrations/utils';
+import { getErrorMessage } from '@/integrations/discord/utils';
 import { backfillChannelHistory } from '@/integrations/discord/backfill';
 import { debugDiscord, debugError } from '@/integrations/discord/debuggers';
 
@@ -522,7 +522,10 @@ export const initDiscord = () => {
 
   debugDiscord('Initializing Discord gateway distributor');
 
-  startDistributing('os').catch((err) =>
+  const distributor =
+    VERSION === 'saas' ? startSaasDistributing() : startDistributing('os');
+
+  distributor.catch((err) =>
     debugError(`Failed to start Discord distributor: ${err.message}`),
   );
 };

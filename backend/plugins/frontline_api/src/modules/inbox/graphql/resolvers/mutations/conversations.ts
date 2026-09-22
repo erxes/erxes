@@ -9,6 +9,7 @@ import {
   AUTO_BOT_MESSAGES,
   CONVERSATION_STATUSES,
 } from '@/inbox/db/definitions/constants';
+import { authorizeConversationAccess } from '@/inbox/conversationUtils';
 import { INTEGRATION_KINDS } from '@/integrations/facebook/constants';
 import { handleFacebookIntegration } from '@/integrations/facebook/messageBroker';
 import { sendReply } from '@/integrations/facebook/utils';
@@ -25,7 +26,7 @@ import {
   markResolvers,
 } from 'erxes-api-shared/utils';
 import * as _ from 'underscore';
-import { generateModels, IContext, IModels } from '~/connectionResolvers';
+import type { IContext, IModels } from '~/connectionResolvers';
 import { debugError } from '~/modules/inbox/utils';
 import { createNotifications } from '~/utils/notifications';
 import strip from 'strip';
@@ -283,12 +284,10 @@ export const conversationNotifReceivers = (
   return userIds;
 };
 export const publishConversationsChanged = async (
-  subdomain: string,
+  _subdomain: string,
   _ids: string[],
   type: string,
 ): Promise<string[]> => {
-  const models = await generateModels(subdomain);
-
   for (const _id of _ids) {
     await graphqlPubsub.publish(`conversationChanged:${_id}`, {
       conversationChanged: { conversationId: _id, type },
@@ -508,8 +507,9 @@ export const conversationMutations = {
     { models, subdomain }: IContext,
   ) {
     try {
-      const conversation =
-        await models.Conversations.getConversation(conversationId);
+      const conversation = await models.Conversations.getConversation(
+        conversationId,
+      );
       if (!conversation?.integrationId) {
         return false;
       }
@@ -564,6 +564,16 @@ export const conversationMutations = {
         replyToMessageId,
       } = doc;
       const { _id: userId } = user;
+
+      const forwardedSourceConversationId =
+        extraInfo?.forwardedFrom?.conversationId;
+      if (typeof forwardedSourceConversationId === 'string') {
+        await authorizeConversationAccess(
+          models,
+          user,
+          forwardedSourceConversationId,
+        );
+      }
 
       await sendNotifications(subdomain, {
         user,
@@ -685,6 +695,7 @@ export const conversationMutations = {
           replyTo,
           deliveryStatus,
         } = response.data.data;
+        const forwardedSnapshot = extraInfo?.forwardedSnapshot;
         if (responseConversationId && responseContent) {
           await models.Conversations.updateConversation(
             responseConversationId,
@@ -698,8 +709,22 @@ export const conversationMutations = {
         const messageDoc: typeof doc & { extraData?: Record<string, unknown> } =
           {
             ...doc,
-            ...(displayContent ? { content: displayContent } : {}),
-            ...(extraData ? { extraData } : {}),
+            ...(forwardedSnapshot
+              ? { content: extraInfo?.forwardedNote || '' }
+              : displayContent
+              ? { content: displayContent }
+              : {}),
+            ...(extraData || forwardedSnapshot
+              ? {
+                  extraData: {
+                    ...extraData,
+                    ...(forwardedSnapshot && {
+                      forwardedSnapshot,
+                      forwardedFrom: extraInfo?.forwardedFrom,
+                    }),
+                  },
+                }
+              : {}),
             ...(messageKind ? { messageKind } : {}),
             ...(providerData ? { providerData } : {}),
             ...(replyTo ? { replyTo } : {}),
@@ -760,6 +785,105 @@ export const conversationMutations = {
     } catch (err) {
       throw new Error(`Failed to add message to conversation: ${err.message}`);
     }
+  },
+
+  async conversationMessageReact(
+    _root,
+    {
+      conversationId,
+      messageId,
+      reaction,
+      remove,
+    }: {
+      conversationId: string;
+      messageId: string;
+      reaction?: string;
+      remove?: boolean;
+    },
+    { user, models, subdomain }: IContext,
+  ) {
+    await authorizeConversationAccess(models, user, conversationId);
+    const conversation = await models.Conversations.getConversation(
+      conversationId,
+    );
+    const integration = await models.Integrations.getIntegration({
+      _id: conversation.integrationId,
+    });
+    const [serviceName, actionType = 'unknown'] = integration.kind.split('-');
+
+    if (
+      ![
+        'facebook-messenger',
+        'instagram-messenger',
+        'discord-messenger',
+      ].includes(integration.kind)
+    ) {
+      throw new Error('Reactions are not supported by this channel');
+    }
+
+    const response = await dispatchConversationToService(
+      subdomain,
+      serviceName,
+      {
+        action: `react-${actionType}`,
+        type: serviceName,
+        payload: JSON.stringify({
+          integrationId: integration._id,
+          conversationId,
+          messageId,
+          reaction,
+          remove,
+          userId: user._id,
+        }),
+        integrationId: integration._id,
+      },
+    );
+
+    if (response?.status === 'error') {
+      throw new Error(response.errorMessage || 'Failed to react to message');
+    }
+
+    return response?.data || { status: 'success' };
+  },
+
+  async conversationMessagePin(
+    _root,
+    {
+      conversationId,
+      messageId,
+      remove,
+    }: { conversationId: string; messageId: string; remove?: boolean },
+    { user, models, subdomain }: IContext,
+  ) {
+    await authorizeConversationAccess(models, user, conversationId);
+    const conversation = await models.Conversations.getConversation(
+      conversationId,
+    );
+    const integration = await models.Integrations.getIntegration({
+      _id: conversation.integrationId,
+    });
+
+    if (integration.kind !== 'discord-messenger') {
+      throw new Error('Pinning messages is not supported by this channel');
+    }
+
+    const response = await dispatchConversationToService(subdomain, 'discord', {
+      action: 'pin-messenger',
+      type: 'discord',
+      payload: JSON.stringify({
+        integrationId: integration._id,
+        conversationId,
+        messageId,
+        remove,
+      }),
+      integrationId: integration._id,
+    });
+
+    if (response?.status === 'error') {
+      throw new Error(response.errorMessage || 'Failed to update message pin');
+    }
+
+    return response?.data || { status: 'success' };
   },
 
   async conversationMessageEdit(

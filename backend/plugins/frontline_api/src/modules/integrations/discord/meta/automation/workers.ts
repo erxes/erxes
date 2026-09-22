@@ -14,7 +14,7 @@ import {
   AUTOMATION_TYPING_MAX_MS,
   startTypingIndicator,
 } from '@/integrations/discord/utils';
-import { getErrorMessage } from '@/integrations/utils';
+import { getErrorMessage } from '@/integrations/discord/utils';
 import { debugError } from '@/integrations/discord/debuggers';
 
 const toFilterList = (value: unknown): string[] =>

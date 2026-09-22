@@ -23,7 +23,9 @@ import { getEnv, uploadFileToStorage } from 'erxes-api-shared/utils';
 import { DISCORD_API_URL } from '@/integrations/discord/constants';
 import type { DiscordAttachment } from '@/integrations/discord/@types/activity';
 import { debugError } from '@/integrations/discord/debuggers';
-import { getErrorMessage } from '@/integrations/utils';
+
+export const getErrorMessage = (error: unknown): string =>
+  error instanceof Error ? error.message : String(error);
 
 export const resolveAttachmentUrl = (
   subdomain: string,
@@ -42,9 +44,10 @@ export const resolveAttachmentUrl = (
       subdomain,
       defaultValue: 'http://localhost:4000',
     });
-    return `${gatewayUrl.replace(/\/$/, '')}/pl:core/read-file?key=${encodeURIComponent(
-      urlOrKey,
-    )}`;
+    return `${gatewayUrl.replace(
+      /\/$/,
+      '',
+    )}/pl:core/read-file?key=${encodeURIComponent(urlOrKey)}`;
   }
 
   return `${DOMAIN}/gateway/pl:core/read-file?key=${encodeURIComponent(
@@ -537,12 +540,11 @@ export const sendChannelMessage = async (
   }
 
   const lastText = chunks.pop() as string;
-  for (let i = 0; i < chunks.length; i++) {
+  for (const chunk of chunks) {
     await postDiscordMessage({
       token,
       channelId,
-      content: chunks[i],
-      messageReference: i === 0 ? messageReference : undefined,
+      content: chunk,
     });
   }
   return postDiscordMessage({
@@ -553,6 +555,7 @@ export const sendChannelMessage = async (
     components,
     files,
     poll,
+    messageReference,
   });
 };
 

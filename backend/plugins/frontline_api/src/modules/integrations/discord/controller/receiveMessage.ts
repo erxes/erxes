@@ -1,10 +1,10 @@
-import { APIUser } from 'discord-api-types/v10';
+import type { APIUser } from 'discord-api-types/v10';
 import { sendAutomationTrigger } from 'erxes-api-shared/core-modules';
-import { IModels } from '~/connectionResolvers';
-import { IDiscordBotDocument } from '@/integrations/discord/@types/bot';
-import { IDiscordCustomerDocument } from '@/integrations/discord/@types/customers';
-import { IDiscordConversationDocument } from '@/integrations/discord/@types/conversations';
-import {
+import type { IModels } from '~/connectionResolvers';
+import type { IDiscordBotDocument } from '@/integrations/discord/@types/bot';
+import type { IDiscordCustomerDocument } from '@/integrations/discord/@types/customers';
+import type { IDiscordConversationDocument } from '@/integrations/discord/@types/conversations';
+import type {
   DiscordActivity,
   DiscordAttachment,
   DiscordEmbed,
@@ -21,9 +21,9 @@ import {
   isThreadChannel,
   rehostImageAttachments,
 } from '@/integrations/discord/utils';
-import { getErrorMessage } from '@/integrations/utils';
+import { getErrorMessage } from '@/integrations/discord/utils';
 import { DISCORD_MESSAGE_TRIGGER_TYPE } from '@/integrations/discord/constants';
-import { TDiscordTriggerTarget } from '@/integrations/discord/meta/automation/types';
+import type { TDiscordTriggerTarget } from '@/integrations/discord/meta/automation/types';
 import { debugDiscord, debugError } from '@/integrations/discord/debuggers';
 import { receiveInboxMessage } from '@/inbox/receiveMessage';
 import { graphqlPubsub } from 'erxes-api-shared/utils';
@@ -750,6 +750,15 @@ export const receiveDiscordMessage = async ({
     subdomain,
     attachments,
   );
+  const storedForwardedSnapshot = forwardedSnapshot
+    ? {
+        ...forwardedSnapshot,
+        attachments: await rehostImageAttachments(
+          subdomain,
+          forwardedSnapshot.attachments || [],
+        ),
+      }
+    : undefined;
 
   // Structured payloads (poll, embed preview cards) travel on the message's
   // `extraData` and render as cards. The Discord message id is *always* stamped
@@ -764,7 +773,7 @@ export const receiveDiscordMessage = async ({
     embeds,
     stickers,
     voiceMessage,
-    forwardedSnapshot,
+    forwardedSnapshot: storedForwardedSnapshot,
   });
   const previewContent = buildMessagePreview(
     displayContent,
@@ -773,7 +782,7 @@ export const receiveDiscordMessage = async ({
     storedAttachments,
     stickers,
     voiceMessage,
-    Boolean(forwardedSnapshot),
+    Boolean(storedForwardedSnapshot),
   );
 
   try {

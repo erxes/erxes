@@ -1,4 +1,4 @@
-import {
+import type {
   APIEmbed,
   APIEmbedImage,
   APIEmbedThumbnail,
@@ -11,7 +11,7 @@ import {
   GatewayMessageReactionRemoveDispatchData,
   GatewayTypingStartDispatchData,
 } from 'discord-api-types/v10';
-import {
+import type {
   DiscordActivity,
   DiscordEmbed,
   DiscordMention,
@@ -232,8 +232,11 @@ const resolveDiscordReply = (payload: TDiscordMessagePayload) => {
 const resolveForwardedSnapshot = (payload: TDiscordMessagePayload) => {
   const snapshot = payload.message_snapshots?.[0]?.message;
   if (!snapshot) return undefined;
+  const mentions = (snapshot.mentions || []).map(discordMention);
+
   return {
-    content: snapshot.content || undefined,
+    content:
+      resolveDiscordMentions(snapshot.content || '', mentions) || undefined,
     attachments: normalizeDiscordAttachments(snapshot.attachments),
     embeds: normalizeDiscordEmbeds(snapshot.embeds),
     stickers: normalizeDiscordStickers(snapshot.sticker_items),

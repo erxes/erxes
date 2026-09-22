@@ -20,7 +20,7 @@ import {
   sendChannelMessage,
   stopTypingIndicator,
 } from '@/integrations/discord/utils';
-import { getErrorMessage } from '@/integrations/utils';
+import { getErrorMessage } from '@/integrations/discord/utils';
 import {
   normalizeDiscordEmbeds,
   normalizeDiscordPoll,
@@ -353,7 +353,9 @@ const mirrorSentMessageToInbox = async ({
     // Discord send already succeeded; only the inbox mirror failed. Surface it
     // in logs but let the action complete so the result is still returned.
     debugError(
-      `Discord message sent (${sent?.id}) but failed to mirror into the inbox: ${getErrorMessage(e)}`,
+      `Discord message sent (${
+        sent?.id
+      }) but failed to mirror into the inbox: ${getErrorMessage(e)}`,
     );
   }
 };

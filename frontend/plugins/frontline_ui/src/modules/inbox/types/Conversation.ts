@@ -1,7 +1,7 @@
-import { IAttachment } from 'erxes-ui';
-import { ICustomerInline, IUser } from 'ui-modules';
-import { IIntegration } from '@/integrations/types/Integration';
-import { IFormWidgetItem } from './FormWidget';
+import type { IAttachment } from 'erxes-ui';
+import type { ICustomerInline, IUser } from 'ui-modules';
+import type { IIntegration } from '@/integrations/types/Integration';
+import type { IFormWidgetItem } from '@/inbox/types/FormWidget';
 
 export interface IConversation {
   _id: string;

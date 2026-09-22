@@ -8,7 +8,7 @@ import {
   listActiveThreads,
   listChannelMessages,
 } from '@/integrations/discord/utils';
-import { getErrorMessage } from '@/integrations/utils';
+import { getErrorMessage } from '@/integrations/discord/utils';
 import { debugDiscord, debugError } from '@/integrations/discord/debuggers';
 
 const PAGE_SIZE = 100;
