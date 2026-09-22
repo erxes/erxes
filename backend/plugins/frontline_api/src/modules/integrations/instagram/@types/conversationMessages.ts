@@ -6,10 +6,7 @@ import type {
   MessageKind,
 } from '@/inbox/@types/conversationMessages';
 
-export type InstagramMessageKind = Exclude<
-  MessageKind,
-  'forwarded' | 'deleted'
->;
+export type InstagramMessageKind = Exclude<MessageKind, 'forwarded'>;
 
 export type IInstagramMessageProviderData = IMessageProviderData;
 
@@ -35,11 +32,12 @@ export interface IInstagramConversationMessage {
   providerData?: IInstagramMessageProviderData;
   replyTo?: IInstagramMessageReplyTo;
   reactions?: IMessageReaction[];
-  deliveryStatus?: 'sent' | 'delivered' | 'read';
+  deliveryStatus?: 'sent' | 'delivered' | 'read' | 'deleted';
   expiresAt?: Date;
 }
 
 export interface IInstagramConversationMessageDocument
-  extends IInstagramConversationMessage, Document {
+  extends IInstagramConversationMessage,
+    Document {
   _id: string;
 }

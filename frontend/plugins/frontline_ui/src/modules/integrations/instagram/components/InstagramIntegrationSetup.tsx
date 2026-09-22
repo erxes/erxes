@@ -10,15 +10,15 @@ import {
   activeInstagramFormStepAtom,
   resetInstagramAddStateAtom,
   selectedInstagramPageAtom,
-} from '../states/instagramStates';
+} from '@/integrations/instagram/states/instagramStates';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { INSTAGRAM_INTEGRATION_SCHEMA } from '../constants/IgMessengerSchema';
+import { INSTAGRAM_INTEGRATION_SCHEMA } from '@/integrations/instagram/constants/IgMessengerSchema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useIntegrationAdd } from '@/integrations/hooks/useIntegrationAdd';
 import { useAtomValue } from 'jotai';
-import { selectedInstagramAccountAtom } from '../states/instagramStates';
-import { useIgIntegrationContext } from '../context/IgIntegrationContext';
+import { selectedInstagramAccountAtom } from '@/integrations/instagram/states/instagramStates';
+import { useIgIntegrationContext } from '@/integrations/instagram/context/IgIntegrationContext';
 import { useParams } from 'react-router';
 
 const INTEGRATION_KINDS = {

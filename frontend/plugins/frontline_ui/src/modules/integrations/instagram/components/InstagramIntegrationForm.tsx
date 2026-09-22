@@ -8,14 +8,14 @@ import {
   activeInstagramFormStepAtom,
   instagramFormSheetAtom,
   resetInstagramAddStateAtom,
-} from '../states/instagramStates';
+} from '@/integrations/instagram/states/instagramStates';
 import { InstagramGetPages } from './InstagramGetPages';
 import { InstagramIntegrationSetup } from './InstagramIntegrationSetup';
 import { useAtom } from 'jotai';
 import {
   IgIntegrationProvider,
   useIgIntegrationContext,
-} from '../context/IgIntegrationContext';
+} from '@/integrations/instagram/context/IgIntegrationContext';
 
 export const InstagramIntegrationFormSheet = ({
   isPost,

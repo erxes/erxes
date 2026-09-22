@@ -1,4 +1,3 @@
-import { stripHtml } from 'string-strip-html';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import type { IModels } from '~/connectionResolvers';
 import {
@@ -12,7 +11,7 @@ import {
   appendContentImages,
   getErrorMessage,
   sanitizeMessageHtml,
-} from '@/integrations/utils';
+} from '@/integrations/instagram/messageUtils';
 
 interface IMsg {
   action: string;
@@ -130,9 +129,7 @@ const handleInstagramPostReply = async (
     throw new Error('Post not found');
   }
 
-  const strippedContent = stripHtml(content)
-    .result.trim()
-    .replace(/&amp;/g, '&');
+  const strippedContent = sanitizeMessageHtml(content).replace(/&amp;/g, '&');
   if (!strippedContent && attachments.length === 0) {
     throw new Error('Message content is empty');
   }

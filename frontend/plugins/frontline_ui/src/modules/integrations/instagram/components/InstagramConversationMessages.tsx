@@ -1,5 +1,5 @@
 import { InboxMessagesContainer } from '@/inbox/components/InboxMessagesContainer';
-import { useInstagramConversationMessages } from '../hooks/useInstagramConversationMessages';
+import { useInstagramConversationMessages } from '@/integrations/instagram/hooks/useInstagramConversationMessages';
 import { ConversationMessageContext } from '@/inbox/conversations/context/ConversationMessageContext';
 import { MessageItem } from '@/inbox/conversation-messages/components/MessageItem';
 import type { IInstagramConversationMessage } from '@/integrations/instagram/types/InstagramTypes';

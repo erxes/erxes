@@ -36,6 +36,7 @@ const previewTextForKind = (kind: InstagramMessageKind) => {
     story_reply: 'Story reply',
     sticker: 'Sticker',
     voice: 'Voice message',
+    deleted: 'Message deleted',
     unsupported: 'Unsupported Instagram message',
   };
 
@@ -109,10 +110,21 @@ export const normalizeInstagramMessage = (
   activity: IMessageData,
 ): Pick<
   IInstagramConversationMessage,
-  'messageKind' | 'providerData' | 'replyTo' | 'expiresAt'
+  'messageKind' | 'providerData' | 'replyTo' | 'deliveryStatus' | 'expiresAt'
 > => {
   const message = activity.message;
   const text = (activity.text || message?.text || '').trim();
+
+  if (message?.is_deleted) {
+    return {
+      messageKind: 'deleted',
+      deliveryStatus: 'deleted',
+      providerData: {
+        messageId: message.mid,
+        fallbackReason: 'Message deleted on Instagram',
+      },
+    };
+  }
   const storyReply = message?.reply_to?.story;
   const primaryAttachment = storyReply
     ? { type: 'story_reply', payload: { url: storyReply.url } }
@@ -129,6 +141,7 @@ export const normalizeInstagramMessage = (
     replyTo: message?.reply_to?.mid
       ? { messageId: message.reply_to.mid }
       : undefined,
+    deliveryStatus: 'sent',
   };
 };
 

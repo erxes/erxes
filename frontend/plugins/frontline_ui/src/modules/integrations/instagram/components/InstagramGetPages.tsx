@@ -8,9 +8,9 @@ import { useAtom, useSetAtom } from 'jotai';
 import {
   activeInstagramFormStepAtom,
   selectedInstagramPageAtom,
-} from '../states/instagramStates';
-import { useInstagramPages } from '../hooks/useInstagramPages';
-import { useIgIntegrationContext } from '../context/IgIntegrationContext';
+} from '@/integrations/instagram/states/instagramStates';
+import { useInstagramPages } from '@/integrations/instagram/hooks/useInstagramPages';
+import { useIgIntegrationContext } from '@/integrations/instagram/context/IgIntegrationContext';
 
 export const InstagramGetPages = () => {
   const { t } = useTranslation('frontline');
