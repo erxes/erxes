@@ -32,6 +32,10 @@ export const CALL_CUSTOMER_ADD = gql`
         _id
         name
       }
+      integration {
+        _id
+        name
+      }
       customer {
         _id
         avatar

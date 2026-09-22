@@ -46,6 +46,7 @@ export const transactionDetailSchema = new Schema({
   productId: { type: String, optional: true, label: 'Product' },
   count: { type: Number, optional: true, label: 'Count' },
   unitPrice: { type: Number, optional: true, label: 'unitPrice' },
+  weight: { type: Number, optional: true, label: 'Weight' },
 
   fixedAssetId: { type: String, optional: true, label: 'Fixed asset' },
   fixedAssetCategoryId: {
@@ -195,43 +196,49 @@ transactionSchema.index({ contentType: 1, contentId: 1 });
 transactionSchema.index({ date: 1, number: 1 });
 transactionSchema.index({ date: 1, ptrNumber: -1, ptrId: -1, _id: -1 });
 transactionSchema.index({ ptrNumber: -1, ptrId: -1, _id: -1 });
-transactionSchema.index(
-  { journal: 1, ptrNumber: -1, ptrId: -1, _id: -1, date: 1 },
-);
-transactionSchema.index(
-  { 'details.accountId': 1, ptrNumber: -1, ptrId: -1, _id: -1, date: 1 },
-);
-transactionSchema.index(
-  {
-    journal: 1,
-    'details.accountId': 1,
-    ptrNumber: -1,
-    ptrId: -1,
-    _id: -1,
-    date: 1,
-  },
-);
-transactionSchema.index(
-  {
-    journal: 1,
-    'details.accountId': 1,
-    date: 1,
-    ptrNumber: -1,
-    ptrId: -1,
-  },
-);
-transactionSchema.index(
-  { journal: 1, status: 1, date: 1, number: 1, ptrId: 1 },
-);
-transactionSchema.index(
-  { 'details.accountId': 1, date: 1, journal: 1 },
-);
-transactionSchema.index(
-  { 'details.productId': 1, date: 1, journal: 1 },
-);
-transactionSchema.index(
-  { 'details.branchId': 1, 'details.departmentId': 1, date: 1 },
-);
+transactionSchema.index({
+  journal: 1,
+  ptrNumber: -1,
+  ptrId: -1,
+  _id: -1,
+  date: 1,
+});
+transactionSchema.index({
+  'details.accountId': 1,
+  ptrNumber: -1,
+  ptrId: -1,
+  _id: -1,
+  date: 1,
+});
+transactionSchema.index({
+  journal: 1,
+  'details.accountId': 1,
+  ptrNumber: -1,
+  ptrId: -1,
+  _id: -1,
+  date: 1,
+});
+transactionSchema.index({
+  journal: 1,
+  'details.accountId': 1,
+  date: 1,
+  ptrNumber: -1,
+  ptrId: -1,
+});
+transactionSchema.index({
+  journal: 1,
+  status: 1,
+  date: 1,
+  number: 1,
+  ptrId: 1,
+});
+transactionSchema.index({ 'details.accountId': 1, date: 1, journal: 1 });
+transactionSchema.index({ 'details.productId': 1, date: 1, journal: 1 });
+transactionSchema.index({
+  'details.branchId': 1,
+  'details.departmentId': 1,
+  date: 1,
+});
 transactionSchema.index({ 'details.fixedAssetId': 1 });
 transactionSchema.index({ 'details.fixedAssetId': 1, date: 1, journal: 1 });
 transactionSchema.index({ 'details.fixedAssetCategoryId': 1 });

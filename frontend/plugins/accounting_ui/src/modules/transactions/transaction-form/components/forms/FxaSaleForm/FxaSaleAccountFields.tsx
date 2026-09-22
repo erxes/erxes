@@ -7,23 +7,21 @@ export const FxaSaleAccountFields = ({
   form,
   index,
   onFixedAssetAccountChange,
-  showFixedAssetAccount = false,
-  showGainAccount = true,
+  showSaleAccounts = false,
 }: {
   form: ITransactionGroupForm;
   index: number;
   onFixedAssetAccountChange?: (account: IAccount) => void;
-  showFixedAssetAccount?: boolean;
-  showGainAccount?: boolean;
+  showSaleAccounts?: boolean;
 }) => (
   <>
-    {showFixedAssetAccount && (
+    {showSaleAccounts && (
       <Form.Field
         control={form.control}
-        name={`trDocs.${index}.followInfos.fixedAssetAccountId`}
+        name={`trDocs.${index}.followInfos.saleOutAccountId`}
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Хөрөнгийн данс</Form.Label>
+            <Form.Label>Хөрөнгө хасах данс</Form.Label>
             <Form.Control>
               <SelectAccount
                 value={field.value || ''}
@@ -60,13 +58,13 @@ export const FxaSaleAccountFields = ({
         </Form.Item>
       )}
     />
-    {showGainAccount && (
+    {showSaleAccounts && (
       <Form.Field
         control={form.control}
-        name={`trDocs.${index}.followInfos.gainAccountId`}
+        name={`trDocs.${index}.followInfos.saleCostAccountId`}
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Ашгийн данс</Form.Label>
+            <Form.Label>Өртөг/алдагдлын данс</Form.Label>
             <Form.Control>
               <SelectAccount
                 value={field.value || ''}
@@ -82,25 +80,5 @@ export const FxaSaleAccountFields = ({
         )}
       />
     )}
-    <Form.Field
-      control={form.control}
-      name={`trDocs.${index}.followInfos.lossAccountId`}
-      render={({ field }) => (
-        <Form.Item>
-          <Form.Label>Алдагдлын данс</Form.Label>
-          <Form.Control>
-            <SelectAccount
-              value={field.value || ''}
-              onValueChange={field.onChange}
-              defaultFilter={{
-                journals: [JournalEnum.FXA_FOLLOW],
-                permissionMode: 'write',
-              }}
-            />
-          </Form.Control>
-          <Form.Message />
-        </Form.Item>
-      )}
-    />
   </>
 );

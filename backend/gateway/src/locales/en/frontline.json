@@ -518,7 +518,7 @@
   "loading-accounts": "Loading accounts...",
   "loading-communication-portal": "Loading communication portal...",
   "no-automations-found-search": "No automations found",
-  "call-from": "Call from",
+  "call-from": "Call from to",
   "select-a-phone": "Select a phone",
   "unnamed-customer": "Unnamed customer",
   "call-configs-updated": "Call configs updated successfully",
@@ -1749,5 +1749,6 @@
   "queued": "Queued",
   "sent": "Sent",
   "failed": "Failed",
-  "comment-no-conditions-description": "With no keywords this trigger answers every comment it sees."
+  "comment-no-conditions-description": "With no keywords this trigger answers every comment it sees.",
+  "field-is-required": "This field is required"
 }

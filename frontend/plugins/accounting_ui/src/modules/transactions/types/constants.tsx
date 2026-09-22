@@ -25,9 +25,11 @@ export enum TrJournalEnum {
 
   FXA_INCOME = 'fxaIncome',
   FXA_OUT = 'fxaOut',
-  FXA_OUT_COST = 'fxaOutCost',
-  FXA_OUT_DEPRECIATION = 'fxaOutDepreciation',
-  FXA_OUT_LOSS = 'fxaOutLoss',
+  FXA_DEP = 'fxaDep',
+  FXA_DEP_IN = 'fxaDepIn',
+  FXA_DEP_OUT = 'fxaDepOut',
+  FXA_SALE_OUT = 'fxaSaleOut',
+  FXA_SALE_COST = 'fxaSaleCost',
   FXA_MOVE = 'fxaMove',
   FXA_MOVE_IN = 'fxaMoveIn',
   FXA_SALE = 'fxaSale',
@@ -58,9 +60,11 @@ export const TR_JOURNAL_LABELS = {
 
   [TrJournalEnum.FXA_INCOME]: 'Үндсэн хөрөнгийн орлого',
   [TrJournalEnum.FXA_OUT]: 'Үндсэн хөрөнгийн зарлага',
-  [TrJournalEnum.FXA_OUT_COST]: 'Үндсэн хөрөнгийн өртөг хасалт',
-  [TrJournalEnum.FXA_OUT_DEPRECIATION]: 'Үндсэн хөрөнгийн хур.элэгдэл',
-  [TrJournalEnum.FXA_OUT_LOSS]: 'Үндсэн хөрөнгийн үлдэгдэл өртөг',
+  [TrJournalEnum.FXA_DEP]: 'Үндсэн хөрөнгийн элэгдэл',
+  [TrJournalEnum.FXA_DEP_IN]: 'Үндсэн хөрөнгийн хур.элэгдэл орлого',
+  [TrJournalEnum.FXA_DEP_OUT]: 'Үндсэн хөрөнгийн хур.элэгдэл зарлага',
+  [TrJournalEnum.FXA_SALE_OUT]: 'Үндсэн хөрөнгийн борлуулалт-зарлага',
+  [TrJournalEnum.FXA_SALE_COST]: 'Үндсэн хөрөнгийн борлуулалт-ББӨ',
   [TrJournalEnum.FXA_MOVE]: 'Үндсэн хөрөнгийн хөдөлгөөн',
   [TrJournalEnum.FXA_MOVE_IN]: 'Үндсэн хөрөнгийн хөдөлгөөн-орлого',
   [TrJournalEnum.FXA_SALE]: 'Үндсэн хөрөнгийн борлуулалт',
@@ -115,6 +119,7 @@ export const TR_SIDES = {
 export const INV_INCOME_EXPENSE_TYPES = [
   { value: 'amount', label: 'Дүн' },
   { value: 'count', label: 'Тоо' },
+  { value: 'weight', label: 'Жин' },
 ];
 
 export const TR_STATUSES = {

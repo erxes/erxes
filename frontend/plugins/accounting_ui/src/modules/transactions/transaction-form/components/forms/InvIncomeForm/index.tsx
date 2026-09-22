@@ -95,6 +95,13 @@ const CalcAmountEffectComponent = ({
         fixNum(sum + (cur.amount ?? 0)),
       0,
     );
+  const sumWeightExpenses = expenses
+    ?.filter((ex: { rule: string }) => ex.rule === 'weight')
+    .reduce(
+      (sum: number, cur: { amount?: number }) =>
+        fixNum(sum + (cur.amount ?? 0)),
+      0,
+    );
 
   const sumAmountDetails = details.reduce(
     (sum, cur) => fixNum(sum + (cur.count ?? 0) * (cur.unitPrice ?? 0)),
@@ -104,26 +111,42 @@ const CalcAmountEffectComponent = ({
     (sum, cur) => fixNum(sum + (cur.count ?? 0)),
     0,
   );
-
-  useEffect(
-    () => {
-      const proportionAmount = sumAmountExpenses / sumAmountDetails;
-      const proportionCount = sumCountExpenses / sumCountDetails;
-
-      details.forEach((detail, detIndex) => {
-        const amount = fixNum((detail.count ?? 0) * (detail.unitPrice ?? 0));
-        const newAmount =
-          amount +
-          fixNum(proportionCount * (detail.count ?? 0)) +
-          fixNum(proportionAmount * amount);
-        form.setValue(
-          `trDocs.${journalIndex}.details.${detIndex}.amount`,
-          newAmount,
-        );
-      });
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [sumAmountDetails, sumAmountExpenses, sumCountDetails, sumCountExpenses],
+  const sumWeightDetails = details.reduce(
+    (sum, cur) => fixNum(sum + (cur.weight ?? cur.count ?? 0)),
+    0,
   );
+
+  useEffect(() => {
+    const proportionAmount = sumAmountDetails
+      ? (sumAmountExpenses ?? 0) / sumAmountDetails
+      : 0;
+    const proportionCount = sumCountDetails
+      ? (sumCountExpenses ?? 0) / sumCountDetails
+      : 0;
+    const proportionWeight = sumWeightDetails
+      ? (sumWeightExpenses ?? 0) / sumWeightDetails
+      : 0;
+
+    details.forEach((detail, detIndex) => {
+      const amount = fixNum((detail.count ?? 0) * (detail.unitPrice ?? 0));
+      const weight = detail.weight ?? detail.count ?? 0;
+      const newAmount =
+        amount +
+        fixNum(proportionCount * (detail.count ?? 0)) +
+        fixNum(proportionAmount * amount) +
+        fixNum(proportionWeight * weight);
+      form.setValue(
+        `trDocs.${journalIndex}.details.${detIndex}.amount`,
+        newAmount,
+      );
+    });
+  }, [
+    sumAmountDetails,
+    sumAmountExpenses,
+    sumCountDetails,
+    sumCountExpenses,
+    sumWeightDetails,
+    sumWeightExpenses,
+  ]);
   return null;
 };

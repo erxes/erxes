@@ -34,6 +34,23 @@ export interface IConfigModel extends Model<IConfigDocument> {
   ): Promise<IConfigDocument | null>;
   removeConfig(_id: string): Promise<string>;
 }
+const validateDynamicConfig = (code: string, value: any) => {
+  if (code !== 'DYNAMIC' || !value?.customerApi) {
+    return;
+  }
+
+  let url: URL;
+
+  try {
+    url = new URL(value.customerApi);
+  } catch {
+    throw new Error('customerApi must be a valid URL.');
+  }
+
+  if (url.protocol !== 'https:') {
+    throw new Error('customerApi must use HTTPS.');
+  }
+};
 
 export const loadConfigClass = (
   models: IModels,
@@ -131,6 +148,7 @@ export const loadConfigClass = (
       value: any;
       subId?: string;
     }) {
+      validateDynamicConfig(code, value);
       const filter = { code, subId: subId ?? '' };
 
       // 1️⃣ Check existence FIRST
@@ -168,7 +186,7 @@ export const loadConfigClass = (
      */
     public static async updateConfig(_id: string, value: any, subId?: string) {
       const oldConf = await models.Configs.getConfigDetail(_id);
-
+      validateDynamicConfig(oldConf.code, value);
       await models.Configs.updateOne(
         { _id },
         { $set: { subId: subId ?? '', value } },

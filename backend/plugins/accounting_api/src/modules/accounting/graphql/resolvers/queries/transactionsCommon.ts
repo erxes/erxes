@@ -532,6 +532,7 @@ export const generateFilter = async (
   if (andFilter.length) {
     return { ...filter, $and: andFilter };
   }
+  console.log(JSON.stringify(filter), 'kkkkkkkkk');
   return filter;
 };
 

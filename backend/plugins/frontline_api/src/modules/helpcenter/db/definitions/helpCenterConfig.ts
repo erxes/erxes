@@ -30,6 +30,43 @@ const stylesSchema = new Schema(
   { _id: false },
 );
 
+const headerSchema = new Schema(
+  {
+    wordmark: { type: String },
+    homeLabel: { type: String },
+    formsLabel: { type: String },
+    announcementsLabel: { type: String },
+    searchPlaceholder: { type: String },
+  },
+  { _id: false },
+);
+
+const footerLinkSchema = new Schema(
+  {
+    label: { type: String },
+    url: { type: String },
+  },
+  { _id: false },
+);
+
+const footerColumnSchema = new Schema(
+  {
+    heading: { type: String },
+    links: { type: [footerLinkSchema], default: [] },
+  },
+  { _id: false },
+);
+
+const footerSchema = new Schema(
+  {
+    logo: { type: String },
+    description: { type: String },
+    copyright: { type: String },
+    columns: { type: [footerColumnSchema], default: [] },
+  },
+  { _id: false },
+);
+
 export const helpCenterConfigSchema = new Schema(
   {
     _id: mongooseStringRandomId,
@@ -54,6 +91,8 @@ export const helpCenterConfigSchema = new Schema(
     color: { type: String },
     backgroundImage: { type: String },
     styles: { type: stylesSchema },
+    header: { type: headerSchema },
+    footer: { type: footerSchema },
 
     createdBy: { type: String },
     modifiedBy: { type: String },

@@ -5,9 +5,16 @@ import { useState, type FormEvent } from 'react';
 import { Icon } from '@/modules/ui/components/Icon';
 import { site } from '../constants/site';
 
-export const SearchBar = ({ initialQuery = '' }: { initialQuery?: string }) => {
+export const SearchBar = ({
+  initialQuery = '',
+  placeholder = '',
+}: {
+  initialQuery?: string;
+  placeholder?: string;
+}) => {
   const router = useRouter();
   const [query, setQuery] = useState(initialQuery);
+  const label = placeholder || site.searchPlaceholder;
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -22,7 +29,7 @@ export const SearchBar = ({ initialQuery = '' }: { initialQuery?: string }) => {
       className="relative mx-auto w-full"
     >
       <label htmlFor="kb-search" className="sr-only">
-        {site.searchPlaceholder}
+        {label}
       </label>
       <Icon
         name="search"
@@ -34,7 +41,7 @@ export const SearchBar = ({ initialQuery = '' }: { initialQuery?: string }) => {
         type="search"
         value={query}
         onChange={(event) => setQuery(event.target.value)}
-        placeholder={site.searchPlaceholder}
+        placeholder={label}
         className="h-14 w-full rounded-full border border-white/30 bg-white/95 pl-14 pr-28 text-[15px] text-ink shadow-[0_8px_28px_rgba(20,20,43,0.16)] transition-[box-shadow,background-color] duration-300 placeholder:text-hero/45 focus:bg-white focus:shadow-[0_14px_40px_rgba(20,20,43,0.24)] focus:outline-none focus:ring-4 focus:ring-white/35 sm:h-16 sm:pl-16 sm:pr-32 sm:text-base"
       />
       <button

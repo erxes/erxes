@@ -97,6 +97,11 @@
 
 ### Provides
 
+- Plugin meta `properties` (`src/meta/properties.ts`) — the `deal` property
+  types, each with the `systemFields` (`code`, `name`, `type`) core lists as
+  the read-only "Basic information" group in Settings → Properties. A
+  `code` must name a real field on the record; core-api reads this meta
+  once per process, so a changed list shows after core-api restarts.
 - Federated sales GraphQL contracts for deals, stages, pipelines, boards, POS,
   and ecommerce modules.
 - Sales-owned tRPC and record-reference contracts.
@@ -353,6 +358,13 @@
 - **Contracts changed:** Consumes the new `TCreatedVia` and
   `IExecution.createdVia` from `erxes-api-shared`; `createdVia` itself is added
   to every schema by `schemaWrapper`.
+
+### `2026-09-17` — Property types declare system fields
+
+- **Summary:** The `deal` property types now declare `systemFields`, shown
+  as the "Basic information" group in Settings → Properties.
+- **Affected areas:** `src/meta/properties.ts` (`deal`), `src/main.ts`
+- **Contracts changed:** Plugin meta `properties.types[].systemFields` added.
 
 ### `2026-09-13` — Discount info type cleanup
 

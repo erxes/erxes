@@ -43,6 +43,39 @@ export const splitTicketBody = (
   };
 };
 
+const RELATIVE_UNITS: [Intl.RelativeTimeFormatUnit, number][] = [
+  ['year', 31536000000],
+  ['month', 2592000000],
+  ['week', 604800000],
+  ['day', 86400000],
+  ['hour', 3600000],
+  ['minute', 60000],
+];
+
+export const formatRelativeTime = (value: string | null): string => {
+  if (!value) {
+    return '—';
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return '—';
+  }
+
+  const diff = date.getTime() - Date.now();
+  const distance = Math.abs(diff);
+  const relative = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
+
+  for (const [unit, step] of RELATIVE_UNITS) {
+    if (distance >= step) {
+      return relative.format(Math.round(diff / step), unit);
+    }
+  }
+
+  return 'Just now';
+};
+
 export const formatDateTime = (value: string | null): string => {
   if (!value) {
     return '—';
