@@ -187,7 +187,8 @@
       "radio": "Radio Button",
       "relation": "Relation",
       "file": "File",
-      "phone": "Phone"
+      "phone": "Phone",
+      "objectList": "Object List"
     },
     "icon": "Icon",
     "description": "Description",
@@ -201,6 +202,9 @@
     "value": "Value",
     "enter-value": "Enter value",
     "add-option": "Add option",
+    "object-list-fields": "Object list fields",
+    "key": "Key",
+    "enter-key": "Enter key",
     "validation": "Validation",
     "select-validation": "Select validation",
     "validation-text": "Text",

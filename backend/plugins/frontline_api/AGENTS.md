@@ -98,6 +98,21 @@
   `(surveyId, cpUserId)` enforces it, so a repeat submit — even one choosing
   different options — returns `alreadyVoted` and writes nothing.
 
+- A channel-owned resource moves between channels through one mutation,
+  `channelMoveResources`. It covers integrations, ticket pipelines, forms,
+  surveys and response templates: each is owned by a channel through its own
+  flat `channelId`, and the move rewrites only that field. Validation runs
+  before any write — the destination must exist, differ from the source and be
+  visible to the caller; every selected id must still exist and still sit in
+  the source channel; and the destination must not already hold a resource of
+  that type with the same `name` (`title` for surveys). Moving a pipeline also
+  rewrites the denormalized `channelId` on its tickets, and moving a form also
+  moves the lead integration named by `form.integrationId`; if that cascade
+  fails the primary update is rolled back, so a failed move leaves the resource
+  on its original channel. Permission is the owning module's existing edit
+  action — `integrationsEdit`, `updateTicket`, `formsEdit`, `surveyEdit`,
+  `responseTemplatesEdit` — not a new one.
+
 - Ticket pipelines persist an ordered unique `propertyIds` selection. Create
   and update validate every id against Core `frontline:ticket` fields before
   writing it. `isPropertySelectionConfigured` distinguishes untouched legacy
@@ -203,18 +218,22 @@
 | Conversation convert | `src/modules/inbox/services/conversationConvert{,Targets}.ts`               | Conversion orchestration and relations; one handler per target (permission, existing-item lookup, URL, create)                                                                                         |
 | Forms                | `src/modules/form/`                                                         | Forms, fields, submissions                                                                                                                                                                             |
 | Surveys              | `src/modules/survey/`                                                       | Survey definitions, vote ledger, message snapshot, tally refresh                                                                                                                                       |
-
-> > > > > > > f367b4a36cb66a9d80ba39450bef5cd15fd95d21
-> > > > > > > | Survey ticket automation | `src/modules/survey/ticketAutomation.ts` | Threshold evaluation, atomic single-ticket claim, ticket creation |
-> > > > > > > | Knowledge base | `src/modules/knowledgebase/` | Topics, categories, articles, AI knowledge source |
-> > > > > > > | Help center | `src/modules/helpcenter/` | Client portal configs: general settings and appearance for a published help center |
-> > > > > > > | Reports | `src/modules/reports/` | Inbox/ticket report aggregations, `buildTicketMatch`, and the saved `ReportCharts` model |
-> > > > > > > | Migrations | `src/migrations/` | Plugin-owned data migrations |
+| Survey ticket automation | `src/modules/survey/ticketAutomation.ts`                                | Threshold evaluation, atomic single-ticket claim, ticket creation                                                                                                                                      |
+| Channel resource moves | `src/modules/channel/moveResources.ts`                                    | Per-type move descriptors, `validateChannelMove`, and the `moveChannelResources` service behind `channelMoveResources`                                                                                 |
+| Knowledge base       | `src/modules/knowledgebase/`                                                | Topics, categories, articles, AI knowledge source                                                                                                                                                      |
+| Help center          | `src/modules/helpcenter/`                                                   | Client portal configs: general settings and appearance for a published help center                                                                                                                     |
+| Reports              | `src/modules/reports/`                                                      | Inbox/ticket report aggregations, `buildTicketMatch`, and the saved `ReportCharts` model                                                                                                               |
+| Migrations           | `src/migrations/`                                                           | Plugin-owned data migrations                                                                                                                                                                           |
 
 ## Contracts
 
 ### Provides
 
+- `channelMoveResources(resourceType: ChannelResourceType!, resourceIds: [String!]!, sourceChannelId: String!, targetChannelId: String!): ChannelMoveResourcesResult`
+  — moves channel-owned resources between channels. `ChannelResourceType` is
+  `integration | pipeline | form | survey | responseTemplate`;
+  `ChannelMoveResourcesResult` carries `movedIds`, `movedCount`,
+  `sourceChannelId`, `targetChannelId` and `targetChannelName`.
 - Plugin meta `properties` (`src/meta/properties.ts`) — the `conversation` and
   `ticket` property types, each with the `systemFields` (`code`, `name`, `type`)
   core lists as the read-only "Basic information" group in Settings →
@@ -1894,9 +1913,40 @@ CallConversationDetail` resolves the call integration by `queueName` first,
   than creating a second one; seeding two core customers on `numberFrom` makes
   the conversation open with the candidate picker and no `customerId`.
 
+## Validation
+
+- `pnpm nx lint frontline_api`
+- `pnpm nx build frontline_api`
+- `pnpm nx test frontline_api` — Jest over `src/**/*.test.ts`
+  (`jest.config.ts`, `tsconfig.spec.json`). Test files are excluded from
+  `tsconfig.build.json`, so a new one must keep the `.test.ts` suffix.
+- Move a form, survey, response template, ticket pipeline and integration
+  between two channels and confirm each leaves the source channel's list,
+  appears in the destination's, and survives a reload.
+
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-21` — Channel-owned resources move between channels
+
+- **Summary:** Added `channelMoveResources`, one mutation that moves
+  integrations, ticket pipelines, forms, surveys or response templates from one
+  channel to another by rewriting their `channelId` only. It validates the
+  destination, the caller's visibility of both channels, that every selected id
+  still sits in the source channel, and that no same-named resource of that
+  type already sits in the destination, all before the first write. A pipeline
+  move cascades onto its tickets' denormalized `channelId` and a form move onto
+  its lead integration, with a rollback of the primary update if the cascade
+  fails. The plugin also gained a Jest target for the move's pure validation.
+- **Affected areas:** `src/modules/channel/moveResources.ts`,
+  `src/modules/channel/moveResources.test.ts`,
+  `src/modules/channel/graphql/{schemas/channel,resolvers/mutations/channel}.ts`,
+  `jest.config.ts`, `tsconfig.spec.json`, `tsconfig.build.json`,
+  `project.json`
+- **Contracts changed:** Added mutation `channelMoveResources`, enum
+  `ChannelResourceType` and type `ChannelMoveResourcesResult`.
+
 
 ### `2026-09-21` — Messenger company writes actually reach Core
 
@@ -2017,4 +2067,16 @@ CallConversationDetail` resolves the call integration by `queueName` first,
 - **Affected areas:** `src/modules/integrations/mail/utils/notes.ts`,
   `src/modules/integrations/mail/controller/receiveMessage.ts`,
   `src/modules/ticket/graphql/resolvers/mutations/note.ts`
+- **Contracts changed:** `None`
+
+### `2026-09-10` — A mail ticket belongs to the customer who wrote in
+
+- **Summary:** A ticket opened from mail is now created as `cp:<customerId>`
+  rather than as the pipeline owner, so the requester owns it in the client
+  portal and the activity timeline names them; the pipeline owner is kept as
+  its only subscriber instead. `generateFilter` gained the matching visibility
+  branches so an `isCheckUser` pipeline still shows those tickets to its agents
+  while they are unclaimed, or to whoever subscribed to one.
+- **Affected areas:** `src/modules/integrations/mail/utils/tickets.ts`,
+  `src/modules/ticket/utils/generateFilter.ts`
 - **Contracts changed:** `None`

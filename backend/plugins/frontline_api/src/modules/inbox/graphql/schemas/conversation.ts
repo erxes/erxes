@@ -84,6 +84,12 @@ export const types = `
     mailData: MailData
     contentType: String
     mid: String
+    messageKind: String
+    providerData: JSON
+    replyTo: JSON
+    reactions: JSON
+    deliveryStatus: String
+    expiresAt: Date
   }
 
   type Email {
@@ -195,6 +201,7 @@ const mutationFilterParams = `
   unread: String
   awaitingResponse: String
   withSurvey: String
+  withPoll: String
   automationStatus: String
   starred: String
   startDate: String
