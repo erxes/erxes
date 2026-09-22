@@ -1,38 +1,87 @@
-import Link from 'next/link';
+import { CardLink } from '@/modules/ui/components/Card';
 import { Icon } from '@/modules/ui/components/Icon';
-import { formatDateTime } from '../utils/format';
+import { cn } from '@/modules/ui/lib/cn';
+import { formatDateTime, formatRelativeTime } from '../utils/format';
 import type { Ticket } from '../types';
-import { PriorityBadge, StatusBadge } from './TicketBadges';
+import {
+  PriorityText,
+  statusTone,
+  StatusText,
+  toneSurface,
+} from './TicketBadges';
 
-export const TicketListItem = ({ ticket }: { ticket: Ticket }) => (
-  <li>
-    <Link
-      href={`/tickets/${ticket._id}`}
-      className="flex items-start gap-4 rounded-lg px-4 py-4 transition-colors hover:bg-subtle"
-    >
-      <span className="mt-0.5 text-muted-foreground">
-        <Icon name="ticket" size={18} />
-      </span>
-      <span className="min-w-0 flex-1">
-        <span className="flex flex-wrap items-center gap-2">
-          {ticket.number ? (
-            <span className="text-[13px] font-semibold text-brand">
-              {ticket.number}
-            </span>
-          ) : null}
-          <StatusBadge status={ticket.status} />
-          <PriorityBadge priority={ticket.priority} />
-        </span>
-        <span className="mt-1.5 block text-[15px] font-semibold text-ink">
-          {ticket.name ?? 'Untitled ticket'}
-        </span>
-        <span className="mt-1 block text-[13px] text-muted-foreground">
-          Updated {formatDateTime(ticket.updatedAt ?? ticket.createdAt)}
-        </span>
-      </span>
-      <span className="mt-1 text-muted-foreground">
-        <Icon name="chevronRight" size={16} />
-      </span>
-    </Link>
-  </li>
+const MetaDot = () => (
+  <span
+    aria-hidden="true"
+    className="size-1 rounded-full bg-muted-foreground/40"
+  />
 );
+
+export const TicketListItem = ({ ticket }: { ticket: Ticket }) => {
+  const tone = statusTone(ticket.status);
+  const updated = ticket.updatedAt ?? ticket.createdAt;
+
+  return (
+    <li>
+      <CardLink
+        href={`/tickets/${ticket._id}`}
+        className="group relative overflow-hidden py-4 pl-6 pr-4 sm:pl-7 sm:pr-5"
+      >
+        <span
+          aria-hidden="true"
+          className={cn(
+            'absolute inset-y-0 left-0 w-1 transition-[width] duration-200 group-hover:w-1.5',
+            toneSurface[tone],
+          )}
+        />
+
+        <span className="flex items-center gap-4">
+          <span className="min-w-0 flex-1">
+            <span className="block truncate text-[15px] font-semibold text-ink transition-colors duration-200 group-hover:text-brand">
+              {ticket.name ?? 'Untitled ticket'}
+            </span>
+
+            <span className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1.5 text-[13px] text-muted-foreground">
+              <StatusText status={ticket.status} />
+
+              {ticket.priority ? (
+                <>
+                  <MetaDot />
+                  <PriorityText priority={ticket.priority} />
+                </>
+              ) : null}
+
+              {ticket.number ? (
+                <>
+                  <MetaDot />
+                  <span className="font-mono text-xs tracking-tight">
+                    #{ticket.number}
+                  </span>
+                </>
+              ) : null}
+
+              <span className="flex items-center gap-2 sm:hidden">
+                <MetaDot />
+                {formatRelativeTime(updated)}
+              </span>
+            </span>
+          </span>
+
+          <span className="flex shrink-0 items-center gap-3">
+            <span
+              className="hidden text-[13px] text-muted-foreground sm:block"
+              title={formatDateTime(updated)}
+            >
+              {formatRelativeTime(updated)}
+            </span>
+            <Icon
+              name="chevronRight"
+              size={16}
+              className="text-muted-foreground transition-[transform,color] duration-200 group-hover:translate-x-0.5 group-hover:text-brand"
+            />
+          </span>
+        </span>
+      </CardLink>
+    </li>
+  );
+};

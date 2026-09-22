@@ -1752,5 +1752,6 @@
   "queued": "Дараалалд",
   "sent": "Илгээсэн",
   "failed": "Амжилтгүй",
-  "comment-no-conditions-description": "Keyword байхгүй бол энэ trigger харсан бүх comment-д хариулна."
+  "comment-no-conditions-description": "Keyword байхгүй бол энэ trigger харсан бүх comment-д хариулна.",
+  "field-is-required": "Энэ талбарыг заавал бөглөнө"
 }

@@ -1,3 +1,5 @@
+import type { ITrackedDataItem } from './Customer';
+
 export interface ICompany {
   _id: string;
   avatar?: string;
@@ -22,4 +24,5 @@ export interface ICompany {
   size?: number;
   website?: string;
   createdAt?: string;
+  trackedData?: ITrackedDataItem[];
 }

@@ -117,8 +117,19 @@ async function handleMain(
   doc: ITransaction,
   oldTr?: ITransactionDocument,
 ) {
+  const taxTrsClass = new TaxTrs(
+    models,
+    userId,
+    doc,
+    doc.side === TR_SIDES.DEBIT ? 'ct' : 'dt',
+    true,
+  );
+  await taxTrsClass.checkTaxValidation();
   const mainTr = await createOrUpdateTr(models, userId, doc, oldTr);
-  return { mainTr, otherTrs: [] };
+  return {
+    mainTr,
+    otherTrs: await collect(await taxTrsClass.doTaxTrs(mainTr)),
+  };
 }
 
 async function handleSingleTr(

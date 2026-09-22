@@ -12,8 +12,9 @@ import {
 import { useAtomValue } from 'jotai';
 import { useState } from 'react';
 import { useWatch } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { TR_SIDES } from '../../types/constants';
+import { getTransactionReturnPath } from '../../utils/transactionNavigation';
 import { useTransactionsRemove } from '../hooks/useTransactionsRemove';
 import { followTrDocsState } from '../states/trStates';
 import { ITransactionGroupForm, TTrDoc } from '../types/JournalForms';
@@ -53,6 +54,8 @@ export const Summary = ({
 }) => {
   const [showMore, setShowMore] = useState(false);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const returnPath = getTransactionReturnPath(searchParams.get('returnTo'));
   const { ptrNumber, trDocs } = useWatch({ control: form.control });
   const followTrDocs = useAtomValue(followTrDocsState);
   const [parentId] = useQueryState<string>('parentId');
@@ -75,8 +78,7 @@ export const Summary = ({
       },
     }).then(() => {
       if (!parentId) {
-        const pathname = '/accounting/main';
-        return navigate(pathname);
+        return navigate(returnPath);
       }
       removeTransactions(parentId);
     });

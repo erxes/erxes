@@ -39,7 +39,8 @@ export const CallWidgetContent = () => {
   const setCurrentCallConversationId = useSetAtom(
     currentCallConversationIdAtom,
   );
-  const { addCustomer, customer, channels, loading } = useAddCallCustomer();
+  const { addCustomer, customer, channels, integrationName, loading } =
+    useAddCallCustomer();
   useEffect(() => {
     if (sipState.callStatus === CallStatusEnum.ENDED) {
       setHistoryId(null);
@@ -59,7 +60,7 @@ export const CallWidgetContent = () => {
       <IncomingCall
         addCustomer={addCustomer}
         customer={customer}
-        channels={channels}
+        integrationName={integrationName}
         loading={loading}
       />
     );

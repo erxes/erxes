@@ -23,6 +23,7 @@ export const GET_TASK = gql`
       githubIssueNumber
       githubIssueUrl
       githubRepoName
+      propertiesData
     }
   }
 `;

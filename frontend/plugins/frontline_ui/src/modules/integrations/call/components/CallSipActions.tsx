@@ -6,6 +6,7 @@ import { callWidgetOpenAtom } from '@/integrations/call/states/callWidgetOpenAto
 import { callWidgetPositionState } from '@/integrations/call/states/callWidgetStates';
 import {
   callConfigAtom,
+  callEnabledIntegrationIdsAtom,
   callInfoAtom,
   sipStateAtom,
 } from '@/integrations/call/states/sipStates';
@@ -37,6 +38,7 @@ export const ClearCallCacheButton = () => {
   const { t } = useTranslation('frontline');
   const { confirm } = useConfirm();
   const setCallConfig = useSetAtom(callConfigAtom);
+  const setEnabledIntegrationIds = useSetAtom(callEnabledIntegrationIdsAtom);
   const setCallInfo = useSetAtom(callInfoAtom);
   const setHistoryId = useSetAtom(historyIdAtom);
   const setWidgetPosition = useSetAtom(callWidgetPositionState);
@@ -45,6 +47,7 @@ export const ClearCallCacheButton = () => {
 
   const clearCache = () => {
     setWidgetOpen(false);
+    setEnabledIntegrationIds(RESET);
     setCallInfo(RESET);
     setHistoryId(RESET);
     setWidgetPosition(RESET);

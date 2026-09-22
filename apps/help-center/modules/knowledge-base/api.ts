@@ -1,7 +1,11 @@
-import { unstable_cache } from 'next/cache';
+import { cache } from 'react';
 import { query } from '@/modules/apollo/apolloClient';
 import { getPortalConfig } from '@/modules/config/api';
-import { errorMessage, type PortalResult } from '@/modules/apollo/utils/result';
+import {
+  errorBodyMatches,
+  errorMessage,
+  type PortalResult,
+} from '@/modules/apollo/utils/result';
 import {
   KB_PORTAL_TOPIC_ARTICLES,
   KB_PORTAL_TOPIC_ARTICLES_PLAIN,
@@ -43,15 +47,8 @@ type TopicDocumentKey = keyof typeof DOCUMENTS;
 
 const UNKNOWN_FIELD = /Cannot query field/i;
 
-const isUnknownFieldError = (error: unknown): boolean => {
-  if (UNKNOWN_FIELD.test(errorMessage(error))) {
-    return true;
-  }
-
-  const { bodyText } = (error ?? {}) as { bodyText?: unknown };
-
-  return typeof bodyText === 'string' && UNKNOWN_FIELD.test(bodyText);
-};
+const isUnknownFieldError = (error: unknown): boolean =>
+  errorBodyMatches(error, UNKNOWN_FIELD);
 
 const runTopic = async (
   document: TopicDocument,
@@ -113,13 +110,8 @@ const fetchTopic = async (
   }
 };
 
-const TOPIC_TTL_SECONDS = 60;
-
-const cachedTopic = unstable_cache(
-  async (key: TopicDocumentKey, config: PortalConfig) =>
-    fetchTopic(DOCUMENTS[key], config),
-  ['portal-kb-topic'],
-  { revalidate: TOPIC_TTL_SECONDS },
+const cachedTopic = cache(async (key: TopicDocumentKey, config: PortalConfig) =>
+  fetchTopic(DOCUMENTS[key], config),
 );
 
 const readTopicFor = async (
@@ -131,11 +123,7 @@ const readTopicFor = async (
     return config;
   }
 
-  const result = await cachedTopic(key, config.data);
-
-  return result.state === 'error'
-    ? fetchTopic(DOCUMENTS[key], config.data)
-    : result;
+  return cachedTopic(key, config.data);
 };
 
 export const getTopicOverview = () => readTopicFor('overview');

@@ -143,6 +143,7 @@ const InventoryTableHeader = ({
         )}
         {showAdvancedView && (
           <>
+            <Table.Head>Жин</Table.Head>
             <Table.Head>Салбар</Table.Head>
             <Table.Head>Хэлтэс</Table.Head>
           </>

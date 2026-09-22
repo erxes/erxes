@@ -1,6 +1,8 @@
 import { InfoCard } from 'erxes-ui';
 import { TFunction } from 'i18next';
-import { Control } from 'react-hook-form';
+import { UseFormReturn } from 'react-hook-form';
+import { HelpCenterFooterFields } from '@/helpcenter/components/help-center-drawer/HelpCenterFooterFields';
+import { HelpCenterHeaderFields } from '@/helpcenter/components/help-center-drawer/HelpCenterHeaderFields';
 import {
   StyleColorField,
   StyleFontField,
@@ -19,12 +21,14 @@ import {
 } from '@/knowledgebase/components/TopicAppearanceFields';
 
 export function HelpCenterAppearanceTab({
-  control,
+  form,
   t,
 }: Readonly<{
-  control: Control<IHelpCenterConfigInput>;
+  form: UseFormReturn<IHelpCenterConfigInput>;
   t: TFunction;
 }>) {
+  const control = form.control;
+
   return (
     <div className="grid gap-4">
       <InfoCard
@@ -131,6 +135,30 @@ export function HelpCenterAppearanceTab({
               t={t}
             />
           </div>
+        </InfoCard.Content>
+      </InfoCard>
+
+      <InfoCard
+        title={t('kb-header', 'Header')}
+        description={t(
+          'kb-header-description-card',
+          'Wording in the published site header. Leave a field empty to keep its built-in label; the knowledge base and ticket tabs are named on the General tab.',
+        )}
+      >
+        <InfoCard.Content>
+          <HelpCenterHeaderFields control={control} t={t} />
+        </InfoCard.Content>
+      </InfoCard>
+
+      <InfoCard
+        title={t('kb-footer', 'Footer')}
+        description={t(
+          'kb-footer-description-card',
+          'Text and links shown at the bottom of every published page.',
+        )}
+      >
+        <InfoCard.Content>
+          <HelpCenterFooterFields form={form} t={t} />
         </InfoCard.Content>
       </InfoCard>
 

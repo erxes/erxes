@@ -6,6 +6,7 @@ import resolvers from './apollo/resolvers';
 import { generateModels } from './connectionResolvers';
 import * as trpc from './trpc/init-trpc';
 import { permissions } from './meta/permissions';
+import { properties } from './meta/properties';
 import { notifications } from './meta/notifications';
 import { automations } from './meta/automations';
 import segments from './meta/segments';
@@ -148,17 +149,6 @@ startPlugin({
         },
       ],
     },
-    properties: {
-      types: [
-        {
-          description: 'Tasks',
-          type: 'task',
-        },
-        {
-          description: 'Projects',
-          type: 'project',
-        },
-      ],
-    },
+    properties,
   },
 });

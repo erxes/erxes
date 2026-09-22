@@ -1,4 +1,4 @@
-import { IconSquareToggle, IconTrash } from '@tabler/icons-react';
+import { IconCheck, IconSquareToggle, IconTrash } from '@tabler/icons-react';
 import { Row } from '@tanstack/table-core';
 import { Button, CommandBar, RecordTable, Separator, toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
@@ -7,6 +7,8 @@ import {
   useSurveyToggleStatus,
 } from '@/survey/hooks/useSurveyMutations';
 import { ISurvey, SURVEY_STATUS } from '@/survey/types/surveyTypes';
+import { MoveToChannelCommandBarButton } from '@/channels/components/move-resources/MoveToChannelCommandBarButton';
+import { ChannelResourceType } from '@/channels/types';
 
 export const SurveyCommandBar = () => {
   const { t } = useTranslation('frontline');
@@ -16,6 +18,14 @@ export const SurveyCommandBar = () => {
 
   const selectedRows = table.getFilteredSelectedRowModel().rows;
   const surveyIds = selectedRows.map((row: Row<ISurvey>) => row.original._id);
+  const sourceChannelIds = selectedRows.map(
+    (row: Row<ISurvey>) => row.original.channelId || '',
+  );
+  const pendingIds = selectedRows
+    .filter(
+      (row: Row<ISurvey>) => row.original.status === SURVEY_STATUS.PENDING,
+    )
+    .map((row: Row<ISurvey>) => row.original._id);
 
   const onError = (error: Error) =>
     toast({
@@ -37,6 +47,19 @@ export const SurveyCommandBar = () => {
       onError,
     });
 
+  const handleApprove = () =>
+    toggleSurveyStatus({
+      variables: { _ids: pendingIds, status: SURVEY_STATUS.ACTIVE },
+      onCompleted: () => {
+        table.resetRowSelection();
+        toast({
+          variant: 'success',
+          title: t('survey-approved', 'Survey approved'),
+        });
+      },
+      onError,
+    });
+
   const handleArchive = () =>
     toggleSurveyStatus({
       variables: { _ids: surveyIds, status: SURVEY_STATUS.ARCHIVED },
@@ -51,10 +74,26 @@ export const SurveyCommandBar = () => {
           {t('n-selected', { count: selectedRows.length })}
         </CommandBar.Value>
         <Separator.Inline />
+        {pendingIds.length > 0 && (
+          <Button
+            variant="secondary"
+            onClick={handleApprove}
+            disabled={toggling}
+          >
+            <IconCheck />
+            {t('survey-approve', 'Approve')}
+          </Button>
+        )}
         <Button variant="secondary" onClick={handleArchive} disabled={toggling}>
           <IconSquareToggle />
           {t('archive')}
         </Button>
+        <MoveToChannelCommandBarButton
+          resourceType={ChannelResourceType.SURVEY}
+          resourceIds={surveyIds}
+          sourceChannelIds={sourceChannelIds}
+          onMoved={() => table.resetRowSelection()}
+        />
         <Button
           variant="destructive"
           onClick={handleRemove}

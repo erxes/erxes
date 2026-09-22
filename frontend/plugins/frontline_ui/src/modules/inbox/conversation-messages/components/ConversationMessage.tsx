@@ -8,8 +8,7 @@ import { ConversationFormDisplay } from './ConversationFormDisplay';
 import { MessageContent } from './MessageContent';
 
 export const ConversationMessage = () => {
-  const { previousMessage, nextMessage, ...message } =
-    useConversationMessageContext();
+  const message = useConversationMessageContext();
   const {
     _id,
     userId,
