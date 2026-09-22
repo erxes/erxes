@@ -66,7 +66,6 @@ export const AddProperty = () => {
             isVisibleInCard: false,
             description: '',
             code: '',
-            validation: '',
             options: [],
           }}
           onCancel={handleClose}

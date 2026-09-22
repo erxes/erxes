@@ -46,7 +46,10 @@ export const ProgressSource = ({ customerId }: { customerId?: string }) => {
   if (Object.keys(sourceStats).length === 0) {
     return (
       <div className="p-4 text-center text-sm text-muted-foreground">
-        {t('no-conversation-source-data')}
+        {t(
+          'no-conversation-source-data',
+          'No conversation source data available',
+        )}
       </div>
     );
   }
@@ -94,7 +97,7 @@ export const ProgressSource = ({ customerId }: { customerId?: string }) => {
                       outerRadius={10}
                       data={[
                         {
-                          name: t('progress'),
+                          name: t('progress', 'Progress'),
                           value: percentage,
                           fill: 'var(--primary)',
                         },
@@ -147,7 +150,7 @@ export const ProgressSource = ({ customerId }: { customerId?: string }) => {
                     </div>
                   ))}
                   <div className="flex justify-between text-sm font-medium">
-                    <span>{t('total')}</span>
+                    <span>{t('total', 'Total')}</span>
                     <span>{total}</span>
                   </div>
                 </div>

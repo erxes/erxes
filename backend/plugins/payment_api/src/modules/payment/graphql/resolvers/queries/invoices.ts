@@ -1,5 +1,5 @@
 import { Resolver } from 'erxes-api-shared/core-types';
-import { cursorPaginate } from 'erxes-api-shared/utils';
+import { cursorPaginate, escapeRegExp } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { PAYMENTS, PAYMENT_STATUS } from '~/constants';
 
@@ -19,14 +19,18 @@ const buildKindQuery = async (kind: string, models: IContext['models']) => {
 
   const conditions: any[] = [];
   if (txInvoiceIds.length > 0) conditions.push({ _id: { $in: txInvoiceIds } });
-  if (pmIds.length > 0) conditions.push({ paymentIds: { $in: pmIds.map(String) } });
+  if (pmIds.length > 0)
+    conditions.push({ paymentIds: { $in: pmIds.map(String) } });
 
   if (conditions.length === 0) return { _id: { $in: [] } };
   if (conditions.length === 1) return conditions[0];
   return { $or: conditions };
 };
 
-const generateFilterQuery = async (params: IParam, models: IContext['models']) => {
+const generateFilterQuery = async (
+  params: IParam,
+  models: IContext['models'],
+) => {
   const query: any = {};
   const { searchValue, kind, status, contentType, contentTypeId } = params;
 
@@ -39,8 +43,10 @@ const generateFilterQuery = async (params: IParam, models: IContext['models']) =
   }
 
   if (searchValue) {
-    const regex = new RegExp(`.*${searchValue}.*`, 'i');
-    const searchCondition = { $or: [{ description: regex }, { invoiceNumber: regex }] };
+    const regex = new RegExp(escapeRegExp(searchValue), 'i');
+    const searchCondition = {
+      $or: [{ description: regex }, { invoiceNumber: regex }],
+    };
     if (query.$or) {
       // kind filter already set $or — wrap both in $and to avoid key collision
       const kindOr = query.$or;
@@ -72,7 +78,7 @@ const queries: Record<string, Resolver> = {
 
     const { list, pageInfo, totalCount } = await cursorPaginate({
       model: models.Invoices,
-      params: { ...params, orderBy: { createdAt: -1 } },
+      params: { ...params, orderBy: params.orderBy ?? { createdAt: -1 } },
       query,
     });
 
@@ -110,9 +116,10 @@ const queries: Record<string, Resolver> = {
         continue;
       }
 
-      const kindFilter = params.kind === kind
-        ? qry
-        : Object.keys(qry).length > 0
+      const kindFilter =
+        params.kind === kind
+          ? qry
+          : Object.keys(qry).length > 0
           ? { $and: [await buildKindQuery(kind, models), qry] }
           : await buildKindQuery(kind, models);
 
@@ -124,8 +131,8 @@ const queries: Record<string, Resolver> = {
       counts.byStatus[status] = !params.status
         ? countQueryResult
         : params.status === status
-          ? countQueryResult
-          : 0;
+        ? countQueryResult
+        : 0;
     }
 
     counts.total = await count(qry);

@@ -20,9 +20,9 @@ export const ChannelForm = ({
           name="icon"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('icon')}</Form.Label>
+              <Form.Label>{t('icon', 'Icon')}</Form.Label>
               <Form.Description className="sr-only">
-                {t('icon')}
+                {t('icon', 'Icon')}
               </Form.Description>
               <Form.Control>
                 <IconPicker
@@ -40,7 +40,7 @@ export const ChannelForm = ({
           name="name"
           render={({ field }) => (
             <Form.Item className="flex-auto">
-              <Form.Label>{t('name')}</Form.Label>
+              <Form.Label>{t('name', 'Name')}</Form.Label>
               <Form.Control>
                 <Input {...field} />
               </Form.Control>
@@ -55,7 +55,7 @@ export const ChannelForm = ({
         name="description"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>{t('description')}</Form.Label>
+            <Form.Label>{t('description', 'Description')}</Form.Label>
             <Form.Control>
               <Textarea {...field} />
             </Form.Control>
@@ -68,7 +68,7 @@ export const ChannelForm = ({
         name="memberIds"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>{t('members-title')}</Form.Label>
+            <Form.Label>{t('members-title', 'Members')}</Form.Label>
             <Form.Control>
               <SelectMember.FormItem
                 mode="multiple"

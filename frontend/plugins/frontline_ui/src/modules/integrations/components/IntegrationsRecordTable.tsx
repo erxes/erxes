@@ -22,7 +22,7 @@ import {
 } from '../hooks/useIntegrations';
 import { useParams } from 'react-router-dom';
 import { useIntegrationEditField } from '@/integrations/hooks/useIntegrationEdit';
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { InboxHotkeyScope } from '@/inbox/types/InboxHotkeyScope';
 import clsx from 'clsx';
 import { IntegrationType } from '@/types/Integration';
@@ -31,6 +31,12 @@ import { REMOVE_INTEGRATION } from '@/integrations/graphql/mutations/RemoveInteg
 import { IconMessagesOff, IconTrash } from '@tabler/icons-react';
 import { INTEGRATIONS } from '../constants/integrations';
 import { useTranslation } from 'react-i18next';
+
+const FacebookIntegrationBotCell = lazy(() =>
+  import(
+    '~/widgets/automations/modules/facebook/components/bots/components/FacebookIntegrationBotCell'
+  ).then((module) => ({ default: module.FacebookIntegrationBotCell })),
+);
 
 export const IntegrationsRecordTable = () => {
   const { t } = useTranslation('frontline');
@@ -257,6 +263,8 @@ export const useIntegrationTypeColumns = (
   withSelection = false,
 ): ColumnDef<IIntegrationDetail>[] => {
   const { t } = useTranslation('frontline');
+  const { integrationType } = useParams();
+
   return [
     integrationMoreColumn(withSelection),
     ...(withSelection
@@ -334,5 +342,21 @@ export const useIntegrationTypeColumns = (
       },
       size: 120,
     },
+    ...(integrationType === IntegrationType.FACEBOOK_MESSENGER
+      ? [
+          {
+            id: 'bot',
+            header: () => <RecordTable.InlineHead label={t('bot')} />,
+            cell: (cell: CellContext<IIntegrationDetail, unknown>) => (
+              <Suspense fallback={<RecordTableInlineCell />}>
+                <FacebookIntegrationBotCell
+                  integrationId={cell.row.original._id}
+                />
+              </Suspense>
+            ),
+            size: 220,
+          } as ColumnDef<IIntegrationDetail>,
+        ]
+      : []),
   ];
 };

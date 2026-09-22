@@ -15,7 +15,7 @@ const productsMain = gql`
     $brandIds: [String]
     $tagIds: [String]
     $segment: String
-    $segmentData: String
+    $segmentIds: [String]
     $propertiesData: String
     $sortField: String
     $sortDirection: Int
@@ -30,7 +30,7 @@ const productsMain = gql`
       brandIds: $brandIds
       tagIds: $tagIds
       segment: $segment
-      segmentData: $segmentData
+      segmentIds: $segmentIds
       propertiesData: $propertiesData
       sortField: $sortField
       sortDirection: $sortDirection

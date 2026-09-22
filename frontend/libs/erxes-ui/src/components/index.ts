@@ -30,6 +30,7 @@ export * from './popover';
 export * from './radio-group';
 export * from './resizable';
 export * from './scroll-area';
+export * from './search-order-select';
 export * from './select';
 export * from './separator';
 export * from './sheet';

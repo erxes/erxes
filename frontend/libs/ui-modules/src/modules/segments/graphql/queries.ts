@@ -5,42 +5,53 @@ const SEGMENT_FIELDS = `
   contentType
   name
   description
-  subOf
   color
-  conditions
-  conditionsConjunction
-  shouldWriteActivityLog
-
-  config
+  root
+  visibility
+  ownerId
+  status
+  revision
+  membersCount
+  membersCountedAt
+  buildStartedAt
+  buildProcessed
+  buildTotal
+  buildCancelRequested
 `;
 
-export const FIELDS_COMBINED_BY_CONTENT_TYPE = gql(
-  `
-    query Fields($contentType: String!) {
-      fieldsCombinedByContentType(contentType: $contentType)
+export const SEGMENTS = gql`
+  query SegmentList(
+    $contentTypes: [String]!
+    $ids: [String]
+    $excludeIds: [String]
+    $searchValue: String
+  ) {
+    segments(
+      contentTypes: $contentTypes
+      ids: $ids
+      excludeIds: $excludeIds
+      searchValue: $searchValue
+    ) {
+      _id
+      contentType
+      name
+      description
+      color
+      status
+      membersCount
+      buildProcessed
+      buildTotal
     }
-`,
-);
-
-export const SEGMENTS = gql(`
-    query Segments($contentTypes: [String]!, $config: JSON, $ids: [String],$excludeIds: [String],$searchValue:String) {
-      segments(contentTypes: $contentTypes, config: $config, ids: $ids,excludeIds:$excludeIds,searchValue:$searchValue) {
-        _id
-        color
-        count
-        contentType
-        description
-        name
-        subOf
-      }
-}
-`);
-
-export const ASSOCIATION_TYPES = gql(`
-  query GetAssociationTypes($contentType: String!) {
-    segmentsGetAssociationTypes(contentType: $contentType)
   }
-`);
+`;
+
+export const SEGMENT_DETAIL = gql`
+  query SegmentDetail($_id: String!) {
+    segmentDetail(_id: $_id) {
+      ${SEGMENT_FIELDS}
+    }
+  }
+`;
 
 export const SEGMENTS_GET_TYPES = gql`
   query SegmentsGetTypes {
@@ -48,55 +59,105 @@ export const SEGMENTS_GET_TYPES = gql`
   }
 `;
 
-export const PROPERTIES_WITH_FIELDS = gql(`
-    query PropertiesWithFields($contentType: String!) {
-      fieldsCombinedByContentType(contentType: $contentType)
-      segmentsGetAssociationTypes(contentType: $contentType)
-    }
-`);
-
-export const AUTOMATION_PROPERTIES_WITH_FIELDS = gql(`
-    query AutomationPropertiesWithFields($contentType: String!, $sourceType: String!) {
-      fieldsCombinedByContentType(contentType: $contentType, usageType: "automations")
-      automationSetPropertyTargets(sourceType: $sourceType)
-    }
-`);
-
-export const AUTOMATION_SET_PROPERTY_TARGETS = gql(`
-    query AutomationSetPropertyTargets($sourceType: String!) {
-      automationSetPropertyTargets(sourceType: $sourceType)
-    }
-`);
-
-export const SEGMENT_DETAIL = gql`
-  query segmentDetail($_id: String) {
-    segmentDetail(_id: $_id) {
-      ${SEGMENT_FIELDS}
-      getSubSegments {
-        ${SEGMENT_FIELDS}
+export const SEGMENT_FIELDS_QUERY = gql`
+  query SegmentFields($contentType: String!) {
+    segmentFields(contentType: $contentType) {
+      key
+      label
+      kind
+      input
+      source
+      options
+      query
+      component
+      operators {
+        value
+        label
+        input
+        hint
       }
-      subSegmentConditions
-      {
-        ${SEGMENT_FIELDS}
+    }
+  }
+`;
+
+export const SEGMENT_RELATIONS = gql`
+  query SegmentRelations($subjectType: String!) {
+    segmentRelations(subjectType: $subjectType) {
+      key
+      label
+      subjectType
+      relatedType
+      measureOperators {
+        value
+        label
+        input
+        hint
       }
     }
   }
 `;
 
 export const SEGMENTS_PREVIEW_COUNT = gql`
-  query SegmentsPreviewCount(
+  query SegmentsPreviewCount($contentType: String!, $root: JSON!) {
+    segmentsPreviewCount(contentType: $contentType, root: $root) {
+      count
+      unsupported
+      exceeded
+    }
+  }
+`;
+
+export const SEGMENT_MEMBER_COUNT = gql`
+  query SegmentMemberCount($segmentId: String!) {
+    segmentMemberCount(segmentId: $segmentId) {
+      count
+      unsupported
+    }
+  }
+`;
+
+export const SEGMENT_GROWTH = gql`
+  query SegmentGrowth($segmentId: String!, $days: Int) {
+    segmentGrowth(segmentId: $segmentId, days: $days) {
+      at
+      date
+      count
+      joined
+      left
+    }
+  }
+`;
+
+export const SEGMENT_SAME_DEFINITION = gql`
+  query SegmentSameDefinition(
     $contentType: String!
-    $conditions: JSON
-    $subOf: String
-    $config: JSON
-    $conditionsConjunction: String
+    $root: JSON!
+    $excludeId: String
   ) {
-    segmentsPreviewCount(
+    segmentSameDefinition(
       contentType: $contentType
-      conditions: $conditions
-      subOf: $subOf
-      config: $config
-      conditionsConjunction: $conditionsConjunction
-    )
+      root: $root
+      excludeId: $excludeId
+    ) {
+      _id
+      name
+    }
+  }
+`;
+
+export const SEGMENT_USAGE = gql`
+  query SegmentUsage($ids: [String!]!) {
+    segmentUsage(ids: $ids) {
+      segmentId
+      automations {
+        _id
+        name
+        status
+      }
+      segments {
+        _id
+        name
+      }
+    }
   }
 `;

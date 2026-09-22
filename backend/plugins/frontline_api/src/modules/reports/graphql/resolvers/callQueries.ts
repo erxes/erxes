@@ -5,6 +5,7 @@ import {
   ICdrLeg,
   buildCarrierBreakdown,
   buildCdrFilter,
+  buildDailyHourMatrix,
   buildHeatmap,
   buildTopNumbers,
   buildVolumeSeries,
@@ -65,7 +66,6 @@ const EMPTY_SCORECARD = {
 
 interface IReportScope {
   inboxIds: string[];
-  queues: string[];
   operators: { userId?: string; gsUsername?: string }[];
   queueId?: string;
 }
@@ -94,23 +94,20 @@ const resolveReportScope = async (
     selector,
   ).lean<IReportIntegration[]>();
 
-  const queues = [
+  const configuredQueues = [
     ...new Set(
       integrations.flatMap(({ queues: owned }) => (owned ?? []).map(String)),
     ),
   ].filter(Boolean);
 
-  const empty = { inboxIds: [], queues: [], operators: [] };
-
-  if (narrowed && !queues.includes(narrowed)) {
-    return empty;
+  if (narrowed && !configuredQueues.includes(narrowed)) {
+    return { inboxIds: [], operators: [] };
   }
 
   return {
     inboxIds: integrations
       .map(({ inboxId }) => String(inboxId))
       .filter(Boolean),
-    queues,
     operators: integrations.flatMap(({ operators }) => operators ?? []),
     queueId: narrowed,
   };
@@ -120,6 +117,12 @@ const inboxScopeFilter = ({ inboxIds }: IReportScope): Record<string, unknown> =
   inboxIds.length === 1
     ? { inboxIntegrationId: inboxIds[0] }
     : { inboxIntegrationId: { $in: inboxIds } };
+
+const wantsOutboundCalls = (
+  { queueId }: IReportScope,
+  direction?: string,
+): boolean =>
+  !queueId && (!direction || direction === 'all' || direction === 'Outbound');
 
 const operatorUserIdByExtension = ({
   operators,
@@ -177,13 +180,7 @@ export const reportCallQueries = {
       .select(CDR_REPORT_FIELDS)
       .lean<ICdrLeg[]>();
 
-    const allowedQueues = scope.queueId ? [scope.queueId] : scope.queues;
-
-    const calls = foldLegsIntoCalls(cdrs).filter(
-      (call) => call.queue && allowedQueues.includes(call.queue),
-    );
-
-    return summariseQueueStats(calls);
+    return summariseQueueStats(foldLegsIntoCalls(cdrs));
   },
 
   async callGetAgentStats(
@@ -212,8 +209,7 @@ export const reportCallQueries = {
 
     const wantsInbound =
       !direction || direction === 'all' || direction === 'Inbound';
-    const wantsOutbound =
-      !direction || direction === 'all' || direction === 'Outbound';
+    const wantsOutbound = wantsOutboundCalls(scope, direction);
 
     const [inboundCdrs, outboundCdrs] = await Promise.all([
       wantsInbound
@@ -350,8 +346,7 @@ export const reportCallQueries = {
 
     const wantsInbound =
       !direction || direction === 'all' || direction === 'Inbound';
-    const wantsOutbound =
-      !direction || direction === 'all' || direction === 'Outbound';
+    const wantsOutbound = wantsOutboundCalls(scope, direction);
 
     const [inboundCdrs, outboundCdrs] = await Promise.all([
       wantsInbound
@@ -423,8 +418,7 @@ export const reportCallQueries = {
 
     const wantsInbound =
       !direction || direction === 'all' || direction === 'Inbound';
-    const wantsOutbound =
-      !direction || direction === 'all' || direction === 'Outbound';
+    const wantsOutbound = wantsOutboundCalls(scope, direction);
 
     const [inboundCdrs, outboundCdrs] = await Promise.all([
       wantsInbound
@@ -512,6 +506,35 @@ export const reportCallQueries = {
       .lean<ICdrLeg[]>();
 
     return buildHeatmap(foldLegsIntoCalls(cdrs));
+  },
+
+  async callHeatmapDaily(
+    _args,
+    { startDate, endDate, integrationId, queueId, direction }: ICallReportArgs,
+    { models, user, subdomain }: IContext,
+  ) {
+    const scope = await resolveReportScope(models, subdomain, user, {
+      integrationId,
+      queueId,
+    });
+
+    if (!scope.inboxIds.length) {
+      return [];
+    }
+
+    const cdrs = await models.CallCdrs.find({
+      ...buildCdrFilter({
+        startDate,
+        endDate,
+        queueId: scope.queueId,
+        direction,
+      }),
+      ...inboxScopeFilter(scope),
+    })
+      .select(CDR_REPORT_FIELDS)
+      .lean<ICdrLeg[]>();
+
+    return buildDailyHourMatrix(foldLegsIntoCalls(cdrs));
   },
 
   async callTopNumbers(
@@ -916,8 +939,7 @@ export const reportCallQueries = {
 
     const wantsInbound =
       !direction || direction === 'all' || direction === 'Inbound';
-    const wantsOutbound =
-      !direction || direction === 'all' || direction === 'Outbound';
+    const wantsOutbound = wantsOutboundCalls(scope, direction);
 
     const [inboundCdrs, outboundCdrs] = await Promise.all([
       wantsInbound

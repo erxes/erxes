@@ -58,14 +58,14 @@ export const CreateChannel = ({ isIconOnly = false }: Props) => {
         // its settings page is opened or a personal mailbox is connected.
         variables: { ...data },
         onCompleted: (data) => {
-          toast({ title: t('success') });
+          toast({ title: t('success', 'Success!') });
           navigate(`/settings/frontline/channels/${data.channelAdd._id}`);
           form.reset();
           setOpen(false);
         },
         onError: (error) =>
           toast({
-            title: t('error'),
+            title: t('error', 'Error'),
             description: error.message,
             variant: 'destructive',
           }),
@@ -84,7 +84,7 @@ export const CreateChannel = ({ isIconOnly = false }: Props) => {
           <IconPlus />
           {!isIconOnly && (
             <>
-              <span>{t('create-channel')}</span>
+              <span>{t('create-channel', 'Create channel')}</span>
               <Kbd>C</Kbd>
             </>
           )}
@@ -97,7 +97,7 @@ export const CreateChannel = ({ isIconOnly = false }: Props) => {
             onSubmit={form.handleSubmit(submitHandler)}
           >
             <Sheet.Header>
-              <Sheet.Title>{t('create-channel')}</Sheet.Title>
+              <Sheet.Title>{t('create-channel', 'Create channel')}</Sheet.Title>
               <Sheet.Close />
             </Sheet.Header>
             <Sheet.Content className="grow size-full flex flex-col px-5 py-4">
@@ -105,10 +105,10 @@ export const CreateChannel = ({ isIconOnly = false }: Props) => {
             </Sheet.Content>
             <Sheet.Footer>
               <Button variant={'ghost'} onClick={() => onClose()}>
-                {t('cancel')}
+                {t('cancel', 'Cancel')}
               </Button>
               <Button type="submit" disabled={loading}>
-                {loading ? <Spinner /> : t('create')}
+                {loading ? <Spinner /> : t('create', 'Create')}
               </Button>
             </Sheet.Footer>
           </form>

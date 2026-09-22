@@ -36,9 +36,14 @@ export const INTEGRATIONS = {
     descriptionKey: 'integration-desc-call',
     img: 'grandstream.webp',
   },
-  [IntegrationType.IMAP]: {
-    name: 'IMAP',
-    descriptionKey: 'integration-desc-imap',
+  [IntegrationType.CALLPRO]: {
+    name: 'Call Pro',
+    descriptionKey: 'integration-desc-callpro',
+    img: 'callpro.png',
+  },
+  [IntegrationType.MAIL]: {
+    name: 'Email',
+    descriptionKey: 'integration-desc-mail',
     img: 'email.webp',
   },
 };

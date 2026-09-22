@@ -67,7 +67,7 @@ describe('account transaction import fixed assets', () => {
     mockRelatedData();
   });
 
-  it('uses productCode as fixed asset code without creating instance extra data', async () => {
+  it('uses productCode as fixed asset code without creating owner record extra data', async () => {
     const models = makeModels();
 
     const result = await processTransactionRows(
@@ -92,9 +92,7 @@ describe('account transaction import fixed assets', () => {
     );
 
     expect(result.errorRows).toEqual([]);
-    expect(models.FixedAssets.find).toHaveBeenCalledWith({
-      code: { $in: ['LAPTOP'] },
-    });
+    expect(models.FixedAssets.find).not.toHaveBeenCalled();
     expect(models.Transactions.createPTransaction).toHaveBeenCalledTimes(1);
 
     const trDocs = models.Transactions.createPTransaction.mock.calls[0][0];
@@ -103,14 +101,15 @@ describe('account transaction import fixed assets', () => {
         journal: JOURNALS.FXA_INCOME,
       }),
     );
-    expect(trDocs[0]).not.toHaveProperty('extraData.fxaInstances');
+    expect(trDocs[0]).not.toHaveProperty('extraData.fxaOwnerRecords');
     expect(trDocs[0].details[0]).toEqual(
       expect.objectContaining({
         accountId: 'asset-account',
         branchId: 'branch-1',
         departmentId: 'department-1',
         productId: '',
-        fixedAssetId: 'fixed-asset-1',
+        fixedAssetId: '',
+        fixedAssetCode: 'LAPTOP',
         count: 2,
         unitPrice: 500,
         amount: 1000,
@@ -146,9 +145,7 @@ describe('account transaction import fixed assets', () => {
       'user-1',
     );
 
-    expect(models.FixedAssets.find).toHaveBeenCalledWith({
-      code: { $in: ['LAPTOP'] },
-    });
+    expect(models.FixedAssets.find).not.toHaveBeenCalled();
     expect(sendTRPCMessage).not.toHaveBeenCalledWith(
       expect.objectContaining({
         module: 'products',
@@ -159,7 +156,8 @@ describe('account transaction import fixed assets', () => {
     expect(trDocs[0].details[0]).toEqual(
       expect.objectContaining({
         productId: '',
-        fixedAssetId: 'fixed-asset-1',
+        fixedAssetId: '',
+        fixedAssetCode: 'LAPTOP',
         amount: 500,
       }),
     );

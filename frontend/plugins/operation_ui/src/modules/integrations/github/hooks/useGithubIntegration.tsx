@@ -1,51 +1,40 @@
 import { useQuery, useMutation } from '@apollo/client';
-import {
-  GITHUB_ISSUES_SECTION_DATA,
-  GET_TEAMS,
-} from '../graphql/queries/githubConfigQueries';
+import { GET_GITHUB_CONFIG_BY_TEAM } from '../graphql/queries/githubConfigQueries';
 import { GET_GITHUB_REPOSITORIES } from '../graphql/queries/githubConnectionQueries';
-import { UPSERT_GITHUB_CONFIG } from '../graphql/mutations/githubConfigMutations';
-import { ITeam } from '../types';
+import {
+  DISCONNECT_GITHUB_TEAM,
+  UPSERT_GITHUB_CONFIG,
+} from '../graphql/mutations/githubConfigMutations';
+import { IGithubConfig, IGithubRepository } from '../types';
 
-export function useGithubIssuesSectionData(installationId?: number) {
-  const { data, loading, refetch } = useQuery<{
-    getAllGithubConfigs: {
-      _id: string;
-      teamId: string;
-      repoName: string;
-      installationId: number;
-      syncMode: string;
-    }[];
-    getTeams: ITeam[];
-  }>(GITHUB_ISSUES_SECTION_DATA, {
-    variables: { installationId },
+export function useGithubConfigByTeam(teamId: string) {
+  const { data, loading, error, refetch } = useQuery<{
+    getGithubConfigByTeam: IGithubConfig | null;
+    getAllGithubConfigs: IGithubConfig[];
+  }>(GET_GITHUB_CONFIG_BY_TEAM, {
+    variables: { teamId },
     fetchPolicy: 'network-only',
-    skip: !installationId,
+    skip: !teamId,
   });
 
-  return { data, loading, refetch };
+  return {
+    config: data?.getGithubConfigByTeam ?? undefined,
+    configs: data?.getAllGithubConfigs ?? [],
+    loading,
+    error,
+    refetch,
+  };
 }
 
 export function useGithubRepositories(installationId?: number, skip?: boolean) {
-  const { data, loading } = useQuery<{
-    getGithubRepositories: {
-      fullName: string;
-      name: string;
-      isPrivate: boolean;
-    }[];
+  const { data, loading, error } = useQuery<{
+    getGithubRepositories: IGithubRepository[];
   }>(GET_GITHUB_REPOSITORIES, {
     variables: { installationId },
     skip: skip || !installationId,
   });
 
-  return { data: data?.getGithubRepositories || [], loading };
-}
-
-export function useTeams(skip?: boolean) {
-  const { data, loading } = useQuery<{ getTeams: ITeam[] }>(GET_TEAMS, {
-    skip,
-  });
-  return { data: data?.getTeams || [], loading };
+  return { data: data?.getGithubRepositories || [], loading, error };
 }
 
 export function useUpsertGithubConfig(
@@ -61,4 +50,19 @@ export function useUpsertGithubConfig(
   );
 
   return { upsertConfig, saving };
+}
+
+export function useDisconnectGithubTeam(
+  onCompleted: () => void,
+  onError: (err: Error) => void,
+) {
+  const [disconnectTeam, { loading: disconnecting }] = useMutation(
+    DISCONNECT_GITHUB_TEAM,
+    {
+      onCompleted,
+      onError,
+    },
+  );
+
+  return { disconnectTeam, disconnecting };
 }

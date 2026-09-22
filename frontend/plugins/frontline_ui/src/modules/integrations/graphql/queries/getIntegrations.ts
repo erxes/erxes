@@ -19,6 +19,7 @@ export const INTEGRATION_INLINE = gql`
   query IntegrationInline($_id: String!) {
     integrationDetail(_id: $_id) {
       _id
+      name
       kind
     }
   }
@@ -55,6 +56,7 @@ export const GET_INTEGRATION_KINDS_BY_CHANNEL = gql`
     integrationsGetUsedTypesByChannel(channelId: $channelId, scope: $scope) {
       _id
       name
+      unreadConversationCount
     }
   }
 `;

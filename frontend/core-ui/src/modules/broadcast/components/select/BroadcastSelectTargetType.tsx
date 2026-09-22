@@ -20,12 +20,7 @@ export const BroadcastSelectTargetType = ({
       <Select.Content>
         <Select.Group>
           {Object.entries(BROADCAST_TARGET_TYPE).map(([key, label]) => (
-            <Select.Item
-              key={key}
-              className="text-xs h-7"
-              value={key}
-              disabled={key === 'segment' || key === 'brand'}
-            >
+            <Select.Item key={key} className="text-xs h-7" value={key}>
               {label}
             </Select.Item>
           ))}

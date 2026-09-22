@@ -38,7 +38,7 @@ export const TicketDetailSheet = ({
         loading={loading}
         error={!!error}
         notFound={!ticket}
-        notFoundState={<div>{t('ticket-not-found')}</div>}
+        notFoundState={<div>{t('ticket-not-found', 'Ticket not found')}</div>}
         errorState={
           <div className="flex items-center justify-center h-full">
             <Empty>
@@ -46,17 +46,17 @@ export const TicketDetailSheet = ({
                 <Empty.Media variant="icon">
                   <IconAlertCircle />
                 </Empty.Media>
-                <Empty.Title>{t('error')}</Empty.Title>
+                <Empty.Title>{t('error', 'Error')}</Empty.Title>
                 <Empty.Description>{error?.message}</Empty.Description>
               </Empty.Header>
             </Empty>
           </div>
         }
       >
-        <FocusSheet.Header title={t('ticket-detail')} />
+        <FocusSheet.Header title={t('ticket-detail', 'Ticket Detail')} />
         <FocusSheet.Content>
           <Sheet.Title className="sr-only">
-            {t('ticket-detail')} {ticket?.name}
+            {t('ticket-detail', 'Ticket Detail')} {ticket?.name}
           </Sheet.Title>
           <FocusSheet.SideBar>
             <TicketSidebar />

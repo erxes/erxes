@@ -11,12 +11,15 @@ import { useAutomation } from '@/automations/context/AutomationProvider';
 import { useWorkflowEditScope } from '@/automations/context/WorkflowEditScopeProvider';
 import { useAutomationNodes } from '@/automations/hooks/useAutomationNodes';
 import { useAutomationFormController } from '@/automations/hooks/useFormSetValue';
+import { useInsertNodeOnEdge } from '@/automations/hooks/useInsertNodeOnEdge';
 import { useNodeConnect } from '@/automations/hooks/useNodeConnect';
+import { automationEdgeInsertTargetState } from '@/automations/states/automationState';
 import { AutomationNodeType, NodeData } from '@/automations/types';
 import { generateNewNode } from '@/automations/utils/automationBuilderUtils/dropNodeHandler';
 import { generateNode } from '@/automations/utils/automationBuilderUtils/generateNodes';
 import { splitAwaitingConnectionId } from '@/automations/utils/automationConnectionUtils';
 import { Node, useReactFlow } from '@xyflow/react';
+import { useAtomValue } from 'jotai';
 import React from 'react';
 import {
   generateAutomationElementId,
@@ -64,6 +67,8 @@ export const useAutomationNodeLibrarySidebar = () => {
   const { getNodes, getNode, addNodes, setNodes } =
     useReactFlow<Node<NodeData>>();
   const { onAwaitingNodeConnection } = useNodeConnect();
+  const edgeInsertTarget = useAtomValue(automationEdgeInsertTargetState);
+  const { insertNodeOnEdge } = useInsertNodeOnEdge();
 
   const { triggersConst, actionsConst, loading, error, refetch } =
     useAutomation();
@@ -142,6 +147,14 @@ export const useAutomationNodeLibrarySidebar = () => {
 
   const onSelectNode = (draggingNode: TSelectableNode) => {
     const { nodeType } = draggingNode;
+
+    // Opened from an edge's insert button: the pick lands between that edge's
+    // two ends instead of at the end of the flow.
+    if (edgeInsertTarget && nodeType === AutomationNodeType.Action) {
+      insertNodeOnEdge(edgeInsertTarget, draggingNode);
+      return;
+    }
+
     const id = generateAutomationElementId(
       [...triggers, ...actions, ...(workflows || [])].map((node) => node.id),
     );
@@ -199,9 +212,10 @@ export const useAutomationNodeLibrarySidebar = () => {
       list: [],
     },
   };
-  const activeTab = awaitingToConnectNodeId
-    ? AutomationNodeType.Action
-    : (activeNodeTab as AutomationNodeLibraryType);
+  const activeTab =
+    awaitingToConnectNodeId || edgeInsertTarget
+      ? AutomationNodeType.Action
+      : (activeNodeTab as AutomationNodeLibraryType);
 
   const config =
     AutomationNodesLibraryMap[activeTab] ||

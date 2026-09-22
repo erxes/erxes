@@ -59,6 +59,9 @@ export const OPERATOR_BY_TYPE: Record<string, OperatorOption[]> = {
   text: TEXT_OPERATORS,
   textarea: TEXT_OPERATORS,
   phone: TEXT_OPERATORS,
+  // Free-text values, so the text operators apply; `contains` matches when any
+  // entry in the array matches.
+  list: TEXT_OPERATORS,
   number: NUMBER_OPERATORS,
   date: DATE_OPERATORS,
   boolean: BOOLEAN_OPERATORS,

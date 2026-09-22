@@ -20,11 +20,11 @@ export const useChannelMemberRemove = () => {
       ...options,
       onCompleted: (data) => {
         options?.onCompleted?.(data);
-        toast({ title: t('success') });
+        toast({ title: t('success', 'Success!') });
       },
       onError: (error) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: error.message,
           variant: 'destructive',
         });

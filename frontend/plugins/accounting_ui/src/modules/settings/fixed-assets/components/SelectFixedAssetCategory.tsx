@@ -1,4 +1,4 @@
-import { Combobox, Command, Form, Popover, cn } from 'erxes-ui';
+import { Combobox, Command, Popover, cn } from 'erxes-ui';
 import { useState } from 'react';
 import { useFixedAssetCategories } from '../hooks/useFixedAssetCategories';
 
@@ -23,15 +23,13 @@ export const SelectFixedAssetCategory = ({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <Form.Control>
-        <Combobox.Trigger className={cn('w-full shadow-xs', className)}>
-          <span className="truncate">
-            {selectedCategory
-              ? `${selectedCategory.code} - ${selectedCategory.name}`
-              : 'Бүлэг сонгох'}
-          </span>
-        </Combobox.Trigger>
-      </Form.Control>
+      <Combobox.Trigger className={cn('w-full shadow-xs', className)}>
+        <span className="truncate">
+          {selectedCategory
+            ? `${selectedCategory.code} - ${selectedCategory.name}`
+            : 'Бүлэг сонгох'}
+        </span>
+      </Combobox.Trigger>
       <Combobox.Content>
         <Command shouldFilter>
           <Command.Input placeholder="Бүлэг хайх" />

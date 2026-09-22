@@ -15,6 +15,12 @@ import { IPutResponse } from '~/modules/ebarimt/put-response/types/PutResponseTy
 import { putResponseMoreColumn } from '~/modules/ebarimt/put-response/components/PutResponseMoreColumn';
 import { HeaderCell } from '~/modules/ebarimt/put-response/components/HeaderCell';
 
+const getDisplayDate = (putResponse: IPutResponse) => {
+  const value = putResponse.date || putResponse.createdAt;
+
+  return value && !Number.isNaN(Date.parse(value)) ? value : null;
+};
+
 export const putResponseColumns: ColumnDef<IPutResponse>[] = [
   putResponseMoreColumn,
   {
@@ -60,11 +66,21 @@ export const putResponseColumns: ColumnDef<IPutResponse>[] = [
     id: 'date',
     accessorKey: 'date',
     header: () => <HeaderCell icon={IconUser} label="date" />,
-    cell: ({ cell }) => {
+    cell: ({ row }) => {
+      const displayDate = getDisplayDate(row.original);
+
+      if (!displayDate) {
+        return (
+          <RecordTableInlineCell>
+            <TextOverflowTooltip value="-" />
+          </RecordTableInlineCell>
+        );
+      }
+
       return (
-        <RelativeDateDisplay value={cell.getValue() as string} asChild>
+        <RelativeDateDisplay value={displayDate} asChild>
           <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
-            <RelativeDateDisplay.Value value={cell.getValue() as string} />
+            <RelativeDateDisplay.Value value={displayDate} />
           </RecordTableInlineCell>
         </RelativeDateDisplay>
       );

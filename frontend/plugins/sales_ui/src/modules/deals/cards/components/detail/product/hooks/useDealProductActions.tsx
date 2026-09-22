@@ -1,16 +1,14 @@
-import {
-  Dispatch,
-  SetStateAction,
-  useCallback,
-  useMemo,
-  useRef,
-} from 'react';
+import { Dispatch, SetStateAction, useCallback, useMemo, useRef } from 'react';
 import { IProduct, IProductData, currentUserState } from 'ui-modules';
 
 import { AdjustmentByCurrency } from './useProductCalculations';
 import { useAtomValue } from 'jotai';
 import { useDealsCreateProductsData } from './mutations/useDealsCreateProductsData';
 import { useRemoveProducts } from './mutations/useRemoveProduct';
+import {
+  ProductDataWithDiscountInfos,
+  applyFooterDiscountPercent,
+} from '../utils/discountInfos';
 
 interface UseDealProductActionsParams {
   tickUsed: boolean;
@@ -118,14 +116,19 @@ export const useDealProductActions = ({
           _id: crypto.randomUUID(),
         };
 
-        calculatePerProductAmount('discount', row);
-
-        return row;
+        return applyFooterDiscountPercent(
+          row,
+          discount[currency]?.percent || 0,
+        );
       });
 
       // The server schema has no `product` field: send the stripped rows as
       // docs and keep the embedded product snapshot only for optimistic UI.
-      const docs = rows.map(({ product, ...doc }) => doc);
+      const docs = rows.map((row) => {
+        const doc = { ...row };
+        delete doc.product;
+        return doc;
+      });
 
       createProductsData(docs, rows);
     },
@@ -143,7 +146,8 @@ export const useDealProductActions = ({
     (productData: IProductData) => {
       // The server persists docs verbatim, so send only persisted fields —
       // not the embedded product object or bundle conditions.
-      const doc: IProductData = {
+      const sourceProductData = productData as ProductDataWithDiscountInfos;
+      const doc: ProductDataWithDiscountInfos = {
         _id: crypto.randomUUID(),
         productId: productData.productId || productData.product?._id,
         uom: productData.uom,
@@ -157,6 +161,7 @@ export const useDealProductActions = ({
         vatPercent: productData.vatPercent,
         discountPercent: productData.discountPercent,
         discount: productData.discount,
+        discountInfos: sourceProductData.discountInfos,
         amount: productData.amount,
         tickUsed: productData.tickUsed,
         isVatApplied: productData.isVatApplied,
@@ -199,7 +204,7 @@ export const useDealProductActions = ({
       pendingProductDeletionsRef.current.add(productData._id);
       removeRows([productData._id]);
 
-      const processId = localStorage.getItem('processId') || '';
+      const processId = startProcess();
 
       void removeProducts({
         variables: {

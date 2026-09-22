@@ -582,9 +582,8 @@ export const orderToDynamic = async (
   syncLog: ISyncLogDocument,
   order: any,
   config: any,
+  brandId: string,
 ) => {
-  const brandId = order.scopeBrandIds[0];
-
   let msdCustomer: any = {};
 
   let orderMsdNo: string;
@@ -637,7 +636,9 @@ export const orderToDynamic = async (
     }
 
     const customerNo = await getCustomerNo(subdomain, customer);
-
+    const hasTokiPayment = (order.paidAmounts || []).some(
+      (payment) => payment.type === 'toki',
+    );
     const sendData: any = {
       Sell_to_Customer_No: msdCustomer?.No
         ? msdCustomer?.No
@@ -646,7 +647,7 @@ export const orderToDynamic = async (
       Sell_to_E_Mail: customer?.primaryEmail || '',
       External_Document_No: order.number,
       Responsibility_Center: config.responsibilityCenter || '',
-      Sync_Type: config.syncType || '',
+      Sync_Type: hasTokiPayment ? 'TOKI' : config.syncType || '',
       Mobile_Phone_No: customer?.primaryPhone || '',
       VAT_Bus_Posting_Group: config.vatBusPostingGroup || '',
       Payment_Terms_Code: config.paymentTermsCode || '',
@@ -680,7 +681,6 @@ export const orderToDynamic = async (
     if (!order.items.length) {
       throw new Error('Has not items order');
     }
-
     const responseSale = await fetch(`${salesApi}${urlParam}`, {
       method: postMethod,
       headers: postHeaders,

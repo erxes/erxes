@@ -6,7 +6,14 @@ import {
   useWorkflowTemplateList,
 } from '@/automations/hooks/useWorkflowTemplateList';
 import { IconAffiliate, IconArrowsSplit2 } from '@tabler/icons-react';
-import { Breadcrumb, Button, RecordTable, Separator, toast } from 'erxes-ui';
+import {
+  Breadcrumb,
+  Button,
+  Empty,
+  RecordTable,
+  Separator,
+  toast,
+} from 'erxes-ui';
 import { useMemo } from 'react';
 import { Link } from 'react-router';
 import { PageHeader } from 'ui-modules';
@@ -93,18 +100,20 @@ export const WorkflowTemplatesList = () => {
 };
 
 const WorkflowTemplatesEmptyState = () => (
-  <div className="flex flex-1 flex-col items-center justify-center gap-3 text-center">
-    <div className="rounded-lg bg-info/10 p-4 text-info">
-      <IconArrowsSplit2 />
-    </div>
-    <div className="space-y-1">
-      <p className="font-medium">No workflow templates yet</p>
-      <p className="text-sm text-muted-foreground">
+  <Empty className="my-8">
+    <Empty.Header>
+      <Empty.Media variant="icon">
+        <IconArrowsSplit2 />
+      </Empty.Media>
+      <Empty.Title>No workflow templates yet</Empty.Title>
+      <Empty.Description>
         Build a reusable set of actions once, then drop it into any automation.
-      </p>
-    </div>
-    <Button asChild>
-      <Link to="/automations/templates/create">Create template</Link>
-    </Button>
-  </div>
+      </Empty.Description>
+    </Empty.Header>
+    <Empty.Content>
+      <Button asChild>
+        <Link to="/automations/templates/create">Create template</Link>
+      </Button>
+    </Empty.Content>
+  </Empty>
 );

@@ -1,9 +1,15 @@
 'use client';
 
-import { Button, CurrencyField, Label, NumberInput } from 'erxes-ui';
+import { Button, Input, Label, NumberInput } from 'erxes-ui';
 import { IProduct, IProductData, SelectProductsBulk } from 'ui-modules';
 import { IconDeviceFloppy, IconPlus } from '@tabler/icons-react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import {
+  applyFooterDiscountAmount,
+  applyFooterDiscountPercent,
+  productBaseAmount,
+} from '../utils/discountInfos';
 
 type TotalByCurrency = { [currency: string]: number };
 type TotalWithPercent = {
@@ -21,6 +27,7 @@ type ProductFooterProps = {
   discount: TotalWithPercent;
   tax: TotalWithPercent;
   showAdvancedView: boolean;
+  showTaxView: boolean;
   productsData: IProductData[];
   onChangeProductsData: (data: IProductData[]) => void;
   updateTotal: (data: IProductData[]) => void;
@@ -50,8 +57,30 @@ const formatTotal = (total: TotalByCurrency) => {
 const isUsedProductForCurrency = (product: IProductData, currency: string) =>
   product.tickUsed === true && product.currency === currency;
 
-const formatEditablePercent = (value?: number): number =>
-  Math.round(value || 0);
+const roundPercent = (value?: number): number => Math.round(value || 0);
+
+const formatPercent = (value?: number): string => (value || 0).toFixed(4);
+
+const formatDiscountAmount = (value?: number): string =>
+  (value || 0).toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+
+type ProductWithDiscountInfos = IProductData & {
+  discountInfos?: { type: string; amount?: number }[];
+};
+
+const getHandDiscountAmount = (product: IProductData): number =>
+  ((product as ProductWithDiscountInfos).discountInfos || [])
+    .filter((discountInfo) => discountInfo.type === 'hand')
+    .reduce((sum, discountInfo) => sum + (Number(discountInfo.amount) || 0), 0);
+
+const clearDraftValue = (drafts: Record<string, string>, currency: string) => {
+  const { [currency]: _clearedDraft, ...remainingDrafts } = drafts;
+
+  return remainingDrafts;
+};
 
 export const ProductFooter = ({
   productsCount,
@@ -61,12 +90,67 @@ export const ProductFooter = ({
   discount,
   tax,
   showAdvancedView,
+  showTaxView,
   productsData,
   onChangeProductsData,
   updateTotal,
   onAddProducts,
   onSave,
 }: ProductFooterProps) => {
+  const [discountPercentDraft, setDiscountPercentDraft] = useState<
+    Record<string, string>
+  >({});
+  const [discountAmountDraft, setDiscountAmountDraft] = useState<
+    Record<string, string>
+  >({});
+
+  const parseDraftNumber = (value: string) => {
+    const parsed = Number(value.replace(/,/g, ''));
+    return Number.isFinite(parsed) ? parsed : 0;
+  };
+
+  const handleDiscountByCurrency = useMemo(
+    () =>
+      productsData.reduce<
+        Record<string, { amount: number; baseAmount: number }>
+      >((totals, product) => {
+        if (!product.tickUsed || !product.currency) {
+          return totals;
+        }
+
+        const currency = product.currency;
+        const current = totals[currency] || { amount: 0, baseAmount: 0 };
+        const baseAmount = productBaseAmount(product);
+
+        current.amount += getHandDiscountAmount(product);
+        current.baseAmount += baseAmount;
+        totals[currency] = current;
+
+        return totals;
+      }, {}),
+    [productsData],
+  );
+
+  const getHandleDiscountAmountInput = (currency: string) =>
+    discountAmountDraft[currency] ??
+    (handleDiscountByCurrency[currency]?.amount
+      ? handleDiscountByCurrency[currency].amount.toString()
+      : '');
+
+  const getHandleDiscountPercentInput = (currency: string) => {
+    if (discountPercentDraft[currency] !== undefined) {
+      return discountPercentDraft[currency];
+    }
+
+    const handleDiscount = handleDiscountByCurrency[currency];
+
+    if (!handleDiscount?.baseAmount || !handleDiscount.amount) {
+      return '';
+    }
+
+    return String((handleDiscount.amount * 100) / handleDiscount.baseAmount);
+  };
+
   const handlePercentChange = (
     currency: string,
     percent: number,
@@ -79,8 +163,7 @@ export const ProductFooter = ({
       const amount = newProduct.unitPrice * newProduct.quantity;
 
       if (type === 'discount') {
-        newProduct.discountPercent = percent;
-        newProduct.discount = (amount * percent) / 100;
+        return applyFooterDiscountPercent(newProduct, percent);
       } else {
         newProduct.taxPercent = percent;
       }
@@ -102,26 +185,43 @@ export const ProductFooter = ({
       isUsedProductForCurrency(p, currency),
     );
     const sumAmount = currencyProducts.reduce(
-      (s, p) => s + p.unitPrice * p.quantity,
+      (s, p) => s + productBaseAmount(p),
       0,
     );
-    const percent = sumAmount > 0 ? (value * 100) / sumAmount : 0;
 
     const updated = productsData.map((p) => {
       if (!isUsedProductForCurrency(p, currency)) return p;
 
-      const newProduct = { ...p };
-      const amount = newProduct.unitPrice * newProduct.quantity;
-      newProduct.discountPercent = percent;
-      newProduct.discount = sumAmount > 0 ? (amount / sumAmount) * value : 0;
-      newProduct.tax =
-        ((amount - newProduct.discount) * (newProduct.taxPercent || 0)) / 100;
-      newProduct.amount = amount - newProduct.discount + (newProduct.tax || 0);
-      return newProduct;
+      return applyFooterDiscountAmount({ ...p }, sumAmount, value);
     });
 
     onChangeProductsData(updated);
     updateTotal(updated);
+  };
+
+  const handleDiscountPercentDraftChange = (
+    currency: string,
+    value: string,
+  ) => {
+    const percent = Math.min(100, Math.max(0, parseDraftNumber(value)));
+
+    setDiscountPercentDraft((current) => ({
+      ...current,
+      [currency]: value,
+    }));
+    setDiscountAmountDraft((current) => clearDraftValue(current, currency));
+    handlePercentChange(currency, percent, 'discount');
+  };
+
+  const handleDiscountAmountDraftChange = (currency: string, value: string) => {
+    const amount = Math.max(0, parseDraftNumber(value));
+
+    setDiscountAmountDraft((current) => ({
+      ...current,
+      [currency]: value,
+    }));
+    setDiscountPercentDraft((current) => clearDraftValue(current, currency));
+    handleDiscountAmountChange(currency, amount);
   };
 
   const currencies = Object.keys({ ...total, ...discount, ...tax });
@@ -130,7 +230,7 @@ export const ProductFooter = ({
 
   return (
     <div className="z-10 shrink-0 border-t bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/85">
-      {showAdvancedView && currencies.length > 0 && (
+      {(showAdvancedView || showTaxView) && currencies.length > 0 && (
         <div className="max-h-44 divide-y overflow-y-auto overscroll-contain border-b bg-muted/15 px-4">
           {currencies.map((currency) => (
             <div
@@ -141,73 +241,80 @@ export const ProductFooter = ({
                 {currency}
               </span>
 
-              <div className="flex flex-wrap items-center gap-2">
-                <Label
-                  htmlFor={`discount-percent-${currency}`}
-                  className="text-xs font-medium text-muted-foreground"
-                >
-                  {t('total-discount')}
-                </Label>
-                <NumberInput
-                  id={`discount-percent-${currency}`}
-                  className="h-8 w-20 tabular-nums"
-                  value={formatEditablePercent(discount[currency]?.percent)}
-                  onChange={(value) =>
-                    handlePercentChange(
-                      currency,
-                      Math.min(100, Math.max(0, Math.round(value))),
-                      'discount',
-                    )
-                  }
-                />
-                <span className="text-xs text-muted-foreground">%</span>
-                <Label
-                  htmlFor={`discount-amount-${currency}`}
-                  className="text-xs text-muted-foreground"
-                >
-                  {t('amount')}
-                </Label>
-                <CurrencyField.ValueInput
-                  id={`discount-amount-${currency}`}
-                  className="h-8 w-32 tabular-nums"
-                  value={Math.round(discount[currency]?.value || 0)}
-                  onChange={(value) =>
-                    handleDiscountAmountChange(currency, Math.max(0, value))
-                  }
-                />
-                <span className="text-xs text-muted-foreground">
-                  {currency}
-                </span>
-              </div>
+              {showAdvancedView && (
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-xs font-medium text-muted-foreground">
+                    {t('set-handle-discount', 'Set handle discount')}
+                  </span>
+                  <Input
+                    id={`discount-percent-${currency}`}
+                    className="h-8 w-20 tabular-nums"
+                    inputMode="numeric"
+                    placeholder={t('set-percent', 'Set percent')}
+                    value={getHandleDiscountPercentInput(currency)}
+                    onChange={(event) =>
+                      handleDiscountPercentDraftChange(
+                        currency,
+                        event.currentTarget.value,
+                      )
+                    }
+                  />
+                  <span className="text-xs text-muted-foreground">%</span>
+                  <Input
+                    id={`discount-amount-${currency}`}
+                    className="h-8 w-32 tabular-nums"
+                    inputMode="numeric"
+                    placeholder={t('set-amount', 'Set amount')}
+                    value={getHandleDiscountAmountInput(currency)}
+                    onChange={(event) =>
+                      handleDiscountAmountDraftChange(
+                        currency,
+                        event.currentTarget.value,
+                      )
+                    }
+                  />
+                  <span className="text-xs font-medium text-muted-foreground">
+                    {t('total-discount')}
+                  </span>
+                  <span className="rounded-sm bg-background px-2 py-1 text-xs font-semibold tabular-nums text-foreground shadow-xs">
+                    {formatPercent(discount[currency]?.percent)}%
+                  </span>
+                  <span className="rounded-sm bg-background px-2 py-1 text-xs font-semibold tabular-nums text-foreground shadow-xs">
+                    {formatDiscountAmount(discount[currency]?.value)} {currency}
+                  </span>
+                </div>
+              )}
 
-              <div className="flex flex-wrap items-center gap-2">
-                <Label
-                  htmlFor={`tax-percent-${currency}`}
-                  className="text-xs font-medium text-muted-foreground"
-                >
-                  {t('total-tax')}
-                </Label>
-                <NumberInput
-                  id={`tax-percent-${currency}`}
-                  className="h-8 w-20 tabular-nums"
-                  value={formatEditablePercent(tax[currency]?.percent)}
-                  onChange={(value) =>
-                    handlePercentChange(
-                      currency,
-                      Math.min(100, Math.max(0, Math.round(value))),
-                      'tax',
-                    )
-                  }
-                />
-                <span className="text-xs text-muted-foreground">%</span>
-                <span className="text-xs text-muted-foreground">
-                  {t('amount')}
-                </span>
-                <span className="font-medium tabular-nums text-muted-foreground text-xs">
-                  {Math.round(tax[currency]?.value || 0).toLocaleString()}{' '}
-                  {currency}
-                </span>
-              </div>
+              {showTaxView && (
+                <div className="flex flex-wrap items-center gap-2">
+                  <Label
+                    htmlFor={`tax-percent-${currency}`}
+                    className="text-xs font-medium text-muted-foreground"
+                  >
+                    {t('total-tax')}
+                  </Label>
+                  <NumberInput
+                    id={`tax-percent-${currency}`}
+                    className="h-8 w-20 tabular-nums"
+                    value={roundPercent(tax[currency]?.percent)}
+                    onChange={(value) =>
+                      handlePercentChange(
+                        currency,
+                        Math.min(100, Math.max(0, Math.round(value))),
+                        'tax',
+                      )
+                    }
+                  />
+                  <span className="text-xs text-muted-foreground">%</span>
+                  <span className="text-xs text-muted-foreground">
+                    {t('amount')}
+                  </span>
+                  <span className="font-medium tabular-nums text-muted-foreground text-xs">
+                    {Math.round(tax[currency]?.value || 0).toLocaleString()}{' '}
+                    {currency}
+                  </span>
+                </div>
+              )}
             </div>
           ))}
         </div>

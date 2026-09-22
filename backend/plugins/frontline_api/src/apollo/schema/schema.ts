@@ -41,10 +41,16 @@ import {
 } from '@/integrations/call/graphql/schema/call';
 
 import {
-  mutations as ImapMutations,
-  queries as ImapQueries,
-  types as ImapTypes,
-} from '@/integrations/imap/graphql/schema/imap';
+  mutations as CallProMutations,
+  queries as CallProQueries,
+  types as CallProTypes,
+} from '@/integrations/callpro/graphql/schema';
+
+import {
+  mutations as MailMutations,
+  queries as MailQueries,
+  types as MailTypes,
+} from '@/integrations/mail/graphql/schema/mail';
 
 import {
   queries as WidgetQueries,
@@ -68,6 +74,12 @@ import {
   fieldsQueries as FieldQueries,
   fieldsTypes as FieldTypes,
 } from '~/modules/form/graphql/schema/field';
+
+import {
+  mutations as SurveyMutations,
+  queries as SurveyQueries,
+  types as SurveyTypes,
+} from '~/modules/survey/graphql/schema/survey';
 
 import {
   queries as ReportCallQueries,
@@ -103,6 +115,12 @@ import {
 } from '@/knowledgebase/graphql/schemas/knowledgeBaseTypeDefs';
 
 import {
+  queries as HelpCenterConfigQueries,
+  mutations as HelpCenterConfigMutations,
+  types as HelpCenterConfigTypes,
+} from '@/helpcenter/graphql/schemas/helpCenterConfig';
+
+import {
   mutations as TicketMutations,
   queries as TicketQuery,
   types as TicketTypes,
@@ -122,7 +140,8 @@ export const types = `
     ${DiscordTypes}
     ${InstagramTypes}
     ${CallTypes}
-    ${ImapTypes}
+    ${CallProTypes}
+    ${MailTypes}
     ${TicketTypes}
     ${WidgetTypes}
     ${ResponseTemplateTypes}
@@ -133,7 +152,9 @@ export const types = `
     ${ReportChartTypes}
     ${FormTypes}
     ${FieldTypes}
+    ${SurveyTypes}
     ${KnowledgeBaseTypes}
+    ${HelpCenterConfigTypes}
   `;
 
 export const queries = `
@@ -144,7 +165,8 @@ export const queries = `
     ${DiscordQueries}
     ${InstagramQueries}
     ${CallQueries}
-    ${ImapQueries}
+    ${CallProQueries}
+    ${MailQueries}
     ${TicketQuery}
     ${WidgetQueries}
     ${ResponseTemplateQueries}
@@ -155,7 +177,9 @@ export const queries = `
     ${ReportChartQueries}
     ${FormQueries}
     ${FieldQueries}
+    ${SurveyQueries}
     ${KnowledgeBaseQueries}
+    ${HelpCenterConfigQueries}
     ${CpInboxQueries}
   `;
 
@@ -167,13 +191,16 @@ export const mutations = `
    ${DiscordMutations}
    ${InstagramMutations}
    ${CallMutations}
-   ${ImapMutations}
+   ${CallProMutations}
+   ${MailMutations}
    ${TicketMutations}
    ${WidgetMutations}
    ${ResponseTemplateMutations}
    ${FormMutations}
    ${FieldMutations}
+   ${SurveyMutations}
    ${KnowledgeBaseMutations}
+   ${HelpCenterConfigMutations}
    ${CpInboxMutations}
    ${ReportChartMutations}
    ${ReportFacebookMutations}

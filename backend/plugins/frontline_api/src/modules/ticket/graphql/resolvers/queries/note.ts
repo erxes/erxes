@@ -8,4 +8,19 @@ export const noteQueries = {
   ) => {
     return models.Note.findOne({ _id });
   },
+
+  ticketGetNotes: async (
+    _parent: undefined,
+    { contentId, isInternal }: { contentId: string; isInternal?: boolean },
+    { models, checkPermission }: IContext,
+  ) => {
+    await checkPermission('showTickets');
+
+    return models.Note.find({
+      contentId,
+      ...(isInternal === undefined ? {} : { isInternal }),
+    })
+      .sort({ createdAt: -1 })
+      .lean();
+  },
 };

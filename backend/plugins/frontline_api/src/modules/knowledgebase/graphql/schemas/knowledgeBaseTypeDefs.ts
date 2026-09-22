@@ -132,7 +132,7 @@ export const types = `
       title: String!
       description: String
       categoryIds: [String]
-      brandId: String!
+      brandId: String
       color: String
       backgroundImage: String
       languageCode: String

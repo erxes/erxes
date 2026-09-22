@@ -6,9 +6,10 @@ interface QueueCardProps {
   stat: QueueStat;
 
   label?: string;
+  hint?: string;
 }
 
-export function QueueCard({ stat, label }: QueueCardProps) {
+export function QueueCard({ stat, label, hint }: QueueCardProps) {
   const { t } = useTranslation('frontline');
   const answerRate = stat.answeredRate ?? 0;
 
@@ -17,14 +18,19 @@ export function QueueCard({ stat, label }: QueueCardProps) {
       className="rounded-xl border bg-card p-4"
       style={{ boxShadow: 'var(--shadow-card)' }}
     >
-      <p className="mb-3 text-sm font-semibold truncate">
-        {label || stat.queue}
-      </p>
+      <p className="text-sm font-semibold truncate">{label || stat.queue}</p>
+      {hint ? (
+        <p className="mb-3 mt-0.5 text-xs text-muted-foreground truncate">
+          {hint}
+        </p>
+      ) : (
+        <div className="mb-3" />
+      )}
 
       <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-xs">
-        <Metric label={t('total')} value={fmtNum(stat.totalCalls)} />
+        <Metric label={t('total', 'Total')} value={fmtNum(stat.totalCalls)} />
         <Metric
-          label={t('answer-rate')}
+          label={t('answer-rate', 'Answer rate')}
           value={fmtPct(answerRate)}
           valueClass={
             answerRate >= 80
@@ -35,12 +41,12 @@ export function QueueCard({ stat, label }: QueueCardProps) {
           }
         />
         <Metric
-          label={t('answered')}
+          label={t('answered', 'Answered')}
           value={fmtNum(stat.answeredCalls)}
           valueClass="text-[var(--pos)]"
         />
         <Metric
-          label={t('abandoned')}
+          label={t('abandoned', 'Abandoned')}
           value={fmtNum(stat.abandonedCalls)}
           valueClass="text-[var(--neg)]"
         />

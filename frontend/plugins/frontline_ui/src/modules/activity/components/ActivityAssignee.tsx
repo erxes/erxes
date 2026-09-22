@@ -13,16 +13,16 @@ export const ActivityAssignee = ({
 
   return (
     <div className="inline-flex items-center gap-1">
-      {t('changed-assignee')}{' '}
+      {t('changed-assignee', 'changed assignee')}{' '}
       {!!previousValue && (
         <>
-          {t('from')}
+          {t('from', 'from')}
           <Badge variant="secondary" className="flex-none">
             <MembersInline memberIds={previousValue ? [previousValue] : []} />
           </Badge>
         </>
       )}
-      {t('to')}
+      {t('to', 'to')}
       <Badge variant="secondary" className="flex-none">
         <MembersInline memberIds={newValue ? [newValue] : []} />
       </Badge>

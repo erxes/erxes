@@ -77,11 +77,12 @@ export const GenericErrorFallback = ({
     <div className="flex min-h-screen flex-col items-center justify-center p-4 text-center">
       <div className="rounded-lg bg-background p-8 shadow-lg">
         <h1 className="mb-4 text-2xl font-bold text-foreground">
-          {title ?? t('sorry-something-went-wrong')}
+          {title ??
+            t('sorry-something-went-wrong', 'Sorry, something went wrong')}
         </h1>
         <p className="mb-6 text-accent-foreground">{error?.message}</p>
         <Button onClick={resetErrorBoundary} variant="secondary">
-          {t('try-again')}
+          {t('try-again', 'Try Again')}
         </Button>
       </div>
     </div>

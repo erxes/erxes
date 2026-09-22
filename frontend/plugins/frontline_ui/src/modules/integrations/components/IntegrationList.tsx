@@ -5,6 +5,7 @@ import { IntegrationLogo } from './IntegrationLogo';
 import { IntegrationType } from '@/types/Integration';
 import { gql, useQuery } from '@apollo/client';
 import { useTranslation } from 'react-i18next';
+import { useCallProConfig } from '@/integrations/callpro/hooks/useCallProConfig';
 
 export const IntegrationList = ({
   channelId,
@@ -16,9 +17,12 @@ export const IntegrationList = ({
   heading?: string;
 } = {}) => {
   const { t } = useTranslation('frontline');
+  const { enabled: callProEnabled } = useCallProConfig();
 
-  // Every channel offers the same integrations, personal or team.
-  const entries = Object.entries(INTEGRATIONS);
+  const entries = Object.entries(INTEGRATIONS).filter(
+    ([integrationType]) =>
+      integrationType !== IntegrationType.CALLPRO || callProEnabled,
+  );
 
   return (
     <Command>

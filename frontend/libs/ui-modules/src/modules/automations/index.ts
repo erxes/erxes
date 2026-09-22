@@ -1,6 +1,7 @@
 export * from './types/automationTypes';
 export * from './components/placeholderInput/PlaceholderInput';
 export * from './utils/automationUtils';
+export * from './utils/automationSeedLink';
 export * from './hooks/useAutomationRemoteFormSubmit';
 export * from './components/placeholderInput/commandList/GenericCommandList';
 export * from './hooks/useAutomationOptionalConnect';
@@ -21,3 +22,6 @@ export type {
   TPlaceholderInputSuggestionsOption,
   TPlaceholderInputSuggestionType,
 } from './types/placeholderInputTypes';
+export * from './hooks/useAutomationSetPropertyTargets';
+export * from './hooks/useGetFieldsProperties';
+export * from './utils/groupFieldsByType';

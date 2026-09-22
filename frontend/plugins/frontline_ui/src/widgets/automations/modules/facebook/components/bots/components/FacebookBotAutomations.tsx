@@ -1,0 +1,82 @@
+import { IconBolt, IconChevronRight } from '@tabler/icons-react';
+import { Badge, Label, Skeleton } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router';
+import {
+  FACEBOOK_COMMENT_TRIGGER_TYPE,
+  FACEBOOK_MESSAGE_TRIGGER_TYPE,
+} from '~/widgets/automations/modules/facebook/components/bots/constants';
+import { useFacebookBotAutomations } from '~/widgets/automations/modules/facebook/components/bots/hooks/useFacebookBotAutomations';
+
+const BOT_TRIGGER_TYPES = [
+  FACEBOOK_MESSAGE_TRIGGER_TYPE,
+  FACEBOOK_COMMENT_TRIGGER_TYPE,
+];
+
+/** Automations already listening to this bot, linked from its own form. */
+export const FacebookBotAutomations = ({ botId }: { botId?: string }) => {
+  const { t } = useTranslation('frontline');
+  const { automations, loading } = useFacebookBotAutomations(
+    botId,
+    BOT_TRIGGER_TYPES,
+  );
+
+  if (!botId) {
+    return null;
+  }
+
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="flex items-center gap-2">
+        <Label>
+          {t('connected-automations', {
+            defaultValue: 'Connected automations',
+          })}
+        </Label>
+        {!loading && automations.length > 0 && (
+          <Badge variant="secondary">{automations.length}</Badge>
+        )}
+      </div>
+      {loading && <Skeleton className="h-8 w-full" />}
+      {!loading && !automations.length && (
+        <p className="text-sm text-muted-foreground">
+          {t('no-connected-automations', {
+            defaultValue: 'No automation listens to this bot yet.',
+          })}
+        </p>
+      )}
+      {automations.length > 0 && (
+        <div className="flex max-h-56 flex-col gap-2 overflow-y-auto">
+          {automations.map(({ _id, name, status, triggers }) => (
+            <Link
+              key={_id}
+              to={`/automations/edit/${_id}`}
+              className="flex items-center gap-2 rounded-md border px-3 py-2 text-sm transition-colors hover:bg-accent"
+            >
+              <IconBolt className="size-4 shrink-0 text-muted-foreground" />
+              <span className="flex-1 truncate">{name}</span>
+              {triggers.some(
+                ({ type }) => type === FACEBOOK_COMMENT_TRIGGER_TYPE,
+              ) && (
+                <Badge variant="secondary">
+                  {t('comment', { defaultValue: 'Comment' })}
+                </Badge>
+              )}
+              {triggers.some(
+                ({ type }) => type === FACEBOOK_MESSAGE_TRIGGER_TYPE,
+              ) && (
+                <Badge variant="secondary">
+                  {t('message', { defaultValue: 'Message' })}
+                </Badge>
+              )}
+              <Badge variant={status === 'active' ? 'success' : 'secondary'}>
+                {status || 'draft'}
+              </Badge>
+              <IconChevronRight className="size-4 shrink-0 text-muted-foreground" />
+            </Link>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};

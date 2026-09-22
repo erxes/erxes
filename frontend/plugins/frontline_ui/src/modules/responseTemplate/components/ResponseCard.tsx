@@ -17,6 +17,7 @@ import {
 } from 'erxes-ui';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 const stripHtml = (html?: string) =>
   (html || '')
@@ -30,6 +31,7 @@ export const ResponseCard = ({
 }: {
   response: IResponseTemplate & { files?: string[] };
 }) => {
+  const { t } = useTranslation('frontline');
   const navigate = useNavigate();
   const { _id, channelId, name, content, createdAt, files } = response;
 
@@ -62,7 +64,9 @@ export const ResponseCard = ({
 
       <Card.Description className="line-clamp-3 min-h-[3rem] text-xs">
         {preview || (
-          <span className="italic text-muted-foreground/70">No content</span>
+          <span className="italic text-muted-foreground/70">
+            {t('no-content', 'No content')}
+          </span>
         )}
       </Card.Description>
 

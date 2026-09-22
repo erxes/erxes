@@ -7,6 +7,7 @@ const IGNORED_QUERY_VARIABLE_KEYS = [
   'tab',
   'archivedOnly',
   'archivedSort',
+  'stageId',
 ];
 
 const DATE_RANGE_MAP: Record<string, [string, string]> = {

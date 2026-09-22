@@ -8,6 +8,8 @@ import {
 import { useTranslation } from 'react-i18next';
 import { useBoards, IBoard } from '@/pricing/hooks/useBoards';
 
+const CLEAR_BOARD_VALUE = '__clear_board_selection__';
+
 // SelectBoard Context
 interface SelectBoardContextType {
   value: string;
@@ -46,7 +48,6 @@ const SelectBoardProvider = ({
 
   const handleValueChange = useCallback(
     (boardId: string) => {
-      if (!boardId) return;
       onValueChange(boardId);
       setOpen?.(false);
     },
@@ -76,7 +77,9 @@ const SelectBoardValue = ({ placeholder }: { placeholder?: string }) => {
   const { value, boards, loading } = useSelectBoardContext();
 
   if (loading) {
-    return <span className="text-accent-foreground/80">{t('loading-boards')}</span>;
+    return (
+      <span className="text-accent-foreground/80">{t('loading-boards')}</span>
+    );
   }
 
   if (!boards || boards.length === 0 || !value) {
@@ -123,6 +126,27 @@ const SelectBoardCommandItem = ({ board }: { board: IBoard }) => {
   );
 };
 
+const SelectBoardClearItem = () => {
+  const { t } = useTranslation('loyalty');
+  const { onValueChange, value } = useSelectBoardContext();
+
+  if (!value) {
+    return null;
+  }
+
+  return (
+    <Command.Item
+      value={CLEAR_BOARD_VALUE}
+      onSelect={() => {
+        onValueChange('');
+      }}
+    >
+      <span className="text-muted-foreground">{t('none')}</span>
+      <Combobox.Check checked={!value} />
+    </Command.Item>
+  );
+};
+
 // SelectBoard Content
 const SelectBoardContent = () => {
   const { t } = useTranslation('loyalty');
@@ -135,6 +159,7 @@ const SelectBoardContent = () => {
             {loading ? t('loading-boards') : t('no-boards-found')}
           </div>
         </Command.Empty>
+        <SelectBoardClearItem />
         {boards?.map((board) => (
           <SelectBoardCommandItem key={board._id} board={board} />
         ))}

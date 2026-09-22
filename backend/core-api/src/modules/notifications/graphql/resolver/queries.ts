@@ -36,6 +36,11 @@ const generateOrderByNotifications = (orderBy?: any) => {
   return sort;
 };
 
+const generateActiveNotificationsFilter =
+  (): FilterQuery<INotificationDocument> => ({
+    $or: [{ expiresAt: null }, { expiresAt: { $gt: new Date() } }],
+  });
+
 export const notificationQueries = {
   async emailDeliveries(
     _root: undefined,
@@ -144,12 +149,12 @@ export const notificationQueries = {
     let prioritized: INotificationDocument[] = [];
 
     if (params?.ids?.length) {
-      const idsCount = params.ids.length;
-      params.limit -= idsCount;
       prioritized = await models.Notifications.find({
         _id: { $in: params.ids },
+        ...generateActiveNotificationsFilter(),
         userId: user._id,
       });
+      params.limit = Math.max(1, (params.limit ?? 20) - prioritized.length);
     }
 
     const { list, totalCount, pageInfo } =
@@ -159,12 +164,16 @@ export const notificationQueries = {
           ...params,
           orderBy: generateOrderByNotifications(params?.orderBy),
         },
-        query: { ...filter, userId: user._id },
+        query: {
+          ...filter,
+          ...generateActiveNotificationsFilter(),
+          userId: user._id,
+        },
       });
 
     return {
       list: [...prioritized, ...list],
-      totalCount: totalCount + (params?.ids?.length || 0),
+      totalCount: totalCount + prioritized.length,
       pageInfo,
     };
   },
@@ -187,6 +196,7 @@ export const notificationQueries = {
     { models, user }: IContext,
   ) {
     return await models.Notifications.countDocuments({
+      ...generateActiveNotificationsFilter(),
       userId: user._id,
       isRead: false,
     });

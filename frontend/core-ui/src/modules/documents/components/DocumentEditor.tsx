@@ -1,13 +1,23 @@
 import { DocumentAttributesSidebar } from '@/documents/components/DocumentAttributesSidebar';
 import { DocumentEditorSkeleton } from '@/documents/components/DocumentEditorSkeleton';
+import { DocumentsErrorState } from '@/documents/components/DocumentsErrorState';
 import { useDocument } from '@/documents/hooks/useDocument';
 import { useDocumentAttributes } from '@/documents/hooks/useDocumentAttributes';
 import {
   ATTRIBUTE_DND_MIME,
   insertAttributeAtPoint,
 } from '@/documents/utils/attributeDnd';
-import { IconFileText, IconLayoutSidebarRightExpand } from '@tabler/icons-react';
-import { Button, BlockEditor, cn, IBlockEditor, useBlockEditor } from 'erxes-ui';
+import {
+  IconFileText,
+  IconLayoutSidebarRightExpand,
+} from '@tabler/icons-react';
+import {
+  Button,
+  BlockEditor,
+  cn,
+  IBlockEditor,
+  useBlockEditor,
+} from 'erxes-ui';
 
 import { ChangeEvent, KeyboardEvent, useEffect, useRef, useState } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
@@ -96,7 +106,9 @@ const EditorController = ({
     >
       <BlockEditor
         editor={editor}
-        className={cn('w-full flex-1 overflow-y-auto overflow-x-hidden px-5 pb-16')}
+        className={cn(
+          'w-full flex-1 overflow-y-auto overflow-x-hidden px-5 pb-16',
+        )}
       >
         <AttributeInEditor
           editor={editor}
@@ -214,7 +226,7 @@ const DocumentTitleEditor = ({
 };
 
 export const DocumentEditor = () => {
-  const { document, documentId, loading } = useDocument();
+  const { document, documentId, hasError, loading, refetch } = useDocument();
   const editor = useBlockEditor({});
   const { attributes, loading: attributesLoading } = useDocumentAttributes();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -232,6 +244,16 @@ export const DocumentEditor = () => {
 
   if (loading) {
     return <DocumentEditorSkeleton />;
+  }
+
+  if (hasError) {
+    return (
+      <DocumentsErrorState
+        title="Couldn’t load document"
+        description="Check your connection and try again."
+        onRetry={refetch}
+      />
+    );
   }
 
   if (!document && !isCreating) {

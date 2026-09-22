@@ -1,4 +1,4 @@
-import { getPureDate } from 'erxes-api-shared/utils';
+import { getPureDate, markResolvers } from 'erxes-api-shared/utils';
 import { IProductDocument } from '~/modules/posclient/@types/products';
 import { IContext } from '~/modules/posclient/@types/types';
 import { assertPosUser } from '~/modules/posclient/utils/assertPosUser';
@@ -228,5 +228,11 @@ const reportQueries = {
     };
   },
 };
+
+markResolvers<IContext>(reportQueries, {
+  wrapperConfig: {
+    skipPermission: true,
+  },
+});
 
 export default reportQueries;

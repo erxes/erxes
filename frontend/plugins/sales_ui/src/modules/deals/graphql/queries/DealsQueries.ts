@@ -8,6 +8,7 @@ const commonParams = `
   $productIds: [String],
   $labelIds: [String],
   $search: String,
+  $number: String,
   $priority: [String],
   $date: SalesItemDate,
   $pipelineId: String,
@@ -15,7 +16,6 @@ const commonParams = `
   $closeDateType: String,
   $userIds: [String],
   $segment: String,
-  $segmentData: String,
   $assignedToMe: String,
   $startDate: String,
   $endDate: String,
@@ -43,13 +43,13 @@ const commonParamDefs = `
   productIds: $productIds,
   labelIds: $labelIds,
   search: $search,
+  number: $number,
   date: $date,
   pipelineId: $pipelineId,
   parentId: $parentId,
   closeDateType: $closeDateType,
   userIds: $userIds,
   segment: $segment,
-  segmentData: $segmentData,
   assignedToMe: $assignedToMe,
   startDate: $startDate,
   endDate: $endDate,
@@ -153,6 +153,7 @@ export const GET_DEALS_SEARCH_DROPDOWN = gql`
           _id
           name
           number
+          createdAt
           status
           pipeline {
             _id

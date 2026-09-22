@@ -1,9 +1,12 @@
 import { Skeleton } from 'erxes-ui';
-import { useSafeRemainders } from '../hooks/useSafeRemainders';
 
-export const SafeRemaindersTotalCount = () => {
-  const { totalCount, loading } = useSafeRemainders();
-
+export const SafeRemaindersTotalCount = ({
+  loading,
+  totalCount,
+}: {
+  loading: boolean;
+  totalCount?: number;
+}) => {
   return (
     <span className="text-sm text-muted-foreground">
       {loading ? (

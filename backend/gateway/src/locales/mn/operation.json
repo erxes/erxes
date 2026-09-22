@@ -291,5 +291,33 @@
   "title-and-description": "Гарчиг ба тайлбар",
   "markdown": "Маркдаун",
   "no-project-label": "Төсөл байхгүй",
-  "unknown-project": "Тодорхойгүй төсөл"
+  "unknown-project": "Тодорхойгүй төсөл",
+  "field": {
+    "assigneeId": "Хариуцагч",
+    "createdAt": "Үүсгэсэн",
+    "createdBy": "Үүсгэсэн",
+    "cycleId": "Мөчлөг",
+    "description": "Тайлбар",
+    "estimatePoint": "Тооцоолсон оноо",
+    "labelIds": "Шошгонууд",
+    "milestoneId": "Үе шат",
+    "name": "Нэр",
+    "number": "Дугаар",
+    "priority": "Урьтамж",
+    "projectId": "Төсөл",
+    "startDate": "Эхлэх огноо",
+    "status": "Статус",
+    "statusChangedDate": "Статус солигдсон огноо",
+    "tagIds": "Шошго",
+    "targetDate": "Зорилтот огноо",
+    "teamId": "Баг",
+    "updatedAt": "Зассан"
+  },
+  "content-type": {
+    "operation-task-tasks": "Даалгавар"
+  },
+  "relation": {
+    "user-assignedTasks": "Хариуцсан даалгаврууд",
+    "user-createdTasks": "Үүсгэсэн даалгаврууд"
+  }
 }

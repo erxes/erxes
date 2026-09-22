@@ -20,7 +20,7 @@ export const ResolveAll = ({
       },
       onCompleted: () => {
         toast({
-          title: t('conversations-resolved'),
+          title: t('conversations-resolved', 'Conversations resolved'),
           variant: 'default',
         });
         setSelectedConversations([]);
@@ -30,7 +30,7 @@ export const ResolveAll = ({
   return (
     <Button variant="secondary" onClick={handleResolveAll} disabled={loading}>
       {loading ? <Spinner size="sm" /> : <IconCheckbox />}
-      {t('resolve-all')}
+      {t('resolve-all', 'Resolve All')}
     </Button>
   );
 };

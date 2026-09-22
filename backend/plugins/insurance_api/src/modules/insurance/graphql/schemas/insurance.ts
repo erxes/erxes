@@ -318,13 +318,13 @@ export const queries = `
   vendorUser(id: ID!): InsuranceVendorUser
   currentVendorUser: InsuranceVendorUser
 
-  insuranceCustomers(search: String, page: Int, limit: Int, sort: Sort, sortField: String, filter: JSON): [InsuranceCustomer!]!
+  insuranceCustomers(search: String, page: Int, limit: Int, sort: Sort, sortField: String, filter: JSON, orderBy: JSON): [InsuranceCustomer!]!
   insuranceCustomer(id: ID!): InsuranceCustomer
   customerByRegistration(registrationNumber: String!): InsuranceCustomer
   customerByEmail(email: String!): InsuranceCustomer
   companyByRegistration(registrationNumber: String!): InsuranceCustomer
 
-  contracts(vendorId: ID, customerId: ID, searchValue: String, contractNumber: String, customerRegistration: String, plateNumber: String, paymentStatus: String, insuranceTypeId: ID, startDate: Date, endDate: Date): [InsuranceContract!]!
+  contracts(vendorId: ID, customerId: ID, searchValue: String, contractNumber: String, customerRegistration: String, plateNumber: String, paymentStatus: String, insuranceTypeId: ID, startDate: Date, endDate: Date, orderBy: JSON): [InsuranceContract!]!
   contract(id: ID!): InsuranceContract
 
   vendorContracts: [InsuranceContract!]!

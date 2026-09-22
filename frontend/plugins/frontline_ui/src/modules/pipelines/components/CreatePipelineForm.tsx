@@ -24,7 +24,7 @@ export const CreatePipelineForm = <T extends PipelineFormValues>({
         name={PIPELINE_NAME_FIELD as FieldPath<T>}
         render={({ field }) => (
           <Form.Item className="space-y-1">
-            <Form.Label>{t('pipeline-name')}</Form.Label>
+            <Form.Label>{t('pipeline-name', 'Pipeline name')}</Form.Label>
             <Form.Control>
               <Input {...field} />
             </Form.Control>
@@ -37,7 +37,7 @@ export const CreatePipelineForm = <T extends PipelineFormValues>({
         name={PIPELINE_DESCRIPTION_FIELD as FieldPath<T>}
         render={({ field }) => (
           <Form.Item className="space-y-1">
-            <Form.Label>{t('description')}</Form.Label>
+            <Form.Label>{t('description', 'Description')}</Form.Label>
             <Form.Control>
               <Textarea className="min-h-20 resize-none" {...field} />
             </Form.Control>

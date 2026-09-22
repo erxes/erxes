@@ -23,6 +23,7 @@ export const defaultI18nOptions: InitOptions = {
     'segment',
     'automations',
     'approval',
+    'importExport',
     'settings',
     'broadcasts',
     'sales',

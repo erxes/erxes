@@ -65,6 +65,8 @@ export const types = `
     name: String
     description: String
     orderPassword: String
+    serviceCharge: Float
+    serviceChargeApplicableProductId: String
     pdomain: String
     userId: String
     createdAt: Date

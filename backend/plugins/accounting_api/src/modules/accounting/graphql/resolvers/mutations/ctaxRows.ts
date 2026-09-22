@@ -6,8 +6,12 @@ const ctaxRowsMutations = {
    * Creates a new account category
    * @param {Object} doc Account category document
    */
-  async ctaxRowsAdd(_root, doc: ICtaxRow, { models, checkPermission }: IContext) {
-    await checkPermission('manageCtaxRows');
+  async ctaxRowsAdd(
+    _root,
+    doc: ICtaxRow,
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('manageTaxRows');
     const ctaxRow = await models.CtaxRows.createCtaxRow(doc);
 
     return ctaxRow;
@@ -23,7 +27,7 @@ const ctaxRowsMutations = {
     { _id, ...doc }: { _id: string } & ICtaxRow,
     { models, checkPermission }: IContext,
   ) {
-    await checkPermission('manageCtaxRows');
+    await checkPermission('manageTaxRows');
     await models.CtaxRows.getCtaxRow({
       _id,
     });
@@ -40,7 +44,7 @@ const ctaxRowsMutations = {
     { ctaxRowIds }: { ctaxRowIds: string[] },
     { models, checkPermission }: IContext,
   ) {
-    await checkPermission('removeCtaxRows');
+    await checkPermission('removeTaxRows');
     await models.CtaxRows.find({
       _id: { $in: ctaxRowIds },
     }).lean();

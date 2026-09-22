@@ -231,6 +231,46 @@ export const permissions: IPermissionConfig = {
       ],
     },
     {
+      name: 'survey',
+      description: 'Survey management',
+      scopeField: null,
+      ownerFields: [],
+      scopes: [{ name: 'all', description: 'All surveys' }],
+      actions: [
+        {
+          title: 'View surveys',
+          name: 'showSurveys',
+          description: 'View surveys list',
+          always: true,
+        },
+        {
+          title: 'Add survey',
+          name: 'surveyAdd',
+          description: 'Create surveys',
+        },
+        {
+          title: 'Edit survey',
+          name: 'surveyEdit',
+          description: 'Edit surveys',
+        },
+        {
+          title: 'Remove survey',
+          name: 'surveyRemove',
+          description: 'Delete surveys',
+        },
+        {
+          title: 'Toggle survey status',
+          name: 'surveyToggleStatus',
+          description: 'Activate or archive surveys',
+        },
+        {
+          title: 'Send survey',
+          name: 'surveySendToConversation',
+          description: 'Send a survey into a messenger conversation',
+        },
+      ],
+    },
+    {
       name: 'callReport',
       description: 'Call centre reports',
       scopeField: null,
@@ -308,6 +348,27 @@ export const permissions: IPermissionConfig = {
           title: 'Manage articles',
           name: 'knowledgeBaseArticlesManage',
           description: 'Add, edit and remove knowledge base articles',
+        },
+      ],
+    },
+    {
+      name: 'helpCenter',
+      description: 'Help center configuration',
+      scopeField: null,
+      ownerFields: [],
+      scopes: [{ name: 'all', description: 'All help center configs' }],
+      actions: [
+        {
+          title: 'View help centers',
+          name: 'showHelpCenter',
+          description: 'View help center general settings and appearance',
+          always: true,
+        },
+        {
+          title: 'Manage help centers',
+          name: 'helpCenterManage',
+          description:
+            'Create, update and remove help center general settings and appearance',
         },
       ],
     },
@@ -417,6 +478,12 @@ export const permissions: IPermissionConfig = {
           ],
           scope: 'all',
         },
+        {
+          plugin: 'frontline',
+          module: 'helpCenter',
+          actions: ['showHelpCenter', 'helpCenterManage'],
+          scope: 'all',
+        },
       ],
     },
     {
@@ -462,6 +529,12 @@ export const permissions: IPermissionConfig = {
           actions: ['showKnowledgeBase'],
           scope: 'all',
         },
+        {
+          plugin: 'frontline',
+          module: 'helpCenter',
+          actions: ['showHelpCenter'],
+          scope: 'all',
+        },
       ],
     },
     {
@@ -492,6 +565,12 @@ export const permissions: IPermissionConfig = {
           plugin: 'frontline',
           module: 'knowledgeBase',
           actions: ['showKnowledgeBase'],
+          scope: 'all',
+        },
+        {
+          plugin: 'frontline',
+          module: 'helpCenter',
+          actions: ['showHelpCenter'],
           scope: 'all',
         },
         {

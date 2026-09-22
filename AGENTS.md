@@ -79,9 +79,9 @@ These must hold in any new or modified code.
 6. **GraphQL** — Operation names must be unique repo-wide, never anonymous, and
    prefixed with the plugin/module (`cmsPageList`, `salesDealCreate`). Keep
    operations near the feature they serve.
-7. **Backend schema** — Do not introduce new `schemaWrapper` usage. Define
-   schemas with `new Schema(...)` and explicit fields. Never modify backend
-   contracts from a frontend-only task.
+7. **Backend schema** — Follow the owning module's established Mongoose schema
+   pattern, including `schemaWrapper` where it provides shared schema behavior.
+   Never modify backend contracts from a frontend-only task.
 8. **Plugin isolation and scope** — A plugin change must stay inside that
    plugin. No cross-plugin imports and no edits to core, shared libraries, or
    another plugin to make the feature work. Shared code may be consumed only
@@ -393,8 +393,8 @@ plugin-specific integrations.
 - Keep GraphQL schema and resolvers inside the plugin. Prefix every operation
   with the plugin or module name and keep operation names unique repository-wide.
 - Check authentication and permissions before sensitive reads or mutations.
-- Define Mongoose schemas with `new Schema(...)` and explicit fields. Do not
-  introduce `schemaWrapper`.
+- Define Mongoose schemas with explicit fields and follow the owning plugin's
+  established `new Schema(...)` and `schemaWrapper` patterns.
 - Validate inputs at the API boundary and return actionable errors.
 - Keep resolvers thin; place business rules in the plugin's established service
   or model layer.
@@ -427,6 +427,12 @@ endpoints on every plugin that has a `trpcAppRouter`.
 3. The platform enforces five security layers automatically: procedure
    annotation → tenant curation (default-deny per plugin) → HMAC-signed
    service auth → user permission check → destructive-operation approval guard.
+4. Every `/agent-tools/call` result is capped at a serialized byte budget
+   (default 64KB, overridable with `AGENT_TOOLS_MAX_RESPONSE_BYTES`).
+   Oversized results are rejected with `413` and a `RESPONSE_TOO_LARGE`
+   error telling the agent to paginate, tighten the filter, project fewer
+   fields, or use the matching count/findOne tool — an unbounded payload
+   stalls the agent run and freezes the chat UI.
 
 #### Annotating a procedure
 

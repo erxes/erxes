@@ -1,4 +1,4 @@
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { markResolvers, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IContext } from '~/modules/posclient/@types/types';
 
 export interface IListArgs {
@@ -263,5 +263,11 @@ const bridgesQueries = {
     return;
   },
 };
+
+markResolvers<IContext>(bridgesQueries, {
+  wrapperConfig: {
+    skipPermission: true,
+  },
+});
 
 export default bridgesQueries;

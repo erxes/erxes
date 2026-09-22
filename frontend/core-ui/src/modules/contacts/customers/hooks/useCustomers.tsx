@@ -32,6 +32,7 @@ export const useCustomersVariables = (
       brand,
       birthday,
       propertiesData,
+      segments,
     },
   ] = useMultiQueryState<{
     searchValue: string;
@@ -42,6 +43,7 @@ export const useCustomersVariables = (
     brand: string;
     birthday: string;
     propertiesData: string;
+    segments: string[];
   }>([
     'searchValue',
     'tags',
@@ -51,6 +53,7 @@ export const useCustomersVariables = (
     'brand',
     'birthday',
     'propertiesData',
+    'segments',
   ]);
   const { sessionKey } = useIsCustomerLeadSessionKey();
 
@@ -66,6 +69,7 @@ export const useCustomersVariables = (
     cursor,
     searchValue: searchValue || undefined,
     tagIds: tags || undefined,
+    segmentIds: segments || undefined,
     brandIds: brand ? [brand] : undefined,
     propertiesData: propertiesData || undefined,
     dateFilters: JSON.stringify({
@@ -110,7 +114,8 @@ export const useCustomers = (
   const { list: customers, pageInfo, totalCount } = data?.customers || {};
 
   useEffect(() => {
-    if (!totalCount) return;
+    // 0 is a real count: skipping it leaves the previous filter's number up
+    if (isUndefinedOrNull(totalCount)) return;
     setCustomerTotalCount(totalCount);
   }, [totalCount]);
 

@@ -1,4 +1,6 @@
+/* eslint-disable @next/next/no-img-element */
 import { configAtom } from "@/store/config.store"
+import { getEnv, READ_FILE } from "@/lib/utils"
 import {
   customerAtom,
   orderNumberAtom,
@@ -8,7 +10,23 @@ import {
 import { format } from "date-fns"
 import { useAtomValue } from "jotai"
 
-import Image from "@/components/ui/image"
+const getReceiptIconSrc = (receiptIcon: string) => {
+  if (
+    receiptIcon.startsWith("/") ||
+    receiptIcon.startsWith("http://") ||
+    receiptIcon.startsWith("https://") ||
+    receiptIcon.includes(READ_FILE)
+  ) {
+    return receiptIcon
+  }
+
+  const apiDomain = (getEnv().NEXT_PUBLIC_MAIN_API_DOMAIN || "").replace(
+    /\/$/,
+    ""
+  )
+
+  return `${apiDomain}${READ_FILE}${receiptIcon}`
+}
 
 const EbarimtHeader = () => {
   const user = useAtomValue(orderUserAtom)
@@ -37,17 +55,15 @@ const EbarimtHeader = () => {
       </div>
     )
   }
-
   return (
     <>
       <header className="flex items-center justify-center border-b border-black/15 pb-2">
         {receiptIcon && (
-          <Image
-            src={receiptIcon}
+          <img
+            src={getReceiptIconSrc(receiptIcon)}
             alt=""
-            height={32}
-            width={100}
-            className="h-8 w-auto object-contain"
+            className="h-10 max-w-[100px] object-contain"
+            loading="eager"
           />
         )}
         <p className="receipt-print__title pl-2">
@@ -55,6 +71,12 @@ const EbarimtHeader = () => {
         </p>
       </header>
       <div className="receipt-print__section receipt-print__section--flush space-y-1">
+        {ebarimtConfig?.headerText && (
+          <div
+            dangerouslySetInnerHTML={{ __html: ebarimtConfig?.headerText }}
+            className="whitespace-pre-line text-[11px]"
+          />
+        )}
         <div className="receipt-print__row grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2">
           <div className="flex min-w-0 items-start gap-1">
             <p className="font-semibold">Огноо:</p>
@@ -62,20 +84,12 @@ const EbarimtHeader = () => {
               {!!paidDate && format(new Date(paidDate), "yyyy.MM.dd HH:mm")}
             </p>
           </div>
-
           <div className="whitespace-nowrap font-semibold tabular-nums">
             &#8470;{":"} {number.split("_")[1]}
           </div>
         </div>
-
         {renderPerson()}
         {renderPerson(true)}
-        {ebarimtConfig?.headerText && (
-          <div
-            dangerouslySetInnerHTML={{ __html: ebarimtConfig?.headerText }}
-            className="whitespace-pre-line text-[11px]"
-          />
-        )}
       </div>
     </>
   )

@@ -4,11 +4,13 @@ import { integrationQueries } from '@/inbox/graphql/resolvers/queries/integratio
 import { cpInboxQueries } from '@/inbox/graphql/resolvers/queries/clientPortal';
 import { widgetQueries } from '@/inbox/graphql/resolvers/queries/widget';
 import callQueries from '@/integrations/call/graphql/resolvers/queries';
+import callProQueries from '@/integrations/callpro/graphql/resolvers/queries';
 import { facebookQueries } from '@/integrations/facebook/graphql/resolvers/queries';
 import { discordQueries } from '@/integrations/discord/graphql/resolvers/queries';
 import { instagramQueries } from '@/integrations/instagram/graphql/resolvers/queries';
-import { imapQueries } from '@/integrations/imap/graphql/resolvers/queries';
+import { mailQueries } from '@/integrations/mail/graphql/resolvers/queries';
 import { knowledgeBaseQueries } from '@/knowledgebase/graphql/resolvers/queries/knowledgeBaseQueries';
+import { helpCenterConfigQueries } from '@/helpcenter/graphql/resolvers/queries/helpCenterConfig';
 import { reportCallQueries } from '@/reports/graphql/resolvers/callQueries';
 import { reportChartQueries } from '@/reports/graphql/resolvers/chartQueries';
 import { reportFacebookQueries } from '@/reports/graphql/resolvers/facebookQueries';
@@ -17,6 +19,8 @@ import { reportTicketQueries } from '@/reports/graphql/resolvers/ticketQueries';
 import ticketQueries from '@/ticket/graphql/resolvers/queries';
 import { fieldQueries } from '~/modules/form/graphql/resolvers/queries/fields';
 import formQueries from '~/modules/form/graphql/resolvers/queries/forms';
+import { surveyQueries } from '~/modules/survey/graphql/resolvers/queries/surveys';
+import { cpSurveyQueries } from '~/modules/survey/graphql/resolvers/queries/clientPortal';
 import { responseTemplateQueries } from '~/modules/response/graphql/responseTemplateQueries';
 
 export const queries = {
@@ -28,16 +32,20 @@ export const queries = {
   ...discordQueries,
   ...instagramQueries,
   ...callQueries,
-  ...imapQueries,
+  ...callProQueries,
+  ...mailQueries,
   ...ticketQueries,
   ...widgetQueries,
   ...responseTemplateQueries,
   ...formQueries,
   ...fieldQueries,
+  ...surveyQueries,
+  ...cpSurveyQueries,
   ...reportInboxQueries,
   ...reportTicketQueries,
   ...reportFacebookQueries,
   ...reportChartQueries,
   ...reportCallQueries,
   ...knowledgeBaseQueries,
+  ...helpCenterConfigQueries,
 };

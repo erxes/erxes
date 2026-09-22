@@ -11,6 +11,7 @@ import {
 } from 'erxes-ui/components/charts';
 import { useIsClient } from '../hooks/useIsClient';
 import type { ChartVizPayload } from '../types/chatVizTypes';
+import { getDefaultChartVizColor } from '../utils/chartVizPresentation';
 
 interface Props {
   payload: ChartVizPayload;
@@ -23,7 +24,7 @@ interface Props {
  * For pie charts, each data row is a slice. The first series key is used as the
  * value field; `label` is used as the slice name. Additional series are ignored.
  */
-export function ChatVizPie({ payload, className }: Props) {
+export function ChatVizPie({ payload, className }: Readonly<Props>) {
   const isClient = useIsClient();
 
   const valueKey = payload.series[0]?.key ?? 'value';
@@ -31,17 +32,33 @@ export function ChatVizPie({ payload, className }: Props) {
   const config = React.useMemo<ChartConfig>(
     () =>
       Object.fromEntries(
-        payload.data.map((d, i) => [
+        payload.data.map((d) => [
           d.label,
           {
+            // Labels are untrusted text, so they must never become CSS custom
+            // property names in ChartStyle. Slice colors are applied directly
+            // to the sanitized Recharts Cell below.
             label: d.label,
-            color:
-              payload.series[0]?.color ?? `hsl(var(--chart-${(i % 5) + 1}))`,
           },
         ]),
       ),
-    [payload.data, payload.series],
+    [payload.data],
   );
+  const cells = React.useMemo(() => {
+    const occurrences = new Map<string, number>();
+    const seriesColor = payload.series[0]?.color;
+
+    return payload.data.map((point, paletteIndex) => {
+      const identity = JSON.stringify([point.label, point[valueKey]]);
+      const occurrence = occurrences.get(identity) ?? 0;
+      occurrences.set(identity, occurrence + 1);
+
+      return {
+        key: JSON.stringify([identity, occurrence]),
+        fill: seriesColor ?? getDefaultChartVizColor(paletteIndex),
+      };
+    });
+  }, [payload.data, payload.series, valueKey]);
 
   if (!isClient) return <ChartSkeleton />;
 
@@ -58,8 +75,8 @@ export function ChatVizPie({ payload, className }: Props) {
           outerRadius="80%"
           strokeWidth={2}
         >
-          {payload.data.map((_, i) => (
-            <Cell key={i} fill={`hsl(var(--chart-${(i % 5) + 1}))`} />
+          {cells.map((cell) => (
+            <Cell key={cell.key} fill={cell.fill} />
           ))}
         </Pie>
         <ChartLegend

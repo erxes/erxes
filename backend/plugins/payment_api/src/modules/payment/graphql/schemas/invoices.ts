@@ -96,14 +96,13 @@ const queryParams = `
   searchValue: String
   kind: String
   status: String
-
   contentType: String
   contentTypeId: String
   ${cursorParams}
 `;
 
 export const queries = `
-  invoices(${queryParams}): InvoicesListResponse
+  invoices(${queryParams} orderBy: JSON): InvoicesListResponse
   invoicesTotalCount(${queryParams}): invoicesTotalCount
   invoiceDetail(_id: String!): Invoice
   invoiceDetailByContent(contentType: String!, contentTypeId: String!): [Invoice]

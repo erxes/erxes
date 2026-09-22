@@ -45,6 +45,7 @@ export interface ICustomer {
   status?: string;
   code?: string;
   integrationId?: string;
+  clientPortalId?: string;
   tagIds?: string[];
 
   mergedIds?: string[];
@@ -66,6 +67,7 @@ export interface ICustomerDocument extends ICustomer, Document {
 
   location?: ILocation;
   searchText?: string;
+  searchTokens?: string[];
 }
 
 export interface ICustomerQueryFilterParams
@@ -80,8 +82,13 @@ export interface ICustomerQueryFilterParams
   excludeTagIds?: string[];
   tagWithRelated?: boolean;
 
+  /** Membership as the segmentation worker materialised it onto the record. */
+  segmentIds?: string[];
+
   integrationIds?: string[];
   integrationTypes?: string[];
 
   brandIds?: string[];
+
+  clientPortalId?: string;
 }

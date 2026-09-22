@@ -1,8 +1,6 @@
+import { FIELDS_COMBINED_BY_CONTENT_TYPE } from '../graphql/fieldQueries';
+import { groupFieldsByType } from '../utils/groupFieldsByType';
 import { useQuery } from '@apollo/client';
-import {
-  FIELDS_COMBINED_BY_CONTENT_TYPE,
-  groupFieldsByType,
-} from 'ui-modules/modules/segments';
 
 type QueryResponse = {
   fieldsCombinedByContentType: any[];

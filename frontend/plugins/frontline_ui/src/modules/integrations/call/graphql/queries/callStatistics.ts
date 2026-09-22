@@ -67,6 +67,7 @@ export const CALL_VOLUME_SERIES = `
       incoming
       outgoing
       answered
+      noAnswer
       abandoned
     }
   }
@@ -88,7 +89,20 @@ export const CALL_HEATMAP = `
       hour
       total
       answered
+      noAnswer
       answerRate
+    }
+  }
+`;
+
+export const CALL_HEATMAP_DAILY = `
+  query CallHeatmapDaily($startDate: String!, $endDate: String!, $integrationId: String, $queueId: String, $direction: String) {
+    callHeatmapDaily(startDate: $startDate, endDate: $endDate, integrationId: $integrationId, queueId: $queueId, direction: $direction) {
+      day
+      hour
+      total
+      answered
+      noAnswer
     }
   }
 `;

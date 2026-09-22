@@ -1,8 +1,9 @@
 import { ITaskDocument, ITaskFilter } from '@/task/@types/task';
-import { cursorPaginate } from 'erxes-api-shared/utils';
+import { cursorPaginate, escapeRegExp } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 import { STATUS_TYPES } from '@/status/constants/types';
+import { taskCursorPaginateByStatus } from '@/task/graphql/resolvers/utils';
 
 const handleDateFilter = (
   filterQuery: FilterQuery<ITaskDocument>,
@@ -45,7 +46,7 @@ export const taskQueries = {
     const filterQuery: FilterQuery<ITaskDocument> = {};
 
     if (filter.name) {
-      filterQuery.name = { $regex: filter.name, $options: 'i' };
+      filterQuery.name = { $regex: escapeRegExp(filter.name), $options: 'i' };
     }
 
     if (filter.status) {
@@ -263,18 +264,18 @@ export const taskQueries = {
       filterQuery.assigneeId = filter.userId;
     }
 
-    const { list, totalCount, pageInfo } = await cursorPaginate<ITaskDocument>({
-      model: models.Task,
-      params: {
-        ...filter,
-        orderBy: {
-          statusType: 'asc',
-          createdAt: 'desc',
-        },
-      },
-      query: filterQuery,
-    });
+    const pagination = filter.orderBy
+      ? await cursorPaginate<ITaskDocument>({
+          model: models.Task,
+          params: filter,
+          query: filterQuery,
+        })
+      : await taskCursorPaginateByStatus({
+          models,
+          params: filter,
+          query: filterQuery,
+        });
 
-    return { list, totalCount, pageInfo };
+    return pagination;
   },
 };

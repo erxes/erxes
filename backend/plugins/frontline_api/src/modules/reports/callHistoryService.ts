@@ -4,6 +4,7 @@ import {
   agentOf,
   detectCarrier,
 } from '@/reports/callReportService';
+import { callRingSeconds } from '@/integrations/call/services/cdrUtils';
 
 const RINGING_LASTAPPS = ['Queue', 'Dial'];
 
@@ -106,7 +107,7 @@ export const buildCallHistoryEntries = ({
       outcome: outcomeByCall.get(call.uniqueid) ?? 'MISSED',
       isAnswered: call.isAnswered,
 
-      waitTime: call.isAnswered ? call.waitTime : null,
+      waitTime: call.isAnswered ? call.waitTime : callRingSeconds(legs),
       talkTime: call.billsec,
       agentExtension: call.agent,
       agentName: call.agent

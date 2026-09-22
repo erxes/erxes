@@ -21,6 +21,7 @@ const useSplitOrder = () => {
   const { mainItems, subItems } = useAtomValue(splitOrderItemsAtom)
   const totalAmount = getCartTotal(mainItems)
   const variables = useAtomValue(orderValuesAtom)
+  const includeHandDiscounts = !!variables.directDiscount
   const paymentType = useAtomValue(currentPaymentTypeAtom)
   const setAmountType = useSetAtom(paymentAmountTypeAtom)
   const reset = useSetAtom(resetPayByProductAtom)
@@ -31,7 +32,7 @@ const useSplitOrder = () => {
   const [ordersAdd, { loading }] = useMutation(mutations.ordersAdd, {
     variables: {
       ...variables,
-      items: getItemInputs(subItems),
+      items: getItemInputs(subItems, { includeHandDiscounts }),
       totalAmount: getCartTotal(subItems),
     },
     onCompleted(data) {
@@ -49,7 +50,7 @@ const useSplitOrder = () => {
     {
       variables: {
         ...variables,
-        items: getItemInputs(mainItems),
+        items: getItemInputs(mainItems, { includeHandDiscounts }),
         totalAmount: getCartTotal(mainItems),
       },
       onError({ message }) {

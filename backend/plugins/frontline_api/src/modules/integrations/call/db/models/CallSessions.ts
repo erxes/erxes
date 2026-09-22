@@ -1,4 +1,4 @@
-import { Model } from 'mongoose';
+import { FilterQuery, Model } from 'mongoose';
 import { callSessionSchema } from '../definitions/callSessions';
 import {
   ICallSession,
@@ -6,8 +6,18 @@ import {
 } from '@/integrations/call/@types/callSessions';
 import { IModels } from '~/connectionResolvers';
 
+export const SIBLING_SESSION_WINDOW_MS = 60_000;
+
+export interface IFindSiblingParams {
+  inboxIntegrationId: string;
+  customerPhone: string;
+  excludeUniqueid?: string;
+  windowMs?: number;
+}
+
 export interface ICallSessionModel extends Model<ICallSessionDocument> {
   findByUniqueId(uniqueid: string): Promise<ICallSessionDocument | null>;
+  findSibling(params: IFindSiblingParams): Promise<ICallSessionDocument | null>;
   upsertSession(
     doc: Partial<ICallSession> & { uniqueid: string },
   ): Promise<ICallSessionDocument>;
@@ -42,6 +52,28 @@ export const loadCallSessionClass = (models: IModels) => {
     public static async findByUniqueId(uniqueid: string) {
       if (!uniqueid) return null;
       return models.CallSessions.findOne({ uniqueid });
+    }
+
+    public static async findSibling({
+      inboxIntegrationId,
+      customerPhone,
+      excludeUniqueid,
+      windowMs = SIBLING_SESSION_WINDOW_MS,
+    }: IFindSiblingParams) {
+      if (!inboxIntegrationId || !customerPhone) return null;
+
+      const selector: FilterQuery<ICallSessionDocument> = {
+        inboxIntegrationId,
+        customerPhone,
+        conversationId: { $exists: true, $nin: ['', null] },
+        updatedAt: { $gte: new Date(Date.now() - windowMs) },
+      };
+
+      if (excludeUniqueid) {
+        selector.uniqueid = { $ne: excludeUniqueid };
+      }
+
+      return models.CallSessions.findOne(selector).sort({ updatedAt: -1 });
     }
 
     public static async upsertSession(

@@ -100,9 +100,9 @@ export const fixedAssetCategoryColumns: ColumnDef<IFixedAssetCategory>[] = [
     size: 180,
   },
   {
-    id: 'defaultUsefulLife',
-    accessorKey: 'defaultUsefulLife',
-    header: () => <RecordTable.InlineHead label="Хугацаа" />,
+    id: 'defaultAnnualDepreciationRate',
+    accessorKey: 'defaultAnnualDepreciationRate',
+    header: () => <RecordTable.InlineHead label="Жилийн %" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>{cell.getValue() as string}</RecordTableInlineCell>
     ),

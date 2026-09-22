@@ -14,7 +14,8 @@ import {
   SelectCategory,
   SelectCompany,
   PropertiesFilter,
-  SelectTags,
+  SegmentsFilter,
+  TagsFilter,
 } from 'ui-modules';
 import { IconBriefcase, IconCheck, IconCircleDot } from '@tabler/icons-react';
 import { ComponentType } from 'react';
@@ -154,23 +155,6 @@ function BrandsFilterBar() {
   );
 }
 
-function TagsFilterBar() {
-  const [tags] = useQueryState<string[]>('tags');
-
-  if (!tags?.length) {
-    return null;
-  }
-
-  return (
-    <SelectTags.FilterBar
-      mode="multiple"
-      filterKey="tags"
-      label="Tags"
-      tagType="core:product"
-    />
-  );
-}
-
 export const ProductsFilter = () => {
   return (
     <Filter id="products-filter" sessionKey={PRODUCTS_CURSOR_SESSION_KEY}>
@@ -190,7 +174,8 @@ export const ProductsFilter = () => {
         <OptionFilterBar config={PRODUCT_TYPE_FILTER} />
         <VendorFilterBar />
         <BrandsFilterBar />
-        <TagsFilterBar />
+        <TagsFilter.Bar tagType="core:product" />
+        <SegmentsFilter.Bar contentType="core:products.products" />
         <PropertiesFilter.Bar contentType="core:product" />
         <OptionFilterBar config={PRODUCT_STATUS_FILTER} />
         <ProductsTotalCount />
@@ -218,7 +203,8 @@ export const ProductsFilterPopover = () => {
                 <OptionFilterItem config={PRODUCT_TYPE_FILTER} />
                 <SelectCompany.FilterItem value="vendorId" label="Vendor" />
                 <SelectBrands.FilterItem value="brandIds" label="Brands" />
-                <SelectTags.FilterItem value="tags" label="Tags" />
+                <TagsFilter />
+                <SegmentsFilter />
                 <PropertiesFilter />
                 <OptionFilterItem config={PRODUCT_STATUS_FILTER} />
               </Command.List>
@@ -228,7 +214,8 @@ export const ProductsFilterPopover = () => {
           <OptionFilterView config={PRODUCT_TYPE_FILTER} />
           <SelectCompany.FilterView mode="single" filterKey="vendorId" />
           <SelectBrands.FilterView mode="multiple" filterKey="brandIds" />
-          <SelectTags.FilterView mode="multiple" filterKey="tags" />
+          <TagsFilter.View tagType="core:product" />
+          <SegmentsFilter.View contentType="core:products.products" />
           <PropertiesFilter.View contentType="core:product" />
           <OptionFilterView config={PRODUCT_STATUS_FILTER} />
         </Combobox.Content>

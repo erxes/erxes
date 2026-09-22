@@ -8,6 +8,12 @@ export interface IOrderItem {
   unitPrice: number;
   discountAmount?: number;
   discountPercent?: number;
+  discountInfos?: Array<{
+    type: string;
+    title?: string;
+    amount?: number;
+    percent?: number;
+  }>;
   bonusCount?: number;
   bonusVoucherId?: string;
   orderId?: string;

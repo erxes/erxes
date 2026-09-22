@@ -38,6 +38,24 @@ export const ChannelResponsePage = lazy(() =>
   })),
 );
 
+export const ChannelSurveysPage = lazy(() =>
+  import('~/pages/ChannelSurveysPage').then((module) => ({
+    default: module.ChannelSurveysPage,
+  })),
+);
+
+export const SurveyCreatePage = lazy(() =>
+  import('~/pages/SurveyCreatePage').then((module) => ({
+    default: module.SurveyCreatePage,
+  })),
+);
+
+export const SurveyDetailPage = lazy(() =>
+  import('~/pages/SurveyDetailPage').then((module) => ({
+    default: module.SurveyDetailPage,
+  })),
+);
+
 export const ChannelFormsPage = lazy(() =>
   import('~/pages/FormsPage').then((module) => ({
     default: module.FormsPage,
@@ -110,6 +128,12 @@ export const PipelinePropertiesPage = lazy(() =>
   })),
 );
 
+export const PipelineMailPage = lazy(() =>
+  import('~/pages/PipelineMailPage').then((module) => ({
+    default: module.PipelineMailPage,
+  })),
+);
+
 export const TicketStatusesPage = lazy(() =>
   import('~/pages/TicketStatusesPage').then((module) => ({
     default: module.TicketStatusesPage,
@@ -178,6 +202,10 @@ const ChannelsSettings = () => {
               path={PIPELINE_TAB_SEGMENTS.properties}
               element={<PipelinePropertiesPage />}
             />
+            <Route
+              path={PIPELINE_TAB_SEGMENTS.mail}
+              element={<PipelineMailPage />}
+            />
           </Route>
           <Route
             path={FrontlinePaths.ChannelResponsePage}
@@ -190,6 +218,18 @@ const ChannelsSettings = () => {
           <Route
             path={FrontlinePaths.ChannelForms}
             element={<ChannelFormsPage />}
+          />
+          <Route
+            path={FrontlinePaths.ChannelSurveys}
+            element={<ChannelSurveysPage />}
+          />
+          <Route
+            path={FrontlinePaths.SurveysCreate}
+            element={<SurveyCreatePage />}
+          />
+          <Route
+            path={FrontlinePaths.SurveyDetail}
+            element={<SurveyDetailPage />}
           />
           <Route
             path={FrontlinePaths.FormsCreate}

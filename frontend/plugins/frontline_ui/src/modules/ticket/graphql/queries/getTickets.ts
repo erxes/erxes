@@ -27,6 +27,7 @@ export const GET_TICKETS = gql`
         number
         pipelineId
         state
+        propertiesData
       }
       ${GQL_PAGE_INFO}
       totalCount

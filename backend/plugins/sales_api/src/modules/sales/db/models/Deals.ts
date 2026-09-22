@@ -8,6 +8,7 @@ import {
   getTotalAmounts,
   watchItem,
 } from '../../utils';
+import { normalizeProductDiscountInfos } from '../../utils/discountInfos';
 import { dealSchema } from '../definitions/deals';
 import {
   generateDealUpdateActivityLogs,
@@ -49,7 +50,9 @@ export const loadDealClass = (
 
       // Calculate totals
       if (doc.productsData) {
-        doc.productsData = doc.productsData.filter((pd) => pd);
+        doc.productsData = normalizeProductDiscountInfos(
+          doc.productsData.filter((pd) => pd),
+        );
         const totals = await getTotalAmounts(doc.productsData);
         Object.assign(doc, totals);
       }
@@ -75,7 +78,9 @@ export const loadDealClass = (
       const searchText = fillSearchTextItem(doc, prevDeal);
 
       if (doc.productsData) {
-        doc.productsData = doc.productsData.filter((pd) => pd.productId);
+        doc.productsData = normalizeProductDiscountInfos(
+          doc.productsData.filter((pd) => pd.productId),
+        );
         const totals = await getTotalAmounts(doc.productsData);
         Object.assign(doc, totals);
       }

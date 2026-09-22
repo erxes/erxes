@@ -23,14 +23,18 @@ import { normalizeAutomationWorkflows } from '@/automations/utils/workflowInputs
 import { useAtom, useSetAtom } from 'jotai';
 import { AutomationBuilderTabsType, IAutomation } from '@/automations/types';
 import { AutomationBuilderHeader } from '@/automations/components/builder/header/AutomationBuilderHeader';
+import { TAutomationSeed } from '@/automations/hooks/useAutomationSeed';
 import { AutomationHistories } from '@/automations/components/builder/history/components/AutomationHistories';
 import { AutomationStats } from '@/automations/components/builder/stats/components/AutomationStats';
 
 type AutomationBuilderProps = {
   detail?: IAutomation;
+  // Prefilled nodes for a fresh automation opened from another module; never
+  // set alongside a saved detail.
+  seed?: TAutomationSeed;
 };
 
-export const AutomationBuilder = ({ detail }: AutomationBuilderProps) => {
+export const AutomationBuilder = ({ detail, seed }: AutomationBuilderProps) => {
   const [activeTab, setActiveTab] = useAtom(automationBuilderActiveTabState);
   const setOpenSidebar = useSetAtom(automationBuilderSiderbarOpenState);
   const [queryParams] = useMultiQueryState<{
@@ -54,6 +58,7 @@ export const AutomationBuilder = ({ detail }: AutomationBuilderProps) => {
       edgeType: cleanedDetail?.edgeType ?? 'default',
       flowDirection: cleanedDetail?.flowDirection ?? 'horizontal',
       ...normalized,
+      ...(detail ? {} : seed),
     },
   });
 

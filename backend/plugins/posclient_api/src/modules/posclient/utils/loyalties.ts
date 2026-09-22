@@ -1,12 +1,25 @@
 import { IOrderInput } from '~/modules/posclient/@types/types';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import {
+  applyDiscountInfo,
+  ensureHandDiscountInfo,
+  recalculateDiscountFields,
+} from './discountInfos';
+
+type LoyaltyDiscount = {
+  voucherId?: string;
+  potentialBonus?: number;
+  discount?: number;
+};
+
+type LoyaltyResponse = Record<string, LoyaltyDiscount>;
 
 export const checkLoyalties = async (subdomain: string, doc: IOrderInput) => {
   if (!doc.couponCode && !doc.voucherId && !doc.customerId) {
     return doc;
   }
 
-  let loyalties: any = {};
+  let loyalties: LoyaltyResponse = {};
   try {
     loyalties = await sendTRPCMessage({
       subdomain,
@@ -37,33 +50,49 @@ export const checkLoyalties = async (subdomain: string, doc: IOrderInput) => {
   for (const item of doc.items || []) {
     const loyalty = loyalties[item.productId];
     item.unitPrice = item.unitPrice || 0;
+    item.discountInfos = ensureHandDiscountInfo(item);
 
     if (loyalty) {
       if (loyalty.potentialBonus) {
         item.bonusVoucherId = loyalty.voucherId;
 
         if (item.count > loyalty.potentialBonus) {
-          item.discountPercent =
+          const discountPercent =
             100 -
             ((item.count - loyalty.potentialBonus) / (item.count || 1)) * 100;
           item.bonusCount = loyalty.potentialBonus;
-          item.discountAmount = loyalty.potentialBonus * item.unitPrice;
+          applyDiscountInfo(item, {
+            type: 'voucher',
+            title: 'Voucher bonus',
+            amount: loyalty.potentialBonus * item.unitPrice,
+            percent: discountPercent,
+          });
           item.unitPrice =
             (item.unitPrice * (item.count - loyalty.potentialBonus)) /
             (item.count || 1);
         } else {
-          item.discountPercent = 100;
           item.bonusCount = item.count;
-          item.discountAmount = item.count * item.unitPrice;
+          applyDiscountInfo(item, {
+            type: 'voucher',
+            title: 'Voucher bonus',
+            amount: item.count * item.unitPrice,
+            percent: 100,
+          });
           item.unitPrice = 0;
         }
       } else {
-        item.discountPercent = loyalty.discount;
-        item.discountAmount =
-          ((item.count * item.unitPrice) / 100) * loyalty.discount;
+        const discountPercent = loyalty.discount || 0;
+        applyDiscountInfo(item, {
+          type: 'voucher',
+          title: 'Loyalty discount',
+          amount: ((item.count * item.unitPrice) / 100) * discountPercent,
+          percent: discountPercent,
+        });
         item.unitPrice =
-          item.unitPrice - (item.unitPrice / 100) * loyalty.discount;
+          item.unitPrice - (item.unitPrice / 100) * discountPercent;
       }
+    } else {
+      recalculateDiscountFields(item);
     }
   }
 

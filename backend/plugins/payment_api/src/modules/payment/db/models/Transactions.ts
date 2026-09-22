@@ -103,13 +103,6 @@ export const loadTransactionClass = (models: IModels) => {
       const api = new ErxesPayment(paymentMethod, subdomain);
 
       try {
-        console.log(
-          '[MODEL] Transactions post-save: calling api.createInvoice',
-          {
-            transactionId: transaction._id,
-            paymentKind: transaction.paymentKind, // use the transaction's own field
-          },
-        );
 
         const reponse = await api.createInvoice(transaction.toObject());
         console.log('[MODEL] api.createInvoice returned', reponse); // reponse, not response
@@ -146,11 +139,6 @@ export const loadTransactionClass = (models: IModels) => {
       const payment = await models.PaymentMethods.getPayment(
         transaction.paymentId,
       );
-      console.log('[PAYMENT] Selected payment', {
-        paymentId: payment._id,
-        paymentKind: payment.kind,
-        paymentName: payment.name,
-      });
       const api = new ErxesPayment(payment);
 
       try {

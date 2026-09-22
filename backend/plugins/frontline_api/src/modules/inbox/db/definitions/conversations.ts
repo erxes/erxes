@@ -77,6 +77,11 @@ export const conversationSchemaOptions = {
     type: 'Boolean',
     label: 'Last responder is customer',
   },
+  hasSurvey: {
+    type: 'Boolean',
+    index: true,
+    label: 'Carries a poll message',
+  },
   isBot: {
     type: 'Boolean',
     label: 'isBot',
@@ -87,6 +92,17 @@ export const conversationSchemaOptions = {
   },
   automatedReplyControl: {
     type: automatedReplyControlSchema,
+    optional: true,
+  },
+
+  callProPotentialCustomerIds: {
+    type: ['String'],
+    label: 'Call Pro potential customer ids',
+    optional: true,
+  },
+  callProPhone: {
+    type: 'String',
+    label: 'Call Pro caller phone',
     optional: true,
   },
 };

@@ -59,7 +59,7 @@ export const CreateResponseForm = ({
               name="name"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>{t('name-label')}</Form.Label>
+                  <Form.Label>{t('name-label', 'Name')}</Form.Label>
                   <Form.Control>
                     <Input {...field} />
                   </Form.Control>
@@ -72,7 +72,7 @@ export const CreateResponseForm = ({
               name="content"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>{t('content-label')}</Form.Label>
+                  <Form.Label>{t('content-label', 'Content')}</Form.Label>
                   <ScrollArea className="border rounded-md p-2 h-[400px] overflow-y-auto">
                     <Editor
                       initialContent={field.value}
@@ -89,7 +89,9 @@ export const CreateResponseForm = ({
 
           <span className="flex justify-end">
             <Button type="submit" disabled={!form.formState.isDirty || loading}>
-              {type === 'create' ? t('create') : t('update')}
+              {type === 'create'
+                ? t('create', 'Create')
+                : t('update', 'Update')}
             </Button>
           </span>
         </div>

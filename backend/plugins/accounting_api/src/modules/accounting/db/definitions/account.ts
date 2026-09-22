@@ -39,7 +39,6 @@ export const accountSchema = schemaWrapper(
       enum: ACCOUNT_STATUSES.ALL,
       label: 'Status',
       default: 'active',
-      esType: 'keyword',
       index: true,
     },
     isTemp: { type: Boolean, default: false, label: 'Is Temp' },

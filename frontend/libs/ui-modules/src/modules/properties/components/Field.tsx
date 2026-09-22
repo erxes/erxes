@@ -1,4 +1,15 @@
-import { IField, IFieldGroup, mutateFunction } from '../types/fieldsTypes';
+import { ComponentType, useState } from 'react';
+import {
+  IField,
+  IFieldGroup,
+  IPropertyRow,
+  mutateFunction,
+} from '../types/fieldsTypes';
+import {
+  hasFieldValue,
+  toPropertyGroupKey,
+  validatePropertyValue,
+} from '../propertyUtils';
 import { FieldBoolean } from './FieldBoolean';
 import { FieldCheck } from './FieldCheck';
 import { FieldDate } from './FieldDate';
@@ -10,6 +21,7 @@ import { FieldRelation } from './FieldRelation';
 import { FieldSelect } from './FieldSelect';
 import { FieldSelectMultiple } from './FieldSelectMultiple';
 import { FieldString } from './FieldString';
+import { FieldStringMultiple } from './FieldStringMultiple';
 import { FieldPhone } from './FieldPhone';
 import { FieldTextarea } from './FieldTextarea';
 
@@ -32,6 +44,25 @@ export interface SpecificFieldProps extends FieldProps {
   loading: boolean;
 }
 
+export const FIELD_COMPONENT_BY_TYPE: Record<
+  string,
+  ComponentType<SpecificFieldProps>
+> = {
+  text: FieldString,
+  phone: FieldPhone,
+  textarea: FieldTextarea,
+  list: FieldStringMultiple,
+  number: FieldNumber,
+  boolean: FieldBoolean,
+  date: FieldDate,
+  select: FieldSelect,
+  multiSelect: FieldSelectMultiple,
+  check: FieldCheck,
+  radio: FieldRadio,
+  relation: FieldRelation,
+  file: FieldFile,
+};
+
 export const Field = (props: FieldProps) => {
   const { field, mutateHook, propertiesData, id } = props;
   const { mutate, loading } = mutateHook?.() ?? {
@@ -39,14 +70,32 @@ export const Field = (props: FieldProps) => {
     loading: false,
   };
 
+  const [error, setError] = useState<string | null>(null);
+
   const handleChange = (value: unknown) => {
-    mutate({
-      _id: id,
-      propertiesData: {
-        ...propertiesData,
-        [field._id]: value,
-      },
-    });
+    // tabbing through an untouched empty input reports '' — nothing changed
+    if (!hasFieldValue(value) && !hasFieldValue(propertiesData?.[field._id])) {
+      return;
+    }
+
+    const message = validatePropertyValue(field, value);
+
+    setError(message);
+
+    if (message) {
+      return;
+    }
+
+    const nextData = { ...propertiesData };
+
+    // '' would fail the number/email/date checks and block the whole save
+    if (hasFieldValue(value)) {
+      nextData[field._id] = value;
+    } else {
+      delete nextData[field._id];
+    }
+
+    mutate({ _id: id, propertiesData: nextData });
   };
 
   const fieldProps = {
@@ -56,43 +105,17 @@ export const Field = (props: FieldProps) => {
     id: id + '_' + field._id,
   };
 
+  const FieldComponent = FIELD_COMPONENT_BY_TYPE[field.type];
+
   return (
     <FieldLabel
       field={field}
       id={`${id}_${field._id}`}
       inCell={props.inCell}
       value={props.value}
+      error={error}
     >
-      {(() => {
-        switch (field.type) {
-          case 'text':
-            return <FieldString {...fieldProps} />;
-          case 'phone':
-            return <FieldPhone {...fieldProps} />;
-          case 'textarea':
-            return <FieldTextarea {...fieldProps} />;
-          case 'number':
-            return <FieldNumber {...fieldProps} />;
-          case 'boolean':
-            return <FieldBoolean {...fieldProps} />;
-          case 'date':
-            return <FieldDate {...fieldProps} />;
-          case 'select':
-            return <FieldSelect {...fieldProps} />;
-          case 'multiSelect':
-            return <FieldSelectMultiple {...fieldProps} />;
-          case 'check':
-            return <FieldCheck {...fieldProps} />;
-          case 'radio':
-            return <FieldRadio {...fieldProps} />;
-          case 'relation':
-            return <FieldRelation {...fieldProps} />;
-          case 'file':
-            return <FieldFile {...fieldProps} />;
-          default:
-            return null;
-        }
-      })()}
+      {FieldComponent && <FieldComponent {...fieldProps} />}
     </FieldLabel>
   );
 };
@@ -101,7 +124,7 @@ export interface FieldMultipleProps {
   group: IFieldGroup;
   field: IField;
   inCell?: boolean;
-  propertyIndex: number;
+  rowId: string;
   value: any;
   mutateHook?: () => {
     mutate: mutateFunction;
@@ -112,25 +135,53 @@ export interface FieldMultipleProps {
 }
 
 export const FieldMultiple = (props: FieldMultipleProps) => {
-  const { group, field, mutateHook, propertiesData, id, propertyIndex } = props;
+  const { group, field, mutateHook, propertiesData, id, rowId } = props;
   const { mutate, loading } = mutateHook?.() ?? {
     mutate: () => null,
     loading: false,
   };
 
-  const handleChange = (value: unknown) => {
-    const groupProperties = [...(propertiesData?.[group._id] || [])];
+  const [error, setError] = useState<string | null>(null);
 
-    groupProperties[propertyIndex] = {
-      ...groupProperties[propertyIndex],
-      [field._id]: value,
+  const handleChange = (value: unknown) => {
+    const groupKey = toPropertyGroupKey(group._id);
+    const rows = [...((propertiesData?.[groupKey] || []) as IPropertyRow[])];
+    const index = rows.findIndex((row) => row._id === rowId);
+
+    // tabbing through an untouched empty input reports '' — nothing changed
+    if (!hasFieldValue(value) && !hasFieldValue(rows[index]?.[field._id])) {
+      return;
+    }
+
+    const message = validatePropertyValue(field, value);
+
+    setError(message);
+
+    if (message) {
+      return;
+    }
+
+    const nextRow: IPropertyRow = {
+      ...(index === -1 ? { _id: rowId } : rows[index]),
     };
+
+    if (hasFieldValue(value)) {
+      nextRow[field._id] = value;
+    } else {
+      delete nextRow[field._id];
+    }
+
+    if (index === -1) {
+      rows.push(nextRow);
+    } else {
+      rows[index] = nextRow;
+    }
 
     mutate({
       _id: id,
       propertiesData: {
         ...propertiesData,
-        [group._id]: groupProperties,
+        [groupKey]: rows,
       },
     });
   };
@@ -139,46 +190,20 @@ export const FieldMultiple = (props: FieldMultipleProps) => {
     ...props,
     handleChange,
     loading,
-    id: id + '_' + field._id + '_' + propertyIndex,
+    id: id + '_' + field._id + '_' + rowId,
   };
+
+  const FieldComponent = FIELD_COMPONENT_BY_TYPE[field.type];
 
   return (
     <FieldLabel
       field={field}
-      id={`${id}_${field._id}_${propertyIndex}`}
+      id={`${id}_${field._id}_${rowId}`}
       inCell={props.inCell}
       value={props.value}
+      error={error}
     >
-      {(() => {
-        switch (field.type) {
-          case 'text':
-            return <FieldString {...fieldProps} />;
-          case 'phone':
-            return <FieldPhone {...fieldProps} />;
-          case 'textarea':
-            return <FieldTextarea {...fieldProps} />;
-          case 'number':
-            return <FieldNumber {...fieldProps} />;
-          case 'boolean':
-            return <FieldBoolean {...fieldProps} />;
-          case 'date':
-            return <FieldDate {...fieldProps} />;
-          case 'select':
-            return <FieldSelect {...fieldProps} />;
-          case 'multiSelect':
-            return <FieldSelectMultiple {...fieldProps} />;
-          case 'check':
-            return <FieldCheck {...fieldProps} />;
-          case 'radio':
-            return <FieldRadio {...fieldProps} />;
-          case 'relation':
-            return <FieldRelation {...fieldProps} />;
-          case 'file':
-            return <FieldFile {...fieldProps} />;
-          default:
-            return null;
-        }
-      })()}
+      {FieldComponent && <FieldComponent {...fieldProps} />}
     </FieldLabel>
   );
 };

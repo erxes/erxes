@@ -6,7 +6,6 @@ import {
   Filter,
   Spinner,
   cn,
-  useFilterContext,
   useFilterQueryState,
 } from 'erxes-ui';
 import {
@@ -16,26 +15,12 @@ import {
   IconX,
 } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
+import { parseCustomTimeRange } from '@/report/utils/dateFilters';
 import { useCallFilters } from '../hooks/useCallFilters';
+import { DateTimeRangeDialog } from './DateTimeRangeDialog';
 import type { SelectOption } from '../types';
 
 const DATE_FILTER_KEY = 'call-report-date';
-
-function CustomRangeItem({ label }: { label: string }) {
-  const { setDialogView, setOpenDialog } = useFilterContext();
-
-  return (
-    <DropdownMenu.Item
-      onSelect={() => {
-        setDialogView(DATE_FILTER_KEY);
-        setOpenDialog(true);
-      }}
-    >
-      <IconSelector className="h-3.5 w-3.5" />
-      {label}
-    </DropdownMenu.Item>
-  );
-}
 
 interface SubHeaderProps {
   integrationOptions: SelectOption[];
@@ -52,6 +37,8 @@ const DATE_PRESETS: SelectOption[] = [
   { label: 'This month', value: 'this-month' },
   { label: 'Last month', value: 'last-month' },
   { label: 'Last 3 months', value: 'last-3-months' },
+  { label: 'This quarter', value: 'this-quarter' },
+  { label: 'Last quarter', value: 'last-quarter' },
   { label: 'This year', value: 'this-year' },
   { label: 'Last year', value: 'last-year' },
 ];
@@ -82,6 +69,7 @@ export function SubHeader({
 
   const [dateQuery, setDateQuery] =
     useFilterQueryState<string>(DATE_FILTER_KEY);
+  const [timeRangeOpen, setTimeRangeOpen] = useState(false);
   useEffect(() => {
     if (dateQuery) setDateFilter(dateQuery);
   }, [dateQuery, setDateFilter]);
@@ -108,10 +96,10 @@ export function SubHeader({
       <div className="border-b bg-sidebar px-4 py-2 shrink-0 overflow-x-auto styled-scroll">
         <Filter.Bar>
           {integrationsLoading ? (
-            <LoadingChip label={t('integrations')} />
+            <LoadingChip label={t('integrations', 'Integrations')} />
           ) : (
             <SelectChip
-              label={t('integrations')}
+              label={t('integrations', 'Integrations')}
               value={integrationLabel}
               options={integrationOptions}
               onSelect={setIntegrationId}
@@ -120,10 +108,10 @@ export function SubHeader({
           )}
 
           {queuesLoading ? (
-            <LoadingChip label={t('queue')} />
+            <LoadingChip label={t('queue', 'Queue')} />
           ) : (
             <SelectChip
-              label={t('queue')}
+              label={t('queue', 'Queue')}
               value={queueLabel}
               options={queueOptions}
               onSelect={setQueueId}
@@ -133,7 +121,7 @@ export function SubHeader({
           )}
 
           <SelectChip
-            label={t('direction')}
+            label={t('direction', 'Direction')}
             value={directionLabel}
             options={DIRECTION_OPTIONS}
             onSelect={setDirection}
@@ -143,7 +131,7 @@ export function SubHeader({
           <div className="rounded flex gap-px h-7 items-stretch shadow-xs bg-muted text-sm font-medium">
             <Filter.BarName>
               <IconCalendar className="h-3.5 w-3.5" />
-              {t('date')}
+              {t('date', 'Date')}
             </Filter.BarName>
             <DropdownMenu>
               <DropdownMenu.Trigger asChild>
@@ -172,16 +160,19 @@ export function SubHeader({
                   </DropdownMenu.Item>
                 ))}
                 <DropdownMenu.Separator />
-                <CustomRangeItem
-                  label={t('custom-range', { defaultValue: 'Custom range…' })}
-                />
+                <DropdownMenu.Item onSelect={() => setTimeRangeOpen(true)}>
+                  <IconSelector className="h-3.5 w-3.5" />
+                  {t('custom-range', 'Custom Range...', {
+                    defaultValue: 'Custom range…',
+                  })}
+                </DropdownMenu.Item>
               </DropdownMenu.Content>
             </DropdownMenu>
             {dateQuery && (
               <button
                 onClick={handleClearDate}
                 className="rounded-r flex items-center px-2 hover:bg-muted-foreground/10 text-muted-foreground hover:text-foreground transition-colors"
-                aria-label={t('clear-date-filter')}
+                aria-label={t('clear-date-filter', 'Clear date filter')}
               >
                 <IconX className="h-3 w-3" />
               </button>
@@ -190,14 +181,12 @@ export function SubHeader({
         </Filter.Bar>
       </div>
 
-      <Filter.Dialog>
-        <Filter.View filterKey={DATE_FILTER_KEY} inDialog>
-          <Filter.DialogDateView
-            filterKey={DATE_FILTER_KEY}
-            label={t('date-range')}
-          />
-        </Filter.View>
-      </Filter.Dialog>
+      <DateTimeRangeDialog
+        open={timeRangeOpen}
+        onOpenChange={setTimeRangeOpen}
+        value={dateQuery ?? dateFilter}
+        onApply={handleSelectPreset}
+      />
     </Filter>
   );
 }
@@ -207,6 +196,27 @@ function formatDateDisplay(value: string): string {
 
   const preset = DATE_PRESETS.find((option) => option.value === value);
   if (preset) return preset.label;
+
+  const timeRange = parseCustomTimeRange(value);
+  if (timeRange) {
+    const day = (date: Date) =>
+      date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+      });
+    const clock = (date: Date) =>
+      `${String(date.getHours()).padStart(2, '0')}:${String(
+        date.getMinutes(),
+      ).padStart(2, '0')}`;
+
+    return day(timeRange.from) === day(timeRange.to)
+      ? `${day(timeRange.from)}, ${clock(timeRange.from)} — ${clock(
+          timeRange.to,
+        )}`
+      : `${day(timeRange.from)} ${clock(timeRange.from)} — ${day(
+          timeRange.to,
+        )} ${clock(timeRange.to)}`;
+  }
 
   if (value.includes(',')) {
     const [from, to] = value.split(',');
@@ -278,7 +288,9 @@ function SelectChip({
               <Command.Input placeholder={`Search ${label.toLowerCase()}…`} />
             )}
             <Command.List className="pb-2">
-              <Command.Empty>{t('no-options-found')}</Command.Empty>
+              <Command.Empty>
+                {t('no-options-found', 'No options found')}
+              </Command.Empty>
               <Command.Group>
                 {options.map((opt) => (
                   <Command.Item

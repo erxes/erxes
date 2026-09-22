@@ -45,9 +45,8 @@ export const useProducts = (props?: {
   const mode = useAtomValue(modeAtom)
 
   const isKiosk = mode === "kiosk"
-  // main-family layouts and coffee-shop collapse bulk-similarity groups to
-  // their starred product; searching stays ungrouped so exact variant codes
-  // remain findable
+  // Main-family layouts and coffee-shop always collapse bulk-similarity groups
+  // to their starred product, including while searching.
   const isMainList = ["main", "restaurant", "mobile", "coffee-shop"].includes(
     mode
   )
@@ -66,7 +65,7 @@ export const useProducts = (props?: {
       sortDirection,
       searchValue: searchValue,
       page: 1,
-      isSimilarity: isMainList && !searchValue ? true : undefined,
+      isSimilarity: isMainList ? true : undefined,
       isKiosk: isKiosk ? true : undefined,
     },
     skip,
@@ -85,7 +84,7 @@ export const useProducts = (props?: {
       maxDiscountPercent,
       discountConditions,
       searchValue,
-      isSimilarity: isMainList && !searchValue ? true : undefined,
+      isSimilarity: isMainList ? true : undefined,
       isKiosk: isKiosk ? true : undefined,
     },
     onCompleted(data) {

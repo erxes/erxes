@@ -58,7 +58,11 @@ const SortableFieldRow = ({
       }}
     >
       <div className="flex items-center gap-2">
-        <DragHandle aria-label={t('reorder')} {...attributes} {...listeners} />
+        <DragHandle
+          aria-label={t('reorder', 'Reorder')}
+          {...attributes}
+          {...listeners}
+        />
         <Form.Field
           control={control}
           name={`formFields.${ticketField.key}.isShow` as Path<TPipelineConfig>}
@@ -92,14 +96,14 @@ const SortableFieldRow = ({
             render={({ field }) => (
               <Form.Item className="space-y-0">
                 <Form.Label className="sr-only">
-                  {t('label-attribute')}
+                  {t('label-attribute', 'Label attribute')}
                 </Form.Label>
                 <Form.Control>
                   <Input
                     name={field.name}
                     onBlur={field.onBlur}
                     onChange={field.onChange}
-                    placeholder={t('label-attribute')}
+                    placeholder={t('label-attribute', 'Label attribute')}
                     value={(field.value as string) ?? ''}
                   />
                 </Form.Control>
@@ -115,14 +119,17 @@ const SortableFieldRow = ({
             render={({ field }) => (
               <Form.Item className="space-y-0">
                 <Form.Label className="sr-only">
-                  {t('placeholder-attribute')}
+                  {t('placeholder-attribute', 'Placeholder Attribute')}
                 </Form.Label>
                 <Form.Control>
                   <Input
                     name={field.name}
                     onBlur={field.onBlur}
                     onChange={field.onChange}
-                    placeholder={t('placeholder-attribute')}
+                    placeholder={t(
+                      'placeholder-attribute',
+                      'Placeholder Attribute',
+                    )}
                     value={(field.value as string) ?? ''}
                   />
                 </Form.Control>
@@ -188,7 +195,7 @@ export const TicketBasicFields = ({ form }: Props) => {
 
   return (
     <div className="flex flex-col gap-3">
-      <Label>{t('edit-fields')}</Label>
+      <Label>{t('edit-fields', 'Edit Fields')}</Label>
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}

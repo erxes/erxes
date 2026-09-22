@@ -12,10 +12,10 @@ export interface IFixedAssetCategory {
   parentId?: string;
   status?: string;
   depreciationMethod?: string;
-  defaultUsefulLife?: number;
+  defaultAnnualDepreciationRate?: number;
   defaultSalvageValue?: number;
   taxDepreciationMethod?: string;
-  defaultTaxUsefulLife?: number;
+  defaultTaxAnnualDepreciationRate?: number;
   defaultTaxSalvageValue?: number;
 }
 
@@ -26,13 +26,44 @@ export interface IFixedAsset {
   categoryId: string;
   description?: string;
   status?: string;
+  accountId?: string;
+  count?: number;
+  currentCount?: number;
+  originalCost?: number;
+  acquisitionDate?: Date;
+  depreciationStartDate?: Date;
   depreciationMethod?: string;
-  usefulLife?: number;
+  annualDepreciationRate?: number;
   salvageValue?: number;
   taxDepreciationMethod?: string;
-  taxUsefulLife?: number;
+  taxAnnualDepreciationRate?: number;
   taxSalvageValue?: number;
   propertiesData?: Record<string, unknown>;
+}
+
+export interface IFxaOwnerRecord {
+  _id: string;
+  fixedAssetId?: string;
+  categoryId?: string;
+  code?: string;
+  sequence?: number;
+  count?: number;
+  action?: string;
+  status?: string;
+  ownerId?: string;
+  transactionId?: string;
+  transactionDetailId?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+  createdBy?: string;
+  modifiedBy?: string;
+}
+
+export interface IFixedAssetLocationRemainder {
+  fixedAssetId?: string;
+  branchId?: string;
+  departmentId?: string;
+  remainder?: number;
 }
 
 export type TFixedAssetCategoryForm = z.infer<typeof fixedAssetCategorySchema>;
