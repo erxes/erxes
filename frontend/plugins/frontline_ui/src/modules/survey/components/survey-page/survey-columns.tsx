@@ -2,6 +2,7 @@ import {
   IconArrowBarToRight,
   IconCalendarEvent,
   IconChartBar,
+  IconCheck,
   IconEdit,
   IconLabel,
   IconList,
@@ -10,6 +11,7 @@ import {
   IconStack2,
   IconToggleRight,
   IconTrash,
+  IconUser,
 } from '@tabler/icons-react';
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import {
@@ -38,6 +40,7 @@ const SurveyMoreColumnCell = ({ cell }: { cell: Cell<ISurvey, unknown> }) => {
   const [open, setOpen] = useState(false);
   const [moveOpen, setMoveOpen] = useState(false);
   const survey = cell.row.original;
+  const isPending = survey.status === SURVEY_STATUS.PENDING;
   const { id } = useParams<{ id: string }>();
   const channelId = survey.channelId || id;
   const { toggleSurveyStatus } = useSurveyToggleStatus();
@@ -60,6 +63,19 @@ const SurveyMoreColumnCell = ({ cell }: { cell: Cell<ISurvey, unknown> }) => {
             : SURVEY_STATUS.ACTIVE,
       },
       onCompleted: () => setOpen(false),
+      onError,
+    });
+
+  const handleApprove = () =>
+    toggleSurveyStatus({
+      variables: { _ids: [survey._id], status: SURVEY_STATUS.ACTIVE },
+      onCompleted: () => {
+        setOpen(false);
+        toast({
+          variant: 'success',
+          title: t('survey-approved', 'Survey approved'),
+        });
+      },
       onError,
     });
 
@@ -99,12 +115,19 @@ const SurveyMoreColumnCell = ({ cell }: { cell: Cell<ISurvey, unknown> }) => {
             </DropdownMenu.Item>
           }
         />
-        <DropdownMenu.Item onSelect={handleToggle}>
-          <IconSquareToggle />
-          {survey.status === SURVEY_STATUS.ACTIVE
-            ? t('archive')
-            : t('unarchive')}
-        </DropdownMenu.Item>
+        {isPending ? (
+          <DropdownMenu.Item onSelect={handleApprove}>
+            <IconCheck />
+            {t('survey-approve', 'Approve')}
+          </DropdownMenu.Item>
+        ) : (
+          <DropdownMenu.Item onSelect={handleToggle}>
+            <IconSquareToggle />
+            {survey.status === SURVEY_STATUS.ACTIVE
+              ? t('archive')
+              : t('unarchive')}
+          </DropdownMenu.Item>
+        )}
         <DropdownMenu.Item
           onSelect={() => {
             setOpen(false);
@@ -215,6 +238,49 @@ export const surveyColumns: ColumnDef<ISurvey>[] = [
         <FormStatus.Badge status={cell.getValue() as string} />
       </RecordTableInlineCell>
     ),
+  },
+  {
+    id: 'createdBy',
+    header: function SurveyCreatedByHeader() {
+      const { t } = useTranslation('frontline');
+      return (
+        <RecordTable.InlineHead
+          label={t('created-by', 'Created by')}
+          icon={IconUser}
+        />
+      );
+    },
+    cell: function SurveyCreatedByCell({ cell }) {
+      const { t } = useTranslation('frontline');
+      const { createdCpUser, createdCpUserId, createdUser } = cell.row.original;
+
+      if (!createdCpUserId) {
+        return (
+          <RecordTableInlineCell>
+            {createdUser?.details?.fullName || '—'}
+          </RecordTableInlineCell>
+        );
+      }
+
+      const requester = [createdCpUser?.firstName, createdCpUser?.lastName]
+        .filter(Boolean)
+        .join(' ');
+
+      return (
+        <RecordTableInlineCell className="gap-2">
+          <span className="truncate">
+            {requester ||
+              createdCpUser?.email ||
+              createdCpUser?.phone ||
+              t('client-portal-user', 'Client portal user')}
+          </span>
+          <Badge variant="secondary">
+            {t('client-portal', 'Client portal')}
+          </Badge>
+        </RecordTableInlineCell>
+      );
+    },
+    size: 220,
   },
   {
     accessorKey: 'sentCount',
