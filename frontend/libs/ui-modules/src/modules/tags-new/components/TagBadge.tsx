@@ -13,7 +13,7 @@ export const TagBadge = React.forwardRef<
     renderAsPlainText?: boolean;
   }
 >(({ tag, tagId, onCompleted, renderAsPlainText, ...props }, ref) => {
-  const { tagDetail, loading } = useTagsByIds({
+  const { tagDetail, loading, error } = useTagsByIds({
     variables: {
       id: tagId,
     },
@@ -30,6 +30,18 @@ export const TagBadge = React.forwardRef<
   }
 
   if (!tagValue) {
+    if (error && tagId) {
+      if (renderAsPlainText) {
+        return <TextOverflowTooltip value={tagId} />;
+      }
+
+      return (
+        <Badge ref={ref} title={`Unknown id: ${tagId}`} {...props}>
+          <span className="max-w-24 truncate font-mono">{tagId}</span>
+        </Badge>
+      );
+    }
+
     return null;
   }
 
