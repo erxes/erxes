@@ -9,8 +9,8 @@ import { cn } from '../lib/utils';
 import dayjs from 'dayjs';
 
 export type DatePickerProps = {
-  value: Date | Date[] | DateRange | undefined | null;
-  onChange: (date: Date | Date[] | DateRange | undefined | null) => void;
+  value: Date | Date[] | DateRange | undefined;
+  onChange: (date: Date | Date[] | DateRange | undefined) => void;
   placeholder?: string;
   withPresent?: boolean;
   mode?: 'single' | 'multiple' | 'range';
@@ -88,7 +88,7 @@ export const DatePicker = ({
   };
 
   const handleClear = () => {
-    onChange(null);
+    onChange(undefined);
     setIsOpen(false);
   };
 
