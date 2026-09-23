@@ -128,8 +128,6 @@ export const useTickets = (
       updateQuery: (prev, { subscriptionData }) => {
         if (!subscriptionData.data) return prev;
 
-        // Contact membership lives in Core relations; let the server re-evaluate
-        // these filters instead of inserting an unverified subscription payload.
         if (
           variables.createdBy ||
           variables.createdAt ||
