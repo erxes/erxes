@@ -1,3 +1,6 @@
+import validator from 'validator';
+import { sendFacebookReplyParts } from '@/integrations/facebook/services/sendReplyParts';
+import type { FacebookReplyPart } from '@/integrations/facebook/@types/replyDelivery';
 import { stripHtml } from 'string-strip-html';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import type { IModels } from '~/connectionResolvers';
@@ -254,44 +257,32 @@ const handleFacebookMessengerReply = async (
     messagingParams.tag = trimmedTag;
   }
 
-  appendContentImages(content, attachments);
+  const allAttachments = [...attachments];
+  appendContentImages(content, allAttachments);
+  const uniqueAttachments = allAttachments.filter(
+    (attachment, index) =>
+      allAttachments.findIndex(({ url }) => url === attachment.url) === index,
+  );
   const strippedContent = sanitizeMessageHtml(content);
+  const textContent = strippedContent
+    ? `<p>${validator.escape(strippedContent).replace(/\n/g, '<br/>')}</p>`
+    : '';
   const conversation = await models.FacebookConversations.getConversation({
     erxesApiId: conversationId,
   });
   const replyTo = await getReplyTo(models, conversation._id, replyToMessageId);
-  let localMessage;
-
-  try {
-    if (strippedContent) {
-      const response = await sendReply(
-        models,
-        'me/messages',
-        {
-          recipient: { id: conversation.senderId },
-          message: { text: strippedContent },
-          ...(replyToMessageId && { reply_to: { mid: replyToMessageId } }),
-          ...messagingParams,
-        },
-        conversation.recipientId,
-        integrationId,
-      );
-      if (response) {
-        const messageDoc = {
-          ...doc,
-          content,
-          conversationId: conversation._id,
-          mid: response.message_id,
-          ...(replyTo && { replyTo }),
-        };
-        localMessage = await models.FacebookConversationMessages.addMessage(
-          messageDoc,
-          doc.userId,
-        );
-      }
-    }
-
-    for (const message of generateAttachmentMessages(subdomain, attachments)) {
+  const parts: FacebookReplyPart[] = [
+    ...(textContent ? [{ content: textContent, attachments: [] }] : []),
+    ...uniqueAttachments.map((attachment) => ({
+      content: '',
+      attachments: [attachment],
+    })),
+  ];
+  const delivery = await sendFacebookReplyParts(parts, {
+    send: async (part) => {
+      const message = part.content
+        ? { text: strippedContent }
+        : generateAttachmentMessages(subdomain, part.attachments)[0];
       const response = await sendReply(
         models,
         'me/messages',
@@ -304,36 +295,32 @@ const handleFacebookMessengerReply = async (
         conversation.recipientId,
         integrationId,
       );
-      if (response) {
-        const messageDoc = {
+      return response?.message_id || '';
+    },
+    persist: async (part, mid) => {
+      await models.FacebookConversationMessages.addMessage(
+        {
           ...doc,
-          content,
+          ...part,
           conversationId: conversation._id,
-          mid: response.message_id,
+          mid,
           ...(replyTo && { replyTo }),
-        };
-        localMessage = await models.FacebookConversationMessages.addMessage(
-          messageDoc,
-          doc.userId,
-        );
-      }
-    }
-  } catch (error) {
-    if (localMessage) {
-      await models.FacebookConversationMessages.deleteOne({
-        _id: localMessage._id,
-      });
-    }
-    throw new Error(getErrorMessage(error));
-  }
-
-  if (!localMessage) {
-    throw new Error('Facebook reply produced no message to persist');
-  }
+        },
+        doc.userId,
+      );
+    },
+  });
 
   return {
     status: 'success',
-    data: { ...localMessage.toObject(), conversationId },
+    data: {
+      conversationId,
+      content: delivery.textSent ? textContent : '',
+      attachments: uniqueAttachments.filter(({ url }) =>
+        delivery.sentAttachmentUrls.includes(url),
+      ),
+      extraData: { facebookDelivery: delivery },
+    },
   };
 };
 

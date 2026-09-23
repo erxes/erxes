@@ -413,7 +413,7 @@ export const MessageInput = ({
   }, [editor, pingAgentTyping]);
 
   const handleSubmit = useCallback(async () => {
-    if (!conversationId) return;
+    if (!conversationId || loading || isLoading) return;
 
     const outgoingBlocks =
       isDiscord && !isInternalNote ? encodeDiscordMentions(content) : content;
@@ -438,11 +438,41 @@ export const MessageInput = ({
         extraInfo: messageExtraInfo,
         attachments: allAttachments,
         responseTemplateId: responseTemplateId,
-        ...(!isInternalNote && replyToMessageId
-          ? { replyToMessageId }
-          : {}),
+        ...(!isInternalNote && replyToMessageId ? { replyToMessageId } : {}),
       },
-      onCompleted: () => {
+      onCompleted: (result) => {
+        const delivery = isFacebook
+          ? result.conversationMessageAdd.extraData?.facebookDelivery
+          : undefined;
+        if (delivery?.status === 'partial') {
+          const remainingAttachments = allAttachments.filter(
+            (attachment: { url: string }) =>
+              !delivery.sentAttachmentUrls.includes(attachment.url),
+          );
+          if (content?.length) editor?.removeBlocks(content);
+          setContent(undefined);
+          setMentionedUserIds([]);
+          setAttachments(remainingAttachments);
+          setAttachmentPreview(null);
+          setShowSuggestions(false);
+          toast({
+            title: remainingAttachments.length
+              ? t('message-partially-sent', 'Message partially sent')
+              : t('message-sent-with-warning', 'Message sent with a warning'),
+            description: remainingAttachments.length
+              ? t(
+                  'message-partially-sent-description',
+                  '{{count}} attachment(s) were not sent. Only these remain for retry.',
+                  { count: remainingAttachments.length },
+                )
+              : t(
+                  'message-history-update-failed',
+                  'Facebook accepted the message, but saving its history failed. Do not resend it.',
+                ),
+            variant: 'destructive',
+          });
+          return;
+        }
         toast({
           title: t('message-sent', 'Message sent!'),
           variant: 'default',
@@ -490,6 +520,8 @@ export const MessageInput = ({
     });
   }, [
     conversationId,
+    loading,
+    isLoading,
     content,
     mentionedUserIds,
     isInternalNote,

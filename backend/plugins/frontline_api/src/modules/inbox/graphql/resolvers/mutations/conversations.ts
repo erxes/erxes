@@ -705,6 +705,12 @@ export const conversationMutations = {
           {
             ...doc,
             ...(displayContent ? { content: displayContent } : {}),
+            ...(kind === 'facebook-messenger' && extraData?.facebookDelivery
+              ? {
+                  content: responseContent || '',
+                  attachments: response.data.data.attachments || [],
+                }
+              : {}),
             ...(extraData ? { extraData } : {}),
           };
 
