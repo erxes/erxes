@@ -18,7 +18,7 @@ export const TaskDetailSheet = () => {
               <TaskDetailSheetHeader />
               <Sheet.Close />
             </Sheet.Header>
-            <Sheet.Content className="overflow-y-auto">
+            <Sheet.Content className="overflow-hidden flex flex-col">
               <TaskDetails taskId={activeTask} />
             </Sheet.Content>
           </>
