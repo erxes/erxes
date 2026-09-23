@@ -134,10 +134,13 @@ export const MessageItem = () => {
     }
   }
   const displayContent =
-    botText ||
-    (legacyReplyMatch ? content.replace(legacyReplyMatch[0], '') : content)
-      ?.replace(forwardedContentMatch?.[0] || '', '')
-      .trim();
+    integration?.kind === IntegrationType.INSTAGRAM_MESSENGER &&
+    forwardedSnapshot
+      ? extraData?.forwardedNote?.trim()
+      : botText ||
+        (legacyReplyMatch ? content.replace(legacyReplyMatch[0], '') : content)
+          ?.replace(forwardedContentMatch?.[0] || '', '')
+          .trim();
   const postIntegrationKind =
     integration?.kind === IntegrationType.FACEBOOK_POST ||
     integration?.kind === IntegrationType.INSTAGRAM_POST

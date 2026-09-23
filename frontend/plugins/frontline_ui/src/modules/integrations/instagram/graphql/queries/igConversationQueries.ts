@@ -27,6 +27,7 @@ export const GET_CONVERSATION_MESSAGES = gql`
       internal
       mid
       messageKind
+      extraData
       providerData
       replyTo
       reactions

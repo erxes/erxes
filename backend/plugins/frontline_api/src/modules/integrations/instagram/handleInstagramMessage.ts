@@ -33,7 +33,12 @@ type TInstagramRelayDoc = {
   reaction: string;
   remove?: boolean;
   replyToMessageId?: string;
-  extraInfo?: { tag?: string };
+  extraInfo?: {
+    tag?: string;
+    forwardedFrom?: { conversationId: string; messageId: string };
+    forwardedNote?: string;
+    forwardedSnapshot?: Record<string, unknown>;
+  };
 };
 
 const INSTAGRAM_MESSAGE_REACTION = 'love';
@@ -45,11 +50,15 @@ const UNSUPPORTED_REACTION_KINDS = new Set([
   'unsupported',
 ]);
 
-const handleInstagramReaction = async (
+/** Sends a customer-message reaction and persists the accepted result. */
+export const handleInstagramReaction = async (
   models: IModels,
-  doc: TInstagramRelayDoc,
+  doc: Pick<
+    TInstagramRelayDoc,
+    'integrationId' | 'conversationId' | 'messageId' | 'remove' | 'userId'
+  >,
 ) => {
-  const { integrationId, conversationId, messageId, reaction, remove, userId } =
+  const { integrationId, conversationId, messageId, remove, userId } =
     doc;
   const conversation = await models.InstagramConversations.findOne({
     erxesApiId: conversationId,
@@ -92,7 +101,7 @@ const handleInstagramReaction = async (
   const reactions = (target.reactions || []).filter(
     (item) => item.senderId !== userId,
   );
-  if (!remove && reaction) {
+  if (!remove) {
     reactions.push({
       senderId: userId,
       reaction: INSTAGRAM_MESSAGE_REACTION,
@@ -104,6 +113,7 @@ const handleInstagramReaction = async (
   return { status: 'success', data: target.toObject() };
 };
 
+/** Sends a reply in an Instagram post-comment conversation. */
 const handleInstagramPostReply = async (
   models: IModels,
   doc: TInstagramRelayDoc,
@@ -184,6 +194,7 @@ const handleInstagramPostReply = async (
   }
 };
 
+/** Sends and stores an Instagram direct-message reply. */
 const handleInstagramMessengerReply = async (
   models: IModels,
   doc: TInstagramRelayDoc,
@@ -199,7 +210,17 @@ const handleInstagramMessengerReply = async (
   } = doc;
   const tag = extraInfo?.tag || '';
   appendContentImages(content, attachments);
-  const strippedContent = sanitizeMessageHtml(content);
+  const providerContent = extraInfo?.forwardedFrom
+    ? content.split(/\r?\n/).filter((line) => line !== '↪ Forwarded').join('\n').trim()
+    : content;
+  const strippedContent = sanitizeMessageHtml(providerContent);
+  const forwardedData = extraInfo?.forwardedFrom
+    ? {
+        forwardedFrom: extraInfo.forwardedFrom,
+        forwardedNote: extraInfo.forwardedNote,
+        forwardedSnapshot: extraInfo.forwardedSnapshot,
+      }
+    : undefined;
   const conversation = await models.InstagramConversations.findOne({
     erxesApiId: conversationId,
   });
@@ -225,7 +246,8 @@ const handleInstagramMessengerReply = async (
       if (response) {
         const messageDoc = {
           ...doc,
-          content,
+          content: providerContent,
+          ...(forwardedData ? { extraData: forwardedData } : {}),
           conversationId: conversation._id,
           integrationId: conversation.integrationId,
           mid: response.message_id,
@@ -256,7 +278,8 @@ const handleInstagramMessengerReply = async (
       if (response) {
         const messageDoc = {
           ...doc,
-          content,
+          content: providerContent,
+          ...(forwardedData ? { extraData: forwardedData } : {}),
           conversationId: conversation._id,
           integrationId: conversation.integrationId,
           mid: response.message_id,
@@ -289,6 +312,7 @@ const handleInstagramMessengerReply = async (
   };
 };
 
+/** Routes an Instagram relay action to its delivery handler. */
 export const handleInstagramMessage = (
   models: IModels,
   msg: IMsg,

@@ -28,6 +28,7 @@ export const conversationMessageSchema = schemaWrapper(
     internal: { type: Boolean, label: 'Internal' },
     botId: { type: String, label: 'Bot', optional: true },
     botData: { type: Object, optional: true },
+    extraData: { type: Object, optional: true },
     messageKind: { type: String, optional: true },
     providerData: { type: providerDataSchema, optional: true },
     replyTo: { type: replyToSchema, optional: true },

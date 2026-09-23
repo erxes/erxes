@@ -117,8 +117,8 @@ const ForwardMessageDialogContent = ({
     <Dialog.Header>
       <Dialog.Title>Forward message</Dialog.Title>
       <Dialog.Description>
-        Choose another conversation. erxes keeps a tagged snapshot, and
-        platforms without native forwarding receive only the original content.
+        Choose another conversation. erxes keeps a snapshot of the forwarded
+        message.
       </Dialog.Description>
     </Dialog.Header>
     <div className="rounded-md border-l-2 border-primary bg-muted px-3 py-2 text-sm text-muted-foreground">

@@ -330,6 +330,7 @@ export const receiveMessage = async (
 
   if (!existingMessage) {
     let inboxMessageId: string | undefined;
+    let createdMessageId: string | undefined;
     try {
       const content =
         text || (formattedAttachments.length > 0 ? HAS_ATTACHMENT : '');
@@ -344,6 +345,7 @@ export const receiveMessage = async (
         botId,
         ...normalizedMessage,
       });
+      createdMessageId = created._id;
 
       const inboxMessage = await models.ConversationMessages.createMessage({
         conversationId: erxesConversationId,
@@ -366,7 +368,11 @@ export const receiveMessage = async (
         payload: message?.payload,
       });
     } catch (e) {
-      await models.InstagramConversationMessages.deleteOne({ mid });
+      if (createdMessageId) {
+        await models.InstagramConversationMessages.deleteOne({
+          _id: createdMessageId,
+        });
+      }
       if (inboxMessageId) {
         await models.ConversationMessages.deleteOne({ _id: inboxMessageId });
       }

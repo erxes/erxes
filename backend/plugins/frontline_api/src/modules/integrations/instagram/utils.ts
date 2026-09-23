@@ -389,6 +389,7 @@ interface IInstagramReactionPayload {
   };
 }
 
+/** Sends a love reaction to Instagram and surfaces provider failures. */
 export const sendReaction = async (
   models: IModels,
   data: IInstagramReactionPayload,
@@ -404,12 +405,19 @@ export const sendReaction = async (
     body: JSON.stringify(data),
     signal: AbortSignal.timeout(10000),
   });
-  const result = (await response.json()) as {
+  let result: {
     error?: { message?: string };
-  };
+  } = {};
+  try {
+    result = (await response.json()) as typeof result;
+  } catch (error) {
+    if (response.ok) throw error;
+  }
 
   if (!response.ok) {
-    const message = result.error?.message || 'Failed to react on Instagram';
+    const message =
+      result.error?.message ||
+      `Failed to react on Instagram (status ${response.status})`;
     debugError(`Instagram reaction failed: ${message}`);
     throw new Error(`Instagram reaction failed: ${message}`);
   }

@@ -28,6 +28,7 @@ export interface IInstagramConversationMessage {
   internal?: boolean;
   botId?: string;
   botData?: any;
+  extraData?: Record<string, unknown>;
   messageKind?: InstagramMessageKind;
   providerData?: IInstagramMessageProviderData;
   replyTo?: IInstagramMessageReplyTo;

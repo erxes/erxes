@@ -6,6 +6,7 @@ import type { IMessageData } from '@/integrations/instagram/@types/utils';
 
 const STORY_LIFETIME_MS = 24 * 60 * 60 * 1000;
 
+/** Maps an Instagram attachment type to the shared inbox message kind. */
 const attachmentKind = (type?: string): InstagramMessageKind => {
   if (!type) return 'unsupported';
   if (type === 'story_mention') return 'story_mention';
@@ -25,6 +26,7 @@ const attachmentKind = (type?: string): InstagramMessageKind => {
   return 'unsupported';
 };
 
+/** Supplies a readable preview when a message has no text. */
 const previewTextForKind = (kind: InstagramMessageKind) => {
   const previews: Partial<Record<InstagramMessageKind, string>> = {
     image: 'Photo',
@@ -43,6 +45,7 @@ const previewTextForKind = (kind: InstagramMessageKind) => {
   return previews[kind];
 };
 
+/** Keeps text messages readable when their attachment type is unsupported. */
 const resolveMessageKind = (
   attachmentType: string | undefined,
   hasText: boolean,
@@ -54,12 +57,14 @@ const resolveMessageKind = (
   return hasText ? 'text' : kind;
 };
 
+/** Identifies Instagram post and reel shares for the inbox preview. */
 const shareTypeFor = (type?: string): 'post' | 'reel' | undefined => {
   if (type === 'ig_post') return 'post';
   if (type === 'ig_reel') return 'reel';
   return undefined;
 };
 
+/** Explains why unsupported content cannot be shown. */
 const fallbackReasonFor = (kind: InstagramMessageKind) =>
   kind === 'story_mention' || kind === 'story_reply'
     ? 'Story unavailable'
@@ -70,6 +75,7 @@ type TNormalizedCore = Pick<
   'messageKind' | 'providerData' | 'expiresAt'
 >;
 
+/** Builds the common message metadata from Instagram's provider fields. */
 const buildCoreFields = ({
   messageId,
   attachmentType,
@@ -106,6 +112,7 @@ const buildCoreFields = ({
   };
 };
 
+/** Normalizes an incoming Instagram webhook message for persistence. */
 export const normalizeInstagramMessage = (
   activity: IMessageData,
 ): Pick<
@@ -145,6 +152,7 @@ export const normalizeInstagramMessage = (
   };
 };
 
+/** Adds provider metadata to legacy outbound records when it is absent. */
 export const normalizeStoredInstagramMessage = (
   message: IInstagramConversationMessage,
 ): IInstagramConversationMessage => {

@@ -1,3 +1,5 @@
+import { copyInstagramImage } from '@/integrations/instagram/services/copyInstagramImage';
+import type { ICopyInstagramImageArgs } from '@/integrations/instagram/services/copyInstagramImage';
 import { IContext } from '~/connectionResolvers';
 import {
   getPageList,
@@ -32,6 +34,13 @@ const buildSelector = async (conversationId: string, model: any) => {
 };
 
 export const instagramQueries = {
+  async frontlineInstagramCopyImage(
+    _root: unknown,
+    args: ICopyInstagramImageArgs,
+    context: IContext,
+  ): Promise<string> {
+    return copyInstagramImage(args, context);
+  },
   async instagramGetAccounts(_root, { kind }: IKind, { models }: IContext) {
     return models.InstagramAccounts.find({ kind });
   },

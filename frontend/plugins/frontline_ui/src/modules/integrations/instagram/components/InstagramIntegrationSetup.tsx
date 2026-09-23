@@ -5,10 +5,11 @@ import {
   InstagramIntegrationFormSteps,
   InstagramIntegrationFormLayout,
 } from './InstagramIntegrationForm';
-import { useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import {
   activeInstagramFormStepAtom,
   resetInstagramAddStateAtom,
+  selectedInstagramAccountAtom,
   selectedInstagramPageAtom,
 } from '@/integrations/instagram/states/instagramStates';
 import { useForm } from 'react-hook-form';
@@ -16,8 +17,6 @@ import { z } from 'zod';
 import { INSTAGRAM_INTEGRATION_SCHEMA } from '@/integrations/instagram/constants/IgMessengerSchema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useIntegrationAdd } from '@/integrations/hooks/useIntegrationAdd';
-import { useAtomValue } from 'jotai';
-import { selectedInstagramAccountAtom } from '@/integrations/instagram/states/instagramStates';
 import { useIgIntegrationContext } from '@/integrations/instagram/context/IgIntegrationContext';
 import { useParams } from 'react-router';
 

@@ -64,6 +64,7 @@ export const types = `
     attachments: [Attachment]
     fromBot: Boolean
     botData: JSON
+    extraData: JSON
     customerId: String
     userId: String
     createdAt: Date
@@ -140,6 +141,7 @@ export const types = `
 `;
 
 export const queries = `
+  frontlineInstagramCopyImage(conversationId: String!, messageId: String!, url: String!): String!
   instagramGetAccounts(kind: String): JSON
   instagramGetIntegrations(kind: String): JSON
   instagramGetIntegrationDetail(erxesApiId: String): JSON

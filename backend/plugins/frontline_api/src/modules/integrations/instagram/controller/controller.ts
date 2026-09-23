@@ -6,6 +6,7 @@ import { getSubdomain, isDev } from 'erxes-api-shared/utils';
 import { generateModels } from '~/connectionResolvers';
 import { createHmac, timingSafeEqual } from 'node:crypto';
 
+/** Verifies the webhook body against Meta's SHA-256 signature. */
 const hasValidWebhookSignature = (
   rawBody: Buffer | string | undefined,
   signature: string | undefined,

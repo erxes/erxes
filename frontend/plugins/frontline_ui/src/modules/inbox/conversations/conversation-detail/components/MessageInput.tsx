@@ -1,3 +1,5 @@
+import { getInstagramSendError } from '@/integrations/instagram/utils/instagramSendError';
+import { messageReplyState } from '@/inbox/conversations/conversation-detail/states/messageReplyState';
 import {
   BlockEditor,
   Button,
@@ -91,9 +93,17 @@ export const MessageInput = ({
   const hideInput = useAtomValue(hideMessageInputState);
   const { integration } = useConversationContext();
   const isDiscord = integration?.kind === IntegrationType.DISCORD_MESSENGER;
+  const isInstagram = integration?.kind === IntegrationType.INSTAGRAM_MESSENGER;
   const isMessenger = integration?.kind === IntegrationType.ERXES_MESSENGER;
   const messageExtraInfo = useAtomValue(messageExtraInfoState);
   const [discordReplyTo, setDiscordReplyTo] = useAtom(discordReplyToState);
+  const [messageReply, setMessageReply] = useAtom(messageReplyState);
+  const instagramReply = isInstagram && !isInternalNote ? messageReply : null;
+  const activeReply =
+    instagramReply || (isDiscord && !isInternalNote ? discordReplyTo : null);
+  const replyToMessageId =
+    instagramReply?.providerMessageId ||
+    (isDiscord && !isInternalNote ? discordReplyTo?.messageId : undefined);
 
   const discordParticipants = useDiscordConversationParticipants(
     conversationId,
@@ -151,7 +161,8 @@ export const MessageInput = ({
 
   useEffect(() => {
     setDiscordReplyTo(null);
-  }, [conversationId, setDiscordReplyTo]);
+    setMessageReply(null);
+  }, [conversationId, setDiscordReplyTo, setMessageReply]);
 
   const { channels: availableChannels } = useGetChannels();
   const [searchValue, setSearchValue] = useState('');
@@ -171,6 +182,10 @@ export const MessageInput = ({
   const [attachmentPreview, setAttachmentPreview] = useState<any>(null);
 
   const editor = useBlockEditor();
+
+  useEffect(() => {
+    if (instagramReply) editor?.focus();
+  }, [editor, instagramReply]);
   const { addConversationMessage, loading } = useConversationMessageAdd();
 
   const [notifyAgentTyping] = useMutation(CONVERSATION_AGENT_TYPING);
@@ -419,9 +434,7 @@ export const MessageInput = ({
         extraInfo: messageExtraInfo,
         attachments: allAttachments,
         responseTemplateId: responseTemplateId,
-        ...(isDiscord && !isInternalNote && discordReplyTo
-          ? { replyToMessageId: discordReplyTo.messageId }
-          : {}),
+        ...(replyToMessageId ? { replyToMessageId } : {}),
       },
       onCompleted: () => {
         toast({
@@ -438,20 +451,36 @@ export const MessageInput = ({
         setShowSuggestions(false);
         setResponseTemplateId(null);
         setDiscordReplyTo(null);
+        if (instagramReply) {
+          setMessageReply((current) =>
+            current === messageReply ? null : current,
+          );
+        }
       },
       refetchQueries: [
         'Conversations',
         'ConversationMessages',
+        'InstagramConversationMessages',
         'ConversationCounts',
         'FrontlineInboxSidebarWorkCounts',
       ],
-      onError: (err) =>
+      onError: (err) => {
+        if (isInstagram && !isInternalNote) {
+          const feedback = getInstagramSendError(err);
+          toast({
+            title: t('instagram-send-error-title', 'Could not send message'),
+            description: t(feedback.key, feedback.description),
+            variant: 'destructive',
+          });
+          return;
+        }
         toast({
           title: t('failed-to-send', 'Failed to send: {{message}}', {
             message: err.message,
           }),
           variant: 'destructive',
-        }),
+        });
+      },
     });
   }, [
     conversationId,
@@ -459,8 +488,13 @@ export const MessageInput = ({
     mentionedUserIds,
     isInternalNote,
     isDiscord,
+    isInstagram,
     discordReplyTo,
     setDiscordReplyTo,
+    instagramReply,
+    messageReply,
+    replyToMessageId,
+    setMessageReply,
     messageExtraInfo,
     attachments,
     editor,
@@ -522,18 +556,21 @@ export const MessageInput = ({
           />
         )}
 
-        {isDiscord && !isInternalNote && discordReplyTo && (
+        {activeReply && (
           <div className="mx-6 mb-1 flex items-center justify-between gap-2 rounded-md bg-muted px-3 py-1.5 text-sm">
             <div className="flex min-w-0 items-center gap-2 text-muted-foreground">
               <IconArrowBackUp className="size-4 flex-none" />
               <span className="truncate">
-                {t('replying-to', 'Replying to:')} {discordReplyTo.preview}
+                {t('replying-to', 'Replying to:')} {activeReply.preview}
               </span>
             </div>
             <button
               type="button"
               aria-label="Cancel reply"
-              onClick={() => setDiscordReplyTo(null)}
+              onClick={() => {
+                if (isInstagram) setMessageReply(null);
+                else setDiscordReplyTo(null);
+              }}
               className="flex-none text-muted-foreground hover:text-foreground"
             >
               <IconX size={14} aria-hidden="true" />

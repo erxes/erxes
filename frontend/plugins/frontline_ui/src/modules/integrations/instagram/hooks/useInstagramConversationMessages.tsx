@@ -90,7 +90,17 @@ export const useInstagramConversationMessages = () => {
           (msg) => msg._id === newMessage._id,
         );
 
-        if (messageExists) return prev;
+        if (messageExists) {
+          return {
+            ...prev,
+            instagramConversationMessages:
+              prev.instagramConversationMessages.map((message) =>
+                message._id === newMessage._id
+                  ? { ...message, reactions: newMessage.reactions }
+                  : message,
+              ),
+          };
+        }
 
         try {
           const conversationCacheId = client.cache.identify({
@@ -127,7 +137,7 @@ export const useInstagramConversationMessages = () => {
       },
     });
     return unsubscribe;
-  }, [conversationId]);
+  }, [client.cache, conversationId, subscribeToMore]);
 
   return {
     instagramConversationMessages,
