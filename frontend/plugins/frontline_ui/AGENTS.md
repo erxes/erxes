@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-09-22`
+- **Last synchronized:** `2026-09-23`
 
 ## Scope
 
@@ -79,6 +79,16 @@
 
 ## Current Capabilities
 
+- A form can be created from the plugin's own forms page, not only from a
+  channel's settings. `frontline/forms` carries a `Create form` button on the
+  right of its `PageHeader` (and in the empty state) that opens the same four
+  step wizard on `frontline/forms/create`. There is no channel in the URL there,
+  so the wizard's General step decides it: `channelId` is required by
+  `FORM_GENERAL_CREATE_SCHEMA` when no `formId` param is present, and
+  `useFormMutate` reads the picked channel out of the setup state. Cancelling or
+  finishing returns to `frontline/forms`; the settings flow
+  (`settings/frontline/channels/:id/forms/create`) still returns to the
+  channel's forms page.
 - The call widget's dialpad header carries a clear-cache icon button next to
   Pause and Turn off. After a confirm it closes the widget, resets the call
   atoms persisted in `localStorage` (`config:call_integrations`,
@@ -123,10 +133,24 @@
   `<n> pending approval` shortcut that filters the list — it reads its own
   `surveyTotalCount` with `status: 'pending'`, so it stays visible under any
   other filter, and is skipped without a `channelId` so the read-only
-  `frontline/surveys` board never offers an approval it cannot perform. A pending row's row menu swaps Archive/Unarchive for
-  `Approve`, and the command bar shows an `Approve` button whenever the
-  selection holds a pending survey, approving only those ids. Approving is a
-  `surveyToggleStatus` to `active`, which refetches the list and the counts.
+  `frontline/surveys` board never offers an approval it cannot perform. A
+  pending row's row menu swaps Archive/Unarchive for `Approve` and `Reject`,
+  and the command bar shows an `Approve` button whenever the selection holds a
+  pending or rejected survey and a `Reject` button whenever it holds a pending
+  one, acting only on those ids. Approving is a `surveyToggleStatus` to
+  `active`; rejecting opens `SurveyRejectDialog`, which requires a typed reason
+  (capped at `MAX_REJECTION_REASON_LENGTH`, with a live counter) before it
+  sends `surveyToggleStatus` to `rejected` with that `reason`. Both refetch the
+  list and the counts.
+- A rejected request keeps the requester's work instead of deleting it. The
+  status filter offers `rejected`, `FormStatus.Badge` renders it as a
+  destructive circle-x badge, and a rejected row's menu still offers `Approve`
+  (never `Reject`, which the API accepts only from `pending`) so an agent can
+  reverse the call, plus `Remove` to clear it. The reason lives on
+  `Survey.rejectionReason`; the status cell wraps the badge in a tooltip
+  carrying it, and the server drops the field on any later status change, so a
+  badge without a tooltip means there is no standing rejection. `Archive`/`Unarchive` stays
+  reserved for surveys that have been live.
 - Creating and editing a survey is a full-page step wizard on
   `settings/frontline/channels/:id/surveys/create` and
   `settings/frontline/channels/:id/surveys/:surveyId`, laid out exactly like the
@@ -137,11 +161,18 @@
   brand), **Content** (the survey's steps) and **Confirmation** (duration plus a
   read-only review of every step).
 - The Content step is where a survey gains questions. Each survey step is an
-  `InfoCard.Content` card holding its name, question, description, 2–10 unique
-  options and its own multi-answer switch; `Add Step` appends another (up to
-  ten), the grip handle reorders them with `@dnd-kit`, and the trash button
-  removes one. The name, description, grip and trash appear only once a survey
+  `InfoCard.Content` card holding its name, question, attachments, description,
+  2–10 unique options and its own multi-answer switch; `Add Step` appends
+  another (up to ten), the grip handle reorders them with `@dnd-kit`, and the
+  trash button removes one. The name, description, grip and trash appear only once a survey
   has more than one step, so a single-question survey looks unchanged.
+- Directly under the question, an `Attachments.Root` / `Uploader` / `Files` /
+  `Preview` block from `erxes-ui` uploads files for that question, bound to the
+  step's `attachments` field. The uploader hands back a `__typename`-free list,
+  the step's Zod schema caps it at `MAX_SURVEY_ATTACHMENTS` (5, matching the
+  API), and `surveySetupValuesAtom` maps each file down to `url`, `name`,
+  `type` and `size` before it reaches `surveyAdd` / `surveyEdit`, so no Apollo
+  metadata leaks into the mutation input.
 - Every option row carries a ticket-automation popover
   (`SurveyOptionTicketConfig`): a switch, a vote threshold, and the pipeline and
   status a triggered ticket lands in. The ticket's name is derived by the API
@@ -150,7 +181,9 @@
   the ticket was already created; that state is read-only in the UI.
 - The preview panel renders the wizard's live state through the real
   `MessageSurvey` component, so it shows exactly what a respondent will see, with
-  Desktop/Tablet/Mobile width toggles.
+  Desktop/Tablet/Mobile width toggles. `MessageSurvey` renders a step's
+  attachments under its question — an `image/*` file inline, anything else as a
+  paperclip link — so the inbox message and the wizard preview stay identical.
   `frontline/surveys` is read-only — a card board of aggregated `Survey.results`
   per survey, with status/search filters and no create control.
 - In a messenger conversation the composer's survey button opens
@@ -371,12 +404,15 @@
 | Mail delivery check      | `src/modules/integrations/mail/components/MailConnectionCheck.tsx`, `src/modules/integrations/mail/hooks/useMailConnectionCheck.tsx`              | Runs `mailCheckConnection` from the integration dialog and renders its verdict                                                                  |
 | Notifications            | `src/widgets/notifications/`                                                                                                                      | Notification remote entries                                                                                                                     |
 
-> > > > > > > f367b4a36cb66a9d80ba39450bef5cd15fd95d21
-
 ## Contracts
 
 ### Provides
 
+- Routes `frontline/forms` (list), `frontline/forms/create` (builder wizard),
+  `frontline/forms/:formId` (builder wizard on an existing form),
+  `frontline/forms/submissions/:formId` and `frontline/forms/preview`, all
+  registered in `FrontlineMain`; every one but `preview` renders inside the
+  `FormView` layout and its `FormPageHeader`.
 - Route `frontline/surveys` (registered in `config.tsx`, `FrontlineNavigation`,
   and `FrontlineMain`) — the read-only survey results board.
 - Settings route `settings/frontline/channels/:id/surveys` (registered in the
@@ -627,6 +663,18 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
 
 ## Local Invariants
 
+- The form builder runs under two route families — `frontline/forms/*` and
+  `settings/frontline/channels/:id/forms/*` — and tells them apart by the `id`
+  route param, never by a flag. `FormsCreateButton`, `FormMutateLayout`'s cancel
+  and `useFormMutate`'s post-save navigation each read `useParams().id` and fall
+  back to the `frontline/forms` path when it is absent; a new builder surface
+  must keep that fallback or it will strand the user in settings.
+- `useFormMutate` resolves the channel for a create as
+  `formDetail?.channelId || setup state channelId || :id param`. The setup
+  state's `channelId` comes from `formSetupValuesAtom`, which exposes it beside
+  `formValues` because `formsAdd` takes `channelId` as its own argument — do not
+  fold it into `formValues`, the edit path spreads those straight into
+  `formsEdit`.
 - A channel change on a resource goes through `channelMoveResources`, never
   through the resource's own edit mutation. The move mutation is the only path
   that validates the destination and cascades a pipeline's tickets and a form's
@@ -1395,6 +1443,111 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-23` — A survey question carries attachments
+
+- **Summary:** The Content step's question now has an attachments uploader
+  right under it, capped at five files per question, and `MessageSurvey` shows
+  those files with the question in both the wizard preview and the inbox
+  message.
+- **Affected areas:**
+  `src/modules/survey/components/mutate/SurveyStepCard.tsx`,
+  `src/modules/survey/components/mutate/SurveyPreview.tsx`,
+  `src/modules/survey/constants/{surveySetupSchema,surveySetupDefaultValues}.ts`,
+  `src/modules/survey/states/surveySetupStates.tsx`,
+  `src/modules/survey/graphql/{surveyQueries,surveyMutations}.ts`,
+  `src/modules/survey/types/surveyTypes.ts`,
+  `src/modules/inbox/conversation-messages/components/MessageSurvey.tsx`,
+  `src/modules/inbox/types/Conversation.ts`
+- **Contracts changed:** `surveyAdd` / `surveyEdit` steps are sent with
+  `attachments`, and the survey fragment reads `steps { attachments }`. New
+  i18n keys `survey-question-attachments` and
+  `survey-question-attachments-description` fall back to English until the
+  gateway locale carries them.
+
+### `2026-09-23` — Agents reject a survey request with a reason
+
+- **Summary:** The survey list's row menu and command bar reject a pending
+  client portal request through `SurveyRejectDialog`, which requires a written
+  reason; the request moves to the new `rejected` status instead of being
+  deleted, its badge is destructive and carries the reason as a tooltip, the
+  status filter offers `rejected`, and the row still offers `Approve` so the
+  decision can be reversed.
+- **Affected areas:**
+  `src/modules/survey/components/survey-page/SurveyRejectDialog.tsx`,
+  `src/modules/survey/components/survey-page/survey-columns.tsx`,
+  `src/modules/survey/components/survey-page/command-bar/survey-command-bar.tsx`,
+  `src/modules/survey/graphql/{surveyMutations,surveyQueries}.ts`,
+  `src/modules/survey/types/surveyTypes.ts`,
+  `src/modules/forms/components/form-page/filters/FormStatus.tsx`
+- **Contracts changed:** `surveyToggleStatus` is sent with `reason` and the
+  survey fragment reads `rejectionReason`. New i18n keys `survey-reject`,
+  `survey-rejected`, `survey-reject-description`, `survey-rejection-reason`
+  and `survey-rejection-reason-placeholder` fall back to English until the
+  gateway locale carries them.
+
+### `2026-09-22` — Radio/checkbox options are visible, full-width and editable in place
+
+- **Summary:** The shared `RadioGroup.Item` (`erxes-ui`) had no border in its
+  unchecked state, so every radio circle — in the form builder preview and in
+  the public form widget (`apps/frontline-widgets`) — was invisible until
+  checked; a `shadow-border` class the widget used to work around this did
+  nothing (no such Tailwind utility exists) and was removed once the shared
+  component carried its own `border border-scroll bg-background`. Radio,
+  `core:customer:sex` and `check` fields now always render at full row width
+  (`span`/`column` forced to `2`) with their options laid out two per row
+  instead of stacked in a single column. The builder's Options editor
+  (`FormFieldDetail.tsx`) was rebuilt from the `StringArrayInput` tag input,
+  which only supported add/remove, into a `PropertyFormSelectFields`-style
+  editable list with one `Input` per option so an existing option can be
+  corrected without deleting and retyping it.
+- **Affected areas:** `src/modules/forms/components/{FormPreview.tsx,
+  FormFieldDetail.tsx}`; outside the plugin:
+  `frontend/libs/erxes-ui/src/components/radio-group.tsx`,
+  `apps/frontline-widgets/src/app/form/components/ErxesForm.tsx`.
+- **Contracts changed:** None.
+
+### `2026-09-22` — Long field names no longer overflow, and edits need Save
+
+- **Summary:** A field's label had no `truncate`/`min-w-0` in the builder's
+  compact field card (`FormDndField.tsx`) or in the edit sheet's
+  `Sheet.Title` (`FormFieldDetail.tsx`), so a long name could stretch the
+  card past its grid column or push the sheet's close button off. Also,
+  `FormFieldDetail.tsx` used to call `handleChangeField` on every keystroke,
+  committing each edit straight into the live form state with no way to
+  discard it; it now edits a local `draft` and only commits via an explicit
+  Save button (the sheet's own close `X` discards unsaved changes by
+  unmounting the draft, so the redundant footer Close button was removed).
+- **Affected areas:** `src/modules/forms/components/{FormDndField.tsx,
+  FormFieldDetail.tsx}`
+- **Contracts changed:** None.
+
+### `2026-09-22` — Form preview stops flagging newly added fields as missing
+
+- **Summary:** `FormPreviewContent`'s `useForm` captured `defaultValues` only
+  at the step's first mount; adding a field afterward changed the live `schema`
+  and `defaultValues` props but not the form's registered values, so the new
+  field stayed `undefined` and Zod's required check on its non-optional type
+  (`z.string()`, `z.number()`, …) rejected it with `Required` on submit,
+  independent of the field's own `required` toggle. An effect now seeds
+  `form.setValue` for any field id missing from the current form values
+  whenever the step's field list changes.
+- **Affected areas:** `src/modules/forms/components/FormPreview.tsx`
+- **Contracts changed:** None.
+
+### `2026-09-22` — Form builder no longer crashes on stale fields or discards step reorders
+
+- **Summary:** The form preview rendered a `react-hook-form` `Controller` per
+  field keyed by `field.id`; a field left over from an older, incompatible
+  `localStorage` snapshot of `formContent` could have no `id`, which crashed
+  the whole builder with `Cannot read properties of undefined (reading
+  'substring')`. Separately, dragging a step in the builder called `setSteps`
+  to reorder it but fell through into the field-move branch below, which
+  re-derived the whole steps object from the pre-reorder `value` closure and
+  overwrote the move, so a dragged step snapped back to its original position.
+- **Affected areas:** `src/modules/forms/components/FormPreview.tsx`,
+  `src/modules/forms/components/FormDnd.tsx`
+- **Contracts changed:** None.
+
 ### `2026-09-22` — Reverted the incoming-call double-answer guard
 
 - **Summary:** Reverted `fix(frontline): stop double-answering an incoming
@@ -1407,6 +1560,23 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `src/modules/integrations/call/components/SipProvider.tsx`,
   `src/modules/integrations/call/components/IncomingCall.tsx`
 - **Contracts changed:** None.
+
+### `2026-09-21` — Forms can be created from the forms page
+
+- **Summary:** `frontline/forms` gained a `Create form` header button and a
+  `frontline/forms/create` route running the existing four-step builder, with
+  the channel picked in the wizard's General step instead of taken from a
+  settings URL.
+- **Affected areas:** `src/modules/FrontlineMain.tsx`,
+  `src/modules/forms/components/form-page/FormPageHeader.tsx`,
+  `src/modules/forms/components/form-page/forms-create.tsx`,
+  `src/modules/forms/components/form-page/FormPageList.tsx`,
+  `src/modules/forms/components/FormGeneral.tsx`,
+  `src/modules/types/FrontlinePaths.ts`,
+  `src/modules/forms/constants/formSchema.ts`,
+  `src/modules/forms/states/formSetupStates.tsx`,
+  `src/modules/forms/hooks/useFormMutate.ts`
+- **Contracts changed:** New route `frontline/forms/create`; no GraphQL change.
 
 ### `2026-09-21` — Move to channel on every channel-owned resource
 
@@ -1446,127 +1616,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 - **Affected areas:**
   `src/modules/inbox/conversations/conversation-detail/components/ConversationSideWidget.tsx`.
 - **Contracts changed:** `None`
-
-### `2026-09-20` — Frontline notifications show their icon in My Inbox
-
-- **Summary:** `CONFIG` now declares a top-level `icon`, so a frontline
-  notification in My Inbox renders the frontline mark instead of an empty
-  circle.
-- **Affected areas:** `src/config.tsx`
-- **Contracts changed:** `None`
-
-### `2026-09-17` — A help center picks the CMS behind its announcements
-
-- **Summary:** The help center drawer gained a CMS card whose select lists
-  every content CMS; picking one stores `cmsId` and the app token of that
-  CMS's client portal, so the published site lists that CMS's posts.
-- **Affected areas:**
-  `src/modules/helpcenter/{components/SelectHelpCenterCms.tsx,components/help-center-drawer/HelpCenterGeneralTab.tsx,graphql/queries/{getHelpCenterCmsOptions,getHelpCenters}.ts,types/index.ts,constants/index.ts,utils/toHelpCenterConfigInput.ts}`
-- **Contracts changed:** `HELP_CENTER_CONFIG_FIELDS` selects `cmsId` and
-  `cmsAppToken`; new query documents `frontlineHelpCenterCmsOptions` and
-  `frontlineHelpCenterCmsPortalToken`.
-
-### `2026-09-17` — The form editor opens forms without lead data
-
-- **Summary:** Opening a form whose `leadData` is `null` no longer crashes the
-  editor on `primaryColor`; it loads with default settings and its fields on
-  the default first step.
-- **Affected areas:**
-  `src/modules/forms/{states/formSetupStates.tsx,types/formTypes.ts}`
-- **Contracts changed:** `IForm.leadData` is typed `ILeadData | null`.
-
-### `2026-09-17` — A help center offers forms from its own channel
-
-- **Summary:** The help center drawer gained a Forms card, shown while tickets
-  are on, with its own optional channel select and a multi-select of that
-  channel's active forms, cleared when the channel changes; the General tab
-  was also restacked into full-width cards with two-column fields, equal
-  select heights, a `Name` label without the doubled asterisk, and the embed
-  script last.
-- **Affected areas:**
-  `src/modules/helpcenter/{components/SelectHelpCenterForms.tsx,components/help-center-drawer/HelpCenterGeneralTab.tsx,hooks/useEditHelpCenter.ts,graphql/queries/{getHelpCenterFormOptions,getHelpCenters}.ts,types/index.ts,constants/index.ts,utils/toHelpCenterConfigInput.ts}`
-- **Contracts changed:** `HELP_CENTER_CONFIG_FIELDS` selects `formChannelId`
-  and `formIds`; new query document
-  `frontlineHelpCenterFormOptions($channelId: String!, $limit: Int)`.
-
-### `2026-09-17` — Convert dialog honours Basic information settings
-
-- **Summary:** Priority, tags, start date and due date appear in the convert
-  dialog when their system field is `Visible to create`, respecting `Required`
-  and display logic.
-- **Affected areas:**
-  `src/modules/inbox/conversations/conversation-detail/components/convert/{ConvertDialog.tsx,ConvertSystemFields.tsx,convertForm.ts}`,
-  `src/modules/inbox/conversations/{graphql/queries/getConvertSystemFields.ts,graphql/mutations/conversationConvertToCard.ts,hooks/useConvertSystemFields.tsx,types/conversationConvert.ts}`
-- **Contracts changed:** New query document `FrontlineConvertSystemFields`;
-  `ConversationConvertToCard` now sends `priority`, `tagIds`, `startDate` and
-  `closeDate`.
-
-### `2026-09-17` — The conversation header converts into a ticket, deal or task
-
-- **Summary:** Added the Convert menu and a 1.x-style convert dialog for
-  tickets, deals and tasks with Settings → Properties fields and attachments,
-  plus `Go to a …` links for items a conversation was already converted into.
-- **Affected areas:**
-  `src/modules/inbox/conversations/conversation-detail/components/{ConversationHeader.tsx,convert/}`,
-  `src/modules/inbox/conversations/{graphql,hooks,types}/*onvert*`,
-  `src/modules/ticket/components/ticket-selects/SelectPipeline.tsx`,
-  `src/modules/pipelines/types/index.ts`
-- **Contracts changed:** `SelectPipeline.FormItem` accepts any form carrying a
-  `channelId` field; `IPipeline` declares `propertyIds` and
-  `isPropertySelectionConfigured`; consumes `conversationConvertToCard` (with
-  `customFieldsData` and `attachments`) and `conversationConvertedItems`.
-
-### `2026-09-17` — Pipeline delete reports why it failed
-
-- **Summary:** Deleting a pipeline that still has a ticket threw an
-  `ApolloError` with no `onError` handler, surfacing as an unhandled runtime
-  error in dev and silently doing nothing in production. `usePipelineRemove`
-  now shows a destructive toast with the server's message, and the delete
-  command's call site swallows the resulting promise rejection so it can't
-  reach the console as unhandled.
-- **Affected areas:** `src/modules/pipelines/hooks/usePipelineRemove.tsx`,
-  `src/modules/pipelines/components/PipelinesList.tsx`
-- **Contracts changed:** None.
-
-### `2026-09-15` — Several call integrations can be switched on
-
-- **Summary:** Call integration switches no longer turn each other off, and
-  `Call from` lists every switched-on integration by name.
-- **Affected areas:**
-  `src/modules/integrations/call/{hooks/useCallEnabledIntegrations.ts,components/{CallIntegrationDetail,SelectPhoneCallFrom,SipContainer,CallSipActions}.tsx,states/sipStates.ts,types/callTypes.ts,graphql/queries/callConfigQueries.ts}`
-- **Contracts changed:** `callUserIntegrations` also selects `name`; new
-  `localStorage` key `config:call_enabled_integrations`.
-
-### `2026-09-15` — The incoming call names its integration
-
-- **Summary:** The incoming-call popup shows the name of the integration the
-  call rang instead of the channel name.
-- **Affected areas:**
-  `src/modules/integrations/call/{components/IncomingCall,components/CallWidget,hooks/useAddCustomer,graphql/mutations/callMutations}.ts(x)`
-- **Contracts changed:** `CallAddCustomer` also selects
-  `integration { _id name }`.
-
-### `2026-09-15` — The call widget can clear its cached state
-
-- **Summary:** An eraser button in the dialpad header, behind a confirm, resets
-  every persisted call atom and sends the agent back to the call config picker,
-  so a stale config or SIP registration no longer needs manual `localStorage`
-  cleanup.
-- **Affected areas:**
-  `src/modules/integrations/call/components/CallSipActions.tsx`
-- **Contracts changed:** None.
-
-### `2026-09-14` — Help Center stops calling its records topics
-
-- **Summary:** The Help Center surface reused the knowledge base's `kb-*`
-  strings, so its create button, drawer title and empty state all said "topic"
-  while acting on help centers. Those five labels now use `helpcenter-*` keys
-  with inline English fallbacks, matching the `t(key, 'Default')` form already
-  used elsewhere in the plugin.
-- **Affected areas:** `src/pages/HelpCenterIndexPage.tsx`,
-  `src/modules/helpcenter/components/HelpCenterRecordTable.tsx`,
-  `src/modules/helpcenter/components/help-center-drawer/HelpCenterDrawer.tsx`
-- **Contracts changed:** None. The new `helpcenter-*` keys have no entry in
-  `backend/gateway/src/locales/{en,mn}/frontline.json`, which is outside the
-  plugin boundary, so they render from their inline fallbacks until those
-  translations are added as separate repository-level work.
