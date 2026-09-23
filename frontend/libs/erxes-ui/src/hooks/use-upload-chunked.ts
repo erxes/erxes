@@ -118,7 +118,7 @@ export const useUploadChunked = () => {
           }
 
           const start = index * CHUNK_SIZE;
-          const blob = file.slice(start, start + CHUNK_SIZE);
+          const blob = file.slice(start, start + CHUNK_SIZE, file.type);
 
           const formData = new FormData();
           formData.append('chunk', blob, `${file.name}.part${index}`);

@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-09-22`
+- **Last synchronized:** `2026-09-23`
 
 ## Scope
 
@@ -32,8 +32,9 @@
 - Knowledge base: topics, categories, articles, and the AI knowledge source
   provider that indexes articles.
 - Help centers: the client portal config record behind a published help center
-  site — its general settings (name, description, website, knowledge base and
-  ticket feature groups), its appearance (logo pair, surface colours, fonts,
+  site — its general settings (name, description, website, the knowledge base,
+  ticket and form feature groups, and the CMS behind its announcements), its
+  appearance (logo pair, surface colours, fonts,
   form-element colours, accent colour, cover image, raw header/footer markup),
   its header wording (wordmark, home/forms/announcements tab labels, search
   placeholder) and its footer content (logo, description, copyright line, link
@@ -96,6 +97,11 @@
   ledger carries `cpUserId` and a partial unique index on
   `(surveyId, cpUserId)` enforces it, so a repeat submit — even one choosing
   different options — returns `alreadyVoted` and writes nothing.
+- `cpSurveyVotes` reads back cast selections. It filters on `customerId` when
+  one is given and on the caller's `voterId` otherwise, so a portal that knows
+  only the erxes customer still gets that customer's votes even when the vote
+  was written under a different voter id; `conversationId` narrows either form
+  and at least one of the two arguments must be present.
 - A client portal user may also **request** a survey with `cpSurveyAdd`. The
   request is moderated, never live: `Surveys.createCpSurvey` forces
   `status: 'pending'`, stamps `createdCpUserId` instead of `createdUserId`, and
@@ -106,11 +112,59 @@
   and the ticket automation both refuse a non-`active` survey, so nothing
   reaches a customer until an agent approves it by moving the status to
   `active` through `surveyToggleStatus` (permission `surveyToggleStatus`; no new
-  action). `cpSurveyAdd` requires a `channelId` whose channel exists and holds
+  action). The same mutation **rejects** a request by moving it to `rejected`,
+  which `changeStatus` accepts only when every named survey is still `pending`
+  and only with a non-empty `reason`, stored on the survey as
+  `rejectionReason` (trimmed, capped at 500 characters) and served to the
+  requester through every survey read. A rejected survey stays invisible to
+  the portal's voting reads and cannot be sent to a conversation, but it is
+  kept rather than deleted so the requester keeps their work. Every other
+  status change clears `rejectionReason`, as does a requester's edit, so the
+  note never outlives the rejection that produced it.
+- Reviewing a request notifies the requester. `surveyToggleStatus` reads which
+  of the named surveys are client portal requests still waiting on a decision
+  (`createdCpUserId` set, status `pending` or `rejected`), and after the status
+  write sends each of those requesters one client portal notification over
+  tRPC — `Survey request approved` (`success`) or `Survey request rejected`
+  (`warning`, carrying `rejectionReason` as the message), both stamped
+  `contentType: 'frontline:survey'` with the survey `_id`. Archiving,
+  unarchiving or any change to a survey nobody requested notifies no one. The
+  notification is best effort: a failed tRPC call returns its `defaultValue`
+  instead of failing the mutation. `cpSurveyAdd` requires a `channelId` whose channel exists and holds
   an active messenger integration, and copies that integration's `brandId` onto
   the survey, so an approved request is votable rather than dead on arrival.
   `Survey.createdCpUser` resolves the requester's name over tRPC for the
   agent's approval queue.
+- Attachments belong to a **question**, not to the survey. Every step carries
+  up to `MAX_SURVEY_ATTACHMENTS` (5) files through `SurveyStepInput` and
+  `CpSurveyStepInput`, so agents and client portal requesters use the same
+  field. `normalizeSurveyAttachments` runs inside `normalizeSurveySteps`: it
+  drops an entry with a blank `url`, trims, falls back to the url for a missing
+  name, coerces `size` to a number, and throws past the limit rather than
+  silently truncating. The plugin stores metadata only — the file itself is
+  uploaded through core's file upload API before the mutation — and any step
+  write replaces that step's whole list. `SurveyStep.attachments` serves them
+  back, and `buildSurveySnapshot` copies them into the message snapshot, so a
+  respondent sees the files with the question they belong to.
+- `cpSurveyRequests` is the requester's own queue: it lists only surveys whose
+  `createdCpUserId` is the caller, in every status, so a portal can show a
+  request while it waits for approval and hand its `_id` to `cpSurveyEdit` or
+  `cpSurveyRemove`. `searchValue`, `channelId` and `status` narrow it, options
+  come back through the same voting-only projection as every other client
+  portal read, and a call without a signed-in client portal user is rejected.
+- The requester may revise or withdraw an unreviewed request with
+  `cpSurveyEdit` and `cpSurveyRemove`. Both go through
+  `Surveys.getCpSurveyRequest`, which refuses a survey whose
+  `createdCpUserId` is not the caller and one whose status is neither `pending`
+  nor `rejected`, so an approved or archived survey is an agent's to change
+  while a rejected one can still be revised or withdrawn by its requester. An
+  edit always writes the status back to `pending`, so revising a rejected
+  request resubmits it for review. An edit replays
+  the same voting-only projection and validation as `cpSurveyAdd` and holds
+  the status at `pending`; moving the request to another `channelId`
+  re-resolves that channel's active messenger integration and re-stamps
+  `brandId`. A remove deletes the survey through `Surveys.removeSurveys`, so
+  the vote ledger is cleaned with it.
 
 - A channel-owned resource moves between channels through one mutation,
   `channelMoveResources`. It covers integrations, ticket pipelines, forms,
@@ -195,6 +249,20 @@
   exposed to AI agents through `/agent-tools/manifest` and `/agent-tools/call`
   via `.meta(agentMeta(...))` annotations; every other procedure remains
   invisible to agents.
+- A help center config stores the published site's feature groups next to its
+  general settings: `kbToggle`/`kbTopicId` for the knowledge base,
+  `ticketToggle` with `ticketChannelId`/`ticketPipelineId`/`ticketStatusId`
+  plus `formChannelId`/`formIds` for tickets and forms, and `cmsId` with the
+  `cmsAppToken` of that CMS's client portal for the announcements the site
+  lists. `normalizeHelpCenterConfig` is the single validation gate for all of
+  them, composed from one normalizer per group (identity, knowledge base,
+  tickets, CMS): it requires a title, rejects a non-http(s) website, requires
+  `kbTopicId` when the knowledge base is on and a channel plus pipeline when
+  tickets are on, refuses a `cmsId` without an app token, blanks a disabled
+  group, and de-duplicates `formIds`. Forms are scoped to their channel on
+  write — `HelpCenterConfig.getChannelFormIds` drops every id that does not
+  belong to `formChannelId`, so a channel change cannot leave a stale form on
+  the site.
 - Contributes permissions, notifications, segments, references, and
   import/export handlers to the platform through `meta/`.
 - `widgetsMessengerConnect` stores messenger `companyData` on the core company
@@ -206,38 +274,39 @@
 
 ## Architecture
 
-| Area                 | Path                                                                        | Responsibility                                                                                                                                                                                         |
-| -------------------- | --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Bootstrap            | `src/main.ts`                                                               | `startPlugin({ name: 'frontline', port: 3304 })`, wires tRPC, routes, meta, and every surface                                                                                                          |
-| Models               | `src/connectionResolvers.ts`                                                | Per-subdomain model container for all modules                                                                                                                                                          |
-| GraphQL              | `src/apollo/`                                                               | Aggregated `typeDefs` and `resolvers` across modules                                                                                                                                                   |
-| tRPC                 | `src/init-trpc.ts`                                                          | `appRouter` for service-to-service calls                                                                                                                                                               |
-| Agent tool metadata  | `src/trpc/agentMeta.ts`                                                     | Local `agentMeta` helper for agent-callable tRPC annotations                                                                                                                                           |
-| HTTP                 | `src/routes.ts`                                                             | Mounts the `/facebook`, `/instagram`, `/mail`, and (when enabled) `/callpro` webhook routers                                                                                                           |
-| Platform extensions  | `src/meta/`                                                                 | automations, permissions, notifications, segments, references, import/export                                                                                                                           |
-| Channels             | `src/modules/channel/`                                                      | Channel + ChannelMember models, schema, resolvers, role checks                                                                                                                                         |
-| Inbox                | `src/modules/inbox/`                                                        | Conversations, messages, integrations, widget/clientportal schemas, `receiveInboxMessage`                                                                                                              |
-| Conversation queries | `src/conversationQueryBuilder.ts`, `src/modules/inbox/conversationUtils.ts` | Mongo and Elasticsearch conversation filters (membership-scoped)                                                                                                                                       |
-| Integrations         | `src/modules/integrations/<kind>/`                                          | facebook, instagram, mail, discord, call, callpro, trpc                                                                                                                                                |
-| Mail integration     | `src/modules/integrations/mail/`                                            | Inbound webhook, threading, outbound send/retry                                                                                                                                                        |
-| Mail transports      | `src/modules/integrations/mail/utils/transports/`                           | `index.ts` picks the Cloudflare account that signs for this workspace, `deliver.ts` runs the delivery pipeline (sender guard, suppression, delivery log), `cloudflare.ts` is the only `IMailTransport` |
-| Mail provisioning    | `src/modules/integrations/mail/utils/cloudflare/`                           | Cloudflare REST client, the fourteen-step provisioner, Email Sending onboarding and quota, the connection cache and its public shape                                                                   |
-| Mail worker bundle   | `src/modules/integrations/mail/worker/bundle.generated.ts`                  | The minified worker uploaded to a tenant's account, regenerated by `npm run bundle` in `cloudflare/mail-worker`                                                                                        |
-| Call Pro             | `src/modules/integrations/callpro/`                                         | `CALLPRO_ENABLED` gate, `/callpro/receive` webhook, mirrored line/caller/call, recording URL                                                                                                           |
-| Call reporting       | `src/modules/reports/callReportService.ts`                                  | CDR filter, leg-to-call folding, and the per-queue/agent/number report computation                                                                                                                     |
-| FB automation        | `src/modules/integrations/facebook/meta/automation/`                        | Comment/message triggers and actions, bot message generation                                                                                                                                           |
-| FB page posting      | `src/modules/integrations/facebook/postService.ts`, `postGuard.ts`          | Post publishing pipeline (validation, photo staging, cleanup, permalink) and its rate limit + audit log                                                                                                |
-| FB app resolution    | `src/modules/integrations/facebook/commonUtils.ts`                          | `resolveFacebookApp`, `facebookAppSelector`, `facebookAccountSelector`                                                                                                                                 |
-| Ticket               | `src/modules/ticket/`                                                       | Boards, pipelines, statuses, tickets, activities, notes                                                                                                                                                |
-| Conversation convert | `src/modules/inbox/services/conversationConvert{,Targets}.ts`               | Conversion orchestration and relations; one handler per target (permission, existing-item lookup, URL, create)                                                                                         |
-| Forms                | `src/modules/form/`                                                         | Forms, fields, submissions                                                                                                                                                                             |
-| Surveys              | `src/modules/survey/`                                                       | Survey definitions, vote ledger, message snapshot, tally refresh                                                                                                                                       |
-| Survey ticket automation | `src/modules/survey/ticketAutomation.ts`                                | Threshold evaluation, atomic single-ticket claim, ticket creation                                                                                                                                      |
-| Channel resource moves | `src/modules/channel/moveResources.ts`                                    | Per-type move descriptors, `validateChannelMove`, and the `moveChannelResources` service behind `channelMoveResources`                                                                                 |
-| Knowledge base       | `src/modules/knowledgebase/`                                                | Topics, categories, articles, AI knowledge source                                                                                                                                                      |
-| Help center          | `src/modules/helpcenter/`                                                   | Client portal configs: general settings and appearance for a published help center                                                                                                                     |
-| Reports              | `src/modules/reports/`                                                      | Inbox/ticket report aggregations, `buildTicketMatch`, and the saved `ReportCharts` model                                                                                                               |
-| Migrations           | `src/migrations/`                                                           | Plugin-owned data migrations                                                                                                                                                                           |
+| Area                     | Path                                                                        | Responsibility                                                                                                                                                                                         |
+| ------------------------ | --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Bootstrap                | `src/main.ts`                                                               | `startPlugin({ name: 'frontline', port: 3304 })`, wires tRPC, routes, meta, and every surface                                                                                                          |
+| Models                   | `src/connectionResolvers.ts`                                                | Per-subdomain model container for all modules                                                                                                                                                          |
+| GraphQL                  | `src/apollo/`                                                               | Aggregated `typeDefs` and `resolvers` across modules                                                                                                                                                   |
+| tRPC                     | `src/init-trpc.ts`                                                          | `appRouter` for service-to-service calls                                                                                                                                                               |
+| Agent tool metadata      | `src/trpc/agentMeta.ts`                                                     | Local `agentMeta` helper for agent-callable tRPC annotations                                                                                                                                           |
+| HTTP                     | `src/routes.ts`                                                             | Mounts the `/facebook`, `/instagram`, `/mail`, and (when enabled) `/callpro` webhook routers                                                                                                           |
+| Platform extensions      | `src/meta/`                                                                 | automations, permissions, notifications, segments, references, import/export                                                                                                                           |
+| Channels                 | `src/modules/channel/`                                                      | Channel + ChannelMember models, schema, resolvers, role checks                                                                                                                                         |
+| Inbox                    | `src/modules/inbox/`                                                        | Conversations, messages, integrations, widget/clientportal schemas, `receiveInboxMessage`                                                                                                              |
+| Conversation queries     | `src/conversationQueryBuilder.ts`, `src/modules/inbox/conversationUtils.ts` | Mongo and Elasticsearch conversation filters (membership-scoped)                                                                                                                                       |
+| Integrations             | `src/modules/integrations/<kind>/`                                          | facebook, instagram, mail, discord, call, callpro, trpc                                                                                                                                                |
+| Mail integration         | `src/modules/integrations/mail/`                                            | Inbound webhook, threading, outbound send/retry                                                                                                                                                        |
+| Mail transports          | `src/modules/integrations/mail/utils/transports/`                           | `index.ts` picks the Cloudflare account that signs for this workspace, `deliver.ts` runs the delivery pipeline (sender guard, suppression, delivery log), `cloudflare.ts` is the only `IMailTransport` |
+| Mail provisioning        | `src/modules/integrations/mail/utils/cloudflare/`                           | Cloudflare REST client, the fourteen-step provisioner, Email Sending onboarding and quota, the connection cache and its public shape                                                                   |
+| Mail worker bundle       | `src/modules/integrations/mail/worker/bundle.generated.ts`                  | The minified worker uploaded to a tenant's account, regenerated by `npm run bundle` in `cloudflare/mail-worker`                                                                                        |
+| Call Pro                 | `src/modules/integrations/callpro/`                                         | `CALLPRO_ENABLED` gate, `/callpro/receive` webhook, mirrored line/caller/call, recording URL                                                                                                           |
+| Call reporting           | `src/modules/reports/callReportService.ts`                                  | CDR filter, leg-to-call folding, and the per-queue/agent/number report computation                                                                                                                     |
+| FB automation            | `src/modules/integrations/facebook/meta/automation/`                        | Comment/message triggers and actions, bot message generation                                                                                                                                           |
+| FB page posting          | `src/modules/integrations/facebook/postService.ts`, `postGuard.ts`          | Post publishing pipeline (validation, photo staging, cleanup, permalink) and its rate limit + audit log                                                                                                |
+| FB app resolution        | `src/modules/integrations/facebook/commonUtils.ts`                          | `resolveFacebookApp`, `facebookAppSelector`, `facebookAccountSelector`                                                                                                                                 |
+| Ticket                   | `src/modules/ticket/`                                                       | Boards, pipelines, statuses, tickets, activities, notes                                                                                                                                                |
+| Conversation convert     | `src/modules/inbox/services/conversationConvert{,Targets}.ts`               | Conversion orchestration and relations; one handler per target (permission, existing-item lookup, URL, create)                                                                                         |
+| Forms                    | `src/modules/form/`                                                         | Forms, fields, submissions                                                                                                                                                                             |
+| Surveys                  | `src/modules/survey/`                                                       | Survey definitions, vote ledger, message snapshot, tally refresh                                                                                                                                       |
+| Pipeline mail            | `src/modules/integrations/mail/utils/{pipeline,tickets,scope}.ts`           | A ticket pipeline's own address: its settings, the status new mail opens a ticket in, and ticket creation from an inbound message                                                                      |
+| Survey ticket automation | `src/modules/survey/ticketAutomation.ts`                                    | Threshold evaluation, atomic single-ticket claim, ticket creation                                                                                                                                      |
+| Knowledge base           | `src/modules/knowledgebase/`                                                | Topics, categories, articles, AI knowledge source                                                                                                                                                      |
+| Help center              | `src/modules/helpcenter/`                                                   | Client portal configs: general settings and appearance for a published help center                                                                                                                     |
+| Reports                  | `src/modules/reports/`                                                      | Inbox/ticket report aggregations, `buildTicketMatch`, and the saved `ReportCharts` model                                                                                                               |
+| Survey notifications     | `src/modules/survey/notifications.ts`                                       | Client portal notification for an approved or rejected survey request                                                                                                                                  |
+| Migrations               | `src/migrations/`                                                           | Plugin-owned data migrations                                                                                                                                                                           |
 
 ## Contracts
 
@@ -252,11 +321,39 @@
   — a signed-in client portal user's survey request, created as `pending`.
   `CpSurveyOptionInput` carries `text` and `order` only; there is no client
   portal input that can set an option's ticket-automation fields.
+  `CpSurveyStepInput.attachments: [AttachmentInput]` attaches files to a
+  question and `SurveyStep.attachments: [Attachment]` returns them.
+- `cpSurveyRequests(searchValue: String, channelId: String, status: String, limit, cursor, direction, cursorMode, orderBy): SurveyListResponse`
+  — the caller's own survey requests in every status, newest first by default.
+- `cpSurveyEdit(_id: String!, title: String!, channelId: String, question: String, options: [CpSurveyOptionInput!], steps: [CpSurveyStepInput!], allowMultiselect: Boolean, durationHours: Int): Survey`
+  — the requester's own revision of a still-`pending` or `rejected` request;
+  `channelId` is optional and keeps the current channel when omitted.
+- `cpSurveyRemove(_id: String!): String` — the requester withdraws a
+  still-`pending` request and gets the removed `_id` back.
+- GraphQL: help center configs — `helpCenterConfig(_id)`,
+  `helpCenterConfigs(page, perPage, searchValue, brandId)`,
+  `helpCenterConfigsTotalCount(searchValue, brandId)`,
+  `helpCenterGetConfigByDomain(clientPortalName)` (the published site's own
+  bootstrap read, the one operation in this module that skips the permission
+  check), `helpCenterConfigUpdate(config: HelpCenterConfigInput!)`
+  (create-or-update, keyed on `config._id`) and `helpCenterConfigRemove(_id)`.
+  Reads check `showHelpCenter`, writes check `helpCenterManage`.
+  `HelpCenterConfig` and `HelpCenterConfigInput` both carry `formChannelId`,
+  `formIds`, `cmsId` and `cmsAppToken` alongside the ticket and knowledge base
+  fields.
 - Plugin meta `properties` (`src/meta/properties.ts`) — the `conversation` and
   `ticket` property types, each with the `systemFields` (`code`, `name`, `type`)
   core lists as the read-only "Basic information" group in Settings →
   Properties. A `code` must name a real field on the record; core-api reads
   this meta once per process, so a changed list shows after core-api restarts.
+- GraphQL: `mailPipelineConnect(pipelineId!, senderName, forwardFrom, statusId)`
+  and `mailPipelineUpdate(pipelineId!, senderName, forwardFrom, statusId)` —
+  `statusId` names the status a new mail ticket opens in and must belong to that
+  pipeline or the mutation fails; an empty string clears it and an omitted
+  argument on update leaves it unchanged. `MailPipelineIntegration.statusId`
+  answers an empty string once that status no longer belongs to the pipeline, so
+  a form never resubmits a deleted status, and inbound mail falls back to the
+  pipeline's first status, sorted by `type` then `order`.
 
 ### Consumes
 
@@ -267,6 +364,13 @@
   `conformity.create`, and `fields.generatePropertiesData`, which splits
   messenger `companyData` into `propertiesData` for keys that match a Core
   `core:company` field and `trackedData` for every remaining key.
+- `core` over tRPC — `cpNotifications.create`
+  (mutation, `{ cpUserIds, clientPortalId, eventType, data }`), which files a
+  client portal notification for a survey requester. `data.type` must be one
+  of `info | success | warning | error`, and `kind: 'system'` with
+  `allowMultiple: true` keeps each review outcome a separate notification
+  instead of overwriting the previous one for the same `contentTypeId`. The
+  `clientPortalId` comes from `cpUsers.get`, not from the survey.
 - `automations` over tRPC — `automations.trigger`. The path is
   `automations.trigger`, not `triggers.trigger`; `sendTRPCMessage` swallows a
   wrong path or a query/mutation mismatch and returns `defaultValue`, so a
@@ -286,6 +390,88 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-23` — A survey question carries attachments
+
+- **Summary:** Each survey step takes up to five `AttachmentInput` files,
+  normalized inside `normalizeSurveySteps`, stored on the step, served back as
+  `SurveyStep.attachments` and copied into the conversation snapshot so a
+  respondent sees them with the question. Agents (`SurveyStepInput`) and
+  client portal requesters (`CpSurveyStepInput`) use the same field.
+- **Affected areas:** `src/modules/survey/db/definitions/surveys.ts`,
+  `src/modules/survey/db/models/Surveys.ts`,
+  `src/modules/survey/@types/survey.ts`,
+  `src/modules/survey/utils.ts`,
+  `src/modules/survey/graphql/schema/survey.ts`
+- **Contracts changed:** `SurveyStepInput` and `CpSurveyStepInput` take
+  `attachments: [AttachmentInput]`; `SurveyStep` exposes
+  `attachments: [Attachment]`; the survey-level `Survey.attachments` field and
+  the `cpSurveyAdd` / `cpSurveyEdit` `attachments` arguments added earlier the
+  same day are gone.
+
+### `2026-09-23` — Agents reject a survey request with a reason, and the requester is told
+
+- **Summary:** Survey status gains `rejected`; `surveyToggleStatus` moves a
+  request there only from `pending` and only with a non-empty `reason`, which
+  is stored and served as `Survey.rejectionReason` and cleared by any later
+  status change or requester edit. Approving or rejecting a request now also
+  files a client portal notification for its requester over `core`'s
+  `cpNotifications.create`. `surveyTotalCount.byStatus` reports the
+  count, the portal's voting reads keep ignoring it, and its requester may
+  still edit it — which resubmits it as `pending` — or remove it.
+- **Affected areas:** `src/modules/survey/db/definitions/surveys.ts`,
+  `src/modules/survey/db/models/Surveys.ts`,
+  `src/modules/survey/@types/survey.ts`,
+  `src/modules/survey/notifications.ts`,
+  `src/modules/survey/graphql/schema/survey.ts`,
+  `src/modules/survey/graphql/resolvers/mutations/surveys.ts`,
+  `src/modules/survey/graphql/resolvers/queries/surveys.ts`
+- **Contracts changed:** `surveyToggleStatus` accepts `reason: String`;
+  `Survey` exposes `rejectionReason: String`; survey `status` accepts
+  `rejected` and `surveyTotalCount.byStatus` reports a `rejected` count.
+
+### `2026-09-23` — A client portal user manages their own survey requests
+
+- **Summary:** `cpSurveyRequests` lists the caller's own requests in every
+  status, and `cpSurveyEdit` / `cpSurveyRemove` let the requester revise or
+  delete one while it is still `pending`; both mutations refuse another user's
+  request and a request that has already been approved or archived, an edit
+  keeps the voting-only projection and the `pending` status and re-stamps
+  `brandId` when the channel changes, and a remove clears the vote ledger with
+  the survey.
+- **Affected areas:** `src/modules/survey/db/models/Surveys.ts`,
+  `src/modules/survey/graphql/resolvers/mutations/clientPortal.ts`,
+  `src/modules/survey/graphql/resolvers/queries/clientPortal.ts`,
+  `src/modules/survey/graphql/schema/survey.ts`
+- **Contracts changed:** added query `cpSurveyRequests` and mutations
+  `cpSurveyEdit` and `cpSurveyRemove`.
+
+### `2026-09-23` — `cpSurveyVotes` reads a customer's votes
+
+- **Summary:** `cpSurveyVotes` takes `conversationId`, `customerId` or both;
+  a `customerId` returns that customer's vote selections regardless of the
+  caller's voter id, while a `customerId`-less call keeps the previous
+  caller-scoped `voterId` filter, and a call with neither argument is rejected.
+- **Affected areas:**
+  `src/modules/survey/graphql/resolvers/queries/clientPortal.ts`,
+  `src/modules/survey/graphql/schema/survey.ts`
+- **Contracts changed:** `cpSurveyVotes(conversationId: String, customerId: String)`
+  — `conversationId` is no longer required.
+
+### `2026-09-22` — A help center stores its forms and the CMS behind its announcements
+
+- **Summary:** A help center config now keeps the ticket channel's forms
+  (`formChannelId`, `formIds`) and the content CMS its announcements come from
+  (`cmsId`, `cmsAppToken`); `normalizeHelpCenterConfig` was split into one
+  normalizer per group (identity, knowledge base, tickets, CMS), which refuses
+  a `cmsId` without an app token and de-duplicates `formIds`, and
+  `HelpCenterConfig.getChannelFormIds` drops on write every form that does not
+  belong to `formChannelId`.
+- **Affected areas:**
+  `src/modules/helpcenter/{@types/helpCenterConfig,db/definitions/helpCenterConfig,db/models/HelpCenterConfig,graphql/schemas/helpCenterConfig,utils/helpCenterConfig}.ts`
+- **Contracts changed:** `HelpCenterConfig` and `HelpCenterConfigInput` gained
+  `formChannelId`, `formIds`, `cmsId` and `cmsAppToken`;
+  `frontline_help_center_configs` carries the same four fields.
 
 ### `2026-09-22` — Client portal users request surveys for approval
 
@@ -307,6 +493,20 @@
   `Survey.createdCpUserId` / `Survey.createdCpUser`; survey `status` accepts
   `pending` and `surveyTotalCount.byStatus` now reports it.
 
+### `2026-09-21` — A pipeline address chooses the status its tickets open in
+
+- **Summary:** A pipeline's mail row can name the status a new mail ticket opens
+  in; it is validated against the pipeline on connect and update, and an empty
+  or since-deleted status falls back to the pipeline's first status, now picked
+  by `type` then `order` instead of `order` alone.
+- **Affected areas:** `src/modules/integrations/mail/utils/{pipeline,tickets}.ts`,
+  `src/modules/integrations/mail/controller/receiveMessage.ts`,
+  `src/modules/integrations/mail/graphql/resolvers/customResolvers/pipelineIntegration.ts`,
+  `src/modules/integrations/mail/{@types/integration,db/definitions/integrations,graphql/schema/mail}.ts`
+- **Contracts changed:** `mailPipelineConnect` and `mailPipelineUpdate` accept
+  `statusId: String`; `MailPipelineIntegration` exposes `statusId`;
+  `mail_integrations` carries `statusId`.
+
 ### `2026-09-21` — Channel-owned resources move between channels
 
 - **Summary:** Added `channelMoveResources`, one mutation that moves
@@ -325,7 +525,6 @@
   `project.json`
 - **Contracts changed:** Added mutation `channelMoveResources`, enum
   `ChannelResourceType` and type `ChannelMoveResourcesResult`.
-
 
 ### `2026-09-21` — Messenger company writes actually reach Core
 
@@ -355,76 +554,3 @@
   Properties.
 - **Affected areas:** `src/meta/properties.ts`, `src/main.ts`
 - **Contracts changed:** Plugin meta `properties.types[].systemFields` added.
-
-### `2026-09-17` — Conversations convert into tickets, deals and tasks
-
-- **Summary:** `conversationConvertToCard` stopped echoing its arguments and now
-  creates the ticket, deal or task, relates it to the conversation and
-  customer, and blocks a duplicate; `conversationConvertedItems` reports what a
-  conversation was already converted into.
-- **Affected areas:** `src/modules/inbox/services/conversationConvert{,Targets}.ts`,
-  `src/modules/inbox/@types/conversationConvert.ts`,
-  `src/modules/inbox/graphql/{schemas/conversation,resolvers/mutations/conversations,resolvers/queries/conversations}.ts`,
-  `src/meta/permissions.ts`
-- **Contracts changed:** `conversationConvertToCard` dropped `itemId`, gained
-  `tagIds`, `branchIds`, `departmentIds`, and now enforces permissions; added
-  `conversationConvertedItems` and `ConversationConvertedItem`; the
-  `frontline:user` group gained `conversationConvertToCard`.
-
-### `2026-09-15` — Call user integrations carry their name
-
-- **Summary:** `callUserIntegrations` returns each integration's inbox name so
-  the dialpad's `Call from` can tell integrations on one phone apart.
-- **Affected areas:** `src/modules/integrations/call/graphql/{schema/call,resolvers/queries}.ts`
-- **Contracts changed:** `CallsIntegrationDetailResponse` gains `name: String`.
-
-### `2026-09-15` — An incoming call names the integration it rang
-
-- **Summary:** `callAddCustomer` also returns the matched inbox integration's
-  `_id` and `name`, so agents on a shared trunk see which integration a call
-  came in on rather than its channel.
-- **Affected areas:** `src/modules/integrations/call/graphql/{schema/call,resolvers/mutations}.ts`
-- **Contracts changed:** `CallConversationDetail` gains
-  `integration: CallConversationIntegration` (`_id`, `name`); new type
-  `CallConversationIntegration`.
-
-### `2026-09-15` — Call integrations may share a trunk
-
-- **Summary:** `srcTrunk`, `dstTrunk` and `phone` are no longer unique, so
-  integrations on one trunk can be split by queue; blank queue input is
-  stored as `[]` and the queue index ignores empty queue lists.
-- **Affected areas:** `src/modules/integrations/call/{indexes,helpers,utils}.ts`,
-  `src/modules/integrations/call/db/definitions/integrations.ts`
-- **Contracts changed:** `Duplicate srcTrunk detected.` and
-  `Duplicate dstTrunk detected.` are no longer returned by
-  `integrationsCreateExternalIntegration` or integration edit.
-
-### `2026-09-10` — Polls became surveys, database included
-
-- **Summary:** The whole feature was renamed from poll to survey — module,
-  models, GraphQL contract, permissions, the `frontline_surveys` /
-  `frontline_survey_votes` collections, `conversations.hasSurvey`,
-  `extraData.survey` and `Ticket.sourceSurvey` — with
-  `src/migrations/migratePollToSurvey.ts` moving existing data. Discord's own
-  polls were deliberately left on `extraData.poll`.
-- **Affected areas:** `src/modules/survey/**` (was `src/modules/poll/**`),
-  `src/apollo/**`, `src/connectionResolvers.ts`, `src/conversationQueryBuilder.ts`,
-  `src/meta/permissions.ts`, `src/modules/inbox/**`, `src/modules/ticket/**`,
-  `src/migrations/migrate{PollToSurvey,SurveySteps}.ts`.
-- **Contracts changed:** Every `poll*` / `cpPoll*` operation and every `Poll*`
-  type was renamed to `survey*` / `cpSurvey*` / `Survey*`; `withPoll` became
-  `withSurvey`; `Ticket.sourcePoll` became `Ticket.sourceSurvey`.
-
-### `2026-09-10` — An agent's note threads as a mail reply
-
-- **Summary:** A note mailed to the requester carried no `In-Reply-To` or
-  `References`, so it arrived as a new conversation despite the `Re:` subject.
-  The note-out path now threads on the ticket's latest inbound message, falling
-  back to its latest message when the ticket has none. The helper module was
-  renamed from `comments.ts` to `notes.ts`, with `mailTicketComment` and
-  `commentFromMail` becoming `mailTicketNote` and `noteFromMail`, so the names
-  match the `Note` model they have always written.
-- **Affected areas:** `src/modules/integrations/mail/utils/notes.ts`,
-  `src/modules/integrations/mail/controller/receiveMessage.ts`,
-  `src/modules/ticket/graphql/resolvers/mutations/note.ts`
-- **Contracts changed:** `None`

@@ -76,7 +76,12 @@ export const TaskDetails = ({
         {task && <TaskFields task={task} />}
         {triage && <TriageFields triage={triage} />}
       </div>
-      {task && <TaskSideWidgets contentId={task._id} />}
+      {task && (
+        <TaskSideWidgets
+          contentId={task._id}
+          propertiesData={task.propertiesData}
+        />
+      )}
     </div>
   );
 };

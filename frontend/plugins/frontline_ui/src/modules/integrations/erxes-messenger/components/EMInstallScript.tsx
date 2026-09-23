@@ -23,10 +23,10 @@ export function EMInstallScript({ integrationId }: Props) {
   };
 
   (function () {
-    const script = document.createElement("script");
+    var script = document.createElement("script");
     script.src = "${API}/messengerBundle.js";
     script.async = true;
-    const entry = document.getElementsByTagName("script")[0];
+    var entry = document.getElementsByTagName("script")[0];
     entry.parentNode.insertBefore(script, entry);
   })();
 </script>`;
@@ -95,7 +95,9 @@ export function EMInstallScript({ integrationId }: Props) {
             </div>
 
             <Badge variant="info" className="block w-full h-auto p-3">
-              <h4 className="font-medium text-sm mb-2">{t('installation-steps')}</h4>
+              <h4 className="font-medium text-sm mb-2">
+                {t('installation-steps')}
+              </h4>
               <ol className="text-sm space-y-1 list-decimal list-inside text-muted-foreground">
                 <li>{t('installation-step-1')}</li>
                 <li>{t('installation-step-2')}</li>

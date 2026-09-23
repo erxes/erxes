@@ -1,11 +1,18 @@
-import { IconCheck, IconSquareToggle, IconTrash } from '@tabler/icons-react';
+import {
+  IconCheck,
+  IconCircleX,
+  IconSquareToggle,
+  IconTrash,
+} from '@tabler/icons-react';
 import { Row } from '@tanstack/table-core';
 import { Button, CommandBar, RecordTable, Separator, toast } from 'erxes-ui';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   useSurveyRemove,
   useSurveyToggleStatus,
 } from '@/survey/hooks/useSurveyMutations';
+import { SurveyRejectDialog } from '@/survey/components/survey-page/SurveyRejectDialog';
 import { ISurvey, SURVEY_STATUS } from '@/survey/types/surveyTypes';
 import { MoveToChannelCommandBarButton } from '@/channels/components/move-resources/MoveToChannelCommandBarButton';
 import { ChannelResourceType } from '@/channels/types';
@@ -13,6 +20,7 @@ import { ChannelResourceType } from '@/channels/types';
 export const SurveyCommandBar = () => {
   const { t } = useTranslation('frontline');
   const { table } = RecordTable.useRecordTable();
+  const [rejectOpen, setRejectOpen] = useState(false);
   const { removeSurveys, loading: removing } = useSurveyRemove();
   const { toggleSurveyStatus, loading: toggling } = useSurveyToggleStatus();
 
@@ -24,6 +32,13 @@ export const SurveyCommandBar = () => {
   const pendingIds = selectedRows
     .filter(
       (row: Row<ISurvey>) => row.original.status === SURVEY_STATUS.PENDING,
+    )
+    .map((row: Row<ISurvey>) => row.original._id);
+  const reviewableIds = selectedRows
+    .filter((row: Row<ISurvey>) =>
+      [SURVEY_STATUS.PENDING, SURVEY_STATUS.REJECTED].some(
+        (status) => status === row.original.status,
+      ),
     )
     .map((row: Row<ISurvey>) => row.original._id);
 
@@ -49,7 +64,7 @@ export const SurveyCommandBar = () => {
 
   const handleApprove = () =>
     toggleSurveyStatus({
-      variables: { _ids: pendingIds, status: SURVEY_STATUS.ACTIVE },
+      variables: { _ids: reviewableIds, status: SURVEY_STATUS.ACTIVE },
       onCompleted: () => {
         table.resetRowSelection();
         toast({
@@ -74,7 +89,7 @@ export const SurveyCommandBar = () => {
           {t('n-selected', { count: selectedRows.length })}
         </CommandBar.Value>
         <Separator.Inline />
-        {pendingIds.length > 0 && (
+        {reviewableIds.length > 0 && (
           <Button
             variant="secondary"
             onClick={handleApprove}
@@ -82,6 +97,16 @@ export const SurveyCommandBar = () => {
           >
             <IconCheck />
             {t('survey-approve', 'Approve')}
+          </Button>
+        )}
+        {pendingIds.length > 0 && (
+          <Button
+            variant="secondary"
+            onClick={() => setRejectOpen(true)}
+            disabled={toggling}
+          >
+            <IconCircleX />
+            {t('survey-reject', 'Reject')}
           </Button>
         )}
         <Button variant="secondary" onClick={handleArchive} disabled={toggling}>
@@ -103,6 +128,12 @@ export const SurveyCommandBar = () => {
           {t('remove')}
         </Button>
       </CommandBar.Bar>
+      <SurveyRejectDialog
+        open={rejectOpen}
+        onOpenChange={setRejectOpen}
+        surveyIds={pendingIds}
+        onRejected={() => table.resetRowSelection()}
+      />
     </CommandBar>
   );
 };

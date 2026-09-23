@@ -1,6 +1,7 @@
 import {
   IconCircleCheck,
   IconCircleDashed,
+  IconCircleX,
   IconClock,
   IconSquareToggle,
 } from '@tabler/icons-react';
@@ -19,6 +20,7 @@ import { useTranslation } from 'react-i18next';
 const STATUS_LABELS: Record<string, string> = {
   pending: 'Pending',
   active: 'Active',
+  rejected: 'Rejected',
   archived: 'Archived',
 };
 
@@ -106,10 +108,14 @@ const Item = () => {
 
 const STATUS_BADGES: Record<
   string,
-  { variant: 'success' | 'warning' | 'secondary'; icon: typeof IconCircleCheck }
+  {
+    variant: 'success' | 'warning' | 'destructive' | 'secondary';
+    icon: typeof IconCircleCheck;
+  }
 > = {
   active: { variant: 'success', icon: IconCircleCheck },
   pending: { variant: 'warning', icon: IconClock },
+  rejected: { variant: 'destructive', icon: IconCircleX },
 };
 
 const StatusBadge = ({ status }: { status: string }) => {

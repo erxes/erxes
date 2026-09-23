@@ -14,19 +14,21 @@ export const setAppTokenReader = (reader: () => string): void => {
 };
 
 export const { getClient, query, PreloadQuery } = registerApolloClient(() => {
-  const authLink = new SetContextLink(({ headers, apiUrl }) => {
-    const appToken = readAppToken();
+  const authLink = new SetContextLink(
+    ({ headers, apiUrl, appToken: operationAppToken }) => {
+      const appToken: string = operationAppToken || readAppToken();
 
-    const resolved: string = apiUrl || readApiUrl();
+      const resolved: string = apiUrl || readApiUrl();
 
-    return {
-      uri: `${resolved}/graphql`,
-      headers: {
-        ...headers,
-        ...(appToken ? { 'x-app-token': appToken } : {}),
-      },
-    };
-  });
+      return {
+        uri: `${resolved}/graphql`,
+        headers: {
+          ...headers,
+          ...(appToken ? { 'x-app-token': appToken } : {}),
+        },
+      };
+    },
+  );
 
   const httpLink = new HttpLink({
     uri: `${readApiUrl()}/graphql`,
