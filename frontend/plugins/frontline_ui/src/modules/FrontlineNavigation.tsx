@@ -19,7 +19,6 @@ export const FrontlineNavigation = () => {
 
 export const FrontlineDestinationLinks = () => {
   const { t } = useTranslation('frontline');
-  const teamInboxLabel = t('team-inbox', 'Team Inbox');
   const navigate = (path: string) => {
     window.history.pushState(null, '', path);
     window.dispatchEvent(new PopStateEvent('popstate'));
@@ -28,7 +27,7 @@ export const FrontlineDestinationLinks = () => {
   return (
     <>
       <NavigationMenuLinkItem
-        name={teamInboxLabel === 'Team inbox' ? 'Team Inbox' : teamInboxLabel}
+        name={t('team-inbox', 'Team Inbox')}
         icon={IconMail}
         path="frontline/inbox"
       >
