@@ -1,4 +1,4 @@
-import validator from 'validator';
+import escape from 'validator/lib/escape';
 import { sendFacebookReplyParts } from '@/integrations/facebook/services/sendReplyParts';
 import type { FacebookReplyPart } from '@/integrations/facebook/@types/replyDelivery';
 import { stripHtml } from 'string-strip-html';
@@ -265,7 +265,7 @@ const handleFacebookMessengerReply = async (
   );
   const strippedContent = sanitizeMessageHtml(content);
   const textContent = strippedContent
-    ? `<p>${validator.escape(strippedContent).replace(/\n/g, '<br/>')}</p>`
+    ? `<p>${escape(strippedContent).replace(/\n/g, '<br/>')}</p>`
     : '';
   const conversation = await models.FacebookConversations.getConversation({
     erxesApiId: conversationId,
