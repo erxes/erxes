@@ -702,14 +702,17 @@ export const conversationMutations = {
           );
         }
 
+        let contentOverride: { content?: string } = {};
+        if (forwardedSnapshot) {
+          contentOverride = { content: extraInfo?.forwardedNote || '' };
+        } else if (displayContent) {
+          contentOverride = { content: displayContent };
+        }
+
         const messageDoc: typeof doc & { extraData?: Record<string, unknown> } =
           {
             ...doc,
-            ...(forwardedSnapshot
-              ? { content: extraInfo?.forwardedNote || '' }
-              : displayContent
-              ? { content: displayContent }
-              : {}),
+            ...contentOverride,
             ...(extraData || forwardedSnapshot
               ? {
                   extraData: {

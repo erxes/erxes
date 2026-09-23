@@ -1,7 +1,6 @@
 import { generateModels } from '~/connectionResolvers';
 import { handleDiscordMessage } from '@/integrations/discord/handleDiscordMessage';
-import { sanitizeToken } from '@/integrations/discord/utils';
-import { getErrorMessage } from '@/integrations/discord/utils';
+import { getErrorMessage, sanitizeToken } from '@/integrations/discord/utils';
 import {
   connectDiscordBot,
   connectDiscordToken,

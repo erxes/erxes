@@ -3,6 +3,7 @@ import {
   getApplicationInfo,
   getChannel,
   getCurrentBotUser,
+  getErrorMessage,
   getGuild,
   hasMessageContentIntent,
   hasServerMembersIntent,
@@ -11,7 +12,6 @@ import {
   normalizeMemberQuery,
   sanitizeToken,
 } from '@/integrations/discord/utils';
-import { getErrorMessage } from '@/integrations/discord/utils';
 import { debugError } from '@/integrations/discord/debuggers';
 import { DISCORD_INBOX_KIND } from '@/integrations/discord/constants';
 import { getChannelMemberViewers } from '@/integrations/discord/channelAccess';

@@ -3,6 +3,7 @@ import { stripHtml } from 'string-strip-html';
 import type { IModels } from '~/connectionResolvers';
 import {
   DiscordApiError,
+  getErrorMessage,
   getDiscordUser,
   resolveAttachmentUrl,
   sendChannelMessage,
@@ -12,12 +13,9 @@ import {
   removeChannelMessageReaction,
   pinChannelMessage,
   unpinChannelMessage,
+  type DiscordMessageAttachment,
+  type DiscordPollRequest,
 } from '@/integrations/discord/utils';
-import type {
-  DiscordMessageAttachment,
-  DiscordPollRequest,
-} from '@/integrations/discord/utils';
-import { getErrorMessage } from '@/integrations/discord/utils';
 import { graphqlPubsub } from 'erxes-api-shared/utils';
 import {
   normalizeDiscordEmbeds,

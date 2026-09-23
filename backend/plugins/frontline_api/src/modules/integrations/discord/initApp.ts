@@ -18,8 +18,11 @@ import {
   receiveDiscordTyping,
 } from '@/integrations/discord/controller/receiveEvents';
 import { IDiscordBotDocument } from '@/integrations/discord/@types/bot';
-import { getChannel, isThreadChannel } from '@/integrations/discord/utils';
-import { getErrorMessage } from '@/integrations/discord/utils';
+import {
+  getChannel,
+  getErrorMessage,
+  isThreadChannel,
+} from '@/integrations/discord/utils';
 import { backfillChannelHistory } from '@/integrations/discord/backfill';
 import { debugDiscord, debugError } from '@/integrations/discord/debuggers';
 
