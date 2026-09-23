@@ -8,13 +8,7 @@ import {
   useScopedHotkeys,
 } from 'erxes-ui';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Block } from '@blocknote/core';
 
 import {
@@ -26,14 +20,12 @@ import { ComposerShell } from '@/inbox/conversations/conversation-detail/compone
 import { ComposerEditor } from '@/inbox/conversations/conversation-detail/components/ComposerEditor';
 import { ComposerPreviews } from '@/inbox/conversations/conversation-detail/components/ComposerPreviews';
 import { ComposerToolbar } from '@/inbox/conversations/conversation-detail/components/ComposerToolbar';
-import type { PollDraft } from '@/inbox/conversations/conversation-detail/components/PollComposer';
 import { ResponseTemplateDropdown } from '@/inbox/conversations/conversation-detail/components/ResponseTemplateDropdown';
 import { useConversationContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationContext';
-import { useConversationMessageAdd } from '@/inbox/conversations/conversation-detail/hooks/useConversationMessageAdd';
 import { useMessageAttachments } from '@/inbox/conversations/conversation-detail/hooks/useMessageAttachments';
 import { useDiscordComposer } from '@/inbox/conversations/conversation-detail/hooks/useDiscordComposer';
+import { useComposerSend } from '@/inbox/conversations/conversation-detail/hooks/useComposerSend';
 import { useResponseTemplateSuggestions } from '@/inbox/conversations/conversation-detail/hooks/useResponseTemplateSuggestions';
-import { messageExtraInfoState } from '@/inbox/conversations/conversation-detail/states/messageExtraInfoState';
 import { InboxHotkeyScope } from '@/inbox/types/InboxHotkeyScope';
 import { messageReplyState } from '@/inbox/conversations/conversation-detail/states/messageReplyState';
 import { IntegrationType } from '@/types/Integration';
@@ -42,8 +34,6 @@ import { currentUserState } from 'ui-modules';
 import {
   clearLegacyConversationDrafts,
   composerStorage,
-  encodeDiscordMentions,
-  escapeComposerQuote,
   getConversationDraftKey,
   parseConversationDraft,
 } from '@/inbox/conversations/conversation-detail/utils/messageInput';
@@ -58,7 +48,6 @@ export const MessageInput = ({
   const onlyInternal = useAtomValue(onlyInternalState);
   const setOnlyInternal = useSetAtom(onlyInternalState);
   const hideInput = useAtomValue(hideMessageInputState);
-  const messageExtraInfo = useAtomValue(messageExtraInfoState);
   const currentUserId = useAtomValue(currentUserState)?._id;
   const { integration } = useConversationContext();
   const [replyTo, setReplyTo] = useAtom(messageReplyState);
@@ -71,13 +60,9 @@ export const MessageInput = ({
   const draftInternalRef = useRef(false);
   const restoredDraftKeyRef = useRef<string>();
   const restoringDraftRef = useRef(false);
-  const submittingRef = useRef(false);
-  const activeConversationIdRef = useRef(conversationId);
   const draftKey = currentUserId
     ? getConversationDraftKey(currentUserId, conversationId)
     : null;
-  const activeDraftKeyRef = useRef(draftKey);
-  const { addConversationMessage, loading } = useConversationMessageAdd();
   const {
     attachments,
     pendingAttachments,
@@ -107,11 +92,6 @@ export const MessageInput = ({
     searchMentionItems: searchDiscordMentionItems,
     stopAgentTyping,
   } = useDiscordComposer({ conversationId, isDiscord, isInternalNote });
-
-  useLayoutEffect(() => {
-    activeConversationIdRef.current = conversationId;
-    activeDraftKeyRef.current = draftKey;
-  }, [conversationId, draftKey]);
 
   useEffect(() => {
     clearLegacyConversationDrafts();
@@ -209,140 +189,38 @@ export const MessageInput = ({
     }
   }, [draftKey, editor, isInternalNote, pingAgentTyping, setSearchValue]);
 
-  const handleSubmit = useCallback(async () => {
-    if (!conversationId || loading || isUploading || submittingRef.current) {
-      return;
-    }
-    if (!content?.length && attachments.length === 0) return;
-    submittingRef.current = true;
-    const submittedConversationId = conversationId;
-    const submittedDraftKey = draftKey;
-
-    try {
-      const outgoingBlocks =
-        isDiscord && !isInternalNote ? encodeDiscordMentions(content) : content;
-      const sendContent = isInternalNote
-        ? JSON.stringify(content || [])
-        : await editor.blocksToHTMLLossy(outgoingBlocks || []);
-      const quotedContent =
-        replyTo && !replyTo.nativeReply && !isInternalNote
-          ? `<blockquote><strong>Replying to</strong><br/>${escapeComposerQuote(
-              replyTo.preview,
-            )}</blockquote>`
-          : '';
-      const blockAttachments = getBlockAttachments(content || []);
-      const attachmentUrls = new Set(attachments.map(({ url }) => url));
-      const allAttachments = [
-        ...attachments,
-        ...blockAttachments.filter(({ url }) => !attachmentUrls.has(url)),
-      ];
-
-      await addConversationMessage({
-        variables: {
-          conversationId: submittedConversationId,
-          content: `${quotedContent}${sendContent || ''}`,
-          mentionedUserIds:
-            isDiscord && !isInternalNote ? [] : mentionedUserIds,
-          internal: isInternalNote,
-          extraInfo: messageExtraInfo,
-          attachments: allAttachments,
-          responseTemplateId,
-          ...(!isInternalNote &&
-          replyTo?.nativeReply &&
-          replyTo.providerMessageId
-            ? { replyToMessageId: replyTo.providerMessageId }
-            : {}),
-        },
-        onCompleted: () => {
-          toast({
-            title: isInternalNote
-              ? t('note-added', 'Internal note added')
-              : t('message-sent', 'Message sent!'),
-          });
-          if (submittedDraftKey) {
-            composerStorage.removeItem(submittedDraftKey);
-          }
-          if (
-            activeConversationIdRef.current !== submittedConversationId ||
-            activeDraftKeyRef.current !== submittedDraftKey
-          ) {
-            return;
-          }
-          editor.replaceBlocks(editor.document, []);
-          setContent(() => undefined);
-          setMentionedUserIds([]);
-          setIsInternalNote(onlyInternal);
-          resetAttachments();
-          resetSuggestions();
-          setResponseTemplateId(null);
-          setReplyTo(null);
-        },
-        refetchQueries: [
-          'Conversations',
-          'ConversationMessages',
-          'ConversationCounts',
-          'FrontlineInboxSidebarWorkCounts',
-        ],
-        onError: (error) =>
-          toast({
-            title: t('failed-to-send', 'Failed to send'),
-            description: error.message,
-            variant: 'destructive',
-          }),
-      });
-    } finally {
-      submittingRef.current = false;
-    }
+  const resetComposer = useCallback(() => {
+    editor.replaceBlocks(editor.document, []);
+    setContent(() => undefined);
+    setMentionedUserIds([]);
+    setIsInternalNote(onlyInternal);
+    resetAttachments();
+    resetSuggestions();
+    setResponseTemplateId(null);
+    setReplyTo(null);
   }, [
-    addConversationMessage,
-    attachments,
-    content,
-    conversationId,
-    draftKey,
     editor,
-    isDiscord,
-    isInternalNote,
-    isUploading,
-    loading,
-    mentionedUserIds,
-    messageExtraInfo,
     onlyInternal,
-    replyTo,
     resetAttachments,
     resetSuggestions,
-    responseTemplateId,
     setIsInternalNote,
     setReplyTo,
     setResponseTemplateId,
-    t,
   ]);
 
-  const handleSendPoll = useCallback(
-    async (poll: PollDraft): Promise<boolean> => {
-      if (!conversationId) return false;
-      try {
-        await addConversationMessage({
-          variables: { conversationId, content: '', internal: false, poll },
-          refetchQueries: [
-            'Conversations',
-            'ConversationMessages',
-            'ConversationCounts',
-            'FrontlineInboxSidebarWorkCounts',
-          ],
-        });
-        toast({ title: t('poll-sent', 'Poll sent!') });
-        return true;
-      } catch (error) {
-        toast({
-          title: t('failed-to-send-poll', 'Failed to send poll'),
-          description: (error as Error).message,
-          variant: 'destructive',
-        });
-        return false;
-      }
-    },
-    [addConversationMessage, conversationId, t],
-  );
+  const { handleSubmit, handleSendPoll, loading } = useComposerSend({
+    conversationId,
+    draftKey,
+    editor,
+    content,
+    attachments,
+    mentionedUserIds,
+    isDiscord,
+    isInternalNote,
+    isUploading,
+    responseTemplateId,
+    resetComposer,
+  });
 
   useScopedHotkeys('mod+enter', handleSubmit, InboxHotkeyScope.MessageInput);
 
