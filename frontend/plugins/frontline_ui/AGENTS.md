@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-09-22`
+- **Last synchronized:** `2026-09-23`
 
 ## Scope
 
@@ -45,7 +45,11 @@
   step-based create/edit wizard, archive, remove), the read-only results board
   on the main `frontline/surveys` route, and the composer dialog that posts a
   saved survey into a messenger conversation.
-- Knowledge base UI: topics, categories, and articles.
+- Knowledge base UI: the `/frontline/knowledgebase` topics index — a card grid
+  and a record table behind one list/thumbnail toggle — and,
+  per topic, the `articles`, `categories` and `kbsettings` routes behind a shared
+  knowledge base sidebar — record tables with inline editing, filters, command
+  bar bulk delete, and the topic, category and article drawers.
 - Help Center UI: the `/frontline/helpcenter` record table over client portal
   configs, its filter bar and command bar, its inline-editable name cell and its
   website / knowledge base topic / ticket channel / pipeline / status selects,
@@ -349,7 +353,12 @@
 | Surveys data             | `src/modules/survey/{graphql,hooks,types}/`                                                                                                       | Survey GraphQL documents, list/detail/mutation hooks, survey types                                                                              |
 | Send survey              | `src/modules/inbox/conversations/conversation-detail/components/SendSurveyDialog.tsx`                                                             | Picks an active survey and posts it into the open messenger conversation                                                                        |
 | Survey inbox row         | `src/modules/survey/components/ChannelSurveyNavItem.tsx`                                                                                          | `Surveys` row inside an expanded team channel, filtering the inbox by `withSurvey`                                                              |
-| Knowledge base           | `src/modules/knowledgebase/`                                                                                                                      | Topics, categories, articles                                                                                                                    |
+| Knowledge base routes    | `src/modules/knowledgebase/Main.tsx`, `src/pages/knowledgebase/`                                                                                  | `/frontline/knowledgebase` topics index plus `:topicId/{articles,categories,kbsettings}`                                                          |
+| Knowledge base shell     | `src/modules/knowledgebase/shared/`                                                                                                               | Page layout with breadcrumbs, topic sidebar, icon picker, inline text cell, category select, topic appearance fields, embed script               |
+| Knowledge base topics    | `src/modules/knowledgebase/topics/`                                                                                                               | Topics card grid and record table, columns, filter, command bar, drawer, mutation hooks                                                          |
+| Knowledge base categories| `src/modules/knowledgebase/categories/`                                                                                                           | Topic-scoped category tree table, drawer, command bar, mutation hooks                                                                           |
+| Knowledge base articles  | `src/modules/knowledgebase/articles/`                                                                                                             | Topic-scoped article table with status/category filters, drawer, command bar, mutation hooks                                                    |
+| Knowledge base data      | `src/modules/knowledgebase/{graphql,types,constants}/`                                                                                            | `frontlineKb*` operations, local KB types, icons/reactions/languages and table ids                                                              |
 | Automation widgets       | `src/widgets/automations/modules/<module>/`                                                                                                       | Per-module trigger/action/bot/history components                                                                                                |
 | FB message action        | `src/widgets/automations/modules/facebook/components/action/`                                                                                     | Message sequence form, provider, constants, states                                                                                              |
 | FB post composer         | `src/modules/integrations/facebook/components/FacebookPostSheet.tsx`, `FacebookPostImagesField.tsx`, `hooks/useFacebookPost*.tsx`                 | Post sheet, image upload state, channel/page loading                                                                                            |
@@ -763,8 +772,9 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
   reintroduce a detail route. Every surface widens a list record for a save
   through `toHelpCenterConfigInput`; passing a partial record would reset the
   fields it omitted on the next save.
-- Category editing lives on the Knowledge Base page (`TopicList`), which owns
-  create, edit and delete. The help center surface does not duplicate it.
+- Category editing lives on the knowledge base categories route
+  (`/frontline/knowledgebase/:topicId/categories`), which owns create, edit and
+  delete. The help center surface does not duplicate it.
 - The upload slots use the repo's usual `Upload.Root` handler
   (`if ('url' in fileInfo) field.onChange(fileInfo.url)`) — `Upload.RemoveButton`
   reports a removal in that same shape, so no special case is needed here. The
@@ -775,10 +785,10 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
   visible. Toggle the class instead (`enabled ? 'flex flex-col' : 'hidden'`) —
   both the drawer's tab panes and its feature sections do.
 - The help center's own types and constants live in `helpcenter/types/index.ts`
-  and `helpcenter/constants/index.ts`, **not** in the knowledge base module's
-  `types.ts` / `constants.ts` — those two re-export from `content_ui`, so
-  importing them pulls another plugin's code into this remote and breaks it at
-  runtime.
+  and `helpcenter/constants/index.ts`; the knowledge base keeps its own in
+  `knowledgebase/types/index.ts` and `knowledgebase/constants/index.ts`. Neither
+  module may re-export from `content_ui` — that pulls another plugin's source
+  into this remote and breaks it at runtime.
 - The help center table shows the three identifying columns — name, website,
   knowledge base topic — followed by the three ticket routing selects, each
   headed `Ticket channel` / `Ticket pipeline` / `Ticket status` so a row reads
@@ -842,7 +852,7 @@ erxesAppToken)` — because picking a website is also what fills the config's
   the sheet, the form and the save; `HelpCenterGeneralTab.tsx` and
   `HelpCenterAppearanceTab.tsx` own a tab each; `HelpCenterStyleFields.tsx` the
   reusable `Style*Field` helpers; the knowledge base module's
-  `TopicEmbedScriptDialog.tsx` the embed snippet (a presentational component, no
+  `shared/components/TopicEmbedScriptDialog.tsx` the embed snippet (a presentational component, no
   query of its own); and `helpcenter/{types,constants}/index.ts` the shapes and
   defaults. Add new fields to the owning tab, never back into the drawer. The tabs take the form **as a
   prop**: `react-hook-form` is not in this remote's shared `coreLibraries`, so
@@ -1278,8 +1288,73 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   loading states for its skeleton. Missing records after those queries settle
   are not loading states; they must leave a valid tickets-only breadcrumb.
 
+- The topic, category and article sheets group their fields into `InfoCard`
+  sections inside a `ScrollArea`, the same shape the help center drawer uses —
+  a new field joins a section, it does not sit loose in the form. The article
+  topic settings page uses the same sections (General and Appearance on the
+  left, Installation and Danger zone on the right). The article
+  sheet is the wide one (`sm:max-w-4xl lg:max-w-5xl`) and splits into two
+  columns from `lg`: Content on the left, Publishing and Media stacked on the
+  right, so the editor never sits at the bottom of a long scroll.
+- `TopicColorField`'s label comes from `kb-color-required`, which already ends
+  in `*`; never add a second asterisk around it (the help center appearance tab
+  renders the same component).
+- `FrontlineSubGroups` renders nothing for `/frontline/knowledgebase`: topics
+  are navigated from the topics index and the per-topic sidebar, never from a
+  second navigation column.
+- The topics index keeps both views: the thumbnail card grid (`TopicsGrid`, the
+  default, mirroring the CMS website list) and the record table
+  (`TopicsRecordTable`), switched by the header toggle and sharing one
+  `useTopics` query and filter bar. Never drop one of the two.
+- The topic settings route is `kbsettings`, never `settings`: core-ui's
+  `useIsSettings` matches any path containing `/settings` and would swap the
+  host's second navigation column for the workspace settings menu (the CMS
+  names its own route `cmssettings` for the same reason).
+- The knowledge base is route-driven, not query-param driven: the topics table
+  lives at `/frontline/knowledgebase` and every per-topic surface at
+  `/frontline/knowledgebase/:topicId/{articles,categories,kbsettings}`. The
+  sidebar and breadcrumbs build their links from
+  `KNOWLEDGE_BASE_PATH`; never reintroduce a `?topicId=`/`?categoryId=`
+  selection for navigation. `editId` (and the articles table's `categoryId` and
+  `status` filters) stay query params, because they are filter and drawer state,
+  not routes.
+- Knowledge base GraphQL operation names are prefixed `frontlineKb*`
+  (`frontlineKbTopics`, `frontlineKbArticleDetail`, `frontlineKbCategoryEdit`, …)
+  even though the fields they select are the shared `knowledgeBase*` ones —
+  `content_ui` queries the same fields, and operation names must stay unique
+  repo-wide.
+- `knowledgeBaseArticlesEdit` takes a whole `KnowledgeBaseArticleDoc` with a
+  required `content`, so an inline cell edit must re-read the article detail
+  first (`useEditArticleField` does) and never send a doc built from the list
+  row alone — that would blank the article body.
+- The backend paginates topics, categories and articles with `page`/`perPage`;
+  there is no cursor query for them. Knowledge base tables therefore use
+  `RecordTable.Scroll` with the `*_PER_PAGE` constants, not
+  `RecordTable.CursorProvider`.
+- Every knowledge base list refetches after a write (`refetchQueries`, or
+  `client.refetchQueries` for bulk deletes) so a create, edit or delete shows up
+  without a manual refresh.
+- A category's `icon` is a free-form string in Mongo, and older data uses names
+  the picker's `ICONS` list may not carry (`rocket`, `credit-card`, `lock`, …).
+  `IconPicker` therefore shows an unknown stored value as itself instead of the
+  "Select icon…" placeholder, so a row never looks empty and an unrelated edit
+  never silently drops it. Add a missing name to `ICONS` rather than rewriting
+  the stored value.
+- `KnowledgeBaseCategory` has **no** `topicId` field — selecting one makes the
+  whole query fail with a 400. A category's topic comes from the route
+  (`useParams().topicId`), and that is what an edit sends back in the doc.
+- Category and article writes stay inside the topic in the URL: a category's
+  `topicId` and an article's `categoryId` always come from the current route or
+  the topic's own categories, never from an unrelated topic.
+
 ## Validation
 
+- Smoke: open `/frontline/knowledgebase`, create a topic, open it, add a
+  category, then an article in that category — each list updates without a
+  reload. Rename a topic and an article from their inline cells, change an
+  article's status and category from the table, filter articles by status and
+  category, bulk-delete from the command bar, then edit the topic on its
+  `settings` route and delete it from the danger zone.
 - `pnpm nx build frontline_ui`
 - `npx eslint src/...` on touched files — the project carries pre-existing lint
   errors and TypeScript errors elsewhere, so lint and typecheck the files you
@@ -1355,6 +1430,29 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-23` — Knowledge base admin rebuilt as a CMS-shaped workspace
+
+- **Summary:** Replaced the single query-param-driven knowledge base page with a
+  topics index at `/frontline/knowledgebase` (card grid plus record table behind
+  a list/thumbnail toggle) and per-topic `articles`,
+  `categories` and `kbsettings` routes behind a shared sidebar, each with inline
+  editing, filters, command bar bulk delete, empty/loading/error states and
+  rebuilt drawers; knowledge base types, icons, reactions and languages are now
+  local, removing the `content_ui` re-exports.
+- **Affected areas:** `src/modules/knowledgebase/**` (new `shared/`, `topics/`,
+  `categories/`, `articles/`, `settings/`, `types/`, `constants/`; deleted
+  `components/`, `hooks/`, `utils/`, `types.ts`, `constants.ts`, `Settings.tsx`),
+  `src/pages/knowledgebase/*`, `src/modules/FrontlineMain.tsx`,
+  `src/modules/FrontlineSubGroups.tsx`,
+  `src/modules/helpcenter/components/help-center-drawer/*`,
+  `src/modules/integrations/erxes-messenger/components/EMConfig.tsx`
+- **Contracts changed:** Knowledge base operations renamed to the `frontlineKb*`
+  prefix (`frontlineKbTopics`, `frontlineKbTopicOptions`,
+  `frontlineKbTopicDetail`, `frontlineKbCategories`, `frontlineKbArticles`,
+  `frontlineKbArticleDetail`, `frontlineKbTopicContent`, `frontlineKbSegments`
+  and the six `frontlineKb*Add|Edit|Remove` mutations); the `./knowledgebase`
+  expose now serves the nested route map.
 
 ### `2026-09-22` — Radio/checkbox options are visible, full-width and editable in place
 
@@ -1490,18 +1588,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 - **Contracts changed:** New query document `FrontlineConvertSystemFields`;
   `ConversationConvertToCard` now sends `priority`, `tagIds`, `startDate` and
   `closeDate`.
-
-### `2026-09-17` — The conversation header converts into a ticket, deal or task
-
-- **Summary:** Added the Convert menu and a 1.x-style convert dialog for
-  tickets, deals and tasks with Settings → Properties fields and attachments,
-  plus `Go to a …` links for items a conversation was already converted into.
-- **Affected areas:**
-  `src/modules/inbox/conversations/conversation-detail/components/{ConversationHeader.tsx,convert/}`,
-  `src/modules/inbox/conversations/{graphql,hooks,types}/*onvert*`,
-  `src/modules/ticket/components/ticket-selects/SelectPipeline.tsx`,
-  `src/modules/pipelines/types/index.ts`
-- **Contracts changed:** `SelectPipeline.FormItem` accepts any form carrying a
-  `channelId` field; `IPipeline` declares `propertyIds` and
-  `isPropertySelectionConfigured`; consumes `conversationConvertToCard` (with
-  `customFieldsData` and `attachments`) and `conversationConvertedItems`.
