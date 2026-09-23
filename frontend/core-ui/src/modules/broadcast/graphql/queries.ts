@@ -5,6 +5,30 @@ import {
   GQL_PAGE_INFO,
 } from 'erxes-ui';
 
+export const BROADCAST_RENDER_PREVIEW = gql`
+  query BroadcastRenderPreview($contentJson: JSON!, $previewText: String) {
+    engageMessageRenderPreview(
+      contentJson: $contentJson
+      previewText: $previewText
+    )
+  }
+`;
+
+export const BROADCAST_EMAIL_TEMPLATES = gql`
+  query BroadcastEmailTemplates($searchValue: String, ${GQL_CURSOR_PARAM_DEFS}) {
+    broadcastEmailTemplates(searchValue: $searchValue, ${GQL_CURSOR_PARAMS}) {
+      list {
+        _id
+        name
+        description
+        contentJson
+        createdAt
+      }
+      ${GQL_PAGE_INFO}
+    }
+  }
+`;
+
 export const BROADCAST_MESSAGES = gql`
   query BroadcastMessages(
     $kind: String,
@@ -134,22 +158,6 @@ export const BROADCAST_MESSAGE = gql`
         colorCode
       }
       cpId
-    }
-  }
-`;
-
-export const BROADCAST_MEMBERS = gql`
-  query BroadcastMembers($isVerified: Boolean, ${GQL_CURSOR_PARAM_DEFS}) {
-    engageMembers(isVerified: $isVerified, ${GQL_CURSOR_PARAMS}) {
-      list {
-        _id
-        email
-        details {
-          avatar
-          fullName
-        }
-      }
-      ${GQL_PAGE_INFO}
     }
   }
 `;

@@ -87,10 +87,14 @@ export const checkCampaignDoc = async (
       throw new Error(`"${fromEmail}" is not a verified sender`);
     }
 
-    const { replyTo } = doc.email || {};
+    const { replyTo, content, contentJson } = doc.email || {};
 
     if (replyTo && !isEmailAddress(replyTo)) {
       throw new Error(`"${replyTo}" is not a valid reply-to address`);
+    }
+
+    if (!content && !contentJson) {
+      throw new Error('Email content is missing');
     }
   }
 
