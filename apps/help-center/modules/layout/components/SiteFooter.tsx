@@ -57,11 +57,11 @@ const builtInColumns = (
 const isExternal = (href: string): boolean =>
   /^[a-z][\w+.-]*:|^\/\//i.test(href);
 
-const linkClass = 'text-sm text-ink-soft transition-colors hover:text-brand';
+const linkClass = 'text-sm text-white/60 transition-colors hover:text-white';
 
 const FooterColumnBlock = ({ heading, links }: FooterColumn) => (
   <div>
-    <h2 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+    <h2 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-white/40">
       {heading}
     </h2>
     {links.length ? (
@@ -128,7 +128,7 @@ export const SiteFooter = ({
     : `© ${year} ${site.brand}. All rights reserved.`;
 
   return (
-    <footer className="mt-auto border-t border-line bg-(--color-footer)">
+    <footer className="mt-auto border-t border-shell-line bg-shell text-white">
       <Container className="py-12">
         <div className="grid gap-10 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] lg:gap-12">
           <div className="max-w-sm">
@@ -139,11 +139,11 @@ export const SiteFooter = ({
                 className="h-8 w-auto max-w-44 object-contain"
               />
             ) : (
-              <p className="text-xl font-semibold lowercase tracking-tight text-ink">
-                er<span className="text-brand">x</span>es
+              <p className="text-xl font-semibold lowercase tracking-tight text-white">
+                erxes
               </p>
             )}
-            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+            <p className="mt-3 text-sm leading-relaxed text-white/55">
               {description}
             </p>
           </div>
@@ -160,10 +160,10 @@ export const SiteFooter = ({
         </div>
       </Container>
 
-      <div className="border-t border-line">
+      <div className="border-t border-shell-line">
         <Container className="flex flex-col gap-3 py-6 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-[13px] text-muted-foreground">{copyright}</p>
-          <span className="inline-flex items-center gap-2 text-[13px] text-muted-foreground">
+          <p className="text-[13px] text-white/45">{copyright}</p>
+          <span className="inline-flex items-center gap-2 text-[13px] text-white/45">
             <Icon name="language" size={15} />
             {footer.languageLabel}
           </span>

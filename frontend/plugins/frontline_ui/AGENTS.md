@@ -51,8 +51,12 @@
   website / knowledge base topic / ticket channel / pipeline / status selects,
   and the
   two-tab help center drawer (General, Appearance), which is the only place a
-  help center is edited. Both tabs read `helpCenterConfig` and write
-  `helpCenterConfigUpdate` — never a knowledge base operation.
+  help center is edited. Its **Forms** card, shown only while the ticket
+  switch is on, has its own channel select and a multi-select of that
+  channel's forms (`formChannelId` / `formIds`); its **CMS** card picks the
+  content CMS whose posts the site lists as announcements (`cmsId`). Both
+  tabs read `helpCenterConfig` and write `helpCenterConfigUpdate` — never a
+  knowledge base operation.
 - Call UI: call index, detail, and statistics pages.
 - Report screens for the frontline plugin, including the default chart catalogue
   and the saved charts board built on top of it.
@@ -515,6 +519,19 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
   `helpCenterConfigUpdate(config)` / `helpCenterConfigRemove(_id)` for every
   write. The help center reads `knowledgeBaseTopics` for one thing only — the
   `Knowledge base topic` picker's options.
+- `frontline_api` GraphQL `forms(channelId, status: "active", limit: 100)` as
+  `frontlineHelpCenterFormOptions` — the Forms picker's options (`_id`, `name`,
+  `title`), read-only, skipped until the Forms card's channel is chosen, and
+  `cache-and-network` so a form created elsewhere shows up the next time the
+  drawer opens. The API matches `status` literally — a form document written
+  without `status` is not listed.
+- `content_api` GraphQL `contentCMSList` as `frontlineHelpCenterCmsOptions` —
+  the CMS picker's options (`_id`, `name`, `clientPortalId`), read-only. When
+  the content plugin is disabled the query fails and the picker shows the
+  error; the rest of the drawer keeps working.
+- `core-api` GraphQL `getClientPortal(_id)` as
+  `frontlineHelpCenterCmsPortalToken` — read once when a CMS is picked, to copy
+  that CMS's client portal `token` into `cmsAppToken`.
 - `core-api` GraphQL `getClientPortals` as `frontlineHelpCenterWebsiteOptions` —
   the `Website` picker's options (`_id`, `domain`), read-only. The resolver
   ignores paging arguments and returns the newest 20 portals.
@@ -675,6 +692,10 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
 - `CONFIG` keeps a top-level `icon` alongside `navigationGroup.icon`. The host
   reads only the top-level one for a `frontline:*` notification's avatar in My
   Inbox, and renders nothing when it is missing.
+- A form's `leadData` may be `null` (forms written without the builder), so
+  `formSetSetupAtom` reads it null-safely, falls back to the default
+  `Initial step` when it has no steps, and places a field without
+  `pageNumber` on page 1 — never dereference `payload.leadData` directly.
 - The Convert menu shows the deal entry only when the `sales` plugin config is
   loaded and the task entry only when `operation` is, and each entry only with
   its create action (`createTicket`, `dealsAdd`, `taskCreate`) on top of
@@ -761,12 +782,28 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
 - A help center's ticket target is a channel → pipeline → status chain, so
   changing a level clears the levels under it — `useEditHelpCenter` does this
   for inline edits and `HelpCenterGeneralTab` does it through `form.setValue`.
+  The forms card has its own chain: a frontline form belongs to one channel
+  (Settings → Channels → Forms), so the Forms picker only offers
+  `formChannelId`'s forms, is disabled without a channel, and changing
+  `formChannelId` clears `formIds` — in the drawer and in `useEditHelpCenter`.
+  `formChannelId` is independent of `ticketChannelId`; the two channel selects
+  are deliberate. The forms card has no switch of its own: it follows
+  `ticketToggle`, and its channel is optional — no channel means no forms.
+  The CMS card stores two values the way the website picker does: `cmsId` and
+  `cmsAppToken`, the app token of the client portal that CMS belongs to,
+  because the site's `cp*` post queries are scoped by that token. Picking a
+  CMS whose portal has no token is refused with a toast, and picking the
+  selected CMS again clears both.
   The API blanks a switched-off feature's whole group in
   `normalizeHelpCenterConfig`, so a disabled feature never keeps stale
   configuration no matter which surface saved it.
 - `HelpCenterDrawer` splits across two `SheetNavSidebar` tabs, **general** and
-  **appearance**: general owns title, website, description, the embed script and
-  the knowledge base and ticket feature cards; appearance owns the published
+  **appearance**: general stacks full-width cards in a fixed order — general
+  settings (name and website side by side, then description), knowledge base,
+  tickets, forms, CMS, and the embed script last. Each feature card keeps its
+  switch row on top and lays its fields out in a two-column grid under a
+  divider, and `FULL_WIDTH_SELECT` stretches every select to the `h-8` input
+  height, so the two columns line up. Appearance owns the published
   site's whole look — logo and favicon, the six main colours, fonts with their
   text and link colours, the three form-element colours, this help center's own
   accent colour and cover image, the header's wording, the footer's content, and

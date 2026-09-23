@@ -11,6 +11,8 @@ const FORM_FIELDS = `
     options
     validation
     order
+    column
+    pageNumber
   }
 `;
 
@@ -37,6 +39,9 @@ export const FORM_PORTAL_DETAIL = gql`
       description
       buttonText
       tagIds
+      channelId
+      status
+      leadData
       ${FORM_FIELDS}
     }
   }

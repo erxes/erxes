@@ -32,8 +32,9 @@
 - Knowledge base: topics, categories, articles, and the AI knowledge source
   provider that indexes articles.
 - Help centers: the client portal config record behind a published help center
-  site — its general settings (name, description, website, knowledge base and
-  ticket feature groups), its appearance (logo pair, surface colours, fonts,
+  site — its general settings (name, description, website, the knowledge base,
+  ticket and form feature groups, and the CMS behind its announcements), its
+  appearance (logo pair, surface colours, fonts,
   form-element colours, accent colour, cover image, raw header/footer markup),
   its header wording (wordmark, home/forms/announcements tab labels, search
   placeholder) and its footer content (logo, description, copyright line, link
@@ -248,6 +249,20 @@
   exposed to AI agents through `/agent-tools/manifest` and `/agent-tools/call`
   via `.meta(agentMeta(...))` annotations; every other procedure remains
   invisible to agents.
+- A help center config stores the published site's feature groups next to its
+  general settings: `kbToggle`/`kbTopicId` for the knowledge base,
+  `ticketToggle` with `ticketChannelId`/`ticketPipelineId`/`ticketStatusId`
+  plus `formChannelId`/`formIds` for tickets and forms, and `cmsId` with the
+  `cmsAppToken` of that CMS's client portal for the announcements the site
+  lists. `normalizeHelpCenterConfig` is the single validation gate for all of
+  them, composed from one normalizer per group (identity, knowledge base,
+  tickets, CMS): it requires a title, rejects a non-http(s) website, requires
+  `kbTopicId` when the knowledge base is on and a channel plus pipeline when
+  tickets are on, refuses a `cmsId` without an app token, blanks a disabled
+  group, and de-duplicates `formIds`. Forms are scoped to their channel on
+  write — `HelpCenterConfig.getChannelFormIds` drops every id that does not
+  belong to `formChannelId`, so a channel change cannot leave a stale form on
+  the site.
 - Contributes permissions, notifications, segments, references, and
   import/export handlers to the platform through `meta/`.
 - `widgetsMessengerConnect` stores messenger `companyData` on the core company
@@ -315,6 +330,17 @@
   `channelId` is optional and keeps the current channel when omitted.
 - `cpSurveyRemove(_id: String!): String` — the requester withdraws a
   still-`pending` request and gets the removed `_id` back.
+- GraphQL: help center configs — `helpCenterConfig(_id)`,
+  `helpCenterConfigs(page, perPage, searchValue, brandId)`,
+  `helpCenterConfigsTotalCount(searchValue, brandId)`,
+  `helpCenterGetConfigByDomain(clientPortalName)` (the published site's own
+  bootstrap read, the one operation in this module that skips the permission
+  check), `helpCenterConfigUpdate(config: HelpCenterConfigInput!)`
+  (create-or-update, keyed on `config._id`) and `helpCenterConfigRemove(_id)`.
+  Reads check `showHelpCenter`, writes check `helpCenterManage`.
+  `HelpCenterConfig` and `HelpCenterConfigInput` both carry `formChannelId`,
+  `formIds`, `cmsId` and `cmsAppToken` alongside the ticket and knowledge base
+  fields.
 - Plugin meta `properties` (`src/meta/properties.ts`) — the `conversation` and
   `ticket` property types, each with the `systemFields` (`code`, `name`, `type`)
   core lists as the read-only "Basic information" group in Settings →
@@ -432,6 +458,21 @@
 - **Contracts changed:** `cpSurveyVotes(conversationId: String, customerId: String)`
   — `conversationId` is no longer required.
 
+### `2026-09-22` — A help center stores its forms and the CMS behind its announcements
+
+- **Summary:** A help center config now keeps the ticket channel's forms
+  (`formChannelId`, `formIds`) and the content CMS its announcements come from
+  (`cmsId`, `cmsAppToken`); `normalizeHelpCenterConfig` was split into one
+  normalizer per group (identity, knowledge base, tickets, CMS), which refuses
+  a `cmsId` without an app token and de-duplicates `formIds`, and
+  `HelpCenterConfig.getChannelFormIds` drops on write every form that does not
+  belong to `formChannelId`.
+- **Affected areas:**
+  `src/modules/helpcenter/{@types/helpCenterConfig,db/definitions/helpCenterConfig,db/models/HelpCenterConfig,graphql/schemas/helpCenterConfig,utils/helpCenterConfig}.ts`
+- **Contracts changed:** `HelpCenterConfig` and `HelpCenterConfigInput` gained
+  `formChannelId`, `formIds`, `cmsId` and `cmsAppToken`;
+  `frontline_help_center_configs` carries the same four fields.
+
 ### `2026-09-22` — Client portal users request surveys for approval
 
 - **Summary:** `cpSurveyAdd` lets a signed-in client portal user submit a
@@ -513,18 +554,3 @@
   Properties.
 - **Affected areas:** `src/meta/properties.ts`, `src/main.ts`
 - **Contracts changed:** Plugin meta `properties.types[].systemFields` added.
-
-### `2026-09-17` — Conversations convert into tickets, deals and tasks
-
-- **Summary:** `conversationConvertToCard` stopped echoing its arguments and now
-  creates the ticket, deal or task, relates it to the conversation and
-  customer, and blocks a duplicate; `conversationConvertedItems` reports what a
-  conversation was already converted into.
-- **Affected areas:** `src/modules/inbox/services/conversationConvert{,Targets}.ts`,
-  `src/modules/inbox/@types/conversationConvert.ts`,
-  `src/modules/inbox/graphql/{schemas/conversation,resolvers/mutations/conversations,resolvers/queries/conversations}.ts`,
-  `src/meta/permissions.ts`
-- **Contracts changed:** `conversationConvertToCard` dropped `itemId`, gained
-  `tagIds`, `branchIds`, `departmentIds`, and now enforces permissions; added
-  `conversationConvertedItems` and `ConversationConvertedItem`; the
-  `frontline:user` group gained `conversationConvertToCard`.

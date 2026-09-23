@@ -20,6 +20,12 @@ export const HELP_CENTER_CONFIG_FIELDS = gql`
     ticketPipelineId
     ticketStatusId
 
+    formChannelId
+    formIds
+
+    cmsId
+    cmsAppToken
+
     color
     backgroundImage
     styles {
