@@ -1,5 +1,6 @@
 import { ITicketDocument, ITicketFilter } from '@/ticket/@types/ticket';
 import { generateFilter } from '@/ticket/utils';
+import { buildDateMatch, narrowTicketMatchByContacts } from '@/reports/utils';
 import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
 import { cursorPaginate } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
@@ -34,12 +35,41 @@ export const ticketQueries = {
   getTickets: async (
     _parent: undefined,
     { filter }: { filter: ITicketFilter & ICursorPaginateParams },
-    { models, user }: IContext,
+    { models, user, subdomain }: IContext,
   ) => {
     const query: FilterQuery<ITicketDocument> = await generateFilter(
       filter,
       user,
       models,
+    );
+
+    if (filter.createdBy) query.createdBy = filter.createdBy;
+
+    if (
+      filter.createdAt &&
+      filter.createdAtTo &&
+      filter.createdAt > filter.createdAtTo
+    ) {
+      throw new Error('Invalid ticket creation date range');
+    }
+    Object.assign(
+      query,
+      buildDateMatch(
+        {
+          fromDate: filter.createdAt?.toISOString(),
+          toDate: filter.createdAtTo?.toISOString(),
+        },
+        'createdAt',
+      ),
+    );
+
+    await narrowTicketMatchByContacts(
+      query,
+      {
+        customerIds: filter.customerId ? [filter.customerId] : undefined,
+        companyIds: filter.companyId ? [filter.companyId] : undefined,
+      },
+      subdomain,
     );
 
     return await cursorPaginate<ITicketDocument>({

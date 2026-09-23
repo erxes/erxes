@@ -230,20 +230,17 @@ export const TicketsBoardCards = ({
         ];
       });
       setAllticketsMap((prev) => {
-        const newtickets = tickets.reduce(
-          (acc, ticket) => {
-            acc[ticket._id] = ticket;
-            return acc;
-          },
-          {} as Record<string, ITicket>,
-        );
+        const newtickets = tickets.reduce((acc, ticket) => {
+          acc[ticket._id] = ticket;
+          return acc;
+        }, {} as Record<string, ITicket>);
         return { ...prev, ...newtickets };
       });
     }
   }, [tickets, setTicketCards, setAllticketsMap, column.id]);
 
   useEffect(() => {
-    if (totalCount) {
+    if (totalCount !== undefined && totalCount !== null) {
       setTicketCountByBoard((prev) => ({
         ...prev,
         [column.id]: totalCount || 0,

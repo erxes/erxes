@@ -59,6 +59,10 @@ export const types = `
   }
 
   input ITicketFilter {
+    createdAt: Date
+    createdAtTo: Date
+    customerId: String
+    companyId: String
     _id: String
     statusId: String
     priority: Int
