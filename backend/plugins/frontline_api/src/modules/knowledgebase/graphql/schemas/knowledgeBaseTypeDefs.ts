@@ -109,58 +109,6 @@ export const types = `
       parentCategoryId: String
     }
 
-    type KnowledgeBaseTopicStyles {
-      mainLogo: String
-      favicon: String
-
-      bodyColor: String
-      headerColor: String
-      footerColor: String
-      helpCenterColor: String
-      backgroundColor: String
-      activeTabColor: String
-
-      baseFont: String
-      baseColor: String
-      headingFont: String
-      headingColor: String
-      linkColor: String
-      linkHoverColor: String
-
-      primaryButtonColor: String
-      secondaryButtonColor: String
-      dividerColor: String
-
-      headerHtml: String
-      footerHtml: String
-    }
-
-    input KnowledgeBaseTopicStylesInput {
-      mainLogo: String
-      favicon: String
-
-      bodyColor: String
-      headerColor: String
-      footerColor: String
-      helpCenterColor: String
-      backgroundColor: String
-      activeTabColor: String
-
-      baseFont: String
-      baseColor: String
-      headingFont: String
-      headingColor: String
-      linkColor: String
-      linkHoverColor: String
-
-      primaryButtonColor: String
-      secondaryButtonColor: String
-      dividerColor: String
-
-      headerHtml: String
-      footerHtml: String
-    }
-
     type KnowledgeBaseTopic @key(fields: "_id") {
       _id: String!
       code: String
@@ -177,17 +125,6 @@ export const types = `
       modifiedDate: Date
       parentCategories: [KnowledgeBaseParentCategory]
       notificationSegmentId: String
-
-      url: String
-      kbToggle: Boolean
-      kbLabel: String
-      kbTopicId: String
-      ticketToggle: Boolean
-      ticketLabel: String
-      ticketChannelId: String
-      ticketPipelineId: String
-      ticketStatusId: String
-      styles: KnowledgeBaseTopicStyles
     }
 
     input KnowledgeBaseTopicDoc {
@@ -200,17 +137,6 @@ export const types = `
       backgroundImage: String
       languageCode: String
       notificationSegmentId: String
-
-      url: String
-      kbToggle: Boolean
-      kbLabel: String
-      kbTopicId: String
-      ticketToggle: Boolean
-      ticketLabel: String
-      ticketChannelId: String
-      ticketPipelineId: String
-      ticketStatusId: String
-      styles: KnowledgeBaseTopicStylesInput
     }
 
     type KnowledgeBaseLoader {

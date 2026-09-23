@@ -42,14 +42,14 @@ const useHelpCentersQuery = (
     },
   );
 
-  const helpCenters: IHelpCenter[] | undefined = data?.knowledgeBaseTopics;
+  const helpCenters: IHelpCenter[] | undefined = data?.helpCenterConfigs;
 
   return {
     helpCenters,
     loading,
     error,
     refetch,
-    serverTotalCount: data?.knowledgeBaseTopicsTotalCount,
+    serverTotalCount: data?.helpCenterConfigsTotalCount,
   };
 };
 
@@ -61,16 +61,12 @@ export const useHelpCenters = (
   const { helpCenters, loading, error, refetch, serverTotalCount } =
     useHelpCentersQuery(filters, options);
 
-  const isFiltered = Boolean(filters.searchValue || filters.brandId);
-
-  const totalCount = isFiltered ? helpCenters?.length : serverTotalCount;
-
   useEffect(() => {
-    if (isUndefinedOrNull(totalCount)) return;
-    setHelpCenterTotalCount(totalCount);
-  }, [totalCount, setHelpCenterTotalCount]);
+    if (isUndefinedOrNull(serverTotalCount)) return;
+    setHelpCenterTotalCount(serverTotalCount);
+  }, [serverTotalCount, setHelpCenterTotalCount]);
 
-  return { helpCenters, loading, error, refetch, totalCount };
+  return { helpCenters, loading, error, refetch, totalCount: serverTotalCount };
 };
 
 export const useAllHelpCenters = (

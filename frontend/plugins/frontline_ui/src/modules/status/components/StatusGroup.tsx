@@ -115,7 +115,7 @@ export const Status = ({
       style={style}
     >
       <DragHandle
-        aria-label={t('reorder')}
+        aria-label={t('reorder', 'Reorder')}
         className={cn(
           'opacity-0 transition-opacity focus-visible:opacity-100 group-hover:opacity-100',
           isDragDisabled && 'invisible',
@@ -165,12 +165,12 @@ const StatusOptionMenu = ({
       variables: { id: statusId },
       onCompleted: () => {
         toast({
-          title: t('success'),
+          title: t('success', 'Success!'),
         });
       },
       onError: (error) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: error.message,
           variant: 'destructive',
         });
@@ -188,7 +188,7 @@ const StatusOptionMenu = ({
       <DropdownMenu.Content align="end" className="min-w-40">
         <DropdownMenu.Item onSelect={() => setEditingStatus(statusId)}>
           <IconEdit />
-          {t('edit')}
+          {t('edit', 'Edit')}
         </DropdownMenu.Item>
         <DropdownMenu.Separator />
         <DropdownMenu.Item
@@ -196,7 +196,7 @@ const StatusOptionMenu = ({
           onSelect={handleDeleteStatus}
         >
           <IconTrash />
-          {t('delete')}
+          {t('delete', 'Delete')}
         </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu>
@@ -284,8 +284,11 @@ export const StatusGroup = ({
 
       if (hasFailure) {
         toast({
-          title: t('error'),
-          description: t('reorder-failed'),
+          title: t('error', 'Error'),
+          description: t(
+            'reorder-failed',
+            'Some statuses could not be reordered.',
+          ),
           variant: 'destructive',
         });
       }
@@ -314,7 +317,7 @@ export const StatusGroup = ({
           )}
           {!isEmpty && (
             <Button
-              aria-label={t('add')}
+              aria-label={t('add', 'Add')}
               className="ml-auto"
               disabled={loading || isEditingSomewhere}
               onClick={() => setAddingStatus(statusType)}
@@ -355,7 +358,7 @@ export const StatusGroup = ({
             variant="outline"
           >
             <IconPlus />
-            {t('add')}
+            {t('add', 'Add')}
           </Button>
         )}
 

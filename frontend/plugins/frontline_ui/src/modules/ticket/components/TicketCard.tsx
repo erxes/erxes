@@ -77,7 +77,7 @@ export const TicketCard = ({ id, column }: BoardCardProps) => {
             value={name}
           />
           <div className="text-accent-foreground uppercase">
-            {t('ticket-number', { number })}
+            {t('ticket-number', 'Ticket #{{number}}', { number })}
           </div>
         </div>
         <div className="flex flex-wrap gap-1">

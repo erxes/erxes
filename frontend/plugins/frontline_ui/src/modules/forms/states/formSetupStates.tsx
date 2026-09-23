@@ -56,6 +56,7 @@ export const formSetupValuesAtom = atom((get) => {
   const content = get(formSetupContentAtom);
 
   return (confirmation: z.infer<typeof FORM_CONFIRMATION_SCHEMA>) => ({
+    channelId: general.channelId,
     formValues: {
       title: general.title,
       name: general.title,

@@ -21,6 +21,10 @@ export const PRODUCT_FORM_SCHEMA = z
     unitPrice: z.number({
       required_error: 'Unit price is required',
     }),
+    weight: z.preprocess(
+      (value) => (value === '' || value == null ? undefined : Number(value)),
+      z.number().min(0, 'Weight must be greater than or equal to 0').optional(),
+    ),
     duration: z.preprocess(
       (value) => (value === '' || value == null ? undefined : Number(value)),
       z.number().positive('Duration must be greater than 0').optional(),
@@ -90,6 +94,7 @@ export const EMPTY_PRODUCT_FORM_VALUES: ProductFormSchemaType = {
   barcodeDescription: '',
   scopeBrandIds: [],
   unitPrice: 0,
+  weight: undefined,
   duration: undefined,
   durationType: undefined,
   currency: '',

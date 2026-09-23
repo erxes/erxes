@@ -1,14 +1,17 @@
 {
-    "documents": "Documents",
-    "document-types" : "Document types",
-    "customer" : "Customer",
-    "company" : "Company",
-    "product" : "Product",
-    "team-member" : "Team member",
-    "add-document" : "Add document",
-    "no-document-title" : "No document yet",
-    "no-document-description" : "Get started by creating your first document.",
-    "filter" : {
+  "documents": "Documents",
+  "document-types": "Document types",
+  "customer": "Customer",
+  "company": "Company",
+  "product": "Product",
+  "team-member": "Team member",
+  "add-document": "Add document",
+  "no-document-title": "No document yet",
+  "no-document-description": "Get started by creating your first document.",
+  "filtered-empty-title": "No documents found",
+  "filtered-empty-description": "Try changing or clearing your filters.",
+  "clear-filters": "Clear filters",
+  "filter": {
     "search": "Search",
     "created-at": "Created At",
     "assigned-to": "Assigned To"

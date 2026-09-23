@@ -31,7 +31,7 @@ export const useMessageTriggerForm = ({
     callback: () => {
       form.handleSubmit(onSaveTriggerConfig, () =>
         toast({
-          title: t('form-error'),
+          title: t('form-error', 'There is some error in the form'),
           variant: 'destructive',
         }),
       )();

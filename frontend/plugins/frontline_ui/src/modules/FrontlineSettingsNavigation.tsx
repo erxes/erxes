@@ -6,11 +6,15 @@ import {
 import { FrontlinePaths } from '@/types/FrontlinePaths';
 import { SettingsNavigationMenuLinkItem, Sidebar } from 'erxes-ui';
 import { Can } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const FrontlineSettingsNavigation = () => {
+  const { t } = useTranslation('frontline');
   return (
     <Sidebar.Group>
-      <Sidebar.GroupLabel className="h-4">Frontline</Sidebar.GroupLabel>
+      <Sidebar.GroupLabel className="h-4">
+        {t('frontline', 'Frontline')}
+      </Sidebar.GroupLabel>
       <Sidebar.GroupContent className="pt-1">
         <Sidebar.Menu>
           <SettingsNavigationMenuLinkItem

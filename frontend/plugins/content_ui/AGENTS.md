@@ -34,14 +34,14 @@
 
 ## Architecture
 
-| Area          | Path                                                  | Responsibility                            |
-| ------------- | ----------------------------------------------------- | ----------------------------------------- |
-| Configuration | `frontend/plugins/content_ui/src/config.tsx`          | Registers content navigation and modules. |
-| Dev server     | `frontend/plugins/content_ui/rspack.config.ts`        | Configures image assets, Module Federation development serving, and watch ignore rules. |
-| CMS           | `frontend/plugins/content_ui/src/modules/cms`         | Owns CMS routes and feature UI.           |
-| Web Builder   | `frontend/plugins/content_ui/src/modules/web-builder` | Owns Web Builder UI.                      |
-| Pages         | `frontend/plugins/content_ui/src/pages`               | Provides route-level pages.               |
-| Widgets       | `frontend/plugins/content_ui/src/widgets`             | Provides plugin widget exports.           |
+| Area          | Path                                                  | Responsibility                                                                          |
+| ------------- | ----------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| Configuration | `frontend/plugins/content_ui/src/config.tsx`          | Registers content navigation and modules.                                               |
+| Dev server    | `frontend/plugins/content_ui/rspack.config.ts`        | Configures image assets, Module Federation development serving, and watch ignore rules. |
+| CMS           | `frontend/plugins/content_ui/src/modules/cms`         | Owns CMS routes and feature UI.                                                         |
+| Web Builder   | `frontend/plugins/content_ui/src/modules/web-builder` | Owns Web Builder UI.                                                                    |
+| Pages         | `frontend/plugins/content_ui/src/pages`               | Provides route-level pages.                                                             |
+| Widgets       | `frontend/plugins/content_ui/src/widgets`             | Provides plugin widget exports.                                                         |
 
 ## Contracts
 
@@ -97,6 +97,7 @@
 
 ### UI Conventions
 
+- Ordinary published CMS posts offer a shared-erxes publish sheet with CMS-only fallback and a separate social queue result. Keep a saved CMS ID and immutable request across an uncertain share response; never recreate the CMS post on a social retry. Delivery history and reviewed failed-channel retries live in `posts/postiz`.
 - Match existing CMS page structure: header, optional CMS sidebar, content area,
   and drawers.
 - Use `erxes-ui` and `ui-modules` components before creating new primitives.
@@ -113,6 +114,9 @@
 ### Data and GraphQL
 
 - Use Apollo Client hooks already used in this plugin.
+- Post edits refetch only the CMS post detail, cursor list, and translations.
+  Never use `refetchQueries: 'all'` for CMS saves: it can execute another
+  plugin's dormant query without required variables and reject a successful save.
 - GraphQL operations should live in the feature's `graphql` folder when one
   exists.
 - Name GraphQL queries and mutations with the plugin or module prefix plus the

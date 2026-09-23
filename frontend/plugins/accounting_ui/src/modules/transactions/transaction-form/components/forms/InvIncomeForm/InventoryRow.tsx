@@ -12,11 +12,15 @@ import {
   RecordTableInlineCell,
   Table,
 } from 'erxes-ui';
+import { fixNum } from 'erxes-ui/lib';
 import { useAtom, useAtomValue } from 'jotai';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { type Path, useWatch } from 'react-hook-form';
 import { SelectBranches, SelectDepartments, SelectProduct } from 'ui-modules';
-import { useGetAccLastIncomePrice } from '../../../hooks/useGetInvCostInfo';
+import {
+  useGetAccLastIncomePrice,
+  useGetAccountingProductUnitPrice,
+} from '../../../hooks/useGetInvCostInfo';
 import {
   showAdvancedViewState,
   taxPercentsState,
@@ -73,6 +77,8 @@ export const InventoryRow = ({
 
   const { unitPrice, count, _id } = detail;
   const initProductId = useRef(detail.productId);
+  const hasProductChanged = useRef(false);
+  const shouldRecalculateWeight = useRef(detail.weight == null);
   const hasDuplicateProduct = hasDuplicateProductId(
     trDoc.details,
     detail.productId,
@@ -97,12 +103,42 @@ export const InventoryRow = ({
     }
 
     setTaxAmounts(calcTaxAmounts(count, unitPrice));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [detail._id, rowPercent, trDoc.hasVat, trDoc.hasCtax, count, unitPrice]);
 
   const getFieldName = (name: keyof TInvDetail): Path<TAddTransactionGroup> => {
     return `trDocs.${journalIndex}.details.${detailIndex}.${name}` as Path<TAddTransactionGroup>;
   };
+
+  const { productWeight, loading: loadingProductWeight } =
+    useGetAccountingProductUnitPrice({
+      variables: { _id: detail.productId },
+      skip:
+        !detail.productId ||
+        (!hasProductChanged.current &&
+          initProductId.current &&
+          detail.productId === initProductId.current &&
+          detail.weight != null),
+    });
+
+  const setCalculatedWeight = (nextCount: number) => {
+    form.setValue(
+      getFieldName('weight'),
+      detail.productId ? fixNum(productWeight * nextCount) : 0,
+    );
+    shouldRecalculateWeight.current = false;
+  };
+
+  useEffect(() => {
+    if (
+      !detail.productId ||
+      loadingProductWeight ||
+      !shouldRecalculateWeight.current
+    ) {
+      return;
+    }
+
+    setCalculatedWeight(count ?? 0);
+  }, [detail.productId, loadingProductWeight, productWeight]);
 
   const handleAmountChange = (value: number) => {
     const newUnitPrice = count ? value / count : 0;
@@ -134,7 +170,9 @@ export const InventoryRow = ({
       },
       skip:
         !detail.productId ||
-        (initProductId.current && detail.productId === initProductId.current),
+        (!hasProductChanged.current &&
+          initProductId.current &&
+          detail.productId === initProductId.current),
     });
 
   useEffect(() => {
@@ -145,13 +183,17 @@ export const InventoryRow = ({
     const nextUnitPrice = lastIncomePriceInfo[detail.productId] ?? 0;
     calcAmount(count ?? 0, nextUnitPrice);
     form.setValue(getFieldName('unitPrice'), nextUnitPrice);
-  }, [detail.productId, loadingLastIncomePrice]);
+  }, [detail.productId, lastIncomePriceInfo, loadingLastIncomePrice]);
 
   const handleCountChange = (
     value: number,
     onChange: (value: number) => void,
   ) => {
     calcAmount(value, unitPrice ?? 0);
+    shouldRecalculateWeight.current = true;
+    if (!loadingProductWeight) {
+      setCalculatedWeight(value);
+    }
     onChange(value);
   };
 
@@ -279,6 +321,14 @@ export const InventoryRow = ({
               <SelectProduct
                 value={field.value || ''}
                 onValueChange={(productId) => {
+                  if (productId !== field.value) {
+                    hasProductChanged.current = true;
+                    shouldRecalculateWeight.current = true;
+                    if (!productId) {
+                      form.setValue(getFieldName('weight'), 0);
+                      shouldRecalculateWeight.current = false;
+                    }
+                  }
                   field.onChange(productId);
                 }}
                 variant="ghost"
@@ -498,6 +548,39 @@ export const InventoryRow = ({
       )}
       {showAdvancedView && (
         <>
+          <RecordTableHotKeyControl
+            rowId={_id}
+            rowIndex={detailIndex}
+            enableOnFormTags
+          >
+            <Table.Cell>
+              <Form.Field
+                control={form.control}
+                name={`trDocs.${journalIndex}.details.${detailIndex}.weight`}
+                render={({ field }) => (
+                  <PopoverScoped
+                    scope={`trDocs.${journalIndex}.details.${detailIndex}.weight`}
+                    closeOnEnter
+                  >
+                    <Form.Control>
+                      <RecordTableInlineCell.Trigger>
+                        {field.value?.toLocaleString() || 0}
+                      </RecordTableInlineCell.Trigger>
+                    </Form.Control>
+                    <RecordTableInlineCell.Content>
+                      <InputNumber
+                        value={field.value ?? 0}
+                        onChange={(value) => {
+                          shouldRecalculateWeight.current = false;
+                          field.onChange(value || 0);
+                        }}
+                      />
+                    </RecordTableInlineCell.Content>
+                  </PopoverScoped>
+                )}
+              />
+            </Table.Cell>
+          </RecordTableHotKeyControl>
           <RecordTableHotKeyControl
             rowId={_id}
             rowIndex={detailIndex}

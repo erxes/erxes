@@ -3,7 +3,7 @@ import { GET_TRIAGE } from '@/triage/graphql/queries/getTriage';
 import { QueryHookOptions, useQuery } from '@apollo/client';
 
 export const useGetTriage = (options: QueryHookOptions) => {
-  const { data, loading } = useQuery<{ operationGetTriage: ITriage }>(
+  const { data, loading, error } = useQuery<{ operationGetTriage: ITriage }>(
     GET_TRIAGE,
     { ...options },
   );
@@ -11,5 +11,6 @@ export const useGetTriage = (options: QueryHookOptions) => {
   return {
     triage: data?.operationGetTriage,
     loading,
+    error,
   };
 };

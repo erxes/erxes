@@ -4,7 +4,6 @@ import {
   Sheet,
   ToggleGroup,
   Button,
-  StringArrayInput,
   Select,
   Checkbox,
   ScrollArea,
@@ -15,7 +14,7 @@ import {
 import { IFieldData, useFormDnd } from './FormDndProvider';
 import { UniqueIdentifier } from '@dnd-kit/core';
 import { IconInfoCircle, IconPlus, IconTrash } from '@tabler/icons-react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import DOMPurify from 'dompurify';
 import {
@@ -85,11 +84,23 @@ export const FormFieldDetail = ({
 
   const editor = useBlockEditor();
 
+  const [draft, setDraft] = useState<IFieldData | undefined>(fieldData);
+
   useEffect(() => {
+    setDraft(fieldData);
+  }, [fieldId]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    let isActive = true;
     const description = fieldData?.description || '';
     editor.tryParseHTMLToBlocks(description).then((blocks) => {
-      editor.replaceBlocks(editor.document, blocks);
+      if (isActive) {
+        editor.replaceBlocks(editor.document, blocks);
+      }
     });
+    return () => {
+      isActive = false;
+    };
   }, [fieldId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const availableFields = Object.entries(fields)
@@ -100,7 +111,7 @@ export const FormFieldDetail = ({
     )
     .filter((f): f is IFieldData => !!f && f.id !== fieldId.toString());
 
-  if (!fieldData) {
+  if (!draft) {
     return null;
   }
 
@@ -108,20 +119,20 @@ export const FormFieldDetail = ({
     key: keyof IFieldData,
     value: string | number | string[] | boolean,
   ) => {
-    handleChangeField(stepId, fieldId, {
-      ...fieldData,
-      [key]: value,
-    });
+    setDraft((prev) => prev && { ...prev, [key]: value });
   };
 
   const handleAddLogic = () => {
-    handleChangeField(stepId, fieldId, {
-      ...fieldData,
-      logics: [
-        ...(fieldData.logics ?? []),
-        { fieldId: '', logicOperator: '', logicValue: '' },
-      ],
-    });
+    setDraft(
+      (prev) =>
+        prev && {
+          ...prev,
+          logics: [
+            ...(prev.logics ?? []),
+            { fieldId: '', logicOperator: '', logicValue: '' },
+          ],
+        },
+    );
   };
 
   const handleChangeLogic = (
@@ -129,24 +140,52 @@ export const FormFieldDetail = ({
     key: keyof IFormFieldLogics,
     value: string,
   ) => {
-    const updatedLogics = (fieldData.logics ?? []).map((logic, i) =>
-      i === index ? { ...logic, [key]: value } : logic,
-    );
-    handleChangeField(stepId, fieldId, { ...fieldData, logics: updatedLogics });
+    setDraft((prev) => {
+      if (!prev) return prev;
+      const updatedLogics = (prev.logics ?? []).map((logic, i) =>
+        i === index ? { ...logic, [key]: value } : logic,
+      );
+      return { ...prev, logics: updatedLogics };
+    });
   };
 
   const handleRemoveLogic = (index: number) => {
-    const updatedLogics = (fieldData.logics ?? []).filter(
-      (_, i) => i !== index,
-    );
-    handleChangeField(stepId, fieldId, { ...fieldData, logics: updatedLogics });
+    setDraft((prev) => {
+      if (!prev) return prev;
+      const updatedLogics = (prev.logics ?? []).filter((_, i) => i !== index);
+      return { ...prev, logics: updatedLogics };
+    });
+  };
+
+  const handleAddOption = () => {
+    setDraft((prev) => prev && { ...prev, options: [...prev.options, ''] });
+  };
+
+  const handleChangeOption = (index: number, value: string) => {
+    setDraft((prev) => {
+      if (!prev) return prev;
+      const updatedOptions = prev.options.map((option, i) =>
+        i === index ? value : option,
+      );
+      return { ...prev, options: updatedOptions };
+    });
+  };
+
+  const handleRemoveOption = (index: number) => {
+    setDraft((prev) => {
+      if (!prev) return prev;
+      return { ...prev, options: prev.options.filter((_, i) => i !== index) };
+    });
   };
 
   const handleChangeValidator = (patch: Partial<IFieldValidator>) => {
-    handleChangeField(stepId, fieldId, {
-      ...fieldData,
-      validator: { type: 'NONE', ...fieldData.validator, ...patch },
-    });
+    setDraft(
+      (prev) =>
+        prev && {
+          ...prev,
+          validator: { type: 'NONE', ...prev.validator, ...patch },
+        },
+    );
   };
 
   const handleDelete = () => {
@@ -154,81 +193,97 @@ export const FormFieldDetail = ({
     handleClose();
   };
 
+  const serializeDescription = async () => {
+    const html = await editor.blocksToHTMLLossy(editor.document);
+    const safe = DOMPurify.sanitize(html);
+    const stripped = safe.replace(/<[^>]*>/g, '').trim();
+    return stripped ? safe : '';
+  };
+
+  const handleConfirm = async () => {
+    if (!draft) return;
+    const description = await serializeDescription();
+    handleChangeField(stepId, fieldId, { ...draft, description });
+    handleClose();
+  };
+
   return (
     <div className="flex flex-col gap-0 size-full">
       <Sheet.Header>
-        <Sheet.Title>{fieldData?.label}</Sheet.Title>
+        <Sheet.Title className="truncate min-w-0">{draft?.label}</Sheet.Title>
         <Sheet.Close />
       </Sheet.Header>
       <Sheet.Content className="grow size-full overflow-y-hidden flex flex-col">
         <ScrollArea className="h-full">
           <div className="grid grid-cols-2 gap-4 p-6">
             <div className="space-y-2 col-span-2">
-              <Label>{t('field-label')}</Label>
+              <Label>{t('field-label', 'Label')}</Label>
               <Input
-                value={fieldData?.label}
+                value={draft?.label}
                 onChange={(e) => handleValueChange('label', e.target.value)}
               />
             </div>
             <div className="space-y-2 col-span-2 flex gap-2 items-center">
-              <Label className="flex items-center m-0!">{t('required')}</Label>
+              <Label className="flex items-center m-0!">
+                {t('required', 'Required')}
+              </Label>
               <Checkbox
-                checked={fieldData?.required}
+                checked={draft?.required}
                 onCheckedChange={(checked) =>
                   handleValueChange('required', checked === true)
                 }
               />
             </div>
             <div className="space-y-2 col-span-2">
-              <Label>{t('description')}</Label>
+              <Label>{t('description', 'Description')}</Label>
               <BlockEditor
                 editor={editor}
                 variant="outline"
                 className="min-h-20"
                 onChange={() => {
-                  editor.blocksToHTMLLossy(editor.document).then((html) => {
-                    const safe = DOMPurify.sanitize(html);
-                    const stripped = safe.replace(/<[^>]*>/g, '').trim();
-                    handleValueChange('description', stripped ? safe : '');
+                  serializeDescription().then((description) => {
+                    handleValueChange('description', description);
                   });
                 }}
               />
             </div>
             <div className="space-y-2 col-span-2">
-              <Label>{t('field-width')}</Label>
+              <Label>{t('field-width', 'Field Width')}</Label>
               <ToggleGroup
                 type="single"
                 variant="outline"
-                value={fieldData?.span?.toString() ?? '1'}
+                value={draft?.span?.toString() ?? '1'}
                 onValueChange={(value) =>
                   handleValueChange('span', Number.parseInt(value ?? '1'))
                 }
               >
                 <ToggleGroup.Item value="1" className="flex-1">
-                  {t('half-width')}
+                  {t('half-width', 'Half width')}
                 </ToggleGroup.Item>
                 <ToggleGroup.Item value="2" className="flex-1">
-                  {t('full-width')}
+                  {t('full-width', 'Full width')}
                 </ToggleGroup.Item>
               </ToggleGroup>
             </div>
             <div className="space-y-2 col-span-2">
-              <Label>{t('placeholder-attribute')}</Label>
+              <Label>
+                {t('placeholder-attribute', 'Placeholder Attribute')}
+              </Label>
               <Input
-                value={fieldData?.placeholder}
+                value={draft?.placeholder}
                 onChange={(e) =>
                   handleValueChange('placeholder', e.target.value)
                 }
               />
             </div>
             {/* Validator Configuration */}
-            {fieldData.type?.startsWith('core:customer') ? null : (
+            {draft.type?.startsWith('core:customer') ? null : (
               <div className="space-y-3 col-span-2">
-                <Label>{t('validation')}</Label>
+                <Label>{t('validation', 'Validation')}</Label>
                 <ToggleGroup
                   type="single"
                   variant="outline"
-                  value={fieldData.validator?.type ?? 'NONE'}
+                  value={draft.validator?.type ?? 'NONE'}
                   onValueChange={(value) => {
                     if (!value) return;
                     handleChangeValidator({
@@ -237,19 +292,19 @@ export const FormFieldDetail = ({
                   }}
                 >
                   <ToggleGroup.Item value="NONE" className="flex-1">
-                    {t('none')}
+                    {t('none', 'None')}
                   </ToggleGroup.Item>
                   <ToggleGroup.Item value="PRESET" className="flex-1">
-                    {t('preset')}
+                    {t('preset', 'Preset')}
                   </ToggleGroup.Item>
                   <ToggleGroup.Item value="CUSTOM" className="flex-1">
-                    {t('custom')}
+                    {t('custom', 'Custom')}
                   </ToggleGroup.Item>
                 </ToggleGroup>
 
-                {fieldData.validator?.type === 'PRESET' && (
+                {draft.validator?.type === 'PRESET' && (
                   <Select
-                    value={fieldData.validator.presetKey ?? ''}
+                    value={draft.validator.presetKey ?? ''}
                     onValueChange={(value) =>
                       handleChangeValidator({
                         presetKey: value as FieldValidatorPresetKey,
@@ -257,7 +312,12 @@ export const FormFieldDetail = ({
                     }
                   >
                     <Select.Trigger>
-                      <Select.Value placeholder={t('select-preset-rule')} />
+                      <Select.Value
+                        placeholder={t(
+                          'select-preset-rule',
+                          'Select a preset rule',
+                        )}
+                      />
                     </Select.Trigger>
                     <Select.Content>
                       {VALIDATOR_PRESET_OPTIONS.map((opt) => (
@@ -269,40 +329,46 @@ export const FormFieldDetail = ({
                   </Select>
                 )}
 
-                {fieldData.validator?.type === 'CUSTOM' && (
+                {draft.validator?.type === 'CUSTOM' && (
                   <Input
-                    value={fieldData.validator.customRegex ?? ''}
+                    value={draft.validator.customRegex ?? ''}
                     onChange={(e) =>
                       handleChangeValidator({ customRegex: e.target.value })
                     }
-                    placeholder={t('regex-pattern-placeholder')}
+                    placeholder={t(
+                      'regex-pattern-placeholder',
+                      'Regex pattern (e.g. ^[A-Z]{3}\\d{4}$)',
+                    )}
                     spellCheck={false}
                   />
                 )}
 
-                {fieldData.validator?.type &&
-                  fieldData.validator.type !== 'NONE' && (
+                {draft.validator?.type &&
+                  draft.validator.type !== 'NONE' && (
                     <Input
-                      value={fieldData.validator.errorMessage ?? ''}
+                      value={draft.validator.errorMessage ?? ''}
                       onChange={(e) =>
                         handleChangeValidator({ errorMessage: e.target.value })
                       }
-                      placeholder={t('error-message-placeholder')}
+                      placeholder={t(
+                        'error-message-placeholder',
+                        'Error message shown to the user',
+                      )}
                     />
                   )}
               </div>
             )}
 
-            {(fieldData?.type === 'select' ||
-              fieldData?.type === 'select:countries') && (
+            {(draft?.type === 'select' ||
+              draft?.type === 'select:countries') && (
               <div className="space-y-2 col-span-2 flex gap-2 items-center">
                 <Label htmlFor="allowSearch" className="flex items-center m-0!">
-                  {t('allow-search')}
+                  {t('allow-search', 'Allow search')}
                 </Label>
                 <Checkbox
                   id="allowSearch"
                   className="flex-none shrink m-0!"
-                  checked={fieldData?.allowSearch}
+                  checked={draft?.allowSearch}
                   onCheckedChange={(checked) =>
                     handleValueChange('allowSearch', checked === true)
                   }
@@ -316,57 +382,86 @@ export const FormFieldDetail = ({
                       />
                     </Tooltip.Trigger>
                     <Tooltip.Content>
-                      {t('enables-search-in-options')}
+                      {t(
+                        'enables-search-in-options',
+                        'Enables searching within options',
+                      )}
                     </Tooltip.Content>
                   </Tooltip>
                 </Tooltip.Provider>
               </div>
             )}
-            {(fieldData?.type === 'select' ||
-              fieldData?.type === 'select:countries' ||
-              fieldData?.type === 'radio' ||
-              fieldData?.type === 'check' ||
-              fieldData?.type === 'core:customer:sex') && (
+            {(draft?.type === 'select' ||
+              draft?.type === 'select:countries' ||
+              draft?.type === 'radio' ||
+              draft?.type === 'check' ||
+              draft?.type === 'core:customer:sex') && (
               <div className="space-y-2 col-span-2">
-                <Label>{t('options')}</Label>
-                <StringArrayInput
-                  styleClasses={{
-                    inlineTagsContainer: 'shadow-xs',
-                  }}
-                  value={fieldData.options}
-                  onValueChange={(value) => handleValueChange('options', value)}
-                  splitOnPaste
-                />
+                <Label>{t('options', 'Options')}</Label>
+                <div className="space-y-2">
+                  {draft.options.map((option, index) => (
+                    <div key={index} className="flex items-center gap-2">
+                      <Input
+                        value={option}
+                        placeholder={t('option-label', 'Option')}
+                        onChange={(e) =>
+                          handleChangeOption(index, e.target.value)
+                        }
+                      />
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="shrink-0 hover:text-destructive"
+                        onClick={() => handleRemoveOption(index)}
+                      >
+                        <IconTrash size={14} />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+                <Button variant="outline" size="sm" onClick={handleAddOption}>
+                  <IconPlus size={14} />
+                  {t('add-option', 'Add option')}
+                </Button>
               </div>
             )}
             <div className="space-y-2 col-span-2">
-              <Label>{t('field-logic-action')}</Label>
+              <Label>{t('field-logic-action', 'Field Logic action')}</Label>
               <Select
-                value={fieldData?.logicAction}
+                value={draft?.logicAction}
                 onValueChange={(value) =>
                   handleValueChange('logicAction', value as string)
                 }
               >
                 <Select.Trigger>
-                  <Select.Value placeholder={t('select-logic-action')} />
+                  <Select.Value
+                    placeholder={t(
+                      'select-logic-action',
+                      'Select logic action',
+                    )}
+                  />
                 </Select.Trigger>
                 <Select.Content>
-                  <Select.Item value="show">{t('show-this-field')}</Select.Item>
-                  <Select.Item value="hide">{t('hide-this-field')}</Select.Item>
+                  <Select.Item value="show">
+                    {t('show-this-field', 'Show this field')}
+                  </Select.Item>
+                  <Select.Item value="hide">
+                    {t('hide-this-field', 'Hide this field')}
+                  </Select.Item>
                 </Select.Content>
               </Select>
             </div>
             {/* Logics */}
             <div className="space-y-2 col-span-2">
               <div className="flex items-center justify-between">
-                <Label>{t('field-logics')}</Label>
+                <Label>{t('field-logics', 'Field Logics')}</Label>
                 <Button variant="outline" size="sm" onClick={handleAddLogic}>
                   <IconPlus size={14} />
-                  {t('add-logic')}
+                  {t('add-logic', 'Add Logic')}
                 </Button>
               </div>
               <div className="space-y-2">
-                {(fieldData.logics ?? []).map((logic, index) => {
+                {(draft.logics ?? []).map((logic, index) => {
                   const referencedField = availableFields.find(
                     (f) => f.id === logic.fieldId,
                   );
@@ -383,7 +478,9 @@ export const FormFieldDetail = ({
                         }
                       >
                         <Select.Trigger className="col-span-1">
-                          <Select.Value placeholder={t('select-field')} />
+                          <Select.Value
+                            placeholder={t('select-field', 'Select field')}
+                          />
                         </Select.Trigger>
                         <Select.Content>
                           {availableFields.map((f) => (
@@ -400,7 +497,9 @@ export const FormFieldDetail = ({
                         }
                       >
                         <Select.Trigger className="col-span-1">
-                          <Select.Value placeholder={t('operator')} />
+                          <Select.Value
+                            placeholder={t('operator', 'Operator')}
+                          />
                         </Select.Trigger>
                         <Select.Content>
                           {operators.map((op) => (
@@ -416,7 +515,7 @@ export const FormFieldDetail = ({
                         onChange={(e) =>
                           handleChangeLogic(index, 'logicValue', e.target.value)
                         }
-                        placeholder={t('value')}
+                        placeholder={t('value', 'Value')}
                       />
                       <Button
                         variant="ghost"
@@ -441,11 +540,9 @@ export const FormFieldDetail = ({
           onClick={handleDelete}
         >
           <IconTrash />
-          {t('delete')}
+          {t('delete', 'Delete')}
         </Button>
-        <Button variant="outline" onClick={handleClose}>
-          {t('close')}
-        </Button>
+        <Button onClick={handleConfirm}>{t('confirm', 'Confirm')}</Button>
       </Sheet.Footer>
     </div>
   );

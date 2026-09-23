@@ -1,24 +1,9 @@
 import { useDocuments } from '@/documents/hooks/useDocuments';
-import { IconFileOff } from '@tabler/icons-react';
-import { Empty, RecordTable } from 'erxes-ui';
+import { RecordTable } from 'erxes-ui';
+import { DocumentsEmptyState } from '../DocumentsEmptyState';
+import { DocumentsErrorState } from '../DocumentsErrorState';
 import { DocumentsColumn } from './DocumentsColumn';
 import { DocumentsRecordTableCommandBar } from './DocumentsRecordTableCommandBar';
-
-function DocumentsEmptyState() {
-  return (
-    <Empty className="h-full border-0 bg-transparent">
-      <Empty.Header>
-        <Empty.Media variant="icon">
-          <IconFileOff />
-        </Empty.Media>
-        <Empty.Title>No documents found</Empty.Title>
-        <Empty.Description>
-          There are no documents to display.
-        </Empty.Description>
-      </Empty.Header>
-    </Empty>
-  );
-}
 
 type DocumentsTableProps = {
   handleFetchMore: ReturnType<typeof useDocuments>['handleFetchMore'];
@@ -39,13 +24,31 @@ function DocumentsTable({ handleFetchMore, loading }: DocumentsTableProps) {
   );
 }
 
-export function DocumentsRecordTable() {
+type DocumentsRecordTableProps = Readonly<{
+  hasFilters: boolean;
+  onClearFilters: () => void;
+}>;
+
+export function DocumentsRecordTable({
+  hasFilters,
+  onClearFilters,
+}: DocumentsRecordTableProps) {
   const columns = DocumentsColumn();
-  const { documents, loading, handleFetchMore, pageInfo } = useDocuments();
+  const { documents, hasError, loading, handleFetchMore, pageInfo, refetch } =
+    useDocuments();
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
+  if (hasError) {
+    return <DocumentsErrorState onRetry={refetch} />;
+  }
+
   if (!loading && documents.length === 0) {
-    return <DocumentsEmptyState />;
+    return (
+      <DocumentsEmptyState
+        hasFilters={hasFilters}
+        onClearFilters={onClearFilters}
+      />
+    );
   }
 
   return (
@@ -55,7 +58,7 @@ export function DocumentsRecordTable() {
         data={documents}
         className="m-3 h-full"
         stickyColumns={['more', 'checkbox', 'name']}
-        tableId="documents_record_table"
+        tableId="documents_record_table_v2"
       >
         <RecordTable.CursorProvider
           dataLength={documents.length}

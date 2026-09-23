@@ -1,0 +1,300 @@
+@import 'tailwindcss';
+
+@source '../../../frontend/libs/erxes-ui/src';
+
+@plugin 'tailwindcss-animate';
+
+@theme {
+  --font-sans: var(--font-open-sans), ui-sans-serif, system-ui, sans-serif;
+
+  --color-subtle: #f6f5f2;
+  --color-canvas: #f2f1ee;
+  --color-shell: #0e0f12;
+  --color-shell-soft: #191b20;
+  --color-shell-line: #262930;
+  --color-canvas-deep: #f2f2f3;
+  --color-ink: #0f1011;
+  --color-ink-soft: #3d4046;
+  --color-line: #e6e6e8;
+  --color-line-strong: #d3d3d7;
+  --color-line-soft: #f0f0f2;
+
+  --color-brand: #4f33af;
+  --color-brand-strong: #3f2790;
+  --color-brand-soft: #f1eefc;
+
+  --color-hero: #3b2f6e;
+
+  --color-hero-soft: #4d3f92;
+  --color-hero-line: #6255a8;
+
+  --shadow-card: 0 1px 2px rgb(15 16 17 / 4%);
+  --shadow-card-hover: 0 2px 6px rgb(15 16 17 / 6%),
+    0 8px 20px rgb(15 16 17 / 6%);
+
+  --shadow-shell: 0 1px 2px rgb(24 20 12 / 4%),
+    0 10px 28px -14px rgb(24 20 12 / 12%);
+  --shadow-shell-hover: 0 2px 5px rgb(24 20 12 / 6%),
+    0 20px 46px -18px rgb(24 20 12 / 20%);
+
+  --color-footer: #0e0f12;
+  --color-link: var(--color-brand);
+  --color-link-hover: var(--color-brand-strong);
+
+  --color-success: #12855c;
+  --color-success-soft: #e4f5ee;
+  --color-warning: #b3690a;
+  --color-warning-soft: #fdf1e0;
+  --color-danger: #c73b3b;
+  --color-danger-soft: #fdeced;
+
+  --color-background: #ffffff;
+  --color-foreground: var(--color-ink);
+  --color-border: var(--color-line);
+  --color-ring: var(--color-brand);
+
+  --color-primary: var(--color-brand);
+  --color-primary-foreground: #ffffff;
+  --color-destructive: var(--color-danger);
+  --color-destructive-foreground: #ffffff;
+
+  --color-muted: var(--color-line);
+  --color-muted-foreground: #6b6f76;
+  --color-accent: var(--color-subtle);
+  --color-accent-foreground: var(--color-muted-foreground);
+
+  --shadow-xs: 0 0 0 1px var(--color-line), 0 1px 1px rgb(23 22 42 / 5%),
+    0 2px 2px rgb(23 22 42 / 5%);
+  --shadow-focus: 0 0 0 4px rgb(79 51 175 / 25%), 0 0 0 1px var(--color-brand);
+
+  --animate-aurora: hc-aurora 24s ease-in-out infinite;
+  --animate-aurora-slow: hc-aurora 38s ease-in-out infinite reverse;
+  --animate-blink: hc-blink 2.4s ease-in-out infinite;
+
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes hc-aurora {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  33% {
+    transform: translate3d(7%, -5%, 0) scale(1.14);
+  }
+
+  66% {
+    transform: translate3d(-6%, 6%, 0) scale(0.92);
+  }
+}
+
+@keyframes hc-blink {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.35;
+    transform: scale(0.65);
+  }
+}
+
+@layer base {
+  .kb-article {
+    @apply text-[15px] leading-[1.75] text-ink-soft;
+  }
+
+  .kb-article > * + *,
+  .kb-article > div > * + * {
+    @apply mt-5;
+  }
+
+  .kb-article figure {
+    @apply block py-5;
+  }
+
+  .kb-article :is(h1, h2, h3, h4) {
+    @apply font-semibold leading-snug text-ink;
+  }
+
+  .kb-article :is(h1, h2, h3, h4):not(:first-child),
+  .kb-article > div > :is(h1, h2, h3, h4):not(:first-child) {
+    @apply mt-10;
+  }
+
+  .kb-article h1 {
+    @apply text-[21px] tracking-[-0.02em];
+  }
+
+  .kb-article h2 {
+    @apply text-[18px] tracking-[-0.01em];
+  }
+
+  .kb-article h3 {
+    @apply text-[16px];
+  }
+
+  .kb-article h4 {
+    @apply text-[15px];
+  }
+
+  .kb-article strong {
+    @apply font-semibold text-ink;
+  }
+
+  .kb-article a {
+    @apply underline underline-offset-2;
+    color: var(--color-link);
+  }
+
+  .kb-article a:hover {
+    color: var(--color-link-hover);
+  }
+
+  .kb-article :is(ul, ol) {
+    @apply pl-5;
+  }
+
+  .kb-article ul {
+    @apply list-disc;
+  }
+
+  .kb-article ol {
+    @apply list-decimal;
+  }
+
+  .kb-article li + li {
+    @apply mt-2;
+  }
+
+  .kb-article li::marker {
+    @apply text-muted-foreground;
+  }
+
+  .kb-article blockquote {
+    @apply border-l-[3px] border-brand/30 pl-5 text-muted-foreground;
+  }
+
+  .kb-article :is(img, video) {
+    @apply h-auto max-w-full rounded-2xl;
+  }
+
+  .kb-article code {
+    @apply rounded-md bg-subtle px-1.5 py-0.5 text-[0.875em];
+  }
+
+  .kb-article pre {
+    @apply overflow-x-auto rounded-xl bg-subtle p-4 text-[14px];
+  }
+
+  .kb-article pre code {
+    @apply border-0 bg-transparent p-0;
+  }
+
+  .kb-article hr {
+    @apply my-6 border-line;
+  }
+
+  .kb-article table {
+    @apply block w-full overflow-x-auto border-collapse;
+  }
+
+  .kb-article :is(th, td) {
+    @apply border border-line px-3 py-2 text-left;
+  }
+
+  .kb-article th {
+    @apply bg-subtle font-semibold text-ink;
+  }
+}
+
+@layer base {
+  .tile {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .tile::before {
+    content: '';
+    position: absolute;
+    inset-inline: 10%;
+    top: 0;
+    height: 1px;
+    z-index: 1;
+    opacity: 0;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      color-mix(in srgb, var(--color-brand) 55%, transparent),
+      transparent
+    );
+    transition: opacity 400ms var(--ease-out-soft);
+  }
+
+  .tile:hover::before,
+  .tile:focus-within::before {
+    opacity: 1;
+  }
+
+  .tile-glow {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 350ms var(--ease-out-soft);
+    background: radial-gradient(
+      260px circle at var(--spot-x, 50%) var(--spot-y, 50%),
+      color-mix(in srgb, var(--color-brand) 10%, transparent),
+      transparent 72%
+    );
+  }
+
+  .tile:hover .tile-glow,
+  .tile:focus-within .tile-glow {
+    opacity: 1;
+  }
+
+  html {
+    scrollbar-gutter: stable;
+    scroll-behavior: smooth;
+  }
+
+  .hero-grid {
+    background-image: linear-gradient(
+        to right,
+        rgb(255 255 255 / 4%) 1px,
+        transparent 1px
+      ),
+      linear-gradient(to bottom, rgb(255 255 255 / 4%) 1px, transparent 1px);
+    background-size: 68px 68px;
+    -webkit-mask-image: radial-gradient(
+      120% 90% at 20% 0%,
+      #000 0%,
+      transparent 72%
+    );
+    mask-image: radial-gradient(120% 90% at 20% 0%, #000 0%, transparent 72%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .tile-glow {
+    display: none;
+  }
+
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

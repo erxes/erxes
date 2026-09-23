@@ -1,7 +1,7 @@
 import { IconCalendarPlus, IconFileText } from '@tabler/icons-react';
 import dayjs from 'dayjs';
 import { Card, RelativeDateDisplay, useSetQueryStateByKey } from 'erxes-ui';
-import { MembersInline } from 'ui-modules';
+import { ApprovalLockedBadge, MembersInline } from 'ui-modules';
 import { DOCUMENTS_TYPES_SET } from '../constants';
 import { IDocument } from '../types';
 import { DocumentPreview } from './DocumentPreview';
@@ -29,7 +29,9 @@ export const DocumentsGrid = ({ documents }: { documents: IDocument[] }) => {
             onClick={() => handleOpenDocument(document)}
           >
             <Card.Content className="relative flex h-40 items-center justify-center overflow-hidden border-b bg-muted/30 p-0">
-              <DocumentPreview document={document} />
+              {document.approvalLockState?.hasAccess !== false && (
+                <DocumentPreview document={document} />
+              )}
               <span
                 className={`text-xs py-1 px-2 ${
                   documentType?.color ?? ''
@@ -51,6 +53,7 @@ export const DocumentsGrid = ({ documents }: { documents: IDocument[] }) => {
                   {document.name || 'Untitled'}
                 </h3>
               </div>
+              <ApprovalLockedBadge state={document.approvalLockState} />
               <DocumentsActions documentItem={document} variant="grid" />
             </div>
 

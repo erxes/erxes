@@ -12,9 +12,9 @@ export const ActivityPriority = ({
 
   return (
     <div className="flex items-center gap-1">
-      {t('changed')}
+      {t('changed', 'changed')}
       <PriorityBadge priority={Number(previousValue)} />
-      {t('to')}
+      {t('to', 'to')}
       <PriorityBadge priority={Number(newValue)} />
     </div>
   );

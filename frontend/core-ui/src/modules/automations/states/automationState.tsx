@@ -73,3 +73,24 @@ export const automationHistorySelectedExecutionState = atom<{
 } | null>(null);
 
 // export const automationBuilder
+
+export type TAutomationEdgeInsertTarget = {
+  source: string;
+  sourceHandle: string | null;
+  target: string;
+};
+
+/**
+ * The edge a node is about to be inserted into. Set by the edge's insert
+ * button so the node library knows the pick lands mid-flow instead of being
+ * appended at the end.
+ */
+export const automationEdgeInsertTargetState =
+  atom<TAutomationEdgeInsertTarget | null>(null);
+
+/**
+ * The edge a canvas node is currently hovering over while being dragged.
+ * Node drags run on pointer events, so the edge cannot learn about them from
+ * a drop handler of its own.
+ */
+export const automationInsertHoverEdgeIdState = atom<string | null>(null);

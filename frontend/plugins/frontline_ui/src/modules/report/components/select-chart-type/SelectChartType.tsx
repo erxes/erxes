@@ -138,7 +138,7 @@ const SelectChartRoot = ({
     >
       <PopoverScoped open={open} onOpenChange={setOpen}>
         <Popover.Trigger className="bg-background rounded px-2 shadow-xs hover:bg-accent cursor-pointer transition-all duration-200 hover:text-primary/80 ease-in-out">
-          <SelectChartValue placeholder={t('select-chart')} />
+          <SelectChartValue placeholder={t('select-chart', 'Select chart')} />
         </Popover.Trigger>
         <Combobox.Content sideOffset={8} onClick={(e) => e.stopPropagation()}>
           <SelectChartContent />

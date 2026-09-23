@@ -17,13 +17,11 @@ export const SelectHelpCenterTopic = ({
   onValueChange,
   variant,
   scope,
-  excludeId,
 }: {
   value: string;
   onValueChange: (topicId: string) => void;
   variant: 'table' | 'form';
   scope?: string;
-  excludeId?: string;
 }) => {
   const { t } = useTranslation('frontline');
   const [open, setOpen] = useState(false);
@@ -32,9 +30,7 @@ export const SelectHelpCenterTopic = ({
     knowledgeBaseTopics: TTopicOption[];
   }>(GET_HELP_CENTER_TOPIC_OPTIONS, { variables: { perPage: 100 } });
 
-  const topics = (data?.knowledgeBaseTopics ?? []).filter(
-    (topic) => topic._id !== excludeId,
-  );
+  const topics = data?.knowledgeBaseTopics ?? [];
   const selected = topics.find((topic) => topic._id === value);
 
   return (

@@ -35,12 +35,8 @@ export const InboxIntegrationItem = ({
   name,
 }: InboxIntegrationItemProps) => {
   const { t } = useTranslation('frontline');
-  const [
-    { brandId, channelId: selectedChannelId, integrationId },
-    setFilters,
-  ] = useMultiQueryState<TInboxNavigationFilters>(
-    INBOX_NAVIGATION_FILTER_KEYS,
-  );
+  const [{ brandId, channelId: selectedChannelId, integrationId }, setFilters] =
+    useMultiQueryState<TInboxNavigationFilters>(INBOX_NAVIGATION_FILTER_KEYS);
   const isActive = integrationId === _id && selectedChannelId === channelId;
   const Icon = INTEGRATION_ICONS[kind] ?? IconInbox;
 

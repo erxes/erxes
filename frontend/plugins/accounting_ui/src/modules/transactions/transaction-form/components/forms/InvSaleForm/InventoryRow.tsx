@@ -89,10 +89,12 @@ export const InventoryRow = ({
   detailIndex,
   journalIndex,
   form,
+  initialUnitCost,
 }: {
   detailIndex: number;
   journalIndex: number;
   form: ITransactionGroupForm;
+  initialUnitCost?: number;
 }) => {
   const showAdvancedView = useAtomValue(showAdvancedViewState);
   const trDoc = useWatch({
@@ -115,15 +117,19 @@ export const InventoryRow = ({
   const { unitPrice, count, _id } = detail;
 
   const initProductId = useRef(detail.productId);
+  const hasProductChanged = useRef(false);
   const initOutAccountId = useRef(trDoc.followInfos?.saleOutAccountId);
   const initBranchId = useRef(trDoc.branchId);
   const initDepartmentId = useRef(trDoc.departmentId);
   const [unitCost, setUnitCost] = useState(
-    followTrDocs
-      .find(
-        (ftr) => ftr.originId === trDoc._id && ftr.originType === 'invSaleOut',
-      )
-      ?.details.find((fd) => fd.originId === detail._id)?.unitPrice ?? 0,
+    initialUnitCost ??
+      followTrDocs
+        .find(
+          (ftr) =>
+            ftr.originId === trDoc._id && ftr.originType === 'invSaleOut',
+        )
+        ?.details.find((fd) => fd.originId === detail._id)?.unitPrice ??
+      0,
   );
 
   const getFieldName = (name: string) => {
@@ -253,7 +259,8 @@ export const InventoryRow = ({
     skip:
       !detail.productId ||
       !trDoc.followInfos?.saleOutAccountId ||
-      (initProductId.current &&
+      (!hasProductChanged.current &&
+        initProductId.current &&
         detail.productId === initProductId.current &&
         trDoc.branchId === initBranchId.current &&
         trDoc.departmentId === initDepartmentId.current &&
@@ -270,7 +277,9 @@ export const InventoryRow = ({
     },
     skip:
       !detail.productId ||
-      (initProductId.current && detail.productId === initProductId.current),
+      (!hasProductChanged.current &&
+        initProductId.current &&
+        detail.productId === initProductId.current),
   });
 
   // 🚨 Unit price-г зөвхөн дараа нь өөрчлөгдсөн тохиолдолд шинэчилнэ
@@ -282,7 +291,7 @@ export const InventoryRow = ({
     setUnitCost(fixNum(costInfo?.unitCost ?? 0));
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [detail.productId, loading]);
+  }, [currentCostInfo, detail.productId, loading]);
 
   const handleAmountChange = (
     value: number,
@@ -313,13 +322,23 @@ export const InventoryRow = ({
   };
 
   useEffect(() => {
-    if (loadingSelectedProductUnitPrice || !detail.productId) {
+    if (
+      loadingSelectedProductUnitPrice ||
+      !detail.productId ||
+      (!hasProductChanged.current &&
+        initProductId.current &&
+        detail.productId === initProductId.current)
+    ) {
       return;
     }
 
     calcAmount(count ?? 0, selectedProductUnitPrice);
     form.setValue(getFieldName('unitPrice'), selectedProductUnitPrice);
-  }, [detail.productId, loadingSelectedProductUnitPrice]);
+  }, [
+    detail.productId,
+    loadingSelectedProductUnitPrice,
+    selectedProductUnitPrice,
+  ]);
 
   const handleCountChange = (
     value: number,
@@ -376,6 +395,9 @@ export const InventoryRow = ({
     productId: string,
     onChange: (productId: string) => void,
   ) => {
+    if (productId !== detail.productId) {
+      hasProductChanged.current = true;
+    }
     onChange(productId);
   };
 

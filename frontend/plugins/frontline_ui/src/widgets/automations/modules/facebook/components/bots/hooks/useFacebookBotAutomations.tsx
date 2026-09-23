@@ -5,6 +5,9 @@ import { FACEBOOK_BOT_AUTOMATIONS } from '~/widgets/automations/modules/facebook
 
 export type TBotMessageTriggerConfig = {
   botId?: string;
+  // Comment triggers narrow by post instead of by condition.
+  postType?: 'any' | 'specific';
+  postId?: string;
   conditions?: Array<{
     _id: string;
     type:
@@ -36,6 +39,7 @@ type TAutomationRecord = {
 
 export type TBotAutomationTrigger = {
   id: string;
+  type: string;
   config: TBotMessageTriggerConfig;
 };
 
@@ -50,11 +54,18 @@ export type TBotAutomation = {
  * Automations listening to this bot. The link lives in the trigger config, so
  * the list query is filtered by trigger type and narrowed here.
  */
-export const useFacebookBotAutomations = (botId?: string) => {
+export const useFacebookBotAutomations = (
+  botId?: string,
+  triggerType: string | string[] = FACEBOOK_MESSAGE_TRIGGER_TYPE,
+) => {
+  const triggerTypes = useMemo(
+    () => (Array.isArray(triggerType) ? triggerType : [triggerType]),
+    [triggerType],
+  );
   const { data, loading } = useQuery<{ automations: TAutomationRecord[] }>(
     FACEBOOK_BOT_AUTOMATIONS,
     {
-      variables: { triggerTypes: [FACEBOOK_MESSAGE_TRIGGER_TYPE] },
+      variables: { triggerTypes },
       skip: !botId,
     },
   );
@@ -69,11 +80,12 @@ export const useFacebookBotAutomations = (botId?: string) => {
         const triggers = (automation.triggers || [])
           .filter(
             (trigger) =>
-              trigger.type === FACEBOOK_MESSAGE_TRIGGER_TYPE &&
+              triggerTypes.includes(trigger.type) &&
               trigger.config?.botId === botId,
           )
-          .map(({ id, config }) => ({
+          .map(({ id, type, config }) => ({
             id,
+            type,
             config: config as TBotMessageTriggerConfig,
           }));
 
@@ -93,7 +105,7 @@ export const useFacebookBotAutomations = (botId?: string) => {
       },
       [],
     );
-  }, [botId, data]);
+  }, [botId, data, triggerTypes]);
 
   return { automations, loading };
 };

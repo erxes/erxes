@@ -14,6 +14,7 @@ import {
   joinErxesGateway,
   leaveErxesGateway,
   mountAgentTools,
+  MAX_HEADER_BYTES,
 } from 'erxes-api-shared/utils';
 import { logs as coreLogsConfig } from './meta/logs';
 import express from 'express';
@@ -184,7 +185,7 @@ app.get('/debug-sentry', () => {
 });
 
 // Wrap the Express server
-const httpServer = http.createServer(app);
+const httpServer = http.createServer({ maxHeaderSize: MAX_HEADER_BYTES }, app);
 
 httpServer.listen(port, async () => {
   await initApolloServer(app, httpServer);

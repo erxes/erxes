@@ -57,7 +57,10 @@ export const ReplyMessageProvider = ({
                 'single-message-comment-flow',
                 'A comment reply can only send one message. Add a button and continue the flow in the next action.',
               )
-            : t('max-five-messages'),
+            : t(
+                'max-five-messages',
+                'You can only add up to 5 messages per action',
+              ),
       });
     }
 

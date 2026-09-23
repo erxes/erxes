@@ -25,7 +25,7 @@ import {
 } from '@/inbox/conversations/hooks/useConversationCounts';
 import { useChannelUnreadUpdates } from '@/inbox/channel/hooks/useChannelUnreadUpdates';
 import { ChannelNavItem } from '@/inbox/channel/components/ChannelNavItem';
-import { ChannelPollNavItem } from '@/poll/components/ChannelPollNavItem';
+import { ChannelSurveyNavItem } from '@/survey/components/ChannelSurveyNavItem';
 import {
   INBOX_TARGET_KEYS,
   InboxTarget,
@@ -99,7 +99,7 @@ export const TeamChannelsNav = () => {
     if (!teamChannels.length) {
       return (
         <div className="text-sm text-accent-foreground ml-3 my-4">
-          {t('no-channels-found')}
+          {t('no-channels-found', 'No channels found')}
         </div>
       );
     }
@@ -130,7 +130,7 @@ export const TeamChannelsNav = () => {
               className="flex-1 min-w-0"
               value={
                 showQuiet
-                  ? t('hide-quiet-teams')
+                  ? t('hide-quiet-teams', 'Hide quiet channels')
                   : t('quiet-teams', { count: quietChannels.length })
               }
             />
@@ -142,7 +142,7 @@ export const TeamChannelsNav = () => {
 
   return (
     <NavigationMenuGroup
-      name={t('team-inbox')}
+      name={t('team-inbox', 'Team inbox')}
       actions={
         <NavigationGroupActions>
           <CreateChannel isIconOnly />
@@ -201,12 +201,13 @@ const TeamChannelItem = ({
       unreadCount={unreadCount}
       members={members}
     >
+      {open && <ChannelSurveyNavItem channelId={channel._id} />}
       {loading && !integrationTypes.length && (
         <Skeleton className="w-28 h-4 ml-8 my-1" />
       )}
       {!loading && !integrationTypes.length && (
         <div className="text-sm text-accent-foreground ml-8 my-2">
-          {t('no-integration-found')}
+          {t('no-integration-found', 'No {{name}} found')}
         </div>
       )}
       {integrationTypes.map((integrationType) => (
@@ -219,7 +220,6 @@ const TeamChannelItem = ({
           nested
         />
       ))}
-      {open && <ChannelPollNavItem channelId={channel._id} />}
     </ChannelNavItem>
   );
 };

@@ -1,11 +1,8 @@
 import { IFacebookBot } from '@/integrations/facebook/types/FacebookBot';
-import { IconBolt } from '@tabler/icons-react';
-import { Button, Sheet, useQueryState } from 'erxes-ui';
+import { Sheet, useQueryState } from 'erxes-ui';
 import { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router';
-import { buildAutomationSeedLink } from 'ui-modules';
-import { FACEBOOK_MESSAGE_TRIGGER_TYPE } from '~/widgets/automations/modules/facebook/components/bots/constants';
+import { FacebookBotCreateAutomationButton } from '~/widgets/automations/modules/facebook/components/bots/components/FacebookBotCreateAutomationButton';
 import { FacebookBotFormBody } from '~/widgets/automations/modules/facebook/components/bots/components/FacebookBotFormBody';
 import { TFacebookBotPage } from '~/widgets/automations/modules/facebook/components/bots/hooks/useFacebookIntegrationBot';
 
@@ -56,22 +53,7 @@ export const FacebookBotSheet = ({
             {bot ? t('edit') : t('add-new')} {t('facebook-bot')}
           </Sheet.Title>
           <div className="flex items-center gap-2">
-            {bot && (
-              <Button variant="secondary" asChild>
-                <Link
-                  to={buildAutomationSeedLink({
-                    triggerType: FACEBOOK_MESSAGE_TRIGGER_TYPE,
-                    triggerConfig: { botId: bot._id },
-                    name: bot.name,
-                  })}
-                >
-                  <IconBolt />
-                  {t('create-automation', {
-                    defaultValue: 'Create automation',
-                  })}
-                </Link>
-              </Button>
-            )}
+            <FacebookBotCreateAutomationButton bot={bot} />
             <Sheet.Close />
           </div>
         </Sheet.Header>

@@ -96,10 +96,10 @@ export function SubHeader({
       <div className="border-b bg-sidebar px-4 py-2 shrink-0 overflow-x-auto styled-scroll">
         <Filter.Bar>
           {integrationsLoading ? (
-            <LoadingChip label={t('integrations')} />
+            <LoadingChip label={t('integrations', 'Integrations')} />
           ) : (
             <SelectChip
-              label={t('integrations')}
+              label={t('integrations', 'Integrations')}
               value={integrationLabel}
               options={integrationOptions}
               onSelect={setIntegrationId}
@@ -108,10 +108,10 @@ export function SubHeader({
           )}
 
           {queuesLoading ? (
-            <LoadingChip label={t('queue')} />
+            <LoadingChip label={t('queue', 'Queue')} />
           ) : (
             <SelectChip
-              label={t('queue')}
+              label={t('queue', 'Queue')}
               value={queueLabel}
               options={queueOptions}
               onSelect={setQueueId}
@@ -121,7 +121,7 @@ export function SubHeader({
           )}
 
           <SelectChip
-            label={t('direction')}
+            label={t('direction', 'Direction')}
             value={directionLabel}
             options={DIRECTION_OPTIONS}
             onSelect={setDirection}
@@ -131,7 +131,7 @@ export function SubHeader({
           <div className="rounded flex gap-px h-7 items-stretch shadow-xs bg-muted text-sm font-medium">
             <Filter.BarName>
               <IconCalendar className="h-3.5 w-3.5" />
-              {t('date')}
+              {t('date', 'Date')}
             </Filter.BarName>
             <DropdownMenu>
               <DropdownMenu.Trigger asChild>
@@ -162,7 +162,9 @@ export function SubHeader({
                 <DropdownMenu.Separator />
                 <DropdownMenu.Item onSelect={() => setTimeRangeOpen(true)}>
                   <IconSelector className="h-3.5 w-3.5" />
-                  {t('custom-range', { defaultValue: 'Custom range…' })}
+                  {t('custom-range', 'Custom Range...', {
+                    defaultValue: 'Custom range…',
+                  })}
                 </DropdownMenu.Item>
               </DropdownMenu.Content>
             </DropdownMenu>
@@ -170,7 +172,7 @@ export function SubHeader({
               <button
                 onClick={handleClearDate}
                 className="rounded-r flex items-center px-2 hover:bg-muted-foreground/10 text-muted-foreground hover:text-foreground transition-colors"
-                aria-label={t('clear-date-filter')}
+                aria-label={t('clear-date-filter', 'Clear date filter')}
               >
                 <IconX className="h-3 w-3" />
               </button>
@@ -286,7 +288,9 @@ function SelectChip({
               <Command.Input placeholder={`Search ${label.toLowerCase()}…`} />
             )}
             <Command.List className="pb-2">
-              <Command.Empty>{t('no-options-found')}</Command.Empty>
+              <Command.Empty>
+                {t('no-options-found', 'No options found')}
+              </Command.Empty>
               <Command.Group>
                 {options.map((opt) => (
                   <Command.Item

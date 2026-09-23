@@ -7,7 +7,7 @@ export const useChannelRemove = () => {
   const { t } = useTranslation('frontline');
   const [removeChannel, { loading, error }] = useMutation(REMOVE_CHANNEL, {
     onCompleted: (data) => {
-      toast({ title: t('channel-removed') });
+      toast({ title: t('channel-removed', 'Channel removed successfully') });
     },
     refetchQueries: ['GetChannels'],
   });

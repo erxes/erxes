@@ -1,6 +1,8 @@
 import { useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { useFacebookBot } from '@/integrations/facebook/hooks/useFacebookBots';
 import { useFacebookBotTriggerClaims } from '../../hooks/useFacebookBotTriggerClaims';
+import { buildConditionValue } from '../../utils/triggerConditionSummary';
 import { MESSAGE_TRIGGER_CONDITIONS } from '../../constants/messageTriggerOptions';
 import { useMessageTriggerFormContext } from '../../context/MessageTriggerFormContext';
 import { useMessageTriggerConditions } from '../../hooks/useMessageTriggerConditions';
@@ -15,10 +17,9 @@ export const MessageTriggerConditionsList = ({
 }) => {
   const { t } = useTranslation('frontline');
   const { formState, watch } = useFormContext<TMessageTriggerForm>();
-  const { claims } = useFacebookBotTriggerClaims(
-    watch('botId'),
-    currentTriggerId,
-  );
+  const botId = watch('botId');
+  const { claims } = useFacebookBotTriggerClaims(botId, currentTriggerId);
+  const { bot } = useFacebookBot(botId);
   const { setActiveConditionType } = useMessageTriggerFormContext();
   const { conditions, selectedConditionTypes, updateCondition } =
     useMessageTriggerConditions();
@@ -72,6 +73,11 @@ export const MessageTriggerConditionsList = ({
                   : undefined
             }
             configHint={getConfigHint(type)}
+            summary={(() => {
+              const condition = conditions.find((item) => item.type === type);
+
+              return condition ? buildConditionValue(condition, bot) : '';
+            })()}
             onCheck={(checked) => updateCondition(type, 'isSelected', checked)}
             onOpen={() => setActiveConditionType(type)}
           />

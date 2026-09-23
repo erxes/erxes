@@ -1,19 +1,19 @@
 import { useApolloClient, useMutation } from '@apollo/client';
+import { HELP_CENTER_CONFIG_REMOVE } from '@/helpcenter/graphql/mutations/helpCenterConfigUpdate';
 import { GET_HELP_CENTERS } from '@/helpcenter/graphql/queries/getHelpCenters';
-import { REMOVE_TOPIC } from '@/knowledgebase/graphql/mutations';
 
 export const useRemoveHelpCenters = () => {
   const client = useApolloClient();
-  const [removeTopic, { loading }] = useMutation(REMOVE_TOPIC);
+  const [removeConfig, { loading }] = useMutation(HELP_CENTER_CONFIG_REMOVE);
 
   const removeHelpCenters = async (ids: string[]) => {
     await Promise.all(
       ids.map((_id) =>
-        removeTopic({
+        removeConfig({
           variables: { _id },
           update: (cache) => {
             cache.evict({
-              id: cache.identify({ __typename: 'KnowledgeBaseTopic', _id }),
+              id: cache.identify({ __typename: 'HelpCenterConfig', _id }),
             });
             cache.gc();
           },

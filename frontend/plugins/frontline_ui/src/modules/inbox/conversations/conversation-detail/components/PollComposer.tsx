@@ -10,6 +10,7 @@ import {
   toast,
 } from 'erxes-ui';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export type PollDraft = {
   question: string;
@@ -49,6 +50,7 @@ export const PollComposer = ({
   loading?: boolean;
   disabled?: boolean;
 }) => {
+  const { t } = useTranslation('frontline');
   const [open, setOpen] = useState(false);
   const [question, setQuestion] = useState('');
   const [options, setOptions] = useState(() => [makeOption(), makeOption()]);
@@ -88,7 +90,10 @@ export const PollComposer = ({
   const handleSubmit = async () => {
     if (!canSubmit) {
       toast({
-        title: 'Add a question and at least 2 options',
+        title: t(
+          'add-a-question-and-at-least-2-options',
+          'Add a question and at least 2 options',
+        ),
         variant: 'destructive',
       });
       return;
@@ -116,39 +121,42 @@ export const PollComposer = ({
           size="icon"
           disabled={disabled}
           className="h-8 w-8 flex-none rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
-          title="Create poll"
+          title={t('create-poll', 'Create poll')}
         >
           <IconChartBar className="h-4 w-4" />
         </Button>
       </Dialog.Trigger>
       <Dialog.Content className="max-w-md">
         <Dialog.Header>
-          <Dialog.Title>Create poll</Dialog.Title>
+          <Dialog.Title>{t('create-poll', 'Create poll')}</Dialog.Title>
           <Dialog.Description className="sr-only">
-            Compose a poll to post to the Discord channel.
+            {t(
+              'compose-a-poll-to-post-to-the-discord-channel',
+              'Compose a poll to post to the Discord channel.',
+            )}
           </Dialog.Description>
         </Dialog.Header>
 
         <div className="flex flex-col gap-4 py-2">
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="poll-question">Question</Label>
+            <Label htmlFor="poll-question">{t('question', 'Question')}</Label>
             <Input
               id="poll-question"
               value={question}
               maxLength={300}
-              placeholder="Ask something…"
+              placeholder={t('ask-something', 'Ask something…')}
               onChange={(e) => setQuestion(e.target.value)}
             />
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <Label>Options</Label>
+            <Label>{t('options', 'Options')}</Label>
             {options.map((option, index) => (
               <div key={option.id} className="flex items-center gap-2">
                 <Input
                   value={option.value}
                   maxLength={55}
-                  placeholder={`Option ${index + 1}`}
+                  placeholder={`${t('option', 'Option')} ${index + 1}`}
                   onChange={(e) => setOption(index, e.target.value)}
                 />
                 {options.length > 2 && (
@@ -170,13 +178,13 @@ export const PollComposer = ({
                 className="w-fit text-muted-foreground"
                 onClick={addOption}
               >
-                <IconPlus className="h-4 w-4" /> Add option
+                <IconPlus className="h-4 w-4" /> {t('add-option', 'Add option')}
               </Button>
             )}
           </div>
 
           <div className="flex items-center justify-between gap-2">
-            <Label htmlFor="poll-duration">Duration</Label>
+            <Label htmlFor="poll-duration">{t('duration', 'Duration')}</Label>
             <Select
               value={String(duration)}
               onValueChange={(v) => setDuration(Number(v))}
@@ -195,7 +203,9 @@ export const PollComposer = ({
           </div>
 
           <div className="flex items-center justify-between gap-2">
-            <Label htmlFor="poll-multiselect">Allow multiple answers</Label>
+            <Label htmlFor="poll-multiselect">
+              {t('allow-multiple-answers', 'Allow multiple answers')}
+            </Label>
             <Switch
               id="poll-multiselect"
               checked={allowMultiselect}
@@ -210,11 +220,11 @@ export const PollComposer = ({
             onClick={() => setOpen(false)}
             disabled={loading}
           >
-            Cancel
+            {t('cancel', 'Cancel')}
           </Button>
           <Button onClick={handleSubmit} disabled={!canSubmit || loading}>
             {loading && <Spinner size="sm" />}
-            Create poll
+            {t('create-poll', 'Create poll')}
           </Button>
         </Dialog.Footer>
       </Dialog.Content>

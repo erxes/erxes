@@ -2,13 +2,13 @@ import { isEnabled } from 'erxes-api-shared/utils';
 import { getConfig, sendErkhetGet } from './utils';
 
 export default {
-  products: ['products'],
+  products: ['products', 'productsMain'],
 };
 
 export const afterQueryHandlers = async (subdomain, data) => {
   const { args, results, queryName } = data;
 
-  if (queryName !== 'products') {
+  if (['products', 'productsMain'].includes(queryName)) {
     return results;
   }
 

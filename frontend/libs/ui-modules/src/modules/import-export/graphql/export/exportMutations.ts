@@ -3,14 +3,12 @@ import { gql } from '@apollo/client';
 export const START_EXPORT = gql`
   mutation ExportStart(
     $entityType: String!
-    $fileFormat: String
     $filters: JSON
     $ids: [String]
     $selectedFields: [String]
   ) {
     exportStart(
       entityType: $entityType
-      fileFormat: $fileFormat
       filters: $filters
       ids: $ids
       selectedFields: $selectedFields
@@ -21,7 +19,6 @@ export const START_EXPORT = gql`
       status
       totalRows
       processedRows
-      fileFormat
       fileKey
       filters
       ids

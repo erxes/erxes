@@ -25,6 +25,10 @@ export const ProductFormSchema = z
     unitPrice: z.coerce.number().min(0, {
       message: 'Unit price must be greater than or equal to 0',
     }),
+    weight: z.preprocess(
+      (value) => (value === '' || value == null ? undefined : Number(value)),
+      z.number().min(0, 'Weight must be greater than or equal to 0').optional(),
+    ),
     duration: z.preprocess(
       (value) => (value === '' || value == null ? undefined : Number(value)),
       z.number().positive('Duration must be greater than 0').optional(),
@@ -71,6 +75,7 @@ export const EMPTY_PRODUCT_FORM_VALUES: ProductFormValues = {
   vendorId: '',
   scopeBrandIds: [],
   unitPrice: 0,
+  weight: undefined,
   barcodes: [],
   attachment: undefined,
   attachmentMore: undefined,

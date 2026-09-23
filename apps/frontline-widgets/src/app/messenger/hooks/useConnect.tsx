@@ -149,6 +149,10 @@ export const useConnect = ({ integrationId }: connectionProps) => {
             visitorId,
             cachedCustomerId: cachedCustomerId || undefined,
             isUser: false,
+            phone,
+            code,
+            data: customData,
+            companyData,
           };
 
       await connectMutation({ variables });

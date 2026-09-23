@@ -39,8 +39,8 @@ export const useToggleTicketArchive = (): TUseToggleTicketArchive => {
         refetchList: true,
         onError: options?.onError,
         successMessage: archived
-          ? t('ticket-restored-successfully')
-          : t('ticket-archived-successfully'),
+          ? t('ticket-restored-successfully', 'Ticket restored successfully')
+          : t('ticket-archived-successfully', 'Ticket archived successfully'),
       },
     );
 

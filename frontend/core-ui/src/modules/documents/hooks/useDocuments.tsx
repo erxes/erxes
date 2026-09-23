@@ -1,4 +1,4 @@
-import { useQuery } from '@apollo/client';
+import { NetworkStatus, useQuery } from '@apollo/client';
 import {
   EnumCursorDirection,
   IRecordTableCursorPageInfo,
@@ -59,14 +59,14 @@ export const useDocuments = () => {
     });
   }
 
-  const { data, error, loading, fetchMore } = useQuery<DocumentsQueryResponse>(
-    GET_DOCUMENTS,
-    {
+  const { data, error, loading, fetchMore, networkStatus, refetch } =
+    useQuery<DocumentsQueryResponse>(GET_DOCUMENTS, {
+      notifyOnNetworkStatusChange: true,
       variables,
-    },
-  );
+    });
 
   const { list: documents = [], pageInfo } = data?.documents || {};
+  const hasError = Boolean(error || networkStatus === NetworkStatus.error);
 
   function handleFetchMore({ direction }: { direction: EnumCursorDirection }) {
     if (!pageInfo || !validateFetchMore({ direction, pageInfo })) {
@@ -101,9 +101,10 @@ export const useDocuments = () => {
 
   return {
     documents,
-    error,
+    hasError,
     loading,
     pageInfo,
     handleFetchMore,
+    refetch,
   };
 };

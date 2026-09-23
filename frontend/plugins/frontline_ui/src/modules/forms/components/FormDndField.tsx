@@ -62,7 +62,7 @@ export const FormDndField = ({
     <>
       <div
         className={cn(
-          'p-1 text-sm border rounded-md flex items-center px-2 [&>svg]:size-4 gap-2',
+          'p-1 text-sm border rounded-md flex items-center px-2 [&>svg]:size-4 gap-2 min-w-0',
           fieldData?.span === 2 && 'col-span-2',
           mountedWhileDragging && 'fade-in',
         )}
@@ -71,7 +71,7 @@ export const FormDndField = ({
         {...listeners}
       >
         <FormDndFieldIcon type={fieldData?.type ?? 'text'} />
-        {fieldData?.label}
+        <span className="truncate min-w-0">{fieldData?.label}</span>
         <FieldContextMenu fieldId={field} stepId={step} setOpen={setOpen} />
       </div>
       <FormFieldDetailSheet open={open} onOpenChange={setOpen}>
@@ -148,7 +148,7 @@ export const AddField = ({ step }: { step: UniqueIdentifier }) => {
     >
       <DropdownMenu.Trigger asChild>
         <Button variant="secondary" className="ml-auto">
-          <IconPlus /> {t('add-field')}
+          <IconPlus /> {t('add-field', 'Add Field')}
         </Button>
       </DropdownMenu.Trigger>
 
@@ -181,7 +181,7 @@ export const AddField = ({ step }: { step: UniqueIdentifier }) => {
                 setView('customer');
               }}
             >
-              <IconAddressBook /> {t('customer-fields')}
+              <IconAddressBook /> {t('customer-fields', 'Customer fields')}
             </DropdownMenu.Item>
           </>
         ) : (
@@ -193,11 +193,11 @@ export const AddField = ({ step }: { step: UniqueIdentifier }) => {
               }}
               className="text-accent-foreground text-xs"
             >
-              <IconChevronLeft /> {t('back')}
+              <IconChevronLeft /> {t('back', 'Back')}
             </DropdownMenu.Item>
 
             <DropdownMenu.Label className="font-bold">
-              {t('customer-fields')}
+              {t('customer-fields', 'Customer fields')}
             </DropdownMenu.Label>
 
             {GROUPED_FIELD_TYPES['core:customer'].map((type) => (
@@ -242,14 +242,14 @@ export const FieldContextMenu = ({
       <DropdownMenu.Content>
         <DropdownMenu.Item onClick={() => setOpen(true)}>
           <IconEdit />
-          {t('edit-attributes')}
+          {t('edit-attributes', 'Edit attributes')}
         </DropdownMenu.Item>
         <DropdownMenu.Item
           onClick={handleRemoveField}
           className="text-destructive"
         >
           <IconTrash />
-          {t('remove-field')}
+          {t('remove-field', 'Remove Field')}
         </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu>

@@ -33,7 +33,6 @@ import {
   types as TicketConfigTypes,
 } from '@/ticket/graphql/schemas/ticketConfig';
 
-
 export const types = `
   ${PipelineTypes}
   ${StatusTypes}

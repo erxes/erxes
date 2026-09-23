@@ -19,6 +19,7 @@ type TProductUnitPriceResponse = {
   productDetail?: {
     _id: string;
     unitPrice?: number | null;
+    weight?: number | null;
   } | null;
 };
 
@@ -66,6 +67,7 @@ export const useGetAccountingProductUnitPrice = (
 
   return {
     unitPrice: data?.productDetail?.unitPrice ?? 0,
+    productWeight: data?.productDetail?.weight ?? 1,
     loading,
     error,
   };

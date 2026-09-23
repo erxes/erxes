@@ -19,6 +19,9 @@ export const SettingsPageEffect = () => {
       case isMatchingLocation(SettingsWorkspacePath.Tags):
         setHotkeyScope(SettingsHotKeyScope.TagsPage);
         break;
+      case isMatchingLocation(SettingsWorkspacePath.AppTokens):
+        setHotkeyScope(SettingsHotKeyScope.AppsPage);
+        break;
     }
   }, [isMatchingLocation, tagType]);
 

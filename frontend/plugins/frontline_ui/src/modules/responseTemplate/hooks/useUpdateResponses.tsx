@@ -16,14 +16,17 @@ export const useUpdateResponse = () => {
       ...options,
       onCompleted: (data) => {
         toast({
-          title: t('response-updated-successfully'),
+          title: t(
+            'response-updated-successfully',
+            'Response updated successfully',
+          ),
           variant: 'default',
         });
         options.onCompleted?.(data);
       },
       onError: (error: ApolloError) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           variant: 'destructive',
           description: error.message,
         });

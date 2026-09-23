@@ -64,7 +64,7 @@ export const CreateTicketActionResult = ({
       <Tooltip.Provider>
         <Tooltip>
           <Tooltip.Trigger>
-            <Badge variant="destructive">{t('error')}</Badge>
+            <Badge variant="destructive">{t('error', 'Error')}</Badge>
           </Tooltip.Trigger>
           <Tooltip.Content>{ticketResult.error}</Tooltip.Content>
         </Tooltip>
@@ -83,7 +83,9 @@ export const CreateTicketActionResult = ({
         target="_blank"
       >
         <Button variant="link" className="w-full">
-          {t('go-to-ticket', { label: label || ticketResult.ticketId })}
+          {t('go-to-ticket', 'Go to Ticket: {{label}}', {
+            label: label || ticketResult.ticketId,
+          })}
           <IconExternalLink />
         </Button>
       </Link>

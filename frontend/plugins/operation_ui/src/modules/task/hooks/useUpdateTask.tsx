@@ -7,6 +7,7 @@ interface IUpdateTaskMutationResponse {
   updateTask: {
     _id: string;
     status: string;
+    propertiesData?: Record<string, unknown>;
   };
 }
 
@@ -21,7 +22,9 @@ export const useUpdateTask = () => {
   const [_updateTask, { loading, error }] = useMutation<
     IUpdateTaskMutationResponse,
     IUpdateTaskVariables
-  >(UPDATE_TASK_MUTATION);
+  >(UPDATE_TASK_MUTATION, {
+    refetchQueries: ['GetTasks'],
+  });
   const updateTask = (
     options: MutationFunctionOptions<
       IUpdateTaskMutationResponse,

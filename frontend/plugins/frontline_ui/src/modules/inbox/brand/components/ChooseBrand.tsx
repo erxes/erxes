@@ -56,7 +56,7 @@ export const ChooseBrand = () => {
   } else if (!visibleBrands?.length) {
     brandContent = (
       <div className="text-sm text-accent-foreground ml-1 my-2">
-        {t('no-brands-found')}
+        {t('no-brands-found', 'No brands found')}
       </div>
     );
   } else {
@@ -64,7 +64,7 @@ export const ChooseBrand = () => {
       <BrandItem
         key={brand._id}
         _id={brand._id}
-        name={brand.name ?? t('unnamed-brand')}
+        name={brand.name ?? t('unnamed-brand', 'Unnamed brand')}
       />
     ));
   }
@@ -76,7 +76,7 @@ export const ChooseBrand = () => {
         <Input
           ref={inputRef}
           variant="secondary"
-          placeholder={t('search')}
+          placeholder={t('search', 'Search')}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="h-7 pl-6 pr-7 text-xs"
@@ -105,9 +105,7 @@ export const ChooseBrand = () => {
 
 const BrandItem = ({ _id, name }: { _id: string; name: string }) => {
   const [{ brandId, channelId }, setFilters] =
-    useMultiQueryState<TInboxNavigationFilters>(
-      INBOX_NAVIGATION_FILTER_KEYS,
-    );
+    useMultiQueryState<TInboxNavigationFilters>(INBOX_NAVIGATION_FILTER_KEYS);
 
   const isActive = brandId === _id;
 

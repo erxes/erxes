@@ -395,6 +395,7 @@ const SelectStageRoot = React.forwardRef<
       value,
       placeholder,
       pipelineId,
+      autoSelectFirst,
       ...props
     },
     ref,
@@ -411,6 +412,7 @@ const SelectStageRoot = React.forwardRef<
         mode={mode}
         value={value}
         pipelineId={pipelineId}
+        autoSelectFirst={autoSelectFirst}
       >
         <Popover open={open} onOpenChange={setOpen}>
           <Combobox.Trigger

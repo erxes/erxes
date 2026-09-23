@@ -1,13 +1,15 @@
 import { ImportExportSettingsPath } from '@/import-export/settings/constants/importExportSettingsPaths';
 import { ToggleGroup } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router';
 
 const VIEWS = [
-  { value: ImportExportSettingsPath.Import, label: 'Import' },
-  { value: ImportExportSettingsPath.Export, label: 'Export' },
+  { value: ImportExportSettingsPath.Import, labelKey: 'import' },
+  { value: ImportExportSettingsPath.Export, labelKey: 'export' },
 ];
 
 export const ImportExportViewToggle = () => {
+  const { t } = useTranslation('importExport');
   const { pathname } = useLocation();
   const navigate = useNavigate();
 
@@ -23,9 +25,9 @@ export const ImportExportViewToggle = () => {
       variant="outline"
       className="h-8"
     >
-      {VIEWS.map(({ value: path, label }) => (
+      {VIEWS.map(({ value: path, labelKey }) => (
         <ToggleGroup.Item key={path} value={path}>
-          {label}
+          {t(labelKey)}
         </ToggleGroup.Item>
       ))}
     </ToggleGroup>

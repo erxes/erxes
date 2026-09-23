@@ -7,7 +7,15 @@ import {
   IconInfoCircle,
   IconPlayerPlay,
 } from '@tabler/icons-react';
-import { Avatar, Badge, Button, Label, ToggleGroup, Tooltip, cn } from 'erxes-ui';
+import {
+  Avatar,
+  Badge,
+  Button,
+  Label,
+  ToggleGroup,
+  Tooltip,
+  cn,
+} from 'erxes-ui';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
@@ -133,16 +141,16 @@ export const FacebookBotSimulator = () => {
         outcome: resolveDirectMessageOutcome(composerValue, automations),
       }
     : selectedItem
-    ? {
-        title: selectedItem.title,
-        outcome: resolveBotMenuOutcome(selectedItem, automations),
-      }
-    : selectedIceBreaker
       ? {
-          title: selectedIceBreaker.question,
-          outcome: resolveIceBreakerOutcome(selectedIceBreaker, automations),
+          title: selectedItem.title,
+          outcome: resolveBotMenuOutcome(selectedItem, automations),
         }
-      : undefined;
+      : selectedIceBreaker
+        ? {
+            title: selectedIceBreaker.question,
+            outcome: resolveIceBreakerOutcome(selectedIceBreaker, automations),
+          }
+        : undefined;
 
   return (
     <div className="flex h-full flex-col gap-3 p-4">
@@ -220,10 +228,7 @@ export const FacebookBotSimulator = () => {
             </>
           }
         >
-          <div
-            key={view}
-            className="h-full animate-in fade-in-0 duration-200"
-          >
+          <div key={view} className="h-full animate-in fade-in-0 duration-200">
             {view === 'welcome' ? (
               <WelcomeScreen
                 pageName={page?.name || ''}
@@ -432,9 +437,7 @@ const PersistentMenuSheet = ({
         )}
       >
         <span className="flex-1 truncate">{item.title}</span>
-        {item.sourceId && !savedKeys.has(item.sourceId) && (
-          <UnsavedBadge />
-        )}
+        {item.sourceId && !savedKeys.has(item.sourceId) && <UnsavedBadge />}
         {item.kind === 'webUrl' && (
           <IconExternalLink className="size-3.5 shrink-0 text-muted-foreground" />
         )}
@@ -575,9 +578,7 @@ const MenuOutcome = ({
               defaultValue: 'Tapping “{{title}}”',
               title,
             })}
-        {startedCount > 0 && (
-          <Badge variant="secondary">{startedCount}</Badge>
-        )}
+        {startedCount > 0 && <Badge variant="secondary">{startedCount}</Badge>}
       </div>
       {outcome.kind === 'startsAutomations' ? (
         <div className="flex max-h-32 flex-col gap-1.5 overflow-y-auto">

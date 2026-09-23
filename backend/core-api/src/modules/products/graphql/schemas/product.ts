@@ -23,6 +23,7 @@ export const types = `
     variants: JSON
     barcodeDescription: String
     unitPrice: Float
+    weight: Float
     categoryId: String
     propertiesData: JSON
     createdAt: Date
@@ -93,6 +94,7 @@ const queryParams = `
   pipelineId: String,
   boardId: String,
   segment: String,
+  segmentIds: [String],
   propertiesData: String,
   groupedSimilarity: String,
   similarity: Boolean,
@@ -128,6 +130,7 @@ export const queries = `
   ): [Product]
   productsTotalCount(${queryParams}): Int
   productDetail(_id: String): Product
+  productLastCodeByCategory(categoryId: String): String
   productSimilarities(_id: String!, groupedSimilarity: String): ProductSimilarity
   productCountByTags: JSON
 
@@ -151,6 +154,7 @@ export const mutationParams = `
   variants: JSON,
   barcodeDescription: String,
   unitPrice: Float,
+  weight: Float,
   code: String,
   propertiesData: JSON
   attachment: AttachmentInput,

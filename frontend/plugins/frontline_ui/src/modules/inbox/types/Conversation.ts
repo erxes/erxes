@@ -31,16 +31,46 @@ export interface IAutomatedReplyControl {
   updatedBy?: string;
 }
 
+type IMessageAnswer = { id: string | number; text: string; emoji?: string };
+
+type IMessageTally = {
+  isFinalized?: boolean;
+  answerCounts: { id: string | number; count: number }[];
+};
+
 export interface IMessagePoll {
-  pollId?: string;
   question: string;
-  answers: { id: string | number; text: string; emoji?: string }[];
+  answers: IMessageAnswer[];
   allowMultiselect?: boolean;
   expiry?: string;
-  results?: {
-    isFinalized?: boolean;
-    answerCounts: { id: string | number; count: number }[];
-  };
+  results?: IMessageTally;
+}
+
+export interface IMessageSurveyAttachment {
+  url: string;
+  name: string;
+  type: string;
+  size: number;
+}
+
+export interface IMessageSurveyStep {
+  stepId: string;
+  name?: string;
+  description?: string;
+  question: string;
+  attachments?: IMessageSurveyAttachment[];
+  answers: IMessageAnswer[];
+  allowMultiselect?: boolean;
+}
+
+export interface IMessageSurvey {
+  surveyId?: string;
+  question: string;
+  answers: IMessageAnswer[];
+  allowMultiselect?: boolean;
+  steps?: IMessageSurveyStep[];
+  expiry?: string;
+  results?: IMessageTally;
 }
 
 export interface IMessageEmbed {
@@ -59,8 +89,64 @@ export interface IMessageEmbed {
   timestamp?: string;
 }
 
+export type MessageKind =
+  | 'text'
+  | 'image'
+  | 'video'
+  | 'audio'
+  | 'file'
+  | 'share'
+  | 'story_mention'
+  | 'story_reply'
+  | 'sticker'
+  | 'voice'
+  | 'forwarded'
+  | 'deleted'
+  | 'unsupported';
+
+export interface IMessageProviderData {
+  attachmentType?: string;
+  fallbackReason?: string;
+  previewText?: string;
+  previewUrl?: string;
+  shareType?: 'post' | 'reel';
+  storyUrl?: string;
+  messageId?: string;
+}
+
+export interface IMessageReplyTo {
+  messageId: string;
+  content?: string;
+  authorName?: string;
+}
+
+export interface IMessageReaction {
+  senderId: string;
+  emoji?: string;
+  reaction?: string;
+}
+
+export interface IMessageSticker {
+  id: string;
+  name: string;
+  formatType?: number;
+  url?: string;
+}
+
+export interface IMessageForwardedSnapshot {
+  content?: string;
+  attachments?: IAttachment[];
+  embeds?: IMessageEmbed[];
+  stickers?: IMessageSticker[];
+  poll?: IMessagePoll;
+  createdAt?: string;
+}
+
+export type MessageDeliveryStatus = 'sent' | 'delivered' | 'read' | 'deleted';
+
 export interface IMessage {
   _id: string;
+  mid?: string;
   conversationId?: string;
   userId?: string;
   customerId?: string;
@@ -71,13 +157,34 @@ export interface IMessage {
   formWidgetData?: IFormWidgetItem[];
   extraData?: {
     poll?: IMessagePoll;
+    survey?: IMessageSurvey;
     embeds?: IMessageEmbed[];
+    stickers?: IMessageSticker[];
+    voiceMessage?: boolean;
+    forwardedSnapshot?: IMessageForwardedSnapshot;
     discordMessageId?: string;
     discordDeletedAt?: string;
+    discordEditedAt?: string;
+    discordPinned?: boolean;
+    reactions?: Array<{
+      senderId: string;
+      emoji?: string;
+      reaction?: string;
+    }>;
+    forwardedFrom?: {
+      conversationId: string;
+      messageId: string;
+    };
   };
   internal?: boolean;
   botData?: unknown[];
   fromBot?: boolean;
+  messageKind?: MessageKind;
+  providerData?: IMessageProviderData;
+  replyTo?: IMessageReplyTo;
+  reactions?: IMessageReaction[];
+  deliveryStatus?: MessageDeliveryStatus;
+  expiresAt?: string;
 }
 
 export enum ConversationStatus {

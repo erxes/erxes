@@ -1,9 +1,12 @@
 import { ITask, ITaskUpdate } from '@/task/@types/task';
+import { validatePropertiesData } from '@/fields/validatePropertiesData';
 import { graphqlPubsub } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import {
   createGithubIssue,
   getInstallationOctokit,
+  type OctokitInstance,
+  updateGithubIssueMilestone,
   updateGithubIssueState,
 } from '~/utils/githubClient';
 
@@ -14,6 +17,13 @@ export const taskMutations = {
     { models, user, subdomain, checkPermission }: IContext,
   ) => {
     await checkPermission('taskCreate');
+
+    if (params.propertiesData !== undefined) {
+      params.propertiesData = await validatePropertiesData(
+        subdomain,
+        params.propertiesData,
+      );
+    }
 
     const task = await models.Task.createTask({
       doc: params,
@@ -84,6 +94,21 @@ export const taskMutations = {
             updatedTask,
           },
         });
+
+        if (task.milestoneId) {
+          try {
+            await updateGithubIssueMilestone(
+              app,
+              githubConfig.repoName,
+              issueNumber,
+              task.milestoneId.toString(),
+              githubConfig.installationId,
+              subdomain,
+            );
+          } catch (error) {
+            console.error('Failed to sync milestone to GitHub:', error);
+          }
+        }
       } catch (error) {
         console.error('Error creating GitHub issue:', error);
       }
@@ -99,31 +124,69 @@ export const taskMutations = {
   ) => {
     await checkPermission('taskUpdate');
 
+    if (params.propertiesData !== undefined) {
+      params.propertiesData = await validatePropertiesData(
+        subdomain,
+        params.propertiesData,
+      );
+    }
+
     const updatedTask = await models.Task.updateTask({
       doc: params,
       userId: user._id,
       subdomain,
     });
 
-    if (params.status && updatedTask.githubIssueNumber) {
+    if (
+      updatedTask.githubIssueNumber &&
+      (params.status || params.milestoneId !== undefined)
+    ) {
       const githubConfig = await models.GithubConfig.findByTeam(
         updatedTask.teamId,
         subdomain,
       );
-      if (githubConfig && githubConfig.syncMode === 'twoWay') {
+      if (
+        githubConfig &&
+        githubConfig.syncMode === 'twoWay' &&
+        githubConfig.repoName === updatedTask.githubRepoName
+      ) {
+        let octokit: OctokitInstance | undefined;
+
         try {
-          const octokit = await getInstallationOctokit(
-            githubConfig.installationId,
-          );
-          await updateGithubIssueState(
-            octokit,
-            githubConfig.repoName,
-            updatedTask.githubIssueNumber,
-            params.status,
-            subdomain,
-          );
-        } catch (err) {
-          console.error('Failed to sync status to GitHub:', err);
+          octokit = await getInstallationOctokit(githubConfig.installationId);
+        } catch (error) {
+          console.error('Failed to authenticate with GitHub:', error);
+        }
+
+        if (octokit) {
+          if (params.status) {
+            try {
+              await updateGithubIssueState(
+                octokit,
+                githubConfig.repoName,
+                updatedTask.githubIssueNumber,
+                params.status,
+                subdomain,
+              );
+            } catch (error) {
+              console.error('Failed to sync status to GitHub:', error);
+            }
+          }
+
+          if (params.milestoneId !== undefined) {
+            try {
+              await updateGithubIssueMilestone(
+                octokit,
+                githubConfig.repoName,
+                updatedTask.githubIssueNumber,
+                params.milestoneId?.toString() ?? null,
+                githubConfig.installationId,
+                subdomain,
+              );
+            } catch (error) {
+              console.error('Failed to sync milestone to GitHub:', error);
+            }
+          }
         }
       }
     }

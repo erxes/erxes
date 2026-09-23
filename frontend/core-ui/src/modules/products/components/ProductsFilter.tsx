@@ -14,6 +14,7 @@ import {
   SelectCategory,
   SelectCompany,
   PropertiesFilter,
+  SegmentsFilter,
   TagsFilter,
 } from 'ui-modules';
 import { IconBriefcase, IconCheck, IconCircleDot } from '@tabler/icons-react';
@@ -174,6 +175,7 @@ export const ProductsFilter = () => {
         <VendorFilterBar />
         <BrandsFilterBar />
         <TagsFilter.Bar tagType="core:product" />
+        <SegmentsFilter.Bar contentType="core:products.products" />
         <PropertiesFilter.Bar contentType="core:product" />
         <OptionFilterBar config={PRODUCT_STATUS_FILTER} />
         <ProductsTotalCount />
@@ -202,6 +204,7 @@ export const ProductsFilterPopover = () => {
                 <SelectCompany.FilterItem value="vendorId" label="Vendor" />
                 <SelectBrands.FilterItem value="brandIds" label="Brands" />
                 <TagsFilter />
+                <SegmentsFilter />
                 <PropertiesFilter />
                 <OptionFilterItem config={PRODUCT_STATUS_FILTER} />
               </Command.List>
@@ -212,6 +215,7 @@ export const ProductsFilterPopover = () => {
           <SelectCompany.FilterView mode="single" filterKey="vendorId" />
           <SelectBrands.FilterView mode="multiple" filterKey="brandIds" />
           <TagsFilter.View tagType="core:product" />
+          <SegmentsFilter.View contentType="core:products.products" />
           <PropertiesFilter.View contentType="core:product" />
           <OptionFilterView config={PRODUCT_STATUS_FILTER} />
         </Combobox.Content>

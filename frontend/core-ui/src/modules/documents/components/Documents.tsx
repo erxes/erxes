@@ -1,11 +1,12 @@
-import { IconFilePlus } from '@tabler/icons-react';
 import { useAtomValue } from 'jotai';
-import { useTranslation } from 'react-i18next';
+import { useMultiQueryState } from 'erxes-ui';
 import { useDocuments } from '../hooks/useDocuments';
 import { documentsViewAtom } from '../states/documentsViewState';
-import { IDocument } from '../types';
+import { DocumentFilterState, IDocument } from '../types';
+import { DocumentsEmptyState } from './DocumentsEmptyState';
 import { DocumentsGrid } from './DocumentsGrid';
 import { DocumentsList } from './DocumentsList';
+import { DocumentsErrorState } from './DocumentsErrorState';
 import { DocumentsRecordTable } from './list/DocumentsRecordTable';
 
 type Props = {
@@ -20,22 +21,29 @@ const DOCUMENTS_VIEW_TYPES: Record<
   list: DocumentsList,
 };
 
-function DocumentsContent({ viewType }: Props) {
-  const { documents, loading } = useDocuments();
-  const Component = DOCUMENTS_VIEW_TYPES[viewType] ?? DocumentsList;
-  const { t } = useTranslation('documents');
+type DocumentsContentProps = Props & {
+  hasFilters: boolean;
+  onClearFilters: () => void;
+};
 
-  if (!loading && documents.length === 0) {
+function DocumentsContent({
+  hasFilters,
+  onClearFilters,
+  viewType,
+}: DocumentsContentProps) {
+  const { documents, hasError, loading, refetch } = useDocuments();
+  const Component = DOCUMENTS_VIEW_TYPES[viewType] ?? DocumentsList;
+
+  if (hasError) {
+    return <DocumentsErrorState onRetry={refetch} />;
+  }
+
+  if (viewType === 'grid' && !loading && documents.length === 0) {
     return (
-      <div className="flex h-full min-h-[400px] w-full flex-col items-center justify-center px-8 text-center">
-        <div className="mb-4 flex size-14 items-center justify-center rounded-full bg-muted">
-          <IconFilePlus size={28} className="text-muted-foreground" />
-        </div>
-        <h3 className="mb-1 text-lg font-semibold">{t('no-document-title')}</h3>
-        <p className="max-w-sm text-sm text-muted-foreground">
-          {t('no-document-description')}
-        </p>
-      </div>
+      <DocumentsEmptyState
+        hasFilters={hasFilters}
+        onClearFilters={onClearFilters}
+      />
     );
   }
 
@@ -48,10 +56,38 @@ function DocumentsContent({ viewType }: Props) {
 
 export function Documents({ viewType }: Props) {
   const documentsView = useAtomValue(documentsViewAtom);
+  const [filters, setFilters] = useMultiQueryState<DocumentFilterState>([
+    'contentType',
+    'createdAt',
+    'createdBy',
+    'searchValue',
+    'tagIds',
+  ]);
+  const hasFilters = Object.values(filters).some((value) => value !== null);
+
+  const clearFilters = () =>
+    setFilters({
+      contentType: null,
+      createdAt: null,
+      createdBy: null,
+      searchValue: null,
+      tagIds: null,
+    });
 
   if (viewType === 'grid' && documentsView === 'list') {
-    return <DocumentsRecordTable />;
+    return (
+      <DocumentsRecordTable
+        hasFilters={hasFilters}
+        onClearFilters={clearFilters}
+      />
+    );
   }
 
-  return <DocumentsContent viewType={viewType} />;
+  return (
+    <DocumentsContent
+      viewType={viewType}
+      hasFilters={hasFilters}
+      onClearFilters={clearFilters}
+    />
+  );
 }

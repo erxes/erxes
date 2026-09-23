@@ -116,6 +116,36 @@ export const types = `
     isProfileSynced: Boolean
     lastSyncedAt: Date
     lastVerifiedAt: Date
+    lastError: String
+    sendBlockedUntil: Date
+    sendBlockReason: String
+    sendBlockCount: Int
+  }
+
+  type FacebookBotDelivery {
+    pending: Int
+    sent: Int
+    failed: Int
+    nextSendAt: Date
+  }
+
+  type FacebookBotCommentReplyPost {
+    postId: String
+    count: Int
+    content: String
+    permalinkUrl: String
+  }
+
+  type FacebookBotCommentReplyStat {
+    text: String
+    total: Int
+    sent: Int
+    failed: Int
+    pending: Int
+    postCount: Int
+    posts: [FacebookBotCommentReplyPost]
+    lastAt: Date
+    lastError: String
   }
 
   input BotPersistentMenuInput {
@@ -181,6 +211,8 @@ export const queries = `
   facebookMessengerBotsTotalCount:Int
   facebookMessengerBots:[FacebookMessengerBot]
   facebookMessengerBot(_id:String):FacebookMessengerBot
+  facebookMessengerBotDelivery(_id:String!):FacebookBotDelivery
+  facebookMessengerBotCommentReplyStats(_id:String!, limit:Int):[FacebookBotCommentReplyStat]
   facebookGetBotPosts(botId:String):JSON
   facebookGetBotPost(botId:String,postId:String):JSON
 `;

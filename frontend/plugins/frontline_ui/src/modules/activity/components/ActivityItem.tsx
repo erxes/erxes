@@ -45,7 +45,7 @@ export const ActivityItem = ({ activity }: { activity: IActivity }) => {
     case ACTIVITY_MODULES.FORM_SUBMISSION:
       return <ActivityFormSubmission metadata={metadata} />;
     default:
-      return <div>{t('unknown-module')}</div>;
+      return <div>{t('unknown-module', 'Unknown module')}</div>;
   }
 };
 

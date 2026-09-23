@@ -1,4 +1,5 @@
 import { useMutation, useQuery } from '@apollo/client';
+import { useTranslation } from 'react-i18next';
 import { useCallback, useEffect, useMemo } from 'react';
 import { GET_ACTIVE_EXPORTS } from '../../graphql/export/exportQueries';
 import { TExportProgress } from '../../types/export/exportTypes';
@@ -9,6 +10,7 @@ import {
 import { toast } from 'erxes-ui';
 
 export const useActiveExports = ({ entityType }: { entityType: string }) => {
+  const { t } = useTranslation('importExport');
   const { data, loading, refetch, startPolling, stopPolling } = useQuery(
     GET_ACTIVE_EXPORTS,
     {
@@ -64,27 +66,19 @@ export const useActiveExports = ({ entityType }: { entityType: string }) => {
   );
   const retryExport = useCallback(
     async (exportId: string) => {
-      try {
-        const result = await retryExportMutation({
-          variables: { exportId },
-        });
-        return result.data?.exportRetry;
-      } catch (error) {
-        throw error;
-      }
+      const result = await retryExportMutation({
+        variables: { exportId },
+      });
+      return result.data?.exportRetry;
     },
     [retryExportMutation],
   );
   const cancelExport = useCallback(
     async (exportId: string) => {
-      try {
-        const result = await cancelExportMutation({
-          variables: { exportId },
-        });
-        return result.data?.exportCancel;
-      } catch (error) {
-        throw error;
-      }
+      const result = await cancelExportMutation({
+        variables: { exportId },
+      });
+      return result.data?.exportCancel;
     },
     [cancelExportMutation],
   );
@@ -93,14 +87,14 @@ export const useActiveExports = ({ entityType }: { entityType: string }) => {
     retryExport(exportId)
       .then(() => {
         toast({
-          title: 'Export retried',
-          description: 'Export has been resumed from the last position.',
+          title: t('export-restarted'),
+          description: t('export-restarted-description'),
         });
       })
       .catch((error: Error) => {
         toast({
-          title: 'Retry failed',
-          description: error.message || 'Failed to retry export',
+          title: t('export-restart-failed'),
+          description: error.message || t('export-restart-failed'),
           variant: 'destructive',
         });
       });

@@ -238,7 +238,9 @@ export const FacebookReportsList = () => {
     <div className="flex flex-col overflow-hidden h-full relative m-3 gap-3">
       {summaryError && (
         <Alert variant="destructive">
-          <Alert.Title>{t('error-loading-data')}</Alert.Title>
+          <Alert.Title>
+            {t('error-loading-data', 'Error loading data')}
+          </Alert.Title>
           <Alert.Description>{summaryError.message}</Alert.Description>
         </Alert>
       )}
@@ -257,44 +259,57 @@ export const FacebookReportsList = () => {
         }
       >
         <KpiCard
-          title={t('facebook-conversations')}
+          title={t('facebook-conversations', 'Messenger conversations')}
           value={String(summary?.conversations ?? 0)}
-          subtitle={t('facebook-bot-coverage', {
-            percent: summary?.botCoverage ?? 0,
-          })}
+          subtitle={t(
+            'facebook-bot-coverage',
+            '{{percent}}% handled by a bot',
+            {
+              percent: summary?.botCoverage ?? 0,
+            },
+          )}
           icon={<IconMessages className="h-5 w-5" />}
           valueClass="text-[var(--chart-1)]"
           iconClass="bg-[var(--chart-1)]/10 text-[var(--chart-1)]"
         />
         <KpiCard
-          title={t('facebook-messages')}
+          title={t('facebook-messages', 'Messenger messages')}
           value={String(summary?.messages ?? 0)}
-          subtitle={t('facebook-message-split', {
-            incoming: summary?.incomingMessages ?? 0,
-            staff: summary?.staffMessages ?? 0,
-          })}
+          subtitle={t(
+            'facebook-message-split',
+            '{{incoming}} incoming · {{staff}} from agents',
+            {
+              incoming: summary?.incomingMessages ?? 0,
+              staff: summary?.staffMessages ?? 0,
+            },
+          )}
           icon={<IconMessage className="h-5 w-5" />}
           valueClass="text-foreground"
         />
         <KpiCard
-          title={t('facebook-bot-messages')}
+          title={t('facebook-bot-messages', 'Bot messages')}
           value={String(summary?.botMessages ?? 0)}
-          subtitle={t('percent-of-total', { percent: messageShare })}
+          subtitle={t('percent-of-total', '{{percent}}% of total', {
+            percent: messageShare,
+          })}
           icon={<IconRobot className="h-5 w-5" />}
           valueClass="text-[var(--chart-2)]"
           iconClass="bg-[var(--chart-2)]/10 text-[var(--chart-2)]"
         />
         <KpiCard
-          title={t('facebook-posts')}
+          title={t('facebook-posts', 'Posts')}
           value={String(summary?.posts ?? 0)}
-          subtitle={t('facebook-posts-subtitle')}
+          subtitle={t('facebook-posts-subtitle', 'Posts tracked in erxes')}
           icon={<IconArticle className="h-5 w-5" />}
           valueClass="text-foreground"
         />
         <KpiCard
-          title={t('facebook-comments')}
+          title={t('facebook-comments', 'Comments')}
           value={String(summary?.comments ?? 0)}
-          subtitle={t('facebook-comments-subtitle')}
+          subtitle={t(
+            'facebook-comments-subtitle',
+            'Comments and replies received',
+          )}
           icon={<IconMessage2Share className="h-5 w-5" />}
           valueClass="text-[var(--pos)]"
           iconClass="bg-[var(--pos)]/10 text-[var(--pos)]"

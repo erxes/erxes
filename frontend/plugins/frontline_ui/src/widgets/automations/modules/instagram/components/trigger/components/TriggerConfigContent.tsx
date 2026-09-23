@@ -56,7 +56,7 @@ const BotProfile = ({
         <Avatar.Fallback>{(bot?.name || '').charAt(0)}</Avatar.Fallback>
       </Avatar>
       <Label className="text-muted-foreground">
-        {bot?.name || t('not-found-bot')}
+        {bot?.name || t('not-found-bot', 'Not found bot')}
       </Label>
     </div>
   );
@@ -105,7 +105,7 @@ const Condition = ({
 
   const renderORSeparator = () => {
     if (totalCount > 1 && index + 1 !== totalCount) {
-      return <span className="flex justify-center">{t('or')}</span>;
+      return <span className="flex justify-center">{t('or', 'OR')}</span>;
     }
     return null;
   };

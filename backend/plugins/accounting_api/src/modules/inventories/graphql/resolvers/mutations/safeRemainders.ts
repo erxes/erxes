@@ -18,8 +18,10 @@ const safeRemainderMutations = {
   safeRemainderAdd: async (
     _root: any,
     params: ISafeRemainder,
-    { models, subdomain, user }: IContext,
+    { models, subdomain, user, checkPermission }: IContext,
   ) => {
+    await checkPermission('manageSafeRemainders');
+
     const safeRemainder = await models.SafeRemainders.createRemainder(
       params,
       user._id,
@@ -32,16 +34,20 @@ const safeRemainderMutations = {
   safeRemainderEdit: async (
     _root: any,
     params: ISafeRemEditFields & { _id: string },
-    { models, user }: IContext,
+    { models, user, checkPermission }: IContext,
   ) => {
+    await checkPermission('manageSafeRemainders');
+
     return await models.SafeRemainders.updateRemainder(params, user._id);
   },
 
   safeRemainderRemove: async (
     _root: any,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
+    await checkPermission('removeSafeRemainders');
+
     // Delete safe remainder
     return models.SafeRemainders.removeRemainder(_id);
   },
@@ -49,8 +55,10 @@ const safeRemainderMutations = {
   safeRemainderReCalc: async (
     _root: any,
     { _id }: { _id: string },
-    { subdomain, models, user }: IContext,
+    { subdomain, models, user, checkPermission }: IContext,
   ) => {
+    await checkPermission('manageSafeRemainders');
+
     const safeRemainder = await models.SafeRemainders.getRemainder(_id);
     if (safeRemainder.status === SAFE_REMAINDER_STATUSES.PUBLISHED) {
       throw new Error('can`t update, cause: status is published');
@@ -63,8 +71,10 @@ const safeRemainderMutations = {
   safeRemainderSubmit: async (
     _root: any,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
+    await checkPermission('manageSafeRemainders');
+
     const safeRemainder = await models.SafeRemainders.getRemainder(_id);
 
     if (
@@ -102,8 +112,10 @@ const safeRemainderMutations = {
   safeRemainderCancel: async (
     _root: any,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
+    await checkPermission('manageSafeRemainders');
+
     const safeRemainder = await models.SafeRemainders.getRemainder(_id);
 
     if (safeRemainder.status !== SAFE_REMAINDER_STATUSES.DONE) {
@@ -138,8 +150,10 @@ const safeRemainderMutations = {
   safeRemainderDoTr: async (
     _root: any,
     { _id }: { _id: string },
-    { models, user }: IContext,
+    { models, user, checkPermission }: IContext,
   ) => {
+    await checkPermission('manageSafeRemainders');
+
     const safeRemainder = await models.SafeRemainders.getRemainder(_id);
     const items: ISafeRemainderItemDocument[] =
       await models.SafeRemainderItems.find({ remainderId: _id }).lean();
@@ -244,8 +258,10 @@ const safeRemainderMutations = {
   safeRemainderUndoTr: async (
     _root: any,
     { _id }: { _id: string },
-    { models, user }: IContext,
+    { models, user, checkPermission }: IContext,
   ) => {
+    await checkPermission('manageSafeRemainders');
+
     const safeRemainder = await models.SafeRemainders.getRemainder(_id);
     const { incomeTrId, outTrId, saleTrId } = safeRemainder;
     await safeRemainderUndoTrs(models, incomeTrId);

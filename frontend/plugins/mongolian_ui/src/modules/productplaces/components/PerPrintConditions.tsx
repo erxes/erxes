@@ -1,19 +1,29 @@
-import React from 'react';
 import { Button } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { SelectBranches, SelectDepartments } from 'ui-modules';
 
-import SelectBranches from '../selects/SelectBranches';
-import SelectDepartments from '../selects/SelectDepartments';
+import { Condition } from '../types';
 
-type Props = {
-  condition: any;
-  onChange: (id: string, condition: any) => void;
-  onRemove: (id: string) => void;
+type PrintCondition = Condition & {
+  branchId?: string;
+  departmentId?: string;
 };
 
-const PerPrintConditions = ({ condition, onChange, onRemove }: Props) => {
+type Props = {
+  condition: PrintCondition;
+  onChange: (id: string, condition: PrintCondition) => void;
+  onRemove: (id: string) => void;
+  onAddCondition?: () => void;
+};
+
+const PerPrintConditions = ({
+  condition,
+  onChange,
+  onRemove,
+  onAddCondition,
+}: Props) => {
   const { t } = useTranslation('mongolian');
-  const onChangeConfig = (key: string, value: any) => {
+  const onChangeConfig = (key: string, value: string) => {
     onChange(condition.id, { ...condition, [key]: value });
   };
 
@@ -21,16 +31,24 @@ const PerPrintConditions = ({ condition, onChange, onRemove }: Props) => {
     <div className="flex items-end gap-3">
       <div className="flex-1 grid grid-cols-2 gap-3">
         <div>
-          <SelectBranches
+          <SelectBranches.Root
             value={condition.branchId || ''}
-            onChange={(branchId) => onChangeConfig('branchId', branchId)}
+            onValueChange={(branchId) =>
+              onChangeConfig(
+                'branchId',
+                typeof branchId === 'string' ? branchId : '',
+              )
+            }
           />
         </div>
         <div>
-          <SelectDepartments
+          <SelectDepartments.Root
             value={condition.departmentId || ''}
-            onChange={(departmentId) =>
-              onChangeConfig('departmentId', departmentId)
+            onValueChange={(departmentId) =>
+              onChangeConfig(
+                'departmentId',
+                typeof departmentId === 'string' ? departmentId : '',
+              )
             }
           />
         </div>
@@ -45,6 +63,17 @@ const PerPrintConditions = ({ condition, onChange, onRemove }: Props) => {
         >
           ✕ {t('delete-condition')}
         </Button>
+        {onAddCondition && (
+          <Button
+            type="button"
+            className="h-8"
+            variant="outline"
+            size="sm"
+            onClick={onAddCondition}
+          >
+            + {t('add-condition')}
+          </Button>
+        )}
       </div>
     </div>
   );

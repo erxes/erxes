@@ -49,13 +49,13 @@ export const AddMembers = () => {
       channelAddMembers({
         variables: { ...data, id },
         onCompleted: () => {
-          toast({ title: t('success') });
+          toast({ title: t('success', 'Success!') });
           form.reset();
           _setOpen(false);
         },
         onError: (error) =>
           toast({
-            title: t('error'),
+            title: t('error', 'Error'),
             description: error.message,
             variant: 'destructive',
           }),
@@ -69,14 +69,14 @@ export const AddMembers = () => {
       <Dialog.Trigger asChild>
         <Button>
           <IconPlus />
-          {t('add-members')}
+          {t('add-members', 'Add members')}
           <Kbd>C</Kbd>
         </Button>
       </Dialog.Trigger>
       <Dialog.Content>
         <Dialog.Header className="flex-row">
           <Dialog.Title className="flex items-center gap-2">
-            {t('add-members')}
+            {t('add-members', 'Add members')}
           </Dialog.Title>
         </Dialog.Header>
         <Form {...form}>
@@ -86,7 +86,7 @@ export const AddMembers = () => {
           >
             <MemberForm form={form} />
             <Button className="w-full" type="submit" disabled={loading}>
-              {t('add')}
+              {t('add', 'Add')}
             </Button>
           </form>
         </Form>

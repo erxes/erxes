@@ -3,6 +3,7 @@ import { createGenerateModels } from 'erxes-api-shared/utils';
 import { ICMSModel, loadCmsClass } from '@/cms/db/models/Cms';
 
 import mongoose from 'mongoose';
+import { cmsShareSchema, type CmsShare } from '@/cms/postiz/model';
 import {
   ICMSMenuDocument,
   ICMSPageDocument,
@@ -50,6 +51,7 @@ import {
 } from '@/webbuilder/db/models/WebActivityLog';
 import { IWebActivityLogDocument } from './modules/webbuilder/@types/webActivityLog';
 export interface IModels {
+  CmsShares: mongoose.Model<CmsShare>;
   CMS: ICMSModel;
   Web: IWebModel;
   WebActivityLogs: IWebActivityLogModel;
@@ -74,6 +76,10 @@ export interface IContext extends IMainContext {
 
 export const loadClasses = (db: mongoose.Connection): IModels => {
   const models = {} as IModels;
+  models.CmsShares = db.model<CmsShare>(
+    'cms_postiz_deliveries',
+    cmsShareSchema,
+  );
 
   models.CMS = db.model<IContentCMSDocument, ICMSModel>(
     'content_cms',

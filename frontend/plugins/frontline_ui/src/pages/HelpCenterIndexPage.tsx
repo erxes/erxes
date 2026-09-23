@@ -18,8 +18,7 @@ import {
   useAllHelpCenters,
   useHelpCenters,
 } from '@/helpcenter/hooks/useHelpCenters';
-import { TopicDrawer } from '@/knowledgebase/components/TopicDrawer';
-import { toTopicDrawerRecord } from '@/helpcenter/utils/toTopicDrawerRecord';
+import { HelpCenterDrawer } from '@/helpcenter/components/help-center-drawer';
 
 const HelpCenterIndexPage = () => {
   const { t } = useTranslation('frontline');
@@ -70,7 +69,7 @@ const HelpCenterIndexPage = () => {
         <PageHeader.End>
           <Button onClick={() => setIsCreateOpen(true)} className="h-7 py-1">
             <IconPlus />
-            {t('kb-create-topic')}
+            {t('helpcenter-create', 'Create Help Center')}
             <Kbd>C</Kbd>
           </Button>
         </PageHeader.End>
@@ -82,9 +81,9 @@ const HelpCenterIndexPage = () => {
 
       <HelpCenterRecordTable onCreate={() => setIsCreateOpen(true)} />
 
-      <TopicDrawer
+      <HelpCenterDrawer
         key={editing?._id ?? 'create'}
-        topic={toTopicDrawerRecord(editing)}
+        helpCenter={editing}
         isOpen={isCreateOpen || !!editing}
         onClose={handleCloseDrawer}
         onSaved={handleSaved}

@@ -5,7 +5,7 @@ import {
   IconMoneybag,
   IconTrash,
 } from '@tabler/icons-react';
-import { Cell, ColumnDef } from '@tanstack/react-table';
+import { Cell, ColumnDef, Row } from '@tanstack/react-table';
 import dayjs from 'dayjs';
 import {
   Combobox,
@@ -19,7 +19,7 @@ import {
   useConfirm,
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 import { ProductsInline } from 'ui-modules';
 import { SelectFixedAsset } from '@/settings/fixed-assets/components/SelectFixedAsset';
 import { useTrRecordsRemove } from '../hooks/useTrRecordsRemove';
@@ -30,6 +30,10 @@ import {
   TrJournalEnum,
 } from '../types/constants';
 import { ITrRecord } from '../types/Transaction';
+import {
+  buildTransactionEditPath,
+  getCurrentTransactionReturnPath,
+} from '../utils/transactionNavigation';
 
 const NumberCell = ({ row }: any) => {
   const { number } = row.original;
@@ -56,16 +60,16 @@ const AmountCell = ({ value }: { value: number }) => {
   );
 };
 
-const DebitCell = ({ row }: any) => {
-  const { details } = row.original;
-  const { amount, side } = details;
+const DebitCell = ({ row }: { row: Row<ITrRecord> }) => {
+  const { details, side } = row.original;
+  const { amount } = details;
 
   return <AmountCell value={side === TR_SIDES.DEBIT ? fixNum(amount) : 0} />;
 };
 
-const CreditCell = ({ row }: any) => {
-  const { details } = row.original;
-  const { amount, side } = details;
+const CreditCell = ({ row }: { row: Row<ITrRecord> }) => {
+  const { details, side } = row.original;
+  const { amount } = details;
 
   return <AmountCell value={side === TR_SIDES.CREDIT ? fixNum(amount) : 0} />;
 };
@@ -186,14 +190,17 @@ const TransactionMoreColumnCell = ({
   const { t } = useTranslation('accounting');
   const { parentId, trId, originId } = cell.row.original;
   const navigate = useNavigate();
+  const location = useLocation();
   const { confirm } = useConfirm();
   const { removeTrRecords } = useTrRecordsRemove();
 
   const handleEdit = () => {
     navigate(
-      `/accounting/transaction/edit?parentId=${parentId}&trId=${
-        originId || trId
-      }`,
+      buildTransactionEditPath({
+        parentId,
+        trId: originId || trId,
+        returnTo: getCurrentTransactionReturnPath(location),
+      }),
     );
   };
 

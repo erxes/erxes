@@ -10,6 +10,7 @@ import { useParams } from 'react-router-dom';
 import { DeleteTeamForm } from '@/team/components/team-details/DeleteTeamForm';
 import { TriageSection } from '@/team/components/team-details/TriageSection';
 import { useTranslation } from 'react-i18next';
+import { GithubSection } from './GithubSection';
 
 export const TeamDetails = () => {
   const { t } = useTranslation('operation');
@@ -35,6 +36,7 @@ export const TeamDetails = () => {
       <CycleSection team={team} />
       <TriageSection team={team} />
       <TemplateSection team={team} />
+      <GithubSection team={team} />
       <DeleteTeamForm />
     </div>
   );

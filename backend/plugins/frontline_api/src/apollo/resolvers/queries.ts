@@ -10,6 +10,7 @@ import { discordQueries } from '@/integrations/discord/graphql/resolvers/queries
 import { instagramQueries } from '@/integrations/instagram/graphql/resolvers/queries';
 import { mailQueries } from '@/integrations/mail/graphql/resolvers/queries';
 import { knowledgeBaseQueries } from '@/knowledgebase/graphql/resolvers/queries/knowledgeBaseQueries';
+import { helpCenterConfigQueries } from '@/helpcenter/graphql/resolvers/queries/helpCenterConfig';
 import { reportCallQueries } from '@/reports/graphql/resolvers/callQueries';
 import { reportChartQueries } from '@/reports/graphql/resolvers/chartQueries';
 import { reportFacebookQueries } from '@/reports/graphql/resolvers/facebookQueries';
@@ -18,8 +19,8 @@ import { reportTicketQueries } from '@/reports/graphql/resolvers/ticketQueries';
 import ticketQueries from '@/ticket/graphql/resolvers/queries';
 import { fieldQueries } from '~/modules/form/graphql/resolvers/queries/fields';
 import formQueries from '~/modules/form/graphql/resolvers/queries/forms';
-import { pollQueries } from '~/modules/poll/graphql/resolvers/queries/polls';
-import { cpPollQueries } from '~/modules/poll/graphql/resolvers/queries/clientPortal';
+import { surveyQueries } from '~/modules/survey/graphql/resolvers/queries/surveys';
+import { cpSurveyQueries } from '~/modules/survey/graphql/resolvers/queries/clientPortal';
 import { responseTemplateQueries } from '~/modules/response/graphql/responseTemplateQueries';
 
 export const queries = {
@@ -38,12 +39,13 @@ export const queries = {
   ...responseTemplateQueries,
   ...formQueries,
   ...fieldQueries,
-  ...pollQueries,
-  ...cpPollQueries,
+  ...surveyQueries,
+  ...cpSurveyQueries,
   ...reportInboxQueries,
   ...reportTicketQueries,
   ...reportFacebookQueries,
   ...reportChartQueries,
   ...reportCallQueries,
   ...knowledgeBaseQueries,
+  ...helpCenterConfigQueries,
 };

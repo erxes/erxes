@@ -6,7 +6,9 @@
   "scripts": {
     "migrate": "tsx ./run.ts",
     "migrate:list": "tsx ./run.ts --list",
-    "typecheck": "tsc --noEmit -p tsconfig.json"
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test:knowledgebase": "tsx --test ./content/knowledgebase/__tests__/*.test.ts",
+    "lint:knowledgebase": "eslint content/knowledgebase --max-warnings=0"
   },
   "dependencies": {
     "erxes-api-shared": "workspace:*",

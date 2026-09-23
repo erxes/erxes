@@ -3,7 +3,8 @@ import { CreateChannel } from '@/channels/components/settings/channels-list/Crea
 import { FormDetailsBreadcrumb } from '@/forms/components/FormDetailsBreadcrumb';
 import { FormsCreateButton } from '@/forms/components/form-page/forms-create';
 import { CreatePipeline } from '@/pipelines/components/CreatePipeline';
-import { PollsCreateButton } from '@/poll/components/poll-page/polls-create';
+import { SurveyDetailsBreadcrumb } from '@/survey/components/survey-page/SurveyDetailsBreadcrumb';
+import { SurveysCreateButton } from '@/survey/components/survey-page/surveys-create';
 import { PipelineDetailBreadcrumb } from '@/pipelines/components/PipelineDetailBreadcrumb';
 import { ResponseDetailBreadcrumb } from '@/responseTemplate/components/ResponseDetailBreadcrumb';
 import { CreateResponse } from '@/responseTemplate/components/CreateResponse';
@@ -41,7 +42,10 @@ export const ChannelSettingsBreadcrumb = () => {
     isMatchingLocation(FrontlinePaths.FormSubmissions) ||
     isMatchingLocation(FrontlinePaths.FormDetail);
 
-  const isPollsRoute = isMatchingLocation(FrontlinePaths.ChannelPolls);
+  const isSurveysRoute =
+    isMatchingLocation(FrontlinePaths.ChannelSurveys) ||
+    isMatchingLocation(FrontlinePaths.SurveysCreate) ||
+    isMatchingLocation(FrontlinePaths.SurveyDetail);
 
   const isResponseTemplates =
     isMatchingLocation(FrontlinePaths.ChannelResponsePage) ||
@@ -49,7 +53,7 @@ export const ChannelSettingsBreadcrumb = () => {
   const isChannelsRoot =
     !isChannelDetailOrSubRoute &&
     !isFormsRoute &&
-    !isPollsRoute &&
+    !isSurveysRoute &&
     !isResponseTemplates;
 
   return (
@@ -57,7 +61,7 @@ export const ChannelSettingsBreadcrumb = () => {
       <Link to="/settings/frontline/channels">
         <Button variant="ghost" className="font-semibold">
           <IconCircles className="w-4 h-4 text-accent-foreground" />
-          {t('channels')}
+          {t('channels', 'Channels')}
         </Button>
       </Link>
 
@@ -87,7 +91,7 @@ export const ChannelSettingsBreadcrumb = () => {
           <Separator.Inline />
           <Link to={`/settings/frontline/channels/${channelId}/response`}>
             <Button variant="ghost" className="font-semibold">
-              {t('response-templates')}
+              {t('response-templates', 'Response templates')}
             </Button>
           </Link>
           {!isMatchingLocation(FrontlinePaths.ResponseDetail) && (
@@ -109,7 +113,7 @@ export const ChannelSettingsBreadcrumb = () => {
           <Separator.Inline />
           <Link to={`/settings/frontline/channels/${channelId}/pipelines`}>
             <Button variant="ghost" className="font-semibold">
-              {t('pipelines')}
+              {t('pipelines', 'Pipelines')}
             </Button>
           </Link>
           {!isSpecificPipelineDetailRoute && (
@@ -135,7 +139,7 @@ export const ChannelSettingsBreadcrumb = () => {
           <Separator.Inline />
           <Link to={`/settings/frontline/channels/${channelId}/forms`}>
             <Button variant="ghost" className="font-semibold">
-              {t('forms')}
+              {t('forms', 'Forms')}
             </Button>
           </Link>
           {!isMatchingLocation(FrontlinePaths.FormDetail) && (
@@ -146,19 +150,38 @@ export const ChannelSettingsBreadcrumb = () => {
         </>
       )}
 
-      {isPollsRoute && (
+      {isSurveysRoute && (
         <>
           <Separator.Inline />
           <ChannelDetailBreadcrumb channelId={channelId} />
           <Separator.Inline />
-          <Link to={`/settings/frontline/channels/${channelId}/polls`}>
+          <Link to={`/settings/frontline/channels/${channelId}/surveys`}>
             <Button variant="ghost" className="font-semibold">
-              {t('polls')}
+              {t('surveys', 'Surveys')}
             </Button>
           </Link>
-          <span className="ml-auto">
-            <PollsCreateButton />
-          </span>
+          {!isMatchingLocation(FrontlinePaths.SurveyDetail) && (
+            <span className="ml-auto">
+              <SurveysCreateButton />
+            </span>
+          )}
+        </>
+      )}
+
+      {isMatchingLocation(FrontlinePaths.SurveyDetail) &&
+        !isMatchingLocation(FrontlinePaths.SurveysCreate) && (
+          <>
+            <Separator.Inline />
+            <SurveyDetailsBreadcrumb />
+          </>
+        )}
+
+      {isMatchingLocation(FrontlinePaths.SurveysCreate) && (
+        <>
+          <Separator.Inline />
+          <Button variant="ghost" className="font-semibold">
+            {t('create-survey', 'Create survey')}
+          </Button>
         </>
       )}
 
@@ -174,7 +197,7 @@ export const ChannelSettingsBreadcrumb = () => {
         <>
           <Separator.Inline />
           <Button variant="ghost" className="font-semibold">
-            {t('create-form')}
+            {t('create-form', 'Create form')}
           </Button>
         </>
       )}

@@ -20,9 +20,10 @@ const upsertGithubConfigParams = `
 
 export const queries = `
   getGithubConfigByTeam(teamId: String!): GithubConfig
-  getAllGithubConfigs(installationId: Int!): [GithubConfig]
+  getAllGithubConfigs(installationId: Int): [GithubConfig!]!
 `;
 
 export const mutations = `
-upsertGithubConfig(${upsertGithubConfigParams}): GithubConfig
+  upsertGithubConfig(${upsertGithubConfigParams}): GithubConfig
+  operationGithubDisconnectTeam(teamId: String!): DisconnectResponse
 `;

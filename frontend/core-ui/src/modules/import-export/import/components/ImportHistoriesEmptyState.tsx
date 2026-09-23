@@ -1,46 +1,25 @@
 import { formatImportExportEntityTypeLabel } from '@/import-export/shared/formatEntityTypeLabel';
+import { TImportExportHistoryType } from '@/import-export/hooks/useImportExportTypes';
 import { IconFileImport } from '@tabler/icons-react';
 import { Badge, Empty, useQueryState } from 'erxes-ui';
-import { useImportHistoriesRecordTable } from './ImportHistoriesContext';
+import { useTranslation } from 'react-i18next';
 
-const SELECTED_CONTENT_TYPE_INFO = {
-  label: (selectedEntityType: string | null, contentTypes: any[]) =>
-    formatImportExportEntityTypeLabel(
-      selectedEntityType || 'all',
-      contentTypes,
-    ),
-  title: (label: string | null) => `No ${label} imports yet`,
-  emptyDescription: (label: string | null) =>
-    `${label} imports will appear here after someone uploads a CSV file. Error files will also be available here whenever a job needs attention.`,
-};
-
-const UNSELECTED_CONTENT_TYPE_INFO = {
-  label: 'All types',
-  title: 'No imports yet',
-  emptyDescription:
-    'CSV imports started from your modules will appear here with their status, processed rows, and any error files you may need to review.',
-};
-
-export const ImportHistoriesEmptyState = () => {
+export const ImportHistoriesEmptyState = ({
+  columnsLength,
+  contentTypes,
+}: {
+  columnsLength: number;
+  contentTypes: TImportExportHistoryType[];
+}) => {
+  const { t } = useTranslation('importExport');
   const [selectedEntityType] = useQueryState<string>('type', {
     defaultValue: 'all',
   });
 
-  const { contentTypes, columnsLength } = useImportHistoriesRecordTable();
-
-  const isAllSelected = selectedEntityType === 'all';
-
-  const label = isAllSelected
-    ? UNSELECTED_CONTENT_TYPE_INFO.label
-    : SELECTED_CONTENT_TYPE_INFO.label(selectedEntityType, contentTypes);
-
-  const emptyTitle = isAllSelected
-    ? UNSELECTED_CONTENT_TYPE_INFO.title
-    : SELECTED_CONTENT_TYPE_INFO.title(label);
-
-  const emptyDescription = isAllSelected
-    ? UNSELECTED_CONTENT_TYPE_INFO.emptyDescription
-    : SELECTED_CONTENT_TYPE_INFO.emptyDescription(label);
+  const isAllSelected = !selectedEntityType || selectedEntityType === 'all';
+  const entity = isAllSelected
+    ? ''
+    : formatImportExportEntityTypeLabel(selectedEntityType, contentTypes);
 
   return (
     <tr>
@@ -50,8 +29,16 @@ export const ImportHistoriesEmptyState = () => {
             <Empty.Media variant="icon">
               <IconFileImport />
             </Empty.Media>
-            <Empty.Title>{emptyTitle}</Empty.Title>
-            <Empty.Description>{emptyDescription}</Empty.Description>
+            <Empty.Title>
+              {isAllSelected
+                ? t('no-imports-yet')
+                : t('no-entity-imports-yet', { entity })}
+            </Empty.Title>
+            <Empty.Description>
+              {isAllSelected
+                ? t('no-imports-yet-description')
+                : t('no-entity-imports-yet-description', { entity })}
+            </Empty.Description>
           </Empty.Header>
           {!!contentTypes.length && (
             <Empty.Content>

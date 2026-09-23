@@ -17,7 +17,7 @@ export const CarrierDonut = memo(function CarrierDonut({
   if (!data.length) {
     return (
       <div className="flex h-56 items-center justify-center text-sm text-muted-foreground">
-        {t('no-carrier-data')}
+        {t('no-carrier-data', 'No carrier data')}
       </div>
     );
   }
