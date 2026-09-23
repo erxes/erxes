@@ -1,6 +1,13 @@
 import { CopyAttachmentAction } from '@/inbox/conversation-messages/components/CopyAttachmentAction';
 import { useMutation } from '@apollo/client';
-import { Button, CopyText, DropdownMenu, Tooltip, toast } from 'erxes-ui';
+import {
+  Button,
+  CopyText,
+  DropdownMenu,
+  Tooltip,
+  stripHtml,
+  toast,
+} from 'erxes-ui';
 import {
   IconArrowBackUp,
   IconCopy,
@@ -27,10 +34,7 @@ import {
   REACTION_KINDS,
 } from '@/inbox/conversation-messages/constants/messageActions';
 import { getProviderMessageId } from '@/inbox/conversation-messages/utils/message';
-import {
-  previewOf,
-  textOf,
-} from '@/inbox/conversation-messages/utils/messageActionText';
+import { previewOf } from '@/inbox/conversation-messages/utils/messageActionText';
 import { ReactionMenu } from '@/inbox/conversation-messages/components/MessageReactionMenu';
 import { ActionButton } from '@/inbox/conversation-messages/components/MessageActionButton';
 
@@ -58,7 +62,7 @@ export const MessageActions = ({
     },
   );
   const preview = previewOf(message);
-  const messageText = textOf(message);
+  const messageText = stripHtml(message.content).trim();
   const isInstagram = kind === IntegrationType.INSTAGRAM_MESSENGER;
   const isInstagramReactionTarget =
     !isInstagram ||
@@ -169,15 +173,14 @@ export const MessageActions = ({
                 <IconShare3 className="size-4" />
               </ActionButton>
             )}
-            {message.attachments?.length ? (
-              message.attachments.map((attachment, index) => (
-                <CopyAttachmentAction
-                  key={`${attachment.url}-${index}`}
-                  attachment={attachment}
-                  inline
-                />
-              ))
-            ) : (
+            {message.attachments?.map((attachment, index) => (
+              <CopyAttachmentAction
+                key={`${attachment.url}-${index}`}
+                attachment={attachment}
+                inline
+              />
+            ))}
+            {messageText && (
               <CopyText
                 value={messageText}
                 className="size-8 justify-center rounded-md text-muted-foreground hover:bg-muted [&>span]:gap-0 [&>span]:text-[0px]"
@@ -215,15 +218,14 @@ export const MessageActions = ({
                     Forward
                   </DropdownMenu.Item>
                 )}
-                {message.attachments?.length ? (
-                  message.attachments.map((attachment, index) => (
-                    <CopyAttachmentAction
-                      key={`${attachment.url}-${index}`}
-                      attachment={attachment}
-                      inline={false}
-                    />
-                  ))
-                ) : (
+                {message.attachments?.map((attachment, index) => (
+                  <CopyAttachmentAction
+                    key={`${attachment.url}-${index}`}
+                    attachment={attachment}
+                    inline={false}
+                  />
+                ))}
+                {messageText && (
                   <DropdownMenu.Item asChild className="rounded-lg">
                     <CopyText value={messageText} className="w-full">
                       <IconCopy className="size-4" />
