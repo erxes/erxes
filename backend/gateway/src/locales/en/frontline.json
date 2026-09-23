@@ -1294,8 +1294,6 @@
   "delete-chart": "Delete chart",
   "confirm-delete-chart": "Are you sure you want to delete \"{{name}}\"?",
   "without-priority": "{{value}} without priority",
-<<<<<<< HEAD
-=======
   "add-email-integration": "Add Email Integration",
   "mail-integration-updated": "Email integration updated",
   "integration-desc-mail": "Receive email into your Team Inbox by forwarding it to a generated address.",
@@ -1315,7 +1313,6 @@
   "mail-connection-failed": "Incoming mail cannot reach this workspace",
   "mail-connection-tenant": "Tenant",
   "mail-connection-endpoint": "Delivering to",
->>>>>>> edf30b7d60318894115626f840679640bd6bf755
   "few-rate": {
     "minutes": "A few minutes",
     "hours": "A few hours",
