@@ -31,7 +31,92 @@ const getDynamicConfig = async (models: any, brandId?: string) => {
 
   return config;
 };
+const syncMsdPrice = async (
+  price: any,
+  config: any,
+  subdomain: string,
+  brandId: string,
+): Promise<boolean> => {
+  try {
+    if (!price._id) {
+      const response = await fetch(
+        `${config.itemApi}?$filter=No eq '${price.Item_No}'`,
+        {
+          timeout: 180000,
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Basic ${Buffer.from(
+              `${config.username}:${config.password}`,
+            ).toString('base64')}`,
+          },
+        },
+      );
 
+      if (!response.ok) {
+        throw new Error(
+          `MS Dynamic product request failed: ${response.status}`,
+        );
+      }
+
+      const data = await response.json();
+      const doc = data?.value?.[0];
+
+      if (!doc) {
+        console.error(`MS Dynamic product not found: ${price.Item_No}`);
+        return false;
+      }
+
+      const document = {
+        name: doc.Description || 'default',
+        shortName: doc.Description_2 || '',
+        type: doc.Type === 'Inventory' ? 'product' : 'service',
+        unitPrice: Number(price.Unit_Price) || 0,
+        code: doc.No,
+        uom: doc.Base_Unit_of_Measure || 'PCS',
+        categoryId: null,
+        scopeBrandIds: [brandId],
+        status: 'active',
+      };
+
+      const result = await sendTRPCMessage({
+        subdomain,
+        method: 'mutation',
+        pluginName: 'core',
+        module: 'products',
+        action: 'createProduct',
+        input: { doc: document },
+        defaultValue: null,
+      });
+
+      return !!result;
+    }
+
+    const result = await sendTRPCMessage({
+      subdomain,
+      method: 'mutation',
+      pluginName: 'core',
+      module: 'products',
+      action: 'updateProduct',
+      input: {
+        _id: price._id,
+        doc: {
+          unitPrice: Number(price.Unit_Price) || 0,
+          currency: 'MNT',
+        },
+      },
+      defaultValue: null,
+    });
+
+    return !!result;
+  } catch (e: any) {
+    console.error(
+      `Failed to sync MS Dynamic price for ${price.Item_No}`,
+      e?.message,
+    );
+
+    return false;
+  }
+};
 /**
  * ============================
  * MS Dynamic Sync Mutations
@@ -242,100 +327,15 @@ export const msdynamicSyncMutations = {
     let hasFailed = false;
 
     for (const price of prices) {
-      try {
-        if (!price._id) {
-          const response = await fetch(
-            `${config.itemApi}?$filter=No eq '${price.Item_No}'`,
-            {
-              timeout: 180000,
-              headers: {
-                Accept: 'application/json',
-                Authorization: `Basic ${Buffer.from(
-                  `${config.username}:${config.password}`,
-                ).toString('base64')}`,
-              },
-            },
-          );
+      const success = await syncMsdPrice(price, config, subdomain, brandId);
 
-          if (!response.ok) {
-            throw new Error(
-              `MS Dynamic product request failed: ${response.status}`,
-            );
-          }
-
-          const data = await response.json();
-          const doc = data?.value?.[0];
-
-          if (!doc) {
-            hasFailed = true;
-            console.error(
-              `MS Dynamic product not found: ${price.Item_No}`,
-            );
-            continue;
-          }
-
-          const document = {
-            name: doc.Description || 'default',
-            shortName: doc.Description_2 || '',
-            type: doc.Type === 'Inventory' ? 'product' : 'service',
-            unitPrice: Number(price.Unit_Price) || 0,
-            code: doc.No,
-            uom: doc.Base_Unit_of_Measure || 'PCS',
-            categoryId: null,
-            scopeBrandIds: [brandId],
-            status: 'active',
-          };
-
-          const result = await sendTRPCMessage({
-            subdomain,
-            method: 'mutation',
-            pluginName: 'core',
-            module: 'products',
-            action: 'createProduct',
-            input: { doc: document },
-            defaultValue: null,
-          });
-
-          if (!result) {
-            hasFailed = true;
-          }
-
-          continue;
-        }
-
-        const result = await sendTRPCMessage({
-          subdomain,
-          method: 'mutation',
-          pluginName: 'core',
-          module: 'products',
-          action: 'updateProduct',
-          input: {
-            _id: price._id,
-            doc: {
-              unitPrice: Number(price.Unit_Price) || 0,
-              currency: 'MNT',
-            },
-          },
-          defaultValue: null,
-        });
-
-        if (!result) {
-          hasFailed = true;
-          console.error(
-            `Failed to sync MS Dynamic price for product ${price._id}`,
-          );
-        }
-      } catch (e: any) {
+      if (!success) {
         hasFailed = true;
-        console.error(
-          `Failed to sync MS Dynamic price for ${price.Item_No}`,
-          e?.message,
-        );
       }
     }
 
     return {
       status: hasFailed ? 'failed' : 'success',
     };
-  }
+  },
 };

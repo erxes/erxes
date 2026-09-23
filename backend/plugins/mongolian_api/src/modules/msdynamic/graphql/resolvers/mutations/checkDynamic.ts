@@ -78,15 +78,15 @@ const comparePrices = async ({
   exchangeRates: any;
   result: any;
 }) => {
-for (const itemNo of Object.keys(groupedItems)) {
-  try {
-    const { resPrice, resProd } = await getPrice(
-      groupedItems[itemNo],
-      pricePriority,
-      exchangeRates,
-    );
+  for (const itemNo of Object.keys(groupedItems)) {
+    try {
+      const { resPrice, resProd } = await getPrice(
+        groupedItems[itemNo],
+        pricePriority,
+        exchangeRates,
+      );
 
-    const foundProduct = productsByCode[itemNo];
+      const foundProduct = productsByCode[itemNo];
 
       if (!foundProduct) {
         result.create.items.push({
@@ -210,8 +210,10 @@ const isCategoryMatched = (
 ) => {
   return (
     dynamicCategory.Code === category.code &&
-    categoryById[category.parentId]?.code ===
-      dynamicCategory.Parent_Category &&
+    (dynamicCategory.Parent_Category
+      ? categoryById[category.parentId]?.code ===
+        dynamicCategory.Parent_Category
+      : !category.parentId) &&
     category.name === dynamicCategory.Description
   );
 };
@@ -243,10 +245,22 @@ export const msdynamicCheckMutations = {
       pluginName: 'core',
       module: 'products',
       action: 'find',
-      input: { query: { status: { $ne: 'deleted' } } },
+      input: {
+        query: { status: { $ne: 'deleted' } },
+      },
       defaultValue: [],
     });
-    const productCodes = products.map((p: any) => p.code);
+
+    const productsByCode = products.reduce(
+      (acc: Record<string, any>, product: any) => {
+        if (product.code) {
+          acc[product.code] = product;
+        }
+
+        return acc;
+      },
+      {},
+    );
 
     const response = await fetch(
       `${itemApi}?$filter=Item_Category_Code ne '' and Blocked ne true and Allow_Ecommerce eq true`,
@@ -259,17 +273,49 @@ export const msdynamicCheckMutations = {
           ).toString('base64')}`,
         },
       },
-    ).then((r) => r.json());
+    );
 
-    const resultCodes = response?.value?.map((r: any) => r.No) || [];
+    if (!response.ok) {
+      throw new Error(`MS Dynamic product request failed: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    if (!Array.isArray(data?.value)) {
+      throw new Error('MS Dynamic product response is not valid.');
+    }
+
+    const dynamicProducts = data.value;
+
+    const createItems = dynamicProducts.filter(
+      (product: any) => !productsByCode[product.No],
+    );
+
+    const deleteItems = products.filter(
+      (product: any) =>
+        !dynamicProducts.some(
+          (dynamicProduct: any) => dynamicProduct.No === product.code,
+        ),
+    );
+
+    const matchedCount = dynamicProducts.filter(
+      (product: any) => productsByCode[product.No],
+    ).length;
 
     return {
-      create: resultCodes.filter((c: string) => !productCodes.includes(c))
-        .length,
-      delete: productCodes.filter((c: string) => !resultCodes.includes(c))
-        .length,
-      matched: resultCodes.filter((c: string) => productCodes.includes(c))
-        .length,
+      create: {
+        items: createItems,
+        count: createItems.length,
+      },
+      update: {
+        items: [],
+        count: 0,
+      },
+      delete: {
+        items: deleteItems,
+        count: deleteItems.length,
+      },
+      matched: matchedCount,
     };
   },
 
@@ -359,19 +405,29 @@ export const msdynamicCheckMutations = {
       defaultValue: [],
     });
 
-    const response = await fetch(itemCategoryApi, {
+    const categoryResponse = await fetch(itemCategoryApi, {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         Accept: 'application/json',
-        Authorization: `Basic ${Buffer.from(
-          `${username}:${password}`,
-        ).toString('base64')}`,
+        Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString(
+          'base64',
+        )}`,
       },
-    }).then((res) => res.json());
+    });
 
-    const dynamicCategories = Array.isArray(response?.value)
-      ? response.value
-      : [];
+    if (!categoryResponse.ok) {
+      throw new Error(
+        `MS Dynamic category request failed: ${categoryResponse.status}`,
+      );
+    }
+
+    const response = await categoryResponse.json();
+
+    if (!Array.isArray(response?.value)) {
+      throw new Error('MS Dynamic category response is not valid.');
+    }
+
+    const dynamicCategories = response.value;
 
     const categoryById: Record<string, any> = {};
     for (const category of categories) {
@@ -427,6 +483,7 @@ export const msdynamicCheckMutations = {
       } else {
         updateCategories.push(dynamicCategory);
       }
+    }
 
     return {
       create: {
@@ -445,7 +502,6 @@ export const msdynamicCheckMutations = {
         count: matchedCount,
       },
     };
-  }
   },
 
   async toCheckMsdCustomers(
@@ -567,7 +623,6 @@ export const msdynamicCheckMutations = {
 
     return buildCustomerCheckResult(msdCustomers, erxesByMsdNo);
   },
-
   async toCheckMsdPrices(
     _root,
     { brandId }: { brandId: string },
@@ -601,7 +656,7 @@ export const msdynamicCheckMutations = {
     });
 
     const exchangeRates = config.exchangeRateApi
-      ? ((await getExchangeRates(config)) ?? {})
+      ? (await getExchangeRates(config)) ?? {}
       : {};
 
     const salesCodeFilter = pricePriority.replace(/, /g, ',').split(',');
