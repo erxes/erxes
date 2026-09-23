@@ -1294,8 +1294,6 @@
   "delete-chart": "Чарт устгах",
   "confirm-delete-chart": "\"{{name}}\" чартыг устгахдаа итгэлтэй байна уу?",
   "without-priority": "{{value}} нь priority-гүй",
-<<<<<<< HEAD
-=======
   "add-email-integration": "Имэйл холболт нэмэх",
   "mail-integration-updated": "Имэйл холболт шинэчлэгдлээ",
   "integration-desc-mail": "Үүсгэсэн хаяг руу мэйлээ шилжүүлснээр Team Inbox-д хүлээн авна.",
@@ -1315,7 +1313,6 @@
   "mail-connection-failed": "Ирэх мэйл энэ ажлын талбарт хүрэхгүй байна",
   "mail-connection-tenant": "Tenant",
   "mail-connection-endpoint": "Хүргэх хаяг",
->>>>>>> edf30b7d60318894115626f840679640bd6bf755
   "few-rate": {
     "minutes": "Хэдэн минут",
     "hours": "Хэдэн цаг",
