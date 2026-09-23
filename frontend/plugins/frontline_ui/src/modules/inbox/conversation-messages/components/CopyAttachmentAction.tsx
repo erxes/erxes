@@ -1,9 +1,9 @@
-import { attachmentName } from '@/inbox/conversation-messages/utils/attachmentName';
 import { IconCheck, IconCopy } from '@tabler/icons-react';
 import { DropdownMenu } from 'erxes-ui';
 import type { IAttachment } from 'erxes-ui';
 import { ActionButton } from '@/inbox/conversation-messages/components/MessageActionButton';
 import { useCopyAttachment } from '@/inbox/conversation-messages/hooks/useCopyAttachment';
+import { canCopyAttachment } from '@/inbox/conversation-messages/utils/copyAttachment';
 
 export const CopyAttachmentAction = ({
   attachment,
@@ -13,7 +13,10 @@ export const CopyAttachmentAction = ({
   inline: boolean;
 }) => {
   const { copied, copying, copy } = useCopyAttachment(attachment);
-  const label = `Copy ${attachmentName(attachment) || 'attachment'}`;
+  if (!canCopyAttachment(attachment)) return null;
+  const isImage =
+    attachment.type?.startsWith('image') || attachment.type === 'sticker';
+  const label = isImage ? 'Copy image' : 'Copy attachment';
   const icon = copied ? (
     <IconCheck className="size-4 text-success" />
   ) : (

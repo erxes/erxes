@@ -1,6 +1,24 @@
 import { readImage } from 'erxes-ui';
 import type { IAttachment } from 'erxes-ui';
 
+export const canCopyAttachment = (attachment: IAttachment): boolean => {
+  if (
+    !attachment.url ||
+    typeof navigator === 'undefined' ||
+    !navigator.clipboard?.write ||
+    typeof ClipboardItem === 'undefined'
+  ) {
+    return false;
+  }
+  const isImage =
+    attachment.type?.startsWith('image') || attachment.type === 'sticker';
+  const type = isImage ? 'image/png' : attachment.type;
+  if (!type) return false;
+  return ClipboardItem.supports
+    ? ClipboardItem.supports(type)
+    : Boolean(isImage);
+};
+
 const attachmentBlob = async (attachment: IAttachment): Promise<Blob> => {
   const response = await fetch(readImage(attachment.url));
   if (!response.ok) throw new Error('Could not load the attachment');
@@ -41,7 +59,7 @@ export const copyAttachment = async (
   const isImage =
     attachment.type?.startsWith('image') || attachment.type === 'sticker';
   const type = isImage ? 'image/png' : attachment.type;
-  if (!type || (!isImage && !ClipboardItem.supports?.(type))) {
+  if (!canCopyAttachment(attachment)) {
     throw new Error(
       'This file type cannot be copied by your browser. Open the attachment to save it.',
     );

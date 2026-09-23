@@ -99,11 +99,12 @@ export const MessageInput = ({
   const isFacebook = integration?.kind === IntegrationType.FACEBOOK_MESSENGER;
   const facebookReply = isFacebook ? messageReply : null;
   const replyPreview = facebookReply || (isDiscord ? discordReplyTo : null);
+  const discordReplyToMessageId = isDiscord
+    ? discordReplyTo?.messageId
+    : undefined;
   const replyToMessageId = facebookReply?.nativeReply
     ? facebookReply.providerMessageId
-    : isDiscord
-      ? discordReplyTo?.messageId
-      : undefined;
+    : discordReplyToMessageId;
 
   const discordParticipants = useDiscordConversationParticipants(
     conversationId,
@@ -456,7 +457,9 @@ export const MessageInput = ({
         setShowSuggestions(false);
         setResponseTemplateId(null);
         setDiscordReplyTo(null);
-        setMessageReply(null);
+        setMessageReply((currentReply) =>
+          currentReply === messageReply ? null : currentReply,
+        );
       },
       refetchQueries: [
         'Conversations',
@@ -492,6 +495,7 @@ export const MessageInput = ({
     isInternalNote,
     isDiscord,
     replyToMessageId,
+    messageReply,
     setDiscordReplyTo,
     setMessageReply,
     isFacebook,

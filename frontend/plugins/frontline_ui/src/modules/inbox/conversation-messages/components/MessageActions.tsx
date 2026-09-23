@@ -83,7 +83,9 @@ export const MessageActions = ({
     (reaction: IMessageReaction) => reaction.senderId === currentUser?._id,
   )?.reaction;
   const isDiscord = kind === IntegrationType.DISCORD_MESSENGER;
-  const canReply = kind !== 'lead';
+  const canReply =
+    kind !== 'lead' &&
+    (kind !== IntegrationType.FACEBOOK_MESSENGER || Boolean(providerMessageId));
   const canForward =
     canReply &&
     kind !== IntegrationType.FACEBOOK_MESSENGER &&
@@ -92,6 +94,7 @@ export const MessageActions = ({
   const isPinned = Boolean(message.extraData?.discordPinned);
 
   const handleReply = () => {
+    if (!canReply) return;
     let authorName = 'Customer';
     if (message.userId) {
       authorName = 'You';
