@@ -24,6 +24,7 @@ import {
 
 export const SlashMenu = ({
   items,
+  loadingState,
   selectedIndex,
   onItemClick,
 }: SuggestionMenuProps<DefaultReactSuggestionItem>) => {
