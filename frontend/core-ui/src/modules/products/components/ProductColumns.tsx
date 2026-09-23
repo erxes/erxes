@@ -14,10 +14,18 @@ import {
   CurrencyFormatedDisplay,
   CurrencyCode,
   Badge,
+  type BadgeProps,
 } from 'erxes-ui';
 import { IProduct, TagsSelect } from 'ui-modules';
 import { ProductNameCell } from './ProductNameCell';
 import { productMoreColumn } from './ProductMoreCell';
+
+const PRODUCT_TYPE_VARIANTS: Record<IProduct['type'], BadgeProps['variant']> = {
+  product: 'info',
+  service: 'success',
+  subscription: 'default',
+  unique: 'warning',
+};
 
 export const productColumns: (
   t: (key: string) => string,
@@ -50,11 +58,11 @@ export const productColumns: (
     header: () => (
       <RecordTable.InlineHead icon={IconShoppingCart} label={t('type')} />
     ),
-    cell: ({ cell }: { cell: any }) => (
+    cell: ({ row: { original: { type } } }) => (
       <RecordTableInlineCell>
-        {cell.getValue() && (
-          <Badge variant="info">
-            <TextOverflowTooltip value={cell.getValue() as string} />
+        {type && (
+          <Badge variant={PRODUCT_TYPE_VARIANTS[type] ?? 'secondary'}>
+            <TextOverflowTooltip value={type} />
           </Badge>
         )}
       </RecordTableInlineCell>

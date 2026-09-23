@@ -1383,6 +1383,69 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-22` — Radio/checkbox options are visible, full-width and editable in place
+
+- **Summary:** The shared `RadioGroup.Item` (`erxes-ui`) had no border in its
+  unchecked state, so every radio circle — in the form builder preview and in
+  the public form widget (`apps/frontline-widgets`) — was invisible until
+  checked; a `shadow-border` class the widget used to work around this did
+  nothing (no such Tailwind utility exists) and was removed once the shared
+  component carried its own `border border-scroll bg-background`. Radio,
+  `core:customer:sex` and `check` fields now always render at full row width
+  (`span`/`column` forced to `2`) with their options laid out two per row
+  instead of stacked in a single column. The builder's Options editor
+  (`FormFieldDetail.tsx`) was rebuilt from the `StringArrayInput` tag input,
+  which only supported add/remove, into a `PropertyFormSelectFields`-style
+  editable list with one `Input` per option so an existing option can be
+  corrected without deleting and retyping it.
+- **Affected areas:** `src/modules/forms/components/{FormPreview.tsx,
+  FormFieldDetail.tsx}`; outside the plugin:
+  `frontend/libs/erxes-ui/src/components/radio-group.tsx`,
+  `apps/frontline-widgets/src/app/form/components/ErxesForm.tsx`.
+- **Contracts changed:** None.
+
+### `2026-09-22` — Long field names no longer overflow, and edits need Save
+
+- **Summary:** A field's label had no `truncate`/`min-w-0` in the builder's
+  compact field card (`FormDndField.tsx`) or in the edit sheet's
+  `Sheet.Title` (`FormFieldDetail.tsx`), so a long name could stretch the
+  card past its grid column or push the sheet's close button off. Also,
+  `FormFieldDetail.tsx` used to call `handleChangeField` on every keystroke,
+  committing each edit straight into the live form state with no way to
+  discard it; it now edits a local `draft` and only commits via an explicit
+  Save button (the sheet's own close `X` discards unsaved changes by
+  unmounting the draft, so the redundant footer Close button was removed).
+- **Affected areas:** `src/modules/forms/components/{FormDndField.tsx,
+  FormFieldDetail.tsx}`
+- **Contracts changed:** None.
+
+### `2026-09-22` — Form preview stops flagging newly added fields as missing
+
+- **Summary:** `FormPreviewContent`'s `useForm` captured `defaultValues` only
+  at the step's first mount; adding a field afterward changed the live `schema`
+  and `defaultValues` props but not the form's registered values, so the new
+  field stayed `undefined` and Zod's required check on its non-optional type
+  (`z.string()`, `z.number()`, …) rejected it with `Required` on submit,
+  independent of the field's own `required` toggle. An effect now seeds
+  `form.setValue` for any field id missing from the current form values
+  whenever the step's field list changes.
+- **Affected areas:** `src/modules/forms/components/FormPreview.tsx`
+- **Contracts changed:** None.
+
+### `2026-09-22` — Form builder no longer crashes on stale fields or discards step reorders
+
+- **Summary:** The form preview rendered a `react-hook-form` `Controller` per
+  field keyed by `field.id`; a field left over from an older, incompatible
+  `localStorage` snapshot of `formContent` could have no `id`, which crashed
+  the whole builder with `Cannot read properties of undefined (reading
+  'substring')`. Separately, dragging a step in the builder called `setSteps`
+  to reorder it but fell through into the field-move branch below, which
+  re-derived the whole steps object from the pre-reorder `value` closure and
+  overwrote the move, so a dragged step snapped back to its original position.
+- **Affected areas:** `src/modules/forms/components/FormPreview.tsx`,
+  `src/modules/forms/components/FormDnd.tsx`
+- **Contracts changed:** None.
+
 ### `2026-09-22` — Reverted the incoming-call double-answer guard
 
 - **Summary:** Reverted `fix(frontline): stop double-answering an incoming
