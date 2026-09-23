@@ -7,6 +7,8 @@ import { IModels } from '~/connectionResolvers';
 import { z } from 'zod';
 import { generateSalesFields } from '~/modules/sales/fieldUtils';
 import { generatePosOrderFields } from '~/modules/pos/fieldUtils';
+import { getDealFieldOptionUsedValues } from '@/sales/utils/fieldOptionUsedValues';
+import { DEAL_PROPERTY_CONTENT_TYPE } from '@/sales/utils/pipelineProperties';
 
 export type SalesTRPCContext = ITRPCContext<{ models: IModels }>;
 
@@ -54,6 +56,26 @@ export const appRouter = t.mergeRouters(
           return [];
         },
       ),
+
+      fieldOptionUsedValues: t.procedure
+        .input(
+          z.object({
+            contentType: z.string(),
+            fieldId: z.string(),
+            values: z.array(z.string()),
+            groupKey: z.string().nullish(),
+          }),
+        )
+        .query(({ ctx, input }) => {
+          const { models } = ctx;
+          const { contentType, fieldId, values, groupKey } = input;
+
+          if (contentType !== DEAL_PROPERTY_CONTENT_TYPE) {
+            return null;
+          }
+
+          return getDealFieldOptionUsedValues(models, fieldId, values, groupKey);
+        }),
     }),
   }),
 );
