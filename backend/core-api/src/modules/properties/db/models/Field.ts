@@ -477,10 +477,16 @@ export const loadFieldClass = (models: IModels) => {
         validateValueShape(field, value);
 
         if (MULTI_VALUE_TYPES.has(type || '') && typeof value === 'string') {
-          return value
+          const normalizedValue = value
             .split(',')
             .map((v) => v.trim())
             .filter(Boolean);
+
+          if (validations?.required && normalizedValue.length === 0) {
+            throw new Error(`${field.name}: required`);
+          }
+
+          return normalizedValue;
         }
       }
 
