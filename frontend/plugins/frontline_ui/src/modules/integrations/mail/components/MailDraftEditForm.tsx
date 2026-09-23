@@ -9,10 +9,9 @@ import { z } from 'zod';
 import { MailDraftEdit } from '../hooks/useMailDrafts';
 
 const hasText = (html: string) =>
-  html
-    .replace(/<[^>]*>/g, ' ')
-    .replace(/&nbsp;/gi, ' ')
-    .trim().length > 0;
+  Boolean(
+    new DOMParser().parseFromString(html, 'text/html').body.textContent?.trim(),
+  );
 
 const buildDraftSchema = (bodyRequired: string) =>
   z.object({
@@ -59,7 +58,9 @@ export const MailDraftEditForm: React.FC<MailDraftEditFormProps> = ({
       return;
     }
 
-    bodyRef.current.innerHTML = DOMPurify.sanitize(initialBody.current);
+    bodyRef.current.replaceChildren(
+      DOMPurify.sanitize(initialBody.current, { RETURN_DOM_FRAGMENT: true }),
+    );
     bodyRef.current.focus();
   }, []);
 

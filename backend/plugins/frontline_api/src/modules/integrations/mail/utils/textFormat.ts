@@ -38,7 +38,7 @@ const MAIL_TAG_NAMES = [
 ];
 
 const MAIL_TAG = new RegExp(
-  `<\\/?(${MAIL_TAG_NAMES.join('|')})(?=[\\s/>])[^>]*>`,
+  String.raw`<\/?(${MAIL_TAG_NAMES.join('|')})(?=[\s/>])[^>]*>`,
   'i',
 );
 
@@ -70,7 +70,9 @@ const htmlToText = (html: string, onlyStripTags: string[] = []) => {
     dumpLinkHrefsNearby: { enabled: true },
   })
     .result.trim()
-    .replace(/[ \t]*\n[ \t]*/g, '\n')
+    .split('\n')
+    .map((line) => line.trim())
+    .join('\n')
     .replace(/\n{3,}/g, '\n\n');
 };
 

@@ -246,7 +246,10 @@
   messages), and a fourth automatic reply to one conversation within an hour. Both actions rebuild the model's text as escaped
   `<p>`/`<br>` markup, so no model-written HTML is ever mailed; only known HTML
   tag names are treated as markup, so an angle-bracketed address or link such
-  as `<support@acme.com>` survives as text. A requested
+  as `<support@acme.com>` survives as text. Every inbound mail body runs
+  through `utils/textFormat.ts` (trigger filters and AI context), so its text
+  normalization must stay linear-time: no regex with a repeated whitespace
+  class next to another quantifier (use `split`/`trim` instead). A requested
   conversation resolve/open transition is stored on the message as
   `conversationStatusOnSent` and applied inside `deliver` only after Cloudflare
   reports it as sent, so a successful `mailMessageRetry` applies it too, except
