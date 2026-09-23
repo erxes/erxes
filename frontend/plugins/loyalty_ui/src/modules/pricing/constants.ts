@@ -1,6 +1,10 @@
 import type { PricingAppliesTo, PricingPriority } from './types';
 
-export type PricingPriorityFormValue = 'none' | 'public' | 'posBase';
+export type PricingPriorityFormValue =
+  | 'none'
+  | 'public'
+  | 'posBase'
+  | 'pipelineBase';
 
 export const PRICING_PRIORITY_OPTIONS: Array<{
   value: PricingPriorityFormValue;
@@ -9,6 +13,7 @@ export const PRICING_PRIORITY_OPTIONS: Array<{
   { value: 'none', label: 'none' },
   { value: 'public', label: 'public' },
   { value: 'posBase', label: 'pos-base' },
+  { value: 'pipelineBase', label: 'pipeline-base' },
 ];
 
 export const PRICING_APPLIES_TO_OPTIONS: Array<{
@@ -36,5 +41,9 @@ export const priorityLabelKey = (priority?: PricingPriority | 'none') => {
     return 'none';
   }
 
-  return priority === 'posBase' ? 'pos-base' : priority;
+  if (priority === 'posBase') {
+    return 'pos-base';
+  }
+
+  return priority === 'pipelineBase' ? 'pipeline-base' : priority;
 };

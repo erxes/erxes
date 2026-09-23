@@ -1,7 +1,13 @@
 import React from 'react';
-import { debtCalcReportHandlers } from './handlers/debt';
+import {
+  debtCalcReportHandlers,
+  debtRenderMoreHandlers,
+} from './handlers/debt';
 import { fixedAssetCalcReportHandlers } from './handlers/fixedAsset';
-import { fundCalcReportHandlers } from './handlers/fund';
+import {
+  fundCalcReportHandlers,
+  fundRenderMoreHandlers,
+} from './handlers/fund';
 import { inventoryCalcReportHandlers } from './handlers/inventory';
 import {
   mainCalcReportHandlers,
@@ -26,6 +32,8 @@ const calcReportHandlers: Record<string, CalcReportHandler> = {
 
 const renderMoreHandlers: Record<string, RenderMoreHandler> = {
   ...mainRenderMoreHandlers,
+  ...fundRenderMoreHandlers,
+  ...debtRenderMoreHandlers,
 };
 
 export const getCalcReport = (report: string): CalcReportHandler => {

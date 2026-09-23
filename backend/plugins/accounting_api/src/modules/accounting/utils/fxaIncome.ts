@@ -7,9 +7,21 @@ import {
   FXA_OWNER_RECORD_STATUSES,
 } from '@/fixedAssets/@types/constants';
 import { IFixedAsset } from '@/fixedAssets/@types/fixedAsset';
-import { ITransactionDocument, ITrDetail } from '../@types/transaction';
 import {
+  ITransaction,
+  ITransactionDocument,
+  ITrDetail,
+} from '../@types/transaction';
+import {
+  JOURNALS,
+  TR_DETAIL_FOLLOW_TYPES,
+  TR_FOLLOW_TYPES,
+  TR_SIDES,
+} from '../@types/constants';
+import {
+  cleanFxaFollowTr,
   getDetailId,
+  assignMissingFxaOwnerRecordSequences,
   getFxaIncomeFollowInfos,
   getFxaOwnerRecordInputs,
   getUniqueFxaOwnerRecordIds,
@@ -18,16 +30,35 @@ import {
   TFxaIncomeDetailFollowInfo,
   TFxaOwnerRecordInput,
 } from './fixedAssets';
+import { createOrUpdateTr } from './utils';
 
 type TFixedAssetWithId = IFixedAsset & { _id: string };
+type TFixedAssetAccountConfig = {
+  accountId?: string;
+  depreciationAccountId?: string;
+};
 
 const getOpeningAdjustId = (transactionId: string) =>
   `fxa-opening:${transactionId}`;
+const FIXED_ASSET_ACCOUNTS_CODE = 'FIXEDASSET_ACCOUNTS';
 
 const addDays = (date: Date, days: number) => {
   const next = new Date(date);
   next.setDate(next.getDate() + days);
   return next;
+};
+
+const getAccountConfigs = async (models: IModels) => {
+  const configs = await models.Configs.getConfigs(FIXED_ASSET_ACCOUNTS_CODE);
+  const map = new Map<string, TFixedAssetAccountConfig>();
+
+  for (const config of configs) {
+    if (config.subId) {
+      map.set(config.subId, config.value as TFixedAssetAccountConfig);
+    }
+  }
+
+  return map;
 };
 
 const getCategoryIds = (transaction: ITransactionDocument) =>
@@ -222,6 +253,7 @@ export const removeFxaIncomeDetails = async (
   const blockingTransaction = await models.Transactions.findOne({
     _id: { $ne: transaction._id },
     'details.fixedAssetId': { $in: fixedAssetIds },
+    $nor: [{ originId: transaction._id }],
   }).lean();
 
   if (blockingTransaction) {
@@ -271,8 +303,31 @@ const getIncomeFollowInfosByKey = (
   inputs: TFxaOwnerRecordInput[],
 ) => {
   const followInfos = getFxaIncomeFollowInfos(transaction).fxaIncomeDetails;
-  const entries = followInfos?.length ? followInfos : inputs;
   const map = new Map<string, TFxaIncomeDetailFollowInfo>();
+
+  for (const detail of transaction.details || []) {
+    const detailId = getDetailId(detail);
+    const preDeprecation = Number(
+      detail.followInfos?.preDeprecation ||
+        detail.followInfos?.openingAccumulatedDepreciation ||
+        0,
+    );
+    const salvageValue = detail.followInfos?.salvageValue;
+
+    if (preDeprecation <= 0 && salvageValue === undefined) {
+      continue;
+    }
+
+    map.set(`temp:${detailId}`, {
+      tempId: detailId,
+      transactionDetailId: detailId,
+      fixedAssetId: detail.fixedAssetId,
+      salvageValue,
+      preDeprecation,
+    });
+  }
+
+  const entries = followInfos?.length ? followInfos : [];
 
   for (const entry of entries) {
     const key = getFollowInfoKey(entry);
@@ -329,10 +384,12 @@ const syncOpeningAccumulatedDepreciation = async ({
   const details = inputs
     .map((input) => {
       const followInfo = getIncomeFollowInfo(input, followInfosByKey);
-      const openingAccumulatedDepreciation =
-        followInfo?.openingAccumulatedDepreciation || 0;
+      const preDeprecation =
+        followInfo?.preDeprecation ||
+        followInfo?.openingAccumulatedDepreciation ||
+        0;
 
-      if (openingAccumulatedDepreciation <= 0) {
+      if (preDeprecation <= 0) {
         return;
       }
 
@@ -354,7 +411,7 @@ const syncOpeningAccumulatedDepreciation = async ({
       const totalOriginalCost = fixNum(originalCost * count);
       const totalSalvageValue = fixNum(salvageValue * count);
       const totalOpeningAccumulatedDepreciation = fixNum(
-        openingAccumulatedDepreciation * count,
+        preDeprecation * count,
       );
       const openingBookValue = fixNum(
         totalOriginalCost - totalOpeningAccumulatedDepreciation,
@@ -388,10 +445,74 @@ const syncOpeningAccumulatedDepreciation = async ({
 
   if (!details.length) {
     await models.AdjustFixedAssets.deleteOne({ _id: adjustId });
+    const oldOpeningDepTr = await cleanFxaFollowTr(
+      models,
+      transaction._id,
+      TR_FOLLOW_TYPES.FXA_DEP_IN,
+    );
+
+    if (oldOpeningDepTr?._id) {
+      await models.Transactions.deleteMany({ _id: oldOpeningDepTr._id });
+    }
+
     return;
   }
 
   const openingDate = addDays(date, -1);
+  const accountConfigs = await getAccountConfigs(models);
+  const oldOpeningDepTr = await cleanFxaFollowTr(
+    models,
+    transaction._id,
+    TR_FOLLOW_TYPES.FXA_DEP_IN,
+  );
+  const openingDepDetails = details.map((detail) => {
+    const depreciationAccountId = accountConfigs.get(
+      detail.accountId || '',
+    )?.depreciationAccountId;
+
+    if (!depreciationAccountId) {
+      throw new Error('Accumulated depreciation account config is missing.');
+    }
+
+    const oldDetail = oldOpeningDepTr?.details.find(
+      (item) => item.originId === detail.transactionDetailId,
+    );
+
+    return {
+      ...oldDetail,
+      originId: detail.transactionDetailId,
+      originType: TR_DETAIL_FOLLOW_TYPES.FXA_DEP_IN,
+      fixedAssetId: detail.fixedAssetId,
+      accountId: depreciationAccountId,
+      branchId: detail.branchId,
+      departmentId: detail.departmentId,
+      count: 1,
+      unitPrice: detail.openingAccumulatedDepreciation,
+      amount: detail.openingAccumulatedDepreciation,
+    } as ITrDetail;
+  });
+  const openingDepTrDoc: ITransaction = {
+    ...oldOpeningDepTr,
+    originId: transaction._id,
+    originType: TR_FOLLOW_TYPES.FXA_DEP_IN,
+    ptrId: transaction.ptrId || oldOpeningDepTr?.ptrId || nanoid(),
+    parentId: transaction.parentId,
+    number: transaction.number,
+    date: openingDate,
+    description: `Opening accumulated depreciation for fixed asset income ${transaction._id}`,
+    status: transaction.status,
+    mentionOwnerId: transaction.mentionOwnerId,
+    mentionUserIds: transaction.mentionUserIds,
+    branchId: transaction.branchId,
+    departmentId: transaction.departmentId,
+    customerType: transaction.customerType,
+    customerId: transaction.customerId,
+    journal: JOURNALS.FXA_DEP_IN,
+    side: TR_SIDES.CREDIT,
+    details: openingDepDetails,
+  };
+
+  await createOrUpdateTr(models, userId, openingDepTrDoc, oldOpeningDepTr);
 
   await models.AdjustFixedAssets.updateOne(
     { _id: adjustId },
@@ -526,26 +647,28 @@ const syncOwnerRecords = async ({
 
   validateOwnerInputCounts(transaction, ownerInputs);
 
-  await models.FxaOwnerRecords.insertMany(
-    ownerInputs.map((input) => {
-      const detailId = input.transactionDetailId || '';
-      const fixedAsset = fixedAssetsByDetailId.get(detailId);
-      const count = Math.max(1, Math.trunc(input.count || 1));
+  const records = ownerInputs.map((input) => {
+    const detailId = input.transactionDetailId || '';
+    const fixedAsset = fixedAssetsByDetailId.get(detailId);
+    const count = Math.max(1, Math.trunc(input.count || 1));
 
-      return {
-        fixedAssetId: fixedAsset?._id || input.fixedAssetId,
-        code: input.code || nanoid(8),
-        sequence: input.sequence,
-        count,
-        action: FXA_OWNER_RECORD_ACTIONS.RECEIVED,
-        status: FXA_OWNER_RECORD_STATUSES.ACTIVE,
-        ownerId: input.ownerId,
-        transactionId: transaction._id,
-        transactionDetailId: detailId,
-        createdBy: userId,
-        createdAt: new Date(),
-      };
-    }),
+    return {
+      fixedAssetId: fixedAsset?._id || input.fixedAssetId,
+      code: input.code || nanoid(8),
+      sequence: input.sequence,
+      count,
+      action: FXA_OWNER_RECORD_ACTIONS.RECEIVED,
+      status: FXA_OWNER_RECORD_STATUSES.ACTIVE,
+      ownerId: input.ownerId,
+      transactionId: transaction._id,
+      transactionDetailId: detailId,
+      createdBy: userId,
+      createdAt: new Date(),
+    };
+  });
+
+  await models.FxaOwnerRecords.insertMany(
+    await assignMissingFxaOwnerRecordSequences(models, records),
   );
 };
 

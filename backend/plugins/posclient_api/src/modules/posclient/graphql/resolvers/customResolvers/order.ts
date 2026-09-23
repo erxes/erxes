@@ -7,6 +7,12 @@ import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
 export default {
   async items(order: IOrderDocument, _params, { models }: IContext) {
+    const { items } = order as IOrderDocument & { items?: unknown[] };
+
+    if (Array.isArray(items)) {
+      return items;
+    }
+
     return await models.OrderItems.find({ orderId: order._id }).lean();
   },
 

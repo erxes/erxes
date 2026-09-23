@@ -23,6 +23,7 @@ export interface ITrDetail {
   productId?: string;
   count?: number;
   unitPrice?: number;
+  weight?: number;
 
   fixedAssetId?: string;
   fixedAssetCategoryId?: string;

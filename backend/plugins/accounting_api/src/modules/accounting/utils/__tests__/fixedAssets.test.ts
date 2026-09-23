@@ -12,9 +12,12 @@ import {
   FXA_OWNER_RECORD_ACTIONS,
   FXA_OWNER_RECORD_STATUSES,
 } from '@/fixedAssets/@types/constants';
-import { getFxaDisposalSummaries } from '../fixedAssets';
+import {
+  assignMissingFxaOwnerRecordSequences,
+  getFxaDisposalSummaries,
+} from '../fixedAssets';
 import { runAdjustFixedAsset } from '../adjustFixedAssets';
-import { syncFxaIncomeDetails } from '../fxaIncome';
+import { removeFxaIncomeDetails, syncFxaIncomeDetails } from '../fxaIncome';
 import {
   createFxaDisposalFollowTrs,
   syncFxaDisposalInstances,
@@ -68,7 +71,7 @@ const makeIncomeTransaction = (overrides: Record<string, unknown> = {}) => ({
         tempId: 'detail-income',
         transactionDetailId: 'detail-income',
         salvageValue: 50,
-        openingAccumulatedDepreciation: 20,
+        preDeprecation: 20,
       },
     ],
   },
@@ -152,6 +155,14 @@ const makeModels = () => {
       })),
       deleteMany: jest.fn(async () => undefined),
     },
+    Configs: {
+      getConfigs: jest.fn(async () => [
+        {
+          subId: 'asset-account',
+          value: { depreciationAccountId: 'acc-dep-account' },
+        },
+      ]),
+    },
   };
 
   return models;
@@ -163,15 +174,19 @@ describe('fixed asset income', () => {
     const transaction = makeIncomeTransaction();
 
     models.FixedAssets.find.mockReturnValueOnce(queryResult([]));
-    models.Transactions.find.mockReturnValue(
-      queryResult([
-        {
-          _id: transaction._id,
-          journal: JOURNALS.FXA_INCOME,
-          status: TR_STATUSES.COMPLETE,
-          details: [{ fixedAssetId: 'asset-a', count: 3 }],
-        },
-      ]),
+    models.Transactions.find.mockImplementation((selector) =>
+      queryResult(
+        selector?.originId
+          ? []
+          : [
+              {
+                _id: transaction._id,
+                journal: JOURNALS.FXA_INCOME,
+                status: TR_STATUSES.COMPLETE,
+                details: [{ fixedAssetId: 'asset-a', count: 3 }],
+              },
+            ],
+      ),
     );
 
     await syncFxaIncomeDetails(models as never, 'user-a', transaction as never);
@@ -208,6 +223,78 @@ describe('fixed asset income', () => {
           }),
         ],
       }),
+    );
+    expect(models.Transactions.createTransaction).toHaveBeenCalledWith(
+      expect.objectContaining({
+        journal: JOURNALS.FXA_DEP_IN,
+        originType: TR_FOLLOW_TYPES.FXA_DEP_IN,
+        side: TR_SIDES.CREDIT,
+        details: [
+          expect.objectContaining({
+            fixedAssetId: 'asset-a',
+            accountId: 'acc-dep-account',
+            amount: 60,
+          }),
+        ],
+      }),
+      'user-a',
+    );
+  });
+
+  it('creates opening depreciation from detail follow info when root income details are absent', async () => {
+    const models = makeModels();
+    const transaction = makeIncomeTransaction({
+      followInfos: {},
+      details: [
+        {
+          _id: 'detail-income',
+          accountId: 'asset-account',
+          fixedAssetCategoryId: 'cat-a',
+          fixedAssetCode: 'DELL-001',
+          fixedAssetName: 'Dell laptop',
+          count: 3,
+          unitPrice: 500,
+          amount: 1500,
+          followInfos: {
+            salvageValue: 50,
+            preDeprecation: 20,
+          },
+        },
+      ],
+    });
+
+    models.FixedAssets.find.mockReturnValueOnce(queryResult([]));
+    models.Transactions.find.mockImplementation((selector) =>
+      queryResult(selector?.originId ? [] : [transaction]),
+    );
+
+    await syncFxaIncomeDetails(models as never, 'user-a', transaction as never);
+
+    expect(
+      models.AdjustFxaDetails.replaceAdjustFxaDetails,
+    ).toHaveBeenCalledWith(
+      expect.objectContaining({
+        adjustId: 'fxa-opening:tr-income',
+        details: [
+          expect.objectContaining({
+            openingAccumulatedDepreciation: 60,
+            closingAccumulatedDepreciation: 60,
+          }),
+        ],
+      }),
+    );
+    expect(models.Transactions.createTransaction).toHaveBeenCalledWith(
+      expect.objectContaining({
+        journal: JOURNALS.FXA_DEP_IN,
+        originType: TR_FOLLOW_TYPES.FXA_DEP_IN,
+        details: [
+          expect.objectContaining({
+            accountId: 'acc-dep-account',
+            amount: 60,
+          }),
+        ],
+      }),
+      'user-a',
     );
   });
 
@@ -392,9 +479,105 @@ describe('fixed asset income', () => {
       }),
     ]);
   });
+
+  it('ignores self-generated income follow transactions when removing income assets', async () => {
+    const models = makeModels();
+    const transaction = makeIncomeTransaction();
+
+    models.FixedAssets.find.mockReturnValue(
+      queryResult([
+        {
+          _id: 'asset-a',
+          transactionId: 'tr-income',
+          transactionDetailId: 'detail-income',
+        },
+      ]),
+    );
+    models.Transactions.findOne.mockReturnValue(queryResult(null));
+
+    await removeFxaIncomeDetails(models as never, transaction as never);
+
+    expect(models.Transactions.findOne).toHaveBeenCalledWith(
+      expect.objectContaining({
+        _id: { $ne: 'tr-income' },
+        'details.fixedAssetId': { $in: ['asset-a'] },
+        $nor: [{ originId: 'tr-income' }],
+      }),
+    );
+    expect(models.FixedAssets.deleteMany).toHaveBeenCalledWith({
+      _id: { $in: ['asset-a'] },
+    });
+  });
+
+  it('rejects removing income assets when another transaction uses them', async () => {
+    const models = makeModels();
+    const transaction = makeIncomeTransaction();
+
+    models.FixedAssets.find.mockReturnValue(
+      queryResult([
+        {
+          _id: 'asset-a',
+          transactionId: 'tr-income',
+          transactionDetailId: 'detail-income',
+        },
+      ]),
+    );
+    models.Transactions.findOne.mockReturnValue(
+      queryResult({ _id: 'other-tr' }),
+    );
+
+    await expect(
+      removeFxaIncomeDetails(models as never, transaction as never),
+    ).rejects.toThrow(
+      'Cannot remove transaction detail because fixed assets are already used in other transactions',
+    );
+  });
 });
 
 describe('fixed asset owner records', () => {
+  it('assigns unique generated sequences when owner rows omit sequence', async () => {
+    const models = makeModels();
+    models.FxaOwnerRecords.find.mockReturnValue(
+      queryResult([
+        {
+          fixedAssetId: 'asset-a',
+          sequence: -1,
+        },
+      ]),
+    );
+
+    const records = await assignMissingFxaOwnerRecordSequences(
+      models as never,
+      [
+        {
+          fixedAssetId: 'asset-a',
+          sequence: undefined,
+        },
+        {
+          fixedAssetId: 'asset-a',
+        },
+        {
+          fixedAssetId: 'asset-b',
+        },
+      ],
+    );
+
+    expect(records).toEqual([
+      {
+        fixedAssetId: 'asset-a',
+        sequence: -2,
+      },
+      {
+        fixedAssetId: 'asset-a',
+        sequence: -3,
+      },
+      {
+        fixedAssetId: 'asset-b',
+        sequence: -1,
+      },
+    ]);
+  });
+
   it('allows selected owner record count below detail count', async () => {
     const models = makeModels();
     const transaction = {
@@ -572,8 +755,20 @@ describe('fixed asset move follow transaction', () => {
     expect(models.Transactions.createTransaction).toHaveBeenCalledWith(
       expect.objectContaining({
         journal: JOURNALS.FXA_MOVE_IN,
+        originId: 'move-a',
+        originType: TR_FOLLOW_TYPES.FXA_MOVE_IN,
+        side: TR_SIDES.DEBIT,
         branchId: undefined,
         departmentId: 'dept-call-center',
+        details: [
+          expect.objectContaining({
+            originId: 'detail-move',
+            originType: TR_FOLLOW_TYPES.FXA_MOVE_IN,
+            branchId: undefined,
+            departmentId: 'dept-call-center',
+            amount: 100,
+          }),
+        ],
       }),
       'user-a',
     );
@@ -661,42 +856,352 @@ describe('fixed asset move follow transaction', () => {
     );
 
     expect(followTrs).toHaveLength(2);
-    expect(models.Transactions.createTransaction).toHaveBeenCalledWith(
+    const createDocs = models.Transactions.createTransaction.mock.calls.map(
+      ([doc]) => doc,
+    );
+    const depOutDoc = createDocs.find(
+      (doc) => doc.originType === TR_FOLLOW_TYPES.FXA_DEP_OUT,
+    );
+    const depInDoc = createDocs.find(
+      (doc) => doc.originType === TR_FOLLOW_TYPES.FXA_DEP_IN,
+    );
+
+    expect(depOutDoc).toEqual(
       expect.objectContaining({
-        journal: JOURNALS.FXA_OUT_DEPRECIATION,
-        originType: TR_FOLLOW_TYPES.FXA_MOVE_DEP_OUT,
+        journal: JOURNALS.FXA_DEP_OUT,
+        originId: 'move-a',
+        originType: TR_FOLLOW_TYPES.FXA_DEP_OUT,
         ptrId: 'ptr-move',
         side: TR_SIDES.DEBIT,
         branchId: 'source-branch',
         departmentId: 'source-dept',
-        details: [
-          expect.objectContaining({
-            fixedAssetId: 'asset-a',
-            accountId: 'acc-dep-account',
-            amount: 245000,
-          }),
-        ],
       }),
-      'user-a',
     );
-    expect(models.Transactions.createTransaction).toHaveBeenCalledWith(
+    expect(depOutDoc).not.toHaveProperty('followInfos');
+    expect(depOutDoc).not.toHaveProperty('extraData');
+    expect(depOutDoc).not.toHaveProperty('contentType');
+    expect(depOutDoc).not.toHaveProperty('contentId');
+    expect(depOutDoc?.details[0]).toEqual(
       expect.objectContaining({
-        journal: JOURNALS.FXA_OUT_DEPRECIATION,
-        originType: TR_FOLLOW_TYPES.FXA_MOVE_DEP_IN,
+        fixedAssetId: 'asset-a',
+        accountId: 'acc-dep-account',
+        originType: TR_FOLLOW_TYPES.FXA_DEP_OUT,
+        branchId: 'source-branch',
+        departmentId: 'source-dept',
+        amount: 245000,
+      }),
+    );
+    expect(depOutDoc?.details[0]).not.toHaveProperty('followInfos');
+
+    expect(depInDoc).toEqual(
+      expect.objectContaining({
+        journal: JOURNALS.FXA_DEP_IN,
+        originId: 'move-a',
+        originType: TR_FOLLOW_TYPES.FXA_DEP_IN,
         ptrId: 'ptr-move',
         side: TR_SIDES.CREDIT,
         branchId: 'dest-branch',
         departmentId: 'dest-dept',
-        details: [
-          expect.objectContaining({
-            fixedAssetId: 'asset-a',
-            accountId: 'acc-dep-account',
-            amount: 245000,
-          }),
-        ],
       }),
-      'user-a',
     );
+    expect(depInDoc).not.toHaveProperty('followInfos');
+    expect(depInDoc).not.toHaveProperty('extraData');
+    expect(depInDoc).not.toHaveProperty('contentType');
+    expect(depInDoc).not.toHaveProperty('contentId');
+    expect(depInDoc?.details[0]).toEqual(
+      expect.objectContaining({
+        fixedAssetId: 'asset-a',
+        accountId: 'acc-dep-account',
+        originType: TR_FOLLOW_TYPES.FXA_DEP_IN,
+        branchId: 'dest-branch',
+        departmentId: 'dest-dept',
+        amount: 245000,
+      }),
+    );
+    expect(depInDoc?.details[0]).not.toHaveProperty('followInfos');
+
+    const moveInTransaction = {
+      ...transaction,
+      followInfos: {
+        ...transaction.followInfos,
+        fxaOwnerRecords: ['legacy-owner-data'],
+      },
+    };
+
+    await createFxaMoveInFollowTr(
+      models as never,
+      'user-a',
+      moveInTransaction as never,
+    );
+
+    const moveInCalls = models.Transactions.createTransaction.mock.calls;
+    const moveInDoc = moveInCalls[moveInCalls.length - 1]?.[0];
+
+    expect(moveInDoc).toEqual(
+      expect.objectContaining({
+        journal: JOURNALS.FXA_MOVE_IN,
+        originId: 'move-a',
+        originType: TR_FOLLOW_TYPES.FXA_MOVE_IN,
+        side: TR_SIDES.DEBIT,
+        branchId: 'dest-branch',
+        departmentId: 'dest-dept',
+      }),
+    );
+    expect(moveInDoc).not.toHaveProperty('followInfos');
+    expect(moveInDoc).not.toHaveProperty('extraData');
+    expect(moveInDoc?.details[0]).toEqual(
+      expect.objectContaining({
+        originId: 'detail-move',
+        originType: TR_FOLLOW_TYPES.FXA_MOVE_IN,
+        branchId: 'dest-branch',
+        departmentId: 'dest-dept',
+        amount: 350000,
+      }),
+    );
+  });
+
+  it('uses migration supplied accumulated depreciation summaries for internal moves', async () => {
+    const models = makeModels();
+    const transaction = {
+      _id: 'move-a',
+      ptrId: 'ptr-move',
+      parentId: 'move-a',
+      number: 'FXA-MOVE-1',
+      journal: JOURNALS.FXA_MOVE,
+      status: TR_STATUSES.COMPLETE,
+      date: new Date('2026-01-03T00:00:00.000Z'),
+      branchId: 'source-branch',
+      departmentId: 'source-dept',
+      followInfos: {
+        moveInBranchId: 'dest-branch',
+        moveInDepartmentId: 'dest-dept',
+        accumulatedDepreciationAccountId: 'acc-dep-account',
+        fxaDisposalSummaries: [
+          {
+            transactionDetailId: 'detail-move',
+            accumulatedDepreciation: 245000,
+          },
+        ],
+      },
+      details: [
+        {
+          _id: 'detail-move',
+          fixedAssetId: 'asset-a',
+          accountId: 'asset-account',
+          count: 1,
+          unitPrice: 350000,
+          amount: 350000,
+        },
+      ],
+    };
+
+    models.Transactions.find.mockReturnValue(queryResult([]));
+    models.FixedAssets.find.mockReturnValue(
+      queryResult([
+        {
+          _id: 'asset-a',
+          originalCost: 350000,
+          count: 1,
+          currentCount: 0,
+        },
+      ]),
+    );
+    models.AdjustFixedAssets.find.mockReturnValue(queryResult([]));
+
+    const followTrs = await createFxaMoveDepreciationFollowTrs(
+      models as never,
+      'user-a',
+      transaction as never,
+    );
+
+    expect(followTrs).toHaveLength(2);
+    const createDocs = models.Transactions.createTransaction.mock.calls.map(
+      ([doc]) => doc,
+    );
+
+    expect(createDocs).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          journal: JOURNALS.FXA_DEP_OUT,
+          originId: 'move-a',
+          side: TR_SIDES.DEBIT,
+          branchId: 'source-branch',
+          details: [
+            expect.objectContaining({
+              amount: 245000,
+              branchId: 'source-branch',
+            }),
+          ],
+        }),
+        expect.objectContaining({
+          journal: JOURNALS.FXA_DEP_IN,
+          originId: 'move-a',
+          side: TR_SIDES.CREDIT,
+          branchId: 'dest-branch',
+          details: [
+            expect.objectContaining({
+              amount: 245000,
+              branchId: 'dest-branch',
+            }),
+          ],
+        }),
+      ]),
+    );
+  });
+
+  it('cleans legacy migration metadata from updated move depreciation follows', async () => {
+    const models = makeModels();
+    const transaction = {
+      _id: 'move-a',
+      ptrId: 'ptr-move',
+      parentId: 'move-a',
+      number: 'FXA-MOVE-1',
+      journal: JOURNALS.FXA_MOVE,
+      status: TR_STATUSES.COMPLETE,
+      date: new Date('2026-01-03T00:00:00.000Z'),
+      branchId: 'source-branch',
+      departmentId: 'source-dept',
+      followInfos: {
+        moveInBranchId: 'dest-branch',
+        moveInDepartmentId: 'dest-dept',
+        accumulatedDepreciationAccountId: 'acc-dep-account',
+      },
+      details: [
+        {
+          _id: 'detail-move',
+          fixedAssetId: 'asset-a',
+          accountId: 'asset-account',
+          count: 1,
+          unitPrice: 350000,
+          amount: 350000,
+        },
+      ],
+    };
+
+    models.Transactions.find
+      .mockReturnValueOnce(
+        queryResult([
+          {
+            _id: 'old-dep-out',
+            originId: 'move-a',
+            originType: TR_FOLLOW_TYPES.FXA_MOVE_IN,
+            ptrId: 'old-ptr',
+            followInfos: { moveInBranchId: 'wrong-branch' },
+            extraData: { migrationSource: 'erkhet' },
+            contentType: 'erkhet:ptr',
+            contentId: 'parent-old',
+            details: [
+              {
+                _id: 'old-detail-out',
+                originId: 'detail-move',
+                originType: TR_FOLLOW_TYPES.FXA_MOVE_IN,
+                followInfos: { fixedAssetCode: 'OLD' },
+              },
+            ],
+          },
+        ]),
+      )
+      .mockReturnValueOnce(
+        queryResult([
+          {
+            _id: 'old-dep-in',
+            originId: 'move-a',
+            originType: TR_FOLLOW_TYPES.FXA_MOVE_IN,
+            ptrId: 'old-ptr',
+            followInfos: { moveInBranchId: 'wrong-branch' },
+            extraData: { migrationSource: 'erkhet' },
+            contentType: 'erkhet:ptr',
+            contentId: 'parent-old',
+            details: [
+              {
+                _id: 'old-detail-in',
+                originId: 'detail-move',
+                originType: TR_FOLLOW_TYPES.FXA_MOVE_IN,
+                followInfos: { fixedAssetCode: 'OLD' },
+              },
+            ],
+          },
+        ]),
+      );
+    models.FixedAssets.find.mockReturnValue(
+      queryResult([
+        {
+          _id: 'asset-a',
+          originalCost: 350000,
+          count: 1,
+          currentCount: 0,
+        },
+      ]),
+    );
+    models.AdjustFixedAssets.find.mockReturnValue(
+      queryResult([
+        {
+          _id: 'adjust-a',
+          date: new Date('2026-01-02T00:00:00.000Z'),
+          status: ADJ_FXA_STATUSES.PUBLISH,
+        },
+      ]),
+    );
+    models.AdjustFxaDetails.find.mockReturnValue(
+      queryResult([
+        {
+          adjustId: 'adjust-a',
+          fixedAssetId: 'asset-a',
+          closingAccumulatedDepreciation: 245000,
+          closingBookValue: 105000,
+        },
+      ]),
+    );
+
+    await createFxaMoveDepreciationFollowTrs(
+      models as never,
+      'user-a',
+      transaction as never,
+    );
+
+    const updateDocs = models.Transactions.updateTransaction.mock.calls.map(
+      ([, doc]) => doc,
+    );
+    const depOutDoc = updateDocs.find(
+      (doc) => doc.originType === TR_FOLLOW_TYPES.FXA_DEP_OUT,
+    );
+    const depInDoc = updateDocs.find(
+      (doc) => doc.originType === TR_FOLLOW_TYPES.FXA_DEP_IN,
+    );
+
+    expect(depOutDoc).toEqual(
+      expect.objectContaining({
+        originId: 'move-a',
+        originType: TR_FOLLOW_TYPES.FXA_DEP_OUT,
+      }),
+    );
+    expect(depOutDoc).toHaveProperty('followInfos', undefined);
+    expect(depOutDoc).toHaveProperty('extraData', undefined);
+    expect(depOutDoc).toHaveProperty('contentType', undefined);
+    expect(depOutDoc).toHaveProperty('contentId', undefined);
+    expect(depOutDoc?.details[0]).toEqual(
+      expect.objectContaining({
+        originType: TR_FOLLOW_TYPES.FXA_DEP_OUT,
+      }),
+    );
+    expect(depOutDoc?.details[0]).toHaveProperty('followInfos', undefined);
+
+    expect(depInDoc).toEqual(
+      expect.objectContaining({
+        originId: 'move-a',
+        originType: TR_FOLLOW_TYPES.FXA_DEP_IN,
+      }),
+    );
+    expect(depInDoc).toHaveProperty('followInfos', undefined);
+    expect(depInDoc).toHaveProperty('extraData', undefined);
+    expect(depInDoc).toHaveProperty('contentType', undefined);
+    expect(depInDoc).toHaveProperty('contentId', undefined);
+    expect(depInDoc?.details[0]).toEqual(
+      expect.objectContaining({
+        originType: TR_FOLLOW_TYPES.FXA_DEP_IN,
+      }),
+    );
+    expect(depInDoc?.details[0]).toHaveProperty('followInfos', undefined);
   });
 });
 
@@ -998,19 +1503,20 @@ describe('fixed asset sale and disposal summaries', () => {
     expect(summaries[0].accumulatedDepreciation).toBe(100);
   });
 
-  it('creates sale follow transactions for cost, accumulated depreciation, and book value', async () => {
+  it('creates sale follow transactions for sale out, accumulated depreciation out, and sale cost', async () => {
     const models = makeModels();
     const transaction = {
       _id: 'sale-a',
+      ptrId: 'ptr-sale-revenue',
       journal: JOURNALS.FXA_SALE,
       status: TR_STATUSES.COMPLETE,
       date: new Date('2026-02-01T00:00:00.000Z'),
       branchId: 'branch-a',
       departmentId: 'dept-a',
       followInfos: {
-        fixedAssetAccountId: 'asset-account',
+        saleOutAccountId: 'asset-account',
         accumulatedDepreciationAccountId: 'acc-dep-account',
-        lossAccountId: 'loss-account',
+        saleCostAccountId: 'loss-account',
       },
       details: [{ _id: 'detail-sale', fixedAssetId: 'asset-a', count: 1 }],
     };
@@ -1043,9 +1549,11 @@ describe('fixed asset sale and disposal summaries', () => {
     );
 
     expect(followTrs).toHaveLength(3);
+    expect(new Set(followTrs.map((followTr) => followTr.ptrId)).size).toBe(1);
+    expect(followTrs[0].ptrId).not.toBe('ptr-sale-revenue');
     expect(models.Transactions.createTransaction).toHaveBeenCalledWith(
       expect.objectContaining({
-        journal: JOURNALS.FXA_OUT_COST,
+        journal: JOURNALS.FXA_SALE_OUT,
         side: 'ct',
         details: [
           expect.objectContaining({
@@ -1059,7 +1567,7 @@ describe('fixed asset sale and disposal summaries', () => {
     );
     expect(models.Transactions.createTransaction).toHaveBeenCalledWith(
       expect.objectContaining({
-        journal: JOURNALS.FXA_OUT_DEPRECIATION,
+        journal: JOURNALS.FXA_DEP_OUT,
         details: [
           expect.objectContaining({
             accountId: 'acc-dep-account',
@@ -1071,13 +1579,93 @@ describe('fixed asset sale and disposal summaries', () => {
     );
     expect(models.Transactions.createTransaction).toHaveBeenCalledWith(
       expect.objectContaining({
-        journal: JOURNALS.FXA_OUT_LOSS,
+        journal: JOURNALS.FXA_SALE_COST,
         details: [
           expect.objectContaining({
             accountId: 'loss-account',
             amount: 450,
           }),
         ],
+      }),
+      'user-a',
+    );
+  });
+
+  it('creates only accumulated depreciation out follow transaction for fixed asset out', async () => {
+    const models = makeModels();
+    const transaction = {
+      _id: 'out-a',
+      ptrId: 'ptr-out-a',
+      parentId: 'parent-out-a',
+      journal: JOURNALS.FXA_OUT,
+      status: TR_STATUSES.COMPLETE,
+      date: new Date('2026-02-01T00:00:00.000Z'),
+      branchId: 'branch-a',
+      departmentId: 'dept-a',
+      followInfos: {
+        accumulatedDepreciationAccountId: 'acc-dep-account',
+      },
+      details: [
+        {
+          _id: 'detail-out',
+          fixedAssetId: 'asset-a',
+          accountId: 'asset-account',
+          count: 1,
+        },
+      ],
+    };
+
+    models.FixedAssets.find.mockReturnValue(
+      queryResult([
+        {
+          _id: 'asset-a',
+          originalCost: 500,
+          count: 2,
+          currentCount: 1,
+        },
+      ]),
+    );
+    models.AdjustFxaDetails.find.mockReturnValue(
+      queryResult([
+        {
+          adjustId: 'adjust-a',
+          fixedAssetId: 'asset-a',
+          closingAccumulatedDepreciation: 100,
+          closingBookValue: 900,
+        },
+      ]),
+    );
+
+    const followTrs = await createFxaDisposalFollowTrs(
+      models as never,
+      'user-a',
+      transaction as never,
+    );
+
+    expect(followTrs).toHaveLength(1);
+    expect(models.Transactions.createTransaction).toHaveBeenCalledWith(
+      expect.objectContaining({
+        journal: JOURNALS.FXA_DEP_OUT,
+        ptrId: 'ptr-out-a',
+        parentId: 'parent-out-a',
+        details: [
+          expect.objectContaining({
+            accountId: 'acc-dep-account',
+            amount: 50,
+          }),
+        ],
+      }),
+      'user-a',
+    );
+    expect(models.Transactions.createTransaction).not.toHaveBeenCalledWith(
+      expect.objectContaining({
+        journal: JOURNALS.FXA_SALE_OUT,
+      }),
+      'user-a',
+    );
+    expect(models.Transactions.createTransaction).not.toHaveBeenCalledWith(
+      expect.objectContaining({
+        journal: JOURNALS.FXA_SALE_COST,
       }),
       'user-a',
     );

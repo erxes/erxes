@@ -21,7 +21,6 @@ import {
 import { showAdvancedViewState } from '../../../states/trStates';
 import { FxaDetailLocationCells } from '../FxaDetailLocationCells';
 import { FxaOwnerRecordsSheet } from '../FxaOwnerRecordsSheet';
-import { useEffect } from 'react';
 
 export const FixedAssetRow = ({
   form,
@@ -103,33 +102,6 @@ export const FixedAssetRow = ({
     );
     setCostAmount(count, unitPrice);
   };
-
-  useEffect(() => {
-    if (maxCount === undefined) {
-      return;
-    }
-
-    const currentCount = detail.count || 0;
-    const nextCount =
-      currentCount === 0 && maxCount > 0 ? 1 : Math.min(currentCount, maxCount);
-
-    if (nextCount === currentCount) {
-      return;
-    }
-
-    form.setValue(
-      `trDocs.${journalIndex}.details.${detailIndex}.count`,
-      nextCount,
-    );
-    setCostAmount(nextCount, detail.unitPrice);
-  }, [
-    detail.count,
-    detail.unitPrice,
-    detailIndex,
-    form,
-    journalIndex,
-    maxCount,
-  ]);
 
   return (
     <Table.Row className="overflow-hidden h-cell hover:bg-background!">

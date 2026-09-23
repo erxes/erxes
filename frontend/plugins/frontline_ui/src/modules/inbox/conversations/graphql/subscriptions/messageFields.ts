@@ -1,5 +1,16 @@
+export const STRUCTURED_MESSAGE_FIELDS = `
+  mid
+  messageKind
+  providerData
+  replyTo
+  reactions
+  deliveryStatus
+  expiresAt
+`;
+
 export default `
   _id
+  ${STRUCTURED_MESSAGE_FIELDS}
   content
   attachments {
     url

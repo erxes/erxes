@@ -138,7 +138,7 @@ export function HelpCenterDrawer({
                 </div>
 
                 <div className={activeTab === 'appearance' ? '' : 'hidden'}>
-                  <HelpCenterAppearanceTab control={form.control} t={t} />
+                  <HelpCenterAppearanceTab form={form} t={t} />
                 </div>
               </ScrollArea>
             </form>

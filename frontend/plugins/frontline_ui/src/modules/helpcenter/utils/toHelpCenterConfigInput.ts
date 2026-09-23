@@ -1,10 +1,14 @@
 import {
+  createDefaultFooter,
+  createDefaultHeader,
   DEFAULT_HELP_CENTER_STYLES,
   EMPTY_HELP_CENTER_FORM,
 } from '@/helpcenter/constants';
 import {
   IHelpCenter,
   IHelpCenterConfigInput,
+  IHelpCenterFooter,
+  IHelpCenterHeader,
   IHelpCenterStyles,
 } from '@/helpcenter/types';
 
@@ -22,6 +26,43 @@ export const stripStylesTypename = (
   return rest;
 };
 
+export const toHeaderInput = (
+  header: IHelpCenter['header'],
+): IHelpCenterHeader => {
+  if (!header) {
+    return createDefaultHeader();
+  }
+
+  return {
+    wordmark: header.wordmark ?? '',
+    homeLabel: header.homeLabel ?? '',
+    formsLabel: header.formsLabel ?? '',
+    announcementsLabel: header.announcementsLabel ?? '',
+    searchPlaceholder: header.searchPlaceholder ?? '',
+  };
+};
+
+export const toFooterInput = (
+  footer: IHelpCenter['footer'],
+): IHelpCenterFooter => {
+  if (!footer) {
+    return createDefaultFooter();
+  }
+
+  return {
+    logo: footer.logo ?? '',
+    description: footer.description ?? '',
+    copyright: footer.copyright ?? '',
+    columns: (footer.columns ?? []).map((column) => ({
+      heading: column.heading ?? '',
+      links: (column.links ?? []).map((link) => ({
+        label: link.label ?? '',
+        url: link.url ?? '',
+      })),
+    })),
+  };
+};
+
 export const toHelpCenterConfigInput = (
   helpCenter?: IHelpCenter,
 ): IHelpCenterConfigInput => {
@@ -29,6 +70,8 @@ export const toHelpCenterConfigInput = (
     return {
       ...EMPTY_HELP_CENTER_FORM,
       styles: { ...DEFAULT_HELP_CENTER_STYLES },
+      header: createDefaultHeader(),
+      footer: createDefaultFooter(),
     };
   }
 
@@ -54,5 +97,7 @@ export const toHelpCenterConfigInput = (
       ...DEFAULT_HELP_CENTER_STYLES,
       ...stripStylesTypename(helpCenter.styles),
     },
+    header: toHeaderInput(helpCenter.header),
+    footer: toFooterInput(helpCenter.footer),
   };
 };

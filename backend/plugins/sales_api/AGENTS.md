@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-09-13`
+- **Last synchronized:** `2026-09-17`
 
 ## Scope
 
@@ -93,6 +93,11 @@
 
 ### Provides
 
+- Plugin meta `properties` (`src/meta/properties.ts`) — the `deal` property
+  types, each with the `systemFields` (`code`, `name`, `type`) core lists as
+  the read-only "Basic information" group in Settings → Properties. A
+  `code` must name a real field on the record; core-api reads this meta
+  once per process, so a changed list shows after core-api restarts.
 - Federated sales GraphQL contracts for deals, stages, pipelines, boards, POS,
   and ecommerce modules.
 - Sales-owned tRPC and record-reference contracts.
@@ -326,6 +331,13 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-17` — Property types declare system fields
+
+- **Summary:** The `deal` property types now declare `systemFields`, shown
+  as the "Basic information" group in Settings → Properties.
+- **Affected areas:** `src/meta/properties.ts` (`deal`), `src/main.ts`
+- **Contracts changed:** Plugin meta `properties.types[].systemFields` added.
+
 ### `2026-09-13` — Discount info type cleanup
 
 - **Summary:** Deal product discount info types now use a plain string with
@@ -421,92 +433,3 @@
   `src/modules/pos/meta/segments/` (new), `src/meta/segments.ts`.
 - **Contracts changed:** `sales:pos_order` -> `sales:pos.orders`; new relation
   `customer.posOrders`.
-
-### `2026-09-01` — POS orders became a segment content type
-
-- **Summary:** `sales:pos.orders` is now declared, filterable on 20
-  user-facing fields, materialisable, and reachable from a customer segment
-  through `customer.posOrders`; the member, membership and source lookups route
-  by content type instead of assuming deals.
-- **Affected areas:** `src/modules/pos/meta/segments/` (new);
-  `src/modules/pos/db/definitions/orders.ts` (`customerId` index).
-- **Contracts changed:** New segment content type `sales:pos.orders`; new
-  relation `customer.posOrders`.
-
-### `2026-09-01` — Segment evaluation moved to the shared engine
-
-- **Summary:** `evaluate/deal.ts`, `evaluate/relations.ts` and
-  `evaluate/readPath.ts` were replaced by `evaluateOwnedSegmentFields` from
-  `erxes-api-shared`; sales now states only what is its own - the deal
-  collection (`meta/segments/collections.ts`), its declarations, and the two
-  stage rewrites - and the plugin's segment code dropped from 1,142 to 773
-  lines with no behaviour change.
-- **Affected areas:** `src/modules/sales/meta/segments/collections.ts` (new),
-  `evaluate/index.ts`, `evaluate/stageDerived.ts` (new); `evaluate/deal.ts`,
-  `evaluate/relations.ts`, `evaluate/readPath.ts` removed.
-- **Contracts changed:** None.
-
-### `2026-09-01` — Deal queries honour the organization's day
-
-- **Summary:** `listDealSegmentMembers`, `countDealSegmentMembers` and the
-  relation predicate now pass the caller-resolved `timeZone` into
-  `compileSegmentMongoFilter`, so a relative-day or anniversary condition on a
-  deal date means the organization's day rather than the UTC one.
-- **Affected areas:** `src/modules/sales/meta/segments/members.ts`,
-  `src/modules/sales/meta/segments/evaluate/{deal,relations}.ts`.
-- **Contracts changed:** None locally - `timeZone` is an optional field the
-  platform added to the member-query and evaluate-fields inputs.
-
-### `2026-08-31` — Stage-derived deal fields declare their source
-
-- **Summary:** `pipelineId`, `boardId` and `stageProbability` now name
-  `sales:sales.stages` as a dependency with the path back (`via: 'stageId'`),
-  so editing a stage re-checks the deals sitting in it instead of leaving their
-  membership stale until the nightly reconcile.
-- **Affected areas:** `src/modules/sales/meta/segments/fields/deal.ts`.
-- **Contracts changed:** None - the platform reads `dependsOn` it already
-  defined; only the declaration was filled in.
-
-### `2026-08-26` — Segment content types match the event form
-
-- **Summary:** `sales:deal` became `sales:sales.deals`, matching what the event
-  dispatcher emits, so segment types and event types are one string instead of
-  two that had to be mapped; relations now state their record types separately
-  from their segment types, leaving core's relation records untouched.
-- **Affected areas:** `src/modules/sales/meta/segments/` (content type,
-  fields, members, membership, relations, evaluate).
-- **Contracts changed:** `sales:deal` -> `sales:sales.deals`;
-  `SegmentRelationMeta.join` for `via: 'relation'` now carries
-  `subjectRecordType` and `relatedRecordType`.
-
-### `2026-08-25` — Membership writes and content-type routing
-
-- **Summary:** Deals now accept settled segment membership through an
-  `applyMembership` producer that writes `segmentIds` on the deal, declare
-  `sales:sales.deals` as the event that moves deal segments, and the
-  content-type producers route by the module that declared the type instead of
-  by a substring of it - which had left deal member listing unreachable since
-  the segment content types were renamed to `plugin:entity`.
-- **Affected areas:** `src/meta/segments.ts`,
-  `src/modules/sales/meta/segments/membership.ts`,
-  `src/modules/sales/meta/segments/segments.ts`,
-  `src/modules/sales/meta/segments/segmentConfigs.ts`.
-- **Contracts changed:** new `applyMembership` segment producer; `sales:deal`
-  declares `eventTypes`.
-
-### `2026-08-24` — Relation joins through core relation records
-
-- **Summary:** `customer.deals` and `company.deals` now join through the core
-  relation record that actually links them instead of a `customerIds` path the
-  deal schema never had, so a customer segment measuring its deals no longer
-  counts zero for everyone; a relation predicate that cannot compile in full
-  now makes the measure unavailable, and stage-derived conditions inside one
-  are resolved to stage ids rather than dropped.
-- **Affected areas:** `src/modules/sales/meta/segments/relations.ts`,
-  `src/modules/sales/meta/segments/evaluate/relations.ts`,
-  `src/modules/sales/meta/segments/evaluate/stageFilter.ts`,
-  `src/modules/sales/meta/segments/evaluate/deal.ts`.
-- **Contracts changed:** `segmentRelations` declares `join: { via: 'relation' }`
-  for both relations; relation requests may now carry a core-resolved `edges`
-  table; `evaluateFields` is routed by request through
-  `createSegmentEvaluateFieldsHandler` instead of by `subjectType`.

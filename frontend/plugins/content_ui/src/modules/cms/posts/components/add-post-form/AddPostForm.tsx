@@ -1,7 +1,9 @@
-import { Form, ScrollArea } from 'erxes-ui';
+import { Button, Form, ScrollArea, Sheet } from 'erxes-ui';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import type { FieldValues, UseFormReturn } from 'react-hook-form';
-import { useEffect, useRef, useMemo, useCallback } from 'react';
+import { useEffect, useRef, useMemo, useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { PostizDeliveryList } from '../../postiz/PostizDeliveryList';
 import { useSetAtom, useAtomValue } from 'jotai';
 import { usePostForm } from './hooks/usePostForm';
 import { usePostData } from './hooks/usePostData';
@@ -35,6 +37,8 @@ export const AddPostForm = ({
   onClose,
   onFormReady,
 }: AddPostFormProps) => {
+  const { t } = useTranslation('content');
+  const [showDeliveries, setShowDeliveries] = useState(false);
   const location = useLocation();
   const locationState = (location.state ?? null) as {
     post?: TEditingPost;
@@ -103,7 +107,7 @@ export const AddPostForm = ({
     [form],
   );
 
-  const { onSubmit, creating, saving } = usePostSubmission({
+  const { onSubmit, creating, saving, postizSheet } = usePostSubmission({
     websiteId,
     editingPost: currentEditingPost,
     selectedLanguage,
@@ -356,6 +360,52 @@ export const AddPostForm = ({
 
   return (
     <ScrollArea className="flex-auto" viewportClassName="p-4">
+      {postizSheet}
+      {currentEditingPost?._id &&
+        fullPost?.type === 'post' &&
+        fullPost.status === 'published' && (
+          <>
+            <Button
+              type="button"
+              variant="outline"
+              className="min-h-11 mb-4"
+              onClick={() => setShowDeliveries(true)}
+            >
+              {t('cms-social-history', {
+                defaultValue: 'Social delivery history',
+              })}
+            </Button>
+            <Sheet open={showDeliveries} onOpenChange={setShowDeliveries}>
+              <Sheet.View className="w-[calc(100vw-1rem)] sm:max-w-lg p-0 flex flex-col">
+                <Sheet.Header className="h-auto items-start py-4 gap-3">
+                  <div className="min-w-0 flex-1 space-y-2">
+                    <Sheet.Title>
+                      {t('cms-social-history', {
+                        defaultValue: 'Social delivery history',
+                      })}
+                    </Sheet.Title>
+                    <Sheet.Description>
+                      {t('cms-social-history-description', {
+                        defaultValue:
+                          'Shares for this CMS post and selected language.',
+                      })}
+                    </Sheet.Description>
+                  </div>
+                  <Sheet.Close
+                    aria-label={t('close', { defaultValue: 'Close' })}
+                    className="min-h-11 min-w-11"
+                  />
+                </Sheet.Header>
+                <Sheet.Content className="overflow-y-auto p-4">
+                  <PostizDeliveryList
+                    postId={currentEditingPost._id}
+                    language={selectedLanguage || defaultLanguage || 'en'}
+                  />
+                </Sheet.Content>
+              </Sheet.View>
+            </Sheet>
+          </>
+        )}
       <CmsUnsavedChangesAlert
         isDirty={form.formState.isDirty}
         bypassRef={guardBypassRef}

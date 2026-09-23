@@ -44,6 +44,8 @@ export interface IPipeline {
   tagId: string;
   visibility: 'public' | 'private';
   memberIds: string[];
+  propertyIds?: string[];
+  isPropertySelectionConfigured?: boolean;
 }
 
 export interface ITicketsPipelineFilter {

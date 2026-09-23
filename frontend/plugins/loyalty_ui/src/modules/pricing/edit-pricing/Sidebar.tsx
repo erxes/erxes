@@ -18,7 +18,9 @@ export const PricingEditSidebar = ({
   const { t } = useTranslation('loyalty');
   const steps = PRICING_STEPS.filter(
     (step) =>
-      step.value !== 'participants' || pricingDetail?.priority !== 'posBase',
+      step.value !== 'participants' ||
+      (pricingDetail?.priority !== 'posBase' &&
+        pricingDetail?.priority !== 'pipelineBase'),
   );
 
   return (

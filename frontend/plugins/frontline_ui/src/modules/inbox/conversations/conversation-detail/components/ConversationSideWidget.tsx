@@ -69,7 +69,9 @@ export const ConversationSideWidget = ({
   boundaryRef: RefObject<HTMLElement>;
 }) => {
   const { t } = useTranslation(['frontline', 'common']);
-  const { relationWidgetsModules, RelationWidget } = useRelationWidget();
+  const { relationWidgetsModules, RelationWidget } = useRelationWidget({
+    contentType: 'frontline:conversation',
+  });
   const sideMenuRef = useRef<HTMLDivElement>(null);
 
   return (

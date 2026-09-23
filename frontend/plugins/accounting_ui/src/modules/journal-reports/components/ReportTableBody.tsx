@@ -1,4 +1,4 @@
-import { ReportTable, cn } from 'erxes-ui';
+import { ReportTable, Skeleton, cn } from 'erxes-ui';
 import { useAtomValue, useSetAtom } from 'jotai';
 import React, { useEffect, useMemo, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
@@ -110,6 +110,10 @@ export const ReportTableBody = () => {
     return detailError.message;
   }
 
+  if (loading || (isMore && detailLoading)) {
+    return <ReportTableBodySkeleton columnCount={colCount + 2} />;
+  }
+
   return (
     <tbody
       data-slot="table-body"
@@ -127,6 +131,24 @@ export const ReportTableBody = () => {
     </tbody>
   );
 };
+
+const ReportTableBodySkeleton = ({ columnCount }: { columnCount: number }) => (
+  <tbody data-slot="table-body" className={cn('[&_tr:last-child]:border-0')}>
+    {Array.from({ length: 8 }).map((_, rowIndex) => (
+      <ReportTable.Row key={`journal-report-loading-row-${rowIndex}`}>
+        {Array.from({ length: columnCount }).map((__, cellIndex) => (
+          <ReportTable.Cell
+            key={`journal-report-loading-cell-${rowIndex}-${cellIndex}`}
+          >
+            <Skeleton
+              className={cn('h-4 min-w-12', cellIndex < 2 ? 'w-32' : 'w-full')}
+            />
+          </ReportTable.Cell>
+        ))}
+      </ReportTable.Row>
+    ))}
+  </tbody>
+);
 
 // extract and render
 interface ReportRendererProps {
@@ -332,7 +354,11 @@ function renderGroup(
     }
 
     // Навч node
-    const { lastNode, lastData } = calcReport(grStep, groupRule, attr);
+    const { lastNode, afterNode, lastData } = calcReport(
+      grStep,
+      groupRule,
+      attr,
+    );
 
     if (!lastNode) return null;
 
@@ -365,6 +391,7 @@ function renderGroup(
 
           {lastNode}
         </ReportTable.Row>
+        {afterNode}
         {isMore && (
           <RenderMore
             report={report}

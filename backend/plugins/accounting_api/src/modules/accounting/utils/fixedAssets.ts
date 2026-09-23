@@ -32,6 +32,7 @@ export type TFxaIncomeDetailFollowInfo = Pick<
   | 'sequence'
 > & {
   salvageValue?: number;
+  preDeprecation?: number;
   openingAccumulatedDepreciation?: number;
 };
 
@@ -43,6 +44,11 @@ export type TFxaMoveFollowInfos = {
   moveInBranchId?: string;
   moveInDepartmentId?: string;
   accumulatedDepreciationAccountId?: string;
+  fxaDisposalSummaries?: {
+    transactionDetailId?: string;
+    fixedAssetId?: string;
+    accumulatedDepreciation?: number;
+  }[];
 };
 
 export type TFxaIncomeFollowInfos = {
@@ -50,8 +56,10 @@ export type TFxaIncomeFollowInfos = {
 };
 
 export type TFxaDisposalFollowInfos = TFxaMoveFollowInfos & {
-  fixedAssetAccountId?: string;
+  saleOutAccountId?: string;
   accumulatedDepreciationAccountId?: string;
+  saleCostAccountId?: string;
+  fixedAssetAccountId?: string;
   lossAccountId?: string;
 };
 
@@ -79,7 +87,84 @@ export const getFxaMoveFollowInfos = (
 
 export const getFxaDisposalFollowInfos = (
   transaction: ITransaction | ITransactionDocument,
-): TFxaDisposalFollowInfos => transaction.followInfos || {};
+): TFxaDisposalFollowInfos => {
+  const followInfos = transaction.followInfos || {};
+
+  return {
+    ...followInfos,
+    saleOutAccountId:
+      followInfos.saleOutAccountId || followInfos.fixedAssetAccountId,
+    saleCostAccountId:
+      followInfos.saleCostAccountId || followInfos.lossAccountId,
+  };
+};
+
+type TOwnerRecordSequenceDoc = {
+  fixedAssetId?: string;
+  sequence?: number;
+};
+
+export const assignMissingFxaOwnerRecordSequences = async <
+  T extends TOwnerRecordSequenceDoc,
+>(
+  models: IModels,
+  records: T[],
+) => {
+  const fixedAssetIds = [
+    ...new Set(records.map((record) => record.fixedAssetId).filter(Boolean)),
+  ] as string[];
+
+  if (!fixedAssetIds.length) {
+    return records;
+  }
+
+  const usedSequences = new Map<string, Set<number>>();
+  const existingRecords = await models.FxaOwnerRecords.find(
+    {
+      fixedAssetId: { $in: fixedAssetIds },
+      sequence: { $ne: null },
+    },
+    { fixedAssetId: 1, sequence: 1 },
+  ).lean();
+
+  const addUsedSequence = (fixedAssetId?: string, sequence?: number) => {
+    if (!fixedAssetId || typeof sequence !== 'number') {
+      return;
+    }
+
+    const sequences = usedSequences.get(fixedAssetId) || new Set<number>();
+    sequences.add(sequence);
+    usedSequences.set(fixedAssetId, sequences);
+  };
+
+  for (const record of existingRecords) {
+    addUsedSequence(record.fixedAssetId, record.sequence);
+  }
+
+  for (const record of records) {
+    addUsedSequence(record.fixedAssetId, record.sequence);
+  }
+
+  for (const record of records) {
+    if (!record.fixedAssetId || typeof record.sequence === 'number') {
+      continue;
+    }
+
+    const sequences =
+      usedSequences.get(record.fixedAssetId) || new Set<number>();
+    let nextSequence = -1;
+
+    while (sequences.has(nextSequence)) {
+      nextSequence -= 1;
+    }
+
+    record.sequence = nextSequence;
+    sequences.add(nextSequence);
+    usedSequences.set(record.fixedAssetId, sequences);
+  }
+
+  return records;
+};
 
 export const getFxaOwnerRecordInputs = (transaction: ITransactionDocument) =>
   getFxaExtraData(transaction).fxaOwnerRecords || [];
@@ -272,7 +357,6 @@ const getSourceInput = (
 export const syncFxaOwnerRecordMovements = async ({
   eventType,
   models,
-  status: _status,
   transaction,
   userId,
 }: {
@@ -360,7 +444,9 @@ export const syncFxaOwnerRecordMovements = async ({
   }
 
   if (records.length) {
-    await models.FxaOwnerRecords.insertMany(records);
+    await models.FxaOwnerRecords.insertMany(
+      await assignMissingFxaOwnerRecordSequences(models, records),
+    );
   }
 };
 
@@ -462,6 +548,14 @@ export const getFxaDisposalSummaries = async (
     fixedAssetIds,
     transaction.date,
   );
+  const summaryOverrides = new Map(
+    (getFxaDisposalFollowInfos(transaction).fxaDisposalSummaries || []).map(
+      (summary) => [
+        summary.transactionDetailId || summary.fixedAssetId || '',
+        summary,
+      ],
+    ),
+  );
 
   return (transaction.details || [])
     .map((detail) => {
@@ -475,12 +569,17 @@ export const getFxaDisposalSummaries = async (
         : undefined;
       const currentCount = fixedAsset?.currentCount ?? fixedAsset?.count ?? 0;
       const countBeforeThisDisposal = currentCount + count;
+      const summaryOverride =
+        summaryOverrides.get(detail._id || '') ||
+        summaryOverrides.get(detail.fixedAssetId || '');
       const accumulatedDepreciation = fixNum(
-        countBeforeThisDisposal
-          ? ((latestAdjustment?.closingAccumulatedDepreciation || 0) /
-              countBeforeThisDisposal) *
+        typeof summaryOverride?.accumulatedDepreciation === 'number'
+          ? summaryOverride.accumulatedDepreciation
+          : countBeforeThisDisposal
+            ? ((latestAdjustment?.closingAccumulatedDepreciation || 0) /
+                countBeforeThisDisposal) *
               count
-          : 0,
+            : 0,
       );
 
       return {
@@ -512,8 +611,9 @@ export const validateFxaDisposalAccounts = (
     (sum, summary) => sum + summary.originalCost,
     0,
   );
+  const isSale = transaction.journal === JOURNALS.FXA_SALE;
 
-  if (originalCost > 0 && !followInfos.fixedAssetAccountId) {
+  if (isSale && originalCost > 0 && !followInfos.saleOutAccountId) {
     throw new Error('Fixed asset account is required');
   }
 
@@ -524,7 +624,7 @@ export const validateFxaDisposalAccounts = (
     throw new Error('Accumulated depreciation account is required');
   }
 
-  if (bookValue > 0 && !followInfos.lossAccountId) {
+  if (isSale && bookValue > 0 && !followInfos.saleCostAccountId) {
     throw new Error('Fixed asset loss account is required');
   }
 };
