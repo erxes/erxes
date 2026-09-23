@@ -13,9 +13,11 @@ import {
   IconSearch,
   IconUser,
   IconArchive,
+  IconCalendarPlus,
 } from '@tabler/icons-react';
 import clsx from 'clsx';
 import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
+import { SelectCompany, SelectCustomer, SelectMember } from 'ui-modules';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { fetchedTicketsState } from '@/ticket/states/fetchedTicketState';
@@ -29,6 +31,10 @@ const TicketsFilterPopover = () => {
     statusId: string;
     pipelineId: string;
     state: string;
+    createdBy: string;
+    createdAt: string;
+    customerIds: string[];
+    companyIds: string[];
   }>([
     'searchValue',
     'assignee',
@@ -36,6 +42,10 @@ const TicketsFilterPopover = () => {
     'statusId',
     'pipelineId',
     'state',
+    'createdBy',
+    'createdAt',
+    'customerIds',
+    'companyIds',
   ]);
   const hasFilters = Object.values(queries || {}).some(
     (value) => value !== null,
@@ -43,13 +53,35 @@ const TicketsFilterPopover = () => {
   const view = useAtomValue(ticketViewAtom);
   const setFetchedTickets = useSetAtom(fetchedTicketsState);
 
-  const { searchValue, assignee, priority, statusId, pipelineId, state } =
-    queries || {};
+  const {
+    searchValue,
+    assignee,
+    priority,
+    statusId,
+    pipelineId,
+    state,
+    createdBy,
+    createdAt,
+    customerIds,
+    companyIds,
+  } = queries || {};
+
+  const contactFilterKey = JSON.stringify([customerIds, companyIds]);
 
   useEffect(() => {
     setFetchedTickets([]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchValue, assignee, priority, statusId, pipelineId, state]);
+  }, [
+    searchValue,
+    assignee,
+    priority,
+    statusId,
+    pipelineId,
+    state,
+    createdBy,
+    createdAt,
+    contactFilterKey,
+  ]);
   return (
     <>
       <Filter.Popover scope={TicketHotKeyScope.TicketPage}>
@@ -72,6 +104,22 @@ const TicketsFilterPopover = () => {
                   <IconUser />
                   {t('assignee-label', 'Assignee')}
                 </Filter.Item>
+                <SelectMember.FilterItem
+                  value="createdBy"
+                  label={t('created-by', 'Created by')}
+                />
+                <Filter.Item value="createdAt">
+                  <IconCalendarPlus />
+                  {t('created-at', 'Created at')}
+                </Filter.Item>
+                <SelectCustomer.FilterItem
+                  value="customerIds"
+                  label={t('customer', 'Customer')}
+                />
+                <SelectCompany.FilterItem
+                  value="companyIds"
+                  label={t('company-label', 'Company')}
+                />
                 <Filter.Item value="priority">
                   <IconAlertSquareRounded />
                   {t('priority-label', 'Priority')}
@@ -90,6 +138,15 @@ const TicketsFilterPopover = () => {
             </Command>
           </Filter.View>
           <SelectAssigneeTicket.FilterView />
+          <SelectMember.FilterView queryKey="createdBy" />
+          <Filter.View filterKey="createdAt">
+            <Filter.DateView
+              filterKey="createdAt"
+              label={t('created-at', 'Created at')}
+            />
+          </Filter.View>
+          <SelectCustomer.FilterView filterKey="customerIds" mode="multiple" />
+          <SelectCompany.FilterView filterKey="companyIds" mode="multiple" />
           <SelectPriorityTicket.FilterView />
           <SelectStateTicket.FilterView />
           {view === 'list' && (
@@ -100,6 +157,12 @@ const TicketsFilterPopover = () => {
         </Combobox.Content>
       </Filter.Popover>
       <Filter.Dialog>
+        <Filter.View filterKey="createdAt" inDialog>
+          <Filter.DialogDateView
+            filterKey="createdAt"
+            label={t('created-at', 'Created at')}
+          />
+        </Filter.View>
         <Filter.View filterKey="searchValue" inDialog>
           <Filter.DialogStringView filterKey="searchValue" />
         </Filter.View>
@@ -117,6 +180,10 @@ export const TicketsFilter = () => {
     statusId: string;
     pipelineId: string;
     state: string;
+    createdBy: string;
+    createdAt: string;
+    customerIds: string[];
+    companyIds: string[];
   }>([
     'searchValue',
     'assignee',
@@ -124,6 +191,10 @@ export const TicketsFilter = () => {
     'statusId',
     'pipelineId',
     'state',
+    'createdBy',
+    'createdAt',
+    'customerIds',
+    'companyIds',
   ]);
   const { searchValue } = queries || {};
   const view = useAtomValue(ticketViewAtom);
@@ -132,6 +203,28 @@ export const TicketsFilter = () => {
       <Filter.Bar>
         <TicketsFilterPopover />
         <TicketsTotalCount />
+        <SelectMember.FilterBar
+          queryKey="createdBy"
+          label={t('created-by', 'Created by')}
+        />
+        <Filter.BarItem queryKey="createdAt">
+          <Filter.BarName>
+            <IconCalendarPlus />
+            {t('created-at', 'Created at')}
+          </Filter.BarName>
+          <Filter.Date
+            filterKey="createdAt"
+            label={t('created-at', 'Created at')}
+          />
+        </Filter.BarItem>
+        <SelectCustomer.FilterBar
+          filterKey="customerIds"
+          label={t('customer', 'Customer')}
+        />
+        <SelectCompany.FilterBar
+          filterKey="companyIds"
+          label={t('company-label', 'Company')}
+        />
         {searchValue && (
           <Filter.BarItem queryKey="searchValue">
             <Filter.BarName>

@@ -1,3 +1,4 @@
+import { buildDateMatch, narrowTicketMatchByContacts } from '@/reports/utils';
 import { ITicketDocument, ITicketFilter } from '@/ticket/@types/ticket';
 import { generateFilter } from '@/ticket/utils';
 import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
@@ -34,12 +35,23 @@ export const ticketQueries = {
   getTickets: async (
     _parent: undefined,
     { filter }: { filter: ITicketFilter & ICursorPaginateParams },
-    { models, user }: IContext,
+    { models, user, subdomain }: IContext,
   ) => {
     const query: FilterQuery<ITicketDocument> = await generateFilter(
       filter,
       user,
       models,
+    );
+
+    if (filter.createdBy) {
+      query.createdBy = filter.createdBy;
+    }
+    const { fromDate, toDate, customerIds, companyIds } = filter;
+    Object.assign(query, buildDateMatch({ fromDate, toDate }, 'createdAt'));
+    await narrowTicketMatchByContacts(
+      query,
+      { customerIds, companyIds },
+      subdomain,
     );
 
     return await cursorPaginate<ITicketDocument>({

@@ -59,6 +59,9 @@ export interface ITicketDocument extends ITicket, Document {
 }
 
 export interface ITicketFilter extends IListParams, ITicket {
+  fromDate?: string;
+  toDate?: string;
+  customerIds?: string[];
   userId?: string;
   createdAt?: Date;
 }

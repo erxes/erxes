@@ -1,3 +1,4 @@
+import { getFilters } from '@/report/utils/dateFilters';
 import { GET_TICKETS } from '@/ticket/graphql/queries/getTickets';
 import { TICKET_LIST_CHANGED } from '@/ticket/graphql/subscriptions/ticketListChanged';
 import { ticketSortAtom } from '@/ticket/states/ticketSortState';
@@ -35,22 +36,40 @@ export type TicketSortField = (typeof TICKET_SORT_FIELDS)[number]['value'];
 export const useTicketsVariables = (
   variables?: QueryHookOptions<ICursorListResponse<ITicket>>['variables'],
 ) => {
-  const { searchValue, assignee, priority, statusId, state, pipelineId } =
-    useNonNullMultiQueryState<{
-      searchValue: string;
-      assignee: string;
-      priority: string;
-      statusId: string;
-      state: string;
-      pipelineId: string;
-    }>([
-      'searchValue',
-      'assignee',
-      'priority',
-      'statusId',
-      'state',
-      'pipelineId',
-    ]);
+  const {
+    searchValue,
+    assignee,
+    priority,
+    statusId,
+    state,
+    pipelineId,
+    createdBy,
+    createdAt,
+    customerIds,
+    companyIds,
+  } = useNonNullMultiQueryState<{
+    searchValue: string;
+    assignee: string;
+    priority: string;
+    statusId: string;
+    state: string;
+    pipelineId: string;
+    createdBy: string;
+    createdAt: string;
+    customerIds: string[];
+    companyIds: string[];
+  }>([
+    'searchValue',
+    'assignee',
+    'priority',
+    'statusId',
+    'state',
+    'pipelineId',
+    'createdBy',
+    'createdAt',
+    'customerIds',
+    'companyIds',
+  ]);
 
   const sortField = useAtomValue(ticketSortAtom);
 
@@ -68,6 +87,10 @@ export const useTicketsVariables = (
     statusId: statusId,
     pipelineId: pipelineId,
     state: state,
+    createdBy,
+    customerIds,
+    companyIds,
+    ...getFilters(createdAt ?? undefined),
     ...variables,
   };
 };
@@ -78,7 +101,7 @@ export const useTickets = (
   const { t } = useTranslation('frontline');
   const variables = useTicketsVariables(options?.variables);
   const { toast } = useToast();
-  const { data, loading, fetchMore, subscribeToMore } = useQuery<
+  const { data, loading, fetchMore, subscribeToMore, refetch } = useQuery<
     ICursorListResponse<ITicket>
   >(GET_TICKETS, {
     ...options,
@@ -102,6 +125,17 @@ export const useTickets = (
       variables: { filter: variables },
       updateQuery: (prev, { subscriptionData }) => {
         if (!subscriptionData.data) return prev;
+
+        if (
+          variables.createdBy ||
+          variables.fromDate ||
+          variables.toDate ||
+          variables.customerIds?.length ||
+          variables.companyIds?.length
+        ) {
+          void refetch();
+          return prev;
+        }
 
         const { type, ticket } = subscriptionData.data.ticketListChanged;
 
