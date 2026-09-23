@@ -25,6 +25,8 @@
 ## Current Capabilities
 
 - Displays, creates, updates, prints, and removes accounting transactions.
+- Transaction record rows place each detail amount in the debit or credit column using the transaction-level side.
+- Transaction record tables initialize journal-specific columns before the table provider mounts so structural action and checkbox columns retain their fixed width.
 - Keeps cash, bank, payable, and receivable transaction main-currency and foreign-currency amounts manually editable while syncing the paired amount from exchange rates without update cycles.
 - Provides adjustment navigation and pages for inventory, fixed asset, fund rate, and debt rate adjustments.
 - Provides closing adjustment navigation and pages for temporary account closing.
@@ -124,6 +126,8 @@
 - Account currency create/edit, inline edit, and filter selectors must use the same system `dealCurrency` options.
 - Currency amount inputs display rounded values by default but expose configured edit precision while focused.
 - Transaction currency amount synchronization must react to manual amount-field changes and avoid hook cycles.
+- Transaction record debit and credit cells must read side from the transaction record root, not from its detail.
+- Transaction record column sets must be derived before `RecordTable.Provider` mounts and remount when switching between standard and inventory/fixed-asset layouts.
 - Inventory income weight allocation must use persisted detail total weight; missing core product weight defaults to one per item, and manual detail weight remains unchanged until product or count changes.
 - Fixed asset income detail state must preserve `fixedAssetCategoryId`, `fixedAssetCode`, and `fixedAssetName` through save/refetch so generated fixed assets remain editable from their source transaction detail.
 - Fixed asset income code and name cells must use the same `PopoverScoped` plus `RecordTableInlineCell` pattern as numeric inline cells so shortcut navigation can focus and edit them.
@@ -163,10 +167,10 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
-### `2026-09-23` — `Batched Inventory Journal Fill`
+### `2026-09-23` — `Transaction Records And Batched Inventory Fill`
 
-- **Summary:** Inventory multi-add batches each journal's price, weight, or current-cost lookup before appending fully initialized rows, while later product changes refill only the changed row.
-- **Affected areas:** Inventory income, out, move, sale, and sale-return bulk-add controls; row product-change handling; and sale follow-cost initialization.
+- **Summary:** Transaction records classify detail amounts by the transaction-level side and preserve fixed structural-column widths across journal layouts, while inventory multi-add batches each journal's fill lookup and later product changes refill only the changed row.
+- **Affected areas:** Transaction record debit/credit cells and journal-specific column layout; inventory income, out, move, sale, and sale-return bulk-add controls; row product-change handling; and sale follow-cost initialization.
 - **Contracts changed:** Adds plugin-local `accountingBulkIncomeProductFill` over existing `getAccLastIncomePrice` and `productsMain` fields; other journals reuse `accountingGetAccCurrentCost` with multiple product ids.
 
 ### `2026-09-19` — `Inventory Income Weight Allocation`
