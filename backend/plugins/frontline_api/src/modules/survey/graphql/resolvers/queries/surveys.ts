@@ -76,7 +76,7 @@ export const surveyQueries: Record<string, Resolver> = {
     const { models, user } = context as IContext;
     const query = await generateFilterQuery(args, models, user);
 
-    const [total, pending, active, archived] = await Promise.all([
+    const [total, pending, active, rejected, archived] = await Promise.all([
       models.Surveys.countDocuments(query),
       models.Surveys.countDocuments({
         ...query,
@@ -88,10 +88,14 @@ export const surveyQueries: Record<string, Resolver> = {
       }),
       models.Surveys.countDocuments({
         ...query,
+        status: SURVEY_STATUSES.REJECTED,
+      }),
+      models.Surveys.countDocuments({
+        ...query,
         status: SURVEY_STATUSES.ARCHIVED,
       }),
     ]);
 
-    return { total, byStatus: { pending, active, archived } };
+    return { total, byStatus: { pending, active, rejected, archived } };
   },
 };

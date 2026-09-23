@@ -122,6 +122,12 @@ export const types = `
     ticketPipelineId: String
     ticketStatusId: String
 
+    formChannelId: String
+    formIds: [String]
+
+    cmsId: String
+    cmsAppToken: String
+
     color: String
     backgroundImage: String
     styles: HelpCenterConfigStyles
@@ -152,6 +158,12 @@ export const types = `
     ticketChannelId: String
     ticketPipelineId: String
     ticketStatusId: String
+
+    formChannelId: String
+    formIds: [String]
+
+    cmsId: String
+    cmsAppToken: String
 
     color: String
     backgroundImage: String

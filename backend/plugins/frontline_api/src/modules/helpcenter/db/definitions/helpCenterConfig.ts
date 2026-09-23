@@ -88,6 +88,12 @@ export const helpCenterConfigSchema = new Schema(
     ticketPipelineId: { type: String },
     ticketStatusId: { type: String },
 
+    formChannelId: { type: String },
+    formIds: { type: [String] },
+
+    cmsId: { type: String },
+    cmsAppToken: { type: String },
+
     color: { type: String },
     backgroundImage: { type: String },
     styles: { type: stylesSchema },

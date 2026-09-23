@@ -91,6 +91,10 @@ export const toHelpCenterConfigInput = (
     ticketChannelId: helpCenter.ticketChannelId ?? '',
     ticketPipelineId: helpCenter.ticketPipelineId ?? '',
     ticketStatusId: helpCenter.ticketStatusId ?? '',
+    formChannelId: helpCenter.formChannelId ?? '',
+    formIds: helpCenter.formChannelId ? (helpCenter.formIds ?? []) : [],
+    cmsId: helpCenter.cmsId ?? '',
+    cmsAppToken: helpCenter.cmsAppToken ?? '',
     color: helpCenter.color ?? EMPTY_HELP_CENTER_FORM.color,
     backgroundImage: helpCenter.backgroundImage ?? '',
     styles: {

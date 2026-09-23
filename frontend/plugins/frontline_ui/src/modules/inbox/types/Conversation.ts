@@ -46,11 +46,19 @@ export interface IMessagePoll {
   results?: IMessageTally;
 }
 
+export interface IMessageSurveyAttachment {
+  url: string;
+  name: string;
+  type: string;
+  size: number;
+}
+
 export interface IMessageSurveyStep {
   stepId: string;
   name?: string;
   description?: string;
   question: string;
+  attachments?: IMessageSurveyAttachment[];
   answers: IMessageAnswer[];
   allowMultiselect?: boolean;
 }

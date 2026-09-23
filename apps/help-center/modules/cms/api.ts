@@ -20,12 +20,17 @@ export const getAnnouncements = async (
     return config;
   }
 
+  if (!config.data.cmsId) {
+    return { state: 'ready', data: [] };
+  }
+
   try {
     const { data, error } = await query<{
       cpPostList: { posts: CmsPost[] | null } | null;
     }>({
       query: CMS_PORTAL_ANNOUNCEMENTS,
       variables: { limit, searchValue: searchValue?.trim() || undefined },
+      context: { appToken: config.data.cmsAppToken },
       errorPolicy: 'all',
     });
 
@@ -48,10 +53,15 @@ export const getAnnouncement = async (
     return config;
   }
 
+  if (!config.data.cmsId) {
+    return { state: 'ready', data: null };
+  }
+
   try {
     const { data, error } = await query<{ cpPost: CmsPost | null }>({
       query: CMS_PORTAL_POST,
       variables: { slug },
+      context: { appToken: config.data.cmsAppToken },
       errorPolicy: 'all',
     });
 

@@ -1,5 +1,6 @@
 import { ISurveyInput } from '@/survey/db/models/Surveys';
 import { buildSurveySnapshot } from '@/survey/utils';
+import { notifySurveyReviewed } from '@/survey/notifications';
 import { SURVEY_STATUSES } from '@/survey/db/definitions/surveys';
 import { publishMessage } from '@/inbox/graphql/resolvers/mutations/conversations';
 import { IContext } from '~/connectionResolvers';
@@ -31,10 +32,32 @@ export const surveyMutations = {
 
   async surveyToggleStatus(
     _root: undefined,
-    { _ids, status }: { _ids: string[]; status: string },
-    { models }: IContext,
+    {
+      _ids,
+      status,
+      reason,
+    }: { _ids: string[]; status: string; reason?: string },
+    { models, subdomain }: IContext,
   ) {
-    return models.Surveys.changeStatus(_ids, status);
+    const requested = await models.Surveys.find({
+      _id: { $in: _ids },
+      createdCpUserId: { $exists: true },
+      status: {
+        $in: [SURVEY_STATUSES.PENDING, SURVEY_STATUSES.REJECTED],
+      },
+    }).lean();
+
+    const result = await models.Surveys.changeStatus(_ids, status, reason);
+
+    if (requested.length) {
+      const reviewed = await models.Surveys.find({
+        _id: { $in: requested.map((survey) => survey._id) },
+      }).lean();
+
+      await notifySurveyReviewed(subdomain, reviewed);
+    }
+
+    return result;
   },
 
   async surveySendToConversation(
@@ -48,8 +71,9 @@ export const surveyMutations = {
       throw new Error('Only an active survey can be sent');
     }
 
-    const conversation =
-      await models.Conversations.getConversation(conversationId);
+    const conversation = await models.Conversations.getConversation(
+      conversationId,
+    );
 
     const integration = await models.Integrations.getIntegration({
       _id: conversation.integrationId,

@@ -43,6 +43,14 @@ const CONFIG_FIELDS = `
   }
 `;
 
+const SOURCE_FIELDS = `
+  formChannelId
+  formIds
+
+  cmsId
+  cmsAppToken
+`;
+
 const LAYOUT_FIELDS = `
   header {
     wordmark
@@ -69,6 +77,7 @@ export const HELP_CENTER_CONFIG_BY_DOMAIN = gql`
   query portalHelpCenterConfigByDomain {
     helpCenterGetConfigByDomain {
       ${CONFIG_FIELDS}
+      ${SOURCE_FIELDS}
       ${LAYOUT_FIELDS}
     }
   }

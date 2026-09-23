@@ -43,6 +43,12 @@ export type HelpCenterConfig = {
   ticketPipelineId: string | null;
   ticketStatusId: string | null;
 
+  formChannelId: string | null;
+  formIds: string[] | null;
+
+  cmsId: string | null;
+  cmsAppToken: string | null;
+
   color: string | null;
   backgroundImage: string | null;
   styles: KbTopicStyles;
@@ -92,6 +98,12 @@ export type PortalConfig = {
   ticketChannelId: string;
   ticketPipelineId: string;
   ticketStatusId: string;
+
+  formChannelId: string;
+  formIds: string[];
+
+  cmsId: string;
+  cmsAppToken: string;
 
   color: string;
   backgroundImage: string;

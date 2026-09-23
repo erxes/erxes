@@ -56,6 +56,14 @@ export const normalizeConfig = (config: HelpCenterConfig): PortalConfig => {
     ticketPipelineId: text(config.ticketPipelineId),
     ticketStatusId: text(config.ticketStatusId),
 
+    formChannelId: ticketToggle ? text(config.formChannelId) : '',
+    formIds: ticketToggle
+      ? (config.formIds ?? []).map(text).filter(Boolean)
+      : [],
+
+    cmsId: text(config.cmsId),
+    cmsAppToken: text(config.cmsId) ? text(config.cmsAppToken) : '',
+
     color: text(config.color),
     backgroundImage: text(config.backgroundImage),
     styles: config.styles,

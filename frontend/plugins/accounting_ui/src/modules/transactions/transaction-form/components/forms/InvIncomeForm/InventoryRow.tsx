@@ -77,6 +77,7 @@ export const InventoryRow = ({
 
   const { unitPrice, count, _id } = detail;
   const initProductId = useRef(detail.productId);
+  const hasProductChanged = useRef(false);
   const shouldRecalculateWeight = useRef(detail.weight == null);
   const hasDuplicateProduct = hasDuplicateProductId(
     trDoc.details,
@@ -111,7 +112,12 @@ export const InventoryRow = ({
   const { productWeight, loading: loadingProductWeight } =
     useGetAccountingProductUnitPrice({
       variables: { _id: detail.productId },
-      skip: !detail.productId,
+      skip:
+        !detail.productId ||
+        (!hasProductChanged.current &&
+          initProductId.current &&
+          detail.productId === initProductId.current &&
+          detail.weight != null),
     });
 
   const setCalculatedWeight = (nextCount: number) => {
@@ -164,7 +170,9 @@ export const InventoryRow = ({
       },
       skip:
         !detail.productId ||
-        (initProductId.current && detail.productId === initProductId.current),
+        (!hasProductChanged.current &&
+          initProductId.current &&
+          detail.productId === initProductId.current),
     });
 
   useEffect(() => {
@@ -175,7 +183,7 @@ export const InventoryRow = ({
     const nextUnitPrice = lastIncomePriceInfo[detail.productId] ?? 0;
     calcAmount(count ?? 0, nextUnitPrice);
     form.setValue(getFieldName('unitPrice'), nextUnitPrice);
-  }, [detail.productId, loadingLastIncomePrice]);
+  }, [detail.productId, lastIncomePriceInfo, loadingLastIncomePrice]);
 
   const handleCountChange = (
     value: number,
@@ -314,6 +322,7 @@ export const InventoryRow = ({
                 value={field.value || ''}
                 onValueChange={(productId) => {
                   if (productId !== field.value) {
+                    hasProductChanged.current = true;
                     shouldRecalculateWeight.current = true;
                     if (!productId) {
                       form.setValue(getFieldName('weight'), 0);

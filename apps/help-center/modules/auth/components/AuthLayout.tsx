@@ -1,12 +1,12 @@
 import Link from 'next/link';
 import type { ReactNode } from 'react';
-import { AuthPattern } from './AuthPattern';
+import { Icon } from '@/modules/ui/components/Icon';
 
-const Wordmark = ({ className }: { className?: string }) => (
-  <span className={className}>
-    er<span className="text-brand">x</span>es
-  </span>
-);
+const BENEFITS = [
+  'Track every request you raise',
+  'Reply to the support team in one thread',
+  'Read the articles kept for signed-in users',
+];
 
 export const AuthLayout = ({
   title,
@@ -23,42 +23,74 @@ export const AuthLayout = ({
   footer: ReactNode;
   children: ReactNode;
 }) => (
-  <div className="grid flex-1 lg:grid-cols-2">
-    <aside className="relative hidden overflow-hidden bg-hero bg-[radial-gradient(120%_90%_at_20%_0%,var(--color-hero-soft),transparent_62%)] px-14 py-12 text-white lg:flex lg:flex-col">
-      <AuthPattern className="text-white/[0.06]" />
+  <div className="grid flex-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
+    <aside className="relative hidden overflow-hidden bg-shell px-12 py-12 text-white lg:flex lg:flex-col xl:px-16">
+      <span
+        aria-hidden="true"
+        className="animate-aurora pointer-events-none absolute -left-32 -top-40 size-[34rem] rounded-full bg-brand/35 blur-[120px]"
+      />
+      <span
+        aria-hidden="true"
+        className="animate-aurora-slow pointer-events-none absolute -bottom-40 -right-24 size-96 rounded-full bg-brand/20 blur-[110px]"
+      />
+      <span
+        aria-hidden="true"
+        className="hero-grid pointer-events-none absolute inset-0"
+      />
+
       <Link
         href="/"
-        className="relative self-start text-xl font-semibold lowercase tracking-tight text-white transition-opacity hover:opacity-80"
+        className="relative self-start rounded-lg text-xl font-semibold lowercase tracking-tight text-white outline-none transition-opacity duration-300 hover:opacity-80 focus-visible:ring-2 focus-visible:ring-white/40"
       >
-        er<span className="text-white/60">x</span>es
+        er<span className="text-white/50">x</span>es
       </Link>
 
-      <div className="relative my-auto max-w-md py-10">
-        <h2 className="text-[30px] font-semibold leading-[1.25] tracking-[-0.02em] text-balance">
+      <div className="relative my-auto max-w-lg py-10">
+        <h2 className="text-balance text-[34px] font-semibold leading-[1.15] tracking-[-0.03em]">
           {headline}
         </h2>
-        <p className="mt-4 text-[15px] leading-relaxed text-white/65">
+        <p className="mt-5 text-pretty text-[15px] leading-relaxed text-white/55">
           {blurb}
         </p>
+
+        <ul className="mt-10 space-y-3.5">
+          {BENEFITS.map((benefit) => (
+            <li
+              key={benefit}
+              className="flex items-center gap-3 text-[14px] text-white/70"
+            >
+              <span
+                aria-hidden="true"
+                className="flex size-6 shrink-0 items-center justify-center rounded-full bg-white/10 text-white"
+              >
+                <Icon name="check" size={13} />
+              </span>
+              {benefit}
+            </li>
+          ))}
+        </ul>
       </div>
     </aside>
 
-    <div className="relative flex items-center justify-center overflow-hidden bg-subtle px-5 py-14">
-      <AuthPattern className="text-brand/[0.06]" />
-
-      <div className="animate-in fade-in slide-in-from-bottom-2 fill-mode-both relative w-full max-w-[25rem] duration-500">
+    <div className="flex items-center justify-center bg-canvas px-5 py-12 sm:px-8">
+      <div className="animate-in fade-in slide-in-from-bottom-2 fill-mode-both w-full max-w-[26rem] duration-500">
         <Link
           href="/"
-          className="block text-center text-xl font-semibold lowercase tracking-tight text-ink transition-colors hover:text-brand"
+          className="group mb-6 inline-flex items-center gap-1.5 rounded-lg text-[13px] font-medium text-muted-foreground outline-none transition-colors duration-300 ease-out-soft hover:text-brand focus-visible:text-brand"
         >
-          <Wordmark />
+          <Icon
+            name="arrowLeft"
+            size={15}
+            className="transition-transform duration-300 ease-out-soft group-hover:-translate-x-0.5"
+          />
+          Back to help center
         </Link>
 
-        <div className="mt-8 rounded-2xl border border-line bg-white p-7 shadow-[0_16px_40px_rgba(23,22,42,0.08)] sm:p-8">
-          <h1 className="text-center text-xl font-semibold text-ink">
+        <div className="rounded-2xl bg-white p-7 shadow-shell sm:p-8">
+          <h1 className="text-[22px] font-semibold tracking-[-0.02em] text-ink">
             {title}
           </h1>
-          <p className="mt-1.5 text-center text-sm leading-relaxed text-muted-foreground">
+          <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
             {subtitle}
           </p>
 
