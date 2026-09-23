@@ -1,5 +1,6 @@
 import {
   getFieldOptionUsedValuesFromModel,
+  IFieldOptionUsageCount,
   IFieldOptionUsageModel,
 } from 'erxes-api-shared/core-modules';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
@@ -30,7 +31,10 @@ export const getFieldOptionUsedValues = (
   subdomain: string,
   field: { _id: string; contentType?: string },
   values: string[],
-): Promise<string[] | null> | string[] | null => {
+):
+  | Promise<IFieldOptionUsageCount[] | null>
+  | IFieldOptionUsageCount[]
+  | null => {
   if (!values.length) {
     return [];
   }

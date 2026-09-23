@@ -213,16 +213,27 @@ export const loadFieldClass = (models: IModels) => {
         removedValues,
       );
 
+      const usageByValue = new Map(
+        (usedValues || []).map((usage) => [usage.value, usage.count]),
+      );
+
       const blockedValues =
         usedValues === null
           ? removedValues
-          : removedValues.filter((value) => usedValues.includes(value));
+          : removedValues.filter((value) => usageByValue.has(value));
 
       if (blockedValues.length) {
+        const blockedSummary = blockedValues
+          .map((value) => {
+            const count = usageByValue.get(value);
+            return count === undefined
+              ? value
+              : `${value} (${count} record${count === 1 ? '' : 's'})`;
+          })
+          .join(', ');
+
         throw new Error(
-          `Cannot remove option(s) "${blockedValues.join(
-            ', ',
-          )}": still used by existing records`,
+          `Cannot remove option(s) "${blockedSummary}": still used by existing records`,
         );
       }
     }

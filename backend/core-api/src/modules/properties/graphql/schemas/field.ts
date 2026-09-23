@@ -14,6 +14,11 @@ export const types = `
         coordinates: JSON
     }
 
+    type FieldOptionUsage {
+        value: String!
+        count: Int!
+    }
+
     type Field {
         _id: String
         name: String
@@ -65,9 +70,9 @@ export const queries = `
     cpFieldDetail(_id: String!): Field
 
     # Which of a select/multiSelect/check/radio field's option values are
-    # currently used by a record. Null when usage cannot be determined for
-    # the field's content type.
-    fieldOptionUsedValues(fieldId: String!): [String]
+    # currently used by a record, and how many records use each one. Null
+    # when usage cannot be determined for the field's content type.
+    fieldOptionUsedValues(fieldId: String!): [FieldOptionUsage]
 `;
 
 const mutationParams = `

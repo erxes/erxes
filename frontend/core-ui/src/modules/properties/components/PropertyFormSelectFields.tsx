@@ -31,7 +31,7 @@ export const PropertyFormSelectFields = ({
       )
     : new Set<string>();
 
-  const { usedValues } = useFieldOptionUsedValues({
+  const { usageByValue } = useFieldOptionUsedValues({
     fieldId: isEdit ? fieldId : undefined,
   });
 
@@ -51,8 +51,9 @@ export const PropertyFormSelectFields = ({
         <div className="flex flex-col gap-3">
           {options.map((option, index) => {
             const isExisting = savedOptionValues.has(option.value);
+            const usedCount = usageByValue?.get(option.value);
             const isUsed = isExisting
-              ? (usedValues?.includes(option.value) ?? true)
+              ? (usageByValue ? usedCount !== undefined : true)
               : false;
             return (
               <div className="flex gap-2" key={option._key ?? option.value}>
@@ -97,10 +98,17 @@ export const PropertyFormSelectFields = ({
                   onClick={() => {
                     if (isUsed) {
                       toast({
-                        title: t(
-                          'option-in-use',
-                          'This option is used by existing records and cannot be removed',
-                        ),
+                        title:
+                          usedCount === undefined
+                            ? t(
+                                'option-in-use',
+                                'This option is used by existing records and cannot be removed',
+                              )
+                            : t(
+                                'option-in-use-count',
+                                'This option is used by {{count}} existing record(s) and cannot be removed',
+                                { count: usedCount },
+                              ),
                         variant: 'destructive',
                       });
                       return;

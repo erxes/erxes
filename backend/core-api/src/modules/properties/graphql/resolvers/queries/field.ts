@@ -5,6 +5,7 @@ import {
   IFieldOffsetParams,
   IFieldParams,
 } from '@/properties/@types';
+import { IFieldOptionUsageCount } from 'erxes-api-shared/core-modules';
 import { Resolver } from 'erxes-api-shared/core-types';
 import { cursorPaginate, defaultPaginate } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
@@ -90,7 +91,7 @@ export const fieldQueries: Record<
     _: undefined,
     { fieldId }: { fieldId: string },
     { models, subdomain }: IContext,
-  ): Promise<string[] | null> => {
+  ): Promise<IFieldOptionUsageCount[] | null> => {
     const field = await models.Fields.findOne({ _id: fieldId }).lean();
 
     if (!field) {

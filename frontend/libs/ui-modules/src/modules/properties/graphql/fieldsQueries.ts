@@ -52,7 +52,10 @@ export const FIELDS_QUERY = gql`
 
 export const FIELD_OPTION_USED_VALUES_QUERY = gql`
   query FieldOptionUsedValues($fieldId: String!) {
-    fieldOptionUsedValues(fieldId: $fieldId)
+    fieldOptionUsedValues(fieldId: $fieldId) {
+      value
+      count
+    }
   }
 `;
 
