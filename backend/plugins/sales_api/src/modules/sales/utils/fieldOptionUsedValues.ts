@@ -8,5 +8,6 @@ export const getDealFieldOptionUsedValues = (
   models: IModels,
   fieldId: string,
   values: string[],
+  groupKey?: string | null,
 ): Promise<IFieldOptionUsageCount[]> =>
-  getFieldOptionUsedValuesFromModel(models.Deals, fieldId, values);
+  getFieldOptionUsedValuesFromModel(models.Deals, fieldId, values, groupKey);

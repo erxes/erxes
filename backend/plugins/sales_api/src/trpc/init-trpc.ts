@@ -63,17 +63,18 @@ export const appRouter = t.mergeRouters(
             contentType: z.string(),
             fieldId: z.string(),
             values: z.array(z.string()),
+            groupKey: z.string().nullish(),
           }),
         )
         .query(({ ctx, input }) => {
           const { models } = ctx;
-          const { contentType, fieldId, values } = input;
+          const { contentType, fieldId, values, groupKey } = input;
 
           if (contentType !== DEAL_PROPERTY_CONTENT_TYPE) {
             return null;
           }
 
-          return getDealFieldOptionUsedValues(models, fieldId, values);
+          return getDealFieldOptionUsedValues(models, fieldId, values, groupKey);
         }),
     }),
   }),

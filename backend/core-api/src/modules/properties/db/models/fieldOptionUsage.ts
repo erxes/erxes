@@ -2,6 +2,7 @@ import {
   getFieldOptionUsedValuesFromModel,
   IFieldOptionUsageCount,
   IFieldOptionUsageModel,
+  toPropertyGroupKey,
 } from 'erxes-api-shared/core-modules';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
@@ -24,20 +25,37 @@ export const extractOptionValues = (
 ): string[] =>
   (options || [])
     .map((option) => (typeof option === 'string' ? option : option?.value))
-    .filter((value): value is string => Boolean(value));
+    .filter((value): value is string => typeof value === 'string');
 
-export const getFieldOptionUsedValues = (
+// A field inside an `isMultiple` (repeating) group is never stored under
+// `propertiesData.<fieldId>` — its values live inside that group's own rows.
+const resolveMultipleGroupKey = async (
+  models: IModels,
+  groupId?: string,
+): Promise<string | null> => {
+  if (!groupId) {
+    return null;
+  }
+
+  const group = await models.FieldsGroups.findOne({
+    _id: groupId,
+    'configs.isMultiple': true,
+  }).lean();
+
+  return group ? toPropertyGroupKey(group._id) : null;
+};
+
+export const getFieldOptionUsedValues = async (
   models: IModels,
   subdomain: string,
-  field: { _id: string; contentType?: string },
+  field: { _id: string; contentType?: string; groupId?: string },
   values: string[],
-):
-  | Promise<IFieldOptionUsageCount[] | null>
-  | IFieldOptionUsageCount[]
-  | null => {
+): Promise<IFieldOptionUsageCount[] | null> => {
   if (!values.length) {
     return [];
   }
+
+  const groupKey = await resolveMultipleGroupKey(models, field.groupId);
 
   const modelName = CORE_CONTENT_TYPE_MODELS[field.contentType || ''];
 
@@ -54,12 +72,17 @@ export const getFieldOptionUsedValues = (
       method: 'query',
       module: 'fields',
       action: 'fieldOptionUsedValues',
-      input: { contentType: field.contentType, fieldId: field._id, values },
+      input: {
+        contentType: field.contentType,
+        fieldId: field._id,
+        values,
+        groupKey,
+      },
       defaultValue: null,
     });
   }
 
   const model = models[modelName] as unknown as IFieldOptionUsageModel;
 
-  return getFieldOptionUsedValuesFromModel(model, field._id, values);
+  return getFieldOptionUsedValuesFromModel(model, field._id, values, groupKey);
 };

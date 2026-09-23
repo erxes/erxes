@@ -57,17 +57,23 @@ export const appRouter = t.mergeRouters(
             contentType: z.string(),
             fieldId: z.string(),
             values: z.array(z.string()),
+            groupKey: z.string().nullish(),
           }),
         )
         .query(({ ctx, input }) => {
           const { models } = ctx;
-          const { contentType, fieldId, values } = input;
+          const { contentType, fieldId, values, groupKey } = input;
 
           if (contentType !== TICKET_PROPERTY_CONTENT_TYPE) {
             return null;
           }
 
-          return getTicketFieldOptionUsedValues(models, fieldId, values);
+          return getTicketFieldOptionUsedValues(
+            models,
+            fieldId,
+            values,
+            groupKey,
+          );
         }),
     }),
   }),
