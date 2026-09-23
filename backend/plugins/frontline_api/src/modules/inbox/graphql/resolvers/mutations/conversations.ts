@@ -1,3 +1,5 @@
+import { reactToConversationMessage } from '@/inbox/services/conversationReaction';
+import type { IConversationReaction } from '@/inbox/services/conversationReaction';
 import {
   IConversationMessageAdd,
   IMessageDocument,
@@ -499,6 +501,14 @@ const getConversationById = async (models: IModels, selector) => {
 };
 
 export const conversationMutations = {
+  async conversationMessageReact(
+    _root: unknown,
+    args: IConversationReaction,
+    context: IContext,
+  ): Promise<boolean> {
+    return reactToConversationMessage(args, context);
+  },
+
   async conversationAgentTyping(
     _root,
     {
@@ -695,6 +705,10 @@ export const conversationMutations = {
         const messageDoc: typeof doc & { extraData?: Record<string, unknown> } =
           {
             ...doc,
+            ...(integration.kind === 'instagram-messenger' &&
+            extraInfo?.forwardedFrom
+              ? { content: responseContent || '' }
+              : {}),
             ...(displayContent ? { content: displayContent } : {}),
             ...(extraData ? { extraData } : {}),
           };

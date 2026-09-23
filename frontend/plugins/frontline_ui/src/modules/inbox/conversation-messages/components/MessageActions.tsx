@@ -1,3 +1,6 @@
+import { MessageCopyAction } from '@/inbox/conversation-messages/components/MessageCopyAction';
+import { ActionButton } from '@/inbox/conversation-messages/components/MessageActionButton';
+import { HAS_ATTACHMENT } from '@/inbox/constants/messengerConstants';
 import { useMutation } from '@apollo/client';
 import {
   Button,
@@ -10,7 +13,6 @@ import {
 } from 'erxes-ui';
 import {
   IconArrowBackUp,
-  IconCopy,
   IconDots,
   IconMoodSmile,
   IconPin,
@@ -48,37 +50,6 @@ const textOf = (message: IMessage) =>
 
 const previewOf = (message: IMessage) => textOf(message).slice(0, 120);
 
-const ActionButton = ({
-  label,
-  disabled,
-  children,
-  onClick,
-}: {
-  label: string;
-  disabled?: boolean;
-  children: React.ReactNode;
-  onClick: () => void;
-}) => (
-  <Tooltip>
-    <Tooltip.Trigger asChild>
-      <span>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          disabled={disabled}
-          aria-label={label}
-          onClick={onClick}
-          className="size-8 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
-        >
-          {children}
-        </Button>
-      </span>
-    </Tooltip.Trigger>
-    <Tooltip.Content>{label}</Tooltip.Content>
-  </Tooltip>
-);
-
 export const MessageActions = ({
   message,
   additionalActions,
@@ -103,7 +74,14 @@ export const MessageActions = ({
     },
   );
   const preview = previewOf(message);
-  const messageText = textOf(message);
+  const contentText = stripHtml(message.content).trim();
+  const imageAttachment = message.attachments?.find(
+    (attachment) => attachment.type?.startsWith('image') || attachment.type === 'sticker',
+  );
+  const messageText =
+    contentText === HAS_ATTACHMENT || contentText === 'Shared content'
+      ? ''
+      : contentText;
   const isInstagram = kind === IntegrationType.INSTAGRAM_MESSENGER;
   const isInstagramReactionTarget =
     !isInstagram ||
@@ -129,6 +107,7 @@ export const MessageActions = ({
   const isPinned = Boolean(message.extraData?.discordPinned);
 
   const handleReply = () => {
+    if (isInstagram && !providerMessageId) return;
     let authorName = 'Customer';
     if (message.userId) {
       authorName = 'You';
@@ -173,15 +152,6 @@ export const MessageActions = ({
     }
   };
 
-  const copy = async () => {
-    try {
-      await navigator.clipboard.writeText(messageText);
-      toast({ title: 'Message copied', variant: 'default' });
-    } catch {
-      toast({ title: 'Failed to copy message', variant: 'destructive' });
-    }
-  };
-
   if (isSlashMenuOpen) {
     return null;
   }
@@ -191,6 +161,7 @@ export const MessageActions = ({
       <div className="flex items-center gap-0.5">
         {REACTION_KINDS.has(kind) && isInstagramReactionTarget && (
           <ReactionMenu
+            isInstagram={isInstagram}
             conversationId={conversationId}
             messageId={providerMessageId || ''}
             disabled={!canReact}
@@ -204,7 +175,11 @@ export const MessageActions = ({
           />
         )}
         {canReplyOrForward && (
-          <ActionButton label="Reply" onClick={handleReply}>
+          <ActionButton
+            label="Reply"
+            onClick={handleReply}
+            disabled={isInstagram && !providerMessageId}
+          >
             <IconArrowBackUp className="size-4" />
           </ActionButton>
         )}
@@ -214,9 +189,14 @@ export const MessageActions = ({
             <ActionButton label="Forward" onClick={() => setForwardOpen(true)}>
               <IconShare3 className="size-4" />
             </ActionButton>
-            <ActionButton label="Copy text" disabled={!preview} onClick={copy}>
-              <IconCopy className="size-4" />
-            </ActionButton>
+            <MessageCopyAction
+              text={messageText}
+              attachment={imageAttachment}
+              conversationId={conversationId}
+              messageId={message._id}
+              isInstagram={isInstagram}
+              inline
+            />
           </>
         ) : (
           <div className="ml-0.5 border-l border-border/70 pl-0.5">
@@ -246,14 +226,14 @@ export const MessageActions = ({
                     Forward
                   </DropdownMenu.Item>
                 )}
-                <DropdownMenu.Item
-                  className="rounded-lg"
-                  disabled={!preview}
-                  onClick={copy}
-                >
-                  <IconCopy className="size-4" />
-                  Copy text
-                </DropdownMenu.Item>
+                <MessageCopyAction
+                  text={messageText}
+                  attachment={imageAttachment}
+                  conversationId={conversationId}
+                  messageId={message._id}
+                  isInstagram={isInstagram}
+                  inline={false}
+                />
                 {isDiscord && (
                   <DropdownMenu.Item
                     className="rounded-lg"
@@ -287,6 +267,7 @@ export const MessageActions = ({
 };
 
 function ReactionMenu({
+  isInstagram,
   conversationId,
   messageId,
   disabled,
@@ -294,6 +275,7 @@ function ReactionMenu({
   selectedReaction,
   reactions,
 }: Readonly<{
+  isInstagram: boolean;
   conversationId: string;
   messageId: string;
   disabled: boolean;
@@ -301,7 +283,7 @@ function ReactionMenu({
   selectedReaction?: string;
   reactions: readonly Reaction[];
 }>) {
-  const { toggleReaction, loading } = useMessageReaction();
+  const { toggleReaction, loading } = useMessageReaction(isInstagram);
 
   const handleReaction = async (reaction: Reaction) => {
     const remove = selectedReaction === reaction;

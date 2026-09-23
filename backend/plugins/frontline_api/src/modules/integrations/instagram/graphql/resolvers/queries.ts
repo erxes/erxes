@@ -1,3 +1,5 @@
+import { copyInstagramImage } from '@/integrations/instagram/services/copyInstagramImage';
+import type { ICopyInstagramImageArgs } from '@/integrations/instagram/services/copyInstagramImage';
 import { IContext } from '~/connectionResolvers';
 import {
   getPageList,
@@ -15,6 +17,7 @@ import {
 } from '@/integrations/instagram/@types/utils';
 import { INTEGRATION_KINDS } from '@/integrations/instagram/constants';
 import { IInstagramConversationMessageDocument } from '@/integrations/instagram/@types/conversationMessages';
+import { normalizeStoredInstagramMessage } from '@/integrations/instagram/normalizeMessage';
 
 const buildSelector = async (conversationId: string, model: any) => {
   const query = { conversationId: '' };
@@ -31,6 +34,13 @@ const buildSelector = async (conversationId: string, model: any) => {
 };
 
 export const instagramQueries = {
+  async frontlineInstagramCopyImage(
+    _root: unknown,
+    args: ICopyInstagramImageArgs,
+    context: IContext,
+  ): Promise<string> {
+    return copyInstagramImage(args, context);
+  },
   async instagramGetAccounts(_root, { kind }: IKind, { models }: IContext) {
     return models.InstagramAccounts.find({ kind });
   },
@@ -239,14 +249,23 @@ export const instagramQueries = {
           .skip(skip || 0)
           .limit(limit);
 
-        return getFirst ? messages : messages.reverse();
+        let orderedMessages = messages;
+        if (!getFirst) {
+          orderedMessages = [...messages].reverse();
+        }
+        return orderedMessages.map((message) =>
+          normalizeStoredInstagramMessage(message.toObject()),
+        );
       }
 
       messages = await models.InstagramConversationMessages.find(query)
         .sort({ createdAt: -1 })
         .limit(50);
 
-      return messages.reverse();
+      const reversedMessages = [...messages].reverse();
+      return reversedMessages.map((message) =>
+        normalizeStoredInstagramMessage(message.toObject()),
+      );
     } else {
       let comment: any[] = [];
       const sort: any = getFirst ? { createdAt: 1 } : { createdAt: -1 };
@@ -281,7 +300,10 @@ export const instagramQueries = {
     { conversationId }: { conversationId: string },
     { models }: IContext,
   ) {
-    const selector = await buildSelector(conversationId, models.Conversations);
+    const selector = await buildSelector(
+      conversationId,
+      models.InstagramConversations,
+    );
 
     return models.InstagramConversationMessages.countDocuments(selector);
   },

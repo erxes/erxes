@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Button,
@@ -9,19 +9,19 @@ import {
   RadioGroup,
   Spinner,
 } from 'erxes-ui';
-import { useInstagramAccounts } from '../hooks/useInstagramAccounts';
+import { useInstagramAccounts } from '@/integrations/instagram/hooks/useInstagramAccounts';
 import { IconBrandInstagram } from '@tabler/icons-react';
 import { useAtom, useSetAtom } from 'jotai';
 import {
   activeInstagramFormStepAtom,
   selectedInstagramAccountAtom,
-} from '../states/instagramStates';
+} from '@/integrations/instagram/states/instagramStates';
 import {
   InstagramIntegrationFormLayout,
   InstagramIntegrationFormSteps,
 } from './InstagramIntegrationForm';
-import { useInstagramPages } from '../hooks/useInstagramPages';
-import { useIgAuthPopup } from '../hooks/useIgAuthPopup';
+import { useInstagramPages } from '@/integrations/instagram/hooks/useInstagramPages';
+import { useIgAuthPopup } from '@/integrations/instagram/hooks/useIgAuthPopup';
 
 export const InstagramGetAccounts = () => {
   const { t } = useTranslation('frontline');
@@ -67,11 +67,7 @@ export const InstagramGetAccounts = () => {
         </>
       }
     >
-      <InstagramIntegrationFormSteps
-        title={t('connect-accounts')}
-        step={1}
-        description={t('ig-select-accounts-description')}
-      />
+      <InstagramIntegrationFormSteps title={t('connect-accounts')} step={1} />
 
       <div className="flex-1 overflow-hidden p-4 pt-0 flex flex-col">
         <Command className="flex-1">

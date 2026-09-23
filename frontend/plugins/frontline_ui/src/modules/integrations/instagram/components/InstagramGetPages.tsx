@@ -8,9 +8,9 @@ import { useAtom, useSetAtom } from 'jotai';
 import {
   activeInstagramFormStepAtom,
   selectedInstagramPageAtom,
-} from '../states/instagramStates';
-import { useInstagramPages } from '../hooks/useInstagramPages';
-import { useIgIntegrationContext } from '../context/IgIntegrationContext';
+} from '@/integrations/instagram/states/instagramStates';
+import { useInstagramPages } from '@/integrations/instagram/hooks/useInstagramPages';
+import { useIgIntegrationContext } from '@/integrations/instagram/context/IgIntegrationContext';
 
 export const InstagramGetPages = () => {
   const { t } = useTranslation('frontline');
@@ -41,11 +41,7 @@ export const InstagramGetPages = () => {
         </>
       }
     >
-      <InstagramIntegrationFormSteps
-        title={t('connect-pages')}
-        step={2}
-        description={t('ig-select-pages-description')}
-      />
+      <InstagramIntegrationFormSteps title={t('connect-pages')} step={2} />
       <div className="flex-1 overflow-hidden p-4 pt-0">
         <Command>
           <div className="p-1">
