@@ -2,9 +2,10 @@ import { mongooseStringRandomId } from 'erxes-api-shared/utils';
 import { Schema } from 'mongoose';
 
 export const SURVEY_STATUSES = {
+  PENDING: 'pending',
   ACTIVE: 'active',
   ARCHIVED: 'archived',
-  ALL: ['active', 'archived'],
+  ALL: ['pending', 'active', 'archived'],
 };
 
 const surveyOptionSchema = new Schema(
@@ -85,6 +86,11 @@ export const surveySchema = new Schema(
     },
     sentCount: { type: Number, default: 0, label: 'Sent count' },
     createdUserId: { type: String, label: 'Created user' },
+    createdCpUserId: {
+      type: String,
+      index: true,
+      label: 'Created client portal user',
+    },
   },
   { timestamps: true },
 );

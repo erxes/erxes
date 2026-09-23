@@ -6,7 +6,7 @@
 - **Project:** `loyalty_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/loyalty_ui`
-- **Last synchronized:** `2026-09-13`
+- **Last synchronized:** `2026-09-22`
 
 ## Scope
 
@@ -26,6 +26,8 @@
   `src/pages/pricing`.
 - Pricing detail forms edit general targeting, options, participants, price,
   quantity, repeat, expiry, and rules sections.
+- Pricing general edit forms allow selected start and end dates to be cleared.
+- Pricing priority selection includes none, public, POS base, and scoped base pricing; POS-base and scoped-base plans hide participant targeting.
 - Options detail supports branch, department, board, and pipeline selection.
 - Board and pipeline selectors can clear an existing selection; clearing a board
   also clears the dependent pipeline in the options and stage forms.
@@ -74,6 +76,8 @@
 - Pricing form save mappings must preserve empty optional selectors as no
   constraint (`null`, `undefined`, or an empty form value as expected by the
   existing mutation path).
+- Clearing a pricing start or end date must set its enabled flag to `false` so the backend removes the persisted date.
+- Scoped-base priority is handled like POS-base in the edit flow: participant targeting is hidden and the active tab falls back to General if needed.
 - Board changes must clear dependent pipeline and stage selections where those
   fields are present.
 - Pipeline changes must clear dependent stage selections where those fields are
@@ -90,6 +94,12 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-22` — `Scoped base pricing controls`
+
+- **Summary:** Pricing forms expose scoped base pricing, hide participant targeting for those plans, and let users clear optional start and end dates.
+- **Affected areas:** Pricing priority types and selectors, edit navigation, general date fields, and save mappings.
+- **Contracts changed:** Pricing priority form values include `pipelineBase`.
 
 ### `2026-09-13` — Clearable pricing board and pipeline selectors
 

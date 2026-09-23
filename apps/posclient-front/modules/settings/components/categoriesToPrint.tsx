@@ -26,9 +26,6 @@ import {
 const isSameOrDescendant = (value: string, candidate: string) =>
   value === candidate || value.startsWith(`${candidate}/`)
 
-const hasCategoryOverlap = (left: string, right: string) =>
-  isSameOrDescendant(left, right) || isSameOrDescendant(right, left)
-
 const normalizeGroup = (group: string[]) => {
   const uniqueValues = Array.from(new Set(group))
 
@@ -41,34 +38,7 @@ const normalizeGroup = (group: string[]) => {
   )
 }
 
-const normalizeStoredGroups = (groups: string[][]) => {
-  const takenValues: string[] = []
-
-  return groups.map((group) => {
-    const normalizedGroup = normalizeGroup(group).filter(
-      (value) =>
-        !takenValues.some((takenValue) => hasCategoryOverlap(value, takenValue))
-    )
-
-    takenValues.push(...normalizedGroup)
-
-    return normalizedGroup
-  })
-}
-
-const normalizeUpdatedGroups = (groups: string[][], index: number) => {
-  const normalizedGroups = groups.map((group) => normalizeGroup(group))
-  const takenValues = normalizedGroups.flatMap((group, groupIndex) =>
-    groupIndex === index ? [] : group
-  )
-
-  normalizedGroups[index] = normalizedGroups[index].filter(
-    (value) =>
-      !takenValues.some((takenValue) => hasCategoryOverlap(value, takenValue))
-  )
-
-  return normalizedGroups
-}
+const normalizeGroups = (groups: string[][]) => groups.map(normalizeGroup)
 
 let filterGroupKeyCounter = 0
 
@@ -93,7 +63,7 @@ const CategoriesToPrint = () => {
   const { loading, categories } = useProductCategories((cats) => {
     const validOrders = cats.map((c: ICategory) => c.order)
     setCategoriesToPrint(
-      normalizeStoredGroups(
+      normalizeGroups(
         categoriesToPrint.map((filterGroup) =>
           filterGroup.filter((cat) => validOrders.includes(cat))
         )
@@ -121,7 +91,7 @@ const CategoriesToPrint = () => {
       return prev.slice(0, categoriesToPrint.length)
     })
   }, [categoriesToPrint.length])
-
+  
   if (isActive || !isPrint) {
     return null
   }
@@ -148,7 +118,7 @@ const CategoriesToPrint = () => {
     setCategoriesToPrint((prev) => {
       const updated = [...prev]
       updated[index] = value
-      return normalizeUpdatedGroups(updated, index)
+      return normalizeGroups(updated)
     })
   }
 

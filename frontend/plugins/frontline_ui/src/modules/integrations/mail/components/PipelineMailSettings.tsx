@@ -1,10 +1,22 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconAlertTriangle, IconMail, IconTrash } from '@tabler/icons-react';
-import { Alert, Button, Form, InfoCard, Spinner, useConfirm } from 'erxes-ui';
-import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import {
+  Alert,
+  Button,
+  Combobox,
+  Form,
+  InfoCard,
+  PopoverScoped,
+  Spinner,
+  useConfirm,
+} from 'erxes-ui';
+import { useEffect, useState } from 'react';
+import { Control, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
+
+import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
+import { SelectTriggerTicket } from '@/ticket/components/ticket-selects/SelectTicket';
 
 import {
   MAIL_SENDER_NAME_MAX_LENGTH,
@@ -28,6 +40,7 @@ const MAIL_HEALTH_UNHEALTHY = 'unHealthy';
 const pipelineMailSchema = z.object({
   senderName: z.string().trim().max(MAIL_SENDER_NAME_MAX_LENGTH).optional(),
   forwardFrom: z.string().email().optional().or(z.literal('')),
+  statusId: z.string().optional(),
 });
 
 type PipelineMailValues = z.infer<typeof pipelineMailSchema>;
@@ -52,25 +65,103 @@ const PIPELINE_MAIL_FIELDS = [
 const usePipelineMailForm = (integration: IMailPipelineIntegration | null) => {
   const form = useForm<PipelineMailValues>({
     resolver: zodResolver(pipelineMailSchema),
-    defaultValues: { senderName: '', forwardFrom: '' },
+    defaultValues: { senderName: '', forwardFrom: '', statusId: '' },
   });
 
   useEffect(() => {
     form.reset({
       senderName: integration?.senderName ?? '',
       forwardFrom: integration?.forwardFrom ?? '',
+      statusId: integration?.statusId ?? '',
     });
   }, [form, integration]);
 
   return form;
 };
 
+const PipelineMailStatusSelect = ({
+  pipelineId,
+  value,
+  onValueChange,
+}: {
+  pipelineId: string;
+  value: string;
+  onValueChange: (statusId: string) => void;
+}) => {
+  const { t } = useTranslation('frontline');
+  const [open, setOpen] = useState(false);
+
+  return (
+    <SelectStatusTicket.Provider
+      value={value}
+      pipelineId={pipelineId}
+      onValueChange={(statusId) => {
+        onValueChange(statusId);
+        setOpen(false);
+      }}
+    >
+      <PopoverScoped open={open} onOpenChange={setOpen}>
+        <SelectTriggerTicket variant="form">
+          <SelectStatusTicket.Value
+            placeholder={t(
+              'pipeline-mail-status-default',
+              'First status of this pipeline',
+            )}
+          />
+        </SelectTriggerTicket>
+        <Combobox.Content>
+          <SelectStatusTicket.Content />
+        </Combobox.Content>
+      </PopoverScoped>
+    </SelectStatusTicket.Provider>
+  );
+};
+
+const PipelineMailStatusField = ({
+  pipelineId,
+  control,
+}: {
+  pipelineId: string;
+  control: Control<PipelineMailValues>;
+}) => {
+  const { t } = useTranslation('frontline');
+
+  return (
+    <Form.Field
+      name="statusId"
+      control={control}
+      render={({ field }) => (
+        <Form.Item className="space-y-1 [&_button]:h-9 [&_button]:w-full [&_button]:max-w-none">
+          <Form.Label className="text-sm font-normal text-muted-foreground">
+            {t('pipeline-mail-status', 'Ticket status')}
+          </Form.Label>
+          <PipelineMailStatusSelect
+            pipelineId={pipelineId}
+            value={field.value ?? ''}
+            onValueChange={field.onChange}
+          />
+          <Form.Description>
+            {t(
+              'pipeline-mail-status-description',
+              'The status a new mail ticket opens in. A reply that threads onto an existing ticket leaves its status unchanged.',
+            )}
+          </Form.Description>
+          <Form.Message />
+        </Form.Item>
+      )}
+    />
+  );
+};
+
 const PipelineMailFields = ({
+  pipelineId,
   form,
 }: {
+  pipelineId: string;
   form: ReturnType<typeof usePipelineMailForm>;
 }) => (
   <>
+    <PipelineMailStatusField pipelineId={pipelineId} control={form.control} />
     {PIPELINE_MAIL_FIELDS.map((field) => (
       <MailFormField key={field.name} {...field} control={form.control} />
     ))}
@@ -98,7 +189,7 @@ const PipelineMailConnect = ({ pipelineId }: { pipelineId: string }) => {
           )}
         >
           <InfoCard.Content className="grid grid-cols-1 gap-3">
-            <PipelineMailFields form={form} />
+            <PipelineMailFields pipelineId={pipelineId} form={form} />
           </InfoCard.Content>
         </InfoCard>
         <div className="flex justify-end border-t pt-5">
@@ -182,7 +273,7 @@ const PipelineMailConnected = ({
               waiting={waitingForForwardVerification}
             />
 
-            <PipelineMailFields form={form} />
+            <PipelineMailFields pipelineId={pipelineId} form={form} />
 
             <MailSenderPreview
               senderName={senderName}

@@ -17,6 +17,7 @@ import { Can } from 'ui-modules';
 import { IPropertyForm } from '../types/Properties';
 import { PropertyFormGroupField } from './PropertyFormGroupField';
 import { PropertyFormLogicFields } from './PropertyFormLogicFields';
+import { PropertyFormObjectListFields } from './PropertyFormObjectListFields';
 import { PropertyFormSelectFields } from './PropertyFormSelectFields';
 import { PropertyFormValidation } from './PropertyFormValidations';
 import { PropertySelectRelationType } from './PropertySelectRelationType';
@@ -57,6 +58,12 @@ export const PropertyForm = ({
       sendData = {
         ...sendData,
         type: 'relation:' + sendData.relationType,
+      };
+    }
+    if (FIELD_TYPES_OBJECT.objectList.value === sendData.type) {
+      sendData = {
+        ...sendData,
+        configs: { objectListConfigs: sendData.objectListConfigs },
       };
     }
     sendData = {
@@ -155,6 +162,7 @@ export const PropertyForm = ({
                       onValueChange={(value) => {
                         field.onChange(value);
                         form.setValue('options', []);
+                        form.setValue('objectListConfigs', []);
                       }}
                       disabled={isEdit || disableType}
                     >
@@ -201,6 +209,7 @@ export const PropertyForm = ({
                 isEdit={isEdit}
                 fieldId={fieldId}
               />
+              <PropertyFormObjectListFields form={form} isEdit={isEdit} />
               <PropertySelectRelationType form={form} />
               <PropertyFormLogicFields
                 form={form}
