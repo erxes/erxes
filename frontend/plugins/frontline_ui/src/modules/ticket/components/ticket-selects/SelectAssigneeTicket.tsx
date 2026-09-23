@@ -50,7 +50,11 @@ const SelectAssigneeValue = ({
   return <SelectMember.Value placeholder={placeholder || 'Select assignee'} />;
 };
 
-const SelectTeamMemberContent = () => {
+const SelectTeamMemberContent = ({
+  allowUnassigned = true,
+}: {
+  allowUnassigned?: boolean;
+}) => {
   const [search, setSearch] = useState('');
   const [debouncedSearch] = useDebounce(search, 500);
   const currentUser = useAtomValue(currentUserState) as IUser;
@@ -89,7 +93,7 @@ const SelectTeamMemberContent = () => {
           </>
         )}
 
-        {!loading && <SelectMember.NoAssigneeItem />}
+        {!loading && allowUnassigned && <SelectMember.NoAssigneeItem />}
         {!loading &&
           membersList.map((user: IUser) => (
             <SelectMember.CommandItem key={user._id} user={user} />
@@ -104,12 +108,16 @@ const SelectTeamMemberContent = () => {
   );
 };
 
-const SelectAssigneeFilterView = () => {
-  const [assignee, setAssignee] = useQueryState<string>('assignee');
+type MemberFilterProps = { queryKey?: 'assignee' | 'createdBy' };
+
+const SelectAssigneeFilterView = ({
+  queryKey = 'assignee',
+}: MemberFilterProps = {}) => {
+  const [assignee, setAssignee] = useQueryState<string>(queryKey);
   const { resetFilterState } = useFilterContext();
 
   return (
-    <Filter.View filterKey="assignee">
+    <Filter.View filterKey={queryKey}>
       <SelectAssigneeProvider
         mode="single"
         value={assignee || ''}
@@ -118,14 +126,16 @@ const SelectAssigneeFilterView = () => {
           resetFilterState();
         }}
       >
-        <SelectTeamMemberContent />
+        <SelectTeamMemberContent allowUnassigned={queryKey === 'assignee'} />
       </SelectAssigneeProvider>
     </Filter.View>
   );
 };
 
-export const SelectAssigneeFilterBar = () => {
-  const [assignee, setAssignee] = useQueryState<string>('assignee');
+export const SelectAssigneeFilterBar = ({
+  queryKey = 'assignee',
+}: MemberFilterProps = {}) => {
+  const [assignee, setAssignee] = useQueryState<string>(queryKey);
   const [open, setOpen] = useState(false);
   return (
     <SelectAssigneeProvider
@@ -142,12 +152,16 @@ export const SelectAssigneeFilterBar = () => {
     >
       <Popover open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
-          <Filter.BarButton filterKey={'assignee'}>
-            <SelectAssigneeValue />
+          <Filter.BarButton filterKey={queryKey}>
+            <SelectAssigneeValue
+              placeholder={
+                queryKey === 'createdBy' ? 'Select creator' : undefined
+              }
+            />
           </Filter.BarButton>
         </Popover.Trigger>
         <Combobox.Content>
-          <SelectTeamMemberContent />
+          <SelectTeamMemberContent allowUnassigned={queryKey === 'assignee'} />
         </Combobox.Content>
       </Popover>
     </SelectAssigneeProvider>

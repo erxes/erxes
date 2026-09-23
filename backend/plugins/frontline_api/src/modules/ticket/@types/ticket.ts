@@ -61,7 +61,7 @@ export interface ITicketDocument extends ITicket, Document {
 export interface ITicketFilter extends IListParams, ITicket {
   userId?: string;
   createdAt?: Date;
-  createdAtTo?: Date;
+  createdDate?: string;
   customerId?: string;
   companyId?: string;
 }

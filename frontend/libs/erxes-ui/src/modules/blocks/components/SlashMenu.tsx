@@ -34,7 +34,7 @@ export const SlashMenu = ({
           isSelected={selectedIndex === index}
           key={item.title}
           onClick={() => onItemClick?.(item)}
-        >
+a        >
           <span className="flex items-center gap-2">
             {icons[item.title as keyof typeof icons] ?? item.icon}
             {item.title}

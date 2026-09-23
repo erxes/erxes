@@ -8,7 +8,6 @@ import {
   ICursorListResponse,
   isUndefinedOrNull,
   mergeCursorData,
-  parseDateRangeFromString,
   useNonNullMultiQueryState,
   useToast,
   validateFetchMore,
@@ -44,7 +43,7 @@ export const useTicketsVariables = (
     state,
     pipelineId,
     createdBy,
-    createdAt,
+    createdDate,
     customer,
     company,
   } = useNonNullMultiQueryState<{
@@ -55,7 +54,7 @@ export const useTicketsVariables = (
     state: string;
     pipelineId: string;
     createdBy: string;
-    createdAt: string;
+    createdDate: string;
     customer: string;
     company: string;
   }>([
@@ -66,13 +65,12 @@ export const useTicketsVariables = (
     'state',
     'pipelineId',
     'createdBy',
-    'createdAt',
+    'createdDate',
     'customer',
     'company',
   ]);
 
   const sortField = useAtomValue(ticketSortAtom);
-  const createdRange = parseDateRangeFromString(createdAt);
 
   return {
     cursor: '',
@@ -89,8 +87,7 @@ export const useTicketsVariables = (
     pipelineId: pipelineId,
     state: state,
     createdBy,
-    createdAt: createdRange?.from.toISOString(),
-    createdAtTo: createdRange?.to.toISOString(),
+    createdDate,
     customerId: customer,
     companyId: company,
     ...variables,
@@ -130,8 +127,7 @@ export const useTickets = (
 
         if (
           variables.createdBy ||
-          variables.createdAt ||
-          variables.createdAtTo ||
+          variables.createdDate ||
           variables.customerId ||
           variables.companyId
         ) {

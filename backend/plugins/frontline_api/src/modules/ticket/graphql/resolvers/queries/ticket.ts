@@ -1,6 +1,6 @@
 import { ITicketDocument, ITicketFilter } from '@/ticket/@types/ticket';
 import { generateFilter } from '@/ticket/utils';
-import { buildDateMatch, narrowTicketMatchByContacts } from '@/reports/utils';
+import { narrowTicketMatchByContacts } from '@/reports/utils';
 import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
 import { cursorPaginate } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
@@ -45,23 +45,17 @@ export const ticketQueries = {
 
     if (filter.createdBy) query.createdBy = filter.createdBy;
 
-    if (
-      filter.createdAt &&
-      filter.createdAtTo &&
-      filter.createdAt > filter.createdAtTo
-    ) {
-      throw new Error('Invalid ticket creation date range');
+    if (filter.createdDate === 'no-date') {
+      query.createdAt = { $exists: false };
+    } else if (filter.createdDate === 'in-past') {
+      query.createdAt = { $lt: new Date() };
+    } else if (filter.createdDate) {
+      const date = new Date(filter.createdDate);
+      if (Number.isNaN(date.getTime())) {
+        throw new Error('Invalid ticket creation date');
+      }
+      query.createdAt = { $lte: date };
     }
-    Object.assign(
-      query,
-      buildDateMatch(
-        {
-          fromDate: filter.createdAt?.toISOString(),
-          toDate: filter.createdAtTo?.toISOString(),
-        },
-        'createdAt',
-      ),
-    );
 
     await narrowTicketMatchByContacts(
       query,

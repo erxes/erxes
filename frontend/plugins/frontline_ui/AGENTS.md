@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-09-22`
+- **Last synchronized:** `2026-09-23`
 
 ## Scope
 
@@ -74,6 +74,12 @@
 - Other plugins' modules or state.
 
 ## Current Capabilities
+
+- Ticket Created date uses Operation-style Before filtering: In the past,
+  relative date cutoffs and a custom single date. Its local selector composes
+  `erxes-ui` controls and `SelectDateTicket` without Operation imports. Creator
+  reuses the ticket member picker with current user first and no unassigned
+  choice. The Created chip offers No date when editing, matching Operation.
 
 - The call widget's dialpad header carries a clear-cache icon button next to
   Pause and Turn off. After a confirm it closes the widget, resets the call
@@ -370,6 +376,9 @@
 ## Contracts
 
 ### Provides
+
+- `SelectAssigneeTicket.FilterView` and `.FilterBar` accept `queryKey`
+  (`assignee` by default, or `createdBy`); creator mode omits Unassigned.
 
 - Route `frontline/surveys` (registered in `config.tsx`, `FrontlineNavigation`,
   and `FrontlineMain`) — the read-only survey results board.
@@ -1356,6 +1365,16 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-23` — Operation-style ticket creator and date filters
+
+- **Summary:** Matched Operation creator selection and date-cutoff choices,
+  reusing the ticket member picker and calendar.
+- **Affected areas:** `src/modules/ticket/components/TicketsFilter.tsx`,
+  `src/modules/ticket/components/ticket-selects/{SelectCreatedDateFilter,SelectAssigneeTicket}.tsx`,
+  `src/modules/ticket/hooks/{useGetTickets,useAddTicketToView}.tsx`.
+- **Contracts changed:** Created-date URL and API filters now use `createdDate`
+  with a sentinel or ISO timestamp instead of a date range.
+
 ### `2026-09-22` — Radio/checkbox options are visible, full-width and editable in place
 
 - **Summary:** The shared `RadioGroup.Item` (`erxes-ui`) had no border in its
@@ -1490,18 +1509,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 - **Contracts changed:** New query document `FrontlineConvertSystemFields`;
   `ConversationConvertToCard` now sends `priority`, `tagIds`, `startDate` and
   `closeDate`.
-
-### `2026-09-17` — The conversation header converts into a ticket, deal or task
-
-- **Summary:** Added the Convert menu and a 1.x-style convert dialog for
-  tickets, deals and tasks with Settings → Properties fields and attachments,
-  plus `Go to a …` links for items a conversation was already converted into.
-- **Affected areas:**
-  `src/modules/inbox/conversations/conversation-detail/components/{ConversationHeader.tsx,convert/}`,
-  `src/modules/inbox/conversations/{graphql,hooks,types}/*onvert*`,
-  `src/modules/ticket/components/ticket-selects/SelectPipeline.tsx`,
-  `src/modules/pipelines/types/index.ts`
-- **Contracts changed:** `SelectPipeline.FormItem` accepts any form carrying a
-  `channelId` field; `IPipeline` declares `propertyIds` and
-  `isPropertySelectionConfigured`; consumes `conversationConvertToCard` (with
-  `customFieldsData` and `attachments`) and `conversationConvertedItems`.

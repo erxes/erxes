@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-09-22`
+- **Last synchronized:** `2026-09-23`
 
 ## Scope
 
@@ -59,6 +59,10 @@
 - Other plugins' collections or service implementations.
 
 ## Current Capabilities
+
+- Ticket creation-date filtering follows Operation: `createdDate: String`
+  accepts `in-past`, `no-date`, or an ISO cutoff (created on or before that
+  instant). Customer/company filters reuse Frontline contact-relation logic.
 
 - Surveys are a reusable definition (`title`, ordered `steps`, optional
   `durationHours`, optional `brandId`, `pending`/`active`/`archived` status)
@@ -313,6 +317,14 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-23` — Operation-style ticket date filter
+
+- **Summary:** Replaced ticket creation-date ranges with Operation-style
+  single-cutoff filtering, preserving ticket visibility and contact constraints.
+- **Affected areas:** `src/modules/ticket/{@types/ticket,graphql/schemas/ticket,graphql/resolvers/queries/ticket}.ts`.
+- **Contracts changed:** `ITicketFilter.createdDate: String` replaces filter inputs
+  `createdAt` and `createdAtTo`; the ticket record still exposes `createdAt`.
+
 ### `2026-09-22` — Client portal users request surveys for approval
 
 - **Summary:** `cpSurveyAdd` lets a signed-in client portal user submit a
@@ -351,7 +363,6 @@
   `project.json`
 - **Contracts changed:** Added mutation `channelMoveResources`, enum
   `ChannelResourceType` and type `ChannelMoveResourcesResult`.
-
 
 ### `2026-09-21` — Messenger company writes actually reach Core
 
@@ -424,33 +435,3 @@
 - **Contracts changed:** `Duplicate srcTrunk detected.` and
   `Duplicate dstTrunk detected.` are no longer returned by
   `integrationsCreateExternalIntegration` or integration edit.
-
-### `2026-09-10` — Polls became surveys, database included
-
-- **Summary:** The whole feature was renamed from poll to survey — module,
-  models, GraphQL contract, permissions, the `frontline_surveys` /
-  `frontline_survey_votes` collections, `conversations.hasSurvey`,
-  `extraData.survey` and `Ticket.sourceSurvey` — with
-  `src/migrations/migratePollToSurvey.ts` moving existing data. Discord's own
-  polls were deliberately left on `extraData.poll`.
-- **Affected areas:** `src/modules/survey/**` (was `src/modules/poll/**`),
-  `src/apollo/**`, `src/connectionResolvers.ts`, `src/conversationQueryBuilder.ts`,
-  `src/meta/permissions.ts`, `src/modules/inbox/**`, `src/modules/ticket/**`,
-  `src/migrations/migrate{PollToSurvey,SurveySteps}.ts`.
-- **Contracts changed:** Every `poll*` / `cpPoll*` operation and every `Poll*`
-  type was renamed to `survey*` / `cpSurvey*` / `Survey*`; `withPoll` became
-  `withSurvey`; `Ticket.sourcePoll` became `Ticket.sourceSurvey`.
-
-### `2026-09-10` — An agent's note threads as a mail reply
-
-- **Summary:** A note mailed to the requester carried no `In-Reply-To` or
-  `References`, so it arrived as a new conversation despite the `Re:` subject.
-  The note-out path now threads on the ticket's latest inbound message, falling
-  back to its latest message when the ticket has none. The helper module was
-  renamed from `comments.ts` to `notes.ts`, with `mailTicketComment` and
-  `commentFromMail` becoming `mailTicketNote` and `noteFromMail`, so the names
-  match the `Note` model they have always written.
-- **Affected areas:** `src/modules/integrations/mail/utils/notes.ts`,
-  `src/modules/integrations/mail/controller/receiveMessage.ts`,
-  `src/modules/ticket/graphql/resolvers/mutations/note.ts`
-- **Contracts changed:** `None`

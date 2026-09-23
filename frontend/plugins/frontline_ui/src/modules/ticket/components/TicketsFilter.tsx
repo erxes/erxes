@@ -1,4 +1,5 @@
 import { SelectPriorityTicket } from '@/ticket/components/ticket-selects/SelectPriorityTicket';
+import { SelectCreatedDateFilter } from '@/ticket/components/ticket-selects/SelectCreatedDateFilter';
 import { SelectStateTicket } from '@/ticket/components/ticket-selects/SelectStateTicket';
 import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
 import { TicketHotKeyScope } from '@/ticket/types';
@@ -13,7 +14,8 @@ import {
   IconSearch,
   IconUser,
   IconArchive,
-  IconCalendar,
+  IconCalendarPlus,
+  IconUserPlus,
 } from '@tabler/icons-react';
 import clsx from 'clsx';
 import {
@@ -25,7 +27,7 @@ import {
 } from 'erxes-ui';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { SelectCompany, SelectCustomer, SelectMember } from 'ui-modules';
+import { SelectCompany, SelectCustomer } from 'ui-modules';
 import { fetchedTicketsState } from '@/ticket/states/fetchedTicketState';
 
 const TicketsFilterPopover = () => {
@@ -40,7 +42,7 @@ const TicketsFilterPopover = () => {
     createdBy: string;
     customer: string;
     company: string;
-    createdAt: string;
+    createdDate: string;
   }>([
     'searchValue',
     'assignee',
@@ -51,7 +53,7 @@ const TicketsFilterPopover = () => {
     'company',
     'createdBy',
     'customer',
-    'createdAt',
+    'createdDate',
   ]);
   const hasFilters = Object.values(queries || {}).some(
     (value) => value !== null,
@@ -70,7 +72,7 @@ const TicketsFilterPopover = () => {
     pipelineId,
     state,
     createdBy,
-    createdAt,
+    createdDate,
     customer,
     company,
   } = queries || {};
@@ -86,7 +88,7 @@ const TicketsFilterPopover = () => {
     pipelineId,
     state,
     createdBy,
-    createdAt,
+    createdDate,
     customer,
     company,
     setCursor,
@@ -122,13 +124,13 @@ const TicketsFilterPopover = () => {
                   <IconArchive />
                   {t('state-label', 'State')}
                 </Filter.Item>
-                <SelectMember.FilterItem
-                  value="createdBy"
-                  label={t('created-by', 'Created by')}
-                />
-                <Filter.Item value="createdAt">
-                  <IconCalendar />
-                  {t('created-at', 'Created at')}
+                <Filter.Item value="createdBy">
+                  <IconUserPlus />
+                  {t('creator', 'Creator')}
+                </Filter.Item>
+                <Filter.Item value="createdDate">
+                  <IconCalendarPlus />
+                  {t('created-date', 'Created date')}
                 </Filter.Item>
                 <SelectCustomer.FilterItem
                   value="customer"
@@ -150,12 +152,10 @@ const TicketsFilterPopover = () => {
           <SelectAssigneeTicket.FilterView />
           <SelectPriorityTicket.FilterView />
           <SelectStateTicket.FilterView />
-          <SelectMember.FilterView queryKey="createdBy" mode="single" />
+          <SelectAssigneeTicket.FilterView queryKey="createdBy" />
           <SelectCustomer.FilterView filterKey="customer" mode="single" />
           <SelectCompany.FilterView filterKey="company" mode="single" />
-          <Filter.View filterKey="createdAt">
-            <Filter.DateView filterKey="createdAt" />
-          </Filter.View>
+          <SelectCreatedDateFilter.FilterView />
           {view === 'list' && (
             <SelectStatusTicket.FilterView
               pipelineId={queries?.pipelineId || ''}
@@ -167,9 +167,7 @@ const TicketsFilterPopover = () => {
         <Filter.View filterKey="searchValue" inDialog>
           <Filter.DialogStringView filterKey="searchValue" />
         </Filter.View>
-        <Filter.View filterKey="createdAt" inDialog>
-          <Filter.DialogDateView filterKey="createdAt" />
-        </Filter.View>
+        <SelectCreatedDateFilter.Dialog />
       </Filter.Dialog>
     </>
   );
@@ -244,17 +242,19 @@ export const TicketsFilter = () => {
           </Filter.BarName>
           <SelectAssigneeTicket.FilterBar />
         </Filter.BarItem>
-        <SelectMember.FilterBar
-          queryKey="createdBy"
-          mode="single"
-          label={t('created-by', 'Created by')}
-        />
-        <Filter.BarItem queryKey="createdAt">
+        <Filter.BarItem queryKey="createdBy">
           <Filter.BarName>
-            <IconCalendar />
-            {t('created-at', 'Created at')}
+            <IconUserPlus />
+            {t('creator', 'Creator')}
           </Filter.BarName>
-          <Filter.Date filterKey="createdAt" />
+          <SelectAssigneeTicket.FilterBar queryKey="createdBy" />
+        </Filter.BarItem>
+        <Filter.BarItem queryKey="createdDate">
+          <Filter.BarName>
+            <IconCalendarPlus />
+            {t('created', 'Created')}
+          </Filter.BarName>
+          <SelectCreatedDateFilter.FilterBar />
         </Filter.BarItem>
         <SelectCustomer.FilterBar
           filterKey="customer"
