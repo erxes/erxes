@@ -234,7 +234,7 @@ export const msdynamicCheckMutations = {
     const config = await getDynamicConfig(models, brandId);
 
     if (!config.itemApi || !config.username || !config.password) {
-      throw new Error('MS Dynamic config not valid.');
+      throw new TypeError('MS Dynamic config not valid.');
     }
 
     const { itemApi, username, password } = config;
@@ -377,7 +377,7 @@ export const msdynamicCheckMutations = {
     const config = await getDynamicConfig(models, brandId);
 
     if (!config.itemCategoryApi || !config.username || !config.password) {
-      throw new Error('MS Dynamic config not valid.');
+      throw new TypeError('MS Dynamic config not valid.');
     }
 
     const { itemCategoryApi, username, password } = config;
@@ -459,16 +459,16 @@ export const msdynamicCheckMutations = {
 
     const createCategories: any[] = [];
     const updateCategories: any[] = [];
-    const deleteCategories: any[] = [];
     let matchedCount = 0;
 
     for (const category of scopedCategories) {
       categoryByCode[category.code] = category;
-
-      if (!resultCodes.has(category.code)) {
-        deleteCategories.push(category);
-      }
     }
+
+    const deleteCategories = scopedCategories.filter(
+      (category: any) => !resultCodes.has(category.code),
+    );
+    
 
     for (const dynamicCategory of scopedDynamicCategories) {
       const category = categoryByCode[dynamicCategory.Code];
@@ -515,7 +515,7 @@ export const msdynamicCheckMutations = {
     const config = await getDynamicConfig(models, brandId);
 
     if (!config.customerApi || !config.username || !config.password) {
-      throw new Error('MS Dynamic config not valid.');
+      throw new TypeError('MS Dynamic config not valid.');
     }
 
     const { customerApi, username, password } = config;
@@ -573,6 +573,10 @@ export const msdynamicCheckMutations = {
     let skip = 0;
     let hasMore = true;
 
+    const authorization = `Basic ${Buffer.from(
+      `${username}:${password}`,
+    ).toString('base64')}`;
+
     const fetchPage = async (pageSkip: number) => {
       const httpResponse = await fetch(
         `${customerApi}?$top=${pageSize}&$skip=${pageSkip}&$select=No,Name,Phone_No,E_Mail,Partner_Type`,
@@ -580,9 +584,7 @@ export const msdynamicCheckMutations = {
           timeout: 180000,
           headers: {
             Accept: 'application/json',
-            Authorization: `Basic ${Buffer.from(
-              `${username}:${password}`,
-            ).toString('base64')}`,
+            Authorization: authorization,
           },
         },
       );
@@ -596,7 +598,7 @@ export const msdynamicCheckMutations = {
       const response = await httpResponse.json();
 
       if (!Array.isArray(response?.value)) {
-        throw new Error('MS Dynamic customer response is not valid.');
+        throw new TypeError('MS Dynamic customer response is not valid.');
       }
 
       return response.value;
