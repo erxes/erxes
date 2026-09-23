@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import {
   FacebookIntegrationFormLayout,
   FacebookIntegrationFormSteps,
-} from './FacebookIntegrationForm';
+} from '@/integrations/facebook/components/FacebookIntegrationForm';
 import { useAtom, useSetAtom } from 'jotai';
 import {
   activeFacebookFormStepAtom,

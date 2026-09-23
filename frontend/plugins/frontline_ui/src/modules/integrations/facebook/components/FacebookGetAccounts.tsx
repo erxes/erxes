@@ -19,7 +19,7 @@ import {
 import {
   FacebookIntegrationFormLayout,
   FacebookIntegrationFormSteps,
-} from './FacebookIntegrationForm';
+} from '@/integrations/facebook/components/FacebookIntegrationForm';
 import { useFacebookPages } from '@/integrations/facebook/hooks/useFacebookPages';
 import { useFbAuthPopup } from '@/integrations/facebook/hooks/useFbAuthPopup';
 import { useFbIntegrationContext } from '@/integrations/facebook/contexts/FbIntegrationContext';

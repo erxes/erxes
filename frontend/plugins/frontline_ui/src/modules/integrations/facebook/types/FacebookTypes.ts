@@ -1,4 +1,4 @@
-import { IMessage } from '@/inbox/types/Conversation';
+import type { IMessage } from '@/inbox/types/Conversation';
 
 export interface IFacebookConversationMessage extends IMessage {
   botData?: TBotData[];

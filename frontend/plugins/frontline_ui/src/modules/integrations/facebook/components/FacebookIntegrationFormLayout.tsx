@@ -8,9 +8,9 @@ import {
   facebookFormSheetAtom,
   resetFacebookAddStateAtom,
 } from '@/integrations/facebook/states/facebookStates';
-import { FacebookGetAccounts } from './FacebookGetAccounts';
-import { FacebookGetPages } from './FacebookGetPages';
-import { FacebookIntegrationSetup } from './FacebookIntegrationSetup';
+import { FacebookGetAccounts } from '@/integrations/facebook/components/FacebookGetAccounts';
+import { FacebookGetPages } from '@/integrations/facebook/components/FacebookGetPages';
+import { FacebookIntegrationSetup } from '@/integrations/facebook/components/FacebookIntegrationSetup';
 
 export const FacebookIntegrationFormSheet = () => {
   const { t } = useTranslation('frontline');

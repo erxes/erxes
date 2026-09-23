@@ -4,31 +4,20 @@ import { useQueryState } from 'erxes-ui';
 import type { IFacebookConversationMessage } from '@/integrations/facebook/types/FacebookTypes';
 import { useCallback, useEffect, useRef } from 'react';
 import { CONVERSATION_MESSAGE_INSERTED } from '@/inbox/conversations/graphql/subscriptions/inboxSubscriptions';
-
-export interface IFacebookConversationMessagesQuery {
-  facebookConversationMessages: IFacebookConversationMessage[];
-  facebookConversationMessagesCount: number;
-}
-export interface IFacebookConversationMessagesQueryVariables {
-  _id?: string;
-  conversationId?: string;
-  limit?: number;
-  skip?: number;
-  getFirst?: boolean;
-}
-
-export const FACEBOOK_CONVERSATION_MESSAGES_LIMIT = 20;
+import type {
+  IFacebookConversationMessagesQuery,
+  IFacebookConversationMessagesQueryVariables,
+} from '@/integrations/facebook/types/FacebookConversationQuery';
+import { FACEBOOK_CONVERSATION_MESSAGES_LIMIT } from '@/integrations/facebook/constants/conversationMessages';
 
 export const useFacebookConversationMessages = () => {
   const [conversationId] = useQueryState<string>('conversationId');
   const paginationRef = useRef({
-    offset: 0,
-    initialized: false,
     fetching: false,
   });
 
   useEffect(() => {
-    paginationRef.current = { offset: 0, initialized: false, fetching: false };
+    paginationRef.current = { fetching: false };
   }, [conversationId]);
 
   const { data, loading, error, fetchMore, subscribeToMore, client } = useQuery<
@@ -41,14 +30,13 @@ export const useFacebookConversationMessages = () => {
     },
     skip: !conversationId,
     fetchPolicy: 'cache-and-network',
-    onCompleted: (result) => {
-      const pagination = paginationRef.current;
-      if (!pagination.initialized) {
-        pagination.offset = result.facebookConversationMessages.length;
-        pagination.initialized = true;
-      }
-    },
+    notifyOnNetworkStatusChange: true,
   });
+
+  const subscribeToMoreRef = useRef(subscribeToMore);
+  useEffect(() => {
+    subscribeToMoreRef.current = subscribeToMore;
+  }, [subscribeToMore]);
 
   const { facebookConversationMessages } = data || {};
 
@@ -60,18 +48,13 @@ export const useFacebookConversationMessages = () => {
   const handleFetchMore = useCallback((): Promise<unknown> => {
     const loadedCount = facebookConversationMessages?.length || 0;
     const pagination = paginationRef.current;
-    if (
-      loading ||
-      !pagination.initialized ||
-      pagination.fetching ||
-      totalCount <= loadedCount
-    ) {
+    if (loading || pagination.fetching || totalCount <= loadedCount) {
       return Promise.resolve();
     }
     pagination.fetching = true;
     return fetchMore({
       variables: {
-        skip: pagination.offset,
+        skip: loadedCount,
       },
       updateQuery: (prev, { fetchMoreResult }) => {
         if (!fetchMoreResult) {
@@ -96,19 +79,14 @@ export const useFacebookConversationMessages = () => {
             fetchMoreResult.facebookConversationMessagesCount,
         };
       },
-    })
-      .then((result) => {
-        pagination.offset += result.data.facebookConversationMessages.length;
-        return result;
-      })
-      .finally(() => {
-        pagination.fetching = false;
-      });
+    }).finally(() => {
+      pagination.fetching = false;
+    });
   }, [facebookConversationMessages, fetchMore, loading, totalCount]);
 
   useEffect(() => {
     if (!conversationId) return;
-    const unsubscribe = subscribeToMore<{
+    const unsubscribe = subscribeToMoreRef.current<{
       conversationMessageInserted: IFacebookConversationMessage;
     }>({
       document: CONVERSATION_MESSAGE_INSERTED,
@@ -116,7 +94,8 @@ export const useFacebookConversationMessages = () => {
         _id: conversationId || '',
       },
       updateQuery: (prev, { subscriptionData }) => {
-        if (!prev || !subscriptionData.data) return prev;
+        if (!prev || !subscriptionData.data?.conversationMessageInserted)
+          return prev;
 
         const newMessage = subscriptionData.data.conversationMessageInserted;
         const currentMessages = Array.isArray(prev.facebookConversationMessages)
@@ -143,6 +122,15 @@ export const useFacebookConversationMessages = () => {
                   : message,
             ),
           };
+        }
+
+        const oldestMessage = currentMessages[0];
+        if (
+          oldestMessage &&
+          currentMessages.length < prev.facebookConversationMessagesCount &&
+          new Date(newMessage.createdAt) < new Date(oldestMessage.createdAt)
+        ) {
+          return prev;
         }
 
         try {
@@ -182,7 +170,7 @@ export const useFacebookConversationMessages = () => {
       },
     });
     return unsubscribe;
-  }, [client.cache, conversationId, subscribeToMore]);
+  }, [client.cache, conversationId]);
 
   return {
     facebookConversationMessages,

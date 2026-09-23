@@ -9,7 +9,7 @@ import { useForm } from 'react-hook-form';
 import { useParams } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { SelectBrands } from 'ui-modules';
-import { z } from 'zod';
+import type { z } from 'zod';
 import {
   activeFacebookFormStepAtom,
   resetFacebookAddStateAtom,
@@ -19,7 +19,7 @@ import {
 import {
   FacebookIntegrationFormLayout,
   FacebookIntegrationFormSteps,
-} from './FacebookIntegrationForm';
+} from '@/integrations/facebook/components/FacebookIntegrationForm';
 
 export const FacebookIntegrationSetup = () => {
   const { t } = useTranslation('frontline');

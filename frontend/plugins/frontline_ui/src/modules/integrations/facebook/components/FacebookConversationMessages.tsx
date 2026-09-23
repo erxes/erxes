@@ -1,57 +1,7 @@
 import { InboxMessagesContainer } from '@/inbox/components/InboxMessagesContainer';
 import { useFacebookConversationMessages } from '@/integrations/facebook/hooks/useFacebookConversationMessages';
-import { FbMessengerMessageContext } from '@/integrations/facebook/contexts/FbMessengerMessageContext';
-import { FbMessengerMessage } from '@/integrations/facebook/components/FbMessengerMessages';
-import { ConversationMessageContext } from '@/inbox/conversations/context/ConversationMessageContext';
-import {
-  MessageDaySeparator,
-  MessageItem,
-} from '@/inbox/conversation-messages/components/MessageItem';
-import { useMemo } from 'react';
 import { useQueryState } from 'erxes-ui';
-import type { IFacebookConversationMessage } from '@/integrations/facebook/types/FacebookTypes';
-
-type FacebookMessageRowProps = {
-  message: IFacebookConversationMessage;
-  previousMessage: IFacebookConversationMessage;
-  nextMessage: IFacebookConversationMessage;
-};
-
-const FacebookMessageRow = ({
-  message,
-  previousMessage,
-  nextMessage,
-}: FacebookMessageRowProps) => {
-  const needsFacebookRenderer = Boolean(
-    message.botData?.length || message.source || message.relatedMessage,
-  );
-  const fbContextValue = useMemo(
-    () => ({ ...message, previousMessage, nextMessage }),
-    [message, nextMessage, previousMessage],
-  );
-  const conversationContextValue = useMemo(
-    () => ({ ...message, previousMessage, nextMessage }),
-    [message, nextMessage, previousMessage],
-  );
-
-  if (needsFacebookRenderer) {
-    return (
-      <FbMessengerMessageContext.Provider value={fbContextValue}>
-        <MessageDaySeparator
-          createdAt={message.createdAt}
-          previousCreatedAt={previousMessage?.createdAt}
-        />
-        <FbMessengerMessage />
-      </FbMessengerMessageContext.Provider>
-    );
-  }
-
-  return (
-    <ConversationMessageContext.Provider value={conversationContextValue}>
-      <MessageItem />
-    </ConversationMessageContext.Provider>
-  );
-};
+import { FacebookMessageRow } from '@/integrations/facebook/components/FacebookMessageRow';
 
 export const FacebookConversationMessages = () => {
   const [conversationId] = useQueryState<string>('conversationId');
@@ -60,7 +10,7 @@ export const FacebookConversationMessages = () => {
 
   return (
     <InboxMessagesContainer
-      conversationId={conversationId ?? undefined}
+      key={conversationId ?? undefined}
       fetchMore={handleFetchMore}
       messagesLength={facebookConversationMessages?.length || 0}
       totalCount={totalCount}
