@@ -127,7 +127,7 @@ export const FormPreview = () => {
     Object.entries(steps).map(([stepId, step]) => {
       const formSchema: Record<string, z.ZodType> = {};
       step.fields.forEach((field) => {
-        if (!field?.type) return;
+        if (!field?.id || !field.type) return;
 
         if (field.type === 'text' || field.type === 'textarea') {
           formSchema[field.id] = z.string();
@@ -153,7 +153,7 @@ export const FormPreview = () => {
     Object.entries(formContent.steps).map(([stepId, step]) => {
       const stepDefaultValues: Record<string, any> = {};
       step.fields.forEach((field) => {
-        if (!field?.type) return;
+        if (!field?.id || !field.type) return;
         if (
           field.type === 'text' ||
           field.type === 'textarea' ||
@@ -224,6 +224,15 @@ export const FormPreviewContent = ({
     resolver: zodResolver(schema),
     defaultValues: defaultValues,
   });
+
+  useEffect(() => {
+    Object.entries(defaultValues).forEach(([fieldId, value]) => {
+      if (form.getValues(fieldId) === undefined) {
+        form.setValue(fieldId, value, { shouldDirty: false });
+      }
+    });
+  }, [fields]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const formGeneral = useAtomValue(formSetupGeneralAtom);
   return (
     <Form {...form}>
@@ -262,7 +271,7 @@ export const FormPreviewContent = ({
           )}
           <InfoCard.Content className="mt-2">
             <div className="grid grid-cols-2 gap-4 mb-2">
-              {fields.map((erxesField) => {
+              {fields.filter((erxesField) => !!erxesField.id).map((erxesField) => {
                 return (
                   <Form.Field
                     key={erxesField.id}
@@ -383,7 +392,7 @@ export const FormPreviewContent = ({
                         erxesField.type === 'core:customer:sex'
                       ) {
                         return (
-                          <ErxesFormItem span={erxesField.span}>
+                          <ErxesFormItem span={2}>
                             <Form.Label>{erxesField.label}</Form.Label>
                             {erxesField.description && (
                               <Form.Description
@@ -396,7 +405,7 @@ export const FormPreviewContent = ({
                               <RadioGroup
                                 value={field.value}
                                 onValueChange={field.onChange}
-                                className="flex flex-col gap-2"
+                                className="grid-cols-2 gap-x-4"
                               >
                                 {erxesField.options.map((option) => {
                                   if (!option) return null;
@@ -419,7 +428,7 @@ export const FormPreviewContent = ({
 
                       if (erxesField.type === 'check') {
                         return (
-                          <ErxesFormItem span={erxesField.span}>
+                          <ErxesFormItem span={2}>
                             <Form.Label>{erxesField.label}</Form.Label>
                             {erxesField.description && (
                               <Form.Description
@@ -428,7 +437,7 @@ export const FormPreviewContent = ({
                                 }}
                               />
                             )}
-                            <div className="flex flex-col gap-2">
+                            <div className="grid grid-cols-2 gap-x-4 gap-y-2">
                               {erxesField.options.map((option) => {
                                 if (!option) return null;
                                 const checked = (
