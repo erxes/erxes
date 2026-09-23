@@ -25,6 +25,8 @@
 - The mail conversation surface: the threaded reader, its compose box, the
   quoted-content toggle, the sandboxed email body renderer, and delivery state
   and resend.
+- The mail conversation's AI draft cards: every pending draft an automation left
+  for the conversation, each with Send, Edit and Delete.
 - The mail channel's **Bring your own Cloudflare Email Routing & Sending** section
   in Integrations config: paste an API token,
   pick one of that account's domains, watch the fourteen provisioning steps, and
@@ -57,7 +59,7 @@
 - Report screens for the frontline plugin, including the default chart catalogue
   and the saved charts board built on top of it.
 - Automation remote entries under `src/widgets` for facebook, instagram, inbox,
-  discord, knowledgebase, and ticket — trigger forms, action forms, node
+  discord, mail, knowledgebase, and ticket — trigger forms, action forms, node
   configuration content, bot management, and execution history renderers.
 - Notification, relation, activity, and floating widgets exposed to the host.
 
@@ -263,6 +265,19 @@
   pipelines, and response templates.
 - Renders plugin-specific automation trigger/action forms selected by node type
   in each module's `*RemoteEntry.tsx`.
+- The mail module's `Email Received` trigger form filters by inbox (a checklist
+  of `mailInboxes`, which lists only inboxes in channels the user can see;
+  hidden inboxes already selected by someone else stay selected), sender addresses, subject keywords and body keywords, and
+  can opt in to unverified senders. `Send Email` and `Draft Email Reply` share
+  one reply form: an optional subject, the message as a `PlaceholderInput`
+  expression (typically an AI Agent output), and whether to resolve the
+  conversation once sent.
+- A mail conversation lists each AI draft under the thread, labelled with the
+  sender and time of the mail it answers. Send delivers it and reports the real
+  delivery outcome; Edit swaps the card for a subject field and an editable body
+  validated as non-empty; Delete asks for confirmation. Drafts appear and vanish
+  live through `mailDraftChanged`, and a skeleton stands in while the first
+  load is in flight.
 - The Facebook message trigger reads without opening anything: each condition
   card shows what it currently listens for, and the bot picker shows each bot's
   page and health, refusing a broken one.
@@ -384,6 +399,7 @@
 | Survey inbox row         | `src/modules/survey/components/ChannelSurveyNavItem.tsx`                                                                                          | `Surveys` row inside an expanded team channel, filtering the inbox by `withSurvey`                                                              |
 | Knowledge base           | `src/modules/knowledgebase/`                                                                                                                      | Topics, categories, articles                                                                                                                    |
 | Automation widgets       | `src/widgets/automations/modules/<module>/`                                                                                                       | Per-module trigger/action/bot/history components                                                                                                |
+| Mail automation          | `src/widgets/automations/modules/mail/`                                                                                                           | Email Received trigger form with inbox checklist, shared Send Email / Draft Email Reply form                                                    |
 | FB message action        | `src/widgets/automations/modules/facebook/components/action/`                                                                                     | Message sequence form, provider, constants, states                                                                                              |
 | FB post composer         | `src/modules/integrations/facebook/components/FacebookPostSheet.tsx`, `FacebookPostImagesField.tsx`, `hooks/useFacebookPost*.tsx`                 | Post sheet, image upload state, channel/page loading                                                                                            |
 | Call report filters      | `src/modules/report/call/components/{SubHeader,DateTimeRangeDialog}.tsx`, `src/modules/report/utils/dateFilters.ts`                               | Integration/queue/direction chips, date presets, and the date+time custom range                                                                 |
@@ -392,6 +408,7 @@
 | Reports board            | `src/modules/report/components/TicketReportsList.tsx`, `src/modules/report/types/component-registry.ts`                                           | Card layout, drag-and-drop, and the default-chart + saved-chart registry                                                                        |
 | Saved charts             | `src/modules/report/components/report-chart/`, `src/modules/report/hooks/{useReportCharts,useTicketChartFilterConfig,useTicketChartCard}.ts`      | Save/delete actions, `reportCharts` reads and writes, capturing and restoring a filter selection                                                |
 | Mail conversation        | `src/modules/integrations/mail/components/MailConversationDetail.tsx`                                                                             | Thread reader, compose box, delivery badges and resend, quoted-content toggle                                                                   |
+| Mail AI drafts           | `src/modules/integrations/mail/components/MailDraft{s,Card,EditForm}.tsx`, `src/modules/integrations/mail/hooks/useMailDrafts.tsx`                  | Pending draft list under the thread, per-draft send/edit/delete, `mailDraftChanged` refetch                                                   |
 | Mail body                | `src/modules/integrations/mail/components/EmailBody.tsx`                                                                                          | Sanitised, CSP-locked `srcDoc` iframe with the remote-image gate                                                                                |
 | Mail data                | `src/modules/integrations/mail/{graphql,hooks,states}/`                                                                                           | `mailConversationDetail` window, send and retry mutations, form sheet atom                                                                      |
 | Mail provider setup      | `src/modules/integrations/mail/components/MailConfigUpdate.tsx`, `src/modules/integrations/mail/hooks/useMailCloudflare*.tsx`                     | Cloudflare connect form, provisioning step list, outbound state and quota, repair and disconnect                                                |
@@ -536,6 +553,10 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
   re-hosted. The chip therefore stays clickable and puts the reason in its
   tooltip; only an attachment with no link at all falls back to the dimmed state.
   `readImage` returns absolute URLs untouched, so no special handling is needed.
+- `frontline_api` GraphQL `mailConversationDrafts(conversationId!)`,
+  `mailDraftSave`, `mailDraftApprove` (returns the delivery outcome plus
+  `draftId`), `mailDraftRemove`, the subscription `mailDraftChanged`, and
+  `mailInboxes` for the trigger's inbox checklist.
 - `frontline_api` GraphQL `mailCloudflareConnection`, `mailCloudflareZones`,
   `mailCloudflareConnect`, `mailCloudflareProvision` and `mailCloudflareDisconnect` —
   the Cloudflare section. The token is sent to fetch the domain list and again to
@@ -1049,6 +1070,11 @@ allow-popups-to-escape-sandbox` only — and every link is rewritten to
   `deliveryStatus`, and a `failed` message shows its error plus a resend action
   wired to `mailMessageRetry`. Never restore an unconditional "email sent"
   message.
+- A draft body is seeded into its editor through `DOMPurify.sanitize` and shown
+  read-only through `EmailBody`, never through raw `innerHTML`. Drafts are one per
+  inbound mail; the UI lists them all and never assumes a single draft per
+  conversation. `mailDraftApprove` resolving is not success either — its toast
+  reads the returned `deliveryStatus` through `useDeliveryToast`.
 - An inbound message whose `senderMismatch` is set renders an unverified-sender
   warning above its body. The server decides that flag from the SMTP envelope;
   the UI never re-derives it from the visible addresses.
@@ -1374,6 +1400,10 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   from the message's own attachments renders straight away; that a link opens in
   a new tab; and that a reply which the server could not deliver shows the
   failure with a working resend instead of a success toast.
+- Smoke (mail drafts): build Email Received → AI Agent → Draft Email Reply,
+  mail the inbox twice, and confirm two draft cards appear without a reload,
+  each naming the mail it answers; edit one and save, send it and see it join
+  the thread, delete the other after confirming.
 - Smoke (mail sending): with a Cloudflare account connected, open Integrations
   config and confirm the card names the domain replies leave through and shows the
   quota underneath. Break it by revoking the token's Email Sending permission and
@@ -1405,6 +1435,21 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-23` — Mail automations and AI draft cards
+
+- **Summary:** Added the mail automation remote entry (Email Received trigger,
+  Send Email and Draft Email Reply action forms) and the AI draft cards in the
+  mail conversation, with live updates, edit, send and delete, and a skeleton
+  while drafts first load.
+- **Affected areas:** `src/widgets/automations/modules/mail/`,
+  `src/widgets/automations/components/AutomationRemoteEntry.tsx`,
+  `src/modules/integrations/mail/components/{MailDrafts,MailDraftCard,MailDraftEditForm,MailThread,MailConversationDetail}.tsx`,
+  `src/modules/integrations/mail/hooks/{useMailDrafts,useMailConversationDetail}.tsx`,
+  `src/modules/integrations/mail/graphql/`
+- **Contracts changed:** Consumes the new `frontline_api` mail draft queries,
+  mutations and subscription and `mailInboxes`; `MailThread` gained a
+  `beforeCompose` slot.
 
 ### `2026-09-23` — A survey question carries attachments
 
@@ -1567,15 +1612,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 - **Contracts changed:** Consumes the new `channelMoveResources` mutation.
   Removed `MoveFormToChannel` from `form-columns.tsx` and deleted
   `src/modules/forms/components/actions/move-form.tsx`.
-
-### `2026-09-21` — Tracked data returns to the conversation rail
-
-- **Summary:** `ConversationSideWidget` called `useRelationWidget()` with no
-  options. The shared hook drops every module that declares `contentTypes`
-  when no `contentType` is supplied, so the core Tracked data widget — which
-  the old product showed in the inbox sidebar — never appeared next to a
-  conversation. The rail now passes `contentType: 'frontline:conversation'`,
-  and the widget reads the conversation's `customerId`.
-- **Affected areas:**
-  `src/modules/inbox/conversations/conversation-detail/components/ConversationSideWidget.tsx`.
-- **Contracts changed:** `None`

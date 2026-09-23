@@ -752,6 +752,7 @@ export interface MailThreadProps {
   startAddress?: string;
   startSubject?: string;
   readOnly?: boolean;
+  beforeCompose?: React.ReactNode;
 }
 
 // skipcq: JS-R1005
@@ -768,6 +769,7 @@ export const MailThread: React.FC<MailThreadProps> = ({
   startAddress,
   startSubject,
   readOnly,
+  beforeCompose,
 }) => {
   const { t } = useTranslation('frontline');
   const [composeMode, setComposeMode] = useState<ComposeMode | null>(null);
@@ -898,6 +900,8 @@ export const MailThread: React.FC<MailThreadProps> = ({
           />
         ))}
       </div>
+
+      {beforeCompose}
 
       {composeMode && composeTarget && (
         <ComposeSection

@@ -1,6 +1,7 @@
 import { Schema } from 'mongoose';
 import { mongooseStringRandomId } from 'erxes-api-shared/utils';
 import {
+  MAIL_CONVERSATION_STATUSES_ON_SENT,
   MAIL_DELIVERY_STATUSES,
   MAIL_MESSAGE_TYPES,
 } from '@/integrations/mail/constants';
@@ -59,6 +60,26 @@ export const mailMessageSchema = new Schema({
   references: { type: [String], index: true },
   replyTag: { type: String, index: true, sparse: true },
   isAuto: { type: Boolean, default: false },
+  automated: {
+    type: Boolean,
+    default: false,
+    label: 'Sent by an automation without a teammate reviewing it',
+  },
+  conversationStatusOnSent: {
+    type: String,
+    enum: Object.values(MAIL_CONVERSATION_STATUSES_ON_SENT),
+    label: 'Conversation status applied once this reply is delivered',
+  },
+  draftId: {
+    type: String,
+    index: true,
+    sparse: true,
+    label: 'Reviewed draft this reply was sent from',
+  },
+  sourceMessageId: {
+    type: String,
+    label: 'Inbound mail this automatic reply answers',
+  },
   envelopeFrom: {
     type: String,
     label: 'SMTP envelope sender of an inbound mail',
@@ -95,4 +116,14 @@ export const mailMessageSchema = new Schema({
 mailMessageSchema.index(
   { inboxIntegrationId: 1, messageId: 1 },
   { unique: true },
+);
+mailMessageSchema.index(
+  { sourceMessageId: 1 },
+  {
+    unique: true,
+    partialFilterExpression: {
+      automated: true,
+      sourceMessageId: { $type: 'string' },
+    },
+  },
 );

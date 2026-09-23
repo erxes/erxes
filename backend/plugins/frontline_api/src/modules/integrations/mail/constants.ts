@@ -1,3 +1,30 @@
+export const MAIL_MODULE_NAME = 'mail';
+
+export const MAIL_MESSAGE_COLLECTION = 'messages';
+
+export const MAIL_DRAFT_COLLECTION = 'drafts';
+
+export const MAIL_MESSAGE_TRIGGER_TYPE = 'frontline:mail.messages';
+
+export const MAIL_DRAFT_STATUSES = {
+  PENDING: 'pending',
+  SENDING: 'sending',
+  SENT: 'sent',
+} as const;
+
+export const MAIL_CONVERSATION_STATUSES_ON_SENT = {
+  CLOSED: 'closed',
+  NEW: 'new',
+} as const;
+
+export const MAIL_DRAFT_SENDING_STALE_MS = 5 * 60 * 1000;
+
+export const MAIL_AUTOMATED_REPLY_LIMIT = 3;
+
+export const MAIL_AUTOMATED_REPLY_WINDOW_MS = 60 * 60 * 1000;
+
+export const MAIL_AI_HISTORY_LIMIT = 12;
+
 export const MAIL_MESSAGE_TYPES = {
   INBOX: 'INBOX',
   SENT: 'SENT',

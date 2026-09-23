@@ -208,7 +208,7 @@
 - Resolves the Meta app per integration kind, so page posting can run on its own
   `FACEBOOK_POST_APP_ID`/`FACEBOOK_POST_APP_SECRET` credentials while Messenger
   keeps the shared app.
-- Runs Facebook/Instagram/Discord/inbox/ticket automation triggers and actions,
+- Runs Facebook/Instagram/Discord/mail/inbox/ticket automation triggers and actions,
   including bot message sequences with postback buttons and wait conditions.
 - Logs Facebook Graph delivery failures with provider error metadata and request
   context while excluding outbound message content; comment-triggered bot flows
@@ -228,6 +228,46 @@
   `mailMessageRetry`. `mailCheckConnection` asks the worker to deliver a
   probe back, so an administrator can tell a broken delivery path from an inbox
   nobody has forwarded mail to yet.
+- Answers mail through automations. Every inbound conversation mail that is not
+  an auto-reply fires the **Email Received** trigger (`frontline:mail.messages`),
+  filtered by inbox, sender, subject and body keywords (quoted history ignored);
+  an unverified sender is skipped unless the trigger opts in. `generateAiContext`
+  hands the AI Agent the mail's clean text plus the thread's last twelve older
+  messages. **Draft Email Reply** (`frontline:mail.drafts.create`) stores the
+  resolved reply as a `mail_drafts` record tied to the inbound mail it answers —
+  one draft per mail (partial unique index on `sourceMessageId`; `createDraft`
+  upserts and returns the existing draft), and a later mail never replaces an
+  earlier draft — for a
+  teammate to send (`mailDraftApprove`), edit (`mailDraftSave`) or delete
+  (`mailDraftRemove`). **Send Email** (`frontline:mail.messages.create`) replies
+  at once, flagged `automated` with `Auto-Submitted: auto-replied`, and refuses
+  unverified senders, no-reply addresses, a second automatic reply to the same
+  inbound mail (partial unique index on `sourceMessageId` for automated
+  messages), and a fourth automatic reply to one conversation within an hour. Both actions rebuild the model's text as escaped
+  `<p>`/`<br>` markup, so no model-written HTML is ever mailed; only known HTML
+  tag names are treated as markup, so an angle-bracketed address or link such
+  as `<support@acme.com>` survives as text. A requested
+  conversation resolve/open transition is stored on the message as
+  `conversationStatusOnSent` and applied inside `deliver` only after Cloudflare
+  reports it as sent, so a successful `mailMessageRetry` applies it too, except
+  that a late send never closes a conversation that received inbound mail after
+  the reply was written; failed
+  or bounced automation delivery fails the action instead of advancing the
+  workflow. A draft reply records `draftId`; if approval throws after the mail
+  left, the draft becomes `sent` rather than `pending`, so it cannot be sent
+  twice. A `sending` draft older than `MAIL_DRAFT_SENDING_STALE_MS` is listed as
+  `pending` and can be edited, deleted, or sent again. Every draft query, edit,
+  approval, and removal resolves the conversation's integration and applies
+  `visibleChannelsFilter`; a permission alone never grants access to a draft in
+  another channel. Draft events are published on the stable `os` tenant key
+  outside SaaS (`VERSION !== 'saas'`), because inbound mail reaches the plugin
+  through the webhook host (a tunnel or dedicated domain) while browsers
+  subscribe through the gateway host; the `mailDraftChanged` subscription
+  already listens on `os`. It only matches the conversation topic: its events carry just `_id`, `conversationId`, and
+  `status`, never the draft body, and the UI refetches through the
+  access-checked `mailConversationDrafts` query. `src/apollo/subscription.ts` is
+  downloaded and imported by the gateway, so it may import npm packages only —
+  never plugin modules through `~/` or `@/` — or the gateway fails to start.
 - A workspace can run the mail channel on **its own Cloudflare account**. It pastes
   an API token in Settings → Integrations config, picks one of its domains, and the
   plugin provisions the whole path there: Email Routing, an R2 bucket with its
@@ -275,6 +315,8 @@
 | Mail integration         | `src/modules/integrations/mail/`                                            | Inbound webhook, threading, outbound send/retry                                                                                                                                                        |
 | Mail transports          | `src/modules/integrations/mail/utils/transports/`                           | `index.ts` picks the Cloudflare account that signs for this workspace, `deliver.ts` runs the delivery pipeline (sender guard, suppression, delivery log), `cloudflare.ts` is the only `IMailTransport` |
 | Mail provisioning        | `src/modules/integrations/mail/utils/cloudflare/`                           | Cloudflare REST client, the fourteen-step provisioner, Email Sending onboarding and quota, the connection cache and its public shape                                                                   |
+| Mail automation          | `src/modules/integrations/mail/meta/automation/`                            | Email Received trigger and filter, AI context, reply resolution, Send Email and Draft Email Reply actions                                                                                              |
+| Mail drafts              | `src/modules/integrations/mail/db/models/Drafts.ts`, `src/modules/integrations/mail/utils/{access,draftEvents}.ts` | Per-inbound-mail AI drafts: channel-scoped access, edit, atomic send claim (`pending` → `sending` → `sent`), delete, and minimal `mailDraftChanged` events                                             |
 | Mail worker bundle       | `src/modules/integrations/mail/worker/bundle.generated.ts`                  | The minified worker uploaded to a tenant's account, regenerated by `npm run bundle` in `cloudflare/mail-worker`                                                                                        |
 | Call Pro                 | `src/modules/integrations/callpro/`                                         | `CALLPRO_ENABLED` gate, `/callpro/receive` webhook, mirrored line/caller/call, recording URL                                                                                                           |
 | Call reporting           | `src/modules/reports/callReportService.ts`                                  | CDR filter, leg-to-call folding, and the per-queue/agent/number report computation                                                                                                                     |
@@ -329,6 +371,17 @@
   a form never resubmits a deleted status, and inbound mail falls back to the
   pipeline's first status, sorted by `type` then `order`.
 
+- Mail agent GraphQL — `mailConversationDrafts(conversationId!)`,
+  `mailInboxes` (connected channel mail inboxes for the trigger picker,
+  limited to channels `visibleChannelsFilter` lets the caller see),
+  `mailDraftSave(_id!, subject, body!)`, `mailDraftApprove(_id!)` (returns the
+  sent message's delivery outcome plus `draftId`), `mailDraftRemove(_id!)`, and
+  the subscription `mailDraftChanged(conversationId!): MailDraftChangedEvent`
+  (`_id`, `conversationId`, `status`).
+- Automation types — trigger `frontline:mail.messages` (target
+  `TMailTriggerTarget`), actions `frontline:mail.messages.create` (Send Email)
+  and `frontline:mail.drafts.create` (Draft Email Reply).
+
 ### Consumes
 
 - `core` over tRPC — `cpUsers.get` (query, `{ id }`), which backs
@@ -357,6 +410,10 @@
 - `pnpm nx test frontline_api` — Jest over `src/**/*.test.ts`
   (`jest.config.ts`, `tsconfig.spec.json`). Test files are excluded from
   `tsconfig.build.json`, so a new one must keep the `.test.ts` suffix.
+- Mail agent: build an automation Email Received → AI Agent → Draft Email
+  Reply, mail the inbox twice, and confirm each mail gets its own draft card;
+  edit one, send it, delete the other. Swap the last step for Send Email and
+  confirm the fourth reply within an hour is refused.
 - Move a form, survey, response template, ticket pipeline and integration
   between two channels and confirm each leaves the source channel's list,
   appears in the destination's, and survives a reload.
@@ -364,6 +421,27 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-23` — Mail answered through automations
+
+- **Summary:** Added the Email Received trigger with its AI context, the Draft
+  Email Reply action that leaves one reviewable draft per inbound mail (edit,
+  send or delete it, with live `mailDraftChanged` updates), and the Send Email
+  action with loop, spoofing and no-reply guards, one automatic reply per
+  inbound mail and a per-conversation hourly cap; a reply's resolve/open
+  transition now applies only after successful delivery, including a resend.
+- **Affected areas:** `src/modules/integrations/mail/{meta/automation,db/models/{Drafts,Messages,Integrations}.ts,db/definitions/{drafts,messages}.ts,utils/{access,draftEvents,textFormat}.ts,utils/transports/,controller/receiveMessage.ts,graphql}`,
+  `src/meta/automations.ts`, `src/apollo/subscription.ts`,
+  `src/connectionResolvers.ts`
+- **Contracts changed:** Added queries `mailConversationDrafts`, `mailInboxes`;
+  mutations `mailDraftSave`, `mailDraftApprove`, `mailDraftRemove`;
+  subscription `mailDraftChanged(conversationId!): MailDraftChangedEvent`;
+  types `MailDraft`, `MailDraftChangedEvent`, `MailInbox`; automation trigger
+  `frontline:mail.messages` and actions `frontline:mail.messages.create`,
+  `frontline:mail.drafts.create`; new `mail_drafts` collection with a partial
+  unique index on `sourceMessageId`; `mail_messages` gains `automated`,
+  `conversationStatusOnSent`, `draftId` and `sourceMessageId` (partial unique
+  for automated messages).
 
 ### `2026-09-23` — A survey question carries attachments
 
@@ -513,18 +591,3 @@
   Properties.
 - **Affected areas:** `src/meta/properties.ts`, `src/main.ts`
 - **Contracts changed:** Plugin meta `properties.types[].systemFields` added.
-
-### `2026-09-17` — Conversations convert into tickets, deals and tasks
-
-- **Summary:** `conversationConvertToCard` stopped echoing its arguments and now
-  creates the ticket, deal or task, relates it to the conversation and
-  customer, and blocks a duplicate; `conversationConvertedItems` reports what a
-  conversation was already converted into.
-- **Affected areas:** `src/modules/inbox/services/conversationConvert{,Targets}.ts`,
-  `src/modules/inbox/@types/conversationConvert.ts`,
-  `src/modules/inbox/graphql/{schemas/conversation,resolvers/mutations/conversations,resolvers/queries/conversations}.ts`,
-  `src/meta/permissions.ts`
-- **Contracts changed:** `conversationConvertToCard` dropped `itemId`, gained
-  `tagIds`, `branchIds`, `departmentIds`, and now enforces permissions; added
-  `conversationConvertedItems` and `ConversationConvertedItem`; the
-  `frontline:user` group gained `conversationConvertToCard`.

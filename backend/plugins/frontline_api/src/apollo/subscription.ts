@@ -24,6 +24,7 @@ export default {
       cpConversationChanged(_id: String!): ConversationChangedResponse
       cpConversationMessageInserted(_id: String!): ConversationMessage
       cpConversationClientMessageInserted(userId: String!): ConversationMessage
+      mailDraftChanged(conversationId: String!): MailDraftChangedEvent
 
 		`,
   generateResolvers: (graphqlPubsub) => {
@@ -407,6 +408,14 @@ export default {
             return !!conversationId && variables._id === conversationId;
           },
         ),
+      },
+
+      mailDraftChanged: {
+        resolve: (payload) => payload.mailDraftChanged,
+        subscribe: (_, { conversationId }, { subdomain }) =>
+          graphqlPubsub.asyncIterator(
+            getTenantTopics('mailDraftChanged', subdomain, conversationId),
+          ),
       },
 
       cpConversationClientMessageInserted: {

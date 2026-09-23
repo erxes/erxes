@@ -22,6 +22,8 @@ export interface IMailAttachment {
   error?: string;
 }
 
+export type TMailConversationStatusOnSent = 'closed' | 'new';
+
 export interface IMailMessage {
   inboxIntegrationId: string;
   inboxConversationId?: string;
@@ -38,6 +40,10 @@ export interface IMailMessage {
   references?: string[];
   replyTag?: string;
   isAuto?: boolean;
+  automated?: boolean;
+  conversationStatusOnSent?: TMailConversationStatusOnSent;
+  draftId?: string;
+  sourceMessageId?: string;
   envelopeFrom?: string;
   senderMismatch?: boolean;
   providerMessageId?: string;
@@ -72,6 +78,7 @@ export interface IMailComposeArgs {
   attachments?: IMailAttachmentInput[];
   replyToMessageId?: string;
   references?: string[];
+  automated?: boolean;
 }
 
 export interface IMailSendArgs extends IMailComposeArgs {
@@ -79,6 +86,8 @@ export interface IMailSendArgs extends IMailComposeArgs {
   conversationId?: string;
   shouldResolve?: boolean;
   shouldOpen?: boolean;
+  draftId?: string;
+  sourceMessageId?: string;
 }
 
 export interface IMailTicketMailArgs extends IMailComposeArgs {

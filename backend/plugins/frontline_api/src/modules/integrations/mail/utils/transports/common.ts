@@ -51,5 +51,10 @@ export const buildThreadingHeaders = (
   return Object.keys(headers).length ? headers : undefined;
 };
 
+export const buildAutomationHeaders = (input: ISendMailInput) =>
+  input.automated
+    ? { 'Auto-Submitted': 'auto-replied', 'X-Auto-Response-Suppress': 'All' }
+    : undefined;
+
 export const countRecipients = (input: ISendMailInput) =>
   input.to.length + (input.cc?.length ?? 0) + (input.bcc?.length ?? 0);
