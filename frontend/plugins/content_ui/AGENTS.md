@@ -6,7 +6,7 @@
 - **Project:** `content_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/content_ui`
-- **Last synchronized:** `2026-09-09`
+- **Last synchronized:** `2026-09-23`
 
 ## Scope
 
@@ -22,6 +22,8 @@
 ## Current Capabilities
 
 - Provides CMS content, category, page, menu, custom-field, and media workflows.
+- Shows the full parent path for post category choices, including categories
+  with the same name under different parents.
 - Provides Web Builder configuration and editing surfaces.
 - Preserves blank lines and Tab-indented block structure when CMS posts are
   saved and reopened in the post editor.
@@ -85,6 +87,8 @@
   plus the non-lossy editor document before the existing submission boundary.
 - CMS post serialization must invalidate stale asynchronous HTML output after
   edits, external document replacement, and editor unmount.
+- Post form category option labels show the full parent path, while option
+  values remain category IDs and multiple selections remain available.
 - Asynchronous legacy HTML restoration must capture a revision before parsing
   and must not replace editor blocks after a newer user edit.
 - `src/widgets` is for plugin widget exports, not general shared CMS UI.
@@ -195,6 +199,12 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-23` - Disambiguate post category paths
+
+- **Summary:** Show parent category names in post form choices and selected labels without changing category IDs or multi-selection.
+- **Affected areas:** `src/modules/cms/posts/components/add-post-form/hooks/usePostData.tsx`.
+- **Contracts changed:** None.
 
 ### `2026-09-09` — Bound dev watchers
 

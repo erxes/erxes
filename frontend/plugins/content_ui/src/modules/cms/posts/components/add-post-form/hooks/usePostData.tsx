@@ -105,21 +105,21 @@ function buildTreeOptions(rawList: IRawCategory[]): ICategoryOption[] {
   const result: ICategoryOption[] = [];
   const visited = new Set<string>();
 
-  const addWithChildren = (cat: IRawCategory, depth: number) => {
+  const addWithChildren = (cat: IRawCategory, ancestors: string[]) => {
     if (visited.has(cat._id)) return;
     visited.add(cat._id);
-    const prefix = depth > 0 ? '-'.repeat(depth) + ' ' : '';
-    result.push({ label: prefix + cat.name, value: cat._id });
+    const path = [...ancestors, cat.name];
+    result.push({ label: path.join(' / '), value: cat._id });
     rawList
       .filter((c) => c.parentId === cat._id)
       .sort((a, b) => naturalSort(a.name, b.name))
-      .forEach((child) => addWithChildren(child, depth + 1));
+      .forEach((child) => addWithChildren(child, path));
   };
 
   rawList
     .filter((c) => !c.parentId)
     .sort((a, b) => naturalSort(a.name, b.name))
-    .forEach((root) => addWithChildren(root, 0));
+    .forEach((root) => addWithChildren(root, []));
 
   rawList.forEach((c) => {
     if (!visited.has(c._id)) {
