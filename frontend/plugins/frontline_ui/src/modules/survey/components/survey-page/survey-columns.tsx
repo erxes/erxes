@@ -3,6 +3,7 @@ import {
   IconCalendarEvent,
   IconChartBar,
   IconCheck,
+  IconCircleX,
   IconEdit,
   IconLabel,
   IconList,
@@ -21,11 +22,13 @@ import {
   RecordTableInlineCell,
   RelativeDateDisplay,
   toast,
+  Tooltip,
 } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useParams } from 'react-router-dom';
 import { FormStatus } from '@/forms/components/form-page/filters/FormStatus';
+import { SurveyRejectDialog } from '@/survey/components/survey-page/SurveyRejectDialog';
 import { SurveyResultsDialog } from '@/survey/components/survey-page/SurveyResultsDialog';
 import {
   useSurveyRemove,
@@ -39,8 +42,10 @@ const SurveyMoreColumnCell = ({ cell }: { cell: Cell<ISurvey, unknown> }) => {
   const { t } = useTranslation('frontline');
   const [open, setOpen] = useState(false);
   const [moveOpen, setMoveOpen] = useState(false);
+  const [rejectOpen, setRejectOpen] = useState(false);
   const survey = cell.row.original;
   const isPending = survey.status === SURVEY_STATUS.PENDING;
+  const isReviewable = isPending || survey.status === SURVEY_STATUS.REJECTED;
   const { id } = useParams<{ id: string }>();
   const channelId = survey.channelId || id;
   const { toggleSurveyStatus } = useSurveyToggleStatus();
@@ -115,11 +120,24 @@ const SurveyMoreColumnCell = ({ cell }: { cell: Cell<ISurvey, unknown> }) => {
             </DropdownMenu.Item>
           }
         />
-        {isPending ? (
-          <DropdownMenu.Item onSelect={handleApprove}>
-            <IconCheck />
-            {t('survey-approve', 'Approve')}
-          </DropdownMenu.Item>
+        {isReviewable ? (
+          <>
+            <DropdownMenu.Item onSelect={handleApprove}>
+              <IconCheck />
+              {t('survey-approve', 'Approve')}
+            </DropdownMenu.Item>
+            {isPending && (
+              <DropdownMenu.Item
+                onSelect={() => {
+                  setOpen(false);
+                  setRejectOpen(true);
+                }}
+              >
+                <IconCircleX />
+                {t('survey-reject', 'Reject')}
+              </DropdownMenu.Item>
+            )}
+          </>
         ) : (
           <DropdownMenu.Item onSelect={handleToggle}>
             <IconSquareToggle />
@@ -142,6 +160,11 @@ const SurveyMoreColumnCell = ({ cell }: { cell: Cell<ISurvey, unknown> }) => {
           {t('remove')}
         </DropdownMenu.Item>
       </DropdownMenu.Content>
+      <SurveyRejectDialog
+        open={rejectOpen}
+        onOpenChange={setRejectOpen}
+        surveyIds={[survey._id]}
+      />
       <MoveToChannelDialog
         open={moveOpen}
         onOpenChange={setMoveOpen}
@@ -233,11 +256,35 @@ export const surveyColumns: ColumnDef<ISurvey>[] = [
         <RecordTable.InlineHead label={t('status')} icon={IconToggleRight} />
       );
     },
-    cell: ({ cell }) => (
-      <RecordTableInlineCell>
-        <FormStatus.Badge status={cell.getValue() as string} />
-      </RecordTableInlineCell>
-    ),
+    cell: function SurveyStatusCell({ cell }) {
+      const status = cell.getValue() as string;
+      const { rejectionReason } = cell.row.original;
+
+      if (!rejectionReason) {
+        return (
+          <RecordTableInlineCell>
+            <FormStatus.Badge status={status} />
+          </RecordTableInlineCell>
+        );
+      }
+
+      return (
+        <RecordTableInlineCell>
+          <Tooltip.Provider>
+            <Tooltip>
+              <Tooltip.Trigger asChild>
+                <span>
+                  <FormStatus.Badge status={status} />
+                </span>
+              </Tooltip.Trigger>
+              <Tooltip.Content className="max-w-64 text-wrap">
+                {rejectionReason}
+              </Tooltip.Content>
+            </Tooltip>
+          </Tooltip.Provider>
+        </RecordTableInlineCell>
+      );
+    },
   },
   {
     id: 'createdBy',

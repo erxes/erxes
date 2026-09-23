@@ -79,6 +79,7 @@ export const buildSurveySnapshot = (
     name: step.name,
     description: step.description,
     question: step.question,
+    attachments: step.attachments,
     answers: step.options.map((option) => ({
       id: option._id,
       text: option.text,

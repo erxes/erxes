@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-09-22`
+- **Last synchronized:** `2026-09-23`
 
 ## Scope
 
@@ -96,6 +96,11 @@
   ledger carries `cpUserId` and a partial unique index on
   `(surveyId, cpUserId)` enforces it, so a repeat submit — even one choosing
   different options — returns `alreadyVoted` and writes nothing.
+- `cpSurveyVotes` reads back cast selections. It filters on `customerId` when
+  one is given and on the caller's `voterId` otherwise, so a portal that knows
+  only the erxes customer still gets that customer's votes even when the vote
+  was written under a different voter id; `conversationId` narrows either form
+  and at least one of the two arguments must be present.
 - A client portal user may also **request** a survey with `cpSurveyAdd`. The
   request is moderated, never live: `Surveys.createCpSurvey` forces
   `status: 'pending'`, stamps `createdCpUserId` instead of `createdUserId`, and
@@ -106,11 +111,59 @@
   and the ticket automation both refuse a non-`active` survey, so nothing
   reaches a customer until an agent approves it by moving the status to
   `active` through `surveyToggleStatus` (permission `surveyToggleStatus`; no new
-  action). `cpSurveyAdd` requires a `channelId` whose channel exists and holds
+  action). The same mutation **rejects** a request by moving it to `rejected`,
+  which `changeStatus` accepts only when every named survey is still `pending`
+  and only with a non-empty `reason`, stored on the survey as
+  `rejectionReason` (trimmed, capped at 500 characters) and served to the
+  requester through every survey read. A rejected survey stays invisible to
+  the portal's voting reads and cannot be sent to a conversation, but it is
+  kept rather than deleted so the requester keeps their work. Every other
+  status change clears `rejectionReason`, as does a requester's edit, so the
+  note never outlives the rejection that produced it.
+- Reviewing a request notifies the requester. `surveyToggleStatus` reads which
+  of the named surveys are client portal requests still waiting on a decision
+  (`createdCpUserId` set, status `pending` or `rejected`), and after the status
+  write sends each of those requesters one client portal notification over
+  tRPC — `Survey request approved` (`success`) or `Survey request rejected`
+  (`warning`, carrying `rejectionReason` as the message), both stamped
+  `contentType: 'frontline:survey'` with the survey `_id`. Archiving,
+  unarchiving or any change to a survey nobody requested notifies no one. The
+  notification is best effort: a failed tRPC call returns its `defaultValue`
+  instead of failing the mutation. `cpSurveyAdd` requires a `channelId` whose channel exists and holds
   an active messenger integration, and copies that integration's `brandId` onto
   the survey, so an approved request is votable rather than dead on arrival.
   `Survey.createdCpUser` resolves the requester's name over tRPC for the
   agent's approval queue.
+- Attachments belong to a **question**, not to the survey. Every step carries
+  up to `MAX_SURVEY_ATTACHMENTS` (5) files through `SurveyStepInput` and
+  `CpSurveyStepInput`, so agents and client portal requesters use the same
+  field. `normalizeSurveyAttachments` runs inside `normalizeSurveySteps`: it
+  drops an entry with a blank `url`, trims, falls back to the url for a missing
+  name, coerces `size` to a number, and throws past the limit rather than
+  silently truncating. The plugin stores metadata only — the file itself is
+  uploaded through core's file upload API before the mutation — and any step
+  write replaces that step's whole list. `SurveyStep.attachments` serves them
+  back, and `buildSurveySnapshot` copies them into the message snapshot, so a
+  respondent sees the files with the question they belong to.
+- `cpSurveyRequests` is the requester's own queue: it lists only surveys whose
+  `createdCpUserId` is the caller, in every status, so a portal can show a
+  request while it waits for approval and hand its `_id` to `cpSurveyEdit` or
+  `cpSurveyRemove`. `searchValue`, `channelId` and `status` narrow it, options
+  come back through the same voting-only projection as every other client
+  portal read, and a call without a signed-in client portal user is rejected.
+- The requester may revise or withdraw an unreviewed request with
+  `cpSurveyEdit` and `cpSurveyRemove`. Both go through
+  `Surveys.getCpSurveyRequest`, which refuses a survey whose
+  `createdCpUserId` is not the caller and one whose status is neither `pending`
+  nor `rejected`, so an approved or archived survey is an agent's to change
+  while a rejected one can still be revised or withdrawn by its requester. An
+  edit always writes the status back to `pending`, so revising a rejected
+  request resubmits it for review. An edit replays
+  the same voting-only projection and validation as `cpSurveyAdd` and holds
+  the status at `pending`; moving the request to another `channelId`
+  re-resolves that channel's active messenger integration and re-stamps
+  `brandId`. A remove deletes the survey through `Surveys.removeSurveys`, so
+  the vote ledger is cleaned with it.
 
 - A channel-owned resource moves between channels through one mutation,
   `channelMoveResources`. It covers integrations, ticket pipelines, forms,
@@ -237,6 +290,7 @@
 | Knowledge base           | `src/modules/knowledgebase/`                                                | Topics, categories, articles, AI knowledge source                                                                                                                                                      |
 | Help center              | `src/modules/helpcenter/`                                                   | Client portal configs: general settings and appearance for a published help center                                                                                                                     |
 | Reports                  | `src/modules/reports/`                                                      | Inbox/ticket report aggregations, `buildTicketMatch`, and the saved `ReportCharts` model                                                                                                               |
+| Survey notifications     | `src/modules/survey/notifications.ts`                                       | Client portal notification for an approved or rejected survey request                                                                                                                                  |
 | Migrations               | `src/migrations/`                                                           | Plugin-owned data migrations                                                                                                                                                                           |
 
 ## Contracts
@@ -252,6 +306,15 @@
   — a signed-in client portal user's survey request, created as `pending`.
   `CpSurveyOptionInput` carries `text` and `order` only; there is no client
   portal input that can set an option's ticket-automation fields.
+  `CpSurveyStepInput.attachments: [AttachmentInput]` attaches files to a
+  question and `SurveyStep.attachments: [Attachment]` returns them.
+- `cpSurveyRequests(searchValue: String, channelId: String, status: String, limit, cursor, direction, cursorMode, orderBy): SurveyListResponse`
+  — the caller's own survey requests in every status, newest first by default.
+- `cpSurveyEdit(_id: String!, title: String!, channelId: String, question: String, options: [CpSurveyOptionInput!], steps: [CpSurveyStepInput!], allowMultiselect: Boolean, durationHours: Int): Survey`
+  — the requester's own revision of a still-`pending` or `rejected` request;
+  `channelId` is optional and keeps the current channel when omitted.
+- `cpSurveyRemove(_id: String!): String` — the requester withdraws a
+  still-`pending` request and gets the removed `_id` back.
 - Plugin meta `properties` (`src/meta/properties.ts`) — the `conversation` and
   `ticket` property types, each with the `systemFields` (`code`, `name`, `type`)
   core lists as the read-only "Basic information" group in Settings →
@@ -275,6 +338,13 @@
   `conformity.create`, and `fields.generatePropertiesData`, which splits
   messenger `companyData` into `propertiesData` for keys that match a Core
   `core:company` field and `trackedData` for every remaining key.
+- `core` over tRPC — `cpNotifications.create`
+  (mutation, `{ cpUserIds, clientPortalId, eventType, data }`), which files a
+  client portal notification for a survey requester. `data.type` must be one
+  of `info | success | warning | error`, and `kind: 'system'` with
+  `allowMultiple: true` keeps each review outcome a separate notification
+  instead of overwriting the previous one for the same `contentTypeId`. The
+  `clientPortalId` comes from `cpUsers.get`, not from the survey.
 - `automations` over tRPC — `automations.trigger`. The path is
   `automations.trigger`, not `triggers.trigger`; `sendTRPCMessage` swallows a
   wrong path or a query/mutation mismatch and returns `defaultValue`, so a
@@ -294,6 +364,73 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-23` — A survey question carries attachments
+
+- **Summary:** Each survey step takes up to five `AttachmentInput` files,
+  normalized inside `normalizeSurveySteps`, stored on the step, served back as
+  `SurveyStep.attachments` and copied into the conversation snapshot so a
+  respondent sees them with the question. Agents (`SurveyStepInput`) and
+  client portal requesters (`CpSurveyStepInput`) use the same field.
+- **Affected areas:** `src/modules/survey/db/definitions/surveys.ts`,
+  `src/modules/survey/db/models/Surveys.ts`,
+  `src/modules/survey/@types/survey.ts`,
+  `src/modules/survey/utils.ts`,
+  `src/modules/survey/graphql/schema/survey.ts`
+- **Contracts changed:** `SurveyStepInput` and `CpSurveyStepInput` take
+  `attachments: [AttachmentInput]`; `SurveyStep` exposes
+  `attachments: [Attachment]`; the survey-level `Survey.attachments` field and
+  the `cpSurveyAdd` / `cpSurveyEdit` `attachments` arguments added earlier the
+  same day are gone.
+
+### `2026-09-23` — Agents reject a survey request with a reason, and the requester is told
+
+- **Summary:** Survey status gains `rejected`; `surveyToggleStatus` moves a
+  request there only from `pending` and only with a non-empty `reason`, which
+  is stored and served as `Survey.rejectionReason` and cleared by any later
+  status change or requester edit. Approving or rejecting a request now also
+  files a client portal notification for its requester over `core`'s
+  `cpNotifications.create`. `surveyTotalCount.byStatus` reports the
+  count, the portal's voting reads keep ignoring it, and its requester may
+  still edit it — which resubmits it as `pending` — or remove it.
+- **Affected areas:** `src/modules/survey/db/definitions/surveys.ts`,
+  `src/modules/survey/db/models/Surveys.ts`,
+  `src/modules/survey/@types/survey.ts`,
+  `src/modules/survey/notifications.ts`,
+  `src/modules/survey/graphql/schema/survey.ts`,
+  `src/modules/survey/graphql/resolvers/mutations/surveys.ts`,
+  `src/modules/survey/graphql/resolvers/queries/surveys.ts`
+- **Contracts changed:** `surveyToggleStatus` accepts `reason: String`;
+  `Survey` exposes `rejectionReason: String`; survey `status` accepts
+  `rejected` and `surveyTotalCount.byStatus` reports a `rejected` count.
+
+### `2026-09-23` — A client portal user manages their own survey requests
+
+- **Summary:** `cpSurveyRequests` lists the caller's own requests in every
+  status, and `cpSurveyEdit` / `cpSurveyRemove` let the requester revise or
+  delete one while it is still `pending`; both mutations refuse another user's
+  request and a request that has already been approved or archived, an edit
+  keeps the voting-only projection and the `pending` status and re-stamps
+  `brandId` when the channel changes, and a remove clears the vote ledger with
+  the survey.
+- **Affected areas:** `src/modules/survey/db/models/Surveys.ts`,
+  `src/modules/survey/graphql/resolvers/mutations/clientPortal.ts`,
+  `src/modules/survey/graphql/resolvers/queries/clientPortal.ts`,
+  `src/modules/survey/graphql/schema/survey.ts`
+- **Contracts changed:** added query `cpSurveyRequests` and mutations
+  `cpSurveyEdit` and `cpSurveyRemove`.
+
+### `2026-09-23` — `cpSurveyVotes` reads a customer's votes
+
+- **Summary:** `cpSurveyVotes` takes `conversationId`, `customerId` or both;
+  a `customerId` returns that customer's vote selections regardless of the
+  caller's voter id, while a `customerId`-less call keeps the previous
+  caller-scoped `voterId` filter, and a call with neither argument is rejected.
+- **Affected areas:**
+  `src/modules/survey/graphql/resolvers/queries/clientPortal.ts`,
+  `src/modules/survey/graphql/schema/survey.ts`
+- **Contracts changed:** `cpSurveyVotes(conversationId: String, customerId: String)`
+  — `conversationId` is no longer required.
 
 ### `2026-09-22` — Client portal users request surveys for approval
 
@@ -391,47 +528,3 @@
   `tagIds`, `branchIds`, `departmentIds`, and now enforces permissions; added
   `conversationConvertedItems` and `ConversationConvertedItem`; the
   `frontline:user` group gained `conversationConvertToCard`.
-
-### `2026-09-15` — Call user integrations carry their name
-
-- **Summary:** `callUserIntegrations` returns each integration's inbox name so
-  the dialpad's `Call from` can tell integrations on one phone apart.
-- **Affected areas:** `src/modules/integrations/call/graphql/{schema/call,resolvers/queries}.ts`
-- **Contracts changed:** `CallsIntegrationDetailResponse` gains `name: String`.
-
-### `2026-09-15` — An incoming call names the integration it rang
-
-- **Summary:** `callAddCustomer` also returns the matched inbox integration's
-  `_id` and `name`, so agents on a shared trunk see which integration a call
-  came in on rather than its channel.
-- **Affected areas:** `src/modules/integrations/call/graphql/{schema/call,resolvers/mutations}.ts`
-- **Contracts changed:** `CallConversationDetail` gains
-  `integration: CallConversationIntegration` (`_id`, `name`); new type
-  `CallConversationIntegration`.
-
-### `2026-09-15` — Call integrations may share a trunk
-
-- **Summary:** `srcTrunk`, `dstTrunk` and `phone` are no longer unique, so
-  integrations on one trunk can be split by queue; blank queue input is
-  stored as `[]` and the queue index ignores empty queue lists.
-- **Affected areas:** `src/modules/integrations/call/{indexes,helpers,utils}.ts`,
-  `src/modules/integrations/call/db/definitions/integrations.ts`
-- **Contracts changed:** `Duplicate srcTrunk detected.` and
-  `Duplicate dstTrunk detected.` are no longer returned by
-  `integrationsCreateExternalIntegration` or integration edit.
-
-### `2026-09-10` — Polls became surveys, database included
-
-- **Summary:** The whole feature was renamed from poll to survey — module,
-  models, GraphQL contract, permissions, the `frontline_surveys` /
-  `frontline_survey_votes` collections, `conversations.hasSurvey`,
-  `extraData.survey` and `Ticket.sourceSurvey` — with
-  `src/migrations/migratePollToSurvey.ts` moving existing data. Discord's own
-  polls were deliberately left on `extraData.poll`.
-- **Affected areas:** `src/modules/survey/**` (was `src/modules/poll/**`),
-  `src/apollo/**`, `src/connectionResolvers.ts`, `src/conversationQueryBuilder.ts`,
-  `src/meta/permissions.ts`, `src/modules/inbox/**`, `src/modules/ticket/**`,
-  `src/migrations/migrate{PollToSurvey,SurveySteps}.ts`.
-- **Contracts changed:** Every `poll*` / `cpPoll*` operation and every `Poll*`
-  type was renamed to `survey*` / `cpSurvey*` / `Survey*`; `withPoll` became
-  `withSurvey`; `Ticket.sourcePoll` became `Ticket.sourceSurvey`.

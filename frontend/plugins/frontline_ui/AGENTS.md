@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-09-22`
+- **Last synchronized:** `2026-09-23`
 
 ## Scope
 
@@ -129,10 +129,24 @@
   `<n> pending approval` shortcut that filters the list — it reads its own
   `surveyTotalCount` with `status: 'pending'`, so it stays visible under any
   other filter, and is skipped without a `channelId` so the read-only
-  `frontline/surveys` board never offers an approval it cannot perform. A pending row's row menu swaps Archive/Unarchive for
-  `Approve`, and the command bar shows an `Approve` button whenever the
-  selection holds a pending survey, approving only those ids. Approving is a
-  `surveyToggleStatus` to `active`, which refetches the list and the counts.
+  `frontline/surveys` board never offers an approval it cannot perform. A
+  pending row's row menu swaps Archive/Unarchive for `Approve` and `Reject`,
+  and the command bar shows an `Approve` button whenever the selection holds a
+  pending or rejected survey and a `Reject` button whenever it holds a pending
+  one, acting only on those ids. Approving is a `surveyToggleStatus` to
+  `active`; rejecting opens `SurveyRejectDialog`, which requires a typed reason
+  (capped at `MAX_REJECTION_REASON_LENGTH`, with a live counter) before it
+  sends `surveyToggleStatus` to `rejected` with that `reason`. Both refetch the
+  list and the counts.
+- A rejected request keeps the requester's work instead of deleting it. The
+  status filter offers `rejected`, `FormStatus.Badge` renders it as a
+  destructive circle-x badge, and a rejected row's menu still offers `Approve`
+  (never `Reject`, which the API accepts only from `pending`) so an agent can
+  reverse the call, plus `Remove` to clear it. The reason lives on
+  `Survey.rejectionReason`; the status cell wraps the badge in a tooltip
+  carrying it, and the server drops the field on any later status change, so a
+  badge without a tooltip means there is no standing rejection. `Archive`/`Unarchive` stays
+  reserved for surveys that have been live.
 - Creating and editing a survey is a full-page step wizard on
   `settings/frontline/channels/:id/surveys/create` and
   `settings/frontline/channels/:id/surveys/:surveyId`, laid out exactly like the
@@ -143,11 +157,18 @@
   brand), **Content** (the survey's steps) and **Confirmation** (duration plus a
   read-only review of every step).
 - The Content step is where a survey gains questions. Each survey step is an
-  `InfoCard.Content` card holding its name, question, description, 2–10 unique
-  options and its own multi-answer switch; `Add Step` appends another (up to
-  ten), the grip handle reorders them with `@dnd-kit`, and the trash button
-  removes one. The name, description, grip and trash appear only once a survey
+  `InfoCard.Content` card holding its name, question, attachments, description,
+  2–10 unique options and its own multi-answer switch; `Add Step` appends
+  another (up to ten), the grip handle reorders them with `@dnd-kit`, and the
+  trash button removes one. The name, description, grip and trash appear only once a survey
   has more than one step, so a single-question survey looks unchanged.
+- Directly under the question, an `Attachments.Root` / `Uploader` / `Files` /
+  `Preview` block from `erxes-ui` uploads files for that question, bound to the
+  step's `attachments` field. The uploader hands back a `__typename`-free list,
+  the step's Zod schema caps it at `MAX_SURVEY_ATTACHMENTS` (5, matching the
+  API), and `surveySetupValuesAtom` maps each file down to `url`, `name`,
+  `type` and `size` before it reaches `surveyAdd` / `surveyEdit`, so no Apollo
+  metadata leaks into the mutation input.
 - Every option row carries a ticket-automation popover
   (`SurveyOptionTicketConfig`): a switch, a vote threshold, and the pipeline and
   status a triggered ticket lands in. The ticket's name is derived by the API
@@ -156,7 +177,9 @@
   the ticket was already created; that state is read-only in the UI.
 - The preview panel renders the wizard's live state through the real
   `MessageSurvey` component, so it shows exactly what a respondent will see, with
-  Desktop/Tablet/Mobile width toggles.
+  Desktop/Tablet/Mobile width toggles. `MessageSurvey` renders a step's
+  attachments under its question — an `image/*` file inline, anything else as a
+  paperclip link — so the inbox message and the wizard preview stay identical.
   `frontline/surveys` is read-only — a card board of aggregated `Survey.results`
   per survey, with status/search filters and no create control.
 - In a messenger conversation the composer's survey button opens
@@ -1383,6 +1406,48 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-23` — A survey question carries attachments
+
+- **Summary:** The Content step's question now has an attachments uploader
+  right under it, capped at five files per question, and `MessageSurvey` shows
+  those files with the question in both the wizard preview and the inbox
+  message.
+- **Affected areas:**
+  `src/modules/survey/components/mutate/SurveyStepCard.tsx`,
+  `src/modules/survey/components/mutate/SurveyPreview.tsx`,
+  `src/modules/survey/constants/{surveySetupSchema,surveySetupDefaultValues}.ts`,
+  `src/modules/survey/states/surveySetupStates.tsx`,
+  `src/modules/survey/graphql/{surveyQueries,surveyMutations}.ts`,
+  `src/modules/survey/types/surveyTypes.ts`,
+  `src/modules/inbox/conversation-messages/components/MessageSurvey.tsx`,
+  `src/modules/inbox/types/Conversation.ts`
+- **Contracts changed:** `surveyAdd` / `surveyEdit` steps are sent with
+  `attachments`, and the survey fragment reads `steps { attachments }`. New
+  i18n keys `survey-question-attachments` and
+  `survey-question-attachments-description` fall back to English until the
+  gateway locale carries them.
+
+### `2026-09-23` — Agents reject a survey request with a reason
+
+- **Summary:** The survey list's row menu and command bar reject a pending
+  client portal request through `SurveyRejectDialog`, which requires a written
+  reason; the request moves to the new `rejected` status instead of being
+  deleted, its badge is destructive and carries the reason as a tooltip, the
+  status filter offers `rejected`, and the row still offers `Approve` so the
+  decision can be reversed.
+- **Affected areas:**
+  `src/modules/survey/components/survey-page/SurveyRejectDialog.tsx`,
+  `src/modules/survey/components/survey-page/survey-columns.tsx`,
+  `src/modules/survey/components/survey-page/command-bar/survey-command-bar.tsx`,
+  `src/modules/survey/graphql/{surveyMutations,surveyQueries}.ts`,
+  `src/modules/survey/types/surveyTypes.ts`,
+  `src/modules/forms/components/form-page/filters/FormStatus.tsx`
+- **Contracts changed:** `surveyToggleStatus` is sent with `reason` and the
+  survey fragment reads `rejectionReason`. New i18n keys `survey-reject`,
+  `survey-rejected`, `survey-reject-description`, `survey-rejection-reason`
+  and `survey-rejection-reason-placeholder` fall back to English until the
+  gateway locale carries them.
+
 ### `2026-09-22` — Radio/checkbox options are visible, full-width and editable in place
 
 - **Summary:** The shared `RadioGroup.Item` (`erxes-ui`) had no border in its
@@ -1514,66 +1579,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 - **Affected areas:**
   `src/modules/inbox/conversations/conversation-detail/components/ConversationSideWidget.tsx`.
 - **Contracts changed:** `None`
-
-### `2026-09-20` — Frontline notifications show their icon in My Inbox
-
-- **Summary:** `CONFIG` now declares a top-level `icon`, so a frontline
-  notification in My Inbox renders the frontline mark instead of an empty
-  circle.
-- **Affected areas:** `src/config.tsx`
-- **Contracts changed:** `None`
-
-### `2026-09-17` — Convert dialog honours Basic information settings
-
-- **Summary:** Priority, tags, start date and due date appear in the convert
-  dialog when their system field is `Visible to create`, respecting `Required`
-  and display logic.
-- **Affected areas:**
-  `src/modules/inbox/conversations/conversation-detail/components/convert/{ConvertDialog.tsx,ConvertSystemFields.tsx,convertForm.ts}`,
-  `src/modules/inbox/conversations/{graphql/queries/getConvertSystemFields.ts,graphql/mutations/conversationConvertToCard.ts,hooks/useConvertSystemFields.tsx,types/conversationConvert.ts}`
-- **Contracts changed:** New query document `FrontlineConvertSystemFields`;
-  `ConversationConvertToCard` now sends `priority`, `tagIds`, `startDate` and
-  `closeDate`.
-
-### `2026-09-17` — The conversation header converts into a ticket, deal or task
-
-- **Summary:** Added the Convert menu and a 1.x-style convert dialog for
-  tickets, deals and tasks with Settings → Properties fields and attachments,
-  plus `Go to a …` links for items a conversation was already converted into.
-- **Affected areas:**
-  `src/modules/inbox/conversations/conversation-detail/components/{ConversationHeader.tsx,convert/}`,
-  `src/modules/inbox/conversations/{graphql,hooks,types}/*onvert*`,
-  `src/modules/ticket/components/ticket-selects/SelectPipeline.tsx`,
-  `src/modules/pipelines/types/index.ts`
-- **Contracts changed:** `SelectPipeline.FormItem` accepts any form carrying a
-  `channelId` field; `IPipeline` declares `propertyIds` and
-  `isPropertySelectionConfigured`; consumes `conversationConvertToCard` (with
-  `customFieldsData` and `attachments`) and `conversationConvertedItems`.
-
-### `2026-09-15` — Several call integrations can be switched on
-
-- **Summary:** Call integration switches no longer turn each other off, and
-  `Call from` lists every switched-on integration by name.
-- **Affected areas:**
-  `src/modules/integrations/call/{hooks/useCallEnabledIntegrations.ts,components/{CallIntegrationDetail,SelectPhoneCallFrom,SipContainer,CallSipActions}.tsx,states/sipStates.ts,types/callTypes.ts,graphql/queries/callConfigQueries.ts}`
-- **Contracts changed:** `callUserIntegrations` also selects `name`; new
-  `localStorage` key `config:call_enabled_integrations`.
-
-### `2026-09-15` — The incoming call names its integration
-
-- **Summary:** The incoming-call popup shows the name of the integration the
-  call rang instead of the channel name.
-- **Affected areas:**
-  `src/modules/integrations/call/{components/IncomingCall,components/CallWidget,hooks/useAddCustomer,graphql/mutations/callMutations}.ts(x)`
-- **Contracts changed:** `CallAddCustomer` also selects
-  `integration { _id name }`.
-
-### `2026-09-15` — The call widget can clear its cached state
-
-- **Summary:** An eraser button in the dialpad header, behind a confirm, resets
-  every persisted call atom and sends the agent back to the call config picker,
-  so a stale config or SIP registration no longer needs manual `localStorage`
-  cleanup.
-- **Affected areas:**
-  `src/modules/integrations/call/components/CallSipActions.tsx`
-- **Contracts changed:** None.
