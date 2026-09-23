@@ -266,24 +266,6 @@
   a form never resubmits a deleted status, and inbound mail falls back to the
   pipeline's first status, sorted by `type` then `order`.
 
-## Recent Changes
-
-<!-- Newest first. Keep at most 10 entries. -->
-
-### `2026-09-21` — A pipeline address chooses the status its tickets open in
-
-- **Summary:** A pipeline's mail row can name the status a new mail ticket opens
-  in; it is validated against the pipeline on connect and update, and an empty
-  or since-deleted status falls back to the pipeline's first status, now picked
-  by `type` then `order` instead of `order` alone.
-- **Affected areas:** `src/modules/integrations/mail/utils/{pipeline,tickets}.ts`,
-  `src/modules/integrations/mail/controller/receiveMessage.ts`,
-  `src/modules/integrations/mail/graphql/resolvers/customResolvers/pipelineIntegration.ts`,
-  `src/modules/integrations/mail/{@types/integration,db/definitions/integrations,graphql/schema/mail}.ts`
-- **Contracts changed:** `mailPipelineConnect` and `mailPipelineUpdate` accept
-  `statusId: String`; `MailPipelineIntegration` exposes `statusId`;
-  `mail_integrations` carries `statusId`.
-
 ### Consumes
 
 - `core` over tRPC — `cpUsers.get` (query, `{ id }`), which backs
@@ -333,6 +315,20 @@
   `Survey.createdCpUserId` / `Survey.createdCpUser`; survey `status` accepts
   `pending` and `surveyTotalCount.byStatus` now reports it.
 
+### `2026-09-21` — A pipeline address chooses the status its tickets open in
+
+- **Summary:** A pipeline's mail row can name the status a new mail ticket opens
+  in; it is validated against the pipeline on connect and update, and an empty
+  or since-deleted status falls back to the pipeline's first status, now picked
+  by `type` then `order` instead of `order` alone.
+- **Affected areas:** `src/modules/integrations/mail/utils/{pipeline,tickets}.ts`,
+  `src/modules/integrations/mail/controller/receiveMessage.ts`,
+  `src/modules/integrations/mail/graphql/resolvers/customResolvers/pipelineIntegration.ts`,
+  `src/modules/integrations/mail/{@types/integration,db/definitions/integrations,graphql/schema/mail}.ts`
+- **Contracts changed:** `mailPipelineConnect` and `mailPipelineUpdate` accept
+  `statusId: String`; `MailPipelineIntegration` exposes `statusId`;
+  `mail_integrations` carries `statusId`.
+
 ### `2026-09-21` — Channel-owned resources move between channels
 
 - **Summary:** Added `channelMoveResources`, one mutation that moves
@@ -351,7 +347,6 @@
   `project.json`
 - **Contracts changed:** Added mutation `channelMoveResources`, enum
   `ChannelResourceType` and type `ChannelMoveResourcesResult`.
-
 
 ### `2026-09-21` — Messenger company writes actually reach Core
 
@@ -440,17 +435,3 @@
 - **Contracts changed:** Every `poll*` / `cpPoll*` operation and every `Poll*`
   type was renamed to `survey*` / `cpSurvey*` / `Survey*`; `withPoll` became
   `withSurvey`; `Ticket.sourcePoll` became `Ticket.sourceSurvey`.
-
-### `2026-09-10` — An agent's note threads as a mail reply
-
-- **Summary:** A note mailed to the requester carried no `In-Reply-To` or
-  `References`, so it arrived as a new conversation despite the `Re:` subject.
-  The note-out path now threads on the ticket's latest inbound message, falling
-  back to its latest message when the ticket has none. The helper module was
-  renamed from `comments.ts` to `notes.ts`, with `mailTicketComment` and
-  `commentFromMail` becoming `mailTicketNote` and `noteFromMail`, so the names
-  match the `Note` model they have always written.
-- **Affected areas:** `src/modules/integrations/mail/utils/notes.ts`,
-  `src/modules/integrations/mail/controller/receiveMessage.ts`,
-  `src/modules/ticket/graphql/resolvers/mutations/note.ts`
-- **Contracts changed:** `None`

@@ -75,6 +75,16 @@
 
 ## Current Capabilities
 
+- A form can be created from the plugin's own forms page, not only from a
+  channel's settings. `frontline/forms` carries a `Create form` button on the
+  right of its `PageHeader` (and in the empty state) that opens the same four
+  step wizard on `frontline/forms/create`. There is no channel in the URL there,
+  so the wizard's General step decides it: `channelId` is required by
+  `FORM_GENERAL_CREATE_SCHEMA` when no `formId` param is present, and
+  `useFormMutate` reads the picked channel out of the setup state. Cancelling or
+  finishing returns to `frontline/forms`; the settings flow
+  (`settings/frontline/channels/:id/forms/create`) still returns to the
+  channel's forms page.
 - The call widget's dialpad header carries a clear-cache icon button next to
   Pause and Turn off. After a confirm it closes the widget, resets the call
   atoms persisted in `localStorage` (`config:call_integrations`,
@@ -371,6 +381,11 @@
 
 ### Provides
 
+- Routes `frontline/forms` (list), `frontline/forms/create` (builder wizard),
+  `frontline/forms/:formId` (builder wizard on an existing form),
+  `frontline/forms/submissions/:formId` and `frontline/forms/preview`, all
+  registered in `FrontlineMain`; every one but `preview` renders inside the
+  `FormView` layout and its `FormPageHeader`.
 - Route `frontline/surveys` (registered in `config.tsx`, `FrontlineNavigation`,
   and `FrontlineMain`) — the read-only survey results board.
 - Settings route `settings/frontline/channels/:id/surveys` (registered in the
@@ -608,6 +623,18 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
 
 ## Local Invariants
 
+- The form builder runs under two route families — `frontline/forms/*` and
+  `settings/frontline/channels/:id/forms/*` — and tells them apart by the `id`
+  route param, never by a flag. `FormsCreateButton`, `FormMutateLayout`'s cancel
+  and `useFormMutate`'s post-save navigation each read `useParams().id` and fall
+  back to the `frontline/forms` path when it is absent; a new builder surface
+  must keep that fallback or it will strand the user in settings.
+- `useFormMutate` resolves the channel for a create as
+  `formDetail?.channelId || setup state channelId || :id param`. The setup
+  state's `channelId` comes from `formSetupValuesAtom`, which exposes it beside
+  `formValues` because `formsAdd` takes `channelId` as its own argument — do not
+  fold it into `formValues`, the edit path spreads those straight into
+  `formsEdit`.
 - A channel change on a resource goes through `channelMoveResources`, never
   through the resource's own edit mutation. The move mutation is the only path
   that validates the destination and cascades a pipeline's tickets and a form's
@@ -1432,6 +1459,23 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `src/modules/integrations/call/components/IncomingCall.tsx`
 - **Contracts changed:** None.
 
+### `2026-09-21` — Forms can be created from the forms page
+
+- **Summary:** `frontline/forms` gained a `Create form` header button and a
+  `frontline/forms/create` route running the existing four-step builder, with
+  the channel picked in the wizard's General step instead of taken from a
+  settings URL.
+- **Affected areas:** `src/modules/FrontlineMain.tsx`,
+  `src/modules/forms/components/form-page/FormPageHeader.tsx`,
+  `src/modules/forms/components/form-page/forms-create.tsx`,
+  `src/modules/forms/components/form-page/FormPageList.tsx`,
+  `src/modules/forms/components/FormGeneral.tsx`,
+  `src/modules/types/FrontlinePaths.ts`,
+  `src/modules/forms/constants/formSchema.ts`,
+  `src/modules/forms/states/formSetupStates.tsx`,
+  `src/modules/forms/hooks/useFormMutate.ts`
+- **Contracts changed:** New route `frontline/forms/create`; no GraphQL change.
+
 ### `2026-09-21` — Move to channel on every channel-owned resource
 
 - **Summary:** Integrations, ticket pipelines, forms, surveys and response
@@ -1505,3 +1549,31 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `channelId` field; `IPipeline` declares `propertyIds` and
   `isPropertySelectionConfigured`; consumes `conversationConvertToCard` (with
   `customFieldsData` and `attachments`) and `conversationConvertedItems`.
+
+### `2026-09-15` — Several call integrations can be switched on
+
+- **Summary:** Call integration switches no longer turn each other off, and
+  `Call from` lists every switched-on integration by name.
+- **Affected areas:**
+  `src/modules/integrations/call/{hooks/useCallEnabledIntegrations.ts,components/{CallIntegrationDetail,SelectPhoneCallFrom,SipContainer,CallSipActions}.tsx,states/sipStates.ts,types/callTypes.ts,graphql/queries/callConfigQueries.ts}`
+- **Contracts changed:** `callUserIntegrations` also selects `name`; new
+  `localStorage` key `config:call_enabled_integrations`.
+
+### `2026-09-15` — The incoming call names its integration
+
+- **Summary:** The incoming-call popup shows the name of the integration the
+  call rang instead of the channel name.
+- **Affected areas:**
+  `src/modules/integrations/call/{components/IncomingCall,components/CallWidget,hooks/useAddCustomer,graphql/mutations/callMutations}.ts(x)`
+- **Contracts changed:** `CallAddCustomer` also selects
+  `integration { _id name }`.
+
+### `2026-09-15` — The call widget can clear its cached state
+
+- **Summary:** An eraser button in the dialpad header, behind a confirm, resets
+  every persisted call atom and sends the agent back to the call config picker,
+  so a stale config or SIP registration no longer needs manual `localStorage`
+  cleanup.
+- **Affected areas:**
+  `src/modules/integrations/call/components/CallSipActions.tsx`
+- **Contracts changed:** None.
