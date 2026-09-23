@@ -452,6 +452,20 @@
   `Survey.createdCpUserId` / `Survey.createdCpUser`; survey `status` accepts
   `pending` and `surveyTotalCount.byStatus` now reports it.
 
+### `2026-09-21` — A pipeline address chooses the status its tickets open in
+
+- **Summary:** A pipeline's mail row can name the status a new mail ticket opens
+  in; it is validated against the pipeline on connect and update, and an empty
+  or since-deleted status falls back to the pipeline's first status, now picked
+  by `type` then `order` instead of `order` alone.
+- **Affected areas:** `src/modules/integrations/mail/utils/{pipeline,tickets}.ts`,
+  `src/modules/integrations/mail/controller/receiveMessage.ts`,
+  `src/modules/integrations/mail/graphql/resolvers/customResolvers/pipelineIntegration.ts`,
+  `src/modules/integrations/mail/{@types/integration,db/definitions/integrations,graphql/schema/mail}.ts`
+- **Contracts changed:** `mailPipelineConnect` and `mailPipelineUpdate` accept
+  `statusId: String`; `MailPipelineIntegration` exposes `statusId`;
+  `mail_integrations` carries `statusId`.
+
 ### `2026-09-21` — Channel-owned resources move between channels
 
 - **Summary:** Added `channelMoveResources`, one mutation that moves
@@ -470,7 +484,6 @@
   `project.json`
 - **Contracts changed:** Added mutation `channelMoveResources`, enum
   `ChannelResourceType` and type `ChannelMoveResourcesResult`.
-
 
 ### `2026-09-21` — Messenger company writes actually reach Core
 
@@ -492,20 +505,6 @@
 - **Contracts changed:** None. Consumed contracts corrected: Core
   `companies.findOne` (query), `companies.updateCompany` / `createCompany`
   (mutations), and automations `automations.trigger`.
-
-### `2026-09-21` — A pipeline address chooses the status its tickets open in
-
-- **Summary:** A pipeline's mail row can name the status a new mail ticket opens
-  in; it is validated against the pipeline on connect and update, and an empty
-  or since-deleted status falls back to the pipeline's first status, now picked
-  by `type` then `order` instead of `order` alone.
-- **Affected areas:** `src/modules/integrations/mail/utils/{pipeline,tickets}.ts`,
-  `src/modules/integrations/mail/controller/receiveMessage.ts`,
-  `src/modules/integrations/mail/graphql/resolvers/customResolvers/pipelineIntegration.ts`,
-  `src/modules/integrations/mail/{@types/integration,db/definitions/integrations,graphql/schema/mail}.ts`
-- **Contracts changed:** `mailPipelineConnect` and `mailPipelineUpdate` accept
-  `statusId: String`; `MailPipelineIntegration` exposes `statusId`;
-  `mail_integrations` carries `statusId`.
 
 ### `2026-09-17` — Property types declare system fields
 
