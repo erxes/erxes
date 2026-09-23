@@ -8,14 +8,19 @@ export const ConversationDetailLayout = ({
   children: React.ReactNode;
   input: React.ReactNode;
 }) => {
-  const { inputPanelRef, expandForContent } = useComposerPanelResize();
+  const {
+    inputPanelRef,
+    rememberContentHeight,
+    resizeForContent,
+    resetAutoResize,
+  } = useComposerPanelResize();
 
   return (
     <Resizable.PanelGroup
       direction="vertical"
       className="min-h-0 min-w-0 flex-1"
-      onInputCapture={(event) => expandForContent(event.target)}
-      onFocusCapture={(event) => expandForContent(event.target)}
+      onInputCapture={(event) => resizeForContent(event.target)}
+      onFocusCapture={(event) => rememberContentHeight(event.target)}
     >
       <Resizable.Panel defaultSize={input ? 75 : 100} minSize={0}>
         <div className="relative h-full min-h-0 overflow-hidden">
@@ -24,7 +29,11 @@ export const ConversationDetailLayout = ({
       </Resizable.Panel>
       {input && (
         <>
-          <Resizable.Handle className="bg-transparent hover:bg-border" />
+          <Resizable.Handle
+            className="bg-transparent hover:bg-border"
+            onPointerDown={resetAutoResize}
+            onKeyDown={resetAutoResize}
+          />
           <Resizable.Panel
             ref={inputPanelRef}
             defaultSize={25}
