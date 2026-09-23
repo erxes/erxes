@@ -20,6 +20,7 @@ export const ConversationDetailLayout = ({
       direction="vertical"
       className="min-h-0 min-w-0 flex-1"
       onInputCapture={(event) => resizeForContent(event.target)}
+      onKeyUpCapture={(event) => resizeForContent(event.target)}
       onFocusCapture={(event) => rememberContentHeight(event.target)}
     >
       <Resizable.Panel defaultSize={input ? 75 : 100} minSize={0}>

@@ -28,7 +28,15 @@ export const useComposerPanelResize = () => {
         editor.querySelector<HTMLElement>('.bn-editor')?.scrollHeight ?? 0;
       const change = contentHeight - contentHeightRef.current;
       contentHeightRef.current = contentHeight;
-      if (!panel || !group.clientHeight || !change) return;
+      if (!panel || !group.clientHeight) return;
+
+      if (editor.querySelector('[data-is-only-empty-block="true"]')) {
+        panel.resize(25);
+        autoResizeStartRef.current = null;
+        return;
+      }
+
+      if (!change) return;
 
       const size = panel.getSize();
       if (size < 25 || (change < 0 && autoResizeStartRef.current === null))
