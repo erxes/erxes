@@ -10,6 +10,7 @@ import {
   CONVERSATION_STATUSES,
 } from '@/inbox/db/definitions/constants';
 import { authorizeConversationAccess } from '@/inbox/conversationUtils';
+import { resolveForwardedSnapshotForMessage } from '@/inbox/forwardedMessage';
 import { INTEGRATION_KINDS } from '@/integrations/facebook/constants';
 import { handleFacebookIntegration } from '@/integrations/facebook/messageBroker';
 import { sendReply } from '@/integrations/facebook/utils';
@@ -565,15 +566,11 @@ export const conversationMutations = {
       } = doc;
       const { _id: userId } = user;
 
-      const forwardedSourceConversationId =
-        extraInfo?.forwardedFrom?.conversationId;
-      if (typeof forwardedSourceConversationId === 'string') {
-        await authorizeConversationAccess(
-          models,
-          user,
-          forwardedSourceConversationId,
-        );
-      }
+      const forwardedSnapshot = await resolveForwardedSnapshotForMessage(
+        models,
+        user,
+        extraInfo,
+      );
 
       await sendNotifications(subdomain, {
         user,
@@ -695,7 +692,6 @@ export const conversationMutations = {
           replyTo,
           deliveryStatus,
         } = response.data.data;
-        const forwardedSnapshot = extraInfo?.forwardedSnapshot;
         if (responseConversationId && responseContent) {
           await models.Conversations.updateConversation(
             responseConversationId,

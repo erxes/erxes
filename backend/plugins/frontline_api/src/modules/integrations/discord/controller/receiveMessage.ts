@@ -263,6 +263,7 @@ const buildAttachmentPreview = (attachments?: DiscordAttachment[]): string => {
   return 'Unsupported message';
 };
 
+/** Choose concise conversation preview text for rich Discord content. */
 const buildMessagePreview = (
   displayContent: string,
   poll?: DiscordPoll,
@@ -659,6 +660,7 @@ const buildInboxMessageExtraData = (
   discordPinned: Boolean(activity.raw?.pinned),
 });
 
+/** Update missing reply context on a previously stored Discord message. */
 const skipExistingDiscordMessage = async ({
   models,
   activity,
@@ -702,6 +704,7 @@ const skipExistingDiscordMessage = async ({
   return true;
 };
 
+/** Persist an inbound Discord message and dispatch it to the inbox. */
 export const receiveDiscordMessage = async ({
   models,
   subdomain,

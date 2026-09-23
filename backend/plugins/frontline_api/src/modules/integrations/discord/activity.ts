@@ -25,12 +25,14 @@ import type {
 
 const DISCORD_VOICE_MESSAGE_FLAG = 1 << 13;
 
+/** Return a public image URL for a Discord sticker when its format supports one. */
 const stickerUrl = (id: string, formatType: number) => {
   if (formatType === 3) return undefined;
   const extension = formatType === 4 ? 'gif' : 'png';
   return `https://media.discordapp.net/stickers/${id}.${extension}`;
 };
 
+/** Map Discord sticker items to inbox sticker metadata. */
 const normalizeDiscordStickers = (
   stickers?: TDiscordMessagePayload['sticker_items'],
 ) =>
@@ -41,6 +43,7 @@ const normalizeDiscordStickers = (
     url: stickerUrl(sticker.id, sticker.format_type),
   }));
 
+/** Keep Discord attachment media details in the inbox attachment shape. */
 const normalizeDiscordAttachments = (
   attachments?: TDiscordMessagePayload['attachments'],
 ) =>
@@ -61,6 +64,7 @@ const normalizeDiscordAttachments = (
     spoiler: attachment.filename?.startsWith('SPOILER_'),
   }));
 
+/** Convert a Discord poll to the stored poll shape. */
 export const normalizeDiscordPoll = (
   poll?: APIPoll,
 ): DiscordPoll | undefined => {
@@ -154,6 +158,7 @@ export const normalizeDiscordEmbeds = (
   }));
 };
 
+/** Choose the display name for a user mentioned in a Discord payload. */
 const discordMention = (
   user: NonNullable<TDiscordMessagePayload['mentions']>[number],
 ) => ({
@@ -167,6 +172,7 @@ const CHANNEL_MENTION_RE = /<#(\d+)>/g;
 const CUSTOM_EMOJI_RE = /<a?:([^:>]+):\d+>/g;
 const TIMESTAMP_RE = /<t:(\d+)(?::[tTdDfFR])?>/g;
 
+/** Replace Discord mention markup with readable inbox text. */
 export function resolveDiscordMentions(
   content: string,
   mentions: DiscordMention[] = [],
@@ -194,9 +200,11 @@ export function resolveDiscordMentions(
   return resolved;
 }
 
+/** Find the Discord message referenced by a reply. */
 const referencedMessageIdOf = (payload: TDiscordMessagePayload) =>
   payload.referenced_message?.id || payload.message_reference?.message_id;
 
+/** Build a short preview of the message being replied to. */
 const referencedMessagePreview = (payload: TDiscordMessagePayload) => {
   const referenced = payload.referenced_message;
   const mentions = (referenced?.mentions || []).map(discordMention);
@@ -207,11 +215,13 @@ const referencedMessagePreview = (payload: TDiscordMessagePayload) => {
   return referenced?.embeds?.[0]?.title || undefined;
 };
 
+/** Find the display name of the author being replied to. */
 const referencedAuthorName = (payload: TDiscordMessagePayload) => {
   const author = payload.referenced_message?.author;
   return author?.global_name || author?.username || undefined;
 };
 
+/** Extract reply context while excluding native forwards. */
 const resolveDiscordReply = (payload: TDiscordMessagePayload) => {
   if (
     payload.message_reference?.type === 1 ||
@@ -229,6 +239,7 @@ const resolveDiscordReply = (payload: TDiscordMessagePayload) => {
   };
 };
 
+/** Extract the original content carried by a Discord forward. */
 const resolveForwardedSnapshot = (payload: TDiscordMessagePayload) => {
   const snapshot = payload.message_snapshots?.[0]?.message;
   if (!snapshot) return undefined;
@@ -244,6 +255,7 @@ const resolveForwardedSnapshot = (payload: TDiscordMessagePayload) => {
   };
 };
 
+/** Map the Discord author into an activity author. */
 const resolveActivityAuthor = (payload: TDiscordMessagePayload) => {
   const author = payload.author;
   return {
@@ -253,15 +265,19 @@ const resolveActivityAuthor = (payload: TDiscordMessagePayload) => {
   };
 };
 
+/** Use the Discord timestamp or the current time for an activity. */
 const resolveActivityTimestamp = (payload: TDiscordMessagePayload) =>
   payload.timestamp ? new Date(payload.timestamp) : new Date();
 
+/** Read the Discord message type when present. */
 const resolveActivityType = (payload: TDiscordMessagePayload) =>
   typeof payload.type === 'number' ? payload.type : undefined;
 
+/** Map mentioned Discord users into activity mentions. */
 const resolveActivityMentions = (payload: TDiscordMessagePayload) =>
   (payload.mentions || []).map(discordMention);
 
+/** Convert a Discord message event into the inbox activity shape. */
 export const mapMessageCreateToActivity = (
   payload: TDiscordMessagePayload,
 ): DiscordActivity => {
@@ -318,6 +334,7 @@ export const mapPollVoteToEvent = (
   raw: payload,
 });
 
+/** Convert a gateway reaction event into an inbox reaction event. */
 export const mapReactionToEvent = (
   payload:
     | GatewayMessageReactionAddDispatchData

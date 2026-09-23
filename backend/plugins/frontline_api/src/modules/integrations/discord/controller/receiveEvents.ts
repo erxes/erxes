@@ -234,6 +234,7 @@ export const receiveDiscordPollVote = async ({
   }
 };
 
+/** Apply a Discord reaction event to the canonical inbox message. */
 export const receiveDiscordReaction = async ({
   models,
   bot,

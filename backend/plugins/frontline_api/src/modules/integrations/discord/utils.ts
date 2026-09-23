@@ -183,6 +183,7 @@ const IDEMPOTENT_METHODS = new Set([
   'DELETE',
 ]);
 
+/** Retry transient network failures only for idempotent HTTP requests. */
 const fetchWithNetworkRetry = async (
   input: string,
   init?: RequestInit,
@@ -401,6 +402,7 @@ export const splitDiscordContent = (
   return { chunks: balanceCodeFences(chunks), truncated };
 };
 
+/** Build a Discord API payload from text, media and references. */
 const buildDiscordMessagePayload = ({
   content,
   embeds,
@@ -434,6 +436,7 @@ const buildDiscordMessagePayload = ({
   return payload;
 };
 
+/** Attach binary files to a Discord message payload. */
 const buildDiscordMessageForm = async (
   files: DiscordMessageAttachment[],
   payload: Record<string, unknown>,
@@ -474,6 +477,7 @@ const buildDiscordMessageForm = async (
   return form;
 };
 
+/** Post one message payload to a Discord channel. */
 const postDiscordMessage = async (
   args: TSendChannelMessageArgs,
 ): Promise<APIMessage> => {
@@ -731,6 +735,7 @@ export const listGuildChannels = async (token: string, guildId: string) => {
     );
 };
 
+/** Add the bot reaction to a Discord message. */
 export const addChannelMessageReaction = (
   token: string,
   channelId: string,
@@ -745,6 +750,7 @@ export const addChannelMessageReaction = (
     )}/@me`,
   });
 
+/** Remove the bot reaction from a Discord message. */
 export const removeChannelMessageReaction = (
   token: string,
   channelId: string,
@@ -759,6 +765,7 @@ export const removeChannelMessageReaction = (
     )}/@me`,
   });
 
+/** Pin a message in its Discord channel. */
 export const pinChannelMessage = (
   token: string,
   channelId: string,
@@ -767,9 +774,10 @@ export const pinChannelMessage = (
   discordRequest<unknown>({
     token,
     method: 'PUT',
-    path: `/channels/${channelId}/pins/${messageId}`,
+    path: `/channels/${channelId}/messages/pins/${messageId}`,
   });
 
+/** Unpin a message in its Discord channel. */
 export const unpinChannelMessage = (
   token: string,
   channelId: string,
@@ -778,7 +786,7 @@ export const unpinChannelMessage = (
   discordRequest<unknown>({
     token,
     method: 'DELETE',
-    path: `/channels/${channelId}/pins/${messageId}`,
+    path: `/channels/${channelId}/messages/pins/${messageId}`,
   });
 
 export const listChannelMessages = async (

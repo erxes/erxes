@@ -62,6 +62,7 @@ type TNativeForwardReference = {
   guildId?: string;
 };
 
+/** Resolve a stored Discord message to its native forwarding reference. */
 const resolveNativeForwardReference = async (
   models: IModels,
   forwardedFrom?: NonNullable<TInboxRelayDoc['extraInfo']>['forwardedFrom'],
@@ -91,6 +92,7 @@ const resolveNativeForwardReference = async (
   };
 };
 
+/** Turn inbox attachments into URLs and names accepted by Discord. */
 const resolveDiscordFiles = (
   subdomain: string,
   attachments: TInboxAttachment[],
@@ -104,6 +106,7 @@ const resolveDiscordFiles = (
       filename: attachment.name,
     }));
 
+/** Load the reply target from the current Discord conversation. */
 const resolveReplyTarget = async (
   models: IModels,
   conversationId: string,
@@ -123,6 +126,7 @@ const resolveReplyTarget = async (
   };
 };
 
+/** Send a Discord reply and surface API failures to the inbox. */
 const sendDiscordReply = async ({
   token,
   channelId,
@@ -372,6 +376,7 @@ const handleDiscordReplyMessenger = async (
   };
 };
 
+/** Apply an inbox reaction action in Discord and the inbox. */
 const handleDiscordReactMessenger = async (
   models: IModels,
   doc: TInboxRelayDoc,
@@ -391,10 +396,16 @@ const handleDiscordReactMessenger = async (
     throw new Error('Discord conversation is unavailable');
   }
   const emoji = DISCORD_REACTION_EMOJI[reaction] || reaction;
+  const discordEmoji = emoji.replace(/^<a?:([^:>]+):(\d+)>$/, '$1:$2');
   const updateReaction = remove
     ? removeChannelMessageReaction
     : addChannelMessageReaction;
-  await updateReaction(bot.token, conversation.channelId, messageId, emoji);
+  await updateReaction(
+    bot.token,
+    conversation.channelId,
+    messageId,
+    discordEmoji,
+  );
 
   const inboxMessage = await models.ConversationMessages.findOne({
     conversationId,
@@ -426,6 +437,7 @@ const handleDiscordReactMessenger = async (
   return { status: 'success' };
 };
 
+/** Apply a Discord pin action and mirror its state in the inbox. */
 const handleDiscordPinMessenger = async (
   models: IModels,
   doc: TInboxRelayDoc,
@@ -450,7 +462,7 @@ const handleDiscordPinMessenger = async (
   } catch (error) {
     if (error instanceof DiscordApiError && error.status === 403) {
       throw new Error(
-        'The Discord bot needs the "Manage Messages" permission in this channel to pin messages. Re-authorize the bot or update the channel role override, then try again.',
+        'The Discord bot needs the "Pin Messages" permission in this channel to pin messages. Re-authorize the bot or update the channel role override, then try again.',
       );
     }
     if (error instanceof DiscordApiError && error.status === 404) {
@@ -478,6 +490,7 @@ const handleDiscordPinMessenger = async (
   return { status: 'success', pinned: !remove };
 };
 
+/** Route inbox relay actions to the appropriate Discord operation. */
 export const handleDiscordMessage = (
   models: IModels,
   msg: { action: string; payload: string },

@@ -281,7 +281,7 @@ export const mutations = `
   conversationMessageReact(
     conversationId: String!
     messageId: String!
-    reaction: String
+    reaction: String!
     remove: Boolean
   ): JSON
   conversationMessagePin(

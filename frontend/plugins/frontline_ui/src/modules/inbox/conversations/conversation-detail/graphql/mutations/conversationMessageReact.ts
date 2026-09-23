@@ -4,7 +4,7 @@ export const CONVERSATION_MESSAGE_REACT = gql`
   mutation FrontlineConversationMessageReact(
     $conversationId: String!
     $messageId: String!
-    $reaction: String
+    $reaction: String!
     $remove: Boolean
   ) {
     conversationMessageReact(
