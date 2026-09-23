@@ -80,6 +80,7 @@ export const propertySchema = z
     logics: z.array(logicSchema).nullable().optional(),
     configs: z
       .object({ objectListConfigs: z.array(objectListConfigSchema).optional() })
+      .nullable()
       .optional(),
     objectListConfigs: z
       .array(objectListConfigSchema)
