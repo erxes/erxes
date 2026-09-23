@@ -3,12 +3,12 @@ import { mongooseStringRandomId } from 'erxes-api-shared/utils';
 
 export const conversationSchema = new Schema({
   _id: mongooseStringRandomId,
-  erxesApiId: String,
-  timestamp: Date,
+  erxesApiId: { type: String },
+  timestamp: { type: Date },
   senderId: { type: String, index: true },
   recipientId: { type: String, index: true },
-  integrationId: String,
-  content: String,
+  integrationId: { type: String },
+  content: { type: String },
 });
 
 conversationSchema.index({ senderId: 1, recipientId: 1 }, { unique: true });

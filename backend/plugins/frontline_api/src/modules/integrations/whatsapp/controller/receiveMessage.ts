@@ -1,6 +1,5 @@
-import { graphqlPubsub } from 'erxes-api-shared/utils';
-import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
 import { receiveInboxMessage } from '@/inbox/receiveMessage';
+import { debugWhatsapp } from '@/integrations/whatsapp/debuggers';
 import { IWhatsappIntegrationDocument } from '@/integrations/whatsapp/@types/integrations';
 import { IWhatsappIncomingMessage } from '@/integrations/whatsapp/@types/utils';
 import { getOrCreateCustomer } from '@/integrations/whatsapp/controller/store';
@@ -21,6 +20,9 @@ export const receiveMessage = async (
     : new Date();
 
   if (!content) {
+    debugWhatsapp(
+      `Dropping non-text whatsapp message type=${message.type} from=${message.from} id=${message.id}`,
+    );
     return;
   }
 
@@ -91,26 +93,45 @@ export const receiveMessage = async (
     return;
   }
 
-  const created = await models.WhatsappConversationMessages.create({
-    conversationId: conversation._id,
-    mid: message.id,
-    createdAt: timestamp,
-    content,
-    customerId: customer.erxesApiId,
-    attachments: [],
-  });
+  let created;
 
-  const doc = {
-    ...created.toObject(),
-    conversationId: conversation.erxesApiId,
-  };
+  try {
+    created = await models.WhatsappConversationMessages.create({
+      conversationId: conversation._id,
+      mid: message.id,
+      createdAt: timestamp,
+      content,
+      customerId: customer.erxesApiId,
+      attachments: [],
+    });
+  } catch (e) {
+    if (e.code === 11000) {
+      return;
+    }
+    throw e;
+  }
 
-  await pConversationClientMessageInserted(subdomain, doc);
+  try {
+    const response = await receiveInboxMessage(subdomain, {
+      action: 'create-conversation-message',
+      payload: JSON.stringify({
+        conversationId: conversation.erxesApiId,
+        content,
+        createdAt: timestamp,
+        attachments: [],
+        customerId: customer.erxesApiId,
+      }),
+    });
 
-  await graphqlPubsub.publish(
-    `conversationMessageInserted:${conversation.erxesApiId}`,
-    {
-      conversationMessageInserted: doc,
-    },
-  );
+    if (response.status !== 'success') {
+      throw new Error(
+        response.errorMessage || 'Message sync to inbox failed',
+      );
+    }
+  } catch (e) {
+    await models.WhatsappConversationMessages.deleteOne({
+      _id: created._id,
+    });
+    throw e;
+  }
 };

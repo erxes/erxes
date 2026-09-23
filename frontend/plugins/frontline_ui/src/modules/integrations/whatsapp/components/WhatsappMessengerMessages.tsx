@@ -1,10 +1,12 @@
 import {
   Button,
   cn,
+  formatBytes,
   IAttachment,
   readImage,
   RelativeDateDisplay,
 } from 'erxes-ui';
+import { IconFile } from '@tabler/icons-react';
 import { useAtomValue } from 'jotai';
 import { CustomersInline, MembersInline } from 'ui-modules';
 import { MessageContent } from '@/inbox/conversation-messages/components/MessageContent';
@@ -24,10 +26,12 @@ export const WhatsappMessengerMessage = () => {
     attachments,
   } = useWhatsappMessengerMessageContext();
 
+  const hasAttachments = !!attachments?.length;
+
   return (
     <WhatsappMessageWrapper>
       <div className={cn('max-w-[428px]')} key={_id}>
-        {content !== HAS_ATTACHMENT ? (
+        {content !== HAS_ATTACHMENT && (
           <Button
             variant="secondary"
             className={cn(
@@ -49,8 +53,9 @@ export const WhatsappMessengerMessage = () => {
               )}
             </div>
           </Button>
-        ) : (
-          <div className={cn(separatePrevious ? 'mt-2' : 'mt-8')} />
+        )}
+        {content === HAS_ATTACHMENT && hasAttachments && (
+          <div className={cn(separatePrevious ? 'mt-8' : 'mt-2')} />
         )}
         <WhatsappAttachments attachments={attachments} />
       </div>
@@ -107,21 +112,51 @@ const WhatsappAttachments = ({
   const images = attachments.filter((attachment) =>
     attachment.type?.startsWith('image'),
   );
+  const files = attachments.filter(
+    (attachment) => !attachment.type?.startsWith('image'),
+  );
 
-  if (!images.length) {
+  if (!images.length && !files.length) {
     return null;
   }
 
   return (
-    <div
-      className={cn(
-        'grid grid-cols-3 gap-2',
-        images.length === 1 && 'grid-cols-2',
+    <div className="flex flex-col gap-2">
+      {images.length > 0 && (
+        <div
+          className={cn(
+            'grid grid-cols-3 gap-2',
+            images.length === 1 && 'grid-cols-2',
+          )}
+        >
+          {images.map((attachment) => (
+            <WhatsappAttachment key={attachment.url} attachment={attachment} />
+          ))}
+        </div>
       )}
-    >
-      {images.map((attachment) => (
-        <WhatsappAttachment key={attachment.url} attachment={attachment} />
-      ))}
+      {files.length > 0 && (
+        <div className="flex flex-col gap-1">
+          {files.map((attachment) => (
+            <a
+              key={attachment.url}
+              href={readImage(attachment.url)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 rounded-md border bg-background px-3 py-2 text-sm text-primary hover:underline min-w-0"
+            >
+              <IconFile size={16} className="flex-none text-muted-foreground" />
+              <span className="truncate">
+                {attachment.name || attachment.url}
+              </span>
+              {attachment.size ? (
+                <span className="flex-none text-muted-foreground">
+                  {formatBytes(attachment.size)}
+                </span>
+              ) : null}
+            </a>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
@@ -130,7 +165,7 @@ const WhatsappAttachment = ({ attachment }: { attachment: IAttachment }) => {
   return (
     <img
       src={readImage(attachment.url)}
-      alt={attachment.name}
+      alt={attachment.name || ''}
       className="w-full aspect-square object-cover rounded bg-accent"
     />
   );

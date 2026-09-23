@@ -5,10 +5,12 @@ export interface IWhatsappConversationMessage {
   content: string;
   createdAt: string;
   attachments: IAttachment[];
+  conversationId?: string;
   customerId?: string;
   userId?: string;
   internal?: boolean;
   mid?: string;
+  isCustomerRead?: boolean;
 }
 
 export interface IWhatsappPhoneNumber {
@@ -20,5 +22,5 @@ export interface IWhatsappPhoneNumber {
 export interface IWhatsappBusinessAccount {
   id: string;
   name: string;
-  phoneNumbers: IWhatsappPhoneNumber[];
+  phoneNumbers?: IWhatsappPhoneNumber[];
 }

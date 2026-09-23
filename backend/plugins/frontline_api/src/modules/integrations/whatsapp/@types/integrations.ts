@@ -3,11 +3,11 @@ import { Document } from 'mongoose';
 export interface IWhatsappIntegration {
   kind: string;
   erxesApiId: string;
+  accountId?: string;
   phoneNumberId: string;
   accessToken: string;
   businessAccountId?: string;
   pageId?: string;
-  verifyToken?: string;
   healthStatus?: string;
   error?: string;
 }

@@ -35,3 +35,9 @@ export const GET_WHATSAPP_CONVERSATION_MESSAGES = gql`
     }
   }
 `;
+
+export const GET_WHATSAPP_CONVERSATION_MESSAGES_COUNT = gql`
+  query WhatsappConversationMessagesCount($conversationId: String!) {
+    whatsappConversationMessagesCount(conversationId: $conversationId)
+  }
+`;

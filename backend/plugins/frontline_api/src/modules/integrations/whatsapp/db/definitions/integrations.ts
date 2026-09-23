@@ -3,13 +3,13 @@ import { mongooseStringRandomId } from 'erxes-api-shared/utils';
 
 export const integrationSchema = new Schema({
   _id: mongooseStringRandomId,
-  kind: String,
+  kind: { type: String },
   erxesApiId: { type: String, index: true },
-  phoneNumberId: { type: String, index: true },
-  accessToken: String,
-  businessAccountId: String,
-  pageId: String,
-  verifyToken: String,
-  healthStatus: String,
-  error: String,
+  accountId: { type: String, index: true },
+  phoneNumberId: { type: String, unique: true },
+  accessToken: { type: String },
+  businessAccountId: { type: String },
+  pageId: { type: String },
+  healthStatus: { type: String },
+  error: { type: String },
 });

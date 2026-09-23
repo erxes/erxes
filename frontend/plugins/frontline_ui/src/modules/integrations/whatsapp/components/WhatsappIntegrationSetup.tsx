@@ -1,9 +1,10 @@
 import { useIntegrationAdd } from '@/integrations/hooks/useIntegrationAdd';
 import { IntegrationType } from '@/types/Integration';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Form, Input } from 'erxes-ui';
+import { Button, Form, Input, toast } from 'erxes-ui';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router';
 import { SelectBrands } from 'ui-modules';
 import { z } from 'zod';
@@ -22,6 +23,7 @@ import {
 } from './WhatsappIntegrationForm';
 
 export const WhatsappIntegrationSetup = () => {
+  const { t } = useTranslation('frontline');
   const { id: channelId } = useParams();
   const form = useForm<z.infer<typeof WHATSAPP_INTEGRATION_SCHEMA>>({
     resolver: zodResolver(WHATSAPP_INTEGRATION_SCHEMA),
@@ -43,6 +45,14 @@ export const WhatsappIntegrationSetup = () => {
 
   const onNext = (data: z.infer<typeof WHATSAPP_INTEGRATION_SCHEMA>) => {
     if (!channelId || !accountId || !businessAccountId || !phoneNumberId) {
+      toast({
+        title: t('failed-to-add-integration'),
+        description: t(
+          'whatsapp-missing-selection',
+          'Select a channel, Facebook account, business account and phone number before saving.',
+        ),
+        variant: 'destructive',
+      });
       return;
     }
 
@@ -59,8 +69,13 @@ export const WhatsappIntegrationSetup = () => {
           phoneNumberId,
         },
       },
-      refetchQueries: ['Integrations'],
-      onCompleted: () => resetWhatsappForm(),
+      onCompleted: () => {
+        toast({
+          title: t('integration-added'),
+          variant: 'default',
+        });
+        resetWhatsappForm();
+      },
     });
   };
 
@@ -74,20 +89,21 @@ export const WhatsappIntegrationSetup = () => {
           actions={
             <>
               <Button
+                type="button"
                 variant="secondary"
                 className="bg-border"
                 onClick={() => setActiveStep(3)}
               >
-                Previous step
+                {t('previous-step')}
               </Button>
               <Button type="submit" disabled={loading}>
-                Save
+                {t('save')}
               </Button>
             </>
           }
         >
           <WhatsappIntegrationFormSteps
-            title="Integration Setup"
+            title={t('integration-setup')}
             step={4}
             description=""
           />
@@ -96,12 +112,12 @@ export const WhatsappIntegrationSetup = () => {
               name="name"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Integration name</Form.Label>
+                  <Form.Label>{t('integration-name')}</Form.Label>
                   <Form.Control>
                     <Input {...field} />
                   </Form.Control>
                   <Form.Description>
-                    Name this integration to differentiate from the rest
+                    {t('integration-name-description')}
                   </Form.Description>
                   <Form.Message />
                 </Form.Item>
@@ -112,7 +128,7 @@ export const WhatsappIntegrationSetup = () => {
               name="brandId"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Brand</Form.Label>
+                  <Form.Label>{t('brand')}</Form.Label>
                   <Form.Control>
                     <SelectBrands.FormItem
                       value={field.value}
@@ -120,7 +136,7 @@ export const WhatsappIntegrationSetup = () => {
                     />
                   </Form.Control>
                   <Form.Description>
-                    Choose the brand for this integration
+                    {t('choose-brand-description')}
                   </Form.Description>
                   <Form.Message />
                 </Form.Item>

@@ -177,8 +177,22 @@ export const sendRemoveIntegration = async (
 
       case 'callpro':
         return await callProRemoveIntegration({ subdomain, data });
-      case 'whatsapp':
-        return await whatsappRemoveIntegrations({ subdomain, data });
+      case 'whatsapp': {
+        const result = await whatsappRemoveIntegrations({ subdomain, data });
+        const errorMessage =
+          (result as { errorMessage?: string })?.errorMessage || '';
+
+        if ((result as { status?: string })?.status === 'error') {
+          if (errorMessage.includes('Integration not found')) {
+            // Plugin-side record is already gone; let the core deletion proceed.
+            return result;
+          }
+
+          throw new Error(errorMessage);
+        }
+
+        return result;
+      }
 
       case 'mobinetSms':
         break;
@@ -579,8 +593,10 @@ export const integrationMutations = {
   async integrationsEditCommonFields(
     _root,
     { _id, name, details, channelId, brandId },
-    { models, subdomain }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) {
+    await checkPermission('integrationsEdit');
+
     const integration = await models.Integrations.getIntegration({ _id });
 
     const doc: any = { name, details };

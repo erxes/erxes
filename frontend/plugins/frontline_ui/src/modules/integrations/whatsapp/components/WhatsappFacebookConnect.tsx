@@ -11,12 +11,16 @@ import {
 } from 'erxes-ui';
 import { IconBrandFacebook } from '@tabler/icons-react';
 import { useAtom, useSetAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 import { useFacebookAccounts } from '@/integrations/facebook/hooks/useFacebookAccounts';
 import { useFbAuthPopup } from '@/integrations/facebook/hooks/useFbAuthPopup';
 import { IntegrationType } from '@/types/Integration';
 import {
   activeWhatsappFormStepAtom,
   selectedWhatsappAccountAtom,
+  selectedWhatsappBusinessAccountAtom,
+  selectedWhatsappPageAtom,
+  selectedWhatsappPhoneNumberAtom,
 } from '../states/whatsappStates';
 import {
   WhatsappIntegrationFormLayout,
@@ -24,20 +28,35 @@ import {
 } from './WhatsappIntegrationForm';
 
 export const WhatsappFacebookConnect = () => {
+  const { t } = useTranslation('frontline');
   const { facebookGetAccounts, loading, error, refetch } =
     useFacebookAccounts();
   const [selectedAccount, setSelectedAccount] = useAtom(
     selectedWhatsappAccountAtom,
   );
   const setActiveStep = useSetAtom(activeWhatsappFormStepAtom);
+  const setSelectedPage = useSetAtom(selectedWhatsappPageAtom);
+  const setSelectedBusinessAccount = useSetAtom(
+    selectedWhatsappBusinessAccountAtom,
+  );
+  const setSelectedPhoneNumber = useSetAtom(selectedWhatsappPhoneNumberAtom);
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+
+  const clearDownstreamSelection = () => {
+    setSelectedPage(undefined);
+    setSelectedBusinessAccount(undefined);
+    setSelectedPhoneNumber(undefined);
+  };
 
   const { popupWindow } = useFbAuthPopup(() => {
     refetch().catch(() =>
       toast({
-        title: 'Facebook authentication failed',
-        description: 'Could not load your Facebook accounts. Please retry.',
+        title: t('facebook-auth-failed', 'Facebook authentication failed'),
+        description: t(
+          'facebook-auth-failed-description',
+          'Could not load your Facebook accounts. Please retry.',
+        ),
         variant: 'destructive',
       }),
     );
@@ -46,12 +65,33 @@ export const WhatsappFacebookConnect = () => {
 
   const handleFacebookLogin = () => {
     setIsLoggingIn(true);
-    popupWindow(
+    const popup = popupWindow(
       `${REACT_APP_API_URL}/pl:frontline/facebook/fblogin?kind=${IntegrationType.WHATSAPP_MESSENGER}`,
       'Facebook Login',
       660,
       750,
     );
+
+    if (!popup) {
+      setIsLoggingIn(false);
+      toast({
+        title: t('popup-blocked', 'Pop-up blocked'),
+        description: t(
+          'popup-blocked-description',
+          'Allow pop-ups for this site and try connecting Facebook again.',
+        ),
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const selectAccount = (accountId: string) => {
+    const nextAccount =
+      selectedAccount === accountId ? undefined : accountId;
+    if (nextAccount !== selectedAccount) {
+      clearDownstreamSelection();
+    }
+    setSelectedAccount(nextAccount);
   };
 
   const onNext = () => setActiveStep(2);
@@ -64,19 +104,27 @@ export const WhatsappFacebookConnect = () => {
     <WhatsappIntegrationFormLayout
       actions={
         <>
-          <Button variant="secondary" className="bg-border" disabled>
-            Previous step
+          <Button
+            type="button"
+            variant="secondary"
+            className="bg-border"
+            disabled
+          >
+            {t('previous-step')}
           </Button>
-          <Button onClick={onNext} disabled={!selectedAccount}>
-            Next step
+          <Button type="button" onClick={onNext} disabled={!selectedAccount}>
+            {t('next-step')}
           </Button>
         </>
       }
     >
       <WhatsappIntegrationFormSteps
-        title="Connect Facebook"
+        title={t('whatsapp-connect-facebook', 'Connect Facebook')}
         step={1}
-        description="Connect the Facebook account that manages your WhatsApp Business."
+        description={t(
+          'whatsapp-connect-facebook-description',
+          'Connect the Facebook account that manages your WhatsApp Business.',
+        )}
       />
 
       <div className="flex-1 overflow-hidden p-4 pt-0 flex flex-col">
@@ -84,7 +132,7 @@ export const WhatsappFacebookConnect = () => {
           <div className="p-1">
             <Command.Primitive.Input asChild>
               <Input
-                placeholder="Search for an account"
+                placeholder={t('search-for-an-account')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -96,14 +144,15 @@ export const WhatsappFacebookConnect = () => {
               {loading ? (
                 <>
                   <Spinner className="w-3 h-3" />
-                  Loading accounts...
+                  {t('loading-accounts')}
                 </>
               ) : (
-                `${filteredAccounts.length} accounts found`
+                t('accounts-found', { count: filteredAccounts.length })
               )}
             </div>
 
             <Button
+              type="button"
               variant="outline"
               className="border-blue-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 transition-all duration-200 font-medium"
               onClick={handleFacebookLogin}
@@ -112,12 +161,12 @@ export const WhatsappFacebookConnect = () => {
               {isLoggingIn ? (
                 <>
                   <Spinner className="w-4 h-4 mr-2" />
-                  Connecting to Facebook...
+                  {t('connecting-to-facebook')}
                 </>
               ) : (
                 <>
                   <IconBrandFacebook className="w-4 h-4 mr-2 text-blue-600" />
-                  Connect Facebook
+                  {t('connect-facebook-account')}
                 </>
               )}
             </Button>
@@ -126,39 +175,38 @@ export const WhatsappFacebookConnect = () => {
           {error ? (
             <div className="flex-1 flex flex-col items-center justify-center gap-2 p-6 text-center">
               <div className="text-sm font-medium text-destructive">
-                Failed to load Facebook accounts
+                {t(
+                  'failed-to-load-facebook-accounts',
+                  'Failed to load Facebook accounts',
+                )}
               </div>
               <div className="text-sm text-muted-foreground">
                 {error.message}
               </div>
-              <Button variant="secondary" onClick={() => refetch()}>
-                Retry
+              <Button type="button" variant="secondary" onClick={() => refetch()}>
+                {t('retry', 'Retry')}
               </Button>
             </div>
           ) : (
             <RadioGroup
               value={selectedAccount}
-              onValueChange={(value) =>
-                setSelectedAccount(selectedAccount === value ? undefined : value)
-              }
+              onValueChange={(value) => selectAccount(value)}
               className="flex-1 overflow-hidden"
             >
               <Command.List className="max-h-none overflow-y-auto">
                 {!loading && filteredAccounts.length === 0 && (
                   <div className="p-6 text-sm text-muted-foreground text-center">
-                    No Facebook accounts connected yet. Connect Facebook to
-                    continue.
+                    {t(
+                      'no-facebook-accounts-connected',
+                      'No Facebook accounts connected yet. Connect Facebook to continue.',
+                    )}
                   </div>
                 )}
                 {filteredAccounts.map((account) => (
                   <Command.Item
                     key={account._id}
-                    value={account._id}
-                    onSelect={() =>
-                      setSelectedAccount(
-                        selectedAccount === account._id ? undefined : account._id,
-                      )
-                    }
+                    value={account.name}
+                    onSelect={() => selectAccount(account._id)}
                     className={cn(
                       'gap-3 border-t last-of-type:border-b rounded-none h-10 px-3',
                       selectedAccount === account._id && 'text-primary',
@@ -168,7 +216,7 @@ export const WhatsappFacebookConnect = () => {
                       value={account._id}
                       checked={selectedAccount === account._id}
                       className="bg-background"
-                      onClick={() => setSelectedAccount(account._id)}
+                      onClick={() => selectAccount(account._id)}
                     />
                     <div className="font-semibold">{account.name}</div>
                   </Command.Item>

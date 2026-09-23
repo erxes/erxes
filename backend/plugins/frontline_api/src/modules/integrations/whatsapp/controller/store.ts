@@ -14,44 +14,37 @@ export const getOrCreateCustomer = async (
     kind: { $in: INTEGRATION_KINDS.ALL },
   });
 
-  let customer = await models.WhatsappCustomers.findOne({ userId });
-
-  if (customer) {
-    return customer;
-  }
-
   const [firstName = profileName || userId, ...lastNameParts] = (
     profileName || userId
   ).split(' ');
 
-  customer = await models.WhatsappCustomers.create({
+  const customer = await models.WhatsappCustomers.getOrCreateByPhone({
     userId,
+    integrationId: integration.erxesApiId,
     firstName,
     lastName: lastNameParts.join(' '),
-    integrationId: integration.erxesApiId,
   });
 
-  try {
-    const response = await receiveInboxMessage(subdomain, {
-      action: 'get-create-update-customer',
-      payload: JSON.stringify({
-        integrationId: integration.erxesApiId,
-        firstName,
-        lastName: lastNameParts.join(' '),
-        primaryPhone: userId,
-        isUser: true,
-      }),
-    });
-
-    if (response.status === 'success') {
-      customer.erxesApiId = response.data._id;
-      await customer.save();
-      return customer;
-    }
-
-    throw new Error(response.errorMessage || 'Customer creation failed');
-  } catch (e) {
-    await models.WhatsappCustomers.deleteOne({ _id: customer._id });
-    throw e;
+  if (customer.erxesApiId) {
+    return customer;
   }
+
+  const response = await receiveInboxMessage(subdomain, {
+    action: 'get-create-update-customer',
+    payload: JSON.stringify({
+      integrationId: integration.erxesApiId,
+      firstName,
+      lastName: lastNameParts.join(' '),
+      primaryPhone: userId,
+      isUser: true,
+    }),
+  });
+
+  if (response.status !== 'success') {
+    throw new Error(response.errorMessage || 'Customer creation failed');
+  }
+
+  customer.erxesApiId = response.data._id;
+  await customer.save();
+  return customer;
 };

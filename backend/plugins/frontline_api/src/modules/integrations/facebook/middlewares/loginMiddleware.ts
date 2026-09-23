@@ -142,6 +142,23 @@ export const loginMiddleware = async (req, res) => {
           );
         }
       }
+
+      const whatsappIntegrations = await models.WhatsappIntegrations.find({
+        accountId: account._id,
+      });
+
+      for (const whatsappIntegration of whatsappIntegrations) {
+        try {
+          await models.WhatsappIntegrations.updateOne(
+            { _id: whatsappIntegration._id },
+            { $set: { accessToken: access_token } },
+          );
+        } catch (e) {
+          debugError(
+            `Failed to refresh whatsapp integration ${whatsappIntegration.erxesApiId} access token: ${e.message}`,
+          );
+        }
+      }
     } else {
       await models.FacebookAccounts.create({
         token: access_token,

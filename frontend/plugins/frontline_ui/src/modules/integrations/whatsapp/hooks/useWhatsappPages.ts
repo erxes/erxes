@@ -7,7 +7,7 @@ import { selectedWhatsappAccountAtom } from '../states/whatsappStates';
 export const useWhatsappPages = () => {
   const accountId = useAtomValue(selectedWhatsappAccountAtom);
 
-  const { data, loading, error } = useQuery<{
+  const { data, loading, error, refetch } = useQuery<{
     facebookGetPages: {
       id: string;
       name: string;
@@ -23,5 +23,5 @@ export const useWhatsappPages = () => {
 
   const { facebookGetPages = [] } = data || {};
 
-  return { whatsappGetPages: facebookGetPages, loading, error };
+  return { whatsappGetPages: facebookGetPages, loading, error, refetch };
 };

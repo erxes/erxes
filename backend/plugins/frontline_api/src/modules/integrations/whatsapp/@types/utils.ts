@@ -1,3 +1,5 @@
+import { IWhatsappAttachment } from '@/integrations/whatsapp/@types/conversationMessages';
+
 export interface IWhatsappMessageValue {
   metadata?: {
     phone_number_id?: string;
@@ -20,12 +22,34 @@ export interface IWhatsappIncomingMessage {
   text?: {
     body?: string;
   };
+  image?: unknown;
+  video?: unknown;
+  audio?: unknown;
+  document?: unknown;
+  interactive?: unknown;
+  button?: unknown;
+  location?: unknown;
+  contacts?: unknown;
+  reaction?: unknown;
+  button_reply?: {
+    id?: string;
+    title?: string;
+  };
+  list_reply?: {
+    id?: string;
+    title?: string;
+  };
+  context?: {
+    id?: string;
+    from?: string;
+  };
 }
 
 export interface IWhatsappMessagePayload {
   integrationId?: string;
   conversationId: string;
   content?: string;
+  attachments?: IWhatsappAttachment[];
   userId?: string;
   internal?: boolean;
 }

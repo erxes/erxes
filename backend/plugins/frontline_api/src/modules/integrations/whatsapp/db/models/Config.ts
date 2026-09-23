@@ -30,18 +30,23 @@ export const loadWhatsappConfigClass = (models: IModels) => {
       code,
       value,
     }: IWhatsappConfig) {
-      const config = await models.WhatsappConfigs.findOne({ code });
-
-      if (config) {
-        await models.WhatsappConfigs.updateOne(
-          { _id: config._id },
+      try {
+        return await models.WhatsappConfigs.findOneAndUpdate(
+          { code },
           { $set: { value } },
+          { new: true, upsert: true },
         );
+      } catch (e) {
+        if (e.code === 11000) {
+          return models.WhatsappConfigs.findOneAndUpdate(
+            { code },
+            { $set: { value } },
+            { new: true },
+          );
+        }
 
-        return models.WhatsappConfigs.findOne({ _id: config._id });
+        throw e;
       }
-
-      return models.WhatsappConfigs.create({ code, value });
     }
 
     public static async updateConfigs(configsMap: Record<string, unknown>) {

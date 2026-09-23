@@ -21,3 +21,8 @@ export const conversationMessageSchema = new Schema({
   isCustomerRead: { type: Boolean, label: 'Is Customer Read' },
   internal: { type: Boolean, label: 'Internal' },
 });
+
+conversationMessageSchema.index(
+  { mid: 1 },
+  { unique: true, sparse: true },
+);

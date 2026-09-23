@@ -9,7 +9,7 @@ interface IWhatsappConfig {
 }
 
 export const useWhatsappGetConfigs = () => {
-  const { data, loading } = useQuery<{
+  const { data, loading, error, refetch } = useQuery<{
     whatsappGetConfigs: IWhatsappConfig[];
   }>(GET_WHATSAPP_CONFIGS);
 
@@ -23,5 +23,5 @@ export const useWhatsappGetConfigs = () => {
     return configs;
   }, [data?.whatsappGetConfigs]);
 
-  return { loading, whatsappConfigs };
+  return { loading, error, whatsappConfigs, refetch };
 };

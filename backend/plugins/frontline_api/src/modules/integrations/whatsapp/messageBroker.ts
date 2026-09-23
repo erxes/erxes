@@ -119,10 +119,20 @@ export const whatsappStatus = async ({
       erxesApiId: data.integrationId,
     });
 
+    if (!integration) {
+      return {
+        data: {
+          status: 'error',
+          error: 'Integration not found',
+        },
+        status: 'error',
+      };
+    }
+
     return {
       data: {
-        status: integration?.healthStatus || 'healthy',
-        error: integration?.error,
+        status: integration.healthStatus || 'healthy',
+        error: integration.error,
       },
       status: 'success',
     };

@@ -21,8 +21,8 @@
   and external kinds.
 - Channel integration runtimes hosted in this service and their webhook
   ingestion, message delivery, and bot automation: Facebook (Messenger + Page
-  comments), Instagram, Mail (Cloudflare Email Routing), Discord,
-  Call (SIP/CDR), and Call Pro (webhook PBX).
+  comments), Instagram, WhatsApp (Cloud API), Mail (Cloudflare Email Routing),
+  Discord, Call (SIP/CDR), and Call Pro (webhook PBX).
 - Response templates.
 - Ticketing: boards, pipelines, statuses, tickets, activities, notes, ticket
   configs, plus ticket import/export handlers.
@@ -200,6 +200,34 @@
   integration attaches to the caller's personal channel regardless of kind.
 - Receives Facebook and Instagram webhooks over Express and turns them into
   customers, conversations, comment conversations, and post conversations.
+- Receives WhatsApp Cloud API webhooks at `/whatsapp/receive` and turns inbound
+  text messages into customers, conversations, and inbox messages, matched to
+  the integration by `metadata.phone_number_id` — a field that is unique per
+  tenant, and whose create/update reject a phone number already used by
+  another integration (`A WhatsApp integration for this phone number already
+  exists`, with a lost E11000 race mapped to the same error). Creating or
+  updating an integration subscribes the WABA to the Meta app
+  (`/{wabaId}/subscribed_apps`) — without that subscription Meta accepts the
+  webhook URL but never delivers — and removing the last integration on a WABA
+  unsubscribes it.
+  `GET /whatsapp/receive` answers Meta's verification handshake against the
+  `WHATSAPP_VERIFY_TOKEN` config only, rejecting a missing/empty token and
+  mismatching tokens with 403;
+  `POST /whatsapp/receive` verifies Meta's `X-Hub-Signature-256` HMAC-SHA256
+  over the raw request body against `FACEBOOK_APP_SECRET` (fail-closed 403)
+  before any payload is processed, and `GET /whatsapp/get-status` reports
+  integration health or `Integration not found`.
+- Sends WhatsApp agent replies and bot messages as text first (when there is
+  sanitized content) and then one Cloud API media message per attachment
+  (`sendWhatsappMedia`, type detected from the attachment mime prefix with
+  `document` as the fallback); an attachment without a `url` throws instead of
+  being skipped, content is rejected only when there is neither text nor
+  attachments, and the local message stores the attachments next to the `mid`
+  of the first outbound send.
+- Stores the Facebook `accountId` on each WhatsApp integration, so when
+  `loginMiddleware` renews the Facebook account's token it also `$set`s the
+  refreshed `accessToken` onto every `WhatsappIntegrations` row with that
+  `accountId` (per-row failures are logged with `debugError`, never thrown).
 - Sends agent replies and bot messages through the Graph Send API, including
   private replies addressed by `comment_id`.
 - Publishes posts to a connected page (`facebookCreatePost`), optionally with up
@@ -281,12 +309,12 @@
 | GraphQL                  | `src/apollo/`                                                               | Aggregated `typeDefs` and `resolvers` across modules                                                                                                                                                   |
 | tRPC                     | `src/init-trpc.ts`                                                          | `appRouter` for service-to-service calls                                                                                                                                                               |
 | Agent tool metadata      | `src/trpc/agentMeta.ts`                                                     | Local `agentMeta` helper for agent-callable tRPC annotations                                                                                                                                           |
-| HTTP                     | `src/routes.ts`                                                             | Mounts the `/facebook`, `/instagram`, `/mail`, and (when enabled) `/callpro` webhook routers                                                                                                           |
+| HTTP                     | `src/routes.ts`                                                             | Mounts the `/facebook`, `/instagram`, `/mail`, `/whatsapp`, and (when enabled) `/callpro` webhook routers                                                                                                  |
 | Platform extensions      | `src/meta/`                                                                 | automations, permissions, notifications, segments, references, import/export                                                                                                                           |
 | Channels                 | `src/modules/channel/`                                                      | Channel + ChannelMember models, schema, resolvers, role checks                                                                                                                                         |
 | Inbox                    | `src/modules/inbox/`                                                        | Conversations, messages, integrations, widget/clientportal schemas, `receiveInboxMessage`                                                                                                              |
 | Conversation queries     | `src/conversationQueryBuilder.ts`, `src/modules/inbox/conversationUtils.ts` | Mongo and Elasticsearch conversation filters (membership-scoped)                                                                                                                                       |
-| Integrations             | `src/modules/integrations/<kind>/`                                          | facebook, instagram, mail, discord, call, callpro, trpc                                                                                                                                                |
+| Integrations             | `src/modules/integrations/<kind>/`                                          | facebook, instagram, whatsapp, mail, discord, call, callpro, trpc                                                                                                                                         |
 | Mail integration         | `src/modules/integrations/mail/`                                            | Inbound webhook, threading, outbound send/retry                                                                                                                                                        |
 | Mail transports          | `src/modules/integrations/mail/utils/transports/`                           | `index.ts` picks the Cloudflare account that signs for this workspace, `deliver.ts` runs the delivery pipeline (sender guard, suppression, delivery log), `cloudflare.ts` is the only `IMailTransport` |
 | Mail provisioning        | `src/modules/integrations/mail/utils/cloudflare/`                           | Cloudflare REST client, the fourteen-step provisioner, Email Sending onboarding and quota, the connection cache and its public shape                                                                   |
@@ -390,6 +418,88 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-23` — WhatsApp integration gaps closed: unique phone routing, media replies, token refresh
+
+- **Summary:** `whatsapp_integrations.phoneNumberId` is now unique per tenant
+  and `whatsappCreateIntegration` / `updateIntegration` reject a number
+  already used by another integration before writing (a lost E11000 race on
+  create maps to the same friendly error), so the webhook's
+  `findOne({ phoneNumberId })` cannot mis-route messages. Dead surfaces are
+  gone: GraphQL `whatsappGetIntegrations` / `whatsappGetIntegrationDetail`
+  with their `IKindParams` / `IDetailParams`, the per-integration
+  `verifyToken` field (create/update `$set`, schema, type) and the handshake's
+  per-integration branch — `GET /whatsapp/receive` matches only a non-empty
+  `WHATSAPP_VERIFY_TOKEN` config, which `whatsappUpdateConfigs` still
+  allow-lists — and the unreachable `doc.internal` branch of
+  `handleWhatsappMessage` (the inbox returns internal messages before
+  dispatch). Outbound replies now send every attachment through the Cloud API
+  media message (`sendWhatsappMedia`, type from the mime prefix, default
+  `document`) after the text, throw when an attachment has no `url`, reject
+  empty content only when there is neither text nor attachments, and store the
+  attachments on the local message. WhatsApp integrations store the Facebook
+  `accountId`, and `loginMiddleware` `$set`s their copied `accessToken` to
+  the renewed account token after the Facebook repair loop.
+- **Affected areas:**
+  `src/modules/integrations/whatsapp/{db/definitions/integrations,@types/{integrations,utils},helpers,controller/controller,handleWhatsappMessage,utils,graphql/schema/whatsapp,graphql/resolvers/queries}.ts`,
+  `src/modules/integrations/facebook/middlewares/loginMiddleware.ts`
+- **Contracts changed:** removed queries `whatsappGetIntegrations` and
+  `whatsappGetIntegrationDetail` (and `IKindParams` / `IDetailParams`);
+  `whatsapp_integrations` unique index on `phoneNumberId`, field `accountId`
+  added, field `verifyToken` removed; handshake accepts only
+  `WHATSAPP_VERIFY_TOKEN`; new `sendWhatsappMedia` / `whatsappMediaTypeFromMime`
+  utils.
+
+### `2026-09-23` — WhatsApp integrations harden webhook, permissions, and data integrity
+
+- **Summary:** Create or update a WhatsApp integration still calls
+  `POST /{wabaId}/subscribed_apps` so Meta delivers webhooks, and still
+  refuses a phone number whose Cloud API `status` is not `CONNECTED` — but the
+  whole path is now verified and typed end to end: the `GET /whatsapp/receive`
+  handshake rejects a missing `hub.verify_token` with 403 (an empty config can
+  no longer match an empty query), `POST /whatsapp/receive` verifies Meta's
+  `X-Hub-Signature-256` HMAC-SHA256 over `req.rawBody` against
+  `FACEBOOK_APP_SECRET` before any payload is parsed (fail-closed 403), and
+  Graph API failures surface as a typed `MetaGraphError` carrying the Meta
+  `error.code` so only `100 Unsupported get request` is suppressed while auth
+  and rate-limit errors propagate. WhatsApp GraphQL resolvers now enforce the
+  registered permissions (`integrationsEdit` / `showIntegrations` /
+  `showConversations`), `whatsappUpdateConfigs` allow-lists
+  `WHATSAPP_VERIFY_TOKEN` as a non-empty string, integration list/detail
+  projections exclude `accessToken`, and message pagination clamps
+  `limit`/`skip`. On update, a changed `phoneNumberId`/`businessAccountId` is
+  re-validated against the stored token with the same `assertPhoneReady`
+  logic create uses; `$set` only touches known fields. Removing an already
+  deleted plugin integration returns success-shaped so core deletion proceeds,
+  while any other remove failure throws and blocks deletion;
+  `integrationsEditCommonFields` checks `integrationsEdit` explicitly (the
+  group wrapper skips permission). Customer upsert is atomic on
+  `{userId, integrationId}` (compound unique index) with duplicate-key
+  recovery, and a failed core-customer sync leaves the mirror row for the next
+  webhook instead of deleting it. Inbound non-text messages are logged and
+  dropped via `debugWhatsapp`; text messages publish once through
+  `receiveInboxMessage` `create-conversation-message` (no double
+  `pConversationClientMessageInserted` + `graphqlPubsub.publish`); local
+  `mid` is unique (sparse index) with E11000-safe insert and rollback if the
+  inbox mirror fails. Config upsert is a single `findOneAndUpdate`, schemas use
+  explicit `{ type: ... }`, `addMessage` preserves `doc.userId` when the
+  optional argument is omitted, `whatsappStatus` and
+  `GET /whatsapp/get-status` report `Integration not found` for a missing
+  integration, `whatsappGetIntegrationDetail` requires `erxesApiId: String!`,
+  and the outbound HTML sanitizer is a single-pass `</p>` → newline +
+  `stripHtml`. Cross-store idempotency on shared `ConversationMessages.mid` is
+  skipped: the shared schema has no `mid` field.
+- **Affected areas:** `src/modules/integrations/whatsapp/{controller/{controller,receiveMessage,store},helpers,utils,messageBroker,handleWhatsappMessage,db/{definitions/*,models/{Customers,Config,ConversationMessages}},@types/utils,graphql/{schema/whatsapp,resolvers/{mutations,queries}}}.ts`,
+  `src/modules/inbox/graphql/resolvers/mutations/integrations.ts`,
+  `src/connectionResolvers.ts`
+- **Contracts changed:** `whatsappGetIntegrationDetail(erxesApiId: String!)`;
+  `IWhatsappIncomingMessage` gains non-text media fields;
+  `loadWhatsappCustomerClass(models)` now requires models;
+  `IWhatsappCustomerModel.getOrCreateByPhone`;
+  `whatsapp_customers` compound unique index on `{userId, integrationId}`;
+  `whatsapp_conversation_messages` sparse unique index on `mid`;
+  webhook handshake 403 on mismatch/empty token; webhook 403 on bad/missing
+  `X-Hub-Signature-256`.
 
 ### `2026-09-23` — A survey question carries attachments
 
@@ -525,32 +635,3 @@
   `project.json`
 - **Contracts changed:** Added mutation `channelMoveResources`, enum
   `ChannelResourceType` and type `ChannelMoveResourcesResult`.
-
-### `2026-09-21` — Messenger company writes actually reach Core
-
-- **Summary:** Every Core call in the company branch of
-  `widgetsMessengerConnect` used the wrong tRPC method or input shape, and
-  `sendTRPCMessage` swallows the resulting errors, so messenger `companyData`
-  silently produced no company at all: `companies.findOne` was called as a
-  mutation with `{ query: { companyData } }` (matching no selector key),
-  `updateCompany` received `{ query: { _id, doc } }` instead of `{ _id, doc }`,
-  `createCompany` was called as a query with `{ query: { ...companyData } }`
-  instead of a mutation with `{ doc }`, and the follow-up automation trigger
-  used the non-existent `triggers.trigger` path. All four now match the
-  published contracts, and lookup cascades name -> email -> phone, so the
-  company, its `trackedData`, and the customer-company conformity are written.
-- **Affected areas:**
-  `src/modules/inbox/graphql/resolvers/mutations/widget.ts`
-  (`findMessengerCompany` helper, company branch of
-  `widgetsMessengerConnect`).
-- **Contracts changed:** None. Consumed contracts corrected: Core
-  `companies.findOne` (query), `companies.updateCompany` / `createCompany`
-  (mutations), and automations `automations.trigger`.
-
-### `2026-09-17` — Property types declare system fields
-
-- **Summary:** The `conversation` and `ticket` property types now declare
-  `systemFields`, shown as the "Basic information" group in Settings →
-  Properties.
-- **Affected areas:** `src/meta/properties.ts`, `src/main.ts`
-- **Contracts changed:** Plugin meta `properties.types[].systemFields` added.

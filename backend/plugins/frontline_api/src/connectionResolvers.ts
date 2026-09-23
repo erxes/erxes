@@ -644,7 +644,7 @@ export const loadClasses = (
   models.WhatsappCustomers = db.model<
     IWhatsappCustomerDocument,
     IWhatsappCustomerModel
-  >('whatsapp_customers', loadWhatsappCustomerClass());
+  >('whatsapp_customers', loadWhatsappCustomerClass(models));
   models.WhatsappConversations = db.model<
     IWhatsappConversationDocument,
     IWhatsappConversationModel

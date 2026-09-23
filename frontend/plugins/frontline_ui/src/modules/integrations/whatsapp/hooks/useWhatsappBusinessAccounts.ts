@@ -11,7 +11,7 @@ export const useWhatsappBusinessAccounts = () => {
   const accountId = useAtomValue(selectedWhatsappAccountAtom);
   const pageId = useAtomValue(selectedWhatsappPageAtom);
 
-  const { data, loading, error } = useQuery<{
+  const { data, loading, error, refetch } = useQuery<{
     whatsappGetBusinessAccounts: IWhatsappBusinessAccount[];
   }>(GET_WHATSAPP_BUSINESS_ACCOUNTS, {
     variables: {
@@ -23,5 +23,5 @@ export const useWhatsappBusinessAccounts = () => {
 
   const { whatsappGetBusinessAccounts = [] } = data || {};
 
-  return { whatsappGetBusinessAccounts, loading, error };
+  return { whatsappGetBusinessAccounts, loading, error, refetch };
 };

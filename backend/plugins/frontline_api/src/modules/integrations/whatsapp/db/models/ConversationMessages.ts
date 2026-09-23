@@ -51,7 +51,7 @@ export const loadWhatsappConversationMessageClass = (models: IModels) => {
         ...doc,
         content,
         attachments,
-        userId,
+        userId: userId ?? doc.userId,
       });
     }
   }

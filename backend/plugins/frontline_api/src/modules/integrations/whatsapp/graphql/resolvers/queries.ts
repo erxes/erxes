@@ -2,14 +2,6 @@ import { IContext } from '~/connectionResolvers';
 import { SortOrder } from 'mongoose';
 import { getWhatsappBusinessAccounts } from '@/integrations/whatsapp/utils';
 
-export interface IKindParams {
-  kind?: string;
-}
-
-export interface IDetailParams {
-  erxesApiId: string;
-}
-
 export interface IMessagesParams {
   conversationId: string;
   limit?: number;
@@ -21,6 +13,9 @@ export interface IBusinessAccountsParams {
   accountId: string;
   pageId?: string;
 }
+
+const DEFAULT_MESSAGE_LIMIT = 20;
+const MAX_MESSAGE_LIMIT = 100;
 
 const buildSelector = async (conversationId: string, { models }: IContext) => {
   const query = { conversationId: '' };
@@ -36,33 +31,19 @@ const buildSelector = async (conversationId: string, { models }: IContext) => {
 };
 
 export const whatsappQueries = {
-  async whatsappGetConfigs(_root, _args, { models }: IContext) {
+  async whatsappGetConfigs(_root, _args, { models, checkPermission }: IContext) {
+    await checkPermission('integrationsEdit');
+
     return models.WhatsappConfigs.find({});
-  },
-
-  async whatsappGetIntegrations(
-    _root,
-    { kind }: IKindParams,
-    { models }: IContext,
-  ) {
-    const selector = kind ? { kind } : {};
-
-    return models.WhatsappIntegrations.find(selector);
-  },
-
-  async whatsappGetIntegrationDetail(
-    _root,
-    { erxesApiId }: IDetailParams,
-    { models }: IContext,
-  ) {
-    return models.WhatsappIntegrations.findOne({ erxesApiId });
   },
 
   async whatsappGetBusinessAccounts(
     _root,
     { accountId, pageId }: IBusinessAccountsParams,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('integrationsEdit');
+
     const account = await models.FacebookAccounts.findOne({ _id: accountId });
 
     if (!account) {
@@ -77,21 +58,25 @@ export const whatsappQueries = {
     args: IMessagesParams,
     context: IContext,
   ) {
-    const { conversationId, limit, skip, getFirst } = args;
+    await context.checkPermission('showConversations');
+
+    const { conversationId, getFirst } = args;
+    const limit = Math.min(
+      Math.max(args.limit || DEFAULT_MESSAGE_LIMIT, 1),
+      MAX_MESSAGE_LIMIT,
+    );
+    const skip = Math.max(args.skip || 0, 0);
     const selector = await buildSelector(conversationId, context);
     const sort: { createdAt: SortOrder } = {
       createdAt: getFirst ? 1 : -1,
     };
 
-    const query = context.models.WhatsappConversationMessages.find(selector)
+    const messages = await context.models.WhatsappConversationMessages.find(
+      selector,
+    )
       .sort(sort)
-      .skip(skip || 0);
-
-    if (limit) {
-      query.limit(limit);
-    }
-
-    const messages = await query;
+      .skip(skip)
+      .limit(limit);
 
     return getFirst ? messages : messages.reverse();
   },
@@ -101,6 +86,8 @@ export const whatsappQueries = {
     { conversationId }: { conversationId: string },
     context: IContext,
   ) {
+    await context.checkPermission('showConversations');
+
     const selector = await buildSelector(conversationId, context);
 
     return context.models.WhatsappConversationMessages.countDocuments(selector);

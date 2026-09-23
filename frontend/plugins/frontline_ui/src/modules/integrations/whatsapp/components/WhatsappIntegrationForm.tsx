@@ -2,6 +2,7 @@ import { IntegrationSteps } from '@/integrations/components/IntegrationSteps';
 import { IconPlus } from '@tabler/icons-react';
 import { Button, Sheet } from 'erxes-ui';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 import {
   activeWhatsappFormStepAtom,
   resetWhatsappAddStateAtom,
@@ -13,17 +14,27 @@ import { WhatsappGetBusinessAccounts } from './WhatsappGetBusinessAccounts';
 import { WhatsappIntegrationSetup } from './WhatsappIntegrationSetup';
 
 export const WhatsappIntegrationFormSheet = () => {
+  const { t } = useTranslation('frontline');
   const [whatsappFormSheet, setWhatsappFormSheet] = useAtom(
     whatsappFormSheetAtom,
   );
+  const resetForm = useSetAtom(resetWhatsappAddStateAtom);
+
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+      resetForm();
+      return;
+    }
+    setWhatsappFormSheet(true);
+  };
 
   return (
     <div>
-      <Sheet open={whatsappFormSheet} onOpenChange={setWhatsappFormSheet}>
+      <Sheet open={whatsappFormSheet} onOpenChange={handleOpenChange}>
         <Sheet.Trigger asChild>
-          <Button>
+          <Button type="button">
             <IconPlus />
-            Add WhatsApp integration
+            {t('add-whatsapp-integration', 'Add WhatsApp integration')}
           </Button>
         </Sheet.Trigger>
         <Sheet.View>
@@ -54,12 +65,13 @@ export const WhatsappIntegrationFormLayout = ({
   children: React.ReactNode;
   actions: React.ReactNode;
 }) => {
+  const { t } = useTranslation('frontline');
   const resetForm = useSetAtom(resetWhatsappAddStateAtom);
 
   return (
     <>
       <Sheet.Header>
-        <Sheet.Title>Add WhatsApp</Sheet.Title>
+        <Sheet.Title>{t('add-whatsapp', 'Add WhatsApp')}</Sheet.Title>
         <Sheet.Close />
       </Sheet.Header>
       <Sheet.Content className="flex flex-col overflow-hidden">
@@ -68,11 +80,12 @@ export const WhatsappIntegrationFormLayout = ({
       <Sheet.Footer>
         <Sheet.Close asChild>
           <Button
+            type="button"
             className="mr-auto text-muted-foreground"
             variant="ghost"
             onClick={resetForm}
           >
-            Cancel
+            {t('cancel')}
           </Button>
         </Sheet.Close>
         {actions}
