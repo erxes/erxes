@@ -301,7 +301,11 @@ export const MessageInput = ({
         />
       )}
 
-      <div ref={editorRef}>
+      <div
+        ref={editorRef}
+        data-composer-editor
+        className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain"
+      >
         <ComposerEditor
           editor={editor}
           isDiscord={isDiscord}
