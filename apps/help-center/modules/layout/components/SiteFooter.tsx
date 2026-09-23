@@ -128,7 +128,7 @@ export const SiteFooter = ({
     : `© ${year} ${site.brand}. All rights reserved.`;
 
   return (
-    <footer className="mt-auto border-t border-shell-line bg-(--color-footer) text-white">
+    <footer className="mt-auto border-t border-shell-line bg-shell text-white">
       <Container className="py-12">
         <div className="grid gap-10 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] lg:gap-12">
           <div className="max-w-sm">
