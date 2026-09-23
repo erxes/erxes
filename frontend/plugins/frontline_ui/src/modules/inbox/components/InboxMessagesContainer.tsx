@@ -32,28 +32,30 @@ export const InboxMessagesContainer = ({
   });
   const distanceFromBottomRef = useRef(0);
 
-  const scrollToBottom = () => {
-    setTimeout(() => {
-      if (viewportRef.current) {
-        viewportRef.current.scrollTop = viewportRef.current.scrollHeight;
-      }
-    });
-  };
   useEffect(() => {
-    if (viewportRef.current) {
-      if (distanceFromBottomRef.current) {
-        viewportRef.current.scrollTop =
-          viewportRef.current.scrollHeight - distanceFromBottomRef.current;
-        distanceFromBottomRef.current = 0;
-      } else if (messagesLength > 0) {
-        scrollToBottom();
-      }
+    const viewport = viewportRef.current;
+    if (!viewport) return;
+
+    if (distanceFromBottomRef.current) {
+      viewport.scrollTop = viewport.scrollHeight - distanceFromBottomRef.current;
+      distanceFromBottomRef.current = 0;
+      return;
     }
-  }, [messagesLength, fetchMore]);
+
+    if (messagesLength > 0) {
+      const timeoutId = window.setTimeout(() => {
+        viewport.scrollTop = viewport.scrollHeight;
+      });
+      return () => window.clearTimeout(timeoutId);
+    }
+  }, [messagesLength]);
 
   return (
     <ScrollArea.Root className="h-full bg-muted/20">
-      <ScrollArea.Viewport ref={viewportRef} className="h-full">
+      <ScrollArea.Viewport
+        ref={viewportRef}
+        className="h-full [&>div]:!block [&>div]:w-full"
+      >
         {!!messagesLength && totalCount > messagesLength && (
           <p ref={fetchMoreRef} />
         )}
