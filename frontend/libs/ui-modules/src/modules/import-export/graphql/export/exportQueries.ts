@@ -32,6 +32,8 @@ export const GET_EXPORT_HEADERS = gql`
       key
       isDefault
       type
+      exportFilterType
+      exportFilterLabel
     }
   }
 `;

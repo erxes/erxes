@@ -3,6 +3,7 @@ import {
   IImportExportContext,
   buildExportCursorQuery,
   normalizeExportLimit,
+  withExportFilters,
 } from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
 import { buildUserExportRow } from './buildUserExportRow';
@@ -19,13 +20,13 @@ export async function getUserExportData(
   },
   { models }: IImportExportContext<IModels>,
 ): Promise<Record<string, any>[]> {
-  const { cursor, limit, ids, selectedFields } = data;
+  const { cursor, limit, ids, selectedFields, filters } = data;
 
   const effectiveLimit = normalizeExportLimit(limit, 100);
 
   if (!models) throw new Error('Models not available in context');
 
-  const query: any = { role: { $ne: 'system' } };
+  let query: any = { role: { $ne: 'system' } };
 
   if (typeof data.isActive === 'boolean') query.isActive = data.isActive;
   if (data.brandIds?.length) query.brandIds = { $in: data.brandIds };
@@ -48,6 +49,11 @@ export async function getUserExportData(
       { 'details.fullName': re },
     ];
   }
+
+  query = withExportFilters(query, filters, {
+    'details.fullName': 'text',
+    createdAt: 'date',
+  });
 
   const { query: exportQuery, isIdsMode } = buildExportCursorQuery({
     baseQuery: query,

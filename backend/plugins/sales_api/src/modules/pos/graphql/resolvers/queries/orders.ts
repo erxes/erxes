@@ -192,13 +192,20 @@ export const posOrderRecordsQuery = async (
   params,
   user?,
 ) => {
-  const query = await generateFilterPosQuery(models, params, user?._id);
+  let query = await generateFilterPosQuery(models, params, user?._id);
+  const exportCreatedAtQuery = params.exportCreatedAtQuery;
+  if (exportCreatedAtQuery) {
+    query = { $and: [query, exportCreatedAtQuery] };
+  }
 
   const { perPage = 20, page = 1 } = params;
 
   const orders = await models.PosOrders.aggregate([
     { $match: query },
     { $unwind: '$items' },
+    ...(params.exportProductIdQuery
+      ? [{ $match: { 'items.productId': params.exportProductIdQuery } }]
+      : []),
     { $sort: { createdAt: -1 } },
     { $skip: perPage * (page - 1) },
     { $limit: perPage },

@@ -10,7 +10,12 @@ export async function getCustomerExportHeaders(
   { models }: IImportExportContext<IModels>,
 ): Promise<ImportHeaderDefinition[]> {
   const systemFields: ImportHeaderDefinition[] = [
-    { label: 'First Name', key: 'firstName', isDefault: true },
+    {
+      label: 'First Name',
+      key: 'firstName',
+      isDefault: true,
+      exportFilterType: 'text',
+    },
     { label: 'Last Name', key: 'lastName', isDefault: true },
     { label: 'Middle Name', key: 'middleName' },
     { label: 'Email', key: 'primaryEmail', isDefault: true },
@@ -25,7 +30,7 @@ export async function getCustomerExportHeaders(
     { label: 'Email Validation Status', key: 'emailValidationStatus' },
     { label: 'Phone Validation Status', key: 'phoneValidationStatus' },
     { label: 'Tags', key: 'tagIds', isDefault: true },
-    { label: 'Created At', key: 'createdAt' },
+    { label: 'Created At', key: 'createdAt', exportFilterType: 'date' },
     { label: 'Updated At', key: 'updatedAt' },
   ];
 

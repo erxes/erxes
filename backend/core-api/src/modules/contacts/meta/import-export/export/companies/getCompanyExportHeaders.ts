@@ -10,7 +10,12 @@ export async function getCompanyExportHeaders(
   { models }: IImportExportContext<IModels>,
 ): Promise<ImportHeaderDefinition[]> {
   const systemFields: ImportHeaderDefinition[] = [
-    { label: 'Name', key: 'primaryName', isDefault: true },
+    {
+      label: 'Name',
+      key: 'primaryName',
+      isDefault: true,
+      exportFilterType: 'text',
+    },
     { label: 'Emails', key: 'primaryEmail', isDefault: true },
     { label: 'Phones', key: 'primaryPhone', isDefault: true },
     { label: 'Website', key: 'website' },
@@ -24,7 +29,7 @@ export async function getCompanyExportHeaders(
     { label: 'Tags', key: 'tagIds', isDefault: true },
     { label: 'Code', key: 'code' },
     { label: 'Location', key: 'location' },
-    { label: 'Created At', key: 'createdAt' },
+    { label: 'Created At', key: 'createdAt', exportFilterType: 'date' },
     { label: 'Updated At', key: 'updatedAt' },
   ];
 

@@ -1,6 +1,7 @@
 import {
   GetExportData,
   IImportExportContext,
+  withExportFilters,
 } from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
 import { buildCouponExportRow } from './buildCouponExportRow';
@@ -25,7 +26,10 @@ const buildExportQuery = (
     if (filters.ownerId) query.ownerId = filters.ownerId;
   }
   if (cursor) query._id = { $gt: cursor };
-  return query;
+  return withExportFilters(query, filters, {
+    code: 'text',
+    createdAt: 'date',
+  });
 };
 
 const fetchCampaignMap = async (

@@ -10,7 +10,12 @@ export async function getTicketExportHeaders(
   { subdomain, models }: IImportExportContext<IModels>,
 ): Promise<ImportHeaderDefinition[]> {
   const systemFields: ImportHeaderDefinition[] = [
-    { label: 'Name', key: 'name', isDefault: true },
+    {
+      label: 'Name',
+      key: 'name',
+      isDefault: true,
+      exportFilterType: 'text',
+    },
     { label: 'Description', key: 'description' },
     { label: 'Type', key: 'type', isDefault: true },
     { label: 'Priority', key: 'priority', isDefault: true },
@@ -20,9 +25,25 @@ export async function getTicketExportHeaders(
     { label: 'Pipeline', key: 'pipelineId', isDefault: true },
     { label: 'Tags', key: 'tagIds' },
     { label: 'Number', key: 'number' },
-    { label: 'Start Date', key: 'startDate' },
-    { label: 'Due Date', key: 'targetDate' },
-    { label: 'Created At', key: 'createdAt', isDefault: true },
+    {
+      label: 'Start Date',
+      key: 'startDate',
+      exportFilterType: 'date',
+      exportFilterLabel: 'Start date',
+    },
+    {
+      label: 'Due Date',
+      key: 'targetDate',
+      exportFilterType: 'date',
+      exportFilterLabel: 'Close date',
+    },
+    {
+      label: 'Created At',
+      key: 'createdAt',
+      isDefault: true,
+      exportFilterType: 'date',
+      exportFilterLabel: 'Created at',
+    },
     { label: 'Updated At', key: 'updatedAt' },
   ];
 

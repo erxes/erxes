@@ -2,6 +2,7 @@ import {
   GetExportData,
   IImportExportContext,
   buildExportCursorQuery,
+  withExportFilters,
 } from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
 import { generateFilter } from '~/modules/contacts/utils';
@@ -22,6 +23,10 @@ export async function getCompanyExportData(
   if (filters && Object.keys(filters).length > 0) {
     query = await generateFilter(subdomain, filters, models);
   }
+  query = withExportFilters(query, filters, {
+    primaryName: 'text',
+    createdAt: 'date',
+  });
 
   const { query: exportQuery, isIdsMode } = buildExportCursorQuery({
     baseQuery: query,

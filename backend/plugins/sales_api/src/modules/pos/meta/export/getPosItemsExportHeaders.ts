@@ -9,7 +9,12 @@ export async function getPosItemsExportHeaders(
 ): Promise<ImportHeaderDefinition[]> {
   return [
     { key: 'number', label: 'Number', isDefault: true },
-    { key: 'createdAt', label: 'Created Date', isDefault: true },
+    {
+      key: 'createdAt',
+      label: 'Created Date',
+      isDefault: true,
+      exportFilterType: 'date',
+    },
     { key: 'posName', label: 'POS Name', isDefault: true },
     { key: 'branch', label: 'Branch', isDefault: false },
     { key: 'department', label: 'Department', isDefault: false },
@@ -20,7 +25,12 @@ export async function getPosItemsExportHeaders(
     { key: 'customerType', label: 'Customer Type', isDefault: false },
     { key: 'customer', label: 'Customer', isDefault: false },
     { key: 'productCode', label: 'Code', isDefault: true },
-    { key: 'productName', label: 'Product Name', isDefault: true },
+    {
+      key: 'productName',
+      label: 'Product Name',
+      isDefault: true,
+      exportFilterType: 'text',
+    },
     { key: 'categoryCode', label: 'Category Code', isDefault: false },
     { key: 'categoryName', label: 'Category Name', isDefault: false },
     { key: 'barcode', label: 'Barcode', isDefault: false },

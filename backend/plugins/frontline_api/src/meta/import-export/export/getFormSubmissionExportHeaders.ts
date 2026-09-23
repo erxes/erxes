@@ -9,7 +9,12 @@ const STATIC_HEADERS: ImportHeaderDefinition[] = [
   { label: 'Customer ID', key: 'customerId', isDefault: true },
   { label: 'Form ID', key: 'formId' },
   { label: 'Content Type ID', key: 'contentTypeId' },
-  { label: 'Submitted At', key: 'submittedAt', isDefault: true },
+  {
+    label: 'Submitted At',
+    key: 'submittedAt',
+    isDefault: true,
+    exportFilterType: 'date',
+  },
 ];
 
 export async function getFormSubmissionExportHeaders(

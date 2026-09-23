@@ -2,11 +2,17 @@ import {
   GetExportData,
   IImportExportContext,
   buildExportCursorQuery,
+  withExportFilters,
 } from 'erxes-api-shared/core-modules';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { buildTaskExportRow } from './buildTaskExportRow';
-import { stringifyId, buildIdNameMap, buildUserMap, safeString } from '../utils';
+import {
+  stringifyId,
+  buildIdNameMap,
+  buildUserMap,
+  safeString,
+} from '../utils';
 
 /**
  * Parses date ranges for date query filters.
@@ -35,7 +41,10 @@ function buildDateRange(range: unknown): Record<string, Date> | undefined {
  * @param query The destination query object.
  * @param filters The active filters containing date parameters.
  */
-function addDateRangeFilters(query: Record<string, unknown>, filters: Record<string, unknown>): void {
+function addDateRangeFilters(
+  query: Record<string, unknown>,
+  filters: Record<string, unknown>,
+): void {
   const startRange = buildDateRange(filters.startDate);
   if (startRange) {
     query.startDate = startRange;
@@ -63,7 +72,9 @@ function addDateRangeFilters(query: Record<string, unknown>, filters: Record<str
  * @param filters Optional active filters parameters.
  * @returns The MongoDB query object.
  */
-function buildTaskQuery(filters?: Record<string, unknown>): Record<string, unknown> {
+function buildTaskQuery(
+  filters?: Record<string, unknown>,
+): Record<string, unknown> {
   const query: Record<string, unknown> = {};
   if (!filters || Object.keys(filters).length === 0) {
     return query;
@@ -199,7 +210,10 @@ export async function getTaskExportData(
     throw new Error('Models not available in context');
   }
 
-  const query = buildTaskQuery(filters);
+  const query = withExportFilters(buildTaskQuery(filters), filters, {
+    name: 'text',
+    createdAt: 'date',
+  });
 
   const { query: exportQuery, isIdsMode } = buildExportCursorQuery({
     baseQuery: query,

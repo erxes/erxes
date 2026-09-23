@@ -21,6 +21,10 @@ export interface ImportHeaderDefinition {
   aliases?: string[];
   isDefault?: boolean;
   type?: 'system' | 'customProperty';
+  /** Export drawer filter supported by this field, independent of selection. */
+  exportFilterType?: 'date' | 'text';
+  /** Optional drawer label when it differs from the exported column label. */
+  exportFilterLabel?: string;
   /** Custom property code, unqualified by row. */
   code?: string;
   /** 1-based row of a repeating property group. */

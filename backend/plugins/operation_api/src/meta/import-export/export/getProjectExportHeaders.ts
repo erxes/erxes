@@ -12,7 +12,16 @@ import { getExportHeaders } from '../utils';
  * @param context The import/export context containing subdomain.
  * @returns A promise resolving to an array of import/export header definitions.
  */
-export const getProjectExportHeaders = (
+export const getProjectExportHeaders = async (
   _data: unknown,
   { subdomain }: IImportExportContext<IModels>,
-): Promise<ImportHeaderDefinition[]> => getExportHeaders('project', subdomain);
+): Promise<ImportHeaderDefinition[]> => {
+  const headers = await getExportHeaders('project', subdomain);
+  return headers.map((header) => ({
+    ...header,
+    ...(header.key === 'name' ? { exportFilterType: 'text' as const } : {}),
+    ...(header.key === 'createdAt'
+      ? { exportFilterType: 'date' as const }
+      : {}),
+  }));
+};

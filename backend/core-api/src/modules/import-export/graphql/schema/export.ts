@@ -33,6 +33,8 @@ export const types = `
     key: String
     isDefault: Boolean
     type: String
+    exportFilterType: String
+    exportFilterLabel: String
   }
 
   type ExportHistoryList {

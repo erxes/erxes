@@ -22,7 +22,7 @@ export const Export = ({
   collectionName: string;
   buttonVariant?: VariantProps<typeof buttonVariants>['variant'];
   ids?: string[];
-  getFilters?: () => Record<string, any>;
+  getFilters?: () => Record<string, unknown>;
   confirmMessage?: string;
 }) => {
   const { t } = useTranslation('importExport');

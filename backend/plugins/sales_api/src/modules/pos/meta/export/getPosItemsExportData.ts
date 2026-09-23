@@ -2,7 +2,10 @@ import {
   GetExportData,
   GetExportDataArgs,
   IImportExportContext,
+  exportRuleToMongoQuery,
+  getExportFilterRules,
 } from 'erxes-api-shared/core-modules';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { posOrderRecordsQuery } from '@/pos/graphql/resolvers/queries/orders';
 
@@ -127,6 +130,45 @@ export async function getPosItemsExportData(
     (filters as Record<string, unknown>).ids = ids;
   }
 
+  const exportRules = getExportFilterRules(filters, {
+    createdAt: 'date',
+    productName: 'text',
+  });
+  const createdAtRule = exportRules.find((rule) => rule.field === 'createdAt');
+  const productNameRule = exportRules.find(
+    (rule) => rule.field === 'productName',
+  );
+  let exportProductIdQuery: { $in?: string[]; $nin?: string[] } | undefined;
+  if (productNameRule) {
+    const productQuery = exportRuleToMongoQuery({
+      ...productNameRule,
+      field: 'name',
+      ...(productNameRule.operator === 'notSet' ? { operator: 'isSet' } : {}),
+    });
+    const products = await sendTRPCMessage({
+      subdomain,
+      method: 'query',
+      pluginName: 'core',
+      module: 'products',
+      action: 'find',
+      input: { query: productQuery, fields: { _id: 1 } },
+      defaultValue: [],
+    });
+    const matchingProductIds = products.map(
+      (product: { _id: string }) => product._id,
+    );
+    if (
+      matchingProductIds.length === 0 &&
+      productNameRule.operator !== 'notSet'
+    ) {
+      return [];
+    }
+    exportProductIdQuery =
+      productNameRule.operator === 'notSet'
+        ? { $nin: matchingProductIds }
+        : { $in: matchingProductIds };
+  }
+
   const allOrders: IOrderRecord[] = [];
   let page = 1;
   const perPage = 500;
@@ -137,6 +179,10 @@ export async function getPosItemsExportData(
       ...(filters ?? {}),
       perPage: Math.min(perPage, maxLimit - allOrders.length),
       page: page++,
+      ...(createdAtRule
+        ? { exportCreatedAtQuery: exportRuleToMongoQuery(createdAtRule) }
+        : {}),
+      ...(exportProductIdQuery ? { exportProductIdQuery } : {}),
     };
 
     if (ids && ids.length > 0) {

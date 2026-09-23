@@ -2,6 +2,7 @@ import {
   GetExportData,
   IImportExportContext,
   buildExportCursorQuery,
+  withExportFilters,
 } from 'erxes-api-shared/core-modules';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
@@ -17,7 +18,7 @@ export async function getTicketExportData(
     throw new Error('Models not available in context');
   }
 
-  let query: any = {};
+  let query: Record<string, unknown> = {};
 
   if (filters && Object.keys(filters).length > 0) {
     if (filters.name) {
@@ -39,6 +40,13 @@ export async function getTicketExportData(
       query.pipelineId = filters.pipelineId;
     }
   }
+
+  query = withExportFilters(query, filters, {
+    name: 'text',
+    createdAt: 'date',
+    startDate: 'date',
+    targetDate: 'date',
+  });
 
   const { query: exportQuery, isIdsMode } = buildExportCursorQuery({
     baseQuery: query,

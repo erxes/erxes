@@ -7,14 +7,10 @@ export const useExportFieldSelection = ({
   entityType,
   filters,
   open,
-  onConfirm,
-  onOpenChange,
 }: {
   entityType: string;
-  filters?: Record<string, any>;
+  filters?: Record<string, unknown>;
   open: boolean;
-  onConfirm: (selectedFields: string[]) => void;
-  onOpenChange: (open: boolean) => void;
 }) => {
   const { data, loading } = useQuery(GET_EXPORT_HEADERS, {
     variables: { entityType, ...(filters ? { filters } : {}) },
@@ -55,20 +51,10 @@ export const useExportFieldSelection = ({
     setSelectedFields(defaultFields);
   };
 
-  const handleConfirm = () => {
-    if (!selectedFields.length) {
-      return;
-    }
-
-    onConfirm(selectedFields);
-    onOpenChange(false);
-  };
-
   return {
     selectedFields,
     headers,
     loading,
-    handleConfirm,
     handleDeselectAll,
     handleSelectAll,
     handleSelectDefaults,

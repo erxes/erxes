@@ -1,6 +1,7 @@
 import {
   GetExportData,
   IImportExportContext,
+  withExportFilters,
 } from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
 import { buildFormSubmissionExportRow } from './buildFormSubmissionExportRow';
@@ -15,7 +16,7 @@ export async function getFormSubmissionExportData(
     throw new Error('Models not available in context');
   }
 
-  const match: Record<string, any> = {};
+  let match: Record<string, any> = {};
 
   if (filters?.formId) match.formId = filters.formId;
   if (filters?.customerId) match.customerId = filters.customerId;
@@ -23,6 +24,7 @@ export async function getFormSubmissionExportData(
   if (cursor) {
     match.groupId = { ...(match.groupId || {}), $gt: cursor };
   }
+  match = withExportFilters(match, filters, { submittedAt: 'date' });
 
   // Fetch form fields to build per-field columns (same fields used in headers)
   const formFields = filters?.formId

@@ -4,6 +4,7 @@ import { START_EXPORT } from '../../graphql/export/exportMutations';
 import { GET_ACTIVE_EXPORTS } from '../../graphql/export/exportQueries';
 import { toast, useConfirm } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { TExportFilterRule } from '../../types/export/exportTypes';
 
 export const useExport = ({
   entityType,
@@ -13,7 +14,7 @@ export const useExport = ({
 }: {
   entityType: string;
   ids?: string[];
-  getFilters?: () => Record<string, any>;
+  getFilters?: () => Record<string, unknown>;
   confirmMessage: string;
 }) => {
   const { t } = useTranslation('importExport');
@@ -33,7 +34,7 @@ export const useExport = ({
     async (
       entityType: string,
       options?: {
-        filters?: Record<string, any>;
+        filters?: Record<string, unknown>;
         ids?: string[];
         selectedFields?: string[];
       },
@@ -51,11 +52,17 @@ export const useExport = ({
     [startExportMutation],
   );
 
-  const onFieldSelectionConfirm = (selectedFields: string[]) => {
+  const onFieldSelectionConfirm = (
+    selectedFields: string[],
+    rules: TExportFilterRule[],
+  ) => {
     // If ids exist, export only selected rows
     // Otherwise, get filters from parent component for filtered export
+    const pageFilters = getFilters ? getFilters() : undefined;
     const filters =
-      ids && ids.length > 0 ? undefined : getFilters ? getFilters() : undefined;
+      ids && ids.length > 0
+        ? undefined
+        : { ...(pageFilters ?? {}), exportConditions: rules };
     const exportIds = ids && ids.length > 0 ? ids : undefined;
 
     confirm({ message: confirmMessage }).then(() =>

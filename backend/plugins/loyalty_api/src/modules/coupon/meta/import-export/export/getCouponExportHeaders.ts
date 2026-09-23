@@ -8,7 +8,12 @@ export async function getCouponExportHeaders(
   _ctx: IImportExportContext,
 ): Promise<ImportHeaderDefinition[]> {
   return [
-    { label: 'Code', key: 'code', isDefault: true },
+    {
+      label: 'Code',
+      key: 'code',
+      isDefault: true,
+      exportFilterType: 'text',
+    },
     { label: 'Campaign', key: 'campaignId', isDefault: true },
     { label: 'Status', key: 'status', isDefault: true },
     { label: 'Owner Type', key: 'ownerType' },
@@ -16,7 +21,7 @@ export async function getCouponExportHeaders(
     { label: 'Usage Count', key: 'usageCount' },
     { label: 'Usage Limit', key: 'usageLimit' },
     { label: 'Redemption Limit Per User', key: 'redemptionLimitPerUser' },
-    { label: 'Created At', key: 'createdAt' },
+    { label: 'Created At', key: 'createdAt', exportFilterType: 'date' },
     { label: 'Updated At', key: 'updatedAt' },
   ];
 }

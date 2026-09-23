@@ -14,7 +14,7 @@ export type TExportProgress = {
   totalRows: number;
   processedRows: number;
   fileKey?: string;
-  filters?: Record<string, any>;
+  filters?: Record<string, unknown>;
   ids?: string[];
   progress?: number;
   elapsedSeconds?: number;
@@ -31,10 +31,10 @@ export type TExportFieldSelectionProps = {
   entityType: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onConfirm: (selectedFields: string[]) => void;
+  onConfirm: (selectedFields: string[], rules: TExportFilterRule[]) => void;
   recordCount?: number;
   entityDisplayName?: string;
-  filters?: Record<string, any>;
+  filters?: Record<string, unknown>;
 };
 
 export type TSearchAndActionsProps = {
@@ -50,6 +50,16 @@ export type TExportHeader = {
   key: string;
   isDefault?: boolean;
   type?: 'system' | 'customProperty';
+  exportFilterType?: 'date' | 'text';
+  exportFilterLabel?: string;
+};
+
+export type TExportFilterRule = {
+  field: string;
+  operator: string;
+  value?: string;
+  from?: string;
+  to?: string;
 };
 
 export type TExportProgressInfo = {
