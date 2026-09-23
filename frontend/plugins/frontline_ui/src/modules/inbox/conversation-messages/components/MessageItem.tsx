@@ -46,6 +46,10 @@ import type {
 import { useAtomValue } from 'jotai';
 import { currentUserState } from 'ui-modules';
 import { useMessageReaction } from '@/inbox/conversation-messages/hooks/useMessageReaction';
+import {
+  FORWARDED_MARKER,
+  stripForwardedMarkers,
+} from '@/inbox/conversation-messages/utils/messageActionText';
 export { MessageDaySeparator };
 
 const getPostAttachmentType = (type?: string): string =>
@@ -98,6 +102,8 @@ export const MessageItem = () => {
   const embeds = extraData?.embeds;
   const stickers = extraData?.stickers;
   const forwardedSnapshot = extraData?.forwardedSnapshot;
+  const isForwardedMessage =
+    !forwardedSnapshot && content.search(FORWARDED_MARKER) !== -1;
   const forwardedContentMatch = content?.match(
     /<blockquote><strong>Forwarded message<\/strong><br\s*\/?>[\s\S]*?<\/blockquote>/i,
   );
@@ -133,9 +139,14 @@ export const MessageItem = () => {
       effectiveReplyTo = { messageId: '', content: legacyReplyPreview };
     }
   }
+  const contentWithoutForwardMarker = isForwardedMessage
+    ? stripForwardedMarkers(content)
+    : content;
   const displayContent =
     botText ||
-    (legacyReplyMatch ? content.replace(legacyReplyMatch[0], '') : content)
+    (legacyReplyMatch
+      ? contentWithoutForwardMarker.replace(legacyReplyMatch[0], '')
+      : contentWithoutForwardMarker)
       ?.replace(forwardedContentMatch?.[0] || '', '')
       .trim();
   const postIntegrationKind =
@@ -442,6 +453,11 @@ export const MessageItem = () => {
               </div>
             </button>
           )}
+          {isForwardedMessage && !isDeleted && (
+            <div className="mt-2 block w-full max-w-full rounded-t-xl border border-b-0 border-border/60 bg-muted/45 px-3.5 py-2 text-left text-xs text-muted-foreground">
+              <div className="font-medium text-foreground">↪ Forwarded</div>
+            </div>
+          )}
           {hasTextBubble ? (
             <Button
               variant="secondary"
@@ -453,7 +469,7 @@ export const MessageItem = () => {
                 separatePrevious,
                 showAuthorName,
                 showBotName,
-                hasReply: Boolean(effectiveReplyTo),
+                hasReply: Boolean(effectiveReplyTo || isForwardedMessage),
               })}
               asChild
             >

@@ -17,6 +17,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useConversationMessageAdd } from '@/inbox/conversations/conversation-detail/hooks/useConversationMessageAdd';
 import { GET_CONVERSATIONS } from '@/inbox/conversations/graphql/queries/getConversations';
 import type { IConversation, IMessage } from '@/inbox/types/Conversation';
+import { stripForwardedMarkers } from '@/inbox/conversation-messages/utils/messageActionText';
 
 type ForwardMessageDialogProps = {
   open: boolean;
@@ -188,7 +189,7 @@ const forwardedContentText = (
   hasAttachments: boolean,
 ) => {
   const text = stripHtml(content)
-    .replace(/^(?:Forwarded message\s*)+/i, '')
+    .replace(/^(?:(?:↪\s*)?Forwarded(?: message)?\s*)+/i, '')
     .trim();
 
   return hasAttachments && /^Attachment$/i.test(text) ? '' : text;
@@ -228,7 +229,7 @@ export const ForwardMessageDialog = ({
   const handleForward = async ({ destinationId, note }: ForwardMessageForm) => {
     if (loading || remainingByDestination[destinationId]?.length === 0) return;
     const existingSnapshot = message.extraData?.forwardedSnapshot;
-    const messageText = stripHtml(message.content);
+    const messageText = stripHtml(stripForwardedMarkers(message.content));
     const hasSocialShare = message.attachments?.some(
       (attachment: IAttachment) =>
         attachment.type === 'share' ||
