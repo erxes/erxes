@@ -210,8 +210,10 @@ const isCategoryMatched = (
 ) => {
   return (
     dynamicCategory.Code === category.code &&
-    categoryById[category.parentId]?.code ===
-      dynamicCategory.Parent_Category &&
+    (dynamicCategory.Parent_Category
+      ? categoryById[category.parentId]?.code ===
+        dynamicCategory.Parent_Category
+      : !category.parentId) &&
     category.name === dynamicCategory.Description
   );
 };
@@ -359,19 +361,29 @@ export const msdynamicCheckMutations = {
       defaultValue: [],
     });
 
-    const response = await fetch(itemCategoryApi, {
+    const categoryResponse = await fetch(itemCategoryApi, {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         Accept: 'application/json',
-        Authorization: `Basic ${Buffer.from(
-          `${username}:${password}`,
-        ).toString('base64')}`,
+        Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString(
+          'base64',
+        )}`,
       },
-    }).then((res) => res.json());
+    });
 
-    const dynamicCategories = Array.isArray(response?.value)
-      ? response.value
-      : [];
+    if (!categoryResponse.ok) {
+      throw new Error(
+        `MS Dynamic category request failed: ${categoryResponse.status}`,
+      );
+    }
+
+const response = await categoryResponse.json();
+
+if (!Array.isArray(response?.value)) {
+  throw new Error('MS Dynamic category response is not valid.');
+}
+
+const dynamicCategories = response.value;
 
     const categoryById: Record<string, any> = {};
     for (const category of categories) {
