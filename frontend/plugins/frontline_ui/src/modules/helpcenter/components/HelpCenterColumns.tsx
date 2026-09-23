@@ -22,7 +22,7 @@ import { ReactNode, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { helpCenterMoreColumn } from '@/helpcenter/components/HelpCenterMoreColumn';
 import { SelectHelpCenterTopic } from '@/helpcenter/components/SelectHelpCenterTopic';
-import { SelectHelpCenterWebsite } from '@/helpcenter/components/SelectHelpCenterWebsite';
+import { SelectHelpCenterClientPortal } from '@/helpcenter/components/SelectHelpCenterClientPortal';
 import {
   THelpCenterPatch,
   useEditHelpCenter,
@@ -117,7 +117,7 @@ const WebsiteCell = ({ cell }: { cell: Cell<IHelpCenter, unknown> }) => {
   const { editHelpCenter } = useEditHelpCenter();
 
   return (
-    <SelectHelpCenterWebsite
+    <SelectHelpCenterClientPortal
       variant="table"
       value={helpCenter.url ?? ''}
       scope={cellScope(helpCenter, 'url')}

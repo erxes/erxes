@@ -6,6 +6,12 @@ export type {
   ITopic,
 } from '../../../../content_ui/src/modules/cms/types';
 
+export type TTopicTab = 'general' | 'appearance' | 'embed';
+
+export const TOPIC_TABS: TTopicTab[] = ['general', 'appearance', 'embed'];
+
+export const TOPIC_CREATE_TABS: TTopicTab[] = ['general', 'appearance'];
+
 export interface ITopicFormData {
   title: string;
   description: string;

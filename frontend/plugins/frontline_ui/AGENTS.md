@@ -45,7 +45,8 @@
   step-based create/edit wizard, archive, remove), the read-only results board
   on the main `frontline/surveys` route, and the composer dialog that posts a
   saved survey into a messenger conversation.
-- Knowledge base UI: topics, categories, and articles.
+- Knowledge base UI: topics, categories, and articles, plus the three-tab topic
+  drawer (General, Appearance, Embed) that owns a topic's embed script.
 - Help Center UI: the `/frontline/helpcenter` record table over client portal
   configs, its filter bar and command bar, its inline-editable name cell and its
   website / knowledge base topic / ticket channel / pipeline / status selects,
@@ -386,7 +387,7 @@
 | Surveys data             | `src/modules/survey/{graphql,hooks,types}/`                                                                                                       | Survey GraphQL documents, list/detail/mutation hooks, survey types                                                                              |
 | Send survey              | `src/modules/inbox/conversations/conversation-detail/components/SendSurveyDialog.tsx`                                                             | Picks an active survey and posts it into the open messenger conversation                                                                        |
 | Survey inbox row         | `src/modules/survey/components/ChannelSurveyNavItem.tsx`                                                                                          | `Surveys` row inside an expanded team channel, filtering the inbox by `withSurvey`                                                              |
-| Knowledge base           | `src/modules/knowledgebase/`                                                                                                                      | Topics, categories, articles                                                                                                                    |
+| Knowledge base           | `src/modules/knowledgebase/`                                                                                                                      | Topics (three-tab drawer, incl. the embed script), categories, articles                                                                         |
 | Automation widgets       | `src/widgets/automations/modules/<module>/`                                                                                                       | Per-module trigger/action/bot/history components                                                                                                |
 | FB message action        | `src/widgets/automations/modules/facebook/components/action/`                                                                                     | Message sequence form, provider, constants, states                                                                                              |
 | FB post composer         | `src/modules/integrations/facebook/components/FacebookPostSheet.tsx`, `FacebookPostImagesField.tsx`, `hooks/useFacebookPost*.tsx`                 | Post sheet, image upload state, channel/page loading                                                                                            |
@@ -533,8 +534,8 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
   `frontlineHelpCenterCmsPortalToken` — read once when a CMS is picked, to copy
   that CMS's client portal `token` into `cmsAppToken`.
 - `core-api` GraphQL `getClientPortals` as `frontlineHelpCenterWebsiteOptions` —
-  the `Website` picker's options (`_id`, `domain`), read-only. The resolver
-  ignores paging arguments and returns the newest 20 portals.
+  the `Website` picker's options (`_id`, `name`, `domain`, `token`), read-only.
+  The resolver ignores paging arguments and returns the newest 20 portals.
 - `frontline_api` GraphQL `reportCharts`, `reportChartAdd`, and
   `reportChartRemove` — saved report charts. The board reads **all** saved
   charts in one query and filters them to the chart types it can render, and
@@ -800,7 +801,8 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
 - `HelpCenterDrawer` splits across two `SheetNavSidebar` tabs, **general** and
   **appearance**: general stacks full-width cards in a fixed order — general
   settings (name and website side by side, then description), knowledge base,
-  tickets, forms, CMS, and the embed script last. Each feature card keeps its
+  tickets, forms, and CMS. It carries no embed card — the embed script belongs
+  to the knowledge base topic, not to the help center. Each feature card keeps its
   switch row on top and lays its fields out in a two-column grid under a
   divider, and `FULL_WIDTH_SELECT` stretches every select to the `h-8` input
   height, so the two columns line up. Appearance owns the published
@@ -884,8 +886,9 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
   chosen and status until a pipeline is, and `useEditHelpCenter` clears the
   downstream ids when an upstream one changes.
 - The website (`url`) is optional and is never typed: both write paths pick a
-  client portal through `helpcenter/components/SelectHelpCenterWebsite.tsx` and
-  store that portal's `domain` in `url`. `core-ui` already validates a portal's
+  client portal through
+  `helpcenter/components/SelectHelpCenterClientPortal.tsx` and store that
+  portal's `domain` in `url`. `core-ui` already validates a portal's
   `domain` as a URL, so the field needs no URL validator of its own here — the
   plugin's own API still rejects a non-`http(s)` value as a guard. `url` stays a
   plain string on `HelpCenterConfig`: `ClientPortal` is not a federated entity,
@@ -903,19 +906,25 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
   one, and both the drawer's reset and `useEditHelpCenter` go through it. Change
   the default there, never by adding a second `??` at a call site.
 - The `Website` select is one component,
-  `helpcenter/components/SelectHelpCenterWebsite.tsx`, rendered by both surfaces
+  `helpcenter/components/SelectHelpCenterClientPortal.tsx` — the field is
+  labelled `Website` but the thing being picked is a client portal, so the
+  component is named for the record, not the label — rendered by both surfaces
   the same way the topic select is. It reads `getClientPortals` and passes the
   chosen portal's `domain` **and its `token`** up — `onValueChange(domain,
 erxesAppToken)` — because picking a website is also what fills the config's
   `erxesAppToken`, the widget token the published site boots with. Both call
   sites must write both fields (the drawer through `form.setValue`, the table
   cell through one `editHelpCenter` patch); writing only `url` leaves a config
-  pointing at one portal with another's token. The field is a website, so every surface of it — trigger,
-  option, search — shows **the domain and nothing else**; a portal's `name` is
-  not read here. Because the stored value is a domain, `toWebsiteOptions` keeps
-  only portals that have one and **collapses portals that share a domain** — two
-  rows for one domain would both read as checked. Change the option query and
-  that shaping in the one file.
+  pointing at one portal with another's token. The picker reads like the CMS picker: trigger and
+  option show **the client portal's name**, falling back to the domain for an
+  unnamed portal, while the domain stays searchable as the option's `keywords`
+  and remains the stored value. The trigger resolves the name by matching the
+  stored `url` against the loaded options, so it falls back to the raw domain
+  while the options load or when the stored domain no longer belongs to a
+  portal. Because the stored value is a domain, `toWebsiteOptions` keeps only
+  portals that have one and **collapses portals that share a domain** — two rows
+  for one domain would both read as checked. Change the option query and that
+  shaping in the one file.
 - The `Knowledge base topic` select is one component,
   `helpcenter/components/SelectHelpCenterTopic.tsx`, rendered by both surfaces:
   the table cell passes `variant="table"` plus a cell `scope`, the drawer field
@@ -928,14 +937,23 @@ erxesAppToken)` — because picking a website is also what fills the config's
   `helpcenter/components/help-center-drawer/`: `HelpCenterDrawer.tsx` owns only
   the sheet, the form and the save; `HelpCenterGeneralTab.tsx` and
   `HelpCenterAppearanceTab.tsx` own a tab each; `HelpCenterStyleFields.tsx` the
-  reusable `Style*Field` helpers; the knowledge base module's
-  `TopicEmbedScriptDialog.tsx` the embed snippet (a presentational component, no
-  query of its own); and `helpcenter/{types,constants}/index.ts` the shapes and
-  defaults. Add new fields to the owning tab, never back into the drawer. The tabs take the form **as a
+  reusable `Style*Field` helpers; and `helpcenter/{types,constants}/index.ts`
+  the shapes and defaults. Add new fields to the owning tab, never back into the drawer. The tabs take the form **as a
   prop**: `react-hook-form` is not in this remote's shared `coreLibraries`, so
   the copy backing `useFormContext` here is not the one `erxes-ui`'s `Form`
   provider filled and reading the context returns null. Never reach for
   `useFormContext` across an `erxes-ui` provider in this plugin.
+- The embed script is a **knowledge base** feature, not a help center setting.
+  `knowledgebase/utils/buildTopicEmbedScript.ts` is the only place that builds
+  it, `TopicEmbedTab.tsx` is the only place that shows it, and both are reached
+  from the topic drawer's **Embed** tab — from the tab list or from the topic
+  row's `View Script` menu entry, which opens the drawer with `tab=embed`. The
+  snippet's `window.erxesSettings.knowledgeBase.topicId` and
+  `knowledgeBaseBundle.js` output is a published contract with every site that
+  already embedded a topic: change the surface around it, never the generated
+  text. It needs no query and no new field — a topic's `_id` is the whole
+  input, and the help center's config is not a source for it.
+
 - Appearance fields are one nested `styles` block on the config, addressed as
   `styles.<name>` through React Hook Form and rendered by the four
   `Style*Field` helpers (colour, image, font, HTML). Fonts pick from
@@ -1385,11 +1403,18 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 - Smoke (help center): open `/frontline/helpcenter`, change a name inline, then
   open the drawer and pick a website on **General** and save a colour on
   **Appearance**; reload and confirm both persisted. The website picker must
-  list each client portal domain once and nothing but the domain, in the drawer
-  and in the table cell alike. The network tab must show `helpCenterConfig` /
+  list each client portal once by name, and the trigger must read back that name
+  after the pick, in the drawer and in the table cell alike; typing a domain in
+  the picker's search must still find it. The network tab must show `helpCenterConfig` /
   `helpCenterConfigUpdate` for all three writes, `getClientPortals` only as the
   website picker's option list, and no `knowledgeBase*` operation other than the
   topic picker's option list.
+- Smoke (knowledge base embed): open `/frontline/knowledgebase`, open a topic's
+  `…` menu and press `View Script`; the drawer must open on **Embed** with that
+  topic's `_id` in the snippet, `Copy Script` must turn into `Copied!` for three
+  seconds and put the snippet on the clipboard, and switching to another topic
+  must show that topic's `_id`. Creating a topic must show only **General** and
+  **Appearance**, and the help center drawer must carry no embed card at all.
 - Smoke (help center footer): on **Appearance** open the Footer card, press
   "Start from the built-in columns", rename a heading, add a link and remove
   another, then save and reload — the drawer shows what was saved and
@@ -1442,6 +1467,37 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-23` — The embed script moves to the knowledge base topic
+
+- **Summary:** The help center drawer's embed card and its script dialog are
+  gone; a topic now owns its embed script on an **Embed** tab in a three-tab
+  topic drawer (General, Appearance, Embed), reachable from the topic row's
+  `View Script` menu entry, with a copy button that reports success. The
+  generated snippet is unchanged.
+- **Affected areas:**
+  `src/modules/knowledgebase/components/{TopicDrawer,TopicEmbedTab}.tsx`,
+  `src/modules/knowledgebase/components/KnowledgeBaseTopicsNav.tsx`,
+  `src/modules/knowledgebase/utils/buildTopicEmbedScript.ts`,
+  `src/modules/knowledgebase/{types,constants}.ts`,
+  `src/modules/helpcenter/components/help-center-drawer/{HelpCenterDrawer,HelpCenterGeneralTab}.tsx`,
+  deleted `src/modules/knowledgebase/components/TopicEmbedScriptDialog.tsx`
+- **Contracts changed:** `None` — no query, mutation or generated script text
+  changed.
+
+### `2026-09-23` — The website picker shows the client portal name
+
+- **Summary:** The help center `Website` select now labels its trigger and
+  options with the client portal's name (domain as fallback and as a search
+  keyword) instead of the bare domain, while still storing the domain in `url`,
+  and the component was renamed `SelectHelpCenterWebsite` →
+  `SelectHelpCenterClientPortal` for what it picks.
+- **Affected areas:**
+  `src/modules/helpcenter/components/SelectHelpCenterClientPortal.tsx` (renamed
+  from `SelectHelpCenterWebsite.tsx`),
+  `src/modules/helpcenter/graphql/queries/getHelpCenterWebsiteOptions.ts`
+- **Contracts changed:** `frontlineHelpCenterWebsiteOptions` now also selects
+  `name` on each client portal.
 
 ### `2026-09-23` — A survey question carries attachments
 
@@ -1577,42 +1633,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `src/modules/forms/states/formSetupStates.tsx`,
   `src/modules/forms/hooks/useFormMutate.ts`
 - **Contracts changed:** New route `frontline/forms/create`; no GraphQL change.
-
-### `2026-09-21` — Move to channel on every channel-owned resource
-
-- **Summary:** Integrations, ticket pipelines, forms, surveys and response
-  templates each gained a `Move to channel` action in their row menu, backed by
-  one shared `MoveToChannelDialog` (current channel, destination picker that
-  hides the current channel, confirmation line, `Cancel` / `Move`) and the new
-  `channelMoveResources` mutation. Forms and surveys also move in bulk from
-  their command bar, disabled when the selection spans channels. The forms
-  page's old submenu, which moved a form with `formsEdit` and skipped the
-  server-side validation and cascades, was replaced by the same dialog and its
-  unused duplicate in `actions/move-form.tsx` deleted. `SelectChannelsContent`
-  gained an `excludeChannelIds` prop.
-- **Affected areas:**
-  `src/modules/channels/components/move-resources/*`,
-  `src/modules/channels/hooks/useChannelMoveResources.tsx`,
-  `src/modules/channels/graphql/mutations.ts`,
-  `src/modules/channels/types/index.ts`,
-  `src/modules/inbox/channel/components/SelectChannel.tsx`,
-  `src/modules/pipelines/components/PipelinesList.tsx`,
-  `src/modules/responseTemplate/components/ResponseList.tsx`,
-  `src/modules/integrations/components/IntegrationMoreColumn.tsx`,
-  `src/modules/forms/components/{FormsList.tsx,form-page/form-columns.tsx,form-page/command-bar/form-command-bar.tsx}`,
-  `src/modules/survey/components/survey-page/{survey-columns.tsx,command-bar/survey-command-bar.tsx}`
-- **Contracts changed:** Consumes the new `channelMoveResources` mutation.
-  Removed `MoveFormToChannel` from `form-columns.tsx` and deleted
-  `src/modules/forms/components/actions/move-form.tsx`.
-
-### `2026-09-21` — Tracked data returns to the conversation rail
-
-- **Summary:** `ConversationSideWidget` called `useRelationWidget()` with no
-  options. The shared hook drops every module that declares `contentTypes`
-  when no `contentType` is supplied, so the core Tracked data widget — which
-  the old product showed in the inbox sidebar — never appeared next to a
-  conversation. The rail now passes `contentType: 'frontline:conversation'`,
-  and the widget reads the conversation's `customerId`.
-- **Affected areas:**
-  `src/modules/inbox/conversations/conversation-detail/components/ConversationSideWidget.tsx`.
-- **Contracts changed:** `None`

@@ -6,7 +6,7 @@ import {
   Sheet,
   useQueryState,
 } from 'erxes-ui';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { SheetNavSidebar } from 'ui-modules';
@@ -24,7 +24,6 @@ import {
   THelpCenterTab,
 } from '@/helpcenter/types';
 import { toHelpCenterConfigInput } from '@/helpcenter/utils/toHelpCenterConfigInput';
-import { TopicEmbedScriptDialog } from '@/knowledgebase/components/TopicEmbedScriptDialog';
 
 interface HelpCenterDrawerProps {
   readonly helpCenter?: IHelpCenter;
@@ -41,7 +40,6 @@ export function HelpCenterDrawer({
 }: HelpCenterDrawerProps) {
   const { t } = useTranslation('frontline');
   const isEditing = !!helpCenter;
-  const [scriptDialogOpen, setScriptDialogOpen] = useState(false);
   const [selectedTab, setSelectedTab] = useQueryState<string>('tab');
   const activeTab: THelpCenterTab = HELP_CENTER_TABS.includes(
     selectedTab as THelpCenterTab,
@@ -92,8 +90,6 @@ export function HelpCenterDrawer({
 
   const submit = form.handleSubmit(onSubmit, onInvalid);
 
-  const kbTopicId = form.watch('kbTopicId');
-
   const idleLabel = isEditing
     ? t('kb-save-changes')
     : t('helpcenter-create', 'Create Help Center');
@@ -129,12 +125,7 @@ export function HelpCenterDrawer({
             >
               <ScrollArea className="flex-1" viewportClassName="p-4">
                 <div className={activeTab === 'general' ? '' : 'hidden'}>
-                  <HelpCenterGeneralTab
-                    form={form}
-                    isEditing={isEditing}
-                    onViewScript={() => setScriptDialogOpen(true)}
-                    t={t}
-                  />
+                  <HelpCenterGeneralTab form={form} t={t} />
                 </div>
 
                 <div className={activeTab === 'appearance' ? '' : 'hidden'}>
@@ -159,15 +150,6 @@ export function HelpCenterDrawer({
           </Button>
         </Sheet.Footer>
       </FocusSheet.View>
-
-      {isEditing && kbTopicId && (
-        <TopicEmbedScriptDialog
-          topicId={kbTopicId}
-          open={scriptDialogOpen}
-          onOpenChange={setScriptDialogOpen}
-          t={t}
-        />
-      )}
     </FocusSheet>
   );
 }

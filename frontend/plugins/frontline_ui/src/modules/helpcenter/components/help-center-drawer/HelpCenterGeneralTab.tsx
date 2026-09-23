@@ -1,6 +1,4 @@
-import { IconCode } from '@tabler/icons-react';
 import {
-  Button,
   Combobox,
   Form,
   InfoCard,
@@ -15,7 +13,7 @@ import { Control, UseFormReturn, useWatch } from 'react-hook-form';
 import { SelectHelpCenterCms } from '@/helpcenter/components/SelectHelpCenterCms';
 import { SelectHelpCenterForms } from '@/helpcenter/components/SelectHelpCenterForms';
 import { SelectHelpCenterTopic } from '@/helpcenter/components/SelectHelpCenterTopic';
-import { SelectHelpCenterWebsite } from '@/helpcenter/components/SelectHelpCenterWebsite';
+import { SelectHelpCenterClientPortal } from '@/helpcenter/components/SelectHelpCenterClientPortal';
 import { FULL_WIDTH_SELECT } from '@/helpcenter/constants';
 import { IHelpCenterConfigInput } from '@/helpcenter/types';
 import { SelectChannel } from '@/ticket/components/ticket-selects/SelectChannel';
@@ -100,13 +98,9 @@ function TicketStatusField({
 
 export function HelpCenterGeneralTab({
   form,
-  isEditing,
-  onViewScript,
   t,
 }: Readonly<{
   form: UseFormReturn<IHelpCenterConfigInput>;
-  isEditing: boolean;
-  onViewScript: () => void;
   t: TFunction;
 }>) {
   const control = form.control;
@@ -116,7 +110,6 @@ export function HelpCenterGeneralTab({
   const ticketChannelId = useWatch({ control, name: 'ticketChannelId' });
   const ticketPipelineId = useWatch({ control, name: 'ticketPipelineId' });
   const formChannelId = useWatch({ control, name: 'formChannelId' });
-  const kbTopicId = useWatch({ control, name: 'kbTopicId' });
 
   return (
     <div className="flex flex-col gap-4">
@@ -147,7 +140,7 @@ export function HelpCenterGeneralTab({
                 <Form.Item className={FULL_WIDTH_SELECT}>
                   <Form.Label>{t('website', 'Website')}</Form.Label>
                   <Form.Control>
-                    <SelectHelpCenterWebsite
+                    <SelectHelpCenterClientPortal
                       variant="form"
                       value={field.value}
                       onValueChange={(domain, erxesAppToken) => {
@@ -416,29 +409,6 @@ export function HelpCenterGeneralTab({
           </div>
         </InfoCard.Content>
       </InfoCard>
-
-      {isEditing && (
-        <InfoCard title={t('kb-embed-script')}>
-          <InfoCard.Content>
-            <div className="flex gap-3 justify-between items-start">
-              <p className="text-sm text-muted-foreground">
-                {t('kb-embed-description')}
-              </p>
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                className="shrink-0"
-                disabled={!kbTopicId}
-                onClick={onViewScript}
-              >
-                <IconCode className="mr-2 w-4 h-4" />
-                {t('kb-view-script')}
-              </Button>
-            </div>
-          </InfoCard.Content>
-        </InfoCard>
-      )}
     </div>
   );
 }
