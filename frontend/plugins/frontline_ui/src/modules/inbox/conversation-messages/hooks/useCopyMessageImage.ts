@@ -65,11 +65,9 @@ export const useCopyMessageImage = ({
             /^data:(image\/(?:png|jpeg|webp|gif));base64,(.+)$/,
           );
           if (!match) throw new Error('Image unavailable');
-          const bytes = Uint8Array.from(
-            atob(match[2]),
-            (char) => char.charCodeAt(0),
-          );
-          blob = new Blob([bytes], { type: match[1] });
+          const response = await fetch(match[0]);
+          if (!response.ok) throw new Error('Image unavailable');
+          blob = await response.blob();
         }
         return pngBlob(blob);
       })();

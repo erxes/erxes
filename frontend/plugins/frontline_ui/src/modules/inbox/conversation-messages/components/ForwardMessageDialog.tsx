@@ -118,7 +118,8 @@ const ForwardMessageDialogContent = ({
       <Dialog.Title>Forward message</Dialog.Title>
       <Dialog.Description>
         Choose another conversation. erxes keeps a snapshot of the forwarded
-        message.
+        message. Instagram recipients receive the note, text, and attachments,
+        but not the snapshot metadata.
       </Dialog.Description>
     </Dialog.Header>
     <div className="rounded-md border-l-2 border-primary bg-muted px-3 py-2 text-sm text-muted-foreground">

@@ -133,14 +133,27 @@ export const MessageItem = () => {
       effectiveReplyTo = { messageId: '', content: legacyReplyPreview };
     }
   }
-  const displayContent =
+  const fallbackDisplayContent =
+    botText ||
+    (legacyReplyMatch ? content.replace(legacyReplyMatch[0], '') : content)
+      ?.replace(forwardedContentMatch?.[0] || '', '')
+      .trim();
+  let displayContent: string | undefined = fallbackDisplayContent;
+  if (
     integration?.kind === IntegrationType.INSTAGRAM_MESSENGER &&
     forwardedSnapshot
-      ? extraData?.forwardedNote?.trim()
-      : botText ||
-        (legacyReplyMatch ? content.replace(legacyReplyMatch[0], '') : content)
-          ?.replace(forwardedContentMatch?.[0] || '', '')
-          .trim();
+  ) {
+    const snapshotHasContent = Boolean(
+      forwardedSnapshot.content ||
+        forwardedSnapshot.attachments?.length ||
+        forwardedSnapshot.stickers?.length ||
+        forwardedSnapshot.embeds?.length ||
+        forwardedSnapshot.poll,
+    );
+    displayContent =
+      extraData?.forwardedNote?.trim() ||
+      (snapshotHasContent ? undefined : fallbackDisplayContent);
+  }
   const postIntegrationKind =
     integration?.kind === IntegrationType.FACEBOOK_POST ||
     integration?.kind === IntegrationType.INSTAGRAM_POST
