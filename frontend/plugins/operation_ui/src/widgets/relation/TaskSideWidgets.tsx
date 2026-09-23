@@ -20,7 +20,7 @@ export const TaskSideWidgets = ({
   });
 
   return (
-    <SideMenu>
+    <SideMenu className="shrink-0">
       {relationWidgetsModules.map((module) => {
         return (
           <SideMenu.Content value={module.name} key={module.name}>
