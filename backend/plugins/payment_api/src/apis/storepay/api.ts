@@ -5,10 +5,32 @@ import { ITransactionDocument } from '~/modules/payment/@types/transactions';
 import { PAYMENTS, PAYMENT_STATUS } from '~/constants';
 import { redis } from 'erxes-api-shared/utils';
 
+interface IStorePayCallbackData {
+  id: string | number;
+}
+
+const isStorePayCallbackData = (
+  data: unknown,
+): data is IStorePayCallbackData => {
+  if (!data || typeof data !== 'object' || !('id' in data)) {
+    return false;
+  }
+
+  const { id } = data;
+
+  return (
+    (typeof id === 'string' && id.trim().length > 0) ||
+    (typeof id === 'number' && Number.isFinite(id))
+  );
+};
 export const storepayCallbackHandler = async (
   models: IModels,
-  data: any,
+  data: unknown,
 ): Promise<ITransactionDocument> => {
+  if (!isStorePayCallbackData(data)) {
+    throw new Error('id is required');
+  }
+
   const { id } = data;
 
   if (!id) {
@@ -30,7 +52,7 @@ export const storepayCallbackHandler = async (
 
   try {
     const api = new StorePayAPI(payment.config);
-    const invoiceStatus = await api.checkInvoice(id);
+    const invoiceStatus = await api.checkInvoice(String(id));
 
     if (invoiceStatus !== PAYMENT_STATUS.PAID) {
       return transaction;
@@ -178,12 +200,17 @@ export class StorePayAPI extends BaseAPI {
         requestOptions,
       ).then((res) => res.json());
 
-      await redis.set(
-        `storepay_token_${store_id}`,
-        res.access_token,
-        'EX',
-        res.expires_in - 60,
-      );
+      const expiresIn = Number(res.expires_in);
+      const ttl = Math.floor(expiresIn - 60);
+
+      if (res.access_token && Number.isFinite(expiresIn) && ttl > 0) {
+        await redis.set(
+          `storepay_token_${store_id}`,
+          res.access_token,
+          'EX',
+          ttl,
+        );
+      }
 
       return {
         Authorization: `Bearer ${res.access_token}`,
