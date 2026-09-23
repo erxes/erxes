@@ -27,8 +27,6 @@ export const extractOptionValues = (
     .map((option) => (typeof option === 'string' ? option : option?.value))
     .filter((value): value is string => typeof value === 'string');
 
-// A field inside an `isMultiple` (repeating) group is never stored under
-// `propertiesData.<fieldId>` — its values live inside that group's own rows.
 const resolveMultipleGroupKey = async (
   models: IModels,
   groupId?: string,

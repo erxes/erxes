@@ -69,9 +69,6 @@ export const queries = `
     cpFields(params: CpFieldsParams): [Field]
     cpFieldDetail(_id: String!): Field
 
-    # Which of a select/multiSelect/check/radio field's option values are
-    # currently used by a record, and how many records use each one. Null
-    # when usage cannot be determined for the field's content type.
     fieldOptionUsedValues(fieldId: String!): [FieldOptionUsage]
 `;
 

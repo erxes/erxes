@@ -272,9 +272,14 @@ export const loadFieldClass = (models: IModels) => {
         const blockedSummary = blockedValues
           .map((value) => {
             const count = usageByValue.get(value);
-            return count === undefined
-              ? value
-              : `${value} (${count} record${count === 1 ? '' : 's'})`;
+
+            if (count === undefined) {
+              return value;
+            }
+
+            const recordSuffix = count === 1 ? '' : 's';
+
+            return `${value} (${count} record${recordSuffix})`;
           })
           .join(', ');
 
@@ -470,6 +475,13 @@ export const loadFieldClass = (models: IModels) => {
 
       if (options.strict && !isEmptyValue) {
         validateValueShape(field, value);
+
+        if (MULTI_VALUE_TYPES.has(type || '') && typeof value === 'string') {
+          return value
+            .split(',')
+            .map((v) => v.trim())
+            .filter(Boolean);
+        }
       }
 
       return value;

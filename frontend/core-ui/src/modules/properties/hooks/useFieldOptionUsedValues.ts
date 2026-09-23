@@ -12,6 +12,7 @@ export const useFieldOptionUsedValues = ({ fieldId }: { fieldId?: string }) => {
   }>(FIELD_OPTION_USED_VALUES_QUERY, {
     variables: { fieldId },
     skip: !fieldId,
+    fetchPolicy: 'network-only',
   });
 
   const usage = data?.fieldOptionUsedValues ?? null;

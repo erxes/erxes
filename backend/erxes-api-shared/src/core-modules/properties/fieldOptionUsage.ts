@@ -14,15 +14,10 @@ export interface IFieldOptionUsageModel {
   aggregate: (pipeline: PipelineStage[]) => Promise<IValueDocPair[]>;
 }
 
-// Groups by (value, document) so a record with several matches for the same
-// value — a multiSelect array, several repeating-group rows — contributes one
-// hit, not one per occurrence.
 const GROUP_BY_VALUE_AND_DOC: PipelineStage.Group = {
   $group: { _id: { value: '$value', doc: '$_id' } },
 };
 
-// A field inside a repeating group is never stored under `propertiesData.<fieldId>`
-// directly — its rows live under `propertiesData.<groupKey>[]`, one row per entry.
 const buildGroupRowPipeline = (
   groupKey: string,
   fieldId: string,
@@ -56,8 +51,6 @@ export const getFieldOptionUsedValuesFromModel = async (
   model: IFieldOptionUsageModel,
   fieldId: string,
   values: string[],
-  // Set when the field belongs to an `isMultiple` (repeating) group, so its
-  // values must also be searched inside that group's rows.
   groupKey?: string | null,
 ): Promise<IFieldOptionUsageCount[]> => {
   if (!values.length) {
@@ -67,9 +60,6 @@ export const getFieldOptionUsedValuesFromModel = async (
   const propertiesDataPath = `propertiesData.${fieldId}`;
 
   const pipelines = [
-    // `syncFieldValues` keeps `customFieldsData` and `propertiesData` mirrored
-    // for every record, so a hit can legitimately surface from both paths for
-    // the very same document — the cross-pipeline dedupe below collapses that.
     model.aggregate([
       { $match: { 'customFieldsData.field': fieldId } },
       { $unwind: '$customFieldsData' },
@@ -116,9 +106,6 @@ export const getFieldOptionUsedValuesFromModel = async (
 
   const results = await Promise.all(pipelines);
 
-  // A document can surface from more than one pipeline (customFieldsData and
-  // propertiesData mirror each other); dedupe by (value, document) so it is
-  // still counted once.
   const seenPairs = new Set<string>();
   const counts = new Map<string, number>();
 
