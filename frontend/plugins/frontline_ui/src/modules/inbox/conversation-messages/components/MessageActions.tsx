@@ -87,9 +87,7 @@ export const MessageActions = ({
     kind !== 'lead' &&
     (kind !== IntegrationType.FACEBOOK_MESSENGER || Boolean(providerMessageId));
   const canForward =
-    canReply &&
-    kind !== IntegrationType.FACEBOOK_MESSENGER &&
-    kind !== IntegrationType.FACEBOOK_POST;
+    kind !== 'lead' && kind !== IntegrationType.FACEBOOK_POST;
   const showActionsInline = INLINE_ACTION_KINDS.has(kind);
   const isPinned = Boolean(message.extraData?.discordPinned);
 
