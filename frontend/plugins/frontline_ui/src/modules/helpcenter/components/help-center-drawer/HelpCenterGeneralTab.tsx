@@ -12,6 +12,8 @@ import {
 import { TFunction } from 'i18next';
 import { useState } from 'react';
 import { Control, UseFormReturn, useWatch } from 'react-hook-form';
+import { SelectHelpCenterCms } from '@/helpcenter/components/SelectHelpCenterCms';
+import { SelectHelpCenterForms } from '@/helpcenter/components/SelectHelpCenterForms';
 import { SelectHelpCenterTopic } from '@/helpcenter/components/SelectHelpCenterTopic';
 import { SelectHelpCenterWebsite } from '@/helpcenter/components/SelectHelpCenterWebsite';
 import { FULL_WIDTH_SELECT } from '@/helpcenter/constants';
@@ -53,7 +55,11 @@ function FeatureSection({
           </Form.Item>
         )}
       />
-      <div className={enabled ? 'flex flex-col gap-3' : 'hidden'}>
+      <div
+        className={
+          enabled ? 'grid gap-4 pt-3 border-t lg:grid-cols-2' : 'hidden'
+        }
+      >
         {children}
       </div>
     </div>
@@ -109,13 +115,14 @@ export function HelpCenterGeneralTab({
   const showTickets = useWatch({ control, name: 'ticketToggle' });
   const ticketChannelId = useWatch({ control, name: 'ticketChannelId' });
   const ticketPipelineId = useWatch({ control, name: 'ticketPipelineId' });
+  const formChannelId = useWatch({ control, name: 'formChannelId' });
   const kbTopicId = useWatch({ control, name: 'kbTopicId' });
 
   return (
-    <div className="grid gap-4">
+    <div className="flex flex-col gap-4">
       <InfoCard title={t('general-settings', 'General')}>
-        <InfoCard.Content>
-          <div className="grid grid-cols-2 gap-4">
+        <InfoCard.Content className="gap-4">
+          <div className="grid gap-4 lg:grid-cols-2">
             <Form.Field
               control={control}
               name="title"
@@ -123,7 +130,7 @@ export function HelpCenterGeneralTab({
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label>
-                    {t('kb-title-required')}{' '}
+                    {t('name', 'Name')}{' '}
                     <span className="text-destructive">*</span>
                   </Form.Label>
                   <Form.Control>
@@ -173,6 +180,243 @@ export function HelpCenterGeneralTab({
         </InfoCard.Content>
       </InfoCard>
 
+      <InfoCard title={t('knowledgebase', 'Knowledge base')}>
+        <InfoCard.Content>
+          <FeatureSection
+            control={control}
+            toggleName="kbToggle"
+            title={t('show-knowledgebase', 'Show knowledge base')}
+            description={t(
+              'kb-show-knowledgebase-description',
+              'Show the articles on the published site.',
+            )}
+            enabled={showKnowledgeBase}
+          >
+            <Form.Field
+              control={control}
+              name="kbLabel"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>
+                    {t('knowledgebase-name', 'Knowledge base name')}
+                  </Form.Label>
+                  <Form.Control>
+                    <Input
+                      {...field}
+                      placeholder={t(
+                        'kb-enter-menu-label',
+                        'Shown name on menu',
+                      )}
+                    />
+                  </Form.Control>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              control={control}
+              name="kbTopicId"
+              rules={{
+                validate: (value) =>
+                  !showKnowledgeBase || !!value || 'Topic is required',
+              }}
+              render={({ field }) => (
+                <Form.Item className={FULL_WIDTH_SELECT}>
+                  <Form.Label>
+                    {t('knowledgebase-topic', 'Knowledge base topic')}{' '}
+                    <span className="text-destructive">*</span>
+                  </Form.Label>
+                  <Form.Control>
+                    <SelectHelpCenterTopic
+                      variant="form"
+                      value={field.value}
+                      onValueChange={field.onChange}
+                    />
+                  </Form.Control>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+          </FeatureSection>
+        </InfoCard.Content>
+      </InfoCard>
+
+      <InfoCard title={t('tickets')}>
+        <InfoCard.Content>
+          <FeatureSection
+            control={control}
+            toggleName="ticketToggle"
+            title={t('show-tickets', 'Show tickets')}
+            description={t(
+              'kb-show-tickets-description',
+              'Let visitors raise a ticket from the published site.',
+            )}
+            enabled={showTickets}
+          >
+            <Form.Field
+              control={control}
+              name="ticketLabel"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>{t('ticket-name', 'Ticket name')}</Form.Label>
+                  <Form.Control>
+                    <Input
+                      {...field}
+                      placeholder={t(
+                        'kb-enter-menu-label',
+                        'Shown name on menu',
+                      )}
+                    />
+                  </Form.Control>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              control={control}
+              name="ticketChannelId"
+              rules={{
+                validate: (value) =>
+                  !showTickets || !!value || 'Channel is required',
+              }}
+              render={({ field }) => (
+                <Form.Item className={FULL_WIDTH_SELECT}>
+                  <Form.Label>
+                    {t('channel-label')}{' '}
+                    <span className="text-destructive">*</span>
+                  </Form.Label>
+                  <Form.Control>
+                    <SelectChannel.FormItem
+                      value={field.value}
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        form.setValue('ticketPipelineId', '');
+                        form.setValue('ticketStatusId', '');
+                      }}
+                    />
+                  </Form.Control>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              control={control}
+              name="ticketPipelineId"
+              rules={{
+                validate: (value) =>
+                  !showTickets || !!value || 'Pipeline is required',
+              }}
+              render={({ field }) => (
+                <Form.Item className={FULL_WIDTH_SELECT}>
+                  <Form.Label>
+                    {t('pipeline-label')}{' '}
+                    <span className="text-destructive">*</span>
+                  </Form.Label>
+                  <Form.Control>
+                    <SelectPipeline
+                      variant="form"
+                      value={field.value}
+                      channelId={ticketChannelId || undefined}
+                      disabled={!ticketChannelId}
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        form.setValue('ticketStatusId', '');
+                      }}
+                    />
+                  </Form.Control>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              control={control}
+              name="ticketStatusId"
+              render={({ field }) => (
+                <Form.Item className={FULL_WIDTH_SELECT}>
+                  <Form.Label>{t('status-label')}</Form.Label>
+                  <Form.Control>
+                    <TicketStatusField
+                      value={field.value}
+                      pipelineId={ticketPipelineId}
+                      onValueChange={field.onChange}
+                    />
+                  </Form.Control>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+          </FeatureSection>
+        </InfoCard.Content>
+      </InfoCard>
+
+      <InfoCard
+        title={t('forms', 'Forms')}
+        className={showTickets ? undefined : 'hidden'}
+      >
+        <InfoCard.Content>
+          <div className="grid gap-4 lg:grid-cols-2">
+            <Form.Field
+              control={control}
+              name="formChannelId"
+              render={({ field }) => (
+                <Form.Item className={FULL_WIDTH_SELECT}>
+                  <Form.Label>{t('channel-label')}</Form.Label>
+                  <Form.Control>
+                    <SelectChannel.FormItem
+                      value={field.value}
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        form.setValue('formIds', []);
+                      }}
+                    />
+                  </Form.Control>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              control={control}
+              name="formIds"
+              render={({ field }) => (
+                <Form.Item className={FULL_WIDTH_SELECT}>
+                  <Form.Label>{t('forms', 'Forms')}</Form.Label>
+                  <SelectHelpCenterForms
+                    value={field.value}
+                    channelId={formChannelId}
+                    onValueChange={field.onChange}
+                  />
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+          </div>
+        </InfoCard.Content>
+      </InfoCard>
+
+      <InfoCard title={t('cms', 'CMS')}>
+        <InfoCard.Content>
+          <div className="grid gap-4 lg:grid-cols-2">
+            <Form.Field
+              control={control}
+              name="cmsId"
+              render={({ field }) => (
+                <Form.Item className={FULL_WIDTH_SELECT}>
+                  <Form.Label>{t('cms', 'CMS')}</Form.Label>
+                  <SelectHelpCenterCms
+                    value={field.value}
+                    onValueChange={(cmsId, cmsAppToken) => {
+                      field.onChange(cmsId);
+                      form.setValue('cmsAppToken', cmsAppToken);
+                    }}
+                  />
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+          </div>
+        </InfoCard.Content>
+      </InfoCard>
+
       {isEditing && (
         <InfoCard title={t('kb-embed-script')}>
           <InfoCard.Content>
@@ -195,177 +439,6 @@ export function HelpCenterGeneralTab({
           </InfoCard.Content>
         </InfoCard>
       )}
-
-      <div className="grid gap-4 items-start lg:grid-cols-2">
-        <InfoCard title={t('knowledgebase', 'Knowledge base')}>
-          <InfoCard.Content>
-            <FeatureSection
-              control={control}
-              toggleName="kbToggle"
-              title={t('show-knowledgebase', 'Show knowledge base')}
-              description={t(
-                'kb-show-knowledgebase-description',
-                'Show the articles on the published site.',
-              )}
-              enabled={showKnowledgeBase}
-            >
-              <Form.Field
-                control={control}
-                name="kbLabel"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>
-                      {t('knowledgebase-name', 'Knowledge base name')}
-                    </Form.Label>
-                    <Form.Control>
-                      <Input
-                        {...field}
-                        placeholder={t(
-                          'kb-enter-menu-label',
-                          'Shown name on menu',
-                        )}
-                      />
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-              <Form.Field
-                control={control}
-                name="kbTopicId"
-                rules={{
-                  validate: (value) =>
-                    !showKnowledgeBase || !!value || 'Topic is required',
-                }}
-                render={({ field }) => (
-                  <Form.Item className={FULL_WIDTH_SELECT}>
-                    <Form.Label>
-                      {t('knowledgebase-topic', 'Knowledge base topic')}{' '}
-                      <span className="text-destructive">*</span>
-                    </Form.Label>
-                    <Form.Control>
-                      <SelectHelpCenterTopic
-                        variant="form"
-                        value={field.value}
-                        onValueChange={field.onChange}
-                      />
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-            </FeatureSection>
-          </InfoCard.Content>
-        </InfoCard>
-
-        <InfoCard title={t('tickets')}>
-          <InfoCard.Content>
-            <FeatureSection
-              control={control}
-              toggleName="ticketToggle"
-              title={t('show-tickets', 'Show tickets')}
-              description={t(
-                'kb-show-tickets-description',
-                'Let visitors raise a ticket from the published site.',
-              )}
-              enabled={showTickets}
-            >
-              <Form.Field
-                control={control}
-                name="ticketLabel"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>{t('ticket-name', 'Ticket name')}</Form.Label>
-                    <Form.Control>
-                      <Input
-                        {...field}
-                        placeholder={t(
-                          'kb-enter-menu-label',
-                          'Shown name on menu',
-                        )}
-                      />
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-              <Form.Field
-                control={control}
-                name="ticketChannelId"
-                rules={{
-                  validate: (value) =>
-                    !showTickets || !!value || 'Channel is required',
-                }}
-                render={({ field }) => (
-                  <Form.Item className={FULL_WIDTH_SELECT}>
-                    <Form.Label>
-                      {t('channel-label')}{' '}
-                      <span className="text-destructive">*</span>
-                    </Form.Label>
-                    <Form.Control>
-                      <SelectChannel.FormItem
-                        value={field.value}
-                        onValueChange={(value) => {
-                          field.onChange(value);
-                          form.setValue('ticketPipelineId', '');
-                          form.setValue('ticketStatusId', '');
-                        }}
-                      />
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-              <Form.Field
-                control={control}
-                name="ticketPipelineId"
-                rules={{
-                  validate: (value) =>
-                    !showTickets || !!value || 'Pipeline is required',
-                }}
-                render={({ field }) => (
-                  <Form.Item className={FULL_WIDTH_SELECT}>
-                    <Form.Label>
-                      {t('pipeline-label')}{' '}
-                      <span className="text-destructive">*</span>
-                    </Form.Label>
-                    <Form.Control>
-                      <SelectPipeline
-                        variant="form"
-                        value={field.value}
-                        channelId={ticketChannelId || undefined}
-                        disabled={!ticketChannelId}
-                        onValueChange={(value) => {
-                          field.onChange(value);
-                          form.setValue('ticketStatusId', '');
-                        }}
-                      />
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-              <Form.Field
-                control={control}
-                name="ticketStatusId"
-                render={({ field }) => (
-                  <Form.Item className={FULL_WIDTH_SELECT}>
-                    <Form.Label>{t('status-label')}</Form.Label>
-                    <Form.Control>
-                      <TicketStatusField
-                        value={field.value}
-                        pipelineId={ticketPipelineId}
-                        onValueChange={field.onChange}
-                      />
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-            </FeatureSection>
-          </InfoCard.Content>
-        </InfoCard>
-      </div>
     </div>
   );
 }

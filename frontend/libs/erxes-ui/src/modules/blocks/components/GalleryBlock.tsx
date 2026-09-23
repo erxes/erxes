@@ -1,7 +1,6 @@
 import {
   DefaultInlineContentSchema,
   DefaultStyleSchema,
-  BlockNoteEditor,
 } from '@blocknote/core';
 import {
   createReactBlockSpec,
@@ -18,7 +17,9 @@ import {
 import { FC, useRef, useState } from 'react';
 import { cn } from 'erxes-ui/lib';
 import { readImage } from 'erxes-ui/utils';
-import { Button, Dialog, Spinner } from 'erxes-ui/components';
+import { Button, Spinner } from 'erxes-ui/components';
+import { Attachments } from 'erxes-ui/modules/attachments';
+import { useToast } from 'erxes-ui/hooks';
 
 export interface GalleryImage {
   url: string;
@@ -38,7 +39,6 @@ const galleryBlockConfig = {
     },
   },
   content: 'none' as const,
-  isFileBlock: false,
 };
 
 type GalleryRenderProps = ReactCustomBlockRenderProps<
@@ -60,9 +60,9 @@ const GalleryItem: FC<{
   image: GalleryImage;
   readonly: boolean;
   onRemove: () => void;
-}> = ({ image, readonly, onRemove }) => {
+  onPreview: () => void;
+}> = ({ image, readonly, onRemove, onPreview }) => {
   const { loadingState, downloadUrl } = useResolveUrl(image.url);
-  const [previewOpen, setPreviewOpen] = useState(false);
   const isResolving = loadingState === 'loading';
   const src = downloadUrl ?? image.url;
 
@@ -77,13 +77,7 @@ const GalleryItem: FC<{
           variant="ghost"
           aria-label="Preview image"
           className="h-full w-full p-0 rounded-none"
-          onDoubleClick={() => setPreviewOpen(true)}
-          onKeyDown={(event) => {
-            if (event.key === 'Enter' || event.key === ' ') {
-              event.preventDefault();
-              setPreviewOpen(true);
-            }
-          }}
+          onClick={onPreview}
         >
           <img
             src={src}
@@ -99,18 +93,6 @@ const GalleryItem: FC<{
         </Button>
       )}
 
-      <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
-        <Dialog.Content className="max-w-fit border-0 bg-transparent p-0 shadow-none">
-          <Dialog.Title className="sr-only">
-            {image.caption || 'Image preview'}
-          </Dialog.Title>
-          <img
-            src={src}
-            alt={image.caption ?? ''}
-            className="max-h-[85vh] max-w-[90vw] rounded object-contain shadow-2xl"
-          />
-        </Dialog.Content>
-      </Dialog>
       {!readonly && (
         <Button
           variant="ghost"
@@ -133,27 +115,65 @@ const GalleryItem: FC<{
 
 const GalleryBlockContent: FC<GalleryRenderProps> = ({ block, editor }) => {
   const [uploading, setUploading] = useState(false);
+  const { toast } = useToast();
   const inputRef = useRef<HTMLInputElement>(null);
 
   const images = parseImages(block.props.images);
   const columns = Math.max(2, Math.min(4, parseInt(block.props.columns) || 3));
-  const readonly = !(editor as BlockNoteEditor).isEditable;
-  const canUpload = !!(editor as BlockNoteEditor).uploadFile;
+  const readonly = !editor.isEditable;
+  const uploadFile = editor.uploadFile;
+  const canUpload = Boolean(uploadFile);
 
   const updateBlock = (patch: Partial<typeof block.props>) => {
-    (editor as BlockNoteEditor).updateBlock(block, { props: patch });
+    editor.updateBlock(block, { props: patch });
   };
 
   const handleFiles = async (files: FileList | null) => {
-    if (!files?.length || !canUpload) return;
+    if (!files?.length || !uploadFile) return;
     setUploading(true);
     try {
-      const uploaded = await Promise.all(
-        Array.from(files).map((f) =>
-          (editor as BlockNoteEditor).uploadFile!(f).then((url) => ({ url })),
-        ),
+      const results = await Promise.allSettled(
+        Array.from(files).map(async (file) => {
+          const uploadedFile = await uploadFile(file);
+          const url =
+            typeof uploadedFile === 'string'
+              ? uploadedFile
+              : uploadedFile.props?.url;
+          if (typeof url !== 'string' || !url) {
+            throw new Error(`Failed to upload ${file.name}`);
+          }
+          return { url };
+        }),
       );
-      updateBlock({ images: JSON.stringify([...images, ...uploaded]) });
+      const uploaded = results.flatMap((result) =>
+        result.status === 'fulfilled' ? [result.value] : [],
+      );
+      const currentBlock = editor.getBlock(block.id);
+      if (uploaded.length && currentBlock) {
+        updateBlock({
+          images: JSON.stringify([
+            ...parseImages(currentBlock.props.images),
+            ...uploaded,
+          ]),
+        });
+      }
+      const failedNames = Array.from(files)
+        .filter((_, index) => results[index].status === 'rejected')
+        .map((file) => file.name);
+      if (failedNames.length) {
+        toast({
+          title: 'Failed to upload gallery images',
+          description: failedNames.join(', '),
+          variant: 'destructive',
+        });
+      }
+    } catch (error) {
+      toast({
+        title: 'Failed to upload gallery images',
+        description:
+          error instanceof Error ? error.message : 'Please try again.',
+        variant: 'destructive',
+      });
     } finally {
       setUploading(false);
       if (inputRef.current) inputRef.current.value = '';
@@ -185,19 +205,35 @@ const GalleryBlockContent: FC<GalleryRenderProps> = ({ block, editor }) => {
   return (
     <div className="w-full my-1 select-none" contentEditable={false}>
       {images.length > 0 && (
-        <div
-          className="grid gap-2"
-          style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}
+        <Attachments.Root
+          initialAttachments={images.map((image) => ({
+            url: image.url,
+            name: image.caption ?? '',
+            type: 'image/*',
+            size: 0,
+          }))}
         >
-          {images.map((img, i) => (
-            <GalleryItem
-              key={`${img.url}-${i}`}
-              image={img}
-              readonly={readonly}
-              onRemove={() => removeImage(i)}
-            />
-          ))}
-        </div>
+          <Attachments.Preview
+            heading=""
+            className="p-0"
+            renderThumbnails={(openPreview) => (
+              <div
+                className="grid gap-2"
+                style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}
+              >
+                {images.map((img, i) => (
+                  <GalleryItem
+                    key={`${img.url}-${i}`}
+                    image={img}
+                    readonly={readonly}
+                    onRemove={() => removeImage(i)}
+                    onPreview={() => openPreview(i)}
+                  />
+                ))}
+              </div>
+            )}
+          />
+        </Attachments.Root>
       )}
 
       {!readonly && (

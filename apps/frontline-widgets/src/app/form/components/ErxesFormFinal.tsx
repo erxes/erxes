@@ -1,3 +1,4 @@
+import { IconCheck } from '@tabler/icons-react';
 import { useErxesForm } from '../context/erxesFormContext';
 import { InfoCard, readImage } from 'erxes-ui';
 
@@ -10,7 +11,10 @@ export const ErxesFormFinal = () => {
         title={formData.leadData.thankTitle}
         className="bg-primary text-primary-foreground"
       >
-        <InfoCard.Content className="bg-muted">
+        <InfoCard.Content className="bg-muted text-center">
+          <span className="rounded-sm mx-auto bg-primary text-primary-foreground shadow-xs shadow-primary/20 flex items-center justify-center aspect-square size-8.5">
+            <IconCheck size={16} />
+          </span>
           <p className="text-muted-foreground">
             {formData.leadData.thankContent}
           </p>

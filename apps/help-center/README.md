@@ -108,7 +108,7 @@ override the build argument and bake that machine's app token into the image.
 
 | Route                              | Source                                                                             |
 | ---------------------------------- | ---------------------------------------------------------------------------------- |
-| `/`                                | Support portal landing — ticket actions, announcements and knowledge base sections |
+| `/`                                | Support portal landing — hero search, knowledge base, forms, announcements and tickets |
 | `/knowledge-base`                  | `cpKnowledgeBaseTopicDetail` — full category browse                                |
 | `/search?q=`                       | Knowledge base articles + CMS announcements, labelled by type                      |
 | `/knowledge-base/category/[id]`    | category header, sidebar and article list                                          |
@@ -164,3 +164,9 @@ would prerender the content once at build time.
 Colors, fonts and article typography are defined once in `app/globals.css`
 (`@theme`). Components use the token utilities (`bg-hero`, `text-ink`,
 `border-line`, `text-muted`, `bg-brand-soft`) rather than raw hex values.
+
+Motion lives in the same place: the `--animate-*` tokens (`animate-aurora`,
+`animate-aurora-slow`, `animate-blink`) drive the drifting hero glows and the
+eyebrow dot, while `.tile` gives every card its hover hairline and the glow
+that follows the pointer. Scroll-triggered entrances come from `Reveal` /
+`CardReveal`, and all of it is switched off under `prefers-reduced-motion`.
