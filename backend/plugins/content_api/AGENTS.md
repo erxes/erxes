@@ -6,7 +6,7 @@
 - **Project:** `content_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/content_api`
-- **Last synchronized:** `2026-09-16`
+- **Last synchronized:** `2026-09-24`
 
 ## Scope
 
@@ -65,6 +65,7 @@
 - Never accept browser workspace IDs or Postiz credentials; agent_api owns workspace routing and Postiz membership.
 - Signer and worker startup use existing `JWT_TOKEN_SECRET`. Derive the CMS-purpose key exactly as specified in `CMS_POSTIZ.md`; reject missing/blank JWT. `CMS_POSTIZ_SHARED_SECRET` is ignored.
 - Tenant context remains signed and verified even when SaaS tenants share a JWT root.
+- The SaaS delivery sweep streams tenant identifiers and checks for due work through the MongoDB driver before loading tenant models. Reuse worker models for tenants with due jobs; idle tenants must not create cached Mongoose models.
 - Preserve leases, snapshots and request IDs. UNKNOWN means manual review, not permission to publish again.
 - Enterprise workers scan the installation database without using a synthetic routing tenant. Dispatch, user lookup and status polling use each saved `subdomain`; no DOMAIN-derived fallback or installation-specific setting is used.
 - SaaS workers enumerate tenant databases and reject snapshots naming another tenant. Legacy SaaS rows can be bound to their database tenant under the claimed lease. Legacy enterprise rows without a tenant become UNKNOWN and require verified operator recovery; never infer ownership from an article URL, user ID or another job.
@@ -83,6 +84,12 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-24` - Bound SaaS delivery sweep memory
+
+- **Summary:** Stream tenant discovery, skip idle delivery collections without loading models, and reuse models for active tenants.
+- **Affected areas:** CMS Postiz worker and its regression tests.
+- **Contracts changed:** None.
 
 ### `2026-09-16` - Include Postiz sharing in CMS authoring roles
 

@@ -8,7 +8,7 @@ export const FeatureOff = ({
   title: string;
   description: string;
 }) => (
-  <div className="rounded-xl border border-line bg-white p-7 text-center">
+  <div className="rounded-2xl bg-white shadow-shell p-7 text-center">
     <span className="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-subtle text-muted-foreground">
       <Icon name="lock" size={22} />
     </span>

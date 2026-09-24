@@ -1,4 +1,6 @@
 import { useAutomation } from '@/automations/context/AutomationProvider';
+import { useAutomationNodes } from '@/automations/hooks/useAutomationNodes';
+import { flowNeedsActor } from '@/automations/utils/automationBuilderUtils/actionActor';
 import { useAutomationBuilderStatusSwitcher } from '@/automations/hooks/useAutomationBuilderStatusSwitcher';
 import {
   TAutomationBuilderForm,
@@ -11,6 +13,7 @@ import {
 } from '@tabler/icons-react';
 import { AlertDialog, Button, cn, Form, Tooltip } from 'erxes-ui';
 import { SubmitErrorHandler } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 type AutomationBuilderStatusSwitchProps = {
   disabled?: boolean;
@@ -35,11 +38,25 @@ export const AutomationBuilderStatusSwitch = ({
     isUntouchedDuplicate,
     duplicatedFromName,
   } = useAutomationBuilderStatusSwitcher({ onSave, onError });
-  const { isReadOnly } = useAutomation();
+  const { isReadOnly, detail, actionConstMap } = useAutomation();
+  const { actions } = useAutomationNodes();
+  const { t: translate } = useTranslation('automations');
 
   if (isCreatePage || isReadOnly) {
     return null;
   }
+
+  // Putting it live is the moment ownership starts to mean something, so the
+  // dialog says whose name the records will carry — and whether it is about
+  // to become the reader's own. A flow that owns nothing stays quiet.
+  const ownerName =
+    detail?.ownerUser?.details?.fullName || detail?.ownerUser?.email;
+  const takingOver = !detail?.ownerId;
+  const ownershipLine = !flowNeedsActor(actions, actionConstMap)
+    ? null
+    : takingOver
+    ? translate('activate-owner-taking')
+    : translate('activate-owner-existing', { name: ownerName || '' });
 
   const isActivatingDuplicate = isActivating && isUntouchedDuplicate;
 
@@ -109,6 +126,11 @@ export const AutomationBuilderStatusSwitch = ({
                         : isActivating
                         ? 'This will save your latest changes and start running this automation.'
                         : 'This will save your latest changes and stop this automation from running.'}
+                      {isActivating && ownershipLine && (
+                        <span className="mt-2 block text-foreground">
+                          {ownershipLine}
+                        </span>
+                      )}
                     </AlertDialog.Description>
                   </AlertDialog.Header>
                   <AlertDialog.Footer>

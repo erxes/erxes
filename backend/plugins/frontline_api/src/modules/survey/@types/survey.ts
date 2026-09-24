@@ -1,3 +1,4 @@
+import { IAttachment } from 'erxes-api-shared/core-types';
 import { HydratedDocument } from 'mongoose';
 
 export interface ISurveyOption {
@@ -19,6 +20,7 @@ export interface ISurveyStep {
   description?: string;
   order: number;
   question: string;
+  attachments?: IAttachment[];
   options: ISurveyOption[];
   allowMultiselect?: boolean;
 }
@@ -35,6 +37,7 @@ export interface ISurvey {
   allowMultiselect?: boolean;
   durationHours?: number;
   status: string;
+  rejectionReason?: string;
   sentCount?: number;
   createdUserId?: string;
   createdCpUserId?: string;
@@ -84,6 +87,7 @@ export interface ISurveySnapshotStep {
   name?: string;
   description?: string;
   question: string;
+  attachments?: IAttachment[];
   answers: ISurveyAnswerSnapshot[];
   allowMultiselect: boolean;
 }

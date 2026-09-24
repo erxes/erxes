@@ -5,7 +5,7 @@ import { AutomationHistoryTriggerCell } from '@/automations/components/builder/h
 import { useSelectExecutionCellProps } from '@/automations/components/builder/history/hooks/useAutomationHistoryView';
 import { STATUSES_BADGE_VARIABLES } from '@/automations/constants';
 import { StatusBadgeValue } from '@/automations/types';
-import { IconCalendarTime } from '@tabler/icons-react';
+import { IconAlertTriangle, IconCalendarTime } from '@tabler/icons-react';
 import { CellContext, ColumnDef } from '@tanstack/table-core';
 import dayjs from 'dayjs';
 import {
@@ -24,7 +24,7 @@ const TitleHeader = () => {
 
 const DescriptionHeader = () => {
   const { t } = useTranslation('automations');
-  return <RecordTable.InlineHead label={t('trigger')} />;
+  return <RecordTable.InlineHead label={t('description')} />;
 };
 
 const TriggerHeader = () => {
@@ -45,13 +45,31 @@ const CreatedAtHeader = () => {
 };
 
 const StatusCell = ({ cell }: CellContext<IAutomationHistory, unknown>) => {
+  const { t } = useTranslation('automations');
   const status = cell.getValue() as IAutomationHistory['status'];
   const variant: StatusBadgeValue = STATUSES_BADGE_VARIABLES[status];
   const selectProps = useSelectExecutionCellProps(cell.row.original._id);
+  // A run that absorbed a failure still looks done, so the row says that
+  // something inside it did not happen.
+  const failedAfterwards =
+    cell.row.original.handledFailureActionIds?.length || 0;
 
   return (
     <RecordTableInlineCell {...selectProps}>
-      <Badge variant={variant}>{status}</Badge>
+      <div className="flex items-center gap-1.5">
+        <Badge variant={variant}>{status}</Badge>
+        {!!failedAfterwards && (
+          <IconAlertTriangle
+            className="size-3.5 shrink-0 text-warning"
+            aria-label={t('failed-after-finish', {
+              count: failedAfterwards,
+            })}
+            title={t('failed-after-finish', {
+              count: failedAfterwards,
+            })}
+          />
+        )}
+      </div>
     </RecordTableInlineCell>
   );
 };

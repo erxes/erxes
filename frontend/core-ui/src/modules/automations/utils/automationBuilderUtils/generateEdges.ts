@@ -5,6 +5,10 @@ import { AutomationNodeType } from '@/automations/types';
 import { Edge } from '@xyflow/react';
 import type { IAutomationsActionFolkConfig } from 'ui-modules';
 import {
+  isBranchingOnError,
+  resolveActionFolks,
+} from '@/automations/utils/automationBuilderUtils/actionFolks';
+import {
   TAutomationAction,
   TAutomationOptionalConnect,
   TAutomationTrigger,
@@ -185,14 +189,17 @@ export const generateEdge = (
   const { optionalConnects = [], ...config } = edge?.config || {};
 
   if (type === AutomationNodeType.Action) {
-    if (folksMap?.has(edge.type)) {
+    // Per node, not per type: an action that branches on error carries two
+    // named exits the action type itself knows nothing about.
+    const folks = resolveActionFolks(
+      edge.type,
+      config,
+      Object.fromEntries(folksMap || new Map()),
+    );
+
+    if (folks.length) {
       generatedEdges.push(
-        ...buildFolksEdges(
-          type,
-          edge as TAutomationAction,
-          config,
-          folksMap.get(edge.type) || [],
-        ),
+        ...buildFolksEdges(type, edge as TAutomationAction, config, folks),
       );
     }
 
@@ -213,7 +220,8 @@ export const generateEdge = (
     }
   }
 
-  if (target) {
+  // A branching action has no plain exit; both of its edges are folk edges.
+  if (target && !isBranchingOnError(config)) {
     generatedEdges.push(buildPrimaryEdge(type, edge.id.toString(), target));
   }
   return generatedEdges.map((edge) =>

@@ -58,7 +58,7 @@ export const PAYMENTS = {
   storepay: {
     title: 'storepay',
     kind: 'storepay',
-    apiUrl: 'http://service-merchant.storepay.mn:7005',
+    apiUrl: 'https://service.storepay.mn/lend-merchant',
     actions: {
       invoice: 'invoice',
     },

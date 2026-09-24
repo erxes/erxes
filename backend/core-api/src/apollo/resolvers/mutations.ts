@@ -2,6 +2,7 @@ import { appMutations } from '@/apps/graphql/mutations';
 import { authMutations } from '@/auth/graphql/resolvers/mutations';
 import { oauthClientAppMutations } from '@/auth/graphql/resolvers/oauthClientApps';
 import { automationMutations } from '@/automations/graphql/resolvers/mutations';
+import { emailTemplateMutations } from '@/emailTemplates/graphql/resolvers';
 import conformityMutations from '@/conformities/graphql/mutations';
 import { contactMutations } from '@/contacts/graphql/resolvers/mutations';
 import { documentMutations } from '@/documents/graphql/mutations';
@@ -50,6 +51,7 @@ export const mutations = {
   ...approvalMutations,
   ...documentMutations,
   ...automationMutations,
+  ...emailTemplateMutations,
   ...notificationMutations,
   ...internalNoteMutations,
   ...broadcastMutations,

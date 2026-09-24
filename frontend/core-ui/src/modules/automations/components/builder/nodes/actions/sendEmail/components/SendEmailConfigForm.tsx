@@ -2,7 +2,10 @@ import { useSendEmailSidebarForm } from '@/automations/components/builder/nodes/
 import { TAutomationSendEmailConfig } from '@/automations/components/builder/nodes/actions/sendEmail/states/sendEmailConfigForm';
 import { AutomationConfigFormWrapper } from '@/automations/components/builder/nodes/components/AutomationConfigFormWrapper';
 import { SelectVerifiedSender } from '@/settings/mail-config/components/SelectVerifiedSender';
-import { useSenderOptions } from '@/settings/mail-config/hooks/useVerifiedSenders';
+import {
+  IEmailSender,
+  useSenderOptions,
+} from '@/settings/mail-config/hooks/useVerifiedSenders';
 import {
   Collapsible,
   Form,
@@ -12,6 +15,7 @@ import {
   Separator,
   Skeleton,
 } from 'erxes-ui';
+import { useRef } from 'react';
 import { Control, FormProvider } from 'react-hook-form';
 import {
   PlaceholderInput,
@@ -27,11 +31,13 @@ const ReplyToField = ({
   name,
   label,
   placeholder,
+  onSelect,
 }: {
   control: Control<TAutomationSendEmailConfig>;
   name: 'fromEmailPlaceHolder' | 'replyToEmail';
   label: string;
   placeholder: string;
+  onSelect: (sender?: IEmailSender) => void;
 }) => (
   <Form.Field
     name={name}
@@ -41,7 +47,10 @@ const ReplyToField = ({
         <Form.Label>{label}</Form.Label>
         <SelectVerifiedSender
           value={field.value}
-          onChange={field.onChange}
+          onChange={(value, sender) => {
+            field.onChange(value);
+            onSelect(sender);
+          }}
           placeholder={placeholder}
         />
       </Form.Item>
@@ -67,11 +76,43 @@ export const SendEmailConfigForm = ({
   } = useSenderOptions();
   const { t } = useTranslation('automations');
   const senderName = form.watch('sender');
+  // Remembers what the last pick wrote, so choosing another address updates a
+  // name this field put there while never overwriting one that was typed.
+  const autoFilledSender = useRef('');
+
+  const handleSenderSelected = (sender?: IEmailSender) => {
+    const name = sender?.name?.trim();
+
+    if (!name) {
+      return;
+    }
+
+    const current = form.getValues('sender')?.trim();
+
+    if (current && current !== autoFilledSender.current) {
+      return;
+    }
+
+    autoFilledSender.current = name;
+    form.setValue('sender', name, { shouldDirty: true, shouldValidate: true });
+  };
+
   return (
     <FormProvider {...form}>
       <AutomationConfigFormWrapper
         onSave={form.handleSubmit(handleSave, handleValidationErrors)}
       >
+        {/* Above the name on purpose: the address is what the name belongs to,
+            and picking one fills the name in. */}
+        <ReplyToField
+          control={form.control}
+          name={alignedFrom ? 'fromEmailPlaceHolder' : 'replyToEmail'}
+          key={alignedFrom ? 'aligned' : 'plain'}
+          label={t('reply-to')}
+          placeholder={t('no-reply-to')}
+          onSelect={handleSenderSelected}
+        />
+
         <Form.Field
           name="sender"
           control={form.control}
@@ -199,14 +240,6 @@ export const SendEmailConfigForm = ({
             />
           </>
         )}
-
-        <ReplyToField
-          control={form.control}
-          name={alignedFrom ? 'fromEmailPlaceHolder' : 'replyToEmail'}
-          key={alignedFrom ? 'aligned' : 'plain'}
-          label={t('reply-to')}
-          placeholder={t('no-reply-to')}
-        />
 
         <Separator className="space-y-2" />
 

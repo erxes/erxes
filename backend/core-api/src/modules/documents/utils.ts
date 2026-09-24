@@ -1,5 +1,5 @@
 import { getEnv } from 'erxes-api-shared/utils';
-import { blocksToHtml } from '~/modules/documents/blocksToHtml';
+import { blocksToHtml } from 'erxes-api-shared/core-modules';
 
 const toDimension = (value?: number | string) => {
   if (value === undefined || value === null || value === '') {

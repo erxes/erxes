@@ -1,3 +1,4 @@
+import { TCreatedVia } from 'erxes-api-shared/core-types';
 import { Document } from 'mongoose';
 import {
   ICursorPaginateParams,
@@ -13,6 +14,12 @@ export type CycleFilterType =
   | 'anyFutureCycle';
 
 export interface ITask {
+  /**
+   * What produced this, when nobody typed it in — a campaign, an
+   * automation. Written by whatever created it; `schemaWrapper` carries
+   * the field on every schema.
+   */
+  createdVia?: TCreatedVia;
   name: string;
   teamId: string;
   description?: string;

@@ -41,6 +41,8 @@ export const receiveTrigger = async ({
   // recordType check will be done in the loop for non-custom triggers only
   const automations = await models.Automations.find({
     status: 'active',
+    // Owned automations are started by their owner, never by an event.
+    ownedBy: { $exists: false },
     ...(excludeAutomationIds.length
       ? { _id: { $nin: excludeAutomationIds } }
       : {}),
@@ -82,7 +84,7 @@ export const receiveTrigger = async ({
         const execution = await calculateExecution({
           models,
           subdomain,
-          automationId: automation._id,
+          automation,
           trigger,
           target,
           eventUpdateDescription,

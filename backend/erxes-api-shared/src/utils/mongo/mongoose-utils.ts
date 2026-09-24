@@ -293,6 +293,34 @@ export const schemaWrapper = (
     },
   });
 
+  // Provenance for records nobody typed in: written by whatever produced them
+  // — a campaign, an automation — and never by a person. Declared here for the
+  // same reason as `segmentIds` above: a field that has to be remembered on a
+  // hundred schemas is a field that will be missing from some of them.
+  //
+  // `default: undefined` keeps it absent until something writes it, so the
+  // sparse index costs nothing on the collections that are only ever filled in
+  // by hand.
+  schema.add({
+    createdVia: {
+      type: {
+        source: { type: String },
+        sourceId: { type: String },
+        sourceName: { type: String, optional: true },
+        runId: { type: String, optional: true },
+        actorId: { type: String, optional: true },
+      },
+      optional: true,
+      default: undefined,
+      _id: false,
+    },
+  });
+
+  schema.index(
+    { 'createdVia.sourceId': 1 },
+    { sparse: true, name: 'createdVia_sourceId' },
+  );
+
   if (options.search) {
     configureSchemaSearchTokens(schema, options.search);
   }

@@ -12,6 +12,7 @@ import {
   TRecordReferencesConfig,
   normalizeAutomationConstantsForTransport,
   splitType,
+  TAutomationBuiltInTemplate,
 } from 'erxes-api-shared/core-modules';
 import { IListArgs, IStatsParams } from '../queries';
 import { getPlugin, getPlugins } from 'erxes-api-shared/utils';
@@ -36,6 +37,7 @@ type TAutomationConstantsResponse = {
   setPropertyTargetsConst: TWithPluginName<TAutomationSetPropertyTarget>[];
   aiKnowledgeSourcesConst: TWithPluginName<TAiKnowledgeSourceConfig>[];
   aiToolsConst: TWithPluginName<TAiToolConfig>[];
+  workflowTemplatesConst: TWithPluginName<TAutomationBuiltInTemplate>[];
 };
 
 type TRecordReferenceType = TRecordReferencesConfig['types'][number];
@@ -67,6 +69,8 @@ export const generateAutomationsFilter = (params: IListArgs) => {
 
   const filter: any = {
     status: { $nin: [AUTOMATION_STATUSES.ARCHIVED, 'template'] },
+    // Automations another module owns are driven from that module's own UI.
+    ownedBy: { $exists: false },
   };
 
   if (status) {
@@ -232,6 +236,9 @@ export const getAutomationConstants =
         ...tool,
         pluginName: 'core',
       })),
+      workflowTemplatesConst: (
+        normalizedCoreConstants.workflowTemplates || []
+      ).map((template) => ({ ...template, pluginName: 'core' })),
     };
 
     for (const pluginName of plugins) {
@@ -256,7 +263,11 @@ export const getAutomationConstants =
         findObjectTargets = [],
         setPropertyTargets = [],
         ai,
+        workflowTemplates = [],
       } = pluginConstants as AutomationConstants;
+      constants.workflowTemplatesConst.push(
+        ...workflowTemplates.map((template) => ({ ...template, pluginName })),
+      );
       constants.findObjectTargetsConst.push(...findObjectTargets);
       constants.setPropertyTargetsConst.push(
         ...setPropertyTargets.map((target) => ({ ...target, pluginName })),

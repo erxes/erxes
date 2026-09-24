@@ -1,3 +1,4 @@
+import { TCreatedVia } from '../../../core-types/common';
 import { Document, Schema } from 'mongoose';
 
 export interface IAutomationExecAction {
@@ -5,7 +6,14 @@ export interface IAutomationExecAction {
   startedAt?: string;
   finishedAt?: string;
   durationMs?: number;
-  status?: 'success' | 'error' | 'waiting' | 'queued' | 'standby' | 'dropped';
+  status?:
+    | 'success'
+    | 'skipped'
+    | 'error'
+    | 'waiting'
+    | 'queued'
+    | 'standby'
+    | 'dropped';
   actionId: string;
   actionType: string;
   actionConfig?: any;
@@ -13,6 +21,10 @@ export interface IAutomationExecAction {
   result?: any;
   // Why the action failed, from AUTOMATION_ERROR_CODES. Only set on errors.
   errorCode?: string;
+  // Why the action deliberately did nothing. Only set on skipped actions.
+  skipReason?: string;
+  // Which try this row is. 1 unless an error policy asked for another one.
+  attempt?: number;
   // Set on workflow node actions: links to the child execution for drill-in
   childExecutionId?: string;
   // Deferred actions only: matches the completion callback to this attempt so
@@ -32,6 +44,13 @@ export interface IAutomationExecution {
   triggerId: string;
   triggerType: string;
   triggerConfig: any;
+  /**
+   * What set this run going. A caller that addressed the automation on
+   * someone's behalf declares its own — a campaign names itself and whoever
+   * put it live — and the runner stamps the run's own id onto it. Records the
+   * run creates carry it onward.
+   */
+  createdVia?: TCreatedVia;
   nextActionId?: string;
   targetId: string;
   target: any;
@@ -41,6 +60,10 @@ export interface IAutomationExecution {
   failedActionId?: string;
   failedActionType?: string;
   errorCode?: string;
+  // Actions that failed while the run itself carried on: a deferred 'ignore'
+  // action reporting late, or a failure taken by an error branch. The run is
+  // complete, so without this the failure would vanish with it.
+  handledFailureActionIds?: string[];
   startWaitingDate?: Date;
   waitingActionId?: string;
   objToCheck?: any;
@@ -79,7 +102,15 @@ const execActionSchema = new Schema({
   durationMs: { type: Number },
   status: {
     type: String,
-    enum: ['success', 'error', 'waiting', 'queued', 'standby', 'dropped'],
+    enum: [
+      'success',
+      'skipped',
+      'error',
+      'waiting',
+      'queued',
+      'standby',
+      'dropped',
+    ],
   },
   actionId: { type: String },
   actionType: { type: String },
@@ -88,6 +119,8 @@ const execActionSchema = new Schema({
   result: { type: Object },
   childExecutionId: { type: String },
   errorCode: { type: String },
+  skipReason: { type: String },
+  attempt: { type: Number },
   jobId: { type: String },
   queuedAt: { type: Date },
   expiresAt: { type: Date },
@@ -100,6 +133,7 @@ export const automationExecutionSchema = new Schema({
   triggerId: { type: String, required: true },
   triggerType: { type: String },
   triggerConfig: { type: Object },
+  createdVia: { type: Object },
   nextActionId: { type: String },
   targetId: { type: String, required: true, index: true },
   target: { type: Object },
@@ -115,6 +149,7 @@ export const automationExecutionSchema = new Schema({
   failedActionId: { type: String },
   failedActionType: { type: String },
   errorCode: { type: String },
+  handledFailureActionIds: { type: [String] },
   startWaitingDate: { type: Date },
   waitingActionId: { type: String },
   responseActionId: { type: String },

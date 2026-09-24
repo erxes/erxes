@@ -34,6 +34,7 @@ export const InventoryForm = ({
   const setHotkeyScope = useSetHotkeyScope();
 
   const tableRef = useRef<HTMLTableElement>(null);
+  const prefilledUnitCosts = useRef<Record<string, number>>({});
   const [showAdvancedView, setShowAdvancedView] = useAtom(
     showAdvancedViewState,
   );
@@ -68,6 +69,7 @@ export const InventoryForm = ({
                   detailIndex={detailIndex}
                   journalIndex={journalIndex}
                   form={form}
+                  initialUnitCost={prefilledUnitCosts.current[detail._id]}
                 />
               ))}
             </Table.Body>
@@ -80,6 +82,9 @@ export const InventoryForm = ({
           append={append}
           form={form}
           journalIndex={journalIndex}
+          setPrefilledUnitCosts={(unitCosts) => {
+            Object.assign(prefilledUnitCosts.current, unitCosts);
+          }}
         />
         <RemoveButton form={form} journalIndex={journalIndex} />
         <div>

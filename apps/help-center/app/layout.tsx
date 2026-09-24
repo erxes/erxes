@@ -42,19 +42,13 @@ export default async function RootLayout({
   return (
     <html lang="en" className={`${openSans.variable} h-full`}>
       <head>
-        {/*
-         * Written by docker-entrypoint.sh from the container's environment,
-         * so the gateway stays a runtime setting rather than a value baked
-         * into the client bundle. Absent outside Docker, where the browser
-         * falls back to what `next build` inlined from .env.local.
-         */}
         <Script
           strategy="beforeInteractive"
           type="text/javascript"
           src="/js/env.js"
         />
       </head>
-      <body className="flex min-h-full flex-col bg-subtle text-ink">
+      <body className="flex min-h-full flex-col bg-canvas text-ink">
         <noscript>
           <style>
             {'[data-reveal]{opacity:1!important;transform:none!important}'}

@@ -1,4 +1,5 @@
 import { Resizable } from 'erxes-ui';
+import { useComposerPanelResize } from '@/inbox/conversations/conversation-detail/hooks/useComposerPanelResize';
 
 export const ConversationDetailLayout = ({
   children,
@@ -7,15 +8,43 @@ export const ConversationDetailLayout = ({
   children: React.ReactNode;
   input: React.ReactNode;
 }) => {
+  const {
+    inputPanelRef,
+    rememberContentHeight,
+    resizeForContent,
+    resetAutoResize,
+  } = useComposerPanelResize();
+
   return (
-    <Resizable.PanelGroup direction="vertical">
-      <Resizable.Panel defaultSize={input ? 70 : 100}>
-        <div className="relative h-full overflow-hidden">{children}</div>
+    <Resizable.PanelGroup
+      direction="vertical"
+      className="min-h-0 min-w-0 flex-1"
+      onInputCapture={(event) => resizeForContent(event.target)}
+      onKeyUpCapture={(event) => resizeForContent(event.target)}
+      onFocusCapture={(event) => rememberContentHeight(event.target)}
+    >
+      <Resizable.Panel defaultSize={input ? 75 : 100} minSize={0}>
+        <div className="relative h-full min-h-0 overflow-hidden">
+          {children}
+        </div>
       </Resizable.Panel>
       {input && (
         <>
-          <Resizable.Handle className="bg-transparent hover:bg-border" />
-          <Resizable.Panel defaultSize={30}>{input}</Resizable.Panel>
+          <Resizable.Handle
+            className="bg-transparent hover:bg-border"
+            onPointerDown={resetAutoResize}
+            onKeyDown={resetAutoResize}
+          />
+          <Resizable.Panel
+            ref={inputPanelRef}
+            defaultSize={25}
+            minSize={20}
+            maxSize={100}
+          >
+            <div className="relative z-20 h-full min-h-0 border-t border-border/60 bg-background/95 backdrop-blur">
+              {input}
+            </div>
+          </Resizable.Panel>
         </>
       )}
     </Resizable.PanelGroup>
