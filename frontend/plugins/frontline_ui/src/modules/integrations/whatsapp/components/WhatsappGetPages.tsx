@@ -1,4 +1,4 @@
-import { Button, cn, Command, Input, RadioGroup, Spinner } from 'erxes-ui';
+import { cn, Command, Input, RadioGroup, Spinner } from 'erxes-ui';
 import { useAtom, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import {
@@ -12,6 +12,8 @@ import {
   WhatsappIntegrationFormLayout,
   WhatsappIntegrationFormSteps,
 } from './WhatsappIntegrationForm';
+import { WhatsappListError } from './WhatsappListError';
+import { WhatsappStepNav } from './WhatsappStepNav';
 
 export const WhatsappGetPages = () => {
   const { t } = useTranslation('frontline');
@@ -24,6 +26,12 @@ export const WhatsappGetPages = () => {
   const setActiveStep = useSetAtom(activeWhatsappFormStepAtom);
 
   const selectPage = (pageId: string) => {
+    const targetPage = whatsappGetPages.find((page) => page.id === pageId);
+
+    if (targetPage?.isUsed) {
+      return;
+    }
+
     const nextPage = selectedPage === pageId ? undefined : pageId;
     if (nextPage !== selectedPage) {
       setSelectedBusinessAccount(undefined);
@@ -35,26 +43,14 @@ export const WhatsappGetPages = () => {
   return (
     <WhatsappIntegrationFormLayout
       actions={
-        <>
-          <Button
-            type="button"
-            variant="secondary"
-            className="bg-border"
-            onClick={() => {
-              setActiveStep(1);
-              setSelectedPage(undefined);
-            }}
-          >
-            {t('previous-step')}
-          </Button>
-          <Button
-            type="button"
-            disabled={!selectedPage}
-            onClick={() => setActiveStep(3)}
-          >
-            {t('next-step')}
-          </Button>
-        </>
+        <WhatsappStepNav
+          onPrevious={() => {
+            setActiveStep(1);
+            setSelectedPage(undefined);
+          }}
+          onNext={() => setActiveStep(3)}
+          nextDisabled={!selectedPage}
+        />
       }
     >
       <WhatsappIntegrationFormSteps
@@ -82,20 +78,14 @@ export const WhatsappGetPages = () => {
             </div>
           </div>
           {error ? (
-            <div className="flex flex-col items-center justify-center gap-2 p-6 text-center">
-              <div className="text-sm font-medium text-destructive">
-                {t(
-                  'failed-to-load-facebook-pages',
-                  'Failed to load Facebook Pages',
-                )}
-              </div>
-              <div className="text-sm text-muted-foreground">
-                {error.message}
-              </div>
-              <Button type="button" variant="secondary" onClick={() => refetch()}>
-                {t('retry', 'Retry')}
-              </Button>
-            </div>
+            <WhatsappListError
+              title={t(
+                'failed-to-load-facebook-pages',
+                'Failed to load Facebook Pages',
+              )}
+              error={error}
+              onRetry={() => refetch()}
+            />
           ) : (
             <RadioGroup
               value={selectedPage}
@@ -124,6 +114,7 @@ export const WhatsappGetPages = () => {
                     <RadioGroup.Item
                       value={page.id}
                       checked={selectedPage === page.id}
+                      disabled={page.isUsed}
                       className="bg-background"
                       onClick={() => selectPage(page.id)}
                     />

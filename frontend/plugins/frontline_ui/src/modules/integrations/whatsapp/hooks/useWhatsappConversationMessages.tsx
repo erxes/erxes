@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useQuery } from '@apollo/client';
 import { useQueryState } from 'erxes-ui';
 import { CONVERSATION_MESSAGE_INSERTED } from '@/inbox/conversations/graphql/subscriptions/inboxSubscriptions';
@@ -64,34 +64,53 @@ export const useWhatsappConversationMessages = () => {
     whatsappConversationMessages?.length ?? 0,
   );
 
-  const handleFetchMore = () => {
-    if (
-      whatsappConversationMessages?.length &&
-      whatsappConversationMessages?.length %
-        WHATSAPP_CONVERSATION_MESSAGES_LIMIT ===
-        0
-    ) {
-      fetchMore({
-        variables: {
-          skip: data?.whatsappConversationMessages?.length || 0,
-        },
-        updateQuery: (prev, { fetchMoreResult }) => {
-          if (!fetchMoreResult) {
-            return prev;
-          }
+  const hasMoreRef = useRef(true);
 
-          return {
-            whatsappConversationMessages: [
-              ...fetchMoreResult.whatsappConversationMessages,
-              ...prev.whatsappConversationMessages,
-            ],
-          };
-        },
-      });
+  useEffect(() => {
+    hasMoreRef.current = true;
+  }, [conversationId]);
+
+  const handleFetchMore = () => {
+    if (!whatsappConversationMessages?.length || !hasMoreRef.current) {
+      return;
     }
+
+    fetchMore({
+      variables: {
+        skip: whatsappConversationMessages.length,
+      },
+      updateQuery: (prev, { fetchMoreResult }) => {
+        if (!fetchMoreResult) {
+          return prev;
+        }
+
+        const olderMessages = fetchMoreResult.whatsappConversationMessages;
+
+        if (olderMessages.length < WHATSAPP_CONVERSATION_MESSAGES_LIMIT) {
+          hasMoreRef.current = false;
+        }
+
+        const existingIds = new Set(
+          prev.whatsappConversationMessages.map((message) => message._id),
+        );
+        const dedupedOlderMessages = olderMessages.filter(
+          (message) => !existingIds.has(message._id),
+        );
+
+        return {
+          whatsappConversationMessages: [
+            ...dedupedOlderMessages,
+            ...prev.whatsappConversationMessages,
+          ],
+        };
+      },
+    });
   };
 
-  const refetch = () => Promise.all([refetchMessages(), refetchCount()]);
+  const refetch = () => {
+    hasMoreRef.current = true;
+    return Promise.all([refetchMessages(), refetchCount()]);
+  };
 
   useEffect(() => {
     if (!conversationId) {

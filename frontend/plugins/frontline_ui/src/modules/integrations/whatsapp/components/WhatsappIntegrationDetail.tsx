@@ -144,7 +144,11 @@ export const WhatsappIntegrationEditForm = ({
           <Separator />
           <Dialog.Footer className="flex justify-end py-4 px-6">
             <Dialog.Close asChild>
-              <Button disabled={loading || editLoading} variant="ghost">
+              <Button
+                type="button"
+                disabled={loading || editLoading}
+                variant="ghost"
+              >
                 {t('close')}
               </Button>
             </Dialog.Close>

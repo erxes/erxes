@@ -13,7 +13,9 @@ export const whatsappMutations = {
 
     for (const code of Object.keys(configsMap || {})) {
       if (code !== 'WHATSAPP_VERIFY_TOKEN') {
-        continue;
+        throw new Error(
+          `Unknown config key "${code}" — only WHATSAPP_VERIFY_TOKEN may be updated`,
+        );
       }
 
       const value = configsMap[code];

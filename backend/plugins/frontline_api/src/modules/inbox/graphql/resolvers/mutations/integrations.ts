@@ -610,18 +610,6 @@ export const integrationMutations = {
     if (kind === 'whatsapp-messenger') {
       kind = 'whatsapp';
     }
-    await models.Integrations.updateOne(
-      { _id },
-      {
-        $set: {
-          ...doc,
-          ...(channelId && { channelId }),
-          ...(brandId && { brandId }),
-        },
-      },
-    );
-
-    const updated = await models.Integrations.getIntegration({ _id });
 
     const serviceName = integration.kind.split('-')[0];
     const result = await sendUpdateIntegration(subdomain, serviceName, {
@@ -640,7 +628,18 @@ export const integrationMutations = {
       throw new Error(result.errorMessage || 'Failed to update integration');
     }
 
-    return updated;
+    await models.Integrations.updateOne(
+      { _id },
+      {
+        $set: {
+          ...doc,
+          ...(channelId && { channelId }),
+          ...(brandId && { brandId }),
+        },
+      },
+    );
+
+    return await models.Integrations.getIntegration({ _id });
   },
 
   async integrationsRemove(

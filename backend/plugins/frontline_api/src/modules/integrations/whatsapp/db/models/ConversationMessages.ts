@@ -21,10 +21,24 @@ export interface IWhatsappConversationMessageModel
 export const loadWhatsappConversationMessageClass = (models: IModels) => {
   class Message {
     public static async createMessage(doc: IWhatsappConversationMessage) {
-      return models.WhatsappConversationMessages.create({
-        ...doc,
-        createdAt: doc.createdAt || new Date(),
-      });
+      try {
+        return await models.WhatsappConversationMessages.create({
+          ...doc,
+          createdAt: doc.createdAt || new Date(),
+        });
+      } catch (e) {
+        if (e.code === 11000 && doc.mid) {
+          const existing = await models.WhatsappConversationMessages.findOne({
+            mid: doc.mid,
+          });
+
+          if (existing) {
+            return existing;
+          }
+        }
+
+        throw e;
+      }
     }
 
     public static async addMessage(

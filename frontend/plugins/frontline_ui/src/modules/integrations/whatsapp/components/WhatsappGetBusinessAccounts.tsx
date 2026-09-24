@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import {
-  Button,
   cn,
   Command,
   Label,
@@ -20,6 +19,8 @@ import {
   WhatsappIntegrationFormLayout,
   WhatsappIntegrationFormSteps,
 } from './WhatsappIntegrationForm';
+import { WhatsappListError } from './WhatsappListError';
+import { WhatsappStepNav } from './WhatsappStepNav';
 
 export const WhatsappGetBusinessAccounts = () => {
   const { t } = useTranslation('frontline');
@@ -52,7 +53,7 @@ export const WhatsappGetBusinessAccounts = () => {
         ? previous
         : undefined,
     );
-  }, [phoneNumbers, setSelectedPhoneNumber]);
+  }, [selectedWaba, phoneNumbers, setSelectedPhoneNumber]);
 
   const canContinue = !!selectedWaba && !!selectedPhoneNumber;
 
@@ -71,18 +72,14 @@ export const WhatsappGetBusinessAccounts = () => {
 
     if (error) {
       return (
-        <div className="flex flex-col items-center justify-center gap-2 p-6 text-center">
-          <div className="text-sm font-medium text-destructive">
-            {t(
-              'failed-to-load-whatsapp-business-accounts',
-              'Failed to load WhatsApp Business Accounts',
-            )}
-          </div>
-          <div className="text-sm text-muted-foreground">{error.message}</div>
-          <Button type="button" variant="secondary" onClick={() => refetch()}>
-            {t('retry', 'Retry')}
-          </Button>
-        </div>
+        <WhatsappListError
+          title={t(
+            'failed-to-load-whatsapp-business-accounts',
+            'Failed to load WhatsApp Business Accounts',
+          )}
+          error={error}
+          onRetry={() => refetch()}
+        />
       );
     }
 
@@ -141,27 +138,15 @@ export const WhatsappGetBusinessAccounts = () => {
   return (
     <WhatsappIntegrationFormLayout
       actions={
-        <>
-          <Button
-            type="button"
-            variant="secondary"
-            className="bg-border"
-            onClick={() => {
-              setActiveStep(2);
-              setSelectedWaba(undefined);
-              setSelectedPhoneNumber(undefined);
-            }}
-          >
-            {t('previous-step')}
-          </Button>
-          <Button
-            type="button"
-            disabled={!canContinue}
-            onClick={() => setActiveStep(4)}
-          >
-            {t('next-step')}
-          </Button>
-        </>
+        <WhatsappStepNav
+          onPrevious={() => {
+            setActiveStep(2);
+            setSelectedWaba(undefined);
+            setSelectedPhoneNumber(undefined);
+          }}
+          onNext={() => setActiveStep(4)}
+          nextDisabled={!canContinue}
+        />
       }
     >
       <WhatsappIntegrationFormSteps

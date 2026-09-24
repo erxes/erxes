@@ -1,7 +1,7 @@
 import { useIntegrationAdd } from '@/integrations/hooks/useIntegrationAdd';
 import { IntegrationType } from '@/types/Integration';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Form, Input, toast } from 'erxes-ui';
+import { Form, Input, toast } from 'erxes-ui';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -21,6 +21,7 @@ import {
   WhatsappIntegrationFormLayout,
   WhatsappIntegrationFormSteps,
 } from './WhatsappIntegrationForm';
+import { WhatsappStepNav } from './WhatsappStepNav';
 
 export const WhatsappIntegrationSetup = () => {
   const { t } = useTranslation('frontline');
@@ -87,19 +88,12 @@ export const WhatsappIntegrationSetup = () => {
       >
         <WhatsappIntegrationFormLayout
           actions={
-            <>
-              <Button
-                type="button"
-                variant="secondary"
-                className="bg-border"
-                onClick={() => setActiveStep(3)}
-              >
-                {t('previous-step')}
-              </Button>
-              <Button type="submit" disabled={loading}>
-                {t('save')}
-              </Button>
-            </>
+            <WhatsappStepNav
+              onPrevious={() => setActiveStep(3)}
+              nextType="submit"
+              nextLabel={t('save')}
+              nextDisabled={loading}
+            />
           }
         >
           <WhatsappIntegrationFormSteps

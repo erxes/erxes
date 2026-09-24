@@ -35,44 +35,54 @@ const throwGraphError = (error: IGraphError | undefined, fallback: string) => {
   throw new MetaGraphError(error?.message || fallback, error?.code);
 };
 
-export const sendWhatsappText = async ({
-  accessToken,
-  phoneNumberId,
-  recipientPhone,
-  text,
-}: ISendTextParams): Promise<{ messages?: Array<{ id?: string }> }> => {
+const graphPost = async <T>(
+  path: string,
+  accessToken: string,
+  payload?: Record<string, unknown>,
+  fallbackError = 'Meta API request failed',
+): Promise<T> => {
   const response = await fetch(
-    `https://graph.facebook.com/${GRAPH_VERSION}/${phoneNumberId}/messages`,
+    `https://graph.facebook.com/${GRAPH_VERSION}/${path}`,
     {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        messaging_product: 'whatsapp',
-        recipient_type: 'individual',
-        to: recipientPhone,
-        type: 'text',
-        text: {
-          preview_url: false,
-          body: text,
-        },
-      }),
+      body: payload ? JSON.stringify(payload) : undefined,
     },
   );
 
-  const body = (await response.json()) as {
-    messages?: Array<{ id?: string }>;
-    error?: IGraphError;
-  };
+  const body = (await response.json()) as T & { error?: IGraphError };
 
   if (!response.ok) {
-    throwGraphError(body.error, 'Failed to send WhatsApp message');
+    throwGraphError(body.error, fallbackError);
   }
 
   return body;
 };
+
+export const sendWhatsappText = async ({
+  accessToken,
+  phoneNumberId,
+  recipientPhone,
+  text,
+}: ISendTextParams): Promise<{ messages?: Array<{ id?: string }> }> =>
+  graphPost(
+    `${phoneNumberId}/messages`,
+    accessToken,
+    {
+      messaging_product: 'whatsapp',
+      recipient_type: 'individual',
+      to: recipientPhone,
+      type: 'text',
+      text: {
+        preview_url: false,
+        body: text,
+      },
+    },
+    'Failed to send WhatsApp message',
+  );
 
 export type WhatsappMediaType = 'image' | 'video' | 'audio' | 'document';
 
@@ -112,34 +122,18 @@ export const sendWhatsappMedia = async ({
     media.caption = caption;
   }
 
-  const response = await fetch(
-    `https://graph.facebook.com/${GRAPH_VERSION}/${phoneNumberId}/messages`,
+  return graphPost(
+    `${phoneNumberId}/messages`,
+    accessToken,
     {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        messaging_product: 'whatsapp',
-        recipient_type: 'individual',
-        to: recipientPhone,
-        type: mediaType,
-        [mediaType]: media,
-      }),
+      messaging_product: 'whatsapp',
+      recipient_type: 'individual',
+      to: recipientPhone,
+      type: mediaType,
+      [mediaType]: media,
     },
+    'Failed to send WhatsApp media message',
   );
-
-  const body = (await response.json()) as {
-    messages?: Array<{ id?: string }>;
-    error?: IGraphError;
-  };
-
-  if (!response.ok) {
-    throwGraphError(body.error, 'Failed to send WhatsApp media message');
-  }
-
-  return body;
 };
 
 interface IGraphListResponse<T> {
@@ -186,32 +180,6 @@ const graphGet = async <T>(path: string, accessToken: string): Promise<T> => {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
-    },
-  );
-
-  const body = (await response.json()) as T & { error?: IGraphError };
-
-  if (!response.ok) {
-    throwGraphError(body.error, 'Meta API request failed');
-  }
-
-  return body;
-};
-
-const graphPost = async <T>(
-  path: string,
-  accessToken: string,
-  payload?: Record<string, unknown>,
-): Promise<T> => {
-  const response = await fetch(
-    `https://graph.facebook.com/${GRAPH_VERSION}/${path}`,
-    {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
-      },
-      body: payload ? JSON.stringify(payload) : undefined,
     },
   );
 

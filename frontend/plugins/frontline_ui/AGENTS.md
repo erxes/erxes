@@ -23,10 +23,12 @@
 - Integration connect/detail UIs for Mail, Facebook, Instagram, Discord,
   calls, Call Pro, WhatsApp, and the erxes messenger.
 - The WhatsApp integration surface: the four-step add wizard (Facebook
-  account → page → WhatsApp Business Account and phone number → name and
+  account → page, where a page `isUsed` is disabled and refused by
+  `selectPage` → WhatsApp Business Account and phone number → name and
   brand), the row-menu edit dialog (name and brand through
   `integrationsEditCommonFields`), the Integrations-config verify-token
-  collapse, and the conversation thread (paged messages, live inserts,
+  collapse, and the conversation thread (paged messages gated by
+  `hasMoreRef`, live inserts,
   `whatsappConversationMessagesCount` for infinite scroll, image grid and
   file-link attachments).
 - The mail conversation surface: the threaded reader, its compose box, the
@@ -380,7 +382,7 @@
 | Inbox                    | `src/modules/inbox/`                                                                                                                              | Conversations, messages, filters, channels, brands, integrations                                                                                |
 | Conversation convert     | `src/modules/inbox/conversations/conversation-detail/components/convert/`                                                                         | Convert menu, convert dialog, convert-time properties                                                                                           |
 | Integrations             | `src/modules/integrations/`                                                                                                                       | Per-provider connect forms and detail views                                                                                                     |
-| WhatsApp                 | `src/modules/integrations/whatsapp/`                                                                                                             | Add wizard steps, edit dialog, verify-token config, conversation message thread, GraphQL documents and Jotai selection atoms                     |
+| WhatsApp                 | `src/modules/integrations/whatsapp/`                                                                                                             | Add wizard steps, edit dialog, verify-token config, conversation message thread, GraphQL documents and Jotai selection atoms, plus shared `WhatsappStepNav` / `WhatsappListError` |
 | Call Pro                 | `src/modules/integrations/callpro/`                                                                                                               | Add/edit sheets over one shared `CallProIntegrationForm`, webhook URL hint, recording player, and the caller-to-customer picker                 |
 | Ticket                   | `src/modules/ticket/`, `src/modules/pipelines/`, `src/modules/status/`                                                                            | Ticket boards, pipelines, statuses                                                                                                              |
 | Forms                    | `src/modules/forms/`                                                                                                                              | Form builder, preview, submissions                                                                                                              |
@@ -1412,6 +1414,12 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   for `totalCount` and uses `Math.max(count, messages.length)` so a
   live-inserted message never falls behind the count into the empty state;
   the count query and the messages query are refetched together on Retry.
+  Fetch-more is gated by `hasMoreRef`, never by `length % LIMIT` — a live
+  insert appends to the same array and would break the modulo. The ref is
+  reset on `conversationId` change and on `refetch`, set false when a
+  paginated `fetchMoreResult` page holds fewer than
+  `WHATSAPP_CONVERSATION_MESSAGES_LIMIT` messages, and `skip` stays the
+  current loaded length; older pages are `_id`-deduped when merged.
   A message's `separatePrevious` spacer is `mt-8` (matching the content
   branch) and the attachment-only spacer renders only when attachments
   exist; non-image attachments render as `readImage` file links with
@@ -1429,9 +1437,10 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `useMemo` over `[message, previousMessage, nextMessage]` — the item is
   `memo`'d, but an inline `{ ...message, previousMessage, nextMessage }`
   literal would still break that memo for the `Provider` (Sonar S6481).
-- WhatsApp integration icons come from the local `WhatsAppIcon` in
-  `@/integrations/components/Icons` via `INTEGRATION_ICONS` — never swap
-  them for `@tabler/icons-react` brand glyphs.
+- The WhatsApp row in `INTEGRATION_ICONS` is `IconBrandWhatsapp` from
+  `@tabler/icons-react`, like the other tabler brand glyphs in that file —
+  `WhatsAppIcon` in `@/integrations/components/Icons` is no longer wired
+  into the catalogue.
 
 ## Validation
 
@@ -1510,6 +1519,43 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-23` — Shared WhatsApp step nav and list error (Sonar new-code duplication)
+
+- **Summary:** Extracted the triplicated wizard footer into
+  `WhatsappStepNav` (Previous/Next, optional `nextType="submit"` for step 4’s
+  Save, `previousDisabled` for step 1) and the triplicated list error block
+  into `WhatsappListError` (title + message + Retry, optional `className` for
+  the conversation thread’s full-height variant). All four wizard steps and
+  the conversation thread’s empty error now use them, cutting new-code
+  duplication toward Sonar’s ≤3% gate. The WABA phone-reset effect now
+  depends on the derived `phoneNumbers` list (still keyed by stable
+  `selectedWaba`) so a list refetch cannot re-clear a valid phone selection.
+- **Affected areas:**
+  `src/modules/integrations/whatsapp/components/{WhatsappStepNav,WhatsappListError,WhatsappIntegrationSetup,WhatsappFacebookConnect,WhatsappGetBusinessAccounts,WhatsappGetPages,WhatsappConversationMessages}.tsx`
+- **Contracts changed:** None (local components only).
+
+### `2026-09-23` — WhatsApp CI review fixes: pagination gate, used pages, setup feedback
+
+- **Summary:** `useWhatsappConversationMessages` gates fetch-more on a
+  `hasMoreRef` (reset on conversation change and Retry, cleared when a page
+  returns fewer than the limit) instead of `length % LIMIT`, which stopped
+  pagination after a live insert, and dedups older pages by `_id`. The page
+  step disables `RadioGroup.Item` for a used page and `selectPage` refuses
+  it; the edit dialog's Close button and other non-submit buttons carry
+  `type="button"`; the WABA step derives the phone-number reset effect from
+  the stable `selectedWaba` id instead of the derived object so a refetch
+  cannot re-clear a valid selection; the WhatsApp icon is
+  `IconBrandWhatsapp` from `@tabler/icons-react`. Gateway `mn` locale fixes:
+  `no-facebook-accounts-connected`, `whatsapp-missing-selection`
+  (Хадгалахаасаа), `whatsapp-verify-token-description` (untruncated).
+- **Affected areas:**
+  `src/modules/integrations/whatsapp/hooks/useWhatsappConversationMessages.tsx`,
+  `src/modules/integrations/whatsapp/components/{WhatsappIntegrationDetail,WhatsappGetPages,WhatsappGetBusinessAccounts}.tsx`,
+  `src/modules/integrations/constants/integrationImages.ts`,
+  `backend/gateway/src/locales/mn/frontline.json`
+- **Contracts changed:** No GraphQL change; three existing `mn` `frontline`
+  locale strings corrected.
 
 ### `2026-09-23` — WhatsApp thread dedup, memoized context, and gateway locale keys
 
@@ -1671,32 +1717,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `src/modules/forms/components/FormDnd.tsx`
 - **Contracts changed:** None.
 
-### `2026-09-22` — Reverted the incoming-call double-answer guard
-
-- **Summary:** Reverted `fix(frontline): stop double-answering an incoming
-  call`. `answerCall` no longer checks `rtcSession.isInProgress()` before
-  `answer()` and logs through `console.error` again, and the `Answer` button
-  has no `isAnswering` disabled state. Clicking `Answer` repeatedly while the
-  browser is still acquiring the microphone therefore throws
-  `INVALID_STATE_ERROR: Invalid status: 5` from JsSIP once per click again.
-- **Affected areas:**
-  `src/modules/integrations/call/components/SipProvider.tsx`,
-  `src/modules/integrations/call/components/IncomingCall.tsx`
-- **Contracts changed:** None.
-
-### `2026-09-21` — Forms can be created from the forms page
-
-- **Summary:** `frontline/forms` gained a `Create form` header button and a
-  `frontline/forms/create` route running the existing four-step builder, with
-  the channel picked in the wizard's General step instead of taken from a
-  settings URL.
-- **Affected areas:** `src/modules/FrontlineMain.tsx`,
-  `src/modules/forms/components/form-page/FormPageHeader.tsx`,
-  `src/modules/forms/components/form-page/forms-create.tsx`,
-  `src/modules/forms/components/form-page/FormPageList.tsx`,
-  `src/modules/forms/components/FormGeneral.tsx`,
-  `src/modules/types/FrontlinePaths.ts`,
-  `src/modules/forms/constants/formSchema.ts`,
-  `src/modules/forms/states/formSetupStates.tsx`,
-  `src/modules/forms/hooks/useFormMutate.ts`
-- **Contracts changed:** New route `frontline/forms/create`; no GraphQL change.

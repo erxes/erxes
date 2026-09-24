@@ -26,6 +26,14 @@ export const receiveMessage = async (
     return;
   }
 
+  const existingMessage = await models.WhatsappConversationMessages.findOne({
+    mid: message.id,
+  });
+
+  if (existingMessage) {
+    return;
+  }
+
   const customer = await getOrCreateCustomer(
     models,
     subdomain,
@@ -83,14 +91,6 @@ export const receiveMessage = async (
       await models.WhatsappConversations.deleteOne({ _id: conversation._id });
     }
     throw e;
-  }
-
-  const existingMessage = await models.WhatsappConversationMessages.findOne({
-    mid: message.id,
-  });
-
-  if (existingMessage) {
-    return;
   }
 
   let created;

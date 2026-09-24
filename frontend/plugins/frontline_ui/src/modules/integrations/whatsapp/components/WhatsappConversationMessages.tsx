@@ -5,6 +5,7 @@ import { InboxMessagesContainer } from '@/inbox/components/InboxMessagesContaine
 import { WhatsappMessengerMessageContext } from '../context/WhatsappMessengerMessageContext';
 import { useWhatsappConversationMessages } from '../hooks/useWhatsappConversationMessages';
 import { IWhatsappConversationMessage } from '../types/WhatsappTypes';
+import { WhatsappListError } from './WhatsappListError';
 import { WhatsappMessengerMessage } from './WhatsappMessengerMessages';
 
 const WhatsappConversationMessageItem = memo(
@@ -45,15 +46,12 @@ export const WhatsappConversationMessages = () => {
 
   if (error && messages.length === 0 && !loading) {
     return (
-      <div className="h-full flex flex-col items-center justify-center gap-2 p-6 text-center bg-muted/20">
-        <div className="text-sm font-medium text-destructive">
-          {t('failed-to-load-messages', 'Failed to load messages')}
-        </div>
-        <div className="text-sm text-muted-foreground">{error.message}</div>
-        <Button type="button" variant="secondary" onClick={() => refetch()}>
-          {t('retry', 'Retry')}
-        </Button>
-      </div>
+      <WhatsappListError
+        title={t('failed-to-load-messages', 'Failed to load messages')}
+        error={error}
+        onRetry={() => refetch()}
+        className="h-full bg-muted/20"
+      />
     );
   }
 

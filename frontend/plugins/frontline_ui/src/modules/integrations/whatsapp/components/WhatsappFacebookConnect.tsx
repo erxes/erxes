@@ -26,6 +26,8 @@ import {
   WhatsappIntegrationFormLayout,
   WhatsappIntegrationFormSteps,
 } from './WhatsappIntegrationForm';
+import { WhatsappListError } from './WhatsappListError';
+import { WhatsappStepNav } from './WhatsappStepNav';
 
 export const WhatsappFacebookConnect = () => {
   const { t } = useTranslation('frontline');
@@ -103,19 +105,12 @@ export const WhatsappFacebookConnect = () => {
   return (
     <WhatsappIntegrationFormLayout
       actions={
-        <>
-          <Button
-            type="button"
-            variant="secondary"
-            className="bg-border"
-            disabled
-          >
-            {t('previous-step')}
-          </Button>
-          <Button type="button" onClick={onNext} disabled={!selectedAccount}>
-            {t('next-step')}
-          </Button>
-        </>
+        <WhatsappStepNav
+          onPrevious={() => undefined}
+          previousDisabled
+          onNext={onNext}
+          nextDisabled={!selectedAccount}
+        />
       }
     >
       <WhatsappIntegrationFormSteps
@@ -173,20 +168,14 @@ export const WhatsappFacebookConnect = () => {
           </div>
 
           {error ? (
-            <div className="flex-1 flex flex-col items-center justify-center gap-2 p-6 text-center">
-              <div className="text-sm font-medium text-destructive">
-                {t(
-                  'failed-to-load-facebook-accounts',
-                  'Failed to load Facebook accounts',
-                )}
-              </div>
-              <div className="text-sm text-muted-foreground">
-                {error.message}
-              </div>
-              <Button type="button" variant="secondary" onClick={() => refetch()}>
-                {t('retry', 'Retry')}
-              </Button>
-            </div>
+            <WhatsappListError
+              title={t(
+                'failed-to-load-facebook-accounts',
+                'Failed to load Facebook accounts',
+              )}
+              error={error}
+              onRetry={() => refetch()}
+            />
           ) : (
             <RadioGroup
               value={selectedAccount}

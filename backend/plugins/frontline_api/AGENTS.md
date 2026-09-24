@@ -419,6 +419,43 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-23` — Shared Graph POST helper (Sonar new-code duplication)
+
+- **Summary:** `sendWhatsappText` / `sendWhatsappMedia` now delegate to a
+  single `graphPost(path, accessToken, payload?, fallbackError?)` helper
+  (placed above its callers) instead of each owning its own fetch + error
+  path, removing the triplicated Graph request boilerplate that was inflating
+  new-code duplication above Sonar’s 3% gate. Error shape and
+  `MetaGraphError` behavior are unchanged.
+- **Affected areas:** `src/modules/integrations/whatsapp/utils.ts`
+- **Contracts changed:** None.
+
+### `2026-09-23` — CI review round: webhook mid dedup, plugin-before-core update, config key rejection
+
+- **Summary:** The inbound webhook now checks
+  `WhatsappConversationMessages.findOne({ mid })` immediately after content
+  extraction — before `getOrCreateCustomer` and the conversation sync — so a
+  Meta redelivery returns before a conversation can be reopened;
+  `integrationsEditCommonFields` awaits `sendUpdateIntegration` and throws on
+  `{ status: 'error' }` before the core `Integrations.updateOne`, so a
+  rejected `phoneNumberId` never leaves core holding bad details (every
+  update handler reads only its own plugin collection, so the reorder is
+  safe for all kinds); `whatsappUpdateConfigs` rejects unknown
+  `configsMap` keys with an actionable error instead of silently dropping
+  them (the UI sends only `WHATSAPP_VERIFY_TOKEN`); and
+  `WhatsappConversationMessages.createMessage` maps a duplicate-`mid`
+  E11000 to the existing message, making `addMessage` /
+  `handleWhatsappMessage` retries idempotent on the local store. A full
+  outbound-intent outbox for Meta-side send idempotency remains deferred.
+- **Affected areas:**
+  `src/modules/integrations/whatsapp/controller/receiveMessage.ts`,
+  `src/modules/integrations/whatsapp/graphql/resolvers/mutations.ts`,
+  `src/modules/integrations/whatsapp/db/models/ConversationMessages.ts`,
+  `src/modules/inbox/graphql/resolvers/mutations/integrations.ts`
+- **Contracts changed:** `whatsappUpdateConfigs` now throws on an unknown
+  config key; `integrationsEditCommonFields` validates the plugin update
+  before writing core. No schema or GraphQL type change.
+
 ### `2026-09-23` — WhatsApp integration gaps closed: unique phone routing, media replies, token refresh
 
 - **Summary:** `whatsapp_integrations.phoneNumberId` is now unique per tenant
@@ -602,36 +639,3 @@
   `CpSurveyOptionInput` / `CpSurveyStepInput`, type `SurveyCpRequester` and
   `Survey.createdCpUserId` / `Survey.createdCpUser`; survey `status` accepts
   `pending` and `surveyTotalCount.byStatus` now reports it.
-
-### `2026-09-21` — A pipeline address chooses the status its tickets open in
-
-- **Summary:** A pipeline's mail row can name the status a new mail ticket opens
-  in; it is validated against the pipeline on connect and update, and an empty
-  or since-deleted status falls back to the pipeline's first status, now picked
-  by `type` then `order` instead of `order` alone.
-- **Affected areas:** `src/modules/integrations/mail/utils/{pipeline,tickets}.ts`,
-  `src/modules/integrations/mail/controller/receiveMessage.ts`,
-  `src/modules/integrations/mail/graphql/resolvers/customResolvers/pipelineIntegration.ts`,
-  `src/modules/integrations/mail/{@types/integration,db/definitions/integrations,graphql/schema/mail}.ts`
-- **Contracts changed:** `mailPipelineConnect` and `mailPipelineUpdate` accept
-  `statusId: String`; `MailPipelineIntegration` exposes `statusId`;
-  `mail_integrations` carries `statusId`.
-
-### `2026-09-21` — Channel-owned resources move between channels
-
-- **Summary:** Added `channelMoveResources`, one mutation that moves
-  integrations, ticket pipelines, forms, surveys or response templates from one
-  channel to another by rewriting their `channelId` only. It validates the
-  destination, the caller's visibility of both channels, that every selected id
-  still sits in the source channel, and that no same-named resource of that
-  type already sits in the destination, all before the first write. A pipeline
-  move cascades onto its tickets' denormalized `channelId` and a form move onto
-  its lead integration, with a rollback of the primary update if the cascade
-  fails. The plugin also gained a Jest target for the move's pure validation.
-- **Affected areas:** `src/modules/channel/moveResources.ts`,
-  `src/modules/channel/moveResources.test.ts`,
-  `src/modules/channel/graphql/{schemas/channel,resolvers/mutations/channel}.ts`,
-  `jest.config.ts`, `tsconfig.spec.json`, `tsconfig.build.json`,
-  `project.json`
-- **Contracts changed:** Added mutation `channelMoveResources`, enum
-  `ChannelResourceType` and type `ChannelMoveResourcesResult`.
