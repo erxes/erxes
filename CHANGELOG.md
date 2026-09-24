@@ -1,4 +1,12 @@
+# Changelog
 
+## [3.1.15](https://github.com/erxes/erxes/compare/3.1.14...3.1.15) (2026-09-24)
+
+
+### Bug Fixes
+
+* **content:** bound Postiz delivery sweep memory ([#9444](https://github.com/erxes/erxes/issues/9444)) ([1e4dff4](https://github.com/erxes/erxes/commit/1e4dff4e4881d4f87080db6872fcccdc53e51574))
+* **msdynamics:** recover check categories mutation ([#9402](https://github.com/erxes/erxes/issues/9402)) ([02cfc5c](https://github.com/erxes/erxes/commit/02cfc5c8e7d7cfd22768ddee467eecff1b395fcb))
 
 ## [3.1.14](https://github.com/erxes/erxes/compare/3.1.13...3.1.14) (2026-09-23)
 
@@ -63,7 +71,7 @@
 
 * **frontline:** restore the previous incoming-call answer flow  ([6a61237](https://github.com/erxes/erxes/commit/6a6123789bcdb66ac2b9479a766c965909f58c5a))
 
-# Changelog
+
 
 ## [3.1.12](https://github.com/erxes/erxes/compare/3.1.11...3.1.12) (2026-09-21)
 
