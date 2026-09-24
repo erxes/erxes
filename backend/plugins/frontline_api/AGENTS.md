@@ -1946,13 +1946,17 @@ CallConversationDetail` resolves the call integration by `queueName` first,
   `customsData` path (the pre-rename schema field, never exposed to GraphQL)
   only when `propertiesData` is `null`/`undefined` — never when it is merely
   an empty object, since `{}` is a valid saved state (the requester cleared
-  every property) that must not resurrect old values. It converts the legacy
+  every property) that must not resurrect old values. `conversationsGetLast`
+  returns a `.lean()` plain object with no Mongoose document methods, so the
+  fallback reads `customsData` through the repo's existing
+  `typeof doc.toObject === 'function' ? doc.toObject() : doc` idiom (see
+  `getSnapshot` in `erxes-api-shared/core-modules/logs/activityLog/utils.ts`)
+  rather than `.get()`, which throws on a lean object. It converts the legacy
   `[{field, value, stringValue}]` shape into the `{ [fieldId]: value }` map. No
   document is known to actually hold data there — the old write path never
   matched either field name — so this is a defensive read-only fallback, not a
   migration; keep the underlying schema field name `propertiesData` and do not
-  write to
-  `customsData`.
+  write to `customsData`.
 
 ## Validation
 
@@ -2041,8 +2045,11 @@ CallConversationDetail` resolves the call integration by `queueName` first,
   `[{field, value, stringValue}]` shape) when `propertiesData` is `null` or
   `undefined`, as a defensive read-only safety net — an empty `{}` is left
   alone, since it is a valid saved state and must not resurrect old values.
-  No real data is known to exist there — the old write path never matched
-  either field name, so it always saved nothing.
+  The fallback reads through the repo's existing `toObject()`-duck-typing
+  idiom so it also works on the `.lean()` plain object `conversationsGetLast`
+  returns, instead of a `.get()` call that throws there. No real data is
+  known to exist there — the old write path never matched either field name,
+  so it always saved nothing.
 - **Affected areas:**
   `src/modules/inbox/graphql/resolvers/customResolvers/conversation.ts`
 - **Contracts changed:** None — `Conversation.propertiesData` resolution
