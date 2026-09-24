@@ -5,9 +5,11 @@ import {
 } from '../../../../types';
 import {
   AUTOMATION_ERROR_CODES,
+  buildFailedAction,
   IAutomationAction,
   IAutomationExecutionDocument,
   replaceOutputPlaceholders,
+  TAutomationActionOutcomeEnvelope,
 } from 'erxes-api-shared/core-modules';
 import {
   applyBackoff,
@@ -193,7 +195,7 @@ export async function executeOutgoingWebhook({
   targetType: string;
   target: Record<string, unknown>;
   action: IAutomationAction<TOutgoinWebhookActionConfig>;
-}): Promise<TOutgoingWebhookResult> {
+}): Promise<TOutgoingWebhookResult | TAutomationActionOutcomeEnvelope> {
   const {
     method = 'POST',
     url,
@@ -350,7 +352,7 @@ export async function executeOutgoingWebhook({
       const bodyText = await res.text();
       clearTimeout(timer);
 
-      return createOutgoingWebhookResult({
+      const result = createOutgoingWebhookResult({
         method,
         url: requestUrl,
         requestHeaders: headersObj,
@@ -359,6 +361,18 @@ export async function executeOutgoingWebhook({
         response: res,
         bodyText,
       });
+
+      // A refused call is not a completed one. Branching on the status stays
+      // possible, but only where the flow asked for it.
+      if (!res.ok && !options.continueOnHttpError) {
+        return buildFailedAction(
+          `Outgoing webhook responded ${res.status} ${res.statusText}`.trim(),
+          AUTOMATION_ERROR_CODES.WEBHOOK_FAILED,
+          result,
+        );
+      }
+
+      return result;
     } catch (e) {
       lastErr = e;
       clearTimeout(timer);

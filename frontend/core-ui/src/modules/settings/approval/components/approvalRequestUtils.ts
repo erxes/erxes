@@ -1,4 +1,5 @@
 import {
+  IconAlertTriangle,
   IconBan,
   IconCircleCheck,
   IconCircleX,
@@ -25,6 +26,12 @@ export const APPROVAL_REQUEST_STATUS_META: Record<
   rejected: {
     variant: 'destructive',
     icon: IconCircleX,
+  },
+  // Agreed to, but the change it carried never happened — its own state, so a
+  // decision nobody acted on is never listed as a done one.
+  applyFailed: {
+    variant: 'destructive',
+    icon: IconAlertTriangle,
   },
   cancelled: {
     variant: 'secondary',

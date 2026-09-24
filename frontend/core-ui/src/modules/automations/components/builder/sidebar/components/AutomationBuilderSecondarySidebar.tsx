@@ -1,3 +1,4 @@
+import { AutomationBuilderErrorPolicy } from '@/automations/components/builder/sidebar/components/AutomationBuilderErrorPolicy';
 import { AutomationBuilderNodeOutputVariables } from '@/automations/components/builder/sidebar/components/AutomationBuilderNodeOutputVariables';
 import { AutomationBuilderSidebarHeaderActions } from '@/automations/components/builder/sidebar/components/AutomationBuilderSidebarHeaderActions';
 import { AutomationBuilderVariablesHelpPopover } from '@/automations/components/builder/sidebar/components/AutomationBuilderVariablesHelpPopover';
@@ -38,6 +39,10 @@ export const AutomationBuilderSecondarySidebar = ({
       <Card.Content className="min-h-0 flex-1 overflow-y-auto p-0">
         <AutomationBuilderNodeOutputVariables />
       </Card.Content>
+
+      {/* Kept out of the scrolling list: a panel of forty variables would
+          otherwise bury it. */}
+      <AutomationBuilderErrorPolicy />
     </div>
   );
 };

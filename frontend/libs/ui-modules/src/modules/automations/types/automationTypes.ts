@@ -78,7 +78,17 @@ export interface IAutomationHistoryAction {
   startedAt?: Date;
   finishedAt?: Date;
   durationMs?: number;
-  status?: 'success' | 'error' | 'waiting' | 'queued' | 'standby' | 'dropped';
+  status?:
+    | 'success'
+    | 'skipped'
+    | 'error'
+    | 'waiting'
+    | 'queued'
+    | 'standby'
+    | 'dropped';
+  skipReason?: string;
+  // Which try this row is; above 1 only when an error policy asked for another.
+  attempt?: number;
   actionId: string;
   actionType: string;
   actionConfig?: any;
@@ -102,6 +112,8 @@ export interface IAutomationHistory {
   status: 'active' | 'waiting' | 'standby' | 'error' | 'missed' | 'complete';
   description: string;
   actions?: IAutomationHistoryAction[];
+  // Actions that failed while the run itself carried on.
+  handledFailureActionIds?: string[];
   startWaitingDate?: Date;
   waitingActionId?: string;
 }
@@ -232,7 +244,28 @@ export type AutomationAiKnowledgeSourceSelectorProps = {
   statuses?: TAiKnowledgeSourceIndexStatus[];
 };
 
+/**
+ * Answers one prerequisite of a built-in template — a bot, a pipeline stage, an
+ * integration — while it is being installed. Only the plugin that owns the
+ * thing knows what counts as a candidate and how to list this organization's,
+ * so it provides the component; it reports the chosen value upward, and a
+ * requirement with no value is what keeps the install closed.
+ */
+export type AutomationTemplateRequirementProps = {
+  componentType: 'templateRequirement';
+  kind: string;
+  value?: unknown;
+  /**
+   * The answer to the requirement this one declared `dependsOn`, for the cases
+   * where a candidate list is scoped by an earlier choice — the stages of the
+   * pipeline just picked, rather than every stage there is.
+   */
+  dependsOnValue?: unknown;
+  onChange: (value: unknown | null) => void;
+};
+
 export type AutomationRemoteEntryProps =
+  | AutomationTemplateRequirementProps
   | AutomationTriggerFormProps
   | AutomationActionFormProps
   | AutomationTriggerConfigProps
@@ -299,7 +332,15 @@ export type IAutomationsActionConfigConstants = {
   targetSourceType?: string;
   allowTargetFromActions?: boolean;
   allowedMultiTriggerTypes?: string[];
+  /** Target record types this action can operate on; empty means any. */
+  requiresTargetTypes?: string[];
   folks?: IAutomationsActionFolkConfig[];
+  /** The action queues its work and reports back later. */
+  deferred?: { enable?: boolean; mode?: string; timeoutMinutes?: number };
+  /** Whether the action can carry a retry / error-branch policy. */
+  errorPolicy?: { supported?: boolean };
+  /** The action creates records that belong to someone. */
+  requiresActor?: boolean;
 };
 
 export type IAutomationNodeConfigConstants =

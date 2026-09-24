@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes } from 'react-router';
 import { getPluginsSettingsRoutes } from '@/app/hooks/usePluginsRouter';
+import { EmailTemplatesSettingsRoutes } from '@/emailTemplates/components/EmailTemplatesSettingsRoutes';
 import { SettingsPageEffect } from '@/settings/components/SettingsPageEffect';
 import {
   SettingsPath,
@@ -178,6 +179,10 @@ export function SettingsRoutes() {
             element={<SettingsMailConfig />}
           />
         )}
+        <Route
+          path={SettingsWorkspacePath.EmailTemplatesCatchAll}
+          element={<EmailTemplatesSettingsRoutes />}
+        />
         <Route
           path={SettingsWorkspacePath.General}
           element={<GeneralSettings />}

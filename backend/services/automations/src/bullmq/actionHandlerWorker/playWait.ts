@@ -1,5 +1,8 @@
 import type { Job } from 'bullmq';
-import { AUTOMATION_EXECUTION_STATUS } from 'erxes-api-shared/core-modules';
+import {
+  AUTOMATION_EXECUTION_STATUS,
+  AUTOMATION_STATUSES,
+} from 'erxes-api-shared/core-modules';
 import { IJobData } from '../initMQWorkers';
 import { IModels } from '../../connectionResolver';
 import { debugInfo } from '../../debugger';
@@ -51,6 +54,16 @@ export const playWaitingActionWorker = async (
     );
     debugInfo(
       `Not found automation ${automationId} with action ${waitingActionId} for start action`,
+    );
+    return;
+  }
+
+  // A paused automation holds its waits rather than spending them. The
+  // execution keeps `waiting` and its `waitingActionId`, which is everything
+  // `resumeWaitingExecutions` needs to arm this job again once it is active.
+  if (automation.status !== AUTOMATION_STATUSES.ACTIVE) {
+    debugInfo(
+      `Automation ${automationId} is ${automation.status}; holding execution ${execId} on action ${waitingActionId}`,
     );
     return;
   }

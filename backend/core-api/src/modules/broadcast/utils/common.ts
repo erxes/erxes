@@ -1,8 +1,4 @@
-import {
-  ICampaign,
-  IEngageMessageDocument,
-  IScheduleDateDocument,
-} from '@/broadcast/@types';
+import { ICampaign, IEngageMessageDocument } from '@/broadcast/@types';
 import {
   CAMPAIGN_KINDS,
   CAMPAIGN_METHODS,
@@ -332,32 +328,6 @@ export const getNumberOfVisits = async (_params: {
   customerId?: string;
 }): Promise<number> => 0;
 
-export const timeCheckScheduledBroadcast = async (
-  _id: string,
-  models: IModels,
-  scheduleDate?: IScheduleDateDocument,
-) => {
-  const isValidScheduledBroadcast =
-    scheduleDate?.type === 'pre' && scheduleDate?.dateTime;
-  // Check for pre scheduled engages
-
-  if (isValidScheduledBroadcast) {
-    const dateTime = new Date(scheduleDate.dateTime || '');
-    const now = new Date();
-    const notRunNow = dateTime.getTime() > now.getTime();
-    if (notRunNow) {
-      // await models.Logs.createLog(
-      //   _id,
-      //   "regular",
-      //   `Broadcast will run at "${dateTime.toLocaleString()}"`
-      // );
-
-      return true;
-    }
-  }
-  return false;
-};
-
 const checkAlreadyRun = async (_id, kind, title, runCount, models: IModels) => {
   const isValid = kind === CAMPAIGN_KINDS.MANUAL;
   if (!isValid) return false;
@@ -516,8 +486,9 @@ export const prepareEngageCustomers = async (
   const emailContent = emailConf.content || '';
 
   const editorAttributeUtil = await getEditorAttributeUtil(subdomain);
-  const customerFields =
-    await editorAttributeUtil.getCustomerFields(emailContent);
+  const customerFields = await editorAttributeUtil.getCustomerFields(
+    emailContent,
+  );
 
   const exists = { $exists: true, $nin: [null, '', undefined] };
 
@@ -684,8 +655,9 @@ const sendNotifications = async (
   const { notification, cpId } = engageMessage;
   const engageMessageId = engageMessage._id;
 
-  const erxesCustomerIds =
-    await models.Customers.find(customersSelector).distinct('_id');
+  const erxesCustomerIds = await models.Customers.find(
+    customersSelector,
+  ).distinct('_id');
 
   const cpUserIds = await models.CPUser.find({
     clientPortalId: cpId,

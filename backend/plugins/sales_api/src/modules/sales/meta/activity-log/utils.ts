@@ -10,4 +10,7 @@ export const buildDealTarget = (deal: any) => ({
   moduleName: 'sales',
   collectionName: 'deals',
   text: deal.name,
+  // Carried so an entry can say what produced the deal, and so an automation
+  // run — which has no signed-in user — still has someone to record as actor.
+  createdVia: deal.createdVia,
 });

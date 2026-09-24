@@ -13,6 +13,8 @@ export type ActivityLogInput = {
   activityType: string;
   sourcePlugin?: string;
   target: any;
+  /** What the entry happened inside of: a campaign, an automation. */
+  contextType?: string;
   context?: any;
   action: any;
   changes: any;

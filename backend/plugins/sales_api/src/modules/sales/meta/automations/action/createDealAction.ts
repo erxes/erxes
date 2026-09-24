@@ -2,6 +2,7 @@ import {
   replaceOutputPlaceholders,
   splitType,
 } from 'erxes-api-shared/core-modules';
+import { TCreatedVia } from 'erxes-api-shared/core-types';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { IDeal } from '~/modules/sales/@types';
@@ -33,9 +34,18 @@ export const createDealAction = async ({
 
   const newData = normalizeDealActionData(resolvedConfig);
 
+  const createdVia = getCreatedVia(execution);
+
   if (execution?.target?.userId) {
     newData.userId = execution.target.userId;
+  } else if (createdVia?.actorId) {
+    // Nobody pressed create: the deal belongs to whoever set going the thing
+    // that asked for this run — a campaign names who put it live.
+    newData.userId = createdVia.actorId;
   }
+
+  // Not who pressed create — what produced it.
+  newData.createdVia = createdVia;
 
   if (execution?.triggerType === 'inbox:conversation') {
     newData.sourceConversationIds = [execution.targetId];
@@ -85,6 +95,13 @@ export const createDealAction = async ({
     pipelineId: newData.pipelineId,
     boardId: newData.boardId,
   };
+};
+
+/** What produced this run, to carry onto whatever it creates. */
+const getCreatedVia = (execution: any): TCreatedVia | undefined => {
+  const via = execution?.createdVia;
+
+  return via && typeof via === 'object' && via.sourceId ? via : undefined;
 };
 
 const normalizeDealActionData = (data: Record<string, any>) => {
