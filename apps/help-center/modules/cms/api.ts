@@ -10,6 +10,10 @@ import type { CmsPage, CmsPost } from './types';
 
 export const PORTAL_COPY_SLUG = 'knowledge-base-portal';
 
+type CmsPostsResult =
+  | { state: 'ready'; posts: CmsPost[] }
+  | { state: 'error'; message: string };
+
 const postTime = (post: CmsPost) =>
   new Date(post.publishedDate ?? post.createdAt ?? 0).getTime();
 
@@ -33,7 +37,7 @@ export const getAnnouncements = async (
   }
 
   const results = await Promise.all(
-    cmsConfigs.map(async ({ cmsAppToken }) => {
+    cmsConfigs.map(async ({ cmsAppToken }): Promise<CmsPostsResult> => {
       try {
         const { data, error } = await query<{
           cpPostList: { posts: CmsPost[] | null } | null;
@@ -45,27 +49,27 @@ export const getAnnouncements = async (
         });
 
         if (error) {
-          return { message: error.message };
+          return { state: 'error', message: error.message };
         }
 
-        return { posts: data?.cpPostList?.posts ?? [] };
+        return { state: 'ready', posts: data?.cpPostList?.posts ?? [] };
       } catch (caught) {
-        return { message: errorMessage(caught) };
+        return { state: 'error', message: errorMessage(caught) };
       }
     }),
   );
 
-  const failure = results.find((result) => 'message' in result);
+  const failures = results.filter(
+    (result): result is { state: 'error'; message: string } =>
+      result.state === 'error',
+  );
 
-  if (failure && results.every((result) => 'message' in result)) {
-    return {
-      state: 'error',
-      message: (failure as { message: string }).message,
-    };
+  if (failures.length === results.length) {
+    return { state: 'error', message: failures[0].message };
   }
 
   const posts = results.flatMap((result) =>
-    'posts' in result ? result.posts : [],
+    result.state === 'ready' ? result.posts : [],
   );
 
   return { state: 'ready', data: sortByNewest(posts).slice(0, limit) };
