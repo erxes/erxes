@@ -14,6 +14,11 @@ export const types = `
         coordinates: JSON
     }
 
+    type FieldOptionUsage {
+        value: String!
+        count: Int!
+    }
+
     type Field {
         _id: String
         name: String
@@ -63,6 +68,8 @@ export const queries = `
 
     cpFields(params: CpFieldsParams): [Field]
     cpFieldDetail(_id: String!): Field
+
+    fieldOptionUsedValues(fieldId: String!): [FieldOptionUsage]
 `;
 
 const mutationParams = `
