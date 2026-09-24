@@ -62,7 +62,7 @@ export const SelectBrandProvider = ({
     <SelectBrandContext.Provider
       value={{
         brands: _brands,
-        brandIds: !value ? [] : Array.isArray(value) ? value : [value],
+        brandIds: value ? (Array.isArray(value) ? value : [value]) : [],
         onSelect,
         setBrands,
         loading: false,
@@ -244,7 +244,7 @@ export const SelectBrandFilterView = ({
         mode={mode}
         value={brand || (mode === 'single' ? '' : [])}
         onValueChange={(value) => {
-          setBrand(value as string[] | string);
+          setBrand(value);
           resetFilterState();
           onValueChange?.(value);
         }}
@@ -282,7 +282,7 @@ export const SelectBrandFilterBar = ({
         value={brand || (mode === 'single' ? '' : [])}
         onValueChange={(value) => {
           if (value.length > 0) {
-            setBrand(value as string[] | string);
+            setBrand(value);
           } else {
             setBrand(null);
           }
