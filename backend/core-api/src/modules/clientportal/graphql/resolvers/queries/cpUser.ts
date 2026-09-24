@@ -25,10 +25,6 @@ export const cpUserQueries: Record<string, Resolver<any, any, IContext>> = {
     _args: unknown,
     { models, cpUser }: IContext,
   ) {
-    if (!cpUser) {
-      throw new Error('User is not logged in');
-    }
-
     return cpUser ? await models.CPUser.findOne({ _id: cpUser._id }) : null;
   },
 
