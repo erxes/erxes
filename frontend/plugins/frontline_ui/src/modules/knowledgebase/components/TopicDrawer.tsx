@@ -152,7 +152,12 @@ export function TopicDrawer({
                 )}
               />
 
-              <TopicColorField control={form.control} name="color" t={t} />
+              <TopicColorField
+                control={form.control}
+                name="color"
+                t={t}
+                defaultValue={EMPTY_TOPIC_FORM.color}
+              />
 
               <TopicBackgroundImageField
                 control={form.control}

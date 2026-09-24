@@ -2,12 +2,19 @@ import { IconUpload } from '@tabler/icons-react';
 import { ColorPicker, Form, Upload } from 'erxes-ui';
 import { TFunction } from 'i18next';
 import type { Control, FieldValues, Path } from 'react-hook-form';
+import { ColorDefaultAction } from '@/knowledgebase/components/ColorDefaultAction';
 
 export function TopicColorField<T extends FieldValues>({
   control,
   name,
   t,
-}: Readonly<{ control: Control<T>; name: Path<T>; t: TFunction }>) {
+  defaultValue,
+}: Readonly<{
+  control: Control<T>;
+  name: Path<T>;
+  t: TFunction;
+  defaultValue?: string;
+}>) {
   return (
     <Form.Field
       control={control}
@@ -15,9 +22,18 @@ export function TopicColorField<T extends FieldValues>({
       rules={{ required: 'Color is required' }}
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>
-            {t('kb-color-required')} <span className="text-destructive">*</span>
-          </Form.Label>
+          <div className="flex items-center justify-between gap-2">
+            <Form.Label>
+              {t('kb-color-required')}{' '}
+              <span className="text-destructive">*</span>
+            </Form.Label>
+            <ColorDefaultAction
+              value={field.value as string}
+              defaultValue={defaultValue}
+              onReset={field.onChange}
+              t={t}
+            />
+          </div>
           <Form.Control>
             <ColorPicker
               className="w-full h-8"
