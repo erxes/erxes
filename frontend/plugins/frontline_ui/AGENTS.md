@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-09-23`
+- **Last synchronized:** `2026-09-24`
 
 ## Scope
 
@@ -1480,6 +1480,10 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   another, then save and reload — the drawer shows what was saved and
   `localhost:3900` renders those columns. Emptying every column and saving
   brings the site's built-in Support / Knowledge base / Account columns back.
+- Smoke (conversation properties): open a conversation, click the side
+  widget's **Properties** tab (matches the Settings icon), edit a field
+  through `FieldsInDetail` and confirm it saves and survives a reload; the
+  tab renders in one column even in the widget's narrow (sheet) layout.
 - Smoke: open `/frontline/inbox` and confirm the sidebar shows `Me` then
   `Team inbox`; that `Me` lists the personal channel's integration types with
   their counts and a header total (empty state when there is no personal inbox);
@@ -1527,6 +1531,35 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-24` — Conversation properties tab on the inbox side widget
+
+- **Summary:** A conversation's custom properties (Core `frontline:conversation`
+  fields) are now viewable and editable from the inbox, mirroring how ticket
+  properties already work in this plugin. `ConversationSideWidget` gained a
+  static "Properties" tab, the same width as its dynamic relation-widget tabs,
+  rendering the new `ConversationProperties` component (a thin wrapper around
+  `ui-modules`' `FieldsInDetail`). The new `useConversationCustomFieldEdit`
+  hook is a plain passthrough to the `conversationEditCustomFields` mutation —
+  no variable remapping, because the mutation's argument and the
+  `Conversation` field are both named `propertiesData`, matching
+  `FieldsInDetail`'s hardcoded `{ _id, propertiesData }` mutate call and every
+  other `use*CustomFieldEdit` hook in the platform
+  (`useCustomerCustomFieldEdit`, `useTicketCustomFieldEdit`, etc.). Requires
+  the matching `frontline_api` fix (see its own `AGENTS.md`) — the field did
+  not persist before that. The Properties tab's icon (`IconHierarchy2`)
+  matches the one Settings uses for the same custom-properties surface, and
+  `ConversationProperties` forces a single-column layout so fields stay
+  readable in the widget's narrow width instead of squeezing into two.
+- **Affected areas:**
+  `src/modules/inbox/conversations/conversation-detail/components/{ConversationSideWidget,ConversationDetail,ConversationProperties}.tsx`,
+  `src/modules/inbox/conversations/hooks/useConversationCustomFieldEdit.tsx`,
+  `src/modules/inbox/conversations/graphql/mutations/conversationEditCustomFields.ts`,
+  `src/modules/inbox/conversations/conversation-detail/graphql/queries/getConversationDetail.ts`,
+  `src/modules/inbox/types/Conversation.ts`
+- **Contracts changed:** None — consumes the existing
+  `conversationEditCustomFields` mutation and `Conversation.propertiesData`
+  field.
 
 ### `2026-09-24` — The client portal picker stores an id
 
@@ -1674,23 +1707,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   and `survey-rejection-reason-placeholder` fall back to English until the
   gateway locale carries them.
 
-### `2026-09-22` — Radio/checkbox options are visible, full-width and editable in place
-
-- **Summary:** The shared `RadioGroup.Item` (`erxes-ui`) had no border in its
-  unchecked state, so every radio circle — in the form builder preview and in
-  the public form widget (`apps/frontline-widgets`) — was invisible until
-  checked; a `shadow-border` class the widget used to work around this did
-  nothing (no such Tailwind utility exists) and was removed once the shared
-  component carried its own `border border-scroll bg-background`. Radio,
-  `core:customer:sex` and `check` fields now always render at full row width
-  (`span`/`column` forced to `2`) with their options laid out two per row
-  instead of stacked in a single column. The builder's Options editor
-  (`FormFieldDetail.tsx`) was rebuilt from the `StringArrayInput` tag input,
-  which only supported add/remove, into a `PropertyFormSelectFields`-style
-  editable list with one `Input` per option so an existing option can be
-  corrected without deleting and retyping it.
-- **Affected areas:** `src/modules/forms/components/{FormPreview.tsx,
-FormFieldDetail.tsx}`; outside the plugin:
-  `frontend/libs/erxes-ui/src/components/radio-group.tsx`,
-  `apps/frontline-widgets/src/app/form/components/ErxesForm.tsx`.
-- **Contracts changed:** None.

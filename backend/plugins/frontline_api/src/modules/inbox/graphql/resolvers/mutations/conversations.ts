@@ -508,9 +508,8 @@ export const conversationMutations = {
     { models, subdomain }: IContext,
   ) {
     try {
-      const conversation = await models.Conversations.getConversation(
-        conversationId,
-      );
+      const conversation =
+        await models.Conversations.getConversation(conversationId);
       if (!conversation?.integrationId) {
         return false;
       }
@@ -985,10 +984,13 @@ export const conversationMutations = {
 
   async conversationEditCustomFields(
     _root,
-    { _id, customFieldsData }: { _id: string; customFieldsData: any },
+    {
+      _id,
+      propertiesData,
+    }: { _id: string; propertiesData: Record<string, unknown> },
     { models }: IContext,
   ) {
-    await models.Conversations.updateConversation(_id, { customFieldsData });
+    await models.Conversations.updateConversation(_id, { propertiesData });
     return models.Conversations.getConversation(_id);
   },
 };
