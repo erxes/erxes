@@ -453,7 +453,7 @@ export const loadFieldClass = (models: IModels) => {
         }
 
         try {
-          result[fieldName] = await this.validateFieldValue(
+          result[fieldId] = await this.validateFieldValue(
             fieldId,
             fieldValue,
             options,
