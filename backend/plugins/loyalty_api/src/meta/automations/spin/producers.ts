@@ -1,4 +1,8 @@
-import { TCoreModuleProducerContext } from 'erxes-api-shared/core-modules';
+import {
+  AUTOMATION_ERROR_CODES,
+  buildFailedAction,
+  TCoreModuleProducerContext,
+} from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
 import { AwardSpinActionConfig } from '../types';
 import { resolveAutomationOwners } from '../utils';
@@ -9,7 +13,10 @@ export const spinAutomationProducers = {
     { models, subdomain }: TCoreModuleProducerContext<IModels>,
   ) => {
     if (collectionType !== 'spin' || actionType !== 'create') {
-      return { result: null };
+      return buildFailedAction(
+        `Loyalty spin automations do not handle "${collectionType}.${actionType}"`,
+        AUTOMATION_ERROR_CODES.CONFIG_INVALID,
+      );
     }
 
     const config = action.config as AwardSpinActionConfig;

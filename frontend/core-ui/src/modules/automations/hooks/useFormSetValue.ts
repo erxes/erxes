@@ -15,14 +15,16 @@ export const useAutomationFormController = () => {
 
   const syncPositionUpdates = useCallback(
     (options?: SetValueConfig) => {
-      const [triggers, actions, workflows]: [
+      const [triggers, actions, workflows, notes]: [
         TAutomationBuilderForm[AutomationNodesType.Triggers],
         TAutomationBuilderForm[AutomationNodesType.Actions],
         TAutomationBuilderForm[AutomationNodesType.Workflows],
+        TAutomationBuilderForm['notes'],
       ] = getValues([
         AutomationNodesType.Triggers,
         AutomationNodesType.Actions,
         AutomationNodesType.Workflows,
+        'notes',
       ]);
 
       for (const { nodeType, nodes } of [
@@ -35,6 +37,21 @@ export const useAutomationFormController = () => {
           nodes.map((n) => ({
             ...n,
             position: getNode(n.id)?.position || n.position,
+          })),
+          options,
+        );
+      }
+
+      // Notes carry a position too, but they are not flow nodes: kept out of
+      // the loop above so `AutomationNodesType` keeps meaning the three lists
+      // the canvas connects. Skipped entirely when there are none, so an
+      // automation without notes is never marked dirty by this.
+      if (notes?.length) {
+        setValue(
+          'notes',
+          notes.map((note) => ({
+            ...note,
+            position: getNode(note.id)?.position || note.position,
           })),
           options,
         );

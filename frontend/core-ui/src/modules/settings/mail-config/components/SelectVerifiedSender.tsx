@@ -36,7 +36,7 @@ export const SelectVerifiedSender = ({
     <>
       <Popover open={open} onOpenChange={setOpen}>
         <Popover.Trigger className="w-full" asChild>
-          <Button variant="outline" className="w-full justify-start">
+          <Button variant="outline" className="h-8 w-full justify-start">
             <IconMailCheck />
             {value || placeholder}
           </Button>

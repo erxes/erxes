@@ -5,6 +5,7 @@ import {
 import { useWorkflowTemplateList } from '@/automations/hooks/useWorkflowTemplateList';
 import { Button, Spinner, toast } from 'erxes-ui';
 import { useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 
 const TEMPLATES_PATH = '/automations?view=templates';
@@ -17,6 +18,7 @@ export const WorkflowTemplateEditView = ({
   templateId?: string;
 }) => {
   const navigate = useNavigate();
+  const { t } = useTranslation('automations');
   const { templates, loading, addTemplate, editTemplate } =
     useWorkflowTemplateList();
 
@@ -45,12 +47,12 @@ export const WorkflowTemplateEditView = ({
       try {
         if (templateId) {
           await editTemplate({ variables: { _id: templateId, ...variables } });
-          toast({ title: 'Template updated' });
+          toast({ title: t('template-updated') });
           return;
         }
 
         const { data } = await addTemplate({ variables });
-        toast({ title: 'Template created' });
+        toast({ title: t('template-created') });
 
         const createdId = data?.automationWorkflowTemplatesAdd?._id;
         if (createdId) {
@@ -59,8 +61,8 @@ export const WorkflowTemplateEditView = ({
       } catch (error: any) {
         toast({
           title: templateId
-            ? 'Failed to update template'
-            : 'Failed to create template',
+            ? t('template-update-failed')
+            : t('template-create-failed'),
           description: error.message,
           variant: 'destructive',
         });
@@ -68,7 +70,7 @@ export const WorkflowTemplateEditView = ({
         throw error;
       }
     },
-    [addTemplate, editTemplate, navigate, templateId],
+    [addTemplate, editTemplate, navigate, t, templateId],
   );
 
   if (loading) {
@@ -79,10 +81,10 @@ export const WorkflowTemplateEditView = ({
     return (
       <div className="flex h-full flex-col items-center justify-center gap-3">
         <p className="text-sm text-muted-foreground">
-          This template no longer exists.
+          {t('template-not-found')}
         </p>
         <Button variant="outline" onClick={goBack}>
-          Back to templates
+          {t('back-to-templates')}
         </Button>
       </div>
     );
@@ -94,14 +96,14 @@ export const WorkflowTemplateEditView = ({
       key={template?._id || 'create'}
       scopeId={template?._id || 'new-workflow-template'}
       initial={{
-        name: template?.name || 'New workflow',
+        name: template?.name || t('new-workflow'),
         description: template?.description || '',
         actions: template?.actions || [],
         entryActionId: template?.entryActionId,
         inputs: template?.inputs || {},
       }}
-      breadcrumbLabel="Templates"
-      saveLabel="Save template"
+      breadcrumbLabel={t('templates')}
+      saveLabel={t('save-template')}
       onSave={handleSave}
       onBack={goBack}
     />

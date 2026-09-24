@@ -1,6 +1,7 @@
 import { gql } from '@apollo/client';
 import {
   AUTOMATION_ACTION_FIELDS,
+  AUTOMATION_NOTE_FIELDS,
   AUTOMATION_TRIGGER_FIELDS,
 } from './graphqlConstants';
 
@@ -30,6 +31,7 @@ export const AUTOMATION_EDIT = gql`
     $triggers: [TriggerInput]
     $actions: [ActionInput]
     $workflows: [WorkflowInput]
+    $notes: [NoteInput]
     $acknowledgeDuplicate: Boolean
   ) {
     automationsEdit(
@@ -41,6 +43,7 @@ export const AUTOMATION_EDIT = gql`
       triggers: $triggers
       actions: $actions
       workflows: $workflows
+      notes: $notes
       acknowledgeDuplicate: $acknowledgeDuplicate
     ) {
       _id
@@ -66,6 +69,9 @@ export const AUTOMATION_EDIT = gql`
         config
         position
       }
+      notes {
+        ${AUTOMATION_NOTE_FIELDS}
+      }
     }
   }
 `;
@@ -79,6 +85,7 @@ export const AUTOMATION_CREATE = gql`
     $triggers: [TriggerInput]
     $actions: [ActionInput]
     $workflows: [WorkflowInput]
+    $notes: [NoteInput]
   ) {
     automationsAdd(
       name: $name
@@ -88,6 +95,7 @@ export const AUTOMATION_CREATE = gql`
       triggers: $triggers
       actions: $actions
       workflows: $workflows
+      notes: $notes
     ) {
       _id
       name

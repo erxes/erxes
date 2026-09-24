@@ -7,8 +7,10 @@ import {
   ApprovalContentMeta,
   ApprovalLock,
   ApprovalNotificationMetadata,
+  ApprovalChange,
   ApprovalRequest,
   ApprovalRequestCreateInput,
+  ApprovalRequestKind,
 } from 'erxes-api-shared/core-modules';
 import { ExpectedError, graphqlPubsub } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
@@ -19,7 +21,10 @@ import {
 } from '../definitions/approvalRequests';
 
 type ApprovalRequestCreateModelInput = ApprovalRequestCreateInput & {
-  lockId: string;
+  // Only an access request is about a lock.
+  lockId?: string;
+  kind?: ApprovalRequestKind;
+  change?: ApprovalChange;
   requesterId: string;
   requiredApproverIds: string[];
 };
@@ -44,15 +49,19 @@ type ApprovalRequester = {
 type ApprovalRequestNotifyApproversInput = {
   subdomain: string;
   request: ApprovalRequest;
-  lock: ApprovalLock;
+  /** Absent for a change request, which is not about a lock. */
+  lock?: ApprovalLock;
   content: ApprovalContentMeta;
 };
 
 export interface IApprovalRequestModel extends Model<IApprovalRequestDocument> {
   getRequest(_id: string): Promise<ApprovalRequest>;
   getPendingRequest(input: {
-    lockId: string;
-    requesterId: string;
+    lockId?: string;
+    requesterId?: string;
+    contentType?: string;
+    contentId?: string;
+    changeType?: string;
   }): Promise<ApprovalRequest | null>;
   getRequiredApproverIds(lock: ApprovalLock, requesterId: string): string[];
   notifyApprovers(
@@ -110,12 +119,19 @@ export const loadApprovalRequestClass = (models: IModels) => {
       return request;
     }
 
-    public static async getPendingRequest(input: {
-      lockId: string;
-      requesterId: string;
+    public static async getPendingRequest({
+      changeType,
+      ...input
+    }: {
+      lockId?: string;
+      requesterId?: string;
+      contentType?: string;
+      contentId?: string;
+      changeType?: string;
     }) {
       return models.ApprovalRequests.findOne({
         ...input,
+        ...(changeType ? { 'change.changeType': changeType } : {}),
         status: APPROVAL_REQUEST_STATUSES.PENDING,
       }).lean<ApprovalRequest | null>();
     }
@@ -147,16 +163,22 @@ export const loadApprovalRequestClass = (models: IModels) => {
       const targetLabel = content.label || request.contentType;
       const metadata: ApprovalNotificationMetadata = {
         approvalRequestId: request._id,
-        lockId: lock._id,
+        lockId: lock?._id,
         targetContentType: request.contentType,
         targetContentId: request.contentId,
         targetLabel,
       };
 
+      // A change request says what it would do; an access request says who
+      // wants in. The approver needs to read that before deciding.
+      const message = request.change
+        ? `${requesterName} asks you to approve: ${request.change.summary}`
+        : `${requesterName} requested access to ${targetLabel}`;
+
       const notifications = await models.Notifications.insertMany(
         request.requiredApproverIds.map((userId) => ({
           title: 'Approval request',
-          message: `${requesterName} requested access to ${targetLabel}`,
+          message,
           type: 'info',
           userId,
           fromUserId: request.requesterId,
@@ -197,10 +219,17 @@ export const loadApprovalRequestClass = (models: IModels) => {
         return request.toObject<ApprovalRequest>();
       } catch (error) {
         if (isDuplicateKeyError(error)) {
-          const pending = await models.ApprovalRequests.getPendingRequest({
-            lockId: input.lockId,
-            requesterId: input.requesterId,
-          });
+          // Whoever lost the race reads back the request that won it — by the
+          // lock for an access request, by the change for a change one.
+          const pending = await models.ApprovalRequests.getPendingRequest(
+            input.change
+              ? {
+                  contentType: input.contentType,
+                  contentId: input.contentId,
+                  changeType: input.change.changeType,
+                }
+              : { lockId: input.lockId, requesterId: input.requesterId },
+          );
 
           if (pending) {
             return pending;

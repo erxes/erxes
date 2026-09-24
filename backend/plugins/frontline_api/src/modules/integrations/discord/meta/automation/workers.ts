@@ -1,4 +1,6 @@
 import {
+  AUTOMATION_ERROR_CODES,
+  buildFailedAction,
   TAiContext,
   TAutomationProducers,
   TAutomationProducersInput,
@@ -80,7 +82,10 @@ export const discordAutomationWorkers = {
       });
     }
 
-    return { result: null };
+    return buildFailedAction(
+      `Discord automations do not handle "${collectionType}"`,
+      AUTOMATION_ERROR_CODES.CONFIG_INVALID,
+    );
   },
 
   checkCustomTrigger: (

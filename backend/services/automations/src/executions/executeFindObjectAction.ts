@@ -1,10 +1,11 @@
 import {
+  AUTOMATION_ERROR_CODES,
+  buildFailedAction,
   IAutomationAction,
   IAutomationExecAction,
   IAutomationExecutionDocument,
   replaceOutputPlaceholders,
   splitType,
-  TAutomationFindObjectResult,
   TAutomationProducers,
 } from 'erxes-api-shared/core-modules';
 import { sendCoreModuleProducer } from 'erxes-api-shared/utils';
@@ -39,18 +40,20 @@ export const executeFindObjectAction = async (
       field: lookupField,
       value: resolvedValue,
     },
-    defaultValue: {
-      found: false,
-      objectType,
-      object: null,
-      matchedBy: {
-        field: lookupField,
-        value: resolvedValue,
-      },
-    } satisfies TAutomationFindObjectResult,
+    defaultValue: null,
   });
 
-  execAction.nextActionId = result?.found ? isExists : notExists;
+  // Nothing came back at all: the owner could not be asked. Answering "not
+  // found" here would send the flow down the branch for a real absence.
+  if (!result) {
+    return buildFailedAction(
+      `Could not look up ${objectType}`,
+      AUTOMATION_ERROR_CODES.PLUGIN_NOT_ENABLED,
+      { objectType, field: lookupField, value: resolvedValue },
+    );
+  }
+
+  execAction.nextActionId = result.found ? isExists : notExists;
 
   return result;
 };

@@ -8,7 +8,10 @@ export const useBroadcastAdd = () => {
   const addBroadcast = ({
     variables,
     ...options
-  }: MutationHookOptions<{ engageMessageAdd: { _id: string } }, any>) => {
+  }: MutationHookOptions<
+    { engageMessageAdd: { _id: string; workflowAutomationId?: string } },
+    any
+  >) => {
     return mutate({
       ...options,
       variables,

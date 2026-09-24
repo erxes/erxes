@@ -1,3 +1,5 @@
+import { withFilter } from 'graphql-subscriptions';
+
 export default {
   name: 'core',
   typeDefs: `
@@ -6,6 +8,7 @@ export default {
             notificationArchived(userId: String): JSON
             activityLogInserted(userId: String, targetId: String): ActivityLog
             userStatusChanged(_id: String): User
+            broadcastChanged(engageMessageId: String): JSON
 		`,
   generateResolvers: (graphqlPubsub) => {
     return {
@@ -70,6 +73,20 @@ export default {
               ? `userStatusChanged:${subdomain}:${_id}`
               : `userStatusChanged:${subdomain}`,
           ),
+      },
+      /*
+       * A campaign the broadcast worker moved. Without an id, every campaign
+       * of the tenant is heard, which is what the list needs.
+       */
+      broadcastChanged: {
+        resolve: (payload) => payload.broadcastChanged,
+        subscribe: withFilter(
+          (_, __, { subdomain }) =>
+            graphqlPubsub.asyncIterator(`broadcastChanged:${subdomain}`),
+          (payload, { engageMessageId }) =>
+            !engageMessageId ||
+            payload.broadcastChanged.engageMessageId === engageMessageId,
+        ),
       },
     };
   },

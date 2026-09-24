@@ -79,6 +79,18 @@
 
 ## Current Capabilities
 
+- The automations widget answers built-in template prerequisites: the
+  `templateRequirement` component type resolves `frontline:tickets.status` by
+  reusing `TicketStatusPropertyInput`, which asks for the channel, pipeline and
+  status together and already clears the ones below when a choice above them
+  changes. It reports `{ channelId, pipelineId, status }` upward only once a
+  status is picked — there is no separate readiness call, and a half-made
+  choice leaves the install closed.
+
+- Polls are split across two routes, mirroring how forms are laid out.
+  `settings/frontline/channels/:id/polls` manages the channel's polls: the
+  settings breadcrumb resolves to `Channels / <channel> / Polls` and carries the
+  `Create poll` button on the right, the sub-header holds only the status/search
 - A form can be created from the plugin's own forms page, not only from a
   channel's settings. `frontline/forms` carries a `Create form` button on the
   right of its `PageHeader` (and in the empty state) that opens the same four
@@ -1512,7 +1524,7 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   editable list with one `Input` per option so an existing option can be
   corrected without deleting and retyping it.
 - **Affected areas:** `src/modules/forms/components/{FormPreview.tsx,
-  FormFieldDetail.tsx}`; outside the plugin:
+FormFieldDetail.tsx}`; outside the plugin:
   `frontend/libs/erxes-ui/src/components/radio-group.tsx`,
   `apps/frontline-widgets/src/app/form/components/ErxesForm.tsx`.
 - **Contracts changed:** None.
@@ -1529,7 +1541,7 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   Save button (the sheet's own close `X` discards unsaved changes by
   unmounting the draft, so the redundant footer Close button was removed).
 - **Affected areas:** `src/modules/forms/components/{FormDndField.tsx,
-  FormFieldDetail.tsx}`
+FormFieldDetail.tsx}`
 - **Contracts changed:** None.
 
 ### `2026-09-22` — Form preview stops flagging newly added fields as missing
@@ -1551,7 +1563,7 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   field keyed by `field.id`; a field left over from an older, incompatible
   `localStorage` snapshot of `formContent` could have no `id`, which crashed
   the whole builder with `Cannot read properties of undefined (reading
-  'substring')`. Separately, dragging a step in the builder called `setSteps`
+'substring')`. Separately, dragging a step in the builder called `setSteps`
   to reorder it but fell through into the field-move branch below, which
   re-derived the whole steps object from the pre-reorder `value` closure and
   overwrote the move, so a dragged step snapped back to its original position.
@@ -1562,7 +1574,7 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 ### `2026-09-22` — Reverted the incoming-call double-answer guard
 
 - **Summary:** Reverted `fix(frontline): stop double-answering an incoming
-  call`. `answerCall` no longer checks `rtcSession.isInProgress()` before
+call`. `answerCall` no longer checks `rtcSession.isInProgress()` before
   `answer()` and logs through `console.error` again, and the `Answer` button
   has no `isAnswering` disabled state. Clicking `Answer` repeatedly while the
   browser is still acquiring the microphone therefore throws
@@ -1615,4 +1627,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 - **Contracts changed:** Consumes the new `channelMoveResources` mutation.
   Removed `MoveFormToChannel` from `form-columns.tsx` and deleted
   `src/modules/forms/components/actions/move-form.tsx`.
-

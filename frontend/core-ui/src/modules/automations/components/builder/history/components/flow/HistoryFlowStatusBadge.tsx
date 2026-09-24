@@ -1,5 +1,6 @@
 import { TExecutionStatus } from '@/automations/utils/automationHistoryUtils/executionFormat';
 import {
+  IconArrowRight,
   IconBan,
   IconCheck,
   IconClock,
@@ -17,6 +18,11 @@ const STATUS_MAP: Record<
     icon: IconCheck,
     className: 'border-success/40 bg-success/10 text-success',
     label: 'Succeeded',
+  },
+  skipped: {
+    icon: IconArrowRight,
+    className: 'border-muted-foreground/40 bg-muted text-muted-foreground',
+    label: 'Skipped',
   },
   error: {
     icon: IconX,

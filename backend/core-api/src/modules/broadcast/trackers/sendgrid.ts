@@ -21,6 +21,37 @@ const EVENT_MAP: Record<
   spamreport: { sesType: 'complaint', field: 'complained', suppress: true },
 };
 
+/**
+ * The provider holding a message back rather than giving up on it.
+ *
+ * A deferral is the receiving server asking for the message later; the
+ * provider keeps trying for up to three days. Nothing has failed, so no
+ * address is suppressed, no delivery status is overwritten and no recipient is
+ * touched — the count is the whole point of recording it. It is the only sign
+ * given when we are being throttled instead of refused, and until it is
+ * written down there is no way to tell one from the other.
+ */
+const recordDeferral = async (models: IModels, event: ISendgridEvent) => {
+  const deliveryId = event.EmailDeliveryId as string | undefined;
+
+  if (deliveryId && event.reason) {
+    // `providerResponse` only: a later `delivered` carries no reason of its
+    // own, so the server's words survive the message going through.
+    await models.EmailDeliveries.updateOne(
+      { _id: deliveryId },
+      { $set: { providerResponse: String(event.reason), updatedAt: new Date() } },
+    );
+  }
+
+  const engageMessageId = event.EngageMessageId as string | undefined;
+
+  if (engageMessageId) {
+    // Every deferral, not every message deferred: a message put off four times
+    // is four times the pressure, and that is the number being watched.
+    await models.Stats.updateStats(engageMessageId, 'deferred');
+  }
+};
+
 const isHardBounce = (event: ISendgridEvent) => {
   const name = String(event.event);
 
@@ -130,6 +161,10 @@ const recordAddress = async (models: IModels, event: ISendgridEvent) => {
 };
 
 const handleEvent = async (models: IModels, event: ISendgridEvent) => {
+  if (String(event.event) === 'deferred') {
+    return recordDeferral(models, event);
+  }
+
   const mapped = EVENT_MAP[String(event.event)];
 
   if (!mapped) {
@@ -172,8 +207,8 @@ export const sendgridTracker = async (req: Request, res: Response) => {
         !publicKey
           ? 'no SENDGRID_WEBHOOK_PUBLIC_KEY in env or mail config'
           : !req.headers[SENDGRID_SIGNATURE_HEADER]
-            ? 'request carried no signature header'
-            : 'signature did not match the configured key'
+          ? 'request carried no signature header'
+          : 'signature did not match the configured key'
       }`,
     );
 
