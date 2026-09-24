@@ -23,6 +23,7 @@ export interface BlockEditorProps {
   variant?: 'default' | 'outline';
   sideMenu?: boolean;
   linkToolbar?: boolean;
+  slashMenuOnTop?: boolean;
 }
 
 export interface IEditorProps {

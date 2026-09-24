@@ -4,6 +4,8 @@ import { ITag } from 'ui-modules/modules/tags-new/types/Tag';
 import React from 'react';
 import { TagInline } from 'ui-modules/modules/tags-new/components/TagInline';
 
+const UNKNOWN_TAG_LABEL = 'Unknown tag';
+
 export const TagBadge = React.forwardRef<
   React.ElementRef<typeof Badge>,
   React.ComponentPropsWithoutRef<typeof Badge> & {
@@ -13,7 +15,7 @@ export const TagBadge = React.forwardRef<
     renderAsPlainText?: boolean;
   }
 >(({ tag, tagId, onCompleted, renderAsPlainText, ...props }, ref) => {
-  const { tagDetail, loading, error } = useTagsByIds({
+  const { tagDetail, loading } = useTagsByIds({
     variables: {
       id: tagId,
     },
@@ -30,14 +32,14 @@ export const TagBadge = React.forwardRef<
   }
 
   if (!tagValue) {
-    if (error && tagId) {
+    if (tagId) {
       if (renderAsPlainText) {
-        return <TextOverflowTooltip value={tagId} />;
+        return <TextOverflowTooltip value={UNKNOWN_TAG_LABEL} />;
       }
 
       return (
-        <Badge ref={ref} title={`Unknown id: ${tagId}`} {...props}>
-          <span className="max-w-24 truncate font-mono">{tagId}</span>
+        <Badge ref={ref} title={UNKNOWN_TAG_LABEL} {...props}>
+          <span className="max-w-24 truncate">{UNKNOWN_TAG_LABEL}</span>
         </Badge>
       );
     }

@@ -13,83 +13,18 @@ import { cn } from 'erxes-ui/lib';
 import { themeState } from 'erxes-ui/state';
 import { IconPhoto } from '@tabler/icons-react';
 import { useAtomValue } from 'jotai';
-import { KeyboardEvent, useEffect, useState } from 'react';
+import { KeyboardEvent, useState } from 'react';
 import { BlockEditorProps } from '../types';
 import { SlashMenu } from './SlashMenu';
 import { Toolbar } from './Toolbar';
 import { BarcodeAttribute } from './BarcodeAttribute';
 import { TableHandleWithRemove } from './TableHandleWithRemove';
 
-const EDITOR_OVERRIDE_STYLE_ID = 'erxes-blocknote-media-overrides';
+type EditorBlock = ReturnType<
+  BlockEditorProps['editor']['getTextCursorPosition']
+>['block'];
 
-const EDITOR_OVERRIDE_CSS = `
-.erxes-blocknote [data-file-block] .bn-add-file-button{
-  display: flex;
-  width: 100%;
-  min-height: 84px;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 18px;
-  background-color: hsl(var(--muted) / 0.4);
-  border: 1px dashed hsl(var(--border));
-  border-radius: 12px;
-  color: hsl(var(--muted-foreground));
-  transition: background-color .15s ease, border-color .15s ease, color .15s ease;
-}
-.erxes-blocknote [data-file-block] .bn-add-file-button:hover{
-  background-color: hsl(var(--muted));
-  border-color: hsl(var(--primary) / 0.5);
-  color: hsl(var(--foreground));
-}
-.erxes-blocknote [data-file-block] .bn-add-file-button-icon{
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 10px;
-  background-color: hsl(var(--primary) / 0.1);
-  color: hsl(var(--primary));
-}
-.erxes-blocknote [data-file-block] .bn-add-file-button-icon svg{
-  width: 20px;
-  height: 20px;
-}
-.erxes-blocknote [data-file-block] .bn-add-file-button-text{
-  font-size: 13px;
-  font-weight: 500;
-}
-.erxes-blocknote [data-file-block] .bn-file-loading-preview{
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  min-height: 84px;
-  gap: 10px;
-  border-radius: 12px;
-  background-color: hsl(var(--muted) / 0.4);
-  border: 1px dashed hsl(var(--border));
-}
-.erxes-blocknote [data-file-block] .bn-visual-media-wrapper{
-  overflow: hidden;
-  border-radius: 12px;
-}
-.erxes-blocknote [data-file-block] .bn-visual-media{
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgb(0 0 0 / 0.08);
-}
-.erxes-blocknote [data-file-block] .bn-file-name-with-icon{
-  width: 100%;
-  padding: 12px;
-  border-radius: 12px;
-  background-color: hsl(var(--muted) / 0.4);
-  border: 1px solid hsl(var(--border));
-}
-`;
-
-const isEmptyBlock = (block?: any) =>
+const isEmptyBlock = (block?: EditorBlock) =>
   !!block &&
   Array.isArray(block.content) &&
   !block.content.length &&
@@ -109,27 +44,18 @@ export const BlockEditor = ({
   variant = 'default',
   sideMenu = true,
   linkToolbar = true,
+  slashMenuOnTop = false,
   additionalSlashMenuItems,
 }: BlockEditorProps) => {
   const theme = useAtomValue(themeState);
   const [focus, setFocus] = useState(false);
-
-  useEffect(() => {
-    const existing = document.getElementById(EDITOR_OVERRIDE_STYLE_ID);
-    if (!existing) {
-      const styleEl = document.createElement('style');
-      styleEl.id = EDITOR_OVERRIDE_STYLE_ID;
-      styleEl.textContent = EDITOR_OVERRIDE_CSS;
-      document.head.appendChild(styleEl);
-    }
-  }, []);
-
   const getSlashMenuItems = (query: string) => {
     const items = getDefaultReactSlashMenuItems(editor);
     const hasImageItem = items.some((item) => item.title === 'Image');
     const hasCustomImageBlock = 'image' in editor.schema.blockSchema;
+    const filePanelPlugin = editor.filePanel?.plugins[0];
 
-    if (!hasImageItem && hasCustomImageBlock) {
+    if (!hasImageItem && hasCustomImageBlock && filePanelPlugin) {
       items.splice(9, 0, {
         title: editor.dictionary.slash_menu.image.title,
         subtext: editor.dictionary.slash_menu.image.subtext,
@@ -145,7 +71,7 @@ export const BlockEditor = ({
           )[0];
 
           editor.transact((tr) =>
-            tr.setMeta(editor.filePanel!.plugins[0], {
+            tr.setMeta(filePanelPlugin, {
               block: insertedBlock,
             }),
           );
@@ -163,11 +89,7 @@ export const BlockEditor = ({
         icon: <IconPhoto size={18} />,
         onItemClick: () => {
           const currentBlock = editor.getTextCursorPosition().block;
-          editor.insertBlocks(
-            [{ type: 'gallery' as any }],
-            currentBlock,
-            'after',
-          );
+          editor.insertBlocks([{ type: 'gallery' }], currentBlock, 'after');
         },
       } satisfies DefaultReactSuggestionItem);
     }
@@ -250,7 +172,9 @@ export const BlockEditor = ({
           triggerCharacter="/"
           getItems={getSlashMenuItems}
           suggestionMenuComponent={SlashMenu}
-          floatingOptions={{ placement: 'top-start' }}
+          floatingOptions={
+            slashMenuOnTop ? { placement: 'top-start' } : undefined
+          }
         />
         <Toolbar />
         <TableHandlesController tableHandle={TableHandleWithRemove} />

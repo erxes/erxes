@@ -1,16 +1,22 @@
-type InlineContent = { type: string; props: Record<string, string> };
-type BlockLike = { content?: InlineContent[] };
+import type { Block } from '@blocknote/core';
 
-export const getMentionedUserIds = (content: BlockLike[]) => {
-  if (!content) return [];
-  const mentionedUserIds: string[] = [];
-  const flatContent = content.flatMap((block) =>
-    Array.isArray(block.content) ? block.content : [],
-  );
-  flatContent.forEach((item) => {
-    if (item.type === 'mention') {
-      mentionedUserIds.push(item.props._id);
-    }
+const isMention = (
+  item: unknown,
+): item is { type: 'mention'; props: { _id: string } } =>
+  typeof item === 'object' &&
+  item !== null &&
+  'type' in item &&
+  item.type === 'mention' &&
+  'props' in item &&
+  typeof item.props === 'object' &&
+  item.props !== null &&
+  '_id' in item.props &&
+  typeof item.props._id === 'string';
+
+export const getMentionedUserIds = (content: readonly Block[] | undefined) =>
+  (content || []).flatMap((block) => {
+    const inlineContent: readonly unknown[] = Array.isArray(block.content)
+      ? block.content
+      : [];
+    return inlineContent.filter(isMention).map((item) => item.props._id);
   });
-  return mentionedUserIds;
-};

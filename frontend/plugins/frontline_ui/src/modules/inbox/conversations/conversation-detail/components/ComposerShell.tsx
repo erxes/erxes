@@ -64,7 +64,7 @@ export const ComposerShell = ({
         onDropCapture={onDrop}
         onDragOverCapture={(event) => event.preventDefault()}
         className={cn(
-          'mx-auto flex h-full min-h-0 w-full max-w-3xl flex-col gap-1 rounded-2xl border border-border/70 bg-background/95 pb-2 shadow-[0_8px_30px_rgba(15,23,42,0.08)] transition-colors duration-150',
+          'mx-auto flex h-full min-h-0 min-w-0 w-full max-w-3xl flex-col gap-1 rounded-2xl border border-border/70 bg-background/95 pb-2 shadow-[0_8px_30px_rgba(15,23,42,0.08)] transition-colors duration-150',
           isInternalNote && 'border-warning/50 bg-warning/20',
         )}
       >

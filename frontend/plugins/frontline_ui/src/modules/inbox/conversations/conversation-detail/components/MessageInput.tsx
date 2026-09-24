@@ -14,6 +14,7 @@ import type { Block } from '@blocknote/core';
 import {
   hideMessageInputState,
   isInternalState,
+  isSlashMenuOpenState,
   onlyInternalState,
 } from '@/inbox/conversations/conversation-detail/states/isInternalState';
 import { ComposerShell } from '@/inbox/conversations/conversation-detail/components/ComposerShell';
@@ -25,6 +26,7 @@ import { useConversationContext } from '@/inbox/conversations/conversation-detai
 import { useMessageAttachments } from '@/inbox/conversations/conversation-detail/hooks/useMessageAttachments';
 import { useDiscordComposer } from '@/inbox/conversations/conversation-detail/hooks/useDiscordComposer';
 import { useComposerSend } from '@/inbox/conversations/conversation-detail/hooks/useComposerSend';
+import { useComposerEditorKeyDown } from '@/inbox/conversations/conversation-detail/hooks/useComposerEditorKeyDown';
 import { useResponseTemplateSuggestions } from '@/inbox/conversations/conversation-detail/hooks/useResponseTemplateSuggestions';
 import { InboxHotkeyScope } from '@/inbox/types/InboxHotkeyScope';
 import { messageReplyState } from '@/inbox/conversations/conversation-detail/states/messageReplyState';
@@ -45,6 +47,7 @@ export const MessageInput = ({
 }) => {
   const { t } = useTranslation('frontline');
   const [isInternalNote, setIsInternalNote] = useAtom(isInternalState);
+  const [isSlashMenuOpen, setIsSlashMenuOpen] = useAtom(isSlashMenuOpenState);
   const onlyInternal = useAtomValue(onlyInternalState);
   const setOnlyInternal = useSetAtom(onlyInternalState);
   const hideInput = useAtomValue(hideMessageInputState);
@@ -241,26 +244,27 @@ export const MessageInput = ({
     [editor, t],
   );
 
-  /*
-   * The keys that drive the template suggestions are listened for on the
-   * editor node rather than on the form: only the editor takes focus,
-   * and the form is a drop target with no keyboard role of its own.
-   */
-  const editorRef = useRef<HTMLDivElement>(null);
+  const editorRef = useComposerEditorKeyDown({
+    isInternalNote,
+    isSlashMenuOpen,
+    isUploading,
+    loading,
+    onlyInternal,
+    showSuggestions,
+    onInternalNoteChange: handleInternalNoteChange,
+    onSuggestionKeyDown: handleKeyDown,
+  });
 
   useEffect(() => {
-    const node = editorRef.current;
-
-    if (!node) {
-      return undefined;
-    }
-
-    node.addEventListener('keydown', handleKeyDown);
+    const unsubscribe = editor.suggestionMenus.onUpdate('/', (state) => {
+      setIsSlashMenuOpen(state.show);
+    });
 
     return () => {
-      node.removeEventListener('keydown', handleKeyDown);
+      unsubscribe();
+      setIsSlashMenuOpen(false);
     };
-  }, [handleKeyDown]);
+  }, [editor, setIsSlashMenuOpen]);
 
   if (hideInput) return null;
 
@@ -304,7 +308,7 @@ export const MessageInput = ({
       <div
         ref={editorRef}
         data-composer-editor
-        className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain"
+        className="flex min-h-0 min-w-0 flex-1 flex-col overscroll-contain [&_.bn-container]:h-full [&_.bn-container>div]:max-w-full [&_.bn-container_.w-72]:max-w-full [&_.bn-editor]:max-h-full [&_.bn-editor]:overflow-y-auto"
       >
         <ComposerEditor
           editor={editor}
