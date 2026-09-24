@@ -1,3 +1,4 @@
+import { buildSkippedAction } from 'erxes-api-shared/core-modules';
 import { generateModels, IModels } from '~/connectionResolvers';
 import { debugError } from '@/integrations/facebook/debuggers';
 import { queueCommentReply } from '@/integrations/facebook/commentOutbox';
@@ -44,12 +45,10 @@ export const actionCreateComment = async (
     const sendBlock = await models.FacebookBots.getSendBlock(recipientId);
 
     if (sendBlock) {
-      return {
-        status: 'skipped',
-        reason: 'send-blocked',
+      return buildSkippedAction('send-blocked', {
         blockedUntil: sendBlock.until,
         blockReason: sendBlock.reason,
-      };
+      });
     }
 
     const { jobId, delay } = await queueCommentReply(models, subdomain, {

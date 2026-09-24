@@ -1,13 +1,23 @@
 import { z } from 'zod';
+import { BROADCAST_EVERY_VALUES } from './utils/scheduleForm';
 
 const baseSchema = {
   title: z.string().min(1),
-  targetType: z.enum(['segment', 'tag']),
+  targetType: z.enum(['segment', 'tag', 'customer']),
   targetIds: z.array(z.string()).min(1),
 
   targetCount: z.number().default(0),
   isLive: z.boolean(),
   isDraft: z.boolean(),
+  // Held on the form only so the header can carry it; it is applied after the
+  // campaign is saved, never as part of saving it.
+  schedule: z
+    .object({
+      every: z.enum(BROADCAST_EVERY_VALUES),
+      at: z.date().optional(),
+      endDate: z.date().optional(),
+    })
+    .optional(),
 };
 
 export const broadcastSchema = z.discriminatedUnion('method', [
@@ -29,7 +39,10 @@ export const broadcastSchema = z.discriminatedUnion('method', [
         )
         .optional(),
       documentId: z.string(),
-      content: z.string(),
+      content: z.string().optional(),
+      contentJson: z.any().optional(),
+      contentFormat: z.enum(['blocks', 'maily']).optional(),
+      previewText: z.string().optional(),
     }),
     ...baseSchema,
   }),
@@ -63,6 +76,19 @@ export const broadcastSchema = z.discriminatedUnion('method', [
       title: z.string().min(1),
       content: z.string().min(1),
     }),
+    ...baseSchema,
+  }),
+
+  // A workflow campaign has no content of its own: the flow lives in the
+  // automation the campaign owns, so only the recipients are filled in here.
+  z.object({
+    method: z.literal('workflow'),
+    workflow: z
+      .object({
+        actions: z.array(z.any()).default([]),
+        entryActionId: z.string().optional(),
+      })
+      .optional(),
     ...baseSchema,
   }),
 ]);

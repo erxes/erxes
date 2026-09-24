@@ -66,8 +66,19 @@ const automationHistoryActionColumns: ColumnDef<AutomationHistoryActionTableRow>
       id: 'actionTypeLabel',
       accessorKey: 'actionTypeLabel',
       header: () => <RecordTable.InlineHead label="Action Type" />,
-      cell: ({ cell }) => (
-        <RecordTableInlineCell>{cell.getValue<string>()}</RecordTableInlineCell>
+      // A retried step writes one row per try, so the row says which try it is
+      // instead of leaving the repetition unexplained.
+      cell: ({ row }) => (
+        <RecordTableInlineCell>
+          <span className="flex min-w-0 items-center gap-2">
+            <span className="truncate">{row.original.actionTypeLabel}</span>
+            {(row.original.attempt || 1) > 1 && (
+              <span className="shrink-0 rounded bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">
+                try {row.original.attempt}
+              </span>
+            )}
+          </span>
+        </RecordTableInlineCell>
       ),
       size: 256,
     },

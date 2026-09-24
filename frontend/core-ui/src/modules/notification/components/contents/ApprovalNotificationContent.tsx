@@ -1,6 +1,6 @@
 import { ApprovalContentTarget } from '@/approval/components/ApprovalContentTarget';
 import { useQuery } from '@apollo/client';
-import { IconLock } from '@tabler/icons-react';
+import { IconGitPullRequest, IconLock } from '@tabler/icons-react';
 import { Badge, RelativeDateDisplay, Separator, Spinner } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import {
@@ -29,9 +29,10 @@ const isApprovalNotificationMetadata = (
 
   const value = metadata as Record<string, unknown>;
 
+  // A change request carries no lock, so requiring one here hid the whole
+  // notification behind "missing request details".
   return (
     typeof value.approvalRequestId === 'string' &&
-    typeof value.lockId === 'string' &&
     typeof value.targetContentType === 'string' &&
     typeof value.targetContentId === 'string'
   );
@@ -77,27 +78,45 @@ export const ApprovalNotificationContent = (notification: TNotification) => {
   }
 
   const request = data?.approvalRequestDetail;
-  const requesterName = getRequesterName(request?.requester) || t('someone');
+
+  // The notification outlives the request it points at. Saying so beats a
+  // half-drawn page with no answer on it.
+  if (!request) {
+    return (
+      <div className="p-6 text-sm text-muted-foreground">
+        {t('request-gone')}
+      </div>
+    );
+  }
+  const requesterName = getRequesterName(request.requester) || t('someone');
   const targetLabel = metadata.targetLabel || metadata.targetContentType;
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-5 p-6">
       <div className="flex items-start gap-3">
         <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground">
-          <IconLock className="size-5" />
+          {request.change ? (
+            <IconGitPullRequest className="size-5" />
+          ) : (
+            <IconLock className="size-5" />
+          )}
         </div>
         <div className="min-w-0 flex-1 space-y-1">
           <div className="flex flex-wrap items-center gap-2">
             <h2 className="text-base font-semibold">{t('approval-request')}</h2>
-            {request?.status && (
+            {request.status && (
               <Badge variant="secondary">{t(`status-${request.status}`)}</Badge>
             )}
           </div>
           <p className="text-sm text-muted-foreground">
-            {t('approval-request-description', {
-              requester: requesterName,
-              label: targetLabel,
-            })}
+            {/* A change request is not about getting past a lock, so it does
+                not read as one. */}
+            {request.change
+              ? t('change-request-description', { requester: requesterName })
+              : t('approval-request-description', {
+                  requester: requesterName,
+                  label: targetLabel,
+                })}
           </p>
           <div className="text-xs text-muted-foreground">
             <RelativeDateDisplay.Value value={notification.createdAt} />
@@ -105,7 +124,19 @@ export const ApprovalNotificationContent = (notification: TNotification) => {
         </div>
       </div>
       <Separator />
-      {request?.reason && (
+      {request.change && (
+        <div className="space-y-2">
+          <div className="text-xs font-medium uppercase text-muted-foreground">
+            {t('change-to-approve')}
+          </div>
+          {/* Approving a change performs it, so what it would do is shown
+              before the buttons rather than behind a link. */}
+          <div className="rounded-md border border-warning/40 bg-warning/5 p-3 text-sm">
+            {request.change.summary}
+          </div>
+        </div>
+      )}
+      {request.reason && (
         <div className="space-y-2">
           <div className="text-xs font-medium uppercase text-muted-foreground">
             {t('request-reason')}
@@ -132,14 +163,17 @@ export const ApprovalNotificationContent = (notification: TNotification) => {
           </div>
         </div>
       </div>
-      {request && (
-        <div className="flex justify-end">
-          <ApprovalNotificationActions
-            request={request}
-            onCompleted={() => refetch()}
-          />
-        </div>
+      {request.applyError && (
+        <p className="text-xs text-destructive">
+          {t('change-apply-failed', { reason: request.applyError })}
+        </p>
       )}
+      <div className="flex justify-end">
+        <ApprovalNotificationActions
+          request={request}
+          onCompleted={() => refetch()}
+        />
+      </div>
     </div>
   );
 };

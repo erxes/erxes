@@ -6,4 +6,5 @@ export * from './sender';
 export * from './telnyx';
 export * from './transporter';
 export * from './widget';
+export * from './workflowAutomation';
 export * from './worker';

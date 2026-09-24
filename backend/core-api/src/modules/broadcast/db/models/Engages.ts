@@ -11,16 +11,51 @@ import {
 } from '@/broadcast/constants';
 import { engageMessageSchema } from '@/broadcast/db/definitions/engages';
 import {
+  checkCampaignDoc,
   checkCustomerExists,
   checkRules,
+  createCampaignAutomation,
+  findCampaignAutomation,
   getEditorAttributeUtil,
   getNumberOfVisits,
+  isWorkflowCampaign,
+  removeCampaignAutomations,
+  sendBroadcast,
+  setCampaignAutomationFlow,
+  setCampaignAutomationStatus,
 } from '@/broadcast/utils';
+import { TBroadcastRecurrence } from '@/broadcast/utils/recurrence';
+import {
+  armSchedule,
+  isRecurring,
+  nextFireAt,
+  scheduledAt,
+  scheduleReconcile,
+} from '@/broadcast/utils/schedule';
+import { AUTOMATION_STATUSES } from 'erxes-api-shared/core-modules';
+import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
-import { Model } from 'mongoose';
+import { Model, UpdateQuery } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { ISESConfig } from '@/organization/settings/db/definitions/configs';
 import { getValueAsString } from '@/organization/settings/db/models/Configs';
+
+type TScheduleDate = NonNullable<IEngageMessage['scheduleDate']>;
+
+type TCampaignFlow = { actions?: any[]; entryActionId?: string };
+
+export type TCampaignInput = IEngageMessage & { workflow?: TCampaignFlow };
+
+export type TGoLiveOptions = {
+  actorId?: string;
+  scheduledFor?: Date;
+  consumeSchedule?: boolean;
+};
+
+export type TScheduleInput = {
+  dateTime?: Date;
+  recurrence?: TBroadcastRecurrence;
+};
 
 export interface IEngageMessageModel extends Model<IEngageMessageDocument> {
   getEngageMessage(_id: string): Promise<IEngageMessageDocument>;
@@ -31,8 +66,41 @@ export interface IEngageMessageModel extends Model<IEngageMessageDocument> {
     doc: IEngageMessage,
   ): Promise<IEngageMessageDocument>;
 
-  engageMessageSetLive(_id: string): Promise<IEngageMessageDocument>;
+  engageMessageSetLive(
+    _id: string,
+    options?: { consumeSchedule?: boolean },
+  ): Promise<IEngageMessageDocument>;
   engageMessageSetPause(_id: string): Promise<IEngageMessageDocument>;
+  setSchedule(
+    _id: string,
+    scheduleDate: TScheduleDate,
+  ): Promise<IEngageMessageDocument>;
+  clearSchedule(_id: string): Promise<IEngageMessageDocument>;
+
+  createCampaign(
+    doc: TCampaignInput,
+    userId: string,
+  ): Promise<IEngageMessageDocument>;
+  editCampaign(
+    _id: string,
+    doc: TCampaignInput,
+    userId: string,
+  ): Promise<IEngageMessageDocument>;
+  copyCampaign(_id: string, userId: string): Promise<IEngageMessageDocument>;
+  removeCampaigns(_ids: string[]): Promise<unknown>;
+  goLive(
+    _id: string,
+    options?: TGoLiveOptions,
+  ): Promise<IEngageMessageDocument>;
+  startSending(
+    campaign: IEngageMessageDocument,
+    actorId?: string,
+    scheduledFor?: Date,
+  ): Promise<void>;
+  pause(_id: string): Promise<IEngageMessageDocument>;
+  markFailed(_id: string): Promise<void>;
+  schedule(_id: string, input: TScheduleInput): Promise<IEngageMessageDocument>;
+  cancelSchedule(_id: string): Promise<IEngageMessageDocument>;
   removeEngageMessage(_ids: string[]): void;
   setCustomersCount(
     _id: string,
@@ -65,7 +133,45 @@ export interface IEngageMessageModel extends Model<IEngageMessageDocument> {
   broadcastConfigs(): Promise<ISESConfig>;
 }
 
-export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
+export const loadEngageMessageClass = (
+  models: IModels,
+  subdomain: string,
+  { sendDbEventLog }: EventDispatcherReturn,
+) => {
+  // Only decisions. Progress counters and statistics are written per batch and
+  // would bury the few writes anybody is accountable for.
+  const logChange = (
+    previous: IEngageMessageDocument,
+    current: IEngageMessageDocument,
+  ) =>
+    sendDbEventLog({
+      action: 'update',
+      docId: current._id,
+      prevDocument: previous.toObject(),
+      currentDocument: current.toObject(),
+    });
+
+  // Applies a change and records what it changed.
+  const applyChange = async (
+    _id: string,
+    update: UpdateQuery<IEngageMessageDocument>,
+  ) => {
+    const previous = await models.EngageMessages.getEngageMessage(_id);
+    const current = await models.EngageMessages.findOneAndUpdate(
+      { _id },
+      update,
+      { new: true },
+    );
+
+    if (!current) {
+      throw new Error('Campaign not found');
+    }
+
+    logChange(previous, current);
+
+    return current;
+  };
+
   class Message {
     /**
      * Get engage message
@@ -81,8 +187,16 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
     /**
      * Create engage message
      */
-    public static createEngageMessage(doc: IEngageMessage) {
-      return models.EngageMessages.create({ ...doc });
+    public static async createEngageMessage(doc: IEngageMessage) {
+      const created = await models.EngageMessages.create({ ...doc });
+
+      sendDbEventLog({
+        action: 'create',
+        docId: created._id,
+        currentDocument: created.toObject(),
+      });
+
+      return created;
     }
 
     /**
@@ -95,42 +209,281 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
         throw new Error('Can not update manual live campaign');
       }
 
-      await models.EngageMessages.updateOne({ _id }, { $set: doc });
-
-      return models.EngageMessages.findOne({ _id });
+      return applyChange(_id, { $set: doc });
     }
 
     /**
      * Engage message set live
      */
-    public static async engageMessageSetLive(_id: string) {
-      await models.EngageMessages.updateOne(
-        { _id },
-        { $set: { isLive: true, isDraft: false } },
-      );
+    public static async engageMessageSetLive(
+      _id: string,
+      options?: { consumeSchedule?: boolean },
+    ) {
+      const update: UpdateQuery<IEngageMessageDocument> = {
+        $set: { isLive: true, isDraft: false },
+      };
 
-      return models.EngageMessages.findOne({ _id });
+      // Sending now uses up a one-shot moment.
+      if (options?.consumeSchedule) {
+        update.$unset = { 'scheduleDate.dateTime': 1 };
+      }
+
+      return applyChange(_id, update);
     }
 
     /**
      * Engage message set pause
      */
     public static async engageMessageSetPause(_id: string) {
-      await models.EngageMessages.updateOne(
-        { _id },
-        { $set: { isLive: false } },
-      );
+      return applyChange(_id, { $set: { isLive: false } });
+    }
 
-      return models.EngageMessages.findOne({ _id });
+    public static async setSchedule(_id: string, scheduleDate: TScheduleDate) {
+      return applyChange(_id, {
+        $set: { isDraft: false, isLive: false, scheduleDate },
+      });
+    }
+
+    // The whole schedule goes: a repeat left holding its pattern re-arms.
+    public static async clearSchedule(_id: string) {
+      return applyChange(_id, {
+        $set: { isDraft: true, isLive: false },
+        $unset: { scheduleDate: 1 },
+      });
     }
 
     /**
      * Remove engage message
      */
     public static async removeEngageMessage(_ids: string[]) {
-      return await models.EngageMessages.deleteMany({
+      const removed = await models.EngageMessages.deleteMany({
         _id: { $in: _ids },
       });
+
+      if (removed.deletedCount) {
+        sendDbEventLog({ action: 'deleteMany', docIds: _ids });
+      }
+
+      return removed;
+    }
+
+    public static async createCampaign(doc: TCampaignInput, userId: string) {
+      const { isLive, isDraft, workflow, ...campaignDoc } = doc || {};
+
+      // Neither leaves the campaign in a state nothing picks up again.
+      if (!isDraft && !isLive) {
+        throw new Error('A campaign must be saved as a draft or live');
+      }
+
+      await checkCampaignDoc(models, doc);
+
+      const campaign = await models.EngageMessages.createEngageMessage({
+        ...campaignDoc,
+        isDraft,
+        isLive,
+        createdBy: userId,
+      } as IEngageMessage);
+
+      if (isWorkflowCampaign(doc.method)) {
+        await createCampaignAutomation(models, {
+          campaignId: campaign._id,
+          title: campaign.title,
+          userId,
+          actions: workflow?.actions,
+          entryActionId: workflow?.entryActionId,
+        });
+      }
+
+      if (isLive && !isDraft) {
+        await models.EngageMessages.startSending(campaign, userId);
+      }
+
+      return campaign;
+    }
+
+    public static async editCampaign(
+      _id: string,
+      doc: TCampaignInput,
+      userId: string,
+    ) {
+      const campaign = await models.EngageMessages.getEngageMessage(_id);
+
+      await checkCampaignDoc(models, { ...doc, _id });
+
+      const { workflow, ...campaignDoc } = doc;
+      const updated = await models.EngageMessages.updateEngageMessage(
+        _id,
+        campaignDoc,
+      );
+
+      if (isWorkflowCampaign(updated.method) && workflow) {
+        await setCampaignAutomationFlow(models, _id, workflow);
+      }
+
+      if (!campaign.isLive && doc.isLive) {
+        await models.EngageMessages.startSending(updated, userId);
+      }
+
+      return models.EngageMessages.getEngageMessage(_id);
+    }
+
+    public static async copyCampaign(_id: string, userId: string) {
+      const source = await models.EngageMessages.getEngageMessage(_id);
+
+      const doc = {
+        ...source.toObject(),
+        createdAt: new Date(),
+        createdBy: userId,
+        title: `${source.title} - duplicated`,
+        isDraft: true,
+        isLive: false,
+        runCount: 0,
+        totalCustomersCount: 0,
+        validCustomersCount: 0,
+      };
+
+      delete doc._id;
+
+      // A copy waits to be scheduled by hand rather than inheriting a moment.
+      if (doc.scheduleDate?.dateTime) {
+        doc.scheduleDate.dateTime = null;
+      }
+
+      const copy = await models.EngageMessages.createEngageMessage(doc);
+
+      if (isWorkflowCampaign(copy.method)) {
+        const sourceAutomation = await findCampaignAutomation(models, _id);
+
+        await createCampaignAutomation(models, {
+          campaignId: copy._id,
+          title: copy.title,
+          userId,
+          // Its own snapshot, so editing either afterwards leaves the other be.
+          actions: sourceAutomation?.actions,
+        });
+      }
+
+      return copy;
+    }
+
+    public static async removeCampaigns(_ids: string[]) {
+      await removeCampaignAutomations(models, _ids);
+
+      return models.EngageMessages.removeEngageMessage(_ids);
+    }
+
+    public static async startSending(
+      campaign: IEngageMessageDocument,
+      actorId?: string,
+      scheduledFor?: Date,
+    ) {
+      if (isWorkflowCampaign(campaign.method)) {
+        await setCampaignAutomationStatus(
+          models,
+          subdomain,
+          campaign._id,
+          AUTOMATION_STATUSES.ACTIVE,
+          actorId || campaign.createdBy,
+        );
+      }
+
+      await sendBroadcast({
+        models,
+        subdomain,
+        engageMessage: campaign,
+        scheduledFor,
+      });
+    }
+
+    public static async goLive(_id: string, options: TGoLiveOptions = {}) {
+      const campaign = await models.EngageMessages.getEngageMessage(_id);
+
+      // Checked as the campaign it is about to become.
+      await checkCampaignDoc(models, { ...campaign.toObject(), isLive: true });
+
+      const live = await models.EngageMessages.engageMessageSetLive(_id, {
+        consumeSchedule: options.consumeSchedule,
+      });
+      await models.EngageMessages.startSending(
+        live,
+        options.actorId,
+        options.scheduledFor,
+      );
+
+      return live;
+    }
+
+    public static async pause(_id: string) {
+      const paused = await models.EngageMessages.engageMessageSetPause(_id);
+
+      if (isWorkflowCampaign(paused.method)) {
+        await setCampaignAutomationStatus(
+          models,
+          subdomain,
+          _id,
+          AUTOMATION_STATUSES.DRAFT,
+        );
+      }
+
+      return paused;
+    }
+
+    public static async markFailed(_id: string) {
+      await models.EngageMessages.updateOne(
+        { _id },
+        { $set: { status: 'failed', isLive: false } },
+      );
+    }
+
+    public static async schedule(_id: string, input: TScheduleInput) {
+      const { dateTime, recurrence } = input;
+      const campaign = await models.EngageMessages.getEngageMessage(_id);
+
+      if (campaign.isLive && campaign.status === 'sending') {
+        throw new Error('This campaign is sending right now');
+      }
+
+      // A repeat may be given to a campaign that has gone out; a single send
+      // is the thing that happens once.
+      if (!recurrence && campaign.runCount) {
+        throw new Error('This campaign has already gone out');
+      }
+
+      const scheduleDate = recurrence
+        ? { type: 'recurring', ...recurrence }
+        : { type: 'pre', dateTime: dateTime && new Date(dateTime) };
+
+      if (!nextFireAt({ scheduleDate })) {
+        throw new Error(
+          recurrence
+            ? 'This schedule would never run — check the pattern and the end date'
+            : 'Pick a moment that has not passed yet',
+        );
+      }
+
+      // A schedule that cannot be sent is worse than none: nobody is watching
+      // when it comes due.
+      await checkCampaignDoc(models, { ...campaign.toObject(), isLive: true });
+
+      const scheduled = await models.EngageMessages.setSchedule(
+        _id,
+        scheduleDate,
+      );
+
+      await armSchedule(subdomain, scheduled);
+      await scheduleReconcile(subdomain);
+
+      return scheduled;
+    }
+
+    public static async cancelSchedule(_id: string) {
+      const campaign = await models.EngageMessages.getEngageMessage(_id);
+
+      if (!scheduledAt(campaign) && !isRecurring(campaign)) {
+        throw new Error('This campaign is not scheduled');
+      }
+
+      return models.EngageMessages.clearSchedule(_id);
     }
 
     /**

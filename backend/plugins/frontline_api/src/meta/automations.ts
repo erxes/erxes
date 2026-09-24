@@ -1,4 +1,5 @@
 import { facebookConstants } from '@/integrations/facebook/meta/automation/constants';
+import { facebookWorkflowTemplates } from '@/integrations/facebook/meta/automation/workflowTemplates';
 import { facebookAutomationWorkers } from '@/integrations/facebook/meta/automation/workers';
 import { instagramConstants } from '@/integrations/instagram/meta/constants';
 import { instagramAutomationWorkers } from '@/integrations/instagram/meta/automation/workers';
@@ -46,6 +47,7 @@ export const automations = {
       ...discordConstants.triggers,
     ],
     bots: [...facebookConstants.bots, ...instagramConstants.bots],
+    workflowTemplates: [...facebookWorkflowTemplates],
     ai: {
       knowledgeSources: [
         {

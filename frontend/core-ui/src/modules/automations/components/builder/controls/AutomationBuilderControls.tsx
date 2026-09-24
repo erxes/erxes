@@ -1,3 +1,4 @@
+import { AutomationCanvasNoteControl } from '@/automations/components/builder/controls/AutomationCanvasNoteControl';
 import { AutomationCanvasOptionsMenu } from '@/automations/components/builder/controls/AutomationCanvasOptionsMenu';
 import { AutomationCanvasRecordActions } from '@/automations/components/builder/controls/AutomationCanvasRecordActions';
 import { AutomationCanvasViewControls } from '@/automations/components/builder/controls/AutomationCanvasViewControls';
@@ -17,6 +18,8 @@ export const AutomationBuilderControls = () => {
 
         <AutomationCanvasRecordActions />
         <Separator orientation="vertical" className="h-5" />
+
+        <AutomationCanvasNoteControl />
 
         <AutomationCanvasOptionsMenu />
       </div>

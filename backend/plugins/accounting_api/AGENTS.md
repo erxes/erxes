@@ -6,7 +6,7 @@
 - **Project:** `accounting_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/accounting_api`
-- **Last synchronized:** `2026-09-19`
+- **Last synchronized:** `2026-09-23`
 
 ## Scope
 
@@ -25,6 +25,7 @@
 ## Current Capabilities
 
 - Creates, updates, removes, links, prints, and reports accounting transactions across main, cash, bank, receivable, payable, tax, inventory, fixed asset, and exchange-difference journals.
+- Exports accounting transaction detail rows through the platform import/export worker using transaction, account, journal, date, status, currency, branch, department, customer, and selected-id filters, with startup-safe capability metadata for Core discovery.
 - Permission metadata exposes VAT and CTAX row access through one `taxRow` module, exposes inventory/fixed-asset/fund-rate/debt-rate/closing adjustments as separate modules, and gates transaction reads/mutations by source journal while allowing generated follow journals, including `exchangeDiff`, through the source journal's permission.
 - Permission metadata exposes safe remainder read, manage, remove, and system-count visibility actions; users without count visibility see safe remainder item system counts as zero and cannot apply difference filters.
 - Fixed asset income transaction details create or update acquisition-backed fixed asset records from detail category, code, name, account, quantity, unit cost, and category depreciation defaults; multiple income details with the same acquisition code reuse one fixed asset and store acquisition quantity/cost from the supplied migration totals.
@@ -58,6 +59,7 @@
 | Area               | Path                                                        | Responsibility                                                                                                          |
 | ------------------ | ----------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
 | Runtime            | `src/main.ts`                                               | Starts the accounting API plugin service.                                                                               |
+| Import/export      | `src/meta/import-export`                                    | Registers accounting import and transaction export types, headers, and row producers.                                    |
 | Apollo integration | `src/apollo`                                                | Registers accounting schema, resolvers, subscriptions, and federation wiring.                                           |
 | Models             | `src/connectionResolvers.ts`                                | Generates tenant-scoped Mongoose models for accounting-owned collections.                                               |
 | Accounting domain  | `src/modules/accounting`                                    | Owns accounting schemas, models, GraphQL resolvers, journal utilities, and routes.                                      |
@@ -75,6 +77,7 @@
 ### Provides
 
 - Accounting GraphQL schema and resolvers from `src/modules/accounting/graphql`.
+- Import/export metadata for `accounting:account.transactions`, including transaction export headers and data batches.
 - Fund rate GraphQL contracts: `adjustFundRates`, `adjustFundRateDetail`, `adjustFundRateAdd`, `adjustFundRateChange`, `adjustFundRateCalculate`, `adjustFundRateDoTransaction`, `adjustFundRateRun`, `adjustFundRateRemove`, and `accountingAdjustFundRateChanged(adjustId: String!)`.
 - Debt rate GraphQL contracts: `adjustDebtRates`, `adjustDebtRateDetail`, `adjustDebtRatesAdd`, `adjustDebtRatesEdit`, `adjustDebtRateCalculate`, `adjustDebtRateDoTransaction`, `adjustDebtRatesRemove`, and `accountingAdjustDebtRateChanged(adjustId: String!)`.
 - Closing adjustment GraphQL contracts: `adjustClosings`, `adjustClosingsCount`, `adjustClosingDetail`, `adjustClosingEntriesCount`, `adjustClosingAdd`, `adjustClosingEdit`, `adjustClosingCalculate`, `adjustClosingDoTransaction`, `adjustClosingRun`, `adjustClosingPublish`, `adjustClosingCancel`, and `adjustClosingRemove`.
@@ -174,6 +177,7 @@
 - `pnpm nx build accounting_api`
 - `pnpm nx test accounting_api`
 - `node_modules/.bin/tsc -p backend/plugins/accounting_api/tsconfig.build.json --noEmit`
+- Smoke scenario: open accounting transaction export, select default fields, export with journal/date/search filters, and verify the generated CSV contains only matching transaction detail rows.
 - Smoke scenario: calculate a fund and debt rate adjustment, verify validation fields/details are stored, then run transactions and confirm linked `exchangeDiff` transactions are created.
 - Smoke scenario: calculate a closing adjustment, edit a detail entry tax percent, run transactions, and verify `taxImpactValue`, grouped details, and linked transaction ids are stored.
 - Smoke scenario: send a dry-run Erkhet references batch and verify product category/product plus fixed asset category rows report create/update actions without missing parent/category code errors.
@@ -183,6 +187,12 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-23` — `Transaction Export`
+
+- **Summary:** Accounting transactions can now be exported through the platform import/export worker with current list filters or selected transaction ids, and their export capability is available to Core during plugin startup.
+- **Affected areas:** `src/main.ts`, `src/meta/permissions.ts`, and `src/meta/import-export/export`.
+- **Contracts changed:** Adds export metadata and handlers for `accounting:account.transactions`, plus permission action `transactionsExportManage`.
 
 ### `2026-09-19` — `Erkhet Inventory Weight Sync`
 
