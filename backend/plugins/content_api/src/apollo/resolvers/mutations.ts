@@ -9,6 +9,8 @@ import customPostTypeMutations from '@/cms/graphql/mutations/customPostType';
 import translationMutations from '@/cms/graphql/mutations/translation';
 import { webBuilderMutations } from '~/modules/webbuilder/graphql/resolvers/mutations/web';
 import { webPageMutations } from '~/modules/webbuilder/graphql/resolvers/mutations/webPage';
+import { postCommentMutations } from '@/cms/graphql/mutations/comments';
+import { postRatingMutations } from '@/cms/graphql/mutations/ratings';
 
 export const mutations = {
   ...cmsPostizMutations,
@@ -22,4 +24,6 @@ export const mutations = {
   ...customPostTypeMutations,
   ...translationMutations,
   ...webPageMutations,
+  ...postCommentMutations,
+  ...postRatingMutations,
 };

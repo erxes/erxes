@@ -1,4 +1,5 @@
 import { gql, useQuery } from '@apollo/client';
+import { useMemo } from 'react';
 import { useAtomValue } from 'jotai';
 import { cmsLanguageAtom } from '~/modules/cms/shared/states/cmsLanguageState';
 import { CMS_CUSTOM_FIELD_GROUPS } from '../../../../custom-fields/graphql/queries';
@@ -175,25 +176,31 @@ export const usePostData = (
   const defaultLanguage = cmsConfig?.language || 'en';
   const postUrlField = normalizePostUrlField(cmsConfig?.postUrlField);
 
-  const fieldGroups = (
-    fieldGroupsData?.cmsCustomFieldGroupList?.list || []
-  ).filter((group) => {
-    const ids: string[] = group.customPostTypeIds || [];
-    if (
-      ids.length > 0 &&
-      !ids.includes(selectedType || '') &&
-      !ids.includes('post')
-    ) {
-      return false;
-    }
-    // if specific posts are set, only show for those posts. A new post (no
-    // postId yet) can never be in the list, so hide the group while creating.
-    const enabledPostIds: string[] = group.enabledPostIds || [];
-    if (enabledPostIds.length > 0) {
-      return postId ? enabledPostIds.includes(postId) : false;
-    }
-    return true;
-  });
+  // Memoize so the reference stays stable across renders (it only changes when
+  // the underlying data, selectedType or postId change). Downstream reorder UI
+  // re-syncs its local order from this reference, so an unstable array would
+  // reset the local drag order on every render.
+  const fieldGroups = useMemo(
+    () =>
+      (fieldGroupsData?.cmsCustomFieldGroupList?.list || []).filter((group) => {
+        const ids: string[] = group.customPostTypeIds || [];
+        if (
+          ids.length > 0 &&
+          !ids.includes(selectedType || '') &&
+          !ids.includes('post')
+        ) {
+          return false;
+        }
+        // if specific posts are set, only show for those posts. A new post (no
+        // postId yet) can never be in the list, so hide the group while creating.
+        const enabledPostIds: string[] = group.enabledPostIds || [];
+        if (enabledPostIds.length > 0) {
+          return postId ? enabledPostIds.includes(postId) : false;
+        }
+        return true;
+      }),
+    [fieldGroupsData?.cmsCustomFieldGroupList?.list, selectedType, postId],
+  );
 
   return {
     categories,
