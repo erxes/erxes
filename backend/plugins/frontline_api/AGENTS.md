@@ -1944,11 +1944,14 @@ CallConversationDetail` resolves the call integration by `queueName` first,
   introduce new `schemaWrapper` usage — existing usages stay as they are.
 - `Conversation.propertiesData`'s field resolver falls back to the legacy raw
   `customsData` path (the pre-rename schema field, never exposed to GraphQL)
-  when `propertiesData` is empty, converting its `[{field, value,
-  stringValue}]` shape into the `{ [fieldId]: value }` map. No document is
-  known to actually hold data there — the old write path never matched either
-  field name — so this is a defensive read-only fallback, not a migration;
-  keep the underlying schema field name `propertiesData` and do not write to
+  only when `propertiesData` is `null`/`undefined` — never when it is merely
+  an empty object, since `{}` is a valid saved state (the requester cleared
+  every property) that must not resurrect old values. It converts the legacy
+  `[{field, value, stringValue}]` shape into the `{ [fieldId]: value }` map. No
+  document is known to actually hold data there — the old write path never
+  matched either field name — so this is a defensive read-only fallback, not a
+  migration; keep the underlying schema field name `propertiesData` and do not
+  write to
   `customsData`.
 
 ## Validation
@@ -2035,9 +2038,11 @@ CallConversationDetail` resolves the call integration by `queueName` first,
 
 - **Summary:** `Conversation.propertiesData`'s field resolver now falls back
   to the pre-rename `customsData` schema path (converted from its legacy
-  `[{field, value, stringValue}]` shape) when `propertiesData` is empty, as a
-  defensive read-only safety net. No real data is known to exist there — the
-  old write path never matched either field name, so it always saved nothing.
+  `[{field, value, stringValue}]` shape) when `propertiesData` is `null` or
+  `undefined`, as a defensive read-only safety net — an empty `{}` is left
+  alone, since it is a valid saved state and must not resurrect old values.
+  No real data is known to exist there — the old write path never matched
+  either field name, so it always saved nothing.
 - **Affected areas:**
   `src/modules/inbox/graphql/resolvers/customResolvers/conversation.ts`
 - **Contracts changed:** None — `Conversation.propertiesData` resolution

@@ -11,10 +11,7 @@ export default {
   // exposed to GraphQL) for conversations saved before propertiesData existed,
   // so any such record still surfaces in the Properties tab.
   propertiesData(conversation: IConversationDocument) {
-    if (
-      conversation.propertiesData &&
-      Object.keys(conversation.propertiesData).length
-    ) {
+    if (conversation.propertiesData != null) {
       return conversation.propertiesData;
     }
 
