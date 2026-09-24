@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-09-23`
+- **Last synchronized:** `2026-09-24`
 
 ## Scope
 
@@ -1443,6 +1443,17 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-24` — Removing a form step no longer wipes remaining step names
+
+- **Summary:** `removeStep` rebuilt each remaining step's object from only
+  `fields` and `order`, dropping `name`/`description`. Deleting any step and
+  saving cleared every other step's name (unlike `setSteps`, which already
+  spread `...value[key]`). It now spreads `...value[step]` before overriding
+  `fields`/`order`, so names/descriptions survive a step removal.
+- **Affected areas:** `src/modules/forms/components/FormDndProvider.tsx`
+  (`removeStep`).
+- **Contracts changed:** `None`
+
 ### `2026-09-23` — A survey question carries attachments
 
 - **Summary:** The Content step's question now has an attachments uploader
@@ -1605,14 +1616,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   Removed `MoveFormToChannel` from `form-columns.tsx` and deleted
   `src/modules/forms/components/actions/move-form.tsx`.
 
-### `2026-09-21` — Tracked data returns to the conversation rail
-
-- **Summary:** `ConversationSideWidget` called `useRelationWidget()` with no
-  options. The shared hook drops every module that declares `contentTypes`
-  when no `contentType` is supplied, so the core Tracked data widget — which
-  the old product showed in the inbox sidebar — never appeared next to a
-  conversation. The rail now passes `contentType: 'frontline:conversation'`,
-  and the widget reads the conversation's `customerId`.
-- **Affected areas:**
-  `src/modules/inbox/conversations/conversation-detail/components/ConversationSideWidget.tsx`.
-- **Contracts changed:** `None`
