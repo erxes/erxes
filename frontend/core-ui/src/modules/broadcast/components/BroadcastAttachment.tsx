@@ -13,11 +13,18 @@ import {
 import { useState } from 'react';
 import { ControllerRenderProps, FieldValues } from 'react-hook-form';
 
+type TBroadcastAttachment = {
+  name: string;
+  url: string;
+  type: string;
+  size: number;
+};
+
 export const BroadcastAttachment = ({
   value,
   onChange,
 }: ControllerRenderProps<FieldValues, 'email.attachments'>) => {
-  const [files, setFiles] = useState<any[]>(value || []);
+  const [files, setFiles] = useState<TBroadcastAttachment[]>(value || []);
   const { removeFile, isLoading } = useRemoveFile();
 
   const props = useErxesUpload({

@@ -11,6 +11,7 @@ import { AutomationRecordTableFilterViews } from './AutomationRecordTableFilterV
 import { AutomationRecordTableFilterMenu } from './AutomationRecordTableFilterMenu';
 import { AutomationRecordTableFilterDialogs } from './AutomationRecordTableFilterDialogs';
 import { AutomationRecordTableFilterBar } from './AutomationRecordTableFilterBar';
+import { AutomationsDisplayControl } from '@/automations/components/list/AutomationsDisplayControl';
 import { useTranslation } from 'react-i18next';
 
 type Props = {
@@ -66,6 +67,9 @@ export const AutomationRecordTableFilters = ({
         {totalCount
           ? `${totalCount} ${t('records-found-label')}`
           : loading && <Skeleton className="w-20 h-4 inline-block mt-1.5" />}
+      </div>
+      <div className="ml-auto">
+        <AutomationsDisplayControl />
       </div>
     </PageSubHeader>
   );

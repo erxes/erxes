@@ -4,6 +4,7 @@ import {
   AssignmentSentence,
   isAssignmentActivityType,
 } from './AssignmentSentence';
+import { CreatedViaSentence, isCreatedViaActivity } from './CreatedViaSentence';
 import { FieldChangeSentence } from './FieldChangeSentence';
 import {
   isPermissionGroupActivityType,
@@ -19,6 +20,12 @@ export function DefaultActivitySentence({
   const { activityType, metadata, action, context, contextType } =
     activity || {};
   const [entityType, eventType] = activityType.split('.');
+
+  // Provenance reads as a sentence of its own: the generic one would render
+  // the bare context type and say nothing.
+  if (isCreatedViaActivity(activity)) {
+    return <CreatedViaSentence activity={activity} />;
+  }
 
   if (entityType === 'property' && eventType === 'field_changed') {
     return <PropertiesFieldChangeSentence activity={activity} />;

@@ -149,6 +149,8 @@ export const ticketsAutomationContants = {
       icon: 'IconTicket',
       label: 'Create ticket',
       description: 'Create ticket',
+      // The ticket it creates is assigned to someone.
+      requiresActor: true,
       isTargetSource: true,
       targetSourceType: FRONTLINE_TICKET_TARGET_SOURCE_TYPE,
       allowTargetFromActions: true,

@@ -8,6 +8,7 @@ export type TActionResultStatus = NonNullable<
 
 const STATUS_CLASS: Record<TActionResultStatus, string> = {
   success: 'text-success',
+  skipped: 'text-muted-foreground',
   error: 'text-destructive',
   waiting: 'text-warning',
   queued: 'text-warning',
@@ -123,7 +124,7 @@ export const ActionResultBody = ({
         className="h-6 px-0 text-xs text-primary"
         onClick={() => setExpanded((value) => !value)}
       >
-        {isExpanded ? 'Show less' : 'Show more'}
+        {isExpanded ? 'show less' : 'show more'}
       </Button>
     </section>
   );

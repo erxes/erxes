@@ -376,6 +376,8 @@ export const salesAutomationContants = {
       icon: 'IconPigMoney',
       label: 'Create deal',
       description: 'Create deal',
+      // The deal it creates gets an owner, so the run needs someone to act for.
+      requiresActor: true,
       isTargetSource: true,
       targetSourceType: 'sales:sales.deal',
       allowTargetFromActions: true,

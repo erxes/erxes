@@ -3,6 +3,7 @@ import {
   removeLastTrailingSlash,
 } from 'erxes-api-shared/utils';
 import {
+  IHelpCenterCmsConfig,
   IHelpCenterConfigInput,
   IHelpCenterFooter,
   IHelpCenterHeader,
@@ -66,6 +67,7 @@ const normalizeHelpCenterIdentity = (config: IHelpCenterConfigInput) => {
     title,
     url,
     erxesAppToken: config.erxesAppToken?.trim() ?? '',
+    clientPortalId: config.clientPortalId?.trim() ?? '',
     description: config.description?.trim() ?? '',
   };
 };
@@ -123,14 +125,36 @@ const normalizeTickets = (config: IHelpCenterConfigInput) => {
 };
 
 const normalizeCms = (config: IHelpCenterConfigInput) => {
-  const cmsId = config.cmsId?.trim() ?? '';
-  const cmsAppToken = config.cmsAppToken?.trim() ?? '';
+  const legacy =
+    config.cmsId?.trim() && !config.cmsConfigs
+      ? [{ cmsId: config.cmsId, cmsAppToken: config.cmsAppToken }]
+      : config.cmsConfigs ?? [];
 
-  if (cmsId && !cmsAppToken) {
-    throw new Error("The chosen CMS's client portal has no app token");
+  const byCmsId = new Map<string, IHelpCenterCmsConfig>();
+
+  for (const entry of legacy) {
+    const cmsId = entry?.cmsId?.trim() ?? '';
+    const cmsAppToken = entry?.cmsAppToken?.trim() ?? '';
+
+    if (!cmsId) {
+      continue;
+    }
+
+    if (!cmsAppToken) {
+      throw new Error("The chosen CMS's client portal has no app token");
+    }
+
+    byCmsId.set(cmsId, { cmsId, cmsAppToken });
   }
 
-  return { cmsId, cmsAppToken: cmsId ? cmsAppToken : '' };
+  const cmsConfigs = [...byCmsId.values()];
+  const [first] = cmsConfigs;
+
+  return {
+    cmsConfigs,
+    cmsId: first?.cmsId ?? '',
+    cmsAppToken: first?.cmsAppToken ?? '',
+  };
 };
 
 export const normalizeHelpCenterConfig = (

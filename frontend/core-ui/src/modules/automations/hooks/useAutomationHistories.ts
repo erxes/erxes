@@ -15,8 +15,14 @@ import { useParams } from 'react-router';
 
 const LOGS_PER_PAGE = 20;
 
-export const useAutomationHistories = () => {
-  const { id } = useParams();
+/**
+ * @param automationId addresses an automation that is not the one in the URL —
+ * a campaign's own flow, shown beside the campaign rather than on the builder
+ * page. Falls back to the route's automation.
+ */
+export const useAutomationHistories = (automationId?: string) => {
+  const { id: routeId } = useParams();
+  const id = automationId ?? routeId;
   const [queries] = useMultiQueryState<{
     status?: StatusBadgeValue;
     createdAt: string;

@@ -2,8 +2,10 @@ import { useClientPortals } from '@/client-portal/hooks/useClientPortals';
 import { IconBellRinging, IconDeviceMobile } from '@tabler/icons-react';
 import { cn, Form, Input, Label, Select, Textarea } from 'erxes-ui';
 import { useFormContext } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 export const BroadcastNotificationMethod = () => {
+  const { t } = useTranslation('broadcasts');
   const { control, watch } = useFormContext();
   const { clientPortals, loading } = useClientPortals();
 
@@ -15,16 +17,18 @@ export const BroadcastNotificationMethod = () => {
       <Form.Field
         name="cpId"
         control={control}
-        rules={{ required: 'Client portal is required' }}
+        rules={{ required: t('notification.portal-required') }}
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Client portal</Form.Label>
+            <Form.Label>{t('notification.portal')}</Form.Label>
             <Select onValueChange={field.onChange} value={field.value}>
               <Form.Control>
                 <Select.Trigger>
-                  <Select.Value placeholder="Select client portal">
+                  <Select.Value
+                    placeholder={t('notification.portal-placeholder')}
+                  >
                     {clientPortals?.find((portal) => portal._id === field.value)
-                      ?.name || 'Select client portal'}
+                      ?.name || t('notification.portal-placeholder')}
                   </Select.Value>
                 </Select.Trigger>
               </Form.Control>
@@ -32,7 +36,7 @@ export const BroadcastNotificationMethod = () => {
                 <Select.Group>
                   {loading ? (
                     <Select.Item value="loading" disabled>
-                      Loading...
+                      {t('loading')}
                     </Select.Item>
                   ) : clientPortals?.length ? (
                     clientPortals.map((portal) => (
@@ -46,7 +50,7 @@ export const BroadcastNotificationMethod = () => {
                     ))
                   ) : (
                     <Select.Item value="empty" disabled>
-                      No client portals found
+                      {t('notification.no-portals')}
                     </Select.Item>
                   )}
                 </Select.Group>
@@ -77,7 +81,7 @@ export const BroadcastNotificationMethod = () => {
                 >
                   <IconBellRinging className="text-muted-foreground" />
                   <Label className="cursor-pointer">
-                    In-app push notification
+                    {t('notification.in-app')}
                   </Label>
                 </div>
               </Form.Control>
@@ -104,7 +108,7 @@ export const BroadcastNotificationMethod = () => {
                 >
                   <IconDeviceMobile className="text-muted-foreground" />
                   <Label className="cursor-pointer">
-                    Mobile & Web push notification
+                    {t('notification.mobile')}
                   </Label>
                 </div>
               </Form.Control>
@@ -115,17 +119,21 @@ export const BroadcastNotificationMethod = () => {
       <Form.Field
         name="notification.title"
         control={control}
-        rules={{ required: 'Notification title is required' }}
+        rules={{ required: t('notification.title-required') }}
         render={({ field }) => (
           <Form.Item>
             <div className="flex items-center justify-between">
-              <Form.Label>Notification title</Form.Label>
+              <Form.Label>{t('notification.title')}</Form.Label>
               <Form.Label className="text-muted-foreground font-normal">
                 {title.length}/15
               </Form.Label>
             </div>
             <Form.Control>
-              <Input {...field} placeholder="Title" maxLength={15} />
+              <Input
+                {...field}
+                placeholder={t('notification.title')}
+                maxLength={15}
+              />
             </Form.Control>
             <Form.Message />
           </Form.Item>
@@ -134,11 +142,11 @@ export const BroadcastNotificationMethod = () => {
       <Form.Field
         name="notification.content"
         control={control}
-        rules={{ required: 'Notification content is required' }}
+        rules={{ required: t('notification.content-required') }}
         render={({ field }) => (
           <Form.Item>
             <div className="flex items-center justify-between">
-              <Form.Label>Notification content</Form.Label>
+              <Form.Label>{t('notification.content')}</Form.Label>
               <Form.Label className="text-muted-foreground font-normal">
                 {content.length}/160
               </Form.Label>
@@ -146,7 +154,7 @@ export const BroadcastNotificationMethod = () => {
             <Form.Control>
               <Textarea
                 {...field}
-                placeholder="Content"
+                placeholder={t('notification.content')}
                 maxLength={160}
                 rows={10}
               />

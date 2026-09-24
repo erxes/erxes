@@ -1,3 +1,4 @@
+import { TBuiltInTemplate } from '@/automations/utils/builtInTemplates';
 import {
   NodeContentComponentProps,
   WaitEventFormComponentProps,
@@ -47,6 +48,8 @@ export interface AutomationConstants {
     };
   }>;
   aiKnowledgeSourcesConst: TAiKnowledgeSourceConfig[];
+  // Flows shipped with the code — core's own plus every installed plugin's.
+  workflowTemplatesConst: TBuiltInTemplate[];
 }
 export interface ConstantsQueryResponse {
   automationConstants: AutomationConstants;
@@ -92,6 +95,12 @@ export type WorkflowNodeData = {
   flowDirection?: TAutomationFlowDirection;
 };
 
+export type TAutomationUser = {
+  _id?: string;
+  email?: string;
+  details?: { fullName?: string; avatar?: string };
+};
+
 export interface IAutomationDoc {
   name: string;
   status: string;
@@ -104,8 +113,13 @@ export interface IAutomationDoc {
   createdBy?: string;
   updatedBy?: string;
   createdByIds?: string;
-  updatedUser?: any;
-  createdUser?: any;
+  /** Whose automation it is; records it creates are made on their behalf. */
+  ownerId?: string;
+  activatedAt?: string;
+  ownerUser?: TAutomationUser;
+  updatedUser?: TAutomationUser;
+  createdUser?: TAutomationUser;
+  notes?: IAutomationNote[];
   tags?: any[];
   tagIds?: string[];
   approvalLockState?: ApprovalLockState;
@@ -113,12 +127,13 @@ export interface IAutomationDoc {
   duplicatedFromName?: string;
 }
 
-export interface IAutomationNoteDoc {
-  triggerId: string;
-  actionId: string;
-  description: string;
-  createdUser?: any;
-  createdAt?: Date;
+export interface IAutomationNote {
+  id: string;
+  content: string;
+  position?: { x: number; y: number };
+  width?: number;
+  height?: number;
+  color?: string;
 }
 
 export interface IAutomation extends IAutomationDoc {
@@ -156,6 +171,7 @@ export enum AutomationsHotKeyScope {
   BuilderPanel = 'automation-builder-panel',
   HistoriesFilter = 'automation-histories-filter',
   RecordTableFilter = 'automation-record-table-filter',
+  TemplatesFilter = 'automation-templates-filter',
 }
 
 export enum AutomationsPath {

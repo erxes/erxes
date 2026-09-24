@@ -114,56 +114,22 @@ export const generateWorkflowConnection = (
   return { sourceAction, workFlow };
 };
 
-export const generateBranchConnection = (
+/**
+ * Every named exit — an `if` branch, a find-object outcome, the error policy's
+ * success/error pair — stores its target under the folk's own config key.
+ */
+export const generateFolkConnection = (
   sourceNode: TAutomationBuilderActions[number],
   targetId: string,
-  sourceHandle: string,
-) => {
-  const config = sourceNode.config || {};
-  const [sourceHandleType] = sourceHandle.split('-');
-  return {
+  folkKey: string,
+) =>
+  ({
     ...sourceNode,
     config: {
-      ...config,
-      [sourceHandleType]: targetId,
-    },
-  } as TAutomationBuilderActions[number];
-};
-
-export const generateFindObjectConnection = (
-  sourceNode: TAutomationBuilderActions[number],
-  targetId: string,
-  sourceHandle: string,
-) => {
-  const config = sourceNode.config || {};
-  const [sourceHandleType] = sourceHandle.split('-');
-  return {
-    ...sourceNode,
-    config: {
-      ...config,
-      [sourceHandleType]: targetId,
-    },
-  } as TAutomationBuilderActions[number];
-};
-
-export const generateFolksConnection = (
-  sourceNode: TAutomationBuilderActions[number],
-  targetId: string,
-  sourceHandle: string,
-) => {
-  const config = sourceNode.config || {};
-  // Extract the folk key from sourceHandle format: "nodeId__folkKey"
-  const parts = sourceHandle.split('__');
-  const folkKey = parts[parts.length - 1]; // Get the folk key (last part)
-
-  return {
-    ...sourceNode,
-    config: {
-      ...config,
+      ...(sourceNode.config || {}),
       [folkKey]: targetId,
     },
-  } as TAutomationBuilderActions[number];
-};
+  } as TAutomationBuilderActions[number]);
 export const generateStandarConnection = (
   sourceNode: any,
   targetId: string,
