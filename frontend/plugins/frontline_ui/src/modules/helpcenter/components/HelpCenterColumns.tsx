@@ -119,10 +119,15 @@ const WebsiteCell = ({ cell }: { cell: Cell<IHelpCenter, unknown> }) => {
   return (
     <SelectHelpCenterClientPortal
       variant="table"
-      value={helpCenter.url ?? ''}
+      value={helpCenter.clientPortalId ?? ''}
+      domain={helpCenter.url ?? ''}
       scope={cellScope(helpCenter, 'url')}
-      onValueChange={(domain, erxesAppToken) =>
-        editHelpCenter(helpCenter, { url: domain, erxesAppToken })
+      onValueChange={(portal) =>
+        editHelpCenter(helpCenter, {
+          clientPortalId: portal._id,
+          url: portal.domain,
+          erxesAppToken: portal.erxesAppToken,
+        })
       }
     />
   );
@@ -247,7 +252,7 @@ const createHelpCenterColumns = (t: TFunction): ColumnDef<IHelpCenter>[] => [
     size: 340,
     header: () => (
       <RecordTable.InlineHead
-        label={t('website', 'Website')}
+        label={t('sidebar.client-portal', 'Client portal')}
         icon={IconWorld}
       />
     ),

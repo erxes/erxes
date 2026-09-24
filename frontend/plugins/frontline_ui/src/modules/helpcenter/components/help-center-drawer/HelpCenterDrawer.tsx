@@ -18,12 +18,14 @@ import {
 } from '@/helpcenter/constants';
 import { useSaveHelpCenter } from '@/helpcenter/hooks/useSaveHelpCenter';
 import {
+  HELP_CENTER_CREATE_TABS,
   HELP_CENTER_TABS,
   IHelpCenter,
   IHelpCenterConfigInput,
   THelpCenterTab,
 } from '@/helpcenter/types';
 import { toHelpCenterConfigInput } from '@/helpcenter/utils/toHelpCenterConfigInput';
+import { TopicEmbedTab } from '@/knowledgebase/components/TopicEmbedTab';
 
 interface HelpCenterDrawerProps {
   readonly helpCenter?: IHelpCenter;
@@ -41,9 +43,9 @@ export function HelpCenterDrawer({
   const { t } = useTranslation('frontline');
   const isEditing = !!helpCenter;
   const [selectedTab, setSelectedTab] = useQueryState<string>('tab');
-  const activeTab: THelpCenterTab = HELP_CENTER_TABS.includes(
-    selectedTab as THelpCenterTab,
-  )
+
+  const tabs = isEditing ? HELP_CENTER_TABS : HELP_CENTER_CREATE_TABS;
+  const activeTab: THelpCenterTab = tabs.includes(selectedTab as THelpCenterTab)
     ? (selectedTab as THelpCenterTab)
     : 'general';
 
@@ -90,6 +92,8 @@ export function HelpCenterDrawer({
 
   const submit = form.handleSubmit(onSubmit, onInvalid);
 
+  const kbTopicId = form.watch('kbTopicId');
+
   const idleLabel = isEditing
     ? t('kb-save-changes')
     : t('helpcenter-create', 'Create Help Center');
@@ -113,7 +117,7 @@ export function HelpCenterDrawer({
         <FocusSheet.Content className="flex-1 min-h-0">
           <FocusSheet.SideBar>
             <SheetNavSidebar
-              tabs={[...HELP_CENTER_TABS]}
+              tabs={[...tabs]}
               groupLabel={t('kb-topic', 'Help center')}
             />
           </FocusSheet.SideBar>
@@ -131,6 +135,18 @@ export function HelpCenterDrawer({
                 <div className={activeTab === 'appearance' ? '' : 'hidden'}>
                   <HelpCenterAppearanceTab form={form} t={t} />
                 </div>
+
+                {isEditing && (
+                  <div className={activeTab === 'embed' ? '' : 'hidden'}>
+                    {kbTopicId ? (
+                      <TopicEmbedTab topicId={kbTopicId} t={t} />
+                    ) : (
+                      <p className="p-8 text-sm text-center text-muted-foreground">
+                        {t('select-knowledge-base-topic')}
+                      </p>
+                    )}
+                  </div>
+                )}
               </ScrollArea>
             </form>
           </Form>
