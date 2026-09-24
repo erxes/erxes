@@ -231,7 +231,7 @@ const SelectPipelineFilterBar = ({ scope }: { scope?: string }) => {
   return (
     <SelectPipelineProvider
       value={pipeline || ''}
-      onValueChange={(value) => setPipeline(value as string)}
+      onValueChange={(value) => setPipeline(value)}
       setOpen={setOpen}
     >
       <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
@@ -254,7 +254,7 @@ const SelectPipelineFilterView = () => {
       <SelectPipelineProvider
         value={pipeline || ''}
         onValueChange={(value) => {
-          setPipeline(value as string);
+          setPipeline(value);
           resetFilterState();
         }}
       >
