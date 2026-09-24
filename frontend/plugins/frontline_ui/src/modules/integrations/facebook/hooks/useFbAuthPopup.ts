@@ -4,7 +4,12 @@ export const useFbAuthPopup = (onClose?: () => void) => {
   const popupRef = useRef<Window | null>(null);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
 
-  const popupWindow = (url: string, title: string, w: number, h: number) => {
+  const popupWindow = (
+    url: string,
+    title: string,
+    w: number,
+    h: number,
+  ): Window | null => {
     const dualScreenLeft = window.screenLeft ?? window.screenX;
     const dualScreenTop = window.screenTop ?? window.screenY;
     const width =
@@ -27,6 +32,7 @@ export const useFbAuthPopup = (onClose?: () => void) => {
       popupRef.current = popup;
       setIsPopupOpen(true);
     }
+    return popup;
   };
 
   useEffect(() => {

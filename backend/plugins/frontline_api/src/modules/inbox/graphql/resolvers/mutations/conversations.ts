@@ -18,6 +18,7 @@ import { pConversationClientMessageInserted } from './widget';
 import { publishConversationUnreadCounts } from '@/inbox/services/conversationUnreadCounts';
 import { convertConversation } from '@/inbox/services/conversationConvert';
 import { IConversationConvert } from '@/inbox/@types/conversationConvert';
+import { handleWhatsappIntegration } from '@/integrations/whatsapp/messageBroker';
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import {
   graphqlPubsub,
@@ -99,6 +100,8 @@ export const dispatchConversationToService = async (
 
       case 'discord':
         return await handleDiscordIntegration({ subdomain, data });
+      case 'whatsapp':
+        return await handleWhatsappIntegration({ subdomain, data });
 
       case 'calls':
         break;

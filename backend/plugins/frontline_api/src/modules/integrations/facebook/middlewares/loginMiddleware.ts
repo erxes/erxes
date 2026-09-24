@@ -55,6 +55,12 @@ export const loginMiddleware = async (req, res) => {
     'pages_messaging,pages_manage_ads,pages_manage_engagement,pages_manage_metadata,pages_read_user_content,business_management,pages_manage_posts',
   );
 
+  // WhatsApp connections reuse this Facebook OAuth flow, but need extra
+  // scopes to discover WhatsApp Business Accounts after login.
+  const extraScopes = kind?.startsWith('whatsapp')
+    ? ',business_management,whatsapp_business_management,whatsapp_business_messaging'
+    : '';
+
   const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
   const API_DOMAIN = DOMAIN.includes('zrok') ? DOMAIN : `${DOMAIN}/gateway`;
   const FACEBOOK_LOGIN_REDIRECT_URL = await getConfig(
@@ -67,7 +73,8 @@ export const loginMiddleware = async (req, res) => {
     client_secret: app.appSecret,
     scope:
       FACEBOOK_PERMISSIONS +
-      ',pages_read_engagement,pages_show_list,pages_manage_posts',
+      ',pages_read_engagement,pages_show_list,pages_manage_posts' +
+      extraScopes,
     redirect_uri: FACEBOOK_LOGIN_REDIRECT_URL,
   };
 
@@ -132,6 +139,23 @@ export const loginMiddleware = async (req, res) => {
         } catch (e) {
           debugError(
             `Failed to repair facebook integration ${integration.erxesApiId}: ${e.message}`,
+          );
+        }
+      }
+
+      const whatsappIntegrations = await models.WhatsappIntegrations.find({
+        accountId: account._id,
+      });
+
+      for (const whatsappIntegration of whatsappIntegrations) {
+        try {
+          await models.WhatsappIntegrations.updateOne(
+            { _id: whatsappIntegration._id },
+            { $set: { accessToken: access_token } },
+          );
+        } catch (e) {
+          debugError(
+            `Failed to refresh whatsapp integration ${whatsappIntegration.erxesApiId} access token: ${e.message}`,
           );
         }
       }

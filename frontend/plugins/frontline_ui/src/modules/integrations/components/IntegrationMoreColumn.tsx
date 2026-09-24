@@ -61,6 +61,14 @@ const DiscordIntegrationActions = lazy(() =>
   })),
 );
 
+const WhatsappIntegrationActions = lazy(() =>
+  import('../whatsapp/components/WhatsappIntegrationDetail').then(
+    (module) => ({
+      default: module.WhatsappIntegrationActions,
+    }),
+  ),
+);
+
 export const IntegrationMoreColumnCell = ({
   cell,
 }: {
@@ -105,6 +113,9 @@ export const IntegrationMoreColumnCell = ({
                   )}
                   {integrationType === IntegrationType.DISCORD_MESSENGER && (
                     <DiscordIntegrationActions cell={cell} />
+                  )}
+                  {integrationType === IntegrationType.WHATSAPP_MESSENGER && (
+                    <WhatsappIntegrationActions cell={cell} />
                   )}
                 </Suspense>
               </Command.Item>

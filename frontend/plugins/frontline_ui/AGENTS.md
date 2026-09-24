@@ -21,7 +21,14 @@
 - The `Move to channel` action on every channel-owned resource: integrations,
   ticket pipelines, forms, surveys and response templates.
 - Integration connect/detail UIs for Mail, Facebook, Instagram, Discord,
-  calls, Call Pro, and the erxes messenger.
+  calls, Call Pro, WhatsApp, and the erxes messenger.
+- The WhatsApp integration surface: the four-step add wizard (Facebook
+  account → page → WhatsApp Business Account and phone number → name and
+  brand), the row-menu edit dialog (name and brand through
+  `integrationsEditCommonFields`), the Integrations-config verify-token
+  collapse, and the conversation thread (paged messages, live inserts,
+  `whatsappConversationMessagesCount` for infinite scroll, image grid and
+  file-link attachments).
 - The mail conversation surface: the threaded reader, its compose box, the
   quoted-content toggle, the sandboxed email body renderer, and delivery state
   and resend.
@@ -373,6 +380,7 @@
 | Inbox                    | `src/modules/inbox/`                                                                                                                              | Conversations, messages, filters, channels, brands, integrations                                                                                |
 | Conversation convert     | `src/modules/inbox/conversations/conversation-detail/components/convert/`                                                                         | Convert menu, convert dialog, convert-time properties                                                                                           |
 | Integrations             | `src/modules/integrations/`                                                                                                                       | Per-provider connect forms and detail views                                                                                                     |
+| WhatsApp                 | `src/modules/integrations/whatsapp/`                                                                                                             | Add wizard steps, edit dialog, verify-token config, conversation message thread, GraphQL documents and Jotai selection atoms                     |
 | Call Pro                 | `src/modules/integrations/callpro/`                                                                                                               | Add/edit sheets over one shared `CallProIntegrationForm`, webhook URL hint, recording player, and the caller-to-customer picker                 |
 | Ticket                   | `src/modules/ticket/`, `src/modules/pipelines/`, `src/modules/status/`                                                                            | Ticket boards, pipelines, statuses                                                                                                              |
 | Forms                    | `src/modules/forms/`                                                                                                                              | Form builder, preview, submissions                                                                                                              |
@@ -482,6 +490,20 @@ scope?)` — the latter is already restricted server-side to channels the caller
 - `frontline_api` GraphQL subscription `conversationClientMessageInserted(userId)`
   — published to every member of the channel a customer message landed in, for
   every integration kind, so one subscription covers all of a user's channels.
+- `frontline_api` GraphQL `whatsappGetConfigs`, `whatsappUpdateConfigs`,
+  `whatsappGetBusinessAccounts(accountId!, pageId?)`,
+  `whatsappConversationMessages(conversationId!, …)` and
+  `whatsappConversationMessagesCount(conversationId!)` — the WhatsApp verify
+  token, the WABA/phone pickers of the add wizard, and the conversation
+  thread. The pages step reads `facebookGetPages` with
+  `kind: 'whatsapp-messenger'`; the accounts step reuses
+  `facebookGetAccounts` (same default Facebook app as Messenger — only
+  `facebook-post` uses a separate app). The add flow creates through the
+  shared `IntegrationsCreateExternalIntegration` (`useIntegrationAdd`) with
+  `kind: 'whatsapp-messenger'` and `data: { pageId, businessAccountId,
+  phoneNumberId }`; edit goes through `integrationsEditCommonFields`, and
+  disconnect/archive reuse the shared row-menu actions — WhatsApp has no
+  repair entry.
 - `frontline_api` GraphQL `conversationCounts(only, channelId?, brandId?,
 awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   `only: "byIntegrationTypes"` keys by integration kind, `only: "byIntegrations"`
@@ -642,9 +664,16 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
   the table is narrowed past it. With no filter set both resolve to the same
   variables and Apollo serves one request.
 
-- React Hook Form + Zod for every form (`CHANNEL_SCHEMA`); the
-  Facebook message action schema is in
+- React Hook Form + Zod for every form (`CHANNEL_SCHEMA`);
+  the Facebook message action schema is in
   `src/widgets/automations/modules/facebook/components/action/states/replyMessageActionForm.tsx`.
+- The WhatsApp add wizard keeps its selection in four Jotai atoms
+  (`selectedWhatsappAccountAtom`, `selectedWhatsappPageAtom`,
+  `selectedWhatsappBusinessAccountAtom`, `selectedWhatsappPhoneNumberAtom`)
+  plus `activeWhatsappFormStepAtom` and `whatsappFormSheetAtom`, all cleared
+  together by `resetWhatsappAddStateAtom`. Picking a different upstream value
+  clears the downstream atoms (account → page → WABA → phone) so a stale
+  phone number can never be submitted with a new WABA.
 - `ReplyMessageProvider` is the single source of message-sequence state for the
   Facebook message action (`messages`, `maxMessages`, `addMessage`, form
   helpers); components read it through `useReplyMessageAction` rather than
@@ -1364,6 +1393,45 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 - The ticket index favorite control uses selected channel and pipeline query
   loading states for its skeleton. Missing records after those queries settle
   are not loading states; they must leave a valid tickets-only breadcrumb.
+- The WhatsApp add wizard's sheet resets **every** selection atom on close
+  (`onOpenChange` → `resetWhatsappAddStateAtom`), so reopening always starts
+  at step 1 with empty picks; never close the sheet without that reset.
+- A WhatsApp wizard step must not submit or advance while its required atoms
+  are empty — step 4 toasts `failed-to-add-integration` instead of sending a
+  mutation when channel/account/WABA/phone is missing, and the mutation call
+  must not pass a per-call `refetchQueries` (Apollo would replace
+  `useIntegrationAdd`'s list) or a per-call `onError` (the hook already
+  toasts); the success toast lives in the per-call `onCompleted` because that
+  callback replaces the hook's.
+- `useFbAuthPopup().popupWindow` returns `Window | null`; a blocked popup
+  (`null`) must reset `isLoggingIn` and toast — otherwise the Connect button
+  stays stuck on "Connecting to Facebook…". The WhatsApp account list uses
+  `Command.Item value={account.name}` so cmdk's default filter matches typed
+  names (an id value would hide every row while searching).
+- The WhatsApp conversation thread reads `whatsappConversationMessagesCount`
+  for `totalCount` and uses `Math.max(count, messages.length)` so a
+  live-inserted message never falls behind the count into the empty state;
+  the count query and the messages query are refetched together on Retry.
+  A message's `separatePrevious` spacer is `mt-8` (matching the content
+  branch) and the attachment-only spacer renders only when attachments
+  exist; non-image attachments render as `readImage` file links with
+  `formatBytes`, never silently dropped.
+- The WhatsApp thread's `conversationMessageInserted` subscription dedups an
+  incoming message against the loaded list by `_id` and — for non-internal
+  messages only — by `content` plus an equal `createdAt` timestamp
+  (`new Date(x).getTime()`): the backend dual-writes inbound/outbound messages
+  to both `whatsapp_conversation_messages` and the shared
+  `ConversationMessages` under different `_id`s, so `_id` alone would let the
+  same logical message appear twice (query copy + subscription copy). Internal notes exist only on the shared store and must keep appending.
+  The conversation-cache `content`/`updatedAt` modify for non-internal
+  messages stays in place alongside this dedup.
+- `WhatsappConversationMessageItem` memoizes its context value object with
+  `useMemo` over `[message, previousMessage, nextMessage]` — the item is
+  `memo`'d, but an inline `{ ...message, previousMessage, nextMessage }`
+  literal would still break that memo for the `Provider` (Sonar S6481).
+- WhatsApp integration icons come from the local `WhatsAppIcon` in
+  `@/integrations/components/Icons` via `INTEGRATION_ICONS` — never swap
+  them for `@tabler/icons-react` brand glyphs.
 
 ## Validation
 
@@ -1442,6 +1510,61 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-23` — WhatsApp thread dedup, memoized context, and gateway locale keys
+
+- **Summary:** `WhatsappConversationMessageItem` memoizes its
+  `WhatsappMessengerMessageContext.Provider` value (`useMemo` over `message`,
+  `previousMessage`, `nextMessage`) so the provider stops handing consumers a
+  new object every render (Sonar S6481). The `conversationMessageInserted`
+  subscription now also skips appending a non-internal message when an
+  existing list item matches it by `content` plus an equal `createdAt`
+  timestamp, covering the backend's dual-write of the same logical message to
+  `whatsapp_conversation_messages` and the shared `ConversationMessages` under
+  different `_id`s — the `_id` dedup and the conversation-cache
+  `content`/`updatedAt` modify are unchanged, and internal notes (shared store
+  only) still append. All previously fallback-only WhatsApp i18n keys (wizard
+  labels, error/empty states, Facebook connect, popup-blocked, `retry`,
+  `verify-token`, `phone-number-count`, `whatsapp-*`) were added to both
+  gateway `frontline` locale files.
+- **Affected areas:**
+  `src/modules/integrations/whatsapp/components/WhatsappConversationMessages.tsx`,
+  `src/modules/integrations/whatsapp/hooks/useWhatsappConversationMessages.tsx`,
+  `backend/gateway/src/locales/{en,mn}/frontline.json`
+- **Contracts changed:** 28 new `frontline` i18n keys in the gateway locales
+  (`add-whatsapp`, `retry`, `verify-token`, `whatsapp-*`, Facebook connect and
+  load-error labels). No GraphQL change.
+
+### `2026-09-23` — WhatsApp integration frontend audit fixes
+
+- **Summary:** Fixed the PR review findings across the WhatsApp surface:
+  `useFbAuthPopup().popupWindow` now returns `Window | null` and a blocked
+  popup toasts instead of leaving the Connect button stuck; wizard steps clear
+  downstream selection atoms when an upstream pick changes and reset every
+  atom when the sheet closes; `Command.Item` values use names so cmdk search
+  works; step 4 toasts on a missing selection, drops the per-call
+  `refetchQueries` that would replace `useIntegrationAdd`'s list, and toasts
+  success from `onCompleted`; the verify-token collapse reads the
+  `INTEGRATIONS` constant logo, surfaces query errors with Retry, and guards
+  its form reset; the row menu gained a WhatsApp edit dialog (name and brand
+  through `integrationsEditCommonFields`); the conversation thread reads
+  `whatsappConversationMessagesCount` for infinite scroll with a Retry error
+  state and a memoized message item; attachment-only spacing was corrected
+  and non-image attachments render as file links; all wizard strings go
+  through `useTranslation('frontline')` (existing keys or English fallbacks
+  until the gateway locale carries the new ones).
+- **Affected areas:**
+  `src/modules/integrations/facebook/hooks/useFbAuthPopup.ts`,
+  `src/modules/integrations/whatsapp/components/*`,
+  `src/modules/integrations/whatsapp/hooks/*`,
+  `src/modules/integrations/whatsapp/graphql/queries/whatsappConversationQueries.ts`,
+  `src/modules/integrations/whatsapp/types/WhatsappTypes.ts`,
+  `src/modules/integrations/components/IntegrationMoreColumn.tsx`
+- **Contracts changed:** New frontend document
+  `WhatsappConversationMessagesCount` (`whatsappConversationMessagesCount`,
+  already on the backend schema). `popupWindow` return type widened to
+  `Window | null`. New i18n keys (`retry`, `whatsapp-*`, error/empty-state
+  labels) fall back to English until the gateway locale carries them.
 
 ### `2026-09-23` — A survey question carries attachments
 
@@ -1577,42 +1700,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `src/modules/forms/states/formSetupStates.tsx`,
   `src/modules/forms/hooks/useFormMutate.ts`
 - **Contracts changed:** New route `frontline/forms/create`; no GraphQL change.
-
-### `2026-09-21` — Move to channel on every channel-owned resource
-
-- **Summary:** Integrations, ticket pipelines, forms, surveys and response
-  templates each gained a `Move to channel` action in their row menu, backed by
-  one shared `MoveToChannelDialog` (current channel, destination picker that
-  hides the current channel, confirmation line, `Cancel` / `Move`) and the new
-  `channelMoveResources` mutation. Forms and surveys also move in bulk from
-  their command bar, disabled when the selection spans channels. The forms
-  page's old submenu, which moved a form with `formsEdit` and skipped the
-  server-side validation and cascades, was replaced by the same dialog and its
-  unused duplicate in `actions/move-form.tsx` deleted. `SelectChannelsContent`
-  gained an `excludeChannelIds` prop.
-- **Affected areas:**
-  `src/modules/channels/components/move-resources/*`,
-  `src/modules/channels/hooks/useChannelMoveResources.tsx`,
-  `src/modules/channels/graphql/mutations.ts`,
-  `src/modules/channels/types/index.ts`,
-  `src/modules/inbox/channel/components/SelectChannel.tsx`,
-  `src/modules/pipelines/components/PipelinesList.tsx`,
-  `src/modules/responseTemplate/components/ResponseList.tsx`,
-  `src/modules/integrations/components/IntegrationMoreColumn.tsx`,
-  `src/modules/forms/components/{FormsList.tsx,form-page/form-columns.tsx,form-page/command-bar/form-command-bar.tsx}`,
-  `src/modules/survey/components/survey-page/{survey-columns.tsx,command-bar/survey-command-bar.tsx}`
-- **Contracts changed:** Consumes the new `channelMoveResources` mutation.
-  Removed `MoveFormToChannel` from `form-columns.tsx` and deleted
-  `src/modules/forms/components/actions/move-form.tsx`.
-
-### `2026-09-21` — Tracked data returns to the conversation rail
-
-- **Summary:** `ConversationSideWidget` called `useRelationWidget()` with no
-  options. The shared hook drops every module that declares `contentTypes`
-  when no `contentType` is supplied, so the core Tracked data widget — which
-  the old product showed in the inbox sidebar — never appeared next to a
-  conversation. The rail now passes `contentType: 'frontline:conversation'`,
-  and the widget reads the conversation's `customerId`.
-- **Affected areas:**
-  `src/modules/inbox/conversations/conversation-detail/components/ConversationSideWidget.tsx`.
-- **Contracts changed:** `None`

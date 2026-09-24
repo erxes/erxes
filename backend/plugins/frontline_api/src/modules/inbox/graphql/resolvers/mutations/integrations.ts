@@ -32,6 +32,11 @@ import {
   instagramUpdateIntegrations,
 } from '@/integrations/instagram/messageBroker';
 import {
+  whatsappCreateIntegrations,
+  whatsappRemoveIntegrations,
+  whatsappUpdateIntegrations,
+} from '@/integrations/whatsapp/messageBroker';
+import {
   discordCreateIntegrations,
   discordRemoveIntegrations,
   discordRepairIntegrations,
@@ -101,6 +106,8 @@ export const sendCreateIntegration = async (
 
         return result;
       }
+      case 'whatsapp':
+        return await whatsappCreateIntegrations({ subdomain, data });
 
       case 'mobinetSms':
         break;
@@ -133,6 +140,8 @@ export const sendUpdateIntegration = async (
 
       case 'callpro':
         return await callProUpdateIntegration({ subdomain, data });
+      case 'whatsapp':
+        return await whatsappUpdateIntegrations({ subdomain, data });
 
       case 'mobinetSms':
         break;
@@ -168,6 +177,22 @@ export const sendRemoveIntegration = async (
 
       case 'callpro':
         return await callProRemoveIntegration({ subdomain, data });
+      case 'whatsapp': {
+        const result = await whatsappRemoveIntegrations({ subdomain, data });
+        const errorMessage =
+          (result as { errorMessage?: string })?.errorMessage || '';
+
+        if ((result as { status?: string })?.status === 'error') {
+          if (errorMessage.includes('Integration not found')) {
+            // Plugin-side record is already gone; let the core deletion proceed.
+            return result;
+          }
+
+          throw new Error(errorMessage);
+        }
+
+        return result;
+      }
 
       case 'mobinetSms':
         break;
@@ -568,8 +593,10 @@ export const integrationMutations = {
   async integrationsEditCommonFields(
     _root,
     { _id, name, details, channelId, brandId },
-    { models, subdomain }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) {
+    await checkPermission('integrationsEdit');
+
     const integration = await models.Integrations.getIntegration({ _id });
 
     const doc: any = { name, details };
@@ -579,6 +606,9 @@ export const integrationMutations = {
     }
     if (kind === 'instagram-messenger' || kind === 'instagram-post') {
       kind = 'instagram';
+    }
+    if (kind === 'whatsapp-messenger') {
+      kind = 'whatsapp';
     }
     await models.Integrations.updateOne(
       { _id },

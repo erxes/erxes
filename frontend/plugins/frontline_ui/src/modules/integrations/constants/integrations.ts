@@ -46,4 +46,9 @@ export const INTEGRATIONS = {
     descriptionKey: 'integration-desc-mail',
     img: 'email.webp',
   },
+  [IntegrationType.WHATSAPP_MESSENGER]: {
+    name: 'WhatsApp',
+    descriptionKey: 'integration-desc-whatsapp',
+    img: 'whatsapp.webp',
+  },
 };

@@ -44,6 +44,12 @@ const IgPostConversationDetail = lazy(() =>
   ),
 );
 
+const WhatsappMessengerConversationDetail = lazy(() =>
+  import(
+    '@/integrations/whatsapp/components/WhatsappConversationMessages'
+  ).then((module) => ({ default: module.WhatsappConversationMessages })),
+);
+
 export const ConversationIntegrationDetail = () => {
   const { integration } = useConversationContext();
 
@@ -65,6 +71,9 @@ export const ConversationIntegrationDetail = () => {
       )}
       {integration?.kind === IntegrationType.INSTAGRAM_POST && (
         <IgPostConversationDetail />
+      )}
+      {integration?.kind === IntegrationType.WHATSAPP_MESSENGER && (
+        <WhatsappMessengerConversationDetail />
       )}
     </Suspense>
   );

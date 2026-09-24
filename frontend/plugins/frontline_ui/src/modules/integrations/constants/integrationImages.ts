@@ -9,6 +9,7 @@ import {
   InstagramIcon,
   MessengerIcon,
   FacebookIcon,
+  WhatsAppIcon,
 } from '@/integrations/components/Icons';
 
 export const INTEGRATION_ICONS: Record<string, FC<any>> = {
@@ -17,6 +18,7 @@ export const INTEGRATION_ICONS: Record<string, FC<any>> = {
   lead: IconForms,
   'instagram-messenger': InstagramIcon,
   'instagram-post': InstagramIcon,
+  'whatsapp-messenger': WhatsAppIcon,
   messenger: IconMessageFilled,
   calls: IconPhone,
   callpro: IconPhone,
