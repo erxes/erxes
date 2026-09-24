@@ -69,8 +69,8 @@ const toSyncCustomers = `
 `;
 
 const toSyncPrices = `
-  mutation toSyncMsdPrices($prices: [JSON]) {
-    toSyncMsdPrices(prices: $prices)
+  mutation toSyncMsdPrices($prices: [JSON], $brandId: String) {
+    toSyncMsdPrices(prices: $prices, brandId: $brandId)
   }
 `;
 

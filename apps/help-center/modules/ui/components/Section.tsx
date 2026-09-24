@@ -18,17 +18,22 @@ export const Section = ({
   className?: string;
   children: ReactNode;
 }) => (
-  <Reveal as="section" className={cn('scroll-mt-24', className)}>
-    <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-2 border-b border-line pb-3">
+  <Reveal as="section" className={cn('group/section scroll-mt-24', className)}>
+    <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2">
       <div className="min-w-0">
-        <h2 className="flex items-center gap-2.5 text-[15px] font-semibold tracking-[-0.01em] text-ink">
+        <h2 className="flex items-center gap-2.5 text-[19px] font-semibold tracking-[-0.02em] text-ink">
           {icon ? (
-            <Icon name={icon} size={17} className="shrink-0 text-brand" />
+            <span
+              aria-hidden="true"
+              className="flex size-8 shrink-0 items-center justify-center rounded-full bg-brand-soft text-brand ring-4 ring-brand-soft/40 transition-[background-color,color,transform,box-shadow] duration-500 ease-out-soft group-hover/section:-rotate-6 group-hover/section:bg-brand group-hover/section:text-white group-hover/section:ring-brand/12"
+            >
+              <Icon name={icon} size={16} />
+            </span>
           ) : null}
           {title}
         </h2>
         {description ? (
-          <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">
+          <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
             {description}
           </p>
         ) : null}

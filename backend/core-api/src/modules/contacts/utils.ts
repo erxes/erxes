@@ -67,7 +67,11 @@ export const generateFilter = async (
   }
 
   if (clientPortalId) {
-    filter['clientPortalId'] = { $eq: clientPortalId };
+    const cpUsers = await models.CPUser.find({ clientPortalId }).distinct('erxesCustomerId');
+
+    filter['_id'] = {
+      $in: [...new Set([...cpUsers, ...(filter['_id'] || [])])]
+    };
   }
 
   if (brandIds || integrationIds || integrationTypes) {

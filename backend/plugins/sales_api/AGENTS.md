@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-09-17`
+- **Last synchronized:** `2026-09-21`
 
 ## Scope
 
@@ -31,6 +31,10 @@
   published GraphQL, tRPC, HTTP, event, or federation contracts.
 
 ## Current Capabilities
+
+- A deal an automation creates records `createdVia` — what produced it, which
+  run, and for whom — and falls back to that actor as the deal's `userId` when
+  the target does not name one.
 
 - Runs as the sales federated GraphQL and tRPC plugin service.
 - Exposes deals, pipelines, boards, stages, labels, product/payment data, sales
@@ -331,6 +335,30 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-21` — The deal action says it needs someone to act for
+
+- **Summary:** `Create deal` now declares `requiresActor: true` on its action
+  descriptor. The deal it opens takes an owner from the run's
+  `createdVia.actorId`, and the builder reads this declaration to decide
+  whether putting an automation live is worth saying whose name its records
+  will carry. Nothing about how the deal is created changed.
+- **Affected areas:** `src/modules/sales/meta/automations/constants.ts`
+- **Contracts changed:** The action descriptor carries `requiresActor`, a field
+  `erxes-api-shared` added for every plugin to use.
+
+### `2026-09-14` — A deal an automation opened records what produced it
+
+- **Summary:** Deals created by an automation now carry `createdVia` — the
+  configuration that produced them, the run that did it, and whose
+  configuration it was — and take that actor as `userId` when the execution
+  target carries none, instead of being left ownerless.
+- **Affected areas:**
+  `src/modules/sales/meta/automations/action/createDealAction.ts`,
+  `src/modules/sales/@types/deal.ts`
+- **Contracts changed:** Consumes the new `TCreatedVia` and
+  `IExecution.createdVia` from `erxes-api-shared`; `createdVia` itself is added
+  to every schema by `schemaWrapper`.
+
 ### `2026-09-17` — Property types declare system fields
 
 - **Summary:** The `deal` property types now declare `systemFields`, shown
@@ -433,3 +461,14 @@
   `src/modules/pos/meta/segments/` (new), `src/meta/segments.ts`.
 - **Contracts changed:** `sales:pos_order` -> `sales:pos.orders`; new relation
   `customer.posOrders`.
+
+### `2026-09-01` — POS orders became a segment content type
+
+- **Summary:** `sales:pos.orders` is now declared, filterable on 20
+  user-facing fields, materialisable, and reachable from a customer segment
+  through `customer.posOrders`; the member, membership and source lookups route
+  by content type instead of assuming deals.
+- **Affected areas:** `src/modules/pos/meta/segments/` (new);
+  `src/modules/pos/db/definitions/orders.ts` (`customerId` index).
+- **Contracts changed:** New segment content type `sales:pos.orders`; new
+  relation `customer.posOrders`.

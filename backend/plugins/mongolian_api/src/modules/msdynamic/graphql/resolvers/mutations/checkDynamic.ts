@@ -203,6 +203,20 @@ const buildCustomerCheckResult = (
 
   return result;
 };
+const isCategoryMatched = (
+  dynamicCategory: any,
+  category: any,
+  categoryById: Record<string, any>,
+) => {
+  return (
+    dynamicCategory.Code === category.code &&
+    (dynamicCategory.Parent_Category
+      ? categoryById[category.parentId]?.code ===
+        dynamicCategory.Parent_Category
+      : !category.parentId) &&
+    category.name === dynamicCategory.Description
+  );
+};
 /**
  * ============================
  * MS Dynamic Check Mutations
@@ -220,7 +234,7 @@ export const msdynamicCheckMutations = {
     const config = await getDynamicConfig(models, brandId);
 
     if (!config.itemApi || !config.username || !config.password) {
-      throw new Error('MS Dynamic config not valid.');
+      throw new TypeError('MS Dynamic config not valid.');
     }
 
     const { itemApi, username, password } = config;
@@ -231,10 +245,22 @@ export const msdynamicCheckMutations = {
       pluginName: 'core',
       module: 'products',
       action: 'find',
-      input: { query: { status: { $ne: 'deleted' } } },
+      input: {
+        query: { status: { $ne: 'deleted' } },
+      },
       defaultValue: [],
     });
-    const productCodes = products.map((p: any) => p.code);
+
+    const productsByCode = products.reduce(
+      (acc: Record<string, any>, product: any) => {
+        if (product.code) {
+          acc[product.code] = product;
+        }
+
+        return acc;
+      },
+      {},
+    );
 
     const response = await fetch(
       `${itemApi}?$filter=Item_Category_Code ne '' and Blocked ne true and Allow_Ecommerce eq true`,
@@ -247,17 +273,49 @@ export const msdynamicCheckMutations = {
           ).toString('base64')}`,
         },
       },
-    ).then((r) => r.json());
+    );
 
-    const resultCodes = response?.value?.map((r: any) => r.No) || [];
+    if (!response.ok) {
+      throw new Error(`MS Dynamic product request failed: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    if (!Array.isArray(data?.value)) {
+      throw new Error('MS Dynamic product response is not valid.');
+    }
+
+    const dynamicProducts = data.value;
+
+    const createItems = dynamicProducts.filter(
+      (product: any) => !productsByCode[product.No],
+    );
+
+    const deleteItems = products.filter(
+      (product: any) =>
+        !dynamicProducts.some(
+          (dynamicProduct: any) => dynamicProduct.No === product.code,
+        ),
+    );
+
+    const matchedCount = dynamicProducts.filter(
+      (product: any) => productsByCode[product.No],
+    ).length;
 
     return {
-      create: resultCodes.filter((c: string) => !productCodes.includes(c))
-        .length,
-      delete: productCodes.filter((c: string) => !resultCodes.includes(c))
-        .length,
-      matched: resultCodes.filter((c: string) => productCodes.includes(c))
-        .length,
+      create: {
+        items: createItems,
+        count: createItems.length,
+      },
+      update: {
+        items: [],
+        count: 0,
+      },
+      delete: {
+        items: deleteItems,
+        count: deleteItems.length,
+      },
+      matched: matchedCount,
     };
   },
 
@@ -307,6 +365,145 @@ export const msdynamicCheckMutations = {
       syncedCustomer: syncMap[_id]?.syncedCustomer || null,
     }));
   },
+
+  async toCheckMsdProductCategories(
+    _root: unknown,
+    { brandId, categoryId }: { brandId: string; categoryId?: string },
+    { subdomain, checkPermission }: IContext,
+  ) {
+    await checkPermission('msdCheck');
+
+    const models = await generateModels(subdomain);
+    const config = await getDynamicConfig(models, brandId);
+
+    if (!config.itemCategoryApi || !config.username || !config.password) {
+      throw new TypeError('MS Dynamic config not valid.');
+    }
+
+    const { itemCategoryApi, username, password } = config;
+
+    const categoriesCount = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      module: 'productCategories',
+      action: 'count',
+      input: {
+        query: { status: { $ne: 'deleted' } },
+      },
+      defaultValue: 0,
+    });
+
+    const categories = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      module: 'productCategories',
+      action: 'find',
+      input: {
+        query: { status: { $ne: 'deleted' } },
+        limit: categoriesCount,
+      },
+      defaultValue: [],
+    });
+
+    const categoryResponse = await fetch(itemCategoryApi, {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Accept: 'application/json',
+        Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString(
+          'base64',
+        )}`,
+      },
+    });
+
+    if (!categoryResponse.ok) {
+      throw new Error(
+        `MS Dynamic category request failed: ${categoryResponse.status}`,
+      );
+    }
+
+    const response = await categoryResponse.json();
+
+    if (!Array.isArray(response?.value)) {
+      throw new Error('MS Dynamic category response is not valid.');
+    }
+
+    const dynamicCategories = response.value;
+
+    const categoryById: Record<string, any> = {};
+    for (const category of categories) {
+      categoryById[category._id] = category;
+    }
+
+    const selectedParentCode = categoryId
+      ? categoryById[categoryId]?.code
+      : undefined;
+
+    const scopedCategories = categoryId
+      ? categories.filter((category: any) => category.parentId === categoryId)
+      : categories;
+
+    const scopedDynamicCategories = categoryId
+      ? dynamicCategories.filter(
+          (category: { Parent_Category?: string }) =>
+            category.Parent_Category === (selectedParentCode || ''),
+        )
+      : dynamicCategories;
+
+    const resultCodes = new Set(
+      scopedDynamicCategories
+        .map((category: { Code?: string }) => category.Code)
+        .filter(Boolean),
+    );
+
+    const categoryByCode: Record<string, any> = {};
+
+    const createCategories: any[] = [];
+    const updateCategories: any[] = [];
+    let matchedCount = 0;
+
+    for (const category of scopedCategories) {
+      categoryByCode[category.code] = category;
+    }
+
+    const deleteCategories = scopedCategories.filter(
+      (category: any) => !resultCodes.has(category.code),
+    );
+    
+
+    for (const dynamicCategory of scopedDynamicCategories) {
+      const category = categoryByCode[dynamicCategory.Code];
+
+      if (!category) {
+        createCategories.push(dynamicCategory);
+        continue;
+      }
+
+      if (isCategoryMatched(dynamicCategory, category, categoryById)) {
+        matchedCount += 1;
+      } else {
+        updateCategories.push(dynamicCategory);
+      }
+    }
+
+    return {
+      create: {
+        count: createCategories.length,
+        items: createCategories,
+      },
+      update: {
+        count: updateCategories.length,
+        items: updateCategories,
+      },
+      delete: {
+        count: deleteCategories.length,
+        items: deleteCategories,
+      },
+      matched: {
+        count: matchedCount,
+      },
+    };
+  },
+
   async toCheckMsdCustomers(
     _root,
     { brandId }: { brandId: string },
@@ -318,7 +515,7 @@ export const msdynamicCheckMutations = {
     const config = await getDynamicConfig(models, brandId);
 
     if (!config.customerApi || !config.username || !config.password) {
-      throw new Error('MS Dynamic config not valid.');
+      throw new TypeError('MS Dynamic config not valid.');
     }
 
     const { customerApi, username, password } = config;
@@ -368,12 +565,17 @@ export const msdynamicCheckMutations = {
         };
       }
     }
+
     const pageSize = 500;
     const concurrency = 10;
     const msdCustomers: any[] = [];
 
     let skip = 0;
     let hasMore = true;
+
+    const authorization = `Basic ${Buffer.from(
+      `${username}:${password}`,
+    ).toString('base64')}`;
 
     const fetchPage = async (pageSkip: number) => {
       const httpResponse = await fetch(
@@ -382,9 +584,7 @@ export const msdynamicCheckMutations = {
           timeout: 180000,
           headers: {
             Accept: 'application/json',
-            Authorization: `Basic ${Buffer.from(
-              `${username}:${password}`,
-            ).toString('base64')}`,
+            Authorization: authorization,
           },
         },
       );
@@ -398,7 +598,7 @@ export const msdynamicCheckMutations = {
       const response = await httpResponse.json();
 
       if (!Array.isArray(response?.value)) {
-        throw new Error('MS Dynamic customer response is not valid.');
+        throw new TypeError('MS Dynamic customer response is not valid.');
       }
 
       return response.value;
@@ -422,6 +622,7 @@ export const msdynamicCheckMutations = {
 
       skip += concurrency * pageSize;
     }
+
     return buildCustomerCheckResult(msdCustomers, erxesByMsdNo);
   },
   async toCheckMsdPrices(
@@ -457,7 +658,7 @@ export const msdynamicCheckMutations = {
     });
 
     const exchangeRates = config.exchangeRateApi
-      ? ((await getExchangeRates(config)) ?? {})
+      ? (await getExchangeRates(config)) ?? {}
       : {};
 
     const salesCodeFilter = pricePriority.replace(/, /g, ',').split(',');
@@ -502,47 +703,5 @@ export const msdynamicCheckMutations = {
     collectDeletedProducts(products, dynamicCodes, result);
 
     return result;
-  },
-  async toSyncMsdPrices(
-    _root,
-    { prices = [] }: { prices: any[] },
-    { subdomain, checkPermission }: IContext,
-  ) {
-    await checkPermission('msdSync');
-
-    let hasFailed = false;
-
-    for (const price of prices) {
-      if (!price._id) {
-        continue;
-      }
-
-      const result = await sendTRPCMessage({
-        subdomain,
-        method: 'mutation',
-        pluginName: 'core',
-        module: 'products',
-        action: 'updateProduct',
-        input: {
-          _id: price._id,
-          doc: {
-            unitPrice: Number(price.Unit_Price) || 0,
-            currency: 'MNT',
-          },
-        },
-        defaultValue: null,
-      });
-
-      if (!result) {
-        hasFailed = true;
-        console.error(
-          `Failed to sync MS Dynamic price for product ${price._id}`,
-        );
-      }
-    }
-
-    return {
-      status: hasFailed ? 'failed' : 'success',
-    };
   },
 };

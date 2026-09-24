@@ -22,6 +22,15 @@ const commonActionTypes = `
   targetActionId: String
 `;
 
+const noteTypes = `
+  id: String
+  content: String
+  position: JSON
+  width: Float
+  height: Float
+  color: String
+`;
+
 const workflowTypes = `
   id:String
   automationId:String
@@ -60,27 +69,29 @@ const types = `
     updatedAt: Date
     createdBy: String
     updatedBy: String
+    ownerId: String
+    activatedBy: String
+    activatedAt: Date
     tagIds:[String]
     triggers: [Trigger]
     actions: [Action]
     workflows: [Workflow]
+    notes: [AutomationNote]
+    ownedBy: String
+    ownerContentId: String
 
     duplicatedFrom: String
     duplicatedFromName: String
 
     createdUser: User
     updatedUser: User
+    ownerUser: User
     approvalLockState(action: String): ApprovalLockState
 
   }
 
   type AutomationNote {
-    _id: String
-    description: String
-    triggerId: String
-    actionId: String
-    createdUser: User
-    createdAt: Date
+    ${noteTypes}
   }
 
   type AutomationsListResponse {
@@ -111,6 +122,7 @@ const types = `
     failedActionId: String
     failedActionType: String
     errorCode: String
+    handledFailureActionIds: [String]
     startWaitingDate: Date
     waitingActionId: String
     parentExecutionId: String
@@ -179,29 +191,16 @@ const types = `
     ${workflowTypes}
   }
 
+  input NoteInput {
+    ${noteTypes}
+  }
+
   type AiAgentHealth {
     ready: Boolean!
     checkedAt: String!
     errors: [String!]!
     warnings: [String!]!
     checks: JSON
-  }
-
-  type AutomationEmailTemplate {
-    _id: String!
-    name: String!
-    description: String
-    content: String!
-    createdBy: String!
-    createdAt: Date
-    updatedAt: Date
-    createdUser: User
-  }
-
-  type AutomationEmailTemplatesListResponse {
-    list: [AutomationEmailTemplate]
-    totalCount: Float
-    pageInfo: PageInfo
   }
 
   type AutomationWorkflowTemplate {

@@ -1,3 +1,4 @@
+import { IconPaperclip } from '@tabler/icons-react';
 import { cn } from 'erxes-ui';
 import { IMessageSurvey, IMessageSurveyStep } from '@/inbox/types/Conversation';
 
@@ -43,6 +44,31 @@ const SurveyStep = ({
       <div className="text-sm font-semibold">{step.question || 'Survey'}</div>
       {step.description && (
         <div className="text-xs text-muted-foreground">{step.description}</div>
+      )}
+      {!!step.attachments?.length && (
+        <div className="flex flex-col gap-1">
+          {step.attachments.map((attachment) =>
+            attachment.type?.startsWith('image/') ? (
+              <img
+                key={attachment.url}
+                src={attachment.url}
+                alt={attachment.name}
+                className="max-h-48 w-full rounded border object-cover"
+              />
+            ) : (
+              <a
+                key={attachment.url}
+                href={attachment.url}
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center gap-1.5 text-xs text-primary hover:underline"
+              >
+                <IconPaperclip className="h-3.5 w-3.5 shrink-0" />
+                <span className="truncate">{attachment.name}</span>
+              </a>
+            ),
+          )}
+        </div>
       )}
       <div className="text-xs text-muted-foreground">
         {step.allowMultiselect

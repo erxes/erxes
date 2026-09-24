@@ -1,4 +1,5 @@
 import { AUTOMATION_CONSTANTS } from '@/automations/graphql/automationQueries';
+import { TBuiltInTemplate } from '@/automations/utils/builtInTemplates';
 import {
   AutomationBuilderTabsType,
   AutomationConstants,
@@ -60,7 +61,8 @@ type TAutomationSelectedNode = {
 type TConstantCachedFields =
   | 'triggersConst'
   | 'actionsConst'
-  | 'findObjectTargetsConst';
+  | 'findObjectTargetsConst'
+  | 'workflowTemplatesConst';
 
 type TConstantCached = Pick<AutomationConstants, TConstantCachedFields> | null;
 interface AutomationContextType {
@@ -86,6 +88,9 @@ interface AutomationContextType {
   triggersConst: IAutomationsTriggerConfigConstants[];
   actionsConst: IAutomationsActionConfigConstants[];
   findObjectTargetsConst: any[];
+  // Flows shipped with core and with each installed plugin. Not tenant data:
+  // a copy is only written when someone installs one.
+  workflowTemplatesConst: TBuiltInTemplate[];
   actionFolks: Record<string, IAutomationsActionFolkConfig[]>;
   loading: boolean;
   error: any;
@@ -201,6 +206,11 @@ export const AutomationProvider = ({
     cached,
     data,
   );
+  const workflowTemplatesConst = getAutomationConstantsVariables(
+    'workflowTemplatesConst',
+    cached,
+    data,
+  );
 
   const actionFolks = Object.fromEntries(
     (actionsConst || []).map((a: any) => [a.type, a.folks || []]),
@@ -220,6 +230,8 @@ export const AutomationProvider = ({
         actionsConst: data.automationConstants.actionsConst || [],
         findObjectTargetsConst:
           data.automationConstants.findObjectTargetsConst || [],
+        workflowTemplatesConst:
+          data.automationConstants.workflowTemplatesConst || [],
       });
     }
   }, [data, cached]);
@@ -268,6 +280,7 @@ export const AutomationProvider = ({
         triggersConst,
         actionsConst,
         findObjectTargetsConst,
+        workflowTemplatesConst,
         actionFolks,
         loading: !cached && loading,
         error,
