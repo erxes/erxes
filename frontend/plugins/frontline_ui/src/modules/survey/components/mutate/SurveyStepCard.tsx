@@ -6,7 +6,15 @@ import {
   IconTrash,
   IconX,
 } from '@tabler/icons-react';
-import { Button, Form, InfoCard, Input, Switch, Textarea } from 'erxes-ui';
+import {
+  Attachments,
+  Button,
+  Form,
+  InfoCard,
+  Input,
+  Switch,
+  Textarea,
+} from 'erxes-ui';
 import { UseFormReturn, useFieldArray } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { SurveyOptionTicketConfig } from '@/survey/components/mutate/SurveyOptionTicketConfig';
@@ -109,6 +117,39 @@ export const SurveyStepCard = ({
                   )}
                 />
               </Form.Control>
+              <Form.Message />
+            </Form.Item>
+          )}
+        />
+
+        <Form.Field
+          control={form.control}
+          name={`steps.${index}.attachments`}
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label>
+                {t('survey-question-attachments', 'Attachments')}
+              </Form.Label>
+              <div className="flex flex-col gap-2 rounded-lg border border-dashed p-3">
+                <Attachments.Root
+                  initialAttachments={field.value}
+                  onSave={field.onChange}
+                  confirmRemove={() => true}
+                >
+                  <Attachments.Uploader
+                    onSave={field.onChange}
+                    label={t('upload-an-attachment', 'Upload an attachment')}
+                  />
+                  <Attachments.Files />
+                  <Attachments.Preview />
+                </Attachments.Root>
+              </div>
+              <Form.Description>
+                {t(
+                  'survey-question-attachments-description',
+                  'Shown with this question when the survey is answered',
+                )}
+              </Form.Description>
               <Form.Message />
             </Form.Item>
           )}

@@ -10,6 +10,7 @@ import { customFileBlock } from '../components/CustomFileBlock';
 import { customImageBlock } from '../components/CustomImageBlock';
 import { documentPlaceholderBlock } from '../components/DocumentPlaceholderBlock';
 import { galleryBlock } from '../components/GalleryBlock';
+import { customVideoBlock } from '../components/CustomVideoBlock';
 
 export const fontFamily = createStyleSpec(
   {
@@ -31,6 +32,7 @@ export const BLOCK_SCHEMA = BlockNoteSchema.create({
   blockSpecs: {
     ...defaultBlockSpecs,
     image: customImageBlock,
+    video: customVideoBlock,
     file: customFileBlock,
     gallery: galleryBlock,
     documentPlaceholder: documentPlaceholderBlock,

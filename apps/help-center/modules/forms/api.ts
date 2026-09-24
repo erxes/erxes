@@ -1,5 +1,6 @@
 import { query } from '@/modules/apollo/apolloClient';
 import { getPortalConfig } from '@/modules/config/api';
+import type { PortalConfig } from '@/modules/config/types';
 import { errorMessage, type PortalResult } from '@/modules/apollo/utils/result';
 import { sanitizePortalHtml } from '@/modules/ui/components/RichText';
 import { FORM_PORTAL_DETAIL, FORM_PORTAL_LIST } from './graphql/queries/forms';
@@ -7,6 +8,27 @@ import type { FormSummary, PortalForm } from './types';
 
 type ListResponse = { cpForms: { list: FormSummary[] | null } | null };
 type DetailResponse = { cpFormDetail: PortalForm | null };
+
+const FORM_LIST_LIMIT = 100;
+
+const pickPublishedForms = (
+  forms: FormSummary[],
+  formIds: string[],
+): FormSummary[] => {
+  if (!formIds.length) {
+    return forms;
+  }
+
+  return formIds
+    .map((formId) => forms.find((form) => form._id === formId))
+    .filter((form): form is FormSummary => !!form);
+};
+
+const isPublishedForm = (form: PortalForm, config: PortalConfig): boolean =>
+  !!config.formChannelId &&
+  form.channelId === config.formChannelId &&
+  form.status === 'active' &&
+  (!config.formIds.length || config.formIds.includes(form._id));
 
 export const getPortalForms = async (): Promise<
   PortalResult<FormSummary[]>
@@ -17,16 +39,16 @@ export const getPortalForms = async (): Promise<
     return config;
   }
 
-  const channelId = config.data.ticketChannelId;
+  const { formChannelId, formIds } = config.data;
 
-  if (!channelId) {
+  if (!formChannelId) {
     return { state: 'ready', data: [] };
   }
 
   try {
     const { data, error } = await query<ListResponse>({
       query: FORM_PORTAL_LIST,
-      variables: { channelId, limit: 50 },
+      variables: { channelId: formChannelId, limit: FORM_LIST_LIMIT },
       errorPolicy: 'all',
     });
 
@@ -34,7 +56,10 @@ export const getPortalForms = async (): Promise<
       return { state: 'error', message: error.message };
     }
 
-    return { state: 'ready', data: data?.cpForms?.list ?? [] };
+    return {
+      state: 'ready',
+      data: pickPublishedForms(data?.cpForms?.list ?? [], formIds),
+    };
   } catch (caught) {
     return { state: 'error', message: errorMessage(caught) };
   }
@@ -62,7 +87,7 @@ export const getPortalForm = async (
 
     const form = data?.cpFormDetail ?? null;
 
-    if (!form) {
+    if (!form || !isPublishedForm(form, config.data)) {
       return { state: 'ready', data: null };
     }
 

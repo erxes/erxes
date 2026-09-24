@@ -1,3 +1,68 @@
+
+
+## [3.1.14](https://github.com/erxes/erxes/compare/3.1.13...3.1.14) (2026-09-23)
+
+
+### Bug Fixes
+
+* **accounting:** bulk add rows with fill fields ([0a74ffb](https://github.com/erxes/erxes/commit/0a74ffbf3a50fa9dba36de477c0e94ed765edc26))
+* **accounting:** export report and export list ([4bfcbfb](https://github.com/erxes/erxes/commit/4bfcbfb194fad3f0e322a336a9674d4329f9e37f))
+* **accounting:** transaction-records list ([84a39eb](https://github.com/erxes/erxes/commit/84a39eb81a58b98b1d91e95ec13daf68d3d59643))
+* conflict ([4ddaa88](https://github.com/erxes/erxes/commit/4ddaa887b1d902ca39809a95fcc28ef5e9122e7c))
+* **contacts:** include client portal customer IDs in filter ([977c6dc](https://github.com/erxes/erxes/commit/977c6dcd2489630d7922e3edb0eb02a078cb5024))
+* **help-center:** make the footer surface dark so its text is readable ([953f299](https://github.com/erxes/erxes/commit/953f299f107ff55b9f507409ad0c4a2f1056eb56))
+* label navigation as Team Inbox ([#9438](https://github.com/erxes/erxes/issues/9438)) ([a12415a](https://github.com/erxes/erxes/commit/a12415a9a6254e53eb7e7d3b04ff32b762965c99))
+* **properties:** allow null configs so saving a non-objectList property works ([#9435](https://github.com/erxes/erxes/issues/9435)) ([05fb40b](https://github.com/erxes/erxes/commit/05fb40b8e3c43439ef2b4b0e819006f6b31bb1df))
+* **sales:** choose broker on deal detail ([7410014](https://github.com/erxes/erxes/commit/7410014967291c3da2138d9eee65e7a5edfdb567))
+* streamline conversation composer workflow ([#9368](https://github.com/erxes/erxes/issues/9368)) ([48313e6](https://github.com/erxes/erxes/commit/48313e6fc4567640f92af1c59e50e0a0b593c856))
+
+
+### Features
+
+* **frontline:** survey requests gain review, attachments and notifications  ([15e14df](https://github.com/erxes/erxes/commit/15e14dfc3ec8ed706c58bbed9a6cf732cd2775c8))
+* **payment:** support StorePay API v3 ([#9216](https://github.com/erxes/erxes/issues/9216)) ([b6ad112](https://github.com/erxes/erxes/commit/b6ad112ef631c3389f6ccc61ffe99d78196cd514))
+* update cms_categories shows with parent category ([#9440](https://github.com/erxes/erxes/issues/9440)) ([7b18618](https://github.com/erxes/erxes/commit/7b18618d7c4342c6f81ae1347b774ed821baca02))
+
+## [3.1.13](https://github.com/erxes/erxes/compare/3.1.12...3.1.13) (2026-09-22)
+
+
+### Bug Fixes
+
+* add structured conversation message metadata on inbox ([#9311](https://github.com/erxes/erxes/issues/9311)) ([8cdb6dc](https://github.com/erxes/erxes/commit/8cdb6dc455c2c2d68cabd118c138745a45816803))
+* **core:** keep Tracked data last in the relation widget rail ([232ac40](https://github.com/erxes/erxes/commit/232ac40e0f53548c201a5a33ed1b129c7dc40e1e))
+* date picker with cleaner ([8523459](https://github.com/erxes/erxes/commit/85234591501ba5d465fdbd283ad8a0ced9dbee5d))
+* fix structure settings saves and parent removal ([#9348](https://github.com/erxes/erxes/issues/9348)) ([d6c8e65](https://github.com/erxes/erxes/commit/d6c8e65bbdab556093ff062faa78127e7d507ba5))
+* **frontline:** stabilize the form builder and fix radio/checkbox options  ([4ac74db](https://github.com/erxes/erxes/commit/4ac74db4fc9eedb92265b6d17d8591db048a31cb))
+* **frontline:** stop double-answering an incoming call ([6056200](https://github.com/erxes/erxes/commit/60562001364b029acf9bf5b90c14f2055a8a22aa))
+* handle non-English filenames in Content-Disposition header ([#9364](https://github.com/erxes/erxes/issues/9364)) ([869531f](https://github.com/erxes/erxes/commit/869531f17632b91ca6daa7e448f53f9740edf86e))
+* improve barcode code/name/image layout with tooltips ([#9349](https://github.com/erxes/erxes/issues/9349)) ([3bb98f7](https://github.com/erxes/erxes/commit/3bb98f78bb00d32d15a31c6a1573c7ec7506b067))
+* posclient categories to print non unique rule ([30f3af5](https://github.com/erxes/erxes/commit/30f3af5658c9f805c3c1d55ea4e8b6f21c73b752))
+* repair media uploads and compact image previews ([#9376](https://github.com/erxes/erxes/issues/9376)) ([3828da9](https://github.com/erxes/erxes/commit/3828da90f38af908207e54130c05cec4382be465))
+* **sales:** products manage on deal with fullscreen ([2f7f4f2](https://github.com/erxes/erxes/commit/2f7f4f2b88f020e848e11ce981b16e7a806b65c8))
+* show error toast when pipeline delete fails ([#9356](https://github.com/erxes/erxes/issues/9356)) ([a10e899](https://github.com/erxes/erxes/commit/a10e89955aba8877b84a3e0c49cb2a6da64718af))
+
+
+### Features
+
+* added colors each type ([#9415](https://github.com/erxes/erxes/issues/9415)) ([2eed31c](https://github.com/erxes/erxes/commit/2eed31cad164fff949c6328a33056204de9539fd))
+* **core:** add BlockNote-based editor field type ([#9308](https://github.com/erxes/erxes/issues/9308)) ([3235c32](https://github.com/erxes/erxes/commit/3235c3292b1911c1d319f93291caa4c68a59d74e))
+* **core:** restore the Object List property type ([#9203](https://github.com/erxes/erxes/issues/9203)) ([7b0f48b](https://github.com/erxes/erxes/commit/7b0f48b3130d001ff18bb9e793f629fcbef21bf5))
+* **documents:** added new feature on slash menu ([8a349e6](https://github.com/erxes/erxes/commit/8a349e634b53f612e15ea17c5d1b63ad7aa5e170))
+* **frontline:** let client portal users request surveys for approval  ([040832e](https://github.com/erxes/erxes/commit/040832e3294337e5da1c546e246dbc517d2c7e2c))
+* **frontline:** move channel resources between channels ([e50f705](https://github.com/erxes/erxes/commit/e50f7050933eb2b7e8c389ab141e4d2804a99c3d))
+* operation properties widget in task and project ([#9352](https://github.com/erxes/erxes/issues/9352)) ([13f5510](https://github.com/erxes/erxes/commit/13f551072b22031499fa43a997abe87a540c1ffb))
+* pipeline base price on pricing ([#9410](https://github.com/erxes/erxes/issues/9410)) ([cdaba06](https://github.com/erxes/erxes/commit/cdaba06135bff4d1248ab1eb0f9b0f4af447a97c))
+
+
+### Performance Improvements
+
+* **core:** add and edit App Tokens inline in the record table ([#9347](https://github.com/erxes/erxes/issues/9347)) ([f9e9ee9](https://github.com/erxes/erxes/commit/f9e9ee9477373f909a6a86019bb64be0dc9a8289))
+
+
+### Reverts
+
+* **frontline:** restore the previous incoming-call answer flow  ([6a61237](https://github.com/erxes/erxes/commit/6a6123789bcdb66ac2b9479a766c965909f58c5a))
+
 # Changelog
 
 ## [3.1.12](https://github.com/erxes/erxes/compare/3.1.11...3.1.12) (2026-09-21)

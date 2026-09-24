@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import { Avatar } from '@/modules/ui/components/Avatar';
 import { Icon } from '@/modules/ui/components/Icon';
 import type { PortalArticle } from '../utils/normalize';
 import { formatDate } from '../utils/selectors';
@@ -17,39 +16,44 @@ export const ArticleListItem = ({
   >
     <Link
       href={`/knowledge-base/article/${article._id}`}
-      className="group flex items-start gap-3.5 rounded-lg px-4 py-4 transition-colors duration-200 hover:bg-subtle"
+      className="group flex items-start gap-4 rounded-xl px-5 py-4 outline-none transition-colors duration-300 ease-out-soft hover:bg-subtle focus-visible:bg-subtle"
     >
-      <span className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-lg bg-subtle text-muted-foreground transition-colors duration-200 group-hover:bg-brand-soft group-hover:text-brand">
-        <Icon name="article" size={17} />
+      <span
+        aria-hidden="true"
+        className="mt-0.5 w-6 shrink-0 font-mono text-[12px] font-semibold tabular-nums text-muted-foreground/40 transition-colors duration-300 group-hover:text-brand"
+      >
+        {String(index + 1).padStart(2, '0')}
       </span>
 
       <span className="min-w-0 flex-1">
-        <span className="block text-[15px] font-semibold text-ink transition-colors duration-200 group-hover:text-brand">
+        <span className="block text-[15px] font-semibold leading-snug text-ink transition-colors duration-300 group-hover:text-brand">
           {article.title}
         </span>
         {article.summary ? (
-          <span className="mt-1 block text-sm leading-relaxed text-muted-foreground">
+          <span className="mt-1 block truncate text-[13px] leading-relaxed text-muted-foreground">
             {article.summary}
           </span>
         ) : null}
-        <span className="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[13px] text-muted-foreground">
-          <span className="flex items-center gap-1.5">
-            <Avatar name={article.author} size={20} />
-            {article.author}
-          </span>
-          <span className="flex items-center gap-1.5">
-            <Icon name="clock" size={14} />
-            {formatDate(article.modifiedAt)}
-          </span>
-          <span className="flex items-center gap-1.5">
-            <Icon name="eye" size={14} />
-            {article.viewCount}
-          </span>
-        </span>
       </span>
 
-      <span className="mt-2 shrink-0 text-muted-foreground opacity-0 transition-all duration-200 group-hover:translate-x-0.5 group-hover:opacity-100">
-        <Icon name="chevronRight" size={18} />
+      <span className="hidden shrink-0 items-center gap-4 pt-0.5 text-[12px] tabular-nums text-muted-foreground sm:flex">
+        <span className="inline-flex items-center gap-1.5">
+          <Icon name="clock" size={13} />
+          {formatDate(article.modifiedAt)}
+        </span>
+        {article.viewCount > 0 ? (
+          <span className="inline-flex items-center gap-1.5">
+            <Icon name="eye" size={13} />
+            {article.viewCount.toLocaleString('en-US')}
+          </span>
+        ) : null}
+      </span>
+
+      <span
+        aria-hidden="true"
+        className="mt-0.5 shrink-0 text-muted-foreground/40 transition-[transform,color] duration-500 ease-out-soft group-hover:translate-x-1 group-hover:text-brand"
+      >
+        <Icon name="chevronRight" size={16} />
       </span>
     </Link>
   </li>

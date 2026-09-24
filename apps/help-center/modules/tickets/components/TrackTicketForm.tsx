@@ -50,7 +50,7 @@ export const TrackTicketForm = () => {
         <form
           onSubmit={form.handleSubmit(onSubmit)}
           noValidate
-          className="rounded-xl border border-line bg-white p-5 sm:p-6"
+          className="rounded-2xl bg-white shadow-shell p-5 sm:p-6"
         >
           <Form.Field
             control={form.control}

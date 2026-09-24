@@ -9,6 +9,9 @@ import { ACCTRANSACTIONS_CURSOR_SESSION_KEY } from '~/modules/accountsSessionKey
 import { ACC_TRS__PER_PAGE } from '../types/constants';
 import { ITransaction, trsQueryParamTypes } from '../types/Transaction';
 
+type TransactionFilterValue = string | boolean | Date | string[];
+type TransactionFilterVariables = Record<string, TransactionFilterValue>;
+
 const getConvertedValue = (key: string, value: string) => {
   const typeName = trsQueryParamTypes[key];
 
@@ -109,6 +112,22 @@ export const useTransactionsQueryParams = () => {
   return queryParams;
 };
 
+export const buildTransactionsFilterVariables = (
+  queryParams: Record<string, string | null>,
+): TransactionFilterVariables =>
+  Object.entries(queryParams).reduce((acc, [key, value]) => {
+    if (!value) return acc;
+
+    Object.assign(acc, getConvertedValue(key, value));
+    return acc;
+  }, {} as TransactionFilterVariables);
+
+export const useTransactionsFilterVariables = () => {
+  const queryParams = useTransactionsQueryParams();
+
+  return buildTransactionsFilterVariables(queryParams);
+};
+
 export const useTransactionsVariables = (
   variables?: QueryHookOptions<ICursorListResponse<ITransaction>>['variables'],
 ) => {
@@ -118,15 +137,7 @@ export const useTransactionsVariables = (
     sessionKey: ACCTRANSACTIONS_CURSOR_SESSION_KEY,
   });
 
-  const curVariables = Object.entries(queryParams).reduce(
-    (acc, [key, value]) => {
-      if (!value) return acc;
-
-      Object.assign(acc, getConvertedValue(key, value));
-      return acc;
-    },
-    {} as Record<string, string | boolean | Date | string[]>,
-  );
+  const curVariables = buildTransactionsFilterVariables(queryParams);
 
   return {
     limit: ACC_TRS__PER_PAGE,

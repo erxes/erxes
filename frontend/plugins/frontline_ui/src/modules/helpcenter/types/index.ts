@@ -64,6 +64,12 @@ export interface IHelpCenter {
   ticketPipelineId?: string;
   ticketStatusId?: string;
 
+  formChannelId?: string;
+  formIds?: string[];
+
+  cmsId?: string;
+  cmsAppToken?: string;
+
   color?: string;
   backgroundImage?: string;
   styles?: IHelpCenterStyles | null;
@@ -101,6 +107,12 @@ export interface IHelpCenterConfigInput {
   ticketChannelId: string;
   ticketPipelineId: string;
   ticketStatusId: string;
+
+  formChannelId: string;
+  formIds: string[];
+
+  cmsId: string;
+  cmsAppToken: string;
 
   color: string;
   backgroundImage: string;
