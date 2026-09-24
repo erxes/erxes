@@ -111,8 +111,8 @@ const parseDateRangeFromString = (
     const [year, month] = date.split('-');
     const monthIndex = MONTHS.indexOf(month);
     return {
-      from: startOfDay(new Date(parseInt(year), monthIndex, 1)),
-      to: endOfDay(new Date(parseInt(year), monthIndex + 1, 0)),
+      from: startOfDay(new Date(Number.parseInt(year), monthIndex, 1)),
+      to: endOfDay(new Date(Number.parseInt(year), monthIndex + 1, 0)),
     };
   }
 
@@ -121,8 +121,10 @@ const parseDateRangeFromString = (
     const [year] = date.split('-');
     const quarterNumber = Number.parseInt(date.split('quarter')[1]);
     return {
-      from: startOfDay(new Date(parseInt(year), (quarterNumber - 1) * 3, 1)),
-      to: endOfDay(new Date(parseInt(year), quarterNumber * 3, 0)),
+      from: startOfDay(
+        new Date(Number.parseInt(year), (quarterNumber - 1) * 3, 1),
+      ),
+      to: endOfDay(new Date(Number.parseInt(year), quarterNumber * 3, 0)),
     };
   }
 
@@ -131,8 +133,10 @@ const parseDateRangeFromString = (
     const [year] = date.split('-');
     const halfNumber = Number.parseInt(date.split('half')[1]);
     return {
-      from: startOfDay(new Date(parseInt(year), (halfNumber - 1) * 6, 1)),
-      to: endOfDay(new Date(parseInt(year), halfNumber * 6, 0)),
+      from: startOfDay(
+        new Date(Number.parseInt(year), (halfNumber - 1) * 6, 1),
+      ),
+      to: endOfDay(new Date(Number.parseInt(year), halfNumber * 6, 0)),
     };
   }
 
