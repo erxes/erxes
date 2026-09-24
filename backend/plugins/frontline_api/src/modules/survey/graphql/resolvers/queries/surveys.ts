@@ -5,6 +5,7 @@ import {
 } from 'erxes-api-shared/core-types';
 import { cursorPaginate, escapeRegExp } from 'erxes-api-shared/utils';
 import { ISurveyDocument } from '@/survey/@types/survey';
+import { SURVEY_STATUSES } from '@/survey/db/definitions/surveys';
 import { IContext, IModels } from '~/connectionResolvers';
 
 type SurveyFilterArgs = {
@@ -75,12 +76,26 @@ export const surveyQueries: Record<string, Resolver> = {
     const { models, user } = context as IContext;
     const query = await generateFilterQuery(args, models, user);
 
-    const [total, active, archived] = await Promise.all([
+    const [total, pending, active, rejected, archived] = await Promise.all([
       models.Surveys.countDocuments(query),
-      models.Surveys.countDocuments({ ...query, status: 'active' }),
-      models.Surveys.countDocuments({ ...query, status: 'archived' }),
+      models.Surveys.countDocuments({
+        ...query,
+        status: SURVEY_STATUSES.PENDING,
+      }),
+      models.Surveys.countDocuments({
+        ...query,
+        status: SURVEY_STATUSES.ACTIVE,
+      }),
+      models.Surveys.countDocuments({
+        ...query,
+        status: SURVEY_STATUSES.REJECTED,
+      }),
+      models.Surveys.countDocuments({
+        ...query,
+        status: SURVEY_STATUSES.ARCHIVED,
+      }),
     ]);
 
-    return { total, byStatus: { active, archived } };
+    return { total, byStatus: { pending, active, rejected, archived } };
   },
 };

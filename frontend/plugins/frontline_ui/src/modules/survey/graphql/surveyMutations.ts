@@ -60,6 +60,12 @@ export const SURVEY_EDIT = gql`
         order
         question
         allowMultiselect
+        attachments {
+          url
+          name
+          type
+          size
+        }
         options {
           _id
           text
@@ -86,8 +92,12 @@ export const SURVEY_REMOVE = gql`
 `;
 
 export const SURVEY_TOGGLE_STATUS = gql`
-  mutation surveyToggleStatus($_ids: [String!]!, $status: String!) {
-    surveyToggleStatus(_ids: $_ids, status: $status)
+  mutation surveyToggleStatus(
+    $_ids: [String!]!
+    $status: String!
+    $reason: String
+  ) {
+    surveyToggleStatus(_ids: $_ids, status: $status, reason: $reason)
   }
 `;
 

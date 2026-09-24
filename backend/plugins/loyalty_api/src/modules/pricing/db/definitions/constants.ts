@@ -37,7 +37,8 @@ export const PRIORITY_TYPES = {
   NONE: '',
   PUBLIC: 'public',
   POS_BASE: 'posBase',
-  ALL: ['', 'public', 'posBase'] as const,
+  PIPELINE_BASE: 'pipelineBase',
+  ALL: ['', 'public', 'posBase', 'pipelineBase'] as const,
 };
 
 export const APPLY_TYPES = {

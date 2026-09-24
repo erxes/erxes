@@ -42,3 +42,15 @@ export const parseVideoEmbedUrl = (url: string): VideoEmbedInfo | null => {
 
   return null;
 };
+
+/**
+ * Cloudflare Stream returns an HLS playback URL like
+ * `https://customer-xxx.cloudflarestream.com/{uid}/manifest/video.m3u8`.
+ * Extract the base so we can build a thumbnail (`/thumbnails/thumbnail.jpg`).
+ */
+export const getCloudflareStreamBase = (url: string): string | null => {
+  const match = url.match(
+    /^(https:\/\/customer-[^/]+\.cloudflarestream\.com\/[^/]+)/,
+  );
+  return match ? match[1] : null;
+};

@@ -24,6 +24,7 @@ export const types = `
     description: String
     order: Int
     question: String!
+    attachments: [Attachment]
     options: [SurveyOption!]!
     allowMultiselect: Boolean
   }
@@ -43,6 +44,15 @@ export const types = `
     steps: [SurveyStepResult!]!
   }
 
+  type SurveyCpRequester {
+    _id: String!
+    firstName: String
+    lastName: String
+    email: String
+    phone: String
+    avatar: String
+  }
+
   type Survey {
     _id: String!
     code: String
@@ -56,9 +66,12 @@ export const types = `
     allowMultiselect: Boolean
     durationHours: Int
     status: String
+    rejectionReason: String
     sentCount: Int
     createdUserId: String
     createdUser: User
+    createdCpUserId: String
+    createdCpUser: SurveyCpRequester
     createdAt: Date
     updatedAt: Date
     results: SurveyResults
@@ -113,7 +126,23 @@ export const types = `
     description: String
     order: Int
     question: String!
+    attachments: [AttachmentInput]
     options: [SurveyOptionInput!]!
+    allowMultiselect: Boolean
+  }
+
+  input CpSurveyOptionInput {
+    text: String!
+    order: Int
+  }
+
+  input CpSurveyStepInput {
+    name: String
+    description: String
+    order: Int
+    question: String!
+    attachments: [AttachmentInput]
+    options: [CpSurveyOptionInput!]!
     allowMultiselect: Boolean
   }
 `;
@@ -143,15 +172,36 @@ export const queries = `
   surveyDetail(_id: String!): Survey
   surveyTotalCount(searchValue: String, status: String, channelId: String): SurveyTotalCount
   cpSurveys(searchValue: String, channelId: String, brandId: String, ${surveyCursorParams}): CpSurveyListResponse
+  cpSurveyRequests(searchValue: String, channelId: String, status: String, ${surveyCursorParams}): SurveyListResponse
   cpSurveyDetail(channelId: String!, surveyCode: String!): CpSurveyResponse
-  cpSurveyVotes(conversationId: String!): [SurveyVoteSelection!]
+  cpSurveyVotes(conversationId: String, customerId: String): [SurveyVoteSelection!]
 `;
 
 export const mutations = `
   surveyAdd(${commonSurveyFields}): Survey
   surveyEdit(_id: String!, ${commonSurveyFields}): Survey
   surveyRemove(_ids: [String!]!): [String]
-  surveyToggleStatus(_ids: [String!]!, status: String!): Boolean
+  surveyToggleStatus(_ids: [String!]!, status: String!, reason: String): Boolean
   surveySendToConversation(_id: String!, conversationId: String!): ConversationMessage
   cpSurveySubmit(surveyCode: String!, optionIds: [String!]!): SurveySubmitResponse
+  cpSurveyAdd(
+    title: String!
+    channelId: String!
+    question: String
+    options: [CpSurveyOptionInput!]
+    steps: [CpSurveyStepInput!]
+    allowMultiselect: Boolean
+    durationHours: Int
+  ): Survey
+  cpSurveyEdit(
+    _id: String!
+    title: String!
+    channelId: String
+    question: String
+    options: [CpSurveyOptionInput!]
+    steps: [CpSurveyStepInput!]
+    allowMultiselect: Boolean
+    durationHours: Int
+  ): Survey
+  cpSurveyRemove(_id: String!): String
 `;

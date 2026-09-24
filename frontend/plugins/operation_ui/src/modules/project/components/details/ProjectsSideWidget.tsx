@@ -3,13 +3,21 @@ import { ProgressByMember } from '@/project/components/details/ProgressByMember'
 import { ProgressByTeam } from '@/project/components/details/ProgressByTeam';
 import { ProgressChart } from '@/project/components/details/ProgressChart';
 import ProjectMilestone from '@/project/components/details/ProjectMilestone';
-import { IconCaretRightFilled, IconChartHistogram } from '@tabler/icons-react';
+import { PropertiesSidePanel } from '@/operation/components/PropertiesSidePanel';
+import { useGetProject } from '@/project/hooks/useGetProject';
+import { useProjectCustomFieldEdit } from '@/project/hooks/useProjectCustomFieldEdit';
+import {
+  IconCaretRightFilled,
+  IconChartHistogram,
+  IconHierarchy2,
+} from '@tabler/icons-react';
 import {
   Button,
   Collapsible,
   ScrollArea,
   Separator,
   SideMenu,
+  Spinner,
   Tabs,
   ToggleGroup,
 } from 'erxes-ui';
@@ -22,12 +30,45 @@ export enum ProjectsSideWidgetTabsEnum {
   Milestones = 'milestones',
 }
 
+const PROPERTIES_TAB = 'operation-properties';
+
+const ProjectPropertiesSidePanel = ({ projectId }: { projectId: string }) => {
+  const { project, loading, error } = useGetProject({
+    variables: { _id: projectId },
+    skip: !projectId,
+  });
+
+  if (loading) {
+    return <Spinner containerClassName="py-20" />;
+  }
+
+  if (error || !project) {
+    return (
+      <div className="p-4 text-sm text-destructive">
+        {error?.message || 'Project not found'}
+      </div>
+    );
+  }
+
+  return (
+    <PropertiesSidePanel
+      contentType="operation:project"
+      contentId={projectId}
+      propertiesData={project?.propertiesData}
+      mutateHook={useProjectCustomFieldEdit}
+    />
+  );
+};
+
 export const ProjectsSideWidget = ({ projectId }: { projectId: string }) => {
   const { t } = useTranslation('operation');
   return (
     <SideMenu defaultValue="project">
       <SideMenu.Content value="project">
-        <SideMenu.Header Icon={IconChartHistogram} label={t('project-report')} />
+        <SideMenu.Header
+          Icon={IconChartHistogram}
+          label={t('project-report')}
+        />
         <>
           <div className="p-4 border-b">
             <Collapsible className="group/collapsible-menu" defaultOpen>
@@ -60,11 +101,19 @@ export const ProjectsSideWidget = ({ projectId }: { projectId: string }) => {
           </ProjectsSideWidgetTabs>
         </>
       </SideMenu.Content>
+      <SideMenu.Content value={PROPERTIES_TAB}>
+        <ProjectPropertiesSidePanel projectId={projectId} />
+      </SideMenu.Content>
       <SideMenu.Sidebar>
         <SideMenu.Trigger
           value="project"
           label={t('project-report')}
           Icon={IconChartHistogram}
+        />
+        <SideMenu.Trigger
+          value={PROPERTIES_TAB}
+          label={t('properties', { defaultValue: 'Properties' })}
+          Icon={IconHierarchy2}
         />
       </SideMenu.Sidebar>
     </SideMenu>

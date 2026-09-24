@@ -1,4 +1,5 @@
 import { nanoid } from 'nanoid';
+import { IAttachment } from 'erxes-api-shared/core-types';
 import { Model } from 'mongoose';
 import {
   ISurveyDocument,
@@ -13,6 +14,8 @@ export const MAX_SURVEY_STEPS = 10;
 export const MAX_QUESTION_LENGTH = 300;
 export const MAX_OPTION_LENGTH = 100;
 export const MAX_STEP_NAME_LENGTH = 100;
+export const MAX_REJECTION_REASON_LENGTH = 500;
+export const MAX_SURVEY_ATTACHMENTS = 5;
 
 export interface ISurveyOptionInput {
   _id?: string;
@@ -30,6 +33,7 @@ export interface ISurveyStepInput {
   description?: string;
   order?: number;
   question: string;
+  attachments?: IAttachment[];
   options: ISurveyOptionInput[];
   allowMultiselect?: boolean;
 }
@@ -46,6 +50,36 @@ export interface ISurveyInput {
   status?: string;
 }
 
+export interface ICpSurveyOptionInput {
+  text: string;
+  order?: number;
+}
+
+export interface ICpSurveyStepInput {
+  name?: string;
+  description?: string;
+  order?: number;
+  question: string;
+  attachments?: IAttachment[];
+  options: ICpSurveyOptionInput[];
+  allowMultiselect?: boolean;
+}
+
+export interface ICpSurveyInput {
+  title: string;
+  channelId: string;
+  brandId?: string;
+  question?: string;
+  options?: ICpSurveyOptionInput[];
+  steps?: ICpSurveyStepInput[];
+  allowMultiselect?: boolean;
+  durationHours?: number;
+}
+
+export interface ICpSurveyUpdateInput extends Omit<ICpSurveyInput, 'channelId'> {
+  channelId?: string;
+}
+
 export interface ISurveyModel extends Model<ISurveyDocument> {
   getSurvey(_id: string): Promise<ISurveyDocument>;
   generateCode(): Promise<string>;
@@ -53,9 +87,27 @@ export interface ISurveyModel extends Model<ISurveyDocument> {
     doc: ISurveyInput,
     createdUserId: string,
   ): Promise<ISurveyDocument>;
+  createCpSurvey(
+    doc: ICpSurveyInput,
+    createdCpUserId: string,
+  ): Promise<ISurveyDocument>;
+  getCpSurveyRequest(
+    _id: string,
+    createdCpUserId: string,
+  ): Promise<ISurveyDocument>;
+  updateCpSurvey(
+    _id: string,
+    doc: ICpSurveyUpdateInput,
+    createdCpUserId: string,
+  ): Promise<ISurveyDocument>;
+  removeCpSurvey(_id: string, createdCpUserId: string): Promise<string>;
   updateSurvey(_id: string, doc: ISurveyInput): Promise<ISurveyDocument>;
   removeSurveys(_ids: string[]): Promise<string[]>;
-  changeStatus(_ids: string[], status: string): Promise<boolean>;
+  changeStatus(
+    _ids: string[],
+    status: string,
+    reason?: string,
+  ): Promise<boolean>;
   increaseSentCount(_id: string): Promise<void>;
 }
 
@@ -127,6 +179,25 @@ const normalizeStepOptions = (
   }
 };
 
+export const normalizeSurveyAttachments = (
+  attachments: IAttachment[] = [],
+): IAttachment[] => {
+  const kept = attachments.filter((attachment) => !!attachment?.url?.trim());
+
+  if (kept.length > MAX_SURVEY_ATTACHMENTS) {
+    throw new Error(
+      `A question carries at most ${MAX_SURVEY_ATTACHMENTS} attachments`,
+    );
+  }
+
+  return kept.map((attachment) => ({
+    url: attachment.url.trim(),
+    name: (attachment.name || '').trim() || attachment.url.trim(),
+    type: (attachment.type || '').trim(),
+    size: Number(attachment.size) || 0,
+  }));
+};
+
 export const normalizeSurveySteps = (
   steps: ISurveyStepInput[] = [],
 ): ISurveyStep[] => {
@@ -164,6 +235,7 @@ export const normalizeSurveySteps = (
       description: (step.description || '').trim(),
       order: index,
       question,
+      attachments: normalizeSurveyAttachments(step.attachments),
       options,
       allowMultiselect: Boolean(step.allowMultiselect),
     };
@@ -178,6 +250,30 @@ export const normalizeSurveySteps = (
     return { ...step, _id };
   });
 };
+
+const toVotingOnlyOptions = (
+  options: ICpSurveyOptionInput[] = [],
+): ISurveyOptionInput[] =>
+  options.map((option) => ({ text: option.text, order: option.order }));
+
+const toVotingOnlyInput = (doc: ICpSurveyUpdateInput): ISurveyInput => ({
+  title: doc.title,
+  channelId: doc.channelId,
+  brandId: doc.brandId,
+  question: doc.question,
+  allowMultiselect: doc.allowMultiselect,
+  durationHours: doc.durationHours,
+  options: toVotingOnlyOptions(doc.options),
+  steps: doc.steps?.map((step) => ({
+    name: step.name,
+    description: step.description,
+    order: step.order,
+    question: step.question,
+    attachments: step.attachments,
+    allowMultiselect: step.allowMultiselect,
+    options: toVotingOnlyOptions(step.options),
+  })),
+});
 
 const validateDoc = (doc: ISurveyInput) => {
   const title = (doc.title || '').trim();
@@ -287,6 +383,77 @@ export const loadSurveyClass = (models: IModels) => {
       });
     }
 
+    public static async createCpSurvey(
+      doc: ICpSurveyInput,
+      createdCpUserId: string,
+    ) {
+      return models.Surveys.create({
+        ...validateDoc(toVotingOnlyInput(doc)),
+        code: await models.Surveys.generateCode(),
+        status: SURVEY_STATUSES.PENDING,
+        sentCount: 0,
+        createdCpUserId,
+      });
+    }
+
+    public static async getCpSurveyRequest(
+      _id: string,
+      createdCpUserId: string,
+    ) {
+      const survey = await models.Surveys.getSurvey(_id);
+
+      if (survey.createdCpUserId !== createdCpUserId) {
+        throw new Error('This survey request belongs to someone else');
+      }
+
+      if (
+        survey.status !== SURVEY_STATUSES.PENDING &&
+        survey.status !== SURVEY_STATUSES.REJECTED
+      ) {
+        throw new Error('An approved survey can only be changed by an agent');
+      }
+
+      return survey;
+    }
+
+    public static async updateCpSurvey(
+      _id: string,
+      doc: ICpSurveyUpdateInput,
+      createdCpUserId: string,
+    ) {
+      const existing = await models.Surveys.getCpSurveyRequest(
+        _id,
+        createdCpUserId,
+      );
+
+      const validated = validateDoc(
+        toVotingOnlyInput({
+          ...doc,
+          channelId: doc.channelId || existing.channelId,
+          brandId: doc.brandId || existing.brandId,
+        }),
+      );
+
+      await models.Surveys.updateOne(
+        { _id },
+        {
+          $set: { ...validated, status: SURVEY_STATUSES.PENDING },
+          $unset: { rejectionReason: '' },
+        },
+        { runValidators: true },
+      );
+
+      return models.Surveys.getSurvey(_id);
+    }
+
+    public static async removeCpSurvey(_id: string, createdCpUserId: string) {
+      await models.Surveys.getCpSurveyRequest(_id, createdCpUserId);
+
+      const [removedId] = await models.Surveys.removeSurveys([_id]);
+
+      return removedId;
+    }
+
     public static async updateSurvey(_id: string, doc: ISurveyInput) {
       const existing = await models.Surveys.getSurvey(_id);
       const validated = validateDoc(doc);
@@ -316,14 +483,44 @@ export const loadSurveyClass = (models: IModels) => {
       return _ids;
     }
 
-    public static async changeStatus(_ids: string[], status: string) {
+    public static async changeStatus(
+      _ids: string[],
+      status: string,
+      reason?: string,
+    ) {
       if (!SURVEY_STATUSES.ALL.includes(status)) {
         throw new Error(`Unknown survey status: ${status}`);
       }
 
+      if (status !== SURVEY_STATUSES.REJECTED) {
+        await models.Surveys.updateMany(
+          { _id: { $in: _ids } },
+          { $set: { status }, $unset: { rejectionReason: '' } },
+        );
+
+        return true;
+      }
+
+      const reviewed = await models.Surveys.countDocuments({
+        _id: { $in: _ids },
+        status: { $ne: SURVEY_STATUSES.PENDING },
+      });
+
+      if (reviewed) {
+        throw new Error('Only a pending survey request can be rejected');
+      }
+
+      const rejectionReason = (reason || '')
+        .trim()
+        .slice(0, MAX_REJECTION_REASON_LENGTH);
+
+      if (!rejectionReason) {
+        throw new Error('Write why the survey request is rejected');
+      }
+
       await models.Surveys.updateMany(
         { _id: { $in: _ids } },
-        { $set: { status } },
+        { $set: { status, rejectionReason } },
       );
 
       return true;

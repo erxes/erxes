@@ -3,6 +3,7 @@ import { gql } from '@apollo/client';
 export const PIPELINE_INTEGRATION_FIELDS = `
   _id
   pipelineId
+  statusId
   name
   address
   senderName

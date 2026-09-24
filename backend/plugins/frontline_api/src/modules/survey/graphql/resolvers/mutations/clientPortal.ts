@@ -2,17 +2,24 @@ import { markResolvers, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { createConversationAndMessage } from '@/inbox/trpc/inbox';
 import { ISurveyCpUser, ISurveySnapshotStep } from '@/survey/@types/survey';
 import {
+  ICpSurveyInput,
+  ICpSurveyUpdateInput,
+} from '@/survey/db/models/Surveys';
+import {
   buildSurveySnapshot,
   getActiveSurvey,
   getCpVoterId,
   getSnapshotSteps,
   isSurveyClosed,
   refreshSurveyTallies,
+  toCpSurvey,
 } from '@/survey/utils';
 import { runSurveyTicketAutomation } from '@/survey/ticketAutomation';
 import { IContext, IModels } from '~/connectionResolvers';
 
 const VOTER_REQUIRED_ERROR = 'Sign in to the client portal to vote';
+const AUTHOR_REQUIRED_ERROR =
+  'Sign in to the client portal to request a survey';
 
 const isDuplicateVote = (error: unknown) =>
   (error as { code?: number })?.code === 11000;
@@ -135,6 +142,89 @@ const assertSelection = (selected: string[], steps: ISurveySnapshotStep[]) => {
 };
 
 export const cpSurveyMutations = {
+  async cpSurveyAdd(
+    _root: undefined,
+    { channelId, ...doc }: ICpSurveyInput,
+    { models, cpUser }: IContext,
+  ) {
+    const cpUserId = cpUser?._id;
+
+    if (!cpUserId) {
+      throw new Error(AUTHOR_REQUIRED_ERROR);
+    }
+
+    const channel = await models.Channels.findOne({ _id: channelId }).lean();
+
+    if (!channel) {
+      throw new Error('Channel not found');
+    }
+
+    const integration = await resolveChannelIntegration(models, channelId);
+
+    const survey = await models.Surveys.createCpSurvey(
+      { ...doc, channelId, brandId: integration.brandId },
+      cpUserId,
+    );
+
+    return toCpSurvey(survey);
+  },
+
+  async cpSurveyEdit(
+    _root: undefined,
+    { _id, channelId, ...doc }: ICpSurveyUpdateInput & { _id: string },
+    { models, cpUser }: IContext,
+  ) {
+    const cpUserId = cpUser?._id;
+
+    if (!cpUserId) {
+      throw new Error(AUTHOR_REQUIRED_ERROR);
+    }
+
+    const request = await models.Surveys.getCpSurveyRequest(_id, cpUserId);
+
+    const nextChannelId = channelId || request.channelId;
+    let brandId = request.brandId;
+
+    if (nextChannelId !== request.channelId) {
+      const channel = await models.Channels.findOne({
+        _id: nextChannelId,
+      }).lean();
+
+      if (!channel) {
+        throw new Error('Channel not found');
+      }
+
+      const integration = await resolveChannelIntegration(
+        models,
+        nextChannelId,
+      );
+
+      brandId = integration.brandId;
+    }
+
+    const survey = await models.Surveys.updateCpSurvey(
+      _id,
+      { ...doc, channelId: nextChannelId, brandId },
+      cpUserId,
+    );
+
+    return toCpSurvey(survey);
+  },
+
+  async cpSurveyRemove(
+    _root: undefined,
+    { _id }: { _id: string },
+    { models, cpUser }: IContext,
+  ) {
+    const cpUserId = cpUser?._id;
+
+    if (!cpUserId) {
+      throw new Error(AUTHOR_REQUIRED_ERROR);
+    }
+
+    return models.Surveys.removeCpSurvey(_id, cpUserId);
+  },
+
   async cpSurveySubmit(
     _root: undefined,
     { surveyCode, optionIds }: { surveyCode: string; optionIds: string[] },

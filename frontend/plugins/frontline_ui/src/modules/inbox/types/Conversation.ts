@@ -1,7 +1,7 @@
-import { IAttachment } from 'erxes-ui';
-import { ICustomerInline, IUser } from 'ui-modules';
-import { IIntegration } from '@/integrations/types/Integration';
-import { IFormWidgetItem } from './FormWidget';
+import type { IAttachment } from 'erxes-ui';
+import type { ICustomerInline, IUser } from 'ui-modules';
+import type { IIntegration } from '@/integrations/types/Integration';
+import type { IFormWidgetItem } from '@/inbox/types/FormWidget';
 
 export interface IConversation {
   _id: string;
@@ -46,11 +46,19 @@ export interface IMessagePoll {
   results?: IMessageTally;
 }
 
+export interface IMessageSurveyAttachment {
+  url: string;
+  name: string;
+  type: string;
+  size: number;
+}
+
 export interface IMessageSurveyStep {
   stepId: string;
   name?: string;
   description?: string;
   question: string;
+  attachments?: IMessageSurveyAttachment[];
   answers: IMessageAnswer[];
   allowMultiselect?: boolean;
 }

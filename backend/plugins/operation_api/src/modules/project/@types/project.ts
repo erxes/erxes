@@ -24,6 +24,7 @@ export interface IProject {
   memberIds?: string[];
   createdBy?: string;
   convertedFromId?: string;
+  propertiesData?: Record<string, unknown>;
 }
 
 export interface IProjectFilter extends ICursorPaginateParams, IListParams {
