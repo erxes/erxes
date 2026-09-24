@@ -26,7 +26,7 @@ export const types = `
 `;
 
 export const queries = `
-  productRules: [ProductRule]
+  productRules(searchValue: String, categoryIds: [String], productIds: [String]): [ProductRule]
   productRulesWithCount: ProductRulesCount
 `;
 
