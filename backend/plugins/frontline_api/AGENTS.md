@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-09-23`
+- **Last synchronized:** `2026-09-24`
 
 ## Scope
 
@@ -61,6 +61,11 @@
 
 ## Current Capabilities
 
+- A ticket raised from a help center tells the person who raised it what
+  happens to it: a confirmation when it is created, a notification when the
+  team posts a reply the portal can see, and one when the ticket moves to a
+  new status. Each is filed as a client portal notification against
+  `frontline:ticket`, so the help center can link straight back to the ticket.
 - A ticket an automation creates records `createdVia` — what produced it, which
   run, and for whom — and is created as that actor when no conversation agent
   applies.
@@ -754,7 +759,13 @@ isInternal)` is the agent-side list and requires `showTickets`.
   of `info | success | warning | error`, and `kind: 'system'` with
   `allowMultiple: true` keeps each review outcome a separate notification
   instead of overwriting the previous one for the same `contentTypeId`. The
-  `clientPortalId` comes from `cpUsers.get`, not from the survey.
+  `clientPortalId` comes from `cpUsers.get`, not from the survey. Ticket
+  events file the same way with `kind: 'user'` and no `allowMultiple`, which
+  upserts one live notification per `(contentType, contentTypeId, cpUser)` —
+  the newest ticket event replaces the previous unread one instead of stacking.
+  The portal account behind a ticket is resolved from its `cp:<id>` author with
+  `cpUsers.get` by `{ id }` and then by `{ erxesCustomerId }`, because a ticket
+  records whichever of the two the portal session carried.
 - `automations` over tRPC — `automations.trigger`. The path is
   `automations.trigger`, not `triggers.trigger`; `sendTRPCMessage` swallows a
   wrong path or a query/mutation mismatch and returns `defaultValue`, so a
@@ -775,113 +786,20 @@ isInternal)` is the agent-side list and requires `showTickets`.
 
 <!-- Newest first. Keep at most 10 entries. -->
 
-### `2026-09-21` — The ticket action says it needs someone to act for
+### `2026-09-24` — A portal ticket tells the person who raised it what happened
 
-- **Summary:** `Create ticket` now declares `requiresActor: true`. The ticket it
-  opens is assigned from the run's `createdVia.actorId` when the conversation
-  names nobody, so the builder can tell whether an automation about to go live
-  will create records that belong to a person. Assignment itself is unchanged.
-- **Affected areas:**
-  `src/modules/ticket/meta/automations/ticketAutomationsConstants.ts`
-- **Contracts changed:** The action descriptor carries `requiresActor`, a field
-  `erxes-api-shared` added for every plugin to use.
-
-### `2026-09-21` — Automation actions state their outcome instead of returning quietly
-
-- **Summary:** Every automation action this plugin owns now answers with the
-  shared outcome envelope, so the engine stops reading "did not throw" as
-  success. Facebook reports `window-closed` and `send-blocked` as skips, the
-  inbox bot reports `no-conversation`, `nothing-to-send` and `no-reply-text`,
-  and a `collectionType` none of these modules handles is now a stated
-  `CONFIG_INVALID` failure rather than a silent no-op. Instagram is left
-  untouched on purpose.
-- **Affected areas:**
-  `src/modules/integrations/facebook/meta/automation/{messages,comments}/index.ts`,
-  `src/modules/integrations/facebook/meta/automation/workers.ts`,
-  `src/modules/integrations/discord/meta/automation/workers.ts`,
-  `src/modules/inbox/meta/automation/workers.ts`,
-  `src/modules/ticket/meta/automations/ticketAutomationsProducers.ts`
-- **Contracts changed:** The `receiveActions` producer may now answer with
-  `{ outcome, result }` from `erxes-api-shared/core-modules`
-  (`buildSkippedAction` / `buildFailedAction`). Plain results are unchanged and
-  still count as success.
-
-### `2026-09-15` — The persistent menu's back button reaches a handler
-
-- **Summary:** Tapping back in a persistent menu published to
-  `automations`/`playWait`, a queue the automations service never registers, so
-  the step-back never happened on Facebook or Instagram. It already had a
-  handler — `executePrevAction` on the `action` queue — taking exactly the
-  payload these producers send, and both now address it.
-- **Affected areas:**
-  `src/modules/integrations/facebook/meta/automation/messages/index.ts`,
-  `src/modules/integrations/instagram/meta/automation/messages/index.ts`
-- **Contracts changed:** None inside the plugin. The queue and job name it
-  produces to changed to the ones the automations service consumes.
-
-### `2026-09-15` — A direct Facebook message checks the messaging window first
-
-- **Summary:** `Send Facebook Message` now resolves Messenger's 24-hour
-  free-form window before sending on a direct thread. The trigger target is
-  normally the person's own inbound message, so the check is free; only once
-  that target has aged out does it look up the conversation's latest inbound
-  message, which a flow that waited days may find has reopened the window.
-  Outside the window the action reports a `window-closed` skip and the flow
-  carries on, so the execution keeps a row explaining the non-send instead of
-  spending a refusal against the page.
-  Comment-triggered sends are untouched: those go out as private replies under
-  a separate Meta allowance.
-- **Affected areas:**
-  `src/modules/integrations/facebook/meta/automation/messages/utils.ts`
-  (`resolveMessagingWindow`),
-  `src/modules/integrations/facebook/meta/automation/messages/index.ts`
-- **Contracts changed:** None. The descriptor is unchanged. The skip is stated
-  through the shared action-outcome envelope (see `2026-09-21`).
-
-### `2026-09-14` — A ticket an automation opened records what produced it
-
-- **Summary:** Tickets created by an automation now carry `createdVia` — the
-  configuration that produced them, the run that did it, and whose
-  configuration it was. The same actor is used as the creating user, ranked
-  below a conversation's own agent (the more specific answer when there is a
-  thread) and above the first-owner fallback, which is nobody in particular.
-- **Affected areas:**
-  `src/modules/ticket/meta/automations/actions/createTicketAction.ts`,
-  `src/modules/ticket/@types/ticket.ts`
-- **Contracts changed:** Consumes the new `TCreatedVia` and
-  `IExecution.createdVia` from `erxes-api-shared`; `createdVia` itself is added
-  to every schema by `schemaWrapper`.
-
-### `2026-09-14` — Facebook ships two flows of its own
-
-- **Summary:** The plugin now provides built-in workflow templates —
-  "Answer publicly, continue in private" and "Reply, then open a ticket" —
-  through `automations.constants.workflowTemplates`, so they exist from the
-  moment the plugin is deployed and are never written to a tenant database.
-  Both start from an existing thread rather than a contact, because Facebook
-  only permits a reply inside a conversation the person opened; the ticket one
-  declares the channel, pipeline and status it needs as requirements, answered
-  while installing, and names the ticket after what the person wrote. Both
-  carry their reply text, so an installed template sends something sensible
-  before anyone edits it.
-- **Affected areas:**
-  `src/modules/integrations/facebook/meta/automation/workflowTemplates.ts`,
-  `src/meta/automations.ts`
-- **Contracts changed:** Consumes the new optional
-  `AutomationConstants.workflowTemplates` from `erxes-api-shared`.
-
-### `2026-09-13` — Facebook actions declare the target they need
-
-- **Summary:** Send Facebook Message and Send Facebook Comment read the
-  execution target as a facebook message/comment document, so they cannot run
-  behind a trigger that supplies anything else; both now declare
-  `requiresTargetTypes` and the builder hides and refuses them where the target
-  type does not match, instead of letting them fail at runtime.
-- **Affected areas:**
-  `src/modules/integrations/facebook/meta/automation/constants.ts`
-- **Contracts changed:** Consumes the new optional
-  `IAutomationsActionConfigConstants.requiresTargetTypes` from
-  `erxes-api-shared`. No plugin-provided contract changed.
+- **Summary:** Tickets raised from a help center now file client portal
+  notifications: a confirmation on `cpCreateTicket`, a reply notification when
+  a non-internal note is written by someone who is not the portal author, and a
+  status notification naming the status the ticket moved to. The portal account
+  is resolved from the ticket's `cp:<id>` author, nobody is notified about
+  their own change, and a failed notification never fails the ticket write.
+- **Affected areas:** `src/modules/ticket/utils/cpNotifications.ts` (new),
+  `src/modules/ticket/graphql/resolvers/mutations/clientPortal.ts`,
+  `src/modules/ticket/db/note.ts`,
+  `src/modules/ticket/db/models/Ticket.ts`
+- **Contracts changed:** `None` — the notifications go through the existing
+  `core` tRPC procedures `cpUsers.get` and `cpNotifications.create`.
 
 ### `2026-09-23` — A survey question carries attachments
 
@@ -985,6 +903,37 @@ isInternal)` is the agent-side list and requires `showTickets`.
   `Survey.createdCpUserId` / `Survey.createdCpUser`; survey `status` accepts
   `pending` and `surveyTotalCount.byStatus` now reports it.
 
+### `2026-09-21` — The ticket action says it needs someone to act for
+
+- **Summary:** `Create ticket` now declares `requiresActor: true`. The ticket it
+  opens is assigned from the run's `createdVia.actorId` when the conversation
+  names nobody, so the builder can tell whether an automation about to go live
+  will create records that belong to a person. Assignment itself is unchanged.
+- **Affected areas:**
+  `src/modules/ticket/meta/automations/ticketAutomationsConstants.ts`
+- **Contracts changed:** The action descriptor carries `requiresActor`, a field
+  `erxes-api-shared` added for every plugin to use.
+
+### `2026-09-21` — Automation actions state their outcome instead of returning quietly
+
+- **Summary:** Every automation action this plugin owns now answers with the
+  shared outcome envelope, so the engine stops reading "did not throw" as
+  success. Facebook reports `window-closed` and `send-blocked` as skips, the
+  inbox bot reports `no-conversation`, `nothing-to-send` and `no-reply-text`,
+  and a `collectionType` none of these modules handles is now a stated
+  `CONFIG_INVALID` failure rather than a silent no-op. Instagram is left
+  untouched on purpose.
+- **Affected areas:**
+  `src/modules/integrations/facebook/meta/automation/{messages,comments}/index.ts`,
+  `src/modules/integrations/facebook/meta/automation/workers.ts`,
+  `src/modules/integrations/discord/meta/automation/workers.ts`,
+  `src/modules/inbox/meta/automation/workers.ts`,
+  `src/modules/ticket/meta/automations/ticketAutomationsProducers.ts`
+- **Contracts changed:** The `receiveActions` producer may now answer with
+  `{ outcome, result }` from `erxes-api-shared/core-modules`
+  (`buildSkippedAction` / `buildFailedAction`). Plain results are unchanged and
+  still count as success.
+
 ### `2026-09-21` — A pipeline address chooses the status its tickets open in
 
 - **Summary:** A pipeline's mail row can name the status a new mail ticket opens
@@ -998,51 +947,3 @@ isInternal)` is the agent-side list and requires `showTickets`.
 - **Contracts changed:** `mailPipelineConnect` and `mailPipelineUpdate` accept
   `statusId: String`; `MailPipelineIntegration` exposes `statusId`;
   `mail_integrations` carries `statusId`.
-
-### `2026-09-21` — Channel-owned resources move between channels
-
-- **Summary:** Added `channelMoveResources`, one mutation that moves
-  integrations, ticket pipelines, forms, surveys or response templates from one
-  channel to another by rewriting their `channelId` only. It validates the
-  destination, the caller's visibility of both channels, that every selected id
-  still sits in the source channel, and that no same-named resource of that
-  type already sits in the destination, all before the first write. A pipeline
-  move cascades onto its tickets' denormalized `channelId` and a form move onto
-  its lead integration, with a rollback of the primary update if the cascade
-  fails. The plugin also gained a Jest target for the move's pure validation.
-- **Affected areas:** `src/modules/channel/moveResources.ts`,
-  `src/modules/channel/moveResources.test.ts`,
-  `src/modules/channel/graphql/{schemas/channel,resolvers/mutations/channel}.ts`,
-  `jest.config.ts`, `tsconfig.spec.json`, `tsconfig.build.json`,
-  `project.json`
-- **Contracts changed:** Added mutation `channelMoveResources`, enum
-  `ChannelResourceType` and type `ChannelMoveResourcesResult`.
-
-### `2026-09-21` — Messenger company writes actually reach Core
-
-- **Summary:** Every Core call in the company branch of
-  `widgetsMessengerConnect` used the wrong tRPC method or input shape, and
-  `sendTRPCMessage` swallows the resulting errors, so messenger `companyData`
-  silently produced no company at all: `companies.findOne` was called as a
-  mutation with `{ query: { companyData } }` (matching no selector key),
-  `updateCompany` received `{ query: { _id, doc } }` instead of `{ _id, doc }`,
-  `createCompany` was called as a query with `{ query: { ...companyData } }`
-  instead of a mutation with `{ doc }`, and the follow-up automation trigger
-  used the non-existent `triggers.trigger` path. All four now match the
-  published contracts, and lookup cascades name -> email -> phone, so the
-  company, its `trackedData`, and the customer-company conformity are written.
-- **Affected areas:**
-  `src/modules/inbox/graphql/resolvers/mutations/widget.ts`
-  (`findMessengerCompany` helper, company branch of
-  `widgetsMessengerConnect`).
-- **Contracts changed:** None. Consumed contracts corrected: Core
-  `companies.findOne` (query), `companies.updateCompany` / `createCompany`
-  (mutations), and automations `automations.trigger`.
-
-### `2026-09-17` — Property types declare system fields
-
-- **Summary:** The `conversation` and `ticket` property types now declare
-  `systemFields`, shown as the "Basic information" group in Settings →
-  Properties.
-- **Affected areas:** `src/meta/properties.ts`, `src/main.ts`
-- **Contracts changed:** Plugin meta `properties.types[].systemFields` added.
