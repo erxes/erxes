@@ -3,6 +3,8 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
+import { storedFileUrl } from '@/modules/apollo/utils/file';
+import { NotificationBell } from '@/modules/notifications/components/NotificationBell';
 import { useSession } from '@/modules/auth/components/SessionProvider';
 import { Avatar } from '@/modules/ui/components/Avatar';
 import { Icon, type IconName } from '@/modules/ui/components/Icon';
@@ -14,12 +16,20 @@ export type NavLink = {
   icon: IconName;
 };
 
-export type NavSection = {
-  _id: string;
-  title: string;
+export type NavEntry = {
   href: string;
-  articleCount: number;
-  categories: { _id: string; title: string; articleCount: number }[];
+  label: string;
+  count?: number;
+  children?: { href: string; label: string; count?: number }[];
+};
+
+export type NavGroup = {
+  key: string;
+  href: string;
+  label: string;
+  icon: IconName;
+  emptyLabel: string;
+  items: NavEntry[];
 };
 
 const linkActive = (href: string, pathname: string) =>
@@ -55,127 +65,228 @@ const Wordmark = ({
   </Link>
 );
 
-const NavList = ({
+const RootList = ({
   links,
-  sections,
   pathname,
   onNavigate,
 }: {
   links: NavLink[];
-  sections: NavSection[];
   pathname: string;
   onNavigate?: () => void;
 }) => (
-  <nav aria-label="Portal" className="flex flex-col gap-6 text-[13px]">
-    <ul className="flex flex-col gap-0.5">
-      {links.map((link) => {
-        const active = linkActive(link.href, pathname);
+  <ul className="flex flex-col gap-0.5">
+    {links.map((link) => {
+      const active = linkActive(link.href, pathname);
 
-        return (
-          <li key={link.href}>
-            <Link
-              href={link.href}
-              onClick={onNavigate}
-              aria-current={active ? 'page' : undefined}
-              className={cn(
-                'group relative flex items-center gap-2.5 overflow-hidden rounded-lg px-2.5 py-2 font-medium transition-[background-color,color] duration-300 ease-out-soft',
-                active
-                  ? 'bg-shell-soft text-white'
-                  : 'text-white/60 hover:bg-shell-soft/70 hover:text-white',
-              )}
-            >
-              {active ? (
-                <span
-                  aria-hidden="true"
-                  className="absolute inset-y-1.5 left-0 w-0.5 rounded-full bg-brand"
-                />
-              ) : null}
-              <Icon
-                name={link.icon}
-                size={16}
-                className="shrink-0 transition-transform duration-300 ease-out-soft group-hover:scale-110"
+      return (
+        <li key={link.href}>
+          <Link
+            href={link.href}
+            onClick={onNavigate}
+            aria-current={active ? 'page' : undefined}
+            className={cn(
+              'group relative flex items-center gap-2.5 overflow-hidden rounded-lg px-2.5 py-2 font-medium transition-[background-color,color] duration-300 ease-out-soft',
+              active
+                ? 'bg-shell-soft text-white'
+                : 'text-white/60 hover:bg-shell-soft/70 hover:text-white',
+            )}
+          >
+            {active ? (
+              <span
+                aria-hidden="true"
+                className="absolute inset-y-1.5 left-0 w-0.5 rounded-full bg-brand"
               />
-              {link.label}
-            </Link>
-          </li>
-        );
-      })}
-    </ul>
-
-    {sections.length ? (
-      <div>
-        <p className="px-2.5 text-[11px] font-semibold uppercase tracking-wider text-white/35">
-          Knowledge base
-        </p>
-
-        <div className="mt-1.5 flex flex-col gap-3">
-          {sections.map((section) => {
-            const sectionActive =
-              !section.categories.length &&
-              pathname === `/knowledge-base/category/${section._id}`;
-
-            return (
-              <div key={section._id}>
-                <Link
-                  href={section.href}
-                  onClick={onNavigate}
-                  aria-current={sectionActive ? 'page' : undefined}
-                  className={cn(
-                    'flex items-baseline gap-2 rounded-lg px-2.5 py-1.5 font-medium transition-colors duration-150',
-                    sectionActive
-                      ? 'text-white'
-                      : 'text-white/75 hover:text-white',
-                  )}
-                >
-                  <span className="min-w-0 flex-1 truncate">
-                    {section.title}
-                  </span>
-                  {!section.categories.length ? (
-                    <span className="shrink-0 text-[12px] tabular-nums text-white/35">
-                      {section.articleCount}
-                    </span>
-                  ) : null}
-                </Link>
-
-                {section.categories.length ? (
-                  <ul className="ml-2.5 mt-0.5 border-l border-shell-line pl-2.5">
-                    {section.categories.map((category) => {
-                      const href = `/knowledge-base/category/${category._id}`;
-                      const active = pathname === href;
-
-                      return (
-                        <li key={category._id}>
-                          <Link
-                            href={href}
-                            onClick={onNavigate}
-                            aria-current={active ? 'page' : undefined}
-                            className={cn(
-                              'flex items-baseline gap-2 rounded-md px-2.5 py-1.5 transition-colors duration-150',
-                              active
-                                ? 'text-white'
-                                : 'text-white/50 hover:text-white',
-                            )}
-                          >
-                            <span className="min-w-0 flex-1 truncate">
-                              {category.title}
-                            </span>
-                            <span className="shrink-0 text-[12px] tabular-nums text-white/30">
-                              {category.articleCount}
-                            </span>
-                          </Link>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                ) : null}
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    ) : null}
-  </nav>
+            ) : null}
+            <Icon
+              name={link.icon}
+              size={16}
+              className="shrink-0 transition-transform duration-300 ease-out-soft group-hover:scale-110"
+            />
+            {link.label}
+          </Link>
+        </li>
+      );
+    })}
+  </ul>
 );
+
+const entryLink =
+  'flex min-w-0 flex-1 items-baseline gap-2 rounded-lg px-2.5 py-1.5 transition-colors duration-150';
+
+const Leaf = ({
+  href,
+  label,
+  count,
+  pathname,
+  onNavigate,
+  muted = false,
+}: {
+  href: string;
+  label: string;
+  count?: number;
+  pathname: string;
+  onNavigate?: () => void;
+  muted?: boolean;
+}) => {
+  const active = !href.includes('#') && pathname === href;
+
+  return (
+    <Link
+      href={href}
+      onClick={onNavigate}
+      aria-current={active ? 'page' : undefined}
+      className={cn(
+        entryLink,
+        active
+          ? 'bg-shell-soft text-white'
+          : muted
+          ? 'text-white/50 hover:text-white'
+          : 'text-white/75 hover:text-white',
+      )}
+    >
+      <span className="min-w-0 flex-1 truncate">{label}</span>
+      {typeof count === 'number' ? (
+        <span className="shrink-0 text-[12px] tabular-nums text-white/30">
+          {count}
+        </span>
+      ) : null}
+    </Link>
+  );
+};
+
+const Entry = ({
+  entry,
+  pathname,
+  expanded,
+  onToggle,
+  onNavigate,
+}: {
+  entry: NavEntry;
+  pathname: string;
+  expanded: boolean;
+  onToggle: () => void;
+  onNavigate?: () => void;
+}) => {
+  if (!entry.children?.length) {
+    return (
+      <li>
+        <Leaf
+          href={entry.href}
+          label={entry.label}
+          count={entry.count}
+          pathname={pathname}
+          onNavigate={onNavigate}
+        />
+      </li>
+    );
+  }
+
+  return (
+    <li>
+      <div className="flex items-center">
+        <Leaf
+          href={entry.href}
+          label={entry.label}
+          count={entry.count}
+          pathname={pathname}
+          onNavigate={onNavigate}
+        />
+        <button
+          type="button"
+          onClick={onToggle}
+          aria-expanded={expanded}
+          aria-label={`${expanded ? 'Collapse' : 'Expand'} ${entry.label}`}
+          className="flex size-7 shrink-0 items-center justify-center rounded-md text-white/35 transition-colors duration-150 hover:bg-shell-soft hover:text-white"
+        >
+          <Icon name={expanded ? 'chevronDown' : 'chevronRight'} size={14} />
+        </button>
+      </div>
+
+      {expanded ? (
+        <ul className="ml-2.5 mt-0.5 border-l border-shell-line pl-2.5">
+          {entry.children.map((child) => (
+            <li key={child.href}>
+              <Leaf
+                href={child.href}
+                label={child.label}
+                count={child.count}
+                pathname={pathname}
+                onNavigate={onNavigate}
+                muted
+              />
+            </li>
+          ))}
+        </ul>
+      ) : null}
+    </li>
+  );
+};
+
+const SectionList = ({
+  group,
+  pathname,
+  onBack,
+  onNavigate,
+}: {
+  group: NavGroup;
+  pathname: string;
+  onBack: () => void;
+  onNavigate?: () => void;
+}) => {
+  const [toggled, setToggled] = useState<Record<string, boolean>>({});
+
+  return (
+    <div className="flex flex-col gap-3">
+      <button
+        type="button"
+        onClick={onBack}
+        className="flex items-center gap-1.5 self-start rounded-lg px-2.5 py-1 text-[12px] font-medium text-white/45 transition-colors duration-150 hover:text-white"
+      >
+        <Icon name="arrowLeft" size={13} />
+        All sections
+      </button>
+
+      <Link
+        href={group.href}
+        onClick={onNavigate}
+        aria-current={pathname === group.href ? 'page' : undefined}
+        className={cn(
+          'flex items-center gap-2.5 rounded-lg px-2.5 py-2 font-semibold transition-colors duration-300 ease-out-soft',
+          pathname === group.href
+            ? 'bg-shell-soft text-white'
+            : 'text-white/80 hover:bg-shell-soft/70 hover:text-white',
+        )}
+      >
+        <Icon name={group.icon} size={16} className="shrink-0" />
+        {group.label}
+      </Link>
+
+      {group.items.length ? (
+        <ul className="flex flex-col gap-0.5 border-t border-shell-line pt-3">
+          {group.items.map((entry) => (
+            <Entry
+              key={entry.href}
+              entry={entry}
+              pathname={pathname}
+              expanded={toggled[entry.href] ?? true}
+              onToggle={() =>
+                setToggled((current) => ({
+                  ...current,
+                  [entry.href]: !(current[entry.href] ?? true),
+                }))
+              }
+              onNavigate={onNavigate}
+            />
+          ))}
+        </ul>
+      ) : (
+        <p className="border-t border-shell-line px-2.5 pt-3 text-[12px] leading-relaxed text-white/35">
+          {group.emptyLabel}
+        </p>
+      )}
+    </div>
+  );
+};
 
 const AccountBlock = ({ onNavigate }: { onNavigate?: () => void }) => {
   const { user, ready, signOut } = useSession();
@@ -224,7 +335,11 @@ const AccountBlock = ({ onNavigate }: { onNavigate?: () => void }) => {
         onClick={onNavigate}
         className="flex min-w-0 flex-1 items-center gap-2.5 rounded-lg px-1.5 py-1 transition-colors duration-150 hover:bg-white/5"
       >
-        <Avatar name={user.name} size={28} />
+        <Avatar
+          name={user.name}
+          src={storedFileUrl(user.avatar ?? null)}
+          size={28}
+        />
         <span className="min-w-0 flex-1">
           <span className="block truncate text-[13px] font-medium text-white">
             {user.name}
@@ -234,6 +349,8 @@ const AccountBlock = ({ onNavigate }: { onNavigate?: () => void }) => {
           </span>
         </span>
       </Link>
+      <NotificationBell ringClass="ring-shell-soft" />
+
       <button
         type="button"
         aria-label="Sign out"
@@ -251,22 +368,31 @@ export const AppNav = ({
   logo,
   wordmark,
   links,
-  sections,
+  groups,
 }: {
   title: string;
   logo: string | null;
   wordmark: string;
   links: NavLink[];
-  sections: NavSection[];
+  groups: NavGroup[];
 }) => {
   const pathname = usePathname();
-  const [menu, setMenu] = useState({ open: false, path: pathname });
+
+  const [menu, setMenu] = useState({
+    open: false,
+    browsing: false,
+    path: pathname,
+  });
 
   if (menu.path !== pathname) {
-    setMenu({ open: false, path: pathname });
+    setMenu({ open: false, browsing: false, path: pathname });
   }
 
   const open = menu.open;
+
+  const section = menu.browsing
+    ? undefined
+    : groups.find((group) => pathname.startsWith(group.href));
   const close = useCallback(
     () => setMenu((current) => ({ ...current, open: false })),
     [],
@@ -301,12 +427,20 @@ export const AppNav = ({
       </div>
 
       <div className="mt-4 min-h-0 flex-1 overflow-y-auto px-3 pb-4">
-        <NavList
-          links={links}
-          sections={sections}
-          pathname={pathname}
-          onNavigate={close}
-        />
+        <nav aria-label="Portal" className="text-[13px]">
+          {section ? (
+            <SectionList
+              group={section}
+              pathname={pathname}
+              onBack={() =>
+                setMenu((current) => ({ ...current, browsing: true }))
+              }
+              onNavigate={close}
+            />
+          ) : (
+            <RootList links={links} pathname={pathname} onNavigate={close} />
+          )}
+        </nav>
       </div>
     </>
   );
@@ -332,7 +466,9 @@ export const AppNav = ({
             type="button"
             aria-label="Menu"
             aria-expanded={open}
-            onClick={() => setMenu({ open: !open, path: pathname })}
+            onClick={() =>
+              setMenu((current) => ({ ...current, open: !current.open }))
+            }
             className="flex size-9 items-center justify-center rounded-lg text-white/60 transition-colors duration-150 hover:bg-shell-soft hover:text-white"
           >
             <Icon name={open ? 'close' : 'menu'} size={20} />

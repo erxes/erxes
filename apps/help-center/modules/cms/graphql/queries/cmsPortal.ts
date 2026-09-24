@@ -19,8 +19,8 @@ export const CMS_PORTAL_ANNOUNCEMENTS = gql`
 `;
 
 export const CMS_PORTAL_POST = gql`
-  query cmsPortalPost($slug: String!) {
-    cpPost(slug: $slug) {
+  query cmsPortalPost($slug: String, $id: String) {
+    cpPost(slug: $slug, _id: $id) {
       _id
       title
       excerpt

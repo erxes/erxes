@@ -85,6 +85,7 @@ export const TicketForm = ({ target }: { target: TicketTarget }) => {
 
   const [createTicket, { data, loading, error, reset }] =
     useMutation<CreatedTicket>(TICKET_PORTAL_CREATE, {
+      refetchQueries: ['notificationPortalList'],
       update: (cache) => {
         cache.evict({ id: 'ROOT_QUERY', fieldName: 'cpGetTickets' });
         cache.gc();

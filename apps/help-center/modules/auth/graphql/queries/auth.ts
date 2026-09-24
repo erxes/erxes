@@ -9,7 +9,13 @@ export const AUTH_PORTAL_CURRENT_USER = gql`
       firstName
       lastName
       username
+      avatar
+      companyName
       isVerified
+      isEmailVerified
+      isPhoneVerified
+      primaryAuthMethod
+      lastLoginAt
       erxesCustomerId
     }
   }

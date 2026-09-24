@@ -11,6 +11,7 @@ import { PasswordInput, TextInput } from '@/modules/ui/components/FormInput';
 import { Button } from '@/modules/ui/components/Button';
 import { Icon } from '@/modules/ui/components/Icon';
 import { authErrorMessage } from '../utils/errors';
+import { PASSWORD_HINT, PASSWORD_RULE } from '../utils/password';
 import { withNext } from '../utils/redirect';
 import {
   AUTH_PORTAL_LOGIN,
@@ -27,20 +28,13 @@ import {
   type RegisterResponse,
 } from '../types';
 
-const PASSWORD_RULE = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
-
 const signUpSchema = z
   .object({
     name: z.string().refine((value) => value.trim().length > 0, {
       message: 'Please enter your name.',
     }),
     email: z.string().email('That email address is not valid.'),
-    password: z
-      .string()
-      .regex(
-        PASSWORD_RULE,
-        'The password must be at least 8 characters and include an uppercase letter, a lowercase letter, and a number.',
-      ),
+    password: z.string().regex(PASSWORD_RULE, PASSWORD_HINT),
     confirm: z.string(),
   })
   .refine((values) => values.confirm === values.password, {

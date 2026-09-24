@@ -2,6 +2,7 @@ export type SessionUser = {
   name: string;
   email: string;
   phone?: string;
+  avatar?: string;
   customerId?: string;
   cpUserId?: string;
 };
@@ -46,12 +47,13 @@ export const parseSession = (raw: string | null): SessionUser | null => {
       typeof (parsed as SessionUser).name === 'string' &&
       typeof (parsed as SessionUser).email === 'string'
     ) {
-      const { name, email, phone, customerId, cpUserId } =
+      const { name, email, phone, avatar, customerId, cpUserId } =
         parsed as SessionUser;
       return {
         name,
         email,
         ...(phone ? { phone } : {}),
+        ...(avatar ? { avatar } : {}),
         ...(customerId ? { customerId } : {}),
         ...(cpUserId ? { cpUserId } : {}),
       };

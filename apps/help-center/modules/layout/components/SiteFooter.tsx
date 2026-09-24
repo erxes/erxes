@@ -36,6 +36,8 @@ const knowledgeLinks: FooterLink[] = [
 
 const accountLinks: FooterLink[] = [
   { href: '/account', label: 'My account' },
+  { href: '/account/notifications', label: 'Notifications' },
+  { href: '/account/settings', label: 'Settings' },
   { href: '/sign-in', label: 'Sign in' },
   { href: '/sign-up', label: 'Sign up' },
 ];

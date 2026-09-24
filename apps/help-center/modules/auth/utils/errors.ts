@@ -25,3 +25,21 @@ export const authErrorMessage = (caught: unknown): string => {
 
   return raw || 'Something went wrong. Please try again.';
 };
+
+export const profileErrorMessage = (caught: unknown): string => {
+  const raw = graphqlErrorMessage(caught);
+
+  if (/email already exists/i.test(raw)) {
+    return 'That email address is already used by another account.';
+  }
+
+  if (/phone already exists/i.test(raw)) {
+    return 'That phone number is already used by another account.';
+  }
+
+  if (/not authenticated/i.test(raw)) {
+    return 'Your session has expired. Sign in again to save your details.';
+  }
+
+  return raw || 'Could not save your details. Please try again.';
+};

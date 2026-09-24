@@ -44,8 +44,10 @@ export const getAnnouncements = async (
   }
 };
 
+const OBJECT_ID = /^[a-f\d]{24}$/i;
+
 export const getAnnouncement = async (
-  slug: string,
+  identifier: string,
 ): Promise<PortalResult<CmsPost | null>> => {
   const config = await getPortalConfig();
 
@@ -60,7 +62,9 @@ export const getAnnouncement = async (
   try {
     const { data, error } = await query<{ cpPost: CmsPost | null }>({
       query: CMS_PORTAL_POST,
-      variables: { slug },
+      variables: OBJECT_ID.test(identifier)
+        ? { id: identifier }
+        : { slug: identifier },
       context: { appToken: config.data.cmsAppToken },
       errorPolicy: 'all',
     });

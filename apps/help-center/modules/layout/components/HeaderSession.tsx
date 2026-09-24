@@ -1,6 +1,8 @@
 'use client';
 
 import Link from 'next/link';
+import { storedFileUrl } from '@/modules/apollo/utils/file';
+import { NotificationBell } from '@/modules/notifications/components/NotificationBell';
 import { useSession } from '@/modules/auth/components/SessionProvider';
 import { Avatar } from '@/modules/ui/components/Avatar';
 import { Icon } from '@/modules/ui/components/Icon';
@@ -35,11 +37,17 @@ export const HeaderSession = () => {
 
   return (
     <div className="flex items-center gap-1">
+      <NotificationBell />
+
       <Link
         href="/account"
         className="flex min-w-0 items-center gap-2.5 rounded-lg py-1 pl-1 pr-2.5 outline-none transition-colors duration-300 ease-out-soft hover:bg-white/10 focus-visible:bg-white/10"
       >
-        <Avatar name={user.name} size={26} />
+        <Avatar
+          name={user.name}
+          src={storedFileUrl(user.avatar ?? null)}
+          size={26}
+        />
         <span className="min-w-0 max-w-44 truncate text-[13px] font-medium text-white">
           {user.name}
         </span>
