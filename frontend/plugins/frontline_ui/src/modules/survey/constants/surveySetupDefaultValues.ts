@@ -36,6 +36,7 @@ export const createSurveyContentStep = (): TSurveyContentStep => ({
   name: '',
   description: '',
   question: '',
+  attachments: [],
   allowMultiselect: false,
   options: [createSurveyContentOption(), createSurveyContentOption()],
 });

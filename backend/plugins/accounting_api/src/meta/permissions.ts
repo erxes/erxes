@@ -21,6 +21,7 @@ const TRANSACTION_ACTIONS = {
   manage: 'manageTransactions',
   remove: 'removeTransactions',
   link: 'linkTransactions',
+  export: 'transactionsExportManage',
 } as const;
 
 const TAX_ROW_ACTIONS = {
@@ -259,6 +260,11 @@ export const permissions: IPermissionConfig = {
           title: 'Import transactions',
           name: 'transactionsImportManage',
           description: 'Import transactions',
+        },
+        {
+          title: 'Export transactions',
+          name: TRANSACTION_ACTIONS.export,
+          description: 'Export transactions',
         },
         ...journalTransactionActions,
       ],
@@ -638,6 +644,7 @@ export const permissions: IPermissionConfig = {
             ...allTransactionActions,
             ...allJournalTransactionActions,
             'transactionsImportManage',
+            TRANSACTION_ACTIONS.export,
           ],
           scope: 'all',
         },

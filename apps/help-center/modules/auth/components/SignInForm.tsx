@@ -92,7 +92,7 @@ export const SignInForm = ({ next }: { next?: string | null }) => {
       <form
         onSubmit={form.handleSubmit(onSubmit)}
         noValidate
-        className="space-y-4"
+        className="space-y-5"
       >
         <Form.Field
           control={form.control}
@@ -151,8 +151,12 @@ export const SignInForm = ({ next }: { next?: string | null }) => {
           </p>
         ) : null}
 
-        <Button type="submit" disabled={loading} className="mt-2 w-full">
-          <Icon name="lock" size={15} />
+        <Button
+          type="submit"
+          size="lg"
+          disabled={loading}
+          className="mt-2 w-full"
+        >
           {loading ? 'Signing in…' : 'Sign in'}
         </Button>
       </form>

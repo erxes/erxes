@@ -5,11 +5,13 @@ import { isInSegment } from '../utils/isInSegment';
 import { isDiffValue } from '../utils/utils';
 import {
   AUTOMATION_EXECUTION_STATUS,
+  IAutomationDocument,
   IAutomationExecutionDocument,
   IAutomationTrigger,
   splitType,
   TAutomationProducers,
 } from 'erxes-api-shared/core-modules';
+import { TCreatedVia } from 'erxes-api-shared/core-types';
 import { sendCoreModuleProducer } from 'erxes-api-shared/utils';
 
 const checkIsValidCustomTigger = async (
@@ -77,7 +79,7 @@ const checkValidTrigger = async (
 const capitalize = (value: string) =>
   value ? value.charAt(0).toUpperCase() + value.slice(1) : value;
 
-const buildExecutionTarget = (
+export const buildExecutionTarget = (
   target: any,
   eventUpdateDescription?: Record<string, any>,
 ) => {
@@ -106,21 +108,35 @@ const buildExecutionTarget = (
   };
 };
 
+/**
+ * What produced this run, and on whose behalf. An event started it, so there
+ * is no person in the moment — the automation answers for it through its
+ * owner. `runId` is left out: the execution is the run, and filling it would
+ * cost a second write on the enrolment path for an id nothing reads back.
+ */
+const buildTriggeredVia = (automation: IAutomationDocument): TCreatedVia => ({
+  source: 'automation',
+  sourceId: automation._id,
+  sourceName: automation.name,
+  actorId: automation.ownerId || automation.createdBy,
+});
+
 export const calculateExecution = async ({
   models,
   subdomain,
-  automationId,
+  automation,
   trigger,
   target,
   eventUpdateDescription,
 }: {
   models: IModels;
   subdomain: string;
-  automationId: string;
+  automation: IAutomationDocument;
   trigger: IAutomationTrigger;
   target: any;
   eventUpdateDescription?: Record<string, any>;
 }): Promise<IAutomationExecutionDocument | null | undefined> => {
+  const automationId = automation._id;
   const { id, type = '', config } = trigger;
   const { reEnrollment, reEnrollmentRules = [] } = config || {};
   const executionTarget = buildExecutionTarget(target, eventUpdateDescription);
@@ -192,6 +208,7 @@ export const calculateExecution = async ({
     target: executionTarget,
     status: AUTOMATION_EXECUTION_STATUS.ACTIVE,
     description: `Met enrollment criteria`,
+    createdVia: buildTriggeredVia(automation),
     createdAt: new Date(),
   });
 };

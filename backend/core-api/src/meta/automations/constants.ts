@@ -1,6 +1,9 @@
+import { CORE_AUTOMATION_WORKFLOW_TEMPLATES } from '~/meta/automations/workflowTemplates';
 import {
   AutomationConstants,
+  AUTOMATION_CORE_ACTION_DEFERRED,
   AUTOMATION_CORE_ACTIONS,
+  AUTOMATION_NON_DEFERRABLE_CORE_ACTIONS,
   AUTOMATION_CORE_TRIGGER_TYPES,
   AUTOMATION_EMAIL_RECIPIENTS_TYPES,
   TAutomationActionFolks,
@@ -30,7 +33,30 @@ const CORE_ACTION_GROUPS = {
   TIMING_AND_DELAYS: 'Timing & Delays',
 };
 
-export const CORE_AUTOMATION_CONSTANTS: AutomationConstants = {
+/**
+ * Read from the same lists the engine guards with, so the builder never offers
+ * a policy the runtime would refuse to honour.
+ */
+const declareErrorPolicySupport = (
+  constants: AutomationConstants,
+): AutomationConstants => ({
+  ...constants,
+  actions: (constants.actions || []).map((action) => {
+    const type = action.type || '';
+
+    return {
+      ...action,
+      errorPolicy: {
+        supported:
+          !AUTOMATION_NON_DEFERRABLE_CORE_ACTIONS.includes(type) &&
+          !AUTOMATION_CORE_ACTION_DEFERRED[type],
+      },
+    };
+  }),
+});
+
+const CORE_AUTOMATION_CONSTANTS_SOURCE: AutomationConstants = {
+  workflowTemplates: CORE_AUTOMATION_WORKFLOW_TEMPLATES,
   findObjectTargets: CORE_FIND_OBJECT_TARGETS_CONST,
   ai: {
     knowledgeSources: [
@@ -250,3 +276,7 @@ export const CORE_AUTOMATION_CONSTANTS: AutomationConstants = {
     },
   ],
 };
+
+export const CORE_AUTOMATION_CONSTANTS = declareErrorPolicySupport(
+  CORE_AUTOMATION_CONSTANTS_SOURCE,
+);

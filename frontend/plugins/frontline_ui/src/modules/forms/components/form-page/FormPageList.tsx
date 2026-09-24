@@ -7,6 +7,7 @@ import { FormCommandBar } from './command-bar/form-command-bar';
 import { IconForms, IconSettings } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { FormsCreateButton } from './forms-create';
 
 export const FormPageList = () => {
   const { t } = useTranslation('frontline');
@@ -42,6 +43,7 @@ export const FormPageList = () => {
           </Empty.Description>
         </Empty.Header>
         <Empty.Content>
+          <FormsCreateButton />
           <Button variant={'outline'} asChild>
             <Link to="/settings/frontline/channels">
               <IconSettings />

@@ -8,6 +8,7 @@ export type TActionResultStatus = NonNullable<
 
 const STATUS_CLASS: Record<TActionResultStatus, string> = {
   success: 'text-success',
+  skipped: 'text-muted-foreground',
   error: 'text-destructive',
   waiting: 'text-warning',
   queued: 'text-warning',

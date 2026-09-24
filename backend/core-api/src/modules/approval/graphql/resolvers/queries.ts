@@ -16,6 +16,8 @@ type ApprovalLockStatesArgs = ApprovalLockStatesInput;
 type ApprovalRequestsArgs = ICursorPaginateParams & {
   status?: string;
   contentType?: string;
+  contentId?: string;
+  kind?: string;
   requesterIds?: string[];
   approverIds?: string[];
 };
@@ -46,6 +48,16 @@ const generateApprovalRequestsFilter = (
 
   if (params.contentType) {
     filter.contentType = params.contentType;
+  }
+
+  // A record's own page asks what is pending on it, rather than reading the
+  // whole list and filtering client side.
+  if (params.contentId) {
+    filter.contentId = params.contentId;
+  }
+
+  if (params.kind) {
+    filter.kind = params.kind;
   }
 
   if (params.requesterIds?.length) {

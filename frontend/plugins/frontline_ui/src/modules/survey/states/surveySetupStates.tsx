@@ -16,6 +16,7 @@ import {
 } from '@/survey/constants/surveySetupSchema';
 import {
   ISurvey,
+  ISurveyAttachment,
   ISurveyOption,
   ISurveyStep,
 } from '@/survey/types/surveyTypes';
@@ -36,6 +37,7 @@ export interface ISurveyMutationStep {
   description: string;
   order: number;
   question: string;
+  attachments: ISurveyAttachment[];
   allowMultiselect: boolean;
   options: ISurveyMutationOption[];
 }
@@ -46,6 +48,16 @@ export interface ISurveyMutationInput {
   durationHours: number | null;
   steps: ISurveyMutationStep[];
 }
+
+const toAttachments = (
+  attachments: ISurveyAttachment[] = [],
+): ISurveyAttachment[] =>
+  attachments.map((attachment) => ({
+    url: attachment.url,
+    name: attachment.name,
+    type: attachment.type,
+    size: attachment.size,
+  }));
 
 export const surveySetupStepAtom = atomWithStorage<number>(
   SURVEY_STORAGE_KEYS.STEP,
@@ -92,6 +104,7 @@ export const surveySetupValuesAtom = atom((get) => {
       description: step.description.trim(),
       order: index,
       question: step.question.trim(),
+      attachments: toAttachments(step.attachments),
       allowMultiselect: step.allowMultiselect,
       options: step.options.map((option, optionIndex) => ({
         ...(option._id ? { _id: option._id } : {}),
@@ -141,6 +154,7 @@ const toContentStep = (step: ISurveyStep): TSurveyContentStep => ({
   name: step.name ?? '',
   description: step.description ?? '',
   question: step.question,
+  attachments: toAttachments(step.attachments),
   allowMultiselect: Boolean(step.allowMultiselect),
   options: toContentOptions(step.options),
 });
@@ -158,6 +172,7 @@ const toSurveyContentSteps = (survey: ISurvey): TSurveyContentStep[] => {
       name: '',
       description: '',
       question: survey.question,
+      attachments: [],
       allowMultiselect: Boolean(survey.allowMultiselect),
       options: toContentOptions(survey.options),
     },
