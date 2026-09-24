@@ -1,3 +1,4 @@
+import { ICustomField } from 'erxes-api-shared/core-types';
 import { IConversationDocument } from '@/inbox/@types/conversations';
 import { isCallProEnabled } from '@/integrations/callpro/config';
 import { debugCallProError } from '@/integrations/callpro/debuggers';
@@ -6,6 +7,37 @@ import { callProGetAudio } from '@/integrations/callpro/messageBroker';
 import { IContext } from '~/connectionResolvers';
 
 export default {
+  // Reads the legacy `customsData` field (pre-rename raw schema path, never
+  // exposed to GraphQL) for conversations saved before propertiesData existed,
+  // so any such record still surfaces in the Properties tab.
+  propertiesData(conversation: IConversationDocument) {
+    if (
+      conversation.propertiesData &&
+      Object.keys(conversation.propertiesData).length
+    ) {
+      return conversation.propertiesData;
+    }
+
+    const legacyCustomFieldsData = conversation.get('customsData') as
+      | ICustomField[]
+      | undefined;
+
+    if (!Array.isArray(legacyCustomFieldsData) || !legacyCustomFieldsData.length) {
+      return conversation.propertiesData;
+    }
+
+    return legacyCustomFieldsData.reduce<Record<string, unknown>>(
+      (acc, customField) => {
+        if (customField.field) {
+          acc[customField.field] = customField.value ?? customField.stringValue;
+        }
+
+        return acc;
+      },
+      {},
+    );
+  },
+
   /**
    * Get idle time in minutes
    */

@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-09-23`
+- **Last synchronized:** `2026-09-24`
 
 ## Scope
 
@@ -1821,6 +1821,14 @@ CallConversationDetail` resolves the call integration by `queueName` first,
   `subdomain`.
 - Schemas are defined with `new Schema(...)` and explicit fields; do not
   introduce new `schemaWrapper` usage — existing usages stay as they are.
+- `Conversation.propertiesData`'s field resolver falls back to the legacy raw
+  `customsData` path (the pre-rename schema field, never exposed to GraphQL)
+  when `propertiesData` is empty, converting its `[{field, value,
+  stringValue}]` shape into the `{ [fieldId]: value }` map. No document is
+  known to actually hold data there — the old write path never matched either
+  field name — so this is a defensive read-only fallback, not a migration;
+  keep the underlying schema field name `propertiesData` and do not write to
+  `customsData`.
 
 ## Validation
 
@@ -1901,6 +1909,18 @@ CallConversationDetail` resolves the call integration by `queueName` first,
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-24` — Conversation properties fall back to the legacy field on read
+
+- **Summary:** `Conversation.propertiesData`'s field resolver now falls back
+  to the pre-rename `customsData` schema path (converted from its legacy
+  `[{field, value, stringValue}]` shape) when `propertiesData` is empty, as a
+  defensive read-only safety net. No real data is known to exist there — the
+  old write path never matched either field name, so it always saved nothing.
+- **Affected areas:**
+  `src/modules/inbox/graphql/resolvers/customResolvers/conversation.ts`
+- **Contracts changed:** None — `Conversation.propertiesData` resolution
+  behavior only, no schema or argument change.
 
 ### `2026-09-22` — Client portal users request surveys for approval
 
@@ -2027,32 +2047,4 @@ CallConversationDetail` resolves the call integration by `queueName` first,
   `Duplicate dstTrunk detected.` are no longer returned by
   `integrationsCreateExternalIntegration` or integration edit.
 
-### `2026-09-15` — Conversation custom properties actually persist
 
-- **Summary:** Restored the 2.0-era link between conversations and core's
-  custom-properties system, which the 3.0 rewrite had left broken: the
-  Mongoose field had been silently renamed to `customsData` (never read or
-  written anywhere else, and mismatched with the `customFieldsData` the
-  GraphQL type/mutation already declared, so Mongoose's strict mode silently
-  dropped every write), and no validation call into core `fields` existed for
-  conversations. The field is now `propertiesData` (`Schema.Types.Mixed`) —
-  named to match the platform-wide convention every other entity with this UI
-  treatment uses (`Ticket.propertiesData`, `Customer.propertiesData`,
-  `Company.propertiesData`, `Product.propertiesData`, `User.propertiesData`),
-  not the `customFieldsData` name 2.0 used. `customFieldsData` is what those
-  same entities keep as a _legacy_ array-shaped field for old data. It is not
-  the live one. `Conversations.updateConversation` validates the new field
-  through core `fields.validateFieldValues` before persisting, mirroring
-  `modules/ticket/db/ticket.ts`. `conversationEditCustomFields`'s GraphQL
-  argument was renamed from `customFieldsData` to `propertiesData` to match —
-  safe because the mutation never worked before this change, so nothing
-  depended on the old argument name.
-- **Affected areas:** `modules/inbox/db/definitions/conversations.ts`,
-  `modules/inbox/db/models/Conversations.ts`,
-  `modules/inbox/@types/conversations.ts`,
-  `modules/inbox/graphql/schemas/conversation.ts`,
-  `modules/inbox/graphql/resolvers/mutations/conversations.ts`.
-- **Contracts changed:** `Conversation.customFieldsData` field renamed to
-  `Conversation.propertiesData`; `conversationEditCustomFields`'s
-  `customFieldsData` argument renamed to `propertiesData`. Both existed in the
-  schema already but never worked, so no real caller is affected.
