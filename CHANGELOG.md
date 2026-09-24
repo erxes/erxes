@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.2.4](https://github.com/erxes/erxes/compare/3.2.3...3.2.4) (2026-09-24)
+
+
+### Features
+
+* **workflows:** upgrade pnpm version from 8 to 9 across CI configurations ([b7d8a1b](https://github.com/erxes/erxes/commit/b7d8a1b94d9b1785b872ff2a097b965f5dae629a))
+
 ## [3.2.3](https://github.com/erxes/erxes/compare/3.2.2...3.2.3) (2026-09-24)
 
 
