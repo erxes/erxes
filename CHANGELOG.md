@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.2.3](https://github.com/erxes/erxes/compare/3.2.2...3.2.3) (2026-09-24)
+
+
+### Features
+
+* **automatio:** enhance object field schema with options and validation, update related components ([3b849be](https://github.com/erxes/erxes/commit/3b849bedc577468ef139cdf7ecf0b8f95f35afe9))
+* **automation:** refactor secondary sidebar and introduce panel management ([2d4e1d7](https://github.com/erxes/erxes/commit/2d4e1d7fc03984ad726064375c842be5d3b3e551))
+
 ## [3.2.2](https://github.com/erxes/erxes/compare/3.2.1...3.2.2) (2026-09-24)
 
 
