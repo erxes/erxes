@@ -48,7 +48,7 @@ export const BroadcastCalendarEntry = ({
               {entryTime(entry)}
             </span>
             <span className="min-w-0 flex-1 truncate">
-              {entry.title || 'Untitled'}
+              {entry.title || t('untitled')}
             </span>
           </button>
         </Tooltip.Trigger>

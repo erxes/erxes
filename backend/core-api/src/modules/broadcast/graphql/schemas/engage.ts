@@ -301,6 +301,41 @@ export const types = `
   }
 `;
 
+export const recipientEmailTypes = `
+  type BroadcastRecipientEmailEvent {
+    status: String
+    createdAt: Date
+  }
+
+  type BroadcastRecipientEmail {
+    to: String
+    from: String
+    replyTo: String
+    subject: String
+    html: String
+    status: String
+    reason: String
+    sentAt: Date
+    events: [BroadcastRecipientEmailEvent]
+  }
+`;
+
+export const dryRunTypes = `
+  type BroadcastEmailFieldCoverage {
+    id: String
+    filled: Int
+    missing: Int
+  }
+
+  type BroadcastEmailDryRun {
+    sampled: Int
+    fields: [BroadcastEmailFieldCoverage]
+    unresolved: [String]
+    sampleTo: String
+    sampleHtml: String
+  }
+`;
+
 const filterParams = `
   kind: String
   trigger: String
@@ -318,6 +353,8 @@ const queryParams = `
 `;
 
 export const queries = `
+  broadcastEmailDryRun(_id: String!, sampleSize: Int): BroadcastEmailDryRun
+  broadcastRecipientEmail(_id: String!): BroadcastRecipientEmail
   engageMessages(${queryParams}): EngageMessageListResponse
   engageMessagesTotalCount(${queryParams}): Int
   engageMessageDetail(_id: String): EngageMessage
@@ -374,7 +411,7 @@ export const mutations = `
     scope: String
   ): String
   engageMessageRemoveVerifiedEmail(email: String!, scope: String): String
-  engageMessageSendTestEmail(from: String!, to: String!, content: String, contentJson: JSON, contentFormat: String, previewText: String, title: String!): String
+  engageMessageSendTestEmail(from: String!, to: String!, content: String!, contentFormat: String, title: String!): String
   engageMessageCopy(_id: String!): EngageMessage
   engageMessageSetSchedule(
     _id: String!

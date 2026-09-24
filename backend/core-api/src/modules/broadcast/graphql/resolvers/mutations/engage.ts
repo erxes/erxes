@@ -12,12 +12,13 @@ import {
 import { TBroadcastRecurrence } from '@/broadcast/utils/recurrence';
 import { scheduledAt } from '@/broadcast/utils/schedule';
 import {
-  JSONContent,
+  recordPlaceholderResolver,
   renderEmailContent,
   TEmailContentFormat,
 } from 'erxes-api-shared/core-modules';
 import { deliverEmail, ISingleSenderInput } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
+import { documentResolver } from '~/modules/documents/replacePlaceholders';
 import { TEmailScope } from '~/utils/email/scope';
 import { createDeliveryLogPort } from '~/utils/email/ports';
 import { removeVerifiedSender, verifySender } from '~/utils/email/senders';
@@ -209,18 +210,15 @@ export const engageMutations = {
     args: {
       from: string;
       to: string;
-      content?: string;
-      contentJson?: JSONContent;
+      content: string;
       contentFormat?: TEmailContentFormat;
-      previewText?: string;
       title: string;
     },
     { subdomain, models }: IContext,
   ) {
-    const { content, contentJson, contentFormat, previewText, from, to, title } =
-      args;
+    const { content, contentFormat, from, to, title } = args;
 
-    if (!((content || contentJson) && from && to && title)) {
+    if (!(content && from && to && title)) {
       throw new Error(
         'Email content, title, from address or to address is missing',
       );
@@ -240,9 +238,12 @@ export const engageMutations = {
     }
 
     const html = await renderEmailContent(
-      { content, contentJson, contentFormat, previewText },
+      { content, contentFormat },
       {
-        replacer: targetUser || fromUser || {},
+        resolvers: [
+          documentResolver({ models }),
+          recordPlaceholderResolver(targetUser || fromUser || {}),
+        ],
         replaceBlocks: async (blocks) => {
           const attributeUtil = await getEditorAttributeUtil(subdomain);
 

@@ -9,8 +9,9 @@ import { useAutomationFormController } from '@/automations/hooks/useFormSetValue
 import { useNodeConnect } from '@/automations/hooks/useNodeConnect';
 import { useNodeEvents } from '@/automations/hooks/useNodeEvents';
 import { AutomationNodeType, NodeData } from '@/automations/types';
-import BroadcastActionNode from '@/broadcast/components/workflow/components/BroadcastActionNode';
-import BroadcastStartNode, {
+import { BroadcastActionNode } from '@/broadcast/components/workflow/components/BroadcastActionNode';
+import {
+  BroadcastStartNode,
   BROADCAST_START_NODE_ID,
 } from '@/broadcast/components/workflow/components/BroadcastStartNode';
 import { useBroadcastWorkflowCanvas } from '@/broadcast/components/workflow/hooks/useBroadcastWorkflowCanvas';

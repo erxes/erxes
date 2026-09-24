@@ -21,6 +21,7 @@ import { Link } from 'react-router';
 import { TBroadcastRecipient, TRecipientOutcome } from '../../../types';
 import {
   recipientOutcome,
+  hasRecipientReason,
   recipientReason,
 } from '../../../utils/recipientOutcome';
 import { useTranslation } from 'react-i18next';
@@ -83,8 +84,14 @@ const CustomerCell = ({ recipient }: { recipient: TBroadcastRecipient }) => {
   );
 };
 
-const StatusCell = ({ recipient }: { recipient: TBroadcastRecipient }) => {
-  const outcome = recipientOutcome(recipient);
+const StatusCell = ({
+  recipient,
+  hasFlow,
+}: {
+  recipient: TBroadcastRecipient;
+  hasFlow: boolean;
+}) => {
+  const outcome = recipientOutcome(recipient, { hasFlow });
   const { icon: Icon, variant } = OUTCOME_BADGE[outcome];
 
   return (
@@ -103,19 +110,29 @@ const StatusCell = ({ recipient }: { recipient: TBroadcastRecipient }) => {
  * Only built when the loaded page has a reason to show. A healthy run has one
  * for nobody, and a column that is then all dashes says less than no column.
  */
+const RecipientReasonCell = ({
+  recipient,
+}: {
+  recipient: TBroadcastRecipient;
+}) => {
+  const { t } = useTranslation('broadcasts');
+
+  return (
+    <RecordTableInlineCell className="text-muted-foreground">
+      {recipientReason(recipient, t) || '—'}
+    </RecordTableInlineCell>
+  );
+};
+
 const reasonColumn: ColumnDef<TBroadcastRecipient> = {
   id: 'reason',
   accessorKey: 'reason',
   header: () => <Head labelKey="recipients.reason" />,
-  cell: ({ cell }) => (
-    <RecordTableInlineCell className="text-muted-foreground">
-      {recipientReason(cell.row.original) || '—'}
-    </RecordTableInlineCell>
-  ),
+  cell: ({ cell }) => <RecipientReasonCell recipient={cell.row.original} />,
   size: 260,
 };
 
-const baseColumns: ColumnDef<TBroadcastRecipient>[] = [
+const baseColumns = (hasFlow: boolean): ColumnDef<TBroadcastRecipient>[] => [
   {
     id: 'customer',
     accessorKey: 'customerId',
@@ -127,7 +144,9 @@ const baseColumns: ColumnDef<TBroadcastRecipient>[] = [
     id: 'status',
     accessorKey: 'status',
     header: () => <Head labelKey="columns.status" />,
-    cell: ({ cell }) => <StatusCell recipient={cell.row.original} />,
+    cell: ({ cell }) => (
+      <StatusCell recipient={cell.row.original} hasFlow={hasFlow} />
+    ),
     size: 140,
   },
 ];
@@ -159,7 +178,8 @@ const updatedColumn: ColumnDef<TBroadcastRecipient> = {
 
 export const buildRecipientColumns = (
   recipients: TBroadcastRecipient[],
+  { hasFlow = false }: { hasFlow?: boolean } = {},
 ): ColumnDef<TBroadcastRecipient>[] =>
-  recipients.some((recipient) => recipientReason(recipient))
-    ? [...baseColumns, reasonColumn, updatedColumn]
-    : [...baseColumns, updatedColumn];
+  recipients.some(hasRecipientReason)
+    ? [...baseColumns(hasFlow), reasonColumn, updatedColumn]
+    : [...baseColumns(hasFlow), updatedColumn];

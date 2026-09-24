@@ -60,7 +60,7 @@ const audience = (
   }
 
   const [first, ...rest] = list;
-  const name = first.name?.trim() || 'Untitled';
+  const name = first.name?.trim() || t('untitled');
 
   return { Icon, label: rest.length ? `${name} +${rest.length}` : name };
 };

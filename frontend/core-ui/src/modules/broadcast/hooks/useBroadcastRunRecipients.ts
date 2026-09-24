@@ -1,10 +1,10 @@
 import { IAutomation } from '@/automations/types';
 import { TAutomationBuilderForm } from '@/automations/utils/automationFormDefinitions';
-import { useQuery } from '@apollo/client';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { BROADCAST_RUNS } from '../graphql/queries';
-import { TBroadcastRecipient, TBroadcastRun } from '../types';
+import { TBroadcastRecipient } from '../types';
+import { useBroadcastChanged } from './useBroadcastChanged';
+import { useBroadcastRuns } from './useBroadcastRuns';
 import { useBroadcastRecipients } from './useBroadcastRecipients';
 
 /**
@@ -34,16 +34,13 @@ export const useBroadcastRunRecipients = (
     } as TAutomationBuilderForm,
   });
 
-  const { data, loading: runsLoading } = useQuery(BROADCAST_RUNS, {
-    variables: { engageMessageId: messageId },
-    skip: !messageId,
-  });
-
-  const runs: TBroadcastRun[] = data?.engageBroadcastRuns ?? [];
+  const { runs, loading: runsLoading } = useBroadcastRuns(messageId);
   // The newest run is what someone opening this wants, until they pick another.
   const selectedRun = runs.find((run) => run._id === runId) ?? runs[0];
 
   const recipients = useBroadcastRecipients(selectedRun?._id);
+
+  useBroadcastChanged(messageId, recipients.handleChanged, !messageId);
 
   return {
     form,

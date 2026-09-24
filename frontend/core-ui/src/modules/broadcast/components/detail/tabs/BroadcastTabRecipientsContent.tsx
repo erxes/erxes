@@ -5,15 +5,17 @@ import { AutomationProvider } from '@/automations/context/AutomationProvider';
 import { useAutomationDetail } from '@/automations/hooks/useAutomationDetail';
 import { IAutomation } from '@/automations/types';
 import { TAutomationBuilderForm } from '@/automations/utils/automationFormDefinitions';
-import { IconUsers, IconX } from '@tabler/icons-react';
+import { IconRefresh, IconUsers, IconX } from '@tabler/icons-react';
 import { ReactFlowProvider } from '@xyflow/react';
 import {
   Button,
+  cn,
   Empty,
   RecordTable,
   Resizable,
   Select,
   Skeleton,
+  Tooltip,
 } from 'erxes-ui';
 import { FormProvider, UseFormReturn } from 'react-hook-form';
 import { BROADCAST_RECIPIENTS_CURSOR_SESSION_KEY } from '../../../constants';
@@ -24,6 +26,7 @@ import {
   buildRecipientColumns,
   recipientDisplayName,
 } from '../recipients/BroadcastRecipientColumns';
+import { BroadcastRecipientEmail } from '../recipients/BroadcastRecipientEmail';
 import { BroadcastRecipientFilter } from '../recipients/BroadcastRecipientFilter';
 import { useTranslation } from 'react-i18next';
 
@@ -83,6 +86,8 @@ const BroadcastRecipients = ({
     hasNextPage,
     hasPreviousPage,
     handleFetchMore,
+    hasChanges,
+    reload,
   } = useBroadcastRunRecipients(message?._id, automation);
 
   if (runsLoading) {
@@ -98,10 +103,7 @@ const BroadcastRecipients = ({
               <IconUsers />
             </Empty.Media>
             <Empty.Title>{t('recipients.empty-title')}</Empty.Title>
-            <Empty.Description>
-              The people this campaign targets are written down when it goes
-              live.
-            </Empty.Description>
+            <Empty.Description>{t('recipients.empty-body')}</Empty.Description>
           </Empty.Header>
         </Empty>
       </div>
@@ -129,11 +131,51 @@ const BroadcastRecipients = ({
             <p className="text-sm font-medium">{t('tab.recipients')}</p>
           )}
 
-          <p className="text-xs tabular-nums text-muted-foreground">
-            {list.length < totalCount
-              ? `${list.length} of ${totalCount.toLocaleString()}`
-              : totalCount.toLocaleString()}
-          </p>
+          <div className="flex items-center gap-2">
+            <p className="text-xs tabular-nums text-muted-foreground">
+              {list.length < totalCount
+                ? t('recipients.loaded-of', {
+                    loaded: list.length,
+                    total: totalCount.toLocaleString(),
+                  })
+                : totalCount.toLocaleString()}
+            </p>
+
+            {/* A run moves while this is open. Further down the list it is not
+                asked again unasked, so the change is offered instead. */}
+            {hasChanges ? (
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7"
+                disabled={loading}
+                onClick={reload}
+              >
+                <IconRefresh className="size-4" />
+                {t('recipients.new-changes')}
+              </Button>
+            ) : (
+              <Tooltip>
+                <Tooltip.Trigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="size-7"
+                    aria-label={t('recipients.refresh')}
+                    disabled={loading}
+                    onClick={reload}
+                  >
+                    <IconRefresh
+                      className={cn('size-4', loading && 'animate-spin')}
+                    />
+                  </Button>
+                </Tooltip.Trigger>
+                <Tooltip.Content side="bottom">
+                  {t('recipients.refresh')}
+                </Tooltip.Content>
+              </Tooltip>
+            )}
+          </div>
         </div>
 
         <div className="flex flex-none items-center gap-2 border-b px-4 py-2">
@@ -147,7 +189,12 @@ const BroadcastRecipients = ({
             className="min-h-0"
           >
             <RecordTable.Provider
-              columns={buildRecipientColumns(list)}
+              columns={buildRecipientColumns(list, {
+                // Read off the campaign, not off the loaded automation: a
+                // campaign either has a flow or it does not, whether or not
+                // that flow has finished loading.
+                hasFlow: !!message?.workflowAutomationId,
+              })}
               data={list}
               className="h-full min-h-0"
             >
@@ -200,7 +247,11 @@ const BroadcastRecipients = ({
                   </div>
 
                   <div className="min-h-0 flex-1">
-                    {executionId ? (
+                    {/* A campaign without a flow answers for itself: the
+                        message that went out, and what became of it. */}
+                    {!message?.workflowAutomationId ? (
+                      <BroadcastRecipientEmail recipientId={selected._id} />
+                    ) : executionId ? (
                       <AutomationHistoryDetailProvider
                         key={executionId}
                         executionId={executionId}
@@ -214,8 +265,8 @@ const BroadcastRecipients = ({
                     ) : (
                       <div className="flex h-full items-center justify-center px-6 text-center">
                         <p className="max-w-md text-sm text-muted-foreground">
-                          {recipientReason(selected) ||
-                            'No flow ran for this person yet.'}
+                          {recipientReason(selected, t) ||
+                            t('recipients.no-flow')}
                         </p>
                       </div>
                     )}

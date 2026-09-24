@@ -8,7 +8,6 @@ import {
   TAutomationBuilderActions,
   TAutomationBuilderForm,
 } from '@/automations/utils/automationFormDefinitions';
-import { IconAlertTriangle } from '@tabler/icons-react';
 import { Input, Label, Select, Switch } from 'erxes-ui';
 import { Path, PathValue } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -108,12 +107,7 @@ export const ActionErrorPolicySection = ({
   };
 
   return (
-    <div className="flex flex-col gap-4 border-t bg-sidebar p-4">
-      <div className="flex items-center gap-2">
-        <IconAlertTriangle className="size-4 text-muted-foreground" />
-        <p className="text-sm font-semibold">{t('error-handling-title')}</p>
-      </div>
-
+    <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between gap-4">
         <Label htmlFor="retry-enabled">{t('error-retry-label')}</Label>
         <Switch

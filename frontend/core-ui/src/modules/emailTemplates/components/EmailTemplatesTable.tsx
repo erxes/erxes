@@ -14,10 +14,14 @@ import {
   RecordTable,
   RecordTableInlineCell,
   RelativeDateDisplay,
-  Spinner,
 } from 'erxes-ui';
 import { useNavigate } from 'react-router';
 import { MembersInline } from 'ui-modules';
+import { useEmailTemplates } from '@/emailTemplates/hooks/useEmailTemplates';
+import {
+  EmailTemplatesEmptyState,
+  EmailTemplatesErrorState,
+} from '@/emailTemplates/components/EmailTemplatesStates';
 
 const FORMAT_LABEL = {
   maily: 'Email editor',
@@ -38,18 +42,13 @@ const NameCell = ({ template }: { template: IEmailTemplate }) => {
   );
 };
 
-const getColumns = (
-  onRemove: (id: string) => void,
-): ColumnDef<IEmailTemplate>[] => [
+const emailTemplateColumns: ColumnDef<IEmailTemplate>[] = [
   {
     id: 'more',
     size: 33,
     header: () => <RecordTable.ColumnSelector />,
     cell: ({ cell }) => (
-      <EmailTemplateActions
-        templateId={cell.row.original._id}
-        onRemove={onRemove}
-      />
+      <EmailTemplateActions templateId={cell.row.original._id} />
     ),
   },
   {
@@ -123,37 +122,50 @@ const getColumns = (
   },
 ];
 
-export const EmailTemplatesTable = ({
-  templates,
-  loading,
-  onRemove,
-}: {
-  templates: IEmailTemplate[];
-  loading: boolean;
-  onRemove: (id: string) => void;
-}) => {
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-8">
-        <Spinner />
-      </div>
-    );
+export const EmailTemplatesTable = () => {
+  const { emailTemplates, pageInfo, loading, error, refetch, handleFetchMore } =
+    useEmailTemplates();
+  const { hasPreviousPage, hasNextPage } = pageInfo || {};
+
+  if (error) {
+    return <EmailTemplatesErrorState error={error} onRetry={() => refetch()} />;
+  }
+
+  if (!loading && !emailTemplates.length) {
+    return <EmailTemplatesEmptyState />;
   }
 
   return (
     <RecordTable.Provider
-      columns={getColumns(onRemove)}
-      data={templates}
-      className="m-3 h-full"
+      columns={emailTemplateColumns}
+      data={emailTemplates}
+      className="m-3"
       stickyColumns={['more', 'name']}
       tableId="email_templates_record_table"
     >
-      <RecordTable>
-        <RecordTable.Header />
-        <RecordTable.Body>
-          <RecordTable.RowList />
-        </RecordTable.Body>
-      </RecordTable>
+      <RecordTable.CursorProvider
+        hasPreviousPage={hasPreviousPage}
+        hasNextPage={hasNextPage}
+        dataLength={emailTemplates.length}
+        sessionKey="email-templates-cursor"
+      >
+        <RecordTable>
+          <RecordTable.Header />
+          <RecordTable.Body>
+            <RecordTable.CursorBackwardSkeleton
+              handleFetchMore={handleFetchMore}
+            />
+            {loading ? (
+              <RecordTable.RowSkeleton rows={32} />
+            ) : (
+              <RecordTable.RowList />
+            )}
+            <RecordTable.CursorForwardSkeleton
+              handleFetchMore={handleFetchMore}
+            />
+          </RecordTable.Body>
+        </RecordTable>
+      </RecordTable.CursorProvider>
     </RecordTable.Provider>
   );
 };

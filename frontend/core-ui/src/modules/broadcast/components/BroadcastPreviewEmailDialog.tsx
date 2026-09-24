@@ -1,39 +1,33 @@
-import { useLazyQuery } from '@apollo/client';
 import { IconEye } from '@tabler/icons-react';
 import {
   Avatar,
   Button,
   Dialog,
+  EmailPreviewDevice,
+  EmailPreviewDeviceToggle,
   EmailPreviewFrame,
   Spinner,
   Tooltip,
 } from 'erxes-ui';
+import { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { EMAIL_CONTENT_PREVIEW } from '@/emailTemplates/graphql/queries';
+import { useBroadcastEmailPreview } from '../hooks/useBroadcastEmailPreview';
 import { useBroadcastEmailReadiness } from '../hooks/useBroadcastEmailReadiness';
 
 export const BroadcastPreviewEmailDialog = () => {
   const { getValues } = useFormContext();
   const { t } = useTranslation('broadcasts', { keyPrefix: 'composer' });
   const { from, blockers, ready } = useBroadcastEmailReadiness();
-  const [fetchPreview, { data, loading, error }] = useLazyQuery(
-    EMAIL_CONTENT_PREVIEW,
-  );
+  const { render, html, loading, error } = useBroadcastEmailPreview();
+  const [device, setDevice] = useState<EmailPreviewDevice>('desktop');
 
   const { email } = getValues();
 
   const handleOpenChange = (open: boolean) => {
-    if (!open) {
-      return;
+    if (open) {
+      render(email);
     }
-
-    fetchPreview({
-      variables: {
-        contentJson: email?.contentJson,
-        previewText: email?.previewText,
-      },
-    });
   };
 
   const trigger = (
@@ -87,6 +81,8 @@ export const BroadcastPreviewEmailDialog = () => {
               </div>
             )}
           </div>
+
+          <EmailPreviewDeviceToggle value={device} onChange={setDevice} />
         </div>
 
         {loading ? (
@@ -98,10 +94,7 @@ export const BroadcastPreviewEmailDialog = () => {
             {error.message}
           </div>
         ) : (
-          <EmailPreviewFrame
-            html={data?.emailContentPreview || ''}
-            className="flex-1"
-          />
+          <EmailPreviewFrame html={html} device={device} className="flex-1" />
         )}
       </Dialog.Content>
     </Dialog>

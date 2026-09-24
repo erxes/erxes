@@ -1,7 +1,13 @@
-import { SAMPLE_EMAIL_PAYLOADS } from '@/emailTemplates/constants';
 import { useEmailContentPreview } from '@/emailTemplates/hooks/useEmailContentPreview';
 import { TEmailContentFormat } from '@/emailTemplates/types';
-import { EmailPreviewFrame, JSONContent, Spinner } from 'erxes-ui';
+import {
+  EmailPreviewDevice,
+  EmailPreviewFrame,
+  JSONContent,
+  Spinner,
+} from 'erxes-ui';
+import { useState } from 'react';
+import { SelectCustomer } from 'ui-modules';
 
 /** The rendered email, beside the one being written. */
 export const EmailContentPreview = ({
@@ -9,37 +15,57 @@ export const EmailContentPreview = ({
   contentJson,
   contentFormat,
   previewText,
+  device,
 }: {
   content?: string;
   contentJson?: JSONContent;
   contentFormat?: TEmailContentFormat;
   previewText?: string;
+  device?: EmailPreviewDevice;
 }) => {
+  // Rehearsed on somebody real when one is picked. A field is only ever wrong
+  // or merely thin against an actual record, never against nothing.
+  const [replacerId, setReplacerId] = useState<string>();
+
   const { html, loading, error } = useEmailContentPreview({
     content,
     contentJson,
     contentFormat,
     previewText,
-    // A repeated block has nothing to walk while the email is being written,
-    // so the preview walks a sample of the shape it expects.
-    payloads: SAMPLE_EMAIL_PAYLOADS,
+    replacerId,
   });
 
-  if (error) {
-    return (
-      <div className="flex h-full items-center justify-center p-6 text-center text-sm text-destructive">
-        {error.message}
+  return (
+    <div className="flex h-full min-h-0 flex-col">
+      <div className="flex shrink-0 items-center gap-2 border-b px-3 py-2">
+        <span className="shrink-0 text-xs text-muted-foreground">
+          Preview as
+        </span>
+        <SelectCustomer
+          mode="single"
+          value={replacerId ? [replacerId] : []}
+          onValueChange={(value) =>
+            setReplacerId(
+              (Array.isArray(value) ? value[0] : value) || undefined,
+            )
+          }
+          className="h-7"
+        />
       </div>
-    );
-  }
 
-  if (!html) {
-    return (
-      <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
-        {loading ? <Spinner /> : 'Nothing written yet'}
+      <div className="min-h-0 flex-1">
+        {error ? (
+          <div className="flex h-full items-center justify-center p-6 text-center text-sm text-destructive">
+            {error.message}
+          </div>
+        ) : !html ? (
+          <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
+            {loading ? <Spinner /> : 'Nothing written yet'}
+          </div>
+        ) : (
+          <EmailPreviewFrame html={html} device={device} className="h-full" />
+        )}
       </div>
-    );
-  }
-
-  return <EmailPreviewFrame html={html} className="h-full" />;
+    </div>
+  );
 };

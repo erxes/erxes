@@ -1,11 +1,10 @@
 import { IconSend } from '@tabler/icons-react';
-import { Button, cn, Input, Popover, useToast } from 'erxes-ui';
+import { Button, cn, Input, Popover } from 'erxes-ui';
 import { useState } from 'react';
-import { useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import { useBroadcastEmailReadiness } from '../hooks/useBroadcastEmailReadiness';
-import { useBroadcastSendTestEmail } from '../hooks/useBroadcastSendTestEmail';
+import { useBroadcastTestEmail } from '../hooks/useBroadcastTestEmail';
 
 const isSingleEmail = (value: string) =>
   !value.includes(',') && z.string().email().safeParse(value.trim()).success;
@@ -15,16 +14,14 @@ export const BroadcastSendTestEmail = ({
 }: {
   variant?: 'secondary' | 'ghost';
 }) => {
-  const { getValues } = useFormContext();
-  const { toast } = useToast();
   const { t } = useTranslation('broadcasts', { keyPrefix: 'composer' });
-  const { sendTestEmail, loading: sendLoading } = useBroadcastSendTestEmail();
   const {
     from,
     blockers,
     ready,
     loading: senderOptionsLoading,
-  } = useBroadcastEmailReadiness();
+  } = useBroadcastEmailReadiness({ requireSubject: true });
+  const { send, loading: sendLoading } = useBroadcastTestEmail(from);
 
   const [to, setTo] = useState('');
   const [open, setOpen] = useState(false);
@@ -33,29 +30,10 @@ export const BroadcastSendTestEmail = ({
   const isValid = isSingleEmail(to);
   const showInvalid = to.length > 0 && !isValid;
 
-  const handleSend = () => {
-    const { email } = getValues();
-
-    sendTestEmail({
-      variables: {
-        from,
-        to,
-        contentJson: email?.contentJson,
-        contentFormat: email?.contentFormat || 'maily',
-        previewText: email?.previewText,
-        title: email?.subject || '',
-      },
-      onCompleted: () => {
-        toast({
-          variant: 'default',
-          title: t('sendTestEmailSuccess', { email: to }),
-        });
-        setOpen(false);
-      },
-      onError: (error) => {
-        toast({ variant: 'destructive', title: error.message });
-      },
-    });
+  const handleSend = async () => {
+    if (await send(to)) {
+      setOpen(false);
+    }
   };
 
   return (

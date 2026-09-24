@@ -4,11 +4,7 @@ import {
 } from '@/broadcast/components/workflow/components/BroadcastWorkflowEditor';
 import { useCallback } from 'react';
 import { useFormContext } from 'react-hook-form';
-
-const START_LABEL_BY_TARGET: Record<string, string> = {
-  segment: 'Customer',
-  tag: 'Customer',
-};
+import { useTranslation } from 'react-i18next';
 
 /**
  * The flow is drawn here rather than on a separate page, so a campaign can be
@@ -17,8 +13,8 @@ const START_LABEL_BY_TARGET: Record<string, string> = {
  * automation its actions.
  */
 export const BroadcastWorkflowPreview = () => {
-  const { setValue, getValues, watch } = useFormContext();
-  const targetType = watch('targetType');
+  const { t } = useTranslation('broadcasts');
+  const { setValue, getValues } = useFormContext();
 
   const handleChange = useCallback(
     (workflow: TBroadcastWorkflow) => {
@@ -30,7 +26,7 @@ export const BroadcastWorkflowPreview = () => {
   return (
     <BroadcastWorkflowEditor
       value={getValues('workflow')}
-      startLabel={START_LABEL_BY_TARGET[targetType] || 'Customer'}
+      startLabel={t('workflow.start-customer')}
       onChange={handleChange}
     />
   );

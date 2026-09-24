@@ -42,6 +42,38 @@ export const broadcastRunSchema = new Schema({
     label: 'Status',
   },
   totalCount: { type: Number, default: 0, label: 'Recipients' },
+
+  // What the first recipient of this run was actually sent. Kept once per run
+  // rather than per delivery: without it, "what did that person get" has no
+  // answer once the run is over, and with it the answer costs one document.
+  // How often each field the body asks for was answered, across the run.
+  fieldStats: {
+    type: [
+      new Schema(
+        {
+          id: { type: String, label: 'Field' },
+          filled: { type: Number, default: 0, label: 'Answered' },
+          missing: { type: Number, default: 0, label: 'Not answered' },
+        },
+        { _id: false },
+      ),
+    ],
+    default: [],
+    label: 'Field coverage',
+  },
+
+  sample: {
+    type: new Schema(
+      {
+        to: { type: String, label: 'Sent to' },
+        html: { type: String, label: 'Rendered body' },
+        renderedAt: { type: Date, label: 'Rendered at' },
+      },
+      { _id: false },
+    ),
+    optional: true,
+    label: 'Rendered sample',
+  },
   startedAt: { type: Date, default: Date.now, label: 'Started at' },
   finishedAt: { type: Date, optional: true, label: 'Finished at' },
 });

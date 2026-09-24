@@ -2,6 +2,7 @@ import { useAutomationDetail } from '@/automations/hooks/useAutomationDetail';
 import { BroadcastWorkflowEditor } from '@/broadcast/components/workflow/components/BroadcastWorkflowEditor';
 import { IconArrowsSplit2 } from '@tabler/icons-react';
 import { Empty, Skeleton } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 /**
  * The campaign's flow, drawn where it belongs.
@@ -15,6 +16,7 @@ export const BroadcastTabPreviewWorkflowContent = ({
 }: {
   message: { workflowAutomationId?: string };
 }) => {
+  const { t } = useTranslation('broadcasts');
   const { workflowAutomationId } = message || {};
   const { automation, loading } = useAutomationDetail(workflowAutomationId);
 
@@ -25,10 +27,8 @@ export const BroadcastTabPreviewWorkflowContent = ({
           <Empty.Media variant="icon">
             <IconArrowsSplit2 />
           </Empty.Media>
-          <Empty.Title>This campaign has no workflow</Empty.Title>
-          <Empty.Description>
-            A workflow campaign builds its own automation when it is created.
-          </Empty.Description>
+          <Empty.Title>{t('workflow.none')}</Empty.Title>
+          <Empty.Description>{t('workflow.none-body')}</Empty.Description>
         </Empty.Header>
       </Empty>
     );
@@ -42,7 +42,7 @@ export const BroadcastTabPreviewWorkflowContent = ({
     <div className="h-[32rem] w-full overflow-hidden rounded-lg border">
       <BroadcastWorkflowEditor
         readOnly
-        startLabel="Customer"
+        startLabel={t('workflow.start-customer')}
         value={{
           actions: automation?.actions,
           entryActionId: automation?.triggers?.[0]?.actionId,

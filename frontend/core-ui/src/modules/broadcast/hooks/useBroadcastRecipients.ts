@@ -7,7 +7,7 @@ import {
   useRecordTableCursor,
   validateFetchMore,
 } from 'erxes-ui';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { BROADCAST_RECIPIENTS_CURSOR_SESSION_KEY } from '../constants';
 import { BROADCAST_RECIPIENTS } from '../graphql/queries';
 import {
@@ -76,6 +76,36 @@ export const useBroadcastRecipients = (runId?: string) => {
     pageInfo,
   } = data?.engageBroadcastRecipients || {};
 
+  // Asking again returns the first page only, so it is done unasked only when
+  // that is all that is loaded; further down it would pull the reader back up.
+  const isFirstPage = !cursor && list.length <= RECIPIENTS_PER_PAGE;
+  const [hasChanges, setHasChanges] = useState(false);
+
+  const handleChanged = () => {
+    if (isFirstPage) {
+      refetch();
+      return;
+    }
+
+    setHasChanges(true);
+  };
+
+  const reload = () => {
+    setHasChanges(false);
+
+    if (!cursor) {
+      refetch();
+      return;
+    }
+
+    // A new cursor re-runs the query on its own.
+    sessionStorage.removeItem(BROADCAST_RECIPIENTS_CURSOR_SESSION_KEY);
+    sessionStorage.removeItem(
+      `${BROADCAST_RECIPIENTS_CURSOR_SESSION_KEY}_scroll`,
+    );
+    setCursor('');
+  };
+
   const handleFetchMore = ({
     direction,
   }: {
@@ -116,6 +146,8 @@ export const useBroadcastRecipients = (runId?: string) => {
     hasPreviousPage: pageInfo?.hasPreviousPage,
     hasNextPage: pageInfo?.hasNextPage,
     handleFetchMore,
-    refetch,
+    hasChanges,
+    handleChanged,
+    reload,
   };
 };

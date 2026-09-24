@@ -1,47 +1,21 @@
-import { useQuery } from '@apollo/client';
 import { EmailSenderScopeProvider } from '@/settings/mail-config/contexts/EmailSenderScope';
 import { useSenderOptions } from '@/settings/mail-config/hooks/useVerifiedSenders';
 import {
   BlockEditor,
+  EmailPreviewDevice,
+  EmailPreviewDeviceToggle,
   EmailPreviewFrame,
-  JSONContent,
-  useBlockEditor,
+  Spinner,
 } from 'erxes-ui';
-import { useEffect } from 'react';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { MembersInline } from 'ui-modules';
-import { EMAIL_CONTENT_PREVIEW } from '@/emailTemplates/graphql/queries';
-
-type TEmailPreviewMessage = {
-  fromEmail?: string;
-  fromUserId?: string;
-  email?: {
-    sender?: string;
-    subject?: string;
-    content?: string;
-    contentJson?: JSONContent;
-    previewText?: string;
-    replyTo?: string;
-  };
-};
+import { useEmailContentPreview } from '@/emailTemplates/hooks/useEmailContentPreview';
+import { useBroadcastBlockPreview } from '../../hooks/useBroadcastBlockPreview';
+import { TBroadcastMessage } from '../../types';
 
 const LegacyBlockContentPreview = ({ content }: { content: string }) => {
-  const editor = useBlockEditor();
-
-  useEffect(() => {
-    const loadInitialContent = async () => {
-      let blocks;
-
-      try {
-        blocks = JSON.parse(content);
-      } catch {
-        blocks = await editor.tryParseHTMLToBlocks(content);
-      }
-
-      editor.replaceBlocks(editor.document, blocks);
-    };
-
-    loadInitialContent();
-  }, [content, editor]);
+  const editor = useBroadcastBlockPreview(content);
 
   return (
     <BlockEditor
@@ -52,33 +26,36 @@ const LegacyBlockContentPreview = ({ content }: { content: string }) => {
   );
 };
 
-const MailyContentPreview = ({
-  contentJson,
-  previewText,
-}: {
-  contentJson: JSONContent;
-  previewText?: string;
-}) => {
-  const { data, loading } = useQuery(EMAIL_CONTENT_PREVIEW, {
-    variables: { contentJson, previewText },
+const MailyContentPreview = ({ content }: { content: string }) => {
+  // The saved html is the email as sent, so only its fields are filled here.
+  const { html, loading, error } = useEmailContentPreview({
+    content,
+    contentFormat: 'maily',
   });
+  const [device, setDevice] = useState<EmailPreviewDevice>('desktop');
 
-  if (loading) {
-    return null;
+  if (error) {
+    return <p className="text-sm text-destructive">{error.message}</p>;
+  }
+
+  if (loading && !html) {
+    return <Spinner />;
   }
 
   return (
-    <EmailPreviewFrame
-      html={data?.emailContentPreview || ''}
-      className="flex-1"
-    />
+    <div className="flex min-h-0 flex-1 flex-col gap-2">
+      <div className="flex justify-end">
+        <EmailPreviewDeviceToggle value={device} onChange={setDevice} />
+      </div>
+      <EmailPreviewFrame html={html} device={device} className="flex-1" />
+    </div>
   );
 };
 
-const EmailPreview = ({ message }: { message?: TEmailPreviewMessage }) => {
+const EmailPreview = ({ message }: { message?: TBroadcastMessage }) => {
   const { fromEmail, fromUserId, email } = message || {};
-  const { sender, subject, content, contentJson, previewText, replyTo } =
-    email || {};
+  const { sender, subject, content, contentJson, replyTo } = email || {};
+  const { t } = useTranslation('broadcasts');
   const { alignedFrom } = useSenderOptions();
 
   return (
@@ -90,7 +67,9 @@ const EmailPreview = ({ message }: { message?: TEmailPreviewMessage }) => {
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">From:</span>
+          <span className="text-sm text-muted-foreground">
+            {t('composer.from')}:
+          </span>
           {alignedFrom ? (
             <span className="font-semibold">
               {sender} &lt;{alignedFrom}&gt;
@@ -109,7 +88,9 @@ const EmailPreview = ({ message }: { message?: TEmailPreviewMessage }) => {
 
         {(alignedFrom ? fromEmail : replyTo) && (
           <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">Reply to:</span>
+            <span className="text-sm text-muted-foreground">
+              {t('composer.replyTo')}:
+            </span>
             <span className="font-semibold">
               {alignedFrom ? fromEmail : replyTo}
             </span>
@@ -118,10 +99,7 @@ const EmailPreview = ({ message }: { message?: TEmailPreviewMessage }) => {
       </div>
 
       {contentJson ? (
-        <MailyContentPreview
-          contentJson={contentJson}
-          previewText={previewText}
-        />
+        <MailyContentPreview content={content || ''} />
       ) : (
         <LegacyBlockContentPreview content={content || ''} />
       )}
@@ -132,7 +110,7 @@ const EmailPreview = ({ message }: { message?: TEmailPreviewMessage }) => {
 export const BroadcastTabPreviewEmailContent = ({
   message,
 }: {
-  message?: TEmailPreviewMessage;
+  message?: TBroadcastMessage;
 }) => (
   <EmailSenderScopeProvider scope="broadcast">
     <EmailPreview message={message} />

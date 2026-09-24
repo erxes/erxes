@@ -30,14 +30,11 @@ export const lastReachableDay = (schedule: TBroadcastScheduleForm) =>
 
 export const BROADCAST_EVERY_OPTIONS: {
   value: TBroadcastEvery;
-  label: string;
-}[] = [
-  { value: 'once', label: 'Once' },
-  { value: 'day', label: 'Daily' },
-  { value: 'week', label: 'Weekly' },
-  { value: 'month', label: 'Monthly' },
-  { value: 'year', label: 'Yearly' },
-];
+  labelKey: string;
+}[] = BROADCAST_EVERY_VALUES.map((value) => ({
+  value,
+  labelKey: `schedule.every.${value}`,
+}));
 
 export const isRecurringForm = (schedule?: TBroadcastScheduleForm | null) =>
   !!schedule?.every && schedule.every !== 'once';
@@ -129,7 +126,7 @@ export const scheduleFromRange = (
   };
 };
 
-type TStoredSchedule = {
+export type TStoredSchedule = {
   dateTime?: string | null;
   // Read back from the server, so widened to what a string field can hold.
   every?: string | null;
@@ -198,33 +195,18 @@ export const scheduleToForm = (
   };
 };
 
-const MONTHS = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
-];
+type TTranslate = (key: string, options?: Record<string, unknown>) => string;
 
-const WEEKDAYS = [
-  'Sunday',
-  'Monday',
-  'Tuesday',
-  'Wednesday',
-  'Thursday',
-  'Friday',
-  'Saturday',
-];
-
-/** What one picked moment means once it is being repeated, in one line. */
-export const describeRecurrence = (schedule: TBroadcastScheduleForm) => {
+/**
+ * What one picked moment means once it is being repeated, in one line. Day
+ * and month names come from the viewer's locale rather than a list per
+ * language.
+ */
+export const describeRecurrence = (
+  schedule: TBroadcastScheduleForm,
+  t: TTranslate,
+  locale?: string,
+) => {
   const at = schedule.at;
 
   if (!at || !isRecurringForm(schedule)) {
@@ -236,21 +218,26 @@ export const describeRecurrence = (schedule: TBroadcastScheduleForm) => {
   ).padStart(2, '0')}`;
 
   if (schedule.every === 'week') {
-    return `Every ${WEEKDAYS[at.getDay()]} at ${time}`;
+    return t('schedule.repeat.week', {
+      weekday: new Intl.DateTimeFormat(locale, { weekday: 'long' }).format(at),
+      time,
+    });
   }
 
   if (schedule.every === 'month') {
-    return `Day ${Math.min(
-      at.getDate(),
-      MAX_MONTH_DAY,
-    )} of every month at ${time}`;
+    return t('schedule.repeat.month', {
+      day: Math.min(at.getDate(), MAX_MONTH_DAY),
+      time,
+    });
   }
 
   if (schedule.every === 'year') {
-    const day = Math.min(at.getDate(), lastReachableDay(schedule));
-
-    return `Every ${day} ${MONTHS[at.getMonth()]} at ${time}`;
+    return t('schedule.repeat.year', {
+      day: Math.min(at.getDate(), lastReachableDay(schedule)),
+      month: new Intl.DateTimeFormat(locale, { month: 'long' }).format(at),
+      time,
+    });
   }
 
-  return `Every day at ${time}`;
+  return t('schedule.repeat.day', { time });
 };

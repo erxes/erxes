@@ -30,7 +30,7 @@ export const BroadcastFromField = () => {
       <Form.Field
         name="email.sender"
         control={control}
-        rules={{ required: 'Sender name is required' }}
+        rules={{ required: t('sender-required') }}
         render={({ field }) => (
           <Form.Item>
             <Form.Label>
@@ -38,7 +38,7 @@ export const BroadcastFromField = () => {
               <span className="text-destructive">*</span>
             </Form.Label>
             <Form.Control>
-              <Input {...field} placeholder="Sales team" />
+              <Input {...field} placeholder={t('sender-placeholder')} />
             </Form.Control>
             <Form.Message />
           </Form.Item>
@@ -54,9 +54,8 @@ export const BroadcastFromField = () => {
           name="fromEmail"
           control={control}
           rules={{
-            required: 'From address is required',
-            validate: (value?: string) =>
-              isEmail(value) || 'Enter a valid email address',
+            required: t('from-required'),
+            validate: (value?: string) => isEmail(value) || t('invalid-email'),
           }}
           render={({ field }) => (
             <Form.Item>

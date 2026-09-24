@@ -99,10 +99,7 @@ export interface IEngageMessageModel extends Model<IEngageMessageDocument> {
   ): Promise<void>;
   pause(_id: string): Promise<IEngageMessageDocument>;
   markFailed(_id: string): Promise<void>;
-  schedule(
-    _id: string,
-    input: TScheduleInput,
-  ): Promise<IEngageMessageDocument>;
+  schedule(_id: string, input: TScheduleInput): Promise<IEngageMessageDocument>;
   cancelSchedule(_id: string): Promise<IEngageMessageDocument>;
   removeEngageMessage(_ids: string[]): void;
   setCustomersCount(
@@ -407,7 +404,6 @@ export const loadEngageMessageClass = (
       const live = await models.EngageMessages.engageMessageSetLive(_id, {
         consumeSchedule: options.consumeSchedule,
       });
-
       await models.EngageMessages.startSending(
         live,
         options.actorId,

@@ -1,7 +1,40 @@
+import { EmailTemplateSelector } from '@/automations/components/builder/nodes/actions/sendEmail/components/EmailTemplateSelector';
+import {
+  createEmailOutputVariableDrop,
+  TEmailVariableDrop,
+} from '@/automations/components/builder/nodes/actions/sendEmail/utils/emailVariableDrop';
+import {
+  AutomationVariableBrowser,
+  TAutomationVariableSourceNode,
+} from '@/automations/components/builder/sidebar/components/output-variables/AutomationVariableBrowser';
 import { EmailContentEditor } from '@/emailTemplates/components/EmailContentEditor';
 import { IconEdit } from '@tabler/icons-react';
-import { Button, JSONContent, Sheet } from 'erxes-ui';
-import { useState } from 'react';
+import type { Editor as TiptapEditor } from '@tiptap/core';
+import { Button, EmailEditorVariable, JSONContent, Sheet } from 'erxes-ui';
+import { useCallback, useMemo, useRef, useState } from 'react';
+import { TAutomationVariableDragPayload } from 'ui-modules';
+
+/**
+ * Output variables already written into this email.
+ *
+ * Their labels are not stored with them, so reopening an email would draw
+ * them as their raw token — the one thing this is here to avoid. The token
+ * itself reads well enough as a name.
+ */
+const writtenVariables = (node?: JSONContent): EmailEditorVariable[] => {
+  if (!node) {
+    return [];
+  }
+
+  const id = node.type === 'variable' ? String(node.attrs?.id ?? '') : '';
+
+  return [
+    ...(id.startsWith('{{')
+      ? [{ name: id, label: id.replace(/[{}]/g, '').trim(), required: false }]
+      : []),
+    ...(node.content || []).flatMap(writtenVariables),
+  ];
+};
 
 /** The first words of the email, enough to recognise which one it is. */
 const readText = (node?: JSONContent): string => {
@@ -22,15 +55,83 @@ const readText = (node?: JSONContent): string => {
 
 export const SendEmailMailyContentSheet = ({
   contentJson,
+  contentType,
+  content,
+  variableSourceNodes,
   onChange,
 }: {
   contentJson?: JSONContent;
+  /** Whose fields the editor offers — the record this action runs for. */
+  contentType?: string;
+  content: string;
+  variableSourceNodes: TAutomationVariableSourceNode[];
   onChange: (contentJson: JSONContent) => void;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [editor, setEditor] = useState<TiptapEditor | null>(null);
+  // An output variable becomes a field of the editor's own, so it is drawn
+  // like every other one instead of as raw `{{ … }}` text.
+  const [extraVariables, setExtraVariables] = useState<EmailEditorVariable[]>(
+    [],
+  );
 
   const teaser = readText(contentJson).trim();
+
+  const variables = useMemo(
+    () => [
+      ...writtenVariables(contentJson).filter(
+        (written) =>
+          !extraVariables.some((added) => added.name === written.name),
+      ),
+      ...extraVariables,
+    ],
+    [contentJson, extraVariables],
+  );
+
+  const insertVariable = useCallback(
+    ({ payload, editor: target, position }: TEmailVariableDrop) => {
+      // The token is the field's name: rendering hands it back unchanged, and
+      // the step that knows the earlier steps' output fills it in.
+      const name = payload.token.trim();
+
+      setExtraVariables((current) =>
+        current.some((variable) => variable.name === name)
+          ? current
+          : [...current, { name, label: payload.label, required: false }],
+      );
+
+      const chain = target.chain().focus();
+
+      const node = {
+        type: 'variable',
+        // Not required: the editor marks a required field with no default as
+        // a problem, and an output variable has neither.
+        attrs: {
+          id: name,
+          label: payload.label,
+          fallback: null,
+          required: false,
+        },
+      };
+
+      (position === undefined
+        ? chain.insertContent(node)
+        : chain.insertContentAt(position, node)
+      ).run();
+    },
+    [],
+  );
+
+  // The editor keeps the extensions it was created with, so the plugin is
+  // built once and reaches the current handler through a ref.
+  const insertRef = useRef(insertVariable);
+  insertRef.current = insertVariable;
+
+  const extensions = useMemo(
+    () => [createEmailOutputVariableDrop((drop) => insertRef.current(drop))],
+    [],
+  );
 
   return (
     <>
@@ -75,12 +176,43 @@ export const SendEmailMailyContentSheet = ({
             </div>
             <Sheet.Close />
           </Sheet.Header>
-          <Sheet.Content className="min-h-0 flex-1 overflow-y-auto bg-muted/40 p-6">
-            <div className="mx-auto min-h-full w-full max-w-[720px] rounded-lg border bg-white">
-              <EmailContentEditor
-                contentJson={contentJson}
-                onChange={onChange}
+
+          <Sheet.Content className="grid min-h-0 flex-1 grid-cols-[320px_minmax(0,1fr)] overflow-hidden p-0">
+            {/* What earlier steps produced, to drag into the email. */}
+            <aside className="min-h-0 overflow-y-auto border-r bg-muted/20">
+              <AutomationVariableBrowser
+                sourceNodes={variableSourceNodes}
+                onInsertVariable={(payload) =>
+                  editor && insertVariable({ payload, editor })
+                }
+                emptyState={{
+                  title: 'No variables available yet',
+                  description:
+                    'Add a trigger or an earlier action to this automation to insert variables into the email content.',
+                }}
+                sourceSectionTitle="Variable Sources"
               />
+            </aside>
+
+            <div className="flex min-h-0 min-w-0 flex-col overflow-hidden bg-muted/40">
+              {/* Loading a template replaces the email, so it belongs beside
+                  the email rather than back in the step's settings. */}
+              <div className="flex-none border-b bg-background px-6 py-3">
+                <EmailTemplateSelector content={content} />
+              </div>
+
+              <div className="min-h-0 flex-1 overflow-y-auto p-6">
+                <div className="mx-auto min-h-full w-full max-w-[720px] rounded-lg border bg-white">
+                  <EmailContentEditor
+                    contentJson={contentJson}
+                    onChange={onChange}
+                    onCreate={setEditor}
+                    contentType={contentType}
+                    extensions={extensions}
+                    extraVariables={variables}
+                  />
+                </div>
+              </div>
             </div>
           </Sheet.Content>
         </Sheet.View>

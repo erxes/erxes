@@ -30,6 +30,12 @@ export interface IBroadcastRun {
   totalCount: number;
   startedAt: Date;
   finishedAt?: Date;
+
+  /** How often each field the body asks for was answered, across the run. */
+  fieldStats?: { id: string; filled: number; missing: number }[];
+
+  /** What the first recipient of this run was sent. */
+  sample?: { to: string; html: string; renderedAt: Date };
 }
 
 export interface IBroadcastRunDocument extends IBroadcastRun, Document {

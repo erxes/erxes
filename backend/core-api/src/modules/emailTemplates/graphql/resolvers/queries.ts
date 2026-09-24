@@ -1,26 +1,24 @@
 import {
-  JSONContent,
+  recordPlaceholderResolver,
   renderEmailContent,
   TEmailContentFormat,
 } from 'erxes-api-shared/core-modules';
-import { IEmailTemplateDocument } from 'erxes-api-shared/core-types';
+import {
+  ICursorPaginateParams,
+  IEmailTemplateDocument,
+} from 'erxes-api-shared/core-types';
 import { cursorPaginate } from 'erxes-api-shared/utils';
-import { FilterQuery, SortOrder } from 'mongoose';
+import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
+import { documentResolver } from '~/modules/documents/replacePlaceholders';
 
 export const emailTemplateQueries = {
   async emailTemplates(
     _root: undefined,
-    params: {
-      page?: number;
-      perPage?: number;
-      searchValue?: string;
-      sortField?: string;
-      sortDirection?: number;
-    },
+    params: { searchValue?: string } & ICursorPaginateParams,
     { models }: IContext,
   ) {
-    const { searchValue, sortField = 'createdAt', sortDirection = -1 } = params;
+    const { searchValue } = params;
 
     const filter: FilterQuery<IEmailTemplateDocument> = {};
 
@@ -36,7 +34,7 @@ export const emailTemplateQueries = {
         model: models.EmailTemplates,
         params: {
           ...params,
-          orderBy: { [sortField]: sortDirection as SortOrder },
+          orderBy: params.orderBy || { createdAt: -1 },
         },
         query: filter,
       });
@@ -48,17 +46,32 @@ export const emailTemplateQueries = {
   async emailContentPreview(
     _root: undefined,
     {
-      payloads,
+      replacerId,
       ...email
     }: {
       content?: string;
-      contentJson?: JSONContent;
       contentFormat?: TEmailContentFormat;
-      previewText?: string;
-      payloads?: Record<string, any>;
+      replacerId?: string;
     },
+    { models, user }: IContext,
   ) {
-    return renderEmailContent(email, { payloads });
+    // Rehearsed on somebody real when one is picked: a field is only ever
+    // wrong or thin against an actual record, never against nothing.
+    const replacer = replacerId
+      ? await models.Customers.findOne({ _id: replacerId }).lean()
+      : undefined;
+
+    return renderEmailContent(email, {
+      resolvers: [
+        documentResolver({
+          models,
+          replacerIds: replacerId ? [replacerId] : [],
+          user,
+        }),
+        recordPlaceholderResolver(replacer || undefined),
+      ],
+      markMissing: true,
+    });
   },
 
   async emailTemplateDetail(

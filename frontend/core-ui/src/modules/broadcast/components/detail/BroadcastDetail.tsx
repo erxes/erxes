@@ -1,5 +1,8 @@
+import { Skeleton } from 'erxes-ui';
 import { useState } from 'react';
-import { useBroadcastMessage } from '../../hooks/useBroadcastMessage';
+import { useTranslation } from 'react-i18next';
+import { useBroadcastDetail } from '../../context/BroadcastDetailContext';
+import { BroadcastErrorState } from '../list/BroadcastStates';
 import {
   BROADCAST_TAB,
   BroadcastDetailSidebar,
@@ -16,31 +19,30 @@ const BROADCAST_TAB_CONTENTS = {
   log: BroadcastTabLogContent,
 };
 
-const BASE_TABS: BROADCAST_TAB[] = ['statistic', 'preview'];
-
-export const BroadcastDetail = ({
-  messageId,
-}: {
-  messageId: string | null;
-}) => {
-  const { message } = useBroadcastMessage({
-    variables: { _id: messageId },
-    skip: !messageId,
-  });
-
+export const BroadcastDetail = () => {
+  const { t } = useTranslation('broadcasts');
+  const { message, loading, error, refetch } = useBroadcastDetail();
   const [activeTab, setActiveTab] = useState<BROADCAST_TAB>('statistic');
 
-  const tabs: BROADCAST_TAB[] = [...BASE_TABS, 'recipients', 'log'];
+  if (loading && !message) {
+    return <Skeleton className="m-5 h-[32rem] flex-1" />;
+  }
 
-  const BroadcastTabContent =
-    BROADCAST_TAB_CONTENTS[tabs.includes(activeTab) ? activeTab : 'statistic'];
+  if (error) {
+    return <BroadcastErrorState error={error} onRetry={() => refetch()} />;
+  }
+
+  if (!message) {
+    return <BroadcastErrorState error={new Error(t('error.not-found'))} />;
+  }
+
+  const BroadcastTabContent = BROADCAST_TAB_CONTENTS[activeTab];
 
   return (
     <div className="flex-auto flex h-full min-h-0">
       <BroadcastDetailSidebar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
-        tabs={tabs}
       />
 
       <BroadcastTabContent message={message} />

@@ -29,7 +29,6 @@
     "@apollo/subgraph": "^2.9.3",
     "@azure/storage-blob": "^12.29.1",
     "@google-cloud/storage": "^7.17.3",
-    "@maily-to/render": "0.2.3",
     "@sendgrid/mail": "^8.1.5",
     "@sentry/node": "^10.55.0",
     "@sniptt/guards": "^0.2.0",

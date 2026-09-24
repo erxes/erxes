@@ -21,7 +21,7 @@ import { FieldPath, useFormContext, useWatch } from 'react-hook-form';
  * teaching the shared node about broadcast, this is a separate node with the
  * same parts: header, configuration summary, handles.
  */
-const BroadcastActionNode = ({
+const BroadcastActionNodeContent = ({
   data,
   selected,
   id,
@@ -129,4 +129,4 @@ const BroadcastActionConfigSummary = ({ data }: { data: NodeData }) => {
   );
 };
 
-export default memo(BroadcastActionNode);
+export const BroadcastActionNode = memo(BroadcastActionNodeContent);

@@ -1,9 +1,10 @@
+import { JSONContent, renderEmailHtml } from 'erxes-ui';
 import { BROADCAST_MESSAGE_METHOD_KINDS } from '../constants';
 import { IBroadcastMethodEnum } from '../types';
 
 type BroadcastFormData = Record<string, unknown>;
 
-const pickEmailVariables = (email?: Record<string, unknown>) => {
+const pickEmailVariables = async (email?: Record<string, unknown>) => {
   if (!email) {
     return undefined;
   }
@@ -19,11 +20,20 @@ const pickEmailVariables = (email?: Record<string, unknown>) => {
     attachments,
   } = email;
 
+  // Said outright rather than inferred later from which field is filled.
+  const format = contentFormat || (contentJson ? 'maily' : 'blocks');
+
   return {
-    content,
+    // The editor's source is kept for editing; the html beside it is what
+    // gets sent, with its fields left for the server to fill.
+    content:
+      format === 'maily'
+        ? await renderEmailHtml(contentJson as JSONContent | undefined, {
+            previewText: previewText as string | undefined,
+          })
+        : content,
     contentJson,
-    // Said outright rather than inferred later from which field is filled.
-    contentFormat: contentFormat || (contentJson ? 'maily' : 'blocks'),
+    contentFormat: format,
     subject,
     replyTo,
     sender,
@@ -34,7 +44,7 @@ const pickEmailVariables = (email?: Record<string, unknown>) => {
 
 export type TBroadcastAction = 'draft' | 'live' | 'schedule';
 
-export const prepareBroadcastVariables = (
+export const prepareBroadcastVariables = async (
   data: BroadcastFormData,
   method: IBroadcastMethodEnum,
   action?: TBroadcastAction,
@@ -73,7 +83,7 @@ export const prepareBroadcastVariables = (
   }
 
   variables.fromEmail = data.fromEmail;
-  variables.email = pickEmailVariables(
+  variables.email = await pickEmailVariables(
     data.email as Record<string, unknown> | undefined,
   );
 

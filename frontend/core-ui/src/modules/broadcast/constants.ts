@@ -31,12 +31,6 @@ export const BROADCAST_METHODS: Record<string, string> = {
   WORKFLOW: 'workflow',
 };
 
-export const BROADCAST_KIND_FILTERS: Record<string, string> = {
-  auto: 'Auto',
-  visitorAuto: 'Visitor auto',
-  manual: 'Manual',
-};
-
 export const BROADCAST_MESSENGER_MESSAGE_TYPES: Record<string, string> = {
   chat: 'Chat',
   note: 'Note',
@@ -116,8 +110,8 @@ export const BROADCAST_RULES: Record<
 };
 
 export const BROADCAST_TARGET_TYPE: Record<string, string> = {
-  segment: 'Segment',
-  tag: 'Tag',
+  segment: 'target-type.segment',
+  tag: 'target-type.tag',
 };
 
 export const BROADCAST_MESSAGE_STATUS = [
@@ -175,107 +169,98 @@ export const BROADCAST_SELECTABLE_METHODS = BROADCAST_MESSAGE_METHODS.filter(
 
 export const BROADCAST_NOTIFICATION_STATISTIC = {
   total: {
-    title: 'Targeted',
-    description:
-      'Customers matched by the selected tag who are eligible for this campaign.',
+    titleKey: 'stat.notification.total',
+    descriptionKey: 'stat.notification.total-body',
     icon: IconUsers,
   },
   sent: {
-    title: 'Sent',
-    description:
-      'Client portal users who successfully received the notification.',
+    titleKey: 'stat.notification.sent',
+    descriptionKey: 'stat.notification.sent-body',
     icon: IconUserCheck,
   },
   read: {
-    title: 'Read',
-    description:
-      'Recipients who opened and marked the in-app notification as read.',
+    titleKey: 'stat.notification.read',
+    descriptionKey: 'stat.notification.read-body',
     icon: IconBellRinging,
   },
   push: {
-    title: 'Push enabled',
-    description:
-      'Campaign was configured to deliver mobile and web push notifications.',
+    titleKey: 'stat.notification.push',
+    descriptionKey: 'stat.notification.push-body',
     icon: IconDeviceMobile,
   },
 };
 
 export const BROADCAST_WORKFLOW_STATISTIC = {
   total: {
-    title: 'Targeted',
-    description:
-      'Customers matched by this campaign’s audience when it was last run.',
+    titleKey: 'stat.workflow.total',
+    descriptionKey: 'stat.workflow.total-body',
     icon: IconUsers,
   },
   started: {
-    title: 'Workflow started',
-    description:
-      'Customers the flow was started for. A step that waits or delays can run for days afterwards, so what happened next lives in the flow’s own history.',
+    titleKey: 'stat.workflow.started',
+    descriptionKey: 'stat.workflow.started-body',
     icon: IconRouteSquare,
   },
 };
 
-export const BROADCAST_MESSAGE_KIND = [
-  { value: 'auto', label: 'Auto' },
-  { value: 'manual', label: 'Manual' },
-];
-
 export const BROADCAST_PROVIDER_FIELDS: Record<
   string,
-  Array<{ name: string; label: string; type?: string }>
+  Array<{ name: string; labelKey: string; type?: string }>
 > = {
   SES: [
     {
       name: 'BROADCAST_AWS_SES_ACCESS_KEY_ID',
-      label: 'AWS SES Access Key id',
+      labelKey: 'settings.ses-access-key',
     },
     {
       name: 'BROADCAST_AWS_SES_SECRET_ACCESS_KEY',
-      label: 'AWS SES Secret Access Key',
+      labelKey: 'settings.ses-secret-key',
     },
-    { name: 'BROADCAST_AWS_REGION', label: 'AWS Region' },
-    { name: 'BROADCAST_AWS_SES_CONFIG_SET', label: 'AWS SES Config Set' },
+    { name: 'BROADCAST_AWS_REGION', labelKey: 'settings.aws-region' },
+    {
+      name: 'BROADCAST_AWS_SES_CONFIG_SET',
+      labelKey: 'settings.ses-config-set',
+    },
   ],
   sendgrid: [
     {
       name: 'BROADCAST_SENDGRID_API_KEY',
-      label: 'SendGrid API Key',
+      labelKey: 'settings.sendgrid-api-key',
       type: 'password',
     },
-    { name: 'BROADCAST_SENDGRID_SUBUSER', label: 'SendGrid Subuser' },
+    {
+      name: 'BROADCAST_SENDGRID_SUBUSER',
+      labelKey: 'settings.sendgrid-subuser',
+    },
   ],
   custom: [
-    { name: 'BROADCAST_MAIL_SERVICE', label: 'Mail Service Name' },
-    { name: 'BROADCAST_MAIL_HOST', label: 'Host' },
-    { name: 'BROADCAST_MAIL_PORT', label: 'Port' },
-    { name: 'BROADCAST_MAIL_USER', label: 'Username' },
-    { name: 'BROADCAST_MAIL_PASS', label: 'Password', type: 'password' },
+    { name: 'BROADCAST_MAIL_SERVICE', labelKey: 'settings.mail-service' },
+    { name: 'BROADCAST_MAIL_HOST', labelKey: 'settings.mail-host' },
+    { name: 'BROADCAST_MAIL_PORT', labelKey: 'settings.mail-port' },
+    { name: 'BROADCAST_MAIL_USER', labelKey: 'settings.mail-user' },
+    {
+      name: 'BROADCAST_MAIL_PASS',
+      labelKey: 'settings.mail-password',
+      type: 'password',
+    },
   ],
 };
 
 export const BROADCAST_SETTINGS_CONFIG_FIELDS = [
   {
     name: 'BROADCAST_UNVERIFIED_EMAILS_LIMIT',
-    inputType: 'input',
     type: 'number',
-    label: 'Unverified emails limit',
-    description: '',
+    labelKey: 'settings.unverified-limit',
   },
   {
     name: 'BROADCAST_ALLOWED_EMAIL_SKIP_LIMIT',
-    inputType: 'input',
     type: 'number',
-    label: 'Allowed email skip limit',
-    description:
-      'The number of times that each customer can skip to open or click campaign emails. If this limit is exceeded, then the customer will automatically set to unsubscribed mode.',
+    labelKey: 'settings.skip-limit',
   },
   {
     name: 'BROADCAST_CUSTOMER_LIMIT_PER_AUTO_SMS_CAMPAIGN',
-    inputType: 'input',
     type: 'number',
-    label: 'Customer limit per auto SMS campaign',
-    description:
-      'The maximum number of customers that can receive auto SMS campaign per each runtime.',
+    labelKey: 'settings.sms-limit',
   },
 ];
 
@@ -292,12 +277,9 @@ export const BROADCAST_RECIPIENTS_CURSOR_SESSION_KEY =
 export const BROADCAST_CONFIRM_MESSAGES = {
   // What it promises is exactly what it does: recipients already handed over
   // keep going, and nobody new is taken up.
-  pause:
-    'Pause this broadcast? Nobody new will be sent to. Anyone already sent to is unaffected, and going live again continues where it stopped.',
-  resume: 'Continue this broadcast? It picks up where it stopped.',
-  sendNow:
-    'Send this broadcast now? It will not wait for the moment it was scheduled for.',
-  goLive: 'Set this broadcast live?',
-  cancelSchedule:
-    'Cancel this schedule? The broadcast goes back to being a draft and will not go out on its own.',
+  pause: 'confirm.pause',
+  resume: 'confirm.resume',
+  sendNow: 'confirm.send-now',
+  goLive: 'confirm.go-live',
+  cancelSchedule: 'confirm.cancel-schedule',
 } as const;

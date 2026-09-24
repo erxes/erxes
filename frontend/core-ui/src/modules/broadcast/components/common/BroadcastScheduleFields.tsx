@@ -40,7 +40,7 @@ export const BroadcastScheduleFields = ({
   value: TBroadcastScheduleForm;
   onChange: (next: TBroadcastScheduleForm) => void;
 }) => {
-  const { t } = useTranslation('broadcasts');
+  const { t, i18n } = useTranslation('broadcasts');
   const at = value.at ?? defaultScheduleMoment();
   const recurring = isRecurringForm(value);
   const { count, loading } = useBroadcastSchedulePreview(value);
@@ -64,13 +64,15 @@ export const BroadcastScheduleFields = ({
             value={option.value}
             className="flex-1"
           >
-            {option.label}
+            {t(option.labelKey)}
           </ToggleGroup.Item>
         ))}
       </ToggleGroup>
 
       <div className="space-y-1">
-        <Label>{recurring ? 'Starting from' : 'Send at'}</Label>
+        <Label>
+          {t(recurring ? 'schedule.starting-from' : 'schedule.send-at')}
+        </Label>
         <div className="flex items-center gap-2">
           <DatePicker
             value={at}
@@ -106,19 +108,19 @@ export const BroadcastScheduleFields = ({
 
       {recurring ? (
         <p className="text-xs text-muted-foreground">
-          {describeRecurrence({ ...value, at })}
+          {describeRecurrence({ ...value, at }, t, i18n.language)}
           {value.endDate && !loading && count !== undefined && (
             <>
               {' · '}
-              <span className="text-foreground">{count} times</span>
+              <span className="text-foreground">
+                {t('schedule.times', { count })}
+              </span>
             </>
           )}
         </p>
       ) : (
         at.getTime() <= Date.now() && (
-          <p className="text-xs text-destructive">
-            Pick a moment that has not passed yet.
-          </p>
+          <p className="text-xs text-destructive">{t('schedule.in-past')}</p>
         )
       )}
     </div>

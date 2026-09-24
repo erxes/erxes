@@ -1,4 +1,3 @@
-import { useQuery } from '@apollo/client';
 import {
   IconActivity,
   IconCircleCheck,
@@ -6,7 +5,8 @@ import {
   IconInfoCircle,
 } from '@tabler/icons-react';
 import { cn, Empty, RelativeDateDisplay } from 'erxes-ui';
-import { BROADCAST_TRACES } from '../../../graphql/queries';
+import { useBroadcastTraces } from '../../../hooks/useBroadcastTraces';
+import { TBroadcastMessage, TBroadcastTrace } from '../../../types';
 import { useTranslation } from 'react-i18next';
 
 type TraceType = 'success' | 'failure' | 'regular';
@@ -32,7 +32,13 @@ const TRACE_CONFIG: Record<
   },
 };
 
-const TraceRow = ({ trace, isLast }: { trace: any; isLast: boolean }) => {
+const TraceRow = ({
+  trace,
+  isLast,
+}: {
+  trace: TBroadcastTrace;
+  isLast: boolean;
+}) => {
   const config = TRACE_CONFIG[trace.type as TraceType] ?? TRACE_CONFIG.regular;
   const Icon = config.icon;
 
@@ -65,30 +71,31 @@ const TraceRow = ({ trace, isLast }: { trace: any; isLast: boolean }) => {
   );
 };
 
-export const BroadcastTabLogContent = ({ message }: { message: any }) => {
+export const BroadcastTabLogContent = ({
+  message,
+}: {
+  message: TBroadcastMessage;
+}) => {
   const { t } = useTranslation('broadcasts');
-  const { data, loading } = useQuery(BROADCAST_TRACES, {
-    variables: { engageMessageId: message?._id },
-    skip: !message?._id,
-  });
-
-  const traces: any[] = (data?.engageBroadcastTraces ?? []).filter(Boolean);
+  const { traces, loading, error } = useBroadcastTraces(message._id);
 
   return (
     <div className="flex-1 flex flex-col h-full overflow-hidden">
       <div className="flex-1 overflow-y-auto px-8 py-5">
-        {loading && <p className="text-sm text-muted-foreground">{t('loading')}</p>}
+        {loading && (
+          <p className="text-sm text-muted-foreground">{t('loading')}</p>
+        )}
 
-        {!loading && traces.length === 0 && (
+        {error && <p className="text-sm text-destructive">{error.message}</p>}
+
+        {!loading && !error && traces.length === 0 && (
           <Empty>
             <Empty.Header>
               <Empty.Media variant="icon">
                 <IconActivity />
               </Empty.Media>
               <Empty.Title>{t('traces.empty')}</Empty.Title>
-              <Empty.Description>
-                Traces will appear here once the broadcast starts sending.
-              </Empty.Description>
+              <Empty.Description>{t('traces.empty-body')}</Empty.Description>
             </Empty.Header>
           </Empty>
         )}

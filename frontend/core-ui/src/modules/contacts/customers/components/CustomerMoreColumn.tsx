@@ -1,4 +1,6 @@
+import { useBroadcastContacts } from '@/broadcast/hooks/useBroadcastContacts';
 import { IconEdit, IconSend } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { Cell } from '@tanstack/react-table';
 import { Combobox, Command, Popover, RecordTable } from 'erxes-ui';
 import { useSearchParams } from 'react-router-dom';
@@ -9,6 +11,8 @@ export const CustomerMoreColumnCell = ({
 }: {
   cell: Cell<ICustomer, unknown>;
 }) => {
+  const { t } = useTranslation('broadcasts');
+  const { setContacts } = useBroadcastContacts();
   const [searchParams, setSearchParams] = useSearchParams();
   const { _id } = cell.row.original;
 
@@ -19,9 +23,10 @@ export const CustomerMoreColumnCell = ({
   };
 
   const sendBroadcast = (customerId: string) => {
+    setContacts([customerId]);
+
     const newSearchParams = new URLSearchParams(searchParams);
     newSearchParams.set('method', 'email');
-    newSearchParams.set('broadcastContactId', customerId);
     setSearchParams(newSearchParams);
   };
 
@@ -43,7 +48,7 @@ export const CustomerMoreColumnCell = ({
                 value="send-broadcast"
                 onSelect={() => sendBroadcast(_id)}
               >
-                <IconSend /> Contact
+                <IconSend /> {t('actions.send-broadcast')}
               </Command.Item>
             </Can>
           </Command.List>

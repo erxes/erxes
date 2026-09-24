@@ -5,7 +5,10 @@ import {
 import { Row } from '@tanstack/table-core';
 import { Button, CommandBar, RecordTable, Separator } from 'erxes-ui';
 import { Can } from 'ui-modules';
-import { useBroadcastCampaignActions } from '../../hooks/useBroadcastCampaignActions';
+import {
+  TBroadcastCampaign,
+  useBroadcastCampaignActions,
+} from '../../hooks/useBroadcastCampaignActions';
 import { BroadcastDelete } from './BroadcastDelete';
 import { useTranslation } from 'react-i18next';
 
@@ -13,8 +16,8 @@ export const BroadcastCommandBar = () => {
   const { t } = useTranslation('broadcasts');
   const { table } = RecordTable.useRecordTable();
 
-  const selectedRows = table.getFilteredSelectedRowModel().rows;
-  const broadcastIds = selectedRows.map((row: Row<any>) => row.original._id);
+  const selectedRows: Row<TBroadcastCampaign>[] =
+    table.getFilteredSelectedRowModel().rows;
 
   // Starting and pausing act on one campaign, so they are only offered when
   // the selection is one. Deleting takes the whole selection.
@@ -33,7 +36,7 @@ export const BroadcastCommandBar = () => {
           {t('command-bar.selected', { count: selectedRows.length })}
         </CommandBar.Value>
         <Separator.Inline />
-        <BroadcastDelete broadcastIds={broadcastIds} rows={selectedRows} />
+        <BroadcastDelete rows={selectedRows} />
         {(canGoLive || canResume) && (
           <Can action="broadcastUpdate">
             <Button

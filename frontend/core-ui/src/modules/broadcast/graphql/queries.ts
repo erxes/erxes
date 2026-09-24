@@ -339,3 +339,50 @@ export const BROADCAST_SCHEDULE_PREVIEW = gql`
     engageSchedulePreview(recurrence: $recurrence)
   }
 `;
+
+export const BROADCAST_EMAIL_DRY_RUN = gql`
+  query BroadcastEmailDryRun($_id: String!, $sampleSize: Int) {
+    broadcastEmailDryRun(_id: $_id, sampleSize: $sampleSize) {
+      sampled
+      fields {
+        id
+        filled
+        missing
+      }
+      unresolved
+      sampleTo
+      sampleHtml
+    }
+  }
+`;
+
+export const BROADCAST_RECIPIENT_EMAIL = gql`
+  query BroadcastRecipientEmail($_id: String!) {
+    broadcastRecipientEmail(_id: $_id) {
+      to
+      from
+      replyTo
+      subject
+      html
+      status
+      reason
+      sentAt
+      events {
+        status
+        createdAt
+      }
+    }
+  }
+`;
+
+/**
+ * Only the provider's name: selecting `senders` here would call the
+ * provider's API to render a label.
+ */
+export const BROADCAST_EMAIL_PROVIDER = gql`
+  query BroadcastEmailProvider {
+    emailSenderOptions(scope: "broadcast") {
+      provider
+    }
+  }
+`;

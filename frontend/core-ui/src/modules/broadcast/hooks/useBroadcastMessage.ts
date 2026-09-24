@@ -1,8 +1,21 @@
 import { QueryHookOptions, useQuery } from '@apollo/client';
 import { BROADCAST_MESSAGE } from '../graphql/queries';
+import { TBroadcastMessage } from '../types';
 
-export const useBroadcastMessage = (options: QueryHookOptions) => {
-  const { data, loading, refetch } = useQuery(BROADCAST_MESSAGE, options);
+type TBroadcastMessageData = { engageMessageDetail?: TBroadcastMessage | null };
 
-  return { message: data?.engageMessageDetail || {}, loading, refetch };
+export const useBroadcastMessage = (
+  options: QueryHookOptions<TBroadcastMessageData>,
+) => {
+  const { data, loading, error, refetch } = useQuery<TBroadcastMessageData>(
+    BROADCAST_MESSAGE,
+    options,
+  );
+
+  return {
+    message: data?.engageMessageDetail ?? undefined,
+    loading,
+    error,
+    refetch,
+  };
 };

@@ -5,20 +5,10 @@ import {
   IconRefresh,
   IconSearchOff,
 } from '@tabler/icons-react';
-import { Button, cn, Empty, useMultiQueryState } from 'erxes-ui';
+import { Button, cn, Empty } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { useBroadcastIsFiltered } from '../../hooks/useBroadcastIsFiltered';
 import { BroadcastMethod } from './BroadcastMethod';
-
-// What the filter bar can actually set, so "no match" is only ever said about
-// a filter someone can see and loosen.
-const FILTER_KEYS = [
-  'searchValue',
-  'status',
-  'trigger',
-  'methods',
-  'brand',
-  'fromUser',
-];
 
 /**
  * Nothing to show, and the two reasons for it are not the same thing.
@@ -30,11 +20,7 @@ const FILTER_KEYS = [
  */
 export const BroadcastEmptyState = ({ className }: { className?: string }) => {
   const { t } = useTranslation('broadcasts');
-  const [queries] = useMultiQueryState<Record<string, string>>(FILTER_KEYS);
-
-  const isFiltered = Object.values(queries || {}).some(
-    (value) => value !== null && value !== undefined,
-  );
+  const isFiltered = useBroadcastIsFiltered();
 
   return (
     <Empty className={cn('m-3 min-h-[20rem]', className)}>
@@ -51,7 +37,7 @@ export const BroadcastEmptyState = ({ className }: { className?: string }) => {
       </Empty.Header>
       {!isFiltered && (
         <Empty.Content>
-          <BroadcastMethod onSelect={() => undefined} />
+          <BroadcastMethod />
         </Empty.Content>
       )}
     </Empty>

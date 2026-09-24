@@ -3,6 +3,7 @@ import type { Editor as TiptapEditor } from '@tiptap/core';
 import { cn, Form } from 'erxes-ui';
 import { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { BroadcastCopyHtmlButton } from '../BroadcastCopyHtmlButton';
 import { EmailContentEditor } from '@/emailTemplates/components/EmailContentEditor';
 import { BroadcastInsertTemplate } from '../BroadcastInsertTemplate';
@@ -15,6 +16,7 @@ import { BroadcastSendTestEmail } from '../BroadcastSendTestEmail';
  * among the fields in the other panel.
  */
 export const BroadcastEmailPreview = () => {
+  const { t } = useTranslation('broadcasts', { keyPrefix: 'composer' });
   const {
     control,
     formState: { errors },
@@ -42,7 +44,7 @@ export const BroadcastEmailPreview = () => {
         <Form.Field
           name="email.contentJson"
           control={control}
-          rules={{ required: 'Content is required' }}
+          rules={{ required: t('content-required') }}
           render={({ field }) => (
             <Form.Item className="flex min-h-0 flex-1 flex-col">
               <Form.Control>

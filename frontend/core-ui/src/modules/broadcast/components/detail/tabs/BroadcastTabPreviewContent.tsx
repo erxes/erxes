@@ -1,4 +1,5 @@
 import { ComponentType, lazy, Suspense } from 'react';
+import { TBroadcastMessage } from '../../../types';
 
 const BroadcastTabPreviewEmailContent = lazy(() =>
   import('../../methods/BroadcastEmailTabContent').then((module) => ({
@@ -26,7 +27,7 @@ const BroadcastTabPreviewWorkflowContent = lazy(() =>
 
 const BROADCAST_TAB_PREVIEW_METHODS: Record<
   string,
-  ComponentType<{ message: any }>
+  ComponentType<{ message: TBroadcastMessage }>
 > = {
   email: BroadcastTabPreviewEmailContent,
   messenger: BroadcastTabPreviewMessengerContent,
@@ -34,10 +35,14 @@ const BROADCAST_TAB_PREVIEW_METHODS: Record<
   workflow: BroadcastTabPreviewWorkflowContent,
 };
 
-export const BroadcastTabPreviewContent = ({ message }: { message: any }) => {
-  const { method } = message || {};
-
-  const BroadcastMethodTabContent = BROADCAST_TAB_PREVIEW_METHODS[method];
+export const BroadcastTabPreviewContent = ({
+  message,
+}: {
+  message: TBroadcastMessage;
+}) => {
+  const BroadcastMethodTabContent = message.method
+    ? BROADCAST_TAB_PREVIEW_METHODS[message.method]
+    : undefined;
 
   if (!BroadcastMethodTabContent) {
     return null;

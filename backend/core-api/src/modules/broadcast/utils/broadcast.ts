@@ -3,6 +3,7 @@ import { getValueAsString } from '~/modules/organization/settings/db/models/Conf
 import { CAMPAIGN_METHODS } from '../constants';
 import { IEngageMessageDocument } from '../@types';
 import { resolveCampaignFromEmail } from './engage';
+import { publishBroadcastChanged } from './publishBroadcast';
 import { customerTargetFilter } from './targeting';
 import { addBroadcastWorkerQueue, BROADCAST_QUEUES } from './worker';
 import { scheduleHeartbeat } from '../worker/drain';
@@ -135,6 +136,17 @@ const startManifestRun = async ({
     { $set: { 'progress.totalBatches': enrolled } },
   );
 
+  publishBroadcastChanged(subdomain, {
+    engageMessageId: _id,
+    status: 'sending',
+    progress: {
+      totalBatches: enrolled,
+      processedBatches: 0,
+      successCount: 0,
+      failureCount: 0,
+    },
+  });
+
   await queueDrains({
     subdomain,
     engageMessage,
@@ -167,11 +179,13 @@ const sendBroadcastEmail = async ({
     'AWS_SES_CONFIG_SET',
     'erxes',
   );
-
   await startManifestRun({
     models,
     subdomain,
-    engageMessage: { ...engageMessage, fromEmail } as IEngageMessageDocument,
+    engageMessage: {
+      ...engageMessage.toObject(),
+      fromEmail,
+    } as IEngageMessageDocument,
     extras: { configSet, scheduledFor },
   });
 };
@@ -284,6 +298,11 @@ const resumeRun = async ({
     { _id: engageMessage._id },
     { $set: { status: 'sending' } },
   );
+
+  publishBroadcastChanged(subdomain, {
+    engageMessageId: engageMessage._id,
+    status: 'sending',
+  });
 
   await models.BroadcastTraces.createTrace(
     engageMessage._id,

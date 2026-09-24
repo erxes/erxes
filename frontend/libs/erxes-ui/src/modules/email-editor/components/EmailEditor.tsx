@@ -14,9 +14,8 @@ import { cn } from 'erxes-ui/lib';
 import { readImage, REACT_APP_API_URL } from 'erxes-ui/utils';
 import { useState } from 'react';
 import { DEFAULT_EMAIL_BLOCKS } from '../constant';
-import { EmailProductCardToolbar } from './EmailProductCardToolbar';
 import { EmailTableToolbar } from './EmailTableToolbar';
-import { EmailProductCard } from '../extensions/productCard';
+import { EmailDocumentPlaceholder } from '../extensions/documentPlaceholder';
 import { EMAIL_TABLE_EXTENSIONS } from '../extensions/table';
 import { EmailEditorProps } from '../types';
 
@@ -32,7 +31,6 @@ const CONTAINER_NODES = [
   'columns',
   'column',
   'section',
-  'repeat',
   'show',
   'blockquote',
   'table',
@@ -114,7 +112,7 @@ export const EmailEditor = ({
       ),
     }),
     ...EMAIL_TABLE_EXTENSIONS,
-    EmailProductCard,
+    EmailDocumentPlaceholder,
     ...additionalExtensions,
   ];
 
@@ -161,7 +159,6 @@ export const EmailEditor = ({
         <div className="pointer-events-none sticky bottom-4 flex justify-center">
           <div className="pointer-events-auto flex gap-2">
             <EmailTableToolbar editor={editor} />
-            <EmailProductCardToolbar editor={editor} />
           </div>
         </div>
       )}

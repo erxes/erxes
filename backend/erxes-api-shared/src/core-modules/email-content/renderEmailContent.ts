@@ -1,14 +1,12 @@
 import { blocksToHtml } from './blocksToHtml';
-import { expandCustomNodes } from './customNodes';
 import { EMAIL_CONTENT_FORMATS } from './constants';
 import { appendUnsubscribeFooter } from './emailFooter';
-import { renderMailyHtml } from './renderMailyHtml';
+import { replacePlaceholders } from './replacePlaceholders';
 import {
   TEmailContent,
   TEmailContentFormat,
   TRenderEmailContentOptions,
 } from './types';
-import { resolveEmailVariableValues } from './variables';
 
 /**
  * What an email body was written in. Content saved before the format was
@@ -27,44 +25,25 @@ export const resolveEmailContentFormat = (
     : EMAIL_CONTENT_FORMATS.BLOCKS;
 };
 
-/**
- * The one place an email body becomes html, whichever editor wrote it and
- * whichever service is sending it.
- */
-export const renderEmailContent = async (
+const renderBody = async (
   email: TEmailContent,
-  options: TRenderEmailContentOptions = {},
-): Promise<string> => {
-  const {
-    replacer,
-    payloads,
+  {
     replaceBlocks,
     unsubscribeUrl,
     postalAddress,
     blocksConfig,
-  } = options;
+  }: TRenderEmailContentOptions,
+) => {
+  const content = email.content || '';
 
   if (resolveEmailContentFormat(email) === EMAIL_CONTENT_FORMATS.MAILY) {
-    if (!email.contentJson) {
-      return '';
-    }
-
-    // Blocks the editor added but the renderer does not know are turned into
-    // html it does, so a new block never silently disappears from an email.
-    const html = await renderMailyHtml(expandCustomNodes(email.contentJson), {
-      variables: resolveEmailVariableValues(email.contentJson, replacer || {}),
-      payloads,
-      previewText: email.previewText,
-    });
-
-    // The editor renders the email itself, so the footer is appended to its
+    // The editor rendered the email itself, so the footer is appended to its
     // html rather than wrapped around it the way block content is.
     return unsubscribeUrl
-      ? appendUnsubscribeFooter(html, { unsubscribeUrl, postalAddress })
-      : html;
+      ? appendUnsubscribeFooter(content, { unsubscribeUrl, postalAddress })
+      : content;
   }
 
-  const content = email.content || '';
   const blocks = replaceBlocks ? await replaceBlocks(content) : content;
 
   return blocksToHtml(blocks, {
@@ -72,5 +51,21 @@ export const renderEmailContent = async (
     ...(unsubscribeUrl
       ? { wrapper: { email: true, unsubscribeUrl, postalAddress } }
       : {}),
+  });
+};
+
+/**
+ * The one place an email body becomes the html a recipient gets, whichever
+ * editor wrote it and whichever service is sending it.
+ */
+export const renderEmailContent = async (
+  email: TEmailContent,
+  options: TRenderEmailContentOptions = {},
+): Promise<string> => {
+  const { resolvers = [], onFields, markMissing } = options;
+
+  return replacePlaceholders(await renderBody(email, options), resolvers, {
+    onFields,
+    markMissing,
   });
 };

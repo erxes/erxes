@@ -1,4 +1,5 @@
 import { useQueryState } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { BroadcastEmailPreview } from './preview/BroadcastEmailPreview';
 import { BroadcastMessengerPreview } from './preview/BroadcastMessengerPreview';
 import { MessengerNotificationPreview } from './preview/MessengerNotificationPreview';
@@ -14,10 +15,11 @@ const BROADCAST_PREVIEW = {
 type BROADCAST_PREVIEW_KEY = keyof typeof BROADCAST_PREVIEW;
 
 export const BroadcastPreview = () => {
+  const { t } = useTranslation('broadcasts');
   const [method] = useQueryState('method');
 
   if (!method) {
-    return <div>Method not found</div>;
+    return <div>{t('steps.no-method')}</div>;
   }
 
   const PreviewContent = BROADCAST_PREVIEW[method as BROADCAST_PREVIEW_KEY];
@@ -25,7 +27,7 @@ export const BroadcastPreview = () => {
   // A method with no preview of its own must not render `undefined`, which
   // React reports as an invalid element type.
   if (!PreviewContent) {
-    return <div>No preview for this broadcast type</div>;
+    return <div>{t('steps.no-preview')}</div>;
   }
 
   return <PreviewContent />;

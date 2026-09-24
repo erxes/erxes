@@ -2,14 +2,22 @@ import { Link, useLocation } from 'react-router';
 import { Breadcrumb, Button } from 'erxes-ui';
 import { GET_SETTINGS_PATH_DATA } from '../constants/data';
 import { TSettingPath } from '@/types/paths/SettingsPath';
-import { PageHeader, PageHeaderStart, useVersion } from 'ui-modules';
+import {
+  PageHeader,
+  PageHeaderEnd,
+  PageHeaderStart,
+  useVersion,
+} from 'ui-modules';
 import { useTranslation } from 'react-i18next';
 import { useMemo } from 'react';
 
 export function SettingsBreadcrumbs({
   children,
+  actions,
 }: {
   children?: React.ReactNode;
+  /** What the page can do, where every other page keeps it: the far right. */
+  actions?: React.ReactNode;
 }) {
   const { pathname } = useLocation();
   const { t } = useTranslation('common', {
@@ -40,6 +48,7 @@ export function SettingsBreadcrumbs({
         </Breadcrumb>
         {children}
       </PageHeaderStart>
+      {actions && <PageHeaderEnd>{actions}</PageHeaderEnd>}
     </PageHeader>
   );
 }

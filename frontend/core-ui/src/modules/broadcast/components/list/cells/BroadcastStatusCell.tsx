@@ -64,12 +64,12 @@ export const BroadcastStatusCell = ({ row }: { row: TCampaignRow }) => {
               )}
               {canSchedule && (
                 <Command.Item value="schedule" onSelect={schedule}>
-                  <IconCalendarClock /> Schedule…
+                  <IconCalendarClock /> {t('actions.schedule')}
                 </Command.Item>
               )}
               {canPause && (
                 <Command.Item value="pause" onSelect={pause}>
-                  <IconPlayerPauseFilled /> Pause
+                  <IconPlayerPauseFilled /> {t('actions.pause')}
                 </Command.Item>
               )}
             </Command.List>

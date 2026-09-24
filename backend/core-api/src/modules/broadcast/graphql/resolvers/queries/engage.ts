@@ -22,6 +22,8 @@ import {
   getVerifiedSenderEmails,
 } from '~/utils/email/senders';
 import { TEmailScope } from '~/utils/email/scope';
+import { dryRunBroadcastEmail } from '@/broadcast/utils/dryRun';
+import { getRecipientEmail } from '@/broadcast/utils/recipientEmail';
 import { ICursorPaginateParams, IUser } from 'erxes-api-shared/core-types';
 import {
   cursorPaginate,
@@ -247,6 +249,29 @@ export const engageQueries = {
   /**
    * Get one message
    */
+  /** What one recipient was actually sent, and what became of it. */
+  async broadcastRecipientEmail(
+    _root: undefined,
+    { _id }: { _id: string },
+    { models, subdomain }: IContext,
+  ) {
+    return getRecipientEmail({ models, subdomain, recipientId: _id });
+  },
+
+  /** What the campaign would send, tried on a handful of its real audience. */
+  async broadcastEmailDryRun(
+    _root: undefined,
+    { _id, sampleSize }: { _id: string; sampleSize?: number },
+    { models, subdomain }: IContext,
+  ) {
+    return dryRunBroadcastEmail({
+      models,
+      subdomain,
+      engageMessageId: _id,
+      sampleSize,
+    });
+  },
+
   async engageMessageDetail(
     _root: undefined,
     { _id }: { _id: string },

@@ -29,9 +29,8 @@ export const BroadcastReplyToField = () => {
       name={alignedFrom ? 'fromEmail' : 'email.replyTo'}
       control={control}
       rules={{
-        required: alignedFrom ? 'Reply-to address is required' : undefined,
-        validate: (value?: string) =>
-          isEmail(value) || 'Enter a valid email address',
+        required: alignedFrom ? t('reply-to-required') : undefined,
+        validate: (value?: string) => isEmail(value) || t('invalid-email'),
       }}
       render={({ field }) => (
         <Form.Item>
@@ -51,7 +50,7 @@ export const BroadcastReplyToField = () => {
                   });
                 }
               }}
-              placeholder="Select a confirmed address"
+              placeholder={t('reply-to-placeholder')}
             />
           </Form.Control>
           <Form.Message />

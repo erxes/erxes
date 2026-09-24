@@ -9,10 +9,12 @@ import {
   IconEye,
   IconPencil,
   IconPlayerPauseFilled,
+  IconTestPipe,
 } from '@tabler/icons-react';
 import { Combobox, Command, Popover } from 'erxes-ui';
+import { BroadcastDryRunDialog } from '../common/BroadcastDryRunDialog';
 import { BroadcastScheduleDialog } from '../common/BroadcastScheduleDialog';
-import { ReactNode } from 'react';
+import { ReactNode, useState } from 'react';
 import { Can } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
 
@@ -31,6 +33,7 @@ export const BroadcastActionsMenu = ({
   trigger: ReactNode;
 }) => {
   const { t } = useTranslation('broadcasts');
+  const [isDryRunOpen, setIsDryRunOpen] = useState(false);
   const {
     canEdit,
     canPause,
@@ -56,6 +59,14 @@ export const BroadcastActionsMenu = ({
               <Command.Item value="preview" onSelect={preview}>
                 <IconEye /> {t('actions.preview')}
               </Command.Item>
+              {campaign.method === 'email' && (
+                <Command.Item
+                  value="dry-run"
+                  onSelect={() => setIsDryRunOpen(true)}
+                >
+                  <IconTestPipe /> {t('actions.dry-run')}
+                </Command.Item>
+              )}
               {canEdit && (
                 <Can action="broadcastUpdate">
                   <Command.Item value="edit" onSelect={edit}>
@@ -100,6 +111,12 @@ export const BroadcastActionsMenu = ({
       </Popover>
 
       <BroadcastScheduleDialog {...scheduleDialog} />
+
+      <BroadcastDryRunDialog
+        campaignId={campaign._id}
+        open={isDryRunOpen}
+        onOpenChange={setIsDryRunOpen}
+      />
     </>
   );
 };

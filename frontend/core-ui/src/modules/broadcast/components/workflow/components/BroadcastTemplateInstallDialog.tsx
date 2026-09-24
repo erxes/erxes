@@ -10,6 +10,7 @@ import { useInstallBroadcastTemplate } from '@/broadcast/components/workflow/hoo
 import { IconPencil } from '@tabler/icons-react';
 import { Button, Dialog, ScrollArea, Tabs } from 'erxes-ui';
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const stepLabel = (template: TBuiltInTemplate, order: number) =>
   template.flow.find((step) => step.order === order)?.label || `Step ${order}`;
@@ -29,6 +30,7 @@ export const BroadcastTemplateInstallDialog = ({
   template: TBuiltInTemplate | null;
   onOpenChange: (open: boolean) => void;
 }) => {
+  const { t } = useTranslation('broadcasts');
   const [answers, setAnswers] = useState<Record<string, unknown>>({});
   const { installTemplate } = useInstallBroadcastTemplate();
 
@@ -68,9 +70,9 @@ export const BroadcastTemplateInstallDialog = ({
             className="flex min-w-0 flex-1 flex-col border-r"
           >
             <Tabs.List className="mx-4 mt-3 w-fit">
-              <Tabs.Trigger value="flow">Flow</Tabs.Trigger>
+              <Tabs.Trigger value="flow">{t('workflow.flow')}</Tabs.Trigger>
               <Tabs.Trigger value="steps">
-                What each step is set to
+                {t('workflow.step-settings')}
               </Tabs.Trigger>
             </Tabs.List>
 
@@ -78,7 +80,7 @@ export const BroadcastTemplateInstallDialog = ({
               {preview && (
                 <BroadcastWorkflowEditor
                   readOnly
-                  startLabel="Customer"
+                  startLabel={t('workflow.start-customer')}
                   value={preview}
                 />
               )}
@@ -100,12 +102,12 @@ export const BroadcastTemplateInstallDialog = ({
             <div className="space-y-3 p-4">
               <div>
                 <h3 className="text-sm font-semibold leading-none">
-                  Before you install
+                  {t('workflow.before-install')}
                 </h3>
                 <p className="mt-1 text-xs text-muted-foreground">
                   {template.requirements?.length
-                    ? 'These have to exist in this organization before the flow can run.'
-                    : 'Nothing to set up — this flow runs on what you already have.'}
+                    ? t('workflow.requirements')
+                    : t('workflow.no-requirements')}
                 </p>
               </div>
 
@@ -138,11 +140,10 @@ export const BroadcastTemplateInstallDialog = ({
               {!!template.mustConfigure?.length && (
                 <div className="space-y-2 pt-2">
                   <h3 className="text-sm font-semibold leading-none">
-                    Then write yourself
+                    {t('workflow.write-yourself')}
                   </h3>
                   <p className="text-xs text-muted-foreground">
-                    Installing works without these, but the flow is not finished
-                    until they are filled in.
+                    {t('workflow.write-yourself-body')}
                   </p>
 
                   {template.mustConfigure.map(({ order, label }) => (
@@ -167,12 +168,12 @@ export const BroadcastTemplateInstallDialog = ({
 
         <Dialog.Footer className="border-t px-5 py-3">
           <Button variant="secondary" onClick={() => onOpenChange(false)}>
-            Cancel
+            {t('steps.cancel')}
           </Button>
           <Button disabled={!!unanswered.length} onClick={handleInstall}>
             {unanswered.length
-              ? `${unanswered.length} left to set up`
-              : 'Install'}
+              ? t('workflow.left-to-set-up', { count: unanswered.length })
+              : t('workflow.install')}
           </Button>
         </Dialog.Footer>
       </Dialog.Content>

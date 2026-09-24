@@ -5,21 +5,22 @@ import { z } from 'zod';
 import { broadcastSchema } from '../schema';
 import { IBroadcastMethodEnum } from '../types';
 import { scheduleFromRange } from '../utils/scheduleForm';
+import { useBroadcastContacts } from './useBroadcastContacts';
 import { useBroadcastScheduleRange } from './useBroadcastScheduleRange';
 
 export type IBroadcastFormData = z.infer<typeof broadcastSchema>;
 
 const getDefaultValues = (
   method?: IBroadcastMethodEnum,
-  // Started from one person in the contacts list: they are the audience, so
-  // the campaign opens targeted at them rather than at a segment.
-  broadcastContactId?: string | null,
+  // Started from customers picked in the contacts list: they are the
+  // audience, so the campaign opens targeted at them rather than at a segment.
+  contactIds: string[] = [],
 ): Partial<IBroadcastFormData> => {
-  const base = broadcastContactId
+  const base = contactIds.length
     ? {
         targetType: 'customer' as const,
-        targetIds: [broadcastContactId],
-        targetCount: 1,
+        targetIds: contactIds,
+        targetCount: contactIds.length,
         isLive: false,
         isDraft: false,
         title: '',
@@ -91,7 +92,7 @@ const getDefaultValues = (
  */
 const useBroadcastForm = (initialValues?: Partial<IBroadcastFormData>) => {
   const [queryMethod] = useQueryState<IBroadcastMethodEnum>('method');
-  const [broadcastContactId] = useQueryState<string>('broadcastContactId');
+  const { contactIds } = useBroadcastContacts();
   const method = (initialValues?.method ?? queryMethod ?? undefined) as
     | IBroadcastMethodEnum
     | undefined;
@@ -107,7 +108,7 @@ const useBroadcastForm = (initialValues?: Partial<IBroadcastFormData>) => {
 
   const defaultValues = useMemo<Partial<IBroadcastFormData>>(
     () => ({
-      ...getDefaultValues(method, broadcastContactId),
+      ...getDefaultValues(method, contactIds),
       ...planned,
       ...initialValues,
     }),
@@ -115,7 +116,7 @@ const useBroadcastForm = (initialValues?: Partial<IBroadcastFormData>) => {
     // defaults actually depend on.
     [
       method,
-      broadcastContactId,
+      contactIds.join(','),
       initialValues,
       range?.start.getTime(),
       range?.end.getTime(),

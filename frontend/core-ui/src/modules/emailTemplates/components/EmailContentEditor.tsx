@@ -1,5 +1,11 @@
+import { useEmailDocumentBlock } from '@/emailTemplates/hooks/useEmailDocumentBlock';
 import type { Editor as TiptapEditor } from '@tiptap/core';
-import { EmailEditor, EmailEditorVariable, JSONContent } from 'erxes-ui';
+import {
+  EmailEditor,
+  EmailEditorProps,
+  EmailEditorVariable,
+  JSONContent,
+} from 'erxes-ui';
 import { useCallback, useRef } from 'react';
 import { useAttributes } from 'ui-modules';
 
@@ -9,33 +15,47 @@ type TAttribute = {
   value?: string;
 };
 
+/** A campaign and a template are always written about a customer. */
+const DEFAULT_CONTENT_TYPE = 'core:contacts.customers';
+
 export const EmailContentEditor = ({
   contentJson,
   onChange,
   onCreate,
   editable = true,
+  contentType,
+  extensions,
+  extraVariables,
 }: {
   contentJson?: JSONContent;
   onChange: (contentJson: JSONContent) => void;
   onCreate?: (editor: TiptapEditor) => void;
   editable?: boolean;
+  /** Whose fields to offer — the record this email is written about. */
+  contentType?: string;
+  extensions?: EmailEditorProps['extensions'];
+  /** Fields the record does not own — an automation's output variables. */
+  extraVariables?: EmailEditorVariable[];
 }) => {
-  // Customer fields, wherever an email is written: a campaign, an automation
-  // or a template all offer the person the same placeholders.
   const { attributes } = useAttributes({
-    contentType: 'core:contacts.customers',
+    contentType: contentType || DEFAULT_CONTENT_TYPE,
     attributesConfig: {},
     additionalAttributes: [],
     attributeTypes: [],
   });
 
+  const { blocks, documentPicker } = useEmailDocumentBlock();
+
   const fields = useRef<EmailEditorVariable[]>([]);
 
-  fields.current = (attributes || []).map((attribute: TAttribute) => ({
-    name: attribute.value || attribute.name || '',
-    label: attribute.label || attribute.name,
-    required: false,
-  }));
+  fields.current = [
+    ...(attributes || []).map((attribute: TAttribute) => ({
+      name: attribute.value || attribute.name || '',
+      label: attribute.label || attribute.name,
+      required: false,
+    })),
+    ...(extraVariables || []),
+  ];
 
   // Read through a ref rather than handed over as a list: the editor keeps the
   // extension options it was created with, and the fields arrive after it.
@@ -48,13 +68,18 @@ export const EmailContentEditor = ({
   }, []);
 
   return (
-    <EmailEditor
-      contentJson={contentJson}
-      onChange={onChange}
-      onCreate={onCreate}
-      variables={variables}
-      editable={editable}
-      className="flex-1"
-    />
+    <>
+      <EmailEditor
+        contentJson={contentJson}
+        onChange={onChange}
+        onCreate={onCreate}
+        variables={variables}
+        blocks={blocks}
+        extensions={extensions}
+        editable={editable}
+        className="flex-1"
+      />
+      {editable && documentPicker}
+    </>
   );
 };

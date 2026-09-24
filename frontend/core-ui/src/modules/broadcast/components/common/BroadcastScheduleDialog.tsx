@@ -1,5 +1,5 @@
 import { Button, Dialog } from 'erxes-ui';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
   isRecurringForm,
   isScheduleReady,
@@ -11,6 +11,14 @@ import {
 } from './BroadcastScheduleFields';
 import { useTranslation } from 'react-i18next';
 
+type TBroadcastScheduleDialogProps = {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  initial?: TBroadcastScheduleForm;
+  onConfirm: (schedule: TBroadcastScheduleForm) => void;
+  loading?: boolean;
+};
+
 /**
  * Sets the schedule of a campaign that already exists.
  *
@@ -21,55 +29,57 @@ import { useTranslation } from 'react-i18next';
 export const BroadcastScheduleDialog = ({
   open,
   onOpenChange,
+  ...props
+}: TBroadcastScheduleDialogProps) => (
+  <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog.Content className="sm:max-w-md">
+      <BroadcastScheduleDialogBody onOpenChange={onOpenChange} {...props} />
+    </Dialog.Content>
+  </Dialog>
+);
+
+/**
+ * Mounted each time the dialog opens, so it starts from what the campaign
+ * says now. Holding the pick up here instead meant any re-render of the
+ * campaign behind it threw away what was being picked.
+ */
+const BroadcastScheduleDialogBody = ({
+  onOpenChange,
   initial,
   onConfirm,
   loading,
-}: {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  initial?: TBroadcastScheduleForm;
-  onConfirm: (schedule: TBroadcastScheduleForm) => void;
-  loading?: boolean;
-}) => {
+}: Omit<TBroadcastScheduleDialogProps, 'open'>) => {
   const { t } = useTranslation('broadcasts');
   const [schedule, setSchedule] = useState<TBroadcastScheduleForm>(
-    initial ?? emptySchedule(),
+    () => initial ?? emptySchedule(),
   );
 
-  // Reopening starts from what the campaign says now, not from what was picked
-  // and abandoned last time.
-  useEffect(() => {
-    if (open) {
-      setSchedule(initial ?? emptySchedule());
-    }
-  }, [open, initial]);
-
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <Dialog.Content className="sm:max-w-md">
-        <Dialog.Header>
-          <Dialog.Title>{t('schedule.dialog-title')}</Dialog.Title>
-          <Dialog.Description>
-            It goes out on its own, and stays editable in between.
-          </Dialog.Description>
-        </Dialog.Header>
+    <>
+      <Dialog.Header>
+        <Dialog.Title>{t('schedule.dialog-title')}</Dialog.Title>
+        <Dialog.Description>{t('schedule.dialog-body')}</Dialog.Description>
+      </Dialog.Header>
 
-        <div className="px-6">
-          <BroadcastScheduleFields value={schedule} onChange={setSchedule} />
-        </div>
+      <div className="px-6">
+        <BroadcastScheduleFields value={schedule} onChange={setSchedule} />
+      </div>
 
-        <Dialog.Footer>
-          <Button variant="secondary" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
-          <Button
-            disabled={!isScheduleReady(schedule) || loading}
-            onClick={() => onConfirm(schedule)}
-          >
-            {isRecurringForm(schedule) ? 'Start repeating' : 'Schedule'}
-          </Button>
-        </Dialog.Footer>
-      </Dialog.Content>
-    </Dialog>
+      <Dialog.Footer>
+        <Button variant="secondary" onClick={() => onOpenChange(false)}>
+          {t('steps.cancel')}
+        </Button>
+        <Button
+          disabled={!isScheduleReady(schedule) || loading}
+          onClick={() => onConfirm(schedule)}
+        >
+          {t(
+            isRecurringForm(schedule)
+              ? 'schedule.start-repeating'
+              : 'schedule.confirm',
+          )}
+        </Button>
+      </Dialog.Footer>
+    </>
   );
 };

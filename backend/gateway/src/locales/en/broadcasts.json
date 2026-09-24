@@ -37,9 +37,18 @@
     "sendTest": "Send test",
     "blockedNoSender": "Pick a confirmed address in Reply-to first — it is what the email is sent from.",
     "blockedNoContent": "Write the email first — there is nothing to send yet.",
+    "blockedNoSubject": "Give the email a subject — no provider will send one without it.",
     "previewFrom": "From",
     "previewSubject": "Subject",
-    "previewNoSubject": "(no subject)"
+    "previewNoSubject": "(no subject)",
+    "sender-required": "Sender name is required",
+    "sender-placeholder": "Sales team",
+    "from-required": "From address is required",
+    "invalid-email": "Enter a valid email address",
+    "reply-to-required": "Reply-to address is required",
+    "reply-to-placeholder": "Select a confirmed address",
+    "subject-required": "Email subject is required",
+    "content-required": "Content is required"
   },
   "display": "Display",
   "loading": "Loading…",
@@ -99,7 +108,13 @@
     "pause": "Pause",
     "schedule": "Schedule…",
     "schedule-short": "Schedule",
-    "cancel-schedule": "Cancel schedule"
+    "cancel-schedule": "Cancel schedule",
+    "dry-run": "Test render",
+    "delete": "Delete",
+    "resume": "Resume",
+    "send-now": "Send now",
+    "live": "Live",
+    "send-broadcast": "Send broadcast"
   },
   "card": {
     "actions": "Campaign actions",
@@ -114,14 +129,33 @@
   },
   "confirm": {
     "delete_one": "Are you sure you want to delete the selected broadcast?",
-    "delete_other": "Are you sure you want to delete the {{count}} selected broadcasts?"
+    "delete_other": "Are you sure you want to delete the {{count}} selected broadcasts?",
+    "pause": "Pause this broadcast? Nobody new will be sent to. Anyone already sent to is unaffected, and going live again continues where it stopped.",
+    "resume": "Continue this broadcast? It picks up where it stopped.",
+    "send-now": "Send this broadcast now? It will not wait for the moment it was scheduled for.",
+    "go-live": "Set this broadcast live?",
+    "cancel-schedule": "Cancel this schedule? The broadcast goes back to being a draft and will not go out on its own."
   },
   "toast": {
     "error": "Error",
     "success": "Success",
     "deleted": "Broadcast deleted successfully",
     "duplicated": "Duplicated",
-    "duplicated-body": "A draft copy is ready to edit"
+    "duplicated-body": "A draft copy is ready to edit",
+    "settings-saved": "Settings saved",
+    "live": "Live",
+    "live-body": "The broadcast is running",
+    "paused": "Paused",
+    "paused-body": "The broadcast stopped taking new recipients",
+    "schedule-cancelled": "Schedule cancelled",
+    "schedule-cancelled-body": "The broadcast is a draft again",
+    "scheduled": "Scheduled",
+    "scheduled-body": "The broadcast goes out on its own",
+    "schedule-failed": "Saved as a draft, but could not be scheduled",
+    "saved": "Broadcast saved",
+    "saved-draft": "Broadcast saved as draft",
+    "created": "Broadcast created",
+    "save-failed": "Could not save this broadcast"
   },
   "empty": {
     "title": "No campaigns yet",
@@ -132,7 +166,8 @@
   "error": {
     "title": "Couldn't load campaigns",
     "unknown": "Unknown error",
-    "retry": "Try again"
+    "retry": "Try again",
+    "not-found": "This campaign no longer exists"
   },
   "tab": {
     "statistic": "Statistic",
@@ -152,7 +187,49 @@
     "rendering-failure": "Rendering failure",
     "has-run": "This campaign has run:",
     "last-run": "Last run at:",
-    "never": "Never"
+    "never": "Never",
+    "notification": {
+      "total": "Targeted",
+      "total-body": "Customers matched by the selected tag who are eligible for this campaign.",
+      "sent": "Sent",
+      "sent-body": "Client portal users who successfully received the notification.",
+      "read": "Read",
+      "read-body": "Recipients who opened and marked the in-app notification as read.",
+      "push": "Push enabled",
+      "push-body": "Campaign was configured to deliver mobile and web push notifications."
+    },
+    "workflow": {
+      "total": "Targeted",
+      "total-body": "Customers matched by this campaign’s audience when it was last run.",
+      "started": "Workflow started",
+      "started-body": "Customers the flow was started for. A step that waits or delays can run for days afterwards, so what happened next lives in the flow’s own history."
+    },
+    "email": {
+      "total": "Total",
+      "total-body": "The cumulative count of all email messages processed during this broadcast.",
+      "send": "Sent",
+      "send-body": "The handoff to {{provider}} was successful and delivery is now being attempted.",
+      "delivery": "Delivered",
+      "delivery-body": "The email was successfully accepted by the recipient’s incoming mail server.",
+      "open": "Opened",
+      "open-body": "The recipient viewed the message content within their specific email client.",
+      "click": "Clicked",
+      "click-body": "The recipient interacted with one or more tracked hyperlinks in the email.",
+      "complaint": "Complaint/Spam",
+      "complaint-body": "The recipient received the email but manually flagged the message as spam.",
+      "bounce": "Bounce",
+      "bounce-body": "The recipient’s mail server permanently rejected the message delivery attempt.",
+      "renderingfailure": "Rendering failure",
+      "renderingfailure-body": "The email was not sent due to a technical error within the template syntax.",
+      "reject": "Rejected",
+      "reject-body": "The email was scanned by {{provider}}, found to be a risk, and blocked.",
+      "deferred": "Deferred",
+      "deferred-body": "The receiving server asked for the message later. Nothing has failed — but a number climbing here is the provider holding this campaign back."
+    },
+    "skipped": "Not sent",
+    "skipped-body": "Recipients the run decided against — unsubscribed, no address, already reached by an earlier run, or gone.",
+    "yes": "Yes",
+    "no": "No"
   },
   "recipients": {
     "empty-title": "No recipients yet",
@@ -161,10 +238,32 @@
     "reason": "Reason",
     "customer": "Customer",
     "updated": "Updated",
-    "open-customer": "Open customer"
+    "open-customer": "Open customer",
+    "refresh": "Refresh the list",
+    "new-changes": "New changes, refresh",
+    "status": {
+      "sent": "Dispatched",
+      "pending": "Queued",
+      "skipped": "Skipped",
+      "failed": "Failed",
+      "missing": "Missing"
+    },
+    "failed-on": "Failed on {{action}}",
+    "flow-failed": "Flow failed",
+    "waiting": "Waiting in the flow",
+    "no-flow": "No flow ran for this person yet.",
+    "empty-body": "The people this campaign targets are written down when it goes live.",
+    "loaded-of": "{{loaded}} of {{total}}"
+  },
+  "recipientEmail": {
+    "reply-to": "Reply to",
+    "unavailable": "This message cannot be rebuilt — the run or the contact is gone.",
+    "no-events-yet": "Sent. The provider has not reported anything yet.",
+    "never-left": "{{status}} — this one never left."
   },
   "traces": {
-    "empty": "No traces yet"
+    "empty": "No traces yet",
+    "empty-body": "Traces will appear here once the broadcast starts sending."
   },
   "schedule": {
     "dialog-title": "Schedule this broadcast",
@@ -176,7 +275,30 @@
     "status": "Status:",
     "finished": "Finished repeating",
     "until": "Until",
-    "pick-end": "Pick an end date"
+    "pick-end": "Pick an end date",
+    "every": {
+      "once": "Once",
+      "day": "Daily",
+      "week": "Weekly",
+      "month": "Monthly",
+      "year": "Yearly"
+    },
+    "repeat": {
+      "week": "Every {{weekday}} at {{time}}",
+      "month": "Day {{day}} of every month at {{time}}",
+      "year": "Every {{day}} {{month}} at {{time}}",
+      "day": "Every day at {{time}}"
+    },
+    "starting-from": "Starting from",
+    "send-at": "Send at",
+    "times_one": "{{count}} time",
+    "times_other": "{{count}} times",
+    "in-past": "Pick a moment that has not passed yet.",
+    "send-later": "Send later",
+    "send-without-waiting": "Send without waiting",
+    "dialog-body": "It goes out on its own, and stays editable in between.",
+    "start-repeating": "Start repeating",
+    "confirm": "Schedule"
   },
   "calendar": {
     "previous-month": "Previous month",
@@ -200,11 +322,144 @@
     "single-step": "Single step",
     "search-steps": "Search steps…",
     "no-step": "No step matches that search",
-    "variables": "Variables"
+    "variables": "Variables",
+    "none": "This campaign has no workflow",
+    "none-body": "A workflow campaign builds its own automation when it is created.",
+    "start-customer": "Customer",
+    "audience": "Audience",
+    "answer-above": "Answer the step above first.",
+    "flow": "Flow",
+    "step-settings": "What each step is set to",
+    "before-install": "Before you install",
+    "requirements": "These have to exist in this organization before the flow can run.",
+    "no-requirements": "Nothing to set up — this flow runs on what you already have.",
+    "write-yourself": "Then write yourself",
+    "write-yourself-body": "Installing works without these, but the flow is not finished until they are filled in.",
+    "left-to-set-up_one": "{{count}} left to set up",
+    "left-to-set-up_other": "{{count}} left to set up",
+    "install": "Install",
+    "method": {
+      "loop": "The audience is the loop",
+      "loop-body": "The flow runs once for every customer in the segment or tag you picked, one run each.",
+      "draw": "Draw it on the right",
+      "draw-body": "Add actions from the canvas beside this panel. The Start node stands for the customer each run receives.",
+      "live": "Live once the flow exists",
+      "live-body": "A campaign with an empty flow cannot go live, so add at least one action before setting it live."
+    }
   },
   "approval": {
     "lock": "Lock"
   },
   "broadcast-config": "Broadcast config",
-  "untitled": "Untitled"
+  "untitled": "Untitled",
+  "dryRun": {
+    "title": "Test render",
+    "description": "Renders this campaign for a few of its real recipients, and sends nothing.",
+    "sampled": "Rendered for {{count}} recipients",
+    "empty": "This campaign has nobody to rehearse on yet.",
+    "field": "Field",
+    "filled": "Answered",
+    "missing": "Not answered",
+    "unresolved": "Placeholders nothing filled in",
+    "unresolved-body": "These reached the body as written. Every one of them would have gone out as text.",
+    "all-resolved": "Nothing was left unfilled.",
+    "sample": "What {{to}} would receive",
+    "run": "Run again",
+    "close": "Close"
+  },
+  "filter": {
+    "method-placeholder": "Select method",
+    "method-empty": "No method found",
+    "status-placeholder": "Select status",
+    "status-empty": "No status found",
+    "filter": "Filter",
+    "search": "Search",
+    "status": "Status",
+    "updated": "Updated",
+    "customer": "customer",
+    "method": "Method",
+    "from": "From"
+  },
+  "target-type": {
+    "segment": "Segment",
+    "tag": "Tag",
+    "placeholder": "Select target type"
+  },
+  "settings": {
+    "ses-access-key": "AWS SES Access Key id",
+    "ses-secret-key": "AWS SES Secret Access Key",
+    "aws-region": "AWS Region",
+    "ses-config-set": "AWS SES Config Set",
+    "sendgrid-api-key": "SendGrid API Key",
+    "sendgrid-subuser": "SendGrid Subuser",
+    "mail-service": "Mail Service Name",
+    "mail-host": "Host",
+    "mail-port": "Port",
+    "mail-user": "Username",
+    "mail-password": "Password",
+    "unverified-limit": "Unverified emails limit",
+    "skip-limit": "Allowed email skip limit",
+    "sms-limit": "Customer limit per auto SMS campaign",
+    "mode-default": "Use mail config",
+    "mode-custom": "Use own credentials",
+    "credentials": "Email credentials",
+    "service": "Email service",
+    "verified-emails": "Verified emails",
+    "same-credentials": "These credentials are identical to the ones in Mail config, so campaigns still send on that same account. Fill in the fields above to put them on a separate one."
+  },
+  "steps": {
+    "recipients": "Broadcast recipients",
+    "recipients-body": "Choose who is going to receive this broadcast",
+    "config": "Broadcast config",
+    "config-body": "Configure, write and compose your broadcast",
+    "count": "STEP {{step}}/{{total}}",
+    "cancel": "Cancel",
+    "previous": "Previous step",
+    "next": "Next step",
+    "save-draft": "Save & Draft",
+    "save-schedule": "Save & Schedule",
+    "save-live": "Save & Live",
+    "edit-title": "Edit Broadcast",
+    "new-title": "New Broadcast",
+    "no-method": "Method not found. Try refreshing the page.",
+    "nothing-to-configure": "Nothing to configure for this broadcast type",
+    "no-preview": "No preview for this broadcast type"
+  },
+  "notification": {
+    "no-channel": "Select a notification channel",
+    "no-channel-body": "Enable in-app or mobile & web push before saving the campaign.",
+    "portal": "Client portal",
+    "portal-required": "Client portal is required",
+    "portal-placeholder": "Select client portal",
+    "no-portals": "No client portals found",
+    "in-app": "In-app push notification",
+    "mobile": "Mobile & Web push notification",
+    "title": "Notification title",
+    "title-required": "Notification title is required",
+    "content": "Notification content",
+    "content-required": "Notification content is required",
+    "unknown-portal": "Unknown portal",
+    "channels": "Channels",
+    "in-app-short": "In-app",
+    "mobile-short": "Mobile & Web push",
+    "none-selected": "None selected",
+    "preview": "Notification preview",
+    "content-placeholder": "Notification content will appear here"
+  },
+  "target": {
+    "title": "Title",
+    "title-required": "Title is required",
+    "type": "Target type",
+    "type-required": "Target type is required",
+    "customers": "Customers",
+    "audience-required": "Choose who receives this broadcast",
+    "no-segments": "No segment has been built for customers yet.",
+    "no-tags": "No customer tags yet.",
+    "selected-customers_one": "This broadcast goes to the {{count}} customer picked in contacts.",
+    "selected-customers_other": "This broadcast goes to the {{count}} customers picked in contacts.",
+    "no-segments-body": "A campaign is sent to the customers of a segment. Build one first, then come back.",
+    "create-segment": "Create first segment",
+    "no-tags-body": "A campaign can be sent to customers carrying a tag. Create one first, then come back.",
+    "create-tag": "Create first tag"
+  }
 }

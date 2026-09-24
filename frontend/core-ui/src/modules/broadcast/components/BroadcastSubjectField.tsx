@@ -10,7 +10,7 @@ export const BroadcastSubjectField = () => {
     <Form.Field
       name="email.subject"
       control={control}
-      rules={{ required: 'Email subject is required' }}
+      rules={{ required: t('subject-required') }}
       render={({ field }) => (
         <Form.Item>
           <Form.Label>

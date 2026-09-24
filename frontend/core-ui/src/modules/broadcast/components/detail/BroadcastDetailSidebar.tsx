@@ -19,15 +19,14 @@ const BROADCAST_SIDEBAR_TABS = {
 
 export type BROADCAST_TAB = keyof typeof BROADCAST_SIDEBAR_TABS;
 
+const TABS = Object.keys(BROADCAST_SIDEBAR_TABS) as BROADCAST_TAB[];
+
 export const BroadcastDetailSidebar = ({
   activeTab,
   setActiveTab,
-  tabs,
 }: {
   activeTab: BROADCAST_TAB;
   setActiveTab: (activeTab: BROADCAST_TAB) => void;
-  // Which of the tabs this campaign has anything to show in.
-  tabs: BROADCAST_TAB[];
 }) => {
   const { t } = useTranslation('broadcasts');
 
@@ -39,7 +38,7 @@ export const BroadcastDetailSidebar = ({
       <Sidebar.Group>
         <Sidebar.GroupContent>
           <Sidebar.Menu>
-            {tabs.map((key) => {
+            {TABS.map((key) => {
               const { labelKey, icon: Icon } = BROADCAST_SIDEBAR_TABS[key];
 
               return (
@@ -47,7 +46,6 @@ export const BroadcastDetailSidebar = ({
                   <Sidebar.MenuButton
                     isActive={activeTab === key}
                     onClick={() => setActiveTab(key)}
-                    disabled={false}
                   >
                     <Icon />
                     {t(labelKey)}

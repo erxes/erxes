@@ -1,13 +1,13 @@
 import { IBroadcastRecipientDocument } from '@/broadcast/db/models/BroadcastRecipients';
 import { IBroadcastRunDocument } from '@/broadcast/db/models/BroadcastRuns';
-import dayjs from 'dayjs';
 import { deliverEmail, normalizeEmail } from 'erxes-api-shared/utils';
-import * as _ from 'lodash';
 import { ICustomerDocument } from 'erxes-api-shared/core-types';
 import { generateModels, IModels } from '~/connectionResolvers';
-import { replaceContent } from '~/modules/documents/utils';
-import { renderEmailContent } from 'erxes-api-shared/core-modules';
-import { unsubscribeUrl } from '~/utils/email/links';
+import {
+  describeUnresolvedPlaceholders,
+  findUnresolvedPlaceholders,
+  TEmailFieldOutcome,
+} from 'erxes-api-shared/core-modules';
 import {
   createDeliveryLogPort,
   createSuppressionPort,
@@ -17,7 +17,8 @@ import {
   formatPostalAddress,
   getPostalAddress,
 } from '~/utils/email/postalAddress';
-import { prepareEmailParams, readFileUrl } from '../utils';
+import { prepareEmailParams } from '../utils';
+import { renderBroadcastEmail } from '../utils/renderEmail';
 import {
   getBroadcastAlignedFrom,
   getBroadcastCacheKey,
@@ -69,42 +70,86 @@ const grantSendingAllowance = async (
   return { allowed, exhausted: granted < unproven.length };
 };
 
-const renderEmail = async (
-  subdomain: string,
+/**
+ * What the run froze, as a plain object.
+ *
+ * `run` is a mongoose document, so `run.email` is a sub-document: spreading
+ * one copies its internals rather than its fields, and everything but the
+ * body — subject, sender, reply-to — would quietly vanish on the way to the
+ * provider.
+ */
+const frozenEmail = (run: IBroadcastRunDocument): Record<string, any> => {
+  const email = run.email as
+    | (Record<string, any> & { toObject?: () => Record<string, any> })
+    | undefined;
+
+  return email?.toObject?.() ?? email ?? {};
+};
+
+type TFieldCounts = Map<string, { filled: number; missing: number }>;
+
+const countFields = (counts: TFieldCounts, fields: TEmailFieldOutcome[]) => {
+  for (const { id, filled } of fields) {
+    const entry = counts.get(id) || { filled: 0, missing: 0 };
+
+    entry[filled ? 'filled' : 'missing']++;
+    counts.set(id, entry);
+  }
+};
+
+/**
+ * How often each field the email asks for was answered, kept on the run.
+ *
+ * This is what tells a campaign that went out looking wrong apart: a field
+ * missing for a hundred of ten thousand people is those people's data, and
+ * one missing for all ten thousand was never connected to anything.
+ */
+const recordFieldStats = async (
+  models: IModels,
   run: IBroadcastRunDocument,
-  customer: ICustomerDocument,
-  postalAddress: string,
+  counts: TFieldCounts,
 ) => {
-  const link = unsubscribeUrl(subdomain, { cid: customer._id });
+  if (!counts.size) {
+    return;
+  }
 
-  const htmlContent = await renderEmailContent(run.email || {}, {
-    replacer: customer,
-    replaceBlocks: (content) =>
-      replaceContent({
-        replacer: customer,
-        content,
-        replacement: (replacer: Record<string, unknown>, path: string) => {
-          const value = _.get(replacer, path);
-
-          if (typeof value === 'number') {
-            return value.toString();
-          }
-
-          if (value instanceof Date) {
-            return dayjs(value).format('YYYY-MM-DD');
-          }
-
-          return value?.toString() || '-';
+  await models.BroadcastRuns.bulkWrite(
+    [...counts].flatMap(([id, { filled, missing }]) => [
+      {
+        updateOne: {
+          filter: { _id: run._id, 'fieldStats.id': { $ne: id } },
+          update: { $push: { fieldStats: { id, filled: 0, missing: 0 } } },
         },
-      }),
-    unsubscribeUrl: link,
-    postalAddress,
-    blocksConfig: {
-      resolveImageUrl: (url: string) => readFileUrl(url, subdomain),
-    },
-  });
+      },
+      {
+        updateOne: {
+          filter: { _id: run._id, 'fieldStats.id': id },
+          update: {
+            $inc: {
+              'fieldStats.$.filled': filled,
+              'fieldStats.$.missing': missing,
+            },
+          },
+        },
+      },
+    ]),
+  );
+};
 
-  return { link, htmlContent };
+/**
+ * The first body a run produces, kept so the campaign can be asked afterwards
+ * what it actually sent. Written once — later recipients leave it alone.
+ */
+const keepSample = async (
+  models: IModels,
+  run: IBroadcastRunDocument,
+  to: string,
+  html: string,
+) => {
+  await models.BroadcastRuns.updateOne(
+    { _id: run._id, sample: { $exists: false } },
+    { $set: { sample: { to, html, renderedAt: new Date() } } },
+  );
 };
 
 const deliverEmails: TDrainDeliver = async ({
@@ -199,6 +244,8 @@ const deliverEmails: TDrainDeliver = async ({
   const alignedFrom = await getBroadcastAlignedFrom(models);
 
   let sent = 0;
+  const fieldCounts: TFieldCounts = new Map();
+  const email = frozenEmail(run);
 
   for (let index = 0; index < sendable.length; index++) {
     const { recipient, customer } = sendable[index];
@@ -208,12 +255,48 @@ const deliverEmails: TDrainDeliver = async ({
     }
 
     try {
-      const { link, htmlContent } = await renderEmail(
+      const { link, htmlContent } = await renderBroadcastEmail({
+        models,
         subdomain,
-        run,
+        email,
         customer,
         postalAddress,
-      );
+        onFields: (fields) => countFields(fieldCounts, fields),
+      });
+
+      // No provider accepts an email without a subject, and the one that
+      // refuses it reports it as its own error rather than ours.
+      if (!String(email.subject || '').trim()) {
+        await models.BroadcastRecipients.finish(
+          recipient._id,
+          'failed',
+          'email subject is empty',
+        );
+
+        continue;
+      }
+
+      // The subject is checked with the body: a marker in it reaches the
+      // inbox list, where it is the first thing anyone sees.
+      const unresolved = [
+        ...findUnresolvedPlaceholders(htmlContent),
+        ...findUnresolvedPlaceholders(String(email.subject || '')),
+      ];
+
+      // Nobody is sent an email with a marker still in it. A record with
+      // nothing for a field renders its default instead, so this can only be
+      // something that was never wired up.
+      if (unresolved.length) {
+        await models.BroadcastRecipients.finish(
+          recipient._id,
+          'failed',
+          describeUnresolvedPlaceholders(unresolved),
+        );
+
+        continue;
+      }
+
+      await keepSample(models, run, customer.primaryEmail || '', htmlContent);
 
       const outcome = await deliverEmail({
         cacheKey,
@@ -224,7 +307,7 @@ const deliverEmails: TDrainDeliver = async ({
             customer as any,
             {
               _id: run.engageMessageId,
-              email: { ...(run.email || {}), content: htmlContent },
+              email: { ...email, content: htmlContent },
             } as any,
             run.fromEmail || '',
             run.configSet,
@@ -276,6 +359,8 @@ const deliverEmails: TDrainDeliver = async ({
         sendable.slice(index).map(({ recipient: held }) => held._id),
       );
 
+      await recordFieldStats(models, run, fieldCounts);
+
       return {
         exhausted: true,
         resumeIn: wait,
@@ -285,6 +370,8 @@ const deliverEmails: TDrainDeliver = async ({
       };
     }
   }
+
+  await recordFieldStats(models, run, fieldCounts);
 
   // A block that got through ends the spell, so the next refusal starts from
   // a minute again rather than from where the last one left off.

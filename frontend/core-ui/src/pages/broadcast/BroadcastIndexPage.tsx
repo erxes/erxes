@@ -5,8 +5,9 @@ import { BroadcastHeader } from '@/broadcast/components/list/BroadcastHeader';
 import { BroadcastCalendar } from '@/broadcast/components/calendar/BroadcastCalendar';
 import { BroadcastCardList } from '@/broadcast/components/list/BroadcastCardList';
 import { BroadcastRecordTable } from '@/broadcast/components/list/BroadcastRecordTable';
-import { useBroadcastListLayout } from '@/broadcast/components/list/BroadcastDisplayControl';
+import { useBroadcastListLayout } from '@/broadcast/hooks/useBroadcastListLayout';
 import { BroadcastStatistic } from '@/broadcast/components/detail/BroadcastStatistic';
+import { useBroadcastLiveSync } from '@/broadcast/hooks/useBroadcastChanged';
 import { PageContainer, PageSubHeader } from 'erxes-ui';
 
 const LAYOUTS = {
@@ -18,6 +19,8 @@ const LAYOUTS = {
 const BroadcastIndexPage = () => {
   const { layout } = useBroadcastListLayout();
   const Layout = LAYOUTS[layout] ?? BroadcastRecordTable;
+
+  useBroadcastLiveSync();
 
   return (
     <PageContainer>

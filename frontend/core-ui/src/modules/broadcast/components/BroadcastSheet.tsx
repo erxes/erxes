@@ -1,8 +1,10 @@
 import { IBroadcastMethodEnum } from '@/broadcast/types';
-import { cn, Sheet, useMultiQueryState } from 'erxes-ui';
+import { Sheet, useMultiQueryState } from 'erxes-ui';
+import { useBroadcastContacts } from '../hooks/useBroadcastContacts';
 import { useBroadcastScheduleRange } from '../hooks/useBroadcastScheduleRange';
 import { BroadcastMethod } from './list/BroadcastMethod';
 import { BroadcastSteps } from './steps/BroadcastSteps';
+import { BroadcastStepsSheetView } from './steps/BroadcastStepsSheetView';
 
 /**
  * Creating a campaign, opened by choosing a method.
@@ -21,17 +23,18 @@ export const BroadcastSheet = ({
   const [{ method, editMessageId }, setQueryParams] = useMultiQueryState<{
     method: IBroadcastMethodEnum;
     editMessageId: string;
-    broadcastContactId: string;
-  }>(['method', 'editMessageId', 'broadcastContactId']);
+  }>(['method', 'editMessageId']);
 
   const { clearRange } = useBroadcastScheduleRange();
+  const { clearContacts } = useBroadcastContacts();
 
   const handleClose = () => {
     // The days picked on the calendar and the contact picked in the list were
     // for this campaign; leaving them behind would quietly carry them into the
     // next one.
     clearRange();
-    setQueryParams({ method: null, broadcastContactId: null });
+    clearContacts();
+    setQueryParams({ method: null });
   };
 
   return (
@@ -39,24 +42,11 @@ export const BroadcastSheet = ({
       open={!!method && !editMessageId}
       onOpenChange={(open) => !open && handleClose()}
     >
-      {showTrigger && <BroadcastMethod onSelect={() => undefined} />}
+      {showTrigger && <BroadcastMethod />}
 
-      <Sheet.View
-        className={cn(
-          'sm:max-w-7xl',
-          // The workflow canvas is the campaign's content, so it gets the room
-          // a form-based method does not need. Overridden at the same
-          // breakpoint as the sheet's own `md:w-3/4`, which a plain `w-*`
-          // class would lose to.
-          method === IBroadcastMethodEnum.WORKFLOW &&
-            'sm:max-w-none md:w-[calc(100vw-1rem)]',
-        )}
-        onEscapeKeyDown={(e) => {
-          e.preventDefault();
-        }}
-      >
+      <BroadcastStepsSheetView method={method}>
         <BroadcastSteps onClose={handleClose} />
-      </Sheet.View>
+      </BroadcastStepsSheetView>
     </Sheet>
   );
 };

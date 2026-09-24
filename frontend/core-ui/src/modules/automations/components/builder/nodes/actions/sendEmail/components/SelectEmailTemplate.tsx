@@ -33,7 +33,9 @@ export const SelectEmailTemplate = ({
   });
 
   const emailTemplates = format
-    ? allTemplates.filter((template) => emailTemplateFormat(template) === format)
+    ? allTemplates.filter(
+        (template) => emailTemplateFormat(template) === format,
+      )
     : allTemplates;
 
   const { loadEmailTemplate, emailTemplate } = useEmailTemplateDetailLazy();
@@ -48,7 +50,7 @@ export const SelectEmailTemplate = ({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <Popover.Trigger className="w-full" asChild>
-        <Button>
+        <Button variant="secondary">
           <IconTemplate />
           {placeholder}
         </Button>

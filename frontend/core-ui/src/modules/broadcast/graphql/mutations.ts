@@ -94,17 +94,15 @@ export const BROADCAST_SEND_TEST_EMAIL = gql`
   mutation BROADCAST_SEND_TEST_EMAIL(
     $from: String!
     $to: String!
-    $contentJson: JSON
+    $content: String!
     $contentFormat: String
-    $previewText: String
     $title: String!
   ) {
     engageMessageSendTestEmail(
       from: $from
       to: $to
-      contentJson: $contentJson
+      content: $content
       contentFormat: $contentFormat
-      previewText: $previewText
       title: $title
     )
   }

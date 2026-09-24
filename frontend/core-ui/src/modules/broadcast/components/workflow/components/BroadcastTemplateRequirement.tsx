@@ -7,6 +7,7 @@ import { TBuiltInTemplateRequirement } from '@/automations/utils/builtInTemplate
 import { IconCheck, IconPointFilled } from '@tabler/icons-react';
 import { cn } from 'erxes-ui';
 import { splitAutomationNodeType } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 /**
  * One thing the tenant must already have for a template to work.
@@ -30,6 +31,7 @@ export const BroadcastTemplateRequirement = ({
   disabled: boolean;
   onChange: (value: unknown | null) => void;
 }) => {
+  const { t } = useTranslation('broadcasts');
   const [pluginName, moduleName] = splitAutomationNodeType(requirement.kind);
   const isAnswered = value !== undefined && value !== null;
   const isCoreKind = isCoreTemplateRequirement(requirement.kind);
@@ -93,7 +95,7 @@ export const BroadcastTemplateRequirement = ({
 
         {disabled && (
           <p className="text-xs text-muted-foreground">
-            Answer the step above first.
+            {t('workflow.answer-above')}
           </p>
         )}
       </div>

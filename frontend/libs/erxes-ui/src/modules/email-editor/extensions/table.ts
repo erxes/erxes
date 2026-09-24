@@ -16,7 +16,9 @@ import {
   deleteRow,
   deleteTable,
   goToNextCell,
+  isInTable,
   mergeCells,
+  selectedRect,
   splitCell,
   tableEditing,
   toggleHeaderRow,
@@ -38,11 +40,18 @@ declare module '@tiptap/core' {
       mergeCells: () => ReturnType;
       splitCell: () => ReturnType;
       deleteTable: () => ReturnType;
+      setTableBackground: (options: {
+        color: string | null;
+        scope: TEmailTableBackgroundScope;
+      }) => ReturnType;
     };
   }
 }
 
-const cellAttributes = {
+/** How far a background colour reaches from the cell the caret is in. */
+export type TEmailTableBackgroundScope = 'cell' | 'row' | 'column' | 'table';
+
+const cellAttributes = (defaultBackground: string | null) => ({
   colspan: { default: 1 },
   rowspan: { default: 1 },
   colwidth: {
@@ -53,7 +62,18 @@ const cellAttributes = {
       return width ? width.split(',').map((part) => parseInt(part, 10)) : null;
     },
   },
-};
+  // Carried on the cell rather than the row or the column: a table in an
+  // email is only ever a grid of cells by the time it is sent.
+  backgroundColor: {
+    default: defaultBackground,
+    parseHTML: (element: HTMLElement) =>
+      element.style.backgroundColor || defaultBackground,
+    renderHTML: (attributes: Record<string, unknown>) =>
+      attributes.backgroundColor
+        ? { style: `background-color: ${attributes.backgroundColor}` }
+        : {},
+  },
+});
 
 /**
  * Email tables, kept deliberately plain: no column resizing, because what is
@@ -164,6 +184,47 @@ export const EmailTable = Node.create({
       mergeCells: run(mergeCells),
       splitCell: run(splitCell),
       deleteTable: run(deleteTable),
+      setTableBackground:
+        ({ color, scope }) =>
+        ({ state, dispatch }) => {
+          if (!isInTable(state)) {
+            return false;
+          }
+
+          const rect = selectedRect(state);
+          const { map, tableStart } = rect;
+
+          const area = {
+            cell: {
+              left: rect.left,
+              right: rect.right,
+              top: rect.top,
+              bottom: rect.bottom,
+            },
+            row: { left: 0, right: map.width, top: rect.top, bottom: rect.bottom },
+            column: {
+              left: rect.left,
+              right: rect.right,
+              top: 0,
+              bottom: map.height,
+            },
+            table: { left: 0, right: map.width, top: 0, bottom: map.height },
+          }[scope];
+
+          if (!dispatch) {
+            return true;
+          }
+
+          const { tr } = state;
+
+          for (const pos of map.cellsInRect(area)) {
+            tr.setNodeAttribute(tableStart + pos, 'backgroundColor', color);
+          }
+
+          dispatch(tr);
+
+          return true;
+        },
     };
   },
 
@@ -237,6 +298,9 @@ export const EmailTable = Node.create({
   },
 });
 
+/** What a header cell starts out as, until someone picks something else. */
+export const HEADER_BACKGROUND = '#f9fafb';
+
 export const EmailTableRow = Node.create({
   name: 'tableRow',
   content: '(tableCell | tableHeader)*',
@@ -250,7 +314,7 @@ export const EmailTableCell = Node.create({
   content: 'block+',
   tableRole: 'cell',
   isolating: true,
-  addAttributes: () => cellAttributes,
+  addAttributes: () => cellAttributes(null),
   parseHTML: () => [{ tag: 'td' }],
   renderHTML: ({ HTMLAttributes }) => [
     'td',
@@ -266,13 +330,15 @@ export const EmailTableHeader = Node.create({
   content: 'block+',
   tableRole: 'header_cell',
   isolating: true,
-  addAttributes: () => cellAttributes,
+  addAttributes: () => cellAttributes(HEADER_BACKGROUND),
   parseHTML: () => [{ tag: 'th' }],
   renderHTML: ({ HTMLAttributes }) => [
     'th',
+    // The background comes from the cell's own attribute, so a header a
+    // colour was picked for is not painted over by a fixed style.
     mergeAttributes(HTMLAttributes, {
       style:
-        'border: 1px solid #e5e7eb; padding: 8px 12px; background-color: #f9fafb; font-weight: 600; text-align: left;',
+        'border: 1px solid #e5e7eb; padding: 8px 12px; font-weight: 600; text-align: left;',
     }),
     0,
   ],

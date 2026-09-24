@@ -17,12 +17,10 @@ import {
   linkCard,
   logo,
   orderedList,
-  repeat,
   section,
   spacer,
   text,
 } from '@maily-to/core/blocks';
-import { productCardBlock } from '../extensions/productCardBlock';
 import { tableBlock } from '../extensions/tableBlock';
 
 type BlockGroups = NonNullable<MailyEditorProps['blocks']>;
@@ -53,8 +51,6 @@ export const DEFAULT_EMAIL_BLOCKS: BlockGroups = [
       columns,
       section,
       tableBlock,
-      repeat,
-      productCardBlock,
       spacer,
       footer,
       linkCard,

@@ -1,4 +1,9 @@
 import { gql } from '@apollo/client';
+import {
+  GQL_CURSOR_PARAM_DEFS,
+  GQL_CURSOR_PARAMS,
+  GQL_PAGE_INFO,
+} from 'erxes-ui';
 
 const EMAIL_TEMPLATE_FIELDS = `
   _id
@@ -20,29 +25,17 @@ const EMAIL_TEMPLATE_FIELDS = `
 
 export const EMAIL_TEMPLATES = gql`
   query EmailTemplates(
-    $page: Int
-    $perPage: Int
-    $searchValue: String
-    $sortField: String
-    $sortDirection: Int
+    $searchValue: String,
+    ${GQL_CURSOR_PARAM_DEFS}
   ) {
     emailTemplates(
-      page: $page
-      perPage: $perPage
-      searchValue: $searchValue
-      sortField: $sortField
-      sortDirection: $sortDirection
+      searchValue: $searchValue,
+      ${GQL_CURSOR_PARAMS}
     ) {
       list {
         ${EMAIL_TEMPLATE_FIELDS}
       }
-      totalCount
-      pageInfo {
-        hasNextPage
-        hasPreviousPage
-        startCursor
-        endCursor
-      }
+      ${GQL_PAGE_INFO}
     }
   }
 `;
@@ -58,17 +51,13 @@ export const EMAIL_TEMPLATE_DETAIL = gql`
 export const EMAIL_CONTENT_PREVIEW = gql`
   query EmailContentPreview(
     $content: String
-    $contentJson: JSON
     $contentFormat: String
-    $previewText: String
-    $payloads: JSON
+    $replacerId: String
   ) {
     emailContentPreview(
       content: $content
-      contentJson: $contentJson
       contentFormat: $contentFormat
-      previewText: $previewText
-      payloads: $payloads
+      replacerId: $replacerId
     )
   }
 `;

@@ -1,4 +1,4 @@
-import { JSONContent } from './types';
+import type { JSONContent } from '@tiptap/core';
 
 /**
  * Nodes the email editor understands but `@maily-to/render` does not. They are
@@ -19,14 +19,20 @@ const escapeHtml = (value: string) =>
 const CELL_STYLE =
   'border: 1px solid #e5e7eb; padding: 8px 12px; vertical-align: top; font-size: 15px; line-height: 1.6; color: #374151;';
 
-const HEADER_STYLE = `${CELL_STYLE} background-color: #f9fafb; font-weight: 600; color: #111827; text-align: left;`;
+const HEADER_STYLE = `${CELL_STYLE} font-weight: 600; color: #111827; text-align: left;`;
+
+/** What a header cell wears when nobody picked anything for it. */
+const HEADER_BACKGROUND = '#f9fafb';
 
 const TABLE_STYLE =
   'border-collapse: collapse; width: 100%; margin: 16px 0; border: 1px solid #e5e7eb;';
 
 const markUp = (html: string, marks?: JSONContent['marks']) =>
   (marks || []).reduce((wrapped, mark) => {
-    const { type, attrs } = mark as { type?: string; attrs?: Record<string, any> };
+    const { type, attrs } = mark as {
+      type?: string;
+      attrs?: Record<string, unknown>;
+    };
 
     switch (type) {
       case 'bold':
@@ -93,9 +99,24 @@ const pushTable = (parts: TPart[], table: JSONContent) => {
 
     for (const cell of row.content || []) {
       const isHeader = cell.type === 'tableHeader';
-      const { colspan = 1, rowspan = 1, colwidth } = (cell.attrs ||
-        {}) as Record<string, any>;
+      const {
+        colspan = 1,
+        rowspan = 1,
+        colwidth,
+        backgroundColor,
+      } = (cell.attrs || {}) as {
+        colspan?: number;
+        rowspan?: number;
+        colwidth?: number[] | null;
+        backgroundColor?: string | null;
+      };
       const width = Array.isArray(colwidth) && colwidth[0] ? colwidth[0] : null;
+      // A table written before backgrounds carries no attribute at all, and
+      // its header still has to look like a header.
+      const background =
+        backgroundColor === undefined && isHeader
+          ? HEADER_BACKGROUND
+          : backgroundColor;
 
       parts.push({
         type: 'text',
@@ -103,6 +124,10 @@ const pushTable = (parts: TPart[], table: JSONContent) => {
           rowspan > 1 ? ` rowspan="${rowspan}"` : ''
         } style="${isHeader ? HEADER_STYLE : CELL_STYLE}${
           width ? ` width: ${width}px;` : ''
+        }${
+          background
+            ? ` background-color: ${escapeHtml(String(background))};`
+            : ''
         }">`,
       });
 
@@ -117,90 +142,29 @@ const pushTable = (parts: TPart[], table: JSONContent) => {
   parts.push({ type: 'text', text: '</tbody></table>' });
 };
 
-/** The fields a product card reads off each item of the list it repeats. */
-export const PRODUCT_CARD_FIELDS = {
-  NAME: 'name',
-  IMAGE: 'imageUrl',
-  DESCRIPTION: 'description',
-  QUANTITY: 'quantity',
-  UNIT_PRICE: 'unitPrice',
-  AMOUNT: 'amount',
-} as const;
+/**
+ * The document is not rendered here: it is produced per recipient, so the node
+ * leaves behind the same `{{ document.<id> }}` marker the block editor emits
+ * and the send path fills it in.
+ */
+const pushDocumentPlaceholder = (parts: TPart[], node: JSONContent) => {
+  const documentId = String(node.attrs?.documentId || '');
 
-const variable = (id: string): TPart => ({
-  type: 'variable',
-  attrs: { id, fallback: null, required: false },
-});
-
-const CARD_STYLE =
-  'border-collapse: collapse; width: 100%; margin: 8px 0; border: 1px solid #e5e7eb; border-radius: 8px;';
-
-const pushProductCard = (parts: TPart[], node: JSONContent) => {
-  const {
-    showImage = true,
-    showDescription = true,
-    showQuantity = true,
-    showPrice = true,
-  } = (node.attrs || {}) as Record<string, boolean>;
-
-  parts.push({
-    type: 'text',
-    text: `<table role="presentation" cellpadding="0" cellspacing="0" style="${CARD_STYLE}"><tbody><tr>`,
-  });
-
-  if (showImage) {
-    // A row of the list, drawn as a table: the only layout an email client
-    // can be trusted with.
-    parts.push({
-      type: 'text',
-      text: '<td width="96" style="padding: 12px; vertical-align: top;"><img width="72" height="72" style="display: block; border-radius: 6px; object-fit: cover;" src="',
-    });
-    parts.push(variable(PRODUCT_CARD_FIELDS.IMAGE));
-    parts.push({ type: 'text', text: '" alt="" /></td>' });
+  if (!documentId) {
+    return;
   }
 
   parts.push({
     type: 'text',
-    text: '<td style="padding: 12px; vertical-align: top; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Arial, sans-serif;"><div style="font-size: 15px; font-weight: 600; color: #111827;">',
+    text: `<div class="erxes-document-placeholder" data-document-id="${escapeHtml(
+      documentId,
+    )}">{{ document.${escapeHtml(documentId)} }}</div>`,
   });
-  parts.push(variable(PRODUCT_CARD_FIELDS.NAME));
-  parts.push({ type: 'text', text: '</div>' });
-
-  if (showDescription) {
-    parts.push({
-      type: 'text',
-      text: '<div style="margin-top: 4px; font-size: 13px; line-height: 1.5; color: #6b7280;">',
-    });
-    parts.push(variable(PRODUCT_CARD_FIELDS.DESCRIPTION));
-    parts.push({ type: 'text', text: '</div>' });
-  }
-
-  if (showQuantity) {
-    parts.push({
-      type: 'text',
-      text: '<div style="margin-top: 6px; font-size: 13px; color: #6b7280;">× ',
-    });
-    parts.push(variable(PRODUCT_CARD_FIELDS.QUANTITY));
-    parts.push({ type: 'text', text: '</div>' });
-  }
-
-  parts.push({ type: 'text', text: '</td>' });
-
-  if (showPrice) {
-    parts.push({
-      type: 'text',
-      text: '<td align="right" style="padding: 12px; vertical-align: top; white-space: nowrap; font-size: 15px; font-weight: 600; color: #111827;">',
-    });
-    parts.push(variable(PRODUCT_CARD_FIELDS.AMOUNT));
-    parts.push({ type: 'text', text: '</td>' });
-  }
-
-  parts.push({ type: 'text', text: '</tr></tbody></table>' });
 };
 
 const EXPANDERS: Record<string, (parts: TPart[], node: JSONContent) => void> = {
   table: pushTable,
-  productCard: pushProductCard,
+  documentPlaceholder: pushDocumentPlaceholder,
 };
 
 export const expandCustomNodes = (node: JSONContent): JSONContent => {

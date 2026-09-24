@@ -75,8 +75,12 @@ export const useBroadcastCampaignActions = (
       variant: 'destructive',
     });
 
-  const succeed = (title: string, description: string) => () => {
-    toast({ title, description, variant: 'success' });
+  const succeed = (titleKey: string, descriptionKey: string) => () => {
+    toast({
+      title: t(titleKey),
+      description: t(descriptionKey),
+      variant: 'success',
+    });
     onDone?.();
   };
 
@@ -129,33 +133,31 @@ export const useBroadcastCampaignActions = (
     : BROADCAST_CONFIRM_MESSAGES.goLive;
 
   const goLive = () =>
-    confirm({ message: goLiveMessage }).then(() =>
+    confirm({ message: t(goLiveMessage) }).then(() =>
       setBroadcastLive(_id, {
         onError,
-        onCompleted: succeed('Live', 'The broadcast is running'),
+        onCompleted: succeed('toast.live', 'toast.live-body'),
       }),
     );
 
   const pause = () =>
-    confirm({ message: BROADCAST_CONFIRM_MESSAGES.pause }).then(() =>
+    confirm({ message: t(BROADCAST_CONFIRM_MESSAGES.pause) }).then(() =>
       pauseBroadcast(_id, {
         onError,
-        onCompleted: succeed(
-          'Paused',
-          'The broadcast stopped taking new recipients',
-        ),
+        onCompleted: succeed('toast.paused', 'toast.paused-body'),
       }),
     );
 
   const cancelScheduleAction = () =>
-    confirm({ message: BROADCAST_CONFIRM_MESSAGES.cancelSchedule }).then(() =>
-      cancelSchedule(_id, {
-        onError,
-        onCompleted: succeed(
-          'Schedule cancelled',
-          'The broadcast is a draft again',
-        ),
-      }),
+    confirm({ message: t(BROADCAST_CONFIRM_MESSAGES.cancelSchedule) }).then(
+      () =>
+        cancelSchedule(_id, {
+          onError,
+          onCompleted: succeed(
+            'toast.schedule-cancelled',
+            'toast.schedule-cancelled-body',
+          ),
+        }),
     );
 
   // Scheduling asks for a moment first, so the action opens the picker and the
@@ -178,7 +180,7 @@ export const useBroadcastCampaignActions = (
         },
         onCompleted: () => {
           setScheduleOpen(false);
-          succeed('Scheduled', 'The broadcast goes out on its own')();
+          succeed('toast.scheduled', 'toast.scheduled-body')();
         },
       }),
   };
@@ -187,7 +189,13 @@ export const useBroadcastCampaignActions = (
     ...actions,
     // One send button in three states, named once so the table and the sheet
     // cannot label the same action differently.
-    goLiveLabel: canResume ? 'Resume' : scheduled ? 'Send now' : 'Live',
+    goLiveLabel: t(
+      canResume
+        ? 'actions.resume'
+        : scheduled
+        ? 'actions.send-now'
+        : 'actions.live',
+    ),
     preview,
     edit,
     duplicate,

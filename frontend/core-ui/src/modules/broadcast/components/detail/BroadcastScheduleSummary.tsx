@@ -5,6 +5,7 @@ import {
   scheduleToForm,
 } from '../../utils/scheduleForm';
 import { useTranslation } from 'react-i18next';
+import { TBroadcastMessage } from '../../types';
 
 const when = (value?: string | Date | null) =>
   value
@@ -29,8 +30,12 @@ const Fact = ({ label, value }: { label: string; value: string }) => (
  * coming or it is finished. The remaining count is asked of the scheduler, so
  * it is the same arithmetic that sets the alarms.
  */
-export const BroadcastScheduleSummary = ({ message }: { message: any }) => {
-  const { t } = useTranslation('broadcasts');
+export const BroadcastScheduleSummary = ({
+  message,
+}: {
+  message: TBroadcastMessage;
+}) => {
+  const { t, i18n } = useTranslation('broadcasts');
   const schedule = scheduleToForm(message?.scheduleDate);
   const { count } = useBroadcastSchedulePreview(schedule);
 
@@ -52,7 +57,10 @@ export const BroadcastScheduleSummary = ({ message }: { message: any }) => {
 
   return (
     <div className="space-x-8">
-      <Fact label={t('schedule.repeats')} value={describeRecurrence(schedule)} />
+      <Fact
+        label={t('schedule.repeats')}
+        value={describeRecurrence(schedule, t, i18n.language)}
+      />
       {!!nextRun && <Fact label={t('schedule.next-run')} value={nextRun} />}
       {count !== undefined && (
         <Fact

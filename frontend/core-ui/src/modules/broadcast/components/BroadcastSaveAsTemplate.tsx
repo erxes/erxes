@@ -1,36 +1,21 @@
 import { IconTemplate } from '@tabler/icons-react';
-import { Button, Input, Popover, useToast } from 'erxes-ui';
+import { Button, Input, Popover } from 'erxes-ui';
 import { useState } from 'react';
-import { useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { useEmailTemplateMutations } from '@/emailTemplates/hooks/useEmailTemplateMutations';
+import { useBroadcastSaveAsTemplate } from '../hooks/useBroadcastSaveAsTemplate';
 
 export const BroadcastSaveAsTemplate = () => {
-  const { getValues } = useFormContext();
-  const { toast } = useToast();
   const { t } = useTranslation('broadcasts', { keyPrefix: 'composer' });
-  const { addEmailTemplate, loading } = useEmailTemplateMutations();
+  const { save, loading } = useBroadcastSaveAsTemplate();
 
   const [name, setName] = useState('');
   const [open, setOpen] = useState(false);
 
-  const handleSave = () => {
-    const contentJson = getValues('email.contentJson');
-
-    addEmailTemplate({
-      variables: { name, contentJson, contentFormat: 'maily' },
-      onCompleted: () => {
-        toast({
-          variant: 'default',
-          title: t('saveAsTemplateSuccess', { name }),
-        });
-        setName('');
-        setOpen(false);
-      },
-      onError: (error) => {
-        toast({ variant: 'destructive', title: error.message });
-      },
-    });
+  const handleSave = async () => {
+    if (await save(name)) {
+      setName('');
+      setOpen(false);
+    }
   };
 
   return (

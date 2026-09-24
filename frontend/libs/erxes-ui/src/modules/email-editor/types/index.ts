@@ -3,6 +3,8 @@ import type { Editor as TiptapEditor, JSONContent } from '@tiptap/core';
 
 export type { JSONContent };
 
+export type EmailPreviewDevice = 'desktop' | 'mobile';
+
 export interface EmailEditorVariable {
   name: string;
   label?: string;

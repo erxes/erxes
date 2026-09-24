@@ -3,8 +3,11 @@ import { BroadcastSteps } from '@/broadcast/components/steps/BroadcastSteps';
 import { useBroadcastMessage } from '@/broadcast/hooks/useBroadcastMessage';
 import { IBroadcastMethodEnum } from '@/broadcast/types';
 import { messageToFormValues } from '@/broadcast/utils/messageToFormValues';
-import { cn, Sheet, Skeleton, useMultiQueryState } from 'erxes-ui';
+import { BroadcastStepsSheetView } from './steps/BroadcastStepsSheetView';
+import { Sheet, Skeleton, useMultiQueryState } from 'erxes-ui';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import { BroadcastErrorState } from './list/BroadcastStates';
 
 type TBroadcastEditQueryParams = {
   editMessageId: string;
@@ -30,23 +33,14 @@ export const BroadcastEditSheet = () => {
       open={!!editMessageId}
       onOpenChange={(open) => !open && handleClose()}
     >
-      <Sheet.View
-        className={cn(
-          'sm:max-w-7xl',
-          // Matches the creation sheet: the canvas is the campaign's content,
-          // so a workflow gets the room a form-based method does not need.
-          method === IBroadcastMethodEnum.WORKFLOW &&
-            'sm:max-w-none md:w-[calc(100vw-1rem)]',
-        )}
-        onEscapeKeyDown={(e) => e.preventDefault()}
-      >
+      <BroadcastStepsSheetView method={method}>
         {editMessageId && (
           <BroadcastEditSheetContent
             messageId={editMessageId}
             onClose={handleClose}
           />
         )}
-      </Sheet.View>
+      </BroadcastStepsSheetView>
     </Sheet>
   );
 };
@@ -58,7 +52,8 @@ const BroadcastEditSheetContent = ({
   messageId: string;
   onClose: () => void;
 }) => {
-  const { message, loading } = useBroadcastMessage({
+  const { t } = useTranslation('broadcasts');
+  const { message, loading, error, refetch } = useBroadcastMessage({
     variables: { _id: messageId },
   });
 
@@ -81,7 +76,17 @@ const BroadcastEditSheetContent = ({
   // the steps must not be rendered before the flow is there to seed it with.
   const isMissingFlow = !!message?.workflowAutomationId && !automation;
 
-  if (loading || loadingAutomation || !message?._id || isMissingFlow) {
+  // Without these a campaign that failed to load, or no longer exists, left
+  // the sheet on its skeleton for good.
+  if (error) {
+    return <BroadcastErrorState error={error} onRetry={() => refetch()} />;
+  }
+
+  if (!loading && !message?._id) {
+    return <BroadcastErrorState error={new Error(t('error.not-found'))} />;
+  }
+
+  if (loading || loadingAutomation || isMissingFlow) {
     return <Skeleton className="m-4 h-[calc(100%-2rem)] w-[calc(100%-2rem)]" />;
   }
 

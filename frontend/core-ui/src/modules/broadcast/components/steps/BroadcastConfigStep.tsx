@@ -1,4 +1,5 @@
 import { useQueryState } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { BroadcastEmailMethod } from '../methods/BroadcastEmailMethod';
 import { BroadcastMessengerMethod } from '../methods/BroadcastMessengerMethod';
 import { BroadcastNotificationMethod } from '../methods/BroadcastNotificationMethod';
@@ -14,10 +15,11 @@ const BROADCAST_CONFIG_METHOD = {
 type BROADCAST_CONFIG_METHOD_KEY = keyof typeof BROADCAST_CONFIG_METHOD;
 
 export const BroadcastConfigStep = () => {
+  const { t } = useTranslation('broadcasts');
   const [method] = useQueryState('method');
 
   if (!method) {
-    return <div>Method not found, Try to refresh the page</div>;
+    return <div>{t('steps.no-method')}</div>;
   }
 
   const MethodContent =
@@ -25,7 +27,7 @@ export const BroadcastConfigStep = () => {
 
   // Same guard as the preview: an unmapped method must not render `undefined`.
   if (!MethodContent) {
-    return <div>Nothing to configure for this broadcast type</div>;
+    return <div>{t('steps.nothing-to-configure')}</div>;
   }
 
   return <MethodContent />;

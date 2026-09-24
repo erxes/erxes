@@ -3,7 +3,7 @@ import { ColumnDef } from '@tanstack/table-core';
 import { useMemo } from 'react';
 import { useBroadcastEmailScope } from '../../hooks/useBroadcastEmailScope';
 import { Badge, RecordTable, RecordTableInlineCell } from 'erxes-ui';
-import { BrandsInline } from 'ui-modules';
+import { BroadcastBrandCell } from './cells/BroadcastBrandCell';
 import { BroadcastFromCell } from './cells/BroadcastFromCell';
 import { BroadcastMethodCell } from './cells/BroadcastMethodCell';
 import { BroadcastMoreCell } from './cells/BroadcastMoreCell';
@@ -12,6 +12,7 @@ import { BroadcastReachedCell } from './cells/BroadcastReachedCell';
 import { BroadcastStatusCell } from './cells/BroadcastStatusCell';
 import { BroadcastTriggerCell } from './cells/BroadcastTriggerCell';
 import { useTranslation } from 'react-i18next';
+import { TBroadcastMessage } from '../../types';
 
 /**
  * What the campaign table shows, and in what order.
@@ -34,15 +35,13 @@ const Head = ({
   return <RecordTable.InlineHead label={t(labelKey)} icon={icon} />;
 };
 
-const BROADCAST_COLUMNS: ColumnDef<any>[] = [
+const BROADCAST_COLUMNS: ColumnDef<TBroadcastMessage>[] = [
   { id: 'more', cell: BroadcastMoreCell, size: 33 },
-  RecordTable.checkboxColumn,
+  RecordTable.checkboxColumn as ColumnDef<TBroadcastMessage>,
   {
     id: 'title',
     accessorKey: 'title',
-    header: () => (
-      <Head labelKey="columns.name" icon={IconLabelFilled} />
-    ),
+    header: () => <Head labelKey="columns.name" icon={IconLabelFilled} />,
     cell: ({ cell }) => (
       <BroadcastNameCell
         _id={cell.row.original?._id}
@@ -53,9 +52,7 @@ const BROADCAST_COLUMNS: ColumnDef<any>[] = [
   {
     id: 'status',
     accessorKey: 'status',
-    header: () => (
-      <Head labelKey="columns.status" icon={IconLabelFilled} />
-    ),
+    header: () => <Head labelKey="columns.status" icon={IconLabelFilled} />,
     cell: ({ cell }) => <BroadcastStatusCell row={cell.row.original} />,
     size: 140,
   },
@@ -76,9 +73,7 @@ const BROADCAST_COLUMNS: ColumnDef<any>[] = [
   {
     id: 'reached',
     accessorKey: 'validCustomersCount',
-    header: () => (
-      <Head labelKey="columns.reached" icon={IconLabelFilled} />
-    ),
+    header: () => <Head labelKey="columns.reached" icon={IconLabelFilled} />,
     cell: ({ cell }) => (
       <BroadcastReachedCell
         reached={cell.row.original?.validCustomersCount}
@@ -90,9 +85,7 @@ const BROADCAST_COLUMNS: ColumnDef<any>[] = [
   {
     id: 'method',
     accessorKey: 'method',
-    header: () => (
-      <Head labelKey="columns.type" icon={IconLabelFilled} />
-    ),
+    header: () => <Head labelKey="columns.type" icon={IconLabelFilled} />,
     cell: ({ cell }) => (
       <BroadcastMethodCell method={cell.getValue() as string} />
     ),
@@ -103,33 +96,22 @@ const BROADCAST_COLUMNS: ColumnDef<any>[] = [
     // schedule, so keying it to the stored `kind` only invited the two to be
     // confused for one another again.
     id: 'trigger',
-    header: () => (
-      <Head labelKey="trigger.label" icon={IconLabelFilled} />
-    ),
+    header: () => <Head labelKey="trigger.label" icon={IconLabelFilled} />,
     cell: ({ cell }) => <BroadcastTriggerCell row={cell.row.original} />,
     size: 140,
   },
   {
     id: 'brandId',
     accessorKey: 'brandId',
-    header: () => (
-      <Head labelKey="columns.brand" icon={IconLabelFilled} />
-    ),
+    header: () => <Head labelKey="columns.brand" icon={IconLabelFilled} />,
     cell: ({ cell }) => (
-      <RecordTableInlineCell>
-        <BrandsInline
-          brandIds={[cell.getValue() as string]}
-          placeholder="{t('columns.no-brand')}"
-        />
-      </RecordTableInlineCell>
+      <BroadcastBrandCell brandId={cell.getValue() as string | undefined} />
     ),
   },
   {
     id: 'from',
     accessorKey: 'fromEmail',
-    header: () => (
-      <Head labelKey="columns.from" icon={IconLabelFilled} />
-    ),
+    header: () => <Head labelKey="columns.from" icon={IconLabelFilled} />,
     cell: ({ cell }) => (
       <BroadcastFromCell
         method={cell.row.original?.method}

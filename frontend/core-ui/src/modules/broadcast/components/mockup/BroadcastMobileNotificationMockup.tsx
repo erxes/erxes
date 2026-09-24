@@ -1,7 +1,9 @@
 import { IconBellRinging } from '@tabler/icons-react';
 import { useFormContext } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 export const BroadcastMobileNotificationMockup = () => {
+  const { t, i18n } = useTranslation('broadcasts');
   const { watch } = useFormContext();
 
   const title = watch('notification.title');
@@ -14,7 +16,7 @@ export const BroadcastMobileNotificationMockup = () => {
       day: 'numeric',
     };
 
-    return new Date().toLocaleDateString('en-US', option);
+    return new Date().toLocaleDateString(i18n.language, option);
   };
 
   const renderTime = () => {
@@ -65,11 +67,11 @@ export const BroadcastMobileNotificationMockup = () => {
                   </div>
 
                   <div className="text-sm font-semibold mb-2">
-                    {title || 'Notification title'}
+                    {title || t('notification.title')}
                   </div>
 
                   <div className="text-sm text-muted-foreground line-clamp-3">
-                    {content || 'Notification content will appear here'}
+                    {content || t('notification.content-placeholder')}
                   </div>
                 </div>
               </div>

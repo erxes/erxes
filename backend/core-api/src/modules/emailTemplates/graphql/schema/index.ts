@@ -1,3 +1,5 @@
+import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
+
 const templateFields = `
   name: String!
   description: String
@@ -28,9 +30,9 @@ export const types = `
 `;
 
 export const queries = `
-  emailTemplates(page: Int, perPage: Int, searchValue: String, sortField: String, sortDirection: Int): EmailTemplatesListResponse
+  emailTemplates(searchValue: String, ${GQL_CURSOR_PARAM_DEFS}): EmailTemplatesListResponse
   emailTemplateDetail(_id: String!): EmailTemplate
-  emailContentPreview(content: String, contentJson: JSON, contentFormat: String, previewText: String, payloads: JSON): String
+  emailContentPreview(content: String, contentFormat: String, replacerId: String): String
 `;
 
 export const mutations = `

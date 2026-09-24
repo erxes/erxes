@@ -8,8 +8,9 @@ import {
   IconTableOff,
 } from '@tabler/icons-react';
 import type { Editor } from '@tiptap/core';
-import { Button, Tooltip } from 'erxes-ui/components';
+import { Button, Separator, Tooltip } from 'erxes-ui/components';
 import { useEffect, useState } from 'react';
+import { EmailTableBackground } from './EmailTableBackground';
 
 const ACTIONS = [
   { label: 'Row above', icon: IconRowInsertTop, run: 'addRowBefore' },
@@ -72,6 +73,10 @@ export const EmailTableToolbar = ({ editor }: { editor: Editor | null }) => {
           <Tooltip.Content side="bottom">{label}</Tooltip.Content>
         </Tooltip>
       ))}
+
+      <Separator.Inline />
+
+      <EmailTableBackground editor={editor} />
     </div>
   );
 };

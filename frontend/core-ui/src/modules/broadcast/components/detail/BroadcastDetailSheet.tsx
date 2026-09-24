@@ -22,7 +22,10 @@ import {
 import { IconLock } from '@tabler/icons-react';
 import { BROADCAST_APPROVAL_CONTENT_TYPE } from '../../constants';
 import { useBroadcastCampaignActions } from '../../hooks/useBroadcastCampaignActions';
-import { useBroadcastMessage } from '../../hooks/useBroadcastMessage';
+import {
+  BroadcastDetailProvider,
+  useBroadcastDetail,
+} from '../../context/BroadcastDetailContext';
 import { BroadcastScheduleDialog } from '../common/BroadcastScheduleDialog';
 import { BroadcastDetail } from './BroadcastDetail';
 import { useTranslation } from 'react-i18next';
@@ -42,26 +45,23 @@ export const BroadcastDetailSheet = () => {
           'p-0 md:max-w-5xl md:w-[calc(100vw-(--spacing(4)))] xl:w-3/4 flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none',
         )}
       >
-        <Sheet.Header>
-          <BroadcastDetailSheetHeader />
-          <Sheet.Close />
-        </Sheet.Header>
-        <Sheet.Content className="overflow-y-auto">
-          <BroadcastDetail messageId={messageId} />
-        </Sheet.Content>
+        <BroadcastDetailProvider>
+          <Sheet.Header>
+            <BroadcastDetailSheetHeader />
+            <Sheet.Close />
+          </Sheet.Header>
+          <Sheet.Content className="overflow-y-auto">
+            <BroadcastDetail />
+          </Sheet.Content>
+        </BroadcastDetailProvider>
       </Sheet.View>
     </Sheet>
   );
 };
 
-export const BroadcastDetailSheetHeader = () => {
+const BroadcastDetailSheetHeader = () => {
   const { t } = useTranslation('broadcasts');
-  const [messageId] = useQueryState<string>('messageId');
-
-  const { message, refetch } = useBroadcastMessage({
-    variables: { _id: messageId },
-    skip: !messageId,
-  });
+  const { messageId, message, refetch } = useBroadcastDetail();
 
   const {
     canEdit,
@@ -80,9 +80,9 @@ export const BroadcastDetailSheetHeader = () => {
     scheduleDialog,
     cancelSchedule,
     locked,
-  } = useBroadcastCampaignActions(message);
+  } = useBroadcastCampaignActions(message ?? null);
 
-  const canStart = !!messageId && (canGoLive || canResume);
+  const canStart = canGoLive || canResume;
   const lockState = message?.approvalLockState;
 
   return (
@@ -95,7 +95,7 @@ export const BroadcastDetailSheetHeader = () => {
 
       <div className="ml-auto mr-2 flex items-center gap-2">
         {/* Locked and not ours: asking is the only thing left to offer. */}
-        {locked && !!messageId && (
+        {locked && (
           <ApprovalRequestAccessButton
             contentType={BROADCAST_APPROVAL_CONTENT_TYPE}
             contentId={messageId}
@@ -104,27 +104,25 @@ export const BroadcastDetailSheetHeader = () => {
           />
         )}
 
-        {!!messageId && (
-          <Can action="approvalLocksManage">
-            {/* No owner is named: whoever locks the campaign keeps access and
+        <Can action="approvalLocksManage">
+          {/* No owner is named: whoever locks the campaign keeps access and
                 names who else does, so its author can be kept outside the
                 decision to send. */}
-            <ApprovalLockButton
-              contentType={BROADCAST_APPROVAL_CONTENT_TYPE}
-              contentId={messageId}
-              state={lockState || undefined}
-              onChanged={() => refetch?.()}
-              whenUnlocked={({ loading }) => (
-                <Button variant="outline" size="sm" disabled={loading}>
-                  <IconLock className="size-4" />
-                  {t('approval.lock')}
-                </Button>
-              )}
-            />
-          </Can>
-        )}
+          <ApprovalLockButton
+            contentType={BROADCAST_APPROVAL_CONTENT_TYPE}
+            contentId={messageId}
+            state={lockState || undefined}
+            onChanged={() => refetch?.()}
+            whenUnlocked={({ loading }) => (
+              <Button variant="outline" size="sm" disabled={loading}>
+                <IconLock className="size-4" />
+                {t('approval.lock')}
+              </Button>
+            )}
+          />
+        </Can>
 
-        {canCopy && !!messageId && (
+        {canCopy && (
           <Can action="broadcastCreate">
             <Button variant="outline" size="sm" onClick={duplicate}>
               <IconCopy className="size-4" />
@@ -133,14 +131,16 @@ export const BroadcastDetailSheetHeader = () => {
           </Can>
         )}
 
-        {canEdit && !!messageId && (
-          <Button variant="outline" size="sm" onClick={edit}>
-            <IconPencil className="size-4" />
-            Edit
-          </Button>
+        {canEdit && (
+          <Can action="broadcastUpdate">
+            <Button variant="outline" size="sm" onClick={edit}>
+              <IconPencil className="size-4" />
+              {t('actions.edit')}
+            </Button>
+          </Can>
         )}
 
-        {canSchedule && !!messageId && (
+        {canSchedule && (
           <Can action="broadcastUpdate">
             <Button variant="outline" size="sm" onClick={schedule}>
               <IconCalendarClock className="size-4" />
@@ -149,7 +149,7 @@ export const BroadcastDetailSheetHeader = () => {
           </Can>
         )}
 
-        {canCancelSchedule && !!messageId && (
+        {canCancelSchedule && (
           <Can action="broadcastUpdate">
             <Button variant="outline" size="sm" onClick={cancelSchedule}>
               <IconCalendarOff className="size-4" />
@@ -172,7 +172,7 @@ export const BroadcastDetailSheetHeader = () => {
           </Can>
         )}
 
-        {canPause && !!messageId && (
+        {canPause && (
           <Can action="broadcastUpdate">
             <Button
               variant="outline"
@@ -181,7 +181,7 @@ export const BroadcastDetailSheetHeader = () => {
               onClick={pause}
             >
               <IconPlayerPauseFilled className="size-4" />
-              Pause
+              {t('actions.pause')}
             </Button>
           </Can>
         )}

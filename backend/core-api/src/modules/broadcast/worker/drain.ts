@@ -4,6 +4,7 @@ import {
   addBroadcastWorkerQueue,
   BROADCAST_QUEUES,
 } from '@/broadcast/utils/worker';
+import { publishBroadcastChanged } from '@/broadcast/utils/publishBroadcast';
 import { generateModels, IModels } from '~/connectionResolvers';
 
 const FAILURE_THRESHOLD = 0.8;
@@ -98,7 +99,11 @@ const canDrain = async (models: IModels, run: IBroadcastRunDocument) => {
   return !!campaign?.isLive && campaign.status === 'sending';
 };
 
-const syncProgress = async (models: IModels, run: IBroadcastRunDocument) => {
+const syncProgress = async (
+  models: IModels,
+  subdomain: string,
+  run: IBroadcastRunDocument,
+) => {
   const [sent, failed, processed] = await Promise.all([
     models.BroadcastRecipients.countDocuments({
       runId: run._id,
@@ -114,6 +119,8 @@ const syncProgress = async (models: IModels, run: IBroadcastRunDocument) => {
     }),
   ]);
 
+  const lastUpdated = new Date();
+
   await models.EngageMessages.updateOne(
     { _id: run.engageMessageId },
     {
@@ -122,10 +129,20 @@ const syncProgress = async (models: IModels, run: IBroadcastRunDocument) => {
         'progress.successCount': sent,
         'progress.failureCount': failed,
         'progress.processedBatches': processed,
-        'progress.lastUpdated': new Date(),
+        'progress.lastUpdated': lastUpdated,
       },
     },
   );
+
+  publishBroadcastChanged(subdomain, {
+    engageMessageId: run.engageMessageId,
+    progress: {
+      successCount: sent,
+      failureCount: failed,
+      processedBatches: processed,
+      lastUpdated,
+    },
+  });
 };
 
 /**
@@ -134,6 +151,7 @@ const syncProgress = async (models: IModels, run: IBroadcastRunDocument) => {
  */
 const settleRun = async (
   models: IModels,
+  subdomain: string,
   run: IBroadcastRunDocument,
   campaignTitle: string,
 ) => {
@@ -157,10 +175,23 @@ const settleRun = async (
     return;
   }
 
-  await models.EngageMessages.updateOne(
+  const { modifiedCount } = await models.EngageMessages.updateOne(
     { _id: run.engageMessageId, status: { $eq: 'sending' } },
     { $set: { status: finalStatus } },
   );
+
+  // The last block's progress may have been held back, so the close carries
+  // the counts as stored rather than recounting them another way.
+  const settled = await models.EngageMessages.findOne(
+    { _id: run.engageMessageId },
+    { progress: 1 },
+  ).lean();
+
+  publishBroadcastChanged(subdomain, {
+    engageMessageId: run.engageMessageId,
+    ...(modifiedCount ? { status: finalStatus } : {}),
+    ...(settled?.progress ? { progress: settled.progress } : {}),
+  });
 
   await models.BroadcastTraces.createTrace(
     run.engageMessageId,
@@ -242,7 +273,7 @@ export const drainRun = async (payload: unknown, deliver: TDrainDeliver) => {
         recipients: block,
       });
 
-      await syncProgress(models, run);
+      await syncProgress(models, subdomain, run);
 
       if (outcome?.exhausted) {
         // The rows it could not send are back in the manifest, so whoever
@@ -274,7 +305,12 @@ export const drainRun = async (payload: unknown, deliver: TDrainDeliver) => {
     }
 
     if (await models.BroadcastRecipients.isRunDrained(runId)) {
-      await settleRun(models, run, campaignTitle || run.engageMessageId);
+      await settleRun(
+        models,
+        subdomain,
+        run,
+        campaignTitle || run.engageMessageId,
+      );
     }
   } catch (error: any) {
     console.error(`Critical error draining run ${runId}:`, error);
@@ -285,6 +321,11 @@ export const drainRun = async (payload: unknown, deliver: TDrainDeliver) => {
       { _id: run.engageMessageId },
       { $set: { status: 'failed' } },
     );
+
+    publishBroadcastChanged(subdomain, {
+      engageMessageId: run.engageMessageId,
+      status: 'failed',
+    });
 
     await models.BroadcastTraces.createTrace(
       run.engageMessageId,

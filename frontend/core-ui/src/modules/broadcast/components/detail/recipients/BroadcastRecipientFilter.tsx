@@ -11,6 +11,7 @@ import {
   useMultiQueryState,
   useQueryState,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { BROADCAST_RECIPIENTS_CURSOR_SESSION_KEY } from '../../../constants';
 import {
   RECIPIENT_FILTER_KEYS,
@@ -21,6 +22,7 @@ import {
 const FILTER_ID = 'broadcast-recipients-filter';
 
 const StatusView = () => {
+  const { t } = useTranslation('broadcasts');
   const [status, setStatus] = useQueryState<string>(
     RECIPIENT_FILTER_KEYS.status,
   );
@@ -30,14 +32,14 @@ const StatusView = () => {
       <Command shouldFilter={false}>
         <Command.List className="p-1">
           <Combobox.Empty />
-          {RECIPIENT_FILTER_STATUSES.map(({ value, label }) => (
+          {RECIPIENT_FILTER_STATUSES.map(({ value, labelKey }) => (
             <Command.Item
               key={value}
               value={value}
               className="cursor-pointer"
               onSelect={() => setStatus(value === status ? null : value)}
             >
-              {label}
+              {t(labelKey)}
               {status === value && <IconCheck className="ml-auto" />}
             </Command.Item>
           ))}
@@ -61,6 +63,7 @@ const StatusView = () => {
  * list behind this sheet reads, and typing in one filtered both.
  */
 export const BroadcastRecipientFilter = () => {
+  const { t } = useTranslation('broadcasts');
   const [queries] = useMultiQueryState<TRecipientFilterQueries>([
     RECIPIENT_FILTER_KEYS.status,
     RECIPIENT_FILTER_KEYS.updatedAt,
@@ -83,22 +86,25 @@ export const BroadcastRecipientFilter = () => {
           <Combobox.Content>
             <Filter.View>
               <Command>
-                <Filter.CommandInput placeholder="Filter" variant="secondary" />
+                <Filter.CommandInput
+                  placeholder={t('filter.filter')}
+                  variant="secondary"
+                />
                 <Command.List className="p-1">
                   <Filter.Item
                     value={RECIPIENT_FILTER_KEYS.searchValue}
                     inDialog
                   >
                     <IconSearch />
-                    Search
+                    {t('filter.search')}
                   </Filter.Item>
                   <Filter.Item value={RECIPIENT_FILTER_KEYS.status}>
                     <IconProgressCheck />
-                    Status
+                    {t('filter.status')}
                   </Filter.Item>
                   <Filter.Item value={RECIPIENT_FILTER_KEYS.updatedAt}>
                     <IconCalendarTime />
-                    Updated
+                    {t('filter.updated')}
                   </Filter.Item>
                 </Command.List>
               </Command>
@@ -116,7 +122,7 @@ export const BroadcastRecipientFilter = () => {
           <Filter.BarItem queryKey={RECIPIENT_FILTER_KEYS.searchValue}>
             <Filter.BarName>
               <IconSearch />
-              Search
+              {t('filter.search')}
             </Filter.BarName>
             <Filter.BarButton
               filterKey={RECIPIENT_FILTER_KEYS.searchValue}
@@ -131,10 +137,12 @@ export const BroadcastRecipientFilter = () => {
           <Filter.BarItem queryKey={RECIPIENT_FILTER_KEYS.status}>
             <Filter.BarName>
               <IconProgressCheck />
-              Status
+              {t('filter.status')}
             </Filter.BarName>
             <Filter.BarButton filterKey={RECIPIENT_FILTER_KEYS.status}>
-              {activeStatus?.label || queries[RECIPIENT_FILTER_KEYS.status]}
+              {activeStatus
+                ? t(activeStatus.labelKey)
+                : queries[RECIPIENT_FILTER_KEYS.status]}
             </Filter.BarButton>
           </Filter.BarItem>
         )}
@@ -145,7 +153,7 @@ export const BroadcastRecipientFilter = () => {
           <Filter.BarItem queryKey={RECIPIENT_FILTER_KEYS.updatedAt}>
             <Filter.BarName>
               <IconCalendarTime />
-              Updated
+              {t('filter.updated')}
             </Filter.BarName>
             <Filter.Date filterKey={RECIPIENT_FILTER_KEYS.updatedAt} />
           </Filter.BarItem>
@@ -156,7 +164,7 @@ export const BroadcastRecipientFilter = () => {
         <Filter.View filterKey={RECIPIENT_FILTER_KEYS.searchValue} inDialog>
           <Filter.DialogStringView
             filterKey={RECIPIENT_FILTER_KEYS.searchValue}
-            label="customer"
+            label={t('filter.customer')}
           />
         </Filter.View>
         <Filter.View filterKey={RECIPIENT_FILTER_KEYS.updatedAt} inDialog>

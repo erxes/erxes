@@ -1,3 +1,6 @@
+import type { JSONContent } from 'erxes-ui';
+import type { TCampaignLockState } from './utils/campaignActions';
+import type { TStoredSchedule } from './utils/scheduleForm';
 export enum IBroadcastMethodEnum {
   EMAIL = 'email',
   MESSENGER = 'messenger',
@@ -37,13 +40,13 @@ export type TRecipientOutcome =
  */
 export const RECIPIENT_FILTER_STATUSES: {
   value: TBroadcastRecipientStatus;
-  label: string;
+  labelKey: string;
 }[] = [
-  { value: 'sent', label: 'Dispatched' },
-  { value: 'pending', label: 'Queued' },
-  { value: 'skipped', label: 'Skipped' },
-  { value: 'failed', label: 'Failed' },
-  { value: 'missing', label: 'Missing' },
+  { value: 'sent', labelKey: 'recipients.status.sent' },
+  { value: 'pending', labelKey: 'recipients.status.pending' },
+  { value: 'skipped', labelKey: 'recipients.status.skipped' },
+  { value: 'failed', labelKey: 'recipients.status.failed' },
+  { value: 'missing', labelKey: 'recipients.status.missing' },
 ];
 
 /**
@@ -60,6 +63,60 @@ export type TRecipientFilterQueries = {
   recipientStatus?: TBroadcastRecipientStatus;
   recipientUpdatedAt?: string;
   recipientSearch?: string;
+};
+
+export type TBroadcastAudienceItem = { _id: string; name?: string };
+
+/** A campaign as the detail query reads it back. */
+export type TBroadcastMessage = {
+  _id: string;
+  title?: string;
+  kind?: string;
+  method?: IBroadcastMethodEnum;
+  status?: string;
+  isDraft?: boolean;
+  isLive?: boolean;
+  createdAt?: string;
+  targetType?: string;
+  targetIds?: string[];
+  targetCount?: number;
+  totalCustomersCount?: number;
+  validCustomersCount?: number;
+  runCount?: number;
+  lastRunAt?: string;
+  nextRunAt?: string;
+  fromEmail?: string;
+  fromUserId?: string;
+  cpId?: string;
+  brandId?: string;
+  workflowAutomationId?: string;
+  stats?: Record<string, number> | null;
+  email?: {
+    sender?: string;
+    subject?: string;
+    content?: string;
+    contentJson?: JSONContent;
+    previewText?: string;
+    replyTo?: string;
+  } | null;
+  notification?: {
+    title?: string;
+    content?: string;
+    inApp?: boolean;
+    isMobile?: boolean;
+  } | null;
+  messenger?: Record<string, unknown> | null;
+  scheduleDate?: TStoredSchedule | null;
+  approvalLockState?: TCampaignLockState;
+  segments?: TBroadcastAudienceItem[];
+  customerTags?: TBroadcastAudienceItem[];
+};
+
+export type TBroadcastTrace = {
+  _id: string;
+  type?: string;
+  message?: string;
+  createdAt: string;
 };
 
 export type TBroadcastRun = {

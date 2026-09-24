@@ -23,16 +23,19 @@ const hasContent = (node?: JSONContent): boolean => {
 
 /**
  * What a test send or a preview needs before it can say anything true: an
- * address the email would come from, and an email to put in it.
+ * address the email would come from, and an email to put in it. A send needs
+ * a subject as well, which a preview does not.
  */
-export const useBroadcastEmailReadiness = () => {
+export const useBroadcastEmailReadiness = ({
+  requireSubject = false,
+}: { requireSubject?: boolean } = {}) => {
   const { control } = useFormContext();
   const { t } = useTranslation('broadcasts', { keyPrefix: 'composer' });
   const { alignedFrom, loading } = useSenderOptions();
 
-  const [fromEmail, contentJson] = useWatch({
+  const [fromEmail, contentJson, subject] = useWatch({
     control,
-    name: ['fromEmail', 'email.contentJson'],
+    name: ['fromEmail', 'email.contentJson', 'email.subject'],
   });
 
   const from = alignedFrom || fromEmail;
@@ -40,6 +43,8 @@ export const useBroadcastEmailReadiness = () => {
   const blockers = [
     !from && t('blockedNoSender'),
     !hasContent(contentJson) && t('blockedNoContent'),
+    // A preview needs no subject; anything that actually leaves does.
+    requireSubject && !String(subject || '').trim() && t('blockedNoSubject'),
   ].filter(Boolean) as string[];
 
   return { from, blockers, ready: !blockers.length, loading };

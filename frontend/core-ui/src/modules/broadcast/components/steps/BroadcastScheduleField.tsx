@@ -3,6 +3,7 @@ import { IconCalendarClock, IconX } from '@tabler/icons-react';
 import dayjs from 'dayjs';
 import { Button, cn, Popover } from 'erxes-ui';
 import { useFormContext } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import {
   BroadcastScheduleFields,
   emptySchedule,
@@ -14,16 +15,21 @@ import {
   TBroadcastScheduleForm,
 } from '../../utils/scheduleForm';
 
-const summary = (schedule: TBroadcastScheduleForm) => {
+const summary = (
+  schedule: TBroadcastScheduleForm,
+  t: (key: string) => string,
+) => {
   if (!isRecurringForm(schedule)) {
     return dayjs(schedule.at).format('MMM D, HH:mm');
   }
 
-  const label = BROADCAST_EVERY_OPTIONS.find(
+  const labelKey = BROADCAST_EVERY_OPTIONS.find(
     (option) => option.value === schedule.every,
-  )?.label;
+  )?.labelKey;
 
-  return `${label} · ${dayjs(schedule.at).format('HH:mm')}`;
+  return `${labelKey ? t(labelKey) : ''} · ${dayjs(schedule.at).format(
+    'HH:mm',
+  )}`;
 };
 
 /**
@@ -35,6 +41,7 @@ const summary = (schedule: TBroadcastScheduleForm) => {
  * saved and therefore has something to schedule.
  */
 export const BroadcastScheduleField = () => {
+  const { t } = useTranslation('broadcasts');
   const form = useFormContext<IBroadcastFormData>();
 
   const value = form.watch('schedule') as TBroadcastScheduleForm | undefined;
@@ -64,7 +71,7 @@ export const BroadcastScheduleField = () => {
             <IconCalendarClock
               className={cn('size-4', !ready && 'text-muted-foreground')}
             />
-            {ready && value ? summary(value) : 'Send later'}
+            {ready && value ? summary(value, t) : t('schedule.send-later')}
           </Button>
         </Popover.Trigger>
         <Popover.Content align="end" className="w-auto p-3">
@@ -79,9 +86,9 @@ export const BroadcastScheduleField = () => {
         <Button
           variant="ghost"
           size="icon"
-          aria-label="Send without waiting"
+          aria-label={t('schedule.send-without-waiting')}
           className="size-6 text-muted-foreground"
-          title="Send without waiting"
+          title={t('schedule.send-without-waiting')}
           onClick={() => set(undefined)}
         >
           <IconX className="size-4" />

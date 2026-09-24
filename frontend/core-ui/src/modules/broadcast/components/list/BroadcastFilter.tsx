@@ -7,6 +7,7 @@ import {
 import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useBroadcastEmailScope } from '../../hooks/useBroadcastEmailScope';
+import { useBroadcastIsFiltered } from '../../hooks/useBroadcastIsFiltered';
 import {
   BROADCAST_TRIGGERS,
   nextTrigger,
@@ -28,9 +29,7 @@ const BroadcastFilterPopover = () => {
     trigger: string;
   }>(['searchValue', 'status', 'trigger']);
 
-  const hasFilters = Object.values(queries || {}).some(
-    (value) => value !== null,
-  );
+  const hasFilters = useBroadcastIsFiltered();
 
   return (
     <>
@@ -40,7 +39,7 @@ const BroadcastFilterPopover = () => {
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder="Filter"
+                placeholder={t('filter.filter')}
                 variant="secondary"
                 className="bg-background"
               />
@@ -61,21 +60,24 @@ const BroadcastFilterPopover = () => {
 
                 <Filter.Item value="searchValue" inDialog>
                   <IconSearch />
-                  Search
+                  {t('filter.search')}
                 </Filter.Item>
                 <Filter.Item value="status">
                   <IconProgress />
-                  Status
+                  {t('filter.status')}
                 </Filter.Item>
                 <Filter.Item value="methods">
                   <IconBroadcast />
-                  Method
+                  {t('filter.method')}
                 </Filter.Item>
 
                 {isEmailScope && (
                   <>
                     <SelectBrand.FilterItem />
-                    <SelectMember.FilterItem value="fromUser" label="From" />
+                    <SelectMember.FilterItem
+                      value="fromUser"
+                      label={t('filter.from')}
+                    />
                   </>
                 )}
               </Command.List>
@@ -136,7 +138,7 @@ export const BroadcastFilter = () => {
         <Filter.BarItem queryKey="searchValue">
           <Filter.BarName>
             <IconSearch />
-            Search
+            {t('filter.search')}
           </Filter.BarName>
           <Filter.BarButton filterKey="searchValue" inDialog>
             {queries.searchValue || ''}
@@ -146,7 +148,7 @@ export const BroadcastFilter = () => {
         <Filter.BarItem queryKey="status">
           <Filter.BarName>
             <IconProgress />
-            Status
+            {t('filter.status')}
           </Filter.BarName>
           <BroadcastMessageStatus.FilterBar />
         </Filter.BarItem>
@@ -154,7 +156,7 @@ export const BroadcastFilter = () => {
         <Filter.BarItem queryKey="methods">
           <Filter.BarName>
             <IconBroadcast />
-            Method
+            {t('filter.method')}
           </Filter.BarName>
           <BroadcastMessageMethod.FilterBar />
         </Filter.BarItem>
@@ -162,7 +164,10 @@ export const BroadcastFilter = () => {
         {isEmailScope && (
           <>
             <SelectBrand.FilterBar />
-            <SelectMember.FilterBar queryKey="fromUser" label="From" />
+            <SelectMember.FilterBar
+              queryKey="fromUser"
+              label={t('filter.from')}
+            />
           </>
         )}
 

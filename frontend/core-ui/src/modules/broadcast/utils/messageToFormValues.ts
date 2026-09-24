@@ -1,4 +1,5 @@
 import { IBroadcastFormData } from '@/broadcast/hooks/useBroadcastForm';
+import { TBroadcastMessage } from '../types';
 import { scheduleToForm } from './scheduleForm';
 import { TBroadcastWorkflow } from '@/broadcast/components/workflow/components/BroadcastWorkflowEditor';
 
@@ -10,7 +11,7 @@ import { TBroadcastWorkflow } from '@/broadcast/components/workflow/components/B
  * arrive as `undefined` and leave its input uncontrolled.
  */
 export const messageToFormValues = (
-  message: any,
+  message: TBroadcastMessage | undefined,
   workflow?: TBroadcastWorkflow,
 ): Partial<IBroadcastFormData> => {
   const {

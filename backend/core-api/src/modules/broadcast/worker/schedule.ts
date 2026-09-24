@@ -1,5 +1,6 @@
 import { setEventHandlerRuntimeContext } from 'erxes-api-shared/core-modules';
 import { generateModels, IModels } from '~/connectionResolvers';
+import { publishBroadcastChanged } from '../utils/publishBroadcast';
 import { armSchedule, isRecurring, scheduledAt } from '../utils/schedule';
 
 export interface ISchedulePayload {
@@ -92,6 +93,8 @@ export const fireSchedule = async (payload: ISchedulePayload) => {
     }
 
     await models.EngageMessages.markFailed(engageMessageId);
+
+    publishBroadcastChanged(subdomain, { engageMessageId, status: 'failed' });
 
     // Nobody is watching a worker, so the reason is written where the campaign
     // itself shows it.
