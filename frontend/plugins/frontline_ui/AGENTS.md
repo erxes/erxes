@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-09-23`
+- **Last synchronized:** `2026-09-24`
 
 ## Scope
 
@@ -277,7 +277,10 @@
   delivery outcome; Edit swaps the card for a subject field and an editable body
   validated as non-empty; Delete asks for confirmation. Drafts appear and vanish
   live through `mailDraftChanged`, and a skeleton stands in while the first
-  load is in flight.
+  load is in flight. Draft mutations update the Apollo cache instead of
+  refetching the list (Save writes the returned subject, body and status;
+  Send and Delete evict the draft), so the subscription's refetch is the only
+  one.
 - The Facebook message trigger reads without opening anything: each condition
   card shows what it currently listens for, and the bot picker shows each bot's
   page and health, refusing a broken one.

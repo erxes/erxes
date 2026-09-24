@@ -55,7 +55,7 @@ const matchesKeywords = (text: string, keywords: string[]) => {
   return keywords.some((keyword) => haystack.includes(keyword));
 };
 
-export const matchesMailTrigger = (
+const matchesMailTrigger = (
   target: TMailTriggerTarget | undefined,
   config: TMailTriggerConfig | undefined,
 ) => {

@@ -61,8 +61,9 @@ export const MailDraftEditForm: React.FC<MailDraftEditFormProps> = ({
     bodyRef.current.replaceChildren(
       DOMPurify.sanitize(initialBody.current, { RETURN_DOM_FRAGMENT: true }),
     );
+    form.setValue('body', bodyRef.current.innerHTML);
     bodyRef.current.focus();
-  }, []);
+  }, [form]);
 
   const submit = form.handleSubmit((values) =>
     onSave({ subject: values.subject, body: values.body }),

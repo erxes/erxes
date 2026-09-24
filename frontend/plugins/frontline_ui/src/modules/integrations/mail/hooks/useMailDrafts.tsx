@@ -1,4 +1,5 @@
 import {
+  ApolloCache,
   ApolloError,
   useMutation,
   useQuery,
@@ -24,16 +25,13 @@ export type MailDraftStatus = 'pending' | 'sending' | 'sent';
 
 export interface MailDraft {
   _id: string;
-  inboxConversationId?: string;
   sourceMessageId?: string;
   to?: string[];
   subject?: string;
   body?: string;
-  shouldResolve?: boolean;
   senderMismatch?: boolean;
   status: MailDraftStatus;
   createdAt?: string;
-  updatedAt?: string;
 }
 
 export interface MailDraftEdit {
@@ -45,7 +43,10 @@ interface MailConversationDraftsResponse {
   mailConversationDrafts: MailDraft[] | null;
 }
 
-const DRAFTS_QUERY_NAME = 'mailConversationDrafts';
+const evictDraft = (cache: ApolloCache<unknown>, _id: string) => {
+  cache.evict({ id: cache.identify({ __typename: 'MailDraft', _id }) });
+  cache.gc();
+};
 
 export const useMailDrafts = (conversationId?: string) => {
   const { t } = useTranslation('frontline');
@@ -81,7 +82,6 @@ export const useMailDrafts = (conversationId?: string) => {
         onSaved();
       },
       onError,
-      refetchQueries: [DRAFTS_QUERY_NAME],
     });
 
   const approveDraft = (_id: string) =>
@@ -89,11 +89,8 @@ export const useMailDrafts = (conversationId?: string) => {
       variables: { _id },
       onCompleted: (result) => showDeliveryOutcome(result?.mailDraftApprove),
       onError,
-      refetchQueries: [
-        DRAFTS_QUERY_NAME,
-        'mailConversationDetail',
-        'Conversations',
-      ],
+      update: (cache) => evictDraft(cache, _id),
+      refetchQueries: ['mailConversationDetail', 'Conversations'],
     });
 
   const removeDraft = (_id: string) =>
@@ -102,7 +99,7 @@ export const useMailDrafts = (conversationId?: string) => {
       onCompleted: () =>
         toast({ title: t('mail-draft-deleted', 'Draft deleted') }),
       onError,
-      refetchQueries: [DRAFTS_QUERY_NAME],
+      update: (cache) => evictDraft(cache, _id),
     });
 
   return {

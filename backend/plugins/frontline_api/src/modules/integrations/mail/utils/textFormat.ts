@@ -1,4 +1,5 @@
 import { stripHtml } from 'string-strip-html';
+import { escapeHtml } from '@/integrations/mail/utils/html';
 import { splitQuotedReply } from '@/integrations/mail/utils/thread';
 
 const MAIL_TAG_NAMES = [
@@ -47,17 +48,6 @@ const LINE_BREAK_TAG = /<br\s*\/?>/gi;
 const PARAGRAPH_END_TAG = /<\/p>/gi;
 
 const BLOCK_END_TAG = /<\/(div|li|tr|h[1-6]|blockquote)>/gi;
-
-const HTML_ESCAPES: Record<string, string> = {
-  '&': '&amp;',
-  '<': '&lt;',
-  '>': '&gt;',
-  '"': '&quot;',
-  "'": '&#39;',
-};
-
-const escapeHtml = (text: string) =>
-  text.replace(/[&<>"']/g, (char) => HTML_ESCAPES[char]);
 
 const htmlToText = (html: string, onlyStripTags: string[] = []) => {
   const withLineBreaks = html

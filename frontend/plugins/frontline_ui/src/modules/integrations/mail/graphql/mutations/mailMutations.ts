@@ -57,7 +57,7 @@ export const MAIL_DRAFT_SAVE_MUTATION = gql`
       _id
       subject
       body
-      updatedAt
+      status
     }
   }
 `;

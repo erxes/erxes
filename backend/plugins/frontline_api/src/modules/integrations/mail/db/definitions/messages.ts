@@ -78,7 +78,7 @@ export const mailMessageSchema = new Schema({
   },
   sourceMessageId: {
     type: String,
-    label: 'Inbound mail this automatic reply answers',
+    label: 'Inbound mail this automatic reply or sent draft answers',
   },
   envelopeFrom: {
     type: String,

@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-09-23`
+- **Last synchronized:** `2026-09-24`
 
 ## Scope
 
@@ -249,16 +249,24 @@
   as `<support@acme.com>` survives as text. Every inbound mail body runs
   through `utils/textFormat.ts` (trigger filters and AI context), so its text
   normalization must stay linear-time: no regex with a repeated whitespace
-  class next to another quantifier (use `split`/`trim` instead). A requested
+  class next to another quantifier (use `split`/`trim` instead). Mail bodies
+  and ticket-note HTML escape text through the single `escapeHtml` in
+  `utils/html.ts`. A requested
   conversation resolve/open transition is stored on the message as
   `conversationStatusOnSent` and applied inside `deliver` only after Cloudflare
   reports it as sent, so a successful `mailMessageRetry` applies it too, except
-  that a late send never closes a conversation that received inbound mail after
-  the reply was written; failed
+  that a close is skipped when the conversation received inbound mail after the
+  mail the reply answers — the `sourceMessageId` that automatic replies and
+  sent drafts record — or, for a manual reply, after the reply was written. The
+  transition goes through
+  `Conversations.updateConversation` (so inbox segments watching `status` are
+  notified), stamps `closedAt` when it closes, and publishes
+  `conversationChanged:<conversationId>` so an open inbox refreshes; failed
   or bounced automation delivery fails the action instead of advancing the
   workflow. A draft reply records `draftId`; if approval throws after the mail
   left, the draft becomes `sent` rather than `pending`, so it cannot be sent
-  twice. A `sending` draft older than `MAIL_DRAFT_SENDING_STALE_MS` is listed as
+  twice. `mailRemoveIntegrations` deletes an inbox's drafts together with its
+  mail messages. A `sending` draft older than `MAIL_DRAFT_SENDING_STALE_MS` is listed as
   `pending` and can be edited, deleted, or sent again. Every draft query, edit,
   approval, and removal resolves the conversation's integration and applies
   `visibleChannelsFilter`; a permission alone never grants access to a draft in
@@ -266,11 +274,16 @@
   outside SaaS (`VERSION !== 'saas'`), because inbound mail reaches the plugin
   through the webhook host (a tunnel or dedicated domain) while browsers
   subscribe through the gateway host; the `mailDraftChanged` subscription
-  already listens on `os`. It only matches the conversation topic: its events carry just `_id`, `conversationId`, and
-  `status`, never the draft body, and the UI refetches through the
-  access-checked `mailConversationDrafts` query. `src/apollo/subscription.ts` is
-  downloaded and imported by the gateway, so it may import npm packages only —
-  never plugin modules through `~/` or `@/` — or the gateway fails to start.
+  already listens on `os`. Before opening its stream the subscription rejects a
+  caller without a signed-in user (`Login required`) and asks this plugin's
+  `mail.canViewConversation` tRPC procedure, which loads the user from `core`
+  and runs the same channel check, rejecting with `Forbidden` otherwise. Its
+  events carry just `_id`, `conversationId`, and `status`, never the draft
+  body, and the UI refetches through the access-checked
+  `mailConversationDrafts` query. `src/apollo/subscription.ts` is downloaded
+  and imported by the gateway, so it may import npm and workspace packages
+  (such as `erxes-api-shared/utils`) only — never plugin modules through `~/`
+  or `@/` — or the gateway fails to start.
 - A workspace can run the mail channel on **its own Cloudflare account**. It pastes
   an API token in Settings → Integrations config, picks one of its domains, and the
   plugin provisions the whole path there: Email Routing, an R2 bucket with its
@@ -319,7 +332,7 @@
 | Mail transports          | `src/modules/integrations/mail/utils/transports/`                           | `index.ts` picks the Cloudflare account that signs for this workspace, `deliver.ts` runs the delivery pipeline (sender guard, suppression, delivery log), `cloudflare.ts` is the only `IMailTransport` |
 | Mail provisioning        | `src/modules/integrations/mail/utils/cloudflare/`                           | Cloudflare REST client, the fourteen-step provisioner, Email Sending onboarding and quota, the connection cache and its public shape                                                                   |
 | Mail automation          | `src/modules/integrations/mail/meta/automation/`                            | Email Received trigger and filter, AI context, reply resolution, Send Email and Draft Email Reply actions                                                                                              |
-| Mail drafts              | `src/modules/integrations/mail/db/models/Drafts.ts`, `src/modules/integrations/mail/utils/{access,draftEvents}.ts` | Per-inbound-mail AI drafts: channel-scoped access, edit, atomic send claim (`pending` → `sending` → `sent`), delete, and minimal `mailDraftChanged` events                                             |
+| Mail drafts              | `src/modules/integrations/mail/db/models/Drafts.ts`, `src/modules/integrations/mail/utils/{access,draftEvents}.ts`, `src/modules/integrations/mail/trpc/mail.ts` | Per-inbound-mail AI drafts: channel-scoped access, edit, atomic send claim (`pending` → `sending` → `sent`), delete, minimal `mailDraftChanged` events, and the subscription's `mail.canViewConversation` access check |
 | Mail worker bundle       | `src/modules/integrations/mail/worker/bundle.generated.ts`                  | The minified worker uploaded to a tenant's account, regenerated by `npm run bundle` in `cloudflare/mail-worker`                                                                                        |
 | Call Pro                 | `src/modules/integrations/callpro/`                                         | `CALLPRO_ENABLED` gate, `/callpro/receive` webhook, mirrored line/caller/call, recording URL                                                                                                           |
 | Call reporting           | `src/modules/reports/callReportService.ts`                                  | CDR filter, leg-to-call folding, and the per-queue/agent/number report computation                                                                                                                     |
@@ -380,13 +393,19 @@
   `mailDraftSave(_id!, subject, body!)`, `mailDraftApprove(_id!)` (returns the
   sent message's delivery outcome plus `draftId`), `mailDraftRemove(_id!)`, and
   the subscription `mailDraftChanged(conversationId!): MailDraftChangedEvent`
-  (`_id`, `conversationId`, `status`).
+  (`_id`, `conversationId`, `status`), open only to a signed-in user who can
+  see the conversation's channel.
+- Mail tRPC — `mail.canViewConversation` (query,
+  `{ conversationId, userId }` → `boolean`), the internal access check the
+  gateway runs before opening `mailDraftChanged`; not agent-annotated.
 - Automation types — trigger `frontline:mail.messages` (target
   `TMailTriggerTarget`), actions `frontline:mail.messages.create` (Send Email)
   and `frontline:mail.drafts.create` (Draft Email Reply).
 
 ### Consumes
 
+- `core` over tRPC — `users.findOne` (query, `{ query }`), which loads the
+  active user for `mail.canViewConversation`.
 - `core` over tRPC — `cpUsers.get` (query, `{ id }`), which backs
   `Survey.createdCpUser`; `companies.findOne` (query), `companies.createCompany` and
   `companies.updateCompany` (mutations, `{ _id, doc }` / `{ doc }`),
@@ -432,19 +451,23 @@
   send or delete it, with live `mailDraftChanged` updates), and the Send Email
   action with loop, spoofing and no-reply guards, one automatic reply per
   inbound mail and a per-conversation hourly cap; a reply's resolve/open
-  transition now applies only after successful delivery, including a resend.
+  transition now applies only after successful delivery, including a resend,
+  and notifies segments and the open inbox; the draft subscription is open
+  only to users who can see the conversation's channel.
 - **Affected areas:** `src/modules/integrations/mail/{meta/automation,db/models/{Drafts,Messages,Integrations}.ts,db/definitions/{drafts,messages}.ts,utils/{access,draftEvents,textFormat}.ts,utils/transports/,controller/receiveMessage.ts,graphql}`,
+  `src/modules/integrations/mail/trpc/mail.ts`, `src/init-trpc.ts`,
   `src/meta/automations.ts`, `src/apollo/subscription.ts`,
   `src/connectionResolvers.ts`
 - **Contracts changed:** Added queries `mailConversationDrafts`, `mailInboxes`;
   mutations `mailDraftSave`, `mailDraftApprove`, `mailDraftRemove`;
   subscription `mailDraftChanged(conversationId!): MailDraftChangedEvent`;
-  types `MailDraft`, `MailDraftChangedEvent`, `MailInbox`; automation trigger
+  internal tRPC query `mail.canViewConversation`; types `MailDraft`, `MailDraftChangedEvent`, `MailInbox`; automation trigger
   `frontline:mail.messages` and actions `frontline:mail.messages.create`,
   `frontline:mail.drafts.create`; new `mail_drafts` collection with a partial
   unique index on `sourceMessageId`; `mail_messages` gains `automated`,
-  `conversationStatusOnSent`, `draftId` and `sourceMessageId` (partial unique
-  for automated messages).
+  `conversationStatusOnSent`, `draftId` and `sourceMessageId` (set on automatic
+  replies and sent drafts, partial unique for automated messages); removing a
+  mail inbox also deletes its drafts.
 
 ### `2026-09-23` — A survey question carries attachments
 

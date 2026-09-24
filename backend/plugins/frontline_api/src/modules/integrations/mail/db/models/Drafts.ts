@@ -140,6 +140,7 @@ export const loadMailDraftClass = (models: IModels) => {
             references: draft.references ?? [],
             shouldResolve: draft.shouldResolve,
             draftId: draft._id,
+            sourceMessageId: draft.sourceMessageId,
           },
           subdomain,
         );

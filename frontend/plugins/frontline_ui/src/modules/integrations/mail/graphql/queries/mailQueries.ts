@@ -25,16 +25,13 @@ export const MAIL_MESSAGE_INSERTED_SUBSCRIPTION = gql`
 
 const MAIL_DRAFT_FIELDS = `
   _id
-  inboxConversationId
   sourceMessageId
   to
   subject
   body
-  shouldResolve
   senderMismatch
   status
   createdAt
-  updatedAt
 `;
 
 export const MAIL_CONVERSATION_DRAFTS_QUERY = gql`

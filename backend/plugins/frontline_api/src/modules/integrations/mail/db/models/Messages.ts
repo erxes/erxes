@@ -301,7 +301,7 @@ export const loadMailMessageClass = (models: IModels) => {
         message.references ?? [],
       );
 
-      let result: Awaited<ReturnType<typeof sendMail>>;
+      let result: Awaited<ReturnType<typeof sendMail>> | undefined;
 
       try {
         result = await sendMail(subdomain, {
@@ -344,42 +344,40 @@ export const loadMailMessageClass = (models: IModels) => {
           integration._id,
           deliveryError,
         );
-
-        return models.MailMessages.findOne({
-          _id: message._id,
-        }) as Promise<IMailMessageDocument>;
       }
 
-      const bounced = result.bounced.length > 0;
+      if (result) {
+        const bounced = result.bounced.length > 0;
 
-      await models.MailMessages.updateOne(
-        { _id: message._id },
-        bounced
-          ? {
-              $set: {
-                deliveryStatus: MAIL_DELIVERY_STATUSES.BOUNCED,
-                bouncedRecipients: result.bounced,
-                providerMessageId: result.providerMessageId,
+        await models.MailMessages.updateOne(
+          { _id: message._id },
+          bounced
+            ? {
+                $set: {
+                  deliveryStatus: MAIL_DELIVERY_STATUSES.BOUNCED,
+                  bouncedRecipients: result.bounced,
+                  providerMessageId: result.providerMessageId,
+                },
+                $unset: { deliveryError: '', deliveryRetryable: '' },
+              }
+            : {
+                $set: {
+                  deliveryStatus: MAIL_DELIVERY_STATUSES.SENT,
+                  providerMessageId: result.providerMessageId,
+                },
+                $unset: {
+                  bouncedRecipients: '',
+                  deliveryError: '',
+                  deliveryRetryable: '',
+                },
               },
-              $unset: { deliveryError: '', deliveryRetryable: '' },
-            }
-          : {
-              $set: {
-                deliveryStatus: MAIL_DELIVERY_STATUSES.SENT,
-                providerMessageId: result.providerMessageId,
-              },
-              $unset: {
-                bouncedRecipients: '',
-                deliveryError: '',
-                deliveryRetryable: '',
-              },
-            },
-      );
+        );
 
-      await models.MailIntegrations.markHealthy(integration._id);
+        await models.MailIntegrations.markHealthy(integration._id);
 
-      if (!bounced) {
-        await Message.applyConversationStatusOnSent(message);
+        if (!bounced) {
+          await Message.applyConversationStatusOnSent(message);
+        }
       }
 
       return models.MailMessages.findOne({
@@ -401,26 +399,42 @@ export const loadMailMessageClass = (models: IModels) => {
     private static async applyConversationStatusOnSent(
       message: IMailMessageDocument,
     ) {
-      if (!message.inboxConversationId || !message.conversationStatusOnSent) {
+      const conversationId = message.inboxConversationId;
+      const status = message.conversationStatusOnSent;
+
+      if (!conversationId || !status) {
         return;
       }
 
-      if (
-        message.conversationStatusOnSent ===
-          MAIL_CONVERSATION_STATUSES_ON_SENT.CLOSED &&
-        (await models.MailMessages.exists({
-          inboxConversationId: message.inboxConversationId,
-          type: MAIL_MESSAGE_TYPES.INBOX,
-          createdAt: { $gt: message.createdAt },
-        }))
-      ) {
+      const closing = status === MAIL_CONVERSATION_STATUSES_ON_SENT.CLOSED;
+
+      if (closing && (await Message.receivedNewerMail(message))) {
         return;
       }
 
-      await models.Conversations.updateOne(
-        { _id: message.inboxConversationId },
-        { $set: { status: message.conversationStatusOnSent } },
-      );
+      await models.Conversations.updateConversation(conversationId, {
+        status,
+        ...(closing ? { closedAt: new Date() } : {}),
+      });
+
+      await graphqlPubsub.publish(`conversationChanged:${conversationId}`, {
+        conversationChanged: { conversationId, type: status },
+      });
+    }
+
+    private static async receivedNewerMail(message: IMailMessageDocument) {
+      const answered = message.sourceMessageId
+        ? await models.MailMessages.findOne(
+            { _id: message.sourceMessageId },
+            { createdAt: 1 },
+          ).lean()
+        : null;
+
+      return models.MailMessages.exists({
+        inboxConversationId: message.inboxConversationId,
+        type: MAIL_MESSAGE_TYPES.INBOX,
+        createdAt: { $gt: answered?.createdAt ?? message.createdAt },
+      });
     }
 
     private static async resolveReplyTag(thread: {
