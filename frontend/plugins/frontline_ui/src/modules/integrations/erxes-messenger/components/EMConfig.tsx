@@ -42,7 +42,7 @@ import { resetErxesMessengerSetupAtom } from '@/integrations/erxes-messenger/sta
 import { useParams } from 'react-router';
 import { SelectTicketConfig } from '@/pipelines/components/configs/components/SelectTicketConfig';
 import { useState } from 'react';
-import { useTopics } from '@/knowledgebase/hooks/useTopics';
+import { useTopicOptions } from '@/knowledgebase/topics/hooks/useTopics';
 import { EM_CONTENT_TYPES } from '../constants/emContentTypes';
 
 type EMConfigFormValues = z.infer<typeof EM_CONFIG_SCHEMA>;
@@ -228,86 +228,6 @@ export const EMConfig = () => {
                 )}
               </Collapsible.Content>
             </Collapsible>
-            {/* <Collapsible>
-              <Collapsible.TriggerButton className="font-mono uppercase font-semibold">
-                <Collapsible.TriggerIcon />
-                Cloudflare calls setup
-              </Collapsible.TriggerButton>
-              <Collapsible.Content className="p-2 space-y-4">
-                <Form.Field
-                  name="cloudflareCallsSetup.header"
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>{t('header')}</Form.Label>
-                      <Form.Control>
-                        <Input {...field} />
-                      </Form.Control>
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
-                <Form.Field
-                  name="cloudflareCallsSetup.description"
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>{t('description')}</Form.Label>
-                      <Form.Control>
-                        <Textarea {...field} />
-                      </Form.Control>
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
-                <Form.Field
-                  name="cloudflareCallsSetup.secondPageHeader"
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>{t('second-page-header')}</Form.Label>
-                      <Form.Control>
-                        <Input {...field} />
-                      </Form.Control>
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
-                <Form.Field
-                  name="cloudflareCallsSetup.secondPageDescription"
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>{t('second-page-description')}</Form.Label>
-                      <Form.Control>
-                        <Textarea {...field} />
-                      </Form.Control>
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
-                <CallRouting form={form} />
-                <Form.Field
-                  name="cloudflareCallsSetup.turnOn"
-                  render={({ field }) => (
-                    <Form.Item>
-                      <div className="flex items-center gap-3">
-                        <Form.Control>
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </Form.Control>
-
-                        <Form.Label variant="peer" className="leading-6">
-                          Turn on Cloudflare Calls
-                        </Form.Label>
-                      </div>
-                      <Form.Description>
-                        If turned on, possible to receive web calls
-                      </Form.Description>
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
-              </Collapsible.Content>
-            </Collapsible> */}
             <Collapsible>
               <Collapsible.TriggerButton className="font-mono uppercase font-semibold text-foreground">
                 <Collapsible.TriggerIcon />
@@ -450,8 +370,6 @@ const PersistentMenu = ({
                   <IconTrash />
                 </Button>
               </div>
-              {/* Always register `link` so reset() retains its value;
-                  only show the UI when type === 'link' */}
               <Form.Field
                 name={`botSetup.persistentMenu.${index}.link`}
                 render={({ field }) => (
@@ -651,13 +569,11 @@ const SelectKnowledgeBaseTopic = ({
 }) => {
   const { t } = useTranslation('frontline');
   const [_open, _setOpen] = useState<boolean>(false);
-  const { topics } = useTopics();
+  const { topics } = useTopicOptions();
   const selectedTopic = (field.value?.length &&
     topics?.find((topic) => topic._id === field.value)) || {
     title: t('select-a-topic'),
   };
-
-  console.log('topic', field.value);
 
   return (
     <Popover open={_open} onOpenChange={_setOpen}>

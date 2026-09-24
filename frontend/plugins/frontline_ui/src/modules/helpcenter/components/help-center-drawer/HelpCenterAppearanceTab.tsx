@@ -18,7 +18,7 @@ import { IHelpCenterConfigInput } from '@/helpcenter/types';
 import {
   TopicBackgroundImageField,
   TopicColorField,
-} from '@/knowledgebase/components/TopicAppearanceFields';
+} from '@/knowledgebase/shared/components/TopicAppearanceFields';
 
 export function HelpCenterAppearanceTab({
   form,

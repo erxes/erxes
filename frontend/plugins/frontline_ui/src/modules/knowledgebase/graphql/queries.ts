@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client';
-import { PAGE_INFO_FRAGMENT, ATTACHMENT_FRAGMENT } from 'erxes-ui';
+import { ATTACHMENT_FRAGMENT } from 'erxes-ui';
 
-export const USER_FRAGMENT = gql`
-  fragment UserFragment on User {
+export const KB_AUTHOR_FIELDS = gql`
+  fragment FrontlineKbAuthorFields on User {
     _id
     username
     email
@@ -13,247 +13,174 @@ export const USER_FRAGMENT = gql`
   }
 `;
 
-export const CATEGORY_FRAGMENT = gql`
-  fragment CategoryFragment on KnowledgeBaseCategory {
+export const KB_CATEGORY_FIELDS = gql`
+  fragment FrontlineKbCategoryFields on KnowledgeBaseCategory {
     _id
     title
     code
     description
     icon
+    parentCategoryId
     numOfArticles
-    authors {
+    createdDate
+    modifiedDate
+  }
+`;
+
+export const KB_TOPIC_FIELDS = gql`
+  fragment FrontlineKbTopicFields on KnowledgeBaseTopic {
+    _id
+    title
+    code
+    description
+    color
+    backgroundImage
+    languageCode
+    notificationSegmentId
+    createdBy
+    createdDate
+    modifiedBy
+    modifiedDate
+    brand {
       _id
-      details {
-        fullName
-        avatar
-      }
+      name
     }
   }
 `;
 
-export const PARENT_CATEGORY_FRAGMENT = gql`
-  fragment ParentCategoryFragment on KnowledgeBaseParentCategory {
+export const KB_ARTICLE_FIELDS = gql`
+  fragment FrontlineKbArticleFields on KnowledgeBaseArticle {
     _id
     code
     title
-    description
-    icon
-    numOfArticles
-    authors {
-      _id
-      details {
-        fullName
-        avatar
-      }
-    }
+    summary
+    status
+    isPrivate
+    viewCount
+    topicId
+    categoryId
+    createdDate
+    modifiedDate
+    scheduledDate
   }
 `;
 
 export const TOPICS = gql`
-  ${CATEGORY_FRAGMENT}
-  ${PARENT_CATEGORY_FRAGMENT}
-  query knowledgeBaseTopics(
+  ${KB_TOPIC_FIELDS}
+  ${KB_CATEGORY_FIELDS}
+  query frontlineKbTopics(
     $page: Int
     $perPage: Int
-    $brandId: String
-    $codes: [String]
     $searchValue: String
+    $brandId: String
   ) {
     knowledgeBaseTopics(
       page: $page
       perPage: $perPage
       searchValue: $searchValue
       brandId: $brandId
-      codes: $codes
     ) {
+      ...FrontlineKbTopicFields
+      categories {
+        ...FrontlineKbCategoryFields
+      }
+    }
+    knowledgeBaseTopicsTotalCount
+  }
+`;
+
+export const TOPIC_OPTIONS = gql`
+  query frontlineKbTopicOptions($perPage: Int, $searchValue: String) {
+    knowledgeBaseTopics(page: 1, perPage: $perPage, searchValue: $searchValue) {
       _id
       title
       code
-      description
-      brand {
-        _id
-        name
-      }
+    }
+  }
+`;
+
+export const TOPIC_DETAIL = gql`
+  ${KB_TOPIC_FIELDS}
+  ${KB_CATEGORY_FIELDS}
+  query frontlineKbTopicDetail($_id: String!) {
+    knowledgeBaseTopicDetail(_id: $_id) {
+      ...FrontlineKbTopicFields
       categories {
-        ...CategoryFragment
+        ...FrontlineKbCategoryFields
       }
-      color
-      backgroundImage
-      languageCode
-      createdBy
-      createdDate
-      modifiedBy
-      notificationSegmentId
-      parentCategories {
-        ...ParentCategoryFragment
-      }
-    }
-  }
-`;
-
-export const TOPICS_SHORT = gql`
-  query knowledgeBaseTopics(
-    $page: Int
-    $perPage: Int
-    $brandId: String
-    $codes: [String]
-    $searchValue: String
-  ) {
-    knowledgeBaseTopics(
-      page: $page
-      perPage: $perPage
-      brandId: $brandId
-      codes: $codes
-      searchValue: $searchValue
-    ) {
-      _id
-      title
-    }
-  }
-`;
-
-export const BRANDS = gql`
-  query brands {
-    brands {
-      _id
-      name
-    }
-  }
-`;
-
-export const SEGMENTS = gql`
-  query segments($contentTypes: [String]!) {
-    segments(contentTypes: $contentTypes) {
-      _id
-      name
     }
   }
 `;
 
 export const CATEGORIES = gql`
-  ${CATEGORY_FRAGMENT}
-  ${PAGE_INFO_FRAGMENT}
-  query knowledgeBaseCategories(
-    $limit: Int
-    $cursor: String
-    $direction: CURSOR_DIRECTION
-    $topicIds: [String]
-  ) {
-    knowledgebaseCategories(
-      limit: $limit
-      cursor: $cursor
-      direction: $direction
+  ${KB_CATEGORY_FIELDS}
+  ${KB_AUTHOR_FIELDS}
+  query frontlineKbCategories($topicIds: [String], $page: Int, $perPage: Int) {
+    knowledgeBaseCategories(
       topicIds: $topicIds
+      page: $page
+      perPage: $perPage
     ) {
-      list {
-        ...CategoryFragment
-        createdBy
-        createdDate
-        modifiedBy
-        modifiedDate
-        parentCategoryId
-        articles {
-          _id
-          title
-        }
-      }
-      pageInfo {
-        ...PageInfoFragment
-      }
-      totalCount
-    }
-  }
-`;
-
-export const CATEGORY_DETAIL = gql`
-  ${CATEGORY_FRAGMENT}
-  query knowledgeBaseCategory($_id: String!) {
-    knowledgeBaseCategory(_id: $_id) {
-      ...CategoryFragment
-      articles {
-        _id
-        title
-        summary
-        content
-        status
-        isPrivate
-      }
-      firstTopic {
-        _id
-        title
+      ...FrontlineKbCategoryFields
+      authors {
+        ...FrontlineKbAuthorFields
       }
     }
-  }
-`;
-
-export const CATEGORY_LAST = gql`
-  query knowledgeBaseCategoriesGetLast {
-    knowledgeBaseCategoriesGetLast {
-      _id
-      firstTopic {
-        _id
-        title
-      }
-    }
+    knowledgeBaseCategoriesTotalCount(topicIds: $topicIds)
   }
 `;
 
 export const ARTICLES = gql`
-  query knowledgeBaseArticles($categoryIds: [String]) {
-    knowledgeBaseArticles(categoryIds: $categoryIds) {
-      _id
-      title
-      summary
-      createdDate
-      status
+  ${KB_ARTICLE_FIELDS}
+  ${KB_AUTHOR_FIELDS}
+  query frontlineKbArticles(
+    $topicIds: [String]
+    $categoryIds: [String]
+    $searchValue: String
+    $status: String
+    $page: Int
+    $perPage: Int
+  ) {
+    knowledgeBaseArticles(
+      topicIds: $topicIds
+      categoryIds: $categoryIds
+      searchValue: $searchValue
+      status: $status
+      page: $page
+      perPage: $perPage
+      sortField: "modifiedDate"
+      sortDirection: -1
+    ) {
+      ...FrontlineKbArticleFields
       createdUser {
-        _id
-        username
-        email
-        details {
-          avatar
-          fullName
-        }
+        ...FrontlineKbAuthorFields
       }
       publishedUser {
-        _id
-        username
-        email
-        details {
-          avatar
-          fullName
-        }
+        ...FrontlineKbAuthorFields
       }
-      createdBy
-      modifiedBy
     }
+    knowledgeBaseArticlesTotalCount(
+      topicIds: $topicIds
+      categoryIds: $categoryIds
+      status: $status
+    )
   }
 `;
 
 export const ARTICLE_DETAIL = gql`
-  ${USER_FRAGMENT}
+  ${KB_ARTICLE_FIELDS}
   ${ATTACHMENT_FRAGMENT}
-  query knowledgeBaseArticleDetail($_id: String!) {
+  query frontlineKbArticleDetail($_id: String!) {
     knowledgeBaseArticleDetail(_id: $_id) {
-      _id
-      code
-      title
-      summary
+      ...FrontlineKbArticleFields
       content
-      status
-      isPrivate
       reactionChoices
-      reactionCounts
-      createdBy
-      topicId
-      categoryId
-      createdUser {
-        ...UserFragment
+      image {
+        ...AttachmentFragment
       }
       attachments {
         ...AttachmentFragment
       }
-
       pdfAttachment {
         pdf {
           ...AttachmentFragment
@@ -262,29 +189,12 @@ export const ARTICLE_DETAIL = gql`
           ...AttachmentFragment
         }
       }
-      image {
-        ...AttachmentFragment
-      }
-      createdDate
-      modifiedBy
-      modifiedDate
-      scheduledDate
-
-      forms {
-        brandId
-        formId
-      }
-
-      publishedUserId
-      publishedUser {
-        ...UserFragment
-      }
     }
   }
 `;
 
 export const GET_KNOWLEDGE_BASE_TOPIC_DETAILS = gql`
-  query knowledgeBaseTopicDetail($_id: String!) {
+  query frontlineKbTopicContent($_id: String!) {
     knowledgeBaseTopicDetail(_id: $_id) {
       _id
       title
@@ -300,16 +210,20 @@ export const GET_KNOWLEDGE_BASE_TOPIC_DETAILS = gql`
         parentCategoryId
         icon
         articles(status: "publish") {
-          viewCount
-          topicId
+          _id
           title
           summary
+          content
+          code
           status
+          categoryId
+          topicId
+          viewCount
+          isPrivate
           reactionCounts
           reactionChoices
           publishedAt
           modifiedDate
-          isPrivate
           image {
             url
             name
@@ -317,9 +231,6 @@ export const GET_KNOWLEDGE_BASE_TOPIC_DETAILS = gql`
             size
             duration
           }
-          content
-          code
-          categoryId
           attachments {
             url
             name
@@ -327,7 +238,6 @@ export const GET_KNOWLEDGE_BASE_TOPIC_DETAILS = gql`
             size
             duration
           }
-          _id
         }
       }
       parentCategories {
@@ -341,16 +251,20 @@ export const GET_KNOWLEDGE_BASE_TOPIC_DETAILS = gql`
           _id
         }
         articles {
-          viewCount
-          topicId
+          _id
           title
           summary
+          content
+          code
           status
+          categoryId
+          topicId
+          viewCount
+          isPrivate
           reactionCounts
           reactionChoices
           publishedAt
           modifiedDate
-          isPrivate
           image {
             url
             name
@@ -358,9 +272,6 @@ export const GET_KNOWLEDGE_BASE_TOPIC_DETAILS = gql`
             size
             duration
           }
-          content
-          code
-          categoryId
           attachments {
             url
             name
@@ -368,7 +279,6 @@ export const GET_KNOWLEDGE_BASE_TOPIC_DETAILS = gql`
             size
             duration
           }
-          _id
         }
       }
     }

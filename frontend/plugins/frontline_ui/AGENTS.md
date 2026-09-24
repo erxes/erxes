@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-09-23`
+- **Last synchronized:** `2026-09-24`
 
 ## Scope
 
@@ -45,7 +45,11 @@
   step-based create/edit wizard, archive, remove), the read-only results board
   on the main `frontline/surveys` route, and the composer dialog that posts a
   saved survey into a messenger conversation.
-- Knowledge base UI: topics, categories, and articles.
+- Knowledge base UI: the `/frontline/knowledgebase` topics index — a card grid
+  and a record table behind one list/thumbnail toggle — and, per topic, the
+  `articles`, `categories` and `kbsettings` routes behind a shared knowledge
+  base sidebar — record tables with inline editing, filters, command bar bulk
+  delete, and the topic, category and article sheets.
 - Help Center UI: the `/frontline/helpcenter` record table over client portal
   configs, its filter bar and command bar, its inline-editable name cell and its
   website / knowledge base topic / ticket channel / pipeline / status selects,
@@ -398,7 +402,12 @@
 | Surveys data             | `src/modules/survey/{graphql,hooks,types}/`                                                                                                       | Survey GraphQL documents, list/detail/mutation hooks, survey types                                                                              |
 | Send survey              | `src/modules/inbox/conversations/conversation-detail/components/SendSurveyDialog.tsx`                                                             | Picks an active survey and posts it into the open messenger conversation                                                                        |
 | Survey inbox row         | `src/modules/survey/components/ChannelSurveyNavItem.tsx`                                                                                          | `Surveys` row inside an expanded team channel, filtering the inbox by `withSurvey`                                                              |
-| Knowledge base           | `src/modules/knowledgebase/`                                                                                                                      | Topics, categories, articles                                                                                                                    |
+| Knowledge base routes    | `src/modules/knowledgebase/Main.tsx`, `src/pages/knowledgebase/`                                                                                  | `/frontline/knowledgebase` topics index plus `:topicId/{articles,categories,kbsettings}`                                                        |
+| Knowledge base shell     | `src/modules/knowledgebase/shared/`                                                                                                               | Page layout with breadcrumbs, topic sidebar, icon picker, inline text cell, category select, topic appearance fields, embed script               |
+| Knowledge base topics    | `src/modules/knowledgebase/topics/`                                                                                                               | Topics card grid and record table, columns, filter, command bar, drawer, mutation hooks                                                          |
+| Knowledge base categories| `src/modules/knowledgebase/categories/`                                                                                                           | Topic-scoped category tree table, drawer, command bar, mutation hooks                                                                           |
+| Knowledge base articles  | `src/modules/knowledgebase/articles/`                                                                                                             | Topic-scoped article table with status/category filters, drawer, command bar, mutation hooks                                                    |
+| Knowledge base data      | `src/modules/knowledgebase/{graphql,types,constants}/`                                                                                            | `frontlineKb*` operations, local KB types, icons/reactions/languages and table ids                                                              |
 | Automation widgets       | `src/widgets/automations/modules/<module>/`                                                                                                       | Per-module trigger/action/bot/history components                                                                                                |
 | FB message action        | `src/widgets/automations/modules/facebook/components/action/`                                                                                     | Message sequence form, provider, constants, states                                                                                              |
 | FB post composer         | `src/modules/integrations/facebook/components/FacebookPostSheet.tsx`, `FacebookPostImagesField.tsx`, `hooks/useFacebookPost*.tsx`                 | Post sheet, image upload state, channel/page loading                                                                                            |
@@ -862,8 +871,9 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
   reintroduce a detail route. Every surface widens a list record for a save
   through `toHelpCenterConfigInput`; passing a partial record would reset the
   fields it omitted on the next save.
-- Category editing lives on the Knowledge Base page (`TopicList`), which owns
-  create, edit and delete. The help center surface does not duplicate it.
+- Category editing lives on the knowledge base categories route
+  (`/frontline/knowledgebase/:topicId/categories`), which owns create, edit and
+  delete. The help center surface does not duplicate it.
 - The upload slots use the repo's usual `Upload.Root` handler
   (`if ('url' in fileInfo) field.onChange(fileInfo.url)`) — `Upload.RemoveButton`
   reports a removal in that same shape, so no special case is needed here. The
@@ -874,10 +884,10 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
   visible. Toggle the class instead (`enabled ? 'flex flex-col' : 'hidden'`) —
   both the drawer's tab panes and its feature sections do.
 - The help center's own types and constants live in `helpcenter/types/index.ts`
-  and `helpcenter/constants/index.ts`, **not** in the knowledge base module's
-  `types.ts` / `constants.ts` — those two re-export from `content_ui`, so
-  importing them pulls another plugin's code into this remote and breaks it at
-  runtime.
+  and `helpcenter/constants/index.ts`; the knowledge base keeps its own in
+  `knowledgebase/types/index.ts` and `knowledgebase/constants/index.ts`. Neither
+  module may re-export from `content_ui` — that pulls another plugin's source
+  into this remote and breaks it at runtime.
 - The help center table shows the three identifying columns — name, website,
   knowledge base topic — followed by the three ticket routing selects, each
   headed `Ticket channel` / `Ticket pipeline` / `Ticket status` so a row reads
@@ -941,7 +951,7 @@ erxesAppToken)` — because picking a website is also what fills the config's
   the sheet, the form and the save; `HelpCenterGeneralTab.tsx` and
   `HelpCenterAppearanceTab.tsx` own a tab each; `HelpCenterStyleFields.tsx` the
   reusable `Style*Field` helpers; the knowledge base module's
-  `TopicEmbedScriptDialog.tsx` the embed snippet (a presentational component, no
+  `shared/components/TopicEmbedScriptDialog.tsx` the embed snippet (a presentational component, no
   query of its own); and `helpcenter/{types,constants}/index.ts` the shapes and
   defaults. Add new fields to the owning tab, never back into the drawer. The tabs take the form **as a
   prop**: `react-hook-form` is not in this remote's shared `coreLibraries`, so
@@ -1377,8 +1387,73 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   loading states for its skeleton. Missing records after those queries settle
   are not loading states; they must leave a valid tickets-only breadcrumb.
 
+- The topic settings route is `kbsettings`, never `settings`: core-ui's
+  `useIsSettings` matches any path containing `/settings` and would swap the
+  host's second navigation column for the workspace settings menu (the CMS
+  names its own route `cmssettings` for the same reason).
+- The knowledge base is route-driven, not query-param driven: the topics index
+  lives at `/frontline/knowledgebase` and every per-topic surface at
+  `/frontline/knowledgebase/:topicId/{articles,categories,kbsettings}`. The
+  sidebar and breadcrumbs build their links from `KNOWLEDGE_BASE_PATH`; never
+  reintroduce a `?topicId=`/`?categoryId=` selection for navigation. `editId`
+  (and the articles table's `categoryId` and `status` filters) stay query
+  params, because they are filter and drawer state, not routes.
+- The topics index keeps both views: the thumbnail card grid (`TopicsGrid`, the
+  default, mirroring the CMS website list) and the record table
+  (`TopicsRecordTable`), switched by the header toggle and sharing one
+  `useTopics` query and filter bar. Never drop one of the two.
+- `FrontlineSubGroups` renders nothing for `/frontline/knowledgebase`: topics
+  are navigated from the topics index and the per-topic sidebar, never from a
+  second navigation column.
+- The topic, category and article sheets group their fields into `InfoCard`
+  sections inside a `ScrollArea`, the same shape the help center drawer uses —
+  a new field joins a section, it does not sit loose in the form. The topic
+  settings page uses the same sections (General and Appearance on the left,
+  Installation and Danger zone on the right). The article sheet is the wide one
+  (`sm:max-w-5xl lg:max-w-6xl xl:max-w-[92rem]`) and splits into two columns
+  from `lg`: Content on the left, Publishing and Media stacked on the right, so
+  the editor never sits at the bottom of a long scroll.
+- `TopicColorField`'s label comes from `kb-color-required`, which already ends
+  in `*`; never add a second asterisk around it (the help center appearance tab
+  renders the same component).
+- A category's `icon` is a free-form string in Mongo, and older data uses names
+  the picker's `ICONS` list may not carry (`rocket`, `credit-card`, `lock`, …).
+  `IconPicker` therefore shows an unknown stored value as itself instead of the
+  "Select icon…" placeholder, so a row never looks empty and an unrelated edit
+  never silently drops it. Add a missing name to `ICONS` rather than rewriting
+  the stored value. Its `variant="table"` renders through
+  `RecordTableInlineCell.Trigger`, so an icon cell carries no button border.
+- `KnowledgeBaseCategory` has **no** `topicId` field — selecting one makes the
+  whole query fail with a 400. A category's topic comes from the route
+  (`useParams().topicId`), and that is what an edit sends back in the doc.
+- Knowledge base GraphQL operation names are prefixed `frontlineKb*`
+  (`frontlineKbTopics`, `frontlineKbArticleDetail`, `frontlineKbCategoryEdit`, …)
+  even though the fields they select are the shared `knowledgeBase*` ones —
+  `content_ui` queries the same fields, and operation names must stay unique
+  repo-wide.
+- `knowledgeBaseArticlesEdit` takes a whole `KnowledgeBaseArticleDoc` with a
+  required `content`, so an inline cell edit must re-read the article detail
+  first (`useEditArticleField` does) and never send a doc built from the list
+  row alone — that would blank the article body.
+- The backend paginates topics, categories and articles with `page`/`perPage`;
+  there is no cursor query for them. Knowledge base tables therefore use
+  `RecordTable.Scroll` with the `*_PER_PAGE` constants, not
+  `RecordTable.CursorProvider`.
+- Every knowledge base list refetches after a write (`refetchQueries`, or
+  `client.refetchQueries` for bulk deletes) so a create, edit or delete shows up
+  without a manual refresh.
+- Category and article writes stay inside the topic in the URL: a category's
+  `topicId` and an article's `categoryId` always come from the current route or
+  the topic's own categories, never from an unrelated topic.
+
 ## Validation
 
+- Smoke: open `/frontline/knowledgebase`, create a topic, open it, add a
+  category, then an article in that category — each list updates without a
+  reload. Rename a topic and an article from their inline cells, change an
+  article's status and category from the table, filter articles by status and
+  category, bulk-delete from the command bar, then edit the topic on its
+  `kbsettings` route and delete it from the danger zone.
 - `pnpm nx build frontline_ui`
 - `npx eslint src/...` on touched files — the project carries pre-existing lint
   errors and TypeScript errors elsewhere, so lint and typecheck the files you
@@ -1455,44 +1530,28 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 <!-- Newest first. Keep at most 10 entries. -->
 
-<<<<<<< HEAD
-<<<<<<< HEAD
+### `2026-09-23` — Knowledge base admin rebuilt as a CMS-shaped workspace
 
-### `2026-09-21` — The Facebook history reads a skip from the execution, not the payload
-
-- **Summary:** A skipped Facebook send used to be recognized by
-  `result.status === 'skipped'`, which only worked because the action wrote that
-  word into its own payload. The automations engine now records the skip and its
-  reason on the execution action itself, so the widget reads `action.status` and
-  `action.skipReason` first and falls back to the old payload fields for runs
-  recorded before the change.
-- **Affected areas:**
-  `src/widgets/automations/modules/facebook/components/history/useFacebookAutomationHistoryResult.ts`
-- **Contracts changed:** `None`
-
-<<<<<<< HEAD
-
-### `2026-09-14` — Ticket prerequisites are answered while a template installs
-
-- **Summary:** The automations widget now serves a `templateRequirement`
-  component for the `frontline:tickets.channel|pipeline|status` kinds, so a
-  built-in template that files tickets can be set up before it is installed
-  rather than landing half-configured. Each picker is the ticket module's own,
-  and each is scoped by the answer above it — the pipelines of the chosen
-  channel, the statuses of the chosen pipeline. A requirement that reports no
-  value is what keeps the install closed.
-- **Affected areas:**
-  `src/widgets/automations/modules/ticket/components/template/TicketTemplateRequirement.tsx`,
-  `src/widgets/automations/modules/ticket/components/TicketRemoteEntry.tsx`
-- **Contracts changed:** Implements the new
-  `AutomationTemplateRequirementProps` (`componentType: 'templateRequirement'`)
-  variant from `ui-modules`.
-
-### `2026-09-09` — The comment reply takes an image
-
-# =======
-
-=======
+- **Summary:** Replaced the single query-param-driven knowledge base page with a
+  topics index at `/frontline/knowledgebase` (card grid plus record table behind
+  a list/thumbnail toggle) and per-topic `articles`,
+  `categories` and `kbsettings` routes behind a shared sidebar, each with inline
+  editing, filters, command bar bulk delete, empty/loading/error states and
+  rebuilt drawers; knowledge base types, icons, reactions and languages are now
+  local, removing the `content_ui` re-exports.
+- **Affected areas:** `src/modules/knowledgebase/**` (new `shared/`, `topics/`,
+  `categories/`, `articles/`, `settings/`, `types/`, `constants/`; deleted
+  `components/`, `hooks/`, `utils/`, `types.ts`, `constants.ts`, `Settings.tsx`),
+  `src/pages/knowledgebase/*`, `src/modules/FrontlineMain.tsx`,
+  `src/modules/FrontlineSubGroups.tsx`,
+  `src/modules/helpcenter/components/help-center-drawer/*`,
+  `src/modules/integrations/erxes-messenger/components/EMConfig.tsx`
+- **Contracts changed:** Knowledge base operations renamed to the `frontlineKb*`
+  prefix (`frontlineKbTopics`, `frontlineKbTopicOptions`,
+  `frontlineKbTopicDetail`, `frontlineKbCategories`, `frontlineKbArticles`,
+  `frontlineKbArticleDetail`, `frontlineKbTopicContent`, `frontlineKbSegments`
+  and the six `frontlineKb*Add|Edit|Remove` mutations); the `./knowledgebase`
+  expose now serves the nested route map.
 
 ### `2026-09-23` — A survey question carries attachments
 
@@ -1613,6 +1672,18 @@ call`. `answerCall` no longer checks `rtcSession.isInProgress()` before
   `src/modules/integrations/call/components/IncomingCall.tsx`
 - **Contracts changed:** None.
 
+### `2026-09-21` — The Facebook history reads a skip from the execution, not the payload
+
+- **Summary:** A skipped Facebook send used to be recognized by
+  `result.status === 'skipped'`, which only worked because the action wrote that
+  word into its own payload. The automations engine now records the skip and its
+  reason on the execution action itself, so the widget reads `action.status` and
+  `action.skipReason` first and falls back to the old payload fields for runs
+  recorded before the change.
+- **Affected areas:**
+  `src/widgets/automations/modules/facebook/components/history/useFacebookAutomationHistoryResult.ts`
+- **Contracts changed:** `None`
+
 ### `2026-09-21` — Forms can be created from the forms page
 
 - **Summary:** `frontline/forms` gained a `Create form` header button and a
@@ -1629,491 +1700,3 @@ call`. `answerCall` no longer checks `rtcSession.isInProgress()` before
   `src/modules/forms/states/formSetupStates.tsx`,
   `src/modules/forms/hooks/useFormMutate.ts`
 - **Contracts changed:** New route `frontline/forms/create`; no GraphQL change.
-
-### `2026-09-21` — Move to channel on every channel-owned resource
-
-- **Summary:** Integrations, ticket pipelines, forms, surveys and response
-  templates each gained a `Move to channel` action in their row menu, backed by
-  one shared `MoveToChannelDialog` (current channel, destination picker that
-  hides the current channel, confirmation line, `Cancel` / `Move`) and the new
-  `channelMoveResources` mutation. Forms and surveys also move in bulk from
-  their command bar, disabled when the selection spans channels. The forms
-  page's old submenu, which moved a form with `formsEdit` and skipped the
-  server-side validation and cascades, was replaced by the same dialog and its
-  unused duplicate in `actions/move-form.tsx` deleted. `SelectChannelsContent`
-  gained an `excludeChannelIds` prop.
-- **Affected areas:**
-  `src/modules/channels/components/move-resources/*`,
-  `src/modules/channels/hooks/useChannelMoveResources.tsx`,
-  `src/modules/channels/graphql/mutations.ts`,
-  `src/modules/channels/types/index.ts`,
-  `src/modules/inbox/channel/components/SelectChannel.tsx`,
-  `src/modules/pipelines/components/PipelinesList.tsx`,
-  `src/modules/responseTemplate/components/ResponseList.tsx`,
-  `src/modules/integrations/components/IntegrationMoreColumn.tsx`,
-  `src/modules/forms/components/{FormsList.tsx,form-page/form-columns.tsx,form-page/command-bar/form-command-bar.tsx}`,
-  `src/modules/survey/components/survey-page/{survey-columns.tsx,command-bar/survey-command-bar.tsx}`
-- **Contracts changed:** Consumes the new `channelMoveResources` mutation.
-  Removed `MoveFormToChannel` from `form-columns.tsx` and deleted
-  `src/modules/forms/components/actions/move-form.tsx`.
-
-### `2026-09-21` — Tracked data returns to the conversation rail
-
-- **Summary:** `ConversationSideWidget` called `useRelationWidget()` with no
-  options. The shared hook drops every module that declares `contentTypes`
-  when no `contentType` is supplied, so the core Tracked data widget — which
-  the old product showed in the inbox sidebar — never appeared next to a
-  conversation. The rail now passes `contentType: 'frontline:conversation'`,
-  and the widget reads the conversation's `customerId`.
-- **Affected areas:**
-  `src/modules/inbox/conversations/conversation-detail/components/ConversationSideWidget.tsx`.
-- **Contracts changed:** `None`
-  <<<<<<< HEAD
-
-### `2026-09-20` — Frontline notifications show their icon in My Inbox
-
-- **Summary:** `CONFIG` now declares a top-level `icon`, so a frontline
-  notification in My Inbox renders the frontline mark instead of an empty
-  circle.
-- **Affected areas:** `src/config.tsx`
-- **Contracts changed:** `None`
-
-### `2026-09-17` — Convert dialog honours Basic information settings
-
-- **Summary:** Priority, tags, start date and due date appear in the convert
-  dialog when their system field is `Visible to create`, respecting `Required`
-  and display logic.
-- **Affected areas:**
-  `src/modules/inbox/conversations/conversation-detail/components/convert/{ConvertDialog.tsx,ConvertSystemFields.tsx,convertForm.ts}`,
-  `src/modules/inbox/conversations/{graphql/queries/getConvertSystemFields.ts,graphql/mutations/conversationConvertToCard.ts,hooks/useConvertSystemFields.tsx,types/conversationConvert.ts}`
-- **Contracts changed:** New query document `FrontlineConvertSystemFields`;
-  `ConversationConvertToCard` now sends `priority`, `tagIds`, `startDate` and
-  `closeDate`.
-
-### `2026-09-17` — The conversation header converts into a ticket, deal or task
-
-- **Summary:** Added the Convert menu and a 1.x-style convert dialog for
-  tickets, deals and tasks with Settings → Properties fields and attachments,
-  plus `Go to a …` links for items a conversation was already converted into.
-- **Affected areas:**
-  `src/modules/inbox/conversations/conversation-detail/components/{ConversationHeader.tsx,convert/}`,
-  `src/modules/inbox/conversations/{graphql,hooks,types}/*onvert*`,
-  `src/modules/ticket/components/ticket-selects/SelectPipeline.tsx`,
-  `src/modules/pipelines/types/index.ts`
-- **Contracts changed:** `SelectPipeline.FormItem` accepts any form carrying a
-  `channelId` field; `IPipeline` declares `propertyIds` and
-  `isPropertySelectionConfigured`; consumes `conversationConvertToCard` (with
-  `customFieldsData` and `attachments`) and `conversationConvertedItems`.
-
-### `2026-09-15` — Several call integrations can be switched on
-
-- **Summary:** Call integration switches no longer turn each other off, and
-  `Call from` lists every switched-on integration by name.
-- **Affected areas:**
-  `src/modules/integrations/call/{hooks/useCallEnabledIntegrations.ts,components/{CallIntegrationDetail,SelectPhoneCallFrom,SipContainer,CallSipActions}.tsx,states/sipStates.ts,types/callTypes.ts,graphql/queries/callConfigQueries.ts}`
-- **Contracts changed:** `callUserIntegrations` also selects `name`; new
-  `localStorage` key `config:call_enabled_integrations`.
-
-### `2026-09-15` — The incoming call names its integration
-
-- **Summary:** The incoming-call popup shows the name of the integration the
-  call rang instead of the channel name.
-- **Affected areas:**
-  `src/modules/integrations/call/{components/IncomingCall,components/CallWidget,hooks/useAddCustomer,graphql/mutations/callMutations}.ts(x)`
-- **Contracts changed:** `CallAddCustomer` also selects
-  `integration { _id name }`.
-  > > > > > > > 6a6123789bcdb66ac2b9479a766c965909f58c5a
-
-### `2026-09-15` — The call widget can clear its cached state
-
-> > > > > > > a27bb8796780885a71d07b7b47133767b50641f7
-
-- **Summary:** An eraser button in the dialpad header, behind a confirm, resets
-  every persisted call atom and sends the agent back to the call config picker,
-  so a stale config or SIP registration no longer needs manual `localStorage`
-  cleanup.
-- **Affected areas:**
-  `src/modules/integrations/call/components/CallSipActions.tsx`
-- **Contracts changed:** None.
-
-### `2026-09-14` — Help Center stops calling its records topics
-
-- **Summary:** The Help Center surface reused the knowledge base's `kb-*`
-  strings, so its create button, drawer title and empty state all said "topic"
-  while acting on help centers. Those five labels now use `helpcenter-*` keys
-  with inline English fallbacks, matching the `t(key, 'Default')` form already
-  used elsewhere in the plugin.
-- **Affected areas:** `src/pages/HelpCenterIndexPage.tsx`,
-  `src/modules/helpcenter/components/HelpCenterRecordTable.tsx`,
-  `src/modules/helpcenter/components/help-center-drawer/HelpCenterDrawer.tsx`
-- **Contracts changed:** None. The new `helpcenter-*` keys have no entry in
-  `backend/gateway/src/locales/{en,mn}/frontline.json`, which is outside the
-  plugin boundary, so they render from their inline fallbacks until those
-  translations are added as separate repository-level work.
-  <<<<<<< HEAD
-
-### `2026-09-14` — Knowledge Base opens on its topics, not the first article list
-
-- **Summary:** Opening Knowledge Base drilled straight into the first topic's
-  first category because the sidebar auto-selected `topicId` on mount and the
-  page then auto-selected that topic's first `categoryId`. Both auto-selections
-  are gone, so the landing view is the topic grid; picking a topic now shows
-  that topic's categories as cards, and a `categoryId` left over from another
-  topic is cleared instead of being replaced by that topic's first category.
-- **Affected areas:**
-  `src/modules/knowledgebase/components/KnowledgeBase.tsx`,
-  `src/modules/knowledgebase/components/KnowledgeBaseTopicsNav.tsx`
-- **Contracts changed:** None. The `topicId` and `categoryId` query parameters
-  keep their meaning; neither is now set without a user action.
-
-### `2026-09-10` — Polls became surveys
-
-- **Summary:** `src/modules/poll` became `src/modules/survey` and every
-  component, hook, state, route (`/surveys`) and GraphQL document followed the
-  API's rename. Discord's poll renderer stayed behind as `MessagePoll`; erxes
-  surveys render through the new `MessageSurvey`.
-- **Affected areas:** `src/modules/survey/**`, `src/config.tsx`,
-  `src/modules/{FrontlineMain,FrontlineNavigation}.tsx`,
-  `src/modules/channels/**`, `src/modules/inbox/**`,
-  `src/modules/types/FrontlinePaths.ts`, `src/pages/Survey*.tsx`.
-- **Contracts changed:** Consumes the renamed `survey*` / `cpSurvey*`
-  operations; the `frontline/polls` route is now `frontline/surveys`.
-
-### `2026-09-10` — The activity timeline names a customer author
-
-- **Summary:** A note that arrived by mail is written by the requester, not by
-  a team member, and its `cp:` author id resolved to a blank member row.
-  `ActivityAuthor` now decodes that prefix and renders the customer through
-  `CustomersInline`, a team member through `MembersInline`, and an empty author
-  as `unknown`; the timeline row and the ticket's creator line both use it.
-- **Affected areas:** `src/modules/activity/components/ActivityAuthor.tsx`
-  (new), `src/modules/activity/components/ActivityItemWrapper.tsx`,
-  `src/modules/activity/components/CreatorInfo.tsx`
-- **Contracts changed:** `None`
-
-### `2026-09-10` — A ticket pipeline gets a mail settings tab
-
-- **Summary:** A pipeline now has a `Mail settings` tab that shows the address
-  mail is sent or forwarded to, takes the forwarding mailbox and the sender name
-  recipients see, and connects, updates or removes the address. While the
-  forwarding address is waiting to be confirmed the tab says so and polls; when
-  the provider's confirmation arrives it is shown there with a copyable code, a
-  link, and a button that ends the waiting state.
-- **Affected areas:** `src/modules/integrations/mail/components/{PipelineMailSettings,PipelineForwardVerification,MailThread,MailConversationDetail,MailIntegrationForm}.tsx`,
-  `src/modules/integrations/mail/{hooks,graphql}/`,
-  `src/pages/PipelineMailPage.tsx`,
-  `src/modules/pipelines/constants/pipelineTabs.ts`,
-  `src/modules/channels/components/settings/Settings.tsx`.
-- **Contracts changed:** Added the `mailPipelineIntegration` query and the
-  `mailPipelineConnect`, `mailPipelineUpdate`, `mailPipelineForwardVerified` and
-  `mailPipelineDisconnect` mutation documents. `MailFormField` gained an
-  optional `descriptionFallback` and `MailAddressCallout` an optional
-  `description`/`descriptionFallback`, so the pipeline tab can say `ticket`
-  where the inbox says `conversation`.
-
-### `2026-09-10` — Quality gate fixes across the note input and help center drawer
-
-- **Summary:** The submit button's label came from a doubly nested ternary and
-  the note wrapper carried a keydown handler on a plain `div`, both flagged on
-  new code. The label is now three named values, and the suggestion keys are
-  listened for on the editor node itself — the wrapper stays a drop target with
-  no keyboard role, and `handleKeyDown` takes the native event.
-- **Affected areas:** `src/modules/activity/components/NoteInput.tsx`,
-  `src/modules/activity/hooks/useNoteTemplateSuggestions.tsx`,
-  `src/modules/helpcenter/components/help-center-drawer/HelpCenterDrawer.tsx`
-- **Contracts changed:** `None`
-
-### `2026-09-09` — Survey options can arm a ticket at a vote threshold
-
-- **Summary:** The Content step's option rows gained a ticket-automation
-  popover — enable, vote threshold, pipeline, status and an optional ticket
-  name — carried through the wizard atoms into `surveyAdd` / `surveyEdit`, with the
-  server-owned created state shown read-only.
-- **Affected areas:**
-  `src/modules/survey/components/mutate/{SurveyOptionTicketConfig.tsx,SurveyStepCard.tsx}`,
-  `src/modules/survey/constants/{surveySetupSchema.ts,surveySetupDefaultValues.ts}`,
-  `src/modules/survey/states/surveySetupStates.tsx`,
-  `src/modules/survey/graphql/{surveyQueries.ts,surveyMutations.ts}`,
-  `src/modules/survey/types/surveyTypes.ts`.
-- **Contracts changed:** Consumes the new `SurveyOption` / `SurveyOptionInput`
-  ticket-automation fields.
-
-### `2026-09-09` — The survey builder became a step wizard with `Add Step`
-
-- **Summary:** Creating or editing a survey moved out of `SurveySheet` into a
-  full-page three-step wizard on its own routes, built on the same
-  `IntegrationSteps` chrome, footer navigation and per-step Jotai atoms as the
-  form builder; its Content step adds, names, reorders and removes the survey's
-  question steps, and the right panel previews them through the real
-  `MessageSurvey`.
-- **Affected areas:** `src/modules/survey/components/{SurveyCreate,SurveyEdit}.tsx`,
-  `src/modules/survey/components/mutate/*`,
-  `src/modules/survey/components/survey-page/{surveys-create,survey-columns,SurveyDetailsBreadcrumb,SurveyResultsDialog}.tsx`,
-  `src/modules/survey/components/survey-results/*`,
-  `src/modules/survey/{states,constants,graphql,hooks,types}/*`,
-  `src/pages/Survey{Create,Detail}Page.tsx`,
-  `src/modules/channels/components/settings/{Settings.tsx,breadcrumbs/ChannelSettingsBreadcrumb.tsx}`,
-  `src/modules/types/FrontlinePaths.ts`,
-  `src/modules/inbox/{types/Conversation.ts,conversation-messages/components/MessageSurvey.tsx,conversations/conversation-detail/components/SendSurveyDialog.tsx}`.
-- **Contracts changed:** Consumes the new `Survey.steps`, `SurveyResults.steps` and
-  `surveyAdd`/`surveyEdit` `steps` argument; `SurveySheet` and `surveyFormSchema` were
-  removed.
-
-# <<<<<<< HEAD
-
-### `2026-09-09` — The bot's Activity tab is about comments
-
-<<<<<<< HEAD
-
-### `2026-09-09` — Topic colour and image fields serve both drawers
-
-- **Summary:** The topic accent colour and background image were written out
-  twice — once in `TopicDrawer` and again in the help center appearance tab —
-  and the appearance tab repeated a near-identical `StyleColorField` call for
-  each of its twelve colours, which pushed duplication on new code past the
-  Sonar gate. The two fields are now one shared pair in `knowledgebase`, and
-  the colour grids render from field lists in `helpcenter/constants`.
-- **Affected areas:** `src/modules/knowledgebase/components/{TopicAppearanceFields,TopicDrawer}.tsx`,
-  `src/modules/helpcenter/components/help-center-drawer/HelpCenterAppearanceTab.tsx`,
-  `src/modules/helpcenter/{constants,types}/index.ts`
-- **Contracts changed:** `None`
-
-> > > > > > > f367b4a36cb66a9d80ba39450bef5cd15fd95d21
-
-### `2026-09-09` — A new help center starts on the portal's palette
-
-- **Summary:** `DEFAULT_HELP_CENTER_STYLES` seeded most colours as white and the
-  topic accent as black, so a help center created here published a colourless
-  site — the portal cannot tell a stored white from an unset colour. Each field
-  is now the portal token it feeds, and `EMPTY_HELP_CENTER_FORM.color` is the
-  brand rather than `#000000`.
-- **Affected areas:** `src/modules/helpcenter/constants/index.ts`
-- **Contracts changed:** `None`
-
-### `2026-09-09` — The website picker says when no portal has a domain
-
-- **Summary:** A client portal's `domain` is optional, so the picker could come
-  back with portals and still list nothing, reporting "No results found" as if
-  none existed. It now separates the two: an empty result with portals present
-  says no portal has a domain yet and where to set one, and the query's error is
-  passed to `Combobox.Empty` instead of being dropped.
-- **Affected areas:**
-  `src/modules/helpcenter/components/SelectHelpCenterWebsite.tsx`
-- **Contracts changed:** `None`
-  <<<<<<< HEAD
-  =======
-
-### `2026-09-09` — Choosing a website also captures its app token
-
-- **Summary:** The website picker now carries the chosen client portal's `token`
-  alongside its domain, and the drawer and table cell store it as the config's
-  `erxesAppToken`, so the published site gets the messenger widget token from
-  `helpCenterGetConfigByDomain` without anyone typing it.
-- **Affected areas:**
-  `src/modules/helpcenter/components/SelectHelpCenterWebsite.tsx`,
-  `src/modules/helpcenter/components/HelpCenterColumns.tsx`,
-  `src/modules/helpcenter/components/help-center-drawer/HelpCenterGeneralTab.tsx`,
-  `src/modules/helpcenter/graphql/queries/{getHelpCenters,getHelpCenterWebsiteOptions}.ts`,
-  `src/modules/helpcenter/{types,constants}/index.ts`,
-  `src/modules/helpcenter/utils/toHelpCenterConfigInput.ts`
-- **Contracts changed:** `HelpCenterConfigFields` now selects `erxesAppToken`;
-  `frontlineHelpCenterWebsiteOptions` now selects the portal's `token`.
-
-### `2026-09-09` — The help center's website is picked from a client portal
-
-- **Summary:** The `Website` field in the drawer's General settings and in the
-  record table is now a client portal picker instead of a free-text URL box; it
-  lists client portal domains, one row per domain, and stores the chosen domain
-  in `url`, so the ad-hoc URL validator is gone.
-- **Affected areas:**
-  `src/modules/helpcenter/components/SelectHelpCenterWebsite.tsx` (new),
-  `src/modules/helpcenter/graphql/queries/getHelpCenterWebsiteOptions.ts` (new),
-  `src/modules/helpcenter/components/HelpCenterColumns.tsx`,
-  `src/modules/helpcenter/components/help-center-drawer/HelpCenterGeneralTab.tsx`;
-  deleted `src/modules/helpcenter/utils/helpCenterUrl.ts`.
-- **Contracts changed:** added the `frontlineHelpCenterWebsiteOptions` query
-  over `core-api`'s `getClientPortals`. `HelpCenterConfig` is unchanged.
-  <<<<<<< HEAD
-
-### `2026-09-09` — The comment reply mention is a setting
-
-- **Summary:** The Send comment action gained a "Mention the commenter" switch;
-  it is off unless turned on, so a reply no longer tags the commenter by
-  default.
-- **Affected areas:**
-  `src/widgets/automations/modules/facebook/components/action/states/replyCommentActionForm.tsx`,
-  `src/widgets/automations/modules/facebook/components/action/components/replyComment/CommentActionForm.tsx`
-- **Contracts changed:** None. The action config gained an optional
-  `mentionSender` boolean.
-
-### `2026-09-09` — The comment reply takes an image
-
-- **Summary:** The attachment field had been a disabled placeholder from before
-  uploads existed; it now uses the same `FileUploadSection` the message action
-  does, capped at the single image Facebook accepts on a comment reply, and the
-  config schema stopped typing it as `any`.
-- **Affected areas:**
-  `src/widgets/automations/modules/facebook/components/action/components/replyComment/CommentActionForm.tsx`,
-  `src/widgets/automations/modules/facebook/components/action/states/replyCommentActionForm.tsx`
-- **Contracts changed:** None.
-
-### `2026-09-09` — The comment reply form got a layout, and adds past two
-
-- **Summary:** Every block in the Send comment panel sat flush against the next
-  because the form had no spacing wrapper, and `useFieldArray` — documented as
-  not supporting flat arrays — stopped appending past the second variant. The
-  list is now driven from form state, the fields are three separated groups,
-  each variant carries its counter and a destructive remove control in a header
-  row above its textarea, and section headings stopped being `Form.Label`s for
-  controls they do not label.
-- **Affected areas:**
-  `src/widgets/automations/modules/facebook/components/action/components/replyComment/CommentActionForm.tsx`
-- **Contracts changed:** None.
-
-### `2026-09-09` — A paused comment reply waits instead of being dropped
-
-- **Summary:** History rendered a `post-public-reply-limit` skip that the API no
-  longer produces; the per-post cap is gone and a blocked reply is requeued, so
-  the only skip left is `queue-expired` after a day of waiting. A deferred reply
-  that timed out also stopped claiming it was still about to send.
-- **Affected areas:**
-  `src/widgets/automations/modules/facebook/components/AutomationHistoryResult.tsx`,
-  `src/widgets/automations/modules/facebook/components/history/useFacebookAutomationHistoryResult.ts`
-- **Contracts changed:** None. The action result no longer carries `limit`.
-
-### `2026-09-09` — The bot's Activity tab is about comments
-
-# =======
-
-> > > > > > > f367b4a36cb66a9d80ba39450bef5cd15fd95d21
-
-- **Summary:** One "Bot health" block mixed the Messenger profile's sync state
-  with the comment outbox counters and named neither; it is now a Messenger
-  profile block and a Comment replies block that lists each distinct reply with
-  the share it takes of everything the page has said and the posts it ran
-  under, linked by permalink. Connected automations covers
-  comment triggers as well as message ones, badged per row, and Create
-  automation offers both trigger types.
-- **Affected areas:**
-  `src/widgets/automations/modules/facebook/components/bots/components/FacebookBotProfileHealth.tsx`,
-  `src/widgets/automations/modules/facebook/components/bots/components/FacebookBotCommentActivity.tsx`,
-  `src/widgets/automations/modules/facebook/components/bots/hooks/useFacebookBotCommentReplyStats.tsx`,
-  `src/widgets/automations/modules/facebook/components/bots/components/FacebookBotAutomations.tsx`,
-  `src/widgets/automations/modules/facebook/components/bots/components/FacebookBotCreateAutomationButton.tsx`,
-  `src/widgets/automations/modules/facebook/components/bots/hooks/useFacebookBotAutomations.tsx`
-- **Contracts changed:** None. `useFacebookBotAutomations` takes one trigger
-  type or many, and each returned trigger carries its `type`.
-
-### `2026-09-09` — The bot form splits settings from activity
-
-- **Summary:** The Facebook bot sheet mixed what the bot _is_ with what it is
-  _doing_; the name stays at the top and the rest moved into Settings
-  (persistent menu, ice breakers, optional configuration) and Activity (health
-  counters, connected automations) tabs. The open tab is held for the session,
-  so reopening a bot lands back where the last one was left.
-- **Affected areas:**
-  `src/widgets/automations/modules/facebook/components/bots/components/AutomationFbBotFormContent.tsx`,
-  `src/widgets/automations/modules/facebook/components/bots/components/FacebookBotSettingsTab.tsx`,
-  `src/widgets/automations/modules/facebook/components/bots/states/facebookBotStates.tsx`
-- **Contracts changed:** None.
-
-### `2026-09-09` — Topic colour and image fields serve both drawers
-
-- **Summary:** The topic accent colour and background image were written out
-  twice — once in `TopicDrawer` and again in the help center appearance tab —
-  and the appearance tab repeated a near-identical `StyleColorField` call for
-  each of its twelve colours, which pushed duplication on new code past the
-  Sonar gate. The two fields are now one shared pair in `knowledgebase`, and
-  the colour grids render from field lists in `helpcenter/constants`.
-- **Affected areas:** `src/modules/knowledgebase/components/{TopicAppearanceFields,TopicDrawer}.tsx`,
-  `src/modules/helpcenter/components/help-center-drawer/HelpCenterAppearanceTab.tsx`,
-  `src/modules/helpcenter/{constants,types}/index.ts`
-- **Contracts changed:** `None`
-
-### `2026-09-08` — The bot form reports its delivery health
-
-- **Summary:** `FacebookBotHealth` exposes `lastError` and the breaker fields,
-  and a new `facebookMessengerBotDelivery` query counts what the comment outbox
-  holds for the bot's page plus when it next sends. The bot form shows the health
-  badge, the pause with its reason, and queued/sent/failed counts, polling while
-  the sheet is open.
-- **Affected areas:** `frontline_api`
-  `modules/integrations/facebook/graphql/{schema/facebook.ts,resolvers/queries.ts}`.
-  `frontline_ui` new
-  `components/bots/components/FacebookBotHealthPanel.tsx` and
-  `components/bots/hooks/useFacebookBotDelivery.tsx`;
-  `modules/integrations/facebook/graphql/queries/facebookBots.ts`,
-  `types/FacebookBot.ts`, `components/bots/components/AutomationFbBotFormContent.tsx`.
-- **Contracts changed:** `FacebookBotHealth` gains `lastError`,
-  `sendBlockedUntil`, `sendBlockReason` and `sendBlockCount`;
-  `facebookMessengerBotDelivery(_id: String!)` is new.
-
-### `2026-09-08` — Public comment replies go through a paced outbox
-
-- **Summary:** `frontline:facebook.comments.create` declares
-  `deferred: { enable: true, mode: 'ignore' }`, records the reply in a new
-  `comment_outbox_facebook` collection and returns a queued marker, so the
-  private reply after it runs immediately instead of waiting behind the pacing.
-  A per-page Redis counter hands out send slots
-  (`FACEBOOK_COMMENT_REPLIES_PER_MINUTE`, default 10) and each reply is scheduled
-  as a delayed BullMQ job, so nothing polls. The worker sends, closes or opens
-  the page breaker, and reports back through the new
-  `sendAutomationDeferredCompletion`.
-- **Affected areas:** `erxes-api-shared`
-  `core-modules/automations/sendAutomationMessage.ts`. `frontline_api` new
-  `modules/integrations/facebook/{commentOutbox,commentOutboxWorker}.ts`,
-  `db/definitions/comment_outbox.ts`, `db/models/CommentOutbox.ts`;
-  `commentGuard.ts`, `meta/automation/{constants.ts,comments/index.ts}`,
-  `connectionResolvers.ts`, `main.ts`. `frontline_ui`
-  `src/widgets/automations/modules/facebook/components/AutomationHistoryResult.tsx`
-  and `components/history/useFacebookAutomationHistoryResult.ts`.
-- **Contracts changed:** the comment action now returns a deferred marker rather
-  than a send result; `sendAutomationDeferredCompletion` is new in
-  `erxes-api-shared`.
-
-### `2026-09-08` — Facebook's refusal now stops public comment replies
-
-- **Summary:** `sendReply` throws a `FacebookSendError` carrying Meta's `code`
-  and `error_subcode`, which it previously logged and discarded. A spam refusal
-  or `#613` opens a breaker on the bot's `health` — `sendBlockedUntil`,
-  `sendBlockReason`, `sendBlockCount` — pausing public comment replies for 1h,
-  doubling per consecutive refusal up to 24h, and a reply that gets through
-  closes it. On the 2026-09-07 dump the same page was hit for five days across
-  three enforcement windows; this turns that into an hour. Both the pause and a
-  refusal are reported instead of thrown, so the private reply that follows still
-  runs. Private replies are untouched: 141,158 of them went out with no refusal.
-- **Affected areas:** `frontline_api` new
-  `modules/integrations/facebook/errors.ts`; `utils.ts`,
-  `db/definitions/bots.ts` (health fields and a `pageId` index),
-  `db/models/Bots.ts`, `meta/automation/comments/index.ts`. `frontline_ui`
-  `src/widgets/automations/modules/facebook/components/AutomationHistoryResult.tsx`
-  and `components/history/useFacebookAutomationHistoryResult.ts`.
-- **Contracts changed:** the comment action result gains
-  `{ status: 'skipped', reason: 'send-blocked', blockedUntil }` and
-  `{ status: 'failed', error, blockedUntil }`.
-
-### `2026-09-08` — Public comment replies are capped per post
-
-- **Summary:** `frontline:facebook.comments.create` now spends a per-post budget
-  before replying publicly (`FACEBOOK_COMMENT_PUBLIC_REPLY_PER_POST`, default
-  100, counted in Redis for seven days). Over the cap it returns
-  `{ status: 'skipped' }` instead of throwing, so the private reply that follows
-  it in the automation still runs — a thrown action ends the execution. The run
-  also records the variant it posted, so history shows the reply that actually
-  went out, and renders the skip with its reason.
-- **Affected areas:** `frontline_api` new
-  `modules/integrations/facebook/commentGuard.ts`;
-  `meta/automation/comments/index.ts`. `frontline_ui`
-  `src/widgets/automations/modules/facebook/components/AutomationHistoryResult.tsx`
-  and `components/history/useFacebookAutomationHistoryResult.ts`.
-- **Contracts changed:** the comment action result gains `text` on success and a
-  `{ status: 'skipped', reason, limit, used }` shape when capped.
-  <<<<<<< HEAD
-  =======
-  > > > > > > > 4529c61e24c1a78e8f962cc5cfd7be89f9787eea
-  > > > > > > > f367b4a36cb66a9d80ba39450bef5cd15fd95d21
-  > > > > > > > a27bb8796780885a71d07b7b47133767b50641f7
-  > > > > > > > =======
-  > > > > > > > 6a6123789bcdb66ac2b9479a766c965909f58c5a
-  > > > > > > > =======
-  > > > > > > > 02cfc5c8e7d7cfd22768ddee467eecff1b395fcb

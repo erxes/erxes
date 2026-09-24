@@ -79,7 +79,7 @@ const Surveys = lazy(() =>
 );
 
 const KnowledgeBase = lazy(() =>
-  import('~/pages/knowledgebase/IndexPage').then((module) => ({
+  import('@/knowledgebase/Main').then((module) => ({
     default: module.default,
   })),
 );
@@ -125,7 +125,7 @@ const IntegrationsMain = () => {
         </Route>
         <Route path="/forms/preview" element={<FormPreviewPage />} />
         <Route path="/surveys" element={<Surveys />} />
-        <Route path="/knowledgebase" element={<KnowledgeBase />} />
+        <Route path="/knowledgebase/*" element={<KnowledgeBase />} />
         <Route path="/helpcenter" element={<HelpCenter />} />
       </Routes>
     </Suspense>
