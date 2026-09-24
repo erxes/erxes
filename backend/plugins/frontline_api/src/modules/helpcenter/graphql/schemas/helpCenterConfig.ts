@@ -101,12 +101,23 @@ export const types = `
     columns: [HelpCenterFooterColumnInput]
   }
 
+  type HelpCenterCmsConfig {
+    cmsId: String
+    cmsAppToken: String
+  }
+
+  input HelpCenterCmsConfigInput {
+    cmsId: String
+    cmsAppToken: String
+  }
+
   type HelpCenterConfig {
     _id: String!
     title: String
     description: String
     url: String
     erxesAppToken: String
+    clientPortalId: String
     brandId: String
     brand: Brand
     languageCode: String
@@ -127,6 +138,7 @@ export const types = `
 
     cmsId: String
     cmsAppToken: String
+    cmsConfigs: [HelpCenterCmsConfig]
 
     color: String
     backgroundImage: String
@@ -146,6 +158,7 @@ export const types = `
     description: String
     url: String
     erxesAppToken: String
+    clientPortalId: String
     brandId: String
     languageCode: String
 
@@ -164,6 +177,7 @@ export const types = `
 
     cmsId: String
     cmsAppToken: String
+    cmsConfigs: [HelpCenterCmsConfigInput]
 
     color: String
     backgroundImage: String
