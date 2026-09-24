@@ -1,5 +1,12 @@
 # Changelog
 
+# [3.2.0](https://github.com/erxes/erxes/compare/3.1.15...3.2.0) (2026-09-24)
+
+
+### Features
+
+* **broadcast:** HTML email rendering, realtime status, workflow broadcasts and module cleanup ([#9445](https://github.com/erxes/erxes/issues/9445)) ([5c81d53](https://github.com/erxes/erxes/commit/5c81d53cf14d0951cf8c7fbfcf019c2c0c9bd4bd))
+
 ## [3.1.15](https://github.com/erxes/erxes/compare/3.1.14...3.1.15) (2026-09-24)
 
 
