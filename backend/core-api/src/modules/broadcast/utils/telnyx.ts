@@ -45,7 +45,29 @@ export const saveTelnyxHookData = async (models: IModels, data: any) => {
   if (data?.payload) {
     const { to = [], id } = data.payload;
 
-    const initialRequest = await models.SmsRequests.findOne({ telnyxId: id });
+    // Fail fast on malformed payloads so non-string id values (objects,
+    // arrays, numbers) cannot reach the Mongoose query. Combined with the
+    // $eq wrapper below this gives defense-in-depth against NoSQL
+    // operator injection from the unauthenticated webhook body.
+    if (typeof id !== 'string') {
+      // Surface rejected payloads so suspicious / malformed webhook traffic
+      // is visible in the logs. Capture only non-PII shape metadata
+      // (types, constructor name, array length) — never raw values or
+      // phone numbers — so investigators can distinguish probing
+      // attempts from buggy integrations.
+      console.warn('Telnyx webhook rejected: non-string id', {
+        type: typeof id,
+        idConstructor:
+          id === null || id === undefined ? null : id?.constructor?.name,
+        hasToField: Array.isArray(to),
+        toLength: Array.isArray(to) ? to.length : 0,
+      });
+      return;
+    }
+
+    const initialRequest = await models.SmsRequests.findOne({
+      telnyxId: { $eq: id },
+    });
 
     if (initialRequest) {
       const receiver = to.find(
