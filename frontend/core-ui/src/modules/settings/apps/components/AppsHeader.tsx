@@ -2,7 +2,7 @@ import { Can, PageHeader, PageHeaderEnd, PageHeaderStart } from 'ui-modules';
 import { Breadcrumb, Button } from 'erxes-ui';
 import { Link } from 'react-router-dom';
 import { IconShieldCog } from '@tabler/icons-react';
-import { CreateApp } from './CreateApp';
+import { AppsAddButton } from './AppsAddButton';
 
 export function AppsHeader() {
   return (
@@ -23,7 +23,7 @@ export function AppsHeader() {
       </PageHeaderStart>
       <PageHeaderEnd>
         <Can action="appsManage">
-          <CreateApp />
+          <AppsAddButton />
         </Can>
       </PageHeaderEnd>
     </PageHeader>

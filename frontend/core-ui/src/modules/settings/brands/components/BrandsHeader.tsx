@@ -1,5 +1,5 @@
 import { Can, PageHeader, PageHeaderEnd, PageHeaderStart } from 'ui-modules';
-import { CreateBrand } from './CreateBrand';
+import { BrandsAddButton } from './BrandsAddButton';
 import { Breadcrumb, Button } from 'erxes-ui';
 import { Link } from 'react-router-dom';
 import { IconChessKnightFilled } from '@tabler/icons-react';
@@ -27,7 +27,7 @@ export function BrandsHeader() {
       </PageHeaderStart>
       <PageHeaderEnd>
         <Can action="brandsCreate">
-          <CreateBrand />
+          <BrandsAddButton />
         </Can>
       </PageHeaderEnd>
     </PageHeader>

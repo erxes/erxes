@@ -1,8 +1,8 @@
 import { Breadcrumb, Button } from 'erxes-ui';
-import { PageHeader } from 'ui-modules';
+import { Can, PageHeader } from 'ui-modules';
 import { Link } from 'react-router-dom';
 import { IconTerminal2 } from '@tabler/icons-react';
-import { CreateClientPortalSheet } from '@/client-portal/components/ClientPortalAddSheet';
+import { ClientPortalAddButton } from '@/client-portal/components/ClientPortalAddButton';
 
 export const ClientPortalHeader = () => {
   return (
@@ -22,7 +22,9 @@ export const ClientPortalHeader = () => {
         </Breadcrumb>
       </PageHeader.Start>
       <PageHeader.End>
-        <CreateClientPortalSheet />
+        <Can action="clientPortalManage">
+          <ClientPortalAddButton />
+        </Can>
       </PageHeader.End>
     </PageHeader>
   );

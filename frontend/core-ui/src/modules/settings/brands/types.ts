@@ -14,7 +14,6 @@ export interface IBrand {
 
 export enum BrandsHotKeyScope {
   BrandsSettingsPage = 'brands-page',
-  BrandsCreateSheet = 'add-brand',
 }
 
 export type TBrandsForm = z.infer<typeof BRANDS_FORM_SCHEMA>;

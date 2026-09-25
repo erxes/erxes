@@ -4,10 +4,14 @@ import { appsSettingsColumns } from './table/AppsSettingsColumns';
 import { appsMoreColumn } from './table/AppsMoreColumn';
 import { AppsCommandBar } from './AppsCommandBar';
 import { useApps } from '../hooks/useApps';
+import { AppsAddRow } from './AppsAddRow';
+import { addingAppAtom } from '../state';
+import { useAtomValue } from 'jotai';
 import { useMemo } from 'react';
 
 export function AppsRecordTable() {
   const { apps, loading, error } = useApps();
+  const addingApp = useAtomValue(addingAppAtom);
   const columns = useMemo(() => [...appsSettingsColumns, appsMoreColumn], []);
 
   return (
@@ -21,6 +25,7 @@ export function AppsRecordTable() {
         <RecordTable>
           <RecordTable.Header />
           <RecordTable.Body>
+            {addingApp && <AppsAddRow />}
             <RecordTable.RowList />
             {loading && <RecordTable.RowSkeleton rows={20} />}
             {!loading && !error && apps.length === 0 && (
