@@ -987,10 +987,12 @@ export const conversationMutations = {
     {
       _id,
       propertiesData,
-    }: { _id: string; propertiesData: Record<string, unknown> },
-    { models }: IContext,
+      customFieldsData,
+    }: { _id: string; propertiesData?: Record<string, unknown>; customFieldsData?: Record<string, unknown> },
+    { models, checkPermission }: IContext,
   ) {
-    await models.Conversations.updateConversation(_id, { propertiesData });
+    await checkPermission('conversationEditCustomFields');
+    await models.Conversations.updateConversation(_id, { propertiesData: propertiesData ?? customFieldsData });
     return models.Conversations.getConversation(_id);
   },
 };

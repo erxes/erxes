@@ -6,43 +6,41 @@ import { callProGetAudio } from '@/integrations/callpro/messageBroker';
 
 import { IContext } from '~/connectionResolvers';
 
+function resolvePropertiesData(conversation: IConversationDocument) {
+  if (conversation.propertiesData != null) {
+    return conversation.propertiesData;
+  }
+
+  const rawConversation = conversation as unknown as {
+    toObject?: () => { customsData?: ICustomField[] };
+    customsData?: ICustomField[];
+  };
+
+  const legacyCustomFieldsData =
+    typeof rawConversation.toObject === 'function'
+      ? rawConversation.toObject().customsData
+      : rawConversation.customsData;
+
+  if (!Array.isArray(legacyCustomFieldsData) || !legacyCustomFieldsData.length) {
+    return conversation.propertiesData;
+  }
+
+  return legacyCustomFieldsData.reduce<Record<string, unknown>>(
+    (acc, customField) => {
+      if (customField.field) {
+        acc[customField.field] = customField.value ?? customField.stringValue;
+      }
+
+      return acc;
+    },
+    {},
+  );
+}
+
 export default {
-  // Reads the legacy `customsData` field (pre-rename raw schema path, never
-  // exposed to GraphQL) for conversations saved before propertiesData existed,
-  // so any such record still surfaces in the Properties tab.
-  propertiesData(conversation: IConversationDocument) {
-    if (conversation.propertiesData != null) {
-      return conversation.propertiesData;
-    }
+  propertiesData: resolvePropertiesData,
 
-    // `conversationsGetLast` returns a `.lean()` plain object; every other
-    // query returns a hydrated document. `toObject()` normalizes either into
-    // a plain object still carrying `customsData` (undeclared in the schema).
-    const rawConversation = conversation as unknown as {
-      toObject?: () => { customsData?: ICustomField[] };
-      customsData?: ICustomField[];
-    };
-
-    const legacyCustomFieldsData =
-      typeof rawConversation.toObject === 'function'
-        ? rawConversation.toObject().customsData
-        : rawConversation.customsData;
-
-    if (!Array.isArray(legacyCustomFieldsData) || !legacyCustomFieldsData.length) {
-      return conversation.propertiesData;
-    }
-
-    return legacyCustomFieldsData.reduce<Record<string, unknown>>(
-      (acc, customField) => {
-        if (customField.field) {
-          acc[customField.field] = customField.value ?? customField.stringValue;
-        }
-
-        return acc;
-      },
-      {},
-    );
-  },
+  customFieldsData: resolvePropertiesData,
 
   /**
    * Get idle time in minutes

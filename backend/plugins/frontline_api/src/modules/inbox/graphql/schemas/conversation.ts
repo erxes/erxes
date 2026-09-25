@@ -45,6 +45,7 @@ export const types = `
 
 
     propertiesData: JSON
+    customFieldsData: JSON
     cursor: String
   }
 
@@ -301,5 +302,5 @@ export const mutations = `
   ): Conversation
   conversationsResolve(ids: [String!]!): Int
   conversationConvertToCard(${convertParams}): String
-  conversationEditCustomFields(_id: String!, propertiesData: JSON): Conversation
+  conversationEditCustomFields(_id: String!, propertiesData: JSON, customFieldsData: JSON): Conversation
 `;
