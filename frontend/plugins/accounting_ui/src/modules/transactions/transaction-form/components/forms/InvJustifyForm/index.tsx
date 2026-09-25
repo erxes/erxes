@@ -6,12 +6,14 @@ import {
   BranchField,
   DepartmentField,
   DescriptionField,
+  SideField,
 } from '../../GeneralFormFields';
+import { TR_SIDES } from '../../../../types/constants';
 import { CustomerFields } from '../../helpers/CustomerFields';
 import { RelAccountsForm } from '../../helpers/RelAccountsForm';
 import { InventoryForm } from './InventoryForm';
 
-export const InvOutForm = ({
+export const InvJustifyForm = ({
   form,
   index,
 }: {
@@ -25,7 +27,13 @@ export const InvOutForm = ({
           form={form}
           index={index}
           filter={{ journals: [JournalEnum.INVENTORY] }}
-          allDetails={true}
+          allDetails
+        />
+        <SideField
+          form={form}
+          index={index}
+          sides={TR_SIDES.JUSTIFY_OPTIONS}
+          labelTxt="Өртгийн өөрчлөлт"
         />
         <CustomerFields form={form} index={index} />
         <BranchField form={form} index={index} />

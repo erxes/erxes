@@ -14,7 +14,7 @@ import { useFieldArray, useWatch } from 'react-hook-form';
 import { showAdvancedViewState } from '../../../states/trStates';
 import {
   ITransactionGroupForm,
-  TInvOutJournal,
+  TInvJustifyJournal,
 } from '../../../types/JournalForms';
 import { AddDetailRowButton } from './AddInventoryRow';
 import { InventoryRow } from './InventoryRow';
@@ -32,15 +32,13 @@ export const InventoryForm = ({
     name: `trDocs.${journalIndex}.details`,
   });
   const setHotkeyScope = useSetHotkeyScope();
-
   const tableRef = useRef<HTMLTableElement>(null);
   const [showAdvancedView, setShowAdvancedView] = useAtom(
     showAdvancedViewState,
   );
-
   const columnsLength =
     tableRef.current?.querySelector('tr')?.querySelectorAll('td, th').length ||
-    5;
+    8;
 
   return (
     <>
@@ -62,9 +60,9 @@ export const InventoryForm = ({
           >
             <InventoryTableHeader form={form} journalIndex={journalIndex} />
             <Table.Body className="overflow-hidden">
-              {fields.map((product, detailIndex) => (
+              {fields.map((detail, detailIndex) => (
                 <InventoryRow
-                  key={product.id}
+                  key={detail.id}
                   detailIndex={detailIndex}
                   journalIndex={journalIndex}
                   form={form}
@@ -86,9 +84,7 @@ export const InventoryForm = ({
           <Label className="mr-3">Дэлгэрэнгүй харагдац</Label>
           <Switch
             checked={showAdvancedView}
-            onCheckedChange={(checked) => {
-              setShowAdvancedView(checked);
-            }}
+            onCheckedChange={setShowAdvancedView}
           />
         </div>
       </div>
@@ -107,7 +103,7 @@ const InventoryTableHeader = ({
   const trDoc = useWatch({
     control: form.control,
     name: `trDocs.${journalIndex}`,
-  }) as TInvOutJournal;
+  }) as TInvJustifyJournal;
 
   return (
     <Table.Header>
@@ -115,22 +111,24 @@ const InventoryTableHeader = ({
         <Table.Head className="w-10">
           <div className="flex items-center justify-center">
             <Checkbox
-              checked={!trDoc.details.filter((d) => !d.checked).length}
-              onCheckedChange={(checked) => {
-                trDoc.details.forEach((_d, ind) => {
+              checked={!trDoc.details.some((detail) => !detail.checked)}
+              onCheckedChange={(checked) =>
+                trDoc.details.forEach((_detail, detailIndex) =>
                   form.setValue(
-                    `trDocs.${journalIndex}.details.${ind}.checked`,
+                    `trDocs.${journalIndex}.details.${detailIndex}.checked`,
                     !!checked,
-                  );
-                });
-              }}
+                  ),
+                )
+              }
             />
           </div>
         </Table.Head>
         <Table.Head>Данс</Table.Head>
         <Table.Head>Бараа материал</Table.Head>
-        <Table.Head>Тоо хэмжээ</Table.Head>
-        <Table.Head>Нэгж үнэ</Table.Head>
+        <Table.Head>Одоогийн үлдэгдэл</Table.Head>
+        <Table.Head>Одоогийн нэгж өртөг</Table.Head>
+        <Table.Head>Залруулах нэгж өртөг</Table.Head>
+        <Table.Head>Дараах нэгж өртөг</Table.Head>
         <Table.Head>Дүн</Table.Head>
         {showAdvancedView && (
           <>

@@ -16,12 +16,10 @@ export const AddDetailRowButton = ({
   append,
   journalIndex,
   form,
-  isJustify,
 }: {
   form: ITransactionGroupForm;
   journalIndex: number;
   append: (detail: TInvDetail | TInvDetail[]) => void;
-  isJustify?: boolean;
 }) => {
   const client = useApolloClient();
   const { control } = form;
@@ -77,15 +75,12 @@ export const AddDetailRowButton = ({
           append(
             productIds.map((productId) => {
               const detail = getDetailDefaultValues(productId);
-              const unitPrice = isJustify
-                ? 0
-                : currentCostInfo[productId]?.unitCost ?? 0;
-              const remainder = currentCostInfo[productId]?.remainder ?? 0;
+              const unitPrice = currentCostInfo[productId]?.unitCost ?? 0;
 
               return {
                 ...detail,
                 unitPrice,
-                amount: (isJustify ? remainder : detail.count ?? 0) * unitPrice,
+                amount: (detail.count ?? 0) * unitPrice,
               };
             }),
           );

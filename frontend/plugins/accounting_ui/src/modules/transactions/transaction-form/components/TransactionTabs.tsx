@@ -3,7 +3,7 @@ import { IAccount } from '@/settings/account/types/Account';
 import { Button, cn, Tabs, Tooltip } from 'erxes-ui';
 import { useAtom, useAtomValue } from 'jotai';
 import React, { useEffect } from 'react';
-import { useFieldArray } from 'react-hook-form';
+import { FieldErrors, useFieldArray } from 'react-hook-form';
 import { AddTransaction } from '../../components/AddTransaction';
 import {
   TR_JOURNAL_LABELS,
@@ -18,7 +18,11 @@ import {
   followTrDocsState,
   isPerfectState,
 } from '../states/trStates';
-import { ITransactionGroupForm, TTrDoc } from '../types/JournalForms';
+import {
+  ITransactionGroupForm,
+  TAddTransactionGroup,
+  TTrDoc,
+} from '../types/JournalForms';
 import { BankTransaction } from './forms/BankForm';
 import { CashTransaction } from './forms/CashForm';
 import { FxaIncomeForm } from './forms/FxaIncomeForm';
@@ -26,6 +30,7 @@ import { FxaMoveForm } from './forms/FxaMoveForm';
 import { FxaOutForm } from './forms/FxaOutForm';
 import { FxaSaleForm } from './forms/FxaSaleForm';
 import { InvIncomeForm } from './forms/InvIncomeForm';
+import { InvJustifyForm } from './forms/InvJustifyForm';
 import { InvMoveForm } from './forms/InvMoveForm';
 import { InvOutForm } from './forms/InvOutForm';
 import { InvSaleForm } from './forms/InvSaleForm';
@@ -36,8 +41,12 @@ import { ReceivableTransaction } from './forms/ReceivableForm';
 import { sumDtAndCt } from './Summary';
 import { TBalance } from './TBalance';
 
-const isHiddenTransaction = (transaction?: any) =>
-  transaction?.permission === 'hidden';
+const isHiddenTransaction = (transaction?: object) =>
+  Boolean(
+    transaction &&
+      'permission' in transaction &&
+      transaction.permission === 'hidden',
+  );
 
 // Separate the transaction form component to prevent unnecessary re-renders
 const TransactionForm = ({
@@ -46,7 +55,7 @@ const TransactionForm = ({
   index,
 }: {
   form: ITransactionGroupForm;
-  field: any;
+  field: Pick<TTrDoc, 'journal'>;
   index: number;
 }) => {
   if (field.journal === TrJournalEnum.MAIN)
@@ -64,7 +73,7 @@ const TransactionForm = ({
   if (field.journal === TrJournalEnum.INV_OUT)
     return <InvOutForm form={form} index={index} />;
   if (field.journal === TrJournalEnum.INV_JUSTIFY)
-    return <InvOutForm form={form} index={index} isJustify />;
+    return <InvJustifyForm form={form} index={index} />;
   if (field.journal === TrJournalEnum.INV_MOVE)
     return <InvMoveForm form={form} index={index} />;
   if (field.journal === TrJournalEnum.INV_SALE)
@@ -96,7 +105,13 @@ const HiddenTransactionContent = () => {
   );
 };
 
-const ErrorTip = ({ index, errors }: { index: number; errors?: any }) => {
+const ErrorTip = ({
+  index,
+  errors,
+}: {
+  index: number;
+  errors?: FieldErrors<TAddTransactionGroup>;
+}) => {
   if (!errors?.trDocs?.length || !errors.trDocs[index]) {
     return null;
   }
@@ -104,11 +119,12 @@ const ErrorTip = ({ index, errors }: { index: number; errors?: any }) => {
   const errs = errors.trDocs[index];
 
   // Recursive renderer
-  const renderErrors = (obj: any, parentKey = ''): JSX.Element[] => {
+  const renderErrors = (obj: unknown, parentKey = ''): JSX.Element[] => {
     const items: JSX.Element[] = [];
 
-    for (const key in obj) {
-      const val = obj[key];
+    if (!obj || typeof obj !== 'object') return items;
+
+    for (const [key, val] of Object.entries(obj)) {
       const fullKey = parentKey ? `${parentKey}.${key}` : key;
 
       if (Array.isArray(val)) {
@@ -120,7 +136,7 @@ const ErrorTip = ({ index, errors }: { index: number; errors?: any }) => {
           );
         });
       } else if (typeof val === 'object' && val !== null) {
-        if (val.message) {
+        if ('message' in val && typeof val.message === 'string') {
           items.push(
             <li key={fullKey}>
               <span className="font-medium text-red-400">{fullKey}</span>:{' '}
@@ -197,7 +213,9 @@ export const TransactionsTabsList = ({
   const handleRemove = (index: number, e: React.MouseEvent) => {
     e.stopPropagation();
     remove(index);
-    index.toString() === activeJournal && setActiveJournal('0');
+    if (index.toString() === activeJournal) {
+      setActiveJournal('0');
+    }
   };
 
   const handleAddTransaction = (
@@ -228,7 +246,7 @@ export const TransactionsTabsList = ({
       ],
     };
 
-    const newJournal = JOURNALS_BY_JOURNAL(selectedJournal, fakeTrDoc as any);
+    const newJournal = JOURNALS_BY_JOURNAL(selectedJournal, fakeTrDoc);
     append(newJournal);
     setActiveJournal(fields.length.toString());
   };

@@ -65,6 +65,7 @@
 | Apollo integration | `src/apollo`                                                | Registers accounting schema, resolvers, subscriptions, and federation wiring.                                           |
 | Models             | `src/connectionResolvers.ts`                                | Generates tenant-scoped Mongoose models for accounting-owned collections.                                               |
 | Accounting domain  | `src/modules/accounting`                                    | Owns accounting schemas, models, GraphQL resolvers, journal utilities, and routes.                                      |
+| Cost adjustment    | `src/modules/accounting/utils/invJustify.ts`                | Owns inventory cost-adjustment save, side validation, inventory synchronization, and removal behavior.                  |
 | Journal reports    | `src/modules/accounting/utils/journalReports`               | Builds shared filters, aggregation groups, period splits, and display enrichment for journal reports.                   |
 | Report bases       | `src/modules/accounting/utils/journalReports/strategies`    | Groups Erkhet-style report base definitions by main, fund, debt, inventory, and fixed asset report families.            |
 | Report details     | `src/modules/accounting/utils/journalReports/details`       | Owns report-specific detail row lookups such as account statement more rows.                                            |
@@ -155,6 +156,7 @@
 - Inventory price lookup must use completed business-active inventory income transactions and default missing product prices to `0`.
 - Current inventory cost lookup must use only the latest published inventory adjustment, must ignore details from older or unpublished adjustments, and must apply post-adjustment business-active debit/credit movements using detail-level branch/department before transaction-level fallback; missing, null, and empty-string locations normalize to `_`, and sale or sale-return edits must exclude their prior generated inventory movement when deriving replacement cost.
 - Inventory cost adjustment journals must not create follow transactions or quantity movement; they only sync product inventory cost deltas and adjust inventory cost caches.
+- Inventory cost adjustment save/remove behavior must remain in `utils/invJustify.ts` as an independent journal handler and must not be implemented as an `invOut` mode.
 - Inventory out and internal movement transaction details must always persist active cost for their source account and effective detail/root location, excluding the old source and generated movement transactions during edits; client-supplied cost values are not authoritative.
 - Safe remainder item `preCount` must return `0` and `diffType` filters must be ignored for users without `viewSafeRemainderItemCounts` so they cannot compare the system inventory balance with counted inventory.
 - Inventory adjustment outgoing-cost fixes may adjust only related debit transactions in `main`, `receivable`, and `payable` journals; cash and bank debit amounts are explicit payment amounts and must not be rewritten by cost recalculation.
@@ -201,7 +203,7 @@
 ### `2026-09-25` — `Inventory Cost Adjustment And Active Cost Flow`
 
 - **Summary:** Inventory cost changes use one side-selectable, quantity-neutral `invJustify` journal; current cost starts from the latest completed adjustment and rolls later inventory movements forward; inventory out, movement, and sale follow rows use authoritative active cost; reports and Erkhet kind `28` preserve adjustment direction without treating it as quantity movement.
-- **Affected areas:** Inventory journal constants and permissions, save/remove handlers, current-cost query and rollforward utilities, sale and movement costing, journal reports, Erkhet transaction-kind mapping, and regression tests.
+- **Affected areas:** Inventory journal constants and permissions, standalone `invJustify` save/remove handler, current-cost query and rollforward utilities, sale and movement costing, journal reports, Erkhet transaction-kind mapping, and regression tests.
 - **Contracts changed:** Uses the single `invJustify` journal with dedicated read/manage/remove permissions; `getAccCurrentCost` returns rolled-forward balances and accepts optional `excludedTransactionIds`; Erkhet kind `28` and `only_adjust` map only to `invJustify`.
 
 ### `2026-09-23` — `Transaction Export`

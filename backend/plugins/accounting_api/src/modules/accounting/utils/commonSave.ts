@@ -5,11 +5,7 @@ import CurrencyTr from './currencyTr';
 import TaxTrs from './taxTrs';
 import { InvIncomeExpenseTrs } from './invIncome';
 import InvSaleOutCostTrs from './invSale';
-import {
-  createOrUpdateTr,
-  removeSyncProductsInventory,
-  syncProductsInventory,
-} from './utils';
+import { createOrUpdateTr, syncProductsInventory } from './utils';
 import InvMoveInTrs from './invMove';
 import InvSaleReturnOutCostTrs from './invSaleReturn';
 import { TR_SIDES } from '../@types/constants';
@@ -27,6 +23,7 @@ import {
   rebuildFixedAssetCurrentCounts,
 } from './fixedAssets';
 import { activeCost } from './inventories';
+import { saveInvJustify } from './invJustify';
 import {
   FXA_OWNER_RECORD_STATUSES,
   FXA_LOG_EVENT_TYPES,
@@ -85,7 +82,7 @@ function getJournalHandler(journal: string) {
     payable: handleSingleTr,
     invIncome: handleInvIncome,
     invOut: handleInvOut,
-    invJustify: handleInvJustify,
+    invJustify: saveInvJustify,
     invMove: handleInvMove,
     invSale: handleInvSale,
     invSaleReturn: handleInvSaleReturn,
@@ -276,38 +273,6 @@ async function handleInvOut(
   );
 
   await syncProductsInventory(subdomain, mainTr, oldTr, -1);
-
-  return { mainTr, otherTrs: [] };
-}
-
-async function handleInvJustify(
-  subdomain: string,
-  models: IModels,
-  userId: string,
-  doc: ITransaction,
-  oldTr?: ITransactionDocument,
-) {
-  if (![TR_SIDES.DEBIT, TR_SIDES.CREDIT].includes(doc.side || '')) {
-    throw new Error('Inventory cost adjustment side must be dt or ct');
-  }
-
-  const normalizedDoc = {
-    ...doc,
-    details: (doc.details || []).map((detail) => ({
-      ...detail,
-      count: 0,
-    })),
-  };
-  const mainTr = await createOrUpdateTr(models, userId, normalizedDoc, oldTr);
-  const multiplier = mainTr.side === TR_SIDES.DEBIT ? 1 : -1;
-
-  if (oldTr && oldTr.side !== mainTr.side) {
-    const oldMultiplier = oldTr.side === TR_SIDES.DEBIT ? 1 : -1;
-    await removeSyncProductsInventory(subdomain, oldTr, oldMultiplier);
-    await syncProductsInventory(subdomain, mainTr, undefined, multiplier);
-  } else {
-    await syncProductsInventory(subdomain, mainTr, oldTr, multiplier);
-  }
 
   return { mainTr, otherTrs: [] };
 }
