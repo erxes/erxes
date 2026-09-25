@@ -70,6 +70,10 @@ export const mailMessageSchema = new Schema({
     enum: Object.values(MAIL_CONVERSATION_STATUSES_ON_SENT),
     label: 'Conversation status applied once this reply is delivered',
   },
+  conversationStatusAppliedAt: {
+    type: Date,
+    label: 'When the conversation status of a delivered reply was applied',
+  },
   draftId: {
     type: String,
     index: true,
@@ -104,6 +108,10 @@ export const mailMessageSchema = new Schema({
   deliveryRetryable: {
     type: Boolean,
     label: 'Whether resending the failed message can succeed',
+  },
+  deliveryAttemptedAt: {
+    type: Date,
+    label: 'When the latest delivery attempt started',
   },
   bouncedRecipients: { type: [String], default: undefined },
   type: {

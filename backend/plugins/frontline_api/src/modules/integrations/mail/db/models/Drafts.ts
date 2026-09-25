@@ -12,7 +12,9 @@ import {
   MAIL_DELIVERY_STATUSES,
   MAIL_DRAFT_SENDING_STALE_MS,
   MAIL_DRAFT_STATUSES,
+  MAIL_MESSAGE_TYPES,
 } from '@/integrations/mail/constants';
+import { canResend } from '@/integrations/mail/utils/delivery';
 import { isDuplicateKeyError } from '@/integrations/mail/utils/mongoErrors';
 
 export interface IMailDraftModel extends Model<IMailDraftDocument> {
@@ -125,25 +127,32 @@ export const loadMailDraftClass = (models: IModels) => {
     public static async approveDraft(_id: string, subdomain: string) {
       const draft = await Draft.claimForSending(_id);
 
+      const earlier = await models.MailMessages.findOne({
+        draftId: draft._id,
+        type: MAIL_MESSAGE_TYPES.SENT,
+      }).sort({ createdAt: -1 });
+
       let message: IMailMessageDocument;
 
       try {
-        message = await models.MailMessages.createSendMail(
-          {
-            integrationId: draft.inboxIntegrationId,
-            conversationId: draft.inboxConversationId,
-            customerId: draft.customerId,
-            subject: draft.subject,
-            body: draft.body,
-            to: draft.to,
-            replyToMessageId: draft.replyToMessageId,
-            references: draft.references ?? [],
-            shouldResolve: draft.shouldResolve,
-            draftId: draft._id,
-            sourceMessageId: draft.sourceMessageId,
-          },
-          subdomain,
-        );
+        message = earlier
+          ? await Draft.resumeEarlierSend(earlier, subdomain)
+          : await models.MailMessages.createSendMail(
+              {
+                integrationId: draft.inboxIntegrationId,
+                conversationId: draft.inboxConversationId,
+                customerId: draft.customerId,
+                subject: draft.subject,
+                body: draft.body,
+                to: draft.to,
+                replyToMessageId: draft.replyToMessageId,
+                references: draft.references ?? [],
+                shouldResolve: draft.shouldResolve,
+                draftId: draft._id,
+                sourceMessageId: draft.sourceMessageId,
+              },
+              subdomain,
+            );
       } catch (e) {
         const replied = await models.MailMessages.exists({
           draftId: draft._id,
@@ -172,6 +181,26 @@ export const loadMailDraftClass = (models: IModels) => {
       );
 
       return { draft: sent ?? draft, message };
+    }
+
+    private static async resumeEarlierSend(
+      earlier: IMailMessageDocument,
+      subdomain: string,
+    ) {
+      if (
+        earlier.deliveryStatus === MAIL_DELIVERY_STATUSES.SENT ||
+        earlier.deliveryStatus === MAIL_DELIVERY_STATUSES.BOUNCED
+      ) {
+        return earlier;
+      }
+
+      if (!canResend(earlier)) {
+        throw new Error(
+          'This draft is still being sent. Check the conversation again in a few minutes.',
+        );
+      }
+
+      return models.MailMessages.retrySend(earlier._id, subdomain);
     }
 
     private static async claimForSending(_id: string) {

@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-09-24`
+- **Last synchronized:** `2026-09-25`
 
 ## Scope
 
@@ -248,8 +248,14 @@
   the workspace's connected Cloudflare account when it has one, else the
   deployment's own Cloudflare account (`MAIL_SENDING_*`) — from the inbox's own address,
   with a per-conversation tagged `Reply-To`; delivery is recorded per message (`pending` →
-  `sent` / `bounced` / `failed`) and a failed message can be resent with
-  `mailMessageRetry`. `mailCheckConnection` asks the worker to deliver a
+  `sent` / `bounced` / `failed`) and a failed message — or one left `pending`
+  for more than ten minutes after its last attempt (`deliveryAttemptedAt`,
+  `MAIL_PENDING_STALE_MS`) — can be resent with `mailMessageRetry`. Once a mail
+  is marked delivered, `deliver` never rejects: integration health and the
+  requested conversation status are best-effort and logged on failure. A
+  delivered reply whose conversation status was not applied keeps no
+  `conversationStatusAppliedAt`, and `mailMessageRetry` then applies that
+  status without sending the mail again. `mailCheckConnection` asks the worker to deliver a
   probe back, so an administrator can tell a broken delivery path from an inbox
   nobody has forwarded mail to yet.
 - Answers mail through automations. Every inbound conversation mail that is not
@@ -291,7 +297,11 @@
   left, the draft becomes `sent` rather than `pending`, so it cannot be sent
   twice. `mailRemoveIntegrations` deletes an inbox's drafts together with its
   mail messages. A `sending` draft older than `MAIL_DRAFT_SENDING_STALE_MS` is listed as
-  `pending` and can be edited, deleted, or sent again. Every draft query, edit,
+  `pending` and can be edited, deleted, or sent again. Approval is idempotent
+  by `draftId`: when a message already exists for the draft it is never
+  composed again — a delivered or bounced one is returned as is, a failed or
+  stale-pending one is resent through `retrySend`, and a pending one that may
+  still be in flight makes approval fail with the draft back to `pending`. Every draft query, edit,
   approval, and removal resolves the conversation's integration and applies
   `visibleChannelsFilter`; a permission alone never grants access to a draft in
   another channel. Draft events are published on the stable `os` tenant key
@@ -874,6 +884,23 @@ isInternal)` is the agent-side list and requires `showTickets`.
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-25` — Mail replies cannot be sent twice or fail after delivery
+
+- **Summary:** Approving a draft resumes the message an earlier approval left
+  behind instead of composing a second one, and a delivered mail no longer
+  reports an error when integration health or the conversation status write
+  fails afterwards; that status can be applied later through
+  `mailMessageRetry` without resending.
+- **Affected areas:** `src/modules/integrations/mail/db/models/Drafts.ts`,
+  `src/modules/integrations/mail/db/models/Messages.ts`,
+  `src/modules/integrations/mail/utils/delivery.ts`,
+  `src/modules/integrations/mail/db/definitions/messages.ts`,
+  `src/modules/integrations/mail/constants.ts`
+- **Contracts changed:** `mail_messages` gains `deliveryAttemptedAt` and
+  `conversationStatusAppliedAt`; `mailMessageRetry` also accepts a message
+  stuck `pending` for over ten minutes and a delivered one whose conversation
+  status is still unapplied.
+
 ### `2026-09-24` — A help center references its client portal by id
 
 - **Summary:** `clientPortalId` joined the config as the real reference to the
@@ -1032,21 +1059,3 @@ isInternal)` is the agent-side list and requires `showTickets`.
 - **Contracts changed:** Consumes the new `TCreatedVia` and
   `IExecution.createdVia` from `erxes-api-shared`; `createdVia` itself is added
   to every schema by `schemaWrapper`.
-
-### `2026-09-14` — Facebook ships two flows of its own
-
-- **Summary:** The plugin now provides built-in workflow templates —
-  "Answer publicly, continue in private" and "Reply, then open a ticket" —
-  through `automations.constants.workflowTemplates`, so they exist from the
-  moment the plugin is deployed and are never written to a tenant database.
-  Both start from an existing thread rather than a contact, because Facebook
-  only permits a reply inside a conversation the person opened; the ticket one
-  declares the channel, pipeline and status it needs as requirements, answered
-  while installing, and names the ticket after what the person wrote. Both
-  carry their reply text, so an installed template sends something sensible
-  before anyone edits it.
-- **Affected areas:**
-  `src/modules/integrations/facebook/meta/automation/workflowTemplates.ts`,
-  `src/meta/automations.ts`
-- **Contracts changed:** Consumes the new optional
-  `AutomationConstants.workflowTemplates` from `erxes-api-shared`.

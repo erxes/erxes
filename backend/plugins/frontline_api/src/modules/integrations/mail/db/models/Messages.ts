@@ -16,8 +16,10 @@ import {
   MAIL_MESSAGE_TYPES,
 } from '@/integrations/mail/constants';
 import { createReplyTag } from '@/integrations/mail/utils/address';
+import { resendableFilter } from '@/integrations/mail/utils/delivery';
 import { mailScopeId } from '@/integrations/mail/utils/scope';
 import { describeError } from '@/integrations/mail/utils/errors';
+import { debugError } from '@/integrations/mail/debuggers';
 import {
   buildMessageId,
   isRetryableFailure,
@@ -239,6 +241,7 @@ export const loadMailMessageClass = (models: IModels) => {
         automated: Boolean(automated),
         type: MAIL_MESSAGE_TYPES.SENT,
         deliveryStatus: MAIL_DELIVERY_STATUSES.PENDING,
+        deliveryAttemptedAt: new Date(),
         createdAt: new Date(),
       });
     }
@@ -262,16 +265,29 @@ export const loadMailMessageClass = (models: IModels) => {
         throw new Error('Mail integration not found');
       }
 
+      if (Message.awaitsConversationStatus(message)) {
+        await Message.settleConversationStatus(message);
+
+        return models.MailMessages.findOne({
+          _id,
+        }) as Promise<IMailMessageDocument>;
+      }
+
       const claimed = await models.MailMessages.updateOne(
-        { _id, deliveryStatus: MAIL_DELIVERY_STATUSES.FAILED },
+        { _id, ...resendableFilter() },
         {
-          $set: { deliveryStatus: MAIL_DELIVERY_STATUSES.PENDING },
+          $set: {
+            deliveryStatus: MAIL_DELIVERY_STATUSES.PENDING,
+            deliveryAttemptedAt: new Date(),
+          },
           $unset: { deliveryError: '', deliveryRetryable: '' },
         },
       );
 
       if (!claimed.modifiedCount) {
-        throw new Error('Only a failed message can be resent');
+        throw new Error(
+          'Only a failed message, or one stuck sending for more than 10 minutes, can be resent',
+        );
       }
 
       return Message.deliver(subdomain, message, integration);
@@ -340,10 +356,7 @@ export const loadMailMessageClass = (models: IModels) => {
           },
         );
 
-        await models.MailIntegrations.markUnhealthy(
-          integration._id,
-          deliveryError,
-        );
+        await Message.settleIntegrationHealth(integration, deliveryError);
       }
 
       if (result) {
@@ -373,16 +386,65 @@ export const loadMailMessageClass = (models: IModels) => {
               },
         );
 
-        await models.MailIntegrations.markHealthy(integration._id);
+        await Message.settleIntegrationHealth(integration);
 
         if (!bounced) {
-          await Message.applyConversationStatusOnSent(message);
+          await Message.settleConversationStatus(message).catch((e) =>
+            debugError(
+              `Mail ${message._id} was delivered but its conversation status was not applied:`,
+              e,
+            ),
+          );
         }
       }
 
       return models.MailMessages.findOne({
         _id: message._id,
       }) as Promise<IMailMessageDocument>;
+    }
+
+    private static async settleIntegrationHealth(
+      integration: IMailIntegrationDocument,
+      deliveryError?: string,
+    ) {
+      try {
+        if (deliveryError) {
+          await models.MailIntegrations.markUnhealthy(
+            integration._id,
+            deliveryError,
+          );
+        } else {
+          await models.MailIntegrations.markHealthy(integration._id);
+        }
+      } catch (e) {
+        debugError(
+          `Could not record the health of mail integration ${integration._id}:`,
+          e,
+        );
+      }
+    }
+
+    private static awaitsConversationStatus(message: IMailMessageDocument) {
+      return (
+        message.deliveryStatus === MAIL_DELIVERY_STATUSES.SENT &&
+        Boolean(message.conversationStatusOnSent) &&
+        !message.conversationStatusAppliedAt
+      );
+    }
+
+    private static async settleConversationStatus(
+      message: IMailMessageDocument,
+    ) {
+      if (!message.conversationStatusOnSent) {
+        return;
+      }
+
+      await Message.applyConversationStatusOnSent(message);
+
+      await models.MailMessages.updateOne(
+        { _id: message._id },
+        { $set: { conversationStatusAppliedAt: new Date() } },
+      );
     }
 
     private static toConversationStatusOnSent(

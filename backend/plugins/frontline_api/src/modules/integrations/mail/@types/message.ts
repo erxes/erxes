@@ -42,6 +42,7 @@ export interface IMailMessage {
   isAuto?: boolean;
   automated?: boolean;
   conversationStatusOnSent?: TMailConversationStatusOnSent;
+  conversationStatusAppliedAt?: Date;
   draftId?: string;
   sourceMessageId?: string;
   envelopeFrom?: string;
@@ -50,6 +51,7 @@ export interface IMailMessage {
   deliveryStatus?: TMailDeliveryStatus;
   deliveryError?: string;
   deliveryRetryable?: boolean;
+  deliveryAttemptedAt?: Date;
   bouncedRecipients?: string[];
   type: TMailMessageType;
   createdAt: Date;

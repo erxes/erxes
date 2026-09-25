@@ -84,6 +84,8 @@ export const MAIL_DLQ_NAME = 'erxes-mail-dlq';
 
 export const MAIL_RETENTION_DAYS = 14;
 
+export const MAIL_PENDING_STALE_MS = 10 * 60 * 1000;
+
 export const MAIL_SEND_MAX_BYTES = 5 * 1024 * 1024;
 
 export const MAIL_SEND_MAX_RECIPIENTS = 50;
