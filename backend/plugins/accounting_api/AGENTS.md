@@ -198,35 +198,11 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
-### `2026-09-25` — `Inventory Cost Contract Cleanup`
+### `2026-09-25` — `Inventory Cost Adjustment And Active Cost Flow`
 
-- **Summary:** Current-cost reads retain account permission checks, roll forward strictly after the latest snapshot, exclude transactions being edited, enforce zero quantity for cost adjustments, and make inventory out/movement costs server-authoritative.
-- **Affected areas:** Current-cost query, inventory rollforward, inventory out/movement/sale save handling, and regression tests.
-- **Contracts changed:** `getAccCurrentCost` accepts optional `excludedTransactionIds`; unsupported interim journal aliases were removed.
-
-### `2026-09-25` — `Erkhet Kind 28 Cost Adjustment Mapping`
-
-- **Summary:** Erkhet transaction kind `28` now maps exclusively to the cost-only `invJustify` journal and follows the ordinary transaction migration pipeline.
-- **Affected areas:** Erkhet journal mapping, migration documentation, and report regression tests.
-- **Contracts changed:** Kind `28` and `only_adjust` resolve only to `invJustify`.
-
-### `2026-09-24` — `Inventory Cost Adjustment Reporting`
-
-- **Summary:** Inventory cost adjustments now participate in Erkhet inventory adjustment report filtering while retaining debit/credit direction for report totals.
-- **Affected areas:** Erkhet transaction-kind journal mapping and journal report tests.
-- **Contracts changed:** Erkhet transaction kind `28` now includes `invJustify`.
-
-### `2026-09-24` — `Unified Inventory Cost Adjustment Journal`
-
-- **Summary:** Inventory cost increases and decreases now use one side-selectable `invJustify` journal, including correct inventory reversal when an existing transaction changes side.
-- **Affected areas:** Journal constants, permissions, transaction save/remove handlers, and inventory adjustment calculation.
-- **Contracts changed:** Uses the single `invJustify` journal and adds `readInvJustifyTransactions`, `manageInvJustifyTransactions`, and `removeInvJustifyTransactions`.
-
-### `2026-09-24` — `Current Inventory Cost Rollforward`
-
-- **Summary:** Current inventory cost now starts from the latest published adjustment and rolls quantity and cost forward with separate debit and credit aggregates over business-active inventory transaction details strictly after the adjustment date.
-- **Affected areas:** `src/modules/accounting/utils/inventories.ts`, inventory sale and return costing, and inventory utility tests.
-- **Contracts changed:** `getAccCurrentCost` now returns rollforward balances instead of raw adjustment-detail values.
+- **Summary:** Inventory cost changes use one side-selectable, quantity-neutral `invJustify` journal; current cost starts from the latest completed adjustment and rolls later inventory movements forward; inventory out, movement, and sale follow rows use authoritative active cost; reports and Erkhet kind `28` preserve adjustment direction without treating it as quantity movement.
+- **Affected areas:** Inventory journal constants and permissions, save/remove handlers, current-cost query and rollforward utilities, sale and movement costing, journal reports, Erkhet transaction-kind mapping, and regression tests.
+- **Contracts changed:** Uses the single `invJustify` journal with dedicated read/manage/remove permissions; `getAccCurrentCost` returns rolled-forward balances and accepts optional `excludedTransactionIds`; Erkhet kind `28` and `only_adjust` map only to `invJustify`.
 
 ### `2026-09-23` — `Transaction Export`
 

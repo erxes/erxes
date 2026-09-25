@@ -184,29 +184,11 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
-### `2026-09-25` — `Inventory Current Cost Edit Consistency`
+### `2026-09-25` — `Inventory Cost Adjustment And Active Cost Flow`
 
-- **Summary:** Inventory out and internal-movement costs are read-only and refresh from active cost without counting the transactions being edited, sale follow details preserve their source identity and fetched cost across repeated quantity edits, and cost adjustments retain editable delta/after-cost controls with zero quantity.
-- **Affected areas:** Current-cost GraphQL query, inventory out, sale, adjustment, and internal-movement row calculations, and transaction schema.
-- **Contracts changed:** Supplies optional `excludedTransactionIds` to `getAccCurrentCost` while editing `invOut`, `invJustify`, and `invMove` transactions.
-
-### `2026-09-24` — `Inventory Cost Adjustment Reporting`
-
-- **Summary:** Extended inventory reports now sign quantity and cost movements by debit/credit side so cost decreases reduce report values correctly.
-- **Affected areas:** Inventory report calculation helpers.
-- **Contracts changed:** None.
-
-### `2026-09-24` — `Editable Post-Adjustment Unit Cost`
-
-- **Summary:** Inventory cost adjustment rows now allow direct editing of after-unit cost and derive the absolute delta, total amount, and increase/decrease side bidirectionally.
-- **Affected areas:** Inventory cost adjustment row calculations and inline editing.
-- **Contracts changed:** None.
-
-### `2026-09-24` — `Unified Inventory Cost Adjustment Form`
-
-- **Summary:** Inventory cost increases and decreases now share one form with an `Өртөг өсөх` or `Өртөг буурах` side selector.
-- **Affected areas:** Transaction journal constants, schema/defaults/types, add menu, inventory adjustment form, calculations, and print mapping.
-- **Contracts changed:** Uses `invJustify` plus transaction side as the single cost-adjustment contract.
+- **Summary:** Inventory cost increases and decreases share one quantity-neutral adjustment form with bidirectional delta/after-cost editing; out and movement costs are read-only active costs; sale follow details retain source identity and active cost across repeated quantity edits; inventory reports sign adjustments by transaction side.
+- **Affected areas:** Inventory journal constants, form schema/defaults, add and print mappings, adjustment/out/movement/sale row calculations, current-cost queries, follow previews, and inventory report helpers.
+- **Contracts changed:** Uses `invJustify` plus transaction side as the cost-adjustment contract and supplies optional `excludedTransactionIds` to `getAccCurrentCost` while editing inventory out, adjustment, and movement transactions.
 
 ### `2026-09-23` — `Journal Report Excel Export`
 
