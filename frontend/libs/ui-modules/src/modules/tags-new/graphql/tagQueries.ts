@@ -23,6 +23,8 @@ export const TAG_QUERY = gql`
     tagDetail(_id: $id) {
       _id
       name
+      colorCode
+      isGroup
     }
   }
 `;

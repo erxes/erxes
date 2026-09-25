@@ -34,7 +34,7 @@ import { MessageAuthorHeader } from '@/inbox/conversation-messages/components/Me
 import { useConversationMessageContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationMessageContext';
 import { useConversationContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationContext';
 import { IntegrationType } from '@/types/Integration';
-import { IconMicrophone, IconPin } from '@tabler/icons-react';
+import { IconDots, IconMicrophone, IconPin } from '@tabler/icons-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MessageActions } from '@/inbox/conversation-messages/components/MessageActions';
@@ -294,12 +294,24 @@ export const MessageItem = () => {
       <MessageWrapper
         actions={
           !isDeleted ? (
-            <div className={MESSAGE_ACTION_BAR_CLASS}>
-              <MessageActions
-                message={message}
-                additionalActions={additionalActions}
-              />
-            </div>
+            <>
+              <div className={MESSAGE_ACTION_BAR_CLASS}>
+                <MessageActions
+                  message={message}
+                  additionalActions={additionalActions}
+                />
+              </div>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="size-8 shrink-0 rounded-full bg-background shadow-sm md:hidden"
+                aria-label="Message actions"
+                onClick={() => setActionsOpen(true)}
+              >
+                <IconDots className="size-4" />
+              </Button>
+            </>
           ) : undefined
         }
         below={
@@ -364,7 +376,7 @@ export const MessageItem = () => {
             <Sheet open={actionsOpen} onOpenChange={setActionsOpen}>
               <Sheet.View
                 side="bottom"
-                className="rounded-t-2xl rounded-b-none bg-background px-4 pt-3 pb-[calc(1rem+env(safe-area-inset-bottom))] [@media(hover:hover)]:hidden"
+                className="rounded-t-2xl rounded-b-none bg-background px-4 pt-3 pb-[calc(1rem+env(safe-area-inset-bottom))]"
               >
                 <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-border" />
                 <div className="mb-3 text-sm font-semibold">

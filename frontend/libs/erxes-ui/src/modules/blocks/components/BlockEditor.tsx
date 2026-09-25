@@ -20,7 +20,11 @@ import { Toolbar } from './Toolbar';
 import { BarcodeAttribute } from './BarcodeAttribute';
 import { TableHandleWithRemove } from './TableHandleWithRemove';
 
-const isEmptyBlock = (block?: any) =>
+type EditorBlock = ReturnType<
+  BlockEditorProps['editor']['getTextCursorPosition']
+>['block'];
+
+const isEmptyBlock = (block?: EditorBlock) =>
   !!block &&
   Array.isArray(block.content) &&
   !block.content.length &&
@@ -40,17 +44,18 @@ export const BlockEditor = ({
   variant = 'default',
   sideMenu = true,
   linkToolbar = true,
+  slashMenuOnTop = false,
   additionalSlashMenuItems,
 }: BlockEditorProps) => {
   const theme = useAtomValue(themeState);
   const [focus, setFocus] = useState(false);
-
   const getSlashMenuItems = (query: string) => {
     const items = getDefaultReactSlashMenuItems(editor);
     const hasImageItem = items.some((item) => item.title === 'Image');
     const hasCustomImageBlock = 'image' in editor.schema.blockSchema;
+    const filePanelPlugin = editor.filePanel?.plugins[0];
 
-    if (!hasImageItem && hasCustomImageBlock) {
+    if (!hasImageItem && hasCustomImageBlock && filePanelPlugin) {
       items.splice(9, 0, {
         title: editor.dictionary.slash_menu.image.title,
         subtext: editor.dictionary.slash_menu.image.subtext,
@@ -66,7 +71,7 @@ export const BlockEditor = ({
           )[0];
 
           editor.transact((tr) =>
-            tr.setMeta(editor.filePanel!.plugins[0], {
+            tr.setMeta(filePanelPlugin, {
               block: insertedBlock,
             }),
           );
@@ -84,11 +89,7 @@ export const BlockEditor = ({
         icon: <IconPhoto size={18} />,
         onItemClick: () => {
           const currentBlock = editor.getTextCursorPosition().block;
-          editor.insertBlocks(
-            [{ type: 'gallery' as any }],
-            currentBlock,
-            'after',
-          );
+          editor.insertBlocks([{ type: 'gallery' }], currentBlock, 'after');
         },
       } satisfies DefaultReactSuggestionItem);
     }
@@ -132,6 +133,7 @@ export const BlockEditor = ({
     <div
       onKeyDownCapture={handleKeyDownCapture}
       className={cn(
+        'erxes-blocknote',
         'transition-shadow',
         variant === 'outline' && (focus ? 'shadow-focus' : 'shadow-xs'),
         className,
@@ -170,6 +172,9 @@ export const BlockEditor = ({
           triggerCharacter="/"
           getItems={getSlashMenuItems}
           suggestionMenuComponent={SlashMenu}
+          floatingOptions={
+            slashMenuOnTop ? { placement: 'top-start' } : undefined
+          }
         />
         <Toolbar />
         <TableHandlesController tableHandle={TableHandleWithRemove} />

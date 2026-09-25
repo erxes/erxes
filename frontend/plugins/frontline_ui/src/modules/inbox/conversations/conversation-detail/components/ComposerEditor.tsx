@@ -34,6 +34,7 @@ export const ComposerEditor = ({
     onChange={onChange}
     disabled={loading}
     sideMenu={false}
+    slashMenuOnTop
     className={cn(
       'min-h-12 w-full flex-1 [&_.bn-block-outer:has([data-content-type=image])]:hidden [&_.bn-block-outer:has([data-content-type=video])]:hidden [&_.bn-block-outer:has([data-content-type=audio])]:hidden [&_.bn-block-outer:has([data-content-type=file])]:hidden',
       isInternalNote && 'internal-note',
