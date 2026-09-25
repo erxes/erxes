@@ -27,19 +27,25 @@ export function OAuthClientsRecordTable() {
             <RecordTable.RowList />
             {loading && <RecordTable.RowSkeleton rows={20} />}
             {!loading && !error && oauthClientApps.length === 0 && (
-              <div className="flex h-full flex-col items-center justify-center px-6 py-12 text-center">
-                <div className="mb-4 rounded-full bg-muted p-4">
-                  <IconArchive className="h-8 w-8 text-muted-foreground" />
-                </div>
+              <tr className="h-[60vh]">
+                <td colSpan={columns.length}>
+                  <div className="flex h-full flex-col items-center justify-center px-6 py-12 text-center">
+                    <div className="mb-4 rounded-full bg-muted p-4">
+                      <IconArchive className="h-8 w-8 text-muted-foreground" />
+                    </div>
 
-                <h3 className="text-lg font-semibold">No OAuth clients yet</h3>
+                    <h3 className="text-lg font-semibold">
+                      No OAuth clients yet
+                    </h3>
 
-                <p className="mt-2 max-w-md text-sm text-muted-foreground">
-                  OAuth clients you create will appear here. Create your first
-                  client to enable applications to authenticate with your
-                  platform.
-                </p>
-              </div>
+                    <p className="mt-2 max-w-md text-sm text-muted-foreground">
+                      OAuth clients you create will appear here. Create your
+                      first client to enable applications to authenticate with
+                      your platform.
+                    </p>
+                  </div>
+                </td>
+              </tr>
             )}
           </RecordTable.Body>
         </RecordTable>
