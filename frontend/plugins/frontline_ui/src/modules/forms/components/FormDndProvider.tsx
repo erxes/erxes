@@ -151,6 +151,7 @@ export function FormDndProvider({
     const newStepsObject = newSteps.map((step, index) => [
       step,
       {
+        ...value[step],
         fields: (fields[step] || []).map((field) => fieldsDatasObject[field]),
         order: index + 1,
       },
