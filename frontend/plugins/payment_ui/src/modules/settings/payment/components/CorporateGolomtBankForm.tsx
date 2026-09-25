@@ -123,14 +123,6 @@ const CorporateGolomtBankForm: React.FC<Props> = ({ payment, form }) => {
       <input type="hidden" {...form.register('accountId')} />
 
       <div className="col-span-2">
-        <a
-          href="https://www.golomtbank.com/en/corporate/product/429?activetab=2"
-          target="_blank"
-          rel="noreferrer"
-          className="text-blue-500 hover:underline"
-        >
-          {t('more-info')}
-        </a>
       </div>
     </>
   );
