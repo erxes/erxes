@@ -1,206 +1,30 @@
-import { FC, useCallback, useEffect, useId, useRef, useState } from 'react';
+import { FC, useEffect, useId, useRef, useState } from 'react';
 import {
   IconArrowRight,
-  IconDownload,
-  IconFileAlert,
   IconMoodSmile,
   IconPaperclip,
   IconX,
 } from '@tabler/icons-react';
-import {
-  Button,
-  cn,
-  Dialog,
-  IAttachment,
-  Popover,
-  readImage,
-  Spinner,
-  useUpload,
-} from 'erxes-ui';
+import { Button, cn, Popover } from 'erxes-ui';
 import { EmojiPicker } from 'ui-modules/modules/automations/components/EmojiPicker';
 import { useAtom } from 'jotai';
-import { formatFileSize, getAttachmentType } from '@libs/format-file';
 import { InitialMessage } from '../constants';
 import { connectionAtom, widgetReplyToAtom } from '../states';
 import { useCustomerData } from '../hooks/useCustomerData';
 import { useChatInput } from '../hooks/useChatInput';
 import { PersistentMenu } from './persistent-menu';
 import { useMessenger } from '../hooks/useMessenger';
-import { Attachment } from './attachment';
-import { getAttachmentIcon } from './attachment-type';
-import { PreviewImage } from './preview-image';
-import {
-  downloadAttachmentFile,
-  getMaxUploadSize,
-  toPendingFile,
-  type PendingFile,
-} from '../utils/fileUpload';
+import { useAttachmentUploads } from '../hooks/useAttachmentUploads';
+import { ChatAttachmentStrip } from './attachments/chat-input-strip';
 
 type ChatInputProps = React.InputHTMLAttributes<HTMLInputElement>;
-
-const escapeHtml = (value: string) =>
-  value.replace(
-    /[&<>'"]/g,
-    (character) =>
-      ({
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        "'": '&#39;',
-        '"': '&quot;',
-      }[character] || character),
-  );
-
-function UploadedAttachment({
-  attachment,
-  onRemove,
-}: {
-  attachment: IAttachment;
-  onRemove: () => void;
-}) {
-  const [isDownloading, setIsDownloading] = useState(false);
-  const fileType = getAttachmentType(attachment.type, attachment.name);
-  const FileTypeIcon = getAttachmentIcon(fileType);
-  const isImage = fileType === 'image';
-
-  const handleDownload = async () => {
-    if (isDownloading) return;
-    setIsDownloading(true);
-    try {
-      await downloadAttachmentFile(
-        readImage(attachment.url),
-        attachment.name || 'File',
-      );
-    } finally {
-      setIsDownloading(false);
-    }
-  };
-
-  if (!isImage) {
-    return (
-      <Attachment size="sm" state="done">
-        <Attachment.Media>
-          <FileTypeIcon />
-        </Attachment.Media>
-        <Attachment.Content>
-          <Attachment.Title>{attachment.name}</Attachment.Title>
-          <Attachment.Description>
-            {formatFileSize(attachment.size || 0)}
-          </Attachment.Description>
-        </Attachment.Content>
-        <Attachment.Actions>
-          <Attachment.Action
-            type="button"
-            aria-label={`Download ${attachment.name}`}
-            onClick={handleDownload}
-            disabled={isDownloading}
-          >
-            {isDownloading ? <Spinner /> : <IconDownload />}
-          </Attachment.Action>
-          <Attachment.Action
-            type="button"
-            aria-label={`Remove ${attachment.name}`}
-            onClick={onRemove}
-          >
-            <IconX />
-          </Attachment.Action>
-        </Attachment.Actions>
-      </Attachment>
-    );
-  }
-
-  return (
-    <Dialog>
-      <Attachment
-        size="sm"
-        state="done"
-        className="cursor-pointer hover:bg-muted/60"
-      >
-        <Attachment.Media variant="image">
-          <PreviewImage
-            src={readImage(attachment.url)}
-            alt={attachment.name}
-            className="size-full"
-          />
-        </Attachment.Media>
-        <Attachment.Content>
-          <Attachment.Title>{attachment.name}</Attachment.Title>
-          <Attachment.Description>
-            {`${formatFileSize(attachment.size || 0)} · Preview`}
-          </Attachment.Description>
-        </Attachment.Content>
-        <Dialog.Trigger asChild>
-          <Attachment.Trigger aria-label={`Preview ${attachment.name}`} />
-        </Dialog.Trigger>
-        <Attachment.Actions>
-          <Attachment.Action
-            type="button"
-            aria-label={`Remove ${attachment.name}`}
-            onClick={onRemove}
-          >
-            <IconX />
-          </Attachment.Action>
-        </Attachment.Actions>
-      </Attachment>
-      <Dialog.Content className="max-w-2xl rounded-2xl">
-        <Dialog.Header>
-          <Dialog.Title className="truncate">{attachment.name}</Dialog.Title>
-          <Dialog.Description className="sr-only">
-            Attachment preview for {attachment.name}
-          </Dialog.Description>
-        </Dialog.Header>
-        <div className="flex items-center justify-center p-2">
-          <PreviewImage
-            src={readImage(attachment.url)}
-            alt={attachment.name}
-            fit="contain"
-            className="max-h-[70vh] w-auto max-w-full rounded-lg object-contain"
-          />
-        </div>
-        <div className="flex justify-center pb-2">
-          <Button
-            type="button"
-            size="sm"
-            onClick={handleDownload}
-            disabled={isDownloading}
-          >
-            {isDownloading ? <Spinner /> : <IconDownload />}
-            {isDownloading ? 'Downloading…' : 'Download file'}
-          </Button>
-        </div>
-        <Dialog.Close asChild>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="absolute right-3 top-3"
-            aria-label="Close attachment preview"
-          >
-            <IconX />
-          </Button>
-        </Dialog.Close>
-      </Dialog.Content>
-    </Dialog>
-  );
-}
 
 export const ChatInput: FC<ChatInputProps> = ({ className, ...inputProps }) => {
   const [connection] = useAtom(connectionAtom);
   const [replyTo, setReplyTo] = useAtom(widgetReplyToAtom);
-  const [attachments, setAttachments] = useState<IAttachment[]>([]);
-  const [pendingFiles, setPendingFiles] = useState<PendingFile[]>([]);
   const [emojiOpen, setEmojiOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const messageInputRef = useRef<HTMLInputElement>(null);
-  const uploadQueueRef = useRef<File[]>([]);
-  const activeUploadRef = useRef<File | null>(null);
-  const sawUploadRunningRef = useRef(false);
-  const pendingFilesRef = useRef<PendingFile[]>([]);
-  const revokedPreviewUrlsRef = useRef(new Set<string>());
-  /** Names dismissed mid-flight — the request cannot be aborted, so its late
-   *  response has to be dropped instead of silently re-attaching the file. */
-  const cancelledUploadsRef = useRef<Set<File>>(new Set());
-  const { upload, isLoading: isUploadRunning } = useUpload();
   const { activeTab, switchToTab } = useMessenger();
   const { messengerData } = connection.widgetsMessengerConnect || {};
   const { messages, isOnline, requireAuth } = messengerData || {};
@@ -218,27 +42,17 @@ export const ChatInput: FC<ChatInputProps> = ({ className, ...inputProps }) => {
     loading,
   } = useChatInput();
   const { hasEmailOrPhone } = useCustomerData();
+  const {
+    attachments,
+    pendingFiles,
+    isUploading,
+    handleFileChange,
+    removeAttachment,
+    dismissPendingFile,
+    clearAttachments,
+  } = useAttachmentUploads();
   const shouldDisable = requireAuth === true && !hasEmailOrPhone;
   const isChat = activeTab === 'chat';
-
-  const revokePreviewUrl = useCallback((preview?: string) => {
-    if (!preview || revokedPreviewUrlsRef.current.has(preview)) return;
-    URL.revokeObjectURL(preview);
-    revokedPreviewUrlsRef.current.add(preview);
-  }, []);
-
-  useEffect(() => {
-    pendingFilesRef.current = pendingFiles;
-  }, [pendingFiles]);
-
-  useEffect(
-    () => () => {
-      pendingFilesRef.current.forEach(({ preview }) =>
-        revokePreviewUrl(preview),
-      );
-    },
-    [revokePreviewUrl],
-  );
 
   useEffect(() => {
     if (replyTo) messageInputRef.current?.focus();
@@ -248,209 +62,17 @@ export const ChatInput: FC<ChatInputProps> = ({ className, ...inputProps }) => {
     if (shouldDisable) switchToTab('messages');
   };
 
-  const startNextUpload = useCallback(() => {
-    if (activeUploadRef.current) return;
-
-    const file = uploadQueueRef.current.shift();
-    if (!file) return;
-
-    activeUploadRef.current = file;
-    const files = new DataTransfer();
-    files.items.add(file);
-
-    upload({
-      files: files.files,
-      afterUpload: ({ response, fileInfo }) => {
-        activeUploadRef.current = null;
-
-        if (!cancelledUploadsRef.current.delete(file)) {
-          setAttachments((prev) => [
-            ...prev,
-            {
-              url: response,
-              name: fileInfo.name,
-              size: fileInfo.size,
-              type: fileInfo.type,
-            },
-          ]);
-          setPendingFiles((prev) => {
-            const index = prev.findIndex(
-              ({ name, state }) =>
-                name === fileInfo.name && state === 'uploading',
-            );
-            if (index === -1) return prev;
-
-            const next = [...prev];
-            const [uploaded] = next.splice(index, 1);
-            revokePreviewUrl(uploaded.preview);
-            return next;
-          });
-        }
-
-        startNextUpload();
-      },
-    });
-  }, [revokePreviewUrl, upload]);
-
-  // `useUpload` has no error callback. Running one file at a time makes its
-  // loading transition an unambiguous failure signal for the active file.
-  useEffect(() => {
-    if (isUploadRunning) {
-      sawUploadRunningRef.current = true;
-      return;
-    }
-    if (!sawUploadRunningRef.current || !activeUploadRef.current) return;
-
-    sawUploadRunningRef.current = false;
-    const failedFile = activeUploadRef.current;
-    activeUploadRef.current = null;
-    cancelledUploadsRef.current.delete(failedFile);
-    setPendingFiles((prev) => {
-      const index = prev.findIndex(
-        ({ name, state }) => name === failedFile.name && state === 'uploading',
-      );
-      if (index === -1) return prev;
-
-      const next = [...prev];
-      revokePreviewUrl(next[index].preview);
-      next[index] = {
-        ...next[index],
-        preview: undefined,
-        state: 'error',
-        error: 'Upload failed. Remove and try again.',
-      };
-      return next;
-    });
-    startNextUpload();
-  }, [isUploadRunning, revokePreviewUrl, startNextUpload]);
-  // A failed upload stays on screen but must not hold the send button hostage.
-  const isUploading = pendingFiles.some((file) => file.state === 'uploading');
   const canSend = (!isDisabled || attachments.length > 0) && !isUploading;
-
-  const totalQueued = attachments.length + pendingFiles.length;
-  const uploadedCount = attachments.length;
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { files } = e.target;
-    if (!files || files.length === 0) return;
-
-    // Oversized files are dropped by `useUpload` with a bare `continue`, which
-    // resolves nothing and — when every file is oversized — leaves its own
-    // loading flag stuck on. Reject them here so only real uploads are sent.
-    const maxUploadSize = getMaxUploadSize();
-    const selected = Array.from(files);
-    const accepted = selected.filter((file) => file.size <= maxUploadSize);
-
-    setPendingFiles((prev) => [
-      ...prev,
-      ...selected.map((file) => {
-        if (file.size <= maxUploadSize) return toPendingFile(file, 'uploading');
-        return {
-          ...toPendingFile(file, 'error'),
-          error: `Larger than ${Math.round(maxUploadSize / 1024 / 1024)}MB`,
-        };
-      }),
-    ]);
-
-    e.target.value = '';
-
-    if (accepted.length === 0) return;
-
-    uploadQueueRef.current.push(...accepted);
-    startNextUpload();
-  };
-
-  const removeAttachment = (index: number) => {
-    setAttachments((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const dismissPendingFile = (index: number) => {
-    setPendingFiles((prev) => {
-      const dismissed = prev[index];
-      if (!dismissed) return prev;
-      if (dismissed.state === 'uploading') {
-        if (activeUploadRef.current === dismissed.file) {
-          cancelledUploadsRef.current.add(dismissed.file);
-        } else {
-          uploadQueueRef.current = uploadQueueRef.current.filter(
-            (file) => file !== dismissed.file,
-          );
-        }
-      }
-      revokePreviewUrl(dismissed.preview);
-      return prev.filter((_, i) => i !== index);
-    });
-  };
-
-  const hasStrip =
-    isChat && (attachments.length > 0 || pendingFiles.length > 0);
-
   return (
     <div className="flex flex-col grow-0 shrink-0">
-      {hasStrip && (
-        <div className="flex flex-col px-3 pt-2 gap-1.5">
-          {isUploading && (
-            <span className="text-[11px] text-muted-foreground">
-              {uploadedCount} of {totalQueued} uploaded
-            </span>
-          )}
-          <Attachment.Group className="hide-scroll">
-            {attachments.map((attachment, index) => (
-              <UploadedAttachment
-                key={attachment.url}
-                attachment={attachment}
-                onRemove={() => removeAttachment(index)}
-              />
-            ))}
-            {pendingFiles.map((pf, i) => {
-              const fileType = getAttachmentType(pf.type, pf.name);
-              const FileTypeIcon = getAttachmentIcon(fileType);
-              const hasFailed = pf.state === 'error';
-
-              return (
-                <Attachment key={pf.id} size="sm" state={pf.state}>
-                  <Attachment.Media variant={pf.preview ? 'image' : 'icon'}>
-                    {hasFailed ? (
-                      <IconFileAlert />
-                    ) : pf.preview ? (
-                      <PreviewImage
-                        src={pf.preview}
-                        alt={pf.name}
-                        className="size-full"
-                      />
-                    ) : (
-                      <FileTypeIcon />
-                    )}
-                    {pf.state === 'uploading' && (
-                      <span className="absolute inset-0 flex items-center justify-center bg-background/60">
-                        <Spinner size="sm" />
-                      </span>
-                    )}
-                  </Attachment.Media>
-                  <Attachment.Content>
-                    <Attachment.Title>{pf.name}</Attachment.Title>
-                    <Attachment.Description>
-                      {hasFailed
-                        ? pf.error || 'Upload failed. Remove and try again.'
-                        : 'Uploading'}
-                    </Attachment.Description>
-                  </Attachment.Content>
-                  <Attachment.Actions>
-                    <Attachment.Action
-                      type="button"
-                      aria-label={
-                        hasFailed ? `Dismiss ${pf.name}` : `Cancel ${pf.name}`
-                      }
-                      onClick={() => dismissPendingFile(i)}
-                    >
-                      <IconX />
-                    </Attachment.Action>
-                  </Attachment.Actions>
-                </Attachment>
-              );
-            })}
-          </Attachment.Group>
-        </div>
+      {isChat && (
+        <ChatAttachmentStrip
+          attachments={attachments}
+          pendingFiles={pendingFiles}
+          isUploading={isUploading}
+          onRemove={removeAttachment}
+          onDismiss={dismissPendingFile}
+        />
       )}
 
       {replyTo && (
@@ -479,15 +101,9 @@ export const ChatInput: FC<ChatInputProps> = ({ className, ...inputProps }) => {
         onSubmit={(e) =>
           handleSubmit(e, {
             attachments,
-            contentOverride: replyTo
-              ? `<blockquote><strong>Replying to ${escapeHtml(
-                  replyTo.authorName,
-                )}</strong><br/>${escapeHtml(
-                  replyTo.content,
-                )}</blockquote>${message}`
-              : undefined,
+            replyTo,
             onClear: () => {
-              setAttachments([]);
+              clearAttachments();
               setReplyTo(null);
             },
           })

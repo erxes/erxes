@@ -16,7 +16,6 @@ import {
   getProviderMessageId,
   getReactionKey,
 } from '@/inbox/conversation-messages/utils/message';
-import { replaceHtmlTags } from '@/inbox/conversation-messages/utils/messageContent';
 import { Attachments } from '@/inbox/conversation-messages/components/MessageAttachments';
 import {
   DeliveryStatus,
@@ -51,13 +50,13 @@ export { MessageDaySeparator };
 const getPostAttachmentType = (type?: string): string =>
   !type || type === 'file' ? 'image' : type;
 
+const QUOTED_REPLY_PATTERN =
+  /^<blockquote><strong>Replying to(?:\s+([^<]+))?<\/strong><br\s*\/?>([\s\S]*?)<\/blockquote>/i;
+
 const getReplyPreview = (content?: string) => {
   if (!content) return '';
 
-  const withoutQuotedReply = content.replace(
-    /^<blockquote><strong>Replying to<\/strong><br\s*\/?>[\s\S]*?<\/blockquote>/i,
-    '',
-  );
+  const withoutQuotedReply = content.replace(QUOTED_REPLY_PATTERN, '');
   return stripHtml(withoutQuotedReply);
 };
 
@@ -113,15 +112,11 @@ export const MessageItem = () => {
           .join('')
       : undefined;
 
-  const legacyReplyMatch = content?.match(
-    /^<blockquote><strong>Replying to<\/strong><br\s*\/?>[\s\S]*?<\/blockquote>/i,
-  );
-  const legacyReplyPreview = legacyReplyMatch?.[0]
-    ? replaceHtmlTags(legacyReplyMatch[0], ' ')
-        .replace(/^\s*Replying to\s*/i, '')
-        .replace(/\s+/g, ' ')
-        .trim()
-    : undefined;
+  const legacyReplyMatch = content?.match(QUOTED_REPLY_PATTERN);
+  const legacyReplyAuthor = stripHtml(legacyReplyMatch?.[1]);
+  const legacyReplyPreview = legacyReplyMatch
+    ? stripHtml(legacyReplyMatch[2]) || 'Attachment'
+    : '';
   let effectiveReplyTo: typeof replyTo;
   if (!forwardedSnapshot) {
     if (replyTo) {
@@ -130,7 +125,11 @@ export const MessageItem = () => {
         content: getReplyPreview(replyTo.content) || 'Attachment',
       };
     } else if (legacyReplyPreview) {
-      effectiveReplyTo = { messageId: '', content: legacyReplyPreview };
+      effectiveReplyTo = {
+        messageId: '',
+        authorName: legacyReplyAuthor || undefined,
+        content: legacyReplyPreview,
+      };
     }
   }
   const displayContent =

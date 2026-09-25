@@ -1,18 +1,15 @@
 import { Avatar, readImage, Skeleton, Spinner } from 'erxes-ui';
 import { useGetMessengerSupporters } from '../hooks/useGetMessengerSupporters';
-import { ConversationMessage } from './conversation';
+import { ConversationMessage } from './conversation/list';
 import { useConversations } from '../hooks/useConversations';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { useCustomerData } from '../hooks/useCustomerData';
 import {
   connectionAtom,
   hasTicketConfigAtom,
   selectedTicketConfigAtom,
   ticketConfigsAtom,
-  ticketTabAtom,
   webAppCredentialsUrlAtom,
 } from '../states';
-import { NotifyCustomerForm } from './notify-customer-form';
 import { HeaderIntro } from './header';
 import { AvatarGroup } from './avatar-group';
 import { useMessenger } from '../hooks/useMessenger';
@@ -33,15 +30,12 @@ export const Intro = () => {
   const [connection] = useAtom(connectionAtom);
   const setWebAppCredentialsUrl = useSetAtom(webAppCredentialsUrlAtom);
   const ticketForms = useAtomValue(ticketConfigsAtom);
-  const setPage = useSetAtom(ticketTabAtom);
   const setSelectedTicketConfig = useSetAtom(selectedTicketConfigAtom);
   const hasTicketConfig = useAtomValue(hasTicketConfigAtom);
   const { widgetsMessengerConnect } = connection || {};
   const { messengerData } = widgetsMessengerConnect || {};
   const { knowledgeBaseTopicId, websiteApps } = messengerData || {};
   const { switchToTab } = useMessenger();
-
-  console.log('has ticket?', hasTicketConfig)
 
   const handleSwitchWebCall = (url: string) => {
     setWebAppCredentialsUrl(url);
@@ -208,10 +202,9 @@ export const Messages = () => {
   const { conversations, loading } = useConversations();
   const [connection] = useAtom(connectionAtom);
   const { messengerData } = connection.widgetsMessengerConnect || {};
-  const { onlineHours, showTimezone, timezone, responseRate, requireAuth } =
+  const { onlineHours, showTimezone, timezone, responseRate } =
     messengerData || {};
 
-  const { hasEmailOrPhone } = useCustomerData();
   const { switchToTab } = useMessenger();
 
   if (loading) {
