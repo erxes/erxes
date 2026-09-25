@@ -11,6 +11,7 @@ export const EDIT_CUSTOMERS = gql`
     $primaryPhone: String
     $ownerId: String
     $position: String
+    $department: String
     $phoneValidationStatus: String
     $phones: [String]
     $emailValidationStatus: String
@@ -33,6 +34,7 @@ export const EDIT_CUSTOMERS = gql`
       primaryPhone: $primaryPhone
       ownerId: $ownerId
       position: $position
+      department: $department
       phoneValidationStatus: $phoneValidationStatus
       phones: $phones
       emailValidationStatus: $emailValidationStatus

@@ -3,15 +3,19 @@ import { UseFormReturn } from 'react-hook-form';
 import { CustomerFormType } from '@/contacts/customers/constants/formSchema';
 import {
   AvatarField,
+  BirthDateField,
   CodeField,
+  DepartmentField,
   DescriptionField,
   FirstNameField,
   IsSubscribedField,
   LastNameField,
   OwnerIdField,
   PhoneValidationStatusField,
+  PositionField,
   PrimaryEmailField,
   PrimaryPhoneField,
+  SexField,
   StateField,
 } from '@/contacts/customers/components/CustomerFormFields';
 // import { useVersion } from 'ui-modules';
@@ -30,10 +34,14 @@ export const CustomerAddGeneralInformationFields = ({
         <LastNameField control={form.control} />
         <CodeField control={form.control} />
         <OwnerIdField control={form.control} />
+        <DepartmentField control={form.control} />
+        <PositionField control={form.control} />
         <PrimaryEmailField control={form.control} />
         <PrimaryPhoneField control={form.control} />
         <PhoneValidationStatusField control={form.control} />
         <StateField control={form.control} />
+        <BirthDateField control={form.control} />
+        <SexField control={form.control} />
       </div>
       <DescriptionField control={form.control} />
       <IsSubscribedField control={form.control} />
