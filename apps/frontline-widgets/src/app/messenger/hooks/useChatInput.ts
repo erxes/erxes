@@ -4,13 +4,16 @@ import {
   connectionAtom,
   conversationIdAtom,
   setActiveTabAtom,
+  type WidgetReplyTo,
 } from '../states';
 import { getLocalStorageItem, setLocalStorageItem } from '@libs/utils';
 import { useInsertMessage } from './useInsertMessage';
 import { IAttachment } from 'erxes-ui';
+import { buildQuotedMessage } from '../utils/quotedMessage';
 
 type SubmitOptions = {
   attachments?: IAttachment[];
+  replyTo?: WidgetReplyTo;
   onClear?: () => void;
 };
 
@@ -28,13 +31,16 @@ export function useChatInput() {
 
   const handleSubmit = (e: FormEvent, options?: SubmitOptions) => {
     e.preventDefault();
-    const { attachments = [], onClear } = options || {};
-    if (!message.trim() && attachments.length === 0) return;
+    const { attachments = [], replyTo, onClear } = options || {};
+    const finalMessage = replyTo
+      ? buildQuotedMessage(replyTo.authorName, replyTo.content, message)
+      : message;
+    if (!finalMessage.trim() && attachments.length === 0) return;
 
     insertMessage({
       variables: {
         contentType: 'text',
-        message: message,
+        message: finalMessage,
         customerId: customerId || __customerId || undefined,
         attachments: attachments.length > 0 ? attachments : undefined,
       },
