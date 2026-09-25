@@ -3,7 +3,7 @@ import { IAccount } from '@/settings/account/types/Account';
 import { Button, cn, Tabs, Tooltip } from 'erxes-ui';
 import { useAtom, useAtomValue } from 'jotai';
 import React, { useEffect } from 'react';
-import { FieldErrors, useFieldArray } from 'react-hook-form';
+import { FieldErrors, useFieldArray, useWatch } from 'react-hook-form';
 import { AddTransaction } from '../../components/AddTransaction';
 import {
   TR_JOURNAL_LABELS,
@@ -189,6 +189,10 @@ export const TransactionsTabsList = ({
       minLength: 1,
     },
   });
+  const trDocs = (useWatch({
+    control: form.control,
+    name: 'trDocs',
+  }) || []) as TTrDoc[];
   const isSaved = Boolean(fields?.[0]?.parentId);
   const hasHiddenTransaction = fields.some(isHiddenTransaction);
   const activeField = fields[Number(activeJournal ?? '0')];
@@ -224,9 +228,9 @@ export const TransactionsTabsList = ({
   ) => {
     const selectedJournal = journal || TrJournalEnum.MAIN;
 
-    const [sumDebit, sumCredit] = sumDtAndCt(fields as TTrDoc[], followTrDocs);
+    const [sumDebit, sumCredit] = sumDtAndCt(trDocs, followTrDocs);
     const diff = sumDebit - sumCredit;
-    const likeTrDoc = fields[0];
+    const likeTrDoc = trDocs[0] || fields[0];
 
     const fakeTrDoc = {
       ptrId: likeTrDoc.ptrId,

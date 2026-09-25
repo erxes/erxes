@@ -43,23 +43,18 @@ const getFollowDetail = (details: ITrDetail[] = [], originId?: string) =>
 
 const buildInvMoveInDetails = ({
   currIn,
-  detail,
   trDoc,
 }: {
   currIn?: ITransaction;
-  detail: ITrDetail;
   trDoc: TInvMoveJournal;
 }) =>
   (trDoc.details || []).map((moveDetail) => {
     const curInDetail = getFollowDetail(currIn?.details, moveDetail._id);
 
-    if (curInDetail && moveDetail._id !== detail._id) {
-      return curInDetail;
-    }
-
     return {
       ...moveDetail,
       ...curInDetail,
+      originId: moveDetail._id,
       productId: moveDetail.productId,
       account: trDoc.followExtras?.moveInAccount,
       accountId: trDoc.followInfos?.moveInAccountId,
@@ -140,7 +135,6 @@ export const InventoryRow = ({
         departmentId: trDoc.followInfos.moveInDepartmentId,
         details: buildInvMoveInDetails({
           currIn,
-          detail: detail as ITrDetail,
           trDoc,
         }),
       });
