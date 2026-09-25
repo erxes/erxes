@@ -198,6 +198,11 @@ export enum AutomationBuilderTabsType {
   Stats = 'stats',
 }
 
+export enum AutomationSecondaryPanel {
+  Variables = 'variables',
+  ErrorPolicy = 'errorPolicy',
+}
+
 export enum AutomationHistoryViewMode {
   Sheet = 'sheet',
   Split = 'split',

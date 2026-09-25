@@ -277,16 +277,29 @@
   exposed to AI agents through `/agent-tools/manifest` and `/agent-tools/call`
   via `.meta(agentMeta(...))` annotations; every other procedure remains
   invisible to agents.
+- A help center points at a client portal by **`clientPortalId`**, and keeps
+  that portal's `domain` in `url` and its `token` in `erxesAppToken` as derived
+  copies. The copies exist because `ClientPortal` is not a federated entity and
+  because the published site finds its config by matching the request `origin`
+  against `url` — a lookup that must stay inside this plugin's own collection.
+  `withClientPortalFields` re-reads the portal through core's
+  `clientPortals.get` tRPC procedure on **every write** and overwrites both
+  copies, so a renamed domain or a rotated token heals on the next save; when
+  the portal cannot be read or has no domain the submitted values are kept
+  as-is rather than failing the save. Never write `url` or `erxesAppToken`
+  without a `clientPortalId` from a UI surface, and never add a second place
+  that resolves a portal.
 - A help center config stores the published site's feature groups next to its
   general settings: `kbToggle`/`kbTopicId` for the knowledge base,
   `ticketToggle` with `ticketChannelId`/`ticketPipelineId`/`ticketStatusId`
-  plus `formChannelId`/`formIds` for tickets and forms, and `cmsId` with the
-  `cmsAppToken` of that CMS's client portal for the announcements the site
-  lists. `normalizeHelpCenterConfig` is the single validation gate for all of
+  plus `formChannelId`/`formIds` for tickets and forms, and `cmsConfigs` — a
+  list of `{ cmsId, cmsAppToken }`, one entry per content CMS whose
+  announcements the site lists, each token belonging to that CMS's client
+  portal. `normalizeHelpCenterConfig` is the single validation gate for all of
   them, composed from one normalizer per group (identity, knowledge base,
   tickets, CMS): it requires a title, rejects a non-http(s) website, requires
   `kbTopicId` when the knowledge base is on and a channel plus pipeline when
-  tickets are on, refuses a `cmsId` without an app token, blanks a disabled
+  tickets are on, refuses any CMS entry without an app token, blanks a disabled
   group, and de-duplicates `formIds`. Forms are scoped to their channel on
   write — `HelpCenterConfig.getChannelFormIds` drops every id that does not
   belong to `formChannelId`, so a channel change cannot leave a stale form on
@@ -727,9 +740,10 @@ isInternal)` is the agent-side list and requires `showTickets`.
   check), `helpCenterConfigUpdate(config: HelpCenterConfigInput!)`
   (create-or-update, keyed on `config._id`) and `helpCenterConfigRemove(_id)`.
   Reads check `showHelpCenter`, writes check `helpCenterManage`.
-  `HelpCenterConfig` and `HelpCenterConfigInput` both carry `formChannelId`,
-  `formIds`, `cmsId` and `cmsAppToken` alongside the ticket and knowledge base
-  fields.
+  `HelpCenterConfig` and `HelpCenterConfigInput` both carry `clientPortalId`
+  with its derived `url` / `erxesAppToken`, `formChannelId`,
+  `formIds`, `cmsConfigs` and the derived `cmsId` / `cmsAppToken` alongside the
+  ticket and knowledge base fields.
 - Plugin meta `properties` (`src/meta/properties.ts`) — the `conversation` and
   `ticket` property types, each with the `systemFields` (`code`, `name`, `type`)
   core lists as the read-only "Basic information" group in Settings →
@@ -781,6 +795,12 @@ isInternal)` is the agent-side list and requires `showTickets`.
 - Move a form, survey, response template, ticket pipeline and integration
   between two channels and confirm each leaves the source channel's list,
   appears in the destination's, and survives a reload.
+- Change a client portal's domain in core, then save the help center that
+  points at it and confirm `url` and `erxesAppToken` followed the change while
+  `clientPortalId` stayed put.
+- Save a help center with two CMSes and confirm `cmsConfigs` holds both, that
+  `cmsId` / `cmsAppToken` mirror the first entry, and that a config written
+  before `cmsConfigs` existed still returns its single CMS as a one-entry list.
 
 ## Recent Changes
 
@@ -800,6 +820,45 @@ isInternal)` is the agent-side list and requires `showTickets`.
   `src/modules/ticket/db/models/Ticket.ts`
 - **Contracts changed:** `None` — the notifications go through the existing
   `core` tRPC procedures `cpUsers.get` and `cpNotifications.create`.
+
+### `2026-09-24` — A help center references its client portal by id
+
+- **Summary:** `clientPortalId` joined the config as the real reference to the
+  published site's client portal; `url` and `erxesAppToken` stayed as derived
+  copies because the site still looks a config up by request origin. The
+  `helpCenterConfigUpdate` resolver now runs every payload through
+  `withClientPortalFields`, which reads the portal over core's
+  `clientPortals.get` tRPC procedure and rewrites both copies, so a portal
+  whose domain or token changed is corrected on the next save. A payload
+  without `clientPortalId` is untouched, so older clients keep working.
+- **Affected areas:**
+  `src/modules/helpcenter/utils/clientPortal.ts`,
+  `src/modules/helpcenter/utils/helpCenterConfig.ts`,
+  `src/modules/helpcenter/graphql/resolvers/mutations/helpCenterConfig.ts`,
+  `src/modules/helpcenter/graphql/schemas/helpCenterConfig.ts`,
+  `src/modules/helpcenter/db/definitions/helpCenterConfig.ts`,
+  `src/modules/helpcenter/@types/helpCenterConfig.ts`
+- **Contracts changed:** `HelpCenterConfig` and `HelpCenterConfigInput` gained
+  `clientPortalId: String`. Consumes core's existing `clientPortals.get` tRPC
+  procedure; no core change.
+
+### `2026-09-24` — A help center publishes several CMSes
+
+- **Summary:** `helpCenterConfigSchema` gained `cmsConfigs`, a list of
+  `{ cmsId, cmsAppToken }` sub-documents, so one help center can list
+  announcements from more than one content CMS. `normalizeCms` now validates
+  every entry (each needs its portal's app token), de-duplicates by `cmsId`,
+  and keeps the legacy `cmsId` / `cmsAppToken` pair in sync with the first
+  entry; a payload that carries only the old single pair is still accepted and
+  becomes a one-entry list.
+- **Affected areas:**
+  `src/modules/helpcenter/db/definitions/helpCenterConfig.ts`,
+  `src/modules/helpcenter/@types/helpCenterConfig.ts`,
+  `src/modules/helpcenter/graphql/schemas/helpCenterConfig.ts`,
+  `src/modules/helpcenter/utils/helpCenterConfig.ts`
+- **Contracts changed:** `HelpCenterConfig` and `HelpCenterConfigInput` gained
+  `cmsConfigs: [HelpCenterCmsConfig]` / `[HelpCenterCmsConfigInput]`. `cmsId`
+  and `cmsAppToken` are unchanged and still written.
 
 ### `2026-09-23` — A survey question carries attachments
 
@@ -913,37 +972,3 @@ isInternal)` is the agent-side list and requires `showTickets`.
   `src/modules/ticket/meta/automations/ticketAutomationsConstants.ts`
 - **Contracts changed:** The action descriptor carries `requiresActor`, a field
   `erxes-api-shared` added for every plugin to use.
-
-### `2026-09-21` — Automation actions state their outcome instead of returning quietly
-
-- **Summary:** Every automation action this plugin owns now answers with the
-  shared outcome envelope, so the engine stops reading "did not throw" as
-  success. Facebook reports `window-closed` and `send-blocked` as skips, the
-  inbox bot reports `no-conversation`, `nothing-to-send` and `no-reply-text`,
-  and a `collectionType` none of these modules handles is now a stated
-  `CONFIG_INVALID` failure rather than a silent no-op. Instagram is left
-  untouched on purpose.
-- **Affected areas:**
-  `src/modules/integrations/facebook/meta/automation/{messages,comments}/index.ts`,
-  `src/modules/integrations/facebook/meta/automation/workers.ts`,
-  `src/modules/integrations/discord/meta/automation/workers.ts`,
-  `src/modules/inbox/meta/automation/workers.ts`,
-  `src/modules/ticket/meta/automations/ticketAutomationsProducers.ts`
-- **Contracts changed:** The `receiveActions` producer may now answer with
-  `{ outcome, result }` from `erxes-api-shared/core-modules`
-  (`buildSkippedAction` / `buildFailedAction`). Plain results are unchanged and
-  still count as success.
-
-### `2026-09-21` — A pipeline address chooses the status its tickets open in
-
-- **Summary:** A pipeline's mail row can name the status a new mail ticket opens
-  in; it is validated against the pipeline on connect and update, and an empty
-  or since-deleted status falls back to the pipeline's first status, now picked
-  by `type` then `order` instead of `order` alone.
-- **Affected areas:** `src/modules/integrations/mail/utils/{pipeline,tickets}.ts`,
-  `src/modules/integrations/mail/controller/receiveMessage.ts`,
-  `src/modules/integrations/mail/graphql/resolvers/customResolvers/pipelineIntegration.ts`,
-  `src/modules/integrations/mail/{@types/integration,db/definitions/integrations,graphql/schema/mail}.ts`
-- **Contracts changed:** `mailPipelineConnect` and `mailPipelineUpdate` accept
-  `statusId: String`; `MailPipelineIntegration` exposes `statusId`;
-  `mail_integrations` carries `statusId`.
