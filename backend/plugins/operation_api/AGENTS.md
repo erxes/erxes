@@ -6,7 +6,7 @@
 - **Project:** `operation_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/operation_api`
-- **Last synchronized:** `2026-09-17`
+- **Last synchronized:** `2026-09-21`
 
 ## Scope
 
@@ -32,6 +32,20 @@
   queue and the sweep run elsewhere.
 
 ## Current Capabilities
+
+- A task or project an automation creates records `createdVia` — what produced
+  it, which run, and for whom — and is created as that actor. `getAutomationUserId`
+  reads the actor from there when neither the action config nor the target names
+  one.
+- Two task workflow templates ship with the plugin through
+  `automations.constants.workflowTemplates`: `operation.follow-up-task` (wait
+  three days, then open a task) and `operation.hand-off-now` (open one
+  straight away). They are code, never tenant documents, so they exist on a
+  fresh deployment; a copy is materialized only when someone installs one.
+  Neither restricts the target, so both are offered on a broadcast campaign as
+  well — giving the team a task per customer rather than messaging that
+  customer. Both declare `operation:task.team` and `operation:task.status`
+  requirements, the status scoped by the team.
 
 - Tasks are a segment content type: 19 filterable fields, member listing and
   counting, materialised membership on the record, and two relations from a
@@ -146,6 +160,43 @@ propertiesData? } })`
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-21` — The task and project actions say they need someone to act for
+
+- **Summary:** `Create task` and `Create project` now declare
+  `requiresActor: true`. Both already take their owner from the run's
+  `createdVia.actorId` through `getAutomationUserId`; the declaration lets the
+  builder tell, before an automation goes live, whether its records will belong
+  to someone. Creation itself is unchanged.
+- **Affected areas:** `src/modules/automations/constants.ts`
+- **Contracts changed:** The action descriptor carries `requiresActor`, a field
+  `erxes-api-shared` added for every plugin to use.
+
+### `2026-09-14` — A task an automation opened records what produced it
+
+- **Summary:** Tasks and projects created by an automation now carry
+  `createdVia` — the configuration that produced them, the run that did it, and
+  whose configuration it was — and are created as that actor. Creation behind a
+  campaign had been failing with "requires a user to create task", because
+  neither the action config nor a customer target names a person.
+- **Affected areas:** `src/modules/automations/utils.ts`,
+  `src/modules/automations/actions/createTaskAction.ts`,
+  `src/modules/automations/actions/createProjectAction.ts`,
+  `src/modules/task/@types/task.ts`, `src/modules/project/@types/project.ts`
+- **Contracts changed:** Consumes the new `TCreatedVia` and
+  `IExecution.createdVia` from `erxes-api-shared`; `createdVia` itself is added
+  to every schema by `schemaWrapper`.
+
+### `2026-09-14` — Tasks ship two flows of their own
+
+- **Summary:** The plugin now provides built-in workflow templates through
+  `automations.constants.workflowTemplates`, naming the task the customer they
+  concern and declaring the team and status they need as requirements answered
+  while installing.
+- **Affected areas:** `src/modules/automations/workflowTemplates.ts`,
+  `src/meta/automations.ts`
+- **Contracts changed:** Consumes the new optional
+  `AutomationConstants.workflowTemplates` from `erxes-api-shared`.
 
 ### `2026-09-17` — Property types declare system fields
 

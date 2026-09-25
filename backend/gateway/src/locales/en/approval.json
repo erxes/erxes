@@ -1,6 +1,7 @@
 {
   "approval-request": "Approval request",
   "approval-request-description": "{{requester}} requested access to {{label}}.",
+  "change-request-description": "{{requester}} asks you to approve a change.",
   "approval-requests": "Approval Requests",
   "approval-mode": "Approval mode",
   "allowed-users": "Allowed users",
@@ -67,5 +68,9 @@
   "unknown-error": "Unknown error",
   "unlock": "Unlock",
   "view-details": "View details",
-  "waiting-for-approver": "Waiting for approver"
+  "waiting-for-approver": "Waiting for approver",
+  "change-to-approve": "What you are approving",
+  "change-apply-failed": "Approved, but it could not be carried out: {{reason}}",
+  "status-applyFailed": "Not carried out",
+  "request-gone": "This request no longer exists."
 }

@@ -22,9 +22,11 @@ import type {
   IPropertyMeta,
   LogsConfigs,
   SegmentConfigs,
+  TApprovalConfig,
   TRecordReferencesConfig,
 } from '../core-modules';
 import {
+  initApproval,
   initRecordReferences,
   initSegmentProducers,
   startAutomations,
@@ -83,6 +85,7 @@ type IMeta = {
   };
   properties?: IPropertyMeta;
   references?: TRecordReferencesConfig;
+  approval?: TApprovalConfig;
   permissions?: IPermissionConfig;
   beforeResolvers?: BeforeResolversConfig;
   importExport?: ImportExportConfigs;
@@ -413,6 +416,7 @@ export async function startPlugin(
       beforeResolvers,
       references,
       importExport,
+      approval,
     } = meta || {};
 
     if (beforeResolvers) {
@@ -425,6 +429,10 @@ export async function startPlugin(
 
     if (references) {
       await initRecordReferences(app, name, references);
+    }
+
+    if (approval) {
+      await initApproval(app, name, approval);
     }
 
     if (automations) {

@@ -1,5 +1,6 @@
-import { useLazyQuery, useQuery } from '@apollo/client';
+import { ApolloError, useLazyQuery } from '@apollo/client';
 import {
+  Badge,
   Combobox,
   Command,
   Form,
@@ -7,52 +8,90 @@ import {
   TextOverflowTooltip,
   toast,
 } from 'erxes-ui';
+import { TFunction } from 'i18next';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  GET_HELP_CENTER_CMS_OPTIONS,
-  GET_HELP_CENTER_CMS_PORTAL_TOKEN,
-} from '@/helpcenter/graphql/queries/getHelpCenterCmsOptions';
+import { GET_HELP_CENTER_CMS_PORTAL_TOKEN } from '@/helpcenter/graphql/queries/getHelpCenterCmsOptions';
+import { IHelpCenterCmsConfig, IHelpCenterCmsOption } from '@/helpcenter/types';
 
-type TCmsOption = {
-  _id: string;
-  name?: string;
-  clientPortalId?: string;
-};
+const MAX_VISIBLE_BADGES = 3;
 
 type TCmsPortalTokenResponse = {
   getClientPortal: { _id: string; token?: string | null } | null;
 };
 
+const getCmsName = (cms: IHelpCenterCmsOption, t: TFunction) =>
+  cms.name || t('unnamed-cms', 'Untitled CMS');
+
+const SelectedCmsValue = ({
+  selectedCms,
+  count,
+  loading,
+  t,
+}: {
+  selectedCms: IHelpCenterCmsOption[];
+  count: number;
+  loading: boolean;
+  t: TFunction;
+}) => {
+  if (!count) {
+    return <Combobox.Value placeholder={t('select', 'Select...')} />;
+  }
+
+  if (!selectedCms.length) {
+    return (
+      <Combobox.Value
+        loading={loading}
+        value={t('n-selected', '{{count}} selected', { count })}
+      />
+    );
+  }
+
+  const visibleCms = selectedCms.slice(0, MAX_VISIBLE_BADGES);
+  const hiddenCount = count - visibleCms.length;
+
+  return (
+    <div className="flex overflow-hidden flex-1 gap-1 items-center min-w-0">
+      {visibleCms.map((cms) => (
+        <Badge key={cms._id} variant="secondary" className="max-w-40">
+          <TextOverflowTooltip value={getCmsName(cms, t)} />
+        </Badge>
+      ))}
+      {hiddenCount > 0 && <Badge variant="secondary">+{hiddenCount}</Badge>}
+    </div>
+  );
+};
+
 export const SelectHelpCenterCms = ({
   value,
+  cmsList,
+  loading,
+  error,
   onValueChange,
   scope,
 }: {
-  value: string;
-  onValueChange: (cmsId: string, cmsAppToken: string) => void;
+  value: IHelpCenterCmsConfig[];
+  cmsList: IHelpCenterCmsOption[];
+  loading: boolean;
+  error?: ApolloError;
+  onValueChange: (cmsConfigs: IHelpCenterCmsConfig[]) => void;
   scope?: string;
 }) => {
   const { t } = useTranslation('frontline');
   const [open, setOpen] = useState(false);
-
-  const { data, loading, error } = useQuery<{
-    contentCMSList: TCmsOption[] | null;
-  }>(GET_HELP_CENTER_CMS_OPTIONS, { fetchPolicy: 'cache-and-network' });
 
   const [getPortalToken, { loading: tokenLoading }] =
     useLazyQuery<TCmsPortalTokenResponse>(GET_HELP_CENTER_CMS_PORTAL_TOKEN, {
       fetchPolicy: 'network-only',
     });
 
-  const cmsList = data?.contentCMSList ?? [];
-  const selected = cmsList.find((cms) => cms._id === value);
+  const selectedCms = value
+    .map(({ cmsId }) => cmsList.find((cms) => cms._id === cmsId))
+    .filter((cms): cms is IHelpCenterCmsOption => !!cms);
 
-  const selectCms = async (cms: TCmsOption) => {
-    setOpen(false);
-
-    if (cms._id === value) {
-      onValueChange('', '');
+  const toggleCms = async (cms: IHelpCenterCmsOption) => {
+    if (value.some(({ cmsId }) => cmsId === cms._id)) {
+      onValueChange(value.filter(({ cmsId }) => cmsId !== cms._id));
       return;
     }
 
@@ -75,23 +114,41 @@ export const SelectHelpCenterCms = ({
       return;
     }
 
-    onValueChange(cms._id, token);
+    onValueChange([...value, { cmsId: cms._id, cmsAppToken: token }]);
   };
 
   return (
     <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
       <Form.Control>
         <Combobox.Trigger className="w-full shadow-xs" disabled={tokenLoading}>
-          <Combobox.Value
-            loading={(loading && !data) || tokenLoading}
-            value={selected?.name}
-            placeholder={t('select', 'Select...')}
+          <SelectedCmsValue
+            selectedCms={selectedCms}
+            count={value.length}
+            loading={(loading && !cmsList.length) || tokenLoading}
+            t={t}
           />
         </Combobox.Trigger>
       </Form.Control>
       <Combobox.Content>
         <Command>
           <Command.Input placeholder={t('search', 'Search')} focusOnMount />
+          {selectedCms.length > 0 && (
+            <>
+              <div className="flex flex-wrap gap-2 p-2">
+                {selectedCms.map((cms) => (
+                  <Badge
+                    key={cms._id}
+                    variant="secondary"
+                    className="max-w-56"
+                    onClose={() => toggleCms(cms)}
+                  >
+                    <TextOverflowTooltip value={getCmsName(cms, t)} />
+                  </Badge>
+                ))}
+              </div>
+              <Command.Separator />
+            </>
+          )}
           <Command.List>
             {loading || error ? (
               <Combobox.Empty loading={loading} error={error} />
@@ -103,20 +160,22 @@ export const SelectHelpCenterCms = ({
               </Command.Empty>
             )}
             {cmsList.map((cms) => {
-              const name = cms.name || t('unnamed-cms', 'Untitled CMS');
+              const name = getCmsName(cms, t);
 
               return (
                 <Command.Item
                   key={cms._id}
                   value={cms._id}
                   keywords={[name]}
-                  onSelect={() => selectCms(cms)}
+                  onSelect={() => toggleCms(cms)}
                 >
                   <TextOverflowTooltip
                     value={name}
                     className="flex-auto w-auto font-medium"
                   />
-                  <Combobox.Check checked={value === cms._id} />
+                  <Combobox.Check
+                    checked={value.some(({ cmsId }) => cmsId === cms._id)}
+                  />
                 </Command.Item>
               );
             })}

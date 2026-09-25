@@ -57,6 +57,7 @@ export const useAutomationHeader = () => {
     edgeType,
     flowDirection,
     workflows,
+    notes,
     acknowledgeDuplicate,
   }: TAutomationBuilderSaveValues) => {
     const generateValues = () => {
@@ -77,6 +78,10 @@ export const useAutomationHeader = () => {
         workflows: workflows?.map((w) => ({
           ...w,
           position: getNode(w.id)?.position || w.position,
+        })),
+        notes: notes?.map((n) => ({
+          ...n,
+          position: getNode(n.id)?.position || n.position,
         })),
       };
     };

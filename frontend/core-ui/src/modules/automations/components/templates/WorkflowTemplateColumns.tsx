@@ -1,3 +1,4 @@
+import { useWorkflowTemplateActions } from '@/automations/hooks/useWorkflowTemplateActions';
 import { TWorkflowTemplate } from '@/automations/hooks/useWorkflowTemplateList';
 import {
   IconArrowBarToRight,
@@ -14,31 +15,28 @@ import {
   RecordTable,
   RecordTableInlineCell,
   RelativeDateDisplay,
-  useConfirm,
 } from 'erxes-ui';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 type TWorkflowTemplateColumnsProps = {
+  t: (key: string, options?: Record<string, unknown>) => string;
   onRename: (template: TWorkflowTemplate, name: string) => void;
   onRemove: (templateId: string) => void;
 };
 
 export const getWorkflowTemplateColumns = ({
+  t,
   onRename,
   onRemove,
 }: TWorkflowTemplateColumnsProps): ColumnDef<TWorkflowTemplate>[] => [
   {
     id: 'more',
     cell: ({ cell }) => {
-      const navigate = useNavigate();
-      const { confirm } = useConfirm();
-      const template = cell.row.original;
-
-      const handleRemove = () =>
-        confirm({
-          message: `Are you sure you want to delete the "${template.name}" template?`,
-        }).then(() => onRemove(template._id));
+      const actions = useWorkflowTemplateActions({
+        template: cell.row.original,
+        onRemove,
+      });
 
       return (
         <DropdownMenu>
@@ -50,19 +48,14 @@ export const getWorkflowTemplateColumns = ({
             className="w-[100px] min-w-0 [&>button]:cursor-pointer"
             onClick={(event) => event.stopPropagation()}
           >
-            <DropdownMenu.Item
-              asChild
-              onSelect={() =>
-                navigate(`/automations/templates/${template._id}`)
-              }
-            >
+            <DropdownMenu.Item asChild onSelect={actions.onEdit}>
               <Button
                 variant="ghost"
                 size="sm"
                 className="w-full justify-start"
               >
                 <IconEdit className="size-4" />
-                Edit
+                {t('edit')}
               </Button>
             </DropdownMenu.Item>
             <DropdownMenu.Item asChild>
@@ -70,10 +63,10 @@ export const getWorkflowTemplateColumns = ({
                 variant="ghost"
                 size="sm"
                 className="w-full justify-start text-destructive"
-                onClick={handleRemove}
+                onClick={actions.onRemove}
               >
                 <IconTrash className="size-4" />
-                Delete
+                {t('delete')}
               </Button>
             </DropdownMenu.Item>
           </DropdownMenu.Content>
@@ -87,7 +80,7 @@ export const getWorkflowTemplateColumns = ({
   {
     id: 'name',
     accessorKey: 'name',
-    header: () => <RecordTable.InlineHead label="Name" />,
+    header: () => <RecordTable.InlineHead label={t('name')} />,
     cell: ({ cell }) => {
       const currentName = cell.getValue() as string;
       const template = cell.row.original;
@@ -129,7 +122,7 @@ export const getWorkflowTemplateColumns = ({
   {
     id: 'description',
     accessorKey: 'description',
-    header: () => <RecordTable.InlineHead label="Description" />,
+    header: () => <RecordTable.InlineHead label={t('description')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <span className="truncate text-muted-foreground">
@@ -142,7 +135,7 @@ export const getWorkflowTemplateColumns = ({
   {
     id: 'actions',
     accessorKey: 'actions',
-    header: () => <RecordTable.InlineHead label="Actions" />,
+    header: () => <RecordTable.InlineHead label={t('actions')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <IconShare size={12} />
@@ -154,7 +147,7 @@ export const getWorkflowTemplateColumns = ({
   {
     id: 'inputs',
     accessorKey: 'inputs',
-    header: () => <RecordTable.InlineHead label="Inputs" />,
+    header: () => <RecordTable.InlineHead label={t('inputs')} />,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <IconArrowBarToRight size={12} />
@@ -166,7 +159,7 @@ export const getWorkflowTemplateColumns = ({
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
-    header: () => <RecordTable.InlineHead label="Created at" />,
+    header: () => <RecordTable.InlineHead label={t('created-at')} />,
     cell: ({ cell }) => (
       <RelativeDateDisplay value={cell.getValue() as string} asChild>
         <RecordTableInlineCell>

@@ -12,13 +12,23 @@ export const AutomationExecActionInput = z.object({
   finishedAt: z.string().optional(),
   durationMs: z.number().optional(),
   status: z
-    .enum(['success', 'error', 'waiting', 'queued', 'standby', 'dropped'])
+    .enum([
+      'success',
+      'skipped',
+      'error',
+      'waiting',
+      'queued',
+      'standby',
+      'dropped',
+    ])
     .optional(),
   actionId: z.string(),
   actionType: z.string(),
   actionConfig: z.any().optional(),
   nextActionId: z.string().optional(),
   result: z.any().optional(),
+  skipReason: z.string().optional(),
+  attempt: z.number().optional(),
   jobId: z.string().optional(),
   // Dates arrive serialized across the producer boundary, but stay Date
   // objects when the execution is passed in-process.
@@ -33,10 +43,25 @@ export const AutomationExecutionInput = z.object({
   automationId: z.string(),
   triggerId: z.string(),
   triggerType: z.string(),
-  triggerConfig: z.record(z.any()),
+  // A trigger that was never configured stores no config at all — Mongoose
+  // drops an empty object on a Mixed path — so an execution legitimately
+  // arrives without one. Defaulted rather than required, or every plugin
+  // action behind such a trigger fails before it runs.
+  triggerConfig: z.record(z.any()).optional().default({}),
   nextActionId: z.string().optional(),
   targetId: z.string(),
   target: z.record(z.any()),
+  // Stripped by the parse unless it is declared, and a plugin that creates
+  // records on someone's behalf has no other way to know whose.
+  createdVia: z
+    .object({
+      source: z.string(),
+      sourceId: z.string(),
+      sourceName: z.string().optional(),
+      runId: z.string().optional(),
+      actorId: z.string().optional(),
+    })
+    .optional(),
   status: z.string(),
   description: z.string(),
   actions: z.array(AutomationExecActionInput).optional(),

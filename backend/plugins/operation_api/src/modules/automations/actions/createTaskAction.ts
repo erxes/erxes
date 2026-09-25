@@ -8,6 +8,7 @@ import { IModels } from '~/connectionResolvers';
 import { ITask } from '@/task/@types/task';
 import {
   getAutomationUserId,
+  getCreatedVia,
   getNumber,
   getString,
   parseDate,
@@ -80,14 +81,22 @@ export const createTaskAction = async ({
     defaultValue: '',
   });
   const target = toRecord(execution.target);
-  const userId = getAutomationUserId(resolvedConfig, target);
+  const userId = getAutomationUserId(
+    resolvedConfig,
+    target,
+    toRecord(execution),
+  );
 
   if (!userId) {
     throw new Error('Task automation requires a user to create task');
   }
 
   const task = await models.Task.createTask({
-    doc: buildTaskDoc(resolvedConfig),
+    doc: {
+      ...buildTaskDoc(resolvedConfig),
+      // Not who pressed create — nobody did. What produced it.
+      createdVia: getCreatedVia(toRecord(execution)),
+    },
     userId,
     subdomain,
   });

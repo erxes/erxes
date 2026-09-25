@@ -1,4 +1,5 @@
 import {
+  buildSkippedAction,
   IAutomationAction,
   IAutomationExecutionDocument,
   replaceOutputPlaceholders,
@@ -41,7 +42,12 @@ export const executeMessageProAction = async (
   const itemId = target?._id;
 
   if (!documentId || !itemId) {
-    return { documentId, content: '', phone: '', sent: false };
+    return buildSkippedAction('no-document-or-target', {
+      documentId,
+      content: '',
+      phone: '',
+      sent: false,
+    });
   }
 
   const customerIds: string[] = await sendTRPCMessage({
@@ -122,10 +128,19 @@ export const executeMessageProAction = async (
     sent = true;
   }
 
-  return {
+  const result = {
     documentId,
     content: cleanedText,
     phone: customerPhone,
     sent,
   };
+
+  if (!sent) {
+    return buildSkippedAction(
+      cleanedText ? 'no-customer-phone' : 'empty-document',
+      result,
+    );
+  }
+
+  return result;
 };

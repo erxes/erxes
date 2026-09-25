@@ -22,7 +22,6 @@ import {
   RelativeDateDisplay,
   DropdownMenu,
   Button,
-  useConfirm,
   useToast,
 } from 'erxes-ui';
 import {
@@ -35,8 +34,7 @@ import { AutomationExecutionCountCell } from '@/automations/components/list/Auto
 import { AutomationRecordTableUserInlineCell } from '@/automations/components/list/AutomationRecordTableUserInlineCell';
 import { AutomationRecordTableStatusInlineCell } from '@/automations/components/list/AutomationRecordTableStatusInlineCell';
 import { useState } from 'react';
-import { useDuplicateAutomation } from '@/automations/hooks/useDuplicateAutomation';
-import { useRemoveAutomations } from '@/automations/hooks/useRemoveAutomations';
+import { useAutomationActions } from '@/automations/hooks/useAutomationActions';
 import { useTranslation } from 'react-i18next';
 
 const checkBoxColumn =
@@ -48,63 +46,13 @@ export const getAutomationColumns: (
   {
     id: 'more',
     cell: ({ cell }) => {
-      const navigate = useNavigate();
-      const { confirm } = useConfirm();
-      const { removeAutomations, loading } = useRemoveAutomations();
-      const { duplicateAutomation, loading: duplicating } =
-        useDuplicateAutomation();
       const { t } = useTranslation('automations');
-      const { toast } = useToast();
-      const lockState = cell.row.original.approvalLockState;
-      const canWrite = !lockState?.locked || lockState.hasAccess;
+      const { canWrite, duplicating, removing, onEdit, onDuplicate, onRemove } =
+        useAutomationActions(cell.row.original);
 
-      const onDuplicate = () =>
-        duplicateAutomation(cell.row.original._id, {
-          onError: (e: ApolloError) => {
-            toast({
-              title: 'Error',
-              description: e.message,
-              variant: 'destructive',
-            });
-          },
-          onCompleted: ({
-            automationsDuplicate,
-          }: {
-            automationsDuplicate?: { _id: string; name: string };
-          }) => {
-            toast({
-              title: 'Success',
-              variant: 'success',
-              description: `“${automationsDuplicate?.name}” created as a draft`,
-            });
-          },
-        });
-
-      const onRemove = () => {
-        confirm({
-          message: `Are you sure you want to delete the "${cell.row.original.name}" automation?`,
-        }).then(() => {
-          removeAutomations([cell.row.original._id], {
-            onError: (e: ApolloError) => {
-              toast({
-                title: 'Error',
-                description: e.message,
-                variant: 'destructive',
-              });
-            },
-            onCompleted: () => {
-              toast({
-                title: 'Success',
-                variant: 'success',
-                description: 'Automations deleted successfully',
-              });
-            },
-          });
-        });
-      };
       return (
         <DropdownMenu>
-          <DropdownMenu.Trigger asChild disabled={loading || duplicating}>
+          <DropdownMenu.Trigger asChild disabled={removing || duplicating}>
             <RecordTable.MoreButton className="w-full h-full" />
           </DropdownMenu.Trigger>
           <DropdownMenu.Content
@@ -112,12 +60,7 @@ export const getAutomationColumns: (
             className="w-[140px] min-w-0 [&>button]:cursor-pointer"
             onClick={(e) => e.stopPropagation()}
           >
-            <DropdownMenu.Item
-              asChild
-              onSelect={() =>
-                navigate(`/automations/edit/${cell.row.original._id}`)
-              }
-            >
+            <DropdownMenu.Item asChild onSelect={onEdit}>
               <Button
                 variant="ghost"
                 size="sm"
@@ -133,7 +76,7 @@ export const getAutomationColumns: (
                 size="sm"
                 className="w-full justify-start"
                 disabled={duplicating}
-                onClick={() => onDuplicate()}
+                onClick={onDuplicate}
               >
                 <IconCopy className="size-4" />
                 {t('duplicate')}
@@ -144,8 +87,8 @@ export const getAutomationColumns: (
                 variant="ghost"
                 size="sm"
                 className="w-full justify-start text-destructive"
-                disabled={!canWrite}
-                onClick={() => onRemove()}
+                disabled={!canWrite || removing}
+                onClick={onRemove}
               >
                 <IconTrash className="size-4" />
                 {t('delete')}

@@ -4,7 +4,15 @@ import { TAutomationAction, TAutomationTrigger } from 'ui-modules';
 export type TWorkflowInputBindings = Record<string, string>;
 
 // Config keys that can point to another action (if / findObject branches)
-export const BRANCH_CONFIG_KEYS = ['yes', 'no', 'isExists', 'notExists'];
+export const BRANCH_CONFIG_KEYS = [
+  'yes',
+  'no',
+  'isExists',
+  'notExists',
+  // The error policy's pair, written per node rather than per action type.
+  'onSuccessActionId',
+  'onErrorActionId',
+];
 
 // Token body excludes BOTH braces so malformed nested placeholders like
 // "{{ trigger.{{ trigger.content }} }}" never match as a whole — only the

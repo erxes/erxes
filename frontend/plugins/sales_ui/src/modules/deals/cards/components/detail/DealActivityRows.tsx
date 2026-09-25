@@ -23,6 +23,7 @@ const DealCreatedRow = ({ activity }: { activity: TActivityLog }) => {
       {activity.target?.text && (
         <span className="font-medium">{activity.target.text}</span>
       )}
+      <ActivityLogs.CreatedVia activity={activity} />
     </Sentence>
   );
 };

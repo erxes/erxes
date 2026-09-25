@@ -2,6 +2,14 @@ import { AUTOMATION_NODE_TYPE_LIST_PROERTY } from '@/automations/constants';
 import { useDnDActions } from '@/automations/context/AutomationBuilderDnDProvider';
 import { useAutomation } from '@/automations/context/AutomationProvider';
 import { useAutomationNodes } from '@/automations/hooks/useAutomationNodes';
+import {
+  NO_NOTES,
+  useAutomationNotes,
+} from '@/automations/hooks/useAutomationNotes';
+import {
+  NOTE_DRAG_HANDLE_CLASS,
+  NOTE_NODE_TYPE,
+} from '@/automations/constants/notes';
 import { useInsertWorkflowTemplate } from '@/automations/components/builder/hooks/useInsertWorkflowTemplate';
 import { WORKFLOW_INPUT_NODE_ID } from '@/automations/components/builder/nodes/components/WorkflowInputNode';
 import { useWorkflowEditScope } from '@/automations/context/WorkflowEditScopeProvider';
@@ -46,8 +54,10 @@ export const useReactFlowEditor = () => {
     setReactFlowInstance,
     setQueryParams,
     actionFolks,
+    isReadOnly,
   } = useAutomation();
   const { triggers, actions, workflows, getList } = useAutomationNodes();
+  const { notes } = useAutomationNotes();
   const { insertTemplate } = useInsertWorkflowTemplate();
   const { getNodes, addNodes } = useReactFlow<Node<NodeData>>();
   const [edgeType, flowDirection] = useWatch<TAutomationBuilderForm>({
@@ -55,6 +65,13 @@ export const useReactFlowEditor = () => {
   });
 
   const workflowEditScope = useWorkflowEditScope();
+  // Notes belong to the automation, not to a workflow's inner canvas. Memoized
+  // for the same reason as above: a fresh `[]` here would keep the node memo
+  // recomputing on every render.
+  const canvasNotes = useMemo(
+    () => (workflowEditScope ? NO_NOTES : notes),
+    [workflowEditScope, notes],
+  );
 
   const entryActionId = useMemo(() => {
     if (!workflowEditScope || !actions.length) {
@@ -94,23 +111,49 @@ export const useReactFlowEditor = () => {
       ? nodes.find(({ id }) => id === entryActionId)
       : undefined;
 
-    if (entryNode) {
-      nodes.push({
-        id: WORKFLOW_INPUT_NODE_ID,
-        type: 'workflowInput',
-        position: {
-          x: entryNode.position.x - 260,
-          y: entryNode.position.y,
-        },
-        data: {},
-      });
-    }
+    // Spread rather than push: like the notes below, the head marker is a
+    // canvas-only node whose data is not the flow's NodeData shape.
+    const headNodes = entryNode
+      ? [
+          {
+            id: WORKFLOW_INPUT_NODE_ID,
+            type: 'workflowInput',
+            position: {
+              x: entryNode.position.x - 260,
+              y: entryNode.position.y,
+            },
+            data: {},
+          },
+        ]
+      : [];
 
-    return nodes;
+    // Notes render behind the flow nodes and carry no handles, so they can
+    // never be connected or treated as a step. Like the workflowInput marker
+    // they are canvas-only, so their data is not the flow's NodeData shape.
+    const noteNodes = canvasNotes.map((note) => ({
+      id: note.id,
+      type: NOTE_NODE_TYPE,
+      position: note.position || { x: 0, y: 0 },
+      width: note.width,
+      height: note.height,
+      connectable: false,
+      // Only the grip moves a note, so selecting its text never drags it.
+      dragHandle: `.${NOTE_DRAG_HANDLE_CLASS}`,
+      style: { zIndex: -2 },
+      data: {
+        content: note.content,
+        color: note.color,
+        readOnly: isReadOnly,
+      },
+    }));
+
+    return [...nodes, ...headNodes, ...noteNodes];
   }, [
     triggers,
     actions,
     workflows,
+    canvasNotes,
+    isReadOnly,
     flowDirection,
     entryActionId,
     workflowEditScope,

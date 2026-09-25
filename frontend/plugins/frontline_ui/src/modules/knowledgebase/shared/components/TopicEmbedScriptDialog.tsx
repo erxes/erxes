@@ -1,6 +1,6 @@
 import { Badge, Button, Dialog, toast } from 'erxes-ui';
 import { TFunction } from 'i18next';
-import { REACT_APP_WIDGETS_URL } from '@/utils';
+import { buildTopicEmbedScript } from '@/knowledgebase/utils/buildTopicEmbedScript';
 
 export function TopicEmbedScriptDialog({
   topicId,
@@ -13,25 +13,6 @@ export function TopicEmbedScriptDialog({
   onOpenChange: (open: boolean) => void;
   t: TFunction;
 }>) {
-  const generateTopicScript = (topicId: string) => {
-    const API = REACT_APP_WIDGETS_URL;
-    return `<script>
-    window.erxesSettings = {
-      knowledgeBase: {
-        topicId: ${JSON.stringify(topicId)},
-      },
-    };
-
-    (function () {
-      const script = document.createElement("script");
-      script.src = "${API}/knowledgeBaseBundle.js";
-      script.async = true;
-      const entry = document.getElementsByTagName("script")[0];
-      entry.parentNode.insertBefore(script, entry);
-    })();
-  </script>`;
-  };
-
   const handleCopyScript = (script: string) => {
     navigator.clipboard
       .writeText(script)
@@ -50,7 +31,7 @@ export function TopicEmbedScriptDialog({
       );
   };
 
-  const script = generateTopicScript(topicId);
+  const script = buildTopicEmbedScript(topicId);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

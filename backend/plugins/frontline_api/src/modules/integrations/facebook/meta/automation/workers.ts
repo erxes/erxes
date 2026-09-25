@@ -8,6 +8,8 @@ import {
 } from '@/integrations/facebook/meta/automation/messages';
 import { ICheckTriggerData } from '@/integrations/facebook/meta/automation/types/automationTypes';
 import {
+  AUTOMATION_ERROR_CODES,
+  buildFailedAction,
   TAiContext,
   TAutomationProducers,
   TAutomationProducersInput,
@@ -66,7 +68,10 @@ export const facebookAutomationWorkers = {
         return await actionCreateComment(models, subdomain, action, execution);
 
       default:
-        return { result: null };
+        return buildFailedAction(
+          `Facebook automations do not handle "${collectionType}"`,
+          AUTOMATION_ERROR_CODES.CONFIG_INVALID,
+        );
     }
   },
   checkCustomTrigger: async (data: ICheckTriggerData, { subdomain }) => {

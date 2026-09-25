@@ -2,6 +2,7 @@ import { IAutomationHistoryAction } from 'ui-modules';
 
 export type TExecutionStatus =
   | 'success'
+  | 'skipped'
   | 'error'
   | 'waiting'
   | 'queued'

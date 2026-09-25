@@ -1,4 +1,5 @@
 export { createEventHandlers } from './createEventHandlers';
+export { setEventHandlerRuntimeContext } from './runtimeContext';
 export {
   createScopedEventHandlers,
   generateEventHandlersFromRequest,

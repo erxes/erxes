@@ -48,6 +48,7 @@ export const AiAgentObjectBuilder = ({
             prompt: '',
             dataType: 'string',
             validation: '',
+            options: [],
           })
         }
       >

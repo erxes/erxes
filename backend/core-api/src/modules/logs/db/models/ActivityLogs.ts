@@ -5,10 +5,9 @@ import {
 import { graphqlPubsub } from 'erxes-api-shared/utils';
 import { Model } from 'mongoose';
 
-type CreateActivityLogInput = Omit<
-  Partial<IActivityLogDocument>,
-  'createdAt' | 'contextType'
->;
+// `contextType` is set at creation — it says what the entry happened inside
+// of, which nothing later can work out on its own.
+type CreateActivityLogInput = Omit<Partial<IActivityLogDocument>, 'createdAt'>;
 
 export interface IActivityLogsModel extends Model<IActivityLogDocument> {
   createActivityLog(
