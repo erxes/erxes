@@ -15,7 +15,14 @@ export const sanitizeString = (value: unknown): string => {
   if (typeof value === 'string') {
     return value;
   }
-  return String(value ?? '');
+  if (
+    typeof value === 'number' ||
+    typeof value === 'bigint' ||
+    typeof value === 'boolean'
+  ) {
+    return String(value);
+  }
+  return '';
 };
 
 const DEFAULT_HANDOFF_MESSAGE =

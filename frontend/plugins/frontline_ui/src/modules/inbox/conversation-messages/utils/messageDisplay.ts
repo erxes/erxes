@@ -20,6 +20,44 @@ const getReplyPreview = (content?: string) => {
   return stripHtml(withoutQuotedReply);
 };
 
+const getBotText = (botData: IMessage['botData'], isBotMessage: boolean) => {
+  if (!isBotMessage || !botData?.length) return undefined;
+
+  return (botData as Array<{ type?: string; text?: string; content?: string }>)
+    .filter(
+      (item) => item?.type !== 'quickReplies' && item?.type !== 'ticketForm',
+    )
+    .map((item) => item?.text || item?.content || '')
+    .join('');
+};
+
+const getEffectiveReplyTo = (
+  hasForwardedSnapshot: boolean,
+  replyTo: IMessage['replyTo'],
+  legacyReplyPreview?: string,
+): IMessage['replyTo'] => {
+  if (hasForwardedSnapshot) return undefined;
+  if (replyTo) {
+    return {
+      ...replyTo,
+      content: getReplyPreview(replyTo.content) || 'Attachment',
+    };
+  }
+  return legacyReplyPreview
+    ? { messageId: '', content: legacyReplyPreview }
+    : undefined;
+};
+
+const getPostIntegrationKind = (integrationKind?: string) => {
+  if (integrationKind === IntegrationType.FACEBOOK_POST) {
+    return IntegrationType.FACEBOOK_POST;
+  }
+  if (integrationKind === IntegrationType.INSTAGRAM_POST) {
+    return IntegrationType.INSTAGRAM_POST;
+  }
+  return undefined;
+};
+
 export const getMessageDisplay = ({
   message,
   integrationKind,
@@ -37,41 +75,28 @@ export const getMessageDisplay = ({
   const forwardedSnapshot = extraData?.forwardedSnapshot;
   const isForwardedMessage =
     !forwardedSnapshot && content.search(FORWARDED_MARKER) !== -1;
-  const forwardedContentMatch = content?.match(
-    /<blockquote><strong>Forwarded message<\/strong><br\s*\/?>[\s\S]*?<\/blockquote>/i,
-  );
+  const forwardedContentMatch =
+    /<blockquote><strong>Forwarded message<\/strong><br\s*\/?>[\s\S]*?<\/blockquote>/i.exec(
+      content,
+    );
 
-  const botText =
-    isBotMessage && botData?.length
-      ? (botData as Array<{ type?: string; text?: string; content?: string }>)
-          .filter(
-            (item) =>
-              item?.type !== 'quickReplies' && item?.type !== 'ticketForm',
-          )
-          .map((item) => item?.text || item?.content || '')
-          .join('')
-      : undefined;
+  const botText = getBotText(botData, isBotMessage);
 
-  const legacyReplyMatch = content?.match(
-    /^<blockquote><strong>Replying to<\/strong><br\s*\/?>[\s\S]*?<\/blockquote>/i,
-  );
+  const legacyReplyMatch =
+    /^<blockquote><strong>Replying to<\/strong><br\s*\/?>[\s\S]*?<\/blockquote>/i.exec(
+      content,
+    );
   const legacyReplyPreview = legacyReplyMatch?.[0]
     ? replaceHtmlTags(legacyReplyMatch[0], ' ')
         .replace(/^\s*Replying to\s*/i, '')
         .replace(/\s+/g, ' ')
         .trim()
     : undefined;
-  let effectiveReplyTo: typeof replyTo;
-  if (!forwardedSnapshot) {
-    if (replyTo) {
-      effectiveReplyTo = {
-        ...replyTo,
-        content: getReplyPreview(replyTo.content) || 'Attachment',
-      };
-    } else if (legacyReplyPreview) {
-      effectiveReplyTo = { messageId: '', content: legacyReplyPreview };
-    }
-  }
+  const effectiveReplyTo = getEffectiveReplyTo(
+    Boolean(forwardedSnapshot),
+    replyTo,
+    legacyReplyPreview,
+  );
   const contentWithoutForwardMarker = isForwardedMessage
     ? stripForwardedMarkers(content)
     : content;
@@ -83,15 +108,7 @@ export const getMessageDisplay = ({
     )
       ?.replace(forwardedContentMatch?.[0] || '', '')
       .trim();
-  const postIntegrationKind:
-    | IntegrationType.FACEBOOK_POST
-    | IntegrationType.INSTAGRAM_POST
-    | undefined =
-    integrationKind === IntegrationType.FACEBOOK_POST
-      ? IntegrationType.FACEBOOK_POST
-      : integrationKind === IntegrationType.INSTAGRAM_POST
-      ? IntegrationType.INSTAGRAM_POST
-      : undefined;
+  const postIntegrationKind = getPostIntegrationKind(integrationKind);
   const isPostConversation = Boolean(postIntegrationKind);
   const typedAttachments = isPostConversation
     ? attachments?.map((attachment) => ({

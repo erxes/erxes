@@ -47,29 +47,15 @@ export const createAWS = async (subdomain: string) => {
 
 // Define a simple in-memory cache (outside the function scope)
 
-type UploadConfig = { AWS_BUCKET?: string; [k: string]: any } | null;
+type UploadConfig = { AWS_BUCKET?: string; [k: string]: unknown } | null;
 let cachedUploadConfig: UploadConfig = null;
 let fetchUploadConfigPromise: Promise<UploadConfig | null> | null = null;
 let lastFetchTime = 0;
 const CACHE_TTL_MS = 5 * 60 * 1000;
 
-export const uploadMedia = async (
+const getCachedUploadConfig = async (
   subdomain: string,
-  url: string,
-  video: boolean,
-) => {
-  try {
-    validateMediaUrl(url);
-  } catch (e: unknown) {
-    const message = e instanceof Error ? e.message : String(e);
-    debugError(`SSRF protection blocked media fetch: ${message}`);
-    return null;
-  }
-
-  const mediaFile = `uploads/${randomAlphanumeric(16)}.${
-    video ? 'mp4' : 'jpg'
-  }`;
-
+): Promise<UploadConfig> => {
   // 1. Ensure we have cachedUploadConfig (with promise-based concurrency control)
   if (!cachedUploadConfig) {
     if (fetchUploadConfigPromise) {
@@ -139,7 +125,29 @@ export const uploadMedia = async (
     return null;
   }
 
-  const { AWS_BUCKET } = cachedUploadConfig as any;
+  return cachedUploadConfig;
+};
+
+export const uploadMedia = async (
+  subdomain: string,
+  url: string,
+  video: boolean,
+) => {
+  try {
+    validateMediaUrl(url);
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : String(e);
+    debugError(`SSRF protection blocked media fetch: ${message}`);
+    return null;
+  }
+
+  const mediaFile = `uploads/${randomAlphanumeric(16)}.${
+    video ? 'mp4' : 'jpg'
+  }`;
+
+  const uploadConfig = await getCachedUploadConfig(subdomain);
+  if (!uploadConfig?.AWS_BUCKET) return null;
+  const { AWS_BUCKET } = uploadConfig;
   try {
     const s3 = await createAWS(subdomain);
 
