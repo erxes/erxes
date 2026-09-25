@@ -1,9 +1,8 @@
 import { TaskFields } from '@/task/components/detail/TaskFields';
-import { TaskSideWidgets } from '~/widgets/relation/TaskSideWidgets';
 import { TriageFields } from '@/triage/components/TriageFields';
 import { useGetTask } from '@/task/hooks/useGetTask';
 import { useGetTriage } from '@/triage/hooks/useGetTriage';
-import { Empty, ScrollArea, Spinner } from 'erxes-ui';
+import { Empty, Spinner } from 'erxes-ui';
 import { IconInfoCircle } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 
@@ -71,19 +70,9 @@ export const TaskDetails = ({
   }
 
   return (
-    <div className="h-full w-full flex flex-1 overflow-hidden">
-      <ScrollArea className="flex-1 min-h-0">
-        <div className="w-full xl:max-w-3xl mx-auto p-6">
-          {task && <TaskFields task={task} />}
-          {triage && <TriageFields triage={triage} />}
-        </div>
-      </ScrollArea>
-      {task && (
-        <TaskSideWidgets
-          contentId={task._id}
-          propertiesData={task.propertiesData}
-        />
-      )}
-    </div>
+    <>
+      {task && <TaskFields task={task} />}
+      {triage && <TriageFields triage={triage} />}
+    </>
   );
 };

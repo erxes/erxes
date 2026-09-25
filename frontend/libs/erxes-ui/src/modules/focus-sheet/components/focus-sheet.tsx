@@ -162,7 +162,7 @@ const FocusSheetSideTabs = forwardRef<
   return (
     <Tabs
       ref={ref}
-      className={cn('flex', className)}
+      className={cn('flex flex-none', className)}
       orientation="horizontal"
       value={activeSideTab || undefined}
       {...props}
