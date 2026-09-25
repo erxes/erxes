@@ -1,4 +1,8 @@
-import { TAiActionExecutionResult, TAiAgentActionConfig } from './contract';
+import {
+  TAiActionExecutionResult,
+  TAiAgentActionConfig,
+  TAiAgentObjectField,
+} from './contract';
 
 const trimLeadingWhitespace = (value: string) => {
   let start = 0;
@@ -108,8 +112,21 @@ export const isAiClassificationResultEmpty = (
   result.type === 'classification' &&
   Object.values(result.attributes).every(isEmptyAiAttributeValue);
 
-const buildCaptureAttributes = (
-  captureFields: { fieldName: string }[],
+// An option field keeps only a value from its own list; anything else is null.
+const resolveFieldValue = (field: TAiAgentObjectField, raw: unknown) => {
+  const value = normalizeAiAttributeValue(raw ?? null);
+
+  if (field.dataType !== 'option' || value === null) {
+    return value;
+  }
+
+  return field.options.some((option) => option.value === String(value))
+    ? String(value)
+    : null;
+};
+
+const buildFieldAttributes = (
+  fields: TAiAgentObjectField[],
   rawAttributes: unknown,
 ) => {
   const source =
@@ -120,9 +137,9 @@ const buildCaptureAttributes = (
       : {};
 
   return Object.fromEntries(
-    captureFields.map(({ fieldName }) => [
-      fieldName,
-      normalizeAiAttributeValue(source[fieldName] ?? null),
+    fields.map((field) => [
+      field.fieldName,
+      resolveFieldValue(field, source[field.fieldName]),
     ]),
   );
 };
@@ -134,7 +151,7 @@ const parseGenerateTextWithCapture = ({
   usage,
 }: {
   text: string;
-  captureFields: { fieldName: string }[];
+  captureFields: TAiAgentObjectField[];
   fallbackText?: string;
   usage?: TAiActionExecutionResult['usage'];
 }): TAiActionExecutionResult => {
@@ -148,7 +165,7 @@ const parseGenerateTextWithCapture = ({
 
   if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
     const parsedRecord = parsed as Record<string, unknown>;
-    const attributes = buildCaptureAttributes(
+    const attributes = buildFieldAttributes(
       captureFields,
       parsedRecord.attributes,
     );
@@ -172,7 +189,7 @@ const parseGenerateTextWithCapture = ({
     };
   }
 
-  const emptyAttributes = buildCaptureAttributes(captureFields, null);
+  const emptyAttributes = buildFieldAttributes(captureFields, null);
   const cleaned = stripCodeFence(text);
 
   // Looks like broken JSON: sending it would show garbage to the customer.
@@ -239,14 +256,7 @@ export const parseAiActionResult = ({
     throw new Error('AI classification response must be a JSON object.');
   }
 
-  const attributes = Object.fromEntries(
-    actionConfig.objectFields.map(({ fieldName }) => [
-      fieldName,
-      normalizeAiAttributeValue(
-        (parsed as Record<string, unknown>)[fieldName] ?? null,
-      ),
-    ]),
-  );
+  const attributes = buildFieldAttributes(actionConfig.objectFields, parsed);
 
   return {
     type: 'classification',

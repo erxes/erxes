@@ -67,6 +67,14 @@ const footerSchema = new Schema(
   { _id: false },
 );
 
+const cmsConfigSchema = new Schema(
+  {
+    cmsId: { type: String },
+    cmsAppToken: { type: String },
+  },
+  { _id: false },
+);
+
 export const helpCenterConfigSchema = new Schema(
   {
     _id: mongooseStringRandomId,
@@ -75,6 +83,7 @@ export const helpCenterConfigSchema = new Schema(
     description: { type: String },
     url: { type: String },
     erxesAppToken: { type: String },
+    clientPortalId: { type: String },
     brandId: { type: String },
     languageCode: { type: String },
 
@@ -93,6 +102,7 @@ export const helpCenterConfigSchema = new Schema(
 
     cmsId: { type: String },
     cmsAppToken: { type: String },
+    cmsConfigs: { type: [cmsConfigSchema], default: [] },
 
     color: { type: String },
     backgroundImage: { type: String },

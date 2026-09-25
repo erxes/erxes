@@ -49,6 +49,10 @@ const SOURCE_FIELDS = `
 
   cmsId
   cmsAppToken
+  cmsConfigs {
+    cmsId
+    cmsAppToken
+  }
 `;
 
 const LAYOUT_FIELDS = `
