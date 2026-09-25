@@ -5,6 +5,7 @@ export const GET_HELP_CENTER_WEBSITE_OPTIONS = gql`
     getClientPortals {
       list {
         _id
+        name
         domain
         token
       }
