@@ -244,6 +244,27 @@ export const transactionInvOutSchema = z
     ),
   });
 // #endregion invOut
+// #region invJustify
+const invJustifyDetailSchema = invDetailSchema.extend({
+  count: z.number().min(0).max(0),
+});
+
+export const transactionInvJustifySchema = z
+  .object({
+    journal: z.literal(TrJournalEnum.INV_JUSTIFY),
+    ...baseTransactionSchema.shape,
+  })
+  .extend({
+    customerId: undefed(z.string()),
+    branchId: undefed(z.string()),
+    departmentId: undefed(z.string()),
+    details: z.array(
+      z.object({
+        ...invJustifyDetailSchema.shape,
+      }),
+    ),
+  });
+// #endregion invJustify
 // #region invMove
 export const transactionInvMoveSchema = z
   .object({
@@ -532,6 +553,7 @@ export const trDocSchema = z
 
     transactionInvIncomeSchema,
     transactionInvOutSchema,
+    transactionInvJustifySchema,
     transactionInvMoveSchema,
     transactionInvSaleSchema,
     transactionInvSaleReturnSchema,

@@ -1,8 +1,12 @@
 /// <reference types="jest" />
 
 import { IModels } from '~/connectionResolvers';
-import { JOURNALS, TR_SIDES } from '../../@types/constants';
-import { adjustRunning, fixRelatedMainJournal } from '../inventories';
+import { JOURNALS, TR_SIDES, TR_STATUSES } from '../../@types/constants';
+import {
+  activeCost,
+  adjustRunning,
+  fixRelatedMainJournal,
+} from '../inventories';
 
 const queryResult = <T>(value: T) => ({
   lean: jest.fn().mockResolvedValue(value),
@@ -14,7 +18,200 @@ const makeModels = (transactions: Record<string, unknown>[] = []) =>
       find: jest.fn().mockReturnValue(queryResult(transactions)),
       updateOne: jest.fn().mockResolvedValue(undefined),
     },
-  }) as unknown as IModels;
+  } as unknown as IModels);
+
+describe('activeCost', () => {
+  it('adds active inventory movements after the latest published adjustment', async () => {
+    const adjustDate = new Date('2026-01-10T00:00:00.000Z');
+    const adjustSort = jest.fn().mockReturnValue(
+      queryResult({
+        _id: 'adjust-latest',
+        date: adjustDate,
+      }),
+    );
+    const transactionAggregate = jest
+      .fn()
+      .mockResolvedValueOnce([
+        { _id: 'product-a', remainder: 5, cost: 60 },
+        { _id: 'product-b', remainder: 2, cost: 30 },
+      ])
+      .mockResolvedValueOnce([{ _id: 'product-a', remainder: 2, cost: 12 }]);
+    const models = {
+      AdjustInventories: {
+        findOne: jest.fn().mockReturnValue({ sort: adjustSort }),
+      },
+      AdjustInvDetails: {
+        find: jest.fn().mockReturnValue(
+          queryResult([
+            {
+              productId: 'product-a',
+              remainder: 7,
+              cost: 70,
+              unitCost: 10,
+            },
+          ]),
+        ),
+      },
+      Transactions: {
+        aggregate: transactionAggregate,
+      },
+    };
+
+    const result = await activeCost(
+      models as unknown as IModels,
+      'inventory-account',
+      'branch-a',
+      'department-a',
+      ['product-a', 'product-b'],
+      ['old-sale-out'],
+    );
+
+    expect(models.AdjustInventories.findOne).toHaveBeenCalledWith({
+      status: 'publish',
+    });
+    expect(adjustSort).toHaveBeenCalledWith({
+      date: -1,
+      createdAt: -1,
+      _id: -1,
+    });
+    expect(models.AdjustInvDetails.find).toHaveBeenCalledWith({
+      adjustId: 'adjust-latest',
+      accountId: 'inventory-account',
+      branchId: 'branch-a',
+      departmentId: 'department-a',
+      productId: { $in: ['product-a', 'product-b'] },
+    });
+    expect(transactionAggregate).toHaveBeenNthCalledWith(
+      1,
+      expect.arrayContaining([
+        {
+          $match: expect.objectContaining({
+            date: { $gt: adjustDate },
+            journal: { $in: JOURNALS.ALL_REAL_INV },
+            status: { $in: TR_STATUSES.ACTIVE },
+            _id: { $nin: ['old-sale-out'] },
+            side: TR_SIDES.DEBIT,
+          }),
+        },
+        {
+          $addFields: {
+            locationBranchId: {
+              $cond: [
+                {
+                  $gt: [
+                    {
+                      $strLenCP: { $ifNull: ['$details.branchId', ''] },
+                    },
+                    0,
+                  ],
+                },
+                '$details.branchId',
+                {
+                  $cond: [
+                    {
+                      $gt: [{ $strLenCP: { $ifNull: ['$branchId', ''] } }, 0],
+                    },
+                    '$branchId',
+                    '_',
+                  ],
+                },
+              ],
+            },
+            locationDepartmentId: {
+              $cond: [
+                {
+                  $gt: [
+                    {
+                      $strLenCP: { $ifNull: ['$details.departmentId', ''] },
+                    },
+                    0,
+                  ],
+                },
+                '$details.departmentId',
+                {
+                  $cond: [
+                    {
+                      $gt: [
+                        { $strLenCP: { $ifNull: ['$departmentId', ''] } },
+                        0,
+                      ],
+                    },
+                    '$departmentId',
+                    '_',
+                  ],
+                },
+              ],
+            },
+          },
+        },
+        {
+          $match: expect.objectContaining({
+            locationBranchId: 'branch-a',
+            locationDepartmentId: 'department-a',
+          }),
+        },
+      ]),
+    );
+    expect(transactionAggregate).toHaveBeenNthCalledWith(
+      2,
+      expect.arrayContaining([
+        {
+          $match: expect.objectContaining({
+            side: TR_SIDES.CREDIT,
+          }),
+        },
+        {
+          $group: {
+            _id: '$details.productId',
+            remainder: { $sum: { $ifNull: ['$details.count', 0] } },
+            cost: { $sum: { $ifNull: ['$details.amount', 0] } },
+          },
+        },
+      ]),
+    );
+    expect(result).toEqual({
+      'product-a': { totalCost: 118, unitCost: 11.8, remainder: 10 },
+      'product-b': { totalCost: 30, unitCost: 15, remainder: 2 },
+    });
+  });
+
+  it('calculates from all active movements when no adjustment is published', async () => {
+    const transactionAggregate = jest
+      .fn()
+      .mockResolvedValueOnce([{ _id: 'product-a', remainder: 5, cost: 65 }])
+      .mockResolvedValueOnce([{ _id: 'product-a', remainder: 1, cost: 13 }]);
+    const models = {
+      AdjustInventories: {
+        findOne: jest.fn().mockReturnValue({
+          sort: jest.fn().mockReturnValue(queryResult(null)),
+        }),
+      },
+      AdjustInvDetails: {
+        find: jest.fn(),
+      },
+      Transactions: {
+        aggregate: transactionAggregate,
+      },
+    };
+
+    const result = await activeCost(
+      models as unknown as IModels,
+      'inventory-account',
+      undefined,
+      undefined,
+      ['product-a'],
+    );
+
+    expect(models.AdjustInvDetails.find).not.toHaveBeenCalled();
+    expect(transactionAggregate.mock.calls[0][0][0].$match).not.toHaveProperty(
+      'date',
+    );
+    expect(transactionAggregate).toHaveBeenCalledTimes(2);
+    expect(result).toEqual({
+      'product-a': { totalCost: 52, unitCost: 13, remainder: 4 },
+    });
+  });
+});
 
 describe('fixRelatedMainJournal', () => {
   it('updates a related main debit detail by the inventory out cost diff', async () => {
@@ -159,6 +356,26 @@ describe('adjustRunning', () => {
             }),
           }),
         }),
+      ]),
+    );
+    expect(aggregate).toHaveBeenCalledWith(
+      expect.arrayContaining([
+        {
+          $match: expect.objectContaining({
+            journal: JOURNALS.INV_JUSTIFY,
+            side: TR_SIDES.DEBIT,
+          }),
+        },
+      ]),
+    );
+    expect(aggregate).toHaveBeenCalledWith(
+      expect.arrayContaining([
+        {
+          $match: expect.objectContaining({
+            journal: JOURNALS.INV_JUSTIFY,
+            side: TR_SIDES.CREDIT,
+          }),
+        },
       ]),
     );
   });

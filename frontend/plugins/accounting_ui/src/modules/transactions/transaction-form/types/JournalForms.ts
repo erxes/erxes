@@ -12,6 +12,7 @@ import {
   transactionFxaSaleSchema,
   transactionGroupSchema,
   transactionInvIncomeSchema,
+  transactionInvJustifySchema,
   transactionInvMoveSchema,
   transactionInvOutSchema,
   transactionInvSaleReturnSchema,
@@ -35,6 +36,7 @@ export type TTaxJournal = z.infer<typeof transactionTaxSchema>;
 
 export type TInvIncomeJournal = z.infer<typeof transactionInvIncomeSchema>;
 export type TInvOutJournal = z.infer<typeof transactionInvOutSchema>;
+export type TInvJustifyJournal = z.infer<typeof transactionInvJustifySchema>;
 export type TInvMoveJournal = z.infer<typeof transactionInvMoveSchema>;
 export type TInvSaleJournal = z.infer<typeof transactionInvSaleSchema>;
 export type TInvSaleReturnJournal = z.infer<

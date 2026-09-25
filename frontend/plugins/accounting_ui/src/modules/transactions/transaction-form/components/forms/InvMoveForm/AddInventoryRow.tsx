@@ -5,12 +5,15 @@ import { useWatch } from 'react-hook-form';
 import { SelectProductsBulk } from 'ui-modules';
 import { GET_ACC_CURRENT_COST_QUERY } from '../../../graphql/queries/invCostInfo';
 import type { IInvCostInfo } from '../../../hooks/useGetInvCostInfo';
+import { followTrDocsState } from '../../../states/trStates';
 import {
   ITransactionGroupForm,
   TInvDetail,
   TInvMoveJournal,
 } from '../../../types/JournalForms';
 import { getTempId } from '../../utils';
+import { TrJournalEnum } from '~/modules/transactions/types/constants';
+import { useAtomValue } from 'jotai';
 
 export const AddDetailRowButton = ({
   append,
@@ -28,6 +31,15 @@ export const AddDetailRowButton = ({
     control,
     name: `trDocs.${journalIndex}`,
   }) as TInvMoveJournal;
+  const followTrDocs = useAtomValue(followTrDocsState);
+  const moveInTransaction = followTrDocs.find(
+    (transaction) =>
+      transaction.originId === trDoc._id &&
+      transaction.originType === TrJournalEnum.INV_MOVE_IN,
+  );
+  const excludedTransactionIds = [trDoc._id, moveInTransaction?._id].filter(
+    (transactionId): transactionId is string => Boolean(transactionId),
+  );
 
   const lastDetail = trDoc.details[trDoc.details.length - 1];
 
@@ -63,8 +75,9 @@ export const AddDetailRowButton = ({
               variables: {
                 productIds,
                 accountId: lastDetail.accountId,
-                branchId: trDoc.branchId,
-                departmentId: trDoc.departmentId,
+                branchId: lastDetail.branchId || trDoc.branchId,
+                departmentId: lastDetail.departmentId || trDoc.departmentId,
+                excludedTransactionIds,
               },
               fetchPolicy: 'network-only',
             });

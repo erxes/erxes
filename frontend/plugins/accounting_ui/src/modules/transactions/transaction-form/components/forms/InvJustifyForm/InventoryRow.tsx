@@ -1,11 +1,13 @@
 import { SelectAccount } from '@/settings/account/components/SelectAccount';
 import { JournalEnum } from '@/settings/account/types/Account';
+import { TR_SIDES } from '@/transactions/types/constants';
 import { AccountingHotkeyScope } from '@/types/AccountingHotkeyScope';
 import {
   Checkbox,
   cn,
+  CurrencyField,
+  fixNum,
   Form,
-  InputNumber,
   PopoverScoped,
   RecordTableHotKeyControl,
   RecordTableInlineCell,
@@ -21,7 +23,7 @@ import {
   ITransactionGroupForm,
   TAddTransactionGroup,
   TInvDetail,
-  TInvOutJournal,
+  TInvJustifyJournal,
 } from '../../../types/JournalForms';
 import {
   DUPLICATE_PRODUCT_CELL_CLASS,
@@ -41,7 +43,7 @@ export const InventoryRow = ({
   const trDoc = useWatch({
     control: form.control,
     name: `trDocs.${journalIndex}`,
-  }) as TInvOutJournal;
+  }) as TInvJustifyJournal;
   const detail = useWatch({
     control: form.control,
     name: `trDocs.${journalIndex}.details.${detailIndex}`,
@@ -50,7 +52,7 @@ export const InventoryRow = ({
     trDoc.details,
     detail.productId,
   );
-  const { unitPrice, count, _id } = detail;
+  const { unitPrice, _id } = detail;
 
   const getFieldName = (name: keyof TInvDetail) =>
     `trDocs.${journalIndex}.details.${detailIndex}.${name}` as FieldPath<TAddTransactionGroup>;
@@ -65,24 +67,78 @@ export const InventoryRow = ({
     },
     skip: !detail.productId || !detail.accountId,
   });
+  const currentProductCost = currentCostInfo?.[detail.productId || ''];
+  const currentUnitCost = currentProductCost?.unitCost ?? 0;
+  const currentRemainder = currentProductCost?.remainder ?? 0;
+  const isDecrease = trDoc.side === TR_SIDES.CREDIT;
+  const maxDecreaseUnitPrice = Math.max(0, currentUnitCost);
+  const maxDecreaseAmount = Math.max(
+    0,
+    fixNum(currentRemainder * maxDecreaseUnitPrice),
+  );
+  const afterUnitCost = fixNum(
+    currentUnitCost + (isDecrease ? -1 : 1) * (unitPrice ?? 0),
+  );
 
   useEffect(() => {
-    if (loading || !currentCostInfo) return;
+    if (loading || currentProductCost === undefined) return;
 
-    const costInfo = currentCostInfo[detail.productId || ''];
-    if (costInfo === undefined) return;
-
-    const nextUnitPrice = costInfo.unitCost ?? 0;
-    form.setValue(getFieldName('unitPrice'), nextUnitPrice);
-    form.setValue(getFieldName('amount'), (count ?? 0) * nextUnitPrice);
+    form.setValue(getFieldName('count'), 0);
+    form.setValue(
+      getFieldName('amount'),
+      fixNum(currentProductCost.remainder * (unitPrice ?? 0)),
+    );
   }, [currentCostInfo, detail.productId, loading]);
 
-  const handleCountChange = (
+  useEffect(() => {
+    if (!isDecrease || (unitPrice ?? 0) <= maxDecreaseUnitPrice) return;
+
+    form.setValue(getFieldName('unitPrice'), maxDecreaseUnitPrice);
+    form.setValue(getFieldName('amount'), maxDecreaseAmount);
+  }, [isDecrease, maxDecreaseAmount, maxDecreaseUnitPrice, unitPrice]);
+
+  const handleUnitPriceChange = (
     value: number,
     onChange: (value: number) => void,
   ) => {
-    form.setValue(getFieldName('amount'), value * (unitPrice ?? 0));
-    onChange(value);
+    const nextUnitPrice = isDecrease
+      ? Math.min(value, maxDecreaseUnitPrice)
+      : value;
+    form.setValue(
+      getFieldName('amount'),
+      fixNum(currentRemainder * nextUnitPrice),
+    );
+    onChange(nextUnitPrice);
+  };
+
+  const handleAmountChange = (
+    value: number,
+    onChange: (value: number) => void,
+  ) => {
+    const nextAmount = isDecrease ? Math.min(value, maxDecreaseAmount) : value;
+    onChange(nextAmount);
+    form.setValue(
+      getFieldName('unitPrice'),
+      currentRemainder ? nextAmount / currentRemainder : 0,
+    );
+  };
+
+  const handleAfterUnitCostChange = (value: number) => {
+    const difference = fixNum(Math.max(0, value) - currentUnitCost);
+
+    if (difference > 0 && trDoc.side !== TR_SIDES.DEBIT) {
+      form.setValue(`trDocs.${journalIndex}.side`, TR_SIDES.DEBIT);
+    }
+    if (difference < 0 && trDoc.side !== TR_SIDES.CREDIT) {
+      form.setValue(`trDocs.${journalIndex}.side`, TR_SIDES.CREDIT);
+    }
+
+    const nextUnitPrice = Math.abs(difference);
+    form.setValue(getFieldName('unitPrice'), nextUnitPrice);
+    form.setValue(
+      getFieldName('amount'),
+      fixNum(currentRemainder * nextUnitPrice),
+    );
   };
 
   return (
@@ -173,6 +229,9 @@ export const InventoryRow = ({
         </Table.Cell>
       </RecordTableHotKeyControl>
 
+      <Table.Cell>{currentRemainder.toLocaleString()}</Table.Cell>
+      <Table.Cell>{currentUnitCost.toLocaleString()}</Table.Cell>
+
       <RecordTableHotKeyControl
         rowId={_id}
         rowIndex={detailIndex}
@@ -181,10 +240,10 @@ export const InventoryRow = ({
         <Table.Cell>
           <Form.Field
             control={form.control}
-            name={`trDocs.${journalIndex}.details.${detailIndex}.count`}
+            name={`trDocs.${journalIndex}.details.${detailIndex}.unitPrice`}
             render={({ field }) => (
               <PopoverScoped
-                scope={`trDocs.${journalIndex}.details.${detailIndex}.count`}
+                scope={`trDocs.${journalIndex}.details.${detailIndex}.unitPrice`}
                 closeOnEnter
               >
                 <Form.Control>
@@ -192,12 +251,11 @@ export const InventoryRow = ({
                     {field.value?.toLocaleString() || 0}
                   </RecordTableInlineCell.Trigger>
                 </Form.Control>
-                <Form.Message />
                 <RecordTableInlineCell.Content>
-                  <InputNumber
-                    value={field.value ?? 0}
+                  <CurrencyField.ValueInput
+                    value={field.value || 0}
                     onChange={(value) =>
-                      handleCountChange(value || 0, field.onChange)
+                      handleUnitPriceChange(value || 0, field.onChange)
                     }
                   />
                 </RecordTableInlineCell.Content>
@@ -207,8 +265,63 @@ export const InventoryRow = ({
         </Table.Cell>
       </RecordTableHotKeyControl>
 
-      <Table.Cell>{(unitPrice ?? 0).toLocaleString()}</Table.Cell>
-      <Table.Cell>{(detail.amount ?? 0).toLocaleString()}</Table.Cell>
+      <RecordTableHotKeyControl
+        rowId={_id}
+        rowIndex={detailIndex}
+        enableOnFormTags
+      >
+        <Table.Cell>
+          <PopoverScoped
+            scope={`trDocs.${journalIndex}.details.${detailIndex}.afterUnitCost`}
+            closeOnEnter
+          >
+            <RecordTableInlineCell.Trigger>
+              {afterUnitCost.toLocaleString()}
+            </RecordTableInlineCell.Trigger>
+            <RecordTableInlineCell.Content>
+              <CurrencyField.ValueInput
+                value={afterUnitCost}
+                onChange={(value) =>
+                  handleAfterUnitCostChange(value ?? currentUnitCost)
+                }
+              />
+            </RecordTableInlineCell.Content>
+          </PopoverScoped>
+        </Table.Cell>
+      </RecordTableHotKeyControl>
+
+      <RecordTableHotKeyControl
+        rowId={_id}
+        rowIndex={detailIndex}
+        enableOnFormTags
+      >
+        <Table.Cell>
+          <Form.Field
+            control={form.control}
+            name={`trDocs.${journalIndex}.details.${detailIndex}.amount`}
+            render={({ field }) => (
+              <PopoverScoped
+                scope={`trDocs.${journalIndex}.details.${detailIndex}.amount`}
+                closeOnEnter
+              >
+                <Form.Control>
+                  <RecordTableInlineCell.Trigger>
+                    {field.value?.toLocaleString() || 0}
+                  </RecordTableInlineCell.Trigger>
+                </Form.Control>
+                <RecordTableInlineCell.Content>
+                  <CurrencyField.ValueInput
+                    value={field.value || 0}
+                    onChange={(value) =>
+                      handleAmountChange(value || 0, field.onChange)
+                    }
+                  />
+                </RecordTableInlineCell.Content>
+              </PopoverScoped>
+            )}
+          />
+        </Table.Cell>
+      </RecordTableHotKeyControl>
 
       {showAdvancedView && (
         <>
