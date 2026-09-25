@@ -50,13 +50,47 @@ export { MessageDaySeparator };
 const getPostAttachmentType = (type?: string): string =>
   !type || type === 'file' ? 'image' : type;
 
-const QUOTED_REPLY_PATTERN =
-  /^<blockquote><strong>Replying to(?:\s+([^<]+))?<\/strong><br\s*\/?>([\s\S]*?)<\/blockquote>/i;
+const getQuotedReply = (content?: string) => {
+  if (!content) return null;
+
+  const prefix = '<blockquote><strong>Replying to';
+  const lowerContent = content.toLowerCase();
+  if (!lowerContent.startsWith(prefix.toLowerCase())) return null;
+
+  const authorStart = prefix.length;
+  const strongEnd = lowerContent.indexOf('</strong>', authorStart);
+  if (strongEnd === -1) return null;
+
+  const author = content.slice(authorStart, strongEnd);
+  if (author && (!/^\s/.test(author) || author.includes('<'))) return null;
+
+  const breakStart = strongEnd + '</strong>'.length;
+  const breakEnd = content.indexOf('>', breakStart);
+  if (
+    breakEnd === -1 ||
+    !/^<br\s*\/?>$/i.test(content.slice(breakStart, breakEnd + 1))
+  ) {
+    return null;
+  }
+
+  const previewStart = breakEnd + 1;
+  const blockEnd = lowerContent.indexOf('</blockquote>', previewStart);
+  if (blockEnd === -1) return null;
+
+  return {
+    author,
+    preview: content.slice(previewStart, blockEnd),
+    length: blockEnd + '</blockquote>'.length,
+  };
+};
 
 const getReplyPreview = (content?: string) => {
   if (!content) return '';
 
-  const withoutQuotedReply = content.replace(QUOTED_REPLY_PATTERN, '');
+  const quotedReply = getQuotedReply(content);
+  const withoutQuotedReply = quotedReply
+    ? content.slice(quotedReply.length)
+    : content;
   return stripHtml(withoutQuotedReply);
 };
 
@@ -112,10 +146,10 @@ export const MessageItem = () => {
           .join('')
       : undefined;
 
-  const legacyReplyMatch = content?.match(QUOTED_REPLY_PATTERN);
-  const legacyReplyAuthor = stripHtml(legacyReplyMatch?.[1]);
-  const legacyReplyPreview = legacyReplyMatch
-    ? stripHtml(legacyReplyMatch[2]) || 'Attachment'
+  const legacyReply = getQuotedReply(content);
+  const legacyReplyAuthor = stripHtml(legacyReply?.author);
+  const legacyReplyPreview = legacyReply
+    ? stripHtml(legacyReply.preview) || 'Attachment'
     : '';
   let effectiveReplyTo: typeof replyTo;
   if (!forwardedSnapshot) {
@@ -134,7 +168,7 @@ export const MessageItem = () => {
   }
   const displayContent =
     botText ||
-    (legacyReplyMatch ? content.replace(legacyReplyMatch[0], '') : content)
+    (legacyReply ? content?.slice(legacyReply.length) : content)
       ?.replace(forwardedContentMatch?.[0] || '', '')
       .trim();
   const postIntegrationKind =
