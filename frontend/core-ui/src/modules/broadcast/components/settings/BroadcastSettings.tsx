@@ -1,67 +1,32 @@
 import { BroadcastCredentialsNotice } from '@/broadcast/components/settings/BroadcastCredentialsNotice';
 import { BROADCAST_SETTINGS_CONFIG_FIELDS } from '@/broadcast/constants';
-import { useBroadcastConfig } from '@/broadcast/hooks/useBroadcastConfig';
 import {
-  BROADCAST_CONFIG_CODES,
   BROADCAST_MODE_FIELD,
   BROADCAST_PROVIDER_FIELD,
-  TBroadcastEmailSettings,
-  useBroadcastEmailCredentials,
 } from '@/broadcast/hooks/useBroadcastEmailCredentials';
-import { useConfig } from '@/settings/file-upload/hook/useConfigs';
+import { useBroadcastSettingsForm } from '@/broadcast/hooks/useBroadcastSettingsForm';
 import { VerifiedSenders } from '@/settings/mail-config/components/VerifiedSenders';
 import { EmailSenderScopeProvider } from '@/settings/mail-config/contexts/EmailSenderScope';
 import { Form, Input, Select } from 'erxes-ui';
-import { useEffect } from 'react';
-import { ControllerRenderProps, FieldValues, useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 const MODE_OPTIONS = [
-  { value: 'default', label: 'Use mail config' },
-  { value: 'custom', label: 'Use own credentials' },
+  { value: 'default', labelKey: 'settings.mode-default' },
+  { value: 'custom', labelKey: 'settings.mode-custom' },
 ];
 
 const PROVIDER_OPTIONS = ['SES', 'sendgrid', 'custom'];
 
 export const BroadcastSettings = () => {
-  const form = useForm<TBroadcastEmailSettings>();
-
-  const { configs } = useConfig();
-
-  const { updateConfig } = useBroadcastConfig();
-
-  const { showCredentials, usesOwnCredentials, providerFields } =
-    useBroadcastEmailCredentials(form);
-
-  useEffect(() => {
-    if (!configs) return;
-
-    const values = BROADCAST_CONFIG_CODES.reduce((acc, name) => {
-      const config = configs.find((c: { code: string }) => c.code === name);
-
-      if (config) acc[name] = config.value;
-
-      return acc;
-    }, {} as Partial<TBroadcastEmailSettings>);
-
-    form.reset(values);
-  }, [configs]);
-
-  const handleFieldChange = (
-    field: ControllerRenderProps<FieldValues, string>,
-  ) => {
-    const { name, value } = field || {};
-
-    if (!name) return;
-
-    if (!form.formState.dirtyFields[name]) return;
-
-    updateConfig({ [name]: value }, { skipConfirm: true });
-  };
-
-  const handleSelectChange = (name: string, value: string) => {
-    form.setValue(name, value, { shouldDirty: true });
-    updateConfig({ [name]: value }, { skipConfirm: true });
-  };
+  const { t } = useTranslation('broadcasts');
+  const {
+    form,
+    showCredentials,
+    usesOwnCredentials,
+    providerFields,
+    handleFieldChange,
+    handleSelectChange,
+  } = useBroadcastSettingsForm();
 
   const renderInput = (name: string, label: string, type?: string) => (
     <Form.Field
@@ -126,8 +91,11 @@ export const BroadcastSettings = () => {
         {showCredentials &&
           renderSelect(
             BROADCAST_MODE_FIELD,
-            'Email credentials',
-            MODE_OPTIONS,
+            t('settings.credentials'),
+            MODE_OPTIONS.map(({ value, labelKey }) => ({
+              value,
+              label: t(labelKey),
+            })),
             usesOwnCredentials ? 'custom' : 'default',
           )}
 
@@ -135,22 +103,22 @@ export const BroadcastSettings = () => {
           <>
             {renderSelect(
               BROADCAST_PROVIDER_FIELD,
-              'Email service',
+              t('settings.service'),
               PROVIDER_OPTIONS.map((value) => ({ value, label: value })),
             )}
-            {providerFields.map(({ name, label, type }) =>
-              renderInput(name, label, type),
+            {providerFields.map(({ name, labelKey, type }) =>
+              renderInput(name, t(labelKey), type),
             )}
           </>
         )}
 
-        {BROADCAST_SETTINGS_CONFIG_FIELDS.map(({ name, label, type }) =>
-          renderInput(name, label, type),
+        {BROADCAST_SETTINGS_CONFIG_FIELDS.map(({ name, labelKey, type }) =>
+          renderInput(name, t(labelKey), type),
         )}
 
         <EmailSenderScopeProvider scope="broadcast">
           <Form.Item>
-            <Form.Label>Verified emails</Form.Label>
+            <Form.Label>{t('settings.verified-emails')}</Form.Label>
             <Form.Control>
               <VerifiedSenders />
             </Form.Control>

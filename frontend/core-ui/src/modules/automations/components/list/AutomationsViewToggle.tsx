@@ -1,10 +1,11 @@
 import { Button, cn, useMultiQueryState } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export type TAutomationsListView = 'automations' | 'templates';
 
-const VIEWS: { value: TAutomationsListView; label: string }[] = [
-  { value: 'automations', label: 'Automations' },
-  { value: 'templates', label: 'Templates' },
+const VIEWS: { value: TAutomationsListView; labelKey: string }[] = [
+  { value: 'automations', labelKey: 'automations' },
+  { value: 'templates', labelKey: 'templates' },
 ];
 
 /** Reads/writes the `view` query param that swaps the automations index list. */
@@ -25,10 +26,11 @@ export const useAutomationsListView = () => {
 
 export const AutomationsViewToggle = () => {
   const { view, setView } = useAutomationsListView();
+  const { t } = useTranslation('automations');
 
   return (
     <div className="flex items-center gap-1 rounded-md bg-muted p-0.5">
-      {VIEWS.map(({ value, label }) => (
+      {VIEWS.map(({ value, labelKey }) => (
         <Button
           key={value}
           variant="ghost"
@@ -39,7 +41,7 @@ export const AutomationsViewToggle = () => {
           )}
           onClick={() => setView(value)}
         >
-          {label}
+          {t(labelKey)}
         </Button>
       ))}
     </div>

@@ -73,7 +73,7 @@ export const useAutomationCoreNodeOutput = ({
     .map((field: any) => ({
       key: field.fieldName.trim(),
       label: field.fieldName.trim(),
-      type: field.dataType,
+      type: field.dataType === 'option' ? 'string' : field.dataType,
     }));
 
   const aiAgentVariables = aiAgentAttributeFields.length

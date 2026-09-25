@@ -59,6 +59,25 @@ const DEFAULT_RUNTIME = {
 const sumStringLength = (...values: Array<string | undefined>) =>
   values.reduce((total, value) => total + (value?.trim().length || 0), 0);
 
+type TFieldForm = DeepPartial<
+  Extract<
+    TAiAgentConfigForm,
+    { goalType: 'classification' }
+  >['objectFields'][number]
+>;
+
+const getFieldChars = (field?: TFieldForm) =>
+  sumStringLength(
+    field?.fieldName,
+    field?.prompt,
+    field?.validation,
+    field?.dataType,
+  ) +
+  (field?.options || []).reduce<number>(
+    (total, option) => total + sumStringLength(option?.value, option?.prompt),
+    0,
+  );
+
 const getGoalPromptStats = (config?: DeepPartial<TAiAgentConfigForm>) => {
   if (!config?.goalType) {
     return { chars: 0, itemCount: 0 };
@@ -71,14 +90,7 @@ const getGoalPromptStats = (config?: DeepPartial<TAiAgentConfigForm>) => {
       chars:
         (config.prompt?.trim().length || 0) +
         captureFields.reduce<number>(
-          (total, field) =>
-            total +
-            sumStringLength(
-              field?.fieldName,
-              field?.prompt,
-              field?.validation,
-              field?.dataType,
-            ),
+          (total, field) => total + getFieldChars(field),
           0,
         ),
       itemCount: (config.prompt?.trim() ? 1 : 0) + captureFields.length,
@@ -103,14 +115,7 @@ const getGoalPromptStats = (config?: DeepPartial<TAiAgentConfigForm>) => {
 
     return {
       chars: objectFields.reduce<number>(
-        (total, field) =>
-          total +
-          sumStringLength(
-            field?.fieldName,
-            field?.prompt,
-            field?.validation,
-            field?.dataType,
-          ),
+        (total, field) => total + getFieldChars(field),
         0,
       ),
       itemCount: objectFields.length,

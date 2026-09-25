@@ -9,6 +9,7 @@ import { redis } from 'erxes-api-shared/utils';
 import { IModels } from '../connectionResolver';
 import { debugError } from '../debugger';
 import { getExecutionActionsMap } from '../utils/utils';
+import { recordHandledFailure } from './handledFailures';
 import { executeActions } from './executeActions';
 import { finalizeExecAction } from './executionActionMetrics';
 import { notifyParentExecution } from './startWorkflowExecution';
@@ -120,8 +121,14 @@ const applyOutcome = async (
 
   execution.markModified('actions');
 
-  // An ignored action never held the flow, so its outcome ends with itself.
+  // An ignored action never held the flow, so it cannot fail the execution.
+  // The execution still carries the fact, or a finished run would report a
+  // send that never went out as if it had.
   if (!wasStandby) {
+    if (status !== 'success') {
+      recordHandledFailure(execution, execAction.actionId);
+    }
+
     await execution.save();
     return { applied: true };
   }

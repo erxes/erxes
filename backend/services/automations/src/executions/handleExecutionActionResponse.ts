@@ -8,7 +8,7 @@ export const handleExecutionActionResponse = async (
   actionResponse: any,
   execution: IAutomationExecutionDocument,
   execAction: IAutomationExecAction,
-  status: 'success' | 'waiting' = 'success',
+  status: 'success' | 'skipped' | 'waiting' = 'success',
 ) => {
   execAction.result = actionResponse;
   finalizeExecAction(execAction, status);
