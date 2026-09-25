@@ -1,4 +1,3 @@
-// skipcq: JS-C1003 - This primitive uses React APIs and namespace-qualified types.
 import * as React from 'react';
 import { Slot } from 'radix-ui';
 import { cva, VariantProps } from 'class-variance-authority';
@@ -227,6 +226,7 @@ const SidebarRoot = React.forwardRef<
     side?: 'left' | 'right';
     variant?: 'sidebar' | 'floating' | 'inset';
     collapsible?: 'offcanvas' | 'icon' | 'none';
+    mobileClassName?: string;
   }
 >(
   (
@@ -235,6 +235,7 @@ const SidebarRoot = React.forwardRef<
       variant = 'sidebar',
       collapsible = 'offcanvas',
       className,
+      mobileClassName,
       children,
       ...props
     },
@@ -271,7 +272,10 @@ const SidebarRoot = React.forwardRef<
           <Sheet.View
             data-sidebar="sidebar"
             data-mobile="true"
-            className="w-(--sidebar-width) bg-sidebar p-0 text-foreground [&>button]:hidden border-r-0"
+            className={cn(
+              'w-(--sidebar-width) border-r-0 bg-sidebar p-0 text-foreground [&>button]:hidden',
+              mobileClassName,
+            )}
             style={
               {
                 '--sidebar-width': SIDEBAR_WIDTH_MOBILE,

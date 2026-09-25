@@ -1,5 +1,9 @@
 import { nativeFetch as fetch } from '../nativeFetch';
-import { AI_AGENT_DEFAULTS } from '../../aiAgent/constants';
+import {
+  AI_AGENT_DEFAULTS,
+  AI_AGENT_REASONING_EFFORT,
+  AI_AGENT_REASONING_MODEL_MIN_MAX_TOKENS,
+} from '../../aiAgent/constants';
 import {
   TAiBridgeConnection,
   TAiBridgeMessage,
@@ -109,11 +113,10 @@ export const requestOpenAiCompatible = async <TJson = any>({
   }
 };
 
-const usesDefaultOnlyTemperature = (model: string) => {
-  const normalizedModel = model.trim().toLowerCase();
-
-  return normalizedModel.startsWith('gpt-5');
-};
+// gpt-5 models reason before emitting text, bill it against the completion
+// budget, and reject a custom temperature.
+const isReasoningModel = (model: string) =>
+  model.trim().toLowerCase().startsWith('gpt-5');
 
 const toOpenAiCompatibleMessage = (message: TAiBridgeMessage) => {
   if (message.role === 'assistant' && message.toolCalls?.length) {
@@ -148,24 +151,30 @@ export const buildOpenAiCompatibleChatBody = ({
   messages,
   responseFormat,
   tools,
+  toolChoice,
 }: {
   connection: TAiBridgeConnection;
   runtime: TAiBridgeRuntime;
   messages: TAiBridgeMessage[];
   responseFormat?: 'json' | 'text';
   tools?: TAiBridgeToolDefinition[];
+  toolChoice?: 'auto' | 'required';
 }) => {
+  const reasoningModel = isReasoningModel(connection.model);
   const body: Record<string, any> = {
     model: connection.model,
     messages: messages.map(toOpenAiCompatibleMessage),
-    max_completion_tokens: runtime.maxTokens,
+    max_completion_tokens: reasoningModel
+      ? Math.max(runtime.maxTokens, AI_AGENT_REASONING_MODEL_MIN_MAX_TOKENS)
+      : runtime.maxTokens,
   };
 
-  if (
-    typeof runtime.temperature === 'number' &&
-    !usesDefaultOnlyTemperature(connection.model)
-  ) {
+  if (typeof runtime.temperature === 'number' && !reasoningModel) {
     body.temperature = runtime.temperature;
+  }
+
+  if (reasoningModel) {
+    body.reasoning_effort = AI_AGENT_REASONING_EFFORT;
   }
 
   if (responseFormat === 'json') {
@@ -181,6 +190,10 @@ export const buildOpenAiCompatibleChatBody = ({
         parameters: tool.parameters,
       },
     }));
+
+    if (toolChoice) {
+      body.tool_choice = toolChoice;
+    }
   }
 
   return body;

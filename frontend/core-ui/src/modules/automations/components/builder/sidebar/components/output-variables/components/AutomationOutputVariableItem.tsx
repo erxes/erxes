@@ -13,6 +13,7 @@ export const AutomationOutputVariableItem = ({
   const cardProps = useAutomationVariableCardProps({
     variableKey: variable.key,
     label: variable.label,
+    isLink: variable.isLink,
   });
   const {
     childFields,

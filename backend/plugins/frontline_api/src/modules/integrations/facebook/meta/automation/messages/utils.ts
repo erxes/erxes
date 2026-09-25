@@ -348,10 +348,11 @@ export const sendMessage = async (
     message,
     tag,
     commentId,
+    skipTyping,
   }: ISendMessageData,
   isLoop?: boolean,
 ) => {
-  if (!commentId) {
+  if (!commentId && !skipTyping) {
     await trySendTypingOn(
       models,
       senderId,
@@ -393,6 +394,7 @@ export const sendMessage = async (
           message,
           tag,
           commentId: undefined,
+          skipTyping,
         },
         isLoop,
       );
@@ -416,6 +418,7 @@ export const sendMessage = async (
           message,
           tag: bot?.tag,
           commentId,
+          skipTyping,
         },
         true,
       );
@@ -449,6 +452,58 @@ async function trySendTypingOn(
     console.warn(`[sendTypingOn] failed: ${err.message}`);
   }
 }
+
+const MESSAGING_WINDOW_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * Messenger allows a free-form message only within 24 hours of the person's
+ * last inbound one. The trigger target usually is that message, so the lookup
+ * runs only once the target itself has aged out: a flow that waited days may
+ * still sit inside a window the person reopened meanwhile.
+ */
+export const resolveMessagingWindow = async (
+  models: IModels,
+  conversationId: string,
+  target: TFacebookMessageActionTarget,
+): Promise<{ isOpen: boolean; lastInboundAt?: Date }> => {
+  const targetInboundAt =
+    isDirectMessageActionTarget(target) && target.createdAt
+      ? new Date(target.createdAt)
+      : undefined;
+
+  if (
+    targetInboundAt &&
+    Date.now() - targetInboundAt.getTime() < MESSAGING_WINDOW_MS
+  ) {
+    return { isOpen: true, lastInboundAt: targetInboundAt };
+  }
+
+  // Inbound messages carry the customer; bot and agent replies do not.
+  const latestInbound = await models.FacebookConversationMessages.findOne(
+    {
+      conversationId,
+      customerId: { $exists: true, $ne: null },
+      fromBot: { $ne: true },
+      userId: { $exists: false },
+    },
+    { createdAt: 1 },
+  )
+    .sort({ createdAt: -1 })
+    .lean();
+
+  const lastInboundAt = latestInbound?.createdAt
+    ? new Date(latestInbound.createdAt)
+    : targetInboundAt;
+
+  if (!lastInboundAt) {
+    return { isOpen: false };
+  }
+
+  return {
+    isOpen: Date.now() - lastInboundAt.getTime() < MESSAGING_WINDOW_MS,
+    lastInboundAt,
+  };
+};
 
 export const getOrCreateFacebookMessageActionContext = async (
   models: IModels,

@@ -14,6 +14,9 @@ export const integrationSchema = new Schema({
   dstTrunk: field({ type: String, label: 'outbound trunk name' }),
 });
 
-integrationSchema.index({ wsServer: 1, queues: 1 }, { unique: true });
-integrationSchema.index({ srcTrunk: 1 }, { unique: true });
-integrationSchema.index({ dstTrunk: 1 }, { unique: true });
+integrationSchema.index(
+  { wsServer: 1, queues: 1 },
+  { unique: true, partialFilterExpression: { queues: { $gt: '' } } },
+);
+integrationSchema.index({ srcTrunk: 1 });
+integrationSchema.index({ dstTrunk: 1 });

@@ -36,10 +36,12 @@ export const useActivities = (contentId: string) => {
       document: ACTIVITY_CHANGED,
       variables: { contentId },
       updateQuery: (prev, { subscriptionData }) => {
-        if (!prev || !subscriptionData.data) return prev;
+        if (!subscriptionData.data) return prev;
 
         const { type, activity } = subscriptionData.data.ticketActivityChanged;
-        const currentList = prev.getTicketActivities.list;
+        const currentList = prev?.getTicketActivities?.list;
+
+        if (!currentList) return prev;
 
         let updatedList = currentList;
 
@@ -74,8 +76,8 @@ export const useActivities = (contentId: string) => {
               type === 'created'
                 ? prev.getTicketActivities.totalCount + 1
                 : type === 'removed'
-                ? prev.getTicketActivities.totalCount - 1
-                : prev.getTicketActivities.totalCount,
+                  ? prev.getTicketActivities.totalCount - 1
+                  : prev.getTicketActivities.totalCount,
           },
         };
       },

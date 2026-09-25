@@ -3,7 +3,7 @@ import { useAtomValue } from 'jotai';
 import { useQuery } from '@apollo/client';
 import { Combobox, Command, Popover, Badge } from 'erxes-ui';
 import { IconX } from '@tabler/icons-react';
-import { ticketConfigAtom } from '../../../states';
+import { selectedTicketConfigAtom } from '../../../states';
 import { GET_WIDGET_TAGS } from '../../graphql/queries';
 
 interface Tag {
@@ -30,7 +30,7 @@ export function SelectTicketTag({
 }: SelectTicketTagProps) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
-  const ticketConfig = useAtomValue(ticketConfigAtom);
+  const ticketConfig = useAtomValue(selectedTicketConfigAtom);
   const configId = ticketConfig?._id;
 
   const { data, loading } = useQuery<{ widgetsGetTicketTags: Tag[] }>(
@@ -110,7 +110,7 @@ export function SelectTicketTag({
                     <Command.Item
                       key={tag._id}
                       onSelect={() => handleSelect(tag)}
-                      className="flex items-center justify-between"
+                      className="flex items-center justify-between text-foreground"
                     >
                       <span className="flex-1">{tag.name}</span>
                       <Combobox.Check checked={isSelected} />

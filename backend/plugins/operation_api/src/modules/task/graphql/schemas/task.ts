@@ -22,6 +22,10 @@ export const types = `
     estimatePoint: Int
     statusChangedDate: Date
     number: Int
+    githubIssueNumber: Int
+    githubIssueUrl: String
+    githubRepoName: String
+    propertiesData: JSON
   }
 
   type TaskListResponse {
@@ -91,6 +95,7 @@ const createTaskParams = `
   projectId: String
   estimatePoint: Int
   milestoneId: String
+  propertiesData: JSON
 `;
 
 const updateTaskParams = `
@@ -109,6 +114,7 @@ const updateTaskParams = `
   projectId: String
   estimatePoint: Int
   milestoneId: String
+  propertiesData: JSON
 `;
 
 export const queries = `

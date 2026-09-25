@@ -17,6 +17,7 @@ export const CheckCustomerRecordTable = () => {
       data={paginatedItems}
       className="h-full w-full px-2 overflow-y-auto"
       stickyColumns={['checkbox', 'No']}
+      tableId="mongolian_msdynamic_check_customers_record_table"
     >
       <CheckCustomerCommandBar />
       <RecordTable.CursorProvider
@@ -26,7 +27,7 @@ export const CheckCustomerRecordTable = () => {
         sessionKey={MS_DYNAMIC_SESSION_KEYS.customers}
       >
         <RecordTable>
-          <RecordTable.Header />
+          <RecordTable.Header showColumnSelector />
           <RecordTable.Body>
             <RecordTable.CursorBackwardSkeleton
               handleFetchMore={checkCustomers}

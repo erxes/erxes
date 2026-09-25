@@ -11,6 +11,7 @@ import {
   Separator,
   Spinner,
   toast,
+  Tooltip,
   useConfirm,
 } from 'erxes-ui';
 import { useApolloClient, useMutation } from '@apollo/client';
@@ -21,7 +22,7 @@ import {
 } from '../hooks/useIntegrations';
 import { useParams } from 'react-router-dom';
 import { useIntegrationEditField } from '@/integrations/hooks/useIntegrationEdit';
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { InboxHotkeyScope } from '@/inbox/types/InboxHotkeyScope';
 import clsx from 'clsx';
 import { IntegrationType } from '@/types/Integration';
@@ -30,6 +31,12 @@ import { REMOVE_INTEGRATION } from '@/integrations/graphql/mutations/RemoveInteg
 import { IconMessagesOff, IconTrash } from '@tabler/icons-react';
 import { INTEGRATIONS } from '../constants/integrations';
 import { useTranslation } from 'react-i18next';
+
+const FacebookIntegrationBotCell = lazy(() =>
+  import(
+    '~/widgets/automations/modules/facebook/components/bots/components/FacebookIntegrationBotCell'
+  ).then((module) => ({ default: module.FacebookIntegrationBotCell })),
+);
 
 export const IntegrationsRecordTable = () => {
   const { t } = useTranslation('frontline');
@@ -92,6 +99,7 @@ export const IntegrationsRecordTable = () => {
     <RecordTable.Provider
       columns={columns}
       data={(integrations || []).filter((integration) => integration)}
+      tableId={`frontline_${params?.integrationType}_integrations_record_table`}
       stickyColumns={
         isDiscord ? ['more', 'checkbox', 'name'] : ['more', 'name']
       }
@@ -247,11 +255,7 @@ const NameField = ({
   );
 };
 
-export const BrandField = ({
-  cell,
-}: {
-  cell: CellContext<IIntegrationDetail, unknown>;
-}) => {
+export const BrandField = () => {
   return null;
 };
 
@@ -259,8 +263,10 @@ export const useIntegrationTypeColumns = (
   withSelection = false,
 ): ColumnDef<IIntegrationDetail>[] => {
   const { t } = useTranslation('frontline');
+  const { integrationType } = useParams();
+
   return [
-    integrationMoreColumn(),
+    integrationMoreColumn(withSelection),
     ...(withSelection
       ? [RecordTable.checkboxColumn as ColumnDef<IIntegrationDetail>]
       : []),
@@ -300,21 +306,57 @@ export const useIntegrationTypeColumns = (
         const healthStatus =
           cell.getValue() as IIntegrationDetail['healthStatus'];
         const status = healthStatus?.status;
+        const error = healthStatus?.error;
+
+        if (!status) {
+          return <RecordTableInlineCell />;
+        }
+
+        const badge = (
+          <Badge
+            className="text-xs capitalize mx-auto"
+            variant={status === 'healthy' ? 'success' : 'destructive'}
+          >
+            {status}
+          </Badge>
+        );
 
         return (
           <RecordTableInlineCell>
-            {status ? (
-              <Badge
-                className="text-xs capitalize mx-auto"
-                variant={status === 'healthy' ? 'success' : 'destructive'}
-              >
-                {status}
-              </Badge>
-            ) : null}
+            {error ? (
+              <Tooltip.Provider>
+                <Tooltip delayDuration={0}>
+                  <Tooltip.Trigger asChild>
+                    <span className="mx-auto">{badge}</span>
+                  </Tooltip.Trigger>
+                  <Tooltip.Content className="max-w-80 whitespace-pre-wrap break-words">
+                    {error}
+                  </Tooltip.Content>
+                </Tooltip>
+              </Tooltip.Provider>
+            ) : (
+              badge
+            )}
           </RecordTableInlineCell>
         );
       },
       size: 120,
     },
+    ...(integrationType === IntegrationType.FACEBOOK_MESSENGER
+      ? [
+          {
+            id: 'bot',
+            header: () => <RecordTable.InlineHead label={t('bot')} />,
+            cell: (cell: CellContext<IIntegrationDetail, unknown>) => (
+              <Suspense fallback={<RecordTableInlineCell />}>
+                <FacebookIntegrationBotCell
+                  integrationId={cell.row.original._id}
+                />
+              </Suspense>
+            ),
+            size: 220,
+          } as ColumnDef<IIntegrationDetail>,
+        ]
+      : []),
   ];
 };

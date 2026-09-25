@@ -1,3 +1,4 @@
+import { TBuiltInTemplate } from '@/automations/utils/builtInTemplates';
 import {
   NodeContentComponentProps,
   WaitEventFormComponentProps,
@@ -47,6 +48,8 @@ export interface AutomationConstants {
     };
   }>;
   aiKnowledgeSourcesConst: TAiKnowledgeSourceConfig[];
+  // Flows shipped with the code — core's own plus every installed plugin's.
+  workflowTemplatesConst: TBuiltInTemplate[];
 }
 export interface ConstantsQueryResponse {
   automationConstants: AutomationConstants;
@@ -78,6 +81,8 @@ export type NodeData<TConfig = any> = {
     id: string,
     type: AutomationNodeType,
   ) => React.ReactNode;
+  readOnly?: boolean;
+  actionSnapshot?: TAutomationAction;
 };
 
 export type WorkflowNodeData = {
@@ -88,6 +93,12 @@ export type WorkflowNodeData = {
   nodeType: string;
   icon?: string;
   flowDirection?: TAutomationFlowDirection;
+};
+
+export type TAutomationUser = {
+  _id?: string;
+  email?: string;
+  details?: { fullName?: string; avatar?: string };
 };
 
 export interface IAutomationDoc {
@@ -102,19 +113,27 @@ export interface IAutomationDoc {
   createdBy?: string;
   updatedBy?: string;
   createdByIds?: string;
-  updatedUser?: any;
-  createdUser?: any;
+  /** Whose automation it is; records it creates are made on their behalf. */
+  ownerId?: string;
+  activatedAt?: string;
+  ownerUser?: TAutomationUser;
+  updatedUser?: TAutomationUser;
+  createdUser?: TAutomationUser;
+  notes?: IAutomationNote[];
   tags?: any[];
   tagIds?: string[];
   approvalLockState?: ApprovalLockState;
+  duplicatedFrom?: string;
+  duplicatedFromName?: string;
 }
 
-export interface IAutomationNoteDoc {
-  triggerId: string;
-  actionId: string;
-  description: string;
-  createdUser?: any;
-  createdAt?: Date;
+export interface IAutomationNote {
+  id: string;
+  content: string;
+  position?: { x: number; y: number };
+  width?: number;
+  height?: number;
+  color?: string;
 }
 
 export interface IAutomation extends IAutomationDoc {
@@ -152,6 +171,7 @@ export enum AutomationsHotKeyScope {
   BuilderPanel = 'automation-builder-panel',
   HistoriesFilter = 'automation-histories-filter',
   RecordTableFilter = 'automation-record-table-filter',
+  TemplatesFilter = 'automation-templates-filter',
 }
 
 export enum AutomationsPath {
@@ -175,7 +195,65 @@ export enum AutomationNodesType {
 export enum AutomationBuilderTabsType {
   Builder = 'builder',
   History = 'history',
+  Stats = 'stats',
 }
+
+export enum AutomationSecondaryPanel {
+  Variables = 'variables',
+  ErrorPolicy = 'errorPolicy',
+}
+
+export enum AutomationHistoryViewMode {
+  Sheet = 'sheet',
+  Split = 'split',
+}
+
+export enum AutomationHistorySplitDirection {
+  Vertical = 'vertical',
+  Horizontal = 'horizontal',
+}
+
+export type TAutomationStatsCount = {
+  key: string;
+  count: number;
+};
+
+export type TAutomationStatsBucket = {
+  date: string;
+  total: number;
+  complete: number;
+  error: number;
+  waiting: number;
+};
+
+export type TAutomationStatsNode = {
+  actionId: string;
+  actionType?: string;
+  total: number;
+  success: number;
+  error: number;
+  waiting: number;
+  avgDurationMs?: number;
+  maxDurationMs?: number;
+  errorCodes: TAutomationStatsCount[];
+};
+
+export type TAutomationStatsErrorMessage = {
+  message: string;
+  errorCode: string;
+  actionTypes: string[];
+  count: number;
+  lastAt?: string;
+};
+
+export type TAutomationStats = {
+  total: number;
+  byStatus: TAutomationStatsCount[];
+  byErrorCode: TAutomationStatsCount[];
+  timeSeries: TAutomationStatsBucket[];
+  nodes: TAutomationStatsNode[];
+  errorMessages: TAutomationStatsErrorMessage[];
+};
 
 export type AutomationTriggerSidebarCoreFormProps = {
   formRef: React.RefObject<{
@@ -212,6 +290,7 @@ interface ActionComponentConfig<TConfig = any>
     action: IAutomationHistoryAction;
     status: IAutomationHistory['status'];
   }>;
+  actionResultPreview?: (action: IAutomationHistoryAction) => string;
   waitEvent?: LazyAutomationComponent<WaitEventFormComponentProps>;
 }
 

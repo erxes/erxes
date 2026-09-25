@@ -148,11 +148,7 @@ export const generateNodes = (
   props: any = {},
   flowDirection: TAutomationFlowDirection = 'horizontal',
 ) => {
-  if (
-    triggers.length === 0 &&
-    actions.length === 0 &&
-    workflows.length === 0
-  ) {
+  if (triggers.length === 0 && actions.length === 0 && workflows.length === 0) {
     return [
       {
         id: 'scratch-node',
@@ -178,10 +174,10 @@ export const generateNodes = (
 
       const nodesData = nodes.map(
         (n) =>
-          ({ ...n, config: n.config ?? {} }) as Extract<
+          ({ ...n, config: n.config ?? {} } as Extract<
             TAutomationNodeState,
             { nodeTyp: typeof type }
-          >,
+          >),
       );
 
       const generatedNode = generateNode(

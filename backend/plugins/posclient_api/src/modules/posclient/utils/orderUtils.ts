@@ -2,6 +2,7 @@ import moment from 'moment';
 import { nanoid } from 'nanoid';
 
 import { checkDirectDiscount } from './directDiscount';
+import { applyStoredHandDiscount } from './discountInfos';
 import { checkLoyalties } from './loyalties';
 import { checkPricing } from './pricing';
 import { checkRemainders } from './products';
@@ -266,6 +267,7 @@ export const updateOrderItems = async (
       unitPrice: item.unitPrice || 0,
       discountPercent: item.discountPercent,
       discountAmount: item.discountAmount,
+      discountInfos: item.discountInfos,
       bonusCount: item.bonusCount,
       bonusVoucherId: item.bonusVoucherId,
       isPackage: item.isPackage,
@@ -447,6 +449,11 @@ const checkPrices = async (subdomain, preparedDoc, config, posUser) => {
   if (ORDER_TYPES.SALES.includes(type)) {
     preparedDoc = await checkLoyalties(subdomain, preparedDoc);
     preparedDoc = await checkPricing(subdomain, preparedDoc, config);
+    if (!preparedDoc.directDiscount) {
+      for (const item of preparedDoc.items || []) {
+        applyStoredHandDiscount(item);
+      }
+    }
     preparedDoc = checkDirectDiscount(preparedDoc, config, posUser);
     return preparedDoc;
   }
@@ -670,12 +677,32 @@ export const prepareOrderDoc = async (
     }
   }
 
-  return await checkPrices(
+  const result = await checkPrices(
     subdomain,
     { ...doc, items, subscriptionInfo },
     config,
     posUser,
   );
+
+  if (!config.serviceCharge || !config.serviceChargeApplicableProductId) {
+    return result;
+  }
+
+  const serviceChargeAmount = doc.totalAmount * (config.serviceCharge / 100);
+
+  return {
+    ...result,
+    totalAmount: result.totalAmount + serviceChargeAmount,
+    items: [
+      ...result.items,
+      {
+        productId: config.serviceChargeApplicableProductId,
+        count: 1,
+        unitPrice: serviceChargeAmount,
+        isPackage: true,
+      },
+    ],
+  };
 };
 
 export const checkOrderStatus = (order: IOrderDocument) => {

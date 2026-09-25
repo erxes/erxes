@@ -94,6 +94,12 @@ export const pipelineSchema = new Schema(
     },
     paymentIds: { type: [String], label: 'Online Payments' },
     paymentTypes: { type: [Object], label: 'Other Payments' },
+    propertyIds: { type: [String], label: 'Visible deal properties' },
+    isPropertySelectionConfigured: {
+      type: Boolean,
+      default: false,
+      label: 'Property selection configured',
+    },
 
     userId: { type: String, label: 'Created by' },
     order: { type: Number, label: 'Order' },

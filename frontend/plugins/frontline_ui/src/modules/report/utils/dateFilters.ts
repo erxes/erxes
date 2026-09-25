@@ -1,39 +1,49 @@
 import {
   endOfDay,
   endOfMonth,
+  endOfQuarter,
   endOfWeek,
   endOfYear,
   parse,
   startOfDay,
   startOfMonth,
+  startOfQuarter,
   startOfWeek,
   startOfYear,
   subDays,
   subMonths,
+  subQuarters,
   subWeeks,
   subYears,
 } from 'date-fns';
+import { parseDateRangeFromString } from 'erxes-ui';
+
+export const CUSTOM_TIME_PREFIX = 'custom-time:';
+
+export function buildCustomTimeRange(from: Date, to: Date): string {
+  return `${CUSTOM_TIME_PREFIX}${from.toISOString()},${to.toISOString()}`;
+}
+
+export function parseCustomTimeRange(
+  value?: string | null,
+): { from: Date; to: Date } | undefined {
+  if (!value?.startsWith(CUSTOM_TIME_PREFIX)) return undefined;
+
+  const [from, to] = value.slice(CUSTOM_TIME_PREFIX.length).split(',');
+  const fromDate = new Date(from);
+  const toDate = new Date(to ?? from);
+
+  if (Number.isNaN(fromDate.getTime()) || Number.isNaN(toDate.getTime())) {
+    return undefined;
+  }
+
+  return { from: fromDate, to: toDate };
+}
 
 export function getDateRange(value: string) {
   const today = new Date();
   let fromDate: Date | undefined;
   let toDate: Date | undefined;
-
-  // Constants
-  const MONTHS = [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec',
-  ];
 
   switch (value) {
     case 'today': {
@@ -74,6 +84,17 @@ export function getDateRange(value: string) {
       toDate = endOfDay(today);
       break;
     }
+    case 'this-quarter': {
+      fromDate = startOfDay(startOfQuarter(today));
+      toDate = endOfDay(endOfQuarter(today));
+      break;
+    }
+    case 'last-quarter': {
+      const lastQuarter = subQuarters(today, 1);
+      fromDate = startOfDay(startOfQuarter(lastQuarter));
+      toDate = endOfDay(endOfQuarter(lastQuarter));
+      break;
+    }
     case 'this-year': {
       fromDate = startOfDay(startOfYear(today));
       toDate = endOfDay(endOfYear(today));
@@ -86,6 +107,13 @@ export function getDateRange(value: string) {
       break;
     }
     default: {
+      const timeRange = parseCustomTimeRange(value);
+      if (timeRange) {
+        fromDate = timeRange.from;
+        toDate = timeRange.to;
+        break;
+      }
+
       if (value.startsWith('custom:')) {
         const dateString = value.replace('custom:', '');
         try {
@@ -95,38 +123,12 @@ export function getDateRange(value: string) {
         } catch {
           return { fromDate: undefined, toDate: undefined };
         }
-      } else if (MONTHS.some((month) => value.includes(month))) {
-        // Month format: YYYY-MMM
-        const [year, month] = value.split('-');
-        const monthIndex = MONTHS.indexOf(month);
-        fromDate = startOfDay(new Date(parseInt(year), monthIndex, 1));
-        toDate = endOfDay(new Date(parseInt(year), monthIndex + 1, 0));
-      } else if (value.includes('quarter')) {
-        // Quarter format: YYYY-quarterN
-        const [year] = value.split('-');
-        const quarterNumber = Number.parseInt(value.split('quarter')[1]);
-        fromDate = startOfDay(
-          new Date(parseInt(year), (quarterNumber - 1) * 3, 1),
-        );
-        toDate = endOfDay(new Date(parseInt(year), quarterNumber * 3, 0));
-      } else if (value.includes('half')) {
-        // Half year format: YYYY-halfN
-        const [year] = value.split('-');
-        const halfNumber = Number.parseInt(value.split('half')[1]);
-        fromDate = startOfDay(
-          new Date(parseInt(year), (halfNumber - 1) * 6, 1),
-        );
-        toDate = endOfDay(new Date(parseInt(year), halfNumber * 6, 0));
-      } else if (/^\d{4}-y$/.test(value)) {
-        // Year format: YYYY-y
-        const year = Number.parseInt(value);
-        fromDate = startOfDay(new Date(year, 0, 1));
-        toDate = endOfDay(new Date(year, 11, 31));
-      } else if (value.includes(',')) {
-        // Date range format: fromDate,toDate
-        const [from, to] = value.split(',');
-        fromDate = startOfDay(new Date(from));
-        toDate = endOfDay(new Date(to));
+        break;
+      }
+      const range = parseDateRangeFromString(value);
+      if (range) {
+        fromDate = range.from;
+        toDate = range.to;
       }
       break;
     }

@@ -1,62 +1,74 @@
-import { Row } from '@tanstack/table-core';
-import { ApolloError } from '@apollo/client';
-import { Button, useConfirm, useToast } from 'erxes-ui';
-import { IconTrash } from '@tabler/icons-react';
 import { useChannelMembersRemove } from '@/channels/hooks/useChannelMembersRemove';
+import { IconTrash } from '@tabler/icons-react';
+import { Button, RecordTable, Spinner, useConfirm, useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
 export const MemberRemoveButtonCommandBar = ({
   memberIds,
   channelId,
-  rows,
 }: {
   memberIds: string[];
   channelId: string;
-  rows: Row<unknown>[];
 }) => {
   const { t } = useTranslation('frontline');
+  const { table } = RecordTable.useRecordTable();
   const { confirm } = useConfirm();
-  const { removeMembers } = useChannelMembersRemove();
   const { toast } = useToast();
+  const { removeMembers, loading } = useChannelMembersRemove();
 
-  const handleError = (e: ApolloError) => {
-    toast({
-      title: t('error'),
-      description: e.message,
-      variant: 'destructive',
-    });
-  };
-
-  const handleCompleted = () => {
-    rows.forEach((row) => row.toggleSelected(false));
-    toast({
-      title: t('success'),
-      variant: 'success',
-      description: t('channel-members-deleted'),
-    });
-  };
-
-  const handleConfirmed = () => {
-    removeMembers(memberIds, channelId, {
-      onError: handleError,
-      onCompleted: handleCompleted,
-    });
-  };
-
-  const handleClick = () => {
+  const handleClick = () =>
     confirm({
-      message: t('confirm-delete-selected-members', { count: memberIds.length }),
-    }).then(handleConfirmed);
-  };
+      message: t('confirm-delete-selected-members', {
+        defaultValue:
+          'Are you sure you want to delete the {{count}} selected members?',
+        count: memberIds.length,
+      }),
+    }).then(async () => {
+      const { removedIds, failedCount, error, refreshFailed } =
+        await removeMembers(memberIds, channelId);
+
+      table.resetRowSelection();
+
+      const description = [
+        failedCount
+          ? t('channel-members-removed-with-failures', {
+              defaultValue: '{{succeeded}} removed, {{failed}} failed',
+              succeeded: removedIds.length,
+              failed: failedCount,
+            })
+          : t('channel-members-deleted', {
+              defaultValue: 'Channel members deleted successfully',
+            }),
+        failedCount && error?.message,
+        refreshFailed &&
+          t('channel-members-refresh-failed', {
+            defaultValue:
+              'Could not refresh the list. Reload the page to see the latest data.',
+          }),
+      ]
+        .filter(Boolean)
+        .join(' ');
+
+      return toast(
+        failedCount || refreshFailed
+          ? { title: t('error', 'Error'), description, variant: 'destructive' }
+          : {
+              title: t('success', 'Success!'),
+              description,
+              variant: 'success',
+            },
+      );
+    });
 
   return (
     <Button
       variant="secondary"
       className="text-destructive"
+      disabled={loading}
       onClick={handleClick}
     >
-      <IconTrash />
-      {t('delete')}
+      {loading ? <Spinner size="sm" /> : <IconTrash />}
+      {t('delete', 'Delete')}
     </Button>
   );
 };

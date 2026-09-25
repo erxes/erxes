@@ -1,3 +1,4 @@
+import { getDelayResultPreview } from '@/automations/components/builder/nodes/actions/delay/utils/delayResultPreview';
 import { lazy } from 'react';
 import {
   AutomationComponentMap,
@@ -20,7 +21,14 @@ const DelayComponents: AutomationComponentMap<AutomationNodeType.Action> = {
         default: module.DelayNodeContent,
       })),
     ),
-    // actionResult:({action})=>`Delaying for: ${action.actionConfig.value} ${action.actionConfig.type}s`
+    actionResult: lazy(() =>
+      import(
+        '@/automations/components/builder/nodes/actions/delay/components/DelayActionResult'
+      ).then((module) => ({
+        default: module.DelayActionResult,
+      })),
+    ),
+    actionResultPreview: getDelayResultPreview,
   },
 };
 

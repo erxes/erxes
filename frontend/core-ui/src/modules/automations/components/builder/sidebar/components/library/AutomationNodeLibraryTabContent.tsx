@@ -1,7 +1,10 @@
 import { NodeLibraryRow } from '@/automations/components/builder/sidebar/components/library/NodeLibraryRow';
 import { useAutomationNodeLibraryGroups } from '@/automations/components/builder/sidebar/hooks/useAutomationNodeLibraryGroups';
+import { useAutomationBuilderSidebarHooks } from '@/automations/components/builder/sidebar/hooks/useAutomationBuilderSidebarHooks';
+import { useAutomationNodes } from '@/automations/hooks/useAutomationNodes';
 import { AutomationNodeType } from '@/automations/types';
-import { Command } from 'erxes-ui';
+import { IconPointerBolt } from '@tabler/icons-react';
+import { Button, Command } from 'erxes-ui';
 import {
   IAutomationsActionConfigConstants,
   IAutomationsTriggerConfigConstants,
@@ -24,6 +27,32 @@ export const AutomationNodeLibraryTabContent = ({
 }: AutomationNodeLibraryTabContentProps) => {
   const { onDragStart, onSelectNode } = useAutomationNodeLibraryProvider();
   const groups = useAutomationNodeLibraryGroups({ type, list });
+  const { isEmpty } = useAutomationNodes();
+  const { openNodeLibrary } = useAutomationBuilderSidebarHooks();
+
+  if (
+    type === AutomationNodeType.Action &&
+    isEmpty(AutomationNodeType.Trigger) &&
+    isEmpty(AutomationNodeType.Action)
+  ) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center gap-3 px-6 text-center">
+        <IconPointerBolt className="size-8 text-muted-foreground" />
+        <div className="space-y-1">
+          <p className="text-sm font-medium">Start with a trigger</p>
+          <p className="text-sm text-muted-foreground">
+            Actions run after something starts this automation.
+          </p>
+        </div>
+        <Button
+          variant="outline"
+          onClick={() => openNodeLibrary(AutomationNodeType.Trigger)}
+        >
+          Choose a trigger
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <>

@@ -102,6 +102,7 @@ const TransactionMoreColumnCell = ({
 
 const transactionMoreColumn = {
   id: 'more',
+  header: () => <RecordTable.ColumnSelector />,
   cell: TransactionMoreColumnCell,
   size: 33,
 };
@@ -148,7 +149,7 @@ export const adjustDetailTableColumns: ColumnDef<IAdjustInventory>[] = [
       <RecordTable.InlineHead icon={IconMoneybag} label="Үлдэгдэл" />
     ),
     accessorKey: 'remainder',
-    cell: ({ getValue, row }) => <NumberCell getValue={getValue} />,
+    cell: ({ getValue }) => <NumberCell getValue={getValue} />,
   },
   {
     id: 'unitCost',
@@ -156,7 +157,7 @@ export const adjustDetailTableColumns: ColumnDef<IAdjustInventory>[] = [
       <RecordTable.InlineHead icon={IconMoneybag} label="Нэгж өртөг" />
     ),
     accessorKey: 'unitCost',
-    cell: ({ getValue, row }) => <NumberCell getValue={getValue} />,
+    cell: ({ getValue }) => <NumberCell getValue={getValue} />,
   },
   {
     id: 'cost',
@@ -164,7 +165,7 @@ export const adjustDetailTableColumns: ColumnDef<IAdjustInventory>[] = [
       <RecordTable.InlineHead icon={IconMoneybag} label="Нийт өртөг" />
     ),
     accessorKey: 'cost',
-    cell: ({ getValue, row }) => <NumberCell getValue={getValue} />,
+    cell: ({ getValue }) => <NumberCell getValue={getValue} />,
   },
   {
     id: 'description',

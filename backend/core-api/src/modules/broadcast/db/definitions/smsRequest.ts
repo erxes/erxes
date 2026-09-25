@@ -9,7 +9,7 @@ const statusSchema = new Schema(
 );
 
 export const smsRequestSchema = new Schema({
-  createdAt: { type: Date, default: new Date(), label: 'Created at' },
+  createdAt: { type: Date, default: Date.now, label: 'Created at' },
   engageMessageId: { type: String, label: 'Engage message id' },
   to: { type: String, label: 'Receiver phone number' },
   requestData: { type: String, label: 'Stringified request JSON' },

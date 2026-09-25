@@ -30,6 +30,7 @@ export const recordTableHeadVariants = cva(
 export const RecordTableHead = ({
   header,
   children,
+  className,
   ...props
 }: React.ComponentProps<'th'> & {
   header: Header<any, unknown>;
@@ -51,9 +52,10 @@ export const RecordTableHead = ({
             column.getIsPinned() === 'left'
               ? 'left'
               : column.getIsPinned() === 'right'
-              ? 'right'
-              : null,
+                ? 'right'
+                : null,
         }),
+        className,
       )}
       style={{
         width: `var(--header-${column.id}-width)`,

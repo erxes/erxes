@@ -19,7 +19,8 @@ export interface IProductParams extends IListParams, ICursorPaginateParams {
   pipelineId?: string;
   boardId?: string;
   segment?: string;
-  segmentData?: string;
+  segmentIds?: string[];
+  propertiesData?: string;
   groupedSimilarity?: string;
   similarity?: boolean;
   image?: string;

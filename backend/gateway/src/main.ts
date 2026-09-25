@@ -25,6 +25,7 @@ import {
 
 import {
   applyTrustProxy,
+  DEFAULT_JOB_OPTIONS,
   getPlugin,
   getPlugins,
   getSubdomain,
@@ -33,7 +34,6 @@ import {
   setActivePlugins,
 } from 'erxes-api-shared/utils';
 import { generateModels } from '~/connectionResolver';
-// import * as jwt from 'jsonwebtoken';
 import { applyGraphqlLimiters } from '~/middlewares/graphql-limiter';
 import {
   startSubscriptionServer,
@@ -69,9 +69,7 @@ const corsOptions = {
 
 const myQueue = new Queue('gateway-service-discovery', {
   connection: redis as any,
-  defaultJobOptions: {
-    removeOnComplete: false,
-  },
+  defaultJobOptions: DEFAULT_JOB_OPTIONS,
 });
 
 const serverAdapter = new ExpressAdapter();
@@ -174,6 +172,11 @@ app.get('/locales/:lng/:file', async (req, res) => {
   if (locale === null) {
     return res.status(404).send('Locale not found');
   }
+
+  // Without this the browser applies heuristic freshness and never revalidates,
+  // so an edited translation only reaches people once their cache expires.
+  // `no-cache` still allows the ETag to answer with a cheap 304.
+  res.set('Cache-Control', 'no-cache');
 
   return res.json(locale);
 });

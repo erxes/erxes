@@ -34,7 +34,7 @@ export const BoardsList = () => {
   return (
     <Sidebar collapsible="none" className="flex-none border-r">
       <Sidebar.Group>
-        <div className="w-full flex items-center justify-between">
+        <div className="flex w-full items-center justify-between">
           <Sidebar.GroupLabel>
             {t('boards')} ({boards?.length || 0})
           </Sidebar.GroupLabel>

@@ -1,4 +1,4 @@
-import { Cell, ColumnDef } from '@tanstack/react-table';
+import { ColumnDef } from '@tanstack/react-table';
 import {
   Combobox,
   Command,
@@ -17,6 +17,10 @@ interface SettingsRowsTableProps<TData> {
   totalCount?: number;
   handleFetchMore?: () => void;
   Commandbar: React.ComponentType;
+  tableId: string;
+  showColumnSelector?: boolean;
+  stickyColumns?: string[];
+  className?: string;
 }
 
 export const SettingsRowsTable = <TData,>({
@@ -26,6 +30,10 @@ export const SettingsRowsTable = <TData,>({
   totalCount,
   handleFetchMore,
   Commandbar,
+  tableId,
+  showColumnSelector = false,
+  stickyColumns,
+  className,
 }: SettingsRowsTableProps<TData>) => {
   const isInitialLoading = loading && !data?.length;
 
@@ -33,10 +41,13 @@ export const SettingsRowsTable = <TData,>({
     <RecordTable.Provider
       columns={columns}
       data={isInitialLoading ? [] : data || []}
+      stickyColumns={stickyColumns ?? ['more', 'checkbox']}
+      tableId={tableId}
+      className={className}
     >
       <RecordTable.Scroll>
         <RecordTable>
-          <RecordTable.Header />
+          <RecordTable.Header showColumnSelector={showColumnSelector} />
           <RecordTable.Body>
             <RecordTable.RowList />
             {isInitialLoading && <RecordTable.RowSkeleton rows={20} />}
@@ -103,12 +114,10 @@ export const getSharedRowColumns = <T,>(
   },
 ];
 
-export const MoreActionsCell = <T,>({
-  cell: _cell,
+export const MoreActionsCell = ({
   onEdit,
   onDelete,
 }: {
-  cell: Cell<T, unknown>;
   onEdit: () => void;
   onDelete: () => void;
 }) => {

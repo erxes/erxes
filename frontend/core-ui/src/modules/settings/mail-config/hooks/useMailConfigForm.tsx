@@ -1,6 +1,7 @@
 import { SubmitHandler, useForm } from 'react-hook-form';
 import {
   TCustomMailConfig,
+  TSendgridMailConfig,
   TSESMailConfig,
 } from '@/settings/mail-config/types';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -8,7 +9,7 @@ import { MAIL_CONFIG_SCHEMA } from '@/settings/mail-config/schema';
 import { useCallback } from 'react';
 import { useConfig } from '@/settings/file-upload/hook/useConfigs';
 
-type TProps = TCustomMailConfig | TSESMailConfig;
+type TProps = TCustomMailConfig | TSESMailConfig | TSendgridMailConfig;
 
 interface TConfig {
   _id: string;
@@ -27,6 +28,10 @@ const useMailConfigForm = () => {
       COMPANY_EMAIL_TEMPLATE: '',
       DEFAULT_EMAIL_SERVICE: 'SES',
 
+      COMPANY_POSTAL_ADDRESS: '',
+      COMPANY_POSTAL_CITY: '',
+      COMPANY_POSTAL_COUNTRY: '',
+
       MAIL_SERVICE: '',
       MAIL_PORT: '',
       MAIL_USER: '',
@@ -37,6 +42,10 @@ const useMailConfigForm = () => {
       AWS_SES_SECRET_ACCESS_KEY: '',
       AWS_REGION: '',
       AWS_SES_CONFIG_SET: '',
+
+      SENDGRID_API_KEY: '',
+      SENDGRID_SUBUSER: '',
+      SENDGRID_WEBHOOK_PUBLIC_KEY: '',
     } as TProps,
   });
 

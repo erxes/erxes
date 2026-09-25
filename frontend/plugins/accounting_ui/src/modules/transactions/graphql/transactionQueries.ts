@@ -11,6 +11,16 @@ export const commonTrDetailFields = `
   transactionId
   branchId
   departmentId
+  branch {
+    _id
+    code
+    title
+  }
+  department {
+    _id
+    code
+    title
+  }
   originId
   originType
   originSubId
@@ -22,8 +32,13 @@ export const commonTrDetailFields = `
   assignedUserId
 
   productId
+  fixedAssetId
+  fixedAssetCategoryId
+  fixedAssetCode
+  fixedAssetName
   count
   unitPrice
+  weight
 
   excludeVat
   excludeCtax
@@ -247,8 +262,7 @@ export const TRANSACTIONS_QUERY = gql`
       list {
         ${commonTransactionFields}
         ptrInfo
-      }
-      totalCount
+      } 
       ${GQL_PAGE_INFO}
     }
   }

@@ -1,5 +1,7 @@
 import { STATUSES_BADGE_VARIABLES } from '@/automations/constants';
 import { StatusBadgeValue } from '@/automations/types';
+import { AutomationHistoryActionFilterView } from '@/automations/components/builder/history/components/filters/AutomationHistoryActionFilterView';
+import { AutomationHistoryErrorCodeFilterView } from '@/automations/components/builder/history/components/filters/AutomationHistoryErrorCodeFilterView';
 import { IconCheck } from '@tabler/icons-react';
 import { Combobox, Command, Filter, useQueryState } from 'erxes-ui';
 
@@ -36,6 +38,9 @@ export const AutomationHistoriesFilterViews = () => {
       <Filter.View filterKey="createdAt">
         <Filter.DateView filterKey="createdAt" />
       </Filter.View>
+      <AutomationHistoryActionFilterView filterKey="failedActionId" />
+      <AutomationHistoryErrorCodeFilterView />
+      <AutomationHistoryActionFilterView filterKey="waitingActionId" />
     </>
   );
 };

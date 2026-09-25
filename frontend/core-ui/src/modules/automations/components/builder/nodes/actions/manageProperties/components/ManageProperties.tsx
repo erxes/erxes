@@ -1,3 +1,4 @@
+import { getManagePropertiesResultPreview } from '@/automations/components/builder/nodes/actions/manageProperties/utils/managePropertiesResultPreview';
 import { lazy } from 'react';
 import {
   AutomationComponentMap,
@@ -21,6 +22,14 @@ const ManagePropertiesComponents: AutomationComponentMap<AutomationNodeType.Acti
           default: module.ManagePropertiesNodeContent,
         })),
       ),
+      actionResult: lazy(() =>
+        import(
+          '@/automations/components/builder/nodes/actions/manageProperties/components/ManagePropertiesActionResult'
+        ).then((module) => ({
+          default: module.ManagePropertiesActionResult,
+        })),
+      ),
+      actionResultPreview: getManagePropertiesResultPreview,
     },
   };
 

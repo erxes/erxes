@@ -74,8 +74,7 @@ export const resumeParentExecutionWorker = async (
   const execAction = [...(execution.actions || [])]
     .reverse()
     .find(
-      (action) =>
-        action.actionId === workflowId && action.status === 'waiting',
+      (action) => action.actionId === workflowId && action.status === 'waiting',
     );
 
   if (execAction) {
@@ -90,7 +89,12 @@ export const resumeParentExecutionWorker = async (
 
   if (status === 'error') {
     execution.status = AUTOMATION_EXECUTION_STATUS.ERROR;
-    execution.description = `Workflow failed: ${data.errorMessage || 'unknown error'}`;
+    execution.description = `Workflow failed: ${
+      data.errorMessage || 'unknown error'
+    }`;
+    execution.failedActionId = execAction?.actionId;
+    execution.failedActionType = execAction?.actionType;
+    execution.errorCode = execAction?.errorCode;
     await execution.save();
     return;
   }

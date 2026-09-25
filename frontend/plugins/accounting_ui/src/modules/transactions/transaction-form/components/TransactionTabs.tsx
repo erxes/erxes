@@ -1,4 +1,5 @@
 import { IconLock, IconX, IconZoomExclamation } from '@tabler/icons-react';
+import { IAccount } from '@/settings/account/types/Account';
 import { Button, cn, Tabs, Tooltip } from 'erxes-ui';
 import { useAtom, useAtomValue } from 'jotai';
 import React, { useEffect } from 'react';
@@ -20,6 +21,10 @@ import {
 import { ITransactionGroupForm, TTrDoc } from '../types/JournalForms';
 import { BankTransaction } from './forms/BankForm';
 import { CashTransaction } from './forms/CashForm';
+import { FxaIncomeForm } from './forms/FxaIncomeForm';
+import { FxaMoveForm } from './forms/FxaMoveForm';
+import { FxaOutForm } from './forms/FxaOutForm';
+import { FxaSaleForm } from './forms/FxaSaleForm';
 import { InvIncomeForm } from './forms/InvIncomeForm';
 import { InvMoveForm } from './forms/InvMoveForm';
 import { InvOutForm } from './forms/InvOutForm';
@@ -64,6 +69,14 @@ const TransactionForm = ({
     return <InvSaleForm form={form} index={index} />;
   if (field.journal === TrJournalEnum.INV_SALE_RETURN)
     return <InvSaleReturnForm form={form} index={index} />;
+  if (field.journal === TrJournalEnum.FXA_INCOME)
+    return <FxaIncomeForm form={form} index={index} />;
+  if (field.journal === TrJournalEnum.FXA_OUT)
+    return <FxaOutForm form={form} index={index} />;
+  if (field.journal === TrJournalEnum.FXA_MOVE)
+    return <FxaMoveForm form={form} index={index} />;
+  if (field.journal === TrJournalEnum.FXA_SALE)
+    return <FxaSaleForm form={form} index={index} />;
   return null;
 };
 
@@ -185,7 +198,10 @@ export const TransactionsTabsList = ({
     index.toString() === activeJournal && setActiveJournal('0');
   };
 
-  const handleAddTransaction = (journal?: TrJournalEnum) => {
+  const handleAddTransaction = (
+    journal?: TrJournalEnum,
+    account?: IAccount,
+  ) => {
     const selectedJournal = journal || TrJournalEnum.MAIN;
 
     const [sumDebit, sumCredit] = sumDtAndCt(fields as TTrDoc[], followTrDocs);
@@ -204,7 +220,7 @@ export const TransactionsTabsList = ({
       side: diff > 0 ? TR_SIDES.CREDIT : TR_SIDES.DEBIT,
       details: [
         {
-          ...fields[0].details,
+          ...(account ? { account, accountId: account._id } : {}),
           amount: Math.abs(diff),
         },
       ],

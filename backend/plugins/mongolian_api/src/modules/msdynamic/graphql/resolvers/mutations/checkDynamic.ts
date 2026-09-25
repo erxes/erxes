@@ -139,6 +139,84 @@ const collectDeletedProducts = (
     }
   }
 };
+const buildCustomerCheckResult = (
+  msdCustomers: any[],
+  erxesByMsdNo: Record<string, any>,
+) => {
+  const msdCodes = new Set(msdCustomers.map((customer: any) => customer.No));
+
+  const result = {
+    update: { items: [] as any[] },
+    create: { items: [] as any[] },
+    delete: { items: [] as any[] },
+    error: { items: [] as any[] },
+  };
+
+  for (const msd of msdCustomers) {
+    try {
+      const existing = erxesByMsdNo[msd.No];
+
+      if (!existing) {
+        result.create.items.push({
+          No: msd.No,
+          Name: msd.Name,
+          Phone_No: msd.Phone_No,
+          E_Mail: msd.E_Mail,
+          Partner_Type: msd.Partner_Type,
+          code: undefined,
+        });
+      } else if (
+        existing.primaryPhone !== msd.Phone_No ||
+        existing.primaryEmail !== msd.E_Mail
+      ) {
+        result.update.items.push({
+          No: msd.No,
+          Name: msd.Name,
+          Phone_No: msd.Phone_No,
+          E_Mail: msd.E_Mail,
+          Partner_Type: msd.Partner_Type,
+          code: existing.code,
+          primaryPhone: existing.primaryPhone,
+          primaryEmail: existing.primaryEmail,
+        });
+      }
+    } catch (e: any) {
+      result.error.items.push({
+        No: msd.No || '',
+        message: e.message,
+      });
+    }
+  }
+
+  for (const no of Object.keys(erxesByMsdNo)) {
+    if (!msdCodes.has(no)) {
+      const erxes = erxesByMsdNo[no];
+
+      result.delete.items.push({
+        _id: erxes._id,
+        code: no,
+        primaryPhone: erxes.primaryPhone,
+        primaryEmail: erxes.primaryEmail,
+      });
+    }
+  }
+
+  return result;
+};
+const isCategoryMatched = (
+  dynamicCategory: any,
+  category: any,
+  categoryById: Record<string, any>,
+) => {
+  return (
+    dynamicCategory.Code === category.code &&
+    (dynamicCategory.Parent_Category
+      ? categoryById[category.parentId]?.code ===
+        dynamicCategory.Parent_Category
+      : !category.parentId) &&
+    category.name === dynamicCategory.Description
+  );
+};
 /**
  * ============================
  * MS Dynamic Check Mutations
@@ -156,20 +234,33 @@ export const msdynamicCheckMutations = {
     const config = await getDynamicConfig(models, brandId);
 
     if (!config.itemApi || !config.username || !config.password) {
-      throw new Error('MS Dynamic config not valid.');
+      throw new TypeError('MS Dynamic config not valid.');
     }
 
     const { itemApi, username, password } = config;
 
     const products = await sendTRPCMessage({
       subdomain,
+      method: 'query',
       pluginName: 'core',
       module: 'products',
       action: 'find',
-      input: { query: { status: { $ne: 'deleted' } } },
+      input: {
+        query: { status: { $ne: 'deleted' } },
+      },
       defaultValue: [],
     });
-    const productCodes = products.map((p: any) => p.code);
+
+    const productsByCode = products.reduce(
+      (acc: Record<string, any>, product: any) => {
+        if (product.code) {
+          acc[product.code] = product;
+        }
+
+        return acc;
+      },
+      {},
+    );
 
     const response = await fetch(
       `${itemApi}?$filter=Item_Category_Code ne '' and Blocked ne true and Allow_Ecommerce eq true`,
@@ -182,17 +273,49 @@ export const msdynamicCheckMutations = {
           ).toString('base64')}`,
         },
       },
-    ).then((r) => r.json());
+    );
 
-    const resultCodes = response?.value?.map((r: any) => r.No) || [];
+    if (!response.ok) {
+      throw new Error(`MS Dynamic product request failed: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    if (!Array.isArray(data?.value)) {
+      throw new Error('MS Dynamic product response is not valid.');
+    }
+
+    const dynamicProducts = data.value;
+
+    const createItems = dynamicProducts.filter(
+      (product: any) => !productsByCode[product.No],
+    );
+
+    const deleteItems = products.filter(
+      (product: any) =>
+        !dynamicProducts.some(
+          (dynamicProduct: any) => dynamicProduct.No === product.code,
+        ),
+    );
+
+    const matchedCount = dynamicProducts.filter(
+      (product: any) => productsByCode[product.No],
+    ).length;
 
     return {
-      create: resultCodes.filter((c: string) => !productCodes.includes(c))
-        .length,
-      delete: productCodes.filter((c: string) => !resultCodes.includes(c))
-        .length,
-      matched: resultCodes.filter((c: string) => productCodes.includes(c))
-        .length,
+      create: {
+        items: createItems,
+        count: createItems.length,
+      },
+      update: {
+        items: [],
+        count: 0,
+      },
+      delete: {
+        items: deleteItems,
+        count: deleteItems.length,
+      },
+      matched: matchedCount,
     };
   },
 
@@ -242,6 +365,266 @@ export const msdynamicCheckMutations = {
       syncedCustomer: syncMap[_id]?.syncedCustomer || null,
     }));
   },
+
+  async toCheckMsdProductCategories(
+    _root: unknown,
+    { brandId, categoryId }: { brandId: string; categoryId?: string },
+    { subdomain, checkPermission }: IContext,
+  ) {
+    await checkPermission('msdCheck');
+
+    const models = await generateModels(subdomain);
+    const config = await getDynamicConfig(models, brandId);
+
+    if (!config.itemCategoryApi || !config.username || !config.password) {
+      throw new TypeError('MS Dynamic config not valid.');
+    }
+
+    const { itemCategoryApi, username, password } = config;
+
+    const categoriesCount = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      module: 'productCategories',
+      action: 'count',
+      input: {
+        query: { status: { $ne: 'deleted' } },
+      },
+      defaultValue: 0,
+    });
+
+    const categories = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      module: 'productCategories',
+      action: 'find',
+      input: {
+        query: { status: { $ne: 'deleted' } },
+        limit: categoriesCount,
+      },
+      defaultValue: [],
+    });
+
+    const categoryResponse = await fetch(itemCategoryApi, {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Accept: 'application/json',
+        Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString(
+          'base64',
+        )}`,
+      },
+    });
+
+    if (!categoryResponse.ok) {
+      throw new Error(
+        `MS Dynamic category request failed: ${categoryResponse.status}`,
+      );
+    }
+
+    const response = await categoryResponse.json();
+
+    if (!Array.isArray(response?.value)) {
+      throw new Error('MS Dynamic category response is not valid.');
+    }
+
+    const dynamicCategories = response.value;
+
+    const categoryById: Record<string, any> = {};
+    for (const category of categories) {
+      categoryById[category._id] = category;
+    }
+
+    const selectedParentCode = categoryId
+      ? categoryById[categoryId]?.code
+      : undefined;
+
+    const scopedCategories = categoryId
+      ? categories.filter((category: any) => category.parentId === categoryId)
+      : categories;
+
+    const scopedDynamicCategories = categoryId
+      ? dynamicCategories.filter(
+          (category: { Parent_Category?: string }) =>
+            category.Parent_Category === (selectedParentCode || ''),
+        )
+      : dynamicCategories;
+
+    const resultCodes = new Set(
+      scopedDynamicCategories
+        .map((category: { Code?: string }) => category.Code)
+        .filter(Boolean),
+    );
+
+    const categoryByCode: Record<string, any> = {};
+
+    const createCategories: any[] = [];
+    const updateCategories: any[] = [];
+    let matchedCount = 0;
+
+    for (const category of scopedCategories) {
+      categoryByCode[category.code] = category;
+    }
+
+    const deleteCategories = scopedCategories.filter(
+      (category: any) => !resultCodes.has(category.code),
+    );
+    
+
+    for (const dynamicCategory of scopedDynamicCategories) {
+      const category = categoryByCode[dynamicCategory.Code];
+
+      if (!category) {
+        createCategories.push(dynamicCategory);
+        continue;
+      }
+
+      if (isCategoryMatched(dynamicCategory, category, categoryById)) {
+        matchedCount += 1;
+      } else {
+        updateCategories.push(dynamicCategory);
+      }
+    }
+
+    return {
+      create: {
+        count: createCategories.length,
+        items: createCategories,
+      },
+      update: {
+        count: updateCategories.length,
+        items: updateCategories,
+      },
+      delete: {
+        count: deleteCategories.length,
+        items: deleteCategories,
+      },
+      matched: {
+        count: matchedCount,
+      },
+    };
+  },
+
+  async toCheckMsdCustomers(
+    _root,
+    { brandId }: { brandId: string },
+    { subdomain, checkPermission }: IContext,
+  ) {
+    await checkPermission('msdCheck');
+
+    const models = await generateModels(subdomain);
+    const config = await getDynamicConfig(models, brandId);
+
+    if (!config.customerApi || !config.username || !config.password) {
+      throw new TypeError('MS Dynamic config not valid.');
+    }
+
+    const { customerApi, username, password } = config;
+
+    const [customers, companies] = await Promise.all([
+      sendTRPCMessage({
+        subdomain,
+        method: 'query',
+        pluginName: 'core',
+        module: 'customers',
+        action: 'find',
+        input: { query: { state: { $ne: 'deleted' } } },
+        defaultValue: [],
+        throwOnError: true,
+      }),
+      sendTRPCMessage({
+        subdomain,
+        method: 'query',
+        pluginName: 'core',
+        module: 'companies',
+        action: 'find',
+        input: { query: { status: { $ne: 'deleted' } } },
+        defaultValue: [],
+        throwOnError: true,
+      }),
+    ]);
+
+    const relations = await models.CustomerRelations.find({
+      brandId,
+    }).lean();
+
+    const erxesByMsdNo: Record<string, any> = {};
+
+    for (const relation of relations) {
+      const customer =
+        customers.find((item: any) => item._id === relation.customerId) ||
+        companies.find((item: any) => item._id === relation.customerId);
+
+      if (customer && relation.no) {
+        erxesByMsdNo[relation.no] = {
+          ...customer,
+          _customerType: customers.some(
+            (item: any) => item._id === customer._id,
+          )
+            ? 'customer'
+            : 'company',
+        };
+      }
+    }
+
+    const pageSize = 500;
+    const concurrency = 10;
+    const msdCustomers: any[] = [];
+
+    let skip = 0;
+    let hasMore = true;
+
+    const authorization = `Basic ${Buffer.from(
+      `${username}:${password}`,
+    ).toString('base64')}`;
+
+    const fetchPage = async (pageSkip: number) => {
+      const httpResponse = await fetch(
+        `${customerApi}?$top=${pageSize}&$skip=${pageSkip}&$select=No,Name,Phone_No,E_Mail,Partner_Type`,
+        {
+          timeout: 180000,
+          headers: {
+            Accept: 'application/json',
+            Authorization: authorization,
+          },
+        },
+      );
+
+      if (!httpResponse.ok) {
+        throw new Error(
+          `MS Dynamic customer request failed: ${httpResponse.status}`,
+        );
+      }
+
+      const response = await httpResponse.json();
+
+      if (!Array.isArray(response?.value)) {
+        throw new TypeError('MS Dynamic customer response is not valid.');
+      }
+
+      return response.value;
+    };
+
+    while (hasMore) {
+      const skips = Array.from(
+        { length: concurrency },
+        (_, index) => skip + index * pageSize,
+      );
+      const pages = await Promise.all(skips.map(fetchPage));
+
+      for (const page of pages) {
+        msdCustomers.push(...page);
+
+        if (page.length < pageSize) {
+          hasMore = false;
+          break;
+        }
+      }
+
+      skip += concurrency * pageSize;
+    }
+
+    return buildCustomerCheckResult(msdCustomers, erxesByMsdNo);
+  },
   async toCheckMsdPrices(
     _root,
     { brandId }: { brandId: string },
@@ -266,6 +649,7 @@ export const msdynamicCheckMutations = {
 
     const products = await sendTRPCMessage({
       subdomain,
+      method: 'query',
       pluginName: 'core',
       module: 'products',
       action: 'find',
@@ -296,7 +680,6 @@ export const msdynamicCheckMutations = {
         },
       },
     ).then((res) => res.json());
-
     const groupedItems = groupItemsByCode(response?.value);
     const productsByCode = mapProductsByCode(products);
     const dynamicCodes = new Set(Object.keys(groupedItems));
@@ -320,46 +703,5 @@ export const msdynamicCheckMutations = {
     collectDeletedProducts(products, dynamicCodes, result);
 
     return result;
-  },
-  async toSyncMsdPrices(
-    _root,
-    { prices = [] }: { prices: any[] },
-    { subdomain, checkPermission }: IContext,
-  ) {
-    await checkPermission('msdSync');
-
-    let hasFailed = false;
-
-    for (const price of prices) {
-      if (!price._id) {
-        continue;
-      }
-
-      const result = await sendTRPCMessage({
-        subdomain,
-        pluginName: 'core',
-        module: 'products',
-        action: 'updateProduct',
-        input: {
-          _id: price._id,
-          doc: {
-            unitPrice: Number(price.Unit_Price) || 0,
-            currency: 'MNT',
-          },
-        },
-        defaultValue: null,
-      });
-
-      if (!result) {
-        hasFailed = true;
-        console.error(
-          `Failed to sync MS Dynamic price for product ${price._id}`,
-        );
-      }
-    }
-
-    return {
-      status: hasFailed ? 'failed' : 'success',
-    };
   },
 };

@@ -17,6 +17,7 @@ export const PutResponseRecordTable = () => {
       data={putResponses || []}
       className="m-3"
       stickyColumns={['more', 'name']}
+      tableId="mongolian_ebarimt_put_response_record_table"
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}
@@ -41,7 +42,10 @@ export const PutResponseRecordTable = () => {
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="flex flex-col items-center justify-center text-center">
               <div className="mb-6">
-                <IconShoppingCartX size={48} className="text-muted-foreground" />
+                <IconShoppingCartX
+                  size={48}
+                  className="text-muted-foreground"
+                />
               </div>
               <h3 className="text-lg font-semibold">{t('no-put-response')}</h3>
               <p className="mt-1 text-sm text-muted-foreground">

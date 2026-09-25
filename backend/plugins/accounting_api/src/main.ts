@@ -1,6 +1,8 @@
 import {
   createCoreModuleProducerHandler,
   TBatchSkipRowInput,
+  TGetExportDataInput,
+  TGetExportHeadersInput,
   TGetImportHeadersInput,
   TImportExportProducers,
   TInsertImportRowsInput,
@@ -12,7 +14,9 @@ import { permissions } from '~/meta/permissions';
 import resolvers from './apollo/resolvers';
 import { generateModels } from './connectionResolvers';
 import { appRouter } from './init-trpc';
+import { transactionExportHandlers } from './meta/import-export/export/exportHandlers';
 import { accountImportHandlers } from './meta/import-export/import/importHandlers';
+import { router } from './routes';
 
 const accountImportTypes = [
   {
@@ -41,6 +45,35 @@ const accountImportTypes = [
   },
 ];
 
+const accountExportTypes = [
+  {
+    label: 'Transaction',
+    contentType: 'accounting:account.transactions',
+    permissions: ['transactionsExportManage'],
+  },
+];
+
+const accountExportConfig = {
+  configured: true,
+  hasGetExportHeaders: true,
+  hasGetExportData: true,
+  types: accountExportTypes,
+  getExportData: createCoreModuleProducerHandler({
+    moduleName: 'importExport',
+    modules: { account: transactionExportHandlers },
+    methodName: TImportExportProducers.GET_EXPORT_DATA,
+    extractModuleName: (input: TGetExportDataInput) => input.moduleName,
+    generateModels,
+  }),
+  getExportHeaders: createCoreModuleProducerHandler({
+    moduleName: 'importExport',
+    modules: { account: transactionExportHandlers },
+    methodName: TImportExportProducers.GET_EXPORT_HEADERS,
+    extractModuleName: (input: TGetExportHeadersInput) => input.moduleName,
+    generateModels,
+  }),
+};
+
 startPlugin({
   name: 'accounting',
   port: 3308,
@@ -49,6 +82,7 @@ startPlugin({
     resolvers: resolvers,
   }),
   hasSubscriptions: true,
+  expressRouter: router,
   subscriptionPluginPath: require('path').resolve(
     __dirname,
     'apollo',
@@ -105,6 +139,7 @@ startPlugin({
           generateModels,
         }),
       },
+      export: accountExportConfig,
     },
     afterProcess,
     permissions,

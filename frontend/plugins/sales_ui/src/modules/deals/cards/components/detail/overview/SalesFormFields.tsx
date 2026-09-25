@@ -19,6 +19,7 @@ import { useTranslation } from 'react-i18next';
 import { AttachmentUploader } from './attachments/AttachmentUploader';
 import { Attachments } from './attachments/Attachments';
 import { DealsActions } from '@/deals/actionBar/components/DealsActions';
+import { ChecklistOverview } from './checklist/ChecklistOverview';
 import {
   areIdListsEqual,
   rejectOnMutationError,
@@ -175,6 +176,7 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
         />
         <DealTagsChip
           value={optimisticTags.value}
+          showSelectedTagsOutside={false}
           onValueChange={(value) =>
             optimisticTags.setValue(normalizeMultiValue(value))
           }
@@ -193,6 +195,7 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
         />
         <DealBrokerTypeChip
           value={optimisticBroker.value.type || '_none'}
+          selectedPrefix={t('broker')}
           options={[
             { value: '_none', label: t('none') },
             { value: 'customer', label: t('customer') },
@@ -209,6 +212,7 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
         {optimisticBroker.value.type === 'customer' && (
           <DealCustomerChip
             value={optimisticBroker.value.id}
+            placeholder={t('select-broker', 'Select broker')}
             onValueChange={(value) =>
               optimisticBroker.setValue({
                 ...optimisticBroker.value,
@@ -220,6 +224,7 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
         {optimisticBroker.value.type === 'company' && (
           <DealCompanyChip
             value={optimisticBroker.value.id}
+            placeholder={t('select-broker', 'Select broker')}
             onValueChange={(value) =>
               optimisticBroker.setValue({
                 ...optimisticBroker.value,
@@ -232,6 +237,7 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
           <DealAssigneeChip
             mode="single"
             value={optimisticBroker.value.id}
+            placeholder={t('select-broker', 'Select broker')}
             onValueChange={(value) =>
               optimisticBroker.setValue({
                 ...optimisticBroker.value,
@@ -241,6 +247,7 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
           />
         )}
         <DealsActions deals={[deal]} variant="inline" />
+        <ChecklistOverview />
       </div>
       <div className="flex">
         <AttachmentUploader />

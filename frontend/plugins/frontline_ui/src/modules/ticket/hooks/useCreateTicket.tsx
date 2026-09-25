@@ -24,15 +24,18 @@ export const useCreateTicket = () => {
       refetchQueries: [GET_TICKETS],
       onCompleted: () => {
         toast({
-          title: t('success'),
-          description: t('ticket-created-successfully'),
+          title: t('success', 'Success!'),
+          description: t(
+            'ticket-created-successfully',
+            'Ticket created successfully',
+          ),
           variant: 'default',
         });
         setCursor('');
       },
       onError: (e) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: e.message,
           variant: 'destructive',
         });

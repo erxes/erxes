@@ -1,4 +1,5 @@
 import {
+  AUTOMATION_ERROR_CODES,
   AUTOMATION_EXECUTION_STATUS,
   IAutomationAction,
   IAutomationExecutionDocument,
@@ -6,6 +7,7 @@ import {
 } from 'erxes-api-shared/core-modules';
 import { sendWorkerQueue } from 'erxes-api-shared/utils';
 import { generateModels } from '../connectionResolver';
+import { AutomationActionError } from './errorCodes';
 
 // Nested workflows are forbidden in the builder, so real depth never exceeds
 // 1 today; the guard is the universal escape hatch for future call cycles.
@@ -25,8 +27,9 @@ export const startWorkflowExecution = async (
   const depth = (execution.depth || 0) + 1;
 
   if (depth > MAX_WORKFLOW_DEPTH) {
-    throw new Error(
+    throw new AutomationActionError(
       `Workflow depth limit (${MAX_WORKFLOW_DEPTH}) exceeded at "${workflowAction.label || workflowAction.id}"`,
+      AUTOMATION_ERROR_CODES.WORKFLOW_DEPTH_EXCEEDED,
     );
   }
 
@@ -62,8 +65,9 @@ export const startWorkflowExecution = async (
   );
 
   if (missingInputs.length) {
-    throw new Error(
+    throw new AutomationActionError(
       `Workflow input(s) not resolved: ${missingInputs.join(', ')}`,
+      AUTOMATION_ERROR_CODES.CONFIG_INVALID,
     );
   }
 

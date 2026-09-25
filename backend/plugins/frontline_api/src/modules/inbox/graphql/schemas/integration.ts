@@ -68,7 +68,7 @@ export const types = `
     brandId: String
     leadData: JSON
     messengerData: JSON
-    ticketConfigId: JSON
+    ticketConfigIds: [String]
     uiOptions: JSON
     isActive: Boolean
     isConnected: Boolean
@@ -107,6 +107,16 @@ export const types = `
   type integrationsGetUsedTypes {
     _id: String
     name: String
+  }
+
+  # A used integration kind inside the caller's channels. The counts cover the
+  # conversations held by that kind's integrations across the matched channels;
+  # unreadConversationCount is per-viewer.
+  type integrationsGetUsedTypesByChannel {
+    _id: String
+    name: String
+    conversationCount: Int
+    unreadConversationCount: Int
   }
 
   input BotPersistentMenuTypeMessenger {
@@ -229,6 +239,7 @@ export const queries = `
 
   allLeadIntegrations: [Integration]
   integrationsGetUsedTypes: [integrationsGetUsedTypes]
+  integrationsGetUsedTypesByChannel(channelId: String, scope: String): [integrationsGetUsedTypesByChannel]
   integrationGetLineWebhookUrl(_id: String!): String
   integrationDetail(_id: String!): Integration
   integrationsTotalCount(kind: String, tag: String, channelId: String!, status: String, formLoadType: String): integrationsTotalCount
@@ -288,7 +299,7 @@ export const mutations = `
 
   integrationsCreateExternalIntegration(
     kind: String!,
-    channelId: String!,
+    channelId: String,
     name: String!,
     accountId: String,
     brandId: String!,
@@ -316,7 +327,5 @@ export const mutations = `
   ): Integration
   integrationsCopyLeadIntegration(_id: String!): Integration
 
-  integrationsSaveMessengerTicketData(
-    _id: String!,
-    configId: String): Integration
+  integrationsSaveMessengerTicketData(_id: String!, configIds: [String]): Integration
 `;

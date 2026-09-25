@@ -5,6 +5,41 @@ export const permissions: IPermissionConfig = {
 
   modules: [
     {
+      name: 'emailTemplates',
+      description: 'Email templates',
+      scopeField: null,
+      ownerFields: ['createdBy'],
+
+      scopes: [
+        { name: 'own', description: 'Templates user created' },
+        { name: 'all', description: 'All templates' },
+      ],
+
+      actions: [
+        {
+          title: 'View email templates',
+          name: 'emailTemplatesRead',
+          description: 'View email templates',
+          always: true,
+        },
+        {
+          title: 'Create email templates',
+          name: 'emailTemplatesCreate',
+          description: 'Create email templates',
+        },
+        {
+          title: 'Edit email templates',
+          name: 'emailTemplatesUpdate',
+          description: 'Edit email templates',
+        },
+        {
+          title: 'Delete email templates',
+          name: 'emailTemplatesDelete',
+          description: 'Delete email templates',
+        },
+      ],
+    },
+    {
       name: 'contacts',
       description: 'Contact management',
       scopeField: null,
@@ -510,28 +545,6 @@ export const permissions: IPermissionConfig = {
       ],
     },
     {
-      name: 'exchangeRates',
-      description: 'Exchange rate management',
-      scopeField: null,
-      ownerFields: [],
-
-      scopes: [{ name: 'all', description: 'All records' }],
-
-      actions: [
-        {
-          title: 'View exchange rates',
-          name: 'exchangeRatesRead',
-          description: 'View exchange rates',
-          always: true,
-        },
-        {
-          title: 'Manage exchange rates',
-          name: 'exchangeRatesManage',
-          description: 'Create, edit, delete exchange rates',
-        },
-      ],
-    },
-    {
       name: 'permissions',
       description: 'Permission management',
       scopeField: null,
@@ -661,21 +674,21 @@ export const permissions: IPermissionConfig = {
           oauthScopes: ['automations:delete', 'automations:manage'],
         },
         {
-          title: 'Create automations',
+          title: 'Create AI agents',
           name: 'automationsAiAgentAdd',
-          description: 'Create automations',
+          description: 'Create AI agents',
           oauthScopes: ['automations:create', 'automations:manage'],
         },
         {
-          title: 'Edit ai agent automations',
+          title: 'Edit AI agents',
           name: 'automationsAiAgentEdit',
-          description: 'Edit automations',
+          description: 'Edit AI agents',
           oauthScopes: ['automations:update', 'automations:manage'],
         },
         {
-          title: 'Delete ai agent automations',
+          title: 'Delete AI agents',
           name: 'automationsAiAgentRemove',
-          description: 'Delete automations',
+          description: 'Delete AI agents',
           oauthScopes: ['automations:delete', 'automations:manage'],
         },
       ],
@@ -1044,17 +1057,6 @@ export const permissions: IPermissionConfig = {
           module: 'automations',
           actions: ['automationsRead'],
           scope: 'all',
-        },
-        {
-          plugin: 'core',
-          module: 'automations',
-          actions: [
-            'automationsCreate',
-            'automationsUpdate',
-            'automationsAiAgentAdd',
-            'automationsAiAgentEdit',
-          ],
-          scope: 'own',
         },
         {
           plugin: 'core',

@@ -91,7 +91,7 @@ export const useFbBotFileUploadSection = ({
 
     navigator.clipboard.writeText(uploadedFileUrl);
     toast({
-      title: t('url-copied-to-clipboard'),
+      title: t('url-copied-to-clipboard', 'URL copied to clipboard'),
       variant: 'default',
     });
   }, [uploadedFileUrl, toast]);
@@ -104,8 +104,12 @@ export const useFbBotFileUploadSection = ({
 
       if (file.size > sizeLimit) {
         toast({
-          title: t('file-size-exceeds-limit'),
-          description: t('file-size-must-be-less-than', { limit }),
+          title: t('file-size-exceeds-limit', 'File size exceeds limit'),
+          description: t(
+            'file-size-must-be-less-than',
+            'File size must be less than {{limit}}MB',
+            { limit },
+          ),
           variant: 'destructive',
         });
         return;
@@ -127,7 +131,7 @@ export const useFbBotFileUploadSection = ({
           onUpload?.(encodeURIComponent(response));
 
           toast({
-            title: t('file-upload-complete'),
+            title: t('file-upload-complete', 'File uploaded successfully'),
             variant: 'default',
           });
         },

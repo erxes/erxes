@@ -14,7 +14,8 @@ export interface IEbarimtConfig {
   defaultUnitedCode: string;
   vatPercent: number;
   cityTaxPercent: number;
-  skipPutData: boolean;
+  skipEbarimt: boolean;
+  sendEmail?: boolean;
 
   reverseVatRules?: string[];
   reverseCtaxRules?: string[];

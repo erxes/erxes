@@ -308,6 +308,12 @@ export const StageInEBarimtConfigFormFields = ({
             control={form.control}
             labelPosition="before"
           />
+          <FormCheckbox
+            name="sendEmail"
+            label={t('send-email')}
+            control={form.control}
+            labelPosition="before"
+          />
         </div>
       </form>
     </Form>

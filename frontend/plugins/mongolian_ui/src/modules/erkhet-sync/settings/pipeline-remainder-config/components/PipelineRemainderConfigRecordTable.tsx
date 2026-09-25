@@ -24,9 +24,15 @@ export const PipelineRemainderConfigRecordTable = ({
   return (
     <ErkhetConfigRecordTable
       configs={configs}
-      columns={buildRemainderConfigColumns(onEdit, onDelete, editLoading)}
+      columns={buildRemainderConfigColumns(t, onEdit, onDelete, editLoading)}
+      tableId="mongolian_erkhet_pipeline_remainder_config_record_table"
       emptyDescription={t('create-first-remainder-config')}
-      commandBar={<PipelineRemainderConfigCommandBar onDeleteMany={onDeleteMany} loading={editLoading} />}
+      commandBar={
+        <PipelineRemainderConfigCommandBar
+          onDeleteMany={onDeleteMany}
+          loading={editLoading}
+        />
+      }
     />
   );
 };

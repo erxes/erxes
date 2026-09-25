@@ -30,11 +30,13 @@ export const useActivities = (contentId: string) => {
       document: ACTIVITY_CHANGED,
       variables: { contentId },
       updateQuery: (prev, { subscriptionData }) => {
-        if (!prev || !subscriptionData.data) return prev;
+        if (!subscriptionData.data) return prev;
 
         const { type, activity } =
           subscriptionData.data.operationActivityChanged;
-        const currentList = prev.getOperationActivities.list;
+        const currentList = prev?.getOperationActivities?.list;
+
+        if (!currentList) return prev;
 
         let updatedList = currentList;
 
@@ -69,8 +71,8 @@ export const useActivities = (contentId: string) => {
               type === 'created'
                 ? prev.getOperationActivities.totalCount + 1
                 : type === 'removed'
-                ? prev.getOperationActivities.totalCount - 1
-                : prev.getOperationActivities.totalCount,
+                  ? prev.getOperationActivities.totalCount - 1
+                  : prev.getOperationActivities.totalCount,
           },
         };
       },

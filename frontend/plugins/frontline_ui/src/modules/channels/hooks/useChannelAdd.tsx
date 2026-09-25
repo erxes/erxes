@@ -10,7 +10,9 @@ export const useChannelAdd = () => {
       onCompleted: (data) => {
         options?.onCompleted?.(data);
       },
-      refetchQueries: ['GetChannels', 'GetChannelMembers'],
+      // GetMyChannels backs the inbox sidebar groups, which is one of the
+      // places a channel can be created from.
+      refetchQueries: ['GetChannels', 'GetMyChannels', 'GetChannelMembers'],
     });
   };
 

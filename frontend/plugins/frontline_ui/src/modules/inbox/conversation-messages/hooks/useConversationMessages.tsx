@@ -1,8 +1,9 @@
-import { QueryHookOptions, useQuery } from '@apollo/client';
-import { useEffect } from 'react';
-import { GET_CONVERSATION_MESSAGES } from '../../conversations/conversation-detail/graphql/queries/getConversationMessages';
-import { CONVERSATION_MESSAGE_INSERTED } from '../../conversations/graphql/subscriptions/inboxSubscriptions';
-import { IMessage } from '../../types/Conversation';
+import { useQuery } from '@apollo/client';
+import type { QueryHookOptions } from '@apollo/client';
+import { useCallback, useEffect, useRef } from 'react';
+import { GET_CONVERSATION_MESSAGES } from '@/inbox/conversations/conversation-detail/graphql/queries/getConversationMessages';
+import { CONVERSATION_MESSAGE_INSERTED } from '@/inbox/conversations/graphql/subscriptions/inboxSubscriptions';
+import type { IMessage } from '@/inbox/types/Conversation';
 
 export const useConversationMessages = (
   options: QueryHookOptions<{
@@ -20,31 +21,77 @@ export const useConversationMessages = (
     conversationMessagesTotalCount: 0,
   };
 
-  const handleFetchMore = () => {
-    if (
-      !loading ||
-      conversationMessagesTotalCount > conversationMessages.length
-    ) {
-      fetchMore({
-        variables: {
-          skip: conversationMessages.length,
-          limit: 10,
-        },
-        updateQuery: (prev, { fetchMoreResult }) => {
-          if (!fetchMoreResult) return prev;
+  const conversationId = options.variables?.conversationId;
+  const initialLimit = options.variables?.limit ?? 10;
+  const oldMessagesSkipRef = useRef(initialLimit);
+  const fetchMoreInFlightRef = useRef<Promise<unknown> | null>(null);
+  const previousConversationIdRef = useRef(conversationId);
 
-          return {
-            conversationMessages: [
-              ...fetchMoreResult.conversationMessages,
-              ...prev.conversationMessages,
-            ],
-            conversationMessagesTotalCount:
-              fetchMoreResult.conversationMessagesTotalCount,
-          };
-        },
-      });
+  if (previousConversationIdRef.current !== conversationId) {
+    previousConversationIdRef.current = conversationId;
+    oldMessagesSkipRef.current = initialLimit;
+    fetchMoreInFlightRef.current = null;
+  }
+
+  const handleFetchMore = useCallback((): Promise<unknown> => {
+    if (
+      loading ||
+      fetchMoreInFlightRef.current ||
+      conversationMessagesTotalCount <= conversationMessages.length
+    ) {
+      return fetchMoreInFlightRef.current || Promise.resolve();
     }
-  };
+
+    const skip = oldMessagesSkipRef.current;
+    const request = fetchMore({
+      variables: {
+        skip,
+        limit: 50,
+      },
+      updateQuery: (prev, { fetchMoreResult }) => {
+        if (!fetchMoreResult?.conversationMessages?.length) return prev;
+
+        const existingIds = new Set(
+          prev.conversationMessages.map((message) => message._id),
+        );
+        const uniqueMessages = fetchMoreResult.conversationMessages.filter(
+          (message) => !existingIds.has(message._id),
+        );
+
+        if (!uniqueMessages.length) return prev;
+
+        return {
+          conversationMessages: [
+            ...uniqueMessages,
+            ...prev.conversationMessages,
+          ],
+          conversationMessagesTotalCount:
+            fetchMoreResult.conversationMessagesTotalCount ??
+            prev.conversationMessagesTotalCount,
+        };
+      },
+    })
+      .then((result) => {
+        if (previousConversationIdRef.current === conversationId) {
+          oldMessagesSkipRef.current = skip + 50;
+        }
+        return result;
+      })
+      .finally(() => {
+        if (fetchMoreInFlightRef.current === request) {
+          fetchMoreInFlightRef.current = null;
+        }
+      });
+
+    fetchMoreInFlightRef.current = request;
+    return request;
+  }, [
+    conversationMessages.length,
+    conversationMessagesTotalCount,
+    conversationId,
+    fetchMore,
+    loading,
+  ]);
 
   useEffect(() => {
     const unsubscribe = subscribeToMore<{
@@ -52,7 +99,7 @@ export const useConversationMessages = (
     }>({
       document: CONVERSATION_MESSAGE_INSERTED,
       variables: {
-        _id: options.variables?.conversationId,
+        _id: conversationId,
       },
       updateQuery: (prev, { subscriptionData }) => {
         if (!prev || !subscriptionData.data) return prev;
@@ -60,7 +107,7 @@ export const useConversationMessages = (
         const newMessage = subscriptionData.data.conversationMessageInserted;
 
         // The same message id can be re-emitted to push an update (e.g. a Discord
-        // poll's vote tallies refreshing on `extraData`). Replace the existing
+        // survey's vote tallies refreshing on `extraData`). Replace the existing
         // copy in place so the card updates, rather than dropping the event as a
         // duplicate or appending a second bubble.
         const existingIndex = prev.conversationMessages.findIndex(
@@ -80,7 +127,7 @@ export const useConversationMessages = (
           // Get the cache ID for the conversation
           const conversationId = client.cache.identify({
             __typename: 'Conversation',
-            _id: options.variables?.conversationId,
+            _id: conversationId,
           });
 
           if (conversationId && !newMessage.internal) {
@@ -105,7 +152,7 @@ export const useConversationMessages = (
       },
     });
     return unsubscribe;
-  }, [options.variables?.conversationId]);
+  }, [client.cache, conversationId, subscribeToMore]);
 
   return {
     messages: conversationMessages,

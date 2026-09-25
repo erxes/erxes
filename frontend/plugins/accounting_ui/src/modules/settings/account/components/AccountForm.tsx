@@ -22,6 +22,10 @@ import { UseFormReturn, useWatch } from 'react-hook-form';
 import { JOURNAL_LABELS } from '../constants/journalLabel';
 import { SelectAccountCategory } from '../account-categories/components/SelectAccountCategory';
 import { TAccountForm } from '../types/accountForm';
+import {
+  getCurrencyCodeFromOptions,
+  useCurrencyConfigs,
+} from '../../hooks/useCurrencyConfigs';
 
 const AccountFormFields = ({
   control,
@@ -32,6 +36,8 @@ const AccountFormFields = ({
   status: string | undefined;
   journal: string | undefined;
 }) => {
+  const { dealCurrencyOptions } = useCurrencyConfigs();
+
   return (
     <div className="grid grid-cols-2 gap-5">
       <Form.Field
@@ -93,9 +99,13 @@ const AccountFormFields = ({
             <Form.Label>Валют</Form.Label>
             <Form.Control>
               <CurrencyField.SelectCurrency
-                value={field.value}
+                value={getCurrencyCodeFromOptions(
+                  field.value,
+                  dealCurrencyOptions,
+                )}
                 onChange={field.onChange}
                 className="w-full"
+                currencies={dealCurrencyOptions}
               />
             </Form.Control>
             <Form.Message />

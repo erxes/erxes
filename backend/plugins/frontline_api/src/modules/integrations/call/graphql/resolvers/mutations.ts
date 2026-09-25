@@ -72,10 +72,19 @@ const callsMutations = {
           }
         : null,
       channels: channel ? [channel] : [],
+      integration: integration
+        ? { _id: integration._id, name: integration.name }
+        : null,
     };
   },
 
-  async callsUpdateConfigs(_root, { configsMap }, { models }: IContext) {
+  async callsUpdateConfigs(
+    _root,
+    { configsMap },
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('integrationsEdit');
+
     await models.CallConfigs.updateConfigs(configsMap);
 
     return { status: 'ok' };
@@ -201,7 +210,8 @@ const callsMutations = {
       user,
     );
 
-    const status = callTransferResponse?.status ?? callTransferResponse?.response?.status;
+    const status =
+      callTransferResponse?.status ?? callTransferResponse?.response?.status;
     if (status === 0 || callTransferResponse?.response?.need_apply) {
       return 'success';
     }

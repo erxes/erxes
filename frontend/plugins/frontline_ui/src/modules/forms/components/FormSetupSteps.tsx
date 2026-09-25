@@ -3,17 +3,20 @@ import { FrontlinePaths } from '@/types/FrontlinePaths';
 import { formSetupStepAtom } from '@/forms/states/formSetupStates';
 import { useAtomValue } from 'jotai';
 import { FormGeneral } from '@/forms/components/FormGeneral';
+import { FormCallout } from '@/forms/components/FormCallout';
 import { FormContent } from '@/forms/components/FormContent';
 import { FormConfirmation } from '@/forms/components/FormConfirmation';
+import { FORM_SETUP_STEPS } from '@/forms/constants/formStatesDefaultValues';
 
 export const FormSetupSteps = () => {
   const step = useAtomValue(formSetupStepAtom);
   return (
     <Resizable.PanelGroup direction="horizontal" className="flex-auto">
       <Resizable.Panel defaultSize={50}>
-        {step === 1 && <FormGeneral />}
-        {step === 2 && <FormContent />}
-        {step === 3 && <FormConfirmation />}
+        {step === FORM_SETUP_STEPS.GENERAL && <FormGeneral />}
+        {step === FORM_SETUP_STEPS.CALLOUT && <FormCallout />}
+        {step === FORM_SETUP_STEPS.CONTENT && <FormContent />}
+        {step === FORM_SETUP_STEPS.CONFIRMATION && <FormConfirmation />}
       </Resizable.Panel>
       <Resizable.Handle />
       <Resizable.Panel

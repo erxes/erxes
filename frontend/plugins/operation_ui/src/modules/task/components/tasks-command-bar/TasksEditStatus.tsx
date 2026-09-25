@@ -2,7 +2,6 @@ import { useTranslation } from 'react-i18next';
 import { IconChevronRight, IconProgressCheck } from '@tabler/icons-react';
 import { Command } from 'erxes-ui';
 import { SelectStatusTask } from '@/task/components/task-selects/SelectStatusTask';
-import { useParams } from 'react-router';
 import { useUpdateTask } from '@/task/hooks/useUpdateTask';
 
 export const TasksEditStatusTrigger = ({
@@ -29,14 +28,14 @@ export const TasksEditStatusTrigger = ({
 
 export const TasksEditStatusContent = ({
   taskIds,
+  teamId,
   setOpen,
 }: {
   taskIds: string[];
+  teamId: string;
   setOpen: (open: boolean) => void;
 }) => {
-  const { teamId } = useParams<{ teamId: string }>();
   const { updateTask } = useUpdateTask();
-  if (!teamId) return null;
   return (
     <SelectStatusTask.Provider
       teamId={teamId}
@@ -49,8 +48,8 @@ export const TasksEditStatusContent = ({
                 _id: taskId,
                 status: value,
               },
-            })
-          )
+            }),
+          ),
         );
         setOpen(false);
       }}

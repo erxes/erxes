@@ -1,0 +1,25 @@
+{
+  "to": "REPLACE@erx.es",
+  "messageId": "<fixture-attach-001@example.com>",
+  "references": [],
+  "from": {
+    "name": "Bat Bold",
+    "address": "batbold@example.com"
+  },
+  "recipients": [
+    {
+      "address": "REPLACE@erx.es"
+    }
+  ],
+  "cc": [],
+  "bcc": [],
+  "subject": "Гэрээний хуулбар хавсаргав",
+  "html": "<div dir=\"ltr\">Гэрээний хуулбарыг хавсаргалаа.</div>\n",
+  "attachments": [
+    {
+      "filename": "contract.png",
+      "mimeType": "image/png",
+      "content": "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAHElEQVQoU2NkYGD4z0AEYBxVSFJQAABPQwF/2gAAAABJRU5ErkJggg=="
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-import gql from "graphql-tag";
+import gql from 'graphql-tag';
 
 export const commonVariables = `
   $contentTypeId: String,
@@ -22,7 +22,6 @@ const commonItemParams = `
   content: $content,
 `;
 
-
 export const checklistFields = `
   _id
   contentType
@@ -35,6 +34,7 @@ export const checklistFields = `
     checklistId
     isChecked
     content
+    order
   }
   percent
 `;
@@ -113,7 +113,7 @@ export const CHECKLIST_ITEMS_REMOVE = gql`
 
 export const CHECKLIST_ITEMS_ORDER = gql`
   mutation salesChecklistItemsOrder($_id: String!, $destinationIndex: Int) {
-    salesChecklistItemsOrder(_id: $_id destinationIndex: $destinationIndex) {
+    salesChecklistItemsOrder(_id: $_id, destinationIndex: $destinationIndex) {
       _id
     }
   }

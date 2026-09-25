@@ -89,6 +89,7 @@ export const retrieveAiKnowledgeChunks = ({
         .map((chunk) => ({
           chunk,
           score: 1000,
+          matchScore: 1000,
           reasons: ['always'],
         }))
     : [];
@@ -96,7 +97,7 @@ export const retrieveAiKnowledgeChunks = ({
   const scored = chunks
     .filter((chunk) => chunk.priority !== 'always')
     .map((chunk) => scoreAiKnowledgeChunk(chunk, fullQuery))
-    .filter((item) => item.score >= minScore)
+    .filter((item) => item.matchScore >= minScore)
     .sort((a, b) => b.score - a.score);
 
   const selectedScored = dedupeScoredChunks([...alwaysChunks, ...scored]).slice(

@@ -8,6 +8,13 @@ export const GET_TICKET_NOTE = gql`
       contentId
       createdBy
       mentions
+      attachments {
+        name
+        url
+        type
+        size
+      }
+      isInternal
       createdAt
       updatedAt
     }

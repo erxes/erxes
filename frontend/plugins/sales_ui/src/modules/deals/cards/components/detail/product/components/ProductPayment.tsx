@@ -5,6 +5,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import { gql, useMutation } from '@apollo/client';
@@ -33,6 +34,11 @@ import { useRefundScoreCampaign } from '../hooks/payment/useRefundScoreCampaign'
 import { useCheckOwnerScore } from '../hooks/payment/useCheckOwnerScore';
 import { useTranslation } from 'react-i18next';
 import type { PaymentConfigItem } from '@/payments';
+import {
+  selectPaymentTypesForRender,
+  type PayInfo,
+  updatePayInfoForScore,
+} from '../utils/updatePayInfoForScore';
 
 type PaymentConfig = {
   require?: string;
@@ -42,12 +48,7 @@ type PaymentConfig = {
   preTax?: boolean;
 };
 
-type PayInfo = {
-  score?: number;
-  maxVal?: number;
-  hasPopup: boolean;
-  validQr: boolean;
-};
+const EMPTY_PAYMENT_TYPES: PaymentConfigItem[] = [];
 
 const GENERATE_INVOICE_URL = gql`
   mutation SalesDealGenerateInvoiceUrl($input: InvoiceInput!) {
@@ -109,7 +110,12 @@ const OwnerScoreCampaignScore = ({
   paymentType: PaymentConfigItem;
   customers: ICustomer[];
   dealId: string;
-  onScoreFetched?: (score: number) => void;
+  onScoreFetched?: (
+    score: number,
+    paymentType: Pick<PaymentConfigItem, 'type' | 'config'>,
+    scoreOwnerId: string,
+    scoreCampaignId: string,
+  ) => void;
 }) => {
   const [customer] = customers || [];
   const { refundScoreCampaign, loading: refundLoading } =
@@ -130,10 +136,31 @@ const OwnerScoreCampaignScore = ({
   }) || {};
 
   useEffect(() => {
-    if (checkOwnerScore && onScoreFetched) {
-      onScoreFetched(checkOwnerScore);
+    if (
+      !checkLoading &&
+      paymentType.scoreCampaignId &&
+      customer?._id &&
+      onScoreFetched
+    ) {
+      onScoreFetched(
+        checkOwnerScore,
+        {
+          type: paymentType.type,
+          config: paymentType.config,
+        },
+        customer._id,
+        paymentType.scoreCampaignId,
+      );
     }
-  }, [checkOwnerScore, onScoreFetched]);
+  }, [
+    checkLoading,
+    checkOwnerScore,
+    customer?._id,
+    onScoreFetched,
+    paymentType.config,
+    paymentType.scoreCampaignId,
+    paymentType.type,
+  ]);
 
   const { t } = useTranslation('sales');
 
@@ -244,7 +271,9 @@ export const ProductsPayment = ({
   const [invoiceSheetOpen, setInvoiceSheetOpen] = useState(false);
   const [invoiceUrl, setInvoiceUrl] = useState('');
 
-  const { editDeals } = useDealsEdit();
+  const { editDeals, loading: saving } = useDealsEdit({
+    fetchPolicy: 'no-cache',
+  });
   const [generateInvoiceUrl, { loading: generatingInvoice }] =
     useMutation(GENERATE_INVOICE_URL);
   const { toast } = useToast();
@@ -455,30 +484,28 @@ export const ProductsPayment = ({
   );
 
   const handleScoreFetched = useCallback(
-    (score: number, paymentType: PaymentConfigItem) => {
+    (
+      score: number,
+      paymentType: Pick<PaymentConfigItem, 'type' | 'config'>,
+      scoreOwnerId: string,
+      scoreCampaignId: string,
+    ) => {
       const typeName = paymentType.type;
       const paymentConfig = parsePaymentConfig(paymentType.config);
       const requiresQr = paymentConfig?.require?.toLowerCase() === 'qrcode';
       const initialAmount = getInitialPaymentAmount(typeName);
-      const availableAmount = score + initialAmount;
 
-      setPayInfoByType((prev) => {
-        const validQr = prev[typeName]?.validQr || false;
-
-        return {
-          ...prev,
-          [typeName]: {
-            hasPopup: requiresQr,
-            score,
-            maxVal: requiresQr
-              ? validQr
-                ? availableAmount
-                : 0
-              : availableAmount,
-            validQr,
-          },
-        };
-      });
+      setPayInfoByType((prev) =>
+        updatePayInfoForScore(
+          prev,
+          typeName,
+          score,
+          initialAmount,
+          requiresQr,
+          scoreOwnerId,
+          scoreCampaignId,
+        ),
+      );
     },
     [getInitialPaymentAmount],
   );
@@ -581,19 +608,37 @@ export const ProductsPayment = ({
     ));
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const processId = localStorage.getItem('processId') || '';
 
-    editDeals({
-      variables: {
-        paymentsData,
-        processId: processId,
-        _id: deal._id,
-      },
-    });
+    try {
+      await editDeals({
+        variables: {
+          paymentsData,
+          processId,
+          _id: deal._id,
+        },
+      });
+    } catch {
+      // useDealsEdit displays the mutation error toast.
+    }
   };
 
-  const paymentTypes = deal.pipeline?.paymentTypes || [];
+  const incomingPaymentTypes =
+    deal.pipeline?.paymentTypes || EMPTY_PAYMENT_TYPES;
+  const lastPaymentTypesRef = useRef<PaymentConfigItem[]>(incomingPaymentTypes);
+
+  useEffect(() => {
+    if (!saving) {
+      lastPaymentTypesRef.current = incomingPaymentTypes;
+    }
+  }, [incomingPaymentTypes, saving]);
+
+  const paymentTypes = selectPaymentTypesForRender(
+    incomingPaymentTypes,
+    lastPaymentTypesRef.current,
+    saving,
+  );
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col pb-4">
@@ -615,8 +660,8 @@ export const ProductsPayment = ({
               Object.values(changeAmounts).some((amount) => amount > 0)
                 ? 'text-success'
                 : Object.values(changeAmounts).some((amount) => amount < 0)
-                ? 'text-destructive'
-                : ''
+                  ? 'text-destructive'
+                  : ''
             }`}
           >
             {Object.values(changeAmounts).some((amount) => amount > 0) && '+'}
@@ -790,9 +835,7 @@ export const ProductsPayment = ({
                     paymentType={paymentType}
                     customers={deal.customers || []}
                     dealId={deal._id}
-                    onScoreFetched={(score) =>
-                      handleScoreFetched(score, paymentType)
-                    }
+                    onScoreFetched={handleScoreFetched}
                   />
                 </div>
                 <div className="flex items-center">
@@ -860,9 +903,9 @@ export const ProductsPayment = ({
       </div>
 
       <div className="sticky bottom-0 mt-4 flex items-center justify-end border-t bg-background/95 py-3 backdrop-blur supports-backdrop-filter:bg-background/85">
-        <Button size="sm" onClick={handleSave}>
+        <Button size="sm" onClick={handleSave} disabled={saving}>
           <IconDeviceFloppy className="size-4" />
-          {t('save')}
+          {saving ? t('saving') : t('save')}
         </Button>
       </div>
 

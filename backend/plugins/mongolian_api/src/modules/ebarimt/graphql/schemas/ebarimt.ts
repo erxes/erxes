@@ -18,6 +18,7 @@ export const types = `
 
   type PutResponse {
     _id: String
+    id: String
     number: String
 
     contentType: String
@@ -52,7 +53,6 @@ export const types = `
     userId: String
     user: User
 
-    id: String
     posId: Float
     status: String
     message: String

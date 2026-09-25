@@ -24,6 +24,7 @@ export const ByDateMoreColumnCell = ({
 
 export const byDateMoreColumn = {
   id: 'more',
+  header: () => <RecordTable.ColumnSelector />,
   cell: ByDateMoreColumnCell,
   size: 33,
 };

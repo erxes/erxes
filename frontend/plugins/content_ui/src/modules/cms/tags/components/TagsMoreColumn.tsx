@@ -115,6 +115,7 @@ export const tagMoreColumn = (
   onRefetch?: () => void,
 ) => ({
   id: 'more',
+  header: () => <RecordTable.ColumnSelector />,
   cell: (cell: CellContext<any, unknown>) => (
     <TagMoreColumnCell
       cell={cell}

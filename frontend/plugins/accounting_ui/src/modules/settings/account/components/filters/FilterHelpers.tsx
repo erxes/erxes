@@ -34,6 +34,10 @@ import {
 } from './AccountsJournal';
 import { AccountsKindCommand, SelectAccountKindCommand } from './AccountsKind';
 import {
+  getCurrencyCodeFromOptions,
+  useCurrencyConfigs,
+} from '../../../hooks/useCurrencyConfigs';
+import {
   AccountsStatusCommand,
   SelectAccountStatusCommand,
 } from './AccountsStatus';
@@ -98,11 +102,17 @@ export const FilterBarCategory = () => {
 export const AccountsFilterCurrency = () => {
   const [currency, setCurrency] = useQueryState<CurrencyCode>('currency');
   const { resetFilterState } = useFilterContext();
+  const { dealCurrencyOptions } = useCurrencyConfigs();
+
   return (
     <Filter.View filterKey="currency">
       <CurrencyField.SelectCurrencyCommand
         focusOnMount
-        value={currency ?? undefined}
+        value={getCurrencyCodeFromOptions(
+          currency ?? undefined,
+          dealCurrencyOptions,
+        )}
+        currencies={dealCurrencyOptions}
         onSelect={(code) => {
           setCurrency(code);
           resetFilterState();
@@ -115,6 +125,7 @@ export const AccountsFilterCurrency = () => {
 export const FilterBarCurrency = () => {
   const { t } = useTranslation('accounting');
   const [currency, setCurrency] = useQueryState<CurrencyCode>('currency');
+  const { dealCurrencyOptions } = useCurrencyConfigs();
 
   return (
     <Filter.BarItem queryKey="currency">
@@ -124,10 +135,14 @@ export const FilterBarCurrency = () => {
       </Filter.BarName>
       <Filter.BarButton>
         <CurrencyField.SelectCurrency
-          value={currency ?? undefined}
+          value={getCurrencyCodeFromOptions(
+            currency ?? undefined,
+            dealCurrencyOptions,
+          )}
           onChange={(value) => setCurrency(value)}
           variant="ghost"
           className="rounded-none h-7 bg-background"
+          currencies={dealCurrencyOptions}
         />
       </Filter.BarButton>
     </Filter.BarItem>

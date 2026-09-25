@@ -17,6 +17,10 @@ export type TAiAgentKnowledgeSourcesContext = {
     source: TAiKnowledgeSourceConfig,
     enabled: boolean,
   ) => void;
+  handleSourceScopeChange: (
+    source: TAiKnowledgeSourceConfig,
+    scope: 'all' | 'selected',
+  ) => void;
 };
 
 const AiAgentKnowledgeSourcesContext =

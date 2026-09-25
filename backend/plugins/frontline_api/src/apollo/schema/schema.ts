@@ -41,10 +41,16 @@ import {
 } from '@/integrations/call/graphql/schema/call';
 
 import {
-  mutations as ImapMutations,
-  queries as ImapQueries,
-  types as ImapTypes,
-} from '@/integrations/imap/graphql/schema/imap';
+  mutations as CallProMutations,
+  queries as CallProQueries,
+  types as CallProTypes,
+} from '@/integrations/callpro/graphql/schema';
+
+import {
+  mutations as MailMutations,
+  queries as MailQueries,
+  types as MailTypes,
+} from '@/integrations/mail/graphql/schema/mail';
 
 import {
   queries as WidgetQueries,
@@ -70,6 +76,17 @@ import {
 } from '~/modules/form/graphql/schema/field';
 
 import {
+  mutations as SurveyMutations,
+  queries as SurveyQueries,
+  types as SurveyTypes,
+} from '~/modules/survey/graphql/schema/survey';
+
+import {
+  queries as ReportCallQueries,
+  types as ReportCallTypes,
+} from '@/reports/graphql/schema/call';
+
+import {
   queries as ReportInboxQueries,
   types as ReportInboxTypes,
 } from '@/reports/graphql/schema/inbox';
@@ -80,10 +97,28 @@ import {
 } from '@/reports/graphql/schema/ticket';
 
 import {
+  mutations as ReportFacebookMutations,
+  queries as ReportFacebookQueries,
+  types as ReportFacebookTypes,
+} from '@/reports/graphql/schema/facebook';
+
+import {
+  mutations as ReportChartMutations,
+  queries as ReportChartQueries,
+  types as ReportChartTypes,
+} from '@/reports/graphql/schema/chart';
+
+import {
   queries as KnowledgeBaseQueries,
   mutations as KnowledgeBaseMutations,
   types as KnowledgeBaseTypes,
 } from '@/knowledgebase/graphql/schemas/knowledgeBaseTypeDefs';
+
+import {
+  queries as HelpCenterConfigQueries,
+  mutations as HelpCenterConfigMutations,
+  types as HelpCenterConfigTypes,
+} from '@/helpcenter/graphql/schemas/helpCenterConfig';
 
 import {
   mutations as TicketMutations,
@@ -105,15 +140,21 @@ export const types = `
     ${DiscordTypes}
     ${InstagramTypes}
     ${CallTypes}
-    ${ImapTypes}
+    ${CallProTypes}
+    ${MailTypes}
     ${TicketTypes}
     ${WidgetTypes}
     ${ResponseTemplateTypes}
+    ${ReportCallTypes}
     ${ReportInboxTypes}
     ${ReportTicketTypes}
+    ${ReportFacebookTypes}
+    ${ReportChartTypes}
     ${FormTypes}
     ${FieldTypes}
+    ${SurveyTypes}
     ${KnowledgeBaseTypes}
+    ${HelpCenterConfigTypes}
   `;
 
 export const queries = `
@@ -124,15 +165,21 @@ export const queries = `
     ${DiscordQueries}
     ${InstagramQueries}
     ${CallQueries}
-    ${ImapQueries}
+    ${CallProQueries}
+    ${MailQueries}
     ${TicketQuery}
     ${WidgetQueries}
     ${ResponseTemplateQueries}
+    ${ReportCallQueries}
     ${ReportInboxQueries}
     ${ReportTicketQueries}
+    ${ReportFacebookQueries}
+    ${ReportChartQueries}
     ${FormQueries}
     ${FieldQueries}
+    ${SurveyQueries}
     ${KnowledgeBaseQueries}
+    ${HelpCenterConfigQueries}
     ${CpInboxQueries}
   `;
 
@@ -144,14 +191,19 @@ export const mutations = `
    ${DiscordMutations}
    ${InstagramMutations}
    ${CallMutations}
-   ${ImapMutations}
+   ${CallProMutations}
+   ${MailMutations}
    ${TicketMutations}
    ${WidgetMutations}
    ${ResponseTemplateMutations}
    ${FormMutations}
    ${FieldMutations}
+   ${SurveyMutations}
    ${KnowledgeBaseMutations}
+   ${HelpCenterConfigMutations}
    ${CpInboxMutations}
+   ${ReportChartMutations}
+   ${ReportFacebookMutations}
 `;
 
 export default { types, queries, mutations };

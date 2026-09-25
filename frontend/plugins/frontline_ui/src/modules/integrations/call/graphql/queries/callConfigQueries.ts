@@ -26,6 +26,7 @@ export const CALL_USER_INTEGRATIONS = gql`
     callUserIntegrations {
       _id
       inboxId
+      name
       operators
       phone
       wsServer

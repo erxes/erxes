@@ -1,7 +1,12 @@
 import { mongooseStringRandomId } from 'erxes-api-shared/utils';
 import { Schema } from 'mongoose';
 import { CAMPAIGN_KINDS, CAMPAIGN_METHODS } from '../../constants';
-import { emailSchema, messengerSchema, notificationSchema } from './common';
+import {
+  emailSchema,
+  messengerSchema,
+  notificationSchema,
+  scheduleDateSchema,
+} from './common';
 
 export const engageMessageSchema = new Schema(
   {
@@ -20,7 +25,8 @@ export const engageMessageSchema = new Schema(
 
     title: { type: String, label: 'Title', required: true },
     cpId: { type: String, label: 'Client portal ID' },
-    fromUserId: { type: String, label: 'From user', required: true },
+    fromEmail: { type: String, label: 'From sender' },
+    fromUserId: { type: String, label: 'From user' },
 
     method: {
       type: String,
@@ -31,6 +37,10 @@ export const engageMessageSchema = new Schema(
 
     isDraft: { type: Boolean, label: 'Is draft', required: true },
     isLive: { type: Boolean, label: 'Is live', required: true },
+
+    // Set means the campaign is waiting for its moment: neither a draft nor
+    // live, and made live by the alarm rather than by a person.
+    scheduleDate: { type: scheduleDateSchema, label: 'Schedule' },
 
     messengerReceivedCustomerIds: {
       type: [String],

@@ -2,9 +2,9 @@ import { AiAgentConnectionForm } from '@/automations/components/settings/compone
 import { AiAgentContextForm } from '@/automations/components/settings/components/agents/components/form/AiAgentContextForm';
 import { AiAgentGeneralForm } from '@/automations/components/settings/components/agents/components/form/AiAgentGeneralForm';
 import { AiAgentRuntimeForm } from '@/automations/components/settings/components/agents/components/form/AiAgentRuntimeForm';
+import { AiAgentUsageCard } from '@/automations/components/settings/components/agents/components/AiAgentUsageCard';
 import { AutomationAiAgentHealthSection } from '@/automations/components/settings/components/agents/components/form/AutomationAiAgentHealthSection';
 import { AiAgentInput } from '@/automations/components/settings/components/agents/hooks/useAiAgentDetail';
-import { AutomationSettingsDetailHeader } from '@/automations/components/settings/components/AutomationSettingsDetailHeader';
 import {
   AI_AGENT_PROVIDER_TYPES,
   TAiAgentProvider,
@@ -28,7 +28,7 @@ import {
 import { Button, Card, Tabs, toast } from 'erxes-ui';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useSearchParams } from 'react-router';
-import { ApprovalLockButton } from 'ui-modules';
+import { ApprovalLockButton, SettingsDetailHeader } from 'ui-modules';
 
 export const AutomationAiAgentDetail = ({
   detail,
@@ -81,7 +81,7 @@ export const AutomationAiAgentDetail = ({
   return (
     <div className="flex h-full min-h-0 w-full flex-col">
       <FormProvider {...form}>
-        <AutomationSettingsDetailHeader
+        <SettingsDetailHeader
           title={isEditing ? 'Edit AI Agent' : 'Create AI Agent'}
           description={
             isEditing
@@ -134,10 +134,11 @@ export const AutomationAiAgentDetail = ({
             </Tabs.List>
 
             <div className="min-h-0 flex-1 overflow-y-auto pt-4">
-              <Tabs.Content value="general" className="mt-0 px-2">
+              <Tabs.Content value="general" className="mt-0 grid gap-4 px-2">
                 <Card className="p-4">
                   <AiAgentGeneralForm />
                 </Card>
+                {isEditing && <AiAgentUsageCard usage={detail?.usage} />}
               </Tabs.Content>
 
               <Tabs.Content

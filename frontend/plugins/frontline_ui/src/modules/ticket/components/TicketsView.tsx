@@ -1,4 +1,11 @@
-import { Button, Popover, PopoverScoped, ToggleGroup } from 'erxes-ui';
+import {
+  Button,
+  Popover,
+  PopoverScoped,
+  Spinner,
+  ToggleGroup,
+  useQueryState,
+} from 'erxes-ui';
 import {
   IconAdjustmentsHorizontal,
   IconLayoutKanban,
@@ -9,6 +16,8 @@ import { useTranslation } from 'react-i18next';
 import { ticketViewAtom } from '@/ticket/states/ticketViewState';
 import { lazy, Suspense, useState } from 'react';
 import { TicketDetailSheet } from '@/ticket/components/ticket-detail/TicketDetailSheet';
+import { useGetAccessibleTicketStatuses } from '@/status/hooks/useGetTicketStatus';
+import { TicketStatusesFallback } from '@/ticket/components/TicketPipelineFallback';
 
 const TicketsRecordTable = lazy(() =>
   import('@/ticket/components/TicketsRecordTable').then((mod) => ({
@@ -32,7 +41,7 @@ export const TicketsViewControl = () => {
       <Popover.Trigger asChild>
         <Button variant="ghost">
           <IconAdjustmentsHorizontal />
-          {t('view')}
+          {t('view', 'View')}
         </Button>
       </Popover.Trigger>
       <Popover.Content>
@@ -53,7 +62,7 @@ export const TicketsViewControl = () => {
               className="h-11 flex-col gap-0"
             >
               <IconTable className="!size-5" />
-              <span className="text-xs font-normal">{t('list')}</span>
+              <span className="text-xs font-normal">{t('list', 'List')}</span>
             </Button>
           </ToggleGroup.Item>
           <ToggleGroup.Item value="grid" asChild>
@@ -63,7 +72,7 @@ export const TicketsViewControl = () => {
               className="h-11 flex-col gap-0"
             >
               <IconLayoutKanban className="!size-5" />
-              <span className="text-xs font-normal">{t('board')}</span>
+              <span className="text-xs font-normal">{t('board', 'Board')}</span>
             </Button>
           </ToggleGroup.Item>
         </ToggleGroup>
@@ -74,6 +83,27 @@ export const TicketsViewControl = () => {
 
 export const TicketsView = () => {
   const view = useAtomValue(ticketViewAtom);
+  const [pipelineId] = useQueryState<string | null>('pipelineId');
+  const [channelId] = useQueryState<string | null>('channelId');
+  const { statuses, loading, error } = useGetAccessibleTicketStatuses({
+    variables: {
+      pipelineId: pipelineId || '',
+      channelId: channelId || '',
+    },
+    skip: !pipelineId,
+  });
+
+  if (pipelineId && loading) {
+    return (
+      <div className="flex h-full items-center justify-center">
+        <Spinner />
+      </div>
+    );
+  }
+
+  if (pipelineId && !error && !statuses.length) {
+    return <TicketStatusesFallback />;
+  }
 
   return (
     <Suspense>

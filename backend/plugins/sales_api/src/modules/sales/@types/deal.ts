@@ -1,3 +1,4 @@
+import { TCreatedVia } from 'erxes-api-shared/core-types';
 import {
   ICursorPaginateParams,
   ICustomField,
@@ -21,6 +22,12 @@ export interface IProductData {
   vatPercent?: number;
   discountPercent?: number;
   discount?: number;
+  discountInfos?: Array<{
+    type: string;
+    title?: string;
+    amount?: number;
+    percent?: number;
+  }>;
   bonusCount?: number;
   amount?: number;
   tickUsed?: boolean;
@@ -44,6 +51,12 @@ interface IPaymentsData {
 }
 
 export interface IDeal {
+  /**
+   * What produced this, when nobody typed it in — a campaign, an
+   * automation. Written by whatever created it; `schemaWrapper` carries the
+   * field on every schema.
+   */
+  createdVia?: TCreatedVia;
   name?: string;
   // TODO migrate after remove 2row
   companyIds?: string[];
@@ -82,12 +95,14 @@ export interface IDeal {
   parentId?: string;
 
   productsData?: IProductData[];
+  totalAmount?: number;
   mobileAmount?: number;
   mobileAmounts?: Array<{ _id?: string; amount: number }>;
   paymentsData?: IPaymentsData;
   extraData?: any;
   brokerType?: 'customer' | 'company' | 'user';
   brokerId?: string;
+  sourceInvoiceId?: string;
 }
 
 export interface IDealDocument extends IDeal, Document {
@@ -118,7 +133,6 @@ export interface IDealQueryParams extends IListParams, ICursorPaginateParams {
   labelIds?: string[];
   userIds?: string[];
   segment?: string;
-  segmentData?: string;
   stageChangedStartDate?: Date;
   stageChangedEndDate?: Date;
   noSkipArchive?: boolean;

@@ -53,10 +53,15 @@ export type TAiBridgeInvokeInput = {
   messages: TAiBridgeMessage[];
   responseFormat?: 'json' | 'text';
   tools?: TAiBridgeToolDefinition[];
+  // 'required' forces at least one tool call on this turn. Prompt wording alone
+  // does not reliably make a model look something up before answering.
+  toolChoice?: 'auto' | 'required';
 };
 
 export type TAiBridgeInvokeResult = {
   text: string;
+  // Set when the text is a configured fallback, not a provider answer.
+  fallback?: boolean;
   raw?: any;
   toolCalls?: TAiBridgeToolCall[];
   usage?: {

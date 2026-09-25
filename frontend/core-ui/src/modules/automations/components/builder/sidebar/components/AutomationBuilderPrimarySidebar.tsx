@@ -5,6 +5,7 @@ import { AutomationActionTargetSelector } from '@/automations/components/builder
 import { AutomationTriggerContentSidebar } from '@/automations/components/builder/sidebar/components/content/trigger/components/AutomationTriggerContentSidebar';
 import { AutomationWorkflowContentSidebar } from '@/automations/components/builder/sidebar/components/content/workflow/AutomationWorkflowContentSidebar';
 import { AutomationNodeLibrarySidebar } from '@/automations/components/builder/sidebar/components/library/AutomationNodeLibrarySidebar';
+import { AutomationBuilderReadOnlyFieldset } from '@/automations/components/builder/sidebar/components/AutomationBuilderReadOnlyFieldset';
 import { AutomationNodeType, NodeData } from '@/automations/types';
 import { getNodeColor } from '@/automations/utils/automationBuilderUtils/getNodeColor';
 import { Card, IconComponent, Separator, cn } from 'erxes-ui';
@@ -37,7 +38,9 @@ export const AutomationBuilderPrimarySidebar = ({
       />
 
       <Card.Content className="min-w-0 flex-1 overflow-auto p-0">
-        <AutomationBuilderSidebarContent activeNode={activeNode} />
+        <AutomationBuilderReadOnlyFieldset>
+          <AutomationBuilderSidebarContent activeNode={activeNode} />
+        </AutomationBuilderReadOnlyFieldset>
       </Card.Content>
     </div>
   );

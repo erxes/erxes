@@ -58,7 +58,7 @@ export const createVendorUsersColumns = (
   const moreColumn: ColumnDef<VendorUser> = {
     id: 'more',
     accessorKey: 'more',
-    header: '',
+    header: () => <RecordTable.ColumnSelector />,
     cell: ({ cell }) => (
       <VendorUsersMoreColumn
         cell={cell}

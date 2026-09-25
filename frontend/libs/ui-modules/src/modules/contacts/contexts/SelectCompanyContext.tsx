@@ -11,6 +11,7 @@ export type ISelectCompanyContext = {
   error: string | null;
   hideAvatar?: boolean;
   mode: 'single' | 'multiple';
+  openCreate: () => void;
 };
 
 export const SelectCompanyContext = createContext<ISelectCompanyContext | null>(

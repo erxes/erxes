@@ -1,11 +1,15 @@
+import { useState } from 'react';
 import { generateAutomationElementId } from 'ui-modules';
 import { TMessageTriggerDirectConditions } from '../types/messageTrigger';
 
 export const useDirectMessageConditionCard = ({
   condition,
+  isKeywordBlocked,
   onChange,
 }: {
   condition: TMessageTriggerDirectConditions[number];
+  // A keyword an active automation already answers cannot be added here.
+  isKeywordBlocked?: (text: string) => boolean;
   onChange: (
     name: 'operator' | 'keywords',
     value:
@@ -13,19 +17,27 @@ export const useDirectMessageConditionCard = ({
       | TMessageTriggerDirectConditions[number]['operator'],
   ) => void;
 }) => {
+  // Held here so the keyword can be checked against other automations before
+  // it is committed, not after.
+  const [draftKeyword, setDraftKeyword] = useState('');
+
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key !== 'Enter') {
       return;
     }
 
-    const { value } = e.currentTarget;
+    const text = draftKeyword.trim();
+
+    if (!text || isKeywordBlocked?.(text)) {
+      return;
+    }
 
     onChange('keywords', [
       ...condition.keywords,
-      { _id: generateAutomationElementId(), text: value.trim() },
+      { _id: generateAutomationElementId(), text },
     ]);
 
-    e.currentTarget.value = '';
+    setDraftKeyword('');
   };
 
   const onRemoveConditionKeyword = (_id: string) => {
@@ -76,6 +88,8 @@ export const useDirectMessageConditionCard = ({
 
   return {
     hasKeywords: condition.keywords.length > 0,
+    draftKeyword,
+    setDraftKeyword,
     handleKeyPress,
     onRemoveConditionKeyword,
     onChangeKeyword,

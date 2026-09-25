@@ -18,6 +18,7 @@ export const DuplicatedRecordTable = () => {
       data={putResponsesDuplicated || []}
       className="m-3"
       stickyColumns={['more']}
+      tableId="mongolian_ebarimt_put_response_duplicated_record_table"
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}

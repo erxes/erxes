@@ -79,10 +79,10 @@ export const quickQrCallbackHandler = async (models: IModels, data: any) => {
     throw new Error('Invoice id is required');
   }
 
+
   const transaction = await models.Transactions.getTransaction({
     _id,
   });
-
   const payment = await models.PaymentMethods.getPayment(transaction.paymentId);
 
   if (payment.kind !== PAYMENTS.qpayQuickqr.kind) {
@@ -92,16 +92,13 @@ export const quickQrCallbackHandler = async (models: IModels, data: any) => {
   try {
     const api = new QPayQuickQrAPI(payment.config);
     const status = await api.checkInvoice(transaction);
-
     if (status !== PAYMENT_STATUS.PAID) {
       return transaction;
     }
 
     transaction.status = status;
     transaction.updatedAt = new Date();
-
     await transaction.save();
-
     return transaction;
   } catch (e) {
     throw new Error(e.message);
@@ -245,6 +242,8 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
   }
 
   async createInvoice(invoice: ITransactionDocument) {
+    const callbackUrl = `${this.domain}/pl:payment/callback/${PAYMENTS.qpayQuickqr.kind}?_id=${invoice._id}`;
+
     const res = await this.makeRequest<IInvoiceResponse>({
       method: 'POST',
       path: meta.paths.invoice,
@@ -267,7 +266,6 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
         ],
       },
     });
-
     return {
       ...res,
       qrData: `data:image/jpg;base64,${res.qr_image}`,
@@ -283,7 +281,6 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
           invoice_id: invoice.response.id,
         },
       });
-
       if (res.invoice_status === 'PAID') {
         return PAYMENT_STATUS.PAID;
       }

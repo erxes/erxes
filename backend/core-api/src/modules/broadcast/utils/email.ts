@@ -1,8 +1,9 @@
 import { ICustomer } from '@/broadcast/@types';
 import dotenv from 'dotenv';
 import { IAttachment } from 'erxes-api-shared/core-types';
-import { getEnv, isValidURL, randomAlphanumeric } from 'erxes-api-shared/utils';
+import { isValidURL, randomAlphanumeric } from 'erxes-api-shared/utils';
 import validator from 'validator';
+import { coreUrl, readFileUrl as fileUrl } from '~/utils/email/links';
 
 dotenv.config();
 
@@ -11,16 +12,13 @@ export const readFileUrl = (value: string, subdomain: string) => {
     return value;
   }
 
-  const DOMAIN = getEnv({
-    name: 'DOMAIN',
-  });
-
-  const domain = DOMAIN.replace('<subdomain>', subdomain);
-
-  return `${domain}/gateway/read-file?key=${encodeURIComponent(value)}`;
+  return fileUrl(subdomain, value);
 };
 
-const prepareAttachments = (attachments: IAttachment[] = [], subdomain: string) => {
+const prepareAttachments = (
+  attachments: IAttachment[] = [],
+  subdomain: string,
+) => {
   return attachments.map((file) => ({
     filename: file.name || '',
     path: readFileUrl(file.url || '', subdomain),
@@ -52,17 +50,11 @@ export const prepareEmailHeader = (
   engageMessageId?: string,
   configSet?: string,
 ) => {
-  const DOMAIN = getEnv({ name: 'DOMAIN' })
-    ? `${getEnv({ name: 'DOMAIN' })}/gateway`
-    : 'http://localhost:4000';
-  const domain = DOMAIN.replace('<subdomain>', subdomain);
-  const callbackUrl = `${domain}/pl:core`;
-
   const header: any = {
     'X-SES-CONFIGURATION-SET': configSet || 'erxes',
     CustomerId: customerId,
     MailMessageId: randomAlphanumeric(),
-    Host: callbackUrl,
+    Host: coreUrl(subdomain),
   };
 
   if (engageMessageId) {

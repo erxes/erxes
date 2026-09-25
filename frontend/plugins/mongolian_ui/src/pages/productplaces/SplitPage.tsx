@@ -1,12 +1,7 @@
-import React from 'react';
-import SettingsContainer from '../../modules/productplaces/containers/Settings';
-import SplitConfig from '../../modules/productplaces/components/SplitConfig';
+import { ProductPlacesConfigManager } from '../../modules/productplaces/components/ProductPlacesConfigManager';
 
 const SplitPage = () => (
-  <SettingsContainer
-    component={SplitConfig}
-    configCode="dealsProductsDataSplit"
-  />
+  <ProductPlacesConfigManager code="dealsProductsDataSplit" />
 );
 
 export default SplitPage;

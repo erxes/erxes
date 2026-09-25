@@ -1,6 +1,8 @@
 import { SelectAssigneeTicket } from '@/ticket/components/ticket-selects/SelectAssigneeTicket';
+import { SelectBranchTicket } from '@/ticket/components/ticket-selects/SelectBranchTicket';
 import { SelectChannel } from '@/ticket/components/ticket-selects/SelectChannel';
 import { SelectDateTicket } from '@/ticket/components/ticket-selects/SelectDateTicket';
+import { SelectDepartmentTicket } from '@/ticket/components/ticket-selects/SelectDepartmentTicket';
 import { SelectPipeline } from '@/ticket/components/ticket-selects/SelectPipeline';
 import { SelectPriorityTicket } from '@/ticket/components/ticket-selects/SelectPriorityTicket';
 import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
@@ -10,6 +12,8 @@ import { ITicket, TicketHotKeyScope } from '@/ticket/types';
 import {
   IconAlertSquareRounded,
   IconCalendarFilled,
+  IconFolder,
+  IconGitBranch,
   IconLabelFilled,
   IconProgressCheck,
   IconUser,
@@ -90,7 +94,10 @@ export const useTicketsColumns = (): ColumnDef<ITicket>[] => {
       id: 'name',
       accessorKey: 'name',
       header: () => (
-        <RecordTable.InlineHead label={t('name')} icon={IconLabelFilled} />
+        <RecordTable.InlineHead
+          label={t('name', 'Name')}
+          icon={IconLabelFilled}
+        />
       ),
       cell: TicketNameCell,
       size: 240,
@@ -100,7 +107,10 @@ export const useTicketsColumns = (): ColumnDef<ITicket>[] => {
       id: 'status',
       accessorKey: 'status',
       header: () => (
-        <RecordTable.InlineHead label={t('status')} icon={IconProgressCheck} />
+        <RecordTable.InlineHead
+          label={t('status', 'Status')}
+          icon={IconProgressCheck}
+        />
       ),
       cell: ({ cell }) => {
         return (
@@ -123,14 +133,19 @@ export const useTicketsColumns = (): ColumnDef<ITicket>[] => {
       id: 'channel',
       accessorKey: 'channel',
       header: () => (
-        <RecordTable.InlineHead label={t('channel')} icon={IconProgressCheck} />
+        <RecordTable.InlineHead
+          label={t('channel', 'Channel')}
+          icon={IconProgressCheck}
+        />
       ),
       cell: ({ cell }) => {
         return (
           <Tooltip>
             <div className="relative">
-              <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed"></Tooltip.Trigger>
-              <Tooltip.Content>{t('channel-cannot-be-changed')}</Tooltip.Content>
+              <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed" />
+              <Tooltip.Content>
+                {t('channel-cannot-be-changed', 'Channel cannot be changed')}
+              </Tooltip.Content>
               <SelectChannel
                 variant="table"
                 value={cell.row.original.channelId}
@@ -151,14 +166,19 @@ export const useTicketsColumns = (): ColumnDef<ITicket>[] => {
       id: 'pipeline',
       accessorKey: 'pipeline',
       header: () => (
-        <RecordTable.InlineHead label={t('pipeline')} icon={IconProgressCheck} />
+        <RecordTable.InlineHead
+          label={t('pipeline', 'Pipeline')}
+          icon={IconProgressCheck}
+        />
       ),
       cell: ({ cell }) => {
         return (
           <Tooltip>
             <div className="relative">
-              <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed"></Tooltip.Trigger>
-              <Tooltip.Content>{t('pipeline-cannot-be-changed')}</Tooltip.Content>
+              <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed" />
+              <Tooltip.Content>
+                {t('pipeline-cannot-be-changed', 'Pipeline cannot be changed')}
+              </Tooltip.Content>
               <SelectPipeline
                 variant="table"
                 value={cell.row.original.pipelineId}
@@ -177,8 +197,80 @@ export const useTicketsColumns = (): ColumnDef<ITicket>[] => {
       size: 170,
     },
     {
+      id: 'branchId',
+      header: () => (
+        <RecordTable.InlineHead
+          label={t('branch-label', 'Branch')}
+          icon={IconGitBranch}
+        />
+      ),
+      cell: ({ cell }) => {
+        return (
+          <Tooltip>
+            <div className="relative">
+              <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed" />
+              <Tooltip.Content>
+                {t('branch-cannot-be-changed', 'Branch cannot be changed')}
+              </Tooltip.Content>
+              <SelectBranchTicket
+                variant="table"
+                value={cell.row.original.branchId || ''}
+                disabled
+                scope={clsx(
+                  TicketHotKeyScope.TicketTableCell,
+                  cell.row.original._id,
+                  'Branch',
+                )}
+              />
+            </div>
+          </Tooltip>
+        );
+      },
+      size: 170,
+    },
+    {
+      id: 'departmentId',
+      header: () => (
+        <RecordTable.InlineHead
+          label={t('department-label', 'Department')}
+          icon={IconFolder}
+        />
+      ),
+      cell: ({ cell }) => {
+        return (
+          <Tooltip>
+            <div className="relative">
+              <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed" />
+              <Tooltip.Content>
+                {t(
+                  'department-cannot-be-changed',
+                  'Department cannot be changed',
+                )}
+              </Tooltip.Content>
+              <SelectDepartmentTicket
+                variant="table"
+                value={cell.row.original.departmentId || ''}
+                disabled
+                scope={clsx(
+                  TicketHotKeyScope.TicketTableCell,
+                  cell.row.original._id,
+                  'Department',
+                )}
+              />
+            </div>
+          </Tooltip>
+        );
+      },
+      size: 170,
+    },
+    {
       id: 'assigneeId',
-      header: () => <RecordTable.InlineHead label={t('assignee')} icon={IconUser} />,
+      header: () => (
+        <RecordTable.InlineHead
+          label={t('assignee', 'Assignee')}
+          icon={IconUser}
+        />
+      ),
       cell: ({ cell }) => {
         return (
           <SelectAssigneeTicket
@@ -200,7 +292,7 @@ export const useTicketsColumns = (): ColumnDef<ITicket>[] => {
       accessorKey: 'priority',
       header: () => (
         <RecordTable.InlineHead
-          label={t('priority')}
+          label={t('priority', 'Priority')}
           icon={IconAlertSquareRounded}
         />
       ),
@@ -224,7 +316,10 @@ export const useTicketsColumns = (): ColumnDef<ITicket>[] => {
       id: 'startDate',
       accessorKey: 'startDate',
       header: () => (
-        <RecordTable.InlineHead label={t('start-date')} icon={IconCalendarFilled} />
+        <RecordTable.InlineHead
+          label={t('start-date', 'Start date')}
+          icon={IconCalendarFilled}
+        />
       ),
       cell: ({ cell }) => {
         const startDate = cell.getValue() as string;
@@ -242,7 +337,10 @@ export const useTicketsColumns = (): ColumnDef<ITicket>[] => {
       id: 'targetDate',
       accessorKey: 'targetDate',
       header: () => (
-        <RecordTable.InlineHead label={t('target-date')} icon={IconCalendarFilled} />
+        <RecordTable.InlineHead
+          label={t('target-date', 'Target date')}
+          icon={IconCalendarFilled}
+        />
       ),
       cell: ({ cell }) => {
         const targetDate = cell.getValue() as string;

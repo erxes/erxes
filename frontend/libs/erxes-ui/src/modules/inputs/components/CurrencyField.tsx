@@ -6,9 +6,12 @@ import { CURRENCY_CODES } from 'erxes-ui/constants';
 import { cn } from 'erxes-ui/lib/utils';
 import { CurrencyDisplay } from 'erxes-ui/modules/display/components/CurrencyDisplay';
 import { Currency, CurrencyCode } from 'erxes-ui/types';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { IMaskInput } from 'react-imask';
 import { Except } from 'type-fest';
+
+const DEFAULT_DISPLAY_SCALE = 2;
+const DEFAULT_EDIT_SCALE = 12;
 
 const CurrencyFieldRoot = React.forwardRef<
   HTMLDivElement,
@@ -36,25 +39,79 @@ const CurrencyValueInput = React.forwardRef<
     React.ComponentPropsWithoutRef<typeof IMaskInput>,
     'onChange' | 'value'
   > & {
+    displayScale?: number;
+    editScale?: number;
     onChange?: (value: number) => void;
     value?: number;
   }
->(({ value, onChange, className, ...props }, ref) => {
-  return (
-    <IMaskInput
-      ref={ref}
-      mask={Number as any}
-      thousandsSeparator={','}
-      radix="."
-      onAccept={(value) => onChange?.(Number(value))}
-      value={value + ''}
-      autoComplete="off"
-      className={cn(inputVariants({ type: 'default' }), className)}
-      unmask
-      {...props}
-    />
-  );
-});
+>(
+  (
+    {
+      value,
+      onChange,
+      className,
+      onFocus,
+      onBlur,
+      displayScale = DEFAULT_DISPLAY_SCALE,
+      editScale = DEFAULT_EDIT_SCALE,
+      ...props
+    },
+    ref,
+  ) => {
+    const [isFocused, setIsFocused] = useState(false);
+    const isFocusedRef = useRef(false);
+    const skipAcceptValueRef = useRef<string | null>(null);
+
+    const fullValue =
+      typeof value === 'number' && Number.isFinite(value)
+        ? value.toString()
+        : '';
+    const roundedValue =
+      typeof value === 'number' && Number.isFinite(value)
+        ? value.toFixed(displayScale)
+        : '';
+    const displayValue = isFocused ? fullValue : roundedValue;
+
+    return (
+      <IMaskInput
+        ref={ref}
+        mask={Number as any}
+        thousandsSeparator={','}
+        radix="."
+        scale={isFocused ? editScale : displayScale}
+        onAccept={(acceptedValue) => {
+          if (!isFocusedRef.current) {
+            return;
+          }
+
+          if (skipAcceptValueRef.current === acceptedValue) {
+            skipAcceptValueRef.current = null;
+            return;
+          }
+
+          onChange?.(Number(acceptedValue));
+        }}
+        onFocus={(event) => {
+          isFocusedRef.current = true;
+          skipAcceptValueRef.current = fullValue;
+          setIsFocused(true);
+          onFocus?.(event);
+        }}
+        onBlur={(event) => {
+          isFocusedRef.current = false;
+          skipAcceptValueRef.current = null;
+          setIsFocused(false);
+          onBlur?.(event);
+        }}
+        value={displayValue}
+        autoComplete="off"
+        className={cn(inputVariants({ type: 'default' }), className)}
+        unmask
+        {...props}
+      />
+    );
+  },
+);
 
 const SelectCurrency = React.forwardRef<
   React.ElementRef<typeof Combobox.Trigger>,
@@ -122,7 +179,7 @@ const SelectCurrencyCommand = ({
   onSelect: (code: CurrencyCode) => void;
   focusOnMount?: boolean;
 }) => {
-  const sortedCurrencies = Object.entries(currencies).sort((a, b) => {
+  const sortedCurrencies = Object.entries(currencies).sort((a) => {
     if (a[0] === value) {
       return -1;
     }

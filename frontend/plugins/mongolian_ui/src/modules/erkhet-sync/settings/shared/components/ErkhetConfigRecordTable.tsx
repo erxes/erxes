@@ -9,6 +9,7 @@ interface Props<T extends object> {
   columns: ColumnDef<T>[];
   emptyDescription: string;
   commandBar: ReactNode;
+  tableId: string;
 }
 
 export const ErkhetConfigRecordTable = <T extends object>({
@@ -16,6 +17,7 @@ export const ErkhetConfigRecordTable = <T extends object>({
   columns,
   emptyDescription,
   commandBar,
+  tableId,
 }: Props<T>) => {
   const { t } = useTranslation('mongolian');
   return (
@@ -23,6 +25,8 @@ export const ErkhetConfigRecordTable = <T extends object>({
       columns={columns}
       data={configs}
       className="m-3"
+      stickyColumns={['more', 'checkbox']}
+      tableId={tableId}
       tableOptions={{ enableRowSelection: true } as any}
     >
       <RecordTable>

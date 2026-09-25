@@ -22,6 +22,7 @@ export interface PermissionFormData {
   adminDirectDiscountLimit: string;
   cashierIds: string[];
   cashierIsPrintTempBill: boolean;
+  cashierSeeReport: boolean;
   cashierDirectDiscount: boolean;
   cashierDirectDiscountLimit: string;
 }
@@ -35,6 +36,7 @@ const DEFAULT_FORM_VALUES: PermissionFormData = {
   adminDirectDiscountLimit: '',
   cashierIds: [],
   cashierIsPrintTempBill: false,
+  cashierSeeReport: false,
   cashierDirectDiscount: false,
   cashierDirectDiscountLimit: '',
 };
@@ -73,6 +75,7 @@ const Permission: React.FC<PermissionProps> = ({
         adminConfig?.directDiscountLimit?.toString() || '',
       cashierIds: posDetail.cashierIds || [],
       cashierIsPrintTempBill: cashierConfig?.isTempBill ?? false,
+      cashierSeeReport: cashierConfig?.seeReport ?? false,
       cashierDirectDiscount: cashierConfig?.directDiscount ?? false,
       cashierDirectDiscountLimit:
         cashierConfig?.directDiscountLimit?.toString() || '',
@@ -111,6 +114,7 @@ const Permission: React.FC<PermissionProps> = ({
               },
               cashiers: {
                 isTempBill: data.cashierIsPrintTempBill,
+                seeReport: data.cashierSeeReport,
                 directDiscount: data.cashierDirectDiscount,
                 directDiscountLimit: parseLimit(
                   data.cashierDirectDiscountLimit,

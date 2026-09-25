@@ -36,7 +36,7 @@ export const ConversationReportContent = ({
             <Collapsible.Trigger asChild>
               <Button variant="secondary" size="sm">
                 <IconCaretRightFilled className="transition-transform group-data-[state=open]/collapsible-menu:rotate-90 size-3.5" />
-                {t('progress')}
+                {t('progress', 'Progress')}
               </Button>
             </Collapsible.Trigger>
             <SelectReportDate />
@@ -91,19 +91,19 @@ export const ConversationsSideWidgetTabs = ({
             value={ConversationsSideWidgetTabsEnum.Assignee}
             className="flex-auto"
           >
-            {t('assignee')}
+            {t('assignee', 'Assignee')}
           </ToggleGroup.Item>
           <ToggleGroup.Item
             value={ConversationsSideWidgetTabsEnum.Source}
             className="flex-auto"
           >
-            {t('source')}
+            {t('source', 'Source')}
           </ToggleGroup.Item>
           <ToggleGroup.Item
             value={ConversationsSideWidgetTabsEnum.Tag}
             className="flex-auto"
           >
-            {t('tag')}
+            {t('tag', 'Tag')}
           </ToggleGroup.Item>
         </ToggleGroup>
         <Tabs

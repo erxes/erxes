@@ -3,6 +3,7 @@ import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
 export const types = `
   type Document {
     _id: String!
+    tagIds: [String]
     code: String
 
     createdAt: Date
@@ -14,6 +15,7 @@ export const types = `
     content: String
     replacer: String
 
+    approvalLockState: ApprovalLockState
     cursor: String
   }
 
@@ -45,6 +47,7 @@ const queryParams = `
 
   dateFilters: String,
   userIds: [String]
+  tagIds: [String]
 
   ${GQL_CURSOR_PARAM_DEFS}
 `;

@@ -55,6 +55,8 @@ export const ProductRulesOnTaxTable = () => {
     <RecordTable.Provider
       columns={productRulesOnTaxColumns}
       data={productRulesOnTaxRows || []}
+      stickyColumns={['more', 'checkbox']}
+      tableId="mongolian_ebarimt_product_rules_on_tax_record_table"
     >
       <RecordTable.Scroll>
         <RecordTable>
@@ -119,7 +121,9 @@ export const ProductRulesOnTaxRowMoreColumnCell = ({
     confirm({
       message: t('delete-this-rule-confirm'),
       options: { okLabel: t('delete'), cancelLabel: t('cancel') },
-    }).then(() => removeProductRulesOnTax({ variables: { ids: [cell.row.original._id] } }));
+    }).then(() =>
+      removeProductRulesOnTax({ variables: { ids: [cell.row.original._id] } }),
+    );
   };
 
   return (
@@ -145,78 +149,92 @@ export const ProductRulesOnTaxRowMoreColumnCell = ({
 
 export const productRulesOnTaxRowMoreColumn = {
   id: 'more',
+  header: () => <RecordTable.ColumnSelector />,
   cell: ProductRulesOnTaxRowMoreColumnCell,
   size: 33,
 };
 
-export const useProductRulesOnTaxColumns = (): ColumnDef<IProductRulesOnTax>[] => {
-  const { t } = useTranslation('mongolian');
-  return [
-    productRulesOnTaxRowMoreColumn,
-    RecordTable.checkboxColumn as ColumnDef<IProductRulesOnTax>,
-    {
-      id: 'title',
-      accessorKey: 'title',
-      header: () => <RecordTable.InlineHead label={t('title')} icon={IconCode} />,
-      cell: ({ cell }) => <ProductRulesOnTaxTitleCell cell={cell} />,
-      size: 150,
-    },
-    {
-      id: 'kind',
-      accessorKey: 'kind',
-      header: () => <RecordTable.InlineHead label={t('kind')} icon={IconTag} />,
-      cell: ({ cell }) => {
-        return (
-          <RecordTableInlineCell>
-            <TextOverflowTooltip value={cell.getValue() as string} />
-          </RecordTableInlineCell>
-        );
+export const useProductRulesOnTaxColumns =
+  (): ColumnDef<IProductRulesOnTax>[] => {
+    const { t } = useTranslation('mongolian');
+    return [
+      productRulesOnTaxRowMoreColumn,
+      RecordTable.checkboxColumn as ColumnDef<IProductRulesOnTax>,
+      {
+        id: 'title',
+        accessorKey: 'title',
+        header: () => (
+          <RecordTable.InlineHead label={t('title')} icon={IconCode} />
+        ),
+        cell: ({ cell }) => <ProductRulesOnTaxTitleCell cell={cell} />,
+        size: 150,
       },
-      size: 100,
-    },
-    {
-      id: 'taxType',
-      accessorKey: 'taxType',
-      header: () => (
-        <RecordTable.InlineHead label={t('tax-type')} icon={IconReceipt} />
-      ),
-      cell: ({ cell }) => {
-        return (
-          <RecordTableInlineCell>
-            <TextOverflowTooltip value={cell.getValue() as string} />
-          </RecordTableInlineCell>
-        );
+      {
+        id: 'kind',
+        accessorKey: 'kind',
+        header: () => (
+          <RecordTable.InlineHead label={t('kind')} icon={IconTag} />
+        ),
+        cell: ({ cell }) => {
+          return (
+            <RecordTableInlineCell>
+              <TextOverflowTooltip value={cell.getValue() as string} />
+            </RecordTableInlineCell>
+          );
+        },
+        size: 100,
       },
-    },
-    {
-      id: 'taxCode',
-      accessorKey: 'taxCode',
-      header: () => <RecordTable.InlineHead label={t('tax-code')} icon={IconCode} />,
-      cell: ({ row, cell }) => {
-        return (
-          <RecordTableInlineCell>
-            <TextOverflowTooltip value={TAX_TYPES[row.original.taxType]?.options.find(opt => opt.value === cell.getValue() as string)?.label} />
-          </RecordTableInlineCell>
-        );
+      {
+        id: 'taxType',
+        accessorKey: 'taxType',
+        header: () => (
+          <RecordTable.InlineHead label={t('tax-type')} icon={IconReceipt} />
+        ),
+        cell: ({ cell }) => {
+          return (
+            <RecordTableInlineCell>
+              <TextOverflowTooltip value={cell.getValue() as string} />
+            </RecordTableInlineCell>
+          );
+        },
       },
-      size: 150,
-    },
-    {
-      id: 'taxPercent',
-      accessorKey: 'taxPercent',
-      header: () => (
-        <RecordTable.InlineHead label={t('percent')} icon={IconPercentage} />
-      ),
-      cell: ({ cell }) => {
-        const value = cell.getValue() as string | number | null | undefined;
-        return (
-          <RecordTableInlineCell>
-            {value !== null && value !== undefined ? String(value) : ''}
-          </RecordTableInlineCell>
-        );
+      {
+        id: 'taxCode',
+        accessorKey: 'taxCode',
+        header: () => (
+          <RecordTable.InlineHead label={t('tax-code')} icon={IconCode} />
+        ),
+        cell: ({ row, cell }) => {
+          return (
+            <RecordTableInlineCell>
+              <TextOverflowTooltip
+                value={
+                  TAX_TYPES[row.original.taxType]?.options.find(
+                    (opt) => opt.value === (cell.getValue() as string),
+                  )?.label
+                }
+              />
+            </RecordTableInlineCell>
+          );
+        },
+        size: 150,
       },
-    },
-  ];
-};
+      {
+        id: 'taxPercent',
+        accessorKey: 'taxPercent',
+        header: () => (
+          <RecordTable.InlineHead label={t('percent')} icon={IconPercentage} />
+        ),
+        cell: ({ cell }) => {
+          const value = cell.getValue() as string | number | null | undefined;
+          return (
+            <RecordTableInlineCell>
+              {value !== null && value !== undefined ? String(value) : ''}
+            </RecordTableInlineCell>
+          );
+        },
+      },
+    ];
+  };
 
 export const productRulesOnTaxColumns: ColumnDef<IProductRulesOnTax>[] = [];

@@ -17,9 +17,9 @@ import {
   getKnowledgeSourceIdentity,
   getKnowledgeSourceType,
   hashKnowledgeSourceConfig,
-  hasProductScopeSelection,
   isMaterializedKnowledgeSource,
   isProductKnowledgeSource,
+  resolveKnowledgeSourceScope,
   type TKnowledgeSourceIdentity,
 } from './sourceConfig';
 
@@ -41,6 +41,7 @@ type TKnowledgeSourceBinding = Pick<
 type TKnowledgeSourceGroup = TKnowledgeSourceIdentity & {
   sourceIds: string[];
   config?: Record<string, unknown>;
+  scope?: 'all' | 'selected';
 };
 
 type TScopedSourceTarget = {
@@ -194,6 +195,7 @@ const loadKnowledgeDocuments = async ({
     input: {
       moduleName: source.moduleName,
       sourceKey: source.sourceKey,
+      scope: 'selected',
       sourceIds: source.sourceIds,
       config: source.config,
       limit: Math.max(source.sourceIds.length, 1),
@@ -243,6 +245,7 @@ const loadKnowledgeDocumentBatch = async ({
     input: {
       moduleName: source.moduleName,
       sourceKey: source.sourceKey,
+      scope: source.scope || 'all',
       sourceIds: source.sourceIds,
       candidateSourceIds,
       config: source.config,
@@ -667,12 +670,11 @@ const cleanupEmptyMaterializedSources = async ({
   agentId: string;
   sources: TAiAgentKnowledgeSource[];
 }) => {
-  const emptyProductSources = sources.filter(
-    (source) =>
-      isProductKnowledgeSource(source) && !hasProductScopeSelection(source),
+  const nonScopedSources = sources.filter(
+    (source) => resolveKnowledgeSourceScope(source) !== 'all',
   );
   const removedCounts = await Promise.all(
-    emptyProductSources.map(async (source) => {
+    nonScopedSources.map(async (source) => {
       const identity = getKnowledgeSourceIdentity(source);
       const bindings = await models.AiAgentKnowledgeSourceBindings.find({
         agentId,
@@ -796,6 +798,7 @@ export const syncAiKnowledgeSourceScope = async ({
     sourceKey: run.sourceKey,
     sourceIds: [],
     config: run.config,
+    scope: 'all',
   };
   let cursor = run.lastCursor;
   let processedCount = run.processedCount || 0;
@@ -998,11 +1001,8 @@ const getAgentSourceTargetsForRefresh = async ({
         continue;
       }
 
-      if (isProductKnowledgeSource(selection)) {
-        if (hasProductScopeSelection(selection)) {
-          targets.push({ agentId: agent._id, source: selection });
-        }
-
+      if (resolveKnowledgeSourceScope(selection) === 'all') {
+        targets.push({ agentId: agent._id, source: selection });
         continue;
       }
 
@@ -1015,7 +1015,7 @@ const getAgentSourceTargetsForRefresh = async ({
   return targets;
 };
 
-const refreshMaterializedProductSource = async ({
+const refreshMaterializedSource = async ({
   models,
   subdomain,
   target,
@@ -1138,9 +1138,9 @@ export const refreshAiKnowledgeSource = async ({
   });
   const materializedResults = await Promise.all(
     scopedTargets
-      .filter((target) => isProductKnowledgeSource(target.source))
+      .filter((target) => resolveKnowledgeSourceScope(target.source) === 'all')
       .map((target) =>
-        refreshMaterializedProductSource({
+        refreshMaterializedSource({
           models,
           subdomain,
           target,

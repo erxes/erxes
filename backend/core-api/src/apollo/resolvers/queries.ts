@@ -3,6 +3,7 @@ import { appQueries } from '@/apps/graphql/queries';
 import { authQueries } from '@/auth/graphql/resolvers/queries';
 import { oauthClientAppQueries } from '@/auth/graphql/resolvers/oauthClientApps';
 import { automationQueries } from '@/automations/graphql/resolvers/queries';
+import { emailTemplateQueries } from '@/emailTemplates/graphql/resolvers';
 import { beforeResolverQueries } from '@/beforeResolvers/graphql/queries';
 import { clientPortalQueries } from '@/clientportal/graphql/resolvers/queries/clientPortal';
 import { cpUserQueries } from '@/clientportal/graphql/resolvers/queries/cpUser';
@@ -35,6 +36,7 @@ import { broadcastQueries } from '~/modules/broadcast/graphql/resolvers/queries'
 import { propertiesQueries } from '~/modules/properties/graphql/resolvers/queries';
 import { bundleQueries } from '@/bundle/graphql/resolvers/queries';
 import { templateQueries } from '@/template/graphql/queries';
+import { globalSearchQueries } from '@/search/graphql/resolvers/queries/globalSearch';
 import { referenceQueries } from '~/meta/references/graphql/queries';
 
 const sentryTestQueries = {
@@ -70,6 +72,7 @@ export const queries = {
   ...approvalQueries,
   ...documentQueries,
   ...automationQueries,
+  ...emailTemplateQueries,
   ...beforeResolverQueries,
   ...logQueries,
   ...notificationQueries,
@@ -86,4 +89,5 @@ export const queries = {
   ...activityLogQueries,
   ...bundleQueries,
   ...templateQueries,
+  ...globalSearchQueries,
 };

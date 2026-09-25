@@ -13,13 +13,13 @@ export const useAddTicketStatus = () => {
       ...options,
       onCompleted: (data) => {
         toast({
-          title: t('success'),
+          title: t('success', 'Success!'),
         });
         options.onCompleted?.(data);
       },
       onError: (error) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: error.message,
           variant: 'destructive',
         });
@@ -28,7 +28,10 @@ export const useAddTicketStatus = () => {
       refetchQueries: [
         {
           query: GET_TICKET_STATUS_BY_TYPE,
-          variables: { type: options?.variables?.type, pipelineId: options?.variables?.pipelineId },
+          variables: {
+            type: options?.variables?.type,
+            pipelineId: options?.variables?.pipelineId,
+          },
         },
       ],
     });

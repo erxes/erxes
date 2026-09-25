@@ -24,8 +24,8 @@ export const AiAgentToolBuilder = () => {
       <Form.Description>
         Every tool appears on the node with a connect handle — wire it to a
         workflow or action on the canvas. Helper tools run the wired workflow
-        during generation and feed the result back into the reply; handoff
-        tools end the reply and continue execution there.
+        during generation and feed the result back into the reply; handoff tools
+        end the reply and continue execution there.
       </Form.Description>
 
       <div className="flex flex-col gap-3 py-2">

@@ -69,7 +69,11 @@ export const CORE_REFERENCE_TYPES: TRecordReferencesConfig['types'] = [
     type: 'company',
     label: 'Company',
     fields: [
-      { key: 'displayName', label: 'Display name', path: 'primaryName' },
+      {
+        key: 'displayName',
+        label: 'Display name',
+        resolver: 'companyDisplayName',
+      },
       { key: '_id', label: 'Company ID' },
       { key: 'primaryName', label: 'Primary name' },
       { key: 'name', label: 'Name', path: 'primaryName' },

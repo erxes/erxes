@@ -4,13 +4,13 @@ import { useCallback, useEffect, useRef } from 'react';
 import { useFieldArray, useFormContext, useWatch } from 'react-hook-form';
 import {
   groupFieldsByType,
-  IField,
+  TAutomationField,
   TPlaceholderInputSuggestion,
   TPlaceholderInputSuggestionsOption,
   useGetFieldsProperties,
 } from 'ui-modules';
 
-type TManagePropertyField = IField & {
+type TManagePropertyField = TAutomationField & {
   fieldId?: string;
   validations?: Record<string, unknown>;
 };
@@ -20,9 +20,11 @@ const ARRAY_FIELD_TYPES = new Set([
   'checkbox',
   'multiSelect',
   'multiselect',
+  'list',
+  'objectList',
 ]);
 
-const getManagePropertyOperatorType = (field?: IField) => {
+const getManagePropertyOperatorType = (field?: TAutomationField) => {
   if (!field) {
     return 'Default';
   }
@@ -185,7 +187,7 @@ export const useManagePropertyRule = ({
 };
 
 const useManagePropertyRuleInputProps = (
-  selectedField?: IField,
+  selectedField?: TAutomationField,
   rule?: TManagePropertiesForm['rules'][number],
   operators: { value: string; label: string }[] = [],
 ) => {

@@ -1,9 +1,16 @@
+export type TObjectListFieldConfig = {
+  key: string;
+  label: string;
+  type: 'text' | 'textarea';
+};
+
 export type TFieldSelectionConfig = {
   queryName?: string;
   labelField?: string;
   valueField?: string;
   multi?: boolean;
   component?: string;
+  objectListConfigs?: TObjectListFieldConfig[];
   [key: string]: unknown;
 };
 
@@ -32,12 +39,17 @@ export type IField = {
   configs?: TFieldSelectionConfig;
   selectionConfig?: TFieldSelectionConfig;
   validation?: unknown;
+  validations?: Record<string, unknown>;
   selectOptions?: Array<{ label: string; value: string }>;
   isVisible?: boolean;
   isVisibleToCreate?: boolean;
   isRequired?: boolean;
   isVisibleInCard?: boolean;
 };
+
+export interface IPropertyRow extends Record<string, unknown> {
+  _id: string;
+}
 
 export interface IFieldGroup {
   _id: string;

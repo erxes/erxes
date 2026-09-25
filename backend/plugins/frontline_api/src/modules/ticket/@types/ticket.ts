@@ -1,3 +1,4 @@
+import { TCreatedVia } from 'erxes-api-shared/core-types';
 import {
   IListParams,
   IPropertyField,
@@ -5,7 +6,23 @@ import {
 } from 'erxes-api-shared/core-types';
 import { Document } from 'mongoose';
 
+export interface ITicketSourceSurvey {
+  surveyId: string;
+  surveyStepId: string;
+  surveyOptionId: string;
+  question: string;
+  optionText: string;
+  voteCount: number;
+  threshold: number;
+}
+
 export interface ITicket {
+  /**
+   * What produced this, when nobody typed it in — a campaign, an
+   * automation. Written by whatever created it; `schemaWrapper` carries the
+   * field on every schema.
+   */
+  createdVia?: TCreatedVia;
   name: string;
   channelId: string;
   stageId: string;
@@ -13,10 +30,13 @@ export interface ITicket {
   statusId?: string;
   description?: string;
   priority?: number;
+  branchId?: string;
+  departmentId?: string;
   labelIds?: string[];
   tagIds?: string[];
   status?: string;
   assigneeId?: string;
+  assignedMembers?: string[];
   createdBy?: string;
   userId?: string;
   startDate?: Date;
@@ -32,6 +52,7 @@ export interface ITicket {
   attachments?: IAttachment[];
   companyIds?: string[];
   customerFieldData?: any;
+  sourceSurvey?: ITicketSourceSurvey;
 }
 
 export interface ITicketUpdate extends ITicket {

@@ -55,10 +55,18 @@ const FILE_OPERATORS: OperatorOption[] = [
   { value: 'fileType', label: 'File type is' },
 ];
 
+const OBJECT_LIST_OPERATORS: OperatorOption[] = [
+  { value: 'isSet', label: 'Is set', noValue: true },
+  { value: 'isNotSet', label: 'Is not set', noValue: true },
+];
+
 export const OPERATOR_BY_TYPE: Record<string, OperatorOption[]> = {
   text: TEXT_OPERATORS,
   textarea: TEXT_OPERATORS,
   phone: TEXT_OPERATORS,
+  // Free-text values, so the text operators apply; `contains` matches when any
+  // entry in the array matches.
+  list: TEXT_OPERATORS,
   number: NUMBER_OPERATORS,
   date: DATE_OPERATORS,
   boolean: BOOLEAN_OPERATORS,
@@ -68,4 +76,5 @@ export const OPERATOR_BY_TYPE: Record<string, OperatorOption[]> = {
   multiSelect: OPTION_OPERATORS,
   relation: RELATION_OPERATORS,
   file: FILE_OPERATORS,
+  objectList: OBJECT_LIST_OPERATORS,
 };

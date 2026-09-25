@@ -22,11 +22,18 @@ export interface ITrDetail {
   excludeCtax?: boolean;
 
   productId?: string;
+  fixedAssetId?: string;
+  fixedAssetCategoryId?: string;
+  fixedAssetCode?: string;
+  fixedAssetName?: string;
   count?: number;
   unitPrice?: number;
+  weight?: number;
   tempAmount?: number;
 
   account?: IAccount;
+  branch?: IBranch;
+  department?: IDepartment;
   checked?: boolean;
   product?: IProduct;
 }

@@ -119,6 +119,7 @@ export interface IPos {
     };
     cashiers?: {
       isTempBill?: boolean;
+      seeReport?: boolean;
       directDiscount?: boolean;
       directDiscountLimit?: number;
     };

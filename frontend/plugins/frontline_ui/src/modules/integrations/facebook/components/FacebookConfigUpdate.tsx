@@ -22,6 +22,7 @@ import { z } from 'zod';
 import { facebookConfigSchema } from '../constants/FbConfigSchema';
 import { useFacebookGetConfigs } from '../hooks/useFacebookGetConfigs';
 import { useFacebookUpdateConfigs } from '../hooks/useFacebookUpdateConfigs';
+import { SecretInput } from '@/integrations/components/SecretInput';
 
 export const FacebookConfigUpdateCollapse = () => {
   return (
@@ -128,7 +129,7 @@ export const FacebookConfigUpdate = () => {
             <Form.Item>
               <Form.Label>{t('facebook-app-secret')}</Form.Label>
               <Form.Control>
-                <Input {...field} />
+                <SecretInput {...field} />
               </Form.Control>
               <Form.Message />
             </Form.Item>
@@ -140,7 +141,7 @@ export const FacebookConfigUpdate = () => {
             <Form.Item>
               <Form.Label>{t('facebook-verify-token')}</Form.Label>
               <Form.Control>
-                <Input {...field} />
+                <SecretInput {...field} />
               </Form.Control>
               <Form.Message />
             </Form.Item>

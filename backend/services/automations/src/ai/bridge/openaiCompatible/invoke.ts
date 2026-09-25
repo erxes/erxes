@@ -158,6 +158,7 @@ export const invokeOpenAiCompatible = async (
         messages: input.messages,
         responseFormat,
         tools: input.tools,
+        toolChoice: input.toolChoice,
       }),
     });
 

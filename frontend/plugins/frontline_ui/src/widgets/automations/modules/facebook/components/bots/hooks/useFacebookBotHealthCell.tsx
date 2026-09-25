@@ -22,7 +22,7 @@ export const useFacebookBotHealthCell = (health?: IFacebookBotHealth) => {
   const status = health?.status || 'unknown';
   const statusLabel = t(
     BOT_STATUS_LABELS[status as keyof typeof BOT_STATUS_LABELS] ||
-    BOT_STATUS_LABELS.unknown
+      BOT_STATUS_LABELS.unknown,
   );
   const statusVariant =
     BOT_STATUS_VARIANTS[status as keyof typeof BOT_STATUS_VARIANTS] ||
@@ -31,14 +31,16 @@ export const useFacebookBotHealthCell = (health?: IFacebookBotHealth) => {
   const hasProfileIssue = health?.isProfileSynced === false;
   const lastError = health?.lastError || '';
   const detailItems = [
-    { label: t('status'), value: statusLabel },
+    { label: t('status', 'Status'), value: statusLabel },
     {
-      label: t('subscription'),
-      value: hasSubscriptionIssue ? t('missing-label') : t('ok'),
+      label: t('subscription', 'Subscription'),
+      value: hasSubscriptionIssue
+        ? t('missing-label', 'Missing')
+        : t('ok', 'OK'),
     },
     {
-      label: t('profile-sync'),
-      value: hasProfileIssue ? t('out-of-sync') : t('ok'),
+      label: t('profile-sync', 'Profile sync'),
+      value: hasProfileIssue ? t('out-of-sync', 'Out of sync') : t('ok', 'OK'),
     },
     ...(lastError ? [{ label: t('message'), value: lastError }] : []),
   ];

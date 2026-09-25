@@ -25,13 +25,11 @@ export const exportMutations = {
     _root: undefined,
     {
       entityType,
-      fileFormat = 'csv',
       filters,
       ids,
       selectedFields,
     }: {
       entityType: string;
-      fileFormat?: 'csv' | 'xlsx';
       filters?: Record<string, any>;
       ids?: string[];
       selectedFields?: string[];
@@ -65,7 +63,6 @@ export const exportMutations = {
       collectionName,
       fileName,
       status: 'pending',
-      fileFormat,
       filters: filters || {},
       ids: ids || [],
       selectedFields: selectedFields || [],
@@ -81,7 +78,6 @@ export const exportMutations = {
         data: {
           exportId: exportDoc._id,
           entityType,
-          fileFormat,
         },
       },
       getImportExportJobOptions({
@@ -190,7 +186,6 @@ export const exportMutations = {
         data: {
           exportId: exportDoc._id,
           entityType: exportDoc.entityType,
-          fileFormat: exportDoc.fileFormat,
         },
       },
       getImportExportJobOptions({

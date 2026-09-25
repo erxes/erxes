@@ -10,10 +10,11 @@ import {
   Sheet,
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { FieldsInDetail, RelationWidgetSideTabs } from 'ui-modules';
+import { RelationWidgetSideTabs } from 'ui-modules';
 import { TicketSidebar } from './TicketSidebar';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { useTicketCustomFieldEdit } from '@/ticket/hooks/useTicketCustomFieldEdit';
+import { TicketPipelineProperties } from './TicketPipelineProperties';
 
 export const TicketDetailSheet = ({
   hideRelationWidgetSideTabs = false,
@@ -37,7 +38,7 @@ export const TicketDetailSheet = ({
         loading={loading}
         error={!!error}
         notFound={!ticket}
-        notFoundState={<div>{t('ticket-not-found')}</div>}
+        notFoundState={<div>{t('ticket-not-found', 'Ticket not found')}</div>}
         errorState={
           <div className="flex items-center justify-center h-full">
             <Empty>
@@ -45,17 +46,17 @@ export const TicketDetailSheet = ({
                 <Empty.Media variant="icon">
                   <IconAlertCircle />
                 </Empty.Media>
-                <Empty.Title>{t('error')}</Empty.Title>
+                <Empty.Title>{t('error', 'Error')}</Empty.Title>
                 <Empty.Description>{error?.message}</Empty.Description>
               </Empty.Header>
             </Empty>
           </div>
         }
       >
-        <FocusSheet.Header title={t('ticket-detail')} />
+        <FocusSheet.Header title={t('ticket-detail', 'Ticket Detail')} />
         <FocusSheet.Content>
           <Sheet.Title className="sr-only">
-            {t('ticket-detail')} {ticket?.name}
+            {t('ticket-detail', 'Ticket Detail')} {ticket?.name}
           </Sheet.Title>
           <FocusSheet.SideBar>
             <TicketSidebar />
@@ -71,8 +72,8 @@ export const TicketDetailSheet = ({
                 </Tabs.Content>
 
                 <Tabs.Content value="properties" className="p-6">
-                  <FieldsInDetail
-                    fieldContentType="frontline:ticket"
+                  <TicketPipelineProperties
+                    pipelineId={ticket?.pipelineId || ''}
                     propertiesData={ticket?.propertiesData || {}}
                     mutateHook={useTicketCustomFieldEdit}
                     id={ticket?._id || ''}

@@ -10,9 +10,8 @@ import { useTranslation } from 'react-i18next';
 import { KpiCard } from './KpiCard';
 import { useKpiScorecard } from '../../hooks/useKpiScorecard';
 import { useCallFilters } from '../../hooks/useCallFilters';
-import { fmtDur, fmtNum, fmtPct } from '../../utils';
+import { fmtDurOrDash, fmtNum, fmtPctOrDash } from '../../utils';
 
-/** 6-card KPI scorecard row. */
 export function KpiSection() {
   const { t } = useTranslation('frontline');
   const { kpi, loading } = useKpiScorecard();
@@ -31,12 +30,11 @@ export function KpiSection() {
     );
   }
 
-  const answerRate =
-    kpi?.serviceLevel != null ? 100 - (kpi.abandonment ?? 0) : null;
+  const answerRate = kpi?.abandonment == null ? null : 100 - kpi.abandonment;
 
   const cards = [
     {
-      title: t('kpi-total-calls'),
+      title: t('kpi-total-calls', 'Total Calls'),
       value: fmtNum(kpi?.callstotal),
       subtitle: dateRangeLabel,
       icon: <IconPhone className="h-5 w-5" />,
@@ -44,41 +42,44 @@ export function KpiSection() {
       iconClass: 'bg-[var(--chart-1)]/10 text-[var(--chart-1)]',
     },
     {
-      title: t('kpi-service-level'),
-      value: fmtPct(kpi?.serviceLevel),
-      subtitle: t('kpi-service-level-subtitle'),
+      title: t('kpi-service-level', 'Service Level'),
+      value: fmtPctOrDash(kpi?.serviceLevel),
+      subtitle: t('kpi-service-level-subtitle', '≤ 20 s answer target'),
       icon: <IconShieldCheck className="h-5 w-5" />,
       valueClass: 'text-[var(--chart-2)]',
       iconClass: 'bg-[var(--chart-2)]/10 text-[var(--chart-2)]',
     },
     {
-      title: t('kpi-abandonment-rate'),
-      value: fmtPct(kpi?.abandonment),
-      subtitle: t('kpi-abandonment-rate-subtitle'),
+      title: t('kpi-abandonment-rate', 'Abandonment Rate'),
+      value: fmtPctOrDash(kpi?.abandonment),
+      subtitle: t('kpi-abandonment-rate-subtitle', 'Inbound abandoned'),
       icon: <IconPhoneOff className="h-5 w-5" />,
       valueClass: 'text-[var(--neg)]',
       iconClass: 'bg-[var(--neg)]/10 text-[var(--neg)]',
     },
     {
-      title: t('kpi-avg-speed-of-answer'),
-      value: fmtDur(kpi?.averageSpeed),
-      subtitle: t('kpi-avg-speed-of-answer-subtitle'),
+      title: t('kpi-avg-speed-of-answer', 'Avg Speed of Answer'),
+      value: fmtDurOrDash(kpi?.averageSpeed),
+      subtitle: t('kpi-avg-speed-of-answer-subtitle', 'Time before answer'),
       icon: <IconClock className="h-5 w-5" />,
       valueClass: 'text-[var(--warn)]',
       iconClass: 'bg-[var(--warn)]/10 text-[var(--warn)]',
     },
     {
-      title: t('kpi-avg-handle-time'),
-      value: fmtDur(kpi?.averageAnsweredTime),
-      subtitle: t('kpi-avg-handle-time-subtitle'),
+      title: t('kpi-avg-handle-time', 'Avg Handle Time'),
+      value: fmtDurOrDash(kpi?.averageAnsweredTime),
+      subtitle: t('kpi-avg-handle-time-subtitle', 'Talk + estimated wrap'),
       icon: <IconPhoneCheck className="h-5 w-5" />,
       valueClass: 'text-[var(--pos)]',
       iconClass: 'bg-[var(--pos)]/10 text-[var(--pos)]',
     },
     {
-      title: t('kpi-answer-rate'),
-      value: fmtPct(answerRate),
-      subtitle: direction !== 'all' ? t('kpi-direction-only', { direction }) : t('kpi-all-directions'),
+      title: t('kpi-answer-rate', 'Answer Rate'),
+      value: fmtPctOrDash(answerRate),
+      subtitle:
+        direction !== 'all'
+          ? t('kpi-direction-only', '{{direction}} only', { direction })
+          : t('kpi-all-directions', 'All directions'),
       icon: <IconPercentage className="h-5 w-5" />,
       valueClass: 'text-[var(--chart-3)]',
       iconClass: 'bg-[var(--chart-3)]/10 text-[var(--chart-3)]',

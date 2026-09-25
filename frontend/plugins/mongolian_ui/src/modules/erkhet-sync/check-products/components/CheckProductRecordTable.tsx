@@ -19,6 +19,7 @@ export const CheckProductRecordTable = () => {
       data={filteredProducts || []}
       className="m-3"
       stickyColumns={['more', 'checkbox', 'createdAt']}
+      tableId="mongolian_erkhet_check_products_record_table"
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}
@@ -27,7 +28,7 @@ export const CheckProductRecordTable = () => {
         sessionKey={CHECK_PRODUCTS_CURSOR_SESSION_KEY}
       >
         <RecordTable>
-          <RecordTable.Header />
+          <RecordTable.Header showColumnSelector />
           <RecordTable.Body>
             <RecordTable.CursorBackwardSkeleton
               handleFetchMore={checkProduct}

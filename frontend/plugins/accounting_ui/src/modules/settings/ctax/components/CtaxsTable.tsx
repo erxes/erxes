@@ -40,9 +40,7 @@ export const CtaxMoreColumnCell = ({
       });
     });
 
-  return (
-    <MoreActionsCell cell={cell} onEdit={handleEdit} onDelete={handleDelete} />
-  );
+  return <MoreActionsCell onEdit={handleEdit} onDelete={handleDelete} />;
 };
 
 export const ctaxRowMoreColumn = {
@@ -65,6 +63,7 @@ export const CtaxRowsTable = () => {
       totalCount={totalCount}
       handleFetchMore={handleFetchMore}
       Commandbar={CtaxRowsCommandbar}
+      tableId="accounting_ctax_rows_record_table"
     />
   );
 };

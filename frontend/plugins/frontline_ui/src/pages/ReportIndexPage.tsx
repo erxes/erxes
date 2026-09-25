@@ -12,11 +12,18 @@ import { useTranslation } from 'react-i18next';
 import { ReportsView } from '@/report/components/ReportsView';
 import { CallReportsView } from '@/report/components/CallReportsView';
 import { TicketReportsList } from '@/report/components/TicketReportsList';
+import { FacebookReportsList } from '@/report/components/FacebookReportsList';
+import {
+  OVERVIEW_KPI_DATE_FILTER_ID,
+  ReportKpiDateFilter,
+  TICKET_PRIORITY_DATE_FILTER_ID,
+} from '@/report/components/filter-popover/ReportKpiDateFilter';
 
 const ROUTES = {
   overview: '/frontline/reports',
   call: '/frontline/reports/call',
   ticket: '/frontline/reports/ticket',
+  facebook: '/frontline/reports/facebook',
 } as const;
 
 type Section = keyof typeof ROUTES;
@@ -32,14 +39,18 @@ export default function ReportIndexPage() {
     activeSection = 'call';
   } else if (location.pathname.includes('/ticket')) {
     activeSection = 'ticket';
+  } else if (location.pathname.includes('/facebook')) {
+    activeSection = 'facebook';
   }
 
   let activeSectionLabel: string | undefined;
 
   if (activeSection === 'call') {
-    activeSectionLabel = t('call-center');
+    activeSectionLabel = t('call-center', 'Call center');
   } else if (activeSection === 'ticket') {
-    activeSectionLabel = t('ticket');
+    activeSectionLabel = t('ticket', 'Ticket');
+  } else if (activeSection === 'facebook') {
+    activeSectionLabel = t('facebook-reports', 'Facebook');
   }
 
   let reportContent = <ReportsView />;
@@ -48,13 +59,19 @@ export default function ReportIndexPage() {
     reportContent = <TicketReportsList />;
   } else if (activeSection === 'call') {
     reportContent = <CallReportsView />;
+  } else if (activeSection === 'facebook') {
+    reportContent = <FacebookReportsList />;
   }
 
   const favoriteBreadcrumb = createFavoriteBreadcrumb(
     'Frontline',
-    t('reports'),
+    t('reports', 'Reports'),
     activeSectionLabel,
   );
+  const kpiDateFilterId =
+    activeSection === 'ticket'
+      ? TICKET_PRIORITY_DATE_FILTER_ID
+      : OVERVIEW_KPI_DATE_FILTER_ID;
 
   return (
     <PageContainer>
@@ -66,7 +83,7 @@ export default function ReportIndexPage() {
                 <Button variant="ghost" asChild>
                   <Link to="/frontline/reports">
                     <IconChartHistogram />
-                    {t('reports')}
+                    {t('reports', 'Reports')}
                   </Link>
                 </Button>
               </Breadcrumb.Item>
@@ -82,10 +99,17 @@ export default function ReportIndexPage() {
             }}
           >
             <ToggleGroup.Item value="overview">
-              {t('frontline-overview')}
+              {t('frontline-overview', 'Frontline Overview')}
             </ToggleGroup.Item>
-            <ToggleGroup.Item value="ticket">{t('ticket')}</ToggleGroup.Item>
-            <ToggleGroup.Item value="call">{t('call-center')}</ToggleGroup.Item>
+            <ToggleGroup.Item value="ticket">
+              {t('ticket', 'Ticket')}
+            </ToggleGroup.Item>
+            <ToggleGroup.Item value="facebook">
+              {t('facebook-reports', 'Facebook')}
+            </ToggleGroup.Item>
+            <ToggleGroup.Item value="call">
+              {t('call-center', 'Call center')}
+            </ToggleGroup.Item>
           </ToggleGroup>
           <Separator.Inline />
           <PageHeader.FavoriteToggleButton
@@ -93,6 +117,11 @@ export default function ReportIndexPage() {
             icon="IconChartHistogram"
           />
         </PageHeader.Start>
+        {activeSection !== 'call' && (
+          <PageHeader.End>
+            <ReportKpiDateFilter filterId={kpiDateFilterId} />
+          </PageHeader.End>
+        )}
       </PageHeader>
 
       {reportContent}

@@ -20,6 +20,7 @@ export const ProductsRecordTable = () => {
       data={productsMain || []}
       className="h-full"
       stickyColumns={['checkbox', 'code', 'name']}
+      tableId="accounting_inventory_remainders_record_table"
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}
@@ -28,7 +29,7 @@ export const ProductsRecordTable = () => {
         sessionKey={PRODUCTS_CURSOR_SESSION_KEY}
       >
         <RecordTable>
-          <RecordTable.Header />
+          <RecordTable.Header showColumnSelector />
           <RecordTable.Body>
             <RecordTable.CursorBackwardSkeleton
               handleFetchMore={handleFetchMore}

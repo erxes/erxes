@@ -2,6 +2,7 @@ import { gql } from '@apollo/client';
 import { GQL_PAGE_INFO } from 'erxes-ui';
 import {
   AUTOMATION_ACTION_FIELDS,
+  AUTOMATION_NOTE_FIELDS,
   AUTOMATION_HISTORIES_PARAMS,
   AUTOMATION_HISTORIES_PARAMS_DEFS,
   AUTOMATION_MAIN_LIST_PARAMS,
@@ -40,6 +41,32 @@ query AutomationDetail($id: String!) {
     updatedAt
     createdBy
     updatedBy
+    ownerId
+    activatedAt
+    ownerUser {
+      _id
+      email
+      details {
+        fullName
+        avatar
+      }
+    }
+    createdUser {
+      _id
+      details {
+        fullName
+        avatar
+      }
+    }
+    updatedUser {
+      _id
+      details {
+        fullName
+        avatar
+      }
+    }
+    duplicatedFrom
+    duplicatedFromName
     triggers {
       ${AUTOMATION_TRIGGER_FIELDS}
     }
@@ -57,6 +84,9 @@ query AutomationDetail($id: String!) {
       actions 
       icon
       position
+    }
+    notes {
+      ${AUTOMATION_NOTE_FIELDS}
     }
     createdUser {
       ${COMMON_USER_FIELDS}
@@ -82,8 +112,10 @@ export const AUTOMATIONS_MAIN_LIST = gql`
         createdBy
         updatedBy
         tagIds
-        triggers { id }
-        actions { id }
+        # Slim node shape for the card view's flow preview. Never select
+        # config, which is the heavy part of a trigger or action.
+        triggers { id type icon label actionId }
+        actions { id type icon label nextActionId }
         approvalLockState(action: "edit") {
           contentType
           contentId
@@ -121,6 +153,10 @@ export const AUTOMATION_HISTORIES = gql`
         status
         description
         actions
+        failedActionId
+        failedActionType
+        errorCode
+        handledFailureActionIds
         startWaitingDate
         waitingActionId
       }
@@ -148,6 +184,15 @@ export const AUTOMATION_WORKFLOW_TEMPLATES = gql`
       actions
       inputs
       createdAt
+    }
+  }
+`;
+
+export const AUTOMATION_EXECUTION_COUNTS = gql`
+  query AutomationExecutionCounts($automationIds: [String!]!) {
+    automationExecutionCounts(automationIds: $automationIds) {
+      key
+      count
     }
   }
 `;

@@ -1,7 +1,16 @@
 {
+  "confirm-form-responses-export": "Create a CSV export of the responses submitted to \"{{formName}}\"?",
+  "download-responses": "Download responses",
+  "form-responses-export-label": "{{formName}} responses",
   "inbox": "inbox",
   "login": "Login",
   "logout": "Logout",
   "username": "Username",
-  "password": "Password"
+  "password": "Password",
+  "hide-conversations": "Hide conversations",
+  "show-conversations": "Show conversations",
+  "no-form-responses": "No form responses yet",
+  "form-responses-empty-description": "Submitted form details will appear here.",
+  "discord-open-conversations_one": "{{count}} open conversation",
+  "discord-open-conversations_other": "{{count}} open conversations"
 }

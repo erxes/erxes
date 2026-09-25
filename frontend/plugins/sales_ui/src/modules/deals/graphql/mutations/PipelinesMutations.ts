@@ -72,6 +72,7 @@ const commonPipelineParamsDef = `
   $excludeProductIds: [String],
   $paymentIds: [String],
   $paymentTypes: JSON
+  $propertyIds: [String]
 `;
 
 const commonPipelineParams = `
@@ -101,6 +102,7 @@ const commonPipelineParams = `
   excludeProductIds: $excludeProductIds,
   paymentIds: $paymentIds,
   paymentTypes: $paymentTypes
+  propertyIds: $propertyIds
 `;
 
 export const ADD_PIPELINE = gql`

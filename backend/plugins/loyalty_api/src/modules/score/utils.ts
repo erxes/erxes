@@ -212,7 +212,6 @@ export const resolvePlaceholderValue = async (
       target,
       defaultValue: 0,
     });
-    console.log({ excludeLoyaltyAmount });
     return excludeLoyaltyAmount;
   }
 

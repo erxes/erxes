@@ -6,7 +6,7 @@ import { IDeal } from '@/deals/types/deals';
 import { PRODUCTS_DATA_CHANGED } from '@/deals/graphql/subscriptions/productsSubscriptions';
 import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
 import { useAtom } from 'jotai';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useQueryState } from 'erxes-ui';
 
 interface ISalesProductsDataChangedPayload {
@@ -28,8 +28,8 @@ interface ISalesDealChangedPayload {
 export const useDealDetail = (
   options?: QueryHookOptions<{ dealDetail: IDeal }>,
 ) => {
-  const [activeDealId] = useAtom(dealDetailSheetState);
-  const [salesItemId] = useQueryState('salesItemId');
+  const [activeDealId, setActiveDealId] = useAtom(dealDetailSheetState);
+  const [salesItemId, setSalesItemId] = useQueryState('salesItemId');
 
   const passedId = options?.variables?._id;
   const finalId = passedId || salesItemId || activeDealId;
@@ -47,20 +47,14 @@ export const useDealDetail = (
   });
 
   useEffect(() => {
-    if (!salesItemId) return;
+    if (!finalId) return;
 
     const unsubscribe = subscribeToMore<ISalesProductsDataChangedPayload>({
       document: PRODUCTS_DATA_CHANGED,
-      variables: { _id: salesItemId },
+      variables: { _id: finalId },
       updateQuery: (prev, { subscriptionData }) => {
         const payload = subscriptionData?.data?.salesProductsDataChanged;
         if (!payload) return prev;
-
-        const { processId } = payload;
-
-        if (processId === localStorage.getItem('processId')) {
-          return prev;
-        }
 
         refetch();
 
@@ -69,7 +63,7 @@ export const useDealDetail = (
     });
 
     return unsubscribe;
-  }, [refetch, salesItemId, subscribeToMore]);
+  }, [finalId, refetch, subscribeToMore]);
 
   useEffect(() => {
     if (!finalId) return;
@@ -78,7 +72,21 @@ export const useDealDetail = (
       document: DEAL_CHANGED,
       variables: { _id: finalId },
       updateQuery: (prev, { subscriptionData }) => {
-        const changedDeal = subscriptionData?.data?.salesDealChanged?.deal;
+        const dealChange = subscriptionData?.data?.salesDealChanged;
+
+        if (dealChange?.action === 'delete') {
+          if (activeDealId === finalId) {
+            setActiveDealId(null);
+          }
+
+          if (salesItemId === finalId) {
+            setSalesItemId(null);
+          }
+
+          return prev;
+        }
+
+        const changedDeal = dealChange?.deal;
 
         if (!changedDeal) {
           return prev;
@@ -92,29 +100,78 @@ export const useDealDetail = (
           refetch();
         }
 
+        const pipeline = changedDeal.pipeline
+          ? {
+              ...prevDeal.pipeline,
+              ...changedDeal.pipeline,
+              paymentIds:
+                changedDeal.pipeline.paymentIds ?? prevDeal.pipeline.paymentIds,
+              paymentTypes:
+                changedDeal.pipeline.paymentTypes ??
+                prevDeal.pipeline.paymentTypes,
+            }
+          : prevDeal.pipeline;
+
         const pipelineId =
           changedDeal.stage?.pipelineId ||
           changedDeal.pipelineId ||
-          prevDeal?.pipelineId ||
-          prevDeal?.stage?.pipelineId;
+          prevDeal.pipelineId ||
+          prevDeal.stage?.pipelineId;
 
         return {
           ...prev,
           dealDetail: {
             ...prevDeal,
             ...changedDeal,
-            pipeline: changedDeal.pipeline || prevDeal?.pipeline,
+            customers: changedDeal.customers ?? prevDeal.customers,
+            isWatched: changedDeal.isWatched ?? prevDeal.isWatched,
+            pipeline,
             pipelineId,
-            stage: changedDeal.stage || prevDeal?.stage,
+            stage: changedDeal.stage || prevDeal.stage,
           },
         };
       },
     });
 
     return unsubscribe;
-  }, [finalId, refetch, subscribeToMore]);
+  }, [
+    activeDealId,
+    finalId,
+    refetch,
+    salesItemId,
+    setActiveDealId,
+    setSalesItemId,
+    subscribeToMore,
+  ]);
 
-  const deal = data?.dealDetail;
+  const currentDeal = data?.dealDetail;
+  const lastCompleteDealRef = useRef<IDeal>();
+
+  useEffect(() => {
+    if (!finalId) {
+      lastCompleteDealRef.current = undefined;
+      return;
+    }
+
+    if (currentDeal?._id === finalId && currentDeal?.pipeline) {
+      lastCompleteDealRef.current = currentDeal;
+      return;
+    }
+
+    if (lastCompleteDealRef.current?._id !== finalId) {
+      lastCompleteDealRef.current = undefined;
+    }
+  }, [currentDeal, finalId]);
+
+  const lastCompleteDeal =
+    lastCompleteDealRef.current?._id === finalId
+      ? lastCompleteDealRef.current
+      : undefined;
+
+  const deal =
+    currentDeal?.pipeline && currentDeal._id === finalId
+      ? currentDeal
+      : lastCompleteDeal;
 
   return { deal, loading: loading && !deal, error, refetch };
 };

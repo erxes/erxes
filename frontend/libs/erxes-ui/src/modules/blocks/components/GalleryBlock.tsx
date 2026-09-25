@@ -1,15 +1,25 @@
 import {
   DefaultInlineContentSchema,
   DefaultStyleSchema,
-  BlockNoteEditor,
 } from '@blocknote/core';
 import {
   createReactBlockSpec,
   ReactCustomBlockRenderProps,
+  useResolveUrl,
 } from '@blocknote/react';
-import { IconLayoutGrid, IconPhoto, IconPlus, IconX, IconLoader2 } from '@tabler/icons-react';
+import {
+  IconLayoutGrid,
+  IconPhoto,
+  IconPlus,
+  IconX,
+  IconLoader2,
+} from '@tabler/icons-react';
 import { FC, useRef, useState } from 'react';
 import { cn } from 'erxes-ui/lib';
+import { readImage } from 'erxes-ui/utils';
+import { Button, Spinner } from 'erxes-ui/components';
+import { Attachments } from 'erxes-ui/modules/attachments';
+import { useToast } from 'erxes-ui/hooks';
 
 export interface GalleryImage {
   url: string;
@@ -29,7 +39,6 @@ const galleryBlockConfig = {
     },
   },
   content: 'none' as const,
-  isFileBlock: false,
 };
 
 type GalleryRenderProps = ReactCustomBlockRenderProps<
@@ -47,29 +56,124 @@ const parseImages = (raw: string): GalleryImage[] => {
   }
 };
 
+const GalleryItem: FC<{
+  image: GalleryImage;
+  readonly: boolean;
+  onRemove: () => void;
+  onPreview: () => void;
+}> = ({ image, readonly, onRemove, onPreview }) => {
+  const { loadingState, downloadUrl } = useResolveUrl(image.url);
+  const isResolving = loadingState === 'loading';
+  const src = downloadUrl ?? image.url;
+
+  return (
+    <div className="relative group aspect-square overflow-hidden rounded-md bg-muted">
+      {isResolving ? (
+        <div className="flex h-full w-full items-center justify-center">
+          <Spinner size="sm" />
+        </div>
+      ) : (
+        <Button
+          variant="ghost"
+          aria-label="Preview image"
+          className="h-full w-full p-0 rounded-none"
+          onClick={onPreview}
+        >
+          <img
+            src={src}
+            alt={image.caption ?? ''}
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              display: 'block',
+            }}
+            draggable={false}
+          />
+        </Button>
+      )}
+
+      {!readonly && (
+        <Button
+          variant="ghost"
+          aria-label="Remove image"
+          className="absolute top-1 right-1 h-5 w-5 p-0 rounded-full bg-black/50 text-white opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity [&>svg]:size-3"
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={onRemove}
+        >
+          <IconX />
+        </Button>
+      )}
+      {image.caption && (
+        <div className="absolute bottom-0 inset-x-0 bg-black/50 text-white text-xs px-1.5 py-0.5 truncate">
+          {image.caption}
+        </div>
+      )}
+    </div>
+  );
+};
+
 const GalleryBlockContent: FC<GalleryRenderProps> = ({ block, editor }) => {
   const [uploading, setUploading] = useState(false);
+  const { toast } = useToast();
   const inputRef = useRef<HTMLInputElement>(null);
 
   const images = parseImages(block.props.images);
   const columns = Math.max(2, Math.min(4, parseInt(block.props.columns) || 3));
-  const readonly = !(editor as BlockNoteEditor).isEditable;
-  const canUpload = !!(editor as BlockNoteEditor).uploadFile;
+  const readonly = !editor.isEditable;
+  const uploadFile = editor.uploadFile;
+  const canUpload = Boolean(uploadFile);
 
   const updateBlock = (patch: Partial<typeof block.props>) => {
-    (editor as BlockNoteEditor).updateBlock(block, { props: patch });
+    editor.updateBlock(block, { props: patch });
   };
 
   const handleFiles = async (files: FileList | null) => {
-    if (!files?.length || !canUpload) return;
+    if (!files?.length || !uploadFile) return;
     setUploading(true);
     try {
-      const uploaded = await Promise.all(
-        Array.from(files).map((f) =>
-          (editor as BlockNoteEditor).uploadFile!(f).then((url) => ({ url })),
-        ),
+      const results = await Promise.allSettled(
+        Array.from(files).map(async (file) => {
+          const uploadedFile = await uploadFile(file);
+          const url =
+            typeof uploadedFile === 'string'
+              ? uploadedFile
+              : uploadedFile.props?.url;
+          if (typeof url !== 'string' || !url) {
+            throw new Error(`Failed to upload ${file.name}`);
+          }
+          return { url };
+        }),
       );
-      updateBlock({ images: JSON.stringify([...images, ...uploaded]) });
+      const uploaded = results.flatMap((result) =>
+        result.status === 'fulfilled' ? [result.value] : [],
+      );
+      const currentBlock = editor.getBlock(block.id);
+      if (uploaded.length && currentBlock) {
+        updateBlock({
+          images: JSON.stringify([
+            ...parseImages(currentBlock.props.images),
+            ...uploaded,
+          ]),
+        });
+      }
+      const failedNames = Array.from(files)
+        .filter((_, index) => results[index].status === 'rejected')
+        .map((file) => file.name);
+      if (failedNames.length) {
+        toast({
+          title: 'Failed to upload gallery images',
+          description: failedNames.join(', '),
+          variant: 'destructive',
+        });
+      }
+    } catch (error) {
+      toast({
+        title: 'Failed to upload gallery images',
+        description:
+          error instanceof Error ? error.message : 'Please try again.',
+        variant: 'destructive',
+      });
     } finally {
       setUploading(false);
       if (inputRef.current) inputRef.current.value = '';
@@ -77,53 +181,59 @@ const GalleryBlockContent: FC<GalleryRenderProps> = ({ block, editor }) => {
   };
 
   const removeImage = (index: number) => {
-    updateBlock({ images: JSON.stringify(images.filter((_, i) => i !== index)) });
+    updateBlock({
+      images: JSON.stringify(images.filter((_, i) => i !== index)),
+    });
   };
 
   const setColumns = (n: number) => {
     updateBlock({ columns: String(n) });
   };
 
+  let uploadButtonLabel = 'Add more';
+  let uploadButtonIcon = <IconPlus size={15} />;
+  if (uploading) {
+    uploadButtonLabel = 'Uploading...';
+    uploadButtonIcon = <IconLoader2 size={15} className="animate-spin" />;
+  } else if (images.length === 0) {
+    uploadButtonLabel = 'Add images to gallery';
+    uploadButtonIcon = <IconPhoto size={15} />;
+  }
+
   if (readonly && images.length === 0) return null;
 
   return (
     <div className="w-full my-1 select-none" contentEditable={false}>
       {images.length > 0 && (
-        <div
-          className="grid gap-2"
-          style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}
+        <Attachments.Root
+          initialAttachments={images.map((image) => ({
+            url: image.url,
+            name: image.caption ?? '',
+            type: 'image/*',
+            size: 0,
+          }))}
         >
-          {images.map((img, i) => (
-            <div
-              key={i}
-              className="relative group aspect-square overflow-hidden rounded-md bg-muted"
-            >
-              <img
-                src={img.url}
-                alt={img.caption ?? ''}
-                className="w-full h-full object-cover"
-                draggable={false}
-              />
-              {!readonly && (
-                <button
-                  type="button"
-                  className="absolute top-1 right-1 flex items-center justify-center w-5 h-5 bg-black/50 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                  onMouseDown={(e) => {
-                    e.preventDefault();
-                    removeImage(i);
-                  }}
-                >
-                  <IconX size={12} />
-                </button>
-              )}
-              {img.caption && (
-                <div className="absolute bottom-0 inset-x-0 bg-black/50 text-white text-xs px-1.5 py-0.5 truncate">
-                  {img.caption}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
+          <Attachments.Preview
+            heading=""
+            className="p-0"
+            renderThumbnails={(openPreview) => (
+              <div
+                className="grid gap-2"
+                style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}
+              >
+                {images.map((img, i) => (
+                  <GalleryItem
+                    key={`${img.url}-${i}`}
+                    image={img}
+                    readonly={readonly}
+                    onRemove={() => removeImage(i)}
+                    onPreview={() => openPreview(i)}
+                  />
+                ))}
+              </div>
+            )}
+          />
+        </Attachments.Root>
       )}
 
       {!readonly && (
@@ -138,27 +248,16 @@ const GalleryBlockContent: FC<GalleryRenderProps> = ({ block, editor }) => {
           />
 
           {canUpload ? (
-            <button
-              type="button"
+            <Button
+              variant="ghost"
               disabled={uploading}
-              className={cn(
-                'flex flex-1 items-center justify-center gap-1.5 text-sm text-muted-foreground border border-dashed rounded-md px-3 py-2 hover:bg-muted transition-colors',
-                uploading && 'opacity-50 cursor-not-allowed',
-              )}
-              onMouseDown={(e) => {
-                e.preventDefault();
-                if (!uploading) inputRef.current?.click();
-              }}
+              className="flex-1 h-auto gap-1.5 py-2 text-muted-foreground border border-dashed rounded-md hover:bg-muted"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => inputRef.current?.click()}
             >
-              {uploading ? (
-                <IconLoader2 size={15} className="animate-spin" />
-              ) : images.length === 0 ? (
-                <IconPhoto size={15} />
-              ) : (
-                <IconPlus size={15} />
-              )}
-              <span>{uploading ? 'Uploading...' : images.length === 0 ? 'Add images to gallery' : 'Add more'}</span>
-            </button>
+              {uploadButtonIcon}
+              <span>{uploadButtonLabel}</span>
+            </Button>
           ) : (
             images.length === 0 && (
               <div className="flex flex-1 items-center justify-center gap-1.5 text-sm text-muted-foreground border border-dashed rounded-md px-3 py-2">
@@ -172,22 +271,22 @@ const GalleryBlockContent: FC<GalleryRenderProps> = ({ block, editor }) => {
             <div className="flex items-center gap-1 shrink-0">
               <IconLayoutGrid size={14} className="text-muted-foreground" />
               {COLUMN_OPTIONS.map((n) => (
-                <button
+                <Button
                   key={n}
-                  type="button"
+                  variant="ghost"
+                  aria-label={`${n} columns`}
+                  aria-pressed={columns === n}
                   className={cn(
-                    'w-6 h-6 text-xs rounded transition-colors',
+                    'h-6 w-6 p-0 text-xs',
                     columns === n
-                      ? 'bg-primary text-primary-foreground'
+                      ? 'bg-primary text-primary-foreground hover:bg-primary'
                       : 'text-muted-foreground hover:bg-muted',
                   )}
-                  onMouseDown={(e) => {
-                    e.preventDefault();
-                    setColumns(n);
-                  }}
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => setColumns(n)}
                 >
                   {n}
-                </button>
+                </Button>
               ))}
             </div>
           )}
@@ -217,12 +316,31 @@ const GalleryExternalHTML: FC<GalleryRenderProps> = ({ block }) => {
     >
       {images.map((img, i) =>
         img.caption ? (
-          <figure key={i} style={{ margin: 0 }}>
-            <img src={img.url} alt={img.caption} style={{ width: '100%', height: 'auto', display: 'block' }} />
+          <figure key={`${img.url}-${i}`} style={{ margin: 0 }}>
+            <img
+              src={readImage(img.url)}
+              alt={img.caption}
+              style={{
+                width: '100%',
+                aspectRatio: '1 / 1',
+                objectFit: 'cover',
+                display: 'block',
+              }}
+            />
             <figcaption>{img.caption}</figcaption>
           </figure>
         ) : (
-          <img key={i} src={img.url} alt="" style={{ width: '100%', height: 'auto', display: 'block' }} />
+          <img
+            key={`${img.url}-${i}`}
+            src={readImage(img.url)}
+            alt=""
+            style={{
+              width: '100%',
+              aspectRatio: '1 / 1',
+              objectFit: 'cover',
+              display: 'block',
+            }}
+          />
         ),
       )}
     </div>

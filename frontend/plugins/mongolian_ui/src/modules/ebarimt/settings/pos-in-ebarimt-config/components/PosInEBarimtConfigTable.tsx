@@ -124,7 +124,9 @@ const usePosInEbarimtColumns = (): ColumnDef<IPosInEbarimtConfigRow>[] => {
     {
       id: 'title',
       accessorKey: 'title',
-      header: () => <RecordTable.InlineHead label={t('title')} icon={IconCode} />,
+      header: () => (
+        <RecordTable.InlineHead label={t('title')} icon={IconCode} />
+      ),
       cell: ({ cell }) => <PosInEBarimtConfigTitleCell cell={cell} />,
       size: 200,
     },
@@ -142,7 +144,9 @@ const usePosInEbarimtColumns = (): ColumnDef<IPosInEbarimtConfigRow>[] => {
     {
       id: 'posNo',
       accessorKey: 'posNo',
-      header: () => <RecordTable.InlineHead label={t('pos-no')} icon={IconCode} />,
+      header: () => (
+        <RecordTable.InlineHead label={t('pos-no')} icon={IconCode} />
+      ),
       cell: ({ cell }) => (
         <RecordTableInlineCell>
           <TextOverflowTooltip value={cell.getValue() as string} />
@@ -172,7 +176,12 @@ export const PosInEBarimtConfigTable = () => {
   const posInEbarimtColumns = usePosInEbarimtColumns();
 
   return (
-    <RecordTable.Provider columns={posInEbarimtColumns} data={rows}>
+    <RecordTable.Provider
+      columns={posInEbarimtColumns}
+      data={rows}
+      stickyColumns={['more', 'checkbox']}
+      tableId="mongolian_ebarimt_pos_in_ebarimt_config_record_table"
+    >
       <RecordTable.Scroll>
         <RecordTable>
           <RecordTable.Header />

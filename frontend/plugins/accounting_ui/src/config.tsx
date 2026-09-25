@@ -1,27 +1,41 @@
-import { IconCashBanknote, IconReceipt } from '@tabler/icons-react';
+import {
+  IconAdjustmentsCode,
+  IconBucketOff,
+  IconCashBanknote,
+  IconFlagStar,
+  IconReceipt,
+  IconScale,
+} from '@tabler/icons-react';
 import { IUIConfig } from 'erxes-ui';
 import { lazy, Suspense } from 'react';
+import { SEARCH_PROVIDERS } from '~/searchProviders';
 
 const MainNavigation = lazy(() =>
-  import('./modules/MainNavigation').then((module) => ({
+  import('@/MainNavigation').then((module) => ({
     default: module.MainNavigation,
   })),
 );
 
 const AdjustmentNavigation = lazy(() =>
-  import('./modules/AdjustmentNavigation').then((mod) => ({
+  import('@/AdjustmentNavigation').then((mod) => ({
     default: mod.AdjustmentNavigation,
   })),
 );
 
 const InventoriesNavigation = lazy(() =>
-  import('./modules/InventoriesNavigation').then((mod) => ({
+  import('@/InventoriesNavigation').then((mod) => ({
     default: mod.InventoriesNavigation,
   })),
 );
 
+const FixedAssetsNavigation = lazy(() =>
+  import('@/fixedAssets/FixedAssetsNavigation').then((mod) => ({
+    default: mod.FixedAssetsNavigation,
+  })),
+);
+
 const SettingsNavigation = lazy(() =>
-  import('./modules/SettingsNavigation').then((module) => ({
+  import('@/SettingsNavigation').then((module) => ({
     default: module.SettingsNavigation,
   })),
 );
@@ -36,6 +50,7 @@ export const CONFIG: IUIConfig = {
   ),
   navigationGroup: {
     name: 'accounting',
+    defaultPath: 'accounting/main',
     icon: IconCashBanknote,
     content: () => (
       <Suspense fallback={<div />}>
@@ -46,14 +61,95 @@ export const CONFIG: IUIConfig = {
       <Suspense fallback={<div />}>
         <AdjustmentNavigation />
         <InventoriesNavigation />
+        <FixedAssetsNavigation />
       </Suspense>
     ),
   },
   modules: [
     {
-      name: 'accounting',
+      name: 'documents',
       icon: IconCashBanknote,
-      path: 'accounting',
+      path: 'accounting/main',
+    },
+    {
+      name: 'records',
+      icon: IconCashBanknote,
+      path: 'accounting/records',
+    },
+    {
+      name: 'odd-transactions',
+      icon: IconCashBanknote,
+      path: 'accounting/odd-transactions',
+    },
+    {
+      name: 'journal-reports',
+      icon: IconCashBanknote,
+      path: 'accounting/journal-reports',
+    },
+    {
+      name: 'check-sync',
+      icon: IconCashBanknote,
+      path: 'accounting/check-sync',
+    },
+    {
+      name: 'fund-rate-adjustment',
+      icon: IconAdjustmentsCode,
+      path: 'accounting/adjustment/fundRate',
+    },
+    {
+      name: 'debt-rate-adjustment',
+      icon: IconAdjustmentsCode,
+      path: 'accounting/adjustment/debRate',
+    },
+    {
+      name: 'inventory-cost-calc',
+      icon: IconAdjustmentsCode,
+      path: 'accounting/adjustment/inventory',
+    },
+    {
+      name: 'fixed-asset-adjustment',
+      icon: IconAdjustmentsCode,
+      path: 'accounting/adjustment/fxa',
+    },
+    {
+      name: 'closing-entry',
+      icon: IconAdjustmentsCode,
+      path: 'accounting/adjustment/closing',
+    },
+    {
+      name: 'inventory-remainders',
+      icon: IconFlagStar,
+      path: 'accounting/inventories/remainders',
+    },
+    {
+      name: 'inventory-count',
+      icon: IconScale,
+      path: 'accounting/inventories/safe-remainders',
+    },
+    {
+      name: 'reserve-remainders',
+      icon: IconBucketOff,
+      path: 'accounting/inventories/reserve-remainders',
+    },
+    {
+      name: 'fixed-asset-remainders',
+      icon: IconCashBanknote,
+      path: 'accounting/fixed-assets/remainders',
+    },
+    {
+      name: 'fixed-asset-owner-records',
+      icon: IconCashBanknote,
+      path: 'accounting/fixed-assets/owner-records',
+    },
+    {
+      name: 'config',
+      icon: IconCashBanknote,
+      path: 'settings/accounting/config',
+    },
+    {
+      name: 'fixed-assets',
+      icon: IconCashBanknote,
+      path: 'settings/accounting/fixed-assets',
     },
   ],
   widgets: {
@@ -64,4 +160,5 @@ export const CONFIG: IUIConfig = {
       },
     ],
   },
+  searchProviders: SEARCH_PROVIDERS,
 };

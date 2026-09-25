@@ -1,29 +1,28 @@
 import { CurrencyCode } from 'erxes-ui';
 import { z } from 'zod';
-import {
-  AccountKind,
-  AccountStatus,
-  JournalEnum,
-} from '../types/Account';
+import { AccountKind, AccountStatus, JournalEnum } from '../types/Account';
+import { undefed } from '~/modules/types/utils';
 
 export const accountSchema = z
   .object({
     name: z.string().min(1),
     code: z.string().min(1),
     categoryId: z.string().min(1),
-    description: z.string().optional(),
+    description: undefed(z.string()),
     currency: z.nativeEnum(CurrencyCode),
     kind: z.nativeEnum(AccountKind),
     journal: z.nativeEnum(JournalEnum),
-    branchId: z.string().optional(),
-    departmentId: z.string().optional(),
+    branchId: undefed(z.string()),
+    departmentId: undefed(z.string()),
     isTemp: z.boolean(),
     isOutBalance: z.boolean(),
     status: z.nativeEnum(AccountStatus).optional(),
-    extra: z.object({
-      bank: z.string().optional(),
-      bankAccount: z.string().optional(),
-    }).nullish(),
+    extra: z
+      .object({
+        bank: undefed(z.string()),
+        bankAccount: undefed(z.string()),
+      })
+      .nullish(),
   })
   .superRefine((data, ctx) => {
     if (data.journal === JournalEnum.BANK) {

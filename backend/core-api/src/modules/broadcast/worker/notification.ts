@@ -1,21 +1,12 @@
-import { IClientPortalDocument } from '@/clientportal/types/clientPortal';
-import { ICPUserDocument } from '@/clientportal/types/cpUser';
+import { IBroadcastRunDocument } from '@/broadcast/db/models/BroadcastRuns';
 import {
   createNotificationsBulk,
   notificationService,
 } from '@/clientportal/services/notification';
 import { firebaseService } from '@/clientportal/services/notification/firebaseService';
-import { IEngageMessageDocument } from '@/broadcast/@types';
-import { generateModels } from '~/connectionResolvers';
-
-const FAILURE_THRESHOLD = 0.8;
-
-interface NotificationProcessorPayload {
-  subdomain: string;
-  engageMessage: IEngageMessageDocument;
-  clientPortal: IClientPortalDocument;
-  cpUsers: ICPUserDocument[];
-}
+import { IClientPortalDocument } from '@/clientportal/types/clientPortal';
+import { ICPUserDocument } from '@/clientportal/types/cpUser';
+import { drainRun, TDrainDeliver } from './drain';
 
 const sendFirebasePush = async (
   clientPortal: IClientPortalDocument,
@@ -49,173 +40,154 @@ const sendFirebasePush = async (
   return { status: 'sent' as const };
 };
 
-const buildNotificationData = (engageMessage: IEngageMessageDocument) => ({
-  title: engageMessage.notification?.title || '',
-  message: engageMessage.notification?.content || '',
+const buildNotificationData = (run: IBroadcastRunDocument) => ({
+  title: run.notification?.title || '',
+  message: run.notification?.content || '',
   type: 'info' as const,
   contentType: 'core:broadcast',
-  contentTypeId: engageMessage._id,
+  contentTypeId: run.engageMessageId,
   kind: 'system' as const,
   allowMultiple: true,
 });
 
-export const handleNotificationProcessor = async (
-  payload: NotificationProcessorPayload,
-) => {
-  const { subdomain, engageMessage, clientPortal, cpUsers } = payload ?? {};
+const deliverNotifications: TDrainDeliver = async ({
+  models,
+  subdomain,
+  run,
+  recipients,
+}) => {
+  const clientPortal = run.cpId
+    ? await models.ClientPortal.findOne({ _id: run.cpId }).lean()
+    : null;
 
-  const models = await generateModels(subdomain);
-
-  const inApp = engageMessage.notification?.inApp !== false;
-  const isMobile = engageMessage.notification?.isMobile === true;
-  const notificationData = buildNotificationData(engageMessage);
-
-  const STATS = { successCount: 0, failureCount: 0 };
-
-  try {
-    if (!inApp && !isMobile) {
-      STATS.failureCount = cpUsers.length;
-
-      await models.BroadcastTraces.createTrace(
-        engageMessage._id,
-        'regular',
-        'Skipped batch: no notification channels enabled',
+  if (!clientPortal) {
+    for (const recipient of recipients) {
+      await models.BroadcastRecipients.finish(
+        recipient._id,
+        'failed',
+        'client portal not found',
       );
-    } else if (inApp && isMobile) {
-      await notificationService.sendNotificationBulk(
-        subdomain,
-        models,
-        clientPortal,
-        cpUsers,
-        notificationData,
-      );
-
-      STATS.successCount = cpUsers.length;
-
-      for (const cpUser of cpUsers) {
-        await models.BroadcastTraces.createTrace(
-          engageMessage._id,
-          'success',
-          `Sent notification to client portal user: ${cpUser._id}`,
-        );
-      }
-    } else if (inApp) {
-      await createNotificationsBulk(subdomain, models, {
-        clientPortalId: clientPortal._id,
-        cpUserIds: cpUsers.map((cpUser) => cpUser._id),
-        ...notificationData,
-      });
-
-      STATS.successCount = cpUsers.length;
-
-      for (const cpUser of cpUsers) {
-        await models.BroadcastTraces.createTrace(
-          engageMessage._id,
-          'success',
-          `Sent in-app notification to client portal user: ${cpUser._id}`,
-        );
-      }
-    } else {
-      for (const cpUser of cpUsers) {
-        try {
-          const result = await sendFirebasePush(
-            clientPortal,
-            cpUser,
-            notificationData.title,
-            notificationData.message,
-            {
-              type: notificationData.type,
-              contentTypeId: engageMessage._id,
-            },
-          );
-
-          if (result.status === 'sent') {
-            STATS.successCount++;
-
-            await models.BroadcastTraces.createTrace(
-              engageMessage._id,
-              'success',
-              `Sent push notification to client portal user: ${cpUser._id}`,
-            );
-          } else {
-            STATS.failureCount++;
-
-            await models.BroadcastTraces.createTrace(
-              engageMessage._id,
-              'regular',
-              `Skipped push for client portal user ${cpUser._id}: ${result.status}`,
-            );
-          }
-        } catch (error) {
-          STATS.failureCount++;
-
-          await models.BroadcastTraces.createTrace(
-            engageMessage._id,
-            'failure',
-            `Error sending push to client portal user ${cpUser._id}: ${(error as Error).message}`,
-          );
-        }
-      }
     }
 
-    await models.EngageMessages.updateOne(
-      { _id: engageMessage._id },
-      {
-        $inc: {
-          validCustomersCount: STATS.successCount,
-          'progress.processedBatches': 1,
-          'progress.successCount': STATS.successCount,
-          'progress.failureCount': STATS.failureCount,
-        },
-        $set: {
-          'progress.lastUpdated': new Date(),
-        },
-      },
+    return;
+  }
+
+  // The manifest is a list of customers; a notification needs the portal user
+  // they signed in as, which is looked up now rather than frozen at enrolment
+  // so somebody who registered since is still reachable.
+  const cpUsers = await models.CPUser.find({
+    clientPortalId: clientPortal._id,
+    erxesCustomerId: {
+      $in: recipients.map(({ customerId }) => customerId),
+    },
+  }).lean();
+
+  const byCustomer = new Map(
+    cpUsers.map((cpUser) => [cpUser.erxesCustomerId, cpUser]),
+  );
+
+  const reachable: { recipientId: string; cpUser: ICPUserDocument }[] = [];
+
+  for (const recipient of recipients) {
+    const cpUser = byCustomer.get(recipient.customerId);
+
+    if (!cpUser) {
+      await models.BroadcastRecipients.finish(
+        recipient._id,
+        'skipped',
+        'no linked client portal user',
+      );
+      continue;
+    }
+
+    reachable.push({ recipientId: recipient._id, cpUser });
+  }
+
+  if (!reachable.length) {
+    return;
+  }
+
+  const inApp = run.notification?.inApp !== false;
+  const isMobile = run.notification?.isMobile === true;
+  const notificationData = buildNotificationData(run);
+
+  if (!inApp && !isMobile) {
+    for (const { recipientId } of reachable) {
+      await models.BroadcastRecipients.finish(
+        recipientId,
+        'skipped',
+        'no notification channels enabled',
+      );
+    }
+
+    return;
+  }
+
+  const targets = reachable.map(({ cpUser }) => cpUser);
+
+  if (inApp && isMobile) {
+    await notificationService.sendNotificationBulk(
+      subdomain,
+      models,
+      clientPortal,
+      targets,
+      notificationData,
     );
 
-    const message = await models.EngageMessages.findOne({
-      _id: engageMessage._id,
+    for (const { recipientId } of reachable) {
+      await models.BroadcastRecipients.finish(recipientId, 'sent');
+    }
+
+    return;
+  }
+
+  if (inApp) {
+    await createNotificationsBulk(subdomain, models, {
+      clientPortalId: clientPortal._id,
+      cpUserIds: targets.map((cpUser) => cpUser._id),
+      ...notificationData,
     });
 
-    if (message) {
-      const totalProcessed = STATS.successCount + STATS.failureCount;
-      const failureRate =
-        totalProcessed > 0 ? STATS.failureCount / totalProcessed : 0;
+    for (const { recipientId } of reachable) {
+      await models.BroadcastRecipients.finish(recipientId, 'sent');
+    }
 
-      if (message.progress.processedBatches >= message.progress.totalBatches) {
-        const finalStatus =
-          failureRate >= FAILURE_THRESHOLD ? 'failed' : 'completed';
+    return;
+  }
 
-        await models.EngageMessages.updateOne(
-          { _id: engageMessage._id, status: { $eq: 'sending' } },
-          { $set: { status: finalStatus } },
-        );
+  for (const { recipientId, cpUser } of reachable) {
+    try {
+      const result = await sendFirebasePush(
+        clientPortal,
+        cpUser,
+        notificationData.title,
+        notificationData.message,
+        {
+          type: notificationData.type,
+          contentTypeId: run.engageMessageId,
+        },
+      );
 
-        await models.BroadcastTraces.createTrace(
-          engageMessage._id,
-          finalStatus === 'failed' ? 'failure' : 'success',
-          `Campaign ${finalStatus}. Sent: ${STATS.successCount}, Failed: ${STATS.failureCount}`,
+      if (result.status === 'sent') {
+        await models.BroadcastRecipients.finish(recipientId, 'sent');
+      } else {
+        await models.BroadcastRecipients.finish(
+          recipientId,
+          'skipped',
+          result.status === 'no_tokens'
+            ? 'no device registered'
+            : 'push is not configured',
         );
       }
+    } catch (error: any) {
+      await models.BroadcastRecipients.finish(
+        recipientId,
+        'failed',
+        error.message,
+      );
     }
-  } catch (error) {
-    console.error('Critical error in notification processor:', error);
-
-    await models.EngageMessages.updateOne(
-      { _id: engageMessage._id },
-      {
-        $set: { status: 'failed' },
-        $inc: {
-          'progress.processedBatches': 1,
-          'progress.failureCount': cpUsers.length - STATS.successCount,
-        },
-      },
-    );
-
-    await models.BroadcastTraces.createTrace(
-      engageMessage._id,
-      'failure',
-      `Critical error in notification processor: ${(error as Error).message}`,
-    );
   }
 };
+
+export const handleNotificationProcessor = async (payload: unknown) =>
+  drainRun(payload, deliverNotifications);

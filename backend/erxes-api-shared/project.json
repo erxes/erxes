@@ -3,10 +3,14 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "backend/erxes-api-shared/src",
   "projectType": "library",
-  "tags": ["scope:shared"],
+  "tags": [
+    "scope:shared"
+  ],
   "targets": {
     "build": {
-      "dependsOn": ["^build"],
+      "dependsOn": [
+        "^build"
+      ],
       "outputs": [
         "{projectRoot}/dist",
         "{projectRoot}/utils/package.json",
@@ -16,6 +20,15 @@
         "{projectRoot}/core-modules/package.json",
         "{projectRoot}/core-modules/dist"
       ]
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": [
+        "{workspaceRoot}/coverage/{projectRoot}"
+      ],
+      "options": {
+        "jestConfig": "backend/erxes-api-shared/jest.config.ts"
+      }
     }
   }
 }

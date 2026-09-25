@@ -6,6 +6,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { ApolloError, useMutation } from '@apollo/client';
 import {
+  IconCopy,
   IconEdit,
   IconPointerBolt,
   IconShare,
@@ -21,7 +22,6 @@ import {
   RelativeDateDisplay,
   DropdownMenu,
   Button,
-  useConfirm,
   useToast,
 } from 'erxes-ui';
 import {
@@ -30,10 +30,11 @@ import {
   TAutomationAction,
   TAutomationTrigger,
 } from 'ui-modules';
+import { AutomationExecutionCountCell } from '@/automations/components/list/AutomationExecutionCountCell';
 import { AutomationRecordTableUserInlineCell } from '@/automations/components/list/AutomationRecordTableUserInlineCell';
 import { AutomationRecordTableStatusInlineCell } from '@/automations/components/list/AutomationRecordTableStatusInlineCell';
 import { useState } from 'react';
-import { useRemoveAutomations } from '@/automations/hooks/useRemoveAutomations';
+import { useAutomationActions } from '@/automations/hooks/useAutomationActions';
 import { useTranslation } from 'react-i18next';
 
 const checkBoxColumn =
@@ -45,52 +46,21 @@ export const getAutomationColumns: (
   {
     id: 'more',
     cell: ({ cell }) => {
-      const navigate = useNavigate();
-      const { confirm } = useConfirm();
-      const { removeAutomations, loading } = useRemoveAutomations();
       const { t } = useTranslation('automations');
-      const { toast } = useToast();
-      const lockState = cell.row.original.approvalLockState;
-      const canWrite = !lockState?.locked || lockState.hasAccess;
+      const { canWrite, duplicating, removing, onEdit, onDuplicate, onRemove } =
+        useAutomationActions(cell.row.original);
 
-      const onRemove = () => {
-        confirm({
-          message: `Are you sure you want to delete the "${cell.row.original.name}" automation?`,
-        }).then(() => {
-          removeAutomations([cell.row.original._id], {
-            onError: (e: ApolloError) => {
-              toast({
-                title: 'Error',
-                description: e.message,
-                variant: 'destructive',
-              });
-            },
-            onCompleted: () => {
-              toast({
-                title: 'Success',
-                variant: 'success',
-                description: 'Automations deleted successfully',
-              });
-            },
-          });
-        });
-      };
       return (
         <DropdownMenu>
-          <DropdownMenu.Trigger asChild disabled={loading}>
+          <DropdownMenu.Trigger asChild disabled={removing || duplicating}>
             <RecordTable.MoreButton className="w-full h-full" />
           </DropdownMenu.Trigger>
           <DropdownMenu.Content
             align="start"
-            className="w-[100px] min-w-0 [&>button]:cursor-pointer"
+            className="w-[140px] min-w-0 [&>button]:cursor-pointer"
             onClick={(e) => e.stopPropagation()}
           >
-            <DropdownMenu.Item
-              asChild
-              onSelect={() =>
-                navigate(`/automations/edit/${cell.row.original._id}`)
-              }
-            >
+            <DropdownMenu.Item asChild onSelect={onEdit}>
               <Button
                 variant="ghost"
                 size="sm"
@@ -104,9 +74,21 @@ export const getAutomationColumns: (
               <Button
                 variant="ghost"
                 size="sm"
+                className="w-full justify-start"
+                disabled={duplicating}
+                onClick={onDuplicate}
+              >
+                <IconCopy className="size-4" />
+                {t('duplicate')}
+              </Button>
+            </DropdownMenu.Item>
+            <DropdownMenu.Item asChild>
+              <Button
+                variant="ghost"
+                size="sm"
                 className="w-full justify-start text-destructive"
-                disabled={!canWrite}
-                onClick={() => onRemove()}
+                disabled={!canWrite || removing}
+                onClick={onRemove}
               >
                 <IconTrash className="size-4" />
                 {t('delete')}
@@ -260,6 +242,14 @@ export const getAutomationColumns: (
       );
     },
     size: 80,
+  },
+  {
+    id: 'executionCount',
+    header: () => <RecordTable.InlineHead label={t('runs')} />,
+    cell: ({ cell }) => (
+      <AutomationExecutionCountCell id={cell.row.original._id} />
+    ),
+    size: 100,
   },
   {
     id: 'tagIds',

@@ -62,6 +62,11 @@ export const TasksCommandBar = () => {
   const [currentContent, setCurrentContent] = useState<string>('main');
   const isSingleTaskSelected = selectedRows.length === 1;
   const singleTask = isSingleTaskSelected ? selectedRows[0].original : null;
+  const selectedTeamIds = [
+    ...new Set(selectedRows.map((row: Row<ITask>) => row.original.teamId)),
+  ];
+  const statusTeamId =
+    teamId || (selectedTeamIds.length === 1 ? selectedTeamIds[0] : undefined);
 
   return (
     <CommandBar open={selectedRows.length > 0}>
@@ -90,7 +95,7 @@ export const TasksCommandBar = () => {
           <Popover.Trigger asChild>
             <Button variant="secondary">
               <IconRepeat />
-{t('actions')}
+              {t('actions')}
             </Button>
           </Popover.Trigger>
           <Popover.Content
@@ -137,7 +142,7 @@ export const TasksCommandBar = () => {
                     <TasksAssignToTrigger
                       setCurrentContent={setCurrentContent}
                     />
-                    {teamId && (
+                    {statusTeamId && (
                       <TasksEditStatusTrigger
                         setCurrentContent={setCurrentContent}
                       />
@@ -197,8 +202,12 @@ export const TasksCommandBar = () => {
                 currentTeamId={teamId}
               />
             )}
-            {currentContent === 'status' && teamId && (
-              <TasksEditStatusContent taskIds={taskIds} setOpen={setOpen} />
+            {currentContent === 'status' && statusTeamId && (
+              <TasksEditStatusContent
+                taskIds={taskIds}
+                teamId={statusTeamId}
+                setOpen={setOpen}
+              />
             )}
             {currentContent === 'project' && (
               <TasksAddProjectContent taskIds={taskIds} setOpen={setOpen} />

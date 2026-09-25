@@ -100,11 +100,16 @@ const SelectCompaniesBulkContent = ({
       </Sheet.Content>
       <Sheet.Footer className="sm:justify-between">
         <AddCompany
-          onSuccess={(id) =>
+          onSuccess={(id, company) => {
             setSelectedCompanyIds((prev) =>
               prev.includes(id) ? prev : [...prev, id],
-            )
-          }
+            );
+            if (company) {
+              setSelectedCompanies((prev) =>
+                prev.some((c) => c._id === id) ? prev : [...prev, company],
+              );
+            }
+          }}
         />
         <div className="flex items-center gap-2">
           <Sheet.Close asChild>
@@ -150,14 +155,15 @@ const CompaniesList = ({
   };
 
   const getCompanyTitle = (company: ICompany) => {
-    const { primaryName, primaryEmail, primaryPhone } = company;
-    return (
-      (primaryName || primaryEmail || primaryPhone
-        ? `${primaryName || ''} ${primaryEmail || ''} ${
-            primaryPhone || ''
-          }`.trim()
-        : primaryEmail || primaryPhone) || 'anonymous company'
-    );
+    const { primaryName, code, primaryEmail, primaryPhone } = company;
+    const title = [primaryName, primaryEmail, primaryPhone]
+      .filter(Boolean)
+      .join(' ')
+      .trim();
+
+    if (title) return title;
+
+    return code ? '' : 'anonymous company';
   };
 
   return (
@@ -180,6 +186,7 @@ const CompaniesList = ({
           <Tooltip.Provider>
             {companies.map((company) => {
               const isSelected = selectedCompanyIds.includes(company._id);
+              const title = getCompanyTitle(company);
 
               return (
                 <Tooltip key={company._id}>
@@ -198,9 +205,7 @@ const CompaniesList = ({
                             {company.code}
                           </span>
                         )}
-                        <span className="truncate">
-                          {getCompanyTitle(company)}
-                        </span>
+                        {title && <span className="truncate">{title}</span>}
                       </div>
 
                       {isSelected ? (

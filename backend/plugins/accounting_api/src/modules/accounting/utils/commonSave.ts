@@ -8,6 +8,23 @@ import { createOrUpdateTr, syncProductsInventory } from './utils';
 import InvMoveInTrs from './invMove';
 import InvSaleReturnOutCostTrs from './invSaleReturn';
 import { TR_SIDES } from '../@types/constants';
+import { commonRemove } from './commonRemove';
+import { syncFxaIncomeDetails } from './fxaIncome';
+import { createFxaDisposalFollowTrs, syncFxaDisposalInstances } from './fxaOut';
+import {
+  createFxaMoveDepreciationFollowTrs,
+  createFxaMoveInFollowTr,
+  syncFxaMoveInstances,
+} from './fxaMove';
+import {
+  prepareFxaDisposalTransaction,
+  prepareFxaOwnerRecordTransaction,
+  rebuildFixedAssetCurrentCounts,
+} from './fixedAssets';
+import {
+  FXA_OWNER_RECORD_STATUSES,
+  FXA_LOG_EVENT_TYPES,
+} from '@/fixedAssets/@types/constants';
 
 export const commonSave = async (
   subdomain: string,
@@ -55,6 +72,7 @@ function getJournalHandler(journal: string) {
     }>
   > = {
     main: handleMain,
+    exchangeDiff: handleMain,
     cash: handleSingleTr,
     bank: handleSingleTr,
     receivable: handleSingleTr,
@@ -64,10 +82,33 @@ function getJournalHandler(journal: string) {
     invMove: handleInvMove,
     invSale: handleInvSale,
     invSaleReturn: handleInvSaleReturn,
+    fxaIncome: handleFxaIncome,
+    fxaOut: handleFxaOut,
+    fxaMove: handleFxaMove,
+    fxaSale: handleFxaSale,
   };
 
   return handlers[journal];
 }
+
+const isNonEmptyString = (value?: string): value is string => !!value;
+
+const getRemovedFxaDetailIds = (
+  oldTr: ITransactionDocument,
+  doc: ITransaction,
+) => {
+  const newDetailIds = new Set(
+    (doc.details || []).map((detail) => detail._id).filter(isNonEmptyString),
+  );
+
+  return (oldTr.details || [])
+    .filter(
+      (detail) =>
+        detail.fixedAssetId && detail._id && !newDetailIds.has(detail._id),
+    )
+    .map((detail) => detail._id)
+    .filter(isNonEmptyString);
+};
 
 async function handleMain(
   _subdomain: string,
@@ -76,8 +117,19 @@ async function handleMain(
   doc: ITransaction,
   oldTr?: ITransactionDocument,
 ) {
+  const taxTrsClass = new TaxTrs(
+    models,
+    userId,
+    doc,
+    doc.side === TR_SIDES.DEBIT ? 'ct' : 'dt',
+    true,
+  );
+  await taxTrsClass.checkTaxValidation();
   const mainTr = await createOrUpdateTr(models, userId, doc, oldTr);
-  return { mainTr, otherTrs: [] };
+  return {
+    mainTr,
+    otherTrs: await collect(await taxTrsClass.doTaxTrs(mainTr)),
+  };
 }
 
 async function handleSingleTr(
@@ -243,6 +295,143 @@ async function handleInvSaleReturn(
   const otherTrs = [
     ...(await collect(await taxTrsClass.doTaxTrs(transaction))),
     ...(await collect(await invSaleReturnOtherTrsClass.doTrs(transaction))),
+  ];
+
+  return { mainTr: transaction, otherTrs };
+}
+
+async function handleFxaIncome(
+  subdomain: string,
+  models: IModels,
+  userId: string,
+  doc: ITransaction,
+  oldTr?: ITransactionDocument,
+) {
+  const taxTrsClass = new TaxTrs(models, userId, doc, 'dt', false);
+  await taxTrsClass.checkTaxValidation();
+
+  if (oldTr) {
+    const removedDetailIds = getRemovedFxaDetailIds(oldTr, doc);
+
+    if (removedDetailIds.length) {
+      await commonRemove(subdomain, models, oldTr, undefined, {
+        detailIds: removedDetailIds,
+        validateOnly: true,
+      });
+    }
+  }
+
+  const transaction = await createOrUpdateTr(
+    models,
+    userId,
+    { ...doc, side: TR_SIDES.DEBIT },
+    oldTr,
+  );
+
+  await syncFxaIncomeDetails(models, userId, transaction);
+
+  const otherTrs = [
+    ...(await collect(await taxTrsClass.doTaxTrs(transaction))),
+  ];
+
+  return { mainTr: transaction, otherTrs };
+}
+
+async function handleFxaOut(
+  _subdomain: string,
+  models: IModels,
+  userId: string,
+  doc: ITransaction,
+  oldTr?: ITransactionDocument,
+) {
+  const preparedDoc = await prepareFxaDisposalTransaction(models, doc);
+  const transaction = await createOrUpdateTr(
+    models,
+    userId,
+    { ...preparedDoc, side: TR_SIDES.CREDIT },
+    oldTr,
+  );
+
+  await syncFxaDisposalInstances(
+    models,
+    userId,
+    transaction,
+    FXA_LOG_EVENT_TYPES.DISPOSAL,
+    FXA_OWNER_RECORD_STATUSES.INACTIVE,
+  );
+
+  const otherTrs = await createFxaDisposalFollowTrs(
+    models,
+    userId,
+    transaction,
+  );
+
+  return { mainTr: transaction, otherTrs };
+}
+
+async function handleFxaMove(
+  _subdomain: string,
+  models: IModels,
+  userId: string,
+  doc: ITransaction,
+  oldTr?: ITransactionDocument,
+) {
+  const preparedDoc = await prepareFxaOwnerRecordTransaction(models, doc);
+  const transaction = await createOrUpdateTr(
+    models,
+    userId,
+    { ...preparedDoc, side: TR_SIDES.CREDIT },
+    oldTr,
+  );
+
+  await syncFxaMoveInstances(models, userId, transaction);
+  const depreciationTrs = await createFxaMoveDepreciationFollowTrs(
+    models,
+    userId,
+    transaction,
+  );
+  const moveInTr = await createFxaMoveInFollowTr(models, userId, transaction);
+  await rebuildFixedAssetCurrentCounts(
+    models,
+    (transaction.details || [])
+      .map((detail) => detail.fixedAssetId)
+      .filter((fixedAssetId): fixedAssetId is string => Boolean(fixedAssetId)),
+  );
+
+  return { mainTr: transaction, otherTrs: [...depreciationTrs, moveInTr] };
+}
+
+async function handleFxaSale(
+  _subdomain: string,
+  models: IModels,
+  userId: string,
+  doc: ITransaction,
+  oldTr?: ITransactionDocument,
+) {
+  const taxTrsClass = new TaxTrs(models, userId, doc, 'ct', false);
+  await taxTrsClass.checkTaxValidation();
+  const preparedDoc = await prepareFxaDisposalTransaction(models, doc, {
+    updateDetails: false,
+  });
+
+  const transaction = await createOrUpdateTr(
+    models,
+    userId,
+    { ...preparedDoc, side: TR_SIDES.CREDIT },
+    oldTr,
+  );
+
+  await syncFxaDisposalInstances(
+    models,
+    userId,
+    transaction,
+    FXA_LOG_EVENT_TYPES.SALE,
+    FXA_OWNER_RECORD_STATUSES.INACTIVE,
+  );
+
+  const otherTrs = [
+    ...(await createFxaDisposalFollowTrs(models, userId, transaction)),
+    ...(await collect(await taxTrsClass.doTaxTrs(transaction))),
   ];
 
   return { mainTr: transaction, otherTrs };

@@ -46,6 +46,7 @@ export const InsuranceTypesRecordTable = ({
       data={insuranceTypes || []}
       loading={loading}
       sessionKey="insurance-types-cursor"
+      tableId="insurance_types_record_table"
       stickyColumns={['more', 'checkbox', 'name']}
       emptyState={{
         icon: <IconShieldCheck size={64} />,

@@ -8,6 +8,8 @@ const ROOT_PATHNAME = '/';
 const IDENTIFIER_PATTERN = /^[a-zA-Z0-9_-]{16,}$/;
 const MONGODB_IDENTIFIER_PATTERN = /^[a-f\d]{24}$/i;
 
+export const createVisitedPageTabId = () => globalThis.crypto.randomUUID();
+
 const normalizeModulePath = (path: string) => {
   let startIndex = 0;
   let endIndex = path.length;
@@ -34,7 +36,15 @@ export const normalizeVisitedPagePathname = (pathname: string) => {
 export const shouldTrackVisitedPage = (pathname: string) =>
   normalizeVisitedPagePathname(pathname) !== ROOT_PATHNAME;
 
-const isVisitedPageTab = (value: unknown): value is IVisitedPageTab =>
+interface IStoredVisitedPageTab {
+  id?: unknown;
+  pathname: string;
+  search?: unknown;
+}
+
+const isStoredVisitedPageTab = (
+  value: unknown,
+): value is IStoredVisitedPageTab =>
   typeof value === 'object' &&
   value !== null &&
   'pathname' in value &&
@@ -49,16 +59,21 @@ const normalizeVisitedPageSearch = (search: unknown) => {
 };
 
 const createVisitedPageTab = (
+  id: string,
   pathname: string,
   search?: unknown,
 ): IVisitedPageTab => {
   const normalizedSearch = normalizeVisitedPageSearch(search);
 
   return {
+    id,
     pathname: normalizeVisitedPagePathname(pathname),
     ...(normalizedSearch && { search: normalizedSearch }),
   };
 };
+
+const getLegacyVisitedPageTabId = (pathname: string) =>
+  `legacy:${encodeURIComponent(normalizeVisitedPagePathname(pathname))}`;
 
 export const getVisitedPageTabLocation = ({
   pathname,
@@ -70,21 +85,27 @@ export const normalizeVisitedPageTabs = (value: unknown): IVisitedPageTab[] => {
     return [];
   }
 
-  const seenPathnames = new Set<string>();
+  const seenIds = new Set<string>();
 
   return value.reduce<IVisitedPageTab[]>((tabs, tab) => {
-    if (!isVisitedPageTab(tab)) {
+    if (!isStoredVisitedPageTab(tab)) {
       return tabs;
     }
 
-    const normalizedTab = createVisitedPageTab(tab.pathname, tab.search);
-    const { pathname } = normalizedTab;
+    const id =
+      typeof tab.id === 'string' && tab.id.length > 0
+        ? tab.id
+        : getLegacyVisitedPageTabId(tab.pathname);
+    const normalizedTab = createVisitedPageTab(id, tab.pathname, tab.search);
 
-    if (!shouldTrackVisitedPage(pathname) || seenPathnames.has(pathname)) {
+    if (
+      !shouldTrackVisitedPage(normalizedTab.pathname) ||
+      seenIds.has(normalizedTab.id)
+    ) {
       return tabs;
     }
 
-    seenPathnames.add(pathname);
+    seenIds.add(normalizedTab.id);
     tabs.push(normalizedTab);
 
     return tabs;
@@ -192,96 +213,65 @@ export const getVisitedPageTabTitle = (
   pluginLabel?: string,
 ) => (pluginLabel ? `${pluginLabel} | ${pageLabel}` : pageLabel);
 
-export const addVisitedPageTab = (
+export const updateVisitedPageTab = (
   tabs: unknown,
+  tabId: string,
   pathname: string,
   search?: string,
 ) => {
   const normalizedTabs = normalizeVisitedPageTabs(tabs);
-  const nextTab = createVisitedPageTab(pathname, search);
-  const { pathname: normalizedPathname } = nextTab;
+  const nextTab = createVisitedPageTab(tabId, pathname, search);
 
-  if (!shouldTrackVisitedPage(normalizedPathname)) {
+  if (!shouldTrackVisitedPage(nextTab.pathname)) {
     return normalizedTabs;
   }
 
-  if (normalizedTabs.some((tab) => tab.pathname === normalizedPathname)) {
-    return normalizedTabs.map((tab) =>
-      tab.pathname === normalizedPathname ? nextTab : tab,
-    );
-  }
-
-  return [...normalizedTabs, nextTab];
+  return normalizedTabs.some((tab) => tab.id === tabId)
+    ? normalizedTabs.map((tab) => (tab.id === tabId ? nextTab : tab))
+    : [...normalizedTabs, nextTab];
 };
 
-export const removeVisitedPageTab = (tabs: unknown, pathname: string) => {
-  const normalizedPathname = normalizeVisitedPagePathname(pathname);
-
-  return normalizeVisitedPageTabs(tabs).filter(
-    (tab) => tab.pathname !== normalizedPathname,
-  );
-};
-
-export const visitVisitedPageTab = (
+export const insertVisitedPageTabAfter = (
   tabs: unknown,
-  pathname: string,
-  replacedPathname?: string,
-  search?: string,
+  tab: IVisitedPageTab,
+  precedingTabId: string | null,
 ) => {
   const normalizedTabs = normalizeVisitedPageTabs(tabs);
-  const nextTab = createVisitedPageTab(pathname, search);
-  const { pathname: normalizedPathname } = nextTab;
-
-  if (!shouldTrackVisitedPage(normalizedPathname)) {
-    return normalizedTabs;
-  }
-
-  const normalizedReplacedPathname = replacedPathname
-    ? normalizeVisitedPagePathname(replacedPathname)
-    : undefined;
+  const normalizedTab = createVisitedPageTab(tab.id, tab.pathname, tab.search);
 
   if (
-    normalizedReplacedPathname &&
-    normalizedReplacedPathname !== normalizedPathname
+    !shouldTrackVisitedPage(normalizedTab.pathname) ||
+    normalizedTabs.some(({ id }) => id === normalizedTab.id)
   ) {
-    const replacedTabIndex = normalizedTabs.findIndex(
-      (tab) => tab.pathname === normalizedReplacedPathname,
-    );
-
-    if (replacedTabIndex >= 0) {
-      const destinationAlreadyOpen = normalizedTabs.some(
-        (tab) => tab.pathname === normalizedPathname,
-      );
-
-      if (destinationAlreadyOpen) {
-        return normalizedTabs
-          .filter((_, index) => index !== replacedTabIndex)
-          .map((tab) => (tab.pathname === normalizedPathname ? nextTab : tab));
-      }
-
-      return normalizedTabs.map((tab, index) =>
-        index === replacedTabIndex ? nextTab : tab,
-      );
-    }
+    return normalizedTabs;
   }
 
-  return addVisitedPageTab(normalizedTabs, normalizedPathname, search);
+  const precedingTabIndex = normalizedTabs.findIndex(
+    ({ id }) => id === precedingTabId,
+  );
+
+  if (precedingTabIndex < 0) {
+    return [...normalizedTabs, normalizedTab];
+  }
+
+  const nextTabs = [...normalizedTabs];
+  nextTabs.splice(precedingTabIndex + 1, 0, normalizedTab);
+
+  return nextTabs;
 };
+
+export const removeVisitedPageTab = (tabs: unknown, tabId: string) =>
+  normalizeVisitedPageTabs(tabs).filter((tab) => tab.id !== tabId);
 
 export const moveVisitedPageTab = (
   tabs: unknown,
-  pathname: string,
-  destinationPathname: string,
+  tabId: string,
+  destinationTabId: string,
 ) => {
   const normalizedTabs = normalizeVisitedPageTabs(tabs);
-  const normalizedPathname = normalizeVisitedPagePathname(pathname);
-  const normalizedDestinationPathname =
-    normalizeVisitedPagePathname(destinationPathname);
-  const sourceIndex = normalizedTabs.findIndex(
-    (tab) => tab.pathname === normalizedPathname,
-  );
+  const sourceIndex = normalizedTabs.findIndex((tab) => tab.id === tabId);
   const destinationIndex = normalizedTabs.findIndex(
-    (tab) => tab.pathname === normalizedDestinationPathname,
+    (tab) => tab.id === destinationTabId,
   );
 
   if (
@@ -301,13 +291,10 @@ export const moveVisitedPageTab = (
 
 export const getVisitedPageTabCloseDestination = (
   tabs: unknown,
-  pathname: string,
+  tabId: string,
 ) => {
   const normalizedTabs = normalizeVisitedPageTabs(tabs);
-  const normalizedPathname = normalizeVisitedPagePathname(pathname);
-  const tabIndex = normalizedTabs.findIndex(
-    (tab) => tab.pathname === normalizedPathname,
-  );
+  const tabIndex = normalizedTabs.findIndex((tab) => tab.id === tabId);
 
   if (tabIndex < 0) {
     return null;
@@ -316,9 +303,9 @@ export const getVisitedPageTabCloseDestination = (
   return normalizedTabs[tabIndex - 1] ?? normalizedTabs[tabIndex + 1] ?? null;
 };
 
-export const getAdjacentVisitedPageTabPathname = (
+export const getAdjacentVisitedPageTabId = (
   tabs: unknown,
-  pathname: string,
+  tabId: string | null,
   direction: 'next' | 'previous',
 ) => {
   const normalizedTabs = normalizeVisitedPageTabs(tabs);
@@ -327,18 +314,15 @@ export const getAdjacentVisitedPageTabPathname = (
     return null;
   }
 
-  const normalizedPathname = normalizeVisitedPagePathname(pathname);
-  const currentIndex = normalizedTabs.findIndex(
-    (tab) => tab.pathname === normalizedPathname,
-  );
+  const currentIndex = normalizedTabs.findIndex((tab) => tab.id === tabId);
 
   if (currentIndex < 0) {
-    return normalizedTabs[0].pathname;
+    return normalizedTabs[0].id;
   }
 
   const offset = direction === 'next' ? 1 : -1;
   const destinationIndex =
     (currentIndex + offset + normalizedTabs.length) % normalizedTabs.length;
 
-  return normalizedTabs[destinationIndex].pathname;
+  return normalizedTabs[destinationIndex].id;
 };

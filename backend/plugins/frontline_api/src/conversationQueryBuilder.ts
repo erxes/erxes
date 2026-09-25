@@ -1,4 +1,8 @@
-import { CONVERSATION_STATUSES } from '@/inbox/db/definitions/constants';
+import {
+  AUTOMATION_STATUS_MAP,
+  CONVERSATION_AUTOMATION_STATUS,
+  CONVERSATION_STATUSES,
+} from '@/inbox/db/definitions/constants';
 import { fixDate, sendTRPCMessage } from 'erxes-api-shared/utils';
 import * as _ from 'underscore';
 import { IModels } from '~/connectionResolvers';
@@ -18,10 +22,15 @@ export interface IListArgs {
   status?: string;
   unassigned?: string;
   awaitingResponse?: string;
+  withSurvey?: string;
+  withPoll?: string;
+  automationStatus?: string;
   brandId?: string;
   tag?: string;
   integrationType?: string;
   participating?: string;
+  mentioned?: string;
+  unread?: string;
   starred?: string;
   ids?: string[];
   startDate?: string;
@@ -257,6 +266,23 @@ export default class Builder {
     };
   }
 
+  public async mentionedFilter(): Promise<{ _id: IIn }> {
+    const conversationIds: string[] =
+      await this.models.ConversationMessages.distinct('conversationId', {
+        mentionedUserIds: this.user._id,
+      });
+
+    return {
+      _id: { $in: conversationIds },
+    };
+  }
+
+  public unreadFilter(): { readUserIds: { $ne: string } } {
+    return {
+      readUserIds: { $ne: this.user._id },
+    };
+  }
+
   public starredFilter(): { _id: IIn | { $in: string[] } } {
     return {
       _id: {
@@ -275,6 +301,38 @@ export default class Builder {
     return {
       isCustomerRespondedLast: true,
     };
+  }
+
+  public withSurveyFilter(): { hasSurvey: boolean } {
+    return {
+      hasSurvey: true,
+    };
+  }
+
+  public withoutSurveyFilter(): { hasSurvey: { $ne: true } } {
+    return {
+      hasSurvey: { $ne: true },
+    };
+  }
+
+  public automationStatusFilter(value: string): {
+    'automatedReplyControl.status'?: IIn | IExists;
+  } {
+    const keys = value.split(',').map((key) => key.trim());
+
+    if (keys.includes(CONVERSATION_AUTOMATION_STATUS.RESPONDED)) {
+      return { 'automatedReplyControl.status': { $exists: true } };
+    }
+
+    const statuses = keys
+      .map((key) => AUTOMATION_STATUS_MAP[key])
+      .filter(Boolean);
+
+    if (!statuses.length) {
+      return {};
+    }
+
+    return { 'automatedReplyControl.status': { $in: statuses } };
   }
 
   public async integrationTypeFilter(
@@ -381,6 +439,12 @@ export default class Builder {
 
     const orConditions: object[] = [{ customerId: { $in: customerIds } }];
 
+    if (!isPhoneSearch) {
+      orConditions.push({
+        content: { $regex: escapeRegex(value), $options: 'i' },
+      });
+    }
+
     const availableIntegrationIds: string[] =
       this.queries?.integrations?.integrationId?.$in || [];
 
@@ -435,8 +499,12 @@ export default class Builder {
       integrations: {},
 
       participating: {},
+      mentioned: {},
+      unread: {},
       createdAt: {},
       segments: {},
+      automationStatus: {},
+      withSurvey: {},
     };
 
     if (this.params.channelId) {
@@ -453,12 +521,32 @@ export default class Builder {
       this.queries.participating = this.participatingFilter();
     }
 
+    if (this.params.mentioned) {
+      this.queries.mentioned = await this.mentionedFilter();
+    }
+
+    if (this.params.unread) {
+      this.queries.unread = this.unreadFilter();
+    }
+
     if (this.params.starred) {
       this.queries.starred = this.starredFilter();
     }
 
     if (this.params.awaitingResponse) {
       this.queries.awaitingResponse = this.awaitingResponse();
+    }
+
+    if (this.params.withSurvey || this.params.withPoll) {
+      this.queries.withSurvey = this.withSurveyFilter();
+    } else if (this.params.integrationType) {
+      this.queries.withSurvey = this.withoutSurveyFilter();
+    }
+
+    if (this.params.automationStatus) {
+      this.queries.automationStatus = this.automationStatusFilter(
+        this.params.automationStatus,
+      );
     }
 
     if (this.params.status) {
@@ -490,11 +578,15 @@ export default class Builder {
       ...this.queries.extended,
       ...this.queries.unassigned,
       ...this.queries.participating,
+      ...this.queries.mentioned,
+      ...this.queries.unread,
       ...this.queries.status,
       ...this.queries.starred,
       ...this.queries.tag,
       ...this.queries.createdAt,
       ...this.queries.awaitingResponse,
+      ...this.queries.automationStatus,
+      ...this.queries.withSurvey,
       ...this.queries.segments,
     };
   }

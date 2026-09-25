@@ -20,8 +20,6 @@ import {
   REPORT_FIXED_DATES,
   ReportDateFilter,
 } from './ReportDateFilter';
-import { BackButton } from './back-button';
-
 interface ReportFilterProps {
   cardId: string;
 }
@@ -48,10 +46,10 @@ export const ReportFilter = ({ cardId }: ReportFilterProps) => {
     sourceFilter === 'calls' && callStatusFilter !== 'all';
   const hasFilters = Boolean(
     sourceFilter !== 'all' ||
-      (channelFilter && channelFilter.length > 0) ||
-      (memberFilter && memberFilter.length > 0) ||
-      (dateValue && dateValue.length > 0) ||
-      isCallsWithStatus,
+    (channelFilter && channelFilter.length > 0) ||
+    (memberFilter && memberFilter.length > 0) ||
+    (dateValue && dateValue.length > 0) ||
+    isCallsWithStatus,
   );
 
   const handleClear = () => {
@@ -80,10 +78,16 @@ export const ReportFilter = ({ cardId }: ReportFilterProps) => {
           <Filter.View>
             <Command>
               <Command.List>
-                <Filter.Item value="source">{t('source')}</Filter.Item>
-                <Filter.Item value="channel">{t('channel-label')}</Filter.Item>
-                <Filter.Item value="member">{t('member-label')}</Filter.Item>
-                <Filter.Item value="date">{t('date')}</Filter.Item>
+                <Filter.Item value="source">
+                  {t('source', 'Source')}
+                </Filter.Item>
+                <Filter.Item value="channel">
+                  {t('channel-label', 'Channel')}
+                </Filter.Item>
+                <Filter.Item value="member">
+                  {t('member-label', 'Member')}
+                </Filter.Item>
+                <Filter.Item value="date">{t('date', 'Date')}</Filter.Item>
                 {hasFilters && (
                   <>
                     <Command.Separator />
@@ -92,7 +96,7 @@ export const ReportFilter = ({ cardId }: ReportFilterProps) => {
                       onSelect={handleClear}
                       className="text-destructive"
                     >
-                      {t('clear-all')}
+                      {t('clear-all', 'Clear all')}
                     </Command.Item>
                   </>
                 )}
@@ -106,7 +110,6 @@ export const ReportFilter = ({ cardId }: ReportFilterProps) => {
                 callStatus={callStatusFilter}
                 onSourceChange={handleSourceChange}
                 onCallStatusChange={setCallStatusFilter}
-                cardId={cardId}
               />
             </Command>
           </Filter.View>
@@ -147,18 +150,15 @@ const SourceFilterView = ({
   callStatus,
   onSourceChange,
   onCallStatusChange,
-  cardId,
 }: {
   sourceValue: string;
   callStatus: string;
   onSourceChange: (value: string) => void;
   onCallStatusChange: (value: string) => void;
-  cardId?: string;
 }) => {
   const { t } = useTranslation('frontline');
   return (
     <Command.List className="max-h-[500px] overflow-y-auto">
-      <BackButton />
       {SOURCE_OPTIONS.flatMap((option) => {
         const items = [
           <Command.Item
@@ -230,11 +230,10 @@ const ChannelFilterView = ({
 
   return (
     <Command.List className="max-h-[500px] overflow-y-auto">
-      <BackButton />
       <Command.Item value="all" onSelect={() => handleSelect('all')}>
         <div className="flex items-center gap-2">
           {(!value || value.length === 0) && <IconCheck className="size-4" />}
-          <span>{t('all-channels')}</span>
+          <span>{t('all-channels', 'All Channels')}</span>
         </div>
       </Command.Item>
       {channels.map((channel) => (
@@ -264,7 +263,6 @@ const MemberFilterView = ({
 }) => {
   return (
     <Command.List className="max-h-[500px] overflow-y-auto">
-      <BackButton />
       <SelectMember.Provider
         value={value}
         mode="multiple"
@@ -314,7 +312,6 @@ export const DateFilterCommand = ({
         focusOnMount={focusOnMount}
       />
       <Command.List>
-        <BackButton />
         {REPORT_FIXED_DATES.map((date) => (
           <Command.Item
             key={date}
@@ -339,7 +336,7 @@ export const DateFilterCommand = ({
             setOpenDialog(true);
           }}
         >
-          {t('custom-date')}
+          {t('custom-date', 'Custom Date')}
         </Command.Item>
       </Command.List>
     </Command>

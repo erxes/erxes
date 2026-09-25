@@ -11,12 +11,29 @@ export const AutomationExecActionInput = z.object({
   startedAt: z.string().optional(),
   finishedAt: z.string().optional(),
   durationMs: z.number().optional(),
-  status: z.enum(['success', 'error', 'waiting']).optional(),
+  status: z
+    .enum([
+      'success',
+      'skipped',
+      'error',
+      'waiting',
+      'queued',
+      'standby',
+      'dropped',
+    ])
+    .optional(),
   actionId: z.string(),
   actionType: z.string(),
   actionConfig: z.any().optional(),
   nextActionId: z.string().optional(),
   result: z.any().optional(),
+  skipReason: z.string().optional(),
+  attempt: z.number().optional(),
+  jobId: z.string().optional(),
+  // Dates arrive serialized across the producer boundary, but stay Date
+  // objects when the execution is passed in-process.
+  queuedAt: z.union([z.string(), z.date()]).optional(),
+  expiresAt: z.union([z.string(), z.date()]).optional(),
 });
 
 export const AutomationExecutionInput = z.object({
@@ -26,16 +43,29 @@ export const AutomationExecutionInput = z.object({
   automationId: z.string(),
   triggerId: z.string(),
   triggerType: z.string(),
-  triggerConfig: z.record(z.any()),
+  // A trigger that was never configured stores no config at all — Mongoose
+  // drops an empty object on a Mixed path — so an execution legitimately
+  // arrives without one. Defaulted rather than required, or every plugin
+  // action behind such a trigger fails before it runs.
+  triggerConfig: z.record(z.any()).optional().default({}),
   nextActionId: z.string().optional(),
   targetId: z.string(),
   target: z.record(z.any()),
+  // Stripped by the parse unless it is declared, and a plugin that creates
+  // records on someone's behalf has no other way to know whose.
+  createdVia: z
+    .object({
+      source: z.string(),
+      sourceId: z.string(),
+      sourceName: z.string().optional(),
+      runId: z.string().optional(),
+      actorId: z.string().optional(),
+    })
+    .optional(),
   status: z.string(),
   description: z.string(),
   actions: z.array(AutomationExecActionInput).optional(),
-  // Arrives as a Date in-process but as an ISO string after crossing the
-  // queue/producer JSON boundary (same reason createdAt is a string above)
-  startWaitingDate: z.date().optional(),
+  startWaitingDate: z.coerce.date().optional(),
   waitingActionId: z.string().optional(),
   objToCheck: z.record(z.any()).optional(),
   responseActionId: z.string().optional(),
@@ -87,14 +117,6 @@ export const CheckCustomTriggerInputData = z.object({
   eventUpdateDescription: z.record(z.string(), z.any()).optional(),
 });
 
-export const CheckTargetMatchInputData = z.object({
-  moduleName: z.string(),
-  contentType: z.string(),
-  collectionType: z.string(),
-  targetId: z.string(),
-  selector: z.record(z.any()),
-});
-
 export const FindObjectInputData = z.object({
   objectType: z.string(),
   field: z.string(),
@@ -128,6 +150,8 @@ export const GenerateAiContextInputData = z.object({
 export const LoadAiKnowledgeDocumentBatchInputData = z.object({
   moduleName: z.string(),
   sourceKey: z.string(),
+  // 'all' means the whole source, so providers must not require a filter.
+  scope: z.enum(['all', 'selected']).optional(),
   sourceIds: z.array(z.string()).max(1000).optional(),
   candidateSourceIds: z.array(z.string()).max(1000).optional(),
   config: z.record(z.unknown()).optional(),
@@ -146,10 +170,6 @@ export const LookupAiToolInputData = z.object({
 
 export const CheckCustomTriggerInput = AutomationBaseInput.extend({
   data: CheckCustomTriggerInputData,
-});
-
-export const CheckTargetMatchInput = AutomationBaseInput.extend({
-  data: CheckTargetMatchInputData,
 });
 
 export const FindObjectInput = AutomationBaseInput.extend({
@@ -182,9 +202,6 @@ export type TAutomationProducersInput = {
   >;
   [TAutomationProducers.CHECK_CUSTOM_TRIGGER]: z.infer<
     typeof CheckCustomTriggerInputData
-  >;
-  [TAutomationProducers.CHECK_TARGET_MATCH]: z.infer<
-    typeof CheckTargetMatchInputData
   >;
   [TAutomationProducers.FIND_OBJECT]: z.infer<typeof FindObjectInputData>;
   [TAutomationProducers.RESOLVE_OUTPUT_PATHS]: z.infer<

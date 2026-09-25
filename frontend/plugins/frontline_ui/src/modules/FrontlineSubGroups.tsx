@@ -1,19 +1,22 @@
 import { ChooseChannel } from '@/inbox/channel/components/ChooseChannel';
 import { ChooseBrand } from '@/inbox/brand/components/ChooseBrand';
 import { CreateBrand } from '@/inbox/brand/components/CreateBrand';
-import { ChooseIntegrationTypeContent } from '@/integrations/components/ChooseIntegrationType';
 import { CreateChannel } from '@/channels/components/settings/channels-list/CreateChannel';
-import { NavigationMenuGroup } from 'erxes-ui';
+import { NavigationMenuGroup, useQueryState } from 'erxes-ui';
 import { TicketNavigations } from '@/ticket/components/ticket-navigations/TicketNavigations';
-import { ReportNavigations } from '@/report/components/report-navigations/ReportNavigations';
 import { KnowledgeBaseSubGroup } from '@/knowledgebase/components/KnowledgeBaseTopicsNav';
 import { DiscordServersNav } from '@/integrations/discord/components/DiscordChannelsNav';
+import { PersonalInboxNav } from '@/inbox/channel/components/PersonalInboxNav';
+import { TeamChannelsNav } from '@/inbox/channel/components/TeamChannelsNav';
+import { InboxWorkNav } from '@/inbox/components/InboxWorkNav';
+import { NavigationGroupActions } from '@/NavigationGroupActions';
+import { useLocation } from 'react-router-dom';
 
 export const FrontlineSubGroups = () => {
-  const pathname = window.location.pathname;
+  const { pathname } = useLocation();
+  const [brandId] = useQueryState<string>('brandId');
   const isInbox = pathname.startsWith('/frontline/inbox');
   const isTickets = pathname.startsWith('/frontline/tickets');
-  const isReport = pathname.startsWith('/frontline/reports');
   const isKnowledgeBase = pathname.startsWith('/frontline/knowledgebase');
   const isForms = pathname.startsWith('/frontline/forms');
   if (isTickets) {
@@ -26,7 +29,11 @@ export const FrontlineSubGroups = () => {
     return (
       <NavigationMenuGroup
         name="Channels"
-        actions={<CreateChannel isIconOnly />}
+        actions={
+          <NavigationGroupActions>
+            <CreateChannel isIconOnly />
+          </NavigationGroupActions>
+        }
       >
         <ChooseChannel />
       </NavigationMenuGroup>
@@ -35,17 +42,19 @@ export const FrontlineSubGroups = () => {
   if (!isInbox) return null;
   return (
     <>
-      <NavigationMenuGroup
-        name="Channels"
-        actions={<CreateChannel isIconOnly />}
-      >
-        <ChooseChannel />
-      </NavigationMenuGroup>
+      <InboxWorkNav />
+      <PersonalInboxNav />
+      <TeamChannelsNav />
       <DiscordServersNav />
-      <NavigationMenuGroup name="Integration types">
-        <ChooseIntegrationTypeContent />
-      </NavigationMenuGroup>
-      <NavigationMenuGroup name="Brands" actions={<CreateBrand />}>
+      <NavigationMenuGroup
+        name="Brands"
+        defaultOpen={Boolean(brandId)}
+        actions={
+          <NavigationGroupActions>
+            <CreateBrand />
+          </NavigationGroupActions>
+        }
+      >
         <ChooseBrand />
       </NavigationMenuGroup>
     </>

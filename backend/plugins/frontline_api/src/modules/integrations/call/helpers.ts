@@ -7,6 +7,7 @@ import {
   updateIntegrationQueues,
 } from '@/integrations/call/utils';
 import { generateWebhookSecret } from '@/integrations/call/webhookAuth';
+import { ensureCallIndexes } from '@/integrations/call/indexes';
 
 export const createIntegration = async (subdomain: string, data: any) => {
   const ENDPOINT_URL = getEnv({ name: 'CALL_ENDPOINT_URL' });
@@ -16,6 +17,8 @@ export const createIntegration = async (subdomain: string, data: any) => {
   const { integrationId, data: doc } = data;
 
   try {
+    await ensureCallIndexes(models, subdomain);
+
     const docData = JSON.parse(doc);
 
     const updateData = {
@@ -90,22 +93,9 @@ export const createIntegration = async (subdomain: string, data: any) => {
     await models.CallIntegrations.deleteOne({ inboxId: integrationId });
     await models.Integrations.deleteOne({ _id: integrationId });
 
-    const duplicateErrors: Record<string, string> = {
-      wsServer:
-        'Duplicate queue detected. Queues must be unique across integrations.',
-      srcTrunk: 'Duplicate srcTrunk detected.',
-      dstTrunk: 'Duplicate dstTrunk detected.',
-    };
-
-    let errorMessage = `Error creating integration: ${error.message}`;
-    if (error?.keyPattern) {
-      for (const key of Object.keys(duplicateErrors)) {
-        if (error.keyPattern[key]) {
-          errorMessage = duplicateErrors[key];
-          break;
-        }
-      }
-    }
+    const errorMessage = error?.keyPattern?.wsServer
+      ? 'Duplicate queue detected. Queues must be unique across integrations.'
+      : `Error creating integration: ${error.message}`;
 
     return { status: 'error', errorMessage };
   }
@@ -118,6 +108,8 @@ export const updateIntegration = async ({
   try {
     const details = JSON.parse(doc.data);
     const models = await generateModels(subdomain);
+
+    await ensureCallIndexes(models, subdomain);
 
     const integration = await models.CallIntegrations.findOne({
       inboxId: integrationId,
@@ -204,11 +196,7 @@ export const updateIntegration = async ({
       status: 'error',
       errorMessage: error?.keyPattern?.wsServer
         ? 'Duplicate queue detected. Queues must be unique across integrations.'
-        : error?.keyPattern?.srcTrunk
-          ? 'Duplicate srcTrunk detected.'
-          : error?.keyPattern?.dstTrunk
-            ? 'Duplicate dstTrunk detected.'
-            : `Error creating integration: ${error?.message}`,
+        : `Error creating integration: ${error?.message}`,
     };
   }
 };

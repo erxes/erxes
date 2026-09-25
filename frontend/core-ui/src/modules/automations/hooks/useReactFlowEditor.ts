@@ -2,10 +2,19 @@ import { AUTOMATION_NODE_TYPE_LIST_PROERTY } from '@/automations/constants';
 import { useDnDActions } from '@/automations/context/AutomationBuilderDnDProvider';
 import { useAutomation } from '@/automations/context/AutomationProvider';
 import { useAutomationNodes } from '@/automations/hooks/useAutomationNodes';
+import {
+  NO_NOTES,
+  useAutomationNotes,
+} from '@/automations/hooks/useAutomationNotes';
+import {
+  NOTE_DRAG_HANDLE_CLASS,
+  NOTE_NODE_TYPE,
+} from '@/automations/constants/notes';
 import { useInsertWorkflowTemplate } from '@/automations/components/builder/hooks/useInsertWorkflowTemplate';
 import { WORKFLOW_INPUT_NODE_ID } from '@/automations/components/builder/nodes/components/WorkflowInputNode';
 import { useWorkflowEditScope } from '@/automations/context/WorkflowEditScopeProvider';
 import { useAutomationFormController } from '@/automations/hooks/useFormSetValue';
+import { useInsertNodeOnEdge } from '@/automations/hooks/useInsertNodeOnEdge';
 import { useNodeConnect } from '@/automations/hooks/useNodeConnect';
 import { useNodeEvents } from '@/automations/hooks/useNodeEvents';
 import { AutomationNodeType, NodeData } from '@/automations/types';
@@ -13,15 +22,17 @@ import { automationDropHandler } from '@/automations/utils/automationBuilderUtil
 import { generateNodes } from '@/automations/utils/automationBuilderUtils/generateNodes';
 import {
   Node,
+  OnNodeDrag,
   useEdgesState,
   useNodesState,
   useReactFlow,
 } from '@xyflow/react';
 // @ts-ignore
 import { generateEdges } from '@/automations/utils/automationBuilderUtils/generateEdges';
+import { automationInsertHoverEdgeIdState } from '@/automations/states/automationState';
 import { TAutomationBuilderForm } from '@/automations/utils/automationFormDefinitions';
 import { themeState } from 'erxes-ui';
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useWatch } from 'react-hook-form';
 
@@ -43,8 +54,10 @@ export const useReactFlowEditor = () => {
     setReactFlowInstance,
     setQueryParams,
     actionFolks,
+    isReadOnly,
   } = useAutomation();
   const { triggers, actions, workflows, getList } = useAutomationNodes();
+  const { notes } = useAutomationNotes();
   const { insertTemplate } = useInsertWorkflowTemplate();
   const { getNodes, addNodes } = useReactFlow<Node<NodeData>>();
   const [edgeType, flowDirection] = useWatch<TAutomationBuilderForm>({
@@ -52,6 +65,13 @@ export const useReactFlowEditor = () => {
   });
 
   const workflowEditScope = useWorkflowEditScope();
+  // Notes belong to the automation, not to a workflow's inner canvas. Memoized
+  // for the same reason as above: a fresh `[]` here would keep the node memo
+  // recomputing on every render.
+  const canvasNotes = useMemo(
+    () => (workflowEditScope ? NO_NOTES : notes),
+    [workflowEditScope, notes],
+  );
 
   const entryActionId = useMemo(() => {
     if (!workflowEditScope || !actions.length) {
@@ -91,23 +111,49 @@ export const useReactFlowEditor = () => {
       ? nodes.find(({ id }) => id === entryActionId)
       : undefined;
 
-    if (entryNode) {
-      nodes.push({
-        id: WORKFLOW_INPUT_NODE_ID,
-        type: 'workflowInput',
-        position: {
-          x: entryNode.position.x - 260,
-          y: entryNode.position.y,
-        },
-        data: {},
-      });
-    }
+    // Spread rather than push: like the notes below, the head marker is a
+    // canvas-only node whose data is not the flow's NodeData shape.
+    const headNodes = entryNode
+      ? [
+          {
+            id: WORKFLOW_INPUT_NODE_ID,
+            type: 'workflowInput',
+            position: {
+              x: entryNode.position.x - 260,
+              y: entryNode.position.y,
+            },
+            data: {},
+          },
+        ]
+      : [];
 
-    return nodes;
+    // Notes render behind the flow nodes and carry no handles, so they can
+    // never be connected or treated as a step. Like the workflowInput marker
+    // they are canvas-only, so their data is not the flow's NodeData shape.
+    const noteNodes = canvasNotes.map((note) => ({
+      id: note.id,
+      type: NOTE_NODE_TYPE,
+      position: note.position || { x: 0, y: 0 },
+      width: note.width,
+      height: note.height,
+      connectable: false,
+      // Only the grip moves a note, so selecting its text never drags it.
+      dragHandle: `.${NOTE_DRAG_HANDLE_CLASS}`,
+      style: { zIndex: -2 },
+      data: {
+        content: note.content,
+        color: note.color,
+        readOnly: isReadOnly,
+      },
+    }));
+
+    return [...nodes, ...headNodes, ...noteNodes];
   }, [
     triggers,
     actions,
     workflows,
+    canvasNotes,
+    isReadOnly,
     flowDirection,
     entryActionId,
     workflowEditScope,
@@ -155,6 +201,9 @@ export const useReactFlowEditor = () => {
   );
 
   const { onNodeClick, onNodeDoubleClick, onPaneClick } = useNodeEvents();
+  const { findInsertEdgeForNode, insertExistingNodeOnEdge } =
+    useInsertNodeOnEdge();
+  const setInsertHoverEdgeId = useSetAtom(automationInsertHoverEdgeIdState);
   const { isValidConnection, onConnect, onAwaitingNodeConnection } =
     useNodeConnect();
 
@@ -291,12 +340,43 @@ export const useReactFlowEditor = () => {
     };
   }, []);
 
-  const onNodeDragStop = useCallback(() => {
-    syncPositionUpdates({
-      shouldDirty: true,
-      shouldTouch: true,
-    });
-  }, [syncPositionUpdates]);
+  const onNodeDrag = useCallback<OnNodeDrag<Node<NodeData>>>(
+    (_event, node, draggedNodes) => {
+      // Splicing one node out of a moved group would leave the rest behind.
+      const candidate =
+        draggedNodes.length > 1 ? null : findInsertEdgeForNode(node);
+
+      setInsertHoverEdgeId(candidate?.edgeId ?? null);
+    },
+    [findInsertEdgeForNode, setInsertHoverEdgeId],
+  );
+
+  const onNodeDragStop = useCallback<OnNodeDrag<Node<NodeData>>>(
+    (_event, node, draggedNodes) => {
+      setInsertHoverEdgeId(null);
+
+      const candidate =
+        draggedNodes.length > 1 ? null : findInsertEdgeForNode(node);
+
+      if (candidate) {
+        // Takes over persisting positions: the node snaps into the slot it
+        // was dropped on rather than staying where the pointer left it.
+        insertExistingNodeOnEdge(candidate, node.id);
+        return;
+      }
+
+      syncPositionUpdates({
+        shouldDirty: true,
+        shouldTouch: true,
+      });
+    },
+    [
+      findInsertEdgeForNode,
+      insertExistingNodeOnEdge,
+      setInsertHoverEdgeId,
+      syncPositionUpdates,
+    ],
+  );
 
   return {
     theme,
@@ -311,6 +391,7 @@ export const useReactFlowEditor = () => {
     onPaneClick,
     isValidConnection,
     onDragOver,
+    onNodeDrag,
     onNodeDragStop,
     onNodesChange,
     onEdgesChange,

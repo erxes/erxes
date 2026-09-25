@@ -1,5 +1,7 @@
 export * from './utils';
 export * from './setupAutomationProducers';
+export * from './actionErrorPolicy';
+export * from './actionOutcome';
 export * from './constants';
 export * from './types';
 export * from './definitions';

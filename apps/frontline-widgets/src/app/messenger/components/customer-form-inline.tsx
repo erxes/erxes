@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { type SubmitHandler } from 'react-hook-form';
-import { Button, Form, Input, PhoneInput, Spinner, toast } from 'erxes-ui';
+import { Button, cn, Form, Input, PhoneInput, Spinner, toast } from 'erxes-ui';
 import { useEditCustomer } from '../hooks/useEditCustomer';
 import { useCreateCustomerForm } from '../ticket/hooks/useCreateCustomerForm';
 import { TCreateCustomerForm } from '../ticket/types';
@@ -12,7 +12,11 @@ import { customerDataAtom, messengerDataAtom } from '../states';
 import { setLocalStorageItem } from '@libs/utils';
 import { IconUser } from '@tabler/icons-react';
 
-export const CustomerFormInline = () => {
+type Props = {
+  className?: string;
+};
+
+export const CustomerFormInline = ({ className }: Props) => {
   const { form } = useCreateCustomerForm();
   const { control, handleSubmit, reset, watch } = form;
   const { editCustomer, loading } = useEditCustomer();
@@ -86,7 +90,10 @@ export const CustomerFormInline = () => {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 8 }}
       transition={{ duration: 0.2 }}
-      className="shrink-0 border-t border-border bg-background px-4 py-3"
+      className={cn(
+        'shrink-0 border-t border-border bg-background px-4 py-3',
+        className,
+      )}
     >
       <div className="flex items-center gap-2 mb-2.5">
         <span className="flex items-center justify-center size-6 rounded-full bg-primary/10">

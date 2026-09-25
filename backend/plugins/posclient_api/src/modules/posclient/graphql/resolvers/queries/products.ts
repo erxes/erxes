@@ -1,3 +1,10 @@
+import {
+  isPropertyDataPath,
+  propertyDataExistsFilter,
+  fieldIdFromPropertyDataPath,
+  propertyDataRegexFilter,
+  buildPropertyFilter,
+} from 'erxes-api-shared/core-modules';
 import { IProductCategoryDocument } from 'erxes-api-shared/core-types';
 import {
   escapeRegExp,
@@ -5,6 +12,7 @@ import {
   paginate,
   sendTRPCMessage,
 } from 'erxes-api-shared/utils';
+import { segmentProductIds } from '~/modules/posclient/utils';
 import { IModels } from '~/connectionResolvers';
 import { IConfigDocument } from '~/modules/posclient/@types/configs';
 import { IContext } from '~/modules/posclient/@types/types';
@@ -13,7 +21,6 @@ import {
   getSimilaritiesProducts,
   getSimilaritiesProductsCount,
 } from '~/modules/posclient/maskUtils';
-import { Builder } from '~/modules/posclient/utils';
 import {
   checkRemainders,
   getDiscountSortedProducts,
@@ -23,28 +30,11 @@ import {
   type ProductWithRemainder,
 } from '~/modules/posclient/utils/products';
 
-const getPropertyFieldId = (field: string) =>
-  field.replace('propertiesData.', '');
-
 const getProductPropertyValue = (product: any, fieldId: string) =>
   product?.propertiesData?.[fieldId];
 
 const getProductPropertyIds = (product: any) =>
   Object.keys(product.propertiesData || {});
-
-const isPropertyField = (field: string) => field.includes('propertiesData.');
-
-const propertyExistsFilter = (fieldIds: string[]) => ({
-  $or: [
-    ...fieldIds.map((fieldId) => ({
-      [`propertiesData.${fieldId}`]: { $exists: true },
-    })),
-  ],
-});
-
-const propertyRegexFilter = (fieldId: string, regex: RegExp) => ({
-  [`propertiesData.${fieldId}`]: { $regex: regex },
-});
 
 export interface ICommonParams {
   sortField?: string;
@@ -65,7 +55,6 @@ export interface IProductParams extends ICommonParams {
   excludeTags?: string[];
   tagWithRelated?: boolean;
   segment?: string;
-  segmentData?: string;
   isKiosk?: boolean;
   groupedSimilarity?: string;
   isSimilarity?: boolean;
@@ -81,6 +70,7 @@ export interface IProductParams extends ICommonParams {
   minDiscountPercent?: number;
   maxDiscountPercent?: number;
   discountConditions?: Record<string, unknown>;
+  propertiesData?: string;
 }
 
 export interface ICategoryParams extends ICommonParams {
@@ -112,7 +102,6 @@ const generateFilter = async (
     ids,
     excludeIds,
     segment,
-    segmentData,
     categoryMeta,
     isKiosk,
     image,
@@ -126,6 +115,7 @@ const generateFilter = async (
     minDiscountPercent,
     maxDiscountPercent,
     discountConditions,
+    propertiesData,
     ...paginationArgs
   }: IProductParams,
 ) => {
@@ -154,6 +144,14 @@ const generateFilter = async (
     $and.push({
       $or: [{ similarityId: null }, { _id: { $in: starProductIds } }],
     });
+  }
+
+  if (propertiesData) {
+    const propertyConditions = buildPropertyFilter(propertiesData);
+
+    if (propertyConditions.length) {
+      $and.push(...propertyConditions);
+    }
   }
 
   if (type) {
@@ -233,14 +231,8 @@ const generateFilter = async (
     ];
   }
 
-  if (segment || segmentData) {
-    const qb = new Builder(models, subdomain, { segment, segmentData }, {});
-
-    await qb.buildAllQueries();
-
-    const { list } = await qb.runQueries();
-
-    filter._id = { $in: list.map((l) => l._id) };
+  if (segment) {
+    filter._id = { $in: await segmentProductIds(subdomain, segment) };
   }
 
   if (vendorId) {
@@ -634,8 +626,9 @@ const productQueries = {
           : new RegExp(`.*${escapeRegExp(str)}.*`, 'igu');
       };
 
-      const similarityGroups =
-        await models.ProductsConfigs.getConfig('similarityGroup');
+      const similarityGroups = await models.ProductsConfigs.getConfig(
+        'similarityGroup',
+      );
 
       const codeMasks = Object.keys(similarityGroups);
       const customFieldIds = getProductPropertyIds(product);
@@ -645,8 +638,8 @@ const productQueries = {
         const filterFieldDef = mask.filterField || 'code';
         const regexer = getRegex(cm);
 
-        if (isPropertyField(filterFieldDef)) {
-          const fieldId = getPropertyFieldId(filterFieldDef);
+        if (isPropertyDataPath(filterFieldDef)) {
+          const fieldId = fieldIdFromPropertyDataPath(filterFieldDef);
           if (
             !String(getProductPropertyValue(product, fieldId) || '').match(
               regexer,
@@ -687,10 +680,10 @@ const productQueries = {
         const matched = similarityGroups[matchedMask];
         const filterFieldDef = matched.filterField || 'code';
 
-        if (isPropertyField(filterFieldDef)) {
+        if (isPropertyDataPath(filterFieldDef)) {
           codeRegexs.push(
-            propertyRegexFilter(
-              getPropertyFieldId(filterFieldDef),
+            propertyDataRegexFilter(
+              fieldIdFromPropertyDataPath(filterFieldDef),
               getRegex(matchedMask),
             ),
           );
@@ -714,7 +707,7 @@ const productQueries = {
           {
             $or: codeRegexs,
           },
-          propertyExistsFilter(fieldIds),
+          propertyDataExistsFilter(fieldIds),
         ],
       };
 
@@ -756,7 +749,7 @@ const productQueries = {
       $and: [
         {
           categoryId: category._id,
-          ...propertyExistsFilter(fieldIds),
+          ...propertyDataExistsFilter(fieldIds),
         },
       ],
     };
@@ -924,9 +917,11 @@ const productQueries = {
     return JSON.stringify(response ?? {});
   },
 };
+
 markResolvers(productQueries, {
   wrapperConfig: {
     skipPermission: true,
   },
 });
+
 export default productQueries;

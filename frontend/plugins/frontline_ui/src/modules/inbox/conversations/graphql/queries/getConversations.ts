@@ -18,7 +18,11 @@ export const GET_CONVERSATIONS = gql`
     $endDate: String
     $segment: String
     $awaitingResponse: String
+    $withSurvey: String
+    $automationStatus: String
     $participating: String
+    $mentioned: String
+    $unread: String
     $customerId: String
     $brandId: String
     $searchValue: String
@@ -36,7 +40,11 @@ export const GET_CONVERSATIONS = gql`
       endDate: $endDate
       segment: $segment
       awaitingResponse: $awaitingResponse
+      withSurvey: $withSurvey
+      automationStatus: $automationStatus
       participating: $participating
+      mentioned: $mentioned
+      unread: $unread
       customerId: $customerId
       brandId: $brandId
       searchValue: $searchValue

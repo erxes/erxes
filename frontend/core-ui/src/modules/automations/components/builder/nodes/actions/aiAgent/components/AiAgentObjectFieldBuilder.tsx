@@ -1,7 +1,8 @@
+import { AiAgentFieldOptionsBuilder } from '@/automations/components/builder/nodes/actions/aiAgent/components/AiAgentFieldOptionsBuilder';
 import { TAiAgentConfigForm } from '@/automations/components/builder/nodes/actions/aiAgent/states/aiAgentForm';
 import { IconTrash } from '@tabler/icons-react';
 import { Button, Form, Input, Select, Separator, Textarea } from 'erxes-ui';
-import { useFormContext } from 'react-hook-form';
+import { useFormContext, useWatch } from 'react-hook-form';
 
 export type TAiAgentFieldsGroupName = 'objectFields' | 'captureFields';
 
@@ -23,6 +24,8 @@ export const AiAgentObjectFieldBuilder = ({
   // objectFields path type is reused while the runtime path stays correct.
   const fieldPath = <S extends TAiAgentFieldSuffix>(suffix: S) =>
     `${name}.${index}.${suffix}` as `objectFields.${number}.${S}`;
+  const isOption =
+    useWatch({ control, name: fieldPath('dataType') }) === 'option';
 
   return (
     <>
@@ -54,6 +57,7 @@ export const AiAgentObjectFieldBuilder = ({
                     <Select.Item value="boolean">Boolean</Select.Item>
                     <Select.Item value="object">Object</Select.Item>
                     <Select.Item value="array">Array</Select.Item>
+                    <Select.Item value="option">Option</Select.Item>
                   </Select.Content>
                 </Select>
                 <Form.Message />
@@ -61,19 +65,23 @@ export const AiAgentObjectFieldBuilder = ({
             )}
           />
 
-          <Form.Field
-            control={control}
-            name={fieldPath('validation')}
-            render={({ field }) => (
-              <Form.Item className="col-span-4">
-                <Input
-                  placeholder="Optional validation or enum hints"
-                  {...field}
-                />
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
+          {isOption ? (
+            <div className="col-span-4" />
+          ) : (
+            <Form.Field
+              control={control}
+              name={fieldPath('validation')}
+              render={({ field }) => (
+                <Form.Item className="col-span-4">
+                  <Input
+                    placeholder="Optional validation or enum hints"
+                    {...field}
+                  />
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+          )}
 
           <div className="col-span-1 flex justify-end">
             <Button
@@ -99,6 +107,7 @@ export const AiAgentObjectFieldBuilder = ({
             </Form.Item>
           )}
         />
+        {isOption && <AiAgentFieldOptionsBuilder name={name} index={index} />}
       </div>
       {!isLastElement && <Separator />}
     </>

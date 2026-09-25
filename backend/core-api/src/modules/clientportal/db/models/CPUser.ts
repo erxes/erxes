@@ -190,7 +190,7 @@ export const loadCPUserClass = (
       userIds: string[],
       models: IModels,
     ): Promise<string[]> {
-      // Snapshot before deletion so the removal is revertable (point-in-time).
+      // Snapshot before deletion so the log carries what was removed.
       const prevDocuments = await models.CPUser.find({
         _id: { $in: userIds },
       }).lean();

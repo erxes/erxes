@@ -19,7 +19,7 @@ export type TAutomationOptionalConnect = {
 
 type IConfig = {
   workflowConnection?: WorkflowConnection;
-  optionalConnect?: TAutomationOptionalConnect[];
+  optionalConnects?: TAutomationOptionalConnect[];
   [key: string]: any;
 };
 
@@ -78,7 +78,17 @@ export interface IAutomationHistoryAction {
   startedAt?: Date;
   finishedAt?: Date;
   durationMs?: number;
-  status?: 'success' | 'error' | 'waiting';
+  status?:
+    | 'success'
+    | 'skipped'
+    | 'error'
+    | 'waiting'
+    | 'queued'
+    | 'standby'
+    | 'dropped';
+  skipReason?: string;
+  // Which try this row is; above 1 only when an error policy asked for another.
+  attempt?: number;
   actionId: string;
   actionType: string;
   actionConfig?: any;
@@ -99,9 +109,11 @@ export interface IAutomationHistory {
   nextActionId?: string;
   targetId: string;
   target: any;
-  status: 'active' | 'waiting' | 'error' | 'missed' | 'complete';
+  status: 'active' | 'waiting' | 'standby' | 'error' | 'missed' | 'complete';
   description: string;
   actions?: IAutomationHistoryAction[];
+  // Actions that failed while the run itself carried on.
+  handledFailureActionIds?: string[];
   startWaitingDate?: Date;
   waitingActionId?: string;
 }
@@ -131,6 +143,9 @@ export type AutomationActionFormProps<TConfig = any> =
     onSaveActionConfig: (config: TConfig) => void;
     trigger?: TAutomationTrigger;
     targetType?: string;
+    // Every action reachable backwards from the current one, so a form can tell
+    // how it is connected to its trigger (e.g. behind an optional connect).
+    previousActions?: TAutomationAction[];
   };
 
 export type AutomationTriggerConfigProps<TConfig = any> =
@@ -174,6 +189,8 @@ export type TAiKnowledgeSourceConfig = {
   key: string;
   label: string;
   sourceSelector: 'remote-module' | 'local';
+  // Off for collections too large to stream, e.g. customers.
+  supportsFullScope?: boolean;
 };
 
 export type TAiToolConfig = {
@@ -227,7 +244,28 @@ export type AutomationAiKnowledgeSourceSelectorProps = {
   statuses?: TAiKnowledgeSourceIndexStatus[];
 };
 
+/**
+ * Answers one prerequisite of a built-in template — a bot, a pipeline stage, an
+ * integration — while it is being installed. Only the plugin that owns the
+ * thing knows what counts as a candidate and how to list this organization's,
+ * so it provides the component; it reports the chosen value upward, and a
+ * requirement with no value is what keeps the install closed.
+ */
+export type AutomationTemplateRequirementProps = {
+  componentType: 'templateRequirement';
+  kind: string;
+  value?: unknown;
+  /**
+   * The answer to the requirement this one declared `dependsOn`, for the cases
+   * where a candidate list is scoped by an earlier choice — the stages of the
+   * pipeline just picked, rather than every stage there is.
+   */
+  dependsOnValue?: unknown;
+  onChange: (value: unknown | null) => void;
+};
+
 export type AutomationRemoteEntryProps =
+  | AutomationTemplateRequirementProps
   | AutomationTriggerFormProps
   | AutomationActionFormProps
   | AutomationTriggerConfigProps
@@ -294,7 +332,15 @@ export type IAutomationsActionConfigConstants = {
   targetSourceType?: string;
   allowTargetFromActions?: boolean;
   allowedMultiTriggerTypes?: string[];
+  /** Target record types this action can operate on; empty means any. */
+  requiresTargetTypes?: string[];
   folks?: IAutomationsActionFolkConfig[];
+  /** The action queues its work and reports back later. */
+  deferred?: { enable?: boolean; mode?: string; timeoutMinutes?: number };
+  /** Whether the action can carry a retry / error-branch policy. */
+  errorPolicy?: { supported?: boolean };
+  /** The action creates records that belong to someone. */
+  requiresActor?: boolean;
 };
 
 export type IAutomationNodeConfigConstants =

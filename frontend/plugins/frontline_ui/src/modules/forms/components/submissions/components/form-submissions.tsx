@@ -2,7 +2,12 @@ import { useParams } from 'react-router';
 import { useGetFormSubmissions } from '../hooks/useGetFormSubmissions';
 import { Button, Empty, Spinner, toast } from 'erxes-ui';
 import { SubmissionsTable } from './submissions-table';
-import { IconCheck, IconLink, IconListDetails } from '@tabler/icons-react';
+import {
+  IconAlertTriangle,
+  IconCheck,
+  IconLink,
+  IconListDetails,
+} from '@tabler/icons-react';
 import { useFormDetail } from '@/forms/hooks/useFormDetail';
 import { REACT_APP_WIDGETS_URL } from '@/utils';
 import { useState } from 'react';
@@ -30,8 +35,10 @@ const CopyLink = ({
       })
       .catch(() => {
         toast({
-          title: t('failed-to-copy', { label: label.toLowerCase() }),
-          description: t('please-try-again'),
+          title: t('failed-to-copy', 'Failed to copy {{label}}', {
+            label: label.toLowerCase(),
+          }),
+          description: t('please-try-again', 'Please try again'),
           variant: 'destructive',
         });
       });
@@ -41,7 +48,7 @@ const CopyLink = ({
       {copied ? (
         <>
           <IconCheck className="w-4 h-4 mr-2" />
-          {t('copied')}
+          {t('copied', 'Copied!')}
         </>
       ) : (
         <>
@@ -56,7 +63,7 @@ const CopyLink = ({
 export const FormSubmissions = () => {
   const { t } = useTranslation('frontline');
   const { formId } = useParams<{ formId: string }>();
-  const { submissions, loading, pageInfo, handleFetchMore } =
+  const { submissions, loading, error, pageInfo, handleFetchMore, refetch } =
     useGetFormSubmissions({
       variables: {
         formId,
@@ -69,6 +76,31 @@ export const FormSubmissions = () => {
   if (loading) {
     return <Spinner className="py-32" />;
   }
+  if (error) {
+    return (
+      <Empty className="bg-sidebar rounded-lg m-3">
+        <Empty.Header>
+          <Empty.Media>
+            <IconAlertTriangle />
+          </Empty.Media>
+          <Empty.Title>{t('error', 'Error')}</Empty.Title>
+          <Empty.Description>
+            {t('please-try-again', 'Please try again')}
+          </Empty.Description>
+        </Empty.Header>
+        <Empty.Content>
+          <Button
+            variant="outline"
+            onClick={() => {
+              refetch();
+            }}
+          >
+            {t('try-again', 'Try Again')}
+          </Button>
+        </Empty.Content>
+      </Empty>
+    );
+  }
   if (submissions?.length === 0) {
     return (
       <Empty className="bg-sidebar rounded-lg m-3">
@@ -76,9 +108,14 @@ export const FormSubmissions = () => {
           <Empty.Media>
             <IconListDetails />
           </Empty.Media>
-          <Empty.Title>{t('no-submissions-found')}</Empty.Title>
+          <Empty.Title>
+            {t('no-submissions-found', 'No submissions found')}
+          </Empty.Title>
           <Empty.Description>
-            {t('share-link-description')}
+            {t(
+              'share-link-description',
+              'Share link below to gather form submissions',
+            )}
           </Empty.Description>
         </Empty.Header>
         <Empty.Content>

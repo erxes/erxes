@@ -1,4 +1,5 @@
 import {
+  IconCode,
   IconFolder,
   IconDotsVertical,
   IconFileText,
@@ -13,13 +14,13 @@ import {
   Collapsible,
   useConfirm,
 } from 'erxes-ui';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useTopics } from '../hooks/useTopics';
 import { TopicDrawer } from './TopicDrawer';
 import { CategoryDrawer } from './CategoryDrawer';
 import { useMutation } from '@apollo/client';
 import { REMOVE_TOPIC, REMOVE_CATEGORY } from '../graphql/mutations';
-import { ITopic, ICategory } from '../types';
+import { ICategory, ITopic, TTopicTab } from '../types';
 import { ICONS } from '../constants';
 import { useTranslation } from 'react-i18next';
 
@@ -48,7 +49,13 @@ function TopicItem({
 }: TopicItemProps) {
   const { t } = useTranslation('frontline');
   const [topicId, setTopicId] = useQueryState<string | null>('topicId');
+  const [, setTab] = useQueryState<string | null>('tab');
   const isActive = topicId === topic._id;
+
+  const openTopic = (topic: ITopic, tab: TTopicTab) => {
+    setTab(tab);
+    onEditTopic(topic);
+  };
 
   const renderTopicActions = (topic: ITopic) => (
     <DropdownMenu>
@@ -56,18 +63,22 @@ function TopicItem({
         <IconDotsVertical className="w-4 h-4" />
       </DropdownMenu.Trigger>
       <DropdownMenu.Content align="end" sideOffset={5}>
-        <DropdownMenu.Item onClick={() => onEditTopic(topic)}>
-          {t('kb-edit-topic')}
+        <DropdownMenu.Item onClick={() => openTopic(topic, 'general')}>
+          {t('kb-edit-topic', 'Edit Topic')}
+        </DropdownMenu.Item>
+        <DropdownMenu.Item onClick={() => openTopic(topic, 'embed')}>
+          <IconCode className="mr-2 w-4 h-4" />
+          {t('kb-view-script', 'View Script')}
         </DropdownMenu.Item>
         <DropdownMenu.Item onClick={() => onAddCategory(topic._id)}>
-          {t('kb-add-category')}
+          {t('kb-add-category', 'Add Category')}
         </DropdownMenu.Item>
         <DropdownMenu.Separator />
         <DropdownMenu.Item
           onClick={() => onRemoveTopic(topic._id)}
           className="text-destructive"
         >
-          {t('kb-delete-topic')}
+          {t('kb-delete-topic', 'Delete Topic')}
         </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu>
@@ -108,7 +119,7 @@ function TopicItem({
 export function KnowledgeBaseSubGroup() {
   const { t } = useTranslation('frontline');
   const { topics, loading, refetch } = useTopics();
-  const [topicId, setTopicId] = useQueryState<string | null>('topicId');
+  const [topicId] = useQueryState<string | null>('topicId');
   const [categoryId, setCategoryId] = useQueryState<string | null>(
     'categoryId',
   );
@@ -136,11 +147,18 @@ export function KnowledgeBaseSubGroup() {
   );
 
   const handleDeleteCategory = async (category: ICategory) => {
-    const message = t('kb-confirm-delete-category', { title: category.title });
+    const message = t(
+      'kb-confirm-delete-category',
+      'Are you sure you want to delete "{{title}}"? This will also delete all associated articles. This action cannot be undone.',
+      { title: category.title },
+    );
 
     const confirmOptions = {
       confirmationValue: 'delete',
-      description: t('kb-action-permanent'),
+      description: t(
+        'kb-action-permanent',
+        'This action is permanent and cannot be undone.',
+      ),
     };
 
     try {
@@ -165,11 +183,18 @@ export function KnowledgeBaseSubGroup() {
     const topic = topics.find((t) => t._id === topicId);
     if (!topic) return;
 
-    const message = t('kb-confirm-delete-topic', { title: topic.title });
+    const message = t(
+      'kb-confirm-delete-topic',
+      'Are you sure you want to delete "{{title}}"? This will also delete all associated categories and articles. This action cannot be undone.',
+      { title: topic.title },
+    );
 
     const confirmOptions = {
       confirmationValue: 'delete',
-      description: t('kb-action-permanent'),
+      description: t(
+        'kb-action-permanent',
+        'This action is permanent and cannot be undone.',
+      ),
     };
 
     try {
@@ -223,7 +248,7 @@ export function KnowledgeBaseSubGroup() {
             setIsCategoryDrawerOpen(true);
           }}
         >
-          {t('kb-edit-category')}
+          {t('kb-edit-category', 'Edit Category')}
         </DropdownMenu.Item>
         <DropdownMenu.Item
           onClick={() => {
@@ -232,23 +257,19 @@ export function KnowledgeBaseSubGroup() {
             setIsCategoryDrawerOpen(true);
           }}
         >
-          {t('kb-add-sub-category')}
+          {t('kb-add-sub-category', 'Add Sub Category')}
         </DropdownMenu.Item>
         <DropdownMenu.Separator />
         <DropdownMenu.Item onClick={() => handleDeleteCategory(category)}>
-          {t('kb-delete-category')}
+          {t('kb-delete-category', 'Delete Category')}
         </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu>
   );
 
-  useEffect(() => {
-    !topicId && topics?.[0]?._id && setTopicId(topics[0]._id);
-  }, [topics, setTopicId, topicId]);
-
   return (
     <>
-      <NavigationMenuGroup name={t('kb-topics')}>
+      <NavigationMenuGroup name={t('kb-topics', 'Topics')}>
         {loading ? (
           <LoadingSkeleton />
         ) : (
@@ -263,7 +284,7 @@ export function KnowledgeBaseSubGroup() {
           ))
         )}
       </NavigationMenuGroup>
-      <NavigationMenuGroup name={t('kb-categories')}>
+      <NavigationMenuGroup name={t('kb-categories', 'Categories')}>
         {topicId && (
           <Categories
             topics={topics}
@@ -360,7 +381,7 @@ const Categories = ({
             onSetCategoryDrawerOpen(true);
           }}
         >
-          {t('kb-edit-category')}
+          {t('kb-edit-category', 'Edit Category')}
         </DropdownMenu.Item>
         <DropdownMenu.Item
           onClick={() => {
@@ -369,11 +390,11 @@ const Categories = ({
             onSetCategoryDrawerOpen(true);
           }}
         >
-          {t('kb-add-sub-category')}
+          {t('kb-add-sub-category', 'Add Sub Category')}
         </DropdownMenu.Item>
         <DropdownMenu.Separator />
         <DropdownMenu.Item onClick={() => onDeleteCategory(category)}>
-          {t('kb-delete-category')}
+          {t('kb-delete-category', 'Delete Category')}
         </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu>
@@ -418,7 +439,9 @@ const Categories = ({
           {!topicCategories?.length && (
             <Sidebar.MenuItem>
               <Sidebar.MenuButton disabled={true}>
-                <span className="text-foreground">{t('kb-no-categories')}</span>
+                <span className="text-foreground">
+                  {t('kb-no-categories', 'No categories')}
+                </span>
               </Sidebar.MenuButton>
             </Sidebar.MenuItem>
           )}

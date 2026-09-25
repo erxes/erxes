@@ -1,10 +1,11 @@
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
 import { useGetChannelMembers } from '@/channels/hooks/useGetChannelMembers';
 import { IChannelMember } from '@/channels/types';
-import { Skeleton, useQueryState } from 'erxes-ui';
+import { Empty, RecordTable, useQueryState } from 'erxes-ui';
 import { IconBrandTrello, IconSearchOff } from '@tabler/icons-react';
 import { useMemo } from 'react';
-import { ChannelCard } from './ChannelCard';
+import { ChannelsCommandBar } from './ChannelsCommandBar';
+import { useChannelsColumns } from './ChannelsColumns';
 import { useTranslation } from 'react-i18next';
 
 export function Channels() {
@@ -13,12 +14,10 @@ export function Channels() {
   const { channels, loading } = useGetChannels({
     variables: { name: searchValue || undefined },
   });
-
   const channelIds = useMemo(
     () => (channels ?? []).map((channel) => channel._id),
     [channels],
   );
-
   const { members } = useGetChannelMembers({ channelIds });
 
   const membersByChannel = useMemo(() => {
@@ -29,71 +28,50 @@ export function Channels() {
     return map;
   }, [members]);
 
-  if (loading && (!channels || channels.length === 0)) {
-    return (
-      <div className="mx-auto w-full max-w-7xl px-6 py-4">
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-4">
-          {Array.from({ length: 12 }).map((_, index) => (
-            <Skeleton key={index} className="h-64 rounded-xl" />
-          ))}
-        </div>
-      </div>
-    );
-  }
+  const channelsColumns = useChannelsColumns(membersByChannel);
 
   if (!loading && (!channels || channels.length === 0)) {
-    if (searchValue) {
-      return (
-        <div className="flex flex-col items-center justify-center gap-3 py-20 text-center">
-          <IconSearchOff
-            size={48}
-            stroke={1.5}
-            className="text-muted-foreground"
-          />
-          <p className="text-sm font-medium text-accent-foreground">
-            No channels match &ldquo;{searchValue}&rdquo;
-          </p>
-          <p className="text-xs text-muted-foreground">
-            Try a different term or clear the search
-          </p>
-        </div>
-      );
-    }
-
     return (
-      <div className="overflow-hidden h-full px-8 flex flex-col">
-        <div className="bg-sidebar size-full border border-sidebar pl-1 border-t-4 border-l-4 pb-2 pr-2 rounded-lg">
-          <div className="size-full flex flex-col items-center justify-center">
-            <IconBrandTrello
-              size={64}
-              stroke={1.5}
-              className="text-muted-foreground"
-            />
-            <h2 className="text-lg font-semibold text-accent-foreground">
-              {t('no-channels-found')}
-            </h2>
-            <p className="text-md text-muted-foreground mb-4">
-              {t('no-channels-description')}
-            </p>
-          </div>
-        </div>
-      </div>
+      <Empty className="bg-sidebar rounded-lg m-3">
+        <Empty.Header>
+          <Empty.Media>
+            {searchValue ? <IconSearchOff /> : <IconBrandTrello />}
+          </Empty.Media>
+          <Empty.Title>
+            {searchValue
+              ? t('no-results-found', 'No results found')
+              : t('no-channels-found', 'No channels found')}
+          </Empty.Title>
+          <Empty.Description>
+            {searchValue
+              ? t('try-different-search-term', 'Try a different search term')
+              : t(
+                  'no-channels-description',
+                  'Create a channel to start organizing your team.',
+                )}
+          </Empty.Description>
+        </Empty.Header>
+      </Empty>
     );
   }
 
   return (
-    <div className="overflow-auto h-full">
-      <div className="mx-auto w-full max-w-7xl px-6 py-4">
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-4">
-          {(channels ?? []).map((channel) => (
-            <ChannelCard
-              key={channel._id}
-              channel={channel}
-              members={membersByChannel[channel._id]}
-            />
-          ))}
-        </div>
-      </div>
-    </div>
+    <RecordTable.Provider
+      columns={channelsColumns}
+      data={channels ?? []}
+      stickyColumns={['more', 'checkbox', 'name']}
+      className="m-3"
+    >
+      <RecordTable.Scroll>
+        <RecordTable>
+          <RecordTable.Header />
+          <RecordTable.Body>
+            {loading && <RecordTable.RowSkeleton rows={40} />}
+            <RecordTable.RowList />
+          </RecordTable.Body>
+        </RecordTable>
+      </RecordTable.Scroll>
+      <ChannelsCommandBar />
+    </RecordTable.Provider>
   );
 }

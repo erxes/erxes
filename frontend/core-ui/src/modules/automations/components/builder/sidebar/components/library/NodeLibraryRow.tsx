@@ -4,7 +4,7 @@ import {
 } from '@/automations/context/AutomationBuilderDnDProvider';
 import { AutomationNodeType } from '@/automations/types';
 import { getNodeColor } from '@/automations/utils/automationBuilderUtils/getNodeColor';
-import { cn, Command, IconComponent } from 'erxes-ui';
+import { cn, Command, IconComponent, Tooltip } from 'erxes-ui';
 import React from 'react';
 
 export type TNodeLibraryRowItem = {
@@ -206,9 +206,24 @@ export const NodeLibraryRow = ({
           <div className="truncate text-sm font-medium leading-5 text-foreground">
             {label || ''}
           </div>
-          <p className="mt-0.5 line-clamp-2 text-xs leading-4 text-muted-foreground">
-            {description || ''}
-          </p>
+          {description ? (
+            <Tooltip.Provider>
+              <Tooltip delayDuration={400}>
+                <Tooltip.Trigger asChild>
+                  <p className="mt-0.5 truncate text-xs leading-4 text-muted-foreground">
+                    {description}
+                  </p>
+                </Tooltip.Trigger>
+                <Tooltip.Content
+                  side="left"
+                  align="start"
+                  className="max-w-72 leading-4"
+                >
+                  {description}
+                </Tooltip.Content>
+              </Tooltip>
+            </Tooltip.Provider>
+          ) : null}
         </div>
         {rightElement}
       </div>

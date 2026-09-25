@@ -14,8 +14,16 @@ import {
   normalizeLogEventInput,
 } from './utils';
 import { sendAutomationTrigger } from '../../automations';
+import { sendSegmentChanged } from '../../segments/events';
+import { segmentJoinChanges } from '../../segments/joinChanges';
 import { INotificationData, sendNotification } from '../../notifications';
 import { logActivityLogError } from '../../logs/activityLog/utils';
+
+/** One id or many, as the action recorded it, with the empties dropped. */
+const toIdList = (ids?: string | string[]): string[] =>
+  (Array.isArray(ids) ? ids : [ids]).filter(
+    (id): id is string => typeof id === 'string' && id.length > 0,
+  );
 
 /**
  * Create an event dispatcher instance with methods for logging and automation triggers
@@ -83,6 +91,13 @@ export function createEventHandlers(
       .catch((err) => {
         console.error('sendDbEventLog queue.add failed', err);
       });
+    const docIds = toIdList(eventPayload.docIds ?? eventPayload.docId);
+
+    segmentJoinChanges(contentType, payload?.updateDescription)
+      .then((changed) =>
+        sendSegmentChanged({ subdomain, contentType, docIds, changed }),
+      )
+      .catch(() => sendSegmentChanged({ subdomain, contentType, docIds }));
 
     if (action === DbLogActions.CREATE || action === DbLogActions.UPDATE) {
       const eventUpdateDescription = payload?.updateDescription;
@@ -117,6 +132,34 @@ export function createEventHandlers(
     });
   }
 
+  /**
+   * Says what an entry happened inside of, for records nobody typed in.
+   *
+   * `createdVia` is on every schema, so this reads it once here instead of
+   * asking each module to remember. A caller that set its own context keeps
+   * it — this only fills a blank.
+   */
+  function withProvenance(
+    activity: ActivityLogInput & { contextType?: string },
+  ) {
+    const via = activity.target?.createdVia;
+
+    if (!via?.sourceId || activity.context || activity.contextType) {
+      return activity;
+    }
+
+    return {
+      ...activity,
+      contextType: via.source,
+      context: {
+        // `text` is what the feed already renders; the ids ride in `data`,
+        // which is where an activity entity keeps its own payload.
+        text: via.sourceName,
+        data: { sourceId: via.sourceId, runId: via.runId },
+      },
+    };
+  }
+
   function createActivityLog(
     input: ActivityLogInput | ActivityLogInput[],
     duserId?: string,
@@ -133,11 +176,20 @@ export function createEventHandlers(
           ...commonObj,
         }));
 
-      const inputData = getInputData(isMultiple ? input : [input]);
+      const inputData = getInputData(isMultiple ? input : [input]).map(
+        withProvenance,
+      );
 
       if (!inputData.length) {
         return;
       }
+
+      // Nobody was in a request when an automation wrote this, so the actor
+      // would otherwise come back empty. Whatever produced the record names
+      // the person whose configuration it was.
+      const actorId = inputData
+        .map((activity) => activity.target?.createdVia?.actorId)
+        .find(Boolean);
 
       sendTRPCMessage({
         subdomain,
@@ -148,7 +200,7 @@ export function createEventHandlers(
         input: inputData,
         context: {
           processId,
-          userId: duserId || userId,
+          userId: duserId || userId || actorId,
         },
       }).catch((error) => {
         logActivityLogError('createActivityLog dispatch', error, {

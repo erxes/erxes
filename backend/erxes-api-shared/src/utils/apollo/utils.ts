@@ -35,7 +35,7 @@ export const generateApolloContext =
     const subdomain = getSubdomain(req);
 
     // Honor a caller-supplied correlation id (e.g. the AI agent stamps each
-    // action) so a request's DB changes can be traced/reverted together; the
+    // action) so a request's DB changes can be traced together; the
     // router propagates this header to every subgraph. Falls back to a fresh id.
     const incomingProcessId = req.headers['x-erxes-process-id'];
     const processInfo = generateRequestProcess(

@@ -1,31 +1,17 @@
 import { IconArchive } from '@tabler/icons-react';
-import {
-  Label,
-  PageSubHeader,
-  RecordTable,
-  Skeleton,
-  ToggleGroup,
-} from 'erxes-ui';
-import { useMemo, useState } from 'react';
+import { Label, PageSubHeader, RecordTable, Skeleton } from 'erxes-ui';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   APPROVAL_REQUESTS_CURSOR_SESSION_KEY,
-  ApprovalRequestStatusFilter,
   useApprovalRequests,
 } from '../hooks/useApprovalRequests';
+import { useApprovalRequestStatus } from './ApprovalRequestStatusSelect';
 import { approvalRequestColumns } from './ApprovalRequestColumns';
-
-const statusFilters: ApprovalRequestStatusFilter[] = [
-  'all',
-  'pending',
-  'approved',
-  'rejected',
-  'cancelled',
-];
 
 export const ApprovalRequestsRecordTable = () => {
   const { t } = useTranslation('approval');
-  const [status, setStatus] = useState<ApprovalRequestStatusFilter>('pending');
+  const { status } = useApprovalRequestStatus();
   const {
     list,
     totalCount,
@@ -49,21 +35,6 @@ export const ApprovalRequestsRecordTable = () => {
   return (
     <div className="flex h-full flex-col pt-0">
       <PageSubHeader>
-        <ToggleGroup
-          type="single"
-          value={status}
-          onValueChange={(value) =>
-            value && setStatus(value as ApprovalRequestStatusFilter)
-          }
-          variant="outline"
-          className="h-8"
-        >
-          {statusFilters.map((filter) => (
-            <ToggleGroup.Item key={filter} value={filter}>
-              {t(`status-filter-${filter}`)}
-            </ToggleGroup.Item>
-          ))}
-        </ToggleGroup>
         <div className="h-7 whitespace-nowrap text-sm font-medium leading-7 text-muted-foreground ml-auto">
           {loading && !totalCount ? (
             <Skeleton className="mt-1.5 inline-block h-4 w-20" />

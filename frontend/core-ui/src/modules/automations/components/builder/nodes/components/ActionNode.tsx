@@ -6,7 +6,9 @@ import {
   NodeErrorIndicator,
 } from '@/automations/components/builder/nodes/components/NodeErrorDisplay';
 import { NodeOutputHandler } from '@/automations/components/builder/nodes/components/NodeOutputHandler';
+import { ReadOnlyNodeHandles } from '@/automations/components/builder/nodes/components/ReadOnlyNodeHandles';
 import { useActionNodeSourceHandler } from '@/automations/components/builder/nodes/hooks/useActionNodeSourceHandler';
+import { isBranchingOnError } from '@/automations/utils/automationBuilderUtils/actionFolks';
 import { TAutomationFlowDirection } from '@/automations/constants/flowDirection';
 import { AutomationNodeType, NodeData } from '@/automations/types';
 import { Handle, Position } from '@xyflow/react';
@@ -31,7 +33,7 @@ const ActionNodeSourceHandler = ({
   if (type === 'split') {
     return null;
   }
-  const { hasFolks, folks } = useActionNodeSourceHandler(type);
+  const { hasFolks, folks } = useActionNodeSourceHandler(type, config);
   if (hasFolks) {
     return (
       <FolksActionSourceHandler
@@ -52,6 +54,24 @@ const ActionNodeSourceHandler = ({
       nodeType={AutomationNodeType.Action}
       flowDirection={flowDirection}
     />
+  );
+};
+
+/** What the node's error policy does, said on the canvas rather than in a form. */
+const ActionErrorPolicyBadge = ({ config }: { config?: any }) => {
+  const attempts = Number(config?.errorPolicy?.retry?.attempts || 0);
+  const branching = isBranchingOnError(config);
+
+  if (!attempts && !branching) {
+    return null;
+  }
+
+  return (
+    <span className="rounded bg-muted px-1.5 py-0.5 text-xs font-normal text-muted-foreground">
+      {[attempts > 0 && `retry x${attempts}`, branching && 'on error']
+        .filter(Boolean)
+        .join(' · ')}
+    </span>
   );
 };
 
@@ -84,11 +104,14 @@ const ActionNodeHeader = ({
             <span className="font-medium">{data.label}</span>
           </div>
           {error && <NodeErrorIndicator error={error} />}
+          <ActionErrorPolicyBadge config={data.config} />
         </div>
 
-        <div className="flex items-center gap-1">
-          <NodeDropdownActions id={id} data={data} />
-        </div>
+        {!data.readOnly && (
+          <div className="flex items-center gap-1">
+            <NodeDropdownActions id={id} data={data} />
+          </div>
+        )}
       </div>
       <div className="p-3 border-b border-muted">
         <span className="text-xs text-accent-foreground font-medium">
@@ -141,24 +164,30 @@ const ActionNode = ({ data, selected, id, ...props }: any) => {
 
         <ActionNodeConfigurationContent data={{ ...data, id }} />
 
-        <Handle
-          key="left"
-          id="left"
-          type="target"
-          position={isVertical ? Position.Top : Position.Left}
-          className={cn('!size-4 -z-10 !bg-success', {
-            '!left-1/2 !top-0 -translate-x-1/2': isVertical,
-          })}
-        />
+        {data.readOnly ? (
+          <ReadOnlyNodeHandles flowDirection={data.flowDirection} />
+        ) : (
+          <>
+            <Handle
+              key="left"
+              id="left"
+              type="target"
+              position={isVertical ? Position.Top : Position.Left}
+              className={cn('!size-4 -z-10 !bg-success', {
+                '!left-1/2 !top-0 -translate-x-1/2': isVertical,
+              })}
+            />
 
-        <ActionNodeSourceHandler
-          id={id}
-          type={data.type}
-          nextActionId={nextActionId}
-          workflowId={workflowId}
-          config={config}
-          flowDirection={data.flowDirection}
-        />
+            <ActionNodeSourceHandler
+              id={id}
+              type={data.type}
+              nextActionId={nextActionId}
+              workflowId={workflowId}
+              config={config}
+              flowDirection={data.flowDirection}
+            />
+          </>
+        )}
       </div>
     </div>
   );

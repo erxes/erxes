@@ -1,6 +1,8 @@
 import { AutomationBuilder } from '@/automations/components/builder/AutomationBuilder';
+import { AutomationErrorEmptyState } from '@/automations/components/common/AutomationErrorEmptyState';
 import { AUTOMATION_APPROVAL_CONTENT_TYPES } from '@/automations/constants';
 import { AUTOMATION_DETAIL } from '@/automations/graphql/automationQueries';
+import { useAutomationSeed } from '@/automations/hooks/useAutomationSeed';
 import { IAutomation } from '@/automations/types';
 import { useQuery } from '@apollo/client';
 import { PageContainer, Spinner } from 'erxes-ui';
@@ -25,7 +27,9 @@ export const AutomationDetailPage = () => {
     },
   );
 
-  const { data, loading } = useQuery<{
+  const { seed, loading: seedLoading } = useAutomationSeed();
+
+  const { data, loading, error, refetch } = useQuery<{
     automationDetail: IAutomation;
   }>(AUTOMATION_DETAIL, {
     variables: { id },
@@ -35,8 +39,22 @@ export const AutomationDetailPage = () => {
       (lockState?.locked === true && !lockState.hasAccess),
   });
 
-  if (lockLoading || loading) {
+  // The builder reads its default values once, so it must not mount before the
+  // seed resolves.
+  if (lockLoading || loading || seedLoading) {
     return <Spinner />;
+  }
+
+  if (error) {
+    return (
+      <PageContainer>
+        <AutomationErrorEmptyState
+          title="Couldn't load this automation"
+          error={error}
+          onRetry={() => refetch()}
+        />
+      </PageContainer>
+    );
   }
 
   if (lockState?.locked && !lockState.hasAccess) {
@@ -54,7 +72,7 @@ export const AutomationDetailPage = () => {
 
   return (
     <PageContainer>
-      <AutomationBuilder detail={detail} />
+      <AutomationBuilder detail={detail} seed={id ? undefined : seed} />
     </PageContainer>
   );
 };

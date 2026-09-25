@@ -73,11 +73,7 @@ export const CategoriesRecordTable = ({
     [categories],
   );
 
-  const columns = useCategoriesColumns(
-    clientPortalId,
-    onEdit,
-    refetch,
-  );
+  const columns = useCategoriesColumns(clientPortalId, onEdit, refetch);
 
   return (
     <>
@@ -87,10 +83,7 @@ export const CategoriesRecordTable = ({
       {!loading && categories.length === 0 ? (
         <div className="rounded-lg overflow-hidden">
           {isFiltered ? (
-            <EmptyState
-              icon={IconArticle}
-              title={t('no-categories-found')}
-            />
+            <EmptyState icon={IconArticle} title={t('no-categories-found')} />
           ) : (
             <EmptyState
               icon={IconArticle}
@@ -109,6 +102,7 @@ export const CategoriesRecordTable = ({
               data={treeCategories}
               className="h-full"
               stickyColumns={['more', 'checkbox', 'name']}
+              tableId="content_categories_record_table"
             >
               <RecordTable.CursorProvider
                 hasPreviousPage={hasPreviousPage}

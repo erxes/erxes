@@ -6,6 +6,7 @@ import resolvers from './apollo/resolvers';
 import { generateModels } from './connectionResolvers';
 import * as trpc from './trpc/init-trpc';
 import { permissions } from './meta/permissions';
+import { properties } from './meta/properties';
 import { notifications } from './meta/notifications';
 import { automations } from './meta/automations';
 import segments from './meta/segments';
@@ -22,8 +23,16 @@ import {
   projectExportHandlers,
 } from './meta/import-export/export/exportHandlers';
 import { taskImportHandlers } from './meta/import-export/import/importHandlers';
+import {
+  handleGithubWebhook,
+  handleGithubSetup,
+} from './utils/githubWebhookHandler';
 
 export const router: Router = Router();
+
+router.post('/integrations/github/webhook', handleGithubWebhook);
+
+router.get('/integrations/github/setup', handleGithubSetup);
 
 startPlugin({
   name: 'operation',
@@ -140,17 +149,6 @@ startPlugin({
         },
       ],
     },
-    properties: {
-      types: [
-        {
-          description: 'Tasks',
-          type: 'task',
-        },
-        {
-          description: 'Projects',
-          type: 'project',
-        },
-      ],
-    },
+    properties,
   },
 });

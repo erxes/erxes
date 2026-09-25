@@ -268,11 +268,12 @@ export const SafeRemainderDetail = () => {
                 ) || []
               }
               stickyColumns={[]}
+              tableId="accounting_safe_remainder_income_record_table"
               className="m-3"
             >
               <RecordTable.Scroll>
                 <RecordTable>
-                  <RecordTable.Header />
+                  <RecordTable.Header showColumnSelector />
                   <RecordTable.Body>
                     <RecordTable.RowList />
                     {!detailsLoading &&
@@ -308,11 +309,12 @@ export const SafeRemainderDetail = () => {
                 ) || []
               }
               stickyColumns={[]}
+              tableId="accounting_safe_remainder_out_record_table"
               className="m-3"
             >
               <RecordTable.Scroll>
                 <RecordTable>
-                  <RecordTable.Header />
+                  <RecordTable.Header showColumnSelector />
                   <RecordTable.Body>
                     <RecordTable.RowList />
                     {!detailsLoading &&
@@ -348,11 +350,12 @@ export const SafeRemainderDetail = () => {
                 ) || []
               }
               stickyColumns={[]}
+              tableId="accounting_safe_remainder_sale_record_table"
               className="m-3"
             >
               <RecordTable.Scroll>
                 <RecordTable>
-                  <RecordTable.Header />
+                  <RecordTable.Header showColumnSelector />
                   <RecordTable.Body>
                     <RecordTable.RowList />
                     {!detailsLoading &&

@@ -49,6 +49,7 @@ export const invokeAiProvider = async (
   options?: {
     responseFormat?: 'json' | 'text';
     tools?: TAiBridgeToolDefinition[];
+    toolChoice?: 'auto' | 'required';
   },
 ) => {
   const connection = resolveAiProviderConnection({
@@ -63,6 +64,7 @@ export const invokeAiProvider = async (
     messages,
     responseFormat: options?.responseFormat,
     tools: options?.tools,
+    toolChoice: options?.toolChoice,
   });
 };
 

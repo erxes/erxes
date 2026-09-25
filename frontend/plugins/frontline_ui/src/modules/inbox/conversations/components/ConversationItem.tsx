@@ -32,7 +32,7 @@ import {
   selectConversationsState,
   setSelectConversationsState,
 } from '../states/selectConversationsState';
-import { inboxLayoutState } from '@/inbox/states/inboxLayoutState';
+import { useInboxLayout } from '@/inbox/hooks/useInboxLayout';
 import { useTranslation } from 'react-i18next';
 
 export const ConversationItem = ({
@@ -45,7 +45,7 @@ export const ConversationItem = ({
   channelInfoPending?: boolean;
 }) => {
   const { t } = useTranslation('frontline');
-  const inboxLayout = useAtomValue(inboxLayoutState);
+  const inboxLayout = useInboxLayout();
 
   const { createdAt, updatedAt, customer, integration } =
     useConversationContext();
@@ -73,7 +73,10 @@ export const ConversationItem = ({
                 {channelInfoPending ? (
                   <Skeleton className="w-40 h-4" />
                 ) : channelProfileName ? (
-                  <span className="truncate text-sm font-medium" title={`#${channelProfileName}`}>
+                  <span
+                    className="truncate text-sm font-medium"
+                    title={`#${channelProfileName}`}
+                  >
                     #{channelProfileName}
                   </span>
                 ) : (
@@ -124,9 +127,9 @@ export const ConversationItem = ({
         )}
         <ConversationItemContent />
         <div className="w-auto text-right flex-none">
-          <span> {t('to')} </span>
+          <span> {t('to', 'to')} </span>
           {channel && <span title={channel.name}>{channel.name}</span>}
-          <span> {t('via')} </span>
+          <span> {t('via', 'via')} </span>
           {integration && (
             <span title={integration.kind}>{integration.kind}</span>
           )}
@@ -145,7 +148,7 @@ export const ConversationItem = ({
 
 export const ConversationItemContent = () => {
   const { t } = useTranslation('frontline');
-  const inboxLayout = useAtomValue(inboxLayoutState);
+  const inboxLayout = useInboxLayout();
   const { content, assignedUserId, assignedUser, integration } =
     useConversationContext();
   if (!content) return null;
@@ -178,7 +181,9 @@ export const ConversationItemContent = () => {
             <IconPhoneOutgoing className="size-4" />
           )}
           <span>
-            {direction === 'incoming' ? t('incoming-call') : t('outgoing-call')}
+            {direction === 'incoming'
+              ? t('incoming-call', 'Incoming Call')
+              : t('outgoing-call', 'Outgoing Call')}
           </span>
           {status && (
             <span

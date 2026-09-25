@@ -6,6 +6,7 @@ import {
 import { generateModels } from '~/connectionResolvers';
 import { operationAutomationHandlers } from '~/modules/automations/automationHandlers';
 import { operationAutomationConstants } from '~/modules/automations/constants';
+import { operationWorkflowTemplates } from '~/modules/automations/workflowTemplates';
 
 const modules = {
   task: operationAutomationHandlers,
@@ -14,7 +15,10 @@ const modules = {
 };
 
 export const automations: AutomationConfigs = {
-  constants: operationAutomationConstants,
+  constants: {
+    ...operationAutomationConstants,
+    workflowTemplates: operationWorkflowTemplates,
+  },
 
   receiveActions: createCoreModuleProducerHandler({
     moduleName: 'automations',
@@ -36,14 +40,6 @@ export const automations: AutomationConfigs = {
     moduleName: 'automations',
     modules,
     methodName: TAutomationProducers.SET_PROPERTIES,
-    extractModuleName: (input) => input.moduleName,
-    generateModels,
-  }),
-
-  checkTargetMatch: createCoreModuleProducerHandler({
-    moduleName: 'automations',
-    modules,
-    methodName: TAutomationProducers.CHECK_TARGET_MATCH,
     extractModuleName: (input) => input.moduleName,
     generateModels,
   }),

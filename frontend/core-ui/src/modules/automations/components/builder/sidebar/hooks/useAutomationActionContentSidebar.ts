@@ -4,9 +4,13 @@ import { useAutomation } from '@/automations/context/AutomationProvider';
 import { useAutomationNodes } from '@/automations/hooks/useAutomationNodes';
 import { useAutomationFormController } from '@/automations/hooks/useFormSetValue';
 import { AutomationNodesType, NodeData } from '@/automations/types';
-import { getTriggerOfAction } from '@/automations/utils/automationBuilderUtils/triggerUtils';
+import {
+  getConnectedPreviousActions,
+  getTriggerOfAction,
+} from '@/automations/utils/automationBuilderUtils/triggerUtils';
 import { Node, useReactFlow } from '@xyflow/react';
 import { toast } from 'erxes-ui';
+import { useMemo } from 'react';
 import {
   IAutomationsActionConfigConstants,
   splitAutomationNodeType,
@@ -60,6 +64,16 @@ export const useAutomationActionContentSidebar = () => {
     actions,
     triggers,
     actionFolks,
+  );
+
+  const previousActions = useMemo(
+    () =>
+      getConnectedPreviousActions(
+        queryParams?.activeNodeId ?? '',
+        actions,
+        actionFolks,
+      ),
+    [queryParams?.activeNodeId, actions, actionFolks],
   );
 
   const targetType = getTargetType(
@@ -119,5 +133,6 @@ export const useAutomationActionContentSidebar = () => {
     moduleName,
     trigger,
     targetType,
+    previousActions,
   };
 };

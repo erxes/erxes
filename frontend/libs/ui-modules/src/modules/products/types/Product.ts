@@ -7,6 +7,7 @@ export interface IProduct {
   _id: string;
   name: string;
   unitPrice: number;
+  weight?: number;
   code: string;
   categoryId: string;
   category?: IProductCategory;

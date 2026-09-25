@@ -22,6 +22,8 @@ import { IconTopologyStar3 } from '@tabler/icons-react';
 import { useDebounce } from 'use-debounce';
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
 import { useGetMyChannels } from '@/channels/hooks/useGetMyChannels';
+import { ChannelScope } from '@/channels/types';
+import { channelScopeOf } from '@/channels/utils/channelScope';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -92,8 +94,10 @@ const SelectChannelsValue = ({ placeholder }: { placeholder?: string }) => {
 
 export const SelectChannelsContent = ({
   myChannelsOnly = false,
+  excludeChannelIds,
 }: {
   myChannelsOnly?: boolean;
+  excludeChannelIds?: string[];
 }) => {
   const { t } = useTranslation('frontline');
   const [search, setSearch] = useState('');
@@ -109,7 +113,13 @@ export const SelectChannelsContent = ({
     skip: !myChannelsOnly,
   });
 
-  const channelsData = myChannelsOnly ? myChannels : allChannels;
+  const excluded = excludeChannelIds || [];
+  const channelsData = (myChannelsOnly ? myChannels : allChannels)?.filter(
+    (channel: IChannel) => !excluded.includes(channel._id),
+  );
+  const selectedChannels = channels.filter(
+    (channel) => !excluded.includes(channel._id),
+  );
 
   const channelsTotalCount = channelsData?.length || 0;
 
@@ -118,14 +128,14 @@ export const SelectChannelsContent = ({
       <Command.Input
         variant="secondary"
         focusOnMount
-        placeholder={t('search-channels')}
+        placeholder={t('search-channels', 'Search channels...')}
         value={search}
         onValueChange={setSearch}
       />
       <Command.List className="max-h-[300px] overflow-y-auto">
-        {channels.length > 0 && (
+        {selectedChannels.length > 0 && (
           <>
-            {channels.map((channel) => (
+            {selectedChannels.map((channel) => (
               <Command.Item
                 key={channel._id}
                 value={channel._id}
@@ -143,7 +153,7 @@ export const SelectChannelsContent = ({
             {channelsData
               .filter(
                 (channel: IChannel) =>
-                  !channels.some((c) => c._id === channel._id),
+                  !selectedChannels.some((c) => c._id === channel._id),
               )
               .map((channel: IChannel) => (
                 <Command.Item
@@ -179,7 +189,9 @@ export const SelectChannelsFormItem = ({
     <SelectChannelProvider
       {...props}
       onValueChange={(value) => {
-        props.mode === 'single' && setOpen(false);
+        if ((props.mode ?? 'single') === 'single') {
+          setOpen(false);
+        }
         props.onValueChange?.(value);
       }}
     >
@@ -203,7 +215,7 @@ export const SelectChannelFilterItem = () => {
   return (
     <Filter.Item value="channelId">
       <IconTopologyStar3 />
-      {t('by-channel')}
+      {t('by-channel', 'By Channel')}
     </Filter.Item>
   );
 };
@@ -243,6 +255,13 @@ export const SelectChannelFilterBar = ({
     queryKey || 'channelId',
   );
   const [open, setOpen] = useState(false);
+  const { channels: myChannels } = useGetMyChannels();
+  const selectedChannelId = Array.isArray(channelId) ? undefined : channelId;
+  const selectedPersonalChannel = myChannels?.find(
+    (channel) =>
+      channel._id === selectedChannelId &&
+      channelScopeOf(channel) === ChannelScope.PERSONAL,
+  );
 
   if (!channelId) {
     return null;
@@ -252,7 +271,7 @@ export const SelectChannelFilterBar = ({
     <Filter.BarItem queryKey={queryKey || 'channelId'}>
       <Filter.BarName>
         <IconTopologyStar3 />
-        {!iconOnly && t('select-channel')}
+        {!iconOnly && t('select-channel', 'Select Channel')}
       </Filter.BarName>
       <SelectChannelProvider
         value={channelId || (mode === 'single' ? '' : [])}
@@ -270,7 +289,12 @@ export const SelectChannelFilterBar = ({
         <Popover open={open} onOpenChange={setOpen}>
           <Popover.Trigger asChild>
             <Filter.BarButton filterKey={queryKey || 'channelId'}>
-              <SelectChannelsValue />
+              {selectedPersonalChannel ? (
+                selectedPersonalChannel.name ||
+                t('personal-channel', 'Personal channel')
+              ) : (
+                <SelectChannelsValue />
+              )}
             </Filter.BarButton>
           </Popover.Trigger>
           <Combobox.Content>

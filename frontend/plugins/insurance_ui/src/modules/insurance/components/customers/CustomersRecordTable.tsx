@@ -14,6 +14,7 @@ export const CustomersRecordTable = () => {
       data={customers || []}
       loading={loading}
       sessionKey="customers-cursor"
+      tableId="insurance_customers_record_table"
       stickyColumns={['more', 'checkbox', 'fullName']}
       emptyState={{
         icon: <IconUsers size={64} />,

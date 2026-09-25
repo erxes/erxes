@@ -16,6 +16,11 @@ const storedVisitedPageTabsState = atomWithStorage<IVisitedPageTab[]>(
   },
 );
 
+export const activeVisitedPageTabIdState = atomWithStorage<string | null>(
+  'navigation:active-visited-page-tab-id',
+  null,
+);
+
 export const visitedPageTabsVisibleState = atomWithStorage(
   'navigation:visited-page-tabs-visible',
   true,

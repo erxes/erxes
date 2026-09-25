@@ -16,6 +16,7 @@ export const AutomationOutputVariableList = ({
   buildVariableToken,
   loading,
   onInsertVariable,
+  onInsertVariableAsLink,
   sourceNode,
   variables,
 }: {
@@ -24,6 +25,7 @@ export const AutomationOutputVariableList = ({
   buildVariableToken: (path: string) => string;
   loading: boolean;
   onInsertVariable?: (payload: TAutomationVariableDragPayload) => void;
+  onInsertVariableAsLink?: (payload: TAutomationVariableDragPayload) => void;
   sourceNode: TAutomationVariableSourceNode;
   variables: TAutomationOutputVariable[];
 }) => {
@@ -38,6 +40,7 @@ export const AutomationOutputVariableList = ({
         buildVariablePayload,
         buildVariableToken,
         onInsertVariable,
+        onInsertVariableAsLink,
         sourceNode,
       }}
     >

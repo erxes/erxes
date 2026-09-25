@@ -224,7 +224,7 @@ const FacebookCardsMessageHeader = () => {
 
   return (
     <div className="flex items-center justify-between gap-3">
-      <Label>{t('templates')}</Label>
+      <Label>{t('templates', 'Templates')}</Label>
       <div className="flex items-center gap-2">
         <InputTextCounter count={cards.length} limit={10} />
         <Button
@@ -233,7 +233,7 @@ const FacebookCardsMessageHeader = () => {
           disabled={cards.length >= 10}
           onClick={addPage}
         >
-          <IconPlus className="size-3" /> {t('add-page')}
+          <IconPlus className="size-3" /> {t('add-page', 'Add page')}
         </Button>
       </div>
     </div>
@@ -370,7 +370,9 @@ const FacebookSelectedCardMessageHeader = () => {
         </p>
       </div>
       <Button
-        aria-label={`Remove ${selectedCard.label || `Page ${selectedCardIndex + 1}`}`}
+        aria-label={`Remove ${
+          selectedCard.label || `Page ${selectedCardIndex + 1}`
+        }`}
         className="text-muted-foreground hover:text-destructive"
         disabled={cards.length <= 1}
         size="icon"
@@ -420,7 +422,7 @@ const FacebookSelectedCardTitleField = () => {
             title: e.currentTarget.value,
           })
         }
-        placeholder={t('enter-a-title')}
+        placeholder={t('enter-a-title', 'Enter a title')}
       />
     </div>
   );
@@ -446,7 +448,7 @@ const FacebookSelectedCardSubtitleField = () => {
             subtitle: e.currentTarget.value,
           })
         }
-        placeholder={t('enter-a-subtitle')}
+        placeholder={t('enter-a-subtitle', 'Enter a subtitle')}
       />
     </div>
   );
@@ -488,12 +490,8 @@ const FacebookSelectedCardMessagePlaceholder = () => {
 
   return (
     <div className="grid min-h-48 place-items-center rounded-md border border-dashed bg-muted/30 p-6">
-      <Button
-        variant="outline"
-        disabled={cards.length >= 10}
-        onClick={addPage}
-      >
-        <IconPlus className="size-4" /> {t('add-page')}
+      <Button variant="outline" disabled={cards.length >= 10} onClick={addPage}>
+        <IconPlus className="size-4" /> {t('add-page', 'Add page')}
       </Button>
     </div>
   );

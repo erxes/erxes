@@ -4,7 +4,10 @@ import * as trpcExpress from '@trpc/server/adapters/express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import * as dotenv from 'dotenv';
-import { initRecordReferences } from 'erxes-api-shared/core-modules';
+import {
+  initApproval,
+  initRecordReferences,
+} from 'erxes-api-shared/core-modules';
 import {
   applyTrustProxy,
   closeMongooose,
@@ -13,17 +16,20 @@ import {
   isDev,
   joinErxesGateway,
   leaveErxesGateway,
-  registerRevertContentTypeResolver,
+  mountAgentTools,
+  MAX_HEADER_BYTES,
 } from 'erxes-api-shared/utils';
 import { logs as coreLogsConfig } from './meta/logs';
 import express from 'express';
 import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 import * as http from 'http';
+import { IncomingMessage } from 'http';
 import * as path from 'path';
 import { appRouter } from '~/init-trpc';
 import { initApolloServer } from './apollo/apolloServer';
 import { generateModels } from './connectionResolvers';
 import meta from './meta';
+import { approval } from './meta/approval';
 import { initAutomation } from './meta/automations/automations';
 import { initBroadcast } from './meta/broadcast';
 import initImportExport from './meta/import-export';
@@ -46,9 +52,6 @@ const collectionToContentType = new Map<string, string>(
     `${PLUGIN_NAME}:${c.moduleName}.${c.collectionName}`,
   ]),
 );
-registerRevertContentTypeResolver((collectionName) =>
-  collectionToContentType.get(collectionName),
-);
 
 const { DOMAIN, ALLOWED_ORIGINS, WIDGETS_DOMAIN, ALLOWED_DOMAINS } =
   process.env;
@@ -64,6 +67,9 @@ app.use(express.urlencoded({ limit: '15mb', extended: true }));
 app.use(
   express.json({
     limit: '15mb',
+    verify: (req: IncomingMessage & { rawBody?: Buffer }, _res, buffer) => {
+      req.rawBody = buffer;
+    },
   }),
 );
 
@@ -134,6 +140,21 @@ app.use(
   }),
 );
 
+// Core predates startPlugin, so it mounts the agent capability endpoints
+// itself. Only tRPC procedures declaring agent metadata are exposed.
+mountAgentTools(app, {
+  plugin: PLUGIN_NAME,
+  trpcRouter: appRouter,
+  createContext: async (
+    subdomain: string,
+    context: Record<string, unknown>,
+  ) => {
+    const models = await generateModels(subdomain, context);
+
+    return { ...context, models };
+  },
+});
+
 app.get('/health', async (_req, res) => {
   res.end('ok');
 });
@@ -152,7 +173,9 @@ app.get('/get-client-portal-token', async (req, res) => {
   const subdomain = getSubdomain(req);
   const models = await generateModels(subdomain);
 
-  const clientPortal = await models.ClientPortal.findOne({}).lean();
+  const clientPortal = await models.ClientPortal.findOne({
+    useB2B: true,
+  }).lean();
 
   if (!clientPortal) {
     return res.status(404).json({ error: 'Client portal not found' });
@@ -166,7 +189,7 @@ app.get('/debug-sentry', () => {
 });
 
 // Wrap the Express server
-const httpServer = http.createServer(app);
+const httpServer = http.createServer({ maxHeaderSize: MAX_HEADER_BYTES }, app);
 
 httpServer.listen(port, async () => {
   await initApolloServer(app, httpServer);
@@ -181,6 +204,7 @@ httpServer.listen(port, async () => {
   });
   await initAutomation(app);
   await initRecordReferences(app, PLUGIN_NAME, references);
+  await initApproval(app, PLUGIN_NAME, approval);
   await initSegmentCoreProducers(app);
   await initImportExport(app);
   await initBroadcast(app);

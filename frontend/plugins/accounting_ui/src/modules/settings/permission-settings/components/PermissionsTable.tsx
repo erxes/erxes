@@ -40,6 +40,7 @@ export const PermissionsTable = () => {
       columns={permissionsColumns}
       data={isInitialLoading ? [] : permissionsMain || []}
       stickyColumns={['checkbox', 'accountName']}
+      tableId="accounting_permissions_record_table"
       className="m-3"
     >
       <RecordTable.CursorProvider
@@ -49,7 +50,7 @@ export const PermissionsTable = () => {
         sessionKey={PERMISSIONS_CURSOR_SESSION_KEY}
       >
         <RecordTable>
-          <RecordTable.Header />
+          <RecordTable.Header showColumnSelector />
           <RecordTable.Body>
             <RecordTable.CursorBackwardSkeleton
               handleFetchMore={handleFetchMore}

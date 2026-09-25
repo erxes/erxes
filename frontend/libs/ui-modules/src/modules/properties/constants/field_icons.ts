@@ -4,7 +4,9 @@ import {
   IconChevronDown,
   IconCircleCheck,
   IconLink,
+  IconList,
   IconListCheck,
+  IconListDetails,
   IconNumbers,
   IconPaperclip,
   IconPhoneSpark,
@@ -22,6 +24,8 @@ export const FIELD_ICON_BY_TYPE: Record<string, Icon> = {
   relation: IconLink,
   phone: IconPhoneSpark,
   textarea: IconTextScan2,
+  list: IconList,
   file: IconPaperclip,
+  objectList: IconListDetails,
   text: IconTextSize,
 };

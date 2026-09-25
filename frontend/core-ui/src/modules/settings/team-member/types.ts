@@ -41,6 +41,7 @@ export interface IUser extends IUserInline {
   branchIds?: string[];
   departmentIds?: string[];
   unitId?: string;
+  permissionGroupIds?: string[];
 
   links?: object;
   isSubscribed?: string;

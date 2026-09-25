@@ -76,6 +76,7 @@ const accountImportMap = {
       { label: 'Тохиролцоо ханш', key: 'customRate' },
       { label: 'Холбогдох ажилтан', key: 'assignUserEmail' },
       { label: 'Бараа код', key: 'productCode' },
+      { label: 'Үндсэн хөрөнгө код', key: 'fixedAssetCode' },
       { label: 'Тоо', key: 'count' },
       { label: 'Нэгж үнэ', key: 'unitPrice' },
       { label: 'НӨАТ орхих', key: 'excludeVat' },

@@ -44,7 +44,9 @@ const toStringArray = (value: unknown) =>
     ? value.filter((item): item is string => typeof item === 'string' && !!item)
     : [];
 
-const uniqueStrings = (values: string[]) => [...new Set(values.filter(Boolean))];
+const uniqueStrings = (values: string[]) => [
+  ...new Set(values.filter(Boolean)),
+];
 
 const stableValue = (value: unknown): unknown => {
   if (Array.isArray(value)) {
@@ -136,5 +138,20 @@ export const hasProductScopeSelection = (
   );
 };
 
-export const isMaterializedKnowledgeSource = (source: TAiAgentKnowledgeSource) =>
-  isProductKnowledgeSource(source) && hasProductScopeSelection(source);
+// Legacy: before `scope` existed, a product source with a selection was the
+// only one that streamed its whole configured scope.
+export const resolveKnowledgeSourceScope = (
+  source: TAiAgentKnowledgeSource,
+): 'all' | 'selected' => {
+  if (source.scope) {
+    return source.scope;
+  }
+
+  return isProductKnowledgeSource(source) && hasProductScopeSelection(source)
+    ? 'all'
+    : 'selected';
+};
+
+export const isMaterializedKnowledgeSource = (
+  source: TAiAgentKnowledgeSource,
+) => resolveKnowledgeSourceScope(source) === 'all';

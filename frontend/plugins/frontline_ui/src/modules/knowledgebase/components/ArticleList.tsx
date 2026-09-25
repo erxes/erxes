@@ -1,7 +1,15 @@
-import { CommandBar, RecordTable, Separator, useConfirm } from 'erxes-ui';
+import {
+  Button,
+  CommandBar,
+  RecordTable,
+  Separator,
+  toast,
+  useConfirm,
+} from 'erxes-ui';
+import { ColumnDef } from '@tanstack/react-table';
 import { useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useArticles } from '../hooks/useArticles';
+import { Article, useArticles } from '../hooks/useArticles';
 import { useMutation } from '@apollo/client';
 import { REMOVE_ARTICLE } from '../graphql/mutations';
 import {
@@ -15,8 +23,251 @@ import { useTranslation } from 'react-i18next';
 type StatusFilter = 'all' | 'draft' | 'published' | 'archived';
 
 interface ArticleListProps {
-  readonly onEditArticle: (article: any) => void;
+  readonly onEditArticle: (article: Article | null) => void;
   readonly onCreateArticle: () => void;
+}
+
+function ArticleTitleHeader() {
+  const { t } = useTranslation('frontline');
+  return (
+    <RecordTable.InlineHead icon={IconFileText} label={t('col-name', 'Name')} />
+  );
+}
+
+function ArticleTitleCell({
+  article,
+  onEditArticle,
+}: Readonly<{
+  article: Article;
+  onEditArticle: (article: Article) => void;
+}>) {
+  const { t } = useTranslation('frontline');
+
+  return (
+    <Button
+      variant="ghost"
+      className="h-auto w-full justify-start p-1 font-semibold"
+      onClick={() => onEditArticle(article)}
+    >
+      {article.title || t('kb-untitled', 'Untitled')}
+    </Button>
+  );
+}
+
+function ArticleStatusHeader() {
+  const { t } = useTranslation('frontline');
+  return (
+    <RecordTable.InlineHead icon={IconEye} label={t('status', 'Status')} />
+  );
+}
+
+function ArticleStatusCell({ article }: Readonly<{ article: Article }>) {
+  const status = String(article.status || 'unknown').toLowerCase();
+  const isPublished = status.includes('publish');
+  const isDraft = status.includes('draft');
+  const isArchived = status.includes('archived');
+
+  let statusColor = 'text-muted-foreground';
+  let bgColor = 'bg-muted';
+
+  if (isPublished) {
+    statusColor = 'text-success';
+    bgColor = 'bg-success/10';
+  } else if (isDraft) {
+    statusColor = 'text-info';
+    bgColor = 'bg-info/10';
+  } else if (isArchived) {
+    statusColor = 'text-destructive';
+    bgColor = 'bg-destructive/10';
+  }
+
+  return (
+    <div className="flex items-center gap-2">
+      <span
+        className={`inline-flex rounded-full border px-2 py-0.5 text-xs ml-2 ${bgColor} ${statusColor}`}
+      >
+        {article.status || 'unknown'}
+      </span>
+    </div>
+  );
+}
+
+function ArticleOwnerHeader() {
+  const { t } = useTranslation('frontline');
+  return (
+    <RecordTable.InlineHead icon={IconUser} label={t('kb-owner', 'Owner')} />
+  );
+}
+
+function ArticleCreatedHeader() {
+  const { t } = useTranslation('frontline');
+  return (
+    <RecordTable.InlineHead
+      icon={IconCalendar}
+      label={t('kb-created', 'Created')}
+    />
+  );
+}
+
+function ArticleCreatedDateCell({ article }: Readonly<{ article: Article }>) {
+  const { t, i18n } = useTranslation('frontline');
+
+  if (!article.createdDate) {
+    return <div className="opacity-80 ml-2">-</div>;
+  }
+
+  const date = new Date(article.createdDate);
+  if (Number.isNaN(date.getTime())) {
+    return (
+      <div className="opacity-80 ml-2">
+        {t('kb-invalid-date', 'Invalid date')}
+      </div>
+    );
+  }
+
+  return (
+    <div className="opacity-80 ml-2">
+      {date.toLocaleDateString(i18n.resolvedLanguage ?? i18n.language, {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      })}
+    </div>
+  );
+}
+
+function getArticleColumns(
+  onEditArticle: (article: Article) => void,
+): ColumnDef<Article>[] {
+  return [
+    RecordTable.checkboxColumn as ColumnDef<Article>,
+    {
+      id: 'title',
+      accessorKey: 'title',
+      size: 220,
+      header: ArticleTitleHeader,
+      cell: ({ row }) => (
+        <ArticleTitleCell
+          article={row.original}
+          onEditArticle={onEditArticle}
+        />
+      ),
+    },
+    {
+      id: 'status',
+      accessorKey: 'status',
+      size: 220,
+      header: ArticleStatusHeader,
+      cell: ({ row }) => <ArticleStatusCell article={row.original} />,
+    },
+    {
+      id: 'createdUser',
+      accessorKey: 'createdUser',
+      size: 220,
+      header: ArticleOwnerHeader,
+      cell: ({ row }) => (
+        <div className="flex items-center gap-2 opacity-80 ml-2">
+          {row.original.createdUser?.username || '-'}
+        </div>
+      ),
+    },
+    {
+      id: 'createdDate',
+      accessorKey: 'createdDate',
+      size: 180,
+      header: ArticleCreatedHeader,
+      cell: ({ row }) => <ArticleCreatedDateCell article={row.original} />,
+    },
+  ];
+}
+
+function ArticleCommandBar({
+  onEditArticle,
+  refetch,
+}: Readonly<{
+  onEditArticle: (article: Article) => void;
+  refetch: () => void;
+}>) {
+  const { t } = useTranslation('frontline');
+  const { confirm } = useConfirm();
+  const [removeArticle] = useMutation(REMOVE_ARTICLE);
+  const { table } = RecordTable.useRecordTable();
+  const selectedArticles = table
+    .getFilteredSelectedRowModel()
+    .rows.map((row) => row.original as Article);
+  const articleIds = selectedArticles.map((article) => article._id);
+
+  function handleEdit() {
+    if (selectedArticles.length === 1) {
+      onEditArticle(selectedArticles[0]);
+    }
+  }
+
+  async function handleDelete() {
+    if (articleIds.length === 0) {
+      return;
+    }
+
+    try {
+      await confirm({
+        message: t('kb-confirm-delete-articles', {
+          count: articleIds.length,
+        }),
+        options: {
+          confirmationValue: 'delete',
+          description: t(
+            'kb-action-permanent',
+            'This action is permanent and cannot be undone.',
+          ),
+        },
+      });
+    } catch {
+      return;
+    }
+
+    const results = await Promise.allSettled(
+      articleIds.map((id) => removeArticle({ variables: { _id: id } })),
+    );
+    refetch();
+
+    if (results.some((result) => result.status === 'rejected')) {
+      toast({
+        title: t('error', 'Error'),
+        description: t('something-went-wrong', 'Uh oh! Something went wrong.'),
+        variant: 'destructive',
+      });
+    }
+  }
+
+  return (
+    <CommandBar open={selectedArticles.length > 0}>
+      <CommandBar.Bar>
+        <CommandBar.Value>
+          {t('n-selected', '{{count}} selected', {
+            count: selectedArticles.length,
+          })}
+        </CommandBar.Value>
+        <Separator.Inline />
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={handleEdit}
+          disabled={selectedArticles.length !== 1}
+        >
+          {t('edit', 'Edit')}
+        </Button>
+        <Separator.Inline />
+        <Button
+          variant="secondary"
+          size="sm"
+          className="text-destructive"
+          onClick={handleDelete}
+        >
+          {t('delete', 'Delete')}
+        </Button>
+      </CommandBar.Bar>
+    </CommandBar>
+  );
 }
 
 export function ArticleList({
@@ -29,129 +280,20 @@ export function ArticleList({
 
   const [q, setQ] = useState('');
   const [status, setStatus] = useState<StatusFilter>('all');
-  const { confirm } = useConfirm();
 
-  // API hook
   const { articles, loading, refetch } = useArticles({
     categoryIds: [categoryId],
   });
-
-  // Remove article mutation
-  const [removeArticle] = useMutation(REMOVE_ARTICLE);
-
-  // Derived state (no setState, no useEffect)
   const articleList = useMemo(() => articles ?? [], [articles]);
-
-  // Create article
-  const handleCreateArticle = () => {
-    onEditArticle(null);
-  };
-
-  const handleEditArticle = (article: any) => {
-    onEditArticle(article);
-  };
-
-  // Article columns definition
-  const articleColumns = [
-    RecordTable.checkboxColumn,
-    {
-      id: 'title',
-      accessorKey: 'title',
-      size: 220,
-      header: () => <RecordTable.InlineHead icon={IconFileText} label={t('col-name')} />,
-      cell: ({ row }: any) => (
-        <div
-          className="flex items-center gap-2 ml-2 cursor-pointer hover:bg-accent rounded p-1 -m-1"
-          onClick={() => handleEditArticle(row.original)}
-        >
-          <div>
-            <div className="font-semibold opacity-80 ml-2">
-              {row.original?.title || t('kb-untitled')}
-            </div>
-          </div>
-        </div>
-      ),
-    },
-    {
-      id: 'status',
-      accessorKey: 'status',
-      size: 220,
-      header: () => <RecordTable.InlineHead icon={IconEye} label={t('status')} />,
-      cell: ({ row }: any) => {
-        const status = String(row.original?.status || 'unknown').toLowerCase();
-        const isPublished = status.includes('publish');
-        const isDraft = status.includes('draft');
-        const isArchived = status.includes('archived');
-
-        let statusColor = 'text-muted-foreground';
-        let bgColor = 'bg-muted';
-
-        if (isPublished) {
-          statusColor = 'text-success';
-          bgColor = 'bg-success/10';
-        } else if (isDraft) {
-          statusColor = 'text-info';
-          bgColor = 'bg-info/10';
-        } else if (isArchived) {
-          statusColor = 'text-destructive';
-          bgColor = 'bg-destructive/10';
-        }
-
-        return (
-          <div className="flex items-center gap-2">
-            <span
-              className={`inline-flex rounded-full border px-2 py-0.5 text-xs ml-2 ${bgColor} ${statusColor}`}
-            >
-              {row.original?.status || 'unknown'}
-            </span>
-          </div>
-        );
-      },
-    },
-    {
-      id: 'createdUser',
-      accessorKey: 'createdUser',
-      size: 220,
-      header: () => <RecordTable.InlineHead icon={IconUser} label={t('kb-owner')} />,
-      cell: ({ row }: any) => (
-        <div className="flex items-center gap-2 opacity-80 ml-2">
-          {row.original?.createdUser?.username || '-'}
-        </div>
-      ),
-    },
-    {
-      id: 'createdDate',
-      accessorKey: 'createdDate',
-      size: 180,
-      header: () => (
-        <RecordTable.InlineHead icon={IconCalendar} label={t('kb-created')} />
-      ),
-      cell: ({ row }: any) => {
-        const createdDate = row.original?.createdDate;
-        if (!createdDate) return <div className="opacity-80 ml-2">-</div>;
-
-        try {
-          const date = new Date(createdDate);
-          return (
-            <div className="opacity-80 ml-2">
-              {date.toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric',
-              })}
-            </div>
-          );
-        } catch (error) {
-          return <div className="opacity-80 ml-2">{t('kb-invalid-date')}</div>;
-        }
-      },
-    },
-  ];
+  const articleColumns = useMemo(
+    () => getArticleColumns(onEditArticle),
+    [onEditArticle],
+  );
 
   // Filter + search
   const filtered = useMemo(() => {
     const query = q.trim().toLowerCase();
-    return articleList.filter((a: any) => {
+    return articleList.filter((a) => {
       const title = String(a?.title || '').toLowerCase();
       const summary = String(a?.summary || '').toLowerCase();
       const textOk = query ? `${title} ${summary}`.includes(query) : true;
@@ -161,84 +303,16 @@ export function ArticleList({
         status === 'all'
           ? true
           : status === 'draft'
-          ? st.includes('draft')
-          : status === 'published'
-          ? st.includes('publish')
-          : status === 'archived'
-          ? st.includes('archived')
-          : true;
+            ? st.includes('draft')
+            : status === 'published'
+              ? st.includes('publish')
+              : status === 'archived'
+                ? st.includes('archived')
+                : true;
 
       return textOk && statusOk;
     });
   }, [articleList, q, status]);
-
-  // Command bar for bulk actions
-  const ArticleCommandBar = () => {
-    const { table } = RecordTable.useRecordTable();
-
-    const selectedArticles = table.getFilteredSelectedRowModel().rows;
-    const articleIds = selectedArticles.map((row) => row.original._id);
-
-    const handleEdit = () => {
-      if (selectedArticles.length === 1) {
-        const article = selectedArticles[0].original;
-        onEditArticle(article);
-      }
-    };
-
-    const handleDelete = async () => {
-      if (articleIds.length === 0) return;
-
-      const message = t('kb-confirm-delete-articles', { count: articleIds.length });
-
-      const confirmOptions = {
-        confirmationValue: 'delete',
-        description: t('kb-action-permanent'),
-      };
-
-      try {
-        await confirm({
-          message,
-          options: confirmOptions,
-        });
-
-        // Delete all selected articles
-        await Promise.all(
-          articleIds.map((id) => removeArticle({ variables: { _id: id } })),
-        );
-
-        // Refetch to update the list
-        refetch();
-      } catch (error) {
-        console.error('Error deleting articles:', error);
-      }
-    };
-
-    return (
-      <CommandBar open={selectedArticles.length > 0}>
-        <CommandBar.Bar>
-          <CommandBar.Value>
-            {t('n-selected', { count: selectedArticles.length })}
-          </CommandBar.Value>
-          <Separator.Inline />
-          <button
-            onClick={handleEdit}
-            disabled={selectedArticles.length !== 1}
-            className="inline-flex items-center justify-center gap-2 px-3 whitespace-nowrap rounded text-sm transition-colors outline-offset-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring/70 disabled:pointer-events-none disabled:opacity-50 font-medium bg-accent text-foreground hover:bg-border h-7 py-1"
-          >
-            {t('edit')}
-          </button>
-          <Separator.Inline />
-          <button
-            onClick={handleDelete}
-            className="inline-flex items-center justify-center gap-2 px-3 whitespace-nowrap rounded text-sm transition-colors outline-offset-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring/70 disabled:pointer-events-none disabled:opacity-50 font-medium bg-accent hover:bg-border h-7 py-1 text-destructive"
-          >
-            {t('delete')}
-          </button>
-        </CommandBar.Bar>
-      </CommandBar>
-    );
-  };
 
   return (
     <div className="space-y-4">
@@ -250,7 +324,7 @@ export function ArticleList({
             onKeyDown={(e) => {
               if (e.key === 'Enter') e.preventDefault();
             }}
-            placeholder={t('filter')}
+            placeholder={t('filter', 'Filter...')}
             className="h-10 w-full rounded-lg border px-3 text-sm outline-none focus:ring-2"
           />
         </div>
@@ -263,7 +337,7 @@ export function ArticleList({
             }`}
             onClick={() => setStatus('all')}
           >
-            {t('kb-all')}
+            {t('kb-all', 'All')}
           </button>
           <button
             type="button"
@@ -272,7 +346,7 @@ export function ArticleList({
             }`}
             onClick={() => setStatus('draft')}
           >
-            {t('kb-draft')}
+            {t('kb-draft', 'Draft')}
           </button>
           <button
             type="button"
@@ -281,7 +355,7 @@ export function ArticleList({
             }`}
             onClick={() => setStatus('published')}
           >
-            {t('kb-published')}
+            {t('kb-published', 'Published')}
           </button>
           <button
             type="button"
@@ -290,7 +364,7 @@ export function ArticleList({
             }`}
             onClick={() => setStatus('archived')}
           >
-            {t('archived')}
+            {t('archived', 'Archived')}
           </button>
 
           <div className="ml-1 rounded-lg border px-3 py-2 text-sm opacity-70">
@@ -306,24 +380,36 @@ export function ArticleList({
           </div>
           <div className="text-base font-semibold mb-2">
             {q.trim()
-              ? t('kb-no-results-for', { query: q })
-              : t('kb-no-articles')}
+              ? t('kb-no-results-for', 'No results found for "{{query}}"', {
+                  query: q,
+                })
+              : t('kb-no-articles', 'No articles in this category')}
           </div>
           <div className="mt-1 text-sm opacity-70 mb-4">
             {q.trim()
-              ? t('kb-adjust-search')
-              : t('kb-create-first-article')}
+              ? t(
+                  'kb-adjust-search',
+                  'Try adjusting your search terms or filters.',
+                )
+              : t(
+                  'kb-create-first-article',
+                  'Create your first article to get started with this category.',
+                )}
           </div>
+          {!q.trim() && (
+            <Button onClick={onCreateArticle}>{t('create', 'Create')}</Button>
+          )}
         </div>
       ) : (
         <RecordTable.Provider
           columns={articleColumns}
           data={filtered}
           stickyColumns={['checkbox']}
+          tableId="frontline_knowledgebase_articles_record_table"
         >
-          <ArticleCommandBar />
+          <ArticleCommandBar onEditArticle={onEditArticle} refetch={refetch} />
           <RecordTable>
-            <RecordTable.Header />
+            <RecordTable.Header showColumnSelector />
             <RecordTable.Body>
               {loading ? (
                 <RecordTable.RowSkeleton rows={10} />

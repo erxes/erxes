@@ -71,6 +71,52 @@ const normalizeLanguage = (
   return detectKnowledgeLanguage(content);
 };
 
+// Rich-text exports mark headings with banner lines instead of "#", so without
+// this an entire document arrives as one section that can be neither split nor
+// classified.
+const BANNER_LINE = /^\\?[=\-_*]{3,}$/;
+const MAX_BANNER_TITLE_CHARS = 80;
+
+const normalizeBannerHeadings = (content: string) => {
+  const lines = content.split('\n');
+  const output: string[] = [];
+  const nextFilledIndex = (from: number) => {
+    let index = from;
+
+    while (index < lines.length && !lines[index].trim()) {
+      index++;
+    }
+
+    return index;
+  };
+
+  for (let index = 0; index < lines.length; index++) {
+    if (!BANNER_LINE.test(lines[index].trim())) {
+      output.push(lines[index]);
+      continue;
+    }
+
+    const titleIndex = nextFilledIndex(index + 1);
+    const title = (lines[titleIndex] || '').trim();
+    const closingIndex = nextFilledIndex(titleIndex + 1);
+    const isBannerHeading =
+      !!title &&
+      title.length <= MAX_BANNER_TITLE_CHARS &&
+      !BANNER_LINE.test(title) &&
+      BANNER_LINE.test((lines[closingIndex] || '').trim());
+
+    if (!isBannerHeading) {
+      output.push(lines[index]);
+      continue;
+    }
+
+    output.push(`# ${title}`);
+    index = closingIndex;
+  }
+
+  return output.join('\n');
+};
+
 const parseMarkdownSections = (content: string): TMarkdownSection[] => {
   const sections: TMarkdownSection[] = [];
   const headingStack: string[] = [];
@@ -156,10 +202,7 @@ const splitOversizedSection = (
     const nextBuffer = [...buffer, paragraph];
     const nextContent = nextBuffer.join('\n\n');
 
-    if (
-      buffer.length &&
-      getKnowledgeByteSize(nextContent) > maxChunkBytes
-    ) {
+    if (buffer.length && getKnowledgeByteSize(nextContent) > maxChunkBytes) {
       flush();
     }
 
@@ -201,7 +244,10 @@ const mergeSmallSections = (
     }
 
     const combinedContent = `${pending.content}\n\n${section.content}`;
+    // Two headed sections stay apart however short they are: merging is for
+    // stray fragments, and a merged section can only carry one role.
     const canMerge =
+      !(pending.title && section.title) &&
       getKnowledgeByteSize(pending.content) < minChunkBytes &&
       getKnowledgeByteSize(combinedContent) <= maxChunkBytes;
 
@@ -240,8 +286,8 @@ export const buildAiKnowledgeChunks = (
   const metadataKeywords = normalizeMetadataList(metadata.keywords);
   const priority = normalizePriority(metadata.priority);
   const sections = mergeSmallSections(
-    parseMarkdownSections(parsed.body).flatMap((section) =>
-      splitOversizedSection(section, maxChunkBytes),
+    parseMarkdownSections(normalizeBannerHeadings(parsed.body)).flatMap(
+      (section) => splitOversizedSection(section, maxChunkBytes),
     ),
     minChunkBytes,
     maxChunkBytes,

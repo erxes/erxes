@@ -19,5 +19,6 @@ export const INTEGRATION_ICONS: Record<string, FC<any>> = {
   'instagram-post': InstagramIcon,
   messenger: IconMessageFilled,
   calls: IconPhone,
+  callpro: IconPhone,
   'discord-messenger': IconBrandDiscord,
 };

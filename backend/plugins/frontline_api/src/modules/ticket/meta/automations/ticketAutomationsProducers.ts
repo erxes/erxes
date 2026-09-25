@@ -1,4 +1,6 @@
 import {
+  AUTOMATION_ERROR_CODES,
+  buildFailedAction,
   getSetPropertySelector,
   setProperty,
   TCoreModuleProducerContext,
@@ -22,7 +24,10 @@ export const ticketAutomationProducers = {
       });
     }
 
-    return { result: null };
+    return buildFailedAction(
+      `Ticket automations do not handle "${input.collectionType}"`,
+      AUTOMATION_ERROR_CODES.CONFIG_INVALID,
+    );
   },
 
   checkCustomTrigger: async () => false,
@@ -58,22 +63,5 @@ export const ticketAutomationProducers = {
         await models.Ticket.updateMany(itemSelector, modifier),
       targetType,
     });
-  },
-
-  checkTargetMatch: async (
-    input: TAutomationProducersInput[TAutomationProducers.CHECK_TARGET_MATCH],
-    context: TCoreModuleProducerContext<IModels>,
-  ) => {
-    const { moduleName, collectionType, targetId, selector } = input;
-
-    if (collectionType === 'tickets' && moduleName === 'tickets') {
-      return Boolean(
-        await context.models.Ticket.exists({
-          $and: [{ _id: targetId }, selector],
-        }),
-      );
-    }
-
-    return false;
   },
 };

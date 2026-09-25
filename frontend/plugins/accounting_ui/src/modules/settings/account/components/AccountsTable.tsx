@@ -40,6 +40,7 @@ export const AccountsTable = () => {
       columns={accountsColumns}
       data={isInitialLoading ? [] : accountsMain || []}
       stickyColumns={['more', 'checkbox', 'code']}
+      tableId="accounting_accounts_record_table"
       className="m-3"
     >
       <RecordTable.CursorProvider

@@ -21,6 +21,7 @@ import { IntegrationLogo } from '@/integrations/components/IntegrationLogo';
 import { INTEGRATIONS } from '@/integrations/constants/integrations';
 import { IntegrationType } from '@/types/Integration';
 import { getPluginAssetsUrl } from 'erxes-ui';
+import { SecretInput } from '@/integrations/components/SecretInput';
 
 export const InstagramConfigUpdateCollapse = () => {
   return (
@@ -117,7 +118,7 @@ export const InstagramConfigUpdate = () => {
             <Form.Item>
               <Form.Label>{t('instagram-app-secret')}</Form.Label>
               <Form.Control>
-                <Input {...field} />
+                <SecretInput {...field} />
               </Form.Control>
               <Form.Message />
             </Form.Item>
@@ -129,7 +130,7 @@ export const InstagramConfigUpdate = () => {
             <Form.Item>
               <Form.Label>{t('instagram-verify-token')}</Form.Label>
               <Form.Control>
-                <Input {...field} />
+                <SecretInput {...field} />
               </Form.Control>
               <Form.Message />
             </Form.Item>

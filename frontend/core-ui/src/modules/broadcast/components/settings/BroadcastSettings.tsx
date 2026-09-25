@@ -1,87 +1,131 @@
+import { BroadcastCredentialsNotice } from '@/broadcast/components/settings/BroadcastCredentialsNotice';
 import { BROADCAST_SETTINGS_CONFIG_FIELDS } from '@/broadcast/constants';
-import { useConfig } from '@/settings/file-upload/hook/useConfigs';
-import { Form, Input } from 'erxes-ui';
-import { useEffect } from 'react';
-import { ControllerRenderProps, FieldValues, useForm } from 'react-hook-form';
-import { useVersion } from 'ui-modules';
-import { BroadcastSettingsVerifiedEmail } from './BroadcastSettingsVerifiedEmail';
-import { useBroadcastConfig } from '@/broadcast/hooks/useBroadcastConfig';
+import {
+  BROADCAST_MODE_FIELD,
+  BROADCAST_PROVIDER_FIELD,
+} from '@/broadcast/hooks/useBroadcastEmailCredentials';
+import { useBroadcastSettingsForm } from '@/broadcast/hooks/useBroadcastSettingsForm';
+import { VerifiedSenders } from '@/settings/mail-config/components/VerifiedSenders';
+import { EmailSenderScopeProvider } from '@/settings/mail-config/contexts/EmailSenderScope';
+import { Form, Input, Select } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
+
+const MODE_OPTIONS = [
+  { value: 'default', labelKey: 'settings.mode-default' },
+  { value: 'custom', labelKey: 'settings.mode-custom' },
+];
+
+const PROVIDER_OPTIONS = ['SES', 'sendgrid', 'custom'];
 
 export const BroadcastSettings = () => {
-  const form = useForm();
-  const isSaas = useVersion('saas');
+  const { t } = useTranslation('broadcasts');
+  const {
+    form,
+    showCredentials,
+    usesOwnCredentials,
+    providerFields,
+    handleFieldChange,
+    handleSelectChange,
+  } = useBroadcastSettingsForm();
 
-  const { configs } = useConfig();
+  const renderInput = (name: string, label: string, type?: string) => (
+    <Form.Field
+      key={name}
+      name={name}
+      control={form.control}
+      render={({ field }) => (
+        <Form.Item>
+          <Form.Label>{label}</Form.Label>
+          <Form.Control>
+            <Input
+              {...field}
+              value={field.value || ''}
+              placeholder={label}
+              type={type}
+              onBlur={() => handleFieldChange(field)}
+            />
+          </Form.Control>
+        </Form.Item>
+      )}
+    />
+  );
 
-  const { updateConfig } = useBroadcastConfig();
-
-  useEffect(() => {
-    if (!configs) return;
-
-    const values = BROADCAST_SETTINGS_CONFIG_FIELDS.reduce((acc, { name }) => {
-      const config = configs.find((c: { code: string }) => c.code === name);
-
-      if (config) acc[name] = config.value;
-
-      return acc;
-    }, {} as Record<string, any>);
-
-    form.reset(values);
-  }, [configs]);
-
-  const handleFieldChange = (
-    field: ControllerRenderProps<FieldValues, string>,
-  ) => {
-    const { name, value } = field || {};
-
-    if (!name) return;
-
-    if (!form.formState.dirtyFields[name]) return;
-
-    updateConfig({ [name]: value }, { skipConfirm: true });
-  };
+  const renderSelect = (
+    name: string,
+    label: string,
+    options: Array<{ value: string; label: string }>,
+    fallbackValue: string = options[0].value,
+  ) => (
+    <Form.Field
+      key={name}
+      name={name}
+      control={form.control}
+      render={({ field }) => (
+        <Form.Item>
+          <Form.Label>{label}</Form.Label>
+          <Select
+            value={field.value || fallbackValue}
+            onValueChange={(value) => handleSelectChange(name, value)}
+          >
+            <Form.Control>
+              <Select.Trigger>
+                <Select.Value />
+              </Select.Trigger>
+            </Form.Control>
+            <Select.Content>
+              {options.map(({ value, label: optionLabel }) => (
+                <Select.Item key={value} value={value}>
+                  {optionLabel}
+                </Select.Item>
+              ))}
+            </Select.Content>
+          </Select>
+        </Form.Item>
+      )}
+    />
+  );
 
   return (
     <Form {...form}>
       <form className="w-full h-full grid grid-cols-2 gap-4">
-        {BROADCAST_SETTINGS_CONFIG_FIELDS.map(({ name, label, type, osOnly }) => {
-          if (osOnly && isSaas) return <></>;
-
-          return (
-            <Form.Field
-              key={name}
-              name={name}
-              control={form.control}
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{label}</Form.Label>
-                  <Form.Control>
-                    <Input
-                      {...field}
-                      placeholder={label}
-                      type={type}
-                      onBlur={(e) => handleFieldChange(field)}
-                    />
-                  </Form.Control>
-                </Form.Item>
-              )}
-            />
-          );
-        })}
-
-        <Form.Field
-          key="verifiedEmail"
-          name="verifiedEmail"
-          control={form.control}
-          render={() => (
-            <Form.Item>
-              <Form.Label>Verified emails</Form.Label>
-              <Form.Control>
-                <BroadcastSettingsVerifiedEmail />
-              </Form.Control>
-            </Form.Item>
+        {showCredentials &&
+          renderSelect(
+            BROADCAST_MODE_FIELD,
+            t('settings.credentials'),
+            MODE_OPTIONS.map(({ value, labelKey }) => ({
+              value,
+              label: t(labelKey),
+            })),
+            usesOwnCredentials ? 'custom' : 'default',
           )}
-        />
+
+        {showCredentials && usesOwnCredentials && (
+          <>
+            {renderSelect(
+              BROADCAST_PROVIDER_FIELD,
+              t('settings.service'),
+              PROVIDER_OPTIONS.map((value) => ({ value, label: value })),
+            )}
+            {providerFields.map(({ name, labelKey, type }) =>
+              renderInput(name, t(labelKey), type),
+            )}
+          </>
+        )}
+
+        {BROADCAST_SETTINGS_CONFIG_FIELDS.map(({ name, labelKey, type }) =>
+          renderInput(name, t(labelKey), type),
+        )}
+
+        <EmailSenderScopeProvider scope="broadcast">
+          <Form.Item>
+            <Form.Label>{t('settings.verified-emails')}</Form.Label>
+            <Form.Control>
+              <VerifiedSenders />
+            </Form.Control>
+          </Form.Item>
+
+          {usesOwnCredentials && <BroadcastCredentialsNotice />}
+        </EmailSenderScopeProvider>
       </form>
     </Form>
   );

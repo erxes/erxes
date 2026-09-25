@@ -3,6 +3,7 @@ import {
   Button,
   Combobox,
   Command,
+  Form,
   Input,
   Popover,
   ScrollArea,
@@ -12,7 +13,6 @@ import {
   toast,
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { Form } from 'erxes-ui/components/form';
 import React, { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -25,9 +25,19 @@ import { paymentKind } from '~/modules/payment/utils';
 import QuickQrForm from '~/modules/settings/payment/components/QuickQrForm';
 import KhanbankForm from '~/modules/settings/payment/components/KhanbankForm';
 import CorporateGolomtBankForm from '~/modules/settings/payment/components/CorporateGolomtBankForm';
+import { DealConfigForm } from '~/modules/settings/payment/components/DealConfigForm';
+
 type Props = {
   payment: any;
   onCancel: () => void;
+};
+
+const settingsFields = {
+  sendEmailOnPayment: z.boolean().optional(),
+  dealEnabled: z.boolean().optional(),
+  dealBoardId: z.string().optional(),
+  dealPipelineId: z.string().optional(),
+  dealStageId: z.string().optional(),
 };
 
 // Base validation schema
@@ -87,12 +97,12 @@ const corporateGolomtSchema = z.object({
 // Dynamic schema generator based on payment kind
 const createPaymentSchema = (selectedKind: string) => {
   if (!selectedKind) {
-    return baseSchema;
+    return baseSchema.extend(settingsFields);
   }
 
   const payment = paymentKind(selectedKind);
   if (!payment?.fields) {
-    return baseSchema;
+    return baseSchema.extend(settingsFields);
   }
 
   // Create dynamic fields schema
@@ -147,15 +157,24 @@ const createPaymentSchema = (selectedKind: string) => {
   });
 
   if (selectedKind === PaymentKind.QUICKQR) {
-    return quickQrSchema;
+    return quickQrSchema.extend(settingsFields);
   }
   if (selectedKind === PaymentKind.KHANBANK) {
-    return khanbankSchema;
+    return khanbankSchema.extend(settingsFields);
   }
-  if (selectedKind === PaymentKind.CORPORATE_GOLOMTBANK) {
-    return corporateGolomtSchema;
-  }
-  return baseSchema.extend(dynamicFields);
+  if (selectedKind === PaymentKind.QUICKQR) {
+  return quickQrSchema.extend(settingsFields);
+}
+
+if (selectedKind === PaymentKind.KHANBANK) {
+  return khanbankSchema.extend(settingsFields);
+}
+
+if (selectedKind === PaymentKind.CORPORATE_GOLOMTBANK) {
+  return corporateGolomtSchema.extend(settingsFields);
+}
+
+return baseSchema.extend(dynamicFields).extend(settingsFields);
 };
 
 const PaymentForm = ({ payment, onCancel }: Props) => {
@@ -179,7 +198,16 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
   // Get default values from payment prop
   const getDefaultValues = useMemo(() => {
     if (!payment) {
-      return { kind: '', name: '', status: 'active', sendEmailOnPayment: true };
+      return {
+        kind: '',
+        name: '',
+        status: 'active',
+        sendEmailOnPayment: true,
+        dealEnabled: false,
+        dealBoardId: '',
+        dealPipelineId: '',
+        dealStageId: '',
+      };
     }
 
     const defaultValues: Record<string, any> = {
@@ -187,6 +215,10 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
       name: payment.name || '',
       status: payment.status || 'active',
       sendEmailOnPayment: payment.sendEmailOnPayment !== false,
+      dealEnabled: payment.dealConfig?.enabled || false,
+      dealBoardId: payment.dealConfig?.boardId || '',
+      dealPipelineId: payment.dealConfig?.pipelineId || '',
+      dealStageId: payment.dealConfig?.stageId || '',
     };
 
     // Add payment config values
@@ -199,8 +231,10 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
     }
 
     if (selectedKind === PaymentKind.QUICKQR) {
-      defaultValues.type = 'person';
-      defaultValues.city = '11000';
+      defaultValues.type =
+        defaultValues.type ||
+        (payment.config?.isCompany ? 'company' : 'person');
+      defaultValues.city = defaultValues.city || '11000';
     }
 
     return defaultValues;
@@ -244,12 +278,18 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
     }
   }, [payment, form, getDefaultValues]);
 
-  const onSubmit = (data: any) => {
+  const onSubmit = async (data: any) => {
     const input: IPayment = {
       name: data.name,
       kind: data.kind,
       status: data.status,
       sendEmailOnPayment: data.sendEmailOnPayment !== false,
+      dealConfig: {
+        enabled: !!data.dealEnabled,
+        boardId: data.dealEnabled ? data.dealBoardId || '' : '',
+        pipelineId: data.dealEnabled ? data.dealPipelineId || '' : '',
+        stageId: data.dealEnabled ? data.dealStageId || '' : '',
+      },
       config: {},
     };
 
@@ -259,10 +299,14 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
       'name',
       'status',
       'sendEmailOnPayment',
+      'dealEnabled',
+      'dealBoardId',
+      'dealPipelineId',
+      'dealStageId',
     ]);
     Object.entries(data).forEach(([key, value]) => {
       if (!topLevelKeys.has(key)) {
-        config[key] = value;
+        config[key] = key === 'pocketTerminalId' ? Number(value) : value;
       }
     });
     input.config = config;
@@ -270,47 +314,38 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
     try {
       if (paymentState) {
         // Update existing payment
-        editPayment({
+        await editPayment({
           variables: {
             _id: payment._id,
             input,
           },
-        })
-          .then(() => {
-            toast({
-              title: t('success'),
-              description: t('payment-method-updated'),
-            });
-          })
-          .catch((e) => {
-            toast({
-              title: t('error'),
-              description: e.message,
-            });
-          });
+        });
+
+        toast({
+          title: t('success'),
+          description: t('payment-method-updated'),
+        });
       } else {
-        addPayment({
+        await addPayment({
           variables: {
             input,
           },
-        })
-          .then(() => {
-            toast({
-              title: t('success'),
-              description: t('payment-method-added'),
-            });
-          })
-          .catch((e) => {
-            toast({
-              title: t('error'),
-              description: e.message,
-            });
-          });
+        });
+
+        toast({
+          title: t('success'),
+          description: t('payment-method-added'),
+        });
       }
 
       onCancel();
-    } catch (error) {
-      console.error('Form submission error:', error);
+    } catch (e) {
+      // Keep the sheet open so the user can correct the input and retry
+      toast({
+        title: t('error'),
+        description: e instanceof Error ? e.message : String(e),
+        variant: 'destructive',
+      });
     }
   };
 
@@ -321,14 +356,14 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
       return null;
     }
 
-    return <QuickQrForm payment={payment} form={form} Form={Form} />;
+    return <QuickQrForm payment={payment} form={form} />;
   };
   const renderKhanbank = () => {
     if (selectedKind !== PaymentKind.KHANBANK) {
       return null;
     }
 
-    return <KhanbankForm payment={payment} form={form} Form={Form} />;
+    return <KhanbankForm payment={payment} form={form} />;
   };
   const renderCorporateGolomt = () => {
     if (selectedKind !== PaymentKind.CORPORATE_GOLOMTBANK) {
@@ -515,6 +550,8 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
                   </Form.Item>
                 )}
               />
+
+              <DealConfigForm form={form} />
 
               {/* Dynamic Payment-Specific Fields */}
               {currentPaymentKind?.fields.map((fieldConfig) => (

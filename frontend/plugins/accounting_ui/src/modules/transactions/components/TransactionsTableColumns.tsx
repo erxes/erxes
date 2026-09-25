@@ -21,10 +21,18 @@ import {
 } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useTransactionsRemove } from '../transaction-form/hooks/useTransactionsRemove';
-import { TR_JOURNAL_LABELS, TR_STATUS_LABELS, TrJournalEnum } from '../types/constants';
+import {
+  TR_JOURNAL_LABELS,
+  TR_STATUS_LABELS,
+  TrJournalEnum,
+} from '../types/constants';
 import { ITransaction } from '../types/Transaction';
+import {
+  buildTransactionEditPath,
+  getCurrentTransactionReturnPath,
+} from '../utils/transactionNavigation';
 
 // Create named components for cell renderers to fix React Hook usage
 const NumberCell = ({ getValue, row }: any) => {
@@ -155,6 +163,7 @@ const DateCell = ({ getValue }: any) => {
 const AccountCell = ({ row }: any) => {
   const { details, parentId, _id, originId } = row.original;
   const navigate = useNavigate();
+  const location = useLocation();
 
   const name0 = details[0].account?.name;
 
@@ -171,13 +180,19 @@ const AccountCell = ({ row }: any) => {
 
   const handleEditAccount = () => {
     navigate(
-      `/accounting/transaction/edit?parentId=${parentId}&trId=${originId || _id
-      }`,
+      buildTransactionEditPath({
+        parentId,
+        trId: originId || _id,
+        returnTo: getCurrentTransactionReturnPath(location),
+      }),
     );
   };
 
   return (
-    <RecordTableInlineCell onClick={handleEditAccount} className="cursor-pointer">
+    <RecordTableInlineCell
+      onClick={handleEditAccount}
+      className="cursor-pointer"
+    >
       {codes.map((code, i) => {
         const count = infoByCode[code];
         const tot = count > 1 ? `(${count})` : '';
@@ -200,12 +215,16 @@ const TransactionMoreColumnCell = ({
   const { t } = useTranslation('accounting');
   const { parentId, _id, originId } = cell.row.original;
   const navigate = useNavigate();
+  const location = useLocation();
   const { confirm } = useConfirm();
   const { removeTransactions } = useTransactionsRemove();
   const handleEditAcc = () => {
     navigate(
-      `/accounting/transaction/edit?parentId=${parentId}&trId=${originId || _id
-      }`,
+      buildTransactionEditPath({
+        parentId,
+        trId: originId || _id,
+        returnTo: getCurrentTransactionReturnPath(location),
+      }),
     );
   };
   const handleDelete = () =>
@@ -242,6 +261,7 @@ const TransactionMoreColumnCell = ({
 
 const transactionMoreColumn = {
   id: 'more',
+  header: () => <RecordTable.ColumnSelector />,
   cell: TransactionMoreColumnCell,
   size: 33,
 };

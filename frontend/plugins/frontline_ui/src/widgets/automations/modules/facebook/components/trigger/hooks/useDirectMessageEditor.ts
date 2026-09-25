@@ -1,4 +1,5 @@
 import { generateAutomationElementId } from 'ui-modules';
+import { DEFAULT_DIRECT_MESSAGE_OPERATOR } from '../constants/messageTriggerOptions';
 import { TMessageTriggerDirectConditions } from '../types/messageTrigger';
 
 type Props = {
@@ -18,7 +19,11 @@ export const useDirectMessageEditor = ({
   const addCondition = () => {
     onConditionChange('conditions', [
       ...conditions,
-      { _id: generateAutomationElementId(), operator: '', keywords: [] },
+      {
+        _id: generateAutomationElementId(),
+        operator: DEFAULT_DIRECT_MESSAGE_OPERATOR,
+        keywords: [],
+      },
     ]);
   };
 

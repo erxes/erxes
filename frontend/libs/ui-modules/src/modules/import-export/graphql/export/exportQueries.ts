@@ -9,7 +9,6 @@ export const GET_ACTIVE_EXPORTS = gql`
       status
       totalRows
       processedRows
-      fileFormat
       fileKey
       filters
       ids

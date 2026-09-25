@@ -4,7 +4,7 @@ import type { CallbackStat } from '../types';
 import { useCallFilters } from './useCallFilters';
 
 export function useCallbackStats() {
-  const { startDate, endDate, queueId } = useCallFilters();
+  const { startDate, endDate, integrationId, queueId } = useCallFilters();
 
   const { data, loading, error } = useQuery<{
     getCallbackStats: CallbackStat[];
@@ -12,9 +12,10 @@ export function useCallbackStats() {
     variables: {
       startDate,
       endDate,
-      queueId: queueId || undefined,
+      integrationId: integrationId || undefined,
+      queueId: queueId && queueId !== 'all' ? queueId : undefined,
     },
-    skip: !queueId,
+    skip: !integrationId,
   });
 
   return {

@@ -5,7 +5,7 @@ export const types = `
       uiOptions: JSON
       languageCode: String
       messengerData: JSON
-      ticketConfig: JSON
+      ticketConfigs: JSON
       customerId: String
       visitorId: String
       channel: Channel
@@ -59,7 +59,7 @@ export const queries = `
     widgetsTicketCustomerDetail(customerId: String, type: String): Customer
     widgetsGetTicketTags(configId: String,parentId: String): [Tag]
     widgetTicketCheckProgress(number: String!): Ticket
-    widgetTicketComments(contentId: String!): [Note]
+    widgetTicketComments(contentId: String!): [TicketNote]
     widgetTicketActivityLogs(contentId: String): [TicketActivity]
     widgetTicketsByCustomer(customerId: String): [Ticket]
     `;
@@ -137,13 +137,14 @@ export const mutations = `
       statusId: String!
       customerIds: [String!]!
       tagIds: [String!]
+      propertiesData: JSON
     ): Ticket
     
     widgetTicketCommentAdd(
        contentId: String!
        content: String!
        customerId: String
-     ): Note
+     ): TicketNote
     widgetTicketCommentRemove(_id: String!): String
     widgetTicketCheckProgressForget(email: String, phoneNumber: String): JSON
   `;

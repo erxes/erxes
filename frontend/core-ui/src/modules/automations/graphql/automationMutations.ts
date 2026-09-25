@@ -1,12 +1,23 @@
 import { gql } from '@apollo/client';
 import {
   AUTOMATION_ACTION_FIELDS,
+  AUTOMATION_NOTE_FIELDS,
   AUTOMATION_TRIGGER_FIELDS,
 } from './graphqlConstants';
 
 export const AUTOMATION_REMOVE = gql`
   mutation AutomationsRemove($ids: [String]) {
     automationsRemove(automationIds: $ids)
+  }
+`;
+
+export const AUTOMATION_DUPLICATE = gql`
+  mutation AutomationsDuplicate($id: String!, $name: String) {
+    automationsDuplicate(_id: $id, name: $name) {
+      _id
+      name
+      status
+    }
   }
 `;
 
@@ -20,6 +31,8 @@ export const AUTOMATION_EDIT = gql`
     $triggers: [TriggerInput]
     $actions: [ActionInput]
     $workflows: [WorkflowInput]
+    $notes: [NoteInput]
+    $acknowledgeDuplicate: Boolean
   ) {
     automationsEdit(
       _id: $id
@@ -30,6 +43,8 @@ export const AUTOMATION_EDIT = gql`
       triggers: $triggers
       actions: $actions
       workflows: $workflows
+      notes: $notes
+      acknowledgeDuplicate: $acknowledgeDuplicate
     ) {
       _id
       name
@@ -38,6 +53,8 @@ export const AUTOMATION_EDIT = gql`
       flowDirection
       updatedAt
       updatedBy
+      duplicatedFrom
+      duplicatedFromName
       triggers {
         ${AUTOMATION_TRIGGER_FIELDS}
       }
@@ -52,6 +69,9 @@ export const AUTOMATION_EDIT = gql`
         config
         position
       }
+      notes {
+        ${AUTOMATION_NOTE_FIELDS}
+      }
     }
   }
 `;
@@ -65,6 +85,7 @@ export const AUTOMATION_CREATE = gql`
     $triggers: [TriggerInput]
     $actions: [ActionInput]
     $workflows: [WorkflowInput]
+    $notes: [NoteInput]
   ) {
     automationsAdd(
       name: $name
@@ -74,6 +95,7 @@ export const AUTOMATION_CREATE = gql`
       triggers: $triggers
       actions: $actions
       workflows: $workflows
+      notes: $notes
     ) {
       _id
       name

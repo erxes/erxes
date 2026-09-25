@@ -1,5 +1,6 @@
 import { TRecordReferencesConfig } from 'erxes-api-shared/core-modules';
 import { generateModels, IModels } from '~/connectionResolvers';
+import { ticketReferenceCustomResolvers } from '~/modules/ticket/meta/references/ticketReferenceCustomResolvers';
 import { ticketReferenceFetchers } from '~/modules/ticket/meta/references/ticketReferenceFetchers';
 import { TICKET_REFERENCE_TYPES } from '~/modules/ticket/meta/references/ticketReferenceTypes';
 
@@ -33,6 +34,7 @@ export const frontlineReferences: TRecordReferencesConfig<IModels> = {
     },
   },
   resolvers: {
+    ...ticketReferenceCustomResolvers,
     conversationDisplayName: async ({ target }) => {
       const content = String(target?.content || '')
         .replace(/<[^>]*>/g, '')

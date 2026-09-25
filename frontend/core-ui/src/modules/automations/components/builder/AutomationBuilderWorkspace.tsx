@@ -28,83 +28,15 @@ export const AutomationBuilderWorkspace = () => {
   if (loading) {
     return <Spinner />;
   }
+
+  if (editingWorkflowId) {
+    return <WorkflowEditView workflowId={editingWorkflowId} />;
+  }
+
   return (
-    <Resizable.PanelGroup
-      direction="vertical"
-      className="h-full min-h-0 w-full"
-    >
-      {/* Canvas */}
-      <Resizable.Panel
-        id="main-canvas"
-        minSize={30}
-        className="relative flex min-h-0 w-full flex-row overflow-hidden"
-      >
-        {editingWorkflowId ? (
-          <WorkflowEditView workflowId={editingWorkflowId} />
-        ) : (
-          <>
-            <AutomationBuilderCanvas />
-            <AutomationBuilderSidebar />
-          </>
-        )}
-      </Resizable.Panel>
-
-      {/* TODO: Add inspector panel when it is implemented */}
-      {/* {isPanelOpen && editingWorkflowId && (
-        <>
-          <Resizable.Handle />
-
-          <Resizable.Panel
-            id="inspector-panel"
-            defaultSize={30}
-            minSize={5}
-            className="bg-background"
-          >
-            <WorkflowEditView workflowId={editingWorkflowId} />
-          </Resizable.Panel>
-        </>
-      )} */}
-    </Resizable.PanelGroup>
-  );
-};
-
-const AutomationBuilderPanelToggle = ({
-  isOpen,
-  onToggle,
-  openLabel,
-  closedLabel,
-  shortcut,
-  IconComponent,
-}: {
-  isOpen: boolean;
-  onToggle: () => void;
-  openLabel: React.ReactNode;
-  closedLabel: React.ReactNode;
-  shortcut: string;
-  IconComponent: React.ForwardRefExoticComponent<
-    IconProps & React.RefAttributes<Icon>
-  >;
-}) => {
-  return (
-    <Tooltip>
-      <Tooltip.Trigger asChild>
-        <Button
-          variant="ghost"
-          className="bg-sidebar text-primary w-full aspect-square size-16 [&>svg]:size-5"
-          onClick={onToggle}
-        >
-          <IconComponent />
-        </Button>
-      </Tooltip.Trigger>
-      <Tooltip.Content
-        side="left"
-        className="flex flex-row gap-2 items-center bg-background text-primary border font-semibold"
-      >
-        {isOpen ? openLabel : closedLabel}
-        <Badge variant="secondary">
-          <Command.Shortcut>{shortcut}</Command.Shortcut>
-        </Badge>
-      </Tooltip.Content>
-    </Tooltip>
+    <div className="h-full relative flex min-h-0 w-full flex-row overflow-hidden">
+      <AutomationBuilderCanvas />
+      <AutomationBuilderSidebar />
+    </div>
   );
 };

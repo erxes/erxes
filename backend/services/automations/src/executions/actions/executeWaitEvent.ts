@@ -3,6 +3,7 @@ import { setExecutionWaitAction } from '../../bullmq/actionHandlerWorker/setWait
 import { generateModels } from '../../connectionResolver';
 import { TAutomationWaitEventConfig } from '../../types';
 import {
+  AUTOMATION_ERROR_CODES,
   AUTOMATION_EXECUTION_STATUS,
   EXECUTE_WAIT_TYPES,
   IAutomationAction,
@@ -10,6 +11,7 @@ import {
   IAutomationExecutionDocument,
 } from 'erxes-api-shared/core-modules';
 import { getEnv } from 'erxes-api-shared/utils';
+import { AutomationActionError } from '../errorCodes';
 const WAIT_EVENT_DESCRIPTION_MAP = {
   custom: 'Webhook is received',
   trigger: 'Trigger condition is met',
@@ -42,14 +44,16 @@ export const executeWaitEvent = async (
     action.config || {};
 
   if (!targetTypeId) {
-    throw new Error(
+    throw new AutomationActionError(
       'Wait event must specify a target trigger or action to wait for when using trigger or action wait types',
+      AUTOMATION_ERROR_CODES.CONFIG_INVALID,
     );
   }
 
   if (!action.nextActionId) {
-    throw new Error(
+    throw new AutomationActionError(
       'Wait event action must have a next action to continue execution after the wait condition is met',
+      AUTOMATION_ERROR_CODES.CONFIG_INVALID,
     );
   }
 
@@ -79,15 +83,17 @@ export const executeWaitEvent = async (
     const { actions = [] } = execution || {};
     const actionExecution = getLastActionExecution(actions, targetTypeId);
     if (!actionExecution?.result) {
-      throw new Error(
+      throw new AutomationActionError(
         `Action execution not found for action ID: ${targetTypeId}. The action must be executed before it can be used in a wait event.`,
+        AUTOMATION_ERROR_CODES.NOT_FOUND,
       );
     }
 
     const { targetId } = actionExecution.result || {};
     if (!targetId) {
-      throw new Error(
+      throw new AutomationActionError(
         'Failed to set wait condition: targetId not found in action execution result',
+        AUTOMATION_ERROR_CODES.NOT_FOUND,
       );
     }
 

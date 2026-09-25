@@ -6,7 +6,7 @@ export const statsSchema = new Schema({
     label: 'Engage message id at erxes-api',
     unique: true,
   },
-  createdAt: { type: Date, default: new Date() },
+  createdAt: { type: Date, default: Date.now },
   open: {
     type: Number,
     default: 0,
@@ -27,7 +27,7 @@ export const statsSchema = new Schema({
   delivery: {
     type: Number,
     default: 0,
-    label: `Amazon SES successfully delivered the email to the recipient's mail server`,
+    label: `The provider delivered the email to the recipient's mail server`,
   },
   bounce: {
     type: Number,
@@ -38,18 +38,26 @@ export const statsSchema = new Schema({
     type: Number,
     default: 0,
     label:
-      'Amazon SES accepted the email, determined that it contained a virus, and rejected it',
+      'The provider accepted the email, found it to be a risk, and blocked it',
   },
   send: {
     type: Number,
     default: 0,
     label:
-      'The call to Amazon SES was successful and Amazon SES will attempt to deliver the email',
+      'The handoff to the provider succeeded and delivery is being attempted',
   },
   renderingfailure: {
     type: Number,
     default: 0,
     label: `The email wasn't sent because of a template rendering issue`,
+  },
+  deferred: {
+    type: Number,
+    default: 0,
+    // The only sign a provider gives when it is holding us back rather than
+    // refusing us outright: nothing failed, so no error is ever raised.
+    label:
+      'The receiving server asked for the message later and the provider is still trying',
   },
   total: { type: Number, default: 0, label: 'Total of all cases above' },
 });
@@ -77,7 +85,7 @@ export const deliveryReportsSchema = new Schema({
   createdAt: {
     type: Date,
     label: 'Created at',
-    default: new Date(),
+    default: Date.now,
     index: true,
   },
   email: { type: String, label: 'Customer email', index: true },

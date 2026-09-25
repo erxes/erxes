@@ -1,26 +1,23 @@
 import {
   IconMail,
-  IconDotsVertical,
-  IconSettings,
+  IconChartBar,
   IconTicket,
   IconChartHistogram,
   IconForms,
   IconBook,
+  IconLifebuoy,
   IconPlus,
-  IconCaretRightFilled,
 } from '@tabler/icons-react';
-import {
-  NavigationMenuLinkItem,
-  DropdownMenu,
-  Button,
-  Spinner,
-  Skeleton,
-  Badge,
-} from 'erxes-ui';
+import { NavigationMenuLinkItem, Button, Skeleton, Badge } from 'erxes-ui';
 import { IntegrationNavigation } from '@/integrations/components/IntegrationNavigation';
-import { useConversations } from './inbox/conversations/hooks/useConversations';
+import { useInboxUnreadConversationCount } from '@/inbox/conversations/hooks/useConversationCounts';
 import { useTranslation } from 'react-i18next';
+
 export const FrontlineNavigation = () => {
+  return <FrontlineDestinationLinks />;
+};
+
+export const FrontlineDestinationLinks = () => {
   const { t } = useTranslation('frontline');
   const navigate = (path: string) => {
     window.history.pushState(null, '', path);
@@ -30,58 +27,65 @@ export const FrontlineNavigation = () => {
   return (
     <>
       <NavigationMenuLinkItem
-        name={t('inbox')}
+        name={t('team-inbox', 'Team Inbox')}
         icon={IconMail}
         path="frontline/inbox"
-        children={<NotificationCount />}
-      />
+      >
+        <NotificationCount />
+      </NavigationMenuLinkItem>
       <NavigationMenuLinkItem
-        name={t('tickets')}
+        name={t('tickets', 'Tickets')}
         icon={IconTicket}
         path="frontline/tickets"
       />
       <NavigationMenuLinkItem
-        name={t('reports')}
+        name={t('reports', 'Reports')}
         icon={IconChartHistogram}
         path="frontline/reports"
       />
       <IntegrationNavigation />
       <NavigationMenuLinkItem
-        name={t('forms')}
+        name={t('forms', 'Forms')}
         icon={IconForms}
         path="frontline/forms"
       />
-      <div className="relative group/knowledgebase">
-        <NavigationMenuLinkItem
-          name={t('knowledge-base')}
-          icon={IconBook}
-          path="frontline/knowledgebase"
-        />
-
-        <Button
-          variant="ghost"
-          size="icon"
-          className="invisible group-hover/knowledgebase:visible group-focus-within/knowledgebase:visible absolute top-1/2 -translate-y-1/2 right-2 text-muted-foreground hover:bg-transparent hover:text-foreground"
-          onClick={(e) => {
-            e.stopPropagation();
-            navigate('/frontline/knowledgebase?createTopic=true');
-          }}
-          aria-label={t('create-new-topic')}
-          title={t('create-new-topic')}
-        >
-          <IconPlus className="size-4" />
-        </Button>
-      </div>
+      <NavigationMenuLinkItem
+        name={t('surveys', 'Surveys')}
+        icon={IconChartBar}
+        path="frontline/surveys"
+      />
+      <NavigationMenuLinkItem
+        name={t('knowledge-base', 'Knowledge Base')}
+        icon={IconBook}
+        className="group/knowledgebase"
+        path="frontline/knowledgebase"
+        action={
+          <Button
+            variant="ghost"
+            size="icon"
+            className="invisible group-hover/knowledgebase:visible group-focus-within/knowledgebase:visible absolute top-1/2 -translate-y-1/2 right-2 text-muted-foreground hover:bg-transparent hover:text-foreground"
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate('/frontline/knowledgebase?createTopic=true');
+            }}
+            aria-label={t('create-new-topic', 'Create new topic')}
+            title={t('create-new-topic', 'Create new topic')}
+          >
+            <IconPlus className="size-4" />
+          </Button>
+        }
+      />
+      <NavigationMenuLinkItem
+        name={t('help-center', 'Help Center')}
+        icon={IconLifebuoy}
+        path="frontline/helpcenter"
+      />
     </>
   );
 };
 
 export const NotificationCount = () => {
-  const { totalCount, loading } = useConversations({
-    variables: {
-      status: 'new',
-    },
-  });
+  const { totalCount, loading } = useInboxUnreadConversationCount();
 
   if (loading) {
     return <Skeleton className="size-4 rounded-sm" />;

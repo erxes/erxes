@@ -1,9 +1,7 @@
 import { RecordTable } from 'erxes-ui';
 import { useExportHistoriesRecordTable } from '../hooks/useExportHistoriesRecordTable';
-import { ExportHistoriesRecordTableProvider } from './ExportHistoriesContext';
 import { ExportHistoriesEmptyState } from './ExportHistoriesEmptyState';
 import { ExportHistoriesErrorState } from './ExportHistoriesErrorState';
-import { ExportHistoriesRecordTableHeader } from './ExportHistoriesRecordTableHeader';
 
 export function ExportHistories() {
   const {
@@ -14,39 +12,42 @@ export function ExportHistories() {
     hasPreviousPage,
     handleFetchMore,
     columns,
-    providerValue,
+    contentTypes,
     RECORD_TABLE_SESSION_KEY,
     isEmpty,
   } = useExportHistoriesRecordTable();
 
   return (
-    <ExportHistoriesRecordTableProvider value={providerValue}>
-      <ExportHistoriesRecordTableHeader />
-
-      <RecordTable.Provider columns={columns} data={list}>
-        <RecordTable.CursorProvider
-          hasPreviousPage={hasPreviousPage}
-          hasNextPage={hasNextPage}
-          dataLength={list.length}
-          sessionKey={RECORD_TABLE_SESSION_KEY}
-        >
-          <RecordTable>
-            <RecordTable.Header />
-            <RecordTable.Body>
-              <RecordTable.CursorBackwardSkeleton
-                handleFetchMore={handleFetchMore}
+    <RecordTable.Provider columns={columns} data={list} className="m-2">
+      <RecordTable.CursorProvider
+        hasPreviousPage={hasPreviousPage}
+        hasNextPage={hasNextPage}
+        dataLength={list.length}
+        sessionKey={RECORD_TABLE_SESSION_KEY}
+      >
+        <RecordTable>
+          <RecordTable.Header />
+          <RecordTable.Body>
+            <RecordTable.CursorBackwardSkeleton
+              handleFetchMore={handleFetchMore}
+            />
+            {loading && <RecordTable.RowSkeleton rows={20} />}
+            {error && (
+              <ExportHistoriesErrorState columnsLength={columns.length} />
+            )}
+            <RecordTable.RowList />
+            <RecordTable.CursorForwardSkeleton
+              handleFetchMore={handleFetchMore}
+            />
+            {isEmpty && (
+              <ExportHistoriesEmptyState
+                columnsLength={columns.length}
+                contentTypes={contentTypes}
               />
-              {loading && <RecordTable.RowSkeleton rows={20} />}
-              {error && <ExportHistoriesErrorState />}
-              <RecordTable.RowList />
-              <RecordTable.CursorForwardSkeleton
-                handleFetchMore={handleFetchMore}
-              />
-              {isEmpty && <ExportHistoriesEmptyState />}
-            </RecordTable.Body>
-          </RecordTable>
-        </RecordTable.CursorProvider>
-      </RecordTable.Provider>
-    </ExportHistoriesRecordTableProvider>
+            )}
+          </RecordTable.Body>
+        </RecordTable>
+      </RecordTable.CursorProvider>
+    </RecordTable.Provider>
   );
 }

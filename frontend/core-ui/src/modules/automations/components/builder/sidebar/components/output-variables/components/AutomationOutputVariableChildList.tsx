@@ -15,6 +15,7 @@ const AutomationOutputVariableChildItem = ({
   const cardProps = useAutomationVariableCardProps({
     variableKey: `${parentKey}.${variable.key}`,
     label: variable.label,
+    isLink: variable.isLink,
   });
 
   return (

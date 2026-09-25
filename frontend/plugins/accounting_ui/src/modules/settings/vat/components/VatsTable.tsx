@@ -57,9 +57,7 @@ export const VatRowMoreColumnCell = ({
       });
     });
 
-  return (
-    <MoreActionsCell cell={cell} onEdit={handleEdit} onDelete={handleDelete} />
-  );
+  return <MoreActionsCell onEdit={handleEdit} onDelete={handleDelete} />;
 };
 
 export const vatRowMoreColumn = {
@@ -82,6 +80,7 @@ export const VatRowsTable = () => {
       totalCount={totalCount}
       handleFetchMore={handleFetchMore}
       Commandbar={VatRowsCommandbar}
+      tableId="accounting_vat_rows_record_table"
     />
   );
 };

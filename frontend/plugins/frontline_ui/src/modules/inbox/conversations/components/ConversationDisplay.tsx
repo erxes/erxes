@@ -1,3 +1,4 @@
+import { useCanSplitInbox } from '@/inbox/hooks/useInboxLayout';
 import { inboxLayoutState } from '@/inbox/states/inboxLayoutState';
 import { IconLayoutColumns, IconList } from '@tabler/icons-react';
 import { Button, Tooltip } from 'erxes-ui';
@@ -7,8 +8,14 @@ import { useTranslation } from 'react-i18next';
 export const ConversationDisplay = () => {
   const { t } = useTranslation('frontline');
   const [view, setView] = useAtom(inboxLayoutState);
+  const canSplit = useCanSplitInbox();
 
   const Icon = view === 'split' ? IconLayoutColumns : IconList;
+
+  // A narrow viewport is always single-column, so there is nothing to switch.
+  if (!canSplit) {
+    return null;
+  }
 
   return (
     <Tooltip.Provider>
@@ -23,7 +30,9 @@ export const ConversationDisplay = () => {
           </Button>
         </Tooltip.Trigger>
         <Tooltip.Content>
-          {view === 'split' ? t('list-view') : t('split-view')}
+          {view === 'split'
+            ? t('list-view', 'List view')
+            : t('split-view', 'Split view')}
         </Tooltip.Content>
       </Tooltip>
     </Tooltip.Provider>

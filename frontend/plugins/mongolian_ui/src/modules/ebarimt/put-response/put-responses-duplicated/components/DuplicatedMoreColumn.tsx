@@ -24,6 +24,7 @@ export const DuplicatedMoreColumnCell = ({
 
 export const duplicatedMoreColumn = {
   id: 'more',
+  header: () => <RecordTable.ColumnSelector />,
   cell: DuplicatedMoreColumnCell,
   size: 33,
 };

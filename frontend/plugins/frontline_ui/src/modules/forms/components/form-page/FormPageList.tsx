@@ -7,6 +7,7 @@ import { FormCommandBar } from './command-bar/form-command-bar';
 import { IconForms, IconSettings } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { FormsCreateButton } from './forms-create';
 
 export const FormPageList = () => {
   const { t } = useTranslation('frontline');
@@ -33,14 +34,20 @@ export const FormPageList = () => {
           <Empty.Media>
             <IconForms />
           </Empty.Media>
-          <Empty.Title>{t('no-forms-found')}</Empty.Title>
-          <Empty.Description>{t('forms-empty-description')}</Empty.Description>
+          <Empty.Title>{t('no-forms-found', 'No forms found')}</Empty.Title>
+          <Empty.Description>
+            {t(
+              'forms-empty-description',
+              'Create a form to start collecting data.',
+            )}
+          </Empty.Description>
         </Empty.Header>
         <Empty.Content>
+          <FormsCreateButton />
           <Button variant={'outline'} asChild>
             <Link to="/settings/frontline/channels">
               <IconSettings />
-              {t('go-to-channels')}
+              {t('go-to-channels', 'Go to channels')}
             </Link>
           </Button>
         </Empty.Content>
@@ -53,6 +60,7 @@ export const FormPageList = () => {
       columns={formColumns as unknown as ColumnDef<IForm>[]}
       data={forms || []}
       className="m-3"
+      tableId="frontline_forms_record_table"
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}

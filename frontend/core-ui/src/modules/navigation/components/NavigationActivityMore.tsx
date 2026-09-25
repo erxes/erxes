@@ -1,7 +1,8 @@
 import { NavigationActivityPinButton } from '@/navigation/components/NavigationActivityPinButton';
+import { NavigationRailLabel } from '@/navigation/components/NavigationRailLabel';
 import { INavigationActivity } from '@/navigation/types/NavigationActivity';
 import { IconApps, IconDots } from '@tabler/icons-react';
-import { Button, cn, Popover, ScrollArea, Separator } from 'erxes-ui';
+import { Button, cn, Popover, ScrollArea, Separator, Sidebar } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -73,6 +74,7 @@ export const NavigationActivityMore = ({
   onSelect: (activity: INavigationActivity) => void;
 }) => {
   const [open, setOpen] = useState(false);
+  const { isMobile } = Sidebar.useSidebar();
   const { t } = useTranslation('common', { keyPrefix: 'navigation' });
   const pluginActivities = activities.filter(
     (activity) => activity.kind === 'plugin',
@@ -96,25 +98,26 @@ export const NavigationActivityMore = ({
         <Button
           aria-label={t('more-activities')}
           className={cn(
-            'shrink-0 rounded-md [&>svg]:size-4!',
-            expanded
-              ? 'h-7 w-full justify-start gap-2 px-2 text-sm'
-              : 'size-7 justify-center px-0',
+            'h-7 shrink-0 justify-start gap-2 rounded-md text-sm transition-[width,margin,padding] duration-200 ease-linear [&>svg]:size-4!',
+            expanded ? 'w-full px-2' : 'ml-0.5 w-7 px-1.5',
           )}
-          size={expanded ? 'default' : 'icon'}
+          size="default"
           type="button"
           variant="ghost"
         >
           <IconDots className="size-4 text-accent-foreground" />
-          {expanded && (
-            <span className="truncate font-medium">{t('more')}</span>
-          )}
+          <NavigationRailLabel
+            className="truncate font-medium"
+            expanded={expanded}
+          >
+            {t('more')}
+          </NavigationRailLabel>
         </Button>
       </Popover.Trigger>
       <Popover.Content
         align="start"
         className="flex max-h-[var(--radix-popover-content-available-height)] w-52 flex-col overflow-hidden p-1"
-        side="right"
+        side={isMobile && expanded ? 'bottom' : 'right'}
         sideOffset={4}
       >
         <div className="flex h-7 shrink-0 items-center px-2 text-sm font-semibold">

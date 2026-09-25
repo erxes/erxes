@@ -8,32 +8,17 @@ import type {
 import { Queue, QueueEvents, Worker } from 'bullmq';
 import type { Redis } from 'ioredis';
 import { redis } from './redis';
+// Kept in its own module so it can be tested without opening a connection.
+import { toSerializablePayload } from './serializablePayload';
+
+export { toSerializablePayload };
 
 const queueMap = new Map<string, Queue>();
 const queueEventsMap = new Map<string, QueueEvents>();
 
-
-export const toSerializablePayload = <T>(payload: T): T => {
-  if (typeof payload === 'undefined') {
-    return payload;
-  }
-
-  const seen = new WeakSet<object>();
-
-  return JSON.parse(
-    JSON.stringify(payload, (_key, value) => {
-      if (typeof value !== 'object' || value === null) {
-        return value;
-      }
-
-      if (seen.has(value)) {
-        return undefined;
-      }
-
-      seen.add(value);
-      return value;
-    }),
-  );
+export const DEFAULT_JOB_OPTIONS: DefaultJobOptions = {
+  removeOnComplete: true,
+  removeOnFail: { count: 5000, age: 24 * 3600 },
 };
 
 const makeQueueSerializable = (queue: Queue) => {
@@ -47,11 +32,8 @@ const makeQueueSerializable = (queue: Queue) => {
 
   const add = serializableQueue.add.bind(serializableQueue);
 
-  serializableQueue.add = ((
-    name: string,
-    data?: unknown,
-    opts?: JobsOptions,
-  ) => add(name, toSerializablePayload(data), opts)) as Queue['add'];
+  serializableQueue.add = ((name: string, data?: unknown, opts?: JobsOptions) =>
+    add(name, toSerializablePayload(data), opts)) as Queue['add'];
   serializableQueue.isSerializableAddWrapped = true;
 
   return serializableQueue;
@@ -102,7 +84,10 @@ export const sendWorkerQueue = (serviceName: string, queueName: string) => {
   let queue = queueMap.get(queueKey);
 
   if (!queue) {
-    queue = new Queue(queueKey, { connection: redis });
+    queue = new Queue(queueKey, {
+      connection: redis,
+      defaultJobOptions: DEFAULT_JOB_OPTIONS,
+    });
     makeQueueSerializable(queue);
     queueMap.set(queueKey, queue);
   }
@@ -134,7 +119,10 @@ export const sendWorkerMessage = async ({
   // Get or create the Queue instance
   let queue = queueMap.get(queueKey);
   if (!queue) {
-    queue = new Queue(queueKey, { connection: redis });
+    queue = new Queue(queueKey, {
+      connection: redis,
+      defaultJobOptions: DEFAULT_JOB_OPTIONS,
+    });
     makeQueueSerializable(queue);
     queueMap.set(queueKey, queue);
   }

@@ -1,7 +1,7 @@
-import { Input, Select, Switch } from 'erxes-ui';
+import { Form, Input, Select, Switch } from 'erxes-ui';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { UseFormReturn } from 'react-hook-form';
+import { FieldValues, UseFormReturn } from 'react-hook-form';
 import SelectDistrict from '~/modules/settings/payment/components/SelectDistrict';
 import { BANK_CODES, CITIES, MCC_CODES } from '~/modules/payment/constants';
 import {
@@ -33,11 +33,10 @@ export type QuickQrFormValues = {
 
 type Props = {
   payment?: IPaymentDocument;
-  form: UseFormReturn<any>; // ← IMPORTANT: matches PaymentForm
-  Form: typeof import('erxes-ui/components/form').Form;
+  form: UseFormReturn<FieldValues>;
 };
 
-const QuickQrForm: React.FC<Props> = ({ payment, form, Form }) => {
+const QuickQrForm: React.FC<Props> = ({ payment, form }) => {
   const { t } = useTranslation('payment');
   const { register, watch, setValue, control } = form;
 
@@ -95,16 +94,15 @@ const QuickQrForm: React.FC<Props> = ({ payment, form, Form }) => {
           <Form.Item>
             <Form.Label>{t('type')} *</Form.Label>
             <Form.Control>
-              <Select
-                value={field.value}
-                onValueChange={field.onChange}
-              >
+              <Select value={field.value} onValueChange={field.onChange}>
                 <Select.Trigger>
                   <Select.Value placeholder={t('select-type')} />
                 </Select.Trigger>
                 <Select.Content>
                   <Select.Group>
-                    <Select.Item value="company">{t('mcc-company')}</Select.Item>
+                    <Select.Item value="company">
+                      {t('mcc-company')}
+                    </Select.Item>
                     <Select.Item value="person">{t('mcc-person')}</Select.Item>
                   </Select.Group>
                 </Select.Content>
@@ -129,10 +127,7 @@ const QuickQrForm: React.FC<Props> = ({ payment, form, Form }) => {
               <Form.Item>
                 <Form.Label>{t('mcc-code')} *</Form.Label>
                 <Form.Control>
-                  <Select
-                    value={field.value}
-                    onValueChange={field.onChange}
-                  >
+                  <Select value={field.value} onValueChange={field.onChange}>
                     <Select.Trigger>
                       <Select.Value placeholder={t('select-mcc-code')} />
                     </Select.Trigger>
@@ -158,10 +153,7 @@ const QuickQrForm: React.FC<Props> = ({ payment, form, Form }) => {
               <Form.Item>
                 <Form.Label>{t('city')} *</Form.Label>
                 <Form.Control>
-                  <Select
-                    value={field.value}
-                    onValueChange={field.onChange}
-                  >
+                  <Select value={field.value} onValueChange={field.onChange}>
                     <Select.Trigger>
                       <Select.Value placeholder={t('select-city')} />
                     </Select.Trigger>

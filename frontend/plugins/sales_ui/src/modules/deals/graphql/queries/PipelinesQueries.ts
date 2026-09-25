@@ -35,6 +35,8 @@ export const GET_PIPELINE_DETAIL = gql`
       isCheckUser
       isCheckDepartment
       excludeCheckUserIds
+      propertyIds
+      isPropertySelectionConfigured
     }
   }
 `;
@@ -94,6 +96,7 @@ export const GET_PIPELINES = gql`
         _id
         name
         boardId
+        visibility
         state
         startDate
         endDate

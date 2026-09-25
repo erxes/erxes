@@ -34,10 +34,16 @@ function extractDbName(url: string): string {
   return withoutQuery.slice(withoutQuery.lastIndexOf('/') + 1);
 }
 
-
 const COLLECTIONS = [
   // response templates
   'response_templates',
+
+  'tickets_pipelines',
+  'tickets_stages',
+  'tickets',
+  'ticket_comments',
+  'tickets_checklists',
+  'tickets_checklist_items',
 
   // ticket
   'frontline_tickets_pipeline',
@@ -91,23 +97,19 @@ const COLLECTIONS = [
   'calls_queue_statistics',
   'calls_sessions',
 
-  // imap
-  'imap_customers',
-  'imap_integrations',
-  'imap_messages',
-  'imap_logs',
-
   // form
   'frontline_form_fields',
   'frontline_forms',
   'frontline_form_submissions',
+  'form_fields',
+  'forms',
+  'form_submissions',
 
   // knowledgebase
   'knowledgebase_articles',
   'knowledgebase_categories',
   'knowledgebase_topics',
 ];
-
 
 const UNIQUE_FIELDS: Record<string, string[]> = {
   customers_facebooks: ['userId'],
@@ -122,8 +124,6 @@ const UNIQUE_FIELDS: Record<string, string[]> = {
   calls_cdr: ['acctId'],
   calls_integrations: ['srcTrunk', 'dstTrunk'],
   calls_history: ['uniqueid'],
-  imap_integrations: ['email'],
-  imap_messages: ['messageId'],
   knowledgebase_articles: ['code'],
   knowledgebase_categories: ['code'],
   knowledgebase_topics: ['code'],
@@ -149,7 +149,6 @@ const normalizeValue = (field: string, value: unknown): string => {
   const str = String(value ?? '');
   return field === 'email' ? str.toLowerCase().trim() : str;
 };
-
 
 async function migrateByReplace(
   srcCol: Collection,
@@ -184,7 +183,6 @@ async function migrateByReplace(
 
   return stats;
 }
-
 
 async function migrateWithDedup(
   srcCol: Collection,
@@ -341,8 +339,12 @@ async function main() {
         }
 
         const uniqueFields = UNIQUE_FIELDS[colName];
-        const mode = uniqueFields ? `dedup(${uniqueFields.join(',')})` : 'upsert';
-        console.log(`[${colName}] migrating ${sourceCount} documents [${mode}]...`);
+        const mode = uniqueFields
+          ? `dedup(${uniqueFields.join(',')})`
+          : 'upsert';
+        console.log(
+          `[${colName}] migrating ${sourceCount} documents [${mode}]...`,
+        );
 
         let stats: CollectionStats;
         if (uniqueFields) {

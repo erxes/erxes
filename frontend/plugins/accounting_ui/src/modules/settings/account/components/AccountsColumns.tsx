@@ -1,7 +1,6 @@
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import { IAccount, JournalEnum } from '../types/Account';
 import {
-  CurrencyCode,
   ITextFieldContainerProps,
   RecordTable,
   CurrencyField,
@@ -19,6 +18,10 @@ import { useAccountEdit } from '../hooks/useAccountEdit';
 import { useAccountsRemove } from '../hooks/useAccountsRemove';
 import { JOURNAL_LABELS } from '../constants/journalLabel';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
+import {
+  getCurrencyCodeFromOptions,
+  useCurrencyConfigs,
+} from '../../hooks/useCurrencyConfigs';
 
 const AccountCategoryCell = ({ cell }: { cell: Cell<IAccount, unknown> }) => {
   const { original } = cell.row;
@@ -71,12 +74,16 @@ const AccountTextField = ({
 
 const AccountCurrencyCell = ({ cell }: { cell: Cell<IAccount, unknown> }) => {
   const { editAccount } = useAccountEdit();
+  const { dealCurrencyOptions } = useCurrencyConfigs();
+  const value = cell.getValue<string>();
+
   return (
     <CurrencyField.SelectCurrency
-      value={cell.getValue() as CurrencyCode}
+      value={getCurrencyCodeFromOptions(value, dealCurrencyOptions)}
       variant="ghost"
       className="w-full focus-visible:relative focus-visible:z-10 font-normal"
       hideChevron
+      currencies={dealCurrencyOptions}
       onChange={(value) => {
         editAccount({ variables: { ...cell.row.original, currency: value } }, [
           'currency',
@@ -136,6 +143,7 @@ export const AccountMoreColumnCell = ({
 
 export const accountMoreColumn = {
   id: 'more',
+  header: () => <RecordTable.ColumnSelector />,
   cell: AccountMoreColumnCell,
   size: 33,
 };

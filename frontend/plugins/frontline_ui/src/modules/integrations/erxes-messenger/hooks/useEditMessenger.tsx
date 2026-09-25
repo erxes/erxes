@@ -76,12 +76,12 @@ export const useEditMessenger = () => {
           ),
         ];
 
-        if (configFormValues.ticketConfigId) {
+        if (configFormValues.ticketConfigIds) {
           saves.push(
             saveTicketConfigMutation({
               variables: {
                 _id: integrationId,
-                configId: configFormValues.ticketConfigId,
+                configIds: configFormValues.ticketConfigIds,
               },
             }).catch((e) =>
               toast({

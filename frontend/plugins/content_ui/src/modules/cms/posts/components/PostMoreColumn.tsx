@@ -209,6 +209,7 @@ export const postMoreColumn = (
   onRefetch?: () => void,
 ) => ({
   id: 'more',
+  header: () => <RecordTable.ColumnSelector />,
   cell: (cell: CellContext<Posts, unknown>) => (
     <PostMoreColumnCell
       cell={cell}

@@ -8,6 +8,11 @@ export type TAiAgentRecord = {
   description: string;
   createdAt: string;
   approvalLockState?: ApprovalLockState;
+  usage?: {
+    total: number;
+    active: number;
+    automations: Array<{ _id: string; name: string; status: string }>;
+  };
   connection?: {
     provider?: string;
     model?: string;

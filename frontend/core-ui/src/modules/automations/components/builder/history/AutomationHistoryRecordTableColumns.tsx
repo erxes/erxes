@@ -2,10 +2,11 @@ import { AutomationHistoryDetail } from '@/automations/components/builder/histor
 import { AutomationHistoryPopoverValue } from '@/automations/components/builder/history/components/AutomationHistoryPopoverValue';
 import { AutomationHistoryResultName } from '@/automations/components/builder/history/components/AutomationHistoryResultName';
 import { AutomationHistoryTriggerCell } from '@/automations/components/builder/history/components/AutomationHistoryTriggerCell';
+import { useSelectExecutionCellProps } from '@/automations/components/builder/history/hooks/useAutomationHistoryView';
 import { STATUSES_BADGE_VARIABLES } from '@/automations/constants';
 import { StatusBadgeValue } from '@/automations/types';
-import { IconCalendarTime } from '@tabler/icons-react';
-import { ColumnDef } from '@tanstack/table-core';
+import { IconAlertTriangle, IconCalendarTime } from '@tabler/icons-react';
+import { CellContext, ColumnDef } from '@tanstack/table-core';
 import dayjs from 'dayjs';
 import {
   Badge,
@@ -23,7 +24,7 @@ const TitleHeader = () => {
 
 const DescriptionHeader = () => {
   const { t } = useTranslation('automations');
-  return <RecordTable.InlineHead label={t('trigger')} />;
+  return <RecordTable.InlineHead label={t('description')} />;
 };
 
 const TriggerHeader = () => {
@@ -40,6 +41,48 @@ const CreatedAtHeader = () => {
   const { t } = useTranslation('automations');
   return (
     <RecordTable.InlineHead icon={IconCalendarTime} label={t('created-at')} />
+  );
+};
+
+const StatusCell = ({ cell }: CellContext<IAutomationHistory, unknown>) => {
+  const { t } = useTranslation('automations');
+  const status = cell.getValue() as IAutomationHistory['status'];
+  const variant: StatusBadgeValue = STATUSES_BADGE_VARIABLES[status];
+  const selectProps = useSelectExecutionCellProps(cell.row.original._id);
+  // A run that absorbed a failure still looks done, so the row says that
+  // something inside it did not happen.
+  const failedAfterwards =
+    cell.row.original.handledFailureActionIds?.length || 0;
+
+  return (
+    <RecordTableInlineCell {...selectProps}>
+      <div className="flex items-center gap-1.5">
+        <Badge variant={variant}>{status}</Badge>
+        {!!failedAfterwards && (
+          <IconAlertTriangle
+            className="size-3.5 shrink-0 text-warning"
+            aria-label={t('failed-after-finish', {
+              count: failedAfterwards,
+            })}
+            title={t('failed-after-finish', {
+              count: failedAfterwards,
+            })}
+          />
+        )}
+      </div>
+    </RecordTableInlineCell>
+  );
+};
+
+const CreatedAtCell = ({ cell }: CellContext<IAutomationHistory, unknown>) => {
+  const selectProps = useSelectExecutionCellProps(cell.row.original._id);
+
+  return (
+    <RecordTableInlineCell {...selectProps}>
+      <RelativeDateDisplay.Value
+        value={dayjs(cell.getValue() as string).format('YYYY-MM-DD HH:mm:ss')}
+      />
+    </RecordTableInlineCell>
   );
 };
 
@@ -83,28 +126,12 @@ export const automationHistoriesColumns: ColumnDef<IAutomationHistory>[] = [
     id: 'status',
     accessorKey: 'status',
     header: StatusHeader,
-    cell: ({ cell }) => {
-      const status = cell.getValue() as IAutomationHistory['status'];
-
-      const variant: StatusBadgeValue = STATUSES_BADGE_VARIABLES[status];
-
-      return (
-        <RecordTableInlineCell>
-          <Badge variant={variant}>{status}</Badge>
-        </RecordTableInlineCell>
-      );
-    },
+    cell: StatusCell,
   },
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
     header: CreatedAtHeader,
-    cell: ({ cell }) => (
-      <RecordTableInlineCell>
-        <RelativeDateDisplay.Value
-          value={dayjs(cell.getValue() as string).format('YYYY-MM-DD HH:mm:ss')}
-        />
-      </RecordTableInlineCell>
-    ),
+    cell: CreatedAtCell,
   },
 ];

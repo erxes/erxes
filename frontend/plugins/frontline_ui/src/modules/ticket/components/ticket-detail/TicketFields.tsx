@@ -2,40 +2,39 @@ import { ActivityList } from '@/activity/components/ActivityList';
 import { useGetPipeline } from '@/pipelines/hooks/useGetPipeline';
 import { useGetTicketStatusById } from '@/status/hooks/useGetTicketStatus';
 import { SelectAssigneeTicket } from '@/ticket/components/ticket-selects/SelectAssigneeTicket';
+import { SelectAssignedMembersTicket } from '@/ticket/components/ticket-selects/SelectAssignedMembersTicket';
+import { SelectBranchTicket } from '@/ticket/components/ticket-selects/SelectBranchTicket';
 import { SelectChannel } from '@/ticket/components/ticket-selects/SelectChannel';
 import { SelectDateTicket } from '@/ticket/components/ticket-selects/SelectDateTicket';
+import { SelectDepartmentTicket } from '@/ticket/components/ticket-selects/SelectDepartmentTicket';
 import { SelectPipeline } from '@/ticket/components/ticket-selects/SelectPipeline';
 import { SelectPriorityTicket } from '@/ticket/components/ticket-selects/SelectPriorityTicket';
 import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
+import { SelectTagsTicket } from '@/ticket/components/ticket-selects/SelectTagsTicket';
 import { useTicketRemove } from '@/ticket/hooks/useRemoveTicket';
-import { useRemoveTicketsFromView } from '@/ticket/hooks/useRemoveTicketsFromView';
 import { useTicketPermissions } from '@/ticket/hooks/useTicketPermissions';
+import { useToggleTicketArchive } from '@/ticket/hooks/useToggleTicketArchive';
 import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
-import { GET_TICKETS } from '@/ticket/graphql/queries/getTickets';
 import { ITicket } from '@/ticket/types';
 import { IAttachment } from '@/ticket/types/attachments';
 import { Block } from '@blocknote/core';
-import { IconSquareToggle, IconTags, IconTrash } from '@tabler/icons-react';
+import { IconSquareToggle, IconTrash } from '@tabler/icons-react';
 import {
   BlockEditor,
   Button,
-  Combobox,
   DropdownMenu,
   Input,
   Separator,
   Tooltip,
   useBlockEditor,
   useConfirm,
-  useQueryState,
   useToast,
 } from 'erxes-ui';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { TagsSelect } from 'ui-modules';
 import { useDebounce } from 'use-debounce';
 import { AttachmentProvider } from '../attachments/AttachmentContext';
 import AttachmentUploader from '../attachments/AttachmentUploader';
-import Attachments from '../attachments/Attachments';
 
 export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
   const { t } = useTranslation('frontline');
@@ -43,11 +42,14 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
     _id: ticketId,
     priority,
     assigneeId,
+    assignedMembers,
     name: _name,
     targetDate,
     pipelineId,
     statusId,
     channelId,
+    branchId,
+    departmentId,
     tagIds,
     isSubscribed: _isSubscribed,
     state: ticketState,
@@ -117,7 +119,7 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
 
   const editor = useBlockEditor({
     initialContent: descriptionContent,
-    placeholder: t('description-ellipsis'),
+    placeholder: t('description-ellipsis', 'Description...'),
   });
   const { pipeline } = useGetPipeline(pipelineId);
   const { status: currentStatus } = useGetTicketStatusById(statusId);
@@ -136,8 +138,7 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
 
   const { updateTicket } = useUpdateTicket();
   const { removeTicket } = useTicketRemove();
-  const { removeTicketsFromView } = useRemoveTicketsFromView();
-  const [stateFilter] = useQueryState<string>('state');
+  const { toggleArchive } = useToggleTicketArchive();
   const [name, setName] = useState(_name);
   const [isSubscribed, setSubscribe] = useState<boolean>(
     _isSubscribed || false,
@@ -164,7 +165,11 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
         }}
       >
         <Button variant="ghost">
-          <legend>{isSubscribed ? t('unsubscribe') : t('subscribe')}</legend>
+          <legend>
+            {isSubscribed
+              ? t('unsubscribe', 'UnSubscribe')
+              : t('subscribe', 'Subscribe')}
+          </legend>
         </Button>
       </div>
     );
@@ -177,44 +182,22 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
   const [debouncedName, nameDebounce] = useDebounce(name, 1000);
 
   const handleArchiveToggle = () => {
-    const newState = state === 'active' ? 'archived' : 'active';
     const previousState = state;
 
     // Optimistically update the UI
-    setState(newState);
+    setState(state === 'active' ? 'archived' : 'active');
 
-    updateTicket({
-      variables: {
-        _id: ticketId,
-        state: newState,
-      },
-      refetchQueries: [GET_TICKETS],
-      onCompleted: () => {
-        if (newState !== (stateFilter || 'active')) {
-          removeTicketsFromView([ticketId]);
-        }
-        toast({
-          title: t('success'),
-          description:
-            newState === 'archived'
-              ? t('ticket-archived-successfully')
-              : t('ticket-restored-successfully'),
-        });
-      },
-      onError: (error) => {
-        setState(previousState);
-        toast({
-          title: t('error'),
-          description: error.message,
-          variant: 'destructive',
-        });
-      },
+    toggleArchive([ticketId], state === 'archived', {
+      onError: () => setState(previousState),
     });
   };
 
   const handleDeleteTicket = async () => {
     confirm({
-      message: t('confirm-delete-ticket'),
+      message: t(
+        'confirm-delete-ticket',
+        'Are you sure you want to delete this ticket?',
+      ),
     }).then(async () => {
       isRemovedRef.current = true;
       nameDebounce.cancel();
@@ -222,14 +205,17 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
       try {
         await removeTicket([ticketId]);
         toast({
-          title: t('success'),
+          title: t('success', 'Success!'),
           variant: 'success',
-          description: t('ticket-deleted-successfully'),
+          description: t(
+            'ticket-deleted-successfully',
+            'Ticket deleted successfully',
+          ),
         });
       } catch (e: any) {
         isRemovedRef.current = false;
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: e.message,
           variant: 'destructive',
         });
@@ -292,111 +278,136 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
       <div className="flex flex-col gap-3 h-full px-5 py-8">
         <Input
           className="shadow-none focus-visible:shadow-none h-8 text-xl p-0"
-          placeholder={t('ticket-name')}
+          placeholder={t('ticket-name', 'Ticket Name')}
           value={name}
           onChange={(e) => setName(e.target.value)}
           disabled={!canEditTicket}
         />{' '}
-        <TagsSelect.Provider
-          value={tagIds || []}
-          mode="multiple"
-          type="frontline:ticket"
-          onValueChange={(newTagIds: string[] | string) => {
-            updateTicket({
-              variables: {
-                _id: ticketId,
-                tagIds: newTagIds,
-              },
-            });
-          }}
-        >
-          <div className="gap-2 flex flex-wrap w-full items-center">
-            <Tooltip>
-              <div className="relative">
-                <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed"></Tooltip.Trigger>
-                <SelectChannel value={channelId} variant="detail" disabled />
-              </div>
-              <Tooltip.Content>
-                {t('channel-cannot-be-changed')}
-              </Tooltip.Content>
-            </Tooltip>
-            <Tooltip>
-              <div className="relative">
-                <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed"></Tooltip.Trigger>
-                <SelectPipeline
-                  value={pipelineId}
-                  variant="detail"
-                  channelId={channelId}
-                  disabled
-                />
-              </div>
-              <Tooltip.Content>
-                {t('pipeline-cannot-be-changed')}
-              </Tooltip.Content>
-            </Tooltip>
-            <SelectStatusTicket
-              variant="detail"
-              value={statusId}
-              id={ticketId}
-              pipelineId={pipelineId}
-              disabled={!canMoveTicket}
-            />
-            <SelectPriorityTicket
-              id={ticketId}
-              value={priority}
-              variant="detail"
-              disabled={!canEditTicket}
-            />
-            <SelectAssigneeTicket
-              variant="detail"
-              value={assigneeId}
-              id={ticketId}
-              disabled={!canEditTicket}
-            />
-            <SelectDateTicket
-              value={startDate ? new Date(startDate) : undefined}
-              id={ticketId}
-              type="startDate"
-              variant="detail"
-              disabled={!canEditTicket}
-            />
-            <SelectDateTicket
-              value={targetDate ? new Date(targetDate) : undefined}
-              id={ticketId}
-              type="targetDate"
-              variant="detail"
-              disabled={!canEditTicket}
-            />
-            <DropdownMenu>
-              <DropdownMenu.Trigger asChild>
-                <Button variant="ghost" size="sm">
-                  <IconSquareToggle />
-                  {state === 'active' ? t('archive') : t('unarchive')}
-                </Button>
-              </DropdownMenu.Trigger>
-              <DropdownMenu.Content>
-                <DropdownMenu.Item onSelect={handleArchiveToggle}>
-                  <IconSquareToggle />
-                  {state === 'active' ? t('archive') : t('unarchive')}
-                </DropdownMenu.Item>
-                <DropdownMenu.Item
-                  onSelect={handleDeleteTicket}
-                  className="text-destructive"
-                >
-                  <IconTrash />
-                  {t('delete')}
-                </DropdownMenu.Item>
-              </DropdownMenu.Content>
-            </DropdownMenu>
-            <FieldSubscribeSwitch isSubscribed={isSubscribed} />
-            <IconTags className="size-5 ml-2"></IconTags>
-            <TagsSelect.SelectedList />
-            <TagsSelect.Trigger variant="ICON" />
-            <Combobox.Content>
-              <TagsSelect.Content />
-            </Combobox.Content>
-          </div>
-        </TagsSelect.Provider>
+        <div className="gap-2 flex flex-wrap w-full items-center">
+          <Tooltip>
+            <div className="relative">
+              <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed"></Tooltip.Trigger>
+              <SelectChannel value={channelId} variant="detail" disabled />
+            </div>
+            <Tooltip.Content>
+              {t('channel-cannot-be-changed', 'Channel cannot be changed')}
+            </Tooltip.Content>
+          </Tooltip>
+          <Tooltip>
+            <div className="relative">
+              <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed"></Tooltip.Trigger>
+              <SelectPipeline
+                value={pipelineId}
+                variant="detail"
+                channelId={channelId}
+                disabled
+              />
+            </div>
+            <Tooltip.Content>
+              {t('pipeline-cannot-be-changed', 'Pipeline cannot be changed')}
+            </Tooltip.Content>
+          </Tooltip>
+          <Tooltip>
+            <div className="relative">
+              <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed" />
+              <SelectBranchTicket
+                value={branchId || ''}
+                variant="detail"
+                disabled
+              />
+            </div>
+            <Tooltip.Content>
+              {t('branch-cannot-be-changed', 'Branch cannot be changed')}
+            </Tooltip.Content>
+          </Tooltip>
+          <Tooltip>
+            <div className="relative">
+              <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed" />
+              <SelectDepartmentTicket
+                value={departmentId || ''}
+                variant="detail"
+                disabled
+              />
+            </div>
+            <Tooltip.Content>
+              {t(
+                'department-cannot-be-changed',
+                'Department cannot be changed',
+              )}
+            </Tooltip.Content>
+          </Tooltip>
+          <SelectStatusTicket
+            variant="detail"
+            value={statusId}
+            id={ticketId}
+            pipelineId={pipelineId}
+            disabled={!canMoveTicket}
+          />
+          <SelectPriorityTicket
+            id={ticketId}
+            value={priority}
+            variant="detail"
+            disabled={!canEditTicket}
+          />
+          <SelectAssigneeTicket
+            variant="detail"
+            value={assigneeId}
+            id={ticketId}
+            disabled={!canEditTicket}
+          />
+          <SelectAssignedMembersTicket
+            variant="detail"
+            value={assignedMembers}
+            id={ticketId}
+            disabled={!canEditTicket}
+          />
+          <SelectDateTicket
+            value={startDate ? new Date(startDate) : undefined}
+            id={ticketId}
+            type="startDate"
+            variant="detail"
+            disabled={!canEditTicket}
+          />
+          <SelectDateTicket
+            value={targetDate ? new Date(targetDate) : undefined}
+            id={ticketId}
+            type="targetDate"
+            variant="detail"
+            disabled={!canEditTicket}
+          />
+          <SelectTagsTicket
+            id={ticketId}
+            value={tagIds || []}
+            variant="detail"
+            disabled={!canEditTicket}
+          />
+          <DropdownMenu>
+            <DropdownMenu.Trigger asChild>
+              <Button variant="ghost" size="sm">
+                <IconSquareToggle />
+                {state === 'active'
+                  ? t('archive', 'Archive')
+                  : t('unarchive', 'Unarchive')}
+              </Button>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Content>
+              <DropdownMenu.Item onSelect={handleArchiveToggle}>
+                <IconSquareToggle />
+                {state === 'active'
+                  ? t('archive', 'Archive')
+                  : t('unarchive', 'Unarchive')}
+              </DropdownMenu.Item>
+              <DropdownMenu.Item
+                onSelect={handleDeleteTicket}
+                className="text-destructive"
+              >
+                <IconTrash />
+                {t('delete', 'Delete')}
+              </DropdownMenu.Item>
+            </DropdownMenu.Content>
+          </DropdownMenu>
+          <FieldSubscribeSwitch isSubscribed={isSubscribed} />
+        </div>
         <AttachmentUploader
           id={ticketId}
           attachments={ticket?.attachments || []}

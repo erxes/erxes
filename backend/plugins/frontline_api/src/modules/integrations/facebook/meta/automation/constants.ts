@@ -106,6 +106,12 @@ export const facebookConstants = {
       label: 'Send Facebook Message',
       description: 'Send Facebook Message',
       isAvailableOptionalConnect: true,
+      // Replies inside an existing thread: the target must be a facebook
+      // message, not a contact.
+      requiresTargetTypes: [
+        'frontline:facebook.messages',
+        'frontline:facebook.comments',
+      ],
       allowedMultiTriggerTypes: [
         'frontline:facebook.messages',
         'frontline:facebook.comments',
@@ -119,6 +125,12 @@ export const facebookConstants = {
       icon: 'IconBrandFacebook',
       label: 'Send Facebook Comment',
       description: 'Send Facebook Comments',
+      // A comment lives under a post, so there is no per-contact instance of
+      // one: the target must be a facebook comment.
+      requiresTargetTypes: ['frontline:facebook.comments'],
+      // Public replies are paced through an outbox, and the private reply that
+      // follows must not wait behind them.
+      deferred: { enable: true, mode: 'ignore' as const, timeoutMinutes: 60 },
       output: facebookCommentActionOutput,
     },
   ],

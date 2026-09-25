@@ -36,6 +36,7 @@ export const addEBarimtStageInConfigSchema = z.object({
   reverseCtaxRules: z.array(z.string()).optional(),
   withDescription: z.boolean().optional(),
   skipEbarimt: z.boolean().optional(),
+  sendEmail: z.boolean().optional(),
 });
 
 export type TStageInEbarimtConfig = z.infer<
@@ -47,6 +48,7 @@ export const STAGE_IN_EBARIMT_DEFAULT_VALUES: TStageInEbarimtConfig = {
   boardId: '',
   pipelineId: '',
   stageId: '',
+  sendEmail: false,
 };
 
 export const getStageInEBarimtFormValues = (
@@ -56,4 +58,5 @@ export const getStageInEBarimtFormValues = (
   boardId: detail.boardId || '',
   pipelineId: detail.pipelineId || '',
   stageId: detail.stageId || '',
+  sendEmail: detail.sendEmail || false,
 });

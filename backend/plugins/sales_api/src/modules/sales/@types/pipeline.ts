@@ -29,6 +29,8 @@ export interface IPipeline {
   excludeProductIds?: string[];
   paymentIds?: string[];
   paymentTypes?: any[];
+  propertyIds?: string[];
+  isPropertySelectionConfigured?: boolean;
 
   userId?: string;
   order?: number;

@@ -26,6 +26,11 @@ export const REPORT_MODULES = [
     icon: 'IconDeviceLaptop',
     module: 'channel',
   },
+  {
+    name: 'Facebook',
+    icon: 'IconBrandFacebook',
+    module: 'facebook',
+  },
 ];
 
 export const RESPONSES_CHART_TYPE_OPTIONS: ResponsesChartTypeOption[] = [

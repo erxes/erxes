@@ -8,24 +8,24 @@ export const TicketReportsView = () => {
     <div className="p-6 flex flex-col gap-6">
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <KpiCard
-          title={t('total-tickets')}
+          title={t('total-tickets', 'Total Tickets')}
           value="0"
-          subtitle={t('all-priorities')}
+          subtitle={t('all-priorities', 'All Priorities')}
           icon={<IconTicket className="h-5 w-5" />}
           valueClass="text-foreground"
           iconClass="bg-muted text-muted-foreground"
         />
         <KpiCard
-          title={t('resolved')}
+          title={t('resolved', 'Resolved')}
           value="0"
-          subtitle={t('closed-tickets')}
+          subtitle={t('closed-tickets', 'Closed tickets')}
           icon={<IconCircleCheck className="h-5 w-5" />}
           valueClass="text-[var(--pos)]"
           iconClass="bg-[var(--pos)]/10 text-[var(--pos)]"
         />
       </div>
       <div className="text-center text-sm text-muted-foreground">
-        {t('ticket-reports-coming-soon')}
+        {t('ticket-reports-coming-soon', 'Ticket reports coming soon...')}
       </div>
     </div>
   );

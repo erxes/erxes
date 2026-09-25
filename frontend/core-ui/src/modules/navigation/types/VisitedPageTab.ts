@@ -1,4 +1,5 @@
 export interface IVisitedPageTab {
+  id: string;
   pathname: string;
   search?: string;
 }

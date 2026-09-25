@@ -1,8 +1,12 @@
 import { debugError } from '@/integrations/facebook/debuggers';
 import { receiveInboxMessage } from '@/inbox/receiveMessage';
 import { TAutomationActionConfig } from '@/integrations/facebook/meta/automation/types/automationTypes';
-import { checkContentConditions } from '@/integrations/facebook/meta/automation/utils/messageUtils';
 import {
+  checkContentConditions,
+  isPostbackPayload,
+} from '@/integrations/facebook/meta/automation/utils/messageUtils';
+import {
+  buildSkippedAction,
   IAutomationAction,
   IAutomationExecution,
   replaceOutputPlaceholders,
@@ -16,6 +20,7 @@ import {
   generateMessages,
   getOrCreateFacebookMessageActionContext,
   resolveMessageActionConfigTemplates,
+  resolveMessagingWindow,
   sendMessage,
 } from './utils';
 
@@ -99,9 +104,9 @@ export const checkMessageTrigger = async (
   }
 
   const payload = target?.payload || {};
-  const { persistentMenuId, isBackBtn } = payload;
+  const { persistentMenuId, isBackBtn, iceBreakerId } = payload;
   if (persistentMenuId && isBackBtn) {
-    sendWorkerQueue('automations', 'playWait').add('playWait', {
+    sendWorkerQueue('automations', 'action').add('executePrevAction', {
       subdomain,
       data: {
         query: {
@@ -120,13 +125,27 @@ export const checkMessageTrigger = async (
     isSelected,
     type,
     persistentMenuIds,
+    iceBreakerIds,
     conditions: directMessageCondtions = [],
     sourceMode = 'all',
     sourceIds = [],
   } of conditions) {
     if (isSelected) {
-      if (type === 'getStarted' && target.content === 'Get Started') {
+      // Matched by payload, not by the button's label: the Get Started title is
+      // configurable, and a visitor typing those words is not a postback.
+      if (
+        type === 'getStarted' &&
+        payload?.botId &&
+        !persistentMenuId &&
+        !iceBreakerId
+      ) {
         return true;
+      }
+
+      if (type === 'iceBreaker' && iceBreakerId) {
+        if ((iceBreakerIds || []).includes(String(iceBreakerId))) {
+          return true;
+        }
       }
 
       if (type === 'persistentMenu' && payload) {
@@ -140,6 +159,13 @@ export const checkMessageTrigger = async (
           continue;
         }
 
+        // A tap is not a typed message. Guarding only `btnId` let Get Started,
+        // menu items, ice breakers and card buttons all match here as well,
+        // so an automation listening for either fired twice.
+        if (isPostbackPayload(payload)) {
+          continue;
+        }
+
         if (directMessageCondtions?.length > 0) {
           return !!checkContentConditions(
             target?.content || '',
@@ -147,7 +173,7 @@ export const checkMessageTrigger = async (
           );
         }
 
-        if (String(target?.content || '').trim() && !payload?.btnId) {
+        if (String(target?.content || '').trim()) {
           return true;
         }
       }
@@ -221,6 +247,22 @@ export const actionCreateMessage = async ({
     triggerConfig,
   );
 
+  // A comment-triggered send goes out as a private reply, which Meta permits
+  // under its own rule, so only direct threads are checked here.
+  if (collectionType === 'messages') {
+    const { isOpen, lastInboundAt } = await resolveMessagingWindow(
+      models,
+      conversation._id,
+      target,
+    );
+
+    if (!isOpen) {
+      // Outside the window there is no free-form route. Record the skip and let
+      // the flow continue rather than spend a refusal against the page.
+      return buildSkippedAction('window-closed', { lastInboundAt });
+    }
+  }
+
   try {
     const result: IFacebookConversationMessageDocument[] = [];
     const outputResolvedValues = await replaceOutputPlaceholders({
@@ -284,6 +326,7 @@ export const actionCreateMessage = async ({
         integration,
         message,
         commentId: isPrivateReply ? commentId : undefined,
+        skipTyping: isCommentTrigger,
       });
 
       if (!sendReplyResult) {

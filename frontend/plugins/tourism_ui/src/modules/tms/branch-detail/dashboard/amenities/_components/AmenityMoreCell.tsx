@@ -122,6 +122,7 @@ export const amenityMoreColumn = (
   mainLanguage?: string,
 ): ColumnDef<IAmenity> => ({
   id: 'more',
+  header: () => <RecordTable.ColumnSelector />,
   cell: (props) => (
     <AmenityMoreColumn
       {...props}

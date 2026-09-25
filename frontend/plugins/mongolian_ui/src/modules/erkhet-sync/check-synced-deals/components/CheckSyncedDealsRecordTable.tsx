@@ -19,6 +19,7 @@ export const CheckSyncedDealsRecordTable = () => {
       data={Deals || []}
       className="m-3"
       stickyColumns={['checkbox', 'toSync', 'createdAt']}
+      tableId="mongolian_erkhet_check_synced_deals_record_table"
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}
@@ -27,7 +28,7 @@ export const CheckSyncedDealsRecordTable = () => {
         sessionKey={CHECK_SYNCED_DEALS_CURSOR_SESSION_KEY}
       >
         <RecordTable>
-          <RecordTable.Header />
+          <RecordTable.Header showColumnSelector />
           <RecordTable.Body>
             <RecordTable.CursorBackwardSkeleton
               handleFetchMore={handleFetchMore}

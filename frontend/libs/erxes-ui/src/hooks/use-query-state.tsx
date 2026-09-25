@@ -1,5 +1,33 @@
 import { useSearchParams } from 'react-router-dom';
 
+let searchParamsDraft: URLSearchParams | null = null;
+let draftSourceSearch = '';
+
+const getSearchParamsDraft = () => {
+  const currentSearch = window.location.search;
+  const draftSearch = searchParamsDraft?.toString();
+  const draftTargetSearch = draftSearch ? `?${draftSearch}` : '';
+
+  if (
+    !searchParamsDraft ||
+    (draftSourceSearch !== currentSearch && draftTargetSearch !== currentSearch)
+  ) {
+    draftSourceSearch = currentSearch;
+    searchParamsDraft = new URLSearchParams(currentSearch);
+
+    queueMicrotask(() => {
+      searchParamsDraft = null;
+      draftSourceSearch = '';
+    });
+  }
+
+  return new URLSearchParams(searchParamsDraft);
+};
+
+const updateSearchParamsDraft = (nextParams: URLSearchParams) => {
+  searchParamsDraft = new URLSearchParams(nextParams);
+};
+
 // Single key types and hook
 export type QueryState<T> = [T | null, (value: T | null) => void];
 
@@ -36,17 +64,24 @@ export function useQueryState<T>(
   const query = parseQueryValue(searchParams.get(queryKey));
 
   const setQuery = (value: T | null) => {
-    if (value !== null && value !== query) {
+    const nextParams = getSearchParamsDraft();
+
+    if (value !== null) {
       const stringValue =
         typeof value === 'object' ? JSON.stringify(value) : String(value);
-      searchParams.set(queryKey, stringValue);
-    } else if (value === null && query !== null) {
-      searchParams.delete(queryKey);
+
+      if (nextParams.get(queryKey) === stringValue) return;
+      if (!nextParams.has(queryKey) && value === query) return;
+
+      nextParams.set(queryKey, stringValue);
+    } else if (nextParams.has(queryKey)) {
+      nextParams.delete(queryKey);
     } else {
       return;
     }
 
-    setSearchParams(searchParams);
+    updateSearchParamsDraft(nextParams);
+    setSearchParams(nextParams);
   };
 
   return [query, setQuery];
@@ -90,16 +125,28 @@ export function useMultiQueryState<T extends QueryTypes>(
   }, {} as QueryValues<T>);
 
   const setQueries = (values: Partial<QueryValues<T>>) => {
+    const nextParams = getSearchParamsDraft();
+    let hasChanges = false;
+
     Object.entries(values).forEach(([key, value]) => {
-      if (value !== null && value !== queries[key]) {
+      if (value !== null) {
         const stringValue =
           typeof value === 'object' ? JSON.stringify(value) : String(value);
-        searchParams.set(key, stringValue);
-      } else if (value === null && queries[key] !== null) {
-        searchParams.delete(key);
+
+        if (nextParams.get(key) === stringValue) return;
+
+        nextParams.set(key, stringValue);
+        hasChanges = true;
+      } else if (nextParams.has(key)) {
+        nextParams.delete(key);
+        hasChanges = true;
       }
     });
-    setSearchParams(searchParams, { replace: true });
+
+    if (!hasChanges) return;
+
+    updateSearchParamsDraft(nextParams);
+    setSearchParams(nextParams, { replace: true });
   };
 
   return [queries, setQueries];
@@ -118,22 +165,28 @@ export const useNonNullMultiQueryState = <T extends QueryTypes>(
 };
 
 export function useSetQueryStateByKey() {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [, setSearchParams] = useSearchParams();
 
   const setQuery = (key: string, value: string) => {
-    searchParams.set(key, value);
-    setSearchParams(searchParams);
+    const nextParams = getSearchParamsDraft();
+    if (nextParams.get(key) === value) return;
+    nextParams.set(key, value);
+    updateSearchParamsDraft(nextParams);
+    setSearchParams(nextParams);
   };
 
   return setQuery;
 }
 
 export function useRemoveQueryStateByKey() {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [, setSearchParams] = useSearchParams();
 
   const removeQuery = (key: string) => {
-    searchParams.delete(key);
-    setSearchParams(searchParams);
+    const nextParams = getSearchParamsDraft();
+    if (!nextParams.has(key)) return;
+    nextParams.delete(key);
+    updateSearchParamsDraft(nextParams);
+    setSearchParams(nextParams);
   };
 
   return removeQuery;

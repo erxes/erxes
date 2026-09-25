@@ -14,6 +14,7 @@ export const useChannelsForm = ({
       name: '',
       description: '',
       memberIds: [],
+      scope: 'team',
     },
     resolver: zodResolver(CHANNEL_SCHEMA),
   });

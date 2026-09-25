@@ -1,13 +1,14 @@
 import { IEngageMessage } from '@/broadcast/@types';
 import { CAMPAIGN_METHODS, CONTENT_TYPES } from '@/broadcast/constants';
-import { awsRequests } from '@/broadcast/trackers';
-import { isUsingElk } from '@/broadcast/utils';
+import { isSenderAllowed } from '~/utils/email/senders';
 import { IUserDocument } from 'erxes-api-shared/core-types';
-import { fetchEs } from 'erxes-api-shared/utils';
+import { FilterQuery } from 'mongoose';
+import { ICustomer } from 'erxes-api-shared/core-types';
 import { IModels } from '~/connectionResolvers';
+import { customerTargetFilter } from './targeting';
+import { findCampaignAutomation } from './workflowAutomation';
 
 interface ICustomerSelector {
-  engageId?: string;
   targetType?: string;
   targetIds?: string[];
 }
@@ -18,163 +19,55 @@ interface ICheckCustomerParams {
   targetIds?: string[];
 }
 
-export const findElk = async (subdomain: string, index: string, query) => {
-  const response = await fetchEs({
-    subdomain,
-    action: 'search',
-    index,
-    body: {
-      query,
-    },
-    defaultValue: { hits: { hits: [] } },
-  });
+export const generateCustomerSelector = ({
+  targetType,
+  targetIds,
+}: ICustomerSelector): FilterQuery<ICustomer> => ({
+  ...customerTargetFilter(targetType || '', targetIds || []),
+  $or: [{ isSubscribed: 'Yes' }, { isSubscribed: { $exists: false } }],
+});
 
-  return response.hits.hits.map((hit) => {
-    return {
-      _id: hit._id,
-      ...hit._source,
-    };
-  });
-};
-
-export const generateCustomerSelector = async (
-  subdomain: string,
-  models: IModels,
-  { engageId, targetType, targetIds }: ICustomerSelector,
-): Promise<any> => {
-  // find matched customers
-  let customerQuery: any = {};
-
-  if (targetType === 'tag') {
-    customerQuery = { tagIds: { $in: targetIds } };
-  }
-
-  return {
-    ...customerQuery,
-    $or: [{ isSubscribed: 'Yes' }, { isSubscribed: { $exists: false } }],
-  };
-};
-
-// check customer exists from elastic or mongo
 export const checkCustomerExists = async (
   subdomain: string,
   models: IModels,
   params: ICheckCustomerParams,
 ) => {
   const { id, targetType, targetIds } = params;
-  if (!isUsingElk()) {
-    const customersSelector = {
-      _id: id,
-      state: { $ne: CONTENT_TYPES.VISITOR },
-      ...(await generateCustomerSelector(subdomain, models, {
-        engageId: id,
-        targetType,
-        targetIds,
-      })),
-    };
 
-    const customer = await models.Customers.findOne(customersSelector).lean();
+  const customersSelector = {
+    _id: id,
+    state: { $ne: CONTENT_TYPES.VISITOR },
+    ...generateCustomerSelector({ targetType, targetIds }),
+  };
 
-    return customer;
-  }
-
-  if (!id) {
-    return false;
-  }
-
-  const must: any[] = [
-    { terms: { state: [CONTENT_TYPES.CUSTOMER, CONTENT_TYPES.LEAD] } },
-  ];
-
-  must.push({
-    term: {
-      _id: id,
-    },
-  });
-
-  // if (customerIds && customerIds.length > 0) {
-  //   must.push({ terms: { _id: customerIds } });
-  // }
-
-  // if (tagIds && tagIds.length > 0) {
-  //   must.push({ terms: { tagIds } });
-  // }
-
-  // if (brandIds && brandIds.length > 0) {
-  //   const integraiontIds = await findElk(subdomain, 'integrations', {
-  //     bool: {
-  //       must: [{ terms: { 'brandId.keyword': brandIds } }],
-  //     },
-  //   });
-
-  //   must.push({
-  //     terms: {
-  //       integrationId: integraiontIds.map((e) => e._id),
-  //     },
-  //   });
-  // }
-
-  // if (segmentIds && segmentIds.length > 0) {
-  //   const segments = await findElk(subdomain, 'segments', {
-  //     bool: {
-  //       must: [{ terms: { _id: segmentIds } }],
-  //     },
-  //   });
-
-  //   let customerIdsBySegments: string[] = [];
-
-  //   for (const segment of segments) {
-  //     const segmentData = await models.Segments.findOne({
-  //       _id: segment._id,
-  //     }).lean();
-
-  //     const cIds = await fetchSegment(models, subdomain, segmentData);
-
-  //     customerIdsBySegments = [...customerIdsBySegments, ...cIds];
-  //   }
-
-  //   must.push({
-  //     terms: {
-  //       _id: customerIdsBySegments,
-  //     },
-  //   });
-  // }
-
-  must.push({
-    bool: {
-      should: [
-        { term: { isSubscribed: 'yes' } },
-        {
-          bool: {
-            must_not: {
-              exists: {
-                field: 'isSubscribed',
-              },
-            },
-          },
-        },
-      ],
-    },
-  });
-
-  const customers = await findElk(subdomain, 'customers', {
-    bool: {
-      filter: {
-        bool: {
-          must,
-        },
-      },
-    },
-  });
-
-  return customers.length > 0;
+  return models.Customers.findOne(customersSelector).lean();
 };
+
+export const resolveCampaignFromEmail = async (
+  models: IModels,
+  campaign: Pick<IEngageMessage, 'fromEmail' | 'fromUserId'>,
+) => {
+  if (campaign.fromEmail) {
+    return campaign.fromEmail;
+  }
+
+  if (!campaign.fromUserId) {
+    return undefined;
+  }
+
+  const user = await models.Users.findOne({ _id: campaign.fromUserId }).lean();
+
+  return user?.email;
+};
+
+const isEmailAddress = (value: string) =>
+  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
 
 export const checkCampaignDoc = async (
   models: IModels,
-  doc: IEngageMessage,
+  doc: IEngageMessage & { _id?: string },
 ) => {
-  const { method, targetIds = [], fromUserId } = doc;
+  const { _id: campaignId, method, targetIds = [] } = doc;
 
   if (!CAMPAIGN_METHODS.ALL.includes(method)) {
     throw new Error(`Unsupported broadcast method: ${method}`);
@@ -184,22 +77,41 @@ export const checkCampaignDoc = async (
     throw new Error('Target ids must be specified');
   }
 
+  // A workflow campaign with nothing wired would dispatch executions that
+  // finish immediately, so it is stopped here rather than at run time. On
+  // create there is no campaign id yet, and therefore no flow either.
+  //
+  // Worded for going out rather than for going live, because scheduling asks
+  // this same question and a schedule is not the same as a send.
+  if (method === CAMPAIGN_METHODS.WORKFLOW && doc.isLive) {
+    const automation = campaignId
+      ? await findCampaignAutomation(models, campaignId)
+      : null;
+
+    if (!automation?.actions?.length) {
+      throw new Error('Build the workflow before this campaign can go out');
+    }
+  }
+
   if (method === CAMPAIGN_METHODS.EMAIL) {
-    const user = await models.Users.findOne({ _id: fromUserId }).lean();
+    const fromEmail = await resolveCampaignFromEmail(models, doc);
 
-    if (!user) {
-      throw new Error('From user must be specified');
+    if (!fromEmail) {
+      throw new Error('From sender must be specified');
     }
 
-    if (!user.email) {
-      throw new Error(`From user email is not specified: ${user.username}`);
+    if (!(await isSenderAllowed(models, fromEmail, 'broadcast'))) {
+      throw new Error(`"${fromEmail}" is not a verified sender`);
     }
 
-    const verifiedEmails: any =
-      (await awsRequests.getVerifiedEmails(models)) || [];
+    const { replyTo, content, contentJson } = doc.email || {};
 
-    if (!verifiedEmails.includes(user.email)) {
-      throw new Error(`From user email "${user.email}" is not verified in AWS`);
+    if (replyTo && !isEmailAddress(replyTo)) {
+      throw new Error(`"${replyTo}" is not a valid reply-to address`);
+    }
+
+    if (!content && !contentJson) {
+      throw new Error('Email content is missing');
     }
   }
 
@@ -217,7 +129,10 @@ export const checkCampaignDoc = async (
   }
 };
 
-const count = async (models: IModels, selector: {}): Promise<number> => {
+const count = async (
+  models: IModels,
+  selector: FilterQuery<IEngageMessage>,
+): Promise<number> => {
   const res = await models.EngageMessages.find(selector).countDocuments();
   return Number(res);
 };

@@ -18,7 +18,7 @@ export const TicketsSortControl = () => {
       <Popover.Trigger asChild>
         <Button variant="ghost">
           <IconSortDescending />
-          {t('sort')}
+          {t('sort', 'Sort')}
         </Button>
       </Popover.Trigger>
       <Popover.Content className="w-44 p-1">

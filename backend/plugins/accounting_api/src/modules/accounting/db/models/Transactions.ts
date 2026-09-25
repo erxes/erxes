@@ -14,6 +14,7 @@ import { generateTrStatusActivityLog, setPtrStatus } from './utils';
 
 export interface ITransactionModel extends Model<ITransactionDocument> {
   getTransaction(selector: any): Promise<ITransactionDocument>;
+  checkPtr(ptrId: string): Promise<string>;
   getPTransactions(selector: any): Promise<ITransactionDocument[]>;
   getOriginTransactions(trId: string): Promise<{
     mainTr: ITransactionDocument;
@@ -86,8 +87,75 @@ const normalizeParentWorkflowDocs = (
   }));
 };
 
-const cleanCreatePTransactionDoc = (doc: ITransaction & { _id?: string }) => {
+const normalizeRelAccountCodes = (codes: unknown): string[] | undefined => {
+  if (!Array.isArray(codes)) {
+    return;
+  }
+
+  const cleanCodes = codes
+    .filter((code): code is string => typeof code === 'string')
+    .map((code) => code.trim())
+    .filter(Boolean);
+
+  return cleanCodes.length ? cleanCodes : undefined;
+};
+
+const normalizeRelAccounts = (relAccounts: unknown) => {
+  if (!relAccounts || typeof relAccounts !== 'object') {
+    return;
+  }
+
+  const customDt = normalizeRelAccountCodes(
+    (relAccounts as { customDt?: unknown }).customDt,
+  );
+  const customCt = normalizeRelAccountCodes(
+    (relAccounts as { customCt?: unknown }).customCt,
+  );
+
+  if (!customDt && !customCt) {
+    return;
+  }
+
+  return {
+    ...(customDt ? { customDt } : {}),
+    ...(customCt ? { customCt } : {}),
+  };
+};
+
+const normalizeTransactionRelAccounts = (
+  doc: ITransaction & { relAccounts?: unknown },
+) => {
   const cleanDoc = { ...doc };
+  const relAccounts = normalizeRelAccounts(doc.relAccounts);
+  const shouldClearRelAccountOverrides = !relAccounts;
+
+  if (relAccounts) {
+    cleanDoc.relAccounts = relAccounts;
+  } else {
+    delete cleanDoc.relAccounts;
+  }
+
+  return { cleanDoc, shouldClearRelAccountOverrides };
+};
+
+const splitUndefinedUnsetFields = <T extends Record<string, unknown>>(
+  doc: T,
+) => {
+  const cleanDoc = { ...doc };
+  const unsetDoc: Record<string, ''> = {};
+
+  for (const key of Object.keys(cleanDoc)) {
+    if (cleanDoc[key] === undefined) {
+      delete cleanDoc[key];
+      unsetDoc[key] = '';
+    }
+  }
+
+  return { cleanDoc: cleanDoc as T, unsetDoc };
+};
+
+const cleanCreatePTransactionDoc = (doc: ITransaction & { _id?: string }) => {
+  const { cleanDoc } = normalizeTransactionRelAccounts(doc);
 
   delete cleanDoc._id;
   delete cleanDoc.ptrId;
@@ -304,21 +372,22 @@ export const loadTransactionClass = (
         throw new Error('Transactions not created, cause: has not details');
       }
 
+      const { cleanDoc } = normalizeTransactionRelAccounts(doc);
       const _id = doc._id || nanoid();
-      doc.fullDate = getFullDate(doc.date);
+      cleanDoc.fullDate = getFullDate(doc.date);
       const lastDoc = {
-        ...doc,
+        ...cleanDoc,
         _id,
-        ptrId: doc.ptrId || nanoid(),
-        parentId: doc.parentId || _id,
+        ptrId: cleanDoc.ptrId || nanoid(),
+        parentId: cleanDoc.parentId || _id,
         ptrStatus: PTR_STATUSES.UNKNOWN,
         sumDt:
-          doc.side === TR_SIDES.DEBIT
-            ? doc.details.reduce((sum, cur) => sum + cur.amount, 0)
+          cleanDoc.side === TR_SIDES.DEBIT
+            ? cleanDoc.details.reduce((sum, cur) => sum + cur.amount, 0)
             : 0,
         sumCt:
-          doc.side === TR_SIDES.CREDIT
-            ? doc.details.reduce((sum, cur) => sum + cur.amount, 0)
+          cleanDoc.side === TR_SIDES.CREDIT
+            ? cleanDoc.details.reduce((sum, cur) => sum + cur.amount, 0)
             : 0,
         createdBy: userId,
         createdAt: new Date(),
@@ -339,27 +408,38 @@ export const loadTransactionClass = (
       userId: string,
     ) {
       const oldTr = await models.Transactions.getTransaction({ _id });
+      const { cleanDoc, shouldClearRelAccountOverrides } =
+        normalizeTransactionRelAccounts(doc);
+      const { cleanDoc: normalizedDoc, unsetDoc } =
+        splitUndefinedUnsetFields(cleanDoc);
 
-      doc.fullDate = getFullDate(doc.date);
-      await models.Transactions.updateOne(
-        { _id },
-        {
-          $set: {
-            ...doc,
-            parentId: doc.parentId || _id,
-            sumDt:
-              doc.side === TR_SIDES.DEBIT
-                ? doc.details.reduce((sum, cur) => sum + cur.amount, 0)
-                : 0,
-            sumCt:
-              doc.side === TR_SIDES.CREDIT
-                ? doc.details.reduce((sum, cur) => sum + cur.amount, 0)
-                : 0,
-            modifiedBy: userId,
-            updatedAt: new Date(),
-          },
+      normalizedDoc.fullDate = getFullDate(doc.date);
+      const update: any = {
+        $set: {
+          ...normalizedDoc,
+          parentId: normalizedDoc.parentId || _id,
+          sumDt:
+            normalizedDoc.side === TR_SIDES.DEBIT
+              ? normalizedDoc.details.reduce((sum, cur) => sum + cur.amount, 0)
+              : 0,
+          sumCt:
+            normalizedDoc.side === TR_SIDES.CREDIT
+              ? normalizedDoc.details.reduce((sum, cur) => sum + cur.amount, 0)
+              : 0,
+          modifiedBy: userId,
+          updatedAt: new Date(),
         },
-      );
+      };
+
+      if (shouldClearRelAccountOverrides || Object.keys(unsetDoc).length) {
+        update.$unset = {
+          ...unsetDoc,
+          'relAccounts.customDt': '',
+          'relAccounts.customCt': '',
+        };
+      }
+
+      await models.Transactions.updateOne({ _id }, update);
       await this.checkPtr(oldTr.ptrId);
 
       return await models.Transactions.findOne({ _id }).lean();
@@ -546,9 +626,7 @@ export const loadTransactionClass = (
       }
 
       const editTrIds = editTrDocs.map((itd) => itd._id);
-      const deleteTrs: ITransaction[] = oldTrs.filter(
-        (otr) => !editTrIds.includes(otr._id),
-      );
+      const deleteTrs = oldTrs.filter((otr) => !editTrIds.includes(otr._id));
 
       const transactions: ITransactionDocument[] = [];
       let errMsg = '';
@@ -557,11 +635,12 @@ export const loadTransactionClass = (
       session.startTransaction();
       try {
         for (const doc of editTrDocs) {
+          const { cleanDoc } = normalizeTransactionRelAccounts(doc);
           const trs = await commonSave(
             subdomain,
             models,
             userId,
-            { ...doc, ptrId, parentId, ptrNumber },
+            { ...cleanDoc, ptrId, parentId, ptrNumber },
             oldTrs.find((ot) => ot._id === doc._id),
           );
           transactions.push(trs.mainTr);
@@ -573,8 +652,9 @@ export const loadTransactionClass = (
         }
 
         for (const doc of addTrDocs) {
+          const { cleanDoc } = normalizeTransactionRelAccounts(doc);
           const trs = await commonSave(subdomain, models, userId, {
-            ...doc,
+            ...cleanDoc,
             ptrId,
             parentId,
             ptrNumber,
@@ -588,6 +668,7 @@ export const loadTransactionClass = (
         }
 
         for (const tr of deleteTrs) {
+          await commonRemove(subdomain, models, tr);
           await models.Transactions.deleteMany({
             $or: [{ _id: tr._id }, { originId: tr._id }],
           });

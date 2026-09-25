@@ -1,4 +1,5 @@
-import { useConfirm } from 'erxes-ui';
+import { useConfirm, useQueryState } from 'erxes-ui';
+import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -8,17 +9,22 @@ import {
   useDealsWatch,
 } from '@/deals/cards/hooks/useDeals';
 import { GET_DEAL_DETAIL } from '@/deals/graphql/queries/DealsQueries';
+import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
 import { IDeal } from '@/deals/types/deals';
+
+type DealActionItem = Pick<IDeal, '_id' | 'isWatched' | 'status'>;
 
 export const useDealActions = ({
   deals,
   selectedCount,
 }: {
-  deals: IDeal[];
+  deals: DealActionItem[];
   selectedCount?: number;
 }) => {
   const { confirm } = useConfirm();
   const { t } = useTranslation('sales');
+  const [activeDealId, setActiveDealId] = useAtom(dealDetailSheetState);
+  const [salesItemId, setSalesItemId] = useQueryState<string>('salesItemId');
   const { editDeals, loading: editLoading } = useDealsEdit();
   const { removeDeals, loading: removeLoading } = useDealsRemove();
   const { copyDeals, loading: copyLoading } = useDealsCopy();
@@ -77,9 +83,30 @@ export const useDealActions = ({
       message: t('remove-deals-confirm', { count }),
     });
 
-    await Promise.all(
+    const removalResults = await Promise.allSettled(
       dealIds.map((id) => removeDeals({ variables: { _id: id } })),
     );
+    const removedDealIds = new Set(
+      dealIds.filter(
+        (_id, index) => removalResults[index].status === 'fulfilled',
+      ),
+    );
+
+    if (activeDealId && removedDealIds.has(activeDealId)) {
+      setActiveDealId(null);
+    }
+
+    if (salesItemId && removedDealIds.has(salesItemId)) {
+      setSalesItemId(null);
+    }
+
+    const failedRemoval = removalResults.find(
+      (result) => result.status === 'rejected',
+    );
+
+    if (failedRemoval?.status === 'rejected') {
+      throw failedRemoval.reason;
+    }
   };
 
   const handleCopy = async () => {

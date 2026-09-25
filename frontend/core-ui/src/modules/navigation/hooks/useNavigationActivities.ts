@@ -36,7 +36,7 @@ export const useNavigationActivities = (): INavigationActivity[] => {
           icon: group.icon,
           kind: 'plugin',
           modules: group.modules,
-          defaultPath: group.modules[0].path,
+          defaultPath: group.defaultPath,
         };
       });
 

@@ -7,6 +7,7 @@ import { Spinner, toast } from 'erxes-ui';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useFbIntegrationsRepair } from '../hooks/useFbIntegrationsRepair';
+import { parseRepairResult } from '@/integrations/utils/repairResult';
 
 type Props = {
   cell: CellContext<IIntegrationDetail, unknown>;
@@ -26,7 +27,17 @@ export const FacebookIntegrationRepair = ({ cell }: Props) => {
     repairIntegrations({
       variables: { _id, kind: integrationType },
       refetchQueries: ['Integrations'],
-      onCompleted: () => {
+      onCompleted: (data) => {
+        const result = parseRepairResult(data?.integrationsRepair);
+
+        if (result.failed) {
+          toast({
+            title: result.message || t('repair-failed'),
+            variant: 'destructive',
+          });
+          return;
+        }
+
         toast({ title: t('repaired-successfully') });
       },
       onError: (error) => {
@@ -36,13 +47,14 @@ export const FacebookIntegrationRepair = ({ cell }: Props) => {
   };
 
   const { reauth, loading: authLoading } = useIntegrationReauth(
-    '/pl:frontline/facebook/fblogin',
+    `/pl:frontline/facebook/fblogin?kind=${
+      integrationType || 'facebook-messenger'
+    }`,
     FACEBOOK_AUTH_SUCCESS_MESSAGE,
     runRepair,
   );
 
   const handleRepair = () => {
-
     if (isUnhealthy) {
       reauth();
     } else {

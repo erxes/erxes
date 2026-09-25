@@ -77,7 +77,7 @@ export const useCreateMessenger = () => {
           saveTicketConfigMutation({
             variables: {
               _id,
-              configId: configFormValues.ticketConfigId,
+              configIds: configFormValues.ticketConfigIds,
             },
           }).catch((e) =>
             toast({

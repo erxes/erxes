@@ -4,6 +4,7 @@ import { GET_TICKET_CUSTOM_PROPERTIES } from '@/report/graphql/queries/getTicket
 interface TicketCustomProperty {
   _id: string;
   name: string;
+  group?: string;
   count: number;
   percentage: number;
 }

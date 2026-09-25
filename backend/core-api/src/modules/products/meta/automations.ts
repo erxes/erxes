@@ -25,6 +25,7 @@ type TProductKnowledgeConfig = {
 };
 
 type TProductKnowledgeBatchInput = {
+  scope?: 'all' | 'selected';
   sourceIds?: string[];
   candidateSourceIds?: string[];
   config?: Record<string, unknown>;
@@ -107,15 +108,15 @@ const resolveCategoryTreeIds = async (
     return [];
   }
 
-  const categories = await models.ProductCategories.getChildCategories(
-    categoryIds,
-  );
+  const categories =
+    await models.ProductCategories.getChildCategories(categoryIds);
 
   return uniqueStrings(categories.map((category) => category._id));
 };
 
 const buildProductKnowledgeSelector = async ({
   models,
+  scope,
   sourceIds = [],
   candidateSourceIds = [],
   config,
@@ -133,7 +134,10 @@ const buildProductKnowledgeSelector = async ({
     models,
     normalizedConfig.excludeCategoryIds,
   );
+  // Without an explicit 'all' scope a filter is required, so an unconfigured
+  // source never indexes the whole catalog by accident.
   const hasScope =
+    scope === 'all' ||
     !!includedProductIds.length ||
     !!includedCategoryIds.length ||
     !!normalizedConfig.excludeProductIds.length ||
@@ -218,7 +222,10 @@ const formatProductPrice = ({
   return `Price: ${unitPrice}${currency ? ` ${currency}` : ''}`;
 };
 
-const formatProductContent = (product: TProductKnowledgeRecord) =>
+const formatProductContent = (
+  product: TProductKnowledgeRecord,
+  categoryName?: string,
+) =>
   [
     'Source: indexed product catalog',
     `Product ID: ${product._id}`,
@@ -228,7 +235,9 @@ const formatProductContent = (product: TProductKnowledgeRecord) =>
       `Short name: ${product.shortName}`,
     product.code && `Code: ${product.code}`,
     product.type && `Type: ${product.type}`,
-    product.categoryId && `Category ID: ${product.categoryId}`,
+    // The raw category id matches no query and is an internal identifier, so
+    // only the readable name belongs in a chunk.
+    categoryName && `Category: ${categoryName}`,
     formatProductPrice(product),
     product.uom && `UOM: ${product.uom}`,
     product.status && `Status: ${product.status}`,
@@ -238,8 +247,37 @@ const formatProductContent = (product: TProductKnowledgeRecord) =>
     .filter(Boolean)
     .join('\n');
 
+const findCategoryNameById = async (
+  models: IModels,
+  products: TProductKnowledgeRecord[],
+) => {
+  const categoryIds = [
+    ...new Set(
+      products
+        .map((product) => product.categoryId)
+        .filter((categoryId): categoryId is string => !!categoryId),
+    ),
+  ];
+
+  if (!categoryIds.length) {
+    return new Map<string, string>();
+  }
+
+  const categories = await models.ProductCategories.find(
+    { _id: { $in: categoryIds } },
+    { name: 1 },
+  ).lean<Array<{ _id: string; name?: string }>>();
+
+  return new Map(
+    categories
+      .filter((category) => category.name?.trim())
+      .map((category) => [category._id, (category.name as string).trim()]),
+  );
+};
+
 const toKnowledgeDocument = (
   product: TProductKnowledgeRecord,
+  categoryName?: string,
 ): TKnowledgeDocument => ({
   source: {
     type: buildKnowledgeSourceType({
@@ -253,13 +291,14 @@ const toKnowledgeDocument = (
   },
   title:
     product.name || product.shortName || product.code || 'Untitled product',
-  content: formatProductContent(product),
+  content: formatProductContent(product, categoryName),
   contentFormat: 'text',
   metadata: {
     sourceKind: 'indexed-product-catalog',
     visibility: 'public',
     productId: product._id,
     categoryId: product.categoryId,
+    ...(categoryName ? { keywords: [categoryName] } : {}),
     unitPrice: product.unitPrice,
     currency: product.currency,
     uom: product.uom,
@@ -274,6 +313,7 @@ const findProductKnowledgeBatch = async (
   const { hasScope, selector, totalSelector } =
     await buildProductKnowledgeSelector({
       models,
+      scope: input.scope,
       sourceIds: input.sourceIds,
       candidateSourceIds: input.candidateSourceIds,
       config: input.config,
@@ -314,10 +354,18 @@ const findProductKnowledgeBatch = async (
       .lean<TProductKnowledgeRecord[]>(),
   ]);
   const lastProduct = products[products.length - 1];
+  const categoryNameById = await findCategoryNameById(models, products);
 
   return {
     documents: products
-      .map(toKnowledgeDocument)
+      .map((product) =>
+        toKnowledgeDocument(
+          product,
+          product.categoryId
+            ? categoryNameById.get(product.categoryId)
+            : undefined,
+        ),
+      )
       .filter((document) => document.content.trim().length > 0),
     totalCount,
     nextCursor: products.length === limit ? lastProduct?._id : undefined,
@@ -367,6 +415,7 @@ export const coreProductAiKnowledgeProvider = {
     }
 
     return findProductKnowledgeBatch(models, {
+      scope: data.scope,
       sourceIds: data.sourceIds,
       candidateSourceIds: data.candidateSourceIds,
       config: data.config,

@@ -11,7 +11,6 @@ import { useConversationDetail } from '../hooks/useConversationDetail';
 import {
   connectionAtom,
   conversationIdAtom,
-  isBotTypingAtom,
   messengerDataAtom,
   operatorStatusAtom,
   setConversationIdAtom,
@@ -31,8 +30,6 @@ import {
 import { useMessenger } from '../hooks/useMessenger';
 import { CloseButton } from './CloseButton';
 import { useInsertMessage } from '../hooks/useInsertMessage';
-import { useCustomerData } from '../hooks/useCustomerData';
-import { CustomerFormInline } from './customer-form-inline';
 
 const MESSAGE_GROUP_TIME_WINDOW = 5 * 60 * 1000;
 
@@ -53,6 +50,10 @@ function isOperatorMessage(message: Message): boolean {
 
 function isBotMessage(message: Message): boolean {
   return Boolean(message.fromBot);
+}
+
+function isCustomerJoined(message: Message): boolean {
+  return (message.fromBot && message.botData === null) || false;
 }
 
 function shouldGroupMessages(
@@ -91,17 +92,13 @@ export const ConversationDetails = () => {
     messages: messagesConfig,
     responseRate,
     isOnline,
-    requireAuth,
+    aiAgentLabel,
   } = messengerData || {};
-
-  console.log('getStarted', getStarted);
 
   const { insertMessage } = useInsertMessage();
   const setConversationId = useSetAtom(setConversationIdAtom);
-  const setIsBotTyping = useSetAtom(isBotTypingAtom);
 
   const handleGetStarted = useCallback(() => {
-    setIsBotTyping(true);
     insertMessage({
       variables: { message: 'Get Started', contentType: 'getStarted' },
       onCompleted: (data) => {
@@ -111,7 +108,7 @@ export const ConversationDetails = () => {
         }
       },
     });
-  }, [insertMessage, conversationId, setConversationId, setIsBotTyping]);
+  }, [insertMessage, conversationId, setConversationId]);
 
   const handleQuickReply = useCallback(
     (title: string) => {
@@ -134,9 +131,6 @@ export const ConversationDetails = () => {
     },
     [insertMessage],
   );
-  const { hasEmailOrPhone } = useCustomerData();
-  const showAuthForm = requireAuth === true && !hasEmailOrPhone;
-
   const { conversationDetail, loading, isBotTyping } = useConversationDetail({
     variables: {
       _id: conversationId,
@@ -287,6 +281,11 @@ export const ConversationDetails = () => {
     ? `usually replies in a few ${responseRate}`
     : 'usually replies in a few minutes';
 
+  const shouldShowWelcomeMessage =
+    !!messagesConfig?.welcome &&
+    messagesConfig?.welcome?.length > 0 &&
+    !botShowInitialMessage;
+
   if (loading) {
     return <Skeleton className="w-full aspect-square" />;
   }
@@ -329,7 +328,7 @@ export const ConversationDetails = () => {
           <div className="text-primary-foreground font-semibold text-sm flex items-center gap-1.5 truncate">
             {isLastMessageFromBot ? (
               <>
-                Ai bot
+                {aiAgentLabel}
                 <span className="inline-flex items-center rounded-sm px-1.5 text-xs font-medium h-5 bg-primary/20 text-primary-foreground border border-primary/30 shrink-0">
                   AI
                 </span>
@@ -387,6 +386,10 @@ export const ConversationDetails = () => {
                         messageIndex !== group.messages.length - 1,
                       isSingleMessage: group.messages.length === 1,
                     };
+
+                    if (isCustomerJoined(message)) {
+                      return null;
+                    }
 
                     if (isBotMessage(message)) {
                       const isLastBot = message._id === lastBotMessageId;
@@ -449,19 +452,20 @@ export const ConversationDetails = () => {
         })}
         {botShowInitialMessage && (
           <BotMessage
-            content={botGreetMessage}
+            content={
+              botGreetMessage?.length ? botGreetMessage : InitialMessage.WELCOME
+            }
             onGetStarted={
               getStarted && !hasGetStartedMessage ? handleGetStarted : undefined
             }
           />
         )}
-        <WelcomeMessage
-          content={messagesConfig?.welcome || InitialMessage.WELCOME}
-        />
+        {shouldShowWelcomeMessage && (
+          <WelcomeMessage
+            content={messagesConfig?.welcome || InitialMessage.WELCOME}
+          />
+        )}
       </div>
-      <AnimatePresence>
-        {showAuthForm && <CustomerFormInline key="auth-form" />}
-      </AnimatePresence>
     </div>
   );
 };

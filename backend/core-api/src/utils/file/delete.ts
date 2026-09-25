@@ -109,10 +109,10 @@ export const deleteFileAzure = async (fileName: string, models?: IModels) => {
  * Delete file from local
  */
 const deleteFileLocal = async (fileName: string) => {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     fs.unlink(`${uploadsFolderPath}/${fileName}`, (error) => {
-      if (error) {
-        return reject(error);
+      if (error && error.code !== 'ENOENT') {
+        return resolve(error.message);
       }
 
       return resolve('ok');

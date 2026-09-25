@@ -15,6 +15,7 @@ import { segmentsTRPCRouter } from './modules/segments/trpc';
 import { automationsRouter } from './modules/automations/trpc/automations';
 import { IModels } from './connectionResolvers';
 import { notificationTrpcRouter } from '~/modules/notifications/trpc';
+import { emailTrpcRouter } from '~/modules/notifications/trpc/email';
 import { importExportTrpcRouter } from '~/modules/import-export/trpc';
 import { logsTrpcRouter } from './modules/logs/trpc';
 import { clientPortalNotificationTrpcRouter } from '@/clientportal/trpc';
@@ -53,6 +54,7 @@ export const appRouter = t.mergeRouters(
   segmentsTRPCRouter,
   automationsRouter,
   notificationTrpcRouter,
+  emailTrpcRouter,
   importExportTrpcRouter,
   logsTrpcRouter,
   categoriesNamedRouter,

@@ -52,9 +52,9 @@ export const permissions: IPermissionConfig = {
           description: 'Mark conversations as resolved',
         },
         {
-          title: 'Convert to ticket',
+          title: 'Convert conversations',
           name: 'conversationConvertToCard',
-          description: 'Convert a conversation into a ticket',
+          description: 'Convert a conversation into a ticket, deal or task',
         },
         {
           title: 'Edit custom fields',
@@ -166,6 +166,11 @@ export const permissions: IPermissionConfig = {
           description: 'Delete tickets',
         },
         {
+          title: 'Manage ticket statuses',
+          name: 'ticketStatusesManage',
+          description: 'Add, edit and remove statuses of a pipeline',
+        },
+        {
           title: 'Export tickets',
           name: 'ticketsExportManage',
           description: 'Export tickets to file',
@@ -222,6 +227,67 @@ export const permissions: IPermissionConfig = {
           title: 'Export form submissions',
           name: 'formSubmissionsExportManage',
           description: 'Export form submissions to file',
+        },
+      ],
+    },
+    {
+      name: 'survey',
+      description: 'Survey management',
+      scopeField: null,
+      ownerFields: [],
+      scopes: [{ name: 'all', description: 'All surveys' }],
+      actions: [
+        {
+          title: 'View surveys',
+          name: 'showSurveys',
+          description: 'View surveys list',
+          always: true,
+        },
+        {
+          title: 'Add survey',
+          name: 'surveyAdd',
+          description: 'Create surveys',
+        },
+        {
+          title: 'Edit survey',
+          name: 'surveyEdit',
+          description: 'Edit surveys',
+        },
+        {
+          title: 'Remove survey',
+          name: 'surveyRemove',
+          description: 'Delete surveys',
+        },
+        {
+          title: 'Toggle survey status',
+          name: 'surveyToggleStatus',
+          description: 'Activate or archive surveys',
+        },
+        {
+          title: 'Send survey',
+          name: 'surveySendToConversation',
+          description: 'Send a survey into a messenger conversation',
+        },
+      ],
+    },
+    {
+      name: 'callReport',
+      description: 'Call centre reports',
+      scopeField: null,
+      ownerFields: [],
+      scopes: [{ name: 'all', description: 'All call queues' }],
+      actions: [
+        {
+          title: 'View call reports',
+          name: 'showCallReports',
+          description: 'Open the call reports for queues the user operates',
+          always: true,
+        },
+        {
+          title: 'View all call queues',
+          name: 'showAllCallReports',
+          description:
+            'Read call reports for every queue, not only the ones the user operates',
         },
       ],
     },
@@ -285,6 +351,27 @@ export const permissions: IPermissionConfig = {
         },
       ],
     },
+    {
+      name: 'helpCenter',
+      description: 'Help center configuration',
+      scopeField: null,
+      ownerFields: [],
+      scopes: [{ name: 'all', description: 'All help center configs' }],
+      actions: [
+        {
+          title: 'View help centers',
+          name: 'showHelpCenter',
+          description: 'View help center general settings and appearance',
+          always: true,
+        },
+        {
+          title: 'Manage help centers',
+          name: 'helpCenterManage',
+          description:
+            'Create, update and remove help center general settings and appearance',
+        },
+      ],
+    },
   ],
 
   defaultGroups: [
@@ -341,6 +428,7 @@ export const permissions: IPermissionConfig = {
             'createTicket',
             'updateTicket',
             'removeTicket',
+            'ticketStatusesManage',
             'ticketsExportManage',
             'ticketsImportManage',
           ],
@@ -360,6 +448,12 @@ export const permissions: IPermissionConfig = {
             'formSubmissionsRemove',
             'formSubmissionsExportManage',
           ],
+          scope: 'all',
+        },
+        {
+          plugin: 'frontline',
+          module: 'callReport',
+          actions: ['showCallReports', 'showAllCallReports'],
           scope: 'all',
         },
         {
@@ -384,6 +478,12 @@ export const permissions: IPermissionConfig = {
           ],
           scope: 'all',
         },
+        {
+          plugin: 'frontline',
+          module: 'helpCenter',
+          actions: ['showHelpCenter', 'helpCenterManage'],
+          scope: 'all',
+        },
       ],
     },
     {
@@ -401,6 +501,7 @@ export const permissions: IPermissionConfig = {
             'conversationsAssign',
             'conversationsChangeStatus',
             'conversationsResolve',
+            'conversationConvertToCard',
             'conversationEditCustomFields',
           ],
           scope: 'group',
@@ -427,6 +528,12 @@ export const permissions: IPermissionConfig = {
           plugin: 'frontline',
           module: 'knowledgeBase',
           actions: ['showKnowledgeBase'],
+          scope: 'all',
+        },
+        {
+          plugin: 'frontline',
+          module: 'helpCenter',
+          actions: ['showHelpCenter'],
           scope: 'all',
         },
       ],
@@ -459,6 +566,12 @@ export const permissions: IPermissionConfig = {
           plugin: 'frontline',
           module: 'knowledgeBase',
           actions: ['showKnowledgeBase'],
+          scope: 'all',
+        },
+        {
+          plugin: 'frontline',
+          module: 'helpCenter',
+          actions: ['showHelpCenter'],
           scope: 'all',
         },
         {

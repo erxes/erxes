@@ -225,6 +225,14 @@ export const pricingPlanQueries = {
     return await models.PricingPlans.getPricingPlan(id);
   },
 
+  cpPricingPlanDetail: async (
+    _root: any,
+    { id }: { id: string },
+    { models }: IContext,
+  ) => {
+    return await models.PricingPlans.getPricingPlan(id);
+  },
+
   pricingFixedValuesPage: async (
     _root: any,
     {
@@ -389,5 +397,8 @@ export const pricingPlanQueries = {
 };
 
 (pricingPlanQueries.cpPricingPlans as any).wrapperConfig = {
+  forClientPortal: true,
+};
+(pricingPlanQueries.cpPricingPlanDetail as any).wrapperConfig = {
   forClientPortal: true,
 };

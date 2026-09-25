@@ -1,15 +1,32 @@
-import { useGetResponses, RESPONSES_PER_PAGE } from '@/responseTemplate/hooks/useGetResponses';
-import { Popover, Skeleton, Button, Command, cn, EnumCursorDirection } from 'erxes-ui';
-import { useState, useMemo, ReactNode, useRef, useEffect } from 'react';
-import { useDebounce } from 'use-debounce';
-import { IconLayoutGrid, IconList, IconFilter } from '@tabler/icons-react';
-import { useGetChannels } from '@/channels/hooks/useGetChannels';
-import { getPreviewText } from '@/inbox/types/inbox';
-import type { TViewMode as ViewMode } from '../types';
+import {
+  Button,
+  Command,
+  EnumCursorDirection,
+  Popover,
+  Skeleton,
+  cn,
+} from 'erxes-ui';
+import {
+  IconFilter,
+  IconLayoutGrid,
+  IconList,
+  IconX,
+} from '@tabler/icons-react';
+import {
+  RESPONSES_PER_PAGE,
+  useGetResponses,
+} from '@/responseTemplate/hooks/useGetResponses';
+import { useEffect, useRef, useState } from 'react';
+import type { ReactNode } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
-import { responseListViewAtom } from '../states/responseTemplate';
-import { SelectChannel } from '@/inbox/channel/components/SelectChannel';
+
 import { ChannelsInline } from '@/inbox/channel/components/ChannelsInline';
+import { SelectChannel } from '@/inbox/channel/components/SelectChannel';
+import type { TViewMode as ViewMode } from '@/responseTemplate/types';
+import { getPreviewText } from '@/inbox/types/inbox';
+import { responseListViewAtom } from '@/inbox/conversations/conversation-detail/states/responseTemplate';
+import { useDebounce } from 'use-debounce';
+import { useGetChannels } from '@/channels/hooks/useGetChannels';
 import { useTranslation } from 'react-i18next';
 
 interface ResponseTemplate {
@@ -22,7 +39,8 @@ interface ResponseTemplate {
 }
 
 interface ResponseTemplateSelectorProps {
-  onSelect: (content: string) => void;
+  onSelect: (content: string, templateId?: string) => void;
+  disabled?: boolean;
   children: ReactNode;
 }
 
@@ -36,19 +54,33 @@ const ViewModeIcon = (): JSX.Element => {
   }
 };
 
-const getViewModeTitle = (viewMode: ViewMode): string => {
-  return `Switch to ${viewMode === 'grid' ? 'list' : 'grid'} view`;
+const TemplateListSkeleton = (): JSX.Element => (
+  <div className="col-span-2 p-4 space-y-2">
+    <Skeleton className="w-full h-10" />
+    <Skeleton className="w-full h-10" />
+    <Skeleton className="w-full h-10" />
+  </div>
+);
+
+const TemplateListEmpty = ({ search }: { search: string }): JSX.Element => {
+  const { t } = useTranslation('frontline');
+
+  return (
+    <div className="col-span-2 p-8 text-center text-muted-foreground text-sm italic">
+      {search ? t('no-matching-templates') : t('no-templates-available')}
+    </div>
+  );
 };
 
 export const ResponseTemplateSelector: React.FC<
   ResponseTemplateSelectorProps
-> = ({ onSelect, children }) => {
+> = ({ onSelect, disabled, children }) => {
   const { t } = useTranslation('frontline');
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [search, setSearch] = useState<string>('');
   const [debouncedSearch] = useDebounce(search, 500);
   const [viewMode, setViewMode] = useAtom<ViewMode>(responseListViewAtom);
-  const [selectedChannel, setSelectedChannel] = useState<string>('all');
+  const [selectedChannel, setSelectedChannel] = useState<string>('');
   const containerRef = useRef<HTMLDivElement>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const isFetchingRef = useRef(false);
@@ -63,42 +95,24 @@ export const ResponseTemplateSelector: React.FC<
   } = useGetResponses({
     variables: {
       filter: {
-        channelId: selectedChannel === 'all' ? undefined : selectedChannel,
+        channelId: selectedChannel || undefined,
         searchValue: debouncedSearch || undefined,
       },
     },
   });
-
 
   useEffect(() => {
     refetch({
       filter: {
         limit: RESPONSES_PER_PAGE,
         orderBy: { createdAt: -1 },
-        channelId: selectedChannel === 'all' ? undefined : selectedChannel,
+        channelId: selectedChannel || undefined,
         searchValue: debouncedSearch || undefined,
       },
     });
   }, [debouncedSearch, selectedChannel, refetch]);
 
-  const filteredTemplates = useMemo<ResponseTemplate[]>(() => {
-    if (!responses) return [];
-
-    const searchLower = debouncedSearch.toLowerCase();
-
-    return responses.filter((template: ResponseTemplate) => {
-      const templateContent = getPreviewText(template.content).toLowerCase();
-      const matchesSearch =
-        debouncedSearch === '' ||
-        template.name.toLowerCase().includes(searchLower) ||
-        templateContent.includes(searchLower);
-
-      const matchesChannel =
-        selectedChannel === 'all' || template.channelId === selectedChannel;
-
-      return matchesSearch && matchesChannel;
-    });
-  }, [responses, debouncedSearch, selectedChannel]);
+  const templates: ResponseTemplate[] = responses ?? [];
 
   useEffect(() => {
     isFetchingRef.current = false;
@@ -124,10 +138,11 @@ export const ResponseTemplateSelector: React.FC<
 
     observer.observe(sentinel);
     return () => observer.disconnect();
-  }, [pageInfo?.hasNextPage, handleFetchMore, filteredTemplates.length]);
+  }, [pageInfo?.hasNextPage, handleFetchMore, templates.length]);
 
-  const handleSelectTemplate = (content: string): void => {
-    onSelect(content);
+  const handleSelectTemplate = (template: ResponseTemplate): void => {
+    if (disabled) return;
+    onSelect(template.content, template._id);
     setIsOpen(false);
   };
 
@@ -135,23 +150,32 @@ export const ResponseTemplateSelector: React.FC<
     setViewMode((prev) => (prev === 'grid' ? 'list' : 'grid'));
   };
 
-  const isInitialLoad = (channelsLoading && !channels) || (responsesInitialLoad && !responses);
+  const isInitialLoad =
+    (channelsLoading && !channels) || (responsesInitialLoad && !responses);
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
-      <Popover.Trigger asChild>{children}</Popover.Trigger>
+      <Popover.Trigger asChild disabled={disabled}>
+        {children}
+      </Popover.Trigger>
 
       <Popover.Content className="w-full max-w-md min-w-sm p-4 shadow-xl border">
         <div className="space-y-4">
           <div className="flex items-center justify-between border-b pb-2">
-            <h3 className="font-semibold text-sm">{t('response-templates')}</h3>
+            <h3 className="font-semibold text-sm">
+              {t('response-templates', 'Response templates')}
+            </h3>
             <div className="flex items-center space-x-2">
               <Button
                 onClick={toggleViewMode}
                 variant={'ghost'}
                 size="icon"
                 className="h-8 w-8 rounded hover:bg-muted"
-                title={viewMode === 'grid' ? t('switch-to-list-view') : t('switch-to-grid-view')}
+                title={
+                  viewMode === 'grid'
+                    ? t('switch-to-list-view', 'Switch to list view')
+                    : t('switch-to-grid-view', 'Switch to grid view')
+                }
               >
                 <ViewModeIcon />
               </Button>
@@ -168,6 +192,17 @@ export const ResponseTemplateSelector: React.FC<
                   onValueChange={(value) => setSelectedChannel(value as string)}
                 />
               </div>
+              {selectedChannel && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 flex-none rounded-full text-muted-foreground hover:text-foreground"
+                  title={t('select-channels')}
+                  onClick={() => setSelectedChannel('')}
+                >
+                  <IconX size={14} />
+                </Button>
+              )}
             </div>
           </div>
 
@@ -175,7 +210,7 @@ export const ResponseTemplateSelector: React.FC<
             <Command.Input
               variant="secondary"
               focusOnMount
-              placeholder={t('search-templates')}
+              placeholder={t('search-templates', 'Search templates...')}
               value={search}
               onValueChange={setSearch}
             />
@@ -187,25 +222,17 @@ export const ResponseTemplateSelector: React.FC<
                   : 'space-y-1.5',
               )}
             >
-              {isInitialLoad ? (
-                <div className="col-span-2 p-4 space-y-2">
-                  <Skeleton className="w-full h-10" />
-                  <Skeleton className="w-full h-10" />
-                  <Skeleton className="w-full h-10" />
-                </div>
-              ) : filteredTemplates.length === 0 ? (
-                <div className="col-span-2 p-8 text-center text-muted-foreground text-sm italic">
-                  {search
-                    ? t('no-matching-templates')
-                    : t('no-templates-available')}
-                </div>
-              ) : (
+              {isInitialLoad && <TemplateListSkeleton />}
+              {!isInitialLoad && templates.length === 0 && (
+                <TemplateListEmpty search={search} />
+              )}
+              {!isInitialLoad && templates.length > 0 && (
                 <>
-                  {filteredTemplates.map((template) => (
+                  {templates.map((template) => (
                     <Command.Item
                       key={template._id}
                       value={template._id}
-                      onSelect={() => handleSelectTemplate(template.content)}
+                      onSelect={() => handleSelectTemplate(template)}
                       className={cn(
                         'flex rounded border border-transparent transition-all cursor-pointer gap-2',
                         'hover:border-primary/20 hover:bg-accent/50',
@@ -257,7 +284,7 @@ export const ResponseTemplateSelector: React.FC<
                           })
                         }
                       >
-                        {t('load-more')}
+                        {t('load-more', 'Load more')}
                       </Button>
                     </div>
                   )}

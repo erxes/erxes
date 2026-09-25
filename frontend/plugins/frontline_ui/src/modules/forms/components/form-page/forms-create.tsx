@@ -9,9 +9,15 @@ const FormsCreateButton: FC<React.ComponentProps<typeof Button>> = (props) => {
   const { id: channelId } = useParams<{ id: string }>();
   return (
     <Button asChild {...props}>
-      <Link to={`/settings/frontline/channels/${channelId}/forms/create`}>
+      <Link
+        to={
+          channelId
+            ? `/settings/frontline/channels/${channelId}/forms/create`
+            : '/frontline/forms/create'
+        }
+      >
         <IconPlus />
-        {t('create-form')}
+        {t('create-form', 'Create form')}
       </Link>
     </Button>
   );

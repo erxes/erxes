@@ -323,6 +323,26 @@ export const createOrUpdatePipelineStages = async (
   stages: IStageDocument[],
   pipelineId: string,
 ): Promise<DeleteResult> => {
+  const stageCodes = new Set<string>();
+
+  for (const stage of stages) {
+    const code = stage.code?.trim();
+
+    if (code !== undefined) {
+      stage.code = code;
+    }
+
+    if (!code) {
+      continue;
+    }
+
+    if (stageCodes.has(code)) {
+      throw new Error('Code must be unique');
+    }
+
+    stageCodes.add(code);
+  }
+
   let order = 0;
 
   const validStageIds: string[] = [];
@@ -365,7 +385,12 @@ export const createOrUpdatePipelineStages = async (
       // create
     } else {
       delete doc._id;
-      const createdStage = await models.Stages.createStage(doc);
+      // Codes were validated against the final stage list above.
+      const createdStage = await models.Stages.createStage(
+        doc,
+        undefined,
+        true,
+      );
       validStageIds.push(createdStage._id);
     }
   }

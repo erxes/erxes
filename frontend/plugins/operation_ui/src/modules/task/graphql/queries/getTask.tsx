@@ -20,6 +20,10 @@ export const GET_TASK = gql`
       projectId
       estimatePoint
       milestoneId
+      githubIssueNumber
+      githubIssueUrl
+      githubRepoName
+      propertiesData
     }
   }
 `;

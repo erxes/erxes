@@ -12,13 +12,10 @@ import {
   TRecordReferencesConfig,
   normalizeAutomationConstantsForTransport,
   splitType,
+  TAutomationBuiltInTemplate,
 } from 'erxes-api-shared/core-modules';
-import { IListArgs } from '../queries';
-import {
-  getPlugin,
-  getPlugins,
-  getRealIdFromElk,
-} from 'erxes-api-shared/utils';
+import { IListArgs, IStatsParams } from '../queries';
+import { getPlugin, getPlugins } from 'erxes-api-shared/utils';
 import { CORE_AUTOMATION_CONSTANTS } from '~/meta/automations/constants';
 import { CORE_REFERENCE_TYPES } from '~/meta/references/referenceTypes';
 import { IModels } from '~/connectionResolvers';
@@ -40,6 +37,7 @@ type TAutomationConstantsResponse = {
   setPropertyTargetsConst: TWithPluginName<TAutomationSetPropertyTarget>[];
   aiKnowledgeSourcesConst: TWithPluginName<TAiKnowledgeSourceConfig>[];
   aiToolsConst: TWithPluginName<TAiToolConfig>[];
+  workflowTemplatesConst: TWithPluginName<TAutomationBuiltInTemplate>[];
 };
 
 type TRecordReferenceType = TRecordReferencesConfig['types'][number];
@@ -71,6 +69,8 @@ export const generateAutomationsFilter = (params: IListArgs) => {
 
   const filter: any = {
     status: { $nin: [AUTOMATION_STATUSES.ARCHIVED, 'template'] },
+    // Automations another module owns are driven from that module's own UI.
+    ownedBy: { $exists: false },
   };
 
   if (status) {
@@ -162,12 +162,47 @@ export const generateAutomationHistoriesFilter = (params: any) => {
     filter.targetId = { $in: targetIds };
   }
 
+  if (params.failedActionIds?.length) {
+    filter.failedActionId = { $in: params.failedActionIds };
+  }
+
+  if (params.errorCodes?.length) {
+    filter.errorCode = { $in: params.errorCodes };
+  }
+
+  if (params.waitingActionIds?.length) {
+    filter.waitingActionId = { $in: params.waitingActionIds };
+  }
+
   // Workflow child executions are opened from within their parent execution;
   // the main history list shows only root executions.
   if (params.parentExecutionId) {
     filter.parentExecutionId = params.parentExecutionId;
   } else {
     filter.parentExecutionId = { $exists: false };
+  }
+
+  return filter;
+};
+
+/**
+ * Stats match one automation over a date range. Workflow child executions stay
+ * in, so node stats cover actions that run inside a workflow; the branches that
+ * count whole runs narrow to root executions themselves.
+ */
+export const generateAutomationStatsFilter = ({
+  automationId,
+  beginDate,
+  endDate,
+}: IStatsParams) => {
+  const filter: any = { automationId };
+
+  if (beginDate) {
+    filter.createdAt = { $gte: beginDate };
+  }
+
+  if (endDate) {
+    filter.createdAt = { ...(filter.createdAt || {}), $lte: endDate };
   }
 
   return filter;
@@ -201,6 +236,9 @@ export const getAutomationConstants =
         ...tool,
         pluginName: 'core',
       })),
+      workflowTemplatesConst: (
+        normalizedCoreConstants.workflowTemplates || []
+      ).map((template) => ({ ...template, pluginName: 'core' })),
     };
 
     for (const pluginName of plugins) {
@@ -225,7 +263,11 @@ export const getAutomationConstants =
         findObjectTargets = [],
         setPropertyTargets = [],
         ai,
+        workflowTemplates = [],
       } = pluginConstants as AutomationConstants;
+      constants.workflowTemplatesConst.push(
+        ...workflowTemplates.map((template) => ({ ...template, pluginName })),
+      );
       constants.findObjectTargetsConst.push(...findObjectTargets);
       constants.setPropertyTargetsConst.push(
         ...setPropertyTargets.map((target) => ({ ...target, pluginName })),
@@ -638,7 +680,7 @@ const toAutomationReferenceField = (
 };
 
 const toCustomReferenceField = (field: any): TAutomationOutputVariable => ({
-  key: `propertiesData.${getRealIdFromElk(field._id.toString())}`,
+  key: `propertiesData.${field._id.toString()}`,
   label: field.label || field.text || field.name || field.code,
   type: field.type,
 });

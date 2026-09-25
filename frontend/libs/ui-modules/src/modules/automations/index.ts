@@ -1,6 +1,7 @@
 export * from './types/automationTypes';
 export * from './components/placeholderInput/PlaceholderInput';
 export * from './utils/automationUtils';
+export * from './utils/automationSeedLink';
 export * from './hooks/useAutomationRemoteFormSubmit';
 export * from './components/placeholderInput/commandList/GenericCommandList';
 export * from './hooks/useAutomationOptionalConnect';
@@ -10,6 +11,8 @@ export * from './hooks/useAutomationVariableBlockEditorDrop';
 export * from './hooks/useAutomationVariableCodeMirrorDrop';
 export * from './components/AutomationRemoteEntryWrapper';
 export * from './components/AutomationNodeMetaInfoRow';
+export * from './components/actionResult/ActionResult';
+export type { TActionResultStatus } from './components/actionResult/ActionResultParts';
 export * from './contexts/AutomationVariableInsertionContext';
 export * from './hooks/useFormValidationErrorHandler';
 export * from './utils/automationVariableDragUtils';
@@ -19,3 +22,6 @@ export type {
   TPlaceholderInputSuggestionsOption,
   TPlaceholderInputSuggestionType,
 } from './types/placeholderInputTypes';
+export * from './hooks/useAutomationSetPropertyTargets';
+export * from './hooks/useGetFieldsProperties';
+export * from './utils/groupFieldsByType';

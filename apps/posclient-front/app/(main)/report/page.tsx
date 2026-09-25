@@ -1,8 +1,8 @@
 "use client"
 
-import { isAdminAtom } from "@/store/config.store"
+import { isAdminAtom, permissionConfigAtom } from "@/store/config.store"
 import { useLazyQuery } from "@apollo/client"
-import { useAtom } from "jotai"
+import { useAtomValue } from "jotai"
 import { ShieldXIcon } from "lucide-react"
 
 import ReportForm from "./components/form"
@@ -25,9 +25,10 @@ interface ReportVariables {
 const Report = () => {
   const [getReport, { loading, data }] = useLazyQuery<DailyReportResponse, ReportVariables>(queries.report)
   const { report } = data?.dailyReport || {}
-  const isAdmin = useAtom(isAdminAtom)
+  const isAdmin = useAtomValue(isAdminAtom)
+  const permissionConfig = useAtomValue(permissionConfigAtom)
 
-  if (!isAdmin)
+  if (!isAdmin && !permissionConfig?.seeReport)
     return (
       <div className="flex flex-auto items-center justify-center shadow-inner bg-neutral-50">
         <div className="flex items-center flex-col shadow-xl py-12 px-20 rounded-lg bg-white">

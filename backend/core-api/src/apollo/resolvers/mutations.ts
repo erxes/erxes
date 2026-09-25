@@ -2,6 +2,7 @@ import { appMutations } from '@/apps/graphql/mutations';
 import { authMutations } from '@/auth/graphql/resolvers/mutations';
 import { oauthClientAppMutations } from '@/auth/graphql/resolvers/oauthClientApps';
 import { automationMutations } from '@/automations/graphql/resolvers/mutations';
+import { emailTemplateMutations } from '@/emailTemplates/graphql/resolvers';
 import conformityMutations from '@/conformities/graphql/mutations';
 import { contactMutations } from '@/contacts/graphql/resolvers/mutations';
 import { documentMutations } from '@/documents/graphql/mutations';
@@ -30,7 +31,6 @@ import { commentMutations } from '@/clientportal/graphql/resolvers/mutations/com
 import { cpNotificationMutations } from '@/clientportal/graphql/resolvers/mutations/cpNotification';
 import { bundleMutations } from '@/bundle/graphql/resolvers/mutations';
 import { templateMutations } from '@/template/graphql/mutations';
-import { logMutations } from '@/logs/graphql/resolvers/mutations';
 
 export const mutations = {
   ...contactMutations,
@@ -51,6 +51,7 @@ export const mutations = {
   ...approvalMutations,
   ...documentMutations,
   ...automationMutations,
+  ...emailTemplateMutations,
   ...notificationMutations,
   ...internalNoteMutations,
   ...broadcastMutations,
@@ -63,5 +64,4 @@ export const mutations = {
   ...cpNotificationMutations,
   ...bundleMutations,
   ...templateMutations,
-  ...logMutations,
 };

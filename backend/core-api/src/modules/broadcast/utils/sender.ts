@@ -1,5 +1,15 @@
-import { getEnv } from 'erxes-api-shared/utils';
+import { deliverEmail, getEnv } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
+import {
+  createDeliveryLogPort,
+  createSuppressionPort,
+} from '~/utils/email/ports';
+import {
+  getBroadcastAlignedFrom,
+  getBroadcastCacheKey,
+  getBroadcastEmailConfig,
+  toOutboundEmail,
+} from './outboundEmail';
 import { getValueAsString } from '~/modules/organization/settings/db/models/Configs';
 
 const getConfigSet = async (models: IModels) => {
@@ -295,17 +305,40 @@ export const sendEngageEmail = async (
   models: IModels,
   data: any,
 ) => {
-  const transporter = await createTransporter(models);
   const { customer } = data;
 
   const configSet = await getConfigSet(models);
 
   try {
-    await transporter.sendMail(
-      prepareEmailParams(subdomain, customer, data, configSet),
-    );
+    const outcome = await deliverEmail({
+      cacheKey: getBroadcastCacheKey(models),
+      config: await getBroadcastEmailConfig(models),
 
-    console.log(`Sent email to: ${customer?.primaryEmail}`);
+      message: toOutboundEmail(
+        prepareEmailParams(
+          subdomain,
+          customer,
+          data,
+          data.fromEmail,
+          configSet,
+        ),
+        { alignedFrom: await getBroadcastAlignedFrom(models) },
+      ),
+      log: createDeliveryLogPort(models),
+      suppression: createSuppressionPort(models),
+      meta: {
+        source: 'broadcast',
+        sourceId: data.engageMessageId,
+        userId: data.createdBy,
+        subdomain,
+      },
+    });
+
+    console.log(
+      outcome.skipped
+        ? `Skipped suppressed address: ${customer?.primaryEmail}`
+        : `Sent email to: ${customer?.primaryEmail}`,
+    );
   } catch (e) {
     console.log(
       `Error occurred while sending email to ${customer?.primaryEmail}: ${e.message}`,

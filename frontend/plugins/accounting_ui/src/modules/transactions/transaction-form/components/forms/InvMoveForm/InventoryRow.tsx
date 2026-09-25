@@ -94,6 +94,7 @@ export const InventoryRow = ({
   const { unitPrice, count, _id } = detail;
 
   const initProductId = useRef(detail.productId);
+  const hasProductChanged = useRef(false);
   const initAccountId = useRef(detail.accountId);
   const initBranchId = useRef(trDoc.branchId);
   const initDepartmentId = useRef(trDoc.departmentId);
@@ -112,7 +113,8 @@ export const InventoryRow = ({
     skip:
       !detail.productId ||
       !detail.accountId ||
-      (initProductId.current &&
+      (!hasProductChanged.current &&
+        initProductId.current &&
         detail.productId === initProductId.current &&
         trDoc.branchId === initBranchId.current &&
         trDoc.departmentId === initDepartmentId.current &&
@@ -172,13 +174,13 @@ export const InventoryRow = ({
     if (loading || !currentCostInfo) return;
 
     const costInfo = currentCostInfo[detail.productId || ''];
+    const nextUnitPrice = costInfo?.unitCost ?? 0;
 
-    if (costInfo === undefined) return;
-
-    form.setValue(getFieldName('unitPrice'), costInfo.unitCost);
+    form.setValue(getFieldName('unitPrice'), nextUnitPrice);
+    form.setValue(getFieldName('amount'), (count ?? 0) * nextUnitPrice);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [detail.productId, loading]);
+  }, [currentCostInfo, detail.productId, loading]);
 
   const handleAmountChange = (
     value: number,
@@ -214,6 +216,9 @@ export const InventoryRow = ({
     productId: string,
     onChange: (productId: string) => void,
   ) => {
+    if (productId !== detail.productId) {
+      hasProductChanged.current = true;
+    }
     onChange(productId);
   };
 

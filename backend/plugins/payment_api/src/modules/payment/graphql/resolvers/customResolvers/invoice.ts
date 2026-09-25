@@ -19,6 +19,21 @@ export default {
     return invoice.description || invoice.invoiceNumber;
   },
 
+  ticketCount(invoice: IInvoiceDocument) {
+    if (invoice.ticketCodes?.length) {
+      return invoice.ticketCodes.length;
+    }
+    const quantity = Math.floor(Number((invoice.data as any)?.quantity) || 1);
+    return Number.isFinite(quantity) && quantity > 0 ? quantity : 1;
+  },
+
+  scannedCount(invoice: IInvoiceDocument) {
+    if (invoice.ticketCodes?.length) {
+      return invoice.ticketCodes.filter((ticket) => ticket.scannedAt).length;
+    }
+    return invoice.scannedAt ? 1 : 0;
+  },
+
   async remainingAmount(
     invoice: IInvoiceDocument,
     _args,
@@ -64,8 +79,6 @@ export default {
         return null;
     }
   },
-
-
 
   idOfProvider(invoice: IInvoiceDocument) {
     return '';

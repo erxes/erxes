@@ -6,6 +6,7 @@ import {
 import {
   cursorPaginate,
   cursorPaginateAggregation,
+  escapeRegExp,
 } from 'erxes-api-shared/utils';
 import { IContext, IModels } from '~/connectionResolvers';
 
@@ -49,7 +50,7 @@ const generateFilterQuery = async (
   }
 
   if (searchValue) {
-    query.name = new RegExp(`.*${searchValue}.*`, 'i');
+    query.name = new RegExp(escapeRegExp(searchValue), 'i');
   }
 
   // if (tag) {
@@ -73,6 +74,7 @@ type FormsArgs = {
   status?: string;
   sortField?: string;
   sortDirection?: 1 | -1;
+  orderBy?: { createdAt?: 1 | -1 };
 } & ({ page: number; perPage: number } | ICursorPaginateParams);
 
 const formQueries: Record<string, Resolver> = {
@@ -90,7 +92,12 @@ const formQueries: Record<string, Resolver> = {
 
     return cursorPaginate({
       model: models.Forms as any,
-      params: { ...args, orderBy: { createdAt: 1 } },
+      params: {
+        ...args,
+        orderBy: args.orderBy
+          ? { createdAt: args.orderBy.createdAt === -1 ? -1 : 1 }
+          : { createdAt: 1 },
+      },
       query: { ...qry },
     });
   },
@@ -167,8 +174,6 @@ const formQueries: Record<string, Resolver> = {
     }
 
     counts.total = await count(qry);
-    console.log('count', qry);
-
     return counts;
   },
 

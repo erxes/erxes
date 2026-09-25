@@ -1,7 +1,11 @@
+/** What the approval module locks when a campaign is locked. */
+export const BROADCAST_APPROVAL_CONTENT_TYPE = 'core:broadcast_campaign';
+
 import { BadgeProps } from 'erxes-ui';
 import {
   IconBellRinging,
   IconDeviceMobile,
+  IconRouteSquare,
   IconUserCheck,
   IconUsers,
 } from '@tabler/icons-react';
@@ -16,6 +20,7 @@ export const BROADCAST_MESSAGE_METHOD_KINDS: Record<string, string> = {
   email: 'manual',
   messenger: 'visitorAuto',
   notification: 'manual',
+  workflow: 'manual',
 };
 
 export const BROADCAST_METHODS: Record<string, string> = {
@@ -23,12 +28,7 @@ export const BROADCAST_METHODS: Record<string, string> = {
   EMAIL: 'email',
   SMS: 'sms',
   NOTIFICATION: 'notification',
-};
-
-export const BROADCAST_KIND_FILTERS: Record<string, string> = {
-  auto: 'Auto',
-  visitorAuto: 'Visitor auto',
-  manual: 'Manual',
+  WORKFLOW: 'workflow',
 };
 
 export const BROADCAST_MESSENGER_MESSAGE_TYPES: Record<string, string> = {
@@ -110,120 +110,176 @@ export const BROADCAST_RULES: Record<
 };
 
 export const BROADCAST_TARGET_TYPE: Record<string, string> = {
-  segment: 'Segment',
-  tag: 'Tag',
-  brand: 'Brand',
+  segment: 'target-type.segment',
+  tag: 'target-type.tag',
 };
 
 export const BROADCAST_MESSAGE_STATUS = [
-  { value: 'sent', label: 'Sent' },
-  { value: 'draft', label: 'Draft' },
-  { value: 'paused', label: 'Paused' },
-  { value: 'sending', label: 'Sending' },
-  { value: 'notSent', label: 'Not Sent' },
+  { value: 'sent', labelKey: 'status.sent' },
+  { value: 'draft', labelKey: 'status.draft' },
+  { value: 'paused', labelKey: 'status.paused' },
+  { value: 'sending', labelKey: 'status.sending' },
+  { value: 'notSent', labelKey: 'status.not-sent' },
 ];
 
 export const BROADCAST_MESSAGE_STATUS_MAP: Record<
   string,
-  { text: string; style: BadgeProps['variant'] }
+  { labelKey: string; style: BadgeProps['variant'] }
 > = {
-  sending: { text: 'Sending', style: 'info' },
-  completed: { text: 'Sent', style: 'success' },
-  failed: { text: 'Not Sent', style: 'warning' },
+  sending: { labelKey: 'status.sending', style: 'info' },
+  completed: { labelKey: 'status.sent', style: 'success' },
+  failed: { labelKey: 'status.not-sent', style: 'warning' },
 };
 
+/** Every method a campaign can carry, including ones no longer offered. */
 export const BROADCAST_MESSAGE_METHODS = [
-  { value: 'email', label: 'Email' },
-  { value: 'messenger', label: 'Messenger' },
-  { value: 'notification', label: 'Notification' },
+  {
+    value: 'email',
+    labelKey: 'method.email',
+    descriptionKey: 'method.email-description',
+  },
+  {
+    value: 'messenger',
+    labelKey: 'method.messenger',
+    descriptionKey: 'method.messenger-description',
+  },
+  {
+    value: 'notification',
+    labelKey: 'method.notification',
+    descriptionKey: 'method.notification-description',
+  },
+  {
+    value: 'workflow',
+    labelKey: 'method.workflow',
+    descriptionKey: 'method.workflow-description',
+  },
 ];
+
+/**
+ * What a campaign may be created as.
+ *
+ * Messenger is absent: nothing sends it — `sendBroadcast` has no branch for it
+ * and its worker is empty — so offering it would build a campaign that goes
+ * live and quietly does nothing. It stays above so a campaign already carrying
+ * it still reads as Messenger rather than as a blank.
+ */
+export const BROADCAST_SELECTABLE_METHODS = BROADCAST_MESSAGE_METHODS.filter(
+  ({ value }) => value !== 'messenger',
+);
 
 export const BROADCAST_NOTIFICATION_STATISTIC = {
   total: {
-    title: 'Targeted',
-    description:
-      'Customers matched by the selected tag who are eligible for this campaign.',
+    titleKey: 'stat.notification.total',
+    descriptionKey: 'stat.notification.total-body',
     icon: IconUsers,
   },
   sent: {
-    title: 'Sent',
-    description:
-      'Client portal users who successfully received the notification.',
+    titleKey: 'stat.notification.sent',
+    descriptionKey: 'stat.notification.sent-body',
     icon: IconUserCheck,
   },
   read: {
-    title: 'Read',
-    description:
-      'Recipients who opened and marked the in-app notification as read.',
+    titleKey: 'stat.notification.read',
+    descriptionKey: 'stat.notification.read-body',
     icon: IconBellRinging,
   },
   push: {
-    title: 'Push enabled',
-    description:
-      'Campaign was configured to deliver mobile and web push notifications.',
+    titleKey: 'stat.notification.push',
+    descriptionKey: 'stat.notification.push-body',
     icon: IconDeviceMobile,
   },
 };
 
-export const BROADCAST_MESSAGE_KIND = [
-  { value: 'auto', label: 'Auto' },
-  { value: 'manual', label: 'Manual' },
-];
+export const BROADCAST_WORKFLOW_STATISTIC = {
+  total: {
+    titleKey: 'stat.workflow.total',
+    descriptionKey: 'stat.workflow.total-body',
+    icon: IconUsers,
+  },
+  started: {
+    titleKey: 'stat.workflow.started',
+    descriptionKey: 'stat.workflow.started-body',
+    icon: IconRouteSquare,
+  },
+};
+
+export const BROADCAST_PROVIDER_FIELDS: Record<
+  string,
+  Array<{ name: string; labelKey: string; type?: string }>
+> = {
+  SES: [
+    {
+      name: 'BROADCAST_AWS_SES_ACCESS_KEY_ID',
+      labelKey: 'settings.ses-access-key',
+    },
+    {
+      name: 'BROADCAST_AWS_SES_SECRET_ACCESS_KEY',
+      labelKey: 'settings.ses-secret-key',
+    },
+    { name: 'BROADCAST_AWS_REGION', labelKey: 'settings.aws-region' },
+    {
+      name: 'BROADCAST_AWS_SES_CONFIG_SET',
+      labelKey: 'settings.ses-config-set',
+    },
+  ],
+  sendgrid: [
+    {
+      name: 'BROADCAST_SENDGRID_API_KEY',
+      labelKey: 'settings.sendgrid-api-key',
+      type: 'password',
+    },
+    {
+      name: 'BROADCAST_SENDGRID_SUBUSER',
+      labelKey: 'settings.sendgrid-subuser',
+    },
+  ],
+  custom: [
+    { name: 'BROADCAST_MAIL_SERVICE', labelKey: 'settings.mail-service' },
+    { name: 'BROADCAST_MAIL_HOST', labelKey: 'settings.mail-host' },
+    { name: 'BROADCAST_MAIL_PORT', labelKey: 'settings.mail-port' },
+    { name: 'BROADCAST_MAIL_USER', labelKey: 'settings.mail-user' },
+    {
+      name: 'BROADCAST_MAIL_PASS',
+      labelKey: 'settings.mail-password',
+      type: 'password',
+    },
+  ],
+};
 
 export const BROADCAST_SETTINGS_CONFIG_FIELDS = [
   {
-    name: 'BROADCAST_AWS_SES_ACCESS_KEY_ID',
-    inputType: 'input',
-    type: 'text',
-    label: 'AWS SES Access Key id',
-    description: '',
-    osOnly: true,
-  },
-  {
-    name: 'BROADCAST_AWS_SES_SECRET_ACCESS_KEY',
-    inputType: 'input',
-    type: 'text',
-    label: 'AWS SES Secret Access Key',
-    description: '',
-    osOnly: true,
-  },
-  {
-    name: 'BROADCAST_AWS_REGION',
-    inputType: 'input',
-    type: 'text',
-    label: 'AWS Region',
-    description: '',
-    osOnly: true,
-  },
-  {
-    name: 'BROADCAST_AWS_SES_CONFIG_SET',
-    inputType: 'input',
-    type: 'text',
-    label: 'AWS SES Config Set',
-    description: '',
-    osOnly: true,
-  },
-  {
     name: 'BROADCAST_UNVERIFIED_EMAILS_LIMIT',
-    inputType: 'input',
     type: 'number',
-    label: 'Unverified emails limit',
-    description: '',
+    labelKey: 'settings.unverified-limit',
   },
   {
     name: 'BROADCAST_ALLOWED_EMAIL_SKIP_LIMIT',
-    inputType: 'input',
     type: 'number',
-    label: 'Allowed email skip limit',
-    description:
-      'The number of times that each customer can skip to open or click campaign emails. If this limit is exceeded, then the customer will automatically set to unsubscribed mode.',
+    labelKey: 'settings.skip-limit',
   },
   {
     name: 'BROADCAST_CUSTOMER_LIMIT_PER_AUTO_SMS_CAMPAIGN',
-    inputType: 'input',
     type: 'number',
-    label: 'Customer limit per auto SMS campaign',
-    description:
-      'The maximum number of customers that can receive auto SMS campaign per each runtime.',
+    labelKey: 'settings.sms-limit',
   },
 ];
+
+export const BROADCAST_RECIPIENTS_CURSOR_SESSION_KEY =
+  'broadcast-recipients-cursor';
+
+/**
+ * What each action promises before it is carried out.
+ *
+ * Kept together because the same campaign is acted on from the table, the
+ * grid, the detail sheet and the command bar, and a promise that differs
+ * between them is a promise one of them is breaking.
+ */
+export const BROADCAST_CONFIRM_MESSAGES = {
+  // What it promises is exactly what it does: recipients already handed over
+  // keep going, and nobody new is taken up.
+  pause: 'confirm.pause',
+  resume: 'confirm.resume',
+  sendNow: 'confirm.send-now',
+  goLive: 'confirm.go-live',
+  cancelSchedule: 'confirm.cancel-schedule',
+} as const;

@@ -44,6 +44,7 @@ export const userMutations: Record<string, Resolver<any, any, IContext>> = {
       ICustomer,
       | 'firstName'
       | 'lastName'
+      | 'avatar'
       | 'primaryEmail'
       | 'emails'
       | 'primaryPhone'

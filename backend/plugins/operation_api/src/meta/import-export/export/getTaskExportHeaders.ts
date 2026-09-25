@@ -14,5 +14,6 @@ import { getExportHeaders } from '../utils';
  */
 export const getTaskExportHeaders = (
   _data: unknown,
-  { subdomain }: IImportExportContext<IModels>,
-): Promise<ImportHeaderDefinition[]> => getExportHeaders('task', subdomain);
+  { subdomain, models }: IImportExportContext<IModels>,
+): Promise<ImportHeaderDefinition[]> =>
+  getExportHeaders('task', subdomain, models);

@@ -18,7 +18,10 @@ export const MSDynamicMoreColumnCell = ({
   const row = cell.row.original;
   const setEditDetail = useSetAtom(msDynamicConfigDetailAtom);
   const { configsMap, saveConfigs } = useMSDynamicConfigs();
-  const { removeConfig } = useMSDynamicConfigActions({ configsMap, saveConfigs });
+  const { removeConfig } = useMSDynamicConfigActions({
+    configsMap,
+    saveConfigs,
+  });
 
   return (
     <Popover>

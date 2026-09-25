@@ -153,7 +153,8 @@ const SortableMenuRow = React.memo(
       const { attributes, listeners, setNodeRef, transform, transition } =
         useSortable({
           id: original?._id,
-          disabled: activeId ? !isDraggingItem && !isSibling : false,
+          disabled:
+            isDraggingAny && activeId ? !isDraggingItem && !isSibling : false,
         });
 
       const setRowRef = useCallback(
@@ -383,7 +384,7 @@ export const MenusRecordTable = ({
 
       mutationQueueRef.current[pId] = nextMutation;
     },
-    [orderedMenus, language, editMenu, refetch, menus],
+    [orderedMenus, language, t, refetch, editMenu, menus],
   );
 
   const columns = useMenusColumns(onEdit, refetch);
@@ -418,6 +419,7 @@ export const MenusRecordTable = ({
         data={orderedMenus}
         className="h-full m-3 pb-1"
         stickyColumns={['drag', 'more', 'checkbox', 'label']}
+        tableId="content_menus_record_table"
       >
         <SortableContext items={menuIds} strategy={verticalListSortingStrategy}>
           <RecordTable.Scroll>

@@ -1,14 +1,7 @@
 import { useFacebookAccounts } from '@/integrations/facebook/hooks/useFacebookAccounts';
 import { selectedFacebookAccountAtom } from '@/integrations/facebook/states/facebookStates';
 import { IconPlus } from '@tabler/icons-react';
-import {
-  Button,
-  cn,
-  Command,
-  Input,
-  RadioGroup,
-  Spinner,
-} from 'erxes-ui';
+import { Button, cn, Command, Input, RadioGroup, Spinner } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { Link } from 'react-router';
 import { useTranslation } from 'react-i18next';
@@ -29,12 +22,16 @@ export const FacebookBotPageAccountsStep = ({
       <Command>
         <div className="p-1">
           <Command.Primitive.Input asChild>
-            <Input placeholder={t('search-for-an-account')} />
+            <Input
+              placeholder={t('search-for-an-account', 'Search for an account')}
+            />
           </Command.Primitive.Input>
         </div>
         <div className="flex justify-between items-center px-1 py-2">
           <div className="text-sm text-muted-foreground">
-            {t('accounts-found', { count: facebookGetAccounts.length })}
+            {t('accounts-found', '{{count}} accounts found', {
+              count: facebookGetAccounts.length,
+            })}
           </div>
 
           <Button variant="ghost" className="text-primary" asChild>
@@ -44,7 +41,7 @@ export const FacebookBotPageAccountsStep = ({
               rel="noreferrer"
             >
               <IconPlus />
-              {t('add-account-via-facebook')}
+              {t('add-account-via-facebook', 'Add account via facebook')}
             </Link>
           </Button>
         </div>
@@ -72,7 +69,6 @@ const FacebookBotPageAccountsStepContent = ({
   facebookGetAccounts: {
     _id: string;
     name: string;
-    accessToken: string;
     pageId: string | null;
     pageName: string | null;
   }[];

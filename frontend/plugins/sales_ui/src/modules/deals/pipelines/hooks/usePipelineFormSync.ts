@@ -28,6 +28,7 @@ const mapPipelineStages = (
     probability: stage.probability || '',
     memberIds: stage.memberIds ?? [],
     departmentIds: stage.departmentIds ?? [],
+    defaultTick: stage.defaultTick ?? true,
   }));
 
 const getPipelineFormValues = (
@@ -57,6 +58,7 @@ const getPipelineFormValues = (
       excludeCheckUserIds: [],
       paymentIds: [],
       paymentTypes: [],
+      propertyIds: [],
     };
   }
 
@@ -84,6 +86,7 @@ const getPipelineFormValues = (
       ...paymentType,
       config: formatPaymentConfig(paymentType.config),
     })),
+    propertyIds: pipelineDetail.propertyIds || [],
   };
 };
 

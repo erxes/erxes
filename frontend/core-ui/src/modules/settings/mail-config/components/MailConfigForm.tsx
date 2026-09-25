@@ -2,12 +2,41 @@ import { useEffect, useMemo } from 'react';
 import { useMailConfigForm } from '@/settings/mail-config/hooks/useMailConfigForm';
 import { Button, Form, Input, Select, cn } from 'erxes-ui';
 import { MAIL_CONFIG_FIELDS } from '@/settings/mail-config/constants/formData';
-import { TMailConfigForm } from '@/settings/mail-config/types';
-import { Path, useWatch } from 'react-hook-form';
+import { TInput, TMailConfigForm } from '@/settings/mail-config/types';
+import { Path, useFormContext, useWatch } from 'react-hook-form';
 import { AnimatePresence } from 'framer-motion';
 import { useConfig } from '@/settings/file-upload/hook/useConfigs';
+import { VerifiedSenders } from '@/settings/mail-config/components/VerifiedSenders';
 import { IconLoader2 } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
+
+const MailConfigInputField = ({
+  input: { name, type, label, description },
+  className,
+}: {
+  input: Pick<TInput, 'name' | 'type' | 'label' | 'description'>;
+  className: string;
+}) => {
+  const { control } = useFormContext<TMailConfigForm>();
+
+  return (
+    <Form.Field
+      control={control}
+      name={name as Path<TMailConfigForm>}
+      render={({ field }) => (
+        <Form.Item className={cn(className, 'flex flex-col justify-between')}>
+          <div>
+            <Form.Label>{label}</Form.Label>
+            <Form.Description>{description}</Form.Description>
+          </div>
+          <Form.Control>
+            <Input type={type} {...field} className="h-7" />
+          </Form.Control>
+        </Form.Item>
+      )}
+    />
+  );
+};
 
 const MailConfigForm = () => {
   const {
@@ -24,6 +53,7 @@ const MailConfigForm = () => {
     name: 'COMPANY_EMAIL_TEMPLATE_TYPE',
   });
   const MAIL_SERVICE = useWatch({ control, name: 'DEFAULT_EMAIL_SERVICE' });
+  const POSTAL_ADDRESS = useWatch({ control, name: 'COMPANY_POSTAL_ADDRESS' });
 
   useEffect(() => {
     if (!configs) {
@@ -55,7 +85,10 @@ const MailConfigForm = () => {
         className="grid grid-cols-4 gap-3 py-1"
       >
         {columns['common'].map(
-          ({ name, inputType, type, label, description, options }, idx) => {
+          (
+            { name, inputType, type, label, description, options, className },
+            idx,
+          ) => {
             if (inputType === 'select') {
               return (
                 <Form.Field
@@ -146,30 +179,17 @@ const MailConfigForm = () => {
               }
             }
             return (
-              <Form.Field
+              <MailConfigInputField
                 key={name}
-                control={control}
-                name={name as Path<TMailConfigForm>}
-                render={({ field }) => (
-                  <Form.Item
-                    className={cn(
-                      idx === 0 ? 'col-span-2' : 'col-span-4',
-                      'flex flex-col justify-between',
-                    )}
-                  >
-                    <div>
-                      <Form.Label>{label}</Form.Label>
-                      <Form.Description>{description}</Form.Description>
-                    </div>
-                    <Form.Control>
-                      <Input type={type} {...field} className="h-7" />
-                    </Form.Control>
-                  </Form.Item>
-                )}
+                input={{ name, type, label, description }}
+                className={
+                  className ?? (idx === 0 ? 'col-span-2' : 'col-span-4')
+                }
               />
             );
           },
         )}
+
         <AnimatePresence mode="popLayout">
           {columns[MAIL_SERVICE]?.map(
             ({ name, inputType, type, label, description, options }, idx) => (
@@ -198,6 +218,30 @@ const MailConfigForm = () => {
             ),
           )}
         </AnimatePresence>
+
+        <Form.Item className="col-span-4 flex flex-col justify-between">
+          <div>
+            <Form.Label>{t('verified-senders')}</Form.Label>
+            <Form.Description>{t('verified-senders-desc')}</Form.Description>
+          </div>
+          <VerifiedSenders />
+        </Form.Item>
+
+        {columns['postal'].map(
+          ({ name, type, label, description, className }) => (
+            <MailConfigInputField
+              key={name}
+              input={{ name, type, label, description }}
+              className={className ?? 'col-span-4'}
+            />
+          ),
+        )}
+        {!POSTAL_ADDRESS && (
+          <div className="col-span-4 p-3 text-sm leading-[140%] font-normal bg-warning/6 text-warning rounded-lg border border-warning/30">
+            {t('postal-address-missing')}
+          </div>
+        )}
+
         <Form.Item className="col-span-4 grid grid-cols-4">
           <Button
             size={'sm'}

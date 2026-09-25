@@ -1,8 +1,12 @@
 import type { Job } from 'bullmq';
-import { AUTOMATION_EXECUTION_STATUS } from 'erxes-api-shared/core-modules';
+import {
+  AUTOMATION_EXECUTION_STATUS,
+  AUTOMATION_STATUSES,
+} from 'erxes-api-shared/core-modules';
 import { IJobData } from '../initMQWorkers';
 import { IModels } from '../../connectionResolver';
 import { debugInfo } from '../../debugger';
+import { resolveAutomationErrorCode } from '../../executions/errorCodes';
 import { getExecutionActionsMap } from '../../utils/utils';
 import { executeActions } from '../../executions/executeActions';
 
@@ -39,13 +43,27 @@ export const playWaitingActionWorker = async (
   }).lean();
 
   if (!automation) {
-    await models.Executions.updateOne({
-      _id: execution.id,
-      status: AUTOMATION_EXECUTION_STATUS.MISSID,
-      description: 'Not found automation of execution',
-    });
+    await models.Executions.updateOne(
+      { _id: execution._id },
+      {
+        $set: {
+          status: AUTOMATION_EXECUTION_STATUS.MISSID,
+          description: 'Not found automation of execution',
+        },
+      },
+    );
     debugInfo(
       `Not found automation ${automationId} with action ${waitingActionId} for start action`,
+    );
+    return;
+  }
+
+  // A paused automation holds its waits rather than spending them. The
+  // execution keeps `waiting` and its `waitingActionId`, which is everything
+  // `resumeWaitingExecutions` needs to arm this job again once it is active.
+  if (automation.status !== AUTOMATION_STATUSES.ACTIVE) {
+    debugInfo(
+      `Automation ${automationId} is ${automation.status}; holding execution ${execId} on action ${waitingActionId}`,
     );
     return;
   }
@@ -62,10 +80,16 @@ export const playWaitingActionWorker = async (
       action?.nextActionId,
     );
   } catch (error) {
-    models.Executions.updateOne({
-      _id: execution.id,
-      status: AUTOMATION_EXECUTION_STATUS.ERROR,
-      description: error.message,
-    });
+    await models.Executions.updateOne(
+      { _id: execution._id },
+      {
+        $set: {
+          status: AUTOMATION_EXECUTION_STATUS.ERROR,
+          description: error.message,
+          failedActionId: waitingActionId,
+          errorCode: resolveAutomationErrorCode(error),
+        },
+      },
+    );
   }
 };

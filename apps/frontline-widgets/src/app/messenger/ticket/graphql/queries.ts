@@ -97,9 +97,25 @@ const GET_TICKETS_BY_CUSTOMER_ID = gql`
   }
 `;
 
+const WIDGET_GET_TICKETS_NOTES = gql`
+  query WidgetTicketComments($contentId: String!) {
+    widgetTicketComments(contentId: $contentId) {
+      _id
+      content
+      contentId
+      createdBy
+      mentions
+      statusId
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
 export {
   GET_TICKET_CUSTOMER_DETAILS,
   GET_WIDGET_TAGS,
   GET_TICKET_PROGRESS,
   GET_TICKETS_BY_CUSTOMER_ID,
+  WIDGET_GET_TICKETS_NOTES,
 };

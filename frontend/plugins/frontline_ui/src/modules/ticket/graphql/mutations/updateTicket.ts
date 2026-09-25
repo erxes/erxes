@@ -12,6 +12,7 @@ export const UPDATE_TICKET_MUTATION = gql`
     $labelIds: [String]
     $tagIds: [String]
     $assigneeId: String
+    $assignedMembers: [String]
     $startDate: Date
     $targetDate: Date
     $isSubscribed: Boolean
@@ -30,6 +31,7 @@ export const UPDATE_TICKET_MUTATION = gql`
       labelIds: $labelIds
       tagIds: $tagIds
       assigneeId: $assigneeId
+      assignedMembers: $assignedMembers
       startDate: $startDate
       targetDate: $targetDate
       isSubscribed: $isSubscribed
@@ -45,6 +47,7 @@ export const UPDATE_TICKET_MUTATION = gql`
       labelIds
       tagIds
       assigneeId
+      assignedMembers
       startDate
       targetDate
       channelId

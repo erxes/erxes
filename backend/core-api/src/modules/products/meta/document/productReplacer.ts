@@ -2,10 +2,9 @@ import { dateToShortStr, getEnv } from 'erxes-api-shared/utils';
 import dayjs from 'dayjs';
 import { IModels } from '~/connectionResolvers';
 import { generateBarcodeSvg } from '~/modules/documents/barcode';
-import { blocksToHtml } from '~/modules/documents/blocksToHtml';
+import { blocksToHtml } from 'erxes-api-shared/core-modules';
 
 const readFileUrl = (key: string, subdomain: string) => {
-
   if (key.startsWith('http://') || key.startsWith('https://')) {
     return key;
   }
@@ -16,7 +15,20 @@ const readFileUrl = (key: string, subdomain: string) => {
     defaultValue: 'http://localhost:4000',
   });
 
-  return `${DOMAIN}/gateway/read-file?key=${encodeURIComponent(key)}`;
+  const NODE_ENV = getEnv({ name: 'NODE_ENV' });
+  const VERSION = getEnv({ name: 'VERSION' });
+
+  const encodedKey = encodeURIComponent(key);
+
+  if (NODE_ENV !== 'production') {
+    return `${DOMAIN}/read-file?key=${encodedKey}`;
+  }
+
+  if (VERSION === 'saas') {
+    return `${DOMAIN}/api/read-file?key=${encodedKey}`;
+  }
+
+  return `${DOMAIN}/gateway/read-file?key=${encodedKey}`;
 };
 
 const toMoney = (value?: number) => {
@@ -111,18 +123,25 @@ export const buildProductReplacer = async ({
     const path = props?.value;
 
     if (path === 'barcode') {
-      if (!barcodeValue) {
-        return { ...block, type: 'rawHtml', props: { ...props, html: '' } };
-      }
-
-      const svg = generateBarcodeSvg(barcodeValue);
+      const width = Math.min(
+        600,
+        Math.max(80, typeof props.width === 'number' ? props.width : 150),
+      );
+      const height = Math.min(
+        300,
+        Math.max(30, typeof props.height === 'number' ? props.height : 50),
+      );
+      const barcode = generateBarcodeSvg(barcodeValue || '123456789012', {
+        width,
+        height,
+      });
 
       return {
         ...block,
         type: 'rawHtml',
         props: {
           ...props,
-          html: `<span style="display: inline-block;">${svg}</span>`,
+          html: `<span style="display: inline-block;">${barcode}</span>`,
         },
       };
     }

@@ -62,11 +62,14 @@ const httpLink = createHttpLink({
 });
 
 // Error handler
-const errorLink = onError(({ graphQLErrors }) => {
+const errorLink = onError(({ graphQLErrors, operation }) => {
   if (graphQLErrors && graphQLErrors.length > 0) {
     const [error] = graphQLErrors;
 
-    if (error.message === 'Login required') {
+    if (
+      error.message === 'Login required' &&
+      !['GlobalSearch', 'GlobalSearchPage'].includes(operation.operationName)
+    ) {
       globalThis.window.location.reload();
     }
   }
@@ -114,6 +117,9 @@ const link = split(
 const typePolicies = {
   customers: {
     keyFields: ['_id'],
+  },
+  GlobalSearchResultItem: {
+    keyFields: ['module', 'id'],
   },
 };
 

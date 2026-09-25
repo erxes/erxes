@@ -12,12 +12,15 @@ import {
   IconFileImport,
   IconHierarchy,
   IconHierarchy2,
+  IconKey,
   IconMail,
+  IconMailCode,
   IconMessage,
   IconNotification,
   IconPassword,
   IconShoppingCart,
   IconShieldCheck,
+  IconShieldLock,
   IconTag,
   IconUserCircle,
   IconUsersGroup,
@@ -173,6 +176,11 @@ export const SETTINGS_PATH_DATA = (
       path: SettingsWorkspacePath.Automations,
     },
     {
+      name: t('email-templates', 'Email templates'),
+      icon: IconMailCode,
+      path: SettingsWorkspacePath.EmailTemplates,
+    },
+    {
       name: t('message-pro', 'Message Pro'),
       icon: IconMessage,
       path: SettingsWorkspacePath.MessagePro,
@@ -186,18 +194,23 @@ export const SETTINGS_PATH_DATA = (
     },
     {
       name: 'App tokens',
-      icon: IconBuilding,
+      icon: IconKey,
       path: SettingsWorkspacePath.AppTokens,
     },
     {
       name: 'OAuth clients',
-      icon: IconBuilding,
+      icon: IconShieldLock,
       path: SettingsWorkspacePath.OAuthClients,
     },
     {
       name: 'System Logs',
       icon: IconFile,
       path: SettingsWorkspacePath.Logs,
+    },
+    {
+      name: 'Email delivery',
+      icon: IconMail,
+      path: SettingsWorkspacePath.EmailDeliveries,
     },
     {
       name: 'Import & Export',
@@ -238,4 +251,19 @@ export const GET_SETTINGS_PATH_DATA = (version?: boolean, t?: TFunction) => {
     nav,
     developer,
   };
+};
+
+export const SETTINGS_PERMISSION_MAP: Record<string, string> = {
+  [SettingsWorkspacePath.TeamMember]: 'teamMembers',
+  [SettingsWorkspacePath.Structure]: 'organization',
+  [SettingsWorkspacePath.Tags]: 'tags',
+  [SettingsWorkspacePath.Brands]: 'brands',
+  [SettingsWorkspacePath.Properties]: 'properties',
+  [SettingsWorkspacePath.Products]: 'products',
+  [SettingsWorkspacePath.Automations]: 'automations',
+  [SettingsWorkspacePath.ClientPortals]: 'clientPortal',
+  [SettingsWorkspacePath.OAuthClients]: 'apps',
+  [SettingsWorkspacePath.Permissions]: 'permissions',
+  [SettingsWorkspacePath.ApprovalRequests]: 'approval',
+  [SettingsWorkspacePath.EmailTemplates]: 'emailTemplates',
 };

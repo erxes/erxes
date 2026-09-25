@@ -40,3 +40,16 @@ export const approvalRequestCreateInputSchema = z.object({
   contentId: z.string().min(1),
   reason: z.string().optional(),
 });
+
+export const approvalChangeApplyInputSchema = z.object({
+  subdomain: z.string(),
+  data: z.object({
+    requestId: z.string().min(1),
+    changeType: z.string().min(1),
+    payload: z.record(z.string(), z.unknown()).optional(),
+    contentType: z.string().min(1),
+    contentId: z.string().min(1),
+    requesterId: z.string().min(1),
+    approverId: z.string().min(1),
+  }),
+});

@@ -9,14 +9,34 @@ export const types = `
         icon: String
         name: String!
         description: String
+        scope: String
         createdAt: Date
         updatedAt: Date
         memberCount: Int
         pipelineCount: Int
+        hasTickets: Boolean
         responseTemplateCount: Int
         formCount: Int
         integrationCount: Int
         integrationKinds: [String]
+        conversationCount: Int
+        unreadConversationCount: Int
+    }
+
+    enum ChannelResourceType {
+        integration
+        pipeline
+        form
+        survey
+        responseTemplate
+    }
+
+    type ChannelMoveResourcesResult {
+        movedIds: [String!]!
+        movedCount: Int!
+        sourceChannelId: String!
+        targetChannelId: String!
+        targetChannelName: String
     }
 
     type ChannelMember {
@@ -30,17 +50,19 @@ export const types = `
 
 export const queries = `
     getChannel(_id: String!): Channel
-    getChannels(name: String, userId: String, channelIds: [String], integrationId: String): [Channel]
-    getMyChannels(name: String): [Channel]
+    getChannels(name: String, userId: String, channelIds: [String], integrationId: String, sortField: String, sortDirection: Int): [Channel]
+    getMyChannels(name: String, sortField: String, sortDirection: Int): [Channel]
+    getPersonalChannel: Channel
     getChannelMembers(channelId: String, channelIds: [String]): [ChannelMember]
 `;
 
 export const mutations = `
-    channelAdd(name: String!, icon: String,description: String, memberIds: [String]): Channel
+    channelAdd(name: String!, icon: String,description: String, memberIds: [String], scope: String): Channel
     channelUpdate(_id: String!, name: String, description: String, icon: String, memberIds: [String]): Channel
     channelRemove(_id: String!): Channel
     channelAddMembers(_id: String!, memberIds: [String]): [ChannelMember]
     channelRemoveMember(channelId: String!, memberId: String!): ChannelMember
     channelRemoveMembers(channelId: String!, memberIds: [String]): [ChannelMember]
     channelUpdateMember(_id: String!, role: String): ChannelMember
+    channelMoveResources(resourceType: ChannelResourceType!, resourceIds: [String!]!, sourceChannelId: String!, targetChannelId: String!): ChannelMoveResourcesResult
 `;

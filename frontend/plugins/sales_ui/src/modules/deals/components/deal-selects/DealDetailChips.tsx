@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Combobox, Command, Popover } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import {
   SelectBranches,
   SelectCompany,
@@ -7,9 +8,8 @@ import {
   SelectDepartments,
   SelectMember,
   SelectStage,
-  SelectTags,
+  TagsSelect,
 } from 'ui-modules';
-
 import { DealChipTrigger } from '@/deals/components/deal-selects/DealChipTrigger';
 
 /**
@@ -72,27 +72,39 @@ export const DealAssigneeChip = ({
   );
 };
 
-export const DealTagsChip = ({ value, onValueChange }: ChipProps) => {
-  const [open, setOpen] = useState(false);
+export const DealTagsChip = ({
+  value,
+  onValueChange,
+  showSelectedTagsOutside = true,
+}: ChipProps & { showSelectedTagsOutside?: boolean }) => {
+  const { t } = useTranslation('sales');
+  let tagIds: string[] = [];
+
+  if (Array.isArray(value)) {
+    tagIds = value;
+  } else if (value) {
+    tagIds = [value];
+  }
 
   return (
-    <SelectTags.Provider
-      tagType="sales:deal"
+    <TagsSelect.Provider
+      value={tagIds}
       mode="multiple"
-      value={value}
-      onValueChange={(next) => {
-        if (next == null) return;
-        onValueChange(next);
-      }}
+      type="sales:deal"
+      onValueChange={onValueChange}
     >
-      <ChipPopover
-        open={open}
-        onOpenChange={setOpen}
-        value={<SelectTags.Value />}
-      >
-        <SelectTags.Content />
-      </ChipPopover>
-    </SelectTags.Provider>
+      <div className="flex flex-wrap items-center gap-2">
+        <TagsSelect.Trigger
+          variant="outline"
+          placeholder={t('select-tags')}
+          showValue
+        />
+        {showSelectedTagsOutside ? <TagsSelect.SelectedList /> : null}
+        <Combobox.Content>
+          <TagsSelect.Content />
+        </Combobox.Content>
+      </div>
+    </TagsSelect.Provider>
   );
 };
 
@@ -172,7 +184,11 @@ export const DealStageChip = ({
   );
 };
 
-export const DealCustomerChip = ({ value, onValueChange }: ChipProps) => {
+export const DealCustomerChip = ({
+  value,
+  onValueChange,
+  placeholder,
+}: ChipProps & { placeholder?: string }) => {
   const [open, setOpen] = useState(false);
 
   return (
@@ -188,7 +204,7 @@ export const DealCustomerChip = ({ value, onValueChange }: ChipProps) => {
       <ChipPopover
         open={open}
         onOpenChange={setOpen}
-        value={<SelectCustomer.Value />}
+        value={<SelectCustomer.Value placeholder={placeholder} />}
       >
         <SelectCustomer.Content />
       </ChipPopover>
@@ -196,7 +212,11 @@ export const DealCustomerChip = ({ value, onValueChange }: ChipProps) => {
   );
 };
 
-export const DealCompanyChip = ({ value, onValueChange }: ChipProps) => {
+export const DealCompanyChip = ({
+  value,
+  onValueChange,
+  placeholder,
+}: ChipProps & { placeholder?: string }) => {
   const [open, setOpen] = useState(false);
 
   return (
@@ -212,7 +232,7 @@ export const DealCompanyChip = ({ value, onValueChange }: ChipProps) => {
       <ChipPopover
         open={open}
         onOpenChange={setOpen}
-        value={<SelectCompany.Value />}
+        value={<SelectCompany.Value placeholder={placeholder} />}
       >
         <SelectCompany.Content />
       </ChipPopover>
@@ -223,10 +243,12 @@ export const DealCompanyChip = ({ value, onValueChange }: ChipProps) => {
 export const DealBrokerTypeChip = ({
   value,
   options,
+  selectedPrefix,
   onValueChange,
 }: {
   value: string;
   options: { value: string; label: string }[];
+  selectedPrefix: string;
   onValueChange: (value: string) => void;
 }) => {
   const [open, setOpen] = useState(false);
@@ -236,7 +258,12 @@ export const DealBrokerTypeChip = ({
     <ChipPopover
       open={open}
       onOpenChange={setOpen}
-      value={<Combobox.Value value={selected?.label} />}
+      value={
+        <span className="truncate">
+          <span className="font-medium text-foreground">{selectedPrefix}:</span>{' '}
+          <Combobox.Value value={selected?.label} className="inline" />
+        </span>
+      }
     >
       <Command>
         <Command.List>

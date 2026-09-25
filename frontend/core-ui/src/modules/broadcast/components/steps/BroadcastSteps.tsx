@@ -1,229 +1,70 @@
-import { IBroadcastMethodEnum } from '@/broadcast/types';
-import { useBroadcastAdd } from '@/broadcast/hooks/useBroadcastAdd';
-import { useBroadcastForm } from '@/broadcast/hooks/useBroadcastForm';
+import { Resizable, Sheet } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import {
-  Badge,
-  Button,
-  cn,
-  Resizable,
-  Separator,
-  Sheet,
-  useQueryState,
-  useRemoveQueryStateByKey,
-  useToast,
-} from 'erxes-ui';
-import { useState } from 'react';
-import { FormProvider } from 'react-hook-form';
-import { prepareBroadcastVariables } from '../../utils/prepareBroadcastVariables';
+  BroadcastStepsProvider,
+  useBroadcastSteps,
+} from '../../context/BroadcastStepsContext';
+import { TBroadcastStepsOptions } from '../../hooks/useBroadcastStepsState';
 import { BroadcastPreview } from '../BroadcastPreview';
-import { BroadcastConfigStep } from './BroadcastConfigStep';
-import { BroadcastTargetStep } from './BroadcastTargetStep';
+import { BroadcastScheduleField } from './BroadcastScheduleField';
+import { BroadcastStepActions } from './BroadcastStepActions';
+import { BroadcastStepContent } from './BroadcastStepContent';
 
-const BROADCAST_STEPS = [
-  {
-    title: 'Broadcast recipients',
-    description: 'Segment who’s going to receive this broacast',
-    content: BroadcastTargetStep,
-    validateFields: ['title', 'targetType', 'targetIds'],
-  },
-  {
-    title: 'Broadcast Config',
-    description: 'Configure, Write and Compose your broadcast',
-    content: BroadcastConfigStep,
-    validateFields: ['fromUserId', 'email.subject', 'email.content'],
-  },
-];
+export const BroadcastSteps = (options: TBroadcastStepsOptions) => (
+  <BroadcastStepsProvider {...options}>
+    <BroadcastStepsHeader />
+    <BroadcastStepsLayout />
+  </BroadcastStepsProvider>
+);
 
-const getConfigValidateFields = (method?: string | null) => {
-  if (method === 'notification') {
-    return ['cpId', 'notification.title', 'notification.content'];
-  }
-
-  if (method === 'messenger') {
-    return [
-      'fromUserId',
-      'messenger.brandId',
-      'messenger.content',
-      'messenger.sentAs',
-      'messenger.kind',
-    ];
-  }
-
-  return ['fromUserId', 'email.subject', 'email.content'];
-};
-
-export const BroadcastSteps = ({
-  setOpen,
-}: {
-  setOpen: (open: boolean) => void;
-}) => {
-  const [method] = useQueryState<IBroadcastMethodEnum>('method');
-  const removeQueryStateByKey = useRemoveQueryStateByKey();
-  const { toast } = useToast();
-
-  const { form } = useBroadcastForm();
-
-  const { addBroadcast } = useBroadcastAdd();
-
-  const [step, setStep] = useState(0);
-
-  const handleClose = () => {
-    setOpen(false);
-
-    removeQueryStateByKey('method');
-  };
-
-  const onSubmit = (data: any, action?: 'draft' | 'live') => {
-    if (!method) {
-      return;
-    }
-
-    addBroadcast({
-      variables: prepareBroadcastVariables(data, method, action),
-      onCompleted: () => {
-        toast({
-          variant: 'default',
-          title:
-            action === 'draft'
-              ? 'Broadcast saved as draft'
-              : 'Broadcast created',
-        });
-      },
-    });
-  };
-
-  const handleAction = async (step: number, action?: 'draft' | 'live') => {
-    if (step < 0) {
-      handleClose();
-    }
-
-    const currentStep = BROADCAST_STEPS[step - 1];
-    const validateFields =
-      step - 1 === 1
-        ? getConfigValidateFields(method)
-        : currentStep?.validateFields;
-
-    if (validateFields) {
-      const isValid = await form.trigger(validateFields as any);
-
-      if (!isValid) {
-        return;
-      }
-    }
-
-    if (method === 'notification' && step - 1 === 1) {
-      const notification = form.getValues('notification');
-
-      if (!notification?.inApp && !notification?.isMobile) {
-        toast({
-          variant: 'destructive',
-          title: 'Select a notification channel',
-          description:
-            'Enable in-app or mobile & web push before saving the campaign.',
-        });
-
-        return;
-      }
-    }
-
-    if (step > BROADCAST_STEPS.length - 1) {
-      form.handleSubmit((data) => onSubmit(data, action))();
-      handleClose();
-    }
-
-    setStep(step);
-  };
+const BroadcastStepsHeader = () => {
+  const { t } = useTranslation('broadcasts');
+  const { messageId } = useBroadcastSteps();
 
   return (
-    <FormProvider {...form}>
-      <Sheet.Header>
-        <Sheet.Title>New Broadcast</Sheet.Title>
-        <Sheet.Close />
-      </Sheet.Header>
-
-      <Resizable.PanelGroup direction="horizontal" className="bg-blue">
-        <Resizable.Panel
-          className="flex flex-col"
-          defaultSize={40}
-          minSize={35}
-        >
-          <Sheet.Content className="grow overflow-hidden flex flex-col">
-            {BROADCAST_STEPS.map(
-              (_, index) =>
-                index === step && <BroadcastStep key={index} step={step} />,
-            )}
-          </Sheet.Content>
-          <BroadcastStepActions step={step} handleAction={handleAction} />
-        </Resizable.Panel>
-
-        <Resizable.Handle />
-        <Resizable.Panel
-          className="flex flex-col h-full"
-          defaultSize={60}
-          minSize={60}
-        >
-          <BroadcastPreview />
-        </Resizable.Panel>
-      </Resizable.PanelGroup>
-    </FormProvider>
-  );
-};
-
-export const BroadcastStep = ({ step }: { step: number }) => {
-  const BROADCAST_STEP = BROADCAST_STEPS[step];
-
-  const { title, description, content: StepContent } = BROADCAST_STEP;
-
-  return (
-    <>
-      <div className="p-5 flex flex-col gap-5 h-full">
-        <div className="flex flex-col gap-3">
-          <div className="flex items-center gap-2">
-            <Badge className="rounded-xl text-xs font-mono">
-              STEP {step + 1}/{BROADCAST_STEPS.length}
-            </Badge>
-            <h2 className="text-primary font-semibold text-base">{title}</h2>
-          </div>
-          <div className="flex items-center gap-1">
-            {Array.from({ length: BROADCAST_STEPS.length }).map((_, index) => (
-              <div
-                key={index}
-                className={cn(
-                  'h-1 flex-1 rounded-full bg-muted',
-                  step === index + 1 && 'bg-primary',
-                )}
-              />
-            ))}
-          </div>
-          <div className="text-xs text-accent-foreground">{description}</div>
-        </div>
-        <Separator />
-        <StepContent />
+    <Sheet.Header>
+      <Sheet.Title>
+        {t(messageId ? 'steps.edit-title' : 'steps.new-title')}
+      </Sheet.Title>
+      <div className="ml-auto mr-2 flex items-center gap-2">
+        <BroadcastScheduleField />
       </div>
-    </>
+      <Sheet.Close />
+    </Sheet.Header>
   );
 };
 
-export const BroadcastStepActions = ({
-  step,
-  handleAction,
-}: {
-  step: number;
-  handleAction: (step: number, action?: 'draft' | 'live') => void;
-}) => {
+const BroadcastStepsLayout = () => {
+  const { method, isWorkflow } = useBroadcastSteps();
+
+  // Keyed by method: panel sizes are read once on mount, and the sheet can
+  // open in the same tick the method lands in the query string. The canvas is
+  // a workflow's content, so it takes most of the split.
   return (
-    <Sheet.Footer>
-      <Button onClick={() => handleAction(step - 1)} variant="secondary">
-        {step === 0 ? 'Cancel' : 'Previous step'}
-      </Button>
-      {step + 1 === BROADCAST_STEPS.length && (
-        <Button onClick={() => handleAction(step + 1, 'draft')}>
-          Save & Draft
-        </Button>
-      )}
-      <Button onClick={() => handleAction(step + 1, 'live')}>
-        {step + 1 === BROADCAST_STEPS.length ? 'Save & Live' : 'Next step'}
-      </Button>
-    </Sheet.Footer>
+    <Resizable.PanelGroup
+      key={method || 'default'}
+      direction="horizontal"
+      className="bg-blue"
+    >
+      <Resizable.Panel
+        className="flex flex-col"
+        defaultSize={isWorkflow ? 26 : 40}
+        minSize={isWorkflow ? 20 : 35}
+      >
+        <Sheet.Content className="grow overflow-hidden flex flex-col">
+          <BroadcastStepContent />
+        </Sheet.Content>
+        <BroadcastStepActions />
+      </Resizable.Panel>
+
+      <Resizable.Handle />
+      <Resizable.Panel
+        className="flex flex-col h-full"
+        defaultSize={isWorkflow ? 74 : 60}
+        minSize={60}
+      >
+        <BroadcastPreview />
+      </Resizable.Panel>
+    </Resizable.PanelGroup>
   );
 };

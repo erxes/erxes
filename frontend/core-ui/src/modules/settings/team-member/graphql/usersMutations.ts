@@ -25,6 +25,12 @@ const TEAM_MEMBER_REMOVE = gql`
   }
 `;
 
+const USERS_DEACTIVATE_BATCH = gql`
+  mutation UsersDeactivateBatch($_ids: [String!]!) {
+    usersSetActiveStatusBatch(_ids: $_ids)
+  }
+`;
+
 const USERS_CONFIRM_INVITATION = gql`
   mutation usersConfirmInvitation(
     $token: String
@@ -120,6 +126,7 @@ const mutations = {
   USERS_INLINE_EDIT,
   USERS_RESET_PASSWORD,
   TEAM_MEMBER_REMOVE,
+  USERS_DEACTIVATE_BATCH,
 };
 
 export default mutations;

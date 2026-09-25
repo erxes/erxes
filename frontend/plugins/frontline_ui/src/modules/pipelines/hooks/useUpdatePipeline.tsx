@@ -14,17 +14,25 @@ export const useUpdatePipeline = () => {
     return _updatePipeline({
       ...options,
       onCompleted: (data) => {
+        toast({
+          title: t('success', 'Success!'),
+          description: t(
+            'pipeline-updated-successfully',
+            'Pipeline updated successfully',
+          ),
+          variant: 'success',
+        });
         options.onCompleted?.(data);
       },
       onError: (error: ApolloError) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           variant: 'destructive',
           description: error.message,
         });
         options.onError?.(error);
       },
-      refetchQueries: ['GetTicketPipelines'],
+      refetchQueries: ['GetTicketPipelines', 'GetTicketPipeline'],
     });
   };
   return { updatePipeline, loading };

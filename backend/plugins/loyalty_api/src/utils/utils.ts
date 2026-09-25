@@ -51,7 +51,7 @@ export const getChildTags = async (subdomain: string, tagIds) => {
     action: 'findWithChild',
     input: {
       query: { _id: { $in: tagIds } },
-      field: { _id: 1 }
+      field: { _id: 1 },
     },
     defaultValue: [],
   });
@@ -66,6 +66,15 @@ interface IProductD {
   quantity: number;
   unitPrice: number;
 }
+
+type DealProductScoreData = {
+  amount?: number | string | null;
+  count?: number | string | null;
+  discount?: number | string | null;
+  productId?: string | null;
+  tickUsed?: boolean | null;
+  unitPrice?: number | string | null;
+};
 
 const availableVoucherTypes = ['bonus', 'discount'];
 
@@ -120,14 +129,33 @@ export const applyRestriction = async ({
   restrictions: Record<string, any>;
   products: IProductD[];
 }) => {
-  const {
-    categoryIds = [],
-    excludeCategoryIds = [],
-    productIds = [],
-    excludeProductIds = [],
-    tagIds = [],
-    excludeTagIds = [],
-  } = restrictions || {};
+  const normalizeRestrictionIds = (value: unknown) => {
+    if (Array.isArray(value)) {
+      return value.filter((id): id is string => typeof id === 'string' && !!id);
+    }
+
+    if (typeof value === 'string') {
+      return value
+        .split(',')
+        .map((id) => id.trim())
+        .filter(Boolean);
+    }
+
+    return [];
+  };
+
+  const categoryIds = normalizeRestrictionIds(
+    restrictions?.categoryIds || restrictions?.productCategoryIds,
+  );
+  const excludeCategoryIds = normalizeRestrictionIds(
+    restrictions?.excludeCategoryIds || restrictions?.excludeProductCategoryIds,
+  );
+  const productIds = normalizeRestrictionIds(restrictions?.productIds);
+  const excludeProductIds = normalizeRestrictionIds(
+    restrictions?.excludeProductIds,
+  );
+  const tagIds = normalizeRestrictionIds(restrictions?.tagIds);
+  const excludeTagIds = normalizeRestrictionIds(restrictions?.excludeTagIds);
 
   const inputProductsIds = products.map((p) => p.productId);
 
@@ -177,6 +205,48 @@ export const applyRestriction = async ({
   }, 0);
 
   return { productDocs, restrictedAmount: totalAmount };
+};
+
+export const getAllowedProductIdsByRestrictions = async ({
+  subdomain,
+  restrictions,
+  productsData,
+}: {
+  subdomain: string;
+  restrictions?: Record<string, unknown>;
+  productsData: DealProductScoreData[];
+}) => {
+  const hasRestrictions = Object.values(restrictions || {}).some((value) => {
+    if (Array.isArray(value)) {
+      return value.length > 0;
+    }
+
+    return typeof value === 'string' && !!value.trim();
+  });
+
+  if (!hasRestrictions) {
+    return undefined;
+  }
+
+  const productIds = productsData
+    .map(({ productId }) => productId)
+    .filter((productId): productId is string => !!productId);
+
+  if (!productIds.length) {
+    return undefined;
+  }
+
+  const { productDocs } = await applyRestriction({
+    subdomain,
+    restrictions: restrictions || {},
+    products: productIds.map((productId) => ({
+      productId,
+      quantity: 0,
+      unitPrice: 0,
+    })),
+  });
+
+  return new Set(productDocs.map(({ _id }: { _id: string }) => _id));
 };
 
 // Helper for processing a single product discount (reduces duplication)
@@ -784,7 +854,34 @@ export const doScoreCampaign = async (models: IModels, data) => {
   }
 };
 
-const generateTargetTotalAmount = (productsData: any[] = []) =>
+export const generateTargetTotalAmountDeal = (
+  productsData: DealProductScoreData[] = [],
+  options: {
+    allowedProductIds?: Set<string>;
+    discountCheck?: boolean;
+    requireTickUsed?: boolean;
+  } = {},
+) =>
+  productsData
+    .filter((pdata) => !options.requireTickUsed || pdata.tickUsed === true)
+    .filter(
+      (pdata) =>
+        !options.allowedProductIds ||
+        options.allowedProductIds.has(pdata.productId || ''),
+    )
+    .filter(
+      (pdata) =>
+        !options.discountCheck || Math.abs(Number(pdata.discount) || 0) < 0.005,
+    )
+    .reduce(
+      (sum, product) =>
+        sum +
+        (Number(product?.amount) ||
+          (Number(product?.count) || 0) * (Number(product?.unitPrice) || 0)),
+      0,
+    );
+
+const generateTargetTotalAmountOrder = (productsData: any[] = []) =>
   productsData.reduce((sum, product) => sum + (product?.amount || 0), 0);
 
 const getPaymentScoreCampaignId = (paymentType: any) =>
@@ -810,7 +907,9 @@ const normalizeDealTarget = ({
       type,
       ...(obj ?? {}),
     })),
-    totalAmount: generateTargetTotalAmount(target?.productsData || []),
+    totalAmount: generateTargetTotalAmountDeal(target?.productsData || [], {
+      requireTickUsed: true,
+    }),
     excludeAmount: paymentEntries
       .filter(([type]) => !scorePaymentTypes.has(type))
       .map(([type, obj]) => ({
@@ -837,7 +936,7 @@ const normalizePosOrderTarget = ({ target }: { target: any }) => {
     totalAmount:
       Number(target?.totalAmount) ||
       Number(target?.finalAmount) ||
-      generateTargetTotalAmount(target?.items || []),
+      generateTargetTotalAmountOrder(target?.items || []),
     excludeAmount: paymentEntries.reduce(
       (sum, [, payment]: any) => sum + (payment?.amount || 0),
       0,

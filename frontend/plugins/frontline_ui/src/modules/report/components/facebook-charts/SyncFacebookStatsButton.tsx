@@ -1,0 +1,81 @@
+import { Button, Spinner, Tooltip, useToast } from 'erxes-ui';
+import { IconRefresh } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
+
+import { useSyncFacebookPostStats } from '@/report/hooks/useFacebookReport';
+
+interface SyncFacebookStatsButtonProps {
+  pageIds?: string[];
+}
+
+export const SyncFacebookStatsButton = ({
+  pageIds,
+}: SyncFacebookStatsButtonProps) => {
+  const { t } = useTranslation('frontline');
+  const { toast } = useToast();
+  const { syncFacebookPostStats, syncing } = useSyncFacebookPostStats();
+
+  const handleSync = () => {
+    syncFacebookPostStats({
+      variables: { pageIds: pageIds?.length ? pageIds : undefined },
+      onCompleted: (data) => {
+        const result = data.reportFacebookSyncPostStats;
+
+        if (result.errors?.length) {
+          toast({
+            variant: 'destructive',
+            title: t('facebook-sync-partial', 'Some pages could not be synced'),
+            description: result.errors
+              .map((error) => `${error.pageId}: ${error.message}`)
+              .join('\n'),
+          });
+          return;
+        }
+
+        toast({
+          variant: 'success',
+          title: t('facebook-sync-done', 'Synced from Meta'),
+          description: t(
+            'facebook-sync-summary',
+            '{{updated}} of {{fetched}} posts updated · {{missing}} not in erxes',
+            {
+              updated: result.updated,
+              fetched: result.fetched,
+              missing: result.missingInErxes,
+            },
+          ),
+        });
+      },
+      onError: (error) =>
+        toast({
+          variant: 'destructive',
+          title: t('facebook-sync-failed', 'Sync failed'),
+          description: error.message,
+        }),
+    });
+  };
+
+  return (
+    <Tooltip.Provider>
+      <Tooltip delayDuration={0}>
+        <Tooltip.Trigger asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleSync}
+            disabled={syncing}
+            aria-label={t('facebook-sync', 'Sync from Meta')}
+          >
+            {syncing ? <Spinner size="sm" /> : <IconRefresh />}
+          </Button>
+        </Tooltip.Trigger>
+        <Tooltip.Content>
+          {t(
+            'facebook-sync-tooltip',
+            'Fetch comment, reaction and share counts from Facebook',
+          )}
+        </Tooltip.Content>
+      </Tooltip>
+    </Tooltip.Provider>
+  );
+};

@@ -3,26 +3,49 @@ import {
   Input,
   Skeleton,
   TextOverflowTooltip,
+  useMultiQueryState,
   useQueryState,
 } from 'erxes-ui';
-import { IconBuildingStore, IconCheck, IconSearch, IconX } from '@tabler/icons-react';
+import {
+  IconBuildingStore,
+  IconCheck,
+  IconSearch,
+  IconX,
+} from '@tabler/icons-react';
 import { useBrands } from 'ui-modules/modules/brands/hooks/useBrands';
 import { useState, useRef, type ReactNode } from 'react';
 import { useDebounce } from 'use-debounce';
 import { useTranslation } from 'react-i18next';
+import {
+  CLEARED_INBOX_NAVIGATION_FILTERS,
+  INBOX_NAVIGATION_FILTER_KEYS,
+  TInboxNavigationFilters,
+} from '@/inbox/types/InboxNavigation';
+import { useIntegrations } from '@/integrations/hooks/useIntegrations';
 
 export const ChooseBrand = () => {
   const { t } = useTranslation('frontline');
   const [search, setSearch] = useState('');
   const [debouncedSearch] = useDebounce(search, 300);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [channelId] = useQueryState<string>('channelId');
 
   const { brands, loading } = useBrands({
     variables: { searchValue: debouncedSearch || undefined },
   });
+  const { integrations, loading: integrationsLoading } = useIntegrations({
+    variables: { channelId, limit: 100 },
+    skip: !channelId,
+  });
+  const channelBrandIds = new Set(
+    integrations?.flatMap(({ brandId }) => (brandId ? [brandId] : [])) ?? [],
+  );
+  const visibleBrands = channelId
+    ? brands?.filter(({ _id }) => channelBrandIds.has(_id))
+    : brands;
 
   let brandContent: ReactNode;
-  if (loading) {
+  if (loading || integrationsLoading) {
     brandContent = (
       <>
         <Skeleton className="w-32 h-4 mt-1" />
@@ -30,18 +53,18 @@ export const ChooseBrand = () => {
         <Skeleton className="w-32 h-4 mt-1" />
       </>
     );
-  } else if (!brands?.length) {
+  } else if (!visibleBrands?.length) {
     brandContent = (
       <div className="text-sm text-accent-foreground ml-1 my-2">
-        {t('no-brands-found')}
+        {t('no-brands-found', 'No brands found')}
       </div>
     );
   } else {
-    brandContent = brands.map((brand) => (
+    brandContent = visibleBrands.map((brand) => (
       <BrandItem
         key={brand._id}
         _id={brand._id}
-        name={brand.name ?? t('unnamed-brand')}
+        name={brand.name ?? t('unnamed-brand', 'Unnamed brand')}
       />
     ));
   }
@@ -53,7 +76,7 @@ export const ChooseBrand = () => {
         <Input
           ref={inputRef}
           variant="secondary"
-          placeholder={t('search')}
+          placeholder={t('search', 'Search')}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="h-7 pl-6 pr-7 text-xs"
@@ -81,7 +104,8 @@ export const ChooseBrand = () => {
 };
 
 const BrandItem = ({ _id, name }: { _id: string; name: string }) => {
-  const [brandId, setBrandId] = useQueryState<string>('brandId');
+  const [{ brandId, channelId }, setFilters] =
+    useMultiQueryState<TInboxNavigationFilters>(INBOX_NAVIGATION_FILTER_KEYS);
 
   const isActive = brandId === _id;
 
@@ -89,7 +113,13 @@ const BrandItem = ({ _id, name }: { _id: string; name: string }) => {
     <Button
       variant={isActive ? 'secondary' : 'ghost'}
       className="justify-start relative overflow-hidden text-left flex-auto p-2"
-      onClick={() => setBrandId(_id === brandId ? null : _id)}
+      onClick={() =>
+        setFilters({
+          ...CLEARED_INBOX_NAVIGATION_FILTERS,
+          channelId,
+          brandId: isActive ? null : _id,
+        })
+      }
     >
       {isActive ? (
         <IconCheck className="" />

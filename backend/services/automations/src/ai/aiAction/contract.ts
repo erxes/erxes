@@ -12,13 +12,30 @@ const aiAgentTopicSchema = z.object({
   prompt: z.string().default(''),
 });
 
+// One rule of a field's protocol: the value is returned only when the input
+// satisfies the prompt; nothing is picked as "closest".
+const aiAgentFieldOptionSchema = z.object({
+  value: z.string().min(1),
+  prompt: z.string().default(''),
+});
+
 const aiAgentObjectFieldSchema = z.object({
   id: z.string().min(1),
   fieldName: z.string().min(1),
   prompt: z.string().default(''),
-  dataType: z.enum(['string', 'number', 'boolean', 'object', 'array']),
+  dataType: z.enum([
+    'string',
+    'number',
+    'boolean',
+    'object',
+    'array',
+    'option',
+  ]),
   validation: z.string().default(''),
+  options: z.array(aiAgentFieldOptionSchema).optional().default([]),
 });
+
+export type TAiAgentObjectField = z.infer<typeof aiAgentObjectFieldSchema>;
 
 // Tool of a generateText agent. Both kinds get their target from the canvas
 // wiring (optionalConnects, optionalConnectId = tool id): helper runs the
@@ -137,6 +154,7 @@ export type TAiActionExecutionResult =
       toolCalls?: TAiToolCallTrace[];
       // Tool definitions offered to the provider on this run (debugging)
       toolsOffered?: string[];
+      degraded?: boolean;
       // Set when the agent handed the conversation off to a tool route
       handoff?: {
         toolId: string;

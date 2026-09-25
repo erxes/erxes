@@ -175,9 +175,10 @@ export const InventoriesTable = ({ inventories }: InventoriesTableProps) => {
       columns={columns}
       data={rows}
       className="h-full px-4 pb-4"
+      tableId="accounting_inventory_remainder_detail_record_table"
     >
       <RecordTable>
-        <RecordTable.Header />
+        <RecordTable.Header showColumnSelector />
         <RecordTable.Body>
           <RecordTable.RowList />
         </RecordTable.Body>

@@ -115,8 +115,10 @@ const SelectPriorityContent = () => {
   const { t } = useTranslation('frontline');
   return (
     <Command>
-      <Command.Input placeholder={t('search-priority')} />
-      <Command.Empty>{t('no-priority-found')}</Command.Empty>
+      <Command.Input placeholder={t('search-priority', 'Search priority')} />
+      <Command.Empty>
+        {t('no-priority-found', 'No priority found')}
+      </Command.Empty>
       <Command.List>
         {PROJECT_PRIORITIES_OPTIONS.map((priority, index) => (
           <SelectPriorityCommandItem key={priority} priority={index} />
@@ -248,6 +250,8 @@ export const SelectPriorityFormItem = ({
 };
 
 export const SelectPriorityTicket = Object.assign(SelectPriorityRoot, {
+  Provider: SelectPriorityProvider,
+  Content: SelectPriorityContent,
   FilterBar: SelectPriorityFilterBar,
   FormItem: SelectPriorityFormItem,
   FilterView: SelectPriorityFilterView,

@@ -23,6 +23,12 @@ export interface ITrDetail {
   productId?: string;
   count?: number;
   unitPrice?: number;
+  weight?: number;
+
+  fixedAssetId?: string;
+  fixedAssetCategoryId?: string;
+  fixedAssetCode?: string;
+  fixedAssetName?: string;
 }
 
 export interface ITransaction {
@@ -55,6 +61,12 @@ export interface ITransaction {
   details: ITrDetail[];
   shortDetail?: ITrDetail;
   side?: string;
+  relAccounts?: {
+    dt?: string[];
+    ct?: string[];
+    customDt?: string[];
+    customCt?: string[];
+  };
 
   createdBy?: string;
   modifiedBy?: string;
@@ -109,8 +121,7 @@ export interface ITransactionCounter {
 }
 
 export interface ITransactionCounterDocument
-  extends ITransactionCounter,
-    Document {
+  extends ITransactionCounter, Document {
   _id: string;
 }
 

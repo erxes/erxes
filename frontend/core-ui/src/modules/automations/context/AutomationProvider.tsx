@@ -1,8 +1,10 @@
 import { AUTOMATION_CONSTANTS } from '@/automations/graphql/automationQueries';
+import { TBuiltInTemplate } from '@/automations/utils/builtInTemplates';
 import {
   AutomationBuilderTabsType,
   AutomationConstants,
   AutomationNodeType,
+  AutomationSecondaryPanel,
   ConstantsQueryResponse,
   IAutomation,
   NodeData,
@@ -16,7 +18,7 @@ import {
   ReactFlowInstance,
 } from '@xyflow/react';
 import {
-  automationBuilderSecondarySidebarOpenState,
+  automationBuilderSecondaryPanelState,
   automationBuilderSiderbarOpenState,
 } from '@/automations/states/automationState';
 import { useMultiQueryState } from 'erxes-ui';
@@ -34,6 +36,7 @@ import {
   IAutomationsActionConfigConstants,
   IAutomationsActionFolkConfig,
   IAutomationsTriggerConfigConstants,
+  usePermissionCheck,
 } from 'ui-modules';
 
 type QueryTypes = Record<string, unknown>;
@@ -59,7 +62,8 @@ type TAutomationSelectedNode = {
 type TConstantCachedFields =
   | 'triggersConst'
   | 'actionsConst'
-  | 'findObjectTargetsConst';
+  | 'findObjectTargetsConst'
+  | 'workflowTemplatesConst';
 
 type TConstantCached = Pick<AutomationConstants, TConstantCachedFields> | null;
 interface AutomationContextType {
@@ -70,9 +74,8 @@ interface AutomationContextType {
   isSidebarOpen: boolean;
   setSidebarOpen: (open: boolean) => void;
   toggleSidebar: () => void;
-  isSecondarySidebarOpen: boolean;
-  setSecondarySidebarOpen: (open: boolean) => void;
-  toggleSecondarySidebar: () => void;
+  secondaryPanel: AutomationSecondaryPanel | null;
+  setSecondaryPanel: (panel: AutomationSecondaryPanel | null) => void;
   // Drill-in editing: the id of the workflow whose members are being edited on
   // the main workspace, or null when the root automation is shown. Lives on the
   // root provider so the WorkflowNode maximize control and the workspace agree.
@@ -85,6 +88,9 @@ interface AutomationContextType {
   triggersConst: IAutomationsTriggerConfigConstants[];
   actionsConst: IAutomationsActionConfigConstants[];
   findObjectTargetsConst: any[];
+  // Flows shipped with core and with each installed plugin. Not tenant data:
+  // a copy is only written when someone installs one.
+  workflowTemplatesConst: TBuiltInTemplate[];
   actionFolks: Record<string, IAutomationsActionFolkConfig[]>;
   loading: boolean;
   error: any;
@@ -96,6 +102,7 @@ interface AutomationContextType {
   triggerConstMap: Map<string, IAutomationsTriggerConfigConstants>;
   isCreatePage: boolean;
   detail?: IAutomation;
+  isReadOnly: boolean;
 }
 
 const AutomationContext = createContext<AutomationContextType | null>(null);
@@ -142,24 +149,20 @@ export const AutomationProvider = ({
   const [globalSidebarOpen, setGlobalSidebarOpen] = useAtom(
     automationBuilderSiderbarOpenState,
   );
-  const [globalSecondarySidebarOpen, setGlobalSecondarySidebarOpen] = useAtom(
-    automationBuilderSecondarySidebarOpenState,
+  const [globalSecondaryPanel, setGlobalSecondaryPanel] = useAtom(
+    automationBuilderSecondaryPanelState,
   );
   const [localSidebarOpen, setLocalSidebarOpen] = useState(false);
-  const [localSecondarySidebarOpen, setLocalSecondarySidebarOpen] =
-    useState(false);
+  const [localSecondaryPanel, setLocalSecondaryPanel] =
+    useState<AutomationSecondaryPanel | null>(null);
 
   const isSidebarOpen = scoped ? localSidebarOpen : globalSidebarOpen;
   const setSidebarOpen = scoped ? setLocalSidebarOpen : setGlobalSidebarOpen;
-  const isSecondarySidebarOpen = scoped
-    ? localSecondarySidebarOpen
-    : globalSecondarySidebarOpen;
-  const setSecondarySidebarOpen = scoped
-    ? setLocalSecondarySidebarOpen
-    : setGlobalSecondarySidebarOpen;
+  const secondaryPanel = scoped ? localSecondaryPanel : globalSecondaryPanel;
+  const setSecondaryPanel = scoped
+    ? setLocalSecondaryPanel
+    : setGlobalSecondaryPanel;
   const toggleSidebar = () => setSidebarOpen(!isSidebarOpen);
-  const toggleSecondarySidebar = () =>
-    setSecondarySidebarOpen(!isSecondarySidebarOpen);
 
   const [editingWorkflowId, setEditingWorkflowId] = useState<string | null>(
     null,
@@ -167,6 +170,12 @@ export const AutomationProvider = ({
 
   const { pathname } = useLocation();
   const isCreatePage = pathname === '/automations/create';
+  const { isLoaded, hasActionPermission } = usePermissionCheck();
+  const isReadOnly =
+    isLoaded &&
+    !hasActionPermission(
+      isCreatePage ? 'automationsCreate' : 'automationsUpdate',
+    );
   const [cached, setCached] = useState<TConstantCached>(null);
 
   const { data, loading, error, refetch } = useQuery<ConstantsQueryResponse>(
@@ -193,6 +202,11 @@ export const AutomationProvider = ({
     cached,
     data,
   );
+  const workflowTemplatesConst = getAutomationConstantsVariables(
+    'workflowTemplatesConst',
+    cached,
+    data,
+  );
 
   const actionFolks = Object.fromEntries(
     (actionsConst || []).map((a: any) => [a.type, a.folks || []]),
@@ -212,6 +226,8 @@ export const AutomationProvider = ({
         actionsConst: data.automationConstants.actionsConst || [],
         findObjectTargetsConst:
           data.automationConstants.findObjectTargetsConst || [],
+        workflowTemplatesConst:
+          data.automationConstants.workflowTemplatesConst || [],
       });
     }
   }, [data, cached]);
@@ -248,9 +264,8 @@ export const AutomationProvider = ({
         isSidebarOpen,
         setSidebarOpen,
         toggleSidebar,
-        isSecondarySidebarOpen,
-        setSecondarySidebarOpen,
-        toggleSecondarySidebar,
+        secondaryPanel,
+        setSecondaryPanel,
         editingWorkflowId,
         setEditingWorkflowId,
         selectedNode,
@@ -260,6 +275,7 @@ export const AutomationProvider = ({
         triggersConst,
         actionsConst,
         findObjectTargetsConst,
+        workflowTemplatesConst,
         actionFolks,
         loading: !cached && loading,
         error,
@@ -271,6 +287,7 @@ export const AutomationProvider = ({
         triggerConstMap,
         isCreatePage,
         detail,
+        isReadOnly,
       }}
     >
       {children}

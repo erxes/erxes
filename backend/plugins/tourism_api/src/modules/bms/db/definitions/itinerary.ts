@@ -5,8 +5,8 @@ import { mongooseStringRandomId } from 'erxes-api-shared/utils';
 
 export const locationSchema = new Schema(
   {
-    lat: { type: Number, esType: 'lat' },
-    lng: { type: Number, esType: 'lng' },
+    lat: { type: Number },
+    lng: { type: Number },
     name: { type: String, label: 'name' },
     mapId: { type: String, label: 'mapId' },
   },
@@ -61,7 +61,6 @@ export const itinerarySchema = new Schema({
     default: '',
     optional: true,
     label: 'status',
-    esType: 'keyword',
     selectOptions: PAYMENT_STATUS_TYPES,
   },
   color: { type: String, optional: true, label: 'color' },

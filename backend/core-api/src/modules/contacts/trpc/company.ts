@@ -2,82 +2,105 @@ import { initTRPC } from '@trpc/server';
 import { z } from 'zod';
 import { createOrUpdate } from '../utils';
 import { CoreTRPCContext } from '~/init-trpc';
+import { agentMeta } from '~/utils/agentMeta';
 
 const t = initTRPC.context<CoreTRPCContext>().create();
 
 export const companyTrpcRouter = t.router({
   companies: t.router({
-    find: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-      const { query } = input;
-      const { models } = ctx;
+    find: t.procedure
+      .meta(
+        agentMeta(
+          'Search companies with a MongoDB-style filter: { query: {...} }, e.g. { query: { primaryName: "Acme" } } or { query: { industry: "Technology" } }. Returns full company documents. Use companies.findOne when you already know a unique key.',
+          { module: 'contacts', action: 'contactsRead' },
+        ),
+      )
+      .input(z.any())
+      .query(async ({ ctx, input }) => {
+        const { query } = input;
+        const { models } = ctx;
 
-      return models.Companies.find(query).lean();
-    }),
+        return models.Companies.find(query).lean();
+      }),
 
-    findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-      const query = input?.query || input?.selector || input;
-      const { models } = ctx;
+    findOne: t.procedure
+      .meta(
+        agentMeta(
+          'Get a single company by a unique key: { _id }, { name } or { companyPrimaryName }, { email } or { companyPrimaryEmail }, { phone } or { companyPrimaryPhone }, or { companyCode }. Deleted companies are excluded automatically. Returns {} when nothing matches. Call this before companies.updateCompany.',
+          { module: 'contacts', action: 'contactsRead' },
+        ),
+      )
+      .input(z.any())
+      .query(async ({ ctx, input }) => {
+        const query = input?.query || input?.selector || input;
+        const { models } = ctx;
 
-      if (!query || !Object.keys(query).length) {
-        return {};
-      }
+        if (!query || !Object.keys(query).length) {
+          return {};
+        }
 
-      const defaultFilter = { status: { $ne: 'deleted' } };
+        const defaultFilter = { status: { $ne: 'deleted' } };
 
-      if (query.companyPrimaryName) {
-        defaultFilter['$or'] = [
-          { names: { $in: [query.companyPrimaryName] } },
-          { primaryName: query.companyPrimaryName },
-        ];
-      }
+        if (query.companyPrimaryName) {
+          defaultFilter['$or'] = [
+            { names: { $in: [query.companyPrimaryName] } },
+            { primaryName: query.companyPrimaryName },
+          ];
+        }
 
-      if (query.name) {
-        defaultFilter['$or'] = [
-          { names: { $in: [query.name] } },
-          { primaryName: query.name },
-        ];
-      }
+        if (query.name) {
+          defaultFilter['$or'] = [
+            { names: { $in: [query.name] } },
+            { primaryName: query.name },
+          ];
+        }
 
-      if (query.email) {
-        defaultFilter['$or'] = [
-          { emails: { $in: [query.email] } },
-          { primaryEmail: query.email },
-        ];
-      }
+        if (query.email) {
+          defaultFilter['$or'] = [
+            { emails: { $in: [query.email] } },
+            { primaryEmail: query.email },
+          ];
+        }
 
-      if (query.phone) {
-        defaultFilter['$or'] = [
-          { phones: { $in: [query.phone] } },
-          { primaryPhone: query.phone },
-        ];
-      }
+        if (query.phone) {
+          defaultFilter['$or'] = [
+            { phones: { $in: [query.phone] } },
+            { primaryPhone: query.phone },
+          ];
+        }
 
-      if (query.companyPrimaryEmail) {
-        defaultFilter['$or'] = [
-          { emails: { $in: [query.companyPrimaryEmail] } },
-          { primaryEmail: query.companyPrimaryEmail },
-        ];
-      }
+        if (query.companyPrimaryEmail) {
+          defaultFilter['$or'] = [
+            { emails: { $in: [query.companyPrimaryEmail] } },
+            { primaryEmail: query.companyPrimaryEmail },
+          ];
+        }
 
-      if (query.companyPrimaryPhone) {
-        defaultFilter['$or'] = [
-          { phones: { $in: [query.companyPrimaryPhone] } },
-          { primaryPhone: query.companyPrimaryPhone },
-        ];
-      }
+        if (query.companyPrimaryPhone) {
+          defaultFilter['$or'] = [
+            { phones: { $in: [query.companyPrimaryPhone] } },
+            { primaryPhone: query.companyPrimaryPhone },
+          ];
+        }
 
-      if (query.companyCode) {
-        defaultFilter['code'] = query.companyCode;
-      }
+        if (query.companyCode) {
+          defaultFilter['code'] = query.companyCode;
+        }
 
-      if (query._id) {
-        defaultFilter['_id'] = query._id;
-      }
+        if (query._id) {
+          defaultFilter['_id'] = query._id;
+        }
 
-      return models.Companies.findOne(defaultFilter).lean();
-    }),
+        return models.Companies.findOne(defaultFilter).lean();
+      }),
 
     findActiveCompanies: t.procedure
+      .meta(
+        agentMeta(
+          'List active (non-deleted) companies with optional projection and pagination: { query, fields, skip, limit }. Prefer companies.find unless you need field projection or pagination.',
+          { module: 'contacts', action: 'contactsRead' },
+        ),
+      )
       .input(z.any())
       .query(async ({ ctx, input }) => {
         const { query, fields, skip, limit } = input;

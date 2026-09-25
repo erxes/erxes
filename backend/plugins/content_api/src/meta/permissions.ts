@@ -7,6 +7,7 @@ export const CMS_POST_ACTIONS = {
   update: 'cmsPostsUpdate',
   approve: 'cmsPostsApprove',
   remove: 'cmsPostsRemove',
+  sharePostiz: 'cmsPostsSharePostiz',
   managePermissions: 'cmsPermissionsManage',
   languageAll: 'cmsLanguageAll',
   languageMn: 'cmsLanguageMn',
@@ -16,12 +17,14 @@ export const CMS_POST_ACTIONS = {
 const journalist1Actions = [
   CMS_POST_ACTIONS.read,
   CMS_POST_ACTIONS.createPublished,
+  CMS_POST_ACTIONS.sharePostiz,
   CMS_POST_ACTIONS.languageAll,
 ];
 
 const journalist2Actions = [
   CMS_POST_ACTIONS.read,
   CMS_POST_ACTIONS.createReview,
+  CMS_POST_ACTIONS.sharePostiz,
   CMS_POST_ACTIONS.languageAll,
 ];
 
@@ -29,6 +32,7 @@ const editorActions = [
   CMS_POST_ACTIONS.read,
   CMS_POST_ACTIONS.update,
   CMS_POST_ACTIONS.approve,
+  CMS_POST_ACTIONS.sharePostiz,
   CMS_POST_ACTIONS.languageAll,
 ];
 
@@ -58,6 +62,12 @@ export const permissions: IPermissionConfig = {
         },
       ],
       actions: [
+        {
+          title: 'Share CMS posts to Postiz',
+          name: CMS_POST_ACTIONS.sharePostiz,
+          description:
+            'Publish selected CMS posts to social channels using the organization workspace',
+        },
         {
           title: 'View CMS posts',
           name: CMS_POST_ACTIONS.read,

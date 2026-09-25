@@ -7,7 +7,7 @@ import { getTicketCustomPropertyHeaders } from '../utils';
 
 export async function getTicketExportHeaders(
   _data: any,
-  { subdomain }: IImportExportContext<IModels>,
+  { subdomain, models }: IImportExportContext<IModels>,
 ): Promise<ImportHeaderDefinition[]> {
   const systemFields: ImportHeaderDefinition[] = [
     { label: 'Name', key: 'name', isDefault: true },
@@ -26,7 +26,7 @@ export async function getTicketExportHeaders(
     { label: 'Updated At', key: 'updatedAt' },
   ];
 
-  const customFields = await getTicketCustomPropertyHeaders(subdomain);
+  const customFields = await getTicketCustomPropertyHeaders(subdomain, models);
 
   return [...systemFields, ...customFields];
 }

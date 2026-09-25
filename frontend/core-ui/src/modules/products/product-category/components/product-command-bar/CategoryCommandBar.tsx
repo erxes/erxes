@@ -7,6 +7,8 @@ import { Can, TemplateSheet } from 'ui-modules';
 export const CategoryCommandBar = () => {
   const { table } = RecordTable.useRecordTable();
   const [refreshKey, setRefreshKey] = useState(0);
+  const selectedRows = table.getFilteredSelectedRowModel().rows;
+  const selectedCategories = selectedRows.map((row) => row.original);
 
   const resetSelection = () => {
     table.resetRowSelection(true);
@@ -14,20 +16,12 @@ export const CategoryCommandBar = () => {
   };
 
   return (
-    <CommandBar
-      key={refreshKey}
-      open={table.getFilteredSelectedRowModel().rows.length > 0}
-    >
+    <CommandBar key={refreshKey} open={selectedRows.length > 0}>
       <CommandBar.Bar>
-        <CommandBar.Value>
-          {table.getFilteredSelectedRowModel().rows.length} selected
-        </CommandBar.Value>
+        <CommandBar.Value>{selectedRows.length} selected</CommandBar.Value>
         <Separator.Inline />
         <CategoriesDelete
-          categoryIds={table
-            .getFilteredSelectedRowModel()
-            .rows.map((row) => row.original._id)
-            .join(',')}
+          categories={selectedCategories}
           onDeleteSuccess={resetSelection}
         />
         <Separator.Inline />
@@ -41,11 +35,7 @@ export const CategoryCommandBar = () => {
         <Separator.Inline />
         <TemplateSheet
           contentType="core:product:productCategory"
-          contentId={
-            table
-              .getFilteredSelectedRowModel()
-              .rows.map((row) => row.original._id)[0]
-          }
+          contentId={selectedCategories[0]?._id}
         />
       </CommandBar.Bar>
     </CommandBar>

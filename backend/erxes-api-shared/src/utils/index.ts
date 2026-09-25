@@ -1,6 +1,6 @@
 export * from './apollo';
+export * from './agent-tools';
 export * from './constants';
-export * from './elasticsearch';
 export * from './graphqlPubSub';
 export * from './headers';
 export * from './logs';
@@ -24,3 +24,4 @@ export * from './bulkUtils';
 export * from './editor';
 export * from './errorClassifier';
 export * from './sentry-init';
+export * from './email';

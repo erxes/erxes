@@ -1,46 +1,25 @@
 import { formatImportExportEntityTypeLabel } from '@/import-export/shared/formatEntityTypeLabel';
+import { TImportExportHistoryType } from '@/import-export/hooks/useImportExportTypes';
 import { IconFileExport } from '@tabler/icons-react';
 import { Badge, Empty, useQueryState } from 'erxes-ui';
-import { useExportHistoriesRecordTable } from './ExportHistoriesContext';
+import { useTranslation } from 'react-i18next';
 
-const SELECTED_CONTENT_TYPE_INFO = {
-  label: (selectedEntityType: string | null, contentTypes: any[]) =>
-    formatImportExportEntityTypeLabel(
-      selectedEntityType || 'all',
-      contentTypes,
-    ),
-  title: (label: string | null) => `No ${label} exports yet`,
-  emptyDescription: (label: string | null) =>
-    `${label} exports will appear here after someone downloads records in that section. Completed files can be downloaded again from this page.`,
-};
-
-const UNSELECTED_CONTENT_TYPE_INFO = {
-  label: 'All types',
-  title: 'No exports yet',
-  emptyDescription:
-    'CSV exports will appear here after someone downloads records from a module. Completed files can be downloaded again from this page.',
-};
-
-export const ExportHistoriesEmptyState = () => {
+export const ExportHistoriesEmptyState = ({
+  columnsLength,
+  contentTypes,
+}: {
+  columnsLength: number;
+  contentTypes: TImportExportHistoryType[];
+}) => {
+  const { t } = useTranslation('importExport');
   const [selectedEntityType] = useQueryState<string>('type', {
     defaultValue: 'all',
   });
 
-  const { contentTypes, columnsLength } = useExportHistoriesRecordTable();
-
-  const isAllSelected = selectedEntityType === 'all';
-
-  const label = isAllSelected
-    ? UNSELECTED_CONTENT_TYPE_INFO.label
-    : SELECTED_CONTENT_TYPE_INFO.label(selectedEntityType, contentTypes);
-
-  const emptyTitle = isAllSelected
-    ? UNSELECTED_CONTENT_TYPE_INFO.title
-    : SELECTED_CONTENT_TYPE_INFO.title(label);
-
-  const emptyDescription = isAllSelected
-    ? UNSELECTED_CONTENT_TYPE_INFO.emptyDescription
-    : SELECTED_CONTENT_TYPE_INFO.emptyDescription(label);
+  const isAllSelected = !selectedEntityType || selectedEntityType === 'all';
+  const entity = isAllSelected
+    ? ''
+    : formatImportExportEntityTypeLabel(selectedEntityType, contentTypes);
 
   return (
     <tr>
@@ -50,8 +29,16 @@ export const ExportHistoriesEmptyState = () => {
             <Empty.Media variant="icon">
               <IconFileExport />
             </Empty.Media>
-            <Empty.Title>{emptyTitle}</Empty.Title>
-            <Empty.Description>{emptyDescription}</Empty.Description>
+            <Empty.Title>
+              {isAllSelected
+                ? t('no-exports-yet')
+                : t('no-entity-exports-yet', { entity })}
+            </Empty.Title>
+            <Empty.Description>
+              {isAllSelected
+                ? t('no-exports-yet-description')
+                : t('no-entity-exports-yet-description', { entity })}
+            </Empty.Description>
           </Empty.Header>
           {!!contentTypes.length && (
             <Empty.Content>

@@ -39,7 +39,8 @@ export const CallWidgetContent = () => {
   const setCurrentCallConversationId = useSetAtom(
     currentCallConversationIdAtom,
   );
-  const { addCustomer, customer, channels, loading } = useAddCallCustomer();
+  const { addCustomer, customer, channels, integrationName, loading } =
+    useAddCallCustomer();
   useEffect(() => {
     if (sipState.callStatus === CallStatusEnum.ENDED) {
       setHistoryId(null);
@@ -59,7 +60,7 @@ export const CallWidgetContent = () => {
       <IncomingCall
         addCustomer={addCustomer}
         customer={customer}
-        channels={channels}
+        integrationName={integrationName}
         loading={loading}
       />
     );
@@ -146,7 +147,7 @@ export const CallWidget = () => {
                   '--radix-popper-content-height': contentHeight,
                 } as CSSProperties
               }
-              className="z-50 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 rounded-lg bg-background text-foreground shadow-lg w-96"
+              className="z-100 pointer-events-auto data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 rounded-lg bg-background text-foreground shadow-lg w-96"
             >
               <CallWidgetContent />
             </PopoverPrimitive.Content>

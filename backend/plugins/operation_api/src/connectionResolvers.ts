@@ -40,6 +40,21 @@ import {
   IOperationTemplateModel,
   loadTemplateClass,
 } from '@/template/db/models/Template';
+import {
+  IGithubConfigModel,
+  loadGithubConfigClass,
+} from '@/githubIntegration/db/models/GithubConfig';
+import { IGithubConfigDocument } from './modules/githubIntegration/@types/githubConfig';
+import {
+  IGithubConnectionModel,
+  loadGithubConnectionClass,
+} from './modules/githubIntegration/db/models/GithubConnection';
+import { IGithubConnectionDocument } from './modules/githubIntegration/@types/githubConnection';
+import { IGithubMilestoneMappingDocument } from './modules/githubIntegration/@types/githubMilestoneMapping';
+import {
+  IGithubMilestoneMappingModel,
+  loadGithubMilestoneMappingClass,
+} from './modules/githubIntegration/db/models/GithubMilestoneMapping';
 
 export interface IModels {
   Task: ITaskModel;
@@ -53,6 +68,9 @@ export interface IModels {
   Milestone: IMilestoneModel;
   Triage: ITriageModel;
   OperationTemplate: IOperationTemplateModel;
+  GithubConfig: IGithubConfigModel;
+  GithubConnection: IGithubConnectionModel;
+  GithubMilestoneMapping: IGithubMilestoneMappingModel;
 }
 
 export interface IContext extends IMainContext {
@@ -127,6 +145,24 @@ export const loadClasses = (
     IOperationTemplateDocument,
     IOperationTemplateModel
   >('operation_templates', loadTemplateClass(models));
+
+  models.GithubConfig = db.model<IGithubConfigDocument, IGithubConfigModel>(
+    'operation_github_configs',
+    loadGithubConfigClass(models),
+  );
+
+  models.GithubConnection = db.model<
+    IGithubConnectionDocument,
+    IGithubConnectionModel
+  >('operation_github_connections', loadGithubConnectionClass(models));
+
+  models.GithubMilestoneMapping = db.model<
+    IGithubMilestoneMappingDocument,
+    IGithubMilestoneMappingModel
+  >(
+    'operation_github_milestone_mappings',
+    loadGithubMilestoneMappingClass(models),
+  );
 
   return models;
 };

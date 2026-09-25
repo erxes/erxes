@@ -10,6 +10,7 @@ export type TAutomationVariableListContext = {
   buildVariableToken: (path: string) => string;
   buildVariablePayload: TAutomationVariablePayloadBuilder;
   onInsertVariable?: (payload: TAutomationVariableDragPayload) => void;
+  onInsertVariableAsLink?: (payload: TAutomationVariableDragPayload) => void;
   sourceNode: TAutomationVariableSourceNode;
 };
 

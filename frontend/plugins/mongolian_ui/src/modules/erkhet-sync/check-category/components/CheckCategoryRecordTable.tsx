@@ -24,6 +24,7 @@ export const CheckCategoryRecordTable = () => {
       data={filteredCategories || []}
       className="m-3"
       stickyColumns={['more', 'checkbox', 'createdAt']}
+      tableId="mongolian_erkhet_check_category_record_table"
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}

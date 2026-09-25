@@ -93,6 +93,7 @@ export const tourMoreColumn = (
   onDuplicate?: (tourId: string, dateType?: 'fixed' | 'flexible') => void,
 ): ColumnDef<ITour> => ({
   id: 'more',
+  header: () => <RecordTable.ColumnSelector />,
   cell: (props) => (
     <TourMoreColumn {...props} onEdit={onEdit} onDuplicate={onDuplicate} />
   ),

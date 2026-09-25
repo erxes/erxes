@@ -2,17 +2,31 @@
 
 import { useMemo } from 'react';
 import { useQueryState } from 'erxes-ui';
+import { useSearchParams } from 'react-router-dom';
 import { useStages } from '@/deals/stage/hooks/useStages';
 import type { BoardDealColumn } from '@/deals/types/boards';
+import { getDealsQueryVariables } from '@/deals/utils/queryVariables';
 
 export const useDealsBoardData = (): {
   columns: BoardDealColumn[];
   columnsLoading: boolean;
 } => {
   const [pipelineId] = useQueryState<string>('pipelineId');
+  const [searchParams] = useSearchParams();
+
+  const queryVariables = useMemo(
+    () =>
+      getDealsQueryVariables(searchParams, {
+        includeArchivedMode: false,
+      }),
+    [searchParams],
+  );
 
   const { stages, loading } = useStages({
-    variables: { pipelineId },
+    variables: {
+      pipelineId,
+      ...queryVariables,
+    },
     skip: !pipelineId,
     fetchPolicy: 'cache-and-network',
     nextFetchPolicy: 'cache-first',

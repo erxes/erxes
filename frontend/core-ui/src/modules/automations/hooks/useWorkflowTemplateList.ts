@@ -24,10 +24,12 @@ export type TWorkflowTemplate = {
  * from the automations list and the standalone template editor as well as
  * from inside the builder.
  */
-export const useWorkflowTemplateList = () => {
-  const { data, loading } = useQuery<{
+export const useWorkflowTemplateList = ({
+  searchValue,
+}: { searchValue?: string } = {}) => {
+  const { data, loading, error, refetch } = useQuery<{
     automationWorkflowTemplates: TWorkflowTemplate[];
-  }>(AUTOMATION_WORKFLOW_TEMPLATES);
+  }>(AUTOMATION_WORKFLOW_TEMPLATES, { variables: { searchValue } });
 
   const [addTemplate, { loading: saving }] = useMutation(
     AUTOMATION_WORKFLOW_TEMPLATE_ADD,
@@ -48,6 +50,8 @@ export const useWorkflowTemplateList = () => {
     removeTemplateMutation({ variables: { _id: templateId } });
 
   return {
+    error,
+    refetch,
     templates,
     loading,
     saving,

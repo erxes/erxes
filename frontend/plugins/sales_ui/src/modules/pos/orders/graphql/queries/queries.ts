@@ -70,6 +70,7 @@ export const POS_ORDERS_QUERY = gql`
       totalAmount
       type
       description
+      returnDescription
       user {
         username
         status

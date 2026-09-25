@@ -20,6 +20,7 @@ export type ISendMessageData = {
   message: Record<string, unknown>;
   tag?: string;
   commentId?: string;
+  skipTyping?: boolean;
 };
 
 export type ICheckTriggerData = {

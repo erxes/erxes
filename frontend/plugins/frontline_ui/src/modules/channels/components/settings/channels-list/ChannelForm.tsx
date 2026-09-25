@@ -10,6 +10,8 @@ export const ChannelForm = ({
   form: UseFormReturn<TChannelForm>;
 }) => {
   const { t } = useTranslation('frontline');
+  const scope = form.watch('scope');
+  const isTeam = scope === 'team';
   return (
     <div className="flex flex-col gap-3">
       <div className="w-full flex gap-2">
@@ -18,12 +20,14 @@ export const ChannelForm = ({
           name="icon"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('icon')}</Form.Label>
-              <Form.Description className="sr-only">{t('icon')}</Form.Description>
+              <Form.Label>{t('icon', 'Icon')}</Form.Label>
+              <Form.Description className="sr-only">
+                {t('icon', 'Icon')}
+              </Form.Description>
               <Form.Control>
                 <IconPicker
                   onValueChange={field.onChange}
-                  value={field.value}
+                  value={field.value as string}
                   className="w-min"
                 />
               </Form.Control>
@@ -36,7 +40,7 @@ export const ChannelForm = ({
           name="name"
           render={({ field }) => (
             <Form.Item className="flex-auto">
-              <Form.Label>{t('name')}</Form.Label>
+              <Form.Label>{t('name', 'Name')}</Form.Label>
               <Form.Control>
                 <Input {...field} />
               </Form.Control>
@@ -51,7 +55,7 @@ export const ChannelForm = ({
         name="description"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>{t('description')}</Form.Label>
+            <Form.Label>{t('description', 'Description')}</Form.Label>
             <Form.Control>
               <Textarea {...field} />
             </Form.Control>
@@ -64,7 +68,7 @@ export const ChannelForm = ({
         name="memberIds"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>{t('members-title')}</Form.Label>
+            <Form.Label>{t('members-title', 'Members')}</Form.Label>
             <Form.Control>
               <SelectMember.FormItem
                 mode="multiple"

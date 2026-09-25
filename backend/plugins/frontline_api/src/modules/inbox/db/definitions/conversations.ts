@@ -77,6 +77,11 @@ export const conversationSchemaOptions = {
     type: 'Boolean',
     label: 'Last responder is customer',
   },
+  hasSurvey: {
+    type: 'Boolean',
+    index: true,
+    label: 'Carries a poll message',
+  },
   isBot: {
     type: 'Boolean',
     label: 'isBot',
@@ -87,6 +92,17 @@ export const conversationSchemaOptions = {
   },
   automatedReplyControl: {
     type: automatedReplyControlSchema,
+    optional: true,
+  },
+
+  callProPotentialCustomerIds: {
+    type: ['String'],
+    label: 'Call Pro potential customer ids',
+    optional: true,
+  },
+  callProPhone: {
+    type: 'String',
+    label: 'Call Pro caller phone',
     optional: true,
   },
 };
@@ -114,6 +130,15 @@ conversationSchema.index(
 conversationSchema.index(
   { userRelevance: 1 },
   { partialFilterExpression: { userRelevance: { $exists: true } } },
+);
+
+conversationSchema.index(
+  { 'automatedReplyControl.status': 1, updatedAt: -1 },
+  {
+    partialFilterExpression: {
+      'automatedReplyControl.status': { $exists: true },
+    },
+  },
 );
 
 conversationSchema.index({ createdAt: 1 });

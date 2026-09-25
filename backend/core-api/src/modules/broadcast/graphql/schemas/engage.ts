@@ -11,8 +11,12 @@ export const types = `
     customerIds: [String]
     cpId: String
     title: String
+    fromEmail: String
     fromUserId: String
     method: String
+    targetType: String
+    targetIds: [String]
+    targetCount: Int
     isDraft: Boolean
     isLive: Boolean
     stopDate: Date
@@ -23,9 +27,12 @@ export const types = `
     validCustomersCount: Int
     runCount: Int
     lastRunAt: Date
+    "When the schedule next comes due, absent when nothing is scheduled"
+    nextRunAt: Date
 
     status: String
     progress: JSON
+    workflowAutomationId: String
 
     brandId: String
 
@@ -44,6 +51,9 @@ export const types = `
     fromIntegration: JSON
 
     stats: JSON
+
+    "Whether somebody has locked this campaign for approval, and who may act"
+    approvalLockState(action: String): ApprovalLockState
   }
 
   type EngageScheduleDate {
@@ -51,6 +61,16 @@ export const types = `
     month: String,
     day: String,
     dateTime: Date,
+
+    every: String,
+    hour: Int,
+    minute: Int,
+    weekDay: Int,
+    monthDay: Int,
+    monthOfYear: Int,
+    startDate: Date,
+    endDate: Date,
+    timeZone: String,
   }
 
   type DeliveryReport {
@@ -116,6 +136,18 @@ export const types = `
     totalCount: Int
   }
 
+  input EngageRecurrenceInput {
+    every: String!
+    hour: Int!
+    minute: Int
+    weekDay: Int
+    monthDay: Int
+    monthOfYear: Int
+    startDate: Date
+    endDate: Date!
+    timeZone: String
+  }
+
   input EngageScheduleDateInput {
     type: String,
     month: String,
@@ -125,9 +157,12 @@ export const types = `
 
   input EngageMessageEmail {
     content: String,
+    contentJson: JSON,
+    contentFormat: String,
     subject: String!,
     replyTo: String,
     sender: String,
+    previewText: String,
     attachments: [JSON]
   }
 
@@ -178,6 +213,57 @@ export const types = `
     totalCount: Int
   }
 
+  type BroadcastRun {
+    _id: String!
+    runCount: Int
+    method: String
+    status: String
+    totalCount: Int
+    startedAt: Date
+    finishedAt: Date
+    "How many recipients ended in each status"
+    counts: JSON
+  }
+
+  type BroadcastRecipient {
+    _id: String!
+    runId: String!
+    customerId: String!
+    customer: Customer
+    "The flow this dispatch started, absent until the service creates it"
+    execution: AutomationHistory
+    status: String!
+    "Why it was not sent, on anything but a plain send"
+    reason: String
+    attempts: Int
+    finishedAt: Date
+    createdAt: Date
+    updatedAt: Date
+  }
+
+  type BroadcastRecipientListResponse {
+    list: [BroadcastRecipient]
+    pageInfo: PageInfo
+    totalCount: Int
+  }
+
+  """
+  One moment on the calendar: a run that already happened, or an occurrence
+  that is still due.
+  """
+  type EngageCalendarEntry {
+    engageMessageId: String!
+    title: String
+    method: String
+    at: Date!
+    "planned | overdue | running | completed | failed | cancelled"
+    state: String!
+    "Set only once the occurrence has a run behind it"
+    runId: String
+    runCount: Int
+    totalCount: Int
+  }
+
   type BroadcastTrace {
     _id: String!
     engageMessageId: String!
@@ -185,20 +271,90 @@ export const types = `
     message: String!
     createdAt: Date
   }
+
+  """
+  A sender identity as the configured email provider knows it, including ones
+  still awaiting confirmation. "single" is one verified address, "domain" is an
+  authenticated domain that any address below it may send from.
+  """
+  type EmailSender {
+    id: String
+    type: String
+    value: String
+    name: String
+    status: String
+  }
+
+  """
+  Everything a sender picker needs, without exposing the organization's mail
+  credentials. "senders" and "supportsDynamicSender" reach the provider's API,
+  so only ask for them when they are actually rendered.
+  """
+  type EmailSenderOptions {
+    provider: String
+    supportsSenderVerification: Boolean
+    supportsDynamicSender: Boolean
+    defaultSenderEmail: String
+    alignedFrom: String
+    sameAsMailConfig: Boolean
+    senders: [EmailSender]
+  }
 `;
 
-const queryParams = `
+export const recipientEmailTypes = `
+  type BroadcastRecipientEmailEvent {
+    status: String
+    createdAt: Date
+  }
+
+  type BroadcastRecipientEmail {
+    to: String
+    from: String
+    replyTo: String
+    subject: String
+    html: String
+    status: String
+    reason: String
+    sentAt: Date
+    events: [BroadcastRecipientEmailEvent]
+  }
+`;
+
+export const dryRunTypes = `
+  type BroadcastEmailFieldCoverage {
+    id: String
+    filled: Int
+    missing: Int
+  }
+
+  type BroadcastEmailDryRun {
+    sampled: Int
+    fields: [BroadcastEmailFieldCoverage]
+    unresolved: [String]
+    sampleTo: String
+    sampleHtml: String
+  }
+`;
+
+const filterParams = `
   kind: String
+  trigger: String
   status: String
   method: String
   brandId: String
   fromUserId: String
   searchValue: String
+`;
+
+const queryParams = `
+  ${filterParams}
 
   ${GQL_CURSOR_PARAM_DEFS}
 `;
 
 export const queries = `
+  broadcastEmailDryRun(_id: String!, sampleSize: Int): BroadcastEmailDryRun
+  broadcastRecipientEmail(_id: String!): BroadcastRecipientEmail
   engageMessages(${queryParams}): EngageMessageListResponse
   engageMessagesTotalCount(${queryParams}): Int
   engageMessageDetail(_id: String): EngageMessage
@@ -209,13 +365,21 @@ export const queries = `
   engageEmailPercentages: AvgEmailStats
   engageSmsDeliveries(type: String!, to: String, page: Int, perPage: Int): DeliveryList
   engageBroadcastTraces(engageMessageId: String!): [BroadcastTrace]
+  engageBroadcastRuns(engageMessageId: String!): [BroadcastRun]
+  engageBroadcastRecipients(runId: String!, status: String, searchValue: String, beginDate: Date, endDate: Date, ${GQL_CURSOR_PARAM_DEFS}): BroadcastRecipientListResponse
   engageVerifiedEmails: [String]
+  emailSenderOptions(scope: String): EmailSenderOptions
+  "How often a proposed recurrence would fire, and when it next would"
+  engageSchedulePreview(recurrence: EngageRecurrenceInput!): JSON
+  "What went out, and what is due to, between two moments"
+  engageScheduleCalendar(from: Date!, to: Date!, ${filterParams}): [EngageCalendarEntry]
 `;
 
 const mutationParams = `
   title: String
   kind: String
   method: String
+  fromEmail: String
   fromUserId: String
   cpId: String
 
@@ -229,6 +393,7 @@ const mutationParams = `
   email: EngageMessageEmail
   messenger: EngageMessageMessenger
   notification: EngageMessageNotification
+  workflow: JSON
 `;
 
 export const mutations = `
@@ -239,10 +404,21 @@ export const mutations = `
   engageMessageSetPause(_id: String!): EngageMessage
   engageMessageSetLiveManual(_id: String!): EngageMessage
   engagesUpdateConfigs(configsMap: JSON!): JSON
-  engageMessageVerifyEmail(email: String!): String
-  engageMessageRemoveVerifiedEmail(email: String!): String
-  engageMessageSendTestEmail(from: String!, to: String!, content: String!, title: String!): String
+  engageMessageVerifyEmail(
+    email: String!
+    name: String
+    replyTo: String
+    scope: String
+  ): String
+  engageMessageRemoveVerifiedEmail(email: String!, scope: String): String
+  engageMessageSendTestEmail(from: String!, to: String!, content: String!, contentFormat: String, title: String!): String
   engageMessageCopy(_id: String!): EngageMessage
+  engageMessageSetSchedule(
+    _id: String!
+    dateTime: Date
+    recurrence: EngageRecurrenceInput
+  ): EngageMessage
+  engageMessageCancelSchedule(_id: String!): EngageMessage
   broadcastUpdateConfigs(configsMap: JSON!): JSON
 
   engageSendMail(

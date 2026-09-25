@@ -13,7 +13,11 @@ export const RemoveIntegration = ({
 }) => {
   const { t } = useTranslation('frontline');
   const [removeIntegration, { loading }] = useMutation(REMOVE_INTEGRATION, {
-    refetchQueries: ['Integrations'],
+    refetchQueries: [
+      'Integrations',
+      'IntegrationsGetUsedTypes',
+      'IntegrationsGetUsedTypesByChannel',
+    ],
     onCompleted() {
       toast({
         title: t('integration-removed'),

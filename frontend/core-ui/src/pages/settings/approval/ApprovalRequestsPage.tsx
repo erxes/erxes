@@ -2,6 +2,7 @@ import { IconShieldCheck } from '@tabler/icons-react';
 import { Breadcrumb, Button, PageContainer, Separator } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { PageHeader } from 'ui-modules';
+import { ApprovalRequestStatusSelect } from '@/settings/approval/components/ApprovalRequestStatusSelect';
 import { ApprovalRequestsRecordTable } from '@/settings/approval/components/ApprovalRequestsRecordTable';
 
 export const ApprovalRequestsPage = () => {
@@ -23,6 +24,7 @@ export const ApprovalRequestsPage = () => {
               </Breadcrumb.List>
             </Breadcrumb>
             <Separator.Inline />
+            <ApprovalRequestStatusSelect />
           </PageHeader.Start>
         </PageHeader>
         <ApprovalRequestsRecordTable />

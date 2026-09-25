@@ -19,7 +19,9 @@ export const SipContainer = ({ children }: { children: React.ReactNode }) => {
 
   const { callUserIntegrations, loading: callUserIntegrationLoading } =
     useCallUserIntegration();
-  const { callConfigs, loading: callConfigLoading } = useCallGetConfigs();
+  const { callConfigs, loading: callConfigLoading } = useCallGetConfigs({
+    skip: callUserIntegrationLoading || Boolean(!callUserIntegrations?.length),
+  });
 
   const { createActiveSession } = useCallCreateSession();
 

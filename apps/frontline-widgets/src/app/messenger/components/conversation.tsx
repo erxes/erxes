@@ -1,14 +1,12 @@
 import {
   IconBrain,
   IconCircleDashed,
-  IconFile,
   IconHeadset,
   IconPlayerPlay,
   IconRobot,
   IconSparkles,
   IconTicket,
 } from '@tabler/icons-react';
-import { differenceInHours, differenceInMinutes, format } from 'date-fns';
 import DOMPurify from 'dompurify';
 import {
   Avatar,
@@ -18,10 +16,10 @@ import {
   formatDateISOStringToRelativeDate,
   Input,
   readImage,
-  Tooltip,
 } from 'erxes-ui';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useMemo, useState } from 'react';
+import { hasMessageContent, Message, MessagePosition } from './message';
 import { useGetMessengerSupporters } from '../hooks/useGetMessengerSupporters';
 import {
   ReadConversationResult,
@@ -35,17 +33,6 @@ import {
 } from '../states';
 import { IAttachment, IConversationMessage, ISupporter } from '../types';
 import { AvatarGroup } from './avatar-group';
-
-const formatRelativeTime = (date: Date): string => {
-  const now = new Date();
-  const minutes = differenceInMinutes(now, date);
-  if (minutes < 1) return 'just now';
-  if (minutes < 5) return 'few minutes ago';
-  if (minutes < 60) return `${minutes} minutes ago`;
-  const hours = differenceInHours(now, date);
-  if (hours < 24) return `${hours} hours ago`;
-  return format(date, 'MMM dd, yyyy, HH:mm');
-};
 
 const defaultLogo =
   'url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAAB0CAMAAAAl8kW/AAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAACglBMVEUAAAD///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8AAABxMqsfAAAA1HRSTlMAKRBgAZQKd1JAthrjKAXDiY7kDFT+WifxwNT7LKORaOg0+V8T4McCt/wzf5ZH7B7rBsjLkzgEWZ9PKvTvFSN2DddujVuq0hHnQnA9cSQ7pdzb8xtTBwO7c8SkhIdLRqhiIe74CM31jPAtm3zfYdpvL7EPtK73aXWCNko+4acZUCAcwrmK0PpRbSXZTqC+wTdmNR/2iOoxbNg6P4ESulcOj/0wxURjeM6cFLVdkC7yHZ5FfpcXyuZWaukJmpimr+0iGHmsQdUmekyzsoa/uFzdleIWoh4NTwYAAAABYktHRACIBR1IAAAACXBIWXMAAAsSAAALEgHS3X78AAAEk0lEQVRo3s3Z+UMUVRwA8Oc6bh60JjYVoSkbpaOI7KprHpikEhSiKGxFmG3YiomGW9BlmgWImrdU3hmVZ3afdtl92P39g3oX2wzL7rw38/2h9wsz7/jsLPN9875vh5D/eRmC7AWG4nrGsCAueNVwXG/ESFxvVN7VqF5o9DW4Fzgmfyyqd615Hap3/Q0FBqYXvLFwHOoFjoebUL0JMDGA6RWF4WZMr/gWuBXzjkyaDNYUzAucClCC6U2zoLQY0ZteBjAB0YtEAWZMQgRnApizcnWIhbS82QBwW+4uc3Qiau48gPnlufssuF3dW1hBL/AOt16LFiuDS6hXGXPrdWdVtaJ3F/XMu9371ZQtVfJqwxRcptAxsryuXKFbeT71VqxU+eh6iDa4dorfQz24V+m7GPdBo2vw3M+8CsWonWVCk0uXVSYDH1DzCFkN8GDODomHmLdE1SOJZgjnCp41DzMvOV0ZJGsBWtZlb36EebBe3SOBUoDWrMGzgXsb3UPBVh6lI6JZ0se2JAdX6XgkVEeHbIoP1pTayL3HtDxChrNBgwWP8Tj32hOaIBnNhnVk1j/BPXhS1yNPsdC1nh5Y/YzFvc0e0vNn2cCBwbOlSlzgVn2PPNfORuZts9fFnhfeCx48Qjr52C77l1srvG5v6XmgjI+2Bc92U4Buj45spUcMT2cuO1pEhef0PLRTAD3iNNglTsF7er5dANYufvai9Hb7SAb3CCK5lx7vk56v9Hy/vAs0eKY0S9Bfer5MKpWJVnlUlfIFHmiXzkH513d6fgicxXd6nup1eNZLPj1CXnaACOl57BWbh5Kez7GB+xA8QgrSHlJ6fjgNHkHxyNE0qJEu5yg7mtPg/GMY4HHbTVmE4J2wh2HzAd/eyXxHYI/3Db7qnMqnXvPptRUOeDh4W0DTxeiTjjnzlDx63Rf4Rv+FdZI35dFpP7OluFQqx+naXCKP1bdumeWMNFrP0pP4OXmilbk6ymG5RCXFUzVVKU5rvHqx/oX9vKzYliceil6XqRrpXUjXvCWy60PevJUXhVdg23/t4unmwbc9gavlGu/YXXTwune8eO/Kx8F+ZzWfipaHbKRBbB4y9nzxTaxWd09By3vCez+jIRhl9SN0vQUiBemLZDZ9wILnQ90EYiT3Pho1WNs6lsh+rOfVcy9cO3hrdRhgudZPUGPFlPgkWzvLPXt0wE63aGsC+PSkujuum6cJa7L3MBp1dnsG3y715pxfn0Vh3hZVcCifDC6RVl4HlxS9Y71KD72lpYWKr7Q+Z94X7v2qw18qeXvZ8talsh1ebNYq9Iqfpt5XXyt99vo+hU5sw2hNU/vnGI3ur8kus3n6jZpHSKTE9fdNtnP6Vv1JkvrOpUM19b5fqOzRWZ+7uaECoOUHDc+t/Eizop8QvQRddqcieuRngF8wX93QLdNOf5thZwluhotzMb9wE5j1mN6QbvgV0zOuwG9x/8x/5Xf4A2Xf1V8CE5NtmB75E2ajekXWGFQvPuMK6g0hHX+pvEFRL39XFaF65J8NuN6RYbhe6FLEP2Iv55WTHrVyuQ3XI7jX9y/JAcmAtCI0lQAAAABJRU5ErkJggg==)';
@@ -99,6 +86,12 @@ export function ConversationMessage({
 }) {
   const setConversationId = useSetAtom(conversationIdAtom);
   const setActiveTab = useSetAtom(setActiveTabAtom);
+
+  const connection = useAtomValue(connectionAtom);
+
+  const { widgetsMessengerConnect } = connection || {};
+  const { messengerData } = widgetsMessengerConnect || {};
+  const { aiAgentLabel } = messengerData || {};
 
   const { readConversation } = useReadConversation();
   const { messages, content } = conversation || {};
@@ -190,7 +183,7 @@ export function ConversationMessage({
                   : 'font-medium text-muted-foreground',
               )}
             >
-              AI Bot
+              {aiAgentLabel}
             </span>
             <span
               className={cn(
@@ -350,148 +343,48 @@ export function OperatorMessage({
   attachments?: IAttachment[];
   userName?: string;
 }) {
-  const isImageAttachment = (url: string) => {
-    return /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(url);
+  // Group position travels as one object instead of four loose booleans.
+  const position: MessagePosition = {
+    isFirstMessage,
+    isLastMessage,
+    isMiddleMessage,
+    isSingleMessage,
   };
+  const hasContent = hasMessageContent(content);
+  const hasAttachments = !!attachments?.length;
 
   return (
-    <Tooltip.Provider>
-      <Tooltip>
-        <Tooltip.Trigger asChild>
-          <div className="flex items-end justify-start gap-2 mr-auto max-w-[80%]">
-            {showAvatar ? (
-              <Avatar className="size-8 shrink-0 mb-5">
-                <Avatar.Image
-                  src={readImage(src || 'assets/user.webp')}
-                  className="shrink-0 object-cover"
-                  alt="Erxes"
-                />
-                <Avatar.Fallback className="bg-background">C</Avatar.Fallback>
-              </Avatar>
-            ) : (
-              <div className="size-8 shrink-0" />
+    <Message align="start">
+      {/* Tooltip scoped to the bubble row. Nothing interactive lives inside. */}
+      <Message.TimestampTooltip date={createdAt}>
+        <Message.Row>
+          <Message.Avatar
+            show={showAvatar}
+            src={src || 'assets/user.webp'}
+            alt={userName || 'Erxes'}
+            // Only the rendered avatar carried the bottom offset before.
+            className={showAvatar ? 'mb-5' : undefined}
+          />
+          <Message.Body align="start">
+            {(isFirstMessage || isSingleMessage) && userName && (
+              <Message.Author>{userName}</Message.Author>
             )}
-            <div className="flex flex-col gap-0.5 flex-1">
-              {(isFirstMessage || isSingleMessage) && userName && (
-                <span className="text-[11px] text-muted-foreground px-1 font-medium">
-                  {userName}
-                </span>
-              )}
-              {content && content !== '<p></p>' && (
-                <div
-                  className={cn(
-                    'h-auto font-normal flex flex-col justify-start items-start text-sm leading-snug text-foreground/85 text-left gap-1 px-3 py-2 bg-background whitespace-break-spaces wrap-break-word break-all',
-                    // no attachments follow — full position-based radius
-                    !attachments?.length &&
-                      isSingleMessage &&
-                      'rounded-2xl rounded-bl-sm shadow-sm',
-                    !attachments?.length &&
-                      isFirstMessage &&
-                      'rounded-2xl rounded-b-sm shadow-2xs',
-                    !attachments?.length &&
-                      isMiddleMessage &&
-                      'rounded-sm shadow-2xs',
-                    !attachments?.length &&
-                      isLastMessage &&
-                      'rounded-2xl rounded-l-sm rounded-tr-sm shadow-2xs',
-                    !attachments?.length &&
-                      isSingleMessage &&
-                      isFirstMessage &&
-                      'rounded-2xl rounded-bl-sm shadow-2xs',
-                    // attachments follow — only top radius applies
-                    attachments?.length &&
-                      (isSingleMessage || isFirstMessage) &&
-                      'rounded-t-2xl rounded-bl-sm shadow-sm',
-                    attachments?.length &&
-                      (isMiddleMessage || isLastMessage) &&
-                      'rounded-tr-2xl rounded-bl-sm rounded-tl-sm',
-                  )}
-                  dangerouslySetInnerHTML={{
-                    __html: DOMPurify.sanitize(content as string),
-                  }}
-                />
-              )}
-              {attachments && attachments.length > 0 && (
-                <div className="flex flex-col gap-0.5">
-                  {attachments.map((attachment, index) => {
-                    const isFirstAttachment = index === 0;
-                    const isLastAttachment = index === attachments.length - 1;
-                    return (
-                      <div
-                        key={index}
-                        className={cn(
-                          'overflow-hidden bg-background',
-                          // top radius: flat if content precedes, else use position
-                          content &&
-                            isFirstAttachment &&
-                            (isSingleMessage || isFirstMessage) &&
-                            'rounded-t-sm',
-                          content &&
-                            isFirstAttachment &&
-                            (isMiddleMessage || isLastMessage) &&
-                            'rounded-t-sm',
-                          !content &&
-                            isFirstAttachment &&
-                            (isSingleMessage || isFirstMessage) &&
-                            'rounded-t-2xl',
-                          !content &&
-                            isFirstAttachment &&
-                            (isMiddleMessage || isLastMessage) &&
-                            'rounded-sm',
-                          // bottom radius: use position on last attachment
-                          isLastAttachment &&
-                            (isSingleMessage || isLastMessage) &&
-                            'rounded-b-2xl rounded-bl-sm shadow-2xs',
-                          isLastAttachment &&
-                            (isFirstMessage || isMiddleMessage) &&
-                            'rounded-sm',
-                        )}
-                      >
-                        {isImageAttachment(attachment.url) ? (
-                          <a
-                            href={readImage(attachment.url)}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="block"
-                          >
-                            <img
-                              src={readImage(attachment.url)}
-                              alt={attachment.name}
-                              className="max-w-full h-auto rounded"
-                            />
-                          </a>
-                        ) : (
-                          <a
-                            href={readImage(attachment.url)}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-2 px-3 py-2 hover:bg-accent/50 transition-colors truncate"
-                          >
-                            <IconFile />
-                            <span className="text-[13px] text-foreground truncate">
-                              {attachment.name}
-                            </span>
-                          </a>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-              {/* timestamp */}
-              {(isLastMessage || isSingleMessage) && (
-                <span className="text-[10px] text-muted-foreground px-1 mt-0.5">
-                  {formatRelativeTime(createdAt)}
-                </span>
-              )}
-            </div>
-          </div>
-        </Tooltip.Trigger>
-        <Tooltip.Content>
-          {format(createdAt, 'MMM dd, yyyy hh:mm aa')}
-        </Tooltip.Content>
-      </Tooltip>
-    </Tooltip.Provider>
+            {hasContent && (
+              <Message.Content
+                variant="incoming"
+                position={position}
+                hasAttachments={hasAttachments}
+                html={content}
+              />
+            )}
+            <Message.Attachments attachments={attachments} />
+            {(isLastMessage || isSingleMessage) && (
+              <Message.Time align="start" date={createdAt} />
+            )}
+          </Message.Body>
+        </Message.Row>
+      </Message.TimestampTooltip>
+    </Message>
   );
 }
 
@@ -512,116 +405,35 @@ export const CustomerMessage = ({
   isMiddleMessage?: boolean;
   isSingleMessage?: boolean;
 }) => {
-  const isImageAttachment = (url: string) => {
-    return /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(url);
+  const position: MessagePosition = {
+    isFirstMessage,
+    isLastMessage,
+    isMiddleMessage,
+    isSingleMessage,
   };
+  const hasContent = hasMessageContent(content);
+  const hasAttachments = !!attachments?.length;
 
   return (
-    <Tooltip.Provider>
-      <Tooltip delayDuration={100}>
-        <Tooltip.Trigger asChild>
-          <div className="flex flex-col items-end ml-auto max-w-[70%]">
-            <div className="flex flex-col gap-2 w-fit">
-              {content && content !== '<p></p>' && (
-                <div
-                  className={cn(
-                    'h-auto font-medium flex flex-col justify-start items-start text-[13px] leading-relaxed text-left gap-1 px-3 py-2 bg-primary text-primary-foreground',
-                    // no attachments follow — full position-based radius
-                    !attachments?.length &&
-                      isSingleMessage &&
-                      'rounded-2xl shadow-sm',
-                    !attachments?.length &&
-                      isFirstMessage &&
-                      'rounded-2xl rounded-br-sm',
-                    !attachments?.length &&
-                      isMiddleMessage &&
-                      'rounded-2xl rounded-tr-sm rounded-br-sm',
-                    !attachments?.length &&
-                      isLastMessage &&
-                      'rounded-2xl rounded-tr-sm shadow-sm',
-                    // attachments follow — only top radius
-                    attachments?.length &&
-                      (isSingleMessage || isFirstMessage) &&
-                      'rounded-t-2xl',
-                    attachments?.length &&
-                      (isMiddleMessage || isLastMessage) &&
-                      'rounded-tl-2xl rounded-tr-sm',
-                  )}
-                  dangerouslySetInnerHTML={{
-                    __html: DOMPurify.sanitize(content as string),
-                  }}
-                />
-              )}
-              {attachments && attachments.length > 0 && (
-                <div className="flex flex-col gap-0.5">
-                  {attachments.map((attachment, index) => {
-                    const isFirstAttachment = index === 0;
-                    const isLastAttachment = index === attachments.length - 1;
-                    return (
-                      <div
-                        key={index}
-                        className={cn(
-                          'overflow-hidden bg-accent',
-                          !content &&
-                            isFirstAttachment &&
-                            (isSingleMessage || isFirstMessage) &&
-                            'rounded-t-2xl',
-                          !content &&
-                            isFirstAttachment &&
-                            (isMiddleMessage || isLastMessage) &&
-                            'rounded-tl-2xl rounded-tr-sm',
-                          isLastAttachment &&
-                            (isSingleMessage || isLastMessage) &&
-                            'rounded-b-2xl rounded-br-sm shadow-sm',
-                          isLastAttachment &&
-                            (isFirstMessage || isMiddleMessage) &&
-                            'rounded-b-2xl rounded-br-sm',
-                        )}
-                      >
-                        {isImageAttachment(attachment.url) ? (
-                          <a
-                            href={readImage(attachment.url)}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="block"
-                          >
-                            <img
-                              src={readImage(attachment.url)}
-                              alt={attachment.name}
-                              className="max-w-full h-auto rounded"
-                            />
-                          </a>
-                        ) : (
-                          <a
-                            href={readImage(attachment.url)}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-2 px-3 py-2 hover:bg-accent/70 transition-colors truncate"
-                          >
-                            <IconFile />
-                            <span className="text-[13px] text-zinc-900 truncate">
-                              {attachment.name}
-                            </span>
-                          </a>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-            {(isLastMessage || isSingleMessage) && (
-              <span className="text-[10px] text-muted-foreground mt-0.5 pr-0.5">
-                {formatRelativeTime(createdAt)}
-              </span>
-            )}
-          </div>
-        </Tooltip.Trigger>
-        <Tooltip.Content>
-          {format(createdAt, 'MMM dd, yyyy hh:mm aa')}
-        </Tooltip.Content>
-      </Tooltip>
-    </Tooltip.Provider>
+    // `align="end"` is where the old `isOwnMessage` branch now lives.
+    <Message.TimestampTooltip date={createdAt} delayDuration={100}>
+      <Message align="end">
+        <Message.Body align="end">
+          {hasContent && (
+            <Message.Content
+              variant="outgoing"
+              position={position}
+              hasAttachments={hasAttachments}
+              html={content}
+            />
+          )}
+          <Message.Attachments attachments={attachments} />
+        </Message.Body>
+        {(isLastMessage || isSingleMessage) && (
+          <Message.Time align="end" date={createdAt} />
+        )}
+      </Message>
+    </Message.TimestampTooltip>
   );
 };
 
@@ -713,6 +525,13 @@ export const BotMessage = ({
   onTicketFormSubmit?: (payload: Record<string, string>) => void;
 }) => {
   const uiOptions = useAtomValue(uiOptionsAtom);
+
+  const connection = useAtomValue(connectionAtom);
+
+  const { widgetsMessengerConnect } = connection || {};
+  const { messengerData } = widgetsMessengerConnect || {};
+  const { aiAgentLabel } = messengerData || {};
+
   const hasTicketForm = botData?.some(
     (item: any) => item?.type === 'ticketForm',
   );
@@ -729,141 +548,153 @@ export const BotMessage = ({
     : '';
 
   if (createdAt) {
+    const position: MessagePosition = {
+      isFirstMessage,
+      isLastMessage,
+      isMiddleMessage,
+      isSingleMessage,
+    };
+    const showTrailingSlots = isLastMessage || isSingleMessage;
+
     return (
-      <Tooltip.Provider>
-        <Tooltip>
-          <Tooltip.Trigger asChild>
-            <div className="flex flex-col mr-auto max-w-[80%]">
-              <div className="flex items-end justify-start gap-2">
-                {showAvatar ? (
-                  <div className="size-8 shrink-0 mb-4 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
-                    <IconBrain size={20} />
-                  </div>
-                ) : (
-                  <div className="size-8 shrink-0 mb-4" />
-                )}
-                <div className="flex flex-col gap-0.5 flex-1">
-                  {(isFirstMessage || isSingleMessage) && (
-                    <span className="text-[11px] text-muted-foreground px-1 font-medium">
-                      Bot{' '}
-                      <Badge
-                        variant={'ghost'}
-                        className="text-[10px] leading-none rounded-xl bg-primary/15 text-primary h-auto py-0.5"
-                      >
-                        Auto
-                      </Badge>
-                    </span>
-                  )}
-                  {htmlContent && htmlContent !== '<p></p>' && (
-                    <div
-                      className={cn(
-                        'h-auto font-normal flex flex-col justify-start items-start text-sm leading-snug text-foreground/85 text-left gap-1 px-3 py-2 bg-background whitespace-break-spaces wrap-break-word text-pretty',
-                        isSingleMessage &&
-                          'rounded-2xl rounded-bl-sm shadow-sm',
-                        isFirstMessage && 'rounded-2xl rounded-b-sm shadow-2xs',
-                        isMiddleMessage && 'rounded-sm shadow-2xs',
-                        isLastMessage &&
-                          'rounded-2xl rounded-bl-sm rounded-t-sm shadow-2xs',
-                        isLastMessage &&
-                          isSingleMessage &&
-                          'rounded-2xl rounded-bl-sm shadow-2xs',
-                      )}
-                      dangerouslySetInnerHTML={{
-                        __html: DOMPurify.sanitize(htmlContent),
-                      }}
-                    />
-                  )}
-                  {(isLastMessage || isSingleMessage) && (
-                    <span className="text-[10px] text-muted-foreground px-1 mt-0.5">
-                      {formatRelativeTime(createdAt)}
-                    </span>
-                  )}
-                </div>
+      <Message align="start">
+        {/*
+          A11y fix: the tooltip trigger now wraps ONLY the bubble row. It used
+          to wrap the whole component, nesting the quick-reply buttons and the
+          ticket form's inputs inside a tooltip trigger.
+        */}
+        <Message.TimestampTooltip date={createdAt}>
+          <Message.Row>
+            <Message.Avatar show={showAvatar} className="mb-4">
+              <div className="size-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
+                <IconBrain size={20} aria-hidden="true" />
               </div>
-              {(isLastMessage || isSingleMessage) &&
-                (quickReplies.length > 0 || showOperatorToggle) && (
-                  <div className="flex flex-wrap gap-1.5 mt-1.5 pl-10">
-                    {quickReplies.length > 0 &&
-                      onQuickReply &&
-                      quickReplies.map((qr, idx) => (
-                        <Button
-                          key={idx}
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => onQuickReply(qr.title)}
-                          className="h-7 text-xs gap-1.5 rounded-xl border-primary/30 text-primary hover:bg-primary/10 hover:text-primary"
-                        >
-                          {qr.title}
-                        </Button>
-                      ))}
-                    {showOperatorToggle && (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={onToggleOperator}
-                        className="h-7 text-xs gap-1.5 rounded-xl border-primary/30 text-primary hover:bg-primary/10 hover:text-primary"
-                      >
-                        {operatorStatus === 'operator' ? (
-                          <>
-                            <IconRobot size={13} />
-                            Talk to bot
-                          </>
-                        ) : (
-                          <>
-                            <IconHeadset size={13} />
-                            Talk to human
-                          </>
-                        )}
-                      </Button>
+            </Message.Avatar>
+            <Message.Body align="start">
+              {(isFirstMessage || isSingleMessage) && (
+                <Message.Author>
+                  {aiAgentLabel}{' '}
+                  <Badge
+                    variant={'ghost'}
+                    className="text-[10px] leading-none rounded-xl bg-primary/15 text-primary h-auto py-0.5"
+                  >
+                    Auto
+                  </Badge>
+                </Message.Author>
+              )}
+              {hasMessageContent(htmlContent) && (
+                <Message.Content
+                  variant="bot"
+                  position={position}
+                  html={htmlContent}
+                />
+              )}
+              {showTrailingSlots && (
+                <Message.Time align="start" date={createdAt} />
+              )}
+            </Message.Body>
+          </Message.Row>
+        </Message.TimestampTooltip>
+
+        {showTrailingSlots &&
+          (quickReplies.length > 0 || showOperatorToggle) && (
+            <Message.Actions>
+              {quickReplies.length > 0 &&
+                onQuickReply &&
+                quickReplies.map((qr, idx) => (
+                  <Button
+                    key={idx}
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onQuickReply(qr.title)}
+                    className="h-7 text-xs gap-1.5 rounded-xl border-primary/30 text-primary hover:bg-primary/10 hover:text-primary"
+                  >
+                    {qr.title}
+                  </Button>
+                ))}
+              {showOperatorToggle && (
+                // Message.Action == prompt-kit's MessageAction: control + tooltip.
+                <Message.Action
+                  label={
+                    operatorStatus === 'operator'
+                      ? 'Hand the conversation back to the bot'
+                      : 'Ask for a human agent'
+                  }
+                >
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={onToggleOperator}
+                    className="h-7 text-xs gap-1.5 rounded-xl border-primary/30 text-primary hover:bg-primary/10 hover:text-primary"
+                  >
+                    {operatorStatus === 'operator' ? (
+                      <>
+                        <IconRobot size={13} aria-hidden="true" />
+                        Talk to bot
+                      </>
+                    ) : (
+                      <>
+                        <IconHeadset size={13} aria-hidden="true" />
+                        Talk to human
+                      </>
                     )}
-                  </div>
-                )}
-              {(isLastMessage || isSingleMessage) &&
-                hasTicketForm &&
-                onTicketFormSubmit && (
-                  <div className="pl-10 mt-1.5">
-                    <TicketFormInline onSubmit={onTicketFormSubmit} />
-                  </div>
-                )}
-            </div>
-          </Tooltip.Trigger>
-          <Tooltip.Content>
-            {format(createdAt, 'MMM dd, yyyy hh:mm aa')}
-          </Tooltip.Content>
-        </Tooltip>
-      </Tooltip.Provider>
+                  </Button>
+                </Message.Action>
+              )}
+            </Message.Actions>
+          )}
+
+        {showTrailingSlots && hasTicketForm && onTicketFormSubmit && (
+          <div className="pl-10 mt-1.5">
+            <TicketFormInline onSubmit={onTicketFormSubmit} />
+          </div>
+        )}
+      </Message>
     );
   }
 
+  // Greeting variant: no timestamp, so no grouping and no tooltip.
   return (
-    <div className="flex self-start items-start gap-2">
-      <div
-        className="w-8 h-8 rounded-full bg-size-[50%] bg-no-repeat bg-center bg-primary mt-6"
-        style={
-          uiOptions && { backgroundImage: `url(${readImage(uiOptions?.logo)})` }
-        }
-      />
+    <div className="flex self-start items-start gap-2 my-2">
+      <Message.Avatar show={showAvatar} className="place-self-end mb-2">
+        <div className="size-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
+          <IconBrain size={20} aria-hidden="true" />
+        </div>
+      </Message.Avatar>
       <div className="flex flex-col gap-1">
-        <span className="text-[11px] text-muted-foreground px-1 font-medium">
-          Erxes
-        </span>
-        <span className="h-auto font-medium flex flex-col justify-start items-start text-sm leading-snug text-foreground/85 text-left gap-1 px-3 py-2 bg-background whitespace-break-spaces wrap-break-word break-all rounded-2xl rounded-bl-sm shadow-sm">
-          {content}
-        </span>
-        {onGetStarted && (
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={onGetStarted}
-            className="self-start h-7 text-xs gap-1.5 rounded-xl text-primary hover:bg-primary/10 hover:text-primary"
+        <Message.Author>
+          {aiAgentLabel}{' '}
+          <Badge
+            variant={'ghost'}
+            className="text-[10px] leading-none rounded-xl bg-primary/15 text-primary h-auto py-0.5"
           >
-            <IconPlayerPlay size={13} />
-            Get Started
-          </Button>
-        )}
+            Bot
+          </Badge>
+        </Message.Author>
+        <Message.Content
+          variant="incoming"
+          position={{ isSingleMessage: true }}
+          className="font-medium"
+        >
+          {content}
+        </Message.Content>
+
+        <div className="flex flex-wrap gap-1.5 mt-1.5">
+          {onGetStarted && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={onGetStarted}
+              className="self-start h-7 text-xs gap-1.5 rounded-xl text-primary hover:bg-primary/10 hover:text-primary"
+            >
+              <IconPlayerPlay size={13} aria-hidden="true" />
+              Get Started
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -873,16 +704,31 @@ export const WelcomeMessage = ({ content }: { content?: string }) => {
   const uiOptions = useAtomValue(uiOptionsAtom);
   return (
     <div className="flex items-end self-start gap-2 mb-2">
-      <div
-        className="w-8 h-8 rounded-full bg-size-[50%] bg-no-repeat bg-center bg-primary"
-        style={
-          uiOptions && { backgroundImage: `url(${readImage(uiOptions?.logo)})` }
-        }
-      />
+      {uiOptions?.logo && uiOptions?.logo?.length > 0 ? (
+        <div className="bg-foreground/5 size-8 rounded flex items-center justify-center p-1">
+          <img
+            alt="logo"
+            src={readImage(uiOptions?.logo)}
+            className="object-center object-scale-down"
+          />
+        </div>
+      ) : (
+        <div
+          className="size-8 rounded-full bg-size-[50%] bg-no-repeat bg-center bg-primary"
+          style={{
+            backgroundImage: defaultLogo,
+          }}
+        />
+      )}
       <div className="flex flex-col max-w-3/4">
-        <span className="h-auto font-medium flex flex-col justify-start items-start text-sm leading-snug text-foreground/85 text-pretty text-left gap-1 px-3 py-2 bg-background whitespace-break-spaces rounded-2xl rounded-bl-sm shadow-2xs">
+        {/* `shadow-2xs` overrides the variant's `shadow-sm` via tailwind-merge. */}
+        <Message.Content
+          variant="bot"
+          position={{ isSingleMessage: true }}
+          className="font-medium shadow-2xs"
+        >
           {content}
-        </span>
+        </Message.Content>
       </div>
     </div>
   );

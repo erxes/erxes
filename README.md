@@ -31,9 +31,6 @@
    <a href="https://explore.transifex.com/erxes-inc/erxesxos/">
       <img alt="Transfix" src="https://img.shields.io/badge/translations-contribute-brightgreen">
   </a>
-  <a href="./CLAUDE.md">
-      <img alt="AI Assistant Guide" src="https://img.shields.io/badge/docs-CLAUDE.md-blue">
-  </a>
 </p>
 
 <p align="center">
@@ -177,20 +174,9 @@ pnpm nx affected:test
 
 - **[Official Documentation](https://erxes.io/docs/introduction)** - Complete guides and API references
 - **[Local Setup Guide](https://erxes.io/docs/local-setup)** - Detailed installation requirements
-- **[CLAUDE.md](./CLAUDE.md)** - Comprehensive codebase guide for AI assistants and developers
 - **[Contributing Guide](https://erxes.io/docs/contribute)** - How to contribute to erxes
 - **[Roadmap](https://erxes.io/roadmap)** - What's coming next
 - **[Changelog](https://erxes.io/changelog)** - Release notes and updates
-
-### For AI Assistants & Advanced Developers
-
-See **[CLAUDE.md](./CLAUDE.md)** for:
-- Detailed architecture and plugin system documentation
-- Development workflows and patterns
-- Code conventions and best practices
-- Testing strategies
-- CI/CD pipeline details
-- Multi-tenancy and service communication patterns
 
 We recommend always using the latest version of erxes to start your new projects. Enjoy 🎉
 
@@ -218,8 +204,6 @@ Each plugin includes:
 - **Backend**: GraphQL schema, tRPC endpoints, business logic, database models
 - **Frontend**: Module Federation remote, React components, routing
 - **Auto-generated**: Nx configuration, Docker setup, boilerplate code
-
-Learn more in **[CLAUDE.md - Plugin System](./CLAUDE.md#plugin-system)**
 
 ## Become a partner
 

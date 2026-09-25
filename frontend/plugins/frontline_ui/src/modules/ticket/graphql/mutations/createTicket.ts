@@ -8,11 +8,14 @@ export const CREATE_TICKET = gql`
     $channelId: String!
     $pipelineId: String!
     $priority: Int
+    $branchId: String
+    $departmentId: String
     $labelIds: [String]
     $tagIds: [String]
     $startDate: Date
     $targetDate: Date
     $assigneeId: String
+    $assignedMembers: [String]
     $attachments: [AttachmentInput]
   ) {
     createTicket(
@@ -22,11 +25,14 @@ export const CREATE_TICKET = gql`
       channelId: $channelId
       pipelineId: $pipelineId
       priority: $priority
+      branchId: $branchId
+      departmentId: $departmentId
       labelIds: $labelIds
       tagIds: $tagIds
       startDate: $startDate
       targetDate: $targetDate
       assigneeId: $assigneeId
+      assignedMembers: $assignedMembers
       attachments: $attachments
     ) {
       _id
@@ -34,9 +40,12 @@ export const CREATE_TICKET = gql`
       description
       statusId
       priority
+      branchId
+      departmentId
       labelIds
       tagIds
       assigneeId
+      assignedMembers
       userId
       startDate
       targetDate

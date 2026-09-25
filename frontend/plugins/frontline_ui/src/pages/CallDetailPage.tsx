@@ -27,7 +27,7 @@ import {
   ICallQueueAgent,
   ICallQueueRealtimeSnapshot,
 } from '@/integrations/call/types/callTypes';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   formatSeconds,
   safeFormatDate,
@@ -88,8 +88,8 @@ export const CallDetailPage = ({
 
   const favoriteBreadcrumb = createFavoriteBreadcrumb(
     backPath.includes('/statistics')
-      ? t('calls-statistics')
-      : t('calls-dashboard'),
+      ? t('calls-statistics', 'Calls statistics')
+      : t('calls-dashboard', 'Calls dashboard'),
     id,
   );
 
@@ -103,7 +103,7 @@ export const CallDetailPage = ({
                 <Button variant="ghost" asChild>
                   <Link to="/frontline/calls/dashboard">
                     <IconPhone />
-                    {t('calls-dashboard')}
+                    {t('calls-dashboard', 'Calls dashboard')}
                   </Link>
                 </Button>
               </Breadcrumb.Item>
@@ -112,7 +112,7 @@ export const CallDetailPage = ({
                 <Button variant="ghost" asChild>
                   <Link to="/frontline/calls/statistics">
                     <IconPhone />
-                    {t('calls-statistics')}
+                    {t('calls-statistics', 'Calls statistics')}
                   </Link>
                 </Button>
               </Breadcrumb.Item>
@@ -140,20 +140,20 @@ export const CallDetailPage = ({
           <Button variant="ghost" asChild className="px-2 gap-1">
             <Link to={backPath}>
               <IconChevronLeft />
-              {t('go-back-to-queues')}
+              {t('go-back-to-queues', 'Go back to queues')}
             </Link>
           </Button>
         </div>
         <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
           <CallDetailCard
-            title={t('total-agents')}
-            description={t('total-agents')}
+            title={t('total-agents', 'Total agents')}
+            description={t('total-agents', 'Total agents')}
             value={membersList?.length}
             date={updatedAt?.toISOString()}
           />
           <CallDetailCard
-            title={t('available-agents')}
-            description={t('available-agents')}
+            title={t('available-agents', 'Available agents')}
+            description={t('available-agents', 'Available agents')}
             value={
               membersList?.filter((extension) => extension.status === 'Idle')
                 .length
@@ -161,8 +161,8 @@ export const CallDetailPage = ({
             date={updatedAt?.toISOString()}
           />
           <CallDetailCard
-            title={t('active-calls')}
-            description={t('active-calls')}
+            title={t('active-calls', 'Active calls')}
+            description={t('active-calls', 'Active calls')}
             value={
               callRealtimeUpdate?.talking?.length ||
               membersList?.filter((extension) => extension.status === 'InUse')
@@ -172,8 +172,8 @@ export const CallDetailPage = ({
             date={updatedAt?.toISOString()}
           />
           <CallDetailCard
-            title={t('waiting-calls')}
-            description={t('waiting-calls')}
+            title={t('waiting-calls', 'Waiting calls')}
+            description={t('waiting-calls', 'Waiting calls')}
             value={
               callRealtimeUpdate?.waiting?.length ||
               membersList?.filter((extension) => extension.status === 'Waiting')
@@ -211,12 +211,12 @@ export const CallDetailAgents = ({
   return (
     <div className="row-span-2 flex flex-col gap-3">
       <h5 className="font-mono text-xs uppercase font-semibold">
-        {t('agents')}
+        {t('agents', 'Agents')}
       </h5>
       <div className="relative">
         <IconSearch className="size-4 absolute left-2 top-1/2 -translate-y-1/2 text-accent-foreground" />
         <Input
-          placeholder={t('search')}
+          placeholder={t('search', 'Search')}
           value={search}
           className="pl-8 relative bg-transparent"
           onChange={(e) => setSearch(e.target.value)}
@@ -225,10 +225,11 @@ export const CallDetailAgents = ({
       <RecordTable.Provider
         columns={useAgentColumns()}
         data={filteredMembersList}
+        tableId="frontline_call_agents_record_table"
       >
         <RecordTable.Scroll>
           <RecordTable>
-            <RecordTable.Header />
+            <RecordTable.Header showColumnSelector />
             <RecordTable.Body>
               <RecordTable.RowList />
             </RecordTable.Body>
@@ -244,7 +245,7 @@ export const useAgentColumns = (): ColumnDef<ICallQueueAgent>[] => {
   return [
     {
       accessorKey: 'status',
-      header: () => <RecordTable.InlineHead label={t('status')} />,
+      header: () => <RecordTable.InlineHead label={t('status', 'Status')} />,
       cell: ({ cell }) => (
         <RecordTableInlineCell>
           <Badge
@@ -266,7 +267,9 @@ export const useAgentColumns = (): ColumnDef<ICallQueueAgent>[] => {
     },
     {
       accessorKey: 'member_extension',
-      header: () => <RecordTable.InlineHead label={t('extension')} />,
+      header: () => (
+        <RecordTable.InlineHead label={t('extension', 'Extension')} />
+      ),
       cell: ({ cell }) => (
         <RecordTableInlineCell className="font-mono">
           <Badge variant="secondary">{cell.getValue() as string}</Badge>
@@ -277,7 +280,7 @@ export const useAgentColumns = (): ColumnDef<ICallQueueAgent>[] => {
 
     {
       accessorKey: 'name',
-      header: () => <RecordTable.InlineHead label={t('name')} />,
+      header: () => <RecordTable.InlineHead label={t('name', 'Name')} />,
       cell: ({ cell }) => {
         const { first_name, last_name } = cell.row.original;
         return (
@@ -290,7 +293,9 @@ export const useAgentColumns = (): ColumnDef<ICallQueueAgent>[] => {
     },
     {
       accessorKey: 'answer',
-      header: () => <RecordTable.InlineHead label={t('answered')} />,
+      header: () => (
+        <RecordTable.InlineHead label={t('answered', 'Answered')} />
+      ),
       cell: ({ cell }) => (
         <RecordTableInlineCell className="font-medium">
           {cell.getValue() as number}
@@ -300,7 +305,9 @@ export const useAgentColumns = (): ColumnDef<ICallQueueAgent>[] => {
     },
     {
       accessorKey: 'abandon',
-      header: () => <RecordTable.InlineHead label={t('abandoned')} />,
+      header: () => (
+        <RecordTable.InlineHead label={t('abandoned', 'Abandoned')} />
+      ),
       cell: ({ cell }) => (
         <RecordTableInlineCell className="font-medium">
           {cell.getValue() as number}
@@ -310,7 +317,9 @@ export const useAgentColumns = (): ColumnDef<ICallQueueAgent>[] => {
     },
     {
       accessorKey: 'talktime',
-      header: () => <RecordTable.InlineHead label={t('talk-time')} />,
+      header: () => (
+        <RecordTable.InlineHead label={t('talk-time', 'Talk Time')} />
+      ),
       cell: ({ cell }) => (
         <RecordTableInlineCell className="font-medium">
           {formatSeconds(cell.getValue() as number)}
@@ -320,7 +329,9 @@ export const useAgentColumns = (): ColumnDef<ICallQueueAgent>[] => {
     },
     {
       accessorKey: 'pausetime',
-      header: () => <RecordTable.InlineHead label={t('pause-time')} />,
+      header: () => (
+        <RecordTable.InlineHead label={t('pause-time', 'Pause Time')} />
+      ),
       cell: ({ cell }) => (
         <RecordTableInlineCell className="font-medium">
           {safeFormatDate(cell?.getValue())}
@@ -364,7 +375,8 @@ export const CallDetailCard = ({
         <h3 className="font-semibold text-2xl leading-none">{value}</h3>
         <Separator />
         <div className="text-accent-foreground text-xs leading-none">
-          {t('updated')} {date && <RelativeDateDisplay.Value value={date} />}
+          {t('updated', 'Updated')}{' '}
+          {date && <RelativeDateDisplay.Value value={date} />}
         </div>
       </div>
     </div>
@@ -373,7 +385,7 @@ export const CallDetailCard = ({
 
 type WaitingCall = {
   callerid: string;
-  callerchannel: string;
+  callerchannel?: string;
 };
 
 export const useWaitingColumns = (): ColumnDef<WaitingCall>[] => {
@@ -382,7 +394,9 @@ export const useWaitingColumns = (): ColumnDef<WaitingCall>[] => {
   return [
     {
       accessorKey: 'callerid',
-      header: () => <RecordTable.InlineHead label={t('caller-id')} />,
+      header: () => (
+        <RecordTable.InlineHead label={t('caller-id', 'Caller ID')} />
+      ),
       cell: ({ cell }) => (
         <RecordTableInlineCell className="font-medium">
           {formatPhoneNumber({
@@ -394,7 +408,9 @@ export const useWaitingColumns = (): ColumnDef<WaitingCall>[] => {
     },
     {
       accessorKey: 'callerchannel',
-      header: () => <RecordTable.InlineHead label={t('caller-channel')} />,
+      header: () => (
+        <RecordTable.InlineHead label={t('caller-channel', 'Caller Channel')} />
+      ),
       cell: ({ cell }) => (
         <RecordTableInlineCell className="font-medium">
           {cell.getValue() as string}
@@ -414,12 +430,9 @@ export const CallDetailWaiting = ({
   return (
     <div className="flex flex-col gap-3">
       <h5 className="font-mono text-xs uppercase font-semibold">
-        {t('waiting')}
+        {t('waiting', 'Waiting')}
       </h5>
-      <RecordTable.Provider
-        columns={useWaitingColumns()}
-        data={waitingList}
-      >
+      <RecordTable.Provider columns={useWaitingColumns()} data={waitingList}>
         <RecordTable.Scroll>
           <RecordTable>
             <RecordTable.Header />
@@ -436,8 +449,28 @@ export const CallDetailWaiting = ({
 type TalkingCall = {
   callerid: string;
   calleeid?: string;
-  bridge_time?: Date;
+  bridge_time?: string | Date;
 };
+
+function TalkingCallDurationCell({
+  value,
+}: Readonly<{ value?: string | Date }>) {
+  const startDate = useMemo(() => {
+    if (!value) {
+      return null;
+    }
+
+    const date = value instanceof Date ? value : new Date(value);
+    return Number.isNaN(date.getTime()) ? null : date;
+  }, [value]);
+  const duration = useCallDurationFromDate(startDate);
+
+  return (
+    <RecordTableInlineCell className="font-medium">
+      {startDate ? duration : '-'}
+    </RecordTableInlineCell>
+  );
+}
 
 export const useTalkingColumns = (): ColumnDef<TalkingCall>[] => {
   const { t } = useTranslation('frontline');
@@ -445,7 +478,9 @@ export const useTalkingColumns = (): ColumnDef<TalkingCall>[] => {
   return [
     {
       accessorKey: 'callerid',
-      header: () => <RecordTable.InlineHead label={t('caller-id')} />,
+      header: () => (
+        <RecordTable.InlineHead label={t('caller-id', 'Caller ID')} />
+      ),
       cell: ({ cell }) => (
         <RecordTableInlineCell className="font-medium">
           {formatPhoneNumber({
@@ -457,7 +492,9 @@ export const useTalkingColumns = (): ColumnDef<TalkingCall>[] => {
     },
     {
       accessorKey: 'calleeid',
-      header: () => <RecordTable.InlineHead label={t('caller-channel')} />,
+      header: () => (
+        <RecordTable.InlineHead label={t('caller-channel', 'Caller Channel')} />
+      ),
       cell: ({ cell }) => (
         <RecordTableInlineCell className="font-medium">
           {cell.getValue() as string}
@@ -466,16 +503,14 @@ export const useTalkingColumns = (): ColumnDef<TalkingCall>[] => {
     },
     {
       accessorKey: 'bridge_time',
-      header: () => <RecordTable.InlineHead label={t('duration')} />,
-      cell: ({ cell }) => {
-        // eslint-disable-next-line react-hooks/rules-of-hooks
-        const duration = useCallDurationFromDate(cell.getValue() as Date);
-        return (
-          <RecordTableInlineCell className="font-medium">
-            {duration}
-          </RecordTableInlineCell>
-        );
-      },
+      header: () => (
+        <RecordTable.InlineHead label={t('duration', 'Duration')} />
+      ),
+      cell: ({ cell }) => (
+        <TalkingCallDurationCell
+          value={cell.getValue() as string | Date | undefined}
+        />
+      ),
     },
   ];
 };
@@ -489,12 +524,9 @@ export const CallDetailTalking = ({
   return (
     <div className="flex flex-col gap-3">
       <h5 className="font-mono text-xs uppercase font-semibold">
-        {t('talking')}
+        {t('talking', 'Talking')}
       </h5>
-      <RecordTable.Provider
-        columns={useTalkingColumns()}
-        data={talkingList}
-      >
+      <RecordTable.Provider columns={useTalkingColumns()} data={talkingList}>
         <RecordTable.Scroll>
           <RecordTable>
             <RecordTable.Header />

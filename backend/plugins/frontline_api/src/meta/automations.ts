@@ -1,4 +1,5 @@
 import { facebookConstants } from '@/integrations/facebook/meta/automation/constants';
+import { facebookWorkflowTemplates } from '@/integrations/facebook/meta/automation/workflowTemplates';
 import { facebookAutomationWorkers } from '@/integrations/facebook/meta/automation/workers';
 import { instagramConstants } from '@/integrations/instagram/meta/constants';
 import { instagramAutomationWorkers } from '@/integrations/instagram/meta/automation/workers';
@@ -46,6 +47,7 @@ export const automations = {
       ...discordConstants.triggers,
     ],
     bots: [...facebookConstants.bots, ...instagramConstants.bots],
+    workflowTemplates: [...facebookWorkflowTemplates],
     ai: {
       knowledgeSources: [
         {
@@ -53,6 +55,7 @@ export const automations = {
           label: 'Knowledge base articles',
           moduleName: 'knowledgebase',
           sourceSelector: 'remote-module',
+          supportsFullScope: true,
         },
       ],
     },
@@ -70,13 +73,6 @@ export const automations = {
     moduleName: 'automations',
     modules,
     methodName: TAutomationProducers.CHECK_CUSTOM_TRIGGER,
-    extractModuleName: (input) => input.moduleName,
-    generateModels,
-  }),
-  checkTargetMatch: createCoreModuleProducerHandler({
-    moduleName: 'automations',
-    modules,
-    methodName: TAutomationProducers.CHECK_TARGET_MATCH,
     extractModuleName: (input) => input.moduleName,
     generateModels,
   }),

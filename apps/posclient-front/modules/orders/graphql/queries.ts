@@ -26,6 +26,7 @@ export const orderFields = `
 export const orderItemBaseFields = `
  _id
  discountAmount
+ discountInfos
 `
 export const orderItemFields = `
     ${orderItemBaseFields}
@@ -334,6 +335,9 @@ const ordersHistory = gql`
       type
       createdAt
       modifiedAt
+      user {
+        email
+      }
       paidDate
     }
   }

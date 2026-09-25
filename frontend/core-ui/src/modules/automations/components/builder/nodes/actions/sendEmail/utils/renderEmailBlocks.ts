@@ -277,8 +277,8 @@ export const renderEmailBlocks = (blocks: readonly EmailEditorBlock[]) => {
       block.type === 'bulletListItem'
         ? 'ul'
         : block.type === 'numberedListItem'
-          ? 'ol'
-          : null;
+        ? 'ol'
+        : null;
 
     if (tag) {
       if (listTag !== tag) {

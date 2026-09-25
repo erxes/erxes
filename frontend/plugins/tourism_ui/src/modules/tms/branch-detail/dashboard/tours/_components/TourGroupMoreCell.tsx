@@ -43,6 +43,7 @@ export const tourGroupMoreColumn = (
   onAddTour?: (row: TourGroupRow) => void,
 ): ColumnDef<TourGroupRow> => ({
   id: 'more',
+  header: () => <RecordTable.ColumnSelector />,
   cell: (props) => <TourGroupMoreColumn {...props} onAddTour={onAddTour} />,
   size: 33,
 });

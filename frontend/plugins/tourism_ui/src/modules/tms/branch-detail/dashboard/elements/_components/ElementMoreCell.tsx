@@ -112,6 +112,7 @@ export const elementMoreColumn = (
   mainLanguage?: string,
 ): ColumnDef<IElement> => ({
   id: 'more',
+  header: () => <RecordTable.ColumnSelector />,
   cell: (props) => (
     <ElementMoreColumn
       {...props}

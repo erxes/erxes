@@ -185,6 +185,20 @@ export default async function userMiddleware(
         { _id: appInDb._id },
         { $set: { lastUsedAt: new Date() } },
       );
+
+      // Forward the app as an authenticated system principal so plugin
+      // resolvers behind login/permission wrappers accept machine calls.
+      // Mirrors the JWT path's setUserHeader below; without this a valid
+      // app token authenticates the request but every wrapped mutation
+      // still fails "Login required".
+      if (!req.user) {
+        req.user = {
+          _id: `app:${appInDb._id}`,
+          username: appInDb.name,
+          isOwner: appInDb.allowAllPermission === true,
+        } as any;
+        setUserHeader(req.headers, req.user);
+      }
     } catch (e) {
       console.error(e);
       debugAuth(req, 'app-token-error', {

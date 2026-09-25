@@ -5,6 +5,24 @@ import {
 } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
+const DIFF_TYPE_OPERATORS: Record<string, '$gt' | '$lt' | '$eq' | '$ne'> = {
+  gt: '$gt',
+  lt: '$lt',
+  eq: '$eq',
+  ne: '$ne',
+};
+
+const canViewSafeRemainderItemCounts = async (
+  checkPermission: IContext['checkPermission'],
+) => {
+  try {
+    await checkPermission('viewSafeRemainderItemCounts');
+    return true;
+  } catch {
+    return false;
+  }
+};
+
 export const generateFilterItems = async (subdomain: string, params: any) => {
   const { remainderId, productCategoryIds, status, diffType, searchValue } =
     params;
@@ -66,24 +84,10 @@ export const generateFilterItems = async (subdomain: string, params: any) => {
     query.status = status;
   }
 
-  if (diffType) {
-    const diffTypes = diffType.split(',');
-    const hasGt = diffTypes.includes('gt');
-    const hasLt = diffTypes.includes('lt');
-    const hasEq = diffTypes.includes('eq');
+  const diffOperator = DIFF_TYPE_OPERATORS[diffType];
 
-    let exprOp: string | undefined;
-    if (hasGt) {
-      exprOp = hasEq ? '$gte' : '$gt';
-    } else if (hasLt) {
-      exprOp = hasEq ? '$lte' : '$lt';
-    } else if (hasEq) {
-      exprOp = '$eq';
-    }
-
-    if (exprOp) {
-      query.$expr = { [exprOp]: ['$preCount', '$count'] };
-    }
+  if (diffOperator) {
+    query.$expr = { [diffOperator]: ['$count', '$preCount'] };
   }
 
   return query;
@@ -93,9 +97,16 @@ const safeRemainderItemsQueries = {
   safeRemainderItems: async (
     _root: any,
     params: any,
-    { models, subdomain }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) => {
-    const query: any = await generateFilterItems(subdomain, params);
+    await checkPermission('readSafeRemainders');
+    const canViewItemCounts =
+      await canViewSafeRemainderItemCounts(checkPermission);
+    const filterParams = canViewItemCounts
+      ? params
+      : { ...params, diffType: undefined };
+
+    const query: any = await generateFilterItems(subdomain, filterParams);
     return paginate(
       models.SafeRemainderItems.find(query).sort({ order: 1 }).lean(),
       params,
@@ -105,9 +116,16 @@ const safeRemainderItemsQueries = {
   safeRemainderItemsCount: async (
     _root: any,
     params: any,
-    { models, subdomain }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) => {
-    const query: any = await generateFilterItems(subdomain, params);
+    await checkPermission('readSafeRemainders');
+    const canViewItemCounts =
+      await canViewSafeRemainderItemCounts(checkPermission);
+    const filterParams = canViewItemCounts
+      ? params
+      : { ...params, diffType: undefined };
+
+    const query: any = await generateFilterItems(subdomain, filterParams);
     return models.SafeRemainderItems.find(query).countDocuments();
   },
 };

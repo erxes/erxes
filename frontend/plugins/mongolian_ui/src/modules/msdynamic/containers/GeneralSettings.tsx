@@ -27,10 +27,8 @@ export const GeneralSettings = () => {
         </div>
       }
     >
-      <section className="flex min-w-0 flex-1 flex-col">
-        <div className="min-h-0 flex-1 overflow-y-auto p-6">
-          <MSDynamicConfigTable />
-        </div>
+      <section className="flex h-full min-w-0 flex-1 flex-col overflow-hidden">
+        <MSDynamicConfigTable />
       </section>
       <EditMSDynamicConfig />
     </SettingsLayout>

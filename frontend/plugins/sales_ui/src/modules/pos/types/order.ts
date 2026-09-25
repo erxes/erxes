@@ -46,4 +46,5 @@ export interface IOrder {
   amount?: string;
   customer?: string;
   actions?: string;
+  returnDescription?: string;
 }

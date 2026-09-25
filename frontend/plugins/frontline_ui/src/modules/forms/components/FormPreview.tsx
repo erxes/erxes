@@ -23,7 +23,9 @@ import React, { useEffect, useState } from 'react';
 import { ControllerRenderProps, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { FORM_CONTENT_SCHEMA } from '../constants/formSchema';
+import { FORM_SETUP_STEPS } from '../constants/formStatesDefaultValues';
 import {
+  formSetupCalloutAtom,
   formSetupConfirmationAtom,
   formSetupContentAtom,
   formSetupGeneralAtom,
@@ -35,6 +37,7 @@ export const FormPreview = () => {
   const { t } = useTranslation('frontline');
   const formContent = useAtomValue(formSetupContentAtom);
   const formGeneral = useAtomValue(formSetupGeneralAtom);
+  const formCallout = useAtomValue(formSetupCalloutAtom);
   const formConfirmation = useAtomValue(formSetupConfirmationAtom);
   const [activeStep, setActiveStep] = useState<number>(1);
   const activeFormStep = useAtomValue(formSetupStepAtom);
@@ -50,14 +53,51 @@ export const FormPreview = () => {
       <div className="p-5">
         <InfoCard title={formGeneral.title}>
           <InfoCard.Content>
-            <p className="text-muted-foreground">{t('no-fields-to-preview')}</p>
+            <p className="text-muted-foreground">
+              {t('no-fields-to-preview', 'No fields to preview')}
+            </p>
           </InfoCard.Content>
         </InfoCard>
       </div>
     );
   }
 
-  if (activeFormStep === 3) {
+  if (activeFormStep === FORM_SETUP_STEPS.CALLOUT) {
+    return (
+      <div className="p-5">
+        <InfoCard title={formCallout.title || formGeneral.title}>
+          <InfoCard.Content>
+            {formCallout.skip ? (
+              <p className="text-muted-foreground">
+                {t(
+                  'callout-skipped',
+                  'The callout is skipped. The form opens on its first step.',
+                )}
+              </p>
+            ) : (
+              <>
+                {formCallout.body && (
+                  <p className="text-muted-foreground">{formCallout.body}</p>
+                )}
+                {formCallout.featuredImage && (
+                  <div className="relative rounded-md aspect-video">
+                    <img
+                      src={readImage(formCallout.featuredImage)}
+                      alt="callout"
+                      className="w-full h-auto object-cover"
+                    />
+                  </div>
+                )}
+                <Button>{formCallout.buttonText || t('next', 'Next')}</Button>
+              </>
+            )}
+          </InfoCard.Content>
+        </InfoCard>
+      </div>
+    );
+  }
+
+  if (activeFormStep === FORM_SETUP_STEPS.CONFIRMATION) {
     return (
       <div className="p-5">
         <InfoCard title={formConfirmation.title}>
@@ -87,7 +127,7 @@ export const FormPreview = () => {
     Object.entries(steps).map(([stepId, step]) => {
       const formSchema: Record<string, z.ZodType> = {};
       step.fields.forEach((field) => {
-        if (!field?.type) return;
+        if (!field?.id || !field.type) return;
 
         if (field.type === 'text' || field.type === 'textarea') {
           formSchema[field.id] = z.string();
@@ -113,7 +153,7 @@ export const FormPreview = () => {
     Object.entries(formContent.steps).map(([stepId, step]) => {
       const stepDefaultValues: Record<string, any> = {};
       step.fields.forEach((field) => {
-        if (!field?.type) return;
+        if (!field?.id || !field.type) return;
         if (
           field.type === 'text' ||
           field.type === 'textarea' ||
@@ -184,6 +224,15 @@ export const FormPreviewContent = ({
     resolver: zodResolver(schema),
     defaultValues: defaultValues,
   });
+
+  useEffect(() => {
+    Object.entries(defaultValues).forEach(([fieldId, value]) => {
+      if (form.getValues(fieldId) === undefined) {
+        form.setValue(fieldId, value, { shouldDirty: false });
+      }
+    });
+  }, [fields]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const formGeneral = useAtomValue(formSetupGeneralAtom);
   return (
     <Form {...form}>
@@ -193,8 +242,11 @@ export const FormPreviewContent = ({
         onSubmit={form.handleSubmit((values) => {
           if (stepsLength === step) {
             toast({
-              title: t('form-submitted'),
-              description: t('form-submitted-successfully'),
+              title: t('form-submitted', 'Form submitted'),
+              description: t(
+                'form-submitted-successfully',
+                'Form submitted successfully',
+              ),
               variant: 'success',
             });
             return;
@@ -219,7 +271,7 @@ export const FormPreviewContent = ({
           )}
           <InfoCard.Content className="mt-2">
             <div className="grid grid-cols-2 gap-4 mb-2">
-              {fields.map((erxesField) => {
+              {fields.filter((erxesField) => !!erxesField.id).map((erxesField) => {
                 return (
                   <Form.Field
                     key={erxesField.id}
@@ -234,6 +286,7 @@ export const FormPreviewContent = ({
                               value={field.value}
                               onChange={(value) => field.onChange(value)}
                               placeholder={erxesField.placeholder}
+                              thousandsSeparator=""
                             />
                             {erxesField.description && (
                               <Form.Description
@@ -339,7 +392,7 @@ export const FormPreviewContent = ({
                         erxesField.type === 'core:customer:sex'
                       ) {
                         return (
-                          <ErxesFormItem span={erxesField.span}>
+                          <ErxesFormItem span={2}>
                             <Form.Label>{erxesField.label}</Form.Label>
                             {erxesField.description && (
                               <Form.Description
@@ -352,7 +405,7 @@ export const FormPreviewContent = ({
                               <RadioGroup
                                 value={field.value}
                                 onValueChange={field.onChange}
-                                className="flex flex-col gap-2"
+                                className="grid-cols-2 gap-x-4"
                               >
                                 {erxesField.options.map((option) => {
                                   if (!option) return null;
@@ -375,7 +428,7 @@ export const FormPreviewContent = ({
 
                       if (erxesField.type === 'check') {
                         return (
-                          <ErxesFormItem span={erxesField.span}>
+                          <ErxesFormItem span={2}>
                             <Form.Label>{erxesField.label}</Form.Label>
                             {erxesField.description && (
                               <Form.Description
@@ -384,7 +437,7 @@ export const FormPreviewContent = ({
                                 }}
                               />
                             )}
-                            <div className="flex flex-col gap-2">
+                            <div className="grid grid-cols-2 gap-x-4 gap-y-2">
                               {erxesField.options.map((option) => {
                                 if (!option) return null;
                                 const checked = (
@@ -474,7 +527,8 @@ export const FormPreviewContent = ({
                                   variant={'outline'}
                                   size="sm"
                                 >
-                                  {erxesField.placeholder || t('upload-file')}
+                                  {erxesField.placeholder ||
+                                    t('upload-file', 'Upload file')}
                                 </Upload.Button>
                               </Upload.Root>
                             </Form.Control>
@@ -520,10 +574,12 @@ export const FormPreviewContent = ({
                 onClick={() => setActiveStep(step - 1)}
                 disabled={step === 1}
               >
-                {t('previous')}
+                {t('previous', 'Previous')}
               </Button>
               <Button type="submit">
-                {stepsLength > step ? t('next') : formGeneral.buttonText || 'Send'}
+                {stepsLength > step
+                  ? t('next', 'Next')
+                  : formGeneral.buttonText || 'Send'}
               </Button>
             </div>
           ) : (

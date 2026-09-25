@@ -22,7 +22,7 @@ export const checkMessageTrigger = async (subdomain, { target, config }) => {
   const payload = target?.payload || {};
   const { persistentMenuId, isBackBtn } = payload;
   if (persistentMenuId && isBackBtn) {
-    sendWorkerQueue('automations', 'playWait').add('playWait', {
+    sendWorkerQueue('automations', 'action').add('executePrevAction', {
       subdomain,
       data: {
         query: {
@@ -129,7 +129,7 @@ export const actionCreateMessage = async ({
       }
 
       const conversationMessage =
-        await models.FacebookConversationMessages.addMessage({
+        await models.InstagramConversationMessages.addMessage({
           conversationId: conversation._id,
           content: '<p>Bot Message</p>',
           internal: false,

@@ -51,7 +51,9 @@ const SelectAssigneeValue = ({
     );
   }
 
-  return <SelectMember.Value placeholder={placeholder || t('select-assignee')} />;
+  return (
+    <SelectMember.Value placeholder={placeholder || t('select-assignee')} />
+  );
 };
 
 const SelectTeamMemberContent = ({
@@ -204,10 +206,18 @@ const SelectAssigneeDealRoot = ({
 
   const handleValueChange = (value: string | string[] | null) => {
     if (id) {
+      let assignedUserIds: string[] = [];
+
+      if (Array.isArray(value)) {
+        assignedUserIds = value;
+      } else if (value !== null) {
+        assignedUserIds = [value];
+      }
+
       editDeals({
         variables: {
           _id: id,
-          assignedUserIds: [value],
+          assignedUserIds,
         },
       });
     }
@@ -229,9 +239,7 @@ const SelectAssigneeDealRoot = ({
       allowUnassigned
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
-        <SelectTriggerOperation
-          variant={variant === 'card' ? 'default' : variant}
-        >
+        <SelectTriggerOperation variant={variant === 'card' ? 'icon' : variant}>
           <SelectAssigneeValue variant={variant} />
         </SelectTriggerOperation>
         <SelectOperationContent variant={variant}>

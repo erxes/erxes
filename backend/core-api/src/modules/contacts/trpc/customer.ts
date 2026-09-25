@@ -1,6 +1,7 @@
 import { initTRPC } from '@trpc/server';
 import { z } from 'zod';
 import { CoreTRPCContext } from '~/init-trpc';
+import { agentMeta } from '~/utils/agentMeta';
 import { createOrUpdate } from '../utils';
 
 const t = initTRPC.context<CoreTRPCContext>().create();
@@ -8,6 +9,12 @@ const t = initTRPC.context<CoreTRPCContext>().create();
 export const customerRouter = t.router({
   customers: t.router({
     find: t.procedure
+      .meta(
+        agentMeta(
+          'Search customers (people) with a MongoDB-style filter. Input: { query: {...} }, e.g. { query: { primaryEmail: "a@b.com" } } or { query: { tagIds: ["tagId"] } }. Returns full customer documents. Use customers.findOne when you already know a unique key, and customers.count when you only need the total number.',
+          { module: 'contacts', action: 'contactsRead' },
+        ),
+      )
       .input(z.object({ query: z.any() }))
       .query(async ({ ctx, input }) => {
         const { query } = input;
@@ -16,41 +23,55 @@ export const customerRouter = t.router({
         return models.Customers.find(query).lean();
       }),
 
-    findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-      const query = input?.query || input?.selector || input;
-      const { models } = ctx;
+    findOne: t.procedure
+      .meta(
+        agentMeta(
+          'Get a single customer by a unique key: { _id }, { customerPrimaryEmail }, { customerPrimaryPhone }, or { customerCode }. Deleted customers are excluded automatically. Returns {} when nothing matches. Always call this before customers.updateCustomer to confirm the record and read its current values.',
+          { module: 'contacts', action: 'contactsRead' },
+        ),
+      )
+      .input(z.any())
+      .query(async ({ ctx, input }) => {
+        const query = input?.query || input?.selector || input;
+        const { models } = ctx;
 
-      if (!query || !Object.keys(query).length) {
-        return {};
-      }
+        if (!query || !Object.keys(query).length) {
+          return {};
+        }
 
-      const defaultFilter = { status: { $ne: 'deleted' } };
+        const defaultFilter = { status: { $ne: 'deleted' } };
 
-      if (query?.customerPrimaryEmail) {
-        defaultFilter['$or'] = [
-          { emails: { $in: [query.customerPrimaryEmail] } },
-          { primaryEmail: query.customerPrimaryEmail },
-        ];
-      }
+        if (query?.customerPrimaryEmail) {
+          defaultFilter['$or'] = [
+            { emails: { $in: [query.customerPrimaryEmail] } },
+            { primaryEmail: query.customerPrimaryEmail },
+          ];
+        }
 
-      if (query?.customerPrimaryPhone) {
-        defaultFilter['$or'] = [
-          { phones: { $in: [query.customerPrimaryPhone] } },
-          { primaryPhone: query.customerPrimaryPhone },
-        ];
-      }
+        if (query?.customerPrimaryPhone) {
+          defaultFilter['$or'] = [
+            { phones: { $in: [query.customerPrimaryPhone] } },
+            { primaryPhone: query.customerPrimaryPhone },
+          ];
+        }
 
-      if (query?.customerCode) {
-        defaultFilter['code'] = query.customerCode;
-      }
+        if (query?.customerCode) {
+          defaultFilter['code'] = query.customerCode;
+        }
 
-      if (query?._id) {
-        defaultFilter['_id'] = query._id;
-      }
-      return models.Customers.findOne(defaultFilter).lean();
-    }),
+        if (query?._id) {
+          defaultFilter['_id'] = query._id;
+        }
+        return models.Customers.findOne(defaultFilter).lean();
+      }),
 
     findActiveCustomers: t.procedure
+      .meta(
+        agentMeta(
+          'List active (non-deleted) customers with optional projection and pagination: { query, fields, skip, limit }, e.g. fields: { primaryEmail: 1, firstName: 1 } to return only those columns. Prefer customers.find unless you need field projection or pagination.',
+          { module: 'contacts', action: 'contactsRead' },
+        ),
+      )
       .input(
         z.object({
           query: z.any(),
@@ -84,6 +105,12 @@ export const customerRouter = t.router({
       }),
 
     count: t.procedure
+      .meta(
+        agentMeta(
+          'Count customers matching a MongoDB-style filter: { query: {...} }. Use this for "how many customers ..." questions instead of fetching full records.',
+          { module: 'contacts', action: 'contactsRead' },
+        ),
+      )
       .input(z.object({ query: z.any() }))
       .query(async ({ ctx, input }) => {
         const { query } = input;

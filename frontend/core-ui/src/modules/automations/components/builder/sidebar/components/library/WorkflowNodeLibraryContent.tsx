@@ -75,10 +75,7 @@ export const WorkflowNodeLibraryContent = () => {
         ))}
       </Command.Group>
 
-      <AlertDialog
-        open={!!removeTarget}
-        onOpenChange={handleDialogOpenChange}
-      >
+      <AlertDialog open={!!removeTarget} onOpenChange={handleDialogOpenChange}>
         <AlertDialog.Content>
           <AlertDialog.Header>
             <AlertDialog.Title>Delete template?</AlertDialog.Title>

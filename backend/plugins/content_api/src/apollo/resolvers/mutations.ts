@@ -1,4 +1,5 @@
 import { contentCmsMutations } from '@/cms/graphql/mutations/cms';
+import { cmsPostizMutations } from '@/cms/postiz/graphql';
 import { postMutations } from '@/cms/graphql/mutations/posts';
 import { contentCmsTagMutations } from '@/cms/graphql/mutations/tag';
 import { contentCmsCategoryMutations } from '@/cms/graphql/mutations/category';
@@ -10,6 +11,7 @@ import { webBuilderMutations } from '~/modules/webbuilder/graphql/resolvers/muta
 import { webPageMutations } from '~/modules/webbuilder/graphql/resolvers/mutations/webPage';
 
 export const mutations = {
+  ...cmsPostizMutations,
   ...webBuilderMutations,
   ...contentCmsMutations,
   ...postMutations,

@@ -83,6 +83,16 @@ const automationWorkflowSchema = z.object({
   position: automationNodePositionSchema,
 });
 
+// Canvas-only annotation: no type, no connections, never validated as a step.
+export const automationNoteSchema = z.object({
+  id: z.string(),
+  content: z.string().default(''),
+  position: automationNodePositionSchema,
+  width: z.number().optional(),
+  height: z.number().optional(),
+  color: z.string().optional(),
+});
+
 export const automationBuilderFormSchema = z.object({
   name: z.string(),
   status: z.string(z.enum(['active', 'draft'])).default('draft'),
@@ -95,6 +105,7 @@ export const automationBuilderFormSchema = z.object({
     message: 'A action is required to save this automation.',
   }),
   workflows: z.array(automationWorkflowSchema).optional(),
+  notes: z.array(automationNoteSchema).optional(),
 });
 
 const automationNodeStateSchema = z.discriminatedUnion('nodeType', [
@@ -115,6 +126,10 @@ export type TAutomationBuilderForm = z.infer<
   typeof automationBuilderFormSchema
 >;
 
+export type TAutomationBuilderSaveValues = TAutomationBuilderForm & {
+  acknowledgeDuplicate?: boolean;
+};
+
 export type TAutomationBuilderActions =
   TAutomationBuilderForm[AutomationNodesType.Actions];
 
@@ -123,3 +138,5 @@ export type TAutomationBuilderTriggers =
 
 export type TAutomationBuilderWorkflows =
   TAutomationBuilderForm[AutomationNodesType.Workflows];
+
+export type TAutomationBuilderNotes = TAutomationBuilderForm['notes'];

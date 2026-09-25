@@ -49,6 +49,7 @@ export const ReserveRemTable = () => {
       columns={reserveRemColumns}
       data={isInitialLoading ? [] : reserveRems || []}
       stickyColumns={['more', 'checkbox', 'product']}
+      tableId="accounting_inventory_reserve_remainders_record_table"
       className="m-3"
     >
       <RecordTable.Scroll>

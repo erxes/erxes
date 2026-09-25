@@ -67,6 +67,7 @@ export function getProductFormDefaultValues(
     vendorId: productDetail.vendorId || '',
     scopeBrandIds: productDetail.scopeBrandIds || [],
     unitPrice: productDetail.unitPrice ?? 0,
+    weight: productDetail.weight,
     attachment: toSingleAttachment(productDetail.attachment),
     attachmentMore: toAttachmentMore(productDetail.attachmentMore),
     videos: toAttachmentMore(productDetail.videos),

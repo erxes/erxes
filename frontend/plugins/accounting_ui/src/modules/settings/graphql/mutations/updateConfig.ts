@@ -35,3 +35,9 @@ export const ACCOUNTINGS_CONFIGS_EDIT = gql`
     }
   }
 `;
+
+export const ACCOUNTINGS_CONFIGS_REMOVE = gql`
+  mutation accountingsConfigsRemove($_id: String!) {
+    accountingsConfigsRemove(_id: $_id)
+  }
+`;

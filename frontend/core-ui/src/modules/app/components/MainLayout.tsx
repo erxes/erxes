@@ -1,9 +1,11 @@
 import { MainNavigationBar } from '@/navigation/components/MainNavigationBar';
+import { MobileNavigationTrigger } from '@/navigation/components/MobileNavigationTrigger';
 import { NavigationPanel } from '@/navigation/components/NavigationPanel';
 import { VisitedPageTabs } from '@/navigation/components/VisitedPageTabs';
 import { VisitedPageTabsOpenButton } from '@/navigation/components/VisitedPageTabsOpenButton';
 import { navigationSidebarOpenState } from '@/navigation/states/navigationPanelState';
 import { visitedPageTabsVisibleState } from '@/navigation/states/visitedPageTabsState';
+import { GlobalSearch } from '@/search/components/GlobalSearch';
 import { FloatingWidgets } from '@/widgets/components/FloatingWidgets';
 import { cn, Sidebar, useQueryState } from 'erxes-ui';
 import { useAtom, useAtomValue } from 'jotai';
@@ -24,10 +26,14 @@ const NavigationWorkspace = () => {
         {!isMobile && <NavigationPanel />}
         <div
           className={cn(
-            'relative flex min-w-0 flex-1 flex-col overflow-hidden peer-data-[state=collapsed]:[--navigation-panel-toggle-space:2.5rem]',
-            !tabsVisible && '[--visited-page-tabs-open-button-space:2.75rem]',
+            'relative flex min-w-0 flex-1 flex-col overflow-hidden peer-data-[state=collapsed]:[--navigation-panel-toggle-space:2.5rem] peer-data-[state=collapsed]:[--navigation-top-controls-space:2rem]',
+            isMobile &&
+              '[--navigation-panel-toggle-space:2.5rem] [--navigation-top-controls-space:2.25rem]',
+            !tabsVisible &&
+              '[--visited-page-tabs-open-button-space:2.75rem] [--navigation-top-controls-space:2.25rem]',
           )}
         >
+          <MobileNavigationTrigger />
           <VisitedPageTabsOpenButton />
           <FloatingWidgets />
           <Outlet />
@@ -53,9 +59,10 @@ export const DefaultLayout = () => {
       onOpenChange={setSidebarOpen}
       sidebarKeyboardShortcut={false}
       sidebarWidth="13rem"
-      sidebarWidthIcon="3.5rem"
+      sidebarWidthIcon="3rem"
     >
       <VisitedPageTabs />
+      <GlobalSearch />
       <Sidebar
         collapsible="icon"
         variant="sidebar"

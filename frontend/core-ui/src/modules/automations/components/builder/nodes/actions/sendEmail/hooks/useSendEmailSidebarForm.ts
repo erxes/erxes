@@ -34,7 +34,9 @@ export const useSendEmailSidebarForm = (
   const form = useForm<TAutomationSendEmailConfig>({
     resolver: zodResolver(sendEmailConfigFormSchema),
     defaultValues: {
+      sender: config?.sender || '',
       fromEmailPlaceHolder: config?.fromEmailPlaceHolder || '',
+      replyToEmail: config?.replyToEmail || '',
       toEmailsPlaceHolders: config?.toEmailsPlaceHolders || '',
       ccEmailsPlaceHolders: config?.ccEmailsPlaceHolders || '',
       subject: config?.subject || '',

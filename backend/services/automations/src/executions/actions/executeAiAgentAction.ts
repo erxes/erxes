@@ -1,4 +1,5 @@
 import {
+  buildAiKnowledgeTool,
   isAiClassificationResultEmpty,
   loadAiActionMemory,
   loadAiConversationState,
@@ -13,6 +14,7 @@ import {
 import { generateModels } from '../../connectionResolver';
 import { buildAiAgentTools } from './aiAgentTools';
 import {
+  AUTOMATION_ERROR_CODES,
   getContentType,
   getModuleName,
   getPluginName,
@@ -22,6 +24,42 @@ import {
   TAutomationProducers,
 } from 'erxes-api-shared/core-modules';
 import { sendCoreModuleProducer } from 'erxes-api-shared/utils';
+import { AutomationActionError } from '../errorCodes';
+
+// Leaves room for the failure to be reported before the expiry job claims the
+// action as dropped.
+const DEFERRED_TIMEOUT_MARGIN_MS = 5000;
+
+/**
+ * A deferred action holds no request open, so the interactive timeout stops
+ * applying: the provider gets whatever is left of the action's own deadline.
+ */
+const applyDeferredTimeout = <T extends { runtime: { timeoutMs?: number } }>(
+  agent: T,
+  execution: IAutomationExecutionDocument,
+  actionId: string,
+): T => {
+  const deferred = (execution.actions || []).find(
+    (item) =>
+      item.actionId === actionId &&
+      (item.status === 'standby' || item.status === 'queued'),
+  );
+
+  if (!deferred?.expiresAt) {
+    return agent;
+  }
+
+  const budgetMs =
+    new Date(deferred.expiresAt).getTime() -
+    Date.now() -
+    DEFERRED_TIMEOUT_MARGIN_MS;
+
+  if (budgetMs <= (agent.runtime.timeoutMs || 0)) {
+    return agent;
+  }
+
+  return { ...agent, runtime: { ...agent.runtime, timeoutMs: budgetMs } };
+};
 
 type TAiAgentActionWorkerResponse = {
   result: TAiActionExecutionResult;
@@ -59,26 +97,48 @@ export const executeAiAgentAction = async (
     const aiAgentId = parsedActionConfig.aiAgentId;
 
     if (!aiAgentId) {
-      throw new Error('AI action config is missing aiAgentId.');
+      throw new AutomationActionError(
+        'AI action config is missing aiAgentId.',
+        AUTOMATION_ERROR_CODES.CONFIG_INVALID,
+      );
     }
 
     const agent = await models.AiAgents.findById({ _id: aiAgentId }).lean();
 
     if (!agent) {
-      throw new Error('AI Agent not found.');
+      throw new AutomationActionError(
+        'AI Agent not found.',
+        AUTOMATION_ERROR_CODES.NOT_FOUND,
+      );
     }
-    const tools = await buildAiAgentTools({
+    const parsedAgent = applyDeferredTimeout(
+      parseAiAgentInput(agent),
+      execution,
+      action.id,
+    );
+    // Two registries meet here: action tools come from the canvas node, the
+    // knowledge tool follows the agent wherever it is used.
+    const knowledgeTool =
+      parsedActionConfig.goalType === 'generateText'
+        ? buildAiKnowledgeTool({
+            models,
+            agentId: aiAgentId,
+            agent: parsedAgent,
+          })
+        : null;
+    const actionTools = await buildAiAgentTools({
       subdomain,
       models,
       execution,
       actionConfig: parsedActionConfig,
     });
+    const tools = [...(knowledgeTool ? [knowledgeTool] : []), ...actionTools];
 
     const timerLabel = `runAiAction:${execution._id}:${action.id}`;
     console.time(timerLabel);
     const response = await runAiAction({
       subdomain,
-      agent: parseAiAgentInput(agent),
+      agent: parsedAgent,
       agentId: aiAgentId,
       models,
       actionConfig: parsedActionConfig,
@@ -90,7 +150,10 @@ export const executeAiAgentAction = async (
     });
     console.timeEnd(timerLabel);
     if (!response) {
-      throw new Error('AI agent returned an empty response.');
+      throw new AutomationActionError(
+        'AI agent returned an empty response.',
+        AUTOMATION_ERROR_CODES.AI_AGENT_FAILED,
+      );
     }
 
     const attributesEmpty = isAiClassificationResultEmpty(response.result);
@@ -120,7 +183,17 @@ export const executeAiAgentAction = async (
       attributesEmpty,
     };
   } catch (error) {
-    throw new Error(`AI Agent Action failed: ${error.message}`);
+    // Keep an already classified failure (config, not found) as it is instead
+    // of flattening every cause into one code.
+    if (error instanceof AutomationActionError) {
+      throw error;
+    }
+
+    throw new AutomationActionError(
+      `AI Agent Action failed: ${error.message}`,
+      AUTOMATION_ERROR_CODES.AI_AGENT_FAILED,
+      error.result,
+    );
   }
 };
 

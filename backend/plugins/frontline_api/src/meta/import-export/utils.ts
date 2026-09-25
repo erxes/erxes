@@ -1,10 +1,49 @@
-import { ImportHeaderDefinition } from 'erxes-api-shared/core-modules';
-import { getRealIdFromElk, sendTRPCMessage } from 'erxes-api-shared/utils';
+import {
+  collectPropertyDataFromColumns,
+  ImportHeaderDefinition,
+  propertyDataPath,
+  toPropertyGroupKey,
+  toPropertyRowColumnKey,
+} from 'erxes-api-shared/core-modules';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { IModels } from '~/connectionResolvers';
 
 export const TICKET_CONTENT_TYPE = 'frontline:ticket';
 
+const MAX_ROW_COLUMNS = 20;
+
+const countRepeatingGroupRows = async (
+  models: IModels | undefined,
+  groupIds: string[],
+): Promise<Map<string, number>> => {
+  const counts = new Map(groupIds.map((groupId) => [groupId, 1]));
+
+  if (!models?.Ticket || !groupIds.length) {
+    return counts;
+  }
+
+  for (const groupId of groupIds) {
+    const path = propertyDataPath(toPropertyGroupKey(groupId));
+
+    const [largest] = await models.Ticket.aggregate([
+      { $match: { [path]: { $type: 'array' } } },
+      { $project: { size: { $size: `$${path}` } } },
+      { $sort: { size: -1 } },
+      { $limit: 1 },
+    ]);
+
+    counts.set(
+      groupId,
+      Math.min(Math.max(Number(largest?.size) || 1, 1), MAX_ROW_COLUMNS),
+    );
+  }
+
+  return counts;
+};
+
 export const getTicketCustomPropertyHeaders = async (
   subdomain: string,
+  models?: IModels,
 ): Promise<ImportHeaderDefinition[]> => {
   const fields: any[] = await sendTRPCMessage({
     subdomain,
@@ -41,15 +80,23 @@ export const getTicketCustomPropertyHeaders = async (
 
   const groupById = new Map(groups.map((g) => [String(g._id), g]));
 
-  return fields.map((field) => {
-    const group = field.groupId ? groupById.get(String(field.groupId)) : null;
-    const fieldId = getRealIdFromElk(String(field._id));
-    const label = group?.name ? `${group.name} / ${field.name}` : field.name;
-    const uniqueLabel = field.code ? `${label} [${field.code}]` : label;
-    const key = `propertiesData.${fieldId}`;
+  const rowCounts = await countRepeatingGroupRows(
+    models,
+    groups
+      .filter((group) => group.configs?.isMultiple)
+      .map((group) => String(group._id)),
+  );
 
-    return {
-      label: uniqueLabel,
+  return fields.flatMap((field) => {
+    const group = field.groupId ? groupById.get(String(field.groupId)) : null;
+    const fieldId = String(field._id);
+    const groupId = group ? String(group._id) : '';
+
+    const buildHeader = (
+      label: string,
+      key: string,
+    ): ImportHeaderDefinition => ({
+      label: field.code ? `${label} [${field.code}]` : label,
       key,
       aliases: [
         label,
@@ -59,7 +106,25 @@ export const getTicketCustomPropertyHeaders = async (
         key,
       ].filter(Boolean),
       type: 'customProperty' as const,
-    };
+    });
+
+    if (group?.configs?.isMultiple) {
+      const rows = rowCounts.get(groupId) || 1;
+
+      return Array.from({ length: rows }, (_, offset) =>
+        buildHeader(
+          `${group.name} ${offset + 1} / ${field.name}`,
+          toPropertyRowColumnKey(groupId, fieldId, offset + 1),
+        ),
+      );
+    }
+
+    return [
+      buildHeader(
+        group?.name ? `${group.name} / ${field.name}` : field.name,
+        propertyDataPath(fieldId),
+      ),
+    ];
   });
 };
 
@@ -67,19 +132,7 @@ export const extractTicketPropertiesData = async (
   subdomain: string,
   doc: Record<string, any>,
 ): Promise<void> => {
-  const propertiesData: Record<string, any> = {};
-
-  for (const key of Object.keys(doc)) {
-    if (!key.startsWith('propertiesData.')) continue;
-
-    const fieldId = key.replace('propertiesData.', '');
-    const value = doc[key];
-    delete doc[key];
-
-    if (value !== undefined && value !== null && value !== '') {
-      propertiesData[fieldId] = value;
-    }
-  }
+  const propertiesData = collectPropertyDataFromColumns(doc);
 
   if (!Object.keys(propertiesData).length) return;
 

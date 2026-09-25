@@ -52,12 +52,15 @@ const currentConfig = gql`
         companyName
         ebarimtUrl
         companyRD
+        headerText
         footerText
         hasCopy
         hasSumQty
         isCleanTaxPrice
       }
       saveRemainder
+      serviceCharge
+      serviceChargeApplicableProductId
     }
   }
 `

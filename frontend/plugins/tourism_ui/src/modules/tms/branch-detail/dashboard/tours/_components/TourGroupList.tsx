@@ -14,6 +14,28 @@ import { flattenGroups } from './TourGroupUtils';
 import { TourEditForm } from './TourEditForm';
 import { TourSideTab } from './TourOrdersSidePanel';
 
+function TourGroupTableContent({
+  loading,
+  length,
+}: Readonly<{
+  loading: boolean;
+  length: number;
+}>) {
+  return (
+    <RecordTableTree id="tour-groups-list" ordered length={length}>
+      <RecordTable.Scroll>
+        <RecordTable>
+          <RecordTable.Header />
+          <RecordTable.Body>
+            {loading && <RecordTable.RowSkeleton rows={30} />}
+            <RecordTable.RowList Row={RecordTableTree.Row} />
+          </RecordTable.Body>
+        </RecordTable>
+      </RecordTable.Scroll>
+    </RecordTableTree>
+  );
+}
+
 export const TourGroupList = ({
   branchId,
   branchLanguages,
@@ -41,19 +63,22 @@ export const TourGroupList = ({
   const groupedTours = useMemo(() => flattenGroups(groups), [groups]);
   const columns = useMemo(
     () =>
-      GroupedTourColumns({
-        onEdit: (id) => setEditTourId(id),
-        onAddTour: (row) => {
-          if (!row.groupCode || !row.templateTourId) {
-            return;
-          }
+      GroupedTourColumns(
+        {
+          onEdit: (id) => setEditTourId(id),
+          onAddTour: (row) => {
+            if (!row.groupCode || !row.templateTourId) {
+              return;
+            }
 
-          setAddTourContext({
-            groupCode: row.groupCode,
-            templateTourId: row.templateTourId,
-          });
+            setAddTourContext({
+              groupCode: row.groupCode,
+              templateTourId: row.templateTourId,
+            });
+          },
         },
-      }, t),
+        t,
+      ),
     [t],
   );
   const tableOptions: TableOptions<TourGroupRow> = useMemo(
@@ -83,22 +108,9 @@ export const TourGroupList = ({
       className="h-full"
       stickyColumns={['more', 'checkbox', 'name']}
       tableOptions={tableOptions}
+      tableId="tourism_tour_groups_record_table"
     >
-      <RecordTableTree
-        id="tour-groups-list"
-        ordered
-        length={groupedTours.length}
-      >
-        <RecordTable.Scroll>
-          <RecordTable>
-            <RecordTable.Header />
-            <RecordTable.Body>
-              {loading && <RecordTable.RowSkeleton rows={30} />}
-              <RecordTable.RowList Row={RecordTableTree.Row} />
-            </RecordTable.Body>
-          </RecordTable>
-        </RecordTable.Scroll>
-      </RecordTableTree>
+      <TourGroupTableContent loading={loading} length={groupedTours.length} />
       <TourCommandBar
         branchId={branchId}
         branchLanguages={branchLanguages}

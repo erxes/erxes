@@ -32,6 +32,7 @@ export const TagsRecordTable = ({
       data={tags || []}
       className="h-full"
       stickyColumns={['more', 'checkbox', 'name']}
+      tableId="content_tags_record_table"
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}
