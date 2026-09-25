@@ -992,6 +992,9 @@ export const conversationMutations = {
     { models, checkPermission }: IContext,
   ) {
     await checkPermission('conversationEditCustomFields');
+    if (propertiesData == null && customFieldsData == null) {
+      throw new Error('propertiesData or customFieldsData is required');
+    }
     await models.Conversations.updateConversation(_id, { propertiesData: propertiesData ?? customFieldsData });
     return models.Conversations.getConversation(_id);
   },
