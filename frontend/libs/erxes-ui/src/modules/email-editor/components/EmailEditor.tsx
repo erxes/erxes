@@ -1,5 +1,3 @@
-import '@maily-to/core/style.css';
-
 import { Editor as MailyEditor } from '@maily-to/core';
 import {
   getVariableSuggestions,
