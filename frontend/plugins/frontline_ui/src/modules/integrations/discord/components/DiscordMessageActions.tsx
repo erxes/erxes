@@ -1,4 +1,4 @@
-import { type ReactNode, useCallback, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useLazyQuery, useMutation } from '@apollo/client';
 import {
   Button,
@@ -8,43 +8,22 @@ import {
   Tooltip,
   toast,
   useConfirm,
+  stripHtml,
 } from 'erxes-ui';
 import { IconLink, IconPencil, IconTrash } from '@tabler/icons-react';
-import { DISCORD_CONVERSATION_CHANNEL } from '../graphql/queries';
+import { DISCORD_CONVERSATION_CHANNEL } from '@/integrations/discord/graphql/queries';
 import {
   DISCORD_DELETE_MESSAGE,
   DISCORD_EDIT_MESSAGE,
-} from '../graphql/mutations';
-
-const stripToText = (html?: string): string => {
-  if (!html) {
-    return '';
-  }
-  const doc = new DOMParser().parseFromString(html, 'text/html');
-  return (doc.body.textContent || '').trim();
-};
-
-const copyToClipboard = async (value: string, success: string) => {
-  try {
-    await navigator.clipboard.writeText(value);
-    toast({ title: success, variant: 'default' });
-  } catch {
-    toast({ title: 'Failed to copy', variant: 'destructive' });
-  }
-};
-
-type DiscordConversationChannel = {
-  channelId?: string;
-  guildId?: string;
-};
-
-type MessageActionButtonProps = {
-  label: string;
-  tooltip: string;
-  icon: ReactNode;
-  onClick: () => void;
-  destructive?: boolean;
-};
+} from '@/integrations/discord/graphql/mutations';
+import type {
+  MessageActionButtonProps,
+  OwnMessageActionsProps,
+  EditMessageDialogActionsProps,
+  EditMessageDialogProps,
+  DiscordConversationChannel,
+} from '@/integrations/discord/types/messageActions';
+import { copyToClipboard } from '@/integrations/discord/utils/messageActions';
 
 const MessageActionButton = ({
   label,
@@ -74,11 +53,6 @@ const MessageActionButton = ({
   </Tooltip>
 );
 
-type OwnMessageActionsProps = {
-  onEdit: () => void;
-  onDelete: () => void;
-};
-
 const OwnMessageActions = ({ onEdit, onDelete }: OwnMessageActionsProps) => (
   <>
     <MessageActionButton
@@ -97,12 +71,6 @@ const OwnMessageActions = ({ onEdit, onDelete }: OwnMessageActionsProps) => (
   </>
 );
 
-type EditMessageDialogActionsProps = {
-  editing: boolean;
-  saveDisabled: boolean;
-  onSave: () => void;
-};
-
 const EditMessageDialogActions = ({
   editing,
   saveDisabled,
@@ -120,15 +88,6 @@ const EditMessageDialogActions = ({
     </Button>
   </Dialog.Footer>
 );
-
-type EditMessageDialogProps = {
-  open: boolean;
-  draft: string;
-  editing: boolean;
-  onOpenChange: (open: boolean) => void;
-  onDraftChange: (draft: string) => void;
-  onSave: () => void;
-};
 
 const EditMessageDialog = ({
   open,
@@ -172,7 +131,7 @@ export const DiscordMessageActions = ({
   isOwnMessage?: boolean;
 }) => {
   const { confirm } = useConfirm();
-  const text = stripToText(content);
+  const text = stripHtml(content);
 
   const [editOpen, setEditOpen] = useState(false);
   const [draft, setDraft] = useState('');

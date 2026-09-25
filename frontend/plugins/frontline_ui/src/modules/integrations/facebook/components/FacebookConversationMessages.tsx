@@ -1,37 +1,50 @@
 import { InboxMessagesContainer } from '@/inbox/components/InboxMessagesContainer';
-import { useFacebookConversationMessages } from '../hooks/useFacebookConversationMessages';
-import { FbMessengerMessageContext } from '../contexts/FbMessengerMessageContext';
-import { FbMessengerMessage } from './FbMessengerMessages';
+import { useFacebookConversationMessages } from '@/integrations/facebook/hooks/useFacebookConversationMessages';
+import { useQueryState } from 'erxes-ui';
+import { FacebookMessageRow } from '@/integrations/facebook/components/FacebookMessageRow';
+import { FacebookReplyWindowContext } from '@/integrations/facebook/contexts/FacebookReplyWindowContext';
+import { FACEBOOK_HUMAN_AGENT_WINDOW_HOURS } from '@/integrations/facebook/constants/FbMessageWindow';
+import { differenceInHours } from 'date-fns';
 
 export const FacebookConversationMessages = () => {
-  const { facebookConversationMessages, handleFetchMore, loading } =
+  const [conversationId] = useQueryState<string>('conversationId');
+  const { facebookConversationMessages, handleFetchMore, loading, totalCount } =
     useFacebookConversationMessages();
+  const lastCustomerMessage = [...(facebookConversationMessages || [])]
+    .reverse()
+    .find(
+      (message) => message.customerId && !message.internal && !message.botData,
+    );
+  const lastMessage =
+    facebookConversationMessages?.[facebookConversationMessages.length - 1];
+  const referenceDate =
+    lastCustomerMessage?.createdAt || lastMessage?.createdAt;
+  const replyWindowExpired = Boolean(
+    referenceDate &&
+      differenceInHours(new Date(), new Date(referenceDate)) >=
+        FACEBOOK_HUMAN_AGENT_WINDOW_HOURS,
+  );
 
   return (
-    <InboxMessagesContainer
-      fetchMore={handleFetchMore}
-      messagesLength={facebookConversationMessages?.length || 0}
-      totalCount={facebookConversationMessages?.length || 0}
-      loading={loading}
-    >
-      {facebookConversationMessages?.map((message) => (
-        <FbMessengerMessageContext.Provider
-          value={{
-            ...message,
-            previousMessage:
-              facebookConversationMessages[
-                facebookConversationMessages.indexOf(message) - 1
-              ],
-            nextMessage:
-              facebookConversationMessages[
-                facebookConversationMessages.indexOf(message) + 1
-              ],
-          }}
-          key={message._id}
-        >
-          <FbMessengerMessage />
-        </FbMessengerMessageContext.Provider>
-      ))}
-    </InboxMessagesContainer>
+    <FacebookReplyWindowContext.Provider value={replyWindowExpired}>
+      <InboxMessagesContainer
+        key={conversationId ?? undefined}
+        fetchMore={handleFetchMore}
+        messagesLength={facebookConversationMessages?.length || 0}
+        totalCount={totalCount}
+        loading={loading}
+      >
+        {facebookConversationMessages?.map((message, index) => {
+          return (
+            <FacebookMessageRow
+              key={message._id}
+              message={message}
+              previousMessage={facebookConversationMessages[index - 1]}
+              nextMessage={facebookConversationMessages[index + 1]}
+            />
+          );
+        })}
+      </InboxMessagesContainer>
+    </FacebookReplyWindowContext.Provider>
   );
 };

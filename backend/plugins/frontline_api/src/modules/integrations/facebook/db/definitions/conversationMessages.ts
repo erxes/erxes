@@ -24,4 +24,9 @@ export const conversationMessageSchema = new Schema({
   botId: { type: String, label: 'Bot', optional: true },
   botData: { type: Object, optional: true },
   source: { type: Object, optional: true },
+  messageKind: { type: String, optional: true },
+  providerData: { type: Schema.Types.Mixed, optional: true },
+  replyTo: { type: Schema.Types.Mixed, optional: true },
+  expiresAt: { type: Date, optional: true },
+  reactions: { type: [Schema.Types.Mixed], optional: true },
 });

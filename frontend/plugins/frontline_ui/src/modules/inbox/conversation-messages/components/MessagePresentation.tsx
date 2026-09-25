@@ -317,13 +317,13 @@ export const StickerCard = ({ sticker }: { sticker: IMessageSticker }) => {
   }
 
   return (
-    <div className="mt-1 max-w-48">
+    <div className="mt-1 max-w-48 bg-transparent">
       <InboxImage
         src={sticker.url}
         alt={sticker.name}
         loading="lazy"
         onError={() => setFailed(true)}
-        className="max-h-48 max-w-48 object-contain"
+        className="max-h-48 max-w-48 rounded-lg bg-transparent object-contain"
       />
       <div className="mt-1 truncate text-xs text-muted-foreground">
         {sticker.name}

@@ -19,6 +19,7 @@ import { IConversation } from '@/inbox/types/Conversation';
 import { IIntegration } from '@/integrations/types/Integration';
 import { MessageInputIntegrationWrapper } from '@/integrations/components/MessageInputIntegrationWrapper';
 import { messageExtraInfoState } from '../states/messageExtraInfoState';
+import { messageReplyState } from '../states/messageReplyState';
 import { useEffect } from 'react';
 import { ConversationSideWidget } from '@/inbox/conversations/conversation-detail/components/ConversationSideWidget';
 import { useCompactWidth } from '@/inbox/hooks/useCompactWidth';
@@ -37,6 +38,7 @@ export const ConversationDetail = () => {
   );
   const activeConversationCandidate = useAtomValue(activeConversationState);
   const setExtraInfo = useSetAtom(messageExtraInfoState);
+  const setReplyTo = useSetAtom(messageReplyState);
 
   const location = useLocation();
   const isInInbox = location.pathname.includes('my-inbox');
@@ -69,7 +71,8 @@ export const ConversationDetail = () => {
       return;
     }
     setExtraInfo(undefined);
-  }, [conversationId, setExtraInfo]);
+    setReplyTo(null);
+  }, [conversationId, setExtraInfo, setReplyTo]);
 
   if (!conversationId) {
     return <NoConversationSelected />;

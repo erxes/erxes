@@ -1,10 +1,10 @@
+import { CopyAttachmentAction } from '@/inbox/conversation-messages/components/CopyAttachmentAction';
 import { useMutation } from '@apollo/client';
 import {
   Button,
+  CopyText,
   DropdownMenu,
-  Spinner,
   Tooltip,
-  cn,
   stripHtml,
   toast,
 } from 'erxes-ui';
@@ -12,14 +12,12 @@ import {
   IconArrowBackUp,
   IconCopy,
   IconDots,
-  IconMoodSmile,
   IconPin,
   IconPinnedOff,
   IconShare3,
 } from '@tabler/icons-react';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { useState } from 'react';
-
+import { useContext, useState } from 'react';
 import { useConversationContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationContext';
 import { messageReplyState } from '@/inbox/conversations/conversation-detail/states/messageReplyState';
 import { isSlashMenuOpenState } from '@/inbox/conversations/conversation-detail/states/isInternalState';
@@ -33,58 +31,22 @@ import {
   INSTAGRAM_REACTION_MESSAGE_KINDS,
   NATIVE_REPLY_KINDS,
   REACTIONS,
-  REACTION_EMOJI,
   REACTION_KINDS,
-  type Reaction,
 } from '@/inbox/conversation-messages/constants/messageActions';
 import { getProviderMessageId } from '@/inbox/conversation-messages/utils/message';
-import { useMessageReaction } from '@/inbox/conversation-messages/hooks/useMessageReaction';
-
-const textOf = (message: IMessage) =>
-  stripHtml(message.content) ||
-  message.providerData?.previewText ||
-  message.attachments?.[0]?.name ||
-  'Attachment';
-
-const previewOf = (message: IMessage) => textOf(message).slice(0, 120);
-
-const ActionButton = ({
-  label,
-  disabled,
-  children,
-  onClick,
-}: {
-  label: string;
-  disabled?: boolean;
-  children: React.ReactNode;
-  onClick: () => void;
-}) => (
-  <Tooltip>
-    <Tooltip.Trigger asChild>
-      <span>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          disabled={disabled}
-          aria-label={label}
-          onClick={onClick}
-          className="size-8 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
-        >
-          {children}
-        </Button>
-      </span>
-    </Tooltip.Trigger>
-    <Tooltip.Content>{label}</Tooltip.Content>
-  </Tooltip>
-);
+import { previewOf } from '@/inbox/conversation-messages/utils/messageActionText';
+import { ReactionMenu } from '@/inbox/conversation-messages/components/MessageReactionMenu';
+import { ActionButton } from '@/inbox/conversation-messages/components/MessageActionButton';
+import { FacebookReplyWindowContext } from '@/integrations/facebook/contexts/FacebookReplyWindowContext';
 
 export const MessageActions = ({
   message,
   additionalActions,
+  onReply,
 }: {
   message: IMessage;
   additionalActions?: React.ReactNode;
+  onReply?: () => void;
 }) => {
   const { _id: conversationId, integration } = useConversationContext();
   const kind = integration?.kind || '';
@@ -92,6 +54,7 @@ export const MessageActions = ({
   const setReply = useSetAtom(messageReplyState);
   const currentUser = useAtomValue(currentUserState);
   const isSlashMenuOpen = useAtomValue(isSlashMenuOpenState);
+  const facebookReplyWindowExpired = useContext(FacebookReplyWindowContext);
   const [forwardOpen, setForwardOpen] = useState(false);
   const [pinMessage, { loading: pinning }] = useMutation(
     CONVERSATION_MESSAGE_PIN,
@@ -103,7 +66,7 @@ export const MessageActions = ({
     },
   );
   const preview = previewOf(message);
-  const messageText = textOf(message);
+  const messageText = stripHtml(message.content).trim();
   const isInstagram = kind === IntegrationType.INSTAGRAM_MESSENGER;
   const isInstagramReactionTarget =
     !isInstagram ||
@@ -124,11 +87,16 @@ export const MessageActions = ({
     (reaction: IMessageReaction) => reaction.senderId === currentUser?._id,
   )?.reaction;
   const isDiscord = kind === IntegrationType.DISCORD_MESSENGER;
-  const canReplyOrForward = kind !== 'lead';
+  const showReply =
+    kind !== 'lead' &&
+    (kind !== IntegrationType.FACEBOOK_MESSENGER || Boolean(providerMessageId));
+  const canReply = showReply && !facebookReplyWindowExpired;
+  const canForward = kind !== 'lead' && kind !== IntegrationType.FACEBOOK_POST;
   const showActionsInline = INLINE_ACTION_KINDS.has(kind);
   const isPinned = Boolean(message.extraData?.discordPinned);
 
   const handleReply = () => {
+    if (!canReply) return;
     let authorName = 'Customer';
     if (message.userId) {
       authorName = 'You';
@@ -150,6 +118,7 @@ export const MessageActions = ({
       attachment,
       nativeReply: NATIVE_REPLY_KINDS.has(kind) && Boolean(providerMessageId),
     });
+    onReply?.();
   };
 
   const togglePin = async () => {
@@ -170,15 +139,6 @@ export const MessageActions = ({
         }`,
         variant: 'destructive',
       });
-    }
-  };
-
-  const copy = async () => {
-    try {
-      await navigator.clipboard.writeText(messageText);
-      toast({ title: 'Message copied', variant: 'default' });
-    } catch {
-      toast({ title: 'Failed to copy message', variant: 'destructive' });
     }
   };
 
@@ -203,20 +163,46 @@ export const MessageActions = ({
             reactions={availableReactions}
           />
         )}
-        {canReplyOrForward && (
-          <ActionButton label="Reply" onClick={handleReply}>
+        {showReply && (
+          <ActionButton
+            label={
+              facebookReplyWindowExpired
+                ? 'Facebook reply window expired'
+                : 'Reply'
+            }
+            disabled={!canReply}
+            onClick={handleReply}
+          >
             <IconArrowBackUp className="size-4" />
           </ActionButton>
         )}
         {additionalActions}
         {showActionsInline ? (
           <>
-            <ActionButton label="Forward" onClick={() => setForwardOpen(true)}>
-              <IconShare3 className="size-4" />
-            </ActionButton>
-            <ActionButton label="Copy text" disabled={!preview} onClick={copy}>
-              <IconCopy className="size-4" />
-            </ActionButton>
+            {canForward && (
+              <ActionButton
+                label="Forward"
+                onClick={() => setForwardOpen(true)}
+              >
+                <IconShare3 className="size-4" />
+              </ActionButton>
+            )}
+            {message.attachments?.map((attachment, index) => (
+              <CopyAttachmentAction
+                key={`${attachment.url}-${index}`}
+                attachment={attachment}
+                inline
+              />
+            ))}
+            {messageText && (
+              <CopyText
+                value={messageText}
+                className="size-8 justify-center rounded-md text-muted-foreground hover:bg-muted [&>span]:gap-0 [&>span]:text-[0px]"
+              >
+                <IconCopy className="size-4" />
+                <span className="sr-only">Copy text</span>
+              </CopyText>
+            )}
           </>
         ) : (
           <div className="ml-0.5 border-l border-border/70 pl-0.5">
@@ -237,7 +223,7 @@ export const MessageActions = ({
                 sideOffset={6}
                 className="min-w-44 rounded-xl p-1 shadow-lg"
               >
-                {canReplyOrForward && (
+                {canForward && (
                   <DropdownMenu.Item
                     className="rounded-lg"
                     onClick={() => setForwardOpen(true)}
@@ -246,14 +232,21 @@ export const MessageActions = ({
                     Forward
                   </DropdownMenu.Item>
                 )}
-                <DropdownMenu.Item
-                  className="rounded-lg"
-                  disabled={!preview}
-                  onClick={copy}
-                >
-                  <IconCopy className="size-4" />
-                  Copy text
-                </DropdownMenu.Item>
+                {message.attachments?.map((attachment, index) => (
+                  <CopyAttachmentAction
+                    key={`${attachment.url}-${index}`}
+                    attachment={attachment}
+                    inline={false}
+                  />
+                ))}
+                {messageText && (
+                  <DropdownMenu.Item asChild className="rounded-lg">
+                    <CopyText value={messageText} className="w-full">
+                      <IconCopy className="size-4" />
+                      Copy text
+                    </CopyText>
+                  </DropdownMenu.Item>
+                )}
                 {isDiscord && (
                   <DropdownMenu.Item
                     className="rounded-lg"
@@ -273,7 +266,7 @@ export const MessageActions = ({
           </div>
         )}
       </div>
-      {canReplyOrForward && (
+      {canForward && (
         <ForwardMessageDialog
           open={forwardOpen}
           onOpenChange={setForwardOpen}
@@ -285,112 +278,3 @@ export const MessageActions = ({
     </Tooltip.Provider>
   );
 };
-
-function ReactionMenu({
-  conversationId,
-  messageId,
-  disabled,
-  disabledReason,
-  selectedReaction,
-  reactions,
-}: Readonly<{
-  conversationId: string;
-  messageId: string;
-  disabled: boolean;
-  disabledReason: string;
-  selectedReaction?: string;
-  reactions: readonly Reaction[];
-}>) {
-  const { toggleReaction, loading } = useMessageReaction();
-
-  const handleReaction = async (reaction: Reaction) => {
-    const remove = selectedReaction === reaction;
-    await toggleReaction({ conversationId, messageId, reaction, remove });
-  };
-
-  if (reactions.length === 1) {
-    const reaction = reactions[0];
-    const selected = selectedReaction === reaction;
-
-    let reactionLabel = 'Add love reaction';
-    if (disabled) {
-      reactionLabel = disabledReason;
-    } else if (selected) {
-      reactionLabel = 'Remove love reaction';
-    }
-
-    return (
-      <ActionButton
-        label={reactionLabel}
-        disabled={disabled || loading}
-        onClick={() => {
-          handleReaction(reaction);
-        }}
-      >
-        {loading ? (
-          <Spinner size="sm" />
-        ) : (
-          <span
-            className={cn(
-              'text-base leading-none grayscale transition-all',
-              selected && 'scale-110 grayscale-0',
-            )}
-          >
-            {REACTION_EMOJI[reaction]}
-          </span>
-        )}
-      </ActionButton>
-    );
-  }
-
-  if (disabled) {
-    return (
-      <ActionButton label={disabledReason} disabled onClick={() => undefined}>
-        <IconMoodSmile className="size-4" />
-      </ActionButton>
-    );
-  }
-
-  return (
-    <DropdownMenu>
-      <DropdownMenu.Trigger asChild>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          aria-label="Add reaction"
-          disabled={loading}
-          className="size-8 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground data-[state=open]:bg-muted data-[state=open]:text-foreground"
-        >
-          {loading ? (
-            <Spinner size="sm" />
-          ) : (
-            <IconMoodSmile className="size-4" />
-          )}
-        </Button>
-      </DropdownMenu.Trigger>
-      <DropdownMenu.Content className="flex min-w-0 gap-0.5 p-1">
-        {reactions.map((reaction) => (
-          <DropdownMenu.Item
-            key={reaction}
-            aria-label={`React with ${reaction}`}
-            className="p-1.5 text-lg"
-            onClick={() => {
-              handleReaction(reaction);
-            }}
-          >
-            <span
-              className={
-                selectedReaction === reaction
-                  ? 'rounded bg-accent ring-1 ring-primary'
-                  : undefined
-              }
-            >
-              {REACTION_EMOJI[reaction]}
-            </span>
-          </DropdownMenu.Item>
-        ))}
-      </DropdownMenu.Content>
-    </DropdownMenu>
-  );
-}

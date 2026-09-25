@@ -266,6 +266,12 @@ export const queries = `
 `;
 
 export const mutations = `
+  conversationMessageReact(
+    conversationId: String!
+    messageId: String!
+    reaction: String
+    remove: Boolean
+  ): Boolean!
   conversationMessageAdd(
     conversationId: String,
     responseTemplateId: String,

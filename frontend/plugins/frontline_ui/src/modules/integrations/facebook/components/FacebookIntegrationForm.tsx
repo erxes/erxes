@@ -6,15 +6,15 @@ import { useTranslation } from 'react-i18next';
 import {
   FbIntegrationProvider,
   useFbIntegrationContext,
-} from '../contexts/FbIntegrationContext';
+} from '@/integrations/facebook/contexts/FbIntegrationContext';
 import {
   activeFacebookFormStepAtom,
   facebookFormSheetAtom,
   resetFacebookAddStateAtom,
-} from '../states/facebookStates';
-import { FacebookGetAccounts } from './FacebookGetAccounts';
-import { FacebookGetPages } from './FacebookGetPages';
-import { FacebookIntegrationSetup } from './FacebookIntegrationSetup';
+} from '@/integrations/facebook/states/facebookStates';
+import { FacebookGetAccounts } from '@/integrations/facebook/components/FacebookGetAccounts';
+import { FacebookGetPages } from '@/integrations/facebook/components/FacebookGetPages';
+import { FacebookIntegrationSetup } from '@/integrations/facebook/components/FacebookIntegrationSetup';
 
 export const FacebookIntegrationFormSheet = ({
   isPost,
@@ -33,7 +33,9 @@ export const FacebookIntegrationFormSheet = ({
           <Sheet.Trigger asChild>
             <Button>
               <IconPlus />
-              {isPost ? t('add-facebook-post-integration') : t('add-facebook-messenger-integration')}
+              {isPost
+                ? t('add-facebook-post-integration')
+                : t('add-facebook-messenger-integration')}
             </Button>
           </Sheet.Trigger>
           <Sheet.View>
@@ -71,7 +73,9 @@ export const FacebookIntegrationFormLayout = ({
   return (
     <>
       <Sheet.Header>
-        <Sheet.Title>{isPost ? t('add-facebook-post') : t('add-facebook-messenger')}</Sheet.Title>
+        <Sheet.Title>
+          {isPost ? t('add-facebook-post') : t('add-facebook-messenger')}
+        </Sheet.Title>
         <Sheet.Close />
       </Sheet.Header>
       <Sheet.Content className="flex flex-col overflow-hidden">
@@ -94,20 +98,18 @@ export const FacebookIntegrationFormLayout = ({
 };
 
 export const FacebookIntegrationFormSteps = ({
+  title,
   step,
-  description,
 }: {
   title: string;
   step: number;
-  description: string;
 }) => {
-  const { t } = useTranslation('frontline');
   return (
     <IntegrationSteps
       step={step}
-      title={t('connect-accounts')}
+      title={title}
       stepsLength={3}
-      description={description}
+      description=""
     />
   );
 };

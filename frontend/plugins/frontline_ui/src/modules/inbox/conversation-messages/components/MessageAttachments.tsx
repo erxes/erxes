@@ -1,13 +1,10 @@
-import { IconFile } from '@tabler/icons-react';
-import { Dialog, cn, formatBytes, readImage, type IAttachment } from 'erxes-ui';
+import { MessageFileAttachment } from '@/inbox/conversation-messages/components/MessageFileAttachment';
+import { Dialog, cn, readImage, type IAttachment } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-
 import { InboxImage } from '@/inbox/conversation-messages/components/InboxImage';
 import { UnsupportedMessage } from '@/inbox/conversation-messages/components/MessagePresentation';
-
-const attachmentKey = (attachment: IAttachment, index: number) =>
-  `${attachment.url || 'missing'}-${index}`;
+import { attachmentKey } from '@/inbox/conversation-messages/utils/attachmentKey';
 
 const MessageAttachment = ({
   attachment,
@@ -18,9 +15,9 @@ const MessageAttachment = ({
   single: boolean;
   onUnavailable: () => void;
 }) => {
-  const { t } = useTranslation('frontline');
   const type = attachment.type || '';
   const source = readImage(attachment.url);
+  const isSticker = type === 'sticker';
 
   if (!attachment.url) return null;
 
@@ -53,27 +50,8 @@ const MessageAttachment = ({
     );
   }
 
-  if (!type.startsWith('image')) {
-    return (
-      <a
-        href={source}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="flex w-full min-w-44 max-w-xs items-center gap-3 rounded-xl border border-border/70 bg-card px-3 py-2.5 no-underline shadow-2xs transition-colors hover:bg-muted/50"
-      >
-        <IconFile className="size-8 shrink-0 text-muted-foreground" />
-        <span className="flex min-w-0 flex-col">
-          <span className="truncate text-sm font-medium text-primary">
-            {attachment.name || t('file', 'File')}
-          </span>
-          {Boolean(attachment.size) && (
-            <span className="text-xs text-muted-foreground">
-              {formatBytes(attachment.size)}
-            </span>
-          )}
-        </span>
-      </a>
-    );
+  if (!type.startsWith('image') && !isSticker) {
+    return <MessageFileAttachment attachment={attachment} />;
   }
 
   return (
@@ -82,7 +60,8 @@ const MessageAttachment = ({
         <button
           type="button"
           className={cn(
-            'overflow-hidden rounded bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60',
+            'overflow-hidden rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60',
+            isSticker ? 'bg-transparent rounded-none' : 'bg-accent',
             single ? 'w-fit max-w-full' : 'aspect-square size-full',
           )}
         >
@@ -92,9 +71,9 @@ const MessageAttachment = ({
             loading="lazy"
             onError={onUnavailable}
             className={cn(
-              single
-                ? 'block max-h-96 max-w-full object-contain'
-                : 'size-full object-cover',
+              single ? 'block max-h-96 max-w-full object-contain' : 'size-full',
+              isSticker && 'max-h-48 max-w-48 bg-transparent rounded-none',
+              !single && (isSticker ? 'object-contain' : 'object-cover'),
             )}
           />
         </button>

@@ -70,6 +70,7 @@ export const MessageInput = ({
     handleFileInput,
     removeAttachment,
     resetAttachments,
+    retainAttachments,
     isUploading,
   } = useMessageAttachments(isDiscord);
   const {
@@ -103,7 +104,6 @@ export const MessageInput = ({
     restoringDraftRef.current = true;
     resetAttachments();
     resetSuggestions();
-    setReplyTo(null);
 
     try {
       const draft = parseConversationDraft(composerStorage.getItem(draftKey));
@@ -122,14 +122,7 @@ export const MessageInput = ({
         restoringDraftRef.current = false;
       }, 0);
     }
-  }, [
-    draftKey,
-    editor,
-    resetAttachments,
-    resetSuggestions,
-    setIsInternalNote,
-    setReplyTo,
-  ]);
+  }, [draftKey, editor, resetAttachments, resetSuggestions, setIsInternalNote]);
 
   useEffect(() => {
     const isLead = integration?.kind === 'lead';
@@ -137,6 +130,13 @@ export const MessageInput = ({
     setOnlyInternal(isLead);
     setIsInternalNote(isLead || draftInternalRef.current);
   }, [conversationId, integration?.kind, setIsInternalNote, setOnlyInternal]);
+
+  useEffect(() => {
+    if (replyTo && !onlyInternal) {
+      setIsInternalNote(false);
+      setIsInternalNoteCollapsed(false);
+    }
+  }, [replyTo, onlyInternal, setIsInternalNote]);
 
   const {
     setHotkeyScopeAndMemorizePreviousScope,
@@ -208,6 +208,14 @@ export const MessageInput = ({
     setResponseTemplateId,
   ]);
 
+  const handlePartialDelivery = useCallback(
+    (remainingAttachments: typeof attachments) => {
+      resetComposer();
+      retainAttachments(remainingAttachments);
+    },
+    [resetComposer, retainAttachments],
+  );
+
   const { handleSubmit, handleSendPoll, loading } = useComposerSend({
     conversationId,
     draftKey,
@@ -216,10 +224,12 @@ export const MessageInput = ({
     attachments,
     mentionedUserIds,
     isDiscord,
+    isFacebook: integration?.kind === IntegrationType.FACEBOOK_MESSENGER,
     isInternalNote,
     isUploading,
     responseTemplateId,
     resetComposer,
+    onPartialDelivery: handlePartialDelivery,
   });
 
   useScopedHotkeys('mod+enter', handleSubmit, InboxHotkeyScope.MessageInput);
