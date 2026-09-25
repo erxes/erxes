@@ -44,6 +44,7 @@ export const types = `
     participatorCount: Int
 
 
+    propertiesData: JSON
     customFieldsData: JSON
     cursor: String
   }
@@ -301,5 +302,5 @@ export const mutations = `
   ): Conversation
   conversationsResolve(ids: [String!]!): Int
   conversationConvertToCard(${convertParams}): String
-  conversationEditCustomFields(_id: String!, customFieldsData: JSON): Conversation
+  conversationEditCustomFields(_id: String!, propertiesData: JSON, customFieldsData: JSON): Conversation
 `;
