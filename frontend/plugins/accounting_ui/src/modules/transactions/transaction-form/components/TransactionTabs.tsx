@@ -63,6 +63,8 @@ const TransactionForm = ({
     return <InvIncomeForm form={form} index={index} />;
   if (field.journal === TrJournalEnum.INV_OUT)
     return <InvOutForm form={form} index={index} />;
+  if (field.journal === TrJournalEnum.INV_JUSTIFY)
+    return <InvOutForm form={form} index={index} isJustify />;
   if (field.journal === TrJournalEnum.INV_MOVE)
     return <InvMoveForm form={form} index={index} />;
   if (field.journal === TrJournalEnum.INV_SALE)

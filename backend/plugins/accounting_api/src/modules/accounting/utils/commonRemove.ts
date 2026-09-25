@@ -2,7 +2,7 @@
 import { IModels } from '~/connectionResolvers';
 import { ITransactionDocument } from '../@types/transaction';
 import { removeSyncProductsInventory } from './utils';
-import { TR_FOLLOW_TYPES } from '../@types/constants';
+import { TR_FOLLOW_TYPES, TR_SIDES } from '../@types/constants';
 import { removeFxaIncomeDetails } from './fxaIncome';
 import { removeFxaDisposalInstances } from './fxaOut';
 import { removeFxaMoveInstances } from './fxaMove';
@@ -56,6 +56,7 @@ function getJournalHandler(journal: string) {
     payable: handleNone,
     invIncome: handleInvIncome,
     invOut: handleInvOut,
+    invJustify: handleInvJustify,
     invMove: handleInvMove,
     invSale: handleInvSale,
     invSaleReturn: handleInvSaleReturn,
@@ -96,6 +97,21 @@ async function handleInvOut(
   _options?: TCommonRemoveOptions,
 ) {
   await removeSyncProductsInventory(subdomain, transaction, -1);
+}
+
+async function handleInvJustify(
+  _models: IModels,
+  subdomain: string,
+  transaction: ITransactionDocument,
+  _followTrs?: ITransactionDocument[],
+  _options?: TCommonRemoveOptions,
+) {
+  if (![TR_SIDES.DEBIT, TR_SIDES.CREDIT].includes(transaction.side || '')) {
+    throw new Error('Inventory cost adjustment side must be dt or ct');
+  }
+
+  const multiplier = transaction.side === TR_SIDES.DEBIT ? 1 : -1;
+  await removeSyncProductsInventory(subdomain, transaction, multiplier);
 }
 
 async function handleInvMove(

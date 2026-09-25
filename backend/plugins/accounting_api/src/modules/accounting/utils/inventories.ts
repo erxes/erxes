@@ -28,31 +28,163 @@ const RELATED_OUT_DEBIT_JOURNALS = [
   JOURNALS.PAYABLE,
 ];
 
+const inventoryLocationKeyExpression = (
+  detailField: string,
+  transactionField: string,
+) => ({
+  $cond: [
+    {
+      $gt: [{ $strLenCP: { $ifNull: [detailField, ''] } }, 0],
+    },
+    detailField,
+    {
+      $cond: [
+        {
+          $gt: [{ $strLenCP: { $ifNull: [transactionField, ''] } }, 0],
+        },
+        transactionField,
+        '_',
+      ],
+    },
+  ],
+});
+
 export const activeCost = async (
   models: IModels,
   accountId: string,
   branchId?: string,
   departmentId?: string,
   productIds: string[] = [],
+  excludedTransactionIds: string[] = [],
 ) => {
-  const aggCosts = await models.AdjustInvDetails.aggregate([
-    {
-      $match: {
-        accountId,
-        branchId: branchId || '_',
-        departmentId: departmentId || '_',
-        productId: { $in: productIds || [] },
+  const safeProductIds = [...new Set(productIds.filter(Boolean))];
+  const result: Record<
+    string,
+    { totalCost: number; unitCost: number; remainder: number }
+  > = {};
+
+  for (const productId of safeProductIds) {
+    result[productId] = { totalCost: 0, unitCost: 0, remainder: 0 };
+  }
+
+  if (!safeProductIds.length) {
+    return result;
+  }
+
+  const lastPublishedAdjust = await models.AdjustInventories.findOne({
+    status: ADJ_INV_STATUSES.PUBLISH,
+  })
+    .sort({ date: -1, createdAt: -1, _id: -1 })
+    .lean();
+
+  const branchKey = branchId || '_';
+  const departmentKey = departmentId || '_';
+
+  if (lastPublishedAdjust?._id) {
+    const adjustDetails = await models.AdjustInvDetails.find({
+      adjustId: lastPublishedAdjust._id,
+      accountId,
+      branchId: branchKey,
+      departmentId: departmentKey,
+      productId: { $in: safeProductIds },
+    }).lean();
+
+    for (const detail of adjustDetails) {
+      result[detail.productId] = {
+        totalCost: fixNum(detail.cost ?? 0),
+        unitCost: fixNum(detail.unitCost ?? 0),
+        remainder: fixNum(detail.remainder ?? 0),
+      };
+    }
+  }
+
+  const transactionMatch: Record<string, unknown> = {
+    journal: { $in: JOURNALS.ALL_REAL_INV },
+    status: { $in: TR_STATUSES.ACTIVE },
+    'details.productId': { $in: safeProductIds },
+    'details.accountId': accountId,
+  };
+
+  if (lastPublishedAdjust?.date) {
+    transactionMatch.date = { $gt: lastPublishedAdjust.date };
+  }
+
+  if (excludedTransactionIds.length) {
+    transactionMatch._id = { $nin: excludedTransactionIds };
+  }
+
+  type TransactionCost = {
+    _id: string;
+    cost: number;
+    remainder: number;
+  };
+
+  const getTransactionCosts = (side: string): Promise<TransactionCost[]> =>
+    models.Transactions.aggregate([
+      { $match: { ...transactionMatch, side } },
+      { $unwind: '$details' },
+      {
+        $addFields: {
+          locationBranchId: inventoryLocationKeyExpression(
+            '$details.branchId',
+            '$branchId',
+          ),
+          locationDepartmentId: inventoryLocationKeyExpression(
+            '$details.departmentId',
+            '$departmentId',
+          ),
+        },
       },
-    },
+      {
+        $match: {
+          'details.accountId': accountId,
+          'details.productId': { $in: safeProductIds },
+          locationBranchId: branchKey,
+          locationDepartmentId: departmentKey,
+        },
+      },
+      {
+        $group: {
+          _id: '$details.productId',
+          remainder: { $sum: { $ifNull: ['$details.count', 0] } },
+          cost: { $sum: { $ifNull: ['$details.amount', 0] } },
+        },
+      },
+    ]);
+
+  const [debitCosts, creditCosts] = await Promise.all([
+    getTransactionCosts(TR_SIDES.DEBIT),
+    getTransactionCosts(TR_SIDES.CREDIT),
   ]);
 
-  const result = {};
-  for (const detail of aggCosts) {
-    result[detail.productId] = {
-      totalCost: detail.cost,
-      unitCost: detail.unitCost,
-      remainder: detail.remainder,
-    };
+  const changedProductIds = new Set<string>();
+  const applyTransactionCosts = (
+    transactionCosts: TransactionCost[],
+    multiplier: 1 | -1,
+  ) => {
+    for (const transactionCost of transactionCosts) {
+      const current = result[transactionCost._id];
+
+      result[transactionCost._id] = {
+        totalCost: fixNum(
+          (current?.totalCost ?? 0) + multiplier * (transactionCost.cost ?? 0),
+        ),
+        unitCost: current?.unitCost ?? 0,
+        remainder: fixNum(
+          (current?.remainder ?? 0) +
+            multiplier * (transactionCost.remainder ?? 0),
+        ),
+      };
+      changedProductIds.add(transactionCost._id);
+    }
+  };
+
+  applyTransactionCosts(debitCosts, 1);
+  applyTransactionCosts(creditCosts, -1);
+
+  for (const productId of changedProductIds) {
+    const current = result[productId];
+    current.unitCost = fixNum(current.totalCost / (current.remainder || 1));
   }
 
   return result;
@@ -363,6 +495,34 @@ const calcInvTrs = async (
     ...commonAggregates,
   ]);
   await calcTrs(models, { adjustId, aggregateTrs: outAggrs, multiplier: -1 });
+
+  const justifyUpAggrs = await models.Transactions.aggregate([
+    {
+      $match: {
+        ...commonMatch,
+        journal: JOURNALS.INV_JUSTIFY,
+        side: TR_SIDES.DEBIT,
+      },
+    },
+    ...commonAggregates,
+  ]);
+  await calcTrs(models, { adjustId, aggregateTrs: justifyUpAggrs });
+
+  const justifyDownAggrs = await models.Transactions.aggregate([
+    {
+      $match: {
+        ...commonMatch,
+        journal: JOURNALS.INV_JUSTIFY,
+        side: TR_SIDES.CREDIT,
+      },
+    },
+    ...commonAggregates,
+  ]);
+  await calcTrs(models, {
+    adjustId,
+    aggregateTrs: justifyDownAggrs,
+    multiplier: -1,
+  });
 };
 
 const detailAmountEquals = (detail: ITrDetail, amount: number) =>
@@ -1064,6 +1224,34 @@ const fixInvTrs = async (
     ...commonAggregates,
   ]);
   await fixOutTrs(subdomain, models, { adjustId, outAggrs });
+
+  const justifyUpAggrs = await models.Transactions.aggregate([
+    {
+      $match: {
+        ...commonMatch,
+        journal: JOURNALS.INV_JUSTIFY,
+        side: TR_SIDES.DEBIT,
+      },
+    },
+    ...commonAggregates,
+  ]);
+  await calcTrs(models, { adjustId, aggregateTrs: justifyUpAggrs });
+
+  const justifyDownAggrs = await models.Transactions.aggregate([
+    {
+      $match: {
+        ...commonMatch,
+        journal: JOURNALS.INV_JUSTIFY,
+        side: TR_SIDES.CREDIT,
+      },
+    },
+    ...commonAggregates,
+  ]);
+  await calcTrs(models, {
+    adjustId,
+    aggregateTrs: justifyDownAggrs,
+    multiplier: -1,
+  });
 
   const saleOutAggrs = await models.Transactions.aggregate([
     { $match: { ...commonMatch, journal: JOURNALS.INV_SALE_OUT } },

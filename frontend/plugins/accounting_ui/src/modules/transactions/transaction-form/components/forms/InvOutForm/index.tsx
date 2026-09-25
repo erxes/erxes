@@ -6,7 +6,9 @@ import {
   BranchField,
   DepartmentField,
   DescriptionField,
+  SideField,
 } from '../../GeneralFormFields';
+import { TR_SIDES } from '../../../../types/constants';
 import { CustomerFields } from '../../helpers/CustomerFields';
 import { RelAccountsForm } from '../../helpers/RelAccountsForm';
 import { InventoryForm } from './InventoryForm';
@@ -14,9 +16,11 @@ import { InventoryForm } from './InventoryForm';
 export const InvOutForm = ({
   form,
   index,
+  isJustify,
 }: {
   form: ITransactionGroupForm;
   index: number;
+  isJustify?: boolean;
 }) => {
   return (
     <>
@@ -27,6 +31,14 @@ export const InvOutForm = ({
           filter={{ journals: [JournalEnum.INVENTORY] }}
           allDetails={true}
         />
+        {isJustify && (
+          <SideField
+            form={form}
+            index={index}
+            sides={TR_SIDES.JUSTIFY_OPTIONS}
+            labelTxt="Өртгийн өөрчлөлт"
+          />
+        )}
         <CustomerFields form={form} index={index} />
         <BranchField form={form} index={index} />
         <DepartmentField form={form} index={index} />
@@ -38,7 +50,7 @@ export const InvOutForm = ({
         <RelAccountsForm form={form} index={index} />
       </div>
 
-      <InventoryForm form={form} journalIndex={index} />
+      <InventoryForm form={form} journalIndex={index} isJustify={isJustify} />
     </>
   );
 };

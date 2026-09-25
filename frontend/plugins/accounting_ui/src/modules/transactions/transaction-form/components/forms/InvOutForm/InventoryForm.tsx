@@ -23,9 +23,11 @@ import { RemoveButton } from './RemoveButton';
 export const InventoryForm = ({
   form,
   journalIndex,
+  isJustify,
 }: {
   form: ITransactionGroupForm;
   journalIndex: number;
+  isJustify?: boolean;
 }) => {
   const { fields, append } = useFieldArray({
     control: form.control,
@@ -60,7 +62,11 @@ export const InventoryForm = ({
               setHotkeyScope(AccountingHotkeyScope.TransactionFormPage)
             }
           >
-            <InventoryTableHeader form={form} journalIndex={journalIndex} />
+            <InventoryTableHeader
+              form={form}
+              journalIndex={journalIndex}
+              isJustify={isJustify}
+            />
             <Table.Body className="overflow-hidden">
               {fields.map((product, detailIndex) => (
                 <InventoryRow
@@ -68,6 +74,7 @@ export const InventoryForm = ({
                   detailIndex={detailIndex}
                   journalIndex={journalIndex}
                   form={form}
+                  isJustify={isJustify}
                 />
               ))}
             </Table.Body>
@@ -80,6 +87,7 @@ export const InventoryForm = ({
           append={append}
           form={form}
           journalIndex={journalIndex}
+          isJustify={isJustify}
         />
         <RemoveButton form={form} journalIndex={journalIndex} />
         <div>
@@ -99,9 +107,11 @@ export const InventoryForm = ({
 const InventoryTableHeader = ({
   form,
   journalIndex,
+  isJustify,
 }: {
   form: ITransactionGroupForm;
   journalIndex: number;
+  isJustify?: boolean;
 }) => {
   const showAdvancedView = useAtomValue(showAdvancedViewState);
   const trDoc = useWatch({
@@ -129,8 +139,19 @@ const InventoryTableHeader = ({
         </Table.Head>
         <Table.Head>Данс</Table.Head>
         <Table.Head>Бараа материал</Table.Head>
-        <Table.Head>Тоо хэмжээ</Table.Head>
-        <Table.Head>Нэгж үнэ</Table.Head>
+        {isJustify ? (
+          <>
+            <Table.Head>Одоогийн үлдэгдэл</Table.Head>
+            <Table.Head>Одоогийн нэгж өртөг</Table.Head>
+            <Table.Head>Залруулах нэгж өртөг</Table.Head>
+            <Table.Head>Дараах нэгж өртөг</Table.Head>
+          </>
+        ) : (
+          <>
+            <Table.Head>Тоо хэмжээ</Table.Head>
+            <Table.Head>Нэгж үнэ</Table.Head>
+          </>
+        )}
         <Table.Head>Дүн</Table.Head>
         {showAdvancedView && (
           <>

@@ -6,6 +6,7 @@ import {
   Checkbox,
   cn,
   CurrencyField,
+  fixNum,
   Form,
   InputNumber,
   RecordTableInlineCell,
@@ -13,13 +14,17 @@ import {
   PopoverScoped,
   Table,
 } from 'erxes-ui';
-import { useWatch } from 'react-hook-form';
+import { FieldPath, useWatch } from 'react-hook-form';
 import { SelectBranches, SelectDepartments, SelectProduct } from 'ui-modules';
 import {
   ITransactionGroupForm,
+  TAddTransactionGroup,
+  TInvDetail,
+  TInvJustifyJournal,
   TInvOutJournal,
 } from '../../../types/JournalForms';
-import { useEffect, useRef } from 'react';
+import { TR_SIDES } from '~/modules/transactions/types/constants';
+import { useEffect } from 'react';
 import { showAdvancedViewState } from '../../../states/trStates';
 import { useAtomValue } from 'jotai';
 import {
@@ -31,16 +36,18 @@ export const InventoryRow = ({
   detailIndex,
   journalIndex,
   form,
+  isJustify,
 }: {
   detailIndex: number;
   journalIndex: number;
   form: ITransactionGroupForm;
+  isJustify?: boolean;
 }) => {
   const showAdvancedView = useAtomValue(showAdvancedViewState);
   const trDoc = useWatch({
     control: form.control,
     name: `trDocs.${journalIndex}`,
-  }) as TInvOutJournal;
+  }) as TInvOutJournal | TInvJustifyJournal;
 
   const detail = useWatch({
     control: form.control,
@@ -53,54 +60,67 @@ export const InventoryRow = ({
 
   const { unitPrice, count, _id } = detail;
 
-  const initProductId = useRef(detail.productId);
-  const hasProductChanged = useRef(false);
-  const initAccountId = useRef(detail.accountId);
-  const initBranchId = useRef(trDoc.branchId);
-  const initDepartmentId = useRef(trDoc.departmentId);
-
-  const getFieldName = (name: string) => {
-    return `trDocs.${journalIndex}.details.${detailIndex}.${name}` as any;
+  const getFieldName = (name: keyof TInvDetail) => {
+    return `trDocs.${journalIndex}.details.${detailIndex}.${name}` as FieldPath<TAddTransactionGroup>;
   };
 
   const { currentCostInfo, loading } = useGetAccCurrentCost({
     variables: {
       accountId: detail.accountId,
-      branchId: trDoc.branchId,
-      departmentId: trDoc.departmentId,
+      branchId: detail.branchId || trDoc.branchId,
+      departmentId: detail.departmentId || trDoc.departmentId,
       productIds: [detail.productId],
+      excludedTransactionIds: trDoc._id ? [trDoc._id] : undefined,
     },
-    skip:
-      !detail.productId ||
-      !detail.accountId ||
-      (!hasProductChanged.current &&
-        initProductId.current &&
-        detail.productId === initProductId.current &&
-        trDoc.branchId === initBranchId.current &&
-        trDoc.departmentId === initDepartmentId.current &&
-        initAccountId.current &&
-        detail.accountId === initAccountId.current),
+    skip: !detail.productId || !detail.accountId,
   });
 
-  // 🚨 Unit price-г зөвхөн дараа нь өөрчлөгдсөн тохиолдолд шинэчилнэ
   useEffect(() => {
     if (loading || !currentCostInfo) return;
 
     const costInfo = currentCostInfo[detail.productId || ''];
-    const nextUnitPrice = costInfo?.unitCost ?? 0;
+    const nextCount = isJustify ? costInfo?.remainder ?? 0 : count ?? 0;
+    const nextUnitPrice = isJustify ? unitPrice ?? 0 : costInfo?.unitCost ?? 0;
 
     form.setValue(getFieldName('unitPrice'), nextUnitPrice);
-    form.setValue(getFieldName('amount'), (count ?? 0) * nextUnitPrice);
+    form.setValue(getFieldName('count'), isJustify ? 0 : nextCount);
+    form.setValue(getFieldName('amount'), nextCount * nextUnitPrice);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentCostInfo, detail.productId, loading]);
+  }, [currentCostInfo, detail.productId, loading, isJustify]);
+
+  const currentProductCost = currentCostInfo?.[detail.productId || ''];
+  const currentUnitCost = currentProductCost?.unitCost ?? 0;
+  const currentRemainder = currentProductCost?.remainder ?? 0;
+  const isJustifyDown = isJustify && trDoc.side === TR_SIDES.CREDIT;
+  const maxDecreaseUnitPrice = Math.max(0, currentUnitCost);
+  const maxDecreaseAmount = Math.max(
+    0,
+    fixNum(currentRemainder * maxDecreaseUnitPrice),
+  );
+  const afterUnitCost = fixNum(
+    currentUnitCost + (isJustifyDown ? -1 : 1) * (unitPrice ?? 0),
+  );
+
+  useEffect(() => {
+    if (!isJustifyDown || (unitPrice ?? 0) <= maxDecreaseUnitPrice) return;
+
+    form.setValue(getFieldName('unitPrice'), maxDecreaseUnitPrice);
+    form.setValue(getFieldName('amount'), maxDecreaseAmount);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isJustifyDown, maxDecreaseAmount, maxDecreaseUnitPrice, unitPrice]);
 
   const handleAmountChange = (
     value: number,
     onChange: (value: number) => void,
   ) => {
-    onChange(value);
-    const newUnitPrice = count ? value / count : 0;
+    const nextAmount = isJustifyDown
+      ? Math.min(value, maxDecreaseAmount)
+      : value;
+    onChange(nextAmount);
+    const unitDivider = isJustify ? currentRemainder : count;
+    const newUnitPrice = unitDivider ? nextAmount / unitDivider : 0;
     form.setValue(getFieldName('unitPrice'), newUnitPrice);
   };
 
@@ -121,18 +141,30 @@ export const InventoryRow = ({
     value: number,
     onChange: (value: number) => void,
   ) => {
-    calcAmount(count ?? 0, value);
-    onChange(value);
+    const nextUnitPrice = isJustifyDown
+      ? Math.min(value, maxDecreaseUnitPrice)
+      : value;
+    calcAmount(isJustify ? currentRemainder : count ?? 0, nextUnitPrice);
+    onChange(nextUnitPrice);
   };
 
-  const handleProduct = (
-    productId: string,
-    onChange: (productId: string) => void,
-  ) => {
-    if (productId !== detail.productId) {
-      hasProductChanged.current = true;
+  const handleAfterUnitCostChange = (value: number) => {
+    const nextAfterUnitCost = Math.max(0, value);
+    const difference = fixNum(nextAfterUnitCost - currentUnitCost);
+    const nextUnitPrice = Math.abs(difference);
+
+    if (difference > 0 && trDoc.side !== TR_SIDES.DEBIT) {
+      form.setValue(`trDocs.${journalIndex}.side`, TR_SIDES.DEBIT);
     }
-    onChange(productId);
+    if (difference < 0 && trDoc.side !== TR_SIDES.CREDIT) {
+      form.setValue(`trDocs.${journalIndex}.side`, TR_SIDES.CREDIT);
+    }
+
+    form.setValue(getFieldName('unitPrice'), nextUnitPrice);
+    form.setValue(
+      getFieldName('amount'),
+      fixNum(currentRemainder * nextUnitPrice),
+    );
   };
 
   return (
@@ -216,9 +248,7 @@ export const InventoryRow = ({
             render={({ field }) => (
               <SelectProduct
                 value={field.value || ''}
-                onValueChange={(productId) => {
-                  handleProduct(productId as string, field.onChange);
-                }}
+                onValueChange={(productId) => field.onChange(productId)}
                 variant="ghost"
                 scope={AccountingHotkeyScope.TransactionFormPage}
               />
@@ -226,102 +256,143 @@ export const InventoryRow = ({
           />
         </Table.Cell>
       </RecordTableHotKeyControl>
-      <RecordTableHotKeyControl
-        rowId={_id}
-        rowIndex={detailIndex}
-        enableOnFormTags
-      >
-        <Table.Cell>
-          <Form.Field
-            control={form.control}
-            name={`trDocs.${journalIndex}.details.${detailIndex}.count`}
-            render={({ field }) => (
-              <PopoverScoped
-                scope={`trDocs.${journalIndex}.details.${detailIndex}.count`}
-                closeOnEnter
-              >
-                <Form.Control>
-                  <RecordTableInlineCell.Trigger>
-                    {field.value?.toLocaleString() || 0}
-                  </RecordTableInlineCell.Trigger>
-                </Form.Control>
-                <RecordTableInlineCell.Content>
-                  <InputNumber
-                    value={field.value ?? 0}
-                    onChange={(value) =>
-                      handleCountChange(value || 0, field.onChange)
-                    }
-                  />
-                </RecordTableInlineCell.Content>
-              </PopoverScoped>
-            )}
-          />
-        </Table.Cell>
-      </RecordTableHotKeyControl>
-      <RecordTableHotKeyControl
-        rowId={_id}
-        rowIndex={detailIndex}
-        enableOnFormTags
-      >
-        <Table.Cell>
-          <Form.Field
-            control={form.control}
-            name={`trDocs.${journalIndex}.details.${detailIndex}.unitPrice`}
-            render={({ field }) => (
-              <PopoverScoped
-                scope={`trDocs.${journalIndex}.details.${detailIndex}.unitPrice`}
-                closeOnEnter
-              >
-                <Form.Control>
-                  <RecordTableInlineCell.Trigger>
-                    {field.value?.toLocaleString() || 0}
-                  </RecordTableInlineCell.Trigger>
-                </Form.Control>
-                <RecordTableInlineCell.Content>
-                  <CurrencyField.ValueInput
-                    value={field.value || 0}
-                    onChange={(value) =>
-                      handleUnitPriceChange(value || 0, field.onChange)
-                    }
-                  />
-                </RecordTableInlineCell.Content>
-              </PopoverScoped>
-            )}
-          />
-        </Table.Cell>
-      </RecordTableHotKeyControl>
-      <RecordTableHotKeyControl
-        rowId={_id}
-        rowIndex={detailIndex}
-        enableOnFormTags
-      >
-        <Table.Cell>
-          <Form.Field
-            control={form.control}
-            name={`trDocs.${journalIndex}.details.${detailIndex}.amount`}
-            render={({ field }) => (
-              <PopoverScoped
-                scope={`trDocs.${journalIndex}.details.${detailIndex}.amount`}
-                closeOnEnter
-              >
-                <Form.Control>
-                  <RecordTableInlineCell.Trigger>
-                    {field.value?.toLocaleString() || 0}
-                  </RecordTableInlineCell.Trigger>
-                </Form.Control>
-                <RecordTableInlineCell.Content>
-                  <CurrencyField.ValueInput
-                    value={field.value || 0}
-                    onChange={(value) =>
-                      handleAmountChange(value || 0, field.onChange)
-                    }
-                  />
-                </RecordTableInlineCell.Content>
-              </PopoverScoped>
-            )}
-          />
-        </Table.Cell>
-      </RecordTableHotKeyControl>
+      {isJustify ? (
+        <>
+          <Table.Cell>{currentRemainder.toLocaleString()}</Table.Cell>
+          <Table.Cell>{currentUnitCost.toLocaleString()}</Table.Cell>
+        </>
+      ) : (
+        <RecordTableHotKeyControl
+          rowId={_id}
+          rowIndex={detailIndex}
+          enableOnFormTags
+        >
+          <Table.Cell>
+            <Form.Field
+              control={form.control}
+              name={`trDocs.${journalIndex}.details.${detailIndex}.count`}
+              render={({ field }) => (
+                <PopoverScoped
+                  scope={`trDocs.${journalIndex}.details.${detailIndex}.count`}
+                  closeOnEnter
+                >
+                  <Form.Control>
+                    <RecordTableInlineCell.Trigger>
+                      {field.value?.toLocaleString() || 0}
+                    </RecordTableInlineCell.Trigger>
+                  </Form.Control>
+                  <RecordTableInlineCell.Content>
+                    <InputNumber
+                      value={field.value ?? 0}
+                      onChange={(value) =>
+                        handleCountChange(value || 0, field.onChange)
+                      }
+                    />
+                  </RecordTableInlineCell.Content>
+                </PopoverScoped>
+              )}
+            />
+          </Table.Cell>
+        </RecordTableHotKeyControl>
+      )}
+      {isJustify ? (
+        <RecordTableHotKeyControl
+          rowId={_id}
+          rowIndex={detailIndex}
+          enableOnFormTags
+        >
+          <Table.Cell>
+            <Form.Field
+              control={form.control}
+              name={`trDocs.${journalIndex}.details.${detailIndex}.unitPrice`}
+              render={({ field }) => (
+                <PopoverScoped
+                  scope={`trDocs.${journalIndex}.details.${detailIndex}.unitPrice`}
+                  closeOnEnter
+                >
+                  <Form.Control>
+                    <RecordTableInlineCell.Trigger>
+                      {field.value?.toLocaleString() || 0}
+                    </RecordTableInlineCell.Trigger>
+                  </Form.Control>
+                  <RecordTableInlineCell.Content>
+                    <CurrencyField.ValueInput
+                      value={field.value || 0}
+                      onChange={(value) =>
+                        handleUnitPriceChange(value || 0, field.onChange)
+                      }
+                    />
+                  </RecordTableInlineCell.Content>
+                </PopoverScoped>
+              )}
+            />
+          </Table.Cell>
+        </RecordTableHotKeyControl>
+      ) : (
+        <Table.Cell>{(unitPrice ?? 0).toLocaleString()}</Table.Cell>
+      )}
+      {isJustify && (
+        <RecordTableHotKeyControl
+          rowId={_id}
+          rowIndex={detailIndex}
+          enableOnFormTags
+        >
+          <Table.Cell>
+            <PopoverScoped
+              scope={`trDocs.${journalIndex}.details.${detailIndex}.afterUnitCost`}
+              closeOnEnter
+            >
+              <RecordTableInlineCell.Trigger>
+                {afterUnitCost.toLocaleString()}
+              </RecordTableInlineCell.Trigger>
+              <RecordTableInlineCell.Content>
+                <CurrencyField.ValueInput
+                  value={afterUnitCost}
+                  onChange={(value) =>
+                    handleAfterUnitCostChange(value ?? currentUnitCost)
+                  }
+                />
+              </RecordTableInlineCell.Content>
+            </PopoverScoped>
+          </Table.Cell>
+        </RecordTableHotKeyControl>
+      )}
+      {isJustify ? (
+        <RecordTableHotKeyControl
+          rowId={_id}
+          rowIndex={detailIndex}
+          enableOnFormTags
+        >
+          <Table.Cell>
+            <Form.Field
+              control={form.control}
+              name={`trDocs.${journalIndex}.details.${detailIndex}.amount`}
+              render={({ field }) => (
+                <PopoverScoped
+                  scope={`trDocs.${journalIndex}.details.${detailIndex}.amount`}
+                  closeOnEnter
+                >
+                  <Form.Control>
+                    <RecordTableInlineCell.Trigger>
+                      {field.value?.toLocaleString() || 0}
+                    </RecordTableInlineCell.Trigger>
+                  </Form.Control>
+                  <RecordTableInlineCell.Content>
+                    <CurrencyField.ValueInput
+                      value={field.value || 0}
+                      onChange={(value) =>
+                        handleAmountChange(value || 0, field.onChange)
+                      }
+                    />
+                  </RecordTableInlineCell.Content>
+                </PopoverScoped>
+              )}
+            />
+          </Table.Cell>
+        </RecordTableHotKeyControl>
+      ) : (
+        <Table.Cell>{(detail.amount ?? 0).toLocaleString()}</Table.Cell>
+      )}
 
       {showAdvancedView && (
         <>
