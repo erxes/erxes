@@ -37,3 +37,9 @@ export const isAutomatedMessage = (headers?: Record<string, string>) => {
     NULL_RETURN_PATHS.has(returnPath)
   );
 };
+
+const UNATTENDED_LOCAL_PART =
+  /^(no-?reply|do-?not-?reply|mailer-daemon|postmaster|bounces?)([+._-].*)?$/i;
+
+export const isUnattendedAddress = (address?: string) =>
+  UNATTENDED_LOCAL_PART.test((address ?? '').split('@')[0].trim());

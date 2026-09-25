@@ -22,3 +22,31 @@ export const MAIL_MESSAGE_INSERTED_SUBSCRIPTION = gql`
     }
   }
 `;
+
+const MAIL_DRAFT_FIELDS = `
+  _id
+  sourceMessageId
+  to
+  subject
+  body
+  senderMismatch
+  status
+  createdAt
+`;
+
+export const MAIL_CONVERSATION_DRAFTS_QUERY = gql`
+  query mailConversationDrafts($conversationId: String!) {
+    mailConversationDrafts(conversationId: $conversationId) {
+      ${MAIL_DRAFT_FIELDS}
+    }
+  }
+`;
+
+export const MAIL_DRAFT_CHANGED_SUBSCRIPTION = gql`
+  subscription mailDraftChanged($conversationId: String!) {
+    mailDraftChanged(conversationId: $conversationId) {
+      _id
+      status
+    }
+  }
+`;

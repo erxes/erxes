@@ -33,14 +33,14 @@ interface MailSendMailVariables {
   customerId?: string;
 }
 
-interface MailDeliveryOutcome {
+export interface MailDeliveryOutcome {
   _id: string;
   deliveryStatus?: MailDeliveryStatus;
   deliveryError?: string;
   bouncedRecipients?: string[];
 }
 
-const useDeliveryToast = () => {
+export const useDeliveryToast = () => {
   const { t } = useTranslation('frontline');
 
   return (outcome?: MailDeliveryOutcome | null) => {

@@ -10,6 +10,7 @@ import { formTrpcRouter } from './modules/form/trpc/form';
 import { relationTrpcRouter } from './modules/inbox/trpc/relation';
 import { inboxTrpcRouter } from './modules/inbox/trpc/inbox';
 import { integrationTrpcRouter } from './modules/integrations/trpc/integration';
+import { mailTrpcRouter } from './modules/integrations/mail/trpc/mail';
 import { ticketTrpcRouter } from './modules/ticket/trpc/ticket';
 import { generateTicketFields } from './modules/ticket/meta/fields/fieldUtils';
 
@@ -19,6 +20,7 @@ const t = initTRPC.context<FrontlineTRPCContext>().create();
 
 export const appRouter = t.mergeRouters(
   integrationTrpcRouter,
+  mailTrpcRouter,
   inboxTrpcRouter,
   conversationTrpcRouter,
   formTrpcRouter,

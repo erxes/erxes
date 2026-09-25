@@ -10,6 +10,7 @@ import {
 import { useConversationContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationContext';
 import { hideMessageInputState } from '@/inbox/conversations/conversation-detail/states/isInternalState';
 import { useMailSendMail } from '../hooks/useMailConversationDetail';
+import { MailDrafts } from './MailDrafts';
 import { MailComposePayload, MailMessage, MailThread } from './MailThread';
 
 const PAGE_SIZE = 20;
@@ -49,6 +50,8 @@ export const MailConversationDetail = () => {
   const detail =
     data?.mailConversationDetail ?? previousData?.mailConversationDetail;
 
+  const messages = detail?.messages ?? [];
+
   const onSend = (payload: MailComposePayload, onSent: () => void) =>
     mailSendMail(
       {
@@ -63,13 +66,16 @@ export const MailConversationDetail = () => {
     <ScrollArea className="h-full">
       <div className="p-4 pb-8">
         <MailThread
-          messages={detail?.messages ?? []}
+          messages={messages}
           hasMore={detail?.hasMore}
           loading={loading}
           sending={sending}
           error={error?.message}
           onLoadMore={() => setLimit((value) => value + PAGE_SIZE)}
           onSend={onSend}
+          beforeCompose={
+            <MailDrafts conversationId={conversationId} messages={messages} />
+          }
         />
       </div>
     </ScrollArea>

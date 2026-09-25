@@ -1,3 +1,4 @@
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { withFilter } from 'graphql-subscriptions';
 
 export default {
@@ -24,6 +25,7 @@ export default {
       cpConversationChanged(_id: String!): ConversationChangedResponse
       cpConversationMessageInserted(_id: String!): ConversationMessage
       cpConversationClientMessageInserted(userId: String!): ConversationMessage
+      mailDraftChanged(conversationId: String!): MailDraftChangedEvent
 
 		`,
   generateResolvers: (graphqlPubsub) => {
@@ -407,6 +409,33 @@ export default {
             return !!conversationId && variables._id === conversationId;
           },
         ),
+      },
+
+      mailDraftChanged: {
+        resolve: (payload) => payload.mailDraftChanged,
+        subscribe: async (_, { conversationId }, { subdomain, user }) => {
+          if (!user?._id) {
+            throw new Error('Login required');
+          }
+
+          const allowed = await sendTRPCMessage({
+            subdomain,
+            pluginName: 'frontline',
+            method: 'query',
+            module: 'mail',
+            action: 'canViewConversation',
+            input: { conversationId, userId: user._id },
+            defaultValue: false,
+          });
+
+          if (!allowed) {
+            throw new Error('Forbidden');
+          }
+
+          return graphqlPubsub.asyncIterator(
+            getTenantTopics('mailDraftChanged', subdomain, conversationId),
+          );
+        },
       },
 
       cpConversationClientMessageInserted: {

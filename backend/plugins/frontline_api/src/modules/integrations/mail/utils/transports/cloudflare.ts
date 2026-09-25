@@ -18,6 +18,7 @@ import {
 } from '@/integrations/mail/utils/cloudflare/client';
 import { ICloudflareSendingAccount } from '@/integrations/mail/utils/cloudflare/sending';
 import {
+  buildAutomationHeaders,
   buildThreadingHeaders,
   countRecipients,
   isRetryableStatus,
@@ -58,6 +59,15 @@ const fitHeaders = (headers?: Record<string, string>) => {
   }
 
   return Object.keys(trimmed).length ? trimmed : undefined;
+};
+
+const outboundHeaders = (input: ISendMailInput) => {
+  const headers = {
+    ...buildThreadingHeaders(input, { includeMessageId: false }),
+    ...buildAutomationHeaders(input),
+  };
+
+  return Object.keys(headers).length ? headers : undefined;
 };
 
 const toCloudflareAttachments = async (
@@ -196,9 +206,7 @@ export const createCloudflareTransport = (
       html: input.html || undefined,
       text: text || undefined,
       attachments,
-      headers: fitHeaders(
-        buildThreadingHeaders(input, { includeMessageId: false }),
-      ),
+      headers: fitHeaders(outboundHeaders(input)),
     };
 
     try {
