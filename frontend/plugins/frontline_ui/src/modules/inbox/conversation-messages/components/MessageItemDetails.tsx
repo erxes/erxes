@@ -180,6 +180,7 @@ export const MessageMobileActions = ({
         <MessageActions
           message={message}
           additionalActions={additionalActions}
+          onReply={() => onOpenChange(false)}
         />
       </div>
     </Sheet.View>

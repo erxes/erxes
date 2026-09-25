@@ -104,7 +104,6 @@ export const MessageInput = ({
     restoringDraftRef.current = true;
     resetAttachments();
     resetSuggestions();
-    setReplyTo(null);
 
     try {
       const draft = parseConversationDraft(composerStorage.getItem(draftKey));
@@ -123,14 +122,7 @@ export const MessageInput = ({
         restoringDraftRef.current = false;
       }, 0);
     }
-  }, [
-    draftKey,
-    editor,
-    resetAttachments,
-    resetSuggestions,
-    setIsInternalNote,
-    setReplyTo,
-  ]);
+  }, [draftKey, editor, resetAttachments, resetSuggestions, setIsInternalNote]);
 
   useEffect(() => {
     const isLead = integration?.kind === 'lead';
@@ -138,6 +130,13 @@ export const MessageInput = ({
     setOnlyInternal(isLead);
     setIsInternalNote(isLead || draftInternalRef.current);
   }, [conversationId, integration?.kind, setIsInternalNote, setOnlyInternal]);
+
+  useEffect(() => {
+    if (replyTo && !onlyInternal) {
+      setIsInternalNote(false);
+      setIsInternalNoteCollapsed(false);
+    }
+  }, [replyTo, onlyInternal, setIsInternalNote]);
 
   const {
     setHotkeyScopeAndMemorizePreviousScope,
