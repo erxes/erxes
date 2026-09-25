@@ -1,5 +1,5 @@
 import { gql, useQuery } from '@apollo/client';
-import { Input, Select, Spinner } from 'erxes-ui';
+import { Form, Input, Select, Spinner } from 'erxes-ui';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { UseFormReturn } from 'react-hook-form';
@@ -35,13 +35,12 @@ type QueryResponse = {
 type Props = {
   payment?: IPaymentDocument;
   form: UseFormReturn<any>;
-  Form: typeof import('erxes-ui/components/form').Form;
 };
 
-const CorporateGolomtBankForm: React.FC<Props> = ({ payment, form, Form }) => {
+const CorporateGolomtBankForm: React.FC<Props> = ({ payment, form }) => {
   const { t } = useTranslation('payment');
 
-  const { register, watch, setValue, control } = form;
+  const { watch, setValue, control } = form;
 
   const configId = watch('configId');
 
@@ -82,18 +81,7 @@ const CorporateGolomtBankForm: React.FC<Props> = ({ payment, form, Form }) => {
   }
 
   return (
-    <div className="grid grid-cols-2 gap-4 mt-4">
-      <Form.Item>
-        <Form.Label>{t('name')} *</Form.Label>
-        <Form.Control>
-          <Input
-            {...register('name', {
-              required: true,
-            })}
-          />
-        </Form.Control>
-      </Form.Item>
-
+    <>
       <Form.Field
         name="configId"
         control={control}
@@ -132,7 +120,7 @@ const CorporateGolomtBankForm: React.FC<Props> = ({ payment, form, Form }) => {
         </Form.Item>
       )}
 
-      <input type="hidden" {...register('accountId')} />
+      <input type="hidden" {...form.register('accountId')} />
 
       <div className="col-span-2">
         <a
@@ -144,7 +132,7 @@ const CorporateGolomtBankForm: React.FC<Props> = ({ payment, form, Form }) => {
           {t('more-info')}
         </a>
       </div>
-    </div>
+    </>
   );
 };
 
