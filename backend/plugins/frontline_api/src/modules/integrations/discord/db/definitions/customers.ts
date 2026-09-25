@@ -4,7 +4,11 @@ import { mongooseStringRandomId } from 'erxes-api-shared/utils';
 export const customerSchema = new Schema({
   _id: mongooseStringRandomId,
   userId: { type: String, unique: true, label: 'Discord user id' },
-  erxesApiId: { type: String, label: 'Customer id at contacts-api' },
+  erxesApiId: {
+    type: String,
+    index: true,
+    label: 'Customer id at contacts-api',
+  },
   firstName: String,
   lastName: String,
   profilePic: String,
