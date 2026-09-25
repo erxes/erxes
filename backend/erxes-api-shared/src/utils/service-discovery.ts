@@ -120,7 +120,10 @@ export const getPlugin = async (
   result.config = JSON.parse(configJson || '{}');
 
   Object.freeze(result);
-  serviceInfoCache[name] = result;
+
+  if (result.address) {
+    serviceInfoCache[name] = result;
+  }
 
   return result;
 };
