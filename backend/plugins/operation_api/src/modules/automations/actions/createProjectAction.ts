@@ -8,6 +8,7 @@ import { IModels } from '~/connectionResolvers';
 import { IProject } from '@/project/@types/project';
 import {
   getAutomationUserId,
+  getCreatedVia,
   getNumber,
   getString,
   parseDate,
@@ -81,15 +82,21 @@ export const createProjectAction = async ({
     defaultValue: '',
   });
   const target = toRecord(execution.target);
-  const userId = getAutomationUserId(resolvedConfig, target);
+  const userId = getAutomationUserId(
+    resolvedConfig,
+    target,
+    toRecord(execution),
+  );
 
   if (!userId) {
     throw new Error('Project automation requires a user to create project');
   }
 
-  const project = await models.Project.create(
-    buildProjectDoc(resolvedConfig, userId),
-  );
+  const project = await models.Project.create({
+    ...buildProjectDoc(resolvedConfig, userId),
+    // Not who pressed create — nobody did. What produced it.
+    createdVia: getCreatedVia(toRecord(execution)),
+  });
 
   graphqlPubsub.publish(`operationProjectChanged:${project._id}`, {
     operationProjectChanged: {

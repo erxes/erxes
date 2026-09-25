@@ -6,11 +6,31 @@ import {
 } from '@/helpcenter/constants';
 import {
   IHelpCenter,
+  IHelpCenterCmsConfig,
   IHelpCenterConfigInput,
   IHelpCenterFooter,
   IHelpCenterHeader,
   IHelpCenterStyles,
 } from '@/helpcenter/types';
+
+export const toCmsConfigsInput = (
+  helpCenter: IHelpCenter,
+): IHelpCenterCmsConfig[] => {
+  const cmsConfigs = (helpCenter.cmsConfigs ?? [])
+    .map(({ cmsId, cmsAppToken }) => ({
+      cmsId: cmsId ?? '',
+      cmsAppToken: cmsAppToken ?? '',
+    }))
+    .filter(({ cmsId }) => !!cmsId);
+
+  if (cmsConfigs.length || !helpCenter.cmsId) {
+    return cmsConfigs;
+  }
+
+  return [
+    { cmsId: helpCenter.cmsId, cmsAppToken: helpCenter.cmsAppToken ?? '' },
+  ];
+};
 
 export const stripStylesTypename = (
   styles: IHelpCenter['styles'],
@@ -81,6 +101,7 @@ export const toHelpCenterConfigInput = (
     description: helpCenter.description ?? '',
     url: helpCenter.url ?? '',
     erxesAppToken: helpCenter.erxesAppToken ?? '',
+    clientPortalId: helpCenter.clientPortalId ?? '',
     brandId: helpCenter.brandId ?? helpCenter.brand?._id ?? '',
     languageCode: helpCenter.languageCode ?? '',
     kbToggle: helpCenter.kbToggle ?? true,
@@ -91,6 +112,11 @@ export const toHelpCenterConfigInput = (
     ticketChannelId: helpCenter.ticketChannelId ?? '',
     ticketPipelineId: helpCenter.ticketPipelineId ?? '',
     ticketStatusId: helpCenter.ticketStatusId ?? '',
+    formChannelId: helpCenter.formChannelId ?? '',
+    formIds: helpCenter.formChannelId ? helpCenter.formIds ?? [] : [],
+    cmsId: helpCenter.cmsId ?? '',
+    cmsAppToken: helpCenter.cmsAppToken ?? '',
+    cmsConfigs: toCmsConfigsInput(helpCenter),
     color: helpCenter.color ?? EMPTY_HELP_CENTER_FORM.color,
     backgroundImage: helpCenter.backgroundImage ?? '',
     styles: {

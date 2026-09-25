@@ -1,6 +1,7 @@
 import {
   APPROVAL_APPROVER_SCOPES,
   APPROVAL_DECISIONS,
+  APPROVAL_REQUEST_KINDS,
   APPROVAL_LOCK_STATUSES,
   APPROVAL_MODES,
   APPROVAL_REQUEST_STATUSES,
@@ -15,6 +16,8 @@ import { ExpectedError } from 'erxes-api-shared/utils';
 import { PipelineStage } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 import { DOCUMENT_APPROVAL_CONTENT_TYPE } from '~/modules/documents/types';
+import { applyApprovedChange } from '~/modules/approval/applyApprovedChange';
+import { ensureApprovalRequestIndexes } from '~/modules/approval/db/ensureIndexes';
 
 const unique = (ids: string[]) => [...new Set(ids.filter(Boolean))];
 
@@ -42,10 +45,12 @@ const hasApproved = (decisions: ApprovalDecision[], approverId: string) =>
 
 const shouldResolveApproved = (
   request: ApprovalRequest,
-  lock: ApprovalLock,
+  lock: ApprovalLock | undefined,
   decisions: ApprovalDecision[],
 ) => {
-  if (lock.approvalMode === APPROVAL_MODES.FIRST_WINS) {
+  // Without a lock to set the mode — a change request — every named approver
+  // has to have said yes.
+  if (lock && lock.approvalMode === APPROVAL_MODES.FIRST_WINS) {
     return decisions.some(
       (decision) => decision.decision === APPROVAL_DECISIONS.APPROVED,
     );
@@ -95,6 +100,62 @@ const recordPendingDecision = async (
   }
 
   return request;
+};
+
+/**
+ * A change request asks specific people to let a specific change happen. It
+ * needs no lock: nothing is being unlocked, something is being proposed.
+ */
+const createChangeRequest = async (
+  models: IContext['models'],
+  subdomain: string,
+  user: IContext['user'],
+  input: ApprovalRequestCreateInput,
+) => {
+  const change = input.change;
+
+  if (!change) {
+    throw new ExpectedError('No change was given', 'BAD_REQUEST');
+  }
+
+  const requiredApproverIds = unique(input.approverIds || []).filter(
+    (approverId) => approverId !== user._id,
+  );
+
+  if (!requiredApproverIds.length) {
+    throw new ExpectedError(
+      'A change needs someone other than you to approve it',
+      'BAD_REQUEST',
+    );
+  }
+
+  const pending = await models.ApprovalRequests.getPendingRequest({
+    contentType: input.contentType,
+    contentId: input.contentId,
+    changeType: change.changeType,
+  });
+
+  if (pending) {
+    return pending;
+  }
+
+  const request = await models.ApprovalRequests.createRequest({
+    ...input,
+    kind: APPROVAL_REQUEST_KINDS.CHANGE,
+    requesterId: user._id,
+    requiredApproverIds,
+  });
+
+  const notificationIds = await models.ApprovalRequests.notifyApprovers({
+    subdomain,
+    request,
+    content: { contentType: input.contentType, contentId: input.contentId },
+  });
+
+  return models.ApprovalRequests.resolveRequest(request._id, {
+    status: request.status,
+    notificationIds,
+  });
 };
 
 export const approvalMutations = {
@@ -173,6 +234,14 @@ export const approvalMutations = {
     { input }: { input: ApprovalRequestCreateInput },
     { models, user, subdomain }: IContext,
   ) {
+    await ensureApprovalRequestIndexes(models, subdomain);
+
+    // Naming a change makes this a change request: it is not about a lock, so
+    // it names its own approvers and ends by the change being carried out.
+    if (input.change) {
+      return createChangeRequest(models, subdomain, user, input);
+    }
+
     const state = await models.ApprovalLocks.getState({
       user,
       contentType: input.contentType,
@@ -232,7 +301,7 @@ export const approvalMutations = {
   async approvalRequestApprove(
     _root: undefined,
     { _id }: { _id: string },
-    { models, user }: IContext,
+    { models, user, subdomain }: IContext,
   ) {
     const request = await models.ApprovalRequests.getRequest(_id);
     assertPending(request);
@@ -241,9 +310,13 @@ export const approvalMutations = {
       throw new ExpectedError('Not an approver', 'FORBIDDEN');
     }
 
-    const lock = await models.ApprovalLocks.getLock(request.lockId);
+    // A change request carries the work itself and is not about a lock, so
+    // only an access request has one to check.
+    const lock = request.lockId
+      ? await models.ApprovalLocks.getLock(request.lockId)
+      : undefined;
 
-    if (lock.status !== APPROVAL_LOCK_STATUSES.ACTIVE) {
+    if (lock && lock.status !== APPROVAL_LOCK_STATUSES.ACTIVE) {
       throw new ExpectedError('Approval lock is not active', 'CONFLICT');
     }
 
@@ -275,10 +348,23 @@ export const approvalMutations = {
         resolvedRequest || (await models.ApprovalRequests.getRequest(_id));
 
       if (finalRequest.status === APPROVAL_REQUEST_STATUSES.APPROVED) {
-        await models.ApprovalLocks.updateOne(
-          { _id: lock._id },
-          { $addToSet: { allowedUserIds: request.requesterId } },
-        );
+        // An access request ends by letting the requester past the lock; a
+        // change request ends by the change actually happening.
+        if (lock) {
+          await models.ApprovalLocks.updateOne(
+            { _id: lock._id },
+            { $addToSet: { allowedUserIds: request.requesterId } },
+          );
+        }
+
+        if (finalRequest.change) {
+          return await applyApprovedChange(
+            models,
+            subdomain,
+            finalRequest,
+            user._id,
+          );
+        }
       }
 
       return finalRequest;

@@ -1,4 +1,4 @@
-import { AutomationBuilderSecondarySidebarToggle } from '@/automations/components/builder/sidebar/components/AutomationBuilderSecondarySidebarToggle';
+import { AutomationBuilderSecondaryPanelMenuItems } from '@/automations/components/builder/sidebar/components/AutomationBuilderSecondaryPanelMenuItems';
 import { IconArrowLeft, IconDotsVertical, IconX } from '@tabler/icons-react';
 import { Button, DropdownMenu, Tooltip } from 'erxes-ui';
 import { ReactNode } from 'react';
@@ -22,7 +22,7 @@ export const AutomationBuilderSidebarHeaderActions = ({
             </Button>
           </DropdownMenu.Trigger>
           <DropdownMenu.Content align="end">
-            <AutomationBuilderSecondarySidebarToggle />
+            <AutomationBuilderSecondaryPanelMenuItems />
           </DropdownMenu.Content>
         </DropdownMenu>
       ) : null}

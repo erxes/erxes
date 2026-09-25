@@ -15,7 +15,8 @@ export const HELP_CENTER_TABLE_ID = 'frontline_help_center_record_table';
 
 export const HELP_CENTER_FILTER_ID = 'help-centers-filter';
 
-export const FULL_WIDTH_SELECT = '[&_button]:w-full [&_button]:max-w-none';
+export const FULL_WIDTH_SELECT =
+  '[&_button]:w-full [&_button]:max-w-none [&_button]:h-8';
 
 export const HELP_CENTER_MAIN_COLOR_FIELDS = [
   { name: 'styles.bodyColor', key: 'kb-body-color', label: 'Body' },
@@ -192,6 +193,7 @@ export const EMPTY_HELP_CENTER_FORM: IHelpCenterConfigInput = {
   description: '',
   url: '',
   erxesAppToken: '',
+  clientPortalId: '',
   brandId: '',
   languageCode: '',
   kbToggle: true,
@@ -202,6 +204,11 @@ export const EMPTY_HELP_CENTER_FORM: IHelpCenterConfigInput = {
   ticketChannelId: '',
   ticketPipelineId: '',
   ticketStatusId: '',
+  formChannelId: '',
+  formIds: [],
+  cmsId: '',
+  cmsAppToken: '',
+  cmsConfigs: [],
   color: '#4f33af',
   backgroundImage: '',
   styles: DEFAULT_HELP_CENTER_STYLES,
@@ -218,6 +225,7 @@ export const HELP_CENTER_FIELD_TAB: Record<
   description: 'general',
   url: 'general',
   erxesAppToken: 'general',
+  clientPortalId: 'general',
   brandId: 'general',
   languageCode: 'general',
   kbToggle: 'general',
@@ -228,6 +236,11 @@ export const HELP_CENTER_FIELD_TAB: Record<
   ticketChannelId: 'general',
   ticketPipelineId: 'general',
   ticketStatusId: 'general',
+  formChannelId: 'general',
+  formIds: 'general',
+  cmsId: 'general',
+  cmsAppToken: 'general',
+  cmsConfigs: 'general',
   color: 'appearance',
   backgroundImage: 'appearance',
   styles: 'appearance',

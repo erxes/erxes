@@ -1,7 +1,7 @@
 import { Icon } from './Icon';
 
 export const SetupNotice = ({ missing }: { missing: string[] }) => (
-  <div className="rounded-xl border border-line bg-white p-7">
+  <div className="rounded-2xl bg-white shadow-shell p-7">
     <div className="flex items-start gap-4">
       <span className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-warning-soft text-warning">
         <Icon name="alert" size={22} />
@@ -58,7 +58,7 @@ export const LoadError = ({
 );
 
 export const Unpublished = ({ domain }: { domain: string }) => (
-  <div className="rounded-xl border border-line bg-white p-7">
+  <div className="rounded-2xl bg-white shadow-shell p-7">
     <div className="flex items-start gap-4">
       <span className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-warning-soft text-warning">
         <Icon name="alert" size={22} />
