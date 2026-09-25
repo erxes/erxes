@@ -1,3 +1,5 @@
+@layer maily-base;
+@import '@maily-to/core/style.css' layer(maily-base);
 @import 'tailwindcss' source(none);
 @source '.';
 @source '../../libs/';
