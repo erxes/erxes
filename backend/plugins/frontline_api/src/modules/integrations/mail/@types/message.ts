@@ -44,6 +44,7 @@ export interface IMailMessage {
   deliveryStatus?: TMailDeliveryStatus;
   deliveryError?: string;
   deliveryRetryable?: boolean;
+  deliveryAttemptedAt?: Date;
   bouncedRecipients?: string[];
   type: TMailMessageType;
   createdAt: Date;

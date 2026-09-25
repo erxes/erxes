@@ -27,6 +27,8 @@ const HEADING_LEVELS = new Set([1, 2, 3]);
 
 const SAFE_COLOR = /^[a-z0-9#(),.%\s-]+$/i;
 
+const UNNAMED_ATTACHMENT = 'attachment';
+
 const LIST_TAGS: Record<string, string> = {
   bulletListItem: 'ul',
   numberedListItem: 'ol',
@@ -192,3 +194,10 @@ export const noteContentToHtml = (content?: string) => {
 
   return blocks ? renderBlocks(blocks) : raw;
 };
+
+export const attachmentListToHtml = (names: string[]) =>
+  names.length
+    ? `<ul>${names
+        .map((name) => `<li>${escapeHtml(name || UNNAMED_ATTACHMENT)}</li>`)
+        .join('')}</ul>`
+    : '';

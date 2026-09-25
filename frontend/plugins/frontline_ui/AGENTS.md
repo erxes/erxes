@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-09-23`
+- **Last synchronized:** `2026-09-24`
 
 ## Scope
 
@@ -364,6 +364,39 @@
   immediately and reopens with those filters restored. The default charts are a
   frontend constant and are never modified by saving; a saved card additionally
   carries a delete action.
+- The ticket note composer (`NoteInput`) opens with the inbox's own **Reply |
+  Internal Note** segment tabs (`ComposerModeTabs`) and starts on Internal Note.
+  A hint line under the tabs says who will read the message: internal notes are
+  "Only visible to your team"; a reply names the customer address and the
+  pipeline address it will be emailed from (`mailTicketReplyTarget`), warns when
+  the ticket has no customer email, and otherwise says the customer sees it in
+  the client portal. Internal mode tints the composer and its **Add note**
+  button with the warning colour; reply mode sends with **Send**. Each note in
+  the ticket timeline carries a badge from `getNoteKind`: Internal Note (warning
+  tint), Received by email, Sent from the client portal, Emailed to
+  `<recipient>`, or Visible to the customer. A mailed note shows its delivery
+  state beside that badge — Sending…, Not delivered with the transport error,
+  or Bounced with the rejected recipients — and a failed or bounced card gets
+  a destructive border; the composer also raises a destructive toast when the
+  reply it just saved was not delivered. When `mailDelivery.canRetry` is true —
+  a failed send, or one stuck sending for over ten minutes — the card offers
+  **Try again** (`useRetryTicketNoteMail` → `mailTicketNoteRetry`) with a hint
+  chosen from `retryable`; the mutation returns the note, so the card updates
+  from the Apollo cache. Bounced mail gets no retry, since the same address
+  would bounce again. A note with no text renders no text block, and the
+  composer sends an attachment-only note with empty `content` (never `"[]"`,
+  which the read-only editor printed literally); `hasNoteText` also hides the
+  `"[]"` of notes saved before. An inbound attachment the server could not
+  store is listed under the note from `unsavedAttachments` as a warning row:
+  it opens the mail worker's temporary link while `expiresAt` is in the future
+  ("Not saved · the link works for N more days") and otherwise shows the
+  translated `attachment-unavailable` text without a link. A note that came in
+  by email (`getNoteKind` → `emailReceived`) renders through the inbox's
+  sandboxed `EmailBody` iframe instead of `BlockEditorReadOnly`, so mail CSS
+  stays inside the frame, remote images and tracking pixels wait for "Show
+  images", links open in a new tab, and storage-key images resolve through
+  `readImage`; `storageImageSources` marks those keys, plus the note's
+  attachments, as trusted so a signature logo is not blocked.
 
 ## Architecture
 
@@ -389,6 +422,8 @@
 | Integrations             | `src/modules/integrations/`                                                                                                                       | Per-provider connect forms and detail views                                                                                                     |
 | Call Pro                 | `src/modules/integrations/callpro/`                                                                                                               | Add/edit sheets over one shared `CallProIntegrationForm`, webhook URL hint, recording player, and the caller-to-customer picker                 |
 | Ticket                   | `src/modules/ticket/`, `src/modules/pipelines/`, `src/modules/status/`                                                                            | Ticket boards, pipelines, statuses                                                                                                              |
+| Ticket notes             | `src/modules/activity/components/{NoteInput,NoteInputToolbar,NoteAudienceHint,NoteInputReadOnly}.tsx`, `src/modules/activity/utils/noteKind.ts`   | Ticket composer with reply/internal tabs and audience hint, and the timeline note card with its kind badge                                      |
+| Composer mode tabs       | `src/modules/inbox/conversations/conversation-detail/components/ComposerModeTabs.tsx`                                                             | The Reply / Internal Note segment tabs shared by the inbox `ComposerShell` and the ticket `NoteInput`                                           |
 | Forms                    | `src/modules/forms/`                                                                                                                              | Form builder, preview, submissions                                                                                                              |
 | Help Center              | `src/modules/helpcenter/`, `src/pages/HelpCenterIndexPage.tsx`                                                                                    | `/frontline/helpcenter` — the help center record table (columns, more column, filter, total count, command bar) and the `editId` drawer over it |
 | Surveys management       | `src/modules/survey/components/survey-page/`, `src/pages/ChannelSurveysPage.tsx`                                                                  | Channel-scoped list, results dialog, command bar, create button, detail breadcrumb                                                              |
@@ -575,6 +610,18 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
   re-hosted. The chip therefore stays clickable and puts the reason in its
   tooltip; only an attachment with no link at all falls back to the dimmed state.
   `readImage` returns absolute URLs untouched, so no special handling is needed.
+- `frontline_api` GraphQL `mailTicketReplyTarget(ticketId!)` — `{ from, to }`
+  for a ticket whose pipeline owns a mail address, `null` otherwise. `to` is
+  `null` when the ticket has no customer email. `useTicketReplyTarget` reads it
+  `cache-and-network` for the composer's hint line. `ticketGetNote` and
+  `ticketCreateNote` also select `mailMessageId`, which `getNoteKind` needs to
+  tell a mailed note from a portal-only one, and `mailDelivery { status, error,
+to, bouncedRecipients, retryable, canRetry }` for its delivery state;
+  `mailTicketNoteRetry(noteId!)` resends a failed or stuck one and returns the
+  note. `ticketGetNote` also selects `unsavedAttachments { name, url, type,
+  size, error, expiresAt }` for inbound files that never reached storage. `ticketCreateNote` errors
+  when a reply cannot be mailed (no customer email, or the workspace cannot
+  send); `NoteInput` shows that message in a toast and keeps the draft.
 - `frontline_api` GraphQL `mailCloudflareConnection`, `mailCloudflareZones`,
   `mailCloudflareConnect`, `mailCloudflareProvision` and `mailCloudflareDisconnect` —
   the Cloudflare section. The token is sent to fetch the domain list and again to
@@ -685,6 +732,10 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
 
 ## Local Invariants
 
+- The inbox and ticket composers pick their mode through the one
+  `ComposerModeTabs`; a composer that separates a customer reply from an
+  internal note reuses it rather than a single toggle, and internal mode is
+  always drawn with the `warning` colour.
 - The form builder runs under two route families — `frontline/forms/*` and
   `settings/frontline/channels/:id/forms/*` — and tells them apart by the `id`
   route param, never by a flag. `FormsCreateButton`, `FormMutateLayout`'s cancel
@@ -1528,6 +1579,82 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-25` — Emailed ticket notes render in the mail sandbox
+
+- **Summary:** An inbound-mail note on a ticket now renders through
+  `EmailBody` like the inbox, which stops mail `<style>` from restyling the app,
+  holds back remote images and tracking pixels, opens links in a new tab and
+  shows storage-key inline images.
+- **Affected areas:** `src/modules/activity/components/NoteInputReadOnly.tsx`,
+  `src/modules/activity/utils/mailBody.ts`
+- **Contracts changed:** None.
+
+### `2026-09-25` — Empty note text and unsaved mail files render cleanly
+
+- **Summary:** An attachment-only note is saved with empty `content` and no
+  longer shows a literal `[]`, and an inbound file that failed to store is
+  shown under its note with the worker's temporary link and days left, or as
+  unavailable once the link has expired.
+- **Affected areas:** `src/modules/activity/utils/noteBlocks.ts`,
+  `src/modules/activity/components/{NoteInput,NoteInputReadOnly}.tsx`,
+  `src/modules/activity/graphql/queries/getTicketNote.ts`,
+  `src/modules/activity/types.ts`
+- **Contracts changed:** The note query selects `unsavedAttachments`; the
+  create mutation may send empty `content` with attachments. New i18n key
+  `attachment-not-saved-days` falls back to English; the expired row reuses
+  `attachment-unavailable`.
+
+### `2026-09-25` — A failed ticket email has a Try again button
+
+- **Summary:** A ticket note whose email failed, or has been sending for over
+  ten minutes, shows the inbox's Try again button with a temporary/permanent
+  hint; a resend toasts "Email sent" or the new failure and refreshes the card.
+- **Affected areas:** `src/modules/activity/components/NoteInputReadOnly.tsx`,
+  `src/modules/activity/hooks/useRetryTicketNoteMail.tsx`,
+  `src/modules/activity/graphql/`, `src/modules/activity/types.ts`
+- **Contracts changed:** Consumes `mailTicketNoteRetry`; the note query and
+  mutation select `mailDelivery.retryable` and `canRetry`. New i18n keys
+  `email-delivery-stuck-hint` and `email-delivery-resent` fall back to English;
+  the button and the other hints reuse translated `email-delivery-*` keys.
+
+### `2026-09-24` — A ticket reply shows whether its email was delivered
+
+- **Summary:** The ticket note card reads `mailDelivery` and shows the
+  recipient, a Sending / Not delivered / Bounced pill and the failure reason; a
+  failed send raises a destructive toast after saving, and a reply the API
+  refuses keeps its draft with the error in a toast. The no-customer-email hint
+  now says the reply cannot be sent.
+- **Affected areas:** `src/modules/activity/components/{NoteInput,
+NoteInputReadOnly,NoteAudienceHint}.tsx`,
+  `src/modules/activity/hooks/useCreateTicketNote.tsx`,
+  `src/modules/activity/graphql/`, `src/modules/activity/types.ts`
+- **Contracts changed:** The ticket note query and mutation select
+  `mailDelivery`. New i18n keys `note-email-sent-to` and
+  `ticket-reply-not-delivered` fall back to English until the gateway locale
+  carries them; the delivery pills reuse the inbox's `email-delivery-*` and
+  `email-bounced-for` keys.
+
+### `2026-09-24` — The ticket composer says who will read the message
+
+- **Summary:** The ticket note composer swaps its single Internal Note toggle
+  for the inbox's Reply / Internal Note segment tabs, adds a hint line naming
+  the audience (team only, the customer's email address, or the client
+  portal), tints internal mode with the warning colour and labels its button
+  **Add note** or **Send**. Timeline notes carry a kind badge.
+- **Affected areas:** `src/modules/activity/components/{NoteInput,
+NoteInputToolbar,NoteAudienceHint,NoteInputReadOnly}.tsx`,
+  `src/modules/activity/utils/noteKind.ts`,
+  `src/modules/activity/hooks/useTicketReplyTarget.tsx`,
+  `src/modules/activity/graphql/`, `src/modules/activity/types.ts`,
+  `src/modules/inbox/conversations/conversation-detail/components/{ComposerModeTabs,
+ComposerShell}.tsx`
+- **Contracts changed:** Consumes the new `mailTicketReplyTarget` query; the
+  ticket note query and mutation now select `mailMessageId`. New i18n keys
+  `write-a-message`, `add-note`, `ticket-reply-portal-only`,
+  `ticket-reply-no-recipient`, `ticket-reply-emailed`, `note-email-received`,
+  `note-portal-received`, `note-email-sent` and `note-customer-visible` fall
+  back to English until the gateway locale carries them.
+
 ### `2026-09-24` — The client portal picker stores an id
 
 - **Summary:** The picker's value became `clientPortalId` instead of the bare
@@ -1600,97 +1727,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `src/modules/helpcenter/components/help-center-drawer/HelpCenterDrawer.tsx`,
   `src/modules/helpcenter/types/index.ts`
 - **Contracts changed:** `None`
-
-### `2026-09-23` — The embed script moves to the knowledge base topic
-
-- **Summary:** The help center drawer's embed card and its script dialog are
-  gone; a topic now owns its embed script on an **Embed** tab in a three-tab
-  topic drawer (General, Appearance, Embed), reachable from the topic row's
-  `View Script` menu entry, with a copy button that reports success. The
-  generated snippet is unchanged.
-- **Affected areas:**
-  `src/modules/knowledgebase/components/{TopicDrawer,TopicEmbedTab}.tsx`,
-  `src/modules/knowledgebase/components/KnowledgeBaseTopicsNav.tsx`,
-  `src/modules/knowledgebase/utils/buildTopicEmbedScript.ts`,
-  `src/modules/knowledgebase/{types,constants}.ts`,
-  `src/modules/helpcenter/components/help-center-drawer/{HelpCenterDrawer,HelpCenterGeneralTab}.tsx`,
-  deleted `src/modules/knowledgebase/components/TopicEmbedScriptDialog.tsx`
-- **Contracts changed:** `None` — no query, mutation or generated script text
-  changed.
-
-### `2026-09-23` — The website picker shows the client portal name
-
-- **Summary:** The help center `Website` select now labels its trigger and
-  options with the client portal's name (domain as fallback and as a search
-  keyword) instead of the bare domain, while still storing the domain in `url`,
-  and the component was renamed `SelectHelpCenterWebsite` →
-  `SelectHelpCenterClientPortal` for what it picks.
-- **Affected areas:**
-  `src/modules/helpcenter/components/SelectHelpCenterClientPortal.tsx` (renamed
-  from `SelectHelpCenterWebsite.tsx`),
-  `src/modules/helpcenter/graphql/queries/getHelpCenterWebsiteOptions.ts`
-- **Contracts changed:** `frontlineHelpCenterWebsiteOptions` now also selects
-  `name` on each client portal.
-
-### `2026-09-23` — A survey question carries attachments
-
-- **Summary:** The Content step's question now has an attachments uploader
-  right under it, capped at five files per question, and `MessageSurvey` shows
-  those files with the question in both the wizard preview and the inbox
-  message.
-- **Affected areas:**
-  `src/modules/survey/components/mutate/SurveyStepCard.tsx`,
-  `src/modules/survey/components/mutate/SurveyPreview.tsx`,
-  `src/modules/survey/constants/{surveySetupSchema,surveySetupDefaultValues}.ts`,
-  `src/modules/survey/states/surveySetupStates.tsx`,
-  `src/modules/survey/graphql/{surveyQueries,surveyMutations}.ts`,
-  `src/modules/survey/types/surveyTypes.ts`,
-  `src/modules/inbox/conversation-messages/components/MessageSurvey.tsx`,
-  `src/modules/inbox/types/Conversation.ts`
-- **Contracts changed:** `surveyAdd` / `surveyEdit` steps are sent with
-  `attachments`, and the survey fragment reads `steps { attachments }`. New
-  i18n keys `survey-question-attachments` and
-  `survey-question-attachments-description` fall back to English until the
-  gateway locale carries them.
-
-### `2026-09-23` — Agents reject a survey request with a reason
-
-- **Summary:** The survey list's row menu and command bar reject a pending
-  client portal request through `SurveyRejectDialog`, which requires a written
-  reason; the request moves to the new `rejected` status instead of being
-  deleted, its badge is destructive and carries the reason as a tooltip, the
-  status filter offers `rejected`, and the row still offers `Approve` so the
-  decision can be reversed.
-- **Affected areas:**
-  `src/modules/survey/components/survey-page/SurveyRejectDialog.tsx`,
-  `src/modules/survey/components/survey-page/survey-columns.tsx`,
-  `src/modules/survey/components/survey-page/command-bar/survey-command-bar.tsx`,
-  `src/modules/survey/graphql/{surveyMutations,surveyQueries}.ts`,
-  `src/modules/survey/types/surveyTypes.ts`,
-  `src/modules/forms/components/form-page/filters/FormStatus.tsx`
-- **Contracts changed:** `surveyToggleStatus` is sent with `reason` and the
-  survey fragment reads `rejectionReason`. New i18n keys `survey-reject`,
-  `survey-rejected`, `survey-reject-description`, `survey-rejection-reason`
-  and `survey-rejection-reason-placeholder` fall back to English until the
-  gateway locale carries them.
-
-### `2026-09-22` — Radio/checkbox options are visible, full-width and editable in place
-
-- **Summary:** The shared `RadioGroup.Item` (`erxes-ui`) had no border in its
-  unchecked state, so every radio circle — in the form builder preview and in
-  the public form widget (`apps/frontline-widgets`) — was invisible until
-  checked; a `shadow-border` class the widget used to work around this did
-  nothing (no such Tailwind utility exists) and was removed once the shared
-  component carried its own `border border-scroll bg-background`. Radio,
-  `core:customer:sex` and `check` fields now always render at full row width
-  (`span`/`column` forced to `2`) with their options laid out two per row
-  instead of stacked in a single column. The builder's Options editor
-  (`FormFieldDetail.tsx`) was rebuilt from the `StringArrayInput` tag input,
-  which only supported add/remove, into a `PropertyFormSelectFields`-style
-  editable list with one `Input` per option so an existing option can be
-  corrected without deleting and retyping it.
-- **Affected areas:** `src/modules/forms/components/{FormPreview.tsx,
-FormFieldDetail.tsx}`; outside the plugin:
-  `frontend/libs/erxes-ui/src/components/radio-group.tsx`,
-  `apps/frontline-widgets/src/app/form/components/ErxesForm.tsx`.
-- **Contracts changed:** None.

@@ -14,6 +14,7 @@ import {
   MAIL_MESSAGE_TYPES,
 } from '@/integrations/mail/constants';
 import { createReplyTag } from '@/integrations/mail/utils/address';
+import { resendableFilter } from '@/integrations/mail/utils/delivery';
 import { mailScopeId } from '@/integrations/mail/utils/scope';
 import { describeError } from '@/integrations/mail/utils/errors';
 import {
@@ -234,6 +235,7 @@ export const loadMailMessageClass = (models: IModels) => {
         ),
         type: MAIL_MESSAGE_TYPES.SENT,
         deliveryStatus: MAIL_DELIVERY_STATUSES.PENDING,
+        deliveryAttemptedAt: new Date(),
         createdAt: new Date(),
       });
     }
@@ -258,15 +260,20 @@ export const loadMailMessageClass = (models: IModels) => {
       }
 
       const claimed = await models.MailMessages.updateOne(
-        { _id, deliveryStatus: MAIL_DELIVERY_STATUSES.FAILED },
+        { _id, ...resendableFilter() },
         {
-          $set: { deliveryStatus: MAIL_DELIVERY_STATUSES.PENDING },
+          $set: {
+            deliveryStatus: MAIL_DELIVERY_STATUSES.PENDING,
+            deliveryAttemptedAt: new Date(),
+          },
           $unset: { deliveryError: '', deliveryRetryable: '' },
         },
       );
 
       if (!claimed.modifiedCount) {
-        throw new Error('Only a failed message can be resent');
+        throw new Error(
+          'Only a failed message, or one stuck sending for more than 10 minutes, can be resent',
+        );
       }
 
       return Message.deliver(subdomain, message, integration);

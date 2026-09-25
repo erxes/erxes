@@ -5,6 +5,7 @@ import {
 } from '@/integrations/mail/@types/message';
 import { createPermissionValidator } from '@/ticket/utils/permissionValidator';
 import { checkMailConnection } from '@/integrations/mail/utils/connection';
+import { findViewableTicket } from '@/integrations/mail/utils/tickets';
 import {
   IPipelineMailSettings,
   connectPipelineMail,
@@ -141,6 +142,28 @@ export const mailMutations = {
     return toDeliveryOutcome(
       await models.MailMessages.retrySend(_id, subdomain),
     );
+  },
+
+  async mailTicketNoteRetry(
+    _root: undefined,
+    { noteId }: { noteId: string },
+    { subdomain, models, user, checkPermission }: IContext,
+  ) {
+    await checkPermission('showTickets');
+
+    const note = await models.Note.getNote(noteId);
+
+    await findViewableTicket(models, user, note.contentId);
+
+    if (!note.mailMessageId) {
+      throw new Error(
+        'This note was never mailed, so there is nothing to resend',
+      );
+    }
+
+    await models.MailMessages.retrySend(note.mailMessageId, subdomain);
+
+    return note;
   },
 
   async mailCheckConnection(

@@ -84,6 +84,10 @@ export const mailMessageSchema = new Schema({
     type: Boolean,
     label: 'Whether resending the failed message can succeed',
   },
+  deliveryAttemptedAt: {
+    type: Date,
+    label: 'When the latest delivery attempt started',
+  },
   bouncedRecipients: { type: [String], default: undefined },
   type: {
     type: String,

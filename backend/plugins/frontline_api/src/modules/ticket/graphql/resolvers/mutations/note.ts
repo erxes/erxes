@@ -23,7 +23,14 @@ export const noteMutations = {
   ) => {
     const userId = user._id || '';
 
-    const note = await models.Note.createNote({
+    const mailMessageId = await mailTicketNote(models, subdomain, {
+      content,
+      contentId,
+      attachments,
+      isInternal,
+    });
+
+    return models.Note.createNote({
       doc: {
         content,
         contentId,
@@ -31,12 +38,11 @@ export const noteMutations = {
         attachments,
         isInternal,
         createdBy: user._id,
+        mailMessageId,
       },
       subdomain,
       userId,
     });
-
-    return mailTicketNote(models, subdomain, note);
   },
 
   ticketUpdateNote: async (

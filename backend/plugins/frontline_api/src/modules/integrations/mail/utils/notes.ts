@@ -1,16 +1,31 @@
 import { IModels } from '~/connectionResolvers';
-import { INoteDocument } from '@/ticket/@types/note';
-import { debugError } from '@/integrations/mail/debuggers';
+import { INote } from '@/ticket/@types/note';
 import { IMailMessageDocument } from '@/integrations/mail/@types/message';
-import { noteContentToHtml } from '@/integrations/mail/utils/noteContent';
+import {
+  attachmentListToHtml,
+  noteContentToHtml,
+} from '@/integrations/mail/utils/noteContent';
+import {
+  toMailAttachments,
+  toNoteAttachments,
+  toUnsavedAttachments,
+} from '@/integrations/mail/utils/noteAttachments';
+import { inlineStorageImages } from '@/integrations/mail/utils/inlineImages';
 import { findPipelineIntegration } from '@/integrations/mail/utils/pipeline';
-import { sendTicketMail } from '@/integrations/mail/utils/tickets';
+import {
+  resolveTicketRecipient,
+  sendTicketMail,
+} from '@/integrations/mail/utils/tickets';
+import { assertSendableIntegration } from '@/integrations/mail/utils/transports/readiness';
 import { splitQuotedReply } from '@/integrations/mail/utils/thread';
 import { MAIL_MESSAGE_TYPES } from '@/integrations/mail/constants';
 
 const REPLY_PREFIX = /^re\s*:/i;
 
 const FALLBACK_SUBJECT = 'Re: your request';
+
+const NO_RECIPIENT_ERROR =
+  'This ticket has no customer email address, so the reply cannot be mailed. Add an email to the customer or write an internal note instead.';
 
 const latestMessage = (models: IModels, ticketId: string) =>
   models.MailMessages.findOne({ ticketId })
@@ -35,55 +50,64 @@ const replySubject = (latest?: string, fallback?: string) => {
 export const mailTicketNote = async (
   models: IModels,
   subdomain: string,
-  note: INoteDocument,
-): Promise<INoteDocument> => {
-  if (note.isInternal || note.mailMessageId || !note.contentId) {
-    return note;
+  {
+    contentId,
+    content,
+    attachments,
+    isInternal,
+  }: Pick<INote, 'contentId' | 'content' | 'attachments' | 'isInternal'>,
+): Promise<string | undefined> => {
+  if (isInternal || !contentId) {
+    return undefined;
   }
 
-  const ticket = await models.Ticket.findOne({ _id: note.contentId });
+  const ticket = await models.Ticket.findOne({ _id: contentId });
 
   if (!ticket) {
-    return note;
+    return undefined;
   }
 
   const integration = await findPipelineIntegration(models, ticket.pipelineId);
 
   if (!integration) {
-    return note;
+    return undefined;
   }
 
-  try {
-    const body = noteContentToHtml(note.content);
+  const mailAttachments = toMailAttachments(attachments);
 
-    if (!body) {
-      return note;
-    }
+  const inline = inlineStorageImages(noteContentToHtml(content));
 
-    const latest = await latestMessage(models, ticket._id);
+  const body =
+    inline.html ||
+    attachmentListToHtml(mailAttachments.map(({ name }) => name ?? ''));
 
-    const parent = (await latestInbound(models, ticket._id)) ?? latest;
-
-    const message = await sendTicketMail(models, subdomain, ticket, {
-      ticketId: ticket._id,
-      subject: replySubject(latest?.subject, ticket.name),
-      body,
-      replyToMessageId: parent?.messageId,
-      references: parent?.references ?? [],
-    });
-
-    const updated = await models.Note.findOneAndUpdate(
-      { _id: note._id },
-      { $set: { mailMessageId: message._id } },
-      { new: true },
-    );
-
-    return updated ?? note;
-  } catch (e) {
-    debugError('Note could not be mailed to the requester:', e);
-
-    return note;
+  if (!body) {
+    return undefined;
   }
+
+  await assertSendableIntegration(subdomain);
+
+  const recipient = await resolveTicketRecipient(models, subdomain, ticket._id);
+
+  if (!recipient) {
+    throw new Error(NO_RECIPIENT_ERROR);
+  }
+
+  const latest = await latestMessage(models, ticket._id);
+
+  const parent = (await latestInbound(models, ticket._id)) ?? latest;
+
+  const message = await sendTicketMail(models, subdomain, ticket, {
+    ticketId: ticket._id,
+    to: [recipient],
+    subject: replySubject(latest?.subject, ticket.name),
+    body,
+    attachments: [...mailAttachments, ...inline.attachments],
+    replyToMessageId: parent?.messageId,
+    references: parent?.references ?? [],
+  });
+
+  return message._id;
 };
 
 export const noteFromMail = async ({
@@ -109,7 +133,13 @@ export const noteFromMail = async ({
 
   const content = (splitQuotedReply(body).newContent ?? body).trim();
 
-  if (!content) {
+  const attachments = toNoteAttachments(message);
+
+  if (
+    !content &&
+    !attachments.length &&
+    !toUnsavedAttachments(message).length
+  ) {
     return null;
   }
 
@@ -122,6 +152,7 @@ export const noteFromMail = async ({
       createdBy: author,
       isInternal: false,
       mailMessageId: message._id,
+      attachments,
     },
     subdomain,
     userId: author,
