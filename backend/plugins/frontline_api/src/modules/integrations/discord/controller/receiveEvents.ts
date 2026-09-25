@@ -1,10 +1,11 @@
 import { graphqlPubsub } from 'erxes-api-shared/utils';
-import { IModels } from '~/connectionResolvers';
-import { IDiscordBotDocument } from '@/integrations/discord/@types/bot';
-import {
+import type { IModels } from '~/connectionResolvers';
+import type { IDiscordBotDocument } from '@/integrations/discord/@types/bot';
+import type {
   DiscordActivity,
   DiscordMessageDeleteEvent,
   DiscordPollVoteEvent,
+  DiscordReactionEvent,
   DiscordTypingEvent,
 } from '@/integrations/discord/@types/activity';
 import {
@@ -99,8 +100,31 @@ export const receiveDiscordMessageEdit = async ({
     });
   }
 
+  if (typeof activity.raw?.pinned === 'boolean') {
+    await updateInboxMessageExtra(models, activity.messageId, {
+      discordPinned: activity.raw.pinned,
+      ...(!activity.raw.edited_timestamp && { discordEditedAt: null }),
+    });
+  }
+
+  if (Array.isArray(activity.raw?.attachments)) {
+    await models.DiscordConversationMessages.updateOne(
+      { _id: message._id },
+      { $set: { attachments: activity.attachments || [] } },
+    );
+    await updateInboxMessageExtra(
+      models,
+      activity.messageId,
+      {},
+      { attachments: activity.attachments || [] },
+    );
+  }
+
+  const editedAt = activity.raw?.edited_timestamp;
   const editedContent =
-    typeof activity.raw?.content === 'string' ? activity.content : undefined;
+    typeof editedAt === 'string' && typeof activity.raw?.content === 'string'
+      ? activity.content
+      : undefined;
 
   if (editedContent === undefined) {
     return;
@@ -111,6 +135,10 @@ export const receiveDiscordMessageEdit = async ({
     activity.mentions,
   );
 
+  if (displayContent === message.content) {
+    return;
+  }
+
   await models.DiscordConversationMessages.updateOne(
     { _id: message._id },
     { $set: { content: displayContent, updatedAt: new Date() } },
@@ -119,7 +147,7 @@ export const receiveDiscordMessageEdit = async ({
   await updateInboxMessageExtra(
     models,
     activity.messageId,
-    { discordEditedAt: new Date().toISOString() },
+    { discordEditedAt: editedAt },
     { content: displayContent },
   );
 
@@ -186,7 +214,9 @@ export const receiveDiscordPollVote = async ({
     poll = normalizeDiscordPoll(fetched?.poll);
   } catch (e) {
     debugError(
-      `Failed to fetch Discord poll ${event.messageId}: ${(e as Error).message}`,
+      `Failed to fetch Discord poll ${event.messageId}: ${
+        (e as Error).message
+      }`,
     );
     return;
   }
@@ -202,6 +232,81 @@ export const receiveDiscordPollVote = async ({
   if (updated) {
     debugDiscord(`Updated Discord poll ${event.messageId} tallies`);
   }
+};
+
+/** Apply a Discord reaction event to the canonical inbox message. */
+export const receiveDiscordReaction = async ({
+  models,
+  bot,
+  event,
+}: {
+  models: IModels;
+  bot: IDiscordBotDocument;
+  event: DiscordReactionEvent;
+}) => {
+  const isBotReaction = event.userId === bot.applicationId;
+  const messageFilter = {
+    'extraData.discordMessageId': event.messageId,
+  };
+  const providerReaction = {
+    senderId: event.userId,
+    emoji: event.emoji,
+  };
+
+  const updated = event.added
+    ? await models.ConversationMessages.findOneAndUpdate(
+        {
+          ...messageFilter,
+          ...(isBotReaction && {
+            'extraData.reactions': {
+              $not: {
+                $elemMatch: {
+                  emoji: event.emoji,
+                  reaction: { $exists: true },
+                },
+              },
+            },
+          }),
+        },
+        {
+          $addToSet: {
+            'extraData.reactions': providerReaction,
+            reactions: providerReaction,
+          },
+        },
+        { new: true },
+      )
+    : await models.ConversationMessages.findOneAndUpdate(
+        messageFilter,
+        {
+          $pull: {
+            'extraData.reactions': isBotReaction
+              ? {
+                  $or: [
+                    providerReaction,
+                    { emoji: event.emoji, reaction: { $exists: true } },
+                  ],
+                }
+              : providerReaction,
+            reactions: isBotReaction
+              ? {
+                  $or: [
+                    providerReaction,
+                    { emoji: event.emoji, reaction: { $exists: true } },
+                  ],
+                }
+              : providerReaction,
+          },
+        },
+        { new: true },
+      );
+
+  if (!updated) return;
+
+  await graphqlPubsub.publish(
+    `conversationMessageInserted:${updated.conversationId}`,
+    { conversationMessageInserted: updated },
+  );
 };
 
 export const receiveDiscordTyping = async ({

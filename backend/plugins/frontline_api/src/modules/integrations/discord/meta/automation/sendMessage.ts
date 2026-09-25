@@ -87,7 +87,9 @@ const buildEmbeds = (embed?: TDiscordEmbed): APIEmbed[] => {
 const buildComponents = (
   buttons?: TDiscordButton[],
 ): APIActionRowComponent<APIButtonComponentWithURL>[] => {
-  const valid = (buttons || []).filter((b) => b?.label?.trim() && b?.url?.trim());
+  const valid = (buttons || []).filter(
+    (b) => b?.label?.trim() && b?.url?.trim(),
+  );
   if (!valid.length) return [];
 
   const rows: APIActionRowComponent<APIButtonComponentWithURL>[] = [];
@@ -252,7 +254,11 @@ const resolveChannelOrDmTarget = async (
       throw new Error('Could not open a DM channel with that user');
     }
 
-    return { token, channelId, conversation: null as IDiscordConversationDocument | null };
+    return {
+      token,
+      channelId,
+      conversation: null as IDiscordConversationDocument | null,
+    };
   }
 
   const channelId = (
@@ -347,7 +353,9 @@ const mirrorSentMessageToInbox = async ({
     // Discord send already succeeded; only the inbox mirror failed. Surface it
     // in logs but let the action complete so the result is still returned.
     debugError(
-      `Discord message sent (${sent?.id}) but failed to mirror into the inbox: ${getErrorMessage(e)}`,
+      `Discord message sent (${
+        sent?.id
+      }) but failed to mirror into the inbox: ${getErrorMessage(e)}`,
     );
   }
 };
