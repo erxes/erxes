@@ -3,7 +3,7 @@ import { TaskSideWidgets } from '~/widgets/relation/TaskSideWidgets';
 import { useGetTask } from '@/task/hooks/useGetTask';
 import { TaskDetailBreadCrump } from '@/task/components/breadcrump/TaskDetailBreadCrump';
 import { PageHeader } from 'ui-modules';
-import { Breadcrumb, ScrollArea, Separator } from 'erxes-ui';
+import { Breadcrumb, FocusSheet, ScrollArea, Separator } from 'erxes-ui';
 import { useParams } from 'react-router-dom';
 import { TeamBreadCrumb } from '@/team/components/breadcrumb/TeamBreadCrumb';
 import { TaskBreadCrump } from '@/task/components/breadcrump/TaskBreadCrump';
@@ -49,10 +49,12 @@ export const TaskDetailPage = () => {
           </div>
         </ScrollArea>
         {task && (
-          <TaskSideWidgets
-            contentId={task._id}
-            propertiesData={task.propertiesData}
-          />
+          <FocusSheet>
+            <TaskSideWidgets
+              contentId={task._id}
+              propertiesData={task.propertiesData}
+            />
+          </FocusSheet>
         )}
       </div>
     </>
