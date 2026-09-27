@@ -84,7 +84,7 @@ export const loadSafeRemainderItemClass = (
      */
     public static async updateItem(
       _id: string,
-      doc: ISafeRemainderItem,
+      doc: Partial<ISafeRemainderItem>,
       userId: string,
     ) {
       const item = await models.SafeRemainderItems.getItem(_id);

@@ -8,6 +8,7 @@ import {
   Spinner,
   Tabs,
   ToggleGroup,
+  toast,
   useQueryState,
   useSetHotkeyScope,
 } from 'erxes-ui';
@@ -40,6 +41,7 @@ import { SafeRemainderDetailFilter } from './SafeRemainderDetailFilters';
 import { activeTabState } from '../states';
 import dayjs from 'dayjs';
 import { safeRemDetailColumnsIncome } from './SafeRemainderDetailColsIncome';
+import { safeRemDetailColumnsCost } from './SafeRemainderDetailColsCost';
 import { safeRemDetailColumnsOut } from './SafeRemainderDetailColsOut';
 import { safeRemDetailColumnsSale } from './SafeRemainderDetailColsSale';
 import { safeRemDetailTableColumns } from './SafeRemainderDetailColumns';
@@ -49,6 +51,12 @@ import { useSafeRemainderDetails } from '../hooks/useSafeRemainderDetails';
 import { useSafeRemainderItemsBulkEdit } from '../hooks/useSafeRemainderItemsBulkEdit';
 import { useSafeRemainderRemove } from '../hooks/useSafeRemainderRemove';
 import { useTranslation } from 'react-i18next';
+import { TSafeRemainderImportItem } from '../types/SafeRemainder';
+import { parseSafeRemainderImport } from '../utils/parseSafeRemainderImport';
+import {
+  getSafeRemainderCostAdjustmentAmount,
+  getSafeRemainderCostAdjustmentDifference,
+} from '../utils/safeRemainderTransactions';
 
 export const SafeRemainderDetail = () => {
   const { t } = useTranslation('accounting');
@@ -217,7 +225,7 @@ export const SafeRemainderDetail = () => {
           className="mt-6 flex-1 min-h-0 flex flex-col data-[state=inactive]:hidden"
         >
           <RecordTableHotkeyProvider
-            columnLength={3}
+            columnLength={4}
             rowLength={safeRemainderItems?.length || 0}
             scope={AccountingHotkeyScope.SafeRemainderPage}
           >
@@ -297,7 +305,7 @@ export const SafeRemainderDetail = () => {
           className="mt-6 flex-1 min-h-0 flex flex-col data-[state=inactive]:hidden"
         >
           <RecordTableHotkeyProvider
-            columnLength={3}
+            columnLength={4}
             rowLength={safeRemainderItems?.length || 0}
             scope={AccountingHotkeyScope.SafeRemainderPage}
           >
@@ -338,7 +346,7 @@ export const SafeRemainderDetail = () => {
           className="mt-6 flex-1 min-h-0 flex flex-col data-[state=inactive]:hidden"
         >
           <RecordTableHotkeyProvider
-            columnLength={3}
+            columnLength={6}
             rowLength={safeRemainderItems?.length || 0}
             scope={AccountingHotkeyScope.SafeRemainderPage}
           >
@@ -365,6 +373,72 @@ export const SafeRemainderDetail = () => {
                           handleInView={handleFetchMore}
                         />
                       )}
+                  </RecordTable.Body>
+                </RecordTable>
+                <SafeRemDetailCommandbar />
+              </RecordTable.Scroll>
+            </RecordTable.Provider>
+          </RecordTableHotkeyProvider>
+        </Tabs.Content>
+        <Tabs.Content
+          key={CENSUS_TABS.COST_INCREASE.value}
+          value={CENSUS_TABS.COST_INCREASE.value}
+          className="mt-6 flex-1 min-h-0 flex flex-col data-[state=inactive]:hidden"
+        >
+          <RecordTableHotkeyProvider
+            columnLength={1}
+            rowLength={safeRemainderItems?.length || 0}
+            scope={AccountingHotkeyScope.SafeRemainderPage}
+          >
+            <RecordTable.Provider
+              columns={safeRemDetailColumnsCost}
+              data={safeRemainderItems.filter(
+                (item) =>
+                  getSafeRemainderCostAdjustmentDifference(item) > 0 &&
+                  getSafeRemainderCostAdjustmentAmount(item) > 0,
+              )}
+              stickyColumns={[]}
+              tableId="accounting_safe_remainder_cost_increase_record_table"
+              className="m-3"
+            >
+              <RecordTable.Scroll>
+                <RecordTable>
+                  <RecordTable.Header showColumnSelector />
+                  <RecordTable.Body>
+                    <RecordTable.RowList />
+                  </RecordTable.Body>
+                </RecordTable>
+                <SafeRemDetailCommandbar />
+              </RecordTable.Scroll>
+            </RecordTable.Provider>
+          </RecordTableHotkeyProvider>
+        </Tabs.Content>
+        <Tabs.Content
+          key={CENSUS_TABS.COST_DECREASE.value}
+          value={CENSUS_TABS.COST_DECREASE.value}
+          className="mt-6 flex-1 min-h-0 flex flex-col data-[state=inactive]:hidden"
+        >
+          <RecordTableHotkeyProvider
+            columnLength={1}
+            rowLength={safeRemainderItems?.length || 0}
+            scope={AccountingHotkeyScope.SafeRemainderPage}
+          >
+            <RecordTable.Provider
+              columns={safeRemDetailColumnsCost}
+              data={safeRemainderItems.filter(
+                (item) =>
+                  getSafeRemainderCostAdjustmentDifference(item) < 0 &&
+                  getSafeRemainderCostAdjustmentAmount(item) > 0,
+              )}
+              stickyColumns={[]}
+              tableId="accounting_safe_remainder_cost_decrease_record_table"
+              className="m-3"
+            >
+              <RecordTable.Scroll>
+                <RecordTable>
+                  <RecordTable.Header showColumnSelector />
+                  <RecordTable.Body>
+                    <RecordTable.RowList />
                   </RecordTable.Body>
                 </RecordTable>
                 <SafeRemDetailCommandbar />
@@ -498,6 +572,9 @@ const ImportFromFileSheet = ({
         <p className="text-sm text-muted-foreground">
           Давтагдсан productCode-тэй мөрүүдийг хэрхэн боловсруулах вэ?
         </p>
+        <p className="text-xs text-muted-foreground">
+          TXT: code,count. CSV: productCode,count,unitCost,isSale,unitPrice.
+        </p>
         <DuplicateRuleOptions
           duplicateRule={duplicateRule}
           rules={rules}
@@ -526,7 +603,7 @@ const ImportFromFileButton = ({
   const [open, setOpen] = useState(false);
   const [duplicateRule, setDuplicateRule] = useState<DuplicateRule>('last');
   const [pendingItems, setPendingItems] = useState<
-    { productCode: string; count: number }[]
+    TSafeRemainderImportItem[]
   >([]);
   const { bulkEditRemItems, loading } = useSafeRemainderItemsBulkEdit();
 
@@ -536,21 +613,21 @@ const ImportFromFileButton = ({
 
     const reader = new FileReader();
     reader.onload = (ev) => {
-      const text = ev.target?.result as string;
-      const items = text
-        .split('\n')
-        .map((line) => line.trim())
-        .filter(Boolean)
-        .flatMap((line) => {
-          const [code, qty] = line.split(',').map((s) => s.trim());
-          const quantity = Number.parseFloat(qty);
-          if (!code || Number.isNaN(quantity)) return [];
-          return [{ productCode: code, count: quantity }];
-        });
+      const result = ev.target?.result;
+      if (typeof result !== 'string') return;
 
-      if (items.length > 0) {
+      try {
+        const items = parseSafeRemainderImport(result, file.name);
+        if (!items.length) throw new Error('Импортлох мөр олдсонгүй');
         setPendingItems(items);
         setOpen(true);
+      } catch (error) {
+        toast({
+          title: t('error'),
+          description:
+            error instanceof Error ? error.message : 'Файлын формат буруу байна',
+          variant: 'destructive',
+        });
       }
     };
     reader.readAsText(file);
@@ -587,7 +664,7 @@ const ImportFromFileButton = ({
       <input
         ref={inputRef}
         type="file"
-        accept=".txt"
+        accept=".txt,.csv,text/plain,text/csv"
         className="hidden"
         onChange={handleFile}
       />

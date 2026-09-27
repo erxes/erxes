@@ -44,6 +44,10 @@ export const safeRemainderFields = `
   outTrId
   saleRule
   saleTrId
+  costIncreaseRule
+  costDecreaseRule
+  costIncreaseTrId
+  costDecreaseTrId
 `;
 
 export const safeRemainderItemFields = `

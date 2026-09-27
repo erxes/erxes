@@ -7,6 +7,19 @@ export interface IRemainderParams {
   uom?: string;
 }
 
+export interface ISafeRemainderItemTrInfo {
+  activeCost?: number;
+  unitCost?: number;
+  isSale?: boolean;
+  unitPrice?: number;
+}
+
+export interface ISafeRemainderImportItem {
+  productCode: string;
+  count: number;
+  trInfo?: Omit<ISafeRemainderItemTrInfo, 'activeCost'>;
+}
+
 export interface ISafeRemainderItem {
   remainderId: string;
   productId: string;
@@ -18,11 +31,7 @@ export interface ISafeRemainderItem {
 
   description: string;
 
-  trInfo: {
-    unitCost?: number;
-    isSale?: boolean;
-    unitPrice?: number;
-  };
+  trInfo?: ISafeRemainderItemTrInfo;
 }
 
 export interface ISafeRemainderItemDocument

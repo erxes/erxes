@@ -4,40 +4,70 @@ import {
   SAFE_REMAINDER_ITEM_STATUSES,
   SAFE_REMAINDER_STATUSES,
 } from '~/modules/inventories/@types/constants';
+import {
+  ISafeRemainderImportItem,
+  ISafeRemainderItemTrInfo,
+} from '~/modules/inventories/@types/safeRemainderItems';
+
+type ProductReference = {
+  _id: string;
+  code: string;
+  uom?: string;
+};
+
+type MergedImportItem = Omit<ISafeRemainderImportItem, 'productCode'>;
+
+const validateCountedValues = (
+  count: number | undefined,
+  trInfo?: ISafeRemainderItemTrInfo,
+) => {
+  if (count !== undefined && (!Number.isFinite(count) || count < 0)) {
+    throw new Error('Counted remainder must be zero or greater');
+  }
+
+  const unitCost = trInfo?.unitCost;
+  if (
+    unitCost !== undefined &&
+    (!Number.isFinite(unitCost) || unitCost < 0)
+  ) {
+    throw new Error('Counted unit cost must be zero or greater');
+  }
+};
 
 const safeRemainderItemMutations = {
   async safeRemainderItemEdit(
-    _root: any,
+    _root: unknown,
     params: {
       _id: string;
       status?: string;
-      remainder: number;
-      trInfo?: any;
+      remainder?: number;
+      trInfo?: ISafeRemainderItemTrInfo;
     },
     { models, user, checkPermission }: IContext,
   ) {
     await checkPermission('manageSafeRemainders');
 
     const { _id, status, remainder, trInfo } = params;
+    validateCountedValues(remainder, trInfo);
 
     const doc = {
-      count: remainder,
+      ...(remainder !== undefined ? { count: remainder } : {}),
       status: status || SAFE_REMAINDER_ITEM_STATUSES.CHECKED,
-      trInfo,
+      ...(trInfo !== undefined ? { trInfo } : {}),
     };
 
     return await models.SafeRemainderItems.updateItem(_id, doc, user._id);
   },
 
   async safeRemainderItemsBulkEdit(
-    _root: any,
+    _root: unknown,
     {
       safeRemainderId,
       productsData,
       duplicateRule = 'last',
     }: {
       safeRemainderId: string;
-      productsData: { productCode: string; count: number }[];
+      productsData: ISafeRemainderImportItem[];
       duplicateRule?: 'skip' | 'last' | 'add';
     },
     { models, subdomain, user, checkPermission }: IContext,
@@ -51,21 +81,32 @@ const safeRemainderItemMutations = {
       throw new Error('Cant edit cause remainder has submitted');
     }
 
-    const merged: Record<string, number> = {};
+    const merged: Record<string, MergedImportItem> = {};
     for (const item of productsData) {
+      validateCountedValues(item.count, item.trInfo);
+
       const existing = merged[item.productCode];
-      if (existing === undefined) {
-        merged[item.productCode] = fixNum(item.count, 4);
-      } else if (duplicateRule === 'last') {
-        merged[item.productCode] = fixNum(item.count, 4);
+      const normalizedItem = {
+        count: fixNum(item.count, 4),
+        trInfo: item.trInfo,
+      };
+
+      if (!existing || duplicateRule === 'last') {
+        merged[item.productCode] = normalizedItem;
       } else if (duplicateRule === 'add') {
-        merged[item.productCode] = existing + fixNum(item.count, 4);
+        merged[item.productCode] = {
+          count: fixNum(existing.count + normalizedItem.count, 4),
+          trInfo: {
+            ...existing.trInfo,
+            ...normalizedItem.trInfo,
+          },
+        };
       }
     }
 
     const productCodes = Object.keys(merged);
 
-    const products = await sendTRPCMessage({
+    const products: ProductReference[] = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
       module: 'products',
@@ -77,16 +118,27 @@ const safeRemainderItemMutations = {
       defaultValue: [],
     });
 
-    const productByCode: Record<string, any> = {};
+    const productByCode: Record<string, ProductReference> = {};
     for (const p of products) {
       productByCode[p.code] = p;
     }
 
-    const bulkOps: any[] = [];
+    const bulkOps: Parameters<typeof models.SafeRemainderItems.bulkWrite>[0] =
+      [];
 
     for (const code of productCodes) {
       const product = productByCode[code];
       if (!product) continue;
+      const importItem = merged[code];
+      const importedTrInfo = importItem.trInfo;
+      const trInfoSet = Object.entries(importedTrInfo ?? {}).reduce<
+        Record<string, number | boolean>
+      >((set, [key, value]) => {
+        if (value !== undefined) {
+          set[`trInfo.${key}`] = value;
+        }
+        return set;
+      }, {});
 
       const setOnInsert = {
         remainderId: safeRemainderId,
@@ -95,34 +147,17 @@ const safeRemainderItemMutations = {
         departmentId: safeRemainder.departmentId,
         uom: product.uom,
         preCount: 0,
+        'trInfo.activeCost': 0,
       };
-
-      if (duplicateRule === 'skip') {
-        bulkOps.push({
-          updateOne: {
-            filter: { remainderId: safeRemainderId, productId: product._id },
-            update: {
-              $setOnInsert: {
-                ...setOnInsert,
-                count: merged[code],
-                status: SAFE_REMAINDER_ITEM_STATUSES.CHECKED,
-                modifiedAt: new Date(),
-                modifiedBy: user._id,
-              },
-            },
-            upsert: true,
-          },
-        })
-        continue;
-      }
 
       if (duplicateRule === 'add') {
         bulkOps.push({
           updateOne: {
             filter: { remainderId: safeRemainderId, productId: product._id },
             update: {
-              $inc: { count: merged[code] },
+              $inc: { count: importItem.count },
               $set: {
+                ...trInfoSet,
                 status: SAFE_REMAINDER_ITEM_STATUSES.CHECKED,
                 modifiedAt: new Date(),
                 modifiedBy: user._id,
@@ -140,7 +175,8 @@ const safeRemainderItemMutations = {
           filter: { remainderId: safeRemainderId, productId: product._id },
           update: {
             $set: {
-              count: merged[code],
+              count: importItem.count,
+              ...trInfoSet,
               status: SAFE_REMAINDER_ITEM_STATUSES.CHECKED,
               modifiedAt: new Date(),
               modifiedBy: user._id,
@@ -149,8 +185,8 @@ const safeRemainderItemMutations = {
           },
           upsert: true,
         },
-      })
-    };
+      });
+    }
 
     if (!bulkOps.length) return 0;
 
@@ -161,7 +197,7 @@ const safeRemainderItemMutations = {
   },
 
   async safeRemainderItemsRemove(
-    _root: any,
+    _root: unknown,
     { ids }: { ids: string[] },
     { models, checkPermission }: IContext,
   ) {

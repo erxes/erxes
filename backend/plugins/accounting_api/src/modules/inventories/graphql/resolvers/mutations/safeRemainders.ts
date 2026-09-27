@@ -1,6 +1,6 @@
 import { fixNum } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
-import { JOURNALS } from '~/modules/accounting/@types/constants';
+import { JOURNALS, TR_SIDES } from '~/modules/accounting/@types/constants';
 import { ITrDetail } from '~/modules/accounting/@types/transaction';
 import { SAFE_REMAINDER_STATUSES } from '~/modules/inventories/@types/constants';
 import { ISafeRemainderItemDocument } from '~/modules/inventories/@types/safeRemainderItems';
@@ -16,7 +16,7 @@ import {
 
 const safeRemainderMutations = {
   safeRemainderAdd: async (
-    _root: any,
+    _root: unknown,
     params: ISafeRemainder,
     { models, subdomain, user, checkPermission }: IContext,
   ) => {
@@ -32,7 +32,7 @@ const safeRemainderMutations = {
   },
 
   safeRemainderEdit: async (
-    _root: any,
+    _root: unknown,
     params: ISafeRemEditFields & { _id: string },
     { models, user, checkPermission }: IContext,
   ) => {
@@ -42,7 +42,7 @@ const safeRemainderMutations = {
   },
 
   safeRemainderRemove: async (
-    _root: any,
+    _root: unknown,
     { _id }: { _id: string },
     { models, checkPermission }: IContext,
   ) => {
@@ -53,7 +53,7 @@ const safeRemainderMutations = {
   },
 
   safeRemainderReCalc: async (
-    _root: any,
+    _root: unknown,
     { _id }: { _id: string },
     { subdomain, models, user, checkPermission }: IContext,
   ) => {
@@ -69,7 +69,7 @@ const safeRemainderMutations = {
   },
 
   safeRemainderSubmit: async (
-    _root: any,
+    _root: unknown,
     { _id }: { _id: string },
     { models, checkPermission }: IContext,
   ) => {
@@ -110,7 +110,7 @@ const safeRemainderMutations = {
   },
 
   safeRemainderCancel: async (
-    _root: any,
+    _root: unknown,
     { _id }: { _id: string },
     { models, checkPermission }: IContext,
   ) => {
@@ -148,7 +148,7 @@ const safeRemainderMutations = {
   },
 
   safeRemainderDoTr: async (
-    _root: any,
+    _root: unknown,
     { _id }: { _id: string },
     { models, user, checkPermission }: IContext,
   ) => {
@@ -157,8 +157,18 @@ const safeRemainderMutations = {
     const safeRemainder = await models.SafeRemainders.getRemainder(_id);
     const items: ISafeRemainderItemDocument[] =
       await models.SafeRemainderItems.find({ remainderId: _id }).lean();
-    const { incomeRule, incomeTrId, outRule, outTrId, saleRule, saleTrId } =
-      safeRemainder;
+    const {
+      incomeRule,
+      incomeTrId,
+      outRule,
+      outTrId,
+      saleRule,
+      saleTrId,
+      costIncreaseRule,
+      costDecreaseRule,
+      costIncreaseTrId,
+      costDecreaseTrId,
+    } = safeRemainder;
 
     const { mainTr: oldIncomeTr, otherTrs: incomeOtherTrs } = incomeTrId
       ? await models.Transactions.getOriginTransactions(incomeTrId)
@@ -169,48 +179,97 @@ const safeRemainderMutations = {
     const { mainTr: oldSaleTr, otherTrs: saleOtherTrs } = saleTrId
       ? await models.Transactions.getOriginTransactions(saleTrId)
       : {};
+    const { mainTr: oldCostIncreaseTr, otherTrs: costIncreaseOtherTrs } =
+      costIncreaseTrId
+        ? await models.Transactions.getOriginTransactions(costIncreaseTrId)
+        : {};
+    const { mainTr: oldCostDecreaseTr, otherTrs: costDecreaseOtherTrs } =
+      costDecreaseTrId
+        ? await models.Transactions.getOriginTransactions(costDecreaseTrId)
+        : {};
 
     const incomeDetails: ITrDetail[] = [];
     const outDetails: ITrDetail[] = [];
     const saleDetails: ITrDetail[] = [];
+    const costIncreaseDetails: ITrDetail[] = [];
+    const costDecreaseDetails: ITrDetail[] = [];
 
     for (const item of items) {
       const { productId, preCount, count } = item;
-      if (preCount === count) {
-        continue;
-      }
+      const activeCost = item.trInfo?.activeCost ?? 0;
+      const targetCost = item.trInfo?.unitCost;
+      const finalCost = targetCost ?? activeCost;
+      const currentValue = fixNum(Math.max(0, preCount * activeCost), 6);
+      const targetValue = fixNum(Math.max(0, count * finalCost), 6);
+      let valueAfterQuantity = currentValue;
 
       if (preCount < count) {
         const incomeCount = count - preCount;
+        const incomeAmount = fixNum(
+          Math.max(0, targetValue - currentValue),
+          6,
+        );
         incomeDetails.push({
           accountId: incomeRule?.accountId ?? '',
-          amount: fixNum(incomeCount * (item.trInfo?.unitCost ?? 0), 6),
-          unitPrice: fixNum(item.trInfo.unitCost, 6),
+          amount: incomeAmount,
+          unitPrice: fixNum(incomeAmount / incomeCount, 6),
           productId,
           count: incomeCount,
         });
-        continue;
+        valueAfterQuantity = fixNum(currentValue + incomeAmount, 6);
+      } else if (preCount > count) {
+        const outCount = preCount - count;
+        valueAfterQuantity = fixNum(Math.max(0, count * activeCost), 6);
+
+        if (item.trInfo?.isSale) {
+          saleDetails.push({
+            accountId: saleRule?.accountId ?? '',
+            amount: fixNum(outCount * (item.trInfo?.unitPrice ?? 0), 6),
+            unitPrice: fixNum(item.trInfo?.unitPrice ?? 0, 6),
+            productId,
+            count: outCount,
+          });
+        } else {
+          outDetails.push({
+            accountId: outRule?.accountId ?? '',
+            amount: fixNum(outCount * activeCost, 6),
+            unitPrice: fixNum(activeCost, 6),
+            productId,
+            count: outCount,
+          });
+        }
       }
 
-      const outCount = preCount - count;
-      if (item.trInfo?.isSale) {
-        saleDetails.push({
-          accountId: saleRule?.accountId ?? '',
-          amount: fixNum(outCount * (item.trInfo?.unitPrice ?? 0), 6),
-          unitPrice: fixNum(item.trInfo?.unitPrice ?? 0, 6),
+      if (targetCost !== undefined) {
+        const adjustmentDifference = fixNum(
+          Math.max(-valueAfterQuantity, targetValue - valueAfterQuantity),
+          6,
+        );
+        const adjustmentAmount = Math.abs(adjustmentDifference);
+        const adjustmentDetail = {
+          accountId:
+            adjustmentDifference > 0
+              ? (incomeRule?.accountId ?? '')
+              : (outRule?.accountId ?? ''),
+          amount: adjustmentAmount,
+          unitPrice: count > 0 ? fixNum(adjustmentAmount / count, 6) : 0,
           productId,
-          count: outCount,
-        });
-        continue;
-      }
+          count: 0,
+        };
 
-      outDetails.push({
-        accountId: outRule?.accountId ?? '',
-        amount: fixNum(outCount * (item.trInfo?.unitCost ?? 0), 6),
-        unitPrice: fixNum(item.trInfo?.unitCost ?? 0, 6),
-        productId,
-        count: outCount,
-      });
+        if (adjustmentDifference > 0 && adjustmentAmount > 0) {
+          costIncreaseDetails.push(adjustmentDetail);
+        } else if (adjustmentDifference < 0 && adjustmentAmount > 0) {
+          costDecreaseDetails.push(adjustmentDetail);
+        }
+      }
+    }
+
+    if (costIncreaseDetails.length && !costIncreaseRule?.accountId) {
+      throw new Error('Cost increase counterpart account is required');
+    }
+    if (costDecreaseDetails.length && !costDecreaseRule?.accountId) {
+      throw new Error('Cost decrease counterpart account is required');
     }
 
     const newIncomeTrId = await safeRemainderDoTrs(models, {
@@ -241,6 +300,26 @@ const safeRemainderMutations = {
         saleCostAccountId: safeRemainder.saleRule?.costAccountId,
       },
     });
+    const newCostIncreaseTrId = await safeRemainderDoTrs(models, {
+      safeRemainder,
+      details: costIncreaseDetails,
+      journal: JOURNALS.INV_JUSTIFY,
+      side: TR_SIDES.DEBIT,
+      counterAccountId: costIncreaseRule?.accountId,
+      oldMainTr: oldCostIncreaseTr,
+      otherTrs: costIncreaseOtherTrs,
+      user,
+    });
+    const newCostDecreaseTrId = await safeRemainderDoTrs(models, {
+      safeRemainder,
+      details: costDecreaseDetails,
+      journal: JOURNALS.INV_JUSTIFY,
+      side: TR_SIDES.CREDIT,
+      counterAccountId: costDecreaseRule?.accountId,
+      oldMainTr: oldCostDecreaseTr,
+      otherTrs: costDecreaseOtherTrs,
+      user,
+    });
     await models.SafeRemainders.updateOne(
       { _id: safeRemainder._id },
       {
@@ -248,6 +327,8 @@ const safeRemainderMutations = {
           incomeTrId: newIncomeTrId,
           outTrId: newOutTrId,
           saleTrId: newSaleTrId,
+          costIncreaseTrId: newCostIncreaseTrId,
+          costDecreaseTrId: newCostDecreaseTrId,
           status: SAFE_REMAINDER_STATUSES.PUBLISHED,
         },
       },
@@ -256,23 +337,33 @@ const safeRemainderMutations = {
   },
 
   safeRemainderUndoTr: async (
-    _root: any,
+    _root: unknown,
     { _id }: { _id: string },
     { models, user, checkPermission }: IContext,
   ) => {
     await checkPermission('manageSafeRemainders');
 
     const safeRemainder = await models.SafeRemainders.getRemainder(_id);
-    const { incomeTrId, outTrId, saleTrId } = safeRemainder;
+    const {
+      incomeTrId,
+      outTrId,
+      saleTrId,
+      costIncreaseTrId,
+      costDecreaseTrId,
+    } = safeRemainder;
     await safeRemainderUndoTrs(models, incomeTrId);
     await safeRemainderUndoTrs(models, outTrId);
     await safeRemainderUndoTrs(models, saleTrId);
+    await safeRemainderUndoTrs(models, costIncreaseTrId);
+    await safeRemainderUndoTrs(models, costDecreaseTrId);
     await models.SafeRemainders.updateRemainder(
       {
         _id: safeRemainder._id,
         incomeTrId: '',
         outTrId: '',
         saleTrId: '',
+        costIncreaseTrId: '',
+        costDecreaseTrId: '',
         status: SAFE_REMAINDER_STATUSES.DONE,
       },
       user._id,

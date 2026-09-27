@@ -1,10 +1,11 @@
 import { IUserDocument } from 'erxes-api-shared/core-types';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { fixNum, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { nanoid } from 'nanoid';
 import { IModels } from '~/connectionResolvers';
 import { ADJ_INV_STATUSES } from '~/modules/accounting/@types/adjustInventory';
 import {
   ACCOUNT_JOURNALS,
+  JOURNALS,
   TR_INVENTORY_STATUS_TYPES,
   TR_SIDES,
   TR_STATUSES,
@@ -215,6 +216,9 @@ export const setSafeRemItems = async (
       soonIn: 0,
       soonOut: 0,
     };
+    const activeUnitCost = newInfo.remainder
+      ? fixNum(newInfo.cost / newInfo.remainder, 6)
+      : 0;
 
     bulkOps.push({
       updateOne: {
@@ -235,6 +239,17 @@ export const setSafeRemItems = async (
 
               preCount: newInfo.remainder,
               cost: newInfo.cost,
+              trInfo: {
+                $mergeObjects: [
+                  { $ifNull: ['$trInfo', {}] },
+                  {
+                    activeCost: activeUnitCost,
+                    unitCost: {
+                      $ifNull: ['$trInfo.unitCost', activeUnitCost],
+                    },
+                  },
+                ],
+              },
               modifiedAt: new Date(),
               modifiedBy: userId,
               order,
@@ -286,6 +301,8 @@ export const safeRemainderDoTrs = async (
     otherTrs,
     user,
     followInfos,
+    side,
+    counterAccountId,
   }: {
     safeRemainder: ISafeRemainderDocument;
     details: ITrDetail[];
@@ -293,7 +310,9 @@ export const safeRemainderDoTrs = async (
     oldMainTr?: ITransactionDocument;
     otherTrs?: ITransactionDocument[];
     user: IUserDocument;
-    followInfos?: any;
+    followInfos?: ITransaction['followInfos'];
+    side?: string;
+    counterAccountId?: string;
   },
 ) => {
   if (!oldMainTr && !details.length) {
@@ -319,12 +338,41 @@ export const safeRemainderDoTrs = async (
     contentId: safeRemainder._id,
     details,
     followInfos,
+    side,
   };
+  const counterTransactionDoc: ITransaction | undefined = counterAccountId
+    ? {
+        date: safeRemainder.date,
+        journal: JOURNALS.MAIN,
+        status: TR_STATUSES.COMPLETE,
+        side: side === TR_SIDES.DEBIT ? TR_SIDES.CREDIT : TR_SIDES.DEBIT,
+        branchId: safeRemainder.branchId,
+        departmentId: safeRemainder.departmentId,
+        description: 'Census cost adjustment counterpart',
+        contentType: 'safeRem',
+        contentId: safeRemainder._id,
+        details: [
+          {
+            accountId: counterAccountId,
+            amount: fixNum(
+              details.reduce((sum, detail) => sum + detail.amount, 0),
+              6,
+            ),
+          },
+        ],
+      }
+    : undefined;
+  const oldCounterTransaction = (otherTrs ?? []).find(
+    (transaction) => transaction.journal === JOURNALS.MAIN,
+  );
 
   if (!oldMainTr) {
     // create
     const transactions = await models.Transactions.createPTransaction(
-      [{ ...transactionDoc }],
+      [
+        transactionDoc,
+        ...(counterTransactionDoc ? [counterTransactionDoc] : []),
+      ],
       user._id,
     );
     return transactions?.[0]?.parentId;
@@ -333,7 +381,19 @@ export const safeRemainderDoTrs = async (
   // update
   await models.Transactions.updatePTransaction(
     oldMainTr.parentId,
-    [{ ...oldMainTr, ...transactionDoc }, ...(otherTrs ?? [])],
+    [
+      { ...oldMainTr, ...transactionDoc },
+      ...(counterTransactionDoc
+          ? [
+            {
+              ...(oldCounterTransaction?._id
+                ? { _id: oldCounterTransaction._id }
+                : {}),
+              ...counterTransactionDoc,
+            },
+          ]
+        : (otherTrs ?? [])),
+    ],
     user._id,
   );
   return oldMainTr.parentId;
@@ -343,7 +403,9 @@ export const safeRemainderUndoTrs = async (models: IModels, trId?: string) => {
   if (!trId) {
     return;
   }
-  const tr = await models.Transactions.findOne({ _id: trId }).lean();
+  const tr = await models.Transactions.findOne({
+    $or: [{ _id: trId }, { parentId: trId }],
+  }).lean();
   if (!tr) {
     return;
   }

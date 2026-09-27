@@ -1,5 +1,5 @@
 import { IconMoneybag } from '@tabler/icons-react';
-import { ColumnDef } from '@tanstack/react-table';
+import { ColumnDef, Row } from '@tanstack/react-table';
 import {
   CurrencyCode,
   CurrencyFormatedDisplay,
@@ -10,8 +10,10 @@ import {
 } from 'erxes-ui';
 import { useSafeRemainderItemEdit } from '../hooks/useSafeRemainderItemEdit';
 import { ISafeRemainderItem } from '../types/SafeRemainder';
+import { getSafeRemainderIncomeAmount } from '../utils/safeRemainderTransactions';
+import { SafeRemainderUnitCostField } from './SafeRemainderUnitCostField';
 
-const ProductCell = ({ row }: any) => {
+const ProductCell = ({ row }: { row: Row<ISafeRemainderItem> }) => {
   return (
     <RecordTableInlineCell>
       {`${row.original.product?.code} - ${row.original.product?.name}`}
@@ -19,9 +21,7 @@ const ProductCell = ({ row }: any) => {
   );
 };
 
-const NumberCell = ({ getValue }: any) => {
-  const value = getValue() as number;
-
+const NumberCell = ({ value }: { value: number }) => {
   return (
     <RecordTableInlineCell>
       <CurrencyFormatedDisplay
@@ -86,33 +86,6 @@ const DiffField = ({
   );
 };
 
-const UnitCostField = ({
-  value,
-  _id,
-  remItem,
-}: INumberFieldContainerProps & { remItem: ISafeRemainderItem }) => {
-  const { editRemItem } = useSafeRemainderItemEdit();
-
-  return (
-    <NumberField
-      value={value}
-      scope={`remItem-${_id}-diff`}
-      onSave={(value) => {
-        editRemItem(
-          {
-            variables: {
-              ...remItem,
-              trInfo: { ...remItem.trInfo, unitCost: value },
-            },
-          },
-          ['count'],
-        );
-      }}
-      className={'shadow-none rounded-none px-2'}
-    />
-  );
-};
-
 const DebitCostField = ({
   value,
   _id,
@@ -131,11 +104,14 @@ const DebitCostField = ({
               ...remItem,
               trInfo: {
                 ...remItem.trInfo,
-                unitCost: value / (remItem.count - remItem.preCount || 1),
+                unitCost:
+                  (remItem.preCount * (remItem.trInfo?.activeCost ?? 0) +
+                    Math.max(0, value)) /
+                  (remItem.count || 1),
               },
             },
           },
-          ['count'],
+          ['trInfo'],
         );
       }}
       className={'shadow-none rounded-none px-2'}
@@ -158,7 +134,7 @@ export const safeRemDetailColumnsIncome: ColumnDef<ISafeRemainderItem>[] = [
       <RecordTable.InlineHead icon={IconMoneybag} label="Бодит үлдэгдэл" />
     ),
     accessorKey: 'preCount',
-    cell: ({ getValue }) => <NumberCell getValue={getValue} />,
+    cell: ({ row }) => <NumberCell value={row.original.preCount} />,
   },
   {
     id: 'uom',
@@ -199,14 +175,27 @@ export const safeRemDetailColumnsIncome: ColumnDef<ISafeRemainderItem>[] = [
     ),
   },
   {
+    id: 'activeCost',
+    header: () => (
+      <RecordTable.InlineHead icon={IconMoneybag} label="Одоогийн өртөг" />
+    ),
+    cell: ({ row }) => (
+      <NumberCell value={row.original.trInfo?.activeCost ?? 0} />
+    ),
+  },
+  {
     id: 'unitCost',
     header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Нэгж өртөг" />
+      <RecordTable.InlineHead icon={IconMoneybag} label="Тооллогын өртөг" />
     ),
     accessorKey: 'unitCost',
     cell: ({ row }) => (
-      <UnitCostField
-        value={row.original.trInfo?.unitCost ?? 0}
+      <SafeRemainderUnitCostField
+        value={
+          row.original.trInfo?.unitCost ??
+          row.original.trInfo?.activeCost ??
+          0
+        }
         field="trInfo.unitCost"
         _id={row.original._id}
         remItem={row.original}
@@ -222,8 +211,7 @@ export const safeRemDetailColumnsIncome: ColumnDef<ISafeRemainderItem>[] = [
     cell: ({ row }) => (
       <DebitCostField
         value={
-          (row.original.trInfo?.unitCost ?? 0) *
-          (row.original.count - row.original.preCount)
+          getSafeRemainderIncomeAmount(row.original)
         }
         field="debitCost"
         _id={row.original._id}

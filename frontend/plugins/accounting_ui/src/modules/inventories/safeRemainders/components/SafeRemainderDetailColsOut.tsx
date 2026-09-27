@@ -1,6 +1,6 @@
 import { Checkbox } from 'erxes-ui/components/checkbox';
 import { IconMoneybag } from '@tabler/icons-react';
-import { ColumnDef } from '@tanstack/react-table';
+import { ColumnDef, Row } from '@tanstack/react-table';
 import {
   CurrencyCode,
   CurrencyFormatedDisplay,
@@ -11,8 +11,9 @@ import {
 } from 'erxes-ui';
 import { useSafeRemainderItemEdit } from '../hooks/useSafeRemainderItemEdit';
 import { ISafeRemainderItem } from '../types/SafeRemainder';
+import { SafeRemainderUnitCostField } from './SafeRemainderUnitCostField';
 
-const ProductCell = ({ row }: any) => {
+const ProductCell = ({ row }: { row: Row<ISafeRemainderItem> }) => {
   return (
     <RecordTableInlineCell>
       {`${row.original.product?.code} - ${row.original.product?.name}`}
@@ -87,7 +88,6 @@ const DiffField = ({
 
 const IsSaleField = ({
   value,
-  _id,
   remItem,
 }: INumberFieldContainerProps & { remItem: ISafeRemainderItem }) => {
   const { editRemItem } = useSafeRemainderItemEdit();
@@ -183,25 +183,43 @@ export const safeRemDetailColumnsOut: ColumnDef<ISafeRemainderItem>[] = [
     ),
   },
   {
-    id: 'UnitCost',
+    id: 'activeCost',
     header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Нэгж өртөг" />
+      <RecordTable.InlineHead icon={IconMoneybag} label="Одоогийн өртөг" />
     ),
     accessorKey: 'unitCost',
     cell: ({ row }) => (
-      <NumberCell value={row.original.trInfo?.unitCost ?? 0} />
+      <NumberCell value={row.original.trInfo?.activeCost ?? 0} />
+    ),
+  },
+  {
+    id: 'unitCost',
+    header: () => (
+      <RecordTable.InlineHead icon={IconMoneybag} label="Тооллогын өртөг" />
+    ),
+    cell: ({ row }) => (
+      <SafeRemainderUnitCostField
+        value={
+          row.original.trInfo?.unitCost ??
+          row.original.trInfo?.activeCost ??
+          0
+        }
+        field="trInfo.unitCost"
+        _id={row.original._id}
+        remItem={row.original}
+      />
     ),
   },
   {
     id: 'CreditCost',
     header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Нэгж өртөг" />
+      <RecordTable.InlineHead icon={IconMoneybag} label="Кредит өртөг" />
     ),
     accessorKey: 'unitCost',
     cell: ({ row }) => (
       <NumberCell
         value={
-          (row.original.trInfo?.unitCost ?? 0) *
+          (row.original.trInfo?.activeCost ?? 0) *
           (row.original.preCount - row.original.count)
         }
       />

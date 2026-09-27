@@ -6,7 +6,7 @@
 - **Project:** `accounting_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/accounting_api`
-- **Last synchronized:** `2026-09-25`
+- **Last synchronized:** `2026-09-28`
 
 ## Scope
 
@@ -41,6 +41,7 @@
 - Stores related debit/credit account codes without nested subdocument ids, normalizes empty related-account overrides before transaction persistence, and recalculates related codes from all transactions sharing the same `ptrId`.
 - Provides account, account category, permission, tax row, inventory, fixed asset, and journal report GraphQL contracts.
 - Provides safe remainder GraphQL list, detail, item list/count, create, edit, remove, recalculate, submit, cancel, transaction-run, transaction-undo, item edit, item bulk edit, and item remove contracts guarded by safe remainder permissions.
+- Safe remainder recalculation stores each item's active unit cost and defaults counted unit cost to it; transaction execution absorbs positive total-value differences into income, floors income at zero, values out/sale quantity at active cost, then creates balanced `invJustify` plus counterpart `main` workflows for any remaining cost adjustment.
 - Generates journal report transaction/detail filters, Erkhet transaction-kind to erxes journal filters, grouping keys, date buckets, line records, shared drill-down rows for report bases marked `supportsMore`, and account/customer/product/fixed-asset/user/content enrichment from shared `ReportBase` definitions whose main entrypoints mirror Erkhet names such as `getFilter`, `getRecords`, `recordListWithValues`, and `getGroupRule`; filters support customer/company tags, product category/code/name, fixed-asset category/code/name, and created/modified/assigned users, account enrichment includes currency metadata, product metadata enrichment is fetched from core in batches of at most 1000 ids, and inventory adjustment kind `28` maps only to the cost-only `invJustify` journal.
 - Calculates fund rate adjustments for cash/bank foreign-currency balances by day, validates that daily foreign-currency balances do not go negative, groups final balances by account/branch/department, stores calculated details, and runs linked `exchangeDiff` transactions after calculation.
 - Calculates debt rate adjustments for receivable/payable balances by day, validates active accounts on debit-side balances and passive accounts on credit-side balances, groups final balances by account/customer/branch/department, stores calculated details, and runs linked `exchangeDiff` transactions after calculation.
@@ -66,6 +67,7 @@
 | Models             | `src/connectionResolvers.ts`                                | Generates tenant-scoped Mongoose models for accounting-owned collections.                                               |
 | Accounting domain  | `src/modules/accounting`                                    | Owns accounting schemas, models, GraphQL resolvers, journal utilities, and routes.                                      |
 | Cost adjustment    | `src/modules/accounting/utils/invJustify.ts`                | Owns inventory cost-adjustment save, side validation, inventory synchronization, and removal behavior.                  |
+| Safe remainders    | `src/modules/inventories`                                    | Owns inventory count snapshots, typed item transaction metadata, bulk import updates, and generated transactions.       |
 | Journal reports    | `src/modules/accounting/utils/journalReports`               | Builds shared filters, aggregation groups, period splits, and display enrichment for journal reports.                   |
 | Report bases       | `src/modules/accounting/utils/journalReports/strategies`    | Groups Erkhet-style report base definitions by main, fund, debt, inventory, and fixed asset report families.            |
 | Report details     | `src/modules/accounting/utils/journalReports/details`       | Owns report-specific detail row lookups such as account statement more rows.                                            |
@@ -90,6 +92,7 @@
 - Transaction journal enum accepts `invJustify`, with dedicated read, manage, and remove permission actions; `side: "dt"` means cost increase and `side: "ct"` means cost decrease.
 - GraphQL query `fixedAssetLocationRemainders(searchValue, fixedAssetId, categoryId, branchId, departmentId, date, limit)`, returning positive fixed asset quantities grouped by fixed asset, branch, and department.
 - Permission actions `readSafeRemainders`, `manageSafeRemainders`, `removeSafeRemainders`, and `viewSafeRemainderItemCounts` under the `safeRemainder` module.
+- Safe remainder GraphQL fields expose `costIncreaseRule`, `costDecreaseRule`, `costIncreaseTrId`, and `costDecreaseTrId`; item `trInfo` carries optional `activeCost`, `unitCost`, `isSale`, and `unitPrice`, and bulk-edit JSON accepts matching counted metadata except authoritative `activeCost`.
 - Fixed asset category GraphQL contracts expose `defaultAnnualDepreciationRate` and `defaultTaxAnnualDepreciationRate`; fixed asset contracts expose `annualDepreciationRate` and `taxAnnualDepreciationRate`. Useful-life years are derived UI/helper values only and are not persisted by the accounting API.
 - GraphQL query `fxaOwnerRecords(searchValue, ids, fixedAssetIds, fixedAssetId, categoryId, action, status, ownerId, balanceOnly, createdFrom, createdTo, transactionId, page, perPage, limit)`, returning owner-record ledger rows or fixed asset/owner balance rows when `balanceOnly` is true.
 - GraphQL mutations `fixedAssetOwnerRecordsAdd`, `fixedAssetOwnerRecordsTransfer`, and `fixedAssetOwnerRecordsRemove`, allowing direct responsible-user owner record receive, transfer, cancel, and cleanup operations without creating accounting transactions.
@@ -117,6 +120,7 @@
 - Inventory transaction details may store an editable `weight` total used as the allocation basis for inventory income expenses.
 - Inventory cost adjustment transaction details keep `count` at zero and store the cost delta in `amount`; adjustment calculation includes those rows in inventory cost while leaving remainder quantity unchanged.
 - Current inventory cost is derived from the latest published adjustment detail for the requested account/product/location plus business-active real-inventory transaction detail movements strictly after the adjustment date; when no published adjustment exists, calculation starts from all business-active movements.
+- Safe remainder items persist backend-derived active unit cost separately from imported target unit cost, while safe remainder documents retain independent cost-increase and cost-decrease parent transaction ids for redo and undo.
 - Accounting transaction indexes focus on journal, detail account, date-range, and cursor sort paths for transaction lists; journal reports prefilter indexed detail fields before unwind and keep exact detail matching after unwind.
 - Journal reports do not persist state; they aggregate tenant-scoped transaction documents and enrich rows from accounting accounts, fixed assets, and core branch, department, customer, product, user, and synced-content public contracts.
 - Fixed asset category, fixed asset, fixed asset owner record, fixed asset adjustment, inventory remainder, reserve remainder, tax, and accounting setting collections remain owned by this plugin.
@@ -157,6 +161,7 @@
 - Current inventory cost lookup must use only the latest published inventory adjustment, must ignore details from older or unpublished adjustments, and must apply post-adjustment business-active debit/credit movements using detail-level branch/department before transaction-level fallback; missing, null, and empty-string locations normalize to `_`, and sale or sale-return edits must exclude their prior generated inventory movement when deriving replacement cost.
 - Inventory cost adjustment journals must not create follow transactions or quantity movement; they only sync product inventory cost deltas and adjust inventory cost caches.
 - Inventory cost adjustment save/remove behavior must remain in `utils/invJustify.ts` as an independent journal handler and must not be implemented as an `invOut` mode.
+- Safe remainder bulk import may update counted `unitCost`, sale flag, and sale price, but must preserve backend-derived `activeCost`; total inventory value may not fall below zero, positive value differences are absorbed into income, out/sale quantity uses active cost, and remaining differences run afterward as balanced quantity-neutral adjustment workflows.
 - Inventory out and internal movement transaction details must always persist active cost for their source account and effective detail/root location, excluding the old source and generated movement transactions during edits; client-supplied cost values are not authoritative.
 - Safe remainder item `preCount` must return `0` and `diffType` filters must be ignored for users without `viewSafeRemainderItemCounts` so they cannot compare the system inventory balance with counted inventory.
 - Inventory adjustment outgoing-cost fixes may adjust only related debit transactions in `main`, `receivable`, and `payable` journals; cash and bank debit amounts are explicit payment amounts and must not be rewritten by cost recalculation.
@@ -195,10 +200,23 @@
 - Smoke scenario: send a dry-run Erkhet references batch and verify product category/product plus fixed asset category rows report create/update actions without missing parent/category code errors.
 - Smoke scenario: send a dry-run Erkhet batch and verify code resolution, contact match/create planning, idempotent create/update selection, and per-batch success/error rows.
 - Smoke scenario: run `journalReportData` for account statement, trial balance, general ledger, main journal, main journal summary, fund, debt, inventory cost, inventory sale, inventory sale-cost, inventory sale-period, inventory price, inventory profit, inventory shipper, inventory document, inventory seller subsystem, and fixed asset reports with account/category/currency, Erkhet `trKind`, customer/product/fixed-asset/user/content grouping, and branch/department grouping filters, then verify grouped totals and `journalReportMore` detail rows match the selected account details.
+- Smoke scenario: recalculate a safe remainder and test equal, higher, and lower counted quantities; verify income absorbs positive target-value differences, negative income is zero with a capped decrease adjustment, out/sale uses active cost, and remaining increases/decreases create balanced `invJustify` parents after quantity transactions.
 
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-28` — `Apply Net Census Value Rules`
+
+- **Summary:** Safe remainder transaction generation now absorbs positive target-value differences into income, floors negative income at zero, values out/sale quantity at active cost, runs capped remaining adjustments afterward, and rejects invalid counted values.
+- **Affected areas:** Safe remainder transaction calculation/order, item mutation validation, partial model updates, and regression tests.
+- **Contracts changed:** `safeRemainderItemEdit.remainder` remains optional for metadata-only edits and now rejects invalid counted values.
+
+### `2026-09-26` — `Safe Remainder Cost Difference Transactions`
+
+- **Summary:** Safe remainder items now retain typed active/counted cost and sale metadata, default counted cost to active cost, preserve authoritative active cost during imports, and execute balanced cost-increase/decrease workflows before quantity journals.
+- **Affected areas:** Safe remainder types, schemas, models, recalculation, bulk item edit, transaction run/undo, and GraphQL fields.
+- **Contracts changed:** Adds `costIncreaseRule`, `costDecreaseRule`, `costIncreaseTrId`, and `costDecreaseTrId` to `SafeRemainder`; item `trInfo` supports optional `activeCost`, `unitCost`, `isSale`, and `unitPrice`.
 
 ### `2026-09-25` — `Inventory Cost Adjustment And Active Cost Flow`
 

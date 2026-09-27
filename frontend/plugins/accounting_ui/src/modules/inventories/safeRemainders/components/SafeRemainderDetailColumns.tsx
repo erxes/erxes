@@ -1,6 +1,6 @@
 import { Checkbox } from 'erxes-ui/components/checkbox';
 import { IconMoneybag } from '@tabler/icons-react';
-import { ColumnDef } from '@tanstack/react-table';
+import { ColumnDef, Row } from '@tanstack/react-table';
 import {
   CurrencyCode,
   CurrencyFormatedDisplay,
@@ -13,8 +13,10 @@ import {
 } from 'erxes-ui';
 import { useSafeRemainderItemEdit } from '../hooks/useSafeRemainderItemEdit';
 import { ISafeRemainderItem } from '../types/SafeRemainder';
+import { getSafeRemainderTransactionLabels } from '../utils/safeRemainderTransactions';
+import { SafeRemainderUnitCostField } from './SafeRemainderUnitCostField';
 
-const ProductCell = ({ row }: any) => {
+const ProductCell = ({ row }: { row: Row<ISafeRemainderItem> }) => {
   return (
     <RecordTableInlineCell>
       {`${row.original.product?.code} - ${row.original.product?.name}`}
@@ -22,9 +24,7 @@ const ProductCell = ({ row }: any) => {
   );
 };
 
-const NumberCell = ({ getValue }: any) => {
-  const value = getValue() as number;
-
+const NumberCell = ({ value }: { value: number }) => {
   return (
     <RecordTableInlineCell>
       <CurrencyFormatedDisplay
@@ -127,7 +127,7 @@ export const safeRemDetailTableColumns: ColumnDef<ISafeRemainderItem>[] = [
       <RecordTable.InlineHead icon={IconMoneybag} label="Бодит үлдэгдэл" />
     ),
     accessorKey: 'preCount',
-    cell: ({ getValue }) => <NumberCell getValue={getValue} />,
+    cell: ({ row }) => <NumberCell value={row.original.preCount} />,
   },
   {
     id: 'uom',
@@ -206,5 +206,44 @@ export const safeRemDetailTableColumns: ColumnDef<ISafeRemainderItem>[] = [
         </div>
       </RecordTableHotKeyControl>
     ),
+  },
+  {
+    id: 'activeCost',
+    header: () => (
+      <RecordTable.InlineHead icon={IconMoneybag} label="Одоогийн өртөг" />
+    ),
+    cell: ({ row }) => (
+      <NumberCell value={row.original.trInfo?.activeCost ?? 0} />
+    ),
+  },
+  {
+    id: 'unitCost',
+    header: () => (
+      <RecordTable.InlineHead icon={IconMoneybag} label="Тооллогын өртөг" />
+    ),
+    cell: ({ row }) => (
+      <SafeRemainderUnitCostField
+        value={
+          row.original.trInfo?.unitCost ??
+          row.original.trInfo?.activeCost ??
+          0
+        }
+        field="trInfo.unitCost"
+        _id={row.original._id}
+        remItem={row.original}
+      />
+    ),
+  },
+  {
+    id: 'transactions',
+    header: () => (
+      <RecordTable.InlineHead icon={IconMoneybag} label="Үүсэх гүйлгээ" />
+    ),
+    cell: ({ row }) => (
+      <RecordTableInlineCell>
+        {getSafeRemainderTransactionLabels(row.original).join(', ')}
+      </RecordTableInlineCell>
+    ),
+    size: 220,
   },
 ];

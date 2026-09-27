@@ -1,6 +1,6 @@
 import { Checkbox } from 'erxes-ui/components/checkbox';
 import { IconMoneybag } from '@tabler/icons-react';
-import { ColumnDef } from '@tanstack/react-table';
+import { ColumnDef, Row } from '@tanstack/react-table';
 import {
   CurrencyCode,
   CurrencyFormatedDisplay,
@@ -11,8 +11,9 @@ import {
 } from 'erxes-ui';
 import { useSafeRemainderItemEdit } from '../hooks/useSafeRemainderItemEdit';
 import { ISafeRemainderItem } from '../types/SafeRemainder';
+import { SafeRemainderUnitCostField } from './SafeRemainderUnitCostField';
 
-const ProductCell = ({ row }: any) => {
+const ProductCell = ({ row }: { row: Row<ISafeRemainderItem> }) => {
   return (
     <RecordTableInlineCell>
       {`${row.original.product?.code} - ${row.original.product?.name}`}
@@ -130,7 +131,7 @@ const UnitPriceField = ({
               trInfo: { ...remItem.trInfo, unitPrice: value },
             },
           },
-          ['count'],
+          ['trInfo'],
         );
       }}
       className={'shadow-none rounded-none px-2'}
@@ -160,7 +161,7 @@ const SalePriceField = ({
               },
             },
           },
-          ['count'],
+          ['trInfo'],
         );
       }}
       className={'shadow-none rounded-none px-2'}
@@ -218,6 +219,33 @@ export const safeRemDetailColumnsSale: ColumnDef<ISafeRemainderItem>[] = [
       <DiffField
         value={row.original.count - row.original.preCount}
         field="diff"
+        _id={row.original._id}
+        remItem={row.original}
+      />
+    ),
+  },
+  {
+    id: 'activeCost',
+    header: () => (
+      <RecordTable.InlineHead icon={IconMoneybag} label="Одоогийн өртөг" />
+    ),
+    cell: ({ row }) => (
+      <NumberCell value={row.original.trInfo?.activeCost ?? 0} />
+    ),
+  },
+  {
+    id: 'unitCost',
+    header: () => (
+      <RecordTable.InlineHead icon={IconMoneybag} label="Тооллогын өртөг" />
+    ),
+    cell: ({ row }) => (
+      <SafeRemainderUnitCostField
+        value={
+          row.original.trInfo?.unitCost ??
+          row.original.trInfo?.activeCost ??
+          0
+        }
+        field="trInfo.unitCost"
         _id={row.original._id}
         remItem={row.original}
       />

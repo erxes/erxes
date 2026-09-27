@@ -45,9 +45,7 @@ export const EditSafeRemainder = () => {
     });
   };
 
-  const onError = (error: any) => {
-    return {};
-  };
+  const onError = () => undefined;
 
   if (detailLoading) {
     return <Spinner />;
@@ -162,6 +160,58 @@ export const EditSafeRemainder = () => {
                       value={field.value}
                       onValueChange={field.onChange}
                       defaultFilter={{ journals: [JournalEnum.INV_FOLLOW] }}
+                      mode="single"
+                    />
+                  </Form.Control>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+          </RuleSection>
+
+          <RuleSection
+            title="Өртөг өсөх залруулга"
+            description="Барааны өртөг өсөхөд кредит талд бичигдэх данс"
+            icon={<IconArrowDownLeft size={16} />}
+            trId={safeRemainder?.costIncreaseTrId}
+          >
+            <Form.Field
+              control={form.control}
+              name="costIncreaseRule.accountId"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>{t('account')}</Form.Label>
+                  <Form.Control>
+                    <SelectAccount
+                      value={field.value || ''}
+                      onValueChange={field.onChange}
+                      defaultFilter={{ journals: [JournalEnum.MAIN] }}
+                      mode="single"
+                    />
+                  </Form.Control>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+          </RuleSection>
+
+          <RuleSection
+            title="Өртөг буурах залруулга"
+            description="Барааны өртөг буурахад дебет талд бичигдэх данс"
+            icon={<IconArrowUpRight size={16} />}
+            trId={safeRemainder?.costDecreaseTrId}
+          >
+            <Form.Field
+              control={form.control}
+              name="costDecreaseRule.accountId"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>{t('account')}</Form.Label>
+                  <Form.Control>
+                    <SelectAccount
+                      value={field.value || ''}
+                      onValueChange={field.onChange}
+                      defaultFilter={{ journals: [JournalEnum.MAIN] }}
                       mode="single"
                     />
                   </Form.Control>

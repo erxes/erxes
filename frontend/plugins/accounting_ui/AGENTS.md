@@ -6,7 +6,7 @@
 - **Project:** `accounting_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/accounting_ui`
-- **Last synchronized:** `2026-09-25`
+- **Last synchronized:** `2026-09-28`
 
 ## Scope
 
@@ -42,6 +42,7 @@
 - Inventory out and internal movement rows show active unit cost and amount as read-only values; inventory sale unit price remains editable because it is the sale price, while its generated inventory and cost-of-goods rows retain the fetched active cost across sale quantity edits and are costed by the backend on save.
 - Inventory income, out, move, sale, and sale-return bulk product additions fetch journal-specific fill data once, then append rows with the same price, cost, amount, and weight rules as single-row product selection.
 - The inventory cost adjustment journal has an independent form, supports single or bulk product selection, hides quantity input, shows current remainder and unit cost, accepts a per-unit cost delta, calculates the after-adjustment unit cost, and submits cost-only rows.
+- Safe remainder counting imports legacy `code,count` TXT files and metadata CSV files with `productCode,count,unitCost,isSale,unitPrice`; count, income, out, and sale grids show active cost beside editable counted cost, preview income at the total-value difference with a zero floor, value out/sale quantity at active cost, and separate the remaining cost adjustment into add/subtract tabs.
 - Inventory income can allocate additional expenses by amount, count, or editable total line weight; line weight initializes from core product weight multiplied by count.
 - Fixed asset income, out, move, and sale transaction rows can toggle detailed view to edit branch and department per detail.
 - Transaction balance rows display branch and department from each transaction detail when present, so generated follow rows with source/destination locations are shown at their row location instead of the root transaction location.
@@ -70,6 +71,7 @@
 | Route composition   | `src/modules/AccountingMain.tsx`                                            | Wires accounting pages into the plugin router.                                                                  |
 | Transactions        | `src/modules/transactions`                                                  | Owns transaction tables, forms, GraphQL documents, hooks, and print documents.                                  |
 | Cost adjustment     | `src/modules/transactions/transaction-form/components/forms/InvJustifyForm` | Owns inventory cost-adjustment fields, product rows, calculations, bulk add, and removal UI.                    |
+| Safe remainders     | `src/modules/inventories/safeRemainders`                                    | Owns inventory count entry/import, transaction previews, and quantity/cost-difference tabs.                    |
 | Transaction export  | `src/pages/TransactionListPage.tsx`, `src/pages/TrRecordListPage.tsx`       | Provides filtered and selected-row export actions for main and journal record lists.                            |
 | Fixed assets        | `src/modules/fixedAssets`                                                   | Owns fixed asset navigation and owner-record operational list surfaces.                                         |
 | Adjustments         | `src/modules/adjustments`                                                   | Owns inventory, fixed asset, fund rate, debt rate, and closing adjustment UI.                                   |
@@ -95,6 +97,7 @@
 
 - Accounting API GraphQL contracts for transactions, reports, settings, inventory/fixed asset adjustments, fund rate adjustments, and debt rate adjustments, including journal report `trKind` filters.
 - Inventory cost adjustment transactions consume the `invJustify` journal contract and the existing `getAccCurrentCost` helper for current unit cost and remainder display; debit means cost increase and credit means cost decrease.
+- Safe remainder item `trInfo` consumes optional `activeCost`, `unitCost`, `isSale`, and `unitPrice`; CSV import sends editable counted-cost/sale metadata while `activeCost` remains backend-derived, and safe remainder settings send separate cost-increase/decrease counterpart account rules.
 - Platform import/export contract for `accounting:account.transactions` filtered and selected-id exports.
 - Fixed asset location remainder contract `fixedAssetLocationRemainder(fixedAssetId, branchId, departmentId, date, excludeTransactionId)` for disposal/move/sale row count limits.
 - Fixed asset location remainder list contract `fixedAssetLocationRemainders(searchValue, fixedAssetId, categoryId, branchId, departmentId, date, limit)` for the fixed asset remainder page.
@@ -116,6 +119,7 @@
 - React Hook Form owns editable accounting transaction and adjustment form state.
 - Inventory income detail form state stores total line weight; product or count changes recalculate it from core product weight, while direct weight edits persist until either source changes.
 - Inventory cost adjustment detail state stores `count: 0`, `unitPrice` as the absolute per-unit cost delta, and `amount` as delta multiplied by current remainder; quantity is display-only, while editing after-unit cost derives the delta and increase/decrease side from its difference against current unit cost.
+- Safe remainder item state keeps backend-derived `trInfo.activeCost` separate from imported or edited `trInfo.unitCost`; `unitCost` defaults to active cost, and their difference drives the cost-increase/decrease previews and `invJustify` amount.
 - Inventory row defaults initialize count to one; bulk-added rows also initialize all count-derived amount and weight values, batch journal-specific last-price, product, or current-cost lookup before append, and preserve sale/sale-return follow-journal unit cost by generated detail id.
 - Jotai atoms under `src/modules/transactions/transaction-form/states` hold transaction form UI state, tax percentages, follow transactions, and rendering selections.
 - URL query state owns selected detail ids and account table filters where existing accounting patterns use query params.
@@ -125,6 +129,7 @@
 ## Local Invariants
 
 - GraphQL operation names in new accounting UI code must be prefixed with `Accounting`.
+- Safe remainder TXT imports must remain backward compatible with headerless `code,count`; CSV imports require `productCode,count,unitCost,isSale,unitPrice`, and `activeCost` must never be accepted as authoritative file input.
 - Create/update/remove/calculate/run mutations must show success/error feedback and refresh or subscribe so users do not need a manual reload.
 - Fund/debt adjustment transaction execution is separate from calculation; UI must expose both states and not run transactions before details are calculated.
 - Closing adjustment transaction execution is separate from calculation; UI must let users edit row tax percentages before running transactions.
@@ -183,10 +188,29 @@
 - Smoke scenario: open `/accounting/fixed-assets/remainders`, verify the "Үлдэгдэл" navigation item appears without the fixed asset settings or direct internal-move shortcuts, filter by search, fixed asset, category, branch, department, and date, and confirm rows show positive fixed asset quantities grouped by branch and department.
 - Smoke scenario: generate account statement, trial balance, general ledger, main journal, main journal summary, fund, debt, inventory cost, inventory sale, inventory sale-cost, inventory sale-period, inventory price, inventory profit, inventory shipper, inventory document, inventory seller subsystem, and fixed asset journal reports with and without "Хоосон мөр харуулах" and "Гүйлгээний төрөл", verify parent/footer totals plus detail rows remain correct, and double-click an account statement detail row to open its transaction edit screen.
 - Smoke scenario: generate each journal report with filters, optionally expand account-statement details, click "Excel татах", and verify the downloaded `.xlsx` contains the visible headers, grouped rows, calculated totals, and expanded detail rows.
+- Smoke scenario: import a headerless `code,count` TXT and a `productCode,count,unitCost,isSale,unitPrice` CSV into a draft safe remainder; verify positive total-value differences are absorbed by income, negative income is floored at zero with the remainder shown under adjustment subtract, and out/sale rows use active cost before remaining add/subtract adjustments.
 
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-28` — `Preview Net Census Value Transactions`
+
+- **Summary:** Safe remainder previews absorb positive total-value differences into income, floor income value at zero, and label any remaining cost movement as adjustment add or subtract after active-cost out/sale quantity movements.
+- **Affected areas:** Safe remainder transaction calculations, income/out value columns, adjustment filters, labels, and effective unit differences.
+- **Contracts changed:** None.
+
+### `2026-09-26` — `Guard Inventory Adjustment Dates`
+
+- **Summary:** Inventory adjustment detail validates API date strings before rendering timelines or error timestamps so incomplete run metadata cannot crash the route.
+- **Affected areas:** `src/modules/adjustments/inventories/components/AdjustInventoryDetail.tsx` and inventory adjustment date types.
+- **Contracts changed:** None.
+
+### `2026-09-26` — `Safe Remainder CSV And Cost Differences`
+
+- **Summary:** Safe remainder counting accepts typed metadata CSV files alongside legacy TXT files, defaults editable counted cost to active cost across quantity tabs, and separates two-sided inventory cost increases and decreases into dedicated tabs with configurable counterpart accounts.
+- **Affected areas:** `src/modules/inventories/safeRemainders` import parsing, item types, detail columns, transaction previews, and tabs.
+- **Contracts changed:** Consumes typed `trInfo.activeCost`, `trInfo.unitCost`, `trInfo.isSale`, and `trInfo.unitPrice`, cost-increase/decrease counterpart rules, and their transaction ids.
 
 ### `2026-09-25` — `Bulk Inventory Quantity Initialization`
 
@@ -228,10 +252,4 @@
 
 - **Summary:** Transaction edit links now preserve the current list URL so deleting a transaction returns to the previously filtered list.
 - **Affected areas:** `src/modules/transactions/components`, `src/modules/transactions/transaction-form`, and transaction navigation utilities.
-- **Contracts changed:** None.
-
-### `2026-09-18` — `Inventory Sale Edit Preservation`
-
-- **Summary:** Inventory sale and return edit forms preserve persisted unit prices, amounts, and VAT/CTAX state until the user selects a different product.
-- **Affected areas:** Inventory sale row effects and transaction default values.
 - **Contracts changed:** None.

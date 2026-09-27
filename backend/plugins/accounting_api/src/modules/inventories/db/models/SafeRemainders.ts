@@ -83,7 +83,15 @@ export const loadSafeRemainderClass = (models: IModels, _subdomain: string) => {
       params: ISafeRemEditFields & { _id: string },
       userId: string,
     ) {
-      const { _id, description, incomeRule, outRule, saleRule } = params;
+      const {
+        _id,
+        description,
+        incomeRule,
+        outRule,
+        saleRule,
+        costIncreaseRule,
+        costDecreaseRule,
+      } = params;
 
       const safeRemainder = await models.SafeRemainders.getRemainder(_id);
 
@@ -95,9 +103,21 @@ export const loadSafeRemainderClass = (models: IModels, _subdomain: string) => {
             incomeRule: { ...safeRemainder.incomeRule, ...incomeRule },
             outRule: { ...safeRemainder.outRule, ...outRule },
             saleRule: { ...safeRemainder.saleRule, ...saleRule },
+            costIncreaseRule: {
+              ...safeRemainder.costIncreaseRule,
+              ...costIncreaseRule,
+            },
+            costDecreaseRule: {
+              ...safeRemainder.costDecreaseRule,
+              ...costDecreaseRule,
+            },
             incomeTrId: params.incomeTrId,
             outTrId: params.outTrId,
             saleTrId: params.saleTrId,
+            costIncreaseTrId:
+              params.costIncreaseTrId ?? safeRemainder.costIncreaseTrId,
+            costDecreaseTrId:
+              params.costDecreaseTrId ?? safeRemainder.costDecreaseTrId,
             status: params.status,
             modifiedAt: new Date(),
             modifiedBy: userId,
