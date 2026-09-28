@@ -5,6 +5,7 @@ import { useState } from 'react';
 import {
   AccountAside,
   accountColumns,
+  accountPanelEnter,
   accountShell,
 } from '@/modules/auth/components/AccountAside';
 import {
@@ -15,6 +16,7 @@ import { AUTH_PORTAL_CURRENT_USER } from '@/modules/auth/graphql/queries/auth';
 import { displayName, type CurrentUserResponse } from '@/modules/auth/types';
 import { Button } from '@/modules/ui/components/Button';
 import { Icon } from '@/modules/ui/components/Icon';
+import { useT } from '@/modules/i18n/components/LocaleProvider';
 import { cn } from '@/modules/ui/lib/cn';
 import { NOTIFICATION_PORTAL_MARK_ALL_READ } from '../graphql/mutations/notifications';
 import { NOTIFICATION_PORTAL_LIST } from '../graphql/queries/notifications';
@@ -24,13 +26,14 @@ import { NotificationItem } from './NotificationItem';
 const PAGE_SIZE = 20;
 
 const FILTERS = [
-  { key: 'ALL', label: 'All' },
-  { key: 'UNREAD', label: 'Unread' },
+  { key: 'ALL', label: 'common.all' },
+  { key: 'UNREAD', label: 'notifications.unread' },
 ] as const;
 
 type Filter = (typeof FILTERS)[number]['key'];
 
 const Feed = () => {
+  const t = useT();
   const [filter, setFilter] = useState<Filter>('ALL');
   const [limit, setLimit] = useState(PAGE_SIZE);
 
@@ -65,16 +68,17 @@ const Feed = () => {
   };
 
   return (
-    <section className={accountShell}>
+    <section className={cn(accountShell, accountPanelEnter)}>
       <div className="flex items-start gap-3.5 border-b border-line px-6 py-5">
         <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-brand-soft text-brand">
           <Icon name="bell" size={19} />
         </span>
         <div className="min-w-0">
-          <h2 className="text-base font-semibold text-ink">Notifications</h2>
+          <h2 className="text-base font-semibold text-ink">
+            {t('account.notifications')}
+          </h2>
           <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-            Ticket replies, announcements and everything else the portal sends
-            you.
+            {t('notifications.subtitle')}
           </p>
         </div>
       </div>
@@ -93,7 +97,7 @@ const Feed = () => {
                   : 'text-muted-foreground hover:text-ink',
               )}
             >
-              {entry.label}
+              {t(entry.label)}
             </button>
           ))}
         </div>
@@ -105,7 +109,7 @@ const Feed = () => {
             onClick={() => void markAllRead().catch(() => undefined)}
             className="rounded-lg px-2.5 py-1.5 text-[13px] font-semibold text-brand outline-none transition-colors duration-300 ease-out-soft hover:bg-brand-soft focus-visible:bg-brand-soft disabled:opacity-60"
           >
-            Mark all as read
+            {t('notifications.markAllRead')}
           </button>
         ) : null}
       </div>
@@ -130,12 +134,14 @@ const Feed = () => {
             <Icon name="bell" size={22} />
           </span>
           <p className="mt-4 text-[15px] font-semibold text-ink">
-            {filter === 'UNREAD' ? 'Nothing unread' : 'No notifications yet'}
+            {filter === 'UNREAD'
+              ? t('notifications.nothingUnread')
+              : t('notifications.none')}
           </p>
           <p className="mx-auto mt-1.5 max-w-sm text-sm leading-relaxed text-muted-foreground">
             {filter === 'UNREAD'
-              ? 'You have read everything the portal has sent you.'
-              : 'Replies to your tickets and new announcements will show up here.'}
+              ? t('notifications.allRead')
+              : t('notifications.willShow')}
           </p>
         </div>
       ) : null}
@@ -159,7 +165,9 @@ const Feed = () => {
             disabled={loading}
             onClick={() => setLimit((current) => current + PAGE_SIZE)}
           >
-            {loading ? 'Loading…' : `Load more (${total - list.length} left)`}
+            {loading
+              ? t('common.loading')
+              : t('notifications.loadMore', { count: total - list.length })}
           </Button>
         </div>
       ) : null}

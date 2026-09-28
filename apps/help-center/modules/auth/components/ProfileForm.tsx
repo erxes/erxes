@@ -11,6 +11,7 @@ import { readApiUrl } from '@/modules/apollo/utils/env';
 import { Button } from '@/modules/ui/components/Button';
 import { TextInput } from '@/modules/ui/components/FormInput';
 import { Icon } from '@/modules/ui/components/Icon';
+import { cn } from '@/modules/ui/lib/cn';
 import { AUTH_PORTAL_USER_EDIT } from '../graphql/mutations/auth';
 import { AUTH_PORTAL_CURRENT_USER } from '../graphql/queries/auth';
 import {
@@ -21,8 +22,15 @@ import {
   type UserEditResponse,
 } from '../types';
 import { AVATAR_ACCEPT, uploadAvatar } from '../utils/avatar';
+import { useT } from '@/modules/i18n/components/LocaleProvider';
+import type { Translate } from '@/modules/i18n/translate';
 import { profileErrorMessage } from '../utils/errors';
-import { AccountAside, accountColumns, accountShell } from './AccountAside';
+import {
+  AccountAside,
+  accountColumns,
+  accountPanelEnter,
+  accountShell,
+} from './AccountAside';
 import { AccountLoadError, AccountPanelSkeleton } from './AccountStates';
 import { useSession } from './SessionProvider';
 
@@ -30,24 +38,25 @@ const PHONE_MIN_DIGITS = 8;
 
 const digitsOf = (value: string) => value.replace(/\D/g, '');
 
-const profileSchema = z.object({
-  firstName: z.string().max(100, 'The first name is too long.'),
-  lastName: z.string().max(100, 'The last name is too long.'),
-  username: z.string().max(100, 'The user name is too long.'),
-  email: z.string().email('That email address is not valid.'),
-  phone: z
-    .string()
-    .refine(
-      (value) => !value.trim() || digitsOf(value).length >= PHONE_MIN_DIGITS,
-      {
-        message: `The phone number must have at least ${PHONE_MIN_DIGITS} digits.`,
-      },
-    ),
-  companyName: z.string().max(200, 'The company name is too long.'),
-  avatar: z.string(),
-});
+const profileSchema = (t: Translate) =>
+  z.object({
+    firstName: z.string().max(100, t('validation.firstNameLong')),
+    lastName: z.string().max(100, t('validation.lastNameLong')),
+    username: z.string().max(100, t('validation.usernameLong')),
+    email: z.string().email(t('validation.email')),
+    phone: z
+      .string()
+      .refine(
+        (value) => !value.trim() || digitsOf(value).length >= PHONE_MIN_DIGITS,
+        {
+          message: t('validation.phoneDigits', { count: PHONE_MIN_DIGITS }),
+        },
+      ),
+    companyName: z.string().max(200, t('validation.companyLong')),
+    avatar: z.string(),
+  });
 
-type ProfileValues = z.infer<typeof profileSchema>;
+type ProfileValues = z.infer<ReturnType<typeof profileSchema>>;
 
 const EMPTY: ProfileValues = {
   firstName: '',
@@ -73,6 +82,7 @@ const labelClass = 'text-[13px] font-medium text-ink';
 
 export const ProfileForm = () => {
   const apiUrl = readApiUrl();
+  const t = useT();
   const { updateUser } = useSession();
   const picker = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
@@ -87,7 +97,7 @@ export const ProfileForm = () => {
   );
 
   const form = useForm<ProfileValues>({
-    resolver: zodResolver(profileSchema),
+    resolver: zodResolver(profileSchema(t)),
     defaultValues: EMPTY,
   });
 
@@ -131,17 +141,17 @@ export const ProfileForm = () => {
     setUploading(true);
 
     try {
-      const url = await uploadAvatar(file, apiUrl);
+      const url = await uploadAvatar(file, apiUrl, t);
 
       form.setValue('avatar', url, { shouldDirty: true });
     } catch (caught) {
       toast({
         variant: 'destructive',
-        title: 'Could not upload the picture',
+        title: t('profile.uploadFailed'),
         description:
           caught instanceof Error
             ? caught.message
-            : 'Could not upload the picture.',
+            : t('profile.uploadFailedText'),
       });
     } finally {
       setUploading(false);
@@ -169,7 +179,7 @@ export const ProfileForm = () => {
       const updated = saved?.clientPortalUserEdit;
 
       if (!updated) {
-        throw new Error('Your details were not saved.');
+        throw new Error(t('profile.notSaved'));
       }
 
       updateUser({
@@ -179,16 +189,16 @@ export const ProfileForm = () => {
 
       toast({
         variant: 'success',
-        title: 'Your profile was saved',
-        description: 'Your details are now up to date.',
+        title: t('profile.saved'),
+        description: t('profile.savedText'),
       });
     } catch (caught) {
-      const message = profileErrorMessage(caught);
+      const message = profileErrorMessage(caught, t);
 
       form.setError('root', { message });
       toast({
         variant: 'destructive',
-        title: 'Could not save your profile',
+        title: t('profile.saveFailed'),
         description: message,
       });
     }
@@ -225,21 +235,22 @@ export const ProfileForm = () => {
           onChange={(event) => void pickAvatar(event.target.files)}
         />
 
-        <div className={accountShell}>
+        <div className={cn(accountShell, accountPanelEnter, 'flex flex-col')}>
           <div className="flex items-start gap-3.5 border-b border-line px-6 py-5">
             <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-brand-soft text-brand">
               <Icon name="user" size={19} />
             </span>
             <div className="min-w-0">
-              <h2 className="text-base font-semibold text-ink">User profile</h2>
+              <h2 className="text-base font-semibold text-ink">
+                {t('profile.title')}
+              </h2>
               <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                These details are shown to the support team on every ticket you
-                raise.
+                {t('profile.subtitle')}
               </p>
             </div>
           </div>
 
-          <div className="space-y-5 px-6 py-6">
+          <div className="flex-1 space-y-5 px-6 py-6">
             <div className="grid gap-x-5 gap-y-5 sm:grid-cols-2">
               <Form.Field
                 control={form.control}
@@ -247,13 +258,13 @@ export const ProfileForm = () => {
                 render={({ field }) => (
                   <Form.Item>
                     <Form.Label className={labelClass} variant="peer">
-                      First name
+                      {t('field.firstName')}
                     </Form.Label>
                     <Form.Control>
                       <TextInput
                         {...field}
                         autoComplete="given-name"
-                        placeholder="Your first name"
+                        placeholder={t('field.firstNamePlaceholder')}
                       />
                     </Form.Control>
                     <Form.Message />
@@ -267,13 +278,13 @@ export const ProfileForm = () => {
                 render={({ field }) => (
                   <Form.Item>
                     <Form.Label className={labelClass} variant="peer">
-                      Last name
+                      {t('field.lastName')}
                     </Form.Label>
                     <Form.Control>
                       <TextInput
                         {...field}
                         autoComplete="family-name"
-                        placeholder="Your last name"
+                        placeholder={t('field.lastNamePlaceholder')}
                       />
                     </Form.Control>
                     <Form.Message />
@@ -287,13 +298,13 @@ export const ProfileForm = () => {
                 render={({ field }) => (
                   <Form.Item>
                     <Form.Label className={labelClass} variant="peer">
-                      User name
+                      {t('field.username')}
                     </Form.Label>
                     <Form.Control>
                       <TextInput
                         {...field}
                         autoComplete="username"
-                        placeholder="A name others see"
+                        placeholder={t('field.usernamePlaceholder')}
                       />
                     </Form.Control>
                     <Form.Message />
@@ -307,7 +318,7 @@ export const ProfileForm = () => {
                 render={({ field }) => (
                   <Form.Item>
                     <Form.Label className={labelClass} variant="peer">
-                      Email <span className="text-danger">*</span>
+                      {t('field.email')} <span className="text-danger">*</span>
                     </Form.Label>
                     <Form.Control>
                       <TextInput
@@ -317,9 +328,7 @@ export const ProfileForm = () => {
                         placeholder="name@example.com"
                       />
                     </Form.Control>
-                    <Form.Description>
-                      Sign-in address and where ticket updates are sent.
-                    </Form.Description>
+                    <Form.Description>{t('field.emailHint')}</Form.Description>
                     <Form.Message />
                   </Form.Item>
                 )}
@@ -331,7 +340,7 @@ export const ProfileForm = () => {
                 render={({ field }) => (
                   <Form.Item>
                     <Form.Label className={labelClass} variant="peer">
-                      Phone
+                      {t('field.phone')}
                     </Form.Label>
                     <Form.Control>
                       <TextInput
@@ -352,13 +361,13 @@ export const ProfileForm = () => {
                 render={({ field }) => (
                   <Form.Item>
                     <Form.Label className={labelClass} variant="peer">
-                      Company name
+                      {t('field.company')}
                     </Form.Label>
                     <Form.Control>
                       <TextInput
                         {...field}
                         autoComplete="organization"
-                        placeholder="The company you work for"
+                        placeholder={t('field.companyPlaceholder')}
                       />
                     </Form.Control>
                     <Form.Message />
@@ -385,7 +394,7 @@ export const ProfileForm = () => {
                 size={14}
                 className={dirty ? 'text-warning' : 'text-success'}
               />
-              {dirty ? 'You have unsaved changes.' : 'Everything is saved.'}
+              {dirty ? t('profile.unsaved') : t('profile.allSaved')}
             </p>
 
             <div className="flex flex-wrap items-center gap-2">
@@ -394,7 +403,7 @@ export const ProfileForm = () => {
                 disabled={busy || !dirty}
                 onClick={() => reset(valuesOf(current))}
               >
-                Discard
+                {t('common.discard')}
               </Button>
               <Button
                 type="submit"
@@ -402,7 +411,7 @@ export const ProfileForm = () => {
                 className="min-w-28"
               >
                 <Icon name="check" size={15} />
-                {saving ? 'Saving…' : 'Save changes'}
+                {saving ? t('common.saving') : t('common.saveChanges')}
               </Button>
             </div>
           </div>

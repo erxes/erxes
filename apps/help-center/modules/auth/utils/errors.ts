@@ -1,45 +1,34 @@
 import { graphqlErrorMessage } from '@/modules/apollo/utils/result';
+import type { MessageKey, Translate } from '@/modules/i18n/translate';
 
-export const authErrorMessage = (caught: unknown): string => {
+const AUTH_REASONS: [RegExp, MessageKey][] = [
+  [/invalid login/i, 'auth.error.invalidLogin'],
+  [/not verified|verify your account/i, 'auth.error.notVerified'],
+  [/locked/i, 'auth.error.locked'],
+  [/duplicated|already exist|duplicate/i, 'auth.error.duplicate'],
+  [/at least one number/i, 'auth.passwordHint'],
+];
+
+const PROFILE_REASONS: [RegExp, MessageKey][] = [
+  [/email already exists/i, 'profile.error.emailTaken'],
+  [/phone already exists/i, 'profile.error.phoneTaken'],
+  [/not authenticated/i, 'profile.error.sessionExpired'],
+];
+
+const explain = (
+  caught: unknown,
+  reasons: [RegExp, MessageKey][],
+  fallback: MessageKey,
+  t: Translate,
+): string => {
   const raw = graphqlErrorMessage(caught);
+  const known = reasons.find(([pattern]) => pattern.test(raw));
 
-  if (/invalid login/i.test(raw)) {
-    return 'That email or password is incorrect.';
-  }
-
-  if (/not verified|verify your account/i.test(raw)) {
-    return 'Your account is not confirmed. Check your email to confirm it.';
-  }
-
-  if (/locked/i.test(raw)) {
-    return 'Your account is temporarily locked. Please try again later.';
-  }
-
-  if (/duplicated|already exist|duplicate/i.test(raw)) {
-    return 'An account with that email already exists.';
-  }
-
-  if (/at least one number/i.test(raw)) {
-    return 'The password must be at least 8 characters and include an uppercase letter, a lowercase letter, and a number.';
-  }
-
-  return raw || 'Something went wrong. Please try again.';
+  return known ? t(known[1]) : raw || t(fallback);
 };
 
-export const profileErrorMessage = (caught: unknown): string => {
-  const raw = graphqlErrorMessage(caught);
+export const authErrorMessage = (caught: unknown, t: Translate): string =>
+  explain(caught, AUTH_REASONS, 'auth.error.generic', t);
 
-  if (/email already exists/i.test(raw)) {
-    return 'That email address is already used by another account.';
-  }
-
-  if (/phone already exists/i.test(raw)) {
-    return 'That phone number is already used by another account.';
-  }
-
-  if (/not authenticated/i.test(raw)) {
-    return 'Your session has expired. Sign in again to save your details.';
-  }
-
-  return raw || 'Could not save your details. Please try again.';
-};
+export const profileErrorMessage = (caught: unknown, t: Translate): string =>
+  explain(caught, PROFILE_REASONS, 'profile.error.generic', t);

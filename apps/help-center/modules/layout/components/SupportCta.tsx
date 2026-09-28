@@ -1,13 +1,11 @@
 import { SessionLink } from '@/modules/auth/components/SessionLink';
-import {
-  NEW_TICKET_REASON,
-  NEW_TICKET_ROUTE,
-} from '@/modules/tickets/constants/guard';
+import { getT } from '@/modules/i18n/server';
+import { NEW_TICKET_ROUTE } from '@/modules/tickets/constants/guard';
 import { buttonClass, ButtonLink } from '@/modules/ui/components/Button';
 import { Icon } from '@/modules/ui/components/Icon';
 import { Reveal } from '@/modules/ui/components/Reveal';
 
-export const SupportCta = ({
+export const SupportCta = async ({
   ticketsEnabled,
   formsEnabled,
 }: {
@@ -17,6 +15,8 @@ export const SupportCta = ({
   if (!ticketsEnabled && !formsEnabled) {
     return null;
   }
+
+  const t = await getT();
 
   return (
     <Reveal as="section">
@@ -42,17 +42,15 @@ export const SupportCta = ({
           <div className="max-w-xl">
             <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.07] py-1.5 pl-2.5 pr-3.5 text-[12px] font-medium text-white/75">
               <Icon name="smile" size={14} />
-              Still stuck?
+              {t('cta.eyebrow')}
             </span>
 
             <h2 className="mt-4 text-balance text-[26px] font-semibold leading-tight tracking-[-0.03em] sm:text-[32px]">
-              Cannot find the answer you need?
+              {t('cta.title')}
             </h2>
 
             <p className="mt-3 text-[15px] leading-relaxed text-white/60">
-              {ticketsEnabled
-                ? 'Send the details to the support team and follow every reply from your ticket page.'
-                : 'Fill in a form and the support team will pick it up from there.'}
+              {ticketsEnabled ? t('cta.textTickets') : t('cta.textForms')}
             </p>
           </div>
 
@@ -61,7 +59,7 @@ export const SupportCta = ({
               <>
                 <SessionLink
                   href={NEW_TICKET_ROUTE}
-                  reason={NEW_TICKET_REASON}
+                  reason={t('tickets.signInReason')}
                   className={buttonClass({
                     variant: 'onHero',
                     size: 'lg',
@@ -69,7 +67,7 @@ export const SupportCta = ({
                   })}
                 >
                   <Icon name="send" size={16} />
-                  Submit a ticket
+                  {t('tickets.submit')}
                   <Icon
                     name="chevronRight"
                     size={15}
@@ -83,13 +81,13 @@ export const SupportCta = ({
                   size="lg"
                 >
                   <Icon name="binoculars" size={16} />
-                  Track a ticket
+                  {t('tickets.track')}
                 </ButtonLink>
               </>
             ) : (
               <ButtonLink href="/forms" variant="onHero" size="lg">
                 <Icon name="clipboard" size={16} />
-                Fill in a form
+                {t('forms.fillIn')}
               </ButtonLink>
             )}
           </div>

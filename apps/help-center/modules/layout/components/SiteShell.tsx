@@ -3,29 +3,43 @@ import { getAnnouncements } from '@/modules/cms/api';
 import { announcementHref } from '@/modules/cms/utils/format';
 import { getPortalForms } from '@/modules/forms/api';
 import { getTopicOverview } from '@/modules/knowledge-base/api';
+import { knowledgeBaseName } from '@/modules/knowledge-base/utils/label';
 import { sectionArticleCount } from '@/modules/knowledge-base/utils/selectors';
+import { savedLabel } from '@/modules/i18n/savedLabel';
+import { getT } from '@/modules/i18n/server';
 import { getPortalIdentity, getPortalSettings } from '../api';
 import { AppNav, type NavGroup, type NavLink } from './AppNav';
 import { PortalHtml } from './PortalHtml';
 import { SiteFooter } from './SiteFooter';
 
 export const SiteShell = async ({ children }: { children: ReactNode }) => {
-  const [{ title }, settings, topic, forms, posts] = await Promise.all([
+  const [{ title }, settings, topic, forms, posts, t] = await Promise.all([
     getPortalIdentity(),
     getPortalSettings(),
     getTopicOverview(),
     getPortalForms(),
     getAnnouncements(),
+    getT(),
   ]);
 
-  const knowledgeBaseLabel = settings.knowledgeBaseLabel || 'Knowledge base';
-  const formsLabel = settings.header.formsLabel || 'Forms';
-  const announcementsLabel =
-    settings.header.announcementsLabel || 'Announcements';
-  const ticketLabel = settings.ticketLabel || 'Tickets';
+  const knowledgeBase = knowledgeBaseName(settings.knowledgeBaseLabel, t);
+  const knowledgeBaseLabel = knowledgeBase.title;
+  const formsLabel = savedLabel(
+    settings.header.formsLabel || t('nav.forms'),
+    t,
+  );
+  const announcementsLabel = savedLabel(
+    settings.header.announcementsLabel || t('nav.announcements'),
+    t,
+  );
+  const ticketLabel = savedLabel(settings.ticketLabel || t('nav.tickets'), t);
 
   const links: NavLink[] = [
-    { href: '/', label: settings.header.homeLabel || 'Home', icon: 'home' },
+    {
+      href: '/',
+      label: savedLabel(settings.header.homeLabel || t('nav.home'), t),
+      icon: 'home',
+    },
   ];
 
   if (settings.knowledgeBaseEnabled) {
@@ -66,7 +80,7 @@ export const SiteShell = async ({ children }: { children: ReactNode }) => {
       href: '/knowledge-base',
       label: knowledgeBaseLabel,
       icon: 'book',
-      emptyLabel: 'No categories have been published yet.',
+      emptyLabel: t('nav.emptyCategories'),
       items:
         topic.state === 'ready'
           ? topic.data.sections.map((section) => ({
@@ -91,10 +105,10 @@ export const SiteShell = async ({ children }: { children: ReactNode }) => {
       href: '/forms',
       label: formsLabel,
       icon: 'clipboard',
-      emptyLabel: 'No forms have been published yet.',
+      emptyLabel: t('nav.emptyForms'),
       items: forms.data.map((form) => ({
         href: `/forms/${form._id}`,
-        label: form.title || form.name || 'Form',
+        label: form.title || form.name || t('nav.form'),
       })),
     });
   }
@@ -104,12 +118,12 @@ export const SiteShell = async ({ children }: { children: ReactNode }) => {
     href: '/announcements',
     label: announcementsLabel,
     icon: 'megaphone',
-    emptyLabel: 'No announcements have been published yet.',
+    emptyLabel: t('nav.emptyAnnouncements'),
     items:
       posts.state === 'ready'
         ? posts.data.map((post) => ({
             href: announcementHref(post),
-            label: post.title || 'Announcement',
+            label: post.title || t('nav.announcement'),
           }))
         : [],
   });
@@ -120,10 +134,10 @@ export const SiteShell = async ({ children }: { children: ReactNode }) => {
       href: '/tickets',
       label: ticketLabel,
       icon: 'ticket',
-      emptyLabel: 'Nothing to show yet.',
+      emptyLabel: t('nav.emptyTickets'),
       items: [
-        { href: '/tickets/new', label: 'Submit a ticket' },
-        { href: '/tickets/track', label: 'Track by number' },
+        { href: '/tickets/new', label: t('tickets.submit') },
+        { href: '/tickets/track', label: t('tickets.trackByNumber') },
       ],
     });
   }
@@ -145,6 +159,7 @@ export const SiteShell = async ({ children }: { children: ReactNode }) => {
         <SiteFooter
           title={title}
           knowledgeBaseEnabled={settings.knowledgeBaseEnabled}
+          knowledgeBase={knowledgeBase}
           ticketsEnabled={settings.ticketsEnabled}
           footer={settings.footer}
         />

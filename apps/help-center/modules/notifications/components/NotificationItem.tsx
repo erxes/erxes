@@ -3,6 +3,7 @@
 import { useMutation } from '@apollo/client/react';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
+import { useLocale, useT } from '@/modules/i18n/components/LocaleProvider';
 import { Icon } from '@/modules/ui/components/Icon';
 import { cn } from '@/modules/ui/lib/cn';
 import { NOTIFICATION_PORTAL_MARK_READ } from '../graphql/mutations/notifications';
@@ -23,6 +24,8 @@ export const NotificationItem = ({
   notification: PortalNotification;
   onOpen?: () => void;
 }) => {
+  const t = useT();
+  const locale = useLocale();
   const { href, icon } = notificationTarget(notification);
 
   const [markRead] = useMutation<MarkReadResponse>(
@@ -76,7 +79,7 @@ export const NotificationItem = ({
 
           {notification.isRead ? null : (
             <span
-              aria-label="Unread"
+              aria-label={t('notifications.unread')}
               className="mt-1.5 size-2 shrink-0 rounded-full bg-brand"
             />
           )}
@@ -87,10 +90,14 @@ export const NotificationItem = ({
         </span>
 
         <span className="mt-1.5 flex items-center gap-2 text-xs text-muted-foreground">
-          {relativeTime(notification.updatedAt ?? notification.createdAt)}
+          {relativeTime(
+            notification.updatedAt ?? notification.createdAt,
+            locale,
+            t,
+          )}
           {href ? (
             <span className="inline-flex items-center gap-0.5 font-semibold text-brand">
-              Open
+              {t('common.open')}
               <Icon name="chevronRight" size={13} />
             </span>
           ) : null}
@@ -116,7 +123,7 @@ export const NotificationItem = ({
       <button
         type="button"
         onClick={read}
-        title="Mark as read"
+        title={t('notifications.markRead')}
         className={cn(row, 'hover:bg-subtle focus-visible:bg-subtle')}
       >
         {body}

@@ -2,13 +2,17 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import { storedFileUrl } from '@/modules/apollo/utils/file';
+import { Popover } from 'erxes-ui/components/popover';
+import { ACCOUNT_LINKS } from '@/modules/auth/components/AccountAside';
 import { NotificationBell } from '@/modules/notifications/components/NotificationBell';
 import { useSession } from '@/modules/auth/components/SessionProvider';
 import { Avatar } from '@/modules/ui/components/Avatar';
 import { Icon, type IconName } from '@/modules/ui/components/Icon';
+import { useT } from '@/modules/i18n/components/LocaleProvider';
 import { cn } from '@/modules/ui/lib/cn';
+import { SidebarSearch } from './SidebarSearch';
 
 export type NavLink = {
   href: string;
@@ -65,53 +69,37 @@ const Wordmark = ({
   </Link>
 );
 
-const RootList = ({
-  links,
-  pathname,
-  onNavigate,
+const Collapse = ({
+  open,
+  children,
 }: {
-  links: NavLink[];
-  pathname: string;
-  onNavigate?: () => void;
+  open: boolean;
+  children: ReactNode;
 }) => (
-  <ul className="flex flex-col gap-0.5">
-    {links.map((link) => {
-      const active = linkActive(link.href, pathname);
+  <div
+    inert={!open}
+    className={cn(
+      'grid transition-[grid-template-rows,opacity] duration-300 ease-out-soft',
+      open ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0',
+    )}
+  >
+    <div className="min-h-0 overflow-hidden">{children}</div>
+  </div>
+);
 
-      return (
-        <li key={link.href}>
-          <Link
-            href={link.href}
-            onClick={onNavigate}
-            aria-current={active ? 'page' : undefined}
-            className={cn(
-              'group relative flex items-center gap-2.5 overflow-hidden rounded-lg px-2.5 py-2 font-medium transition-[background-color,color] duration-300 ease-out-soft',
-              active
-                ? 'bg-shell-soft text-white'
-                : 'text-white/60 hover:bg-shell-soft/70 hover:text-white',
-            )}
-          >
-            {active ? (
-              <span
-                aria-hidden="true"
-                className="absolute inset-y-1.5 left-0 w-0.5 rounded-full bg-brand"
-              />
-            ) : null}
-            <Icon
-              name={link.icon}
-              size={16}
-              className="shrink-0 transition-transform duration-300 ease-out-soft group-hover:scale-110"
-            />
-            {link.label}
-          </Link>
-        </li>
-      );
-    })}
-  </ul>
+const Chevron = ({ open }: { open: boolean }) => (
+  <Icon
+    name="chevronRight"
+    size={14}
+    className={cn(
+      'transition-transform duration-300 ease-out-soft',
+      open && 'rotate-90',
+    )}
+  />
 );
 
 const entryLink =
-  'flex min-w-0 flex-1 items-baseline gap-2 rounded-lg px-2.5 py-1.5 transition-colors duration-150';
+  'flex min-w-0 flex-1 items-baseline gap-2 rounded-lg px-2.5 py-1.5 transition-[background-color,color,transform] duration-200 ease-out-soft active:scale-[0.98]';
 
 const Leaf = ({
   href,
@@ -167,6 +155,8 @@ const Entry = ({
   onToggle: () => void;
   onNavigate?: () => void;
 }) => {
+  const t = useT();
+
   if (!entry.children?.length) {
     return (
       <li>
@@ -195,14 +185,16 @@ const Entry = ({
           type="button"
           onClick={onToggle}
           aria-expanded={expanded}
-          aria-label={`${expanded ? 'Collapse' : 'Expand'} ${entry.label}`}
-          className="flex size-7 shrink-0 items-center justify-center rounded-md text-white/35 transition-colors duration-150 hover:bg-shell-soft hover:text-white"
+          aria-label={t(expanded ? 'nav.collapse' : 'nav.expand', {
+            label: entry.label,
+          })}
+          className="flex size-7 shrink-0 items-center justify-center rounded-md text-white/35 transition-[background-color,color,transform] duration-200 ease-out-soft hover:bg-shell-soft hover:text-white active:scale-90"
         >
-          <Icon name={expanded ? 'chevronDown' : 'chevronRight'} size={14} />
+          <Chevron open={expanded} />
         </button>
       </div>
 
-      {expanded ? (
+      <Collapse open={expanded}>
         <ul className="ml-2.5 mt-0.5 border-l border-shell-line pl-2.5">
           {entry.children.map((child) => (
             <li key={child.href}>
@@ -217,79 +209,156 @@ const Entry = ({
             </li>
           ))}
         </ul>
-      ) : null}
+      </Collapse>
     </li>
   );
 };
 
-const SectionList = ({
+const entryActive = (entry: NavEntry, pathname: string) =>
+  pathname === entry.href ||
+  !!entry.children?.some((child) => child.href === pathname);
+
+const GroupTree = ({
   group,
   pathname,
-  onBack,
   onNavigate,
 }: {
   group: NavGroup;
   pathname: string;
-  onBack: () => void;
   onNavigate?: () => void;
 }) => {
   const [toggled, setToggled] = useState<Record<string, boolean>>({});
 
+  if (!group.items.length) {
+    return (
+      <p className="ml-4.5 mt-0.5 border-l border-shell-line py-1.5 pl-4.5 text-[12px] leading-relaxed text-white/35">
+        {group.emptyLabel}
+      </p>
+    );
+  }
+
   return (
-    <div className="flex flex-col gap-3">
-      <button
-        type="button"
-        onClick={onBack}
-        className="flex items-center gap-1.5 self-start rounded-lg px-2.5 py-1 text-[12px] font-medium text-white/45 transition-colors duration-150 hover:text-white"
-      >
-        <Icon name="arrowLeft" size={13} />
-        All sections
-      </button>
+    <ul className="ml-4.5 mt-0.5 flex flex-col gap-0.5 border-l border-shell-line pl-2">
+      {group.items.map((entry) => (
+        <Entry
+          key={entry.href}
+          entry={entry}
+          pathname={pathname}
+          expanded={toggled[entry.href] ?? entryActive(entry, pathname)}
+          onToggle={() =>
+            setToggled((current) => ({
+              ...current,
+              [entry.href]: !(
+                current[entry.href] ?? entryActive(entry, pathname)
+              ),
+            }))
+          }
+          onNavigate={onNavigate}
+        />
+      ))}
+    </ul>
+  );
+};
 
-      <Link
-        href={group.href}
-        onClick={onNavigate}
-        aria-current={pathname === group.href ? 'page' : undefined}
-        className={cn(
-          'flex items-center gap-2.5 rounded-lg px-2.5 py-2 font-semibold transition-colors duration-300 ease-out-soft',
-          pathname === group.href
-            ? 'bg-shell-soft text-white'
-            : 'text-white/80 hover:bg-shell-soft/70 hover:text-white',
-        )}
-      >
-        <Icon name={group.icon} size={16} className="shrink-0" />
-        {group.label}
-      </Link>
+const RootList = ({
+  links,
+  groups,
+  pathname,
+  onNavigate,
+}: {
+  links: NavLink[];
+  groups: NavGroup[];
+  pathname: string;
+  onNavigate?: () => void;
+}) => {
+  const t = useT();
+  const [toggled, setToggled] = useState<Record<string, boolean>>({});
 
-      {group.items.length ? (
-        <ul className="flex flex-col gap-0.5 border-t border-shell-line pt-3">
-          {group.items.map((entry) => (
-            <Entry
-              key={entry.href}
-              entry={entry}
-              pathname={pathname}
-              expanded={toggled[entry.href] ?? true}
-              onToggle={() =>
-                setToggled((current) => ({
-                  ...current,
-                  [entry.href]: !(current[entry.href] ?? true),
-                }))
-              }
-              onNavigate={onNavigate}
-            />
-          ))}
-        </ul>
-      ) : (
-        <p className="border-t border-shell-line px-2.5 pt-3 text-[12px] leading-relaxed text-white/35">
-          {group.emptyLabel}
-        </p>
-      )}
-    </div>
+  return (
+    <ul className="flex flex-col gap-0.5">
+      {links.map((link) => {
+        const active = linkActive(link.href, pathname);
+        const group = groups.find((item) => item.href === link.href);
+        const expanded = group ? toggled[group.key] ?? active : false;
+
+        const toggle = (next: boolean) => {
+          if (group) {
+            setToggled((current) => ({ ...current, [group.key]: next }));
+          }
+        };
+
+        return (
+          <li key={link.href}>
+            <div className="relative flex items-center">
+              <Link
+                href={link.href}
+                onClick={() => {
+                  if (!group) {
+                    onNavigate?.();
+                    return;
+                  }
+
+                  toggle(active ? !expanded : true);
+                }}
+                aria-current={active ? 'page' : undefined}
+                aria-expanded={group ? expanded : undefined}
+                className={cn(
+                  'group relative flex min-w-0 flex-1 items-center gap-2.5 overflow-hidden rounded-lg px-2.5 py-2 font-medium transition-[background-color,color,transform] duration-300 ease-out-soft active:scale-[0.98]',
+                  group && 'pr-10',
+                  active
+                    ? 'bg-shell-soft text-white'
+                    : 'text-white/60 hover:bg-shell-soft/70 hover:text-white',
+                )}
+              >
+                {active ? (
+                  <span
+                    aria-hidden="true"
+                    className="animate-in fade-in zoom-in-50 absolute inset-y-1.5 left-0 w-0.5 rounded-full bg-brand duration-300"
+                  />
+                ) : null}
+                <Icon
+                  name={link.icon}
+                  size={16}
+                  className="shrink-0 transition-transform duration-300 ease-out-soft group-hover:scale-110"
+                />
+                <span className="min-w-0 truncate">{link.label}</span>
+              </Link>
+
+              {group ? (
+                <button
+                  type="button"
+                  onClick={() => toggle(!expanded)}
+                  aria-expanded={expanded}
+                  aria-label={t(expanded ? 'nav.collapse' : 'nav.expand', {
+                    label: link.label,
+                  })}
+                  className="absolute right-1 flex size-7 items-center justify-center rounded-md text-white/35 transition-[background-color,color,transform] duration-200 ease-out-soft hover:bg-white/10 hover:text-white active:scale-90"
+                >
+                  <Chevron open={expanded} />
+                </button>
+              ) : null}
+            </div>
+
+            {group ? (
+              <Collapse open={expanded}>
+                <GroupTree
+                  group={group}
+                  pathname={pathname}
+                  onNavigate={onNavigate}
+                />
+              </Collapse>
+            ) : null}
+          </li>
+        );
+      })}
+    </ul>
   );
 };
 
 const AccountBlock = ({ onNavigate }: { onNavigate?: () => void }) => {
+  const t = useT();
   const { user, ready, signOut } = useSession();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   if (!ready) {
     return (
@@ -302,10 +371,10 @@ const AccountBlock = ({ onNavigate }: { onNavigate?: () => void }) => {
       <div className="rounded-xl bg-shell-soft p-3.5">
         <p className="flex items-center gap-2 text-[13px] font-semibold text-white">
           <Icon name="ticket" size={14} className="shrink-0 text-white/50" />
-          Track your tickets
+          {t('nav.trackTitle')}
         </p>
         <p className="mt-1.5 text-[12px] leading-relaxed text-white/45">
-          Sign in to follow replies and see everything you have raised.
+          {t('nav.trackText')}
         </p>
 
         <div className="mt-3 flex items-center gap-2">
@@ -314,51 +383,104 @@ const AccountBlock = ({ onNavigate }: { onNavigate?: () => void }) => {
             onClick={onNavigate}
             className="flex h-8 flex-1 items-center justify-center rounded-lg bg-white text-[12px] font-semibold text-shell outline-none transition-[background-color,transform] duration-300 ease-out-soft hover:bg-white/90 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-white/60"
           >
-            Sign in
+            {t('auth.signIn')}
           </Link>
           <Link
             href="/sign-up"
             onClick={onNavigate}
             className="flex h-8 items-center justify-center rounded-lg px-3 text-[12px] font-medium text-white/55 outline-none transition-colors duration-300 ease-out-soft hover:bg-white/10 hover:text-white focus-visible:bg-white/10"
           >
-            Sign up
+            {t('auth.signUp')}
           </Link>
         </div>
       </div>
     );
   }
 
-  return (
-    <div className="flex items-center gap-2.5 rounded-xl bg-shell-soft p-1.5">
-      <Link
-        href="/account"
-        onClick={onNavigate}
-        className="flex min-w-0 flex-1 items-center gap-2.5 rounded-lg px-1.5 py-1 transition-colors duration-150 hover:bg-white/5"
-      >
-        <Avatar
-          name={user.name}
-          src={storedFileUrl(user.avatar ?? null)}
-          size={28}
-        />
-        <span className="min-w-0 flex-1">
-          <span className="block truncate text-[13px] font-medium text-white">
-            {user.name}
-          </span>
-          <span className="block truncate text-[11px] text-white/40">
-            {user.email}
-          </span>
-        </span>
-      </Link>
-      <NotificationBell ringClass="ring-shell-soft" />
+  const avatar = storedFileUrl(user.avatar ?? null);
 
-      <button
-        type="button"
-        aria-label="Sign out"
-        onClick={signOut}
-        className="flex size-8 shrink-0 items-center justify-center rounded-lg text-white/40 transition-colors duration-150 hover:bg-white/10 hover:text-white"
-      >
-        <Icon name="logout" size={16} />
-      </button>
+  const navigate = () => {
+    setMenuOpen(false);
+    onNavigate?.();
+  };
+
+  return (
+    <div className="flex items-center gap-1 rounded-xl bg-shell-soft p-1">
+      <Popover open={menuOpen} onOpenChange={setMenuOpen}>
+        <Popover.Trigger className="flex min-w-0 flex-1 items-center gap-2.5 rounded-lg p-1.5 text-left outline-none transition-[background-color,transform] duration-200 ease-out-soft hover:bg-white/5 active:scale-[0.98] focus-visible:bg-white/5 data-[state=open]:bg-white/5">
+          <Avatar name={user.name} src={avatar} size={30} />
+          <span className="min-w-0 flex-1">
+            <span className="block truncate text-[13px] font-medium leading-tight text-white">
+              {user.name}
+            </span>
+            <span className="mt-0.5 block truncate text-[11px] leading-tight text-white/45">
+              {user.email}
+            </span>
+          </span>
+          <Icon
+            name="chevronDown"
+            size={14}
+            className={cn(
+              'shrink-0 text-white/40 transition-transform duration-200',
+              menuOpen && 'rotate-180',
+            )}
+          />
+        </Popover.Trigger>
+
+        <Popover.Content
+          side="top"
+          align="start"
+          sideOffset={10}
+          className="w-60 rounded-xl border border-line p-1.5 shadow-shell-hover"
+        >
+          <div className="flex items-center gap-3 px-2.5 pb-3 pt-2">
+            <Avatar name={user.name} src={avatar} size={36} />
+            <span className="min-w-0 flex-1">
+              <span className="block truncate text-sm font-semibold text-ink">
+                {user.name}
+              </span>
+              <span className="block truncate text-[12px] text-muted-foreground">
+                {user.email}
+              </span>
+            </span>
+          </div>
+
+          <ul className="border-t border-line-soft pt-1.5">
+            {ACCOUNT_LINKS.map((link) => (
+              <li key={link.href}>
+                <Link
+                  href={link.href}
+                  onClick={navigate}
+                  className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-medium text-ink-soft outline-none transition-[background-color,color,transform] duration-200 ease-out-soft active:scale-[0.98] hover:bg-subtle hover:text-ink focus-visible:bg-subtle"
+                >
+                  <Icon
+                    name={link.icon}
+                    size={16}
+                    className="shrink-0 text-muted-foreground"
+                  />
+                  {t(link.labelKey)}
+                </Link>
+              </li>
+            ))}
+          </ul>
+
+          <div className="mt-1.5 border-t border-line-soft pt-1.5">
+            <button
+              type="button"
+              onClick={() => {
+                setMenuOpen(false);
+                signOut();
+              }}
+              className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-[13px] font-medium text-danger outline-none transition-[background-color,transform] duration-200 ease-out-soft active:scale-[0.98] hover:bg-danger-soft focus-visible:bg-danger-soft"
+            >
+              <Icon name="logout" size={16} className="shrink-0" />
+              {t('auth.signOut')}
+            </button>
+          </div>
+        </Popover.Content>
+      </Popover>
+
+      <NotificationBell ringClass="ring-shell-soft" />
     </div>
   );
 };
@@ -377,22 +499,16 @@ export const AppNav = ({
   groups: NavGroup[];
 }) => {
   const pathname = usePathname();
+  const t = useT();
 
-  const [menu, setMenu] = useState({
-    open: false,
-    browsing: false,
-    path: pathname,
-  });
+  const [menu, setMenu] = useState({ open: false, path: pathname });
 
   if (menu.path !== pathname) {
-    setMenu({ open: false, browsing: false, path: pathname });
+    setMenu({ open: false, path: pathname });
   }
 
   const open = menu.open;
 
-  const section = menu.browsing
-    ? undefined
-    : groups.find((group) => pathname.startsWith(group.href));
   const close = useCallback(
     () => setMenu((current) => ({ ...current, open: false })),
     [],
@@ -417,30 +533,22 @@ export const AppNav = ({
       </div>
 
       <div className="px-3">
-        <Link
-          href="/search"
-          className="flex h-9 items-center gap-2.5 rounded-lg bg-shell-soft px-3 text-[13px] text-white/45 transition-colors duration-150 hover:text-white/80"
-        >
-          <Icon name="search" size={15} className="shrink-0" />
-          Search
-        </Link>
+        <SidebarSearch onNavigate={close} />
       </div>
 
       <div className="mt-4 min-h-0 flex-1 overflow-y-auto px-3 pb-4">
-        <nav aria-label="Portal" className="text-[13px]">
-          {section ? (
-            <SectionList
-              group={section}
-              pathname={pathname}
-              onBack={() =>
-                setMenu((current) => ({ ...current, browsing: true }))
-              }
-              onNavigate={close}
-            />
-          ) : (
-            <RootList links={links} pathname={pathname} onNavigate={close} />
-          )}
+        <nav aria-label={t('nav.portal')} className="text-[13px]">
+          <RootList
+            links={links}
+            groups={groups}
+            pathname={pathname}
+            onNavigate={close}
+          />
         </nav>
+      </div>
+
+      <div className="shrink-0 border-t border-shell-line p-3">
+        <AccountBlock onNavigate={close} />
       </div>
     </>
   );
@@ -457,14 +565,14 @@ export const AppNav = ({
         <div className="flex items-center gap-1">
           <Link
             href="/search"
-            aria-label="Search"
+            aria-label={t('common.search')}
             className="flex size-9 items-center justify-center rounded-lg text-white/60 transition-colors duration-150 hover:bg-shell-soft hover:text-white"
           >
             <Icon name="search" size={18} />
           </Link>
           <button
             type="button"
-            aria-label="Menu"
+            aria-label={t('nav.menu')}
             aria-expanded={open}
             onClick={() =>
               setMenu((current) => ({ ...current, open: !current.open }))
@@ -480,24 +588,20 @@ export const AppNav = ({
         <div className="fixed inset-0 z-50 lg:hidden">
           <button
             type="button"
-            aria-label="Close menu overlay"
+            aria-label={t('nav.closeOverlay')}
             onClick={close}
-            className="absolute inset-0 bg-shell/70 backdrop-blur-sm"
+            className="animate-in fade-in absolute inset-0 bg-shell/70 backdrop-blur-sm duration-200"
           />
           <div className="animate-in slide-in-from-left absolute inset-y-0 left-0 flex w-72 max-w-[85vw] flex-col border-r border-shell-line bg-shell duration-200">
             <button
               type="button"
-              aria-label="Close menu"
+              aria-label={t('nav.closeMenu')}
               onClick={close}
               className="absolute right-3 top-3.5 flex size-8 items-center justify-center rounded-lg text-white/50 transition-colors duration-150 hover:bg-shell-soft hover:text-white"
             >
               <Icon name="close" size={18} />
             </button>
             {panel}
-
-            <div className="shrink-0 border-t border-shell-line p-3">
-              <AccountBlock onNavigate={close} />
-            </div>
           </div>
         </div>
       ) : null}

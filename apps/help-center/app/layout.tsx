@@ -5,6 +5,8 @@ import './globals.css';
 import { ApolloWrapper } from '@/modules/apollo/components/ApolloWrapper';
 import { readConfig } from '@/modules/config/api';
 import { SessionProvider } from '@/modules/auth/components/SessionProvider';
+import { LocaleProvider } from '@/modules/i18n/components/LocaleProvider';
+import { getLocale } from '@/modules/i18n/server';
 import { getPortalIdentity, getPortalSettings } from '@/modules/layout/api';
 import { PortalTheme } from '@/modules/layout/components/PortalTheme';
 import { site } from '@/modules/layout/constants/site';
@@ -34,13 +36,14 @@ export const generateMetadata = async (): Promise<Metadata> => {
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const [{ theme }, config] = await Promise.all([
+  const [{ theme }, config, locale] = await Promise.all([
     getPortalSettings(),
     readConfig(),
+    getLocale(),
   ]);
 
   return (
-    <html lang="en" className={`${openSans.variable} h-full`}>
+    <html lang={locale} className={`${openSans.variable} h-full`}>
       <head>
         <Script
           strategy="beforeInteractive"
@@ -55,12 +58,14 @@ export default async function RootLayout({
           </style>
         </noscript>
         <PortalTheme theme={theme} />
-        <ApolloWrapper appToken={config?.appToken ?? ''}>
-          <SessionProvider>
-            {children}
-            <Toaster />
-          </SessionProvider>
-        </ApolloWrapper>
+        <LocaleProvider locale={locale}>
+          <ApolloWrapper appToken={config?.appToken ?? ''}>
+            <SessionProvider>
+              {children}
+              <Toaster />
+            </SessionProvider>
+          </ApolloWrapper>
+        </LocaleProvider>
       </body>
     </html>
   );

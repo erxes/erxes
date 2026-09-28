@@ -10,9 +10,12 @@ import { SearchBar } from '@/modules/layout/components/SearchBar';
 import { CountBadge } from '@/modules/ui/components/PageHeader';
 import { ButtonLink } from '@/modules/ui/components/Button';
 import {
-  KB_OFF_REASON,
-  KB_OFF_TITLE,
+  kbOffReason,
+  kbOffTitle,
 } from '@/modules/knowledge-base/constants/guard';
+import { knowledgeBaseName } from '@/modules/knowledge-base/utils/label';
+import { getT } from '@/modules/i18n/server';
+import { getPortalSettings } from '@/modules/layout/api';
 import { FeatureOff } from '@/modules/ui/components/FeatureOff';
 import { EmptyState } from '@/modules/ui/components/EmptyState';
 import {
@@ -23,10 +26,20 @@ import {
 
 const SUGGESTION_COUNT = 4;
 
-export const metadata = { title: 'Knowledge base' };
+export const generateMetadata = async () => {
+  const [settings, t] = await Promise.all([getPortalSettings(), getT()]);
+
+  return { title: knowledgeBaseName(settings.knowledgeBaseLabel, t).title };
+};
 
 export default async function KnowledgeBasePage() {
-  const topic = await getTopicArticleList();
+  const [settings, topic, t] = await Promise.all([
+    getPortalSettings(),
+    getTopicArticleList(),
+    getT(),
+  ]);
+
+  const knowledgeBase = knowledgeBaseName(settings.knowledgeBaseLabel, t);
 
   const browse = topic.state === 'ready' ? browseCategories(topic.data) : [];
 
@@ -44,22 +57,25 @@ export default async function KnowledgeBasePage() {
 
   return (
     <PortalShell
-      breadcrumbs={[{ label: 'Home', href: '/' }, { label: 'Knowledge base' }]}
-      title="Knowledge base"
-      description="Guides, answers to common questions and policies, grouped by category."
+      breadcrumbs={[
+        { label: t('nav.home'), href: '/' },
+        { label: knowledgeBase.title },
+      ]}
+      title={knowledgeBase.title}
+      description={t('kb.description')}
       meta={
         browse.length ? (
           <span className="flex items-center gap-3 text-white/70">
             <CountBadge
               count={browse.length}
-              label={browse.length === 1 ? 'category' : 'categories'}
+              label={t('kb.categoriesLabel', { count: browse.length })}
             />
             <span aria-hidden="true" className="text-white/20">
               •
             </span>
             <CountBadge
               count={articleCount}
-              label={articleCount === 1 ? 'article' : 'articles'}
+              label={t('kb.articlesLabel', { count: articleCount })}
             />
           </span>
         ) : null
@@ -67,7 +83,7 @@ export default async function KnowledgeBasePage() {
       heroExtra={
         browse.length ? (
           <SearchBar
-            placeholder="Search every article"
+            placeholder={t('kb.searchEvery')}
             suggestions={searchSuggestions}
           />
         ) : null
@@ -80,7 +96,10 @@ export default async function KnowledgeBasePage() {
       ) : topic.state === 'error' ? (
         <LoadError message={topic.message} />
       ) : !topic.data.knowledgeBaseEnabled ? (
-        <FeatureOff title={KB_OFF_TITLE} description={KB_OFF_REASON} />
+        <FeatureOff
+          title={kbOffTitle(knowledgeBase, t)}
+          description={kbOffReason(knowledgeBase, t)}
+        />
       ) : browse.length ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {browse.map(({ category, group }, index) => (
@@ -95,11 +114,11 @@ export default async function KnowledgeBasePage() {
       ) : (
         <EmptyState
           icon="book"
-          title="The knowledge base is empty"
-          description="This topic has no published categories. Add one under Frontline → Knowledge Base."
+          title={t('kb.empty', { name: knowledgeBase.title })}
+          description={t('kb.emptyText')}
           action={
             <ButtonLink href="/tickets/new" size="sm">
-              Create a ticket
+              {t('tickets.create')}
             </ButtonLink>
           }
         />

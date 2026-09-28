@@ -1,22 +1,25 @@
+import { getT } from '@/modules/i18n/server';
 import { PortalShell } from '@/modules/layout/components/PortalShell';
 import { TicketDetail } from '@/modules/tickets/components/TicketDetail';
 
 type Props = { params: Promise<{ ticketId: string }> };
 
-export const metadata = { title: 'Ticket' };
+export const generateMetadata = async () => ({
+  title: (await getT())('tickets.ticket'),
+});
 
 export default async function TicketPage({ params }: Props) {
-  const { ticketId } = await params;
+  const [{ ticketId }, t] = await Promise.all([params, getT()]);
 
   return (
     <PortalShell
       breadcrumbs={[
-        { label: 'Home', href: '/' },
-        { label: 'Support', href: '/tickets' },
-        { label: 'Ticket' },
+        { label: t('nav.home'), href: '/' },
+        { label: t('tickets.crumb'), href: '/tickets' },
+        { label: t('tickets.ticket') },
       ]}
-      title="Ticket"
-      description="Follow the replies and add anything the support team still needs."
+      title={t('tickets.ticket')}
+      description={t('tickets.detailText')}
     >
       <TicketDetail ticketId={ticketId} />
     </PortalShell>

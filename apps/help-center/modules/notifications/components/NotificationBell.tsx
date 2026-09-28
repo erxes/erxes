@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { useSession } from '@/modules/auth/components/SessionProvider';
 import { Icon } from '@/modules/ui/components/Icon';
+import { useT } from '@/modules/i18n/components/LocaleProvider';
 import { cn } from '@/modules/ui/lib/cn';
 import { NOTIFICATION_PORTAL_MARK_ALL_READ } from '../graphql/mutations/notifications';
 import { NOTIFICATION_PORTAL_LIST } from '../graphql/queries/notifications';
@@ -40,6 +41,7 @@ const useArrivalToasts = (
   accountId: string | null,
 ) => {
   const router = useRouter();
+  const t = useT();
   const seen = useRef<Set<string> | null>(null);
   const account = useRef<string | null>(null);
 
@@ -71,8 +73,8 @@ const useArrivalToasts = (
 
     if (fresh.length > 1) {
       toast({
-        title: `${fresh.length} new notifications`,
-        description: 'Open the bell to read them.',
+        title: t('notifications.newMany', { count: fresh.length }),
+        description: t('notifications.openBell'),
       });
       return;
     }
@@ -85,15 +87,19 @@ const useArrivalToasts = (
       title: arrival.title,
       description: arrival.message,
       action: href ? (
-        <Toast.Action altText="Open" onClick={() => router.push(href)}>
-          Open
+        <Toast.Action
+          altText={t('common.open')}
+          onClick={() => router.push(href)}
+        >
+          {t('common.open')}
         </Toast.Action>
       ) : undefined,
     });
-  }, [list, accountId, router]);
+  }, [list, accountId, router, t]);
 };
 
 const Panel = ({ onClose }: { onClose: () => void }) => {
+  const t = useT();
   const { data, loading } = useQuery<NotificationListResponse>(
     NOTIFICATION_PORTAL_LIST,
     {
@@ -116,7 +122,9 @@ const Panel = ({ onClose }: { onClose: () => void }) => {
   return (
     <>
       <div className="flex items-center justify-between gap-3 border-b border-line px-4 py-3">
-        <p className="text-[13px] font-semibold text-ink">Notifications</p>
+        <p className="text-[13px] font-semibold text-ink">
+          {t('account.notifications')}
+        </p>
 
         {hasUnread ? (
           <button
@@ -125,7 +133,7 @@ const Panel = ({ onClose }: { onClose: () => void }) => {
             onClick={() => void markAllRead().catch(() => undefined)}
             className="rounded-lg px-2 py-1 text-xs font-semibold text-brand outline-none transition-colors duration-300 ease-out-soft hover:bg-brand-soft focus-visible:bg-brand-soft disabled:opacity-60"
           >
-            Mark all as read
+            {t('notifications.markAllRead')}
           </button>
         ) : null}
       </div>
@@ -151,10 +159,10 @@ const Panel = ({ onClose }: { onClose: () => void }) => {
               <Icon name="bell" size={20} />
             </span>
             <p className="mt-3 text-[13px] font-semibold text-ink">
-              Nothing here yet
+              {t('notifications.nothingYet')}
             </p>
             <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-              Replies to your tickets and new announcements show up here.
+              {t('notifications.showUp')}
             </p>
           </div>
         ) : null}
@@ -174,7 +182,7 @@ const Panel = ({ onClose }: { onClose: () => void }) => {
           onClick={onClose}
           className="flex items-center justify-center gap-1 rounded-lg py-1.5 text-[13px] font-semibold text-brand outline-none transition-colors duration-300 ease-out-soft hover:bg-brand-soft focus-visible:bg-brand-soft"
         >
-          See all notifications
+          {t('notifications.seeAll')}
           <Icon name="chevronRight" size={14} />
         </Link>
       </div>
@@ -188,6 +196,7 @@ export const NotificationBell = ({
   ringClass?: string;
 }) => {
   const { user, ready } = useSession();
+  const t = useT();
   const [open, setOpen] = useState(false);
 
   const { data } = useQuery<NotificationListResponse>(
@@ -216,7 +225,9 @@ export const NotificationBell = ({
     <Popover open={open} onOpenChange={setOpen}>
       <Popover.Trigger
         aria-label={
-          unread ? `Notifications, ${unread} unread` : 'Notifications'
+          unread
+            ? t('notifications.ariaUnread', { count: unread })
+            : t('account.notifications')
         }
         className="relative flex size-8 shrink-0 items-center justify-center rounded-lg text-white/60 outline-none transition-colors duration-300 ease-out-soft hover:bg-white/10 hover:text-white focus-visible:bg-white/10 data-[state=open]:bg-white/10 data-[state=open]:text-white"
       >
@@ -235,7 +246,8 @@ export const NotificationBell = ({
       </Popover.Trigger>
 
       <Popover.Content
-        align="end"
+        side="top"
+        align="start"
         className="w-[22rem] max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border border-line p-0 shadow-shell-hover"
       >
         <Panel onClose={() => setOpen(false)} />

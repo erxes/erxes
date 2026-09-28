@@ -52,46 +52,4 @@ const TONES: Record<string, string> = {
 export const notificationTone = (notification: PortalNotification): string =>
   TONES[(notification.type ?? '').toLowerCase()] ?? 'bg-brand-soft text-brand';
 
-const MINUTE = 60_000;
-const HOUR = 60 * MINUTE;
-const DAY = 24 * HOUR;
-
-export const relativeTime = (value: string | null): string => {
-  if (!value) {
-    return '';
-  }
-
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
-    return '';
-  }
-
-  const elapsed = Date.now() - date.getTime();
-
-  if (elapsed < MINUTE) {
-    return 'Just now';
-  }
-
-  if (elapsed < HOUR) {
-    return `${Math.floor(elapsed / MINUTE)} min ago`;
-  }
-
-  if (elapsed < DAY) {
-    const hours = Math.floor(elapsed / HOUR);
-
-    return `${hours} ${hours === 1 ? 'hour' : 'hours'} ago`;
-  }
-
-  if (elapsed < 7 * DAY) {
-    const days = Math.floor(elapsed / DAY);
-
-    return `${days} ${days === 1 ? 'day' : 'days'} ago`;
-  }
-
-  return date.toLocaleDateString('en-GB', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  });
-};
+export { formatRelativeTime as relativeTime } from '@/modules/i18n/format';

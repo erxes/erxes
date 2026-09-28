@@ -1,24 +1,27 @@
 import { RequireSession } from '@/modules/auth/components/RequireSession';
+import { getT } from '@/modules/i18n/server';
 import { PortalShell } from '@/modules/layout/components/PortalShell';
 import { NotificationsPanel } from '@/modules/notifications/components/NotificationFeed';
 
-export const metadata = { title: 'Notifications' };
+export const generateMetadata = async () => ({
+  title: (await getT())('account.notifications'),
+});
 
-const REASON = 'Sign in to see your notifications.';
+export default async function NotificationsPage() {
+  const t = await getT();
 
-export default function NotificationsPage() {
   return (
     <PortalShell
       breadcrumbs={[
-        { label: 'Home', href: '/' },
-        { label: 'My account', href: '/account' },
-        { label: 'Notifications' },
+        { label: t('nav.home'), href: '/' },
+        { label: t('account.mine'), href: '/account' },
+        { label: t('account.notifications') },
       ]}
-      title="Notifications"
-      description="Everything the support team and the portal have sent you."
+      title={t('account.notifications')}
+      description={t('account.notificationsDescription')}
     >
-      <div className="mx-auto w-full max-w-5xl">
-        <RequireSession reason={REASON}>
+      <div className="w-full max-w-5xl">
+        <RequireSession reason={t('account.reasonNotifications')}>
           <NotificationsPanel />
         </RequireSession>
       </div>

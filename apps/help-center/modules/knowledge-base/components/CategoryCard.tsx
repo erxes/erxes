@@ -4,13 +4,13 @@ import { Icon } from '@/modules/ui/components/Icon';
 import { IconOrb } from '@/modules/ui/components/IconOrb';
 import { Spotlight } from '@/modules/ui/components/Spotlight';
 import { cn } from '@/modules/ui/lib/cn';
-import { plural } from '@/modules/ui/lib/plural';
+import { getT } from '@/modules/i18n/server';
 import type { PortalCategory } from '../utils/normalize';
 import { sortByRecency } from '../utils/selectors';
 
 const FEATURED_PREVIEW = 3;
 
-export const CategoryCard = ({
+export const CategoryCard = async ({
   category,
   eyebrow,
   featured = false,
@@ -21,6 +21,7 @@ export const CategoryCard = ({
   featured?: boolean;
   index?: number;
 }) => {
+  const t = await getT();
   const href = `/knowledge-base/category/${category._id}`;
   const preview = featured
     ? sortByRecency(category.articles).slice(0, FEATURED_PREVIEW)
@@ -128,7 +129,7 @@ export const CategoryCard = ({
                 : 'text-muted-foreground group-hover:text-brand',
             )}
           >
-            {plural(category.articleCount, 'article')}
+            {t('kb.articles', { count: category.articleCount })}
             <Icon
               name="chevronRight"
               size={15}

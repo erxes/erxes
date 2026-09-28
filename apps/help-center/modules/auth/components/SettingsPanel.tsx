@@ -11,6 +11,7 @@ import { Badge } from '@/modules/ui/components/Badge';
 import { Button } from '@/modules/ui/components/Button';
 import { PasswordInput } from '@/modules/ui/components/FormInput';
 import { Icon, type IconName } from '@/modules/ui/components/Icon';
+import { cn } from '@/modules/ui/lib/cn';
 import { AUTH_PORTAL_CHANGE_PASSWORD } from '../graphql/mutations/auth';
 import { AUTH_PORTAL_CURRENT_USER } from '../graphql/queries/auth';
 import {
@@ -19,35 +20,25 @@ import {
   type CurrentUser,
   type CurrentUserResponse,
 } from '../types';
+import { formatDateTime } from '@/modules/i18n/format';
+import { useLocale, useT } from '@/modules/i18n/components/LocaleProvider';
+import type { MessageKey, Translate } from '@/modules/i18n/translate';
 import { authErrorMessage } from '../utils/errors';
-import { PASSWORD_HINT, PASSWORD_RULE } from '../utils/password';
-import { AccountAside, accountColumns, accountShell } from './AccountAside';
+import { PASSWORD_RULE } from '../utils/password';
+import {
+  AccountAside,
+  accountColumns,
+  accountPanelEnter,
+  accountShell,
+} from './AccountAside';
 import { AccountLoadError, AccountPanelSkeleton } from './AccountStates';
 
 const labelClass = 'text-[13px] font-medium text-ink';
 
-const SIGN_IN_METHODS: Record<string, string> = {
-  EMAIL: 'Email and password',
-  PHONE: 'Phone number',
-  SOCIAL: 'A connected social account',
-};
-
-const formatSignIn = (value: string | null): string => {
-  if (!value) {
-    return 'Not recorded yet';
-  }
-
-  const date = new Date(value);
-
-  return Number.isNaN(date.getTime())
-    ? 'Not recorded yet'
-    : date.toLocaleString('en-GB', {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-      });
+const SIGN_IN_METHODS: Record<string, MessageKey> = {
+  EMAIL: 'settings.methodEmail',
+  PHONE: 'settings.methodPhone',
+  SOCIAL: 'settings.methodSocial',
 };
 
 const CardHeader = ({
@@ -72,22 +63,23 @@ const CardHeader = ({
   </div>
 );
 
-const passwordSchema = z
-  .object({
-    currentPassword: z.string().min(1, 'Enter your current password.'),
-    newPassword: z.string().regex(PASSWORD_RULE, PASSWORD_HINT),
-    confirm: z.string(),
-  })
-  .refine((values) => values.confirm === values.newPassword, {
-    message: 'The passwords do not match.',
-    path: ['confirm'],
-  })
-  .refine((values) => values.currentPassword !== values.newPassword, {
-    message: 'The new password must be different from the current one.',
-    path: ['newPassword'],
-  });
+const passwordSchema = (t: Translate) =>
+  z
+    .object({
+      currentPassword: z.string().min(1, t('validation.currentPassword')),
+      newPassword: z.string().regex(PASSWORD_RULE, t('auth.passwordHint')),
+      confirm: z.string(),
+    })
+    .refine((values) => values.confirm === values.newPassword, {
+      message: t('validation.passwordMatch'),
+      path: ['confirm'],
+    })
+    .refine((values) => values.currentPassword !== values.newPassword, {
+      message: t('validation.passwordSame'),
+      path: ['newPassword'],
+    });
 
-type PasswordValues = z.infer<typeof passwordSchema>;
+type PasswordValues = z.infer<ReturnType<typeof passwordSchema>>;
 
 const EMPTY_PASSWORD: PasswordValues = {
   currentPassword: '',
@@ -96,12 +88,13 @@ const EMPTY_PASSWORD: PasswordValues = {
 };
 
 const PasswordCard = () => {
+  const t = useT();
   const [changePassword, { loading }] = useMutation<ChangePasswordResponse>(
     AUTH_PORTAL_CHANGE_PASSWORD,
   );
 
   const form = useForm<PasswordValues>({
-    resolver: zodResolver(passwordSchema),
+    resolver: zodResolver(passwordSchema(t)),
     defaultValues: EMPTY_PASSWORD,
   });
 
@@ -115,23 +108,23 @@ const PasswordCard = () => {
       });
 
       if (!data?.clientPortalUserChangePassword) {
-        throw new Error('Your password was not changed.');
+        throw new Error(t('settings.passwordNotChanged'));
       }
 
       form.reset(EMPTY_PASSWORD);
 
       toast({
         variant: 'success',
-        title: 'Your password was changed',
-        description: 'Use the new password the next time you sign in.',
+        title: t('settings.passwordChanged'),
+        description: t('settings.passwordChangedText'),
       });
     } catch (caught) {
-      const message = authErrorMessage(caught);
+      const message = authErrorMessage(caught, t);
 
       form.setError('root', { message });
       toast({
         variant: 'destructive',
-        title: 'Could not change your password',
+        title: t('settings.passwordFailed'),
         description: message,
       });
     }
@@ -146,8 +139,8 @@ const PasswordCard = () => {
       >
         <CardHeader
           icon="lock"
-          title="Password"
-          description="Change the password you use to sign in to this portal."
+          title={t('settings.passwordTitle')}
+          description={t('settings.passwordText')}
         />
 
         <div className="space-y-5 px-6 py-6">
@@ -157,7 +150,7 @@ const PasswordCard = () => {
             render={({ field }) => (
               <Form.Item>
                 <Form.Label className={labelClass} variant="peer">
-                  Current password
+                  {t('field.currentPassword')}
                 </Form.Label>
                 <Form.Control>
                   <PasswordInput
@@ -178,7 +171,7 @@ const PasswordCard = () => {
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label className={labelClass} variant="peer">
-                    New password
+                    {t('field.newPassword')}
                   </Form.Label>
                   <Form.Control>
                     <PasswordInput
@@ -202,7 +195,7 @@ const PasswordCard = () => {
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label className={labelClass} variant="peer">
-                    Confirm new password
+                    {t('field.confirmNewPassword')}
                   </Form.Label>
                   <Form.Control>
                     <PasswordInput
@@ -235,7 +228,7 @@ const PasswordCard = () => {
             className="min-w-28"
           >
             <Icon name="check" size={15} />
-            {loading ? 'Saving…' : 'Change password'}
+            {loading ? t('common.saving') : t('settings.changePassword')}
           </Button>
         </div>
       </form>
@@ -270,59 +263,77 @@ const Detail = ({
   </div>
 );
 
-const SignInCard = ({ user }: { user: CurrentUser }) => (
-  <section className={accountShell}>
-    <CardHeader
-      icon="settings"
-      title="Sign-in and security"
-      description="How you reach this portal and the state of your account."
-    />
+const SignInCard = ({ user }: { user: CurrentUser }) => {
+  const t = useT();
+  const locale = useLocale();
+  const verified = { tone: 'success' as const, text: t('account.verified') };
+  const unverified = {
+    tone: 'warning' as const,
+    text: t('settings.unverified'),
+  };
+  const method = user.primaryAuthMethod
+    ? SIGN_IN_METHODS[user.primaryAuthMethod]
+    : undefined;
+  const [editedBefore, editedAfter] = t('settings.editedOn').split('{link}');
 
-    <div className="divide-y divide-line px-6 py-2">
-      <Detail
-        label="Email"
-        value={user.email ?? 'Not added'}
-        badge={
-          user.email
-            ? user.isEmailVerified
-              ? { tone: 'success', text: 'Verified' }
-              : { tone: 'warning', text: 'Unverified' }
-            : undefined
-        }
+  return (
+    <section className={accountShell}>
+      <CardHeader
+        icon="settings"
+        title={t('settings.securityTitle')}
+        description={t('settings.securityText')}
       />
-      <Detail
-        label="Phone"
-        value={user.phone ?? 'Not added'}
-        badge={
-          user.phone
-            ? user.isPhoneVerified
-              ? { tone: 'success', text: 'Verified' }
-              : { tone: 'warning', text: 'Unverified' }
-            : undefined
-        }
-      />
-      <Detail
-        label="Sign-in method"
-        value={
-          (user.primaryAuthMethod && SIGN_IN_METHODS[user.primaryAuthMethod]) ??
-          'Email and password'
-        }
-      />
-      <Detail label="Last sign-in" value={formatSignIn(user.lastLoginAt)} />
-    </div>
 
-    <p className="border-t border-line bg-subtle/60 px-6 py-4 text-xs leading-relaxed text-muted-foreground">
-      Your email, phone number and name are edited on the{' '}
-      <Link
-        href="/account"
-        className="font-semibold text-brand underline-offset-2 hover:underline"
-      >
-        profile page
-      </Link>
-      .
-    </p>
-  </section>
-);
+      <div className="divide-y divide-line px-6 py-2">
+        <Detail
+          label={t('field.email')}
+          value={user.email ?? t('settings.notAdded')}
+          badge={
+            user.email
+              ? user.isEmailVerified
+                ? verified
+                : unverified
+              : undefined
+          }
+        />
+        <Detail
+          label={t('field.phone')}
+          value={user.phone ?? t('settings.notAdded')}
+          badge={
+            user.phone
+              ? user.isPhoneVerified
+                ? verified
+                : unverified
+              : undefined
+          }
+        />
+        <Detail
+          label={t('settings.method')}
+          value={t(method ?? 'settings.methodEmail')}
+        />
+        <Detail
+          label={t('settings.lastSignIn')}
+          value={
+            user.lastLoginAt
+              ? formatDateTime(user.lastLoginAt, locale)
+              : t('settings.notRecorded')
+          }
+        />
+      </div>
+
+      <p className="border-t border-line bg-subtle/60 px-6 py-4 text-xs leading-relaxed text-muted-foreground">
+        {editedBefore}
+        <Link
+          href="/account"
+          className="font-semibold text-brand underline-offset-2 hover:underline"
+        >
+          {t('settings.profilePage')}
+        </Link>
+        {editedAfter}
+      </p>
+    </section>
+  );
+};
 
 export const SettingsPanel = () => {
   const { data, loading, error } = useQuery<CurrentUserResponse>(
@@ -349,7 +360,7 @@ export const SettingsPanel = () => {
         avatar={current.avatar}
       />
 
-      <div className="space-y-6">
+      <div className={cn('space-y-6', accountPanelEnter)}>
         <PasswordCard />
         <SignInCard user={current} />
       </div>

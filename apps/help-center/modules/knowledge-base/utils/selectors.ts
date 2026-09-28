@@ -101,18 +101,4 @@ export const sectionArticleCount = (section: PortalSection): number =>
     ? section.children.reduce((sum, child) => sum + child.articleCount, 0)
     : section.articleCount;
 
-export const formatDate = (value: string | null): string => {
-  if (!value) {
-    return '—';
-  }
-
-  const date = new Date(value);
-
-  return Number.isNaN(date.getTime())
-    ? '—'
-    : date.toLocaleDateString('en-GB', {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric',
-      });
-};
+export { formatDate } from '@/modules/i18n/format';
