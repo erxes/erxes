@@ -153,13 +153,16 @@ export const buildDealAmountAttributes = (
     discountType = 'amount';
   }
 
-  const paymentsEntries: Array<[string, TDealPayment | number]> =
-    Array.isArray(paymentsData)
-      ? paymentsData.map((payment, i) => [
+  type TPaymentEntry = [string, TDealPayment | number];
+
+  const paymentsEntries: TPaymentEntry[] = Array.isArray(paymentsData)
+    ? paymentsData.map(
+        (payment: TDealPayment | number, i: number): TPaymentEntry => [
           (typeof payment === 'object' && payment?.kind) || String(i),
           payment,
-        ])
-      : Object.entries(paymentsData || {});
+        ],
+      )
+    : Object.entries(paymentsData || {});
 
   let cash = 0;
   let nonCash = 0;
