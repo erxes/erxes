@@ -118,7 +118,7 @@ export const ConversationFormDisplay = ({
               )}
             >
               <Label>{item.text}</Label>
-              {item.type !== 'file' && item.type !== 'core:customer:avatar' ? (
+              {item.type !== 'file' && item.type !== 'core:customer:avatar' && item.type !== 'core:company:avatar' ? (
                 item.value.length > 60 ? (
                   <Textarea value={item.value} />
                 ) : (
@@ -170,7 +170,7 @@ export const ConversationFormDisplay = ({
                     })}
                 </div>
               )}
-              {item.type === 'core:customer:avatar' && (
+              {(item.type === 'core:customer:avatar' || item.type === 'core:company:avatar') && (
                 <Avatar size={'xl'}>
                   <Avatar.Image
                     src={readImage(String(item.value))}

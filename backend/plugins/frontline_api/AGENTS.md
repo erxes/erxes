@@ -935,18 +935,6 @@ isInternal)` is the agent-side list and requires `showTickets`.
 - **Contracts changed:** Consumes the new optional
   `AutomationConstants.workflowTemplates` from `erxes-api-shared`.
 
-### `2026-09-13` — Facebook actions declare the target they need
-
-- **Summary:** Send Facebook Message and Send Facebook Comment read the
-  execution target as a facebook message/comment document, so they cannot run
-  behind a trigger that supplies anything else; both now declare
-  `requiresTargetTypes` and the builder hides and refuses them where the target
-  type does not match, instead of letting them fail at runtime.
-- **Affected areas:**
-  `src/modules/integrations/facebook/meta/automation/constants.ts`
-- **Contracts changed:** Consumes the new optional
-  `IAutomationsActionConfigConstants.requiresTargetTypes` from
-  `erxes-api-shared`. No plugin-provided contract changed.
 
 ### `2026-09-23` — A survey question carries attachments
 

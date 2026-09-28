@@ -340,7 +340,7 @@ export const FormPreviewContent = ({
                         );
                       }
 
-                      if (erxesField.type === 'select') {
+                      if (erxesField.type === 'select' || erxesField.type === 'core:company:businessType') {
                         if (erxesField.allowSearch) {
                           return (
                             <ErxesFormComboboxField
@@ -497,7 +497,8 @@ export const FormPreviewContent = ({
 
                       if (
                         erxesField.type === 'file' ||
-                        erxesField.type === 'core:customer:avatar'
+                        erxesField.type === 'core:customer:avatar' ||
+                        erxesField.type === 'core:company:avatar'
                       ) {
                         const urls: string[] = Array.isArray(field.value)
                           ? field.value

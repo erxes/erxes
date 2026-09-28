@@ -62,6 +62,67 @@ function handleCompanyFields(
   }
 }
 
+async function saveCompanyFromDoc(
+  subdomain: string,
+  companyDoc: Record<string, any>,
+  companyLinks: ILink,
+): Promise<void> {
+  if (Object.keys(companyDoc).length === 0) return;
+
+  const orConditions: Record<string, any>[] = [];
+  if (companyDoc.primaryEmail) {
+    orConditions.push({ companyPrimaryEmail: companyDoc.primaryEmail });
+  }
+  if (companyDoc.primaryPhone) {
+    orConditions.push({ companyPrimaryPhone: companyDoc.primaryPhone });
+  }
+  if (companyDoc.primaryName) {
+    orConditions.push({ primaryName: companyDoc.primaryName });
+  }
+
+  if (orConditions.length === 0) return;
+
+  try {
+    const query =
+      orConditions.length === 1 ? orConditions[0] : { $or: orConditions };
+
+    const existing = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'companies',
+      action: 'findOne',
+      input: { query },
+      defaultValue: null,
+    });
+
+    if (!existing) {
+      const created = await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        method: 'mutation',
+        module: 'companies',
+        action: 'createCompany',
+        input: {
+          doc: {
+            ...companyDoc,
+            emails: companyDoc.primaryEmail ? [companyDoc.primaryEmail] : [],
+            phones: companyDoc.primaryPhone ? [companyDoc.primaryPhone] : [],
+            links: companyLinks,
+          },
+        },
+        defaultValue: null,
+      });
+
+      if (!created) {
+        console.error('[widget] createCompany returned null — skipping');
+      }
+    }
+  } catch (err) {
+    console.error('[widget] company save failed — skipping:', err);
+  }
+}
+
 function handleCoreCompanyField(
   fieldName: string,
   value: any,
@@ -486,79 +547,7 @@ export const widgetFormMutation: Record<
       customer = updatedCustomer || customer;
     }
 
-    if (Object.keys(companyDoc).length > 0) {
-      let companyQry: any = null;
-      if (companyDoc.primaryEmail) {
-        companyQry = { primaryEmail: companyDoc.primaryEmail };
-      } else if (companyDoc.primaryPhone) {
-        companyQry = { primaryPhone: companyDoc.primaryPhone };
-      } else if (companyDoc.primaryName) {
-        companyQry = { primaryName: companyDoc.primaryName };
-      }
-
-      let company: any = null;
-      if (companyQry) {
-        company = await sendTRPCMessage({
-          subdomain,
-          pluginName: 'core',
-          method: 'query',
-          module: 'companies',
-          action: 'findOne',
-          input: { query: companyQry },
-          defaultValue: null,
-        });
-      }
-
-      if (!company) {
-        await sendTRPCMessage({
-          subdomain,
-          pluginName: 'core',
-          method: 'mutation',
-          module: 'companies',
-          action: 'createCompany',
-          input: {
-            doc: {
-              ...companyDoc,
-              emails: companyDoc.primaryEmail ? [companyDoc.primaryEmail] : [],
-              phones: companyDoc.primaryPhone ? [companyDoc.primaryPhone] : [],
-              links: companyLinks,
-            },
-          },
-          defaultValue: null,
-        });
-      } else {
-        const updateDoc: any = { ...companyDoc };
-
-        if (companyDoc.primaryEmail) {
-          const existingEmails: string[] = company.emails || [];
-          if (!existingEmails.includes(companyDoc.primaryEmail)) {
-            updateDoc.emails = [...existingEmails, companyDoc.primaryEmail];
-          }
-        }
-
-        if (companyDoc.primaryPhone) {
-          const existingPhones: string[] = company.phones || [];
-          if (!existingPhones.includes(companyDoc.primaryPhone)) {
-            updateDoc.phones = [...existingPhones, companyDoc.primaryPhone];
-          }
-        }
-
-        updateDoc.links = { ...company.links, ...companyLinks };
-
-        await sendTRPCMessage({
-          subdomain,
-          pluginName: 'core',
-          method: 'mutation',
-          module: 'companies',
-          action: 'updateCompany',
-          input: {
-            _id: company._id,
-            doc: updateDoc,
-          },
-          defaultValue: null,
-        });
-      }
-    }
+    await saveCompanyFromDoc(subdomain, companyDoc, companyLinks);
 
     const { conversation } = await createConversationAndMessage(models, {
       customerId: customer._id,
@@ -824,79 +813,7 @@ export const widgetFormMutation: Record<
       customer = updatedCustomer || customer;
     }
 
-    if (Object.keys(companyDoc).length > 0) {
-      let companyQry: any = null;
-      if (companyDoc.primaryEmail) {
-        companyQry = { primaryEmail: companyDoc.primaryEmail };
-      } else if (companyDoc.primaryPhone) {
-        companyQry = { primaryPhone: companyDoc.primaryPhone };
-      } else if (companyDoc.primaryName) {
-        companyQry = { primaryName: companyDoc.primaryName };
-      }
-
-      let company: any = null;
-      if (companyQry) {
-        company = await sendTRPCMessage({
-          subdomain,
-          pluginName: 'core',
-          method: 'query',
-          module: 'companies',
-          action: 'findOne',
-          input: { query: companyQry },
-          defaultValue: null,
-        });
-      }
-
-      if (!company) {
-        await sendTRPCMessage({
-          subdomain,
-          pluginName: 'core',
-          method: 'mutation',
-          module: 'companies',
-          action: 'createCompany',
-          input: {
-            doc: {
-              ...companyDoc,
-              emails: companyDoc.primaryEmail ? [companyDoc.primaryEmail] : [],
-              phones: companyDoc.primaryPhone ? [companyDoc.primaryPhone] : [],
-              links: companyLinks,
-            },
-          },
-          defaultValue: null,
-        });
-      } else {
-        const updateDoc: any = { ...companyDoc };
-
-        if (companyDoc.primaryEmail) {
-          const existingEmails: string[] = company.emails || [];
-          if (!existingEmails.includes(companyDoc.primaryEmail)) {
-            updateDoc.emails = [...existingEmails, companyDoc.primaryEmail];
-          }
-        }
-
-        if (companyDoc.primaryPhone) {
-          const existingPhones: string[] = company.phones || [];
-          if (!existingPhones.includes(companyDoc.primaryPhone)) {
-            updateDoc.phones = [...existingPhones, companyDoc.primaryPhone];
-          }
-        }
-
-        updateDoc.links = { ...company.links, ...companyLinks };
-
-        await sendTRPCMessage({
-          subdomain,
-          pluginName: 'core',
-          method: 'mutation',
-          module: 'companies',
-          action: 'updateCompany',
-          input: {
-            _id: company._id,
-            doc: updateDoc,
-          },
-          defaultValue: null,
-        });
-      }
-    }
+    await saveCompanyFromDoc(subdomain, companyDoc, companyLinks);
 
     const { conversation } = await createConversationAndMessage(models, {
       customerId: customer._id,

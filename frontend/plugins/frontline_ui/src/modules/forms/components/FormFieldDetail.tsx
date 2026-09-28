@@ -395,7 +395,8 @@ export const FormFieldDetail = ({
               draft?.type === 'select:countries' ||
               draft?.type === 'radio' ||
               draft?.type === 'check' ||
-              draft?.type === 'core:customer:sex') && (
+              draft?.type === 'core:customer:sex' ||
+              draft?.type === 'core:company:businessType') && (
               <div className="space-y-2 col-span-2">
                 <Label>{t('options', 'Options')}</Label>
                 <div className="space-y-2">

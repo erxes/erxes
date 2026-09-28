@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-09-23`
+- **Last synchronized:** `2026-09-24`
 
 ## Scope
 
@@ -1530,9 +1530,20 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 ### `2026-09-28` — core:company:* form field types added
 
-- **Summary:** Five `core:company:*` field types (primaryName, primaryEmail, primaryPhone, website, description) were added to the form builder alongside the existing customer core fields; they appear in a new "Company fields" submenu in the Add Field dropdown.
-- **Affected areas:** `src/modules/forms/constants/formFieldTypes.tsx`, `src/modules/forms/constants/formGroupLabels.ts`, `src/modules/forms/components/FormDndField.tsx`, `src/modules/forms/components/FormFieldDetail.tsx`
+- **Summary:** Eleven `core:company:*` field types (primaryName, primaryEmail, primaryPhone, website, description, size, employees, businessType, location, code, avatar) were added to the form builder alongside the existing customer core fields; they appear in a new "Company fields" submenu in the Add Field dropdown. Avatar renders as a file upload; businessType renders as a select with its predefined options editable in the field detail panel.
+- **Affected areas:** `src/modules/forms/constants/formFieldTypes.tsx`, `src/modules/forms/constants/formGroupLabels.ts`, `src/modules/forms/components/FormDndField.tsx`, `src/modules/forms/components/FormFieldDetail.tsx`, `src/modules/forms/components/FormPreview.tsx`, `src/modules/forms/components/submissions/components/submission-details.tsx`, `src/modules/forms/components/submissions/components/submissions-table.tsx`, `src/modules/inbox/conversation-messages/components/ConversationFormDisplay.tsx`
 - **Contracts changed:** None.
+
+### `2026-09-24` — Removing a form step no longer wipes remaining step names
+
+- **Summary:** `removeStep` rebuilt each remaining step's object from only
+  `fields` and `order`, dropping `name`/`description`. Deleting any step and
+  saving cleared every other step's name (unlike `setSteps`, which already
+  spread `...value[key]`). It now spreads `...value[step]` before overriding
+  `fields`/`order`, so names/descriptions survive a step removal.
+- **Affected areas:** `src/modules/forms/components/FormDndProvider.tsx`
+  (`removeStep`).
+- **Contracts changed:** `None`
 
 ### `2026-09-24` — The client portal picker stores an id
 
@@ -1638,6 +1649,7 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 - **Contracts changed:** `frontlineHelpCenterWebsiteOptions` now also selects
   `name` on each client portal.
 
+
 ### `2026-09-23` — A survey question carries attachments
 
 - **Summary:** The Content step's question now has an attachments uploader
@@ -1680,23 +1692,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   and `survey-rejection-reason-placeholder` fall back to English until the
   gateway locale carries them.
 
-### `2026-09-22` — Radio/checkbox options are visible, full-width and editable in place
-
-- **Summary:** The shared `RadioGroup.Item` (`erxes-ui`) had no border in its
-  unchecked state, so every radio circle — in the form builder preview and in
-  the public form widget (`apps/frontline-widgets`) — was invisible until
-  checked; a `shadow-border` class the widget used to work around this did
-  nothing (no such Tailwind utility exists) and was removed once the shared
-  component carried its own `border border-scroll bg-background`. Radio,
-  `core:customer:sex` and `check` fields now always render at full row width
-  (`span`/`column` forced to `2`) with their options laid out two per row
-  instead of stacked in a single column. The builder's Options editor
-  (`FormFieldDetail.tsx`) was rebuilt from the `StringArrayInput` tag input,
-  which only supported add/remove, into a `PropertyFormSelectFields`-style
-  editable list with one `Input` per option so an existing option can be
-  corrected without deleting and retyping it.
-- **Affected areas:** `src/modules/forms/components/{FormPreview.tsx,
-FormFieldDetail.tsx}`; outside the plugin:
-  `frontend/libs/erxes-ui/src/components/radio-group.tsx`,
-  `apps/frontline-widgets/src/app/form/components/ErxesForm.tsx`.
-- **Contracts changed:** None.
