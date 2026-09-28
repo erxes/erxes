@@ -1,6 +1,5 @@
-import Automation, { automationEmailTemplateResolvers } from './automations';
+import Automation from './automations';
 
 export default {
   Automation,
-  AutomationEmailTemplate: automationEmailTemplateResolvers,
 };

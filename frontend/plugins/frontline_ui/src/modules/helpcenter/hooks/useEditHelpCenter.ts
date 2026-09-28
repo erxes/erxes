@@ -26,6 +26,13 @@ export const useEditHelpCenter = () => {
     }
 
     if (
+      patch.formChannelId !== undefined &&
+      patch.formChannelId !== helpCenter.formChannelId
+    ) {
+      config.formIds = [];
+    }
+
+    if (
       patch.ticketPipelineId !== undefined &&
       patch.ticketPipelineId !== helpCenter.ticketPipelineId
     ) {

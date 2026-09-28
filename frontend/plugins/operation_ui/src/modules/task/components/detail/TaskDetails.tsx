@@ -1,5 +1,4 @@
 import { TaskFields } from '@/task/components/detail/TaskFields';
-import { TaskSideWidgets } from '~/widgets/relation/TaskSideWidgets';
 import { TriageFields } from '@/triage/components/TriageFields';
 import { useGetTask } from '@/task/hooks/useGetTask';
 import { useGetTriage } from '@/triage/hooks/useGetTriage';

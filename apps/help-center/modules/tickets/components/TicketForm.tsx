@@ -202,16 +202,16 @@ export const TicketForm = ({ target }: { target: TicketTarget }) => {
       <form
         onSubmit={form.handleSubmit(onSubmit)}
         noValidate
-        className="overflow-hidden rounded-xl border border-line bg-white"
+        className="overflow-hidden rounded-2xl bg-white shadow-shell"
       >
-        <div className="border-b border-line px-5 py-4">
+        <div className="border-b border-line px-6 py-5">
           <h2 className="text-base font-semibold text-ink">Ticket details</h2>
           <p className="mt-1 text-sm text-muted-foreground">
             The clearer your description, the faster it is resolved.
           </p>
         </div>
 
-        <div className="space-y-5 px-5 py-5">
+        <div className="space-y-5 px-6 py-6">
           <Form.Field
             control={form.control}
             name="subject"
@@ -273,9 +273,11 @@ export const TicketForm = ({ target }: { target: TicketTarget }) => {
             )}
           />
 
-          <div className="border-t border-line pt-5">
-            <h3 className="text-sm font-semibold text-ink">Contact</h3>
-            <p className="mt-1 text-xs text-muted-foreground">
+          <div className="border-t border-line pt-6">
+            <h3 className="text-[13px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
+              Contact
+            </h3>
+            <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
               The support team sees these beside your ticket. Editing your name
               or phone number saves it to your record.
             </p>
@@ -306,9 +308,33 @@ export const TicketForm = ({ target }: { target: TicketTarget }) => {
 
               <Form.Field
                 control={form.control}
-                name="contactEmail"
+                name="contactPhone"
                 render={({ field }) => (
                   <Form.Item>
+                    <Form.Label
+                      className="text-[13px] font-medium text-ink"
+                      variant="peer"
+                    >
+                      Phone
+                    </Form.Label>
+                    <Form.Control>
+                      <TextInput
+                        {...field}
+                        type="tel"
+                        autoComplete="tel"
+                        placeholder="99112233"
+                      />
+                    </Form.Control>
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
+
+              <Form.Field
+                control={form.control}
+                name="contactEmail"
+                render={({ field }) => (
+                  <Form.Item className="sm:col-span-2">
                     <Form.Label
                       className="text-[13px] font-medium text-ink"
                       variant="peer"
@@ -331,30 +357,6 @@ export const TicketForm = ({ target }: { target: TicketTarget }) => {
                   </Form.Item>
                 )}
               />
-
-              <Form.Field
-                control={form.control}
-                name="contactPhone"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label
-                      className="text-[13px] font-medium text-ink"
-                      variant="peer"
-                    >
-                      Phone
-                    </Form.Label>
-                    <Form.Control>
-                      <TextInput
-                        {...field}
-                        type="tel"
-                        autoComplete="tel"
-                        placeholder="99112233"
-                      />
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
             </div>
           </div>
 
@@ -369,7 +371,7 @@ export const TicketForm = ({ target }: { target: TicketTarget }) => {
           ) : null}
         </div>
 
-        <div className="flex flex-wrap items-center justify-end gap-3 border-t border-line bg-subtle px-5 py-3.5">
+        <div className="flex flex-wrap items-center justify-end gap-3 border-t border-line bg-subtle px-6 py-4">
           <ButtonLink href="/tickets" variant="ghost">
             Cancel
           </ButtonLink>

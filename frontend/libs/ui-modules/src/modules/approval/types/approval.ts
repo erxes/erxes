@@ -8,7 +8,18 @@ export type ApprovalRequestStatus =
   | 'pending'
   | 'approved'
   | 'rejected'
-  | 'cancelled';
+  | 'cancelled'
+  /** Approved, but the change it carried could not be applied. */
+  | 'applyFailed';
+
+export type ApprovalRequestKind = 'access' | 'change';
+
+/** The work a change request carries, in the words shown to its approver. */
+export type ApprovalChange = {
+  changeType: string;
+  payload?: Record<string, unknown>;
+  summary: string;
+};
 
 export type ApprovalDecisionValue = 'approved' | 'rejected';
 
@@ -44,9 +55,14 @@ export type ApprovalLock = {
 
 export type ApprovalRequest = {
   _id: string;
+  kind?: ApprovalRequestKind;
+  change?: ApprovalChange;
+  appliedAt?: string;
+  applyError?: string;
   contentType: string;
   contentId: string;
-  lockId: string;
+  /** Access requests are about a lock; a change request has none. */
+  lockId?: string;
   requesterId: string;
   reason?: string;
   status: ApprovalRequestStatus;
@@ -74,7 +90,8 @@ export type ApprovalLockState = {
 
 export type ApprovalNotificationMetadata = {
   approvalRequestId: string;
-  lockId: string;
+  /** Absent when the request carries a change rather than asking for access. */
+  lockId?: string;
   targetContentType: string;
   targetContentId: string;
   targetLabel?: string;

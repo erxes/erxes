@@ -1,4 +1,6 @@
 import {
+  AUTOMATION_ERROR_CODES,
+  buildFailedAction,
   replaceOutputPlaceholders,
   TCoreModuleProducerContext,
 } from 'erxes-api-shared/core-modules';
@@ -70,7 +72,10 @@ export const scoreAutomationProducers = {
     { models, subdomain }: TCoreModuleProducerContext<IModels>,
   ) => {
     if (collectionType !== 'score' || actionType !== 'create') {
-      return { result: null };
+      return buildFailedAction(
+        `Loyalty score automations do not handle "${collectionType}.${actionType}"`,
+        AUTOMATION_ERROR_CODES.CONFIG_INVALID,
+      );
     }
 
     const result = await doScoreCampaign({

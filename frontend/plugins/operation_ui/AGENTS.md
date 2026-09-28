@@ -20,6 +20,13 @@
 
 ## Current Capabilities
 
+- The automations widget answers built-in template prerequisites: the
+  `templateRequirement` component type resolves `operation:task.status` by
+  reusing `TaskStatusPropertyInput`, which asks for the team and the status
+  together and already clears a status the chosen team does not have. It
+  reports `{ teamId, status }` upward only once a status is picked, and
+  nothing else — a half-made choice leaves the install closed.
+
 - Runs as the `operation_ui` Module Federation remote on port `3006`.
 - Registers operation navigation for projects, tasks, team, teams settings, and GitHub integration settings.
 - Provides relation widgets for tasks and projects, a task status property input, notification widgets, and automation widgets.
@@ -80,6 +87,19 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-14` — Task prerequisites are answered while a template installs
+
+- **Summary:** A built-in template that opens tasks can now be set up before it
+  is installed rather than landing half-configured: the team and status pickers
+  are the task module's own, and the status list is scoped by the team just
+  chosen.
+- **Affected areas:**
+  `src/widgets/automations/modules/task/components/template/TaskTemplateRequirement.tsx`,
+  `src/widgets/automations/modules/task/components/TaskRemoteEntry.tsx`
+- **Contracts changed:** Implements the new
+  `AutomationTemplateRequirementProps` (`componentType: 'templateRequirement'`)
+  variant from `ui-modules`.
 
 ### `2026-09-22` — Match Properties action to Ticket widget
 

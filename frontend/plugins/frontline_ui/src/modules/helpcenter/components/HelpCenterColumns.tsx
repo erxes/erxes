@@ -22,7 +22,7 @@ import { ReactNode, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { helpCenterMoreColumn } from '@/helpcenter/components/HelpCenterMoreColumn';
 import { SelectHelpCenterTopic } from '@/helpcenter/components/SelectHelpCenterTopic';
-import { SelectHelpCenterWebsite } from '@/helpcenter/components/SelectHelpCenterWebsite';
+import { SelectHelpCenterClientPortal } from '@/helpcenter/components/SelectHelpCenterClientPortal';
 import {
   THelpCenterPatch,
   useEditHelpCenter,
@@ -117,12 +117,17 @@ const WebsiteCell = ({ cell }: { cell: Cell<IHelpCenter, unknown> }) => {
   const { editHelpCenter } = useEditHelpCenter();
 
   return (
-    <SelectHelpCenterWebsite
+    <SelectHelpCenterClientPortal
       variant="table"
-      value={helpCenter.url ?? ''}
+      value={helpCenter.clientPortalId ?? ''}
+      domain={helpCenter.url ?? ''}
       scope={cellScope(helpCenter, 'url')}
-      onValueChange={(domain, erxesAppToken) =>
-        editHelpCenter(helpCenter, { url: domain, erxesAppToken })
+      onValueChange={(portal) =>
+        editHelpCenter(helpCenter, {
+          clientPortalId: portal._id,
+          url: portal.domain,
+          erxesAppToken: portal.erxesAppToken,
+        })
       }
     />
   );
@@ -247,7 +252,7 @@ const createHelpCenterColumns = (t: TFunction): ColumnDef<IHelpCenter>[] => [
     size: 340,
     header: () => (
       <RecordTable.InlineHead
-        label={t('website', 'Website')}
+        label={t('sidebar.client-portal', 'Client portal')}
         icon={IconWorld}
       />
     ),

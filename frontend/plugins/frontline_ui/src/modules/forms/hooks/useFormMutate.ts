@@ -44,7 +44,6 @@ export const useFormMutate = () => {
   const formSetupValues = useAtomValue(formSetupValuesAtom);
   const resetFormSetup = useSetAtom(resetFormSetupAtom);
   const { formDetail } = useFormDetail({ formId: id as string });
-  const channelId = formDetail?.channelId || _channelId;
   const { addForm, isAddingForm, client: addFormClient } = useFormAdd();
   const { editForm, loading: isEditingForm } = useFormEdit();
   const [createLeadIntegration, { loading: isCreatingIntegration }] =
@@ -75,7 +74,13 @@ export const useFormMutate = () => {
   const handleMutateForm = async (
     confirmation: z.infer<typeof FORM_CONFIRMATION_SCHEMA>,
   ) => {
-    const { formValues, formFields } = formSetupValues(confirmation);
+    const {
+      formValues,
+      formFields,
+      channelId: selectedChannelId,
+    } = formSetupValues(confirmation);
+    const channelId =
+      formDetail?.channelId || selectedChannelId || _channelId || '';
     if (id) {
       await editForm({
         variables: {
@@ -146,7 +151,11 @@ export const useFormMutate = () => {
               });
             },
           });
-          addFormClient?.cache.evict({ fieldName: 'Forms' });
+          addFormClient?.cache.evict({
+            id: 'ROOT_QUERY',
+            fieldName: 'forms',
+          });
+          addFormClient?.cache.gc();
         },
         onError: (error) => {
           toast({
@@ -158,10 +167,11 @@ export const useFormMutate = () => {
       });
     }
     resetFormSetup();
-    if (!_channelId) {
-      navigate(`/frontline/forms`);
-    }
-    navigate(`/settings/frontline/channels/${channelId}/forms`);
+    navigate(
+      _channelId
+        ? `/settings/frontline/channels/${_channelId}/forms`
+        : '/frontline/forms',
+    );
   };
 
   return {

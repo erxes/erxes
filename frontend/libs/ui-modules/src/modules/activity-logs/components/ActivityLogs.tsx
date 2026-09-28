@@ -10,6 +10,7 @@ import { ActivityLogList } from './ActivityLogList';
 import { ActivityLogCustomActivity } from '../types';
 import { ActivityLogRow } from './ActivityLogRow';
 import { ActivityLogActorName } from './ActivityLogActor';
+import { CreatedViaSuffix } from './CreatedViaSentence';
 import { internalNoteCustomActivity } from '../../internal-notes/components/InternalNoteActivityRow';
 import { relationCustomActivities } from './RelationActivityRow';
 
@@ -165,4 +166,7 @@ export const ActivityLogs = Object.assign(ActivityLogsLegacy, {
   List: ActivityLogList,
   Row: ActivityLogRow,
   ActorName: ActivityLogActorName,
+  // Added to a module's own sentence: renders nothing unless the record was
+  // produced by something rather than typed in by someone.
+  CreatedVia: CreatedViaSuffix,
 });

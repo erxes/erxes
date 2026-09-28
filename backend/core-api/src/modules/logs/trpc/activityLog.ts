@@ -13,6 +13,9 @@ export const activityLogRouter = t.router({
             activityType: z.string(),
             sourcePlugin: z.string().optional(),
             target: z.any(),
+            // Stripped by the parse unless it is declared, and the feed reads
+            // it to tell what an entry happened inside of.
+            contextType: z.string().optional(),
             context: z.any().optional(),
             action: z.object({
               type: z.string(),
@@ -54,6 +57,7 @@ export const activityLogRouter = t.router({
           activityType,
           sourcePlugin,
           target,
+          contextType,
           context,
           action,
           changes,
@@ -73,6 +77,7 @@ export const activityLogRouter = t.router({
             sourcePlugin,
             targetType,
             target,
+            contextType,
             context,
             action,
             changes,

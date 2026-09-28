@@ -1,13 +1,16 @@
 import { useClientPortal } from '@/client-portal/hooks/useClientPortal';
 import { IconBellRinging, IconDeviceMobile } from '@tabler/icons-react';
 import { Badge, Skeleton } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
+import { TBroadcastMessage } from '../../types';
 
 export const BroadcastTabPreviewNotificationContent = ({
   message,
 }: {
-  message: any;
+  message: TBroadcastMessage;
 }) => {
-  const { cpId, notification } = message || {};
+  const { t } = useTranslation('broadcasts');
+  const { cpId, notification } = message;
   const { title, content, inApp, isMobile } = notification || {};
 
   const { clientPortal, loading } = useClientPortal(cpId ?? '', {
@@ -18,32 +21,38 @@ export const BroadcastTabPreviewNotificationContent = ({
     <div className="flex flex-col gap-6 h-full w-full">
       <div className="px-9 py-5 border rounded-md bg-muted space-y-3">
         <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">Client portal:</span>
+          <span className="text-sm text-muted-foreground">
+            {t('notification.portal')}:
+          </span>
           {loading ? (
             <Skeleton className="h-4 w-32" />
           ) : (
             <span className="font-semibold">
-              {clientPortal?.name || 'Unknown portal'}
+              {clientPortal?.name || t('notification.unknown-portal')}
             </span>
           )}
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-sm text-muted-foreground">Channels:</span>
+          <span className="text-sm text-muted-foreground">
+            {t('notification.channels')}:
+          </span>
           {inApp !== false && (
             <Badge variant="secondary">
               <IconBellRinging className="h-3 w-3" />
-              In-app
+              {t('notification.in-app-short')}
             </Badge>
           )}
           {isMobile && (
             <Badge variant="secondary">
               <IconDeviceMobile className="h-3 w-3" />
-              Mobile & Web push
+              {t('notification.mobile-short')}
             </Badge>
           )}
           {inApp === false && !isMobile && (
-            <span className="text-sm text-muted-foreground">None selected</span>
+            <span className="text-sm text-muted-foreground">
+              {t('notification.none-selected')}
+            </span>
           )}
         </div>
       </div>
@@ -51,7 +60,9 @@ export const BroadcastTabPreviewNotificationContent = ({
       <div className="max-w-md rounded-xl border bg-background shadow-sm overflow-hidden">
         <div className="flex items-center gap-2 border-b px-4 py-3 bg-muted/40">
           <IconBellRinging className="h-4 w-4 text-primary" />
-          <span className="text-sm font-medium">Notification preview</span>
+          <span className="text-sm font-medium">
+            {t('notification.preview')}
+          </span>
         </div>
 
         <div className="px-4 py-4 flex gap-3 items-start">
@@ -68,10 +79,10 @@ export const BroadcastTabPreviewNotificationContent = ({
           </svg>
           <div className="min-w-0">
             <div className="mb-1 text-sm font-semibold">
-              {title || 'Notification title'}
+              {title || t('notification.title')}
             </div>
             <div className="text-sm text-muted-foreground whitespace-pre-line">
-              {content || 'Notification content'}
+              {content || t('notification.content')}
             </div>
           </div>
         </div>

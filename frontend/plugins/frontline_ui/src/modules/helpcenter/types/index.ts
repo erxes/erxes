@@ -51,6 +51,7 @@ export interface IHelpCenter {
   description?: string;
   url?: string;
   erxesAppToken?: string;
+  clientPortalId?: string;
   brandId?: string;
   languageCode?: string;
 
@@ -63,6 +64,13 @@ export interface IHelpCenter {
   ticketChannelId?: string;
   ticketPipelineId?: string;
   ticketStatusId?: string;
+
+  formChannelId?: string;
+  formIds?: string[];
+
+  cmsId?: string;
+  cmsAppToken?: string;
+  cmsConfigs?: IHelpCenterCmsConfig[];
 
   color?: string;
   backgroundImage?: string;
@@ -89,6 +97,7 @@ export interface IHelpCenterConfigInput {
   description: string;
   url: string;
   erxesAppToken: string;
+  clientPortalId: string;
   brandId: string;
   languageCode: string;
 
@@ -102,6 +111,13 @@ export interface IHelpCenterConfigInput {
   ticketPipelineId: string;
   ticketStatusId: string;
 
+  formChannelId: string;
+  formIds: string[];
+
+  cmsId: string;
+  cmsAppToken: string;
+  cmsConfigs: IHelpCenterCmsConfig[];
+
   color: string;
   backgroundImage: string;
   styles: IHelpCenterStyles;
@@ -109,9 +125,29 @@ export interface IHelpCenterConfigInput {
   footer: IHelpCenterFooter;
 }
 
-export type THelpCenterTab = 'general' | 'appearance';
+export interface IHelpCenterCmsConfig {
+  cmsId: string;
+  cmsAppToken: string;
+}
 
-export const HELP_CENTER_TABS: THelpCenterTab[] = ['general', 'appearance'];
+export interface IHelpCenterCmsOption {
+  _id: string;
+  name?: string;
+  clientPortalId?: string;
+}
+
+export type THelpCenterTab = 'general' | 'appearance' | 'embed';
+
+export const HELP_CENTER_TABS: THelpCenterTab[] = [
+  'general',
+  'appearance',
+  'embed',
+];
+
+export const HELP_CENTER_CREATE_TABS: THelpCenterTab[] = [
+  'general',
+  'appearance',
+];
 
 export type TStyleName = `styles.${keyof IHelpCenterStyles}`;
 

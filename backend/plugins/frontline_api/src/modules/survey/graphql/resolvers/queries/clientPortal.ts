@@ -21,6 +21,21 @@ type CpSurveysArgs = {
   brandId?: string;
 } & ICursorPaginateParams;
 
+type CpSurveyRequestsArgs = {
+  searchValue?: string;
+  channelId?: string;
+  status?: string;
+} & ICursorPaginateParams;
+
+const REQUESTER_REQUIRED_ERROR =
+  'Sign in to the client portal to see your survey requests';
+
+const buildSearchQuery = (searchValue: string) => {
+  const regex = new RegExp(escapeRegExp(searchValue), 'i');
+
+  return [{ title: regex }, { question: regex }, { 'steps.question': regex }];
+};
+
 export const cpSurveyQueries = {
   async cpSurveys(
     _root: undefined,
@@ -40,12 +55,7 @@ export const cpSurveyQueries = {
     }
 
     if (searchValue) {
-      const regex = new RegExp(escapeRegExp(searchValue), 'i');
-      query.$or = [
-        { title: regex },
-        { question: regex },
-        { 'steps.question': regex },
-      ];
+      query.$or = buildSearchQuery(searchValue);
     }
 
     const { list, pageInfo, totalCount } =
@@ -83,6 +93,47 @@ export const cpSurveyQueries = {
     };
   },
 
+  async cpSurveyRequests(
+    _root: undefined,
+    args: CpSurveyRequestsArgs,
+    { models, cpUser }: IContext,
+  ) {
+    const cpUserId = cpUser?._id;
+
+    if (!cpUserId) {
+      throw new Error(REQUESTER_REQUIRED_ERROR);
+    }
+
+    const { searchValue, channelId, status, ...paginate } = args;
+
+    const query: Record<string, unknown> = { createdCpUserId: cpUserId };
+
+    if (channelId) {
+      query.channelId = channelId;
+    }
+
+    if (status) {
+      if (!SURVEY_STATUSES.ALL.includes(status)) {
+        throw new Error(`Unknown survey status: ${status}`);
+      }
+
+      query.status = status;
+    }
+
+    if (searchValue) {
+      query.$or = buildSearchQuery(searchValue);
+    }
+
+    const { list, pageInfo, totalCount } =
+      await cursorPaginate<ISurveyDocument>({
+        model: models.Surveys,
+        params: { ...paginate, orderBy: paginate.orderBy || { createdAt: -1 } },
+        query,
+      });
+
+    return { pageInfo, totalCount, list: list.map(toCpSurvey) };
+  },
+
   async cpSurveyDetail(
     _root: undefined,
     { channelId, surveyCode }: { channelId: string; surveyCode: string },
@@ -118,19 +169,35 @@ export const cpSurveyQueries = {
 
   async cpSurveyVotes(
     _root: undefined,
-    { conversationId }: { conversationId: string },
+    {
+      conversationId,
+      customerId,
+    }: { conversationId?: string; customerId?: string },
     { models, cpUser }: IContext,
   ) {
-    const voterId = getCpVoterId(cpUser);
-
-    if (!voterId) {
-      return [];
+    if (!conversationId && !customerId) {
+      throw new Error('conversationId or customerId is required');
     }
 
-    const votes = await models.SurveyVotes.find({
-      conversationId,
-      voterId,
-    }).lean();
+    const query: Record<string, string> = {};
+
+    if (conversationId) {
+      query.conversationId = conversationId;
+    }
+
+    if (customerId) {
+      query.customerId = customerId;
+    } else {
+      const voterId = getCpVoterId(cpUser);
+
+      if (!voterId) {
+        return [];
+      }
+
+      query.voterId = voterId;
+    }
+
+    const votes = await models.SurveyVotes.find(query).lean();
 
     return votes.map((vote) => ({
       messageId: vote.messageId,

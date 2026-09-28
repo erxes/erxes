@@ -23,8 +23,8 @@ export const useBroadcastRemove = () => {
           },
           ({ engageMessages }) => {
             const updatedBroadcasts = engageMessages.list.filter(
-              (broadcast: any) =>
-                !options?.variables?.broadcastIds.includes(broadcast._id),
+              (broadcast: { _id: string }) =>
+                !broadcastIds.includes(broadcast._id),
             );
 
             return {

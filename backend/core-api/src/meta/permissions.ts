@@ -5,6 +5,41 @@ export const permissions: IPermissionConfig = {
 
   modules: [
     {
+      name: 'emailTemplates',
+      description: 'Email templates',
+      scopeField: null,
+      ownerFields: ['createdBy'],
+
+      scopes: [
+        { name: 'own', description: 'Templates user created' },
+        { name: 'all', description: 'All templates' },
+      ],
+
+      actions: [
+        {
+          title: 'View email templates',
+          name: 'emailTemplatesRead',
+          description: 'View email templates',
+          always: true,
+        },
+        {
+          title: 'Create email templates',
+          name: 'emailTemplatesCreate',
+          description: 'Create email templates',
+        },
+        {
+          title: 'Edit email templates',
+          name: 'emailTemplatesUpdate',
+          description: 'Edit email templates',
+        },
+        {
+          title: 'Delete email templates',
+          name: 'emailTemplatesDelete',
+          description: 'Delete email templates',
+        },
+      ],
+    },
+    {
       name: 'contacts',
       description: 'Contact management',
       scopeField: null,

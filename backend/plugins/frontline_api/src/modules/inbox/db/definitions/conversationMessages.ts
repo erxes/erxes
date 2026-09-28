@@ -48,7 +48,7 @@ export const replyToSchema = new Schema(
   { _id: false },
 );
 
-const reactionSchema = new Schema(
+export const reactionSchema = new Schema(
   {
     senderId: { type: String, required: true },
     emoji: { type: String, optional: true },

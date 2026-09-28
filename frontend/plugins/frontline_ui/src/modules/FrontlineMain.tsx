@@ -54,6 +54,12 @@ const FormDetailPage = lazy(() =>
   })),
 );
 
+const FormCreatePage = lazy(() =>
+  import('~/pages/FormCreatePage').then((module) => ({
+    default: module.FormCreatePage,
+  })),
+);
+
 const FormPreviewPage = lazy(() =>
   import('~/pages/FormPreviewPage').then((module) => ({
     default: module.FormPreviewPage,
@@ -110,6 +116,7 @@ const IntegrationsMain = () => {
         <Route path="/reports/*" element={<Report />} />
         <Route path="/forms" element={<FormsView />}>
           <Route index element={<Forms />} />
+          <Route path="create" element={<FormCreatePage />} />
           <Route path=":formId" element={<FormDetailPage />} />
           <Route
             path="submissions/:formId"

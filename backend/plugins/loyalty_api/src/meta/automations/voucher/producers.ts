@@ -1,4 +1,6 @@
 import {
+  AUTOMATION_ERROR_CODES,
+  buildFailedAction,
   TAutomationProducers,
   TAutomationProducersInput,
   TCoreModuleProducerContext,
@@ -40,7 +42,10 @@ export const voucherAutomationProducers = {
     { models, subdomain }: TCoreModuleProducerContext<IModels>,
   ) => {
     if (collectionType !== 'voucher' || actionType !== 'create') {
-      return { result: null };
+      return buildFailedAction(
+        `Loyalty voucher automations do not handle "${collectionType}.${actionType}"`,
+        AUTOMATION_ERROR_CODES.CONFIG_INVALID,
+      );
     }
 
     const config = action.config as IssueVoucherActionConfig;

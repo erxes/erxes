@@ -117,13 +117,8 @@ export const LiveForm = () => {
 
   return (
     <Dialog open>
-      <Dialog.Content className="p-0 border-none max-w-xl bg-transparent shadow-none gap-1">
+      <Dialog.Content className="p-0 gap-0 max-w-xl shadow-none border-none bg-transparent">
         {formContent}
-        <div className="flex items-center gap-0.5 justify-center my-1 text-primary-foreground text-[10px]">
-          <span>
-            Powered by <strong>Erxes</strong>
-          </span>
-        </div>
       </Dialog.Content>
     </Dialog>
   );

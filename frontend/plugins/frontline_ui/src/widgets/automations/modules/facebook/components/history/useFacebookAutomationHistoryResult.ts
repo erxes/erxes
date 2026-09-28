@@ -33,7 +33,9 @@ export const useFacebookAutomationHistoryResult = (
 ) => {
   const error = result?.error;
   const isCommentReply = action?.actionType?.endsWith('comments');
-  const isSkipped = result?.status === 'skipped';
+  // The engine now records the skip; older runs only carry it in the result.
+  const isSkipped =
+    action?.status === 'skipped' || result?.status === 'skipped';
   // `result` is written when the reply is handed to the queue and never
   // updated, so the action's own status is what says how the wait ended.
   const isDropped = action?.status === 'dropped';
@@ -48,7 +50,7 @@ export const useFacebookAutomationHistoryResult = (
     isQueued,
     sendAfterMs: result?.sendAfterMs as number | undefined,
     isSkipped,
-    skipReason: result?.reason as string | undefined,
+    skipReason: (action?.skipReason ?? result?.reason) as string | undefined,
     blockedUntil: result?.blockedUntil as string | undefined,
     messages,
     // The run records the variant it posted; older runs only kept the config.

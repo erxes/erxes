@@ -97,6 +97,15 @@ export const AUTOMATION_TRIGGER_FIELDS = `
     count
   `;
 
+export const AUTOMATION_NOTE_FIELDS = `
+    id
+    content
+    position
+    width
+    height
+    color
+  `;
+
 export const AUTOMATION_ACTION_FIELDS = `
     id
     type

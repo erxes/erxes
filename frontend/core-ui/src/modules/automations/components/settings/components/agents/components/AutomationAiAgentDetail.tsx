@@ -5,7 +5,6 @@ import { AiAgentRuntimeForm } from '@/automations/components/settings/components
 import { AiAgentUsageCard } from '@/automations/components/settings/components/agents/components/AiAgentUsageCard';
 import { AutomationAiAgentHealthSection } from '@/automations/components/settings/components/agents/components/form/AutomationAiAgentHealthSection';
 import { AiAgentInput } from '@/automations/components/settings/components/agents/hooks/useAiAgentDetail';
-import { AutomationSettingsDetailHeader } from '@/automations/components/settings/components/AutomationSettingsDetailHeader';
 import {
   AI_AGENT_PROVIDER_TYPES,
   TAiAgentProvider,
@@ -29,7 +28,7 @@ import {
 import { Button, Card, Tabs, toast } from 'erxes-ui';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useSearchParams } from 'react-router';
-import { ApprovalLockButton } from 'ui-modules';
+import { ApprovalLockButton, SettingsDetailHeader } from 'ui-modules';
 
 export const AutomationAiAgentDetail = ({
   detail,
@@ -82,7 +81,7 @@ export const AutomationAiAgentDetail = ({
   return (
     <div className="flex h-full min-h-0 w-full flex-col">
       <FormProvider {...form}>
-        <AutomationSettingsDetailHeader
+        <SettingsDetailHeader
           title={isEditing ? 'Edit AI Agent' : 'Create AI Agent'}
           description={
             isEditing

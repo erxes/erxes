@@ -18,6 +18,19 @@ export const APPROVAL_REQUEST_STATUSES = {
   APPROVED: 'approved',
   REJECTED: 'rejected',
   CANCELLED: 'cancelled',
+  // Approved, but the change it carried could not be applied. Kept apart from
+  // `approved` so a decision nobody acted on is never read as a done one.
+  APPLY_FAILED: 'applyFailed',
+} as const;
+
+/**
+ * What a request asks for. `access` lets the requester past a lock and the
+ * system does nothing else; `change` carries the work itself, and approving it
+ * is what performs it.
+ */
+export const APPROVAL_REQUEST_KINDS = {
+  ACCESS: 'access',
+  CHANGE: 'change',
 } as const;
 
 export const APPROVAL_DECISIONS = {

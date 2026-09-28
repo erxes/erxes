@@ -31,6 +31,10 @@ export const MAIL_CONFIG_FIELDS: (t: TFunction) => TFormData = (t) => {
         description: t('default-email-service-desc'),
         options: ['SES', 'sendgrid', 'custom'],
       },
+    ],
+    // Last on the page: the address goes into every email's footer, and it is
+    // filled once rather than alongside the provider it does not depend on.
+    postal: [
       {
         name: 'COMPANY_POSTAL_ADDRESS',
         inputType: 'input',

@@ -1,5 +1,5 @@
 import { SelectAccount } from '@/settings/account/components/SelectAccount';
-import { JournalEnum } from '@/settings/account/types/Account';
+import { IAccount, JournalEnum } from '@/settings/account/types/Account';
 import { TR_SIDES, TrJournalEnum } from '@/transactions/types/constants';
 import { ITransaction, ITrDetail } from '@/transactions/types/Transaction';
 import { AccountingHotkeyScope } from '@/types/AccountingHotkeyScope';
@@ -36,6 +36,18 @@ import {
   hasDuplicateProductId,
 } from '../../utils';
 
+type TSaleReturnFollowAccount = Pick<
+  IAccount,
+  | '_id'
+  | 'code'
+  | 'name'
+  | 'currency'
+  | 'kind'
+  | 'journal'
+  | 'branchId'
+  | 'departmentId'
+>;
+
 const findFollowTr = (
   followTrDocs: ITransaction[],
   originId: string,
@@ -56,7 +68,7 @@ const buildSaleReturnFollowDetails = ({
   trDoc,
   unitCost,
 }: {
-  account?: any;
+  account?: TSaleReturnFollowAccount;
   accountId?: string;
   activeDetail: ITrDetail;
   currentTr?: ITransaction;
@@ -66,19 +78,31 @@ const buildSaleReturnFollowDetails = ({
   (trDoc.details || []).map((saleDetail) => {
     const currentDetail = findFollowDetail(currentTr?.details, saleDetail._id);
 
-    if (currentDetail && saleDetail._id !== activeDetail._id) {
-      return currentDetail;
+    if (saleDetail._id !== activeDetail._id) {
+      return (
+        currentDetail ??
+        ({
+          ...saleDetail,
+          originId: saleDetail._id,
+          account,
+          accountId,
+          unitPrice: 0,
+          count: saleDetail.count,
+          amount: 0,
+        } as ITrDetail)
+      );
     }
 
     return {
       ...saleDetail,
       ...currentDetail,
+      originId: saleDetail._id,
       productId: saleDetail.productId,
       account,
       accountId,
       unitPrice: unitCost,
-      count: activeDetail.count,
-      amount: fixNum(unitCost * (activeDetail.count ?? 0)),
+      count: saleDetail.count,
+      amount: fixNum(unitCost * (saleDetail.count ?? 0)),
     } as ITrDetail;
   });
 
@@ -86,10 +110,12 @@ export const InventoryRow = ({
   detailIndex,
   journalIndex,
   form,
+  initialUnitCost,
 }: {
   detailIndex: number;
   journalIndex: number;
   form: ITransactionGroupForm;
+  initialUnitCost?: number;
 }) => {
   const showAdvancedView = useAtomValue(showAdvancedViewState);
   const trDoc = useWatch({
@@ -112,16 +138,20 @@ export const InventoryRow = ({
   const { unitPrice, count, _id } = detail;
 
   const initProductId = useRef(detail.productId);
+  const hasProductChanged = useRef(false);
   const initOutAccountId = useRef(trDoc.followInfos?.saleOutAccountId);
   const initBranchId = useRef(trDoc.branchId);
   const initDepartmentId = useRef(trDoc.departmentId);
   const [unitCost, setUnitCost] = useState(
-    followTrDocs
-      .find(
-        (ftr) =>
-          ftr.originId === trDoc._id && ftr.originType === 'invSaleReturnOut',
-      )
-      ?.details.find((fd) => fd.originId === detail._id)?.unitPrice ?? 0,
+    initialUnitCost ??
+      followTrDocs
+        .find(
+          (ftr) =>
+            ftr.originId === trDoc._id &&
+            ftr.originType === 'invSaleReturnOut',
+        )
+        ?.details.find((fd) => fd.originId === detail._id)?.unitPrice ??
+      0,
   );
 
   const getFieldName = (name: string) => {
@@ -253,7 +283,8 @@ export const InventoryRow = ({
     skip:
       !detail.productId ||
       !trDoc.followInfos?.saleOutAccountId ||
-      (initProductId.current &&
+      (!hasProductChanged.current &&
+        initProductId.current &&
         detail.productId === initProductId.current &&
         trDoc.branchId === initBranchId.current &&
         trDoc.departmentId === initDepartmentId.current &&
@@ -271,7 +302,7 @@ export const InventoryRow = ({
     setUnitCost(fixNum(costInfo.unitCost ?? 0));
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [detail.productId, loading]);
+  }, [currentCostInfo, detail.productId, loading]);
 
   const handleAmountChange = (
     value: number,
@@ -356,6 +387,9 @@ export const InventoryRow = ({
     productId: string,
     onChange: (productId: string) => void,
   ) => {
+    if (productId !== detail.productId) {
+      hasProductChanged.current = true;
+    }
     onChange(productId);
   };
 
