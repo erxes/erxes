@@ -8,6 +8,7 @@ import {
   ICursorListResponse,
   isUndefinedOrNull,
   mergeCursorData,
+  parseDateRangeFromString,
   useNonNullMultiQueryState,
   useToast,
   validateFetchMore,
@@ -35,24 +36,41 @@ export type TicketSortField = (typeof TICKET_SORT_FIELDS)[number]['value'];
 export const useTicketsVariables = (
   variables?: QueryHookOptions<ICursorListResponse<ITicket>>['variables'],
 ) => {
-  const { searchValue, assignee, priority, statusId, state, pipelineId } =
-    useNonNullMultiQueryState<{
-      searchValue: string;
-      assignee: string;
-      priority: string;
-      statusId: string;
-      state: string;
-      pipelineId: string;
-    }>([
-      'searchValue',
-      'assignee',
-      'priority',
-      'statusId',
-      'state',
-      'pipelineId',
-    ]);
+  const {
+    searchValue,
+    assignee,
+    priority,
+    statusId,
+    state,
+    pipelineId,
+    segments,
+    created,
+    updated,
+  } = useNonNullMultiQueryState<{
+    searchValue: string;
+    assignee: string;
+    priority: string;
+    statusId: string;
+    state: string;
+    pipelineId: string;
+    segments: string[];
+    created: string;
+    updated: string;
+  }>([
+    'searchValue',
+    'assignee',
+    'priority',
+    'statusId',
+    'state',
+    'pipelineId',
+    'segments',
+    'created',
+    'updated',
+  ]);
 
   const sortField = useAtomValue(ticketSortAtom);
+  const createdRange = parseDateRangeFromString(created);
+  const updatedRange = parseDateRangeFromString(updated);
 
   return {
     cursor: '',
@@ -68,6 +86,20 @@ export const useTicketsVariables = (
     statusId: statusId,
     pipelineId: pipelineId,
     state: state,
+    segmentIds: segments?.length ? segments : undefined,
+    dateFilters:
+      createdRange || updatedRange
+        ? JSON.stringify({
+            createdAt: {
+              gte: createdRange?.from,
+              lte: createdRange?.to,
+            },
+            updatedAt: {
+              gte: updatedRange?.from,
+              lte: updatedRange?.to,
+            },
+          })
+        : undefined,
     ...variables,
   };
 };
@@ -78,7 +110,7 @@ export const useTickets = (
   const { t } = useTranslation('frontline');
   const variables = useTicketsVariables(options?.variables);
   const { toast } = useToast();
-  const { data, loading, fetchMore, subscribeToMore } = useQuery<
+  const { data, loading, fetchMore, subscribeToMore, refetch } = useQuery<
     ICursorListResponse<ITicket>
   >(GET_TICKETS, {
     ...options,
@@ -102,6 +134,11 @@ export const useTickets = (
       variables: { filter: variables },
       updateQuery: (prev, { subscriptionData }) => {
         if (!subscriptionData.data) return prev;
+
+        if (variables.segmentIds?.length || variables.dateFilters) {
+          void refetch();
+          return prev;
+        }
 
         const { type, ticket } = subscriptionData.data.ticketListChanged;
 
@@ -172,8 +209,7 @@ export const useTickets = (
     });
 
     return unsubscribe;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [variables]);
+  }, [variables, subscribeToMore, refetch]);
 
   const handleFetchMore = ({
     direction,

@@ -7,6 +7,7 @@ import {
   BoardColumnProps,
   Button,
   EnumCursorDirection,
+  isUndefinedOrNull,
   Skeleton,
   SkeletonArray,
   useQueryState,
@@ -243,7 +244,7 @@ export const TicketsBoardCards = ({
   }, [tickets, setTicketCards, setAllticketsMap, column.id]);
 
   useEffect(() => {
-    if (totalCount) {
+    if (!isUndefinedOrNull(totalCount)) {
       setTicketCountByBoard((prev) => ({
         ...prev,
         [column.id]: totalCount || 0,

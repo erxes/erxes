@@ -66,6 +66,8 @@ export interface ITicketDocument extends ITicket, Document {
 }
 
 export interface ITicketFilter extends IListParams, ITicket {
+  segmentIds?: string[];
+  dateFilters?: string;
   userId?: string;
   createdAt?: Date;
 }

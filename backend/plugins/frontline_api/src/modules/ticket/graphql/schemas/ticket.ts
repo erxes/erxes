@@ -60,6 +60,8 @@ export const types = `
 
   input ITicketFilter {
     _id: String
+    segmentIds: [String!]
+    dateFilters: String
     statusId: String
     priority: Int
     pipelineId: String

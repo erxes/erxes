@@ -4,6 +4,7 @@ import { IUserDocument } from 'erxes-api-shared/core-types';
 import { IModels } from '~/connectionResolvers';
 import { escapeRegExp } from 'erxes-api-shared/utils';
 import { createPermissionValidator } from '@/ticket/utils/permissionValidator';
+import { buildDateMatch } from '@/reports/utils';
 
 const startOfToday = () => {
   const start = new Date();
@@ -184,6 +185,10 @@ export const generateFilter = async (
     filterQuery.priority = filter.priority;
   }
 
+  if (filter.segmentIds?.length) {
+    filterQuery.segmentIds = { $in: filter.segmentIds };
+  }
+
   if (filter.startDate) {
     filterQuery.startDate = { $gte: filter.startDate };
   }
@@ -194,6 +199,23 @@ export const generateFilter = async (
 
   if (filter.createdAt) {
     filterQuery.createdAt = { $gte: filter.createdAt };
+  }
+
+  if (filter.dateFilters) {
+    try {
+      const dateFilters: Record<string, { gte?: string; lte?: string }> =
+        JSON.parse(filter.dateFilters);
+
+      for (const key of ['createdAt', 'updatedAt'] as const) {
+        const { gte, lte } = dateFilters[key] || {};
+        Object.assign(
+          filterQuery,
+          buildDateMatch({ fromDate: gte, toDate: lte }, key),
+        );
+      }
+    } catch (err) {
+      throw new Error(`Invalid dateFilters JSON: ${err}`);
+    }
   }
 
   if (filter.assigneeId) {

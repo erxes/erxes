@@ -10,6 +10,7 @@ import { sendTRPCMessage } from '../trpc';
 import { getEnv, isImage, isVideo } from '../utils';
 import { sanitizeFilename } from '../sanitize';
 import { randomAlphanumeric } from '../random';
+import { getPlugin } from '../service-discovery';
 
 const STORAGE_CONFIG_CODES = [
   'UPLOAD_SERVICE_TYPE',
@@ -520,9 +521,37 @@ export const uploadFileToStorage = async ({
   }
 
   if (uploadType === 'LOCAL') {
-    throw new Error(
-      'Local storage cannot be accessed from shared utilities. Use server-side file upload instead.',
+    if (!isValidPath(filePath)) {
+      throw new Error('Unsafe file path');
+    }
+
+    const { address } = await getPlugin('core');
+
+    if (!address) {
+      throw new Error('Core service address is not available');
+    }
+
+    const formData = new FormData();
+    formData.append('file', fs.createReadStream(filePath), {
+      filename: sanitizeFilename(fileName),
+      contentType: mimetype,
+    });
+
+    const response = await fetch(
+      `${address}/upload-file?forcePrivate=${shouldForcePrivate}`,
+      {
+        method: 'POST',
+        headers: { hostname: subdomain },
+        body: formData,
+      },
     );
+    const fileKey = await response.text();
+
+    if (!response.ok) {
+      throw new Error(`Local file upload failed: ${fileKey}`);
+    }
+
+    return fileKey;
   }
 
   throw new Error(

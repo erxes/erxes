@@ -3,13 +3,19 @@ import { ITicket } from '../types';
 import { fetchedTicketsState } from '../states/fetchedTicketState';
 import { allTicketsMapState } from '../states/allTicketsMapState';
 import { ticketCountByBoardAtom } from '../states/ticketsTotalCountState';
+import { useTicketsVariables } from './useGetTickets';
 
 export const useAddTicketToView = () => {
+  const { segmentIds, dateFilters } = useTicketsVariables();
   const setFetchedTickets = useSetAtom(fetchedTicketsState);
   const setAllTicketsMap = useSetAtom(allTicketsMapState);
   const setTicketCountByBoard = useSetAtom(ticketCountByBoardAtom);
 
   const addTicketToView = (ticket: ITicket) => {
+    if (segmentIds?.length || dateFilters) {
+      return;
+    }
+
     setAllTicketsMap((prev) => ({ ...prev, [ticket._id]: ticket }));
     setFetchedTickets((prev) => {
       if (prev.some((item) => item.id === ticket._id)) {

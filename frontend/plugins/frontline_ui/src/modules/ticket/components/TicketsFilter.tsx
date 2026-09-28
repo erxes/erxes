@@ -13,12 +13,15 @@ import {
   IconSearch,
   IconUser,
   IconArchive,
+  IconCalendarPlus,
+  IconCalendarUp,
 } from '@tabler/icons-react';
 import clsx from 'clsx';
 import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { fetchedTicketsState } from '@/ticket/states/fetchedTicketState';
+import { SegmentsFilter } from 'ui-modules';
 
 const TicketsFilterPopover = () => {
   const { t } = useTranslation('frontline');
@@ -29,6 +32,9 @@ const TicketsFilterPopover = () => {
     statusId: string;
     pipelineId: string;
     state: string;
+    segments: string[];
+    created: string;
+    updated: string;
   }>([
     'searchValue',
     'assignee',
@@ -36,6 +42,9 @@ const TicketsFilterPopover = () => {
     'statusId',
     'pipelineId',
     'state',
+    'segments',
+    'created',
+    'updated',
   ]);
   const hasFilters = Object.values(queries || {}).some(
     (value) => value !== null,
@@ -43,13 +52,32 @@ const TicketsFilterPopover = () => {
   const view = useAtomValue(ticketViewAtom);
   const setFetchedTickets = useSetAtom(fetchedTicketsState);
 
-  const { searchValue, assignee, priority, statusId, pipelineId, state } =
-    queries || {};
+  const {
+    searchValue,
+    assignee,
+    priority,
+    statusId,
+    pipelineId,
+    state,
+    created,
+    updated,
+  } = queries || {};
+  const segments = JSON.stringify(queries?.segments);
 
   useEffect(() => {
     setFetchedTickets([]);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchValue, assignee, priority, statusId, pipelineId, state]);
+  }, [
+    searchValue,
+    assignee,
+    priority,
+    statusId,
+    pipelineId,
+    state,
+    segments,
+    created,
+    updated,
+    setFetchedTickets,
+  ]);
   return (
     <>
       <Filter.Popover scope={TicketHotKeyScope.TicketPage}>
@@ -68,6 +96,7 @@ const TicketsFilterPopover = () => {
                   {t('search', 'Search')}
                 </Filter.Item>
                 <Command.Separator className="my-1" />
+                <SegmentsFilter />
                 <Filter.Item value="assignee">
                   <IconUser />
                   {t('assignee-label', 'Assignee')}
@@ -86,12 +115,28 @@ const TicketsFilterPopover = () => {
                     {t('status-label', 'Status')}
                   </Filter.Item>
                 )}
+                <Command.Separator className="my-1" />
+                <Filter.Item value="created">
+                  <IconCalendarPlus />
+                  {t('created-at-label')}
+                </Filter.Item>
+                <Filter.Item value="updated">
+                  <IconCalendarUp />
+                  {t('updated-at-label')}
+                </Filter.Item>
               </Command.List>
             </Command>
           </Filter.View>
           <SelectAssigneeTicket.FilterView />
           <SelectPriorityTicket.FilterView />
           <SelectStateTicket.FilterView />
+          <SegmentsFilter.View contentType="frontline:tickets.tickets" />
+          <Filter.View filterKey="created">
+            <Filter.DateView filterKey="created" />
+          </Filter.View>
+          <Filter.View filterKey="updated">
+            <Filter.DateView filterKey="updated" />
+          </Filter.View>
           {view === 'list' && (
             <SelectStatusTicket.FilterView
               pipelineId={queries?.pipelineId || ''}
@@ -102,6 +147,12 @@ const TicketsFilterPopover = () => {
       <Filter.Dialog>
         <Filter.View filterKey="searchValue" inDialog>
           <Filter.DialogStringView filterKey="searchValue" />
+        </Filter.View>
+        <Filter.View filterKey="created" inDialog>
+          <Filter.DialogDateView filterKey="created" />
+        </Filter.View>
+        <Filter.View filterKey="updated" inDialog>
+          <Filter.DialogDateView filterKey="updated" />
         </Filter.View>
       </Filter.Dialog>
     </>
@@ -132,6 +183,21 @@ export const TicketsFilter = () => {
       <Filter.Bar>
         <TicketsFilterPopover />
         <TicketsTotalCount />
+        <SegmentsFilter.Bar contentType="frontline:tickets.tickets" />
+        <Filter.BarItem queryKey="created">
+          <Filter.BarName>
+            <IconCalendarPlus />
+            {t('created-at-label')}
+          </Filter.BarName>
+          <Filter.Date filterKey="created" />
+        </Filter.BarItem>
+        <Filter.BarItem queryKey="updated">
+          <Filter.BarName>
+            <IconCalendarUp />
+            {t('updated-at-label')}
+          </Filter.BarName>
+          <Filter.Date filterKey="updated" />
+        </Filter.BarItem>
         {searchValue && (
           <Filter.BarItem queryKey="searchValue">
             <Filter.BarName>
