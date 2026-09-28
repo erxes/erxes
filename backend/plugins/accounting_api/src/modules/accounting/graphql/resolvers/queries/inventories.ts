@@ -49,11 +49,13 @@ const configQueries = {
       accountId,
       branchId,
       departmentId,
+      excludedTransactionIds,
     }: {
       productIds: string[];
       accountId: string;
       branchId?: string;
       departmentId?: string;
+      excludedTransactionIds?: string[];
     },
     { models, checkPermission }: IContext,
   ) {
@@ -64,6 +66,7 @@ const configQueries = {
       branchId,
       departmentId,
       productIds,
+      excludedTransactionIds,
     );
   },
 };

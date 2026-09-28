@@ -20,6 +20,7 @@ export const PRINT_DOCUMENTS = {
 
   [TrJournalEnum.INV_INCOME]: PrintInvIncomeDocument,
   [TrJournalEnum.INV_OUT]: PrintInvOutDocument,
+  [TrJournalEnum.INV_JUSTIFY]: PrintInvOutDocument,
 
   [TrJournalEnum.INV_MOVE]: PrintInvMoveDocument,
   [TrJournalEnum.INV_MOVE_IN]: '',

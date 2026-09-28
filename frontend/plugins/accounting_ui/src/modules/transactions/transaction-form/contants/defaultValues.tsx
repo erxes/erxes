@@ -10,6 +10,7 @@ import {
   TFxaOutJournal,
   TFxaSaleJournal,
   TInvIncomeJournal,
+  TInvJustifyJournal,
   TInvMoveJournal,
   TInvOutJournal,
   TInvSaleJournal,
@@ -210,6 +211,37 @@ const INV_OUT_JOURNAL_DEFAULT_VALUES = (
             amount: 0,
           },
         ],
+  };
+};
+
+const invJustifyDetailsDefaultValues = (doc?: Partial<ITransaction>) =>
+  doc?.details?.length
+    ? doc.details.map((det) => ({
+        ...trDetailWrapper(det),
+        productId: det.productId || '',
+        product: det.product,
+        count: det.count ?? 0,
+        unitPrice: det.unitPrice ?? 0,
+        amount: det.amount ?? 0,
+      }))
+    : [
+        {
+          ...trDetailWrapper(),
+          productId: '',
+          count: 0,
+          unitPrice: 0,
+          amount: 0,
+        },
+      ];
+
+const INV_JUSTIFY_JOURNAL_DEFAULT_VALUES = (
+  doc?: Partial<ITransaction>,
+): Partial<TInvJustifyJournal> => {
+  return {
+    ...trDataWrapper(doc),
+    journal: TrJournalEnum.INV_JUSTIFY,
+    side: doc?.side || TR_SIDES.DEBIT,
+    details: invJustifyDetailsDefaultValues(doc),
   };
 };
 
@@ -455,6 +487,10 @@ export const JOURNALS_BY_JOURNAL = (
 
     case TrJournalEnum.INV_OUT:
       result = INV_OUT_JOURNAL_DEFAULT_VALUES(doc);
+      break;
+
+    case TrJournalEnum.INV_JUSTIFY:
+      result = INV_JUSTIFY_JOURNAL_DEFAULT_VALUES(doc);
       break;
 
     case TrJournalEnum.INV_MOVE:

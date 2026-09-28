@@ -1,6 +1,5 @@
 import { BSON } from 'mongodb';
-import { generateId } from '../wordpress/generateId';
-import { createCmsSlug } from '../wordpress/idMap';
+import { createCmsSlug, generateId } from './utils';
 import {
   fingerprint,
   sourceFingerprint,

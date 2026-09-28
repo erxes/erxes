@@ -12,7 +12,6 @@ import type { INotificationItem } from '../hooks/useWidgetNotifications';
 import { HEADER_ITEMS } from '../constants';
 import { ITicketCheckProgress } from '../ticket/types';
 import { atomWithStorage } from 'jotai/utils';
-import { set } from 'date-fns';
 
 // FAQ navigation state
 export type FaqView = 'topic' | 'category' | 'article';
@@ -111,3 +110,10 @@ export const unreadNotificationCountAtom = atom<number>(0);
 export const isBotTypingAtom = atom<boolean>(false);
 
 export const notificationsAtom = atom<INotificationItem[]>([]);
+
+export type WidgetReplyTo = {
+  authorName: string;
+  content: string;
+} | null;
+
+export const widgetReplyToAtom = atom<WidgetReplyTo>(null);

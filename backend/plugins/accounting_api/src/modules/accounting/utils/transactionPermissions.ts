@@ -58,6 +58,11 @@ export const TRANSACTION_PERMISSION_ACTIONS: Record<
     manage: 'manageInvOutTransactions',
     remove: 'removeInvOutTransactions',
   },
+  [JOURNALS.INV_JUSTIFY]: {
+    read: 'readInvJustifyTransactions',
+    manage: 'manageInvJustifyTransactions',
+    remove: 'removeInvJustifyTransactions',
+  },
   [JOURNALS.INV_MOVE]: {
     read: 'readInvMoveTransactions',
     manage: 'manageInvMoveTransactions',
