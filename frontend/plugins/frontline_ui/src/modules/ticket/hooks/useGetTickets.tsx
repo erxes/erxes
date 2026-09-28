@@ -75,10 +75,6 @@ export const useTicketsVariables = (
   ]);
 
   const sortField = useAtomValue(ticketSortAtom);
-  const createdRange = parseDateRangeFromString(createdStartDate);
-  const startRange = parseDateRangeFromString(startDateStartDate);
-  const targetRange = parseDateRangeFromString(targetDateStartDate);
-  const statusChangedRange = parseDateRangeFromString(statusChangedStartDate);
 
   return {
     cursor: '',
@@ -94,15 +90,16 @@ export const useTicketsVariables = (
     statusId: statusId,
     pipelineId: pipelineId,
     state: state,
-    segmentIds: segments?.length ? segments : undefined,
-    createdStartDate: createdRange?.from,
-    createdEndDate: createdRange?.to,
-    startDateStartDate: startRange?.from,
-    startDateEndDate: startRange?.to,
-    targetDateStartDate: targetRange?.from,
-    targetDateEndDate: targetRange?.to,
-    statusChangedStartDate: statusChangedRange?.from,
-    statusChangedEndDate: statusChangedRange?.to,
+    segmentIds: segments || undefined,
+    createdStartDate: parseDateRangeFromString(createdStartDate)?.from,
+    createdEndDate: parseDateRangeFromString(createdStartDate)?.to,
+    startDateStartDate: parseDateRangeFromString(startDateStartDate)?.from,
+    startDateEndDate: parseDateRangeFromString(startDateStartDate)?.to,
+    targetDateStartDate: parseDateRangeFromString(targetDateStartDate)?.from,
+    targetDateEndDate: parseDateRangeFromString(targetDateStartDate)?.to,
+    statusChangedStartDate: parseDateRangeFromString(statusChangedStartDate)
+      ?.from,
+    statusChangedEndDate: parseDateRangeFromString(statusChangedStartDate)?.to,
     ...variables,
   };
 };
@@ -113,7 +110,7 @@ export const useTickets = (
   const { t } = useTranslation('frontline');
   const variables = useTicketsVariables(options?.variables);
   const { toast } = useToast();
-  const { data, loading, fetchMore, subscribeToMore, refetch } = useQuery<
+  const { data, loading, fetchMore, subscribeToMore } = useQuery<
     ICursorListResponse<ITicket>
   >(GET_TICKETS, {
     ...options,
@@ -137,21 +134,6 @@ export const useTickets = (
       variables: { filter: variables },
       updateQuery: (prev, { subscriptionData }) => {
         if (!subscriptionData.data) return prev;
-
-        if (
-          variables.segmentIds?.length ||
-          variables.createdStartDate ||
-          variables.createdEndDate ||
-          variables.startDateStartDate ||
-          variables.startDateEndDate ||
-          variables.targetDateStartDate ||
-          variables.targetDateEndDate ||
-          variables.statusChangedStartDate ||
-          variables.statusChangedEndDate
-        ) {
-          void refetch();
-          return prev;
-        }
 
         const { type, ticket } = subscriptionData.data.ticketListChanged;
 
@@ -222,7 +204,7 @@ export const useTickets = (
     });
 
     return unsubscribe;
-  }, [variables, subscribeToMore, refetch]);
+  }, [variables, subscribeToMore]);
 
   const handleFetchMore = ({
     direction,
