@@ -1,10 +1,53 @@
-import { useRef } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import type { ImperativePanelHandle } from 'react-resizable-panels';
 
+const MIN_COMPOSER_HEIGHT = 160;
+const DEFAULT_COMPOSER_HEIGHT = 240;
+
+const getDefaultSize = (height: number) =>
+  Math.min(75, Math.max(30, (DEFAULT_COMPOSER_HEIGHT / height) * 100));
+
 export const useComposerPanelResize = () => {
+  const panelGroupRef = useRef<HTMLDivElement>(null);
   const inputPanelRef = useRef<ImperativePanelHandle>(null);
   const contentHeightRef = useRef(0);
   const autoResizeStartRef = useRef<number | null>(null);
+  const initialSizeSetRef = useRef(false);
+  const manuallyResizedRef = useRef(false);
+  const [minSize, setMinSize] = useState(20);
+
+  useLayoutEffect(() => {
+    const group = panelGroupRef.current;
+    if (!group) return;
+
+    const updatePanelSize = () => {
+      const panel = inputPanelRef.current;
+      if (!panel || !group.clientHeight) return;
+
+      const height = group.clientHeight;
+      const nextMinSize = Math.min(
+        70,
+        Math.max(20, (MIN_COMPOSER_HEIGHT / height) * 100),
+      );
+      setMinSize(nextMinSize);
+
+      if (
+        !initialSizeSetRef.current ||
+        (!manuallyResizedRef.current && autoResizeStartRef.current === null)
+      ) {
+        panel.resize(getDefaultSize(height));
+        initialSizeSetRef.current = true;
+      } else if (panel.getSize() < nextMinSize) {
+        panel.resize(nextMinSize);
+      }
+    };
+
+    const observer = new ResizeObserver(updatePanelSize);
+    observer.observe(group);
+    updatePanelSize();
+
+    return () => observer.disconnect();
+  }, []);
 
   const getEditor = (target: EventTarget) =>
     target instanceof Element
@@ -31,7 +74,7 @@ export const useComposerPanelResize = () => {
       if (!panel || !group.clientHeight) return;
 
       if (editor.querySelector('[data-is-only-empty-block="true"]')) {
-        panel.resize(25);
+        panel.resize(getDefaultSize(group.clientHeight));
         autoResizeStartRef.current = null;
         return;
       }
@@ -60,10 +103,13 @@ export const useComposerPanelResize = () => {
 
   const resetAutoResize = () => {
     autoResizeStartRef.current = null;
+    manuallyResizedRef.current = true;
   };
 
   return {
+    panelGroupRef,
     inputPanelRef,
+    minSize,
     rememberContentHeight,
     resizeForContent,
     resetAutoResize,

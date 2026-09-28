@@ -5,6 +5,7 @@ import {
   getDeployment,
   getDeploymentEvents,
 } from '~/modules/webbuilder/utils/utils';
+import { getCustomDomains } from '~/modules/webbuilder/utils/customDomains';
 
 export const webQueries: Record<string, Resolver> = {
   async getWebList(_root, _args, { models }: IContext) {
@@ -15,6 +16,14 @@ export const webQueries: Record<string, Resolver> = {
     const web = await models.Web.findOne({ _id });
     if (!web) throw new Error('Web not found');
     return web;
+  },
+
+  async webCustomDomains(
+    _root,
+    { webId }: { webId: string },
+    { models }: IContext,
+  ) {
+    return getCustomDomains(models, webId);
   },
 
   async cpGetWebDetail(_root, { _id }: { _id: string }, { models }: IContext) {

@@ -1,7 +1,6 @@
 import { Document } from 'mongoose';
 import {
   ICursorPaginateParams,
-  ICustomField,
   IListParams,
 } from 'erxes-api-shared/core-types';
 
@@ -54,7 +53,7 @@ export interface IConversation {
 
   isCustomerRespondedLast?: boolean;
   hasSurvey?: boolean;
-  customFieldsData?: ICustomField[];
+  propertiesData?: Record<string, unknown>;
   isBot?: boolean;
   botId?: string;
   automatedReplyControl?: TAutomatedReplyControl;

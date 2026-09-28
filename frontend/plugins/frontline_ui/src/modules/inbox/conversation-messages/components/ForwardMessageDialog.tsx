@@ -9,7 +9,7 @@ import {
   toast,
   type IAttachment,
 } from 'erxes-ui';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useForm, type UseFormReturn } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -17,6 +17,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useConversationMessageAdd } from '@/inbox/conversations/conversation-detail/hooks/useConversationMessageAdd';
 import { GET_CONVERSATIONS } from '@/inbox/conversations/graphql/queries/getConversations';
 import type { IConversation, IMessage } from '@/inbox/types/Conversation';
+import { stripForwardedMarkers } from '@/inbox/conversation-messages/utils/messageActionText';
 
 type ForwardMessageDialogProps = {
   open: boolean;
@@ -103,6 +104,7 @@ const ForwardMessageDialogContent = ({
   form,
   onForward,
   onCancel,
+  retryCount,
 }: {
   preview: string;
   conversations: IConversation[];
@@ -112,13 +114,14 @@ const ForwardMessageDialogContent = ({
   form: UseFormReturn<ForwardMessageForm>;
   onForward: (values: ForwardMessageForm) => Promise<void>;
   onCancel: () => void;
+  retryCount?: number;
 }) => (
   <Dialog.Content className="max-w-lg">
     <Dialog.Header>
       <Dialog.Title>Forward message</Dialog.Title>
       <Dialog.Description>
-        Choose another conversation. erxes keeps a tagged snapshot, and
-        platforms without native forwarding receive only the original content.
+        Choose another conversation. erxes keeps a snapshot of the forwarded
+        message.
       </Dialog.Description>
     </Dialog.Header>
     <div className="rounded-md border-l-2 border-primary bg-muted px-3 py-2 text-sm text-muted-foreground">
@@ -134,17 +137,29 @@ const ForwardMessageDialogContent = ({
         })
       }
     />
-    <Input {...form.register('note')} placeholder="Add a note (optional)" />
+    <Input
+      {...form.register('note')}
+      disabled={retryCount !== undefined}
+      placeholder="Add a note (optional)"
+    />
+    {retryCount !== undefined && (
+      <p className="text-sm text-muted-foreground">
+        {retryCount > 0
+          ? `${retryCount} attachment(s) remain. The text and delivered files will not be sent again.`
+          : 'This message has already been delivered.'}
+      </p>
+    )}
     <Dialog.Footer>
       <Button type="button" variant="ghost" onClick={onCancel}>
         Cancel
       </Button>
       <Button
         type="button"
-        disabled={!selectedId || loading}
+        disabled={!selectedId || loading || retryCount === 0}
         onClick={form.handleSubmit(onForward)}
       >
-        {loading && <Spinner size="sm" />} Forward
+        {loading && <Spinner size="sm" />}{' '}
+        {retryCount === undefined ? 'Forward' : 'Retry attachments'}
       </Button>
     </Dialog.Footer>
   </Dialog.Content>
@@ -174,7 +189,7 @@ const forwardedContentText = (
   hasAttachments: boolean,
 ) => {
   const text = stripHtml(content)
-    .replace(/^(?:Forwarded message\s*)+/i, '')
+    .replace(/^(?:(?:↪\s*)?Forwarded(?: message)?\s*)+/i, '')
     .trim();
 
   return hasAttachments && /^Attachment$/i.test(text) ? '' : text;
@@ -191,6 +206,9 @@ export const ForwardMessageDialog = ({
     resolver: zodResolver(forwardMessageSchema),
     defaultValues: { destinationId: '', note: '' },
   });
+  const [remainingByDestination, setRemainingByDestination] = useState<
+    Record<string, IAttachment[]>
+  >({});
   const selectedId = form.watch('destinationId');
   const { addConversationMessage, loading } = useConversationMessageAdd();
   const { data, loading: conversationsLoading } = useQuery<{
@@ -209,8 +227,9 @@ export const ForwardMessageDialog = ({
   );
 
   const handleForward = async ({ destinationId, note }: ForwardMessageForm) => {
+    if (loading || remainingByDestination[destinationId]?.length === 0) return;
     const existingSnapshot = message.extraData?.forwardedSnapshot;
-    const messageText = stripHtml(message.content);
+    const messageText = stripHtml(stripForwardedMarkers(message.content));
     const hasSocialShare = message.attachments?.some(
       (attachment: IAttachment) =>
         attachment.type === 'share' ||
@@ -255,12 +274,14 @@ export const ForwardMessageDialog = ({
     const content = [note.trim(), '↪ Forwarded', forwardedBody]
       .filter(Boolean)
       .join('\n');
+    const retryAttachments = remainingByDestination[destinationId];
+    const outgoingAttachments = retryAttachments || forwardAttachments;
     try {
-      await addConversationMessage({
+      const result = await addConversationMessage({
         variables: {
           conversationId: destinationId,
-          content,
-          attachments: forwardAttachments,
+          content: retryAttachments ? '' : content,
+          attachments: outgoingAttachments,
           internal: false,
           extraInfo: {
             forwardedNote: note.trim(),
@@ -276,8 +297,36 @@ export const ForwardMessageDialog = ({
           'ConversationMessages',
           'ConversationCounts',
           'FrontlineInboxSidebarWorkCounts',
+          'FacebookConversationMessages',
         ],
       });
+      const delivery =
+        result.data?.conversationMessageAdd.extraData?.facebookDelivery;
+      if (delivery?.status === 'partial') {
+        const remaining = outgoingAttachments.filter(
+          ({ url }) => !delivery.sentAttachmentUrls.includes(url),
+        );
+        setRemainingByDestination((current) => ({
+          ...current,
+          [destinationId]: remaining,
+        }));
+        toast({
+          title: remaining.length
+            ? 'Message partially forwarded'
+            : 'Message forwarded with a warning',
+          description: remaining.length
+            ? 'Retry will send only the remaining attachments.'
+            : 'Facebook accepted the message, but saving its history failed. Do not resend it.',
+          variant: 'destructive',
+        });
+        return;
+      }
+      if (retryAttachments) {
+        setRemainingByDestination((current) => ({
+          ...current,
+          [destinationId]: [],
+        }));
+      }
       toast({ title: 'Message forwarded', variant: 'default' });
       form.reset();
       onOpenChange(false);
@@ -297,6 +346,7 @@ export const ForwardMessageDialog = ({
         conversationsLoading={conversationsLoading}
         selectedId={selectedId}
         loading={loading}
+        retryCount={remainingByDestination[selectedId]?.length}
         form={form}
         onForward={handleForward}
         onCancel={() => onOpenChange(false)}
