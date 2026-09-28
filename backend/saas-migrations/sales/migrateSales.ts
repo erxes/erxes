@@ -2,7 +2,13 @@ import * as dotenv from 'dotenv';
 
 dotenv.config();
 
-import { AnyBulkWriteOperation, Collection, Db, MongoClient } from 'mongodb';
+import {
+  AnyBulkWriteOperation,
+  Collection,
+  Db,
+  Document,
+  MongoClient,
+} from 'mongodb';
 
 const {
   MONGO_URL = 'mongodb://localhost:27017/erxes?directConnection=true',
@@ -12,6 +18,7 @@ const {
   TARGET_SUBDOMAIN,
 
   DRY_RUN,
+  OVERWRITE_EXISTING,
 
   BATCH_SIZE = '1000',
 } = process.env;
@@ -27,13 +34,14 @@ if (!SOURCE_SUBDOMAIN || !TARGET_SUBDOMAIN) {
 }
 
 const isDryRun = DRY_RUN === '1' || DRY_RUN === 'true';
+const overwriteExisting =
+  OVERWRITE_EXISTING === '1' || OVERWRITE_EXISTING === 'true';
 const batchSize = Math.max(1, parseInt(BATCH_SIZE, 10) || 1000);
 
 function extractDbName(url: string): string {
   const withoutQuery = url.split('?')[0];
   return withoutQuery.slice(withoutQuery.lastIndexOf('/') + 1);
 }
-
 
 const COLLECTIONS = [
   // deal pipeline
@@ -59,9 +67,13 @@ const COLLECTIONS = [
   'ecommerce_address',
 ];
 
-
 const UNIQUE_FIELDS: Record<string, string[]> = {
   deals: ['number'],
+  sales_pipeline_labels: ['pipelineId+name+colorCode'],
+};
+
+const RENAME_ON_COLLISION: Record<string, string> = {
+  deals: 'number',
 };
 
 type CollectionStats = {
@@ -85,6 +97,27 @@ const normalizeValue = (field: string, value: unknown): string => {
   return field === 'email' ? str.toLowerCase().trim() : str;
 };
 
+const fieldParts = (field: string): string[] => field.split('+');
+
+const fieldValue = (doc: Document, field: string): string | undefined => {
+  const values = fieldParts(field).map((part) => doc[part]);
+
+  if (values.some((value) => value === undefined || value === null)) {
+    return undefined;
+  }
+
+  return values.map((value) => normalizeValue(field, value)).join('\u0000');
+};
+
+const nextFreeValue = (base: string, taken: Set<string>): string => {
+  let suffix = 1;
+
+  while (taken.has(`${base}-${suffix}`)) {
+    suffix++;
+  }
+
+  return `${base}-${suffix}`;
+};
 
 async function migrateByReplace(
   srcCol: Collection,
@@ -99,18 +132,32 @@ async function migrateByReplace(
     if (batch.length === 0) return;
     const result = await dstCol.bulkWrite(batch, { ordered: false });
     stats.inserted += result.upsertedCount;
-    stats.updated += result.matchedCount;
+    if (overwriteExisting) {
+      stats.updated += result.matchedCount;
+    } else {
+      stats.skipped += result.matchedCount;
+    }
     batch = [];
   };
 
   for await (const doc of srcCol.find({}, { batchSize })) {
-    batch.push({
-      replaceOne: {
-        filter: { _id: doc._id },
-        replacement: doc,
-        upsert: true,
-      },
-    });
+    batch.push(
+      overwriteExisting
+        ? {
+            replaceOne: {
+              filter: { _id: doc._id },
+              replacement: doc,
+              upsert: true,
+            },
+          }
+        : {
+            updateOne: {
+              filter: { _id: doc._id },
+              update: { $setOnInsert: doc },
+              upsert: true,
+            },
+          },
+    );
 
     if (batch.length >= batchSize) await flush();
   }
@@ -138,14 +185,17 @@ async function migrateWithDedup(
   for (const field of uniqueFields) existingByField[field] = new Set<string>();
 
   const projection: Record<string, 1> = { _id: 1 };
-  for (const field of uniqueFields) projection[field] = 1;
+  for (const field of uniqueFields) {
+    for (const part of fieldParts(field)) projection[part] = 1;
+  }
+
+  const renameField = RENAME_ON_COLLISION[srcCol.collectionName];
 
   for await (const doc of dstCol.find({}, { projection })) {
     existingIds.add(String(doc._id));
     for (const field of uniqueFields) {
-      if (doc[field] !== undefined && doc[field] !== null) {
-        existingByField[field].add(normalizeValue(field, doc[field]));
-      }
+      const value = fieldValue(doc, field);
+      if (value !== undefined) existingByField[field].add(value);
     }
   }
 
@@ -181,20 +231,29 @@ async function migrateWithDedup(
 
     let collidedField: string | undefined;
     for (const field of uniqueFields) {
-      if (doc[field] === undefined || doc[field] === null) continue;
-      const value = normalizeValue(field, doc[field]);
-      if (existingByField[field].has(value)) {
+      const value = fieldValue(doc, field);
+      if (value !== undefined && existingByField[field].has(value)) {
         collidedField = field;
         break;
       }
     }
 
+    if (collidedField && collidedField === renameField) {
+      const previous = String(doc[renameField]);
+      doc[renameField] = nextFreeValue(previous, existingByField[renameField]);
+      console.log(
+        `    [RENAME] ${srcCol.collectionName} ${id}: ${renameField} "${previous}" already exists, inserted as "${doc[renameField]}"`,
+      );
+      collidedField = undefined;
+    }
+
     if (collidedField) {
       console.log(
-        `    [SKIP] ${srcCol.collectionName}: ${collidedField} "${normalizeValue(
+        `    [SKIP] ${srcCol.collectionName}: ${collidedField} "${fieldParts(
           collidedField,
-          doc[collidedField],
-        )}" already exists`,
+        )
+          .map((part) => doc[part])
+          .join(' / ')}" already exists`,
       );
       stats.skipped++;
       continue;
@@ -202,9 +261,8 @@ async function migrateWithDedup(
 
     existingIds.add(id);
     for (const field of uniqueFields) {
-      if (doc[field] !== undefined && doc[field] !== null) {
-        existingByField[field].add(normalizeValue(field, doc[field]));
-      }
+      const value = fieldValue(doc, field);
+      if (value !== undefined) existingByField[field].add(value);
     }
 
     if (isDryRun) {
@@ -280,8 +338,14 @@ async function main() {
         }
 
         const uniqueFields = UNIQUE_FIELDS[colName];
-        const mode = uniqueFields ? `dedup(${uniqueFields.join(',')})` : 'upsert';
-        console.log(`[${colName}] migrating ${sourceCount} documents [${mode}]...`);
+        const mode = uniqueFields
+          ? `dedup(${uniqueFields.join(',')})`
+          : overwriteExisting
+          ? 'overwrite'
+          : 'insert-only';
+        console.log(
+          `[${colName}] migrating ${sourceCount} documents [${mode}]...`,
+        );
 
         let stats: CollectionStats;
         if (uniqueFields) {
