@@ -123,6 +123,7 @@ export const ConversationDetail = () => {
       <ConversationSideWidget
         customerId={conversationAllDetails?.customerId || ''}
         _id={conversationAllDetails?._id || ''}
+        propertiesData={conversationAllDetails?.propertiesData}
         asSheet={isCompact}
         boundaryRef={detailRef}
       />

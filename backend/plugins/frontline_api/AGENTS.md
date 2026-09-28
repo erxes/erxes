@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-09-23`
+- **Last synchronized:** `2026-09-24`
 
 ## Scope
 
@@ -790,10 +790,54 @@ isInternal)` is the agent-side list and requires `showTickets`.
 - Save a help center with two CMSes and confirm `cmsConfigs` holds both, that
   `cmsId` / `cmsAppToken` mirror the first entry, and that a config written
   before `cmsConfigs` existed still returns its single CMS as a one-entry list.
+- Save a conversation's properties through `conversationEditCustomFields` and
+  confirm the value round-trips on `Conversation.propertiesData`, a validation
+  rejection throws instead of silently keeping the unvalidated input, and
+  clearing every property to `{}` stays `{}` on the next read rather than
+  reverting to any legacy value.
 
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-24` — Conversation custom properties actually persist
+
+- **Summary:** Restored the 2.0-era link between conversations and core's
+  custom-properties system, which the 3.0 rewrite had left broken: the
+  Mongoose field had been silently renamed to `customsData` (never read or
+  written anywhere else, and mismatched with the `customFieldsData` the
+  GraphQL type/mutation already declared, so Mongoose's strict mode silently
+  dropped every write), and no validation call into core `fields` existed for
+  conversations. The field is now `propertiesData` (`Schema.Types.Mixed`) —
+  named to match the platform-wide convention every other entity with this UI
+  treatment uses (`Ticket.propertiesData`, `Customer.propertiesData`,
+  `Company.propertiesData`, `Product.propertiesData`, `User.propertiesData`),
+  not the `customFieldsData` name 2.0 used. `customFieldsData` is what those
+  same entities keep as a *legacy* array-shaped field for old data; it is not
+  the live one. `Conversations.updateConversation` validates the new field
+  through core `fields.validateFieldValues` before persisting, mirroring
+  `modules/ticket/db/ticket.ts`, and now throws instead of silently falling
+  back to the unvalidated input when that call fails.
+  `conversationEditCustomFields`'s GraphQL argument was renamed from
+  `customFieldsData` to `propertiesData` to match — safe because the mutation
+  never worked before this change, so nothing depended on the old argument
+  name. `Conversation.propertiesData`'s field resolver falls back to the
+  legacy raw `customsData` path only when `propertiesData` is `null`/
+  `undefined` (never for a merely-empty `{}`, which is a valid cleared state),
+  reading it through the repo's `typeof doc.toObject === 'function' ?
+  doc.toObject() : doc` idiom so it also works on the `.lean()` plain object
+  `conversationsGetLast` returns — no document is actually known to hold
+  data there, since the old write path never matched either field name.
+- **Affected areas:** `modules/inbox/db/definitions/conversations.ts`,
+  `modules/inbox/db/models/Conversations.ts`,
+  `modules/inbox/@types/conversations.ts`,
+  `modules/inbox/graphql/schemas/conversation.ts`,
+  `modules/inbox/graphql/resolvers/mutations/conversations.ts`,
+  `modules/inbox/graphql/resolvers/customResolvers/conversation.ts`.
+- **Contracts changed:** `Conversation.customFieldsData` field renamed to
+  `Conversation.propertiesData`; `conversationEditCustomFields`'s
+  `customFieldsData` argument renamed to `propertiesData`. Both existed in the
+  schema already but never worked, so no real caller is affected.
 
 ### `2026-09-24` — A help center references its client portal by id
 
@@ -928,19 +972,6 @@ isInternal)` is the agent-side list and requires `showTickets`.
   `src/meta/automations.ts`
 - **Contracts changed:** Consumes the new optional
   `AutomationConstants.workflowTemplates` from `erxes-api-shared`.
-
-### `2026-09-13` — Facebook actions declare the target they need
-
-- **Summary:** Send Facebook Message and Send Facebook Comment read the
-  execution target as a facebook message/comment document, so they cannot run
-  behind a trigger that supplies anything else; both now declare
-  `requiresTargetTypes` and the builder hides and refuses them where the target
-  type does not match, instead of letting them fail at runtime.
-- **Affected areas:**
-  `src/modules/integrations/facebook/meta/automation/constants.ts`
-- **Contracts changed:** Consumes the new optional
-  `IAutomationsActionConfigConstants.requiresTargetTypes` from
-  `erxes-api-shared`. No plugin-provided contract changed.
 
 ### `2026-09-23` — A survey question carries attachments
 

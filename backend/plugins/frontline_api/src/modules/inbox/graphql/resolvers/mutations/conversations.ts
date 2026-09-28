@@ -257,10 +257,24 @@ export const conversationMutations = {
 
   async conversationEditCustomFields(
     _root,
-    { _id, customFieldsData }: { _id: string; customFieldsData: any },
-    { models }: IContext,
+    {
+      _id,
+      propertiesData,
+      customFieldsData,
+    }: {
+      _id: string;
+      propertiesData?: Record<string, unknown>;
+      customFieldsData?: Record<string, unknown>;
+    },
+    { models, checkPermission }: IContext,
   ) {
-    await models.Conversations.updateConversation(_id, { customFieldsData });
+    await checkPermission('conversationEditCustomFields');
+    if (propertiesData == null && customFieldsData == null) {
+      throw new Error('propertiesData or customFieldsData is required');
+    }
+    await models.Conversations.updateConversation(_id, {
+      propertiesData: propertiesData ?? customFieldsData,
+    });
     return models.Conversations.getConversation(_id);
   },
 };

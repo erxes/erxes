@@ -21,6 +21,7 @@ export interface IConversation {
   callProAudio?: string | null;
   callProPotentialCustomerIds?: string[];
   callProPhone?: string | null;
+  propertiesData?: Record<string, unknown>;
 }
 
 export interface IAutomatedReplyControl {
