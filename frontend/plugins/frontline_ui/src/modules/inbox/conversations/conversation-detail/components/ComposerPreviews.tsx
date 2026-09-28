@@ -5,10 +5,14 @@ import {
   IconPhoto,
   IconX,
 } from '@tabler/icons-react';
-import { Button, Spinner, readImage, type IAttachment } from 'erxes-ui';
+import { Button, Dialog, Spinner, readImage, type IAttachment } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
-import { ComposerAttachment } from '@/inbox/conversations/conversation-detail/components/ComposerAttachment';
+import {
+  AttachmentPreview,
+  ComposerAttachment,
+} from '@/inbox/conversations/conversation-detail/components/ComposerAttachment';
+import { getAttachmentKind } from '@/inbox/conversations/conversation-detail/utils/composerAttachment';
 import type { PendingAttachment } from '@/inbox/conversations/conversation-detail/types/composerAttachments';
 import type { MessageReplyTarget } from '@/inbox/conversations/conversation-detail/states/messageReplyState';
 
@@ -137,6 +141,11 @@ export const ComposerPreviews = ({
   onCancelReply,
 }: ComposerPreviewsProps) => {
   const { t } = useTranslation('frontline');
+  const previewedUrls = new Set(
+    pendingAttachments.flatMap(({ uploadedUrl }) =>
+      uploadedUrl ? [uploadedUrl] : [],
+    ),
+  );
   if (
     !replyTo &&
     !attachments.length &&
@@ -157,27 +166,75 @@ export const ComposerPreviews = ({
               key={file.id}
               className="flex min-w-48 items-center gap-2 rounded-xl border bg-muted/35 p-2"
             >
-              <span className="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-md bg-background text-muted-foreground">
-                <PendingAttachmentPreview file={file} />
-              </span>
-              <span className="min-w-0 flex-1">
-                <span className="block truncate text-xs font-medium">
-                  {file.name}
-                </span>
-                <span className="block text-[11px] text-muted-foreground">
-                  {t('uploading', 'Uploading...')}
-                </span>
-              </span>
-              <Spinner size="sm" />
+              <Dialog>
+                <Dialog.Trigger asChild>
+                  <button
+                    type="button"
+                    disabled={!file.uploadedUrl}
+                    className="flex min-w-0 flex-1 items-center gap-2 text-left"
+                  >
+                    <span className="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-md bg-background text-muted-foreground">
+                      <PendingAttachmentPreview file={file} />
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-xs font-medium">
+                        {file.name}
+                      </span>
+                      <span className="block text-[11px] text-muted-foreground">
+                        {file.uploadedUrl
+                          ? `${Math.max(1, Math.round(file.size / 1024))} KB`
+                          : t('uploading', 'Uploading...')}
+                      </span>
+                    </span>
+                  </button>
+                </Dialog.Trigger>
+                {file.uploadedUrl && (
+                  <Dialog.Content className="max-w-3xl">
+                    <Dialog.Header>
+                      <Dialog.Title>{file.name}</Dialog.Title>
+                    </Dialog.Header>
+                    <AttachmentPreview
+                      kind={getAttachmentKind({
+                        name: file.name,
+                        type: file.type,
+                        size: file.size,
+                        url: file.uploadedUrl,
+                      })}
+                      source={file.previewUrl || readImage(file.uploadedUrl)}
+                      label={file.name}
+                    />
+                  </Dialog.Content>
+                )}
+              </Dialog>
+              {file.uploadedUrl ? (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  aria-label={t('remove-attachment', 'Remove {{name}}', {
+                    name: file.name,
+                  })}
+                  onClick={() => {
+                    if (file.uploadedUrl) onRemove(file.uploadedUrl);
+                  }}
+                  className="size-7 shrink-0 rounded-full text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                >
+                  <IconX className="size-3.5" />
+                </Button>
+              ) : (
+                <Spinner size="sm" />
+              )}
             </div>
           ))}
-          {attachments.map((attachment) => (
-            <ComposerAttachment
-              key={attachment.url}
-              attachment={attachment}
-              onRemove={() => onRemove(attachment.url)}
-            />
-          ))}
+          {attachments
+            .filter((attachment) => !previewedUrls.has(attachment.url))
+            .map((attachment) => (
+              <ComposerAttachment
+                key={attachment.url}
+                attachment={attachment}
+                onRemove={() => onRemove(attachment.url)}
+              />
+            ))}
           {blockAttachments.map((attachment, index) => (
             <ComposerAttachment
               key={`block-${attachment.url}-${index}`}

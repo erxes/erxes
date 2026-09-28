@@ -282,10 +282,7 @@ export const MessageInput = ({
   if (hideInput) return null;
 
   const sendDisabled =
-    loading ||
-    isUploading ||
-    pendingAttachments.length > 0 ||
-    (!content?.length && attachments.length === 0);
+    loading || isUploading || (!content?.length && attachments.length === 0);
   const blockAttachments = getBlockAttachments(content || []);
 
   return (

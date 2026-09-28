@@ -154,11 +154,15 @@ export const getMessageDisplay = ({
       forwardedSnapshot?.embeds?.length ||
       forwardedSnapshot?.poll,
   );
-  const displayContent =
-    integrationKind === IntegrationType.INSTAGRAM_MESSENGER && forwardedSnapshot
-      ? extraData?.forwardedNote?.trim() ||
-        (snapshotHasContent ? undefined : fallbackDisplayContent)
-      : fallbackDisplayContent;
+  let displayContent: string | undefined = fallbackDisplayContent;
+  if (
+    integrationKind === IntegrationType.INSTAGRAM_MESSENGER &&
+    forwardedSnapshot
+  ) {
+    displayContent =
+      extraData?.forwardedNote?.trim() ||
+      (snapshotHasContent ? undefined : fallbackDisplayContent);
+  }
   const postIntegrationKind = getPostIntegrationKind(integrationKind);
   const isPostConversation = Boolean(postIntegrationKind);
   const typedAttachments = isPostConversation

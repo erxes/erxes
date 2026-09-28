@@ -109,7 +109,7 @@ const AttachmentThumbnail = ({
   </span>
 );
 
-const AttachmentPreview = ({
+export const AttachmentPreview = ({
   kind,
   source,
   label,

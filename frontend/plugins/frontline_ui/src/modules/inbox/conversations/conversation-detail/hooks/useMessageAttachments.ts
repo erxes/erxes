@@ -106,15 +106,26 @@ export const useMessageAttachments = (isDiscord: boolean) => {
           setPendingAttachments((current) => {
             const index = current.findIndex(
               (file) =>
-                file.name === fileInfo.name && file.size === fileInfo.size,
+                !file.uploadedUrl &&
+                file.name === fileInfo.name &&
+                file.size === fileInfo.size,
             );
 
             if (index < 0) return current;
 
-            const previewUrl = current[index].previewUrl;
-            if (previewUrl) URL.revokeObjectURL(previewUrl);
+            if (status !== 'ok') {
+              const previewUrl = current[index].previewUrl;
+              if (previewUrl) URL.revokeObjectURL(previewUrl);
+              return current.filter(
+                (_, currentIndex) => currentIndex !== index,
+              );
+            }
 
-            return current.filter((_, currentIndex) => currentIndex !== index);
+            return current.map((file, currentIndex) =>
+              currentIndex === index
+                ? { ...file, uploadedUrl: response }
+                : file,
+            );
           });
 
           if (status !== 'ok') {
@@ -181,6 +192,13 @@ export const useMessageAttachments = (isDiscord: boolean) => {
       setAttachments((current) =>
         current.filter((attachment) => attachment.url !== url),
       );
+      setPendingAttachments((current) =>
+        current.filter((file) => {
+          if (file.uploadedUrl !== url) return true;
+          if (file.previewUrl) URL.revokeObjectURL(file.previewUrl);
+          return false;
+        }),
+      );
       toast({
         title: t('attachment-removed', 'Attachment removed'),
       });
@@ -213,6 +231,6 @@ export const useMessageAttachments = (isDiscord: boolean) => {
     removeAttachment,
     resetAttachments,
     retainAttachments,
-    isUploading: pendingAttachments.length > 0,
+    isUploading: pendingAttachments.some((file) => !file.uploadedUrl),
   };
 };
