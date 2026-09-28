@@ -1448,36 +1448,45 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   loading states for its skeleton. Missing records after those queries settle
   are not loading states; they must leave a valid tickets-only breadcrumb.
 
-- The topic, category and article sheets group their fields into `InfoCard`
-  sections inside a `ScrollArea`, the same shape the help center drawer uses —
-  a new field joins a section, it does not sit loose in the form. The article
-  topic settings page uses the same sections (General and Appearance on the
-  left, Installation and Danger zone on the right). The article
-  sheet is the wide one (`sm:max-w-4xl lg:max-w-5xl`) and splits into two
-  columns from `lg`: Content on the left, Publishing and Media stacked on the
-  right, so the editor never sits at the bottom of a long scroll.
-- `TopicColorField`'s label comes from `kb-color-required`, which already ends
-  in `*`; never add a second asterisk around it (the help center appearance tab
-  renders the same component).
-- `FrontlineSubGroups` renders nothing for `/frontline/knowledgebase`: topics
-  are navigated from the topics index and the per-topic sidebar, never from a
-  second navigation column.
-- The topics index keeps both views: the thumbnail card grid (`TopicsGrid`, the
-  default, mirroring the CMS website list) and the record table
-  (`TopicsRecordTable`), switched by the header toggle and sharing one
-  `useTopics` query and filter bar. Never drop one of the two.
 - The topic settings route is `kbsettings`, never `settings`: core-ui's
   `useIsSettings` matches any path containing `/settings` and would swap the
   host's second navigation column for the workspace settings menu (the CMS
   names its own route `cmssettings` for the same reason).
-- The knowledge base is route-driven, not query-param driven: the topics table
+- The knowledge base is route-driven, not query-param driven: the topics index
   lives at `/frontline/knowledgebase` and every per-topic surface at
   `/frontline/knowledgebase/:topicId/{articles,categories,kbsettings}`. The
-  sidebar and breadcrumbs build their links from
-  `KNOWLEDGE_BASE_PATH`; never reintroduce a `?topicId=`/`?categoryId=`
-  selection for navigation. `editId` (and the articles table's `categoryId` and
-  `status` filters) stay query params, because they are filter and drawer state,
-  not routes.
+  sidebar and breadcrumbs build their links from `KNOWLEDGE_BASE_PATH`; never
+  reintroduce a `?topicId=`/`?categoryId=` selection for navigation. `editId`
+  (and the articles table's `categoryId` and `status` filters) stay query
+  params, because they are filter and drawer state, not routes.
+- The topics index keeps both views: the thumbnail card grid (`TopicsGrid`, the
+  default, mirroring the CMS website list) and the record table
+  (`TopicsRecordTable`), switched by the header toggle and sharing one
+  `useTopics` query and filter bar. Never drop one of the two.
+- `FrontlineSubGroups` renders nothing for `/frontline/knowledgebase`: topics
+  are navigated from the topics index and the per-topic sidebar, never from a
+  second navigation column.
+- The topic, category and article sheets group their fields into `InfoCard`
+  sections inside a `ScrollArea`, the same shape the help center drawer uses —
+  a new field joins a section, it does not sit loose in the form. The topic
+  settings page uses the same sections (General and Appearance on the left,
+  Installation and Danger zone on the right). The article sheet is the wide one
+  (`sm:max-w-5xl lg:max-w-6xl xl:max-w-[92rem]`) and splits into two columns
+  from `lg`: Content on the left, Publishing and Media stacked on the right, so
+  the editor never sits at the bottom of a long scroll.
+- `TopicColorField`'s label comes from `kb-color-required`, which already ends
+  in `*`; never add a second asterisk around it (the help center appearance tab
+  renders the same component).
+- A category's `icon` is a free-form string in Mongo, and older data uses names
+  the picker's `ICONS` list may not carry (`rocket`, `credit-card`, `lock`, …).
+  `IconPicker` therefore shows an unknown stored value as itself instead of the
+  "Select icon…" placeholder, so a row never looks empty and an unrelated edit
+  never silently drops it. Add a missing name to `ICONS` rather than rewriting
+  the stored value. Its `variant="table"` renders through
+  `RecordTableInlineCell.Trigger`, so an icon cell carries no button border.
+- `KnowledgeBaseCategory` has **no** `topicId` field — selecting one makes the
+  whole query fail with a 400. A category's topic comes from the route
+  (`useParams().topicId`), and that is what an edit sends back in the doc.
 - Knowledge base GraphQL operation names are prefixed `frontlineKb*`
   (`frontlineKbTopics`, `frontlineKbArticleDetail`, `frontlineKbCategoryEdit`, …)
   even though the fields they select are the shared `knowledgeBase*` ones —
@@ -1494,15 +1503,6 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 - Every knowledge base list refetches after a write (`refetchQueries`, or
   `client.refetchQueries` for bulk deletes) so a create, edit or delete shows up
   without a manual refresh.
-- A category's `icon` is a free-form string in Mongo, and older data uses names
-  the picker's `ICONS` list may not carry (`rocket`, `credit-card`, `lock`, …).
-  `IconPicker` therefore shows an unknown stored value as itself instead of the
-  "Select icon…" placeholder, so a row never looks empty and an unrelated edit
-  never silently drops it. Add a missing name to `ICONS` rather than rewriting
-  the stored value.
-- `KnowledgeBaseCategory` has **no** `topicId` field — selecting one makes the
-  whole query fail with a 400. A category's topic comes from the route
-  (`useParams().topicId`), and that is what an edit sends back in the doc.
 - Category and article writes stay inside the topic in the URL: a category's
   `topicId` and an article's `categoryId` always come from the current route or
   the topic's own categories, never from an unrelated topic.
@@ -1514,7 +1514,7 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   reload. Rename a topic and an article from their inline cells, change an
   article's status and category from the table, filter articles by status and
   category, bulk-delete from the command bar, then edit the topic on its
-  `settings` route and delete it from the danger zone.
+  `kbsettings` route and delete it from the danger zone.
 - `pnpm nx build frontline_ui`
 - `npx eslint src/...` on touched files — the project carries pre-existing lint
   errors and TypeScript errors elsewhere, so lint and typecheck the files you
