@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-09-28`
+- **Last synchronized:** `2026-09-24`
 
 ## Scope
 
@@ -60,9 +60,6 @@
 - Other plugins' collections or service implementations.
 
 ## Current Capabilities
-
-- Ticket lists support segment membership and created/updated date filters.
-  Ticket exports retain their existing name, state, status, priority, assignee and pipeline filters.
 
 - A ticket an automation creates records `createdVia` — what produced it, which
   run, and for whom — and is created as that actor when no conversation agent
@@ -777,14 +774,6 @@ isInternal)` is the agent-side list and requires `showTickets`.
   wrong path or a query/mutation mismatch and returns `defaultValue`, so a
   typo here fails silently.
 
-## Data and State
-
-- Ticket list segment and date filters are request predicates over tenant-owned tickets.
-
-## Local Invariants
-
-- Ticket list filtering and ticket export filtering are implemented separately.
-
 ## Validation
 
 - `pnpm nx lint frontline_api`
@@ -810,12 +799,6 @@ isInternal)` is the agent-side list and requires `showTickets`.
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
-
-### `2026-09-28` — Keep ticket filters scoped to list queries
-
-- **Summary:** Segment and date filtering apply to ticket lists; ticket export behavior is unchanged.
-- **Affected areas:** `src/modules/ticket/utils/generateFilter.ts`, ticket filter types/schema.
-- **Contracts changed:** `ITicketFilter` accepts `segmentIds` and serialized `dateFilters`.
 
 ### `2026-09-24` — Conversation custom properties actually persist
 
@@ -989,3 +972,21 @@ isInternal)` is the agent-side list and requires `showTickets`.
   `src/meta/automations.ts`
 - **Contracts changed:** Consumes the new optional
   `AutomationConstants.workflowTemplates` from `erxes-api-shared`.
+
+### `2026-09-23` — A survey question carries attachments
+
+- **Summary:** Each survey step takes up to five `AttachmentInput` files,
+  normalized inside `normalizeSurveySteps`, stored on the step, served back as
+  `SurveyStep.attachments` and copied into the conversation snapshot so a
+  respondent sees them with the question. Agents (`SurveyStepInput`) and
+  client portal requesters (`CpSurveyStepInput`) use the same field.
+- **Affected areas:** `src/modules/survey/db/definitions/surveys.ts`,
+  `src/modules/survey/db/models/Surveys.ts`,
+  `src/modules/survey/@types/survey.ts`,
+  `src/modules/survey/utils.ts`,
+  `src/modules/survey/graphql/schema/survey.ts`
+- **Contracts changed:** `SurveyStepInput` and `CpSurveyStepInput` take
+  `attachments: [AttachmentInput]`; `SurveyStep` exposes
+  `attachments: [Attachment]`; the survey-level `Survey.attachments` field and
+  the `cpSurveyAdd` / `cpSurveyEdit` `attachments` arguments added earlier the
+  same day are gone.
