@@ -137,6 +137,11 @@
   identity and optional group settings, and exposes controlled validation errors.
 - Registers `TelegramBots` on the tenant's database connection. Its
   `getBot(_id)` method returns the saved bot or throws `Telegram bot not found`.
+- `TelegramBots.createBot({ token, createdBy })` verifies the token before
+  saving the provider's bot identity, capability flags, verification time, and
+  a generated webhook secret. It rejects duplicate bot identities and returns
+  the saved record without credentials. Creation is currently an internal model
+  method; no Telegram creation mutation or webhook registration is exposed.
 - Runs the **mail** channel: an inbox owns a generated catch-all address, a
   Cloudflare Worker posts every delivery to `POST /mail/receive` under an HMAC
   signature, and the controller turns it into a core customer, a conversation,
@@ -195,7 +200,7 @@
 | Inbox                | `src/modules/inbox/`                                                        | Conversations, messages, integrations, widget/clientportal schemas, `receiveInboxMessage`                                                                                                              |
 | Conversation queries | `src/conversationQueryBuilder.ts`, `src/modules/inbox/conversationUtils.ts` | Mongo and Elasticsearch conversation filters (membership-scoped)                                                                                                                                       |
 | Integrations         | `src/modules/integrations/<kind>/`                                          | facebook, instagram, mail, discord, call, callpro, trpc                                                                                                                                                |
-| Telegram setup       | `src/modules/integrations/telegram/`                                        | Bot API client, permission-checked token validation, bot schema, and model loader |
+| Telegram setup       | `src/modules/integrations/telegram/`                                        | Bot API client, permission-checked token validation, bot schema, and model creation/lookup |
 | Mail integration     | `src/modules/integrations/mail/`                                            | Inbound webhook, threading, outbound send/retry                                                                                                                                                        |
 | Mail transports      | `src/modules/integrations/mail/utils/transports/`                           | `index.ts` picks the Cloudflare account that signs for this workspace, `deliver.ts` runs the delivery pipeline (sender guard, suppression, delivery log), `cloudflare.ts` is the only `IMailTransport` |
 | Mail provisioning    | `src/modules/integrations/mail/utils/cloudflare/`                           | Cloudflare REST client, the fourteen-step provisioner, Email Sending onboarding and quota, the connection cache and its public shape                                                                   |
@@ -253,7 +258,8 @@
 - `src/modules/integrations/telegram/@types/bot.ts` defines the Telegram bot
   record interface and a document interface extending Mongoose `Document`:
   bot identity, credentials, group settings, verification time, timestamps,
-  and creator. The document interface declares the erxes `_id`.
+  and creator. The document interface declares the erxes `_id`;
+  `ITelegramBotCreateInput` accepts only `token` and `createdBy`.
 - `src/modules/integrations/telegram/db/definitions/bots.ts` defines the bot
   schema with generated string IDs, a unique `botId` index, immutable bot and
   creator IDs, and automatic timestamps. `token` and `webhookSecret` are excluded
@@ -262,6 +268,9 @@
   `ITelegramBotModel` and `loadTelegramBotClass(models)`. `src/connectionResolvers.ts`
   registers the loader as `models.TelegramBots` with model name `telegram_bots`.
   `getBot` looks up the erxes `_id`; `botId` is the separate Telegram identity.
+- `createBot` stores a fresh 32-byte random secret encoded as hex. It reads the
+  inserted record through `getBot` so the result uses the schema's default
+  credential projection; the direct result of `create` still contains secrets.
 - Telegram token validation does not persist credentials or integration records.
 
 ## Local Invariants
@@ -275,6 +284,10 @@
 - Keep Telegram bot model registration consistent with the other integrations:
   use the document interface, model interface, and class loader. The model
   loader imports the schema and uses the supplied tenant model container.
+- Callers of `TelegramBots.createBot` must enforce permissions and supply
+  `createdBy` from the authenticated user. Derive bot identity and capabilities
+  from `getMe`; reject duplicate identities without replacing saved credentials.
+  Return controlled storage errors rather than raw database error details.
 - Expose Telegram bot IDs as strings in GraphQL. Preserve absent optional
   capability fields separately from explicit `false` values.
 
@@ -289,10 +302,20 @@
   real bot token through the gateway and receives the bot identity and group
   settings. A rejected token returns `valid: false`; permission denial remains a
   GraphQL error and prevents the provider request.
+- Telegram model checks: successful creation returns provider-derived metadata
+  without credentials; duplicate creation preserves the original record;
+  missing creators and rejected tokens prevent writes; storage errors do not
+  expose credentials. Verify absent capability fields separately from `false`.
 
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-28` — Telegram bot creation
+
+- **Summary:** Added internal bot creation that verifies credentials before saving, rejects duplicate identities, and returns the record without secrets.
+- **Affected areas:** `src/modules/integrations/telegram/@types/bot.ts`, `src/modules/integrations/telegram/db/models/Bots.ts`.
+- **Contracts changed:** Added `ITelegramBotCreateInput` and `IModels.TelegramBots.createBot({ token, createdBy })`; public APIs unchanged.
 
 ### `2026-09-28` — Telegram bot storage and model registration
 
@@ -393,17 +416,3 @@
 - **Contracts changed:** Every `poll*` / `cpPoll*` operation and every `Poll*`
   type was renamed to `survey*` / `cpSurvey*` / `Survey*`; `withPoll` became
   `withSurvey`; `Ticket.sourcePoll` became `Ticket.sourceSurvey`.
-
-### `2026-09-10` — An agent's note threads as a mail reply
-
-- **Summary:** A note mailed to the requester carried no `In-Reply-To` or
-  `References`, so it arrived as a new conversation despite the `Re:` subject.
-  The note-out path now threads on the ticket's latest inbound message, falling
-  back to its latest message when the ticket has none. The helper module was
-  renamed from `comments.ts` to `notes.ts`, with `mailTicketComment` and
-  `commentFromMail` becoming `mailTicketNote` and `noteFromMail`, so the names
-  match the `Note` model they have always written.
-- **Affected areas:** `src/modules/integrations/mail/utils/notes.ts`,
-  `src/modules/integrations/mail/controller/receiveMessage.ts`,
-  `src/modules/ticket/graphql/resolvers/mutations/note.ts`
-- **Contracts changed:** `None`

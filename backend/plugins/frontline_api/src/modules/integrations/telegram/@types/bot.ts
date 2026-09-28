@@ -14,6 +14,11 @@ export interface ITelegramBot {
   createdBy: string;
 }
 
+export interface ITelegramBotCreateInput {
+  token: string;
+  createdBy: string;
+}
+
 export interface ITelegramBotDocument extends ITelegramBot, Document {
   _id: string;
 }
