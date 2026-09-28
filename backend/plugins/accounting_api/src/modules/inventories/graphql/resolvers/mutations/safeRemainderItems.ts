@@ -10,6 +10,7 @@ import {
   ISafeRemainderItemDocument,
   ISafeRemainderItemTrInfo,
 } from '~/modules/inventories/@types/safeRemainderItems';
+import { setSafeRemItems } from './utils';
 
 type ProductReference = {
   _id: string;
@@ -125,6 +126,10 @@ const safeRemainderItemMutations = {
   ) {
     await checkPermission('manageSafeRemainders');
 
+    if (!['skip', 'last', 'add'].includes(duplicateRule)) {
+      throw new Error('Invalid duplicate rule');
+    }
+
     const safeRemainder = await models.SafeRemainders.getRemainder(
       safeRemainderId,
     );
@@ -145,11 +150,20 @@ const safeRemainderItemMutations = {
       if (!existing || duplicateRule === 'last') {
         merged[item.productCode] = normalizedItem;
       } else if (duplicateRule === 'add') {
+        const existingCost = existing.trInfo?.unitCost;
+        const addedCost = normalizedItem.trInfo?.unitCost;
+        const hasCompleteCost =
+          existingCost !== undefined && addedCost !== undefined;
+
         merged[item.productCode] = {
           count: fixNum(existing.count + normalizedItem.count, 4),
           trInfo: {
             ...existing.trInfo,
             ...normalizedItem.trInfo,
+            unitCost: hasCompleteCost
+              ? fixNum(existingCost + addedCost, 6)
+              : undefined,
+            isCostExplicit: hasCompleteCost,
           },
         };
       }
@@ -211,6 +225,14 @@ const safeRemainderItemMutations = {
           )
         : 0;
       const importedTrInfo = importItem.trInfo;
+      const existingTargetCost = existingItem
+        ? (existingItem.trInfo?.unitCost ??
+          getDefaultCountedCost(existingItem, existingItem.count))
+        : 0;
+      const targetCost =
+        duplicateRule === 'add' && importedTrInfo?.unitCost !== undefined
+          ? fixNum(existingTargetCost + importedTrInfo.unitCost, 6)
+          : (importedTrInfo?.unitCost ?? defaultCountedCost);
       const trInfoSet = Object.entries(importedTrInfo ?? {}).reduce<
         Record<string, number | boolean>
       >((set, [key, value]) => {
@@ -219,8 +241,7 @@ const safeRemainderItemMutations = {
         }
         return set;
       }, {});
-      trInfoSet['trInfo.unitCost'] =
-        importedTrInfo?.unitCost ?? defaultCountedCost;
+      trInfoSet['trInfo.unitCost'] = targetCost;
       trInfoSet['trInfo.isCostExplicit'] =
         importedTrInfo?.unitCost !== undefined;
       trInfoSet['trInfo.lastIncomePrice'] =
@@ -237,6 +258,26 @@ const safeRemainderItemMutations = {
         createdAt: now,
         createdBy: user._id,
       };
+
+      if (duplicateRule === 'skip') {
+        bulkOps.push({
+          updateOne: {
+            filter: { remainderId: safeRemainderId, productId: product._id },
+            update: {
+              $setOnInsert: {
+                ...setOnInsert,
+                count: importItem.count,
+                ...trInfoSet,
+                status: SAFE_REMAINDER_ITEM_STATUSES.CHECKED,
+                modifiedAt: now,
+                modifiedBy: user._id,
+              },
+            },
+            upsert: true,
+          },
+        });
+        continue;
+      }
 
       if (duplicateRule === 'add') {
         bulkOps.push({
@@ -281,6 +322,8 @@ const safeRemainderItemMutations = {
     const result = await models.SafeRemainderItems.bulkWrite(bulkOps, {
       ordered: false,
     });
+    await setSafeRemItems(subdomain, models, safeRemainder, user._id);
+
     return (result.modifiedCount ?? 0) + (result.upsertedCount ?? 0);
   },
 

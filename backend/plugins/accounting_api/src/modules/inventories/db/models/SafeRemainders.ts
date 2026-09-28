@@ -83,46 +83,54 @@ export const loadSafeRemainderClass = (models: IModels, _subdomain: string) => {
       params: ISafeRemEditFields & { _id: string },
       userId: string,
     ) {
-      const {
-        _id,
-        description,
-        incomeRule,
-        outRule,
-        saleRule,
-        costIncreaseRule,
-        costDecreaseRule,
-      } = params;
+      const { _id } = params;
 
       const safeRemainder = await models.SafeRemainders.getRemainder(_id);
+      const update: Partial<ISafeRemainder> & {
+        modifiedAt: Date;
+        modifiedBy: string;
+      } = {
+        modifiedAt: new Date(),
+        modifiedBy: userId,
+      };
+
+      if (params.description !== undefined) {
+        update.description = params.description;
+      }
+      if (params.status !== undefined) {
+        update.status = params.status;
+      }
+
+      for (const field of [
+        'incomeRule',
+        'outRule',
+        'saleRule',
+        'costIncreaseRule',
+        'costDecreaseRule',
+      ] as const) {
+        if (params[field] !== undefined) {
+          update[field] = {
+            ...safeRemainder[field],
+            ...params[field],
+          };
+        }
+      }
+
+      for (const field of [
+        'incomeTrId',
+        'outTrId',
+        'saleTrId',
+        'costIncreaseTrId',
+        'costDecreaseTrId',
+      ] as const) {
+        if (params[field] !== undefined) {
+          update[field] = params[field];
+        }
+      }
 
       await models.SafeRemainders.updateOne(
         { _id },
-        {
-          $set: {
-            description,
-            incomeRule: { ...safeRemainder.incomeRule, ...incomeRule },
-            outRule: { ...safeRemainder.outRule, ...outRule },
-            saleRule: { ...safeRemainder.saleRule, ...saleRule },
-            costIncreaseRule: {
-              ...safeRemainder.costIncreaseRule,
-              ...costIncreaseRule,
-            },
-            costDecreaseRule: {
-              ...safeRemainder.costDecreaseRule,
-              ...costDecreaseRule,
-            },
-            incomeTrId: params.incomeTrId,
-            outTrId: params.outTrId,
-            saleTrId: params.saleTrId,
-            costIncreaseTrId:
-              params.costIncreaseTrId ?? safeRemainder.costIncreaseTrId,
-            costDecreaseTrId:
-              params.costDecreaseTrId ?? safeRemainder.costDecreaseTrId,
-            status: params.status,
-            modifiedAt: new Date(),
-            modifiedBy: userId,
-          },
-        },
+        { $set: update },
       );
       return await models.SafeRemainders.getRemainder(_id);
     }

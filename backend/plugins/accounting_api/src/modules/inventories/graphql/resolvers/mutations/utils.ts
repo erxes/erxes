@@ -230,22 +230,38 @@ export const setSafeRemItems = async (
     const activeUnitCost = newInfo.remainder
       ? fixNum(activeCost / newInfo.remainder, 6)
       : 0;
-    const countedValue = { $ifNull: ['$count', newInfo.remainder] };
+    const nextCount = {
+      $cond: [
+        {
+          $or: [
+            { $eq: [{ $ifNull: ['$count', null] }, null] },
+            {
+              $and: [
+                { $eq: ['$status', SAFE_REMAINDER_ITEM_STATUSES.NEW] },
+                { $eq: ['$preCount', '$count'] },
+              ],
+            },
+          ],
+        },
+        newInfo.remainder,
+        '$count',
+      ],
+    };
     const defaultCountedCost = {
       $cond: [
         {
           $and: [
             { $eq: [activeCost, 0] },
-            { $gt: [countedValue, newInfo.remainder] },
+            { $gt: [nextCount, newInfo.remainder] },
           ],
         },
         {
           $multiply: [
-            { $subtract: [countedValue, newInfo.remainder] },
+            { $subtract: [nextCount, newInfo.remainder] },
             lastIncomePrices[productId] ?? 0,
           ],
         },
-        { $multiply: [activeUnitCost, countedValue] },
+        { $multiply: [activeUnitCost, nextCount] },
       ],
     };
     const inferredCostExplicit = {
@@ -300,25 +316,7 @@ export const setSafeRemItems = async (
               modifiedBy: userId,
               order,
 
-              count: {
-                $cond: [
-                  {
-                    $or: [
-                      { $not: [{ $ifNull: ['$count', false] }] },
-                      {
-                        $and: [
-                          {
-                            $eq: ['$status', SAFE_REMAINDER_ITEM_STATUSES.NEW],
-                          },
-                          { $eq: ['$preCount', '$count'] },
-                        ],
-                      },
-                    ],
-                  },
-                  newInfo.remainder,
-                  '$count',
-                ],
-              },
+              count: nextCount,
             },
           },
         ],

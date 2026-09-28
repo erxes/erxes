@@ -23,7 +23,10 @@ export interface ISafeRemainderItemModel extends Model<ISafeRemainderItemDocumen
   removeItems(ids: string[]): void;
 }
 
-export const loadSafeRemainderItemClass = (models: IModels) => {
+export const loadSafeRemainderItemClass = (
+  models: IModels,
+  _subdomain: string,
+) => {
   class SafeRemainderItem {
     /**
      * Get safe remainder item
@@ -117,16 +120,19 @@ export const loadSafeRemainderItemClass = (models: IModels) => {
      * @returns Deleted response
      */
     public static async removeItems(ids: string[]) {
-      const firstId = ids[0];
-      if (!firstId) {
+      if (!ids.length) {
         return;
       }
-      const item = await models.SafeRemainderItems.getItem(firstId);
-
-      const safeRemainder = await models.SafeRemainders.getRemainder(
-        item.remainderId,
+      const remainderIds = await models.SafeRemainderItems.distinct(
+        'remainderId',
+        { _id: { $in: ids } },
       );
-      if (safeRemainder.status === SAFE_REMAINDER_STATUSES.PUBLISHED) {
+      const publishedRemainder = await models.SafeRemainders.exists({
+        _id: { $in: remainderIds },
+        status: SAFE_REMAINDER_STATUSES.PUBLISHED,
+      });
+
+      if (publishedRemainder) {
         throw new Error('Cant remove cause remainder has submited');
       }
 
