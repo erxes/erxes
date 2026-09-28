@@ -44,12 +44,25 @@ export const SafeRemainderDetail = () => {
     variables: { remainderId: id },
     skip: !id,
   });
-  const { reCalcSafeRemainder } = useSafeRemainderReCalc();
-  const { submitSafeRemainder } = useSafeRemainderSubmit();
-  const { cancelSafeRemainder } = useSafeRemainderCancel();
-  const { doTrSafeRemainder } = useSafeRemainderDoTr();
-  const { undoTrSafeRemainder } = useSafeRemainderUndoTr();
-  const { removeSafeRemainder } = useSafeRemainderRemove();
+  const { reCalcSafeRemainder, loading: reCalcLoading } =
+    useSafeRemainderReCalc();
+  const { submitSafeRemainder, loading: submitLoading } =
+    useSafeRemainderSubmit();
+  const { cancelSafeRemainder, loading: cancelLoading } =
+    useSafeRemainderCancel();
+  const { doTrSafeRemainder, loading: doTrLoading } =
+    useSafeRemainderDoTr();
+  const { undoTrSafeRemainder, loading: undoTrLoading } =
+    useSafeRemainderUndoTr();
+  const { removeSafeRemainder, loading: removeLoading } =
+    useSafeRemainderRemove();
+  const actionLoading =
+    reCalcLoading ||
+    submitLoading ||
+    cancelLoading ||
+    doTrLoading ||
+    undoTrLoading ||
+    removeLoading;
 
   if (loading || detailsLoading) return <Spinner />;
   if (!id) return null;
@@ -61,17 +74,24 @@ export const SafeRemainderDetail = () => {
       return (
         <>
           <SafeRemainderImport safeRemainderId={id} />
-          <Button onClick={() => reCalcSafeRemainder(id)}>
+          <Button
+            disabled={actionLoading}
+            onClick={() => reCalcSafeRemainder(id)}
+          >
             <IconCrane />
             {t('recalc')}
           </Button>
-          <Button onClick={() => submitSafeRemainder(id)}>
+          <Button
+            disabled={actionLoading}
+            onClick={() => submitSafeRemainder(id)}
+          >
             <IconAccessPoint />
             {t('submit')}
           </Button>
           <Button
             variant="secondary"
             className="text-destructive"
+            disabled={actionLoading}
             onClick={() => removeSafeRemainder({ variables: { _id: id } })}
           >
             <IconTrashX />
@@ -84,13 +104,17 @@ export const SafeRemainderDetail = () => {
     if (status === SAFE_REMAINDER_STATUSES.DONE) {
       return (
         <>
-          <Button onClick={() => doTrSafeRemainder(id)}>
+          <Button
+            disabled={actionLoading}
+            onClick={() => doTrSafeRemainder(id)}
+          >
             <IconCrane />
             {t('do-transaction')}
           </Button>
           <Button
             variant="secondary"
             className="text-destructive"
+            disabled={actionLoading}
             onClick={() => cancelSafeRemainder(id)}
           >
             <IconTrashX />
@@ -103,13 +127,17 @@ export const SafeRemainderDetail = () => {
     if (status === SAFE_REMAINDER_STATUSES.PUBLISHED) {
       return (
         <>
-          <Button onClick={() => doTrSafeRemainder(id)}>
+          <Button
+            disabled={actionLoading}
+            onClick={() => doTrSafeRemainder(id)}
+          >
             <IconCrane />
             {t('redo-transaction')}
           </Button>
           <Button
             variant="secondary"
             className="text-destructive"
+            disabled={actionLoading}
             onClick={() => undoTrSafeRemainder(id)}
           >
             <IconTrashX />

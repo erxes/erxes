@@ -1,12 +1,6 @@
 import { IconMoneybag } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/react-table';
-import {
-  INumberFieldContainerProps,
-  NumberField,
-  RecordTable,
-  RecordTableInlineCell,
-} from 'erxes-ui';
-import { useSafeRemainderItemEdit } from '../hooks/useSafeRemainderItemEdit';
+import { RecordTable, RecordTableInlineCell } from 'erxes-ui';
 import { ISafeRemainderItem } from '../types/SafeRemainder';
 import {
   getSafeRemainderCostDifference,
@@ -19,37 +13,6 @@ import {
   SafeRemainderProductCell,
 } from './SafeRemainderCells';
 import { SafeRemainderUnitCostField } from './SafeRemainderUnitCostField';
-
-const DebitCostField = ({
-  value,
-  _id,
-  remItem,
-}: INumberFieldContainerProps & { remItem: ISafeRemainderItem }) => {
-  const { editRemItem } = useSafeRemainderItemEdit();
-
-  return (
-    <NumberField
-      value={value}
-      scope={`remItem-${_id}-diff`}
-      onSave={(value) => {
-        editRemItem(
-          {
-            variables: {
-              ...remItem,
-              trInfo: {
-                ...remItem.trInfo,
-                unitCost:
-                  (remItem.trInfo?.activeCost ?? 0) + Math.max(0, value),
-                isCostExplicit: true,
-              },
-            },
-          },
-        );
-      }}
-      className={'shadow-none rounded-none px-2'}
-    />
-  );
-};
 
 export const safeRemDetailColumnsIncome: ColumnDef<ISafeRemainderItem>[] = [
   RecordTable.checkboxColumn as ColumnDef<ISafeRemainderItem>,
@@ -128,11 +91,8 @@ export const safeRemDetailColumnsIncome: ColumnDef<ISafeRemainderItem>[] = [
     ),
     accessorKey: 'debitCost',
     cell: ({ row }) => (
-      <DebitCostField
+      <SafeRemainderNumberCell
         value={getSafeRemainderIncomeAmount(row.original)}
-        field="debitCost"
-        _id={row.original._id}
-        remItem={row.original}
       />
     ),
   },

@@ -6,7 +6,7 @@
 - **Project:** `accounting_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/accounting_ui`
-- **Last synchronized:** `2026-09-28`
+- **Last synchronized:** `2026-09-29`
 
 ## Scope
 
@@ -44,6 +44,7 @@
 - The inventory cost adjustment journal has an independent form, supports single or bulk product selection, hides quantity input, shows current remainder and unit cost, accepts a per-unit cost delta, calculates the after-adjustment unit cost, and submits cost-only rows.
 - Safe remainder counting opens one import sheet with separate TXT and CSV tabs; TXT and CSV rows with blank total cost default counted total cost from active unit cost and counted quantity, while CSV accepts explicit `totalCost` and legacy `unitCost` aliases.
 - Safe remainder detail tables expose persistent user-controlled column order and subtly highlight editable counted quantity and total-cost inputs.
+- Safe remainder quantity and counted total cost are the editable census values; derived debit/credit and adjustment amounts are read-only previews, and detail actions disable together while any census mutation is running.
 - Inventory income can allocate additional expenses by amount, count, or editable total line weight; line weight initializes from core product weight multiplied by count.
 - Fixed asset income, out, move, and sale transaction rows can toggle detailed view to edit branch and department per detail.
 - Transaction balance rows display branch and department from each transaction detail when present, so generated follow rows with source/destination locations are shown at their row location instead of the root transaction location.
@@ -135,6 +136,7 @@
 - GraphQL operation names in new accounting UI code must be prefixed with `Accounting`.
 - Safe remainder TXT imports must remain headerless `code,count` and preserve the backend-derived current total cost; CSV imports require `productCode,count,totalCost,isSale,unitPrice`, accept legacy `unitCost` or `trInfo.unitCost` as total-cost aliases, and must never accept `activeCost` as authoritative file input.
 - Safe remainder table source order is the fallback for browsers without saved preferences; existing user-controlled column order must continue to override that fallback through the stable versioned table preference key.
+- Safe remainder income debit value must remain derived from counted total cost; it must not expose a second editor for the same target value.
 - Create/update/remove/calculate/run mutations must show success/error feedback and refresh or subscribe so users do not need a manual reload.
 - Fund/debt adjustment transaction execution is separate from calculation; UI must expose both states and not run transactions before details are calculated.
 - Closing adjustment transaction execution is separate from calculation; UI must let users edit row tax percentages before running transactions.
@@ -199,6 +201,12 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-29` — `Audit Census Detail Actions`
+
+- **Summary:** Removed the duplicate income-value editor, reused the shared adjustment calculation, preserved settings values through refetch, and blocked repeated detail actions while mutations run.
+- **Affected areas:** Safe remainder detail columns, settings form, action hooks, mutation feedback, and import guidance.
+- **Contracts changed:** None.
+
 ### `2026-09-28` — `Order Census Detail Columns`
 
 - **Summary:** The census table default now groups registered values before editable counted values, followed by differences and generated transactions, while persistent preferences still override it and editable inputs remain subtly highlighted.
@@ -251,10 +259,4 @@
 
 - **Summary:** Safe remainder detail now delegates declarative tab tables, import workflow, shared editable cells, preview calculations, and typed mutation/subscription hooks to focused modules.
 - **Affected areas:** `src/modules/inventories/safeRemainders` detail components, shared cells, import, tables, calculations, and hooks.
-- **Contracts changed:** None.
-
-### `2026-09-28` — `Preview Net Census Value Transactions`
-
-- **Summary:** Safe remainder previews absorb positive total-value differences into income, floor income value at zero, and label any remaining cost movement as adjustment add or subtract after active-cost out/sale quantity movements.
-- **Affected areas:** Safe remainder transaction calculations, income/out value columns, adjustment filters, labels, and effective unit differences.
 - **Contracts changed:** None.

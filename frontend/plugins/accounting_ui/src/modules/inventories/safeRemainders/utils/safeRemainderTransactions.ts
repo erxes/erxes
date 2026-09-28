@@ -89,14 +89,6 @@ export const getSafeRemainderCostAdjustmentDifference = (
   return Math.abs(difference) <= COST_ADJUSTMENT_TOLERANCE ? 0 : difference;
 };
 
-export const getSafeRemainderCostAdjustmentAmount = (
-  item: ISafeRemainderItem,
-) => Math.abs(getSafeRemainderCostAdjustmentDifference(item));
-
-export const getSafeRemainderCostAdjustmentDifferenceAmount = (
-  item: ISafeRemainderItem,
-) => getSafeRemainderCostAdjustmentDifference(item);
-
 export const getSafeRemainderTransactionTypes = (
   item: ISafeRemainderItem,
 ) => {

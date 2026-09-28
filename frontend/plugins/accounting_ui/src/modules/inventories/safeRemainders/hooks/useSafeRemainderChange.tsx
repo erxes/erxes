@@ -1,4 +1,5 @@
 import {
+  ApolloError,
   MutationFunctionOptions,
   OperationVariables,
   useMutation,
@@ -25,10 +26,11 @@ type SafeRemainderMutationOptions = MutationFunctionOptions<
 
 const commonOptions = (
   id: string,
+  successMessage: string,
   options?: SafeRemainderMutationOptions,
 ) => {
   return {
-    onError: (error: Error) => {
+    onError: (error: ApolloError) => {
       toast({
         title: i18n.t('accounting:error'),
         description: error.message,
@@ -39,7 +41,7 @@ const commonOptions = (
     onCompleted: (data: SafeRemainderMutationData) => {
       toast({
         title: i18n.t('accounting:success'),
-        description: i18n.t('accounting:safe-remainder-submitted'),
+        description: i18n.t(`accounting:${successMessage}`),
       });
       options?.onCompleted?.(data);
     },
@@ -77,7 +79,7 @@ export const useSafeRemainderReCalc = () => {
         ...options?.variables,
         _id: id,
       },
-      ...commonOptions(id, options),
+      ...commonOptions(id, 'safe-remainder-updated', options),
     });
   };
 
@@ -103,7 +105,7 @@ export const useSafeRemainderSubmit = () => {
         ...options?.variables,
         _id: id,
       },
-      ...commonOptions(id, options),
+      ...commonOptions(id, 'safe-remainder-submitted', options),
     });
   };
 
@@ -129,7 +131,7 @@ export const useSafeRemainderCancel = () => {
         ...options?.variables,
         _id: id,
       },
-      ...commonOptions(id, options),
+      ...commonOptions(id, 'safe-remainder-updated', options),
     });
   };
 
@@ -155,7 +157,7 @@ export const useSafeRemainderDoTr = () => {
         ...options?.variables,
         _id: id,
       },
-      ...commonOptions(id, options),
+      ...commonOptions(id, 'safe-remainder-updated', options),
     });
   };
 
@@ -181,7 +183,7 @@ export const useSafeRemainderUndoTr = () => {
         ...options?.variables,
         _id: id,
       },
-      ...commonOptions(id, options),
+      ...commonOptions(id, 'safe-remainder-updated', options),
     });
   };
 

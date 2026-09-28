@@ -21,7 +21,7 @@ export interface ISafeRemainderModel extends Model<ISafeRemainderDocument> {
   removeRemainder(_id: string): void;
 }
 
-export const loadSafeRemainderClass = (models: IModels, _subdomain: string) => {
+export const loadSafeRemainderClass = (models: IModels) => {
   class SafeRemainder {
     /**
      * Get safe remainder

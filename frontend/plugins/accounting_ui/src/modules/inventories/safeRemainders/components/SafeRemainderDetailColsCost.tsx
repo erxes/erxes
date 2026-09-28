@@ -2,10 +2,7 @@ import { IconMoneybag } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/react-table';
 import { RecordTable, RecordTableInlineCell } from 'erxes-ui';
 import { ISafeRemainderItem } from '../types/SafeRemainder';
-import {
-  getSafeRemainderCostAdjustmentAmount,
-  getSafeRemainderCostAdjustmentDifferenceAmount,
-} from '../utils/safeRemainderTransactions';
+import { getSafeRemainderCostAdjustmentDifference } from '../utils/safeRemainderTransactions';
 import {
   SafeRemainderNumberCell,
   SafeRemainderProductCell,
@@ -77,7 +74,9 @@ export const safeRemDetailColumnsCost: ColumnDef<ISafeRemainderItem>[] = [
     ),
     cell: ({ row }) => (
       <SafeRemainderNumberCell
-        value={getSafeRemainderCostAdjustmentAmount(row.original)}
+        value={Math.abs(
+          getSafeRemainderCostAdjustmentDifference(row.original),
+        )}
       />
     ),
   },
@@ -99,7 +98,7 @@ export const safeRemDetailColumnsCost: ColumnDef<ISafeRemainderItem>[] = [
     ),
     cell: ({ row }) => (
       <SafeRemainderNumberCell
-        value={getSafeRemainderCostAdjustmentDifferenceAmount(row.original)}
+        value={getSafeRemainderCostAdjustmentDifference(row.original)}
       />
     ),
   },

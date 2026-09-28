@@ -19,6 +19,7 @@ type ProductReference = {
 };
 
 type MergedImportItem = Omit<ISafeRemainderImportItem, 'productCode'>;
+type DuplicateRule = 'skip' | 'last' | 'add';
 
 const getDefaultCountedCost = (
   item: Pick<
@@ -53,6 +54,52 @@ const validateCountedValues = (
   ) {
     throw new Error('Counted cost must be zero or greater');
   }
+};
+
+export const mergeSafeRemainderImportItems = (
+  productsData: ISafeRemainderImportItem[],
+  duplicateRule: DuplicateRule,
+) => {
+  if (!['skip', 'last', 'add'].includes(duplicateRule)) {
+    throw new Error('Invalid duplicate rule');
+  }
+
+  const merged: Record<string, MergedImportItem> = {};
+  for (const item of productsData) {
+    validateCountedValues(item.count, item.trInfo);
+
+    const existing = merged[item.productCode];
+    const normalizedItem = {
+      count: fixNum(item.count, 4),
+      trInfo: item.trInfo,
+    };
+
+    if (!existing || duplicateRule === 'last') {
+      merged[item.productCode] = normalizedItem;
+      continue;
+    }
+
+    if (duplicateRule === 'add') {
+      const existingCost = existing.trInfo?.unitCost;
+      const addedCost = normalizedItem.trInfo?.unitCost;
+      const hasCompleteCost =
+        existingCost !== undefined && addedCost !== undefined;
+
+      merged[item.productCode] = {
+        count: fixNum(existing.count + normalizedItem.count, 4),
+        trInfo: {
+          ...existing.trInfo,
+          ...normalizedItem.trInfo,
+          unitCost: hasCompleteCost
+            ? fixNum(existingCost + addedCost, 6)
+            : undefined,
+          isCostExplicit: hasCompleteCost,
+        },
+      };
+    }
+  }
+
+  return merged;
 };
 
 const safeRemainderItemMutations = {
@@ -120,15 +167,11 @@ const safeRemainderItemMutations = {
     }: {
       safeRemainderId: string;
       productsData: ISafeRemainderImportItem[];
-      duplicateRule?: 'skip' | 'last' | 'add';
+      duplicateRule?: DuplicateRule;
     },
     { models, subdomain, user, checkPermission }: IContext,
   ) {
     await checkPermission('manageSafeRemainders');
-
-    if (!['skip', 'last', 'add'].includes(duplicateRule)) {
-      throw new Error('Invalid duplicate rule');
-    }
 
     const safeRemainder = await models.SafeRemainders.getRemainder(
       safeRemainderId,
@@ -137,37 +180,7 @@ const safeRemainderItemMutations = {
       throw new Error('Cant edit cause remainder has submitted');
     }
 
-    const merged: Record<string, MergedImportItem> = {};
-    for (const item of productsData) {
-      validateCountedValues(item.count, item.trInfo);
-
-      const existing = merged[item.productCode];
-      const normalizedItem = {
-        count: fixNum(item.count, 4),
-        trInfo: item.trInfo,
-      };
-
-      if (!existing || duplicateRule === 'last') {
-        merged[item.productCode] = normalizedItem;
-      } else if (duplicateRule === 'add') {
-        const existingCost = existing.trInfo?.unitCost;
-        const addedCost = normalizedItem.trInfo?.unitCost;
-        const hasCompleteCost =
-          existingCost !== undefined && addedCost !== undefined;
-
-        merged[item.productCode] = {
-          count: fixNum(existing.count + normalizedItem.count, 4),
-          trInfo: {
-            ...existing.trInfo,
-            ...normalizedItem.trInfo,
-            unitCost: hasCompleteCost
-              ? fixNum(existingCost + addedCost, 6)
-              : undefined,
-            isCostExplicit: hasCompleteCost,
-          },
-        };
-      }
-    }
+    const merged = mergeSafeRemainderImportItems(productsData, duplicateRule);
 
     const productCodes = Object.keys(merged);
 

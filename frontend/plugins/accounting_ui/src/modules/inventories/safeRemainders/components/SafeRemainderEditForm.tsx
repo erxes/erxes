@@ -39,9 +39,6 @@ export const EditSafeRemainder = () => {
   const onSubmit = (data: TSafeRemainderEditForm) => {
     submitSafeRemainder({
       variables: { ...data },
-      onCompleted: () => {
-        form.reset();
-      },
     });
   };
 

@@ -6,7 +6,7 @@
 - **Project:** `accounting_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/accounting_api`
-- **Last synchronized:** `2026-09-28`
+- **Last synchronized:** `2026-09-29`
 
 ## Scope
 
@@ -41,7 +41,8 @@
 - Stores related debit/credit account codes without nested subdocument ids, normalizes empty related-account overrides before transaction persistence, and recalculates related codes from all transactions sharing the same `ptrId`.
 - Provides account, account category, permission, tax row, inventory, fixed asset, and journal report GraphQL contracts.
 - Provides safe remainder GraphQL list, detail, item list/count, create, edit, remove, recalculate, submit, cancel, transaction-run, transaction-undo, item edit, item bulk edit, and item remove contracts guarded by safe remainder permissions.
-- Safe remainder creation uses the selected product category, while recalculation filters products only by that remainder's existing item product ids, including imports outside the category; it stores each item's current total inventory cost and defaults counted total cost to it.
+- Safe remainder creation uses the selected product category, while recalculation filters products only by that remainder's existing item product ids, including imports outside the category; it stores each item's current total inventory cost, preserves counted zero values, and defaults non-explicit counted total cost from the refreshed quantity and value.
+- Safe remainder bulk import supports deterministic `skip`, `last`, and `add` duplicate rules; `skip` never overwrites an existing census row, `add` sums duplicate counts and explicit total costs, and imported products are recalculated immediately even when they fall outside the original category.
 - Generates journal report transaction/detail filters, Erkhet transaction-kind to erxes journal filters, grouping keys, date buckets, line records, shared drill-down rows for report bases marked `supportsMore`, and account/customer/product/fixed-asset/user/content enrichment from shared `ReportBase` definitions whose main entrypoints mirror Erkhet names such as `getFilter`, `getRecords`, `recordListWithValues`, and `getGroupRule`; filters support customer/company tags, product category/code/name, fixed-asset category/code/name, and created/modified/assigned users, account enrichment includes currency metadata, product metadata enrichment is fetched from core in batches of at most 1000 ids, and inventory adjustment kind `28` maps only to the cost-only `invJustify` journal.
 - Calculates fund rate adjustments for cash/bank foreign-currency balances by day, validates that daily foreign-currency balances do not go negative, groups final balances by account/branch/department, stores calculated details, and runs linked `exchangeDiff` transactions after calculation.
 - Calculates debt rate adjustments for receivable/payable balances by day, validates active accounts on debit-side balances and passive accounts on credit-side balances, groups final balances by account/customer/branch/department, stores calculated details, and runs linked `exchangeDiff` transactions after calculation.
@@ -165,6 +166,9 @@
 - Safe remainder TXT imports and CSV rows without total cost default counted total cost to `active total / preCount * count`; when quantity increases while active total cost is zero, only the increased quantity is valued at the last inventory-income unit price. Explicit imported or edited total cost, including zero, remains authoritative.
 - Safe remainder cost adjustment differences with absolute value at or below `0.005` are accounting rounding noise and must not create `invJustify` details.
 - Safe remainder product discovery must use the category only when no items exist; once items exist, recalculation must filter exclusively by their product ids so imports outside the category remain included without adding new category products.
+- Safe remainder recalculation must preserve an explicitly counted zero and use the same resolved count when deriving a non-explicit counted total cost.
+- Safe remainder bulk import `skip` must leave existing rows unchanged, while `add` must sum both counts and complete explicit total costs; every import must refresh imported products through the normal recalculation path.
+- Partial safe remainder updates must preserve omitted description, status, rules, and transaction ids; an explicit empty transaction id may still clear that link.
 - Inventory out and internal movement transaction details must always persist active cost for their source account and effective detail/root location, excluding the old source and generated movement transactions during edits; client-supplied cost values are not authoritative.
 - Safe remainder item `preCount` must return `0` and `diffType` filters must be ignored for users without `viewSafeRemainderItemCounts` so they cannot compare the system inventory balance with counted inventory.
 - Inventory adjustment outgoing-cost fixes may adjust only related debit transactions in `main`, `receivable`, and `payable` journals; cash and bank debit amounts are explicit payment amounts and must not be rewritten by cost recalculation.
@@ -208,6 +212,12 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-29` — `Audit Census Branch Behavior`
+
+- **Summary:** Hardened partial updates and item removal, preserved counted zero during recalculation, and made import duplicate handling deterministic with immediate inventory-value refresh.
+- **Affected areas:** Safe remainder models, recalculation, bulk import merge/upsert flow, loader signatures, and regression tests.
+- **Contracts changed:** None.
 
 ### `2026-09-28` — `Price Zero-Cost Census Income`
 
@@ -262,9 +272,3 @@
 - **Summary:** Safe remainder transaction generation now absorbs positive target-value differences into income, floors negative income at zero, values out/sale quantity at active cost, runs capped remaining adjustments afterward, and rejects invalid counted values.
 - **Affected areas:** Safe remainder transaction calculation/order, item mutation validation, partial model updates, and regression tests.
 - **Contracts changed:** `safeRemainderItemEdit.remainder` remains optional for metadata-only edits and now rejects invalid counted values.
-
-### `2026-09-26` — `Safe Remainder Cost Difference Transactions`
-
-- **Summary:** Safe remainder items now retain typed active/counted cost and sale metadata, default counted cost to active cost, preserve authoritative active cost during imports, and execute balanced cost-increase/decrease workflows before quantity journals.
-- **Affected areas:** Safe remainder types, schemas, models, recalculation, bulk item edit, transaction run/undo, and GraphQL fields.
-- **Contracts changed:** Adds `costIncreaseRule`, `costDecreaseRule`, `costIncreaseTrId`, and `costDecreaseTrId` to `SafeRemainder`; item `trInfo` supports optional `activeCost`, `unitCost`, `isSale`, and `unitPrice`.

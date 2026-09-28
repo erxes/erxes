@@ -23,10 +23,7 @@ export interface ISafeRemainderItemModel extends Model<ISafeRemainderItemDocumen
   removeItems(ids: string[]): void;
 }
 
-export const loadSafeRemainderItemClass = (
-  models: IModels,
-  _subdomain: string,
-) => {
+export const loadSafeRemainderItemClass = (models: IModels) => {
   class SafeRemainderItem {
     /**
      * Get safe remainder item

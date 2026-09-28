@@ -163,7 +163,7 @@ export const SafeRemainderImport = ({
                 <div className="space-y-1">
                   <p className="text-sm font-medium">TXT файлын формат</p>
                   <p className="text-sm text-muted-foreground">
-                    Header-гүй code,count мөрүүд. Одоогийн нийт өртгийг
+                    Header-гүй code,count мөрүүд. Бүртгэлийн нийт өртгийг
                     системээс авна.
                   </p>
                 </div>

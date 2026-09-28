@@ -1,7 +1,9 @@
 import { IContext } from '~/connectionResolvers';
 import { JOURNALS, TR_SIDES } from '~/modules/accounting/@types/constants';
 import { ITransaction } from '~/modules/accounting/@types/transaction';
-import safeRemainderItemMutations from '../safeRemainderItems';
+import safeRemainderItemMutations, {
+  mergeSafeRemainderImportItems,
+} from '../safeRemainderItems';
 import safeRemainderMutations from '../safeRemainders';
 
 describe('safe remainder counted value validation', () => {
@@ -70,6 +72,35 @@ describe('safe remainder counted value validation', () => {
       }),
       'user-1',
     );
+  });
+});
+
+describe('safe remainder bulk import rules', () => {
+  test('keeps the first duplicate row for the skip rule', () => {
+    const merged = mergeSafeRemainderImportItems(
+      [
+        { productCode: 'P001', count: 4 },
+        { productCode: 'P001', count: 9 },
+      ],
+      'skip',
+    );
+
+    expect(merged.P001.count).toBe(4);
+  });
+
+  test('adds explicit total costs together for duplicate rows', () => {
+    const merged = mergeSafeRemainderImportItems(
+      [
+        { productCode: 'P001', count: 2, trInfo: { unitCost: 100 } },
+        { productCode: 'P001', count: 3, trInfo: { unitCost: 200 } },
+      ],
+      'add',
+    );
+
+    expect(merged.P001).toEqual({
+      count: 5,
+      trInfo: { unitCost: 300, isCostExplicit: true },
+    });
   });
 });
 
