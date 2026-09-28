@@ -3,13 +3,13 @@ import { useTranslation } from 'react-i18next';
 import {
   FacebookIntegrationFormLayout,
   FacebookIntegrationFormSteps,
-} from './FacebookIntegrationForm';
+} from '@/integrations/facebook/components/FacebookIntegrationForm';
 import { useAtom, useSetAtom } from 'jotai';
 import {
   activeFacebookFormStepAtom,
   selectedFacebookPageAtom,
-} from '../states/facebookStates';
-import { useFacebookPages } from '../hooks/useFacebookPages';
+} from '@/integrations/facebook/states/facebookStates';
+import { useFacebookPages } from '@/integrations/facebook/hooks/useFacebookPages';
 
 export const FacebookGetPages = () => {
   const { t } = useTranslation('frontline');
@@ -37,11 +37,7 @@ export const FacebookGetPages = () => {
         </>
       }
     >
-      <FacebookIntegrationFormSteps
-        title={t('connect-pages')}
-        step={2}
-        description={t('fb-select-pages-description')}
-      />
+      <FacebookIntegrationFormSteps title={t('connect-pages')} step={2} />
       <div className="flex-1 overflow-hidden p-4 pt-0">
         <Command>
           <div className="p-1">

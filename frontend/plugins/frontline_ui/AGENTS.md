@@ -1556,6 +1556,10 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   another, then save and reload — the drawer shows what was saved and
   `localhost:3900` renders those columns. Emptying every column and saving
   brings the site's built-in Support / Knowledge base / Account columns back.
+- Smoke (conversation properties): open a conversation, click the side
+  widget's **Properties** tab (matches the Settings icon), edit a field
+  through `FieldsInDetail` and confirm it saves and survives a reload; the
+  tab renders in one column even in the widget's narrow (sheet) layout.
 - Smoke: open `/frontline/inbox` and confirm the sidebar shows `Me` then
   `Team inbox`; that `Me` lists the personal channel's integration types with
   their counts and a header total (empty state when there is no personal inbox);
@@ -1615,6 +1619,45 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `src/modules/knowledgebase/utils/buildTopicEmbedScript.ts`,
   `src/modules/helpcenter/components/help-center-drawer/HelpCenterDrawer.tsx`
 - **Contracts changed:** `None`
+
+### `2026-09-24` — Conversation properties tab on the inbox side widget
+
+- **Summary:** A conversation's custom properties (Core `frontline:conversation`
+  fields) are now viewable and editable from the inbox, mirroring how ticket
+  properties already work in this plugin. `ConversationSideWidget` gained a
+  static "Properties" tab, the same width as its dynamic relation-widget tabs,
+  rendering the new `ConversationProperties` component (a thin wrapper around
+  `ui-modules`' `FieldsInDetail`). The new `useConversationCustomFieldEdit`
+  hook is a plain passthrough to the `conversationEditCustomFields` mutation —
+  no variable remapping, because the mutation's argument and the
+  `Conversation` field are both named `propertiesData`, matching
+  `FieldsInDetail`'s hardcoded `{ _id, propertiesData }` mutate call and every
+  other `use*CustomFieldEdit` hook in the platform
+  (`useCustomerCustomFieldEdit`, `useTicketCustomFieldEdit`, etc.). Requires
+  the matching `frontline_api` fix (see its own `AGENTS.md`) — the field did
+  not persist before that. The Properties tab's icon (`IconHierarchy2`)
+  matches the one Settings uses for the same custom-properties surface, and
+  `ConversationProperties` forces a single-column layout so fields stay
+  readable in the widget's narrow width instead of squeezing into two.
+- **Affected areas:**
+  `src/modules/inbox/conversations/conversation-detail/components/{ConversationSideWidget,ConversationDetail,ConversationProperties}.tsx`,
+  `src/modules/inbox/conversations/hooks/useConversationCustomFieldEdit.tsx`,
+  `src/modules/inbox/conversations/graphql/mutations/conversationEditCustomFields.ts`,
+  `src/modules/inbox/conversations/conversation-detail/graphql/queries/getConversationDetail.ts`,
+  `src/modules/inbox/types/Conversation.ts`
+- **Contracts changed:** None — consumes the existing
+  `conversationEditCustomFields` mutation and `Conversation.propertiesData`
+  field.
+
+### `2026-09-24` — Removing a form step no longer wipes remaining step names
+
+- **Summary:** `removeStep` rebuilt each remaining step's object from only
+  `fields` and `order`, dropping `name`/`description`. Deleting any step and
+  saving cleared every other step's name (unlike `setSteps`, which already
+  spread `...value[key]`). It now spreads `...value[step]` before overriding
+  `fields`/`order`, so names/descriptions survive a step removal.
+- **Affected areas:** `src/modules/forms/components/FormDndProvider.tsx`
+  (`removeStep`).
 
 ### `2026-09-24` — The client portal picker stores an id
 
@@ -1728,38 +1771,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   deleted `src/modules/knowledgebase/components/TopicEmbedScriptDialog.tsx`
 - **Contracts changed:** `None` — no query, mutation or generated script text
   changed.
-
-### `2026-09-23` — The website picker shows the client portal name
-
-- **Summary:** The help center `Website` select now labels its trigger and
-  options with the client portal's name (domain as fallback and as a search
-  keyword) instead of the bare domain, while still storing the domain in `url`,
-  and the component was renamed `SelectHelpCenterWebsite` →
-  `SelectHelpCenterClientPortal` for what it picks.
-- **Affected areas:**
-  `src/modules/helpcenter/components/SelectHelpCenterClientPortal.tsx` (renamed
-  from `SelectHelpCenterWebsite.tsx`),
-  `src/modules/helpcenter/graphql/queries/getHelpCenterWebsiteOptions.ts`
-- **Contracts changed:** `frontlineHelpCenterWebsiteOptions` now also selects
-  `name` on each client portal.
-
-### `2026-09-23` — A survey question carries attachments
-
-- **Summary:** The Content step's question now has an attachments uploader
-  right under it, capped at five files per question, and `MessageSurvey` shows
-  those files with the question in both the wizard preview and the inbox
-  message.
-- **Affected areas:**
-  `src/modules/survey/components/mutate/SurveyStepCard.tsx`,
-  `src/modules/survey/components/mutate/SurveyPreview.tsx`,
-  `src/modules/survey/constants/{surveySetupSchema,surveySetupDefaultValues}.ts`,
-  `src/modules/survey/states/surveySetupStates.tsx`,
-  `src/modules/survey/graphql/{surveyQueries,surveyMutations}.ts`,
-  `src/modules/survey/types/surveyTypes.ts`,
-  `src/modules/inbox/conversation-messages/components/MessageSurvey.tsx`,
-  `src/modules/inbox/types/Conversation.ts`
-- **Contracts changed:** `surveyAdd` / `surveyEdit` steps are sent with
-  `attachments`, and the survey fragment reads `steps { attachments }`. New
-  i18n keys `survey-question-attachments` and
-  `survey-question-attachments-description` fall back to English until the
-  gateway locale carries them.
