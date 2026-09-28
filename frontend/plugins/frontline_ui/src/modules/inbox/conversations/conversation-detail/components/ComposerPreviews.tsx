@@ -9,7 +9,7 @@ import { Button, Spinner, readImage, type IAttachment } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
 import { ComposerAttachment } from '@/inbox/conversations/conversation-detail/components/ComposerAttachment';
-import type { PendingAttachment } from '@/inbox/conversations/conversation-detail/hooks/useMessageAttachments';
+import type { PendingAttachment } from '@/inbox/conversations/conversation-detail/types/composerAttachments';
 import type { MessageReplyTarget } from '@/inbox/conversations/conversation-detail/states/messageReplyState';
 
 const PendingImage = ({ src, alt }: { src: string; alt: string }) => (

@@ -18,6 +18,7 @@ import {
 import { INTEGRATION_KINDS } from '@/integrations/instagram/constants';
 import { IInstagramConversationMessageDocument } from '@/integrations/instagram/@types/conversationMessages';
 import { normalizeStoredInstagramMessage } from '@/integrations/instagram/normalizeMessage';
+import { normalizeFilterIds } from '@/integrations/instagram/utils/filterIds';
 
 const buildSelector = async (conversationId: string, model: any) => {
   const query = { conversationId: '' };
@@ -162,7 +163,7 @@ export const instagramQueries = {
   },
 
   async instagramGetCommentCount(_root, args, { models }: IContext) {
-    const { conversationId, isResolved = false } = args;
+    const { conversationId } = args;
 
     const commentCount =
       await models.InstagramCommentConversation.countDocuments({
@@ -342,87 +343,30 @@ export const instagramQueries = {
       channelIds,
       limit = 20, // Default limit of 20 posts if not provided
     }: {
-      brandIds: string | string[];
-      channelIds: string | string[];
+      brandIds?: string | string[] | null;
+      channelIds?: string | string[] | null;
       limit?: number;
     },
     { models }: IContext,
   ) {
-    const filteredBrandIds = Array.isArray(brandIds)
-      ? brandIds.filter((id) => id !== '')
-      : brandIds.split(',').filter((id) => id !== '');
-    const filteredChannelIds = Array.isArray(channelIds)
-      ? channelIds.filter((id) => id !== '')
-      : channelIds.split(',').filter((id) => id !== '');
-
-    const integrations: any[] = [];
-
-    let response;
-    if (filteredBrandIds.length > 0) {
-      for (const BrandId of filteredBrandIds) {
-        const splitBrandIds = BrandId.split(',');
-        for (const brandId of splitBrandIds) {
-          try {
-            response = await models.InstagramIntegrations.find({
-              kind: 'instagram-post',
-              brandId: brandId,
-            });
-            integrations.push(...response);
-          } catch (error) {
-            throw new Error(
-              `Error fetching Brand with ID ${brandId}: ${error.message}`,
-            );
-          }
-        }
-      }
-    } else if (
-      filteredChannelIds.length === 0 &&
-      filteredBrandIds.length === 0
-    ) {
-      try {
-        const response = await models.InstagramIntegrations.find({
-          kind: 'instagram-post',
-        });
-
-        integrations.push(...response);
-      } catch (error) {
-        throw new Error(`Error fetching integrations: ${error.message}`);
-      }
-    }
-
-    const channels: any[] = [];
-    if (filteredChannelIds.length > 0) {
-      for (const combinedChannelIds of filteredChannelIds) {
-        const splitChannelIds = combinedChannelIds.split(',');
-
-        for (const channelId of splitChannelIds) {
-          try {
-            const response = await models.Channels.find({
-              _id: channelId,
-            });
-            integrations.push(...response);
-          } catch (error) {
-            throw new Error(
-              `Error fetching channel with ID ${channelId}: ${error.message}`,
-            );
-          }
-        }
-      }
-    }
-
-    const channelIntegrationIds = channels.flatMap(
-      (channel: any) => channel.integrationIds,
-    );
-
-    const allIntegrationIds = integrations.map(
-      (integration: { _id: string }) => integration._id,
-    );
-    const uniqueIntegrationIds = [
-      ...new Set([...allIntegrationIds, ...channelIntegrationIds]),
+    const filteredBrandIds = normalizeFilterIds(brandIds);
+    const filteredChannelIds = normalizeFilterIds(channelIds);
+    const integrationFilters = [
+      ...(filteredBrandIds.length
+        ? [{ brandId: { $in: filteredBrandIds } }]
+        : []),
+      ...(filteredChannelIds.length
+        ? [{ channelId: { $in: filteredChannelIds } }]
+        : []),
     ];
+    const integrations = await models.Integrations.find({
+      kind: INTEGRATION_KINDS.POST,
+      ...(integrationFilters.length ? { $or: integrationFilters } : {}),
+    });
+    const integrationIds = integrations.map(({ _id }) => _id);
 
     const fetchedIntegrations = await models.InstagramIntegrations.find({
-      erxesApiId: { $in: uniqueIntegrationIds },
+      erxesApiId: { $in: integrationIds },
     });
 
     if (fetchedIntegrations.length === 0) {

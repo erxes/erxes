@@ -7,13 +7,7 @@ import { CONVERSATION_MESSAGE_REACT } from '@/inbox/conversations/conversation-d
 
 export const useMessageReaction = (isInstagram = false) => {
   const { t } = useTranslation('frontline');
-  const [react, { loading }] = useMutation(CONVERSATION_MESSAGE_REACT, {
-    refetchQueries: [
-      'ConversationMessages',
-      'InstagramConversationMessages',
-      'FacebookConversationMessages',
-    ],
-  });
+  const [react, { loading }] = useMutation(CONVERSATION_MESSAGE_REACT);
 
   const toggleReaction = async ({
     conversationId,

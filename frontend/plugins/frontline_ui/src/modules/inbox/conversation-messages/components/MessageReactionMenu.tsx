@@ -5,31 +5,28 @@ import {
   type Reaction,
 } from '@/inbox/conversation-messages/constants/messageActions';
 import { useMessageReaction } from '@/inbox/conversation-messages/hooks/useMessageReaction';
+import { useReactionTarget } from '@/inbox/conversation-messages/hooks/useReactionTarget';
 import { ActionButton } from '@/inbox/conversation-messages/components/MessageActionButton';
 
-export function ReactionMenu({
-  isInstagram,
-  conversationId,
-  messageId,
-  disabled,
-  disabledReason,
-  selectedReaction,
-  reactions,
-}: Readonly<{
-  isInstagram: boolean;
-  conversationId: string;
-  messageId: string;
-  disabled: boolean;
-  disabledReason: string;
-  selectedReaction?: string;
-  reactions: readonly Reaction[];
-}>) {
+export function ReactionMenu() {
+  const {
+    visible,
+    isInstagram,
+    conversationId,
+    messageId,
+    disabled,
+    disabledReason,
+    selectedReaction,
+    reactions,
+  } = useReactionTarget();
   const { toggleReaction, loading } = useMessageReaction(isInstagram);
 
   const handleReaction = async (reaction: Reaction) => {
     const remove = selectedReaction === reaction;
     await toggleReaction({ conversationId, messageId, reaction, remove });
   };
+
+  if (!visible) return null;
 
   if (reactions.length === 1) {
     const reaction = reactions[0];

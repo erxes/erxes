@@ -10,11 +10,7 @@ import {
   getMessageBubbleClassName,
 } from '@/inbox/conversation-messages/components/MessageItemHelpers';
 import { MESSAGE_ACTION_BAR_CLASS } from '@/inbox/conversation-messages/constants/messageActions';
-import {
-  aggregateReactions,
-  getProviderMessageId,
-  getReactionKey,
-} from '@/inbox/conversation-messages/utils/message';
+import { getProviderMessageId } from '@/inbox/conversation-messages/utils/message';
 import { Attachments } from '@/inbox/conversation-messages/components/MessageAttachments';
 import {
   DeliveryStatus,
@@ -36,13 +32,7 @@ import { IconDots } from '@tabler/icons-react';
 import { useState } from 'react';
 import { MessageActions } from '@/inbox/conversation-messages/components/MessageActions';
 import { DiscordMessageActions } from '@/integrations/discord/components/DiscordMessageActions';
-import type {
-  IMessageReaction,
-  IMessageSticker,
-} from '@/inbox/types/Conversation';
-import { useAtomValue } from 'jotai';
-import { currentUserState } from 'ui-modules';
-import { useMessageReaction } from '@/inbox/conversation-messages/hooks/useMessageReaction';
+import type { IMessageSticker } from '@/inbox/types/Conversation';
 import { getMessageDisplay } from '@/inbox/conversation-messages/utils/messageDisplay';
 import {
   DeletedMessage,
@@ -58,12 +48,8 @@ export { MessageDaySeparator };
 // skipcq: JS-R1005 — many independent display branches (text / attachment /
 export const MessageItem = () => {
   const [actionsOpen, setActionsOpen] = useState(false);
-  const currentUser = useAtomValue(currentUserState);
   const { previousMessage, ...message } = useConversationMessageContext();
   const { _id: conversationId, integration } = useConversationContext();
-  const { toggleReaction, loading: reactionLoading } = useMessageReaction(
-    integration?.kind === IntegrationType.INSTAGRAM_MESSENGER,
-  );
   const {
     _id,
     userId,
@@ -80,7 +66,6 @@ export const MessageItem = () => {
     isBotMessage,
     messageKind,
     providerData,
-    reactions: messageReactions,
     deliveryStatus,
     expiresAt,
   } = message;
@@ -150,15 +135,6 @@ export const MessageItem = () => {
   const isStory =
     messageKind === 'story_mention' || messageKind === 'story_reply';
   const fallbackText = providerData?.fallbackReason;
-  const reactions = messageReactions?.length
-    ? messageReactions
-    : extraData?.reactions;
-  const aggregatedReactions = aggregateReactions(reactions);
-  const ownReaction = reactions?.find(
-    (reaction: IMessageReaction) => reaction.senderId === currentUser?._id,
-  );
-  const ownReactionKey = ownReaction ? getReactionKey(ownReaction) : undefined;
-  const providerMessageId = getProviderMessageId(message);
 
   const hasRenderableContent =
     isDeleted ||
@@ -194,10 +170,7 @@ export const MessageItem = () => {
           !isDeleted ? (
             <>
               <div className={MESSAGE_ACTION_BAR_CLASS}>
-                <MessageActions
-                  message={message}
-                  additionalActions={additionalActions}
-                />
+                <MessageActions additionalActions={additionalActions} />
               </div>
               <Button
                 type="button"
@@ -212,18 +185,7 @@ export const MessageItem = () => {
             </>
           ) : undefined
         }
-        below={
-          !isDeleted && aggregatedReactions.length ? (
-            <MessageReactions
-              reactions={aggregatedReactions}
-              loading={reactionLoading}
-              providerMessageId={providerMessageId}
-              ownReactionKey={ownReactionKey}
-              conversationId={conversationId}
-              toggleReaction={toggleReaction}
-            />
-          ) : undefined
-        }
+        below={!isDeleted ? <MessageReactions /> : undefined}
       >
         <div
           id={`conversation-message-${_id}`}
@@ -244,7 +206,6 @@ export const MessageItem = () => {
             <MessageMobileActions
               open={actionsOpen}
               onOpenChange={setActionsOpen}
-              message={message}
               additionalActions={additionalActions}
             />
           )}

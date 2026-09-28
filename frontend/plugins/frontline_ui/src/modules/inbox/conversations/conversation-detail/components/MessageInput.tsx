@@ -71,6 +71,7 @@ export const MessageInput = ({
     attachments,
     pendingAttachments,
     handleDrop,
+    handlePaste,
     handleFileInput,
     removeAttachment,
     resetAttachments,
@@ -320,6 +321,7 @@ export const MessageInput = ({
       <div
         ref={editorRef}
         data-composer-editor
+        onPasteCapture={handlePaste}
         className="flex min-h-0 min-w-0 flex-1 flex-col overscroll-contain [&_.bn-container]:h-full [&_.bn-container>div]:max-w-full [&_.bn-container_.w-72]:max-w-full [&_.bn-editor]:max-h-full [&_.bn-editor]:overflow-y-auto"
       >
         <ComposerEditor

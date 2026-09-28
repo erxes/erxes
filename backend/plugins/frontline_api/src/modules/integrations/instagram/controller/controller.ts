@@ -5,6 +5,9 @@ import { debugError, debugInstagram } from '@/integrations/instagram/debuggers';
 import { getSubdomain, isDev } from 'erxes-api-shared/utils';
 import { generateModels } from '~/connectionResolvers';
 import { createHmac, timingSafeEqual } from 'node:crypto';
+import type { IModels } from '~/connectionResolvers';
+import type { IMessageData } from '@/integrations/instagram/@types/utils';
+import { getErrorMessage } from '@/integrations/utils';
 
 /** Verifies the webhook body against Meta's SHA-256 signature. */
 const hasValidWebhookSignature = (
@@ -93,6 +96,24 @@ export const instagramSubscription = async (req, res, next) => {
     next(e);
   }
 };
+
+const processIncomingMessage = async (
+  models: IModels,
+  subdomain: string,
+  messageData: IMessageData,
+) => {
+  try {
+    const integration = await models.InstagramIntegrations.findOne({
+      instagramPageId: messageData.recipient?.id,
+    });
+    if (integration) {
+      await receiveMessage(models, subdomain, integration, messageData);
+    }
+  } catch (error) {
+    debugError(`Error processing message: ${getErrorMessage(error)}`);
+  }
+};
+
 export const instagramWebhook = async (req, res) => {
   const subdomain = isDev ? 'localhost' : getSubdomain(req);
 
@@ -111,33 +132,11 @@ export const instagramWebhook = async (req, res) => {
   }
 
   for (const entry of data.entry) {
-    if (entry.messaging) {
-      const messageData = entry.messaging[0];
-      if (messageData) {
-        try {
-          const integration = await models.InstagramIntegrations.findOne({
-            instagramPageId: messageData.recipient?.id,
-          });
-          if (integration) {
-            await receiveMessage(models, subdomain, integration, messageData);
-          }
-        } catch (e) {
-          debugError(`Error processing message: ${e.message}`);
-        }
-      }
-    } else if (entry.standby) {
-      const standbyData = entry.standby;
-      for (const item of standbyData || []) {
-        try {
-          const integration = await models.InstagramIntegrations.findOne({
-            instagramPageId: item.recipient?.id,
-          });
-          if (!integration) continue;
-          await receiveMessage(models, subdomain, integration, item);
-        } catch (e) {
-          debugError(`Error processing standby: ${e.message}`);
-        }
-      }
+    for (const messageData of entry.messaging || []) {
+      await processIncomingMessage(models, subdomain, messageData);
+    }
+    for (const messageData of entry.standby || []) {
+      await processIncomingMessage(models, subdomain, messageData);
     }
 
     if (entry.changes) {

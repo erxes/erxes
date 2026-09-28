@@ -3,15 +3,11 @@ import { toast, useUpload, type IAttachment } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
 import { composerStorage } from '@/inbox/conversations/conversation-detail/utils/messageInput';
+import type { PendingAttachment } from '@/inbox/conversations/conversation-detail/types/composerAttachments';
 
 const MAX_ATTACHMENTS = 10;
 const DEFAULT_MAXIMUM_BYTES = 20 * 1024 * 1024;
 const DISCORD_MAXIMUM_BYTES = 10 * 1024 * 1024;
-
-export type PendingAttachment = Pick<IAttachment, 'name' | 'size' | 'type'> & {
-  id: string;
-  previewUrl?: string;
-};
 
 export const useMessageAttachments = (isDiscord: boolean) => {
   const { t } = useTranslation('frontline');
@@ -164,6 +160,22 @@ export const useMessageAttachments = (isDiscord: boolean) => {
     [uploadFiles],
   );
 
+  const handlePaste = useCallback(
+    (event: React.ClipboardEvent<HTMLDivElement>) => {
+      const files = event.clipboardData.files;
+      if (
+        !files.length ||
+        !Array.from(files).some((file) => file.type.startsWith('image/'))
+      )
+        return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      uploadFiles(files);
+    },
+    [uploadFiles],
+  );
+
   const removeAttachment = useCallback(
     (url: string) => {
       setAttachments((current) =>
@@ -196,6 +208,7 @@ export const useMessageAttachments = (isDiscord: boolean) => {
     attachments,
     pendingAttachments,
     handleDrop,
+    handlePaste,
     handleFileInput,
     removeAttachment,
     resetAttachments,

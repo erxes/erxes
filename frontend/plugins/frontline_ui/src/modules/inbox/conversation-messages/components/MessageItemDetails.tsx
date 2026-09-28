@@ -1,9 +1,8 @@
 import { RelativeDateDisplay, Sheet, cn } from 'erxes-ui';
 import { ReactionLabel } from '@/inbox/conversation-messages/components/MessageItemHelpers';
 import { MessageActions } from '@/inbox/conversation-messages/components/MessageActions';
-import { aggregateReactions } from '@/inbox/conversation-messages/utils/message';
-import { useMessageReaction } from '@/inbox/conversation-messages/hooks/useMessageReaction';
-import type { IMessage, IMessageReplyTo } from '@/inbox/types/Conversation';
+import { useMessageReactions } from '@/inbox/conversation-messages/hooks/useMessageReactions';
+import type { IMessageReplyTo } from '@/inbox/types/Conversation';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IntegrationType } from '@/types/Integration';
@@ -72,49 +71,48 @@ export const DeletedMessage = ({
   );
 };
 
-export const MessageReactions = ({
-  reactions,
-  loading,
-  providerMessageId,
-  ownReactionKey,
-  conversationId,
-  toggleReaction,
-}: {
-  reactions: ReturnType<typeof aggregateReactions>;
-  loading: boolean;
-  providerMessageId?: string;
-  ownReactionKey?: string;
-  conversationId: string;
-  toggleReaction: ReturnType<typeof useMessageReaction>['toggleReaction'];
-}) => (
-  <div className="mt-1 flex flex-wrap gap-1">
-    {reactions.map((reaction) => (
-      <button
-        type="button"
-        key={reaction.label}
-        className="inline-flex h-7 items-center gap-0.5 rounded-full border border-border/70 bg-background px-2 text-xs shadow-xs transition-colors hover:bg-muted disabled:cursor-wait"
-        disabled={loading || !providerMessageId}
-        aria-label={`${
-          ownReactionKey === reaction.reaction ? 'Remove' : 'Add'
-        } ${reaction.reaction} reaction`}
-        onClick={() => {
-          if (!providerMessageId) return;
-          toggleReaction({
-            conversationId,
-            messageId: providerMessageId,
-            reaction: reaction.reaction,
-            remove: ownReactionKey === reaction.reaction,
-          });
-        }}
-      >
-        <ReactionLabel label={reaction.label} />
-        {reaction.count > 1 && (
-          <span className="ml-1 text-muted-foreground">{reaction.count}</span>
-        )}
-      </button>
-    ))}
-  </div>
-);
+export const MessageReactions = () => {
+  const {
+    reactions,
+    loading,
+    providerMessageId,
+    ownReactionKey,
+    conversationId,
+    toggleReaction,
+  } = useMessageReactions();
+
+  if (!reactions.length) return null;
+
+  return (
+    <div className="mt-1 flex flex-wrap gap-1">
+      {reactions.map((reaction) => (
+        <button
+          type="button"
+          key={reaction.label}
+          className="inline-flex h-7 items-center gap-0.5 rounded-full border border-border/70 bg-background px-2 text-xs shadow-xs transition-colors hover:bg-muted disabled:cursor-wait"
+          disabled={loading || !providerMessageId}
+          aria-label={`${
+            ownReactionKey === reaction.reaction ? 'Remove' : 'Add'
+          } ${reaction.reaction} reaction`}
+          onClick={() => {
+            if (!providerMessageId) return;
+            toggleReaction({
+              conversationId,
+              messageId: providerMessageId,
+              reaction: reaction.reaction,
+              remove: ownReactionKey === reaction.reaction,
+            });
+          }}
+        >
+          <ReactionLabel label={reaction.label} />
+          {reaction.count > 1 && (
+            <span className="ml-1 text-muted-foreground">{reaction.count}</span>
+          )}
+        </button>
+      ))}
+    </div>
+  );
+};
 
 export const MessageReplyPreview = ({
   replyTo,
@@ -161,12 +159,10 @@ export const MessageReplyPreview = ({
 export const MessageMobileActions = ({
   open,
   onOpenChange,
-  message,
   additionalActions,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  message: IMessage;
   additionalActions?: ReactNode;
 }) => (
   <Sheet open={open} onOpenChange={onOpenChange}>
@@ -178,7 +174,6 @@ export const MessageMobileActions = ({
       <div className="mb-3 text-sm font-semibold">Message actions</div>
       <div className="flex min-h-12 items-center justify-center gap-1 rounded-xl border bg-muted/35 p-2">
         <MessageActions
-          message={message}
           additionalActions={additionalActions}
           onReply={() => onOpenChange(false)}
         />

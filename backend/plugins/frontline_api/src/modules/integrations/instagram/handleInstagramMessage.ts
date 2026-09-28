@@ -11,7 +11,7 @@ import {
   appendContentImages,
   getErrorMessage,
   sanitizeMessageHtml,
-} from '@/integrations/instagram/messageUtils';
+} from '@/integrations/utils';
 
 interface IMsg {
   action: string;
@@ -58,8 +58,7 @@ export const handleInstagramReaction = async (
     'integrationId' | 'conversationId' | 'messageId' | 'remove' | 'userId'
   >,
 ) => {
-  const { integrationId, conversationId, messageId, remove, userId } =
-    doc;
+  const { integrationId, conversationId, messageId, remove, userId } = doc;
   const conversation = await models.InstagramConversations.findOne({
     erxesApiId: conversationId,
   });
@@ -211,7 +210,11 @@ const handleInstagramMessengerReply = async (
   const tag = extraInfo?.tag || '';
   appendContentImages(content, attachments);
   const providerContent = extraInfo?.forwardedFrom
-    ? content.split(/\r?\n/).filter((line) => line !== '↪ Forwarded').join('\n').trim()
+    ? content
+        .split(/\r?\n/)
+        .filter((line) => line !== '↪ Forwarded')
+        .join('\n')
+        .trim()
     : content;
   const strippedContent = sanitizeMessageHtml(providerContent);
   const forwardedData = extraInfo?.forwardedFrom

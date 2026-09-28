@@ -4,6 +4,7 @@ import { ConversationMessageContext } from '@/inbox/conversations/context/Conver
 import { MessageItem } from '@/inbox/conversation-messages/components/MessageItem';
 import type { IInstagramConversationMessage } from '@/integrations/instagram/types/InstagramTypes';
 import { useQueryState } from 'erxes-ui';
+import { useMemo } from 'react';
 
 export const InstagramConversationMessages = () => {
   const [conversationId] = useQueryState<string>('conversationId');
@@ -13,10 +14,13 @@ export const InstagramConversationMessages = () => {
     loading,
     totalCount,
   } = useInstagramConversationMessages();
-  const messagesByMid = new Map<string, IInstagramConversationMessage>();
-  for (const message of instagramConversationMessages || []) {
-    if (message.mid) messagesByMid.set(message.mid, message);
-  }
+  const messagesByMid = useMemo(() => {
+    const messages = new Map<string, IInstagramConversationMessage>();
+    for (const message of instagramConversationMessages || []) {
+      if (message.mid) messages.set(message.mid, message);
+    }
+    return messages;
+  }, [instagramConversationMessages]);
 
   return (
     <InboxMessagesContainer

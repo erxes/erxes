@@ -5,16 +5,22 @@ import { FacebookMessageRow } from '@/integrations/facebook/components/FacebookM
 import { FacebookReplyWindowContext } from '@/integrations/facebook/contexts/FacebookReplyWindowContext';
 import { FACEBOOK_HUMAN_AGENT_WINDOW_HOURS } from '@/integrations/facebook/constants/FbMessageWindow';
 import { differenceInHours } from 'date-fns';
+import type { IFacebookConversationMessage } from '@/integrations/facebook/types/FacebookTypes';
 
 export const FacebookConversationMessages = () => {
   const [conversationId] = useQueryState<string>('conversationId');
   const { facebookConversationMessages, handleFetchMore, loading, totalCount } =
     useFacebookConversationMessages();
-  const lastCustomerMessage = [...(facebookConversationMessages || [])]
-    .reverse()
-    .find(
-      (message) => message.customerId && !message.internal && !message.botData,
-    );
+  const lastCustomerMessage = facebookConversationMessages?.reduceRight<
+    IFacebookConversationMessage | undefined
+  >(
+    (found, message) =>
+      found ||
+      (message.customerId && !message.internal && !message.botData
+        ? message
+        : undefined),
+    undefined,
+  );
   const lastMessage =
     facebookConversationMessages?.[facebookConversationMessages.length - 1];
   const referenceDate =
