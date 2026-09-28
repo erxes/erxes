@@ -7,11 +7,6 @@ import { debugCall } from '@/integrations/call/debuggers';
 import { parseCdrDate } from '@/integrations/call/services/cdrUtils';
 import { ICallSessionDocument } from '@/integrations/call/@types/callSessions';
 import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
-import {
-  ICallRouting,
-  rehomeCallLegs,
-  resolveCallIntegration,
-} from '@/integrations/call/services/integrationResolver';
 
 const SESSION_LOCK_TTL_MS = 15_000;
 
@@ -47,28 +42,17 @@ export interface ICallEventPayload {
 const findIntegrationForEvent = async (
   models: IModels,
   ev: ICallEventPayload,
-  verifiedIntegration?: any,
-): Promise<ICallRouting> => {
-  if (!verifiedIntegration && ev.inboxIntegrationId) {
+) => {
+  if (ev.inboxIntegrationId) {
     const direct = await models.CallIntegrations.findOne({
       inboxId: ev.inboxIntegrationId,
     });
-    if (direct) {
-      return {
-        integration: direct,
-        candidates: [direct],
-        decisive: true,
-        uniqueids: [],
-      };
-    }
+    if (direct) return direct;
   }
-
-  return resolveCallIntegration(models, verifiedIntegration, {
-    srcTrunk: ev.srcTrunkName,
-    dstTrunk: ev.dstTrunkName,
-    uniqueids: [ev.uniqueid, ev.linkedid],
-    queues: [ev.queueName],
-    extensions: [ev.extension],
+  return models.CallIntegrations.findOne({
+    $or: [{ srcTrunk: ev.srcTrunkName }, { dstTrunk: ev.dstTrunkName }].filter(
+      (c) => Object.values(c).some(Boolean),
+    ),
   });
 };
 
@@ -237,6 +221,15 @@ export const handleCallEvent = async (
     throw new Error('event type required');
   }
 
+  const integration =
+    verifiedIntegration || (await findIntegrationForEvent(models, ev));
+  if (!integration) {
+    debugCall(
+      `Call event ignored: no matching integration for ${ev.srcTrunkName}/${ev.dstTrunkName}`,
+    );
+    return { status: 'ignored', reason: 'no_integration' };
+  }
+
   const direction: 'incoming' | 'outgoing' =
     ev.callType ||
     (ev.dstTrunkName && !ev.srcTrunkName ? 'outgoing' : 'incoming');
@@ -252,29 +245,13 @@ export const handleCallEvent = async (
     throw new Error(`callEvent lock failure for ${ev.uniqueid}: ${e.message}`);
   }
 
-  let customerLock;
+  const customerLock = await acquireCustomerLock(
+    subdomain,
+    integration.inboxId,
+    eventPhone,
+  );
+
   try {
-    const routing = await findIntegrationForEvent(
-      models,
-      ev,
-      verifiedIntegration,
-    );
-    const { integration } = routing;
-    if (!integration) {
-      debugCall(
-        `Call event ignored: no matching integration for ${ev.srcTrunkName}/${ev.dstTrunkName}`,
-      );
-      return { status: 'ignored', reason: 'no_integration' };
-    }
-
-    customerLock = await acquireCustomerLock(
-      subdomain,
-      integration.inboxId,
-      eventPhone,
-    );
-
-    await rehomeCallLegs(models, routing);
-
     let session: any = await models.CallSessions.findOne({
       uniqueid: ev.uniqueid,
     });
