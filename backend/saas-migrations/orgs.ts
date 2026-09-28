@@ -1,13 +1,13 @@
 export type OrgPair = { source: string; target: string };
 
 export const ORG_PAIRS: OrgPair[] = [
-  { source: 'belty', target: 'bbelty' },
-  // { source: 'cmlbrotherss', target: 'cmlbrothers' },
-  // { source: 'hipay', target: 'newhipay' },
-  // { source: 'greatdate', target: 'newgreatdate' },
-  // { source: 'tsembiibuteel', target: 'tsembiibuteelnew' },
-  // { source: 'tsembiiauto', target: 'tsembiiautonew' },
-  // { source: 'dboil', target: 'dboilnew' },
+  // { source: 'belty', target: 'bbelty' }, done
+  { source: 'cmlbrotherss', target: 'cmlbrothers' },
+  { source: 'hipay', target: 'newhipay' },
+  { source: 'greatdate', target: 'newgreatdate' },
+  { source: 'tsembiibuteel', target: 'tsembiibuteelnew' },
+  { source: 'tsembiiauto', target: 'tsembiiautonew' },
+  { source: 'dboil', target: 'dboilnew' },
   // { source: 'newmilestone', target: 'nnewmilestone' },
   // { source: 'sukgarden', target: 'sukgardennew' },
   // { source: 'tansagamttan', target: 'tansagamttannew' },
