@@ -1,13 +1,13 @@
 import { ApolloCache, useMutation, useQuery } from '@apollo/client';
 import { toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { GET_CUSTOM_DOMAIN } from '@/customdomain/graphql/queries';
+import { GET_CUSTOM_DOMAIN } from '@/helpcenter/graphql/queries/getCustomDomain';
 import {
   REFRESH_CUSTOM_DOMAIN,
   RESET_CUSTOM_DOMAIN,
   SAVE_CUSTOM_DOMAIN,
-} from '@/customdomain/graphql/mutations';
-import { ICustomDomain } from '@/customdomain/types';
+} from '@/helpcenter/graphql/mutations/customDomain';
+import { ICustomDomain } from '@/helpcenter/types';
 
 export const useCustomDomain = () => {
   const { data, loading, error, refetch } = useQuery<{

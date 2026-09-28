@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client';
-import { CUSTOM_DOMAIN_FIELDS } from '@/customdomain/graphql/queries';
+import { CUSTOM_DOMAIN_FIELDS } from '@/helpcenter/graphql/queries/getCustomDomain';
 
 export const SAVE_CUSTOM_DOMAIN = gql`
   ${CUSTOM_DOMAIN_FIELDS}
