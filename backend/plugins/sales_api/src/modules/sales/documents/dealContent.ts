@@ -1,5 +1,6 @@
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
+import { IDeal, IProductData } from '~/modules/sales/@types';
 import { generateProducts } from '~/modules/sales/utils';
 import { buildTableBlock, replaceBlocks } from './replaceBlocks';
 
@@ -95,6 +96,95 @@ const mapWithConcurrency = async <TItem, TResult>(
   await Promise.all(Array.from({ length: workerCount }, () => worker()));
 
   return results;
+};
+
+/**
+ * The deal's amount, vat, discount and payment attributes, formatted the way
+ * the document prints them. Automations expose the same values as outputs.
+ */
+type TDealAmountItem = Pick<
+  IProductData,
+  'currency' | 'amount' | 'tax' | 'discount' | 'discountPercent'
+> & { product?: { type?: string } };
+
+type TDealPayment = { kind?: string; amount?: number | string };
+
+export const buildDealAmountAttributes = (
+  enriched: TDealAmountItem[],
+  paymentsData: IDeal['paymentsData'] | TDealPayment[] | number[],
+): Record<string, string> => {
+  const totalAmount: Record<string, number> = {};
+  const productAmount: Record<string, number> = {};
+  const serviceAmount: Record<string, number> = {};
+  const vatAmount: Record<string, number> = {};
+  const discountAmount: Record<string, number> = {};
+
+  let hasDiscountPercent = false;
+  let hasDiscountAmount = false;
+
+  for (const item of enriched || []) {
+    const currency = item.currency || 'MNT';
+    const amount = item.amount || 0;
+
+    addToMap(totalAmount, currency, amount);
+    addToMap(vatAmount, currency, item.tax);
+    addToMap(discountAmount, currency, item.discount);
+
+    if ((item.discountPercent || 0) > 0) hasDiscountPercent = true;
+    if ((item.discount || 0) > 0) hasDiscountAmount = true;
+
+    if (item.product?.type === 'service') {
+      addToMap(serviceAmount, currency, amount);
+    } else {
+      addToMap(productAmount, currency, amount);
+    }
+  }
+
+  const totalWithoutVat: Record<string, number> = {};
+  for (const [currency, amount] of Object.entries(totalAmount)) {
+    totalWithoutVat[currency] = amount - (vatAmount[currency] || 0);
+  }
+
+  let discountType = '-';
+
+  if (hasDiscountPercent) {
+    discountType = '%';
+  } else if (hasDiscountAmount) {
+    discountType = 'amount';
+  }
+
+  const paymentsEntries: Array<[string, TDealPayment | number]> =
+    Array.isArray(paymentsData)
+      ? paymentsData.map((payment, i) => [
+          (typeof payment === 'object' && payment?.kind) || String(i),
+          payment,
+        ])
+      : Object.entries(paymentsData || {});
+
+  let cash = 0;
+  let nonCash = 0;
+  for (const [kind, value] of paymentsEntries) {
+    const amount =
+      typeof value === 'number' ? value : Number(value?.amount) || 0;
+    if (/cash/i.test(kind) && !/non/i.test(kind)) {
+      cash += amount;
+    } else {
+      nonCash += amount;
+    }
+  }
+
+  return {
+    totalAmount: formatAmounts(totalAmount),
+    productTotalAmount: formatAmounts(productAmount),
+    servicesTotalAmount: formatAmounts(serviceAmount),
+    totalAmountVat: formatAmounts(vatAmount),
+    totalAmountAfterTaxVat: formatAmounts(totalAmount),
+    totalAmountWithoutVat: formatAmounts(totalWithoutVat),
+    discount: formatAmounts(discountAmount),
+    discountType,
+    paymentCash: formatNumber(cash),
+    paymentNonCash: formatNumber(nonCash),
+  };
 };
 
 export const buildDealReplacer = async (
@@ -265,11 +355,6 @@ export const buildDealReplacer = async (
     ['#', 'Name', 'Quantity', 'Unit price', 'Amount', 'Currency'],
   ];
 
-  const totalAmount: Record<string, number> = {};
-  const productAmount: Record<string, number> = {};
-  const serviceAmount: Record<string, number> = {};
-  const vatAmount: Record<string, number> = {};
-  const discountAmount: Record<string, number> = {};
   const categoryMap: Record<
     string,
     { name: string; quantity: number; amount: number; currency: string }
@@ -277,8 +362,6 @@ export const buildDealReplacer = async (
 
   let productIndex = 0;
   let serviceIndex = 0;
-  let hasDiscountPercent = false;
-  let hasDiscountAmount = false;
 
   for (const item of enriched) {
     const product = item.product || {};
@@ -289,15 +372,7 @@ export const buildDealReplacer = async (
     const amount = item.amount || 0;
     const currency = item.currency || 'MNT';
 
-    addToMap(totalAmount, currency, amount);
-    addToMap(vatAmount, currency, item.tax);
-    addToMap(discountAmount, currency, item.discount);
-
-    if ((item.discountPercent || 0) > 0) hasDiscountPercent = true;
-    if ((item.discount || 0) > 0) hasDiscountAmount = true;
-
     if (isService) {
-      addToMap(serviceAmount, currency, amount);
       serviceRows.push([
         String(++serviceIndex),
         name,
@@ -307,7 +382,6 @@ export const buildDealReplacer = async (
         currency,
       ]);
     } else {
-      addToMap(productAmount, currency, amount);
       productRows.push([
         String(++productIndex),
         name,
@@ -388,50 +462,10 @@ export const buildDealReplacer = async (
   tables.servicesInfo = serviceRows;
   tables.productCategoryInfo = categoryRows;
 
-  const totalWithoutVat: Record<string, number> = {};
-  for (const [currency, amount] of Object.entries(totalAmount)) {
-    totalWithoutVat[currency] = amount - (vatAmount[currency] || 0);
-  }
-
-  attrMap.totalAmount = formatAmounts(totalAmount);
-  attrMap.productTotalAmount = formatAmounts(productAmount);
-  attrMap.servicesTotalAmount = formatAmounts(serviceAmount);
-  attrMap.totalAmountVat = formatAmounts(vatAmount);
-  attrMap.totalAmountAfterTaxVat = formatAmounts(totalAmount);
-  attrMap.totalAmountWithoutVat = formatAmounts(totalWithoutVat);
-  attrMap.discount = formatAmounts(discountAmount);
-
-  let discountType = '-';
-
-  if (hasDiscountPercent) {
-    discountType = '%';
-  } else if (hasDiscountAmount) {
-    discountType = 'amount';
-  }
-
-  attrMap.discountType = discountType;
-
-  const rawPayments = deal.paymentsData;
-  const paymentsEntries: Array<[string, any]> = Array.isArray(rawPayments)
-    ? (rawPayments as any[]).map((p: any, i: number) => [
-        p?.kind || String(i),
-        p,
-      ])
-    : Object.entries((rawPayments || {}) as Record<string, any>);
-
-  let cash = 0;
-  let nonCash = 0;
-  for (const [kind, value] of paymentsEntries) {
-    const amount =
-      typeof value === 'number' ? value : Number(value?.amount) || 0;
-    if (/cash/i.test(kind) && !/non/i.test(kind)) {
-      cash += amount;
-    } else {
-      nonCash += amount;
-    }
-  }
-  attrMap.paymentCash = formatNumber(cash);
-  attrMap.paymentNonCash = formatNumber(nonCash);
+  Object.assign(
+    attrMap,
+    buildDealAmountAttributes(enriched, deal.paymentsData),
+  );
 
   attrMap.now = formatDate(new Date(), true);
   attrMap.createdAt = formatDate(deal.createdAt);
