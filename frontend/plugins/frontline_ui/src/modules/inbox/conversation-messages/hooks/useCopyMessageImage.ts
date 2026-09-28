@@ -14,9 +14,11 @@ const pngBlob = async (blob: Blob): Promise<Blob> => {
     if (!context) throw new Error('Could not copy image');
     context.drawImage(bitmap, 0, 0);
     return await new Promise<Blob>((resolve, reject) => {
-      canvas.toBlob((result) =>
-        result ? resolve(result) : reject(new Error('Could not copy image')),
-      'image/png');
+      canvas.toBlob(
+        (result) =>
+          result ? resolve(result) : reject(new Error('Could not copy image')),
+        'image/png',
+      );
     });
   } finally {
     bitmap.close();
@@ -80,7 +82,8 @@ export const useCopyMessageImage = ({
     } catch {
       toast({
         title: 'Could not copy image',
-        description: 'The image is unavailable for copying. Open it to save it.',
+        description:
+          'The image is unavailable for copying. Open it to save it.',
         variant: 'destructive',
       });
     } finally {
