@@ -8,10 +8,11 @@ import {
 } from '@/knowledgebase/graphql/mutations';
 import { TOPICS, TOPIC_OPTIONS } from '@/knowledgebase/graphql/queries';
 import { ITopic, ITopicDoc } from '@/knowledgebase/types';
+import { useKbToast } from '@/knowledgebase/shared/hooks/useKbToast';
 
 export const useSaveTopic = () => {
   const { t } = useTranslation('frontline');
-  const { toast } = useToast();
+  const { run } = useKbToast();
 
   const refetchQueries = [TOPICS, TOPIC_OPTIONS];
 
@@ -25,34 +26,19 @@ export const useSaveTopic = () => {
     awaitRefetchQueries: true,
   });
 
-  const saveTopic = async (doc: ITopicDoc, topicId?: string) => {
-    try {
-      if (topicId) {
-        await editTopic({ variables: { _id: topicId, doc } });
-      } else {
-        await addTopic({ variables: { doc } });
-      }
-
-      toast({
-        title: t('success'),
-        description: topicId
-          ? t('kb-topic-saved', 'Topic saved')
-          : t('kb-topic-created', 'Topic created'),
-        variant: 'success',
-      });
-
-      return true;
-    } catch (error: unknown) {
-      toast({
-        title: t('error'),
-        description:
-          error instanceof Error ? error.message : t('something-went-wrong'),
-        variant: 'destructive',
-      });
-
-      return false;
-    }
-  };
+  const saveTopic = (doc: ITopicDoc, topicId?: string) =>
+    run(
+      async () => {
+        if (topicId) {
+          await editTopic({ variables: { _id: topicId, doc } });
+        } else {
+          await addTopic({ variables: { doc } });
+        }
+      },
+      topicId
+        ? t('kb-topic-saved', 'Topic saved')
+        : t('kb-topic-created', 'Topic created'),
+    );
 
   return { saveTopic, loading: adding || editing };
 };

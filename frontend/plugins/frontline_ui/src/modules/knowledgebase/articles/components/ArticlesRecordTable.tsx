@@ -1,10 +1,12 @@
-import { IconAlertCircle, IconFileText } from '@tabler/icons-react';
-import { Button, Empty, RecordTable } from 'erxes-ui';
+import { IconFileText } from '@tabler/icons-react';
+import { Button } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { ArticlesCommandBar } from '@/knowledgebase/articles/components/articles-command-bar/ArticlesCommandBar';
 import { useArticlesColumns } from '@/knowledgebase/articles/components/ArticlesColumns';
 import { useArticles } from '@/knowledgebase/articles/hooks/useArticles';
 import { ARTICLES_TABLE_ID } from '@/knowledgebase/constants';
+import { KbRecordTable } from '@/knowledgebase/shared/components/KbRecordTable';
+import { KbEmptyState } from '@/knowledgebase/shared/components/KbStates';
 
 export const ArticlesRecordTable = ({
   topicId,
@@ -19,32 +21,19 @@ export const ArticlesRecordTable = ({
   const { articles, loading, error } = useArticles(topicId);
   const columns = useArticlesColumns(topicId);
 
-  if (error) {
-    return (
-      <Empty className="m-3 rounded-lg bg-sidebar">
-        <Empty.Header>
-          <Empty.Media variant="icon">
-            <IconAlertCircle />
-          </Empty.Media>
-          <Empty.Title>{t('error')}</Empty.Title>
-          <Empty.Description>{error.message}</Empty.Description>
-        </Empty.Header>
-      </Empty>
-    );
-  }
-
-  if (!loading && articles?.length === 0) {
-    return (
-      <Empty className="m-3 rounded-lg bg-sidebar">
-        <Empty.Header>
-          <Empty.Media variant="icon">
-            <IconFileText />
-          </Empty.Media>
-          <Empty.Title>
-            {t('kb-no-articles-yet', 'There are no articles yet')}
-          </Empty.Title>
-          <Empty.Description>
-            {canCreate
+  return (
+    <KbRecordTable
+      columns={columns}
+      data={articles || []}
+      loading={loading}
+      error={error}
+      tableId={ARTICLES_TABLE_ID}
+      empty={
+        <KbEmptyState
+          icon={IconFileText}
+          title={t('kb-no-articles-yet', 'There are no articles yet')}
+          description={
+            canCreate
               ? t(
                   'kb-no-articles-description',
                   'Write your first article for this topic.',
@@ -52,41 +41,18 @@ export const ArticlesRecordTable = ({
               : t(
                   'kb-no-categories-first',
                   'Create a category first, then write articles in it.',
-                )}
-          </Empty.Description>
-        </Empty.Header>
-        {canCreate && (
-          <Empty.Content>
-            <Button variant="outline" onClick={onCreate}>
-              {t('kb-create-article', 'Create Article')}
-            </Button>
-          </Empty.Content>
-        )}
-      </Empty>
-    );
-  }
-
-  return (
-    <RecordTable.Provider
-      columns={columns}
-      data={articles || []}
-      stickyColumns={['more', 'checkbox', 'title']}
-      className="m-3"
-      tableId={ARTICLES_TABLE_ID}
-    >
-      <RecordTable.Scroll>
-        <RecordTable>
-          <RecordTable.Header />
-          <RecordTable.Body>
-            {loading ? (
-              <RecordTable.RowSkeleton rows={10} />
-            ) : (
-              <RecordTable.RowList />
-            )}
-          </RecordTable.Body>
-        </RecordTable>
-      </RecordTable.Scroll>
-      <ArticlesCommandBar />
-    </RecordTable.Provider>
+                )
+          }
+          action={
+            canCreate ? (
+              <Button variant="outline" onClick={onCreate}>
+                {t('kb-create-article', 'Create Article')}
+              </Button>
+            ) : undefined
+          }
+        />
+      }
+      commandBar={<ArticlesCommandBar />}
+    />
   );
 };

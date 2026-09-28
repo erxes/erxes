@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-09-25`
+- **Last synchronized:** `2026-09-28`
 
 ## Scope
 
@@ -405,7 +405,7 @@
 | Send survey              | `src/modules/inbox/conversations/conversation-detail/components/SendSurveyDialog.tsx`                                                             | Picks an active survey and posts it into the open messenger conversation                                                                        |
 | Survey inbox row         | `src/modules/survey/components/ChannelSurveyNavItem.tsx`                                                                                          | `Surveys` row inside an expanded team channel, filtering the inbox by `withSurvey`                                                              |
 | Knowledge base routes    | `src/modules/knowledgebase/Main.tsx`, `src/pages/knowledgebase/`                                                                                  | `/frontline/knowledgebase` topics index plus `:topicId/{articles,categories,kbsettings}`                                                          |
-| Knowledge base shell     | `src/modules/knowledgebase/shared/`                                                                                                               | Page layout with breadcrumbs, topic sidebar, icon picker, inline text cell, category select, topic appearance fields, embed dialog and tab       |
+| Knowledge base shell     | `src/modules/knowledgebase/shared/`                                                                                                               | Layout, sidebar, record table, form sheet, row actions, bulk delete, filters, columns, feedback hooks, states, appearance fields, embed panel    |
 | Knowledge base topics    | `src/modules/knowledgebase/topics/`                                                                                                               | Topics card grid and record table, columns, filter, command bar, drawer, mutation hooks                                                          |
 | Knowledge base categories| `src/modules/knowledgebase/categories/`                                                                                                           | Topic-scoped category tree table, drawer, command bar, mutation hooks                                                                           |
 | Knowledge base articles  | `src/modules/knowledgebase/articles/`                                                                                                             | Topic-scoped article table with status/category filters, drawer, command bar, mutation hooks                                                    |
@@ -1608,6 +1608,22 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-28` — Knowledge base screens share one set of building blocks
+
+- **Summary:** Topics, categories, articles and the help center list now build
+  their tables, empty/error states, row menus, bulk delete, search filters,
+  columns, form sheets and save/remove feedback from `knowledgebase/shared`;
+  the topic drawer and topic settings page render one `TopicFormFields`, and
+  the embed dialog and tab share `TopicEmbedScriptPanel`. Behaviour is
+  unchanged apart from the settings page gaining the drawer's field hints and
+  the embed dialog's copy button showing a copied state.
+- **Affected areas:** `src/modules/knowledgebase/shared/`,
+  `src/modules/knowledgebase/{topics,categories,articles,settings,constants}`,
+  `src/modules/helpcenter/components/{HelpCenterRecordTable,HelpCenterColumns}.tsx`,
+  `src/modules/helpcenter/components/help-center-drawer/HelpCenterStyleFields.tsx`,
+  `src/modules/helpcenter/hooks/useHelpCenters.ts`
+- **Contracts changed:** None
+
 ### `2026-09-25` — Main's topic embed tab merged into the rebuilt knowledge base
 
 - **Summary:** The help center drawer's Embed tab now renders
@@ -1754,20 +1770,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `frontlineKbArticleDetail`, `frontlineKbTopicContent`, `frontlineKbSegments`
   and the six `frontlineKb*Add|Edit|Remove` mutations); the `./knowledgebase`
   expose now serves the nested route map.
-
-### `2026-09-23` — The embed script moves to the knowledge base topic
-
-- **Summary:** The help center drawer's embed card and its script dialog are
-  gone; a topic now owns its embed script on an **Embed** tab in a three-tab
-  topic drawer (General, Appearance, Embed), reachable from the topic row's
-  `View Script` menu entry, with a copy button that reports success. The
-  generated snippet is unchanged.
-- **Affected areas:**
-  `src/modules/knowledgebase/components/{TopicDrawer,TopicEmbedTab}.tsx`,
-  `src/modules/knowledgebase/components/KnowledgeBaseTopicsNav.tsx`,
-  `src/modules/knowledgebase/utils/buildTopicEmbedScript.ts`,
-  `src/modules/knowledgebase/{types,constants}.ts`,
-  `src/modules/helpcenter/components/help-center-drawer/{HelpCenterDrawer,HelpCenterGeneralTab}.tsx`,
-  deleted `src/modules/knowledgebase/components/TopicEmbedScriptDialog.tsx`
-- **Contracts changed:** `None` — no query, mutation or generated script text
-  changed.

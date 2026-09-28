@@ -1,4 +1,4 @@
-import { IconFolder, IconProgressCheck, IconSearch } from '@tabler/icons-react';
+import { IconFolder, IconProgressCheck, type Icon } from '@tabler/icons-react';
 import {
   Combobox,
   Command,
@@ -8,7 +8,7 @@ import {
   useMultiQueryState,
   useQueryState,
 } from 'erxes-ui';
-import { useState } from 'react';
+import { ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ArticlesTotalCount } from '@/knowledgebase/articles/components/ArticlesTotalCount';
 import { useCategories } from '@/knowledgebase/categories/hooks/useCategories';
@@ -16,6 +16,11 @@ import {
   ARTICLES_FILTER_ID,
   ARTICLE_STATUSES,
 } from '@/knowledgebase/constants';
+import {
+  hasActiveFilters,
+  KbFilterPopover,
+  KbSearchFilterBar,
+} from '@/knowledgebase/shared/components/KbFilter';
 import { KnowledgeBaseHotKeyScope } from '@/knowledgebase/types';
 
 const StatusCommand = ({
@@ -79,106 +84,118 @@ const CategoryCommand = ({
   );
 };
 
-const StatusFilterView = () => {
+type TRenderCommand = (
+  value: string | null,
+  onValueChange: (next: string) => void,
+) => ReactNode;
+
+const QueryFilterView = ({
+  queryKey,
+  render,
+}: {
+  queryKey: string;
+  render: TRenderCommand;
+}) => {
   const { resetFilterState } = useFilterContext();
-  const [status, setStatus] = useQueryState<string>('status');
+  const [value, setValue] = useQueryState<string>(queryKey);
 
   return (
-    <Filter.View filterKey="status">
-      <StatusCommand
-        value={status}
-        onValueChange={(value) => {
-          setStatus(value);
-          resetFilterState();
-        }}
-      />
+    <Filter.View filterKey={queryKey}>
+      {render(value, (next) => {
+        setValue(next);
+        resetFilterState();
+      })}
     </Filter.View>
   );
 };
 
-const CategoryFilterView = ({ topicId }: { topicId: string }) => {
-  const { resetFilterState } = useFilterContext();
-  const [categoryId, setCategoryId] = useQueryState<string>('categoryId');
-
-  return (
-    <Filter.View filterKey="categoryId">
-      <CategoryCommand
-        topicId={topicId}
-        value={categoryId}
-        onValueChange={(value) => {
-          setCategoryId(value);
-          resetFilterState();
-        }}
-      />
-    </Filter.View>
-  );
-};
-
-const StatusFilterBar = () => {
-  const { t } = useTranslation('frontline');
-  const [status, setStatus] = useQueryState<string>('status');
+const QueryFilterBar = ({
+  queryKey,
+  icon: BarIcon,
+  label,
+  display,
+  render,
+}: {
+  queryKey: string;
+  icon: Icon;
+  label: string;
+  display: (value: string | null) => ReactNode;
+  render: TRenderCommand;
+}) => {
+  const [value, setValue] = useQueryState<string>(queryKey);
   const [open, setOpen] = useState(false);
-  const selected = ARTICLE_STATUSES.find((item) => item.value === status);
 
   return (
-    <Filter.BarItem queryKey="status">
+    <Filter.BarItem queryKey={queryKey}>
       <Filter.BarName>
-        <IconProgressCheck />
-        {t('status')}
+        <BarIcon />
+        {label}
       </Filter.BarName>
       <Popover open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
-          <Filter.BarButton filterKey="status">
-            {selected ? t(selected.key, selected.label) : status}
+          <Filter.BarButton filterKey={queryKey}>
+            {display(value)}
           </Filter.BarButton>
         </Popover.Trigger>
         <Combobox.Content>
-          <StatusCommand
-            value={status}
-            onValueChange={(value) => {
-              setStatus(value);
-              setOpen(false);
-            }}
-          />
+          {render(value, (next) => {
+            setValue(next);
+            setOpen(false);
+          })}
         </Combobox.Content>
       </Popover>
     </Filter.BarItem>
+  );
+};
+
+const renderStatusCommand: TRenderCommand = (value, onValueChange) => (
+  <StatusCommand value={value} onValueChange={onValueChange} />
+);
+
+const renderCategoryCommand =
+  (topicId: string): TRenderCommand =>
+  (value, onValueChange) =>
+    (
+      <CategoryCommand
+        topicId={topicId}
+        value={value}
+        onValueChange={onValueChange}
+      />
+    );
+
+const StatusFilterBar = () => {
+  const { t } = useTranslation('frontline');
+
+  return (
+    <QueryFilterBar
+      queryKey="status"
+      icon={IconProgressCheck}
+      label={t('status')}
+      display={(status) => {
+        const selected = ARTICLE_STATUSES.find((item) => item.value === status);
+
+        return selected ? t(selected.key, selected.label) : status;
+      }}
+      render={renderStatusCommand}
+    />
   );
 };
 
 const CategoryFilterBar = ({ topicId }: { topicId: string }) => {
   const { t } = useTranslation('frontline');
-  const [categoryId, setCategoryId] = useQueryState<string>('categoryId');
-  const [open, setOpen] = useState(false);
   const { categories } = useCategories(topicId);
-  const selected = (categories ?? []).find(
-    (category) => category._id === categoryId,
-  );
 
   return (
-    <Filter.BarItem queryKey="categoryId">
-      <Filter.BarName>
-        <IconFolder />
-        {t('kb-category', 'Category')}
-      </Filter.BarName>
-      <Popover open={open} onOpenChange={setOpen}>
-        <Popover.Trigger asChild>
-          <Filter.BarButton filterKey="categoryId">
-            {selected?.title || t('unnamed-category')}
-          </Filter.BarButton>
-        </Popover.Trigger>
-        <Combobox.Content>
-          <CategoryCommand
-            topicId={topicId}
-            value={categoryId}
-            onValueChange={(value) => {
-              setCategoryId(value);
-              setOpen(false);
-            }}
-          />
-        </Combobox.Content>
-      </Popover>
-    </Filter.BarItem>
+    <QueryFilterBar
+      queryKey="categoryId"
+      icon={IconFolder}
+      label={t('kb-category', 'Category')}
+      display={(categoryId) =>
+        (categories ?? []).find((category) => category._id === categoryId)
+          ?.title || t('unnamed-category')
+      }
+      render={renderCategoryCommand(topicId)}
+    />
   );
 };
 
@@ -191,65 +208,41 @@ export const ArticlesFilter = ({ topicId }: { topicId: string }) => {
   }>(['searchValue', 'status', 'categoryId']);
 
   const { searchValue, status, categoryId } = queries || {};
-  const hasFilters = Object.values(queries || {}).some(
-    (value) => value !== null,
-  );
 
   return (
     <Filter id={ARTICLES_FILTER_ID}>
       <Filter.Bar>
-        <Filter.Popover scope={KnowledgeBaseHotKeyScope.ArticlesPage}>
-          <Filter.Trigger isFiltered={hasFilters} />
-          <Combobox.Content>
-            <Filter.View>
-              <Command>
-                <Filter.CommandInput
-                  placeholder={t('filter')}
-                  variant="secondary"
-                  className="bg-background"
-                />
-                <Command.List className="p-1">
-                  <Filter.Item value="searchValue" inDialog>
-                    <IconSearch />
-                    {t('search')}
-                  </Filter.Item>
-                  <Filter.Item value="status">
-                    <IconProgressCheck />
-                    {t('status')}
-                  </Filter.Item>
-                  <Filter.Item value="categoryId">
-                    <IconFolder />
-                    {t('kb-category', 'Category')}
-                  </Filter.Item>
-                </Command.List>
-              </Command>
-            </Filter.View>
-            <StatusFilterView />
-            <CategoryFilterView topicId={topicId} />
-          </Combobox.Content>
-        </Filter.Popover>
+        <KbFilterPopover
+          scope={KnowledgeBaseHotKeyScope.ArticlesPage}
+          isFiltered={hasActiveFilters(queries)}
+          items={
+            <>
+              <Filter.Item value="status">
+                <IconProgressCheck />
+                {t('status')}
+              </Filter.Item>
+              <Filter.Item value="categoryId">
+                <IconFolder />
+                {t('kb-category', 'Category')}
+              </Filter.Item>
+            </>
+          }
+          views={
+            <>
+              <QueryFilterView queryKey="status" render={renderStatusCommand} />
+              <QueryFilterView
+                queryKey="categoryId"
+                render={renderCategoryCommand(topicId)}
+              />
+            </>
+          }
+        />
 
         <ArticlesTotalCount />
 
-        {searchValue && (
-          <Filter.BarItem queryKey="searchValue">
-            <Filter.BarName>
-              <IconSearch />
-              {t('search')}
-            </Filter.BarName>
-            <Filter.BarButton filterKey="searchValue" inDialog>
-              {searchValue}
-            </Filter.BarButton>
-          </Filter.BarItem>
-        )}
+        <KbSearchFilterBar searchValue={searchValue} />
         {status && <StatusFilterBar />}
         {categoryId && <CategoryFilterBar topicId={topicId} />}
-
-        <Filter.Dialog>
-          <Filter.View filterKey="searchValue" inDialog>
-            <Filter.DialogStringView filterKey="searchValue" />
-          </Filter.View>
-        </Filter.Dialog>
       </Filter.Bar>
     </Filter>
   );

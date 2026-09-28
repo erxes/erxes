@@ -1,14 +1,15 @@
 import {
-  IconAlertCircle,
   IconBook,
   IconFileText,
   IconFolders,
   IconPencil,
 } from '@tabler/icons-react';
-import { Button, Empty, Skeleton } from 'erxes-ui';
+import { Button, Skeleton } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { KNOWLEDGE_BASE_PATH } from '@/knowledgebase/constants';
+import { KbErrorState } from '@/knowledgebase/shared/components/KbStates';
+import { TopicsEmptyState } from '@/knowledgebase/topics/components/TopicsEmptyState';
 import { useTopics } from '@/knowledgebase/topics/hooks/useTopics';
 import { ITopic } from '@/knowledgebase/types';
 
@@ -109,21 +110,10 @@ export const TopicsGrid = ({
   onCreate: () => void;
   onManage: (topicId: string) => void;
 }) => {
-  const { t } = useTranslation('frontline');
   const { topics, loading, error } = useTopics();
 
   if (error) {
-    return (
-      <Empty className="m-3 rounded-lg bg-sidebar">
-        <Empty.Header>
-          <Empty.Media variant="icon">
-            <IconAlertCircle />
-          </Empty.Media>
-          <Empty.Title>{t('error')}</Empty.Title>
-          <Empty.Description>{error.message}</Empty.Description>
-        </Empty.Header>
-      </Empty>
-    );
+    return <KbErrorState message={error.message} />;
   }
 
   if (loading && !topics) {
@@ -137,29 +127,7 @@ export const TopicsGrid = ({
   }
 
   if (topics?.length === 0) {
-    return (
-      <Empty className="m-3 rounded-lg bg-sidebar">
-        <Empty.Header>
-          <Empty.Media variant="icon">
-            <IconBook />
-          </Empty.Media>
-          <Empty.Title>
-            {t('kb-no-topics-yet', 'There are no topics yet')}
-          </Empty.Title>
-          <Empty.Description>
-            {t(
-              'kb-no-topics-description',
-              'Create your first topic and start your knowledge base.',
-            )}
-          </Empty.Description>
-        </Empty.Header>
-        <Empty.Content>
-          <Button variant="outline" onClick={onCreate}>
-            {t('kb-create-topic', 'Create Topic')}
-          </Button>
-        </Empty.Content>
-      </Empty>
-    );
+    return <TopicsEmptyState onCreate={onCreate} />;
   }
 
   return (

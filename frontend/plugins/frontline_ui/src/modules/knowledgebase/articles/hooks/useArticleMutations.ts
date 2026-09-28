@@ -16,12 +16,13 @@ import {
   IArticleDetailResponse,
   IArticleDoc,
 } from '@/knowledgebase/types';
+import { useKbToast } from '@/knowledgebase/shared/hooks/useKbToast';
 
 const ARTICLE_QUERIES = [ARTICLES, CATEGORIES];
 
 export const useSaveArticle = () => {
   const { t } = useTranslation('frontline');
-  const { toast } = useToast();
+  const { run } = useKbToast();
 
   const [addArticle, { loading: adding }] = useMutation(ADD_ARTICLE, {
     refetchQueries: ARTICLE_QUERIES,
@@ -33,34 +34,19 @@ export const useSaveArticle = () => {
     awaitRefetchQueries: true,
   });
 
-  const saveArticle = async (doc: IArticleDoc, articleId?: string) => {
-    try {
-      if (articleId) {
-        await editArticle({ variables: { _id: articleId, doc } });
-      } else {
-        await addArticle({ variables: { doc } });
-      }
-
-      toast({
-        title: t('success'),
-        description: articleId
-          ? t('kb-article-saved', 'Article saved')
-          : t('kb-article-created', 'Article created'),
-        variant: 'success',
-      });
-
-      return true;
-    } catch (error: unknown) {
-      toast({
-        title: t('error'),
-        description:
-          error instanceof Error ? error.message : t('something-went-wrong'),
-        variant: 'destructive',
-      });
-
-      return false;
-    }
-  };
+  const saveArticle = (doc: IArticleDoc, articleId?: string) =>
+    run(
+      async () => {
+        if (articleId) {
+          await editArticle({ variables: { _id: articleId, doc } });
+        } else {
+          await addArticle({ variables: { doc } });
+        }
+      },
+      articleId
+        ? t('kb-article-saved', 'Article saved')
+        : t('kb-article-created', 'Article created'),
+    );
 
   return { saveArticle, loading: adding || editing };
 };

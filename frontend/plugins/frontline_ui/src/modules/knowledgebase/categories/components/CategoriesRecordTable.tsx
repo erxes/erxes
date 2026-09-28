@@ -1,5 +1,5 @@
-import { IconAlertCircle, IconFolders } from '@tabler/icons-react';
-import { Button, Empty, RecordTable } from 'erxes-ui';
+import { IconFolders } from '@tabler/icons-react';
+import { Button } from 'erxes-ui';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CategoriesCommandBar } from '@/knowledgebase/categories/components/categories-command-bar/CategoriesCommandBar';
@@ -7,6 +7,8 @@ import { useCategoriesColumns } from '@/knowledgebase/categories/components/Cate
 import { useCategories } from '@/knowledgebase/categories/hooks/useCategories';
 import { sortCategoriesAsTree } from '@/knowledgebase/categories/utils/sortCategoriesAsTree';
 import { CATEGORIES_TABLE_ID } from '@/knowledgebase/constants';
+import { KbRecordTable } from '@/knowledgebase/shared/components/KbRecordTable';
+import { KbEmptyState } from '@/knowledgebase/shared/components/KbStates';
 
 export const CategoriesRecordTable = ({
   topicId,
@@ -24,67 +26,29 @@ export const CategoriesRecordTable = ({
     [categories],
   );
 
-  if (error) {
-    return (
-      <Empty className="m-3 rounded-lg bg-sidebar">
-        <Empty.Header>
-          <Empty.Media variant="icon">
-            <IconAlertCircle />
-          </Empty.Media>
-          <Empty.Title>{t('error')}</Empty.Title>
-          <Empty.Description>{error.message}</Empty.Description>
-        </Empty.Header>
-      </Empty>
-    );
-  }
-
-  if (!loading && rows.length === 0) {
-    return (
-      <Empty className="m-3 rounded-lg bg-sidebar">
-        <Empty.Header>
-          <Empty.Media variant="icon">
-            <IconFolders />
-          </Empty.Media>
-          <Empty.Title>
-            {t('kb-no-categories-found', 'No categories found')}
-          </Empty.Title>
-          <Empty.Description>
-            {t(
-              'kb-no-categories-description',
-              "This topic doesn't have any categories yet. Create your first category to start organizing articles.",
-            )}
-          </Empty.Description>
-        </Empty.Header>
-        <Empty.Content>
-          <Button variant="outline" onClick={onCreate}>
-            {t('kb-create-category', 'Create Category')}
-          </Button>
-        </Empty.Content>
-      </Empty>
-    );
-  }
-
   return (
-    <RecordTable.Provider
+    <KbRecordTable
       columns={columns}
       data={rows}
-      stickyColumns={['more', 'checkbox', 'title']}
-      className="m-3"
+      loading={loading}
+      error={error}
       tableId={CATEGORIES_TABLE_ID}
-    >
-      <RecordTable.Scroll>
-        <RecordTable>
-          <RecordTable.Header />
-          <RecordTable.Body>
-            {loading ? (
-              <RecordTable.RowSkeleton rows={10} />
-            ) : (
-              <RecordTable.RowList />
-            )}
-          </RecordTable.Body>
-        </RecordTable>
-      </RecordTable.Scroll>
-      <CategoriesCommandBar />
-    </RecordTable.Provider>
+      empty={
+        <KbEmptyState
+          icon={IconFolders}
+          title={t('kb-no-categories-found', 'No categories found')}
+          description={t(
+            'kb-no-categories-description',
+            "This topic doesn't have any categories yet. Create your first category to start organizing articles.",
+          )}
+          action={
+            <Button variant="outline" onClick={onCreate}>
+              {t('kb-create-category', 'Create Category')}
+            </Button>
+          }
+        />
+      }
+      commandBar={<CategoriesCommandBar />}
+    />
   );
 };

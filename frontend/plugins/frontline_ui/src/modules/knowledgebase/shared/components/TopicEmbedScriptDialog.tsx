@@ -1,6 +1,6 @@
-import { Badge, Button, Dialog, toast } from 'erxes-ui';
+import { Button, Dialog } from 'erxes-ui';
 import { TFunction } from 'i18next';
-import { buildTopicEmbedScript } from '@/knowledgebase/utils/buildTopicEmbedScript';
+import { TopicEmbedScriptPanel } from '@/knowledgebase/shared/components/TopicEmbedScriptPanel';
 
 export function TopicEmbedScriptDialog({
   topicId,
@@ -13,26 +13,6 @@ export function TopicEmbedScriptDialog({
   onOpenChange: (open: boolean) => void;
   t: TFunction;
 }>) {
-  const handleCopyScript = (script: string) => {
-    navigator.clipboard
-      .writeText(script)
-      .then(() =>
-        toast({
-          title: t('kb-script-copied', 'Script copied to clipboard'),
-          variant: 'success',
-        }),
-      )
-      .catch(() =>
-        toast({
-          title: t('error'),
-          description: t('kb-script-copy-failed', 'Could not copy the script'),
-          variant: 'destructive',
-        }),
-      );
-  };
-
-  const script = buildTopicEmbedScript(topicId);
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <Dialog.Content className="max-w-2xl">
@@ -44,31 +24,7 @@ export function TopicEmbedScriptDialog({
         </Dialog.Header>
 
         <div className="space-y-4">
-          <div className="relative">
-            <pre className="overflow-x-auto p-4 font-mono text-sm rounded-lg bg-muted">
-              <code>{script}</code>
-            </pre>
-            <Button
-              size="sm"
-              variant="secondary"
-              className="absolute top-2 right-2"
-              onClick={() => handleCopyScript(script)}
-            >
-              {t('kb-copy-script')}
-            </Button>
-          </div>
-
-          <Badge variant="info" className="block p-3 w-full h-auto">
-            <h4 className="mb-2 text-sm font-medium">
-              {t('installation-steps')}
-            </h4>
-            <ol className="space-y-1 text-sm list-decimal list-inside text-muted-foreground">
-              <li>{t('installation-step-1')}</li>
-              <li>{t('installation-step-2')}</li>
-              <li>{t('installation-step-3')}</li>
-              <li>{t('kb-install-step-4')}</li>
-            </ol>
-          </Badge>
+          <TopicEmbedScriptPanel topicId={topicId} t={t} />
         </div>
 
         <Dialog.Footer>

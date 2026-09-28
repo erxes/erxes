@@ -9,29 +9,22 @@ import {
 } from '@tabler/icons-react';
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import clsx from 'clsx';
-import {
-  Badge,
-  RecordTable,
-  RecordTableInlineCell,
-  RelativeDateDisplay,
-} from 'erxes-ui';
+import { RecordTable, RecordTableInlineCell } from 'erxes-ui';
 import { TFunction } from 'i18next';
-import { useMemo } from 'react';
+import { ReactNode, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { SelectBrand } from 'ui-modules';
 import { KNOWLEDGE_BASE_PATH, LANGUAGES } from '@/knowledgebase/constants';
-import { KbInlineTextCell } from '@/knowledgebase/shared/components/KbInlineTextCell';
+import {
+  kbColumn,
+  kbCountColumn,
+  kbDateColumn,
+  KbTextCell,
+} from '@/knowledgebase/shared/components/kbColumns';
 import { useEditTopicField } from '@/knowledgebase/topics/hooks/useTopicMutations';
 import { topicsMoreColumn } from '@/knowledgebase/topics/components/TopicsMoreColumn';
-import {
-  ITopic,
-  ITopicDoc,
-  KnowledgeBaseHotKeyScope,
-} from '@/knowledgebase/types';
-
-const cellScope = (topic: ITopic, field: string) =>
-  clsx(KnowledgeBaseHotKeyScope.TopicsPage, topic._id, field);
+import { ITopic, KnowledgeBaseHotKeyScope } from '@/knowledgebase/types';
 
 const TextCell = ({
   cell,
@@ -42,21 +35,20 @@ const TextCell = ({
   cell: Cell<ITopic, unknown>;
   field: 'title' | 'description' | 'code';
   placeholder?: string;
-  children?: React.ReactNode;
+  children?: ReactNode;
 }) => {
-  const topic = cell.row.original;
   const { editTopicField } = useEditTopicField();
-  const patch = (next: string): Partial<ITopicDoc> => ({ [field]: next });
 
   return (
-    <KbInlineTextCell
-      value={(cell.getValue() as string) || ''}
+    <KbTextCell
+      cell={cell}
+      scope={KnowledgeBaseHotKeyScope.TopicsPage}
+      field={field}
       placeholder={placeholder}
-      scope={cellScope(topic, field)}
-      onSave={(next) => editTopicField(topic, patch(next))}
+      onSave={(next) => editTopicField(cell.row.original, { [field]: next })}
     >
       {children}
-    </KbInlineTextCell>
+    </KbTextCell>
   );
 };
 
@@ -87,7 +79,7 @@ const BrandCell = ({ cell }: { cell: Cell<ITopic, unknown> }) => {
 
   return (
     <SelectBrand.InlineCell
-      scope={cellScope(topic, 'brandId')}
+      scope={clsx(KnowledgeBaseHotKeyScope.TopicsPage, topic._id, 'brandId')}
       value={topic.brandId ?? topic.brand?._id ?? ''}
       onValueChange={(value) =>
         editTopicField(topic, { brandId: value as string })
@@ -99,85 +91,54 @@ const BrandCell = ({ cell }: { cell: Cell<ITopic, unknown> }) => {
 const createTopicsColumns = (t: TFunction): ColumnDef<ITopic>[] => [
   topicsMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<ITopic>,
-  {
+  kbColumn<ITopic>({
     id: 'title',
-    accessorKey: 'title',
     size: 260,
-    header: () => (
-      <RecordTable.InlineHead
-        label={t('title-label', 'Title')}
-        icon={IconLabelFilled}
-      />
-    ),
-    cell: ({ cell }) => <TitleCell cell={cell} t={t} />,
-  },
-  {
+    label: t('title-label', 'Title'),
+    icon: IconLabelFilled,
+    render: (cell) => <TitleCell cell={cell} t={t} />,
+  }),
+  kbColumn<ITopic>({
     id: 'description',
-    accessorKey: 'description',
     size: 300,
-    header: () => (
-      <RecordTable.InlineHead
-        label={t('description', 'Description')}
-        icon={IconNotes}
-      />
-    ),
-    cell: ({ cell }) => (
+    label: t('description', 'Description'),
+    icon: IconNotes,
+    render: (cell) => (
       <TextCell
         cell={cell}
         field="description"
         placeholder={t('kb-no-description', 'No description')}
       />
     ),
-  },
-  {
+  }),
+  kbCountColumn<ITopic>({
     id: 'categories',
-    accessorKey: 'categories',
-    size: 140,
-    header: () => (
-      <RecordTable.InlineHead
-        label={t('kb-categories', 'Categories')}
-        icon={IconFolders}
-      />
-    ),
-    cell: ({ cell }) => (
-      <RecordTableInlineCell>
-        <Badge variant="secondary">
-          {(cell.row.original.categories || []).length}
-        </Badge>
-      </RecordTableInlineCell>
-    ),
-  },
-  {
+    label: t('kb-categories', 'Categories'),
+    icon: IconFolders,
+    count: (topic) => (topic.categories || []).length,
+  }),
+  kbColumn<ITopic>({
     id: 'brandId',
-    accessorKey: 'brandId',
     size: 200,
-    header: () => (
-      <RecordTable.InlineHead label={t('brand', 'Brand')} icon={IconTag} />
-    ),
-    cell: ({ cell }) => <BrandCell cell={cell} />,
-  },
-  {
+    label: t('brand', 'Brand'),
+    icon: IconTag,
+    render: (cell) => <BrandCell cell={cell} />,
+  }),
+  kbColumn<ITopic>({
     id: 'code',
-    accessorKey: 'code',
     size: 160,
-    header: () => (
-      <RecordTable.InlineHead label={t('kb-code', 'Code')} icon={IconHash} />
-    ),
-    cell: ({ cell }) => (
+    label: t('kb-code', 'Code'),
+    icon: IconHash,
+    render: (cell) => (
       <TextCell cell={cell} field="code" placeholder={t('kb-code', 'Code')} />
     ),
-  },
-  {
+  }),
+  kbColumn<ITopic>({
     id: 'languageCode',
-    accessorKey: 'languageCode',
     size: 140,
-    header: () => (
-      <RecordTable.InlineHead
-        label={t('language', 'Language')}
-        icon={IconLanguage}
-      />
-    ),
-    cell: ({ cell }) => {
+    label: t('language', 'Language'),
+    icon: IconLanguage,
+    render: (cell) => {
       const code = cell.getValue() as string;
       const language = LANGUAGES.find((item) => item.value === code);
 
@@ -187,25 +148,12 @@ const createTopicsColumns = (t: TFunction): ColumnDef<ITopic>[] => [
         </RecordTableInlineCell>
       );
     },
-  },
-  {
+  }),
+  kbDateColumn<ITopic>({
     id: 'createdDate',
-    accessorKey: 'createdDate',
-    size: 160,
-    header: () => (
-      <RecordTable.InlineHead
-        label={t('created-at', 'Created at')}
-        icon={IconCalendarPlus}
-      />
-    ),
-    cell: ({ cell }) => (
-      <RelativeDateDisplay value={cell.getValue() as string} asChild>
-        <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
-          <RelativeDateDisplay.Value value={cell.getValue() as string} />
-        </RecordTableInlineCell>
-      </RelativeDateDisplay>
-    ),
-  },
+    label: t('created-at', 'Created at'),
+    icon: IconCalendarPlus,
+  }),
 ];
 
 export const useTopicsColumns = (): ColumnDef<ITopic>[] => {

@@ -13,12 +13,13 @@ import {
   TOPIC_DETAIL,
 } from '@/knowledgebase/graphql/queries';
 import { ICategory, ICategoryDoc } from '@/knowledgebase/types';
+import { useKbToast } from '@/knowledgebase/shared/hooks/useKbToast';
 
 const CATEGORY_QUERIES = [CATEGORIES, TOPIC_DETAIL, TOPICS];
 
 export const useSaveCategory = () => {
   const { t } = useTranslation('frontline');
-  const { toast } = useToast();
+  const { run } = useKbToast();
 
   const [addCategory, { loading: adding }] = useMutation(ADD_CATEGORY, {
     refetchQueries: CATEGORY_QUERIES,
@@ -30,34 +31,19 @@ export const useSaveCategory = () => {
     awaitRefetchQueries: true,
   });
 
-  const saveCategory = async (doc: ICategoryDoc, categoryId?: string) => {
-    try {
-      if (categoryId) {
-        await editCategory({ variables: { _id: categoryId, doc } });
-      } else {
-        await addCategory({ variables: { doc } });
-      }
-
-      toast({
-        title: t('success'),
-        description: categoryId
-          ? t('kb-category-saved', 'Category saved')
-          : t('kb-category-created', 'Category created'),
-        variant: 'success',
-      });
-
-      return true;
-    } catch (error: unknown) {
-      toast({
-        title: t('error'),
-        description:
-          error instanceof Error ? error.message : t('something-went-wrong'),
-        variant: 'destructive',
-      });
-
-      return false;
-    }
-  };
+  const saveCategory = (doc: ICategoryDoc, categoryId?: string) =>
+    run(
+      async () => {
+        if (categoryId) {
+          await editCategory({ variables: { _id: categoryId, doc } });
+        } else {
+          await addCategory({ variables: { doc } });
+        }
+      },
+      categoryId
+        ? t('kb-category-saved', 'Category saved')
+        : t('kb-category-created', 'Category created'),
+    );
 
   return { saveCategory, loading: adding || editing };
 };

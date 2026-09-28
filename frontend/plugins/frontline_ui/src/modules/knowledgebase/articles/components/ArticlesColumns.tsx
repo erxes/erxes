@@ -16,7 +16,6 @@ import {
   PopoverScoped,
   RecordTable,
   RecordTableInlineCell,
-  RelativeDateDisplay,
   TextOverflowTooltip,
   useQueryState,
 } from 'erxes-ui';
@@ -26,16 +25,13 @@ import { useTranslation } from 'react-i18next';
 import { articlesMoreColumn } from '@/knowledgebase/articles/components/ArticlesMoreColumn';
 import { useEditArticleField } from '@/knowledgebase/articles/hooks/useArticleMutations';
 import { ARTICLE_STATUSES } from '@/knowledgebase/constants';
-import { KbInlineTextCell } from '@/knowledgebase/shared/components/KbInlineTextCell';
-import { SelectKbCategory } from '@/knowledgebase/shared/components/SelectKbCategory';
 import {
-  IArticle,
-  IArticleDoc,
-  KnowledgeBaseHotKeyScope,
-} from '@/knowledgebase/types';
-
-const cellScope = (article: IArticle, field: string) =>
-  clsx(KnowledgeBaseHotKeyScope.ArticlesPage, article._id, field);
+  kbColumn,
+  kbDateColumn,
+  KbTextCell,
+} from '@/knowledgebase/shared/components/kbColumns';
+import { SelectKbCategory } from '@/knowledgebase/shared/components/SelectKbCategory';
+import { IArticle, KnowledgeBaseHotKeyScope } from '@/knowledgebase/types';
 
 const statusVariant = (
   status: string,
@@ -56,19 +52,18 @@ const TextCell = ({
   placeholder?: string;
   children?: ReactNode;
 }) => {
-  const article = cell.row.original;
   const { editArticleField } = useEditArticleField();
-  const patch = (next: string): Partial<IArticleDoc> => ({ [field]: next });
 
   return (
-    <KbInlineTextCell
-      value={(cell.getValue() as string) || ''}
+    <KbTextCell
+      cell={cell}
+      scope={KnowledgeBaseHotKeyScope.ArticlesPage}
+      field={field}
       placeholder={placeholder}
-      scope={cellScope(article, field)}
-      onSave={(next) => editArticleField(article, patch(next))}
+      onSave={(next) => editArticleField(cell.row.original, { [field]: next })}
     >
       {children}
-    </KbInlineTextCell>
+    </KbTextCell>
   );
 };
 
@@ -111,7 +106,7 @@ const StatusCell = ({
 
   return (
     <PopoverScoped
-      scope={cellScope(article, 'status')}
+      scope={clsx(KnowledgeBaseHotKeyScope.ArticlesPage, article._id, 'status')}
       open={open}
       onOpenChange={setOpen}
     >
@@ -158,7 +153,11 @@ const CategoryCell = ({
       variant="table"
       topicId={topicId}
       value={article.categoryId}
-      scope={cellScope(article, 'categoryId')}
+      scope={clsx(
+        KnowledgeBaseHotKeyScope.ArticlesPage,
+        article._id,
+        'categoryId',
+      )}
       onValueChange={(categoryId) => editArticleField(article, { categoryId })}
     />
   );
@@ -170,84 +169,57 @@ const createArticlesColumns = (
 ): ColumnDef<IArticle>[] => [
   articlesMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<IArticle>,
-  {
+  kbColumn<IArticle>({
     id: 'title',
-    accessorKey: 'title',
     size: 300,
-    header: () => (
-      <RecordTable.InlineHead
-        label={t('title-label', 'Title')}
-        icon={IconLabelFilled}
-      />
-    ),
-    cell: ({ cell }) => <TitleCell cell={cell} t={t} />,
-  },
-  {
+    label: t('title-label', 'Title'),
+    icon: IconLabelFilled,
+    render: (cell) => <TitleCell cell={cell} t={t} />,
+  }),
+  kbColumn<IArticle>({
     id: 'status',
-    accessorKey: 'status',
     size: 140,
-    header: () => (
-      <RecordTable.InlineHead
-        label={t('status', 'Status')}
-        icon={IconProgressCheck}
-      />
-    ),
-    cell: ({ cell }) => <StatusCell cell={cell} t={t} />,
-  },
-  {
+    label: t('status', 'Status'),
+    icon: IconProgressCheck,
+    render: (cell) => <StatusCell cell={cell} t={t} />,
+  }),
+  kbColumn<IArticle>({
     id: 'categoryId',
-    accessorKey: 'categoryId',
     size: 220,
-    header: () => (
-      <RecordTable.InlineHead
-        label={t('kb-category', 'Category')}
-        icon={IconFolder}
-      />
-    ),
-    cell: ({ cell }) => <CategoryCell cell={cell} topicId={topicId} />,
-  },
-  {
+    label: t('kb-category', 'Category'),
+    icon: IconFolder,
+    render: (cell) => <CategoryCell cell={cell} topicId={topicId} />,
+  }),
+  kbColumn<IArticle>({
     id: 'summary',
-    accessorKey: 'summary',
     size: 320,
-    header: () => (
-      <RecordTable.InlineHead
-        label={t('kb-summary', 'Summary')}
-        icon={IconNotes}
-      />
-    ),
-    cell: ({ cell }) => (
+    label: t('kb-summary', 'Summary'),
+    icon: IconNotes,
+    render: (cell) => (
       <TextCell
         cell={cell}
         field="summary"
         placeholder={t('kb-no-summary', 'No summary')}
       />
     ),
-  },
-  {
+  }),
+  kbColumn<IArticle>({
     id: 'viewCount',
-    accessorKey: 'viewCount',
     size: 120,
-    header: () => (
-      <RecordTable.InlineHead label={t('kb-views', 'Views')} icon={IconEye} />
-    ),
-    cell: ({ cell }) => (
+    label: t('kb-views', 'Views'),
+    icon: IconEye,
+    render: (cell) => (
       <RecordTableInlineCell>
         {(cell.getValue() as number) ?? 0}
       </RecordTableInlineCell>
     ),
-  },
-  {
+  }),
+  kbColumn<IArticle>({
     id: 'createdUser',
-    accessorKey: 'createdUser',
     size: 200,
-    header: () => (
-      <RecordTable.InlineHead
-        label={t('kb-created-by', 'Created by')}
-        icon={IconUser}
-      />
-    ),
-    cell: ({ cell }) => (
+    label: t('kb-created-by', 'Created by'),
+    icon: IconUser,
+    render: (cell) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip
           value={
@@ -258,25 +230,12 @@ const createArticlesColumns = (
         />
       </RecordTableInlineCell>
     ),
-  },
-  {
+  }),
+  kbDateColumn<IArticle>({
     id: 'modifiedDate',
-    accessorKey: 'modifiedDate',
-    size: 160,
-    header: () => (
-      <RecordTable.InlineHead
-        label={t('updated-at', 'Updated at')}
-        icon={IconCalendarPlus}
-      />
-    ),
-    cell: ({ cell }) => (
-      <RelativeDateDisplay value={cell.getValue() as string} asChild>
-        <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
-          <RelativeDateDisplay.Value value={cell.getValue() as string} />
-        </RecordTableInlineCell>
-      </RelativeDateDisplay>
-    ),
-  },
+    label: t('updated-at', 'Updated at'),
+    icon: IconCalendarPlus,
+  }),
 ];
 
 export const useArticlesColumns = (topicId: string): ColumnDef<IArticle>[] => {
