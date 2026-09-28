@@ -1,5 +1,6 @@
 import { Document } from 'mongoose';
 import { DiscordAttachment } from '@/integrations/discord/@types/activity';
+import type { IMessageReplyTo } from '@/inbox/@types/conversationMessages';
 
 export interface IDiscordConversationMessage {
   messageId: string;
@@ -9,6 +10,7 @@ export interface IDiscordConversationMessage {
   updatedAt?: Date;
   deletedAt?: Date;
   attachments?: DiscordAttachment[];
+  replyTo?: IMessageReplyTo;
   customerId?: string;
   userId?: string;
   internal?: boolean;
@@ -16,7 +18,6 @@ export interface IDiscordConversationMessage {
 }
 
 export interface IDiscordConversationMessageDocument
-  extends IDiscordConversationMessage,
-    Document {
+  extends IDiscordConversationMessage, Document {
   _id: string;
 }

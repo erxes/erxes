@@ -31,7 +31,7 @@ import { IntegrationType } from '@/types/Integration';
 import {
   buildDiscordInviteUrl,
   DISCORD_INTEGRATION_SCHEMA,
-} from '../constants/discordSchema';
+} from '@/integrations/discord/constants/discordSchema';
 import {
   useDiscordBotChannels,
   useDiscordConnectedServers,
@@ -40,23 +40,22 @@ import {
   useDiscordNamePresets,
   useDiscordTakenChannels,
   useDiscordValidateToken,
-} from '../hooks/useDiscordSetup';
+} from '@/integrations/discord/hooks/useDiscordSetup';
 
 type FormValues = z.infer<typeof DISCORD_INTEGRATION_SCHEMA>;
 
 const STEP_DETAILS = [
   {
     title: 'Connect token',
-    description:
-      'Paste your bot token from the Discord Developer Portal to get started.',
+    description: 'Authenticate the Discord bot used by this integration.',
   },
   {
     title: 'Pick server',
-    description: 'Select the server where you want to integrate this bot.',
+    description: 'Choose the Discord server the bot should connect to.',
   },
   {
     title: 'Pick channels',
-    description: 'Choose the channels and name this integration before saving.',
+    description: 'Select the Discord channels to manage from the inbox.',
   },
 ];
 
@@ -364,7 +363,7 @@ export const DiscordIntegrationDetail = () => {
                 <Sheet.Title>
                   {t('discord-add-bot', 'Add Discord bot')}
                 </Sheet.Title>
-                <Sheet.Description>
+                <Sheet.Description className="sr-only">
                   {t(
                     'discord-add-bot-description',
                     'Connect a Discord bot to manage your Discord channel messages right from your Team Inbox.',
@@ -377,8 +376,8 @@ export const DiscordIntegrationDetail = () => {
                 <IntegrationSteps
                   step={step}
                   title={STEP_DETAILS[step - 1].title}
-                  stepsLength={3}
                   description={STEP_DETAILS[step - 1].description}
+                  stepsLength={3}
                 />
                 <div className="flex-1 overflow-auto p-4 pt-0 flex flex-col gap-4">
                   {step === 1 && (

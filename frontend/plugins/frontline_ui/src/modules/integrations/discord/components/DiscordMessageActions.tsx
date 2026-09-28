@@ -10,11 +10,11 @@ import {
   useConfirm,
 } from 'erxes-ui';
 import { IconLink, IconPencil, IconTrash } from '@tabler/icons-react';
-import { DISCORD_CONVERSATION_CHANNEL } from '../graphql/queries';
+import { DISCORD_CONVERSATION_CHANNEL } from '@/integrations/discord/graphql/queries';
 import {
   DISCORD_DELETE_MESSAGE,
   DISCORD_EDIT_MESSAGE,
-} from '../graphql/mutations';
+} from '@/integrations/discord/graphql/mutations';
 
 const stripToText = (html?: string): string => {
   if (!html) {

@@ -1,4 +1,4 @@
-import {
+import type {
   APIEmbed,
   APIEmbedImage,
   APIEmbedThumbnail,
@@ -7,20 +7,67 @@ import {
   GatewayMessageDeleteBulkDispatchData,
   GatewayMessageDeleteDispatchData,
   GatewayMessagePollVoteDispatchData,
+  GatewayMessageReactionAddDispatchData,
+  GatewayMessageReactionRemoveDispatchData,
   GatewayTypingStartDispatchData,
 } from 'discord-api-types/v10';
-import {
+import type {
   DiscordActivity,
   DiscordEmbed,
   DiscordMention,
   DiscordMessageDeleteEvent,
   DiscordPoll,
   DiscordPollVoteEvent,
+  DiscordReactionEvent,
   DiscordTypingEvent,
   TDiscordMessagePayload,
 } from '@/integrations/discord/@types/activity';
 
-export const normalizeDiscordPoll = (poll?: APIPoll): DiscordPoll | undefined => {
+const DISCORD_VOICE_MESSAGE_FLAG = 1 << 13;
+
+/** Return a public image URL for a Discord sticker when its format supports one. */
+const stickerUrl = (id: string, formatType: number) => {
+  if (formatType === 3) return undefined;
+  const extension = formatType === 4 ? 'gif' : 'png';
+  return `https://media.discordapp.net/stickers/${id}.${extension}`;
+};
+
+/** Map Discord sticker items to inbox sticker metadata. */
+const normalizeDiscordStickers = (
+  stickers?: TDiscordMessagePayload['sticker_items'],
+) =>
+  stickers?.map((sticker) => ({
+    id: sticker.id,
+    name: sticker.name,
+    formatType: sticker.format_type,
+    url: stickerUrl(sticker.id, sticker.format_type),
+  }));
+
+/** Keep Discord attachment media details in the inbox attachment shape. */
+const normalizeDiscordAttachments = (
+  attachments?: TDiscordMessagePayload['attachments'],
+) =>
+  (attachments || []).map((attachment) => ({
+    type: attachment.content_type || 'application/octet-stream',
+    url: attachment.url || '',
+    name: attachment.filename || '',
+    size: typeof attachment.size === 'number' ? attachment.size : undefined,
+    width: typeof attachment.width === 'number' ? attachment.width : undefined,
+    height:
+      typeof attachment.height === 'number' ? attachment.height : undefined,
+    duration:
+      typeof attachment.duration_secs === 'number'
+        ? attachment.duration_secs
+        : undefined,
+    waveform: attachment.waveform || undefined,
+    ephemeral: Boolean(attachment.ephemeral),
+    spoiler: attachment.filename?.startsWith('SPOILER_'),
+  }));
+
+/** Convert a Discord poll to the stored poll shape. */
+export const normalizeDiscordPoll = (
+  poll?: APIPoll,
+): DiscordPoll | undefined => {
   if (!poll) {
     return undefined;
   }
@@ -80,11 +127,15 @@ export const normalizeDiscordEmbeds = (
       ? {
           name: embed.author.name || undefined,
           url: embed.author.url || undefined,
-          iconUrl: embed.author.proxy_icon_url || embed.author.icon_url || undefined,
+          iconUrl:
+            embed.author.proxy_icon_url || embed.author.icon_url || undefined,
         }
       : undefined,
     provider: embed?.provider
-      ? { name: embed.provider.name || undefined, url: embed.provider.url || undefined }
+      ? {
+          name: embed.provider.name || undefined,
+          url: embed.provider.url || undefined,
+        }
       : undefined,
     thumbnail: normalizeEmbedMedia(embed?.thumbnail),
     image: normalizeEmbedMedia(embed?.image),
@@ -99,70 +150,161 @@ export const normalizeDiscordEmbeds = (
     footer: embed?.footer
       ? {
           text: embed.footer.text || undefined,
-          iconUrl: embed.footer.proxy_icon_url || embed.footer.icon_url || undefined,
+          iconUrl:
+            embed.footer.proxy_icon_url || embed.footer.icon_url || undefined,
         }
       : undefined,
     timestamp: embed?.timestamp || undefined,
   }));
 };
 
-
-export const mapMessageCreateToActivity = (
-  payload: TDiscordMessagePayload,
-): DiscordActivity => {
-  const author = payload?.author;
-
-  return {
-    source: 'discord',
-    timestamp: payload?.timestamp ? new Date(payload.timestamp) : new Date(),
-    messageId: payload?.id ?? '',
-    channelId: payload?.channel_id ?? '',
-    guildId: payload?.guild_id,
-    author: {
-      id: author?.id ?? '',
-      username: author?.username || author?.global_name || author?.id || '',
-      bot: Boolean(author?.bot) || Boolean(payload?.webhook_id),
-    },
-    content: payload?.content || '',
-    type: typeof payload?.type === 'number' ? payload.type : undefined,
-    poll: normalizeDiscordPoll(payload?.poll),
-    embeds: normalizeDiscordEmbeds(payload?.embeds),
-    mentions: (payload?.mentions || []).map((user) => ({
-      id: user?.id,
-      name:
-        user?.member?.nick ||
-        user?.global_name ||
-        user?.username ||
-        user?.id,
-    })),
-    attachments: (payload?.attachments || []).map((att) => ({
-      type: att?.content_type || 'application/octet-stream',
-      url: att?.url || '',
-      name: att?.filename || '',
-      size: typeof att?.size === 'number' ? att.size : undefined,
-    })),
-    raw: payload,
-  };
-};
+/** Choose the display name for a user mentioned in a Discord payload. */
+const discordMention = (
+  user: NonNullable<TDiscordMessagePayload['mentions']>[number],
+) => ({
+  id: user?.id,
+  name: user?.member?.nick || user?.global_name || user?.username || user?.id,
+});
 
 const USER_MENTION_RE = /<@!?(\d+)>/g;
+const ROLE_MENTION_RE = /<@&(\d+)>/g;
+const CHANNEL_MENTION_RE = /<#(\d+)>/g;
+const CUSTOM_EMOJI_RE = /<a?:([^:>]+):\d+>/g;
+const TIMESTAMP_RE = /<t:(\d+)(?::[tTdDfFR])?>/g;
 
-
-export const resolveDiscordMentions = (
+/** Replace Discord mention markup with readable inbox text. */
+export function resolveDiscordMentions(
   content: string,
   mentions: DiscordMention[] = [],
-): string => {
+): string {
   if (!content) {
     return content;
   }
 
-  const nameById = new Map(mentions.map((mention) => [mention.id, mention.name]));
+  const nameById = new Map(
+    mentions.map((mention) => [mention.id, mention.name]),
+  );
 
-  return content.replace(USER_MENTION_RE, (full, id) => {
-    const name = nameById.get(id);
-    return name ? `@${name}` : full;
-  });
+  const resolved = content
+    .replace(USER_MENTION_RE, (full, id) => {
+      const name = nameById.get(id);
+      return name ? `@${name}` : '@unknown-user';
+    })
+    .replace(ROLE_MENTION_RE, '@role')
+    .replace(CHANNEL_MENTION_RE, '#channel')
+    .replace(CUSTOM_EMOJI_RE, ':$1:')
+    .replace(TIMESTAMP_RE, (_full, seconds) =>
+      new Date(Number(seconds) * 1000).toLocaleString('en-US'),
+    );
+
+  return resolved;
+}
+
+/** Find the Discord message referenced by a reply. */
+const referencedMessageIdOf = (payload: TDiscordMessagePayload) =>
+  payload.referenced_message?.id || payload.message_reference?.message_id;
+
+/** Build a short preview of the message being replied to. */
+const referencedMessagePreview = (payload: TDiscordMessagePayload) => {
+  const referenced = payload.referenced_message;
+  const mentions = (referenced?.mentions || []).map(discordMention);
+  const content = resolveDiscordMentions(referenced?.content || '', mentions);
+  if (content) return content;
+  const attachment = referenced?.attachments?.[0];
+  if (attachment) return `Attachment · ${attachment.filename || 'File'}`;
+  return referenced?.embeds?.[0]?.title || undefined;
 };
+
+/** Find the display name of the author being replied to. */
+const referencedAuthorName = (payload: TDiscordMessagePayload) => {
+  const author = payload.referenced_message?.author;
+  return author?.global_name || author?.username || undefined;
+};
+
+/** Extract reply context while excluding native forwards. */
+const resolveDiscordReply = (payload: TDiscordMessagePayload) => {
+  if (
+    payload.message_reference?.type === 1 ||
+    payload.message_snapshots?.length
+  ) {
+    return undefined;
+  }
+
+  const referencedMessageId = referencedMessageIdOf(payload);
+  if (!referencedMessageId) return undefined;
+  return {
+    messageId: referencedMessageId,
+    content: referencedMessagePreview(payload),
+    authorName: referencedAuthorName(payload),
+  };
+};
+
+/** Extract the original content carried by a Discord forward. */
+const resolveForwardedSnapshot = (payload: TDiscordMessagePayload) => {
+  const snapshot = payload.message_snapshots?.[0]?.message;
+  if (!snapshot) return undefined;
+  const mentions = (snapshot.mentions || []).map(discordMention);
+
+  return {
+    content:
+      resolveDiscordMentions(snapshot.content || '', mentions) || undefined,
+    attachments: normalizeDiscordAttachments(snapshot.attachments),
+    embeds: normalizeDiscordEmbeds(snapshot.embeds),
+    stickers: normalizeDiscordStickers(snapshot.sticker_items),
+    createdAt: snapshot.timestamp || undefined,
+  };
+};
+
+/** Map the Discord author into an activity author. */
+const resolveActivityAuthor = (payload: TDiscordMessagePayload) => {
+  const author = payload.author;
+  return {
+    id: author?.id ?? '',
+    username: author?.username || author?.global_name || author?.id || '',
+    bot: Boolean(author?.bot) || Boolean(payload.webhook_id),
+  };
+};
+
+/** Use the Discord timestamp or the current time for an activity. */
+const resolveActivityTimestamp = (payload: TDiscordMessagePayload) =>
+  payload.timestamp ? new Date(payload.timestamp) : new Date();
+
+/** Read the Discord message type when present. */
+const resolveActivityType = (payload: TDiscordMessagePayload) =>
+  typeof payload.type === 'number' ? payload.type : undefined;
+
+/** Map mentioned Discord users into activity mentions. */
+const resolveActivityMentions = (payload: TDiscordMessagePayload) =>
+  (payload.mentions || []).map(discordMention);
+
+/** Convert a Discord message event into the inbox activity shape. */
+export const mapMessageCreateToActivity = (
+  payload: TDiscordMessagePayload,
+): DiscordActivity => {
+  const forwardedSnapshot = resolveForwardedSnapshot(payload);
+  const replyTo = resolveDiscordReply(payload);
+
+  return {
+    source: 'discord',
+    timestamp: resolveActivityTimestamp(payload),
+    messageId: payload.id ?? '',
+    channelId: payload.channel_id ?? '',
+    guildId: payload.guild_id,
+    author: resolveActivityAuthor(payload),
+    content: payload.content || '',
+    type: resolveActivityType(payload),
+    poll: normalizeDiscordPoll(payload.poll),
+    embeds: normalizeDiscordEmbeds(payload.embeds),
+    mentions: resolveActivityMentions(payload),
+    attachments: normalizeDiscordAttachments(payload.attachments),
+    stickers: normalizeDiscordStickers(payload.sticker_items),
+    voiceMessage: Boolean((payload.flags || 0) & DISCORD_VOICE_MESSAGE_FLAG),
+    ...(forwardedSnapshot && { forwardedSnapshot }),
+    ...(replyTo && { replyTo }),
+    raw: payload,
+  };
+};
+
 const CONTENT_MESSAGE_TYPES = new Set([0, 19]);
 
 export const isIgnorableActivity = (
@@ -178,7 +320,6 @@ export const isIgnorableActivity = (
   );
 };
 
-
 export const mapPollVoteToEvent = (
   payload: GatewayMessagePollVoteDispatchData,
   added: boolean,
@@ -193,6 +334,27 @@ export const mapPollVoteToEvent = (
   raw: payload,
 });
 
+/** Convert a gateway reaction event into an inbox reaction event. */
+export const mapReactionToEvent = (
+  payload:
+    | GatewayMessageReactionAddDispatchData
+    | GatewayMessageReactionRemoveDispatchData,
+  added: boolean,
+): DiscordReactionEvent => {
+  const animatedPrefix = payload.emoji.animated ? 'a' : '';
+  const emojiName = payload.emoji.name || 'emoji';
+  return {
+    source: 'discord',
+    messageId: payload.message_id,
+    channelId: payload.channel_id,
+    userId: payload.user_id,
+    emoji: payload.emoji.id
+      ? `<${animatedPrefix}:${emojiName}:${payload.emoji.id}>`
+      : payload.emoji.name || '♥',
+    added,
+    raw: payload,
+  };
+};
 
 export const mapTypingStartToEvent = (
   payload: GatewayTypingStartDispatchData,
