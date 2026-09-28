@@ -29,7 +29,7 @@ export const loadSafeRemainderClass = (models: IModels, _subdomain: string) => {
      * @returns Found object
      */
     public static async getRemainder(_id: string) {
-      const result: any = await models.SafeRemainders.findOne({ _id }).lean();
+      const result = await models.SafeRemainders.findOne({ _id }).lean();
 
       if (!result) throw new Error('Safe remainder not found!');
 
@@ -57,7 +57,7 @@ export const loadSafeRemainderClass = (models: IModels, _subdomain: string) => {
       } = params;
 
       // Create new safe remainder
-      const safeRemainder: any = await models.SafeRemainders.create({
+      const safeRemainder = await models.SafeRemainders.create({
         date,
         description,
         departmentId,

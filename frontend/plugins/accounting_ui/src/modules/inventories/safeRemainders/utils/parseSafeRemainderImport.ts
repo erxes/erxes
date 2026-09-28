@@ -69,9 +69,15 @@ const parseCsvRows = (text: string): TSafeRemainderImportItem[] => {
       throw new Error(`${rowNumber}-р мөрийн productCode хоосон байна`);
     }
 
-    const unitCost = parseNumber(
-      getColumn(row, 'unitCost', 'trInfo.unitCost'),
-      'unitCost',
+    const totalCost = parseOptionalNumber(
+      getColumn(
+        row,
+        'totalCost',
+        'countedCost',
+        'unitCost',
+        'trInfo.unitCost',
+      ),
+      'totalCost',
       rowNumber,
     );
     const isSale = parseBoolean(
@@ -91,12 +97,20 @@ const parseCsvRows = (text: string): TSafeRemainderImportItem[] => {
     return {
       productCode,
       count: parseNumber(getColumn(row, 'count'), 'count', rowNumber),
-      trInfo: { unitCost, isSale, unitPrice },
+      trInfo: {
+        unitCost: totalCost,
+        isCostExplicit: totalCost !== undefined,
+        isSale,
+        unitPrice,
+      },
     };
   });
 };
 
-export const parseSafeRemainderImport = (text: string, fileName: string) =>
-  fileName.toLowerCase().endsWith('.csv')
-    ? parseCsvRows(text)
-    : parseTextRows(text);
+export const parseSafeRemainderImport = (text: string, fileName: string) => {
+  const normalizedFileName = fileName.toLowerCase();
+  if (normalizedFileName.endsWith('.csv')) return parseCsvRows(text);
+  if (normalizedFileName.endsWith('.txt')) return parseTextRows(text);
+
+  throw new Error('Зөвхөн TXT эсвэл CSV файл импортлоно');
+};

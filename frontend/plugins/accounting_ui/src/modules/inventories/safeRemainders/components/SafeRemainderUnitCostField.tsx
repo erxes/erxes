@@ -18,13 +18,16 @@ export const SafeRemainderUnitCostField = ({
           {
             variables: {
               ...remItem,
-              trInfo: { ...remItem.trInfo, unitCost },
+              trInfo: {
+                ...remItem.trInfo,
+                unitCost: Math.max(0, unitCost),
+                isCostExplicit: true,
+              },
             },
           },
-          ['trInfo'],
         )
       }
-      className="shadow-none rounded-none px-2"
+      className="bg-yellow-50 shadow-none rounded-none px-2 dark:bg-yellow-500/10"
     />
   );
 };

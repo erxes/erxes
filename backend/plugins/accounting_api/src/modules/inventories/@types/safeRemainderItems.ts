@@ -10,6 +10,8 @@ export interface IRemainderParams {
 export interface ISafeRemainderItemTrInfo {
   activeCost?: number;
   unitCost?: number;
+  isCostExplicit?: boolean;
+  lastIncomePrice?: number;
   isSale?: boolean;
   unitPrice?: number;
 }
@@ -26,6 +28,7 @@ export interface ISafeRemainderItem {
 
   preCount: number;
   count: number;
+  cost?: number;
   status: string;
   order: number;
 
@@ -37,6 +40,8 @@ export interface ISafeRemainderItem {
 export interface ISafeRemainderItemDocument
   extends ISafeRemainderItem, Document {
   _id: string;
+  createdAt: Date;
+  createdBy: string;
   modifiedAt: Date;
   modifiedBy: string;
 }

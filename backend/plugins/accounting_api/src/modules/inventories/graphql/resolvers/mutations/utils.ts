@@ -5,7 +5,6 @@ import { IModels } from '~/connectionResolvers';
 import { ADJ_INV_STATUSES } from '~/modules/accounting/@types/adjustInventory';
 import {
   ACCOUNT_JOURNALS,
-  JOURNALS,
   TR_INVENTORY_STATUS_TYPES,
   TR_SIDES,
   TR_STATUSES,
@@ -15,6 +14,7 @@ import {
   ITransactionDocument,
   ITrDetail,
 } from '~/modules/accounting/@types/transaction';
+import { getLastIncomePrices } from '~/modules/accounting/utils/inventories';
 import { SAFE_REMAINDER_ITEM_STATUSES } from '~/modules/inventories/@types/constants';
 import {
   ISafeRemainderDocument,
@@ -26,6 +26,12 @@ type TInventoryInfo = {
   cost: number;
   soonIn: number;
   soonOut: number;
+};
+
+type TSafeRemainderProduct = {
+  _id: string;
+  code?: string;
+  uom?: string;
 };
 
 const EMPTY_LOCATION_VALUES = [null, ''];
@@ -110,33 +116,35 @@ export const setSafeRemItems = async (
   safeRemainder: ISafeRemainderDocument,
   userId: string,
 ) => {
-  let productFilter: any = {};
   const { productCategoryId, branchId, departmentId } = safeRemainder;
   const branchKey = inventoryKey(branchId);
   const departmentKey = inventoryKey(departmentId);
-
-  productFilter = {
-    query: { status: { $ne: 'deleted' } },
+  const existingProductIds: string[] = await models.SafeRemainderItems.distinct(
+    'productId',
+    { remainderId: safeRemainder._id },
+  );
+  const productFields = {
+    _id: 1,
+    uom: 1,
+    code: 1,
+    [`inventories.${branchKey}.${departmentKey}`]: 1,
   };
-
-  if (productCategoryId) {
-    productFilter.categoryId = productCategoryId;
-  }
-
-  // Get products related to product category
-  const products = await sendTRPCMessage({
+  const products: TSafeRemainderProduct[] = await sendTRPCMessage({
     subdomain,
     pluginName: 'core',
     module: 'products',
     action: 'find',
     input: {
-      ...productFilter,
-      fields: {
-        _id: 1,
-        uom: 1,
-        code: 1,
-        [`inventories.${branchKey}.${departmentKey}`]: 1,
+      query: {
+        status: { $ne: 'deleted' },
+        ...(existingProductIds.length
+          ? { _id: { $in: existingProductIds } }
+          : {}),
       },
+      ...(!existingProductIds.length && productCategoryId
+        ? { categoryId: productCategoryId }
+        : {}),
+      fields: productFields,
       sort: { code: 1 },
     },
     defaultValue: [],
@@ -144,9 +152,11 @@ export const setSafeRemItems = async (
 
   let bulkOps: any[] = [];
   let order = 0;
+  const now = new Date();
 
   // Get product ids
-  const allProductIds = products.map((item: any) => item._id);
+  const allProductIds = products.map((item) => item._id);
+  const lastIncomePrices = await getLastIncomePrices(models, allProductIds);
   const inventoryByProductId: Record<string, TInventoryInfo> = {};
   const invAccountIds = (
     await models.Accounts.find({
@@ -216,9 +226,37 @@ export const setSafeRemItems = async (
       soonIn: 0,
       soonOut: 0,
     };
+    const activeCost = fixNum(Math.max(0, newInfo.cost), 6);
     const activeUnitCost = newInfo.remainder
-      ? fixNum(newInfo.cost / newInfo.remainder, 6)
+      ? fixNum(activeCost / newInfo.remainder, 6)
       : 0;
+    const countedValue = { $ifNull: ['$count', newInfo.remainder] };
+    const defaultCountedCost = {
+      $cond: [
+        {
+          $and: [
+            { $eq: [activeCost, 0] },
+            { $gt: [countedValue, newInfo.remainder] },
+          ],
+        },
+        {
+          $multiply: [
+            { $subtract: [countedValue, newInfo.remainder] },
+            lastIncomePrices[productId] ?? 0,
+          ],
+        },
+        { $multiply: [activeUnitCost, countedValue] },
+      ],
+    };
+    const inferredCostExplicit = {
+      $ne: [
+        { $ifNull: ['$trInfo.unitCost', activeCost] },
+        { $ifNull: ['$trInfo.activeCost', activeCost] },
+      ],
+    };
+    const isCostExplicit = {
+      $ifNull: ['$trInfo.isCostExplicit', inferredCostExplicit],
+    };
 
     bulkOps.push({
       updateOne: {
@@ -236,6 +274,8 @@ export const setSafeRemItems = async (
                 $ifNull: ['$status', SAFE_REMAINDER_ITEM_STATUSES.NEW],
               },
               uom: { $ifNull: ['$uom', product.uom] },
+              createdAt: { $ifNull: ['$createdAt', now] },
+              createdBy: { $ifNull: ['$createdBy', userId] },
 
               preCount: newInfo.remainder,
               cost: newInfo.cost,
@@ -243,14 +283,20 @@ export const setSafeRemItems = async (
                 $mergeObjects: [
                   { $ifNull: ['$trInfo', {}] },
                   {
-                    activeCost: activeUnitCost,
+                    activeCost,
+                    lastIncomePrice: lastIncomePrices[productId] ?? 0,
+                    isCostExplicit,
                     unitCost: {
-                      $ifNull: ['$trInfo.unitCost', activeUnitCost],
+                      $cond: [
+                        isCostExplicit,
+                        { $ifNull: ['$trInfo.unitCost', defaultCountedCost] },
+                        defaultCountedCost,
+                      ],
                     },
                   },
                 ],
               },
-              modifiedAt: new Date(),
+              modifiedAt: now,
               modifiedBy: userId,
               order,
 
@@ -302,7 +348,6 @@ export const safeRemainderDoTrs = async (
     user,
     followInfos,
     side,
-    counterAccountId,
   }: {
     safeRemainder: ISafeRemainderDocument;
     details: ITrDetail[];
@@ -312,7 +357,6 @@ export const safeRemainderDoTrs = async (
     user: IUserDocument;
     followInfos?: ITransaction['followInfos'];
     side?: string;
-    counterAccountId?: string;
   },
 ) => {
   if (!oldMainTr && !details.length) {
@@ -340,39 +384,10 @@ export const safeRemainderDoTrs = async (
     followInfos,
     side,
   };
-  const counterTransactionDoc: ITransaction | undefined = counterAccountId
-    ? {
-        date: safeRemainder.date,
-        journal: JOURNALS.MAIN,
-        status: TR_STATUSES.COMPLETE,
-        side: side === TR_SIDES.DEBIT ? TR_SIDES.CREDIT : TR_SIDES.DEBIT,
-        branchId: safeRemainder.branchId,
-        departmentId: safeRemainder.departmentId,
-        description: 'Census cost adjustment counterpart',
-        contentType: 'safeRem',
-        contentId: safeRemainder._id,
-        details: [
-          {
-            accountId: counterAccountId,
-            amount: fixNum(
-              details.reduce((sum, detail) => sum + detail.amount, 0),
-              6,
-            ),
-          },
-        ],
-      }
-    : undefined;
-  const oldCounterTransaction = (otherTrs ?? []).find(
-    (transaction) => transaction.journal === JOURNALS.MAIN,
-  );
-
   if (!oldMainTr) {
     // create
     const transactions = await models.Transactions.createPTransaction(
-      [
-        transactionDoc,
-        ...(counterTransactionDoc ? [counterTransactionDoc] : []),
-      ],
+      [transactionDoc, ...(otherTrs ?? [])],
       user._id,
     );
     return transactions?.[0]?.parentId;
@@ -381,19 +396,7 @@ export const safeRemainderDoTrs = async (
   // update
   await models.Transactions.updatePTransaction(
     oldMainTr.parentId,
-    [
-      { ...oldMainTr, ...transactionDoc },
-      ...(counterTransactionDoc
-          ? [
-            {
-              ...(oldCounterTransaction?._id
-                ? { _id: oldCounterTransaction._id }
-                : {}),
-              ...counterTransactionDoc,
-            },
-          ]
-        : (otherTrs ?? [])),
-    ],
+    [{ ...oldMainTr, ...transactionDoc }, ...(otherTrs ?? [])],
     user._id,
   );
   return oldMainTr.parentId;

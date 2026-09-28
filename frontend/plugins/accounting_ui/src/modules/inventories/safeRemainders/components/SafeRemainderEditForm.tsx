@@ -45,8 +45,6 @@ export const EditSafeRemainder = () => {
     });
   };
 
-  const onError = () => undefined;
-
   if (detailLoading) {
     return <Spinner />;
   }
@@ -54,179 +52,180 @@ export const EditSafeRemainder = () => {
   return (
     <Form {...form}>
       <form
-        className="p-6 flex-auto overflow-auto"
-        onSubmit={form.handleSubmit(onSubmit, onError)}
+        className="flex h-full min-h-0 flex-col"
+        onSubmit={form.handleSubmit(onSubmit)}
       >
-        <div className="max-w-3xl space-y-4">
-          <RuleSection
-            title="Орлого"
-            icon={<IconArrowDownLeft size={16} />}
-            trId={safeRemainder?.incomeTrId}
-          >
-            <Form.Field
-              control={form.control}
-              name="incomeRule.accountId"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t('account')}</Form.Label>
-                  <Form.Control>
-                    <SelectAccount
-                      value={field.value || ''}
-                      onValueChange={field.onChange}
-                      defaultFilter={{ journals: [JournalEnum.INVENTORY] }}
-                      mode="single"
-                    />
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-          </RuleSection>
+        <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-6">
+          <div className="mx-auto grid max-w-6xl grid-cols-1 gap-4 lg:grid-cols-2">
+            <RuleSection
+              title="Орлого"
+              icon={<IconArrowDownLeft size={16} />}
+              trId={safeRemainder?.incomeTrId}
+            >
+              <Form.Field
+                control={form.control}
+                name="incomeRule.accountId"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>{t('account')}</Form.Label>
+                    <Form.Control>
+                      <SelectAccount
+                        value={field.value || ''}
+                        onValueChange={field.onChange}
+                        defaultFilter={{ journals: [JournalEnum.INVENTORY] }}
+                        mode="single"
+                      />
+                    </Form.Control>
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
+            </RuleSection>
 
-          <RuleSection
-            title="Зарлага"
-            icon={<IconArrowUpRight size={16} />}
-            trId={safeRemainder?.outTrId}
-          >
-            <Form.Field
-              control={form.control}
-              name="outRule.accountId"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t('account')}</Form.Label>
-                  <Form.Control>
-                    <SelectAccount
-                      value={field.value}
-                      onValueChange={field.onChange}
-                      defaultFilter={{ journals: [JournalEnum.INVENTORY] }}
-                      mode="single"
-                    />
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-          </RuleSection>
+            <RuleSection
+              title="Зарлага"
+              icon={<IconArrowUpRight size={16} />}
+              trId={safeRemainder?.outTrId}
+            >
+              <Form.Field
+                control={form.control}
+                name="outRule.accountId"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>{t('account')}</Form.Label>
+                    <Form.Control>
+                      <SelectAccount
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        defaultFilter={{ journals: [JournalEnum.INVENTORY] }}
+                        mode="single"
+                      />
+                    </Form.Control>
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
+            </RuleSection>
 
-          <RuleSection
-            title="Борлуулалт"
-            icon={<IconShoppingCart size={16} />}
-            trId={safeRemainder?.saleTrId}
-          >
-            <Form.Field
-              control={form.control}
-              name="saleRule.outAccountId"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t('account')}</Form.Label>
-                  <Form.Control>
-                    <SelectAccount
-                      value={field.value}
-                      onValueChange={field.onChange}
-                      defaultFilter={{ journals: [JournalEnum.INVENTORY] }}
-                      mode="single"
-                    />
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              control={form.control}
-              name="saleRule.costAccountId"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t('cost-account')}</Form.Label>
-                  <Form.Control>
-                    <SelectAccount
-                      value={field.value}
-                      onValueChange={field.onChange}
-                      defaultFilter={{ journals: [JournalEnum.INV_FOLLOW] }}
-                      mode="single"
-                    />
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              control={form.control}
-              name="saleRule.accountId"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t('sale-account')}</Form.Label>
-                  <Form.Control>
-                    <SelectAccount
-                      value={field.value}
-                      onValueChange={field.onChange}
-                      defaultFilter={{ journals: [JournalEnum.INV_FOLLOW] }}
-                      mode="single"
-                    />
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-          </RuleSection>
+            <RuleSection
+              title="Өртөг өсөх залруулга"
+              description="Өртөг нэмэх бараа материалын данс"
+              icon={<IconArrowDownLeft size={16} />}
+              trId={safeRemainder?.costIncreaseTrId}
+            >
+              <Form.Field
+                control={form.control}
+                name="costIncreaseRule.accountId"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>{t('account')}</Form.Label>
+                    <Form.Control>
+                      <SelectAccount
+                        value={field.value || ''}
+                        onValueChange={field.onChange}
+                        defaultFilter={{ journals: [JournalEnum.INVENTORY] }}
+                        mode="single"
+                      />
+                    </Form.Control>
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
+            </RuleSection>
 
-          <RuleSection
-            title="Өртөг өсөх залруулга"
-            description="Барааны өртөг өсөхөд кредит талд бичигдэх данс"
-            icon={<IconArrowDownLeft size={16} />}
-            trId={safeRemainder?.costIncreaseTrId}
-          >
-            <Form.Field
-              control={form.control}
-              name="costIncreaseRule.accountId"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t('account')}</Form.Label>
-                  <Form.Control>
-                    <SelectAccount
-                      value={field.value || ''}
-                      onValueChange={field.onChange}
-                      defaultFilter={{ journals: [JournalEnum.MAIN] }}
-                      mode="single"
-                    />
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-          </RuleSection>
+            <RuleSection
+              title="Өртөг буурах залруулга"
+              description="Өртөг хасах бараа материалын данс"
+              icon={<IconArrowUpRight size={16} />}
+              trId={safeRemainder?.costDecreaseTrId}
+            >
+              <Form.Field
+                control={form.control}
+                name="costDecreaseRule.accountId"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>{t('account')}</Form.Label>
+                    <Form.Control>
+                      <SelectAccount
+                        value={field.value || ''}
+                        onValueChange={field.onChange}
+                        defaultFilter={{ journals: [JournalEnum.INVENTORY] }}
+                        mode="single"
+                      />
+                    </Form.Control>
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
+            </RuleSection>
 
-          <RuleSection
-            title="Өртөг буурах залруулга"
-            description="Барааны өртөг буурахад дебет талд бичигдэх данс"
-            icon={<IconArrowUpRight size={16} />}
-            trId={safeRemainder?.costDecreaseTrId}
-          >
-            <Form.Field
-              control={form.control}
-              name="costDecreaseRule.accountId"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t('account')}</Form.Label>
-                  <Form.Control>
-                    <SelectAccount
-                      value={field.value || ''}
-                      onValueChange={field.onChange}
-                      defaultFilter={{ journals: [JournalEnum.MAIN] }}
-                      mode="single"
-                    />
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-          </RuleSection>
-
-          <div className="flex justify-end pt-2">
-            <Button type="submit" size="lg" disabled={loading}>
-              {loading && <Spinner />}
-              {t('save')}
-            </Button>
+            <RuleSection
+              title="Борлуулалт"
+              icon={<IconShoppingCart size={16} />}
+              trId={safeRemainder?.saleTrId}
+            >
+              <Form.Field
+                control={form.control}
+                name="saleRule.outAccountId"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>{t('account')}</Form.Label>
+                    <Form.Control>
+                      <SelectAccount
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        defaultFilter={{ journals: [JournalEnum.INVENTORY] }}
+                        mode="single"
+                      />
+                    </Form.Control>
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
+              <Form.Field
+                control={form.control}
+                name="saleRule.costAccountId"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>{t('cost-account')}</Form.Label>
+                    <Form.Control>
+                      <SelectAccount
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        defaultFilter={{ journals: [JournalEnum.INV_FOLLOW] }}
+                        mode="single"
+                      />
+                    </Form.Control>
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
+              <Form.Field
+                control={form.control}
+                name="saleRule.accountId"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>{t('sale-account')}</Form.Label>
+                    <Form.Control>
+                      <SelectAccount
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        defaultFilter={{ journals: [JournalEnum.INV_FOLLOW] }}
+                        mode="single"
+                      />
+                    </Form.Control>
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
+            </RuleSection>
           </div>
+        </div>
+        <div className="flex shrink-0 justify-end border-t bg-background px-6 py-3">
+          <Button type="submit" size="lg" disabled={loading}>
+            {loading && <Spinner />}
+            {t('save')}
+          </Button>
         </div>
       </form>
     </Form>
@@ -277,9 +276,7 @@ const RuleSection = ({
           </Link>
         )}
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
-        {children}
-      </div>
+      <div className="grid grid-cols-1 gap-4 p-4">{children}</div>
     </div>
   );
 };

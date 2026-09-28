@@ -41,6 +41,8 @@ export type ISafeRemainder = {
 export type TSafeRemainderItemTrInfo = {
   activeCost?: number;
   unitCost?: number;
+  isCostExplicit?: boolean;
+  lastIncomePrice?: number;
   isSale?: boolean;
   unitPrice?: number;
 };
@@ -53,7 +55,10 @@ export type TSafeRemainderImportItem = {
 
 export type ISafeRemainderItem = {
   _id: string;
+  createdAt: Date;
+  createdBy: string;
   modifiedAt: Date;
+  modifiedBy: string;
   status: string;
   remainderId: string;
   productId: string;

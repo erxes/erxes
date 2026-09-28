@@ -59,7 +59,10 @@ export const safeRemainderItemFields = `
   count
   status
   remainderId
+  createdAt
+  createdBy
   modifiedAt
+  modifiedBy
   order
 
   product {
