@@ -1,3 +1,23 @@
+export interface ISaasHelpCenterDomainRecord {
+  name: string;
+  value: string;
+}
+
+export interface ISaasHelpCenterDomain {
+  hostname: string;
+  cloudflareId?: string;
+  // Cloudflare custom hostname status: pending, active, moved, blocked, ...
+  status?: string;
+  sslStatus?: string;
+  // Whether the hostname CNAMEs to the tenant's help center: pending or active
+  dnsStatus?: string;
+  ownershipVerification?: ISaasHelpCenterDomainRecord;
+  sslValidationRecords?: ISaasHelpCenterDomainRecord[];
+  verificationErrors?: string[];
+  lastCheckedAt?: Date;
+  createdAt?: Date;
+}
+
 export interface IOrganization {
   _id?: string;
   name: string;
@@ -27,6 +47,10 @@ export interface IOrganization {
   promoCodes?: string[];
   partnerKey?: string;
   awsSesAccountStatus?: string;
+  customDomainStatus?: Record<string, unknown>;
+  hostNameStatus?: string;
+  sslStatus?: string;
+  helpCenterDomain?: ISaasHelpCenterDomain;
 }
 
 export interface ISaasBundle {

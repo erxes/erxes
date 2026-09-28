@@ -9,6 +9,7 @@ import {
   IconSettings,
   IconStackFront,
   IconTicket,
+  IconWorldWww,
 } from '@tabler/icons-react';
 import { IUIConfig, TActivityRowProps, TPropertyInputProps } from 'erxes-ui';
 import { lazy, Suspense } from 'react';
@@ -146,6 +147,11 @@ export const CONFIG: IUIConfig = {
       name: 'help-center',
       icon: IconLifebuoy,
       path: 'frontline/helpcenter',
+    },
+    {
+      name: 'custom-domain',
+      icon: IconWorldWww,
+      path: 'frontline/customdomain',
     },
     {
       name: 'channels',
