@@ -7,6 +7,7 @@ import {
   IconBook,
   IconLifebuoy,
   IconPlus,
+  IconWorldWww,
 } from '@tabler/icons-react';
 import { NavigationMenuLinkItem, Button, Skeleton, Badge } from 'erxes-ui';
 import { IntegrationNavigation } from '@/integrations/components/IntegrationNavigation';
@@ -79,6 +80,11 @@ export const FrontlineDestinationLinks = () => {
         name={t('help-center', 'Help Center')}
         icon={IconLifebuoy}
         path="frontline/helpcenter"
+      />
+      <NavigationMenuLinkItem
+        name={t('custom-domain', 'Custom Domain')}
+        icon={IconWorldWww}
+        path="frontline/customdomain"
       />
     </>
   );
