@@ -1,4 +1,7 @@
-import { getCustomDomainView } from '@/customdomain/service';
+import {
+  checkActiveDomainOnOpen,
+  getCustomDomainView,
+} from '@/customdomain/service';
 import { IContext } from '~/connectionResolvers';
 
 export const customDomainQueries = {
@@ -8,6 +11,8 @@ export const customDomainQueries = {
     { subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('showHelpCenter');
+
+    await checkActiveDomainOnOpen(subdomain);
 
     return getCustomDomainView(subdomain);
   },

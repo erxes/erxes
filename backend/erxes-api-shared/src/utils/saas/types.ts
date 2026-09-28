@@ -14,6 +14,8 @@ export interface ISaasHelpCenterDomain {
   ownershipVerification?: ISaasHelpCenterDomainRecord;
   sslValidationRecords?: ISaasHelpCenterDomainRecord[];
   verificationErrors?: string[];
+  // While pending, checked in the background until this date; unset once active
+  autoCheckUntil?: Date;
   lastCheckedAt?: Date;
   createdAt?: Date;
 }

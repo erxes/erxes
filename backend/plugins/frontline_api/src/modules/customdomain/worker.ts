@@ -1,21 +1,20 @@
+import { createMQWorkerWithListeners, redis } from 'erxes-api-shared/utils';
 import {
-  createMQWorkerWithListeners,
-  redis,
-  sendWorkerQueue,
-} from 'erxes-api-shared/utils';
-import {
-  CHECK_EVERY_MS,
   CUSTOM_DOMAIN_QUEUE,
   isCustomDomainAvailable,
 } from '@/customdomain/constants';
-import { checkCustomDomains } from '@/customdomain/service';
+import { startPendingChecks, stopPendingChecks } from '@/customdomain/schedule';
+import {
+  checkPendingCustomDomains,
+  countPendingCustomDomains,
+} from '@/customdomain/service';
 
 /**
- * Checks connected domains every ten minutes so they turn active without the
- * tenant pressing Refresh. The repeat key is fixed, so every replica
- * registering it still yields one schedule.
+ * Checks pending domains every ten minutes until they are active. Once none
+ * is pending the schedule removes itself, so active domains cost nothing in
+ * the background; they are re-checked only when the page is opened.
  */
-export const startCustomDomainWorker = () => {
+export const startCustomDomainWorker = async () => {
   if (!isCustomDomainAvailable()) {
     return;
   }
@@ -23,24 +22,33 @@ export const startCustomDomainWorker = () => {
   createMQWorkerWithListeners(
     'frontline',
     CUSTOM_DOMAIN_QUEUE,
-    () => checkCustomDomains(),
+    async () => {
+      const stillPending = await checkPendingCustomDomains();
+
+      if (stillPending) {
+        return;
+      }
+
+      await stopPendingChecks();
+
+      // A domain saved while this check ran restarted the schedule just
+      // before it was removed; put it back.
+      if (await countPendingCustomDomains()) {
+        await startPendingChecks();
+      }
+    },
     redis,
     () => undefined,
     { concurrency: 1 },
   );
 
-  sendWorkerQueue('frontline', CUSTOM_DOMAIN_QUEUE)
-    .add(
-      CUSTOM_DOMAIN_QUEUE,
-      {},
-      {
-        repeat: { every: CHECK_EVERY_MS },
-        jobId: CUSTOM_DOMAIN_QUEUE,
-        removeOnComplete: true,
-        removeOnFail: true,
-      },
-    )
-    .catch((e) =>
-      console.error('[customdomain] could not schedule checks:', e),
-    );
+  try {
+    if (await countPendingCustomDomains()) {
+      await startPendingChecks();
+    } else {
+      await stopPendingChecks();
+    }
+  } catch (e) {
+    console.error('[customdomain] could not read pending domains:', e);
+  }
 };

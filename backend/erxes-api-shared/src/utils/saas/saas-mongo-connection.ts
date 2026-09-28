@@ -194,18 +194,30 @@ export const getSaasOrganizationHelpCenterDomain = async (
   return organization?.helpCenterDomain;
 };
 
-export const getSaasOrganizationsWithHelpCenterDomain = async (): Promise<
-  Pick<IOrganization, 'subdomain' | 'helpCenterDomain'>[]
-> => {
-  await getSaasCoreConnection();
+/**
+ * Help center domains still waiting on DNS or their certificate, within their
+ * background check window. Active domains are never returned.
+ */
+export const getSaasOrganizationsWithPendingHelpCenterDomain =
+  async (): Promise<
+    Pick<IOrganization, 'subdomain' | 'helpCenterDomain'>[]
+  > => {
+    await getSaasCoreConnection();
 
-  return coreModelOrganizations
-    .find(
-      { 'helpCenterDomain.hostname': { $exists: true } },
-      { subdomain: 1, helpCenterDomain: 1 },
-    )
-    .lean();
-};
+    return coreModelOrganizations
+      .find(
+        {
+          'helpCenterDomain.hostname': { $exists: true },
+          'helpCenterDomain.autoCheckUntil': { $gt: new Date() },
+          $or: [
+            { 'helpCenterDomain.status': { $ne: 'active' } },
+            { 'helpCenterDomain.sslStatus': { $ne: 'active' } },
+          ],
+        },
+        { subdomain: 1, helpCenterDomain: 1 },
+      )
+      .lean();
+  };
 
 export const setSaasOrganizationHelpCenterDomain = async (
   subdomain: string,

@@ -38,5 +38,12 @@ export const CUSTOM_DOMAIN_QUEUE = 'customdomain-check';
 
 export const CHECK_EVERY_MS = 10 * 60 * 1000;
 
+// A pending domain is checked in the background for this long after it was
+// saved or refreshed; past it only the Refresh button checks.
+export const AUTO_CHECK_DAYS = 7;
+
+// Opening the page re-checks an active domain at most this often.
+export const OPEN_CHECK_THROTTLE_SECONDS = 60;
+
 export const RESOLVE_CACHE_SECONDS = 300;
 export const RESOLVE_MISS_CACHE_SECONDS = 60;
