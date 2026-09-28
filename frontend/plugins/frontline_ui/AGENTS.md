@@ -1480,6 +1480,10 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   another, then save and reload — the drawer shows what was saved and
   `localhost:3900` renders those columns. Emptying every column and saving
   brings the site's built-in Support / Knowledge base / Account columns back.
+- Smoke (conversation properties): open a conversation, click the side
+  widget's **Properties** tab (matches the Settings icon), edit a field
+  through `FieldsInDetail` and confirm it saves and survives a reload; the
+  tab renders in one column even in the widget's narrow (sheet) layout.
 - Smoke: open `/frontline/inbox` and confirm the sidebar shows `Me` then
   `Team inbox`; that `Me` lists the personal channel's integration types with
   their counts and a header total (empty state when there is no personal inbox);
@@ -1527,6 +1531,35 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-24` — Conversation properties tab on the inbox side widget
+
+- **Summary:** A conversation's custom properties (Core `frontline:conversation`
+  fields) are now viewable and editable from the inbox, mirroring how ticket
+  properties already work in this plugin. `ConversationSideWidget` gained a
+  static "Properties" tab, the same width as its dynamic relation-widget tabs,
+  rendering the new `ConversationProperties` component (a thin wrapper around
+  `ui-modules`' `FieldsInDetail`). The new `useConversationCustomFieldEdit`
+  hook is a plain passthrough to the `conversationEditCustomFields` mutation —
+  no variable remapping, because the mutation's argument and the
+  `Conversation` field are both named `propertiesData`, matching
+  `FieldsInDetail`'s hardcoded `{ _id, propertiesData }` mutate call and every
+  other `use*CustomFieldEdit` hook in the platform
+  (`useCustomerCustomFieldEdit`, `useTicketCustomFieldEdit`, etc.). Requires
+  the matching `frontline_api` fix (see its own `AGENTS.md`) — the field did
+  not persist before that. The Properties tab's icon (`IconHierarchy2`)
+  matches the one Settings uses for the same custom-properties surface, and
+  `ConversationProperties` forces a single-column layout so fields stay
+  readable in the widget's narrow width instead of squeezing into two.
+- **Affected areas:**
+  `src/modules/inbox/conversations/conversation-detail/components/{ConversationSideWidget,ConversationDetail,ConversationProperties}.tsx`,
+  `src/modules/inbox/conversations/hooks/useConversationCustomFieldEdit.tsx`,
+  `src/modules/inbox/conversations/graphql/mutations/conversationEditCustomFields.ts`,
+  `src/modules/inbox/conversations/conversation-detail/graphql/queries/getConversationDetail.ts`,
+  `src/modules/inbox/types/Conversation.ts`
+- **Contracts changed:** None — consumes the existing
+  `conversationEditCustomFields` mutation and `Conversation.propertiesData`
+  field.
 
 ### `2026-09-24` — Removing a form step no longer wipes remaining step names
 
