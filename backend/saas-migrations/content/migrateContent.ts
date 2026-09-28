@@ -10,6 +10,7 @@ const {
   SOURCE_SUBDOMAIN,
   TARGET_SUBDOMAIN,
   DRY_RUN,
+  OVERWRITE_EXISTING,
   BATCH_SIZE = '1000',
 } = process.env;
 
@@ -24,13 +25,14 @@ if (!SOURCE_SUBDOMAIN || !TARGET_SUBDOMAIN) {
 }
 
 const isDryRun = DRY_RUN === '1' || DRY_RUN === 'true';
+const overwriteExisting =
+  OVERWRITE_EXISTING === '1' || OVERWRITE_EXISTING === 'true';
 const batchSize = Math.max(1, parseInt(BATCH_SIZE, 10) || 1000);
 
 function extractDbName(url: string): string {
   const withoutQuery = url.split('?')[0];
   return withoutQuery.slice(withoutQuery.lastIndexOf('/') + 1);
 }
-
 
 const COLLECTIONS = [
   // cms
@@ -50,7 +52,6 @@ const COLLECTIONS = [
   'web_pages',
   'web_activity_logs',
 ];
-
 
 const UNIQUE_FIELDS: Record<string, string[]> = {
   cms_posts: ['slug'],
@@ -80,7 +81,6 @@ const normalizeValue = (field: string, value: unknown): string => {
   return field === 'email' ? str.toLowerCase().trim() : str;
 };
 
-
 async function migrateByReplace(
   srcCol: Collection,
   dstCol: Collection,
@@ -94,18 +94,32 @@ async function migrateByReplace(
     if (batch.length === 0) return;
     const result = await dstCol.bulkWrite(batch, { ordered: false });
     stats.inserted += result.upsertedCount;
-    stats.updated += result.matchedCount;
+    if (overwriteExisting) {
+      stats.updated += result.matchedCount;
+    } else {
+      stats.skipped += result.matchedCount;
+    }
     batch = [];
   };
 
   for await (const doc of srcCol.find({}, { batchSize })) {
-    batch.push({
-      replaceOne: {
-        filter: { _id: doc._id },
-        replacement: doc,
-        upsert: true,
-      },
-    });
+    batch.push(
+      overwriteExisting
+        ? {
+            replaceOne: {
+              filter: { _id: doc._id },
+              replacement: doc,
+              upsert: true,
+            },
+          }
+        : {
+            updateOne: {
+              filter: { _id: doc._id },
+              update: { $setOnInsert: doc },
+              upsert: true,
+            },
+          },
+    );
 
     if (batch.length >= batchSize) await flush();
   }
@@ -114,7 +128,6 @@ async function migrateByReplace(
 
   return stats;
 }
-
 
 async function migrateWithDedup(
   srcCol: Collection,
@@ -182,7 +195,9 @@ async function migrateWithDedup(
 
     if (collidedField) {
       console.log(
-        `    [SKIP] ${srcCol.collectionName}: ${collidedField} "${normalizeValue(
+        `    [SKIP] ${
+          srcCol.collectionName
+        }: ${collidedField} "${normalizeValue(
           collidedField,
           doc[collidedField],
         )}" already exists`,
@@ -271,8 +286,14 @@ async function main() {
         }
 
         const uniqueFields = UNIQUE_FIELDS[colName];
-        const mode = uniqueFields ? `dedup(${uniqueFields.join(',')})` : 'upsert';
-        console.log(`[${colName}] migrating ${sourceCount} documents [${mode}]...`);
+        const mode = uniqueFields
+          ? `dedup(${uniqueFields.join(',')})`
+          : overwriteExisting
+          ? 'overwrite'
+          : 'insert-only';
+        console.log(
+          `[${colName}] migrating ${sourceCount} documents [${mode}]...`,
+        );
 
         let stats: CollectionStats;
         if (uniqueFields) {
