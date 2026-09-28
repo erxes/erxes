@@ -1,7 +1,7 @@
-import { cn } from 'erxes-ui';
+import { cn, useMediaQuery } from 'erxes-ui';
 import { IconPlayerPlayFilled } from '@tabler/icons-react';
 import type { IMessageEmbed } from '@/inbox/types/Conversation';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { InboxImage } from '@/inbox/conversation-messages/components/InboxImage';
 
@@ -146,19 +146,37 @@ const EmbedImage = ({
 
 const InlineGif = ({ embed }: { embed: IMessageEmbed }) => {
   const [failed, setFailed] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const prefersReducedMotion = useMediaQuery(
+    '(prefers-reduced-motion: reduce)',
+  );
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    if (prefersReducedMotion) {
+      video.pause();
+      return;
+    }
+
+    void video.play().catch(() => undefined);
+  }, [prefersReducedMotion]);
+
   if (failed) return <MediaUnavailable label="GIF" />;
 
   return (
     <video
+      ref={videoRef}
       src={embed.video?.url}
       poster={embed.thumbnail?.url}
-      autoPlay
+      autoPlay={!prefersReducedMotion}
       loop
       muted
       playsInline
       aria-label={embed.title || 'Animated GIF'}
       onError={() => setFailed(true)}
-      className="max-w-full rounded-lg motion-reduce:[animation-play-state:paused]"
+      className="max-w-full rounded-lg"
       style={{
         aspectRatio: mediaAspect(embed.video) || mediaAspect(embed.thumbnail),
       }}

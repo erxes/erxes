@@ -21,6 +21,8 @@ const MessageAttachment = ({
   const { t } = useTranslation('frontline');
   const type = attachment.type || '';
   const source = readImage(attachment.url);
+  const imageLabel =
+    attachment.name || t('image-attachment', 'Image attachment');
 
   if (!attachment.url) return null;
 
@@ -88,7 +90,7 @@ const MessageAttachment = ({
         >
           <InboxImage
             src={source}
-            alt={attachment.name || ''}
+            alt={imageLabel}
             loading="lazy"
             onError={onUnavailable}
             className={cn(
@@ -102,7 +104,8 @@ const MessageAttachment = ({
       <Dialog.Content className="!flex !h-auto !max-h-[92vh] !w-auto !max-w-[94vw] items-center justify-center !overflow-hidden !border-0 !bg-black/90 !p-2 shadow-2xl [&>button]:bg-white/10 [&>button]:text-white [&>button]:hover:bg-white/20">
         <InboxImage
           src={source}
-          alt={attachment.name || ''}
+          alt={imageLabel}
+          onError={onUnavailable}
           className="block h-auto max-h-[88vh] w-auto max-w-[90vw] rounded-lg object-contain"
         />
       </Dialog.Content>

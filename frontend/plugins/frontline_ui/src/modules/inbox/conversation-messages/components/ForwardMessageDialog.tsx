@@ -9,8 +9,9 @@ import {
   toast,
   type IAttachment,
 } from 'erxes-ui';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useForm, type UseFormReturn } from 'react-hook-form';
+import { useDebounce } from 'use-debounce';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -65,16 +66,24 @@ const ConversationOption = ({
 const ForwardConversationList = ({
   conversations,
   loading,
+  searchValue,
   selectedId,
+  onSearchValueChange,
   onSelect,
 }: {
   conversations: IConversation[];
   loading: boolean;
+  searchValue: string;
   selectedId: string;
+  onSearchValueChange: (value: string) => void;
   onSelect: (conversationId: string) => void;
 }) => (
-  <Command className="rounded-md border">
-    <Command.Input placeholder="Search conversations" />
+  <Command className="rounded-md border" shouldFilter={false}>
+    <Command.Input
+      value={searchValue}
+      onValueChange={onSearchValueChange}
+      placeholder="Search conversations"
+    />
     <Command.List className="max-h-64 overflow-y-auto">
       {loading && (
         <div className="flex justify-center p-4">
@@ -98,18 +107,22 @@ const ForwardMessageDialogContent = ({
   preview,
   conversations,
   conversationsLoading,
+  searchValue,
   selectedId,
   loading,
   form,
+  onSearchValueChange,
   onForward,
   onCancel,
 }: {
   preview: string;
   conversations: IConversation[];
   conversationsLoading: boolean;
+  searchValue: string;
   selectedId: string;
   loading: boolean;
   form: UseFormReturn<ForwardMessageForm>;
+  onSearchValueChange: (value: string) => void;
   onForward: (values: ForwardMessageForm) => Promise<void>;
   onCancel: () => void;
 }) => (
@@ -127,7 +140,9 @@ const ForwardMessageDialogContent = ({
     <ForwardConversationList
       conversations={conversations}
       loading={conversationsLoading}
+      searchValue={searchValue}
       selectedId={selectedId}
+      onSearchValueChange={onSearchValueChange}
       onSelect={(conversationId) =>
         form.setValue('destinationId', conversationId, {
           shouldValidate: true,
@@ -192,11 +207,17 @@ export const ForwardMessageDialog = ({
     defaultValues: { destinationId: '', note: '' },
   });
   const selectedId = form.watch('destinationId');
+  const [searchValue, setSearchValue] = useState('');
+  const [debouncedSearchValue] = useDebounce(searchValue, 300);
   const { addConversationMessage, loading } = useConversationMessageAdd();
   const { data, loading: conversationsLoading } = useQuery<{
     conversations: { list: IConversation[] };
   }>(GET_CONVERSATIONS, {
-    variables: { limit: 50, status: 'open' },
+    variables: {
+      limit: 50,
+      status: 'open',
+      searchValue: debouncedSearchValue.trim() || undefined,
+    },
     skip: !open,
     fetchPolicy: 'cache-and-network',
   });
@@ -295,9 +316,11 @@ export const ForwardMessageDialog = ({
         preview={preview}
         conversations={conversations}
         conversationsLoading={conversationsLoading}
+        searchValue={searchValue}
         selectedId={selectedId}
         loading={loading}
         form={form}
+        onSearchValueChange={setSearchValue}
         onForward={handleForward}
         onCancel={() => onOpenChange(false)}
       />
