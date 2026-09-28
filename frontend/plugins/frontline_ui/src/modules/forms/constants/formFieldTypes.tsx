@@ -1,17 +1,22 @@
 import {
   IconAt,
+  IconBriefcase,
+  IconBuilding,
   IconCalendarEvent,
   IconCheck,
   IconChevronDown,
   IconCircleCheck,
   IconGenderBigender,
+  IconHash,
   IconListDetails,
+  IconMapPin,
   IconNumbers,
   IconPaperclip,
   IconPhoneSpark,
   IconTextScan2,
   IconTextSize,
   IconUserCircle,
+  IconUsers,
   IconWorld,
 } from '@tabler/icons-react';
 
@@ -265,11 +270,50 @@ export const FORM_FIELD_TYPES = [
     label: 'Birth date',
     icon: <IconCalendarEvent />,
   },
+
+  // Company core fields
+  {
+    value: 'core:company:primaryName',
+    label: 'Company Name',
+    icon: <IconBuilding />,
+  },
+  { value: 'core:company:primaryEmail', label: 'Company Email', icon: <IconAt /> },
+  {
+    value: 'core:company:primaryPhone',
+    label: 'Company Phone',
+    icon: <IconPhoneSpark />,
+  },
+  { value: 'core:company:website', label: 'Website', icon: <IconWorld /> },
+  {
+    value: 'core:company:description',
+    label: 'Description',
+    icon: <IconTextSize />,
+  },
+  { value: 'core:company:size', label: 'Size', icon: <IconUsers /> },
+  { value: 'core:company:employees', label: 'Employees', icon: <IconUsers /> },
+  {
+    value: 'core:company:businessType',
+    label: 'Business Type',
+    icon: <IconBriefcase />,
+    defaultOptions: [
+      'Competitor',
+      'Customer',
+      'Investor',
+      'Partner',
+      'Press',
+      'Prospect',
+      'Reseller',
+      'Other',
+    ],
+  },
+  { value: 'core:company:location', label: 'Location', icon: <IconMapPin /> },
+  { value: 'core:company:code', label: 'Code', icon: <IconHash /> },
+  { value: 'core:company:avatar', label: 'Avatar', icon: <IconUserCircle /> },
 ];
 
 export type FormFieldType = (typeof FORM_FIELD_TYPES)[number];
 
-export type FormGroupKey = 'basic' | 'core:customer';
+export type FormGroupKey = 'basic' | 'core:customer' | 'core:company';
 export type GroupedFields = Record<FormGroupKey, FormFieldType[]>;
 
 export interface FormGroupMetadata {

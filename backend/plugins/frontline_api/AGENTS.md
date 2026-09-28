@@ -795,6 +795,12 @@ isInternal)` is the agent-side list and requires `showTickets`.
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-28` — core:company:* form field support
+
+- **Summary:** Form submissions with `core:company:*` field types now create or update a Company record in core, mirroring the existing `core:customer:*` behaviour; both `widgetsSaveLead` and `cpWidgetsSaveLead` were updated.
+- **Affected areas:** `src/modules/form/graphql/resolvers/mutations/widget.ts`
+- **Contracts changed:** None — internal logic only; existing GraphQL schema unchanged.
+
 ### `2026-09-24` — A help center references its client portal by id
 
 - **Summary:** `clientPortalId` joined the config as the real reference to the

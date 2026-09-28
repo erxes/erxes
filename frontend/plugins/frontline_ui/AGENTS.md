@@ -1528,6 +1528,12 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-28` — core:company:* form field types added
+
+- **Summary:** Five `core:company:*` field types (primaryName, primaryEmail, primaryPhone, website, description) were added to the form builder alongside the existing customer core fields; they appear in a new "Company fields" submenu in the Add Field dropdown.
+- **Affected areas:** `src/modules/forms/constants/formFieldTypes.tsx`, `src/modules/forms/constants/formGroupLabels.ts`, `src/modules/forms/components/FormDndField.tsx`, `src/modules/forms/components/FormFieldDetail.tsx`
+- **Contracts changed:** None.
+
 ### `2026-09-24` — The client portal picker stores an id
 
 - **Summary:** The picker's value became `clientPortalId` instead of the bare

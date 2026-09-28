@@ -277,7 +277,7 @@ export const FormFieldDetail = ({
               />
             </div>
             {/* Validator Configuration */}
-            {draft.type?.startsWith('core:customer') ? null : (
+            {draft.type?.startsWith('core:customer') || draft.type?.startsWith('core:company') ? null : (
               <div className="space-y-3 col-span-2">
                 <Label>{t('validation', 'Validation')}</Label>
                 <ToggleGroup

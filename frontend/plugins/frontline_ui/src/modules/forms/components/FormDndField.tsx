@@ -25,6 +25,11 @@ import {
   IconAddressBook,
   IconChevronLeft,
   IconWorld,
+  IconBuilding,
+  IconBriefcase,
+  IconHash,
+  IconMapPin,
+  IconUsers,
 } from '@tabler/icons-react';
 import { FORM_FIELD_TYPES, GroupedFields } from '../constants/formFieldTypes';
 import React, { useState } from 'react';
@@ -44,7 +49,7 @@ export const FormDndField = ({
     useSortable({
       id: field,
     });
-  const { getFieldValue, handleChangeField } = useFormDnd();
+  const { getFieldValue } = useFormDnd();
   const fieldData = getFieldValue(step, field);
   const mounted = useMountStatus();
 
@@ -116,6 +121,25 @@ export const FormDndFieldIcon = ({ type }: { type: string }) => {
       return <IconGenderBigender />;
     case 'core:customer:birthDate':
       return <IconCalendarEvent />;
+    case 'core:company:primaryName':
+      return <IconBuilding />;
+    case 'core:company:primaryEmail':
+      return <IconAt />;
+    case 'core:company:primaryPhone':
+      return <IconPhoneSpark />;
+    case 'core:company:website':
+      return <IconWorld />;
+    case 'core:company:size':
+    case 'core:company:employees':
+      return <IconUsers />;
+    case 'core:company:businessType':
+      return <IconBriefcase />;
+    case 'core:company:location':
+      return <IconMapPin />;
+    case 'core:company:code':
+      return <IconHash />;
+    case 'core:company:avatar':
+      return <IconUserCircle />;
     default:
       return <IconTextSize />;
   }
@@ -124,20 +148,22 @@ export const FormDndFieldIcon = ({ type }: { type: string }) => {
 export const AddField = ({ step }: { step: UniqueIdentifier }) => {
   const { t } = useTranslation('frontline');
   const { handleAddField } = useFormDnd();
-  const [view, setView] = useState<'main' | 'customer'>('main');
+  const [view, setView] = useState<'main' | 'customer' | 'company'>('main');
 
   const GROUPED_FIELD_TYPES: GroupedFields = FORM_FIELD_TYPES.reduce(
     (groups, type) => {
       const group = type.value.startsWith('core:customer:')
         ? 'core:customer'
-        : 'basic';
+        : type.value.startsWith('core:company:')
+          ? 'core:company'
+          : 'basic';
       if (!groups[group]) {
         groups[group] = [];
       }
       groups[group].push(type);
       return groups;
     },
-    {} as Record<'basic' | 'core:customer', typeof FORM_FIELD_TYPES>,
+    {} as GroupedFields,
   );
 
   return (
@@ -183,8 +209,17 @@ export const AddField = ({ step }: { step: UniqueIdentifier }) => {
             >
               <IconAddressBook /> {t('customer-fields', 'Customer fields')}
             </DropdownMenu.Item>
+
+            <DropdownMenu.Item
+              onSelect={(e) => {
+                e.preventDefault();
+                setView('company');
+              }}
+            >
+              <IconBuilding /> {t('company-fields', 'Company fields')}
+            </DropdownMenu.Item>
           </>
-        ) : (
+        ) : view === 'customer' ? (
           <>
             <DropdownMenu.Item
               onSelect={(e) => {
@@ -201,6 +236,32 @@ export const AddField = ({ step }: { step: UniqueIdentifier }) => {
             </DropdownMenu.Label>
 
             {GROUPED_FIELD_TYPES['core:customer'].map((type) => (
+              <DropdownMenu.Item
+                key={type.value}
+                onClick={() => handleAddField(step, type)}
+              >
+                <FormDndFieldIcon type={type.value} />
+                {type.label}
+              </DropdownMenu.Item>
+            ))}
+          </>
+        ) : (
+          <>
+            <DropdownMenu.Item
+              onSelect={(e) => {
+                e.preventDefault();
+                setView('main');
+              }}
+              className="text-accent-foreground text-xs"
+            >
+              <IconChevronLeft /> {t('back', 'Back')}
+            </DropdownMenu.Item>
+
+            <DropdownMenu.Label className="font-bold">
+              {t('company-fields', 'Company fields')}
+            </DropdownMenu.Label>
+
+            {GROUPED_FIELD_TYPES['core:company'].map((type) => (
               <DropdownMenu.Item
                 key={type.value}
                 onClick={() => handleAddField(step, type)}
