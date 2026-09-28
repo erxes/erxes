@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-09-24`
+- **Last synchronized:** `2026-09-28`
 
 ## Scope
 
@@ -334,6 +334,7 @@
 | FB automation            | `src/modules/integrations/facebook/meta/automation/`                        | Comment/message triggers and actions, bot message generation                                                                                                                                           |
 | FB page posting          | `src/modules/integrations/facebook/postService.ts`, `postGuard.ts`          | Post publishing pipeline (validation, photo staging, cleanup, permalink) and its rate limit + audit log                                                                                                |
 | FB app resolution        | `src/modules/integrations/facebook/commonUtils.ts`                          | `resolveFacebookApp`, `facebookAppSelector`, `facebookAccountSelector`                                                                                                                                 |
+| FB messenger services    | `src/modules/integrations/facebook/services/`                               | `messengerSend` (messaging params, bot text send with tag retry), `messageEvents` (reaction replace, message publish, reply-to), `automatedReplyControl`, `conversationSync`, `messageNormalization`, `messagePreview` |
 | Ticket                   | `src/modules/ticket/`                                                       | Boards, pipelines, statuses, tickets, activities, notes                                                                                                                                                |
 | Forms                    | `src/modules/form/`                                                         | Forms, fields, submissions                                                                                                                                                                             |
 | Surveys                  | `src/modules/survey/`                                                       | Survey definitions, vote ledger, message snapshot, tally refresh                                                                                                                                       |
@@ -364,6 +365,7 @@
 | FB automation            | `src/modules/integrations/facebook/meta/automation/`                        | Comment/message triggers and actions, bot message generation                                                                                                                                           |
 | FB page posting          | `src/modules/integrations/facebook/postService.ts`, `postGuard.ts`          | Post publishing pipeline (validation, photo staging, cleanup, permalink) and its rate limit + audit log                                                                                                |
 | FB app resolution        | `src/modules/integrations/facebook/commonUtils.ts`                          | `resolveFacebookApp`, `facebookAppSelector`, `facebookAccountSelector`                                                                                                                                 |
+| FB messenger services    | `src/modules/integrations/facebook/services/`                               | `messengerSend` (messaging params, bot text send with tag retry), `messageEvents` (reaction replace, message publish, reply-to), `automatedReplyControl`, `conversationSync`, `messageNormalization`, `messagePreview` |
 | Ticket                   | `src/modules/ticket/`                                                       | Boards, pipelines, statuses, tickets, activities, notes                                                                                                                                                |
 | Conversation convert     | `src/modules/inbox/services/conversationConvert{,Targets}.ts`               | Conversion orchestration and relations; one handler per target (permission, existing-item lookup, URL, create)                                                                                         |
 | Forms                    | `src/modules/form/`                                                         | Forms, fields, submissions                                                                                                                                                                             |
@@ -800,6 +802,43 @@ isInternal)` is the agent-side list and requires `showTickets`.
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-28` — Customer Messenger reactions reach the inbox
+
+- **Summary:** Pages subscribe to the `message_reactions` webhook field, so a
+  customer's reaction arrives through `handleReaction` and is stored with its
+  `emoji`; existing pages pick it up after a Facebook repair or re-login.
+- **Affected areas:** `src/modules/integrations/facebook/constants.ts`,
+  `src/modules/integrations/facebook/services/conversationSync.ts`
+- **Contracts changed:** `SUBSCRIBED_FIELDS` adds `message_reactions`.
+
+### `2026-09-28` — Facebook Messenger send, reaction and reply-to logic has one home
+
+- **Summary:** The three Messenger text senders, two reaction updaters and two
+  reply-to resolvers collapse into `services/messengerSend.ts` and
+  `services/messageEvents.ts`; the Facebook automated-reply control message
+  moves out of the inbox resolvers, dead Graph helpers are removed, and
+  replies from staff are now labelled `You` on both directions.
+- **Affected areas:** `src/modules/integrations/facebook/services/`,
+  `src/modules/integrations/facebook/{handleFacebookMessage,controller/receiveMessage,utils,pageUtils,messageActions}.ts`,
+  `src/modules/inbox/graphql/resolvers/mutations/{conversationAutomation,conversations,conversationMessageMutations}.ts`,
+  `src/modules/inbox/services/conversationReaction.ts`,
+  `src/modules/integrations/utils.ts`
+- **Contracts changed:** None; `fetchPagePosts`, `fetchPagesPosts`,
+  `checkFacebookPages` and `restorePost` are no longer exported.
+
+### `2026-09-28` — Facebook media goes to the tenant's configured storage
+
+- **Summary:** `uploadMedia` downloads Facebook post media and profile
+  pictures to a temp file and stores them through `uploadFileToStorage`, like
+  the Discord rehost, so AWS, GCS, Cloudflare and Azure tenants all keep a copy
+  and the returned key or URL is resolved by `generateAttachmentUrl`.
+- **Affected areas:**
+  `src/modules/integrations/facebook/mediaUtils.ts`,
+  `src/modules/integrations/facebook/utils.ts`,
+  `src/modules/integrations/facebook/controller/store.ts`
+- **Contracts changed:** None; `createAWS` and `invalidateUploadConfigCache`
+  are no longer exported.
+
 ### `2026-09-24` — Conversation custom properties actually persist
 
 - **Summary:** Restored the 2.0-era link between conversations and core's
@@ -940,53 +979,3 @@ isInternal)` is the agent-side list and requires `showTickets`.
   `src/modules/integrations/facebook/meta/automation/messages/index.ts`
 - **Contracts changed:** None. The descriptor is unchanged. The skip is stated
   through the shared action-outcome envelope (see `2026-09-21`).
-
-### `2026-09-14` — A ticket an automation opened records what produced it
-
-- **Summary:** Tickets created by an automation now carry `createdVia` — the
-  configuration that produced them, the run that did it, and whose
-  configuration it was. The same actor is used as the creating user, ranked
-  below a conversation's own agent (the more specific answer when there is a
-  thread) and above the first-owner fallback, which is nobody in particular.
-- **Affected areas:**
-  `src/modules/ticket/meta/automations/actions/createTicketAction.ts`,
-  `src/modules/ticket/@types/ticket.ts`
-- **Contracts changed:** Consumes the new `TCreatedVia` and
-  `IExecution.createdVia` from `erxes-api-shared`; `createdVia` itself is added
-  to every schema by `schemaWrapper`.
-
-### `2026-09-14` — Facebook ships two flows of its own
-
-- **Summary:** The plugin now provides built-in workflow templates —
-  "Answer publicly, continue in private" and "Reply, then open a ticket" —
-  through `automations.constants.workflowTemplates`, so they exist from the
-  moment the plugin is deployed and are never written to a tenant database.
-  Both start from an existing thread rather than a contact, because Facebook
-  only permits a reply inside a conversation the person opened; the ticket one
-  declares the channel, pipeline and status it needs as requirements, answered
-  while installing, and names the ticket after what the person wrote. Both
-  carry their reply text, so an installed template sends something sensible
-  before anyone edits it.
-- **Affected areas:**
-  `src/modules/integrations/facebook/meta/automation/workflowTemplates.ts`,
-  `src/meta/automations.ts`
-- **Contracts changed:** Consumes the new optional
-  `AutomationConstants.workflowTemplates` from `erxes-api-shared`.
-
-### `2026-09-23` — A survey question carries attachments
-
-- **Summary:** Each survey step takes up to five `AttachmentInput` files,
-  normalized inside `normalizeSurveySteps`, stored on the step, served back as
-  `SurveyStep.attachments` and copied into the conversation snapshot so a
-  respondent sees them with the question. Agents (`SurveyStepInput`) and
-  client portal requesters (`CpSurveyStepInput`) use the same field.
-- **Affected areas:** `src/modules/survey/db/definitions/surveys.ts`,
-  `src/modules/survey/db/models/Surveys.ts`,
-  `src/modules/survey/@types/survey.ts`,
-  `src/modules/survey/utils.ts`,
-  `src/modules/survey/graphql/schema/survey.ts`
-- **Contracts changed:** `SurveyStepInput` and `CpSurveyStepInput` take
-  `attachments: [AttachmentInput]`; `SurveyStep` exposes
-  `attachments: [Attachment]`; the survey-level `Survey.attachments` field and
-  the `cpSurveyAdd` / `cpSurveyEdit` `attachments` arguments added earlier the
-  same day are gone.

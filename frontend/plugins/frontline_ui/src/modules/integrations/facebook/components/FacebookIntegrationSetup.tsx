@@ -9,17 +9,17 @@ import { useForm } from 'react-hook-form';
 import { useParams } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { SelectBrands } from 'ui-modules';
-import { z } from 'zod';
+import type { z } from 'zod';
 import {
   activeFacebookFormStepAtom,
   resetFacebookAddStateAtom,
   selectedFacebookAccountAtom,
   selectedFacebookPageAtom,
-} from '../states/facebookStates';
+} from '@/integrations/facebook/states/facebookStates';
 import {
   FacebookIntegrationFormLayout,
   FacebookIntegrationFormSteps,
-} from './FacebookIntegrationForm';
+} from '@/integrations/facebook/components/FacebookIntegrationForm';
 
 export const FacebookIntegrationSetup = () => {
   const { t } = useTranslation('frontline');
@@ -85,7 +85,6 @@ export const FacebookIntegrationSetup = () => {
           <FacebookIntegrationFormSteps
             title={t('integration-setup')}
             step={3}
-            description=""
           />
           <div className="flex-1 overflow-hidden p-4 pt-0 flex flex-col gap-4">
             <Form.Field
