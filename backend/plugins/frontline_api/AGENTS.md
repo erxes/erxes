@@ -813,6 +813,14 @@ isInternal)` is the agent-side list and requires `showTickets`.
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-28` — Portal ticket notification text is stripped in linear time
+
+- **Summary:** `notificationText` removes HTML tags with an `indexOf` scan
+  instead of the backtracking `/<[^>]*>/` pattern, giving the same output, and
+  `isClosingStatus` reads a `Set` of closing status types.
+- **Affected areas:** `src/modules/ticket/utils/cpNotifications.ts`
+- **Contracts changed:** None
+
 ### `2026-09-28` — Customer Messenger reactions reach the inbox
 
 - **Summary:** Pages subscribe to the `message_reactions` webhook field, so a
@@ -981,19 +989,3 @@ isInternal)` is the agent-side list and requires `showTickets`.
 - **Contracts changed:** `surveyToggleStatus` accepts `reason: String`;
   `Survey` exposes `rejectionReason: String`; survey `status` accepts
   `rejected` and `surveyTotalCount.byStatus` reports a `rejected` count.
-
-### `2026-09-23` — A client portal user manages their own survey requests
-
-- **Summary:** `cpSurveyRequests` lists the caller's own requests in every
-  status, and `cpSurveyEdit` / `cpSurveyRemove` let the requester revise or
-  delete one while it is still `pending`; both mutations refuse another user's
-  request and a request that has already been approved or archived, an edit
-  keeps the voting-only projection and the `pending` status and re-stamps
-  `brandId` when the channel changes, and a remove clears the vote ledger with
-  the survey.
-- **Affected areas:** `src/modules/survey/db/models/Surveys.ts`,
-  `src/modules/survey/graphql/resolvers/mutations/clientPortal.ts`,
-  `src/modules/survey/graphql/resolvers/queries/clientPortal.ts`,
-  `src/modules/survey/graphql/schema/survey.ts`
-- **Contracts changed:** added query `cpSurveyRequests` and mutations
-  `cpSurveyEdit` and `cpSurveyRemove`.

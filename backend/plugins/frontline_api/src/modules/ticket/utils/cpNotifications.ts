@@ -8,10 +8,10 @@ const CP_PREFIX = 'cp:';
 
 const MESSAGE_MAX = 160;
 
-const CLOSING_STATUS_TYPES: number[] = [
+const CLOSING_STATUS_TYPES = new Set<number>([
   TICKET_STATUS_TYPES.RESOLVED,
   TICKET_STATUS_TYPES.CLOSED,
-];
+]);
 
 export type PortalOwner = { cpUserId: string; clientPortalId: string };
 
@@ -27,14 +27,34 @@ export type TicketNotificationInput = {
 };
 
 export const portalAuthorId = (value?: string | null): string | null =>
-  value && value.startsWith(CP_PREFIX) ? value.slice(CP_PREFIX.length) : null;
+  value?.startsWith(CP_PREFIX) ? value.slice(CP_PREFIX.length) : null;
 
 export const isPortalAuthor = (value?: string | null): boolean =>
   !!portalAuthorId(value);
 
+const stripTags = (value: string): string => {
+  const parts: string[] = [];
+  let cursor = 0;
+
+  while (cursor < value.length) {
+    const open = value.indexOf('<', cursor);
+    const close = open === -1 ? -1 : value.indexOf('>', open + 1);
+
+    if (close === -1) {
+      break;
+    }
+
+    parts.push(value.slice(cursor, open), ' ');
+    cursor = close + 1;
+  }
+
+  parts.push(value.slice(cursor));
+
+  return parts.join('');
+};
+
 export const notificationText = (value?: string | null): string => {
-  const text = (value ?? '')
-    .replace(/<[^>]*>/g, ' ')
+  const text = stripTags(value ?? '')
     .replace(/\s+/g, ' ')
     .trim();
 
@@ -44,7 +64,7 @@ export const notificationText = (value?: string | null): string => {
 };
 
 export const isClosingStatus = (statusType?: number | null): boolean =>
-  !!statusType && CLOSING_STATUS_TYPES.includes(statusType);
+  !!statusType && CLOSING_STATUS_TYPES.has(statusType);
 
 const findPortalOwner = async (
   subdomain: string,
