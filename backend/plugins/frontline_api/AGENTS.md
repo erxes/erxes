@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-09-21`
+- **Last synchronized:** `2026-09-28`
 
 ## Scope
 
@@ -23,6 +23,7 @@
   ingestion, message delivery, and bot automation: Facebook (Messenger + Page
   comments), Instagram, Mail (Cloudflare Email Routing), Discord,
   Call (SIP/CDR), and Call Pro (webhook PBX).
+- Telegram bot credential validation and tenant-scoped bot records.
 - Response templates.
 - Ticketing: boards, pipelines, statuses, tickets, activities, notes, ticket
   configs, plus ticket import/export handlers.
@@ -131,6 +132,11 @@
   context while excluding outbound message content; comment-triggered bot flows
   do not send Messenger typing indicators.
 - Boots the Call app and the Discord gateway client from `onServerInit`.
+- Validates a Telegram bot token with `getMe` through
+  `telegramValidateToken`. The query requires `integrationsAdd`, returns bot
+  identity and optional group settings, and exposes controlled validation errors.
+- Registers `TelegramBots` on the tenant's database connection. Its
+  `getBot(_id)` method returns the saved bot or throws `Telegram bot not found`.
 - Runs the **mail** channel: an inbox owns a generated catch-all address, a
   Cloudflare Worker posts every delivery to `POST /mail/receive` under an HMAC
   signature, and the controller turns it into a core customer, a conversation,
@@ -189,6 +195,7 @@
 | Inbox                | `src/modules/inbox/`                                                        | Conversations, messages, integrations, widget/clientportal schemas, `receiveInboxMessage`                                                                                                              |
 | Conversation queries | `src/conversationQueryBuilder.ts`, `src/modules/inbox/conversationUtils.ts` | Mongo and Elasticsearch conversation filters (membership-scoped)                                                                                                                                       |
 | Integrations         | `src/modules/integrations/<kind>/`                                          | facebook, instagram, mail, discord, call, callpro, trpc                                                                                                                                                |
+| Telegram setup       | `src/modules/integrations/telegram/`                                        | Bot API client, permission-checked token validation, bot schema, and model loader |
 | Mail integration     | `src/modules/integrations/mail/`                                            | Inbound webhook, threading, outbound send/retry                                                                                                                                                        |
 | Mail transports      | `src/modules/integrations/mail/utils/transports/`                           | `index.ts` picks the Cloudflare account that signs for this workspace, `deliver.ts` runs the delivery pipeline (sender guard, suppression, delivery log), `cloudflare.ts` is the only `IMailTransport` |
 | Mail provisioning    | `src/modules/integrations/mail/utils/cloudflare/`                           | Cloudflare REST client, the fourteen-step provisioner, Email Sending onboarding and quota, the connection cache and its public shape                                                                   |
@@ -214,6 +221,10 @@
 
 ### Provides
 
+- `telegramValidateToken(token: String!): TelegramTokenValidation!` — checks
+  credentials for integration setup. Successful results include a string bot ID,
+  bot name, and optional username and group settings; failed checks return
+  `valid: false` with an error. Permission failures remain GraphQL errors.
 - Plugin meta `properties` (`src/meta/properties.ts`) — the `conversation` and
   `ticket` property types, each with the `systemFields` (`code`, `name`, `type`)
   core lists as the read-only "Basic information" group in Settings →
@@ -222,6 +233,9 @@
 
 ### Consumes
 
+- Telegram Bot API `GET /bot<token>/getMe` — validates the bot response with Zod,
+  limits the request to ten seconds, rejects redirects, and replaces raw transport
+  and response errors with controlled messages.
 - `core` over tRPC — `companies.findOne` (query), `companies.createCompany` and
   `companies.updateCompany` (mutations, `{ _id, doc }` / `{ doc }`),
   `customers.createMessengerCustomer` / `updateMessengerCustomer`,
@@ -233,7 +247,64 @@
   wrong path or a query/mutation mismatch and returns `defaultValue`, so a
   typo here fails silently.
 
+## Data and State
+
+- `src/connectionResolvers.ts` supplies the plugin's per-subdomain model container.
+- `src/modules/integrations/telegram/@types/bot.ts` defines the Telegram bot
+  record interface and a document interface extending Mongoose `Document`:
+  bot identity, credentials, group settings, verification time, timestamps,
+  and creator. The document interface declares the erxes `_id`.
+- `src/modules/integrations/telegram/db/definitions/bots.ts` defines the bot
+  schema with generated string IDs, a unique `botId` index, immutable bot and
+  creator IDs, and automatic timestamps. `token` and `webhookSecret` are excluded
+  from queries by default.
+- `src/modules/integrations/telegram/db/models/Bots.ts` defines
+  `ITelegramBotModel` and `loadTelegramBotClass(models)`. `src/connectionResolvers.ts`
+  registers the loader as `models.TelegramBots` with model name `telegram_bots`.
+  `getBot` looks up the erxes `_id`; `botId` is the separate Telegram identity.
+- Telegram token validation does not persist credentials or integration records.
+
+## Local Invariants
+
+- Check `integrationsAdd` before requesting Telegram; keep permission checks
+  outside the handler that converts provider failures into validation results.
+- Telegram credentials must not appear in public API results or raw error messages.
+  Reject surrounding whitespace instead of silently rewriting a pasted token.
+- Backend queries must explicitly select any Telegram credential fields they
+  need; `select: false` controls query projection and does not encrypt storage.
+- Keep Telegram bot model registration consistent with the other integrations:
+  use the document interface, model interface, and class loader. The model
+  loader imports the schema and uses the supplied tenant model container.
+- Expose Telegram bot IDs as strings in GraphQL. Preserve absent optional
+  capability fields separately from explicit `false` values.
+
+## Validation
+
+- `pnpm nx lint frontline_api`
+- `pnpm nx build frontline_api`
+- `pnpm exec eslint backend/plugins/frontline_api/src/modules/integrations/telegram --max-warnings=0`
+- `pnpm exec prettier --check backend/plugins/frontline_api/src/modules/integrations/telegram`
+- The project currently has no Nx test target.
+- Telegram smoke scenario: a signed-in user with `integrationsAdd` validates a
+  real bot token through the gateway and receives the bot identity and group
+  settings. A rejected token returns `valid: false`; permission denial remains a
+  GraphQL error and prevents the provider request.
+
 ## Recent Changes
+
+<!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-28` — Telegram bot storage and model registration
+
+- **Summary:** Registered a tenant-scoped Telegram bot model with lookup by erxes record ID and credentials omitted from ordinary queries.
+- **Affected areas:** `src/modules/integrations/telegram/@types/bot.ts`, `src/modules/integrations/telegram/db/definitions/bots.ts`, `src/modules/integrations/telegram/db/models/Bots.ts`, `src/connectionResolvers.ts`.
+- **Contracts changed:** Added internal `ITelegramBot`, `ITelegramBotDocument`, `telegramBotSchema`, `ITelegramBotModel`, and `loadTelegramBotClass` exports, plus `IModels.TelegramBots.getBot(_id)`; public APIs unchanged.
+
+### `2026-09-25` — Telegram bot token validation
+
+- **Summary:** Added permission-checked Telegram credential validation with bot identity and group settings.
+- **Affected areas:** `src/modules/integrations/telegram/`, `src/apollo/schema/schema.ts`, `src/apollo/resolvers/queries.ts`.
+- **Contracts changed:** Added `TelegramTokenValidation` and `telegramValidateToken(token: String!): TelegramTokenValidation!`.
 
 ### `2026-09-21` — Messenger company writes actually reach Core
 
@@ -335,29 +406,4 @@
 - **Affected areas:** `src/modules/integrations/mail/utils/notes.ts`,
   `src/modules/integrations/mail/controller/receiveMessage.ts`,
   `src/modules/ticket/graphql/resolvers/mutations/note.ts`
-- **Contracts changed:** `None`
-
-### `2026-09-10` — A mail ticket belongs to the customer who wrote in
-
-- **Summary:** A ticket opened from mail is now created as `cp:<customerId>`
-  rather than as the pipeline owner, so the requester owns it in the client
-  portal and the activity timeline names them; the pipeline owner is kept as
-  its only subscriber instead. `generateFilter` gained the matching visibility
-  branches so an `isCheckUser` pipeline still shows those tickets to its agents
-  while they are unclaimed, or to whoever subscribed to one.
-- **Affected areas:** `src/modules/integrations/mail/utils/tickets.ts`,
-  `src/modules/ticket/utils/generateFilter.ts`
-- **Contracts changed:** `None`
-
-### `2026-09-10` — Review fixes on the pipeline mail path
-
-- **Summary:** An answer now goes to the sender of the ticket's newest inbound
-  message instead of its first related customer, inbound addresses are stored
-  lowercased so a mixed-case sender no longer opens a second ticket, Cloudflare
-  requests carry a 20s abort deadline, a forwarding confirmation is recognised
-  only from an automated-looking sender and only its https links on known
-  provider hosts are kept, and index reconciliation is serialized per subdomain.
-- **Affected areas:** `src/modules/integrations/mail/utils/{tickets,forwardVerification,indexes}.ts`,
-  `src/modules/integrations/mail/utils/cloudflare/client.ts`,
-  `src/modules/integrations/mail/controller/receiveMessage.ts`
 - **Contracts changed:** `None`

@@ -142,6 +142,12 @@ import {
   IDiscordConversationMessageModel,
   loadDiscordConversationMessageClass,
 } from '@/integrations/discord/db/models/ConversationMessages';
+//Telegram imports
+import { ITelegramBotDocument } from '@/integrations/telegram/@types/bot';
+import {
+  ITelegramBotModel,
+  loadTelegramBotClass,
+} from '@/integrations/telegram/db/models/Bots';
 
 import { ICallProIntegrationDocument } from '@/integrations/callpro/@types/integrations';
 import { ICallProCustomerDocument } from '@/integrations/callpro/@types/customers';
@@ -393,6 +399,9 @@ export interface IModels {
   MailCustomers: IMailCustomerModel;
   MailMessages: IMailMessageModel;
   MailCloudflare: IMailCloudflareModel;
+
+  // telegram
+  TelegramBots: ITelegramBotModel;
 
   // ticket
   Pipeline: ITicketPipelineModel;
@@ -664,6 +673,12 @@ export const loadClasses = (
   >(
     'conversation_messages_discord',
     loadDiscordConversationMessageClass(models),
+  );
+
+  // telegram models
+  models.TelegramBots = db.model<ITelegramBotDocument, ITelegramBotModel>(
+    'telegram_bots',
+    loadTelegramBotClass(models),
   );
 
   models.CallProIntegrations = db.model<
