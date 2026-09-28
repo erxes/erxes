@@ -1490,6 +1490,10 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   another, then save and reload — the drawer shows what was saved and
   `localhost:3900` renders those columns. Emptying every column and saving
   brings the site's built-in Support / Knowledge base / Account columns back.
+- Smoke (conversation properties): open a conversation, click the side
+  widget's **Properties** tab (matches the Settings icon), edit a field
+  through `FieldsInDetail` and confirm it saves and survives a reload; the
+  tab renders in one column even in the widget's narrow (sheet) layout.
 - Smoke: open `/frontline/inbox` and confirm the sidebar shows `Me` then
   `Team inbox`; that `Me` lists the personal channel's integration types with
   their counts and a header total (empty state when there is no personal inbox);
@@ -1537,6 +1541,46 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-24` — Conversation properties tab on the inbox side widget
+
+- **Summary:** A conversation's custom properties (Core `frontline:conversation`
+  fields) are now viewable and editable from the inbox, mirroring how ticket
+  properties already work in this plugin. `ConversationSideWidget` gained a
+  static "Properties" tab, the same width as its dynamic relation-widget tabs,
+  rendering the new `ConversationProperties` component (a thin wrapper around
+  `ui-modules`' `FieldsInDetail`). The new `useConversationCustomFieldEdit`
+  hook is a plain passthrough to the `conversationEditCustomFields` mutation —
+  no variable remapping, because the mutation's argument and the
+  `Conversation` field are both named `propertiesData`, matching
+  `FieldsInDetail`'s hardcoded `{ _id, propertiesData }` mutate call and every
+  other `use*CustomFieldEdit` hook in the platform
+  (`useCustomerCustomFieldEdit`, `useTicketCustomFieldEdit`, etc.). Requires
+  the matching `frontline_api` fix (see its own `AGENTS.md`) — the field did
+  not persist before that. The Properties tab's icon (`IconHierarchy2`)
+  matches the one Settings uses for the same custom-properties surface, and
+  `ConversationProperties` forces a single-column layout so fields stay
+  readable in the widget's narrow width instead of squeezing into two.
+- **Affected areas:**
+  `src/modules/inbox/conversations/conversation-detail/components/{ConversationSideWidget,ConversationDetail,ConversationProperties}.tsx`,
+  `src/modules/inbox/conversations/hooks/useConversationCustomFieldEdit.tsx`,
+  `src/modules/inbox/conversations/graphql/mutations/conversationEditCustomFields.ts`,
+  `src/modules/inbox/conversations/conversation-detail/graphql/queries/getConversationDetail.ts`,
+  `src/modules/inbox/types/Conversation.ts`
+- **Contracts changed:** None — consumes the existing
+  `conversationEditCustomFields` mutation and `Conversation.propertiesData`
+  field.
+
+### `2026-09-24` — Removing a form step no longer wipes remaining step names
+
+- **Summary:** `removeStep` rebuilt each remaining step's object from only
+  `fields` and `order`, dropping `name`/`description`. Deleting any step and
+  saving cleared every other step's name (unlike `setSteps`, which already
+  spread `...value[key]`). It now spreads `...value[step]` before overriding
+  `fields`/`order`, so names/descriptions survive a step removal.
+- **Affected areas:** `src/modules/forms/components/FormDndProvider.tsx`
+  (`removeStep`).
+- **Contracts changed:** `None`
 
 ### `2026-09-24` — Every colour field can go back to its default
 
@@ -1628,48 +1672,6 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `src/modules/helpcenter/components/help-center-drawer/HelpCenterDrawer.tsx`,
   `src/modules/helpcenter/types/index.ts`
 - **Contracts changed:** `None`
-
-### `2026-09-23` — A survey question carries attachments
-
-- **Summary:** The Content step's question now has an attachments uploader
-  right under it, capped at five files per question, and `MessageSurvey` shows
-  those files with the question in both the wizard preview and the inbox
-  message.
-- **Affected areas:**
-  `src/modules/survey/components/mutate/SurveyStepCard.tsx`,
-  `src/modules/survey/components/mutate/SurveyPreview.tsx`,
-  `src/modules/survey/constants/{surveySetupSchema,surveySetupDefaultValues}.ts`,
-  `src/modules/survey/states/surveySetupStates.tsx`,
-  `src/modules/survey/graphql/{surveyQueries,surveyMutations}.ts`,
-  `src/modules/survey/types/surveyTypes.ts`,
-  `src/modules/inbox/conversation-messages/components/MessageSurvey.tsx`,
-  `src/modules/inbox/types/Conversation.ts`
-- **Contracts changed:** `surveyAdd` / `surveyEdit` steps are sent with
-  `attachments`, and the survey fragment reads `steps { attachments }`. New
-  i18n keys `survey-question-attachments` and
-  `survey-question-attachments-description` fall back to English until the
-  gateway locale carries them.
-
-### `2026-09-23` — Agents reject a survey request with a reason
-
-- **Summary:** The survey list's row menu and command bar reject a pending
-  client portal request through `SurveyRejectDialog`, which requires a written
-  reason; the request moves to the new `rejected` status instead of being
-  deleted, its badge is destructive and carries the reason as a tooltip, the
-  status filter offers `rejected`, and the row still offers `Approve` so the
-  decision can be reversed.
-- **Affected areas:**
-  `src/modules/survey/components/survey-page/SurveyRejectDialog.tsx`,
-  `src/modules/survey/components/survey-page/survey-columns.tsx`,
-  `src/modules/survey/components/survey-page/command-bar/survey-command-bar.tsx`,
-  `src/modules/survey/graphql/{surveyMutations,surveyQueries}.ts`,
-  `src/modules/survey/types/surveyTypes.ts`,
-  `src/modules/forms/components/form-page/filters/FormStatus.tsx`
-- **Contracts changed:** `surveyToggleStatus` is sent with `reason` and the
-  survey fragment reads `rejectionReason`. New i18n keys `survey-reject`,
-  `survey-rejected`, `survey-reject-description`, `survey-rejection-reason`
-  and `survey-rejection-reason-placeholder` fall back to English until the
-  gateway locale carries them.
 
 ### `2026-09-23` — The embed script moves to the knowledge base topic
 

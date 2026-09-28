@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-09-24`
+- **Last synchronized:** `2026-09-28`
 
 ## Scope
 
@@ -339,6 +339,7 @@
 | FB automation            | `src/modules/integrations/facebook/meta/automation/`                        | Comment/message triggers and actions, bot message generation                                                                                                                                           |
 | FB page posting          | `src/modules/integrations/facebook/postService.ts`, `postGuard.ts`          | Post publishing pipeline (validation, photo staging, cleanup, permalink) and its rate limit + audit log                                                                                                |
 | FB app resolution        | `src/modules/integrations/facebook/commonUtils.ts`                          | `resolveFacebookApp`, `facebookAppSelector`, `facebookAccountSelector`                                                                                                                                 |
+| FB messenger services    | `src/modules/integrations/facebook/services/`                               | `messengerSend` (messaging params, bot text send with tag retry), `messageEvents` (reaction replace, message publish, reply-to), `automatedReplyControl`, `conversationSync`, `messageNormalization`, `messagePreview` |
 | Ticket                   | `src/modules/ticket/`                                                       | Boards, pipelines, statuses, tickets, activities, notes                                                                                                                                                |
 | Forms                    | `src/modules/form/`                                                         | Forms, fields, submissions                                                                                                                                                                             |
 | Surveys                  | `src/modules/survey/`                                                       | Survey definitions, vote ledger, message snapshot, tally refresh                                                                                                                                       |
@@ -369,6 +370,7 @@
 | FB automation            | `src/modules/integrations/facebook/meta/automation/`                        | Comment/message triggers and actions, bot message generation                                                                                                                                           |
 | FB page posting          | `src/modules/integrations/facebook/postService.ts`, `postGuard.ts`          | Post publishing pipeline (validation, photo staging, cleanup, permalink) and its rate limit + audit log                                                                                                |
 | FB app resolution        | `src/modules/integrations/facebook/commonUtils.ts`                          | `resolveFacebookApp`, `facebookAppSelector`, `facebookAccountSelector`                                                                                                                                 |
+| FB messenger services    | `src/modules/integrations/facebook/services/`                               | `messengerSend` (messaging params, bot text send with tag retry), `messageEvents` (reaction replace, message publish, reply-to), `automatedReplyControl`, `conversationSync`, `messageNormalization`, `messagePreview` |
 | Ticket                   | `src/modules/ticket/`                                                       | Boards, pipelines, statuses, tickets, activities, notes                                                                                                                                                |
 | Conversation convert     | `src/modules/inbox/services/conversationConvert{,Targets}.ts`               | Conversion orchestration and relations; one handler per target (permission, existing-item lookup, URL, create)                                                                                         |
 | Forms                    | `src/modules/form/`                                                         | Forms, fields, submissions                                                                                                                                                                             |
@@ -801,10 +803,91 @@ isInternal)` is the agent-side list and requires `showTickets`.
 - Save a help center with two CMSes and confirm `cmsConfigs` holds both, that
   `cmsId` / `cmsAppToken` mirror the first entry, and that a config written
   before `cmsConfigs` existed still returns its single CMS as a one-entry list.
+- Save a conversation's properties through `conversationEditCustomFields` and
+  confirm the value round-trips on `Conversation.propertiesData`, a validation
+  rejection throws instead of silently keeping the unvalidated input, and
+  clearing every property to `{}` stays `{}` on the next read rather than
+  reverting to any legacy value.
 
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-28` — Customer Messenger reactions reach the inbox
+
+- **Summary:** Pages subscribe to the `message_reactions` webhook field, so a
+  customer's reaction arrives through `handleReaction` and is stored with its
+  `emoji`; existing pages pick it up after a Facebook repair or re-login.
+- **Affected areas:** `src/modules/integrations/facebook/constants.ts`,
+  `src/modules/integrations/facebook/services/conversationSync.ts`
+- **Contracts changed:** `SUBSCRIBED_FIELDS` adds `message_reactions`.
+
+### `2026-09-28` — Facebook Messenger send, reaction and reply-to logic has one home
+
+- **Summary:** The three Messenger text senders, two reaction updaters and two
+  reply-to resolvers collapse into `services/messengerSend.ts` and
+  `services/messageEvents.ts`; the Facebook automated-reply control message
+  moves out of the inbox resolvers, dead Graph helpers are removed, and
+  replies from staff are now labelled `You` on both directions.
+- **Affected areas:** `src/modules/integrations/facebook/services/`,
+  `src/modules/integrations/facebook/{handleFacebookMessage,controller/receiveMessage,utils,pageUtils,messageActions}.ts`,
+  `src/modules/inbox/graphql/resolvers/mutations/{conversationAutomation,conversations,conversationMessageMutations}.ts`,
+  `src/modules/inbox/services/conversationReaction.ts`,
+  `src/modules/integrations/utils.ts`
+- **Contracts changed:** None; `fetchPagePosts`, `fetchPagesPosts`,
+  `checkFacebookPages` and `restorePost` are no longer exported.
+
+### `2026-09-28` — Facebook media goes to the tenant's configured storage
+
+- **Summary:** `uploadMedia` downloads Facebook post media and profile
+  pictures to a temp file and stores them through `uploadFileToStorage`, like
+  the Discord rehost, so AWS, GCS, Cloudflare and Azure tenants all keep a copy
+  and the returned key or URL is resolved by `generateAttachmentUrl`.
+- **Affected areas:**
+  `src/modules/integrations/facebook/mediaUtils.ts`,
+  `src/modules/integrations/facebook/utils.ts`,
+  `src/modules/integrations/facebook/controller/store.ts`
+- **Contracts changed:** None; `createAWS` and `invalidateUploadConfigCache`
+  are no longer exported.
+
+### `2026-09-24` — Conversation custom properties actually persist
+
+- **Summary:** Restored the 2.0-era link between conversations and core's
+  custom-properties system, which the 3.0 rewrite had left broken: the
+  Mongoose field had been silently renamed to `customsData` (never read or
+  written anywhere else, and mismatched with the `customFieldsData` the
+  GraphQL type/mutation already declared, so Mongoose's strict mode silently
+  dropped every write), and no validation call into core `fields` existed for
+  conversations. The field is now `propertiesData` (`Schema.Types.Mixed`) —
+  named to match the platform-wide convention every other entity with this UI
+  treatment uses (`Ticket.propertiesData`, `Customer.propertiesData`,
+  `Company.propertiesData`, `Product.propertiesData`, `User.propertiesData`),
+  not the `customFieldsData` name 2.0 used. `customFieldsData` is what those
+  same entities keep as a *legacy* array-shaped field for old data; it is not
+  the live one. `Conversations.updateConversation` validates the new field
+  through core `fields.validateFieldValues` before persisting, mirroring
+  `modules/ticket/db/ticket.ts`, and now throws instead of silently falling
+  back to the unvalidated input when that call fails.
+  `conversationEditCustomFields`'s GraphQL argument was renamed from
+  `customFieldsData` to `propertiesData` to match — safe because the mutation
+  never worked before this change, so nothing depended on the old argument
+  name. `Conversation.propertiesData`'s field resolver falls back to the
+  legacy raw `customsData` path only when `propertiesData` is `null`/
+  `undefined` (never for a merely-empty `{}`, which is a valid cleared state),
+  reading it through the repo's `typeof doc.toObject === 'function' ?
+  doc.toObject() : doc` idiom so it also works on the `.lean()` plain object
+  `conversationsGetLast` returns — no document is actually known to hold
+  data there, since the old write path never matched either field name.
+- **Affected areas:** `modules/inbox/db/definitions/conversations.ts`,
+  `modules/inbox/db/models/Conversations.ts`,
+  `modules/inbox/@types/conversations.ts`,
+  `modules/inbox/graphql/schemas/conversation.ts`,
+  `modules/inbox/graphql/resolvers/mutations/conversations.ts`,
+  `modules/inbox/graphql/resolvers/customResolvers/conversation.ts`.
+- **Contracts changed:** `Conversation.customFieldsData` field renamed to
+  `Conversation.propertiesData`; `conversationEditCustomFields`'s
+  `customFieldsData` argument renamed to `propertiesData`. Both existed in the
+  schema already but never worked, so no real caller is affected.
 
 ### `2026-09-24` — A portal ticket tells the person who raised it what happened
 
@@ -914,61 +997,3 @@ isInternal)` is the agent-side list and requires `showTickets`.
   `src/modules/survey/graphql/schema/survey.ts`
 - **Contracts changed:** added query `cpSurveyRequests` and mutations
   `cpSurveyEdit` and `cpSurveyRemove`.
-
-### `2026-09-23` — `cpSurveyVotes` reads a customer's votes
-
-- **Summary:** `cpSurveyVotes` takes `conversationId`, `customerId` or both;
-  a `customerId` returns that customer's vote selections regardless of the
-  caller's voter id, while a `customerId`-less call keeps the previous
-  caller-scoped `voterId` filter, and a call with neither argument is rejected.
-- **Affected areas:**
-  `src/modules/survey/graphql/resolvers/queries/clientPortal.ts`,
-  `src/modules/survey/graphql/schema/survey.ts`
-- **Contracts changed:** `cpSurveyVotes(conversationId: String, customerId: String)`
-  — `conversationId` is no longer required.
-
-### `2026-09-22` — A help center stores its forms and the CMS behind its announcements
-
-- **Summary:** A help center config now keeps the ticket channel's forms
-  (`formChannelId`, `formIds`) and the content CMS its announcements come from
-  (`cmsId`, `cmsAppToken`); `normalizeHelpCenterConfig` was split into one
-  normalizer per group (identity, knowledge base, tickets, CMS), which refuses
-  a `cmsId` without an app token and de-duplicates `formIds`, and
-  `HelpCenterConfig.getChannelFormIds` drops on write every form that does not
-  belong to `formChannelId`.
-- **Affected areas:**
-  `src/modules/helpcenter/{@types/helpCenterConfig,db/definitions/helpCenterConfig,db/models/HelpCenterConfig,graphql/schemas/helpCenterConfig,utils/helpCenterConfig}.ts`
-- **Contracts changed:** `HelpCenterConfig` and `HelpCenterConfigInput` gained
-  `formChannelId`, `formIds`, `cmsId` and `cmsAppToken`;
-  `frontline_help_center_configs` carries the same four fields.
-
-### `2026-09-22` — Client portal users request surveys for approval
-
-- **Summary:** `cpSurveyAdd` lets a signed-in client portal user submit a
-  survey against a channel that has an active messenger integration; it is
-  stored as the new `pending` status with `createdCpUserId` and voting-only
-  options, stays hidden from every client portal read and from
-  `surveySendToConversation` until an agent approves it with
-  `surveyToggleStatus`, and `Survey.createdCpUser` names the requester.
-- **Affected areas:** `src/modules/survey/db/definitions/surveys.ts`,
-  `src/modules/survey/db/models/Surveys.ts`,
-  `src/modules/survey/@types/survey.ts`,
-  `src/modules/survey/graphql/schema/survey.ts`,
-  `src/modules/survey/graphql/resolvers/mutations/clientPortal.ts`,
-  `src/modules/survey/graphql/resolvers/customResolvers/survey.ts`,
-  `src/modules/survey/graphql/resolvers/queries/surveys.ts`
-- **Contracts changed:** added mutation `cpSurveyAdd`, inputs
-  `CpSurveyOptionInput` / `CpSurveyStepInput`, type `SurveyCpRequester` and
-  `Survey.createdCpUserId` / `Survey.createdCpUser`; survey `status` accepts
-  `pending` and `surveyTotalCount.byStatus` now reports it.
-
-### `2026-09-21` — The ticket action says it needs someone to act for
-
-- **Summary:** `Create ticket` now declares `requiresActor: true`. The ticket it
-  opens is assigned from the run's `createdVia.actorId` when the conversation
-  names nobody, so the builder can tell whether an automation about to go live
-  will create records that belong to a person. Assignment itself is unchanged.
-- **Affected areas:**
-  `src/modules/ticket/meta/automations/ticketAutomationsConstants.ts`
-- **Contracts changed:** The action descriptor carries `requiresActor`, a field
-  `erxes-api-shared` added for every plugin to use.
