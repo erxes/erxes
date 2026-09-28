@@ -1,82 +1,30 @@
 import { FC, useEffect, useId, useRef, useState } from 'react';
 import {
   IconArrowRight,
-  IconFileAlert,
   IconMoodSmile,
   IconPaperclip,
   IconX,
 } from '@tabler/icons-react';
-import {
-  Button,
-  cn,
-  IAttachment,
-  Popover,
-  readImage,
-  Spinner,
-  useUpload,
-} from 'erxes-ui';
+import { Button, cn, Popover } from 'erxes-ui';
 import { EmojiPicker } from 'ui-modules/modules/automations/components/EmojiPicker';
 import { useAtom } from 'jotai';
-import { formatFileSize, getAttachmentType } from '@libs/format-file';
 import { InitialMessage } from '../constants';
-import { connectionAtom } from '../states';
+import { connectionAtom, widgetReplyToAtom } from '../states';
 import { useCustomerData } from '../hooks/useCustomerData';
 import { useChatInput } from '../hooks/useChatInput';
 import { PersistentMenu } from './persistent-menu';
 import { useMessenger } from '../hooks/useMessenger';
-import { Attachment } from './attachment';
-import { getAttachmentIcon } from './attachment-type';
+import { useAttachmentUploads } from '../hooks/useAttachmentUploads';
+import { ChatAttachmentStrip } from './attachments/chat-input-strip';
 
 type ChatInputProps = React.InputHTMLAttributes<HTMLInputElement>;
 
-/** A file still in flight. It leaves this list only once the upload settles. */
-type PendingFile = {
-  name: string;
-  type: string;
-  size: number;
-  /** Object URL for image previews — revoked when the entry is dropped. */
-  preview?: string;
-  state: 'uploading' | 'error';
-  /** Why it failed, when known. */
-  error?: string;
-};
-
-const DEFAULT_MAX_UPLOAD_SIZE = 20 * 1024 * 1024;
-
-/** Same limit `useUpload` enforces, read per call so a late env write counts. */
-const getMaxUploadSize = (): number =>
-  Number.parseInt(
-    localStorage.getItem('erxes_env_REACT_APP_FILE_UPLOAD_MAX_SIZE') || '',
-    10,
-  ) || DEFAULT_MAX_UPLOAD_SIZE;
-
-const toPendingFile = (
-  file: File,
-  state: PendingFile['state'],
-): PendingFile => ({
-  name: file.name,
-  type: file.type,
-  size: file.size,
-  preview: file.type.startsWith('image/')
-    ? URL.createObjectURL(file)
-    : undefined,
-  state,
-});
-
 export const ChatInput: FC<ChatInputProps> = ({ className, ...inputProps }) => {
   const [connection] = useAtom(connectionAtom);
-  const [attachments, setAttachments] = useState<IAttachment[]>([]);
-  const [pendingFiles, setPendingFiles] = useState<PendingFile[]>([]);
+  const [replyTo, setReplyTo] = useAtom(widgetReplyToAtom);
   const [emojiOpen, setEmojiOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  /** Names dismissed mid-flight — the request cannot be aborted, so its late
-   *  response has to be dropped instead of silently re-attaching the file. */
-  const cancelledUploadsRef = useRef<Set<string>>(new Set());
-  const {
-    upload,
-    isLoading: isUploadRunning,
-    status: uploadStatus,
-  } = useUpload();
+  const messageInputRef = useRef<HTMLInputElement>(null);
   const { activeTab, switchToTab } = useMessenger();
   const { messengerData } = connection.widgetsMessengerConnect || {};
   const { messages, isOnline, requireAuth } = messengerData || {};
@@ -94,211 +42,57 @@ export const ChatInput: FC<ChatInputProps> = ({ className, ...inputProps }) => {
     loading,
   } = useChatInput();
   const { hasEmailOrPhone } = useCustomerData();
+  const {
+    attachments,
+    pendingFiles,
+    isUploading,
+    handleFileChange,
+    removeAttachment,
+    dismissPendingFile,
+    clearAttachments,
+  } = useAttachmentUploads();
   const shouldDisable = requireAuth === true && !hasEmailOrPhone;
   const isChat = activeTab === 'chat';
+
+  useEffect(() => {
+    if (replyTo) messageInputRef.current?.focus();
+  }, [replyTo]);
 
   const handleDisabledClick = () => {
     if (shouldDisable) switchToTab('messages');
   };
 
-  // `useUpload` reports a rejected file (bad type, upload config, network) only
-  // through `status` — it raises its own toast and returns without calling
-  // `afterUpload`, so nothing else ever settles the tile. Once the uploader
-  // stops with a failed status, whatever is still marked uploading has failed.
-  useEffect(() => {
-    if (isUploadRunning || uploadStatus) return;
-
-    setPendingFiles((prev) =>
-      prev.some((file) => file.state === 'uploading')
-        ? prev.map((file) =>
-            file.state === 'uploading'
-              ? { ...file, state: 'error' as const }
-              : file,
-          )
-        : prev,
-    );
-  }, [isUploadRunning, uploadStatus]);
-  // A failed upload stays on screen but must not hold the send button hostage.
-  const isUploading = pendingFiles.some((file) => file.state === 'uploading');
   const canSend = (!isDisabled || attachments.length > 0) && !isUploading;
-
-  const totalQueued = attachments.length + pendingFiles.length;
-  const uploadedCount = attachments.length;
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { files } = e.target;
-    if (!files || files.length === 0) return;
-
-    // Oversized files are dropped by `useUpload` with a bare `continue`, which
-    // resolves nothing and — when every file is oversized — leaves its own
-    // loading flag stuck on. Reject them here so only real uploads are sent.
-    const maxUploadSize = getMaxUploadSize();
-    const selected = Array.from(files);
-    const accepted = selected.filter((file) => file.size <= maxUploadSize);
-
-    setPendingFiles((prev) => [
-      ...prev,
-      ...selected.map((file) => {
-        if (file.size <= maxUploadSize) return toPendingFile(file, 'uploading');
-        return {
-          ...toPendingFile(file, 'error'),
-          error: `Larger than ${Math.round(maxUploadSize / 1024 / 1024)}MB`,
-        };
-      }),
-    ]);
-
-    e.target.value = '';
-
-    if (accepted.length === 0) return;
-
-    const acceptedFiles = new DataTransfer();
-    accepted.forEach((file) => acceptedFiles.items.add(file));
-
-    upload({
-      files: acceptedFiles.files,
-      // Only reached for files the server accepted; the effect above owns the
-      // failures, which never call back at all.
-      afterUpload: ({ response, fileInfo }) => {
-        if (cancelledUploadsRef.current.delete(fileInfo.name)) return;
-
-        setAttachments((prev) => [
-          ...prev,
-          {
-            url: response,
-            name: fileInfo.name,
-            size: fileInfo.size,
-            type: fileInfo.type,
-          },
-        ]);
-        setPendingFiles((prev) => {
-          const idx = prev.findIndex((f) => f.name === fileInfo.name);
-          if (idx === -1) return prev;
-          const next = [...prev];
-          const [uploaded] = next.splice(idx, 1);
-          // revoke the objectURL once upload is done
-          if (uploaded.preview) {
-            URL.revokeObjectURL(uploaded.preview);
-          }
-          return next;
-        });
-      },
-    });
-  };
-
-  const removeAttachment = (index: number) => {
-    setAttachments((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const dismissPendingFile = (index: number) => {
-    setPendingFiles((prev) => {
-      const dismissed = prev[index];
-      if (!dismissed) return prev;
-      if (dismissed.state === 'uploading') {
-        cancelledUploadsRef.current.add(dismissed.name);
-      }
-      if (dismissed.preview) {
-        URL.revokeObjectURL(dismissed.preview);
-      }
-      return prev.filter((_, i) => i !== index);
-    });
-  };
-
-  const hasStrip =
-    isChat && (attachments.length > 0 || pendingFiles.length > 0);
-
   return (
     <div className="flex flex-col grow-0 shrink-0">
-      {hasStrip && (
-        <div className="flex flex-col px-3 pt-2 gap-1.5">
-          {isUploading && (
-            <span className="text-[11px] text-muted-foreground">
-              {uploadedCount} of {totalQueued} uploaded
+      {isChat && (
+        <ChatAttachmentStrip
+          attachments={attachments}
+          pendingFiles={pendingFiles}
+          isUploading={isUploading}
+          onRemove={removeAttachment}
+          onDismiss={dismissPendingFile}
+        />
+      )}
+
+      {replyTo && (
+        <div className="flex items-center justify-between gap-2 border-b border-border/60 bg-muted/50 px-3 py-1.5 text-xs text-muted-foreground">
+          <div className="min-w-0">
+            <span className="font-semibold text-foreground">
+              Replying to {replyTo.authorName}:{' '}
             </span>
-          )}
-          <Attachment.Group className="hide-scroll">
-            {attachments.map((att, i) => {
-              const fileType = getAttachmentType(att.type, att.name);
-              const FileTypeIcon = getAttachmentIcon(fileType);
-
-              return (
-                <Attachment
-                  key={`done-${att.name}-${i}`}
-                  size="sm"
-                  state="done"
-                >
-                  {fileType === 'image' ? (
-                    <Attachment.Media variant="image">
-                      <img src={readImage(att.url)} alt={att.name} />
-                    </Attachment.Media>
-                  ) : (
-                    <Attachment.Media>
-                      <FileTypeIcon />
-                    </Attachment.Media>
-                  )}
-                  <Attachment.Content>
-                    <Attachment.Title>{att.name}</Attachment.Title>
-                    <Attachment.Description>
-                      {`Uploaded · ${formatFileSize(att.size || 0)}`}
-                    </Attachment.Description>
-                  </Attachment.Content>
-                  <Attachment.Actions>
-                    <Attachment.Action
-                      type="button"
-                      aria-label={`Remove ${att.name}`}
-                      onClick={() => removeAttachment(i)}
-                    >
-                      <IconX />
-                    </Attachment.Action>
-                  </Attachment.Actions>
-                </Attachment>
-              );
-            })}
-            {pendingFiles.map((pf, i) => {
-              const fileType = getAttachmentType(pf.type, pf.name);
-              const FileTypeIcon = getAttachmentIcon(fileType);
-              const hasFailed = pf.state === 'error';
-
-              return (
-                <Attachment
-                  key={`pending-${pf.name}-${i}`}
-                  size="sm"
-                  state={pf.state}
-                >
-                  <Attachment.Media variant={pf.preview ? 'image' : 'icon'}>
-                    {hasFailed ? (
-                      <IconFileAlert />
-                    ) : pf.preview ? (
-                      <img src={pf.preview} alt={pf.name} />
-                    ) : (
-                      <FileTypeIcon />
-                    )}
-                    {pf.state === 'uploading' && (
-                      <span className="absolute inset-0 flex items-center justify-center bg-background/60">
-                        <Spinner size="sm" />
-                      </span>
-                    )}
-                  </Attachment.Media>
-                  <Attachment.Content>
-                    <Attachment.Title>{pf.name}</Attachment.Title>
-                    <Attachment.Description>
-                      {hasFailed ? pf.error || 'Upload failed' : 'Uploading'}
-                    </Attachment.Description>
-                  </Attachment.Content>
-                  <Attachment.Actions>
-                    <Attachment.Action
-                      type="button"
-                      aria-label={
-                        hasFailed ? `Dismiss ${pf.name}` : `Cancel ${pf.name}`
-                      }
-                      onClick={() => dismissPendingFile(i)}
-                    >
-                      <IconX />
-                    </Attachment.Action>
-                  </Attachment.Actions>
-                </Attachment>
-              );
-            })}
-          </Attachment.Group>
+            <span className="truncate">{replyTo.content}</span>
+          </div>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="size-6 shrink-0 rounded-full"
+            onClick={() => setReplyTo(null)}
+            aria-label="Cancel reply"
+          >
+            <IconX className="size-3" />
+          </Button>
         </div>
       )}
 
@@ -307,7 +101,11 @@ export const ChatInput: FC<ChatInputProps> = ({ className, ...inputProps }) => {
         onSubmit={(e) =>
           handleSubmit(e, {
             attachments,
-            onClear: () => setAttachments([]),
+            replyTo,
+            onClear: () => {
+              clearAttachments();
+              setReplyTo(null);
+            },
           })
         }
         autoComplete="off"
@@ -336,18 +134,22 @@ export const ChatInput: FC<ChatInputProps> = ({ className, ...inputProps }) => {
                 className="size-5 hover:bg-transparent group"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={shouldDisable}
+                aria-label="Attach files"
               >
                 <IconPaperclip className="size-4 text-muted-foreground shrink-0 group-hover:text-primary dark:group-hover:text-primary-foreground transition-all" />
               </Button>
             </>
           )}
           <input
+            ref={messageInputRef}
             id={id}
             className={cn(
               'border-none py-1.5 h-auto px-1 text-xs bg-transparent text-foreground shadow-none focus-visible:outline-none! focus-visible:ring-0! focus-visible:border-0! placeholder:text-muted-foreground placeholder:font-medium placeholder:text-sm flex-1',
               className,
             )}
-            placeholder={shouldDisable ? 'Sign in to send a message' :placeholder}
+            placeholder={
+              shouldDisable ? 'Sign in to send a message' : placeholder
+            }
             value={message}
             disabled={shouldDisable}
             onChange={handleInputChange}
@@ -362,6 +164,7 @@ export const ChatInput: FC<ChatInputProps> = ({ className, ...inputProps }) => {
                   size="icon"
                   className="size-5 hover:bg-transparent group"
                   disabled={shouldDisable}
+                  aria-label="Choose emoji"
                 >
                   <IconMoodSmile className="size-5 text-muted-foreground shrink-0 group-hover:text-primary dark:group-hover:text-primary-foreground transition-all" />
                 </Button>
