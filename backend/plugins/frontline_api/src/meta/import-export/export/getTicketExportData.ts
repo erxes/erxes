@@ -4,9 +4,6 @@ import {
   buildExportCursorQuery,
 } from 'erxes-api-shared/core-modules';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
-import { FilterQuery } from 'mongoose';
-import { ITicketDocument } from '@/ticket/@types/ticket';
-import { buildDateMatch } from '@/reports/utils';
 import { IModels } from '~/connectionResolvers';
 import { buildTicketExportRow } from './buildTicketExportRow';
 
@@ -20,7 +17,7 @@ export async function getTicketExportData(
     throw new Error('Models not available in context');
   }
 
-  const query: FilterQuery<ITicketDocument> = {};
+  let query: any = {};
 
   if (filters && Object.keys(filters).length > 0) {
     if (filters.name) {
@@ -40,25 +37,6 @@ export async function getTicketExportData(
     }
     if (filters.pipelineId) {
       query.pipelineId = filters.pipelineId;
-    }
-    if (Array.isArray(filters.segmentIds) && filters.segmentIds.length) {
-      query.segmentIds = { $in: filters.segmentIds };
-    }
-    if (typeof filters.dateFilters === 'string' && filters.dateFilters) {
-      try {
-        const dateFilters: Record<string, { gte?: string; lte?: string }> =
-          JSON.parse(filters.dateFilters);
-
-        for (const key of ['createdAt', 'updatedAt'] as const) {
-          const { gte, lte } = dateFilters[key] || {};
-          Object.assign(
-            query,
-            buildDateMatch({ fromDate: gte, toDate: lte }, key),
-          );
-        }
-      } catch (err) {
-        throw new Error(`Invalid dateFilters JSON: ${err}`);
-      }
     }
   }
 
