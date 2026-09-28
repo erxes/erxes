@@ -67,7 +67,14 @@ export interface ITicketDocument extends ITicket, Document {
 
 export interface ITicketFilter extends IListParams, ITicket {
   segmentIds?: string[];
-  dateFilters?: string;
+  createdStartDate?: Date;
+  createdEndDate?: Date;
+  startDateStartDate?: Date;
+  startDateEndDate?: Date;
+  targetDateStartDate?: Date;
+  targetDateEndDate?: Date;
+  statusChangedStartDate?: Date;
+  statusChangedEndDate?: Date;
   userId?: string;
   createdAt?: Date;
 }

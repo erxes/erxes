@@ -16,10 +16,6 @@ import {
 import { useAtomValue } from 'jotai';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  TICKET_DATE_FILTERS,
-  TicketDateFilterQueries,
-} from '@/ticket/constants/dateFilters';
 
 const TICKETS_PER_PAGE = 30;
 
@@ -48,18 +44,23 @@ export const useTicketsVariables = (
     state,
     pipelineId,
     segments,
-    ...dateQueries
-  } = useNonNullMultiQueryState<
-    {
-      searchValue: string;
-      assignee: string;
-      priority: string;
-      statusId: string;
-      state: string;
-      pipelineId: string;
-      segments: string[];
-    } & TicketDateFilterQueries
-  >([
+    createdStartDate,
+    startDateStartDate,
+    targetDateStartDate,
+    statusChangedStartDate,
+  } = useNonNullMultiQueryState<{
+    searchValue: string;
+    assignee: string;
+    priority: string;
+    statusId: string;
+    state: string;
+    pipelineId: string;
+    segments: string[];
+    createdStartDate: string;
+    startDateStartDate: string;
+    targetDateStartDate: string;
+    statusChangedStartDate: string;
+  }>([
     'searchValue',
     'assignee',
     'priority',
@@ -67,23 +68,17 @@ export const useTicketsVariables = (
     'state',
     'pipelineId',
     'segments',
-    ...TICKET_DATE_FILTERS.map(({ queryKey }) => queryKey),
+    'createdStartDate',
+    'startDateStartDate',
+    'targetDateStartDate',
+    'statusChangedStartDate',
   ]);
 
   const sortField = useAtomValue(ticketSortAtom);
-  const dateRanges = TICKET_DATE_FILTERS.flatMap(({ queryKey, field }) => {
-    const range = parseDateRangeFromString(dateQueries[queryKey]);
-    if (
-      !range ||
-      !Number.isFinite(range.from.getTime()) ||
-      !Number.isFinite(range.to.getTime())
-    ) {
-      return [];
-    }
-    return [
-      [field, { gte: range.from.toISOString(), lte: range.to.toISOString() }],
-    ];
-  });
+  const createdRange = parseDateRangeFromString(createdStartDate);
+  const startRange = parseDateRangeFromString(startDateStartDate);
+  const targetRange = parseDateRangeFromString(targetDateStartDate);
+  const statusChangedRange = parseDateRangeFromString(statusChangedStartDate);
 
   return {
     cursor: '',
@@ -100,9 +95,14 @@ export const useTicketsVariables = (
     pipelineId: pipelineId,
     state: state,
     segmentIds: segments?.length ? segments : undefined,
-    dateFilters: dateRanges.length
-      ? JSON.stringify(Object.fromEntries(dateRanges))
-      : undefined,
+    createdStartDate: createdRange?.from,
+    createdEndDate: createdRange?.to,
+    startDateStartDate: startRange?.from,
+    startDateEndDate: startRange?.to,
+    targetDateStartDate: targetRange?.from,
+    targetDateEndDate: targetRange?.to,
+    statusChangedStartDate: statusChangedRange?.from,
+    statusChangedEndDate: statusChangedRange?.to,
     ...variables,
   };
 };
@@ -138,7 +138,17 @@ export const useTickets = (
       updateQuery: (prev, { subscriptionData }) => {
         if (!subscriptionData.data) return prev;
 
-        if (variables.segmentIds?.length || variables.dateFilters) {
+        if (
+          variables.segmentIds?.length ||
+          variables.createdStartDate ||
+          variables.createdEndDate ||
+          variables.startDateStartDate ||
+          variables.startDateEndDate ||
+          variables.targetDateStartDate ||
+          variables.targetDateEndDate ||
+          variables.statusChangedStartDate ||
+          variables.statusChangedEndDate
+        ) {
           void refetch();
           return prev;
         }

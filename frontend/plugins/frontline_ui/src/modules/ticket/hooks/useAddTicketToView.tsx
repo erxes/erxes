@@ -6,13 +6,33 @@ import { ticketCountByBoardAtom } from '../states/ticketsTotalCountState';
 import { useTicketsVariables } from './useGetTickets';
 
 export const useAddTicketToView = () => {
-  const { segmentIds, dateFilters } = useTicketsVariables();
+  const {
+    segmentIds,
+    createdStartDate,
+    createdEndDate,
+    startDateStartDate,
+    startDateEndDate,
+    targetDateStartDate,
+    targetDateEndDate,
+    statusChangedStartDate,
+    statusChangedEndDate,
+  } = useTicketsVariables();
   const setFetchedTickets = useSetAtom(fetchedTicketsState);
   const setAllTicketsMap = useSetAtom(allTicketsMapState);
   const setTicketCountByBoard = useSetAtom(ticketCountByBoardAtom);
 
   const addTicketToView = (ticket: ITicket) => {
-    if (segmentIds?.length || dateFilters) {
+    if (
+      segmentIds?.length ||
+      createdStartDate ||
+      createdEndDate ||
+      startDateStartDate ||
+      startDateEndDate ||
+      targetDateStartDate ||
+      targetDateEndDate ||
+      statusChangedStartDate ||
+      statusChangedEndDate
+    ) {
       return;
     }
 

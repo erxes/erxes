@@ -4,7 +4,6 @@ import { IUserDocument } from 'erxes-api-shared/core-types';
 import { IModels } from '~/connectionResolvers';
 import { escapeRegExp } from 'erxes-api-shared/utils';
 import { createPermissionValidator } from '@/ticket/utils/permissionValidator';
-import { buildDateMatch } from '@/reports/utils';
 
 const startOfToday = () => {
   const start = new Date();
@@ -69,6 +68,17 @@ export const generateFilter = async (
   user: IUserDocument | undefined,
   models: IModels,
 ) => {
+  const {
+    segmentIds,
+    createdStartDate,
+    createdEndDate,
+    startDateStartDate,
+    startDateEndDate,
+    targetDateStartDate,
+    targetDateEndDate,
+    statusChangedStartDate,
+    statusChangedEndDate,
+  } = filter;
   const filterQuery: FilterQuery<ITicketDocument> = {};
 
   const andConditions: FilterQuery<ITicketDocument>[] = [];
@@ -185,8 +195,8 @@ export const generateFilter = async (
     filterQuery.priority = filter.priority;
   }
 
-  if (filter.segmentIds?.length) {
-    filterQuery.segmentIds = { $in: filter.segmentIds };
+  if (segmentIds?.length) {
+    filterQuery.segmentIds = { $in: segmentIds };
   }
 
   if (filter.startDate) {
@@ -201,27 +211,32 @@ export const generateFilter = async (
     filterQuery.createdAt = { $gte: filter.createdAt };
   }
 
-  if (filter.dateFilters) {
-    try {
-      const dateFilters: Record<string, { gte?: string; lte?: string }> =
-        JSON.parse(filter.dateFilters);
+  if (createdStartDate || createdEndDate) {
+    filterQuery.createdAt = {
+      ...(createdStartDate && { $gte: new Date(createdStartDate) }),
+      ...(createdEndDate && { $lte: new Date(createdEndDate) }),
+    };
+  }
 
-      for (const key of [
-        'createdAt',
-        'startDate',
-        'targetDate',
-        'statusChangedDate',
-      ] as const) {
-        const { gte, lte } = dateFilters[key] || {};
-        if (gte || lte) {
-          andConditions.push(
-            buildDateMatch({ fromDate: gte, toDate: lte }, key),
-          );
-        }
-      }
-    } catch (err) {
-      throw new Error(`Invalid dateFilters JSON: ${err}`);
-    }
+  if (startDateStartDate || startDateEndDate) {
+    filterQuery.startDate = {
+      ...(startDateStartDate && { $gte: new Date(startDateStartDate) }),
+      ...(startDateEndDate && { $lte: new Date(startDateEndDate) }),
+    };
+  }
+
+  if (targetDateStartDate || targetDateEndDate) {
+    filterQuery.targetDate = {
+      ...(targetDateStartDate && { $gte: new Date(targetDateStartDate) }),
+      ...(targetDateEndDate && { $lte: new Date(targetDateEndDate) }),
+    };
+  }
+
+  if (statusChangedStartDate || statusChangedEndDate) {
+    filterQuery.statusChangedDate = {
+      ...(statusChangedStartDate && { $gte: new Date(statusChangedStartDate) }),
+      ...(statusChangedEndDate && { $lte: new Date(statusChangedEndDate) }),
+    };
   }
 
   if (filter.assigneeId) {
