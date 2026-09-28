@@ -4,6 +4,7 @@ import {
   AutomationBuilderTabsType,
   AutomationConstants,
   AutomationNodeType,
+  AutomationSecondaryPanel,
   ConstantsQueryResponse,
   IAutomation,
   NodeData,
@@ -17,7 +18,7 @@ import {
   ReactFlowInstance,
 } from '@xyflow/react';
 import {
-  automationBuilderSecondarySidebarOpenState,
+  automationBuilderSecondaryPanelState,
   automationBuilderSiderbarOpenState,
 } from '@/automations/states/automationState';
 import { useMultiQueryState } from 'erxes-ui';
@@ -73,9 +74,8 @@ interface AutomationContextType {
   isSidebarOpen: boolean;
   setSidebarOpen: (open: boolean) => void;
   toggleSidebar: () => void;
-  isSecondarySidebarOpen: boolean;
-  setSecondarySidebarOpen: (open: boolean) => void;
-  toggleSecondarySidebar: () => void;
+  secondaryPanel: AutomationSecondaryPanel | null;
+  setSecondaryPanel: (panel: AutomationSecondaryPanel | null) => void;
   // Drill-in editing: the id of the workflow whose members are being edited on
   // the main workspace, or null when the root automation is shown. Lives on the
   // root provider so the WorkflowNode maximize control and the workspace agree.
@@ -149,24 +149,20 @@ export const AutomationProvider = ({
   const [globalSidebarOpen, setGlobalSidebarOpen] = useAtom(
     automationBuilderSiderbarOpenState,
   );
-  const [globalSecondarySidebarOpen, setGlobalSecondarySidebarOpen] = useAtom(
-    automationBuilderSecondarySidebarOpenState,
+  const [globalSecondaryPanel, setGlobalSecondaryPanel] = useAtom(
+    automationBuilderSecondaryPanelState,
   );
   const [localSidebarOpen, setLocalSidebarOpen] = useState(false);
-  const [localSecondarySidebarOpen, setLocalSecondarySidebarOpen] =
-    useState(false);
+  const [localSecondaryPanel, setLocalSecondaryPanel] =
+    useState<AutomationSecondaryPanel | null>(null);
 
   const isSidebarOpen = scoped ? localSidebarOpen : globalSidebarOpen;
   const setSidebarOpen = scoped ? setLocalSidebarOpen : setGlobalSidebarOpen;
-  const isSecondarySidebarOpen = scoped
-    ? localSecondarySidebarOpen
-    : globalSecondarySidebarOpen;
-  const setSecondarySidebarOpen = scoped
-    ? setLocalSecondarySidebarOpen
-    : setGlobalSecondarySidebarOpen;
+  const secondaryPanel = scoped ? localSecondaryPanel : globalSecondaryPanel;
+  const setSecondaryPanel = scoped
+    ? setLocalSecondaryPanel
+    : setGlobalSecondaryPanel;
   const toggleSidebar = () => setSidebarOpen(!isSidebarOpen);
-  const toggleSecondarySidebar = () =>
-    setSecondarySidebarOpen(!isSecondarySidebarOpen);
 
   const [editingWorkflowId, setEditingWorkflowId] = useState<string | null>(
     null,
@@ -268,9 +264,8 @@ export const AutomationProvider = ({
         isSidebarOpen,
         setSidebarOpen,
         toggleSidebar,
-        isSecondarySidebarOpen,
-        setSecondarySidebarOpen,
-        toggleSecondarySidebar,
+        secondaryPanel,
+        setSecondaryPanel,
         editingWorkflowId,
         setEditingWorkflowId,
         selectedNode,

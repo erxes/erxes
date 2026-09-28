@@ -46,10 +46,7 @@ type Props = {
   currentAction: TAutomationBuilderActions[number];
 };
 
-/**
- * Sits under every action's own form, so what happens when a step fails is
- * configured where the step is configured — and the canvas shows the result.
- */
+// Rendered in the node's secondary panel; the canvas reflects the branching.
 export const ActionErrorPolicySection = ({
   currentIndex,
   currentAction,

@@ -119,6 +119,7 @@ const JOURNAL_TITLES: Record<string, string> = {
   inv_fb: 'inventory opening journal',
   invIncome: 'inventory income journal',
   invOut: 'inventory out journal',
+  invJustify: 'inventory cost adjustment journal',
   invMove: 'inventory movement journal',
   invSale: 'inventory sale journal',
   invSaleReturn: 'inventory sale return journal',

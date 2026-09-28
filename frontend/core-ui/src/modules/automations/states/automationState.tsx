@@ -2,6 +2,7 @@ import {
   AutomationBuilderTabsType,
   AutomationHistorySplitDirection,
   AutomationHistoryViewMode,
+  AutomationSecondaryPanel,
 } from '@/automations/types';
 import { atom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
@@ -20,8 +21,11 @@ export const automationBuilderPanelOpenState = atomWithStorage<boolean>(
   false,
 );
 
-export const automationBuilderSecondarySidebarOpenState =
-  atomWithStorage<boolean>('automationSecondarySidebarOpen', false);
+export const automationBuilderSecondaryPanelState =
+  atomWithStorage<AutomationSecondaryPanel | null>(
+    'automationSecondaryPanel',
+    null,
+  );
 
 export const toggleAutomationBuilderOpenSidebar = atom(true, (get, set) => {
   const isOpen = get(automationBuilderSiderbarOpenState);
@@ -33,15 +37,6 @@ export const toggleAutomationBuilderOpenPanel = atom(false, (get, set) => {
 
   set(automationBuilderPanelOpenState, !isOpen);
 });
-
-export const toggleAutomationBuilderSecondarySidebar = atom(
-  false,
-  (get, set) => {
-    const isOpen = get(automationBuilderSecondarySidebarOpenState);
-
-    set(automationBuilderSecondarySidebarOpenState, !isOpen);
-  },
-);
 
 export const automationCanvasViewState = atomWithStorage<{
   showGrid: boolean;

@@ -16,7 +16,6 @@ import {
   getProviderMessageId,
   getReactionKey,
 } from '@/inbox/conversation-messages/utils/message';
-import { replaceHtmlTags } from '@/inbox/conversation-messages/utils/messageContent';
 import { Attachments } from '@/inbox/conversation-messages/components/MessageAttachments';
 import {
   DeliveryStatus,
@@ -34,7 +33,7 @@ import { MessageAuthorHeader } from '@/inbox/conversation-messages/components/Me
 import { useConversationMessageContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationMessageContext';
 import { useConversationContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationContext';
 import { IntegrationType } from '@/types/Integration';
-import { IconMicrophone, IconPin } from '@tabler/icons-react';
+import { IconDots, IconMicrophone, IconPin } from '@tabler/icons-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MessageActions } from '@/inbox/conversation-messages/components/MessageActions';
@@ -51,13 +50,47 @@ export { MessageDaySeparator };
 const getPostAttachmentType = (type?: string): string =>
   !type || type === 'file' ? 'image' : type;
 
+const getQuotedReply = (content?: string) => {
+  if (!content) return null;
+
+  const prefix = '<blockquote><strong>Replying to';
+  const lowerContent = content.toLowerCase();
+  if (!lowerContent.startsWith(prefix.toLowerCase())) return null;
+
+  const authorStart = prefix.length;
+  const strongEnd = lowerContent.indexOf('</strong>', authorStart);
+  if (strongEnd === -1) return null;
+
+  const author = content.slice(authorStart, strongEnd);
+  if (author && (!/^\s/.test(author) || author.includes('<'))) return null;
+
+  const breakStart = strongEnd + '</strong>'.length;
+  const breakEnd = content.indexOf('>', breakStart);
+  if (
+    breakEnd === -1 ||
+    !/^<br\s*\/?>$/i.test(content.slice(breakStart, breakEnd + 1))
+  ) {
+    return null;
+  }
+
+  const previewStart = breakEnd + 1;
+  const blockEnd = lowerContent.indexOf('</blockquote>', previewStart);
+  if (blockEnd === -1) return null;
+
+  return {
+    author,
+    preview: content.slice(previewStart, blockEnd),
+    length: blockEnd + '</blockquote>'.length,
+  };
+};
+
 const getReplyPreview = (content?: string) => {
   if (!content) return '';
 
-  const withoutQuotedReply = content.replace(
-    /^<blockquote><strong>Replying to<\/strong><br\s*\/?>[\s\S]*?<\/blockquote>/i,
-    '',
-  );
+  const quotedReply = getQuotedReply(content);
+  const withoutQuotedReply = quotedReply
+    ? content.slice(quotedReply.length)
+    : content;
   return stripHtml(withoutQuotedReply);
 };
 
@@ -113,15 +146,11 @@ export const MessageItem = () => {
           .join('')
       : undefined;
 
-  const legacyReplyMatch = content?.match(
-    /^<blockquote><strong>Replying to<\/strong><br\s*\/?>[\s\S]*?<\/blockquote>/i,
-  );
-  const legacyReplyPreview = legacyReplyMatch?.[0]
-    ? replaceHtmlTags(legacyReplyMatch[0], ' ')
-        .replace(/^\s*Replying to\s*/i, '')
-        .replace(/\s+/g, ' ')
-        .trim()
-    : undefined;
+  const legacyReply = getQuotedReply(content);
+  const legacyReplyAuthor = stripHtml(legacyReply?.author);
+  const legacyReplyPreview = legacyReply
+    ? stripHtml(legacyReply.preview) || 'Attachment'
+    : '';
   let effectiveReplyTo: typeof replyTo;
   if (!forwardedSnapshot) {
     if (replyTo) {
@@ -130,12 +159,16 @@ export const MessageItem = () => {
         content: getReplyPreview(replyTo.content) || 'Attachment',
       };
     } else if (legacyReplyPreview) {
-      effectiveReplyTo = { messageId: '', content: legacyReplyPreview };
+      effectiveReplyTo = {
+        messageId: '',
+        authorName: legacyReplyAuthor || undefined,
+        content: legacyReplyPreview,
+      };
     }
   }
   const displayContent =
     botText ||
-    (legacyReplyMatch ? content.replace(legacyReplyMatch[0], '') : content)
+    (legacyReply ? content?.slice(legacyReply.length) : content)
       ?.replace(forwardedContentMatch?.[0] || '', '')
       .trim();
   const postIntegrationKind =
@@ -294,12 +327,24 @@ export const MessageItem = () => {
       <MessageWrapper
         actions={
           !isDeleted ? (
-            <div className={MESSAGE_ACTION_BAR_CLASS}>
-              <MessageActions
-                message={message}
-                additionalActions={additionalActions}
-              />
-            </div>
+            <>
+              <div className={MESSAGE_ACTION_BAR_CLASS}>
+                <MessageActions
+                  message={message}
+                  additionalActions={additionalActions}
+                />
+              </div>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="size-8 shrink-0 rounded-full bg-background shadow-sm md:hidden"
+                aria-label="Message actions"
+                onClick={() => setActionsOpen(true)}
+              >
+                <IconDots className="size-4" />
+              </Button>
+            </>
           ) : undefined
         }
         below={
@@ -364,7 +409,7 @@ export const MessageItem = () => {
             <Sheet open={actionsOpen} onOpenChange={setActionsOpen}>
               <Sheet.View
                 side="bottom"
-                className="rounded-t-2xl rounded-b-none bg-background px-4 pt-3 pb-[calc(1rem+env(safe-area-inset-bottom))] [@media(hover:hover)]:hidden"
+                className="rounded-t-2xl rounded-b-none bg-background px-4 pt-3 pb-[calc(1rem+env(safe-area-inset-bottom))]"
               >
                 <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-border" />
                 <div className="mb-3 text-sm font-semibold">

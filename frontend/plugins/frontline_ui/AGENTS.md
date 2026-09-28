@@ -1561,6 +1561,17 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `conversationEditCustomFields` mutation and `Conversation.propertiesData`
   field.
 
+### `2026-09-24` — Removing a form step no longer wipes remaining step names
+
+- **Summary:** `removeStep` rebuilt each remaining step's object from only
+  `fields` and `order`, dropping `name`/`description`. Deleting any step and
+  saving cleared every other step's name (unlike `setSteps`, which already
+  spread `...value[key]`). It now spreads `...value[step]` before overriding
+  `fields`/`order`, so names/descriptions survive a step removal.
+- **Affected areas:** `src/modules/forms/components/FormDndProvider.tsx`
+  (`removeStep`).
+- **Contracts changed:** `None`
+
 ### `2026-09-24` — The client portal picker stores an id
 
 - **Summary:** The picker's value became `clientPortalId` instead of the bare
@@ -1664,6 +1675,7 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `src/modules/helpcenter/graphql/queries/getHelpCenterWebsiteOptions.ts`
 - **Contracts changed:** `frontlineHelpCenterWebsiteOptions` now also selects
   `name` on each client portal.
+
 
 ### `2026-09-23` — A survey question carries attachments
 
