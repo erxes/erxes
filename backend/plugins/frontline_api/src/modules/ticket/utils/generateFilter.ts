@@ -206,12 +206,18 @@ export const generateFilter = async (
       const dateFilters: Record<string, { gte?: string; lte?: string }> =
         JSON.parse(filter.dateFilters);
 
-      for (const key of ['createdAt', 'updatedAt'] as const) {
+      for (const key of [
+        'createdAt',
+        'startDate',
+        'targetDate',
+        'statusChangedDate',
+      ] as const) {
         const { gte, lte } = dateFilters[key] || {};
-        Object.assign(
-          filterQuery,
-          buildDateMatch({ fromDate: gte, toDate: lte }, key),
-        );
+        if (gte || lte) {
+          andConditions.push(
+            buildDateMatch({ fromDate: gte, toDate: lte }, key),
+          );
+        }
       }
     } catch (err) {
       throw new Error(`Invalid dateFilters JSON: ${err}`);

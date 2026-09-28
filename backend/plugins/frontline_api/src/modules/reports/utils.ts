@@ -22,7 +22,12 @@ export const calculatePercentage = (value: number, total: number) => {
 
 export function buildDateMatch(
   filters: IReportFilters,
-  field: 'createdAt' | 'updatedAt' | 'closedAt',
+  field:
+    | 'createdAt'
+    | 'startDate'
+    | 'targetDate'
+    | 'statusChangedDate'
+    | 'closedAt',
 ) {
   if (!filters.fromDate && !filters.toDate) return {};
 

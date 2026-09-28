@@ -13,8 +13,6 @@ import {
   IconSearch,
   IconUser,
   IconArchive,
-  IconCalendarPlus,
-  IconCalendarUp,
 } from '@tabler/icons-react';
 import clsx from 'clsx';
 import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
@@ -22,20 +20,24 @@ import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { fetchedTicketsState } from '@/ticket/states/fetchedTicketState';
 import { SegmentsFilter } from 'ui-modules';
+import {
+  TICKET_DATE_FILTERS,
+  TicketDateFilterQueries,
+} from '@/ticket/constants/dateFilters';
 
 const TicketsFilterPopover = () => {
   const { t } = useTranslation('frontline');
-  const [queries] = useMultiQueryState<{
-    searchValue: string;
-    assignee: string;
-    priority: string;
-    statusId: string;
-    pipelineId: string;
-    state: string;
-    segments: string[];
-    created: string;
-    updated: string;
-  }>([
+  const [queries] = useMultiQueryState<
+    {
+      searchValue: string;
+      assignee: string;
+      priority: string;
+      statusId: string;
+      pipelineId: string;
+      state: string;
+      segments: string[];
+    } & TicketDateFilterQueries
+  >([
     'searchValue',
     'assignee',
     'priority',
@@ -43,8 +45,7 @@ const TicketsFilterPopover = () => {
     'pipelineId',
     'state',
     'segments',
-    'created',
-    'updated',
+    ...TICKET_DATE_FILTERS.map(({ queryKey }) => queryKey),
   ]);
   const hasFilters = Object.values(queries || {}).some(
     (value) => value !== null,
@@ -52,16 +53,11 @@ const TicketsFilterPopover = () => {
   const view = useAtomValue(ticketViewAtom);
   const setFetchedTickets = useSetAtom(fetchedTicketsState);
 
-  const {
-    searchValue,
-    assignee,
-    priority,
-    statusId,
-    pipelineId,
-    state,
-    created,
-    updated,
-  } = queries || {};
+  const { searchValue, assignee, priority, statusId, pipelineId, state } =
+    queries || {};
+  const dateFilters = JSON.stringify(
+    TICKET_DATE_FILTERS.map(({ queryKey }) => queries?.[queryKey]),
+  );
   const segments = JSON.stringify(queries?.segments);
 
   useEffect(() => {
@@ -74,8 +70,7 @@ const TicketsFilterPopover = () => {
     pipelineId,
     state,
     segments,
-    created,
-    updated,
+    dateFilters,
     setFetchedTickets,
   ]);
   return (
@@ -116,14 +111,14 @@ const TicketsFilterPopover = () => {
                   </Filter.Item>
                 )}
                 <Command.Separator className="my-1" />
-                <Filter.Item value="created">
-                  <IconCalendarPlus />
-                  {t('created-at-label')}
-                </Filter.Item>
-                <Filter.Item value="updated">
-                  <IconCalendarUp />
-                  {t('updated-at-label')}
-                </Filter.Item>
+                {TICKET_DATE_FILTERS.map(
+                  ({ queryKey, labelKey, label, icon: Icon }) => (
+                    <Filter.Item key={queryKey} value={queryKey}>
+                      <Icon />
+                      {t(labelKey, label)}
+                    </Filter.Item>
+                  ),
+                )}
               </Command.List>
             </Command>
           </Filter.View>
@@ -131,12 +126,14 @@ const TicketsFilterPopover = () => {
           <SelectPriorityTicket.FilterView />
           <SelectStateTicket.FilterView />
           <SegmentsFilter.View contentType="frontline:tickets.tickets" />
-          <Filter.View filterKey="created">
-            <Filter.DateView filterKey="created" />
-          </Filter.View>
-          <Filter.View filterKey="updated">
-            <Filter.DateView filterKey="updated" />
-          </Filter.View>
+          {TICKET_DATE_FILTERS.map(({ queryKey, labelKey, label }) => (
+            <Filter.View key={queryKey} filterKey={queryKey}>
+              <Filter.DateView
+                filterKey={queryKey}
+                label={t(labelKey, label)}
+              />
+            </Filter.View>
+          ))}
           {view === 'list' && (
             <SelectStatusTicket.FilterView
               pipelineId={queries?.pipelineId || ''}
@@ -148,12 +145,14 @@ const TicketsFilterPopover = () => {
         <Filter.View filterKey="searchValue" inDialog>
           <Filter.DialogStringView filterKey="searchValue" />
         </Filter.View>
-        <Filter.View filterKey="created" inDialog>
-          <Filter.DialogDateView filterKey="created" />
-        </Filter.View>
-        <Filter.View filterKey="updated" inDialog>
-          <Filter.DialogDateView filterKey="updated" />
-        </Filter.View>
+        {TICKET_DATE_FILTERS.map(({ queryKey, labelKey, label }) => (
+          <Filter.View key={queryKey} filterKey={queryKey} inDialog>
+            <Filter.DialogDateView
+              filterKey={queryKey}
+              label={t(labelKey, label)}
+            />
+          </Filter.View>
+        ))}
       </Filter.Dialog>
     </>
   );
@@ -184,20 +183,17 @@ export const TicketsFilter = () => {
         <TicketsFilterPopover />
         <TicketsTotalCount />
         <SegmentsFilter.Bar contentType="frontline:tickets.tickets" />
-        <Filter.BarItem queryKey="created">
-          <Filter.BarName>
-            <IconCalendarPlus />
-            {t('created-at-label')}
-          </Filter.BarName>
-          <Filter.Date filterKey="created" />
-        </Filter.BarItem>
-        <Filter.BarItem queryKey="updated">
-          <Filter.BarName>
-            <IconCalendarUp />
-            {t('updated-at-label')}
-          </Filter.BarName>
-          <Filter.Date filterKey="updated" />
-        </Filter.BarItem>
+        {TICKET_DATE_FILTERS.map(
+          ({ queryKey, labelKey, label, icon: Icon }) => (
+            <Filter.BarItem key={queryKey} queryKey={queryKey}>
+              <Filter.BarName>
+                <Icon />
+                {t(labelKey, label)}
+              </Filter.BarName>
+              <Filter.Date filterKey={queryKey} label={t(labelKey, label)} />
+            </Filter.BarItem>
+          ),
+        )}
         {searchValue && (
           <Filter.BarItem queryKey="searchValue">
             <Filter.BarName>

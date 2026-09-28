@@ -16,6 +16,10 @@ import {
 import { useAtomValue } from 'jotai';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import {
+  TICKET_DATE_FILTERS,
+  TicketDateFilterQueries,
+} from '@/ticket/constants/dateFilters';
 
 const TICKETS_PER_PAGE = 30;
 
@@ -44,19 +48,18 @@ export const useTicketsVariables = (
     state,
     pipelineId,
     segments,
-    created,
-    updated,
-  } = useNonNullMultiQueryState<{
-    searchValue: string;
-    assignee: string;
-    priority: string;
-    statusId: string;
-    state: string;
-    pipelineId: string;
-    segments: string[];
-    created: string;
-    updated: string;
-  }>([
+    ...dateQueries
+  } = useNonNullMultiQueryState<
+    {
+      searchValue: string;
+      assignee: string;
+      priority: string;
+      statusId: string;
+      state: string;
+      pipelineId: string;
+      segments: string[];
+    } & TicketDateFilterQueries
+  >([
     'searchValue',
     'assignee',
     'priority',
@@ -64,13 +67,23 @@ export const useTicketsVariables = (
     'state',
     'pipelineId',
     'segments',
-    'created',
-    'updated',
+    ...TICKET_DATE_FILTERS.map(({ queryKey }) => queryKey),
   ]);
 
   const sortField = useAtomValue(ticketSortAtom);
-  const createdRange = parseDateRangeFromString(created);
-  const updatedRange = parseDateRangeFromString(updated);
+  const dateRanges = TICKET_DATE_FILTERS.flatMap(({ queryKey, field }) => {
+    const range = parseDateRangeFromString(dateQueries[queryKey]);
+    if (
+      !range ||
+      !Number.isFinite(range.from.getTime()) ||
+      !Number.isFinite(range.to.getTime())
+    ) {
+      return [];
+    }
+    return [
+      [field, { gte: range.from.toISOString(), lte: range.to.toISOString() }],
+    ];
+  });
 
   return {
     cursor: '',
@@ -87,19 +100,9 @@ export const useTicketsVariables = (
     pipelineId: pipelineId,
     state: state,
     segmentIds: segments?.length ? segments : undefined,
-    dateFilters:
-      createdRange || updatedRange
-        ? JSON.stringify({
-            createdAt: {
-              gte: createdRange?.from,
-              lte: createdRange?.to,
-            },
-            updatedAt: {
-              gte: updatedRange?.from,
-              lte: updatedRange?.to,
-            },
-          })
-        : undefined,
+    dateFilters: dateRanges.length
+      ? JSON.stringify(Object.fromEntries(dateRanges))
+      : undefined,
     ...variables,
   };
 };
