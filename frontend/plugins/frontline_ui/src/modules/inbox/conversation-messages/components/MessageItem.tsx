@@ -32,6 +32,7 @@ import { MessageAuthorHeader } from '@/inbox/conversation-messages/components/Me
 import { useConversationMessageContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationMessageContext';
 import { useConversationContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationContext';
 import { IntegrationType } from '@/types/Integration';
+import { IconDots } from '@tabler/icons-react';
 import { useState } from 'react';
 import { MessageActions } from '@/inbox/conversation-messages/components/MessageActions';
 import { DiscordMessageActions } from '@/integrations/discord/components/DiscordMessageActions';
@@ -189,12 +190,24 @@ export const MessageItem = () => {
       <MessageWrapper
         actions={
           !isDeleted ? (
-            <div className={MESSAGE_ACTION_BAR_CLASS}>
-              <MessageActions
-                message={message}
-                additionalActions={additionalActions}
-              />
-            </div>
+            <>
+              <div className={MESSAGE_ACTION_BAR_CLASS}>
+                <MessageActions
+                  message={message}
+                  additionalActions={additionalActions}
+                />
+              </div>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="size-8 shrink-0 rounded-full bg-background shadow-sm md:hidden"
+                aria-label="Message actions"
+                onClick={() => setActionsOpen(true)}
+              >
+                <IconDots className="size-4" />
+              </Button>
+            </>
           ) : undefined
         }
         below={

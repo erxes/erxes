@@ -25,6 +25,11 @@ export type HelpCenterFooter = {
   columns: HelpCenterFooterColumn[] | null;
 };
 
+export type RawCmsConfig = {
+  cmsId: string | null;
+  cmsAppToken: string | null;
+};
+
 export type HelpCenterConfig = {
   _id: string;
   title: string | null;
@@ -48,12 +53,18 @@ export type HelpCenterConfig = {
 
   cmsId: string | null;
   cmsAppToken: string | null;
+  cmsConfigs: RawCmsConfig[] | null;
 
   color: string | null;
   backgroundImage: string | null;
   styles: KbTopicStyles;
   header?: HelpCenterHeader | null;
   footer?: HelpCenterFooter | null;
+};
+
+export type PortalCmsConfig = {
+  cmsId: string;
+  cmsAppToken: string;
 };
 
 export type PortalHeader = {
@@ -104,6 +115,7 @@ export type PortalConfig = {
 
   cmsId: string;
   cmsAppToken: string;
+  cmsConfigs: PortalCmsConfig[];
 
   color: string;
   backgroundImage: string;

@@ -172,7 +172,7 @@ export const MessageMobileActions = ({
   <Sheet open={open} onOpenChange={onOpenChange}>
     <Sheet.View
       side="bottom"
-      className="rounded-t-2xl rounded-b-none bg-background px-4 pt-3 pb-[calc(1rem+env(safe-area-inset-bottom))] [@media(hover:hover)]:hidden"
+      className="rounded-t-2xl rounded-b-none bg-background px-4 pt-3 pb-[calc(1rem+env(safe-area-inset-bottom))]"
     >
       <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-border" />
       <div className="mb-3 text-sm font-semibold">Message actions</div>

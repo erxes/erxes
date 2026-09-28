@@ -12,9 +12,7 @@ export const useAutomationBuilderSidebarHooks = () => {
     isSidebarOpen: isOpenSideBar,
     setSidebarOpen: setIsOpenSideBar,
     toggleSidebar: toggleSideBarOpen,
-    isSecondarySidebarOpen,
-    setSecondarySidebarOpen: setIsSecondarySidebarOpen,
-    toggleSecondarySidebar: toggleSecondarySidebarOpen,
+    setSecondaryPanel,
   } = useAutomation();
   const { getNode } = useReactFlow<Node<NodeData>>();
   const setEdgeInsertTarget = useSetAtom(automationEdgeInsertTargetState);
@@ -22,7 +20,7 @@ export const useAutomationBuilderSidebarHooks = () => {
 
   const handleClose = () => {
     setIsOpenSideBar(false);
-    setIsSecondarySidebarOpen(false);
+    setSecondaryPanel(null);
     setAwaitingToConnectNodeId('');
     setEdgeInsertTarget(null);
     setQueryParams({
@@ -32,7 +30,7 @@ export const useAutomationBuilderSidebarHooks = () => {
   };
 
   const handleBack = () => {
-    setIsSecondarySidebarOpen(false);
+    setSecondaryPanel(null);
     setEdgeInsertTarget(null);
     setQueryParams({
       activeNodeId: null,
@@ -42,7 +40,7 @@ export const useAutomationBuilderSidebarHooks = () => {
 
   const closeNodeLibrary = () => {
     setIsOpenSideBar(false);
-    setIsSecondarySidebarOpen(false);
+    setSecondaryPanel(null);
     setEdgeInsertTarget(null);
 
     setQueryParams({
@@ -53,7 +51,7 @@ export const useAutomationBuilderSidebarHooks = () => {
 
   const openNodeLibrary = (nodeType: AutomationNodeType) => {
     setIsOpenSideBar(true);
-    setIsSecondarySidebarOpen(false);
+    setSecondaryPanel(null);
 
     setQueryParams({
       activeNodeId: null,
@@ -73,12 +71,10 @@ export const useAutomationBuilderSidebarHooks = () => {
   return {
     setIsOpenSideBar,
     isOpenSideBar,
-    isSecondarySidebarOpen,
     activeNode,
     handleBack,
     handleClose,
     toggleSideBarOpen,
-    toggleSecondarySidebarOpen,
     handleNodeLibraryToggle,
     openNodeLibrary,
     closeNodeLibrary,

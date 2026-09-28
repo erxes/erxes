@@ -11,6 +11,7 @@ import {
   rebuildFixedAssetCurrentCounts,
   TFxaIncomeDetailRemoveOptions,
 } from './fixedAssets';
+import { removeInvJustify } from './invJustify';
 
 export type TCommonRemoveOptions = TFxaIncomeDetailRemoveOptions;
 
@@ -56,6 +57,7 @@ function getJournalHandler(journal: string) {
     payable: handleNone,
     invIncome: handleInvIncome,
     invOut: handleInvOut,
+    invJustify: removeInvJustify,
     invMove: handleInvMove,
     invSale: handleInvSale,
     invSaleReturn: handleInvSaleReturn,

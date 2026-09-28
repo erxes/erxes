@@ -1,5 +1,5 @@
 import { SelectAccount } from '@/settings/account/components/SelectAccount';
-import { JournalEnum } from '@/settings/account/types/Account';
+import { IAccount, JournalEnum } from '@/settings/account/types/Account';
 import { TR_SIDES, TrJournalEnum } from '@/transactions/types/constants';
 import { ITransaction, ITrDetail } from '@/transactions/types/Transaction';
 import { AccountingHotkeyScope } from '@/types/AccountingHotkeyScope';
@@ -36,6 +36,18 @@ import {
   hasDuplicateProductId,
 } from '../../utils';
 
+type TSaleReturnFollowAccount = Pick<
+  IAccount,
+  | '_id'
+  | 'code'
+  | 'name'
+  | 'currency'
+  | 'kind'
+  | 'journal'
+  | 'branchId'
+  | 'departmentId'
+>;
+
 const findFollowTr = (
   followTrDocs: ITransaction[],
   originId: string,
@@ -56,7 +68,7 @@ const buildSaleReturnFollowDetails = ({
   trDoc,
   unitCost,
 }: {
-  account?: any;
+  account?: TSaleReturnFollowAccount;
   accountId?: string;
   activeDetail: ITrDetail;
   currentTr?: ITransaction;
@@ -66,19 +78,31 @@ const buildSaleReturnFollowDetails = ({
   (trDoc.details || []).map((saleDetail) => {
     const currentDetail = findFollowDetail(currentTr?.details, saleDetail._id);
 
-    if (currentDetail && saleDetail._id !== activeDetail._id) {
-      return currentDetail;
+    if (saleDetail._id !== activeDetail._id) {
+      return (
+        currentDetail ??
+        ({
+          ...saleDetail,
+          originId: saleDetail._id,
+          account,
+          accountId,
+          unitPrice: 0,
+          count: saleDetail.count,
+          amount: 0,
+        } as ITrDetail)
+      );
     }
 
     return {
       ...saleDetail,
       ...currentDetail,
+      originId: saleDetail._id,
       productId: saleDetail.productId,
       account,
       accountId,
       unitPrice: unitCost,
-      count: activeDetail.count,
-      amount: fixNum(unitCost * (activeDetail.count ?? 0)),
+      count: saleDetail.count,
+      amount: fixNum(unitCost * (saleDetail.count ?? 0)),
     } as ITrDetail;
   });
 

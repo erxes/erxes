@@ -20,7 +20,6 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import { useContext, useState } from 'react';
 import { useConversationContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationContext';
 import { messageReplyState } from '@/inbox/conversations/conversation-detail/states/messageReplyState';
-import { isSlashMenuOpenState } from '@/inbox/conversations/conversation-detail/states/isInternalState';
 import { CONVERSATION_MESSAGE_PIN } from '@/inbox/conversations/conversation-detail/graphql/mutations/conversationMessageReact';
 import type { IMessage, IMessageReaction } from '@/inbox/types/Conversation';
 import { IntegrationType } from '@/types/Integration';
@@ -53,7 +52,6 @@ export const MessageActions = ({
   const providerMessageId = getProviderMessageId(message);
   const setReply = useSetAtom(messageReplyState);
   const currentUser = useAtomValue(currentUserState);
-  const isSlashMenuOpen = useAtomValue(isSlashMenuOpenState);
   const facebookReplyWindowExpired = useContext(FacebookReplyWindowContext);
   const [forwardOpen, setForwardOpen] = useState(false);
   const [pinMessage, { loading: pinning }] = useMutation(
@@ -141,10 +139,6 @@ export const MessageActions = ({
       });
     }
   };
-
-  if (isSlashMenuOpen) {
-    return null;
-  }
 
   return (
     <Tooltip.Provider delayDuration={0}>

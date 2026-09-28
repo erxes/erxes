@@ -124,7 +124,7 @@ export const ActionResultBody = ({
         className="h-6 px-0 text-xs text-primary"
         onClick={() => setExpanded((value) => !value)}
       >
-        {isExpanded ? 'Show less' : 'Show more'}
+        {isExpanded ? 'show less' : 'show more'}
       </Button>
     </section>
   );

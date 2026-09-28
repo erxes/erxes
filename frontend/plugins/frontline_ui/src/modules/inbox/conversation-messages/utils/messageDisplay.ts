@@ -1,5 +1,4 @@
 import { stripHtml } from 'erxes-ui';
-import { replaceHtmlTags } from '@/inbox/conversation-messages/utils/messageContent';
 import {
   FORWARDED_MARKER,
   stripForwardedMarkers,
@@ -10,13 +9,47 @@ import { IntegrationType } from '@/types/Integration';
 const getPostAttachmentType = (type?: string): string =>
   !type || type === 'file' ? 'image' : type;
 
+const getQuotedReply = (content?: string) => {
+  if (!content) return null;
+
+  const prefix = '<blockquote><strong>Replying to';
+  const lowerContent = content.toLowerCase();
+  if (!lowerContent.startsWith(prefix.toLowerCase())) return null;
+
+  const authorStart = prefix.length;
+  const strongEnd = lowerContent.indexOf('</strong>', authorStart);
+  if (strongEnd === -1) return null;
+
+  const author = content.slice(authorStart, strongEnd);
+  if (author && (!/^\s/.test(author) || author.includes('<'))) return null;
+
+  const breakStart = strongEnd + '</strong>'.length;
+  const breakEnd = content.indexOf('>', breakStart);
+  if (
+    breakEnd === -1 ||
+    !/^<br\s*\/?>$/i.test(content.slice(breakStart, breakEnd + 1))
+  ) {
+    return null;
+  }
+
+  const previewStart = breakEnd + 1;
+  const blockEnd = lowerContent.indexOf('</blockquote>', previewStart);
+  if (blockEnd === -1) return null;
+
+  return {
+    author,
+    preview: content.slice(previewStart, blockEnd),
+    length: blockEnd + '</blockquote>'.length,
+  };
+};
+
 const getReplyPreview = (content?: string) => {
   if (!content) return '';
 
-  const withoutQuotedReply = content.replace(
-    /^<blockquote><strong>Replying to<\/strong><br\s*\/?>[\s\S]*?<\/blockquote>/i,
-    '',
-  );
+  const quotedReply = getQuotedReply(content);
+  const withoutQuotedReply = quotedReply
+    ? content.slice(quotedReply.length)
+    : content;
   return stripHtml(withoutQuotedReply);
 };
 
@@ -35,6 +68,7 @@ const getEffectiveReplyTo = (
   hasForwardedSnapshot: boolean,
   replyTo: IMessage['replyTo'],
   legacyReplyPreview?: string,
+  legacyReplyAuthor?: string,
 ): IMessage['replyTo'] => {
   if (hasForwardedSnapshot) return undefined;
   if (replyTo) {
@@ -44,11 +78,20 @@ const getEffectiveReplyTo = (
     };
   }
   return legacyReplyPreview
-    ? { messageId: '', content: legacyReplyPreview }
+    ? {
+        messageId: '',
+        authorName: legacyReplyAuthor || undefined,
+        content: legacyReplyPreview,
+      }
     : undefined;
 };
 
-const getPostIntegrationKind = (integrationKind?: string) => {
+const getPostIntegrationKind = (
+  integrationKind?: string,
+):
+  | IntegrationType.FACEBOOK_POST
+  | IntegrationType.INSTAGRAM_POST
+  | undefined => {
   if (integrationKind === IntegrationType.FACEBOOK_POST) {
     return IntegrationType.FACEBOOK_POST;
   }
@@ -82,30 +125,26 @@ export const getMessageDisplay = ({
 
   const botText = getBotText(botData, isBotMessage);
 
-  const legacyReplyMatch =
-    /^<blockquote><strong>Replying to<\/strong><br\s*\/?>[\s\S]*?<\/blockquote>/i.exec(
-      content,
-    );
-  const legacyReplyPreview = legacyReplyMatch?.[0]
-    ? replaceHtmlTags(legacyReplyMatch[0], ' ')
-        .replace(/^\s*Replying to\s*/i, '')
-        .replace(/\s+/g, ' ')
-        .trim()
-    : undefined;
+  const legacyReply = getQuotedReply(content);
+  const legacyReplyAuthor = stripHtml(legacyReply?.author);
+  const legacyReplyPreview = legacyReply
+    ? stripHtml(legacyReply.preview) || 'Attachment'
+    : '';
   const effectiveReplyTo = getEffectiveReplyTo(
     Boolean(forwardedSnapshot),
     replyTo,
     legacyReplyPreview,
+    legacyReplyAuthor,
   );
-  const contentWithoutForwardMarker = isForwardedMessage
-    ? stripForwardedMarkers(content)
+  const contentWithoutQuotedReply = legacyReply
+    ? content.slice(legacyReply.length)
     : content;
+  const contentWithoutForwardMarker = isForwardedMessage
+    ? stripForwardedMarkers(contentWithoutQuotedReply)
+    : contentWithoutQuotedReply;
   const displayContent =
     botText ||
-    (legacyReplyMatch
-      ? contentWithoutForwardMarker.replace(legacyReplyMatch[0], '')
-      : contentWithoutForwardMarker
-    )
+    contentWithoutForwardMarker
       ?.replace(forwardedContentMatch?.[0] || '', '')
       .trim();
   const postIntegrationKind = getPostIntegrationKind(integrationKind);
