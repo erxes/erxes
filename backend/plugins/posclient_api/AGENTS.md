@@ -6,7 +6,7 @@
 - **Project:** `posclient_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/posclient_api`
-- **Last synchronized:** `2026-09-13`
+- **Last synchronized:** `2026-09-29`
 
 ## Scope
 
@@ -61,6 +61,7 @@
 - `Configs.permissionConfig.cashiers.seeReport` controls cashier access to `dailyReport`.
 - Order item discounts store the aggregate `discountAmount`/`discountPercent` plus per-source `discountInfos`.
 - Product `propertiesData` filters are encoded as `fieldId:operator:value` conditions separated by semicolons and are parsed by the shared property filter util; a `g:<groupId>/<fieldId>` key targets one row of a repeating group through `$elemMatch`.
+- The hourly remainder repeatable job runs on `posclient-hourly-sync-remainder`; it dispatches tenant-scoped `posclient-sync-remainder` jobs that must include `subdomain`.
 
 ## Local Invariants
 
@@ -81,6 +82,12 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-29` — `Fix remainder scheduler queue`
+
+- **Summary:** The hourly remainder scheduler now runs on the scheduler queue, dispatches tenant-scoped sync jobs, and rejects sync jobs without a `subdomain`; POS user email uses a single schema-level unique index.
+- **Affected areas:** `src/worker`, `src/modules/posclient/db/definitions/posUsers.ts`
+- **Contracts changed:** `None`
 
 ### `2026-09-13` — `Discount info type cleanup`
 
