@@ -136,6 +136,13 @@ export const AddTransaction = ({
         >
           Хангамжийн зарлага
         </AddTransactionItem>
+        <AddTransactionItem
+          journal={TrJournalEnum.INV_JUSTIFY}
+          onClick={onClick}
+          inForm={inForm}
+        >
+          Өртөг залруулга
+        </AddTransactionItem>
         {!inForm && (
           <AddTransactionItem
             journal={TrJournalEnum.INV_MOVE}

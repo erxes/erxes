@@ -1,4 +1,5 @@
 import { IConversationMessageAdd } from '@/inbox/@types/conversationMessages';
+import type { IConversationDocument } from '@/inbox/@types/conversations';
 import { pConversationClientMessageInserted } from './widget';
 import {
   reactToConversationMessage,
@@ -13,6 +14,72 @@ import {
   publishUnreadCountsSafely,
 } from './conversationAutomation';
 import { publishMessage, sendNotifications } from './conversationNotifications';
+
+type DispatchedMessageData = {
+  conversationId?: string;
+  content?: string;
+  displayContent?: string;
+  extraData?: Record<string, unknown>;
+  attachments?: IConversationMessageAdd['attachments'];
+};
+
+const storeDispatchedMessage = async ({
+  data,
+  doc,
+  kind,
+  conversation,
+  integrationId,
+  userId,
+  models,
+  subdomain,
+}: {
+  data: DispatchedMessageData;
+  doc: IConversationMessageAdd;
+  kind: string;
+  conversation: IConversationDocument;
+  integrationId: string;
+  userId: string;
+  models: IContext['models'];
+  subdomain: string;
+}) => {
+  const {
+    conversationId: responseConversationId,
+    content,
+    displayContent,
+    extraData,
+  } = data;
+  if (responseConversationId && content) {
+    await models.Conversations.updateConversation(responseConversationId, {
+      content,
+      updatedAt: new Date(),
+    });
+  }
+
+  const messageDoc: typeof doc & { extraData?: Record<string, unknown> } = {
+    ...doc,
+    ...(displayContent ? { content: displayContent } : {}),
+    ...(kind === 'facebook-messenger' && extraData?.facebookDelivery
+      ? { content: content || '', attachments: data.attachments || [] }
+      : {}),
+    ...(extraData ? { extraData } : {}),
+  };
+
+  const message = await models.ConversationMessages.addMessage(
+    messageDoc,
+    userId,
+  );
+  await publishUnreadCountsSafely({
+    conversationId: conversation._id,
+    integrationId,
+    userIds: doc.mentionedUserIds?.filter((id) => id !== userId) || [],
+    models,
+    subdomain,
+  });
+  const dbMessage = await models.ConversationMessages.getMessage(message._id);
+  await markAutomatedReplyHumanActive({ models, conversation, userId });
+  await pConversationClientMessageInserted(subdomain, dbMessage);
+  return dbMessage;
+};
 
 export const conversationMessageMutations = {
   async conversationMessageReact(
@@ -200,59 +267,16 @@ export const conversationMessageMutations = {
       }
 
       if (response?.data?.data) {
-        const {
-          conversationId: responseConversationId,
-          content: responseContent,
-          displayContent,
-          extraData,
-        } = response.data.data;
-        if (responseConversationId && responseContent) {
-          await models.Conversations.updateConversation(
-            responseConversationId,
-            {
-              content: responseContent || '',
-              updatedAt: new Date(),
-            },
-          );
-        }
-
-        const messageDoc: typeof doc & { extraData?: Record<string, unknown> } =
-          {
-            ...doc,
-            ...(displayContent ? { content: displayContent } : {}),
-            ...(kind === 'facebook-messenger' && extraData?.facebookDelivery
-              ? {
-                  content: responseContent || '',
-                  attachments: response.data.data.attachments || [],
-                }
-              : {}),
-            ...(extraData ? { extraData } : {}),
-          };
-
-        const message = await models.ConversationMessages.addMessage(
-          messageDoc,
-          userId,
-        );
-        await publishUnreadCountsSafely({
-          conversationId,
+        return storeDispatchedMessage({
+          data: response.data.data,
+          doc,
+          kind,
+          conversation,
           integrationId,
-          userIds: doc.mentionedUserIds?.filter((id) => id !== userId) || [],
+          userId,
           models,
           subdomain,
         });
-
-        const dbMessage = await models.ConversationMessages.getMessage(
-          message._id,
-        );
-
-        await markAutomatedReplyHumanActive({
-          models,
-          conversation,
-          userId,
-        });
-
-        await pConversationClientMessageInserted(subdomain, dbMessage);
-        return dbMessage;
       }
 
       const message = await models.ConversationMessages.addMessage(doc, userId);
@@ -267,17 +291,13 @@ export const conversationMessageMutations = {
         message._id,
       );
 
-      if (internal) {
-        publishMessage(models, dbMessage);
-      } else {
-        await markAutomatedReplyHumanActive({
-          models,
-          conversation,
-          userId,
-        });
+      await markAutomatedReplyHumanActive({
+        models,
+        conversation,
+        userId,
+      });
 
-        publishMessage(models, dbMessage, conversation.customerId);
-      }
+      publishMessage(models, dbMessage, conversation.customerId);
 
       return dbMessage;
     } catch (err) {

@@ -10,11 +10,11 @@ import { graphRequest, getPageAccessTokenFromMap } from './graphRequest';
 // error 100 "Invalid parameter". HUMAN_AGENT is the only tag still valid for
 // replies outside the 24-hour window (up to 7 days after the customer's last
 // message).
-const DEPRECATED_MESSENGER_TAGS = [
+const DEPRECATED_MESSENGER_TAGS = new Set([
   'CONFIRMED_EVENT_UPDATE',
   'POST_PURCHASE_UPDATE',
   'ACCOUNT_UPDATE',
-];
+]);
 
 export const HUMAN_AGENT_MESSENGER_TAG = 'HUMAN_AGENT';
 
@@ -25,7 +25,7 @@ export const normalizeMessengerTag = (
   if (!trimmed) {
     return undefined;
   }
-  return DEPRECATED_MESSENGER_TAGS.includes(trimmed)
+  return DEPRECATED_MESSENGER_TAGS.has(trimmed)
     ? HUMAN_AGENT_MESSENGER_TAG
     : trimmed;
 };

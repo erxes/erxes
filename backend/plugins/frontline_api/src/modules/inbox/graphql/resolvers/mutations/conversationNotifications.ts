@@ -69,6 +69,113 @@ export const publishMessage = async (
   }
 };
 
+const sendClientPortalMobileNotification = async (
+  subdomain: string,
+  conversation: IConversationDocument,
+  content: string,
+) => {
+  if (!conversation.customerId) return;
+
+  try {
+    const cpUser = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'cpUsers',
+      action: 'get',
+      input: { erxesCustomerId: conversation.customerId },
+      defaultValue: null,
+    });
+
+    if (!cpUser?._id || !cpUser.clientPortalId) return;
+
+    const clientPortal = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'clientPortals',
+      action: 'get',
+      input: { _id: cpUser.clientPortalId },
+      defaultValue: null,
+    });
+
+    await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'mutation',
+      module: 'cpNotifications',
+      action: 'create',
+      input: {
+        cpUserIds: [cpUser._id],
+        clientPortalId: cpUser.clientPortalId,
+        eventType: 'conversationMessage',
+        data: {
+          title: clientPortal?.name || 'New chat message',
+          message: strip(content) || 'You have a new message',
+          type: 'info',
+          contentType: 'conversation',
+          contentTypeId: conversation._id,
+          priority: 'high',
+          action: 'openConversation',
+          kind: 'user',
+          metadata: {
+            conversationId: conversation._id,
+            id: conversation._id,
+            type: 'messenger',
+          },
+        },
+      },
+    });
+  } catch (e) {
+    debugError(
+      `Failed to send client portal mobile notification: ${e.message}`,
+    );
+  }
+};
+
+const sendAgentMobileNotification = async (
+  subdomain: string,
+  conversation: IConversationDocument,
+  userId: string,
+  title: string,
+  content: string,
+) => {
+  const data: Record<string, string> = {
+    type: 'messenger',
+    id: String(conversation._id),
+    conversationId: String(conversation._id),
+    notificationType: 'chat_message',
+  };
+
+  if (conversation.integrationId) {
+    data.integrationId = String(conversation.integrationId);
+  }
+
+  if (conversation.customerId) {
+    data.customerId = String(conversation.customerId);
+  }
+
+  try {
+    await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'mutation',
+      module: 'core',
+      action: 'sendMobileNotification',
+      input: {
+        title,
+        body: strip(content),
+        receivers: conversationNotifReceivers(conversation, userId, false),
+        customerId: conversation.customerId,
+        conversationId: conversation._id,
+        data,
+      },
+    });
+  } catch (e) {
+    debugError(`Failed to send mobile notification: ${e.message}`);
+  }
+};
+
 export const sendNotifications = async (
   subdomain: string,
   {
@@ -86,7 +193,7 @@ export const sendNotifications = async (
   },
 ) => {
   for (const conversation of conversations) {
-    if (!conversation || !conversation._id) {
+    if (!conversation?._id) {
       throw new Error('Error: Conversation or Conversation ID is undefined');
     }
 
@@ -127,108 +234,18 @@ export const sendNotifications = async (
     }
 
     if (mobile) {
-      if (conversation.customerId) {
-        try {
-          const cpUser = await sendTRPCMessage({
-            subdomain,
-            pluginName: 'core',
-            method: 'query',
-            module: 'cpUsers',
-            action: 'get',
-            input: { erxesCustomerId: conversation.customerId },
-            defaultValue: null,
-          });
-
-          if (cpUser?._id && cpUser.clientPortalId) {
-            const clientPortal = await sendTRPCMessage({
-              subdomain,
-              pluginName: 'core',
-              method: 'query',
-              module: 'clientPortals',
-              action: 'get',
-              input: { _id: cpUser.clientPortalId },
-              defaultValue: null,
-            });
-
-            await sendTRPCMessage({
-              subdomain,
-              pluginName: 'core',
-              method: 'mutation',
-              module: 'cpNotifications',
-              action: 'create',
-              input: {
-                cpUserIds: [cpUser._id],
-                clientPortalId: cpUser.clientPortalId,
-                eventType: 'conversationMessage',
-                data: {
-                  title: clientPortal?.name || 'New chat message',
-                  message: strip(doc.content) || 'You have a new message',
-                  type: 'info',
-                  contentType: 'conversation',
-                  contentTypeId: conversation._id,
-                  priority: 'high',
-                  action: 'openConversation',
-                  kind: 'user',
-                  metadata: {
-                    conversationId: conversation._id,
-                    id: conversation._id,
-                    type: 'messenger',
-                  },
-                },
-              },
-            });
-          }
-        } catch (e) {
-          debugError(
-            `Failed to send client portal mobile notification: ${e.message}`,
-          );
-        }
-      }
-
-      if (!conversation._id) {
-        debugError(
-          'Skipping mobile chat notification: conversation id is unavailable',
-        );
-      } else {
-        const data: Record<string, string> = {
-          type: 'messenger',
-          id: String(conversation._id),
-          conversationId: String(conversation._id),
-          notificationType: 'chat_message',
-        };
-
-        if (conversation.integrationId) {
-          data.integrationId = String(conversation.integrationId);
-        }
-
-        if (conversation.customerId) {
-          data.customerId = String(conversation.customerId);
-        }
-
-        try {
-          await sendTRPCMessage({
-            subdomain,
-            pluginName: 'core',
-            method: 'mutation',
-            module: 'core',
-            action: 'sendMobileNotification',
-            input: {
-              title: doc.title,
-              body: strip(doc.content),
-              receivers: conversationNotifReceivers(
-                conversation,
-                user._id,
-                false,
-              ),
-              customerId: conversation.customerId,
-              conversationId: conversation._id,
-              data,
-            },
-          });
-        } catch (e) {
-          debugError(`Failed to send mobile notification: ${e.message}`);
-        }
-      }
+      await sendClientPortalMobileNotification(
+        subdomain,
+        conversation,
+        doc.content,
+      );
+      await sendAgentMobileNotification(
+        subdomain,
+        conversation,
+        user._id,
+        doc.title,
+        doc.content,
+      );
     }
   }
 };

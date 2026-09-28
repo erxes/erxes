@@ -25,7 +25,7 @@ export const getPageList = async (
     pages.push({
       id: page.id,
       name: page.name,
-      isUsed: integration ? true : false,
+      isUsed: Boolean(integration),
     });
   }
 
@@ -73,7 +73,7 @@ export const subscribePage = async (
   models: IModels,
   pageId,
   pageToken,
-): Promise<{ success: true } | any> => {
+): Promise<unknown> => {
   return graphRequest.post(`${pageId}/subscribed_apps`, pageToken, {
     subscribed_fields: SUBSCRIBED_FIELDS,
   });
@@ -90,7 +90,7 @@ export const getPostLink = async (
     pageAccessToken = getPageAccessTokenFromMap(pageId, pageTokens);
   } catch (e) {
     debugError(`Error occurred while getting page access token: ${e.message}`);
-    throw new Error();
+    throw new Error('Failed to get Facebook page access token');
   }
 
   try {
@@ -105,10 +105,7 @@ export const getPostLink = async (
   }
 };
 
-export const unsubscribePage = async (
-  pageId,
-  pageToken,
-): Promise<{ success: true } | any> => {
+export const unsubscribePage = async (pageId, pageToken): Promise<unknown> => {
   return graphRequest
     .delete(`${pageId}/subscribed_apps`, pageToken)
     .then((res) => res)

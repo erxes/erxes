@@ -18,7 +18,7 @@ type PreparedFacebookActivity = {
   pageId: string;
   userId: string;
   mid?: string;
-  attachments?: TFacebookMessage['attachments'];
+  attachments: TFacebookMessage['attachments'];
   text?: string;
   adData?: {
     source: string;

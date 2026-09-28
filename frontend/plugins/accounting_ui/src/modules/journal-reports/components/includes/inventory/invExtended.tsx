@@ -1,9 +1,11 @@
 import { displayNum, fixNum, ReportTable } from 'erxes-ui';
 import { IGroupRule } from '~/modules/journal-reports/types/reportsMap';
+import { TR_SIDES } from '~/modules/transactions/types/constants';
 import { CalcReportResult } from '..';
 
 type InventoryRecord = {
   journal?: string;
+  side?: string;
   sumAmount?: number;
   sumCount?: number;
   amount?: number;
@@ -32,14 +34,20 @@ const getItems = (dic: Record<string, unknown>) =>
 const signed = (record: InventoryRecord, value: number) =>
   SALE_RETURN_JOURNALS.has(record.journal || '') ? -1 * value : value;
 
+const inventorySignedValue = (record: InventoryRecord, value: number) => {
+  if (record.side === TR_SIDES.CREDIT) return -1 * value;
+  if (record.side === TR_SIDES.DEBIT) return value;
+  return OUT_JOURNALS.has(record.journal || '') ? -1 * value : value;
+};
+
 const diffCount = (record: InventoryRecord) => {
   const count = record.sumCount || record.count || 0;
-  return OUT_JOURNALS.has(record.journal || '') ? -1 * count : count;
+  return inventorySignedValue(record, count);
 };
 
 const diffAmount = (record: InventoryRecord) => {
   const amount = record.sumAmount || record.amount || 0;
-  return OUT_JOURNALS.has(record.journal || '') ? -1 * amount : amount;
+  return inventorySignedValue(record, amount);
 };
 
 export const HandleInvByPrice = (

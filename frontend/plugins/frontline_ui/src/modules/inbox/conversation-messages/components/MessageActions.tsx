@@ -17,10 +17,9 @@ import {
   IconShare3,
 } from '@tabler/icons-react';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { useConversationContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationContext';
 import { messageReplyState } from '@/inbox/conversations/conversation-detail/states/messageReplyState';
-import { isSlashMenuOpenState } from '@/inbox/conversations/conversation-detail/states/isInternalState';
 import { CONVERSATION_MESSAGE_PIN } from '@/inbox/conversations/conversation-detail/graphql/mutations/conversationMessageReact';
 import type { IMessage, IMessageReaction } from '@/inbox/types/Conversation';
 import { IntegrationType } from '@/types/Integration';
@@ -37,20 +36,23 @@ import { getProviderMessageId } from '@/inbox/conversation-messages/utils/messag
 import { previewOf } from '@/inbox/conversation-messages/utils/messageActionText';
 import { ReactionMenu } from '@/inbox/conversation-messages/components/MessageReactionMenu';
 import { ActionButton } from '@/inbox/conversation-messages/components/MessageActionButton';
+import { FacebookReplyWindowContext } from '@/integrations/facebook/contexts/FacebookReplyWindowContext';
 
 export const MessageActions = ({
   message,
   additionalActions,
+  onReply,
 }: {
   message: IMessage;
   additionalActions?: React.ReactNode;
+  onReply?: () => void;
 }) => {
   const { _id: conversationId, integration } = useConversationContext();
   const kind = integration?.kind || '';
   const providerMessageId = getProviderMessageId(message);
   const setReply = useSetAtom(messageReplyState);
   const currentUser = useAtomValue(currentUserState);
-  const isSlashMenuOpen = useAtomValue(isSlashMenuOpenState);
+  const facebookReplyWindowExpired = useContext(FacebookReplyWindowContext);
   const [forwardOpen, setForwardOpen] = useState(false);
   const [pinMessage, { loading: pinning }] = useMutation(
     CONVERSATION_MESSAGE_PIN,
@@ -83,11 +85,11 @@ export const MessageActions = ({
     (reaction: IMessageReaction) => reaction.senderId === currentUser?._id,
   )?.reaction;
   const isDiscord = kind === IntegrationType.DISCORD_MESSENGER;
-  const canReply =
+  const showReply =
     kind !== 'lead' &&
     (kind !== IntegrationType.FACEBOOK_MESSENGER || Boolean(providerMessageId));
-  const canForward =
-    kind !== 'lead' && kind !== IntegrationType.FACEBOOK_POST;
+  const canReply = showReply && !facebookReplyWindowExpired;
+  const canForward = kind !== 'lead' && kind !== IntegrationType.FACEBOOK_POST;
   const showActionsInline = INLINE_ACTION_KINDS.has(kind);
   const isPinned = Boolean(message.extraData?.discordPinned);
 
@@ -114,6 +116,7 @@ export const MessageActions = ({
       attachment,
       nativeReply: NATIVE_REPLY_KINDS.has(kind) && Boolean(providerMessageId),
     });
+    onReply?.();
   };
 
   const togglePin = async () => {
@@ -137,10 +140,6 @@ export const MessageActions = ({
     }
   };
 
-  if (isSlashMenuOpen) {
-    return null;
-  }
-
   return (
     <Tooltip.Provider delayDuration={0}>
       <div className="flex items-center gap-0.5">
@@ -158,8 +157,16 @@ export const MessageActions = ({
             reactions={availableReactions}
           />
         )}
-        {canReply && (
-          <ActionButton label="Reply" onClick={handleReply}>
+        {showReply && (
+          <ActionButton
+            label={
+              facebookReplyWindowExpired
+                ? 'Facebook reply window expired'
+                : 'Reply'
+            }
+            disabled={!canReply}
+            onClick={handleReply}
+          >
             <IconArrowBackUp className="size-4" />
           </ActionButton>
         )}
