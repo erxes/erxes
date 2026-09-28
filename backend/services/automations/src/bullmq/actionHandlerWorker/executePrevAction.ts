@@ -1,6 +1,7 @@
 import type { Job } from 'bullmq';
 import { IJobData } from '../initMQWorkers';
 import { IModels } from '../../connectionResolver';
+import { debugInfo } from '../../debugger';
 import { executeActions } from '../../executions/executeActions';
 import { getExecutionActionsMap } from '../../utils/utils';
 
@@ -17,8 +18,12 @@ export const executePrevActionWorker = async (
     createdAt: -1,
   });
 
+  // Tapping back with nothing behind it is something a person does, not a
+  // failure: there may be no live flow, no action taken yet, or the menu may
+  // already be the first one.
   if (!lastExecution) {
-    throw new Error('No execution found');
+    debugInfo('No execution to step back in');
+    return;
   }
 
   const { actions = [] } = lastExecution;
@@ -26,7 +31,10 @@ export const executePrevActionWorker = async (
   const lastExecutionAction = actions?.at(-1);
 
   if (!lastExecutionAction) {
-    throw new Error(`Execution doesn't execute any actions`);
+    debugInfo(
+      `Execution ${lastExecution._id} has taken no action to step back from`,
+    );
+    return;
   }
 
   const automation = await models.Automations.findOne({
@@ -53,7 +61,10 @@ export const executePrevActionWorker = async (
   });
 
   if (!prevAction) {
-    throw new Error('No previous action found for execution');
+    debugInfo(
+      `No action leads to ${lastExecutionAction.actionId}; nothing to step back to`,
+    );
+    return;
   }
 
   await executeActions(

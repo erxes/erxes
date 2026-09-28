@@ -4,7 +4,6 @@ import { useMutation, useQuery } from '@apollo/client/react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Form } from 'erxes-ui/components/form';
 import { toast } from 'erxes-ui/hooks/use-toast';
-import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { useSession } from '@/modules/auth/components/SessionProvider';
@@ -39,22 +38,16 @@ const replySchema = z.object({
 type ReplyValues = z.infer<typeof replySchema>;
 
 const Skeleton = () => (
-  <div className="animate-pulse">
-    <span className="block h-4 w-24 rounded bg-line" />
-    <span className="mt-4 block h-7 w-2/3 max-w-sm rounded bg-line" />
-    <span className="mt-3 block h-6 w-28 rounded-full bg-line" />
-
-    <div className="mt-7 grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_290px]">
-      <Card className="space-y-3 p-6">
-        <span className="block h-4 w-40 rounded bg-subtle" />
-        <span className="block h-4 w-full rounded bg-subtle" />
-        <span className="block h-4 w-2/3 rounded bg-subtle" />
-      </Card>
-      <Card className="space-y-3 p-5">
-        <span className="block h-4 w-32 rounded bg-subtle" />
-        <span className="block h-9 w-full rounded bg-subtle" />
-      </Card>
-    </div>
+  <div className="grid animate-pulse items-start gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
+    <Card className="space-y-3 p-6">
+      <span className="block h-6 w-2/3 max-w-sm rounded bg-subtle" />
+      <span className="block h-4 w-full rounded bg-subtle" />
+      <span className="block h-4 w-2/3 rounded bg-subtle" />
+    </Card>
+    <Card className="space-y-3 p-5">
+      <span className="block h-4 w-32 rounded bg-subtle" />
+      <span className="block h-9 w-full rounded bg-subtle" />
+    </Card>
   </div>
 );
 
@@ -104,6 +97,12 @@ const Message = ({
   </li>
 );
 
+const RailLabel = ({ children }: { children: string }) => (
+  <h2 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+    {children}
+  </h2>
+);
+
 const CopyNumber = ({ number }: { number: string }) => (
   <button
     type="button"
@@ -125,9 +124,9 @@ const CopyNumber = ({ number }: { number: string }) => (
           }),
         );
     }}
-    className="group flex w-full items-center gap-2 rounded-lg bg-subtle px-3 py-2 text-left transition-colors hover:bg-brand-soft"
+    className="group flex w-full items-center gap-2 rounded-lg bg-subtle px-3 py-2.5 text-left outline-none transition-colors duration-300 ease-out-soft hover:bg-brand-soft focus-visible:bg-brand-soft"
   >
-    <span className="min-w-0 flex-1 truncate text-sm font-semibold tabular-nums text-ink">
+    <span className="min-w-0 flex-1 truncate text-[15px] font-semibold tabular-nums text-ink">
       {number}
     </span>
     <Icon
@@ -229,35 +228,26 @@ export const TicketDetail = ({ ticketId }: { ticketId: string }) => {
   ];
 
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-2 fill-mode-both duration-500">
-      <header>
-        <Link
-          href="/tickets"
-          className="inline-flex items-center gap-1.5 text-[13px] font-medium text-muted-foreground transition-colors hover:text-brand"
-        >
-          <Icon name="arrowLeft" size={15} />
-          All tickets
-        </Link>
+    <div className="animate-in fade-in slide-in-from-bottom-2 fill-mode-both grid items-start gap-6 duration-500 lg:grid-cols-[minmax(0,1fr)_300px]">
+      <div className="order-2 space-y-4 lg:order-1">
+        <Card className="overflow-hidden">
+          <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-3 border-b border-line px-5 py-5">
+            <div className="min-w-0">
+              <h2 className="text-[18px] font-semibold leading-snug tracking-[-0.01em] text-ink">
+                {ticket.name ?? 'Untitled ticket'}
+              </h2>
+              <p className="mt-1 text-[12px] text-muted-foreground">
+                {plural(thread.length + 1, 'message')}
+              </p>
+            </div>
 
-        <h1 className="mt-3 text-[26px] font-semibold leading-snug text-ink">
-          {ticket.name ?? 'Untitled ticket'}
-        </h1>
-        <div className="mt-3 flex flex-wrap items-center gap-2">
-          <StatusBadge status={ticket.status} />
-          <PriorityBadge priority={ticket.priority} />
-        </div>
-      </header>
-
-      <div className="mt-7 grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_290px]">
-        <Card className="order-2 overflow-hidden lg:order-1">
-          <div className="flex items-center justify-between gap-3 border-b border-line px-5 py-3.5">
-            <h2 className="text-sm font-semibold text-ink">Conversation</h2>
-            <span className="text-[13px] text-muted-foreground">
-              {plural(thread.length + 1, 'message')}
-            </span>
+            <div className="flex shrink-0 flex-wrap items-center gap-2">
+              <StatusBadge status={ticket.status} />
+              <PriorityBadge priority={ticket.priority} />
+            </div>
           </div>
 
-          <ol className="divide-y divide-line">
+          <ol className="divide-y divide-line-soft">
             <Message
               author={reporter}
               team={false}
@@ -282,29 +272,26 @@ export const TicketDetail = ({ ticketId }: { ticketId: string }) => {
           </ol>
 
           {notes.loading ? (
-            <p className="border-t border-line px-5 py-4 text-[13px] text-muted-foreground">
+            <p className="border-t border-line-soft px-5 py-4 text-[13px] text-muted-foreground">
               Loading the conversation…
             </p>
           ) : notes.error ? (
-            <div className="border-t border-line p-5">
+            <div className="border-t border-line-soft p-5">
               <LoadError
                 title="Could not load the conversation"
                 message={notes.error.message}
               />
             </div>
-          ) : !thread.length ? (
-            <p className="flex items-center gap-2 border-t border-line px-5 py-4 text-[13px] text-muted-foreground">
-              <Icon name="clock" size={15} className="shrink-0" />
-              Replies from the support team appear here.
-            </p>
           ) : null}
+        </Card>
 
-          <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(onSubmit)}
-              noValidate
-              className="border-t border-line p-5"
-            >
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            noValidate
+            className="overflow-hidden rounded-2xl bg-white shadow-shell"
+          >
+            <div className="p-5">
               <Form.Field
                 control={form.control}
                 name="content"
@@ -337,73 +324,68 @@ export const TicketDetail = ({ ticketId }: { ticketId: string }) => {
                   {sendError.message}
                 </p>
               ) : null}
-
-              <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-                <p className="text-xs text-muted-foreground">
-                  The support team sees your message right away.
-                </p>
-                <Button type="submit" disabled={sending}>
-                  <Icon name="send" size={15} />
-                  {sending ? 'Sending…' : 'Send'}
-                </Button>
-              </div>
-            </form>
-          </Form>
-        </Card>
-
-        <aside className="order-1 space-y-4 lg:order-2">
-          <Card className="p-5">
-            <h2 className="text-sm font-semibold text-ink">Ticket number</h2>
-            <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">
-              Use this number to check progress without signing in.
-            </p>
-            <div className="mt-3">
-              {ticket.number ? (
-                <CopyNumber number={ticket.number} />
-              ) : (
-                <p className="text-sm text-muted-foreground">—</p>
-              )}
-            </div>
-          </Card>
-
-          <Card className="divide-y divide-line">
-            <div className="p-5">
-              <h2 className="text-sm font-semibold text-ink">Details</h2>
-              <dl className="mt-4 space-y-3.5">
-                {meta.map((item) => (
-                  <div
-                    key={item.label}
-                    className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5"
-                  >
-                    <dt className="text-[13px] text-muted-foreground">
-                      {item.label}
-                    </dt>
-                    <dd className="break-words text-[13px] font-medium tabular-nums text-ink">
-                      {item.value}
-                    </dd>
-                  </div>
-                ))}
-              </dl>
             </div>
 
-            {contactLines.length ? (
-              <div className="p-5">
-                <h2 className="text-sm font-semibold text-ink">Contact</h2>
-                <ul className="mt-3 space-y-1.5">
-                  {contactLines.map((part) => (
-                    <li
-                      key={part}
-                      className="break-words text-sm leading-relaxed text-ink-soft"
-                    >
-                      {part}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ) : null}
-          </Card>
-        </aside>
+            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line bg-subtle px-5 py-4">
+              <p className="text-xs text-muted-foreground">
+                The support team sees your message right away.
+              </p>
+              <Button type="submit" disabled={sending}>
+                <Icon name="send" size={15} />
+                {sending ? 'Sending…' : 'Send'}
+              </Button>
+            </div>
+          </form>
+        </Form>
       </div>
+
+      <Card className="order-1 divide-y divide-line-soft lg:order-2 lg:sticky lg:top-6">
+        <div className="p-5">
+          <RailLabel>Ticket number</RailLabel>
+          <p className="mt-1.5 text-[13px] leading-relaxed text-muted-foreground">
+            Use this to check progress without signing in.
+          </p>
+          <div className="mt-3">
+            {ticket.number ? (
+              <CopyNumber number={ticket.number} />
+            ) : (
+              <p className="text-sm text-muted-foreground">—</p>
+            )}
+          </div>
+        </div>
+
+        <div className="p-5">
+          <RailLabel>Details</RailLabel>
+          <dl className="mt-3 space-y-2.5">
+            {meta.map((item) => (
+              <div key={item.label}>
+                <dt className="text-[12px] text-muted-foreground">
+                  {item.label}
+                </dt>
+                <dd className="mt-0.5 break-words text-[13px] font-medium tabular-nums text-ink">
+                  {item.value}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+
+        {contactLines.length ? (
+          <div className="p-5">
+            <RailLabel>Contact</RailLabel>
+            <ul className="mt-3 space-y-1">
+              {contactLines.map((part) => (
+                <li
+                  key={part}
+                  className="break-words text-[13px] leading-relaxed text-ink-soft"
+                >
+                  {part}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
+      </Card>
     </div>
   );
 };

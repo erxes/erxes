@@ -20,9 +20,6 @@ export enum AutomationSettingsRoutesPath {
   AgentCreate = `${Agents}/create`,
   Bots = '/bots',
   BotDetail = `${Bots}/:type`,
-  EmailTemplates = '/email-templates',
-  EmailTemplateDetail = `${EmailTemplates}/:id`,
-  EmailTemplateCreate = `${EmailTemplates}/create`,
 }
 
 /** Absolute paths for linking into automation settings pages. */
@@ -31,6 +28,4 @@ export enum AutomationSettingsPath {
   Agents = `${Index}/agents`,
   AgentCreate = `${Agents}/create`,
   Bots = `${Index}/bots`,
-  EmailTemplates = `${Index}/email-templates`,
-  EmailTemplateCreate = `${EmailTemplates}/create`,
 }

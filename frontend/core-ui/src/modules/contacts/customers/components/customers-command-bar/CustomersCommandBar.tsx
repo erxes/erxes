@@ -1,6 +1,7 @@
 import { CustomersDelete } from '@/contacts/customers/components/customers-command-bar/delete/CustomersDelete';
 import { CustomersMerge } from '@/contacts/customers/components/customers-command-bar/merge/CustomersMerge';
 import { CustomersChangeState } from '@/contacts/customers/components/customers-command-bar/CustomersChangeState';
+import { BroadcastContactsButton } from '@/broadcast/components/BroadcastContactsButton';
 import { ApolloError } from '@apollo/client';
 import { Row } from '@tanstack/table-core';
 import { CommandBar, RecordTable, Separator, toast } from 'erxes-ui';
@@ -62,6 +63,12 @@ export const CustomersCommandBar = () => {
                 },
               })}
             />
+          </>
+        </Can>
+        <Can action="broadcastCreate">
+          <>
+            <Separator.Inline />
+            <BroadcastContactsButton customerIds={customerIds} />
           </>
         </Can>
         <Separator.Inline />

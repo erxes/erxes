@@ -18,6 +18,10 @@ type SegmentDefinition = {
 
 type Decision = 'matched' | 'notMatched' | 'undecided';
 
+/**
+ * A segment that no longer exists cannot be answered either way, so it is told
+ * apart from one that exists but holds no conditions.
+ */
 const loadSegment = async (
   subdomain: string,
   segmentId: string,
@@ -32,7 +36,14 @@ const loadSegment = async (
     throwOnError: true,
   });
 
-  if (!segment?.contentType || !segment.root) {
+  if (!segment) {
+    throw new AutomationActionError(
+      `Segment "${segmentId}" no longer exists`,
+      AUTOMATION_ERROR_CODES.NOT_FOUND,
+    );
+  }
+
+  if (!segment.contentType || !segment.root) {
     return null;
   }
 
@@ -85,6 +96,10 @@ const decideMembership = async (
   try {
     segment = await loadSegment(subdomain, segmentId);
   } catch (e) {
+    if (e instanceof AutomationActionError) {
+      throw e;
+    }
+
     debugError(
       `Segment "${segmentId}" could not be loaded: ${
         e instanceof Error ? e.message : String(e)

@@ -14,6 +14,7 @@ import {
   IconHierarchy2,
   IconKey,
   IconMail,
+  IconMailCode,
   IconMessage,
   IconNotification,
   IconPassword,
@@ -175,6 +176,11 @@ export const SETTINGS_PATH_DATA = (
       path: SettingsWorkspacePath.Automations,
     },
     {
+      name: t('email-templates', 'Email templates'),
+      icon: IconMailCode,
+      path: SettingsWorkspacePath.EmailTemplates,
+    },
+    {
       name: t('message-pro', 'Message Pro'),
       icon: IconMessage,
       path: SettingsWorkspacePath.MessagePro,
@@ -259,4 +265,5 @@ export const SETTINGS_PERMISSION_MAP: Record<string, string> = {
   [SettingsWorkspacePath.OAuthClients]: 'apps',
   [SettingsWorkspacePath.Permissions]: 'permissions',
   [SettingsWorkspacePath.ApprovalRequests]: 'approval',
+  [SettingsWorkspacePath.EmailTemplates]: 'emailTemplates',
 };

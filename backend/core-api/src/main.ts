@@ -4,7 +4,10 @@ import * as trpcExpress from '@trpc/server/adapters/express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import * as dotenv from 'dotenv';
-import { initRecordReferences } from 'erxes-api-shared/core-modules';
+import {
+  initApproval,
+  initRecordReferences,
+} from 'erxes-api-shared/core-modules';
 import {
   applyTrustProxy,
   closeMongooose,
@@ -26,6 +29,7 @@ import { appRouter } from '~/init-trpc';
 import { initApolloServer } from './apollo/apolloServer';
 import { generateModels } from './connectionResolvers';
 import meta from './meta';
+import { approval } from './meta/approval';
 import { initAutomation } from './meta/automations/automations';
 import { initBroadcast } from './meta/broadcast';
 import initImportExport from './meta/import-export';
@@ -200,6 +204,7 @@ httpServer.listen(port, async () => {
   });
   await initAutomation(app);
   await initRecordReferences(app, PLUGIN_NAME, references);
+  await initApproval(app, PLUGIN_NAME, approval);
   await initSegmentCoreProducers(app);
   await initImportExport(app);
   await initBroadcast(app);

@@ -145,7 +145,7 @@ export const SignUpForm = ({ next }: { next?: string | null }) => {
       <form
         onSubmit={form.handleSubmit(onSubmit)}
         noValidate
-        className="space-y-4"
+        className="space-y-5"
       >
         <Form.Field
           control={form.control}
@@ -212,6 +212,10 @@ export const SignUpForm = ({ next }: { next?: string | null }) => {
                   placeholder="••••••••"
                 />
               </Form.Control>
+              <Form.Description>
+                At least 8 characters, with an uppercase letter, a lowercase
+                letter and a number.
+              </Form.Description>
               <Form.Message />
             </Form.Item>
           )}
@@ -250,8 +254,12 @@ export const SignUpForm = ({ next }: { next?: string | null }) => {
           </p>
         ) : null}
 
-        <Button type="submit" disabled={loading} className="mt-2 w-full">
-          <Icon name="user" size={15} />
+        <Button
+          type="submit"
+          size="lg"
+          disabled={loading}
+          className="mt-2 w-full"
+        >
           {loading ? 'Signing up…' : 'Sign up'}
         </Button>
       </form>

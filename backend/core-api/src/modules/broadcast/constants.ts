@@ -1,3 +1,13 @@
+/**
+ * What the approval module locks when it locks a campaign.
+ *
+ * Mirrors `core:automation`: the plugin and the thing, so one organisation's
+ * locks cannot collide with another module's ids.
+ */
+export const BROADCAST_APPROVAL_CONTENT_TYPES = {
+  CAMPAIGN: 'core:broadcast_campaign',
+} as const;
+
 export const CONTENT_TYPES = {
   CUSTOMER: 'customer',
   LEAD: 'lead',
@@ -133,8 +143,15 @@ export const CAMPAIGN_METHODS = {
   MESSENGER: 'messenger',
   EMAIL: 'email',
   NOTIFICATION: 'notification',
-  ALL: ['messenger', 'email', 'notification'],
+  // Runs an automation per targeted customer instead of sending one message.
+  WORKFLOW: 'workflow',
+  ALL: ['messenger', 'email', 'notification', 'workflow'],
 };
+
+/** The trigger a broadcast-owned automation carries. Deliberately not
+ * registered as a plugin trigger type, so no event can ever emit it and
+ * `receiveTrigger` can never start these automations. */
+export const BROADCAST_AUTOMATION_TRIGGER_TYPE = 'core:broadcast';
 
 export const MESSENGER_KINDS = {
   CHAT: 'chat',

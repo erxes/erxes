@@ -1,4 +1,5 @@
 import {
+  IconCode,
   IconFolder,
   IconDotsVertical,
   IconFileText,
@@ -19,7 +20,7 @@ import { TopicDrawer } from './TopicDrawer';
 import { CategoryDrawer } from './CategoryDrawer';
 import { useMutation } from '@apollo/client';
 import { REMOVE_TOPIC, REMOVE_CATEGORY } from '../graphql/mutations';
-import { ITopic, ICategory } from '../types';
+import { ICategory, ITopic, TTopicTab } from '../types';
 import { ICONS } from '../constants';
 import { useTranslation } from 'react-i18next';
 
@@ -48,7 +49,13 @@ function TopicItem({
 }: TopicItemProps) {
   const { t } = useTranslation('frontline');
   const [topicId, setTopicId] = useQueryState<string | null>('topicId');
+  const [, setTab] = useQueryState<string | null>('tab');
   const isActive = topicId === topic._id;
+
+  const openTopic = (topic: ITopic, tab: TTopicTab) => {
+    setTab(tab);
+    onEditTopic(topic);
+  };
 
   const renderTopicActions = (topic: ITopic) => (
     <DropdownMenu>
@@ -56,8 +63,12 @@ function TopicItem({
         <IconDotsVertical className="w-4 h-4" />
       </DropdownMenu.Trigger>
       <DropdownMenu.Content align="end" sideOffset={5}>
-        <DropdownMenu.Item onClick={() => onEditTopic(topic)}>
+        <DropdownMenu.Item onClick={() => openTopic(topic, 'general')}>
           {t('kb-edit-topic', 'Edit Topic')}
+        </DropdownMenu.Item>
+        <DropdownMenu.Item onClick={() => openTopic(topic, 'embed')}>
+          <IconCode className="mr-2 w-4 h-4" />
+          {t('kb-view-script', 'View Script')}
         </DropdownMenu.Item>
         <DropdownMenu.Item onClick={() => onAddCategory(topic._id)}>
           {t('kb-add-category', 'Add Category')}

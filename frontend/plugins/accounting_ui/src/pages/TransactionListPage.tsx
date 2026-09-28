@@ -3,6 +3,7 @@ import { AccountingLayout } from '@/layout/components/Layout';
 import { AddTransaction } from '@/transactions/components/AddTransaction';
 import { TransactionTable } from '@/transactions/components/TransactionTable';
 import { TransactionsFilter } from '@/transactions/components/TrFilters';
+import { useTransactionsFilterVariables } from '@/transactions/hooks/useTransactionVars';
 import { IconHelpCircle, IconPlus } from '@tabler/icons-react';
 import {
   Button,
@@ -13,13 +14,14 @@ import {
   ScrollArea,
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { Can, Import } from 'ui-modules';
+import { Can, Export, Import } from 'ui-modules';
 import { TrsTotalCount } from '~/modules/transactions/components/TrsTotalCount';
 import { ORIGIN_TR_JOURNALS } from '~/modules/transactions/types/constants';
 import { TR_JOURNAL_LABELS } from '../modules/transactions/types/constants';
 
 export const TransactionListPage = () => {
   const { t } = useTranslation('accounting');
+  const filterVariables = useTransactionsFilterVariables();
 
   const renderAdditionHelper = () => {
     return (
@@ -167,6 +169,14 @@ export const TransactionListPage = () => {
       </AccountingHeader>
       <PageSubHeader>
         <TransactionsFilter afterBar={<TrsTotalCount />} />
+        <Can action="transactionsExportManage">
+          <Export
+            pluginName="accounting"
+            moduleName="account"
+            collectionName="transactions"
+            getFilters={() => filterVariables}
+          />
+        </Can>
         <Can action="transactionsImportManage">
           <Import
             pluginName="accounting"

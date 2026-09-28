@@ -29,7 +29,9 @@ export interface ITriageDocument extends ITriage, Document {
 }
 
 export interface ITriageFilter
-  extends ICursorPaginateParams, IListParams, ITriage {
+  extends ICursorPaginateParams,
+    IListParams,
+    ITriage {
   createdAt?: Date;
   updatedAt?: Date;
 }

@@ -7,6 +7,7 @@ export const HELP_CENTER_CONFIG_FIELDS = gql`
     description
     url
     erxesAppToken
+    clientPortalId
     brandId
     languageCode
 
@@ -19,6 +20,16 @@ export const HELP_CENTER_CONFIG_FIELDS = gql`
     ticketChannelId
     ticketPipelineId
     ticketStatusId
+
+    formChannelId
+    formIds
+
+    cmsId
+    cmsAppToken
+    cmsConfigs {
+      cmsId
+      cmsAppToken
+    }
 
     color
     backgroundImage

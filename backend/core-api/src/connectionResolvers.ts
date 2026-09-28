@@ -104,10 +104,10 @@ import {
 } from 'erxes-api-shared/core-modules';
 import {
   IAppDocument,
-  IAutomationEmailTemplateDocument,
   IBrandDocument,
   ICompanyDocument,
   ICustomerDocument,
+  IEmailTemplateDocument,
   ILogDocument,
   IMainContext,
   IPermissionGroupDocument,
@@ -153,9 +153,9 @@ import {
 } from '~/modules/auth/db/definitions/oauthRefreshTokens';
 
 import {
-  IAutomationEmailTemplateModel,
-  loadAutomationEmailTemplateClass,
-} from './modules/automations/db/models/AutomationEmailTemplates';
+  IEmailTemplateModel,
+  loadEmailTemplateClass,
+} from './modules/emailTemplates/db/models/EmailTemplates';
 import {
   IAutomationWorkflowTemplateDocument,
   IAutomationWorkflowTemplateModel,
@@ -165,6 +165,10 @@ import {
   IAutomationModel,
   loadClass as loadAutomationClass,
 } from './modules/automations/db/models/Automations';
+import {
+  IAiAgentModel,
+  loadAiAgentClass,
+} from './modules/automations/db/models/AiAgents';
 import {
   IExecutionModel,
   loadClass as loadExecutionClass,
@@ -176,6 +180,21 @@ import {
   IStatsDocument,
 } from './modules/broadcast/@types';
 import { deliveryReportsSchema } from './modules/broadcast/db/definitions/deliveryReports';
+import {
+  IBroadcastRecipientDocument,
+  IBroadcastRecipientModel,
+  loadBroadcastRecipientClass,
+} from './modules/broadcast/db/models/BroadcastRecipients';
+import {
+  IBroadcastRunDocument,
+  IBroadcastRunModel,
+  loadBroadcastRunClass,
+} from './modules/broadcast/db/models/BroadcastRuns';
+import {
+  IBroadcastReachedDocument,
+  IBroadcastReachedModel,
+  loadBroadcastReachedClass,
+} from './modules/broadcast/db/models/BroadcastReached';
 import {
   IBroadcastTraceDocument,
   IBroadcastTraceModel,
@@ -355,7 +374,7 @@ export interface IModels {
   Documents: IDocumentModel;
   Automations: IAutomationModel;
   AutomationExecutions: IExecutionModel;
-  AutomationEmailTemplates: IAutomationEmailTemplateModel;
+  EmailTemplates: IEmailTemplateModel;
   AutomationWorkflowTemplates: IAutomationWorkflowTemplateModel;
   Logs: ILogModel;
   Imports: IImportModel;
@@ -370,11 +389,14 @@ export interface IModels {
   CPComments: ICPCommentsModel;
   CPNotifications: ICPNotificationModel;
 
-  AiAgents: Model<AiAgentDocument>;
+  AiAgents: IAiAgentModel;
   ActivityLogs: IActivityLogsModel;
   EngageMessages: IEngageMessageModel;
   Stats: IStatsModel;
   BroadcastTraces: IBroadcastTraceModel;
+  BroadcastRuns: IBroadcastRunModel;
+  BroadcastReached: IBroadcastReachedModel;
+  BroadcastRecipients: IBroadcastRecipientModel;
   SmsRequests: ISmsRequestModel;
   DeliveryReports: IDeliveryReportModel;
   OrgWhiteLabel: IOrgWhiteLabelModel;
@@ -637,7 +659,11 @@ export const loadClasses = (
 
   models.Automations = db.model<IAutomationDocument, IAutomationModel>(
     'automations',
-    loadAutomationClass(models),
+    loadAutomationClass(
+      models,
+      subdomain,
+      coreEventHandlers('automations', 'automations'),
+    ),
   );
 
   models.AutomationExecutions = db.model<
@@ -645,10 +671,12 @@ export const loadClasses = (
     IExecutionModel
   >('automations_executions', loadExecutionClass(models));
 
-  models.AutomationEmailTemplates = db.model<
-    IAutomationEmailTemplateDocument,
-    IAutomationEmailTemplateModel
-  >('automation_email_templates', loadAutomationEmailTemplateClass(models));
+  // One store for both broadcasts and automations. The collection keeps its
+  // old name so nothing has to be migrated into a new one.
+  models.EmailTemplates = db.model<IEmailTemplateDocument, IEmailTemplateModel>(
+    'automation_email_templates',
+    loadEmailTemplateClass(models),
+  );
 
   models.AutomationWorkflowTemplates = db.model<
     IAutomationWorkflowTemplateDocument,
@@ -688,9 +716,13 @@ export const loadClasses = (
     loadEmailRampClass(models),
   );
 
-  models.AiAgents = db.model<AiAgentDocument, Model<AiAgentDocument>>(
+  models.AiAgents = db.model<AiAgentDocument, IAiAgentModel>(
     'automations_ai_agents',
-    aiAgentSchema,
+    loadAiAgentClass(
+      models,
+      subdomain,
+      coreEventHandlers('automations', 'automations_ai_agents'),
+    ),
   );
 
   models.ActivityLogs = db.model<IActivityLogDocument, IActivityLogsModel>(
@@ -700,7 +732,11 @@ export const loadClasses = (
 
   models.EngageMessages = db.model<IEngageMessageDocument, IEngageMessageModel>(
     'broadcast_engage_messages',
-    loadEngageMessageClass(models, subdomain),
+    loadEngageMessageClass(
+      models,
+      subdomain,
+      coreEventHandlers('broadcast', 'broadcast_engage_messages'),
+    ),
   );
 
   models.DeliveryReports = db.model<
@@ -717,6 +753,29 @@ export const loadClasses = (
     IBroadcastTraceDocument,
     IBroadcastTraceModel
   >('broadcast_traces', loadBroadcastTraceClass(models));
+
+  models.BroadcastRuns = db.model<IBroadcastRunDocument, IBroadcastRunModel>(
+    'broadcast_runs',
+    loadBroadcastRunClass(models),
+  );
+
+  models.BroadcastRecipients = db.model<
+    IBroadcastRecipientDocument,
+    IBroadcastRecipientModel
+  >('broadcast_recipients', loadBroadcastRecipientClass(models));
+
+  models.BroadcastReached = db.model<
+    IBroadcastReachedDocument,
+    IBroadcastReachedModel
+  >(
+    'broadcast_reached',
+    loadBroadcastReachedClass(models),
+    // Named outright: mongoose turns a model name into a collection name by
+    // pluralising it, and "broadcast_reached" becomes "broadcast_reacheds" —
+    // which would leave the backfill and the app reading different
+    // collections, and every person enrolled a second time.
+    'broadcast_reached',
+  );
 
   models.SmsRequests = db.model<ISmsRequestDocument, ISmsRequestModel>(
     'broadcast_engage_sms_requests',

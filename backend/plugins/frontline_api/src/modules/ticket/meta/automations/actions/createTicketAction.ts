@@ -3,6 +3,7 @@ import {
   TAutomationProducers,
   TAutomationProducersInput,
 } from 'erxes-api-shared/core-modules';
+import { TCreatedVia } from 'erxes-api-shared/core-types';
 import { graphqlPubsub, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { ITicket } from '~/modules/ticket/@types/ticket';
@@ -146,11 +147,18 @@ const getAutomationUserId = (
   getString(target, 'userId') ||
   getString(target, 'createdBy');
 
+const getCreatedVia = (execution: Record<string, unknown>) => {
+  const via = toRecord(execution.createdVia);
+
+  return getString(via, 'sourceId') ? (via as TCreatedVia) : undefined;
+};
+
 const resolveUserId = async (
   models: IModels,
   subdomain: string,
   resolvedConfig: Record<string, unknown>,
   target: Record<string, unknown>,
+  execution: Record<string, unknown>,
 ): Promise<string | undefined> => {
   const fromConfig = getAutomationUserId(resolvedConfig, target);
   if (fromConfig) return fromConfig;
@@ -166,6 +174,16 @@ const resolveUserId = async (
       (conversation?.assignedUserId && String(conversation.assignedUserId)) ||
       (conversation?.userId && String(conversation.userId));
     if (convUserId) return convUserId;
+  }
+
+  // Then whoever set the thing that asked for this run going — a campaign
+  // names the person who put it live. Ranked below the conversation because
+  // an agent already on the thread is the more specific answer, and above the
+  // owner fallback because that one is nobody in particular.
+  const actorId = getString(toRecord(execution.createdVia), 'actorId');
+
+  if (actorId) {
+    return actorId;
   }
 
   // Fall back to the first owner user in the system
@@ -232,13 +250,22 @@ export const createTicketAction = async ({
     defaultValue: '',
   });
   const target = toRecord(execution.target);
-  const userId = await resolveUserId(models, subdomain, resolvedConfig, target);
+  const userId = await resolveUserId(
+    models,
+    subdomain,
+    resolvedConfig,
+    target,
+    toRecord(execution),
+  );
 
   if (!userId) {
     throw new Error('Ticket automation requires a user to create ticket');
   }
 
   const doc = buildTicketDoc(resolvedConfig);
+
+  // Not who pressed create — nobody did. What produced it.
+  doc.createdVia = getCreatedVia(toRecord(execution));
 
   if (doc.propertiesData) {
     doc.propertiesData = await sendTRPCMessage({

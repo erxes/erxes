@@ -96,7 +96,13 @@ const AutomationExecutionResultName = () => {
   );
 };
 
-export const AutomationExecutionDetailTabs = () => {
+export const AutomationExecutionDetailTabs = ({
+  // The campaign's recipient list opens straight on the flow, where "how far
+  // did this get" is read off the steps themselves.
+  defaultTab = 'table',
+}: {
+  defaultTab?: 'table' | 'flow';
+}) => {
   const { error, refetch } = useAutomationExecutionDetail();
 
   if (error) {
@@ -111,7 +117,7 @@ export const AutomationExecutionDetailTabs = () => {
 
   return (
     <AutomationExecutionSelectionProvider>
-      <Tabs defaultValue="table" className="h-full flex flex-col min-h-0">
+      <Tabs defaultValue={defaultTab} className="h-full flex flex-col min-h-0">
         <div className="w-full flex flex-none items-center justify-between p-2 border-b">
           <Tabs.List variant="segment" className="h-8 p-0.5">
             <Tabs.Trigger

@@ -1,3 +1,4 @@
+import { TCreatedVia } from 'erxes-api-shared/core-types';
 export type TOperationEventUpdateDescription = {
   updated: Record<string, { prev: unknown; current: unknown }>;
 };
@@ -76,14 +77,31 @@ export const toStringList = (value: unknown): string[] => {
     .filter(Boolean);
 };
 
+/**
+ * Who a record created by an automation belongs to.
+ *
+ * The action's own configuration wins, then the target it ran against, and
+ * last the execution itself — set when a caller addressed the automation on
+ * someone's behalf, as a campaign does with whoever put it live. A run started
+ * by an event carries nobody, which is why this can still come back empty.
+ */
 export const getAutomationUserId = (
   data: Record<string, unknown>,
   target: Record<string, unknown>,
+  execution?: Record<string, unknown>,
 ) =>
   getString(data, 'createdBy') ||
   getString(data, 'userId') ||
   getString(target, 'userId') ||
-  getString(target, 'createdBy');
+  getString(target, 'createdBy') ||
+  getString(toRecord(execution?.createdVia), 'actorId');
+
+/** What produced this run, to carry onto whatever it creates. */
+export const getCreatedVia = (execution: Record<string, unknown>) => {
+  const via = toRecord(execution.createdVia);
+
+  return getString(via, 'sourceId') ? (via as TCreatedVia) : undefined;
+};
 
 const normalizeUpdateValue = (value: unknown): unknown => {
   if (Array.isArray(value)) {

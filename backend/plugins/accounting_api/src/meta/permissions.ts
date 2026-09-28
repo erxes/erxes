@@ -21,6 +21,7 @@ const TRANSACTION_ACTIONS = {
   manage: 'manageTransactions',
   remove: 'removeTransactions',
   link: 'linkTransactions',
+  export: 'transactionsExportManage',
 } as const;
 
 const TAX_ROW_ACTIONS = {
@@ -118,6 +119,7 @@ const JOURNAL_TITLES: Record<string, string> = {
   inv_fb: 'inventory opening journal',
   invIncome: 'inventory income journal',
   invOut: 'inventory out journal',
+  invJustify: 'inventory cost adjustment journal',
   invMove: 'inventory movement journal',
   invSale: 'inventory sale journal',
   invSaleReturn: 'inventory sale return journal',
@@ -259,6 +261,11 @@ export const permissions: IPermissionConfig = {
           title: 'Import transactions',
           name: 'transactionsImportManage',
           description: 'Import transactions',
+        },
+        {
+          title: 'Export transactions',
+          name: TRANSACTION_ACTIONS.export,
+          description: 'Export transactions',
         },
         ...journalTransactionActions,
       ],
@@ -638,6 +645,7 @@ export const permissions: IPermissionConfig = {
             ...allTransactionActions,
             ...allJournalTransactionActions,
             'transactionsImportManage',
+            TRANSACTION_ACTIONS.export,
           ],
           scope: 'all',
         },

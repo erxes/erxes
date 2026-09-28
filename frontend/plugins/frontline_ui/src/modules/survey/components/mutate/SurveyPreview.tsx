@@ -41,6 +41,7 @@ export const SurveyPreview = () => {
       description: step.description,
       question:
         step.question || t('survey-question-placeholder', 'Ask something…'),
+      attachments: step.attachments,
       allowMultiselect: step.allowMultiselect,
       answers: step.options.map((option, optionIndex) => ({
         id: option.key,

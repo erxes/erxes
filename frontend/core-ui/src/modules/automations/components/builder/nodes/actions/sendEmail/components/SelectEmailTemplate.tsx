@@ -1,6 +1,10 @@
-import { useAutomationEmailTemplates } from '@/automations/components/settings/components/email-templates/hooks/useAutomationEmailTemplates';
-import { useAutomationEmailTemplateDetailLazy } from '@/automations/components/settings/components/email-templates/hooks/useAutomationEmailTemplateDetailLazy';
-import { IAutomationEmailTemplate } from '@/automations/components/settings/components/email-templates/types/automationEmailTemplates';
+import { useEmailTemplates } from '@/emailTemplates/hooks/useEmailTemplates';
+import { useEmailTemplateDetailLazy } from '@/emailTemplates/hooks/useEmailTemplateDetail';
+import {
+  emailTemplateFormat,
+  IEmailTemplate,
+  TEmailContentFormat,
+} from '@/emailTemplates/types';
 import { IconTemplate, IconPlus } from '@tabler/icons-react';
 import { Button, Popover, Command, Combobox } from 'erxes-ui';
 import { useState, useEffect } from 'react';
@@ -10,23 +14,31 @@ interface SelectEmailTemplateProps {
   onSelect: (value: string) => void;
   onContentSelect?: (content: string) => void;
   placeholder?: string;
+  /** Narrow the list to templates this editor can actually open. */
+  format?: TEmailContentFormat;
 }
 
 export const SelectEmailTemplate = ({
   onSelect,
   onContentSelect,
   placeholder = 'Select email template',
+  format,
 }: SelectEmailTemplateProps) => {
   const [search, setSearch] = useState('');
   const [debouncedSearch] = useDebounce(search, 500);
   const [open, setOpen] = useState(false);
 
-  const { emailTemplates = [], loading } = useAutomationEmailTemplates({
+  const { emailTemplates: allTemplates = [], loading } = useEmailTemplates({
     searchValue: debouncedSearch,
   });
 
-  const { loadEmailTemplate, emailTemplate } =
-    useAutomationEmailTemplateDetailLazy();
+  const emailTemplates = format
+    ? allTemplates.filter(
+        (template) => emailTemplateFormat(template) === format,
+      )
+    : allTemplates;
+
+  const { loadEmailTemplate, emailTemplate } = useEmailTemplateDetailLazy();
 
   // Handle template content loading
   useEffect(() => {
@@ -38,7 +50,7 @@ export const SelectEmailTemplate = ({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <Popover.Trigger className="w-full" asChild>
-        <Button>
+        <Button variant="secondary">
           <IconTemplate />
           {placeholder}
         </Button>
@@ -62,7 +74,7 @@ export const SelectEmailTemplate = ({
               </div>
             )}
             {!loading &&
-              emailTemplates.map((template: IAutomationEmailTemplate) => (
+              emailTemplates.map((template: IEmailTemplate) => (
                 <Command.Item
                   key={template._id}
                   value={template._id}

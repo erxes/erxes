@@ -1,4 +1,5 @@
 export * from './blocks';
+export * from './email-editor';
 export * from './chat-viz';
 export * from './hotkey';
 export * from './select-tree';

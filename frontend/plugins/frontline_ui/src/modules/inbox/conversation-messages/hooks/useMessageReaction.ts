@@ -46,8 +46,18 @@ export const useMessageReaction = (isInstagram = false) => {
         });
         return;
       }
+      const message = error instanceof Error ? error.message : '';
+      const windowExpired = /outside of (?:the )?allowed window/i.test(message);
       toast({
-        title: `Failed to react: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        title: windowExpired
+          ? t('reaction-window-expired', 'Reaction window expired')
+          : t('reaction-failed', "Couldn't update reaction"),
+        description: windowExpired
+          ? t(
+              'reaction-window-expired-description',
+              'You can react once the customer sends a new message.',
+            )
+          : t('reaction-failed-description', 'Please try again in a moment.'),
         variant: 'destructive',
       });
     }

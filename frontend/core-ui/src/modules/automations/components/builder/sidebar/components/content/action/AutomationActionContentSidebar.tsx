@@ -27,55 +27,63 @@ export const AutomationActionContentSidebar = () => {
 
   if (!isCoreActionComponent) {
     return (
-      <AutomationConfigFormWrapper
-        onSave={() => {
-          if (
-            !formRef.current ||
-            typeof formRef.current.submit !== 'function'
-          ) {
-            toast({
-              title: 'Form is not configured',
-              description: 'Please configure the action form before saving',
-              variant: 'destructive',
-            });
-            return;
-          }
-          formRef.current.submit();
-        }}
-      >
-        <Suspense fallback={<Spinner />}>
-          <ErrorBoundary
-            FallbackComponent={({ resetErrorBoundary }) => (
-              <AutomationErrorState onRetry={resetErrorBoundary} />
-            )}
+      <div className="flex h-full min-h-0 flex-col">
+        <div className="min-h-0 flex-1 overflow-hidden">
+          <AutomationConfigFormWrapper
+            onSave={() => {
+              if (
+                !formRef.current ||
+                typeof formRef.current.submit !== 'function'
+              ) {
+                toast({
+                  title: 'Form is not configured',
+                  description: 'Please configure the action form before saving',
+                  variant: 'destructive',
+                });
+                return;
+              }
+              formRef.current.submit();
+            }}
           >
-            <RenderPluginsComponentWrapper
-              key={currentAction.id}
-              pluginName={pluginName}
-              moduleName={moduleName}
-              props={{
-                formRef,
-                componentType: 'actionForm',
-                type: currentAction?.type,
-                currentAction,
-                onSaveActionConfig: onSaveActionConfig,
-                trigger,
-                targetType,
-                previousActions,
-              }}
-            />
-          </ErrorBoundary>
-        </Suspense>
-      </AutomationConfigFormWrapper>
+            <Suspense fallback={<Spinner />}>
+              <ErrorBoundary
+                FallbackComponent={({ resetErrorBoundary }) => (
+                  <AutomationErrorState onRetry={resetErrorBoundary} />
+                )}
+              >
+                <RenderPluginsComponentWrapper
+                  key={currentAction.id}
+                  pluginName={pluginName}
+                  moduleName={moduleName}
+                  props={{
+                    formRef,
+                    componentType: 'actionForm',
+                    type: currentAction?.type,
+                    currentAction,
+                    onSaveActionConfig: onSaveActionConfig,
+                    trigger,
+                    targetType,
+                    previousActions,
+                  }}
+                />
+              </ErrorBoundary>
+            </Suspense>
+          </AutomationConfigFormWrapper>
+        </div>
+      </div>
     );
   }
 
   return (
-    <AutomationCoreActionSidebarContent
-      key={currentAction.id}
-      currentIndex={currentIndex}
-      currentAction={currentAction}
-      onSaveActionConfig={onSaveActionConfig}
-    />
+    <div className="flex h-full min-h-0 flex-col">
+      <div className="min-h-0 flex-1 overflow-hidden">
+        <AutomationCoreActionSidebarContent
+          key={currentAction.id}
+          currentIndex={currentIndex}
+          currentAction={currentAction}
+          onSaveActionConfig={onSaveActionConfig}
+        />
+      </div>
+    </div>
   );
 };

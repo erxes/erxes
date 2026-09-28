@@ -1,4 +1,6 @@
 import { visibleChannelsFilter } from '@/channel/utils';
+import { handleFacebookReaction } from '@/integrations/facebook/handleFacebookMessage';
+import { publishFacebookMessage } from '@/integrations/facebook/services/messageEvents';
 import { handleInstagramReaction } from '@/integrations/instagram/handleInstagramMessage';
 import { graphqlPubsub } from 'erxes-api-shared/utils';
 import type { IContext } from '~/connectionResolvers';
@@ -40,20 +42,28 @@ export const reactToConversationMessage = async (
   ) {
     throw new Error('You do not have access to this conversation');
   }
-  if (integration.kind !== 'instagram-messenger') {
+  if (!['facebook-messenger', 'instagram-messenger'].includes(integration.kind)) {
     throw new Error('Reactions are not supported for this integration');
   }
 
-  const result = await handleInstagramReaction(models, {
+  const react = integration.kind === 'instagram-messenger'
+    ? handleInstagramReaction
+    : handleFacebookReaction;
+  const result = await react(models, {
     integrationId: integration._id,
     conversationId,
     messageId,
+    reaction: reaction || '',
     remove: Boolean(remove),
     userId: user._id,
   });
 
-  await graphqlPubsub.publish(`conversationMessageInserted:${conversationId}`, {
-    conversationMessageInserted: { ...result.data, conversationId },
-  });
+  if (integration.kind === 'instagram-messenger') {
+    await graphqlPubsub.publish(`conversationMessageInserted:${conversationId}`, {
+      conversationMessageInserted: { ...result.data, conversationId },
+    });
+  } else {
+    await publishFacebookMessage(conversationId, result.data);
+  }
   return true;
 };

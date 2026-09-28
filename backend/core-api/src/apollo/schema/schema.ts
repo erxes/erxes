@@ -133,6 +133,12 @@ import {
 } from '@/automations/graphql/schema';
 
 import {
+  mutations as EmailTemplateMutations,
+  queries as EmailTemplateQueries,
+  types as EmailTemplateTypes,
+} from '@/emailTemplates/graphql/schema';
+
+import {
   mutations as LogsMutations,
   queries as LogsQueries,
   types as LogsTypes,
@@ -254,6 +260,7 @@ export const types = `
     ${ApprovalTypes}
     ${DocumentTypes}
     ${AutomationsTypes}
+    ${EmailTemplateTypes}
     ${LogsTypes}
     ${NotificationsTypes}
     ${InternalNoteTypes}
@@ -296,6 +303,7 @@ export const queries = `
     ${ApprovalQueries}
     ${DocumentQueries}
     ${AutomationsQueries}
+    ${EmailTemplateQueries}
     ${BeforeResolverQueries}
     ${LogsQueries}
     ${NotificationsQueries}
@@ -337,6 +345,7 @@ export const mutations = `
     ${ApprovalMutations}
     ${DocumentMutations}
     ${AutomationsMutations}
+    ${EmailTemplateMutations}
     ${NotificationsMutations}
     ${InternalNoteMutations}
     ${PropertiesMutations}

@@ -1,5 +1,4 @@
 import { TaskFields } from '@/task/components/detail/TaskFields';
-import { TaskSideWidgets } from '~/widgets/relation/TaskSideWidgets';
 import { TriageFields } from '@/triage/components/TriageFields';
 import { useGetTask } from '@/task/hooks/useGetTask';
 import { useGetTriage } from '@/triage/hooks/useGetTriage';
@@ -71,17 +70,9 @@ export const TaskDetails = ({
   }
 
   return (
-    <div className="h-full w-full flex overflow-auto flex-1 lg:min-h-dvh">
-      <div className="w-full xl:max-w-3xl mx-auto p-6">
-        {task && <TaskFields task={task} />}
-        {triage && <TriageFields triage={triage} />}
-      </div>
-      {task && (
-        <TaskSideWidgets
-          contentId={task._id}
-          propertiesData={task.propertiesData}
-        />
-      )}
-    </div>
+    <>
+      {task && <TaskFields task={task} />}
+      {triage && <TriageFields triage={triage} />}
+    </>
   );
 };
