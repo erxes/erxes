@@ -14,6 +14,11 @@ import { createOrUpdateErxesConversation } from '@/integrations/call/utils';
 import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
 import { acquireCustomerLock, redlock } from '@/integrations/call/redlock';
 import { ICallSessionDocument } from '@/integrations/call/@types/callSessions';
+import {
+  cdrRoutingHints,
+  rehomeCallLegs,
+  resolveCallIntegration,
+} from '@/integrations/call/services/integrationResolver';
 
 const CDR_LOCK_TTL_MS = 20_000;
 const FOLLOWME_OVERLAP_BUFFER_MS = 60_000;
@@ -73,47 +78,56 @@ export const receiveCdr = async (
   verifiedIntegration?: any,
 ) => {
   debugCall(`Request to get post data with: ${JSON.stringify(params)}`);
-  const integration =
-    verifiedIntegration ||
-    (await models.CallIntegrations.findOne({
-      $or: [
-        { srcTrunk: params.src_trunk_name },
-        { dstTrunk: params.dst_trunk_name },
-      ],
-    }));
-  if (!integration) return;
 
-  if (params.uniqueid) {
-    const lockKey = `${subdomain}:call:session:${params.uniqueid}`;
-    let lock;
-    try {
-      lock = await redlock.acquire([lockKey], CDR_LOCK_TTL_MS);
-    } catch (e) {
-      throw new Error(
-        `receiveCdr lock failure for ${params.uniqueid}: ${e.message}`,
-      );
-    }
+  if (!params.uniqueid) {
+    const { integration } = await resolveCallIntegration(
+      models,
+      verifiedIntegration,
+      cdrRoutingHints(params),
+    );
+    if (!integration) return;
 
-    const customerLock = await acquireCustomerLock(
+    return processCdrLocked(models, subdomain, params, integration);
+  }
+
+  const lockKey = `${subdomain}:call:session:${params.uniqueid}`;
+  let lock;
+  try {
+    lock = await redlock.acquire([lockKey], CDR_LOCK_TTL_MS);
+  } catch (e) {
+    throw new Error(
+      `receiveCdr lock failure for ${params.uniqueid}: ${e.message}`,
+    );
+  }
+
+  let customerLock;
+  try {
+    const routing = await resolveCallIntegration(
+      models,
+      verifiedIntegration,
+      cdrRoutingHints(params),
+    );
+    const { integration } = routing;
+    if (!integration) return;
+
+    customerLock = await acquireCustomerLock(
       subdomain,
       integration.inboxId,
       determinePrimaryPhone(params),
     );
 
-    try {
-      return await processCdrLocked(models, subdomain, params, integration);
-    } finally {
-      for (const held of [customerLock, lock]) {
-        try {
-          await held?.release();
-        } catch (e) {
-          console.error('receiveCdr: lock release failed', e);
-        }
+    await rehomeCallLegs(models, routing);
+
+    return await processCdrLocked(models, subdomain, params, integration);
+  } finally {
+    for (const held of [customerLock, lock]) {
+      try {
+        await held?.release();
+      } catch (e) {
+        console.error('receiveCdr: lock release failed', e);
       }
     }
   }
-
-  return processCdrLocked(models, subdomain, params, integration);
 };
 
 const processCdrLocked = async (
