@@ -2,7 +2,7 @@ import * as dotenv from 'dotenv';
 
 dotenv.config();
 
-import { AnyBulkWriteOperation, Collection, Db, MongoClient } from 'mongodb';
+import { Collection, Db, Document, MongoClient } from 'mongodb';
 
 const {
   MONGO_URL = 'mongodb://localhost:27017/erxes?directConnection=true',
@@ -105,38 +105,47 @@ async function migrateByReplace(
 ): Promise<CollectionStats> {
   const stats = emptyStats(sourceCount);
 
-  let batch: AnyBulkWriteOperation[] = [];
+  let batch: Document[] = [];
 
   const flush = async () => {
     if (batch.length === 0) return;
-    const result = await dstCol.bulkWrite(batch, { ordered: false });
-    stats.inserted += result.upsertedCount;
+
     if (overwriteExisting) {
+      const result = await dstCol.bulkWrite(
+        batch.map((doc) => ({
+          replaceOne: {
+            filter: { _id: doc._id },
+            replacement: doc,
+            upsert: true,
+          },
+        })),
+        { ordered: false },
+      );
+      stats.inserted += result.upsertedCount;
       stats.updated += result.matchedCount;
     } else {
-      stats.skipped += result.matchedCount;
+      const existing = await dstCol
+        .find(
+          { _id: { $in: batch.map((doc) => doc._id) } },
+          { projection: { _id: 1 } },
+        )
+        .toArray();
+      const existingIds = new Set(existing.map((doc) => String(doc._id)));
+      const missing = batch.filter((doc) => !existingIds.has(String(doc._id)));
+
+      stats.skipped += batch.length - missing.length;
+
+      if (missing.length) {
+        const result = await dstCol.insertMany(missing, { ordered: false });
+        stats.inserted += result.insertedCount;
+      }
     }
+
     batch = [];
   };
 
   for await (const doc of srcCol.find({}, { batchSize })) {
-    batch.push(
-      overwriteExisting
-        ? {
-            replaceOne: {
-              filter: { _id: doc._id },
-              replacement: doc,
-              upsert: true,
-            },
-          }
-        : {
-            updateOne: {
-              filter: { _id: doc._id },
-              update: { $setOnInsert: doc },
-              upsert: true,
-            },
-          },
-    );
+    batch.push(doc);
 
     if (batch.length >= batchSize) await flush();
   }
