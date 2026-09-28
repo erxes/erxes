@@ -22,6 +22,8 @@
 
 - Authenticates POS users against POS client context.
 - Serves POS client config, order, cover, user, and daily report GraphQL operations.
+- Persists synced eBarimt receipt toggles, including `hasCopy`, `hasSumQty`,
+  and `isCleanTaxPrice`, in POS client config.
 - Serves POS product list and count queries with category, tag, price, remainder, discount, similarity, and product `propertiesData` filters.
 - Calculates daily reports for authorized POS admins and cashiers with report permission.
 - Persists order item `discountInfos` so pricing, loyalty/voucher, score, and direct/manual discounts keep their source, amount, and percent breakdown.
@@ -49,6 +51,8 @@
 ### Consumes
 
 - Synced POS config fields including `adminIds`, `cashierIds`, `token`, and `permissionConfig`.
+- Synced eBarimt config fields including `hasCopy`, `hasSumQty`, and
+  `isCleanTaxPrice`.
 - Shared `erxes-api-shared` context, GraphQL, and date utility contracts.
 - `erxes-api-shared/core-modules` property filtering: `withPropertyConditions`,
   `isPropertyPath`, `propertyFieldIdFromPath`, `propertyExistsFilter`,
@@ -82,6 +86,12 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-29` — `Persist receipt summary quantity config`
+
+- **Summary:** POS client configs now persist the synced eBarimt `hasSumQty` receipt toggle alongside `hasCopy` and `isCleanTaxPrice`.
+- **Affected areas:** `src/modules/posclient/{@types,db/definitions}/configs.ts`
+- **Contracts changed:** `EbarimtConfig.hasSumQty` is stored and exposed through the existing GraphQL field.
 
 ### `2026-09-29` — `Fix remainder scheduler queue`
 
