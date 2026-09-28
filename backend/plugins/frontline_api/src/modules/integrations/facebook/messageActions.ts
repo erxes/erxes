@@ -51,21 +51,10 @@ export const sendReply = async (
     erxesApiId: integrationId,
   });
 
-  const { facebookPageTokensMap = {} } = integration;
-
-  let pageAccessToken;
-
-  try {
-    pageAccessToken = getPageAccessTokenFromMap(
-      recipientId,
-      facebookPageTokensMap,
-    );
-  } catch (e) {
-    debugError(
-      `Error occurred while trying to get page access token with ${e.message}`,
-    );
-    throw new Error(e.message);
-  }
+  const pageAccessToken = getPageAccessTokenFromMap(
+    recipientId,
+    integration.facebookPageTokensMap || {},
+  );
 
   const normalizedTag = normalizeMessengerTag(data?.tag);
   const requestData = data?.tag ? { ...data, tag: normalizedTag } : data;

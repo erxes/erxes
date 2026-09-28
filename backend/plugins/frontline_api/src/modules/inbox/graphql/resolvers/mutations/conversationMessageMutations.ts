@@ -1,4 +1,7 @@
-import { IConversationMessageAdd } from '@/inbox/@types/conversationMessages';
+import type {
+  IConversationMessageAdd,
+  IMessage,
+} from '@/inbox/@types/conversationMessages';
 import type { IConversationDocument } from '@/inbox/@types/conversations';
 import { pConversationClientMessageInserted } from './widget';
 import {
@@ -307,7 +310,7 @@ export const conversationMessageMutations = {
 
   async conversationMessageEdit(
     _root,
-    { _id, ...fields }: any,
+    { _id, ...fields }: IMessage & { _id: string },
     { user, models }: IContext,
   ) {
     const message = await models.ConversationMessages.getMessage(_id);

@@ -1,12 +1,12 @@
 import type { Activity } from '@/integrations/facebook/@types/utils';
 import type { IFacebookIntegrationDocument } from '@/integrations/facebook/@types/integrations';
-import { sanitizeString } from '@/integrations/facebook/services/conversationSync';
 import {
   fetchFacebookSharePreview,
   fetchStoryMediaUrl,
   isFacebookStoryUrl,
   isStoryMessageKind,
 } from '@/integrations/facebook/services/messagePreview';
+import { sanitizeString } from '@/integrations/utils';
 
 export type TFacebookMessage = NonNullable<Activity['channelData']['message']>;
 

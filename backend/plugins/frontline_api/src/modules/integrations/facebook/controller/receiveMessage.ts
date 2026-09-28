@@ -5,7 +5,6 @@ import { getOrCreateCustomer } from '@/integrations/facebook/controller/store';
 import { debugFacebook } from '@/integrations/facebook/debuggers';
 import type { Activity } from '@/integrations/facebook/@types/utils';
 import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
-import { graphqlPubsub } from 'erxes-api-shared/utils';
 import type { IFacebookConversationDocument } from '@/integrations/facebook/@types/conversations';
 import type { IFacebookConversationMessageDocument } from '@/integrations/facebook/@types/conversationMessages';
 import {
@@ -27,15 +26,15 @@ import {
   upsertFacebookConversation,
 } from '@/integrations/facebook/services/conversationSync';
 import {
+  publishFacebookMessage,
+  resolveReplyTo,
+} from '@/integrations/facebook/services/messageEvents';
+import {
   STORY_LIFETIME_MS,
   isStoryMessageKind,
 } from '@/integrations/facebook/services/messagePreview';
+import { getErrorMessage } from '@/integrations/utils';
 
-/**
- * Sanitize a value expected to be a string to prevent NoSQL injection.
- * Coerces non-string values (e.g. numbers) to strings, which also neutralizes
- * injection objects like {"$gt": ""} by converting them to "[object Object]".
- */
 const attachmentPreviewFor = (args: {
   primaryAttachment?: {
     type?: string;
@@ -55,43 +54,6 @@ const attachmentPreviewFor = (args: {
   return 'Unsupported Messenger message';
 };
 
-const getReplyPreview = (content?: string) =>
-  (content || '')
-    .replace(
-      /^<blockquote><strong>Replying to<\/strong><br\s*\/?>(?:[^<]|<(?!\/blockquote>))*<\/blockquote>/i,
-      '',
-    )
-    .replace(/<br\s*\/?>/gi, ' ')
-    .replace(/<[^<>]+>/g, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/\s+/g, ' ')
-    .trim();
-
-const resolveFacebookReplyTo = async (
-  models: IModels,
-  conversationId: string,
-  message?: TFacebookMessage,
-) => {
-  const replyToMessageId = message?.reply_to?.mid;
-  if (!replyToMessageId) {
-    return undefined;
-  }
-
-  const repliedMessage = await models.FacebookConversationMessages.findOne({
-    conversationId,
-    mid: replyToMessageId,
-  }).lean();
-  return {
-    messageId: replyToMessageId,
-    content: getReplyPreview(repliedMessage?.content) || 'Attachment',
-    authorName: repliedMessage?.userId ? 'You' : 'Customer',
-  };
-};
-
 const storeFacebookMessage = async ({
   models,
   subdomain,
@@ -105,8 +67,6 @@ const storeFacebookMessage = async ({
   attachments,
   replyTo,
   botId,
-  senderId,
-  recipientId,
   adData,
   messageKind,
   providerData,
@@ -122,10 +82,8 @@ const storeFacebookMessage = async ({
   content: string;
   customerId?: string;
   attachments: ReturnType<typeof formatAttachments>;
-  replyTo?: Awaited<ReturnType<typeof resolveFacebookReplyTo>>;
+  replyTo?: Awaited<ReturnType<typeof resolveReplyTo>>;
   botId?: string;
-  senderId: string;
-  recipientId: string;
   adData?: Exclude<
     ReturnType<typeof prepareFacebookActivity>['adData'],
     undefined
@@ -134,9 +92,9 @@ const storeFacebookMessage = async ({
   providerData: IFacebookConversationMessageDocument['providerData'];
   expiresAt?: Date;
 }) => {
-  const existing = await models.FacebookConversationMessages.findOne({
-    mid: { $eq: mid },
-  });
+  const existing = mid
+    ? await models.FacebookConversationMessages.findOne({ mid: { $eq: mid } })
+    : null;
   if (existing) {
     if (messageKind && !existing.messageKind) {
       existing.attachments = attachments;
@@ -150,10 +108,7 @@ const storeFacebookMessage = async ({
         conversationId: conversation.erxesApiId,
       };
       await pConversationClientMessageInserted(subdomain, updated);
-      await graphqlPubsub.publish(
-        `conversationMessageInserted:${conversation.erxesApiId}`,
-        { conversationMessageInserted: updated },
-      );
+      await publishFacebookMessage(conversation.erxesApiId, updated);
     }
     return;
   }
@@ -178,18 +133,7 @@ const storeFacebookMessage = async ({
     };
 
     await pConversationClientMessageInserted(subdomain, doc);
-    try {
-      await graphqlPubsub.publish(
-        `conversationMessageInserted:${conversation.erxesApiId}`,
-        {
-          conversationMessageInserted: doc,
-        },
-      );
-    } catch {
-      throw new Error(
-        'conversationMessageInserted Error publishing subscription:',
-      );
-    }
+    await publishFacebookMessage(conversation.erxesApiId, doc);
 
     const payload = parseAutomationPayload(message?.payload);
     if (payload.persistentMenuType === 'human_handoff') {
@@ -204,8 +148,6 @@ const storeFacebookMessage = async ({
           conversationMessage: created,
           integration,
           bot: handoffBot,
-          senderId,
-          recipientId,
         });
       }
       return;
@@ -217,10 +159,11 @@ const storeFacebookMessage = async ({
       adData,
     });
   } catch (e) {
+    const errorMessage = getErrorMessage(e);
     throw new Error(
-      e.message.includes('duplicate')
+      errorMessage.includes('duplicate')
         ? 'Concurrent request: conversation message duplication'
-        : e,
+        : errorMessage,
     );
   }
 };
@@ -315,10 +258,10 @@ export const receiveMessage = async (
     });
     const previewContent =
       text || providerData?.previewText || attachmentPreview;
-    const replyTo = await resolveFacebookReplyTo(
+    const replyTo = await resolveReplyTo(
       models,
       conversation._id,
-      message,
+      message?.reply_to?.mid,
     );
 
     await syncInboxConversation({
@@ -344,8 +287,6 @@ export const receiveMessage = async (
       attachments: formattedAttachments,
       replyTo,
       botId,
-      senderId: userId,
-      recipientId: pageId,
       adData,
       messageKind,
       providerData,
@@ -354,6 +295,8 @@ export const receiveMessage = async (
         : undefined,
     });
   } catch (error) {
-    throw new Error(`Error processing Facebook message: ${error.message}.`);
+    throw new Error(
+      `Error processing Facebook message: ${getErrorMessage(error)}.`,
+    );
   }
 };

@@ -1,5 +1,6 @@
 import { IFacebookIntegrationDocument } from './@types/integrations';
 import { IModels } from '~/connectionResolvers';
+import { getErrorMessage } from '@/integrations/utils';
 import { debugError } from './debuggers';
 import { SUBSCRIBED_FIELDS } from './constants';
 import { graphRequest, getPageAccessTokenFromMap } from './graphRequest';
@@ -84,14 +85,7 @@ export const getPostLink = async (
   pageTokens: { [key: string]: string },
   postId: string,
 ) => {
-  let pageAccessToken;
-
-  try {
-    pageAccessToken = getPageAccessTokenFromMap(pageId, pageTokens);
-  } catch (e) {
-    debugError(`Error occurred while getting page access token: ${e.message}`);
-    throw new Error('Failed to get Facebook page access token');
-  }
+  const pageAccessToken = getPageAccessTokenFromMap(pageId, pageTokens);
 
   try {
     const response: any = await graphRequest.get(
@@ -120,53 +114,20 @@ export const getFacebookUser = async (
   pageTokens: { [key: string]: string },
   fbUserId: string,
 ) => {
-  let pageAccessToken;
+  const pageToken = getPageAccessTokenFromMap(pageId, pageTokens);
 
   try {
-    pageAccessToken = getPageAccessTokenFromMap(pageId, pageTokens);
+    return await graphRequest.get(`/${fbUserId}`, pageToken);
   } catch (e) {
-    debugError(`Error occurred while getting page access token: ${e.message}`);
-    return null;
-  }
+    const message = getErrorMessage(e);
 
-  const pageToken = pageAccessToken;
-
-  try {
-    const response = await graphRequest.get(`/${fbUserId}`, pageToken);
-
-    return response;
-  } catch (e) {
-    if (e.message.includes('access token')) {
+    if (message.includes('access token')) {
       await models.FacebookIntegrations.updateOne(
         { facebookPageIds: pageId },
-        { $set: { healthStatus: 'page-token', error: `${e.message}` } },
+        { $set: { healthStatus: 'page-token', error: message } },
       );
     }
 
-    throw new Error(e);
-  }
-};
-
-export const restorePost = async (
-  postId: string,
-  pageId: string,
-  pageTokens: { [key: string]: string },
-) => {
-  let pageAccessToken;
-
-  try {
-    pageAccessToken = getPageAccessTokenFromMap(pageId, pageTokens);
-  } catch (e) {
-    debugError(
-      `Error occurred while trying to get page access token with ${e.message}`,
-    );
-  }
-
-  const fields = `/${postId}?fields=caption,description,link,picture,source,message,from,created_time,comments.summary(true)`;
-
-  try {
-    return await graphRequest.get(fields, pageAccessToken);
-  } catch (e) {
-    throw new Error(e);
+    throw new Error(message);
   }
 };

@@ -58,6 +58,9 @@ export const fetchStoryMediaUrl = async (
   }
 };
 
+const isHostOf = (hostname: string, domain: string) =>
+  hostname === domain || hostname.endsWith(`.${domain}`);
+
 const readOpenGraphValue = (html: string, property: string) => {
   const escapedProperty = property.replace(
     /[.*+?^${}()|[\]\\]/g,
@@ -77,8 +80,7 @@ export const fetchFacebookSharePreview = async (url?: string) => {
     const parsed = new URL(url);
     if (
       parsed.protocol !== 'https:' ||
-      (parsed.hostname !== 'facebook.com' &&
-        !parsed.hostname.endsWith('.facebook.com'))
+      !isHostOf(parsed.hostname, 'facebook.com')
     ) {
       return undefined;
     }
@@ -87,11 +89,7 @@ export const fetchFacebookSharePreview = async (url?: string) => {
       headers: { 'user-agent': 'facebookexternalhit/1.1' },
       signal: AbortSignal.timeout(5000),
     });
-    const finalUrl = new URL(response.url);
-    if (
-      finalUrl.hostname !== 'facebook.com' &&
-      !finalUrl.hostname.endsWith('.facebook.com')
-    ) {
+    if (!isHostOf(new URL(response.url).hostname, 'facebook.com')) {
       return undefined;
     }
 
@@ -109,8 +107,7 @@ export const isFacebookStoryUrl = (url?: string) => {
   try {
     const parsed = new URL(url);
     return (
-      (parsed.hostname === 'facebook.com' ||
-        parsed.hostname.endsWith('.facebook.com')) &&
+      isHostOf(parsed.hostname, 'facebook.com') &&
       parsed.pathname.startsWith('/stories/')
     );
   } catch {
@@ -123,12 +120,8 @@ export const getSharedAttachmentName = (url?: string) => {
 
   try {
     const parsed = new URL(url);
-    const isFacebook =
-      parsed.hostname === 'facebook.com' ||
-      parsed.hostname.endsWith('.facebook.com');
-    const isInstagram =
-      parsed.hostname === 'instagram.com' ||
-      parsed.hostname.endsWith('.instagram.com');
+    const isFacebook = isHostOf(parsed.hostname, 'facebook.com');
+    const isInstagram = isHostOf(parsed.hostname, 'instagram.com');
 
     if (parsed.pathname.startsWith('/stories/')) {
       if (isFacebook) return 'Shared Facebook story';

@@ -1,16 +1,11 @@
 import { generateAttachmentUrl } from '@/integrations/facebook/commonUtils';
 import { debugError } from '@/integrations/facebook/debuggers';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { graphRequest, getPageAccessTokenFromMap } from './graphRequest';
 import { uploadMedia } from './mediaUtils';
 
 export { graphRequest, getPageAccessTokenFromMap } from './graphRequest';
-export {
-  createAWS,
-  uploadMedia,
-  invalidateUploadConfigCache,
-} from './mediaUtils';
+export { uploadMedia } from './mediaUtils';
 export {
   getPageList,
   getPageAccessToken,
@@ -19,11 +14,8 @@ export {
   getPostLink,
   unsubscribePage,
   getFacebookUser,
-  restorePost,
 } from './pageUtils';
 export {
-  HUMAN_AGENT_MESSENGER_TAG,
-  normalizeMessengerTag,
   sendReply,
   sendReaction,
   generateAttachmentMessages,
@@ -34,22 +26,13 @@ export const getPostDetails = async (
   pageTokens: { [key: string]: string },
   postId: string,
 ) => {
-  let pageAccessToken;
+  const pageAccessToken = getPageAccessTokenFromMap(pageId, pageTokens);
 
   try {
-    pageAccessToken = getPageAccessTokenFromMap(pageId, pageTokens);
-  } catch (e) {
-    debugError(`Error occurred while getting page access token: ${e.message}`);
-    throw new Error();
-  }
-
-  try {
-    const response: any = await graphRequest.get(
+    return await graphRequest.get(
       `/${postId}?fields=permalink_url,message,created_time`,
       pageAccessToken,
     );
-
-    return response;
   } catch (e) {
     debugError(`Error occurred while getting facebook post: ${e.message}`);
     return null;
@@ -175,24 +158,6 @@ export const fetchPagePost = async (postId: string, accessToken: string) => {
   return response || null;
 };
 
-export const fetchPagePosts = async (pageId: string, accessToken: string) => {
-  const fields = 'message,created_time,full_picture,picture,permalink_url';
-  const response = await graphRequest.get(
-    `/${pageId}/posts?fields=${fields}&access_token=${accessToken}`,
-  );
-
-  return response.data || [];
-};
-
-export const fetchPagesPosts = async (pageId: string, accessToken: string) => {
-  const fields = 'message,created_time,full_picture,picture,permalink_url';
-  const response = await graphRequest.get(
-    `/${pageId}/posts?fields=${fields}&access_token=${accessToken}`,
-  );
-
-  return response.data || [];
-};
-
 export const fetchPagesPostsList = async (
   pageId: string,
   accessToken: string,
@@ -207,41 +172,13 @@ export const fetchPagesPostsList = async (
   return response.data || [];
 };
 
-interface IFacebookPage {
-  id: string;
-  isUsed?: boolean;
-  [key: string]: unknown;
-}
-
-export const checkFacebookPages = async (
-  models: IModels,
-  pages: IFacebookPage[],
-) => {
-  for (const page of pages) {
-    const integration = await models.FacebookIntegrations.findOne({
-      pageId: page.id,
-    });
-
-    page.isUsed = integration ? true : false;
-  }
-
-  return pages;
-};
-
 export const getFacebookUserProfilePic = async (
   pageId: string,
   pageTokens: { [key: string]: string },
   fbId: string,
   subdomain: string,
 ): Promise<string | null> => {
-  let pageAccessToken: string;
-
-  try {
-    pageAccessToken = getPageAccessTokenFromMap(pageId, pageTokens);
-  } catch (e) {
-    debugError(`Error occurred while getting page access token: ${e.message}`);
-    throw new Error();
-  }
+  const pageAccessToken = getPageAccessTokenFromMap(pageId, pageTokens);
 
   try {
     const response: { location: string } = await graphRequest.get(
@@ -249,29 +186,9 @@ export const getFacebookUserProfilePic = async (
       pageAccessToken,
     );
 
-    const uploadConfig = await sendTRPCMessage({
-      subdomain,
+    const storedUrl = await uploadMedia(subdomain, response.location, false);
 
-      pluginName: 'core',
-      method: 'query',
-      module: 'configs',
-      action: 'getFileUploadConfigs',
-      input: {},
-    });
-
-    const { UPLOAD_SERVICE_TYPE } = uploadConfig || {};
-
-    if (UPLOAD_SERVICE_TYPE === 'AWS') {
-      const awsResponse = await uploadMedia(
-        subdomain,
-        response.location,
-        false,
-      );
-
-      return awsResponse || response.location || null;
-    }
-
-    return response.location || null;
+    return storedUrl || response.location || null;
   } catch (e) {
     debugError(
       `Error occurred while getting facebook user profile pic: ${e.message}`,
@@ -303,9 +220,9 @@ export const checkIsAdsOpenThread = (entry: IFacebookWebhookEntry[] = []) => {
 
   const isSourceAds = referral?.source === 'ADS';
   const isTypeOpenThread = referral?.type === 'OPEN_THREAD';
-  const hasAdsContextData = !referral?.ads_context_data;
+  const lacksAdsContextData = !referral?.ads_context_data;
 
-  return isSourceAds && isTypeOpenThread && hasAdsContextData;
+  return isSourceAds && isTypeOpenThread && lacksAdsContextData;
 };
 
 interface IFacebookField {

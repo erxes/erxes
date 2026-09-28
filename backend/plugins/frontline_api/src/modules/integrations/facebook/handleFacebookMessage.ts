@@ -9,8 +9,13 @@ import {
   sendReaction,
   generateAttachmentMessages,
 } from '@/integrations/facebook/utils';
-import { sendNotifications } from '@/inbox/graphql/resolvers/mutations/conversations';
+import { sendNotifications } from '@/inbox/graphql/resolvers/mutations/conversationNotifications';
 import { debugError } from '@/integrations/facebook/debuggers';
+import {
+  replaceSenderReaction,
+  resolveReplyTo,
+} from '@/integrations/facebook/services/messageEvents';
+import { buildMessagingParams } from '@/integrations/facebook/services/messengerSend';
 import {
   appendContentImages,
   getErrorMessage,
@@ -113,13 +118,11 @@ export const handleFacebookReaction = async (
     integrationId || '',
   );
 
-  const reactions = (target.reactions || []).filter(
-    (item) => item.senderId !== userId,
+  target.reactions = replaceSenderReaction(
+    target.reactions,
+    userId,
+    remove ? undefined : { senderId: userId, reaction, emoji },
   );
-  if (!remove) {
-    reactions.push({ senderId: userId, reaction, emoji });
-  }
-  target.reactions = reactions;
   await target.save();
 
   return { status: 'success', data: target.toObject() };
@@ -212,30 +215,6 @@ const handleFacebookPostReply = async (
   }
 };
 
-const getReplyTo = async (
-  models: IModels,
-  conversationId: string,
-  replyToMessageId?: string,
-) => {
-  if (!replyToMessageId) {
-    return undefined;
-  }
-
-  const repliedToMessage = await models.FacebookConversationMessages.findOne({
-    conversationId,
-    mid: replyToMessageId,
-  }).lean();
-  let authorName;
-  if (repliedToMessage?.userId) authorName = 'Staff';
-  else if (repliedToMessage?.customerId) authorName = 'Customer';
-
-  return {
-    messageId: replyToMessageId,
-    content: repliedToMessage?.content || 'Original message unavailable',
-    authorName,
-  };
-};
-
 const handleFacebookMessengerReply = async (
   models: IModels,
   doc: TFacebookRelayDoc,
@@ -249,13 +228,7 @@ const handleFacebookMessengerReply = async (
     extraInfo,
     replyToMessageId,
   } = doc;
-  const trimmedTag = (extraInfo?.tag || '').trim();
-  const messagingParams: { messaging_type: string; tag?: string } = {
-    messaging_type: trimmedTag ? 'MESSAGE_TAG' : 'RESPONSE',
-  };
-  if (trimmedTag) {
-    messagingParams.tag = trimmedTag;
-  }
+  const messagingParams = buildMessagingParams(extraInfo?.tag);
 
   const allAttachments = [...attachments];
   appendContentImages(content, allAttachments);
@@ -270,7 +243,11 @@ const handleFacebookMessengerReply = async (
   const conversation = await models.FacebookConversations.getConversation({
     erxesApiId: conversationId,
   });
-  const replyTo = await getReplyTo(models, conversation._id, replyToMessageId);
+  const replyTo = await resolveReplyTo(
+    models,
+    conversation._id,
+    replyToMessageId,
+  );
   const parts: FacebookReplyPart[] = [
     ...(textContent ? [{ content: textContent, attachments: [] }] : []),
     ...uniqueAttachments.map((attachment) => ({

@@ -26,3 +26,17 @@ export const appendContentImages = (
 
   images.forEach((url) => attachments.push({ type: 'image', url }));
 };
+
+export const sanitizeString = (value: unknown): string => {
+  if (typeof value === 'string') {
+    return value;
+  }
+  if (
+    typeof value === 'number' ||
+    typeof value === 'bigint' ||
+    typeof value === 'boolean'
+  ) {
+    return String(value);
+  }
+  return '';
+};

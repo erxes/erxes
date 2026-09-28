@@ -1,138 +1,39 @@
-import * as AWS from 'aws-sdk';
-import { randomAlphanumeric, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { randomUUID } from 'node:crypto';
+import { promises as fsPromises } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { uploadFileToStorage } from 'erxes-api-shared/utils';
+import { generateAttachmentUrl } from './commonUtils';
 import { debugError } from './debuggers';
 import { validateMediaUrl } from './urlValidation';
 
-export const createAWS = async (subdomain: string) => {
-  const {
-    AWS_FORCE_PATH_STYLE,
-    AWS_COMPATIBLE_SERVICE_ENDPOINT,
-    AWS_BUCKET,
-    AWS_SECRET_ACCESS_KEY,
-    AWS_ACCESS_KEY_ID,
-  } = await sendTRPCMessage({
-    subdomain,
+const MEDIA_FETCH_TIMEOUT_MS = 10000;
 
-    pluginName: 'core',
-    method: 'query',
-    module: 'configs',
-    action: 'getFileUploadConfigs',
-    input: {},
-  });
-  if (!AWS_ACCESS_KEY_ID || !AWS_SECRET_ACCESS_KEY || !AWS_BUCKET) {
-    throw new Error('AWS credentials are not configured');
-  }
+const downloadMedia = async (url: string): Promise<Uint8Array> => {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), MEDIA_FETCH_TIMEOUT_MS);
 
-  const options: {
-    accessKeyId: string;
-    secretAccessKey: string;
-    endpoint?: string;
-    s3ForcePathStyle?: boolean;
-  } = {
-    accessKeyId: AWS_ACCESS_KEY_ID,
-    secretAccessKey: AWS_SECRET_ACCESS_KEY,
-  };
+  try {
+    const res = await fetch(url, {
+      signal: controller.signal,
+      redirect: 'error',
+    });
 
-  if (String(AWS_FORCE_PATH_STYLE) === 'true') {
-    options.s3ForcePathStyle = true;
-  }
-
-  if (AWS_COMPATIBLE_SERVICE_ENDPOINT) {
-    options.endpoint = AWS_COMPATIBLE_SERVICE_ENDPOINT;
-  }
-
-  // initialize s3
-  return new AWS.S3(options);
-};
-
-// Define a simple in-memory cache (outside the function scope)
-
-type UploadConfig = { AWS_BUCKET?: string; [k: string]: unknown } | null;
-let cachedUploadConfig: UploadConfig = null;
-let fetchUploadConfigPromise: Promise<UploadConfig | null> | null = null;
-let lastFetchTime = 0;
-const CACHE_TTL_MS = 5 * 60 * 1000;
-
-const getCachedUploadConfig = async (
-  subdomain: string,
-): Promise<UploadConfig> => {
-  // 1. Ensure we have cachedUploadConfig (with promise-based concurrency control)
-  if (!cachedUploadConfig) {
-    if (fetchUploadConfigPromise) {
-      try {
-        cachedUploadConfig = await fetchUploadConfigPromise;
-      } catch (err) {
-        debugError(`Failed awaiting ongoing fetch: ${err?.message ?? err}`);
-        return null;
-      }
-    } else {
-      fetchUploadConfigPromise = sendTRPCMessage({
-        subdomain,
-        pluginName: 'core',
-        method: 'query',
-        module: 'configs',
-        action: 'getFileUploadConfigs',
-        input: {},
-      })
-        .then((res) => {
-          cachedUploadConfig = res;
-          lastFetchTime = Date.now();
-          return res;
-        })
-        .catch((err) => {
-          debugError(`Failed to fetch upload config: ${err?.message ?? err}`);
-          cachedUploadConfig = null;
-          throw err;
-        })
-        .finally(() => {
-          fetchUploadConfigPromise = null;
-        });
-
-      try {
-        await fetchUploadConfigPromise;
-      } catch {
-        return null;
-      }
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`);
     }
-  } else if (
-    Date.now() - lastFetchTime > CACHE_TTL_MS &&
-    !fetchUploadConfigPromise
-  ) {
-    fetchUploadConfigPromise = sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'query',
-      module: 'configs',
-      action: 'getFileUploadConfigs',
-      input: {},
-    })
-      .then((res) => {
-        cachedUploadConfig = res;
-        lastFetchTime = Date.now();
-        return res;
-      })
-      .catch((err) => {
-        debugError(`Background refresh failed: ${err?.message ?? err}`);
-        return cachedUploadConfig;
-      })
-      .finally(() => {
-        fetchUploadConfigPromise = null;
-      });
-  }
 
-  if (!cachedUploadConfig) {
-    debugError(`Upload config unavailable after retry`);
-    return null;
+    return new Uint8Array(await res.arrayBuffer());
+  } finally {
+    clearTimeout(timeout);
   }
-
-  return cachedUploadConfig;
 };
 
 export const uploadMedia = async (
   subdomain: string,
   url: string,
   video: boolean,
-) => {
+): Promise<string | null> => {
   try {
     validateMediaUrl(url);
   } catch (e: unknown) {
@@ -141,49 +42,24 @@ export const uploadMedia = async (
     return null;
   }
 
-  const mediaFile = `uploads/${randomAlphanumeric(16)}.${
-    video ? 'mp4' : 'jpg'
-  }`;
+  const fileName = `${randomUUID()}.${video ? 'mp4' : 'jpg'}`;
+  const tmpPath = join(tmpdir(), `facebook-${fileName}`);
 
-  const uploadConfig = await getCachedUploadConfig(subdomain);
-  if (!uploadConfig?.AWS_BUCKET) return null;
-  const { AWS_BUCKET } = uploadConfig;
   try {
-    const s3 = await createAWS(subdomain);
+    await fsPromises.writeFile(tmpPath, await downloadMedia(url));
 
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 10000);
+    const key = await uploadFileToStorage({
+      subdomain,
+      filePath: tmpPath,
+      fileName,
+      mimetype: video ? 'video/mp4' : 'image/jpeg',
+    });
 
-    try {
-      const response = await fetch(url, {
-        signal: controller.signal,
-        redirect: 'error',
-      });
-
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
-      const buffer = Buffer.from(await response.arrayBuffer());
-      const data = await s3
-        .upload({
-          Bucket: AWS_BUCKET,
-          Key: mediaFile,
-          Body: buffer,
-          ACL: 'public-read',
-          ContentType: video ? 'video/mp4' : 'image/jpeg',
-        })
-        .promise();
-
-      return data.Location;
-    } finally {
-      clearTimeout(timeout);
-    }
+    return generateAttachmentUrl(subdomain, key);
   } catch (e) {
-    debugError(`Upload failed: ${e?.message ?? e}`);
+    debugError(`Upload failed: ${e instanceof Error ? e.message : String(e)}`);
     return null;
+  } finally {
+    await fsPromises.unlink(tmpPath).catch(() => undefined);
   }
-};
-// 4. Manual cache invalidation (call this when configs change)
-export const invalidateUploadConfigCache = () => {
-  cachedUploadConfig = null;
-  lastFetchTime = 0;
 };

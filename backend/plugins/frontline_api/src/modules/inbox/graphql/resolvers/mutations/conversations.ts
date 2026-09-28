@@ -12,9 +12,9 @@ import { createNotifications } from '~/utils/notifications';
 import {
   getAutomatedReplyReason,
   getAutomatedReplyStatus,
-  sendFacebookAutomatedReplyControlMessage,
   publishUnreadCountsSafely,
 } from './conversationAutomation';
+import { sendFacebookAutomatedReplyControlMessage } from '@/integrations/facebook/services/automatedReplyControl';
 import {
   publishConversationsChanged,
   sendNotifications,

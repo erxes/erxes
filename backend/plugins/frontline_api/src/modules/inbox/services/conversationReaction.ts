@@ -1,6 +1,6 @@
 import { visibleChannelsFilter } from '@/channel/utils';
 import { handleFacebookReaction } from '@/integrations/facebook/handleFacebookMessage';
-import { graphqlPubsub } from 'erxes-api-shared/utils';
+import { publishFacebookMessage } from '@/integrations/facebook/services/messageEvents';
 import type { IContext } from '~/connectionResolvers';
 
 export interface IConversationReaction {
@@ -53,8 +53,6 @@ export const reactToConversationMessage = async (
     userId: user._id,
   });
 
-  await graphqlPubsub.publish(`conversationMessageInserted:${conversationId}`, {
-    conversationMessageInserted: { ...result.data, conversationId },
-  });
+  await publishFacebookMessage(conversationId, result.data);
   return true;
 };

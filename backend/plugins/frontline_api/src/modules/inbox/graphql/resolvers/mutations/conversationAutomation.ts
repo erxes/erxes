@@ -3,12 +3,11 @@ import {
   AUTOMATED_REPLY_REASON,
   AUTOMATED_REPLY_STATUS,
 } from '@/inbox/db/definitions/constants';
-import { INTEGRATION_KINDS } from '@/integrations/facebook/constants';
 import { handleFacebookIntegration } from '@/integrations/facebook/messageBroker';
-import { sendReply } from '@/integrations/facebook/utils';
 import { handleInstagramIntegration } from '@/integrations/instagram/messageBroker';
 import { handleDiscordIntegration } from '@/integrations/discord/messageBroker';
 import { publishConversationUnreadCounts } from '@/inbox/services/conversationUnreadCounts';
+import { getErrorMessage } from '@/integrations/utils';
 import type { IModels } from '~/connectionResolvers';
 import { debugError } from '~/modules/inbox/utils';
 
@@ -18,12 +17,6 @@ interface DispatchConversationData {
   payload: string;
   integrationId: string;
 }
-
-const DEFAULT_HANDOFF_MESSAGE =
-  'A teammate will take over shortly. Automated replies are paused.';
-const DEFAULT_AUTOMATION_ACTIVE_MESSAGE = 'Automated replies are active again.';
-const getErrorMessage = (error: unknown) =>
-  error instanceof Error ? error.message : String(error);
 
 export const publishUnreadCountsSafely = async (
   params: Parameters<typeof publishConversationUnreadCounts>[0],
@@ -35,34 +28,6 @@ export const publishUnreadCountsSafely = async (
       `Failed to publish conversation unread counts: ${getErrorMessage(error)}`,
     );
   }
-};
-
-const buildFacebookMessengerTextPayload = ({
-  recipientId,
-  text,
-  tag,
-}: {
-  recipientId: string;
-  text: string;
-  tag?: string;
-}) => {
-  const trimmedTag = tag?.trim();
-  const payload: {
-    recipient: { id: string };
-    message: { text: string };
-    messaging_type: string;
-    tag?: string;
-  } = {
-    recipient: { id: recipientId },
-    message: { text },
-    messaging_type: trimmedTag ? 'MESSAGE_TAG' : 'RESPONSE',
-  };
-
-  if (trimmedTag) {
-    payload.tag = trimmedTag;
-  }
-
-  return payload;
 };
 
 export const dispatchConversationToService = async (
@@ -95,7 +60,9 @@ export const dispatchConversationToService = async (
     }
   } catch (e) {
     throw new Error(
-      `Your message was not sent. Error: ${e.message}. Go to integrations list and fix it.`,
+      `Your message was not sent. Error: ${getErrorMessage(
+        e,
+      )}. Go to integrations list and fix it.`,
     );
   }
 };
@@ -150,94 +117,4 @@ export const getAutomatedReplyReason = (reason?: string) => {
     default:
       throw new Error('Invalid automated reply reason');
   }
-};
-
-export const sendFacebookAutomatedReplyControlMessage = async ({
-  models,
-  subdomain,
-  conversation,
-  status,
-}: {
-  models: IModels;
-  subdomain: string;
-  conversation: IConversationDocument;
-  status: string;
-}) => {
-  if (!conversation.integrationId) {
-    throw new Error('Conversation integration is required for handoff message');
-  }
-
-  const integration = await models.Integrations.getIntegration({
-    _id: conversation.integrationId,
-  });
-
-  if (integration.kind !== INTEGRATION_KINDS.MESSENGER) {
-    return;
-  }
-
-  const facebookConversation =
-    await models.FacebookConversations.getConversation({
-      erxesApiId: conversation._id,
-    });
-
-  const bot = facebookConversation.botId
-    ? await models.FacebookBots.findOne({ _id: facebookConversation.botId })
-    : await models.FacebookBots.findOne({
-        pageId: facebookConversation.recipientId,
-      });
-
-  if (!bot) {
-    throw new Error('Facebook bot is required for handoff message');
-  }
-
-  const defaultText =
-    status === AUTOMATED_REPLY_STATUS.ACTIVE
-      ? DEFAULT_AUTOMATION_ACTIVE_MESSAGE
-      : DEFAULT_HANDOFF_MESSAGE;
-  const configuredText =
-    status === AUTOMATED_REPLY_STATUS.ACTIVE
-      ? bot.automationActiveMessage
-      : bot.handoffMessage;
-  const text = (configuredText || defaultText).trim() || defaultText;
-
-  const sendHandoffReply = (tag?: string) =>
-    sendReply(
-      models,
-      'me/messages',
-      buildFacebookMessengerTextPayload({
-        recipientId: facebookConversation.senderId,
-        text,
-        tag,
-      }),
-      facebookConversation.recipientId,
-      integration._id,
-    );
-
-  let sendResult;
-
-  try {
-    sendResult = await sendHandoffReply();
-  } catch (error) {
-    const errorMessage = getErrorMessage(error);
-    const shouldRetryWithTag =
-      errorMessage.includes('outside of allowed window') && bot.tag;
-
-    if (!shouldRetryWithTag) {
-      throw new Error(errorMessage);
-    }
-
-    sendResult = await sendHandoffReply(bot.tag);
-  }
-
-  await models.FacebookConversationMessages.addBotMessage(subdomain, {
-    conversationId: facebookConversation._id,
-    botId: bot._id,
-    botData: [{ type: 'text', text }],
-    mid: String(
-      sendResult?.mid ||
-        sendResult?.message_id ||
-        `automation-control-${conversation._id}-${Date.now()}`,
-    ),
-    conversationErxesApiId: conversation._id,
-  });
 };

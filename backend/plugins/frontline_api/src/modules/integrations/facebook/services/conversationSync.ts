@@ -5,56 +5,17 @@ import type { IFacebookConversationDocument } from '@/integrations/facebook/@typ
 import type { IFacebookConversationMessageDocument } from '@/integrations/facebook/@types/conversationMessages';
 import type { IFacebookBotDocument } from '@/integrations/facebook/db/definitions/bots';
 import { debugFacebook } from '@/integrations/facebook/debuggers';
+import {
+  publishFacebookMessage,
+  replaceSenderReaction,
+} from '@/integrations/facebook/services/messageEvents';
 import { getSharedAttachmentName } from '@/integrations/facebook/services/messagePreview';
-import { sendReply } from '@/integrations/facebook/utils';
-import { getErrorMessage } from '@/integrations/utils';
+import {
+  DEFAULT_HANDOFF_MESSAGE,
+  sendMessengerBotText,
+} from '@/integrations/facebook/services/messengerSend';
+import { getErrorMessage, sanitizeString } from '@/integrations/utils';
 import { receiveInboxMessage } from '@/inbox/receiveMessage';
-import { graphqlPubsub } from 'erxes-api-shared/utils';
-
-export const sanitizeString = (value: unknown): string => {
-  if (typeof value === 'string') {
-    return value;
-  }
-  if (
-    typeof value === 'number' ||
-    typeof value === 'bigint' ||
-    typeof value === 'boolean'
-  ) {
-    return String(value);
-  }
-  return '';
-};
-
-const DEFAULT_HANDOFF_MESSAGE =
-  'A teammate will take over shortly. Automated replies are paused.';
-
-const buildMessengerTextPayload = ({
-  senderId,
-  text,
-  tag,
-}: {
-  senderId: string;
-  text: string;
-  tag?: string;
-}) => {
-  const trimmedTag = tag?.trim();
-  const payload: {
-    recipient: { id: string };
-    message: { text: string };
-    messaging_type: string;
-    tag?: string;
-  } = {
-    recipient: { id: senderId },
-    message: { text },
-    messaging_type: trimmedTag ? 'MESSAGE_TAG' : 'RESPONSE',
-  };
-
-  if (trimmedTag) {
-    payload.tag = trimmedTag;
-  }
-
-  return payload;
-};
 
 export const handleHumanHandoff = async ({
   models,
@@ -63,8 +24,6 @@ export const handleHumanHandoff = async ({
   conversationMessage,
   integration,
   bot,
-  senderId,
-  recipientId,
 }: {
   models: IModels;
   subdomain: string;
@@ -72,8 +31,6 @@ export const handleHumanHandoff = async ({
   conversationMessage: IFacebookConversationMessageDocument;
   integration: IFacebookIntegrationDocument;
   bot: IFacebookBotDocument;
-  senderId: string;
-  recipientId: string;
 }) => {
   if (!conversation.erxesApiId) {
     return;
@@ -97,47 +54,15 @@ export const handleHumanHandoff = async ({
     });
   }
 
-  const text = bot.handoffMessage || DEFAULT_HANDOFF_MESSAGE;
-
-  const sendHandoffReply = (tag?: string) =>
-    sendReply(
-      models,
-      'me/messages',
-      buildMessengerTextPayload({
-        senderId,
-        text,
-        tag,
-      }),
-      recipientId,
-      integration.erxesApiId,
-    );
-
-  let sendResult;
-
-  try {
-    sendResult = await sendHandoffReply();
-  } catch (error) {
-    const errorMessage = getErrorMessage(error);
-    const shouldRetryWithTag =
-      errorMessage.includes('outside of allowed window') && bot.tag;
-
-    if (!shouldRetryWithTag) {
-      throw new Error(errorMessage);
-    }
-
-    sendResult = await sendHandoffReply(bot.tag);
-  }
-
-  await models.FacebookConversationMessages.addBotMessage(subdomain, {
-    conversationId: conversation._id,
-    botId: bot._id,
-    botData: [{ type: 'text', text }],
-    mid: String(
-      sendResult?.mid ||
-        sendResult?.message_id ||
-        `handoff-${conversationMessage._id}`,
-    ),
+  await sendMessengerBotText({
+    models,
+    subdomain,
+    integrationId: integration.erxesApiId,
+    facebookConversation: conversation,
     conversationErxesApiId: conversation.erxesApiId,
+    bot,
+    text: bot.handoffMessage || DEFAULT_HANDOFF_MESSAGE,
+    fallbackMid: `handoff-${conversationMessage._id}`,
   });
 };
 
@@ -179,24 +104,20 @@ export const handleReaction = async (
     return true;
   }
 
-  const reactions = (target.reactions || []).filter(
-    (item) => item.senderId !== userId,
+  target.reactions = replaceSenderReaction(
+    target.reactions,
+    userId,
+    reaction.action === 'react'
+      ? {
+          senderId: userId,
+          reaction: normalizedReaction,
+          emoji: sanitizeString(reaction.emoji) || undefined,
+        }
+      : undefined,
   );
-  if (reaction.action === 'react') {
-    reactions.push({ senderId: userId, reaction: normalizedReaction });
-  }
-  target.reactions = reactions;
   await target.save();
 
-  await graphqlPubsub.publish(
-    `conversationMessageInserted:${conversation.erxesApiId}`,
-    {
-      conversationMessageInserted: {
-        ...target.toObject(),
-        conversationId: conversation.erxesApiId,
-      },
-    },
-  );
+  await publishFacebookMessage(conversation.erxesApiId, target.toObject());
   return true;
 };
 
@@ -234,15 +155,15 @@ export const upsertFacebookConversation = async ({
         botId,
       });
     } catch (e) {
+      const message = getErrorMessage(e);
       throw new Error(
-        e.message.includes('duplicate')
+        message.includes('duplicate')
           ? 'Concurrent request: conversation duplication'
-          : e,
+          : message,
       );
     }
   } else {
-    const bot = await models.FacebookBots.findOne({ _id: botId });
-    if (bot) {
+    if (botId && (await models.FacebookBots.exists({ _id: botId }))) {
       conversation.botId = botId;
     }
     conversation.content = content || '';
@@ -325,6 +246,6 @@ export const syncInboxConversation = async ({
     await conversation.save();
   } catch (e) {
     await models.FacebookConversations.deleteOne({ _id: conversation._id });
-    throw new Error(e);
+    throw new Error(getErrorMessage(e));
   }
 };
