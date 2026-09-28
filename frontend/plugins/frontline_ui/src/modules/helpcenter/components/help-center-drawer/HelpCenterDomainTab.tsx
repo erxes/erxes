@@ -38,12 +38,14 @@ const StatusBadge = ({ status, t }: { status: string; t: TFunction }) => (
   </Badge>
 );
 
+// Long TXT values have no spaces: the text itself must be allowed to break,
+// or it spills over the neighbouring cell.
 const Copyable = ({ value }: { value: string }) => (
   <CopyText
     value={value}
-    className="min-w-0 max-w-full text-left font-mono text-xs break-all hover:text-primary"
+    className="min-w-0 max-w-full text-left font-mono text-xs hover:text-primary"
   >
-    <span>{value}</span>
+    <span className="min-w-0 break-all [overflow-wrap:anywhere]">{value}</span>
     <IconCopy className="size-3.5 shrink-0 text-muted-foreground" />
   </CopyText>
 );
