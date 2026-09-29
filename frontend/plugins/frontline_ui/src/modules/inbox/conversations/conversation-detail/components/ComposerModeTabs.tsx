@@ -1,12 +1,11 @@
 import { IconLock, IconMessage2 } from '@tabler/icons-react';
-import { Tabs, cn } from 'erxes-ui';
+import { Tabs } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
 type ComposerModeTabsProps = {
   isInternalNote: boolean;
   disabled: boolean;
   replyDisabled?: boolean;
-  className?: string;
   onInternalNoteChange: (internal: boolean) => void;
 };
 
@@ -14,7 +13,6 @@ export const ComposerModeTabs = ({
   isInternalNote,
   disabled,
   replyDisabled = false,
-  className,
   onInternalNoteChange,
 }: ComposerModeTabsProps) => {
   const { t } = useTranslation('frontline');
@@ -23,7 +21,7 @@ export const ComposerModeTabs = ({
     <Tabs
       value={isInternalNote ? 'internal' : 'reply'}
       onValueChange={(value) => onInternalNoteChange(value === 'internal')}
-      className={cn('min-w-0 flex-1', className)}
+      className="min-w-0 flex-1"
     >
       <Tabs.List
         variant="segment"
