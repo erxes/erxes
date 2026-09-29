@@ -28,9 +28,8 @@ Plugins keep local guides at `backend/plugins/<name>_api/AGENTS.md` and
 `frontend/plugins/<name>_ui/AGENTS.md`. A plugin guide is loaded on demand:
 read it whenever that plugin is in scope, and do not load guides for unrelated
 plugins. Every plugin implementation change must create the applicable guide if
-it is absent and update it before delivery. Beyond the bounded recent-change
-metadata required below, keep only durable facts and rules in a
-plugin guide; never use it as a task journal or backlog.
+it is absent and update it before delivery. Keep only durable facts and rules
+in a plugin guide; never use it as a task journal or backlog.
 
 ---
 
@@ -237,11 +236,9 @@ each changed plugin project.
 - A change only to a plugin's `AGENTS.md` does not recursively require another
   maintenance edit.
 
-The guide is a compact current-state contract with only a bounded recent-change
-history. Before implementation, read it. Before delivery, synchronize paths,
-capabilities, contracts, invariants, validation commands, and the
-`Recent Changes` section with the final code. Add the newest entry first, keep
-at most ten entries, and remove the oldest entry when adding an eleventh.
+The guide is a compact current-state contract. Before implementation, read it.
+Before delivery, synchronize paths, capabilities, contracts, invariants, and
+validation commands with the final code.
 
 Use this exact section order:
 
@@ -300,24 +297,11 @@ Use this exact section order:
 - `pnpm nx build <project-name>`
 - `pnpm nx test <project-name>` (when `project.json` defines a test target)
 - `<plugin-specific smoke scenario>`
-
-## Recent Changes
-
-<!-- Newest first. Keep at most 10 entries. -->
-
-### `<YYYY-MM-DD>` — `<short title>`
-
-- **Summary:** `<one sentence describing the delivered behavior>`
-- **Affected areas:** `<paths or capabilities>`
-- **Contracts changed:** `<None | exact contract changes>`
 ```
 
-Replace every placeholder with a verified fact. Use `None` only when it is
-factually correct. Keep each recent-change entry concise, prepend exactly one
-entry per delivered plugin change, and delete all entries beyond the newest ten.
-Do not expand entries into task logs. Remove stale current-state facts instead
-of preserving them as history. Validation commands must match targets that
-actually exist in the plugin's `project.json`.
+Replace every placeholder with a verified fact. Remove stale current-state
+facts instead of preserving them as history. Validation commands must match
+targets that actually exist in the plugin's `project.json`.
 
 ### Creating a plugin
 
