@@ -38,7 +38,7 @@ export const taskQueries = {
 
   getTasks: async (
     _parent: undefined,
-    { filter }: { filter: ITaskFilter },
+    { filter = {} }: { filter?: Partial<ITaskFilter> },
     { models, checkPermission }: IContext,
   ) => {
     await checkPermission('taskRead');
@@ -214,8 +214,9 @@ export const taskQueries = {
           projectFilter._id = { $in: projectIds };
         }
 
-        const matchingProjects =
-          await models.Project.find(projectFilter).distinct('_id');
+        const matchingProjects = await models.Project.find(
+          projectFilter,
+        ).distinct('_id');
 
         if (matchingProjects.length === 0) {
           return { list: [], totalCount: 0, pageInfo: null };
