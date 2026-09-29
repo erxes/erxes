@@ -24,6 +24,8 @@ export const types = `
 `;
 
 export const queries = `
+  telegramBots: [TelegramBot!]!
+  telegramBot(_id: String!): TelegramBot!
   telegramValidateToken(token: String!): TelegramTokenValidation!
 `;
 

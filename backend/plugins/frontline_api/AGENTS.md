@@ -137,6 +137,9 @@
   identity and optional group settings, and exposes controlled validation errors.
 - Registers `TelegramBots` on the tenant's database connection. Its
   `getBot(_id)` method returns the saved bot or throws `Telegram bot not found`.
+- Exposes `telegramBots` and `telegramBot(_id)` for reading saved bots after
+  checking `showIntegrations`. Lists are ordered newest first; both queries
+  return public metadata from the tenant's database without calling Telegram.
 - `TelegramBots.createBot({ token, createdBy })` verifies the token before
   saving the provider's bot identity, capability flags, verification time, and
   a generated webhook secret. It rejects duplicate bot identities and returns
@@ -203,7 +206,7 @@
 | Inbox                | `src/modules/inbox/`                                                        | Conversations, messages, integrations, widget/clientportal schemas, `receiveInboxMessage`                                                                                                              |
 | Conversation queries | `src/conversationQueryBuilder.ts`, `src/modules/inbox/conversationUtils.ts` | Mongo and Elasticsearch conversation filters (membership-scoped)                                                                                                                                       |
 | Integrations         | `src/modules/integrations/<kind>/`                                          | facebook, instagram, mail, discord, call, callpro, trpc                                                                                                                                                |
-| Telegram setup       | `src/modules/integrations/telegram/`                                        | Bot API client, permission-checked validation query and creation mutation, bot schema and model |
+| Telegram setup       | `src/modules/integrations/telegram/`                                        | Bot API client, permission-checked validation and saved-bot queries, creation mutation, bot schema and model |
 | Mail integration     | `src/modules/integrations/mail/`                                            | Inbound webhook, threading, outbound send/retry                                                                                                                                                        |
 | Mail transports      | `src/modules/integrations/mail/utils/transports/`                           | `index.ts` picks the Cloudflare account that signs for this workspace, `deliver.ts` runs the delivery pipeline (sender guard, suppression, delivery log), `cloudflare.ts` is the only `IMailTransport` |
 | Mail provisioning    | `src/modules/integrations/mail/utils/cloudflare/`                           | Cloudflare REST client, the fourteen-step provisioner, Email Sending onboarding and quota, the connection cache and its public shape                                                                   |
@@ -238,6 +241,11 @@
   identity, optional group settings, verification time, timestamps, and creator.
   The only input is the token; credentials are excluded from `TelegramBot`.
   Permission, validation, and duplicate failures are GraphQL errors.
+- `telegramBots: [TelegramBot!]!` — lists the tenant's saved bots newest first;
+  returns an empty array when none are saved. Requires `showIntegrations`.
+- `telegramBot(_id: String!): TelegramBot!` — reads a saved bot by its erxes
+  record ID after checking `showIntegrations`; a missing bot is a GraphQL error.
+  Both read queries use the public `TelegramBot` type and exclude credentials.
 - Plugin meta `properties` (`src/meta/properties.ts`) — the `conversation` and
   `ticket` property types, each with the `systemFields` (`code`, `name`, `type`)
   core lists as the read-only "Basic information" group in Settings →
@@ -276,6 +284,8 @@
   `ITelegramBotModel` and `loadTelegramBotClass(models)`. `src/connectionResolvers.ts`
   registers the loader as `models.TelegramBots` with model name `telegram_bots`.
   `getBot` looks up the erxes `_id`; `botId` is the separate Telegram identity.
+- `getBots(filter)` accepts a typed Mongoose filter and returns bot documents
+  sorted by descending `createdAt`, retaining the default credential projection.
 - `createBot` stores a fresh 32-byte random secret encoded as hex. It reads the
   inserted record through `getBot` so the result uses the schema's default
   credential projection; the direct result of `create` still contains secrets.
@@ -285,6 +295,8 @@
 
 - Check `integrationsAdd` before requesting Telegram; keep permission checks
   outside the handler that converts provider failures into validation results.
+- Check `showIntegrations` before either saved-bot query accesses tenant models.
+  Reading saved bots must not request credentials or contact Telegram.
 - Telegram credentials must not appear in public API results or raw error messages.
   Reject surrounding whitespace instead of silently rewriting a pasted token.
 - Keep `token` and `webhookSecret` out of the `TelegramBot` GraphQL type.
@@ -321,10 +333,20 @@
   identity. Repeating creation must reject the duplicate without replacing its
   credentials. Permission denial and invalid input must prevent creation;
   selecting credential fields or supplying `createdBy` must fail GraphQL validation.
+- Telegram read smoke scenario: a user with `showIntegrations` can list saved
+  bots and retrieve one by erxes `_id`; the list is newest first, a missing bot
+  returns an error, and neither query exposes credentials or calls Telegram.
+  Permission denial must prevent model access.
 
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-29` — Telegram saved-bot queries
+
+- **Summary:** Added permission-checked list and detail queries for saved Telegram bots, returning public metadata from the tenant's database.
+- **Affected areas:** `src/modules/integrations/telegram/db/models/Bots.ts`, `src/modules/integrations/telegram/graphql/`.
+- **Contracts changed:** Added `telegramBots: [TelegramBot!]!`, `telegramBot(_id: String!): TelegramBot!`, and `ITelegramBotModel.getBots(filter)`.
 
 ### `2026-09-29` — Telegram bot creation API
 
@@ -410,14 +432,3 @@
 - **Contracts changed:** `CallConversationDetail` gains
   `integration: CallConversationIntegration` (`_id`, `name`); new type
   `CallConversationIntegration`.
-
-### `2026-09-15` — Call integrations may share a trunk
-
-- **Summary:** `srcTrunk`, `dstTrunk` and `phone` are no longer unique, so
-  integrations on one trunk can be split by queue; blank queue input is
-  stored as `[]` and the queue index ignores empty queue lists.
-- **Affected areas:** `src/modules/integrations/call/{indexes,helpers,utils}.ts`,
-  `src/modules/integrations/call/db/definitions/integrations.ts`
-- **Contracts changed:** `Duplicate srcTrunk detected.` and
-  `Duplicate dstTrunk detected.` are no longer returned by
-  `integrationsCreateExternalIntegration` or integration edit.

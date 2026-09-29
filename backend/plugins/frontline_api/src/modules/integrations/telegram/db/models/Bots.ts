@@ -1,5 +1,5 @@
 import { randomBytes } from 'node:crypto';
-import { Model, mongo } from 'mongoose';
+import { FilterQuery, Model, mongo } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import {
   ITelegramBotCreateInput,
@@ -10,6 +10,9 @@ import { getTelegramBot } from '@/integrations/telegram/client';
 
 export interface ITelegramBotModel extends Model<ITelegramBotDocument> {
   getBot(_id: string): Promise<ITelegramBotDocument>;
+  getBots(
+    filter: FilterQuery<ITelegramBotDocument>,
+  ): Promise<ITelegramBotDocument[]>;
   createBot(doc: ITelegramBotCreateInput): Promise<ITelegramBotDocument>;
 }
 
@@ -23,6 +26,11 @@ export const loadTelegramBotClass = (models: IModels) => {
       }
 
       return bot;
+    }
+    public static getBots(
+      filter: FilterQuery<ITelegramBotDocument>,
+    ): Promise<ITelegramBotDocument[]> {
+      return models.TelegramBots.find(filter).sort({ createdAt: -1 }).exec();
     }
     public static async createBot({
       token,

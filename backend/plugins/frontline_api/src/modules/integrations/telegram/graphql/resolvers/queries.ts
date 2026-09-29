@@ -1,4 +1,5 @@
 import type { IContext } from '~/connectionResolvers';
+import type { ITelegramBotDocument } from '@/integrations/telegram/@types/bot';
 import { getTelegramBot } from '@/integrations/telegram/client';
 
 type TelegramTokenValidationResult =
@@ -16,6 +17,25 @@ type TelegramTokenValidationResult =
     };
 
 export const telegramQueries = {
+  async telegramBots(
+    _root: undefined,
+    _args: unknown,
+    { models, checkPermission }: IContext,
+  ): Promise<ITelegramBotDocument[]> {
+    await checkPermission('showIntegrations');
+
+    return models.TelegramBots.getBots({});
+  },
+
+  async telegramBot(
+    _root: undefined,
+    { _id }: { _id: string },
+    { models, checkPermission }: IContext,
+  ): Promise<ITelegramBotDocument> {
+    await checkPermission('showIntegrations');
+
+    return models.TelegramBots.getBot(_id);
+  },
   async telegramValidateToken(
     _root: undefined,
     { token }: { token: string },
