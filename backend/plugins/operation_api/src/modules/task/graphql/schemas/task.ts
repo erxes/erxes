@@ -2,10 +2,10 @@ import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
 
 export const types = `
   type Task {
-    _id: String
-    name: String
+    _id: String!
+    name: String!
     description: String
-    status: String
+    status: String!
     priority: Int
     labelIds: [String]
     tagIds: [String]
@@ -13,11 +13,11 @@ export const types = `
     createdBy: String
     startDate: Date
     targetDate: Date
-    createdAt: Date
-    updatedAt: Date
+    createdAt: Date!
+    updatedAt: Date!
     cycleId: String
     projectId: String
-    teamId: String
+    teamId: String!
     milestoneId: String
     estimatePoint: Int
     statusChangedDate: Date

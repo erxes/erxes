@@ -124,6 +124,8 @@ propertiesData? } })`
 
 ## Local Invariants
 
+- `Task` exposes `_id`, `name`, `status`, `teamId`, `createdAt` and `updatedAt` as non-null, and `Triage` exposes `_id`, `name`, `teamId`, `createdAt` and `updatedAt` as non-null. They are `required` or timestamped in the Mongoose schemas since 3.0. Fields with only a default (`priority`, `number`, `estimatePoint`) stay nullable because list queries use `.lean()`, which does not apply defaults to older documents.
+- `removeTask` returns and publishes the task as it was before deletion, with `type: 'delete'`.
 - `print-schema.ts` must exit the process itself: `erxes-api-shared/utils` opens a Redis client on import that would otherwise keep it alive.
 - A task's `_id` stays an `ObjectId`. `schemaWrapper` must never be applied to
   `taskSchema`: it would make `_id` a generated string and orphan every
