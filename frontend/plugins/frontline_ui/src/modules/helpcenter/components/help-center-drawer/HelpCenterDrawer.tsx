@@ -26,7 +26,7 @@ import {
   THelpCenterTab,
 } from '@/helpcenter/types';
 import { toHelpCenterConfigInput } from '@/helpcenter/utils/toHelpCenterConfigInput';
-import { TopicEmbedTab } from '@/knowledgebase/components/TopicEmbedTab';
+import { TopicEmbedTab } from '@/knowledgebase/shared/components/TopicEmbedTab';
 
 interface HelpCenterDrawerProps {
   readonly helpCenter?: IHelpCenter;
