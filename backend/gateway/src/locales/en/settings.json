@@ -231,6 +231,8 @@
     "confirm-delete-group": "Are you sure you want to delete this field group?",
     "basic-information": "Basic information",
     "visible": "Visible",
-    "system-fields-hint": "Defined by the system. Only its settings can be changed."
+    "system-fields-hint": "Defined by the system. Only its settings can be changed.",
+    "owned-group-hint": "Managed by {{plugin}}: its fields and values come from the plugin; only the name and order can change here.",
+    "featured-field-toggle-locked": "Filled by its plugin, so it is never asked for"
   }
 }

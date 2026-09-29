@@ -1,5 +1,5 @@
 export const SETTINGS_ROUTES = {
-  '/settings/loyalty/config': 'loyalty-config',
+  '/settings/loyalty/config/account-type': 'loyalty-account-types',
   '/settings/loyalty/config/score': 'score',
   '/settings/loyalty/config/voucher': 'voucher',
   '/settings/loyalty/config/lottery': 'lottery',

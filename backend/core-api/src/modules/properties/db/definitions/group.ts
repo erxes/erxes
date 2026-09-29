@@ -1,4 +1,7 @@
-import { logicSchema } from '@/properties/db/definitions/common';
+import {
+  featuredOwnerSchema,
+  logicSchema,
+} from '@/properties/db/definitions/common';
 import { schemaWrapper } from 'erxes-api-shared/utils';
 import { Schema } from 'mongoose';
 
@@ -14,6 +17,7 @@ export const fieldGroupSchema = schemaWrapper(
 
       logics: { type: [logicSchema], label: 'Logic' },
       configs: { type: Schema.Types.Mixed, label: 'Configs' },
+      owner: { type: featuredOwnerSchema, label: 'Featured group owner' },
 
       createdBy: { type: String, label: 'Created By' },
       updatedBy: { type: String, label: 'Updated By' },

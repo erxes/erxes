@@ -14,6 +14,12 @@
   "create": "Үүсгэх",
   "a-segment": "сегмент",
   "detail": {
+    "automations": "Automation",
+    "automations-title": "Орох, гарах automation",
+    "automations-hint": "Бичлэг энэ segment-д орох эсвэл гарах үед эхэлдэг automation-ууд.",
+    "automations-empty": "Энэ segment-ийг сонсож буй automation алга.",
+    "automations-create": "Automation үүсгэх",
+    "automations-unsupported": "Энэ төрлийн бичлэгт automation trigger байхгүй.",
     "add-condition": "Нөхцөл нэмэх",
     "add-group": "Бүлэг нэмэх",
     "all-conditions": "Бүх нөхцөл",

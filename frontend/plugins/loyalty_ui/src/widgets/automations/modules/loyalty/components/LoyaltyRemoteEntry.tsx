@@ -5,6 +5,7 @@ import {
 } from 'ui-modules';
 import { LoyaltyActionConfigForm } from './action/LoyaltyActionConfigForm';
 import { LoyaltyActionNodeContent } from './action/LoyaltyActionNodeContent';
+import { LoyaltyActionResult } from './action/LoyaltyActionResult';
 
 export const LoyaltyRemoteEntry = (props: AutomationRemoteEntryProps) => {
   return (
@@ -13,6 +14,7 @@ export const LoyaltyRemoteEntry = (props: AutomationRemoteEntryProps) => {
       remoteEntries={{
         actionForm: renderActionForm,
         actionNodeConfiguration: LoyaltyActionNodeContent,
+        historyActionResult: LoyaltyActionResult,
       }}
     />
   );

@@ -729,7 +729,10 @@ const buildOutputResolveGroups = ({
   return [...groups.values()];
 };
 
-const getAutomationOutputDefinition = async (nodeType: string) => {
+const findAutomationNodeConstant = async (
+  nodeType: string,
+  kinds: ('triggers' | 'actions' | 'findObjectTargets')[],
+) => {
   const [pluginName, moduleName, collectionName, relType] = splitType(
     nodeType || '',
   );
@@ -740,11 +743,7 @@ const getAutomationOutputDefinition = async (nodeType: string) => {
 
   const plugin = await getPlugin(pluginName);
   const constants = plugin.config?.meta?.automations?.constants;
-  const outputs = [
-    ...(constants?.triggers || []),
-    ...(constants?.actions || []),
-    ...(constants?.findObjectTargets || []),
-  ];
+  const outputs = kinds.flatMap((kind) => constants?.[kind] || []);
 
   return outputs.find((output) => {
     if (output.type === nodeType || output.value === nodeType) {
@@ -763,7 +762,56 @@ const getAutomationOutputDefinition = async (nodeType: string) => {
     }
 
     return isMatch;
-  })?.output as TAutomationRuntimeOutputDefinition | undefined;
+  });
+};
+
+const getAutomationOutputDefinition = async (nodeType: string) =>
+  (
+    await findAutomationNodeConstant(nodeType, [
+      'triggers',
+      'actions',
+      'findObjectTargets',
+    ])
+  )?.output as TAutomationRuntimeOutputDefinition | undefined;
+
+/**
+ * Fills an action's inputs from the trigger that started the run, through the
+ * mapping the trigger's own plugin declared. Nothing is returned when the
+ * trigger declares no mapping for that action.
+ */
+export const resolveAutomationActionInputs = async ({
+  subdomain,
+  triggerType,
+  actionType,
+  target,
+}: {
+  subdomain: string;
+  triggerType: string;
+  actionType: string;
+  target: TAutomationOutputSource;
+}): Promise<Record<string, unknown> | undefined> => {
+  const trigger = (await findAutomationNodeConstant(triggerType, [
+    'triggers',
+  ])) as IAutomationsTriggerConfig | undefined;
+  const mapping = trigger?.actionInputs?.[actionType];
+
+  if (!mapping || !Object.keys(mapping).length) {
+    return undefined;
+  }
+
+  const resolved = await resolveOutputPathsByNodeType({
+    subdomain,
+    nodeType: triggerType,
+    source: target || {},
+    paths: [...new Set(Object.values(mapping))],
+  });
+
+  return Object.fromEntries(
+    Object.entries(mapping).map(([inputKey, outputKey]) => [
+      inputKey,
+      resolved?.[outputKey],
+    ]),
+  );
 };
 
 const hasMatchingResolverKey = (

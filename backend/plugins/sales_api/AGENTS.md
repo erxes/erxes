@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-09-21`
+- **Last synchronized:** `2026-09-29`
 
 ## Scope
 
@@ -72,7 +72,18 @@
 - Sales record references provide deal display names, links, labels, product
   amount helpers, and `excludeLoyaltyAmount`.
 - `excludeLoyaltyAmount` returns the deal total amount minus payments made
-  through pipeline payment types that have a `scoreCampaignId`.
+  through pipeline payment types that have a `scoreCampaignId`
+  (`dealPaidAmount`).
+- Deal and POS order triggers give loyalty's Adjust score action a purchase
+  through `actionInputs`: deals map `totalAmount` → `unUsedTotalAmount`
+  (ticked products), `paidAmount` → `paidAmount`, `items` → `purchaseItems`;
+  POS orders map `totalAmount`, `paidAmount` (total minus point payments) and
+  `purchaseItems`. Earning is decided by automations, never by sales.
+- Sales tells loyalty what a purchase paid with points and when it is undone:
+  deal edits and moves call `score.spend` for each point payment type whose
+  amount changed and `score.refund` when a deal enters a `Lost` stage
+  (`syncDealPoints`); POS order sync calls `score.spend` (`spendOrderPoints`,
+  also after `posOrderChangePayments`) and `score.refund` for returned orders.
 - POS and ecommerce modules provide sales-owned order and integration behavior.
 - Read-only deal, stage, pipeline, POS, and POS-order tRPC procedures are
   exposed to AI agents through `/agent-tools/manifest` and `/agent-tools/call`
@@ -222,8 +233,8 @@
 - `erxes-api-shared` core types, utilities, and core module extension points.
 - Public platform contracts for products, customers, companies, users,
   branches, departments, and related records.
-- Loyalty-facing sales deal payloads through published target/reference
-  contracts, not loyalty internals.
+- Loyalty tRPC `score.spend` / `score.refund` with loyalty-owned inputs; sales
+  never sends whole deals or orders to loyalty.
 
 ## Data and State
 
@@ -335,6 +346,12 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-29` — Purchases handed to loyalty
+
+- **Summary:** Deal and POS triggers declare a purchase for loyalty's Adjust score action; point payments and refunds go to loyalty's `score.spend` / `score.refund` instead of `consumeTargetChange`.
+- **Affected areas:** `src/modules/{sales,pos}/meta/automations/{purchase,constants}.ts`, `salesRefernceCustomResolvers.ts`, `mutations/{loyaltyUtils,utils}.ts`, `pos/utils.ts`, `pos/graphql/resolvers/mutations/orders.ts`.
+- **Contracts changed:** Deal and POS trigger outputs `paidAmount`, `purchaseItems`; trigger `actionInputs`.
+
 ### `2026-09-21` — The deal action says it needs someone to act for
 
 - **Summary:** `Create deal` now declares `requiresActor: true` on its action
@@ -416,59 +433,3 @@
   empty behind them.
 - **Affected areas:** `src/modules/sales/documents/replaceBlocks.ts`.
 - **Contracts changed:** None.
-
-### `2026-08-21` — Bounded, strict agent-facing deal reads
-
-- **Summary:** `deal.find` can no longer execute unbounded or mis-shaped
-  queries: input is now a strict zod object (`{ query?, skip?, limit?, sort?, fields? }`
-  — unknown keys such as an invented `arg` wrapper are rejected by name
-  instead of silently matching nothing), results are always bounded (`limit`
-  defaults to 20 and is hard-capped at 100, including the no-query path — an
-  agent's `deal.find {}` over 1.27M deals crash-looped this service with
-  exit 139 on 2026-08-20), and `fields` now drives a real projection so
-  agents stay under the 64KB agent-tools response budget. `deal.count` takes
-  an explicit `{ filter? }` object for the same reason (a `{ query: ... }`
-  wrapper previously counted 0 silently). No cross-plugin tRPC callers of
-  either procedure exist, so the tightened contracts break no consumers.
-- **Affected areas:** `src/modules/sales/trpc/deal.ts`.
-- **Contracts changed:** `deal.find` input is now strict
-  `{ query?, skip?, limit?, sort?, fields? }` (the bare top-level filter form
-  is rejected) with `limit` clamped to 1–100 (default 20); `deal.count` input
-  is now strict `{ filter? }` instead of a bare filter object.
-
-### `2026-08-19` — Agent-callable tRPC tools
-
-- **Summary:** `associationFilter`, `esTypesMap`, `initialSelector` and
-  `propertyConditionExtender` were deleted from the sales and POS modules and
-  from the plugin-level segment object; the plugin no longer makes any
-  plugin-to-plugin segment call, and no plugin-to-plugin RPC loop can form.
-- **Affected areas:** `src/meta/segments.ts`,
-  `src/modules/sales/meta/segments/segments.ts`,
-  `src/modules/sales/meta/segments/utils.ts` (deleted),
-  `src/modules/pos/meta/segments.ts`.
-- **Contracts changed:** `/segments` no longer answers `associationFilter`,
-  `esTypesMap`, `initialSelector` or `propertyConditionExtender`. No caller
-  existed for any of them.
-
-### `2026-09-01` — POS orders renamed to their event content type
-
-- **Summary:** the module's `sales:pos_order` declaration - an
-  Elasticsearch-era name no write is ever emitted under - became
-  `sales:pos.orders`, and the module now owns its own fields, collections,
-  members, membership and evaluation instead of only an ES `associationFilter`.
-- **Affected areas:** `src/modules/pos/meta/posSegmentConfigs.ts`,
-  `src/modules/pos/meta/segments.ts`,
-  `src/modules/pos/meta/segments/` (new), `src/meta/segments.ts`.
-- **Contracts changed:** `sales:pos_order` -> `sales:pos.orders`; new relation
-  `customer.posOrders`.
-
-### `2026-09-01` — POS orders became a segment content type
-
-- **Summary:** `sales:pos.orders` is now declared, filterable on 20
-  user-facing fields, materialisable, and reachable from a customer segment
-  through `customer.posOrders`; the member, membership and source lookups route
-  by content type instead of assuming deals.
-- **Affected areas:** `src/modules/pos/meta/segments/` (new);
-  `src/modules/pos/db/definitions/orders.ts` (`customerId` index).
-- **Contracts changed:** New segment content type `sales:pos.orders`; new
-  relation `customer.posOrders`.

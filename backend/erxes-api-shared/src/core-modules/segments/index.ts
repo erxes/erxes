@@ -23,6 +23,7 @@ export * from './walkNodes';
 export * from './fieldMeta';
 export * from './operators';
 export * from './setupSegmentProducers';
+export * from './subjectsReachedBy';
 export * from './types';
 export * from './utils';
 export * from './zodSchemas';

@@ -2,7 +2,6 @@ import {
   evaluateSegmentBatch,
   gatherSegmentEventTypes,
   gatherSegmentFieldSources,
-  gatherSegmentRelations,
   SegmentApplyMembershipResult,
   SegmentChangedEvent,
   segmentDependencyKey,
@@ -11,7 +10,9 @@ import {
   SegmentMembershipUpdate,
   SegmentNode,
   SegmentOperator,
+  segmentSubjectsReachedBy,
   sendSegmentChanged,
+  sendSegmentMembershipToAutomations,
   TSegmentProducers,
 } from 'erxes-api-shared/core-modules';
 import {
@@ -47,67 +48,6 @@ const dependentSegments = async (
     input,
     defaultValue: [],
   });
-
-const idsAt = (value: unknown): string[] =>
-  (Array.isArray(value) ? value : [value]).filter(
-    (id): id is string => typeof id === 'string' && id.length > 0,
-  );
-
-const subjectsToRecheck = async (
-  subdomain: string,
-  segment: DependentSegment,
-  changedTypes: string[],
-  docIds: string[],
-  changed?: SegmentChangedEvent['changed'],
-): Promise<string[]> => {
-  if (changedTypes.includes(segment.contentType)) {
-    return docIds;
-  }
-
-  const { relations } = await gatherSegmentRelations(segment.contentType);
-
-  const reaching = [...relations.values()].filter((relation) =>
-    changedTypes.includes(relation.relatedType),
-  );
-
-  const subjects = new Set<string>();
-
-  for (const relation of reaching) {
-    if (relation.join.via === 'field') {
-      const moved = changed?.[relation.join.path];
-
-      if (relation.join.on === 'subject') {
-        docIds.forEach((id) => subjects.add(id));
-      } else if (moved) {
-        idsAt(moved.prev).forEach((id) => subjects.add(id));
-        idsAt(moved.next).forEach((id) => subjects.add(id));
-      } else {
-        segmentSkip(`${segment._id}: ${relation.key} moved without a diff`, {
-          relatedType: relation.relatedType,
-        });
-      }
-
-      continue;
-    }
-
-    const found: string[] = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      module: 'segment',
-      action: 'relationSubjects',
-      input: {
-        subjectType: relation.join.subjectRecordType,
-        relatedType: relation.join.relatedRecordType,
-        relatedIds: docIds,
-      },
-      defaultValue: [],
-    });
-
-    found.forEach((id) => subjects.add(id));
-  }
-
-  return [...subjects];
-};
 
 const READER_PAGE = 2000;
 
@@ -231,6 +171,11 @@ const applyMembership = async (
       defaultValue: { written: 0 },
     });
 
+    sendSegmentMembershipToAutomations(subdomain, {
+      contentType,
+      transitions: result.transitions,
+    });
+
     segmentLog('membership moved', {
       joined: result.transitions.reduce((n, t) => n + t.joined.length, 0),
       left: result.transitions.reduce((n, t) => n + t.left.length, 0),
@@ -341,12 +286,13 @@ const handleChanged = async ({
   const updatesByType = new Map<string, SegmentMembershipUpdate[]>();
 
   for (const segment of segments) {
-    const subjectIds = await subjectsToRecheck(
+    const subjectIds = await segmentSubjectsReachedBy(
       subdomain,
       segment,
       changedTypes,
       docIds,
       changed,
+      segmentSkip,
     );
 
     if (!subjectIds.length) {

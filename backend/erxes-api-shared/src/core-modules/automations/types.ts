@@ -83,6 +83,25 @@ export type TAutomationFindObjectTargetDefinition = {
   output?: TAutomationRuntimeOutputDefinition;
 };
 
+/**
+ * A value an action reads from whatever started the run. The action names
+ * what it needs; it never learns which record supplied it.
+ */
+export type TAutomationActionInput = {
+  key: string;
+  label: string;
+  type: 'number' | 'string' | 'array' | 'object';
+};
+
+/**
+ * Per action type, which of the trigger's own output keys fills each of that
+ * action's inputs. Declared by the trigger's plugin, so no one maps by hand.
+ */
+export type TAutomationTriggerActionInputs = Record<
+  string,
+  Record<string, string>
+>;
+
 export type IAutomationsTriggerConfig = {
   type?: string;
   moduleName?: string;
@@ -93,6 +112,7 @@ export type IAutomationsTriggerConfig = {
   description: string;
   isCustom?: boolean;
   output?: TAutomationRuntimeOutputDefinition;
+  actionInputs?: TAutomationTriggerActionInputs;
   conditions?: {
     type: string;
     icon: string;
@@ -153,6 +173,7 @@ export type IAutomationsActionConfig = {
   requiresTargetTypes?: string[];
   folks?: IAutomationsActionConfigFolkConfig[];
   output?: TAutomationRuntimeOutputDefinition;
+  inputs?: TAutomationActionInput[];
   setPropertyTargets?: TAutomationSetPropertyTarget[];
   deferred?: IAutomationsDeferredConfig;
   /**

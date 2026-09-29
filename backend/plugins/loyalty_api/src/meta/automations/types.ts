@@ -19,7 +19,7 @@ export type LoyaltyAutomationTarget = Record<string, unknown> & {
   };
 };
 
-export type LoyaltyScoreAction = 'add' | 'subtract' | 'set';
+export type LoyaltyScoreAction = 'add' | 'subtract';
 
 export type LoyaltyReceiveActionsInput =
   TAutomationProducersInput[TAutomationProducers.RECEIVE_ACTIONS];
@@ -34,6 +34,16 @@ export type AdjustScoreActionConfig = {
   action?: LoyaltyScoreAction;
   attribution?: string;
   ownerType?: LoyaltyOwnerType;
+  // Earning rows this automation turns on; every row when absent (older
+  // automations).
+  earnRowKeys?: string[];
+};
+
+export type SetTierActionConfig = {
+  attribution?: string;
+  accountTypeId?: string;
+  // A tier key of the account type; empty clears the tier.
+  tier?: string;
 };
 
 export type IssueVoucherActionConfig = {

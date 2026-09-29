@@ -11,6 +11,7 @@ export const PropertyGroupForm = ({
   isEdit,
   onSubmit,
   defaultValues,
+  locked,
   onCancel,
   loading,
 }: {
@@ -19,6 +20,8 @@ export const PropertyGroupForm = ({
   loading: boolean;
   defaultValues: IPropertyGroupForm;
   onCancel: () => void;
+  // A plugin's group: only its name can change here.
+  locked?: boolean;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const { type } = useParams<{ type: string }>();
@@ -76,48 +79,52 @@ export const PropertyGroupForm = ({
             )}
           />
 
-          <Form.Field
-            name="code"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>{t('code', 'Code')}</Form.Label>
-                <Form.Control>
-                  <Input
-                    {...field}
-                    type="text"
-                    placeholder={t('enter-group-code', 'Enter group code')}
-                    className="input"
-                  />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
+          {!locked && (
+            <>
+              <Form.Field
+                name="code"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>{t('code', 'Code')}</Form.Label>
+                    <Form.Control>
+                      <Input
+                        {...field}
+                        type="text"
+                        placeholder={t('enter-group-code', 'Enter group code')}
+                        className="input"
+                      />
+                    </Form.Control>
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
 
-          <Form.Field
-            name="isMultiple"
-            render={({ field }) => (
-              <Form.Item>
-                <div className="flex items-center gap-2">
-                  <Form.Control>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </Form.Control>
-                  <Form.Label variant="peer">
-                    {t('group-is-multiple', 'Allow multiple entries')}
-                  </Form.Label>
-                </div>
-                <Form.Description>
-                  {t(
-                    'group-is-multiple-description',
-                    'Records can fill this group more than once.',
-                  )}
-                </Form.Description>
-              </Form.Item>
-            )}
-          />
+              <Form.Field
+                name="isMultiple"
+                render={({ field }) => (
+                  <Form.Item>
+                    <div className="flex items-center gap-2">
+                      <Form.Control>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </Form.Control>
+                      <Form.Label variant="peer">
+                        {t('group-is-multiple', 'Allow multiple entries')}
+                      </Form.Label>
+                    </div>
+                    <Form.Description>
+                      {t(
+                        'group-is-multiple-description',
+                        'Records can fill this group more than once.',
+                      )}
+                    </Form.Description>
+                  </Form.Item>
+                )}
+              />
+            </>
+          )}
         </Sheet.Content>
         <Sheet.Footer>
           <Button variant={'ghost'} onClick={onCancel}>

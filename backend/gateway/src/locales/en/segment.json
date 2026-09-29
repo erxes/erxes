@@ -14,6 +14,12 @@
   "create": "Create",
   "a-segment": "a segment",
   "detail": {
+    "automations": "Automations",
+    "automations-title": "Enter and exit automations",
+    "automations-hint": "Flows that start when a record enters or leaves this segment.",
+    "automations-empty": "No automation listens to this segment yet.",
+    "automations-create": "Create automation",
+    "automations-unsupported": "This record type has no automation trigger.",
     "add-condition": "Add condition",
     "add-group": "Add group",
     "all-conditions": "All conditions",

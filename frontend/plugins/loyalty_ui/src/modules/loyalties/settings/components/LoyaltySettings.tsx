@@ -1,18 +1,10 @@
 import { Filter, Spinner } from 'erxes-ui';
 import { lazy, Suspense } from 'react';
-import { Route, Routes } from 'react-router';
+import { Navigate, Route, Routes } from 'react-router';
 import { SettingsHeader } from 'ui-modules';
 import { LoyaltyBreadcrumb } from './LoyaltyBreadcrumb';
 import { LoyaltySidebar } from './LoyaltySidebar';
 import { LoyaltyTopBar } from './LoyaltyTopBar';
-export const LoyaltyGeneralConfigPage = lazy(() =>
-  import('~/pages/loyalties-config/LoyaltyGeneralConfigPage').then(
-    (module) => ({
-      default: module.LoyaltyGeneralConfig,
-    }),
-  ),
-);
-
 const LoyaltyScorePage = lazy(() =>
   import('~/pages/loyalties-config/LoyaltyScorePage').then((module) => ({
     default: module.LoyaltyScorePage,
@@ -73,7 +65,7 @@ const LoyaltySettings = () => {
             }
           >
             <Routes>
-              <Route index element={<LoyaltyGeneralConfigPage />} />
+              <Route index element={<Navigate to="score" replace />} />
               <Route path="score" element={<LoyaltyScorePage />} />
               <Route path="voucher" element={<LoyaltyVoucherPage />} />
               <Route path="lottery" element={<LoyaltyLotteryPage />} />

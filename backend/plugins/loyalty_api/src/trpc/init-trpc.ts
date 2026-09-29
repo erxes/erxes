@@ -7,10 +7,6 @@ import {
   confirmVoucherSale,
   handleLoyaltyOwnerChange,
   handleLoyaltyReward,
-  doScoreCampaign,
-  refundLoyaltyScore,
-  handleScore,
-  consumeScoreTargetChange,
 } from '~/utils/utils';
 import { checkPricing, getMainConditions } from '~/modules/pricing/utils';
 import {
@@ -18,7 +14,6 @@ import {
   calculatePriceAdjust,
 } from '~/modules/pricing/utils/rule';
 import { getAllowedProducts } from '~/modules/pricing/utils/product';
-import { SCORE_CAMPAIGN_STATUSES } from '~/modules/score/constants';
 
 export type LoyaltyTRPCContext = ITRPCContext<{ models: IModels }>;
 const t = initTRPC.context<LoyaltyTRPCContext>().create();
@@ -127,66 +122,26 @@ const scoreCampaignInput = z.object({
   _id: z.string(),
 });
 
-const checkScoreAviableSubtractInput = z
-  .object({
-    ownerType: z.string(),
-    ownerId: z.string(),
-    actionMethod: z.string().optional(),
-    targetId: z.string().optional(),
-    campaignId: z.string().optional(),
-    target: z.record(z.any()).optional(),
-  })
-  .passthrough();
-
-const updateScoreInput = z.object({
-  action: z.enum(['add', 'subtract', 'set']),
-  ownerId: z.string(),
+// Loyalty's spending contract: the selling side says what a purchase paid
+// with points; loyalty checks it against the campaign's rules and records it.
+const spendInput = z.object({
   ownerType: z.string(),
+  ownerId: z.string(),
   campaignId: z.string(),
-  target: z.record(z.any()),
-  description: z.string(),
-  createdBy: z.string().optional(),
-  serviceName: z.string().optional(),
-  targetId: z.string().optional(),
-});
-
-const doScoreCampaignInput = z
-  .object({
-    ownerType: z.string(),
-    ownerId: z.string(),
-    actionMethod: z.string(),
-    campaignId: z.string().optional(),
-    serviceName: z.string().optional(),
-    target: z.record(z.any()).optional(),
-    oldTarget: z.record(z.any()).optional(),
-    targetId: z.string(),
-  })
-  .passthrough();
-
-const consumeTargetChangeInput = z
-  .object({
-    contentType: z.string(),
-    serviceName: z.string().optional(),
-    targetId: z.string().optional(),
-    target: z.record(z.any()).optional(),
-    oldTarget: z.record(z.any()).optional(),
-    stageContexts: z.record(z.any()).optional(),
-    ownerHints: z.record(z.string().optional()).optional(),
-  })
-  .passthrough();
-
-const getScoreCampaignsByStageInput = z.object({
-  boardId: z.string(),
-  pipelineId: z.string(),
-  stageId: z.string(),
-});
-
-const refundLoyaltyScoreInput = z.object({
   targetId: z.string(),
-  ownerType: z.string(),
-  ownerId: z.string(),
-  scoreCampaignIds: z.array(z.string()),
-  checkInId: z.string(),
+  // The record paid for, e.g. `sales:pos.orders`.
+  targetType: z.string(),
+  serviceName: z.string().optional(),
+  // Money paid with points on this purchase; the whole amount, not a delta.
+  pointsPaymentAmount: z.number().min(0),
+  totalAmount: z.number().min(0),
+  actorId: z.string().optional(),
+});
+
+const refundInput = z.object({
+  targetId: z.string(),
+  description: z.string().optional(),
+  actorId: z.string().optional(),
 });
 
 // Secure input for voucher campaigns (only allow specific fields)
@@ -415,61 +370,23 @@ export const appRouter = t.router({
         return await models.ScoreCampaigns.findOne(input);
       }),
 
-    checkScoreAviableSubtract: t.procedure
-      .input(checkScoreAviableSubtractInput)
-      .query(async ({ ctx, input }) => {
-        const { models } = ctx;
-        return await models.ScoreCampaigns.checkScoreAviableSubtract(
-          input as any,
-        );
-      }),
+    checkSpend: t.procedure
+      .input(spendInput)
+      .query(async ({ ctx, input }) =>
+        ctx.models.ScoreCampaigns.checkSpend(input),
+      ),
 
-    getScoreCampaignsByStage: t.procedure
-      .input(getScoreCampaignsByStageInput)
-      .query(async ({ ctx, input }) => {
-        const { models } = ctx;
-        return await models.ScoreCampaigns.find({
-          status: SCORE_CAMPAIGN_STATUSES.PUBLISHED,
-          'additionalConfig.cardBasedRule': {
-            $elemMatch: {
-              boardId: input.boardId,
-              pipelineId: input.pipelineId,
-              stageIds: { $in: [input.stageId] },
-            },
-          },
-        })
-          .sort({ order: 1, createdAt: 1 })
-          .lean();
-      }),
+    spend: t.procedure
+      .input(spendInput)
+      .mutation(async ({ ctx, input }) =>
+        ctx.models.ScoreCampaigns.spend(input),
+      ),
 
-    updateScore: t.procedure
-      .input(updateScoreInput)
-      .mutation(async ({ ctx, input }) => {
-        const { models } = ctx;
-        return await handleScore(models, input);
-      }),
-
-    doScoreCampaign: t.procedure
-      .input(doScoreCampaignInput)
-      .mutation(async ({ ctx, input }) => {
-        const { models } = ctx;
-        // Type assertion to bypass persistent TypeScript mismatch; input is validated by Zod
-        return await doScoreCampaign(models, input);
-      }),
-
-    consumeTargetChange: t.procedure
-      .input(consumeTargetChangeInput)
-      .mutation(async ({ ctx, input }) => {
-        const { models, subdomain } = ctx;
-        return await consumeScoreTargetChange({ models, subdomain, input });
-      }),
-
-    refundLoyaltyScore: t.procedure
-      .input(refundLoyaltyScoreInput)
-      .mutation(async ({ ctx, input }) => {
-        const { models } = ctx;
-        return await refundLoyaltyScore(models, input);
-      }),
+    refund: t.procedure
+      .input(refundInput)
+      .mutation(async ({ ctx, input }) =>
+        ctx.models.ScoreCampaigns.refundTarget(input),
+      ),
   }),
 
   spin: t.router({}),

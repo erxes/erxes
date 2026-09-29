@@ -114,7 +114,7 @@ export const buildExecutionTarget = (
  * owner. `runId` is left out: the execution is the run, and filling it would
  * cost a second write on the enrolment path for an id nothing reads back.
  */
-const buildTriggeredVia = (automation: IAutomationDocument): TCreatedVia => ({
+export const buildTriggeredVia = (automation: IAutomationDocument): TCreatedVia => ({
   source: 'automation',
   sourceId: automation._id,
   sourceName: automation.name,

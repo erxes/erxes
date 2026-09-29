@@ -26,10 +26,27 @@ export const scoreLogSchema = schemaWrapper(
       description: { type: String, label: 'Description' },
       serviceName: { type: String, label: 'Service name' },
       targetId: { type: String, label: 'Target' },
+      targetType: { type: String, label: 'Target type', optional: true },
       action: {
         type: String,
-        enum: ['add', 'subtract', 'set', 'refund', 'return'],
+        enum: ['add', 'subtract', 'set', 'refund', 'return', 'expire'],
         label: 'Action',
+      },
+      accountTypeId: { type: String, label: 'Loyalty account type' },
+      accountId: { type: String, label: 'Loyalty account' },
+      breakdown: {
+        type: [
+          new Schema(
+            {
+              rowKey: { type: String },
+              name: { type: String },
+              points: { type: Number },
+            },
+            { _id: false },
+          ),
+        ],
+        default: undefined,
+        label: 'Earning rows',
       },
       sourceScoreLogId: {
         type: String,

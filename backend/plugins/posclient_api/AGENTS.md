@@ -6,7 +6,7 @@
 - **Project:** `posclient_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/posclient_api`
-- **Last synchronized:** `2026-09-13`
+- **Last synchronized:** `2026-09-29`
 
 ## Scope
 
@@ -81,6 +81,12 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-29` — Point payment check uses loyalty's contract
+
+- **Summary:** Paying with points is checked through loyalty `score.checkSpend` with the amount paid by that payment type and the order total, instead of sending the whole order.
+- **Affected areas:** `src/modules/posclient/utils/orderUtils.ts` (`checkScoreAviableSubtractScoreCampaign`).
+- **Contracts changed:** Calls loyalty `score.checkSpend` instead of `score.checkScoreAviableSubtract`.
 
 ### `2026-09-13` — `Discount info type cleanup`
 

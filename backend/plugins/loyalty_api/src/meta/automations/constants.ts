@@ -25,7 +25,21 @@ export const LOYALTIES_AUTOMATIONS_CONSTANTS: AutomationConstants = {
       collectionName: 'score',
       icon: 'IconMoneybagPlus',
       label: 'Adjust score',
-      description: 'Add or subtract loyalty score',
+      description: 'Give loyalty points for a purchase',
+      // Filled by the trigger's own plugin (its `actionInputs`); points paid
+      // with are recorded by the selling side, not by this action.
+      inputs: [
+        { key: 'totalAmount', label: 'Total amount', type: 'number' },
+        { key: 'paidAmount', label: 'Paid amount', type: 'number' },
+        { key: 'items', label: 'Purchased items', type: 'array' },
+      ],
+    },
+    {
+      moduleName: 'score',
+      collectionName: 'tier',
+      icon: 'IconStairs',
+      label: 'Set tier',
+      description: "Set a loyalty tier on the owner's account",
     },
     {
       moduleName: 'spin',

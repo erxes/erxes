@@ -1,6 +1,7 @@
 import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
 import { Document } from 'mongoose';
 import { ICommonDocument } from '~/utils';
+import { IEarnBreakdownItem } from '@/score/@types/earnTable';
 
 export interface IScoreLog {
   ownerType: string;
@@ -11,9 +12,16 @@ export interface IScoreLog {
   description: string;
   createdBy?: string;
   campaignId?: string;
+  // Stamped on every write; campaign-less entries (resets) have only this.
+  accountTypeId?: string;
+  accountId?: string;
+  // Earning table rows this entry came from.
+  breakdown?: IEarnBreakdownItem[];
   serviceName?: string;
   sourceScoreLogId?: string;
   targetId?: string;
+  // The record type of targetId, e.g. `sales:sales.deals`.
+  targetType?: string;
   action?: string;
 }
 

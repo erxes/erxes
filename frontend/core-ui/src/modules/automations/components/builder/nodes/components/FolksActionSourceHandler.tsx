@@ -26,6 +26,7 @@ type ActionSourceHandlerFolksProps = {
   config: any;
   folks: IAutomationsActionFolkConfig[];
   flowDirection?: TAutomationFlowDirection;
+  nodeType?: AutomationNodeType;
 };
 
 export const FolksActionSourceHandler = memo(
@@ -34,6 +35,7 @@ export const FolksActionSourceHandler = memo(
     config = {},
     folks,
     flowDirection = 'horizontal',
+    nodeType = AutomationNodeType.Action,
   }: ActionSourceHandlerFolksProps) => {
     const isVertical = flowDirection === 'vertical';
     const total = folks.length;
@@ -67,7 +69,7 @@ export const FolksActionSourceHandler = memo(
                   : { top: `${positionPercent}%` }
               }
               showAddButton={!config[key]}
-              nodeType={AutomationNodeType.Action}
+              nodeType={nodeType}
               flowDirection={flowDirection}
             >
               <div
