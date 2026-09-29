@@ -11,6 +11,7 @@ import {
   getTelegramWebhookInfo,
   type TelegramWebhookInfo,
 } from '@/integrations/telegram/client';
+import { verifyTelegramWebhookSecret } from '@/integrations/telegram/webhookAuth';
 
 export interface ITelegramBotModel extends Model<ITelegramBotDocument> {
   getBot(_id: string): Promise<ITelegramBotDocument>;
@@ -19,6 +20,7 @@ export interface ITelegramBotModel extends Model<ITelegramBotDocument> {
     filter: FilterQuery<ITelegramBotDocument>,
   ): Promise<ITelegramBotDocument[]>;
   createBot(doc: ITelegramBotCreateInput): Promise<ITelegramBotDocument>;
+  verifyWebhookSecret(_id: string, receivedSecret?: string): Promise<boolean>;
 }
 
 export const loadTelegramBotClass = (models: IModels) => {
@@ -84,6 +86,22 @@ export const loadTelegramBotClass = (models: IModels) => {
       }
 
       return models.TelegramBots.getBot(bot._id);
+    }
+    public static async verifyWebhookSecret(
+      _id: string,
+      receivedSecret?: string,
+    ) {
+      if (!_id || !receivedSecret) {
+        return false;
+      }
+      const bot = await models.TelegramBots.findOne({ _id }).select(
+        '+webhookSecret',
+      );
+      if (!bot) {
+        return false;
+      }
+
+      return verifyTelegramWebhookSecret(bot.webhookSecret, receivedSecret);
     }
   }
   return telegramBotSchema.loadClass(TelegramBot);

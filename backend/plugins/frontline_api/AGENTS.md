@@ -142,6 +142,9 @@
 - The internal `verifyTelegramWebhookSecret` helper rejects missing, empty, or
   unequal secrets and compares equal-length UTF-8 buffers with `timingSafeEqual`.
   It does not yet authenticate an HTTP receiver.
+- `TelegramBots.verifyWebhookSecret(_id, receivedSecret?)` checks the supplied
+  secret against the saved bot in the tenant's database and returns a boolean.
+  Missing inputs, unknown bots, and incorrect secrets return `false`.
 - Registers `TelegramBots` on the tenant's database connection. Its
   `getBot(_id)` method returns the saved bot or throws `Telegram bot not found`.
 - `TelegramBots.getWebhookInfo(_id)` reads webhook status with the saved bot's
@@ -307,6 +310,10 @@
   `getBot` looks up the erxes `_id`; `botId` is the separate Telegram identity.
 - `getBots(filter)` accepts a typed Mongoose filter and returns bot documents
   sorted by descending `createdAt`, retaining the default credential projection.
+- `verifyWebhookSecret` skips database access for missing inputs, explicitly
+  selects `+webhookSecret`, and returns only the comparison result. It does not
+  select the bot token, call Telegram, or modify the record. Database failures
+  propagate to the caller.
 - `getWebhookInfo(_id)` explicitly selects `+token` from the supplied tenant's
   bot model and passes it to the provider client. A missing bot throws before
   any provider request; the return value contains webhook information rather
@@ -365,6 +372,9 @@
 - Telegram webhook secret checks: accept matching nonempty secrets; reject
   missing, empty, differing, or whitespace-altered values. Differing UTF-8 byte
   lengths must return `false` without throwing.
+- Saved-bot secret checks: reject unknown bots and missing inputs; verify against
+  the supplied tenant model only. Select the hidden webhook secret explicitly,
+  return a boolean without credentials, and propagate database failures.
 - Telegram smoke scenario: a signed-in user with `integrationsAdd` validates a
   real bot token through the gateway and receives the bot identity and group
   settings. A rejected token returns `valid: false`; permission denial remains a
@@ -400,6 +410,12 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-29` — Telegram saved-bot webhook verification
+
+- **Summary:** Added tenant-scoped verification of a received secret against a saved bot without returning credentials or changing its record.
+- **Affected areas:** `src/modules/integrations/telegram/db/models/Bots.ts`.
+- **Contracts changed:** Added internal `ITelegramBotModel.verifyWebhookSecret(_id, receivedSecret?): Promise<boolean>`; public APIs unchanged.
 
 ### `2026-09-29` — Telegram webhook secret comparison
 
@@ -454,24 +470,3 @@
 - **Summary:** Added permission-checked Telegram credential validation with bot identity and group settings.
 - **Affected areas:** `src/modules/integrations/telegram/`, `src/apollo/schema/schema.ts`, `src/apollo/resolvers/queries.ts`.
 - **Contracts changed:** Added `TelegramTokenValidation` and `telegramValidateToken(token: String!): TelegramTokenValidation!`.
-
-### `2026-09-21` — Messenger company writes actually reach Core
-
-- **Summary:** Every Core call in the company branch of
-  `widgetsMessengerConnect` used the wrong tRPC method or input shape, and
-  `sendTRPCMessage` swallows the resulting errors, so messenger `companyData`
-  silently produced no company at all: `companies.findOne` was called as a
-  mutation with `{ query: { companyData } }` (matching no selector key),
-  `updateCompany` received `{ query: { _id, doc } }` instead of `{ _id, doc }`,
-  `createCompany` was called as a query with `{ query: { ...companyData } }`
-  instead of a mutation with `{ doc }`, and the follow-up automation trigger
-  used the non-existent `triggers.trigger` path. All four now match the
-  published contracts, and lookup cascades name -> email -> phone, so the
-  company, its `trackedData`, and the customer-company conformity are written.
-- **Affected areas:**
-  `src/modules/inbox/graphql/resolvers/mutations/widget.ts`
-  (`findMessengerCompany` helper, company branch of
-  `widgetsMessengerConnect`).
-- **Contracts changed:** None. Consumed contracts corrected: Core
-  `companies.findOne` (query), `companies.updateCompany` / `createCompany`
-  (mutations), and automations `automations.trigger`.
