@@ -141,10 +141,14 @@
   validates the response with Zod and does not change webhook configuration.
 - The internal `verifyTelegramWebhookSecret` helper rejects missing, empty, or
   unequal secrets and compares equal-length UTF-8 buffers with `timingSafeEqual`.
-  It does not yet authenticate an HTTP receiver.
 - `TelegramBots.verifyWebhookSecret(_id, receivedSecret?)` checks the supplied
   secret against the saved bot in the tenant's database and returns a boolean.
   Missing inputs, unknown bots, and incorrect secrets return `false`.
+- `authenticateTelegramWebhook` reads the saved bot's `_id` route parameter and
+  `X-Telegram-Bot-Api-Secret-Token` header, resolves tenant models, and calls the
+  saved-bot verifier. It responds with `401` for missing or rejected credentials,
+  `500` for verification failures, and calls `next()` on success. This middleware
+  is not yet mounted on a Telegram HTTP route.
 - Registers `TelegramBots` on the tenant's database connection. Its
   `getBot(_id)` method returns the saved bot or throws `Telegram bot not found`.
 - `TelegramBots.getWebhookInfo(_id)` reads webhook status with the saved bot's
@@ -338,6 +342,10 @@
 - Telegram webhook secret comparison must reject empty values and check byte
   lengths before calling `timingSafeEqual`; compare the received value exactly
   without trimming or normalizing it.
+- Telegram webhook authentication must resolve models from `getSubdomain(req)`
+  and interpret the `_id` route parameter as the erxes bot record ID. Reject
+  missing credentials before model initialization, keep error responses generic,
+  and pass successful requests onward without acknowledging their payloads.
 - The `client.ts` types `TelegramBot` and `TelegramWebhookInfo` describe
   validated provider responses. Keep them separate from the saved-record types
   `ITelegramBot` and `ITelegramBotDocument` and the mapped query response
@@ -375,6 +383,10 @@
 - Saved-bot secret checks: reject unknown bots and missing inputs; verify against
   the supplied tenant model only. Select the hidden webhook secret explicitly,
   return a boolean without credentials, and propagate database failures.
+- Telegram middleware checks: verify `401` for missing or rejected credentials,
+  `500` for model or verification failures, and exactly one `next()` call only
+  after successful verification. Preserve the received secret and route tenant
+  into model generation; authentication must not read or acknowledge the body.
 - Telegram smoke scenario: a signed-in user with `integrationsAdd` validates a
   real bot token through the gateway and receives the bot identity and group
   settings. A rejected token returns `valid: false`; permission denial remains a
@@ -410,6 +422,12 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-29` — Telegram webhook authentication middleware
+
+- **Summary:** Added tenant-aware HTTP authentication middleware that rejects invalid credentials and passes verified requests to the next handler.
+- **Affected areas:** `src/modules/integrations/telegram/middleware/authenticateWebhook.ts`.
+- **Contracts changed:** Added internal `authenticateTelegramWebhook(req, res, next): Promise<void>`; no HTTP route is mounted yet.
 
 ### `2026-09-29` — Telegram saved-bot webhook verification
 
@@ -464,9 +482,3 @@
 - **Summary:** Registered a tenant-scoped Telegram bot model with lookup by erxes record ID and credentials omitted from ordinary queries.
 - **Affected areas:** `src/modules/integrations/telegram/@types/bot.ts`, `src/modules/integrations/telegram/db/definitions/bots.ts`, `src/modules/integrations/telegram/db/models/Bots.ts`, `src/connectionResolvers.ts`.
 - **Contracts changed:** Added internal `ITelegramBot`, `ITelegramBotDocument`, `telegramBotSchema`, `ITelegramBotModel`, and `loadTelegramBotClass` exports, plus `IModels.TelegramBots.getBot(_id)`; public APIs unchanged.
-
-### `2026-09-25` — Telegram bot token validation
-
-- **Summary:** Added permission-checked Telegram credential validation with bot identity and group settings.
-- **Affected areas:** `src/modules/integrations/telegram/`, `src/apollo/schema/schema.ts`, `src/apollo/resolvers/queries.ts`.
-- **Contracts changed:** Added `TelegramTokenValidation` and `telegramValidateToken(token: String!): TelegramTokenValidation!`.
