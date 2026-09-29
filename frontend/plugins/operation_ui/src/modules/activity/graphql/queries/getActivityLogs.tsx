@@ -1,6 +1,6 @@
-import { graphql } from '~/gql';
+import { gql } from '~/gql';
 
-export const GET_ACTIVITIES = graphql(`
+export const GET_ACTIVITIES = gql(`
   query getOperationActivities(
     $contentId: String!
     $cursor: String

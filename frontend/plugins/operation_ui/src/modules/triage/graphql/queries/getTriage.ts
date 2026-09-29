@@ -1,6 +1,6 @@
-import { graphql } from '~/gql';
+import { gql } from '~/gql';
 
-export const GET_TRIAGE = graphql(`
+export const GET_TRIAGE = gql(`
   query operationGetTriage($_id: String!) {
     operationGetTriage(_id: $_id) {
       _id

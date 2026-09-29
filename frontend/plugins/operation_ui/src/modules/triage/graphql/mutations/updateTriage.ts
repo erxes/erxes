@@ -1,6 +1,6 @@
-import { graphql } from '~/gql';
+import { gql } from '~/gql';
 
-export const UPDATE_TRIAGE_MUTATION = graphql(`
+export const UPDATE_TRIAGE_MUTATION = gql(`
   mutation operationUpdateTriage($_id: String!, $input: ITriageUpdateInput!) {
     operationUpdateTriage(_id: $_id, input: $input) {
       _id

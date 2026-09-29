@@ -1,6 +1,6 @@
-import { graphql } from '~/gql';
+import { gql } from '~/gql';
 
-export const GET_TASKS = graphql(`
+export const GET_TASKS = gql(`
   query GetTasks($filter: ITaskFilter) {
     getTasks(filter: $filter) {
       list {

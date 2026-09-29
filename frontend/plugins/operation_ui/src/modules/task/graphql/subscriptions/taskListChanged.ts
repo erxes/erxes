@@ -1,6 +1,6 @@
-import { graphql } from '~/gql';
+import { gql } from '~/gql';
 
-export const TASK_LIST_CHANGED = graphql(`
+export const TASK_LIST_CHANGED = gql(`
   subscription operationTaskListChanged($filter: ITaskFilter) {
     operationTaskListChanged(filter: $filter) {
       type

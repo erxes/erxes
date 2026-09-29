@@ -1,6 +1,6 @@
-import { graphql } from '~/gql';
+import { gql } from '~/gql';
 
-export const GET_TASK = graphql(`
+export const GET_TASK = gql(`
   query getTask($_id: String!) {
     getTask(_id: $_id) {
       _id
