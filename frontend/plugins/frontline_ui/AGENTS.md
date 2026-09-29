@@ -697,7 +697,14 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   `pluginsConfigState` and `usePermissionCheck` — the deal convert fields and
   the Convert menu's visibility; `useFields`, `PropertyFormField` and
   `isFieldVisibleByLogic` — convert-time properties.
-- `react-i18next` with the `frontline` namespace.
+- `react-i18next` with the `frontline` namespace. The ticket note surfaces use
+  keys the gateway locales do not carry yet, so they render their inline
+  English fallback: `write-a-message`, `add-note`, `ticket-reply-portal-only`,
+  `ticket-reply-no-recipient`, `ticket-reply-emailed`, `note-email-received`,
+  `note-portal-received`, `note-email-sent`, `note-customer-visible`,
+  `note-email-sent-to`, `ticket-reply-not-delivered`,
+  `email-delivery-stuck-hint`, `email-delivery-resent` and
+  `attachment-not-saved-days`.
 
 ## Data and State
 
@@ -1687,170 +1694,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   open a Call Pro conversation — the recording plays, and a conversation with
   several candidates shows the picker until a customer is chosen, after which
   the picker is replaced by the confirm/switch control without a reload.
-
-## Recent Changes
-
-<!-- Newest first. Keep at most 10 entries. -->
-
-### `2026-09-28` — Knowledge base screens share one set of building blocks
-
-- **Summary:** Topics, categories, articles and the help center list now build
-  their tables, empty/error states, row menus, bulk delete, search filters,
-  columns, form sheets and save/remove feedback from `knowledgebase/shared`;
-  the topic drawer and topic settings page render one `TopicFormFields`, and
-  the embed dialog and tab share `TopicEmbedScriptPanel`. Behaviour is
-  unchanged apart from the settings page gaining the drawer's field hints and
-  the embed dialog's copy button showing a copied state.
-- **Affected areas:** `src/modules/knowledgebase/shared/`,
-  `src/modules/knowledgebase/{topics,categories,articles,settings,constants}`,
-  `src/modules/helpcenter/components/{HelpCenterRecordTable,HelpCenterColumns}.tsx`,
-  `src/modules/helpcenter/components/help-center-drawer/HelpCenterStyleFields.tsx`,
-  `src/modules/helpcenter/hooks/useHelpCenters.ts`
-- **Contracts changed:** None
-
-### `2026-09-25` — Ticket replies show their audience, delivery and mail content
-
-- **Summary:** The ticket note composer reuses the inbox's Reply / Internal
-  Note tabs (`ComposerModeTabs`) with a hint naming who will read the message;
-  timeline notes carry a kind badge, a delivery pill and a Try again button for
-  a failed or stuck email; an attachment-only note no longer shows `[]`,
-  unstored inbound files are listed with their temporary link, and an emailed
-  note renders in the `EmailBody` sandbox.
-- **Affected areas:** `src/modules/activity/{components,hooks,graphql,utils}/`,
-  `src/modules/activity/types.ts`,
-  `src/modules/inbox/conversations/conversation-detail/components/{ComposerModeTabs,ComposerShell}.tsx`
-- **Contracts changed:** Consumes `mailTicketReplyTarget` and
-  `mailTicketNoteRetry`; the ticket note query and mutation select
-  `mailMessageId` and `mailDelivery`, the query also `unsavedAttachments`, and
-  the create mutation may send empty `content` with attachments. New i18n keys
-  fall back to English until the gateway locale carries them:
-  `write-a-message`, `add-note`, `ticket-reply-portal-only`,
-  `ticket-reply-no-recipient`, `ticket-reply-emailed`, `note-email-received`,
-  `note-portal-received`, `note-email-sent`, `note-customer-visible`,
-  `note-email-sent-to`, `ticket-reply-not-delivered`,
-  `email-delivery-stuck-hint`, `email-delivery-resent` and
-  `attachment-not-saved-days`.
-
-### `2026-09-25` — Main's topic embed tab merged into the rebuilt knowledge base
-
-- **Summary:** The help center drawer's Embed tab now renders
-  `shared/components/TopicEmbedTab.tsx`; the topic drawer from main is not
-  carried over, so a topic's script stays in the `kbsettings` embed dialog,
-  and both surfaces build the snippet with `utils/buildTopicEmbedScript.ts`.
-- **Affected areas:**
-  `src/modules/knowledgebase/shared/components/{TopicEmbedTab,TopicEmbedScriptDialog}.tsx`,
-  `src/modules/knowledgebase/utils/buildTopicEmbedScript.ts`,
-  `src/modules/helpcenter/components/help-center-drawer/HelpCenterDrawer.tsx`
-- **Contracts changed:** `None`
-
-### `2026-09-24` — Conversation properties tab on the inbox side widget
-
-- **Summary:** A conversation's custom properties (Core `frontline:conversation`
-  fields) are now viewable and editable from the inbox, mirroring how ticket
-  properties already work in this plugin. `ConversationSideWidget` gained a
-  static "Properties" tab, the same width as its dynamic relation-widget tabs,
-  rendering the new `ConversationProperties` component (a thin wrapper around
-  `ui-modules`' `FieldsInDetail`). The new `useConversationCustomFieldEdit`
-  hook is a plain passthrough to the `conversationEditCustomFields` mutation —
-  no variable remapping, because the mutation's argument and the
-  `Conversation` field are both named `propertiesData`, matching
-  `FieldsInDetail`'s hardcoded `{ _id, propertiesData }` mutate call and every
-  other `use*CustomFieldEdit` hook in the platform
-  (`useCustomerCustomFieldEdit`, `useTicketCustomFieldEdit`, etc.). Requires
-  the matching `frontline_api` fix (see its own `AGENTS.md`) — the field did
-  not persist before that. The Properties tab's icon (`IconHierarchy2`)
-  matches the one Settings uses for the same custom-properties surface, and
-  `ConversationProperties` forces a single-column layout so fields stay
-  readable in the widget's narrow width instead of squeezing into two.
-- **Affected areas:**
-  `src/modules/inbox/conversations/conversation-detail/components/{ConversationSideWidget,ConversationDetail,ConversationProperties}.tsx`,
-  `src/modules/inbox/conversations/hooks/useConversationCustomFieldEdit.tsx`,
-  `src/modules/inbox/conversations/graphql/mutations/conversationEditCustomFields.ts`,
-  `src/modules/inbox/conversations/conversation-detail/graphql/queries/getConversationDetail.ts`,
-  `src/modules/inbox/types/Conversation.ts`
-- **Contracts changed:** None — consumes the existing
-  `conversationEditCustomFields` mutation and `Conversation.propertiesData`
-  field.
-
-### `2026-09-24` — Removing a form step no longer wipes remaining step names
-
-- **Summary:** `removeStep` rebuilt each remaining step's object from only
-  `fields` and `order`, dropping `name`/`description`. Deleting any step and
-  saving cleared every other step's name (unlike `setSteps`, which already
-  spread `...value[key]`). It now spreads `...value[step]` before overriding
-  `fields`/`order`, so names/descriptions survive a step removal.
-- **Affected areas:** `src/modules/forms/components/FormDndProvider.tsx`
-  (`removeStep`).
-
-### `2026-09-24` — The client portal picker stores an id
-
-- **Summary:** The picker's value became `clientPortalId` instead of the bare
-  domain, and a pick writes `clientPortalId`, `url` and `erxesAppToken`
-  together from the chosen portal. A config saved before the id existed still
-  shows its portal, matched by the stored `url`, and gets the id backfilled on
-  the next save. The popover also gained a footer that opens core's client
-  portal settings in a new tab and refetches its options on re-open.
-- **Affected areas:**
-  `src/modules/helpcenter/components/SelectHelpCenterClientPortal.tsx`,
-  `src/modules/helpcenter/components/HelpCenterColumns.tsx`,
-  `src/modules/helpcenter/components/help-center-drawer/HelpCenterGeneralTab.tsx`,
-  `src/modules/helpcenter/utils/toHelpCenterConfigInput.ts`,
-  `src/modules/helpcenter/graphql/queries/getHelpCenters.ts`,
-  `src/modules/helpcenter/{types,constants}/index.ts`
-- **Contracts changed:** Reads and writes `clientPortalId` on
-  `HelpCenterConfig` / `HelpCenterConfigInput` (new in `frontline_api`).
-
-### `2026-09-24` — The help center's `Website` field is now `Client portal`
-
-- **Summary:** The drawer's General field and the record table's column header
-  both read `Client portal` instead of `Website`, matching what the picker
-  actually lists. The label uses the `common` namespace's existing
-  `sidebar.client-portal` key, so Mongolian reads `Харилцагчийн портал`
-  rather than falling back to English the way the unlisted `website` key did.
-- **Affected areas:**
-  `src/modules/helpcenter/components/HelpCenterColumns.tsx`,
-  `src/modules/helpcenter/components/help-center-drawer/HelpCenterGeneralTab.tsx`
-- **Contracts changed:** `None` — the stored field is still `url`.
-
-### `2026-09-24` — A help center can publish several CMSes
-
-- **Summary:** The CMS card became a multi-select backed by the new
-  `cmsConfigs` list (`{ cmsId, cmsAppToken }` per CMS), matching the forms
-  multi-select's badges and toggling. Each pick still resolves its client
-  portal's app token, and a help center saved before the list existed opens
-  with its single CMS preselected.
-- **Affected areas:**
-  `src/modules/helpcenter/components/SelectHelpCenterCms.tsx`,
-  `src/modules/helpcenter/components/help-center-drawer/HelpCenterGeneralTab.tsx`,
-  `src/modules/helpcenter/utils/toHelpCenterConfigInput.ts`,
-  `src/modules/helpcenter/graphql/queries/getHelpCenters.ts`,
-  `src/modules/helpcenter/{types,constants}/index.ts`
-- **Contracts changed:** Reads and writes `cmsConfigs` on `HelpCenterConfig` /
-  `HelpCenterConfigInput` (new in `frontline_api`).
-
-### `2026-09-24` — The CMS card disappears when the content plugin is off
-
-- **Summary:** `contentCMSList` is absent from the supergraph whenever the
-  optional content plugin is disabled, which left the help center drawer with a
-  CMS picker that could only report `Cannot query field "contentCMSList"`. The
-  new `useHelpCenterCmsOptions` hook classifies that validation error as
-  `unavailable` and the General tab drops the whole CMS card; the picker became
-  presentational and a saved `cmsId` is still written back untouched.
-- **Affected areas:**
-  `src/modules/helpcenter/hooks/useHelpCenterCmsOptions.ts`,
-  `src/modules/helpcenter/components/SelectHelpCenterCms.tsx`,
-  `src/modules/helpcenter/components/help-center-drawer/HelpCenterGeneralTab.tsx`,
-  `src/modules/helpcenter/types/index.ts`
-- **Contracts changed:** `None`
-
-### `2026-09-24` — The help center drawer regains an Embed tab
-
-- **Summary:** Editing a help center now has a third **Embed** tab that renders
-  the knowledge base module's `TopicEmbedTab` for the config's `kbTopicId`, or
-  a prompt to pick a topic when none is set; creating one still shows only
-  General and Appearance. The knowledge base topic drawer keeps its own Embed
-  tab, and both surfaces share the one builder and panel.
-- **Affected areas:**
-  `src/modules/helpcenter/components/help-center-drawer/HelpCenterDrawer.tsx`,
-  `src/modules/helpcenter/types/index.ts`
-- **Contracts changed:** `None`
