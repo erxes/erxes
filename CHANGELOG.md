@@ -1,4 +1,30 @@
+# Changelog
 
+## [3.2.6](https://github.com/erxes/erxes/compare/3.2.5...3.2.6) (2026-09-29)
+
+
+### Bug Fixes
+
+* accounting reports and some improve ([#9497](https://github.com/erxes/erxes/issues/9497)) ([147884f](https://github.com/erxes/erxes/commit/147884f91538c7dae82ad7d15ee02456d5cb1506))
+* add empty states to OAuth clients, client portals, and brands tables ([#9464](https://github.com/erxes/erxes/issues/9464)) ([d9175fd](https://github.com/erxes/erxes/commit/d9175fdedcb723e92d1042adf6c0bde21361277f))
+* **content:** publish CMS posts directly without Postiz access ([#9496](https://github.com/erxes/erxes/issues/9496)) ([9f409ff](https://github.com/erxes/erxes/commit/9f409ffc3d561cf31565fe9d7da7be84d70f32c6))
+* deal detail when has lot of stages ([#9479](https://github.com/erxes/erxes/issues/9479)) ([958f46b](https://github.com/erxes/erxes/commit/958f46bd25d0a2452c46744bfebb3074c05f6a4a))
+* **loyalty:** pricing plan list pagination ([4e9c603](https://github.com/erxes/erxes/commit/4e9c603fa3b4eed311983fae6b5f8eb4bed41c94))
+* **payment:** Khanbank payment ([#9483](https://github.com/erxes/erxes/issues/9483)) ([fdb2434](https://github.com/erxes/erxes/commit/fdb2434b28826b1f2eddb4f5b98114ab996b7471))
+* pricing plan pagination ([e269dbb](https://github.com/erxes/erxes/commit/e269dbb3d89517741eb64eee50045bf02e00a474))
+* products save then check pricing plan ([d39527a](https://github.com/erxes/erxes/commit/d39527ad290f9e442021fefcd563457a67bac370))
+* restore task and triage detail layout in My Inbox ([#9482](https://github.com/erxes/erxes/issues/9482)) ([97925e7](https://github.com/erxes/erxes/commit/97925e743b493a3abb59307e85e545f403a61868))
+* **saas-migrations:** accept shared-storage media and legacy attachment gaps in KB-to-CMS import ([6c45098](https://github.com/erxes/erxes/commit/6c450984cc3948680d23cbfc3829e246d950f791))
+* **saas-migrations:** support shared-storage media keys in KB-to-CMS import ([acfe5a6](https://github.com/erxes/erxes/commit/acfe5a60f351b8df28f11d70e336e8c328611667))
+* trim client portal header to prevent oversized request headers ([824d940](https://github.com/erxes/erxes/commit/824d94024541109321f8bf43ef2e8c274458b2b5))
+
+
+### Features
+
+* **core:** let a plugin announce its own UI remote entry  ([e31bdc6](https://github.com/erxes/erxes/commit/e31bdc621644bbc007ee0f0aa46ff1f50076596c))
+* enhance email content handling with new rendering and editor features ([5f77159](https://github.com/erxes/erxes/commit/5f77159f00dc9be1e85d5f7a66306b68c61ac891))
+* replace hard-coded values in DatePicker with optional props: ([f465fa7](https://github.com/erxes/erxes/commit/f465fa7416f392bf56981c9c080c0aa476a531ad))
+* **saas-migrations:** backfill customer search tokens across orgs ([312006e](https://github.com/erxes/erxes/commit/312006e8edea4a5762c50a01747e99c374bb04a4))
 
 ## [3.2.5](https://github.com/erxes/erxes/compare/3.2.4...3.2.5) (2026-09-28)
 
@@ -38,7 +64,7 @@
 * **saas-migrations:** convert legacy ebarimt/erkhet configs to mongolian_configs ([1715cbf](https://github.com/erxes/erxes/commit/1715cbfe92c7153f514ae049db5dc21c17cd7b63))
 * **saas-migrations:** run migrations across org pairs and protect target data  ([e997c26](https://github.com/erxes/erxes/commit/e997c2654f55a6590b11586a49c4d29674d382bf))
 
-# Changelog
+
 
 ## [3.2.4](https://github.com/erxes/erxes/compare/3.2.3...3.2.4) (2026-09-24)
 
