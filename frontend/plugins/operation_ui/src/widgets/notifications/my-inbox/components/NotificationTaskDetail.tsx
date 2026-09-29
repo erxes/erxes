@@ -1,6 +1,7 @@
 import { TaskDetails } from '@/task/components/detail/TaskDetails';
 import { TaskDetailSheet } from '@/task/components/TaskDetailSheet';
 import { useGetTask } from '@/task/hooks/useGetTask';
+import { useGetTriage } from '@/triage/hooks/useGetTriage';
 import { IconExternalLink } from '@tabler/icons-react';
 import { Button, FocusSheet } from 'erxes-ui';
 import { useEffect, useRef, useState } from 'react';
@@ -41,10 +42,15 @@ export const NotificationTaskDetail = ({
   showOpenTask: boolean;
 }) => {
   const { t } = useTranslation('operation');
-  const { task } = useGetTask({
+  const { task, loading: loadingTask } = useGetTask({
     variables: { _id: contentTypeId },
   });
+  const { triage } = useGetTriage({
+    variables: { _id: contentTypeId },
+    skip: loadingTask || !!task,
+  });
   const { ref, height } = useScrollViewportHeight();
+  const sideContentId = task?._id ?? triage?._id;
 
   return (
     <div ref={ref} className="flex w-full lg:min-h-dvh">
@@ -64,12 +70,12 @@ export const NotificationTaskDetail = ({
           <TaskDetails taskId={contentTypeId} checkTriage={true} />
         </div>
       </div>
-      {task && !!height && (
+      {sideContentId && !!height && (
         <div className="sticky top-0 flex shrink-0 self-start" style={{ height }}>
           <FocusSheet>
             <TaskSideWidgets
-              contentId={task._id}
-              propertiesData={task.propertiesData}
+              contentId={sideContentId}
+              propertiesData={task?.propertiesData}
             />
           </FocusSheet>
         </div>
