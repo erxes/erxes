@@ -6,7 +6,7 @@
 - **Project:** `loyalty_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/loyalty_api`
-- **Last synchronized:** `2026-09-29`
+- **Last synchronized:** `2026-09-30`
 
 ## Scope
 
@@ -30,6 +30,7 @@
 - Pricing plan lists honor `page` and `perPage`, with deterministic `_id`
   tie-breaking after the requested or default sort field.
 - Public and base pricing plans write scoped product discount metadata to core products; public entries use `base: null`, while base entries use `base: true` and may be scoped by branch, department, and pipeline.
+- Core product create and update events recalculate that product's active public and base pricing discounts, clearing stale discounts when it leaves every plan filter.
 - Voucher, coupon, lottery, spin, reward, and agent modules provide their plugin-owned loyalty behaviors.
 
 ## Architecture
@@ -40,6 +41,7 @@
 | Score models        | `src/modules/score/db`                                                           | Store score campaigns and score logs, apply ledger changes, and maintain owner score fields. |
 | Score orchestration | `src/utils/utils.ts`, `src/modules/score/utils.ts`, `src/meta/automations/score` | Normalize sales/POS targets, trigger score campaigns, and support score reporting helpers.   |
 | Pricing             | `src/modules/pricing`                                                            | Store pricing plans and calculate eligible discount rules.                                   |
+| Product event sync  | `src/meta/afterProcess.ts`                                                       | Recalculate one core product's public and base discounts after product create or update.     |
 | GraphQL             | `src/apollo`, `src/modules/*/graphql`                                            | Provide plugin-owned schemas, queries, mutations, and custom resolvers.                      |
 | Commands            | `src/commands`                                                                   | Run bounded maintenance and recovery scripts for loyalty-owned data.                         |
 
@@ -75,6 +77,7 @@
 - Score campaign mutations must keep owner score caches and score logs consistent, including refunds for cleared or moved targets.
 - Pricing eligibility must fail closed when required core lookups are unavailable.
 - Disabled pricing date bounds must not retain stale `startDate` or `endDate` values.
+- Product event synchronization must replace discounts only on the changed product; it must not trigger the full-product replacement path.
 - Pricing plan list ordering must include `_id` as a deterministic tie-breaker
   so records do not repeat or move between adjacent pages.
 - Do not introduce new `schemaWrapper` usage in backend schemas.
@@ -84,14 +87,6 @@
 - `pnpm nx build loyalty_api`
 - `pnpm nx test loyalty_api`
 - `pnpm nx test loyalty_api --testPathPattern scoreTarget`
+- `pnpm nx test loyalty_api --testPathPattern publicDiscounts`
+- `pnpm nx test loyalty_api --testPathPattern afterProcess`
 - Smoke scenario: trigger a sales deal and POS order score campaign with mixed product rows; only rows matching product/category/tag restrictions should contribute to `totalAmount`, deal rows must also have `tickUsed === true`, and discounted deal rows should be skipped only when `additionalConfig.discountCheck` is enabled.
-
-## Recent Changes
-
-<!-- Newest first. Keep at most 10 entries. -->
-
-### `2026-09-29` — Pricing plan page pagination
-
-- **Summary:** Pricing plan list queries now honor `page`/`perPage` and use stable ordering across pages.
-- **Affected areas:** `src/modules/pricing/graphql/resolvers/queries/pricingPlan.ts`.
-- **Contracts changed:** Existing `pricingPlans` and `cpPricingPlans` page arguments now control the returned page as declared.
