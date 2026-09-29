@@ -14,6 +14,7 @@ import {
 import {
   groupRecords,
   moreDataByKey,
+  shouldKeepZeroRows,
   toSafeString,
   totalsCalc,
 } from './includes/utils';
@@ -79,8 +80,12 @@ export const ReportTableBody = () => {
     if (error) return;
     if (!groupRule) return;
 
-    totalsCalc(tableRef.current, groupRule, unhideZero);
-  }, [grouped, groupRule, loading, error, unhideZero]); // дата солигдох бүрт дахин бодно
+    totalsCalc(
+      tableRef.current,
+      groupRule,
+      shouldKeepZeroRows(isMore, unhideZero),
+    );
+  }, [grouped, groupRule, loading, error, isMore, unhideZero]); // дата солигдох бүрт дахин бодно
 
   useEffect(() => {
     if (!tableRef?.current) return;

@@ -491,6 +491,9 @@ const isStringInFilter = (value: unknown): value is { $in: string[] } =>
   '$in' in value &&
   Array.isArray((value as { $in?: unknown }).$in);
 
+const isQueryObject = (value: unknown): value is ReportQuery =>
+  !!value && typeof value === 'object' && !Array.isArray(value);
+
 const mergeQueryValue = (current: unknown, next: unknown) => {
   if (!current) {
     return next;
@@ -506,6 +509,10 @@ const mergeQueryValue = (current: unknown, next: unknown) => {
 
   if (typeof current === 'string' && isStringInFilter(next)) {
     return { $in: next.$in.includes(current) ? [current] : [] };
+  }
+
+  if (isQueryObject(current) && isQueryObject(next)) {
+    return { ...current, ...next };
   }
 
   return next;

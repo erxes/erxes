@@ -131,6 +131,9 @@ const parseCellNumber = (text?: string | null) => {
   return Number.isNaN(recordValue) ? 0 : recordValue;
 };
 
+export const shouldKeepZeroRows = (isMore: boolean, unhideZero: boolean) =>
+  isMore || unhideZero;
+
 const hideZeroRows = (
   root: HTMLElement,
   excludedIndexes: Set<number>,
@@ -138,11 +141,11 @@ const hideZeroRows = (
 ) => {
   const rows = root.querySelectorAll('tr');
 
-  rows.forEach((row, rowIndex) => {
+  rows.forEach((row) => {
     const htmlRow = row as HTMLTableRowElement;
     htmlRow.style.display = '';
 
-    if (unhideZero || rowIndex <= 1) {
+    if (unhideZero) {
       return;
     }
 

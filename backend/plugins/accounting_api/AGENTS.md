@@ -213,6 +213,12 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-29` — `Preserve Report Product Filters`
+
+- **Summary:** Journal report detail filter merging now keeps product ids resolved from `productCategoryId` while applying report-specific product-detail existence checks.
+- **Affected areas:** Journal report filter merge utility and regression tests.
+- **Contracts changed:** None.
+
 ### `2026-09-29` — `Audit Census Branch Behavior`
 
 - **Summary:** Hardened partial updates and item removal, preserved counted zero during recalculation, and made import duplicate handling deterministic with immediate inventory-value refresh.
@@ -266,9 +272,3 @@
 - **Summary:** Safe remainder transaction calculation is now a pure inventory-domain utility, resolvers focus on validation and ordered journal orchestration, and list/item queries use typed filters with description-aware search.
 - **Affected areas:** `src/modules/inventories/utils/safeRemainderTransactions.ts`, safe remainder transaction resolver, query filters, and model typing.
 - **Contracts changed:** None.
-
-### `2026-09-28` — `Apply Net Census Value Rules`
-
-- **Summary:** Safe remainder transaction generation now absorbs positive target-value differences into income, floors negative income at zero, values out/sale quantity at active cost, runs capped remaining adjustments afterward, and rejects invalid counted values.
-- **Affected areas:** Safe remainder transaction calculation/order, item mutation validation, partial model updates, and regression tests.
-- **Contracts changed:** `safeRemainderItemEdit.remainder` remains optional for metadata-only edits and now rejects invalid counted values.

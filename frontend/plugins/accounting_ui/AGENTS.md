@@ -60,7 +60,7 @@
 - Related account override inputs keep focus while users type and persist custom debit and credit code lists independently.
 - Empty related account overrides are omitted on submit so backend-calculated default debit/credit related accounts remain active, and the related-account editor falls back to default `dt/ct` codes when `customDt/customCt` are empty.
 - Accounting settings pages manage accounts, account categories, permissions, VAT, CTAX, and sync configuration; VAT/CTAX row access is guarded by the unified tax-row permission actions.
-- Journal report rendering groups backend rows recursively, uses a declarative report-to-filter map to show and submit only applicable account, contact, inventory, fixed-asset, organization, user, and report controls, filters by Erkhet-compatible transaction type plus erxes-native category/search/tag/ownership fields, renders account statement, trial balance, general ledger, main journal, main journal summary, fund, debt, inventory cost, inventory sale, inventory sale-cost, inventory sale-period, inventory price, inventory profit, inventory shipper, inventory document, inventory seller subsystem, and fixed asset report variants, signs inventory movement totals by transaction side so debit cost adjustments increase and credit adjustments decrease value, shows foreign-currency balance rows separately beneath non-MNT account leaves without adding them to base-currency totals, derives table headers and footers from report column metadata, keeps date filter controls visually consistent, shows table-body loading skeletons while report or drill-down data loads, drills account rows into account statements with filter context, calculates parent/footer totals after render, hides all-zero rows unless users choose to show them, loads account-statement detail rows without mutating report state, opens transaction edit screens from detail rows, and downloads the rendered result as a formatted Excel workbook.
+- Journal report rendering groups backend rows recursively, uses a declarative report-to-filter map to show and submit only applicable account, contact, inventory, fixed-asset, organization, user, and report controls, filters by Erkhet-compatible transaction type plus erxes-native category/search/tag/ownership fields, renders account statement, trial balance, general ledger, main journal, main journal summary, fund, debt, inventory cost, inventory sale, inventory sale-cost, inventory sale-period, inventory price, inventory profit, inventory shipper, inventory document, inventory seller subsystem, and fixed asset report variants, signs inventory movement totals by transaction side so debit cost adjustments increase and credit adjustments decrease value, shows foreign-currency balance rows separately beneath non-MNT account leaves without adding them to base-currency totals, derives table headers and footers from report column metadata, keeps date filter controls visually consistent, shows table-body loading skeletons while report or drill-down data loads, drills account rows into account statements with filter context, calculates parent/footer totals after render, hides all-zero summary rows unless users choose detailed or empty-row display, loads account-statement detail rows without mutating report state, opens transaction edit screens from detail rows, and downloads the rendered result as a formatted Excel workbook.
 - Development Rspack serving ignores generated dependency/cache/output folders to keep local file watchers bounded.
 
 ## Architecture
@@ -170,7 +170,7 @@
 - Fixed asset category annual depreciation percentage is canonical in saved data; useful years are displayed and editable only as a derived helper rounded to two decimals.
 - Fixed asset master rows are created by income transactions, so settings must not expose a direct "add fixed asset" action.
 - Module Federation exposes, route paths, and named exports must stay aligned.
-- Journal report total calculation must stay scoped to the rendered report table body and zero-row hiding must preserve rows explicitly marked with `data-draw-zero="1"`.
+- Journal report total calculation must stay scoped to the rendered report table body; zero-row hiding must preserve rows explicitly marked with `data-draw-zero="1"` and must be disabled for detailed or explicit empty-row display.
 - Journal report headers and footers must stay aligned with each report config's two recursive grouping columns plus `colCount` value columns.
 - Journal report Excel export must use the rendered visible rows so calculated totals, zero-row visibility, grouping, and expanded detail data match the result users see.
 - Journal report inventory and fixed-asset location filtering is represented by branch/department selectors because erxes transaction details carry branch/department instead of Erkhet `inv_location`/`fxa_location` ids.
@@ -200,6 +200,12 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-29` — `Respect Journal Report Detail Visibility`
+
+- **Summary:** Zero-valued grouped report rows are hidden after aggregation only in summary mode, while detailed and explicit empty-row views keep them visible.
+- **Affected areas:** Journal report total calculation, zero-row visibility, and regression tests.
+- **Contracts changed:** None.
 
 ### `2026-09-29` — `Audit Census Detail Actions`
 
@@ -254,9 +260,3 @@
 - **Summary:** Safe remainder item query results now retain separate creator and last-modifier audit fields.
 - **Affected areas:** Safe remainder item GraphQL selection and frontend item type.
 - **Contracts changed:** Consumes `createdAt`, `createdBy`, `modifiedAt`, and `modifiedBy` from `SafeRemainderItem`.
-
-### `2026-09-28` — `Refactor Safe Remainder UI`
-
-- **Summary:** Safe remainder detail now delegates declarative tab tables, import workflow, shared editable cells, preview calculations, and typed mutation/subscription hooks to focused modules.
-- **Affected areas:** `src/modules/inventories/safeRemainders` detail components, shared cells, import, tables, calculations, and hooks.
-- **Contracts changed:** None.
