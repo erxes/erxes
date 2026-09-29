@@ -1,6 +1,10 @@
 import { IModels } from '~/connectionResolvers';
 import { INote } from '@/ticket/@types/note';
-import { IMailMessageDocument } from '@/integrations/mail/@types/message';
+import { ITicketDocument } from '@/ticket/@types/ticket';
+import {
+  IMailAttachmentInput,
+  IMailMessageDocument,
+} from '@/integrations/mail/@types/message';
 import {
   attachmentListToHtml,
   noteContentToHtml,
@@ -47,7 +51,14 @@ const replySubject = (latest?: string, fallback?: string) => {
   return REPLY_PREFIX.test(subject) ? subject : `Re: ${subject}`;
 };
 
-export const mailTicketNote = async (
+export interface ITicketNoteMail {
+  ticket: ITicketDocument;
+  to: string;
+  body: string;
+  attachments: IMailAttachmentInput[];
+}
+
+export const prepareTicketNoteMail = async (
   models: IModels,
   subdomain: string,
   {
@@ -56,7 +67,7 @@ export const mailTicketNote = async (
     attachments,
     isInternal,
   }: Pick<INote, 'contentId' | 'content' | 'attachments' | 'isInternal'>,
-): Promise<string | undefined> => {
+): Promise<ITicketNoteMail | undefined> => {
   if (isInternal || !contentId) {
     return undefined;
   }
@@ -93,16 +104,29 @@ export const mailTicketNote = async (
     throw new Error(NO_RECIPIENT_ERROR);
   }
 
+  return {
+    ticket,
+    to: recipient,
+    body,
+    attachments: [...mailAttachments, ...inline.attachments],
+  };
+};
+
+export const sendTicketNoteMail = async (
+  models: IModels,
+  subdomain: string,
+  { ticket, to, body, attachments }: ITicketNoteMail,
+): Promise<string> => {
   const latest = await latestMessage(models, ticket._id);
 
   const parent = (await latestInbound(models, ticket._id)) ?? latest;
 
   const message = await sendTicketMail(models, subdomain, ticket, {
     ticketId: ticket._id,
-    to: [recipient],
+    to: [to],
     subject: replySubject(latest?.subject, ticket.name),
     body,
-    attachments: [...mailAttachments, ...inline.attachments],
+    attachments,
     replyToMessageId: parent?.messageId,
     references: parent?.references ?? [],
   });

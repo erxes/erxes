@@ -252,7 +252,13 @@
   for more than ten minutes after its last attempt (`deliveryAttemptedAt`,
   `MAIL_PENDING_STALE_MS`) — can be resent with `mailMessageRetry`, or from a
   ticket with `mailTicketNoteRetry`. `retrySend` claims the message atomically
-  (`resendableFilter`), so two clicks never send it twice. Once a mail
+  (`resendableFilter`), so two clicks never send it twice. Each attempt owns
+  the message through its `deliveryAttemptedAt`: `deliver` writes the outcome
+  only while that value is unchanged, so an attempt a retry has superseded can
+  never overwrite the retry's status, integration health or conversation
+  status. Nothing cancels a transport call already in flight, so attachment
+  downloads time out after two minutes to keep an attempt well inside the
+  ten-minute window. Once a mail
   is marked delivered, `deliver` never rejects: integration health and the
   requested conversation status are best-effort and logged on failure. A
   delivered reply whose conversation status was not applied keeps no
@@ -777,14 +783,17 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   requires `showIntegrations` and pipeline access, and answers `null` for a
   pipeline with no address or a disconnected one.
 - GraphQL: a note that is not `isInternal` on a pipeline that owns a mail
-  address is also sent to the requester. `ticketCreateNote` mails it **before**
-  the note exists, so the note is created already carrying the `mailMessageId`
-  of the message it produced and every viewer's first fetch sees it. When the
-  workspace cannot send (`assertSendableIntegration`) or the ticket has no
-  customer email (`resolveTicketRecipient`), the mutation throws and no note is
-  written. A transport failure or bounce does not throw: `deliver` records it
-  on the message and the note is still created. An `isInternal` note stays
-  inside the team's ticket detail and is never mailed.
+  address is also sent to the requester. `ticketCreateNote` runs
+  `prepareTicketNoteMail` first: when the workspace cannot send
+  (`assertSendableIntegration`) or the ticket has no customer email
+  (`resolveTicketRecipient`), the mutation throws and no note is written. It
+  then creates the note, mails it with `sendTicketNoteMail` and links the
+  returned `mailMessageId` onto the note, so a failed note write can never
+  leave a mail behind for the composer's retry to send again. If the send
+  itself throws, the note is removed and the error rethrown, so a retry starts
+  clean. A transport failure or bounce does not throw: `deliver` records it
+  on the message and the note keeps its `mailMessageId`. An `isInternal` note
+  stays inside the team's ticket detail and is never mailed.
   `ticketGetNotes(contentId!, isInternal)` is the agent-side list and requires
   `showTickets`.
 - GraphQL: `mailTicketNoteRetry(noteId!): TicketNote` — requires

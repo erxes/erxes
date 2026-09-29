@@ -273,12 +273,14 @@ export const loadMailMessageClass = (models: IModels) => {
         }) as Promise<IMailMessageDocument>;
       }
 
+      const attemptedAt = new Date();
+
       const claimed = await models.MailMessages.updateOne(
         { _id, ...resendableFilter() },
         {
           $set: {
             deliveryStatus: MAIL_DELIVERY_STATUSES.PENDING,
-            deliveryAttemptedAt: new Date(),
+            deliveryAttemptedAt: attemptedAt,
           },
           $unset: { deliveryError: '', deliveryRetryable: '' },
         },
@@ -290,14 +292,20 @@ export const loadMailMessageClass = (models: IModels) => {
         );
       }
 
-      return Message.deliver(subdomain, message, integration);
+      return Message.deliver(subdomain, message, integration, attemptedAt);
     }
 
     private static async deliver(
       subdomain: string,
       message: IMailMessageDocument,
       integration: IMailIntegrationDocument,
+      attemptedAt = message.deliveryAttemptedAt,
     ) {
+      const attempt = {
+        _id: message._id,
+        ...(attemptedAt ? { deliveryAttemptedAt: attemptedAt } : {}),
+      };
+
       const replyToAddress = resolveReplyToAddress(
         integration,
         message.replyTag,
@@ -345,25 +353,24 @@ export const loadMailMessageClass = (models: IModels) => {
       } catch (e) {
         const deliveryError = describeError(e);
 
-        await models.MailMessages.updateOne(
-          { _id: message._id },
-          {
-            $set: {
-              deliveryStatus: MAIL_DELIVERY_STATUSES.FAILED,
-              deliveryError,
-              deliveryRetryable: isRetryableFailure(e),
-            },
+        const recorded = await models.MailMessages.updateOne(attempt, {
+          $set: {
+            deliveryStatus: MAIL_DELIVERY_STATUSES.FAILED,
+            deliveryError,
+            deliveryRetryable: isRetryableFailure(e),
           },
-        );
+        });
 
-        await Message.settleIntegrationHealth(integration, deliveryError);
+        if (recorded.matchedCount) {
+          await Message.settleIntegrationHealth(integration, deliveryError);
+        }
       }
 
       if (result) {
         const bounced = result.bounced.length > 0;
 
-        await models.MailMessages.updateOne(
-          { _id: message._id },
+        const recorded = await models.MailMessages.updateOne(
+          attempt,
           bounced
             ? {
                 $set: {
@@ -386,15 +393,17 @@ export const loadMailMessageClass = (models: IModels) => {
               },
         );
 
-        await Message.settleIntegrationHealth(integration);
+        if (recorded.matchedCount) {
+          await Message.settleIntegrationHealth(integration);
 
-        if (!bounced) {
-          await Message.settleConversationStatus(message).catch((e) =>
-            debugError(
-              `Mail ${message._id} was delivered but its conversation status was not applied:`,
-              e,
-            ),
-          );
+          if (!bounced) {
+            await Message.settleConversationStatus(message).catch((e) =>
+              debugError(
+                `Mail ${message._id} was delivered but its conversation status was not applied:`,
+                e,
+              ),
+            );
+          }
         }
       }
 

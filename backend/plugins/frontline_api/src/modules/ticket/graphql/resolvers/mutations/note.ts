@@ -1,6 +1,9 @@
 import { INoteDocument } from '@/ticket/@types/note';
 import { IAttachment } from 'erxes-api-shared/core-types';
-import { mailTicketNote } from '@/integrations/mail/utils/notes';
+import {
+  prepareTicketNoteMail,
+  sendTicketNoteMail,
+} from '@/integrations/mail/utils/notes';
 import { IContext } from '~/connectionResolvers';
 
 export const noteMutations = {
@@ -23,14 +26,14 @@ export const noteMutations = {
   ) => {
     const userId = user._id || '';
 
-    const mailMessageId = await mailTicketNote(models, subdomain, {
+    const mail = await prepareTicketNoteMail(models, subdomain, {
       content,
       contentId,
       attachments,
       isInternal,
     });
 
-    return models.Note.createNote({
+    const note = await models.Note.createNote({
       doc: {
         content,
         contentId,
@@ -38,11 +41,32 @@ export const noteMutations = {
         attachments,
         isInternal,
         createdBy: user._id,
-        mailMessageId,
       },
       subdomain,
       userId,
     });
+
+    if (!mail) {
+      return note;
+    }
+
+    const mailMessageId = await sendTicketNoteMail(
+      models,
+      subdomain,
+      mail,
+    ).catch(async (e) => {
+      await models.Note.removeNote({ _id: note._id, userId });
+
+      throw e;
+    });
+
+    const mailed = await models.Note.findOneAndUpdate(
+      { _id: note._id },
+      { $set: { mailMessageId } },
+      { new: true },
+    );
+
+    return mailed ?? note;
   },
 
   ticketUpdateNote: async (
