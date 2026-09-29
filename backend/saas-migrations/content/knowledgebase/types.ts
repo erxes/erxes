@@ -30,6 +30,7 @@ export interface ImportOptions {
   maxBytes: number;
   sourceArticleUrlTemplate?: string;
   mediaBaseUrl?: string;
+  sharedMediaStorage: boolean;
 }
 
 export interface Mapping extends RecordDocument {

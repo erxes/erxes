@@ -9,15 +9,16 @@ export const ORG_PAIRS: OrgPair[] = [
   // { source: 'tsembiiauto', target: 'tsembiiautonew' }, done
   // { source: 'dboil', target: 'dboilnew' }, done
 
-  { source: 'newmilestone', target: 'nnewmilestone' },
-  { source: 'sukgarden', target: 'sukgardennew' },
-  { source: 'tansagamttan', target: 'tansagamttannew' },
-  { source: 'dermaestheticllc', target: 'dermaestheticnew' },
-  { source: 'burensukh', target: 'burensukhnew' },
-  { source: 'burensukhburen', target: 'bburensukhburen' },
-  { source: 'tsemtsgerkharsh', target: 'newtsemtsgerkharsh' },
-  { source: 'trillionlounge', target: 'trillionloungenew' },
-  { source: 'cargolink', target: 'cargolinknew' },
+  // { source: 'newmilestone', target: 'nnewmilestone' },
+  // { source: 'sukgarden', target: 'sukgardennew' },
+  // { source: 'tansagamttan', target: 'tansagamttannew' },
+  // { source: 'dermaestheticllc', target: 'dermaestheticnew' },
+  // { source: 'burensukh', target: 'burensukhnew' },
+  // { source: 'burensukhburen', target: 'bburensukhburen' },
+  // { source: 'tsemtsgerkharsh', target: 'newtsemtsgerkharsh' },
+  // { source: 'trillionlounge', target: 'trillionloungenew' },
+  // { source: 'cargolink', target: 'cargolinknew' },
+  { source: 'strawberry', target: 'newstrawberry' },
 ];
 
 export function resolveOrgPairs(args: string[]): OrgPair[] {

@@ -6,7 +6,7 @@
 - **Project:** `loyalty_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/loyalty_ui`
-- **Last synchronized:** `2026-09-22`
+- **Last synchronized:** `2026-09-29`
 
 ## Scope
 
@@ -34,6 +34,8 @@
 - Customer and broker targeting render through
   `edit-pricing/components/options/CustomerBrokerConditions.tsx` and round-trip
   through pricing form values.
+- Pricing list loads additional pages as users scroll and shows the full
+  filtered record count from the API.
 
 ## Architecture
 
@@ -54,6 +56,8 @@
   exposed pricing and loyalty UI modules.
 - Pricing GraphQL operations including `PricingPlanDetail` and pricing
   create/edit mutations.
+- `PricingPlans` queries request `pricingPlansCount` with the same filters as
+  the list and page through `page`/`perPage`.
 
 ### Consumes
 
@@ -66,6 +70,8 @@
 
 - Uses Apollo Client for pricing plan and sales board/pipeline/stage server
   data.
+- Pricing list pagination appends additional `pricingPlans` pages through
+  Apollo `fetchMore`.
 - Uses React Hook Form local form state in pricing create/edit forms.
 - Keeps board, pipeline, and stage selector state local to the owning pricing
   form or detail section.
@@ -94,6 +100,12 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-29` — Pricing list pagination
+
+- **Summary:** Pricing settings now load additional pricing plan pages on scroll and display the API-backed filtered total count.
+- **Affected areas:** `src/modules/pricing/graphql/queries.ts`, `src/modules/pricing/hooks/usePricing.ts`, `src/modules/pricing/components/PricingRecordTable.tsx`.
+- **Contracts changed:** `PricingPlans` now also requests `pricingPlansCount` and sends `page`/`perPage` variables.
 
 ### `2026-09-22` — `Scoped base pricing controls`
 
