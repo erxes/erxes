@@ -6,7 +6,8 @@ import {
   HandleInvShipper,
 } from '../inventory/invExtended';
 import { HandleInvSale, HandleInvSaleCost } from '../inventory/invSale';
-import { CalcReportHandler } from '../types';
+import { HandleTransactionMore } from '../main/transactionMore';
+import { CalcReportHandler, RenderMoreHandler } from '../types';
 
 export const inventoryCalcReportHandlers: Record<string, CalcReportHandler> = {
   invCost: HandleInvCost,
@@ -18,4 +19,16 @@ export const inventoryCalcReportHandlers: Record<string, CalcReportHandler> = {
   invShipper: HandleInvShipper,
   invSaleDaily: HandleInvLineSummary,
   invSellerSubsys: HandleInvLineSummary,
+};
+
+export const inventoryRenderMoreHandlers: Record<string, RenderMoreHandler> = {
+  invCost: HandleTransactionMore,
+  invSale: HandleTransactionMore,
+  invSaleCost: HandleTransactionMore,
+  invSaleCostPeriod: HandleTransactionMore,
+  invByPrice: HandleTransactionMore,
+  invProfit: HandleTransactionMore,
+  invShipper: HandleTransactionMore,
+  invSaleDaily: HandleTransactionMore,
+  invSellerSubsys: HandleTransactionMore,
 };
