@@ -5,10 +5,15 @@ import {
   IFieldOffsetParams,
   IFieldParams,
 } from '@/properties/@types';
+import { IFieldOptionUsageCount } from 'erxes-api-shared/core-modules';
 import { Resolver } from 'erxes-api-shared/core-types';
 import { cursorPaginate, defaultPaginate } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
 import { IContext, IModels } from '~/connectionResolvers';
+import {
+  extractOptionValues,
+  getFieldOptionUsedValues,
+} from '~/modules/properties/db/models/fieldOptionUsage';
 
 const generateFilter = async (
   models: IModels,
@@ -77,6 +82,26 @@ export const fieldQueries: Record<string, Resolver<any, any, IContext>> = {
     { models }: IContext,
   ) => {
     return await models.Fields.getField({ _id });
+  },
+
+  fieldOptionUsedValues: async (
+    _: undefined,
+    { fieldId }: { fieldId: string },
+    { models, subdomain }: IContext,
+  ): Promise<IFieldOptionUsageCount[] | null> => {
+    const field = await models.Fields.findOne({ _id: fieldId }).lean();
+
+    if (!field) {
+      return null;
+    }
+
+    const values = extractOptionValues(field.options);
+
+    if (!values.length) {
+      return [];
+    }
+
+    return getFieldOptionUsedValues(models, subdomain, field, values);
   },
 };
 

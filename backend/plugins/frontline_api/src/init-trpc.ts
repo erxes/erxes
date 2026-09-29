@@ -12,6 +12,8 @@ import { inboxTrpcRouter } from './modules/inbox/trpc/inbox';
 import { integrationTrpcRouter } from './modules/integrations/trpc/integration';
 import { ticketTrpcRouter } from './modules/ticket/trpc/ticket';
 import { generateTicketFields } from './modules/ticket/meta/fields/fieldUtils';
+import { getTicketFieldOptionUsedValues } from './modules/ticket/utils/fieldOptionUsedValues';
+import { TICKET_PROPERTY_CONTENT_TYPE } from './modules/ticket/utils/ticketConfig';
 
 export type FrontlineTRPCContext = ITRPCContext<{ models: IModels }>;
 
@@ -47,6 +49,31 @@ export const appRouter = t.mergeRouters(
           }
 
           return [];
+        }),
+
+      fieldOptionUsedValues: t.procedure
+        .input(
+          z.object({
+            contentType: z.string(),
+            fieldId: z.string(),
+            values: z.array(z.string()),
+            groupKey: z.string().nullish(),
+          }),
+        )
+        .query(({ ctx, input }) => {
+          const { models } = ctx;
+          const { contentType, fieldId, values, groupKey } = input;
+
+          if (contentType !== TICKET_PROPERTY_CONTENT_TYPE) {
+            return null;
+          }
+
+          return getTicketFieldOptionUsedValues(
+            models,
+            fieldId,
+            values,
+            groupKey,
+          );
         }),
     }),
   }),

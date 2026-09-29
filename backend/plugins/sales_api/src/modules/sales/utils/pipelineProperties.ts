@@ -1,6 +1,6 @@
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
-const DEAL_PROPERTY_CONTENT_TYPE = 'sales:deal';
+export const DEAL_PROPERTY_CONTENT_TYPE = 'sales:deal';
 
 export const validatePipelinePropertyIds = async (
   subdomain: string,
