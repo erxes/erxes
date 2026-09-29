@@ -23,7 +23,8 @@
   ingestion, message delivery, and bot automation: Facebook (Messenger + Page
   comments), Instagram, Mail (Cloudflare Email Routing), Discord,
   Call (SIP/CDR), and Call Pro (webhook PBX).
-- Telegram bot credential validation and tenant-scoped bot records.
+- Telegram bot credential validation, provider webhook status reads, and
+  tenant-scoped bot records.
 - Response templates.
 - Ticketing: boards, pipelines, statuses, tickets, activities, notes, ticket
   configs, plus ticket import/export handlers.
@@ -135,6 +136,9 @@
 - Validates a Telegram bot token with `getMe` through
   `telegramValidateToken`. The query requires `integrationsAdd`, returns bot
   identity and optional group settings, and exposes controlled validation errors.
+- The internal `getTelegramWebhookInfo(token)` client reads the provider's
+  current webhook URL, pending update count, and optional delivery details. It
+  validates the response with Zod and does not change webhook configuration.
 - Registers `TelegramBots` on the tenant's database connection. Its
   `getBot(_id)` method returns the saved bot or throws `Telegram bot not found`.
 - Exposes `telegramBots` and `telegramBot(_id)` for reading saved bots after
@@ -206,7 +210,7 @@
 | Inbox                | `src/modules/inbox/`                                                        | Conversations, messages, integrations, widget/clientportal schemas, `receiveInboxMessage`                                                                                                              |
 | Conversation queries | `src/conversationQueryBuilder.ts`, `src/modules/inbox/conversationUtils.ts` | Mongo and Elasticsearch conversation filters (membership-scoped)                                                                                                                                       |
 | Integrations         | `src/modules/integrations/<kind>/`                                          | facebook, instagram, mail, discord, call, callpro, trpc                                                                                                                                                |
-| Telegram setup       | `src/modules/integrations/telegram/`                                        | Bot API client, permission-checked validation and saved-bot queries, creation mutation, bot schema and model |
+| Telegram setup       | `src/modules/integrations/telegram/`                                        | Bot API client for identity and webhook status, permission-checked validation and saved-bot queries, creation mutation, bot schema and model |
 | Mail integration     | `src/modules/integrations/mail/`                                            | Inbound webhook, threading, outbound send/retry                                                                                                                                                        |
 | Mail transports      | `src/modules/integrations/mail/utils/transports/`                           | `index.ts` picks the Cloudflare account that signs for this workspace, `deliver.ts` runs the delivery pipeline (sender guard, suppression, delivery log), `cloudflare.ts` is the only `IMailTransport` |
 | Mail provisioning    | `src/modules/integrations/mail/utils/cloudflare/`                           | Cloudflare REST client, the fourteen-step provisioner, Email Sending onboarding and quota, the connection cache and its public shape                                                                   |
@@ -254,9 +258,11 @@
 
 ### Consumes
 
-- Telegram Bot API `GET /bot<token>/getMe` — validates the bot response with Zod,
-  limits the request to ten seconds, rejects redirects, and replaces raw transport
-  and response errors with controlled messages.
+- Telegram Bot API `GET /bot<token>/getMe` and
+  `GET /bot<token>/getWebhookInfo` — a shared request helper validates token
+  syntax, limits requests to ten seconds, rejects redirects, and replaces raw
+  transport and response errors with controlled messages. Each client validates
+  its response with Zod; an empty webhook URL is a valid unconfigured state.
 - `core` over tRPC — `companies.findOne` (query), `companies.createCompany` and
   `companies.updateCompany` (mutations, `{ _id, doc }` / `{ doc }`),
   `customers.createMessengerCustomer` / `updateMessengerCustomer`,
@@ -299,6 +305,9 @@
   Reading saved bots must not request credentials or contact Telegram.
 - Telegram credentials must not appear in public API results or raw error messages.
   Reject surrounding whitespace instead of silently rewriting a pasted token.
+- `TelegramBot` and `TelegramWebhookInfo` describe validated provider responses.
+  Keep them separate from `ITelegramBot` and `ITelegramBotDocument`, which
+  describe saved database records.
 - Keep `token` and `webhookSecret` out of the `TelegramBot` GraphQL type.
   `telegramAddBot` must derive `createdBy` from request context, never an argument.
 - Backend queries must explicitly select any Telegram credential fields they
@@ -324,6 +333,12 @@
   real bot token through the gateway and receives the bot identity and group
   settings. A rejected token returns `valid: false`; permission denial remains a
   GraphQL error and prevents the provider request.
+- Telegram client checks: both read methods reject malformed tokens before
+  requesting Telegram and return controlled errors for transport, HTTP, JSON,
+  and response-schema failures. Webhook status accepts an empty URL and zero
+  pending updates, preserves optional delivery details, and rejects negative or
+  fractional counts. Read a test bot's identity and webhook status without
+  printing credentials, changing its webhook, or consuming pending updates.
 - Telegram model checks: successful creation returns provider-derived metadata
   without credentials; duplicate creation preserves the original record;
   missing creators and rejected tokens prevent writes; storage errors do not
@@ -341,6 +356,12 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-29` — Telegram webhook status client
+
+- **Summary:** Added a read-only webhook status client sharing token validation, timeout, and controlled request errors with bot identity validation.
+- **Affected areas:** `src/modules/integrations/telegram/client.ts`.
+- **Contracts changed:** Added internal `getTelegramWebhookInfo(token)`, `TelegramWebhookInfo`, and `getTelegramResponse(token, method)` exports; public APIs unchanged.
 
 ### `2026-09-29` — Telegram saved-bot queries
 
@@ -422,13 +443,3 @@
   the dialpad's `Call from` can tell integrations on one phone apart.
 - **Affected areas:** `src/modules/integrations/call/graphql/{schema/call,resolvers/queries}.ts`
 - **Contracts changed:** `CallsIntegrationDetailResponse` gains `name: String`.
-
-### `2026-09-15` — An incoming call names the integration it rang
-
-- **Summary:** `callAddCustomer` also returns the matched inbox integration's
-  `_id` and `name`, so agents on a shared trunk see which integration a call
-  came in on rather than its channel.
-- **Affected areas:** `src/modules/integrations/call/graphql/{schema/call,resolvers/mutations}.ts`
-- **Contracts changed:** `CallConversationDetail` gains
-  `integration: CallConversationIntegration` (`_id`, `name`); new type
-  `CallConversationIntegration`.

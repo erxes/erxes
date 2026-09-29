@@ -16,7 +16,10 @@ const telegramGetMeResponseSchema = z.object({
 
 export type TelegramBot = z.infer<typeof telegramBotSchema>;
 
-export const getTelegramBot = async (token: string): Promise<TelegramBot> => {
+export const getTelegramResponse = async (
+  token: string,
+  method: 'getMe' | 'getWebhookInfo',
+): Promise<unknown> => {
   if (token !== token.trim() || !/^[0-9]+:[A-Za-z0-9_-]+$/.test(token)) {
     throw new Error('Enter the bot token exactly as provided by BotFather.');
   }
@@ -24,7 +27,7 @@ export const getTelegramBot = async (token: string): Promise<TelegramBot> => {
   let response: Response;
 
   try {
-    response = await fetch(`https://api.telegram.org/bot${token}/getMe`, {
+    response = await fetch(`https://api.telegram.org/bot${token}/${method}`, {
       method: 'GET',
       signal: AbortSignal.timeout(10_000),
       redirect: 'error',
@@ -50,12 +53,50 @@ export const getTelegramBot = async (token: string): Promise<TelegramBot> => {
   } catch {
     throw new Error('Could not read the Telegram response. Please try again.');
   }
+  return body;
+};
 
+export const getTelegramBot = async (token: string): Promise<TelegramBot> => {
+  const body = await getTelegramResponse(token, 'getMe');
   const parsed = telegramGetMeResponseSchema.safeParse(body);
 
   if (!parsed.success) {
     throw new Error(
       'Telegram returned an unsuccessful or invalid bot response.',
+    );
+  }
+
+  return parsed.data.result;
+};
+
+const telegramWebhookInfoSchema = z.object({
+  url: z.string(),
+  has_custom_certificate: z.boolean(),
+  pending_update_count: z.number().int().nonnegative(),
+  ip_address: z.string().optional(),
+  last_error_date: z.number().int().nonnegative().optional(),
+  last_error_message: z.string().optional(),
+  last_synchronization_error_date: z.number().int().nonnegative().optional(),
+  max_connections: z.number().int().positive().optional(),
+  allowed_updates: z.array(z.string()).optional(),
+});
+
+const telegramGetWebhookInfoResponseSchema = z.object({
+  ok: z.literal(true),
+  result: telegramWebhookInfoSchema,
+});
+
+export type TelegramWebhookInfo = z.infer<typeof telegramWebhookInfoSchema>;
+
+export const getTelegramWebhookInfo = async (
+  token: string,
+): Promise<TelegramWebhookInfo> => {
+  const body = await getTelegramResponse(token, 'getWebhookInfo');
+  const parsed = telegramGetWebhookInfoResponseSchema.safeParse(body);
+
+  if (!parsed.success) {
+    throw new Error(
+      'Telegram returned an unsuccessful or invalid webhook response.',
     );
   }
 
