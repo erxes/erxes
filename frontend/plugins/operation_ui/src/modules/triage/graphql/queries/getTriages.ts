@@ -1,6 +1,6 @@
-import { graphql } from '~/gql';
+import { gql } from '~/gql';
 
-export const GET_TRIAGES = graphql(`
+export const GET_TRIAGES = gql(`
   query operationGetTriageList($filter: ITriageFilter) {
     operationGetTriageList(filter: $filter) {
       list {

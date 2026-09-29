@@ -1,6 +1,6 @@
-import { graphql } from '~/gql';
+import { gql } from '~/gql';
 
-export const CREATE_NOTE = graphql(`
+export const CREATE_NOTE = gql(`
   mutation CreateNote(
     $content: String
     $contentId: String

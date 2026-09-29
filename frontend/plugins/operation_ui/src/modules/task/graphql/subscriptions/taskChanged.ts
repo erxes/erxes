@@ -1,6 +1,6 @@
-import { graphql } from '~/gql';
+import { gql } from '~/gql';
 
-export const TASK_CHANGED = graphql(`
+export const TASK_CHANGED = gql(`
   subscription operationTaskChanged($_id: String!) {
     operationTaskChanged(_id: $_id) {
       type

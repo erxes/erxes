@@ -1,6 +1,6 @@
-import { graphql } from '~/gql';
+import { gql } from '~/gql';
 
-export const GET_NOTE = graphql(`
+export const GET_NOTE = gql(`
   query GetNote($id: String!) {
     getNote(_id: $id) {
       _id

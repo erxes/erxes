@@ -1,6 +1,6 @@
-import { graphql } from '~/gql';
+import { gql } from '~/gql';
 
-export const ACTIVITY_CHANGED = graphql(`
+export const ACTIVITY_CHANGED = gql(`
   subscription operationActivityChanged($contentId: String!) {
     operationActivityChanged(contentId: $contentId) {
       type

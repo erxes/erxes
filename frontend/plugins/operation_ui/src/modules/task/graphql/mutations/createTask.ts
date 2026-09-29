@@ -1,6 +1,6 @@
-import { graphql } from '~/gql';
+import { gql } from '~/gql';
 
-export const CREATE_TASK_MUTATION = graphql(`
+export const CREATE_TASK_MUTATION = gql(`
   mutation CreateTask(
     $name: String!
     $teamId: String!

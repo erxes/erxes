@@ -6,13 +6,13 @@ import {
 import { UPDATE_TASK_MUTATION } from '@/task/graphql/mutations/updateTask';
 import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { graphql } from '~/gql';
+import { gql } from '~/gql';
 import type {
   UpdateTaskMutation,
   UpdateTaskMutationVariables,
 } from '~/gql/graphql';
 
-const TASK_OPTIMISTIC_FIELDS = graphql(`
+const TASK_OPTIMISTIC_FIELDS = gql(`
   fragment TaskOptimisticFields on Task {
     tagIds
     propertiesData
