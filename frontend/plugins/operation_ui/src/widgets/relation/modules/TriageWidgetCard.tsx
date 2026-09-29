@@ -30,7 +30,7 @@ export const TriageWidgetCard = ({ triage }: { triage: ITriage }) => {
               size="sm"
               className="text-muted-foreground px-1 hover:bg-background pointer-events-none"
             >
-              <ActivityActor.Provider actorId={triage.createdBy}>
+              <ActivityActor.Provider actorId={triage.createdBy ?? undefined}>
                 <ActivityActor.Avatar />
                 <ActivityActor.Name />
               </ActivityActor.Provider>{' '}
@@ -48,7 +48,7 @@ export const TriageWidgetCard = ({ triage }: { triage: ITriage }) => {
                 <Badge variant="secondary">
                   <IconCaretLeftRight className="size-4" /> {t('triage')}
                 </Badge>
-                <PriorityBadge priority={triage.priority} />
+                <PriorityBadge priority={triage.priority ?? undefined} />
               </div>
             </div>
           </div>

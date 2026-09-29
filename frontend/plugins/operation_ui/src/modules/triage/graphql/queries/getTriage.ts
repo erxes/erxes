@@ -1,6 +1,6 @@
-import gql from 'graphql-tag';
+import { graphql } from '~/gql';
 
-export const GET_TRIAGE = gql`
+export const GET_TRIAGE = graphql(`
   query operationGetTriage($_id: String!) {
     operationGetTriage(_id: $_id) {
       _id
@@ -15,4 +15,4 @@ export const GET_TRIAGE = gql`
       status
     }
   }
-`;
+`);

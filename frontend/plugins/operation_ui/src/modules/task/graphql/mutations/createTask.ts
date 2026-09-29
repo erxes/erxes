@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { graphql } from '~/gql';
 
-export const CREATE_TASK_MUTATION = gql`
+export const CREATE_TASK_MUTATION = graphql(`
   mutation CreateTask(
     $name: String!
     $teamId: String!
@@ -34,4 +34,4 @@ export const CREATE_TASK_MUTATION = gql`
       _id
     }
   }
-`;
+`);

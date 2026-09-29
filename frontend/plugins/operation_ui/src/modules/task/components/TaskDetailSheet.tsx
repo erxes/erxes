@@ -1,8 +1,13 @@
+import { isRecord } from '@/operation/utils/isRecord';
 import { TaskDetails } from '@/task/components/detail/TaskDetails';
 import { useGetTask } from '@/task/hooks/useGetTask';
 import { useTaskDetailSheet } from '@/task/hooks/useTaskDetailSheet';
 import { TaskSideWidgets } from '~/widgets/relation/TaskSideWidgets';
-import { IconAlertCircle, IconArrowsDiagonal, IconCloudExclamation } from '@tabler/icons-react';
+import {
+  IconAlertCircle,
+  IconArrowsDiagonal,
+  IconCloudExclamation,
+} from '@tabler/icons-react';
 import {
   Button,
   Empty,
@@ -61,7 +66,7 @@ const TaskDetailErrorState = () => {
 export const TaskDetailSheet = () => {
   const [activeTask, setActiveTask] = useTaskDetailSheet();
   const { task, loading, error } = useGetTask({
-    variables: { _id: activeTask },
+    variables: { _id: activeTask ?? '' },
     skip: !activeTask,
   });
 
@@ -87,7 +92,9 @@ export const TaskDetailSheet = () => {
           {task && (
             <TaskSideWidgets
               contentId={task._id}
-              propertiesData={task.propertiesData}
+              propertiesData={
+                isRecord(task.propertiesData) ? task.propertiesData : undefined
+              }
             />
           )}
         </FocusSheet.Content>
@@ -99,7 +106,10 @@ export const TaskDetailSheet = () => {
 export const TaskDetailSheetHeader = () => {
   const { teamId, projectId } = useParams();
   const [activeTask, setActiveTask] = useTaskDetailSheet();
-  const { task } = useGetTask({ variables: { _id: activeTask } });
+  const { task } = useGetTask({
+    variables: { _id: activeTask ?? '' },
+    skip: !activeTask,
+  });
 
   const url =
     teamId && !projectId
@@ -122,9 +132,7 @@ export const TaskDetailSheetHeader = () => {
       <Sheet.Title className="lg:max-w-xl max-w-[18rem] sm:max-w-sm truncate">
         <TextOverflowTooltip value={task?.name} />
       </Sheet.Title>
-      {task?._id && (
-        <TaskDetailActions taskId={task._id} />
-      )}
+      {task?._id && <TaskDetailActions taskId={task._id} />}
     </div>
   );
 };

@@ -1,6 +1,6 @@
-import gql from 'graphql-tag';
+import { graphql } from '~/gql';
 
-export const GET_TASKS = gql`
+export const GET_TASKS = graphql(`
   query GetTasks($filter: ITaskFilter) {
     getTasks(filter: $filter) {
       list {
@@ -32,4 +32,4 @@ export const GET_TASKS = gql`
       }
     }
   }
-`;
+`);

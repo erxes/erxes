@@ -16,7 +16,7 @@ export const NotificationTaskAssignment = ({
 }: TNotification) => {
   const { t } = useTranslation('operation');
   const { task, loading, error } = useGetTask({
-    variables: { _id: contentTypeId },
+    variables: { _id: contentTypeId ?? '' },
     skip: !contentTypeId,
   });
 

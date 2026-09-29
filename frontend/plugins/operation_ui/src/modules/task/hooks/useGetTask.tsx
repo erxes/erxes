@@ -1,45 +1,37 @@
 import { GET_TASK } from '@/task/graphql/queries/getTask';
 import { TASK_CHANGED } from '@/task/graphql/subscriptions/taskChanged';
-import { ITask } from '@/task/types';
 import { QueryHookOptions, useQuery } from '@apollo/client';
 import { useEffect } from 'react';
+import type { GetTaskQuery, GetTaskQueryVariables } from '~/gql/graphql';
 
-interface IGetTaskQueryResponse {
-  getTask: ITask;
-}
+export const useGetTask = (
+  options: QueryHookOptions<GetTaskQuery, GetTaskQueryVariables>,
+) => {
+  const { data, loading, refetch, subscribeToMore, error } = useQuery(
+    GET_TASK,
+    options,
+  );
 
-interface ITaskChanged {
-  operationTaskChanged: {
-    type: string;
-    task: ITask;
-  };
-}
-
-export const useGetTask = (options: QueryHookOptions) => {
-  const { data, loading, refetch, subscribeToMore, error } =
-    useQuery<IGetTaskQueryResponse>(GET_TASK, options);
-
-  const task = data?.getTask;
+  const task = data?.getTask ?? undefined;
+  const taskId = task?._id;
 
   useEffect(() => {
-    const unsubscribe = subscribeToMore<ITaskChanged>({
+    if (!taskId) return;
+
+    const unsubscribe = subscribeToMore({
       document: TASK_CHANGED,
-      variables: { _id: task?._id },
+      variables: { _id: taskId },
       updateQuery: (prev, { subscriptionData }) => {
-        if (!subscriptionData.data) return prev;
+        const newTask = subscriptionData.data?.operationTaskChanged?.task;
 
-        const newTask = subscriptionData.data.operationTaskChanged.task;
-
-        return {
-          getTask: newTask,
-        };
+        return newTask ? { getTask: newTask } : prev;
       },
     });
 
     return () => {
       unsubscribe();
     };
-  }, [task?._id, subscribeToMore]);
+  }, [taskId, subscribeToMore]);
 
   return { task, loading, refetch, error };
 };
