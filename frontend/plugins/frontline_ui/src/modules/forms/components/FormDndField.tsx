@@ -155,8 +155,8 @@ export const AddField = ({ step }: { step: UniqueIdentifier }) => {
       const group = type.value.startsWith('core:customer:')
         ? 'core:customer'
         : type.value.startsWith('core:company:')
-          ? 'core:company'
-          : 'basic';
+        ? 'core:company'
+        : 'basic';
       if (!groups[group]) {
         groups[group] = [];
       }

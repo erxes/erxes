@@ -301,7 +301,8 @@ export const ErxesForm = ({
                   }
                   if (
                     erxesField.type === 'textarea' ||
-                    erxesField.type === 'core:customer:description'
+                    erxesField.type === 'core:customer:description' ||
+                    erxesField.type === 'core:company:description'
                   ) {
                     return (
                       <ErxesFormItem span={erxesField.column}>
@@ -331,6 +332,7 @@ export const ErxesForm = ({
 
                   if (
                     erxesField.type === 'select' ||
+                    erxesField.type === 'core:company:businessType' ||
                     erxesField.allowSearch === true
                   ) {
                     if (erxesField.allowSearch) {
@@ -550,7 +552,10 @@ export const ErxesForm = ({
                       </ErxesFormItem>
                     );
                   }
-                  if (erxesField.type === 'core:customer:avatar') {
+                  if (
+                    erxesField.type === 'core:customer:avatar' ||
+                    erxesField.type === 'core:company:avatar'
+                  ) {
                     return (
                       <ErxesFormItem span={erxesField.column}>
                         <Form.Label className="text-widget-label">

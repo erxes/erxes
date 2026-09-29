@@ -277,7 +277,11 @@ export const FORM_FIELD_TYPES = [
     label: 'Company Name',
     icon: <IconBuilding />,
   },
-  { value: 'core:company:primaryEmail', label: 'Company Email', icon: <IconAt /> },
+  {
+    value: 'core:company:primaryEmail',
+    label: 'Company Email',
+    icon: <IconAt />,
+  },
   {
     value: 'core:company:primaryPhone',
     label: 'Company Phone',

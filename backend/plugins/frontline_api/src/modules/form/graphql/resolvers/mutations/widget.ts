@@ -62,6 +62,40 @@ function handleCompanyFields(
   }
 }
 
+interface IExistingCompany {
+  _id: string;
+  emails?: string[];
+  phones?: string[];
+  links?: ILink;
+}
+
+function updateCompanyDoc(
+  company: IExistingCompany,
+  companyDoc: Record<string, any>,
+  companyLinks: ILink,
+) {
+  const { primaryEmail, primaryPhone, ...doc } = companyDoc;
+
+  const existingEmails = company.emails || [];
+  if (primaryEmail && !existingEmails.includes(primaryEmail)) {
+    doc.emails = [...existingEmails, primaryEmail];
+  }
+
+  const existingPhones = company.phones || [];
+  if (primaryPhone && !existingPhones.includes(primaryPhone)) {
+    doc.phones = [...existingPhones, primaryPhone];
+  }
+
+  const submittedLinks = Object.entries(companyLinks).filter(
+    ([, value]) => value && value.length > 0,
+  );
+  if (submittedLinks.length > 0) {
+    doc.links = { ...company.links, ...Object.fromEntries(submittedLinks) };
+  }
+
+  return doc;
+}
+
 async function saveCompanyFromDoc(
   subdomain: string,
   companyDoc: Record<string, any>,
@@ -69,32 +103,35 @@ async function saveCompanyFromDoc(
 ): Promise<void> {
   if (Object.keys(companyDoc).length === 0) return;
 
-  const orConditions: Record<string, any>[] = [];
+  const lookups: Record<string, string>[] = [];
   if (companyDoc.primaryEmail) {
-    orConditions.push({ companyPrimaryEmail: companyDoc.primaryEmail });
+    lookups.push({ companyPrimaryEmail: companyDoc.primaryEmail });
   }
   if (companyDoc.primaryPhone) {
-    orConditions.push({ companyPrimaryPhone: companyDoc.primaryPhone });
+    lookups.push({ companyPrimaryPhone: companyDoc.primaryPhone });
   }
   if (companyDoc.primaryName) {
-    orConditions.push({ primaryName: companyDoc.primaryName });
+    lookups.push({ companyPrimaryName: companyDoc.primaryName });
   }
 
-  if (orConditions.length === 0) return;
+  if (lookups.length === 0) return;
 
   try {
-    const query =
-      orConditions.length === 1 ? orConditions[0] : { $or: orConditions };
+    let existing: IExistingCompany | null = null;
 
-    const existing = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'query',
-      module: 'companies',
-      action: 'findOne',
-      input: { query },
-      defaultValue: null,
-    });
+    for (const query of lookups) {
+      existing = await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        method: 'query',
+        module: 'companies',
+        action: 'findOne',
+        input: { query },
+        defaultValue: null,
+      });
+
+      if (existing) break;
+    }
 
     if (!existing) {
       const created = await sendTRPCMessage({
@@ -117,6 +154,19 @@ async function saveCompanyFromDoc(
       if (!created) {
         console.error('[widget] createCompany returned null — skipping');
       }
+    } else {
+      await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        method: 'mutation',
+        module: 'companies',
+        action: 'updateCompany',
+        input: {
+          _id: existing._id,
+          doc: updateCompanyDoc(existing, companyDoc, companyLinks),
+        },
+        defaultValue: null,
+      });
     }
   } catch (err) {
     console.error('[widget] company save failed — skipping:', err);
@@ -134,10 +184,13 @@ function handleCoreCompanyField(
         companyDoc.avatar = value[0].url;
       } else if (value?.url) {
         companyDoc.avatar = value.url;
+      } else if (typeof value === 'string' && value) {
+        companyDoc.avatar = value;
       }
       break;
     case 'primaryEmail':
-      companyDoc.primaryEmail = value;
+      companyDoc.primaryEmail =
+        typeof value === 'string' ? value.trim().toLowerCase() : value;
       break;
     case 'primaryPhone':
       companyDoc.primaryPhone = value;
