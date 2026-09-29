@@ -5,7 +5,7 @@ import {
   mergeCursorList,
   toCursorPageInfo,
 } from '@/operation/utils/cursorList';
-import { QueryHookOptions, useQuery } from '@apollo/client';
+import { QueryHookOptions, useQuery, useSubscription } from '@apollo/client';
 import {
   EnumCursorDirection,
   isUndefinedOrNull,
@@ -15,7 +15,7 @@ import {
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useAtomValue } from 'jotai';
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { currentUserState } from 'ui-modules';
 import type {
@@ -145,7 +145,7 @@ export const useTasks = (
     [JSON.stringify(rawVariables)],
   );
   const { toast } = useToast();
-  const { data, loading, fetchMore, subscribeToMore } = useQuery(GET_TASKS, {
+  const { data, loading, fetchMore } = useQuery(GET_TASKS, {
     ...options,
     variables: { filter: variables },
     skip: options?.skip || isUndefinedOrNull(variables.cursor),
@@ -165,57 +165,59 @@ export const useTasks = (
   const pageInfo = toCursorPageInfo(data?.getTasks?.pageInfo);
   const totalCount = data?.getTasks?.totalCount;
 
-  useEffect(() => {
-    const unsubscribe = subscribeToMore({
-      document: TASK_LIST_CHANGED,
-      variables: { filter: variables },
-      updateQuery: (prev, { subscriptionData }) => {
-        const { type, task } =
-          subscriptionData.data?.operationTaskListChanged ?? {};
-        const currentList = prev?.getTasks?.list;
+  useSubscription(TASK_LIST_CHANGED, {
+    variables: { filter: variables },
+    ignoreResults: true,
+    onData: ({ client, data: subData }) => {
+      const event = subData.data?.operationTaskListChanged;
+      const task = event?.task;
+      if (!task) return;
 
-        if (!task || !currentList || !prev.getTasks) return prev;
-
-        let updatedList = currentList;
-
-        if (type === 'create') {
-          const exists = currentList.some((item) => item?._id === task._id);
-          if (!exists) {
-            updatedList = [task, ...currentList];
-          }
+      if (event?.type === 'delete') {
+        const cacheId = client.cache.identify(task);
+        if (cacheId) {
+          client.cache.evict({ id: cacheId });
+          client.cache.gc();
         }
-
-        if (type === 'update') {
-          updatedList = currentList.map((item) =>
-            item?._id === task._id ? { ...item, ...task } : item,
-          );
-        }
-
-        if (type === 'delete') {
-          updatedList = currentList.filter((item) => item?._id !== task._id);
-        }
-
-        const totalCount = prev.getTasks.totalCount ?? 0;
-
-        return {
-          ...prev,
-          getTasks: {
-            ...prev.getTasks,
-            list: updatedList,
-            totalCount:
-              type === 'create'
-                ? totalCount + 1
-                : type === 'delete'
-                ? totalCount - 1
-                : totalCount,
+        client.cache.updateQuery(
+          { query: GET_TASKS, variables: { filter: variables } },
+          (prev) => {
+            const getTasks = prev?.getTasks;
+            if (!getTasks) return;
+            return {
+              ...prev,
+              getTasks: {
+                ...getTasks,
+                totalCount: (getTasks.totalCount ?? 0) - 1,
+              },
+            };
           },
-        };
-      },
-    });
+        );
+        return;
+      }
 
-    return unsubscribe;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [variables]);
+      if (event?.type === 'create') {
+        client.cache.updateQuery(
+          { query: GET_TASKS, variables: { filter: variables } },
+          (prev) => {
+            const getTasks = prev?.getTasks;
+            if (!getTasks?.list) return;
+            if (getTasks.list.some((item) => item?._id === task._id)) {
+              return prev;
+            }
+            return {
+              ...prev,
+              getTasks: {
+                ...getTasks,
+                list: [task, ...getTasks.list],
+                totalCount: (getTasks.totalCount ?? 0) + 1,
+              },
+            };
+          },
+        );
+      }
+    },
+  });
 
   const handleFetchMore = ({
     direction,
