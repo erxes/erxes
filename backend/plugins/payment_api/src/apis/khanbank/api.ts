@@ -50,14 +50,6 @@ export class KhanbankAPI {
   }
 
   async checkInvoice(transaction: ITransactionDocument) {
-    console.log('[KHANBANK] checkInvoice START', {
-      transactionId: transaction._id,
-      amount: transaction.amount,
-      description: transaction.description,
-      accountNumber: this.config.accountNumber,
-      lastRecord: transaction.response?.lastRecord || 0,
-    });
-
     const khanbank = await this.getKhanbank();
 
     const matchedTransaction =
@@ -77,9 +69,6 @@ export class KhanbankAPI {
   }
 
   async manualCheck(transaction: ITransactionDocument) {
-    console.log('[KHANBANK] manualCheck called', {
-      transactionId: transaction._id,
-    });
 
     return this.checkInvoice(transaction);
   }
