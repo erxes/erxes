@@ -34,8 +34,8 @@
 - Customer and broker targeting render through
   `edit-pricing/components/options/CustomerBrokerConditions.tsx` and round-trip
   through pricing form values.
-- Pricing list loads additional pages as users scroll and shows the full
-  filtered record count from the API.
+- Pricing list loads filtered plans in 20-record pages as users scroll and
+  shows the full filtered record count from the API.
 
 ## Architecture
 
@@ -70,8 +70,9 @@
 
 - Uses Apollo Client for pricing plan and sales board/pipeline/stage server
   data.
-- Pricing list pagination appends additional `pricingPlans` pages through
-  Apollo `fetchMore`.
+- Pricing list pagination appends distinct 20-record `pricingPlans` pages
+  through Apollo `fetchMore` and pauses scroll fetching while a request is in
+  flight.
 - Uses React Hook Form local form state in pricing create/edit forms.
 - Keeps board, pipeline, and stage selector state local to the owning pricing
   form or detail section.
@@ -103,7 +104,7 @@
 
 ### `2026-09-29` — Pricing list pagination
 
-- **Summary:** Pricing settings now load additional pricing plan pages on scroll and display the API-backed filtered total count.
+- **Summary:** Pricing settings load distinct 20-record pricing plan pages on scroll and display the API-backed filtered total count.
 - **Affected areas:** `src/modules/pricing/graphql/queries.ts`, `src/modules/pricing/hooks/usePricing.ts`, `src/modules/pricing/components/PricingRecordTable.tsx`.
 - **Contracts changed:** `PricingPlans` now also requests `pricingPlansCount` and sends `page`/`perPage` variables.
 

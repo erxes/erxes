@@ -6,7 +6,7 @@
 - **Project:** `loyalty_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/loyalty_api`
-- **Last synchronized:** `2026-09-22`
+- **Last synchronized:** `2026-09-29`
 
 ## Scope
 
@@ -27,6 +27,8 @@
 - POS order score campaign totals count only order item rows that pass campaign product/category/tag restrictions and use item amount or `count * unitPrice` without deal-specific discount filtering.
 - Pricing plans calculate product discounts through the loyalty pricing module and tRPC `pricing.checkPricing`.
 - Pricing plan updates remove persisted start and end dates when their enabled flags are disabled.
+- Pricing plan lists honor `page` and `perPage`, with deterministic `_id`
+  tie-breaking after the requested or default sort field.
 - Public and base pricing plans write scoped product discount metadata to core products; public entries use `base: null`, while base entries use `base: true` and may be scoped by branch, department, and pipeline.
 - Voucher, coupon, lottery, spin, reward, and agent modules provide their plugin-owned loyalty behaviors.
 
@@ -61,6 +63,8 @@
 - Score balance state is persisted in `score_logs` plus owner score/cache updates through `scoreLedger`.
 - Score campaign target normalization derives calculation-only fields such as `totalAmount`, `paymentsData`, and `excludeAmount`.
 - Pricing plans and rules are plugin-owned loyalty collections; derived public and base discounts are synchronized onto core product documents through public core tRPC contracts.
+- Pricing plan list pagination is page-based and defaults to 20 records when
+  callers omit `perPage`.
 
 ## Local Invariants
 
@@ -71,6 +75,8 @@
 - Score campaign mutations must keep owner score caches and score logs consistent, including refunds for cleared or moved targets.
 - Pricing eligibility must fail closed when required core lookups are unavailable.
 - Disabled pricing date bounds must not retain stale `startDate` or `endDate` values.
+- Pricing plan list ordering must include `_id` as a deterministic tie-breaker
+  so records do not repeat or move between adjacent pages.
 - Do not introduce new `schemaWrapper` usage in backend schemas.
 
 ## Validation
@@ -79,3 +85,13 @@
 - `pnpm nx test loyalty_api`
 - `pnpm nx test loyalty_api --testPathPattern scoreTarget`
 - Smoke scenario: trigger a sales deal and POS order score campaign with mixed product rows; only rows matching product/category/tag restrictions should contribute to `totalAmount`, deal rows must also have `tickUsed === true`, and discounted deal rows should be skipped only when `additionalConfig.discountCheck` is enabled.
+
+## Recent Changes
+
+<!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-29` — Pricing plan page pagination
+
+- **Summary:** Pricing plan list queries now honor `page`/`perPage` and use stable ordering across pages.
+- **Affected areas:** `src/modules/pricing/graphql/resolvers/queries/pricingPlan.ts`.
+- **Contracts changed:** Existing `pricingPlans` and `cpPricingPlans` page arguments now control the returned page as declared.
