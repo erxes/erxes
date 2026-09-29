@@ -11,7 +11,7 @@ import {
   getTelegramWebhookInfo,
   type TelegramWebhookInfo,
 } from '@/integrations/telegram/client';
-import { verifyTelegramWebhookSecret } from '@/integrations/telegram/webhookAuth';
+import { verifyTelegramWebhookSecret } from '@/integrations/telegram/utils/webhookAuth';
 
 export interface ITelegramBotModel extends Model<ITelegramBotDocument> {
   getBot(_id: string): Promise<ITelegramBotDocument>;

@@ -141,6 +141,10 @@
   validates the response with Zod and does not change webhook configuration.
 - The internal `verifyTelegramWebhookSecret` helper rejects missing, empty, or
   unequal secrets and compares equal-length UTF-8 buffers with `timingSafeEqual`.
+  It lives in `src/modules/integrations/telegram/utils/webhookAuth.ts`.
+- `telegramUpdateSchema` validates incoming update envelopes with a nonnegative
+  safe-integer `update_id` and preserves additional event fields. It does not
+  validate those event fields or process deliveries.
 - `TelegramBots.verifyWebhookSecret(_id, receivedSecret?)` checks the supplied
   secret against the saved bot in the tenant's database and returns a boolean.
   Missing inputs, unknown bots, and incorrect secrets return `false`.
@@ -346,6 +350,10 @@
   and interpret the `_id` route parameter as the erxes bot record ID. Reject
   missing credentials before model initialization, keep error responses generic,
   and pass successful requests onward without acknowledging their payloads.
+- Keep Telegram supporting utilities in `src/modules/integrations/telegram/utils/`.
+  `utils/update.ts` defines the Zod envelope schema and inferred `TelegramUpdate`
+  type. Treat preserved event fields as unknown until their handler validates
+  them; envelope validation alone does not make an event safe to process.
 - The `client.ts` types `TelegramBot` and `TelegramWebhookInfo` describe
   validated provider responses. Keep them separate from the saved-record types
   `ITelegramBot` and `ITelegramBotDocument` and the mapped query response
@@ -387,6 +395,9 @@
   `500` for model or verification failures, and exactly one `next()` call only
   after successful verification. Preserve the received secret and route tenant
   into model generation; authentication must not read or acknowledge the body.
+- Telegram update checks: preserve accompanying event fields for valid update
+  IDs; reject non-object inputs and missing, string, boolean, fractional,
+  negative, non-finite, or unsafe IDs. Zero is accepted by the envelope schema.
 - Telegram smoke scenario: a signed-in user with `integrationsAdd` validates a
   real bot token through the gateway and receives the bot identity and group
   settings. A rejected token returns `valid: false`; permission denial remains a
@@ -423,6 +434,12 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-29` — Telegram update validation and utilities
+
+- **Summary:** Added a typed update-envelope validator and grouped supporting utilities under `utils/`, preserving webhook secret verification behavior.
+- **Affected areas:** `src/modules/integrations/telegram/utils/`, `src/modules/integrations/telegram/db/models/Bots.ts`.
+- **Contracts changed:** Added internal `telegramUpdateSchema` and `TelegramUpdate`; moved the `verifyTelegramWebhookSecret` import to `utils/webhookAuth`; public APIs unchanged.
+
 ### `2026-09-29` — Telegram webhook authentication middleware
 
 - **Summary:** Added tenant-aware HTTP authentication middleware that rejects invalid credentials and passes verified requests to the next handler.
@@ -438,7 +455,7 @@
 ### `2026-09-29` — Telegram webhook secret comparison
 
 - **Summary:** Added a provider-local helper for exact webhook secret comparison with empty-value and byte-length guards.
-- **Affected areas:** `src/modules/integrations/telegram/webhookAuth.ts`.
+- **Affected areas:** `src/modules/integrations/telegram/utils/webhookAuth.ts`.
 - **Contracts changed:** Added internal `verifyTelegramWebhookSecret(expectedSecret, receivedSecret?)`; public APIs unchanged.
 
 ### `2026-09-29` — Telegram webhook status query
@@ -476,9 +493,3 @@
 - **Summary:** Added internal bot creation that verifies credentials before saving, rejects duplicate identities, and returns the record without secrets.
 - **Affected areas:** `src/modules/integrations/telegram/@types/bot.ts`, `src/modules/integrations/telegram/db/models/Bots.ts`.
 - **Contracts changed:** Added `ITelegramBotCreateInput` and `IModels.TelegramBots.createBot({ token, createdBy })`; public APIs unchanged.
-
-### `2026-09-28` — Telegram bot storage and model registration
-
-- **Summary:** Registered a tenant-scoped Telegram bot model with lookup by erxes record ID and credentials omitted from ordinary queries.
-- **Affected areas:** `src/modules/integrations/telegram/@types/bot.ts`, `src/modules/integrations/telegram/db/definitions/bots.ts`, `src/modules/integrations/telegram/db/models/Bots.ts`, `src/connectionResolvers.ts`.
-- **Contracts changed:** Added internal `ITelegramBot`, `ITelegramBotDocument`, `telegramBotSchema`, `ITelegramBotModel`, and `loadTelegramBotClass` exports, plus `IModels.TelegramBots.getBot(_id)`; public APIs unchanged.
