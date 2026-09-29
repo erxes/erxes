@@ -89,6 +89,38 @@ router.get('/get-frontend-plugins', async (_req: Request, res: Response) => {
   const remoteName = (pluginName: string): string =>
     `${pluginName.replace(/-/g, '_')}_ui`;
 
+  // Marketplace-installed plugins (tenant db): env plugins and installed
+  // plugins are additive sources of remotes.
+  const getInstalledRemotes = async (
+    subdomain: string,
+  ): Promise<{ name: string; entry: string }[]> => {
+    const models = await generateModels(subdomain);
+
+    const installs = await models.PluginInstalls.find({ enabled: true }).lean();
+
+    return installs.flatMap((install) =>
+      install.ui?.remote && install.ui?.entry
+        ? [{ name: install.ui.remote, entry: install.ui.entry }]
+        : [],
+    );
+  };
+
+  const mergeInstalledRemotes = async (
+    remotes: { name: string; entry: string }[],
+    subdomain: string,
+  ) => {
+    const known = new Set(remotes.map((remote) => remote.name));
+
+    for (const remote of await getInstalledRemotes(subdomain)) {
+      if (!known.has(remote.name)) {
+        remotes.push(remote);
+        known.add(remote.name);
+      }
+    }
+
+    return remotes;
+  };
+
   if (VERSION === 'saas') {
     const remotes: { name: string; entry: string }[] = [];
     const subdomain = getSubdomain(_req);
@@ -126,7 +158,7 @@ router.get('/get-frontend-plugins', async (_req: Request, res: Response) => {
       });
     }
 
-    return res.json(remotes);
+    return res.json(await mergeInstalledRemotes(remotes, subdomain));
   } else {
     const remotes: { name: string; entry: string }[] = [];
 
@@ -139,7 +171,9 @@ router.get('/get-frontend-plugins', async (_req: Request, res: Response) => {
       }
     }
 
-    return res.json(remotes);
+    return res.json(
+      await mergeInstalledRemotes(remotes, getSubdomain(_req)),
+    );
   }
 });
 

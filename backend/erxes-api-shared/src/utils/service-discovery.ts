@@ -21,6 +21,18 @@ export const isDev = NODE_ENV === 'development';
 
 export const keyForConfig = (name: string) => `erxesservice:config:${name}`;
 
+const INSTALLED_PLUGINS_KEY = 'erxes-installed-plugins';
+
+export const getInstalledPlugins = async (): Promise<string[]> => {
+  const data = await redis.get(INSTALLED_PLUGINS_KEY);
+
+  if (!data) {
+    return [];
+  }
+
+  return JSON.parse(data);
+};
+
 export const getPlugins = async (): Promise<string[]> => {
   const enabledServices: any[] =
     process.env.ENABLED_PLUGINS?.split(',').map((plugin) => `${plugin}`) || [];
@@ -30,7 +42,16 @@ export const getPlugins = async (): Promise<string[]> => {
       (plugin) => `${plugin}`,
     ) || [];
 
-  return ['core', ...enabledServices, ...enabledApiPlugins];
+  const installedPlugins = await getInstalledPlugins();
+
+  return Array.from(
+    new Set([
+      'core',
+      ...enabledServices,
+      ...enabledApiPlugins,
+      ...installedPlugins,
+    ]),
+  );
 };
 
 const ACTIVE_PLUGINS_KEY = 'erxes-active-plugins';
