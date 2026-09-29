@@ -197,24 +197,40 @@ export const channelMutations = {
   },
   channelUpdateMember: async (
     _parent: undefined,
-    { _id, role }: { _id: string; memberId: string; role: ChannelMemberRoles },
-    { models, user }: IContext,
+    { _id, role }: { _id: string; role?: ChannelMemberRoles | null },
+    { models, user, checkPermission }: IContext,
   ) => {
-    const channelMember = await models.ChannelMembers.findOne({ _id });
+    if (
+      role !== ChannelMemberRoles.ADMIN &&
+      role !== ChannelMemberRoles.LEAD &&
+      role !== ChannelMemberRoles.MEMBER
+    ) {
+      throw new Error('Invalid channel member role');
+    }
+
+    const channelMember = await models.ChannelMembers.getChannelMemberById(_id);
 
     if (!channelMember) {
-      throw new Error('Channels member not found');
-    }
-    if (!user.isOwner) {
-      await checkUserRole({
-        models,
-        channelId: channelMember.channelId,
-        userId: user._id,
-        allowedRoles: [ChannelMemberRoles.ADMIN],
-      });
+      throw new Error('Channel member not found');
     }
 
-    return models.ChannelMembers.updateChannelMember(_id, role, user._id);
+    if (!user.isOwner) {
+      const isChannelAdmin = await models.ChannelMembers.exists({
+        channelId: channelMember.channelId,
+        memberId: user._id,
+        role: ChannelMemberRoles.ADMIN,
+      });
+
+      if (!isChannelAdmin) {
+        await checkPermission('channelManageMembers');
+      }
+    }
+
+    return models.ChannelMembers.updateChannelMember(
+      channelMember,
+      role,
+      user._id,
+    );
   },
 
   channelMoveResources: async (

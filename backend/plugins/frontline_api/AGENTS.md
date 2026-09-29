@@ -592,6 +592,13 @@ customerId, visitorId)` returns the voter's own selections for the
 - GraphQL (federated subgraph): `getChannel`, `getChannels`, `getMyChannels`,
   `getChannelMembers`; `channelAdd`, `channelUpdate`, `channelRemove`,
   `channelAddMembers`, `channelRemoveMember(s)`, `channelUpdateMember`.
+- `channelUpdateMember` accepts membership IDs returned by `getChannelMembers`
+  for both current string IDs and legacy Mongo ObjectIds. Role changes target
+  the resolved membership's stored ID together with its channel and user; an
+  admin cannot be demoted when that would leave the channel without an admin.
+  Only `admin`, `lead`, and `member` are accepted as new roles.
+  A system owner, a channel admin, or a user granted `channelManageMembers` can
+  change roles; the last path also works for users outside the channel.
 - GraphQL: `getMyChannels(name, sortField, sortDirection)` — the caller's
   memberships, sorted in the database. `sortField` accepts `name` or `createdAt`
   and falls back to `createdAt` for anything else; `sortDirection` is `1` or
@@ -1113,14 +1120,33 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - `reactToConversationMessage` routes by integration kind through its
   `REACTION_HANDLERS` map (react + publish pair); a new reaction-capable kind is
   added there, never as another `if` branch.
+## Data and State
+
+- `channel_members` indexes `(channelId, memberId)` uniquely; current
+  records use string `_id` values, while older records can retain Mongo ObjectIds.
+- Role changes write the membership record and return the updated document to
+  GraphQL; the UI refetches `GetChannelMembers` after mutation completion.
+
+## Local Invariants
+
+- Resolve membership IDs in both stored formats before checking channel role
+  permissions, and compare the stored ID by BSON value and type when updating
+  so a string ID cannot match a legacy ObjectId with the same text.
+- A nonmember may change a role only with the plugin's `channelManageMembers`
+  permission; channel admins remain authorized for their own channel.
+- A role change cannot remove the channel's last admin.
 
 ## Validation
 
-- `pnpm nx lint frontline_api`
+- `pnpm exec eslint backend/plugins/frontline_api/src`
 - `pnpm nx build frontline_api`
-- `pnpm nx test frontline_api` — Jest over `src/**/*.test.ts`
-  (`jest.config.ts`, `tsconfig.spec.json`). Test files are excluded from
-  `tsconfig.build.json`, so a new one must keep the `.test.ts` suffix.
+- `pnpm nx test frontline_api` — Jest currently runs the existing
+  `src/modules/channel/moveResources.test.ts`; test files are excluded from
+  `tsconfig.build.json`.
+- Change a legacy channel member through each role in Settings → Frontline →
+  Channels → Members and confirm the role persists after the list refetches.
+- Sign in as a Frontline Admin outside a channel and change a member role;
+  confirm a user without `channelManageMembers` cannot do the same.
 - Mail agent: build an automation Email Received → AI Agent → Draft Email
   Reply, mail the inbox twice, and confirm each mail gets its own draft card;
   edit one, send it, delete the other. Swap the last step for Send Email and
