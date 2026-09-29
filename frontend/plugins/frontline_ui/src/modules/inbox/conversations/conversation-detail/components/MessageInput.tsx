@@ -12,8 +12,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Block } from '@blocknote/core';
 
 import {
-  hideMessageInputState,
   isInternalState,
+  isInternalNoteCollapsedState,
   isSlashMenuOpenState,
   onlyInternalState,
 } from '@/inbox/conversations/conversation-detail/states/isInternalState';
@@ -50,7 +50,6 @@ export const MessageInput = ({
   const [isSlashMenuOpen, setIsSlashMenuOpen] = useAtom(isSlashMenuOpenState);
   const onlyInternal = useAtomValue(onlyInternalState);
   const setOnlyInternal = useSetAtom(onlyInternalState);
-  const hideInput = useAtomValue(hideMessageInputState);
   const currentUserId = useAtomValue(currentUserState)?._id;
   const { integration } = useConversationContext();
   const [replyTo, setReplyTo] = useAtom(messageReplyState);
@@ -58,7 +57,7 @@ export const MessageInput = ({
   const isMessenger = integration?.kind === IntegrationType.ERXES_MESSENGER;
   const [content, setContent] = useState<Block[]>();
   const [mentionedUserIds, setMentionedUserIds] = useState<string[]>([]);
-  const [isInternalNoteCollapsed, setIsInternalNoteCollapsed] = useState(false);
+  const setIsInternalNoteCollapsed = useSetAtom(isInternalNoteCollapsedState);
   const editor = useBlockEditor();
   const draftInternalRef = useRef(false);
   const restoredDraftKeyRef = useRef<string>();
@@ -129,17 +128,18 @@ export const MessageInput = ({
 
   useEffect(() => {
     const isLead = integration?.kind === 'lead';
+    const isMailIntegration = integration?.kind === IntegrationType.MAIL;
     setIsInternalNoteCollapsed(false);
-    setOnlyInternal(isLead);
-    setIsInternalNote(isLead || draftInternalRef.current);
-  }, [conversationId, integration?.kind, setIsInternalNote, setOnlyInternal]);
+    setOnlyInternal(isLead || isMailIntegration);
+    setIsInternalNote(isLead || isMailIntegration || draftInternalRef.current);
+  }, [conversationId, integration?.kind, setIsInternalNote, setIsInternalNoteCollapsed, setOnlyInternal]);
 
   useEffect(() => {
     if (replyTo && !onlyInternal) {
       setIsInternalNote(false);
       setIsInternalNoteCollapsed(false);
     }
-  }, [replyTo, onlyInternal, setIsInternalNote]);
+  }, [replyTo, onlyInternal, setIsInternalNote, setIsInternalNoteCollapsed]);
 
   const {
     setHotkeyScopeAndMemorizePreviousScope,
@@ -164,6 +164,7 @@ export const MessageInput = ({
       draftKey,
       resetSuggestions,
       setIsInternalNote,
+      setIsInternalNoteCollapsed,
       setResponseTemplateId,
     ],
   );
@@ -276,8 +277,6 @@ export const MessageInput = ({
     };
   }, [editor, setIsSlashMenuOpen]);
 
-  if (hideInput) return null;
-
   const sendDisabled =
     loading ||
     isUploading ||
@@ -287,11 +286,7 @@ export const MessageInput = ({
 
   return (
     <ComposerShell
-      collapsed={isInternalNoteCollapsed}
       disabled={loading || isUploading}
-      isInternalNote={isInternalNote}
-      onlyInternal={onlyInternal}
-      onCollapsedChange={setIsInternalNoteCollapsed}
       onDrop={handleDrop}
       onInternalNoteChange={handleInternalNoteChange}
     >

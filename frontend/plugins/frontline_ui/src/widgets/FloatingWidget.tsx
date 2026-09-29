@@ -4,10 +4,12 @@ import { DirectMailComposer } from '@/integrations/mail/components/DirectMailCom
 
 const FloatingWidget = () => {
   return (
-    <SipContainer>
-      <CallWidget />
+    <>
+      <SipContainer>
+        <CallWidget />
+      </SipContainer>
       <DirectMailComposer />
-    </SipContainer>
+    </>
   );
 };
 
