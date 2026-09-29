@@ -1,4 +1,4 @@
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import {
   IChannelMember,
   IChannelMemberDocument,
@@ -7,14 +7,19 @@ import {
 import { channelMembers } from '@/channel/db/definitions/channel';
 import { IModels } from '~/connectionResolvers';
 
+type IStoredChannelMember = IChannelMember & {
+  _id: string | Types.ObjectId;
+};
+
 export interface IChannelMemberModel extends Model<IChannelMemberDocument> {
+  getChannelMemberById(_id: string): Promise<IStoredChannelMember | null>;
   getChannelMember(
     memberId: string,
     channelId: string,
   ): Promise<IChannelMemberDocument>;
   createChannelMember(doc: IChannelMember): Promise<IChannelMemberDocument>;
   updateChannelMember(
-    _id: string,
+    member: IStoredChannelMember,
     role: ChannelMemberRoles,
     userId: string,
   ): Promise<IChannelMemberDocument>;
@@ -34,6 +39,25 @@ export interface IChannelMemberModel extends Model<IChannelMemberDocument> {
 
 export const loadChannelMemberClass = (models: IModels) => {
   class ChannelMember {
+    public static async getChannelMemberById(_id: string) {
+      const member = await models.ChannelMembers.findOne({ _id });
+
+      if (member || !Types.ObjectId.isValid(_id)) {
+        return member;
+      }
+
+      // Older memberships have Mongo ObjectId IDs. Mongoose casts findOne's
+      // _id to the current string schema, so search the legacy value without
+      // schema casting when the requested ID has ObjectId syntax.
+      const [legacyMember] =
+        await models.ChannelMembers.aggregate<IStoredChannelMember>([
+          { $match: { _id: new Types.ObjectId(_id) } },
+          { $limit: 1 },
+        ]);
+
+      return legacyMember || null;
+    }
+
     public static async getChannelMember(memberId: string, channelId: string) {
       return models.ChannelMembers.findOne({ memberId, channelId }).lean();
     }
@@ -43,17 +67,31 @@ export const loadChannelMemberClass = (models: IModels) => {
     }
 
     public static async updateChannelMember(
-      _id: string,
+      member: IStoredChannelMember,
       role: ChannelMemberRoles,
       userId: string,
     ) {
-      const channelMember = await models.ChannelMembers.findOne({ _id });
+      const storedId =
+        typeof member._id === 'string'
+          ? { $literal: member._id }
+          : { $toObjectId: member._id.toString() };
+
+      const memberFilter = {
+        channelId: member.channelId,
+        memberId: member.memberId,
+        // Compare the stored ID without Mongoose casting legacy ObjectIds.
+        $expr: { $eq: ['$_id', storedId] },
+      };
+      const channelMember = await models.ChannelMembers.findOne(memberFilter);
 
       if (!channelMember) {
         throw new Error('Channel member not found');
       }
 
-      if (channelMember.role === ChannelMemberRoles.ADMIN) {
+      if (
+        channelMember.role === ChannelMemberRoles.ADMIN &&
+        role !== ChannelMemberRoles.ADMIN
+      ) {
         const adminsCount = await models.ChannelMembers.countDocuments({
           channelId: channelMember.channelId,
           role: ChannelMemberRoles.ADMIN,
@@ -65,7 +103,7 @@ export const loadChannelMemberClass = (models: IModels) => {
       }
 
       return models.ChannelMembers.findOneAndUpdate(
-        { _id },
+        memberFilter,
         { $set: { role, updatedBy: userId, updatedAt: new Date() } },
         { new: true, runValidators: true },
       );
