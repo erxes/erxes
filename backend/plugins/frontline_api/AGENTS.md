@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-09-28`
+- **Last synchronized:** `2026-09-29`
 
 ## Scope
 
@@ -140,8 +140,11 @@
 - `TelegramBots.createBot({ token, createdBy })` verifies the token before
   saving the provider's bot identity, capability flags, verification time, and
   a generated webhook secret. It rejects duplicate bot identities and returns
-  the saved record without credentials. Creation is currently an internal model
-  method; no Telegram creation mutation or webhook registration is exposed.
+  the saved record without credentials.
+- Exposes `telegramAddBot` through the federated GraphQL schema. The resolver
+  checks `integrationsAdd` and takes `createdBy` from the authenticated user.
+  Creation saves the bot record; webhook registration and inbox binding are
+  separate integration capabilities that are not implemented yet.
 - Runs the **mail** channel: an inbox owns a generated catch-all address, a
   Cloudflare Worker posts every delivery to `POST /mail/receive` under an HMAC
   signature, and the controller turns it into a core customer, a conversation,
@@ -200,7 +203,7 @@
 | Inbox                | `src/modules/inbox/`                                                        | Conversations, messages, integrations, widget/clientportal schemas, `receiveInboxMessage`                                                                                                              |
 | Conversation queries | `src/conversationQueryBuilder.ts`, `src/modules/inbox/conversationUtils.ts` | Mongo and Elasticsearch conversation filters (membership-scoped)                                                                                                                                       |
 | Integrations         | `src/modules/integrations/<kind>/`                                          | facebook, instagram, mail, discord, call, callpro, trpc                                                                                                                                                |
-| Telegram setup       | `src/modules/integrations/telegram/`                                        | Bot API client, permission-checked token validation, bot schema, and model creation/lookup |
+| Telegram setup       | `src/modules/integrations/telegram/`                                        | Bot API client, permission-checked validation query and creation mutation, bot schema and model |
 | Mail integration     | `src/modules/integrations/mail/`                                            | Inbound webhook, threading, outbound send/retry                                                                                                                                                        |
 | Mail transports      | `src/modules/integrations/mail/utils/transports/`                           | `index.ts` picks the Cloudflare account that signs for this workspace, `deliver.ts` runs the delivery pipeline (sender guard, suppression, delivery log), `cloudflare.ts` is the only `IMailTransport` |
 | Mail provisioning    | `src/modules/integrations/mail/utils/cloudflare/`                           | Cloudflare REST client, the fourteen-step provisioner, Email Sending onboarding and quota, the connection cache and its public shape                                                                   |
@@ -230,6 +233,11 @@
   credentials for integration setup. Successful results include a string bot ID,
   bot name, and optional username and group settings; failed checks return
   `valid: false` with an error. Permission failures remain GraphQL errors.
+- `telegramAddBot(token: String!): TelegramBot!` — creates a tenant-owned bot
+  after checking `integrationsAdd`. Returns the erxes record ID, Telegram
+  identity, optional group settings, verification time, timestamps, and creator.
+  The only input is the token; credentials are excluded from `TelegramBot`.
+  Permission, validation, and duplicate failures are GraphQL errors.
 - Plugin meta `properties` (`src/meta/properties.ts`) — the `conversation` and
   `ticket` property types, each with the `systemFields` (`code`, `name`, `type`)
   core lists as the read-only "Basic information" group in Settings →
@@ -279,6 +287,8 @@
   outside the handler that converts provider failures into validation results.
 - Telegram credentials must not appear in public API results or raw error messages.
   Reject surrounding whitespace instead of silently rewriting a pasted token.
+- Keep `token` and `webhookSecret` out of the `TelegramBot` GraphQL type.
+  `telegramAddBot` must derive `createdBy` from request context, never an argument.
 - Backend queries must explicitly select any Telegram credential fields they
   need; `select: false` controls query projection and does not encrypt storage.
 - Keep Telegram bot model registration consistent with the other integrations:
@@ -306,10 +316,21 @@
   without credentials; duplicate creation preserves the original record;
   missing creators and rejected tokens prevent writes; storage errors do not
   expose credentials. Verify absent capability fields separately from `false`.
+- Telegram creation smoke scenario: call `telegramAddBot` through the gateway
+  while signed in with `integrationsAdd`; verify the returned record ID and bot
+  identity. Repeating creation must reject the duplicate without replacing its
+  credentials. Permission denial and invalid input must prevent creation;
+  selecting credential fields or supplying `createdBy` must fail GraphQL validation.
 
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-29` — Telegram bot creation API
+
+- **Summary:** Exposed permission-checked bot creation through GraphQL, with the authenticated creator and a credential-free return type.
+- **Affected areas:** `src/modules/integrations/telegram/graphql/`, `src/apollo/schema/schema.ts`, `src/apollo/resolvers/mutations.ts`.
+- **Contracts changed:** Added `TelegramBot` and `telegramAddBot(token: String!): TelegramBot!`.
 
 ### `2026-09-28` — Telegram bot creation
 
@@ -400,19 +421,3 @@
 - **Contracts changed:** `Duplicate srcTrunk detected.` and
   `Duplicate dstTrunk detected.` are no longer returned by
   `integrationsCreateExternalIntegration` or integration edit.
-
-### `2026-09-10` — Polls became surveys, database included
-
-- **Summary:** The whole feature was renamed from poll to survey — module,
-  models, GraphQL contract, permissions, the `frontline_surveys` /
-  `frontline_survey_votes` collections, `conversations.hasSurvey`,
-  `extraData.survey` and `Ticket.sourceSurvey` — with
-  `src/migrations/migratePollToSurvey.ts` moving existing data. Discord's own
-  polls were deliberately left on `extraData.poll`.
-- **Affected areas:** `src/modules/survey/**` (was `src/modules/poll/**`),
-  `src/apollo/**`, `src/connectionResolvers.ts`, `src/conversationQueryBuilder.ts`,
-  `src/meta/permissions.ts`, `src/modules/inbox/**`, `src/modules/ticket/**`,
-  `src/migrations/migrate{PollToSurvey,SurveySteps}.ts`.
-- **Contracts changed:** Every `poll*` / `cpPoll*` operation and every `Poll*`
-  type was renamed to `survey*` / `cpSurvey*` / `Survey*`; `withPoll` became
-  `withSurvey`; `Ticket.sourcePoll` became `Ticket.sourceSurvey`.
