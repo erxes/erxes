@@ -28,6 +28,9 @@ export const addEBarimtPosInConfigSchema = z.object({
   branchNo: z.string().optional(),
   citytaxPercent: z.string().optional(),
   reverseVatRules: z.array(z.string()).optional(),
+  hasCopy: z.boolean().optional(),
+  hasSumQty: z.boolean().optional(),
+  isCleanTaxPrice: z.boolean().optional(),
   hasVat: z.boolean(),
   vatPercent: z.string().optional(),
   hasCitytax: z.boolean().optional(),
@@ -54,6 +57,9 @@ export interface PosInEbarimtConfig {
   hasVat: boolean;
   vatPercent: string;
   reverseVatRules?: string[];
+  hasCopy: boolean;
+  hasSumQty: boolean;
+  isCleanTaxPrice: boolean;
   anotherRulesOfProductsOnVat: string;
 
   hasCitytax: boolean;
@@ -72,6 +78,9 @@ export const POS_IN_EBARIMT_DEFAULT_VALUES: TPosInEbarimtConfig = {
   posId: '',
   posNo: '10003424',
   ebarimtUrl: '',
+  hasCopy: false,
+  hasSumQty: false,
+  isCleanTaxPrice: false,
 };
 
 export const getPosInEBarimtFormValues = (
@@ -81,4 +90,7 @@ export const getPosInEBarimtFormValues = (
   posId: detail.posId || '',
   posNo: detail.posNo || '10003424',
   ebarimtUrl: detail.ebarimtUrl || '',
+  hasCopy: detail.hasCopy || false,
+  hasSumQty: detail.hasSumQty || false,
+  isCleanTaxPrice: detail.isCleanTaxPrice || false,
 });

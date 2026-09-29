@@ -136,7 +136,7 @@ export const SafeRemainderDetailTr = () => {
         columns={safeRemDetailTableColumns}
         data={safeRemainderItems || []}
         stickyColumns={[]}
-        tableId="accounting_safe_remainder_transaction_detail_record_table"
+        tableId="accounting_safe_remainder_transaction_detail_record_table_v2"
         className="m-3"
       >
         <RecordTable.Scroll>

@@ -224,9 +224,10 @@ export default async function userMiddleware(
         process.env.JWT_TOKEN_SECRET || 'SECRET',
       );
 
-      const clientPortal = await models.ClientPortals.findOne({
-        _id: clientPortalTokenDecoded.clientPortalId,
-      });
+      const clientPortal = await models.ClientPortals.findOne(
+        { _id: clientPortalTokenDecoded.clientPortalId },
+        { _id: 1, name: 1, url: 1, domain: 1, token: 1 },
+      );
 
       if (!clientPortal) {
         debugAuth(req, 'client-portal-not-found', {

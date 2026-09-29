@@ -68,6 +68,17 @@ export const generateFilter = async (
   user: IUserDocument | undefined,
   models: IModels,
 ) => {
+  const {
+    segmentIds,
+    createdStartDate,
+    createdEndDate,
+    startDateStartDate,
+    startDateEndDate,
+    targetDateStartDate,
+    targetDateEndDate,
+    statusChangedStartDate,
+    statusChangedEndDate,
+  } = filter;
   const filterQuery: FilterQuery<ITicketDocument> = {};
 
   const andConditions: FilterQuery<ITicketDocument>[] = [];
@@ -184,6 +195,10 @@ export const generateFilter = async (
     filterQuery.priority = filter.priority;
   }
 
+  if (segmentIds?.length) {
+    filterQuery.segmentIds = { $in: segmentIds };
+  }
+
   if (filter.startDate) {
     filterQuery.startDate = { $gte: filter.startDate };
   }
@@ -194,6 +209,34 @@ export const generateFilter = async (
 
   if (filter.createdAt) {
     filterQuery.createdAt = { $gte: filter.createdAt };
+  }
+
+  if (createdStartDate || createdEndDate) {
+    filterQuery.createdAt = {
+      ...(createdStartDate && { $gte: new Date(createdStartDate) }),
+      ...(createdEndDate && { $lte: new Date(createdEndDate) }),
+    };
+  }
+
+  if (startDateStartDate || startDateEndDate) {
+    filterQuery.startDate = {
+      ...(startDateStartDate && { $gte: new Date(startDateStartDate) }),
+      ...(startDateEndDate && { $lte: new Date(startDateEndDate) }),
+    };
+  }
+
+  if (targetDateStartDate || targetDateEndDate) {
+    filterQuery.targetDate = {
+      ...(targetDateStartDate && { $gte: new Date(targetDateStartDate) }),
+      ...(targetDateEndDate && { $lte: new Date(targetDateEndDate) }),
+    };
+  }
+
+  if (statusChangedStartDate || statusChangedEndDate) {
+    filterQuery.statusChangedDate = {
+      ...(statusChangedStartDate && { $gte: new Date(statusChangedStartDate) }),
+      ...(statusChangedEndDate && { $lte: new Date(statusChangedEndDate) }),
+    };
   }
 
   if (filter.assigneeId) {

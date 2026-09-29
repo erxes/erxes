@@ -11,6 +11,7 @@ import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { SheetNavSidebar } from 'ui-modules';
 import { HelpCenterAppearanceTab } from '@/helpcenter/components/help-center-drawer/HelpCenterAppearanceTab';
+import { HelpCenterDomainTab } from '@/helpcenter/components/help-center-drawer/HelpCenterDomainTab';
 import { HelpCenterGeneralTab } from '@/helpcenter/components/help-center-drawer/HelpCenterGeneralTab';
 import {
   EMPTY_HELP_CENTER_FORM,
@@ -118,6 +119,7 @@ export function HelpCenterDrawer({
           <FocusSheet.SideBar>
             <SheetNavSidebar
               tabs={[...tabs]}
+              labels={{ domain: t('customdomain-label', 'Custom domain') }}
               groupLabel={t('kb-topic', 'Help center')}
             />
           </FocusSheet.SideBar>
@@ -146,6 +148,12 @@ export function HelpCenterDrawer({
                       </p>
                     )}
                   </div>
+                )}
+
+                {/* Mounted only while open: it checks the domain with
+                    Cloudflare, which should not happen on every edit. */}
+                {isEditing && activeTab === 'domain' && (
+                  <HelpCenterDomainTab t={t} />
                 )}
               </ScrollArea>
             </form>

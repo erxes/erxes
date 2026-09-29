@@ -1,4 +1,4 @@
-import { ScrollArea, Spinner } from 'erxes-ui';
+import { FocusSheet, ScrollArea, Spinner } from 'erxes-ui';
 import { useGetTriage } from '@/triage/hooks/useGetTriage';
 import { ITriage } from '@/triage/types/triage';
 import { NoTriageSelected } from './NoTriageSelected';
@@ -33,7 +33,9 @@ export const TriageContent = ({
       <ScrollArea className="overflow-hidden h-full flex-1">
         <TriageContentWrapper triage={triage} />
       </ScrollArea>
-      <TaskSideWidgets contentId={triage._id} />
+      <FocusSheet>
+        <TaskSideWidgets contentId={triage._id} />
+      </FocusSheet>
     </div>
   );
 };

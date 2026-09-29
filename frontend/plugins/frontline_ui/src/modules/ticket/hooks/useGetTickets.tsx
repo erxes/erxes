@@ -8,6 +8,7 @@ import {
   ICursorListResponse,
   isUndefinedOrNull,
   mergeCursorData,
+  parseDateRangeFromString,
   useNonNullMultiQueryState,
   useToast,
   validateFetchMore,
@@ -35,22 +36,43 @@ export type TicketSortField = (typeof TICKET_SORT_FIELDS)[number]['value'];
 export const useTicketsVariables = (
   variables?: QueryHookOptions<ICursorListResponse<ITicket>>['variables'],
 ) => {
-  const { searchValue, assignee, priority, statusId, state, pipelineId } =
-    useNonNullMultiQueryState<{
-      searchValue: string;
-      assignee: string;
-      priority: string;
-      statusId: string;
-      state: string;
-      pipelineId: string;
-    }>([
-      'searchValue',
-      'assignee',
-      'priority',
-      'statusId',
-      'state',
-      'pipelineId',
-    ]);
+  const {
+    searchValue,
+    assignee,
+    priority,
+    statusId,
+    state,
+    pipelineId,
+    segments,
+    createdStartDate,
+    startDateStartDate,
+    targetDateStartDate,
+    statusChangedStartDate,
+  } = useNonNullMultiQueryState<{
+    searchValue: string;
+    assignee: string;
+    priority: string;
+    statusId: string;
+    state: string;
+    pipelineId: string;
+    segments: string[];
+    createdStartDate: string;
+    startDateStartDate: string;
+    targetDateStartDate: string;
+    statusChangedStartDate: string;
+  }>([
+    'searchValue',
+    'assignee',
+    'priority',
+    'statusId',
+    'state',
+    'pipelineId',
+    'segments',
+    'createdStartDate',
+    'startDateStartDate',
+    'targetDateStartDate',
+    'statusChangedStartDate',
+  ]);
 
   const sortField = useAtomValue(ticketSortAtom);
 
@@ -68,6 +90,16 @@ export const useTicketsVariables = (
     statusId: statusId,
     pipelineId: pipelineId,
     state: state,
+    segmentIds: segments || undefined,
+    createdStartDate: parseDateRangeFromString(createdStartDate)?.from,
+    createdEndDate: parseDateRangeFromString(createdStartDate)?.to,
+    startDateStartDate: parseDateRangeFromString(startDateStartDate)?.from,
+    startDateEndDate: parseDateRangeFromString(startDateStartDate)?.to,
+    targetDateStartDate: parseDateRangeFromString(targetDateStartDate)?.from,
+    targetDateEndDate: parseDateRangeFromString(targetDateStartDate)?.to,
+    statusChangedStartDate: parseDateRangeFromString(statusChangedStartDate)
+      ?.from,
+    statusChangedEndDate: parseDateRangeFromString(statusChangedStartDate)?.to,
     ...variables,
   };
 };
@@ -172,8 +204,7 @@ export const useTickets = (
     });
 
     return unsubscribe;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [variables]);
+  }, [variables, subscribeToMore]);
 
   const handleFetchMore = ({
     direction,

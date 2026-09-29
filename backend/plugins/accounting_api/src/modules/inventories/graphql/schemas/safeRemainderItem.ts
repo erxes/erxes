@@ -12,6 +12,8 @@ export const types = `
     status: String,
     uom: String,
 
+    createdAt: Date,
+    createdBy: String,
     modifiedAt: Date,
     modifiedBy: String,
     order: Int
