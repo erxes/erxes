@@ -1,17 +1,40 @@
 import { useMemo } from 'react';
-import { IconArchive } from '@tabler/icons-react';
-import { RecordTable } from 'erxes-ui';
+import { IconShieldLock } from '@tabler/icons-react';
+import { Empty, RecordTable } from 'erxes-ui';
 import { OAuthClientsCommandBar } from './OAuthClientsCommandBar';
 import { oauthClientsMoreColumn } from './table/OAuthClientsMoreColumn';
 import { oauthClientsSettingsColumns } from './table/OAuthClientsSettingsColumns';
 import { useOAuthClients } from '../hooks/useOAuthClients';
+import { useTranslation } from 'react-i18next';
 
 export function OAuthClientsRecordTable() {
   const { oauthClientApps, loading, error } = useOAuthClients();
+  const { t } = useTranslation('settings', { keyPrefix: 'oauth-clients' });
   const columns = useMemo(
     () => [...oauthClientsSettingsColumns, oauthClientsMoreColumn],
     [],
   );
+
+  if (!loading && !error && oauthClientApps.length === 0) {
+    return (
+      <Empty className="m-3 min-h-[20rem]">
+        <Empty.Header>
+          <Empty.Media variant="icon">
+            <IconShieldLock />
+          </Empty.Media>
+          <Empty.Title>
+            {t('no-oauth-clients-yet', 'No OAuth clients yet')}
+          </Empty.Title>
+          <Empty.Description>
+            {t(
+              'no-oauth-clients-yet-description',
+              'OAuth clients you create will appear here. Create your first client to enable applications to authenticate with your platform.',
+            )}
+          </Empty.Description>
+        </Empty.Header>
+      </Empty>
+    );
+  }
 
   return (
     <RecordTable.Provider
@@ -26,21 +49,6 @@ export function OAuthClientsRecordTable() {
           <RecordTable.Body>
             <RecordTable.RowList />
             {loading && <RecordTable.RowSkeleton rows={20} />}
-            {!loading && !error && oauthClientApps.length === 0 && (
-              <div className="flex h-full flex-col items-center justify-center px-6 py-12 text-center">
-                <div className="mb-4 rounded-full bg-muted p-4">
-                  <IconArchive className="h-8 w-8 text-muted-foreground" />
-                </div>
-
-                <h3 className="text-lg font-semibold">No OAuth clients yet</h3>
-
-                <p className="mt-2 max-w-md text-sm text-muted-foreground">
-                  OAuth clients you create will appear here. Create your first
-                  client to enable applications to authenticate with your
-                  platform.
-                </p>
-              </div>
-            )}
           </RecordTable.Body>
         </RecordTable>
       </RecordTable.Scroll>
