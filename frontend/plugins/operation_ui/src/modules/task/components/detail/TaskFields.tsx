@@ -52,8 +52,8 @@ export const TaskFields = ({ task }: { task: ITaskDetail }) => {
     githubRepoName,
   } = task || {};
 
-  const startDate = (task as any)?.startDate;
-  const description = (task as any)?.description;
+  const startDate = task?.startDate;
+  const description = task?.description;
   const initialDescriptionContent = parseDescriptionBlocks(description);
 
   const [descriptionContent, setDescriptionContent] = useState<
@@ -155,23 +155,23 @@ export const TaskFields = ({ task }: { task: ITaskDetail }) => {
           />
           <SelectTaskPriority
             taskId={taskId}
-            value={priority ?? undefined}
+            value={priority}
             variant="detail"
           />
           <SelectAssigneeTask
             variant="detail"
-            value={assigneeId ?? ''}
+            value={assigneeId}
             id={taskId}
             teamIds={teamId ? [teamId] : undefined}
           />
           <DateSelectTask
-            value={startDate ? new Date(startDate) : undefined}
+            value={startDate}
             id={taskId}
             type="startDate"
             variant="detail"
           />
           <DateSelectTask
-            value={targetDate ? new Date(targetDate) : undefined}
+            value={targetDate}
             id={taskId}
             type="targetDate"
             variant="detail"
@@ -189,13 +189,13 @@ export const TaskFields = ({ task }: { task: ITaskDetail }) => {
           />
 
           <SelectProject
-            value={projectId ?? ''}
+            value={projectId}
             taskId={taskId}
             variant="detail"
             teamId={teamId}
           />
           <SelectEstimatedPoint
-            value={estimatePoint ?? 0}
+            value={estimatePoint}
             taskId={taskId}
             teamId={teamId}
             variant="detail"
@@ -203,7 +203,7 @@ export const TaskFields = ({ task }: { task: ITaskDetail }) => {
           <SelectMilestone
             value={milestoneId || ''}
             taskId={taskId}
-            projectId={projectId ?? undefined}
+            projectId={projectId}
             variant="detail"
           />
           <ConvertToProject task={task} />

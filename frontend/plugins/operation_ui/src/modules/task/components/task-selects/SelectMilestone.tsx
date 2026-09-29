@@ -189,7 +189,7 @@ const SelectMilestoneProvider = ({
   children: React.ReactNode;
   value?: string;
   onValueChange: (value: string) => void;
-  projectId?: string;
+  projectId?: string | null;
 }) => {
   const [search, setSearch] = useState('');
 
@@ -227,7 +227,7 @@ const SelectMilestoneRoot = ({
   value: string;
   taskId: string;
   variant: `${SelectTriggerVariant}`;
-  projectId?: string;
+  projectId?: string | null;
 }) => {
   const [open, setOpen] = useState(false);
   const { updateTask } = useUpdateTask();

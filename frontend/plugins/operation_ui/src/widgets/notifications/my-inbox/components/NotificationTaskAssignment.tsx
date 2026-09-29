@@ -15,10 +15,7 @@ export const NotificationTaskAssignment = ({
   createdAt,
 }: TNotification) => {
   const { t } = useTranslation('operation');
-  const { task, loading, error } = useGetTask({
-    variables: { _id: contentTypeId ?? '' },
-    skip: !contentTypeId,
-  });
+  const { task, loading, error } = useGetTask(contentTypeId);
 
   const isAssigned = title === 'Task Assigned';
   const action = isAssigned ? 'assigned you to' : 'changed status on';

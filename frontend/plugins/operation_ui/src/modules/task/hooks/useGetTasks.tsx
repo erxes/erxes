@@ -116,8 +116,8 @@ export const useTasksVariables = (variables?: ITaskFilter): ITaskFilter => {
     startDate: startDate,
     completedDate: completedDate,
     projectId: project,
-    projectStatus: projectStatus ?? undefined,
-    projectPriority: projectPriority ?? undefined,
+    projectStatus: projectStatus,
+    projectPriority: projectPriority,
     projectLeadId: projectLeadId,
     projectMilestoneName: projectMilestoneName,
     ...variables,
@@ -163,7 +163,7 @@ export const useTasks = (
     ? compactList(data.getTasks.list)
     : undefined;
   const pageInfo = toCursorPageInfo(data?.getTasks?.pageInfo);
-  const totalCount = data?.getTasks?.totalCount ?? undefined;
+  const totalCount = data?.getTasks?.totalCount;
 
   useEffect(() => {
     const unsubscribe = subscribeToMore({

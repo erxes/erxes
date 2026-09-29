@@ -6,15 +6,20 @@ import type {
 } from '~/gql/graphql';
 
 export const useGetTriage = (
-  options: QueryHookOptions<
+  triageId: string | null | undefined,
+  options?: QueryHookOptions<
     OperationGetTriageQuery,
     OperationGetTriageQueryVariables
   >,
 ) => {
-  const { data, loading, error } = useQuery(GET_TRIAGE, options);
+  const { data, loading, error } = useQuery(GET_TRIAGE, {
+    ...options,
+    variables: triageId ? { _id: triageId } : undefined,
+    skip: !triageId || options?.skip,
+  });
 
   return {
-    triage: data?.operationGetTriage ?? undefined,
+    triage: data?.operationGetTriage,
     loading,
     error,
   };

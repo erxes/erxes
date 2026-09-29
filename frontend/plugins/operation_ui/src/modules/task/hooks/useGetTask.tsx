@@ -5,22 +5,26 @@ import { useEffect } from 'react';
 import type { GetTaskQuery, GetTaskQueryVariables } from '~/gql/graphql';
 
 export const useGetTask = (
-  options: QueryHookOptions<GetTaskQuery, GetTaskQueryVariables>,
+  taskId: string | null | undefined,
+  options?: QueryHookOptions<GetTaskQuery, GetTaskQueryVariables>,
 ) => {
   const { data, loading, refetch, subscribeToMore, error } = useQuery(
     GET_TASK,
-    options,
+    {
+      ...options,
+      variables: taskId ? { _id: taskId } : undefined,
+      skip: !taskId || options?.skip,
+    },
   );
 
-  const task = data?.getTask ?? undefined;
-  const taskId = task?._id;
+  const task = data?.getTask;
 
   useEffect(() => {
-    if (!taskId) return;
+    if (!task?._id) return;
 
     const unsubscribe = subscribeToMore({
       document: TASK_CHANGED,
-      variables: { _id: taskId },
+      variables: { _id: task._id },
       updateQuery: (prev, { subscriptionData }) => {
         const newTask = subscriptionData.data?.operationTaskChanged?.task;
 
@@ -31,7 +35,7 @@ export const useGetTask = (
     return () => {
       unsubscribe();
     };
-  }, [taskId, subscribeToMore]);
+  }, [task?._id, subscribeToMore]);
 
   return { task, loading, refetch, error };
 };

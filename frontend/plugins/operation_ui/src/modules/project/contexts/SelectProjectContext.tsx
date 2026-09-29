@@ -1,7 +1,7 @@
 import { createContext, useContext } from 'react';
 
 interface SelectProjectContextType {
-  value?: string;
+  value?: string | null;
   onValueChange: (value: string) => void;
   projects: {
     _id: string;

@@ -135,7 +135,7 @@ export const tasksColumns = (
           <SelectAssigneeTask
             variant="table"
             id={cell.row.original._id}
-            value={cell.row.original.assigneeId ?? ''}
+            value={cell.row.original.assigneeId}
             teamIds={[cell.row.original.teamId]}
             scope={clsx(
               TaskHotKeyScope.TaskTableCell,
@@ -160,7 +160,7 @@ export const tasksColumns = (
         return (
           <SelectTaskPriority
             taskId={cell.row.original._id}
-            value={cell.row.original.priority ?? undefined}
+            value={cell.row.original.priority}
             variant="table"
           />
         );
@@ -181,7 +181,7 @@ export const tasksColumns = (
         return (
           <SelectEstimatedPoint
             taskId={_id}
-            value={estimatePoint || 0}
+            value={estimatePoint}
             teamId={teamId}
             variant="table"
           />
@@ -216,7 +216,7 @@ export const tasksColumns = (
       cell: ({ cell }) => {
         return (
           <SelectProject
-            value={cell.row.original.projectId || ''}
+            value={cell.row.original.projectId}
             taskId={cell.row.original._id}
             teamId={cell.row.original.teamId}
             variant="table"
@@ -236,7 +236,7 @@ export const tasksColumns = (
           <SelectMilestone
             value={cell.row.original.milestoneId || ''}
             taskId={cell.row.original._id}
-            projectId={cell.row.original.projectId ?? undefined}
+            projectId={cell.row.original.projectId}
             variant="table"
           />
         );

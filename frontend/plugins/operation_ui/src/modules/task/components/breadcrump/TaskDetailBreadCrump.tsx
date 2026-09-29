@@ -12,10 +12,7 @@ export const TaskDetailBreadCrump = () => {
   }>();
   const { t } = useTranslation('operation');
 
-  const { task, loading } = useGetTask({
-    variables: { _id: taskId ?? '' },
-    skip: !taskId,
-  });
+  const { task, loading } = useGetTask(taskId);
 
   // Determine base path
   const basePath = teamId

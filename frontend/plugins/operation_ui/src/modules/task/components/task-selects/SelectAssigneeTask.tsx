@@ -402,7 +402,7 @@ const SelectAssigneeTaskRoot = ({
   id,
   teamIds,
 }: {
-  value: string;
+  value?: string | null;
   scope?: string;
   variant: `${SelectTriggerVariant}`;
   teamIds?: string[] | string;
@@ -419,7 +419,7 @@ const SelectAssigneeTaskRoot = ({
   }, [value]);
 
   const handleValueChange = (newValue: string | string[] | null) => {
-    setInternalValue((newValue as string) ?? undefined);
+    setInternalValue(typeof newValue === 'string' ? newValue : null);
     if (id) {
       updateTask({
         variables: {
@@ -463,7 +463,7 @@ const SelectAssigneeTaskRoot = ({
 
   return (
     <SelectAssigneeProvider
-      value={internalValue}
+      value={internalValue ?? undefined}
       onValueChange={handleValueChange}
       mode="single"
       allowUnassigned
