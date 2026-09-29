@@ -5,9 +5,11 @@ import { OAuthClientsCommandBar } from './OAuthClientsCommandBar';
 import { oauthClientsMoreColumn } from './table/OAuthClientsMoreColumn';
 import { oauthClientsSettingsColumns } from './table/OAuthClientsSettingsColumns';
 import { useOAuthClients } from '../hooks/useOAuthClients';
+import { useTranslation } from 'react-i18next';
 
 export function OAuthClientsRecordTable() {
   const { oauthClientApps, loading, error } = useOAuthClients();
+  const { t } = useTranslation('settings', { keyPrefix: 'oauth-clients' });
   const columns = useMemo(
     () => [...oauthClientsSettingsColumns, oauthClientsMoreColumn],
     [],
@@ -20,10 +22,14 @@ export function OAuthClientsRecordTable() {
           <Empty.Media variant="icon">
             <IconShieldLock />
           </Empty.Media>
-          <Empty.Title>No OAuth clients yet</Empty.Title>
+          <Empty.Title>
+            {t('no-oauth-clients-yet', 'No OAuth clients yet')}
+          </Empty.Title>
           <Empty.Description>
-            OAuth clients you create will appear here. Create your first client
-            to enable applications to authenticate with your platform.
+            {t(
+              'no-oauth-clients-yet-description',
+              'OAuth clients you create will appear here. Create your first client to enable applications to authenticate with your platform.',
+            )}
           </Empty.Description>
         </Empty.Header>
       </Empty>

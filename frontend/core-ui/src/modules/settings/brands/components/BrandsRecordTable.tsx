@@ -10,7 +10,9 @@ export function BrandsRecordTable() {
   const { brands, loading, error } = useBrands();
   const { t } = useTranslation('settings', { keyPrefix: 'brands' });
   const columns = useMemo(() => brandsColumns(t), [t]);
-  const [queries] = useMultiQueryState<{ searchValue: string }>(['searchValue']);
+  const [queries] = useMultiQueryState<{ searchValue: string }>([
+    'searchValue',
+  ]);
   const isFiltered = !!queries?.searchValue;
 
   if (!loading && !error && !brands?.length) {
@@ -21,12 +23,20 @@ export function BrandsRecordTable() {
             {isFiltered ? <IconSearchOff /> : <IconChessKnightFilled />}
           </Empty.Media>
           <Empty.Title>
-            {isFiltered ? 'No brands match' : 'No brands yet'}
+            {isFiltered
+              ? t('no-brands-match', 'No brands match')
+              : t('no-brands-yet', 'No brands yet')}
           </Empty.Title>
           <Empty.Description>
             {isFiltered
-              ? 'Try a different search, or clear the filter.'
-              : 'Brands help you organize inboxes and channels. Create your first brand to get started.'}
+              ? t(
+                  'no-brands-match-description',
+                  'Try a different search, or clear the filter.',
+                )
+              : t(
+                  'no-brands-yet-description',
+                  'Brands help you organize inboxes and channels. Create your first brand to get started.',
+                )}
           </Empty.Description>
         </Empty.Header>
       </Empty>
