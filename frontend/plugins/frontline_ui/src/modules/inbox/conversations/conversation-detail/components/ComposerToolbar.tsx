@@ -114,7 +114,8 @@ export const ComposerToolbar = ({
           aria-label={submitLabel}
           className={cn(
             'h-9 flex-none rounded-lg px-2.5 sm:px-4',
-            isInternalNote && 'bg-warning text-foreground hover:bg-warning/80',
+            isInternalNote &&
+              'border-warning bg-warning text-foreground hover:bg-warning/80',
           )}
           disabled={sendDisabled}
           onClick={onSubmit}
