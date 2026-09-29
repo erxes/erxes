@@ -21,12 +21,25 @@ export const types = `
     updatedAt: Date!
     createdBy: String!
   }
+
+  type TelegramWebhookInfo {
+    url: String!
+    hasCustomCertificate: Boolean!
+    pendingUpdateCount: Int!
+    ipAddress: String
+    lastErrorDate: Date
+    lastErrorMessage: String
+    lastSynchronizationErrorDate: Date
+    maxConnections: Int
+    allowedUpdates: [String!]
+  }
 `;
 
 export const queries = `
   telegramBots: [TelegramBot!]!
   telegramBot(_id: String!): TelegramBot!
   telegramValidateToken(token: String!): TelegramTokenValidation!
+  telegramBotWebhookInfo(_id: String!): TelegramWebhookInfo!
 `;
 
 export const mutations = `

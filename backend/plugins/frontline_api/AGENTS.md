@@ -143,7 +143,10 @@
   `getBot(_id)` method returns the saved bot or throws `Telegram bot not found`.
 - `TelegramBots.getWebhookInfo(_id)` reads webhook status with the saved bot's
   token. It returns provider information without changing the bot record or
-  webhook configuration; this model method is not exposed through GraphQL yet.
+  webhook configuration.
+- `telegramBotWebhookInfo(_id)` exposes that status after checking
+  `integrationsEdit`. It returns camel-case fields and converts provider error
+  timestamps from Unix seconds into GraphQL `Date` values.
 - Exposes `telegramBots` and `telegramBot(_id)` for reading saved bots after
   checking `showIntegrations`. Lists are ordered newest first; both queries
   return public metadata from the tenant's database without calling Telegram.
@@ -253,6 +256,12 @@
 - `telegramBot(_id: String!): TelegramBot!` — reads a saved bot by its erxes
   record ID after checking `showIntegrations`; a missing bot is a GraphQL error.
   Both read queries use the public `TelegramBot` type and exclude credentials.
+- `telegramBotWebhookInfo(_id: String!): TelegramWebhookInfo!` — reads the saved
+  bot's current provider webhook status after checking `integrationsEdit`.
+  Returns URL, certificate flag, pending update count, and optional IP address,
+  error dates/message, connection limit, and allowed update kinds. Absent optional
+  fields become `null`; permission, missing-bot, and provider failures are GraphQL
+  errors. The token and webhook secret are not fields of this response type.
 - Plugin meta `properties` (`src/meta/properties.ts`) — the `conversation` and
   `ticket` property types, each with the `systemFields` (`code`, `name`, `type`)
   core lists as the read-only "Basic information" group in Settings →
@@ -299,6 +308,9 @@
   bot model and passes it to the provider client. A missing bot throws before
   any provider request; the return value contains webhook information rather
   than the credential-bearing database document.
+- `src/modules/integrations/telegram/@types/webhook.ts` defines
+  `ITelegramWebhook`, the camel-case query response with optional `Date` values.
+  It is a plain interface, not a persisted model or Mongoose document.
 - `createBot` stores a fresh 32-byte random secret encoded as hex. It reads the
   inserted record through `getBot` so the result uses the schema's default
   credential projection; the direct result of `create` still contains secrets.
@@ -313,9 +325,10 @@
   Telegram.
 - Telegram credentials must not appear in public API results or raw error messages.
   Reject surrounding whitespace instead of silently rewriting a pasted token.
-- `TelegramBot` and `TelegramWebhookInfo` describe validated provider responses.
-  Keep them separate from `ITelegramBot` and `ITelegramBotDocument`, which
-  describe saved database records.
+- The `client.ts` types `TelegramBot` and `TelegramWebhookInfo` describe
+  validated provider responses. Keep them separate from the saved-record types
+  `ITelegramBot` and `ITelegramBotDocument` and the mapped query response
+  `ITelegramWebhook`. Only persisted records need Mongoose document interfaces.
 - Keep `token` and `webhookSecret` out of the `TelegramBot` GraphQL type.
   `telegramAddBot` must derive `createdBy` from request context, never an argument.
 - Backend queries must explicitly select any Telegram credential fields they
@@ -323,6 +336,9 @@
 - Callers of `TelegramBots.getWebhookInfo` must enforce integration permissions
   before loading credentials. The method must use the supplied tenant model,
   preserve stored verification timestamps, and return only provider information.
+- `telegramBotWebhookInfo` must check `integrationsEdit` before invoking the
+  model. Map optional Unix timestamps by testing for `undefined`, so a zero
+  timestamp remains valid, and expose the update list as `allowedUpdates`.
 - Keep Telegram bot model registration consistent with the other integrations:
   use the document interface, model interface, and class loader. The model
   loader imports the schema and uses the supplied tenant model container.
@@ -357,6 +373,11 @@
 - Saved-bot webhook checks: `getWebhookInfo` uses the stored token while ordinary
   reads still exclude credentials; a missing bot prevents the provider call,
   provider errors remain controlled, and saved timestamps remain unchanged.
+- Webhook query smoke scenario: a signed-in user with `integrationsEdit` calls
+  `telegramBotWebhookInfo` through the gateway using the saved bot's erxes ID.
+  Verify empty URLs, false/zero values, optional `null` fields, update lists, and
+  ISO date serialization. Permission denial must prevent model access; querying
+  `token` or `webhookSecret` must fail GraphQL validation.
 - Telegram creation smoke scenario: call `telegramAddBot` through the gateway
   while signed in with `integrationsAdd`; verify the returned record ID and bot
   identity. Repeating creation must reject the duplicate without replacing its
@@ -370,6 +391,12 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-29` — Telegram webhook status query
+
+- **Summary:** Exposed saved-bot webhook status through a permission-checked query with camel-case fields and converted error timestamps.
+- **Affected areas:** `src/modules/integrations/telegram/@types/webhook.ts`, `src/modules/integrations/telegram/graphql/`.
+- **Contracts changed:** Added `TelegramWebhookInfo`, `telegramBotWebhookInfo(_id: String!): TelegramWebhookInfo!`, and internal response interface `ITelegramWebhook`.
 
 ### `2026-09-29` — Telegram saved-bot webhook lookup
 
@@ -441,18 +468,3 @@
   Properties.
 - **Affected areas:** `src/meta/properties.ts`, `src/main.ts`
 - **Contracts changed:** Plugin meta `properties.types[].systemFields` added.
-
-### `2026-09-17` — Conversations convert into tickets, deals and tasks
-
-- **Summary:** `conversationConvertToCard` stopped echoing its arguments and now
-  creates the ticket, deal or task, relates it to the conversation and
-  customer, and blocks a duplicate; `conversationConvertedItems` reports what a
-  conversation was already converted into.
-- **Affected areas:** `src/modules/inbox/services/conversationConvert{,Targets}.ts`,
-  `src/modules/inbox/@types/conversationConvert.ts`,
-  `src/modules/inbox/graphql/{schemas/conversation,resolvers/mutations/conversations,resolvers/queries/conversations}.ts`,
-  `src/meta/permissions.ts`
-- **Contracts changed:** `conversationConvertToCard` dropped `itemId`, gained
-  `tagIds`, `branchIds`, `departmentIds`, and now enforces permissions; added
-  `conversationConvertedItems` and `ConversationConvertedItem`; the
-  `frontline:user` group gained `conversationConvertToCard`.

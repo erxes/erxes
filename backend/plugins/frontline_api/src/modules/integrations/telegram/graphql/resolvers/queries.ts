@@ -1,5 +1,6 @@
 import type { IContext } from '~/connectionResolvers';
 import type { ITelegramBotDocument } from '@/integrations/telegram/@types/bot';
+import type { ITelegramWebhook } from '@/integrations/telegram/@types/webhook';
 import { getTelegramBot } from '@/integrations/telegram/client';
 
 type TelegramTokenValidationResult =
@@ -35,6 +36,33 @@ export const telegramQueries = {
     await checkPermission('showIntegrations');
 
     return models.TelegramBots.getBot(_id);
+  },
+  async telegramBotWebhookInfo(
+    _root: undefined,
+    { _id }: { _id: string },
+    { models, checkPermission }: IContext,
+  ): Promise<ITelegramWebhook> {
+    await checkPermission('integrationsEdit');
+
+    const info = await models.TelegramBots.getWebhookInfo(_id);
+
+    return {
+      url: info.url,
+      hasCustomCertificate: info.has_custom_certificate,
+      pendingUpdateCount: info.pending_update_count,
+      ipAddress: info.ip_address,
+      lastErrorDate:
+        info.last_error_date === undefined
+          ? undefined
+          : new Date(info.last_error_date * 1000),
+      lastErrorMessage: info.last_error_message,
+      lastSynchronizationErrorDate:
+        info.last_synchronization_error_date === undefined
+          ? undefined
+          : new Date(info.last_synchronization_error_date * 1000),
+      maxConnections: info.max_connections,
+      allowedUpdates: info.allowed_updates,
+    };
   },
   async telegramValidateToken(
     _root: undefined,
