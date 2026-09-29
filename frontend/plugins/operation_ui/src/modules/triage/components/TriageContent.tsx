@@ -15,10 +15,7 @@ export const TriageContent = ({
 }) => {
   const { triageId } = useParams<{ triageId: string }>();
   const triageIdToUse = triageIdProp || triageId;
-  const { triage, loading } = useGetTriage({
-    variables: { _id: triageIdToUse ?? '' },
-    skip: !triageIdToUse,
-  });
+  const { triage, loading } = useGetTriage(triageIdToUse);
 
   if (loading) {
     return <Spinner />;

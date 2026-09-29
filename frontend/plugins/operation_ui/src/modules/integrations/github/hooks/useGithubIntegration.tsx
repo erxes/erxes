@@ -18,7 +18,7 @@ export function useGithubConfigByTeam(teamId: string) {
   });
 
   return {
-    config: data?.getGithubConfigByTeam ?? undefined,
+    config: data?.getGithubConfigByTeam,
     configs: data?.getAllGithubConfigs ?? [],
     loading,
     error,

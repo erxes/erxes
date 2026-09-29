@@ -13,7 +13,7 @@ export const CreatorInfo = ({ contentDetail }: CreatorInfoProps) => {
   const { t } = useTranslation('operation');
 
   return (
-    <ActivityActor.Provider actorId={contentDetail.createdBy ?? undefined}>
+    <ActivityActor.Provider actorId={contentDetail.createdBy}>
       <ActivityTimelineItem
         avatar={<ActivityActor.Avatar />}
         createdAt={contentDetail.createdAt?.toLocaleString()}

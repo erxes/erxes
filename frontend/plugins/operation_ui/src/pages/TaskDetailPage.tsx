@@ -12,10 +12,7 @@ import { TaskDetailActions } from '@/task/components/task-actions/TaskDetailActi
 
 export const TaskDetailPage = () => {
   const { teamId, taskId } = useParams<{ teamId?: string; taskId: string }>();
-  const { task } = useGetTask({
-    variables: { _id: taskId ?? '' },
-    skip: !taskId,
-  });
+  const { task } = useGetTask(taskId);
 
   if (!taskId) {
     return null;

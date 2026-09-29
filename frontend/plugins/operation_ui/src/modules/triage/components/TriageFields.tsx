@@ -25,7 +25,7 @@ export const TriageFields = ({ triage }: { triage: ITriageDetail }) => {
   const { t } = useTranslation('operation');
   const { _id: triageId, priority, status, name: _name } = triage || {};
 
-  const description = triage?.description ?? undefined;
+  const description = triage?.description;
   const initialDescriptionContent = parseDescriptionBlocks(description);
 
   const [descriptionContent, setDescriptionContent] = useState<
@@ -98,7 +98,7 @@ export const TriageFields = ({ triage }: { triage: ITriageDetail }) => {
       <div className="gap-2 flex flex-wrap w-full">
         <SelectPriority
           variant="detail"
-          value={priority ?? undefined}
+          value={priority}
           onValueChange={(value) => {
             updateTriage({
               variables: {
@@ -113,7 +113,7 @@ export const TriageFields = ({ triage }: { triage: ITriageDetail }) => {
 
         <SelectStatus
           variant="detail"
-          value={status ?? undefined}
+          value={status}
           useExtendedLabels={true}
           onValueChange={(value) => {
             if (value !== STATUS_TYPES.TRIAGE) {

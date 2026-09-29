@@ -63,10 +63,7 @@ export const MakeACopyTrigger = ({
   setOpen,
 }: MakeACopyTriggerProps) => {
   const { t } = useTranslation('operation');
-  const { task: fetchedTask, loading } = useGetTask({
-    variables: { _id: taskId || '' },
-    skip: !taskId,
-  });
+  const { task: fetchedTask, loading } = useGetTask(taskId);
   const task = taskProp || fetchedTask;
   const { makeACopy } = useMakeACopy();
   const { toast } = useToast();

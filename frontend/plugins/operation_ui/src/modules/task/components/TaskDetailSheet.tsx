@@ -65,10 +65,7 @@ const TaskDetailErrorState = () => {
 
 export const TaskDetailSheet = () => {
   const [activeTask, setActiveTask] = useTaskDetailSheet();
-  const { task, loading, error } = useGetTask({
-    variables: { _id: activeTask ?? '' },
-    skip: !activeTask,
-  });
+  const { task, loading, error } = useGetTask(activeTask);
 
   return (
     <FocusSheet open={!!activeTask} onOpenChange={() => setActiveTask(null)}>
@@ -106,10 +103,7 @@ export const TaskDetailSheet = () => {
 export const TaskDetailSheetHeader = () => {
   const { teamId, projectId } = useParams();
   const [activeTask, setActiveTask] = useTaskDetailSheet();
-  const { task } = useGetTask({
-    variables: { _id: activeTask ?? '' },
-    skip: !activeTask,
-  });
+  const { task } = useGetTask(activeTask);
 
   const url =
     teamId && !projectId

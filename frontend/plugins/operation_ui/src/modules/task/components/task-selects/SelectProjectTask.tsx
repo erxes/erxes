@@ -37,7 +37,7 @@ export const SelectProjectProvider = ({
   variant,
 }: {
   children: React.ReactNode;
-  value?: string;
+  value?: string | null;
   onValueChange: (value: string) => void;
   teamId?: string;
   taskId?: string;
@@ -247,7 +247,7 @@ const SelectProjectRoot = ({
   teamId,
 }: {
   taskId: string;
-  value: string;
+  value?: string | null;
   scope?: string;
   variant: `${SelectTriggerVariant}`;
   teamId?: string;

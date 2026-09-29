@@ -40,13 +40,13 @@ export const TaskBoardCard = ({ id, column }: BoardCardProps) => {
     <div onClick={() => setActiveTask(_id)}>
       <div className="flex items-center justify-between h-9 px-1.5">
         <DateSelectTask
-          value={startDate ?? undefined}
+          value={startDate}
           id={_id}
           type="startDate"
           variant="card"
         />
         <DateSelectTask
-          value={targetDate ?? undefined}
+          value={targetDate}
           id={_id}
           type="targetDate"
           variant="card"
@@ -74,16 +74,12 @@ export const TaskBoardCard = ({ id, column }: BoardCardProps) => {
             id={_id}
             teamId={teamId}
           />
-          <SelectTaskPriority
-            taskId={_id}
-            value={priority ?? undefined}
-            variant="card"
-          />
+          <SelectTaskPriority taskId={_id} value={priority} variant="card" />
           <SelectTeamTask variant="card" taskId={_id} value={teamId} />
-          <SelectProject value={projectId ?? ''} taskId={_id} variant="card" />
+          <SelectProject value={projectId} taskId={_id} variant="card" />
           <SelectEstimatedPoint
             taskId={_id}
-            value={estimatePoint ?? 0}
+            value={estimatePoint}
             teamId={teamId}
             variant="card"
           />
@@ -102,7 +98,7 @@ export const TaskBoardCard = ({ id, column }: BoardCardProps) => {
         </Button>
         <SelectAssigneeTask
           variant="card"
-          value={assigneeId ?? ''}
+          value={assigneeId}
           id={_id}
           teamIds={teamId ? [teamId] : undefined}
         />
