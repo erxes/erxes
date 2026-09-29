@@ -36,7 +36,7 @@ export interface ITaskModel extends Model<ITaskDocument> {
     userId: string;
     subdomain: string;
   }): Promise<ITaskDocument>;
-  removeTask(taskId: string): Promise<{ ok: number }>;
+  removeTask(taskIds: string[]): Promise<{ deletedCount: number }>;
   moveCycle(cycleId: string, newCycleId: string): Promise<{ ok: number }>;
 }
 
@@ -321,8 +321,8 @@ export const loadTaskClass = (
       return updatedTask;
     }
 
-    public static async removeTask(TaskId: string[]) {
-      const tasks = await models.Task.find({ _id: { $in: TaskId } });
+    public static async removeTask(taskIds: string[]) {
+      const tasks = await models.Task.find({ _id: { $in: taskIds } });
 
       for (const task of tasks) {
         sendDbEventLog({
@@ -331,7 +331,7 @@ export const loadTaskClass = (
         });
       }
 
-      return models.Task.deleteMany({ _id: { $in: TaskId } });
+      return models.Task.deleteMany({ _id: { $in: taskIds } });
     }
 
     public static async moveCycle(cycleId: string, newCycleId: string) {
