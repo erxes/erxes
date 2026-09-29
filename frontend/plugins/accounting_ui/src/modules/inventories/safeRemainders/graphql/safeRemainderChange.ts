@@ -45,6 +45,8 @@ export const SAFE_REMAINDER_EDIT = gql`
     $incomeRule: JSON,
     $outRule: JSON,
     $saleRule: JSON,
+    $costIncreaseRule: JSON,
+    $costDecreaseRule: JSON,
   ) {
     safeRemainderEdit(
       _id: $_id,
@@ -52,6 +54,8 @@ export const SAFE_REMAINDER_EDIT = gql`
       incomeRule: $incomeRule,
       outRule: $outRule,
       saleRule: $saleRule,
+      costIncreaseRule: $costIncreaseRule,
+      costDecreaseRule: $costDecreaseRule,
     ) {
       ${safeRemainderFields}
     }

@@ -32,7 +32,7 @@ export const AddDetailRowButton = ({
     _id: getTempId(),
     amount: 0,
     productId,
-    count: 0,
+    count: 1,
     unitPrice: 0,
     weight: undefined,
   });
@@ -67,14 +67,12 @@ export const AddDetailRowButton = ({
             );
             const detail = getDetailDefaultValues(productId);
             const unitPrice = data.getAccLastIncomePrice[productId] ?? 0;
-            const count = 1;
 
             return {
               ...detail,
-              count,
               unitPrice,
-              amount: count * unitPrice,
-              weight: count * (product?.weight ?? 1),
+              amount: (detail.count ?? 0) * unitPrice,
+              weight: (detail.count ?? 0) * (product?.weight ?? 1),
             };
           });
 

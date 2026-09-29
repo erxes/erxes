@@ -1,4 +1,9 @@
-import { OperationVariables, useMutation } from '@apollo/client';
+import {
+  ApolloError,
+  MutationFunctionOptions,
+  OperationVariables,
+  useMutation,
+} from '@apollo/client';
 import { toast } from 'erxes-ui';
 import i18n from 'i18next';
 import {
@@ -13,9 +18,19 @@ import {
   SAFE_REMAINDER_DETAILS_QUERY,
 } from '../graphql/safeRemainderQueries';
 
-const commonOptions = (id: string, options?: any, _queryParams?: any) => {
+type SafeRemainderMutationData = Record<string, unknown>;
+type SafeRemainderMutationOptions = MutationFunctionOptions<
+  SafeRemainderMutationData,
+  OperationVariables
+>;
+
+const commonOptions = (
+  id: string,
+  successMessage: string,
+  options?: SafeRemainderMutationOptions,
+) => {
   return {
-    onError: (error: Error) => {
+    onError: (error: ApolloError) => {
       toast({
         title: i18n.t('accounting:error'),
         description: error.message,
@@ -23,10 +38,10 @@ const commonOptions = (id: string, options?: any, _queryParams?: any) => {
       });
       options?.onError?.(error);
     },
-    onCompleted: (data: any) => {
+    onCompleted: (data: SafeRemainderMutationData) => {
       toast({
         title: i18n.t('accounting:success'),
-        description: i18n.t('accounting:safe-remainder-submitted'),
+        description: i18n.t(`accounting:${successMessage}`),
       });
       options?.onCompleted?.(data);
     },
@@ -49,16 +64,22 @@ const commonOptions = (id: string, options?: any, _queryParams?: any) => {
 };
 
 export const useSafeRemainderReCalc = () => {
-  const [reCaclMutation, { loading }] = useMutation(SAFE_REMAINDER_RECALC);
+  const [reCaclMutation, { loading }] = useMutation<
+    SafeRemainderMutationData,
+    OperationVariables
+  >(SAFE_REMAINDER_RECALC);
 
-  const reCalcSafeRemainder = (id: string, options?: OperationVariables) => {
+  const reCalcSafeRemainder = (
+    id: string,
+    options?: SafeRemainderMutationOptions,
+  ) => {
     return reCaclMutation({
       ...options,
       variables: {
         ...options?.variables,
         _id: id,
       },
-      ...commonOptions(id, options),
+      ...commonOptions(id, 'safe-remainder-updated', options),
     });
   };
 
@@ -69,16 +90,22 @@ export const useSafeRemainderReCalc = () => {
 };
 
 export const useSafeRemainderSubmit = () => {
-  const [submitMutation, { loading }] = useMutation(SAFE_REMAINDER_SUBMIT);
+  const [submitMutation, { loading }] = useMutation<
+    SafeRemainderMutationData,
+    OperationVariables
+  >(SAFE_REMAINDER_SUBMIT);
 
-  const submitSafeRemainder = (id: string, options?: OperationVariables) => {
+  const submitSafeRemainder = (
+    id: string,
+    options?: SafeRemainderMutationOptions,
+  ) => {
     return submitMutation({
       ...options,
       variables: {
         ...options?.variables,
         _id: id,
       },
-      ...commonOptions(id, options),
+      ...commonOptions(id, 'safe-remainder-submitted', options),
     });
   };
 
@@ -89,16 +116,22 @@ export const useSafeRemainderSubmit = () => {
 };
 
 export const useSafeRemainderCancel = () => {
-  const [cancelMutation, { loading }] = useMutation(SAFE_REMAINDER_CANCEL);
+  const [cancelMutation, { loading }] = useMutation<
+    SafeRemainderMutationData,
+    OperationVariables
+  >(SAFE_REMAINDER_CANCEL);
 
-  const cancelSafeRemainder = (id: string, options?: OperationVariables) => {
+  const cancelSafeRemainder = (
+    id: string,
+    options?: SafeRemainderMutationOptions,
+  ) => {
     return cancelMutation({
       ...options,
       variables: {
         ...options?.variables,
         _id: id,
       },
-      ...commonOptions(id, options),
+      ...commonOptions(id, 'safe-remainder-updated', options),
     });
   };
 
@@ -109,16 +142,22 @@ export const useSafeRemainderCancel = () => {
 };
 
 export const useSafeRemainderDoTr = () => {
-  const [doTrMutation, { loading }] = useMutation(SAFE_REMAINDER_DO_TR);
+  const [doTrMutation, { loading }] = useMutation<
+    SafeRemainderMutationData,
+    OperationVariables
+  >(SAFE_REMAINDER_DO_TR);
 
-  const doTrSafeRemainder = (id: string, options?: OperationVariables) => {
+  const doTrSafeRemainder = (
+    id: string,
+    options?: SafeRemainderMutationOptions,
+  ) => {
     return doTrMutation({
       ...options,
       variables: {
         ...options?.variables,
         _id: id,
       },
-      ...commonOptions(id, options),
+      ...commonOptions(id, 'safe-remainder-updated', options),
     });
   };
 
@@ -129,16 +168,22 @@ export const useSafeRemainderDoTr = () => {
 };
 
 export const useSafeRemainderUndoTr = () => {
-  const [undoTrMutation, { loading }] = useMutation(SAFE_REMAINDER_UNDO_TR);
+  const [undoTrMutation, { loading }] = useMutation<
+    SafeRemainderMutationData,
+    OperationVariables
+  >(SAFE_REMAINDER_UNDO_TR);
 
-  const undoTrSafeRemainder = (id: string, options?: OperationVariables) => {
+  const undoTrSafeRemainder = (
+    id: string,
+    options?: SafeRemainderMutationOptions,
+  ) => {
     return undoTrMutation({
       ...options,
       variables: {
         ...options?.variables,
         _id: id,
       },
-      ...commonOptions(id, options),
+      ...commonOptions(id, 'safe-remainder-updated', options),
     });
   };
 

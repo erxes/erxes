@@ -68,6 +68,10 @@ export const saasOrganizationsSchema = new mongoose.Schema({
   sslStatus: { type: String },
 
   cycleEnabled: { type: Boolean },
+
+  // Kept apart from `domain` / `dnsStatus`, which drive the white-label app
+  // domain, so a help center hostname never changes how the app sets cookies.
+  helpCenterDomain: { type: Object },
 });
 
 export const saasInstallationSchema = new mongoose.Schema({

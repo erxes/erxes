@@ -1,8 +1,29 @@
-import { paginate } from 'erxes-api-shared/utils';
+import { escapeRegExp, paginate } from 'erxes-api-shared/utils';
+import { FilterQuery, SortOrder } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
+import { ISafeRemainderDocument } from '../../../@types/safeRemainders';
 
-const buildDateRange = (from?: string, to?: string) => {
-  const range: any = {};
+interface ISafeRemainderQueryParams {
+  branchId?: string;
+  departmentId?: string;
+  productId?: string;
+  searchValue?: string;
+  beginDate?: Date | string;
+  endDate?: Date | string;
+  createdUserId?: string;
+  modifiedUserId?: string;
+  createdStartDate?: Date | string;
+  createdEndDate?: Date | string;
+  updatedStartDate?: Date | string;
+  updatedEndDate?: Date | string;
+  page?: number;
+  perPage?: number;
+  sortField?: string;
+  sortDirection?: number;
+}
+
+const buildDateRange = (from?: Date | string, to?: Date | string) => {
+  const range: { $gte?: Date; $lte?: Date } = {};
   if (from) range.$gte = new Date(from);
   if (to) range.$lte = new Date(to);
   return Object.keys(range).length ? range : null;
@@ -10,13 +31,13 @@ const buildDateRange = (from?: string, to?: string) => {
 
 const safeRemainderQueries = {
   safeRemainders: async (
-    _root: any,
-    params: any,
+    _root: undefined,
+    params: ISafeRemainderQueryParams,
     { models, checkPermission }: IContext,
   ) => {
     await checkPermission('readSafeRemainders');
 
-    const query: any = {};
+    const query: FilterQuery<ISafeRemainderDocument> = {};
 
     if (params.departmentId) {
       query.departmentId = params.departmentId;
@@ -27,12 +48,10 @@ const safeRemainderQueries = {
     }
 
     if (params.searchValue) {
-      const regexOption = {
-        $regex: `.*${params.searchValue}.*`,
+      query.description = {
+        $regex: escapeRegExp(params.searchValue),
         $options: 'i',
       };
-
-      query.$or = [{ name: regexOption }, { code: regexOption }];
     }
 
     const dateRange = buildDateRange(params.beginDate, params.endDate);
@@ -71,10 +90,9 @@ const safeRemainderQueries = {
       query._id = { $in: lastRemIds };
     }
 
-    let sort: any = { date: -1 };
-    if (params.sortField) {
-      sort = { [params.sortField]: params.sortDirection ?? '1' };
-    }
+    const sort: Record<string, SortOrder> = params.sortField
+      ? { [params.sortField]: (params.sortDirection ?? 1) as SortOrder }
+      : { date: -1 };
 
     return {
       totalCount: await models.SafeRemainders.find(query).countDocuments(),
@@ -85,7 +103,7 @@ const safeRemainderQueries = {
   },
 
   safeRemainderDetail: async (
-    _root: any,
+    _root: undefined,
     { _id }: { _id: string },
     { models, checkPermission }: IContext,
   ) => {

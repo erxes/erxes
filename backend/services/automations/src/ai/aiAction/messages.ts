@@ -2,7 +2,7 @@ import { TAiContext } from 'erxes-api-shared/core-modules';
 import { TAiAgentLoadedContextFile } from '../aiAgent/context';
 import { TAiBridgeMessage } from '../bridge';
 import { formatAiConversationStateForPrompt } from '../memory/conversationState';
-import { TAiAgentActionConfig } from './contract';
+import { TAiAgentActionConfig, TAiAgentObjectField } from './contract';
 import { buildAiInputFromContext } from './context';
 
 // One ceiling for everything the context sections may contribute, so adding a
@@ -57,23 +57,25 @@ const getGenerateTextCaptureFields = (actionConfig: TAiAgentActionConfig) =>
     ? actionConfig.captureFields || []
     : [];
 
-const buildCaptureFieldsSpec = (
-  captureFields: {
-    fieldName: string;
-    dataType: string;
-    validation: string;
-    prompt: string;
-  }[],
-) =>
-  captureFields
-    .map(
-      (field, index) =>
-        `${index + 1}. key="${field.fieldName}" type="${
-          field.dataType
-        }" validation="${field.validation || ''}" prompt="${
-          field.prompt || ''
-        }"`,
-    )
+const buildFieldProtocol = (options: TAiAgentObjectField['options']) =>
+  [
+    '   Allowed values (return the value whose rule the input satisfies):',
+    ...options.map(({ value, prompt }) => `   - "${value}": ${prompt}`),
+    '   If no rule is satisfied, return null. Never return a value outside this list.',
+  ].join('\n');
+
+const buildFieldsSpec = (fields: TAiAgentObjectField[]) =>
+  fields
+    .map((field, index) => {
+      const isOption = field.dataType === 'option';
+      const line = `${index + 1}. key="${field.fieldName}" type="${
+        isOption ? 'string' : field.dataType
+      }" validation="${field.validation || ''}" prompt="${field.prompt || ''}"`;
+
+      return isOption && field.options.length
+        ? `${line}\n${buildFieldProtocol(field.options)}`
+        : line;
+    })
     .join('\n');
 
 const buildAutomationSystemInstruction = (
@@ -160,7 +162,7 @@ const buildUserPrompt = (
       ? [
           '',
           'While writing the reply, also silently extract the following capture fields from the conversation:',
-          buildCaptureFieldsSpec(captureFields),
+          buildFieldsSpec(captureFields),
           '',
           'Response format (valid JSON only, no code fences):',
           '{',
@@ -213,16 +215,7 @@ const buildUserPrompt = (
     ].join('\n');
   }
 
-  const fields = actionConfig.objectFields
-    .map(
-      (field, index) =>
-        `${index + 1}. key="${field.fieldName}" type="${
-          field.dataType
-        }" validation="${field.validation || ''}" prompt="${
-          field.prompt || ''
-        }"`,
-    )
-    .join('\n');
+  const fields = buildFieldsSpec(actionConfig.objectFields);
 
   const responseShape = actionConfig.objectFields
     .map((field) => `  "${field.fieldName}": null`)

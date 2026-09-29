@@ -1,5 +1,67 @@
 
 
+## [3.2.5](https://github.com/erxes/erxes/compare/3.2.4...3.2.5) (2026-09-28)
+
+
+### Bug Fixes
+
+* add transaction in trDcos ([23edff8](https://github.com/erxes/erxes/commit/23edff8cd5049ab7c6f99e88d30b3d3bbfc7ac33))
+* added client portal token mask ([#9429](https://github.com/erxes/erxes/issues/9429)) ([5d37c9c](https://github.com/erxes/erxes/commit/5d37c9c972e5974a665869585ba65a3f17759801))
+* census with cost ([#9458](https://github.com/erxes/erxes/issues/9458)) ([3af6491](https://github.com/erxes/erxes/commit/3af6491d24b01d1b7a8c7c0734880812499f1172))
+* ebarimt product configs with permission ([9f28114](https://github.com/erxes/erxes/commit/9f28114fa0d8d570072103a58a3f889550768aa2))
+* **frontline:** consolidate Facebook messenger backend and receive customer reactions   ([cbe3bc2](https://github.com/erxes/erxes/commit/cbe3bc2cabd65b6dc73647a6909855b90adf3f1e))
+* **frontline:** route calls to the channel whose queue took them  ([498ce43](https://github.com/erxes/erxes/commit/498ce4379997996ff53ff8d09bfbe8bad42cc9b1))
+* import Maily CSS before Tailwind to prevent global border-color override ([#9457](https://github.com/erxes/erxes/issues/9457)) ([a52d011](https://github.com/erxes/erxes/commit/a52d011052c617a84fc7df6e44af198a0f7bf0cd))
+* improve widget message interactions ([#9325](https://github.com/erxes/erxes/issues/9325)) ([2b4ae0e](https://github.com/erxes/erxes/commit/2b4ae0e4f9c3ab145952a263f3cc680a10831b77))
+* **insurance_api:** fail the image build when installing deps fails ([#9469](https://github.com/erxes/erxes/issues/9469)) ([012d9b5](https://github.com/erxes/erxes/commit/012d9b5beac013487a4c29c88095987e753c6c28))
+* **permissions:** expand '*' module grants when checking permissions ([49a8106](https://github.com/erxes/erxes/commit/49a810625236dcf2a1d87532c98d0376578dd281))
+* posclient missed checks ([8a2201a](https://github.com/erxes/erxes/commit/8a2201af6bb52f57eef00d04698a7cb7443bebda))
+* posclient queue ([8b02dbe](https://github.com/erxes/erxes/commit/8b02dbe56cadca5b31a3ce5def0dcd08d7e10cae))
+* preserve step name/description when removing a form step ([#9446](https://github.com/erxes/erxes/issues/9446)) ([211dda6](https://github.com/erxes/erxes/commit/211dda62189031f66de08c01278ec5fca7355f66))
+* **saas-migrations:** drop nanoid and erxes-api-shared imports from propertiesData ([c888b0e](https://github.com/erxes/erxes/commit/c888b0e2acb5d8a75476ac1e04693f4461280833))
+* **saas-migrations:** inline wordpress helpers used by knowledge base importer ([30eaa83](https://github.com/erxes/erxes/commit/30eaa8385b0385be6ab06b3c5de02bc7e353715b))
+* **saas-migrations:** skip documents that conflict with target unique indexes ([0768c0c](https://github.com/erxes/erxes/commit/0768c0c16bacf18bede30dedd4ce89a009b26c03))
+* **saas-migrations:** support $-prefixed fields in insert-only mode ([ebd420f](https://github.com/erxes/erxes/commit/ebd420f9230d306f64b62798b621e6b4dab967f5))
+* tags selector cache handling and block editor media ([#9342](https://github.com/erxes/erxes/issues/9342)) ([8a353bf](https://github.com/erxes/erxes/commit/8a353bf39931fa9efca4623fa2349c4dc7ad25f9))
+* wrap TaskSideWidgets in FocusSheet on TriageContent ([#9478](https://github.com/erxes/erxes/issues/9478)) ([a25a63f](https://github.com/erxes/erxes/commit/a25a63fd51a00dee22b22b73d1a3fcfd4fd31a95))
+
+
+### Features
+
+* **accounting:** add jouranl invJustify and activeCost ([#9453](https://github.com/erxes/erxes/issues/9453)) ([ce17c73](https://github.com/erxes/erxes/commit/ce17c7397c32430b80e41b3770c6a351c81c130a))
+* **content:** custom domains for web builder sites ([#9472](https://github.com/erxes/erxes/issues/9472)) ([fa3600a](https://github.com/erxes/erxes/commit/fa3600a0b20b63ef81221133031aad241144cf11))
+* date, segment added on ticket filter ([#9466](https://github.com/erxes/erxes/issues/9466)) ([88b161c](https://github.com/erxes/erxes/commit/88b161c55b0a523e69e624ddb7f5871cf938cebe))
+* **frontline:** custom domains for the help center ([#9468](https://github.com/erxes/erxes/issues/9468)) ([7e1110f](https://github.com/erxes/erxes/commit/7e1110f9c7913bc1cfc83eb7e83b8fecdd5b9e09))
+* **frontline:** move help center custom domain into the Help Center drawer ([#9471](https://github.com/erxes/erxes/issues/9471)) ([20f403b](https://github.com/erxes/erxes/commit/20f403b56bb93a57c2b2f5b226c46d9281eaa4ad))
+* implement deal amount attributes for automation document outputs ([5906b57](https://github.com/erxes/erxes/commit/5906b57a334305b629f08a610b939667e95aa318))
+* restore conversation custom properties ([#9451](https://github.com/erxes/erxes/issues/9451)) ([1a70d68](https://github.com/erxes/erxes/commit/1a70d68155820ef01c6834d6056716028d7a09e1))
+* **saas-migrations:** convert legacy ebarimt/erkhet configs to mongolian_configs ([1715cbf](https://github.com/erxes/erxes/commit/1715cbfe92c7153f514ae049db5dc21c17cd7b63))
+* **saas-migrations:** run migrations across org pairs and protect target data  ([e997c26](https://github.com/erxes/erxes/commit/e997c2654f55a6590b11586a49c4d29674d382bf))
+
+# Changelog
+
+## [3.2.4](https://github.com/erxes/erxes/compare/3.2.3...3.2.4) (2026-09-24)
+
+
+### Features
+
+* **workflows:** upgrade pnpm version from 8 to 9 across CI configurations ([b7d8a1b](https://github.com/erxes/erxes/commit/b7d8a1b94d9b1785b872ff2a097b965f5dae629a))
+
+## [3.2.3](https://github.com/erxes/erxes/compare/3.2.2...3.2.3) (2026-09-24)
+
+
+### Features
+
+* **automatio:** enhance object field schema with options and validation, update related components ([3b849be](https://github.com/erxes/erxes/commit/3b849bedc577468ef139cdf7ecf0b8f95f35afe9))
+* **automation:** refactor secondary sidebar and introduce panel management ([2d4e1d7](https://github.com/erxes/erxes/commit/2d4e1d7fc03984ad726064375c842be5d3b3e551))
+
+## [3.2.2](https://github.com/erxes/erxes/compare/3.2.1...3.2.2) (2026-09-24)
+
+
+### Bug Fixes
+
+* **ActionResultBody:** standardize button text casing for expand/collapse ([1866392](https://github.com/erxes/erxes/commit/186639254c7ad45162170d3c3aebd4894bfacb5e))
+
 ## [3.2.1](https://github.com/erxes/erxes/compare/3.2.0...3.2.1) (2026-09-24)
 
 
@@ -12,7 +74,7 @@
 
 * **frontline:** help center picks a client portal by id and several CMSes  ([b5c5c8c](https://github.com/erxes/erxes/commit/b5c5c8c64fabffe1748361164bf95c2ad62fe876))
 
-# Changelog
+
 
 # [3.2.0](https://github.com/erxes/erxes/compare/3.1.15...3.2.0) (2026-09-24)
 

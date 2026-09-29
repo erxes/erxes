@@ -34,10 +34,12 @@ type ComposerSendOptions = {
   attachments: IAttachment[];
   mentionedUserIds: string[];
   isDiscord: boolean;
+  isFacebook: boolean;
   isInternalNote: boolean;
   isUploading: boolean;
   responseTemplateId: string | null;
   resetComposer: () => void;
+  onPartialDelivery: (remainingAttachments: IAttachment[]) => void;
 };
 
 export const useComposerSend = ({
@@ -48,10 +50,12 @@ export const useComposerSend = ({
   attachments,
   mentionedUserIds,
   isDiscord,
+  isFacebook,
   isInternalNote,
   isUploading,
   responseTemplateId,
   resetComposer,
+  onPartialDelivery,
 }: ComposerSendOptions) => {
   const { t } = useTranslation('frontline');
   const replyTo = useAtomValue(messageReplyState);
@@ -109,7 +113,40 @@ export const useComposerSend = ({
             ? { replyToMessageId: replyTo.providerMessageId }
             : {}),
         },
-        onCompleted: () => {
+        onCompleted: (result) => {
+          const delivery = isFacebook
+            ? result.conversationMessageAdd.extraData?.facebookDelivery
+            : undefined;
+          if (delivery?.status === 'partial') {
+            const remainingAttachments = allAttachments.filter(
+              ({ url }) => !delivery.sentAttachmentUrls.includes(url),
+            );
+            if (submittedDraftKey)
+              composerStorage.removeItem(submittedDraftKey);
+            if (
+              activeConversationIdRef.current === submittedConversationId &&
+              activeDraftKeyRef.current === submittedDraftKey
+            ) {
+              onPartialDelivery(remainingAttachments);
+            }
+            toast({
+              title: remainingAttachments.length
+                ? t('message-partially-sent', 'Message partially sent')
+                : t('message-sent-with-warning', 'Message sent with a warning'),
+              description: remainingAttachments.length
+                ? t(
+                    'message-partially-sent-description',
+                    '{{count}} attachment(s) were not sent. Only these remain for retry.',
+                    { count: remainingAttachments.length },
+                  )
+                : t(
+                    'message-history-update-failed',
+                    'Facebook accepted the message, but saving its history failed. Do not resend it.',
+                  ),
+              variant: 'destructive',
+            });
+            return;
+          }
           toast({
             title: isInternalNote
               ? t('note-added', 'Internal note added')
@@ -123,13 +160,27 @@ export const useComposerSend = ({
             resetComposer();
           }
         },
-        refetchQueries: REFETCH_AFTER_SEND,
-        onError: (error) =>
+        refetchQueries: [
+          ...REFETCH_AFTER_SEND,
+          ...(isFacebook ? ['FacebookConversationMessages'] : []),
+        ],
+        onError: (error) => {
+          const windowExpired =
+            isFacebook &&
+            /outside of (?:the )?allowed window/i.test(error.message);
           toast({
-            title: t('failed-to-send', 'Failed to send'),
-            description: error.message,
+            title: windowExpired
+              ? t('message-window-expired', 'Messaging window expired')
+              : t('failed-to-send', 'Failed to send'),
+            description: windowExpired
+              ? t(
+                  'message-window-expired-description',
+                  'You can reply once the customer sends a new message.',
+                )
+              : error.message,
             variant: 'destructive',
-          }),
+          });
+        },
       });
     } finally {
       submittingRef.current = false;
@@ -142,11 +193,13 @@ export const useComposerSend = ({
     draftKey,
     editor,
     isDiscord,
+    isFacebook,
     isInternalNote,
     isUploading,
     loading,
     mentionedUserIds,
     messageExtraInfo,
+    onPartialDelivery,
     replyTo,
     resetComposer,
     responseTemplateId,
