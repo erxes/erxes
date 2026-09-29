@@ -178,26 +178,37 @@ function handleCoreCompanyField(
   value: any,
   companyDoc: any,
 ) {
-  switch (fieldName) {
-    case 'avatar':
-      if (Array.isArray(value) && value.length > 0) {
-        companyDoc.avatar = value[0].url;
-      } else if (value?.url) {
-        companyDoc.avatar = value.url;
-      } else if (typeof value === 'string' && value) {
-        companyDoc.avatar = value;
-      }
-      break;
-    case 'primaryEmail':
-      companyDoc.primaryEmail =
-        typeof value === 'string' ? value.trim().toLowerCase() : value;
-      break;
-    case 'primaryPhone':
-      companyDoc.primaryPhone = value;
-      break;
-    default:
-      companyDoc[fieldName] = value;
-      break;
+  if (fieldName === 'avatar') {
+    const avatar = getUploadedUrl(value);
+    if (avatar) companyDoc.avatar = avatar;
+    return;
+  }
+
+  companyDoc[fieldName] =
+    fieldName === 'primaryEmail' && typeof value === 'string'
+      ? value.trim().toLowerCase()
+      : value;
+}
+
+function getUploadedUrl(value: any): string | undefined {
+  if (Array.isArray(value)) return value[0]?.url;
+  if (typeof value === 'string') return value || undefined;
+  return value?.url;
+}
+
+function setCompanyField(
+  submissionType: string,
+  value: any,
+  companyDoc: any,
+  companySchemaLabels: SchemaLabel[],
+) {
+  if (submissionType.startsWith('core:company:')) {
+    const fieldName = submissionType.slice('core:company:'.length);
+    handleCoreCompanyField(fieldName, value, companyDoc);
+  } else if (submissionType.includes('company_')) {
+    handleCompanyFields(submissionType, value, companyDoc);
+  } else if (companySchemaLabels.some((e) => e.name === submissionType)) {
+    companyDoc[submissionType] = value;
   }
 }
 
@@ -466,14 +477,7 @@ export const widgetFormMutation: Record<
         }
       }
 
-      if (submissionType.startsWith('core:company:')) {
-        const fieldName = submissionType.slice('core:company:'.length);
-        handleCoreCompanyField(fieldName, value, companyDoc);
-      } else if (submissionType.includes('company_')) {
-        handleCompanyFields(submissionType, value, companyDoc);
-      } else if (companySchemaLabels.some((e) => e.name === submissionType)) {
-        companyDoc[submissionType] = value;
-      }
+      setCompanyField(submissionType, value, companyDoc, companySchemaLabels);
 
       if (submission.associatedFieldId && isCustomField(submissionType)) {
         const field = await models.Fields.findOne({
@@ -732,14 +736,7 @@ export const widgetFormMutation: Record<
         }
       }
 
-      if (submissionType.startsWith('core:company:')) {
-        const fieldName = submissionType.slice('core:company:'.length);
-        handleCoreCompanyField(fieldName, value, companyDoc);
-      } else if (submissionType.includes('company_')) {
-        handleCompanyFields(submissionType, value, companyDoc);
-      } else if (companySchemaLabels.some((e) => e.name === submissionType)) {
-        companyDoc[submissionType] = value;
-      }
+      setCompanyField(submissionType, value, companyDoc, companySchemaLabels);
 
       if (submission.associatedFieldId && isCustomField(submissionType)) {
         const field = await models.Fields.findOne({

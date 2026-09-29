@@ -94,9 +94,10 @@ export const ErxesFormValues = ({
       field.type === 'core:customer:avatar' ||
       field.type === 'core:company:avatar'
     ) {
+      const message = 'Please upload an avatar picture.';
       formSchema[field._id] = field.isRequired
-        ? z.any({ message: 'Please upload a avatar picture.' })
-        : z.any();
+        ? z.string({ invalid_type_error: message }).min(1, { message })
+        : z.string().nullable().optional();
       return;
     }
     if (field.type === 'radio' || field.type === 'core:customer:sex') {
