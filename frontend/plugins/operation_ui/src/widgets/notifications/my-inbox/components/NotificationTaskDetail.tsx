@@ -10,8 +10,6 @@ import { TaskSideWidgets } from '~/widgets/relation/TaskSideWidgets';
 
 const SCROLL_VIEWPORT_SELECTOR = '[data-radix-scroll-area-viewport]';
 
-// The inbox scroll viewport has no fixed height for CSS to size against, so
-// the side column reads its visible height to stay pinned while content scrolls.
 const useScrollViewportHeight = () => {
   const ref = useRef<HTMLDivElement>(null);
   const [height, setHeight] = useState<number>();
@@ -43,7 +41,6 @@ export const NotificationTaskDetail = ({
   showOpenTask: boolean;
 }) => {
   const { t } = useTranslation('operation');
-  // Shares the Apollo cache entry TaskDetails reads, so no extra request.
   const { task } = useGetTask({
     variables: { _id: contentTypeId },
   });
