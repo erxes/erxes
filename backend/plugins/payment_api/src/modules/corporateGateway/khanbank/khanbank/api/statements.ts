@@ -90,11 +90,16 @@ export class StatementsApi extends BaseApi {
 
     const statements = response.content ?? response.transactions ?? response;
 
-    return statements.find((item: any) => {
+    const expectedDescription = description?.trim();
+
+    const matchedTransaction = statements.find((item: any) => {
+      const statementDescription = item.description?.trim();
+
       return (
         Number(item.amount) === Number(amount) &&
-        item.description?.trim() === description?.trim()
+        statementDescription?.startsWith(expectedDescription)
       );
     });
+    return matchedTransaction;
   }
 }

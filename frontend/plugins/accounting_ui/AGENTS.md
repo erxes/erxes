@@ -60,7 +60,7 @@
 - Related account override inputs keep focus while users type and persist custom debit and credit code lists independently.
 - Empty related account overrides are omitted on submit so backend-calculated default debit/credit related accounts remain active, and the related-account editor falls back to default `dt/ct` codes when `customDt/customCt` are empty.
 - Accounting settings pages manage accounts, account categories, permissions, VAT, CTAX, and sync configuration; VAT/CTAX row access is guarded by the unified tax-row permission actions.
-- Journal report rendering groups backend rows recursively, uses a declarative report-to-filter map to show and submit only applicable account, contact, inventory, fixed-asset, organization, user, and report controls, filters by Erkhet-compatible transaction type plus erxes-native category/search/tag/ownership fields, renders account statement, trial balance, general ledger, main journal, main journal summary, fund, debt, inventory cost, inventory sale, inventory sale-cost, inventory sale-period, inventory price, inventory profit, inventory shipper, inventory document, inventory seller subsystem, and fixed asset report variants, signs inventory movement totals by transaction side so debit cost adjustments increase and credit adjustments decrease value, shows foreign-currency balance rows separately beneath non-MNT account leaves without adding them to base-currency totals, derives table headers and footers from report column metadata, keeps date filter controls visually consistent, shows table-body loading skeletons while report or drill-down data loads, drills account rows into account statements with filter context, calculates parent/footer totals after render, hides all-zero summary rows unless users choose detailed or empty-row display, loads account-statement detail rows without mutating report state, opens transaction edit screens from detail rows, and downloads the rendered result as a formatted Excel workbook.
+- Journal report rendering groups backend rows recursively, uses a declarative report-to-filter map to show and submit only applicable account, contact, inventory, fixed-asset, organization, user, and report controls, filters by Erkhet-compatible transaction type plus erxes-native category/search/tag/ownership fields, renders account statement, trial balance, general ledger, main journal, main journal summary, fund, debt, inventory cost, inventory sale, inventory sale-cost, inventory sale-period, inventory price, inventory profit, inventory shipper, inventory document, inventory seller subsystem, and fixed asset report variants, signs inventory movement totals by transaction side so debit cost adjustments increase and credit adjustments decrease value, shows foreign-currency balance rows separately beneath non-MNT account leaves without adding them to base-currency totals, derives table headers and footers from report column metadata, keeps date filter controls visually consistent, shows table-body loading skeletons while report or drill-down data loads, calculates parent/footer totals after render, hides all-zero summary rows unless users choose detailed or empty-row display, exposes detailed transactions for every report, opens transaction edit screens from detailed rows, drills summary rows into the same report with hierarchy-derived filters, and downloads the rendered result as a formatted Excel workbook.
 - Development Rspack serving ignores generated dependency/cache/output folders to keep local file watchers bounded.
 
 ## Architecture
@@ -99,7 +99,7 @@
 
 ### Consumes
 
-- Accounting API GraphQL contracts for transactions, reports, settings, inventory/fixed asset adjustments, fund rate adjustments, and debt rate adjustments, including journal report `trKind` filters.
+- Accounting API GraphQL contracts for transactions, reports, settings, inventory/fixed asset adjustments, fund rate adjustments, and debt rate adjustments, including journal report `trKind`, grouped drill-down, `ptrId`, and detail-row filters.
 - Inventory cost adjustment transactions consume the `invJustify` journal contract and the existing `getAccCurrentCost` helper for current unit cost and remainder display; debit means cost increase and credit means cost decrease.
 - Safe remainder item `trInfo` consumes optional active/target total cost, explicit-cost state, last income price, sale flag, and sale price metadata; CSV import sends editable counted-cost/sale metadata while active cost remains backend-derived.
 - Platform import/export contract for `accounting:account.transactions` filtered and selected-id exports.
@@ -176,6 +176,7 @@
 - Journal report inventory and fixed-asset location filtering is represented by branch/department selectors because erxes transaction details carry branch/department instead of Erkhet `inv_location`/`fxa_location` ids.
 - Inventory report remainder and cost movement totals must derive their sign from transaction side; debit adds and credit subtracts, including cost-only `invJustify` rows.
 - Journal report filter visibility and submitted query parameters must be declared in `src/modules/journal-reports/types/reportFilters.ts`; adding a field to a form without mapping it to applicable reports and its backend query parameter is not allowed.
+- Every journal report must offer detailed mode; summary-row drill-down must preserve the report and current filters while adding every selected group filter, and detailed transaction rows must open their transaction edit route on double-click.
 
 ## Validation
 
@@ -193,70 +194,6 @@
 - Smoke scenario: in fixed asset out, move, and sale forms, select a fixed asset in a single row, verify branch/department default from the transaction header, change row branch/department and confirm the count limit refreshes from that location, open the owner-record sheet and select active owner balance rows below or equal to the detail count, open "Олон хөрөнгө нэмэх", filter by category, append multiple assets as separate details, verify out/move cost fields fill from the asset cost base, sale keeps user-entered sale price, and detail branch/department values persist from the detailed view.
 - Smoke scenario: open `/accounting/fixed-assets/owner-records`, verify the "Үндсэн хөрөнгө" navigation group appears, filter owner records by search, fixed asset, category, owner, action, status, and created date, then use Үүсгэх/Шилжүүлэх/Цуцлах actions to create direct owner-record ledger rows without leaving the page.
 - Smoke scenario: open `/accounting/fixed-assets/remainders`, verify the "Үлдэгдэл" navigation item appears without the fixed asset settings or direct internal-move shortcuts, filter by search, fixed asset, category, branch, department, and date, and confirm rows show positive fixed asset quantities grouped by branch and department.
-- Smoke scenario: generate account statement, trial balance, general ledger, main journal, main journal summary, fund, debt, inventory cost, inventory sale, inventory sale-cost, inventory sale-period, inventory price, inventory profit, inventory shipper, inventory document, inventory seller subsystem, and fixed asset journal reports with and without "Хоосон мөр харуулах" and "Гүйлгээний төрөл", verify parent/footer totals plus detail rows remain correct, and double-click an account statement detail row to open its transaction edit screen.
+- Smoke scenario: generate every journal report with and without "Дэлгэрэнгүй", "Хоосон мөр харуулах", and "Гүйлгээний төрөл"; verify parent/footer totals remain correct, double-click a summary row to reopen the same report with all row hierarchy filters and detailed mode, then double-click a detailed transaction to open its edit screen.
 - Smoke scenario: generate each journal report with filters, optionally expand account-statement details, click "Excel татах", and verify the downloaded `.xlsx` contains the visible headers, grouped rows, calculated totals, and expanded detail rows.
 - Smoke scenario: import a headerless `code,count` TXT and verify it retains system total cost, then import a `productCode,count,totalCost,isSale,unitPrice` CSV and verify positive total-value differences are absorbed by income, negative income is floored at zero with the remainder shown under adjustment subtract, and out/sale rows derive unit cost from current total cost before remaining add/subtract adjustments.
-
-## Recent Changes
-
-<!-- Newest first. Keep at most 10 entries. -->
-
-### `2026-09-29` — `Respect Journal Report Detail Visibility`
-
-- **Summary:** Zero-valued grouped report rows are hidden after aggregation only in summary mode, while detailed and explicit empty-row views keep them visible.
-- **Affected areas:** Journal report total calculation, zero-row visibility, and regression tests.
-- **Contracts changed:** None.
-
-### `2026-09-29` — `Audit Census Detail Actions`
-
-- **Summary:** Removed the duplicate income-value editor, reused the shared adjustment calculation, preserved settings values through refetch, and blocked repeated detail actions while mutations run.
-- **Affected areas:** Safe remainder detail columns, settings form, action hooks, mutation feedback, and import guidance.
-- **Contracts changed:** None.
-
-### `2026-09-28` — `Order Census Detail Columns`
-
-- **Summary:** The census table default now groups registered values before editable counted values, followed by differences and generated transactions, while persistent preferences still override it and editable inputs remain subtly highlighted.
-- **Affected areas:** Safe remainder count, income, out, sale, and cost-adjustment table columns.
-- **Contracts changed:** None.
-
-### `2026-09-28` — `Preview Last-Price Census Income`
-
-- **Summary:** Quantity increases with zero active cost and blank counted total now preview income at the last inventory-income unit price, while explicit totals continue to override the fallback.
-- **Affected areas:** Safe remainder item metadata, CSV parsing, cost editors, and transaction preview calculations.
-- **Contracts changed:** Consumes optional `trInfo.lastIncomePrice` and `trInfo.isCostExplicit`.
-
-### `2026-09-28` — `Hide Census Cost Rounding Noise`
-
-- **Summary:** Safe remainder previews and tab filters now treat cost differences from `-0.005` through `0.005` as zero to match backend adjustment generation.
-- **Affected areas:** Safe remainder transaction preview, labels, and cost tabs.
-- **Contracts changed:** None.
-
-### `2026-09-28` — `Default Imported Census Cost`
-
-- **Summary:** Count-only manual edits, TXT imports, and CSV rows with blank total cost now use the active unit cost multiplied by counted quantity; explicit CSV or manual totals remain adjustments.
-- **Affected areas:** Safe remainder count cells, CSV parsing, and import format guidance.
-- **Contracts changed:** CSV `totalCost` is optional.
-
-### `2026-09-28` — `Preview Census Total Cost`
-
-- **Summary:** Safe remainder current and counted costs now calculate as total values; one import sheet separates TXT and CSV into format-specific tabs and file actions, TXT retains system cost, and CSV accepts counted total cost.
-- **Affected areas:** Safe remainder transaction preview utility, income/out/cost columns, and counted-cost input validation.
-- **Contracts changed:** Consumes `trInfo.activeCost` and `trInfo.unitCost` as total cost values.
-
-### `2026-09-28` — `Configure Census Adjustment Inventory Accounts`
-
-- **Summary:** Cost increase and decrease settings now select inventory-journal accounts identifying which inventory balance receives the adjustment.
-- **Affected areas:** Safe remainder account configuration filters, descriptions, and layout.
-- **Contracts changed:** Sends inventory account ids through `costIncreaseRule.accountId` and `costDecreaseRule.accountId`.
-
-### `2026-09-28` — `Show Zero-Quantity Cost Changes`
-
-- **Summary:** One shared transaction classifier now drives both the generated-transaction labels and every quantity or cost tab filter, including zero-quantity cost direction fallbacks.
-- **Affected areas:** Safe remainder transaction preview utility, detail tab filters, and the scrollable two-column account configuration layout with sales last.
-- **Contracts changed:** None.
-
-### `2026-09-28` — `Consume Safe Remainder Item Authors`
-
-- **Summary:** Safe remainder item query results now retain separate creator and last-modifier audit fields.
-- **Affected areas:** Safe remainder item GraphQL selection and frontend item type.
-- **Contracts changed:** Consumes `createdAt`, `createdBy`, `modifiedAt`, and `modifiedBy` from `SafeRemainderItem`.
