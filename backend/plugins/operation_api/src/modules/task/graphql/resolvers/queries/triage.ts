@@ -1,7 +1,7 @@
 import { IContext } from '~/connectionResolvers';
 import { ITriageDocument, ITriageFilter } from '@/task/@types/triage';
 import { FilterQuery } from 'mongoose';
-import { cursorPaginate } from 'erxes-api-shared/utils';
+import { cursorPaginate, escapeRegExp } from 'erxes-api-shared/utils';
 
 export const triageQueries = {
   operationGetTriage: async (
@@ -24,7 +24,10 @@ export const triageQueries = {
     const filterQuery: FilterQuery<ITriageDocument> = {};
 
     if (filter.name) {
-      filterQuery.name = { $regex: filter.name, $options: 'i' };
+      filterQuery.name = {
+        $regex: escapeRegExp(filter.name),
+        $options: 'i',
+      };
     }
 
     if (filter.teamId) {
