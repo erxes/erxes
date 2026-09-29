@@ -42,7 +42,4 @@ export const mutations = `
     teamRemove(_id: String!): Team
     teamAddMembers(_id: String!, memberIds: [String]!): [TeamMember]
     teamRemoveMember(teamId: String!, memberId: String!): TeamMember
-    # ** Deprecated
-    # teamUpdateMember(_id: String!, role: String): TeamMember
-    teamUpdateMember(_id: String!): TeamMember
 `;

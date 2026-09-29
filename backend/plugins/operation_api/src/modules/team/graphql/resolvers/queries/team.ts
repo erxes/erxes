@@ -23,21 +23,6 @@ export const teamQueries = {
     return models.Team.getTeam(_id);
   },
 
-  getMyTeams: async (
-    _parent: undefined,
-    _params: undefined,
-    { models, user, checkPermission }: IContext,
-  ) => {
-    await checkPermission('teamRead');
-
-    const userId = user._id;
-    const teamIds = await models.TeamMember.find({ memberId: userId }).distinct(
-      'teamId',
-    );
-
-    return models.Team.find({ _id: { $in: teamIds } });
-  },
-
   getTeams: async (
     _parent: undefined,
     params: ITeamFilter,

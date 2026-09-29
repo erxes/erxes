@@ -45,6 +45,10 @@ export const taskQueries = {
 
     const filterQuery: FilterQuery<ITaskDocument> = {};
 
+    if (filter._id) {
+      filterQuery._id = filter._id;
+    }
+
     if (filter.name) {
       filterQuery.name = { $regex: escapeRegExp(filter.name), $options: 'i' };
     }
@@ -245,6 +249,10 @@ export const taskQueries = {
 
     if (filter.tagIds && filter.tagIds.length > 0) {
       filterQuery.tagIds = { $in: filter.tagIds };
+    }
+
+    if (filter.labelIds && filter.labelIds.length > 0) {
+      filterQuery.labelIds = { $in: filter.labelIds };
     }
 
     if (
