@@ -148,13 +148,15 @@ export const loadTaskClass = (
         }
       }
 
+      const triageCreatorId = doc.triageId ? doc.createdBy : undefined;
+
       if (doc.triageId) {
         doc._id = new mongoose.Types.ObjectId(doc.triageId);
 
         delete doc.triageId;
       }
 
-      doc.createdBy = userId;
+      doc.createdBy = triageCreatorId || userId;
 
       const task = await models.Task.insertOne({
         ...doc,
