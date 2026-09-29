@@ -1,7 +1,7 @@
-import { gql } from '@apollo/client';
+import { graphql } from '~/gql';
 
-export const GET_STATUS_BY_TEAM = gql`
+export const GET_STATUS_BY_TEAM = graphql(`
   query GetStatusByTeam($teamId: String!) {
     getStatusesChoicesByTeam(teamId: $teamId)
   }
-`;
+`);

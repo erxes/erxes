@@ -1,3 +1,4 @@
+import { compactList } from '@/operation/utils/cursorList';
 import { ITask } from '@/task/types';
 import { Command, useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
@@ -112,7 +113,9 @@ export const CopyTaskMenu = ({
 
   const getStatusLabel = (status: string): string => {
     return (
-      statuses?.find((s) => s.value === status)?.label || status || t('no-status')
+      statuses?.find((s) => s.value === status)?.label ||
+      status ||
+      t('no-status')
     );
   };
 
@@ -123,12 +126,14 @@ export const CopyTaskMenu = ({
   const generateMarkdown = (t: ITask): string => `**Name:** ${
     t.name || 'Untitled'
   }
-**Description:** ${parseDescription(t.description) || 'No description'}
+**Description:** ${
+    parseDescription(t.description ?? undefined) || 'No description'
+  }
 **URL:** ${getTaskUrl(t)}
 **Status:** ${getStatusLabel(t.status)}
-**Priority:** ${getPriorityLabel(t.priority)}
-**Assign to:** ${getAssigneeName(t.assigneeId)}
-**Tag:** ${getTagNames(t.tagIds)}
+**Priority:** ${getPriorityLabel(t.priority ?? 0)}
+**Assign to:** ${getAssigneeName(t.assigneeId ?? '')}
+**Tag:** ${getTagNames(compactList(t.tagIds))}
 **Created:** ${formatDate(t.createdAt)}
 **Updated:** ${formatDate(t.updatedAt)}`;
 
@@ -145,7 +150,7 @@ export const CopyTaskMenu = ({
           .map(
             (t) =>
               `**Name:** ${t.name || ''}\n**Description:** ${
-                parseDescription(t.description) || 'No description'
+                parseDescription(t.description ?? undefined) || 'No description'
               }`,
           )
           .join(isSingle ? '' : separator);

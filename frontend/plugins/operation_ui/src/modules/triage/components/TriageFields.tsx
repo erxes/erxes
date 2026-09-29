@@ -1,10 +1,17 @@
-import { Input, Separator, useBlockEditor, BlockEditor, Dialog, Button } from 'erxes-ui';
+import {
+  Input,
+  Separator,
+  useBlockEditor,
+  BlockEditor,
+  Dialog,
+  Button,
+} from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useUpdateTriage } from '@/triage/hooks/useUpdateTriage';
 import { useDebounce } from 'use-debounce';
 import { useEffect, useState } from 'react';
 import { Block } from '@blocknote/core';
-import { ITriage } from '@/triage/types/triage';
+import { ITriageDetail } from '@/triage/types/triage';
 import { ActivityList } from '@/activity/components/ActivityList';
 import { SelectPriority } from '@/operation/components/SelectPriority';
 import { ConvertToTask } from './triage-selects/ConvertToTask';
@@ -14,11 +21,11 @@ import { useConvertTriage } from '../hooks/useConvertTriage';
 import { STATUS_TYPES } from '@/operation/components/StatusInline';
 import { parseDescriptionBlocks } from '@/operation/utils/parseDescriptionBlocks';
 
-export const TriageFields = ({ triage }: { triage: ITriage }) => {
+export const TriageFields = ({ triage }: { triage: ITriageDetail }) => {
   const { t } = useTranslation('operation');
   const { _id: triageId, priority, status, name: _name } = triage || {};
 
-  const description = (triage as ITriage)?.description;
+  const description = triage?.description ?? undefined;
   const initialDescriptionContent = parseDescriptionBlocks(description);
 
   const [descriptionContent, setDescriptionContent] = useState<
@@ -91,7 +98,7 @@ export const TriageFields = ({ triage }: { triage: ITriage }) => {
       <div className="gap-2 flex flex-wrap w-full">
         <SelectPriority
           variant="detail"
-          value={priority}
+          value={priority ?? undefined}
           onValueChange={(value) => {
             updateTriage({
               variables: {
@@ -106,7 +113,7 @@ export const TriageFields = ({ triage }: { triage: ITriage }) => {
 
         <SelectStatus
           variant="detail"
-          value={status}
+          value={status ?? undefined}
           useExtendedLabels={true}
           onValueChange={(value) => {
             if (value !== STATUS_TYPES.TRIAGE) {
@@ -133,9 +140,7 @@ export const TriageFields = ({ triage }: { triage: ITriage }) => {
             <Dialog.Title>{t('convert-to-task')}</Dialog.Title>
           </Dialog.Header>
           <div className="py-4">
-            <p>
-              {t('convert-triage-confirm')}
-            </p>
+            <p>{t('convert-triage-confirm')}</p>
           </div>
           <Dialog.Footer>
             <Dialog.Close asChild>

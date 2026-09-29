@@ -93,7 +93,9 @@ export const AddTriageForm = ({
           variant: 'default',
         });
 
-        onComplete(operationAddTriage._id);
+        if (operationAddTriage) {
+          onComplete(operationAddTriage._id);
+        }
       },
     });
   };

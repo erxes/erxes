@@ -40,13 +40,13 @@ export const TaskBoardCard = ({ id, column }: BoardCardProps) => {
     <div onClick={() => setActiveTask(_id)}>
       <div className="flex items-center justify-between h-9 px-1.5">
         <DateSelectTask
-          value={startDate}
+          value={startDate ?? undefined}
           id={_id}
           type="startDate"
           variant="card"
         />
         <DateSelectTask
-          value={targetDate}
+          value={targetDate ?? undefined}
           id={_id}
           type="targetDate"
           variant="card"
@@ -56,7 +56,9 @@ export const TaskBoardCard = ({ id, column }: BoardCardProps) => {
       <div className="p-3 flex flex-col gap-3">
         <div className="flex flex-col gap-1">
           <h5 className="font-semibold">{name}</h5>
-          <div className="text-accent-foreground uppercase">{t('task-number', { number })}</div>
+          <div className="text-accent-foreground uppercase">
+            {t('task-number', { number })}
+          </div>
         </div>
         <div className="flex flex-wrap gap-1">
           <SelectStatusTask
@@ -72,12 +74,16 @@ export const TaskBoardCard = ({ id, column }: BoardCardProps) => {
             id={_id}
             teamId={teamId}
           />
-          <SelectTaskPriority taskId={_id} value={priority} variant="card" />
+          <SelectTaskPriority
+            taskId={_id}
+            value={priority ?? undefined}
+            variant="card"
+          />
           <SelectTeamTask variant="card" taskId={_id} value={teamId} />
-          <SelectProject value={projectId} taskId={_id} variant="card" />
+          <SelectProject value={projectId ?? ''} taskId={_id} variant="card" />
           <SelectEstimatedPoint
             taskId={_id}
-            value={estimatePoint}
+            value={estimatePoint ?? 0}
             teamId={teamId}
             variant="card"
           />
@@ -91,11 +97,12 @@ export const TaskBoardCard = ({ id, column }: BoardCardProps) => {
           className="text-muted-foreground px-1 hover:bg-background"
         >
           <IconCalendarEventFilled />
-          {t('created-on')} {createdAt && format(new Date(createdAt), 'MMM dd, yyyy')}
+          {t('created-on')}{' '}
+          {createdAt && format(new Date(createdAt), 'MMM dd, yyyy')}
         </Button>
         <SelectAssigneeTask
           variant="card"
-          value={assigneeId}
+          value={assigneeId ?? ''}
           id={_id}
           teamIds={teamId ? [teamId] : undefined}
         />

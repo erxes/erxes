@@ -110,7 +110,9 @@ const ExpandableSection = <T,>({
                   setExpanded(!expanded);
                 }}
               >
-                {expanded ? t('show-less') : t('show-more', { count: remainingCount })}
+                {expanded
+                  ? t('show-less')
+                  : t('show-more', { count: remainingCount })}
               </Button>
             )}
           </>
@@ -258,7 +260,9 @@ const SelectAssigneeValue = ({
       </MembersInline.Provider>
     );
   }
-  return <SelectMember.Value placeholder={placeholder || t('select-assignee')} />;
+  return (
+    <SelectMember.Value placeholder={placeholder || t('select-assignee')} />
+  );
 };
 
 const SelectTeamMemberContent = ({
@@ -343,7 +347,7 @@ const SelectAssigneeFilterView = ({
       <SelectAssigneeProvider
         mode="single"
         value={
-          assignee === 'no-assignee' ? 'no-assignee' : (assignee ?? undefined)
+          assignee === 'no-assignee' ? 'no-assignee' : assignee ?? undefined
         }
         onValueChange={(value) => {
           setAssignee(value === null ? 'no-assignee' : (value as string));
@@ -420,7 +424,7 @@ const SelectAssigneeTaskRoot = ({
       updateTask({
         variables: {
           _id: id,
-          assigneeId: newValue,
+          assigneeId: Array.isArray(newValue) ? newValue[0] : newValue,
         },
       });
     }

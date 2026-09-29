@@ -43,7 +43,7 @@ export const TriageItem = ({
           </h4>
           <div className={cn('text-xs flex items-center justify-between')}>
             <div className="flex items-center gap-2">
-              <PriorityBadge priority={priority} />
+              <PriorityBadge priority={priority ?? undefined} />
             </div>
 
             <div className={cn('text-muted-foreground')}>

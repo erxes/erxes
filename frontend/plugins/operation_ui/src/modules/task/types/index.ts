@@ -1,3 +1,4 @@
+import type { GetTaskQuery, GetTasksQuery } from '~/gql/graphql';
 import { addTaskSchema } from '@/task/types/validations';
 import { z } from 'zod';
 
@@ -16,31 +17,11 @@ export interface INote {
   updatedAt: string;
 }
 
-export interface ITask {
-  _id: string;
-  name: string;
-  description?: string;
-  number: string;
-  tagIds: string[];
-  createdAt: string;
-  createdBy?: string;
-  priority: number;
-  status: string;
-  startDate?: string;
-  targetDate?: string;
-  assigneeId: string;
-  teamId: string;
-  projectId: string;
-  estimatePoint: number;
-  updatedAt: string;
-  cycleId?: string;
-  milestoneId?: string;
-  convertedFromId?: string;
-  githubIssueNumber?: number;
-  githubIssueUrl?: string;
-  githubRepoName?: string;
-  propertiesData?: Record<string, unknown>;
-}
+export type ITask = NonNullable<
+  NonNullable<NonNullable<GetTasksQuery['getTasks']>['list']>[number]
+>;
+
+export type ITaskDetail = NonNullable<GetTaskQuery['getTask']>;
 
 export interface ITaskStatus {
   value: string;

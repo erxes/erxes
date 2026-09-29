@@ -1,6 +1,6 @@
-import gql from 'graphql-tag';
+import { graphql } from '~/gql';
 
-export const GET_TASK = gql`
+export const GET_TASK = graphql(`
   query getTask($_id: String!) {
     getTask(_id: $_id) {
       _id
@@ -9,6 +9,7 @@ export const GET_TASK = gql`
       status
       priority
       teamId
+      number
       tagIds
       assigneeId
       startDate
@@ -26,4 +27,4 @@ export const GET_TASK = gql`
       propertiesData
     }
   }
-`;
+`);

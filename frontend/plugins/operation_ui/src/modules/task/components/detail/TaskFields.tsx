@@ -1,3 +1,4 @@
+import { compactList } from '@/operation/utils/cursorList';
 import { useTranslation } from 'react-i18next';
 import { ActivityList } from '@/activity/components/ActivityList';
 import { ConvertToProject } from '@/task/components/task-selects/ConvertToProject';
@@ -11,7 +12,7 @@ import { SelectStatusTask } from '@/task/components/task-selects/SelectStatusTas
 import { SelectTaskPriority } from '@/task/components/task-selects/SelectTaskPriority';
 import { SelectTeamTask } from '@/task/components/task-selects/SelectTeamTask';
 import { useUpdateTask } from '@/task/hooks/useUpdateTask';
-import { ITask } from '@/task/types';
+import { ITaskDetail } from '@/task/types';
 import { Block } from '@blocknote/core';
 import {
   BlockEditor,
@@ -31,7 +32,7 @@ import {
 } from '@tabler/icons-react';
 import { parseDescriptionBlocks } from '@/operation/utils/parseDescriptionBlocks';
 
-export const TaskFields = ({ task }: { task: ITask }) => {
+export const TaskFields = ({ task }: { task: ITaskDetail }) => {
   const { t } = useTranslation('operation');
   const {
     _id: taskId,
@@ -141,7 +142,7 @@ export const TaskFields = ({ task }: { task: ITask }) => {
       />
       <TagsSelect.Provider
         mode="multiple"
-        value={tagIds}
+        value={compactList(tagIds)}
         type="operation:task"
         targetIds={[taskId]}
       >
@@ -154,12 +155,12 @@ export const TaskFields = ({ task }: { task: ITask }) => {
           />
           <SelectTaskPriority
             taskId={taskId}
-            value={priority}
+            value={priority ?? undefined}
             variant="detail"
           />
           <SelectAssigneeTask
             variant="detail"
-            value={assigneeId}
+            value={assigneeId ?? ''}
             id={taskId}
             teamIds={teamId ? [teamId] : undefined}
           />
@@ -188,13 +189,13 @@ export const TaskFields = ({ task }: { task: ITask }) => {
           />
 
           <SelectProject
-            value={projectId}
+            value={projectId ?? ''}
             taskId={taskId}
             variant="detail"
             teamId={teamId}
           />
           <SelectEstimatedPoint
-            value={estimatePoint}
+            value={estimatePoint ?? 0}
             taskId={taskId}
             teamId={teamId}
             variant="detail"
@@ -202,7 +203,7 @@ export const TaskFields = ({ task }: { task: ITask }) => {
           <SelectMilestone
             value={milestoneId || ''}
             taskId={taskId}
-            projectId={projectId}
+            projectId={projectId ?? undefined}
             variant="detail"
           />
           <ConvertToProject task={task} />

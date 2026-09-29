@@ -42,13 +42,13 @@ export const TaskWidgetCard = ({ task }: { task: ITask }) => {
       <Card className="bg-background" onClick={() => setActiveTask(_id)}>
         <div className="px-2 h-9 flex flex-row items-center justify-between space-y-0">
           <DateSelectTask
-            value={startDate}
+            value={startDate ?? undefined}
             id={_id}
             type="startDate"
             variant="card"
           />
           <DateSelectTask
-            value={targetDate}
+            value={targetDate ?? undefined}
             id={_id}
             type="targetDate"
             variant="card"
@@ -69,12 +69,20 @@ export const TaskWidgetCard = ({ task }: { task: ITask }) => {
               id={_id}
               teamId={teamId}
             />
-            <SelectTaskPriority taskId={_id} value={priority} variant="card" />
+            <SelectTaskPriority
+              taskId={_id}
+              value={priority ?? undefined}
+              variant="card"
+            />
             <SelectTeamTask variant="card" taskId={_id} value={teamId} />
-            <SelectProject value={projectId} taskId={_id} variant="card" />
+            <SelectProject
+              value={projectId ?? ''}
+              taskId={_id}
+              variant="card"
+            />
             <SelectEstimatedPoint
               taskId={_id}
-              value={estimatePoint}
+              value={estimatePoint ?? 0}
               teamId={teamId}
               variant="card"
             />
@@ -93,7 +101,7 @@ export const TaskWidgetCard = ({ task }: { task: ITask }) => {
           </Button>
           <SelectAssigneeTask
             variant="card"
-            value={assigneeId}
+            value={assigneeId ?? ''}
             id={_id}
             teamIds={teamId ? [teamId] : undefined}
           />

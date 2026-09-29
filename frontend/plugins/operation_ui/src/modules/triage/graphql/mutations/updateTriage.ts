@@ -1,6 +1,6 @@
-import gql from 'graphql-tag';
+import { graphql } from '~/gql';
 
-export const UPDATE_TRIAGE_MUTATION = gql`
+export const UPDATE_TRIAGE_MUTATION = graphql(`
   mutation operationUpdateTriage($_id: String!, $input: ITriageUpdateInput!) {
     operationUpdateTriage(_id: $_id, input: $input) {
       _id
@@ -14,4 +14,4 @@ export const UPDATE_TRIAGE_MUTATION = gql`
       priority
     }
   }
-`;
+`);
