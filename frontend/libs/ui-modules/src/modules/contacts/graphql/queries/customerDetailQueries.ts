@@ -9,6 +9,7 @@ export const CUSTOMER_DETAIL = gql`
       firstName
       lastName
       middleName
+      birthDate
       description
       position
       isSubscribed

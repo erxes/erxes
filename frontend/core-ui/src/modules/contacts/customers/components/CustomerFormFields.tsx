@@ -1,5 +1,14 @@
 import { Control } from 'react-hook-form';
-import { Editor, Form, Input, Select, Switch, Upload } from 'erxes-ui';
+import {
+  DatePicker,
+  Editor,
+  Form,
+  Input,
+  Select,
+  SexCodes,
+  Switch,
+  Upload,
+} from 'erxes-ui';
 import { CustomerFormType } from '@/contacts/customers/constants/formSchema';
 import { ContactsHotKeyScope } from '@/contacts/types/ContactsHotKeyScope';
 import { SelectMember } from 'ui-modules';
@@ -43,6 +52,125 @@ export const AvatarField = ({
               </div>
             </Upload.Root>
           </Form.Control>
+        </Form.Item>
+      )}
+    />
+  );
+};
+
+export const BirthDateField = ({
+  control,
+}: {
+  control: Control<CustomerFormType>;
+}) => {
+  const { t } = useTranslation('contact', { keyPrefix: 'customer.add' });
+  return (
+    <Form.Field
+      control={control}
+      name="birthDate"
+      render={({ field }) => (
+        <Form.Item>
+          <Form.Label>{t('birth-date', 'Birth date')}</Form.Label>
+          <Form.Control>
+            <DatePicker
+              value={field.value ?? undefined}
+              onChange={(date) => field.onChange(date ?? null)}
+              variant="outline"
+              mode="single"
+              withPresent
+              className="h-8 rounded-md w-full"
+            />
+          </Form.Control>
+          <Form.Message className="text-destructive" />
+        </Form.Item>
+      )}
+    />
+  );
+};
+
+export const SexField = ({
+  control,
+}: {
+  control: Control<CustomerFormType>;
+}) => {
+  const { t } = useTranslation('contact', { keyPrefix: 'customer.add' });
+  return (
+    <Form.Field
+      control={control}
+      name="sex"
+      render={({ field }) => (
+        <Form.Item>
+          <Form.Label>{t('sex', 'Gender')}</Form.Label>
+          <Select
+            onValueChange={(value) => field.onChange(Number(value))}
+            value={field.value != null ? String(field.value) : ''}
+          >
+            <Form.Control>
+              <Select.Trigger className="truncate w-full rounded-md justify-between text-foreground h-8">
+                <Select.Value placeholder={t('sex-choose', 'Choose gender')}>
+                  <span className="text-foreground font-medium text-sm">
+                    {field.value != null
+                      ? SexCodes[field.value as keyof typeof SexCodes]?.label
+                      : ''}
+                  </span>
+                </Select.Value>
+              </Select.Trigger>
+            </Form.Control>
+            <Select.Content align="start">
+              {Object.entries(SexCodes).map(([key, { label }]) => (
+                <Select.Item key={key} className="h-7 text-xs" value={key}>
+                  {label}
+                </Select.Item>
+              ))}
+            </Select.Content>
+          </Select>
+          <Form.Message className="text-destructive" />
+        </Form.Item>
+      )}
+    />
+  );
+};
+
+export const DepartmentField = ({
+  control,
+}: {
+  control: Control<CustomerFormType>;
+}) => {
+  const { t } = useTranslation('contact', { keyPrefix: 'customer.add' });
+  return (
+    <Form.Field
+      control={control}
+      name="department"
+      render={({ field }) => (
+        <Form.Item>
+          <Form.Label>{t('department', 'Department')}</Form.Label>
+          <Form.Control>
+            <Input className="h-8 rounded-md" {...field} />
+          </Form.Control>
+          <Form.Message className="text-destructive" />
+        </Form.Item>
+      )}
+    />
+  );
+};
+
+export const PositionField = ({
+  control,
+}: {
+  control: Control<CustomerFormType>;
+}) => {
+  const { t } = useTranslation('contact', { keyPrefix: 'customer.add' });
+  return (
+    <Form.Field
+      control={control}
+      name="position"
+      render={({ field }) => (
+        <Form.Item>
+          <Form.Label>{t('position', 'Position')}</Form.Label>
+          <Form.Control>
+            <Input className="h-8 rounded-md" {...field} />
+          </Form.Control>
+          <Form.Message className="text-destructive" />
         </Form.Item>
       )}
     />

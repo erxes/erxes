@@ -12,6 +12,16 @@ import { useTranslation } from 'react-i18next';
 import { Can, useCustomerEdit } from 'ui-modules';
 import { useCustomerDetailWithQuery } from '../../hooks/useCustomerDetailWithQuery';
 
+const ISO_DATE_RE = /^(\d{4})-(\d{2})-(\d{2})/;
+
+const parseBirthDate = (value: unknown): Date | null => {
+  if (typeof value !== 'string') return null;
+  const match = ISO_DATE_RE.exec(value);
+  if (!match) return null;
+  const [, year, month, day] = match;
+  return new Date(Number(year), Number(month) - 1, Number(day));
+};
+
 export const CustomerDetailFields = () => {
   const { customerDetail } = useCustomerDetailWithQuery();
   const { customerEdit } = useCustomerEdit();
@@ -26,7 +36,8 @@ export const CustomerDetailFields = () => {
       firstName: customerDetail?.firstName || '',
       lastName: customerDetail?.lastName || '',
       middleName: customerDetail?.middleName || '',
-      sex: customerDetail?.sex || null,
+      sex: customerDetail?.sex ?? null,
+      birthDate: parseBirthDate(customerDetail?.birthDate),
       primaryEmail: customerDetail?.primaryEmail || '',
       primaryPhone: customerDetail?.primaryPhone || '',
       phones: (customerDetail?.phones ?? []).filter(
@@ -36,6 +47,8 @@ export const CustomerDetailFields = () => {
         (e): e is string => e != null,
       ),
       ownerId: customerDetail?.ownerId || '',
+      department: customerDetail?.department || '',
+      position: customerDetail?.position || '',
       description: customerDetail?.description || '',
       isSubscribed: customerDetail?.isSubscribed || 'Yes',
       links: customerDetail?.links || {},
@@ -57,6 +70,7 @@ export const CustomerDetailFields = () => {
       sex,
       avatar,
       state,
+      birthDate,
       ...rest
     } = data;
     void emailValidationStatus;
@@ -79,6 +93,15 @@ export const CustomerDetailFields = () => {
         ...rest,
         sex: sex === null ? undefined : sex,
         avatar: avatar === null ? undefined : avatar,
+        birthDate: birthDate
+          ? new Date(
+              Date.UTC(
+                birthDate.getFullYear(),
+                birthDate.getMonth(),
+                birthDate.getDate(),
+              ),
+            )
+          : null,
         _id,
       },
       onCompleted: () => {
