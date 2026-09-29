@@ -100,10 +100,9 @@ export const loadTransactionClass = (models: IModels) => {
 
       const transaction = await models.Transactions.create(updatedDoc);
 
-      const api = new ErxesPayment(paymentMethod, subdomain, models);
 
       try {
-
+        const api = new ErxesPayment(paymentMethod, subdomain, models);
         const reponse = await api.createInvoice(transaction.toObject());
         console.log('[MODEL] api.createInvoice returned', reponse); // reponse, not response
         transaction.response = reponse;
