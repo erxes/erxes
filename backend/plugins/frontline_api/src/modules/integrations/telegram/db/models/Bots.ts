@@ -6,10 +6,15 @@ import {
   ITelegramBotDocument,
 } from '@/integrations/telegram/@types/bot';
 import { telegramBotSchema } from '@/integrations/telegram/db/definitions/bots';
-import { getTelegramBot } from '@/integrations/telegram/client';
+import {
+  getTelegramBot,
+  getTelegramWebhookInfo,
+  type TelegramWebhookInfo,
+} from '@/integrations/telegram/client';
 
 export interface ITelegramBotModel extends Model<ITelegramBotDocument> {
   getBot(_id: string): Promise<ITelegramBotDocument>;
+  getWebhookInfo(_id: string): Promise<TelegramWebhookInfo>;
   getBots(
     filter: FilterQuery<ITelegramBotDocument>,
   ): Promise<ITelegramBotDocument[]>;
@@ -26,6 +31,16 @@ export const loadTelegramBotClass = (models: IModels) => {
       }
 
       return bot;
+    }
+    public static async getWebhookInfo(
+      _id: string,
+    ): Promise<TelegramWebhookInfo> {
+      const bot = await models.TelegramBots.findOne({ _id }).select('+token');
+
+      if (!bot) {
+        throw new Error('Telegram bot not found');
+      }
+      return getTelegramWebhookInfo(bot.token);
     }
     public static getBots(
       filter: FilterQuery<ITelegramBotDocument>,

@@ -141,6 +141,9 @@
   validates the response with Zod and does not change webhook configuration.
 - Registers `TelegramBots` on the tenant's database connection. Its
   `getBot(_id)` method returns the saved bot or throws `Telegram bot not found`.
+- `TelegramBots.getWebhookInfo(_id)` reads webhook status with the saved bot's
+  token. It returns provider information without changing the bot record or
+  webhook configuration; this model method is not exposed through GraphQL yet.
 - Exposes `telegramBots` and `telegramBot(_id)` for reading saved bots after
   checking `showIntegrations`. Lists are ordered newest first; both queries
   return public metadata from the tenant's database without calling Telegram.
@@ -292,6 +295,10 @@
   `getBot` looks up the erxes `_id`; `botId` is the separate Telegram identity.
 - `getBots(filter)` accepts a typed Mongoose filter and returns bot documents
   sorted by descending `createdAt`, retaining the default credential projection.
+- `getWebhookInfo(_id)` explicitly selects `+token` from the supplied tenant's
+  bot model and passes it to the provider client. A missing bot throws before
+  any provider request; the return value contains webhook information rather
+  than the credential-bearing database document.
 - `createBot` stores a fresh 32-byte random secret encoded as hex. It reads the
   inserted record through `getBot` so the result uses the schema's default
   credential projection; the direct result of `create` still contains secrets.
@@ -299,10 +306,11 @@
 
 ## Local Invariants
 
-- Check `integrationsAdd` before requesting Telegram; keep permission checks
-  outside the handler that converts provider failures into validation results.
-- Check `showIntegrations` before either saved-bot query accesses tenant models.
-  Reading saved bots must not request credentials or contact Telegram.
+- Check `integrationsAdd` before token validation or bot creation; keep permission
+  checks outside the handler that converts provider failures into validation results.
+- Check `showIntegrations` before either saved-bot metadata query accesses tenant
+  models. `telegramBots` and `telegramBot` must not request credentials or contact
+  Telegram.
 - Telegram credentials must not appear in public API results or raw error messages.
   Reject surrounding whitespace instead of silently rewriting a pasted token.
 - `TelegramBot` and `TelegramWebhookInfo` describe validated provider responses.
@@ -312,6 +320,9 @@
   `telegramAddBot` must derive `createdBy` from request context, never an argument.
 - Backend queries must explicitly select any Telegram credential fields they
   need; `select: false` controls query projection and does not encrypt storage.
+- Callers of `TelegramBots.getWebhookInfo` must enforce integration permissions
+  before loading credentials. The method must use the supplied tenant model,
+  preserve stored verification timestamps, and return only provider information.
 - Keep Telegram bot model registration consistent with the other integrations:
   use the document interface, model interface, and class loader. The model
   loader imports the schema and uses the supplied tenant model container.
@@ -343,6 +354,9 @@
   without credentials; duplicate creation preserves the original record;
   missing creators and rejected tokens prevent writes; storage errors do not
   expose credentials. Verify absent capability fields separately from `false`.
+- Saved-bot webhook checks: `getWebhookInfo` uses the stored token while ordinary
+  reads still exclude credentials; a missing bot prevents the provider call,
+  provider errors remain controlled, and saved timestamps remain unchanged.
 - Telegram creation smoke scenario: call `telegramAddBot` through the gateway
   while signed in with `integrationsAdd`; verify the returned record ID and bot
   identity. Repeating creation must reject the duplicate without replacing its
@@ -356,6 +370,12 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-29` — Telegram saved-bot webhook lookup
+
+- **Summary:** Added webhook status lookup by saved bot ID using the tenant's stored credential without modifying the bot or returning its credential fields.
+- **Affected areas:** `src/modules/integrations/telegram/db/models/Bots.ts`.
+- **Contracts changed:** Added internal `ITelegramBotModel.getWebhookInfo(_id): Promise<TelegramWebhookInfo>`; public APIs unchanged.
 
 ### `2026-09-29` — Telegram webhook status client
 
@@ -436,10 +456,3 @@
   `tagIds`, `branchIds`, `departmentIds`, and now enforces permissions; added
   `conversationConvertedItems` and `ConversationConvertedItem`; the
   `frontline:user` group gained `conversationConvertToCard`.
-
-### `2026-09-15` — Call user integrations carry their name
-
-- **Summary:** `callUserIntegrations` returns each integration's inbox name so
-  the dialpad's `Call from` can tell integrations on one phone apart.
-- **Affected areas:** `src/modules/integrations/call/graphql/{schema/call,resolvers/queries}.ts`
-- **Contracts changed:** `CallsIntegrationDetailResponse` gains `name: String`.
