@@ -3,7 +3,24 @@ import {
   paginate,
   sendTRPCMessage,
 } from 'erxes-api-shared/utils';
+import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
+import { getLastIncomePrices } from '~/modules/accounting/utils/inventories';
+import { ISafeRemainderItemDocument } from '../../../@types/safeRemainderItems';
+
+interface ISafeRemainderItemsQueryParams {
+  remainderId: string;
+  productCategoryIds?: string[];
+  status?: string;
+  searchValue?: string;
+  diffType?: string;
+  page?: number;
+  perPage?: number;
+}
+
+interface IReference {
+  _id: string;
+}
 
 const DIFF_TYPE_OPERATORS: Record<string, '$gt' | '$lt' | '$eq' | '$ne'> = {
   gt: '$gt',
@@ -23,21 +40,26 @@ const canViewSafeRemainderItemCounts = async (
   }
 };
 
-export const generateFilterItems = async (subdomain: string, params: any) => {
+export const generateFilterItems = async (
+  subdomain: string,
+  params: ISafeRemainderItemsQueryParams,
+) => {
   const { remainderId, productCategoryIds, status, diffType, searchValue } =
     params;
-  const query: any = { remainderId };
+  const query: FilterQuery<ISafeRemainderItemDocument> = { remainderId };
+  let productIds: string[] | undefined;
 
   if (productCategoryIds?.length) {
-    const categories = await sendTRPCMessage({
+    const categories = (await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
       module: 'productCategories',
       action: 'withChilds',
       input: { ids: productCategoryIds },
-    });
+      defaultValue: [],
+    })) as IReference[];
 
-    const products = await sendTRPCMessage({
+    const products = (await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
       module: 'products',
@@ -46,15 +68,14 @@ export const generateFilterItems = async (subdomain: string, params: any) => {
         query: { categoryId: { $in: categories.map((c) => c._id) } },
       },
       defaultValue: [],
-    });
+    })) as IReference[];
 
-    const productIds = products.map((p) => p._id);
-    query.productId = { $in: productIds };
+    productIds = products.map((product) => product._id);
   }
 
   if (searchValue) {
     const regex = { $regex: `.*${escapeRegExp(searchValue)}.*`, $options: 'i' };
-    const products = await sendTRPCMessage({
+    const products = (await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
       module: 'products',
@@ -66,25 +87,27 @@ export const generateFilterItems = async (subdomain: string, params: any) => {
         fields: { _id: 1 },
       },
       defaultValue: [],
-    });
+    })) as IReference[];
 
-    const searchIds = products.map((p) => p._id);
+    const searchIds = products.map((product) => product._id);
 
-    if (query.productId?.$in) {
+    if (productIds) {
       const searchIdSet = new Set(searchIds);
-      query.productId = {
-        $in: query.productId.$in.filter((id: string) => searchIdSet.has(id)),
-      };
+      productIds = productIds.filter((id) => searchIdSet.has(id));
     } else {
-      query.productId = { $in: searchIds };
+      productIds = searchIds;
     }
+  }
+
+  if (productIds) {
+    query.productId = { $in: productIds };
   }
 
   if (status) {
     query.status = status;
   }
 
-  const diffOperator = DIFF_TYPE_OPERATORS[diffType];
+  const diffOperator = DIFF_TYPE_OPERATORS[diffType ?? ''];
 
   if (diffOperator) {
     query.$expr = { [diffOperator]: ['$count', '$preCount'] };
@@ -95,8 +118,8 @@ export const generateFilterItems = async (subdomain: string, params: any) => {
 
 const safeRemainderItemsQueries = {
   safeRemainderItems: async (
-    _root: any,
-    params: any,
+    _root: undefined,
+    params: ISafeRemainderItemsQueryParams,
     { models, subdomain, checkPermission }: IContext,
   ) => {
     await checkPermission('readSafeRemainders');
@@ -106,16 +129,28 @@ const safeRemainderItemsQueries = {
       ? params
       : { ...params, diffType: undefined };
 
-    const query: any = await generateFilterItems(subdomain, filterParams);
-    return paginate(
+    const query = await generateFilterItems(subdomain, filterParams);
+    const items: ISafeRemainderItemDocument[] = await paginate(
       models.SafeRemainderItems.find(query).sort({ order: 1 }).lean(),
       params,
     );
+    const lastIncomePrices = await getLastIncomePrices(
+      models,
+      items.map((item) => item.productId),
+    );
+
+    return items.map((item) => ({
+      ...item,
+      trInfo: {
+        ...item.trInfo,
+        lastIncomePrice: lastIncomePrices[item.productId] ?? 0,
+      },
+    }));
   },
 
   safeRemainderItemsCount: async (
-    _root: any,
-    params: any,
+    _root: undefined,
+    params: ISafeRemainderItemsQueryParams,
     { models, subdomain, checkPermission }: IContext,
   ) => {
     await checkPermission('readSafeRemainders');
@@ -125,7 +160,7 @@ const safeRemainderItemsQueries = {
       ? params
       : { ...params, diffType: undefined };
 
-    const query: any = await generateFilterItems(subdomain, filterParams);
+    const query = await generateFilterItems(subdomain, filterParams);
     return models.SafeRemainderItems.find(query).countDocuments();
   },
 };

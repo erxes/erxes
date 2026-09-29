@@ -23,6 +23,7 @@ import {
   SettingsWorkspacePath,
 } from '@/types/paths/SettingsPath';
 import { useState } from 'react';
+import { usePermissionCheck } from 'ui-modules';
 import { clientPortalMoreColumn } from './ClientPortalMoreColumn';
 
 export const clientPortalColumns: ColumnDef<IClientPortal>[] = [
@@ -74,8 +75,18 @@ export const clientPortalColumns: ColumnDef<IClientPortal>[] = [
     header: () => <RecordTable.InlineHead icon={IconKey} label="Token" />,
     cell: ({ cell }) => {
       const [isCopied, setIsCopied] = useState(false);
+      const { hasActionPermission } = usePermissionCheck();
+      const canManageClientPortal = hasActionPermission('clientPortalManage');
 
       const handleCopy = () => {
+        if (!canManageClientPortal) {
+          toast({
+            variant: 'destructive',
+            title: 'Only admins can copy the client portal token',
+          });
+          return;
+        }
+
         setIsCopied(true);
         navigator.clipboard.writeText(cell.row.original.token ?? '');
         toast({ title: 'Copied to clipboard' });

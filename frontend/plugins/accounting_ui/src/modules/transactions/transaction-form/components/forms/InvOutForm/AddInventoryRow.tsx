@@ -36,7 +36,7 @@ export const AddDetailRowButton = ({
     _id: getTempId(),
     amount: 0,
     productId,
-    count: 0,
+    count: 1,
     unitPrice: 0,
   });
 
@@ -63,8 +63,9 @@ export const AddDetailRowButton = ({
               variables: {
                 productIds,
                 accountId: lastDetail.accountId,
-                branchId: trDoc.branchId,
-                departmentId: trDoc.departmentId,
+                branchId: lastDetail.branchId || trDoc.branchId,
+                departmentId: lastDetail.departmentId || trDoc.departmentId,
+                excludedTransactionIds: trDoc._id ? [trDoc._id] : undefined,
               },
               fetchPolicy: 'network-only',
             });

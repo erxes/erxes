@@ -19,6 +19,7 @@
 import { spawnSync } from 'node:child_process';
 import { readdirSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
+import { resolveOrgPairs } from './orgs';
 
 const MIGRATIONS_DIR = __dirname;
 
@@ -84,37 +85,49 @@ function main(): void {
     process.exit(1);
   }
 
-  console.log(`Found ${targets.length} migration(s) to run:`);
+  const orgs = resolveOrgPairs(args);
+  const total = targets.length * orgs.length;
+
+  console.log(`Found ${orgs.length} org(s):`);
+  for (const o of orgs) console.log(`  • ${o.source} → ${o.target}`);
+  console.log(`Found ${targets.length} migration(s) to run per org:`);
   for (const t of targets) console.log(`  • ${t.rel}`);
   if (listOnly) return;
   console.log('');
 
   const results: { rel: string; ok: boolean }[] = [];
-  for (const t of targets) {
-    console.log('═'.repeat(60));
-    console.log(`▶ ${t.rel}`);
-    console.log('═'.repeat(60));
-    const res = spawnSync(process.execPath, ['--import', 'tsx', t.abs], {
-      stdio: 'inherit',
-      env: process.env,
-    });
-    const ok = res.status === 0 && !res.error;
-    results.push({ rel: t.rel, ok });
-    if (!ok) {
-      console.error(
-        `\n✖ FAILED: ${t.rel}` +
-          (res.error ? ` (${res.error.message})` : ` (exit ${res.status})`),
-      );
-      if (!keepGoing) {
-        summarize(results, targets.length);
-        process.exit(1);
+  for (const org of orgs) {
+    for (const t of targets) {
+      const label = `[${org.source} → ${org.target}] ${t.rel}`;
+      console.log('═'.repeat(60));
+      console.log(`▶ ${label}`);
+      console.log('═'.repeat(60));
+      const res = spawnSync(process.execPath, ['--import', 'tsx', t.abs], {
+        stdio: 'inherit',
+        env: {
+          ...process.env,
+          SOURCE_SUBDOMAIN: org.source,
+          TARGET_SUBDOMAIN: org.target,
+        },
+      });
+      const ok = res.status === 0 && !res.error;
+      results.push({ rel: label, ok });
+      if (!ok) {
+        console.error(
+          `\n✖ FAILED: ${label}` +
+            (res.error ? ` (${res.error.message})` : ` (exit ${res.status})`),
+        );
+        if (!keepGoing) {
+          summarize(results, total);
+          process.exit(1);
+        }
+      } else {
+        console.log(`\n✔ OK: ${label}`);
       }
-    } else {
-      console.log(`\n✔ OK: ${t.rel}`);
     }
   }
 
-  summarize(results, targets.length);
+  summarize(results, total);
   process.exit(results.some((r) => !r.ok) ? 1 : 0);
 }
 

@@ -12,7 +12,7 @@ export const useSafeRemainderDetailFilters = () => {
     category: string[] | string;
   }>(['searchValue', 'status', 'diffType', 'category']);
 
-  const filters: Record<string, any> = {};
+  const filters: Record<string, string | string[]> = {};
   if (searchValue) filters.searchValue = searchValue;
   if (status) filters.status = status;
   if (diffType) filters.diffType = diffType;

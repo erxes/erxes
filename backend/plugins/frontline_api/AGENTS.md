@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-09-25`
+- **Last synchronized:** `2026-09-28`
 
 ## Scope
 
@@ -400,6 +400,7 @@
 | FB automation            | `src/modules/integrations/facebook/meta/automation/`                                                                                                             | Comment/message triggers and actions, bot message generation                                                                                                                                                           |
 | FB page posting          | `src/modules/integrations/facebook/postService.ts`, `postGuard.ts`                                                                                               | Post publishing pipeline (validation, photo staging, cleanup, permalink) and its rate limit + audit log                                                                                                                |
 | FB app resolution        | `src/modules/integrations/facebook/commonUtils.ts`                                                                                                               | `resolveFacebookApp`, `facebookAppSelector`, `facebookAccountSelector`                                                                                                                                                 |
+| FB messenger services    | `src/modules/integrations/facebook/services/`                                                                                                                    | `messengerSend` (messaging params, bot text send with tag retry), `messageEvents` (reaction replace, message publish, reply-to), `automatedReplyControl`, `conversationSync`, `messageNormalization`, `messagePreview` |
 | Ticket                   | `src/modules/ticket/`                                                                                                                                            | Boards, pipelines, statuses, tickets, activities, notes                                                                                                                                                                |
 | Forms                    | `src/modules/form/`                                                                                                                                              | Forms, fields, submissions                                                                                                                                                                                             |
 | Surveys                  | `src/modules/survey/`                                                                                                                                            | Survey definitions, vote ledger, message snapshot, tally refresh                                                                                                                                                       |
@@ -409,7 +410,7 @@
 | Reports                  | `src/modules/reports/`                                                                                                                                           | Inbox/ticket report aggregations, `buildTicketMatch`, and the saved `ReportCharts` model                                                                                                                               |
 | Migrations               | `src/migrations/`                                                                                                                                                | Plugin-owned data migrations                                                                                                                                                                                           |
 | Area                     | Path                                                                                                                                                             | Responsibility                                                                                                                                                                                                         |
-| --------------------     | ---------------------------------------------------------------------------                                                                                      | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------                 |
+| ---                      | ---                                                                                                                                                              | ---                                                                                                                                                                                                                    |
 | Bootstrap                | `src/main.ts`                                                                                                                                                    | `startPlugin({ name: 'frontline', port: 3304 })`, wires tRPC, routes, meta, and every surface                                                                                                                          |
 | Models                   | `src/connectionResolvers.ts`                                                                                                                                     | Per-subdomain model container for all modules                                                                                                                                                                          |
 | GraphQL                  | `src/apollo/`                                                                                                                                                    | Aggregated `typeDefs` and `resolvers` across modules                                                                                                                                                                   |
@@ -432,6 +433,7 @@
 | FB automation            | `src/modules/integrations/facebook/meta/automation/`                                                                                                             | Comment/message triggers and actions, bot message generation                                                                                                                                                           |
 | FB page posting          | `src/modules/integrations/facebook/postService.ts`, `postGuard.ts`                                                                                               | Post publishing pipeline (validation, photo staging, cleanup, permalink) and its rate limit + audit log                                                                                                                |
 | FB app resolution        | `src/modules/integrations/facebook/commonUtils.ts`                                                                                                               | `resolveFacebookApp`, `facebookAppSelector`, `facebookAccountSelector`                                                                                                                                                 |
+| FB messenger services    | `src/modules/integrations/facebook/services/`                                                                                                                    | `messengerSend` (messaging params, bot text send with tag retry), `messageEvents` (reaction replace, message publish, reply-to), `automatedReplyControl`, `conversationSync`, `messageNormalization`, `messagePreview` |
 | Ticket                   | `src/modules/ticket/`                                                                                                                                            | Boards, pipelines, statuses, tickets, activities, notes                                                                                                                                                                |
 | Conversation convert     | `src/modules/inbox/services/conversationConvert{,Targets}.ts`                                                                                                    | Conversion orchestration and relations; one handler per target (permission, existing-item lookup, URL, create)                                                                                                         |
 | Forms                    | `src/modules/form/`                                                                                                                                              | Forms, fields, submissions                                                                                                                                                                                             |
@@ -879,10 +881,52 @@ isInternal)` is the agent-side list and requires `showTickets`.
 - Save a help center with two CMSes and confirm `cmsConfigs` holds both, that
   `cmsId` / `cmsAppToken` mirror the first entry, and that a config written
   before `cmsConfigs` existed still returns its single CMS as a one-entry list.
+- Save a conversation's properties through `conversationEditCustomFields` and
+  confirm the value round-trips on `Conversation.propertiesData`, a validation
+  rejection throws instead of silently keeping the unvalidated input, and
+  clearing every property to `{}` stays `{}` on the next read rather than
+  reverting to any legacy value.
 
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-28` — Customer Messenger reactions reach the inbox
+
+- **Summary:** Pages subscribe to the `message_reactions` webhook field, so a
+  customer's reaction arrives through `handleReaction` and is stored with its
+  `emoji`; existing pages pick it up after a Facebook repair or re-login.
+- **Affected areas:** `src/modules/integrations/facebook/constants.ts`,
+  `src/modules/integrations/facebook/services/conversationSync.ts`
+- **Contracts changed:** `SUBSCRIBED_FIELDS` adds `message_reactions`.
+
+### `2026-09-28` — Facebook Messenger send, reaction and reply-to logic has one home
+
+- **Summary:** The three Messenger text senders, two reaction updaters and two
+  reply-to resolvers collapse into `services/messengerSend.ts` and
+  `services/messageEvents.ts`; the Facebook automated-reply control message
+  moves out of the inbox resolvers, dead Graph helpers are removed, and
+  replies from staff are now labelled `You` on both directions.
+- **Affected areas:** `src/modules/integrations/facebook/services/`,
+  `src/modules/integrations/facebook/{handleFacebookMessage,controller/receiveMessage,utils,pageUtils,messageActions}.ts`,
+  `src/modules/inbox/graphql/resolvers/mutations/{conversationAutomation,conversations,conversationMessageMutations}.ts`,
+  `src/modules/inbox/services/conversationReaction.ts`,
+  `src/modules/integrations/utils.ts`
+- **Contracts changed:** None; `fetchPagePosts`, `fetchPagesPosts`,
+  `checkFacebookPages` and `restorePost` are no longer exported.
+
+### `2026-09-28` — Facebook media goes to the tenant's configured storage
+
+- **Summary:** `uploadMedia` downloads Facebook post media and profile
+  pictures to a temp file and stores them through `uploadFileToStorage`, like
+  the Discord rehost, so AWS, GCS, Cloudflare and Azure tenants all keep a copy
+  and the returned key or URL is resolved by `generateAttachmentUrl`.
+- **Affected areas:**
+  `src/modules/integrations/facebook/mediaUtils.ts`,
+  `src/modules/integrations/facebook/utils.ts`,
+  `src/modules/integrations/facebook/controller/store.ts`
+- **Contracts changed:** None; `createAWS` and `invalidateUploadConfigCache`
+  are no longer exported.
 
 ### `2026-09-25` — Mail replies cannot be sent twice or fail after delivery
 
@@ -900,6 +944,45 @@ isInternal)` is the agent-side list and requires `showTickets`.
   `conversationStatusAppliedAt`; `mailMessageRetry` also accepts a message
   stuck `pending` for over ten minutes and a delivered one whose conversation
   status is still unapplied.
+
+### `2026-09-24` — Conversation custom properties actually persist
+
+- **Summary:** Restored the 2.0-era link between conversations and core's
+  custom-properties system, which the 3.0 rewrite had left broken: the
+  Mongoose field had been silently renamed to `customsData` (never read or
+  written anywhere else, and mismatched with the `customFieldsData` the
+  GraphQL type/mutation already declared, so Mongoose's strict mode silently
+  dropped every write), and no validation call into core `fields` existed for
+  conversations. The field is now `propertiesData` (`Schema.Types.Mixed`) —
+  named to match the platform-wide convention every other entity with this UI
+  treatment uses (`Ticket.propertiesData`, `Customer.propertiesData`,
+  `Company.propertiesData`, `Product.propertiesData`, `User.propertiesData`),
+  not the `customFieldsData` name 2.0 used. `customFieldsData` is what those
+  same entities keep as a *legacy* array-shaped field for old data; it is not
+  the live one. `Conversations.updateConversation` validates the new field
+  through core `fields.validateFieldValues` before persisting, mirroring
+  `modules/ticket/db/ticket.ts`, and now throws instead of silently falling
+  back to the unvalidated input when that call fails.
+  `conversationEditCustomFields`'s GraphQL argument was renamed from
+  `customFieldsData` to `propertiesData` to match — safe because the mutation
+  never worked before this change, so nothing depended on the old argument
+  name. `Conversation.propertiesData`'s field resolver falls back to the
+  legacy raw `customsData` path only when `propertiesData` is `null`/
+  `undefined` (never for a merely-empty `{}`, which is a valid cleared state),
+  reading it through the repo's `typeof doc.toObject === 'function' ?
+  doc.toObject() : doc` idiom so it also works on the `.lean()` plain object
+  `conversationsGetLast` returns — no document is actually known to hold
+  data there, since the old write path never matched either field name.
+- **Affected areas:** `modules/inbox/db/definitions/conversations.ts`,
+  `modules/inbox/db/models/Conversations.ts`,
+  `modules/inbox/@types/conversations.ts`,
+  `modules/inbox/graphql/schemas/conversation.ts`,
+  `modules/inbox/graphql/resolvers/mutations/conversations.ts`,
+  `modules/inbox/graphql/resolvers/customResolvers/conversation.ts`.
+- **Contracts changed:** `Conversation.customFieldsData` field renamed to
+  `Conversation.propertiesData`; `conversationEditCustomFields`'s
+  `customFieldsData` argument renamed to `propertiesData`. Both existed in the
+  schema already but never worked, so no real caller is affected.
 
 ### `2026-09-24` — A help center references its client portal by id
 
@@ -993,69 +1076,3 @@ isInternal)` is the agent-side list and requires `showTickets`.
   `src/modules/ticket/meta/automations/ticketAutomationsConstants.ts`
 - **Contracts changed:** The action descriptor carries `requiresActor`, a field
   `erxes-api-shared` added for every plugin to use.
-
-### `2026-09-21` — Automation actions state their outcome instead of returning quietly
-
-- **Summary:** Every automation action this plugin owns now answers with the
-  shared outcome envelope, so the engine stops reading "did not throw" as
-  success. Facebook reports `window-closed` and `send-blocked` as skips, the
-  inbox bot reports `no-conversation`, `nothing-to-send` and `no-reply-text`,
-  and a `collectionType` none of these modules handles is now a stated
-  `CONFIG_INVALID` failure rather than a silent no-op. Instagram is left
-  untouched on purpose.
-- **Affected areas:**
-  `src/modules/integrations/facebook/meta/automation/{messages,comments}/index.ts`,
-  `src/modules/integrations/facebook/meta/automation/workers.ts`,
-  `src/modules/integrations/discord/meta/automation/workers.ts`,
-  `src/modules/inbox/meta/automation/workers.ts`,
-  `src/modules/ticket/meta/automations/ticketAutomationsProducers.ts`
-- **Contracts changed:** The `receiveActions` producer may now answer with
-  `{ outcome, result }` from `erxes-api-shared/core-modules`
-  (`buildSkippedAction` / `buildFailedAction`). Plain results are unchanged and
-  still count as success.
-
-### `2026-09-15` — The persistent menu's back button reaches a handler
-
-- **Summary:** Tapping back in a persistent menu published to
-  `automations`/`playWait`, a queue the automations service never registers, so
-  the step-back never happened on Facebook or Instagram. It already had a
-  handler — `executePrevAction` on the `action` queue — taking exactly the
-  payload these producers send, and both now address it.
-- **Affected areas:**
-  `src/modules/integrations/facebook/meta/automation/messages/index.ts`,
-  `src/modules/integrations/instagram/meta/automation/messages/index.ts`
-- **Contracts changed:** None inside the plugin. The queue and job name it
-  produces to changed to the ones the automations service consumes.
-
-### `2026-09-15` — A direct Facebook message checks the messaging window first
-
-- **Summary:** `Send Facebook Message` now resolves Messenger's 24-hour
-  free-form window before sending on a direct thread. The trigger target is
-  normally the person's own inbound message, so the check is free; only once
-  that target has aged out does it look up the conversation's latest inbound
-  message, which a flow that waited days may find has reopened the window.
-  Outside the window the action reports a `window-closed` skip and the flow
-  carries on, so the execution keeps a row explaining the non-send instead of
-  spending a refusal against the page.
-  Comment-triggered sends are untouched: those go out as private replies under
-  a separate Meta allowance.
-- **Affected areas:**
-  `src/modules/integrations/facebook/meta/automation/messages/utils.ts`
-  (`resolveMessagingWindow`),
-  `src/modules/integrations/facebook/meta/automation/messages/index.ts`
-- **Contracts changed:** None. The descriptor is unchanged. The skip is stated
-  through the shared action-outcome envelope (see `2026-09-21`).
-
-### `2026-09-14` — A ticket an automation opened records what produced it
-
-- **Summary:** Tickets created by an automation now carry `createdVia` — the
-  configuration that produced them, the run that did it, and whose
-  configuration it was. The same actor is used as the creating user, ranked
-  below a conversation's own agent (the more specific answer when there is a
-  thread) and above the first-owner fallback, which is nobody in particular.
-- **Affected areas:**
-  `src/modules/ticket/meta/automations/actions/createTicketAction.ts`,
-  `src/modules/ticket/@types/ticket.ts`
-- **Contracts changed:** Consumes the new `TCreatedVia` and
-  `IExecution.createdVia` from `erxes-api-shared`; `createdVia` itself is added
-  to every schema by `schemaWrapper`.

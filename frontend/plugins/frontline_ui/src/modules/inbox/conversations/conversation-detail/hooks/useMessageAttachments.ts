@@ -188,6 +188,10 @@ export const useMessageAttachments = (isDiscord: boolean) => {
     });
   }, []);
 
+  const retainAttachments = useCallback((remaining: IAttachment[]) => {
+    setAttachments(remaining);
+  }, []);
+
   return {
     attachments,
     pendingAttachments,
@@ -195,6 +199,7 @@ export const useMessageAttachments = (isDiscord: boolean) => {
     handleFileInput,
     removeAttachment,
     resetAttachments,
+    retainAttachments,
     isUploading: pendingAttachments.length > 0,
   };
 };

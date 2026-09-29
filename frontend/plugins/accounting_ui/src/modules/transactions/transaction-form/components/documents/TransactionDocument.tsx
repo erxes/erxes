@@ -1,6 +1,9 @@
 import dayjs from 'dayjs';
 import { fixNum } from 'erxes-ui';
-import { ITransaction, ITrDetail } from '~/modules/transactions/types/Transaction';
+import {
+  ITransaction,
+  ITrDetail,
+} from '~/modules/transactions/types/Transaction';
 import { TrJournalEnum } from '~/modules/transactions/types/constants';
 import { amountToMongolianText } from './numberToWords';
 import { Field, VoucherHeader } from './shared';
@@ -9,6 +12,7 @@ import { Field, VoucherHeader } from './shared';
 const INVENTORY_JOURNALS = new Set<TrJournalEnum>([
   TrJournalEnum.INV_INCOME,
   TrJournalEnum.INV_OUT,
+  TrJournalEnum.INV_JUSTIFY,
   TrJournalEnum.INV_MOVE,
   TrJournalEnum.INV_SALE,
   TrJournalEnum.INV_SALE_RETURN,
@@ -23,6 +27,7 @@ const DOCUMENT_TITLES: Partial<Record<TrJournalEnum, string>> = {
   [TrJournalEnum.PAYABLE]: 'Өглөгийн баримт',
   [TrJournalEnum.INV_INCOME]: 'Барааны орлогын баримт',
   [TrJournalEnum.INV_OUT]: 'Хангамжийн зарлагын баримт',
+  [TrJournalEnum.INV_JUSTIFY]: 'Барааны өртөг залруулгын баримт',
   [TrJournalEnum.INV_MOVE]: 'Дотоод хөдөлгөөний баримт',
   [TrJournalEnum.INV_SALE]: 'Борлуулалтын баримт',
   [TrJournalEnum.INV_SALE_RETURN]: 'Борлуулалт буцаалтын баримт',
@@ -64,8 +69,7 @@ const ProductTable = ({ details }: { details: ITrDetail[] }) => {
       </thead>
       <tbody>
         {rows.map((d, idx) => {
-          const lineAmount =
-            d.amount ?? (d.count ?? 0) * (d.unitPrice ?? 0);
+          const lineAmount = d.amount ?? (d.count ?? 0) * (d.unitPrice ?? 0);
           return (
             <tr key={d._id || idx}>
               <td className="border border-black/60 px-2 py-1.5 text-center">
