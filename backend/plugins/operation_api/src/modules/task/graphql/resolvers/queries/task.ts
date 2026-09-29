@@ -185,7 +185,10 @@ export const taskQueries = {
 
       if (filter.projectMilestoneName) {
         const matchingMilestones = await models.Milestone.find({
-          name: { $regex: filter.projectMilestoneName, $options: 'i' },
+          name: {
+            $regex: escapeRegExp(filter.projectMilestoneName),
+            $options: 'i',
+          },
         }).distinct('projectId');
 
         if (matchingMilestones.length === 0) {

@@ -8,6 +8,7 @@ import {
 } from '@/task/@types/task';
 import { taskSchema } from '@/task/db/definitions/task';
 import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
+import { escapeRegExp } from 'erxes-api-shared/utils';
 import { DeleteResult, Document } from 'mongodb';
 import mongoose, { FilterQuery, FlattenMaps, Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
@@ -68,7 +69,7 @@ export const loadTaskClass = (
       }
 
       if (params.name) {
-        query.name = { $regex: params.name };
+        query.name = { $regex: escapeRegExp(params.name) };
       }
 
       if (params.status) {

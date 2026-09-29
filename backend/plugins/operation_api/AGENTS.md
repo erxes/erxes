@@ -174,10 +174,16 @@ propertiesData? } })`
   is gone from the SDL and the resolvers.
 - `Cycle.endCycle(_id, subdomain)` needs the tenant to resolve the timezone
   for the progress chart; the worker and the mutation both pass it.
+- Any request-driven value (filter, params, variables, input, args,
+  searchValue) that reaches a `$regex` or `new RegExp()` goes through
+  `escapeRegExp` from `erxes-api-shared/utils` first. The plugin-local ESLint
+  `no-restricted-syntax` rules in `eslint.config.js` fail the lint otherwise.
 
 ## Validation
 
 - `pnpm nx run operation_api:schema:print` - writes `generated/schema.graphql`.
+- `pnpm nx lint operation_api` - runs ESLint with the plugin-local
+  `eslint.config.js` (regex-escaping rules).
 - `npx tsc --noEmit -p backend/plugins/operation_api/tsconfig.json` - expect
   no errors.
 - `pnpm nx build operation_api` - its type-declaration step can exhaust the
@@ -192,6 +198,16 @@ propertiesData? } })`
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-29` — Escaped user-controlled regexes
+
+- **Summary:** Every user-controlled string that reaches a Mongo `$regex` or
+  `new RegExp` is escaped with `escapeRegExp`; dead `if (!filter)` guards in
+  the subscription filter are gone.
+- **Affected areas:** subscription filters, task/triage/milestone queries,
+  task and project export handlers, task model.
+- **Contracts changed:** `None` — filter semantics are unchanged; a `name`
+  search for `a.b` now matches the literal text instead of `a` + any char.
 
 ### `2026-09-29` — Resolver contracts and template permissions
 
