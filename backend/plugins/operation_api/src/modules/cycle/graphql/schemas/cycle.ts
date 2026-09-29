@@ -31,7 +31,7 @@ export const types = `
     }
 `;
 export const queries = `
-    getCycle(_id: String): Cycle
+    getCycle(_id: String!): Cycle
     getCycles(teamId: String, ${GQL_CURSOR_PARAM_DEFS}): CycleListResponse
     getCyclesActive(teamId: String,taskId: String, ${GQL_CURSOR_PARAM_DEFS}): CycleListResponse
     getCycleProgress(_id: String!, assigneeId: String): JSON
@@ -41,8 +41,8 @@ export const queries = `
 `;
 
 export const mutations = `
-    createCycle(input: CycleInput): Cycle
-    updateCycle(input: CycleInput): Cycle
-    removeCycle(_id: String): JSON
-    endCycle(_id: String): JSON
+    createCycle(input: CycleInput!): Cycle
+    updateCycle(input: CycleInput!): Cycle
+    removeCycle(_id: String!): JSON
+    endCycle(_id: String!): JSON
 `;

@@ -25,14 +25,14 @@ export const projectQueries: Record<string, Resolver> = {
 
   getProjects: async (
     _parent: undefined,
-    { filter }: { filter: IProjectFilter },
+    { filter = {} }: { filter?: Partial<IProjectFilter> },
     { models, checkPermission }: IContext,
   ) => {
     await checkPermission('projectRead');
 
     const filterQuery: FilterQuery<IProjectDocument> = {};
 
-    if (filter?._ids && filter?._ids?.length) {
+    if (filter._ids?.length) {
       filterQuery._id = { $in: filter._ids };
     }
 
@@ -82,7 +82,7 @@ export const projectQueries: Record<string, Resolver> = {
     }
 
     if (
-      !filter?._ids?.length &&
+      !filter._ids?.length &&
       filter.userId &&
       !filter.memberId &&
       (!filter.teamIds || filter.teamIds.length === 0)
@@ -137,10 +137,14 @@ export const projectQueries: Record<string, Resolver> = {
 
   getConvertedProject: async (
     _parent: undefined,
-    { convertedFromId },
+    { convertedFromId }: { convertedFromId?: string },
     { models, checkPermission }: IContext,
   ) => {
     await checkPermission('projectRead');
+
+    if (!convertedFromId) {
+      throw new Error('convertedFromId is required');
+    }
 
     return await models.Project.findOne({ convertedFromId }).lean();
   },
