@@ -9,6 +9,7 @@ import { MAIL_HEALTH_STATUSES } from '@/integrations/mail/constants';
 
 export interface IMailIntegrationModel extends Model<IMailIntegrationDocument> {
   findByScope(scopeId: string): Promise<IMailIntegrationDocument | null>;
+  resolveSenderName(integration: IMailIntegrationDocument): Promise<string>;
   markUnhealthy(_id: string, error: string): Promise<void>;
   markHealthy(_id: string): Promise<void>;
   storeForwardVerification(
@@ -25,6 +26,25 @@ export const loadMailIntegrationClass = (models: IModels) => {
       return models.MailIntegrations.findOne({
         $or: [{ inboxId: scopeId }, { _id: scopeId }],
       });
+    }
+
+    public static async resolveSenderName(
+      integration: IMailIntegrationDocument,
+    ) {
+      if (integration.senderName) {
+        return integration.senderName;
+      }
+
+      if (!integration.inboxId) {
+        return integration.name ?? '';
+      }
+
+      const inbox = await models.Integrations.findOne(
+        { _id: integration.inboxId },
+        { name: 1 },
+      ).lean();
+
+      return inbox?.name ?? '';
     }
 
     public static async markUnhealthy(_id: string, error: string) {

@@ -3,8 +3,10 @@ import {
   IMailMessageDocument,
   IMailSendArgs,
 } from '@/integrations/mail/@types/message';
+import { IMailDraftEdit } from '@/integrations/mail/@types/draft';
 import { createPermissionValidator } from '@/ticket/utils/permissionValidator';
 import { checkMailConnection } from '@/integrations/mail/utils/connection';
+import { publishMailDraftChanged } from '@/integrations/mail/utils/draftEvents';
 import {
   IPipelineMailSettings,
   connectPipelineMail,
@@ -18,6 +20,7 @@ import {
 } from '@/integrations/mail/utils/cloudflare/connect';
 import { provisionCloudflare } from '@/integrations/mail/utils/cloudflare/provision';
 import { toPublicConnection } from '@/integrations/mail/utils/cloudflare/serialize';
+import { assertMailDraftAccess } from '@/integrations/mail/utils/access';
 
 const toDeliveryOutcome = (message: IMailMessageDocument) => ({
   _id: message._id,
@@ -141,6 +144,61 @@ export const mailMutations = {
     return toDeliveryOutcome(
       await models.MailMessages.retrySend(_id, subdomain),
     );
+  },
+
+  async mailDraftSave(
+    _root: undefined,
+    { _id, ...doc }: IMailDraftEdit & { _id: string },
+    { subdomain, models, user, checkPermission }: IContext,
+  ) {
+    await checkPermission('conversationMessageAdd');
+
+    await assertMailDraftAccess({ models, subdomain, user, draftId: _id });
+
+    if (!doc.body?.trim()) {
+      throw new Error('A draft needs a message before it can be saved');
+    }
+
+    const draft = await models.MailDrafts.saveDraft(_id, doc);
+
+    await publishMailDraftChanged(subdomain, draft);
+
+    return draft;
+  },
+
+  async mailDraftApprove(
+    _root: undefined,
+    { _id }: { _id: string },
+    { subdomain, models, user, checkPermission }: IContext,
+  ) {
+    await checkPermission('conversationMessageAdd');
+
+    await assertMailDraftAccess({ models, subdomain, user, draftId: _id });
+
+    const { draft, message } = await models.MailDrafts.approveDraft(
+      _id,
+      subdomain,
+    );
+
+    await publishMailDraftChanged(subdomain, draft);
+
+    return { ...toDeliveryOutcome(message), draftId: draft._id };
+  },
+
+  async mailDraftRemove(
+    _root: undefined,
+    { _id }: { _id: string },
+    { subdomain, models, user, checkPermission }: IContext,
+  ) {
+    await checkPermission('conversationMessageAdd');
+
+    await assertMailDraftAccess({ models, subdomain, user, draftId: _id });
+
+    const draft = await models.MailDrafts.removeDraft(_id);
+
+    await publishMailDraftChanged(subdomain, draft);
+
+    return draft;
   },
 
   async mailCheckConnection(
