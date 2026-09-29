@@ -3,7 +3,9 @@ import { Open_Sans } from 'next/font/google';
 import Script from 'next/script';
 import './globals.css';
 import { ApolloWrapper } from '@/modules/apollo/components/ApolloWrapper';
+import { SUBDOMAIN_PATTERN } from '@/modules/apollo/utils/env';
 import { readConfig } from '@/modules/config/api';
+import { readScopedCustomDomainSubdomain } from '@/modules/config/requestScope';
 import { SessionProvider } from '@/modules/auth/components/SessionProvider';
 import { getPortalIdentity, getPortalSettings } from '@/modules/layout/api';
 import { PortalTheme } from '@/modules/layout/components/PortalTheme';
@@ -39,6 +41,12 @@ export default async function RootLayout({
     readConfig(),
   ]);
 
+  // On a tenant's own domain the browser cannot read the tenant from the
+  // host, so hand it the one the server resolved. The pattern check keeps
+  // anything but a plain subdomain out of the inline script.
+  const customDomainSubdomain = readScopedCustomDomainSubdomain();
+  const publishSubdomain = SUBDOMAIN_PATTERN.test(customDomainSubdomain);
+
   return (
     <html lang="en" className={`${openSans.variable} h-full`}>
       <head>
@@ -47,6 +55,15 @@ export default async function RootLayout({
           type="text/javascript"
           src="/js/env.js"
         />
+        {publishSubdomain && (
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `window.erxesSubdomain=${JSON.stringify(
+                customDomainSubdomain,
+              )};`,
+            }}
+          />
+        )}
       </head>
       <body className="flex min-h-full flex-col bg-canvas text-ink">
         <noscript>

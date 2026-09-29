@@ -49,6 +49,41 @@ const inventoryLocationKeyExpression = (
   ],
 });
 
+export const getLastIncomePrices = async (
+  models: IModels,
+  productIds: string[],
+) => {
+  const result: Record<string, number> = Object.fromEntries(
+    productIds.map((productId) => [productId, 0]),
+  );
+  if (!productIds.length) return result;
+
+  const prices = await models.Transactions.aggregate([
+    {
+      $match: {
+        journal: JOURNALS.INV_INCOME,
+        status: { $in: TR_STATUSES.ACTIVE },
+        'details.productId': { $in: productIds },
+      },
+    },
+    { $unwind: '$details' },
+    { $match: { 'details.productId': { $in: productIds } } },
+    { $sort: { date: -1, createdAt: -1, _id: -1 } },
+    {
+      $group: {
+        _id: '$details.productId',
+        price: { $first: '$details.unitPrice' },
+      },
+    },
+  ]);
+
+  for (const productPrice of prices) {
+    result[productPrice._id] = productPrice.price || 0;
+  }
+
+  return result;
+};
+
 export const activeCost = async (
   models: IModels,
   accountId: string,

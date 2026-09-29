@@ -15,7 +15,7 @@ import {
   getPostLink,
   uploadMedia,
 } from '@/integrations/facebook/utils';
-import { graphqlPubsub, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { graphqlPubsub } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { sendAutomationTrigger } from 'erxes-api-shared/core-modules';
 
@@ -287,38 +287,24 @@ export const generatePostDoc = async (
   } = postParams;
   let generatedMediaUrls: string[] = [];
 
-  const uploadConfig = await sendTRPCMessage({
-    subdomain,
-
-    pluginName: 'core',
-    method: 'query',
-    module: 'configs',
-    action: 'getFileUploadConfigs',
-    input: {},
-  });
-
-  const { UPLOAD_SERVICE_TYPE } = (uploadConfig as any) || {};
-
-  if (UPLOAD_SERVICE_TYPE === 'AWS') {
-    if (link) {
-      if (video_id) {
-        const mediaUrl = await uploadMedia(subdomain, link, true);
-        if (typeof mediaUrl === 'string') generatedMediaUrls.push(mediaUrl);
-      } else if (photo_id) {
-        const mediaUrl = await uploadMedia(subdomain, link, false);
-        if (typeof mediaUrl === 'string') generatedMediaUrls.push(mediaUrl);
-      }
+  if (link) {
+    if (video_id) {
+      const mediaUrl = await uploadMedia(subdomain, link, true);
+      if (typeof mediaUrl === 'string') generatedMediaUrls.push(mediaUrl);
+    } else if (photo_id) {
+      const mediaUrl = await uploadMedia(subdomain, link, false);
+      if (typeof mediaUrl === 'string') generatedMediaUrls.push(mediaUrl);
     }
+  }
 
-    if (photos && photos.length > 0) {
-      const mediaUrls = await Promise.all(
-        photos.map((url) => uploadMedia(subdomain, url, false)),
-      );
+  if (photos && photos.length > 0) {
+    const mediaUrls = await Promise.all(
+      photos.map((url) => uploadMedia(subdomain, url, false)),
+    );
 
-      generatedMediaUrls = mediaUrls.filter(
-        (url): url is string => url !== null && typeof url === 'string',
-      );
-    }
+    generatedMediaUrls = mediaUrls.filter(
+      (url): url is string => url !== null && typeof url === 'string',
+    );
   }
 
   const doc = {

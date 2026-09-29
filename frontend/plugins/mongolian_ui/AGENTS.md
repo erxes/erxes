@@ -6,7 +6,7 @@
 - **Project:** `mongolian_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/mongolian_ui`
-- **Last synchronized:** `2026-09-11`
+- **Last synchronized:** `2026-09-29`
 
 ## Scope
 
@@ -29,6 +29,8 @@
   summaries, duplicated put responses, sync Erkhet, and MS Dynamic workflows.
 - Provides settings routes for eBarimt, MS Dynamic, product places, sync Erkhet,
   and exchange rates.
+- POS-in eBarimt settings include receipt behavior toggles for copy printing,
+  summary quantity display, and clean tax price display.
 - Product places settings include stage, split, print, and default product
   filter configuration screens under `settings/mongolian/product-places/*`.
 - Product places configuration screens render code-scoped `mnConfigs` rows in
@@ -94,6 +96,8 @@
 - Settings routes mounted by `./mongolianSettings`, including `ebarimt/*`,
   `msdynamic/*`, `product-places/*`, `sync-erkhet/*`, and
   `exchange-rates/*`.
+- POS-in eBarimt config values may include `hasCopy`, `hasSumQty`, and
+  `isCleanTaxPrice` booleans for POS receipt behavior.
 
 ### Consumes
 
@@ -157,6 +161,12 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-29` - POS receipt eBarimt toggles
+
+- **Summary:** POS-in eBarimt add/edit forms now persist receipt behavior toggles for copy printing, summary quantity display, and clean tax price display.
+- **Affected areas:** `src/modules/ebarimt/settings/pos-in-ebarimt-config`, `src/modules/ebarimt/settings/types/EBarimtConfig.ts`
+- **Contracts changed:** `posInEbarimt` config values may now carry `hasCopy`, `hasSumQty`, and `isCleanTaxPrice`.
+
 ### `2026-09-11` - Shared product-place condition selectors
 
 - **Summary:** Product-place condition and split forms now use shared `ui-modules` product, tag, branch, and department selectors, and duplicate plugin-local selector files were removed.
@@ -209,17 +219,4 @@
 
 - **Summary:** Mongolian UI Rspack development serving now ignores generated dependency, cache, coverage, temp, and output folders to reduce local watcher pressure.
 - **Affected areas:** `rspack.config.ts`
-- **Contracts changed:** None
-
-### `2026-09-02` - Harden deal eBarimt print logo
-
-- **Summary:** Deal eBarimt popup receipts now render configured header text near the logo, support an optional receipt icon, and wait for images before printing.
-- **Affected areas:** `src/pages/EbarimtRespondedPage.tsx`, `src/modules/ebarimt/responded/components/PerResponse.tsx`, `src/modules/ebarimt/responded/components/Response.tsx`
-- **Contracts changed:** None
-
-### `2026-08-27` - Guard put response dates
-
-- **Summary:** Put response list date cells now avoid `Invalid time value` when
-  bill `date` is missing by falling back to `createdAt` or rendering `-`.
-- **Affected areas:** `src/modules/ebarimt/put-response/components/PutResponseColumn.tsx`
 - **Contracts changed:** None

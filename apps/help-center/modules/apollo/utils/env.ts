@@ -14,10 +14,15 @@
 declare global {
   interface Window {
     env?: Record<string, string | undefined>;
+    // Set by the root layout when the page is served on a tenant's own
+    // domain, whose first label is not the tenant subdomain.
+    erxesSubdomain?: string;
   }
 }
 
 export const SUBDOMAIN_PLACEHOLDER = '<subdomain>';
+
+export const SUBDOMAIN_PATTERN = /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/;
 
 export const subdomainOf = (host: string): string =>
   host
@@ -52,29 +57,36 @@ const isSaas = (): boolean =>
     process.env.NEXT_PUBLIC_APP_VERSION,
   ).toUpperCase() === 'SAAS';
 
-/**
- * The gateway address for a given host. Server code passes the host of the
- * request it is answering; in the browser the current location is used.
- */
-export const apiUrlForHost = (host?: string): string => {
+/** The gateway address for a tenant subdomain already known. */
+export const apiUrlForSubdomain = (subdomain: string): string => {
   const configured = configuredApiUrl();
 
   if (!isSaas() || !configured.includes(SUBDOMAIN_PLACEHOLDER)) {
     return configured;
   }
 
-  const from =
-    host ?? (typeof window !== 'undefined' ? window.location.hostname : '');
-
-  const subdomain = subdomainOf(from);
-
-  // Without a host there is nothing to substitute, and an address still
+  // Without a subdomain there is nothing to substitute, and an address still
   // carrying the placeholder would be a confusing request to debug.
   if (!subdomain) {
     return '';
   }
 
   return configured.replaceAll(SUBDOMAIN_PLACEHOLDER, subdomain);
+};
+
+/**
+ * The gateway address for a given host. Server code passes the host of the
+ * request it is answering; in the browser the subdomain the layout published
+ * wins, since on a custom domain the host says nothing about the tenant.
+ */
+export const apiUrlForHost = (host?: string): string => {
+  if (host === undefined && typeof window !== 'undefined') {
+    return apiUrlForSubdomain(
+      window.erxesSubdomain || subdomainOf(window.location.hostname),
+    );
+  }
+
+  return apiUrlForSubdomain(subdomainOf(host ?? ''));
 };
 
 /*
