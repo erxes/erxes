@@ -598,9 +598,10 @@ export const buildPlan = (
       throw new Error('Unsupported attachment URL scheme.');
     if (options.mediaBaseUrl)
       return new URL(url, options.mediaBaseUrl).toString();
+    if (options.sharedMediaStorage) return url;
     if (snapshot.sourceDb !== snapshot.targetDb)
       throw new Error(
-        'Relative attachment URL requires KB_MEDIA_BASE_URL for cross-tenant imports.',
+        'Relative attachment URL requires KB_MEDIA_BASE_URL or KB_MEDIA_SHARED_STORAGE for cross-tenant imports.',
       );
     return url;
   };
@@ -692,9 +693,18 @@ export const buildPlan = (
         throw new Error('Invalid attachments array.');
       const content = requiredText(article.content, 'content');
       let pdfAttachment: Record<string, unknown> | undefined;
+      const emptyPdfAttachment =
+        isRecord(article.pdfAttachment) &&
+        (article.pdfAttachment.pdf === undefined ||
+          article.pdfAttachment.pdf === null) &&
+        (article.pdfAttachment.pages === undefined ||
+          article.pdfAttachment.pages === null ||
+          (Array.isArray(article.pdfAttachment.pages) &&
+            !article.pdfAttachment.pages.length));
       if (
         article.pdfAttachment !== undefined &&
-        article.pdfAttachment !== null
+        article.pdfAttachment !== null &&
+        !emptyPdfAttachment
       ) {
         if (
           !isRecord(article.pdfAttachment) ||

@@ -208,6 +208,28 @@ test('rewrites only explicit article links and validates relative media includin
       .errors,
     [],
   );
+  data.articles[0].image = {
+    name: 'cover',
+    type: 'image/jpeg',
+    url: 'erxes-saas/cover.jpg',
+  };
+  const shared = buildPlan(data, { ...opts, sharedMediaStorage: true });
+  assert.deepEqual(shared.errors, []);
+  assert.equal(
+    (
+      shared.mappings.find((mapping) => mapping.kind === 'article')
+        ?.targetDocument.thumbnail as { url: string }
+    ).url,
+    'erxes-saas/cover.jpg',
+  );
+  data.articles[0].pdfAttachment = { pdf: null };
+  const emptyPdf = buildPlan(data, { ...opts, sharedMediaStorage: true });
+  assert.deepEqual(emptyPdf.errors, []);
+  assert.equal(
+    emptyPdf.mappings.find((mapping) => mapping.kind === 'article')
+      ?.targetDocument.pdfAttachment,
+    undefined,
+  );
   data.articles[0].pdfAttachment = {
     pdf: { name: 'pdf', type: 'application/pdf', url: 'javascript:alert(1)' },
     pages: [],
@@ -231,6 +253,20 @@ test('validates configuration and defaults to a real read-only dry run', () => {
   assert.equal(readOptions(env).dryRun, true);
   assert.equal(readOptions({ ...env, DRY_RUN: '0' }).dryRun, false);
   assert.throws(() => readOptions({ ...env, DRY_RUN: 'no' }), /DRY_RUN/);
+  assert.equal(readOptions(env).sharedMediaStorage, false);
+  assert.equal(
+    readOptions({ ...env, KB_MEDIA_SHARED_STORAGE: 'true' }).sharedMediaStorage,
+    true,
+  );
+  assert.throws(
+    () =>
+      readOptions({
+        ...env,
+        KB_MEDIA_SHARED_STORAGE: 'true',
+        KB_MEDIA_BASE_URL: 'https://files.example.com/',
+      }),
+    /not both/,
+  );
   assert.throws(() => readOptions({ ...env, BATCH_SIZE: '0' }), /positive/);
   assert.throws(
     () => readOptions({ ...env, KB_AUTHOR_MAP: '{"a":2}' }),
