@@ -1,7 +1,10 @@
 import { IPricing, PricingPriority } from '@/pricing/types';
 import { PRICING_PLANS } from '@/pricing/graphql/queries';
 import { useQuery } from '@apollo/client';
-import { useMultiQueryState } from 'erxes-ui';
+import { useCallback, useMemo } from 'react';
+import { EnumCursorDirection, useMultiQueryState } from 'erxes-ui';
+
+const PRICING_PER_PAGE = 30;
 
 interface IPricingPlansQueryResult {
   pricingPlans: Array<{
@@ -20,9 +23,12 @@ interface IPricingPlansQueryResult {
       email?: string;
     };
   }>;
+  pricingPlansCount: number;
 }
 
 interface PricingFilterVariables {
+  page?: number;
+  perPage?: number;
   status?: string;
   priority?: string;
   branchId?: string;
@@ -33,6 +39,10 @@ interface PricingFilterVariables {
   isPriceEnabled?: boolean;
   isExpiryEnabled?: boolean;
   isRepeatEnabled?: boolean;
+}
+
+interface HandleFetchMoreParams {
+  direction?: EnumCursorDirection;
 }
 
 export const usePricing = () => {
@@ -61,26 +71,42 @@ export const usePricing = () => {
     'isRepeatEnabled',
   ]);
 
-  const variables: PricingFilterVariables = {
-    status: 'all',
-  };
-  if (queries?.status) variables.status = queries.status;
-  if (queries?.priority) {
-    variables.priority = queries.priority === 'none' ? '' : queries.priority;
-  }
-  if (queries?.branchId) variables.branchId = queries.branchId;
-  if (queries?.departmentId) variables.departmentId = queries.departmentId;
-  if (queries?.productId) variables.productId = queries.productId;
-  if (queries?.date) variables.date = queries.date;
-  if (queries?.isQuantityEnabled === true) variables.isQuantityEnabled = true;
-  if (queries?.isPriceEnabled === true) variables.isPriceEnabled = true;
-  if (queries?.isExpiryEnabled === true) variables.isExpiryEnabled = true;
-  if (queries?.isRepeatEnabled === true) variables.isRepeatEnabled = true;
+  const variables = useMemo<PricingFilterVariables>(() => {
+    const nextVariables: PricingFilterVariables = {
+      page: 1,
+      perPage: PRICING_PER_PAGE,
+      status: 'all',
+    };
+    if (queries?.status) nextVariables.status = queries.status;
+    if (queries?.priority) {
+      nextVariables.priority =
+        queries.priority === 'none' ? '' : queries.priority;
+    }
+    if (queries?.branchId) nextVariables.branchId = queries.branchId;
+    if (queries?.departmentId)
+      nextVariables.departmentId = queries.departmentId;
+    if (queries?.productId) nextVariables.productId = queries.productId;
+    if (queries?.date) nextVariables.date = queries.date;
+    if (queries?.isQuantityEnabled === true) {
+      nextVariables.isQuantityEnabled = true;
+    }
+    if (queries?.isPriceEnabled === true) nextVariables.isPriceEnabled = true;
+    if (queries?.isExpiryEnabled === true)
+      nextVariables.isExpiryEnabled = true;
+    if (queries?.isRepeatEnabled === true)
+      nextVariables.isRepeatEnabled = true;
 
-  const { data, loading } = useQuery<IPricingPlansQueryResult>(PRICING_PLANS, {
-    variables,
-    fetchPolicy: 'cache-and-network',
-  });
+    return nextVariables;
+  }, [queries]);
+
+  const { data, loading, fetchMore } = useQuery<IPricingPlansQueryResult>(
+    PRICING_PLANS,
+    {
+      variables,
+      fetchPolicy: 'cache-and-network',
+      notifyOnNetworkStatusChange: true,
+    },
+  );
 
   const pricing: IPricing[] =
     data?.pricingPlans?.map((plan) => ({
@@ -98,11 +124,49 @@ export const usePricing = () => {
       updatedAt: plan.updatedAt,
     })) || [];
 
-  const totalCount = pricing.length;
+  const totalCount = data?.pricingPlansCount || 0;
+  const hasNextPage = pricing.length < totalCount;
+
+  const handleFetchMore = useCallback(
+    ({ direction }: HandleFetchMoreParams = {}) => {
+      if (direction && direction !== EnumCursorDirection.FORWARD) return;
+      if (!hasNextPage) return;
+
+      fetchMore({
+        variables: {
+          ...variables,
+          page: Math.ceil(pricing.length / PRICING_PER_PAGE) + 1,
+          perPage: PRICING_PER_PAGE,
+        },
+        updateQuery: (previousResult, { fetchMoreResult }) => {
+          if (!fetchMoreResult?.pricingPlans?.length) {
+            return previousResult;
+          }
+
+          return {
+            ...fetchMoreResult,
+            pricingPlans: [
+              ...(previousResult.pricingPlans || []),
+              ...fetchMoreResult.pricingPlans,
+            ],
+            pricingPlansCount:
+              fetchMoreResult.pricingPlansCount ??
+              previousResult.pricingPlansCount,
+          };
+        },
+      });
+    },
+    [fetchMore, hasNextPage, pricing.length, variables],
+  );
 
   return {
     pricing,
     loading,
     totalCount,
+    handleFetchMore,
+    pageInfo: {
+      hasNextPage,
+      hasPreviousPage: false,
+    },
   };
 };

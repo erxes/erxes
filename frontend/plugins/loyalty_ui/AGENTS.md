@@ -6,7 +6,7 @@
 - **Project:** `loyalty_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/loyalty_ui`
-- **Last synchronized:** `2026-09-22`
+- **Last synchronized:** `2026-09-29`
 
 ## Scope
 
@@ -34,6 +34,8 @@
 - Customer and broker targeting render through
   `edit-pricing/components/options/CustomerBrokerConditions.tsx` and round-trip
   through pricing form values.
+- Pricing list loads additional pages as users scroll and shows the full
+  filtered record count from the API.
 
 ## Architecture
 
@@ -54,6 +56,8 @@
   exposed pricing and loyalty UI modules.
 - Pricing GraphQL operations including `PricingPlanDetail` and pricing
   create/edit mutations.
+- `PricingPlans` queries request `pricingPlansCount` with the same filters as
+  the list and page through `page`/`perPage`.
 
 ### Consumes
 
@@ -66,6 +70,8 @@
 
 - Uses Apollo Client for pricing plan and sales board/pipeline/stage server
   data.
+- Pricing list pagination appends additional `pricingPlans` pages through
+  Apollo `fetchMore`.
 - Uses React Hook Form local form state in pricing create/edit forms.
 - Keeps board, pipeline, and stage selector state local to the owning pricing
   form or detail section.
@@ -90,3 +96,36 @@
 - Pricing detail smoke scenario: open a pricing plan, go to Options, choose a
   board and pipeline, reopen each selector, choose `none`, save, and confirm the
   saved plan no longer has those board/pipeline constraints.
+
+## Recent Changes
+
+<!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-29` — Pricing list pagination
+
+- **Summary:** Pricing settings now load additional pricing plan pages on scroll and display the API-backed filtered total count.
+- **Affected areas:** `src/modules/pricing/graphql/queries.ts`, `src/modules/pricing/hooks/usePricing.ts`, `src/modules/pricing/components/PricingRecordTable.tsx`.
+- **Contracts changed:** `PricingPlans` now also requests `pricingPlansCount` and sends `page`/`perPage` variables.
+
+### `2026-09-22` — `Scoped base pricing controls`
+
+- **Summary:** Pricing forms expose scoped base pricing, hide participant targeting for those plans, and let users clear optional start and end dates.
+- **Affected areas:** Pricing priority types and selectors, edit navigation, general date fields, and save mappings.
+- **Contracts changed:** Pricing priority form values include `pipelineBase`.
+
+### `2026-09-13` — Clearable pricing board and pipeline selectors
+
+- **Summary:** Pricing detail board and pipeline comboboxes now include an empty
+  `none` selection so users can remove an existing board or pipeline constraint.
+- **Affected areas:** `src/modules/pricing/hooks/useSelectBoard.tsx`,
+  `src/modules/pricing/hooks/useSelectPipeline.tsx`, pricing Options/Stage
+  selector behavior.
+- **Contracts changed:** None.
+
+### `2026-09-09` — Bound dev watchers
+
+- **Summary:** Loyalty UI Rspack development serving ignores generated
+  dependency, cache, coverage, temp, and output folders to reduce local watcher
+  pressure.
+- **Affected areas:** `rspack.config.ts`.
+- **Contracts changed:** None.
