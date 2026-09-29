@@ -19,6 +19,7 @@ import { useGetClientPortals } from '../hooks/useGetClientPortals';
 import { IWebInput } from '../types';
 import { TEMPLATE_TYPES } from '../constants';
 import { TemplateSelect } from './TemplateSelect';
+import { WebCustomDomain } from './WebCustomDomain';
 
 interface SelectOption {
   value: string;
@@ -244,6 +245,10 @@ export const WebDrawer = () => {
                   </Form.Item>
                 )}
               />
+
+              {drawer.editingWeb && (
+                <WebCustomDomain webId={drawer.editingWeb._id} />
+              )}
             </div>
 
             <div className="flex justify-end gap-2 p-4 border-t">

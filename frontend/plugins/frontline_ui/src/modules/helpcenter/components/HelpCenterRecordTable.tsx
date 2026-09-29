@@ -1,10 +1,12 @@
-import { IconAlertCircle, IconLifebuoy } from '@tabler/icons-react';
-import { Button, Empty, RecordTable } from 'erxes-ui';
+import { IconLifebuoy } from '@tabler/icons-react';
+import { Button } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useHelpCenterColumns } from '@/helpcenter/components/HelpCenterColumns';
 import { HelpCenterCommandBar } from '@/helpcenter/components/help-center-command-bar';
 import { HELP_CENTER_TABLE_ID } from '@/helpcenter/constants';
 import { useHelpCenters } from '@/helpcenter/hooks/useHelpCenters';
+import { KbRecordTable } from '@/knowledgebase/shared/components/KbRecordTable';
+import { KbEmptyState } from '@/knowledgebase/shared/components/KbStates';
 
 export const HelpCenterRecordTable = ({
   onCreate,
@@ -15,67 +17,29 @@ export const HelpCenterRecordTable = ({
   const { helpCenters, loading, error } = useHelpCenters();
   const columns = useHelpCenterColumns();
 
-  if (error) {
-    return (
-      <Empty className="m-3 rounded-lg bg-sidebar">
-        <Empty.Header>
-          <Empty.Media variant="icon">
-            <IconAlertCircle />
-          </Empty.Media>
-          <Empty.Title>{t('error')}</Empty.Title>
-          <Empty.Description>{error.message}</Empty.Description>
-        </Empty.Header>
-      </Empty>
-    );
-  }
-
-  if (!loading && helpCenters?.length === 0) {
-    return (
-      <Empty className="m-3 rounded-lg bg-sidebar">
-        <Empty.Header>
-          <Empty.Media variant="icon">
-            <IconLifebuoy />
-          </Empty.Media>
-          <Empty.Title>
-            {t('helpcenter-none-yet', 'There are no help centers yet')}
-          </Empty.Title>
-          <Empty.Description>
-            {t(
-              'helpcenter-none-description',
-              'Create your first help center to publish your knowledge base.',
-            )}
-          </Empty.Description>
-        </Empty.Header>
-        <Empty.Content>
-          <Button variant="outline" onClick={onCreate}>
-            {t('helpcenter-create', 'Create Help Center')}
-          </Button>
-        </Empty.Content>
-      </Empty>
-    );
-  }
-
   return (
-    <RecordTable.Provider
+    <KbRecordTable
       columns={columns}
       data={helpCenters || []}
-      stickyColumns={['more', 'checkbox', 'title']}
-      className="m-3"
+      loading={loading}
+      error={error}
       tableId={HELP_CENTER_TABLE_ID}
-    >
-      <RecordTable.Scroll>
-        <RecordTable>
-          <RecordTable.Header />
-          <RecordTable.Body>
-            {loading ? (
-              <RecordTable.RowSkeleton rows={10} />
-            ) : (
-              <RecordTable.RowList />
-            )}
-          </RecordTable.Body>
-        </RecordTable>
-      </RecordTable.Scroll>
-      <HelpCenterCommandBar />
-    </RecordTable.Provider>
+      empty={
+        <KbEmptyState
+          icon={IconLifebuoy}
+          title={t('helpcenter-none-yet', 'There are no help centers yet')}
+          description={t(
+            'helpcenter-none-description',
+            'Create your first help center to publish your knowledge base.',
+          )}
+          action={
+            <Button variant="outline" onClick={onCreate}>
+              {t('helpcenter-create', 'Create Help Center')}
+            </Button>
+          }
+        />
+      }
+      commandBar={<HelpCenterCommandBar />}
+    />
   );
 };

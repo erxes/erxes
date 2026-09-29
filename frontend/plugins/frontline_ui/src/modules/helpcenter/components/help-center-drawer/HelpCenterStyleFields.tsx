@@ -1,10 +1,13 @@
-import { IconUpload } from '@tabler/icons-react';
-import { ColorPicker, Form, Select, Textarea, Upload } from 'erxes-ui';
+import { Form, Select, Textarea } from 'erxes-ui';
 import { Control, FieldPath } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { ColorDefaultAction } from '@/knowledgebase/components/ColorDefaultAction';
+import { ColorDefaultAction } from '@/knowledgebase/shared/components/ColorDefaultAction';
 import { HELP_CENTER_FONTS, defaultStyleColor } from '@/helpcenter/constants';
 import { IHelpCenterConfigInput, TStyleName } from '@/helpcenter/types';
+import {
+  KbColorInput,
+  KbImageUpload,
+} from '@/knowledgebase/shared/components/TopicAppearanceFields';
 
 export function StyleColorField({
   control,
@@ -36,10 +39,9 @@ export function StyleColorField({
             />
           </div>
           <Form.Control>
-            <ColorPicker
-              className="w-full h-8"
+            <KbColorInput
               value={field.value as string}
-              onValueChange={(value: string) => field.onChange(value)}
+              onChange={field.onChange}
             />
           </Form.Control>
           <Form.Message />
@@ -69,27 +71,11 @@ export function StyleImageField({
           <Form.Label>{label}</Form.Label>
           <Form.Description>{description}</Form.Description>
           <Form.Control>
-            <Upload.Root
+            <KbImageUpload
               value={field.value as string}
-              onChange={(fileInfo) => {
-                if ('url' in fileInfo) {
-                  field.onChange(fileInfo.url);
-                }
-              }}
-            >
-              <Upload.Preview />
-              <div className="flex flex-col gap-2">
-                <Upload.Button size="sm" variant="outline" type="button">
-                  <IconUpload className="mr-2 w-4 h-4" />
-                  {label}
-                </Upload.Button>
-                <Upload.RemoveButton
-                  size="sm"
-                  variant="outline"
-                  type="button"
-                />
-              </div>
-            </Upload.Root>
+              onChange={field.onChange}
+              buttonLabel={label}
+            />
           </Form.Control>
           <Form.Message />
         </Form.Item>

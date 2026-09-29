@@ -11,6 +11,7 @@ export const options = (): ImportOptions => ({
   batchSize: 2,
   maxDocuments: 10000,
   maxBytes: 10000000,
+  sharedMediaStorage: false,
 });
 
 export const snapshot = (): Snapshot => ({

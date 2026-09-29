@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-09-24`
+- **Last synchronized:** `2026-09-29`
 
 ## Scope
 
@@ -45,8 +45,12 @@
   step-based create/edit wizard, archive, remove), the read-only results board
   on the main `frontline/surveys` route, and the composer dialog that posts a
   saved survey into a messenger conversation.
-- Knowledge base UI: topics, categories, and articles, plus the three-tab topic
-  drawer (General, Appearance, Embed) that owns a topic's embed script.
+- Knowledge base UI: the `/frontline/knowledgebase` topics index — a card grid
+  and a record table behind one list/thumbnail toggle — and,
+  per topic, the `articles`, `categories` and `kbsettings` routes behind a shared
+  knowledge base sidebar — record tables with inline editing, filters, command
+  bar bulk delete, and the topic, category and article drawers. A topic's
+  embed script opens as a dialog from its `kbsettings` page.
 - Help Center UI: the `/frontline/helpcenter` record table over client portal
   configs, its filter bar and command bar, its inline-editable name cell and its
   website / knowledge base topic / ticket channel / pipeline / status selects,
@@ -406,7 +410,12 @@
 | Surveys data             | `src/modules/survey/{graphql,hooks,types}/`                                                                                                       | Survey GraphQL documents, list/detail/mutation hooks, survey types                                                                              |
 | Send survey              | `src/modules/inbox/conversations/conversation-detail/components/SendSurveyDialog.tsx`                                                             | Picks an active survey and posts it into the open messenger conversation                                                                        |
 | Survey inbox row         | `src/modules/survey/components/ChannelSurveyNavItem.tsx`                                                                                          | `Surveys` row inside an expanded team channel, filtering the inbox by `withSurvey`                                                              |
-| Knowledge base           | `src/modules/knowledgebase/`                                                                                                                      | Topics (three-tab drawer, incl. the embed script), categories, articles                                                                         |
+| Knowledge base routes    | `src/modules/knowledgebase/Main.tsx`, `src/pages/knowledgebase/`                                                                                  | `/frontline/knowledgebase` topics index plus `:topicId/{articles,categories,kbsettings}`                                                          |
+| Knowledge base shell     | `src/modules/knowledgebase/shared/`                                                                                                               | Layout, sidebar, record table, form sheet, row actions, bulk delete, filters, columns, feedback hooks, states, appearance fields, embed panel    |
+| Knowledge base topics    | `src/modules/knowledgebase/topics/`                                                                                                               | Topics card grid and record table, columns, filter, command bar, drawer, mutation hooks                                                          |
+| Knowledge base categories| `src/modules/knowledgebase/categories/`                                                                                                           | Topic-scoped category tree table, drawer, command bar, mutation hooks                                                                           |
+| Knowledge base articles  | `src/modules/knowledgebase/articles/`                                                                                                             | Topic-scoped article table with status/category filters, drawer, command bar, mutation hooks                                                    |
+| Knowledge base data      | `src/modules/knowledgebase/{graphql,types,constants,utils}/`                                                                                      | `frontlineKb*` operations, local KB types, icons/reactions/languages, table ids, embed builder                                                  |
 | Automation widgets       | `src/widgets/automations/modules/<module>/`                                                                                                       | Per-module trigger/action/bot/history components                                                                                                |
 | FB message action        | `src/widgets/automations/modules/facebook/components/action/`                                                                                     | Message sequence form, provider, constants, states                                                                                              |
 | FB post composer         | `src/modules/integrations/facebook/components/FacebookPostSheet.tsx`, `FacebookPostImagesField.tsx`, `hooks/useFacebookPost*.tsx`                 | Post sheet, image upload state, channel/page loading                                                                                            |
@@ -893,8 +902,9 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
   reintroduce a detail route. Every surface widens a list record for a save
   through `toHelpCenterConfigInput`; passing a partial record would reset the
   fields it omitted on the next save.
-- Category editing lives on the Knowledge Base page (`TopicList`), which owns
-  create, edit and delete. The help center surface does not duplicate it.
+- Category editing lives on the knowledge base categories route
+  (`/frontline/knowledgebase/:topicId/categories`), which owns create, edit and
+  delete. The help center surface does not duplicate it.
 - The upload slots use the repo's usual `Upload.Root` handler
   (`if ('url' in fileInfo) field.onChange(fileInfo.url)`) — `Upload.RemoveButton`
   reports a removal in that same shape, so no special case is needed here. The
@@ -905,10 +915,10 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
   visible. Toggle the class instead (`enabled ? 'flex flex-col' : 'hidden'`) —
   both the drawer's tab panes and its feature sections do.
 - The help center's own types and constants live in `helpcenter/types/index.ts`
-  and `helpcenter/constants/index.ts`, **not** in the knowledge base module's
-  `types.ts` / `constants.ts` — those two re-export from `content_ui`, so
-  importing them pulls another plugin's code into this remote and breaks it at
-  runtime.
+  and `helpcenter/constants/index.ts`; the knowledge base keeps its own in
+  `knowledgebase/types/index.ts` and `knowledgebase/constants/index.ts`. Neither
+  module may re-export from `content_ui` — that pulls another plugin's source
+  into this remote and breaks it at runtime.
 - The help center table shows the three identifying columns — name, website,
   knowledge base topic — followed by the three ticket routing selects, each
   headed `Ticket channel` / `Ticket pipeline` / `Ticket status` so a row reads
@@ -993,20 +1003,22 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
   `helpcenter/components/help-center-drawer/`: `HelpCenterDrawer.tsx` owns only
   the sheet, the form and the save; `HelpCenterGeneralTab.tsx` and
   `HelpCenterAppearanceTab.tsx` own a tab each; `HelpCenterStyleFields.tsx` the
-  reusable `Style*Field` helpers; and `helpcenter/{types,constants}/index.ts`
-  the shapes and defaults. Add new fields to the owning tab, never back into the drawer. The tabs take the form **as a
+  reusable `Style*Field` helpers; the knowledge base module's
+  `shared/components/TopicEmbedTab.tsx` the Embed tab panel (presentational,
+  no query of its own); and `helpcenter/{types,constants}/index.ts` the shapes and
+  defaults. Add new fields to the owning tab, never back into the drawer. The tabs take the form **as a
   prop**: `react-hook-form` is not in this remote's shared `coreLibraries`, so
   the copy backing `useFormContext` here is not the one `erxes-ui`'s `Form`
   provider filled and reading the context returns null. Never reach for
   `useFormContext` across an `erxes-ui` provider in this plugin.
 - The embed script is **owned by the knowledge base** and only borrowed by the
   help center. `knowledgebase/utils/buildTopicEmbedScript.ts` is the only place
-  that builds it and `TopicEmbedTab.tsx` the only place that shows it; two
-  surfaces render that one component — the topic drawer's **Embed** tab (from
-  the tab list, or from the topic row's `View Script` menu entry, which opens
-  the drawer with `tab=embed`) and the help center drawer's **Embed** tab, which
-  passes the config's `kbTopicId`. Both therefore show the same snippet for the
-  same topic. Never fork a second builder or a second panel for one of them.
+  that builds it, and both surfaces that show it call that builder: the
+  topic's `kbsettings` page opens `shared/components/TopicEmbedScriptDialog.tsx`,
+  and the help center drawer's **Embed** tab renders
+  `shared/components/TopicEmbedTab.tsx` with the config's `kbTopicId`. Both
+  therefore show the same snippet for the same topic. Never fork a second
+  builder.
   The snippet's `window.erxesSettings.knowledgeBase.topicId` and
   `knowledgeBaseBundle.js` output is a published contract with every site that
   already embedded a topic: change the surface around it, never the generated
@@ -1021,10 +1033,11 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
   `ColorPicker` — the palette the rest of the product picks from, whose popover
   already carries a hex field; never a native `<input type="color">` — add a style through those
   rather than hand-rolling a field. A colour field pairs the picker with
-  `ColorDefaultAction`, which takes the default it resets to as a prop: the
+  `shared/components/ColorDefaultAction.tsx`, which takes the default it resets to as a prop: the
   style fields read theirs from `defaultStyleColor(name)` and the topic colour
   takes the default of the surface it is edited on, because the help center
-  starts a topic colour at `#4f33af` and the topic drawer at `#000000`. Apollo runs with `addTypename: true`, so a
+  starts a topic colour at `#4f33af` and the topic drawer at `#4F46E5`
+  (`EMPTY_TOPIC.color`). Apollo runs with `addTypename: true`, so a
   cached block carries a `__typename` that `HelpCenterConfigStylesInput`
   rejects: `toHelpCenterConfigInput` strips it in `stripStylesTypename`, and
   every write path — drawer reset and inline edit alike — goes through it. Any
@@ -1446,8 +1459,73 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   loading states for its skeleton. Missing records after those queries settle
   are not loading states; they must leave a valid tickets-only breadcrumb.
 
+- The topic settings route is `kbsettings`, never `settings`: core-ui's
+  `useIsSettings` matches any path containing `/settings` and would swap the
+  host's second navigation column for the workspace settings menu (the CMS
+  names its own route `cmssettings` for the same reason).
+- The knowledge base is route-driven, not query-param driven: the topics index
+  lives at `/frontline/knowledgebase` and every per-topic surface at
+  `/frontline/knowledgebase/:topicId/{articles,categories,kbsettings}`. The
+  sidebar and breadcrumbs build their links from `KNOWLEDGE_BASE_PATH`; never
+  reintroduce a `?topicId=`/`?categoryId=` selection for navigation. `editId`
+  (and the articles table's `categoryId` and `status` filters) stay query
+  params, because they are filter and drawer state, not routes.
+- The topics index keeps both views: the thumbnail card grid (`TopicsGrid`, the
+  default, mirroring the CMS website list) and the record table
+  (`TopicsRecordTable`), switched by the header toggle and sharing one
+  `useTopics` query and filter bar. Never drop one of the two.
+- `FrontlineSubGroups` renders nothing for `/frontline/knowledgebase`: topics
+  are navigated from the topics index and the per-topic sidebar, never from a
+  second navigation column.
+- The topic, category and article sheets group their fields into `InfoCard`
+  sections inside a `ScrollArea`, the same shape the help center drawer uses —
+  a new field joins a section, it does not sit loose in the form. The topic
+  settings page uses the same sections (General and Appearance on the left,
+  Installation and Danger zone on the right). The article sheet is the wide one
+  (`sm:max-w-5xl lg:max-w-6xl xl:max-w-[92rem]`) and splits into two columns
+  from `lg`: Content on the left, Publishing and Media stacked on the right, so
+  the editor never sits at the bottom of a long scroll.
+- `TopicColorField`'s label comes from `kb-color-required`, which already ends
+  in `*`; never add a second asterisk around it (the help center appearance tab
+  renders the same component).
+- A category's `icon` is a free-form string in Mongo, and older data uses names
+  the picker's `ICONS` list may not carry (`rocket`, `credit-card`, `lock`, …).
+  `IconPicker` therefore shows an unknown stored value as itself instead of the
+  "Select icon…" placeholder, so a row never looks empty and an unrelated edit
+  never silently drops it. Add a missing name to `ICONS` rather than rewriting
+  the stored value. Its `variant="table"` renders through
+  `RecordTableInlineCell.Trigger`, so an icon cell carries no button border.
+- `KnowledgeBaseCategory` has **no** `topicId` field — selecting one makes the
+  whole query fail with a 400. A category's topic comes from the route
+  (`useParams().topicId`), and that is what an edit sends back in the doc.
+- Knowledge base GraphQL operation names are prefixed `frontlineKb*`
+  (`frontlineKbTopics`, `frontlineKbArticleDetail`, `frontlineKbCategoryEdit`, …)
+  even though the fields they select are the shared `knowledgeBase*` ones —
+  `content_ui` queries the same fields, and operation names must stay unique
+  repo-wide.
+- `knowledgeBaseArticlesEdit` takes a whole `KnowledgeBaseArticleDoc` with a
+  required `content`, so an inline cell edit must re-read the article detail
+  first (`useEditArticleField` does) and never send a doc built from the list
+  row alone — that would blank the article body.
+- The backend paginates topics, categories and articles with `page`/`perPage`;
+  there is no cursor query for them. Knowledge base tables therefore use
+  `RecordTable.Scroll` with the `*_PER_PAGE` constants, not
+  `RecordTable.CursorProvider`.
+- Every knowledge base list refetches after a write (`refetchQueries`, or
+  `client.refetchQueries` for bulk deletes) so a create, edit or delete shows up
+  without a manual refresh.
+- Category and article writes stay inside the topic in the URL: a category's
+  `topicId` and an article's `categoryId` always come from the current route or
+  the topic's own categories, never from an unrelated topic.
+
 ## Validation
 
+- Smoke: open `/frontline/knowledgebase`, create a topic, open it, add a
+  category, then an article in that category — each list updates without a
+  reload. Rename a topic and an article from their inline cells, change an
+  article's status and category from the table, filter articles by status and
+  category, bulk-delete from the command bar, then edit the topic on its
+  `kbsettings` route and delete it from the danger zone.
 - `pnpm nx build frontline_ui`
 - `npx eslint src/...` on touched files — the project carries pre-existing lint
   errors and TypeScript errors elsewhere, so lint and typecheck the files you
@@ -1477,14 +1555,13 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   badges return. A CMS whose client portal has no app token must be refused
   with a toast and stay unselected, and a help center saved before `cmsConfigs`
   existed must open with its old CMS already selected.
-- Smoke (knowledge base embed): open `/frontline/knowledgebase`, open a topic's
-  `…` menu and press `View Script`; the drawer must open on **Embed** with that
-  topic's `_id` in the snippet, `Copy Script` must turn into `Copied!` for three
-  seconds and put the snippet on the clipboard, and switching to another topic
-  must show that topic's `_id`. Creating a topic must show only **General** and
-  **Appearance**. Editing a help center must show the same panel on its own
-  **Embed** tab for the topic picked on **General**, a prompt to pick one when
-  `kbTopicId` is empty, and no Embed tab at all while creating one.
+- Smoke (knowledge base embed): open a topic's `kbsettings` page and open its
+  embed script dialog; the snippet must carry that topic's `_id` and
+  `Copy Script` must put it on the clipboard. Editing a help center must show
+  the same snippet on its own **Embed** tab for the topic picked on
+  **General**, with `Copy Script` turning into `Copied!` for three seconds, a
+  prompt to pick one when `kbTopicId` is empty, and no Embed tab at all while
+  creating one.
 - Smoke (help center footer): on **Appearance** open the Footer card, press
   "Start from the built-in columns", rename a heading, add a link and remove
   another, then save and reload — the drawer shows what was saved and
@@ -1541,6 +1618,47 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-29` — Colour defaults follow the rebuilt knowledge base
+
+- **Summary:** After merging main's knowledge base rebuild, the **Default**
+  colour action lives at `shared/components/ColorDefaultAction.tsx`, and the
+  shared `TopicColorField` renders it beside its label from an optional
+  `defaultValue`, which `TopicFormFields` fills with `EMPTY_TOPIC.color`.
+- **Affected areas:**
+  `src/modules/knowledgebase/shared/components/{ColorDefaultAction,TopicAppearanceFields}.tsx`,
+  `src/modules/knowledgebase/topics/components/TopicFormFields.tsx`,
+  `src/modules/helpcenter/components/help-center-drawer/HelpCenterStyleFields.tsx`;
+  deleted the pre-rebuild `src/modules/knowledgebase/components/`
+- **Contracts changed:** `None`
+
+### `2026-09-28` — Knowledge base screens share one set of building blocks
+
+- **Summary:** Topics, categories, articles and the help center list now build
+  their tables, empty/error states, row menus, bulk delete, search filters,
+  columns, form sheets and save/remove feedback from `knowledgebase/shared`;
+  the topic drawer and topic settings page render one `TopicFormFields`, and
+  the embed dialog and tab share `TopicEmbedScriptPanel`. Behaviour is
+  unchanged apart from the settings page gaining the drawer's field hints and
+  the embed dialog's copy button showing a copied state.
+- **Affected areas:** `src/modules/knowledgebase/shared/`,
+  `src/modules/knowledgebase/{topics,categories,articles,settings,constants}`,
+  `src/modules/helpcenter/components/{HelpCenterRecordTable,HelpCenterColumns}.tsx`,
+  `src/modules/helpcenter/components/help-center-drawer/HelpCenterStyleFields.tsx`,
+  `src/modules/helpcenter/hooks/useHelpCenters.ts`
+- **Contracts changed:** None
+
+### `2026-09-25` — Main's topic embed tab merged into the rebuilt knowledge base
+
+- **Summary:** The help center drawer's Embed tab now renders
+  `shared/components/TopicEmbedTab.tsx`; the topic drawer from main is not
+  carried over, so a topic's script stays in the `kbsettings` embed dialog,
+  and both surfaces build the snippet with `utils/buildTopicEmbedScript.ts`.
+- **Affected areas:**
+  `src/modules/knowledgebase/shared/components/{TopicEmbedTab,TopicEmbedScriptDialog}.tsx`,
+  `src/modules/knowledgebase/utils/buildTopicEmbedScript.ts`,
+  `src/modules/helpcenter/components/help-center-drawer/HelpCenterDrawer.tsx`
+- **Contracts changed:** `None`
 
 ### `2026-09-24` — Conversation properties tab on the inbox side widget
 
@@ -1660,46 +1778,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `src/modules/helpcenter/components/help-center-drawer/HelpCenterGeneralTab.tsx`,
   `src/modules/helpcenter/types/index.ts`
 - **Contracts changed:** `None`
-
-### `2026-09-24` — The help center drawer regains an Embed tab
-
-- **Summary:** Editing a help center now has a third **Embed** tab that renders
-  the knowledge base module's `TopicEmbedTab` for the config's `kbTopicId`, or
-  a prompt to pick a topic when none is set; creating one still shows only
-  General and Appearance. The knowledge base topic drawer keeps its own Embed
-  tab, and both surfaces share the one builder and panel.
-- **Affected areas:**
-  `src/modules/helpcenter/components/help-center-drawer/HelpCenterDrawer.tsx`,
-  `src/modules/helpcenter/types/index.ts`
-- **Contracts changed:** `None`
-
-### `2026-09-23` — The embed script moves to the knowledge base topic
-
-- **Summary:** The help center drawer's embed card and its script dialog are
-  gone; a topic now owns its embed script on an **Embed** tab in a three-tab
-  topic drawer (General, Appearance, Embed), reachable from the topic row's
-  `View Script` menu entry, with a copy button that reports success. The
-  generated snippet is unchanged.
-- **Affected areas:**
-  `src/modules/knowledgebase/components/{TopicDrawer,TopicEmbedTab}.tsx`,
-  `src/modules/knowledgebase/components/KnowledgeBaseTopicsNav.tsx`,
-  `src/modules/knowledgebase/utils/buildTopicEmbedScript.ts`,
-  `src/modules/knowledgebase/{types,constants}.ts`,
-  `src/modules/helpcenter/components/help-center-drawer/{HelpCenterDrawer,HelpCenterGeneralTab}.tsx`,
-  deleted `src/modules/knowledgebase/components/TopicEmbedScriptDialog.tsx`
-- **Contracts changed:** `None` — no query, mutation or generated script text
-  changed.
-
-### `2026-09-23` — The website picker shows the client portal name
-
-- **Summary:** The help center `Website` select now labels its trigger and
-  options with the client portal's name (domain as fallback and as a search
-  keyword) instead of the bare domain, while still storing the domain in `url`,
-  and the component was renamed `SelectHelpCenterWebsite` →
-  `SelectHelpCenterClientPortal` for what it picks.
-- **Affected areas:**
-  `src/modules/helpcenter/components/SelectHelpCenterClientPortal.tsx` (renamed
-  from `SelectHelpCenterWebsite.tsx`),
-  `src/modules/helpcenter/graphql/queries/getHelpCenterWebsiteOptions.ts`
-- **Contracts changed:** `frontlineHelpCenterWebsiteOptions` now also selects
-  `name` on each client portal.

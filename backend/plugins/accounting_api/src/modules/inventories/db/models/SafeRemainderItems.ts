@@ -1,5 +1,4 @@
-import { Model } from 'mongoose';
-import * as _ from 'underscore';
+import { FilterQuery, Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { SAFE_REMAINDER_STATUSES } from '../../@types/constants';
 import {
@@ -12,7 +11,10 @@ import { safeRemainderItemSchema } from '../definitions/safeRemainderItems';
 export interface ISafeRemainderItemModel extends Model<ISafeRemainderItemDocument> {
   getItem(_id: string): Promise<ISafeRemainderItemDocument>;
   getItemCount(params: IRemainderParams): Promise<number>;
-  createItem(_id: string, userId: string): Promise<ISafeRemainderItemDocument>;
+  createItem(
+    doc: ISafeRemainderItem,
+    userId: string,
+  ): Promise<ISafeRemainderItemDocument>;
   updateItem(
     _id: string,
     doc: Partial<ISafeRemainderItem>,
@@ -21,10 +23,7 @@ export interface ISafeRemainderItemModel extends Model<ISafeRemainderItemDocumen
   removeItems(ids: string[]): void;
 }
 
-export const loadSafeRemainderItemClass = (
-  models: IModels,
-  _subdomain: string,
-) => {
+export const loadSafeRemainderItemClass = (models: IModels) => {
   class SafeRemainderItem {
     /**
      * Get safe remainder item
@@ -32,7 +31,7 @@ export const loadSafeRemainderItemClass = (
      * @returns Found object
      */
     public static async getItem(_id: string) {
-      const result: any = await models.SafeRemainderItems.findOne({
+      const result = await models.SafeRemainderItems.findOne({
         _id,
       }).lean();
 
@@ -48,13 +47,12 @@ export const loadSafeRemainderItemClass = (
      */
     public static async getItemCount(params: IRemainderParams) {
       const { productId, departmentId, branchId } = params;
-      const filter: any = { productId };
+      const filter: FilterQuery<ISafeRemainderItemDocument> = { productId };
 
       if (departmentId) filter.departmentId = departmentId;
       if (branchId) filter.branchId = branchId;
 
-      const safeRemainderItems: any =
-        await models.SafeRemainderItems.find(filter);
+      const safeRemainderItems = await models.SafeRemainderItems.find(filter);
 
       let count = 0;
       for (const item of safeRemainderItems) {
@@ -70,8 +68,12 @@ export const loadSafeRemainderItemClass = (
      * @returns Created response
      */
     public static async createItem(doc: ISafeRemainderItem, userId: string) {
+      const now = new Date();
       return await models.SafeRemainderItems.create({
         ...doc,
+        createdAt: now,
+        createdBy: userId,
+        modifiedAt: now,
         modifiedBy: userId,
       });
     }
@@ -84,7 +86,7 @@ export const loadSafeRemainderItemClass = (
      */
     public static async updateItem(
       _id: string,
-      doc: ISafeRemainderItem,
+      doc: Partial<ISafeRemainderItem>,
       userId: string,
     ) {
       const item = await models.SafeRemainderItems.getItem(_id);
@@ -115,16 +117,19 @@ export const loadSafeRemainderItemClass = (
      * @returns Deleted response
      */
     public static async removeItems(ids: string[]) {
-      const firstId = ids[0];
-      if (!firstId) {
+      if (!ids.length) {
         return;
       }
-      const item = await models.SafeRemainderItems.getItem(firstId);
-
-      const safeRemainder = await models.SafeRemainders.getRemainder(
-        item.remainderId,
+      const remainderIds = await models.SafeRemainderItems.distinct(
+        'remainderId',
+        { _id: { $in: ids } },
       );
-      if (safeRemainder.status === SAFE_REMAINDER_STATUSES.PUBLISHED) {
+      const publishedRemainder = await models.SafeRemainders.exists({
+        _id: { $in: remainderIds },
+        status: SAFE_REMAINDER_STATUSES.PUBLISHED,
+      });
+
+      if (publishedRemainder) {
         throw new Error('Cant remove cause remainder has submited');
       }
 

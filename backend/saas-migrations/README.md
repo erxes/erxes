@@ -39,6 +39,37 @@ pnpm migrate:list     # list only
 The runner exits non-zero if any migration fails. By default it **stops on the
 first failure**; pass `--continue` to run the rest regardless.
 
+### Existing target data
+
+By default the domain migrations are **insert-only**: a source document whose
+`_id` already exists in the target is left untouched, so re-runs never
+overwrite changes made in the target. Set `OVERWRITE_EXISTING=1` to replace
+existing target documents with the source version instead.
+
+In `sales/migrateSales.ts`, a source deal whose `number` is already used in the
+target is inserted with a `-1`, `-2`, … suffix, and a pipeline label whose
+`pipelineId`/`name`/`colorCode` already exists in the target is skipped.
+
+### Organizations
+
+Both `run.ts` and `run-commands.ts` run every selected script once per
+organization pair, finishing one organization before starting the next:
+
+- When `SOURCE_SUBDOMAIN` and `TARGET_SUBDOMAIN` are both set in the shell
+  environment (as the Kubernetes Job does), only that single pair runs.
+- Otherwise every pair in `ORG_PAIRS` in [`orgs.ts`](orgs.ts) runs. Limit it
+  with `--org=<subdomain>[,<subdomain>…]`, matching either the source or the
+  target subdomain.
+
+The runner passes each pair to the scripts as `SOURCE_SUBDOMAIN` and
+`TARGET_SUBDOMAIN`, overriding any values in `.env`.
+
+```bash
+tsx backend/saas-migrations/run.ts --list                    # orgs × scripts
+tsx backend/saas-migrations/run.ts --org=belty,hipay core
+tsx backend/saas-migrations/run-commands.ts --org=belty propertiesData
+```
+
 ## Knowledge Base to CMS
 
 The explicit [Knowledge Base importer](content/knowledgebase/README.md) converts
