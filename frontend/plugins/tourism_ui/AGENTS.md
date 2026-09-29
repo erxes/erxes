@@ -69,13 +69,3 @@
 
 - `pnpm nx build tourism_ui`
 - Smoke scenario: open tourism PMS, TMS, PMS settings, and TMS settings routes through the remote.
-
-## Recent Changes
-
-<!-- Newest first. Keep at most 10 entries. -->
-
-### `2026-09-09` — Bound dev watchers
-
-- **Summary:** Tourism UI Rspack development serving now ignores generated dependency, cache, coverage, temp, and output folders to reduce local watcher pressure.
-- **Affected areas:** `rspack.config.ts`.
-- **Contracts changed:** None.
