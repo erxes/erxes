@@ -6,6 +6,7 @@ import { useJournalReportData } from '../hooks/useJournalReportData';
 import { useJournalReportMore } from '../hooks/useJournalReportMore';
 import { moreDataState } from '../states/renderingReportsStates';
 import { IGroupRule, ReportRules } from '../types/reportsMap';
+import { buildDetailedReportPath } from '../utils/reportNavigation';
 import {
   CalcReportHandler,
   getCalcReport,
@@ -204,65 +205,14 @@ const getMoreAttr = (
   return moreAttr;
 };
 
-const drillParamByGroup: Record<string, string> = {
-  accountId: 'accountIds',
-  branchId: 'branchId',
-  departmentId: 'departmentId',
-  customerId: 'customerId',
-  productId: 'productIds',
-  fixedAssetId: 'fixedAssetIds',
-  journal: 'journal',
-  contentId: 'contentId',
-  contentType: 'contentType',
-};
-
-const getGroupsFromAttr = (attr: string) =>
-  attr
-    .split(/[,*]/)
-    .map((entry) => {
-      const [group, id] = entry.split('+');
-      return { group, id };
-    })
-    .filter(({ group, id }) => group && id);
-
-const getAccountStatementDrillUrl = (
-  report: string,
-  groupRule: IGroupRule,
-  groupId: string,
-  attr: string,
-) => {
-  if (report === 'ac' || groupRule.group !== 'accountId' || !groupId) {
-    return '';
+const openDetailedReport = (report: string, attr: string, isMore?: boolean) => {
+  if (isMore) {
+    return;
   }
 
-  const params = new URLSearchParams(window.location.search);
-
-  params.set('report', 'ac');
-  params.set('groupKey', 'default');
-  params.set('isMore', 'true');
-  params.set('accountIds', groupId);
-
-  getGroupsFromAttr(attr).forEach(({ group, id }) => {
-    const paramName = drillParamByGroup[group];
-    if (paramName && group !== 'accountId') {
-      params.set(paramName, id);
-    }
-  });
-
-  return `${window.location.pathname}?${params.toString()}`;
-};
-
-const openAccountStatementDrill = (
-  report: string,
-  groupRule: IGroupRule,
-  groupId: string,
-  attr: string,
-) => {
-  const url = getAccountStatementDrillUrl(report, groupRule, groupId, attr);
-
-  if (url) {
-    window.location.assign(url);
-  }
+  window.location.assign(
+    buildDetailedReportPath(window.location, report, attr),
+  );
 };
 
 function renderGroup(
@@ -308,17 +258,10 @@ function renderGroup(
             <ReportTable.Row
               key={attr}
               data-sum-key={attr}
-              className={cn(
-                groupRule.style ?? '',
-                groupRule.group === 'accountId' && report !== 'ac'
-                  ? 'cursor-pointer'
-                  : '',
-              )}
+              className={cn(groupRule.style ?? '', !isMore && 'cursor-pointer')}
               data-group={groupRule.group}
               data-id={groupId}
-              onDoubleClick={() =>
-                openAccountStatementDrill(report, groupRule, groupId, attr)
-              }
+              onDoubleClick={() => openDetailedReport(report, attr, isMore)}
             >
               <ReportTable.Cell
                 className={cn(`text-left `, padding && 'pl-(--cellPadding)')}
@@ -375,15 +318,11 @@ function renderGroup(
           className={cn(
             'text-right',
             groupRule.style ?? '',
-            groupRule.group === 'accountId' && report !== 'ac'
-              ? 'cursor-pointer'
-              : '',
+            !isMore && 'cursor-pointer',
           )}
           data-group={groupRule.group}
           data-id={groupId}
-          onDoubleClick={() =>
-            openAccountStatementDrill(report, groupRule, groupId, attr)
-          }
+          onDoubleClick={() => openDetailedReport(report, attr, isMore)}
         >
           <ReportTable.Cell
             className={cn(`text-left `, padding && 'pl-(--cellPadding)')}
@@ -437,6 +376,11 @@ const RenderMore = ({
 
   // moreData Context
   return (
-    <ReportMore moreData={moreData} currentKey={perkey} nodeExtra={nodeExtra} />
+    <ReportMore
+      report={report}
+      moreData={moreData}
+      currentKey={perkey}
+      nodeExtra={nodeExtra}
+    />
   );
 };

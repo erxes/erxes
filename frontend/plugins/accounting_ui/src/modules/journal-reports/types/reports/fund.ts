@@ -10,9 +10,6 @@ export const fundReportRules: Record<string, IReportConfig> = {
       { code: 'branchDepartment', title: 'Салбар хэлтсээр' },
       { code: 'departmentBranch', title: 'Хэлтэс салбараар' },
     ],
-    initParams: {
-      isMore: true,
-    },
     groups: {
       default: {
         group: 'accountId',

@@ -1,5 +1,5 @@
 import { IGroupRule } from '../../../types/reportsMap';
-import { shouldKeepZeroRows, totalsCalc } from '../utils';
+import { moreDataByKey, shouldKeepZeroRows, totalsCalc } from '../utils';
 
 jest.mock('erxes-ui', () => ({
   displayNum: (value: number) => value.toFixed(2),
@@ -60,5 +60,37 @@ describe('totalsCalc zero-row visibility', () => {
     expect(shouldKeepZeroRows(false, false)).toBe(false);
     expect(shouldKeepZeroRows(true, false)).toBe(true);
     expect(shouldKeepZeroRows(false, true)).toBe(true);
+  });
+});
+
+describe('moreDataByKey', () => {
+  it('uses detail locations and falls back from ptrId to parentId', () => {
+    const records = [
+      {
+        parentId: 'pointer-1',
+        branchId: 'root-branch',
+        details: {
+          branchId: 'detail-branch',
+          productId: 'product-1',
+        },
+      },
+    ];
+    const nestedGroupRule: IGroupRule = {
+      group: 'ptrId',
+      code: 'ptrNumber',
+      groupRule: {
+        group: 'branchId',
+        code: 'branchCode',
+        groupRule: {
+          group: 'productId',
+          code: 'productCode',
+          from: ['details'],
+        },
+      },
+    };
+
+    expect(moreDataByKey(records, nestedGroupRule)).toEqual({
+      'pointer-1#detail-branch#product-1': records,
+    });
   });
 });

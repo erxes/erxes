@@ -367,6 +367,12 @@ export const getFilter = async (
     orFilters.push({ number: regex }, { ptrNumber: regex });
   }
 
+  if (params.ptrId) {
+    andFilters.push({
+      $or: [{ ptrId: params.ptrId }, { parentId: params.ptrId }],
+    });
+  }
+
   if (params.searchValue) {
     transactionMatch.description = new RegExp(
       `.*${escapeRegExp(params.searchValue)}.*`,

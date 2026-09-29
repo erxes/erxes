@@ -60,24 +60,24 @@
 
 ## Architecture
 
-| Area               | Path                                                        | Responsibility                                                                                                          |
-| ------------------ | ----------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| Runtime            | `src/main.ts`                                               | Starts the accounting API plugin service.                                                                               |
-| Import/export      | `src/meta/import-export`                                    | Registers accounting import and transaction export types, headers, and row producers.                                   |
-| Apollo integration | `src/apollo`                                                | Registers accounting schema, resolvers, subscriptions, and federation wiring.                                           |
-| Models             | `src/connectionResolvers.ts`                                | Generates tenant-scoped Mongoose models for accounting-owned collections.                                               |
-| Accounting domain  | `src/modules/accounting`                                    | Owns accounting schemas, models, GraphQL resolvers, journal utilities, and routes.                                      |
-| Cost adjustment    | `src/modules/accounting/utils/invJustify.ts`                | Owns inventory cost-adjustment save, side validation, inventory synchronization, and removal behavior.                  |
+| Area               | Path                                                         | Responsibility                                                                                                          |
+| ------------------ | ------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------- |
+| Runtime            | `src/main.ts`                                                | Starts the accounting API plugin service.                                                                               |
+| Import/export      | `src/meta/import-export`                                     | Registers accounting import and transaction export types, headers, and row producers.                                   |
+| Apollo integration | `src/apollo`                                                 | Registers accounting schema, resolvers, subscriptions, and federation wiring.                                           |
+| Models             | `src/connectionResolvers.ts`                                 | Generates tenant-scoped Mongoose models for accounting-owned collections.                                               |
+| Accounting domain  | `src/modules/accounting`                                     | Owns accounting schemas, models, GraphQL resolvers, journal utilities, and routes.                                      |
+| Cost adjustment    | `src/modules/accounting/utils/invJustify.ts`                 | Owns inventory cost-adjustment save, side validation, inventory synchronization, and removal behavior.                  |
 | Safe remainders    | `src/modules/inventories`                                    | Owns inventory count snapshots, typed item transaction metadata, bulk import updates, and generated transactions.       |
-| Census calculation | `src/modules/inventories/utils/safeRemainderTransactions.ts` | Purely calculates income, out, sale, and remaining cost-adjustment details from counted quantity and target value.       |
-| Journal reports    | `src/modules/accounting/utils/journalReports`               | Builds shared filters, aggregation groups, period splits, and display enrichment for journal reports.                   |
-| Report bases       | `src/modules/accounting/utils/journalReports/strategies`    | Groups Erkhet-style report base definitions by main, fund, debt, inventory, and fixed asset report families.            |
-| Report details     | `src/modules/accounting/utils/journalReports/details`       | Owns report-specific detail row lookups such as account statement more rows.                                            |
-| Rate adjustments   | `src/modules/accounting/utils/adjust*Rates.ts`              | Owns fund/debt daily validation, grouping, calculation, and transaction execution.                                      |
-| Closing adjustment | `src/modules/accounting/utils/adjustClosings.ts`            | Owns temporary account closing calculation, tax impact calculation, and transaction execution.                          |
-| Fixed assets       | `src/modules/fixedAssets`                                   | Owns fixed asset categories, acquisition-backed fixed assets, optional owner-record ledger rows, and adjustment models. |
-| Erkhet migration   | `src/modules/accounting/routes/erkhetReferenceMigration.ts` | Upserts required product references and fixed asset category references from Erkhet codes before transaction import.    |
-| Erkhet migration   | `src/modules/accounting/routes/erkhetMigration.ts`          | Validates migration batches, resolves external codes, and imports transactions.                                         |
+| Census calculation | `src/modules/inventories/utils/safeRemainderTransactions.ts` | Purely calculates income, out, sale, and remaining cost-adjustment details from counted quantity and target value.      |
+| Journal reports    | `src/modules/accounting/utils/journalReports`                | Builds shared filters, aggregation groups, period splits, and display enrichment for journal reports.                   |
+| Report bases       | `src/modules/accounting/utils/journalReports/strategies`     | Groups Erkhet-style report base definitions by main, fund, debt, inventory, and fixed asset report families.            |
+| Report details     | `src/modules/accounting/utils/journalReports/details`        | Owns report-specific detail row lookups such as account statement more rows.                                            |
+| Rate adjustments   | `src/modules/accounting/utils/adjust*Rates.ts`               | Owns fund/debt daily validation, grouping, calculation, and transaction execution.                                      |
+| Closing adjustment | `src/modules/accounting/utils/adjustClosings.ts`             | Owns temporary account closing calculation, tax impact calculation, and transaction execution.                          |
+| Fixed assets       | `src/modules/fixedAssets`                                    | Owns fixed asset categories, acquisition-backed fixed assets, optional owner-record ledger rows, and adjustment models. |
+| Erkhet migration   | `src/modules/accounting/routes/erkhetReferenceMigration.ts`  | Upserts required product references and fixed asset category references from Erkhet codes before transaction import.    |
+| Erkhet migration   | `src/modules/accounting/routes/erkhetMigration.ts`           | Validates migration batches, resolves external codes, and imports transactions.                                         |
 
 ## Contracts
 
@@ -174,7 +174,7 @@
 - Inventory adjustment outgoing-cost fixes may adjust only related debit transactions in `main`, `receivable`, and `payable` journals; cash and bank debit amounts are explicit payment amounts and must not be rewritten by cost recalculation.
 - Inventory adjustment grouping must use detail-level branch/department when present and fall back to transaction root branch/department so mixed-location transaction rows cost against the correct location.
 - Journal report filters that target transaction details must be applied after `$unwind` so unrelated detail rows from the same transaction are not included in report sums.
-- Journal report detail lookup is enabled by default for every registered report base; `supportsMore: false` is the only opt-out, and pointer drill-down must match either `ptrId` or the fallback `parentId` used by report grouping.
+- Journal report detail lookup is enabled by default for every registered report base; `supportsMore: false` is the only opt-out, pointer drill-down must match either `ptrId` or the fallback `parentId` used by report grouping, and expanded transaction rows must remain inside the selected `fromDate` and `toDate` even when summary opening balances include earlier activity.
 - Erkhet inventory and fixed-asset location filters map to erxes branch/department filters; report matching must accept either transaction root branch/department or detail-level branch/department while keeping selected dimensions combined with AND semantics.
 - Erkhet transaction kind filters are adapter inputs only; report aggregation must translate them to current erxes transaction `journal` values instead of adding a separate persisted transaction-kind field.
 - Erkhet inventory adjustment kind `28` must map only to `invJustify`, never quantity-changing `invIncome` or `invOut`; report rows preserve transaction side so debit adjustments increase cost and credit adjustments decrease cost.
