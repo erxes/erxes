@@ -25,6 +25,7 @@
 ## Current Capabilities
 
 - Displays, creates, updates, prints, and removes accounting transactions.
+- Transaction form save actions keep submit behavior unchanged but render `DRAFTED` status-group saves with the shared secondary button variant, warning-colored draft icon/text, and warning-colored debit/credit totals.
 - Exports accounting main and journal record transaction lists through the platform import/export UI using the current frontend filters or selected rows.
 - Transaction record rows place each detail amount in the debit or credit column using the transaction-level side.
 - Transaction record tables initialize journal-specific columns before the table provider mounts so structural action and checkbox columns retain their fixed width.
@@ -138,6 +139,7 @@
 - Safe remainder table source order is the fallback for browsers without saved preferences; existing user-controlled column order must continue to override that fallback through the stable versioned table preference key.
 - Safe remainder income debit value must remain derived from counted total cost; it must not expose a second editor for the same target value.
 - Create/update/remove/calculate/run mutations must show success/error feedback and refresh or subscribe so users do not need a manual reload.
+- Transaction form save buttons must visually distinguish draft-group statuses without changing the create/update submit path.
 - Fund/debt adjustment transaction execution is separate from calculation; UI must expose both states and not run transactions before details are calculated.
 - Closing adjustment transaction execution is separate from calculation; UI must let users edit row tax percentages before running transactions.
 - Closing adjustment generated transactions must be shown in a separate tab using the transaction balance table pattern.
