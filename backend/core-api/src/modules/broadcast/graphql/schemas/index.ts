@@ -1,4 +1,6 @@
 import {
+  dryRunTypes as EngageDryRunTypes,
+  recipientEmailTypes as EngageRecipientEmailTypes,
   mutations as EngageMutations,
   queries as EngageQueries,
   types as EngageTypes,
@@ -6,6 +8,8 @@ import {
 
 export const types = `
     ${EngageTypes}
+    ${EngageDryRunTypes}
+    ${EngageRecipientEmailTypes}
 `;
 
 export const queries = `

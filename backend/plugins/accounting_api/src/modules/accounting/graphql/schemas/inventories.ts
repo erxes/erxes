@@ -11,7 +11,7 @@ export const types = `
 
 export const queries = `
   getAccLastIncomePrice(productIds: [String]): JSON
-  getAccCurrentCost(productIds: [String], accountId: String, branchId: String, departmentId: String): JSON
+  getAccCurrentCost(productIds: [String], accountId: String, branchId: String, departmentId: String, excludedTransactionIds: [String]): JSON
 `;
 
 export const mutations = `

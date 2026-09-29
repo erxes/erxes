@@ -29,6 +29,12 @@ const OperationActionHistoryResult = lazy(() =>
   ),
 );
 
+const TaskTemplateRequirement = lazy(() =>
+  import('./template/TaskTemplateRequirement').then((module) => ({
+    default: module.TaskTemplateRequirement,
+  })),
+);
+
 export const TaskRemoteEntry = (props: AutomationRemoteEntryProps) => {
   return (
     <AutomationRemoteEntryWrapper
@@ -37,6 +43,7 @@ export const TaskRemoteEntry = (props: AutomationRemoteEntryProps) => {
         actionForm: OperationActionConfigForm,
         actionNodeConfiguration: OperationActionNodeContent,
         historyActionResult: OperationActionHistoryResult,
+        templateRequirement: TaskTemplateRequirement,
         historyName: ({
           target,
         }: AutomationExecutionHistoryNameProps<Record<string, unknown>>) =>

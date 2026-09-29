@@ -6,41 +6,36 @@ import type { PortalArticle } from '../utils/normalize';
 import { formatDate } from '../utils/selectors';
 
 export const ArticleView = ({ article }: { article: PortalArticle }) => (
-  <article className="rounded-xl border border-line bg-white p-6 sm:p-8">
-    <h1 className="text-lg font-semibold leading-snug text-ink sm:text-xl">
-      {article.title}
-    </h1>
-
-    <div className="mt-5 flex flex-wrap items-center gap-x-8 gap-y-3 text-[13px] text-muted-foreground">
+  <article className="rounded-2xl bg-white p-6 shadow-shell sm:p-9">
+    <div className="flex flex-wrap items-center gap-x-6 gap-y-3 pb-6 text-[13px] text-muted-foreground">
       <span className="flex items-center gap-2.5">
-        <Avatar name={article.author} size={32} />
-        <span>
-          Published by{' '}
-          <span className="font-semibold text-ink">{article.author}</span>
-        </span>
+        <Avatar name={article.author} size={30} />
+        <span className="font-medium text-ink">{article.author}</span>
       </span>
-      <span>
-        Modified at{' '}
-        <span className="font-semibold text-ink">
-          {formatDate(article.modifiedAt)}
-        </span>
-      </span>
+
       <span className="flex items-center gap-1.5">
-        <Icon name="eye" size={15} />
-        {article.viewCount}
+        <Icon name="clock" size={14} />
+        {formatDate(article.modifiedAt)}
       </span>
+
+      {article.viewCount > 0 ? (
+        <span className="flex items-center gap-1.5">
+          <Icon name="eye" size={14} />
+          {article.viewCount.toLocaleString('en-US')}
+        </span>
+      ) : null}
     </div>
 
-    <hr className="my-6 border-line" />
-
-    {article.content ? (
-      <RichText html={article.content} />
-    ) : (
-      <EmptyState
-        icon="article"
-        title="This article is empty"
-        description="No content has been added to this article yet."
-      />
-    )}
+    <div className="border-t border-line pt-7">
+      {article.content ? (
+        <RichText html={article.content} />
+      ) : (
+        <EmptyState
+          icon="article"
+          title="This article is empty"
+          description="No content has been added to this article yet."
+        />
+      )}
+    </div>
   </article>
 );

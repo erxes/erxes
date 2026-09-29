@@ -1,6 +1,7 @@
 {
   "approval-request": "Зөвшөөрлийн хүсэлт",
   "approval-request-description": "{{requester}} {{label}} руу хандах хүсэлт илгээсэн.",
+  "change-request-description": "{{requester}} танаас өөрчлөлтийг батлахыг хүсэж байна.",
   "approval-requests": "Зөвшөөрлийн хүсэлтүүд",
   "approval-mode": "Зөвшөөрөх горим",
   "allowed-users": "Зөвшөөрөгдсөн хэрэглэгчид",
@@ -67,5 +68,9 @@
   "unknown-error": "Тодорхойгүй алдаа",
   "unlock": "Нээх",
   "view-details": "Дэлгэрэнгүй харах",
-  "waiting-for-approver": "Зөвшөөрөгчийг хүлээж байна"
+  "waiting-for-approver": "Зөвшөөрөгчийг хүлээж байна",
+  "change-to-approve": "Таны батлах гэж буй зүйл",
+  "change-apply-failed": "Батлагдсан ч хэрэгжээгүй: {{reason}}",
+  "status-applyFailed": "Хэрэгжээгүй",
+  "request-gone": "Энэ хүсэлт байхгүй болсон байна."
 }

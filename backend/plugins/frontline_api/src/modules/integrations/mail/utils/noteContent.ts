@@ -1,3 +1,5 @@
+import { escapeHtml } from '@/integrations/mail/utils/html';
+
 /**
  * The ticket note composer stores BlockNote documents, so `note.content` is a
  * JSON array of blocks rather than prose. Mail needs HTML, and a note written
@@ -32,13 +34,6 @@ const LIST_TAGS: Record<string, string> = {
   numberedListItem: 'ol',
   checkListItem: 'ul',
 };
-
-const escapeHtml = (value: string) =>
-  value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
 
 const styleAttribute = (styles?: TInlineStyles) => {
   if (!styles) {

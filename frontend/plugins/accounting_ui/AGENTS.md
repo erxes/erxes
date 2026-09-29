@@ -6,7 +6,7 @@
 - **Project:** `accounting_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/accounting_ui`
-- **Last synchronized:** `2026-09-19`
+- **Last synchronized:** `2026-09-29`
 
 ## Scope
 
@@ -25,6 +25,9 @@
 ## Current Capabilities
 
 - Displays, creates, updates, prints, and removes accounting transactions.
+- Exports accounting main and journal record transaction lists through the platform import/export UI using the current frontend filters or selected rows.
+- Transaction record rows place each detail amount in the debit or credit column using the transaction-level side.
+- Transaction record tables initialize journal-specific columns before the table provider mounts so structural action and checkbox columns retain their fixed width.
 - Keeps cash, bank, payable, and receivable transaction main-currency and foreign-currency amounts manually editable while syncing the paired amount from exchange rates without update cycles.
 - Provides adjustment navigation and pages for inventory, fixed asset, fund rate, and debt rate adjustments.
 - Provides closing adjustment navigation and pages for temporary account closing.
@@ -36,6 +39,12 @@
 - Fund and debt rate adjustment detail account balance grids, plus fund linked transaction rows, render with `RecordTable` instead of raw HTML tables.
 - Closing adjustment list renders account fields inline, and detail can calculate temporary-account balances grouped by branch/department, show validation state, render read-only branch/department code-title labels plus account inline names, edit tax percentage per row in collapsible `RecordTable` groups, show generated transactions in a `TBalance`-style transactions tab, run closing transactions, publish, cancel, and show tax impact.
 - Inventory transaction rows fill prices from product master, current inventory cost, or last completed inventory income price depending on journal behavior.
+- Inventory out and internal movement rows show active unit cost and amount as read-only values; inventory sale unit price remains editable because it is the sale price, while its generated inventory and cost-of-goods rows retain the fetched active cost across sale quantity edits and are costed by the backend on save.
+- Inventory income, out, move, sale, and sale-return bulk product additions fetch journal-specific fill data once, then append rows with the same price, cost, amount, and weight rules as single-row product selection.
+- The inventory cost adjustment journal has an independent form, supports single or bulk product selection, hides quantity input, shows current remainder and unit cost, accepts a per-unit cost delta, calculates the after-adjustment unit cost, and submits cost-only rows.
+- Safe remainder counting opens one import sheet with separate TXT and CSV tabs; TXT and CSV rows with blank total cost default counted total cost from active unit cost and counted quantity, while CSV accepts explicit `totalCost` and legacy `unitCost` aliases.
+- Safe remainder detail tables expose persistent user-controlled column order and subtly highlight editable counted quantity and total-cost inputs.
+- Safe remainder quantity and counted total cost are the editable census values; derived debit/credit and adjustment amounts are read-only previews, and detail actions disable together while any census mutation is running.
 - Inventory income can allocate additional expenses by amount, count, or editable total line weight; line weight initializes from core product weight multiplied by count.
 - Fixed asset income, out, move, and sale transaction rows can toggle detailed view to edit branch and department per detail.
 - Transaction balance rows display branch and department from each transaction detail when present, so generated follow rows with source/destination locations are shown at their row location instead of the root transaction location.
@@ -51,27 +60,33 @@
 - Related account override inputs keep focus while users type and persist custom debit and credit code lists independently.
 - Empty related account overrides are omitted on submit so backend-calculated default debit/credit related accounts remain active, and the related-account editor falls back to default `dt/ct` codes when `customDt/customCt` are empty.
 - Accounting settings pages manage accounts, account categories, permissions, VAT, CTAX, and sync configuration; VAT/CTAX row access is guarded by the unified tax-row permission actions.
-- Journal report rendering groups backend rows recursively, uses a declarative report-to-filter map to show and submit only applicable account, contact, inventory, fixed-asset, organization, user, and report controls, filters by Erkhet-compatible transaction type plus erxes-native category/search/tag/ownership fields, renders account statement, trial balance, general ledger, main journal, main journal summary, fund, debt, inventory cost, inventory sale, inventory sale-cost, inventory sale-period, inventory price, inventory profit, inventory shipper, inventory document, inventory seller subsystem, and fixed asset report variants, shows foreign-currency balance rows separately beneath non-MNT account leaves without adding them to base-currency totals, derives table headers and footers from report column metadata, keeps date filter controls visually consistent, shows table-body loading skeletons while report or drill-down data loads, drills account rows into account statements with filter context, calculates parent/footer totals after render, hides all-zero rows unless users choose to show them, loads account-statement detail rows without mutating report state, and opens transaction edit screens from detail rows.
+- Journal report rendering groups backend rows recursively, uses a declarative report-to-filter map to show and submit only applicable account, contact, inventory, fixed-asset, organization, user, and report controls, filters by Erkhet-compatible transaction type plus erxes-native category/search/tag/ownership fields, renders account statement, trial balance, general ledger, main journal, main journal summary, fund, debt, inventory cost, inventory sale, inventory sale-cost, inventory sale-period, inventory price, inventory profit, inventory shipper, inventory document, inventory seller subsystem, and fixed asset report variants, signs inventory movement totals by transaction side so debit cost adjustments increase and credit adjustments decrease value, shows foreign-currency balance rows separately beneath non-MNT account leaves without adding them to base-currency totals, derives table headers and footers from report column metadata, keeps date filter controls visually consistent, shows table-body loading skeletons while report or drill-down data loads, drills account rows into account statements with filter context, calculates parent/footer totals after render, hides all-zero rows unless users choose to show them, loads account-statement detail rows without mutating report state, opens transaction edit screens from detail rows, and downloads the rendered result as a formatted Excel workbook.
 - Development Rspack serving ignores generated dependency/cache/output folders to keep local file watchers bounded.
 
 ## Architecture
 
-| Area                | Path                                                          | Responsibility                                                                                                  |
-| ------------------- | ------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| Runtime             | `src/main.ts`                                                 | Starts the accounting UI remote.                                                                                |
-| Dev server config   | `rspack.config.ts`                                            | Configures Module Federation development serving and ignores generated folders during watch mode.               |
-| Plugin config       | `src/config.tsx`                                              | Registers accounting routes and navigation with the host.                                                       |
-| Route composition   | `src/modules/AccountingMain.tsx`                              | Wires accounting pages into the plugin router.                                                                  |
-| Transactions        | `src/modules/transactions`                                    | Owns transaction tables, forms, GraphQL documents, hooks, and print documents.                                  |
-| Fixed assets        | `src/modules/fixedAssets`                                     | Owns fixed asset navigation and owner-record operational list surfaces.                                         |
-| Adjustments         | `src/modules/adjustments`                                     | Owns inventory, fixed asset, fund rate, debt rate, and closing adjustment UI.                                   |
-| Journal reports     | `src/modules/journal-reports`                                 | Owns report selection, filters, grouped rendering, totals, and detail rows.                                     |
-| Report configs      | `src/modules/journal-reports/types/reports`                   | Groups report titles, choices, and group rules by main, fund, debt, inventory, and fixed asset report families. |
-| Report table layout | `src/modules/journal-reports/components/reportTableLayout.ts` | Maps each report code to header rows and footer column counts aligned with the recursive report renderer.       |
-| Report renderers    | `src/modules/journal-reports/components/includes/handlers`    | Maps report families to Erkhet-style `calcReport` table calculators and detail-row renderers.                   |
-| Settings            | `src/modules/settings`                                        | Owns accounting settings forms, account tables, filters, and config hooks.                                      |
-| Pages               | `src/pages`                                                   | Exposes route-level page components for accounting surfaces.                                                    |
-| Relation widgets    | `src/widgets/relation/RelationWidgets.tsx`                    | Provides accounting relation widget exports.                                                                    |
+| Area                | Path                                                                            | Responsibility                                                                                                  |
+| ------------------- | ------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| Runtime             | `src/main.ts`                                                                   | Starts the accounting UI remote.                                                                                |
+| Dev server config   | `rspack.config.ts`                                                              | Configures Module Federation development serving and ignores generated folders during watch mode.               |
+| Plugin config       | `src/config.tsx`                                                                | Registers accounting routes and navigation with the host.                                                       |
+| Route composition   | `src/modules/AccountingMain.tsx`                                                | Wires accounting pages into the plugin router.                                                                  |
+| Transactions        | `src/modules/transactions`                                                      | Owns transaction tables, forms, GraphQL documents, hooks, and print documents.                                  |
+| Cost adjustment     | `src/modules/transactions/transaction-form/components/forms/InvJustifyForm`     | Owns inventory cost-adjustment fields, product rows, calculations, bulk add, and removal UI.                    |
+| Safe remainders     | `src/modules/inventories/safeRemainders/components/SafeRemainderDetail.tsx`     | Coordinates inventory count detail data, status actions, header, and extracted tab/import surfaces.             |
+| Census tables       | `src/modules/inventories/safeRemainders/components/SafeRemainderDetailTabs.tsx` | Owns declarative count/income/out/sale/adjustment table configuration, filtering, pagination, and hotkeys.      |
+| Census calculations | `src/modules/inventories/safeRemainders/utils/safeRemainderTransactions.ts`     | Calculates frontend transaction previews from count and total-value differences.                                |
+| Transaction export  | `src/pages/TransactionListPage.tsx`, `src/pages/TrRecordListPage.tsx`           | Provides filtered and selected-row export actions for main and journal record lists.                            |
+| Fixed assets        | `src/modules/fixedAssets`                                                       | Owns fixed asset navigation and owner-record operational list surfaces.                                         |
+| Adjustments         | `src/modules/adjustments`                                                       | Owns inventory, fixed asset, fund rate, debt rate, and closing adjustment UI.                                   |
+| Journal reports     | `src/modules/journal-reports`                                                   | Owns report selection, filters, grouped rendering, totals, and detail rows.                                     |
+| Report configs      | `src/modules/journal-reports/types/reports`                                     | Groups report titles, choices, and group rules by main, fund, debt, inventory, and fixed asset report families. |
+| Report table layout | `src/modules/journal-reports/components/reportTableLayout.ts`                   | Maps each report code to header rows and footer column counts aligned with the recursive report renderer.       |
+| Report Excel export | `src/modules/journal-reports/utils/exportJournalReportExcel.ts`                 | Converts the currently rendered report, totals, and expanded detail tables into a formatted `.xlsx` workbook.   |
+| Report renderers    | `src/modules/journal-reports/components/includes/handlers`                      | Maps report families to Erkhet-style `calcReport` table calculators and detail-row renderers.                   |
+| Settings            | `src/modules/settings`                                                          | Owns accounting settings forms, account tables, filters, and config hooks.                                      |
+| Pages               | `src/pages`                                                                     | Exposes route-level page components for accounting surfaces.                                                    |
+| Relation widgets    | `src/widgets/relation/RelationWidgets.tsx`                                      | Provides accounting relation widget exports.                                                                    |
 
 ## Contracts
 
@@ -80,10 +95,14 @@
 - Module Federation exposes defined in `module-federation.config.ts`.
 - Accounting routes exposed through `src/modules/AccountingMain.tsx` and navigation registered from `src/config.tsx`.
 - Accounting relation widget exports from `src/widgets/relation/RelationWidgets.tsx`.
+- Export actions for `accounting:account.transactions` on `/accounting/main` and `/accounting/records`.
 
 ### Consumes
 
 - Accounting API GraphQL contracts for transactions, reports, settings, inventory/fixed asset adjustments, fund rate adjustments, and debt rate adjustments, including journal report `trKind` filters.
+- Inventory cost adjustment transactions consume the `invJustify` journal contract and the existing `getAccCurrentCost` helper for current unit cost and remainder display; debit means cost increase and credit means cost decrease.
+- Safe remainder item `trInfo` consumes optional active/target total cost, explicit-cost state, last income price, sale flag, and sale price metadata; CSV import sends editable counted-cost/sale metadata while active cost remains backend-derived.
+- Platform import/export contract for `accounting:account.transactions` filtered and selected-id exports.
 - Fixed asset location remainder contract `fixedAssetLocationRemainder(fixedAssetId, branchId, departmentId, date, excludeTransactionId)` for disposal/move/sale row count limits.
 - Fixed asset location remainder list contract `fixedAssetLocationRemainders(searchValue, fixedAssetId, categoryId, branchId, departmentId, date, limit)` for the fixed asset remainder page.
 - Fixed asset owner-record query contract `fxaOwnerRecords(fixedAssetIds, status, balanceOnly)` for disposal/move/sale owner balance selection sheets.
@@ -103,6 +122,10 @@
 - Apollo Client owns server state, mutation refreshes, subscriptions, and detail/list cache updates.
 - React Hook Form owns editable accounting transaction and adjustment form state.
 - Inventory income detail form state stores total line weight; product or count changes recalculate it from core product weight, while direct weight edits persist until either source changes.
+- Inventory cost adjustment detail state stores `count: 0`, `unitPrice` as the absolute per-unit cost delta, and `amount` as delta multiplied by current remainder; quantity is display-only, while editing after-unit cost derives the delta and increase/decrease side from its difference against current unit cost.
+- Safe remainder blank counted cost defaults proportionally from active total cost; when quantity increases while active total is zero, the increased quantity uses `lastIncomePrice`. Explicit manual or CSV total cost, including zero, must bypass this fallback.
+- Safe remainder transaction labels and cost tabs must normalize adjustment differences from `-0.005` through `0.005` to zero, matching backend journal generation.
+- Inventory row defaults initialize count to one; bulk-added rows also initialize all count-derived amount and weight values, batch journal-specific last-price, product, or current-cost lookup before append, and preserve sale/sale-return follow-journal unit cost by generated detail id.
 - Jotai atoms under `src/modules/transactions/transaction-form/states` hold transaction form UI state, tax percentages, follow transactions, and rendering selections.
 - URL query state owns selected detail ids and account table filters where existing accounting patterns use query params.
 - Rate adjustment detail subscriptions replace the loaded detail with the published calculated detail payload.
@@ -111,6 +134,9 @@
 ## Local Invariants
 
 - GraphQL operation names in new accounting UI code must be prefixed with `Accounting`.
+- Safe remainder TXT imports must remain headerless `code,count` and preserve the backend-derived current total cost; CSV imports require `productCode,count,totalCost,isSale,unitPrice`, accept legacy `unitCost` or `trInfo.unitCost` as total-cost aliases, and must never accept `activeCost` as authoritative file input.
+- Safe remainder table source order is the fallback for browsers without saved preferences; existing user-controlled column order must continue to override that fallback through the stable versioned table preference key.
+- Safe remainder income debit value must remain derived from counted total cost; it must not expose a second editor for the same target value.
 - Create/update/remove/calculate/run mutations must show success/error feedback and refresh or subscribe so users do not need a manual reload.
 - Fund/debt adjustment transaction execution is separate from calculation; UI must expose both states and not run transactions before details are calculated.
 - Closing adjustment transaction execution is separate from calculation; UI must let users edit row tax percentages before running transactions.
@@ -122,7 +148,15 @@
 - Account currency create/edit, inline edit, and filter selectors must use the same system `dealCurrency` options.
 - Currency amount inputs display rounded values by default but expose configured edit precision while focused.
 - Transaction currency amount synchronization must react to manual amount-field changes and avoid hook cycles.
+- Transaction record debit and credit cells must read side from the transaction record root, not from its detail.
+- Transaction record column sets must be derived before `RecordTable.Provider` mounts and remount when switching between standard and inventory/fixed-asset layouts.
 - Inventory income weight allocation must use persisted detail total weight; missing core product weight defaults to one per item, and manual detail weight remains unchanged until product or count changes.
+- Inventory cost adjustment forms must not expose editable quantity; one required side selector labeled `Өртгийн өөрчлөлт` controls whether the entered per-unit delta increases or decreases after-unit cost, and editing after-unit cost must update the delta, amount, and side so both inputs remain algebraically consistent.
+- Inventory cost adjustment UI must remain in `forms/InvJustifyForm` as an independent journal form; `InvOutForm` must contain only inventory-out behavior and must not accept an adjustment-mode flag.
+- Inventory out and internal movement forms must not allow unit cost or cost amount edits; changing product, account, quantity, or source location must refresh active cost, and editing an existing movement must exclude both its source and generated destination transactions from that lookup.
+- Inventory move, sale, and sale-return follow details must retain each source detail `_id` as `originId`; quantity edits update only that source row's generated follow details, preserve every other row's fetched active cost, and ignore transient current-cost responses that do not contain the selected product.
+- Inventory add actions must append count-one details; bulk add must calculate amount from the filled unit price, income must also initialize total weight, and quantity-neutral `invJustify` must remain count zero.
+- In-form balancing transaction creation must calculate debit, credit, and difference from watched `trDocs`, never from the structural `useFieldArray.fields` snapshot.
 - Fixed asset income detail state must preserve `fixedAssetCategoryId`, `fixedAssetCode`, and `fixedAssetName` through save/refetch so generated fixed assets remain editable from their source transaction detail.
 - Fixed asset income code and name cells must use the same `PopoverScoped` plus `RecordTableInlineCell` pattern as numeric inline cells so shortcut navigation can focus and edit them.
 - Fixed asset detail tables must tolerate an uninitialized `details` watch value during create-route bootstrap and render with an empty array until form defaults arrive.
@@ -138,7 +172,9 @@
 - Module Federation exposes, route paths, and named exports must stay aligned.
 - Journal report total calculation must stay scoped to the rendered report table body and zero-row hiding must preserve rows explicitly marked with `data-draw-zero="1"`.
 - Journal report headers and footers must stay aligned with each report config's two recursive grouping columns plus `colCount` value columns.
+- Journal report Excel export must use the rendered visible rows so calculated totals, zero-row visibility, grouping, and expanded detail data match the result users see.
 - Journal report inventory and fixed-asset location filtering is represented by branch/department selectors because erxes transaction details carry branch/department instead of Erkhet `inv_location`/`fxa_location` ids.
+- Inventory report remainder and cost movement totals must derive their sign from transaction side; debit adds and credit subtracts, including cost-only `invJustify` rows.
 - Journal report filter visibility and submitted query parameters must be declared in `src/modules/journal-reports/types/reportFilters.ts`; adding a field to a form without mapping it to applicable reports and its backend query parameter is not allowed.
 
 ## Validation
@@ -148,74 +184,15 @@
 - Smoke scenario: create fund and debt rate adjustments, verify main/foreign currency options come from system `dealCurrency`, calculate details, run transactions, and confirm detail subscriptions/linked transaction display update without manual refresh.
 - Smoke scenario: create a closing adjustment, calculate details, edit a row tax percent, run transactions, and confirm status plus tax impact refresh without a manual page reload.
 - Smoke scenario: in cash, bank, payable, and receivable transaction forms, manually edit main and foreign currency amounts and verify paired amount syncing does not loop or lose precision after refetch.
-- Smoke scenario: in inventory sale, income, out, and move rows, change products and verify `unitPrice` plus amount/follow cost values refresh without a manual page reload.
+- Smoke scenario: open `/accounting/main` and `/accounting/records`, apply journal/search/date/account filters, export without selection, then select rows and export again to verify filtered and selected-id exports start successfully.
+- Smoke scenario: in inventory sale, income, out, and move rows, change products and verify `unitPrice` plus amount/follow cost values refresh without a manual page reload; in a sale row, change quantity repeatedly and verify both generated follow transactions keep the fetched active unit cost.
+- Smoke scenario: create inventory cost increase and decrease transactions, add multiple products, verify current remainder/current unit cost display, enter per-unit deltas, confirm after-unit cost and total amount recalculate, then save without changing quantity.
+- Smoke scenario: in inventory income, out, move, sale, and sale return, use "Олон бараа нэмэх" and verify one journal-specific bulk lookup fills every selected row with count one plus matching amount/weight/follow values; then change one row's product, including back to its initial product, and verify only that row's fill values refresh.
 - Smoke scenario: in fixed asset income, out, move, and sale forms, enable "Дэлгэрэнгүй харагдац" and verify each detail row can store independent branch and department values.
 - Smoke scenario: in fixed asset income, enter category/code/name/count/unit cost, verify keyboard shortcuts can reach and edit code/name cells, open the detail owner sheet, verify it starts empty, confirm the owner-record add button shows the remaining quantity in red while positive and disables at zero, optionally add owner rows whose counts total the detail count, set residual value and `preDeprecation`, save, refetch, and verify the generated fixed asset plus optional owner records remain.
 - Smoke scenario: in fixed asset out, move, and sale forms, select a fixed asset in a single row, verify branch/department default from the transaction header, change row branch/department and confirm the count limit refreshes from that location, open the owner-record sheet and select active owner balance rows below or equal to the detail count, open "Олон хөрөнгө нэмэх", filter by category, append multiple assets as separate details, verify out/move cost fields fill from the asset cost base, sale keeps user-entered sale price, and detail branch/department values persist from the detailed view.
 - Smoke scenario: open `/accounting/fixed-assets/owner-records`, verify the "Үндсэн хөрөнгө" navigation group appears, filter owner records by search, fixed asset, category, owner, action, status, and created date, then use Үүсгэх/Шилжүүлэх/Цуцлах actions to create direct owner-record ledger rows without leaving the page.
 - Smoke scenario: open `/accounting/fixed-assets/remainders`, verify the "Үлдэгдэл" navigation item appears without the fixed asset settings or direct internal-move shortcuts, filter by search, fixed asset, category, branch, department, and date, and confirm rows show positive fixed asset quantities grouped by branch and department.
 - Smoke scenario: generate account statement, trial balance, general ledger, main journal, main journal summary, fund, debt, inventory cost, inventory sale, inventory sale-cost, inventory sale-period, inventory price, inventory profit, inventory shipper, inventory document, inventory seller subsystem, and fixed asset journal reports with and without "Хоосон мөр харуулах" and "Гүйлгээний төрөл", verify parent/footer totals plus detail rows remain correct, and double-click an account statement detail row to open its transaction edit screen.
-
-## Recent Changes
-
-<!-- Newest first. Keep at most 10 entries. -->
-
-### `2026-09-19` — `Inventory Income Weight Allocation`
-
-- **Summary:** Inventory income can allocate additional expenses by editable total line weight calculated from product weight and count.
-- **Affected areas:** Inventory income expense rules, detail state, advanced table columns, product lookup, and allocation calculation.
-- **Contracts changed:** Consumes optional core product `weight` and accounting transaction detail `weight`.
-
-### `2026-09-18` — `Transaction Delete Filter Return`
-
-- **Summary:** Transaction edit links now preserve the current list URL so deleting a transaction returns to the previously filtered list.
-- **Affected areas:** `src/modules/transactions/components`, `src/modules/transactions/transaction-form`, and transaction navigation utilities.
-- **Contracts changed:** None.
-
-### `2026-09-18` — `Inventory Sale Edit Preservation`
-
-- **Summary:** Inventory sale and return edit forms preserve persisted unit prices, amounts, and VAT/CTAX state until the user selects a different product.
-- **Affected areas:** Inventory sale row effects and transaction default values.
-- **Contracts changed:** None.
-
-### `2026-09-18` — `Mapped Journal Report Filters`
-
-- **Summary:** The journal report form now separates related filters with unobtrusive dividers and uses one report map to expose only applicable customer/company tags, product/fixed-asset categories and searches, and created/modified/assigned user filters.
-- **Affected areas:** `src/modules/journal-reports/components/ReportForm.tsx`, `src/modules/journal-reports/types/reportFilters.ts`, report query variables.
-- **Contracts changed:** Consumes journal report `customerTagIds`, `companyTagIds`, `productCategoryId`, `productSearchValue`, `fixedAssetCategoryId`, `fixedAssetSearchValue`, and `assignedUserId` arguments.
-
-### `2026-09-17` — `Journal Report Foreign Currency Rows`
-
-- **Summary:** Main balance, fund, and debt reports now show an Erkhet-style italic currency row beneath each non-MNT leaf using currency opening, debit, credit, and closing amounts kept separate from base-currency totals.
-- **Affected areas:** `src/modules/journal-reports/components/ReportTableBody.tsx`, `src/modules/journal-reports/components/includes/main`, and report handler mappings.
-- **Contracts changed:** Balance report calculator results may provide an `afterNode` row.
-
-### `2026-09-17` — `Fund And Debt Report Details`
-
-- **Summary:** Fund and debt balance reports now render their loaded transaction drill-down rows using the shared account-statement detail table.
-- **Affected areas:** `src/modules/journal-reports/components/includes`.
-- **Contracts changed:** None.
-
-### `2026-09-17` — `Journal Report Loading Skeleton`
-
-- **Summary:** Journal report tables now render skeleton body rows while initial report data or drill-down rows are loading instead of showing an empty table.
-- **Affected areas:** `src/modules/journal-reports/components/ReportTableBody.tsx`.
-- **Contracts changed:** None.
-
-### `2026-09-17` — `Fixed Asset Transaction Forms`
-
-- **Summary:** Normalized fixed asset income, disposal, sale, and move forms around detail-owned accounts and locations, optional owner allocation, prior depreciation, generated follow journals, and persisted edit-state preservation.
-- **Affected areas:** `src/modules/transactions/transaction-form`, transaction queries, balance-table rendering, and journal labels.
-- **Contracts changed:** Consumes detail branch/department data, `preDeprecation`, sale follow accounts `saleOutAccountId`/`saleCostAccountId`, and journals `fxaDep`, `fxaDepIn`, `fxaDepOut`, `fxaSaleOut`, and `fxaSaleCost`.
-
-### `2026-09-09` — `Safe Remainder Empty Location Cells`
-
-- **Summary:** Safe remainder list branch and department columns now render blank cells when no branch or department is selected instead of showing undefined labels.
-- **Affected areas:** `src/modules/inventories/safeRemainders/components/SafeRemainderColumns.tsx`.
-- **Contracts changed:** None.
-
-### `2026-09-09` — `Safe Remainder List Query Ownership`
-
-- **Summary:** Safe remainder list page now runs the list query once and shares loading, count, and rows with the filter count badge and table.
-- **Affected areas:** `src/pages/inventories/SafeRemaindersPage.tsx`, `src/modules/inventories/safeRemainders/components/SafeRemainderTable.tsx`, `src/modules/inventories/safeRemainders/components/SafeRemaindersTotalCount.tsx`.
-- **Contracts changed:** None.
+- Smoke scenario: generate each journal report with filters, optionally expand account-statement details, click "Excel татах", and verify the downloaded `.xlsx` contains the visible headers, grouped rows, calculated totals, and expanded detail rows.
+- Smoke scenario: import a headerless `code,count` TXT and verify it retains system total cost, then import a `productCode,count,totalCost,isSale,unitPrice` CSV and verify positive total-value differences are absorbed by income, negative income is floored at zero with the remainder shown under adjustment subtract, and out/sale rows derive unit cost from current total cost before remaining add/subtract adjustments.

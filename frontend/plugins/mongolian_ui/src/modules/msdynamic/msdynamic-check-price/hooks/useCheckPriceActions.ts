@@ -33,7 +33,7 @@ type CheckPricesData = {
 };
 type CheckPricesVariables = { brandId: string };
 type SyncPricesData = { toSyncMsdPrices?: { status: string } };
-type SyncPricesVariables = { prices: IPriceItem[] };
+type SyncPricesVariables = { prices: IPriceItem[]; brandId: string;};
 
 type Props = {
   brandId: string;
@@ -109,7 +109,7 @@ export const useCheckPriceActions = ({ brandId, syncableItems }: Props) => {
     try {
       setSyncing(true);
 
-      await syncMsdPrices({ variables: { prices: itemsToSync } });
+      await syncMsdPrices({ variables: { prices: itemsToSync, brandId, } });
 
       const refreshed = await checkMsdPrices({ variables: { brandId } });
       const refreshedData = refreshed.data?.toCheckMsdPrices;

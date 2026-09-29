@@ -1,6 +1,6 @@
-import { useAutomationEmailTemplates } from '@/automations/components/settings/components/email-templates/hooks/useAutomationEmailTemplates';
-import { useAutomationEmailTemplateDetailLazy } from '@/automations/components/settings/components/email-templates/hooks/useAutomationEmailTemplateDetailLazy';
-import { IAutomationEmailTemplate } from '@/automations/components/settings/components/email-templates/types/automationEmailTemplates';
+import { useEmailTemplates } from '@/emailTemplates/hooks/useEmailTemplates';
+import { useEmailTemplateDetailLazy } from '@/emailTemplates/hooks/useEmailTemplateDetail';
+import { emailTemplateFormat, IEmailTemplate } from '@/emailTemplates/types';
 import { filterSuggestionItems } from '@blocknote/core';
 import {
   DefaultReactSuggestionItem,
@@ -27,12 +27,16 @@ export const EmailTemplateInEditor = ({
   const [debouncedSearch] = useDebounce(search, 300);
   const { confirm } = useConfirm();
 
-  const { emailTemplates = [], loading } = useAutomationEmailTemplates({
+  const { emailTemplates: allTemplates = [], loading } = useEmailTemplates({
     searchValue: debouncedSearch,
   });
 
-  const { loadEmailTemplate, emailTemplate } =
-    useAutomationEmailTemplateDetailLazy();
+  // Only block templates can be poured into this editor.
+  const emailTemplates = allTemplates.filter(
+    (template) => emailTemplateFormat(template) === 'blocks',
+  );
+
+  const { loadEmailTemplate, emailTemplate } = useEmailTemplateDetailLazy();
 
   // Handle template content loading
   useEffect(() => {
@@ -93,7 +97,7 @@ export const EmailTemplateInEditor = ({
 
 interface EmailTemplateMenuProps extends SlashMenuProps {
   items: DefaultReactSuggestionItem[];
-  emailTemplates?: IAutomationEmailTemplate[];
+  emailTemplates?: IEmailTemplate[];
   loading?: boolean;
 }
 
@@ -140,7 +144,7 @@ interface EmailTemplateMenuItemProps {
   isSelected: boolean;
   index: number;
   text: string;
-  template?: IAutomationEmailTemplate;
+  template?: IEmailTemplate;
 }
 
 function EmailTemplateMenuItem({
@@ -168,7 +172,7 @@ function EmailTemplateMenuItem({
 
 function getEmailTemplateMenuItems(
   editor: IBlockEditor,
-  emailTemplates: IAutomationEmailTemplate[],
+  emailTemplates: IEmailTemplate[],
   loadEmailTemplate: (id: string) => void,
   confirm: ({
     message,

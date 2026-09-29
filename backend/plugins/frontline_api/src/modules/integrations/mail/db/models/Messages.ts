@@ -7,15 +7,19 @@ import {
   IMailMessageDocument,
   IMailSendArgs,
   IMailTicketMailArgs,
+  TMailConversationStatusOnSent,
 } from '@/integrations/mail/@types/message';
 import { IMailIntegrationDocument } from '@/integrations/mail/@types/integration';
 import {
+  MAIL_CONVERSATION_STATUSES_ON_SENT,
   MAIL_DELIVERY_STATUSES,
   MAIL_MESSAGE_TYPES,
 } from '@/integrations/mail/constants';
 import { createReplyTag } from '@/integrations/mail/utils/address';
+import { resendableFilter } from '@/integrations/mail/utils/delivery';
 import { mailScopeId } from '@/integrations/mail/utils/scope';
 import { describeError } from '@/integrations/mail/utils/errors';
+import { debugError } from '@/integrations/mail/debuggers';
 import {
   buildMessageId,
   isRetryableFailure,
@@ -103,6 +107,8 @@ export const loadMailMessageClass = (models: IModels) => {
         conversationId,
         shouldOpen,
         shouldResolve,
+        draftId,
+        sourceMessageId,
         ...compose
       } = args;
 
@@ -145,23 +151,17 @@ export const loadMailMessageClass = (models: IModels) => {
         scopeId,
       );
 
-      if (shouldResolve) {
-        await models.Conversations.updateOne(
-          { _id: targetConversationId },
-          { $set: { status: 'closed' } },
-        );
-      } else if (shouldOpen) {
-        await models.Conversations.updateOne(
-          { _id: targetConversationId },
-          { $set: { status: 'new' } },
-        );
-      }
-
       const message = await Message.compose(subdomain, integration, compose, {
         inboxConversationId: targetConversationId,
         replyTag: await Message.resolveReplyTag({
           inboxConversationId: targetConversationId,
         }),
+        conversationStatusOnSent: Message.toConversationStatusOnSent(
+          shouldResolve,
+          shouldOpen,
+        ),
+        draftId,
+        sourceMessageId,
       });
 
       await models.Conversations.updateConversation(targetConversationId, {
@@ -206,6 +206,9 @@ export const loadMailMessageClass = (models: IModels) => {
         inboxConversationId?: string;
         ticketId?: string;
         replyTag: string;
+        conversationStatusOnSent?: TMailConversationStatusOnSent;
+        draftId?: string;
+        sourceMessageId?: string;
       },
     ) {
       const {
@@ -218,6 +221,7 @@ export const loadMailMessageClass = (models: IModels) => {
         attachments,
         replyToMessageId,
         references,
+        automated,
       } = args;
 
       const scopeId = mailScopeId(integration);
@@ -226,7 +230,9 @@ export const loadMailMessageClass = (models: IModels) => {
 
       const fromAddress = integration.address;
 
-      const senderName = await Message.resolveSenderName(integration);
+      const senderName = await models.MailIntegrations.resolveSenderName(
+        integration,
+      );
 
       const referenceChain = [
         ...new Set(
@@ -260,8 +266,10 @@ export const loadMailMessageClass = (models: IModels) => {
             disposition,
           }),
         ),
+        automated: Boolean(automated),
         type: MAIL_MESSAGE_TYPES.SENT,
         deliveryStatus: MAIL_DELIVERY_STATUSES.PENDING,
+        deliveryAttemptedAt: new Date(),
         createdAt: new Date(),
       });
     }
@@ -285,16 +293,29 @@ export const loadMailMessageClass = (models: IModels) => {
         throw new Error('Mail integration not found');
       }
 
+      if (Message.awaitsConversationStatus(message)) {
+        await Message.settleConversationStatus(message);
+
+        return models.MailMessages.findOne({
+          _id,
+        }) as Promise<IMailMessageDocument>;
+      }
+
       const claimed = await models.MailMessages.updateOne(
-        { _id, deliveryStatus: MAIL_DELIVERY_STATUSES.FAILED },
+        { _id, ...resendableFilter() },
         {
-          $set: { deliveryStatus: MAIL_DELIVERY_STATUSES.PENDING },
+          $set: {
+            deliveryStatus: MAIL_DELIVERY_STATUSES.PENDING,
+            deliveryAttemptedAt: new Date(),
+          },
           $unset: { deliveryError: '', deliveryRetryable: '' },
         },
       );
 
       if (!claimed.modifiedCount) {
-        throw new Error('Only a failed message can be resent');
+        throw new Error(
+          'Only a failed message, or one stuck sending for more than 10 minutes, can be resent',
+        );
       }
 
       return Message.deliver(subdomain, message, integration);
@@ -310,7 +331,9 @@ export const loadMailMessageClass = (models: IModels) => {
         message.replyTag,
       );
 
-      const senderName = await Message.resolveSenderName(integration);
+      const senderName = await models.MailIntegrations.resolveSenderName(
+        integration,
+      );
 
       const [inReplyTo] = await Message.toWireReferences(
         message.inboxIntegrationId,
@@ -322,8 +345,10 @@ export const loadMailMessageClass = (models: IModels) => {
         message.references ?? [],
       );
 
+      let result: Awaited<ReturnType<typeof sendMail>> | undefined;
+
       try {
-        const result = await sendMail(subdomain, {
+        result = await sendMail(subdomain, {
           messageId: message.messageId,
           from: integration.address,
           fromName: senderName || undefined,
@@ -335,6 +360,7 @@ export const loadMailMessageClass = (models: IModels) => {
           html: message.body ?? '',
           inReplyTo,
           references,
+          automated: Boolean(message.automated),
           attachments: (message.attachments ?? []).map((attachment) => ({
             name: attachment.filename,
             url: attachment.url,
@@ -344,7 +370,24 @@ export const loadMailMessageClass = (models: IModels) => {
             disposition: attachment.disposition,
           })),
         });
+      } catch (e) {
+        const deliveryError = describeError(e);
 
+        await models.MailMessages.updateOne(
+          { _id: message._id },
+          {
+            $set: {
+              deliveryStatus: MAIL_DELIVERY_STATUSES.FAILED,
+              deliveryError,
+              deliveryRetryable: isRetryableFailure(e),
+            },
+          },
+        );
+
+        await Message.settleIntegrationHealth(integration, deliveryError);
+      }
+
+      if (result) {
         const bounced = result.bounced.length > 0;
 
         await models.MailMessages.updateOne(
@@ -371,30 +414,117 @@ export const loadMailMessageClass = (models: IModels) => {
               },
         );
 
-        await models.MailIntegrations.markHealthy(integration._id);
-      } catch (e) {
-        const deliveryError = describeError(e);
+        await Message.settleIntegrationHealth(integration);
 
-        await models.MailMessages.updateOne(
-          { _id: message._id },
-          {
-            $set: {
-              deliveryStatus: MAIL_DELIVERY_STATUSES.FAILED,
-              deliveryError,
-              deliveryRetryable: isRetryableFailure(e),
-            },
-          },
-        );
-
-        await models.MailIntegrations.markUnhealthy(
-          integration._id,
-          deliveryError,
-        );
+        if (!bounced) {
+          await Message.settleConversationStatus(message).catch((e) =>
+            debugError(
+              `Mail ${message._id} was delivered but its conversation status was not applied:`,
+              e,
+            ),
+          );
+        }
       }
 
       return models.MailMessages.findOne({
         _id: message._id,
       }) as Promise<IMailMessageDocument>;
+    }
+
+    private static async settleIntegrationHealth(
+      integration: IMailIntegrationDocument,
+      deliveryError?: string,
+    ) {
+      try {
+        if (deliveryError) {
+          await models.MailIntegrations.markUnhealthy(
+            integration._id,
+            deliveryError,
+          );
+        } else {
+          await models.MailIntegrations.markHealthy(integration._id);
+        }
+      } catch (e) {
+        debugError(
+          `Could not record the health of mail integration ${integration._id}:`,
+          e,
+        );
+      }
+    }
+
+    private static awaitsConversationStatus(message: IMailMessageDocument) {
+      return (
+        message.deliveryStatus === MAIL_DELIVERY_STATUSES.SENT &&
+        Boolean(message.conversationStatusOnSent) &&
+        !message.conversationStatusAppliedAt
+      );
+    }
+
+    private static async settleConversationStatus(
+      message: IMailMessageDocument,
+    ) {
+      if (!message.conversationStatusOnSent) {
+        return;
+      }
+
+      await Message.applyConversationStatusOnSent(message);
+
+      await models.MailMessages.updateOne(
+        { _id: message._id },
+        { $set: { conversationStatusAppliedAt: new Date() } },
+      );
+    }
+
+    private static toConversationStatusOnSent(
+      shouldResolve?: boolean,
+      shouldOpen?: boolean,
+    ): TMailConversationStatusOnSent | undefined {
+      if (shouldResolve) {
+        return MAIL_CONVERSATION_STATUSES_ON_SENT.CLOSED;
+      }
+
+      return shouldOpen ? MAIL_CONVERSATION_STATUSES_ON_SENT.NEW : undefined;
+    }
+
+    private static async applyConversationStatusOnSent(
+      message: IMailMessageDocument,
+    ) {
+      const conversationId = message.inboxConversationId;
+      const status = message.conversationStatusOnSent;
+
+      if (!conversationId || !status) {
+        return;
+      }
+
+      const closing = status === MAIL_CONVERSATION_STATUSES_ON_SENT.CLOSED;
+
+      if (closing && (await Message.receivedNewerMail(message))) {
+        return;
+      }
+
+      await models.Conversations.updateConversation(conversationId, {
+        status,
+        ...(closing ? { closedAt: new Date() } : {}),
+      });
+
+      await graphqlPubsub.publish(`conversationChanged:${conversationId}`, {
+        conversationChanged: { conversationId, type: status },
+      });
+    }
+
+    private static async receivedNewerMail(message: IMailMessageDocument) {
+      const answered = message.sourceMessageId
+        ? await models.MailMessages.findOne(
+            { _id: message.sourceMessageId },
+            { createdAt: 1 },
+          ).lean()
+        : null;
+
+      return models.MailMessages.exists({
+        inboxConversationId: message.inboxConversationId,
+        type: MAIL_MESSAGE_TYPES.INBOX,
+        createdAt: { $gt: answered?.createdAt ?? message.createdAt },
+      });
     }
 
     private static async resolveReplyTag(thread: {
@@ -407,24 +537,6 @@ export const loadMailMessageClass = (models: IModels) => {
       });
 
       return tagged?.replyTag ?? createReplyTag();
-    }
-
-    private static async resolveSenderName(
-      integration: IMailIntegrationDocument,
-    ) {
-      if (integration.senderName) {
-        return integration.senderName;
-      }
-
-      if (!integration.inboxId) {
-        return integration.name ?? '';
-      }
-
-      const inbox = await models.Integrations.findOne({
-        _id: integration.inboxId,
-      });
-
-      return inbox?.name ?? '';
     }
 
     private static async toWireReferences(

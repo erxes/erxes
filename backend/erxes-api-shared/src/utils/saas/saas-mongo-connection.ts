@@ -16,6 +16,7 @@ import {
   IOrganization,
   ISaasAddon,
   ISaasBundle,
+  ISaasHelpCenterDomain,
   ISaasOrganizationPlanHistory,
 } from './types';
 import { redis } from '../redis';
@@ -166,6 +167,71 @@ export const updateSaasOrganization = async (
   await getSaasCoreConnection();
 
   return coreModelOrganizations.updateOne({ subdomain }, { $set: update });
+};
+
+export const getSaasOrganizationByHelpCenterDomain = async (
+  hostname: string,
+): Promise<Pick<IOrganization, 'subdomain' | 'helpCenterDomain'> | null> => {
+  await getSaasCoreConnection();
+
+  return coreModelOrganizations
+    .findOne(
+      { 'helpCenterDomain.hostname': hostname },
+      { subdomain: 1, helpCenterDomain: 1 },
+    )
+    .lean();
+};
+
+export const getSaasOrganizationHelpCenterDomain = async (
+  subdomain: string,
+): Promise<ISaasHelpCenterDomain | undefined> => {
+  await getSaasCoreConnection();
+
+  const organization = await coreModelOrganizations
+    .findOne({ subdomain }, { helpCenterDomain: 1 })
+    .lean();
+
+  return organization?.helpCenterDomain;
+};
+
+/**
+ * Help center domains still waiting on DNS or their certificate, within their
+ * background check window. Active domains are never returned.
+ */
+export const getSaasOrganizationsWithPendingHelpCenterDomain =
+  async (): Promise<
+    Pick<IOrganization, 'subdomain' | 'helpCenterDomain'>[]
+  > => {
+    await getSaasCoreConnection();
+
+    return coreModelOrganizations
+      .find(
+        {
+          'helpCenterDomain.hostname': { $exists: true },
+          'helpCenterDomain.autoCheckUntil': { $gt: new Date() },
+          $or: [
+            { 'helpCenterDomain.status': { $ne: 'active' } },
+            { 'helpCenterDomain.sslStatus': { $ne: 'active' } },
+          ],
+        },
+        { subdomain: 1, helpCenterDomain: 1 },
+      )
+      .lean();
+  };
+
+export const setSaasOrganizationHelpCenterDomain = async (
+  subdomain: string,
+  helpCenterDomain: ISaasHelpCenterDomain | null,
+) => {
+  await getSaasCoreConnection();
+
+  const update = helpCenterDomain
+    ? { $set: { helpCenterDomain } }
+    : { $unset: { helpCenterDomain: 1 } };
+
+  await coreModelOrganizations.updateOne({ subdomain }, update);
+
+  return removeOrgsCache('helpCenterDomain');
 };
 
 export const getSaasOrganizationDetail = async ({

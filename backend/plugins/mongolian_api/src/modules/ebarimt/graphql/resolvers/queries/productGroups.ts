@@ -63,8 +63,9 @@ export const productGroupQueries = {
   ebarimtProductGroups: async (
     _root: undefined,
     params,
-    { models, subdomain }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) => {
+    checkPermission('showEbarimtProductGroups')
     const filter = await generateFilter(subdomain, params);
 
     return await cursorPaginate({

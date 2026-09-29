@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
-import { Icon, type IconName } from './Icon';
+import type { IconName } from './Icon';
+import { IconOrb } from './IconOrb';
 
 export const EmptyState = ({
   icon = 'inbox',
@@ -12,10 +13,8 @@ export const EmptyState = ({
   description: string;
   action?: ReactNode;
 }) => (
-  <div className="flex flex-col gap-4 rounded-xl border border-dashed border-line bg-subtle/50 px-5 py-6 sm:flex-row sm:items-center sm:gap-5 sm:px-6">
-    <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-white text-muted-foreground shadow-card">
-      <Icon name={icon} size={19} />
-    </span>
+  <div className="flex flex-col gap-4 rounded-2xl bg-white px-5 py-6 shadow-shell sm:flex-row sm:items-center sm:gap-5">
+    <IconOrb name={icon} size="sm" />
     <div className="min-w-0 flex-1">
       <p className="text-[15px] font-semibold text-ink">{title}</p>
       <p className="mt-1 text-sm leading-relaxed text-muted-foreground">

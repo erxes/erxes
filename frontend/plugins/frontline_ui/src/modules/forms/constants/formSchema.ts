@@ -31,6 +31,10 @@ export const FORM_GENERAL_SCHEMA = z.object({
   channelId: z.string(),
 });
 
+export const FORM_GENERAL_CREATE_SCHEMA = FORM_GENERAL_SCHEMA.extend({
+  channelId: z.string().min(1, { message: 'Channel is required' }),
+});
+
 export const FORM_CALLOUT_SCHEMA = z.object({
   title: z.string(),
   body: z.string(),

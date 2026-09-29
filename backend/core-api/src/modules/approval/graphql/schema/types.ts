@@ -29,8 +29,15 @@ export const types = `
     releaseReason: String
   }
 
+  type ApprovalChange {
+    changeType: String
+    payload: JSON
+    summary: String
+  }
+
   type ApprovalRequest {
     _id: String!
+    kind: String
     contentType: String
     contentId: String
     lockId: String
@@ -40,6 +47,9 @@ export const types = `
     requiredApproverIds: [String]
     decisions: [ApprovalDecision]
     notificationIds: [String]
+    change: ApprovalChange
+    appliedAt: Date
+    applyError: String
     createdAt: Date
     resolvedAt: Date
     requester: User
@@ -74,9 +84,19 @@ export const types = `
     mode: String
   }
 
+  input ApprovalChangeInput {
+    changeType: String!
+    payload: JSON
+    summary: String!
+  }
+
   input ApprovalRequestCreateInput {
     contentType: String!
     contentId: String!
     reason: String
+    # Naming a change makes this a change request: approving it performs the
+    # change instead of only letting the requester past a lock.
+    change: ApprovalChangeInput
+    approverIds: [String]
   }
 `;

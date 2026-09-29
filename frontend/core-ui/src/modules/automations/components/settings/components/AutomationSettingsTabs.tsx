@@ -4,7 +4,6 @@ import { useLocation, useNavigate } from 'react-router';
 
 const AUTOMATION_SETTINGS_NAV_ITEMS = [
   { label: 'Agents', path: AutomationSettingsPath.Agents },
-  { label: 'Email Templates', path: AutomationSettingsPath.EmailTemplates },
   { label: 'Bots', path: AutomationSettingsPath.Bots },
 ];
 

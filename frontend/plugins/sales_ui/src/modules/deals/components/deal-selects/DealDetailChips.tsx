@@ -184,7 +184,11 @@ export const DealStageChip = ({
   );
 };
 
-export const DealCustomerChip = ({ value, onValueChange }: ChipProps) => {
+export const DealCustomerChip = ({
+  value,
+  onValueChange,
+  placeholder,
+}: ChipProps & { placeholder?: string }) => {
   const [open, setOpen] = useState(false);
 
   return (
@@ -200,7 +204,7 @@ export const DealCustomerChip = ({ value, onValueChange }: ChipProps) => {
       <ChipPopover
         open={open}
         onOpenChange={setOpen}
-        value={<SelectCustomer.Value />}
+        value={<SelectCustomer.Value placeholder={placeholder} />}
       >
         <SelectCustomer.Content />
       </ChipPopover>
@@ -208,7 +212,11 @@ export const DealCustomerChip = ({ value, onValueChange }: ChipProps) => {
   );
 };
 
-export const DealCompanyChip = ({ value, onValueChange }: ChipProps) => {
+export const DealCompanyChip = ({
+  value,
+  onValueChange,
+  placeholder,
+}: ChipProps & { placeholder?: string }) => {
   const [open, setOpen] = useState(false);
 
   return (
@@ -224,7 +232,7 @@ export const DealCompanyChip = ({ value, onValueChange }: ChipProps) => {
       <ChipPopover
         open={open}
         onOpenChange={setOpen}
-        value={<SelectCompany.Value />}
+        value={<SelectCompany.Value placeholder={placeholder} />}
       >
         <SelectCompany.Content />
       </ChipPopover>
@@ -235,10 +243,12 @@ export const DealCompanyChip = ({ value, onValueChange }: ChipProps) => {
 export const DealBrokerTypeChip = ({
   value,
   options,
+  selectedPrefix,
   onValueChange,
 }: {
   value: string;
   options: { value: string; label: string }[];
+  selectedPrefix: string;
   onValueChange: (value: string) => void;
 }) => {
   const [open, setOpen] = useState(false);
@@ -248,7 +258,12 @@ export const DealBrokerTypeChip = ({
     <ChipPopover
       open={open}
       onOpenChange={setOpen}
-      value={<Combobox.Value value={selected?.label} />}
+      value={
+        <span className="truncate">
+          <span className="font-medium text-foreground">{selectedPrefix}:</span>{' '}
+          <Combobox.Value value={selected?.label} className="inline" />
+        </span>
+      }
     >
       <Command>
         <Command.List>

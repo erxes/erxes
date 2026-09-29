@@ -7,7 +7,7 @@ import { cn } from '@/modules/ui/lib/cn';
 import { Icon } from './Icon';
 
 const field =
-  'h-11 rounded-lg bg-subtle px-3.5 text-[15px] shadow-none focus-visible:shadow-focus';
+  'h-11 rounded-lg border border-line bg-white px-3.5 text-[15px] shadow-none transition-[border-color,box-shadow] duration-300 ease-out-soft placeholder:text-muted-foreground/60 hover:border-line-strong focus-visible:border-brand focus-visible:shadow-focus';
 
 export const TextInput = ({
   className,
@@ -33,7 +33,7 @@ export const PasswordInput = ({
         type="button"
         onClick={() => setVisible((current) => !current)}
         aria-label={visible ? 'Hide password' : 'Show password'}
-        className="absolute right-1.5 top-1/2 flex size-8 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-white hover:text-ink"
+        className="absolute right-1.5 top-1/2 flex size-8 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground outline-none transition-colors duration-300 ease-out-soft hover:bg-subtle hover:text-ink focus-visible:bg-subtle focus-visible:text-ink"
       >
         <Icon name={visible ? 'eyeOff' : 'eye'} size={17} />
       </button>
@@ -48,7 +48,7 @@ export const TextareaInput = ({
   <Textarea
     {...props}
     className={cn(
-      'rounded-lg bg-subtle px-3.5 py-3 text-[15px] shadow-none focus-visible:shadow-focus',
+      'rounded-lg border border-line bg-white px-3.5 py-3 text-[15px] shadow-none transition-[border-color,box-shadow] duration-300 ease-out-soft placeholder:text-muted-foreground/60 hover:border-line-strong focus-visible:border-brand focus-visible:shadow-focus',
       className,
     )}
   />

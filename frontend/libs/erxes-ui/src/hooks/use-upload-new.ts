@@ -32,6 +32,29 @@ type UseErxesUploadOptions = {
 
 type UseErxesUploadReturn = ReturnType<typeof useErxesUpload>;
 
+type FileUploadResponse = {
+  name: string;
+  message: string | undefined;
+  url?: string;
+};
+
+const uploadFile = async (file: File): Promise<FileUploadResponse> => {
+  const formData = new FormData();
+  formData.append('file', file);
+  const response = await fetch(`${REACT_APP_API_URL}/upload-file?kind=main`, {
+    method: 'post',
+    body: formData,
+    credentials: 'include',
+  });
+
+  const data = await response.text();
+
+  if (!response.ok) {
+    return { name: file.name, message: data };
+  }
+  return { name: file.name, message: undefined, url: data };
+};
+
 const useErxesUpload = (options: UseErxesUploadOptions) => {
   const {
     allowedMimeTypes = [],
@@ -105,33 +128,16 @@ const useErxesUpload = (options: UseErxesUploadOptions) => {
           ]
         : files;
 
-    const responses = await Promise.all(
-      filesToUpload.map(async (file) => {
-        const formData = new FormData();
-        formData.append('file', file);
-        const response = await fetch(
-          `${REACT_APP_API_URL}/upload-file?kind=main`,
-          {
-            method: 'post',
-            body: formData,
-            credentials: 'include',
-          },
-        );
-
-        const data = await response.text();
-
-        if (!response.ok) {
-          return { name: file.name, message: data };
-        }
-        return { name: file.name, message: undefined, url: data };
-      }),
-    );
+    const responses = await Promise.all(filesToUpload.map(uploadFile));
 
     const responseErrors = responses.filter((x) => x.message !== undefined);
     // if there were errors previously, this function tried to upload the files again so we should clear/overwrite the existing errors.
     setErrors(responseErrors);
 
-    const responseSuccesses = responses.filter((x) => x.message === undefined);
+    const responseSuccesses = responses.filter(
+      (x): x is FileUploadResponse & { url: string } =>
+        x.message === undefined && typeof x.url === 'string',
+    );
     const newSuccesses = Array.from(
       new Set([...successes, ...responseSuccesses.map((x) => x.name)]),
     );
@@ -185,6 +191,7 @@ const useErxesUpload = (options: UseErxesUploadOptions) => {
     errors,
     setErrors,
     onUpload,
+    uploadFile,
     maxFileSize: maxFileSize,
     maxFiles: maxFiles,
     allowedMimeTypes,

@@ -20,6 +20,13 @@
 
 ## Current Capabilities
 
+- The automations widget answers built-in template prerequisites: the
+  `templateRequirement` component type resolves `operation:task.status` by
+  reusing `TaskStatusPropertyInput`, which asks for the team and the status
+  together and already clears a status the chosen team does not have. It
+  reports `{ teamId, status }` upward only once a status is picked, and
+  nothing else — a half-made choice leaves the install closed.
+
 - Runs as the `operation_ui` Module Federation remote on port `3006`.
 - Registers operation navigation for projects, tasks, team, teams settings, and GitHub integration settings.
 - Provides relation widgets for tasks and projects, a task status property input, notification widgets, and automation widgets.
@@ -76,55 +83,3 @@
 
 - `pnpm nx build operation_ui`
 - Smoke scenario: open operation projects, tasks, team, operation settings, relation widgets, and automation widget entry through the remote.
-
-## Recent Changes
-
-<!-- Newest first. Keep at most 10 entries. -->
-
-### `2026-09-22` — Match Properties action to Ticket widget
-
-- **Summary:** The Properties header Manage action now uses the same standard-size secondary button treatment as the Ticket widget's Add ticket action.
-- **Affected areas:** `src/modules/operation/components/PropertiesSidePanel.tsx`.
-- **Contracts changed:** None.
-
-### `2026-09-22` — Add Properties management action
-
-- **Summary:** Task and project Properties panel headers now link to the corresponding property configuration page.
-- **Affected areas:** `src/modules/operation/components/PropertiesSidePanel.tsx`.
-- **Contracts changed:** None.
-
-### `2026-09-22` — Keep Properties content within the right rail
-
-- **Summary:** Task and project Properties panels constrain the scroll content to the rail width so the right padding remains visible beside configured fields.
-- **Affected areas:** `src/modules/operation/components/PropertiesSidePanel.tsx`.
-- **Contracts changed:** None.
-
-### `2026-09-21` — Restore Properties rail header and padding
-
-- **Summary:** Task and project Properties panels now match neighboring right-rail widgets with a standard header and content inset while retaining a centered empty state.
-- **Affected areas:** `src/modules/operation/components/PropertiesSidePanel.tsx`.
-- **Contracts changed:** None.
-
-### `2026-09-16` — Center empty property state
-
-- **Summary:** Task and project Properties panels center the no-properties message vertically within the available right rail.
-- **Affected areas:** `src/modules/operation/components/PropertiesSidePanel.tsx`.
-- **Contracts changed:** None.
-
-### `2026-09-16` — Align property side-panel spacing
-
-- **Summary:** Task and project Properties panels render configured groups without the shared form's extra outer inset.
-- **Affected areas:** `src/modules/operation/components/PropertiesSidePanel.tsx`.
-- **Contracts changed:** None.
-
-### `2026-09-15` — Task and project property side panels
-
-- **Summary:** Task and project detail right rails now provide a Properties icon that opens the settings-configured custom property form with Apollo-backed editing feedback.
-- **Affected areas:** `src/widgets/relation/TaskSideWidgets.tsx`, `src/modules/project/components/details/ProjectsSideWidget.tsx`, `src/modules/operation/components/PropertiesSidePanel.tsx`, task/project detail GraphQL documents, types, and custom-field mutation hooks.
-- **Contracts changed:** Frontend task and project detail/update operations now select and submit `propertiesData`.
-
-### `2026-09-09` — Bound dev watchers
-
-- **Summary:** Operation UI Rspack development serving now ignores generated dependency, cache, coverage, temp, and output folders to reduce local watcher pressure.
-- **Affected areas:** `rspack.config.ts`.
-- **Contracts changed:** None.

@@ -26,6 +26,8 @@ interface OutgoingProxyOptions {
 }
 
 interface OutgoingOptions {
+  // A non-2xx response fails the action unless the flow means to branch on it.
+  continueOnHttpError?: boolean;
   timeout?: number;
   ignoreSSL?: boolean;
   followRedirect?: boolean;

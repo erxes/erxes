@@ -23,6 +23,7 @@ import type {
 } from '@/integrations/mail/components/MailThread';
 import { Attachments } from '@/inbox/conversation-messages/components/MessageAttachments';
 import type { IMessage } from '@/inbox/types/Conversation';
+import { MailDrafts } from './MailDrafts';
 
 const PAGE_SIZE = 20;
 
@@ -150,6 +151,9 @@ export const MailConversationDetail = () => {
           onLoadMore={() => setLimit((value) => value + PAGE_SIZE)}
           onSend={onSend}
           onNewEmail={startNewEmail}
+          beforeCompose={
+            <MailDrafts conversationId={conversationId} messages={messages} />
+          }
         />
         {contactEmail && (
           <div className="flex justify-center">

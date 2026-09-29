@@ -6,7 +6,7 @@
 - **Project:** `operation_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/operation_api`
-- **Last synchronized:** `2026-09-17`
+- **Last synchronized:** `2026-09-21`
 
 ## Scope
 
@@ -32,6 +32,20 @@
   queue and the sweep run elsewhere.
 
 ## Current Capabilities
+
+- A task or project an automation creates records `createdVia` — what produced
+  it, which run, and for whom — and is created as that actor. `getAutomationUserId`
+  reads the actor from there when neither the action config nor the target names
+  one.
+- Two task workflow templates ship with the plugin through
+  `automations.constants.workflowTemplates`: `operation.follow-up-task` (wait
+  three days, then open a task) and `operation.hand-off-now` (open one
+  straight away). They are code, never tenant documents, so they exist on a
+  fresh deployment; a copy is materialized only when someone installs one.
+  Neither restricts the target, so both are offered on a broadcast campaign as
+  well — giving the team a task per customer rather than messaging that
+  customer. Both declare `operation:task.team` and `operation:task.status`
+  requirements, the status scoped by the team.
 
 - Tasks are a segment content type: 19 filterable fields, member listing and
   counting, materialised membership on the record, and two relations from a
@@ -142,72 +156,3 @@ propertiesData? } })`
 - Build a task segment on an assignee, confirm the preview count matches the
   task list filtered the same way, then confirm `segmentIds` lands on those
   tasks after the rebuild.
-
-## Recent Changes
-
-<!-- Newest first. Keep at most 10 entries. -->
-
-### `2026-09-17` — Property types declare system fields
-
-- **Summary:** The `task` and `project` property types now declare `systemFields`, shown
-  as the "Basic information" group in Settings → Properties.
-- **Affected areas:** `src/meta/properties.ts` (`task`, `project`), `src/main.ts`
-- **Contracts changed:** Plugin meta `properties.types[].systemFields` added.
-
-### `2026-09-17` — Tasks can be created from another service
-
-- **Summary:** Added the `task.createFromSource` and `task.findOne` tRPC
-  procedures so `frontline` can convert a conversation into a task and detect
-  an existing one; tasks can store `propertiesData`.
-- **Affected areas:** `src/modules/task/trpc/task.ts`,
-  `src/modules/task/db/definitions/task.ts`, `src/modules/task/@types/task.ts`
-- **Contracts changed:** New tRPC procedures `task.createFromSource` and
-  `task.findOne`; `operation_tasks` gains the optional `propertiesData` field.
-
-### `2026-09-05` — `Export repeating task properties by row`
-
-- **Summary:** Task and project import/export expands a repeating property group into one numbered column per row (`<Group> <n> / <Field>`) and reassembles those columns back into rows on import, using the shared property import/export helpers.
-- **Affected areas:** `src/meta/import-export/utils.ts`, `src/meta/import-export/export/getTaskExportHeaders.ts`, `src/meta/import-export/import/importHandlers.ts`, `src/meta/import-export/import/processTaskRows.ts`
-- **Contracts changed:** Export and import headers for a repeating group are now numbered; `getExportHeaders`, `resolveExportHeaders`, `getCustomPropertyHeaders` and `getTaskCustomPropertyHeaders` take an optional `models` argument.
-
-### `2026-09-01` — `checkTargetMatch` producer removed
-
-- **Summary:** The `checkTargetMatch` producer was deleted from the plugin-level
-  automations object and from the automations module handlers, taking both its
-  task and project branches; automation target matching now runs through the
-  segment engine, so the Elasticsearch-era selector round-trip has no caller
-  left anywhere in the repository.
-- **Affected areas:** `src/meta/automations.ts`,
-  `src/modules/automations/automationHandlers.ts`.
-- **Contracts changed:** `/automations` no longer answers `checkTargetMatch`.
-  The `TAutomationProducers.CHECK_TARGET_MATCH` method no longer exists in
-  `erxes-api-shared`.
-
-### `2026-09-01` — Elasticsearch-era segment producers removed
-
-- **Summary:** `associationFilter`, `esTypesMap`, `initialSelector` and
-  `propertyConditionExtender` were deleted from the task and project modules
-  and from the plugin-level segment object; the plugin no longer makes any
-  plugin-to-plugin segment call, and no plugin-to-plugin RPC loop can form.
-  `projectsSegments` is now a declaration only - its content type and
-  dependent modules - and answers no producer.
-- **Affected areas:** `src/meta/segments.ts`,
-  `src/modules/task/meta/segments/index.ts`,
-  `src/modules/project/meta/segments.ts`.
-- **Contracts changed:** `/segments` no longer answers `associationFilter`,
-  `esTypesMap`, `initialSelector` or `propertyConditionExtender`. No caller
-  existed for any of them.
-
-### `2026-09-01` — Tasks became a real segment content type
-
-- **Summary:** `operation:task.tasks` is now declared with its event content
-  type, filterable on 19 user-facing fields, materialisable, and reachable
-  from a team-member segment; the module moved off the Elasticsearch-era
-  producers onto the shared evaluator.
-- **Affected areas:** `src/modules/task/meta/segments/` (was `segments.ts`,
-  now a directory with fields, collections, members, membership, evaluate and
-  relations); `src/meta/segments.ts`;
-  `src/modules/task/db/definitions/task.ts` (`segmentIds`, join indexes).
-- **Contracts changed:** Task content type now declares
-  `contentType: 'operation:task.tasks'`; new relations `user.assignedTasks`,
-  `user.createdTasks`.

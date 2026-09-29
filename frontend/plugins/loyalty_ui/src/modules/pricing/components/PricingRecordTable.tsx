@@ -8,7 +8,8 @@ import { PricingCreateSheet } from '@/pricing/create-pricing/PricingCreateSheet'
 
 export function PricingRecordTable() {
   const { t } = useTranslation('loyalty');
-  const { pricing, loading, totalCount } = usePricing();
+  const { pricing, loading, totalCount, handleFetchMore, pageInfo } =
+    usePricing();
 
   if (!loading && totalCount === 0) {
     return (
@@ -39,15 +40,23 @@ export function PricingRecordTable() {
       stickyColumns={['more', 'checkbox', 'name']}
       className="m-3"
     >
-      <RecordTable.Scroll>
+      <RecordTable.CursorProvider
+        hasNextPage={pageInfo.hasNextPage}
+        hasPreviousPage={pageInfo.hasPreviousPage}
+        dataLength={pricing?.length}
+        sessionKey="pricing_plans_cursor"
+      >
         <RecordTable>
           <RecordTable.Header />
           <RecordTable.Body>
             <RecordTable.RowList />
             {loading && <RecordTable.RowSkeleton rows={30} />}
+            <RecordTable.CursorForwardSkeleton
+              handleFetchMore={handleFetchMore}
+            />
           </RecordTable.Body>
         </RecordTable>
-      </RecordTable.Scroll>
+      </RecordTable.CursorProvider>
       <PricingCommandBar />
     </RecordTable.Provider>
   );

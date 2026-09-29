@@ -2,7 +2,10 @@ import { formSetupGeneralAtom } from '../states/formSetupStates';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { FORM_GENERAL_SCHEMA } from '../constants/formSchema';
+import {
+  FORM_GENERAL_CREATE_SCHEMA,
+  FORM_GENERAL_SCHEMA,
+} from '../constants/formSchema';
 import { FormMutateLayout } from './FormMutateLayout';
 import { ColorPicker, Form, Input, Textarea, ToggleGroup } from 'erxes-ui';
 import { FormValueEffectComponent } from './FormValueEffectComponent';
@@ -12,9 +15,11 @@ import { useTranslation } from 'react-i18next';
 
 export const FormGeneral = () => {
   const { t } = useTranslation('frontline');
-  const { id } = useParams<{ id: string }>();
+  const { id, formId } = useParams<{ id: string; formId: string }>();
   const form = useForm<z.infer<typeof FORM_GENERAL_SCHEMA>>({
-    resolver: zodResolver(FORM_GENERAL_SCHEMA),
+    resolver: zodResolver(
+      formId ? FORM_GENERAL_SCHEMA : FORM_GENERAL_CREATE_SCHEMA,
+    ),
     defaultValues: {
       primaryColor: '',
       appearance: 'iframe',

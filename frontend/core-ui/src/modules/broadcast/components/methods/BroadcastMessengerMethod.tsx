@@ -2,8 +2,8 @@ import { Form } from 'erxes-ui';
 import { useFormContext } from 'react-hook-form';
 import { SelectBrand, SelectMember } from 'ui-modules';
 import { BroadcastRules } from '../BroadcastRules';
-import { BroadcastSelectMessengerMessageSentAs } from '../select/BroadcastSelectMessengerMessageSentAs';
-import { BroadcastSelectMessengerMessageType } from '../select/BroadcastSelectMessengerMessageType';
+import { BroadcastSelectMessengerMessageSentAs } from '../common/select/BroadcastSelectMessengerMessageSentAs';
+import { BroadcastSelectMessengerMessageType } from '../common/select/BroadcastSelectMessengerMessageType';
 
 export const BroadcastMessengerMethod = () => {
   const { control } = useFormContext();

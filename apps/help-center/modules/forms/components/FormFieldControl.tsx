@@ -1,12 +1,17 @@
 'use client';
 
 import { Checkbox } from 'erxes-ui/components/checkbox';
+import { Input } from 'erxes-ui/components/input';
 import { RadioGroup } from 'erxes-ui/components/radio-group';
 import { Select } from 'erxes-ui/components/select';
-import { TextareaInput, TextInput } from '@/modules/ui/components/FormInput';
-import { cn } from '@/modules/ui/lib/cn';
+import { Textarea } from 'erxes-ui/components/textarea';
 import type { FormField } from '../types';
-import { fieldKind, fieldOptions, type FormValue } from '../utils/fields';
+import {
+  fieldKind,
+  fieldOptions,
+  fieldPlaceholder,
+  type FormValue,
+} from '../utils/fields';
 import { FileField } from './FileField';
 
 const asText = (value: FormValue): string =>
@@ -17,34 +22,11 @@ const asList = (value: FormValue): string[] =>
     ? value.filter((v): v is string => typeof v === 'string')
     : [];
 
-const Choice = ({
-  checked,
-  onChange,
-  label,
-  name,
-}: {
-  checked: boolean;
-  onChange: (next: boolean) => void;
-  label: string;
-  name: string;
-}) => (
-  <label
-    className={cn(
-      'flex cursor-pointer items-start gap-3 rounded-lg border px-3.5 py-2.5 text-sm transition-colors',
-      checked
-        ? 'border-brand/40 bg-brand-soft/50 text-ink'
-        : 'border-line bg-white text-ink-soft hover:bg-subtle',
-    )}
-  >
-    <Checkbox
-      name={name}
-      checked={checked}
-      onCheckedChange={(next) => onChange(next === true)}
-      className="mt-0.5"
-    />
-    <span className="min-w-0 flex-1 leading-relaxed">{label}</span>
-  </label>
-);
+const INPUT_TYPE = {
+  email: 'email',
+  phone: 'tel',
+  number: 'number',
+} as const;
 
 export const FormFieldControl = ({
   field,
@@ -57,14 +39,14 @@ export const FormFieldControl = ({
 }) => {
   const kind = fieldKind(field);
   const options = fieldOptions(field);
+  const placeholder = fieldPlaceholder(field);
 
   if (kind === 'textarea') {
     return (
-      <TextareaInput
-        rows={4}
+      <Textarea
         value={asText(value)}
         onChange={(event) => onChange(event.target.value)}
-        placeholder="Write your answer"
+        placeholder={placeholder}
       />
     );
   }
@@ -72,8 +54,8 @@ export const FormFieldControl = ({
   if (kind === 'select') {
     return (
       <Select value={asText(value)} onValueChange={onChange}>
-        <Select.Trigger className="h-11 w-full rounded-lg bg-subtle px-3.5 text-[15px] shadow-none">
-          <Select.Value placeholder="Choose an option" />
+        <Select.Trigger>
+          <Select.Value placeholder={placeholder} />
         </Select.Trigger>
         <Select.Content>
           {options.map((option) => (
@@ -91,20 +73,15 @@ export const FormFieldControl = ({
       <RadioGroup
         value={asText(value)}
         onValueChange={onChange}
-        className="grid gap-2"
+        className="flex flex-col gap-2"
       >
         {options.map((option) => (
           <label
             key={option}
-            className={cn(
-              'flex cursor-pointer items-start gap-3 rounded-lg border px-3.5 py-2.5 text-sm transition-colors',
-              asText(value) === option
-                ? 'border-brand/40 bg-brand-soft/50 text-ink'
-                : 'border-line bg-white text-ink-soft hover:bg-subtle',
-            )}
+            className="flex items-center gap-2 cursor-pointer"
           >
-            <RadioGroup.Item value={option} className="mt-0.5" />
-            <span className="min-w-0 flex-1 leading-relaxed">{option}</span>
+            <RadioGroup.Item value={option} />
+            <span className="text-sm">{option}</span>
           </label>
         ))}
       </RadioGroup>
@@ -115,21 +92,25 @@ export const FormFieldControl = ({
     const picked = asList(value);
 
     return (
-      <div className="grid gap-2">
+      <div className="flex flex-col gap-2">
         {options.map((option) => (
-          <Choice
+          <label
             key={option}
-            name={field._id}
-            label={option}
-            checked={picked.includes(option)}
-            onChange={(next) =>
-              onChange(
-                next
-                  ? [...picked, option]
-                  : picked.filter((entry) => entry !== option),
-              )
-            }
-          />
+            className="flex items-center gap-2 cursor-pointer"
+          >
+            <Checkbox
+              name={field._id}
+              checked={picked.includes(option)}
+              onCheckedChange={(next) =>
+                onChange(
+                  next === true
+                    ? [...picked, option]
+                    : picked.filter((entry) => entry !== option),
+                )
+              }
+            />
+            <span className="text-sm">{option}</span>
+          </label>
         ))}
       </div>
     );
@@ -140,20 +121,16 @@ export const FormFieldControl = ({
   }
 
   return (
-    <TextInput
+    <Input
       type={
-        kind === 'email'
-          ? 'email'
-          : kind === 'phone'
-            ? 'tel'
-            : kind === 'number'
-              ? 'number'
-              : 'text'
+        kind in INPUT_TYPE
+          ? INPUT_TYPE[kind as keyof typeof INPUT_TYPE]
+          : 'text'
       }
       inputMode={kind === 'number' ? 'numeric' : undefined}
       value={asText(value)}
       onChange={(event) => onChange(event.target.value)}
-      placeholder="Write your answer"
+      placeholder={placeholder}
     />
   );
 };

@@ -237,7 +237,7 @@ const FocusSheetSideTabsList = forwardRef<
     <Tabs.List
       ref={ref}
       className={cn(
-        'w-16 border-l bg-sidebar h-full py-3 flex flex-col items-center justify-start gap-3 border-b-0',
+        'w-16 flex-none border-l bg-sidebar h-full py-3 flex flex-col items-center justify-start gap-3 border-b-0',
         className,
       )}
       {...props}

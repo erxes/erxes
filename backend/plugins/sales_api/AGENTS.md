@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-09-17`
+- **Last synchronized:** `2026-09-29`
 
 ## Scope
 
@@ -31,6 +31,10 @@
   published GraphQL, tRPC, HTTP, event, or federation contracts.
 
 ## Current Capabilities
+
+- A deal an automation creates records `createdVia` — what produced it, which
+  run, and for whom — and falls back to that actor as the deal's `userId` when
+  the target does not name one.
 
 - Runs as the sales federated GraphQL and tRPC plugin service.
 - Exposes deals, pipelines, boards, stages, labels, product/payment data, sales
@@ -70,6 +74,8 @@
 - `excludeLoyaltyAmount` returns the deal total amount minus payments made
   through pipeline payment types that have a `scoreCampaignId`.
 - POS and ecommerce modules provide sales-owned order and integration behavior.
+- POS config sync merges Mongolian eBarimt receipt toggles into the POS payload
+  sent to POS client sync.
 - Read-only deal, stage, pipeline, POS, and POS-order tRPC procedures are
   exposed to AI agents through `/agent-tools/manifest` and `/agent-tools/call`
   via `.meta(agentMeta(...))` annotations; every other procedure remains
@@ -218,6 +224,8 @@
 - `erxes-api-shared` core types, utilities, and core module extension points.
 - Public platform contracts for products, customers, companies, users,
   branches, departments, and related records.
+- Mongolian `mnConfigs` values for `EBARIMT` and POS-specific
+  `posInEbarimt` eBarimt settings.
 - Loyalty-facing sales deal payloads through published target/reference
   contracts, not loyalty internals.
 
@@ -326,110 +334,3 @@
 - Smoke scenario: `GET /agent-tools/manifest` on the sales service lists only
   the annotated procedures above; `deal.create`, `deal.updateOne`, and
   `deal.subscriptionWrapper` never appear.
-
-## Recent Changes
-
-<!-- Newest first. Keep at most 10 entries. -->
-
-### `2026-09-17` — Property types declare system fields
-
-- **Summary:** The `deal` property types now declare `systemFields`, shown
-  as the "Basic information" group in Settings → Properties.
-- **Affected areas:** `src/meta/properties.ts` (`deal`), `src/main.ts`
-- **Contracts changed:** Plugin meta `properties.types[].systemFields` added.
-
-### `2026-09-13` — Discount info type cleanup
-
-- **Summary:** Deal product discount info types now use a plain string with
-  documented known values to avoid redundant literal-union Sonar warnings.
-- **Affected areas:** `src/modules/sales/utils/discountInfos.ts`.
-- **Contracts changed:** None.
-
-### `2026-09-12` — Deal product discount breakdowns
-
-- **Summary:** Deal products now persist `discountInfos` and merge automatic pricing/voucher discounts with preserved manual `hand` discounts before recalculating totals.
-- **Affected areas:** `src/modules/sales/db/definitions/deals.ts`, `src/modules/sales/@types/deal.ts`, `src/modules/sales/utils/discountInfos.ts`, `src/modules/sales/db/models/Deals.ts`, `src/modules/sales/graphql/resolvers/mutations/{deals,loyaltyUtils,utils}.ts`.
-- **Contracts changed:** Deal `productsData` JSON may now include product-level `discountInfos`.
-
-### `2026-09-01` — `checkTargetMatch` producer removed
-
-- **Summary:** The `checkTargetMatch` producer was deleted from the plugin-level
-  automations object and from both the sales and POS module handlers; automation
-  target matching now runs through the segment engine, so the Elasticsearch-era
-  selector round-trip has no caller left anywhere in the repository.
-- **Affected areas:** `src/meta/automations.ts`,
-  `src/modules/sales/meta/automations/automationHandlers.ts`,
-  `src/modules/pos/meta/automations/automationHandlers.ts`.
-- **Contracts changed:** `/automations` no longer answers `checkTargetMatch`.
-  The `TAutomationProducers.CHECK_TARGET_MATCH` method no longer exists in
-  `erxes-api-shared`.
-
-### `2026-09-01` — Elasticsearch-era segment producers removed
-
-### `2026-09-01` — Deal document print order follows the selection
-
-- **Summary:** Printing multiple deals emitted pages in Mongo natural order
-  instead of the order the deals were selected in, so the deal in the first
-  row of the print table could land many pages in (verified locally: row 1
-  `min min` printed as page 13); `replaceDealContent` now reindexes the loaded
-  deals by `replacerIds` before processing.
-- **Affected areas:** `src/modules/sales/documents/dealContent.ts`.
-- **Contracts changed:** None (`deal.replaceContent` still returns one entry
-  per resolvable `replacerId`, now ordered).
-
-### `2026-09-01` — Deal document table attributes render again
-
-- **Summary:** Table and image attributes (`productsInfo`, `allProductsInfo`,
-  `productCategoryInfo`, `servicesInfo`) printed as nothing because the
-  document editor inserts attributes as _inline_ content, and the replaced
-  table block stayed inside the paragraph's inline array where Core's
-  `blocksToHtml` renders text only; `replaceBlocks` now hoists block-level
-  replacements out to the containing block list and drops the paragraph left
-  empty behind them.
-- **Affected areas:** `src/modules/sales/documents/replaceBlocks.ts`.
-- **Contracts changed:** None.
-
-### `2026-08-21` — Bounded, strict agent-facing deal reads
-
-- **Summary:** `deal.find` can no longer execute unbounded or mis-shaped
-  queries: input is now a strict zod object (`{ query?, skip?, limit?, sort?, fields? }`
-  — unknown keys such as an invented `arg` wrapper are rejected by name
-  instead of silently matching nothing), results are always bounded (`limit`
-  defaults to 20 and is hard-capped at 100, including the no-query path — an
-  agent's `deal.find {}` over 1.27M deals crash-looped this service with
-  exit 139 on 2026-08-20), and `fields` now drives a real projection so
-  agents stay under the 64KB agent-tools response budget. `deal.count` takes
-  an explicit `{ filter? }` object for the same reason (a `{ query: ... }`
-  wrapper previously counted 0 silently). No cross-plugin tRPC callers of
-  either procedure exist, so the tightened contracts break no consumers.
-- **Affected areas:** `src/modules/sales/trpc/deal.ts`.
-- **Contracts changed:** `deal.find` input is now strict
-  `{ query?, skip?, limit?, sort?, fields? }` (the bare top-level filter form
-  is rejected) with `limit` clamped to 1–100 (default 20); `deal.count` input
-  is now strict `{ filter? }` instead of a bare filter object.
-
-### `2026-08-19` — Agent-callable tRPC tools
-
-- **Summary:** `associationFilter`, `esTypesMap`, `initialSelector` and
-  `propertyConditionExtender` were deleted from the sales and POS modules and
-  from the plugin-level segment object; the plugin no longer makes any
-  plugin-to-plugin segment call, and no plugin-to-plugin RPC loop can form.
-- **Affected areas:** `src/meta/segments.ts`,
-  `src/modules/sales/meta/segments/segments.ts`,
-  `src/modules/sales/meta/segments/utils.ts` (deleted),
-  `src/modules/pos/meta/segments.ts`.
-- **Contracts changed:** `/segments` no longer answers `associationFilter`,
-  `esTypesMap`, `initialSelector` or `propertyConditionExtender`. No caller
-  existed for any of them.
-
-### `2026-09-01` — POS orders renamed to their event content type
-
-- **Summary:** the module's `sales:pos_order` declaration - an
-  Elasticsearch-era name no write is ever emitted under - became
-  `sales:pos.orders`, and the module now owns its own fields, collections,
-  members, membership and evaluation instead of only an ES `associationFilter`.
-- **Affected areas:** `src/modules/pos/meta/posSegmentConfigs.ts`,
-  `src/modules/pos/meta/segments.ts`,
-  `src/modules/pos/meta/segments/` (new), `src/meta/segments.ts`.
-- **Contracts changed:** `sales:pos_order` -> `sales:pos.orders`; new relation
-  `customer.posOrders`.

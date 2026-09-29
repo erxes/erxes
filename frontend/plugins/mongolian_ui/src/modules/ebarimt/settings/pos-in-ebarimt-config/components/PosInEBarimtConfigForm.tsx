@@ -59,6 +59,9 @@ const PosInEbarimtConfigCard = ({
       headerText: config.headerText || '',
       footerText: config.footerText || '',
       reverseCtaxRules: normalizeRuleIds(config.reverseCtaxRules),
+      hasCopy: config.hasCopy || false,
+      hasSumQty: config.hasSumQty || false,
+      isCleanTaxPrice: config.isCleanTaxPrice || false,
       withDescription: config.withDescription || false,
       skipEbarimt: config.skipEbarimt || false,
     },
@@ -298,6 +301,29 @@ const PosInEbarimtConfigCard = ({
             />
 
             <FormCheckbox
+              name="hasCopy"
+              label={t('has-copy', { defaultValue: 'Has copy' })}
+              control={form.control}
+              labelPosition="before"
+            />
+
+            <FormCheckbox
+              name="hasSumQty"
+              label={t('has-summary-qty', { defaultValue: 'Has summary qty' })}
+              control={form.control}
+              labelPosition="before"
+            />
+
+            <FormCheckbox
+              name="isCleanTaxPrice"
+              label={t('is-clean-tax-price', {
+                defaultValue: 'Is clean tax price',
+              })}
+              control={form.control}
+              labelPosition="before"
+            />
+
+            <FormCheckbox
               name="withDescription"
               label={t('with-description')}
               control={form.control}
@@ -330,9 +356,13 @@ const PosInEbarimtConfigCard = ({
               </AlertDialog.Trigger>
               <AlertDialog.Content>
                 <AlertDialog.Header>
-                  <AlertDialog.Title>{t('delete-configuration')}</AlertDialog.Title>
+                  <AlertDialog.Title>
+                    {t('delete-configuration')}
+                  </AlertDialog.Title>
                   <AlertDialog.Description>
-                    {t('delete-config-confirm', { title: config.title || t('untitled-config') })}
+                    {t('delete-config-confirm', {
+                      title: config.title || t('untitled-config'),
+                    })}
                   </AlertDialog.Description>
                 </AlertDialog.Header>
                 <AlertDialog.Footer>
@@ -437,7 +467,8 @@ export const PosInEBarimtConfigForm = () => {
                   <Accordion.Trigger className="px-4 py-3 hover:no-underline text-left font-medium cursor-pointer">
                     <div className="flex justify-between items-center w-full">
                       <span>
-                        {localConfigsMap[configKey].title || t('untitled-config')}
+                        {localConfigsMap[configKey].title ||
+                          t('untitled-config')}
                       </span>
                     </div>
                   </Accordion.Trigger>

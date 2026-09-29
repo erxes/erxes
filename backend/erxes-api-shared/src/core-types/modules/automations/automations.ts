@@ -4,7 +4,6 @@ import {
   IAutomationTrigger,
 } from '../../../core-modules/automations/definitions';
 
-export * from './automationEmailTemplate';
 
 export type ICheckTriggerData = {
   collectionType: string;

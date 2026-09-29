@@ -1,5 +1,8 @@
 import { MESSENGER_KINDS, SENT_AS_CHOICES } from '@/broadcast/constants';
-import { ruleSchema } from 'erxes-api-shared/core-modules';
+import {
+  EMAIL_CONTENT_FORMATS,
+  ruleSchema,
+} from 'erxes-api-shared/core-modules';
 import { Schema } from 'mongoose';
 
 export const scheduleDateSchema = new Schema(
@@ -7,14 +10,27 @@ export const scheduleDateSchema = new Schema(
     type: { type: String, label: 'Type' },
     month: { type: String, label: 'Month' },
     day: { type: String, label: 'Day' },
-    dateTime: {
-      type: Date,
-      label: 'DateTime',
-      validate: {
-        validator: (value: Date) => value > new Date(),
-        message: 'Date time value must be greater than today',
-      },
+    // Deliberately unvalidated. A moment only has to be in the future when it
+    // is chosen, and a validator here would also refuse every later save of a
+    // campaign whose moment has since passed.
+    dateTime: { type: Date, label: 'DateTime' },
+
+    // Repeating campaigns. The pattern is kept as it was chosen rather than
+    // compiled to cron, so it stays readable and the form stays simple; the
+    // next moment is worked out from it each time one comes due.
+    every: {
+      type: String,
+      enum: ['day', 'week', 'month', 'year'],
+      label: 'Repeats',
     },
+    hour: { type: Number, label: 'Hour of day' },
+    minute: { type: Number, label: 'Minute of hour' },
+    weekDay: { type: Number, label: 'Day of week' },
+    monthDay: { type: Number, label: 'Day of month' },
+    monthOfYear: { type: Number, label: 'Month of year' },
+    startDate: { type: Date, label: 'Repeats from' },
+    endDate: { type: Date, label: 'Repeats until' },
+    timeZone: { type: String, label: 'Time zone' },
   },
   {
     _id: false,
@@ -27,7 +43,16 @@ export const emailSchema = new Schema(
     subject: { type: String, label: 'Subject', required: true },
     sender: { type: String, label: 'Sender' },
     replyTo: { type: String, label: 'Reply to' },
-    content: { type: String, label: 'Content', required: true },
+    previewText: { type: String, label: 'Preview text' },
+    content: { type: String, label: 'Content' },
+    contentJson: { type: Schema.Types.Mixed, label: 'Content JSON' },
+    // Which editor wrote the body. Absent on everything saved before the
+    // email editor existed, and that absence means block content.
+    contentFormat: {
+      type: String,
+      enum: Object.values(EMAIL_CONTENT_FORMATS),
+      label: 'Content format',
+    },
   },
   {
     _id: false,
