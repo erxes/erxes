@@ -54,6 +54,15 @@ export const marketplaceQueries = {
     }
   },
 
+  async marketplaceCatalogError() {
+    try {
+      await fetchRegistryCatalog();
+      return null;
+    } catch (e) {
+      return (e as Error).message;
+    }
+  },
+
   async installedPlugins(
     _parent: undefined,
     _args: Record<string, never>,

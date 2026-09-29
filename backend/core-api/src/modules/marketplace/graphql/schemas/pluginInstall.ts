@@ -43,6 +43,7 @@ export const types = `
 
 export const queries = `
   marketplacePlugins: [MarketplacePlugin]
+  marketplaceCatalogError: String
   installedPlugins: [PluginInstall]
   installedPlugin(_id: String): PluginInstall
 `;

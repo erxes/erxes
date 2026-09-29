@@ -41,6 +41,10 @@ export interface IMarketplacePluginsData {
   marketplacePlugins: IMarketplacePlugin[];
 }
 
+export interface IMarketplaceCatalogErrorData {
+  marketplaceCatalogError: string | null;
+}
+
 export interface IInstalledPluginsData {
   installedPlugins: IInstalledPlugin[];
 }

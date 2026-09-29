@@ -26,6 +26,12 @@ const MARKETPLACE_PLUGINS = gql`
   }
 `;
 
+const MARKETPLACE_CATALOG_ERROR = gql`
+  query MarketplaceCatalogError {
+    marketplaceCatalogError
+  }
+`;
+
 const INSTALLED_PLUGINS = gql`
   query InstalledPlugins {
     installedPlugins {
@@ -47,4 +53,4 @@ const INSTALLED_PLUGINS = gql`
   }
 `;
 
-export { MARKETPLACE_PLUGINS, INSTALLED_PLUGINS };
+export { MARKETPLACE_PLUGINS, MARKETPLACE_CATALOG_ERROR, INSTALLED_PLUGINS };

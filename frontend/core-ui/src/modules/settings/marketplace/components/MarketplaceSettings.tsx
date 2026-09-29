@@ -25,6 +25,7 @@ import { Link } from 'react-router-dom';
 import { SettingsWorkspacePath } from '@/types/paths/SettingsPath';
 import {
   INSTALLED_PLUGINS,
+  MARKETPLACE_CATALOG_ERROR,
   MARKETPLACE_PLUGINS,
 } from '../graphql/queries';
 import {
@@ -35,6 +36,7 @@ import {
 import {
   IInstalledPluginsData,
   IInstalledPlugin,
+  IMarketplaceCatalogErrorData,
   IMarketplacePlugin,
   IMarketplacePluginsData,
 } from '../types';
@@ -216,6 +218,8 @@ export const MarketplaceSettings = () => {
     loading: catalogLoading,
     error: catalogError,
   } = useQuery<IMarketplacePluginsData>(MARKETPLACE_PLUGINS);
+  const { data: catalogStatusData } =
+    useQuery<IMarketplaceCatalogErrorData>(MARKETPLACE_CATALOG_ERROR);
   const { data: installsData } =
     useQuery<IInstalledPluginsData>(INSTALLED_PLUGINS);
 
@@ -266,6 +270,12 @@ export const MarketplaceSettings = () => {
         {catalogError && (
           <p className="text-sm text-destructive pb-4">
             Could not load the plugin catalog: {catalogError.message}
+          </p>
+        )}
+        {!catalogError && catalogStatusData?.marketplaceCatalogError && (
+          <p className="text-sm text-destructive pb-4">
+            Plugin catalog is unreachable — showing installed plugins only:{' '}
+            {catalogStatusData.marketplaceCatalogError}
           </p>
         )}
         {catalogLoading ? (
