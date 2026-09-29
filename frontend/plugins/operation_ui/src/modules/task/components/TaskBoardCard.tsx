@@ -6,19 +6,21 @@ import { SelectProject } from '@/task/components/task-selects/SelectProjectTask'
 import { SelectStatusTask } from '@/task/components/task-selects/SelectStatusTask';
 import { SelectTaskPriority } from '@/task/components/task-selects/SelectTaskPriority';
 import { SelectTeamTask } from '@/task/components/task-selects/SelectTeamTask';
-import { allTasksMapState } from '@/task/components/TasksBoard';
 import { useTaskDetailSheet } from '@/task/hooks/useTaskDetailSheet';
 import { taskCountByBoardAtom } from '@/task/states/tasksTotalCountState';
+import { ITask } from '@/task/types';
 import { IconCalendarEventFilled } from '@tabler/icons-react';
 import { format } from 'date-fns';
-import { BoardCardProps, Button, Separator } from 'erxes-ui';
-import { atom, useAtomValue, useSetAtom } from 'jotai';
+import { Button, Separator } from 'erxes-ui';
+import { useSetAtom } from 'jotai';
 
-export const taskBoardItemAtom = atom(
-  (get) => (id: string) => get(allTasksMapState)[id],
-);
-
-export const TaskBoardCard = ({ id, column }: BoardCardProps) => {
+export const TaskBoardCard = ({
+  task,
+  column,
+}: {
+  task: ITask;
+  column: string;
+}) => {
   const { t } = useTranslation('operation');
   const {
     startDate,
@@ -32,7 +34,7 @@ export const TaskBoardCard = ({ id, column }: BoardCardProps) => {
     estimatePoint,
     _id,
     createdAt,
-  } = useAtomValue(taskBoardItemAtom)(id);
+  } = task;
   const [, setActiveTask] = useTaskDetailSheet();
   const setTaskCountByBoard = useSetAtom(taskCountByBoardAtom);
 
