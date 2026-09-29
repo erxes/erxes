@@ -212,6 +212,7 @@ test('rewrites only explicit article links and validates relative media includin
     name: 'cover',
     type: 'image/jpeg',
     url: 'erxes-saas/cover.jpg',
+    size: null,
   };
   const shared = buildPlan(data, { ...opts, sharedMediaStorage: true });
   assert.deepEqual(shared.errors, []);
@@ -221,6 +222,12 @@ test('rewrites only explicit article links and validates relative media includin
         ?.targetDocument.thumbnail as { url: string }
     ).url,
     'erxes-saas/cover.jpg',
+  );
+  assert.equal(
+    'size' in
+      (shared.mappings.find((mapping) => mapping.kind === 'article')
+        ?.targetDocument.thumbnail as Record<string, unknown>),
+    false,
   );
   data.articles[0].pdfAttachment = { pdf: null };
   const emptyPdf = buildPlan(data, { ...opts, sharedMediaStorage: true });

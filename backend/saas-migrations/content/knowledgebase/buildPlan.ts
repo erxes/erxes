@@ -615,7 +615,7 @@ export const buildPlan = (
       url,
     };
     for (const field of ['size', 'duration'])
-      if (value[field] !== undefined) {
+      if (value[field] !== undefined && value[field] !== null) {
         if (
           typeof value[field] !== 'number' ||
           !Number.isFinite(value[field]) ||
