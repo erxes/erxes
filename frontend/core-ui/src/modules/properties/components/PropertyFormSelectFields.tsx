@@ -35,7 +35,6 @@ export const PropertyFormSelectFields = ({
       )
       .map((field) => field.name);
 
-  // Saved options stay at the top of the list; new ones are appended below.
   const [savedOptionCount, setSavedOptionCount] = useState(
     isEdit ? form.formState.defaultValues?.options?.length ?? 0 : 0,
   );
