@@ -96,6 +96,8 @@
 - GraphQL documents are static strings with no `${...}` interpolation. Codegen drops interpolated text, so an interpolated selection would be sent at runtime but missing from the generated types.
 - `src/gql/` is generated and gitignored; `build` and `serve` depend on the `codegen` target.
 - `tsconfig.json` maps both `ui-modules` and `ui-modules/*`. Without the wildcard, every `ui-modules` self-import fails to resolve and its component props silently become `any` in this plugin.
+- The task board keeps two Jotai atoms only: `fetchedTasksState` (the items dnd-kit needs at `Board.Provider`, each carrying its `task`) and `taskCountByBoardAtom` (per-column totals shared with the toolbar). Each column replaces its own slice of `fetchedTasksState` wholesale so deleted tasks leave, and counts are written whenever `totalCount` is a number so 0 lands. Reset both atoms in an unmount cleanup, never on mount.
+- Documents declare non-null variables (`String!`, `CycleInput!`) for arguments the resolvers can't run without. Optional list-filter variables stay nullable.
 
 ## Validation
 
