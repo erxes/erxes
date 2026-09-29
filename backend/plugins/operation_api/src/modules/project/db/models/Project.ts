@@ -24,7 +24,7 @@ export interface IProjectModel extends Model<IProjectDocument> {
     doc: IProjectUpdate;
     userId: string;
   }): Promise<FlattenMaps<IProjectDocument> | Document>;
-  removeProject(projectId: string): Promise<{ ok: number }>;
+  removeProject(projectId: string): Promise<IProjectDocument | null>;
 }
 
 export const loadProjectClass = (

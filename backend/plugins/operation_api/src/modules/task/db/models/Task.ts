@@ -8,7 +8,7 @@ import {
 } from '@/task/@types/task';
 import { taskSchema } from '@/task/db/definitions/task';
 import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
-import { Document } from 'mongodb';
+import { DeleteResult, Document } from 'mongodb';
 import mongoose, { FilterQuery, FlattenMaps, Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { createNotifications } from '~/utils/notifications';
@@ -36,8 +36,11 @@ export interface ITaskModel extends Model<ITaskDocument> {
     userId: string;
     subdomain: string;
   }): Promise<ITaskDocument>;
-  removeTask(taskIds: string[]): Promise<{ deletedCount: number }>;
-  moveCycle(cycleId: string, newCycleId: string): Promise<{ ok: number }>;
+  removeTask(taskIds: string[]): Promise<DeleteResult>;
+  moveCycle(
+    cycleId: string,
+    newCycleId: string,
+  ): Promise<mongoose.Types.ObjectId[]>;
 }
 
 export const loadTaskClass = (
@@ -337,7 +340,7 @@ export const loadTaskClass = (
     public static async moveCycle(cycleId: string, newCycleId: string) {
       const taskIds = await models.Task.find({
         cycleId,
-        statusType: { $nin: [STATUS_TYPES.COMPLETED, STATUS_TYPES.COMPLETED] },
+        statusType: { $nin: [STATUS_TYPES.COMPLETED, STATUS_TYPES.CANCELLED] },
       }).distinct('_id');
 
       for (const taskId of taskIds) {

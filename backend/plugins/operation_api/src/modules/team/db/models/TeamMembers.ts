@@ -1,25 +1,16 @@
-import {
-  ITeamMember,
-  ITeamMemberDocument,
-  TeamMemberRoles,
-} from '@/team/@types/team';
+import { ITeamMember, ITeamMemberDocument } from '@/team/@types/team';
 import { teamMembers } from '@/team/db/definitions/team';
+import { DeleteResult } from 'mongodb';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 
 export interface ITeamMemberModel extends Model<ITeamMemberDocument> {
   getTeamMember(memberId: string, teamId: string): Promise<ITeamMemberDocument>;
   createTeamMember(doc: ITeamMember): Promise<ITeamMemberDocument>;
-  updateTeamMember(
-    _id: string,
-    role: TeamMemberRoles,
-  ): Promise<ITeamMemberDocument>;
+  syncTeamMembers(teamId: string, memberIds: string[]): Promise<void>;
 
   createTeamMembers(members: ITeamMember[]): Promise<ITeamMemberDocument[]>;
-  removeTeamMember(
-    teamId: string,
-    memberId: string,
-  ): Promise<ITeamMemberDocument>;
+  removeTeamMember(teamId: string, memberId: string): Promise<DeleteResult>;
 }
 
 export const loadTeamMemberClass = (models: IModels) => {
@@ -32,26 +23,28 @@ export const loadTeamMemberClass = (models: IModels) => {
       return models.TeamMember.insertOne(doc);
     }
 
-    public static async updateTeamMember(_id: string, role: TeamMemberRoles) {
-      const teamMember = await models.TeamMember.findOne({ _id });
+    public static async syncTeamMembers(teamId: string, memberIds: string[]) {
+      const existing = await models.TeamMember.find({ teamId }).lean();
+      const existingIds = new Set(existing.map((member) => member.memberId));
+      const wantedIds = new Set(memberIds);
 
-      if (!teamMember) {
-        throw new Error('Team member not found');
+      const toAdd = memberIds.filter((memberId) => !existingIds.has(memberId));
+      const toRemove = existing
+        .map((member) => member.memberId)
+        .filter((memberId) => !wantedIds.has(memberId));
+
+      if (toAdd.length) {
+        await models.TeamMember.insertMany(
+          toAdd.map((memberId) => ({ memberId, teamId })),
+        );
       }
 
-      // ** Deprecated
-
-      // if (teamMember.role === TeamMemberRoles.ADMIN) {
-      //   const adminsCount = await models.TeamMember.countDocuments({
-      //     teamId: teamMember.teamId,
-      //   });
-
-      //   if (adminsCount === 1) {
-      //     throw new Error('Admin cannot be removed');
-      //   }
-      // }
-
-      return models.TeamMember.findOneAndUpdate({ _id }, { $set: { role } });
+      if (toRemove.length) {
+        await models.TeamMember.deleteMany({
+          teamId,
+          memberId: { $in: toRemove },
+        });
+      }
     }
 
     public static async createTeamMembers(members: ITeamMember[]) {

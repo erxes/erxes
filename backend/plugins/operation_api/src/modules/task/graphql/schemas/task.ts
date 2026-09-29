@@ -58,7 +58,6 @@ export const types = `
     userId: String
     name:String
     statusType: Int
-    estimate: String
     milestoneId: String
     cycleFilter: CycleFilterType
     projectStatus: Int
