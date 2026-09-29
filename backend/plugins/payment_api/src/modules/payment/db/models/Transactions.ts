@@ -100,7 +100,7 @@ export const loadTransactionClass = (models: IModels) => {
 
       const transaction = await models.Transactions.create(updatedDoc);
 
-      const api = new ErxesPayment(paymentMethod, subdomain);
+      const api = new ErxesPayment(paymentMethod, subdomain, models);
 
       try {
 
@@ -160,7 +160,7 @@ export const loadTransactionClass = (models: IModels) => {
         transaction.paymentId,
       );
 
-      const api = new ErxesPayment(payment, subdomain);
+      const api = new ErxesPayment(payment, subdomain, models);
 
       const status = await api.manualCheck(transaction);
       if (

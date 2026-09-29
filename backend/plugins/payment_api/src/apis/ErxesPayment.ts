@@ -16,13 +16,14 @@ import { TDBAPI } from './tdb/api';
 import { IPaymentDocument } from '~/modules/payment/@types/payment';
 import { ITransactionDocument } from '~/modules/payment/@types/transactions';
 import { extractErrorMessage } from '~/utils/extractErrorMessage';
+import { IModels } from '~/connectionResolvers';
 
 class ErxesPayment {
   public readonly domain: string;
   private readonly payment: IPaymentDocument;
   private readonly api: any;
 
-  constructor(payment: IPaymentDocument, subdomain?: string) {
+  constructor(payment: IPaymentDocument, subdomain?: string, models?: IModels,) {
     this.payment = payment;
 
     const DOMAIN = getEnv({ name: 'DOMAIN' })
@@ -69,7 +70,7 @@ class ErxesPayment {
         this.api = new StripeAPI(payment.config, this.domain);
         break;
       case 'khanbank':
-        this.api = new KhanbankAPI(payment.config, subdomain || '');
+        this.api = new KhanbankAPI(payment.config, models!);
         break;
       case 'toki':
         this.api = new TokiAPI(payment.config, this.domain);
