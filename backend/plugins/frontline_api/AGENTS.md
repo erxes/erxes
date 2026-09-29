@@ -139,6 +139,9 @@
 - The internal `getTelegramWebhookInfo(token)` client reads the provider's
   current webhook URL, pending update count, and optional delivery details. It
   validates the response with Zod and does not change webhook configuration.
+- The internal `verifyTelegramWebhookSecret` helper rejects missing, empty, or
+  unequal secrets and compares equal-length UTF-8 buffers with `timingSafeEqual`.
+  It does not yet authenticate an HTTP receiver.
 - Registers `TelegramBots` on the tenant's database connection. Its
   `getBot(_id)` method returns the saved bot or throws `Telegram bot not found`.
 - `TelegramBots.getWebhookInfo(_id)` reads webhook status with the saved bot's
@@ -216,7 +219,7 @@
 | Inbox                | `src/modules/inbox/`                                                        | Conversations, messages, integrations, widget/clientportal schemas, `receiveInboxMessage`                                                                                                              |
 | Conversation queries | `src/conversationQueryBuilder.ts`, `src/modules/inbox/conversationUtils.ts` | Mongo and Elasticsearch conversation filters (membership-scoped)                                                                                                                                       |
 | Integrations         | `src/modules/integrations/<kind>/`                                          | facebook, instagram, mail, discord, call, callpro, trpc                                                                                                                                                |
-| Telegram setup       | `src/modules/integrations/telegram/`                                        | Bot API client for identity and webhook status, permission-checked validation and saved-bot queries, creation mutation, bot schema and model |
+| Telegram setup       | `src/modules/integrations/telegram/`                                        | Bot API client for identity and webhook status, permission-checked validation and saved-bot queries, creation mutation, bot schema and model, webhook secret comparison |
 | Mail integration     | `src/modules/integrations/mail/`                                            | Inbound webhook, threading, outbound send/retry                                                                                                                                                        |
 | Mail transports      | `src/modules/integrations/mail/utils/transports/`                           | `index.ts` picks the Cloudflare account that signs for this workspace, `deliver.ts` runs the delivery pipeline (sender guard, suppression, delivery log), `cloudflare.ts` is the only `IMailTransport` |
 | Mail provisioning    | `src/modules/integrations/mail/utils/cloudflare/`                           | Cloudflare REST client, the fourteen-step provisioner, Email Sending onboarding and quota, the connection cache and its public shape                                                                   |
@@ -325,6 +328,9 @@
   Telegram.
 - Telegram credentials must not appear in public API results or raw error messages.
   Reject surrounding whitespace instead of silently rewriting a pasted token.
+- Telegram webhook secret comparison must reject empty values and check byte
+  lengths before calling `timingSafeEqual`; compare the received value exactly
+  without trimming or normalizing it.
 - The `client.ts` types `TelegramBot` and `TelegramWebhookInfo` describe
   validated provider responses. Keep them separate from the saved-record types
   `ITelegramBot` and `ITelegramBotDocument` and the mapped query response
@@ -356,6 +362,9 @@
 - `pnpm exec eslint backend/plugins/frontline_api/src/modules/integrations/telegram --max-warnings=0`
 - `pnpm exec prettier --check backend/plugins/frontline_api/src/modules/integrations/telegram`
 - The project currently has no Nx test target.
+- Telegram webhook secret checks: accept matching nonempty secrets; reject
+  missing, empty, differing, or whitespace-altered values. Differing UTF-8 byte
+  lengths must return `false` without throwing.
 - Telegram smoke scenario: a signed-in user with `integrationsAdd` validates a
   real bot token through the gateway and receives the bot identity and group
   settings. A rejected token returns `valid: false`; permission denial remains a
@@ -391,6 +400,12 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-29` — Telegram webhook secret comparison
+
+- **Summary:** Added a provider-local helper for exact webhook secret comparison with empty-value and byte-length guards.
+- **Affected areas:** `src/modules/integrations/telegram/webhookAuth.ts`.
+- **Contracts changed:** Added internal `verifyTelegramWebhookSecret(expectedSecret, receivedSecret?)`; public APIs unchanged.
 
 ### `2026-09-29` — Telegram webhook status query
 
@@ -460,11 +475,3 @@
 - **Contracts changed:** None. Consumed contracts corrected: Core
   `companies.findOne` (query), `companies.updateCompany` / `createCompany`
   (mutations), and automations `automations.trigger`.
-
-### `2026-09-17` — Property types declare system fields
-
-- **Summary:** The `conversation` and `ticket` property types now declare
-  `systemFields`, shown as the "Basic information" group in Settings →
-  Properties.
-- **Affected areas:** `src/meta/properties.ts`, `src/main.ts`
-- **Contracts changed:** Plugin meta `properties.types[].systemFields` added.
