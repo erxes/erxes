@@ -1,0 +1,72 @@
+name: publish
+
+# Publishes both contract artifacts on every tag v*:
+#   ui remoteEntry -> GitHub Pages dist/<version>/<name>_ui/
+#   api image      -> ghcr.io/<owner>/plugin-<name>-api:<version>,latest
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g. 0.1.0)'
+        required: false
+
+permissions:
+  contents: write
+  packages: write
+  pages: write
+
+jobs:
+  ui:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: ui
+      - name: Version
+        id: version
+        run: |
+          V="${{ github.event.inputs.version || github.ref_name }}"
+          V="${V#v}"
+          echo "version=$V" >> "$GITHUB_OUTPUT"
+      - name: Build remote
+        run: |
+          pnpm --dir ui install
+          pnpm --dir ui build
+      - name: Publish to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ui/dist
+          destination_dir: dist/${{ steps.version.outputs.version }}
+          keep_files: true
+
+  api:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Version
+        id: version
+        run: |
+          V="${{ github.event.inputs.version || github.ref_name }}"
+          V="${V#v}"
+          echo "version=$V" >> "$GITHUB_OUTPUT"
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push plugin api image
+        uses: docker/build-push-action@v6
+        with:
+          context: api
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/plugin-${{ github.event.repository.name }}:${{ steps.version.outputs.version }}
+            ghcr.io/${{ github.repository_owner }}/plugin-${{ github.event.repository.name }}:latest

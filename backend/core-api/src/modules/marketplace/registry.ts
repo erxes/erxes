@@ -44,7 +44,7 @@ interface IRegistryFile {
 }
 
 const DEFAULT_REGISTRY_URL =
-  'https://raw.githubusercontent.com/Amartuvshins0404/erxes-plugin/main/registry/plugins.json';
+  'https://raw.githubusercontent.com/erxes/erxes/main/plugin-registry/plugins.json';
 
 const NAME_RE = /^[a-z][a-z0-9-]*$/;
 

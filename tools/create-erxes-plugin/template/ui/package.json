@@ -1,0 +1,33 @@
+{
+  "name": "changeme-ui",
+  "version": "0.1.0",
+  "private": true,
+  "description": "changeme plugin UI — Module Federation remote for erxes core-ui",
+  "scripts": {
+    "dev": "rspack serve --port __UI_PORT__",
+    "build": "rspack build --mode production",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@apollo/client": "^3.11.8",
+    "@tabler/icons-react": "^3.34.0",
+    "graphql": "^16.10.0",
+    "jotai": "^2.12.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "react-i18next": "^15.1.1",
+    "react-router-dom": "^7.18.4"
+  },
+  "devDependencies": {
+    "@module-federation/enhanced": "0.6.6",
+    "@rspack/cli": "1.0.5",
+    "@rspack/core": "1.0.5",
+    "@types/node": "^22.10.0",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "erxes-ui": "npm:@erxes/ui@__ERXES_SDK_VERSION__",
+    "ts-node": "^10.9.2",
+    "typescript": "5.7.3",
+    "ui-modules": "npm:@erxes/ui-modules@__ERXES_SDK_VERSION__"
+  }
+}

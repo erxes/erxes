@@ -1,0 +1,28 @@
+services:
+  mongo:
+    image: mongo:7
+    ports:
+      - '27017:27017'
+
+  redis:
+    image: redis:7
+    ports:
+      - '6379:6379'
+
+  plugin-changeme-api:
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+    env_file: api/.env
+    environment:
+      PORT: __API_PORT__
+      MONGO_URL: mongodb://mongo:27017/erxes
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      NODE_ENV: production
+      LOAD_BALANCER_ADDRESS: http://plugin-changeme-api:__API_PORT__
+    ports:
+      - '__API_PORT__:__API_PORT__'
+    depends_on:
+      - mongo
+      - redis

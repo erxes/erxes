@@ -1,0 +1,74 @@
+name: Publish plugin SDK
+
+on:
+  push:
+    tags:
+      - 'plugin-sdk-v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Plugin SDK version (e.g. 3.2.6)'
+        required: true
+  pull_request:
+    paths:
+      - 'backend/erxes-api-shared/**'
+      - 'frontend/libs/erxes-ui/**'
+      - 'frontend/libs/ui-modules/**'
+      - 'tools/create-erxes-plugin/**'
+      - 'scripts/plugin-sdk/**'
+      - '.github/workflows/publish-plugin-sdk.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  plugin-sdk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies (hoisted for portable declarations)
+        run: pnpm install --frozen-lockfile --config.node-linker=hoisted
+
+      - name: Resolve version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          elif [ "${{ github.event_name }}" = "push" ]; then
+            VERSION="${GITHUB_REF_NAME#plugin-sdk-v}"
+          else
+            VERSION="0.0.0-pr.${{ github.event.pull_request.number }}"
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Build erxes-api-shared
+        run: pnpm nx build erxes-api-shared
+
+      - name: Stage packages
+        run: node scripts/plugin-sdk/build.mjs --version "${{ steps.version.outputs.version }}"
+
+      - name: Pack
+        run: |
+          for pkg in api-shared ui ui-modules create-erxes-plugin; do
+            (cd "dist/plugin-sdk/$pkg" && npm pack --dry-run)
+          done
+
+      - name: Publish to npm
+        if: github.event_name != 'pull_request'
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          for pkg in api-shared ui ui-modules create-erxes-plugin; do
+            (cd "dist/plugin-sdk/$pkg" && npm publish --access public)
+          done
