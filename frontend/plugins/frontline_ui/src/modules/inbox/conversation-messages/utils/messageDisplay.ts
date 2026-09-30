@@ -117,7 +117,7 @@ export const getMessageDisplay = ({
   const stickers = extraData?.stickers;
   const forwardedSnapshot = extraData?.forwardedSnapshot;
   const isForwardedMessage =
-    !forwardedSnapshot && content.search(FORWARDED_MARKER) !== -1;
+    !forwardedSnapshot && !!content && content.search(FORWARDED_MARKER) !== -1;
   const forwardedContentMatch =
     /<blockquote><strong>Forwarded message<\/strong><br\s*\/?>[\s\S]*?<\/blockquote>/i.exec(
       content,
