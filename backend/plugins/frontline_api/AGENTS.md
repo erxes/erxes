@@ -67,16 +67,24 @@
   the exact value the `Form.fields` resolver reads. Re-running it overwrites
   the target field with the source copy.
 - `src/migrations/migrateLegacyIntegrations.ts` copies provider data from the
-  legacy `erxes_integrations` database (override with `LEGACY_INTEGRATIONS_DB`)
-  into the frontline collections of the `MONGO_URL` database. Legacy
-  `integrations` are split by `kind` into `facebook_integrations` and
-  `integrations_callpros` (`erxesApiId` becomes `inboxId`); `chatfuel` and
-  integrations whose inbox integration no longer exists are skipped.
-  `comments_facebooks` becomes `comment_conversations_facebooks`
-  (`commentId` → `comment_id`, `timestamp` → `createdAt`) and comments/posts get
-  `integrationId` from the `facebook-post` page mapping. Legacy `_id`s are kept
-  because provider rows link to integrations by `_id`. It is insert-only and
-  safe to re-run; it is a dry run unless `DRY_RUN=false`.
+  legacy v2 `erxes_facebook` (`LEGACY_FACEBOOK_DB`) and v1 `erxes_integrations`
+  (`LEGACY_INTEGRATIONS_DB`) databases into the frontline collections of the
+  `MONGO_URL` database. v2 Facebook data is copied first so it wins over v1 on
+  the `customers_facebooks.userId` and `conversations_facebooks`
+  (`senderId`, `recipientId`) unique indexes; duplicate-key rejections are
+  counted as `duplicates`, not failures. A provider integration is copied only
+  when its inbox integration exists and no provider integration already claims
+  that inbox. v1 `integrations` are split by `kind` into `facebook_integrations`
+  and `integrations_callpros` (`erxesApiId` becomes `inboxId`); `chatfuel` is
+  skipped. v1 `comments_facebooks` becomes `comment_conversations_facebooks`
+  (`commentId` → `comment_id`, `timestamp` → `createdAt`), comments/posts get
+  `integrationId` from the v1+v2 `facebook-post` page mapping, and v1 messages
+  are copied only when their conversation exists. v2
+  `facebook_messengers_bots` get the required `createdBy`/`updatedBy` from
+  `BOT_OWNER_USER_ID` or the owner user, string persistent-menu `_id`s, and an
+  unknown menu `type` becomes `button`. Legacy `_id`s are kept because
+  provider rows and automations link by `_id`. It is insert-only and safe to
+  re-run; it is a dry run unless `DRY_RUN=false`.
 - A ticket an automation creates records `createdVia` — what produced it, which
   run, and for whom — and is created as that actor when no conversation agent
   applies.
