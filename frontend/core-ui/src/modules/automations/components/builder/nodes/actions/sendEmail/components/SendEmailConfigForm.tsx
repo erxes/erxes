@@ -12,6 +12,7 @@ import {
   Input,
   Label,
   RadioGroup,
+  renderEmailHtml,
   Separator,
   Skeleton,
 } from 'erxes-ui';
@@ -97,10 +98,23 @@ export const SendEmailConfigForm = ({
     form.setValue('sender', name, { shouldDirty: true, shouldValidate: true });
   };
 
+  // The html beside the editor's source renders asynchronously, so it is
+  // rendered once more here rather than trusting whichever render landed last.
+  const handleSubmit = async (values: TAutomationSendEmailConfig) => {
+    if (values.contentFormat !== 'maily' || !values.contentJson) {
+      return handleSave(values);
+    }
+
+    return handleSave({
+      ...values,
+      content: await renderEmailHtml(values.contentJson),
+    });
+  };
+
   return (
     <FormProvider {...form}>
       <AutomationConfigFormWrapper
-        onSave={form.handleSubmit(handleSave, handleValidationErrors)}
+        onSave={form.handleSubmit(handleSubmit, handleValidationErrors)}
       >
         {/* Above the name on purpose: the address is what the name belongs to,
             and picking one fills the name in. */}

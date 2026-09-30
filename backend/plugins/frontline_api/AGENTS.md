@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-09-28`
+- **Last synchronized:** `2026-09-30`
 
 ## Scope
 
@@ -61,6 +61,11 @@
 
 ## Current Capabilities
 
+- `src/migrations/migrateForms.ts` copies a v2 form field into
+  `frontline_form_fields` when its `contentType` is `form` or its
+  `contentTypeId` is a migrated form, and always writes `contentType: 'form'`,
+  the exact value the `Form.fields` resolver reads. Re-running it overwrites
+  the target field with the source copy.
 - A ticket an automation creates records `createdVia` — what produced it, which
   run, and for whom — and is created as that actor when no conversation agent
   applies.
