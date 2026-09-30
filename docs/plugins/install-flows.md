@@ -52,8 +52,8 @@ New: Marketplace (main sidebar).
 - **UI side**: `/get-frontend-plugins` unions env `ENABLED_PLUGINS` with
   enabled installs — installed entries carry their own `entry` URL so
   third-party CDNs work next to `plugins.erxes.io`.
-- **Uninstall**: clears the Redis keys + recomposes the router; records stay
-  for audit.
+- **Uninstall**: clears the Redis keys + recomposes the router, then removes
+  the install record.
 
 ## Per-tenant gating
 

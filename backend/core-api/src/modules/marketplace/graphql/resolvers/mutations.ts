@@ -42,13 +42,16 @@ export const marketplaceMutations = {
       }
     }
 
-    const install = await models.PluginInstalls.install(
-      registryEntryToInstall(plugin, source, repoUrl),
-    );
-
     await registerPluginService(plugin);
 
-    return install;
+    try {
+      return await models.PluginInstalls.install(
+        registryEntryToInstall(plugin, source, repoUrl),
+      );
+    } catch (e) {
+      await unregisterPluginService(plugin.name);
+      throw e;
+    }
   },
 
   async marketplacePluginSetEnabled(
@@ -58,16 +61,18 @@ export const marketplaceMutations = {
   ) {
     await checkPermission('marketplaceManage');
 
+    const existing = await models.PluginInstalls.getInstall(_id);
+
+    if (enabled) {
+      await registerPluginService(existing);
+    } else {
+      await unregisterPluginService(existing.name);
+    }
+
     const install = await models.PluginInstalls.setEnabled(_id, enabled);
 
     if (!install) {
       throw new Error('Plugin install not found');
-    }
-
-    if (enabled) {
-      await registerPluginService(install);
-    } else {
-      await unregisterPluginService(install.name);
     }
 
     return install;
@@ -82,8 +87,8 @@ export const marketplaceMutations = {
 
     const install = await models.PluginInstalls.getInstall(_id);
 
-    await models.PluginInstalls.uninstall(_id);
     await unregisterPluginService(install.name);
+    await models.PluginInstalls.uninstall(_id);
 
     return { removed: true, name: install.name };
   },

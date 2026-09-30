@@ -6,7 +6,7 @@ import {
 } from 'erxes-api-shared/utils';
 import { IPluginInstall } from './db/models/PluginInstalls';
 
-const REGISTRY_CACHE_KEY = 'erxes:plugin-registry';
+const REGISTRY_CACHE_KEY_PREFIX = 'erxes:plugin-registry';
 const REGISTRY_CACHE_TTL_SECONDS = 300;
 
 export const INSTALLED_PLUGINS_KEY = 'erxes-installed-plugins';
@@ -87,7 +87,9 @@ export const validatePluginManifest = (
 export const fetchRegistryCatalog = async (): Promise<IRegistryPlugin[]> => {
   const url = process.env.PLUGIN_REGISTRY_URL || DEFAULT_REGISTRY_URL;
 
-  const cached = await redis.get(REGISTRY_CACHE_KEY);
+  const cacheKey = `${REGISTRY_CACHE_KEY_PREFIX}:${url}`;
+
+  const cached = await redis.get(cacheKey);
 
   if (cached) {
     return JSON.parse(cached) as IRegistryPlugin[];
@@ -95,10 +97,19 @@ export const fetchRegistryCatalog = async (): Promise<IRegistryPlugin[]> => {
 
   const data = (await fetchJson(url)) as IRegistryFile;
 
-  const plugins = Array.isArray(data.plugins) ? data.plugins : [];
+  const entries = Array.isArray(data.plugins) ? data.plugins : [];
+  const plugins: IRegistryPlugin[] = [];
+
+  for (const entry of entries) {
+    try {
+      plugins.push(validatePluginManifest(entry));
+    } catch (e) {
+      console.warn(`Skipping invalid registry entry: ${(e as Error).message}`);
+    }
+  }
 
   await redis.set(
-    REGISTRY_CACHE_KEY,
+    cacheKey,
     JSON.stringify(plugins),
     'EX',
     REGISTRY_CACHE_TTL_SECONDS,
