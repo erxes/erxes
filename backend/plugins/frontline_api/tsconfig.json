@@ -11,6 +11,7 @@
     "allowUnreachableCode": false,
     "esModuleInterop": true,
     "target": "es2017",
+    "lib": ["es2021", "dom", "es2022.intl"],
     "sourceMap": true,
     "inlineSources": true,
     "outDir": "./dist",

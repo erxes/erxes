@@ -1,4 +1,5 @@
 import type {
+  ComposeMode,
   EmailAddress,
   MailMessage,
 } from '@/integrations/mail/types/mailThread';
@@ -63,4 +64,24 @@ export const deriveSenderAddress = (messages: MailMessage[]) => {
     }
   }
   return '';
+};
+
+export const getReplyRecipients = (message: MailMessage, mode: ComposeMode) => {
+  if (mode === 'forward') return [];
+  const { type, from, to } = message.mailData;
+  return (type === 'SENT' ? to ?? [] : from ?? [])
+    .map(({ email }) => email ?? '')
+    .filter(Boolean);
+};
+
+export const getReplyCc = (
+  message: MailMessage,
+  mode: ComposeMode,
+  fromEmail: string,
+) => {
+  if (mode !== 'replyAll') return [];
+  return [
+    ...(message.mailData.to ?? []).map(({ email }) => email ?? ''),
+    ...(message.mailData.cc ?? []).map(({ email }) => email ?? ''),
+  ].filter((email) => Boolean(email) && email !== fromEmail);
 };

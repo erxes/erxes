@@ -12,11 +12,11 @@ import type {
   MailSender,
 } from '@/integrations/mail/types/directMailComposer';
 import {
-  COMPOSE_EMAIL_EVENT,
   composeSchema,
   splitAddresses,
   toHtml,
 } from '@/integrations/mail/utils/directMailComposer';
+import { COMPOSE_EMAIL_EVENT } from '@/integrations/mail/constants/directMailComposer';
 import {
   BodyField,
   CcBccFields,
@@ -29,6 +29,7 @@ import { ToRow } from './DirectMailRecipientField';
 
 export const DirectMailComposer = () => {
   const [target, setTarget] = useState<ComposeEmailTarget | null>(null);
+  const [recipientCustomerId, setRecipientCustomerId] = useState<string>();
   const [showCc, setShowCc] = useState(false);
   const [showBcc, setShowBcc] = useState(false);
   const {
@@ -79,6 +80,7 @@ export const DirectMailComposer = () => {
       ].filter((email) => z.string().email().safeParse(email).success);
 
       setTarget({ ...detail, emails });
+      setRecipientCustomerId(detail.customerId);
       setShowCc(false);
       setShowBcc(false);
       reset({
@@ -121,7 +123,7 @@ export const DirectMailComposer = () => {
     mailSendMail(
       {
         integrationId: values.integrationId,
-        customerId: target.customerId,
+        customerId: recipientCustomerId,
         subject: values.subject.trim(),
         body: toHtml(values.body.trim()),
         to: [values.to.trim()],
@@ -156,7 +158,7 @@ export const DirectMailComposer = () => {
               hasSenders={senders.length > 0}
               onRetry={handleRetry}
             />
-            <ToRow />
+            <ToRow onRecipientSelect={setRecipientCustomerId} />
             <CcBccFields />
             <SubjectRow />
             <BodyField />

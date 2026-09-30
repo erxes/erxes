@@ -113,6 +113,7 @@ export const createMailDelivery = (models: IModels): MailDeliveryService => {
           bcc: message.bcc.map((entry) => entry.address),
           subject: message.subject ?? '',
           html: message.body ?? '',
+          reactionEmoji: message.reactionEmoji,
           inReplyTo,
           references,
           automated: Boolean(message.automated),

@@ -49,6 +49,7 @@ const toThreadMessage = (message: IMailMessageDocument) => {
     createdAt: message.createdAt,
     mailData: {
       messageId: message.messageId,
+      inReplyTo: message.inReplyTo,
       references: message.references ?? [],
       type: message.type,
       deliveryStatus: message.deliveryStatus,
@@ -63,6 +64,7 @@ const toThreadMessage = (message: IMailMessageDocument) => {
       bcc: convertAddresses(message.bcc),
       subject: message.subject,
       body,
+      reactionEmoji: message.reactionEmoji,
       ...splitQuotedReply(body),
       attachments: message.attachments,
     },

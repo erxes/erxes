@@ -166,6 +166,8 @@ export const mutations = `
     customerId: String
   ): JSON
 
+  mailSendReaction(conversationId: String!, messageId: String!, emoji: String!): JSON
+
   mailPipelineConnect(
     pipelineId: String!
     senderName: String

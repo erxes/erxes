@@ -3,7 +3,7 @@ import { Spinner, cn } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { IconAlertTriangle, IconRefresh } from '@tabler/icons-react';
 import { useMailMessageRetry } from '@/integrations/mail/hooks/useMailConversationDetail';
-import type { MailDeliveryStatus } from '@/integrations/mail/hooks/useMailConversationDetail';
+import type { MailDeliveryStatus } from '@/integrations/mail/types/mailDelivery';
 import type { MailData } from '@/integrations/mail/types/mailThread';
 
 const DELIVERY_LABEL_KEYS: Partial<Record<MailDeliveryStatus, string>> = {

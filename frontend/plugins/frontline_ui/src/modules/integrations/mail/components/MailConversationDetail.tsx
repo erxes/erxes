@@ -3,7 +3,7 @@ import { useConversationContext } from '@/inbox/conversations/conversation-detai
 import { useMailSendMail } from '@/integrations/mail/hooks/useMailConversationDetail';
 import { useMailThreadData } from '@/integrations/mail/hooks/useMailThreadData';
 import type { MailComposePayload } from '@/integrations/mail/types/mailThread';
-import { COMPOSE_EMAIL_EVENT } from '@/integrations/mail/utils/directMailComposer';
+import { COMPOSE_EMAIL_EVENT } from '@/integrations/mail/constants/directMailComposer';
 import { MailThread } from './MailThread';
 import { MailDrafts } from './MailDrafts';
 import { MailInternalNotes } from './MailInternalNotes';
@@ -47,9 +47,10 @@ export const MailConversationDetail = () => {
   };
 
   return (
-    <ScrollArea className="h-full">
-      <div className="space-y-3 p-4 pb-8">
+    <ScrollArea className="@container h-full">
+      <div className="w-[100cqw] min-w-0 space-y-3 p-4 pb-8">
         <MailThread
+          conversationId={conversationId ?? ''}
           messages={messages}
           hasMore={hasMore}
           loading={loading}

@@ -51,6 +51,7 @@ export const mailMessageSchema = new Schema({
   messageId: { type: String },
   subject: String,
   body: String,
+  reactionEmoji: String,
   from: [addressSchema],
   to: [addressSchema],
   cc: [addressSchema],

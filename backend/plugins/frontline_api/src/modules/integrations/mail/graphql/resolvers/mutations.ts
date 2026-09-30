@@ -21,6 +21,8 @@ import {
 import { provisionCloudflare } from '@/integrations/mail/utils/cloudflare/provision';
 import { toPublicConnection } from '@/integrations/mail/utils/cloudflare/serialize';
 import { visibleChannelsFilter } from '@/channel/utils';
+import { MAIL_MESSAGE_TYPES } from '@/integrations/mail/constants';
+import { isValidMailReactionEmoji } from '@/integrations/mail/utils/reactions';
 import {
   assertMailConversationAccess,
   assertMailDraftAccess,
@@ -142,6 +144,63 @@ export const mailMutations = {
         subdomain,
       ),
     );
+  },
+
+  async mailSendReaction(
+    _root: undefined,
+    {
+      conversationId,
+      messageId,
+      emoji,
+    }: { conversationId: string; messageId: string; emoji: string },
+    { subdomain, models, user, checkPermission }: IContext,
+  ) {
+    await checkPermission('conversationMessageAdd');
+    await assertMailConversationAccess({
+      models,
+      subdomain,
+      user,
+      conversationId,
+    });
+
+    if (!isValidMailReactionEmoji(emoji)) {
+      throw new Error('Unsupported email reaction');
+    }
+
+    const target = await models.MailMessages.findOne({
+      _id: messageId,
+      inboxConversationId: conversationId,
+      type: MAIL_MESSAGE_TYPES.INBOX,
+    });
+    const recipient = target?.from[0]?.address?.trim();
+    if (!target?.messageId || !recipient || target.senderMismatch) {
+      throw new Error('This email cannot receive a reaction');
+    }
+
+    const conversation = await models.Conversations.findOne({
+      _id: conversationId,
+    });
+    if (!conversation?.integrationId) {
+      throw new Error('Mail conversation not found');
+    }
+
+    const subject = target.subject?.trim() || 'Your email';
+    const replySubject = /^re:/i.test(subject) ? subject : `Re: ${subject}`;
+    const message = await models.MailMessages.createSendMail(
+      {
+        conversationId,
+        integrationId: conversation.integrationId,
+        subject: replySubject,
+        body: `<p>${emoji}</p><p>Reacted to your email.</p>`,
+        to: [recipient],
+        replyToMessageId: target.messageId,
+        references: [...(target.references ?? []), target.messageId],
+        reactionEmoji: emoji,
+      },
+      subdomain,
+    );
+
+    return toDeliveryOutcome(message);
   },
 
   async mailPipelineConnect(

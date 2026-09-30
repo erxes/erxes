@@ -3,42 +3,13 @@ import { toast } from 'erxes-ui';
 import {
   MAIL_MESSAGE_RETRY_MUTATION,
   MAIL_SEND_MAIL_MUTATION,
+  MAIL_SEND_REACTION_MUTATION,
 } from '@/integrations/mail/graphql/mutations/mailMutations';
 import { useTranslation } from 'react-i18next';
-
-export type MailDeliveryStatus = 'pending' | 'sent' | 'bounced' | 'failed';
-
-interface MailAttachmentInput {
-  name?: string;
-  url?: string;
-  type?: string;
-  size?: number;
-  contentId?: string;
-  disposition?: 'attachment' | 'inline';
-}
-
-interface MailSendMailVariables {
-  integrationId?: string;
-  conversationId?: string;
-  subject: string;
-  body?: string;
-  to: string[];
-  cc?: string[];
-  bcc?: string[];
-  shouldResolve?: boolean;
-  shouldOpen?: boolean;
-  replyToMessageId?: string;
-  references?: string[];
-  attachments?: MailAttachmentInput[];
-  customerId?: string;
-}
-
-export interface MailDeliveryOutcome {
-  _id: string;
-  deliveryStatus?: MailDeliveryStatus;
-  deliveryError?: string;
-  bouncedRecipients?: string[];
-}
+import type {
+  MailDeliveryOutcome,
+  MailSendMailVariables,
+} from '@/integrations/mail/types/mailDelivery';
 
 export const useDeliveryToast = () => {
   const { t } = useTranslation('frontline');
@@ -104,6 +75,29 @@ export const useMailSendMail = () => {
   };
 
   return { mailSendMail, loading };
+};
+
+export const useMailSendReaction = () => {
+  const { t } = useTranslation('frontline');
+  const showDeliveryOutcome = useDeliveryToast();
+  const [sendReaction, { loading }] = useMutation<{
+    mailSendReaction: MailDeliveryOutcome | null;
+  }>(MAIL_SEND_REACTION_MUTATION);
+
+  const react = (conversationId: string, messageId: string, emoji: string) => {
+    sendReaction({
+      variables: { conversationId, messageId, emoji },
+      onCompleted: (data) => showDeliveryOutcome(data.mailSendReaction),
+      onError: (error) =>
+        toast({
+          title: t('failed-to-send-email', { message: error.message }),
+          variant: 'destructive',
+        }),
+      refetchQueries: ['mailConversationDetail', 'Conversations'],
+    });
+  };
+
+  return { react, loading };
 };
 
 export const useMailMessageRetry = () => {

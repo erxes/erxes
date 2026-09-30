@@ -16,28 +16,12 @@ import {
   MAIL_DRAFT_REMOVE_MUTATION,
   MAIL_DRAFT_SAVE_MUTATION,
 } from '../graphql/mutations/mailMutations';
-import {
-  MailDeliveryOutcome,
-  useDeliveryToast,
-} from './useMailConversationDetail';
-
-export type MailDraftStatus = 'pending' | 'sending' | 'sent';
-
-export interface MailDraft {
-  _id: string;
-  sourceMessageId?: string;
-  to?: string[];
-  subject?: string;
-  body?: string;
-  senderMismatch?: boolean;
-  status: MailDraftStatus;
-  createdAt?: string;
-}
-
-export interface MailDraftEdit {
-  subject?: string;
-  body: string;
-}
+import type { MailDeliveryOutcome } from '@/integrations/mail/types/mailDelivery';
+import type {
+  MailDraft,
+  MailDraftEdit,
+} from '@/integrations/mail/types/mailDraft';
+import { useDeliveryToast } from '@/integrations/mail/hooks/useMailConversationDetail';
 
 interface MailConversationDraftsResponse {
   mailConversationDrafts: MailDraft[] | null;

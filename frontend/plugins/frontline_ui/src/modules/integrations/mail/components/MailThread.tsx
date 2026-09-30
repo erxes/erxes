@@ -16,42 +16,25 @@ import {
 } from '@tabler/icons-react';
 import type {
   ComposeMode,
-  MailComposePayload,
   MailMessage,
+  MailThreadProps,
 } from '@/integrations/mail/types/mailThread';
 import {
   buildQuote,
   deriveSenderAddress,
+  getReplyCc,
+  getReplyRecipients,
   stripSubjectPrefix,
 } from '@/integrations/mail/utils/mailThread';
+import { groupMailReactions } from '@/integrations/mail/utils/mailReactions';
 import { MailThreadMessage } from './MailThreadMessage';
 import { MailThreadCompose } from './MailThreadCompose';
+import { MailReactionMenu } from './MailReactionMenu';
 import { MailThreadActionsContext } from '@/integrations/mail/hooks/useMailThreadActions';
-
-export type {
-  MailComposePayload,
-  MailMessage,
-} from '@/integrations/mail/types/mailThread';
-
-export interface MailThreadProps {
-  messages: MailMessage[];
-  hasMore?: boolean;
-  loading: boolean;
-  sending: boolean;
-  error?: string;
-  onLoadMore: () => void;
-  onSend: (payload: MailComposePayload, onSent: () => void) => void;
-  className?: string;
-  emptyLabel?: string;
-  startAddress?: string;
-  startSubject?: string;
-  readOnly?: boolean;
-  onNewEmail?: (email: string) => void;
-  beforeCompose?: React.ReactNode;
-}
 
 // skipcq: JS-R1005
 export const MailThread: React.FC<MailThreadProps> = ({
+  conversationId,
   messages,
   hasMore,
   loading,
@@ -73,6 +56,10 @@ export const MailThread: React.FC<MailThreadProps> = ({
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const newestId = messages[messages.length - 1]?._id;
+  const { visibleMessages, reactionsByMessageId, orphanReactions } = useMemo(
+    () => groupMailReactions(messages),
+    [messages],
+  );
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -142,9 +129,11 @@ export const MailThread: React.FC<MailThreadProps> = ({
     );
   }
 
-  const fromEmail = deriveSenderAddress(messages);
-  const baseSubject = stripSubjectPrefix(messages[0]?.mailData.subject ?? '');
-  const latestMessage = messages[messages.length - 1];
+  const fromEmail = deriveSenderAddress(visibleMessages);
+  const baseSubject = stripSubjectPrefix(
+    visibleMessages[0]?.mailData.subject ?? messages[0]?.mailData.subject ?? '',
+  );
+  const latestMessage = visibleMessages[visibleMessages.length - 1] ?? messages[messages.length - 1];
   const latestContactEmail =
     latestMessage.mailData.type === 'INBOX'
       ? latestMessage.mailData.from?.[0]?.email
@@ -155,30 +144,14 @@ export const MailThread: React.FC<MailThreadProps> = ({
     setComposeTarget(null);
   };
 
-  const getTo = (msg: MailMessage, mode: ComposeMode): string[] => {
-    if (mode === 'forward') return [];
-    const { type, from, to } = msg.mailData;
-    return type === 'SENT'
-      ? (to ?? []).map((e) => e.email ?? '').filter(Boolean)
-      : (from ?? []).map((e) => e.email ?? '').filter(Boolean);
-  };
-
-  const getCc = (msg: MailMessage, mode: ComposeMode): string[] => {
-    if (mode !== 'replyAll') return [];
-    return [
-      ...(msg.mailData.to ?? []).map((e) => e.email ?? ''),
-      ...(msg.mailData.cc ?? []).map((e) => e.email ?? ''),
-    ].filter((e) => Boolean(e) && e !== fromEmail);
-  };
-
   return (
-    <div className={cn('space-y-3', className)}>
-      <div className="flex min-h-12 items-center justify-between gap-3 border-b border-border px-1 pb-3">
+    <div className={cn('min-w-0 space-y-3', className)}>
+      <div className="flex min-h-12 flex-col items-stretch gap-2 border-b border-border px-1 pb-3 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="min-w-0 truncate text-lg font-medium text-foreground">
           {baseSubject || t('no-subject', '(No subject)')}
         </h2>
         {!readOnly && (
-          <div className="flex shrink-0 items-center rounded-full border border-border p-0.5">
+          <div className="flex shrink-0 self-end items-center rounded-full border border-border p-0.5 sm:self-auto">
             <Button
               type="button"
               variant="ghost"
@@ -212,6 +185,11 @@ export const MailThread: React.FC<MailThreadProps> = ({
             >
               <IconMailForward className="size-4" />
             </Button>
+            <MailReactionMenu
+              conversationId={conversationId}
+              message={latestMessage}
+              compact
+            />
             {onNewEmail && latestContactEmail && (
               <>
                 <span className="mx-0.5 h-4 w-px bg-border" />
@@ -248,12 +226,22 @@ export const MailThread: React.FC<MailThreadProps> = ({
 
       <MailThreadActionsContext.Provider value={actions}>
         <div className="space-y-3">
-          {messages.map((msg, idx) => (
+          {visibleMessages.map((msg, idx) => (
             <MailThreadMessage
               key={msg._id}
               message={msg}
-              defaultExpanded={idx === messages.length - 1}
+              conversationId={conversationId}
+              reactions={reactionsByMessageId.get(msg.mailData.messageId ?? '')}
+              defaultExpanded={idx === visibleMessages.length - 1}
             />
+          ))}
+          {orphanReactions.map((reaction, index) => (
+            <div
+              key={`${reaction.targetMessageId}-${reaction.emoji}-${index}`}
+              className="rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground"
+            >
+              {reaction.sender} reacted {reaction.emoji}
+            </div>
           ))}
         </div>
       </MailThreadActionsContext.Provider>
@@ -264,8 +252,8 @@ export const MailThread: React.FC<MailThreadProps> = ({
         <MailThreadCompose
           key={`${composeMode}-${composeTarget._id}`}
           mode={composeMode}
-          defaultTo={getTo(composeTarget, composeMode)}
-          defaultCc={getCc(composeTarget, composeMode)}
+          defaultTo={getReplyRecipients(composeTarget, composeMode)}
+          defaultCc={getReplyCc(composeTarget, composeMode, fromEmail)}
           defaultFrom={fromEmail}
           defaultSubject={composeTarget.mailData.subject ?? ''}
           defaultBody={

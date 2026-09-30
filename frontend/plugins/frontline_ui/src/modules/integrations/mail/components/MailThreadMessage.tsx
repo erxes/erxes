@@ -8,7 +8,10 @@ import {
   IconMailForward,
   IconUsers,
 } from '@tabler/icons-react';
-import type { MailMessage } from '@/integrations/mail/types/mailThread';
+import type {
+  MailMessage,
+  MailReaction,
+} from '@/integrations/mail/types/mailThread';
 import {
   formatAddresses,
   senderAvatarBg,
@@ -22,11 +25,14 @@ import {
   SenderNotice,
 } from './MailThreadNotices';
 import { AttachmentChip, SenderContextMenu } from './MailMessageActions';
+import { MailReactionMenu } from './MailReactionMenu';
 
 export const MailThreadMessage: React.FC<{
   message: MailMessage;
+  conversationId: string;
+  reactions?: MailReaction[];
   defaultExpanded?: boolean;
-}> = ({ message, defaultExpanded = false }) => {
+}> = ({ message, conversationId, reactions = [], defaultExpanded = false }) => {
   const { t } = useTranslation('frontline');
   const { readOnly, open } = useMailThreadActions();
   const [expanded, setExpanded] = useState(defaultExpanded);
@@ -40,6 +46,23 @@ export const MailThreadMessage: React.FC<{
   const delivery = isSent ? mailData.deliveryStatus : undefined;
   const visibleAttachments = (mailData.attachments ?? []).filter(
     (attachment) => attachment.disposition !== 'inline',
+  );
+  const reactionChips = reactions.length > 0 && (
+    <div className="flex flex-wrap gap-1.5 py-2">
+      {[...new Set(reactions.map(({ emoji }) => emoji))].map((emoji) => {
+        const matching = reactions.filter((reaction) => reaction.emoji === emoji);
+        return (
+          <span
+            key={emoji}
+            title={matching.map(({ sender }) => sender).join(', ')}
+            className="inline-flex items-center gap-1 rounded-full border border-border px-2.5 py-1 text-sm text-foreground"
+          >
+            <span>{emoji}</span>
+            <span>{matching.length}</span>
+          </span>
+        );
+      })}
+    </div>
   );
 
   const actionBtn =
@@ -175,8 +198,10 @@ export const MailThreadMessage: React.FC<{
             </div>
           )}
 
+          {reactionChips}
+
           {!readOnly && (
-            <div className="flex gap-2 pt-3 mt-2 border-t border-[rgba(0,0,0,0.08)] dark:border-[rgba(255,255,255,0.06)]">
+            <div className="flex flex-wrap gap-2 pt-3 mt-2 border-t border-[rgba(0,0,0,0.08)] dark:border-[rgba(255,255,255,0.06)]">
               <button
                 type="button"
                 className={actionBtn}
@@ -200,9 +225,16 @@ export const MailThreadMessage: React.FC<{
               >
                 <IconMailForward size={13} /> {t('forward')}
               </button>
+              <MailReactionMenu
+                conversationId={conversationId}
+                message={message}
+              />
             </div>
           )}
         </div>
+      )}
+      {!expanded && reactions.length > 0 && (
+        <div className="px-4 pb-3 ml-12">{reactionChips}</div>
       )}
     </div>
   );

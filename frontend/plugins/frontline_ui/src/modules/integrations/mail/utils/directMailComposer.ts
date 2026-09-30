@@ -1,7 +1,5 @@
 import { z } from 'zod';
 
-export const COMPOSE_EMAIL_EVENT = 'frontline:compose-email';
-
 export const splitAddresses = (value: string): string[] =>
   value
     .split(/[,;]+/)

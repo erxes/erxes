@@ -1,4 +1,5 @@
-import type { MailDeliveryStatus } from '@/integrations/mail/hooks/useMailConversationDetail';
+import type { ReactNode } from 'react';
+import type { MailDeliveryStatus } from '@/integrations/mail/types/mailDelivery';
 
 export interface MailComposePayload {
   subject: string;
@@ -27,6 +28,7 @@ export interface Attachment {
 
 export interface MailData {
   messageId?: string;
+  inReplyTo?: string;
   references?: string[];
   type?: 'INBOX' | 'SENT';
   from?: EmailAddress[];
@@ -35,6 +37,7 @@ export interface MailData {
   bcc?: EmailAddress[];
   subject?: string;
   body?: string;
+  reactionEmoji?: string;
   newContent?: string;
   replies?: string;
   attachments?: Attachment[];
@@ -53,3 +56,27 @@ export interface MailMessage {
 }
 
 export type ComposeMode = 'reply' | 'replyAll' | 'forward' | 'new';
+
+export interface MailReaction {
+  emoji: string;
+  sender: string;
+  targetMessageId: string;
+}
+
+export interface MailThreadProps {
+  conversationId: string;
+  messages: MailMessage[];
+  hasMore?: boolean;
+  loading: boolean;
+  sending: boolean;
+  error?: string;
+  onLoadMore: () => void;
+  onSend: (payload: MailComposePayload, onSent: () => void) => void;
+  className?: string;
+  emptyLabel?: string;
+  startAddress?: string;
+  startSubject?: string;
+  readOnly?: boolean;
+  onNewEmail?: (email: string) => void;
+  beforeCompose?: ReactNode;
+}
