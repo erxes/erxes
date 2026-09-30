@@ -148,6 +148,10 @@ export const types = `
     timeZone: String
   }
 
+  input EngageAfterSegmentInput {
+    timeZone: String
+  }
+
   input EngageScheduleDateInput {
     type: String,
     month: String,
@@ -417,6 +421,7 @@ export const mutations = `
     _id: String!
     dateTime: Date
     recurrence: EngageRecurrenceInput
+    afterSegment: EngageAfterSegmentInput
   ): EngageMessage
   engageMessageCancelSchedule(_id: String!): EngageMessage
   broadcastUpdateConfigs(configsMap: JSON!): JSON

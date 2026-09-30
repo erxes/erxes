@@ -27,6 +27,8 @@ export interface IFieldGroup {
   order: number;
   logics?: Record<string, unknown>;
   configs?: { isMultiple?: boolean };
+  // Set when a plugin feature keeps its featured fields in this group.
+  owner?: { plugin?: string; module?: string; status?: string } | null;
 }
 
 export type IPropertySystemFieldLogic = z.infer<typeof logicSchema>;

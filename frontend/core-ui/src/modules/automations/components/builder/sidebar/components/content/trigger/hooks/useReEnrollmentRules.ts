@@ -21,7 +21,13 @@ const collectFieldKeys = (node?: TSegmentNode): string[] => {
     return node.fieldKey ? [node.fieldKey] : [];
   }
 
-  return node.children.flatMap(collectFieldKeys);
+  if (node.kind === 'group') {
+    return node.children.flatMap(collectFieldKeys);
+  }
+
+  // A relation's fields belong to the related record and a referenced
+  // segment's to itself; re-enrollment compares only the subject.
+  return [];
 };
 
 /**

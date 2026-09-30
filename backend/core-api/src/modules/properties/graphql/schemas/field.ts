@@ -14,6 +14,15 @@ export const types = `
         coordinates: JSON
     }
 
+    # Set on featured fields: a plugin feature owns the field and its values.
+    type FieldOwner {
+        plugin: String
+        module: String
+        refId: String
+        key: String
+        status: String
+    }
+
     type Field {
         _id: String
         name: String
@@ -30,6 +39,7 @@ export const types = `
         isVisibleToCreate: Boolean
         isRequired: Boolean
         isVisibleInCard: Boolean
+        owner: FieldOwner
         createdAt: Date
         updatedAt: Date
     }

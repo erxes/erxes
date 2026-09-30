@@ -143,9 +143,12 @@ export const loadSegmentClass = (models: IModels) => {
     root: ISegment['root'],
     excludeId?: string,
   ) => {
+    // Only named segments count: an automation's own conditions are private
+    // to it and never something a user could open instead.
     const candidates = await models.Segments.find({
       contentType,
       fingerprint: segmentFingerprint(contentType, root),
+      ownedBy: { $exists: false },
       ...(excludeId ? { _id: { $ne: excludeId } } : {}),
     }).lean<ISegmentDocument[]>();
 
@@ -154,6 +157,7 @@ export const loadSegmentClass = (models: IModels) => {
     return (
       candidates.find(
         (candidate) =>
+          candidate.name?.trim() &&
           candidate.root &&
           canonicalSegmentText(contentType, candidate.root) === text,
       ) || null

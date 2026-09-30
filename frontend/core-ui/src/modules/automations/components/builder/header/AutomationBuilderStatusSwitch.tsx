@@ -27,13 +27,13 @@ export const AutomationBuilderStatusSwitch = ({
   onError,
 }: AutomationBuilderStatusSwitchProps) => {
   const {
-    getValues,
     t,
     isActivating,
     control,
     isCreatePage,
     pendingStatus,
     setPendingStatus,
+    requestStatus,
     handleConfirm,
     isUntouchedDuplicate,
     duplicatedFromName,
@@ -87,13 +87,9 @@ export const AutomationBuilderStatusSwitch = ({
                         size="icon"
                         disabled={disabled}
                         aria-label={actionLabel}
-                        onClick={() => {
-                          const nextStatus = isActive ? 'draft' : 'active';
-
-                          if (nextStatus !== getValues('status')) {
-                            setPendingStatus(nextStatus);
-                          }
-                        }}
+                        onClick={() =>
+                          requestStatus(isActive ? 'draft' : 'active')
+                        }
                         className={cn(
                           'shrink-0',
                           isActive

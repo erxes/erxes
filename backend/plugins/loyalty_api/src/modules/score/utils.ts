@@ -1,269 +1,9 @@
 import dayjs from 'dayjs';
-import { resolveRecordReferenceValue } from 'erxes-api-shared/core-modules';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
-import { evaluate } from 'mathjs';
+import {
+  IScoreCampaign,
+  IScoreCampaignDocument,
+} from '@/score/@types/scoreCampaign';
 import { IModels } from '~/connectionResolvers';
-
-/**
- * Safely evaluate a math expression string using recursive descent parsing.
- * Only supports: numbers (int/float), +, -, *, /, parentheses.
- * No eval/Function — purely structural parsing, no code execution.
- */
-const normalizeLegacyExpression = (expr: string) =>
-  (expr || '')
-    .replace(/!==/g, '!=')
-    .replace(/===/g, '==')
-    .replace(/&&/g, ' and ')
-    .replace(/\|\|/g, ' or ')
-    .trim();
-
-const evaluateLegacyExpression = (expr: string): number | null => {
-  const expression = normalizeLegacyExpression(expr);
-
-  if (!/[<>=?:]|\band\b|\bor\b|\bnot\b/.test(expression)) {
-    return null;
-  }
-
-  const expressionWithoutLogicWords = expression.replace(
-    /\b(and|or|not)\b/g,
-    '',
-  );
-
-  if (/[A-Za-z_$]/.test(expressionWithoutLogicWords)) {
-    throw new Error(`Invalid math expression: ${expression.slice(0, 50)}`);
-  }
-
-  const result = evaluate(expression);
-  const numberResult = Number(result);
-
-  if (!Number.isFinite(numberResult)) {
-    return 0;
-  }
-
-  return numberResult;
-};
-
-export const safeEvalMath = (expr: string): number => {
-  const input = (expr || '').trim();
-  if (!input) return 0;
-
-  const legacyExpressionResult = evaluateLegacyExpression(input);
-
-  if (legacyExpressionResult !== null) {
-    return legacyExpressionResult;
-  }
-
-  let pos = 0;
-
-  /** look at the current character without moving forward */
-  function peek() {
-    return input[pos];
-  }
-
-  /** grab the current character and step to the next one */
-  function advance() {
-    return input[pos++];
-  }
-
-  /** jump past any spaces */
-  function skipWhitespace() {
-    while (pos < input.length && input[pos] === ' ') pos++;
-  }
-
-  /** read a number like 42, 3.14, or -5 from the input */
-  function parseNumber(): number {
-    skipWhitespace();
-    let numStr = '';
-
-    if (peek() === '-' || peek() === '+') numStr += advance();
-
-    if (peek() !== '(' && peek() !== undefined && !/[\d.]/.test(peek())) {
-      throw new Error(`Invalid math expression: ${input.slice(0, 50)}`);
-    }
-
-    while (pos < input.length && /[\d.]/.test(peek())) {
-      numStr += advance();
-    }
-
-    if (!numStr || numStr === '-' || numStr === '+') {
-      throw new Error(`Invalid math expression: ${input.slice(0, 50)}`);
-    }
-
-    const num = Number(numStr);
-    if (!isFinite(num)) {
-      throw new Error(`Invalid math expression: ${input.slice(0, 50)}`);
-    }
-    return num;
-  }
-
-  /** handle + and - (runs last because they have the lowest priority) */
-  function parseAddSub(): number {
-    let left = parseMulDiv();
-
-    while (true) {
-      skipWhitespace();
-      const op = peek();
-      if (op !== '+' && op !== '-') break;
-      advance();
-      const right = parseMulDiv();
-      left = op === '+' ? left + right : left - right;
-    }
-
-    return left;
-  }
-
-  /** handle * and / (runs before + and - because they bind tighter) */
-  function parseMulDiv(): number {
-    let left = parsePrimary();
-
-    while (true) {
-      skipWhitespace();
-      const op = peek();
-      if (op !== '*' && op !== '/') break;
-      advance();
-      const right = parsePrimary();
-      left = op === '*' ? left * right : left / right;
-    }
-
-    return left;
-  }
-
-  /** handle a number or a parenthesized group like (2 + 3) */
-  function parsePrimary(): number {
-    skipWhitespace();
-
-    if (peek() === '(') {
-      advance();
-      const val = parseAddSub();
-      skipWhitespace();
-      if (peek() !== ')') {
-        throw new Error(`Invalid math expression: ${input.slice(0, 50)}`);
-      }
-      advance();
-      return val;
-    }
-
-    return parseNumber();
-  }
-
-  const result = parseAddSub();
-  skipWhitespace();
-
-  if (pos < input.length) {
-    throw new Error(`Invalid math expression: ${input.slice(0, 50)}`);
-  }
-
-  if (!isFinite(result)) return 0;
-
-  return result;
-};
-
-export const resolvePlaceholderValue = async (
-  subdomain: string,
-  target: any,
-  attribute: string,
-) => {
-  const [propertyName, valueToCheck, valueField] = attribute.split('-');
-
-  const parent = target[propertyName] || {};
-
-  const normalizeValue = (value: any) => {
-    if (value && typeof value === 'object') {
-      return value.numberValue ?? value.value ?? '0';
-    }
-
-    return value ?? '0';
-  };
-
-  // Case 1: customer-propertiesData-1 / legacy customer-customFieldsData-1
-  if (
-    valueToCheck?.includes('propertiesData') ||
-    valueToCheck?.includes('customFieldsData')
-  ) {
-    const fieldId = attribute.split('.').pop()?.trim(); // extract the field id after '.'
-    return normalizeValue(
-      parent.propertiesData?.[fieldId || ''] ??
-        (parent.customFieldsData || []).find(
-          (item: any) => item.field === fieldId,
-        ) ??
-        '0',
-    );
-  }
-
-  // Case 2: paymentsData-loyalty-amount  (find in array/object by type)
-  if (valueToCheck && valueField) {
-    const obj = Array.isArray(parent)
-      ? parent.find((item: any) => item.type === valueToCheck)
-      : parent[valueToCheck] || {};
-    return normalizeValue(obj[valueField]);
-  }
-
-  // Case 3: customer-loyalty (simple nested property)
-  if (valueToCheck) {
-    const property = parent[valueToCheck];
-    return normalizeValue(property);
-  }
-
-  if (propertyName === 'excludeAmount') {
-    const excludeLoyaltyAmount = await resolveRecordReferenceValue({
-      subdomain,
-      type: 'sales:deal',
-      path: 'excludeLoyaltyAmount',
-      target,
-      defaultValue: 0,
-    });
-    return excludeLoyaltyAmount;
-  }
-
-  // Case 4: simple top-level value (e.g. {{score}})
-  return normalizeValue(target[attribute]);
-};
-
-export const doScoreCampaign = async (models: IModels, data: any) => {
-  try {
-    return await models.ScoreCampaigns.doCampaign(data);
-  } catch (error: any) {
-    throw new Error(error?.message || 'Score campaign execution failed');
-  }
-};
-
-export const refundLoyaltyScore = async (
-  models: IModels,
-  { targetId, ownerType, ownerId, scoreCampaignIds, checkInId },
-) => {
-  if (!scoreCampaignIds.length) return;
-
-  const scoreCampaigns =
-    (await models.ScoreCampaigns.find({
-      _id: { $in: scoreCampaignIds },
-    }).lean()) || [];
-
-  for (const scoreCampaign of scoreCampaigns) {
-    const { additionalConfig } = scoreCampaign || {};
-
-    const checkInIds =
-      additionalConfig?.cardBasedRule?.flatMap(
-        ({ refundStageIds }) => refundStageIds,
-      ) || [];
-
-    if (checkInIds.includes(checkInId)) {
-      try {
-        await models.ScoreCampaigns.refundLoyaltyScore(
-          targetId,
-          ownerType,
-          ownerId,
-        );
-      } catch (error) {
-        if (
-          error.message ===
-          'Cannot refund loyalty score cause already refunded loyalty score'
-        ) {
-          return;
-        }
-      }
-    }
-  }
-};
 
 export const scoreActiveUsers = async ({ models }) => {
   const currentMonthStart = dayjs().subtract(1, 'month').toDate();
@@ -554,140 +294,57 @@ export const scoreStatistic = async ({ doc, models, filter }) => {
   };
 };
 
-export const handleOnCreateCampaignScoreField = async ({ doc, subdomain }) => {
-  if (!doc.fieldGroupId || !doc.fieldOrigin) {
-    return doc;
-  }
-
-  if (doc.fieldOrigin === 'exists') {
-    if (!doc.fieldId) {
-      throw new Error('Please select a field');
-    }
-
-    const field = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'query',
-      module: 'fields',
-      action: 'findOne',
-      input: {
-        query: { _id: doc.fieldId },
-      },
-      defaultValue: null,
-    });
-
-    if (!field) {
-      throw new Error('Cannot find field from database');
-    }
-  } else if (doc.fieldOrigin === 'new') {
-    if (!doc.fieldName) {
-      throw new Error('Please provide a field name for score field');
-    }
-
-    const fieldCode = `loyalty_score_${doc.fieldName
-      ?.toLowerCase()
-      .replace(/\s+/g, '_')}_${Date.now()}`;
-
-    const field = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'mutation',
-      module: 'fields',
-      action: 'create',
-      input: {
-        name: doc.fieldName,
-        code: fieldCode,
-        groupId: doc.fieldGroupId,
-        type: 'number',
-        validations: { number: true },
-        contentType: `core:${doc.ownerType}`,
-      },
-      defaultValue: null,
-    });
-
-    if (!field) {
-      throw new Error('Failed to create score field');
-    }
-
-    doc.fieldId = field._id;
-  }
-
-  return doc;
-};
-
-export const handleOnUpdateCampaignScoreField = async ({
+// A campaign writes to one account type; the account type decides the owner type.
+// Campaigns from before account types keep writing the default score until
+// they are migrated; no new campaign may do so.
+export const bindCampaignAccountType = async ({
+  models,
   doc,
-  subdomain,
-  scoreCampaign,
+  campaign,
+}: {
+  models: IModels;
+  doc: IScoreCampaign;
+  campaign?: IScoreCampaignDocument;
 }) => {
-  const isNewField =
-    doc.fieldName && doc.fieldOrigin === 'new' && !doc?.fieldId;
+  const bound: IScoreCampaign = { ...doc };
 
-  if (doc.fieldName && doc.fieldOrigin === 'new' && !doc?.fieldId) {
-    const fieldCode = `loyalty_score_${doc.fieldName
-      ?.toLowerCase()
-      .replace(/\s+/g, '_')}_${Date.now()}`;
+  // The balance field and owner type come from the account type only.
+  delete bound.fieldId;
+  delete bound.ownerType;
 
-    const field = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'mutation',
-      module: 'fields',
-      action: 'create',
-      input: {
-        name: doc.fieldName,
-        code: fieldCode,
-        groupId: doc.fieldGroupId,
-        type: 'number',
-        validations: { number: true },
-        contentType: `core:${doc.ownerType}`,
-      },
-      defaultValue: null,
-    });
+  // An omitted accountTypeId (partial update) keeps the current account type.
+  const accountTypeId =
+    bound.accountTypeId === undefined
+      ? campaign?.accountTypeId
+      : bound.accountTypeId;
 
-    if (!field) {
-      throw new Error('Failed to create score field');
-    }
-
-    doc.fieldId = field._id;
-  } else {
-    const modifiedFieldData: any = {};
-
-    if (doc.fieldGroupId !== scoreCampaign.fieldGroupId) {
-      if (doc.fieldOrigin === 'exists') {
-        throw new Error('You cannot modify the field group of the score field');
-      }
-      modifiedFieldData.groupId = doc.fieldGroupId;
-    }
-
-    if (
-      doc.fieldName !== scoreCampaign.fieldName &&
-      doc.fieldId === scoreCampaign.fieldId &&
-      doc.fieldOrigin === 'new'
-    ) {
-      modifiedFieldData.text = doc.fieldName;
-    }
-
-    if (doc.fieldId === scoreCampaign.fieldId && doc.fieldOrigin === 'new') {
-      modifiedFieldData.type = 'number';
-      modifiedFieldData.validations = { number: true };
-    }
-
-    if (Object.keys(modifiedFieldData).length > 0) {
-      await sendTRPCMessage({
-        subdomain,
-        pluginName: 'core',
-        method: 'mutation',
-        module: 'fields',
-        action: 'updateOne',
-        input: {
-          selector: { _id: scoreCampaign.fieldId },
-          modifier: { $set: modifiedFieldData },
-        },
-        defaultValue: null,
-      });
+  if (campaign && (campaign.accountTypeId || '') !== (accountTypeId || '')) {
+    if (await models.ScoreLogs.exists({ campaignId: campaign._id })) {
+      throw new Error(
+        'This campaign already has score history; create a new campaign for another account type',
+      );
     }
   }
 
-  return doc;
+  if (!accountTypeId) {
+    if (campaign && !campaign.accountTypeId) {
+      return bound;
+    }
+
+    throw new Error('Wallet is required');
+  }
+
+  // Only binding to an account type needs it active; campaigns already on an
+  // archived account type stay editable.
+  const accountType =
+    accountTypeId === campaign?.accountTypeId
+      ? await models.LoyaltyAccountTypes.getAccountType(accountTypeId)
+      : await models.LoyaltyAccountTypes.getActiveAccountType(accountTypeId);
+
+  return {
+    ...bound,
+    accountTypeId,
+    ownerType: accountType.ownerType,
+    fieldId: accountType.fieldId,
+  };
 };

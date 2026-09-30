@@ -45,7 +45,17 @@ export type IField = {
   isVisibleToCreate?: boolean;
   isRequired?: boolean;
   isVisibleInCard?: boolean;
+  // A featured field: a plugin feature owns it and writes its values.
+  owner?: IFieldOwner | null;
 };
+
+export interface IFieldOwner {
+  plugin: string;
+  module: string;
+  refId?: string | null;
+  key: string;
+  status?: 'active' | 'orphaned' | 'archived' | null;
+}
 
 export interface IPropertyRow extends Record<string, unknown> {
   _id: string;

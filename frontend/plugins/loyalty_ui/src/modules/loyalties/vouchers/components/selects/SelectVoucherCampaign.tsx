@@ -20,7 +20,7 @@ import {
 } from '../../context/SelectVoucherCampaignContext';
 import { useVoucherCampaign } from '../../hooks/useSelectVoucherCampaign';
 import { VoucherCampaignInline } from '../VoucherCampaignInline';
-import { ValueChangeValueType } from '../../../settings/general-config/types/loyaltyConfigTypes';
+import { ValueChangeValueType } from '../../../settings/types/selectValue';
 
 export const SelectVoucherCampaignProvider = ({
   children,
