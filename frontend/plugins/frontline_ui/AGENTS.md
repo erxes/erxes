@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-09-28`
+- **Last synchronized:** `2026-09-30`
 
 ## Scope
 
@@ -435,6 +435,7 @@
 | Call report filters       | `src/modules/report/call/components/{SubHeader,DateTimeRangeDialog}.tsx`, `src/modules/report/utils/dateFilters.ts`                               | Integration/queue/direction chips, date presets, and the date+time custom range                                                                 |
 | Call report export        | `src/modules/report/call/heatmapExcel.ts`, `src/modules/report/call/hooks/useHeatmapExport.ts`                                                    | Date × hour spreadsheet of the heatmap, built with `ExcelJS` and handed to `downloadExcel`                                                      |
 | Call report tables        | `src/modules/report/call/components/{ReportTable,Meter}.tsx`                                                                                      | Shared density wrapper over `erxes-ui` `Table`, plus the proportional bar used inside its cells                                                 |
+| Call SLA tab              | `src/modules/report/call/components/SlaSection/`, `hooks/useSlaReport.ts`, `slaExcel.ts`                                                          | Agent and callback-window selectors, SLA KPIs, missed reasons, trend, per-queue table, breach list, Excel export                                |
 | Reports board             | `src/modules/report/components/TicketReportsList.tsx`, `src/modules/report/types/component-registry.ts`                                           | Card layout, drag-and-drop, and the default-chart + saved-chart registry                                                                        |
 | Saved charts              | `src/modules/report/components/report-chart/`, `src/modules/report/hooks/{useReportCharts,useTicketChartFilterConfig,useTicketChartCard}.ts`      | Save/delete actions, `reportCharts` reads and writes, capturing and restoring a filter selection                                                |
 | Mail conversation         | `src/modules/integrations/mail/components/MailConversationDetail.tsx`                                                                             | Thread reader, compose box, delivery badges and resend, quoted-content toggle                                                                   |
@@ -1289,6 +1290,34 @@ allow-popups-to-escape-sandbox` only — and every link is rewritten to
   shows `—`; `fmtPct` / `fmtDur` coerce null to `0` and report a fabricated
   metric. Both currently arrive as numbers from the CDR pipelines, so the dash
   is a fallback, not the common case.
+- The call report's `SLA` tab reads `callSlaReport`, never
+  `callKpiScorecard.serviceLevel`: the tab measures answered ÷ offered with no
+  answer-time threshold, so its number is expected to differ from the KPI
+  card. A missed call that we called back and the customer answered inside
+  the callback window counts as answered. Its settings are an agent select
+  (options come from `callSlaReport.agents`, which is never narrowed by the
+  selection) and the callback window, component state in `SlaSection`
+  defaulting to 60 min (`DEFAULT_CALLBACK_WINDOW_MINUTES`) with options Off,
+  15, 30, 60, 120, 240 and 1440 minutes. There is no target level and no
+  short-abandon selector: the 5 s short-abandon rule is fixed in the API and
+  echoed back as `shortAbandonSeconds`, and the service level is coloured with
+  the shared `rateColorVar` thresholds. **Export Excel** re-reads
+  `callSlaReport` lazily with `breachLimit` 5000 (`SLA_EXPORT_BREACH_LIMIT`,
+  refused with a toast when `breachCount` is larger) and `slaExcel.ts` writes
+  Summary, Daily, Missed reasons, Queues and Breaches sheets. The "Why calls
+  were missed" card (`SlaMissedReasons`) renders `missedReasons` as bars and
+  `missedByHour` as a stacked hourly bar chart; reason labels, hints and
+  colours live in `MISSED_REASON_META` and must stay in step with
+  `MISSED_REASONS` in `frontline_api`. The tab ignores the direction chip
+  because SLA is inbound-only.
+- Call report charts are recharts **bar** charts: `VolumeChart` groups
+  inbound / outbound / answered / no-answer bars per PBX day,
+  `CarrierBarChart` is a horizontal bar per carrier labelled with its share,
+  and `SlaTrendChart` draws one bar per day coloured by `rateColorVar`. The
+  heatmap stays a cell grid, not a chart.
+- The tab row, KPI row and tab content share one width container
+  (`CONTENT_WIDTH` in `CallReportsPage`, `max-w-[1440px] px-6`) so their left
+  and right edges line up; keep new blocks inside it.
 - The overview charts read `noAnswer` from `callVolumeSeries` and `callHeatmap`
   — every call in the bucket no human answered, both directions. It is not
   `abandoned` (inbound only) and not `total - answered` computed in the UI; ask
