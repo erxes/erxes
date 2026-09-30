@@ -1,5 +1,11 @@
 import { Document } from 'mongoose';
 
+export interface IInvSplitDetailInfo {
+  detailId: string;
+  productId: string;
+  ratio: number;
+}
+
 export interface ITrDetail {
   _id?: string;
   accountId: string;
@@ -121,7 +127,8 @@ export interface ITransactionCounter {
 }
 
 export interface ITransactionCounterDocument
-  extends ITransactionCounter, Document {
+  extends ITransactionCounter,
+    Document {
   _id: string;
 }
 

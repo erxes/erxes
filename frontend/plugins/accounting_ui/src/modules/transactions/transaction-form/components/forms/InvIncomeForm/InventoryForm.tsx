@@ -19,6 +19,7 @@ import {
 import { AddDetailRowButton } from './AddInventoryRow';
 import { InventoryRow } from './InventoryRow';
 import { RemoveButton } from './RemoveButton';
+import { InventorySplitSync } from '../InventorySplit';
 
 export const InventoryForm = ({
   form,
@@ -40,7 +41,7 @@ export const InventoryForm = ({
 
   const columnsLength =
     tableRef.current?.querySelector('tr')?.querySelectorAll('td, th').length ||
-    5;
+    11;
 
   return (
     <>
@@ -75,6 +76,8 @@ export const InventoryForm = ({
           <ScrollArea.Bar orientation="horizontal" className="z-10" />
         </ScrollArea>
       </RecordTableHotkeyProvider>
+
+      <InventorySplitSync form={form} journalIndex={journalIndex} />
 
       <div className="flex w-full justify-center gap-4">
         <AddDetailRowButton
@@ -130,6 +133,11 @@ const InventoryTableHeader = ({
         </Table.Head>
         <Table.Head>Данс</Table.Head>
         <Table.Head>Бараа материал</Table.Head>
+        <Table.Head>Задлах</Table.Head>
+        <Table.Head>Үндсэн нэгж</Table.Head>
+        <Table.Head>Задрах бараа</Table.Head>
+        <Table.Head>Задрах нэгж</Table.Head>
+        <Table.Head>Харьцаа</Table.Head>
         <Table.Head>Тоо хэмжээ</Table.Head>
         <Table.Head>Нэгж үнэ</Table.Head>
         <Table.Head>Дүн</Table.Head>

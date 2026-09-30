@@ -11,6 +11,7 @@ export const TRANSACTION_DETAIL_QUERY = gql`
           code
           name
           unitPrice
+          uom
         }
       }
       customer {

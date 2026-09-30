@@ -24,6 +24,7 @@ import {
 } from './fixedAssets';
 import { activeCost } from './inventories';
 import { saveInvJustify } from './invJustify';
+import { syncInvSplitFollowTrs } from './invSplit';
 import {
   FXA_OWNER_RECORD_STATUSES,
   FXA_LOG_EVENT_TYPES,
@@ -248,6 +249,13 @@ async function handleInvIncome(
   const otherTrs = [
     ...(await collect(await taxTrsClass.doTaxTrs(transaction))),
     ...(await collect(await InvIncomeExpenseTrs(models, userId, transaction))),
+    ...(await syncInvSplitFollowTrs(
+      subdomain,
+      models,
+      userId,
+      transaction,
+      transaction,
+    )),
   ];
 
   return { mainTr: transaction, otherTrs };
@@ -309,7 +317,18 @@ async function handleInvMove(
   await syncProductsInventory(subdomain, transaction, oldTr, -1);
   await syncProductsInventory(subdomain, invMoveInTr, oldFollowInTr, 1);
 
-  return { mainTr: transaction, otherTrs: [invMoveInTr] };
+  const splitFollowTrs = await syncInvSplitFollowTrs(
+    subdomain,
+    models,
+    userId,
+    transaction,
+    invMoveInTr,
+  );
+
+  return {
+    mainTr: transaction,
+    otherTrs: [invMoveInTr, ...splitFollowTrs],
+  };
 }
 
 async function handleInvSale(

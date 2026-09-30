@@ -6,7 +6,11 @@ import {
   FXA_OWNER_RECORD_STATUSES,
 } from '@/fixedAssets/@types/constants';
 import { JOURNALS } from '../@types/constants';
-import { ITransaction, ITrDetail } from '../@types/transaction';
+import {
+  IInvSplitDetailInfo,
+  ITransaction,
+  ITrDetail,
+} from '../@types/transaction';
 
 const ERKHET_CONTENT_TYPE = 'erkhet:ptr';
 
@@ -78,6 +82,12 @@ type TInvIncomeExpense = {
   rule?: 'amount' | 'count' | 'weight';
   amount?: number;
   accountId?: string;
+};
+
+type TInvSplitMigrationInput = {
+  detailId?: string;
+  productId?: string;
+  ratio?: number;
 };
 
 type TContactResolution = {
@@ -171,6 +181,15 @@ const getCodeMap = (docs: ITransaction[]) => {
     for (const expense of invIncomeExpenses) {
       if (expense.accountId) {
         accountCodes.push(normalizeSourceCode(expense.accountId));
+      }
+    }
+
+    const invSplitDetails = Array.isArray(doc.followInfos?.invSplitDetails)
+      ? (doc.followInfos.invSplitDetails as TInvSplitMigrationInput[])
+      : [];
+    for (const splitDetail of invSplitDetails) {
+      if (splitDetail.productId) {
+        productCodes.push(normalizeIdentifierCode(splitDetail.productId));
       }
     }
 
@@ -305,6 +324,55 @@ const resolveInvIncomeExpenses = (
   });
 
 export const resolveErkhetInvIncomeExpensesForTest = resolveInvIncomeExpenses;
+
+const resolveInvSplitDetails = (
+  doc: ITransaction,
+  maps: TReferenceMaps,
+): IInvSplitDetailInfo[] | undefined => {
+  const value = doc.followInfos?.invSplitDetails as unknown;
+
+  if (value == null) {
+    return undefined;
+  }
+
+  if (!Array.isArray(value)) {
+    throw new Error('Inventory split details must be an array');
+  }
+
+  const sourceDetailsById = new Map(
+    (doc.details || [])
+      .filter((detail) => Boolean(detail._id))
+      .map((detail) => [detail._id, detail]),
+  );
+
+  return value.map((splitDetail: TInvSplitMigrationInput, index) => {
+    const detailId = normalizeSourceCode(splitDetail?.detailId);
+    const productCode = normalizeIdentifierCode(splitDetail?.productId);
+    const ratio = Number(splitDetail?.ratio);
+
+    if (!detailId || !productCode || !Number.isFinite(ratio) || ratio <= 0) {
+      throw new Error(`Invalid inventory split detail at index ${index}`);
+    }
+    const sourceDetail = sourceDetailsById.get(detailId);
+    if (!sourceDetail) {
+      throw new Error(`Inventory split detail not found: ${detailId}`);
+    }
+    if (normalizeIdentifierCode(sourceDetail.productId) === productCode) {
+      throw new Error('Split product must differ from the source product');
+    }
+    if (!maps.productsByCode[productCode]) {
+      throw new Error(`Product not found: ${productCode}`);
+    }
+
+    return {
+      detailId,
+      productId: maps.productsByCode[productCode],
+      ratio,
+    };
+  });
+};
+
+export const resolveErkhetInvSplitDetailsForTest = resolveInvSplitDetails;
 
 const indexByCode = <T extends { _id: string; code?: string }>(
   items: T[] = [],
@@ -1000,6 +1068,10 @@ const resolveTransactionFollowInfos = (
   }
 
   const resolvedFollowInfos = { ...doc.followInfos };
+  const resolvedInvSplitDetails = resolveInvSplitDetails(doc, maps);
+  if (resolvedInvSplitDetails !== undefined) {
+    resolvedFollowInfos.invSplitDetails = resolvedInvSplitDetails;
+  }
   const resolveAccountId = (code: string, fallback?: string) =>
     code ? maps.accountsByCode[code] : fallback;
 

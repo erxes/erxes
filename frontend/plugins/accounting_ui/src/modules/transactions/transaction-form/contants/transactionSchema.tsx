@@ -194,6 +194,14 @@ export const invDetailSchema = z
     unitPrice: z.number().min(0),
   });
 
+const invSplitDetailsSchema = z.array(
+  z.object({
+    detailId: z.string().min(1),
+    productId: z.string().min(1, 'Задрах бараа сонгоно уу'),
+    ratio: z.number().gt(0, 'Задрах харьцаа 0-ээс их байна'),
+  }),
+);
+
 export const transactionInvIncomeSchema = z
   .object({
     journal: z.literal(TrJournalEnum.INV_INCOME),
@@ -205,6 +213,11 @@ export const transactionInvIncomeSchema = z
     departmentId: undefed(z.string()),
     hasVat: z.boolean(),
     hasCtax: z.boolean(),
+    followInfos: undefed(
+      z.object({
+        invSplitDetails: undefed(invSplitDetailsSchema),
+      }),
+    ),
     details: z.array(
       z.object({
         ...invDetailSchema.shape,
@@ -279,6 +292,7 @@ export const transactionInvMoveSchema = z
       moveInAccountId: z.string(),
       moveInBranchId: undefed(z.string()),
       moveInDepartmentId: undefed(z.string()),
+      invSplitDetails: undefed(invSplitDetailsSchema),
     }),
     followExtras: undefed(
       z.object({

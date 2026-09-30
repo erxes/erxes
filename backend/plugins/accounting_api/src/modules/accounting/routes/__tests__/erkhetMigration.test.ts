@@ -5,6 +5,7 @@ import {
   getErkhetTransactionCodeMapForTest,
   normalizeOpeningFixedAssetBalances,
   resolveErkhetInvIncomeExpensesForTest,
+  resolveErkhetInvSplitDetailsForTest,
   resolveErkhetFxaOwnerRecordSourcesForTest,
   resolveErkhetFxaOwnerRecordsForTest,
   resolveErkhetTransactionFollowInfosForTest,
@@ -197,6 +198,95 @@ describe('Erkhet migration inventory income expenses', () => {
         maps,
       ),
     ).toThrow('Account not found: missing');
+  });
+});
+
+describe('Erkhet migration inventory split details', () => {
+  const transaction = {
+    date: new Date('2026-01-01T00:00:00.000Z'),
+    journal: JOURNALS.INV_INCOME,
+    followInfos: {
+      invSplitDetails: [
+        {
+          detailId: 'erkhet-record-10',
+          productId: 'SPLIT 001',
+          ratio: 12,
+        },
+      ],
+    },
+    details: [
+      {
+        _id: 'erkhet-record-10',
+        accountId: '151001',
+        productId: 'SOURCE001',
+        count: 2,
+        amount: 240,
+      },
+    ],
+  };
+  const maps = {
+    accountsByCode: {},
+    vatRowsByNumber: {},
+    ctaxRowsByNumber: {},
+    branchesByCode: {},
+    departmentsByCode: {},
+    customersByCode: {},
+    productsByCode: {
+      SOURCE001: 'source-product-id',
+      SPLIT001: 'split-product-id',
+    },
+    fixedAssetCategoriesByCode: {},
+    fixedAssetsByCode: {},
+    usersByRef: {},
+  };
+
+  it('collects and resolves the split product code', () => {
+    expect(getErkhetTransactionCodeMapForTest([transaction])).toEqual(
+      expect.objectContaining({
+        productCodes: expect.arrayContaining(['SOURCE001', 'SPLIT001']),
+      }),
+    );
+
+    expect(resolveErkhetInvSplitDetailsForTest(transaction, maps)).toEqual([
+      {
+        detailId: 'erkhet-record-10',
+        productId: 'split-product-id',
+        ratio: 12,
+      },
+    ]);
+    expect(
+      resolveErkhetTransactionFollowInfosForTest(transaction, maps),
+    ).toEqual(
+      expect.objectContaining({
+        invSplitDetails: [
+          {
+            detailId: 'erkhet-record-10',
+            productId: 'split-product-id',
+            ratio: 12,
+          },
+        ],
+      }),
+    );
+  });
+
+  it('rejects a split that points to a missing source detail', () => {
+    expect(() =>
+      resolveErkhetInvSplitDetailsForTest(
+        {
+          ...transaction,
+          followInfos: {
+            invSplitDetails: [
+              {
+                detailId: 'missing-detail',
+                productId: 'SPLIT001',
+                ratio: 12,
+              },
+            ],
+          },
+        },
+        maps,
+      ),
+    ).toThrow('Inventory split detail not found: missing-detail');
   });
 });
 

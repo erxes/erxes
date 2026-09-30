@@ -35,6 +35,7 @@ import {
   DUPLICATE_PRODUCT_CELL_CLASS,
   hasDuplicateProductId,
 } from '../../utils';
+import { InventorySplitCells } from '../InventorySplit';
 
 export const InventoryRow = ({
   detailIndex,
@@ -338,6 +339,11 @@ export const InventoryRow = ({
           />
         </Table.Cell>
       </RecordTableHotKeyControl>
+      <InventorySplitCells
+        detailIndex={detailIndex}
+        journalIndex={journalIndex}
+        form={form}
+      />
       <RecordTableHotKeyControl
         rowId={_id}
         rowIndex={detailIndex}

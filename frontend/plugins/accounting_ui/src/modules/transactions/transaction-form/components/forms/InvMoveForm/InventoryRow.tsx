@@ -37,6 +37,7 @@ import {
 } from '~/modules/transactions/types/constants';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { followTrDocsState } from '../../../states/trStates';
+import { InventorySplitCells } from '../InventorySplit';
 
 const getFollowDetail = (details: ITrDetail[] = [], originId?: string) =>
   details.find((detail) => detail.originId === originId);
@@ -286,6 +287,11 @@ export const InventoryRow = ({
           />
         </Table.Cell>
       </RecordTableHotKeyControl>
+      <InventorySplitCells
+        detailIndex={detailIndex}
+        journalIndex={journalIndex}
+        form={form}
+      />
       <RecordTableHotKeyControl
         rowId={_id}
         rowIndex={detailIndex}
