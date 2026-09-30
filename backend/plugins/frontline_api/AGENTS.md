@@ -66,6 +66,25 @@
   `contentTypeId` is a migrated form, and always writes `contentType: 'form'`,
   the exact value the `Form.fields` resolver reads. Re-running it overwrites
   the target field with the source copy.
+- `src/migrations/migrateTickets.ts` migrates v2 `tickets_pipelines`,
+  `tickets_stages`, `tickets`, `ticket_comments` and checklists into the
+  frontline ticket collections. Pipelines and new tickets get `channelId` from
+  `STATIC_CHANNEL_ID` (default `9H8jJQrCbXdWb4FoX`), and it is a dry run unless
+  `DRY_RUN=false`. New tickets get `priority` from the v2 label
+  (`low`/`minor` 1, `normal`/`medium` 2, `high`/`major` 3, `critical`/`urgent`
+  4), `statusType` from the migrated status, all `assignedUserIds` as
+  `assignedMembers`, the first `departmentIds`/`branchIds` entry as
+  `departmentId`/`branchId`, and `propertiesData` parsed against
+  `properties_fields`/`properties_groups` by `_id` (option values lowercased to
+  match migrated options, `date` → `Date`, `number` → `Number`, multiple-group
+  rows under `toPropertyGroupKey`; free text keeps its case). Already-migrated
+  tickets are repaired in place: only empty `priority`/`statusType`/
+  `assignedMembers`/`departmentId`/`branchId` are filled, and `propertiesData`
+  is replaced only while it is empty or still the raw v2 copy, so values edited
+  in v3 are kept. It reports property field ids with no definition and fields
+  whose `contentType` is not `frontline:ticket` (the ticket detail only lists
+  `frontline:ticket` fields). Ticket↔customer/company links live in v2
+  `conformities` and are moved by core `migrateConformitiesToRelations`.
 - `src/migrations/migrateLegacyIntegrations.ts` copies provider data from the
   legacy v2 `erxes_facebook` (`LEGACY_FACEBOOK_DB`) and v1 `erxes_integrations`
   (`LEGACY_INTEGRATIONS_DB`) databases into the frontline collections of the
