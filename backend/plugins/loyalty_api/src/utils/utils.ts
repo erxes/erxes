@@ -1,13 +1,7 @@
-import {
-  getEnv,
-  getSaasOrganizations,
-  isEnabled,
-  sendTRPCMessage,
-} from 'erxes-api-shared/utils';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { SCORE_CAMPAIGN_STATUSES } from '~/modules/score/constants';
 import { VOUCHER_STATUS } from '~/modules/voucher/constants';
-import { collections } from '../constants';
 
 export const getChildCategories = async (subdomain: string, categoryIds) => {
   const childs = await sendTRPCMessage({
@@ -667,44 +661,6 @@ export const calculateDiscount = ({ kind, value, product, totalAmount }) => {
 };
 
 // Loyalty reward (automations)
-async function triggerLoyaltyReward(
-  subdomain: string,
-  collectionName: string,
-  query: any,
-) {
-  const targets = await coreQuery(subdomain, collectionName, 'find', query, []);
-  if (targets.length === 0) return;
-  await sendTRPCMessage({
-    subdomain,
-    pluginName: 'automations',
-    method: 'mutation',
-    module: 'automations',
-    action: 'trigger',
-    input: { type: 'loyalty:reward', targets },
-    defaultValue: [],
-  });
-}
-
-export const handleLoyaltyReward = async ({ subdomain }) => {
-  if (!(await isEnabled('automations'))) return;
-  const VERSION = getEnv({ name: 'VERSION' });
-  const NOW = new Date();
-  const NOW_MONTH = NOW.getMonth() + 1;
-
-  for (const collectionName of Object.keys(collections)) {
-    const query = collections[collectionName](NOW_MONTH) || {};
-    if (VERSION === 'saas') {
-      const orgs = await getSaasOrganizations();
-      const enabledOrganizations = orgs.filter((org) => !org?.isDisabled);
-      for (const org of enabledOrganizations) {
-        await triggerLoyaltyReward(org.subdomain, collectionName, query);
-      }
-    } else {
-      await triggerLoyaltyReward(subdomain, collectionName, query);
-    }
-  }
-};
-
 export const generateTargetTotalAmountDeal = (
   productsData: DealProductScoreData[] = [],
   options: {

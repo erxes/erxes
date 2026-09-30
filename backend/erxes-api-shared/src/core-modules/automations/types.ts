@@ -111,6 +111,12 @@ export type IAutomationsTriggerConfig = {
   label: string;
   description: string;
   isCustom?: boolean;
+  /**
+   * An event trigger: every event starts a run, even for a record that
+   * already went through this automation (a tier reached again). Without it a
+   * record enrolls once unless the automation sets its own re-enrollment.
+   */
+  reEnrollment?: boolean;
   output?: TAutomationRuntimeOutputDefinition;
   actionInputs?: TAutomationTriggerActionInputs;
   conditions?: {

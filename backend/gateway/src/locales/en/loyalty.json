@@ -882,5 +882,14 @@
   "period-preview-impact-points": "{{count}} accounts: {{cleared}} points cleared, {{kept}} kept",
   "period-preview-tier-change": "{{count}} accounts: {{from}} → {{to}}",
   "period-preview-sampled": "Counted from the first {{checked}} of {{total}} accounts",
-  "period-preview-error": "Could not preview these settings: {{message}}"
+  "period-preview-error": "Could not preview these settings: {{message}}",
+  "tier-changed-direction": "Direction",
+  "tier-changed-direction-up": "Moved up",
+  "tier-changed-direction-down": "Moved down",
+  "tier-changed-direction-any": "Up or down",
+  "tier-changed-to": "Into tier",
+  "tier-changed-any-tier": "Any tier",
+  "tier-changed-hint": "Runs every time a member enters it, again after a period reset too. Resets themselves never start it.",
+  "issue-voucher-result_one": "Voucher issued",
+  "issue-voucher-result_other": "{{count}} vouchers issued"
 }

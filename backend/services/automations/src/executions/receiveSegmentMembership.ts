@@ -20,8 +20,9 @@ const FOLK_DESCRIPTIONS = {
 
 /**
  * The segment worker already decided who crossed, so there is nothing left
- * to check: every crossing starts a run from the exit it took. Enroll-once
- * does not apply either — entering twice is two events.
+ * to check: every crossing starts a run from the exit it took. Entering twice
+ * is two events, unless the trigger says `once`: then a record starts it only
+ * the first time.
  */
 export const receiveSegmentMembership = async ({
   models,
@@ -76,6 +77,19 @@ export const receiveSegmentMembership = async ({
 
           for (const subjectId of transition[folk]) {
             try {
+              // "Once per record": a record that already went through this
+              // trigger never starts it again, whichever way it crossed.
+              if (
+                trigger.config?.once &&
+                (await models.Executions.exists({
+                  automationId: automation._id,
+                  triggerId: trigger.id,
+                  targetId: subjectId,
+                }))
+              ) {
+                continue;
+              }
+
               const subject = await subjectOf(subjectId);
 
               if (!subject) {

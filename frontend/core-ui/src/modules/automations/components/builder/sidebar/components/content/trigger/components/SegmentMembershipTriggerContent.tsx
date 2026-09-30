@@ -1,9 +1,10 @@
 import { NodeData } from '@/automations/types';
 import { IconChartPie, IconExternalLink } from '@tabler/icons-react';
-import { Button, Label, Skeleton } from 'erxes-ui';
+import { Button, Label, Select, Skeleton } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { useSegmentDetail } from 'ui-modules';
+import { useSegmentMembershipOnce } from '../hooks/useSegmentMembershipOnce';
 
 /**
  * The segment is a shared one, so it is shown rather than edited here: its
@@ -18,6 +19,7 @@ export const SegmentMembershipTriggerContent = ({
   const { t } = useTranslation('automations');
   const segmentId = activeNode.config?.segmentId;
   const { segment, segmentLoading } = useSegmentDetail(segmentId);
+  const { once, setOnce } = useSegmentMembershipOnce(activeNode);
 
   return (
     <div className="flex flex-col gap-4 p-4">
@@ -44,6 +46,25 @@ export const SegmentMembershipTriggerContent = ({
             </Button>
           )}
         </div>
+      </div>
+      <div className="flex flex-col gap-2">
+        <Label>{t('segment-membership-runs')}</Label>
+        <Select
+          value={once ? 'once' : 'every'}
+          onValueChange={(value) => setOnce(value === 'once')}
+        >
+          <Select.Trigger>
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Content>
+            <Select.Item value="every">
+              {t('segment-membership-runs-every')}
+            </Select.Item>
+            <Select.Item value="once">
+              {t('segment-membership-runs-once')}
+            </Select.Item>
+          </Select.Content>
+        </Select>
       </div>
       <p className="text-sm text-muted-foreground">
         {t('segment-membership-hint')}

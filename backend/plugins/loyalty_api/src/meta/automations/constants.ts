@@ -1,15 +1,41 @@
-import { AutomationConstants } from 'erxes-api-shared/core-modules';
+import {
+  AutomationConstants,
+  TAutomationRuntimeOutputDefinition,
+} from 'erxes-api-shared/core-modules';
+import { TierChangedTarget } from './types';
+
+const TIER_CHANGED_OUTPUT: TAutomationRuntimeOutputDefinition<TierChangedTarget> =
+  {
+    variables: [
+      { key: '_id', label: 'Owner ID', field: '_id' },
+      { key: 'ownerType', label: 'Owner type' },
+      {
+        key: 'customerId',
+        label: 'Customer',
+        exposure: 'reference',
+        field: 'customerId',
+        referenceType: 'core:customer',
+      },
+      { key: 'accountTypeName', label: 'Wallet' },
+      { key: 'fromTier', label: 'Previous tier' },
+      { key: 'toTier', label: 'New tier' },
+      { key: 'direction', label: 'Direction (up / down)' },
+    ],
+  };
 
 export const LOYALTIES_AUTOMATIONS_CONSTANTS: AutomationConstants = {
   triggers: [
     {
-      // type: 'loyalty:reward',
-      moduleName: 'voucher',
-      collectionName: 'reward',
-      icon: 'IconAward',
-      label: 'Reward',
-      description: 'Start this workflow when a loyalty reward event occurs.',
+      moduleName: 'score',
+      collectionName: 'tier',
+      icon: 'IconCrown',
+      label: 'Tier changed',
+      description:
+        'Start this workflow when a member moves to another tier of a wallet.',
       isCustom: true,
+      // Reaching a tier again (after a reset, a drop) is a new event.
+      reEnrollment: true,
+      output: TIER_CHANGED_OUTPUT,
     },
   ],
   actions: [

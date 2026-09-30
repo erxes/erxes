@@ -8,6 +8,7 @@ import {
   IAutomationDocument,
   IAutomationExecutionDocument,
   IAutomationTrigger,
+  isReEnrollingTrigger,
   splitType,
   TAutomationProducers,
 } from 'erxes-api-shared/core-modules';
@@ -178,7 +179,7 @@ export const calculateExecution = async ({
     .limit(1)
     .lean();
 
-  if (latestExecution) {
+  if (latestExecution && !(await isReEnrollingTrigger(type))) {
     if (!reEnrollment || !reEnrollmentRules.length) {
       return;
     }

@@ -3,6 +3,8 @@ import {
   buildFailedAction,
   buildSkippedAction,
   replaceOutputPlaceholders,
+  TAutomationProducers,
+  TAutomationProducersInput,
   TCoreModuleProducerContext,
 } from 'erxes-api-shared/core-modules';
 import { TScoreSkip } from '@/score/@types/earnTable';
@@ -12,6 +14,7 @@ import {
 } from '@/score/@types/purchase';
 import { IModels } from '~/connectionResolvers';
 import { setAccountTier } from '@/score/services/accountTier';
+import { matchesTierChanged } from '@/score/services/tierChanged';
 import {
   ACCOUNT_OWNER_TYPES,
   resolveBalanceOwner,
@@ -21,6 +24,8 @@ import {
   LoyaltyAutomationAction,
   LoyaltyAutomationExecution,
   SetTierActionConfig,
+  TierChangedTarget,
+  TierChangedTriggerConfig,
 } from '../types';
 import { generateIds, getOwnerTypeFromAttribution } from '../utils';
 
@@ -213,6 +218,17 @@ const setTier = async ({
 };
 
 export const scoreAutomationProducers = {
+  checkCustomTrigger: async ({
+    collectionType,
+    config,
+    target,
+  }: TAutomationProducersInput[TAutomationProducers.CHECK_CUSTOM_TRIGGER]) =>
+    collectionType === 'tier' &&
+    matchesTierChanged(
+      config as TierChangedTriggerConfig,
+      target as Partial<TierChangedTarget>,
+    ),
+
   receiveActions: async (
     { action, actionType, collectionType, execution, inputs },
     { models, subdomain }: TCoreModuleProducerContext<IModels>,

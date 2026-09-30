@@ -321,6 +321,9 @@
   "segment-membership-joined": "Enter",
   "segment-membership-left": "Exit",
   "segment-membership-segment": "Segment",
+  "segment-membership-runs": "Runs",
+  "segment-membership-runs-every": "Every time a record enters or leaves",
+  "segment-membership-runs-once": "Only the first time for each record",
   "segment-membership-missing": "Segment not found",
   "segment-membership-hint": "Runs every time a record enters or leaves this segment. The segment is edited on its own page, and a change there applies to every flow that listens to it."
 }

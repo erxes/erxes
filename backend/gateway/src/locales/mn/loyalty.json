@@ -882,5 +882,14 @@
   "period-preview-impact-points": "{{count}} данс: {{cleared}} оноо арчигдана, {{kept}} үлдэнэ",
   "period-preview-tier-change": "{{count}} данс: {{from}} → {{to}}",
   "period-preview-sampled": "{{total}} дансны эхний {{checked}}-аас тоолсон",
-  "period-preview-error": "Тохиргооны урьдчилсан тооцоог гаргаж чадсангүй: {{message}}"
+  "period-preview-error": "Тохиргооны урьдчилсан тооцоог гаргаж чадсангүй: {{message}}",
+  "tier-changed-direction": "Чиглэл",
+  "tier-changed-direction-up": "Ахисан",
+  "tier-changed-direction-down": "Буурсан",
+  "tier-changed-direction-any": "Ахисан эсвэл буурсан",
+  "tier-changed-to": "Орсон tier",
+  "tier-changed-any-tier": "Аль ч tier",
+  "tier-changed-hint": "Гишүүн энэ tier-т орох бүрт ажиллана, period reset-ийн дараа дахин орсон ч мөн адил. Reset өөрөө үүнийг эхлүүлэхгүй.",
+  "issue-voucher-result_one": "Voucher олгосон",
+  "issue-voucher-result_other": "{{count}} voucher олгосон"
 }

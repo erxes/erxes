@@ -321,6 +321,9 @@
   "segment-membership-joined": "Орох",
   "segment-membership-left": "Гарах",
   "segment-membership-segment": "Segment",
+  "segment-membership-runs": "Хэдэн удаа",
+  "segment-membership-runs-every": "Бичлэг орох эсвэл гарах бүрт",
+  "segment-membership-runs-once": "Бичлэг бүрт зөвхөн анх удаа",
   "segment-membership-missing": "Segment олдсонгүй",
   "segment-membership-hint": "Бичлэг энэ segment-д орох эсвэл гарах бүрт ажиллана. Segment-ийг өөрийнх нь хуудсанд засна, тэнд хийсэн өөрчлөлт үүнийг сонсож буй бүх automation-д нөлөөлнө."
 }

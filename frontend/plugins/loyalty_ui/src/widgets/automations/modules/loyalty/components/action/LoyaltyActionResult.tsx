@@ -1,13 +1,22 @@
 import { AutomationExecutionActionResultProps } from 'ui-modules';
-import { isSetTierActionType } from '../../utils/loyaltyActionUtils';
+import {
+  isIssueVoucherActionType,
+  isSetTierActionType,
+} from '../../utils/loyaltyActionUtils';
 import { ScoreActionResult } from './adjust-score/ScoreActionResult';
 import { SetTierActionResult } from './set-tier/SetTierActionResult';
+import { IssueVoucherActionResult } from './voucher/IssueVoucherActionResult';
 
 export const LoyaltyActionResult = (
   props: AutomationExecutionActionResultProps,
-) =>
-  isSetTierActionType(props.action.actionType) ? (
-    <SetTierActionResult {...props} />
-  ) : (
-    <ScoreActionResult {...props} />
-  );
+) => {
+  if (isSetTierActionType(props.action.actionType)) {
+    return <SetTierActionResult {...props} />;
+  }
+
+  if (isIssueVoucherActionType(props.action.actionType)) {
+    return <IssueVoucherActionResult {...props} />;
+  }
+
+  return <ScoreActionResult {...props} />;
+};

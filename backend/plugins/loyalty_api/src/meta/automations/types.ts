@@ -13,10 +13,30 @@ export type LoyaltyAutomationOwner = {
 export type LoyaltyAutomationTarget = Record<string, unknown> & {
   _id?: string;
   customerId?: string;
-  birthDate?: string | Date;
-  details?: {
-    birthDate?: string | Date;
-  };
+  ownerType?: LoyaltyOwnerType;
+  details?: Record<string, unknown>;
+};
+
+// What the tier-changed trigger hands to a run: the owner whose tier moved.
+export type TierChangedTarget = {
+  _id: string;
+  ownerType: LoyaltyOwnerType;
+  customerId?: string;
+  accountId: string;
+  accountTypeId: string;
+  accountTypeName: string;
+  fromTier: string | null;
+  toTier: string | null;
+  direction: TTierDirection;
+};
+
+export type TTierDirection = 'up' | 'down';
+
+export type TierChangedTriggerConfig = {
+  accountTypeId?: string;
+  // Empty: any tier.
+  toTier?: string;
+  direction?: TTierDirection | 'any';
 };
 
 export type LoyaltyScoreAction = 'add' | 'subtract';

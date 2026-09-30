@@ -6,7 +6,6 @@ import {
   checkVouchersSale,
   confirmVoucherSale,
   handleLoyaltyOwnerChange,
-  handleLoyaltyReward,
 } from '~/utils/utils';
 import { checkPricing, getMainConditions } from '~/modules/pricing/utils';
 import {
@@ -180,14 +179,6 @@ export const appRouter = t.router({
             discountInfo,
           )) || {}
         );
-      }),
-
-    handleLoyaltyReward: t.procedure
-      .input(z.undefined())
-      .mutation(async ({ ctx }) => {
-        const { subdomain } = ctx;
-        const result = await handleLoyaltyReward({ subdomain });
-        return result;
       }),
 
     confirmLoyalties: t.procedure

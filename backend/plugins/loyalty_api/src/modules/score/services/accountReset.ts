@@ -311,6 +311,8 @@ export const resetAccountType = async ({
             accountId: account._id,
             accountTypeId: accountType._id,
             tier: tierAfterReset,
+            // A reset moves everyone at once; it is not a member's news.
+            notify: false,
           });
         }
       }

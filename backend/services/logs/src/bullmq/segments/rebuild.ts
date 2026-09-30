@@ -2,6 +2,7 @@ import {
   SegmentApplyMembershipResult,
   segmentDependencyKey,
   SegmentForgetEvent,
+  SegmentMemberPage,
   SegmentMembershipUpdate,
   SegmentRebuildEvent,
   sendSegmentRebuild,
@@ -12,6 +13,7 @@ import {
   sendTRPCMessage,
 } from 'erxes-api-shared/utils';
 import { segmentLog, segmentSkip } from './log';
+import { publishTransitions } from './transitions';
 
 const PAGE = Number(process.env.SEGMENT_REBUILD_PAGE) || 10_000;
 
@@ -112,9 +114,53 @@ const rebuildReferencing = async (subdomain: string, segmentId: string) => {
   );
 };
 
+/**
+ * Stored members the definition no longer matches, dropped page by page and
+ * reported as having left. `matched` is every id the definition returned.
+ */
+const dropLeavers = async (
+  subdomain: string,
+  contentType: string,
+  segmentId: string,
+  matched: Set<string>,
+) => {
+  let cursor: string | undefined;
+
+  do {
+    const page: SegmentMemberPage = await sendCoreModuleProducer({
+      subdomain,
+      moduleName: 'segments',
+      pluginName: pluginOf(contentType),
+      producerName: TSegmentProducers.LIST_MEMBERS,
+      method: 'query',
+      input: {
+        contentType,
+        node: { kind: 'segment', segmentId },
+        cursor,
+        limit: PAGE,
+      },
+      defaultValue: { ids: [] } as SegmentMemberPage,
+    });
+
+    const left = page.ids.filter((id) => !matched.has(id));
+
+    if (left.length) {
+      const result = await apply(subdomain, contentType, {
+        updates: [{ segmentId, matched: [], notMatched: left }],
+        countFor: [],
+      });
+
+      await publishTransitions(subdomain, contentType, result.transitions);
+    }
+
+    cursor = page.nextCursor;
+  } while (cursor);
+};
+
 export const rebuildSegment = async ({
   subdomain,
   segmentId,
+  transitions = false,
 }: SegmentRebuildEvent) => {
   const segment: { _id: string; contentType: string } | null =
     await sendTRPCMessage({
@@ -152,7 +198,11 @@ export const rebuildSegment = async ({
         ?.cancelled,
     );
 
-    if (!cancelled) {
+    // Kept when the move is to be reported: joining and leaving are read
+    // against what was stored.
+    const matched = new Set<string>();
+
+    if (!cancelled && !transitions) {
       await apply(subdomain, contentType, { forget: [segmentId] });
 
       cancelled = Boolean(
@@ -186,11 +236,16 @@ export const rebuildSegment = async ({
       }
 
       if (page.ids.length) {
-        await apply(subdomain, contentType, {
+        const result = await apply(subdomain, contentType, {
           updates: [{ segmentId, matched: page.ids, notMatched: [] }],
           countFor: [],
-          transitions: false,
+          transitions,
         });
+
+        if (transitions) {
+          page.ids.forEach((id) => matched.add(id));
+          await publishTransitions(subdomain, contentType, result.transitions);
+        }
 
         members += page.ids.length;
 
@@ -213,6 +268,10 @@ export const rebuildSegment = async ({
       }
 
       cursor = page.nextCursor;
+    }
+
+    if (transitions && !cancelled) {
+      await dropLeavers(subdomain, contentType, segmentId, matched);
     }
 
     const settled = await apply(subdomain, contentType, {

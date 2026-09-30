@@ -12,7 +12,6 @@ import {
   SegmentOperator,
   segmentSubjectsReachedBy,
   sendSegmentChanged,
-  sendSegmentMembershipToAutomations,
   TSegmentProducers,
 } from 'erxes-api-shared/core-modules';
 import {
@@ -22,6 +21,7 @@ import {
 import { workerSegmentGateway } from './gateway';
 import { segmentLog, segmentSkip } from './log';
 import { reconcileSegments } from './reconcile';
+import { publishTransitions } from './transitions';
 import { forgetSegments, rebuildSegment } from './rebuild';
 
 export type SegmentJobData = SegmentJob;
@@ -160,27 +160,7 @@ const applyMembership = async (
     });
   }
 
-  if (result.transitions?.length) {
-    await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      module: 'segment',
-      action: 'recordTransitions',
-      method: 'mutation',
-      input: { contentType, transitions: result.transitions },
-      defaultValue: { written: 0 },
-    });
-
-    sendSegmentMembershipToAutomations(subdomain, {
-      contentType,
-      transitions: result.transitions,
-    });
-
-    segmentLog('membership moved', {
-      joined: result.transitions.reduce((n, t) => n + t.joined.length, 0),
-      left: result.transitions.reduce((n, t) => n + t.left.length, 0),
-    });
-  }
+  await publishTransitions(subdomain, contentType, result.transitions);
 
   return {
     counts: result.counts || {},
