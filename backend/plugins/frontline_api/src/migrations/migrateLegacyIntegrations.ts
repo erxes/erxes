@@ -15,7 +15,7 @@ if (!MONGO_URL) {
   throw new Error('Environment variable MONGO_URL not set.');
 }
 
-const isDryRun = DRY_RUN === '1' || DRY_RUN === 'true';
+const isDryRun = DRY_RUN !== 'false';
 const batchSize = Math.max(1, parseInt(BATCH_SIZE, 10) || 1000);
 
 const FACEBOOK_KINDS = ['facebook-messenger', 'facebook-post'];
@@ -35,7 +35,11 @@ type CopyOptions = {
   transform?: (doc: Document) => Document | null;
 };
 
-const stripVersion = ({ __v, ...rest }: Document): Document => rest;
+const stripVersion = (doc: Document): Document => {
+  const rest = { ...doc };
+  delete rest.__v;
+  return rest;
+};
 
 const client = new MongoClient(MONGO_URL);
 
@@ -208,8 +212,11 @@ const command = async () => {
       doc.integrationId || postIntegrationByPage.get(doc.recipientId),
   });
 
-  const copy = (sourceName: string, targetName: string, options?: CopyOptions) =>
-    copyCollection(sourceDb, targetDb, sourceName, targetName, options);
+  const copy = (
+    sourceName: string,
+    targetName: string,
+    options?: CopyOptions,
+  ) => copyCollection(sourceDb, targetDb, sourceName, targetName, options);
 
   const results: CopyStats[] = [];
 
@@ -236,7 +243,9 @@ const command = async () => {
   );
 
   results.push(await copy('customers_facebooks', 'customers_facebooks'));
-  results.push(await copy('conversations_facebooks', 'conversations_facebooks'));
+  results.push(
+    await copy('conversations_facebooks', 'conversations_facebooks'),
+  );
   results.push(
     await copy(
       'conversation_messages_facebooks',
@@ -246,12 +255,15 @@ const command = async () => {
 
   results.push(
     await copy('comments_facebooks', 'comment_conversations_facebooks', {
-      transform: ({ __v, commentId, timestamp, ...rest }) =>
-        withPostIntegration({
+      transform: (doc) => {
+        const { commentId, timestamp, ...rest } = stripVersion(doc);
+
+        return withPostIntegration({
           ...rest,
           comment_id: rest.comment_id || commentId,
           createdAt: rest.createdAt || timestamp,
-        }),
+        });
+      },
     }),
   );
 
@@ -272,7 +284,9 @@ const command = async () => {
     }),
   );
   results.push(await copy('instagram_customers', 'instagram_customers'));
-  results.push(await copy('instagram_conversations', 'instagram_conversations'));
+  results.push(
+    await copy('instagram_conversations', 'instagram_conversations'),
+  );
   results.push(
     await copy(
       'instagram_conversation_messages',
@@ -300,7 +314,7 @@ const command = async () => {
   console.log('\n═══════════════════════════════════════════════');
   console.log(
     isDryRun
-      ? '  DRY RUN finished — nothing was written'
+      ? '  DRY RUN finished — nothing was written. Re-run with DRY_RUN=false.'
       : `  Finished — failed=${totalFailed}`,
   );
   console.log(`  Finished at: ${new Date().toISOString()}`);

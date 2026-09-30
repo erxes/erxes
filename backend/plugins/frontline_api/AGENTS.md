@@ -66,6 +66,17 @@
   `contentTypeId` is a migrated form, and always writes `contentType: 'form'`,
   the exact value the `Form.fields` resolver reads. Re-running it overwrites
   the target field with the source copy.
+- `src/migrations/migrateLegacyIntegrations.ts` copies provider data from the
+  legacy `erxes_integrations` database (override with `LEGACY_INTEGRATIONS_DB`)
+  into the frontline collections of the `MONGO_URL` database. Legacy
+  `integrations` are split by `kind` into `facebook_integrations` and
+  `integrations_callpros` (`erxesApiId` becomes `inboxId`); `chatfuel` and
+  integrations whose inbox integration no longer exists are skipped.
+  `comments_facebooks` becomes `comment_conversations_facebooks`
+  (`commentId` → `comment_id`, `timestamp` → `createdAt`) and comments/posts get
+  `integrationId` from the `facebook-post` page mapping. Legacy `_id`s are kept
+  because provider rows link to integrations by `_id`. It is insert-only and
+  safe to re-run; it is a dry run unless `DRY_RUN=false`.
 - A ticket an automation creates records `createdVia` — what produced it, which
   run, and for whom — and is created as that actor when no conversation agent
   applies.
