@@ -1,3 +1,4 @@
+import { format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 import { IAutomationHistoryAction } from 'ui-modules';
 import { useLoyaltyAccountTypes } from '~/modules/loyalties/settings/account-type/hooks/useLoyaltyAccountTypes';
@@ -18,13 +19,16 @@ type TScoreSkip =
       rows: { name: string; unmet: TEarnCondition }[];
     }
   | { reason: 'no-amount'; amountSource: 'paid' | 'total' }
-  | { reason: 'rounded-to-zero' };
+  | { reason: 'rounded-to-zero' }
+  | { reason: 'held-past-reset'; availableAt: string; resetsAt: string };
 
 type TSkippedOwner = { ownerId: string; skips: TScoreSkip[] };
 
 type TScoreLog = { _id?: string; ownerId?: string; changeScore?: number };
 
 const NO_TIER = 'none';
+
+const formatAt = (value: string) => format(new Date(value), 'yyyy-MM-dd HH:mm');
 const ADJUST_SCORE_ACTION = 'loyalty:score.score.create';
 
 const asArray = <T>(value: unknown): T[] =>
@@ -50,6 +54,11 @@ export const useScoreActionResult = (action: IAutomationHistoryAction) => {
           rows: skip.rows
             .map(({ name, unmet }) => `${name}: ${t(`earn-unmet-${unmet}`)}`)
             .join('; '),
+        });
+      case 'held-past-reset':
+        return t('score-skip-held-past-reset', {
+          availableAt: formatAt(skip.availableAt),
+          resetsAt: formatAt(skip.resetsAt),
         });
       case 'no-amount':
         return t('score-skip-no-amount', {

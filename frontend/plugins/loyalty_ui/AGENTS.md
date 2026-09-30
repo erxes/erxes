@@ -6,7 +6,7 @@
 - **Project:** `loyalty_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/loyalty_ui`
-- **Last synchronized:** `2026-09-29`
+- **Last synchronized:** `2026-09-30`
 
 ## Scope
 
@@ -34,7 +34,7 @@
 - Loyalty settings include an Account types page (`/settings/loyalty/config/account-type`)
   to create, rename, archive, and restore loyalty account types and to convert
   score fields used by older campaigns into account types.
-- `/settings/loyalty/config` has no page of its own: it redirects to the wallets page (`config/account-type`), the first item of the settings sidebar. The former general config (currency ratio, share fee) is gone; neither value was read anywhere.
+- The platform settings menu lists every loyalty settings page directly under Loyalty (Wallets, Score, Voucher, Lottery, Spin, Donate, Assignment, Coupon, then Pricing) from `LOYALTY_SETTINGS_PAGES` (`settings/constants/settingRoutes.ts`), rendered by `LoyaltySettingsNavigation`; the pages carry no inner sidebar. The wallet form's Expiry & reset section ends with a live preview (`LoyaltyAccountTypePeriodPreview` / `useLoyaltyAccountTypePeriodPreview`, query `LoyaltyAccountTypePeriodPreview` with the unsaved form values): when points earned today expire or become spendable, the next reset, what tiers become, the window before a reset in which purchases earn nothing, and for a saved wallet what the next reset would clear, keep and change. The Wallets page shows a period run panel (`LoyaltyPeriodRunPanel` / `useLoyaltyPeriodRunStatus`, query `LoyaltyPeriodRunStatus`): the next run time and time zone, what it will release, expire and reset, the last run, and a history popover; wallet mutations refetch it. `/settings/loyalty/config` has no page of its own and redirects to the wallets page (`config/account-type`). The former general config (currency ratio, share fee) is gone; neither value was read anywhere.
 - The customer/company/team member relation widget shows the owner's loyalty account (number, status, balance per account type) and lets users freeze it with a reason or unfreeze it; account types choose what freezing blocks.
 - Score campaign create and edit sheets share `ScoreCampaignFormLayout`: a sidebar with General (name, description, order, account type, Add / Subtract / Set), Source (sales pipeline or POS, with the discount check; no deal-stage rules — earning is decided by automations, spending and refunds by the selling side) and Products (restrictions); a failed save opens the first section with an error and marks sections that have errors.
 - The score campaign "Add" tab edits the earning table (rows × tier columns from the account type, conditions popover, caps, server-computed example) and the "Subtract" tab the spending rules.
@@ -137,6 +137,30 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-30` — No-earn window shown
+
+- **Summary:** The wallet preview names the days before a reset in which purchases earn nothing, and the Adjust score history explains such a skip with both dates.
+- **Affected areas:** `settings/account-type/{hooks/useLoyaltyAccountTypePeriodPreview.ts,components/LoyaltyAccountTypePeriodPreview.tsx,graphql/loyaltyAccountTypeQueries.ts}`, `widgets/automations/modules/loyalty/hooks/useScoreActionResult.ts`; `period-preview-no-earn`, `score-skip-held-past-reset` translations.
+- **Contracts changed:** None
+
+### `2026-09-30` — Wallet time settings preview
+
+- **Summary:** The Expiry & reset section shows what the settings do in dates and what the next reset would do to the wallet's accounts, before saving.
+- **Affected areas:** `settings/account-type/{components/LoyaltyAccountTypePeriodPreview.tsx,components/LoyaltyAccountTypeExpirySection.tsx,components/LoyaltyAccountTypeFormSheet.tsx,hooks/useLoyaltyAccountTypePeriodPreview.ts,graphql/loyaltyAccountTypeQueries.ts}`; `period-preview-*` translations.
+- **Contracts changed:** Consumes GraphQL `loyaltyAccountTypePeriodPreview`.
+
+### `2026-09-30` — Period run panel on Wallets
+
+- **Summary:** The Wallets page tells when the next period run is, what it will do and how the last runs went.
+- **Affected areas:** `settings/account-type/{components/LoyaltyPeriodRunPanel.tsx,hooks/useLoyaltyPeriodRunStatus.ts,graphql/loyaltyAccountTypeQueries.ts,hooks/useLoyaltyAccountTypeMutations.ts}`, `pages/loyalties-config/LoyaltyAccountTypePage.tsx`; `period-run-*` translations.
+- **Contracts changed:** Consumes GraphQL `loyaltyPeriodRunStatus`.
+
+### `2026-09-30` — Loyalty settings pages in the settings menu
+
+- **Summary:** Wallets, Score, Voucher, Lottery, Spin, Donate, Assignment and Coupon moved from the inner config sidebar into the platform settings menu; the "Configs" item and the unused duplicate `components/LoyaltySettings.tsx` are gone.
+- **Affected areas:** `src/LoyaltySettingsNavigation.tsx`, `modules/loyalties/settings/{constants/settingRoutes.ts,components/LoyaltyLayout.tsx,components/LoyaltyBreadcrumb.tsx}`; `LoyaltySidebar.tsx` removed.
+- **Contracts changed:** None (routes unchanged).
+
 ### `2026-09-29` — Stage rules and automation subtract removed
 
 ### `2026-09-29` — Pricing list pagination
@@ -168,39 +192,3 @@
 - **Summary:** The earning table's Form column lets base rows choose "% of amount" or "Multiplier" (new base rows start at 1%), bonus rows "% of amount" or "Fixed points"; the cell suffix follows the choice and changing a row's kind keeps a form it allows.
 - **Affected areas:** `settings/score/types/earnTable.ts` (`EARN_VALUE_TYPES` per kind, `earnValueTypeFor`), `constants/formSchema.ts`, `utils/earnTableForm.ts`, `earn-table/EarnRowEditor.tsx`; `earn-table-hint` translation.
 - **Contracts changed:** Sends earning row `valueType` `multiplier` for multiplier-form base rows and multiplier rows.
-
-### `2026-09-28` — General loyalty config removed
-
-- **Summary:** The "Loyalty config" settings item and page (currency ratio, share fee) are removed; the settings root opens the wallets page.
-- **Affected areas:** `LoyaltySettings.tsx`, `settings/constants/settingRoutes.ts`, removed `settings/general-config/**` and `pages/loyalties-config/LoyaltyGeneralConfigPage.tsx`; `ValueChangeValueType` moved to `settings/types/selectValue.ts`.
-- **Contracts changed:** Route `/settings/loyalty/config` now redirects to `/settings/loyalty/config/account-type`; the UI no longer queries `loyaltyConfigs`.
-
-### `2026-09-28` — Account types shown as wallets
-
-- **Summary:** Every user-facing "account type" label and validation message reads "wallet" / "хэтэвч", so they no longer clash with loyalty accounts.
-- **Affected areas:** gateway `loyalty` locale (en/mn), `settings/score/constants/formSchema.ts`, `widgets/automations/modules/loyalty/states/setTierActionConfigFormDefinitions.ts`.
-- **Contracts changed:** None (labels only).
-
-### `2026-09-28` — Campaign automations
-
-- **Summary:** A campaign's Automations tab lists the automations that give its points and set its account type's tiers; each earning row starts a trigger-less point automation for itself and a button above the table starts the split-per-tier automation; the account type's Tiers tab no longer carries them.
-- **Affected areas:** `settings/score/add-score-campaign/**` (`ScoreCampaignAutomations`, `ScoreCampaignContext`, `useCampaignAutomationSeeds`, `useEarnRowAutomation`, `earn-table/EarnRowActions`, `earn-table/CreateTierAutomationButton`, sections, layout), `score-detail/components/EditScoreForm.tsx`, `settings/score/graphql/queries/scoreCampaignAutomationsQuery.ts`; removed `settings/account-type` tier automation section, hooks and query.
-- **Contracts changed:** New query document `LoyaltyScoreCampaignAutomations`; removed `LoyaltyTierAutomations`; uses trigger-less seed links.
-
-### `2026-09-28` — Accounts page
-
-- **Summary:** A new Accounts page lists loyalty accounts with balances and tiers per account type, filters, and freeze / tier / history actions per row.
-- **Affected areas:** `modules/loyalties/accounts/**` (list, filter, columns, row actions), `pages/loyalties/AccountPage.tsx`, `SubNavigations.tsx`, `MainNavigation.tsx`, `LoyaltyMainLayout.tsx`, `config.tsx`; `loyalty-accounts*` translations.
-- **Contracts changed:** Route `/loyalty/accounts`; new query document `LoyaltyAccounts`.
-
-### `2026-09-28` — Action nodes report missing config
-
-- **Summary:** Set tier, Adjust score, voucher and spin nodes report their unmet form requirements so the builder shows a warning and refuses activation.
-- **Affected areas:** `widgets/automations/modules/loyalty/hooks/useLoyaltyActionNodeIssues.ts`, `LoyaltyActionNodeContent.tsx`.
-- **Contracts changed:** Consumes `useReportNodeIssues` (ui-modules).
-
-### `2026-09-28` — Tier automations on the account type
-
-- **Summary:** The Tiers tab lists the automations that set this account type's tiers and opens a pre-assembled, unsaved tier automation (customer trigger → split per tier → Set tier) through the shared automation seed link.
-- **Affected areas:** `settings/account-type/components/LoyaltyTierAutomations.tsx`, `hooks/useLoyaltyTierAutomations.ts`, `hooks/useTierAutomationSeed.ts`, `LoyaltyAccountTypeFormSheet.tsx`; `loyalty-tier-automation*` / `loyalty-tier-clear` translations.
-- **Contracts changed:** New query document `LoyaltyTierAutomations` (core `automations(actionTypes)`); consumes the seed link's new `actions` graph (`buildAutomationSeedLink`).

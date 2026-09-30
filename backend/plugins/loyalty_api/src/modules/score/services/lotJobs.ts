@@ -7,6 +7,7 @@ import {
   projectBalance,
   ScoreAction,
 } from '@/score/services/scoreLedger';
+import { walletRunVia } from '@/score/services/accountReset';
 import { IModels } from '~/connectionResolvers';
 
 const describeError = (error: unknown) =>
@@ -70,6 +71,7 @@ export const releasePendingLots = async ({
   now?: Date;
 }) => {
   const accountTypes = new Map<string, ILoyaltyAccountTypeDocument | null>();
+  const counts = { released: 0, failed: 0 };
 
   await settleStaleReleases(models, now);
 
@@ -86,7 +88,7 @@ export const releasePendingLots = async ({
     ).lean();
 
     if (!lot) {
-      break;
+      return counts;
     }
 
     let released: { previous: number; next: number } | null;
@@ -99,6 +101,7 @@ export const releasePendingLots = async ({
       );
     } catch (error) {
       // Nothing moved; the next run tries again.
+      counts.failed++;
       await models.LoyaltyLots.updateOne(
         { _id: lot._id },
         { $unset: { releasingAt: '' } },
@@ -118,6 +121,8 @@ export const releasePendingLots = async ({
       );
       continue;
     }
+
+    counts.released++;
 
     try {
       const backed = fixScoreNumber(
@@ -179,11 +184,15 @@ export const expireLots = async ({
   models,
   subdomain,
   now = new Date(),
+  runId,
 }: {
   models: IModels;
   subdomain: string;
   now?: Date;
+  runId?: string;
 }) => {
+  const counts = { expired: 0, failed: 0 };
+
   // A claim left by a run that died is taken back; a lot it did expire is
   // closed or empty by now and no longer matches.
   await models.LoyaltyLots.updateMany(
@@ -209,7 +218,7 @@ export const expireLots = async ({
     ).lean();
 
     if (!lot) {
-      break;
+      return counts;
     }
 
     try {
@@ -252,14 +261,17 @@ export const expireLots = async ({
           bypassFreeze: true,
           preventNegativeBalance: false,
           lotId: lot._id,
+          createdVia: walletRunVia(accountType, runId),
         },
       });
 
+      counts.expired++;
       await models.LoyaltyLots.updateOne(
         { _id: lot._id },
         { $unset: { expiringAt: '' } },
       );
     } catch (error) {
+      counts.failed++;
       await models.LoyaltyLots.updateOne(
         { _id: lot._id },
         { $unset: { expiringAt: '' } },

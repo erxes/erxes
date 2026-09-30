@@ -65,10 +65,16 @@ export const needsPeriodRuns = async (models: IModels) =>
     }))
   );
 
-const schedulerId = (subdomain: string) => `loyalty-periods-${subdomain}`;
+// A single-organization install answers to any host name ('localhost', an
+// IP, its domain) over one database, so it keeps one schedule under 'os'.
+const organizationOf = (subdomain: string) =>
+  getEnv({ name: 'VERSION' }) === 'saas' ? subdomain : 'os';
+
+const schedulerId = (subdomain: string) =>
+  `loyalty-periods-${organizationOf(subdomain)}`;
 
 /**
- * One nightly run per organization that needs it, none for the rest; kept in
+ * One period run a day per organization that needs it, none for the rest; kept in
  * step whenever a wallet's time settings change.
  */
 export const syncPeriodSchedule = async (
@@ -81,7 +87,7 @@ export const syncPeriodSchedule = async (
     await queue.upsertJobScheduler(
       schedulerId(subdomain),
       { pattern: '5 0 * * *', tz: fallbackTimeZone() },
-      { name: PERIODS_QUEUE, data: { subdomain } },
+      { name: PERIODS_QUEUE, data: { subdomain: organizationOf(subdomain) } },
     );
     return;
   }
@@ -89,6 +95,21 @@ export const syncPeriodSchedule = async (
   await queue.removeJobScheduler(schedulerId(subdomain));
 };
 
-// A run that stopped at its batch limit carries on right away.
-export const continuePeriodRun = (subdomain: string) =>
-  sendWorkerQueue('loyalty', PERIODS_QUEUE).add(PERIODS_QUEUE, { subdomain });
+// A run that stopped at its batch limit carries on right away, as itself.
+export const continuePeriodRun = (subdomain: string, runId?: string) =>
+  sendWorkerQueue('loyalty', PERIODS_QUEUE).add(PERIODS_QUEUE, {
+    subdomain,
+    ...(runId ? { runId } : {}),
+  });
+
+/** When the organization's next period run is due, if it has one. */
+export const nextPeriodRunAt = async (subdomain: string) => {
+  const scheduler = await sendWorkerQueue(
+    'loyalty',
+    PERIODS_QUEUE,
+  ).getJobScheduler(schedulerId(subdomain));
+
+  return scheduler?.next ? new Date(scheduler.next) : null;
+};
+
+export const periodRunTimeZone = fallbackTimeZone;

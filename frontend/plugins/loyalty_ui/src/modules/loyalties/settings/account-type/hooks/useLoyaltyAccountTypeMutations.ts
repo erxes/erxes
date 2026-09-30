@@ -33,6 +33,8 @@ const REFETCH_QUERIES = [
   'LoyaltyAccountTypeList',
   'LoyaltyAccountTypeLegacyFieldCount',
   'GetScoreCampaigns',
+  // A wallet's time settings decide whether and what the period run does.
+  'LoyaltyPeriodRunStatus',
 ];
 
 const useAccountMutation = <TData, TVariables extends Record<string, unknown>>(

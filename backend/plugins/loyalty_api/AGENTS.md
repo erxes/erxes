@@ -28,13 +28,13 @@
 - Account types carry an ordered tier list (lowest first; removed tiers stay as `deprecated`) mirrored by a second featured `select` field (key `tier`). `loyaltyAccountSetTier` sets an account's tier for one type; last write wins and loyalty never decides tiers itself.
 - Account types set point expiry (`expiry.mode`: `none`, `calendar` = cleared at each `reset.period`, `rolling` = each earning expires `expiry.months` after it) and optional `pendingDays` (purchase earnings wait before they can be spent). The tier reset follows `reset.period` / `reset.tierTo` (`keep` / `none` / `lowest`).
 - Every keyed balance is backed by lots (`loyalty_lots`): each earning is a lot, spending takes soonest-expiring then oldest first, pending lots sit in `balances.<key>.pending`. Refunds may leave debt (negative balance) that later earnings pay off.
-- Time-driven work runs nightly per organization (`loyalty-periods` queue, `5 0 * * *` in `LOYALTY_TIME_ZONE`, default `Asia/Ulaanbaatar`), and only for organizations with a wallet that expires, holds purchases back or resets, or with dated/pending lots left (`services/periodSchedule.ts`; kept in step on wallet create/update/archive, removed by the run itself when nothing is left). A run releases pending lots, expires rolling lots (`expire` log), then does calendar and tier resets; all bypass freezing. The old hourly `loyalty-daily-check` scheduler is removed at start.
+- Time-driven work is the **period run**, once a day per organization (`loyalty-periods` queue, `5 0 * * *` in `LOYALTY_TIME_ZONE`, default `Asia/Ulaanbaatar`), and only for organizations with a wallet that expires, holds purchases back or resets, or with dated/pending lots left (`services/periodSchedule.ts`; kept in step on wallet create/update/archive, removed by the run itself when nothing is left; a single-organization install keeps one schedule under `os` whatever host name a request came in on). A run releases pending lots, expires rolling lots (`expire` log), then does calendar and tier resets; all bypass freezing. The old hourly `loyalty-daily-check` scheduler is removed at start. Every run is recorded in `loyalty_period_runs` (started/finished, status, batches, released, expired, reset, failed, error; a run continued in batches stays one record; the newest 60 are kept), and `loyaltyPeriodRunStatus` returns the next run time (from the BullMQ scheduler), what it will do (pending lots to release, lots to expire, wallets and accounts to reset) and the last 30 runs (`services/periodRunStatus.ts`). `loyaltyAccountTypePeriodPreview` turns a wallet's time settings (saved or not) into dates — when points earned now expire or become spendable, the next reset and what tiers become — and runs `resetAccountType` in `dryRun` mode (no writes, first 2000 accounts) against that next reset to report accounts, points cleared/kept and tier changes (`services/periodPreview.ts`).
 - A score campaign writes to exactly one account type (`accountTypeId`), which also decides its `ownerType`; only campaigns created before account types may stay without one and keep writing the default score. Campaigns have no client-portal-only switch; who may earn is an automation or segment concern.
 - A campaign earns only through its earning table (`add.table`) and spends only through its spending rules (`subtract.rules`); formulas, the `set` action and the campaign `currencyRatio` are gone. The table has base and bonus rows with conditions (amount range, products, first purchase from this campaign, source), a value either the same for everyone (`values.all`) or per column (`values.none` for owners without a tier, then tier keys; an empty cell earns nothing) and an optional cap. Rules count money and divide by the account type's `currencyRatio` (1 point = N money). Rows are `base` (only the first matching one earns) or `bonus` (every matching one adds). Each row's `valueType` says how its value reads: a base row is `percent` (N% of the amount) or `multiplier` (the rate's points times N); a bonus row is `percent`, `fixed` points or `multiplier` (the base points times N, of which the base already gave one; each such bonus adds and is capped on its own). `normalizeEarnTable` keeps each kind to its own types and turns a former `multiplier` row into a bonus `multiplier`. `scoreCampaignEarnPreview` evaluates an unsaved table for a sample amount per tier. Callers may pass `earnRowKeys` to turn rows on. Score logs keep the per-row `breakdown`.
 - Points are earned only by the "Adjust score" automation action, from a purchase (`ILoyaltyPurchase`: `totalAmount`, `paidAmount` = paid with money, `items` of `{ productId, amount, discounted }`) that the action declares as `inputs` and the trigger's own plugin fills through its `actionInputs` (sales deal and POS order triggers). Loyalty never reads a deal or an order. A trigger that declares nothing (a customer, a birthday) gives a zero purchase, so only fixed-point rows earn on it. The action only gives; an older config with `action: 'subtract'` fails with CONFIG_INVALID.
 - When the action moves no one's balance, `ScoreCampaigns.earn` reports every reason through its optional `onSkip` (`explainEmptyEarn`: no selected rows, no value for the owner's tier column, row conditions unmet, no amount, rounded to zero) and the producer returns a `skipped` outcome.
 - Spending and refunds belong to the selling side: tRPC `score.checkSpend` / `score.spend` take `pointsPaymentAmount` (the whole amount paid with points; a repeat moves only the difference) and `totalAmount`, and `score.refund` undoes every standing earning and spending on a `targetId` (`ScoreCampaigns.refundTarget`). Campaigns have no deal-stage rules (`additionalConfig.cardBasedRule` is stripped on save).
-- Every ledger write records an activity log (`loyalty.score.<action>`) on the owner's record and, when the log has `targetId` + `targetType`, on that record too (`ScoreLogs.recordActivity`). Entries without an actor (`createdBy` / `actorId`) are not written, since core rejects them.
+- Every ledger write records an activity log (`loyalty.score.<action>`) on the owner's record and, when the log has `targetId` + `targetType`, on that record too (`ScoreLogs.recordActivity`). Score logs carry `createdVia` (`TCreatedVia`) when nothing was typed in: automation earnings pass the execution's, period-run expiries and resets pass the wallet's (`walletRunVia`: source `wallet`, the wallet's name, the run id, actor = the wallet's creator), so the activity reads "from wallet X" under a real actor. Activity lines name the wallet and the balance move, e.g. "added 18 points to Лоялти үлдэгдэл (120 → 138) from automation scoring"; the source record's line ends "of the customer". Entries with neither `createdBy` nor a `createdVia.actorId` are not written, since core rejects them.
 - Account types carry both rates: `currencyRatio` (earning: every N of money is 1 point) and `pointValue` (spending: 1 point pays N). A campaign's spending rules are `minBalance`, `maxShare` % of the order and `step`; rules turn `pointsPaymentAmount` into points through `pointValue` and are enforced by loyalty in both `checkSpend` and `spend` (`services/spendRules.ts`).
 - `loyaltyAccountTypesAdoptCampaignFields` turns the custom fields legacy campaigns write into account types in place (same field id, values recast to numbers); `loyaltyAccountTypeLegacyFieldCount` reports how many remain.
 - With purchase `items`, a campaign's total counts only items that pass its product/category/tag restrictions; discounted items are skipped only when `additionalConfig.discountCheck === true`. Without items the purchase `totalAmount` is used as is.
@@ -110,8 +110,8 @@
 - Every balance change goes through `changeBalance` in `scoreLedger.ts`: keyed balances (an account type, or `default` for the top-level score) change with one atomic `$inc`/`$set` on `loyalty_accounts.balances` (floor-checked for subtractions), and the featured field or owner `score` is only a copy that re-reads the account until it matches; never compute a new balance from an owner snapshot. Every read of a balance goes through `getOwnerBalance`: the account first, otherwise the featured field (typed) or the ledger sum (default score — customers have no `score` field, so `owner.score` is never a source). Repair writes ledger-derived balances through `updateOwnerScoreCache`; never `$set` a whole `propertiesData` object on an owner.
 - Invariant: available lots' `remaining` sums to `max(0, balance)` and pending lots to `pending`. Only `changeBalance`, the lot jobs and repair (`reconcileAvailable`) move lots; lot consumption is one atomic pipeline update per lot. Production runs MongoDB 4.4: no operators newer than 4.4 (`$dateAdd`, `$getField`, `$setWindowFields` …); dates are computed in Node.
 - `balances.<key>` entries are written per field (`balances.<key>.balance`, `.tier`, …), never as a whole object, so balance and tier writes never erase each other.
-- Every tier change goes through `setAccountTier`; a reset only runs for boundaries after `reset.since` and marks each account's `resetAt`, so it is idempotent and a failed account retries on the next run. A calendar reset sets the balance to what moved since the boundary (score logs by `accountId` + `accountTypeId`, minus earnings still pending, never below 0), so a late run never clears the new period; a tier won after the boundary is not reset. Resets go in batches (`LOYALTY_RESET_BATCH`, default 500) and a full batch queues the rest at once.
-- Nightly lot moves are claimed first (`releasingAt`, `expiringAt`) so two runs never move the same lot; a release that stopped halfway is settled from the account's `pending` total, a stale expiry claim is dropped after 10 minutes. Campaign-less ledger entries carrying `accountTypeId` (resets) belong to that account type in repair and never to the default score.
+- Every tier change goes through `setAccountTier`; a reset only runs for boundaries after `reset.since` and marks each account's `resetAt`, so it is idempotent and a failed account retries on the next run. A calendar reset sets the balance to what moved since the boundary (score logs by `accountId` + `accountTypeId`, minus earnings still pending, never below 0), so a late run never clears the new period; points earned in the old period and still pending are expired too (an `expire` log against the earning's `sourceScoreLogId`, balance untouched), so nothing of an old period lands in a new one; and a purchase whose pending wait would end at or after the next reset (calendar expiry with `pendingDays`) earns nothing and is skipped with `held-past-reset` (`services/earnWindow.ts`), the window shown by the preview as `noEarnFrom`; a tier won after the boundary is not reset. Resets go in batches (`LOYALTY_RESET_BATCH`, default 500) and a full batch queues the rest at once.
+- Period-run lot moves are claimed first (`releasingAt`, `expiringAt`) so two runs never move the same lot; a release that stopped halfway is settled from the account's `pending` total, a stale expiry claim is dropped after 10 minutes. Campaign-less ledger entries carrying `accountTypeId` (resets) belong to that account type in repair and never to the default score.
 - A campaign's `fieldId` is derived from its account type and never accepted from clients; an account type's `ownerType` never changes; any campaign action (add, subtract, set) may write to any account type.
 - A campaign with score history cannot move to another account type; archived account types reject new ledger writes but their campaigns stay editable.
 
@@ -127,6 +127,30 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-30` — Hard cut at a period reset
+
+- **Summary:** A calendar reset also expires the old period's still-pending points, and purchases whose wait would end after the next reset earn nothing (skipped with a reason), so no points of one period reach the next.
+- **Affected areas:** `services/{accountReset,earnWindow,periodPreview}.ts`, `db/models/ScoreCampaign.ts`, `@types/earnTable.ts`, tests `accountReset.test.ts`, `earnWindow.test.ts`.
+- **Contracts changed:** `TScoreSkip` adds `held-past-reset`; `LoyaltyAccountTypePeriodPreview.noEarnFrom`.
+
+### `2026-09-30` — Period-run changes in the activity
+
+- **Summary:** Expiries and resets written by a period run now appear in the owner's activity as coming from the wallet, recorded under the wallet's creator through `createdVia`; automation earnings carry the automation's `createdVia` too.
+- **Affected areas:** `services/{accountReset,lotJobs,scoreLedger}.ts`, `db/models/{ScoreLog,ScoreCampaign}.ts`, score log schema, `meta/automations/score/producers.ts`, `src/worker/index.ts`.
+- **Contracts changed:** `score_logs.createdVia`.
+
+### `2026-09-30` — Preview of a wallet's time settings
+
+- **Summary:** A wallet's expiry and reset settings can be previewed in dates and as the effect of the next reset on its accounts, computed by the reset's own code in dry-run mode; score logs are indexed for the reset's per-account read.
+- **Affected areas:** `services/{accountReset,periodPreview}.ts`, `graphql/{schemas,resolvers/queries}/accountType.ts`, score log schema, `services/__tests__/accountReset.test.ts`.
+- **Contracts changed:** GraphQL `loyaltyAccountTypePeriodPreview` (`LoyaltyAccountTypePeriodPreview`, `LoyaltyResetImpact`, `LoyaltyTierChange`); index `score_logs { accountId, accountTypeId, createdAt }`.
+
+### `2026-09-30` — Period runs are visible
+
+- **Summary:** Each period run is recorded with its counts, and a status query tells when the next run is, what it will do and how the last runs went, so none of it is found only in Redis.
+- **Affected areas:** `db/models/PeriodRun.ts`, `services/{periodRunStatus,periodSchedule,lotJobs,accountReset}.ts`, `src/worker/index.ts`, `graphql/{schemas,resolvers/queries}/accountType.ts`.
+- **Contracts changed:** GraphQL `loyaltyPeriodRunStatus` (`LoyaltyPeriodRunStatus`, `LoyaltyPeriodRun`, `LoyaltyPeriodRunPreview`, `LoyaltyPeriodRunReset`); collection `loyalty_period_runs`; period-run jobs carry an optional `runId` when continuing.
 
 ### `2026-09-29` — Nightly runs per organization
 
@@ -163,27 +187,3 @@
 - **Summary:** Accounts can be listed and filtered by owner type, status, account type and tier, and searched by account number or owner name.
 - **Affected areas:** `modules/score/services/accountList.ts` (+ tests), `graphql/resolvers/queries/account.ts`, `graphql/schemas/account.ts`, `customResolvers/loyaltyAccount.ts` (balances read from both hydrated `Map` and lean objects), `@types/account.ts`.
 - **Contracts changed:** Added query `loyaltyAccounts(searchValue, ownerType, status, accountTypeId, tier, cursor params): LoyaltyAccountListResponse`; `LoyaltyAccount.owner: JSON`.
-
-### `2026-09-27` — Adjust score explains a zero
-
-- **Summary:** An "Adjust score" run that gives nobody points ends `skipped` with every reason per owner instead of a success carrying nulls.
-- **Affected areas:** `services/earnTable.ts` (`explainEmptyEarn`), `doCampaign` `onSkip` in `ScoreCampaign.ts`, `meta/automations/score/producers.ts`, earn table tests.
-- **Contracts changed:** Adjust score may return the shared skipped outcome (`reason` = first skip, `result.owners[].skips`: `TScoreSkip[]`); `DoCampaignTypes.onSkip`.
-
-### `2026-09-27` — Automation: earning rows and Set tier
-
-- **Summary:** "Adjust score" passes the automation's chosen earning rows (`earnRowKeys`); a new "Set tier" action (`score.tier`) opens the owner's account if needed and sets or clears a tier.
-- **Affected areas:** `meta/automations/score/producers.ts`, `meta/automations/constants.ts`, `meta/automations/types.ts`.
-- **Contracts changed:** Automation action `loyalty:score.tier.create` (config `attribution`, `accountTypeId`, `tier`); Adjust score config `earnRowKeys`.
-
-### `2026-09-27` — Formulas and the set action removed
-
-- **Summary:** Campaigns earn only by table and spend only by rules; formula evaluation, the `set` campaign action, `handleScore`/`updateScore` tRPC and `scoreCampaignAttributes` are removed.
-- **Affected areas:** `ScoreCampaign.ts`, campaign schema/types/GraphQL, `score/utils.ts`, `utils/utils.ts`, `trpc/init-trpc.ts`, automation action type.
-- **Contracts changed:** `ScoreCampaign` loses `set` and formula fields (`add`/`subtract` hold only `table`/`rules`); removed `scoreCampaignAttributes` query and `score.updateScore` tRPC; automation score action is `add | subtract`.
-
-### `2026-09-27` — Spending rules and point value
-
-- **Summary:** Account types add `pointValue`; campaigns spend by rules (minimum balance, max share of an order, step) that loyalty checks for every channel.
-- **Affected areas:** `services/spendRules.ts`, `checkScoreAviableSubtract` and `doCampaign` in `ScoreCampaign.ts`, `AccountType.ts`, tests in `services/__tests__/spendRules.test.ts`.
-- **Contracts changed:** `LoyaltyAccountType.pointValue` and add/edit input; `ScoreCampaign.subtract.mode: 'rules'` / `subtract.rules`.

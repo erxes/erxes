@@ -8,6 +8,7 @@ export const scoreLogSchema = schemaWrapper(
     {
       createdAt: { type: Date, label: 'Created at' },
       createdBy: { type: String, label: 'Created User', optional: true },
+      createdVia: { type: Object, label: 'Created via', optional: true },
 
       ownerType: {
         type: String,
@@ -86,4 +87,11 @@ scoreLogSchema.index({
 scoreLogSchema.index({
   targetId: 1,
   action: 1,
+});
+
+// A period reset reads what each account moved since the period began.
+scoreLogSchema.index({
+  accountId: 1,
+  accountTypeId: 1,
+  createdAt: 1,
 });

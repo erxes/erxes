@@ -19,10 +19,12 @@ const buildModels = ({
   entries,
   changedSince = 0,
   pendingSince = 0,
+  oldPending = [],
 }: {
   entries: TEntry[];
   changedSince?: number;
   pendingSince?: number;
+  oldPending?: { remaining: number; sourceLogId: string }[];
 }) => {
   const accounts = entries.map((entry, index) => ({
     _id: `account-${index}`,
@@ -48,6 +50,7 @@ const buildModels = ({
     },
     LoyaltyLots: {
       sumOpen: jest.fn().mockResolvedValue(pendingSince),
+      find: jest.fn(() => ({ lean: async () => oldPending })),
     },
   };
 };
@@ -138,5 +141,59 @@ describe('resetAccountType', () => {
     expect(jest.mocked(setAccountTier).mock.calls[0][0].accountId).toBe(
       'account-1',
     );
+  });
+
+  it('counts what a reset would do without writing anything in a dry run', async () => {
+    const models = buildModels({
+      entries: [
+        { balance: 100, tier: 'gold' },
+        { balance: 40, tier: 'gold' },
+        { balance: 0 },
+      ],
+    });
+
+    const { impact } = await resetAccountType({
+      models: models as never,
+      subdomain: 'test',
+      accountType: accountType as never,
+      boundary: BOUNDARY,
+      dryRun: true,
+    });
+
+    expect(applyScoreChange).not.toHaveBeenCalled();
+    expect(setAccountTier).not.toHaveBeenCalled();
+    expect(models.LoyaltyAccounts.markReset).not.toHaveBeenCalled();
+    expect(impact).toEqual({
+      accounts: 3,
+      pointsCleared: 140,
+      pointsKept: 0,
+      tierChanges: [{ from: 'gold', to: null, accounts: 2 }],
+    });
+  });
+
+  it('clears points of the old period still held back, without touching the balance', async () => {
+    const models = buildModels({
+      entries: [{ balance: 0 }],
+      oldPending: [{ remaining: 100, sourceLogId: 'earn-1' }],
+    });
+
+    const dry = await resetAccountType({
+      models: models as never,
+      subdomain: 'test',
+      accountType: accountType as never,
+      boundary: BOUNDARY,
+      dryRun: true,
+    });
+
+    expect(dry.impact.pointsCleared).toBe(100);
+    expect(applyScoreChange).not.toHaveBeenCalled();
+
+    await run(models);
+
+    expect(jest.mocked(applyScoreChange).mock.calls[0][0].doc).toMatchObject({
+      action: 'expire',
+      changeScore: -100,
+      sourceScoreLogId: 'earn-1',
+    });
   });
 });

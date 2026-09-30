@@ -91,7 +91,10 @@ export const LoyaltyAccountTypeFormSheet = ({
                 <LoyaltyAccountTypeTiersField control={control} />
               )}
               {active === 'expiry' && (
-                <LoyaltyAccountTypeExpirySection control={control} />
+                <LoyaltyAccountTypeExpirySection
+                  control={control}
+                  accountTypeId={accountType?._id}
+                />
               )}
             </SectionedSheetForm>
             <Sheet.Footer className="flex justify-end shrink-0 p-2.5 gap-1 bg-muted">

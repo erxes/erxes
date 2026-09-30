@@ -38,6 +38,7 @@ import {
   IEarnTable,
   TScoreSkip,
 } from '@/score/@types/earnTable';
+import { heldPastReset } from '@/score/services/earnWindow';
 import {
   buildEarnContext,
   TEarnProductScope,
@@ -351,6 +352,7 @@ export const loadScoreCampaignClass = (
           changeScore,
           breakdown,
           createdBy: input.actorId,
+          createdVia: input.createdVia,
         },
       });
 
@@ -632,6 +634,29 @@ export const loadScoreCampaignClass = (
             activeRowKeys: input.earnRowKeys,
           }),
         );
+
+        return null;
+      }
+
+      // Held back past the next reset, the points would be cleared before
+      // they could ever be spent; the purchase is recorded as giving none.
+      const held =
+        earned.total && !activeScoreLog && input.targetId
+          ? await heldPastReset({
+              models,
+              subdomain,
+              accountTypeId: campaign.accountTypeId,
+            })
+          : null;
+
+      if (held) {
+        onSkip?.([
+          {
+            reason: 'held-past-reset',
+            availableAt: held.availableAt.toISOString(),
+            resetsAt: held.resetsAt.toISOString(),
+          },
+        ]);
 
         return null;
       }

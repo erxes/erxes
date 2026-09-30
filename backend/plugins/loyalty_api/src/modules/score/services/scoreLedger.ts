@@ -1,3 +1,4 @@
+import { TCreatedVia } from 'erxes-api-shared/core-types';
 import { IScoreLogDocument } from '@/score/@types/scoreLog';
 import { LOYALTY_ACCOUNT_TYPE_STATUSES, SCORE_ACTION } from '@/score/constants';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
@@ -59,6 +60,7 @@ export type ScoreChangeDoc = ScoreTarget & {
   changeScore?: number;
   description?: string;
   createdBy?: string;
+  createdVia?: TCreatedVia;
   sourceScoreLogId?: string;
   createdAt?: Date;
   owner?: ScoreOwner;
@@ -912,6 +914,7 @@ export const applyScoreChange = async ({
     createdAt,
     description,
     createdBy,
+    createdVia: doc.createdVia,
     serviceName,
     targetId,
     targetType: doc.targetType,

@@ -1,4 +1,9 @@
 import { TLoyaltyAccountTypeStatus } from '@/score/@types/accountType';
+import {
+  getAccountTypePeriodPreview,
+  TPeriodPreviewInput,
+} from '@/score/services/periodPreview';
+import { getPeriodRunStatus } from '@/score/services/periodRunStatus';
 import { IContext } from '~/connectionResolvers';
 
 export const loyaltyAccountTypeQueries = {
@@ -44,5 +49,31 @@ export const loyaltyAccountTypeQueries = {
     });
 
     return fieldIds.length;
+  },
+
+  async loyaltyPeriodRunStatus(
+    _root: undefined,
+    _args: undefined,
+    { models, subdomain, checkPermission }: IContext,
+  ) {
+    await checkPermission('loyaltyCampaignView');
+
+    return getPeriodRunStatus(models, subdomain);
+  },
+
+  async loyaltyAccountTypePeriodPreview(
+    _root: undefined,
+    {
+      _id,
+      ...settings
+    }: { _id?: string } & Omit<TPeriodPreviewInput, 'accountTypeId'>,
+    { models, subdomain, checkPermission }: IContext,
+  ) {
+    await checkPermission('loyaltyCampaignView');
+
+    return getAccountTypePeriodPreview(models, subdomain, {
+      accountTypeId: _id,
+      ...settings,
+    });
   },
 };

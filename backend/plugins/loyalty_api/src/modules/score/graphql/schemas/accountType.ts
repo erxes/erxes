@@ -66,6 +66,64 @@ export const types = `
     reason: String
   }
 
+  type LoyaltyTierChange {
+    from: String
+    to: String
+    accounts: Int
+  }
+
+  type LoyaltyResetImpact {
+    accounts: Int
+    total: Int
+    sampled: Boolean
+    pointsCleared: Float
+    pointsKept: Float
+    tierChanges: [LoyaltyTierChange]
+  }
+
+  type LoyaltyAccountTypePeriodPreview {
+    timeZone: String
+    nextReset: Date
+    noEarnFrom: Date
+    earnedNowExpiresAt: Date
+    pendingUntil: Date
+    tierTo: String
+    impact: LoyaltyResetImpact
+  }
+
+  type LoyaltyPeriodRun {
+    _id: String
+    startedAt: Date
+    finishedAt: Date
+    status: String
+    batches: Int
+    released: Int
+    expired: Int
+    reset: Int
+    failed: Int
+    error: String
+  }
+
+  type LoyaltyPeriodRunReset {
+    accountTypeId: String
+    name: String
+    boundary: Date
+    accounts: Int
+  }
+
+  type LoyaltyPeriodRunPreview {
+    releasing: Int
+    expiring: Int
+    resets: [LoyaltyPeriodRunReset]
+  }
+
+  type LoyaltyPeriodRunStatus {
+    nextRunAt: Date
+    timeZone: String
+    preview: LoyaltyPeriodRunPreview
+    runs: [LoyaltyPeriodRun]
+  }
+
   type LoyaltyAccountTypeAdoptionResult {
     adopted: [LoyaltyAccountTypeAdoption]
     skipped: [LoyaltyAccountTypeAdoptionSkip]
@@ -76,6 +134,8 @@ export const queries = `
   loyaltyAccountTypes(status: String, ownerType: String): [LoyaltyAccountType]
   loyaltyAccountType(_id: String!): LoyaltyAccountType
   loyaltyAccountTypeLegacyFieldCount: Int
+  loyaltyPeriodRunStatus: LoyaltyPeriodRunStatus
+  loyaltyAccountTypePeriodPreview(_id: String, expiry: LoyaltyAccountTypeExpiryInput, reset: LoyaltyAccountTypeResetInput, pendingDays: Int): LoyaltyAccountTypePeriodPreview
 `;
 
 export const mutations = `

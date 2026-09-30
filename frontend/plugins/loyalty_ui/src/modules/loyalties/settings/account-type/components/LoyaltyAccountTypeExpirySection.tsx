@@ -2,6 +2,7 @@ import { Form, Input, Select } from 'erxes-ui';
 import { Control, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { TLoyaltyAccountTypeFormValues } from '../hooks/useLoyaltyAccountTypeForm';
+import { LoyaltyAccountTypePeriodPreview } from './LoyaltyAccountTypePeriodPreview';
 import {
   LOYALTY_EXPIRY_MODES,
   LOYALTY_RESET_PERIODS,
@@ -12,8 +13,10 @@ import {
 // context erxes-ui's Form provides.
 export const LoyaltyAccountTypeExpirySection = ({
   control,
+  accountTypeId,
 }: {
   control: Control<TLoyaltyAccountTypeFormValues>;
+  accountTypeId?: string;
 }) => {
   const { t } = useTranslation('loyalty');
   const expiryMode = useWatch({ control, name: 'expiry.mode' });
@@ -121,6 +124,10 @@ export const LoyaltyAccountTypeExpirySection = ({
           )}
         />
       )}
+      <LoyaltyAccountTypePeriodPreview
+        control={control}
+        accountTypeId={accountTypeId}
+      />
     </div>
   );
 };

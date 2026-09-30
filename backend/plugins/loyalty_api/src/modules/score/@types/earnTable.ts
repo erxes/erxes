@@ -83,4 +83,6 @@ export type TScoreSkip =
       rows: { name: string; unmet: TEarnCondition }[];
     }
   | { reason: 'no-amount'; amountSource: IEarnTable['amountSource'] }
-  | { reason: 'rounded-to-zero' };
+  | { reason: 'rounded-to-zero' }
+  // Spendable only after the next reset, which would clear it first.
+  | { reason: 'held-past-reset'; availableAt: string; resetsAt: string };

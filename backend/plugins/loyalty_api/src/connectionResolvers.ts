@@ -2,6 +2,11 @@ import { IAgentDocument } from '@/agent/@types';
 import { ILoyaltyAccountDocument } from '@/score/@types/account';
 import { ILoyaltyLotDocument } from '@/score/@types/lot';
 import { ILoyaltyLotModel, loadLoyaltyLotClass } from '@/score/db/models/Lot';
+import { ILoyaltyPeriodRunDocument } from '@/score/@types/periodRun';
+import {
+  ILoyaltyPeriodRunModel,
+  loadLoyaltyPeriodRunClass,
+} from '@/score/db/models/PeriodRun';
 import { ILoyaltyAccountTypeDocument } from '@/score/@types/accountType';
 import {
   ILoyaltyAccountModel,
@@ -100,6 +105,7 @@ export interface IModels {
   LoyaltyAccountTypes: ILoyaltyAccountTypeModel;
   LoyaltyAccounts: ILoyaltyAccountModel;
   LoyaltyLots: ILoyaltyLotModel;
+  LoyaltyPeriodRuns: ILoyaltyPeriodRunModel;
   ScoreLogs: IScoreLogModel;
   Spins: ISpinModel;
   SpinCampaigns: ISpinCampaignModel;
@@ -223,6 +229,11 @@ export const loadClasses = (
     'loyalty_lots',
     loadLoyaltyLotClass(models),
   );
+
+  models.LoyaltyPeriodRuns = db.model<
+    ILoyaltyPeriodRunDocument,
+    ILoyaltyPeriodRunModel
+  >('loyalty_period_runs', loadLoyaltyPeriodRunClass(models));
 
   models.ScoreLogs = db.model<IScoreLogDocument, IScoreLogModel>(
     'score_logs',

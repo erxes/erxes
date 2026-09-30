@@ -124,6 +124,7 @@ const earnScore = async ({
           // The record type without the trigger's event suffix.
           targetType: execution.triggerType.split('.').slice(0, 2).join('.'),
           actorId: execution.createdVia?.actorId,
+          createdVia: execution.createdVia,
         },
         (skips) => skipped.push({ ownerId, skips }),
       ),

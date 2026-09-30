@@ -1,3 +1,4 @@
+import { TCreatedVia } from 'erxes-api-shared/core-types';
 import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
 import { Document } from 'mongoose';
 import { ICommonDocument } from '~/utils';
@@ -11,6 +12,9 @@ export interface IScoreLog {
   changeScore: number;
   description: string;
   createdBy?: string;
+  // What produced the entry when nobody typed it in: an automation, a
+  // wallet's period run.
+  createdVia?: TCreatedVia;
   campaignId?: string;
   // Stamped on every write; campaign-less entries (resets) have only this.
   accountTypeId?: string;
@@ -26,7 +30,9 @@ export interface IScoreLog {
 }
 
 export interface IScoreLogDocument
-  extends IScoreLog, ICommonDocument, Document {
+  extends IScoreLog,
+    ICommonDocument,
+    Document {
   _id: string;
 }
 

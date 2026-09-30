@@ -49,22 +49,38 @@ export interface IScoreLogModel extends Model<IScoreLogDocument> {
   }): Promise<void>;
 }
 
-const describeScoreChange = (action: string, change: number, next: number) => {
+// Said by whoever the entry is recorded under: the automation's owner, the
+// cashier, the wallet's creator for a period run.
+const describeScoreChange = ({
+  action,
+  change,
+  previous,
+  next,
+  walletName,
+}: {
+  action: string;
+  change: number;
+  previous: number;
+  next: number;
+  walletName?: string;
+}) => {
   const points = Math.abs(change);
+  const wallet = walletName || 'the score';
+  const balance = `(${previous} → ${next})`;
 
   switch (action) {
     case SCORE_ACTION.ADD:
-      return `earned ${points} points`;
+      return `added ${points} points to ${wallet} ${balance}`;
     case SCORE_ACTION.SUBTRACT:
-      return `spent ${points} points`;
+      return `took ${points} points from ${wallet} for a payment ${balance}`;
     case SCORE_ACTION.EXPIRE:
-      return `${points} points expired`;
+      return `expired ${points} points in ${wallet} ${balance}`;
     case SCORE_ACTION.SET:
-      return `points set to ${next}`;
+      return `reset ${wallet} ${balance}`;
     default:
       return change >= 0
-        ? `got ${points} points back`
-        : `${points} points taken back`;
+        ? `returned ${points} points to ${wallet} ${balance}`
+        : `took back ${points} points from ${wallet} ${balance}`;
   }
 };
 
@@ -188,7 +204,7 @@ export const loadScoreLogClass = (
      */
     public static async recordActivity({
       log,
-      actorId = log.createdBy,
+      actorId = log.createdBy || log.createdVia?.actorId,
       changeScore,
       previousScore,
       newScore,
@@ -207,7 +223,13 @@ export const loadScoreLogClass = (
 
       const action = log.action || SCORE_ACTION.ADD;
       const activityType = `loyalty.score.${action}`;
-      const description = describeScoreChange(action, changeScore, newScore);
+      const description = describeScoreChange({
+        action,
+        change: changeScore,
+        previous: previousScore,
+        next: newScore,
+        walletName,
+      });
       const changes = {
         points: changeScore,
         balance: { prev: previousScore, current: newScore },
@@ -230,7 +252,7 @@ export const loadScoreLogClass = (
         [
           {
             activityType,
-            target: { _id: recordId },
+            target: { _id: recordId, createdVia: log.createdVia },
             action: { type: activityType, description },
             changes,
             metadata: { ...metadata, ownerType: log.ownerType },
@@ -239,10 +261,10 @@ export const loadScoreLogClass = (
             ? [
                 {
                   activityType,
-                  target: { _id: log.targetId },
+                  target: { _id: log.targetId, createdVia: log.createdVia },
                   action: {
                     type: activityType,
-                    description: `${log.ownerType} ${description}`,
+                    description: `${description} of the ${log.ownerType}`,
                   },
                   changes,
                   metadata: {

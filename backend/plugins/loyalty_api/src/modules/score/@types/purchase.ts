@@ -1,3 +1,5 @@
+import { TCreatedVia } from 'erxes-api-shared/core-types';
+
 /**
  * What loyalty needs to know about a purchase to earn points on it. The
  * selling side fills it from its own records; loyalty never reads a deal or an
@@ -25,6 +27,8 @@ export interface ILoyaltyScoreSource {
   serviceName?: string;
   // Whom the change is recorded under; an automation's owner, a cashier.
   actorId?: string;
+  // What produced it when nobody typed it in, e.g. the automation.
+  createdVia?: TCreatedVia;
 }
 
 export interface IEarnInput extends ILoyaltyScoreSource {

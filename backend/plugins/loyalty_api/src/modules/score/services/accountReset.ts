@@ -1,3 +1,4 @@
+import { TCreatedVia } from 'erxes-api-shared/core-types';
 import {
   ILoyaltyAccountTypeDocument,
   TLoyaltyResetPeriod,
@@ -66,6 +67,22 @@ export const getPeriodStart = (
   return new Date(wall - zoneOffset(guess, zone));
 };
 
+// The start of the period after the current one: when the next reset runs.
+export const getNextPeriodStart = (
+  now: Date,
+  period: Exclude<TLoyaltyResetPeriod, 'never'>,
+  timeZone: string,
+) => {
+  const current = getPeriodStart(now, period, timeZone);
+  const days = period === 'monthly' ? 32 : 367;
+
+  return getPeriodStart(
+    new Date(current.getTime() + days * 24 * 60 * 60 * 1000),
+    period,
+    timeZone,
+  );
+};
+
 // Accounts reset per run; a run that reaches it hands the rest to another.
 const RESET_BATCH = Number(process.env.LOYALTY_RESET_BATCH) || 500;
 
@@ -105,19 +122,55 @@ const changedSince = async ({
   return fixScoreNumber((logs?.total || 0) - stillPending);
 };
 
+// What a reset takes from and gives to accounts; the preview reports it
+// without writing, from the same loop the real run goes through.
+export type TResetImpact = {
+  accounts: number;
+  pointsCleared: number;
+  pointsKept: number;
+  tierChanges: { from: string | null; to: string | null; accounts: number }[];
+};
+
+type TResetSubject = Pick<
+  ILoyaltyAccountTypeDocument,
+  '_id' | 'name' | 'createdUserId' | 'reset' | 'expiry' | 'tiers' | 'fieldId'
+>;
+
+/**
+ * A period run acts for the wallet it runs: the entries it writes say so,
+ * and are recorded under whoever made the wallet, the way an automation's
+ * are under its owner.
+ */
+export const walletRunVia = (
+  accountType: Pick<TResetSubject, '_id' | 'name' | 'createdUserId'>,
+  runId?: string,
+): TCreatedVia => ({
+  source: 'wallet',
+  sourceId: accountType._id,
+  sourceName: accountType.name,
+  runId,
+  actorId: accountType.createdUserId,
+});
+
 // Resets up to a batch of accounts holding this type that have not gone
 // through the period starting at `boundary`. Failed accounts stay unmarked
-// and are retried on the next run.
+// and are retried on the next run. `dryRun` writes nothing and only counts.
 export const resetAccountType = async ({
   models,
   subdomain,
   accountType,
   boundary,
+  dryRun = false,
+  limit = RESET_BATCH,
+  runId,
 }: {
   models: IModels;
   subdomain: string;
-  accountType: ILoyaltyAccountTypeDocument;
+  accountType: TResetSubject;
   boundary: Date;
+  dryRun?: boolean;
+  limit?: number;
+  runId?: string;
 }) => {
   const { reset } = accountType;
   const path = `balances.${accountType._id}`;
@@ -139,15 +192,20 @@ export const resetAccountType = async ({
       { [`${path}.resetAt`]: { $lt: boundary } },
     ],
   })
-    .limit(RESET_BATCH)
+    .limit(limit)
     .cursor();
 
   let failed = 0;
   let processed = 0;
+  let resetCount = 0;
+  const tierChanges = new Map<string, TResetImpact['tierChanges'][number]>();
+  let pointsCleared = 0;
+  let pointsKept = 0;
 
   for await (const account of accounts) {
     processed++;
     const entry = account.balances?.get(accountType._id);
+    const balance = Number(entry?.balance) || 0;
 
     try {
       if (accountType.expiry?.mode === 'calendar') {
@@ -161,8 +219,54 @@ export const resetAccountType = async ({
           }),
         );
 
+        // Earned in the old period but still held back: it belongs to that
+        // period and goes with it, rather than landing in the new one later.
+        const oldPending = await models.LoyaltyLots.find(
+          {
+            accountId: account._id,
+            key: accountType._id,
+            status: 'pending',
+            remaining: { $gt: 0 },
+            createdAt: { $lt: boundary },
+          },
+          { remaining: 1, sourceLogId: 1 },
+        ).lean();
+
+        pointsKept = fixScoreNumber(pointsKept + kept);
+        pointsCleared = fixScoreNumber(
+          pointsCleared +
+            Math.max(0, balance - kept) +
+            oldPending.reduce((sum, lot) => sum + lot.remaining, 0),
+        );
+
+        for (const lot of dryRun ? [] : oldPending) {
+          if (!lot.sourceLogId) {
+            continue;
+          }
+
+          // Taken from the earning's pending lot, so the balance is not
+          // touched and the ledger still sums to it.
+          await applyScoreChange({
+            models,
+            subdomain,
+            doc: {
+              ownerType: account.ownerType,
+              ownerId: account.ownerId,
+              fieldId: accountType.fieldId,
+              action: SCORE_ACTION.EXPIRE as ScoreAction,
+              changeScore: -lot.remaining,
+              sourceScoreLogId: lot.sourceLogId,
+              serviceName: 'loyalty',
+              description: 'Period reset: held-back points of the old period',
+              bypassFreeze: true,
+              preventNegativeBalance: false,
+              createdVia: walletRunVia(accountType, runId),
+            },
+          });
+        }
+
         // Through the ledger, so repair and history see the reset.
-        if (Number(entry?.balance) !== kept) {
+        if (!dryRun && balance !== kept) {
           await applyScoreChange({
             models,
             subdomain,
@@ -175,6 +279,7 @@ export const resetAccountType = async ({
               serviceName: 'loyalty',
               description: 'Period reset',
               bypassFreeze: true,
+              createdVia: walletRunVia(accountType, runId),
             },
           });
         }
@@ -185,20 +290,39 @@ export const resetAccountType = async ({
         !entry?.tierSince || new Date(entry.tierSince) < boundary;
 
       if (tierAfterReset !== undefined && tierIsOld) {
-        await setAccountTier({
-          models,
-          subdomain,
-          accountId: account._id,
-          accountTypeId: accountType._id,
-          tier: tierAfterReset,
-        });
+        const from = entry?.tier ?? null;
+
+        if (from !== tierAfterReset) {
+          const key = `${from}>${tierAfterReset}`;
+          const change = tierChanges.get(key) || {
+            from,
+            to: tierAfterReset,
+            accounts: 0,
+          };
+
+          change.accounts++;
+          tierChanges.set(key, change);
+        }
+
+        if (!dryRun) {
+          await setAccountTier({
+            models,
+            subdomain,
+            accountId: account._id,
+            accountTypeId: accountType._id,
+            tier: tierAfterReset,
+          });
+        }
       }
 
-      await models.LoyaltyAccounts.markReset(
-        account._id,
-        accountType._id,
-        boundary,
-      );
+      if (!dryRun) {
+        await models.LoyaltyAccounts.markReset(
+          account._id,
+          accountType._id,
+          boundary,
+        );
+      }
+      resetCount++;
     } catch (error) {
       failed++;
       console.error(
@@ -210,26 +334,40 @@ export const resetAccountType = async ({
   }
 
   // A batch that failed whole would only fail again right away.
-  return { failed, more: processed >= RESET_BATCH && failed < processed };
+  const impact: TResetImpact = {
+    accounts: resetCount,
+    pointsCleared,
+    pointsKept,
+    tierChanges: [...tierChanges.values()],
+  };
+
+  return {
+    failed,
+    reset: resetCount,
+    more: processed >= limit && failed < processed,
+    impact,
+  };
 };
 
-/** Returns whether accounts are left for another run. */
+/** What was reset, and whether accounts are left for another run. */
 export const resetDueAccountTypes = async ({
   models,
   subdomain,
   timeZone,
   now = new Date(),
+  runId,
 }: {
   models: IModels;
   subdomain: string;
   timeZone: string;
   now?: Date;
+  runId?: string;
 }) => {
   const accountTypes = await models.LoyaltyAccountTypes.find({
     status: 'active',
     'reset.period': { $in: ['monthly', 'yearly'] },
   });
-  let more = false;
+  const result = { more: false, reset: 0, failed: 0 };
 
   for (const accountType of accountTypes) {
     const { reset } = accountType;
@@ -245,22 +383,26 @@ export const resetDueAccountTypes = async ({
     }
 
     // A period that began before the reset was turned on is left alone.
-    const result =
+    const typeResult =
       reset.since && reset.since >= boundary
-        ? { failed: 0, more: false }
+        ? { failed: 0, reset: 0, more: false }
         : await resetAccountType({
             models,
             subdomain,
             accountType,
             boundary,
+            runId,
           });
 
-    if (result.more) {
-      more = true;
+    result.reset += typeResult.reset;
+    result.failed += typeResult.failed;
+
+    if (typeResult.more) {
+      result.more = true;
       continue;
     }
 
-    if (!result.failed) {
+    if (!typeResult.failed) {
       await models.LoyaltyAccountTypes.updateOne(
         { _id: accountType._id },
         { $set: { 'reset.lastBoundary': boundary } },
@@ -268,5 +410,5 @@ export const resetDueAccountTypes = async ({
     }
   }
 
-  return more;
+  return result;
 };

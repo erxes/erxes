@@ -10,37 +10,72 @@ import {
   PERIODS_QUEUE,
   syncPeriodSchedule,
 } from '@/score/services/periodSchedule';
-import { generateModels } from '~/connectionResolvers';
+import { generateModels, IModels } from '~/connectionResolvers';
 
-// Nightly per organization: release pending points, expire lots, reset the
-// wallets whose period began. Only organizations with such wallets get a run.
+// A period run of one organization: release pending points, expire lots,
+// reset the wallets whose period began. A run that stops at its batch limit
+// continues as another job and is recorded as the same run.
 const runPeriods = async (job: Job) => {
-  const { subdomain } = job.data ?? {};
+  const { subdomain, runId: continuing } = job.data ?? {};
 
   if (!subdomain) {
     return;
   }
 
   const models = await generateModels(subdomain);
+  const runId: string =
+    continuing || (await models.LoyaltyPeriodRuns.startRun())._id;
 
-  await releasePendingLots({ models, subdomain });
-  await expireLots({ models, subdomain });
+  try {
+    // Lots move in the first batch only; later batches carry on resetting.
+    const lots = continuing
+      ? { released: 0, expired: 0, failed: 0 }
+      : await moveLots(models, subdomain, runId);
+    const reset = await resetDueAccountTypes({
+      models,
+      subdomain,
+      timeZone: await loyaltyTimeZone(subdomain),
+      runId,
+    });
 
-  const more = await resetDueAccountTypes({
-    models,
-    subdomain,
-    timeZone: await loyaltyTimeZone(subdomain),
-  });
+    await models.LoyaltyPeriodRuns.addBatch(
+      runId,
+      {
+        released: lots.released,
+        expired: lots.expired,
+        reset: reset.reset,
+        failed: lots.failed + reset.failed,
+      },
+      !reset.more,
+    );
 
-  if (more) {
-    await continuePeriodRun(subdomain);
-    return;
+    if (reset.more) {
+      await continuePeriodRun(subdomain, runId);
+      return;
+    }
+  } catch (error) {
+    await models.LoyaltyPeriodRuns.failRun(
+      runId,
+      error instanceof Error ? error.message : String(error),
+    );
+    throw error;
   }
 
   // Nothing left that moves with time: the organization stops getting runs.
   if (!(await needsPeriodRuns(models))) {
     await syncPeriodSchedule(models, subdomain);
   }
+};
+
+const moveLots = async (models: IModels, subdomain: string, runId: string) => {
+  const released = await releasePendingLots({ models, subdomain });
+  const expired = await expireLots({ models, subdomain, runId });
+
+  return {
+    released: released.released,
+    expired: expired.expired,
+    failed: released.failed + expired.failed,
+  };
 };
 
 // The hourly run for every organization that this replaced.
