@@ -1,7 +1,11 @@
+import { NavigationActivityAccordion } from '@/navigation/components/navigation-activity-rail/NavigationActivityAccordion';
 import { NavigationActivityButton } from '@/navigation/components/navigation-activity-rail/NavigationActivityButton';
 import { NavigationActivityHover } from '@/navigation/components/navigation-activity-rail/NavigationActivityHover';
 import { NavigationActivitySection } from '@/navigation/components/navigation-activity-rail/NavigationActivitySection';
+import { useNavigationPlacement } from '@/navigation/hooks/useNavigationPlacement';
+import { usePluginsNavigationGroups } from '@/navigation/hooks/usePluginsNavigationGroups';
 import { INavigationActivity } from '@/navigation/types/NavigationActivity';
+import { Sidebar } from 'erxes-ui';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -9,22 +13,29 @@ export const NavigationActivityGroups = ({
   activeActivityId,
   activities,
   expanded,
+  expandedActivityId,
   hoverEnabled,
   isActivityPinned,
   isSettings,
   onActivityPinnedChange,
   onSelectActivity,
+  onToggleActivity,
 }: Readonly<{
   activeActivityId: string | null;
   activities: INavigationActivity[];
   expanded: boolean;
+  expandedActivityId: string | null;
   hoverEnabled: boolean;
   isActivityPinned: (activityId: string) => boolean;
   isSettings: boolean;
   onActivityPinnedChange: (activityId: string, pinned: boolean) => void;
   onSelectActivity: (activity: INavigationActivity) => void;
+  onToggleActivity: (activity: INavigationActivity) => void;
 }>) => {
   const { t } = useTranslation('common', { keyPrefix: 'navigation' });
+  const navigationGroups = usePluginsNavigationGroups();
+  const { isMobile } = Sidebar.useSidebar();
+  const getPlacement = useNavigationPlacement();
   const [previewActivityId, setPreviewActivityId] = useState<string | null>(
     null,
   );
@@ -41,12 +52,40 @@ export const NavigationActivityGroups = ({
     }
   }, [hoverEnabled]);
 
+  const hasInlineModules = (activity: INavigationActivity) => {
+    if (activity.kind === 'core') {
+      return activity.modules.some((module) => module.submenus?.length);
+    }
+
+    const navigationGroup = navigationGroups[activity.id];
+    const hasModules = Boolean(
+      navigationGroup?.contents.length ||
+        (isMobile && navigationGroup?.subGroups.length),
+    );
+
+    return hasModules && getPlacement(activity.id) === 'inline';
+  };
+
   const renderActivity = (activity: INavigationActivity) => {
     const active = !isSettings && activity.id === activeActivityId;
     const pinned = isActivityPinned(activity.id);
     const handlePinnedChange = (nextPinned: boolean) =>
       onActivityPinnedChange(activity.id, nextPinned);
     const handleSelect = () => onSelectActivity(activity);
+
+    if (expanded && hasInlineModules(activity)) {
+      return (
+        <NavigationActivityAccordion
+          key={activity.id}
+          activity={activity}
+          active={active}
+          open={activity.id === expandedActivityId}
+          pinned={pinned}
+          onPinnedChange={handlePinnedChange}
+          onToggle={() => onToggleActivity(activity)}
+        />
+      );
+    }
 
     if (!hoverEnabled) {
       return (

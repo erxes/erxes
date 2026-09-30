@@ -1,6 +1,5 @@
 import { AutomationErrorEmptyState } from '@/automations/components/common/AutomationErrorEmptyState';
 import { useAutomationsListLayout } from '@/automations/components/list/AutomationsDisplayControl';
-import { AutomationsViewToggle } from '@/automations/components/list/AutomationsViewToggle';
 import { WorkflowTemplatesCardList } from '@/automations/components/templates/WorkflowTemplatesCardList';
 import {
   useWorkflowTemplateFilters,
@@ -16,18 +15,12 @@ import {
   IconArrowsSplit2,
   IconSearch,
 } from '@tabler/icons-react';
-import {
-  Breadcrumb,
-  Button,
-  Empty,
-  RecordTable,
-  Separator,
-  toast,
-} from 'erxes-ui';
+import { Breadcrumb, Button, Empty, RecordTable, toast } from 'erxes-ui';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { PageHeader } from 'ui-modules';
+import { AutomationsAbsolutePath } from '@/types/paths/AutomationPath';
 
 export const WorkflowTemplatesList = () => {
   const { searchValue } = useWorkflowTemplateFilters();
@@ -56,7 +49,6 @@ export const WorkflowTemplatesList = () => {
         onRename: handleRename,
         onRemove: removeTemplate,
       }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [removeTemplate, t],
   );
 
@@ -67,15 +59,23 @@ export const WorkflowTemplatesList = () => {
           <Breadcrumb>
             <Breadcrumb.List className="gap-1">
               <Breadcrumb.Item>
-                <Button variant="ghost">
-                  <IconAffiliate />
-                  {t('automations')}
+                <Button variant="ghost" asChild>
+                  <Link to={AutomationsAbsolutePath.Index}>
+                    <IconAffiliate />
+                    {t('automations')}
+                  </Link>
+                </Button>
+              </Breadcrumb.Item>
+              <Breadcrumb.Separator />
+              <Breadcrumb.Item>
+                <Button variant="ghost" asChild>
+                  <Link to={AutomationsAbsolutePath.Templates}>
+                    {t('templates')}
+                  </Link>
                 </Button>
               </Breadcrumb.Item>
             </Breadcrumb.List>
           </Breadcrumb>
-          <Separator.Inline />
-          <AutomationsViewToggle />
         </PageHeader.Start>
         <PageHeader.End>
           <Button asChild>

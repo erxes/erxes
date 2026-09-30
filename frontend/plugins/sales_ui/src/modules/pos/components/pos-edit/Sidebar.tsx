@@ -13,7 +13,7 @@ export const PosEditSidebar = ({ posType, activeTab }: PosEditSidebarProps) => {
   const steps = getSteps();
 
   return (
-    <Sidebar collapsible="none" className="flex-none border-r">
+    <Sidebar.Panel className="flex-none border-r" label={t('pos')}>
       <Sidebar.Group>
         <Sidebar.GroupContent>
           <Sidebar.Menu>
@@ -29,7 +29,7 @@ export const PosEditSidebar = ({ posType, activeTab }: PosEditSidebarProps) => {
           </Sidebar.Menu>
         </Sidebar.GroupContent>
       </Sidebar.Group>
-    </Sidebar>
+    </Sidebar.Panel>
   );
 };
 

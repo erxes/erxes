@@ -2,7 +2,6 @@ import { Filter, Spinner } from 'erxes-ui';
 import { Suspense, lazy } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { AccTrCheckSidebar } from '~/modules/check-synced/components/Sidebar';
 import { AccountingHeader } from '~/modules/layout/components/Header';
 
 const AccountingCheckSyncedDealsPage = lazy(() =>
@@ -32,7 +31,6 @@ export const AccountingCheckSync = () => {
           returnText={t('check-sync')}
         />
         <div className="flex flex-auto overflow-hidden">
-          <AccTrCheckSidebar />
           <Suspense
             fallback={
               <div className="flex flex-auto justify-center items-center h-full w-full">

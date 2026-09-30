@@ -8,11 +8,11 @@ export const ProductSidebar = () => {
   const { t } = useTranslation('product');
   const productFieldTypes = useProductFieldTypes();
   return (
-    <Sidebar collapsible="none" className="flex-none border-r">
+    <Sidebar.Panel
+      className="flex-none border-r"
+      label={t('products-types', 'Products types')}
+    >
       <Sidebar.Group>
-        <Sidebar.GroupLabel>
-          {t('products-types', 'Products types')}
-        </Sidebar.GroupLabel>
         <Sidebar.GroupContent>
           <Sidebar.Menu>
             {productFieldTypes.map((productType) => (
@@ -23,7 +23,7 @@ export const ProductSidebar = () => {
           </Sidebar.Menu>
         </Sidebar.GroupContent>
       </Sidebar.Group>
-    </Sidebar>
+    </Sidebar.Panel>
   );
 };
 

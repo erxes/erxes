@@ -6,7 +6,7 @@
 - **Project:** `accounting_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/accounting_ui`
-- **Last synchronized:** `2026-09-29`
+- **Last synchronized:** `2026-09-30`
 
 ## Scope
 
@@ -32,6 +32,8 @@
 - Keeps cash, bank, payable, and receivable transaction main-currency and foreign-currency amounts manually editable while syncing the paired amount from exchange rates without update cycles.
 - Provides adjustment navigation and pages for inventory, fixed asset, fund rate, and debt rate adjustments.
 - Provides closing adjustment navigation and pages for temporary account closing.
+- Lists the check-sync rule pages (deal, POS order) in the `CheckSyncNavigation` navigation sub group, shown only on `/accounting/check-sync` routes, so the check-sync page carries no in-page sidebar.
+- Navigation `content` renders the five module links (`MainNavigation`) followed by the adjustment, inventory and fixed asset sections, each a `NavigationSection` row (icon, label, chevron) that unfolds its links with a grid-row transition and opens whenever the route enters its own section (path-segment match) and otherwise keeps the user's open or closed choice; the host unfolds them in the main sidebar. Never use `NavigationMenuGroup` there — its muted, uppercase-styled group label reads as a disabled heading inside the main sidebar. Navigation `subGroup` holds only page-level menus the host lists in its context column: `JournalNavigation` (the transaction journals, only on `/accounting/records`, selected through the `journal` query param) and `CheckSyncNavigation`. Keep section entry points in `content`: an always-rendered sub group would occupy the context column on every accounting page and leave any page with its own side menu (journal reports) with three columns.
 - Opens fund, debt, and closing adjustment create/edit forms in `AccountingSheet` panels where those forms exist.
 - Uses system `dealCurrency` options for fund/debt adjustment main and foreign currency fields plus account currency selectors; rate adjustment main currency defaults from system `mainCurrency`.
 - Fetches spot rate from the existing exchange-rate hook when adjustment date, main currency, and foreign currency are selected.
@@ -134,6 +136,7 @@
 
 ## Local Invariants
 
+- Page-level side menus render `Sidebar.Panel` from `erxes-ui`, which keeps its own open state (`sidebarPanelOpenState`), separate from the host's context column. Never stack two headings: a menu without a heading passes one as `label` (header row with the heading, optional `actions` and the collapse toggle); a menu that starts with its own heading row (group label, collapsible or accordion trigger) omits `label` and ends that row with `Sidebar.PanelTrigger`. Keep `<Sidebar collapsible="none">` for sidebars inside sheets and dialogs.
 - GraphQL operation names in new accounting UI code must be prefixed with `Accounting`.
 - Safe remainder TXT imports must remain headerless `code,count` and preserve the backend-derived current total cost; CSV imports require `productCode,count,totalCost,isSale,unitPrice`, accept legacy `unitCost` or `trInfo.unitCost` as total-cost aliases, and must never accept `activeCost` as authoritative file input.
 - Safe remainder table source order is the fallback for browsers without saved preferences; existing user-controlled column order must continue to override that fallback through the stable versioned table preference key.

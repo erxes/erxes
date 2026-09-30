@@ -6,7 +6,7 @@
 - **Project:** `sales_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/sales_ui`
-- **Last synchronized:** `2026-09-22`
+- **Last synchronized:** `2026-09-30`
 
 ## Scope
 
@@ -92,6 +92,7 @@
 
 ## Local Invariants
 
+- Page-level side menus render `Sidebar.Panel` from `erxes-ui`, which keeps its own open state (`sidebarPanelOpenState`), separate from the host's context column. Never stack two headings: a menu without a heading passes one as `label` (header row with the heading, optional `actions` and the collapse toggle); a menu that starts with its own heading row (group label, collapsible or accordion trigger) omits `label` and ends that row with `Sidebar.PanelTrigger`. Keep `<Sidebar collapsible="none">` for sidebars inside sheets and dialogs. `LeftSidebarLoading` renders the same panel with the trigger beside its first placeholder row.
 - Property choices must come only from Core `sales:deal` fields.
 - Deal property detail must filter by the deal's `pipelineId` selection.
 - Pipeline and POS mutations must refresh or update Apollo state immediately.

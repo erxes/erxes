@@ -16,6 +16,18 @@ const MainNavigation = lazy(() =>
   })),
 );
 
+const JournalNavigation = lazy(() =>
+  import('@/JournalNavigation').then((mod) => ({
+    default: mod.JournalNavigation,
+  })),
+);
+
+const CheckSyncNavigation = lazy(() =>
+  import('@/check-synced/components/CheckSyncNavigation').then((mod) => ({
+    default: mod.CheckSyncNavigation,
+  })),
+);
+
 const AdjustmentNavigation = lazy(() =>
   import('@/AdjustmentNavigation').then((mod) => ({
     default: mod.AdjustmentNavigation,
@@ -55,13 +67,15 @@ export const CONFIG: IUIConfig = {
     content: () => (
       <Suspense fallback={<div />}>
         <MainNavigation />
+        <AdjustmentNavigation />
+        <InventoriesNavigation />
+        <FixedAssetsNavigation />
       </Suspense>
     ),
     subGroup: () => (
       <Suspense fallback={<div />}>
-        <AdjustmentNavigation />
-        <InventoriesNavigation />
-        <FixedAssetsNavigation />
+        <JournalNavigation />
+        <CheckSyncNavigation />
       </Suspense>
     ),
   },

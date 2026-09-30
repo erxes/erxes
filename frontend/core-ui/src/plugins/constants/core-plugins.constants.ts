@@ -6,12 +6,14 @@ import {
   IconBuilding,
   IconChartPie,
   IconFile,
+  IconLayoutGrid,
   IconMagnet,
   IconSpiral,
   IconUser,
 } from '@tabler/icons-react';
 import { ICoreModule } from 'erxes-ui';
 import { TFunction } from 'i18next';
+import { AutomationsAbsolutePath } from '@/types/paths/AutomationPath';
 
 export const GET_CORE_MODULES = (
   t: TFunction,
@@ -64,6 +66,18 @@ export const GET_CORE_MODULES = (
       name: t('automations'),
       icon: IconAffiliate,
       path: 'automations',
+      submenus: [
+        {
+          name: t('automations'),
+          path: 'automations',
+          icon: IconAffiliate,
+        },
+        {
+          name: t('templates'),
+          path: AutomationsAbsolutePath.Templates.slice(1),
+          icon: IconLayoutGrid,
+        },
+      ],
     },
     {
       name: t('logs'),

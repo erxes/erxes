@@ -11,17 +11,20 @@ export const DocumentsList = ({ documents }: { documents: IDocument[] }) => {
   const removeQuery = useRemoveQueryStateByKey();
 
   return (
-    <Sidebar collapsible="none" className="w-full border-r bg-muted/20">
+    <Sidebar collapsible="none" className="w-full bg-transparent">
       <Sidebar.Group>
-        <Sidebar.GroupLabel
-          className="h-12 cursor-pointer gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground hover:text-foreground"
-          onClick={() => {
-            removeQuery('documentId');
-          }}
-        >
-          <IconArrowLeft />
-          All documents
-        </Sidebar.GroupLabel>
+        <div className="flex items-center">
+          <Sidebar.GroupLabel
+            className="h-12 min-w-0 flex-1 cursor-pointer gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground hover:text-foreground"
+            onClick={() => {
+              removeQuery('documentId');
+            }}
+          >
+            <IconArrowLeft />
+            All documents
+          </Sidebar.GroupLabel>
+          <Sidebar.PanelTrigger />
+        </div>
         <Sidebar.GroupContent>
           <Sidebar.Menu>
             {documents.map(({ _id, name, approvalLockState }) => (

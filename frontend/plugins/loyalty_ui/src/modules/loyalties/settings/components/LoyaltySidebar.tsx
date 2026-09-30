@@ -6,7 +6,10 @@ import { SETTINGS_ROUTES } from '../constants/settingRoutes';
 export const LoyaltySidebar = () => {
   const { t } = useTranslation('loyalty');
   return (
-    <Sidebar collapsible="none" className="border-r flex-none w-[250px]">
+    <Sidebar.Panel
+      className="border-r flex-none w-[250px]"
+      label={t('settings')}
+    >
       <Sidebar.Group>
         <Sidebar.GroupContent>
           <Sidebar.Menu>
@@ -18,7 +21,7 @@ export const LoyaltySidebar = () => {
           </Sidebar.Menu>
         </Sidebar.GroupContent>
       </Sidebar.Group>
-    </Sidebar>
+    </Sidebar.Panel>
   );
 };
 

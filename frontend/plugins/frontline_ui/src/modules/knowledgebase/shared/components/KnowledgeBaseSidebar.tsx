@@ -36,11 +36,11 @@ export const KnowledgeBaseSidebar = ({
   const { t } = useTranslation('frontline');
 
   return (
-    <Sidebar collapsible="none" className="flex-none border-r">
+    <Sidebar.Panel
+      className="flex-none border-r"
+      label={t('knowledge-base', 'Knowledge Base')}
+    >
       <Sidebar.Group>
-        <Sidebar.GroupLabel>
-          {t('knowledge-base', 'Knowledge Base')}
-        </Sidebar.GroupLabel>
         <Sidebar.GroupContent>
           <Sidebar.Menu>
             {SECTIONS.map((item) => (
@@ -56,6 +56,6 @@ export const KnowledgeBaseSidebar = ({
           </Sidebar.Menu>
         </Sidebar.GroupContent>
       </Sidebar.Group>
-    </Sidebar>
+    </Sidebar.Panel>
   );
 };

@@ -1,30 +1,28 @@
 import { NavigationActivityRail } from '@/navigation/components/NavigationActivityRail';
-import { NavigationPanel } from '@/navigation/components/NavigationPanel';
+import { NavigationItemCountProbe } from '@/navigation/components/NavigationPlugins';
 import { useNavigationActivities } from '@/navigation/hooks/useNavigationActivities';
 import { usePinnedNavigationActivities } from '@/navigation/hooks/usePinnedNavigationActivities';
-import { usePluginsNavigationGroups } from '@/navigation/hooks/usePluginsNavigationGroups';
+import { expandedNavigationActivityState } from '@/navigation/states/navigationPanelState';
+import { INavigationActivity } from '@/navigation/types/NavigationActivity';
 import { findNavigationActivityByPath } from '@/navigation/utils/navigationActivities';
 import { globalSearchOpenState } from '@/search/states/globalSearchState';
 import { AppPath } from '@/types/paths/AppPath';
-import { activePluginState, Sidebar } from 'erxes-ui';
+import { activePluginState } from 'erxes-ui';
 import { useAtom, useSetAtom } from 'jotai';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 export const MainNavigationBar = () => {
   const activities = useNavigationActivities();
-  const navigationGroups = usePluginsNavigationGroups();
-  const {
-    isActivityPinned,
-    setActivityPinned,
-    visibleActivities,
-    hiddenActivities,
-  } = usePinnedNavigationActivities(activities);
+  const { isActivityPinned, setActivityPinned, visibleActivities } =
+    usePinnedNavigationActivities(activities);
   const [activeActivityId, setActiveActivityId] = useAtom(activePluginState);
+  const [expandedActivityId, setExpandedActivityId] = useAtom(
+    expandedNavigationActivityState,
+  );
   const setSearchOpen = useSetAtom(globalSearchOpenState);
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  const { isMobile } = Sidebar.useSidebar();
   const isSettings = pathname.includes(`/${AppPath.Settings}`);
   const isInboxActive =
     pathname === `/${AppPath.MyInbox}` ||
@@ -34,15 +32,26 @@ export const MainNavigationBar = () => {
     routeActivity ||
     activities.find((activity) => activity.id === activeActivityId) ||
     activities[0];
-  const activeNavigationGroup =
-    routeActivity?.kind === 'plugin'
-      ? navigationGroups[routeActivity.id]
-      : undefined;
-  const hasNavigationPanel = Boolean(
-    isSettings ||
-    activeNavigationGroup?.contents.length ||
-    activeNavigationGroup?.subGroups.length,
+  const routeActivityId = routeActivity?.id;
+  const isListed = (activity: INavigationActivity) =>
+    activity.id === routeActivityId || visibleActivities.includes(activity);
+  const listedActivities = activities.filter(isListed);
+  const unlistedActivities = activities.filter(
+    (activity) => !isListed(activity),
   );
+  const unfoldedRouteActivityId = useRef<string | undefined>(undefined);
+
+  useEffect(() => {
+    if (
+      !routeActivityId ||
+      unfoldedRouteActivityId.current === routeActivityId
+    ) {
+      return;
+    }
+
+    unfoldedRouteActivityId.current = routeActivityId;
+    setExpandedActivityId(routeActivityId);
+  }, [routeActivityId, setExpandedActivityId]);
 
   useEffect(() => {
     if (isSettings) {
@@ -68,32 +77,45 @@ export const MainNavigationBar = () => {
     setActiveActivityId,
   ]);
 
-  const handleSelectActivity = (activity: (typeof activities)[number]) => {
+  const handleSelectActivity = (activity: INavigationActivity) => {
     navigate(`/${activity.defaultPath.replace(/^\/+/, '')}`);
   };
 
-  /** Opens the Inbox activity. */
+  const handleToggleActivity = (activity: INavigationActivity) => {
+    if (expandedActivityId === activity.id) {
+      setExpandedActivityId(null);
+      return;
+    }
+
+    setExpandedActivityId(activity.id);
+
+    if (routeActivityId !== activity.id) {
+      handleSelectActivity(activity);
+    }
+  };
+
   const handleSelectInbox = () => {
     navigate(`/${AppPath.MyInbox}`);
   };
 
   return (
-    <div className="flex h-full min-w-0">
+    <>
+      <NavigationItemCountProbe activities={activities} />
       <NavigationActivityRail
         activities={activities}
         activeActivityId={isInboxActive ? null : activeActivity?.id || null}
         isInboxActive={isInboxActive}
-        hiddenActivities={hiddenActivities}
+        hiddenActivities={unlistedActivities}
         isActivityPinned={isActivityPinned}
         isSettings={isSettings}
-        mobileExpanded={!hasNavigationPanel}
+        expandedActivityId={expandedActivityId}
         onActivityPinnedChange={setActivityPinned}
         onSearch={() => setSearchOpen(true)}
         onSelectInbox={handleSelectInbox}
         onSelectActivity={handleSelectActivity}
-        visibleActivities={visibleActivities}
+        onToggleActivity={handleToggleActivity}
+        visibleActivities={listedActivities}
       />
-      {isMobile && hasNavigationPanel && <NavigationPanel />}
-    </div>
+    </>
   );
 };

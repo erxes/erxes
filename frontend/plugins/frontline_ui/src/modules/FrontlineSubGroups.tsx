@@ -9,6 +9,7 @@ import { PersonalInboxNav } from '@/inbox/channel/components/PersonalInboxNav';
 import { TeamChannelsNav } from '@/inbox/channel/components/TeamChannelsNav';
 import { InboxWorkNav } from '@/inbox/components/InboxWorkNav';
 import { NavigationGroupActions } from '@/NavigationGroupActions';
+import { ReportSectionNavigation } from '@/report/components/ReportSectionNavigation';
 import { useLocation } from 'react-router-dom';
 
 export const FrontlineSubGroups = () => {
@@ -17,6 +18,10 @@ export const FrontlineSubGroups = () => {
   const isInbox = pathname.startsWith('/frontline/inbox');
   const isTickets = pathname.startsWith('/frontline/tickets');
   const isForms = pathname.startsWith('/frontline/forms');
+  const isReports = pathname.startsWith('/frontline/reports');
+  if (isReports) {
+    return <ReportSectionNavigation />;
+  }
   if (isTickets) {
     return <TicketNavigations />;
   }

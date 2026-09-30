@@ -32,14 +32,12 @@ export const BoardsList = () => {
   const { t } = useTranslation('sales');
 
   return (
-    <Sidebar collapsible="none" className="flex-none border-r">
+    <Sidebar.Panel
+      className="flex-none border-r"
+      label={`${t('boards')} (${boards?.length || 0})`}
+      actions={<BoardForm />}
+    >
       <Sidebar.Group>
-        <div className="flex w-full items-center justify-between">
-          <Sidebar.GroupLabel>
-            {t('boards')} ({boards?.length || 0})
-          </Sidebar.GroupLabel>
-          <BoardForm />
-        </div>
         <Sidebar.GroupContent>
           <Sidebar.Menu>
             {boards?.map((board) => (
@@ -56,7 +54,7 @@ export const BoardsList = () => {
           </Sidebar.Menu>
         </Sidebar.GroupContent>
       </Sidebar.Group>
-    </Sidebar>
+    </Sidebar.Panel>
   );
 };
 

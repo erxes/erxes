@@ -14,9 +14,8 @@ const steps = [
 export const BranchSideBar = ({ activeTab }: { activeTab: string }) => {
   const { t } = useTranslation('tourism');
   return (
-    <Sidebar collapsible="none" className="flex-none border-r">
+    <Sidebar.Panel className="flex-none border-r" label={t('tour-management')}>
       <Sidebar.Group>
-        <Sidebar.GroupLabel>{t('tour-management')}</Sidebar.GroupLabel>
         <Sidebar.GroupContent>
           <Sidebar.Menu>
             {steps.map((step) => (
@@ -31,7 +30,7 @@ export const BranchSideBar = ({ activeTab }: { activeTab: string }) => {
           </Sidebar.Menu>
         </Sidebar.GroupContent>
       </Sidebar.Group>
-    </Sidebar>
+    </Sidebar.Panel>
   );
 };
 

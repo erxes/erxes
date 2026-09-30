@@ -1,13 +1,30 @@
-import { loadRemote } from '@module-federation/enhanced/runtime';
 import { Spinner } from 'erxes-ui';
 import { Suspense, useEffect, useState } from 'react';
 import {
-  RemoteComponent,
-  RemoteComponentProps,
-  RemoteModule,
-  resolveRemoteComponent,
-} from '../utils/resolveRemoteComponent';
+  getLoadedRemoteComponent,
+  getRemoteComponentKey,
+  loadRemoteComponent,
+} from '../utils/loadRemoteComponent';
+import { RemoteComponentProps } from '../utils/resolveRemoteComponent';
 import { RenderPluginsComponentErrorState } from './RenderPluginsComponentErrorState';
+
+const SPINNER_DELAY = 200;
+
+const PluginLoading = () => {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => setVisible(true), SPINNER_DELAY);
+
+    return () => clearTimeout(timeout);
+  }, []);
+
+  return (
+    <div className="flex h-full items-center justify-center">
+      {visible && <Spinner />}
+    </div>
+  );
+};
 
 export function RenderPluginsComponent({
   pluginName,
@@ -18,79 +35,62 @@ export function RenderPluginsComponent({
   remoteModuleName: string;
   props?: RemoteComponentProps;
 }) {
-  const [Plugin, setPlugin] = useState<RemoteComponent | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [hasError, setHasError] = useState<{ message: string } | null>(null);
+  const key = getRemoteComponentKey(pluginName, remoteModuleName);
+  const [result, setResult] = useState<{ key: string; error?: string }>();
+  const [attempt, setAttempt] = useState(0);
+  const Plugin = getLoadedRemoteComponent(key);
+  const error = result?.key === key ? result.error : undefined;
 
   useEffect(() => {
-    const loadPlugin = async () => {
-      try {
-        setIsLoading(true);
-        setHasError(null);
+    if (getLoadedRemoteComponent(key)) {
+      return;
+    }
 
-        const remoteModule = await loadRemote<RemoteModule>(
-          `${pluginName}/${remoteModuleName}`,
-          { from: 'runtime' },
-        );
-        const remoteComponent = resolveRemoteComponent(
-          remoteModule,
-          remoteModuleName,
-        );
+    let cancelled = false;
 
-        if (!remoteComponent) {
-          throw new Error('Plugin module is empty or invalid');
+    loadRemoteComponent(pluginName, remoteModuleName)
+      .then(() => {
+        if (!cancelled) {
+          setResult({ key });
         }
+      })
+      .catch((loadError) => {
+        if (!cancelled) {
+          setResult({
+            key,
+            error:
+              loadError instanceof Error
+                ? loadError.message
+                : 'Failed to load plugin',
+          });
+        }
+      });
 
-        setPlugin(() => remoteComponent);
-      } catch (error) {
-        setHasError({
-          message:
-            error instanceof Error ? error.message : 'Failed to load plugin',
-        });
-        setPlugin(null);
-      } finally {
-        setIsLoading(false);
-      }
+    return () => {
+      cancelled = true;
     };
+  }, [attempt, key, pluginName, remoteModuleName]);
 
-    loadPlugin();
-  }, [pluginName, remoteModuleName]);
-
-  if (hasError) {
+  if (error) {
     return (
       <RenderPluginsComponentErrorState
         pluginName={pluginName}
         remoteModuleName={remoteModuleName}
-        setPlugin={setPlugin}
-        setHasError={setHasError}
-        setIsLoading={setIsLoading}
+        onRetry={() => {
+          setResult(undefined);
+          setAttempt((current) => current + 1);
+        }}
       />
     );
   }
 
-  if (isLoading || !Plugin) {
-    return (
-      <Suspense
-        fallback={
-          <div className="flex justify-center items-center h-full">
-            <Spinner />
-          </div>
-        }
-      >
-        <div />
-      </Suspense>
-    );
+  if (!Plugin) {
+    return <PluginLoading />;
   }
 
   return (
-    <Suspense
-      fallback={
-        <div className="flex justify-center items-center h-full">
-          <Spinner />
-        </div>
-      }
-    >
-      <Plugin key={`${pluginName}-${remoteModuleName}`} {...(props || {})} />
+    <Suspense fallback={<PluginLoading />}>
+      <Plugin key={key} {...(props || {})} />
     </Suspense>
   );
 }
