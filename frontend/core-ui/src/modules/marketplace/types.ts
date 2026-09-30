@@ -1,12 +1,3 @@
-export interface IMarketplacePluginApi {
-  image?: string;
-  address?: string;
-  port?: number;
-  health?: string;
-  env?: string[];
-  hasSubscriptions?: boolean;
-}
-
 export interface IMarketplacePluginUi {
   remote?: string;
   entry?: string;
@@ -18,7 +9,6 @@ export interface IMarketplacePlugin {
   version?: string;
   description?: string;
   icon?: string;
-  api?: IMarketplacePluginApi;
   ui?: IMarketplacePluginUi;
   installed: boolean;
   enabled: boolean;
@@ -46,5 +36,9 @@ export interface IMarketplaceCatalogErrorData {
 }
 
 export interface IInstalledPluginsData {
-  installedPlugins: IInstalledPlugin[];
+  marketplaceInstalledPlugins: IInstalledPlugin[];
+}
+
+export interface IGithubInstallEnabledData {
+  marketplaceGithubInstallEnabled: boolean;
 }

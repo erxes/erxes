@@ -26,7 +26,7 @@ export const pluginInstallSchema = schemaWrapper(
   new Schema(
     {
       _id: mongooseStringRandomId,
-      name: { type: String, required: true, index: true },
+      name: { type: String, required: true, unique: true },
       version: { type: String, default: 'latest' },
       description: { type: String, optional: true },
       icon: { type: String, optional: true },

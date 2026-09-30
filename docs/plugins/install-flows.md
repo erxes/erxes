@@ -42,18 +42,31 @@ New: Marketplace (main sidebar).
 - **Add plugin**: paste a GitHub repo URL → core-api fetches `plugin.json`
   (`raw.githubusercontent.com/<owner>/<repo>/<ref>/plugin.json`, ref from the
   URL or `HEAD`), validates against the manifest schema, records the install.
+  GitHub installs require `MARKETPLACE_ALLOW_GITHUB_INSTALL=true` and are
+  disabled on SaaS; the UI's "Add plugin" button follows the
+  `marketplaceGithubInstallEnabled` query.
 - Install writes a `plugin_installs` document per tenant:
   `{name, version, source: catalog|github, repoUrl, api:{image,address}, ui:{remote,entry}, enabled}`.
-- **API side**: when `api.address` is supplied the installer registers it in
-  Redis (`erxes-service-<name>` + `erxesservice:config:<name>`) and enqueues
-  `gateway-update-apollo-router` — same path a booting plugin takes. Without
-  an address, the plugin's own container registers on boot; the operator runs
-  the image from `plugin.json` (the UI shows the compose line).
+- **Reserved names**: `core`, `gateway`, and anything already listed in
+  `ENABLED_PLUGINS` / `ENABLED_PLUGINS_ONLY_API` cannot be installed — the
+  manifest name is rejected before any Redis write.
+- **API side**: the plugin API must be reachable at install time — either it
+  self-registered in Redis service discovery on boot (`erxes-service-<name>`,
+  e.g. via the template's docker-compose `LOAD_BALANCER_ADDRESS`), or the
+  manifest sets `api.address`. The installer validates the address (http(s),
+  POSTs a subgraph `_service { sdl }` probe to `<address>/graphql`) and only
+  then writes discovery keys — manifest-declared addresses write
+  `erxes-service-<name>` + `erxesservice:config:<name>`, self-registered
+  plugins keep their own keys. Finally it SADDs `erxes-installed-plugins`
+  and enqueues `gateway-update-apollo-router` — same path a booting plugin
+  takes.
 - **UI side**: `/get-frontend-plugins` unions env `ENABLED_PLUGINS` with
   enabled installs — installed entries carry their own `entry` URL so
-  third-party CDNs work next to `plugins.erxes.io`.
-- **Uninstall**: clears the Redis keys + recomposes the router, then removes
-  the install record.
+  third-party CDNs work next to `plugins.erxes.io`. Newly installed UI
+  remotes load on the next page boot.
+- **Disable/uninstall**: only removes the name from the
+  `erxes-installed-plugins` set and recomposes the router — a running
+  plugin's `erxes-service-*`/config keys are left alone.
 
 ## Per-tenant gating
 

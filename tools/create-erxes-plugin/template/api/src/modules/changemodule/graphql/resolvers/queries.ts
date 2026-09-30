@@ -4,11 +4,9 @@ export const changemoduleItemQueries = {
   async changemecChangemoduleItems(
     _root: unknown,
     { status }: { status?: string },
-    { models, user }: IContext & { user?: { _id: string } },
+    { models, checkPermission }: IContext,
   ) {
-    if (!user) {
-      throw new Error('Login required');
-    }
+    await checkPermission('changemecChangemoduleItemsShow');
 
     const filter: Record<string, string> = {};
     if (status) {
@@ -20,11 +18,9 @@ export const changemoduleItemQueries = {
   async changemecChangemoduleItem(
     _root: unknown,
     { _id }: { _id: string },
-    { models, user }: IContext & { user?: { _id: string } },
+    { models, checkPermission }: IContext,
   ) {
-    if (!user) {
-      throw new Error('Login required');
-    }
+    await checkPermission('changemecChangemoduleItemsShow');
 
     return await models.ChangemoduleItems.getItem(_id);
   },

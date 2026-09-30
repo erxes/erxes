@@ -1,8 +1,10 @@
 import { IContext } from '~/connectionResolvers';
 import {
+  assertInstallableName,
   fetchPluginManifest,
   fetchRegistryCatalog,
   IRegistryPlugin,
+  isGithubInstallEnabled,
   registerPluginService,
   registryEntryToInstall,
   unregisterPluginService,
@@ -24,6 +26,12 @@ export const marketplaceMutations = {
     let source: 'catalog' | 'github' = 'catalog';
 
     if (repoUrl) {
+      if (!isGithubInstallEnabled()) {
+        throw new Error(
+          'Installing plugins from GitHub is disabled on this deployment',
+        );
+      }
+
       plugin = await fetchPluginManifest(repoUrl);
       source = 'github';
 
@@ -42,6 +50,12 @@ export const marketplaceMutations = {
       }
     }
 
+    assertInstallableName(plugin.name);
+
+    const priorInstall = await models.PluginInstalls.findOne({
+      name: plugin.name,
+    }).lean();
+
     await registerPluginService(plugin);
 
     try {
@@ -49,7 +63,11 @@ export const marketplaceMutations = {
         registryEntryToInstall(plugin, source, repoUrl),
       );
     } catch (e) {
-      await unregisterPluginService(plugin.name);
+      // Only roll back registration when this call introduced it — a prior
+      // install means the plugin was already registered.
+      if (!priorInstall) {
+        await unregisterPluginService(plugin.name);
+      }
       throw e;
     }
   },

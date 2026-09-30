@@ -42,13 +42,16 @@ jobs:
 
       - name: Resolve version
         id: version
+        env:
+          INPUT_VERSION: ${{ github.event.inputs.version }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            VERSION="${{ github.event.inputs.version }}"
+            VERSION="$INPUT_VERSION"
           elif [ "${{ github.event_name }}" = "push" ]; then
             VERSION="${GITHUB_REF_NAME#plugin-sdk-v}"
           else
-            VERSION="0.0.0-pr.${{ github.event.pull_request.number }}"
+            VERSION="0.0.0-pr.$PR_NUMBER"
           fi
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 

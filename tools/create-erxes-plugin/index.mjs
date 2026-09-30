@@ -147,13 +147,11 @@ async function main() {
 
   const replacements = tokenMap(pluginName, moduleName, apiPort, uiPort, owner, sdkVersion);
 
-  const renameQueue = [];
   for (const file of walk(target)) {
     const content = readFileSync(file, 'utf8');
     let next = content;
     for (const [re, value] of replacements) next = next.replace(re, value);
     if (next !== content) writeFileSync(file, next);
-    renameQueue.push(file);
   }
 
   // Rename file/dir names containing tokens — deepest first so parents move last.

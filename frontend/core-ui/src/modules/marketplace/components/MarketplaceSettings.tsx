@@ -12,6 +12,7 @@ import {
   Skeleton,
   Spinner,
   Switch,
+  useConfirm,
   useToast,
 } from 'erxes-ui';
 import {
@@ -23,8 +24,9 @@ import {
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  INSTALLED_PLUGINS,
   MARKETPLACE_CATALOG_ERROR,
+  MARKETPLACE_GITHUB_INSTALL_ENABLED,
+  MARKETPLACE_INSTALLED_PLUGINS,
   MARKETPLACE_PLUGINS,
 } from '../graphql/queries';
 import {
@@ -33,6 +35,7 @@ import {
   MARKETPLACE_PLUGIN_UNINSTALL,
 } from '../graphql/mutations';
 import {
+  IGithubInstallEnabledData,
   IInstalledPluginsData,
   IInstalledPlugin,
   IMarketplaceCatalogErrorData,
@@ -40,7 +43,7 @@ import {
   IMarketplacePluginsData,
 } from '../types';
 
-const REFETCH = [MARKETPLACE_PLUGINS, INSTALLED_PLUGINS];
+const REFETCH = [MARKETPLACE_PLUGINS, MARKETPLACE_INSTALLED_PLUGINS];
 
 const useMarketplaceActions = () => {
   const { toast } = useToast();
@@ -51,53 +54,53 @@ const useMarketplaceActions = () => {
       variant: 'destructive',
     });
 
-  const [install, { loading: installing }] = useMutation(
-    MARKETPLACE_PLUGIN_INSTALL,
-    {
-      refetchQueries: REFETCH,
-      onCompleted: () =>
-        toast({ variant: 'success', title: 'Plugin installed' }),
-      onError,
-    },
-  );
+  const [install, { loading: installing }] = useMutation<
+    { marketplacePluginInstall: IInstalledPlugin },
+    { name?: string; repoUrl?: string }
+  >(MARKETPLACE_PLUGIN_INSTALL, {
+    refetchQueries: REFETCH,
+    onCompleted: () =>
+      toast({
+        variant: 'success',
+        title: 'Plugin installed',
+        description: 'Reload the page to load its interface.',
+      }),
+    onError,
+  });
 
-  const [setEnabled, { loading: toggling }] = useMutation(
-    MARKETPLACE_PLUGIN_SET_ENABLED,
-    {
-      refetchQueries: REFETCH,
-      onCompleted: () =>
-        toast({ variant: 'success', title: 'Plugin updated' }),
-      onError,
-    },
-  );
+  const [setEnabled] = useMutation(MARKETPLACE_PLUGIN_SET_ENABLED, {
+    refetchQueries: REFETCH,
+    onCompleted: () => toast({ variant: 'success', title: 'Plugin updated' }),
+    onError,
+  });
 
-  const [uninstall, { loading: uninstalling }] = useMutation(
-    MARKETPLACE_PLUGIN_UNINSTALL,
-    {
-      refetchQueries: REFETCH,
-      onCompleted: () =>
-        toast({ variant: 'success', title: 'Plugin uninstalled' }),
-      onError,
-    },
-  );
+  const [uninstall] = useMutation(MARKETPLACE_PLUGIN_UNINSTALL, {
+    refetchQueries: REFETCH,
+    onCompleted: () =>
+      toast({ variant: 'success', title: 'Plugin uninstalled' }),
+    onError,
+  });
 
-  return { install, setEnabled, uninstall, installing, toggling, uninstalling };
+  return { install, setEnabled, uninstall, installing };
 };
 
 const AddPluginSheet = ({
   onInstall,
   loading,
 }: {
-  onInstall: (repoUrl: string) => void;
+  onInstall: (repoUrl: string) => Promise<boolean>;
   loading: boolean;
 }) => {
   const [open, setOpen] = useState(false);
   const [repoUrl, setRepoUrl] = useState('');
 
-  const submit = () => {
-    onInstall(repoUrl.trim());
-    setOpen(false);
-    setRepoUrl('');
+  const submit = async () => {
+    const installed = await onInstall(repoUrl.trim());
+
+    if (installed) {
+      setOpen(false);
+      setRepoUrl('');
+    }
   };
 
   return (
@@ -149,7 +152,7 @@ const PluginCard = ({
   install?: IInstalledPlugin;
   onInstall: (name: string) => void;
   onSetEnabled: (id: string, enabled: boolean) => void;
-  onUninstall: (id: string) => void;
+  onUninstall: (id: string, name: string) => void;
   busy: boolean;
 }) => {
   return (
@@ -191,7 +194,7 @@ const PluginCard = ({
               variant="ghost"
               size="icon"
               disabled={busy}
-              onClick={() => onUninstall(install._id)}
+              onClick={() => onUninstall(install._id, plugin.name)}
             >
               <IconTrash size={16} />
             </Button>
@@ -212,29 +215,34 @@ const PluginCard = ({
 };
 
 export const MarketplaceSettings = () => {
+  const { confirm } = useConfirm();
   const {
     data: catalogData,
     loading: catalogLoading,
     error: catalogError,
   } = useQuery<IMarketplacePluginsData>(MARKETPLACE_PLUGINS);
-  const { data: catalogStatusData } =
-    useQuery<IMarketplaceCatalogErrorData>(MARKETPLACE_CATALOG_ERROR);
-  const { data: installsData } =
-    useQuery<IInstalledPluginsData>(INSTALLED_PLUGINS);
+  const { data: catalogStatusData } = useQuery<IMarketplaceCatalogErrorData>(
+    MARKETPLACE_CATALOG_ERROR,
+  );
+  const { data: installsData } = useQuery<IInstalledPluginsData>(
+    MARKETPLACE_INSTALLED_PLUGINS,
+  );
+  const { data: githubInstallData } = useQuery<IGithubInstallEnabledData>(
+    MARKETPLACE_GITHUB_INSTALL_ENABLED,
+  );
 
-  const {
-    install,
-    setEnabled,
-    uninstall,
-    installing,
-    toggling,
-    uninstalling,
-  } = useMarketplaceActions();
+  const { install, setEnabled, uninstall, installing } =
+    useMarketplaceActions();
 
-  const busy = installing || toggling || uninstalling;
+  // The plugin name (catalog install) or install _id (toggle/uninstall)
+  // currently being mutated — only that card is disabled/spinning.
+  const [busyKey, setBusyKey] = useState<string | null>(null);
 
   const installsByName = new Map(
-    (installsData?.installedPlugins || []).map((entry) => [entry.name, entry]),
+    (installsData?.marketplaceInstalledPlugins || []).map((entry) => [
+      entry.name,
+      entry,
+    ]),
   );
 
   const plugins = catalogData?.marketplacePlugins || [];
@@ -257,12 +265,17 @@ export const MarketplaceSettings = () => {
           </Breadcrumb>
         </PageHeaderStart>
         <PageHeaderEnd>
-          <AddPluginSheet
-            loading={busy}
-            onInstall={(repoUrl) =>
-              install({ variables: { repoUrl } }).catch(() => undefined)
-            }
-          />
+          {!!githubInstallData?.marketplaceGithubInstallEnabled && (
+            <AddPluginSheet
+              loading={installing}
+              onInstall={async (repoUrl) => {
+                const result = await install({
+                  variables: { repoUrl },
+                }).catch(() => null);
+                return !!result?.data?.marketplacePluginInstall;
+              }}
+            />
+          )}
         </PageHeaderEnd>
       </PageHeader>
       <div className="flex-1 overflow-auto p-4">
@@ -286,29 +299,49 @@ export const MarketplaceSettings = () => {
         ) : plugins.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-muted-foreground gap-2">
             <IconPackage size={32} />
-            <p>No plugins available. Use "Add plugin" to install from GitHub.</p>
+            <p>
+              No plugins available.
+            </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-            {plugins.map((plugin) => (
-              <PluginCard
-                key={plugin.name}
-                plugin={plugin}
-                install={installsByName.get(plugin.name)}
-                busy={busy}
-                onInstall={(name) =>
-                  install({ variables: { name } }).catch(() => undefined)
-                }
-                onSetEnabled={(id, enabled) =>
-                  setEnabled({ variables: { _id: id, enabled } }).catch(
-                    () => undefined,
-                  )
-                }
-                onUninstall={(id) =>
-                  uninstall({ variables: { _id: id } }).catch(() => undefined)
-                }
-              />
-            ))}
+            {plugins.map((plugin) => {
+              const installRecord = installsByName.get(plugin.name);
+              const busy =
+                busyKey === plugin.name ||
+                (!!installRecord && busyKey === installRecord._id);
+
+              return (
+                <PluginCard
+                  key={plugin.name}
+                  plugin={plugin}
+                  install={installRecord}
+                  busy={busy}
+                  onInstall={(name) => {
+                    setBusyKey(name);
+                    install({ variables: { name } })
+                      .catch(() => undefined)
+                      .finally(() => setBusyKey(null));
+                  }}
+                  onSetEnabled={(id, enabled) => {
+                    setBusyKey(id);
+                    setEnabled({ variables: { _id: id, enabled } })
+                      .catch(() => undefined)
+                      .finally(() => setBusyKey(null));
+                  }}
+                  onUninstall={(id, name) =>
+                    confirm({
+                      message: `Are you sure you want to uninstall "${name}"?`,
+                    }).then(() => {
+                      setBusyKey(id);
+                      return uninstall({ variables: { _id: id } })
+                        .catch(() => undefined)
+                        .finally(() => setBusyKey(null));
+                    })
+                  }
+                />
+              );
+            })}
           </div>
         )}
       </div>

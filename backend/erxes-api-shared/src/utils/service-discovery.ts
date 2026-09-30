@@ -24,13 +24,7 @@ export const keyForConfig = (name: string) => `erxesservice:config:${name}`;
 const INSTALLED_PLUGINS_KEY = 'erxes-installed-plugins';
 
 export const getInstalledPlugins = async (): Promise<string[]> => {
-  const data = await redis.get(INSTALLED_PLUGINS_KEY);
-
-  if (!data) {
-    return [];
-  }
-
-  return JSON.parse(data);
+  return redis.smembers(INSTALLED_PLUGINS_KEY);
 };
 
 export const getPlugins = async (): Promise<string[]> => {

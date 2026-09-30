@@ -18,7 +18,7 @@
     "license": { "type": "string" },
     "api": {
       "type": "object",
-      "required": ["image"],
+      "anyOf": [{ "required": ["image"] }, { "required": ["address"] }],
       "additionalProperties": false,
       "properties": {
         "image": { "type": "string", "description": "Pullable OCI image for the <name>_api service." },
@@ -39,7 +39,7 @@
       "additionalProperties": false,
       "properties": {
         "remote": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$", "description": "Module Federation remote name, <name>_ui." },
-        "entry": { "type": "string", "description": "Fetchable remoteEntry.js URL, versioned per release." },
+        "entry": { "type": "string", "description": "Fetchable remoteEntry.js URL, versioned per release. Must be https in production." },
         "exposes": {
           "type": "array",
           "items": { "type": "string" },

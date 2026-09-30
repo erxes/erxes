@@ -7,14 +7,6 @@ const MARKETPLACE_PLUGINS = gql`
       version
       description
       icon
-      api {
-        image
-        address
-        port
-        health
-        env
-        hasSubscriptions
-      }
       ui {
         remote
         entry
@@ -32,9 +24,9 @@ const MARKETPLACE_CATALOG_ERROR = gql`
   }
 `;
 
-const INSTALLED_PLUGINS = gql`
-  query InstalledPlugins {
-    installedPlugins {
+const MARKETPLACE_INSTALLED_PLUGINS = gql`
+  query MarketplaceInstalledPlugins {
+    marketplaceInstalledPlugins {
       _id
       name
       version
@@ -53,4 +45,15 @@ const INSTALLED_PLUGINS = gql`
   }
 `;
 
-export { MARKETPLACE_PLUGINS, MARKETPLACE_CATALOG_ERROR, INSTALLED_PLUGINS };
+const MARKETPLACE_GITHUB_INSTALL_ENABLED = gql`
+  query MarketplaceGithubInstallEnabled {
+    marketplaceGithubInstallEnabled
+  }
+`;
+
+export {
+  MARKETPLACE_PLUGINS,
+  MARKETPLACE_CATALOG_ERROR,
+  MARKETPLACE_INSTALLED_PLUGINS,
+  MARKETPLACE_GITHUB_INSTALL_ENABLED,
+};

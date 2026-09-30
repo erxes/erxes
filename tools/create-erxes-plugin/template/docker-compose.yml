@@ -11,8 +11,8 @@ services:
 
   plugin-changeme-api:
     build:
-      context: .
-      dockerfile: api/Dockerfile
+      context: ./api
+      dockerfile: Dockerfile
     env_file: api/.env
     environment:
       PORT: __API_PORT__

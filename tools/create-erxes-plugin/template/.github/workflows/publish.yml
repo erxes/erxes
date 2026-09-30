@@ -1,7 +1,7 @@
 name: publish
 
 # Publishes both contract artifacts on every tag v*:
-#   ui remoteEntry -> GitHub Pages dist/<version>/<name>_ui/
+#   ui remoteEntry -> GitHub Pages dist/<version>/<name>_ui/ and dist/latest/
 #   api image      -> ghcr.io/<owner>/plugin-<name>-api:<version>,latest
 on:
   push:
@@ -20,18 +20,20 @@ permissions:
 jobs:
   ui:
     runs-on: ubuntu-latest
+    env:
+      RAW_VERSION: ${{ github.event.inputs.version || github.ref_name }}
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
+        with:
+          version: 9
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: pnpm
-          cache-dependency-path: ui
       - name: Version
         id: version
         run: |
-          V="${{ github.event.inputs.version || github.ref_name }}"
+          V="$RAW_VERSION"
           V="${V#v}"
           echo "version=$V" >> "$GITHUB_OUTPUT"
       - name: Build remote
@@ -45,15 +47,24 @@ jobs:
           publish_dir: ui/dist
           destination_dir: dist/${{ steps.version.outputs.version }}
           keep_files: true
+      - name: Publish latest to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ui/dist
+          destination_dir: dist/latest
+          keep_files: true
 
   api:
     runs-on: ubuntu-latest
+    env:
+      RAW_VERSION: ${{ github.event.inputs.version || github.ref_name }}
     steps:
       - uses: actions/checkout@v4
       - name: Version
         id: version
         run: |
-          V="${{ github.event.inputs.version || github.ref_name }}"
+          V="$RAW_VERSION"
           V="${V#v}"
           echo "version=$V" >> "$GITHUB_OUTPUT"
       - uses: docker/setup-buildx-action@v3
@@ -68,5 +79,5 @@ jobs:
           context: api
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/plugin-${{ github.event.repository.name }}:${{ steps.version.outputs.version }}
-            ghcr.io/${{ github.repository_owner }}/plugin-${{ github.event.repository.name }}:latest
+            ghcr.io/${{ github.repository_owner }}/plugin-changeme-api:${{ steps.version.outputs.version }}
+            ghcr.io/${{ github.repository_owner }}/plugin-changeme-api:latest

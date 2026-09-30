@@ -2,6 +2,7 @@ import { IContext } from '~/connectionResolvers';
 import {
   fetchRegistryCatalog,
   IRegistryPlugin,
+  isGithubInstallEnabled,
 } from '~/modules/marketplace/registry';
 import { IPluginInstallDocument } from '~/modules/marketplace/db/models/PluginInstalls';
 
@@ -27,8 +28,10 @@ export const marketplaceQueries = {
   async marketplacePlugins(
     _parent: undefined,
     _args: Record<string, never>,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('marketplaceRead');
+
     const installs = await models.PluginInstalls.find({}).lean();
 
     try {
@@ -54,7 +57,13 @@ export const marketplaceQueries = {
     }
   },
 
-  async marketplaceCatalogError() {
+  async marketplaceCatalogError(
+    _parent: undefined,
+    _args: Record<string, never>,
+    { checkPermission }: IContext,
+  ) {
+    await checkPermission('marketplaceRead');
+
     try {
       await fetchRegistryCatalog();
       return null;
@@ -63,19 +72,23 @@ export const marketplaceQueries = {
     }
   },
 
-  async installedPlugins(
+  async marketplaceInstalledPlugins(
     _parent: undefined,
     _args: Record<string, never>,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('marketplaceRead');
+
     return models.PluginInstalls.find({}).lean();
   },
 
-  async installedPlugin(
+  async marketplaceGithubInstallEnabled(
     _parent: undefined,
-    { _id }: { _id: string },
-    { models }: IContext,
+    _args: Record<string, never>,
+    { checkPermission }: IContext,
   ) {
-    return models.PluginInstalls.getInstall(_id);
+    await checkPermission('marketplaceRead');
+
+    return isGithubInstallEnabled();
   },
 };

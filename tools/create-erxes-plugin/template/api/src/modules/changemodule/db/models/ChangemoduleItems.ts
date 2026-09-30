@@ -1,4 +1,4 @@
-import { Model, Schema } from 'mongoose';
+import { Model } from 'mongoose';
 import { IModels } from '../../../../connectionResolvers';
 import {
   IChangemoduleItem,
@@ -32,10 +32,7 @@ export const loadChangemoduleItemClass = (
     }
 
     public static async createItem(doc: IChangemoduleItem) {
-      return await models.ChangemoduleItems.create({
-        ...doc,
-        createdAt: new Date(),
-      });
+      return await models.ChangemoduleItems.create(doc);
     }
 
     public static async updateItem(
@@ -58,5 +55,3 @@ export const loadChangemoduleItemClass = (
   changemoduleItemSchema.loadClass(ChangemoduleItem);
   return changemoduleItemSchema;
 };
-
-export type { Schema };

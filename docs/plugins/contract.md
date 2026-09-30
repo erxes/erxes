@@ -154,7 +154,9 @@ ENABLED_PLUGINS=changeme      # on the erxes deployment — unions into
 ```
 
 For runtime install instead of env: Marketplace → Add plugin →
-paste this repo's URL (manifest must validate; see install-flows.md).
+paste this repo's URL — requires `MARKETPLACE_ALLOW_GITHUB_INSTALL=true` on
+the deployment, the api already running and self-registered (or
+`api.address` set), and a manifest that validates (see install-flows.md).
 
 ## 6. Versioning
 

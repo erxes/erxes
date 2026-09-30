@@ -47,6 +47,7 @@ const DEFAULT_REGISTRY_URL =
   'https://raw.githubusercontent.com/erxes/erxes/main/plugin-registry/plugins.json';
 
 const NAME_RE = /^[a-z][a-z0-9-]*$/;
+const UI_REMOTE_RE = /^[a-z][a-z0-9_]*$/;
 
 const fetchJson = async (url: string): Promise<unknown> => {
   const res = await fetch(url, {
@@ -73,8 +74,34 @@ export const validatePluginManifest = (
     throw new Error('Plugin manifest must declare an api or a ui');
   }
 
-  if (manifest.ui && (!manifest.ui.remote || !manifest.ui.entry)) {
-    throw new Error('Plugin ui manifest must declare remote and entry');
+  if (manifest.ui) {
+    if (!manifest.ui.remote || !manifest.ui.entry) {
+      throw new Error('Plugin ui manifest must declare remote and entry');
+    }
+
+    if (!UI_REMOTE_RE.test(manifest.ui.remote)) {
+      throw new Error(
+        `Invalid ui.remote "${manifest.ui.remote}": must match ${UI_REMOTE_RE}`,
+      );
+    }
+
+    const isHttps = (value: string): boolean => {
+      try {
+        const { protocol } = new URL(value);
+        return (
+          protocol === 'https:' ||
+          (protocol === 'http:' && process.env.NODE_ENV !== 'production')
+        );
+      } catch {
+        return false;
+      }
+    };
+
+    if (!isHttps(manifest.ui.entry)) {
+      throw new Error(
+        `Invalid ui.entry "${manifest.ui.entry}": must be an https URL`,
+      );
+    }
   }
 
   if (manifest.api && !manifest.api.address && !manifest.api.image) {
@@ -156,24 +183,25 @@ export const fetchPluginManifest = async (
 
 const isSaas = () => getEnv({ name: 'VERSION', defaultValue: 'os' }) === 'saas';
 
-const addToInstalledSet = async (name: string): Promise<void> => {
-  const data = await redis.get(INSTALLED_PLUGINS_KEY);
-  const plugins: string[] = data ? JSON.parse(data) : [];
+export const isGithubInstallEnabled = (): boolean =>
+  process.env.MARKETPLACE_ALLOW_GITHUB_INSTALL === 'true' && !isSaas();
 
-  if (!plugins.includes(name)) {
-    plugins.push(name);
-    await redis.set(INSTALLED_PLUGINS_KEY, JSON.stringify(plugins));
+export const assertInstallableName = (name: string): void => {
+  const provided = new Set(['core', 'gateway']);
+
+  for (const envName of ['ENABLED_PLUGINS', 'ENABLED_PLUGINS_ONLY_API']) {
+    for (const entry of (process.env[envName] || '').split(',')) {
+      const trimmed = entry.trim();
+
+      if (trimmed) {
+        provided.add(trimmed);
+      }
+    }
   }
-};
 
-const removeFromInstalledSet = async (name: string): Promise<void> => {
-  const data = await redis.get(INSTALLED_PLUGINS_KEY);
-  const plugins: string[] = data ? JSON.parse(data) : [];
-
-  if (plugins.includes(name)) {
-    await redis.set(
-      INSTALLED_PLUGINS_KEY,
-      JSON.stringify(plugins.filter((p) => p !== name)),
+  if (provided.has(name)) {
+    throw new Error(
+      `Plugin "${name}" is already provided by this deployment and cannot be installed from the marketplace`,
     );
   }
 };
@@ -222,42 +250,98 @@ const queueRouterUpdate = async (name: string): Promise<void> => {
 export const registerPluginService = async (
   plugin: Pick<IRegistryPlugin, 'name' | 'api'>,
 ): Promise<void> => {
-  const address = plugin.api?.address;
-
-  if (!address || isSaas()) {
+  if (!plugin.api || isSaas()) {
     return;
   }
 
-  const rawVersion = process.env.RELEASE_VERSION;
-  const releaseVersion = rawVersion?.startsWith('3.') ? rawVersion : 'latest';
+  const manifestAddress = plugin.api.address;
+  // A plugin deployed via its image self-registers with service discovery
+  // (joinErxesGateway); the manifest can also point at a running address.
+  const address =
+    manifestAddress ||
+    (await redis.get(`erxes-service-${plugin.name}`)) ||
+    undefined;
 
-  const existingConfigJson = await redis.get(keyForConfig(plugin.name));
-  const existingConfig = existingConfigJson ? JSON.parse(existingConfigJson) : {};
+  if (!address) {
+    throw new Error(
+      `Plugin "${plugin.name}" API is not running: deploy it (it self-registers with service discovery) or set api.address in plugin.json`,
+    );
+  }
 
-  await redis.set(
-    keyForConfig(plugin.name),
-    JSON.stringify({
-      dbConnectionString: process.env.MONGO_URL || '',
-      hasSubscriptions: plugin.api?.hasSubscriptions ?? false,
-      meta: { ...existingConfig?.meta },
-      releaseVersion,
-    }),
-  );
+  const isHttpUrl = (value: string): boolean => {
+    try {
+      const { protocol } = new URL(value);
+      return protocol === 'http:' || protocol === 'https:';
+    } catch {
+      return false;
+    }
+  };
 
-  await redis.set(`erxes-service-${plugin.name}`, address);
-  await addToInstalledSet(plugin.name);
+  if (!isHttpUrl(address)) {
+    throw new Error(
+      `Plugin "${plugin.name}" API address "${address}" must be an http(s) URL`,
+    );
+  }
+
+  // The gateway waits forever on any installed plugin with no working
+  // endpoint, so fail the install unless the subgraph answers.
+  try {
+    const res = await fetch(`${address}/graphql`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        query: 'query SubgraphIntrospectQuery { _service { sdl } }',
+        operationName: 'SubgraphIntrospectQuery',
+      }),
+      signal: AbortSignal.timeout(5000),
+    });
+
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`);
+    }
+  } catch {
+    throw new Error(
+      `Plugin "${plugin.name}" API at ${address} is not reachable`,
+    );
+  }
+
+  // Only manifest-declared addresses write discovery keys — a self-registered
+  // plugin owns its own `erxes-service-*`/config keys.
+  if (manifestAddress) {
+    const rawVersion = process.env.RELEASE_VERSION;
+    const releaseVersion = rawVersion?.startsWith('3.') ? rawVersion : 'latest';
+
+    const existingConfigJson = await redis.get(keyForConfig(plugin.name));
+    const existingConfig = existingConfigJson
+      ? JSON.parse(existingConfigJson)
+      : {};
+
+    await redis.set(
+      keyForConfig(plugin.name),
+      JSON.stringify({
+        dbConnectionString: process.env.MONGO_URL || '',
+        hasSubscriptions: plugin.api.hasSubscriptions ?? false,
+        meta: { ...existingConfig?.meta },
+        releaseVersion,
+      }),
+    );
+
+    await redis.set(`erxes-service-${plugin.name}`, manifestAddress);
+  }
+
+  await redis.sadd(INSTALLED_PLUGINS_KEY, plugin.name);
   await queueRouterUpdate(plugin.name);
 };
 
-export const unregisterPluginService = async (
-  name: string,
-): Promise<void> => {
+export const unregisterPluginService = async (name: string): Promise<void> => {
   if (isSaas()) {
     return;
   }
 
-  await redis.del(`erxes-service-${name}`, keyForConfig(name));
-  await removeFromInstalledSet(name);
+  // Never delete `erxes-service-*` or config keys — a running plugin owns
+  // them; removing from the installed set is enough to drop it from the
+  // supergraph.
+  await redis.srem(INSTALLED_PLUGINS_KEY, name);
   await queueRouterUpdate(name);
 };
 
