@@ -1,3 +1,20 @@
+
+
+## [3.2.9](https://github.com/erxes/erxes/compare/3.2.8...3.2.9) (2026-09-30)
+
+
+### Bug Fixes
+
+* **frontline:** migrate ticket priority, status type and properties correctly ([515e946](https://github.com/erxes/erxes/commit/515e9467d019f8d2622c3cae59d203ee2e7a5654))
+* **frontline:** show newly created tickets at the top of the board column ([b9ee7af](https://github.com/erxes/erxes/commit/b9ee7af8f8f3dc45807750f7efc72237ca662cda))
+* **frontline:** stop spurious ticket updates when opening a ticket ([9447207](https://github.com/erxes/erxes/commit/94472074d34c8d58cc31510185edf8f09e68d7e8))
+
+
+### Features
+
+* **frontline:** add Call Pro debug logging and fix recording player ([0f7f616](https://github.com/erxes/erxes/commit/0f7f616b72912303e0e00b0838e0bb8593d4f97a))
+* **saas-migrations:** add legacy integrations migration command ([72e90e7](https://github.com/erxes/erxes/commit/72e90e72d0ae00ffcffe40f4d323654aa5c44f8f))
+
 # Changelog
 
 ## [3.2.8](https://github.com/erxes/erxes/compare/3.2.7...3.2.8) (2026-09-30)

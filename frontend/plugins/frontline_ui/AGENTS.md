@@ -719,6 +719,12 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
 
 ## Local Invariants
 
+- `TicketFields` must not save the description just because a ticket was
+  opened. Plain-text (legacy v2) descriptions are converted to blocks with a
+  fresh `crypto.randomUUID()` per block on every parse, so a re-parse never
+  equals the loaded content; the save effect skips while the debounced content
+  is still the loaded reference (`loadedDescriptionRef`) and only writes after a
+  real editor change.
 - The form builder runs under two route families — `frontline/forms/*` and
   `settings/frontline/channels/:id/forms/*` — and tells them apart by the `id`
   route param, never by a flag. `FormsCreateButton`, `FormMutateLayout`'s cancel
