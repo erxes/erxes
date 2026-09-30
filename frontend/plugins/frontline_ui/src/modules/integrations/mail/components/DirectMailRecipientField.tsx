@@ -1,7 +1,7 @@
 import { IconChevronDown, IconMail } from '@tabler/icons-react';
 import { useQuery } from '@apollo/client';
 import { Button, Combobox, Command, Popover } from 'erxes-ui';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { MAIL_VERIFIED_CONTACTS_QUERY } from '@/integrations/mail/graphql/queries/mailRecipients';
@@ -18,37 +18,45 @@ const VerifiedEmailSelect = ({
 }: {
   value: string;
   onValueChange: (value: string) => void;
-  onRecipientSelect: (customerId: string) => void;
+  onRecipientSelect: (customerId?: string) => void;
 }) => {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [searchValue, setSearchValue] = useState('');
+  const [loadMoreError, setLoadMoreError] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const listRef = useRef<HTMLDivElement>(null);
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  const isFetchingRef = useRef(false);
   useEffect(() => {
     const timer = window.setTimeout(() => setSearchValue(search.trim()), 250);
     return () => window.clearTimeout(timer);
   }, [search]);
 
-  const { data, loading, error, fetchMore, refetch } = useQuery<MailRecipientsResult>(
-    MAIL_VERIFIED_CONTACTS_QUERY,
-    {
+  const { data, loading, error, fetchMore, refetch } =
+    useQuery<MailRecipientsResult>(MAIL_VERIFIED_CONTACTS_QUERY, {
       variables: { searchValue: searchValue || undefined },
       skip: !open,
-    },
-  );
-  const { emails } = useDirectMailComposerFields();
+    });
+  const { emails, targetCustomerId } = useDirectMailComposerFields();
   const options = useMemo(() => {
     const byEmail = new Map<
       string,
       { email: string; customerId?: string; name?: string }
     >();
-    for (const email of [value, ...emails]) {
-      if (email) byEmail.set(email.toLowerCase(), { email });
+    if (value) byEmail.set(value.toLowerCase(), { email: value });
+    for (const email of emails) {
+      byEmail.set(email.toLowerCase(), { email, customerId: targetCustomerId });
     }
     for (const contact of data?.customers.list ?? []) {
-      if (!['valid', 'verified'].includes(contact.emailValidationStatus ?? '')) {
+      if (
+        !['valid', 'verified'].includes(contact.emailValidationStatus ?? '')
+      ) {
         continue;
       }
-      const name = [contact.firstName, contact.lastName].filter(Boolean).join(' ');
+      const name = [contact.firstName, contact.lastName]
+        .filter(Boolean)
+        .join(' ');
       for (const email of [contact.primaryEmail, ...(contact.emails ?? [])]) {
         if (email)
           byEmail.set(email.toLowerCase(), {
@@ -61,27 +69,89 @@ const VerifiedEmailSelect = ({
     return [...byEmail.values()].filter(({ email }) =>
       email.toLowerCase().includes(search.toLowerCase()),
     );
-  }, [data, emails, search, value]);
+  }, [data, emails, search, targetCustomerId, value]);
 
-  const loadMore = () => {
+  useEffect(() => {
+    setLoadMoreError(false);
+  }, [open, searchValue]);
+
+  const loadMore = useCallback(() => {
     const cursor = data?.customers.pageInfo.endCursor;
-    if (loading || !cursor || !data?.customers.pageInfo.hasNextPage) return;
+    if (
+      !open ||
+      loading ||
+      isFetchingRef.current ||
+      !cursor ||
+      !data?.customers.pageInfo.hasNextPage
+    ) {
+      return;
+    }
+
+    isFetchingRef.current = true;
+    setLoadingMore(true);
     fetchMore({
       variables: { cursor },
-      updateQuery: (previous, { fetchMoreResult }) =>
-        fetchMoreResult
-          ? {
-              customers: {
-                ...fetchMoreResult.customers,
-                list: [
-                  ...previous.customers.list,
-                  ...fetchMoreResult.customers.list,
-                ],
-              },
-            }
-          : previous,
-    }).catch(() => undefined);
-  };
+      updateQuery: (previous, { fetchMoreResult }) => {
+        if (!fetchMoreResult) return previous;
+        const loadedIds = new Set(
+          previous.customers.list.map(({ _id }) => _id),
+        );
+        return {
+          customers: {
+            ...fetchMoreResult.customers,
+            list: [
+              ...previous.customers.list,
+              ...fetchMoreResult.customers.list.filter(
+                ({ _id }) => !loadedIds.has(_id),
+              ),
+            ],
+          },
+        };
+      },
+    })
+      .then(({ data: next }) => {
+        if (
+          next.customers.pageInfo.hasNextPage &&
+          next.customers.pageInfo.endCursor === cursor
+        ) {
+          setLoadMoreError(true);
+        }
+      })
+      .catch(() => setLoadMoreError(true))
+      .finally(() => {
+        isFetchingRef.current = false;
+        setLoadingMore(false);
+      });
+  }, [data, fetchMore, loading, open]);
+
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    const list = listRef.current;
+    if (
+      !open ||
+      !sentinel ||
+      !list ||
+      loadMoreError ||
+      !data?.customers.pageInfo.hasNextPage
+    ) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) loadMore();
+      },
+      { root: list, rootMargin: '0px 0px 80px 0px' },
+    );
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [
+    data?.customers.list.length,
+    data?.customers.pageInfo.hasNextPage,
+    loadMore,
+    loadMoreError,
+    open,
+  ]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -107,7 +177,7 @@ const VerifiedEmailSelect = ({
             onValueChange={setSearch}
             focusOnMount
           />
-          <Command.List className="max-h-64 overflow-y-auto">
+          <Command.List ref={listRef} className="max-h-64 overflow-y-auto">
             {loading && (
               <p className="p-3 text-sm text-muted-foreground">
                 Loading contacts…
@@ -134,7 +204,7 @@ const VerifiedEmailSelect = ({
                 value={email}
                 onSelect={() => {
                   onValueChange(email);
-                  if (customerId) onRecipientSelect(customerId);
+                  onRecipientSelect(customerId);
                   setOpen(false);
                 }}
               >
@@ -148,10 +218,26 @@ const VerifiedEmailSelect = ({
                 <Combobox.Check checked={email === value} />
               </Command.Item>
             ))}
-            {data?.customers.pageInfo.hasNextPage && (
-              <Command.Item value="load-more-contacts" onSelect={loadMore}>
-                {loading ? 'Loading…' : 'Load more contacts'}
-              </Command.Item>
+            {loadMoreError && (
+              <Button
+                type="button"
+                variant="ghost"
+                className="w-full justify-start"
+                onClick={() => {
+                  setLoadMoreError(false);
+                  loadMore();
+                }}
+              >
+                Could not load more contacts. Retry
+              </Button>
+            )}
+            {data?.customers.pageInfo.hasNextPage && !loadMoreError && (
+              <div
+                ref={sentinelRef}
+                className="p-2 text-center text-xs text-muted-foreground"
+              >
+                {loadingMore ? 'Loading…' : ''}
+              </div>
             )}
           </Command.List>
         </Command>
@@ -163,7 +249,7 @@ const VerifiedEmailSelect = ({
 export const ToRow = ({
   onRecipientSelect,
 }: {
-  onRecipientSelect: (customerId: string) => void;
+  onRecipientSelect: (customerId?: string) => void;
 }) => {
   const { t } = useTranslation('frontline');
   const { showCc, showBcc, openCc, openBcc } = useDirectMailComposerFields();

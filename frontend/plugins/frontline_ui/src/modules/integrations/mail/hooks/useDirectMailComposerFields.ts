@@ -6,6 +6,7 @@ interface DirectMailComposerFieldsState {
   openCc: () => void;
   openBcc: () => void;
   emails: string[];
+  targetCustomerId?: string;
 }
 
 export const DirectMailComposerFieldsContext =

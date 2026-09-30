@@ -49,6 +49,7 @@ const toThreadMessage = (message: IMailMessageDocument) => {
     createdAt: message.createdAt,
     mailData: {
       messageId: message.messageId,
+      providerMessageId: message.providerMessageId,
       inReplyTo: message.inReplyTo,
       references: message.references ?? [],
       type: message.type,

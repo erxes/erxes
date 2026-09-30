@@ -12,7 +12,7 @@ export const isValidMailReactionEmoji = (emoji: string) =>
         /^[#*0-9]\uFE0F?\u20E3$/u.test(emoji)),
   );
 
-const ADDRESS = /^[^\s<>@\r\n]+@[^\s<>@\r\n]+$/;
+const ADDRESS = /^[^\s<>@]+@[^\s<>@]+$/;
 const MESSAGE_ID = /^<[^<>\r\n]+>$/;
 
 const encodedPart = (value: string) =>
@@ -35,7 +35,9 @@ export const buildReactionMime = (input: ISendMailInput): string => {
   }
 
   const boundary = `erxes-reaction-${input.messageId.slice(1, 37)}`;
-  const subject = `=?UTF-8?B?${Buffer.from(input.subject, 'utf8').toString('base64')}?=`;
+  const subject = `=?UTF-8?B?${Buffer.from(input.subject, 'utf8').toString(
+    'base64',
+  )}?=`;
   const references = (input.references ?? [])
     .filter((reference) => MESSAGE_ID.test(reference))
     .join(' ');

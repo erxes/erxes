@@ -10,6 +10,25 @@ export const formatAddresses = (emails?: EmailAddress[]) =>
     .filter(Boolean)
     .join(', ');
 
+export const mailMessagePreview = (message: MailMessage) => {
+  const html = message.mailData.newContent ?? message.mailData.body;
+  if (!html) return message.mailData.subject ?? '';
+
+  const doc = new DOMParser().parseFromString(
+    html
+      .replace(/<br\s*\/?\s*>/gi, ' ')
+      .replace(/<\/(?:p|div|li|blockquote)>/gi, ' '),
+    'text/html',
+  );
+  doc
+    .querySelectorAll('blockquote, .gmail_quote, .yahoo_quoted')
+    .forEach((quote) => quote.remove());
+  return (doc.body.textContent ?? '')
+    .split(/On (?:Mon|Tue|Wed|Thu|Fri|Sat|Sun),? \d{1,2} /i)[0]
+    .replace(/\s+/g, ' ')
+    .trim();
+};
+
 export const senderInitial = (name?: string, email?: string) =>
   (name || email || '?')[0].toUpperCase();
 

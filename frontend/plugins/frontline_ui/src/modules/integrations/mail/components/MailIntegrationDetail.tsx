@@ -3,9 +3,9 @@ import { IIntegrationDetail } from '@/integrations/types/Integration';
 import {
   Alert,
   Button,
-  Dialog,
   Form,
   Separator,
+  Sheet,
   Spinner,
   toast,
 } from 'erxes-ui';
@@ -44,17 +44,17 @@ const MailIntegrationEditSheet = ({ id }: { id: string }) => {
   const [open, setOpen] = useState(false);
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <Dialog.Trigger asChild>
+    <Sheet open={open} onOpenChange={setOpen}>
+      <Sheet.Trigger asChild>
         <div className="flex items-center gap-2 w-full cursor-pointer">
           <IconEdit size={16} />
           {t('edit')}
         </div>
-      </Dialog.Trigger>
-      <Dialog.Content className="p-0 gap-0 border-0 shadow-lg max-w-md max-h-[90vh] flex flex-col overflow-hidden">
+      </Sheet.Trigger>
+      <Sheet.View className="sm:max-w-xl">
         <MailIntegrationEditForm id={id} setOpen={setOpen} />
-      </Dialog.Content>
-    </Dialog>
+      </Sheet.View>
+    </Sheet>
   );
 };
 
@@ -124,19 +124,18 @@ const MailIntegrationEditForm = ({
   }
 
   return (
-    <>
-      <Dialog.Header className="flex-row items-center justify-between space-y-0 px-4 py-3 flex-none">
-        <Dialog.Title>{integrationDetail?.name}</Dialog.Title>
-        <Dialog.Close />
-      </Dialog.Header>
-      <Separator />
+    <Form {...form}>
+      <form
+        id="mail-edit-form"
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="flex h-full flex-col overflow-hidden"
+      >
+        <Sheet.Header>
+          <Sheet.Title>{integrationDetail?.name || t('edit')}</Sheet.Title>
+          <Sheet.Close />
+        </Sheet.Header>
 
-      <Form {...form}>
-        <form
-          id="mail-edit-form"
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="p-6 flex-1 overflow-y-auto grid grid-cols-1 gap-3"
-        >
+        <Sheet.Content className="min-h-0 space-y-4 overflow-y-auto p-4">
           {details.healthStatus === MAIL_HEALTH_UNHEALTHY && details.error && (
             <Alert variant="destructive" className="mb-4">
               <IconAlertTriangle className="h-4 w-4" />
@@ -200,20 +199,19 @@ const MailIntegrationEditForm = ({
               </Form.Item>
             )}
           />
-        </form>
-      </Form>
+        </Sheet.Content>
 
-      <Separator />
-      <Dialog.Footer className="flex justify-end gap-2 py-4 px-6 flex-none">
-        <Dialog.Close asChild>
-          <Button variant="ghost" disabled={editLoading}>
-            {t('close')}
+        <Sheet.Footer>
+          <Sheet.Close asChild>
+            <Button type="button" variant="ghost" disabled={editLoading}>
+              {t('close')}
+            </Button>
+          </Sheet.Close>
+          <Button type="submit" disabled={editLoading}>
+            {editLoading ? t('saving') : t('save')}
           </Button>
-        </Dialog.Close>
-        <Button type="submit" form="mail-edit-form" disabled={editLoading}>
-          {editLoading ? t('saving') : t('save')}
-        </Button>
-      </Dialog.Footer>
-    </>
+        </Sheet.Footer>
+      </form>
+    </Form>
   );
 };

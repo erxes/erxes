@@ -27,7 +27,7 @@ export const mailQueries = {
 
     const inboxes = await models.Integrations.find({
       kind: 'mail',
-      isActive: true,
+      isActive: { $ne: false },
       channelId: { $in: channelIds },
       ...(user.isOwner
         ? {}

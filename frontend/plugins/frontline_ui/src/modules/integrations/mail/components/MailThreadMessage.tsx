@@ -14,6 +14,7 @@ import type {
 } from '@/integrations/mail/types/mailThread';
 import {
   formatAddresses,
+  mailMessagePreview,
   senderAvatarBg,
   senderInitial,
 } from '@/integrations/mail/utils/mailThread';
@@ -44,13 +45,16 @@ export const MailThreadMessage: React.FC<{
     (mailData.to?.length ?? 0) + (mailData.cc?.length ?? 0) > 1;
   const bg = senderAvatarBg(sender?.name, sender?.email);
   const delivery = isSent ? mailData.deliveryStatus : undefined;
+  const preview = mailMessagePreview(message);
   const visibleAttachments = (mailData.attachments ?? []).filter(
     (attachment) => attachment.disposition !== 'inline',
   );
   const reactionChips = reactions.length > 0 && (
     <div className="flex flex-wrap gap-1.5 py-2">
       {[...new Set(reactions.map(({ emoji }) => emoji))].map((emoji) => {
-        const matching = reactions.filter((reaction) => reaction.emoji === emoji);
+        const matching = reactions.filter(
+          (reaction) => reaction.emoji === emoji,
+        );
         return (
           <span
             key={emoji}
@@ -121,25 +125,23 @@ export const MailThreadMessage: React.FC<{
                   </div>
                 </div>
               ) : (
-                <div className="flex items-baseline gap-2 justify-between">
-                  <div className="flex items-baseline gap-2 min-w-0">
-                    <span className="text-[13px] font-semibold text-foreground whitespace-nowrap">
+                <div className="min-w-0 space-y-1">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="truncate text-[13px] font-semibold text-foreground">
                       {sender?.name || sender?.email || '—'}
                     </span>
-                    <span className="text-[12px] text-[#5f6368] dark:text-[#9aa0a6] truncate">
-                      {mailData.body
-                        ? mailData.body.replace(/<[^<>]*>/g, '').slice(0, 80)
-                        : mailData.subject}
+                    <span className="flex shrink-0 items-center gap-1.5">
+                      {delivery && delivery !== 'sent' && (
+                        <DeliveryBadge status={delivery} />
+                      )}
+                      <span className="whitespace-nowrap text-[11px] text-muted-foreground">
+                        {formatDateISOStringToRelativeDate(createdAt)}
+                      </span>
                     </span>
                   </div>
-                  <span className="flex flex-none items-center gap-1.5">
-                    {delivery && delivery !== 'sent' && (
-                      <DeliveryBadge status={delivery} />
-                    )}
-                    <span className="text-[11px] text-[#5f6368] dark:text-[#9aa0a6] whitespace-nowrap">
-                      {formatDateISOStringToRelativeDate(createdAt)}
-                    </span>
-                  </span>
+                  <p className="truncate text-[12px] text-muted-foreground">
+                    {preview || mailData.subject || '—'}
+                  </p>
                 </div>
               )}
             </div>
@@ -232,9 +234,6 @@ export const MailThreadMessage: React.FC<{
             </div>
           )}
         </div>
-      )}
-      {!expanded && reactions.length > 0 && (
-        <div className="px-4 pb-3 ml-12">{reactionChips}</div>
       )}
     </div>
   );

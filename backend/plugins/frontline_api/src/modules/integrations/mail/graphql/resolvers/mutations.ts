@@ -20,7 +20,7 @@ import {
 } from '@/integrations/mail/utils/cloudflare/connect';
 import { provisionCloudflare } from '@/integrations/mail/utils/cloudflare/provision';
 import { toPublicConnection } from '@/integrations/mail/utils/cloudflare/serialize';
-import { visibleChannelsFilter } from '@/channel/utils';
+import { assertMailSenderAccess } from '@/integrations/mail/utils/senderAccess';
 import { MAIL_MESSAGE_TYPES } from '@/integrations/mail/constants';
 import { isValidMailReactionEmoji } from '@/integrations/mail/utils/reactions';
 import {
@@ -103,40 +103,7 @@ export const mailMutations = {
       throw new Error('Starting an email conversation requires a sender');
     }
 
-    const channelIds = await models.Channels.find(
-      await visibleChannelsFilter({ models, subdomain, user }),
-    ).distinct('_id');
-    const allowed = await models.Integrations.exists({
-      _id: integrationId,
-      kind: 'mail',
-      isActive: true,
-      channelId: { $in: channelIds },
-      ...(user.isOwner
-        ? {}
-        : {
-            $or: [
-              { visibility: { $exists: false } },
-              { visibility: 'public' },
-              {
-                visibility: 'private',
-                $or: [
-                  { createdUserId: user._id },
-                  { departmentIds: { $in: user.departmentIds ?? [] } },
-                ],
-              },
-            ],
-          }),
-    });
-
-    if (
-      !allowed ||
-      !(await models.MailIntegrations.exists({
-        inboxId: integrationId,
-        disabledAt: null,
-      }))
-    ) {
-      throw new Error('Mail sender not found or permission required');
-    }
+    await assertMailSenderAccess({ models, subdomain, user, integrationId });
 
     return toDeliveryOutcome(
       await models.MailMessages.createSendMail(
@@ -183,6 +150,13 @@ export const mailMutations = {
     if (!conversation?.integrationId) {
       throw new Error('Mail conversation not found');
     }
+
+    await assertMailSenderAccess({
+      models,
+      subdomain,
+      user,
+      integrationId: conversation.integrationId,
+    });
 
     const subject = target.subject?.trim() || 'Your email';
     const replySubject = /^re:/i.test(subject) ? subject : `Re: ${subject}`;

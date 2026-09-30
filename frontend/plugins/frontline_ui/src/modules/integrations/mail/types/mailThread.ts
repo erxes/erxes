@@ -28,6 +28,7 @@ export interface Attachment {
 
 export interface MailData {
   messageId?: string;
+  providerMessageId?: string;
   inReplyTo?: string;
   references?: string[];
   type?: 'INBOX' | 'SENT';

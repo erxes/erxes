@@ -1,13 +1,13 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { Spinner, cn, toast } from 'erxes-ui';
 import { IconSend, IconX } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
-import DOMPurify from 'dompurify';
 import type {
   ComposeMode,
   MailComposePayload,
 } from '@/integrations/mail/types/mailThread';
 import { stripSubjectPrefix } from '@/integrations/mail/utils/mailThread';
+import { toHtml } from '@/integrations/mail/utils/directMailComposer';
 
 const COMPOSE_TITLE_KEYS: Record<ComposeMode, string> = {
   reply: 'reply',
@@ -58,18 +58,18 @@ export const MailThreadCompose: React.FC<ComposeProps> = ({
   });
   const [showCc, setShowCc] = useState(Boolean(defaultCc?.length));
   const [showBcc, setShowBcc] = useState(false);
-  const bodyRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    bodyRef.current?.focus();
-  }, []);
-  useEffect(() => {
-    if (bodyRef.current && defaultBody) {
-      bodyRef.current.replaceChildren(
-        DOMPurify.sanitize(defaultBody, { RETURN_DOM_FRAGMENT: true }),
-      );
-    }
-  }, [defaultBody]);
+  const [bodyText, setBodyText] = useState(() =>
+    defaultBody
+      ? new DOMParser()
+          .parseFromString(
+            defaultBody
+              .replace(/<br\s*\/?\s*>/gi, '\n')
+              .replace(/<\/(?:p|div|blockquote)>/gi, '\n'),
+            'text/html',
+          )
+          .body.textContent?.trim() ?? ''
+      : '',
+  );
 
   const split = (v: string) =>
     v
@@ -84,8 +84,7 @@ export const MailThreadCompose: React.FC<ComposeProps> = ({
         title: t('enter-at-least-one-recipient'),
         variant: 'destructive',
       });
-    const body = DOMPurify.sanitize(bodyRef.current?.innerHTML ?? '');
-    if (!body.trim() || body === '<br>')
+    if (!bodyText.trim())
       return toast({
         title: t('message-body-cannot-be-empty'),
         variant: 'destructive',
@@ -94,7 +93,7 @@ export const MailThreadCompose: React.FC<ComposeProps> = ({
     onSend(
       {
         subject,
-        body,
+        body: toHtml(bodyText.trim()),
         to: toList,
         cc: showCc && cc ? split(cc) : undefined,
         bcc: showBcc && bcc ? split(bcc) : undefined,
@@ -227,15 +226,13 @@ export const MailThreadCompose: React.FC<ComposeProps> = ({
         />
       </div>
 
-      <div
-        ref={bodyRef}
-        className="min-h-[120px] max-h-[260px] overflow-y-auto px-4 py-3 text-[14px] leading-relaxed focus:outline-none empty:before:content-[attr(data-placeholder)] empty:before:text-[#9aa0a6]"
-        contentEditable
-        suppressContentEditableWarning
+      <textarea
+        className="min-h-[120px] max-h-[260px] w-full resize-y overflow-y-auto px-4 py-3 text-[14px] leading-relaxed focus:outline-none"
+        value={bodyText}
+        onChange={(event) => setBodyText(event.target.value)}
         onKeyDown={onKey}
-        tabIndex={0}
         aria-label={t('email-body')}
-        data-placeholder={t('write-your-message')}
+        placeholder={t('write-your-message')}
       />
 
       <div className="flex items-center justify-between px-4 py-2 border-t border-[rgba(0,0,0,0.08)] dark:border-[rgba(255,255,255,0.06)]">

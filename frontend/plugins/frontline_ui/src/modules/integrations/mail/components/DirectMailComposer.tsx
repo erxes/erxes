@@ -61,8 +61,15 @@ export const DirectMailComposer = () => {
   const openCc = useCallback(() => setShowCc(true), []);
   const openBcc = useCallback(() => setShowBcc(true), []);
   const fieldActions = useMemo(
-    () => ({ showCc, showBcc, openCc, openBcc, emails: target?.emails ?? [] }),
-    [showCc, showBcc, openCc, openBcc, target?.emails],
+    () => ({
+      showCc,
+      showBcc,
+      openCc,
+      openBcc,
+      emails: target?.emails ?? [],
+      targetCustomerId: target?.customerId,
+    }),
+    [showCc, showBcc, openCc, openBcc, target?.emails, target?.customerId],
   );
 
   useEffect(() => {
