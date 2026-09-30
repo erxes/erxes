@@ -181,8 +181,9 @@ describe('inventory split follow transactions', () => {
     ).toEqual([]);
   });
 
-  it('groups only enabled split details under a separate pointer', () => {
-    const transaction = makeTransaction({
+  it('groups internal movement split details at the destination under a separate pointer', () => {
+    const originTransaction = makeTransaction({
+      journal: 'invMove',
       details: Array.from({ length: 5 }, (_, index) => ({
         _id: `detail-${index + 1}`,
         accountId: 'inventory-account',
@@ -202,13 +203,33 @@ describe('inventory split follow transactions', () => {
         },
       })),
     });
+    const moveInTransaction = makeTransaction({
+      _id: 'move-in-1',
+      ptrId: 'ptr-1',
+      journal: 'invMoveIn',
+      branchId: 'destination-branch',
+      departmentId: 'destination-department',
+      details: Array.from({ length: 5 }, (_, index) => ({
+        _id: `move-in-detail-${index + 1}`,
+        originId: `detail-${index + 1}`,
+        accountId: 'destination-account',
+        productId: `source-product-${index + 1}`,
+        count: index + 1,
+        unitPrice: 100,
+        amount: (index + 1) * 100,
+      })),
+    });
 
     const followDocs = buildInvSplitFollowDocs(
-      transaction,
-      transaction,
+      originTransaction,
+      moveInTransaction,
       'split-ptr',
     );
 
+    expect(originTransaction.details).toHaveLength(5);
+    expect(moveInTransaction.details).toHaveLength(5);
+    expect(originTransaction.ptrId).toBe('ptr-1');
+    expect(moveInTransaction.ptrId).toBe('ptr-1');
     expect(followDocs).toHaveLength(2);
     expect(followDocs.map((followDoc) => followDoc.ptrId)).toEqual([
       'split-ptr',
@@ -219,5 +240,20 @@ describe('inventory split follow transactions', () => {
     );
     expect(followDocs[0].details).toHaveLength(3);
     expect(followDocs[1].details).toHaveLength(3);
+    expect(followDocs).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          branchId: 'destination-branch',
+          departmentId: 'destination-department',
+        }),
+      ]),
+    );
+    expect(
+      followDocs.every((followDoc) =>
+        followDoc.details.every(
+          (detail) => detail.accountId === 'destination-account',
+        ),
+      ),
+    ).toBe(true);
   });
 });
