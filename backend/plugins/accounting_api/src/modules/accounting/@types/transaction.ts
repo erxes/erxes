@@ -1,10 +1,16 @@
 import { Document } from 'mongoose';
 
-export interface IInvSplitDetailInfo {
-  detailId: string;
-  productId: string;
-  ratio: number;
-}
+export type IInvSplitDetailInfo =
+  | {
+      hasSplit: false;
+      productId?: string;
+      ratio?: number;
+    }
+  | {
+      hasSplit: true;
+      productId: string;
+      ratio: number;
+    };
 
 export interface ITrDetail {
   _id?: string;

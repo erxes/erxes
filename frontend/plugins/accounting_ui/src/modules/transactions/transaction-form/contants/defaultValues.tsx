@@ -43,6 +43,45 @@ const trDetailWrapper = (detail?: ITrDetail) => {
   };
 };
 
+const getInventoryDetailFollowInfos = (
+  detail: ITrDetail,
+  doc?: Partial<ITransaction>,
+) => {
+  const legacySplitInfos = Array.isArray(doc?.followInfos?.invSplitDetails)
+    ? doc.followInfos.invSplitDetails
+    : [];
+  const legacySplitInfo = legacySplitInfos.find(
+    (splitInfo: { detailId?: string }) => splitInfo.detailId === detail._id,
+  );
+  const currentInvSplit = detail.followInfos?.invSplit;
+  const invSplit = currentInvSplit
+    ? {
+        ...currentInvSplit,
+        hasSplit:
+          typeof currentInvSplit.hasSplit === 'boolean'
+            ? currentInvSplit.hasSplit
+            : Boolean(currentInvSplit.productId),
+      }
+    : legacySplitInfo
+    ? {
+        hasSplit: true,
+        productId: legacySplitInfo.productId,
+        ratio: legacySplitInfo.ratio,
+      }
+    : undefined;
+
+  return invSplit
+    ? {
+        ...detail.followInfos,
+        invSplit: {
+          hasSplit: invSplit.hasSplit,
+          productId: invSplit.productId,
+          ratio: invSplit.ratio,
+        },
+      }
+    : detail.followInfos;
+};
+
 const DEFAULT_VAT_VALUES = (doc?: Partial<ITransaction>) => {
   return {
     hasVat: doc?.hasVat ?? false,
@@ -173,6 +212,7 @@ const INV_INCOME_JOURNAL_DEFAULT_VALUES = (
           count: det.count ?? 0,
           unitPrice: det.unitPrice ?? 0,
           amount: det.amount ?? 0,
+          followInfos: getInventoryDetailFollowInfos(det, doc),
         }))
       : [
           {
@@ -260,6 +300,7 @@ const INV_MOVE_JOURNAL_DEFAULT_VALUES = (
           count: det.count ?? 0,
           unitPrice: det.unitPrice ?? 0,
           amount: det.amount ?? 0,
+          followInfos: getInventoryDetailFollowInfos(det, doc),
         }))
       : [
           {

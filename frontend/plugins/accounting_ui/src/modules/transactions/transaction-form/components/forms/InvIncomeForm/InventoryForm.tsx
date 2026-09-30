@@ -41,7 +41,7 @@ export const InventoryForm = ({
 
   const columnsLength =
     tableRef.current?.querySelector('tr')?.querySelectorAll('td, th').length ||
-    11;
+    8;
 
   return (
     <>
@@ -116,7 +116,8 @@ const InventoryTableHeader = ({
   return (
     <Table.Header>
       <Table.Row>
-        <Table.Head className="w-10">
+        <Table.Head className="w-8" />
+        <Table.Head className="w-8">
           <div className="flex items-center justify-center">
             <Checkbox
               checked={!trDoc.details.filter((d) => !d.checked).length}
@@ -133,11 +134,7 @@ const InventoryTableHeader = ({
         </Table.Head>
         <Table.Head>Данс</Table.Head>
         <Table.Head>Бараа материал</Table.Head>
-        <Table.Head>Задлах</Table.Head>
         <Table.Head>Үндсэн нэгж</Table.Head>
-        <Table.Head>Задрах бараа</Table.Head>
-        <Table.Head>Задрах нэгж</Table.Head>
-        <Table.Head>Харьцаа</Table.Head>
         <Table.Head>Тоо хэмжээ</Table.Head>
         <Table.Head>Нэгж үнэ</Table.Head>
         <Table.Head>Дүн</Table.Head>

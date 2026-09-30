@@ -1,11 +1,14 @@
 import { useQuery } from '@apollo/client';
 import {
   Checkbox,
+  cn,
   Form,
+  Input,
   InputNumber,
-  PopoverScoped,
+  Label,
+  RecordTable,
   RecordTableInlineCell,
-  Table,
+  Sheet,
 } from 'erxes-ui';
 import { fixNum } from 'erxes-ui/lib';
 import { useSetAtom } from 'jotai';
@@ -29,18 +32,15 @@ const INV_SPLIT_INCOME = 'invSplitIncome';
 
 type TSplitJournal = TInvIncomeJournal | TInvMoveJournal;
 type TSplitInfo = NonNullable<
-  NonNullable<TSplitJournal['followInfos']>['invSplitDetails']
->[number];
+  NonNullable<TSplitJournal['details'][number]['followInfos']>['invSplit']
+>;
 
 type TProductUom = {
   _id: string;
   uom?: string;
 };
 
-const splitInfosPath = (journalIndex: number): Path<TAddTransactionGroup> =>
-  `trDocs.${journalIndex}.followInfos.invSplitDetails` as Path<TAddTransactionGroup>;
-
-export const InventorySplitCells = ({
+export const InventorySplitSheet = ({
   detailIndex,
   journalIndex,
   form,
@@ -54,12 +54,14 @@ export const InventorySplitCells = ({
     name: `trDocs.${journalIndex}`,
   }) as TSplitJournal;
   const detail = trDoc.details[detailIndex];
-  const splitInfos = trDoc.followInfos?.invSplitDetails || [];
-  const splitInfoIndex = splitInfos.findIndex(
-    (splitInfo) => splitInfo.detailId === detail._id,
-  );
-  const splitInfo = splitInfos[splitInfoIndex];
-  const productIds = [detail.productId, splitInfo?.productId].filter(
+  const splitInfo = detail.followInfos?.invSplit;
+  const hasSplit = splitInfo?.hasSplit === true;
+  const splitPath =
+    `trDocs.${journalIndex}.details.${detailIndex}.followInfos.invSplit` as Path<TAddTransactionGroup>;
+  const splitProductPath =
+    `${splitPath}.productId` as Path<TAddTransactionGroup>;
+  const splitRatioPath = `${splitPath}.ratio` as Path<TAddTransactionGroup>;
+  const productIds = [splitInfo?.productId].filter(
     (productId): productId is string => Boolean(productId),
   );
   const { data } = useQuery<{
@@ -75,117 +77,149 @@ export const InventorySplitCells = ({
     ]),
   );
 
-  const setSplitInfos = (nextSplitInfos: TSplitInfo[]) => {
-    form.setValue(splitInfosPath(journalIndex), nextSplitInfos, {
+  const setSplitInfo = (nextSplitInfo?: TSplitInfo) => {
+    form.setValue(splitPath, nextSplitInfo, {
       shouldDirty: true,
-      shouldValidate: true,
+      shouldValidate: nextSplitInfo?.hasSplit !== true,
     });
   };
 
   const handleCheckedChange = (checked: boolean) => {
     if (checked) {
-      setSplitInfos([
-        ...splitInfos,
-        { detailId: detail._id, productId: '', ratio: 1 },
-      ]);
+      setSplitInfo({
+        hasSplit: true,
+        productId: splitInfo?.productId || '',
+        ratio: splitInfo?.ratio ?? 1,
+      });
       return;
     }
 
-    setSplitInfos(splitInfos.filter((split) => split.detailId !== detail._id));
+    setSplitInfo({
+      ...splitInfo,
+      hasSplit: false,
+    });
   };
 
   return (
-    <>
-      <Table.Cell>
-        <RecordTableInlineCell className="justify-center">
-          <Checkbox
-            checked={Boolean(splitInfo)}
-            onCheckedChange={(checked) => handleCheckedChange(Boolean(checked))}
-          />
-        </RecordTableInlineCell>
-      </Table.Cell>
-      <Table.Cell>
-        <RecordTableInlineCell>
-          {uomByProductId.get(detail.productId) || '-'}
-        </RecordTableInlineCell>
-      </Table.Cell>
-      <Table.Cell className="min-w-56">
-        {splitInfo ? (
-          <Form.Field
-            control={form.control}
-            name={
-              `trDocs.${journalIndex}.followInfos.invSplitDetails.${splitInfoIndex}.productId` as Path<TAddTransactionGroup>
-            }
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Control>
-                  <SelectProduct
-                    value={field.value || ''}
-                    onValueChange={field.onChange}
-                    variant="ghost"
-                  />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
-        ) : (
-          <RecordTableInlineCell>-</RecordTableInlineCell>
-        )}
-      </Table.Cell>
-      <Table.Cell>
-        <RecordTableInlineCell>
-          {splitInfo ? uomByProductId.get(splitInfo.productId) || '-' : '-'}
-        </RecordTableInlineCell>
-      </Table.Cell>
-      <Table.Cell>
-        {splitInfo ? (
-          <Form.Field
-            control={form.control}
-            name={
-              `trDocs.${journalIndex}.followInfos.invSplitDetails.${splitInfoIndex}.ratio` as Path<TAddTransactionGroup>
-            }
-            render={({ field }) => (
-              <Form.Item>
-                <PopoverScoped
-                  scope={`trDocs.${journalIndex}.splitRatio.${detailIndex}`}
-                  closeOnEnter
-                >
-                  <Form.Control>
-                    <RecordTableInlineCell.Trigger>
-                      {field.value?.toLocaleString() || 0}
-                    </RecordTableInlineCell.Trigger>
-                  </Form.Control>
-                  <RecordTableInlineCell.Content>
-                    <InputNumber
-                      value={field.value ?? 0}
-                      onChange={(value) => field.onChange(value || 0)}
-                    />
-                  </RecordTableInlineCell.Content>
-                </PopoverScoped>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
-        ) : (
-          <RecordTableInlineCell>-</RecordTableInlineCell>
-        )}
-      </Table.Cell>
-    </>
+    <Sheet>
+      <Sheet.Trigger asChild>
+        <RecordTable.MoreButton
+          type="button"
+          className={cn(
+            'w-8 p-0',
+            hasSplit &&
+              'bg-yellow-50 hover:bg-yellow-100 dark:bg-yellow-500/10 dark:hover:bg-yellow-500/20',
+          )}
+          disabled={!detail}
+          aria-label="Бараа задлах тохиргоо"
+          title="Бараа задлах тохиргоо"
+        />
+      </Sheet.Trigger>
+      <Sheet.View className="p-0 flex flex-col gap-0 overflow-hidden flex-none sm:max-w-lg">
+        <Sheet.Header className="flex-row gap-3 items-center p-3 space-y-0 border-b">
+          <div className="min-w-0 flex-1">
+            <Sheet.Title>Бараа задлах</Sheet.Title>
+            <Sheet.Description>Задрах барааны тохиргоо</Sheet.Description>
+          </div>
+          <Sheet.Close />
+        </Sheet.Header>
+        <Sheet.Content className="p-4 overflow-auto space-y-4">
+          <div className="flex items-center justify-between gap-4 rounded-md border p-3">
+            <Label htmlFor={`inventory-split-${detail._id}`}>Задлах эсэх</Label>
+            <Checkbox
+              id={`inventory-split-${detail._id}`}
+              checked={hasSplit}
+              onCheckedChange={(checked) =>
+                handleCheckedChange(Boolean(checked))
+              }
+            />
+          </div>
+
+          {hasSplit && (
+            <div className="grid gap-4">
+              <Form.Field
+                control={form.control}
+                name={splitProductPath}
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>Задрах бараа</Form.Label>
+                    <Form.Control>
+                      <SelectProduct
+                        value={field.value || ''}
+                        onValueChange={(productId) =>
+                          form.setValue(splitProductPath, productId, {
+                            shouldDirty: true,
+                            shouldTouch: true,
+                            shouldValidate: true,
+                          })
+                        }
+                      />
+                    </Form.Control>
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
+
+              <Form.Field
+                control={form.control}
+                name={splitRatioPath}
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>Задрах харьцаа</Form.Label>
+                    <Form.Control>
+                      <InputNumber
+                        value={field.value ?? 0}
+                        onChange={(value) =>
+                          form.setValue(splitRatioPath, value || 0, {
+                            shouldDirty: true,
+                            shouldTouch: true,
+                            shouldValidate: true,
+                          })
+                        }
+                      />
+                    </Form.Control>
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
+
+              <div className="space-y-2">
+                <Label>Задрах барааны хэмжих нэгж</Label>
+                <Input
+                  value={uomByProductId.get(splitInfo.productId) || '-'}
+                  readOnly
+                />
+              </div>
+            </div>
+          )}
+        </Sheet.Content>
+      </Sheet.View>
+    </Sheet>
   );
 };
 
-const buildSplitDetails = (trDoc: TSplitJournal, splitInfos: TSplitInfo[]) => {
-  const sourceDetailsById = new Map(
-    trDoc.details.map((detail) => [detail._id, detail]),
-  );
+export const InventorySourceUom = ({ productId }: { productId?: string }) => {
+  const { data } = useQuery<{
+    productsMain: { list: TProductUom[] };
+  }>(ACCOUNTING_INVENTORY_SPLIT_PRODUCTS, {
+    variables: { ids: productId ? [productId] : [] },
+    skip: !productId,
+  });
+  const uom = data?.productsMain.list.find(
+    (product) => product._id === productId,
+  )?.uom;
+
+  return <RecordTableInlineCell>{uom || '-'}</RecordTableInlineCell>;
+};
+
+const buildSplitDetails = (trDoc: TSplitJournal) => {
   const outDetails: ITrDetail[] = [];
   const incomeDetails: ITrDetail[] = [];
   const isMove = trDoc.journal === TrJournalEnum.INV_MOVE;
 
-  splitInfos.forEach((splitInfo) => {
-    const detail = sourceDetailsById.get(splitInfo.detailId);
-    if (!detail || !splitInfo.productId || splitInfo.ratio <= 0) {
+  trDoc.details.forEach((detail) => {
+    const splitInfo = detail.followInfos?.invSplit;
+    if (!splitInfo?.hasSplit || !splitInfo.productId || splitInfo.ratio <= 0) {
       return;
     }
 
@@ -233,51 +267,34 @@ export const InventorySplitSync = ({
     name: `trDocs.${journalIndex}`,
   }) as TSplitJournal;
   const setFollowTrDocs = useSetAtom(followTrDocsState);
-  const splitInfos = trDoc.followInfos?.invSplitDetails || [];
-  const splitSignature = JSON.stringify({
-    splitInfos,
-    details: trDoc.details.map((detail) => ({
-      _id: detail._id,
-      accountId: detail.accountId,
-      productId: detail.productId,
-      count: detail.count,
-      unitPrice: detail.unitPrice,
-      amount: detail.amount,
-    })),
-    moveInAccountId:
-      trDoc.journal === TrJournalEnum.INV_MOVE
-        ? trDoc.followInfos.moveInAccountId
-        : undefined,
-    moveInBranchId:
-      trDoc.journal === TrJournalEnum.INV_MOVE
-        ? trDoc.followInfos.moveInBranchId
-        : undefined,
-    moveInDepartmentId:
-      trDoc.journal === TrJournalEnum.INV_MOVE
-        ? trDoc.followInfos.moveInDepartmentId
-        : undefined,
-  });
   const { outDetails, incomeDetails } = useMemo(
-    () => buildSplitDetails(trDoc, splitInfos),
-    [splitSignature],
+    () => buildSplitDetails(trDoc),
+    [trDoc],
   );
+  const isMove = trDoc.journal === TrJournalEnum.INV_MOVE;
+  const originId = trDoc._id;
+  const branchId = isMove ? trDoc.followInfos.moveInBranchId : trDoc.branchId;
+  const departmentId = isMove
+    ? trDoc.followInfos.moveInDepartmentId
+    : trDoc.departmentId;
+  const { journal, parentId, ptrId } = trDoc;
 
   useEffect(() => {
     setFollowTrDocs((previous) => {
       const existingOut = previous.find(
         (transaction) =>
-          transaction.originId === trDoc._id &&
+          transaction.originId === originId &&
           transaction.originType === INV_SPLIT_OUT,
       );
       const existingIncome = previous.find(
         (transaction) =>
-          transaction.originId === trDoc._id &&
+          transaction.originId === originId &&
           transaction.originType === INV_SPLIT_INCOME,
       );
       const next = previous.filter(
         (transaction) =>
           !(
-            transaction.originId === trDoc._id &&
+            transaction.originId === originId &&
             [INV_SPLIT_OUT, INV_SPLIT_INCOME].includes(
               transaction.originType || '',
             )
@@ -288,17 +305,14 @@ export const InventorySplitSync = ({
         return next;
       }
 
-      const isMove = trDoc.journal === TrJournalEnum.INV_MOVE;
-      const branchId = isMove
-        ? trDoc.followInfos.moveInBranchId
-        : trDoc.branchId;
-      const departmentId = isMove
-        ? trDoc.followInfos.moveInDepartmentId
-        : trDoc.departmentId;
+      const splitPtrId =
+        [existingOut, existingIncome].find(
+          (transaction) => transaction?.ptrId && transaction.ptrId !== ptrId,
+        )?.ptrId || getTempId();
       const common = {
-        originId: trDoc._id,
-        ptrId: trDoc.ptrId,
-        parentId: trDoc.parentId,
+        originId,
+        ptrId: splitPtrId,
+        parentId,
         branchId,
         departmentId,
       };
@@ -324,24 +338,16 @@ export const InventorySplitSync = ({
       return [...next, outTransaction, incomeTransaction];
     });
   }, [
-    departmentIdForEffect(trDoc),
+    branchId,
+    departmentId,
     incomeDetails,
+    journal,
+    originId,
     outDetails,
+    parentId,
+    ptrId,
     setFollowTrDocs,
-    trDoc._id,
-    trDoc.branchId,
-    trDoc.departmentId,
-    trDoc.journal,
-    trDoc.parentId,
-    trDoc.ptrId,
   ]);
 
   return null;
 };
-
-const departmentIdForEffect = (trDoc: TSplitJournal) =>
-  trDoc.journal === TrJournalEnum.INV_MOVE
-    ? `${trDoc.followInfos.moveInBranchId || ''}:${
-        trDoc.followInfos.moveInDepartmentId || ''
-      }`
-    : '';

@@ -24,35 +24,46 @@ const SPLIT_FOLLOW_TYPES = [
   TR_FOLLOW_TYPES.INV_SPLIT_INCOME,
 ];
 
-const getSplitInfos = (transaction: ITransaction): IInvSplitDetailInfo[] => {
-  const splitDetails = transaction.followInfos?.invSplitDetails;
+type TEnabledInvSplitInfo = Extract<IInvSplitDetailInfo, { hasSplit: true }>;
 
-  if (splitDetails == null) {
-    return [];
+const getSplitInfo = (
+  detail: ITrDetail,
+  index: number,
+): TEnabledInvSplitInfo | undefined => {
+  const splitInfo = detail.followInfos?.invSplit;
+
+  if (splitInfo == null) {
+    return undefined;
   }
 
-  if (!Array.isArray(splitDetails)) {
-    throw new Error('Inventory split details must be an array');
+  if (typeof splitInfo !== 'object' || Array.isArray(splitInfo)) {
+    throw new Error(`Invalid inventory split detail at index ${index}`);
   }
 
-  return splitDetails.map((splitInfo, index) => {
-    const detailId = splitInfo?.detailId;
-    const productId = splitInfo?.productId;
-    const ratio = Number(splitInfo?.ratio);
+  if (typeof splitInfo.hasSplit !== 'boolean') {
+    throw new Error(`Invalid inventory split detail at index ${index}`);
+  }
 
-    if (!detailId || !productId || !Number.isFinite(ratio) || ratio <= 0) {
-      throw new Error(`Invalid inventory split detail at index ${index}`);
-    }
+  if (!splitInfo.hasSplit) {
+    return undefined;
+  }
 
-    return { detailId, productId, ratio };
-  });
+  const productId = splitInfo?.productId;
+  const ratio = Number(splitInfo?.ratio);
+
+  if (!productId || !Number.isFinite(ratio) || ratio <= 0) {
+    throw new Error(`Invalid inventory split detail at index ${index}`);
+  }
+
+  return { hasSplit: true, productId, ratio };
 };
 
 const getCommonFollowDoc = (
   originTransaction: ITransactionDocument,
   incomeTransaction: ITransactionDocument,
+  ptrId: string,
 ) => ({
-  ptrId: originTransaction.ptrId,
+  ptrId,
   parentId: originTransaction.parentId,
   originId: originTransaction._id,
   number: originTransaction.number,
@@ -70,8 +81,8 @@ const getCommonFollowDoc = (
 export const buildInvSplitFollowDocs = (
   originTransaction: ITransactionDocument,
   incomeTransaction: ITransactionDocument,
+  ptrId: string,
 ): ITransaction[] => {
-  const splitInfos = getSplitInfos(originTransaction);
   const detailsById = new Map(
     incomeTransaction.details.map((detail) => [
       detail.originId || detail._id,
@@ -81,8 +92,18 @@ export const buildInvSplitFollowDocs = (
   const outDetails: ITrDetail[] = [];
   const incomeDetails: ITrDetail[] = [];
 
-  for (const splitInfo of splitInfos) {
-    const detail = detailsById.get(splitInfo.detailId);
+  for (const [index, sourceDetail] of originTransaction.details.entries()) {
+    const splitInfo = getSplitInfo(sourceDetail, index);
+    if (!splitInfo) {
+      continue;
+    }
+    if (!sourceDetail._id) {
+      throw new Error(
+        `Inventory split source detail is missing at index ${index}`,
+      );
+    }
+
+    const detail = detailsById.get(sourceDetail._id);
     if (!detail) {
       continue;
     }
@@ -101,7 +122,7 @@ export const buildInvSplitFollowDocs = (
     const sourceUnitPrice = sourceCount ? fixNum(amount / sourceCount, 4) : 0;
     outDetails.push({
       _id: nanoid(),
-      originId: splitInfo.detailId,
+      originId: sourceDetail._id,
       originType: TR_DETAIL_FOLLOW_TYPES.INV_SPLIT_OUT,
       accountId: detail.accountId,
       productId: detail.productId,
@@ -111,7 +132,7 @@ export const buildInvSplitFollowDocs = (
     });
     incomeDetails.push({
       _id: nanoid(),
-      originId: splitInfo.detailId,
+      originId: sourceDetail._id,
       originType: TR_DETAIL_FOLLOW_TYPES.INV_SPLIT_INCOME,
       accountId: detail.accountId,
       productId: splitInfo.productId,
@@ -125,7 +146,11 @@ export const buildInvSplitFollowDocs = (
     return [];
   }
 
-  const commonDoc = getCommonFollowDoc(originTransaction, incomeTransaction);
+  const commonDoc = getCommonFollowDoc(
+    originTransaction,
+    incomeTransaction,
+    ptrId,
+  );
   return [
     {
       ...commonDoc,
@@ -155,9 +180,15 @@ export const syncInvSplitFollowTrs = async (
     originId: originTransaction._id,
     originType: { $in: SPLIT_FOLLOW_TYPES },
   }).lean();
+  const ptrId =
+    oldFollowTrs.find(
+      (transaction) =>
+        transaction.ptrId && transaction.ptrId !== originTransaction.ptrId,
+    )?.ptrId || nanoid();
   const followDocs = buildInvSplitFollowDocs(
     originTransaction,
     incomeTransaction,
+    ptrId,
   );
   const savedFollowTrs: ITransactionDocument[] = [];
 

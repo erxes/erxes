@@ -22,18 +22,9 @@ export const RemoveButton = ({
   if (!details.filter((d) => d.checked).length) return null;
 
   const handleRemove = () => {
-    const removedDetailIds = new Set(
-      details.filter((detail) => detail.checked).map((detail) => detail._id),
-    );
     form.setValue(
       `trDocs.${journalIndex}.details`,
       details.filter((d) => !d.checked),
-    );
-    form.setValue(
-      `trDocs.${journalIndex}.followInfos.invSplitDetails`,
-      (trDoc.followInfos.invSplitDetails || []).filter(
-        (splitInfo) => !removedDetailIds.has(splitInfo.detailId),
-      ),
     );
   };
 

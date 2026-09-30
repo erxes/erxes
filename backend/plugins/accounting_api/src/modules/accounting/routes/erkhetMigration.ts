@@ -85,7 +85,7 @@ type TInvIncomeExpense = {
 };
 
 type TInvSplitMigrationInput = {
-  detailId?: string;
+  hasSplit?: boolean;
   productId?: string;
   ratio?: number;
 };
@@ -184,15 +184,6 @@ const getCodeMap = (docs: ITransaction[]) => {
       }
     }
 
-    const invSplitDetails = Array.isArray(doc.followInfos?.invSplitDetails)
-      ? (doc.followInfos.invSplitDetails as TInvSplitMigrationInput[])
-      : [];
-    for (const splitDetail of invSplitDetails) {
-      if (splitDetail.productId) {
-        productCodes.push(normalizeIdentifierCode(splitDetail.productId));
-      }
-    }
-
     const moveInBranchId = doc.followInfos?.moveInBranchId;
     const moveInDepartmentId = doc.followInfos?.moveInDepartmentId;
     const moveInAccountId = doc.followInfos?.moveInAccountId;
@@ -280,6 +271,14 @@ const getCodeMap = (docs: ITransaction[]) => {
       if (detail.productId) {
         productCodes.push(normalizeIdentifierCode(detail.productId));
       }
+      if (
+        detail.followInfos?.invSplit?.hasSplit &&
+        detail.followInfos.invSplit.productId
+      ) {
+        productCodes.push(
+          normalizeIdentifierCode(detail.followInfos.invSplit.productId),
+        );
+      }
       if (detail.followInfos?.currencyDiffAccountId) {
         accountCodes.push(
           normalizeSourceCode(detail.followInfos.currencyDiffAccountId),
@@ -325,54 +324,49 @@ const resolveInvIncomeExpenses = (
 
 export const resolveErkhetInvIncomeExpensesForTest = resolveInvIncomeExpenses;
 
-const resolveInvSplitDetails = (
-  doc: ITransaction,
+const resolveInvSplitInfo = (
+  detail: ITrDetail,
   maps: TReferenceMaps,
-): IInvSplitDetailInfo[] | undefined => {
-  const value = doc.followInfos?.invSplitDetails as unknown;
+): IInvSplitDetailInfo | undefined => {
+  const value = detail.followInfos?.invSplit as unknown;
 
   if (value == null) {
     return undefined;
   }
 
-  if (!Array.isArray(value)) {
-    throw new Error('Inventory split details must be an array');
+  if (typeof value !== 'object' || Array.isArray(value)) {
+    throw new Error('Invalid inventory split detail');
   }
 
-  const sourceDetailsById = new Map(
-    (doc.details || [])
-      .filter((detail) => Boolean(detail._id))
-      .map((detail) => [detail._id, detail]),
-  );
+  const splitInfo = value as TInvSplitMigrationInput;
+  if (typeof splitInfo.hasSplit !== 'boolean') {
+    throw new Error('Invalid inventory split detail');
+  }
+  if (!splitInfo.hasSplit) {
+    return { hasSplit: false };
+  }
 
-  return value.map((splitDetail: TInvSplitMigrationInput, index) => {
-    const detailId = normalizeSourceCode(splitDetail?.detailId);
-    const productCode = normalizeIdentifierCode(splitDetail?.productId);
-    const ratio = Number(splitDetail?.ratio);
+  const productCode = normalizeIdentifierCode(splitInfo.productId);
+  const ratio = Number(splitInfo.ratio);
 
-    if (!detailId || !productCode || !Number.isFinite(ratio) || ratio <= 0) {
-      throw new Error(`Invalid inventory split detail at index ${index}`);
-    }
-    const sourceDetail = sourceDetailsById.get(detailId);
-    if (!sourceDetail) {
-      throw new Error(`Inventory split detail not found: ${detailId}`);
-    }
-    if (normalizeIdentifierCode(sourceDetail.productId) === productCode) {
-      throw new Error('Split product must differ from the source product');
-    }
-    if (!maps.productsByCode[productCode]) {
-      throw new Error(`Product not found: ${productCode}`);
-    }
+  if (!productCode || !Number.isFinite(ratio) || ratio <= 0) {
+    throw new Error('Invalid inventory split detail');
+  }
+  if (normalizeIdentifierCode(detail.productId) === productCode) {
+    throw new Error('Split product must differ from the source product');
+  }
+  if (!maps.productsByCode[productCode]) {
+    throw new Error(`Product not found: ${productCode}`);
+  }
 
-    return {
-      detailId,
-      productId: maps.productsByCode[productCode],
-      ratio,
-    };
-  });
+  return {
+    hasSplit: true,
+    productId: maps.productsByCode[productCode],
+    ratio,
+  };
 };
 
-export const resolveErkhetInvSplitDetailsForTest = resolveInvSplitDetails;
+export const resolveErkhetInvSplitInfoForTest = resolveInvSplitInfo;
 
 const indexByCode = <T extends { _id: string; code?: string }>(
   items: T[] = [],
@@ -743,6 +737,7 @@ const resolveDetail = (detail: ITrDetail, maps: TReferenceMaps) => {
   const currencyDiffAccountCode = normalizeSourceCode(
     detail.followInfos?.currencyDiffAccountId,
   );
+  const invSplit = resolveInvSplitInfo(detail, maps);
 
   // Detail дээр байгаа account/product/fixedAsset/category/branch/department нь
   // бүгд source code. Хадгалахаас өмнө erxes _id-р солихгүй бол journal logic ажиллахгүй.
@@ -802,6 +797,7 @@ const resolveDetail = (detail: ITrDetail, maps: TReferenceMaps) => {
       currencyDiffAccountId: currencyDiffAccountCode
         ? maps.accountsByCode[currencyDiffAccountCode]
         : detail.followInfos?.currencyDiffAccountId,
+      invSplit,
       accountCode,
       branchCode,
       productCode,
@@ -864,13 +860,13 @@ const resolveFxaOwnerRecords = (
         ownerId: ownerRef
           ? maps.usersByRef[ownerRef]
           : responsibleUserRef
-            ? maps.usersByRef[responsibleUserRef]
-            : ownerRecord.ownerId || ownerRecord.responsibleUserId,
+          ? maps.usersByRef[responsibleUserRef]
+          : ownerRecord.ownerId || ownerRecord.responsibleUserId,
         sourceOwnerId: sourceOwnerRef
           ? maps.usersByRef[sourceOwnerRef]
           : sourceResponsibleUserRef
-            ? maps.usersByRef[sourceResponsibleUserRef]
-            : ownerRecord.sourceOwnerId || ownerRecord.sourceResponsibleUserId,
+          ? maps.usersByRef[sourceResponsibleUserRef]
+          : ownerRecord.sourceOwnerId || ownerRecord.sourceResponsibleUserId,
         sourceResponsibleUserId: sourceResponsibleUserRef
           ? maps.usersByRef[sourceResponsibleUserRef]
           : undefined,
@@ -945,8 +941,8 @@ const resolveOwnerRecordSources = async (
             candidate.action === FXA_OWNER_RECORD_ACTIONS.RECEIVED
               ? 1
               : candidate.action === FXA_OWNER_RECORD_ACTIONS.HANDED_OVER
-                ? -1
-                : 0;
+              ? -1
+              : 0;
 
           result[candidateOwnerId] =
             (result[candidateOwnerId] || 0) +
@@ -1068,10 +1064,7 @@ const resolveTransactionFollowInfos = (
   }
 
   const resolvedFollowInfos = { ...doc.followInfos };
-  const resolvedInvSplitDetails = resolveInvSplitDetails(doc, maps);
-  if (resolvedInvSplitDetails !== undefined) {
-    resolvedFollowInfos.invSplitDetails = resolvedInvSplitDetails;
-  }
+  delete resolvedFollowInfos.invSplitDetails;
   const resolveAccountId = (code: string, fallback?: string) =>
     code ? maps.accountsByCode[code] : fallback;
 
@@ -1245,8 +1238,8 @@ const getNumericFollowInfo = (
     typeof value === 'number'
       ? value
       : typeof value === 'string'
-        ? Number(value)
-        : NaN;
+      ? Number(value)
+      : NaN;
 
   return Number.isFinite(numberValue) ? numberValue : undefined;
 };

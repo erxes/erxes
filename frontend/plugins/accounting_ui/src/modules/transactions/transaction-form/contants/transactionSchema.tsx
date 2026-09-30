@@ -182,6 +182,19 @@ export const transactionTaxSchema = z.object({
 // #endregion Single trs
 
 // #region Inventories
+const invSplitInfoSchema = z.discriminatedUnion('hasSplit', [
+  z.object({
+    hasSplit: z.literal(false),
+    productId: undefed(z.string()),
+    ratio: undefed(z.number()),
+  }),
+  z.object({
+    hasSplit: z.literal(true),
+    productId: z.string().min(1, 'Задрах бараа сонгоно уу'),
+    ratio: z.number().gt(0, 'Задрах харьцаа 0-ээс их байна'),
+  }),
+]);
+
 export const invDetailSchema = z
   .object({
     ...baseTrDetailSchema.shape,
@@ -192,15 +205,12 @@ export const invDetailSchema = z
       .refine((val) => val?.length, { message: 'Must fill product' }),
     count: z.number().gt(0),
     unitPrice: z.number().min(0),
+    followInfos: undefed(
+      z.object({
+        invSplit: undefed(invSplitInfoSchema),
+      }),
+    ),
   });
-
-const invSplitDetailsSchema = z.array(
-  z.object({
-    detailId: z.string().min(1),
-    productId: z.string().min(1, 'Задрах бараа сонгоно уу'),
-    ratio: z.number().gt(0, 'Задрах харьцаа 0-ээс их байна'),
-  }),
-);
 
 export const transactionInvIncomeSchema = z
   .object({
@@ -213,11 +223,6 @@ export const transactionInvIncomeSchema = z
     departmentId: undefed(z.string()),
     hasVat: z.boolean(),
     hasCtax: z.boolean(),
-    followInfos: undefed(
-      z.object({
-        invSplitDetails: undefed(invSplitDetailsSchema),
-      }),
-    ),
     details: z.array(
       z.object({
         ...invDetailSchema.shape,
@@ -292,7 +297,6 @@ export const transactionInvMoveSchema = z
       moveInAccountId: z.string(),
       moveInBranchId: undefed(z.string()),
       moveInDepartmentId: undefed(z.string()),
-      invSplitDetails: undefed(invSplitDetailsSchema),
     }),
     followExtras: undefed(
       z.object({

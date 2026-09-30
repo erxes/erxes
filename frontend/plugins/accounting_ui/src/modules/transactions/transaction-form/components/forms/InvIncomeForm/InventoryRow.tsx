@@ -35,7 +35,7 @@ import {
   DUPLICATE_PRODUCT_CELL_CLASS,
   hasDuplicateProductId,
 } from '../../utils';
-import { InventorySplitCells } from '../InventorySplit';
+import { InventorySourceUom, InventorySplitSheet } from '../InventorySplit';
 
 export const InventoryRow = ({
   detailIndex,
@@ -255,12 +255,25 @@ export const InventoryRow = ({
         enableOnFormTags
       >
         <Table.Cell
-          className={cn({
+          className={cn('w-8', {
             'border-t': detailIndex === 0,
             'rounded-tl-lg': detailIndex === 0,
             'rounded-bl-lg': detailIndex === trDoc.details.length - 1,
           })}
         >
+          <InventorySplitSheet
+            detailIndex={detailIndex}
+            journalIndex={journalIndex}
+            form={form}
+          />
+        </Table.Cell>
+      </RecordTableHotKeyControl>
+      <RecordTableHotKeyControl
+        rowId={_id}
+        rowIndex={detailIndex}
+        enableOnFormTags
+      >
+        <Table.Cell className="w-8">
           <RecordTableInlineCell className="justify-center">
             <Form.Field
               control={form.control}
@@ -339,11 +352,9 @@ export const InventoryRow = ({
           />
         </Table.Cell>
       </RecordTableHotKeyControl>
-      <InventorySplitCells
-        detailIndex={detailIndex}
-        journalIndex={journalIndex}
-        form={form}
-      />
+      <Table.Cell>
+        <InventorySourceUom productId={detail.productId} />
+      </Table.Cell>
       <RecordTableHotKeyControl
         rowId={_id}
         rowIndex={detailIndex}

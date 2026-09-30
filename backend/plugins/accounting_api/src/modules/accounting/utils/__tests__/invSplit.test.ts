@@ -24,6 +24,13 @@ const makeTransaction = (
         count: 2,
         unitPrice: 120,
         amount: 260,
+        followInfos: {
+          invSplit: {
+            hasSplit: true,
+            productId: 'split-product',
+            ratio: 4,
+          },
+        },
       },
     ],
     ...overrides,
@@ -31,27 +38,19 @@ const makeTransaction = (
 
 describe('inventory split follow transactions', () => {
   it('keeps total cost and applies the ratio to count and unit price', () => {
-    const transaction = makeTransaction({
-      followInfos: {
-        invSplitDetails: [
-          {
-            detailId: 'detail-1',
-            productId: 'split-product',
-            ratio: 4,
-          },
-        ],
-      },
-    });
+    const transaction = makeTransaction();
 
     const [outTransaction, incomeTransaction] = buildInvSplitFollowDocs(
       transaction,
       transaction,
+      'split-ptr',
     );
 
     expect(outTransaction).toEqual(
       expect.objectContaining({
         journal: 'invOut',
         side: 'ct',
+        ptrId: 'split-ptr',
         originId: 'income-1',
         originType: 'invSplitOut',
       }),
@@ -68,6 +67,7 @@ describe('inventory split follow transactions', () => {
       expect.objectContaining({
         journal: 'invIncome',
         side: 'dt',
+        ptrId: 'split-ptr',
         originId: 'income-1',
         originType: 'invSplitIncome',
       }),
@@ -85,15 +85,23 @@ describe('inventory split follow transactions', () => {
   it('uses the internal movement income location and account', () => {
     const originTransaction = makeTransaction({
       journal: 'invMove',
-      followInfos: {
-        invSplitDetails: [
-          {
-            detailId: 'detail-1',
-            productId: 'split-product',
-            ratio: 2,
+      details: [
+        {
+          _id: 'detail-1',
+          accountId: 'inventory-account',
+          productId: 'source-product',
+          count: 2,
+          unitPrice: 120,
+          amount: 240,
+          followInfos: {
+            invSplit: {
+              hasSplit: true,
+              productId: 'split-product',
+              ratio: 2,
+            },
           },
-        ],
-      },
+        },
+      ],
     });
     const moveInTransaction = makeTransaction({
       _id: 'move-in-1',
@@ -116,6 +124,7 @@ describe('inventory split follow transactions', () => {
     const [outTransaction, incomeTransaction] = buildInvSplitFollowDocs(
       originTransaction,
       moveInTransaction,
+      'split-ptr',
     );
 
     expect(outTransaction).toEqual(
@@ -130,8 +139,85 @@ describe('inventory split follow transactions', () => {
   });
 
   it('does not create follow transactions without split settings', () => {
-    const transaction = makeTransaction();
+    const transaction = makeTransaction({
+      details: [
+        {
+          _id: 'detail-1',
+          accountId: 'inventory-account',
+          productId: 'source-product',
+          count: 2,
+          unitPrice: 120,
+          amount: 260,
+        },
+      ],
+    });
 
-    expect(buildInvSplitFollowDocs(transaction, transaction)).toEqual([]);
+    expect(
+      buildInvSplitFollowDocs(transaction, transaction, 'split-ptr'),
+    ).toEqual([]);
+  });
+
+  it('does not create follow transactions when splitting is disabled', () => {
+    const transaction = makeTransaction({
+      details: [
+        {
+          _id: 'detail-1',
+          accountId: 'inventory-account',
+          productId: 'source-product',
+          count: 2,
+          unitPrice: 120,
+          amount: 260,
+          followInfos: {
+            invSplit: {
+              hasSplit: false,
+            },
+          },
+        },
+      ],
+    });
+
+    expect(
+      buildInvSplitFollowDocs(transaction, transaction, 'split-ptr'),
+    ).toEqual([]);
+  });
+
+  it('groups only enabled split details under a separate pointer', () => {
+    const transaction = makeTransaction({
+      details: Array.from({ length: 5 }, (_, index) => ({
+        _id: `detail-${index + 1}`,
+        accountId: 'inventory-account',
+        productId: `source-product-${index + 1}`,
+        count: index + 1,
+        unitPrice: 100,
+        amount: (index + 1) * 100,
+        followInfos: {
+          invSplit:
+            index < 3
+              ? {
+                  hasSplit: true as const,
+                  productId: `split-product-${index + 1}`,
+                  ratio: 2,
+                }
+              : { hasSplit: false as const },
+        },
+      })),
+    });
+
+    const followDocs = buildInvSplitFollowDocs(
+      transaction,
+      transaction,
+      'split-ptr',
+    );
+
+    expect(followDocs).toHaveLength(2);
+    expect(followDocs.map((followDoc) => followDoc.ptrId)).toEqual([
+      'split-ptr',
+      'split-ptr',
+    ]);
+    expect(followDocs.every((followDoc) => followDoc.ptrId !== 'ptr-1')).toBe(
+      true,
+    );
+    expect(followDocs[0].details).toHaveLength(3);
+    expect(followDocs[1].details).toHaveLength(3);
   });
 });
