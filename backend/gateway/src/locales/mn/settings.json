@@ -95,7 +95,19 @@
     "code": "Код",
     "date-created": "Үүсгэсэн огноо",
     "brands": "Брэндүүд",
-    "brand-created-successfully": "Брэнд үүсгэсэн"
+    "brand-created-successfully": "Брэнд үүсгэсэн",
+    "no-brands-match": "Тохирох брэнд олдсонгүй",
+    "no-brands-yet": "Брэнд алга байна",
+    "no-brands-match-description": "Өөр түлхүүр үгээр хайх эсвэл шүүлтүүрийг цэвэрлэнэ үү.",
+    "no-brands-yet-description": "Брэнд нь inbox болон сувгуудаа цэгцлэхэд тусална. Эхний брэндээ үүсгэж эхлээрэй."
+  },
+  "client-portals": {
+    "no-client-portals-yet": "Харилцагчийн портал алга байна",
+    "no-client-portals-yet-description": "Харилцагчдадаа танай бизнестэй харилцах тусгай орон зай олгохын тулд харилцагчийн портал үүсгээрэй."
+  },
+  "oauth-clients": {
+    "no-oauth-clients-yet": "OAuth клиент алга байна",
+    "no-oauth-clients-yet-description": "Таны үүсгэсэн OAuth клиентүүд энд харагдана. Аппликейшнүүд танай платформд нэвтрэх боломжтой болгохын тулд эхний клиентээ үүсгээрэй."
   },
   "file-upload": {
     "_": "Файл байршуулах",

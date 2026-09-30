@@ -35,15 +35,11 @@ const AddSafeRemainderForm = ({
     });
   };
 
-  const onError = (_error: unknown) => {
-    return {};
-  };
-
   return (
     <Form {...form}>
       <form
         className="flex flex-col flex-1 min-h-0 bg-background"
-        onSubmit={form.handleSubmit(onSubmit, onError)}
+        onSubmit={form.handleSubmit(onSubmit)}
       >
         <div className="flex-1 min-h-0 overflow-y-auto p-5 space-y-4">
           <Form.Field

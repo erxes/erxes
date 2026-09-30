@@ -2,9 +2,8 @@ import * as dotenv from 'dotenv';
 
 dotenv.config();
 
+import { randomFillSync } from 'node:crypto';
 import { Db, MongoClient } from 'mongodb';
-import { nanoid } from 'nanoid';
-import { toPropertyGroupKey } from 'erxes-api-shared/core-modules';
 
 const {
   MONGO_URL = 'mongodb://localhost:27017/erxes?directConnection=true',
@@ -24,6 +23,22 @@ function extractDbName(url: string): string {
   const withoutQuery = url.split('?')[0];
   return withoutQuery.slice(withoutQuery.lastIndexOf('/') + 1);
 }
+
+const ID_ALPHABET =
+  'useandom-26T198340PX75pxJACKVERYMINDBUSHWOLF_GQZbfghjklqvwyzrict';
+
+const nanoid = (size = 21): string => {
+  const bytes = randomFillSync(new Uint8Array(size));
+  let id = '';
+
+  for (let index = 0; index < size; index++) {
+    id += ID_ALPHABET[bytes[index] & 63];
+  }
+
+  return id;
+};
+
+const toPropertyGroupKey = (groupId: string) => `g:${groupId}`;
 
 const client = new MongoClient(CORE_MONGO_URL || MONGO_URL);
 

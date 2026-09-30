@@ -49,20 +49,22 @@
 - Loyalty action nodes report what their config still misses (`useLoyaltyActionNodeIssues`: the action's own zod form schema, reported through `useReportNodeIssues` from `ui-modules`); the builder draws the warning and blocks activation.
 - `/loyalty/accounts` ("Accounts" in the loyalty navigation) lists loyalty accounts: owner, owner type, account number, status, one column per active account type with its balance and an inline tier select, joined date. Filters: search (account number or owner name), status, owner type, account type and tier. Row menu: freeze (reason dialog) / unfreeze (confirm), score history (scores page filtered by owner), owner profile. Freeze, unfreeze and tier changes refetch `LoyaltyAccounts`.
 - A saved score campaign's sheet has an Automations tab (`ScoreCampaignAutomations` / `useScoreCampaignAutomations`) listing the automations giving its points (Adjust score with this `campaignId`) and, when its account type has tiers, the ones setting those tiers (Set tier with that `accountTypeId`), each linking to the builder, with a create button under each list (a point automation from here counts every row). Automations are also started where the rule lives (`useCampaignAutomationSeeds`, campaign id from `ScoreCampaignProvider`): each base/bonus row of the earning table has, in its row menu (`EarnRowActions`, with delete), an item that opens an unsaved builder with only an Adjust score action (campaign, add, that row's `earnRowKeys`) and no trigger, enabled once the row is saved; a "Create tier automation" button above the table seeds an empty customer trigger, a split with one branch per active tier (highest first) and a Set tier on each branch. Account types carry no automation section.
+- Pricing list loads filtered plans in 20-record pages as users scroll and
+  shows the full filtered record count from the API.
 
 ## Architecture
 
-| Area                 | Path                                                                                          | Responsibility                                      |
-| -------------------- | --------------------------------------------------------------------------------------------- | --------------------------------------------------- |
-| Pricing entry points | `src/modules/pricing/Main.tsx`, `src/pages/pricing`                                           | Pricing route and list/detail composition.          |
-| Pricing create form  | `src/modules/pricing/create-pricing/**`                                                       | New pricing plan form and submission mapping.       |
-| Pricing edit forms   | `src/modules/pricing/edit-pricing/**`                                                         | Sectioned pricing detail editing UI.                |
-| Pricing selectors    | `src/modules/pricing/hooks/useSelectBoard.tsx`, `useSelectPipeline.tsx`, `useSelectStage.tsx` | Sales board, pipeline, and stage comboboxes.        |
-| Pricing data hooks   | `src/modules/pricing/hooks/**`                                                                | Apollo query/mutation wrappers for pricing screens. |
-| Pricing contracts    | `src/modules/pricing/graphql/**`, `src/modules/pricing/types.ts`                              | GraphQL documents and TypeScript form/API types.    |
-| Loyalty account types     | `src/modules/loyalties/settings/account-type/**`, `src/pages/loyalties-config/LoyaltyAccountTypePage.tsx` | Account list, sectioned form sheet, legacy field banner, and campaign account selector. |
-| Owner loyalty account | `src/modules/loyalties/accounts/**`, `src/modules/loyalties/scores/components/ScoreSummaryWidget.tsx` | Account card, tier select and freeze dialog in the relation widget. |
-| Score campaigns      | `src/modules/loyalties/settings/score/**`                                                     | Score campaign list, create sheet, and edit sheet.  |
+| Area                  | Path                                                                                                      | Responsibility                                                                          |
+| --------------------- | --------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| Pricing entry points  | `src/modules/pricing/Main.tsx`, `src/pages/pricing`                                                       | Pricing route and list/detail composition.                                              |
+| Pricing create form   | `src/modules/pricing/create-pricing/**`                                                                   | New pricing plan form and submission mapping.                                           |
+| Pricing edit forms    | `src/modules/pricing/edit-pricing/**`                                                                     | Sectioned pricing detail editing UI.                                                    |
+| Pricing selectors     | `src/modules/pricing/hooks/useSelectBoard.tsx`, `useSelectPipeline.tsx`, `useSelectStage.tsx`             | Sales board, pipeline, and stage comboboxes.                                            |
+| Pricing data hooks    | `src/modules/pricing/hooks/**`                                                                            | Apollo query/mutation wrappers for pricing screens.                                     |
+| Pricing contracts     | `src/modules/pricing/graphql/**`, `src/modules/pricing/types.ts`                                          | GraphQL documents and TypeScript form/API types.                                        |
+| Loyalty account types | `src/modules/loyalties/settings/account-type/**`, `src/pages/loyalties-config/LoyaltyAccountTypePage.tsx` | Account list, sectioned form sheet, legacy field banner, and campaign account selector. |
+| Owner loyalty account | `src/modules/loyalties/accounts/**`, `src/modules/loyalties/scores/components/ScoreSummaryWidget.tsx`     | Account card, tier select and freeze dialog in the relation widget.                     |
+| Score campaigns       | `src/modules/loyalties/settings/score/**`                                                                 | Score campaign list, create sheet, and edit sheet.                                      |
 
 ## Contracts
 
@@ -77,6 +79,8 @@
   `LoyaltyAccountTypeArchive`, `LoyaltyAccountTypeUnarchive`,
   `LoyaltyAccountTypesAdoptCampaignFields`, `LoyaltyAccountOfOwner`,
   `LoyaltyAccountFreeze`, `LoyaltyAccountUnfreeze`, and `LoyaltyAccountSetTier`.
+- `PricingPlans` queries request `pricingPlansCount` with the same filters as
+  the list and page through `page`/`perPage`.
 
 ### Consumes
 
@@ -91,6 +95,9 @@
 
 - Uses Apollo Client for pricing plan and sales board/pipeline/stage server
   data.
+- Pricing list pagination appends distinct 20-record `pricingPlans` pages
+  through Apollo `fetchMore` and pauses scroll fetching while a request is in
+  flight.
 - Uses React Hook Form local form state in pricing create/edit forms.
 - Keeps board, pipeline, and stage selector state local to the owning pricing
   form or detail section.
@@ -131,6 +138,14 @@
 <!-- Newest first. Keep at most 10 entries. -->
 
 ### `2026-09-29` — Stage rules and automation subtract removed
+
+### `2026-09-29` — Pricing list pagination
+
+- **Summary:** Pricing settings load distinct 20-record pricing plan pages on scroll and display the API-backed filtered total count.
+- **Affected areas:** `src/modules/pricing/graphql/queries.ts`, `src/modules/pricing/hooks/usePricing.ts`, `src/modules/pricing/components/PricingRecordTable.tsx`.
+- **Contracts changed:** `PricingPlans` now also requests `pricingPlansCount` and sends `page`/`perPage` variables.
+
+### `2026-09-22` — `Scoped base pricing controls`
 
 - **Summary:** Score campaigns no longer edit deal-stage rules (`cardBasedRule`); the Adjust score action only gives points (older subtract configs save back as add) and its node still marks a legacy subtract.
 - **Affected areas:** `settings/score/add-score-campaign/components/{ServiceConfigFields,ScoreCampaignSourceSection,AddLoyaltyScore}.tsx`, `score-detail/components/{LoyaltyScoreEditSheet,EditScoreForm}.tsx`, `constants/formSchema.ts`, `widgets/automations/modules/loyalty/{components/action,states,constants}`, `hooks/useScoreActionResult.ts`.

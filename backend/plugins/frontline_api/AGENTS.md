@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-09-23`
+- **Last synchronized:** `2026-09-28`
 
 ## Scope
 
@@ -232,7 +232,7 @@
 - Resolves the Meta app per integration kind, so page posting can run on its own
   `FACEBOOK_POST_APP_ID`/`FACEBOOK_POST_APP_SECRET` credentials while Messenger
   keeps the shared app.
-- Runs Facebook/Instagram/Discord/inbox/ticket automation triggers and actions,
+- Runs Facebook/Instagram/Discord/mail/inbox/ticket automation triggers and actions,
   including bot message sequences with postback buttons and wait conditions.
 - Logs Facebook Graph delivery failures with provider error metadata and request
   context while excluding outbound message content; comment-triggered bot flows
@@ -248,10 +248,76 @@
   the workspace's connected Cloudflare account when it has one, else the
   deployment's own Cloudflare account (`MAIL_SENDING_*`) — from the inbox's own address,
   with a per-conversation tagged `Reply-To`; delivery is recorded per message (`pending` →
-  `sent` / `bounced` / `failed`) and a failed message can be resent with
-  `mailMessageRetry`. `mailCheckConnection` asks the worker to deliver a
+  `sent` / `bounced` / `failed`) and a failed message — or one left `pending`
+  for more than ten minutes after its last attempt (`deliveryAttemptedAt`,
+  `MAIL_PENDING_STALE_MS`) — can be resent with `mailMessageRetry`. Once a mail
+  is marked delivered, `deliver` never rejects: integration health and the
+  requested conversation status are best-effort and logged on failure. A
+  delivered reply whose conversation status was not applied keeps no
+  `conversationStatusAppliedAt`, and `mailMessageRetry` then applies that
+  status without sending the mail again. `mailCheckConnection` asks the worker to deliver a
   probe back, so an administrator can tell a broken delivery path from an inbox
   nobody has forwarded mail to yet.
+- Answers mail through automations. Every inbound conversation mail that is not
+  an auto-reply fires the **Email Received** trigger (`frontline:mail.messages`),
+  filtered by inbox, sender, subject and body keywords (quoted history ignored);
+  an unverified sender is skipped unless the trigger opts in. `generateAiContext`
+  hands the AI Agent the mail's clean text plus the thread's last twelve older
+  messages. **Draft Email Reply** (`frontline:mail.drafts.create`) stores the
+  resolved reply as a `mail_drafts` record tied to the inbound mail it answers —
+  one draft per mail (partial unique index on `sourceMessageId`; `createDraft`
+  upserts and returns the existing draft), and a later mail never replaces an
+  earlier draft — for a
+  teammate to send (`mailDraftApprove`), edit (`mailDraftSave`) or delete
+  (`mailDraftRemove`). **Send Email** (`frontline:mail.messages.create`) replies
+  at once, flagged `automated` with `Auto-Submitted: auto-replied`, and refuses
+  unverified senders, no-reply addresses, a second automatic reply to the same
+  inbound mail (partial unique index on `sourceMessageId` for automated
+  messages), and a fourth automatic reply to one conversation within an hour. Both actions rebuild the model's text as escaped
+  `<p>`/`<br>` markup, so no model-written HTML is ever mailed; only known HTML
+  tag names are treated as markup, so an angle-bracketed address or link such
+  as `<support@acme.com>` survives as text. Every inbound mail body runs
+  through `utils/textFormat.ts` (trigger filters and AI context), so its text
+  normalization must stay linear-time: no regex with a repeated whitespace
+  class next to another quantifier (use `split`/`trim` instead). Mail bodies
+  and ticket-note HTML escape text through the single `escapeHtml` in
+  `utils/html.ts`. A requested
+  conversation resolve/open transition is stored on the message as
+  `conversationStatusOnSent` and applied inside `deliver` only after Cloudflare
+  reports it as sent, so a successful `mailMessageRetry` applies it too, except
+  that a close is skipped when the conversation received inbound mail after the
+  mail the reply answers — the `sourceMessageId` that automatic replies and
+  sent drafts record — or, for a manual reply, after the reply was written. The
+  transition goes through
+  `Conversations.updateConversation` (so inbox segments watching `status` are
+  notified), stamps `closedAt` when it closes, and publishes
+  `conversationChanged:<conversationId>` so an open inbox refreshes; failed
+  or bounced automation delivery fails the action instead of advancing the
+  workflow. A draft reply records `draftId`; if approval throws after the mail
+  left, the draft becomes `sent` rather than `pending`, so it cannot be sent
+  twice. `mailRemoveIntegrations` deletes an inbox's drafts together with its
+  mail messages. A `sending` draft older than `MAIL_DRAFT_SENDING_STALE_MS` is listed as
+  `pending` and can be edited, deleted, or sent again. Approval is idempotent
+  by `draftId`: when a message already exists for the draft it is never
+  composed again — a delivered or bounced one is returned as is, a failed or
+  stale-pending one is resent through `retrySend`, and a pending one that may
+  still be in flight makes approval fail with the draft back to `pending`. Every draft query, edit,
+  approval, and removal resolves the conversation's integration and applies
+  `visibleChannelsFilter`; a permission alone never grants access to a draft in
+  another channel. Draft events are published on the stable `os` tenant key
+  outside SaaS (`VERSION !== 'saas'`), because inbound mail reaches the plugin
+  through the webhook host (a tunnel or dedicated domain) while browsers
+  subscribe through the gateway host; the `mailDraftChanged` subscription
+  already listens on `os`. Before opening its stream the subscription rejects a
+  caller without a signed-in user (`Login required`) and asks this plugin's
+  `mail.canViewConversation` tRPC procedure, which loads the user from `core`
+  and runs the same channel check, rejecting with `Forbidden` otherwise. Its
+  events carry just `_id`, `conversationId`, and `status`, never the draft
+  body, and the UI refetches through the access-checked
+  `mailConversationDrafts` query. `src/apollo/subscription.ts` is downloaded
+  and imported by the gateway, so it may import npm and workspace packages
+  (such as `erxes-api-shared/utils`) only — never plugin modules through `~/`
+  or `@/` — or the gateway fails to start.
 - A workspace can run the mail channel on **its own Cloudflare account**. It pastes
   an API token in Settings → Integrations config, picks one of its domains, and the
   plugin provisions the whole path there: Email Routing, an R2 bucket with its
@@ -310,76 +376,80 @@
 
 ## Architecture
 
-| Area                     | Path                                                                        | Responsibility                                                                                                                                                                                         |
-| ------------------------ | --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Bootstrap                | `src/main.ts`                                                               | `startPlugin({ name: 'frontline', port: 3304 })`, wires tRPC, routes, meta, and every surface                                                                                                          |
-| Models                   | `src/connectionResolvers.ts`                                                | Per-subdomain model container for all modules                                                                                                                                                          |
-| GraphQL                  | `src/apollo/`                                                               | Aggregated `typeDefs` and `resolvers` across modules                                                                                                                                                   |
-| tRPC                     | `src/init-trpc.ts`                                                          | `appRouter` for service-to-service calls                                                                                                                                                               |
-| Agent tool metadata      | `src/trpc/agentMeta.ts`                                                     | Local `agentMeta` helper for agent-callable tRPC annotations                                                                                                                                           |
-| HTTP                     | `src/routes.ts`                                                             | Mounts the `/facebook`, `/instagram`, `/mail`, and (when enabled) `/callpro` webhook routers                                                                                                           |
-| Platform extensions      | `src/meta/`                                                                 | automations, permissions, notifications, segments, references, import/export                                                                                                                           |
-| Channels                 | `src/modules/channel/`                                                      | Channel + ChannelMember models, schema, resolvers, role checks                                                                                                                                         |
-| Inbox                    | `src/modules/inbox/`                                                        | Conversations, messages, integrations, widget/clientportal schemas, `receiveInboxMessage`                                                                                                              |
-| Conversation queries     | `src/conversationQueryBuilder.ts`, `src/modules/inbox/conversationUtils.ts` | Mongo and Elasticsearch conversation filters (membership-scoped)                                                                                                                                       |
-| Integrations             | `src/modules/integrations/<kind>/`                                          | facebook, instagram, mail, discord, call, callpro, trpc                                                                                                                                                |
-| Mail integration         | `src/modules/integrations/mail/`                                            | Inbound webhook, threading, outbound send/retry                                                                                                                                                        |
-| Pipeline mail            | `src/modules/integrations/mail/utils/{pipeline,allocate,settings,scope}.ts` | Gives a ticket pipeline an address of its own, and keeps the two mail lanes apart                                                                                                                      |
-| Note ↔ mail              | `src/modules/integrations/mail/utils/{notes,tickets,thread,noteContent}.ts` | Mails an agent's note from the pipeline address as a reply on the requester's thread, and turns an inbound reply back into a note                                                                      |
-| Mail transports          | `src/modules/integrations/mail/utils/transports/`                           | `index.ts` picks the Cloudflare account that signs for this workspace, `deliver.ts` runs the delivery pipeline (sender guard, suppression, delivery log), `cloudflare.ts` is the only `IMailTransport` |
-| Mail provisioning        | `src/modules/integrations/mail/utils/cloudflare/`                           | Cloudflare REST client, the fourteen-step provisioner, Email Sending onboarding and quota, the connection cache and its public shape                                                                   |
-| Mail worker bundle       | `src/modules/integrations/mail/worker/bundle.generated.ts`                  | The minified worker uploaded to a tenant's account, regenerated by `npm run bundle` in `cloudflare/mail-worker`                                                                                        |
-| Call Pro                 | `src/modules/integrations/callpro/`                                         | `CALLPRO_ENABLED` gate, `/callpro/receive` webhook, mirrored line/caller/call, recording URL                                                                                                           |
-| Call reporting           | `src/modules/reports/callReportService.ts`                                  | CDR filter, leg-to-call folding, and the per-queue/agent/number report computation                                                                                                                     |
-| FB automation            | `src/modules/integrations/facebook/meta/automation/`                        | Comment/message triggers and actions, bot message generation                                                                                                                                           |
-| FB page posting          | `src/modules/integrations/facebook/postService.ts`, `postGuard.ts`          | Post publishing pipeline (validation, photo staging, cleanup, permalink) and its rate limit + audit log                                                                                                |
-| FB app resolution        | `src/modules/integrations/facebook/commonUtils.ts`                          | `resolveFacebookApp`, `facebookAppSelector`, `facebookAccountSelector`                                                                                                                                 |
-| Ticket                   | `src/modules/ticket/`                                                       | Boards, pipelines, statuses, tickets, activities, notes                                                                                                                                                |
-| Forms                    | `src/modules/form/`                                                         | Forms, fields, submissions                                                                                                                                                                             |
-| Surveys                  | `src/modules/survey/`                                                       | Survey definitions, vote ledger, message snapshot, tally refresh                                                                                                                                       |
-| Survey ticket automation | `src/modules/survey/ticketAutomation.ts`                                    | Threshold evaluation, atomic single-ticket claim, ticket creation                                                                                                                                      |
-| Knowledge base           | `src/modules/knowledgebase/`                                                | Topics, categories, articles, AI knowledge source                                                                                                                                                      |
-| Help center              | `src/modules/helpcenter/`                                                   | Client portal configs: general settings and appearance for a published help center                                                                                                                     |
-| Reports                  | `src/modules/reports/`                                                      | Inbox/ticket report aggregations, `buildTicketMatch`, and the saved `ReportCharts` model                                                                                                               |
-| Migrations               | `src/migrations/`                                                           | Plugin-owned data migrations                                                                                                                                                                           |
-| Area                     | Path                                                                        | Responsibility                                                                                                                                                                                         |
-| --------------------     | --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Bootstrap                | `src/main.ts`                                                               | `startPlugin({ name: 'frontline', port: 3304 })`, wires tRPC, routes, meta, and every surface                                                                                                          |
-| Models                   | `src/connectionResolvers.ts`                                                | Per-subdomain model container for all modules                                                                                                                                                          |
-| GraphQL                  | `src/apollo/`                                                               | Aggregated `typeDefs` and `resolvers` across modules                                                                                                                                                   |
-| tRPC                     | `src/init-trpc.ts`                                                          | `appRouter` for service-to-service calls                                                                                                                                                               |
-| Agent tool metadata      | `src/trpc/agentMeta.ts`                                                     | Local `agentMeta` helper for agent-callable tRPC annotations                                                                                                                                           |
-| HTTP                     | `src/routes.ts`                                                             | Mounts the `/facebook`, `/instagram`, `/mail`, and (when enabled) `/callpro` webhook routers                                                                                                           |
-| Platform extensions      | `src/meta/`                                                                 | automations, permissions, notifications, segments, references, import/export                                                                                                                           |
-| Channels                 | `src/modules/channel/`                                                      | Channel + ChannelMember models, schema, resolvers, role checks                                                                                                                                         |
-| Inbox                    | `src/modules/inbox/`                                                        | Conversations, messages, integrations, widget/clientportal schemas, `receiveInboxMessage`                                                                                                              |
-| Conversation queries     | `src/conversationQueryBuilder.ts`, `src/modules/inbox/conversationUtils.ts` | Mongo and Elasticsearch conversation filters (membership-scoped)                                                                                                                                       |
-| Integrations             | `src/modules/integrations/<kind>/`                                          | facebook, instagram, mail, discord, call, callpro, trpc                                                                                                                                                |
-| Mail integration         | `src/modules/integrations/mail/`                                            | Inbound webhook, threading, outbound send/retry                                                                                                                                                        |
-| Mail transports          | `src/modules/integrations/mail/utils/transports/`                           | `index.ts` picks the Cloudflare account that signs for this workspace, `deliver.ts` runs the delivery pipeline (sender guard, suppression, delivery log), `cloudflare.ts` is the only `IMailTransport` |
-| Mail provisioning        | `src/modules/integrations/mail/utils/cloudflare/`                           | Cloudflare REST client, the fourteen-step provisioner, Email Sending onboarding and quota, the connection cache and its public shape                                                                   |
-| Mail worker bundle       | `src/modules/integrations/mail/worker/bundle.generated.ts`                  | The minified worker uploaded to a tenant's account, regenerated by `npm run bundle` in `cloudflare/mail-worker`                                                                                        |
-| Call Pro                 | `src/modules/integrations/callpro/`                                         | `CALLPRO_ENABLED` gate, `/callpro/receive` webhook, mirrored line/caller/call, recording URL                                                                                                           |
-| Call reporting           | `src/modules/reports/callReportService.ts`                                  | CDR filter, leg-to-call folding, and the per-queue/agent/number report computation                                                                                                                     |
-| FB automation            | `src/modules/integrations/facebook/meta/automation/`                        | Comment/message triggers and actions, bot message generation                                                                                                                                           |
-| FB page posting          | `src/modules/integrations/facebook/postService.ts`, `postGuard.ts`          | Post publishing pipeline (validation, photo staging, cleanup, permalink) and its rate limit + audit log                                                                                                |
-| FB app resolution        | `src/modules/integrations/facebook/commonUtils.ts`                          | `resolveFacebookApp`, `facebookAppSelector`, `facebookAccountSelector`                                                                                                                                 |
-| Ticket                   | `src/modules/ticket/`                                                       | Boards, pipelines, statuses, tickets, activities, notes                                                                                                                                                |
-| Conversation convert     | `src/modules/inbox/services/conversationConvert{,Targets}.ts`               | Conversion orchestration and relations; one handler per target (permission, existing-item lookup, URL, create)                                                                                         |
-| Forms                    | `src/modules/form/`                                                         | Forms, fields, submissions                                                                                                                                                                             |
-| Surveys                  | `src/modules/survey/`                                                       | Survey definitions, vote ledger, message snapshot, tally refresh                                                                                                                                       |
-| Survey ticket automation | `src/modules/survey/ticketAutomation.ts`                                    | Threshold evaluation, atomic single-ticket claim, ticket creation                                                                                                                                      |
-| Channel resource moves   | `src/modules/channel/moveResources.ts`                                      | Per-type move descriptors, `validateChannelMove`, and the `moveChannelResources` service behind `channelMoveResources`                                                                                 |
-| Knowledge base           | `src/modules/knowledgebase/`                                                | Topics, categories, articles, AI knowledge source                                                                                                                                                      |
-| Help center              | `src/modules/helpcenter/`                                                   | Client portal configs: general settings and appearance for a published help center                                                                                                                     |
-| Reports                  | `src/modules/reports/`                                                      | Inbox/ticket report aggregations, `buildTicketMatch`, and the saved `ReportCharts` model                                                                                                               |
-| Pipeline mail            | `src/modules/integrations/mail/utils/{pipeline,tickets,scope}.ts`           | A ticket pipeline's own address: its settings, the status new mail opens a ticket in, and ticket creation from an inbound message                                                                      |
-| Survey ticket automation | `src/modules/survey/ticketAutomation.ts`                                    | Threshold evaluation, atomic single-ticket claim, ticket creation                                                                                                                                      |
-| Knowledge base           | `src/modules/knowledgebase/`                                                | Topics, categories, articles, AI knowledge source                                                                                                                                                      |
-| Help center              | `src/modules/helpcenter/`                                                   | Client portal configs: general settings and appearance for a published help center                                                                                                                     |
-| Reports                  | `src/modules/reports/`                                                      | Inbox/ticket report aggregations, `buildTicketMatch`, and the saved `ReportCharts` model                                                                                                               |
-| Survey notifications     | `src/modules/survey/notifications.ts`                                       | Client portal notification for an approved or rejected survey request                                                                                                                                  |
-| Migrations               | `src/migrations/`                                                           | Plugin-owned data migrations                                                                                                                                                                           |
+| Area                     | Path                                                                                                                                                             | Responsibility                                                                                                                                                                                                         |
+| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Bootstrap                | `src/main.ts`                                                                                                                                                    | `startPlugin({ name: 'frontline', port: 3304 })`, wires tRPC, routes, meta, and every surface                                                                                                                          |
+| Models                   | `src/connectionResolvers.ts`                                                                                                                                     | Per-subdomain model container for all modules                                                                                                                                                                          |
+| GraphQL                  | `src/apollo/`                                                                                                                                                    | Aggregated `typeDefs` and `resolvers` across modules                                                                                                                                                                   |
+| tRPC                     | `src/init-trpc.ts`                                                                                                                                               | `appRouter` for service-to-service calls                                                                                                                                                                               |
+| Agent tool metadata      | `src/trpc/agentMeta.ts`                                                                                                                                          | Local `agentMeta` helper for agent-callable tRPC annotations                                                                                                                                                           |
+| HTTP                     | `src/routes.ts`                                                                                                                                                  | Mounts the `/facebook`, `/instagram`, `/mail`, and (when enabled) `/callpro` webhook routers                                                                                                                           |
+| Platform extensions      | `src/meta/`                                                                                                                                                      | automations, permissions, notifications, segments, references, import/export                                                                                                                                           |
+| Channels                 | `src/modules/channel/`                                                                                                                                           | Channel + ChannelMember models, schema, resolvers, role checks                                                                                                                                                         |
+| Inbox                    | `src/modules/inbox/`                                                                                                                                             | Conversations, messages, integrations, widget/clientportal schemas, `receiveInboxMessage`                                                                                                                              |
+| Conversation queries     | `src/conversationQueryBuilder.ts`, `src/modules/inbox/conversationUtils.ts`                                                                                      | Mongo and Elasticsearch conversation filters (membership-scoped)                                                                                                                                                       |
+| Integrations             | `src/modules/integrations/<kind>/`                                                                                                                               | facebook, instagram, mail, discord, call, callpro, trpc                                                                                                                                                                |
+| Mail integration         | `src/modules/integrations/mail/`                                                                                                                                 | Inbound webhook, threading, outbound send/retry                                                                                                                                                                        |
+| Pipeline mail            | `src/modules/integrations/mail/utils/{pipeline,allocate,settings,scope}.ts`                                                                                      | Gives a ticket pipeline an address of its own, and keeps the two mail lanes apart                                                                                                                                      |
+| Note ↔ mail              | `src/modules/integrations/mail/utils/{notes,tickets,thread,noteContent}.ts`                                                                                      | Mails an agent's note from the pipeline address as a reply on the requester's thread, and turns an inbound reply back into a note                                                                                      |
+| Mail transports          | `src/modules/integrations/mail/utils/transports/`                                                                                                                | `index.ts` picks the Cloudflare account that signs for this workspace, `deliver.ts` runs the delivery pipeline (sender guard, suppression, delivery log), `cloudflare.ts` is the only `IMailTransport`                 |
+| Mail provisioning        | `src/modules/integrations/mail/utils/cloudflare/`                                                                                                                | Cloudflare REST client, the fourteen-step provisioner, Email Sending onboarding and quota, the connection cache and its public shape                                                                                   |
+| Mail worker bundle       | `src/modules/integrations/mail/worker/bundle.generated.ts`                                                                                                       | The minified worker uploaded to a tenant's account, regenerated by `npm run bundle` in `cloudflare/mail-worker`                                                                                                        |
+| Call Pro                 | `src/modules/integrations/callpro/`                                                                                                                              | `CALLPRO_ENABLED` gate, `/callpro/receive` webhook, mirrored line/caller/call, recording URL                                                                                                                           |
+| Call reporting           | `src/modules/reports/callReportService.ts`                                                                                                                       | CDR filter, leg-to-call folding, and the per-queue/agent/number report computation                                                                                                                                     |
+| FB automation            | `src/modules/integrations/facebook/meta/automation/`                                                                                                             | Comment/message triggers and actions, bot message generation                                                                                                                                                           |
+| FB page posting          | `src/modules/integrations/facebook/postService.ts`, `postGuard.ts`                                                                                               | Post publishing pipeline (validation, photo staging, cleanup, permalink) and its rate limit + audit log                                                                                                                |
+| FB app resolution        | `src/modules/integrations/facebook/commonUtils.ts`                                                                                                               | `resolveFacebookApp`, `facebookAppSelector`, `facebookAccountSelector`                                                                                                                                                 |
+| FB messenger services    | `src/modules/integrations/facebook/services/`                                                                                                                    | `messengerSend` (messaging params, bot text send with tag retry), `messageEvents` (reaction replace, message publish, reply-to), `automatedReplyControl`, `conversationSync`, `messageNormalization`, `messagePreview` |
+| Ticket                   | `src/modules/ticket/`                                                                                                                                            | Boards, pipelines, statuses, tickets, activities, notes                                                                                                                                                                |
+| Forms                    | `src/modules/form/`                                                                                                                                              | Forms, fields, submissions                                                                                                                                                                                             |
+| Surveys                  | `src/modules/survey/`                                                                                                                                            | Survey definitions, vote ledger, message snapshot, tally refresh                                                                                                                                                       |
+| Survey ticket automation | `src/modules/survey/ticketAutomation.ts`                                                                                                                         | Threshold evaluation, atomic single-ticket claim, ticket creation                                                                                                                                                      |
+| Knowledge base           | `src/modules/knowledgebase/`                                                                                                                                     | Topics, categories, articles, AI knowledge source                                                                                                                                                                      |
+| Help center              | `src/modules/helpcenter/`                                                                                                                                        | Client portal configs: general settings and appearance for a published help center                                                                                                                                     |
+| Reports                  | `src/modules/reports/`                                                                                                                                           | Inbox/ticket report aggregations, `buildTicketMatch`, and the saved `ReportCharts` model                                                                                                                               |
+| Migrations               | `src/migrations/`                                                                                                                                                | Plugin-owned data migrations                                                                                                                                                                                           |
+| Area                     | Path                                                                                                                                                             | Responsibility                                                                                                                                                                                                         |
+| ---                      | ---                                                                                                                                                              | ---                                                                                                                                                                                                                    |
+| Bootstrap                | `src/main.ts`                                                                                                                                                    | `startPlugin({ name: 'frontline', port: 3304 })`, wires tRPC, routes, meta, and every surface                                                                                                                          |
+| Models                   | `src/connectionResolvers.ts`                                                                                                                                     | Per-subdomain model container for all modules                                                                                                                                                                          |
+| GraphQL                  | `src/apollo/`                                                                                                                                                    | Aggregated `typeDefs` and `resolvers` across modules                                                                                                                                                                   |
+| tRPC                     | `src/init-trpc.ts`                                                                                                                                               | `appRouter` for service-to-service calls                                                                                                                                                                               |
+| Agent tool metadata      | `src/trpc/agentMeta.ts`                                                                                                                                          | Local `agentMeta` helper for agent-callable tRPC annotations                                                                                                                                                           |
+| HTTP                     | `src/routes.ts`                                                                                                                                                  | Mounts the `/facebook`, `/instagram`, `/mail`, and (when enabled) `/callpro` webhook routers                                                                                                                           |
+| Platform extensions      | `src/meta/`                                                                                                                                                      | automations, permissions, notifications, segments, references, import/export                                                                                                                                           |
+| Channels                 | `src/modules/channel/`                                                                                                                                           | Channel + ChannelMember models, schema, resolvers, role checks                                                                                                                                                         |
+| Inbox                    | `src/modules/inbox/`                                                                                                                                             | Conversations, messages, integrations, widget/clientportal schemas, `receiveInboxMessage`                                                                                                                              |
+| Conversation queries     | `src/conversationQueryBuilder.ts`, `src/modules/inbox/conversationUtils.ts`                                                                                      | Mongo and Elasticsearch conversation filters (membership-scoped)                                                                                                                                                       |
+| Integrations             | `src/modules/integrations/<kind>/`                                                                                                                               | facebook, instagram, mail, discord, call, callpro, trpc                                                                                                                                                                |
+| Mail integration         | `src/modules/integrations/mail/`                                                                                                                                 | Inbound webhook, threading, outbound send/retry                                                                                                                                                                        |
+| Mail transports          | `src/modules/integrations/mail/utils/transports/`                                                                                                                | `index.ts` picks the Cloudflare account that signs for this workspace, `deliver.ts` runs the delivery pipeline (sender guard, suppression, delivery log), `cloudflare.ts` is the only `IMailTransport`                 |
+| Mail provisioning        | `src/modules/integrations/mail/utils/cloudflare/`                                                                                                                | Cloudflare REST client, the fourteen-step provisioner, Email Sending onboarding and quota, the connection cache and its public shape                                                                                   |
+| Mail automation          | `src/modules/integrations/mail/meta/automation/`                                                                                                                 | Email Received trigger and filter, AI context, reply resolution, Send Email and Draft Email Reply actions                                                                                                              |
+| Mail drafts              | `src/modules/integrations/mail/db/models/Drafts.ts`, `src/modules/integrations/mail/utils/{access,draftEvents}.ts`, `src/modules/integrations/mail/trpc/mail.ts` | Per-inbound-mail AI drafts: channel-scoped access, edit, atomic send claim (`pending` → `sending` → `sent`), delete, minimal `mailDraftChanged` events, and the subscription's `mail.canViewConversation` access check |
+| Mail worker bundle       | `src/modules/integrations/mail/worker/bundle.generated.ts`                                                                                                       | The minified worker uploaded to a tenant's account, regenerated by `npm run bundle` in `cloudflare/mail-worker`                                                                                                        |
+| Call Pro                 | `src/modules/integrations/callpro/`                                                                                                                              | `CALLPRO_ENABLED` gate, `/callpro/receive` webhook, mirrored line/caller/call, recording URL                                                                                                                           |
+| Call reporting           | `src/modules/reports/callReportService.ts`                                                                                                                       | CDR filter, leg-to-call folding, and the per-queue/agent/number report computation                                                                                                                                     |
+| FB automation            | `src/modules/integrations/facebook/meta/automation/`                                                                                                             | Comment/message triggers and actions, bot message generation                                                                                                                                                           |
+| FB page posting          | `src/modules/integrations/facebook/postService.ts`, `postGuard.ts`                                                                                               | Post publishing pipeline (validation, photo staging, cleanup, permalink) and its rate limit + audit log                                                                                                                |
+| FB app resolution        | `src/modules/integrations/facebook/commonUtils.ts`                                                                                                               | `resolveFacebookApp`, `facebookAppSelector`, `facebookAccountSelector`                                                                                                                                                 |
+| FB messenger services    | `src/modules/integrations/facebook/services/`                                                                                                                    | `messengerSend` (messaging params, bot text send with tag retry), `messageEvents` (reaction replace, message publish, reply-to), `automatedReplyControl`, `conversationSync`, `messageNormalization`, `messagePreview` |
+| Ticket                   | `src/modules/ticket/`                                                                                                                                            | Boards, pipelines, statuses, tickets, activities, notes                                                                                                                                                                |
+| Conversation convert     | `src/modules/inbox/services/conversationConvert{,Targets}.ts`                                                                                                    | Conversion orchestration and relations; one handler per target (permission, existing-item lookup, URL, create)                                                                                                         |
+| Forms                    | `src/modules/form/`                                                                                                                                              | Forms, fields, submissions                                                                                                                                                                                             |
+| Surveys                  | `src/modules/survey/`                                                                                                                                            | Survey definitions, vote ledger, message snapshot, tally refresh                                                                                                                                                       |
+| Survey ticket automation | `src/modules/survey/ticketAutomation.ts`                                                                                                                         | Threshold evaluation, atomic single-ticket claim, ticket creation                                                                                                                                                      |
+| Channel resource moves   | `src/modules/channel/moveResources.ts`                                                                                                                           | Per-type move descriptors, `validateChannelMove`, and the `moveChannelResources` service behind `channelMoveResources`                                                                                                 |
+| Knowledge base           | `src/modules/knowledgebase/`                                                                                                                                     | Topics, categories, articles, AI knowledge source                                                                                                                                                                      |
+| Help center              | `src/modules/helpcenter/`                                                                                                                                        | Client portal configs: general settings and appearance for a published help center                                                                                                                                     |
+| Reports                  | `src/modules/reports/`                                                                                                                                           | Inbox/ticket report aggregations, `buildTicketMatch`, and the saved `ReportCharts` model                                                                                                                               |
+| Pipeline mail            | `src/modules/integrations/mail/utils/{pipeline,tickets,scope}.ts`                                                                                                | A ticket pipeline's own address: its settings, the status new mail opens a ticket in, and ticket creation from an inbound message                                                                                      |
+| Survey ticket automation | `src/modules/survey/ticketAutomation.ts`                                                                                                                         | Threshold evaluation, atomic single-ticket claim, ticket creation                                                                                                                                                      |
+| Knowledge base           | `src/modules/knowledgebase/`                                                                                                                                     | Topics, categories, articles, AI knowledge source                                                                                                                                                                      |
+| Help center              | `src/modules/helpcenter/`                                                                                                                                        | Client portal configs: general settings and appearance for a published help center                                                                                                                                     |
+| Reports                  | `src/modules/reports/`                                                                                                                                           | Inbox/ticket report aggregations, `buildTicketMatch`, and the saved `ReportCharts` model                                                                                                                               |
+| Survey notifications     | `src/modules/survey/notifications.ts`                                                                                                                            | Client portal notification for an approved or rejected survey request                                                                                                                                                  |
+| Migrations               | `src/migrations/`                                                                                                                                                | Plugin-owned data migrations                                                                                                                                                                                           |
 
 ## Contracts
 
@@ -753,8 +823,25 @@ isInternal)` is the agent-side list and requires `showTickets`.
   a form never resubmits a deleted status, and inbound mail falls back to the
   pipeline's first status, sorted by `type` then `order`.
 
+- Mail agent GraphQL — `mailConversationDrafts(conversationId!)`,
+  `mailInboxes` (connected channel mail inboxes for the trigger picker,
+  limited to channels `visibleChannelsFilter` lets the caller see),
+  `mailDraftSave(_id!, subject, body!)`, `mailDraftApprove(_id!)` (returns the
+  sent message's delivery outcome plus `draftId`), `mailDraftRemove(_id!)`, and
+  the subscription `mailDraftChanged(conversationId!): MailDraftChangedEvent`
+  (`_id`, `conversationId`, `status`), open only to a signed-in user who can
+  see the conversation's channel.
+- Mail tRPC — `mail.canViewConversation` (query,
+  `{ conversationId, userId }` → `boolean`), the internal access check the
+  gateway runs before opening `mailDraftChanged`; not agent-annotated.
+- Automation types — trigger `frontline:mail.messages` (target
+  `TMailTriggerTarget`), actions `frontline:mail.messages.create` (Send Email)
+  and `frontline:mail.drafts.create` (Draft Email Reply).
+
 ### Consumes
 
+- `core` over tRPC — `users.findOne` (query, `{ query }`), which loads the
+  active user for `mail.canViewConversation`.
 - `core` over tRPC — `cpUsers.get` (query, `{ id }`), which backs
   `Survey.createdCpUser`; `companies.findOne` (query), `companies.createCompany` and
   `companies.updateCompany` (mutations, `{ _id, doc }` / `{ doc }`),
@@ -781,6 +868,10 @@ isInternal)` is the agent-side list and requires `showTickets`.
 - `pnpm nx test frontline_api` — Jest over `src/**/*.test.ts`
   (`jest.config.ts`, `tsconfig.spec.json`). Test files are excluded from
   `tsconfig.build.json`, so a new one must keep the `.test.ts` suffix.
+- Mail agent: build an automation Email Received → AI Agent → Draft Email
+  Reply, mail the inbox twice, and confirm each mail gets its own draft card;
+  edit one, send it, delete the other. Swap the last step for Send Email and
+  confirm the fourth reply within an hour is refused.
 - Move a form, survey, response template, ticket pipeline and integration
   between two channels and confirm each leaves the source channel's list,
   appears in the destination's, and survives a reload.
@@ -790,172 +881,8 @@ isInternal)` is the agent-side list and requires `showTickets`.
 - Save a help center with two CMSes and confirm `cmsConfigs` holds both, that
   `cmsId` / `cmsAppToken` mirror the first entry, and that a config written
   before `cmsConfigs` existed still returns its single CMS as a one-entry list.
-
-## Recent Changes
-
-<!-- Newest first. Keep at most 10 entries. -->
-
-### `2026-09-24` — A help center references its client portal by id
-
-- **Summary:** `clientPortalId` joined the config as the real reference to the
-  published site's client portal; `url` and `erxesAppToken` stayed as derived
-  copies because the site still looks a config up by request origin. The
-  `helpCenterConfigUpdate` resolver now runs every payload through
-  `withClientPortalFields`, which reads the portal over core's
-  `clientPortals.get` tRPC procedure and rewrites both copies, so a portal
-  whose domain or token changed is corrected on the next save. A payload
-  without `clientPortalId` is untouched, so older clients keep working.
-- **Affected areas:**
-  `src/modules/helpcenter/utils/clientPortal.ts`,
-  `src/modules/helpcenter/utils/helpCenterConfig.ts`,
-  `src/modules/helpcenter/graphql/resolvers/mutations/helpCenterConfig.ts`,
-  `src/modules/helpcenter/graphql/schemas/helpCenterConfig.ts`,
-  `src/modules/helpcenter/db/definitions/helpCenterConfig.ts`,
-  `src/modules/helpcenter/@types/helpCenterConfig.ts`
-- **Contracts changed:** `HelpCenterConfig` and `HelpCenterConfigInput` gained
-  `clientPortalId: String`. Consumes core's existing `clientPortals.get` tRPC
-  procedure; no core change.
-
-### `2026-09-24` — A help center publishes several CMSes
-
-- **Summary:** `helpCenterConfigSchema` gained `cmsConfigs`, a list of
-  `{ cmsId, cmsAppToken }` sub-documents, so one help center can list
-  announcements from more than one content CMS. `normalizeCms` now validates
-  every entry (each needs its portal's app token), de-duplicates by `cmsId`,
-  and keeps the legacy `cmsId` / `cmsAppToken` pair in sync with the first
-  entry; a payload that carries only the old single pair is still accepted and
-  becomes a one-entry list.
-- **Affected areas:**
-  `src/modules/helpcenter/db/definitions/helpCenterConfig.ts`,
-  `src/modules/helpcenter/@types/helpCenterConfig.ts`,
-  `src/modules/helpcenter/graphql/schemas/helpCenterConfig.ts`,
-  `src/modules/helpcenter/utils/helpCenterConfig.ts`
-- **Contracts changed:** `HelpCenterConfig` and `HelpCenterConfigInput` gained
-  `cmsConfigs: [HelpCenterCmsConfig]` / `[HelpCenterCmsConfigInput]`. `cmsId`
-  and `cmsAppToken` are unchanged and still written.
-
-### `2026-09-21` — The ticket action says it needs someone to act for
-
-- **Summary:** `Create ticket` now declares `requiresActor: true`. The ticket it
-  opens is assigned from the run's `createdVia.actorId` when the conversation
-  names nobody, so the builder can tell whether an automation about to go live
-  will create records that belong to a person. Assignment itself is unchanged.
-- **Affected areas:**
-  `src/modules/ticket/meta/automations/ticketAutomationsConstants.ts`
-- **Contracts changed:** The action descriptor carries `requiresActor`, a field
-  `erxes-api-shared` added for every plugin to use.
-
-### `2026-09-21` — Automation actions state their outcome instead of returning quietly
-
-- **Summary:** Every automation action this plugin owns now answers with the
-  shared outcome envelope, so the engine stops reading "did not throw" as
-  success. Facebook reports `window-closed` and `send-blocked` as skips, the
-  inbox bot reports `no-conversation`, `nothing-to-send` and `no-reply-text`,
-  and a `collectionType` none of these modules handles is now a stated
-  `CONFIG_INVALID` failure rather than a silent no-op. Instagram is left
-  untouched on purpose.
-- **Affected areas:**
-  `src/modules/integrations/facebook/meta/automation/{messages,comments}/index.ts`,
-  `src/modules/integrations/facebook/meta/automation/workers.ts`,
-  `src/modules/integrations/discord/meta/automation/workers.ts`,
-  `src/modules/inbox/meta/automation/workers.ts`,
-  `src/modules/ticket/meta/automations/ticketAutomationsProducers.ts`
-- **Contracts changed:** The `receiveActions` producer may now answer with
-  `{ outcome, result }` from `erxes-api-shared/core-modules`
-  (`buildSkippedAction` / `buildFailedAction`). Plain results are unchanged and
-  still count as success.
-
-### `2026-09-15` — The persistent menu's back button reaches a handler
-
-- **Summary:** Tapping back in a persistent menu published to
-  `automations`/`playWait`, a queue the automations service never registers, so
-  the step-back never happened on Facebook or Instagram. It already had a
-  handler — `executePrevAction` on the `action` queue — taking exactly the
-  payload these producers send, and both now address it.
-- **Affected areas:**
-  `src/modules/integrations/facebook/meta/automation/messages/index.ts`,
-  `src/modules/integrations/instagram/meta/automation/messages/index.ts`
-- **Contracts changed:** None inside the plugin. The queue and job name it
-  produces to changed to the ones the automations service consumes.
-
-### `2026-09-15` — A direct Facebook message checks the messaging window first
-
-- **Summary:** `Send Facebook Message` now resolves Messenger's 24-hour
-  free-form window before sending on a direct thread. The trigger target is
-  normally the person's own inbound message, so the check is free; only once
-  that target has aged out does it look up the conversation's latest inbound
-  message, which a flow that waited days may find has reopened the window.
-  Outside the window the action reports a `window-closed` skip and the flow
-  carries on, so the execution keeps a row explaining the non-send instead of
-  spending a refusal against the page.
-  Comment-triggered sends are untouched: those go out as private replies under
-  a separate Meta allowance.
-- **Affected areas:**
-  `src/modules/integrations/facebook/meta/automation/messages/utils.ts`
-  (`resolveMessagingWindow`),
-  `src/modules/integrations/facebook/meta/automation/messages/index.ts`
-- **Contracts changed:** None. The descriptor is unchanged. The skip is stated
-  through the shared action-outcome envelope (see `2026-09-21`).
-
-### `2026-09-14` — A ticket an automation opened records what produced it
-
-- **Summary:** Tickets created by an automation now carry `createdVia` — the
-  configuration that produced them, the run that did it, and whose
-  configuration it was. The same actor is used as the creating user, ranked
-  below a conversation's own agent (the more specific answer when there is a
-  thread) and above the first-owner fallback, which is nobody in particular.
-- **Affected areas:**
-  `src/modules/ticket/meta/automations/actions/createTicketAction.ts`,
-  `src/modules/ticket/@types/ticket.ts`
-- **Contracts changed:** Consumes the new `TCreatedVia` and
-  `IExecution.createdVia` from `erxes-api-shared`; `createdVia` itself is added
-  to every schema by `schemaWrapper`.
-
-### `2026-09-14` — Facebook ships two flows of its own
-
-- **Summary:** The plugin now provides built-in workflow templates —
-  "Answer publicly, continue in private" and "Reply, then open a ticket" —
-  through `automations.constants.workflowTemplates`, so they exist from the
-  moment the plugin is deployed and are never written to a tenant database.
-  Both start from an existing thread rather than a contact, because Facebook
-  only permits a reply inside a conversation the person opened; the ticket one
-  declares the channel, pipeline and status it needs as requirements, answered
-  while installing, and names the ticket after what the person wrote. Both
-  carry their reply text, so an installed template sends something sensible
-  before anyone edits it.
-- **Affected areas:**
-  `src/modules/integrations/facebook/meta/automation/workflowTemplates.ts`,
-  `src/meta/automations.ts`
-- **Contracts changed:** Consumes the new optional
-  `AutomationConstants.workflowTemplates` from `erxes-api-shared`.
-
-### `2026-09-13` — Facebook actions declare the target they need
-
-- **Summary:** Send Facebook Message and Send Facebook Comment read the
-  execution target as a facebook message/comment document, so they cannot run
-  behind a trigger that supplies anything else; both now declare
-  `requiresTargetTypes` and the builder hides and refuses them where the target
-  type does not match, instead of letting them fail at runtime.
-- **Affected areas:**
-  `src/modules/integrations/facebook/meta/automation/constants.ts`
-- **Contracts changed:** Consumes the new optional
-  `IAutomationsActionConfigConstants.requiresTargetTypes` from
-  `erxes-api-shared`. No plugin-provided contract changed.
-
-### `2026-09-23` — A survey question carries attachments
-
-- **Summary:** Each survey step takes up to five `AttachmentInput` files,
-  normalized inside `normalizeSurveySteps`, stored on the step, served back as
-  `SurveyStep.attachments` and copied into the conversation snapshot so a
-  respondent sees them with the question. Agents (`SurveyStepInput`) and
-  client portal requesters (`CpSurveyStepInput`) use the same field.
-- **Affected areas:** `src/modules/survey/db/definitions/surveys.ts`,
-  `src/modules/survey/db/models/Surveys.ts`,
-  `src/modules/survey/@types/survey.ts`,
-  `src/modules/survey/utils.ts`,
-  `src/modules/survey/graphql/schema/survey.ts`
-- **Contracts changed:** `SurveyStepInput` and `CpSurveyStepInput` take
-  `attachments: [AttachmentInput]`; `SurveyStep` exposes
-  `attachments: [Attachment]`; the survey-level `Survey.attachments` field and
-  the `cpSurveyAdd` / `cpSurveyEdit` `attachments` arguments added earlier the
-  same day are gone.
+- Save a conversation's properties through `conversationEditCustomFields` and
+  confirm the value round-trips on `Conversation.propertiesData`, a validation
+  rejection throws instead of silently keeping the unvalidated input, and
+  clearing every property to `{}` stays `{}` on the next read rather than
+  reverting to any legacy value.

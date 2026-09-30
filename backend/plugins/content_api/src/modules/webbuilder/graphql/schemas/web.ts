@@ -69,6 +69,27 @@ export const types = `
     createdAt: Date
     updatedAt: Date
   }
+
+  type WebCustomDomainRecord {
+    type: String!
+    name: String!
+    value: String!
+    status: String!
+  }
+
+  type WebCustomDomain {
+    name: String!
+    verified: Boolean!
+    misconfigured: Boolean!
+    isActive: Boolean!
+    records: [WebCustomDomainRecord!]!
+  }
+
+  type WebCustomDomains {
+    isDeployed: Boolean!
+    defaultDomain: String
+    domains: [WebCustomDomain!]!
+  }
 `;
 
 export const inputs = `
@@ -136,6 +157,7 @@ export const inputs = `
 export const queries = `
   getWebList: [Web]
   getWebDetail(_id: String!): Web
+  webCustomDomains(webId: String!): WebCustomDomains
 
   cpGetWebDetail(_id: String!): Web
   cpGetDomains(_id: String!): JSON
@@ -147,6 +169,9 @@ export const mutations = `
   createWeb(doc: WebCreateInput!): Web
   editWeb(_id: String!, doc: WebInput!): Web
   removeWeb(_id: String!): Web
+  webCustomDomainAdd(webId: String!, hostname: String!): WebCustomDomains
+  webCustomDomainRefresh(webId: String!, hostname: String!): WebCustomDomains
+  webCustomDomainRemove(webId: String!, hostname: String!): WebCustomDomains
   
   cpEditWeb(_id: String!, doc: WebInput!): Web
   cpRemoveWeb(_id: String!): Web

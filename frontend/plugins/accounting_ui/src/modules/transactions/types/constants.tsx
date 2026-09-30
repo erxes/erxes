@@ -185,16 +185,6 @@ export const TR_STATUS_OPTIONS = TR_STATUSES.ALL.map((status) => ({
 
 export const TR_STATUS_GROUPS = [
   {
-    label: 'DRAFTED',
-    values: [
-      TR_STATUSES.DRAFT,
-      TR_STATUSES.MENTIONED,
-      TR_STATUSES.APPROVED,
-      TR_STATUSES.REJECED,
-      TR_STATUSES.RETURNED,
-    ],
-  },
-  {
     label: 'PUBLISHED',
     values: [
       TR_STATUSES.PROGRESS,
@@ -202,6 +192,16 @@ export const TR_STATUS_GROUPS = [
       TR_STATUSES.CONFIRMED,
       TR_STATUSES.CANELLED,
       TR_STATUSES.COMPLETE,
+    ],
+  },
+  {
+    label: 'DRAFTED',
+    values: [
+      TR_STATUSES.DRAFT,
+      TR_STATUSES.MENTIONED,
+      TR_STATUSES.APPROVED,
+      TR_STATUSES.REJECED,
+      TR_STATUSES.RETURNED,
     ],
   },
   {

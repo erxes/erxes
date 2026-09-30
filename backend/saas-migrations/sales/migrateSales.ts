@@ -2,7 +2,14 @@ import * as dotenv from 'dotenv';
 
 dotenv.config();
 
-import { AnyBulkWriteOperation, Collection, Db, MongoClient } from 'mongodb';
+import {
+  Collection,
+  Db,
+  Document,
+  MongoBulkWriteError,
+  MongoClient,
+  WriteError,
+} from 'mongodb';
 
 const {
   MONGO_URL = 'mongodb://localhost:27017/erxes?directConnection=true',
@@ -12,6 +19,7 @@ const {
   TARGET_SUBDOMAIN,
 
   DRY_RUN,
+  OVERWRITE_EXISTING,
 
   BATCH_SIZE = '1000',
 } = process.env;
@@ -27,13 +35,14 @@ if (!SOURCE_SUBDOMAIN || !TARGET_SUBDOMAIN) {
 }
 
 const isDryRun = DRY_RUN === '1' || DRY_RUN === 'true';
+const overwriteExisting =
+  OVERWRITE_EXISTING === '1' || OVERWRITE_EXISTING === 'true';
 const batchSize = Math.max(1, parseInt(BATCH_SIZE, 10) || 1000);
 
 function extractDbName(url: string): string {
   const withoutQuery = url.split('?')[0];
   return withoutQuery.slice(withoutQuery.lastIndexOf('/') + 1);
 }
-
 
 const COLLECTIONS = [
   // deal pipeline
@@ -59,9 +68,13 @@ const COLLECTIONS = [
   'ecommerce_address',
 ];
 
-
 const UNIQUE_FIELDS: Record<string, string[]> = {
   deals: ['number'],
+  sales_pipeline_labels: ['pipelineId+name+colorCode'],
+};
+
+const RENAME_ON_COLLISION: Record<string, string> = {
+  deals: 'number',
 };
 
 type CollectionStats = {
@@ -85,6 +98,55 @@ const normalizeValue = (field: string, value: unknown): string => {
   return field === 'email' ? str.toLowerCase().trim() : str;
 };
 
+type DuplicateLog = Map<string, { count: number; sample: string }>;
+
+const toWriteErrors = (err: MongoBulkWriteError): WriteError[] =>
+  Array.isArray(err.writeErrors) ? err.writeErrors : [err.writeErrors];
+
+const isDuplicateKeyError = (err: unknown): err is MongoBulkWriteError =>
+  err instanceof MongoBulkWriteError &&
+  toWriteErrors(err).length > 0 &&
+  toWriteErrors(err).every((we) => we.code === 11000);
+
+const recordDuplicate = (log: DuplicateLog, message = ''): void => {
+  const index = /index: (\S+)/.exec(message)?.[1] ?? 'unknown';
+  const entry = log.get(index) ?? {
+    count: 0,
+    sample: /dup key: (.*)$/.exec(message)?.[1] ?? '',
+  };
+  entry.count++;
+  log.set(index, entry);
+};
+
+const reportDuplicates = (collectionName: string, log: DuplicateLog): void => {
+  for (const [index, { count, sample }] of log) {
+    console.log(
+      `    [SKIP] ${collectionName}: ${count} document(s) conflict with unique index ${index}, e.g. ${sample}`,
+    );
+  }
+};
+
+const fieldParts = (field: string): string[] => field.split('+');
+
+const fieldValue = (doc: Document, field: string): string | undefined => {
+  const values = fieldParts(field).map((part) => doc[part]);
+
+  if (values.some((value) => value === undefined || value === null)) {
+    return undefined;
+  }
+
+  return values.map((value) => normalizeValue(field, value)).join('\u0000');
+};
+
+const nextFreeValue = (base: string, taken: Set<string>): string => {
+  let suffix = 1;
+
+  while (taken.has(`${base}-${suffix}`)) {
+    suffix++;
+  }
+
+  return `${base}-${suffix}`;
+};
 
 async function migrateByReplace(
   srcCol: Collection,
@@ -93,29 +155,73 @@ async function migrateByReplace(
 ): Promise<CollectionStats> {
   const stats = emptyStats(sourceCount);
 
-  let batch: AnyBulkWriteOperation[] = [];
+  let batch: Document[] = [];
+  const duplicates: DuplicateLog = new Map();
 
   const flush = async () => {
     if (batch.length === 0) return;
-    const result = await dstCol.bulkWrite(batch, { ordered: false });
-    stats.inserted += result.upsertedCount;
-    stats.updated += result.matchedCount;
+
+    if (overwriteExisting) {
+      try {
+        const result = await dstCol.bulkWrite(
+          batch.map((doc) => ({
+            replaceOne: {
+              filter: { _id: doc._id },
+              replacement: doc,
+              upsert: true,
+            },
+          })),
+          { ordered: false },
+        );
+        stats.inserted += result.upsertedCount;
+        stats.updated += result.matchedCount;
+      } catch (err) {
+        if (!isDuplicateKeyError(err)) throw err;
+        stats.inserted += err.upsertedCount;
+        stats.updated += err.matchedCount;
+        for (const we of toWriteErrors(err)) {
+          stats.skipped++;
+          recordDuplicate(duplicates, we.errmsg);
+        }
+      }
+    } else {
+      const existing = await dstCol
+        .find(
+          { _id: { $in: batch.map((doc) => doc._id) } },
+          { projection: { _id: 1 } },
+        )
+        .toArray();
+      const existingIds = new Set(existing.map((doc) => String(doc._id)));
+      const missing = batch.filter((doc) => !existingIds.has(String(doc._id)));
+
+      stats.skipped += batch.length - missing.length;
+
+      if (missing.length) {
+        try {
+          const result = await dstCol.insertMany(missing, { ordered: false });
+          stats.inserted += result.insertedCount;
+        } catch (err) {
+          if (!isDuplicateKeyError(err)) throw err;
+          stats.inserted += err.insertedCount;
+          for (const we of toWriteErrors(err)) {
+            stats.skipped++;
+            recordDuplicate(duplicates, we.errmsg);
+          }
+        }
+      }
+    }
+
     batch = [];
   };
 
   for await (const doc of srcCol.find({}, { batchSize })) {
-    batch.push({
-      replaceOne: {
-        filter: { _id: doc._id },
-        replacement: doc,
-        upsert: true,
-      },
-    });
+    batch.push(doc);
 
     if (batch.length >= batchSize) await flush();
   }
 
   await flush();
+  reportDuplicates(dstCol.collectionName, duplicates);
 
   return stats;
 }
@@ -138,18 +244,22 @@ async function migrateWithDedup(
   for (const field of uniqueFields) existingByField[field] = new Set<string>();
 
   const projection: Record<string, 1> = { _id: 1 };
-  for (const field of uniqueFields) projection[field] = 1;
+  for (const field of uniqueFields) {
+    for (const part of fieldParts(field)) projection[part] = 1;
+  }
+
+  const renameField = RENAME_ON_COLLISION[srcCol.collectionName];
 
   for await (const doc of dstCol.find({}, { projection })) {
     existingIds.add(String(doc._id));
     for (const field of uniqueFields) {
-      if (doc[field] !== undefined && doc[field] !== null) {
-        existingByField[field].add(normalizeValue(field, doc[field]));
-      }
+      const value = fieldValue(doc, field);
+      if (value !== undefined) existingByField[field].add(value);
     }
   }
 
   let batch: any[] = [];
+  const duplicates: DuplicateLog = new Map();
 
   const flush = async () => {
     if (batch.length === 0) return;
@@ -159,8 +269,13 @@ async function migrateWithDedup(
     } catch (err: any) {
       stats.inserted += err?.result?.insertedCount ?? err?.insertedCount ?? 0;
       const writeErrors = err?.writeErrors || [];
-      stats.errors += writeErrors.length;
       for (const we of writeErrors) {
+        if (we?.code === 11000) {
+          stats.skipped++;
+          recordDuplicate(duplicates, we?.errmsg);
+          continue;
+        }
+        stats.errors++;
         console.error(
           `    [ERROR] ${dstCol.collectionName}: _id "${
             we?.err?.op?._id ?? '?'
@@ -181,20 +296,29 @@ async function migrateWithDedup(
 
     let collidedField: string | undefined;
     for (const field of uniqueFields) {
-      if (doc[field] === undefined || doc[field] === null) continue;
-      const value = normalizeValue(field, doc[field]);
-      if (existingByField[field].has(value)) {
+      const value = fieldValue(doc, field);
+      if (value !== undefined && existingByField[field].has(value)) {
         collidedField = field;
         break;
       }
     }
 
+    if (collidedField && collidedField === renameField) {
+      const previous = String(doc[renameField]);
+      doc[renameField] = nextFreeValue(previous, existingByField[renameField]);
+      console.log(
+        `    [RENAME] ${srcCol.collectionName} ${id}: ${renameField} "${previous}" already exists, inserted as "${doc[renameField]}"`,
+      );
+      collidedField = undefined;
+    }
+
     if (collidedField) {
       console.log(
-        `    [SKIP] ${srcCol.collectionName}: ${collidedField} "${normalizeValue(
+        `    [SKIP] ${srcCol.collectionName}: ${collidedField} "${fieldParts(
           collidedField,
-          doc[collidedField],
-        )}" already exists`,
+        )
+          .map((part) => doc[part])
+          .join(' / ')}" already exists`,
       );
       stats.skipped++;
       continue;
@@ -202,9 +326,8 @@ async function migrateWithDedup(
 
     existingIds.add(id);
     for (const field of uniqueFields) {
-      if (doc[field] !== undefined && doc[field] !== null) {
-        existingByField[field].add(normalizeValue(field, doc[field]));
-      }
+      const value = fieldValue(doc, field);
+      if (value !== undefined) existingByField[field].add(value);
     }
 
     if (isDryRun) {
@@ -217,6 +340,7 @@ async function migrateWithDedup(
   }
 
   if (!isDryRun) await flush();
+  reportDuplicates(dstCol.collectionName, duplicates);
 
   return stats;
 }
@@ -280,8 +404,14 @@ async function main() {
         }
 
         const uniqueFields = UNIQUE_FIELDS[colName];
-        const mode = uniqueFields ? `dedup(${uniqueFields.join(',')})` : 'upsert';
-        console.log(`[${colName}] migrating ${sourceCount} documents [${mode}]...`);
+        const mode = uniqueFields
+          ? `dedup(${uniqueFields.join(',')})`
+          : overwriteExisting
+          ? 'overwrite'
+          : 'insert-only';
+        console.log(
+          `[${colName}] migrating ${sourceCount} documents [${mode}]...`,
+        );
 
         let stats: CollectionStats;
         if (uniqueFields) {

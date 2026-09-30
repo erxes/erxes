@@ -10,7 +10,11 @@ export const useSendEmailContentEditor = (content: string) => {
   const editor = useBlockEditor({});
 
   useEffect(() => {
-    if (!content || !editor) {
+    if (!editor) {
+      return;
+    }
+    if (!content) {
+      editor.replaceBlocks(editor.document, [{ type: 'paragraph' }]);
       return;
     }
 

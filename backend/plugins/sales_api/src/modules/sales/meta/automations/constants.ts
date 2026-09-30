@@ -13,6 +13,8 @@ import {
   LOYALTY_ADJUST_SCORE_ACTION,
 } from './purchase';
 import { IDeal, IProductData } from '../../@types';
+import { buildDealAmountAttributes } from '../../documents/dealContent';
+import { generateProducts } from '../../utils';
 
 type TAutomationProductData = IProductData & { maxQuantity?: number };
 
@@ -144,6 +146,46 @@ const resolveProductsDataPath = (
   return joinProductsDataValues(productsData.map(fieldResolver));
 };
 
+const DEAL_DOCUMENT_AMOUNT_VARIABLES = [
+  { key: 'productTotalAmount', label: 'Products total amount' },
+  { key: 'servicesTotalAmount', label: 'Services total amount' },
+  { key: 'totalAmountVat', label: 'Total amount vat' },
+  { key: 'totalAmountAfterTaxVat', label: 'Total amount after tax and vat' },
+  { key: 'totalAmountWithoutVat', label: 'Total amount without vat' },
+  { key: 'discount', label: 'Discount' },
+  { key: 'discountType', label: 'Discount type' },
+  { key: 'paymentCash', label: 'Payment cash' },
+  { key: 'paymentNonCash', label: 'Payment non cash' },
+];
+
+// Only the product/service split needs each product's type from core.
+const PRODUCT_TYPE_AMOUNT_KEYS = ['productTotalAmount', 'servicesTotalAmount'];
+
+/**
+ * The same amounts the sales document prints, formatted the same way, so an
+ * automation fills them exactly as the document does.
+ */
+const resolveDealDocumentAmount = async (
+  subdomain: string,
+  source: IDeal,
+  key: string,
+) => {
+  const productsData = source.productsData || [];
+  const items = PRODUCT_TYPE_AMOUNT_KEYS.includes(key)
+    ? await generateProducts(subdomain, productsData)
+    : productsData;
+
+  return buildDealAmountAttributes(items, source.paymentsData)[key];
+};
+
+const DEAL_DOCUMENT_AMOUNT_RESOLVERS = Object.fromEntries(
+  DEAL_DOCUMENT_AMOUNT_VARIABLES.map(({ key }) => [
+    key,
+    ({ subdomain, source }: { subdomain: string; source: IDeal }) =>
+      resolveDealDocumentAmount(subdomain, source, key),
+  ]),
+);
+
 export const SALES_DEAL_FIND_OBJECT_TYPE = 'sales:sales.deals';
 
 const SALES_DEAL_SET_PROPERTY_TARGETS: TAutomationSetPropertyTarget[] = [
@@ -218,6 +260,7 @@ const SALES_DEAL_TRIGGER_OUTPUT: TAutomationRuntimeOutputDefinition<IDeal> = {
     { key: 'totalAmount', label: 'Total amount' },
     { key: 'unUsedTotalAmount', label: 'Unused total amount' },
     { key: 'bothTotalAmount', label: 'Both total amount' },
+    ...DEAL_DOCUMENT_AMOUNT_VARIABLES,
     {
       key: 'userId',
       label: 'Created by',
@@ -307,6 +350,7 @@ const SALES_DEAL_TRIGGER_OUTPUT: TAutomationRuntimeOutputDefinition<IDeal> = {
     propertyType: 'sales:deal',
   },
   resolvers: {
+    ...DEAL_DOCUMENT_AMOUNT_RESOLVERS,
     productsData: ({ subdomain, source }) =>
       resolveProductsDataNames(subdomain, source),
     'productsData.*': ({ subdomain, source, path }) =>

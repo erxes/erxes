@@ -2,6 +2,7 @@ import { SAFE_REMAINDERS_QUERY } from '../graphql/safeRemainderQueries';
 import { OperationVariables, useQuery } from '@apollo/client';
 import { ACC_TRS__PER_PAGE } from '../../../transactions/types/constants';
 import { parseDateRangeFromString, useMultiQueryState } from 'erxes-ui';
+import { ISafeRemainder } from '../types/SafeRemainder';
 
 type SafeRemainderQueryParams = {
   searchValue: string;
@@ -13,6 +14,26 @@ type SafeRemainderQueryParams = {
   createdDate: string;
   updatedDate: string;
 };
+
+type SafeRemainderVariables = Partial<
+  Record<
+    | keyof SafeRemainderQueryParams
+    | 'beginDate'
+    | 'endDate'
+    | 'createdStartDate'
+    | 'createdEndDate'
+    | 'updatedStartDate'
+    | 'updatedEndDate',
+    string | Date
+  >
+>;
+
+interface ISafeRemaindersQueryData {
+  safeRemainders: {
+    remainders: ISafeRemainder[];
+    totalCount: number;
+  };
+}
 
 const SAFE_REMAINDER_FILTER_KEYS: (keyof SafeRemainderQueryParams)[] = [
   'searchValue',
@@ -33,7 +54,7 @@ export const useSafeRemainderQueryParams = () => {
 
 export const useSafeRemainderVariables = () => {
   const queryParams = useSafeRemainderQueryParams() || {};
-  const variables: Record<string, any> = {};
+  const variables: SafeRemainderVariables = {};
 
   if (queryParams.searchValue) variables.searchValue = queryParams.searchValue;
   if (queryParams.branchId) variables.branchId = queryParams.branchId;
@@ -68,7 +89,10 @@ export const useSafeRemainderVariables = () => {
 export const useSafeRemainders = (options?: OperationVariables) => {
   const filterVariables = useSafeRemainderVariables();
 
-  const { data, loading, error, fetchMore } = useQuery(SAFE_REMAINDERS_QUERY, {
+  const { data, loading, error, fetchMore } = useQuery<
+    ISafeRemaindersQueryData,
+    OperationVariables
+  >(SAFE_REMAINDERS_QUERY, {
     ...options,
     variables: {
       page: 1,
@@ -77,7 +101,7 @@ export const useSafeRemainders = (options?: OperationVariables) => {
       ...options?.variables,
     },
   });
-  const { remainders, totalCount } = data?.safeRemainders || {};
+  const { remainders = [], totalCount = 0 } = data?.safeRemainders || {};
 
   const handleFetchMore = () => {
     if (remainders?.length < totalCount) {

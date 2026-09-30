@@ -85,6 +85,8 @@
   (`syncDealPoints`); POS order sync calls `score.spend` (`spendOrderPoints`,
   also after `posOrderChangePayments`) and `score.refund` for returned orders.
 - POS and ecommerce modules provide sales-owned order and integration behavior.
+- POS config sync merges Mongolian eBarimt receipt toggles into the POS payload
+  sent to POS client sync.
 - Read-only deal, stage, pipeline, POS, and POS-order tRPC procedures are
   exposed to AI agents through `/agent-tools/manifest` and `/agent-tools/call`
   via `.meta(agentMeta(...))` annotations; every other procedure remains
@@ -235,6 +237,10 @@
   branches, departments, and related records.
 - Loyalty tRPC `score.spend` / `score.refund` with loyalty-owned inputs; sales
   never sends whole deals or orders to loyalty.
+- Mongolian `mnConfigs` values for `EBARIMT` and POS-specific
+  `posInEbarimt` eBarimt settings.
+- Loyalty-facing sales deal payloads through published target/reference
+  contracts, not loyalty internals.
 
 ## Data and State
 

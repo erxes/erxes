@@ -22,6 +22,8 @@
 
 - Authenticates POS users against POS client context.
 - Serves POS client config, order, cover, user, and daily report GraphQL operations.
+- Persists synced eBarimt receipt toggles, including `hasCopy`, `hasSumQty`,
+  and `isCleanTaxPrice`, in POS client config.
 - Serves POS product list and count queries with category, tag, price, remainder, discount, similarity, and product `propertiesData` filters.
 - Calculates daily reports for authorized POS admins and cashiers with report permission.
 - Persists order item `discountInfos` so pricing, loyalty/voucher, score, and direct/manual discounts keep their source, amount, and percent breakdown.
@@ -49,6 +51,8 @@
 ### Consumes
 
 - Synced POS config fields including `adminIds`, `cashierIds`, `token`, and `permissionConfig`.
+- Synced eBarimt config fields including `hasCopy`, `hasSumQty`, and
+  `isCleanTaxPrice`.
 - Shared `erxes-api-shared` context, GraphQL, and date utility contracts.
 - `erxes-api-shared/core-modules` property filtering: `withPropertyConditions`,
   `isPropertyPath`, `propertyFieldIdFromPath`, `propertyExistsFilter`,
@@ -61,6 +65,7 @@
 - `Configs.permissionConfig.cashiers.seeReport` controls cashier access to `dailyReport`.
 - Order item discounts store the aggregate `discountAmount`/`discountPercent` plus per-source `discountInfos`.
 - Product `propertiesData` filters are encoded as `fieldId:operator:value` conditions separated by semicolons and are parsed by the shared property filter util; a `g:<groupId>/<fieldId>` key targets one row of a repeating group through `$elemMatch`.
+- The hourly remainder repeatable job runs on `posclient-hourly-sync-remainder`; it dispatches tenant-scoped `posclient-sync-remainder` jobs that must include `subdomain`.
 
 ## Local Invariants
 

@@ -86,6 +86,8 @@
   "filter": {
     "segments": "Segments",
     "search-segments": "Search segments",
+    "show-all-segments": "Show all segments",
+    "segment-settings": "Segment settings",
     "building": "Rebuilding"
   },
   "analytics": {

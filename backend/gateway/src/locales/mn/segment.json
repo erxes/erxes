@@ -86,6 +86,8 @@
   "filter": {
     "segments": "Сегмент",
     "search-segments": "Сегмент хайх",
+    "show-all-segments": "Бүх сегментийг харах",
+    "segment-settings": "Сегментийн тохиргоо",
     "building": "Барьж байна"
   },
   "analytics": {
