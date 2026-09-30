@@ -1,4 +1,5 @@
 import { SegmentAutomationCreateButton } from '@/segments/components/SegmentAutomationCreateButton';
+import { SegmentBroadcastCreateButton } from '@/segments/components/SegmentBroadcastCreateButton';
 import { useSegmentAutomations } from '@/segments/hooks/useSegmentAutomations';
 import { IconBolt, IconChevronRight } from '@tabler/icons-react';
 import { Badge, Skeleton } from 'erxes-ui';
@@ -14,9 +15,7 @@ export const SegmentAutomations = ({ segment }: { segment?: ISegment }) => {
     <div className="flex flex-col gap-4 p-6 max-w-2xl">
       <div>
         <h3 className="text-sm font-semibold">{t('automations-title')}</h3>
-        <p className="text-sm text-muted-foreground">
-          {t('automations-hint')}
-        </p>
+        <p className="text-sm text-muted-foreground">{t('automations-hint')}</p>
       </div>
       {loading && <Skeleton className="h-9 w-full" />}
       {!loading && !automations.length && (
@@ -41,8 +40,9 @@ export const SegmentAutomations = ({ segment }: { segment?: ISegment }) => {
         ))}
       </div>
       {!loading && (
-        <div className="self-start">
+        <div className="flex gap-2 self-start">
           <SegmentAutomationCreateButton segment={segment} />
+          <SegmentBroadcastCreateButton segment={segment} />
         </div>
       )}
     </div>

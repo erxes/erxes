@@ -81,7 +81,8 @@
     "visibility": "Who can see this",
     "visibility-hint": "Decides who finds this segment in their list. It does not change who can see the records it matches.",
     "visible-to-everyone": "Everyone in the organization",
-    "visible-to-me": "Only me"
+    "visible-to-me": "Only me",
+    "broadcast-create": "Send nightly broadcast"
   },
   "filter": {
     "segments": "Segments",

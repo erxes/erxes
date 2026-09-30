@@ -29,12 +29,9 @@ export type SegmentRebuildEvent = {
   kind: 'rebuild';
   subdomain: string;
   segmentId: string;
-  /**
-   * Keeps the stored members and reports who entered and left since, the way
-   * a record event would. Only for a segment the clock moves (a birthday
-   * today); a first build or a manual rebuild must not announce everyone.
-   */
-  transitions?: boolean;
+  // Only the nightly pass says so: a create, edit or manual rebuild is not
+  // the day's materialization.
+  source?: 'reconcile';
 };
 
 export type SegmentReconcileEvent = {

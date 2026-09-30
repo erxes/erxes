@@ -70,7 +70,8 @@
     "label": "Эхлүүлэгч",
     "manual": "Гараар",
     "scheduled": "Товлосон",
-    "recurring": "Давтагдах"
+    "recurring": "Давтагдах",
+    "afterSegment": "Segment шинэчлэгдсэний дараа"
   },
   "method": {
     "email": "Имэйл",
@@ -281,7 +282,8 @@
       "day": "Өдөр бүр",
       "week": "Долоо хоног бүр",
       "month": "Сар бүр",
-      "year": "Жил бүр"
+      "year": "Жил бүр",
+      "afterSegment": "Шөнө бүр"
     },
     "repeat": {
       "week": "{{weekday}} бүр {{time}}-д",
@@ -298,7 +300,10 @@
     "send-without-waiting": "Хүлээлгүй илгээх",
     "dialog-body": "Товлосон цагтаа өөрөө илгээгдэх бөгөөд тэр хүртэл засах боломжтой.",
     "start-repeating": "Давтаж эхлүүлэх",
-    "confirm": "Товлох"
+    "confirm": "Товлох",
+    "after-segment-hint": "Segment шөнө бүр шинэчлэгдэж дуусахад түүний гишүүдэд илгээнэ. Эхний ажиллагаа нь өнөө шөнө.",
+    "after-segment-summary": "Segment шөнө бүр шинэчлэгдсэний дараа",
+    "starts": "Эхлэх:"
   },
   "calendar": {
     "previous-month": "Өмнөх сар",

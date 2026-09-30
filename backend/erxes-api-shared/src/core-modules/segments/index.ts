@@ -9,6 +9,7 @@ export * from './evaluate';
 export * from './fingerprint';
 export * from './evaluateBatch';
 export * from './events';
+export * from './materialized';
 export * from './evaluateFieldsRouter';
 export * from './evaluateOwned';
 export * from './joinChanges';

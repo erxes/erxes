@@ -56,14 +56,13 @@ export const reconcileSegments = async ({
         continue;
       }
 
-      // The clock moved its members, not an event: say who crossed.
       if (segment.timeSensitive) {
         checked++;
         drifted.push(segment._id);
         sendSegmentRebuild({
           subdomain,
           segmentId: segment._id,
-          transitions: true,
+          source: 'reconcile',
         });
         continue;
       }

@@ -81,7 +81,8 @@
     "visibility": "Хэн харах вэ",
     "visibility-hint": "Энэ segment-ийг хэн жагсаалтаасаа олохыг заана. Тохирсон бичлэгүүдийг хэн харахыг өөрчлөхгүй.",
     "visible-to-everyone": "Байгууллагын бүх хүн",
-    "visible-to-me": "Зөвхөн би"
+    "visible-to-me": "Зөвхөн би",
+    "broadcast-create": "Шөнө бүрийн broadcast"
   },
   "filter": {
     "segments": "Сегмент",
