@@ -133,6 +133,8 @@ export const queries = `
     conversationId: String!
     limit: Int
   ): MailConversationMessages
+  mailConversationInternalNotes(conversationId: String!, skip: Int, limit: Int): [ConversationMessage!]!
+  mailConversationInternalNotesCount(conversationId: String!): Int!
 
   mailSendingReadiness: MailSendingReadiness
 

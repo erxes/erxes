@@ -2,7 +2,7 @@ import { gql } from '@apollo/client';
 import { ATTACHMENT_GQL } from 'erxes-ui';
 
 export const MAIL_CONVERSATION_DETAIL_QUERY = gql`
-  query mailConversationDetail($conversationId: String!, $limit: Int) {
+  query mailConversationDetail($conversationId: String!, $limit: Int, $notesSkip: Int, $notesLimit: Int) {
     mailConversationDetail(conversationId: $conversationId, limit: $limit) {
       messages {
         _id
@@ -13,7 +13,7 @@ export const MAIL_CONVERSATION_DETAIL_QUERY = gql`
       hasMore
       __typename
     }
-    conversationMessages(conversationId: $conversationId, skip: 0, limit: 50) {
+    mailConversationInternalNotes(conversationId: $conversationId, skip: $notesSkip, limit: $notesLimit) {
       _id
       mid
       conversationId
@@ -34,6 +34,7 @@ export const MAIL_CONVERSATION_DETAIL_QUERY = gql`
       deliveryStatus
       expiresAt
     }
+    mailConversationInternalNotesCount(conversationId: $conversationId)
   }
 `;
 

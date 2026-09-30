@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Spinner, cn, toast } from 'erxes-ui';
 import { IconSend, IconX } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
+import DOMPurify from 'dompurify';
 import type {
   ComposeMode,
   MailComposePayload,
@@ -63,7 +64,11 @@ export const MailThreadCompose: React.FC<ComposeProps> = ({
     bodyRef.current?.focus();
   }, []);
   useEffect(() => {
-    if (bodyRef.current && defaultBody) bodyRef.current.innerHTML = defaultBody;
+    if (bodyRef.current && defaultBody) {
+      bodyRef.current.replaceChildren(
+        DOMPurify.sanitize(defaultBody, { RETURN_DOM_FRAGMENT: true }),
+      );
+    }
   }, [defaultBody]);
 
   const split = (v: string) =>
@@ -79,7 +84,7 @@ export const MailThreadCompose: React.FC<ComposeProps> = ({
         title: t('enter-at-least-one-recipient'),
         variant: 'destructive',
       });
-    const body = bodyRef.current?.innerHTML ?? '';
+    const body = DOMPurify.sanitize(bodyRef.current?.innerHTML ?? '');
     if (!body.trim() || body === '<br>')
       return toast({
         title: t('message-body-cannot-be-empty'),
@@ -146,7 +151,6 @@ export const MailThreadCompose: React.FC<ComposeProps> = ({
           placeholder={
             mode === 'reply' || mode === 'replyAll' ? '' : t('recipients')
           }
-          autoFocus={mode === 'forward' || mode === 'new'}
         />
         <div className="flex gap-3 flex-none text-[11px] text-[#5f6368]">
           {!showCc && (
@@ -230,8 +234,6 @@ export const MailThreadCompose: React.FC<ComposeProps> = ({
         suppressContentEditableWarning
         onKeyDown={onKey}
         tabIndex={0}
-        role="textbox"
-        aria-multiline="true"
         aria-label={t('email-body')}
         data-placeholder={t('write-your-message')}
       />

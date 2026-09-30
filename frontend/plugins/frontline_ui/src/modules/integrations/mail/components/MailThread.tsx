@@ -1,4 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { Button, Spinner, cn } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import {
@@ -72,6 +78,19 @@ export const MailThread: React.FC<MailThreadProps> = ({
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [newestId]);
 
+  const open = useCallback((msg: MailMessage, mode: ComposeMode) => {
+    setComposeTarget(msg);
+    setComposeMode(mode);
+    setTimeout(
+      () => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }),
+      60,
+    );
+  }, []);
+  const actions = useMemo(
+    () => ({ open, readOnly, onNewEmail }),
+    [open, readOnly, onNewEmail],
+  );
+
   if (loading && !messages.length) {
     return (
       <div className="flex h-40 items-center justify-center">
@@ -130,15 +149,6 @@ export const MailThread: React.FC<MailThreadProps> = ({
     latestMessage.mailData.type === 'INBOX'
       ? latestMessage.mailData.from?.[0]?.email
       : latestMessage.mailData.to?.[0]?.email;
-
-  const open = (msg: MailMessage, mode: ComposeMode) => {
-    setComposeTarget(msg);
-    setComposeMode(mode);
-    setTimeout(
-      () => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }),
-      60,
-    );
-  };
 
   const close = () => {
     setComposeMode(null);
@@ -236,7 +246,7 @@ export const MailThread: React.FC<MailThreadProps> = ({
         </div>
       )}
 
-      <MailThreadActionsContext.Provider value={{ open, readOnly, onNewEmail }}>
+      <MailThreadActionsContext.Provider value={actions}>
         <div className="space-y-3">
           {messages.map((msg, idx) => (
             <MailThreadMessage

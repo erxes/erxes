@@ -1,4 +1,5 @@
 import { Badge, cn } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const IntegrationSteps = ({
   step,
@@ -11,19 +12,26 @@ export const IntegrationSteps = ({
   stepsLength: number;
   className?: string;
 }) => {
+  const { t, i18n } = useTranslation('frontline');
+  const progressLabel = t('integration-step-progress', {
+    step,
+    total: stepsLength,
+    defaultValue: i18n.resolvedLanguage?.startsWith('mn')
+      ? '{{total}} алхмын {{step}}'
+      : 'Step {{step}} of {{total}}',
+  });
+
   return (
     <div className={cn('flex flex-none flex-col gap-3 p-4', className)}>
       <div className="flex items-center gap-2">
-        <Badge className="rounded-full text-xs">
-          Step {step} of {stepsLength}
-        </Badge>
+        <Badge className="rounded-full text-xs">{progressLabel}</Badge>
         <h2 className="text-primary font-semibold text-base">{title}</h2>
       </div>
       <progress
         className="sr-only"
         value={step}
         max={stepsLength}
-        aria-label={`Step ${step} of ${stepsLength}`}
+        aria-label={progressLabel}
       />
       <div className="flex items-center gap-1" aria-hidden="true">
         {Array.from({ length: stepsLength }).map((_, index) => (

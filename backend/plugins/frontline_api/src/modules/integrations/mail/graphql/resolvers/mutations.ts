@@ -1,14 +1,14 @@
-import { IContext } from '~/connectionResolvers';
-import {
+import type { IContext } from '~/connectionResolvers';
+import type {
   IMailMessageDocument,
   IMailSendArgs,
 } from '@/integrations/mail/@types/message';
-import { IMailDraftEdit } from '@/integrations/mail/@types/draft';
+import type { IMailDraftEdit } from '@/integrations/mail/@types/draft';
 import { createPermissionValidator } from '@/ticket/utils/permissionValidator';
 import { checkMailConnection } from '@/integrations/mail/utils/connection';
 import { publishMailDraftChanged } from '@/integrations/mail/utils/draftEvents';
+import type { IPipelineMailSettings } from '@/integrations/mail/utils/pipeline';
 import {
-  IPipelineMailSettings,
   connectPipelineMail,
   disconnectPipelineMail,
   markPipelineForwardVerified,
@@ -21,7 +21,10 @@ import {
 import { provisionCloudflare } from '@/integrations/mail/utils/cloudflare/provision';
 import { toPublicConnection } from '@/integrations/mail/utils/cloudflare/serialize';
 import { visibleChannelsFilter } from '@/channel/utils';
-import { assertMailDraftAccess } from '@/integrations/mail/utils/access';
+import {
+  assertMailConversationAccess,
+  assertMailDraftAccess,
+} from '@/integrations/mail/utils/access';
 
 const toDeliveryOutcome = (message: IMailMessageDocument) => ({
   _id: message._id,
@@ -70,43 +73,74 @@ export const mailMutations = {
   ) {
     await checkPermission('conversationMessageAdd');
 
-    if (!args.conversationId) {
-      if (!user?._id || !args.integrationId) {
-        throw new Error('Starting an email conversation requires a sender');
-      }
+    if (!user?._id) {
+      throw new Error('Authentication required');
+    }
 
-      const channelIds = await models.Channels.find(
-        await visibleChannelsFilter({ models, subdomain, user }),
-      ).distinct('_id');
-      const allowed = await models.Integrations.exists({
-        _id: args.integrationId,
-        kind: 'mail',
-        isActive: true,
-        channelId: { $in: channelIds },
-        ...(user.isOwner
-          ? {}
-          : {
-              $or: [
-                { visibility: { $exists: false } },
-                { visibility: 'public' },
-                {
-                  visibility: 'private',
-                  $or: [
-                    { createdUserId: user._id },
-                    { departmentIds: { $in: user.departmentIds ?? [] } },
-                  ],
-                },
-              ],
-            }),
+    let integrationId = args.integrationId;
+    if (args.conversationId) {
+      await assertMailConversationAccess({
+        models,
+        subdomain,
+        user,
+        conversationId: args.conversationId,
       });
-
-      if (!allowed) {
-        throw new Error('Mail sender not found or permission required');
+      const conversation = await models.Conversations.findOne({
+        _id: args.conversationId,
+      });
+      if (
+        !conversation?.integrationId ||
+        (integrationId && integrationId !== conversation.integrationId)
+      ) {
+        throw new Error('Mail conversation and sender do not match');
       }
+      integrationId = conversation.integrationId;
+    }
+
+    if (!integrationId) {
+      throw new Error('Starting an email conversation requires a sender');
+    }
+
+    const channelIds = await models.Channels.find(
+      await visibleChannelsFilter({ models, subdomain, user }),
+    ).distinct('_id');
+    const allowed = await models.Integrations.exists({
+      _id: integrationId,
+      kind: 'mail',
+      isActive: true,
+      channelId: { $in: channelIds },
+      ...(user.isOwner
+        ? {}
+        : {
+            $or: [
+              { visibility: { $exists: false } },
+              { visibility: 'public' },
+              {
+                visibility: 'private',
+                $or: [
+                  { createdUserId: user._id },
+                  { departmentIds: { $in: user.departmentIds ?? [] } },
+                ],
+              },
+            ],
+          }),
+    });
+
+    if (
+      !allowed ||
+      !(await models.MailIntegrations.exists({
+        inboxId: integrationId,
+        disabledAt: null,
+      }))
+    ) {
+      throw new Error('Mail sender not found or permission required');
     }
 
     return toDeliveryOutcome(
-      await models.MailMessages.createSendMail(args, subdomain),
+      await models.MailMessages.createSendMail(
+        { ...args, integrationId },
+        subdomain,
+      ),
     );
   },
 

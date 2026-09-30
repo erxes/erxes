@@ -1,10 +1,39 @@
-import { BlockEditorReadOnly, RelativeDateDisplay } from 'erxes-ui';
+import {
+  BlockEditorReadOnly,
+  Button,
+  RelativeDateDisplay,
+  Spinner,
+  toast,
+} from 'erxes-ui';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { IconLock } from '@tabler/icons-react';
 import { Attachments } from '@/inbox/conversation-messages/components/MessageAttachments';
 import type { IMessage } from '@/inbox/types/Conversation';
 
-export const MailInternalNotes = ({ notes }: { notes: IMessage[] }) => {
-  if (!notes.length) return null;
+export const MailInternalNotes = ({
+  notes,
+  totalCount,
+  onLoadMore,
+}: {
+  notes: IMessage[];
+  totalCount: number;
+  onLoadMore: () => Promise<unknown>;
+}) => {
+  const { t } = useTranslation('frontline');
+  const [loadingMore, setLoadingMore] = useState(false);
+  if (!totalCount) return null;
+
+  const loadMore = async () => {
+    setLoadingMore(true);
+    try {
+      await onLoadMore();
+    } catch {
+      toast({ title: t('error-loading-data'), variant: 'destructive' });
+    } finally {
+      setLoadingMore(false);
+    }
+  };
 
   return (
     <section className="overflow-hidden rounded-xl border border-warning/25 bg-warning/[0.04]">
@@ -12,9 +41,23 @@ export const MailInternalNotes = ({ notes }: { notes: IMessage[] }) => {
         <IconLock className="size-3.5" />
         Internal notes
         <span className="rounded-full bg-warning/10 px-1.5 py-0.5 text-[10px]">
-          {notes.length}
+          {totalCount}
         </span>
       </div>
+      {notes.length < totalCount && (
+        <div className="border-t border-warning/15 px-4 py-2">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={loadMore}
+            disabled={loadingMore}
+          >
+            {loadingMore && <Spinner size="sm" />}
+            {t('show-earlier-messages')}
+          </Button>
+        </div>
+      )}
       <div className="divide-y divide-warning/15">
         {notes.map((note) => (
           <article key={note._id} className="px-4 py-3">

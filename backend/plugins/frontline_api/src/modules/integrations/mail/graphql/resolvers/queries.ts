@@ -1,4 +1,4 @@
-import { IContext } from '~/connectionResolvers';
+import type { IContext } from '~/connectionResolvers';
 import { visibleChannelsFilter } from '@/channel/utils';
 import { createPermissionValidator } from '@/ticket/utils/permissionValidator';
 import { listCloudflareZones } from '@/integrations/mail/utils/cloudflare/connect';
@@ -51,6 +51,7 @@ export const mailQueries = {
 
     const mailIntegrations = await models.MailIntegrations.find({
       inboxId: { $in: inboxes.map(({ _id }) => _id) },
+      disabledAt: null,
       healthStatus: { $ne: 'unhealthy' },
     })
       .select(['inboxId', 'address'])
@@ -61,7 +62,9 @@ export const mailQueries = {
 
     return inboxes.flatMap(({ _id, name }) => {
       const address = addressByInboxId.get(_id);
-      return address ? [{ integrationId: _id, name, address }] : [];
+      return address
+        ? [{ integrationId: _id, name: name || address, address }]
+        : [];
     });
   },
   async mailCloudflareConnection(
@@ -148,6 +151,53 @@ export const mailQueries = {
     });
 
     return models.MailDrafts.getConversationDrafts(conversationId);
+  },
+
+  async mailConversationInternalNotes(
+    _root: undefined,
+    {
+      conversationId,
+      skip,
+      limit,
+    }: { conversationId: string; skip?: number; limit?: number },
+    { models, subdomain, user, checkPermission }: IContext,
+  ) {
+    await checkPermission('showConversations');
+    await assertMailConversationAccess({
+      models,
+      subdomain,
+      user,
+      conversationId,
+    });
+
+    const notes = await models.ConversationMessages.find({
+      conversationId,
+      internal: true,
+    })
+      .sort({ createdAt: -1 })
+      .skip(Math.max(skip ?? 0, 0))
+      .limit(Math.min(Math.max(limit ?? 20, 1), 100));
+
+    return notes.reverse();
+  },
+
+  async mailConversationInternalNotesCount(
+    _root: undefined,
+    { conversationId }: { conversationId: string },
+    { models, subdomain, user, checkPermission }: IContext,
+  ) {
+    await checkPermission('showConversations');
+    await assertMailConversationAccess({
+      models,
+      subdomain,
+      user,
+      conversationId,
+    });
+
+    return models.ConversationMessages.countDocuments({
+      conversationId,
+      internal: true,
+    });
   },
 
   async mailInboxes(

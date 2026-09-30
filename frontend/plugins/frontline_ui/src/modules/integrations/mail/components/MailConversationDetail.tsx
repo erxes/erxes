@@ -15,8 +15,16 @@ export const MailConversationDetail = () => {
     customerId,
   } = useConversationContext();
   const { mailSendMail, loading: sending } = useMailSendMail();
-  const { messages, internalNotes, hasMore, loading, error, loadMore } =
-    useMailThreadData(conversationId);
+  const {
+    messages,
+    internalNotes,
+    notesCount,
+    loadMoreNotes,
+    hasMore,
+    loading,
+    error,
+    loadMore,
+  } = useMailThreadData(conversationId);
 
   const onSend = (payload: MailComposePayload, onSent: () => void) =>
     mailSendMail(
@@ -54,7 +62,11 @@ export const MailConversationDetail = () => {
             <MailDrafts conversationId={conversationId} messages={messages} />
           }
         />
-        <MailInternalNotes notes={internalNotes} />
+        <MailInternalNotes
+          notes={internalNotes}
+          totalCount={notesCount}
+          onLoadMore={loadMoreNotes}
+        />
       </div>
     </ScrollArea>
   );

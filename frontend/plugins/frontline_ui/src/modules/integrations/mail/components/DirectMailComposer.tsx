@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@apollo/client';
 import { FormProvider, useForm } from 'react-hook-form';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { z } from 'zod';
 import { MAIL_SENDERS_QUERY } from '@/integrations/mail/graphql/queries/mailSenders';
 import { useMailSendMail } from '@/integrations/mail/hooks/useMailConversationDetail';
@@ -24,8 +24,8 @@ import {
   ComposerHeader,
   FromRow,
   SubjectRow,
-  ToRow,
 } from './DirectMailComposerFields';
+import { ToRow } from './DirectMailRecipientField';
 
 export const DirectMailComposer = () => {
   const [target, setTarget] = useState<ComposeEmailTarget | null>(null);
@@ -56,6 +56,12 @@ export const DirectMailComposer = () => {
   const integrationId = watch('integrationId');
   const selectedSender = senders.find(
     (sender) => sender.integrationId === integrationId,
+  );
+  const openCc = useCallback(() => setShowCc(true), []);
+  const openBcc = useCallback(() => setShowBcc(true), []);
+  const fieldActions = useMemo(
+    () => ({ showCc, showBcc, openCc, openBcc, emails: target?.emails ?? [] }),
+    [showCc, showBcc, openCc, openBcc, target?.emails],
   );
 
   useEffect(() => {
@@ -138,14 +144,7 @@ export const DirectMailComposer = () => {
       >
         <ComposerHeader onClose={close} loading={loading} />
 
-        <DirectMailComposerFieldsContext.Provider
-          value={{
-            showCc,
-            showBcc,
-            openCc: () => setShowCc(true),
-            openBcc: () => setShowBcc(true),
-          }}
-        >
+        <DirectMailComposerFieldsContext.Provider value={fieldActions}>
           <form
             className="flex min-h-0 flex-1 flex-col overflow-y-auto"
             onSubmit={handleSubmit(submit)}
