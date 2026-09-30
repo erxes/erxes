@@ -13,6 +13,9 @@ export const GET_TRIAGE = gql`
       updatedAt
       priority
       status
+      githubIssueNumber
+      githubIssueUrl
+      githubRepoName
     }
   }
 `;

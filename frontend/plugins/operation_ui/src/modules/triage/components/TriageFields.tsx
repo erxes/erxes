@@ -1,4 +1,11 @@
-import { Input, Separator, useBlockEditor, BlockEditor, Dialog, Button } from 'erxes-ui';
+import {
+  Input,
+  Separator,
+  useBlockEditor,
+  BlockEditor,
+  Dialog,
+  Button,
+} from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useUpdateTriage } from '@/triage/hooks/useUpdateTriage';
 import { useDebounce } from 'use-debounce';
@@ -13,10 +20,20 @@ import { SelectStatus } from '@/operation/components/SelectStatus';
 import { useConvertTriage } from '../hooks/useConvertTriage';
 import { STATUS_TYPES } from '@/operation/components/StatusInline';
 import { parseDescriptionBlocks } from '@/operation/utils/parseDescriptionBlocks';
+import { IconBrandGithub, IconExternalLink } from '@tabler/icons-react';
 
 export const TriageFields = ({ triage }: { triage: ITriage }) => {
   const { t } = useTranslation('operation');
-  const { _id: triageId, priority, status, name: _name } = triage || {};
+  const {
+    _id: triageId,
+    priority,
+    status,
+    name: _name,
+    createdBy,
+    githubIssueNumber,
+    githubIssueUrl,
+    githubRepoName,
+  } = triage;
 
   const description = (triage as ITriage)?.description;
   const initialDescriptionContent = parseDescriptionBlocks(description);
@@ -82,6 +99,29 @@ export const TriageFields = ({ triage }: { triage: ITriage }) => {
 
   return (
     <div className="flex flex-col gap-3">
+      {createdBy === 'system' &&
+        githubIssueUrl &&
+        typeof githubIssueNumber === 'number' && (
+          <Button
+            asChild
+            variant="outline"
+            size="sm"
+            className="w-fit text-muted-foreground group"
+          >
+            <a href={githubIssueUrl} target="_blank" rel="noopener noreferrer">
+              <IconBrandGithub className="size-4 shrink-0" />
+              <span>
+                {t('created-from-github-issue', {
+                  defaultValue: 'Created from GitHub issue',
+                })}
+              </span>
+              <span className="font-normal">
+                {githubRepoName ? `${githubRepoName} ` : ''}#{githubIssueNumber}
+              </span>
+              <IconExternalLink className="size-3.5 shrink-0 opacity-60 transition-opacity group-hover:opacity-100" />
+            </a>
+          </Button>
+        )}
       <Input
         className="shadow-none focus-visible:shadow-none h-8 text-xl p-0"
         placeholder={t('triage-name')}
@@ -133,9 +173,7 @@ export const TriageFields = ({ triage }: { triage: ITriage }) => {
             <Dialog.Title>{t('convert-to-task')}</Dialog.Title>
           </Dialog.Header>
           <div className="py-4">
-            <p>
-              {t('convert-triage-confirm')}
-            </p>
+            <p>{t('convert-triage-confirm')}</p>
           </div>
           <Dialog.Footer>
             <Dialog.Close asChild>
