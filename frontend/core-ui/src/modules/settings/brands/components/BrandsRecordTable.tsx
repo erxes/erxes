@@ -1,25 +1,15 @@
-<<<<<<< HEAD
-import { RecordTable, Empty } from 'erxes-ui';
-=======
 import { IconChessKnightFilled, IconSearchOff } from '@tabler/icons-react';
 import { Empty, RecordTable, useMultiQueryState } from 'erxes-ui';
->>>>>>> 4b25043f82b2a0167047fa3c2a08a60aa35d8171
 import { brandsColumns } from './BrandsColumns';
 import { BrandsCommandBar } from './BrandsCommandBar';
 import { useBrands } from '../hooks/useBrands';
 import { useTranslation } from 'react-i18next';
 import { useMemo } from 'react';
-import { IconBook, IconBrandSafari } from '@tabler/icons-react';
-import { EmptyState } from '@/settings/components/EmptyState';
 
 export function BrandsRecordTable() {
   const { brands, loading, error } = useBrands();
   const { t } = useTranslation('settings', { keyPrefix: 'brands' });
   const columns = useMemo(() => brandsColumns(t), [t]);
-<<<<<<< HEAD
-
-  const isEmpty = !loading && (!brands || brands.length === 0);
-=======
   const [queries] = useMultiQueryState<{ searchValue: string }>([
     'searchValue',
   ]);
@@ -52,7 +42,6 @@ export function BrandsRecordTable() {
       </Empty>
     );
   }
->>>>>>> 4b25043f82b2a0167047fa3c2a08a60aa35d8171
 
   return (
     <RecordTable.Provider
@@ -69,9 +58,6 @@ export function BrandsRecordTable() {
             {loading && <RecordTable.RowSkeleton rows={30} />}
           </RecordTable.Body>
         </RecordTable>
-        {isEmpty && (
-          <EmptyState icon={IconBrandSafari} title={t('no-brands-found')} />
-        )}
       </RecordTable.Scroll>
       <BrandsCommandBar />
     </RecordTable.Provider>

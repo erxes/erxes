@@ -3,17 +3,6 @@ import { Empty, RecordTable } from 'erxes-ui';
 import { useClientPortals } from '@/client-portal/hooks/useClientPortals';
 import { clientPortalColumns } from '@/client-portal/components/ClientPortalColumns';
 import { ClientPortalCommandBar } from './client-portal-command-bar/ClientPortalCommandbar';
-<<<<<<< HEAD
-import { EmptyState } from '@/settings/components/EmptyState';
-import { useTranslation } from 'react-i18next';
-import { IconArchiveOff } from '@tabler/icons-react';
-
-export function ClientPortalRecordTable() {
-  const { clientPortals, loading } = useClientPortals();
-  const { t } = useTranslation('settings', { keyPrefix: 'client-portal' });
-
-  const isEmpty = !loading && (!clientPortals || clientPortals.length === 0);
-=======
 import { useTranslation } from 'react-i18next';
 
 export function ClientPortalRecordTable() {
@@ -40,7 +29,6 @@ export function ClientPortalRecordTable() {
       </Empty>
     );
   }
->>>>>>> 4b25043f82b2a0167047fa3c2a08a60aa35d8171
 
   return (
     <RecordTable.Provider
@@ -57,12 +45,6 @@ export function ClientPortalRecordTable() {
             {loading && <RecordTable.RowSkeleton rows={30} />}
           </RecordTable.Body>
         </RecordTable>
-        {isEmpty && (
-          <EmptyState
-            icon={IconArchiveOff}
-            title={t('no-client-portal-found')}
-          />
-        )}
       </RecordTable.Scroll>
       <ClientPortalCommandBar />
     </RecordTable.Provider>
