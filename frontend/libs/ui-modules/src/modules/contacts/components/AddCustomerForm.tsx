@@ -2,6 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Button,
   Collapsible,
+  DatePicker,
   Editor,
   Form,
   InfoCard,
@@ -55,6 +56,7 @@ const SCHEMA = z.object({
   phoneValidationStatus: z.string().optional(),
   description: z.string().optional(),
   isSubscribed: z.string().optional(),
+  birthDate: z.date().optional(),
   propertiesData: z.record(z.unknown()).optional(),
 });
 
@@ -374,6 +376,26 @@ function GeneralTab({
                     </Select.Group>
                   </Select.Content>
                 </Select>
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
+
+          <Form.Field
+            control={form.control}
+            name="birthDate"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>Birth date</Form.Label>
+                <Form.Control>
+                  <DatePicker
+                    value={field.value}
+                    defaultMonth={field.value}
+                    onChange={(date) =>
+                      field.onChange(date instanceof Date ? date : undefined)
+                    }
+                  />
+                </Form.Control>
                 <Form.Message />
               </Form.Item>
             )}
