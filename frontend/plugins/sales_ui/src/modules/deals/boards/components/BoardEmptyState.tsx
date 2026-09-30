@@ -14,16 +14,17 @@ export const BoardEmptyState = ({
 }: BoardEmptyStateProps) => {
   const { t } = useTranslation('sales');
 
-  const description = hasBoards
+  const settingsDescription = hasBoards
     ? t(
         'select-board-for-pipelines',
         'Click + next to Boards to create a board, or select an existing board.',
       )
-    : isSettings
-    ? t(
+    : t(
         'create-board-with-plus',
         'Click the + button next to Boards to create a board.',
-      )
+      );
+  const dealsDescription = hasBoards
+    ? t('choose-board')
     : t(
         'create-board-in-settings',
         'Click Go to Settings below, then click + next to Boards to create a board.',
@@ -46,7 +47,9 @@ export const BoardEmptyState = ({
             ? t('select-board', 'Select a board')
             : t('no-boards-found', 'No boards found')}
         </Empty.Title>
-        <Empty.Description>{description}</Empty.Description>
+        <Empty.Description>
+          {isSettings ? settingsDescription : dealsDescription}
+        </Empty.Description>
       </Empty.Header>
       {!isSettings && (
         <Empty.Content>

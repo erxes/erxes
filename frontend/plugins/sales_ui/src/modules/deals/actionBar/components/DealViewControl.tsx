@@ -1,12 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Popover,
-  PopoverScoped,
-  ToggleGroup,
-  useQueryState,
-} from 'erxes-ui';
+import { Button, Popover, PopoverScoped, ToggleGroup } from 'erxes-ui';
 import {
   IconAdjustmentsHorizontal,
   IconLayoutKanban,
@@ -15,9 +9,6 @@ import {
 import { Suspense, lazy, useState } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 
-import { BoardEmptyState } from '@/deals/boards/components/BoardEmptyState';
-import { PipelineEmptyState } from '@/deals/pipelines/components/PipelineEmptyState';
-import { useBoards } from '@/deals/boards/hooks/useBoards';
 import { dealsViewAtom } from '@/deals/states/dealsViewState';
 import { useTranslation } from 'react-i18next';
 
@@ -85,21 +76,6 @@ export const DealsViewControl = () => {
 
 export const DealsView = () => {
   const view = useAtomValue(dealsViewAtom);
-  const [boardId] = useQueryState<string>('boardId');
-  const { boards, loading, error } = useBoards();
-  const board = boards?.find((item) => item._id === boardId);
-  const noBoards = boards?.length === 0;
-  const noPipelines =
-    board &&
-    !(board.pipelines || []).some((pipeline) => pipeline.status !== 'archived');
-
-  if (!loading && !error && noBoards) {
-    return <BoardEmptyState />;
-  }
-
-  if (!loading && !error && noPipelines) {
-    return <PipelineEmptyState boardId={boardId || undefined} />;
-  }
 
   return (
     <Suspense>
