@@ -1,4 +1,8 @@
 import {
+  featuredFieldCode,
+  IFeaturedFieldDefinition,
+  IFeaturedFieldGroup,
+  IFeaturedFieldOwner,
   propertyGroupIdFromKey,
   isPropertyGroupKey,
 } from 'erxes-api-shared/core-modules';
@@ -8,18 +12,37 @@ import {
   IPropertyField,
   IUserDocument,
 } from 'erxes-api-shared/core-types';
-import { Model } from 'mongoose';
+import { Model, mongo } from 'mongoose';
 import { nanoid } from 'nanoid';
 import validator from 'validator';
 import { IModels } from '~/connectionResolvers';
 import { fieldSchema } from '~/modules/properties/db/definitions/field';
 import { IField, IFieldDocument } from '../../@types';
+import {
+  buildFeaturedIndex,
+  castFeaturedValue,
+  dropFeaturedIndex,
+  getFeaturedContent,
+  isSameOwner,
+  MAX_FEATURED_INDEXES,
+  mergeFeaturedOptions,
+  ownerSelector,
+} from '~/modules/properties/utils/featuredFields';
 
 export interface IFieldValueValidationOptions {
   /** Also check the value against the shape its field type implies. */
   strict?: boolean;
 }
 import { ORDER_GAP } from '../../constants';
+
+// What a user may still change on a field a plugin owns.
+const OWNED_FIELD_EDITABLE = [
+  'name',
+  'icon',
+  'order',
+  'isVisible',
+  'isVisibleInCard',
+] as const;
 
 export type TrackedValue =
   | string
@@ -127,6 +150,7 @@ const validateValueShape = (field: IFieldDocument, value: any): void => {
 
 export interface IFieldModel extends Model<IFieldDocument> {
   getField({ _id }: { _id: string }): Promise<IFieldDocument>;
+  assertGroupAcceptsFields(groupId?: string): Promise<void>;
   createField(doc: IField, user: IUserDocument): Promise<IFieldDocument>;
   updateField(
     _id: string,
@@ -134,6 +158,33 @@ export interface IFieldModel extends Model<IFieldDocument> {
     user: IUserDocument,
   ): Promise<IFieldDocument>;
   removeField(_id: string): Promise<IFieldDocument>;
+
+  ensureFeaturedFields(args: {
+    owner: IFeaturedFieldOwner;
+    contentType: string;
+    group: IFeaturedFieldGroup;
+    fields: IFeaturedFieldDefinition[];
+  }): Promise<IFieldDocument[]>;
+  releaseFeaturedFields(owner: IFeaturedFieldOwner): Promise<number>;
+  setFeaturedValues(args: {
+    owner: IFeaturedFieldOwner;
+    contentType: string;
+    records: { _id: string; values: Record<string, unknown> }[];
+  }): Promise<number>;
+  setFeaturedFieldsArchived(
+    owner: IFeaturedFieldOwner,
+    archived: boolean,
+  ): Promise<number>;
+  adoptFeaturedField(args: {
+    fieldId: string;
+    owner: IFeaturedFieldOwner;
+    group: IFeaturedFieldGroup;
+    field: IFeaturedFieldDefinition;
+  }): Promise<{ field: IFieldDocument; recast: number; unreadable: number }>;
+  keepFeaturedValues(
+    next: Record<string, unknown> | undefined,
+    prev: Record<string, unknown> | undefined,
+  ): Promise<Record<string, unknown> | undefined>;
 
   validateFieldValue(
     _id: string,
@@ -186,8 +237,22 @@ export const loadFieldClass = (models: IModels) => {
       return field;
     }
 
+    // A plugin's group holds only its own featured fields.
+    public static async assertGroupAcceptsFields(groupId?: string) {
+      if (!groupId) {
+        return;
+      }
+
+      const group = await models.FieldsGroups.findOne({ _id: groupId }).lean();
+
+      if (group?.owner) {
+        throw new Error(`Group is managed by ${group.owner.plugin}`);
+      }
+    }
+
     public static async createField(doc: IField, user: IUserDocument) {
       await this.validateField(doc);
+      await models.Fields.assertGroupAcceptsFields(doc.groupId);
 
       const { contentType, contentTypeId, groupId } = doc;
 
@@ -211,9 +276,23 @@ export const loadFieldClass = (models: IModels) => {
     ) {
       await this.validateField(doc, _id);
 
+      const field = await models.Fields.getField({ _id });
+
+      if (!field.owner && doc.groupId && doc.groupId !== field.groupId) {
+        await models.Fields.assertGroupAcceptsFields(doc.groupId);
+      }
+
+      const $set = field.owner
+        ? Object.fromEntries(
+            OWNED_FIELD_EDITABLE.filter((key) => doc[key] !== undefined).map(
+              (key) => [key, doc[key]],
+            ),
+          )
+        : doc;
+
       return models.Fields.findOneAndUpdate(
         { _id },
-        { $set: { ...doc, updatedBy: user._id } },
+        { $set: { ...$set, updatedBy: user._id } },
         { new: true },
       );
     }
@@ -221,12 +300,344 @@ export const loadFieldClass = (models: IModels) => {
     public static async removeField(_id: string) {
       await this.validateField({} as IField, _id);
 
+      const field = await models.Fields.getField({ _id });
+
+      if (field.owner) {
+        throw new Error(`Field is managed by ${field.owner.plugin}`);
+      }
+
       await models.Customers.updateMany(
         { 'customFieldsData.field': _id },
         { $pull: { customFieldsData: { field: _id } } },
       );
 
       return await models.Fields.findOneAndDelete({ _id });
+    }
+
+    public static async ensureFeaturedFields({
+      owner,
+      contentType,
+      group,
+      fields,
+    }: {
+      owner: IFeaturedFieldOwner;
+      contentType: string;
+      group: IFeaturedFieldGroup;
+      fields: IFeaturedFieldDefinition[];
+    }) {
+      if (!getFeaturedContent(models, contentType)) {
+        throw new Error(`Featured fields are not supported on ${contentType}`);
+      }
+
+      // One group per plugin module, shared by all of its instances.
+      const { _id: groupId } = await models.FieldsGroups.ensureFeaturedGroup({
+        owner: { plugin: owner.plugin, module: owner.module },
+        contentType,
+        group,
+      });
+
+      const ensured: IFieldDocument[] = [];
+
+      for (const definition of fields) {
+        const code = featuredFieldCode(owner, definition.key);
+        const existing = await models.Fields.findOne({ code }).lean();
+
+        if (existing && existing.contentType !== contentType) {
+          throw new Error(`${code}: content type cannot change`);
+        }
+
+        if (existing && existing.type !== definition.type) {
+          throw new Error(`${code}: type cannot change, use a new key`);
+        }
+
+        const field = await models.Fields.findOneAndUpdate(
+          { code },
+          {
+            $set: {
+              name: definition.name,
+              type: definition.type,
+              contentType,
+              groupId,
+              options: mergeFeaturedOptions(
+                existing?.options,
+                definition.options,
+              ),
+              owner: {
+                ...owner,
+                key: definition.key,
+                // Re-declaring never revives an archived field; the owner does.
+                status:
+                  existing?.owner?.status === 'archived'
+                    ? 'archived'
+                    : 'active',
+              },
+            },
+            $setOnInsert: {
+              order: await this.generateOrder({ contentType }),
+            },
+          },
+          { upsert: true, new: true, lean: true },
+        );
+
+        if (!field) {
+          throw new Error(`${code}: could not be saved`);
+        }
+
+        if (definition.index && !existing?.index?.enabled) {
+          const indexed = await models.Fields.countDocuments({
+            contentType,
+            'index.enabled': true,
+          });
+
+          if (indexed >= MAX_FEATURED_INDEXES) {
+            throw new Error(
+              `${code}: ${contentType} already has ${indexed} featured indexes`,
+            );
+          }
+
+          // Large collections take a while; the status on the field tells.
+          buildFeaturedIndex(models, field, definition.index.unique).catch(
+            () => undefined,
+          );
+        }
+
+        ensured.push(field);
+      }
+
+      return ensured;
+    }
+
+    public static async releaseFeaturedFields(owner: IFeaturedFieldOwner) {
+      const fields = await models.Fields.find(ownerSelector(owner)).lean();
+
+      for (const field of fields) {
+        const content = getFeaturedContent(models, field.contentType);
+
+        await dropFeaturedIndex(models, field);
+
+        await content?.collection.updateMany(
+          { [`propertiesData.${field._id}`]: { $exists: true } },
+          { $unset: { [`propertiesData.${field._id}`]: '' } },
+        );
+      }
+
+      await models.Fields.deleteMany(ownerSelector(owner));
+
+      const groupIds = [...new Set(fields.map((field) => field.groupId))];
+      const stillUsed = await models.Fields.distinct('groupId', {
+        groupId: { $in: groupIds },
+      });
+
+      await models.FieldsGroups.deleteMany({
+        _id: { $in: groupIds.filter((id) => !stillUsed.includes(id)) },
+        owner: { $exists: true },
+      });
+
+      return fields.length;
+    }
+
+    public static async setFeaturedValues({
+      owner,
+      contentType,
+      records,
+    }: {
+      owner: IFeaturedFieldOwner;
+      contentType: string;
+      records: { _id: string; values: Record<string, unknown> }[];
+    }) {
+      const content = getFeaturedContent(models, contentType);
+
+      if (!content) {
+        throw new Error(`Featured fields are not supported on ${contentType}`);
+      }
+
+      const keys = [
+        ...new Set(records.flatMap(({ values }) => Object.keys(values))),
+      ];
+      const fields = await models.Fields.find({
+        code: { $in: keys.map((key) => featuredFieldCode(owner, key)) },
+        contentType,
+      }).lean();
+      const fieldsByCode = new Map(fields.map((field) => [field.code, field]));
+
+      for (const record of records) {
+        const values: Record<string, unknown> = {};
+
+        for (const [key, value] of Object.entries(record.values)) {
+          const field = fieldsByCode.get(featuredFieldCode(owner, key));
+
+          if (!field || !isSameOwner(field.owner, owner)) {
+            throw new Error(`No featured field "${key}" for this owner`);
+          }
+
+          if (field.owner?.status === 'archived') {
+            throw new Error(`${field.name} is archived`);
+          }
+
+          values[field._id] = castFeaturedValue(field, value);
+        }
+
+        await content.setPropertyValues(record._id, values);
+      }
+
+      return records.length;
+    }
+
+    // User-facing writes send the whole propertiesData back; featured values in
+    // it are ignored so only their owner can change them.
+    // Archived fields keep their values and stay usable in segments; their
+    // owner simply stops writing to them.
+    public static async setFeaturedFieldsArchived(
+      owner: IFeaturedFieldOwner,
+      archived: boolean,
+    ) {
+      const { modifiedCount } = await models.Fields.updateMany(
+        ownerSelector(owner),
+        { $set: { 'owner.status': archived ? 'archived' : 'active' } },
+      );
+
+      return modifiedCount;
+    }
+
+    // Takes over a field a user created for the owner's purpose, keeping its
+    // _id so values already in records stay attached.
+    public static async adoptFeaturedField({
+      fieldId,
+      owner,
+      group,
+      field: definition,
+    }: {
+      fieldId: string;
+      owner: IFeaturedFieldOwner;
+      group: IFeaturedFieldGroup;
+      field: IFeaturedFieldDefinition;
+    }) {
+      const field = await models.Fields.getField({ _id: fieldId });
+      const code = featuredFieldCode(owner, definition.key);
+
+      if (field.owner && field.code !== code) {
+        throw new Error(
+          `${field.name} is already managed by ${field.owner.plugin}`,
+        );
+      }
+
+      const content = getFeaturedContent(models, field.contentType);
+
+      if (!content) {
+        throw new Error(
+          `Featured fields are not supported on ${field.contentType}`,
+        );
+      }
+
+      const { _id: groupId } = await models.FieldsGroups.ensureFeaturedGroup({
+        owner: { plugin: owner.plugin, module: owner.module },
+        contentType: field.contentType,
+        group,
+      });
+
+      const adopted = await models.Fields.findOneAndUpdate(
+        { _id: fieldId },
+        {
+          $set: {
+            code,
+            name: definition.name,
+            type: definition.type,
+            groupId,
+            options: mergeFeaturedOptions(field.options, definition.options),
+            owner: { ...owner, key: definition.key, status: 'active' },
+          },
+        },
+        { new: true, lean: true },
+      );
+
+      if (!adopted) {
+        throw new Error(`${code}: could not be saved`);
+      }
+
+      // Values written before adoption may be stored as text ("1250").
+      const path = `propertiesData.${fieldId}`;
+      const cursor = content.collection.find(
+        { [path]: { $exists: true } },
+        { projection: { [path]: 1 } },
+      );
+      let recast = 0;
+      let unreadable = 0;
+      let batch: mongo.AnyBulkWriteOperation[] = [];
+
+      for await (const record of cursor) {
+        const raw = record.propertiesData?.[fieldId];
+        let value: unknown;
+
+        try {
+          value = castFeaturedValue(adopted, raw);
+        } catch {
+          unreadable++;
+          continue;
+        }
+
+        if (value !== raw) {
+          batch.push({
+            updateOne: {
+              filter: { _id: record._id },
+              update:
+                value === null
+                  ? { $unset: { [path]: '' } }
+                  : { $set: { [path]: value } },
+            },
+          });
+          recast++;
+        }
+
+        if (batch.length >= 500) {
+          await content.collection.bulkWrite(batch);
+          batch = [];
+        }
+      }
+
+      if (batch.length) {
+        await content.collection.bulkWrite(batch);
+      }
+
+      if (definition.index && !adopted.index?.enabled) {
+        buildFeaturedIndex(models, adopted, definition.index.unique).catch(
+          () => undefined,
+        );
+      }
+
+      return { field: adopted, recast, unreadable };
+    }
+
+    public static async keepFeaturedValues(
+      next: Record<string, unknown> | undefined,
+      prev: Record<string, unknown> | undefined,
+    ) {
+      if (!next) {
+        return next;
+      }
+
+      const ids = [
+        ...new Set([...Object.keys(next), ...Object.keys(prev || {})]),
+      ];
+      const featured = await models.Fields.find(
+        { _id: { $in: ids }, owner: { $exists: true } },
+        { _id: 1 },
+      ).lean();
+
+      if (!featured.length) {
+        return next;
+      }
+
+      const kept = { ...next };
+
+      for (const { _id } of featured) {
+        if (prev && prev[_id] !== undefined) {
+          kept[_id] = prev[_id];
+        } else {
+          delete kept[_id];
+        }
+      }
+
+      return kept;
     }
 
     public static async generateOrder({

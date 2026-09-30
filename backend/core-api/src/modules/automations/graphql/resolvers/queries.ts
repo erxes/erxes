@@ -46,6 +46,7 @@ export interface IListArgs extends ICursorPaginateParams {
   updatedAtFrom: Date;
   updatedAtTo: Date;
   actionTypes: string[];
+  triggerSegmentId?: string;
 }
 
 export interface IStatsParams {

@@ -72,7 +72,18 @@
 - Sales record references provide deal display names, links, labels, product
   amount helpers, and `excludeLoyaltyAmount`.
 - `excludeLoyaltyAmount` returns the deal total amount minus payments made
-  through pipeline payment types that have a `scoreCampaignId`.
+  through pipeline payment types that have a `scoreCampaignId`
+  (`dealPaidAmount`).
+- Deal and POS order triggers give loyalty's Adjust score action a purchase
+  through `actionInputs`: deals map `totalAmount` → `unUsedTotalAmount`
+  (ticked products), `paidAmount` → `paidAmount`, `items` → `purchaseItems`;
+  POS orders map `totalAmount`, `paidAmount` (total minus point payments) and
+  `purchaseItems`. Earning is decided by automations, never by sales.
+- Sales tells loyalty what a purchase paid with points and when it is undone:
+  deal edits and moves call `score.spend` for each point payment type whose
+  amount changed and `score.refund` when a deal enters a `Lost` stage
+  (`syncDealPoints`); POS order sync calls `score.spend` (`spendOrderPoints`,
+  also after `posOrderChangePayments`) and `score.refund` for returned orders.
 - POS and ecommerce modules provide sales-owned order and integration behavior.
 - POS config sync merges Mongolian eBarimt receipt toggles into the POS payload
   sent to POS client sync.
@@ -224,6 +235,8 @@
 - `erxes-api-shared` core types, utilities, and core module extension points.
 - Public platform contracts for products, customers, companies, users,
   branches, departments, and related records.
+- Loyalty tRPC `score.spend` / `score.refund` with loyalty-owned inputs; sales
+  never sends whole deals or orders to loyalty.
 - Mongolian `mnConfigs` values for `EBARIMT` and POS-specific
   `posInEbarimt` eBarimt settings.
 - Loyalty-facing sales deal payloads through published target/reference
@@ -334,3 +347,95 @@
 - Smoke scenario: `GET /agent-tools/manifest` on the sales service lists only
   the annotated procedures above; `deal.create`, `deal.updateOne`, and
   `deal.subscriptionWrapper` never appear.
+
+## Recent Changes
+
+<!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-29` — Purchases handed to loyalty
+
+- **Summary:** Deal and POS triggers declare a purchase for loyalty's Adjust score action; point payments and refunds go to loyalty's `score.spend` / `score.refund` instead of `consumeTargetChange`.
+- **Affected areas:** `src/modules/{sales,pos}/meta/automations/{purchase,constants}.ts`, `salesRefernceCustomResolvers.ts`, `mutations/{loyaltyUtils,utils}.ts`, `pos/utils.ts`, `pos/graphql/resolvers/mutations/orders.ts`.
+- **Contracts changed:** Deal and POS trigger outputs `paidAmount`, `purchaseItems`; trigger `actionInputs`.
+
+### `2026-09-21` — The deal action says it needs someone to act for
+
+- **Summary:** `Create deal` now declares `requiresActor: true` on its action
+  descriptor. The deal it opens takes an owner from the run's
+  `createdVia.actorId`, and the builder reads this declaration to decide
+  whether putting an automation live is worth saying whose name its records
+  will carry. Nothing about how the deal is created changed.
+- **Affected areas:** `src/modules/sales/meta/automations/constants.ts`
+- **Contracts changed:** The action descriptor carries `requiresActor`, a field
+  `erxes-api-shared` added for every plugin to use.
+
+### `2026-09-14` — A deal an automation opened records what produced it
+
+- **Summary:** Deals created by an automation now carry `createdVia` — the
+  configuration that produced them, the run that did it, and whose
+  configuration it was — and take that actor as `userId` when the execution
+  target carries none, instead of being left ownerless.
+- **Affected areas:**
+  `src/modules/sales/meta/automations/action/createDealAction.ts`,
+  `src/modules/sales/@types/deal.ts`
+- **Contracts changed:** Consumes the new `TCreatedVia` and
+  `IExecution.createdVia` from `erxes-api-shared`; `createdVia` itself is added
+  to every schema by `schemaWrapper`.
+
+### `2026-09-17` — Property types declare system fields
+
+- **Summary:** The `deal` property types now declare `systemFields`, shown
+  as the "Basic information" group in Settings → Properties.
+- **Affected areas:** `src/meta/properties.ts` (`deal`), `src/main.ts`
+- **Contracts changed:** Plugin meta `properties.types[].systemFields` added.
+
+### `2026-09-13` — Discount info type cleanup
+
+- **Summary:** Deal product discount info types now use a plain string with
+  documented known values to avoid redundant literal-union Sonar warnings.
+- **Affected areas:** `src/modules/sales/utils/discountInfos.ts`.
+- **Contracts changed:** None.
+
+### `2026-09-12` — Deal product discount breakdowns
+
+- **Summary:** Deal products now persist `discountInfos` and merge automatic pricing/voucher discounts with preserved manual `hand` discounts before recalculating totals.
+- **Affected areas:** `src/modules/sales/db/definitions/deals.ts`, `src/modules/sales/@types/deal.ts`, `src/modules/sales/utils/discountInfos.ts`, `src/modules/sales/db/models/Deals.ts`, `src/modules/sales/graphql/resolvers/mutations/{deals,loyaltyUtils,utils}.ts`.
+- **Contracts changed:** Deal `productsData` JSON may now include product-level `discountInfos`.
+
+### `2026-09-01` — `checkTargetMatch` producer removed
+
+- **Summary:** The `checkTargetMatch` producer was deleted from the plugin-level
+  automations object and from both the sales and POS module handlers; automation
+  target matching now runs through the segment engine, so the Elasticsearch-era
+  selector round-trip has no caller left anywhere in the repository.
+- **Affected areas:** `src/meta/automations.ts`,
+  `src/modules/sales/meta/automations/automationHandlers.ts`,
+  `src/modules/pos/meta/automations/automationHandlers.ts`.
+- **Contracts changed:** `/automations` no longer answers `checkTargetMatch`.
+  The `TAutomationProducers.CHECK_TARGET_MATCH` method no longer exists in
+  `erxes-api-shared`.
+
+### `2026-09-01` — Elasticsearch-era segment producers removed
+
+### `2026-09-01` — Deal document print order follows the selection
+
+- **Summary:** Printing multiple deals emitted pages in Mongo natural order
+  instead of the order the deals were selected in, so the deal in the first
+  row of the print table could land many pages in (verified locally: row 1
+  `min min` printed as page 13); `replaceDealContent` now reindexes the loaded
+  deals by `replacerIds` before processing.
+- **Affected areas:** `src/modules/sales/documents/dealContent.ts`.
+- **Contracts changed:** None (`deal.replaceContent` still returns one entry
+  per resolvable `replacerId`, now ordered).
+
+### `2026-09-01` — Deal document table attributes render again
+
+- **Summary:** Table and image attributes (`productsInfo`, `allProductsInfo`,
+  `productCategoryInfo`, `servicesInfo`) printed as nothing because the
+  document editor inserts attributes as _inline_ content, and the replaced
+  table block stayed inside the paragraph's inline array where Core's
+  `blocksToHtml` renders text only; `replaceBlocks` now hoists block-level
+  replacements out to the containing block list and drops the paragraph left
+  empty behind them.
+- **Affected areas:** `src/modules/sales/documents/replaceBlocks.ts`.
+- **Contracts changed:** None.

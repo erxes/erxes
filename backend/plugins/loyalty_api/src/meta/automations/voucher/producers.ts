@@ -1,42 +1,15 @@
+import { VoucherOwnerLimitError } from '@/voucher/services/ownerLimit';
 import {
   AUTOMATION_ERROR_CODES,
   buildFailedAction,
-  TAutomationProducers,
-  TAutomationProducersInput,
+  buildSkippedAction,
   TCoreModuleProducerContext,
 } from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
 import { IssueVoucherActionConfig } from '../types';
-import {
-  getBirthDate,
-  getVoucherConfigByRule,
-  isBirthdayThisMonth,
-  resolveAutomationOwners,
-} from '../utils';
+import { getVoucherConfigByRule, resolveAutomationOwners } from '../utils';
 
 export const voucherAutomationProducers = {
-  checkCustomTrigger: async ({
-    collectionType,
-    config,
-    target,
-  }: TAutomationProducersInput[TAutomationProducers.CHECK_CUSTOM_TRIGGER]) => {
-    if (collectionType !== 'reward' || config.rewardType !== 'birthday') {
-      return false;
-    }
-
-    if (!isBirthdayThisMonth(getBirthDate(target))) {
-      return false;
-    }
-
-    const appliesTo = Array.isArray(config.appliesTo) ? config.appliesTo : [];
-
-    if ('details' in target) {
-      return appliesTo.includes('user');
-    }
-
-    return appliesTo.includes('customer');
-  },
-
   receiveActions: async (
     { action, actionType, collectionType, execution },
     { models, subdomain }: TCoreModuleProducerContext<IModels>,
@@ -61,17 +34,40 @@ export const voucherAutomationProducers = {
       errorMessage: 'Voucher owner is required',
     });
 
-    const result = await Promise.all(
-      ownerIds.map((ownerId) =>
-        models.Vouchers.createVoucher({
-          campaignId: config.voucherCampaignId || '',
-          ownerType,
-          ownerId,
-          config: getVoucherConfigByRule(config.customRule),
-        }),
-      ),
+    const issued = await Promise.all(
+      ownerIds.map(async (ownerId) => {
+        try {
+          const voucher = await models.Vouchers.createVoucher({
+            campaignId: config.voucherCampaignId || '',
+            ownerType,
+            ownerId,
+            config: getVoucherConfigByRule(config.customRule),
+          });
+
+          return { ownerId, voucher };
+        } catch (error) {
+          // At the campaign's limit is a decision, not a failure.
+          if (error instanceof VoucherOwnerLimitError) {
+            return { ownerId, refused: error.message };
+          }
+
+          throw error;
+        }
+      }),
     );
 
-    return { result };
+    const result = issued.flatMap(({ voucher }) => (voucher ? [voucher] : []));
+    const refused = issued.filter(({ refused }) => refused);
+
+    if (!result.length && refused.length) {
+      return buildSkippedAction(refused[0].refused as string, { result });
+    }
+
+    return {
+      result,
+      ...(refused.length && {
+        refusedOwnerIds: refused.map(({ ownerId }) => ownerId),
+      }),
+    };
   },
 };

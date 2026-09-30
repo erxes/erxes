@@ -53,6 +53,10 @@ export interface ICustomerModel extends Model<ICustomerDocument> {
     uses?: IUserDocument,
   ): Promise<ICustomerDocument>;
   updateCustomer(_id: string, doc: ICustomer): Promise<ICustomerDocument>;
+  setPropertyValues(
+    _id: string,
+    values: Record<string, unknown>,
+  ): Promise<ICustomerDocument | null>;
   removeCustomers(customerIds: string[]): Promise<{ n: number; ok: number }>;
   mergeCustomers(
     customerIds: string[],
@@ -229,7 +233,7 @@ export const loadCustomerClass = (
 
       if (doc.propertiesData) {
         doc.propertiesData = await models.Fields.validateFieldValues(
-          doc.propertiesData,
+          await models.Fields.keepFeaturedValues(doc.propertiesData, undefined),
         );
       }
 
@@ -281,7 +285,10 @@ export const loadCustomerClass = (
 
       if (doc.propertiesData) {
         const propertiesData = await models.Fields.validateFieldValues(
-          doc.propertiesData,
+          await models.Fields.keepFeaturedValues(
+            doc.propertiesData,
+            oldCustomer.propertiesData,
+          ),
         );
 
         doc.propertiesData = propertiesData;
@@ -315,6 +322,41 @@ export const loadCustomerClass = (
       }
 
       return updatedCustomer;
+    }
+
+    // Per-key write so values other writers hold in propertiesData survive.
+    public static async setPropertyValues(
+      _id: string,
+      values: Record<string, unknown>,
+    ) {
+      const prev = await models.Customers.getCustomer(_id);
+      const $set: Record<string, unknown> = {};
+      const $unset: Record<string, ''> = {};
+
+      for (const [fieldId, value] of Object.entries(values)) {
+        if (value === null) {
+          $unset[`propertiesData.${fieldId}`] = '';
+        } else {
+          $set[`propertiesData.${fieldId}`] = value;
+        }
+      }
+
+      const updated = await models.Customers.findOneAndUpdate(
+        { _id },
+        { $set, $unset },
+        { new: true },
+      );
+
+      if (updated) {
+        sendDbEventLog({
+          action: 'update',
+          docId: _id,
+          currentDocument: updated.toObject(),
+          prevDocument: prev,
+        });
+      }
+
+      return updated;
     }
 
     /**

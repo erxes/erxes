@@ -99,7 +99,7 @@ const PropertiesMoreColumnCell = ({
   contentType: string;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
-  const { _id, groupId } = cell.row.original;
+  const { _id, groupId, owner } = cell.row.original;
   const { confirm } = useConfirm();
   const { removeField, loading } = useFieldRemove();
   const setSelectedFieldIds = useSetAtom(selectedFieldIdsState);
@@ -140,16 +140,19 @@ const PropertiesMoreColumnCell = ({
               </Link>
             </DropdownMenu.Item>
           </Can>
-          <Can action="fieldsManage">
-            <DropdownMenu.Item
-              className="text-destructive"
-              disabled={loading}
-              onClick={handleDelete}
-            >
-              {loading ? <Spinner size="sm" /> : <IconTrash />}
-              {t('delete', 'Delete')}
-            </DropdownMenu.Item>
-          </Can>
+          {/* The owning plugin releases a featured field; people cannot. */}
+          {!owner && (
+            <Can action="fieldsManage">
+              <DropdownMenu.Item
+                className="text-destructive"
+                disabled={loading}
+                onClick={handleDelete}
+              >
+                {loading ? <Spinner size="sm" /> : <IconTrash />}
+                {t('delete', 'Delete')}
+              </DropdownMenu.Item>
+            </Can>
+          )}
         </DropdownMenu.Content>
       </DropdownMenu>
     </div>
@@ -165,9 +168,13 @@ const PropertyToggleCell = ({
   toggleKey: 'isVisible' | 'isVisibleToCreate' | 'isRequired';
   label: string;
 }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const { editProperty } = useEditProperty();
-  const { _id } = cell.row.original;
+  const { _id, owner } = cell.row.original;
   const checked = Boolean(cell.getValue());
+  // The owning plugin fills a featured field, so people only choose whether
+  // it shows; creating with it or requiring it has nothing to ask for.
+  const locked = !!owner && toggleKey !== 'isVisible';
 
   return (
     <RecordTableInlineCell>
@@ -178,6 +185,15 @@ const PropertyToggleCell = ({
         <Switch
           size="sm"
           aria-label={label}
+          title={
+            locked
+              ? t(
+                  'featured-field-toggle-locked',
+                  'Filled by its plugin, so it is never asked for',
+                )
+              : undefined
+          }
+          disabled={locked}
           checked={checked}
           onCheckedChange={(value) =>
             editProperty({ variables: { id: _id, [toggleKey]: value } })
@@ -226,7 +242,7 @@ export const propertiesColumns = (
     accessorKey: 'name',
     header: () => <RecordTable.InlineHead label={t('name', 'Name')} />,
     cell: ({ cell }) => {
-      const { name, icon } = cell.row.original;
+      const { name, icon, owner } = cell.row.original;
       return (
         <RecordTableInlineCell>
           <div className="flex items-center gap-2 overflow-hidden">
@@ -235,6 +251,22 @@ export const propertiesColumns = (
               name={icon}
             />
             <span className="truncate">{name}</span>
+            {owner && (
+              <Badge
+                variant={owner.status === 'active' ? 'secondary' : 'warning'}
+                className="shrink-0"
+                title={t(
+                  'featured-field-hint',
+                  'Created and filled by the {{plugin}} plugin; its type, options and values cannot be changed here.',
+                  { plugin: owner.plugin },
+                )}
+              >
+                {owner.plugin}
+                {owner.status && owner.status !== 'active'
+                  ? ` · ${owner.status}`
+                  : ''}
+              </Badge>
+            )}
           </div>
         </RecordTableInlineCell>
       );

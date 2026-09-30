@@ -2,6 +2,7 @@ import {
   IconLabelFilled,
   IconListNumbers,
   IconTag,
+  IconWallet,
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
@@ -75,6 +76,31 @@ export const scoreColumns = (
       );
     },
     size: 150,
+  },
+  {
+    id: 'accountType',
+    accessorKey: 'accountType',
+    header: () => (
+      <RecordTable.InlineHead icon={IconWallet} label={t('loyalty-account-type')} />
+    ),
+    cell: ({ cell }) => {
+      const accountType = cell.getValue() as IScore['accountType'];
+
+      return (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip
+            value={
+              accountType
+                ? `${accountType.name}${
+                    accountType.status === 'archived' ? ` (${t('archived')})` : ''
+                  }`
+                : t('loyalty-account-type-none')
+            }
+          />
+        </RecordTableInlineCell>
+      );
+    },
+    size: 180,
   },
   settingsStatusSwitchColumn<IScore>(t, (_id, status) =>
     editStatus({

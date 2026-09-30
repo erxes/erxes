@@ -8,19 +8,13 @@ export const UPDATE_SCORE_CAMPAIGN = gql`
     $order: Int
     $add: JSON
     $subtract: JSON
-    $set: JSON
     $createdAt: Date
     $createdUserId: String
     $status: String
-    $ownerType: String
-    $fieldGroupId: String
-    $fieldName: String
-    $fieldId: String
-    $fieldOrigin: String
+    $accountTypeId: String
     $serviceName: String
     $additionalConfig: JSON
     $restrictions: JSON
-    $onlyClientPortal: Boolean
   ) {
     scoreCampaignUpdate(
       _id: $_id
@@ -29,19 +23,13 @@ export const UPDATE_SCORE_CAMPAIGN = gql`
       order: $order
       add: $add
       subtract: $subtract
-      set: $set
       createdAt: $createdAt
       createdUserId: $createdUserId
       status: $status
-      ownerType: $ownerType
-      fieldGroupId: $fieldGroupId
-      fieldName: $fieldName
-      fieldId: $fieldId
-      fieldOrigin: $fieldOrigin
+      accountTypeId: $accountTypeId
       serviceName: $serviceName
       additionalConfig: $additionalConfig
       restrictions: $restrictions
-      onlyClientPortal: $onlyClientPortal
     ) {
       _id
       title
@@ -49,18 +37,15 @@ export const UPDATE_SCORE_CAMPAIGN = gql`
       order
       add
       subtract
-      set
       createdAt
       createdUserId
       status
       ownerType
-      fieldGroupId
-      fieldName
+      accountTypeId
       fieldId
       serviceName
       additionalConfig
       restrictions
-      onlyClientPortal
     }
   }
 `;

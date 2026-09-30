@@ -37,6 +37,8 @@ export const segmentQueries = {
         $or: [
           { 'triggers.config.contentId': { $in: ids } },
           { 'actions.config.contentId': { $in: ids } },
+          // A membership trigger listens to the segment without owning it.
+          { 'triggers.config.segmentId': { $in: ids } },
         ],
       },
       { _id: 1, name: 1, status: 1, triggers: 1, actions: 1 },
@@ -52,7 +54,9 @@ export const segmentQueries = {
       automations: automations
         .filter((automation) =>
           [...automation.triggers, ...automation.actions].some(
-            (node) => node.config?.contentId === segmentId,
+            (node) =>
+              node.config?.contentId === segmentId ||
+              node.config?.segmentId === segmentId,
           ),
         )
         .map(({ _id, name, status }) => ({ _id, name, status })),

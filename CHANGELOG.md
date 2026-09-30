@@ -1,4 +1,11 @@
+# Changelog
 
+## [3.2.8](https://github.com/erxes/erxes/compare/3.2.7...3.2.8) (2026-09-30)
+
+
+### Features
+
+* **loyalty:** tiers, period runs, birthday coupons via nightly segment broadcasts ([#9514](https://github.com/erxes/erxes/issues/9514)) ([d23cfaf](https://github.com/erxes/erxes/commit/d23cfaf9fbf375d36f1c6153977e3bfb9703edbd))
 
 ## [3.2.7](https://github.com/erxes/erxes/compare/3.2.6...3.2.7) (2026-09-30)
 
@@ -18,7 +25,7 @@
 * add configurable confirm dialog content and button variants ([deba038](https://github.com/erxes/erxes/commit/deba038eba2970a079f0f7a8aeafa8b8885a2551))
 * **frontline:** add SLA tab and bar charts to call report ([f53bf17](https://github.com/erxes/erxes/commit/f53bf17471821f5ced3b5c0900584e437f04da29))
 
-# Changelog
+
 
 ## [3.2.6](https://github.com/erxes/erxes/compare/3.2.5...3.2.6) (2026-09-29)
 
