@@ -12,6 +12,7 @@ export const types = `
   type TelegramBot {
     _id: String!
     botId: String!
+    erxesApiId: String
     botUsername: String
     botName: String!
     canJoinGroups: Boolean

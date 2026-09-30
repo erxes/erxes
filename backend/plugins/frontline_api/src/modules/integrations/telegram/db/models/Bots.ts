@@ -21,6 +21,10 @@ export interface ITelegramBotModel extends Model<ITelegramBotDocument> {
   ): Promise<ITelegramBotDocument[]>;
   createBot(doc: ITelegramBotCreateInput): Promise<ITelegramBotDocument>;
   verifyWebhookSecret(_id: string, receivedSecret?: string): Promise<boolean>;
+  attachIntegration(
+    _id: string,
+    integrationId: string,
+  ): Promise<ITelegramBotDocument>;
 }
 
 export const loadTelegramBotClass = (models: IModels) => {
@@ -102,6 +106,54 @@ export const loadTelegramBotClass = (models: IModels) => {
       }
 
       return verifyTelegramWebhookSecret(bot.webhookSecret, receivedSecret);
+    }
+    public static async attachIntegration(
+      _id: string,
+      integrationId: string,
+    ): Promise<ITelegramBotDocument> {
+      if (!_id || !integrationId) {
+        throw new Error('Bot and Integration IDs are required');
+      }
+
+      const integration = await models.Integrations.exists({
+        _id: integrationId,
+        kind: 'telegram-messenger',
+      });
+
+      if (!integration) {
+        throw new Error('Telegram inbox integration not found');
+      }
+
+      let bot: ITelegramBotDocument | null;
+
+      try {
+        bot = await models.TelegramBots.findOneAndUpdate(
+          { _id, erxesApiId: { $exists: false } },
+          { $set: { erxesApiId: integrationId } },
+          { new: true, runValidators: true },
+        );
+      } catch (error: unknown) {
+        if (
+          error instanceof mongo.MongoServerError &&
+          error.code === 11000 &&
+          error.keyPattern?.erxesApiId === 1
+        ) {
+          throw new Error(
+            'This inbox integration is already connected to a Telegram bot',
+          );
+        }
+
+        throw new Error('Could not connect Telegram bot. Please try again.');
+      }
+      if (!bot) {
+        await models.TelegramBots.getBot(_id);
+
+        throw new Error(
+          'This Telegram bot is already connected to an inbox integration',
+        );
+      }
+
+      return bot;
     }
   }
   return telegramBotSchema.loadClass(TelegramBot);

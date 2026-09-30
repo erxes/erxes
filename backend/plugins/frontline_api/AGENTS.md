@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-09-29`
+- **Last synchronized:** `2026-09-30`
 
 ## Scope
 
@@ -155,6 +155,14 @@
   is not yet mounted on a Telegram HTTP route.
 - Registers `TelegramBots` on the tenant's database connection. Its
   `getBot(_id)` method returns the saved bot or throws `Telegram bot not found`.
+- Saved Telegram bot metadata includes optional `erxesApiId`, the linked
+  Frontline integration ID. It is nullable in GraphQL; unconnected bots omit it
+  in storage.
+- `TelegramBots.attachIntegration(_id, integrationId)` links an unconnected bot
+  to an existing `telegram-messenger` integration in the supplied tenant. It
+  rejects missing records, repeated connections, and reused integrations, and
+  returns the updated bot without selecting credentials. The external
+  integration creation flow does not invoke this method yet.
 - `TelegramBots.getWebhookInfo(_id)` reads webhook status with the saved bot's
   token. It returns provider information without changing the bot record or
   webhook configuration.
@@ -170,8 +178,8 @@
   the saved record without credentials.
 - Exposes `telegramAddBot` through the federated GraphQL schema. The resolver
   checks `integrationsAdd` and takes `createdBy` from the authenticated user.
-  Creation saves the bot record; webhook registration and inbox binding are
-  separate integration capabilities that are not implemented yet.
+  Creation saves the bot record. Webhook registration and a user-facing inbox
+  connection flow are not implemented yet.
 - Runs the **mail** channel: an inbox owns a generated catch-all address, a
   Cloudflare Worker posts every delivery to `POST /mail/receive` under an HMAC
   signature, and the controller turns it into a core customer, a conversation,
@@ -270,6 +278,8 @@
 - `telegramBot(_id: String!): TelegramBot!` — reads a saved bot by its erxes
   record ID after checking `showIntegrations`; a missing bot is a GraphQL error.
   Both read queries use the public `TelegramBot` type and exclude credentials.
+- `TelegramBot.erxesApiId: String` — the linked Frontline integration ID, or
+  `null` when the saved bot has no integration link.
 - `telegramBotWebhookInfo(_id: String!): TelegramWebhookInfo!` — reads the saved
   bot's current provider webhook status after checking `integrationsEdit`.
   Returns URL, certificate flag, pending update count, and optional IP address,
@@ -306,18 +316,25 @@
 - `src/modules/integrations/telegram/@types/bot.ts` defines the Telegram bot
   record interface and a document interface extending Mongoose `Document`:
   bot identity, credentials, group settings, verification time, timestamps,
-  and creator. The document interface declares the erxes `_id`;
+  creator, and optional `erxesApiId` integration link. The document interface
+  declares the erxes `_id`;
   `ITelegramBotCreateInput` accepts only `token` and `createdBy`.
 - `src/modules/integrations/telegram/db/definitions/bots.ts` defines the bot
   schema with generated string IDs, a unique `botId` index, immutable bot and
-  creator IDs, and automatic timestamps. `token` and `webhookSecret` are excluded
-  from queries by default.
+  creator IDs, and automatic timestamps. A unique sparse `erxesApiId` index
+  prevents multiple bot records from linking to the same integration while
+  allowing multiple bots without a link. `token` and `webhookSecret` are
+  excluded from queries by default.
 - `src/modules/integrations/telegram/db/models/Bots.ts` defines
   `ITelegramBotModel` and `loadTelegramBotClass(models)`. `src/connectionResolvers.ts`
   registers the loader as `models.TelegramBots` with model name `telegram_bots`.
   `getBot` looks up the erxes `_id`; `botId` is the separate Telegram identity.
 - `getBots(filter)` accepts a typed Mongoose filter and returns bot documents
   sorted by descending `createdAt`, retaining the default credential projection.
+- `attachIntegration` checks the destination through `models.Integrations`,
+  then conditionally updates the bot only while `erxesApiId` is absent. A
+  nonmatching update distinguishes an unknown bot from an existing connection;
+  duplicate integration links and other update failures return controlled errors.
 - `verifyWebhookSecret` skips database access for missing inputs, explicitly
   selects `+webhookSecret`, and returns only the comparison result. It does not
   select the bot token, call Telegram, or modify the record. Database failures
@@ -360,6 +377,14 @@
   `ITelegramWebhook`. Only persisted records need Mongoose document interfaces.
 - Keep `token` and `webhookSecret` out of the `TelegramBot` GraphQL type.
   `telegramAddBot` must derive `createdBy` from request context, never an argument.
+- An unconnected bot must omit `erxesApiId` in MongoDB; do not store an empty
+  string or `null` as its unconnected value. `botId` identifies the Telegram
+  bot; `erxesApiId` identifies the Frontline integration.
+- Keep the missing-link condition inside the attachment update filter so
+  concurrent requests cannot overwrite a connection. Check the destination's
+  `telegram-messenger` kind through the supplied tenant's integration model.
+  Callers must enforce permissions before invoking the internal attachment
+  method; it does not create or remove integration records.
 - Backend queries must explicitly select any Telegram credential fields they
   need; `select: false` controls query projection and does not encrypt storage.
 - Callers of `TelegramBots.getWebhookInfo` must enforce integration permissions
@@ -385,6 +410,16 @@
 - `pnpm exec eslint backend/plugins/frontline_api/src/modules/integrations/telegram --max-warnings=0`
 - `pnpm exec prettier --check backend/plugins/frontline_api/src/modules/integrations/telegram`
 - The project currently has no Nx test target.
+- Telegram link metadata check: the bot schema declares a unique sparse
+  `erxesApiId` index, existing unconnected bots remain valid, and the running
+  Frontline and gateway schemas expose the link as nullable `String` without
+  exposing credential fields.
+- Telegram attachment checks: reject missing IDs, unknown bots/integrations,
+  and non-Telegram destinations. Verify successful linking, credential
+  exclusion, rejection of reassignment and reused integrations, and both
+  concurrent claims for one bot and competing bots for one integration. Use
+  isolated test records; preserve the supplied tenant model and return
+  controlled update errors.
 - Telegram webhook secret checks: accept matching nonempty secrets; reject
   missing, empty, differing, or whitespace-altered values. Differing UTF-8 byte
   lengths must return `false` without throwing.
@@ -433,6 +468,12 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-30` — Telegram inbox attachment model
+
+- **Summary:** Added optional integration metadata and conditional bot attachment that prevents conflicting connections within a tenant.
+- **Affected areas:** `src/modules/integrations/telegram/@types/bot.ts`, `src/modules/integrations/telegram/db/`, `src/modules/integrations/telegram/graphql/schema/telegram.ts`.
+- **Contracts changed:** Added optional `ITelegramBot.erxesApiId`, nullable `TelegramBot.erxesApiId: String`, and internal `TelegramBots.attachIntegration(_id, integrationId)`; no public attachment operation is exposed yet.
 
 ### `2026-09-29` — Telegram update validation and utilities
 
@@ -487,9 +528,3 @@
 - **Summary:** Exposed permission-checked bot creation through GraphQL, with the authenticated creator and a credential-free return type.
 - **Affected areas:** `src/modules/integrations/telegram/graphql/`, `src/apollo/schema/schema.ts`, `src/apollo/resolvers/mutations.ts`.
 - **Contracts changed:** Added `TelegramBot` and `telegramAddBot(token: String!): TelegramBot!`.
-
-### `2026-09-28` — Telegram bot creation
-
-- **Summary:** Added internal bot creation that verifies credentials before saving, rejects duplicate identities, and returns the record without secrets.
-- **Affected areas:** `src/modules/integrations/telegram/@types/bot.ts`, `src/modules/integrations/telegram/db/models/Bots.ts`.
-- **Contracts changed:** Added `ITelegramBotCreateInput` and `IModels.TelegramBots.createBot({ token, createdBy })`; public APIs unchanged.

@@ -2,6 +2,7 @@ import { Document } from 'mongoose';
 
 export interface ITelegramBot {
   botId: string;
+  erxesApiId?: string;
   botUsername?: string;
   botName: string;
   token: string;

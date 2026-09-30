@@ -10,6 +10,12 @@ export const telegramBotSchema = new Schema(
       unique: true,
       immutable: true,
     },
+    erxesApiId: {
+      type: String,
+      label: 'Inbox integration id',
+      unique: true,
+      sparse: true,
+    },
     botUsername: {
       type: String,
     },
