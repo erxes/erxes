@@ -36,6 +36,7 @@ import {
   discordRemoveIntegrations,
   discordRepairIntegrations,
 } from '@/integrations/discord/messageBroker';
+import { telegramCreateIntegrations } from '@/integrations/telegram/messageBroker';
 import {
   callProCreateIntegration,
   callProRemoveIntegration,
@@ -91,6 +92,9 @@ export const sendCreateIntegration = async (
 
       case 'discord':
         return await discordCreateIntegrations({ subdomain, data });
+
+      case 'telegram':
+        return await telegramCreateIntegrations({ subdomain, data });
 
       case 'callpro': {
         const result = await callProCreateIntegration({ subdomain, data });

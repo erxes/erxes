@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-09-30`
+- **Last synchronized:** `2026-10-01`
 
 ## Scope
 
@@ -162,12 +162,13 @@
   to an existing `telegram-messenger` integration in the supplied tenant. It
   rejects missing records, repeated connections, and reused integrations, and
   returns the updated bot without selecting credentials. The external
-  integration creation flow does not invoke this method yet.
+  integration creation flow invokes it through the Telegram creation adapter.
 - The internal `telegramCreateIntegrations` adapter validates the
   `telegram-messenger` kind and a strict setup payload containing `sourceBotId`,
   resolves tenant models, and attaches the saved bot to the supplied integration.
-  It returns `{ status: 'success' }` or throws; it is not yet registered in the
-  external integration creation dispatcher.
+  The `telegram` dispatcher case invokes it from the existing external
+  integration mutation. It returns `{ status: 'success' }` or throws so the
+  common creation flow rolls back the new integration on attachment failure.
 - `TelegramBots.getWebhookInfo(_id)` reads webhook status with the saved bot's
   token. It returns provider information without changing the bot record or
   webhook configuration.
@@ -183,8 +184,9 @@
   the saved record without credentials.
 - Exposes `telegramAddBot` through the federated GraphQL schema. The resolver
   checks `integrationsAdd` and takes `createdBy` from the authenticated user.
-  Creation saves the bot record. Webhook registration and a user-facing inbox
-  connection flow are not implemented yet.
+  Creation saves the bot record. The external integration mutation can link
+  that saved bot to an inbox integration; webhook registration, message
+  delivery, and a Telegram connection UI are not implemented yet.
 - Runs the **mail** channel: an inbox owns a generated catch-all address, a
   Cloudflare Worker posts every delivery to `POST /mail/receive` under an HMAC
   signature, and the controller turns it into a core customer, a conversation,
@@ -269,6 +271,12 @@
 
 ### Provides
 
+- `integrationsCreateExternalIntegration` accepts `kind: "telegram-messenger"`
+  and `data: { sourceBotId }` to link a saved bot to the newly created inbox
+  integration. `sourceBotId` is the saved erxes record ID. Omitting `channelId`
+  uses the caller's personal channel. This path retains the common resolver's
+  existing channel checks and, like Discord creation, has no explicit
+  `integrationsAdd` action check.
 - `telegramValidateToken(token: String!): TelegramTokenValidation!` — checks
   credentials for integration setup. Successful results include a string bot ID,
   bot name, and optional username and group settings; failed checks return
@@ -388,8 +396,8 @@
 - Keep the missing-link condition inside the attachment update filter so
   concurrent requests cannot overwrite a connection. Check the destination's
   `telegram-messenger` kind through the supplied tenant's integration model.
-  Callers must enforce permissions before invoking the internal attachment
-  method; it does not create or remove integration records.
+  The attachment method only links records; the external creation flow owns
+  integration creation and rollback.
 - `telegramCreateIntegrations` treats parsed setup JSON as unknown and validates
   it before resolving tenant models. `sourceBotId` is the saved bot's erxes
   `_id`; accept no token or extra setup fields. Propagate attachment failures to
@@ -419,6 +427,11 @@
 - `pnpm exec eslint backend/plugins/frontline_api/src/modules/integrations/telegram --max-warnings=0`
 - `pnpm exec prettier --check backend/plugins/frontline_api/src/modules/integrations/telegram`
 - The project currently has no Nx test target.
+- Telegram dispatch checks: the external integration mutation passes the tenant,
+  new integration ID, and saved-bot ID to the adapter. A failed attachment rolls
+  back only the integration created by that request; a successful attachment
+  preserves it. Existing provider dispatch and personal-channel checks remain
+  intact.
 - Telegram creation adapter checks: invalid kinds, malformed JSON, and invalid
   or extra setup fields fail before model access. Forward the supplied subdomain,
   bot ID, and integration ID unchanged; return success only after attachment and
@@ -482,6 +495,12 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-10-01` — Telegram external integration dispatch
+
+- **Summary:** Connected the saved-bot creation adapter to the existing external integration creation flow.
+- **Affected areas:** `src/modules/inbox/graphql/resolvers/mutations/integrations.ts`.
+- **Contracts changed:** `integrationsCreateExternalIntegration` now supports `telegram-messenger` with `data: { sourceBotId }`; common permission behavior is unchanged.
+
 ### `2026-09-30` — Telegram integration creation adapter
 
 - **Summary:** Added strict setup validation and tenant-scoped saved-bot attachment behind the provider creation adapter.
@@ -535,9 +554,3 @@
 - **Summary:** Added a read-only webhook status client sharing token validation, timeout, and controlled request errors with bot identity validation.
 - **Affected areas:** `src/modules/integrations/telegram/client.ts`.
 - **Contracts changed:** Added internal `getTelegramWebhookInfo(token)`, `TelegramWebhookInfo`, and `getTelegramResponse(token, method)` exports; public APIs unchanged.
-
-### `2026-09-29` — Telegram saved-bot queries
-
-- **Summary:** Added permission-checked list and detail queries for saved Telegram bots, returning public metadata from the tenant's database.
-- **Affected areas:** `src/modules/integrations/telegram/db/models/Bots.ts`, `src/modules/integrations/telegram/graphql/`.
-- **Contracts changed:** Added `telegramBots: [TelegramBot!]!`, `telegramBot(_id: String!): TelegramBot!`, and `ITelegramBotModel.getBots(filter)`.
