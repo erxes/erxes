@@ -18,21 +18,7 @@ import { motion, useReducedMotion } from 'motion/react';
 import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 
-export const NavigationActivityRail = ({
-  activities,
-  activeActivityId,
-  expandedActivityId,
-  hiddenActivities,
-  isInboxActive,
-  isActivityPinned,
-  isSettings,
-  onActivityPinnedChange,
-  onSearch,
-  onSelectInbox,
-  onSelectActivity,
-  onToggleActivity,
-  visibleActivities,
-}: Readonly<{
+type TNavigationActivityRailProps = Readonly<{
   activities: INavigationActivity[];
   activeActivityId: string | null;
   expandedActivityId: string | null;
@@ -46,14 +32,101 @@ export const NavigationActivityRail = ({
   onSelectActivity: (activity: INavigationActivity) => void;
   onToggleActivity: (activity: INavigationActivity) => void;
   visibleActivities: INavigationActivity[];
-}>) => {
-  const { isMobile, state } = Sidebar.useSidebar();
-  const expanded = isMobile || state === 'expanded';
-  const hoverEnabled = !expanded && !isMobile;
+}>;
+
+const NavigationActivityRailMain = ({
+  activities,
+  activeActivityId,
+  expanded,
+  expandedActivityId,
+  hiddenActivities,
+  hoverEnabled,
+  isInboxActive,
+  isActivityPinned,
+  isSettings,
+  onActivityPinnedChange,
+  onSearch,
+  onSelectInbox,
+  onSelectActivity,
+  onToggleActivity,
+  visibleActivities,
+}: TNavigationActivityRailProps &
+  Readonly<{ expanded: boolean; hoverEnabled: boolean }>) => {
   const { promoted } = splitPromotedNavigationActivities(activities);
   const visibleRest = splitPromotedNavigationActivities(visibleActivities).rest;
   const hiddenRest = splitPromotedNavigationActivities(hiddenActivities).rest;
   const usePromotedRail = promoted.length > 0;
+
+  return (
+    <>
+      {usePromotedRail ? (
+        <div className="mb-1 flex shrink-0 flex-col gap-1">
+          <NavigationInboxButton
+            expanded={expanded}
+            isInboxActive={isInboxActive}
+            onSelectInbox={onSelectInbox}
+          />
+          <NavigationActivitySearchButton
+            expanded={expanded}
+            onSearch={onSearch}
+          />
+          {promoted.map((activity) => (
+            <NavigationActivityButton
+              key={activity.id}
+              activity={activity}
+              active={!isSettings && activity.id === activeActivityId}
+              expanded={expanded}
+              onSelect={() => onSelectActivity(activity)}
+            />
+          ))}
+        </div>
+      ) : (
+        <NavigationActivitySearchButton
+          expanded={expanded}
+          onSearch={onSearch}
+        />
+      )}
+      <div
+        className={cn(
+          'flex min-h-0 flex-1 flex-col items-stretch gap-1 overflow-x-hidden overflow-y-auto',
+          !expanded && 'hide-scroll',
+        )}
+      >
+        <NavigationFavoritesSection
+          expanded={expanded}
+          isInboxActive={isInboxActive}
+          onSelectInbox={onSelectInbox}
+          showInbox={!usePromotedRail}
+        />
+        <NavigationActivityGroups
+          activeActivityId={activeActivityId}
+          activities={usePromotedRail ? visibleRest : visibleActivities}
+          expanded={expanded}
+          expandedActivityId={expandedActivityId}
+          hoverEnabled={hoverEnabled}
+          isActivityPinned={isActivityPinned}
+          isSettings={isSettings}
+          onActivityPinnedChange={onActivityPinnedChange}
+          onSelectActivity={onSelectActivity}
+          onToggleActivity={onToggleActivity}
+        />
+        <NavigationActivityMore
+          activities={usePromotedRail ? hiddenRest : hiddenActivities}
+          expanded={expanded}
+          isActivityPinned={isActivityPinned}
+          onPinnedChange={onActivityPinnedChange}
+          onSelect={onSelectActivity}
+        />
+      </div>
+    </>
+  );
+};
+
+export const NavigationActivityRail = (props: TNavigationActivityRailProps) => {
+  const { isSettings } = props;
+  const { isMobile, state } = Sidebar.useSidebar();
+  const expanded = isMobile || state === 'expanded';
+  const hoverEnabled = !expanded && !isMobile;
   const reduceMotion = useReducedMotion();
   const showSettings = isSettings && expanded;
   const setSidebarWidth = useSetAtom(navigationSidebarWidthState);
@@ -95,67 +168,11 @@ export const NavigationActivityRail = ({
         {showSettings ? (
           <SettingsSidebar />
         ) : (
-          <>
-            {usePromotedRail ? (
-              <div className="mb-1 flex shrink-0 flex-col gap-1">
-                <NavigationInboxButton
-                  expanded={expanded}
-                  isInboxActive={isInboxActive}
-                  onSelectInbox={onSelectInbox}
-                />
-                <NavigationActivitySearchButton
-                  expanded={expanded}
-                  onSearch={onSearch}
-                />
-                {promoted.map((activity) => (
-                  <NavigationActivityButton
-                    key={activity.id}
-                    activity={activity}
-                    active={!isSettings && activity.id === activeActivityId}
-                    expanded={expanded}
-                    onSelect={() => onSelectActivity(activity)}
-                  />
-                ))}
-              </div>
-            ) : (
-              <NavigationActivitySearchButton
-                expanded={expanded}
-                onSearch={onSearch}
-              />
-            )}
-            <div
-              className={cn(
-                'flex min-h-0 flex-1 flex-col items-stretch gap-1 overflow-x-hidden overflow-y-auto',
-                !expanded && 'hide-scroll',
-              )}
-            >
-              <NavigationFavoritesSection
-                expanded={expanded}
-                isInboxActive={isInboxActive}
-                onSelectInbox={onSelectInbox}
-                showInbox={!usePromotedRail}
-              />
-              <NavigationActivityGroups
-                activeActivityId={activeActivityId}
-                activities={usePromotedRail ? visibleRest : visibleActivities}
-                expanded={expanded}
-                expandedActivityId={expandedActivityId}
-                hoverEnabled={hoverEnabled}
-                isActivityPinned={isActivityPinned}
-                isSettings={isSettings}
-                onActivityPinnedChange={onActivityPinnedChange}
-                onSelectActivity={onSelectActivity}
-                onToggleActivity={onToggleActivity}
-              />
-              <NavigationActivityMore
-                activities={usePromotedRail ? hiddenRest : hiddenActivities}
-                expanded={expanded}
-                isActivityPinned={isActivityPinned}
-                onPinnedChange={onActivityPinnedChange}
-                onSelect={onSelectActivity}
-              />
-            </div>
-          </>
+          <NavigationActivityRailMain
+            {...props}
+            expanded={expanded}
+            hoverEnabled={hoverEnabled}
+          />
         )}
       </motion.div>
       <NavigationSidebarFooter expanded={expanded} isSettings={isSettings} />

@@ -36,7 +36,7 @@ export const NavigationResizeHandle = ({
 
   useEffect(() => () => setResizing(false), [setResizing]);
 
-  const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
+  const handlePointerDown = (event: PointerEvent<HTMLButtonElement>) => {
     const panel = panelRef.current;
 
     if (event.button !== 0 || !panel) {
@@ -49,7 +49,7 @@ export const NavigationResizeHandle = ({
     setResizing(true);
   };
 
-  const handlePointerMove = (event: PointerEvent<HTMLDivElement>) => {
+  const handlePointerMove = (event: PointerEvent<HTMLButtonElement>) => {
     if (!drag.current) {
       return;
     }
@@ -59,7 +59,7 @@ export const NavigationResizeHandle = ({
     onResize(clamp(startWidth + event.clientX - startX, min, max));
   };
 
-  const handlePointerUp = (event: PointerEvent<HTMLDivElement>) => {
+  const handlePointerUp = (event: PointerEvent<HTMLButtonElement>) => {
     if (!drag.current) {
       return;
     }
@@ -73,7 +73,7 @@ export const NavigationResizeHandle = ({
     setResizing(false);
   };
 
-  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+  const handleKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
     const panel = panelRef.current;
 
     if (!panel || (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight')) {
@@ -88,13 +88,9 @@ export const NavigationResizeHandle = ({
   };
 
   return (
-    <div
-      role="separator"
+    <button
+      type="button"
       aria-label={label}
-      aria-orientation="vertical"
-      aria-valuemin={min}
-      aria-valuemax={max}
-      tabIndex={0}
       title={label}
       className={cn(
         'group/resize absolute inset-y-0 right-0 z-30 w-2 cursor-col-resize touch-none outline-none',
@@ -108,6 +104,6 @@ export const NavigationResizeHandle = ({
       onPointerUp={handlePointerUp}
     >
       <span className="absolute inset-y-0 right-0 w-0.5 bg-transparent transition-colors duration-150 group-hover/resize:bg-primary/40 group-focus-visible/resize:bg-primary group-active/resize:bg-primary" />
-    </div>
+    </button>
   );
 };

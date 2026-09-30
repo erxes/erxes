@@ -1,16 +1,19 @@
 import { useMultiQueryState } from 'erxes-ui';
 
-type TEmailDeliveryView = 'messages' | 'addresses' | 'limits';
+const VIEWS = ['messages', 'addresses', 'limits'] as const;
 
-const VIEWS: TEmailDeliveryView[] = ['messages', 'addresses', 'limits'];
+type TEmailDeliveryView = (typeof VIEWS)[number];
+
+const isEmailDeliveryView = (
+  value: string | null | undefined,
+): value is TEmailDeliveryView =>
+  (VIEWS as readonly string[]).includes(value ?? '');
 
 export const useEmailDeliveryView = () => {
   const [queryParams] = useMultiQueryState<{ view: string }>(['view']);
 
-  const view: TEmailDeliveryView = VIEWS.some(
-    (option) => option === queryParams.view,
-  )
-    ? (queryParams.view as TEmailDeliveryView)
+  const view: TEmailDeliveryView = isEmailDeliveryView(queryParams.view)
+    ? queryParams.view
     : 'messages';
 
   return { view };
