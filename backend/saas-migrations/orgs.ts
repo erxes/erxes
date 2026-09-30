@@ -1,22 +1,24 @@
 export type OrgPair = { source: string; target: string };
 
 export const ORG_PAIRS: OrgPair[] = [
-  { source: 'belty', target: 'bbelty' },
-  { source: 'cmlbrotherss', target: 'cmlbrothers' },
-  { source: 'hipay', target: 'newhipay' },
-  { source: 'greatdate', target: 'newgreatdate' },
-  { source: 'tsembiibuteel', target: 'tsembiibuteelnew' },
-  { source: 'tsembiiauto', target: 'tsembiiautonew' },
-  { source: 'dboil', target: 'dboilnew' },
-  { source: 'newmilestone', target: 'nnewmilestone' },
-  { source: 'sukgarden', target: 'sukgardennew' },
-  { source: 'tansagamttan', target: 'tansagamttannew' },
-  { source: 'dermaestheticllc', target: 'dermaestheticnew' },
-  { source: 'burensukh', target: 'burensukhnew' },
-  { source: 'burensukhburen', target: 'bburensukhburen' },
-  { source: 'tsemtsgerkharsh', target: 'newtsemtsgerkharsh' },
-  { source: 'trillionlounge', target: 'trillionloungenew' },
-  { source: 'cargolink', target: 'cargolinknew' },
+  // { source: 'belty', target: 'bbelty' }, done
+  // { source: 'cmlbrotherss', target: 'cmlbrothers' }, done
+  // { source: 'hipay', target: 'newhipay' }, done
+  // { source: 'greatdate', target: 'newgreatdate' }, done
+  // { source: 'tsembiibuteel', target: 'tsembiibuteelnew' }, done
+  // { source: 'tsembiiauto', target: 'tsembiiautonew' }, done
+  // { source: 'dboil', target: 'dboilnew' }, done
+
+  // { source: 'newmilestone', target: 'nnewmilestone' },
+  // { source: 'sukgarden', target: 'sukgardennew' },
+  // { source: 'tansagamttan', target: 'tansagamttannew' },
+  // { source: 'dermaestheticllc', target: 'dermaestheticnew' },
+  // { source: 'burensukh', target: 'burensukhnew' },
+  // { source: 'burensukhburen', target: 'bburensukhburen' },
+  // { source: 'tsemtsgerkharsh', target: 'newtsemtsgerkharsh' },
+  // { source: 'trillionlounge', target: 'trillionloungenew' },
+  // { source: 'cargolink', target: 'cargolinknew' },
+  { source: 'strawberry', target: 'newstrawberry' },
 ];
 
 export function resolveOrgPairs(args: string[]): OrgPair[] {

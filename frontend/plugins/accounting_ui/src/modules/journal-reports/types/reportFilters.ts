@@ -19,6 +19,7 @@ export type ReportFilterField =
   | 'isOutBalance'
   | 'trKind'
   | 'groupKey'
+  | 'isMore'
   | 'unhideZero'
   | 'fromDate'
   | 'toDate';
@@ -97,6 +98,7 @@ export const REPORT_FILTER_DEFINITIONS: Record<
   assignedUserId: define('assignedUserId', 'ownership', 'Хариуцсан хэрэглэгч'),
   trKind: define('trKind', 'report', 'Гүйлгээний төрөл'),
   groupKey: define('groupKey', 'report', 'Бүлэглэх'),
+  isMore: define('isMore', 'report', 'Дэлгэрэнгүй'),
   unhideZero: define('unhideZero', 'report', 'Хоосон мөр харуулах'),
   fromDate: define('fromDate', 'report', 'Эхлэх огноо'),
   toDate: define('toDate', 'report', 'Дуусах огноо'),
@@ -114,6 +116,7 @@ const BASE_FIELDS: ReportFilterField[] = [
   'assignedUserId',
   'trKind',
   'groupKey',
+  'isMore',
   'unhideZero',
   'fromDate',
   'toDate',

@@ -1,5 +1,6 @@
 import { useSendEmailActionResult } from '@/automations/components/builder/nodes/actions/sendEmail/hooks/useSendEmailActionResult';
 import { ActionResultComponentProps } from '@/automations/components/builder/nodes/types/coreAutomationActionTypes';
+import { SendEmailResultEmailPreview } from '@/automations/components/builder/nodes/actions/sendEmail/components/SendEmailResultEmailPreview';
 import { ActionResult } from 'ui-modules';
 
 export const AutomationSendEmailActionResult = ({
@@ -26,13 +27,22 @@ export const AutomationSendEmailActionResult = ({
         <ActionResult.Field label="CC" value={cc} badge="secondary" />
       </ActionResult.Fields>
 
-      <ActionResult.Body title="Email content" html={html || undefined}>
-        {!html && text ? (
-          <pre className="whitespace-pre-wrap break-all font-mono text-xs">
-            {text}
-          </pre>
-        ) : null}
-      </ActionResult.Body>
+      {html ? (
+        <SendEmailResultEmailPreview
+          html={html}
+          from={from}
+          subject={subject}
+          to={to}
+        />
+      ) : (
+        <ActionResult.Body title="Email content">
+          {text ? (
+            <pre className="whitespace-pre-wrap break-all font-mono text-xs">
+              {text}
+            </pre>
+          ) : null}
+        </ActionResult.Body>
+      )}
     </>
   );
 };

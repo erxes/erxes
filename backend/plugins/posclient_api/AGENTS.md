@@ -6,7 +6,7 @@
 - **Project:** `posclient_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/posclient_api`
-- **Last synchronized:** `2026-09-13`
+- **Last synchronized:** `2026-09-29`
 
 ## Scope
 
@@ -22,6 +22,8 @@
 
 - Authenticates POS users against POS client context.
 - Serves POS client config, order, cover, user, and daily report GraphQL operations.
+- Persists synced eBarimt receipt toggles, including `hasCopy`, `hasSumQty`,
+  and `isCleanTaxPrice`, in POS client config.
 - Serves POS product list and count queries with category, tag, price, remainder, discount, similarity, and product `propertiesData` filters.
 - Calculates daily reports for authorized POS admins and cashiers with report permission.
 - Persists order item `discountInfos` so pricing, loyalty/voucher, score, and direct/manual discounts keep their source, amount, and percent breakdown.
@@ -49,6 +51,8 @@
 ### Consumes
 
 - Synced POS config fields including `adminIds`, `cashierIds`, `token`, and `permissionConfig`.
+- Synced eBarimt config fields including `hasCopy`, `hasSumQty`, and
+  `isCleanTaxPrice`.
 - Shared `erxes-api-shared` context, GraphQL, and date utility contracts.
 - `erxes-api-shared/core-modules` property filtering: `withPropertyConditions`,
   `isPropertyPath`, `propertyFieldIdFromPath`, `propertyExistsFilter`,
@@ -61,6 +65,7 @@
 - `Configs.permissionConfig.cashiers.seeReport` controls cashier access to `dailyReport`.
 - Order item discounts store the aggregate `discountAmount`/`discountPercent` plus per-source `discountInfos`.
 - Product `propertiesData` filters are encoded as `fieldId:operator:value` conditions separated by semicolons and are parsed by the shared property filter util; a `g:<groupId>/<fieldId>` key targets one row of a repeating group through `$elemMatch`.
+- The hourly remainder repeatable job runs on `posclient-hourly-sync-remainder`; it dispatches tenant-scoped `posclient-sync-remainder` jobs that must include `subdomain`.
 
 ## Local Invariants
 
@@ -77,49 +82,3 @@
 - `pnpm nx build posclient_api`
 - POS report smoke scenario: as a cashier without `seeReport`, `dailyReport` returns permission denied; after enabling it, the same cashier can fetch the report.
 - POS product smoke scenario: querying `poscProducts(propertiesData: "<fieldId>:eq:<value>")` and `poscProductsTotalCount` returns the same filtered product set/count.
-
-## Recent Changes
-
-<!-- Newest first. Keep at most 10 entries. -->
-
-### `2026-09-13` — `Discount info type cleanup`
-
-- **Summary:** POS discount info types now use a plain string with documented known values to avoid redundant literal-union Sonar warnings.
-- **Affected areas:** `src/modules/posclient/utils/discountInfos.ts`
-- **Contracts changed:** `None`
-
-### `2026-09-13` — `Use POS discount base for hand discounts`
-
-- **Summary:** POS discount calculations now treat stored `unitPrice` as post-discount, reconstruct the base from `unitPrice * count + discountAmount`, and remove zero-valued automatic discount infos.
-- **Affected areas:** `src/modules/posclient/utils/{discountInfos.ts,directDiscount.ts,orderUtils.ts}`
-- **Contracts changed:** `None`
-
-### `2026-09-13` — `Persist POS discountInfos on item save`
-
-- **Summary:** POS order item create/update mappings now carry calculated `discountInfos` through to storage so pricing discounts return to the frontend.
-- **Affected areas:** `src/modules/posclient/graphql/resolvers/mutations/orders.ts`, `src/modules/posclient/utils/orderUtils.ts`
-- **Contracts changed:** `None`
-
-### `2026-09-12` — `Order item discount breakdowns`
-
-- **Summary:** POS order items now persist `discountInfos` during order create/update and merge pricing, loyalty/voucher, and direct/manual discounts without losing the manual `hand` entry.
-- **Affected areas:** `src/modules/posclient/{@types,db/definitions,graphql/schemas,utils}`, `src/modules/posclient/graphql/resolvers/mutations/orders.ts`
-- **Contracts changed:** `OrderItemInput` and `PosOrderItem` may include `discountInfos: JSON`.
-
-### `2026-09-05` — `Use the shared property filter util`
-
-- **Summary:** Replaced the plugin's copied `propertiesData` operator table, condition parser, and path helpers with the shared implementation in `erxes-api-shared/core-modules`.
-- **Affected areas:** `backend/plugins/posclient_api/src/modules/posclient/graphql/resolvers/queries/products.ts`, `backend/plugins/posclient_api/src/modules/posclient/graphql/resolvers/queries/cpProducts.ts`
-- **Contracts changed:** `None` — the encoded filter string and resulting query are unchanged for plain fields.
-
-### `2026-08-23` — `Filter POS products by properties`
-
-- **Summary:** Added backend `propertiesData` filtering to POS product list and count queries.
-- **Affected areas:** `backend/plugins/posclient_api/src/modules/posclient/graphql/schemas/product.ts`, `backend/plugins/posclient_api/src/modules/posclient/graphql/resolvers/queries/products.ts`
-- **Contracts changed:** `poscProducts` and `poscProductsTotalCount` now accept `propertiesData: String`.
-
-### `2026-08-12` — `Guard cashier reports`
-
-- **Summary:** Restricted `dailyReport` to POS admins or cashiers with `permissionConfig.cashiers.seeReport`.
-- **Affected areas:** `backend/plugins/posclient_api/src/modules/posclient/graphql/resolvers/queries/report.ts`
-- **Contracts changed:** `dailyReport` now enforces `permissionConfig.cashiers.seeReport` for cashier users.

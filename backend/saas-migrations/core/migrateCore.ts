@@ -2,7 +2,14 @@ import * as dotenv from 'dotenv';
 
 dotenv.config();
 
-import { AnyBulkWriteOperation, Collection, Db, MongoClient } from 'mongodb';
+import {
+  Collection,
+  Db,
+  Document,
+  MongoBulkWriteError,
+  MongoClient,
+  WriteError,
+} from 'mongodb';
 
 const {
   MONGO_URL = 'mongodb://localhost:27017/erxes?directConnection=true',
@@ -126,6 +133,34 @@ const normalizeValue = (field: string, value: unknown): string => {
   return field === 'email' ? str.toLowerCase().trim() : str;
 };
 
+type DuplicateLog = Map<string, { count: number; sample: string }>;
+
+const toWriteErrors = (err: MongoBulkWriteError): WriteError[] =>
+  Array.isArray(err.writeErrors) ? err.writeErrors : [err.writeErrors];
+
+const isDuplicateKeyError = (err: unknown): err is MongoBulkWriteError =>
+  err instanceof MongoBulkWriteError &&
+  toWriteErrors(err).length > 0 &&
+  toWriteErrors(err).every((we) => we.code === 11000);
+
+const recordDuplicate = (log: DuplicateLog, message = ''): void => {
+  const index = /index: (\S+)/.exec(message)?.[1] ?? 'unknown';
+  const entry = log.get(index) ?? {
+    count: 0,
+    sample: /dup key: (.*)$/.exec(message)?.[1] ?? '',
+  };
+  entry.count++;
+  log.set(index, entry);
+};
+
+const reportDuplicates = (collectionName: string, log: DuplicateLog): void => {
+  for (const [index, { count, sample }] of log) {
+    console.log(
+      `    [SKIP] ${collectionName}: ${count} document(s) conflict with unique index ${index}, e.g. ${sample}`,
+    );
+  }
+};
+
 /**
  * Upsert-by-_id migration for collections without unique constraints.
  * Re-running replaces target docs with their source counterpart (idempotent).
@@ -137,43 +172,73 @@ async function migrateByReplace(
 ): Promise<CollectionStats> {
   const stats = emptyStats(sourceCount);
 
-  let batch: AnyBulkWriteOperation[] = [];
+  let batch: Document[] = [];
+  const duplicates: DuplicateLog = new Map();
 
   const flush = async () => {
     if (batch.length === 0) return;
-    const result = await dstCol.bulkWrite(batch, { ordered: false });
-    stats.inserted += result.upsertedCount;
-    if (overwriteExisting) {
-      stats.updated += result.matchedCount;
-    } else {
-      stats.skipped += result.matchedCount;
-    }
-    batch = [];
-  };
 
-  for await (const doc of srcCol.find({}, { batchSize })) {
-    batch.push(
-      overwriteExisting
-        ? {
+    if (overwriteExisting) {
+      try {
+        const result = await dstCol.bulkWrite(
+          batch.map((doc) => ({
             replaceOne: {
               filter: { _id: doc._id },
               replacement: doc,
               upsert: true,
             },
+          })),
+          { ordered: false },
+        );
+        stats.inserted += result.upsertedCount;
+        stats.updated += result.matchedCount;
+      } catch (err) {
+        if (!isDuplicateKeyError(err)) throw err;
+        stats.inserted += err.upsertedCount;
+        stats.updated += err.matchedCount;
+        for (const we of toWriteErrors(err)) {
+          stats.skipped++;
+          recordDuplicate(duplicates, we.errmsg);
+        }
+      }
+    } else {
+      const existing = await dstCol
+        .find(
+          { _id: { $in: batch.map((doc) => doc._id) } },
+          { projection: { _id: 1 } },
+        )
+        .toArray();
+      const existingIds = new Set(existing.map((doc) => String(doc._id)));
+      const missing = batch.filter((doc) => !existingIds.has(String(doc._id)));
+
+      stats.skipped += batch.length - missing.length;
+
+      if (missing.length) {
+        try {
+          const result = await dstCol.insertMany(missing, { ordered: false });
+          stats.inserted += result.insertedCount;
+        } catch (err) {
+          if (!isDuplicateKeyError(err)) throw err;
+          stats.inserted += err.insertedCount;
+          for (const we of toWriteErrors(err)) {
+            stats.skipped++;
+            recordDuplicate(duplicates, we.errmsg);
           }
-        : {
-            updateOne: {
-              filter: { _id: doc._id },
-              update: { $setOnInsert: doc },
-              upsert: true,
-            },
-          },
-    );
+        }
+      }
+    }
+
+    batch = [];
+  };
+
+  for await (const doc of srcCol.find({}, { batchSize })) {
+    batch.push(doc);
 
     if (batch.length >= batchSize) await flush();
   }
 
   await flush();
+  reportDuplicates(dstCol.collectionName, duplicates);
 
   return stats;
 }
@@ -208,6 +273,7 @@ async function migrateWithDedup(
   }
 
   let batch: any[] = [];
+  const duplicates: DuplicateLog = new Map();
 
   const flush = async () => {
     if (batch.length === 0) return;
@@ -217,8 +283,13 @@ async function migrateWithDedup(
     } catch (err: any) {
       stats.inserted += err?.result?.insertedCount ?? err?.insertedCount ?? 0;
       const writeErrors = err?.writeErrors || [];
-      stats.errors += writeErrors.length;
       for (const we of writeErrors) {
+        if (we?.code === 11000) {
+          stats.skipped++;
+          recordDuplicate(duplicates, we?.errmsg);
+          continue;
+        }
+        stats.errors++;
         console.error(
           `    [ERROR] ${dstCol.collectionName}: _id "${
             we?.err?.op?._id ?? '?'
@@ -277,6 +348,7 @@ async function migrateWithDedup(
   }
 
   if (!isDryRun) await flush();
+  reportDuplicates(dstCol.collectionName, duplicates);
 
   return stats;
 }

@@ -133,7 +133,7 @@ async function indexTargetTags(
     const node: TagNode = {
       _id: String(doc._id),
       name: toStr(doc.name),
-      type: toStr(doc.type),
+      type: mapContentType(toStr(doc.type)),
       order: toStr(doc.order),
       isGroup: Boolean(doc.isGroup),
       parentId: toStr(doc.parentId),
@@ -356,6 +356,25 @@ function reportPlan(plan: MigrationPlan): void {
   );
 }
 
+async function retypeLegacyTags(
+  targetTags: Collection<TagDocument>,
+): Promise<void> {
+  const ops: AnyBulkWriteOperation<TagDocument>[] = Object.entries(
+    CONTENT_TYPE_MAP,
+  ).map(([legacyType, contentType]) => ({
+    updateMany: {
+      filter: { type: legacyType },
+      update: { $set: { type: contentType } },
+    },
+  }));
+
+  const { modifiedCount } = await targetTags.bulkWrite(ops, {
+    ordered: false,
+  });
+
+  console.log(`Retyped ${modifiedCount} existing legacy-typed tag(s).`);
+}
+
 async function applyPlan(
   targetTags: Collection<TagDocument>,
   plan: MigrationPlan,
@@ -405,6 +424,8 @@ async function migrateTags(
   const targetTags = client
     .db(targetDbName)
     .collection<TagDocument>(TAGS_COLLECTION);
+
+  await retypeLegacyTags(targetTags);
 
   const sourceDocs = await sourceTags.find({}).toArray();
   console.log(`Source tags: ${sourceDocs.length}`);

@@ -15,6 +15,7 @@ import {
   isAfter,
   isBefore,
   isSameDay,
+  isValid,
 } from 'date-fns';
 import {
   Button,
@@ -33,6 +34,15 @@ import { useAdjustInventoryPublish } from '../hooks/useAdjustInventoryPublish';
 import { useAdjustInventoryRun } from '../hooks/useAdjustInventoryRun';
 import { ADJ_INV_STATUSES, IAdjustInventory } from '../types/AdjustInventory';
 import { adjustDetailTableColumns } from './AdjustInventoryDetailColumns';
+
+const toValidDate = (value?: Date | string | null) => {
+  if (!value) {
+    return undefined;
+  }
+
+  const date = value instanceof Date ? value : new Date(value);
+  return isValid(date) ? date : undefined;
+};
 
 export const AdjustInventoryDetail = () => {
   const { t } = useTranslation('accounting');
@@ -82,6 +92,8 @@ export const AdjustInventoryDetail = () => {
   const handleDelete = () => {
     removeAdjust();
   };
+
+  const checkedAt = toValidDate(adjustInventory?.checkedAt);
 
   const renderEvents = () => {
     const status = adjustInventory?.status || ADJ_INV_STATUSES.DRAFT;
@@ -155,10 +167,12 @@ export const AdjustInventoryDetail = () => {
             </span>
           </div>
           {adjustInventory?.error && (
-            <span className="text-sm">{`${format(
-              adjustInventory?.checkedAt ?? '',
-              'yyyy-MM-dd hh:mm:ss',
-            )}: ${adjustInventory.error}`}</span>
+            <span className="text-sm">
+              {checkedAt
+                ? `${format(checkedAt, 'yyyy-MM-dd HH:mm:ss')}: `
+                : ''}
+              {adjustInventory.error}
+            </span>
           )}
           {renderEvents()}
         </div>
@@ -197,12 +211,16 @@ const StatusBar = ({
   adjustInventory: IAdjustInventory;
 }) => {
   const { beginDate, date, successDate, status } = adjustInventory;
-  const start = beginDate ?? date;
-  const end = date;
-  const current = successDate ?? start;
-  const days = eachDayOfInterval({ start, end });
+  const end = toValidDate(date);
+  const start = toValidDate(beginDate) ?? end;
+  const current = toValidDate(successDate) ?? start;
+  const days = start && end ? eachDayOfInterval({ start, end }) : [];
 
   const renderIcon = (day: Date) => {
+    if (!current) {
+      return undefined;
+    }
+
     if (isSameDay(day, current)) {
       if (status === ADJ_INV_STATUSES.RUNNING) {
         return <IconRotateClockwise2 className="w-5 h-5 text-yellow-500" />;
@@ -226,7 +244,7 @@ const StatusBar = ({
       <div className="flex items-center gap-2 text-sm">
         <span className="text-primary font-bold">
           <DatePicker
-            value={adjustInventory?.beginDate}
+            value={start}
             onChange={() => null}
             className="h-8 flex w-full"
             disabled={true}
@@ -248,7 +266,7 @@ const StatusBar = ({
         <span className="text-accent-foreground">{'->'}</span>
         <span className="text-primary font-bold">
           <DatePicker
-            value={adjustInventory?.date}
+            value={end}
             onChange={() => null}
             className="h-8 flex w-full"
             disabled={true}

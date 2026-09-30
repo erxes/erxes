@@ -2,19 +2,25 @@ import { Queue } from 'bullmq';
 import { createMQWorkerWithListeners } from 'erxes-api-shared/utils';
 import { mainScheduler, runner } from '~/worker/hourlyRunner';
 
-export const initMQWorkers = async (redis: any) => {
-  const myQueue = new Queue('posclient-sync-remainder', {
+type TRedisConnection = Parameters<typeof createMQWorkerWithListeners>[3];
+
+export const initMQWorkers = async (redis: TRedisConnection) => {
+  const schedulerQueue = new Queue('posclient-hourly-sync-remainder', {
     connection: redis,
+    defaultJobOptions: {
+      removeOnComplete: true,
+      removeOnFail: true,
+    },
   });
 
-  await myQueue.upsertJobScheduler(
+  await schedulerQueue.upsertJobScheduler(
     'posclient-hourly-sync-remainder',
     {
       pattern: '0 * * * *',
       tz: 'UTC',
     },
     {
-      name: 'posclient-sync-remainder',
+      name: 'posclient-hourly-sync-remainder',
     },
   );
 

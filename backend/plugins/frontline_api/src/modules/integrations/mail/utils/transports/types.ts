@@ -24,6 +24,7 @@ export interface ISendMailInput {
   inReplyTo?: string;
   references?: string[];
   attachments?: ISendMailAttachment[];
+  automated?: boolean;
 }
 
 export interface ISendMailResult {

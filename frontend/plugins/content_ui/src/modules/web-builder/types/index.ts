@@ -25,3 +25,24 @@ export interface IWebInput {
   templateId?: string;
   clientPortalId?: string;
 }
+
+export interface IWebCustomDomainRecord {
+  type: string;
+  name: string;
+  value: string;
+  status: string;
+}
+
+export interface IWebCustomDomain {
+  name: string;
+  verified: boolean;
+  misconfigured: boolean;
+  isActive: boolean;
+  records: IWebCustomDomainRecord[];
+}
+
+export interface IWebCustomDomains {
+  isDeployed: boolean;
+  defaultDomain?: string | null;
+  domains: IWebCustomDomain[];
+}

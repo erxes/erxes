@@ -167,6 +167,7 @@ import {
 import { IMailIntegrationDocument } from '@/integrations/mail/@types/integration';
 import { IMailCustomerDocument } from '@/integrations/mail/@types/customer';
 import { IMailMessageDocument } from '@/integrations/mail/@types/message';
+import { IMailDraftDocument } from '@/integrations/mail/@types/draft';
 import { IMailCloudflareDocument } from '@/integrations/mail/@types/cloudflare';
 import {
   IMailIntegrationModel,
@@ -180,6 +181,10 @@ import {
   IMailMessageModel,
   loadMailMessageClass,
 } from '@/integrations/mail/db/models/Messages';
+import {
+  IMailDraftModel,
+  loadMailDraftClass,
+} from '@/integrations/mail/db/models/Drafts';
 import {
   IMailCloudflareModel,
   loadMailCloudflareClass,
@@ -392,6 +397,7 @@ export interface IModels {
   MailIntegrations: IMailIntegrationModel;
   MailCustomers: IMailCustomerModel;
   MailMessages: IMailMessageModel;
+  MailDrafts: IMailDraftModel;
   MailCloudflare: IMailCloudflareModel;
 
   // ticket
@@ -694,6 +700,10 @@ export const loadClasses = (
   models.MailMessages = db.model<IMailMessageDocument, IMailMessageModel>(
     'mail_messages',
     loadMailMessageClass(models),
+  );
+  models.MailDrafts = db.model<IMailDraftDocument, IMailDraftModel>(
+    'mail_drafts',
+    loadMailDraftClass(models),
   );
   models.MailCloudflare = db.model<
     IMailCloudflareDocument,

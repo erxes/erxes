@@ -12,9 +12,11 @@ export const safeRemainderItemSchema = schemaWrapper(
 
     status: { type: String, label: 'Status', enum: ['new', 'checked'] },
     uom: { type: String, label: 'UOM' },
+    createdAt: { type: Date, default: Date.now, label: 'Created date' },
+    createdBy: { type: String, label: 'Created User' },
     modifiedAt: {
       type: Date,
-      default: new Date(),
+      default: Date.now,
       label: 'Modified date',
     },
     modifiedBy: { type: String, label: 'Modified User' },

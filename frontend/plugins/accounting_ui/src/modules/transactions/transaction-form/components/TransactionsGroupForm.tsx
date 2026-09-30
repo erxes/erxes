@@ -252,7 +252,7 @@ export const TransactionsGroupForm = () => {
     if (parentId && activeTrs && !activeTrs.length) {
       form.reset({
         date: new Date(),
-        status: TR_STATUSES.DRAFT,
+        status: TR_STATUSES.COMPLETE,
         mentionOwnerId: currentUser._id,
         mentionUserIds: [],
         trDocs: [],
@@ -274,7 +274,7 @@ export const TransactionsGroupForm = () => {
         contentType: currentTr?.contentType,
         contentId: currentTr?.contentId,
         date: new Date(currentTr?.date || new Date()),
-        status: currentTr?.status || TR_STATUSES.DRAFT,
+        status: currentTr?.status || TR_STATUSES.COMPLETE,
         mentionOwnerId: currentTr?.mentionOwnerId || currentUser._id,
         mentionUserIds: currentTr?.mentionUserIds ?? [],
         trDocs: activeTrs.map((atr) =>
@@ -286,7 +286,7 @@ export const TransactionsGroupForm = () => {
       form.reset({
         ...form.getValues(),
         date: new Date(),
-        status: TR_STATUSES.DRAFT,
+        status: TR_STATUSES.COMPLETE,
         mentionOwnerId: currentUser._id,
         trDocs: [JOURNALS_BY_JOURNAL(defaultJournal)],
       });

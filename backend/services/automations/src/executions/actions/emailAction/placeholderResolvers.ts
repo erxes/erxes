@@ -1,4 +1,5 @@
 import {
+  blocksToHtml,
   collectPlaceholderPaths,
   documentPlaceholderResolver,
   IAutomationExecutionDocument,
@@ -42,6 +43,34 @@ export const documentResolver = (
   });
 
 /**
+ * Rich text fields (a deal's description, say) are stored as block editor
+ * JSON. Dropped into an email as-is they read as raw JSON, so they are
+ * rendered the way the block editor would show them.
+ */
+const blocksValueToHtml = (value: string) => {
+  const trimmed = value.trim();
+
+  if (!trimmed.startsWith('[')) {
+    return value;
+  }
+
+  try {
+    const parsed = JSON.parse(trimmed);
+    const isBlocks =
+      Array.isArray(parsed) &&
+      parsed.length > 0 &&
+      parsed.every(
+        (block) =>
+          block && typeof block === 'object' && typeof block.type === 'string',
+      );
+
+    return isBlocks ? blocksToHtml(parsed) : value;
+  } catch {
+    return value;
+  }
+};
+
+/**
  * The execution's outputs as a resolver. Outputs resolve in one batch, so
  * every path the texts mention is looked up up front; a path this misses is
  * simply left for the next resolver.
@@ -80,6 +109,10 @@ export const outputResolver = async ({
       return undefined;
     }
 
-    return value === null || value === '' ? null : String(value);
+    if (value === null || value === '') {
+      return null;
+    }
+
+    return blocksValueToHtml(String(value)) || null;
   };
 };
